@@ -1,4 +1,4 @@
-package info.mralex.onlinego.model;
+package io.zenandroid.onlinego.model;
 
 /**
  * Created by alex on 1/9/2015.

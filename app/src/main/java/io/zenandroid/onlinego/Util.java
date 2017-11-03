@@ -1,4 +1,4 @@
-package info.mralex.onlinego;
+package io.zenandroid.onlinego;
 
 import android.graphics.Point;
 

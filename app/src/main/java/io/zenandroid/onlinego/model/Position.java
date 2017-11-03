@@ -1,14 +1,13 @@
-package info.mralex.onlinego.model;
+package io.zenandroid.onlinego.model;
 
 import android.graphics.Point;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import info.mralex.onlinego.Util;
+import io.zenandroid.onlinego.Util;
 
 /**
  * A class that models a GO position. It is basically a collection of stones

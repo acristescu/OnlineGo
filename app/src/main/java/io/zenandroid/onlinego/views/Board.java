@@ -1,4 +1,4 @@
-package info.mralex.onlinego.views;
+package io.zenandroid.onlinego.views;
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -9,8 +9,8 @@ import android.graphics.PointF;
 import android.util.AttributeSet;
 import android.view.View;
 
-import info.mralex.onlinego.model.Position;
-import info.mralex.onlinego.model.StoneType;
+import io.zenandroid.onlinego.model.Position;
+import io.zenandroid.onlinego.model.StoneType;
 
 /**
  * Created by alex on 1/8/2015.

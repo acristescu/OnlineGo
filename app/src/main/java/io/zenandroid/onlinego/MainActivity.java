@@ -1,18 +1,21 @@
-package info.mralex.onlinego;
+package io.zenandroid.onlinego;
 
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
+import android.os.Handler;
+import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
-import info.mralex.onlinego.model.Position;
-import info.mralex.onlinego.model.StoneType;
-import info.mralex.onlinego.views.Board;
+import io.zenandroid.onlinego.login.LoginActivity;
+import io.zenandroid.onlinego.model.Position;
+import io.zenandroid.onlinego.model.StoneType;
+import io.zenandroid.onlinego.ogs.OGSService;
+import io.zenandroid.onlinego.views.Board;
 
 
-public class MainActivity extends FragmentActivity {
+public class MainActivity extends AppCompatActivity {
 
     //
     // This is a hardcoded GO game in SGF format: each letter is a coordinate - e.g. a=1, b=2
@@ -31,8 +34,19 @@ public class MainActivity extends FragmentActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if(!OGSService.instance.isLoggedIn()) {
+            new Handler().post(() -> startActivity(LoginActivity.Companion.getIntent(this)));
+        } else {
+            OGSService.instance.registerSeekgraph().subscribe(o -> System.out.println("Got " + o));
+            new Handler().postDelayed(OGSService.instance::disconnect, 15000);
+        }
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
