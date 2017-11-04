@@ -8,6 +8,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.zenandroid.onlinego.login.LoginActivity;
 import io.zenandroid.onlinego.model.Position;
 import io.zenandroid.onlinego.model.StoneType;
@@ -21,9 +22,6 @@ public class MainActivity extends AppCompatActivity {
     // This is a hardcoded GO game in SGF format: each letter is a coordinate - e.g. a=1, b=2
     // and each pair of letters represents a stone. The color of the stones is given by the order
     // (black always goes first). A "pass" move is represented by "..".
-    // This is the kind of information the webservice would provide (https://online-go.com)
-    // but this part is not implemented yet. You can still study my utility methods for
-    // interacting with said webservice: BaseAsyncTask and WebServiceRequest
     //
 //    String moveSequence = "qdppocdpdddfgccecdqnjpjnfqdqnqpqnogopjomjdmmdjehcncodnbneneognfnfmfohnhoioinhpemeldmcmdldkclblgmckhmgpgkkojoipknkplolpmompnnnpoomjokojrkrjljchnjninklimkmikkkjlkjjfeedkikhjiiijhjgihkghiigijhhjkggghhgfhdhfggedicieidgeffdnrmrormsfpgreqerdresdsfsqgpgphpiqiohogqhqjriqkofrhphngrgqfshpfperfqeoenfmfneodmgseresgrhpklebmalbosdbgbebfaeafbhbdbcadacahaiajbiambkgfhfffhecgbjekfkejglhlflfjdedodlsjsisksfcbccnsndoqdboplqlrmqkrjrhshrisirjsgsegkq";
     String moveSequence = "dpqdqpdcejcjckdjdkeifjfigibkblbjghgkgjekclelfkflglhkhlenikalamakbnepdqcmbmdmcoeqerfresfsdrgqipiqjqhqjrcnbpdogodlgngphofofmfngmiremdnishsjshpjocqbqcrbraoapcsbsegooiihjjhkjinjnlhmijijjmghfpopnqoppqnpmqmroqkqlrlplrnsnrmsprqrpqqpqopnpoqornqmqpksmrknkonnoolnmomnnslsoogpdqcodpemeocndncpcpbmcldlemdkdlcmblbobmanbneqbqenajcjekcecfcedebfdgcgdjdkeieifhchdidcedddeeeeffeffjfjgkfnfoemflfngnhkglgkhkiigliljninjojdgdhcgchbhbiagaicccdbddbbcbbcbcaabbaacfbrbrcscsdsbdafhehfglaihaaaemhmjnlmlokijahbgbfcfhihhhegepsqrprnrsqqs..oipioh";
@@ -40,16 +38,15 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        if(!OGSService.instance.isLoggedIn()) {
-            new Handler().post(() -> startActivity(LoginActivity.Companion.getIntent(this)));
-        } else {
-//            OGSService.instance.registerSeekgraph().subscribe(o -> System.out.println("Got " + o));
-            OGSService.instance.initSocket();
-            OGSService.instance.fetchGameList().subscribe(
-                    gameList -> System.out.println(gameList)
-            );
-            new Handler().postDelayed(OGSService.instance::disconnect, 15000);
-        }
+        OGSService.instance.loginWithToken().observeOn(AndroidSchedulers.mainThread()).subscribe(
+                () -> {
+                    OGSService.instance.fetchGameList().subscribe(
+                            gameList -> System.out.println(gameList)
+                    );
+                    new Handler().postDelayed(OGSService.instance::disconnect, 15000);
+                },
+                throwable -> startActivity(LoginActivity.Companion.getIntent(this))
+        );
     }
 
     @Override

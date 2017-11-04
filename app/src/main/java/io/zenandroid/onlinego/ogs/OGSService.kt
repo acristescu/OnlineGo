@@ -41,37 +41,77 @@ class OGSService {
     private var token: LoginToken? = null
     private var uiConfig: UIConfig? = null
     private var socket: Socket? = null
-
-    private lateinit var api: OGSRestAPI
-
-    fun isLoggedIn(): Boolean {
-        return token != null
-    }
+    private var tokenExpiry: Date? = null
+    private var api: OGSRestAPI
 
     fun login(username: String, password: String): Completable {
         return api.login(username, password)
-                .flatMap ({ token ->
-                    println(token)
-                    OnlineGoApplication.instance
-                            .getSharedPreferences("login", Context.MODE_PRIVATE)
-                            .edit()
-                            .putString("TOKEN_KEY", Moshi.Builder().build().adapter(LoginToken::class.java).toJson(token))
-                            .apply()
-                    this.token = token
-                    api.uiConfig()
-                }).flatMapCompletable ({ uiConfig ->
-                    this.uiConfig = uiConfig
-                    OnlineGoApplication.instance
-                            .getSharedPreferences("login", Context.MODE_PRIVATE)
-                            .edit()
-                            .putString("UICONFIG_KEY", Moshi.Builder().build().adapter(UIConfig::class.java).toJson(uiConfig))
-                            .apply()
-                    initSocket()
-                    Completable.complete()
-                })
+                .doOnSuccess(this::storeToken)
+                .flatMap { api.uiConfig() }
+                .doOnSuccess(this::storeUIConfig)
+                .doOnSuccess({ ensureSocketConnected() })
+                .toCompletable()
     }
 
-    fun initSocket() {
+    fun loginWithToken(): Completable {
+        if(token == null || token?.access_token == null || token?.refresh_token == null) {
+            //
+            // No token, we need to log in with password
+            //
+            return Completable.error(Throwable())
+        }
+
+        val tokenSource: Single<LoginToken>
+
+        if(tokenExpiry == null || tokenExpiry!!.before(Date())) {
+            //
+            // We do have a token but it's expired, we need to refresh everything
+            //
+            tokenSource = api.refreshToken(token!!.refresh_token).doOnSuccess(this::storeToken)
+            uiConfig = null
+        } else {
+            //
+            // Just use the token we have
+            //
+            tokenSource = Single.just(token)
+        }
+
+        val uiConfigSource: Single<UIConfig>
+        if(uiConfig == null) {
+            uiConfigSource = tokenSource.flatMap { api.uiConfig() }.doOnSuccess(this::storeUIConfig)
+        } else {
+            uiConfigSource = tokenSource.flatMap { Single.just(uiConfig!!)}
+        }
+
+       return uiConfigSource
+               .doOnSuccess({ ensureSocketConnected() })
+               .toCompletable()
+    }
+
+    private fun storeToken(token: LoginToken) {
+        this.token = token
+        this.tokenExpiry = Date(Date().time + token.expires_in * 1000)
+        OnlineGoApplication.instance
+                .getSharedPreferences("login", Context.MODE_PRIVATE)
+                .edit()
+                .putString("TOKEN_KEY", Moshi.Builder().build().adapter(LoginToken::class.java).toJson(token))
+                .putLong("TOKEN_EXPIRY", tokenExpiry!!.time)
+                .apply()
+    }
+
+    private fun storeUIConfig(uiConfig: UIConfig) {
+        this.uiConfig = uiConfig
+        OnlineGoApplication.instance
+                .getSharedPreferences("login", Context.MODE_PRIVATE)
+                .edit()
+                .putString("UICONFIG_KEY", Moshi.Builder().build().adapter(UIConfig::class.java).toJson(uiConfig))
+                .apply()
+    }
+
+    fun ensureSocketConnected() {
+        if(socket != null) {
+            return
+        }
         val options = IO.Options()
         options.transports = arrayOf("websocket")
         socket = IO.socket("https://online-go.com", options)
@@ -113,16 +153,31 @@ class OGSService {
 
         //                    socket.emit("gamelist/count/subscribe")
 
-
-
 //                    obj = JSONObject()
 //                    obj.put("chat", 0)
 //                    obj.put("game_id", 10493024)
 //                    obj.put("player_id", 89194)
 //                    socket.emit("game/connect", obj)
+    }
 
+    private fun observeEvent(event: String): Flowable<Any> {
+        return Flowable.create({ emitter ->
+            socket!!.on(event, {
+                params -> emitter.onNext(params[0])
+            })
+        }
+        , BackpressureStrategy.BUFFER)
+    }
 
+    fun registerSeekgraph(): Flowable<Any> {
+        return observeEvent("seekgraph/global").doOnSubscribe({
+            socket!!.emit("seek_graph/connect", createJsonObject {
+                put("channel", "global")
+            })
+        })
+    }
 
+    fun startGameSearch() {
         val uuid = UUID.randomUUID().toString()
         val json = createJsonObject {
             put("uuid", uuid)
@@ -157,25 +212,7 @@ class OGSService {
                 put("value", "enabled")
             })
         }
-//                    socket!!.emit("automatch/find_match", json)
-
-    }
-
-    private fun observeEvent(event: String): Flowable<Any> {
-        return Flowable.create({ emitter ->
-            socket!!.on(event, {
-                params -> emitter.onNext(params[0])
-            })
-        }
-        , BackpressureStrategy.BUFFER)
-    }
-
-    fun registerSeekgraph(): Flowable<Any> {
-        return observeEvent("seekgraph/global").doOnSubscribe({
-            socket!!.emit("seek_graph/connect", createJsonObject {
-                put("channel", "global")
-            })
-        })
+        socket!!.emit("automatch/find_match", json)
     }
 
     fun fetchGameList(): Single<GameList> {
@@ -231,6 +268,11 @@ class OGSService {
                 .getString("TOKEN_KEY", null)
         if(tokenString != null) {
             token = moshi.adapter(LoginToken::class.java).fromJson(tokenString)
+            tokenExpiry = Date(
+                    OnlineGoApplication.instance
+                            .getSharedPreferences("login", Context.MODE_PRIVATE)
+                            .getLong("TOKEN_EXPIRY", 0)
+            )
         }
     }
 
