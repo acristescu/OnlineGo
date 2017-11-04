@@ -1,16 +1,21 @@
 package io.zenandroid.onlinego.ogs
 
+import android.content.Context
 import com.squareup.moshi.Moshi
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Completable
 import io.reactivex.Flowable
+import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
+import io.socket.client.Ack
 import io.socket.client.IO
 import io.socket.client.Socket
 import io.socket.parser.IOParser
 import io.zenandroid.onlinego.AndroidLoggingHandler
+import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.login.createJsonArray
 import io.zenandroid.onlinego.login.createJsonObject
+import io.zenandroid.onlinego.model.ogs.GameList
 import io.zenandroid.onlinego.model.ogs.LoginToken
 import io.zenandroid.onlinego.model.ogs.UIConfig
 import okhttp3.OkHttpClient
@@ -47,16 +52,26 @@ class OGSService {
         return api.login(username, password)
                 .flatMap ({ token ->
                     println(token)
+                    OnlineGoApplication.instance
+                            .getSharedPreferences("login", Context.MODE_PRIVATE)
+                            .edit()
+                            .putString("TOKEN_KEY", Moshi.Builder().build().adapter(LoginToken::class.java).toJson(token))
+                            .apply()
                     this.token = token
                     api.uiConfig()
                 }).flatMapCompletable ({ uiConfig ->
                     this.uiConfig = uiConfig
+                    OnlineGoApplication.instance
+                            .getSharedPreferences("login", Context.MODE_PRIVATE)
+                            .edit()
+                            .putString("UICONFIG_KEY", Moshi.Builder().build().adapter(UIConfig::class.java).toJson(uiConfig))
+                            .apply()
                     initSocket()
                     Completable.complete()
                 })
     }
 
-    private fun initSocket() {
+    fun initSocket() {
         val options = IO.Options()
         options.transports = arrayOf("websocket")
         socket = IO.socket("https://online-go.com", options)
@@ -98,12 +113,7 @@ class OGSService {
 
         //                    socket.emit("gamelist/count/subscribe")
 
-        socket!!.emit("gamelist/query", createJsonObject {
-            put("list", "live")
-            put("sort_by", "rank")
-            put("from", 0)
-            put("limit", 9)
-        })
+
 
 //                    obj = JSONObject()
 //                    obj.put("chat", 0)
@@ -166,6 +176,19 @@ class OGSService {
                 put("channel", "global")
             })
         })
+    }
+
+    fun fetchGameList(): Single<GameList> {
+        return Single.create({emitter ->
+            socket!!.emit("gamelist/query", createJsonObject {
+                put("list", "live")
+                put("sort_by", "rank")
+                put("from", 0)
+                put("limit", 9)
+            }, Ack {
+                args -> emitter.onSuccess(Moshi.Builder().build().adapter(GameList::class.java).fromJson(args[0].toString()))
+            })
+        })
 
     }
 
@@ -187,7 +210,7 @@ class OGSService {
                     response
                 }
                 .build()
-        val m = Moshi.Builder()
+        val moshi = Moshi.Builder()
                 .build()
         api = Retrofit.Builder()
                 .baseUrl("https://online-go.com/")
@@ -196,6 +219,19 @@ class OGSService {
                 .addConverterFactory(MoshiConverterFactory.create())
                 .build()
                 .create(OGSRestAPI::class.java)
+
+        val uiConfigString = OnlineGoApplication.instance
+                .getSharedPreferences("login", Context.MODE_PRIVATE)
+                .getString("UICONFIG_KEY", null)
+        if(uiConfigString != null) {
+            uiConfig = moshi.adapter(UIConfig::class.java).fromJson(uiConfigString)
+        }
+        val tokenString = OnlineGoApplication.instance
+                .getSharedPreferences("login", Context.MODE_PRIVATE)
+                .getString("TOKEN_KEY", null)
+        if(tokenString != null) {
+            token = moshi.adapter(LoginToken::class.java).fromJson(tokenString)
+        }
     }
 
 

@@ -43,7 +43,11 @@ public class MainActivity extends AppCompatActivity {
         if(!OGSService.instance.isLoggedIn()) {
             new Handler().post(() -> startActivity(LoginActivity.Companion.getIntent(this)));
         } else {
-            OGSService.instance.registerSeekgraph().subscribe(o -> System.out.println("Got " + o));
+//            OGSService.instance.registerSeekgraph().subscribe(o -> System.out.println("Got " + o));
+            OGSService.instance.initSocket();
+            OGSService.instance.fetchGameList().subscribe(
+                    gameList -> System.out.println(gameList)
+            );
             new Handler().postDelayed(OGSService.instance::disconnect, 15000);
         }
     }
