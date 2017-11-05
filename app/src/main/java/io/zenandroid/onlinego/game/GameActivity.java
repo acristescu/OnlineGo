@@ -1,23 +1,21 @@
-package io.zenandroid.onlinego;
+package io.zenandroid.onlinego.game;
 
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.zenandroid.onlinego.login.LoginActivity;
+import io.zenandroid.onlinego.R;
+import io.zenandroid.onlinego.Util;
 import io.zenandroid.onlinego.model.Position;
 import io.zenandroid.onlinego.model.StoneType;
-import io.zenandroid.onlinego.ogs.OGSService;
 import io.zenandroid.onlinego.views.Board;
 
+/**
+ * Created by alex on 05/11/2017.
+ */
 
-public class MainActivity extends AppCompatActivity {
-
+public class GameActivity extends AppCompatActivity {
     //
     // This is a hardcoded GO game in SGF format: each letter is a coordinate - e.g. a=1, b=2
     // and each pair of letters represents a stone. The color of the stones is given by the order
@@ -31,44 +29,13 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_game);
 
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        OGSService.instance.loginWithToken().observeOn(AndroidSchedulers.mainThread()).subscribe(
-                () -> {
-                    OGSService.instance.fetchGameList().subscribe(
-                            gameList -> System.out.println(gameList)
-                    );
-                    new Handler().postDelayed(OGSService.instance::disconnect, 15000);
-                },
-                throwable -> startActivity(LoginActivity.Companion.getIntent(this))
-        );
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
     }
 
     public void nextButtonClicked(View view) {

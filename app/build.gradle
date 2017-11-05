@@ -1,5 +1,6 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-kapt'
 
 android {
     compileSdkVersion 26
@@ -38,6 +39,8 @@ dependencies {
     compile 'io.reactivex.rxjava2:rxjava:2.1.6'
 
     compile 'com.android.support:design:26.1.0'
+    compile 'com.android.support.constraint:constraint-layout:1.0.2'
+    compile 'com.android.support:cardview-v7:26.1.0'
 
     compile ('io.socket:socket.io-client:1.0.0') {
         // excluding org.json which is provided by Android

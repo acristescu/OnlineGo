@@ -1,6 +1,19 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools" tools:context=".MainActivity">
-    <item android:id="@+id/action_settings" android:title="@string/action_settings"
-        android:orderInCategory="100" app:showAsAction="never" />
+    <item
+        android:id="@+id/navigation_my_games"
+        android:title="My Games"
+        android:icon="@drawable/ic_go_board"
+        />
+    <item
+        android:id="@+id/navigation_spectate"
+        android:title="Spectate"
+        android:icon="@drawable/ic_eye_black_24dp"
+        />
+    <item
+        android:id="@+id/navigation_challenges"
+        android:title="Challenges"
+        android:icon="@drawable/ic_challenge"
+        />
+
 </menu>

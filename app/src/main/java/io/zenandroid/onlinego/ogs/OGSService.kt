@@ -13,12 +13,11 @@ import io.socket.client.Socket
 import io.socket.parser.IOParser
 import io.zenandroid.onlinego.AndroidLoggingHandler
 import io.zenandroid.onlinego.OnlineGoApplication
-import io.zenandroid.onlinego.login.createJsonArray
-import io.zenandroid.onlinego.login.createJsonObject
 import io.zenandroid.onlinego.model.ogs.GameList
 import io.zenandroid.onlinego.model.ogs.LoginToken
 import io.zenandroid.onlinego.model.ogs.UIConfig
 import okhttp3.OkHttpClient
+import org.json.JSONArray
 import org.json.JSONObject
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
@@ -276,5 +275,15 @@ class OGSService {
         }
     }
 
+    fun createJsonObject(func: JSONObject.() -> Unit): JSONObject {
+        val obj = JSONObject()
+        func(obj)
+        return obj
+    }
 
+    fun createJsonArray(func: JSONArray.() -> Unit): JSONArray {
+        val obj = JSONArray()
+        func(obj)
+        return obj
+    }
 }

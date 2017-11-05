@@ -14,9 +14,7 @@ import butterknife.OnTextChanged
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.ogs.OGSService
-import org.json.JSONArray
-import org.json.JSONObject
-
+import kotlin.system.exitProcess
 
 
 /**
@@ -39,6 +37,8 @@ class LoginActivity : AppCompatActivity() {
 
         setContentView(R.layout.activity_login)
         ButterKnife.bind(this)
+
+        supportActionBar?.hide()
     }
 
     @OnClick(R.id.btn_login)
@@ -59,16 +59,9 @@ class LoginActivity : AppCompatActivity() {
     fun onTextChanged() {
         button.isEnabled = username.text.isNotEmpty() && password.text.isNotEmpty()
     }
-}
 
-fun createJsonObject(func: JSONObject.() -> Unit): JSONObject {
-    val obj = JSONObject()
-    func(obj)
-    return obj
-}
-
-fun createJsonArray(func: JSONArray.() -> Unit): JSONArray {
-    val obj = JSONArray()
-    func(obj)
-    return obj
+    override fun onBackPressed() {
+        super.onBackPressed()
+        exitProcess(0)
+    }
 }
