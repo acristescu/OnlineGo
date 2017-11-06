@@ -17,7 +17,7 @@ import io.zenandroid.onlinego.model.StoneType;
  * This is a view that is capable of displaying a GO board and a GO game position
  * that is passed to it via setPosition()
  */
-public class Board extends View {
+public class BoardView extends View {
     //
     // The logical size (in GO nodes) of the board.
     // Supported sizes: 9, 13 and 19
@@ -30,6 +30,8 @@ public class Board extends View {
     private float border = 0;
 
     private Paint linesPaint = new Paint();
+    private Paint decorationsPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private Paint stonesPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 
     //
     // Size (in px) of the cell
@@ -37,17 +39,17 @@ public class Board extends View {
     private int cellSize;
     private Position position;
 
-    public Board(Context context) {
+    public BoardView(Context context) {
         super(context);
         init(context);
     }
 
-    public Board(Context context, AttributeSet attrs) {
+    public BoardView(Context context, AttributeSet attrs) {
         super(context, attrs);
         init(context);
     }
 
-    public Board(Context context, AttributeSet attrs, int defStyleAttr) {
+    public BoardView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init(context);
     }
@@ -56,6 +58,12 @@ public class Board extends View {
         linesPaint = new Paint();
         linesPaint.setColor(0xFF000000);
         linesPaint.setAntiAlias(true);
+
+//        backgroundPaint.setColor(0xFFDEB066);
+        decorationsPaint.setStyle(Paint.Style.STROKE);
+        decorationsPaint.setStrokeWidth(3);
+
+
     }
 
     @Override
@@ -174,23 +182,22 @@ public class Board extends View {
         if(position == null) {
             return;
         }
-        Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
         for(Point p : position.getAllStonesCoordinates()) {
             StoneType type = position.getStoneAt(p.x, p.y);
 
-            paint.setColor(type == StoneType.WHITE? Color.WHITE: Color.BLACK);
-            paint.setStyle(Paint.Style.FILL);
+            stonesPaint.setColor(type == StoneType.WHITE? Color.WHITE: Color.BLACK);
+            stonesPaint.setStyle(Paint.Style.FILL);
 
             PointF center = getCellCenter(p.x, p.y);
-            canvas.drawCircle(center.x, center.y, cellSize / 2f - 1, paint);
+            canvas.drawCircle(center.x, center.y, cellSize / 2f - 1, stonesPaint);
 
             //
             // For white stones, we also draw a black outline
             //
             if(type == StoneType.WHITE) {
-                paint.setColor(Color.BLACK);
-                paint.setStyle(Paint.Style.STROKE);
-                canvas.drawCircle(center.x, center.y, cellSize / 2f - 1, paint);
+                stonesPaint.setColor(Color.BLACK);
+                stonesPaint.setStyle(Paint.Style.STROKE);
+                canvas.drawCircle(center.x, center.y, cellSize / 2f - 1, stonesPaint);
             }
         }
     }
@@ -207,11 +214,8 @@ public class Board extends View {
             StoneType type = position.getStoneAt(lastMove.x, lastMove.y);
             PointF center = getCellCenter(lastMove.x, lastMove.y);
 
-            Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
-            paint.setColor(type == StoneType.WHITE? Color.BLACK: Color.WHITE);
-            paint.setStyle(Paint.Style.STROKE);
-            paint.setStrokeWidth(3);
-            canvas.drawCircle(center.x, center.y, cellSize / 4, paint);
+            decorationsPaint.setColor(type == StoneType.WHITE? Color.BLACK: Color.WHITE);
+            canvas.drawCircle(center.x, center.y, cellSize / 4, decorationsPaint);
         }
 
         //TODO: other decorations

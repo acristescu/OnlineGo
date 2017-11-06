@@ -159,7 +159,20 @@ class OGSService {
 //                    socket.emit("game/connect", obj)
     }
 
-    private fun observeEvent(event: String): Flowable<Any> {
+
+    fun connectToGame(id: Long): GameConnection {
+        val connection = GameConnection()
+        connection.gameData = observeEvent("game/$id/gamedata")
+                .map { string -> Moshi.Builder().build().adapter(GameData::class.java).fromJson(string.toString()) }
+        socket!!.emit("game/connect", createJsonObject {
+            put("chat", true)
+            put("game_id", id)
+            put("player_id", uiConfig!!.user.id)
+        })
+        return connection
+    }
+
+    fun observeEvent(event: String): Flowable<Any> {
         return Flowable.create({ emitter ->
             socket!!.on(event, {
                 params -> emitter.onNext(params[0])

@@ -9,7 +9,7 @@ import io.zenandroid.onlinego.R;
 import io.zenandroid.onlinego.Util;
 import io.zenandroid.onlinego.model.Position;
 import io.zenandroid.onlinego.model.StoneType;
-import io.zenandroid.onlinego.views.Board;
+import io.zenandroid.onlinego.views.BoardView;
 
 /**
  * Created by alex on 05/11/2017.
@@ -52,13 +52,13 @@ public class GameActivity extends AppCompatActivity {
         } else {
             pos.makeMove(currentPlayer, Util.getCoordinatesFromSGF(moveSequence, currentMove * 2));
         }
-        ((Board) findViewById(R.id.board)).setPosition(pos);
+        ((BoardView) findViewById(R.id.board)).setPosition(pos);
     }
 
     public void firstButtonClicked(View view) {
         currentMove = -1;
         pos = new Position(19);
-        ((Board) findViewById(R.id.board)).setPosition(pos);
+        ((BoardView) findViewById(R.id.board)).setPosition(pos);
     }
 
     public void prevButtonClicked(View view) {
@@ -77,7 +77,7 @@ public class GameActivity extends AppCompatActivity {
         if(moveSequence.charAt(currentMove * 2) == '.' && moveSequence.charAt(currentMove * 2+1) == '.') {
             Toast.makeText(getApplicationContext(), currentPlayer + " passes", Toast.LENGTH_SHORT).show();
         }
-        ((Board) findViewById(R.id.board)).setPosition(pos);
+        ((BoardView) findViewById(R.id.board)).setPosition(pos);
     }
 
     public void lastButtonClicked(View view) {
@@ -96,6 +96,6 @@ public class GameActivity extends AppCompatActivity {
         if(moveSequence.charAt(currentMove * 2) == '.' && moveSequence.charAt(currentMove * 2+1) == '.') {
             Toast.makeText(getApplicationContext(), currentPlayer + " passes", Toast.LENGTH_SHORT).show();
         }
-        ((Board) findViewById(R.id.board)).setPosition(pos);
+        ((BoardView) findViewById(R.id.board)).setPosition(pos);
     }
 }

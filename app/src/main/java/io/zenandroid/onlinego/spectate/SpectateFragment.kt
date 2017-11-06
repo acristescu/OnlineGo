@@ -1,5 +1,6 @@
 package io.zenandroid.onlinego.spectate
 
+import android.graphics.Point
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.widget.LinearLayoutManager
@@ -11,8 +12,12 @@ import butterknife.BindView
 import butterknife.ButterKnife
 import butterknife.Unbinder
 import io.zenandroid.onlinego.R
+import io.zenandroid.onlinego.model.Position
+import io.zenandroid.onlinego.model.StoneType
 import io.zenandroid.onlinego.model.ogs.GameList
+import io.zenandroid.onlinego.ogs.GameData
 import io.zenandroid.onlinego.ogs.OGSService
+import io.zenandroid.onlinego.views.BoardView
 
 /**
  * Created by alex on 05/11/2017.
@@ -58,22 +63,40 @@ class SpectateFragment : Fragment(), SpectateContract.View {
     }
 
     class GameAdapter(val gameList: GameList) : RecyclerView.Adapter<ViewHolder>() {
+        var gameData: GameData? = null
+
         override fun getItemCount(): Int {
             return if(gameList.results == null) 0 else gameList.results!!.size
         }
 
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-
+            if(gameData == null) return
+            val pos = Position(19)
+            var turn = StoneType.BLACK
+            for(move in gameData!!.moves!!) {
+                pos.makeMove(turn, Point(move[0].toInt(), move[1].toInt()))
+                turn = if(turn == StoneType.BLACK) StoneType.WHITE else StoneType.BLACK;
+            }
+            holder.boardView.position = pos
         }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
             val view = LayoutInflater.from(parent.context).inflate(R.layout.game_card, parent, false)
-            return ViewHolder(view)
+            return ViewHolder(view, view.findViewById(R.id.board))
+        }
+
+        fun setGameData(index: Int, gameData: GameData?) {
+            this.gameData = gameData
+            notifyItemChanged(index)
         }
     }
 
-    class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-
+    class ViewHolder(itemView: View, val boardView: BoardView) : RecyclerView.ViewHolder(itemView) {
 
     }
+
+    override fun setGameData(index: Int, gameData: GameData?) {
+        (gamesRecycler.adapter as GameAdapter).setGameData(index, gameData)
+    }
+
 }
