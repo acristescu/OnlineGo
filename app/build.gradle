@@ -50,6 +50,8 @@ dependencies {
         exclude group: 'org.json', module: 'json'
     }
 
+    compile 'br.com.simplepass:loading-button-android:1.8.3'
+
     compile 'com.jakewharton:butterknife:8.8.1'
     kapt 'com.jakewharton:butterknife-compiler:8.8.1'
 }

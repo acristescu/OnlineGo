@@ -93,8 +93,8 @@ class Clock {
     var title: String? = null
     var last_move: Long? = null
     var expiration: Long? = null
-    var black_time: Time? = null
-    var white_time: Time? = null
+    var black_time: Any? = null// can be number or Time object
+    var white_time: Any? = null// can be number or Time object
 
 }
 

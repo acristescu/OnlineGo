@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<transitionSet
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:transitionOrdering="sequential" >
+
+
+    <changeBounds
+        android:duration="500"
+        android:interpolator="@android:anim/accelerate_decelerate_interpolator">
+        <targets>
+            <target android:targetId="@id/logo" />
+        </targets>
+    </changeBounds>
+
+    <fade
+        android:duration="500"
+        android:fadingMode="fade_in"
+        >
+        <targets>
+            <target android:targetId="@id/input_password_layout" />
+            <target android:targetId="@id/input_username_layout" />
+            <target android:targetId="@id/btn_login" />
+        </targets>
+
+    </fade>
+
+</transitionSet>

@@ -7,9 +7,6 @@ import android.view.MenuItem
 import android.widget.Toast
 import butterknife.BindView
 import butterknife.ButterKnife
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.zenandroid.onlinego.login.LoginActivity
-import io.zenandroid.onlinego.ogs.OGSService
 import io.zenandroid.onlinego.spectate.SpectateFragment
 
 
@@ -26,20 +23,10 @@ class MainActivity : AppCompatActivity() {
         ButterKnife.bind(this)
 
         bottomNavigation.setOnNavigationItemSelectedListener { selectItem(it) }
+        bottomNavigation.selectedItemId = R.id.navigation_spectate
     }
 
-    override fun onResume() {
-        super.onResume()
-
-        OGSService.instance.loginWithToken().observeOn(AndroidSchedulers.mainThread()).subscribe(
-                {
-                    bottomNavigation.selectedItemId = R.id.navigation_spectate
-                },
-                { _ -> startActivity(LoginActivity.getIntent(this)) }
-        )
-    }
-
-    fun selectItem(item: MenuItem): Boolean {
+    private fun selectItem(item: MenuItem): Boolean {
         return when(item.itemId) {
             R.id.navigation_spectate -> {
                 supportFragmentManager.beginTransaction().replace(R.id.fragment_container, spectateFragment).commit()

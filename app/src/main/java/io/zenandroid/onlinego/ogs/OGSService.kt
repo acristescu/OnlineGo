@@ -1,6 +1,5 @@
 package io.zenandroid.onlinego.ogs
 
-import android.content.Context
 import com.squareup.moshi.Moshi
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Completable
@@ -12,10 +11,10 @@ import io.socket.client.IO
 import io.socket.client.Socket
 import io.socket.parser.IOParser
 import io.zenandroid.onlinego.AndroidLoggingHandler
-import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.model.ogs.GameList
 import io.zenandroid.onlinego.model.ogs.LoginToken
 import io.zenandroid.onlinego.model.ogs.UIConfig
+import io.zenandroid.onlinego.utils.PersistenceManager
 import okhttp3.OkHttpClient
 import org.json.JSONArray
 import org.json.JSONObject
@@ -40,8 +39,9 @@ class OGSService {
     private var token: LoginToken? = null
     private var uiConfig: UIConfig? = null
     private var socket: Socket? = null
-    private var tokenExpiry: Date? = null
-    private var api: OGSRestAPI
+    private var tokenExpiry: Date
+    private val api: OGSRestAPI
+    private val moshi = Moshi.Builder().build()
 
     fun login(username: String, password: String): Completable {
         return api.login(username, password)
@@ -62,7 +62,7 @@ class OGSService {
 
         val tokenSource: Single<LoginToken>
 
-        if(tokenExpiry == null || tokenExpiry!!.before(Date())) {
+        if(tokenExpiry.before(Date())) {
             //
             // We do have a token but it's expired, we need to refresh everything
             //
@@ -89,22 +89,15 @@ class OGSService {
 
     private fun storeToken(token: LoginToken) {
         this.token = token
-        this.tokenExpiry = Date(Date().time + token.expires_in * 1000)
-        OnlineGoApplication.instance
-                .getSharedPreferences("login", Context.MODE_PRIVATE)
-                .edit()
-                .putString("TOKEN_KEY", Moshi.Builder().build().adapter(LoginToken::class.java).toJson(token))
-                .putLong("TOKEN_EXPIRY", tokenExpiry!!.time)
-                .apply()
+        Date(Date().time + token.expires_in * 1000).let {
+            this.tokenExpiry = it
+            PersistenceManager.instance.storeToken(token, it)
+        }
     }
 
     private fun storeUIConfig(uiConfig: UIConfig) {
         this.uiConfig = uiConfig
-        OnlineGoApplication.instance
-                .getSharedPreferences("login", Context.MODE_PRIVATE)
-                .edit()
-                .putString("UICONFIG_KEY", Moshi.Builder().build().adapter(UIConfig::class.java).toJson(uiConfig))
-                .apply()
+        PersistenceManager.instance.storeUIConfig(uiConfig)
     }
 
     fun ensureSocketConnected() {
@@ -143,7 +136,7 @@ class OGSService {
 
         socket!!.connect()
 
-        var obj = JSONObject()
+        val obj = JSONObject()
         obj.put("player_id", uiConfig!!.user.id)
         obj.put("username", uiConfig!!.user.username)
         obj.put("auth", uiConfig!!.chat_auth)
@@ -162,10 +155,12 @@ class OGSService {
 
     fun connectToGame(id: Long): GameConnection {
         val connection = GameConnection(id)
+
         connection.gameData = observeEvent("game/$id/gamedata")
-                .map { string -> Moshi.Builder().build().adapter(GameData::class.java).fromJson(string.toString()) }
+                    .map { string -> moshi.adapter(GameData::class.java).fromJson(string.toString()) }
         connection.moves = observeEvent("game/$id/move")
-                .map { string -> Moshi.Builder().build().adapter(Move::class.java).fromJson(string.toString()) }
+                    .map { string -> moshi.adapter(Move::class.java).fromJson(string.toString()) }
+
         socket!!.emit("game/connect", createJsonObject {
             put("chat", true)
             put("game_id", id)
@@ -174,7 +169,7 @@ class OGSService {
         return connection
     }
 
-    fun observeEvent(event: String): Flowable<Any> {
+    private fun observeEvent(event: String): Flowable<Any> {
         return Flowable.create({ emitter ->
             socket!!.on(event, {
                 params -> emitter.onNext(params[0])
@@ -237,7 +232,7 @@ class OGSService {
                 put("from", 0)
                 put("limit", 9)
             }, Ack {
-                args -> emitter.onSuccess(Moshi.Builder().build().adapter(GameList::class.java).fromJson(args[0].toString()))
+                args -> emitter.onSuccess(moshi.adapter(GameList::class.java).fromJson(args[0].toString()))
             })
         })
 
@@ -261,8 +256,6 @@ class OGSService {
                     response
                 }
                 .build()
-        val moshi = Moshi.Builder()
-                .build()
         api = Retrofit.Builder()
                 .baseUrl("https://online-go.com/")
                 .client(httpClient)
@@ -271,32 +264,18 @@ class OGSService {
                 .build()
                 .create(OGSRestAPI::class.java)
 
-        val uiConfigString = OnlineGoApplication.instance
-                .getSharedPreferences("login", Context.MODE_PRIVATE)
-                .getString("UICONFIG_KEY", null)
-        if(uiConfigString != null) {
-            uiConfig = moshi.adapter(UIConfig::class.java).fromJson(uiConfigString)
-        }
-        val tokenString = OnlineGoApplication.instance
-                .getSharedPreferences("login", Context.MODE_PRIVATE)
-                .getString("TOKEN_KEY", null)
-        if(tokenString != null) {
-            token = moshi.adapter(LoginToken::class.java).fromJson(tokenString)
-            tokenExpiry = Date(
-                    OnlineGoApplication.instance
-                            .getSharedPreferences("login", Context.MODE_PRIVATE)
-                            .getLong("TOKEN_EXPIRY", 0)
-            )
-        }
+        uiConfig = PersistenceManager.instance.getUIConfig()
+        token = PersistenceManager.instance.getToken()
+        tokenExpiry = PersistenceManager.instance.getTokenExpiry()
     }
 
-    fun createJsonObject(func: JSONObject.() -> Unit): JSONObject {
+    private fun createJsonObject(func: JSONObject.() -> Unit): JSONObject {
         val obj = JSONObject()
         func(obj)
         return obj
     }
 
-    fun createJsonArray(func: JSONArray.() -> Unit): JSONArray {
+    private fun createJsonArray(func: JSONArray.() -> Unit): JSONArray {
         val obj = JSONArray()
         func(obj)
         return obj

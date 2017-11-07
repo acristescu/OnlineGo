@@ -9,4 +9,6 @@
     <color name="colorText">#212121</color>
     <color name="colorTextSecondary">#757575</color>
 
+    <color name="loginBackground">@color/colorPrimary</color>
+
 </resources>

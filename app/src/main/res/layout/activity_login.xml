@@ -1,20 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingTop="56dp"
+    android:background="@color/loginBackground"
+    android:id="@+id/container"
     android:paddingLeft="24dp"
     android:paddingRight="24dp"
-    android:background="@color/colorPrimary">
+    android:orientation="vertical"
+    >
 
     <android.support.v7.widget.AppCompatImageView
+        android:id="@+id/logo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:srcCompat="@drawable/online_go_prerender"
         android:layout_gravity="center_horizontal"
-        android:layout_marginBottom="56dp"
+        android:layout_marginBottom="48dp"
+        android:layout_marginTop="40dp"
+        android:layout_weight="1"
         />
     <android.support.design.widget.TextInputLayout
         android:layout_width="match_parent"
@@ -22,6 +26,8 @@
         android:layout_marginTop="8dp"
         android:layout_marginBottom="8dp"
         android:theme="@style/LoginLabel"
+        android:id="@+id/input_username_layout"
+        android:visibility="gone"
         >
         <android.support.design.widget.TextInputEditText
             android:id="@+id/input_username"
@@ -39,6 +45,8 @@
         android:layout_marginTop="8dp"
         android:layout_marginBottom="8dp"
         android:theme="@style/LoginLabel"
+        android:id="@+id/input_password_layout"
+        android:visibility="gone"
         >
         <android.support.design.widget.TextInputEditText
             android:id="@+id/input_password"
@@ -52,16 +60,21 @@
             />
     </android.support.design.widget.TextInputLayout>
 
-    <android.support.v7.widget.AppCompatButton
+    <br.com.simplepass.loading_button_lib.customViews.CircularProgressButton
         android:id="@+id/btn_login"
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
-        android:layout_marginBottom="24dp"
-        android:padding="12dp"
         android:text="Login"
-        android:theme="@style/BlueButton"
-        style="@style/Widget.AppCompat.Button.Colored"
+        android:textColor="@color/colorPrimary"
+        android:layout_gravity="center_horizontal"
+        android:background="@drawable/button_shape_default_rounded"
+        app:spinning_bar_color="@color/colorPrimary"
+        app:spinning_bar_width="4dp"
+        app:spinning_bar_padding="4dp"
+        app:initialCornerAngle="50dp"
+        app:finalCornerAngle="50dp"
         android:enabled="false"
-        />
+        android:visibility="gone"
+    />
 </LinearLayout>

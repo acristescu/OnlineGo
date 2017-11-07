@@ -146,6 +146,7 @@
     <orderEntry type="library" name="android.arch.lifecycle:runtime-1.0.0" level="project" />
     <orderEntry type="library" name="com.android.support:appcompat-v7-26.1.0" level="project" />
     <orderEntry type="library" name="com.squareup.okhttp3:okhttp:3.8.1@jar" level="project" />
+    <orderEntry type="library" name="br.com.simplepass:loading-button-android-1.8.3" level="project" />
     <orderEntry type="library" name="com.android.support:support-annotations:26.1.0@jar" level="project" />
     <orderEntry type="library" name="com.squareup.retrofit2:adapter-rxjava2:2.3.0@jar" level="project" />
     <orderEntry type="library" name="com.android.support.constraint:constraint-layout-solver:1.0.2@jar" level="project" />
