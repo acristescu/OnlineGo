@@ -161,9 +161,11 @@ class OGSService {
 
 
     fun connectToGame(id: Long): GameConnection {
-        val connection = GameConnection()
+        val connection = GameConnection(id)
         connection.gameData = observeEvent("game/$id/gamedata")
                 .map { string -> Moshi.Builder().build().adapter(GameData::class.java).fromJson(string.toString()) }
+        connection.moves = observeEvent("game/$id/move")
+                .map { string -> Moshi.Builder().build().adapter(Move::class.java).fromJson(string.toString()) }
         socket!!.emit("game/connect", createJsonObject {
             put("chat", true)
             put("game_id", id)
@@ -298,5 +300,11 @@ class OGSService {
         val obj = JSONArray()
         func(obj)
         return obj
+    }
+
+    fun disconnectFromGame(id: Long) {
+        socket!!.emit("game/disconnect", createJsonObject {
+            put("game_id", id)
+        })
     }
 }

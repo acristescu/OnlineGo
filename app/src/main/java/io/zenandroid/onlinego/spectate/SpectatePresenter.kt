@@ -11,7 +11,7 @@ import io.zenandroid.onlinego.ogs.OGSService
  */
 class SpectatePresenter(val view: SpectateContract.View, val service: OGSService) : SpectateContract.Presenter {
 
-    val subscriptions = CompositeDisposable()
+    private val subscriptions = CompositeDisposable()
 
     override fun subscribe() {
         subscriptions.add(
@@ -22,11 +22,19 @@ class SpectatePresenter(val view: SpectateContract.View, val service: OGSService
         )
     }
 
-    fun setGames(games: GameList) {
-        service.connectToGame(games.results!![0].id!!).gameData
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
-                .subscribe({ gameData -> view.setGameData(0, gameData) })
+    private fun setGames(games: GameList) {
+        games.results?.forEachIndexed { index, game ->
+            val gameConnection = service.connectToGame(game.id)
+            subscriptions.add(gameConnection)
+            subscriptions.add(gameConnection.gameData
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
+                    .subscribe({ gameData -> view.setGameData(index, gameData) }))
+            subscriptions.add(gameConnection.moves
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
+                    .subscribe({ move -> view.doMove(index, move) }))
+        }
 
         view.games = games
     }

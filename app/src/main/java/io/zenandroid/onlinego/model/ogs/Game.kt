@@ -6,7 +6,7 @@ package io.zenandroid.onlinego.model.ogs
 data class Game (
         var white: Player? = null,
         var black: Player? = null,
-        var id: Long? = null,
+        var id: Long,
         var phase: String? = null,
         var name: String? = null,
         var width: Int? = null,

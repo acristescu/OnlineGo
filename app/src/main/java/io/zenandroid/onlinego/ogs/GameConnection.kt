@@ -1,14 +1,30 @@
 package io.zenandroid.onlinego.ogs
 
 import io.reactivex.Flowable
+import io.reactivex.disposables.Disposable
+import java.io.Closeable
 
 /**
  * Created by alex on 06/11/2017.
  */
-class GameConnection {
+class GameConnection(val gameId: Long) : Disposable, Closeable {
+    private var closed = false
 
     lateinit var gameData: Flowable<GameData>
+    lateinit var moves: Flowable<Move>
 
+    override fun close() {
+        OGSService.instance.disconnectFromGame(gameId)
+        closed = true
+    }
+
+    override fun isDisposed(): Boolean {
+        return closed
+    }
+
+    override fun dispose() {
+        close()
+    }
 }
 
 class GameData {
@@ -32,7 +48,7 @@ class GameData {
     var phase: String? = null
     //var history: List<Any>? = null
     var initial_player: String? = null
-    var moves: List<List<Long>>? = null
+    var moves: List<List<Int>>? = null
     var allow_self_capture: Boolean? = null
     var automatic_stone_removal: Boolean? = null
     var free_handicap_placement: Boolean? = null
@@ -118,3 +134,9 @@ class Time_control {
     var speed: String? = null
 
 }
+//{game_id: 10528331, move_number: 202, move: [9, 17, 8509]}
+data class Move(
+        val game_id: Long,
+        val move_number: Int,
+        val move: List<Int>
+)

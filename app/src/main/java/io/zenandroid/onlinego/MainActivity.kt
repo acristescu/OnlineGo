@@ -17,6 +17,8 @@ class MainActivity : AppCompatActivity() {
 
     @BindView(R.id.bottom_navigation) lateinit var bottomNavigation: BottomNavigationView
 
+    private val spectateFragment = SpectateFragment()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -40,7 +42,7 @@ class MainActivity : AppCompatActivity() {
     fun selectItem(item: MenuItem): Boolean {
         return when(item.itemId) {
             R.id.navigation_spectate -> {
-                supportFragmentManager.beginTransaction().replace(R.id.fragment_container, SpectateFragment()).commit()
+                supportFragmentManager.beginTransaction().replace(R.id.fragment_container, spectateFragment).commit()
                 true
             }
             R.id.navigation_challenges -> {
