@@ -11,6 +11,9 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
+        buildConfigField "String", "CLIENT_ID", '"' + System.getenv("ONLINE_GO_CLIENT_ID") + '"'
+        buildConfigField "String", "CLIENT_SECRET", '"' + System.getenv("ONLINE_GO_CLIENT_SECRET") + '"'
     }
     buildTypes {
         release {

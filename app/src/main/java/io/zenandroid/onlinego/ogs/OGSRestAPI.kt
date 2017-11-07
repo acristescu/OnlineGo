@@ -1,6 +1,7 @@
 package io.zenandroid.onlinego.ogs
 
 import io.reactivex.Single
+import io.zenandroid.onlinego.BuildConfig
 import io.zenandroid.onlinego.model.ogs.LoginToken
 import io.zenandroid.onlinego.model.ogs.UIConfig
 import retrofit2.http.GET
@@ -15,14 +16,14 @@ interface OGSRestAPI {
     @POST("oauth2/token/")
     fun login(@Query("username") username: String,
               @Query("password") password: String,
-              @Query("client_id") client_id: String = "kmHPHGhVS1wYCIVhFQtcuzmiDbegEhq3AT3W1xCs1",
-              @Query("client_secret") client_secret: String = "yZ5FAWeH4DRGBLvbstNwUVaK1p6oufmY0rIVEfqAg4WYo1UR58FHxHOjFWpuf7izQ6J9dXZEkVjpxmaPTQrpUaDAMYLQsbXQ4cuVGHF96zWPWU5A183NwxBMDNpN1A2Q1",
+              @Query("client_id") client_id: String = BuildConfig.CLIENT_ID,
+              @Query("client_secret") client_secret: String = BuildConfig.CLIENT_SECRET,
               @Query("grant_type") grant_type: String = "password"): Single<LoginToken>
 
     @POST("oauth2/token/")
     fun refreshToken(@Query("refresh_token") refresh_token: String,
-                     @Query("client_id") client_id: String = "kmHPHGhVS1wYCIVhFQtcuzmiDbegEhq3AT3W1xCs1",
-                     @Query("client_secret") client_secret: String = "yZ5FAWeH4DRGBLvbstNwUVaK1p6oufmY0rIVEfqAg4WYo1UR58FHxHOjFWpuf7izQ6J9dXZEkVjpxmaPTQrpUaDAMYLQsbXQ4cuVGHF96zWPWU5A183NwxBMDNpN1A2Q1",
+                     @Query("client_id") client_id: String = BuildConfig.CLIENT_ID,
+                     @Query("client_secret") client_secret: String = BuildConfig.CLIENT_SECRET,
                      @Query("grant_type") grant_type: String = "refresh_token"): Single<LoginToken>
 
     @GET("api/v1/ui/config/")
