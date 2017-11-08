@@ -9,6 +9,7 @@ import android.support.v7.widget.SimpleItemAnimator
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import butterknife.BindView
 import butterknife.ButterKnife
 import butterknife.Unbinder
@@ -85,12 +86,32 @@ class SpectateFragment : Fragment(), SpectateContract.View {
                     turn = if (turn == StoneType.BLACK) StoneType.WHITE else StoneType.BLACK;
                 }
                 holder.boardView.position = pos
+                holder.blackName.text = gameData.players!!.white!!.username
+                holder.blackRank.text = formatRank(gameData.players!!.white!!.rank)
+                holder.whiteName.text = gameData.players!!.black!!.username
+                holder.whiteRank.text = formatRank(gameData.players!!.black!!.rank)
+            }
+        }
+
+        private fun formatRank(rank: Int?): String {
+            return when(rank) {
+                null -> "?"
+                in 0 .. 29 -> "${30 - rank} Kyu"
+                in 30 .. 100 -> "${(rank - 29)} Dan"
+                else -> "???"
             }
         }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
             val view = LayoutInflater.from(parent.context).inflate(R.layout.game_card, parent, false)
-            return ViewHolder(view, view.findViewById(R.id.board))
+            return ViewHolder(
+                    view,
+                    view.findViewById(R.id.board),
+                    view.findViewById(R.id.white_name),
+                    view.findViewById(R.id.white_rank),
+                    view.findViewById(R.id.black_name),
+                    view.findViewById(R.id.black_rank)
+            )
         }
 
         fun setGameData(index: Int, gameData: GameData) {
@@ -109,7 +130,14 @@ class SpectateFragment : Fragment(), SpectateContract.View {
         }
     }
 
-    class ViewHolder(itemView: View, val boardView: BoardView) : RecyclerView.ViewHolder(itemView)
+    class ViewHolder(
+            itemView: View,
+            val boardView: BoardView,
+            val whiteName: TextView,
+            val whiteRank: TextView,
+            val blackName: TextView,
+            val blackRank: TextView
+            ) : RecyclerView.ViewHolder(itemView)
 
     override fun setGameData(index: Int, gameData: GameData) {
         (gamesRecycler.adapter as GameAdapter).setGameData(index, gameData)

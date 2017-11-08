@@ -1,14 +1,19 @@
 package io.zenandroid.onlinego.views;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.PointF;
+import android.graphics.Rect;
+import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.view.View;
 
+import io.zenandroid.onlinego.R;
 import io.zenandroid.onlinego.model.Position;
 import io.zenandroid.onlinego.model.StoneType;
 
@@ -29,15 +34,19 @@ public class BoardView extends View {
     //
     private float border = 0;
 
-    private Paint linesPaint = new Paint();
+    private Paint linesPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private Paint decorationsPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private Paint stonesPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+
+//    private final Bitmap texture = BitmapFactory.decodeResource(getResources(), R.mipmap.texture);
+    private final Bitmap texture = BitmapFactory.decodeResource(getResources(), R.mipmap.texture1);
 
     //
     // Size (in px) of the cell
     //
     private int cellSize;
     private Position position;
+    private float stoneSpacing = getContext().getResources().getDimension(R.dimen.stones_spacing);
 
     public BoardView(Context context) {
         super(context);
@@ -56,8 +65,11 @@ public class BoardView extends View {
 
     private void init(Context context) {
         linesPaint = new Paint();
-        linesPaint.setColor(0xFF000000);
-        linesPaint.setAntiAlias(true);
+        linesPaint.setStrokeWidth(2);
+        linesPaint.setColor(0xCC331810);
+        linesPaint.setStrokeCap(Paint.Cap.ROUND);
+
+
 
 //        backgroundPaint.setColor(0xFFDEB066);
         decorationsPaint.setStyle(Paint.Style.STROKE);
@@ -103,9 +115,10 @@ public class BoardView extends View {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
+        drawBackground(canvas);
         canvas.translate(border, border);
 
-        drawBackground(canvas);
+
         drawGrid(canvas);
         drawStarPoints(canvas);
         drawCoordinates(canvas);
@@ -156,7 +169,7 @@ public class BoardView extends View {
 
     private void drawSingleStarPoint(Canvas canvas, int i, int j) {
         PointF center = getCellCenter(i, j);
-        canvas.drawRect(center.x-4, center.y-4, center.x + 5, center.y + 5, linesPaint);
+        canvas.drawCircle(center.x, center.y, 7, linesPaint);
     }
 
     private void drawGrid(Canvas canvas) {
@@ -189,15 +202,36 @@ public class BoardView extends View {
             stonesPaint.setStyle(Paint.Style.FILL);
 
             PointF center = getCellCenter(p.x, p.y);
-            canvas.drawCircle(center.x, center.y, cellSize / 2f - 1, stonesPaint);
+            //canvas.drawCircle(center.x, center.y, cellSize / 2f - stoneSpacing, stonesPaint);
+            if(type == StoneType.BLACK) {
+                final Drawable drawable = getResources().getDrawable(R.drawable.gradient_black);
+                drawable.setBounds(
+                        (int) (center.x - cellSize / 2f + stoneSpacing),
+                        (int) (center.y - cellSize / 2f + stoneSpacing),
+                        (int) (center.x + cellSize / 2f - stoneSpacing),
+                        (int) (center.y + cellSize / 2f - stoneSpacing)
+                );
+                drawable.draw(canvas);
+            } else {
+                final Drawable drawable = getResources().getDrawable(R.drawable.gradient_white);
+                drawable.setBounds(
+                        (int) (center.x - cellSize / 2f + stoneSpacing),
+                        (int) (center.y - cellSize / 2f + stoneSpacing),
+                        (int) (center.x + cellSize / 2f - stoneSpacing),
+                        (int) (center.y + cellSize / 2f - stoneSpacing)
+                );
+                drawable.draw(canvas);
+            }
+
 
             //
             // For white stones, we also draw a black outline
             //
             if(type == StoneType.WHITE) {
-                stonesPaint.setColor(Color.BLACK);
+                stonesPaint.setColor(0x33000000);
                 stonesPaint.setStyle(Paint.Style.STROKE);
-                canvas.drawCircle(center.x, center.y, cellSize / 2f - 1, stonesPaint);
+                stonesPaint.setStrokeWidth(0);
+                canvas.drawCircle(center.x, center.y, cellSize / 2f - stoneSpacing, stonesPaint);
             }
         }
     }
@@ -222,7 +256,11 @@ public class BoardView extends View {
     }
 
     private void drawBackground(Canvas canvas) {
-        canvas.drawARGB(255, 0xDE, 0xB0, 0x66);
+        //canvas.drawARGB(255, 0xDE, 0xB0, 0x66);
+//        canvas.drawBitmap(texture, 0, 0, null);
+        Rect src = new Rect(0,0,texture.getWidth(), texture.getHeight());
+        Rect dest = new Rect(0,0,getWidth(), getHeight());
+        canvas.drawBitmap(texture, src, dest, null);
     }
 
     private PointF getCellCenter(int i, int j) {

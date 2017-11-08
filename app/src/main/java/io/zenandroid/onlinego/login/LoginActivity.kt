@@ -2,8 +2,7 @@ package io.zenandroid.onlinego.login
 
 import android.content.Context
 import android.content.Intent
-import android.graphics.Bitmap
-import android.graphics.Canvas
+import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.os.Handler
 import android.support.design.widget.TextInputEditText
@@ -11,7 +10,6 @@ import android.support.design.widget.TextInputLayout
 import android.support.transition.Fade
 import android.support.transition.TransitionInflater
 import android.support.transition.TransitionManager
-import android.support.v4.graphics.drawable.DrawableCompat
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.AppCompatImageView
 import android.view.View
@@ -67,7 +65,7 @@ class LoginActivity : AppCompatActivity() {
 
     private fun onLoginSuccess() {
         if(button.visibility == View.VISIBLE) {
-            button.doneLoadingAnimation(resources.getColor(R.color.colorAccent), getDoneBitmap())
+            button.doneLoadingAnimation(resources.getColor(R.color.colorAccent), BitmapFactory.decodeResource(resources, R.mipmap.white_check))
         }
         TransitionManager.beginDelayedTransition(findViewById(R.id.container), Fade(Fade.MODE_OUT).setDuration(100).setStartDelay(400))
         findViewById<ViewGroup>(R.id.container).removeAllViews()
@@ -110,13 +108,8 @@ class LoginActivity : AppCompatActivity() {
         button.isEnabled = username.text.isNotEmpty() && password.text.isNotEmpty()
     }
 
-    private fun getDoneBitmap(): Bitmap {
-        val bmp = Bitmap.createBitmap((resources.displayMetrics.density * 24).toInt(), (resources.displayMetrics.density * 24).toInt(), Bitmap.Config.ARGB_8888)
-        val canvas = Canvas(bmp)
-
-        val drawable = DrawableCompat.wrap(resources.getDrawable(R.drawable.ic_done_24dp))
-        drawable.setBounds(0, 0, bmp.width, bmp.height)
-        drawable.draw(canvas)
-        return bmp
+    override fun onDestroy() {
+        super.onDestroy()
+        button.dispose()
     }
 }
