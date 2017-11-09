@@ -1,4 +1,4 @@
-package io.zenandroid.onlinego.spectate
+package io.zenandroid.onlinego.mygames
 
 import android.os.Bundle
 import android.support.v4.app.Fragment
@@ -12,35 +12,26 @@ import butterknife.BindView
 import butterknife.ButterKnife
 import butterknife.Unbinder
 import io.zenandroid.onlinego.R
-import io.zenandroid.onlinego.model.ogs.GameList
+import io.zenandroid.onlinego.model.ogs.Game
+import io.zenandroid.onlinego.ogs.ActiveGameService
 import io.zenandroid.onlinego.ogs.GameData
 import io.zenandroid.onlinego.ogs.Move
 import io.zenandroid.onlinego.ogs.OGSService
 import io.zenandroid.onlinego.reusable.GameAdapter
 
-
-
-
-
 /**
  * Created by alex on 05/11/2017.
  */
-class SpectateFragment : Fragment(), SpectateContract.View {
+class MyGamesFragment : Fragment(), MyGamesContract.View {
+    private val adapter = GameAdapter(mutableListOf())
 
     @BindView(R.id.games_recycler) lateinit var gamesRecycler: RecyclerView
 
     private lateinit var unbinder: Unbinder
-    private lateinit var presenter: SpectateContract.Presenter
-    private lateinit var adapter: GameAdapter
-
-    override var games: GameList? = null
-        set(value) {
-            adapter = GameAdapter(value!!.results.toMutableList())
-            gamesRecycler.adapter = adapter
-        }
+    private lateinit var presenter: MyGamesContract.Presenter
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val view = inflater.inflate(R.layout.fragment_spectate, container, false)
+        val view = inflater.inflate(R.layout.fragment_mygames, container, false)
         unbinder = ButterKnife.bind(this, view)
 
         return view
@@ -51,7 +42,9 @@ class SpectateFragment : Fragment(), SpectateContract.View {
 
         gamesRecycler.layoutManager = LinearLayoutManager(context)
         (gamesRecycler.itemAnimator as SimpleItemAnimator).supportsChangeAnimations = false
-        presenter = SpectatePresenter(this, OGSService.instance)
+        gamesRecycler.adapter = adapter
+
+        presenter = MyGamesPresenter(this, OGSService.instance, ActiveGameService)
     }
 
     override fun onDestroyView() {
@@ -75,6 +68,10 @@ class SpectateFragment : Fragment(), SpectateContract.View {
 
     override fun doMove(id: Long, move: Move) {
         adapter.doMove(id, move)
+    }
+
+    override fun addGame(game: Game) {
+        adapter.addGame(game)
     }
 
 }

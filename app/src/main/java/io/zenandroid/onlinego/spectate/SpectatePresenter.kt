@@ -9,7 +9,7 @@ import io.zenandroid.onlinego.ogs.OGSService
 /**
  * Created by alex on 05/11/2017.
  */
-class SpectatePresenter(val view: SpectateContract.View, val service: OGSService) : SpectateContract.Presenter {
+class SpectatePresenter(val view: SpectateContract.View, private val service: OGSService) : SpectateContract.Presenter {
 
     private val subscriptions = CompositeDisposable()
 
@@ -23,17 +23,17 @@ class SpectatePresenter(val view: SpectateContract.View, val service: OGSService
     }
 
     private fun setGames(games: GameList) {
-        games.results?.forEachIndexed { index, game ->
+        games.results.forEach { game ->
             val gameConnection = service.connectToGame(game.id)
             subscriptions.add(gameConnection)
             subscriptions.add(gameConnection.gameData
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
-                    .subscribe({ gameData -> view.setGameData(index, gameData) }))
+                    .subscribe({ gameData -> view.setGameData(game.id, gameData) }))
             subscriptions.add(gameConnection.moves
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
-                    .subscribe({ move -> view.doMove(index, move) }))
+                    .subscribe({ move -> view.doMove(game.id, move) }))
         }
 
         view.games = games

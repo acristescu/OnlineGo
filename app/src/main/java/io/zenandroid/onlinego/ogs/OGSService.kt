@@ -11,6 +11,7 @@ import io.socket.client.IO
 import io.socket.client.Socket
 import io.socket.parser.IOParser
 import io.zenandroid.onlinego.AndroidLoggingHandler
+import io.zenandroid.onlinego.model.ogs.Game
 import io.zenandroid.onlinego.model.ogs.GameList
 import io.zenandroid.onlinego.model.ogs.LoginToken
 import io.zenandroid.onlinego.model.ogs.UIConfig
@@ -42,6 +43,8 @@ class OGSService {
     private var tokenExpiry: Date
     private val api: OGSRestAPI
     private val moshi = Moshi.Builder().build()
+
+    private val loggingAck = Ack { println("ack: $it") }
 
     fun login(username: String, password: String): Completable {
         return api.login(username, password)
@@ -100,7 +103,10 @@ class OGSService {
         PersistenceManager.instance.storeUIConfig(uiConfig)
     }
 
-    fun ensureSocketConnected() {
+    private fun ensureSocketConnected() {
+        if(socket.connected()) {
+            return
+        }
         AndroidLoggingHandler.reset(AndroidLoggingHandler())
 //                    Logger.getLogger(Socket::class.java.name).level = Level.FINEST
 //                    Logger.getLogger(Manager::class.java.name).level = Level.FINEST
@@ -132,7 +138,7 @@ class OGSService {
         obj.put("player_id", uiConfig!!.user.id)
         obj.put("username", uiConfig!!.user.username)
         obj.put("auth", uiConfig!!.chat_auth)
-        socket.emit("authenticate", obj)
+        emit("authenticate", obj)
 
 
         //                    socket.emit("gamelist/count/subscribe")
@@ -153,7 +159,7 @@ class OGSService {
         connection.moves = observeEvent("game/$id/move")
                     .map { string -> moshi.adapter(Move::class.java).fromJson(string.toString()) }
 
-        socket.emit("game/connect", createJsonObject {
+        emit("game/connect", createJsonObject {
             put("chat", false)
             put("game_id", id)
             put("player_id", uiConfig!!.user.id)
@@ -161,11 +167,11 @@ class OGSService {
         return connection
     }
 
-    fun connectToNotifications(): Flowable<ActiveGameNotification> {
+    fun connectToNotifications(): Flowable<Game> {
         val returnVal = observeEvent("active_game")
-                .map { string -> moshi.adapter(ActiveGameNotification::class.java).fromJson(string.toString()) }
+                .map { string -> moshi.adapter(Game::class.java).fromJson(string.toString()) }
 
-        socket.emit("notification/connect", createJsonObject {
+        emit("notification/connect", createJsonObject {
             put("player_id", uiConfig!!.user.id)
             put("auth", uiConfig!!.notification_auth)
         })
@@ -173,10 +179,18 @@ class OGSService {
         return returnVal
     }
 
+    private fun emit(event: String, params:Any?) {
+        println("Emit: $event with params $params")
+        socket.emit(event, params, loggingAck)
+    }
+
     private fun observeEvent(event: String): Flowable<Any> {
+        println("Listening for event: $event")
         return Flowable.create({ emitter ->
             socket.on(event, {
-                params -> emitter.onNext(params[0])
+                params ->
+                    println("Received event: $event, ${params[0]}")
+                    emitter.onNext(params[0])
             })
         }
         , BackpressureStrategy.BUFFER)
@@ -184,7 +198,7 @@ class OGSService {
 
     fun registerSeekgraph(): Flowable<Any> {
         return observeEvent("seekgraph/global").doOnSubscribe({
-            socket.emit("seek_graph/connect", createJsonObject {
+            emit("seek_graph/connect", createJsonObject {
                 put("channel", "global")
             })
         })
@@ -225,12 +239,12 @@ class OGSService {
                 put("value", "enabled")
             })
         }
-        socket!!.emit("automatch/find_match", json)
+        emit("automatch/find_match", json)
     }
 
     fun fetchGameList(): Single<GameList> {
         return Single.create({emitter ->
-            socket!!.emit("gamelist/query", createJsonObject {
+            socket.emit("gamelist/query", createJsonObject {
                 put("list", "live")
                 put("sort_by", "rank")
                 put("from", 0)
@@ -243,7 +257,7 @@ class OGSService {
     }
 
     fun disconnect() {
-        socket?.disconnect()
+        socket.disconnect()
     }
 
     init {
@@ -290,7 +304,7 @@ class OGSService {
     }
 
     fun disconnectFromGame(id: Long) {
-        socket!!.emit("game/disconnect", createJsonObject {
+        emit("game/disconnect", createJsonObject {
             put("game_id", id)
         })
     }

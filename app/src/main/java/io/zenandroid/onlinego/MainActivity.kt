@@ -5,10 +5,12 @@ import android.support.design.widget.BottomNavigationView
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.AppCompatImageView
 import android.view.MenuItem
+import android.widget.TextView
 import android.widget.Toast
 import butterknife.BindView
 import butterknife.ButterKnife
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.zenandroid.onlinego.mygames.MyGamesFragment
 import io.zenandroid.onlinego.ogs.ActiveGameService
 import io.zenandroid.onlinego.spectate.SpectateFragment
 
@@ -16,8 +18,10 @@ import io.zenandroid.onlinego.spectate.SpectateFragment
 class MainActivity : AppCompatActivity() {
 
     @BindView(R.id.bottom_navigation) lateinit var bottomNavigation: BottomNavigationView
+    @BindView(R.id.badge) lateinit var badge: TextView
 
     private val spectateFragment = SpectateFragment()
+    private val myGamesFragment = MyGamesFragment()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -28,15 +32,28 @@ class MainActivity : AppCompatActivity() {
         setSupportActionBar(findViewById(R.id.toolbar))
 
         bottomNavigation.setOnNavigationItemSelectedListener { selectItem(it) }
-        bottomNavigation.selectedItemId = R.id.navigation_spectate
+        bottomNavigation.selectedItemId = R.id.navigation_my_games
 
-        ActiveGameService.myMoveCountSubject
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        ActiveGameService.myMoveCountObservable
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({ myMoveCount ->
-            val button = findViewById<AppCompatImageView>(R.id.notifications)
-            button.isEnabled = myMoveCount > 0
-            button.animate().alpha(if(myMoveCount == 0) .33f else 1f)
-        })
+                    val button = findViewById<AppCompatImageView>(R.id.notifications)
+                    if(myMoveCount == 0) {
+                        button.isEnabled = false
+                        button.animate().alpha(.33f)
+                        badge.animate().alpha(0f)
+                    } else {
+                        button.isEnabled = true
+                        button.animate().alpha(1f)
+                        badge.text = myMoveCount.toString()
+                        badge.animate().alpha(1f)
+                    }
+                })
     }
 
     private fun selectItem(item: MenuItem): Boolean {
@@ -50,8 +67,8 @@ class MainActivity : AppCompatActivity() {
                 false
             }
             R.id.navigation_my_games -> {
-                Toast.makeText(this, "Not implemented yet", Toast.LENGTH_LONG).show()
-                false
+                supportFragmentManager.beginTransaction().replace(R.id.fragment_container, myGamesFragment).commit()
+                true
             }
             else -> false
         }

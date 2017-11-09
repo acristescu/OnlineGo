@@ -2,7 +2,8 @@
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <android.support.design.widget.AppBarLayout
         android:id="@+id/appbar"
@@ -14,21 +15,45 @@
             android:layout_height="wrap_content"
             app:titleTextColor="#FFFFFF"
             >
-            <ImageView
-                android:id="@+id/notifications"
-                android:src="@drawable/ic_notifications_active"
+            <android.support.constraint.ConstraintLayout
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_marginRight="16dp"
-                android:layout_gravity="right"
-                android:clickable="true"
-                android:focusable="true"
-                android:scaleType="fitXY"
-                android:padding="10dp"
-                android:background="?selectableItemBackground"
-                android:enabled="false"
-                android:alpha=".33"
-                />
+                android:layout_gravity="right">
+                <ImageView
+                    android:id="@+id/notifications"
+                    android:src="@drawable/ic_notifications_active"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:scaleType="fitXY"
+                    android:padding="10dp"
+                    android:background="?selectableItemBackground"
+                    android:enabled="false"
+                    android:alpha=".33"
+                    />
+
+                <TextView
+                    android:id="@+id/badge"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="right|top"
+                    android:layout_marginEnd="2dp"
+                    android:layout_marginTop="2dp"
+                    android:background="@drawable/oval"
+                    android:elevation="2dp"
+                    android:gravity="center"
+                    tools:text="1"
+                    android:textColor="#FFFFFF"
+                    app:layout_constraintDimensionRatio="w,1:1"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="@+id/notifications"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:alpha="0"
+                    />
+            </android.support.constraint.ConstraintLayout>
         </android.support.v7.widget.Toolbar>
     </android.support.design.widget.AppBarLayout>
 

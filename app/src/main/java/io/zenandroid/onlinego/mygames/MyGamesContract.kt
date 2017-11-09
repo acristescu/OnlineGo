@@ -1,17 +1,17 @@
-package io.zenandroid.onlinego.spectate
+package io.zenandroid.onlinego.mygames
 
-import io.zenandroid.onlinego.model.ogs.GameList
+import io.zenandroid.onlinego.model.ogs.Game
 import io.zenandroid.onlinego.ogs.GameData
 import io.zenandroid.onlinego.ogs.Move
 
 /**
  * Created by alex on 05/11/2017.
  */
-interface SpectateContract {
+interface MyGamesContract {
     interface View {
-        var games: GameList?
         fun setGameData(id: Long, gameData: GameData)
         fun doMove(id: Long, move: Move)
+        fun addGame(game: Game)
     }
     interface Presenter {
         fun subscribe()

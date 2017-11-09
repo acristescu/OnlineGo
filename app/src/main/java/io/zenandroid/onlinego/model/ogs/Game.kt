@@ -15,7 +15,7 @@ data class Game (
         var paused: Int? = null,
         var private: Boolean? = null,
         var time_per_move: Int? = null,
-
+        val player_to_move: Long,
 
 
         var related: Related? = null,
