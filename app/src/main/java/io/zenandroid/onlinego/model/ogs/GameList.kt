@@ -7,5 +7,5 @@ data class GameList(
         var size: Int? = null,
         var from: String? = null,
         var limit: String? = null,
-        var results: List<Game>? = null
+        var results: List<Game>
 )

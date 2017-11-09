@@ -74,11 +74,11 @@ class SpectateFragment : Fragment(), SpectateContract.View {
         var gameDataMap = mutableMapOf<Long, GameData>()
 
         override fun getItemCount(): Int {
-            return if(gameList.results == null) 0 else gameList.results!!.size
+            return gameList.results.size
         }
 
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-            gameDataMap[gameList.results!![position].id]?.let { gameData: GameData ->
+            gameDataMap[gameList.results[position].id]?.let { gameData: GameData ->
                 val pos = Position(19)
                 var turn = StoneType.BLACK
                 for (move in gameData.moves!!) {
@@ -115,12 +115,12 @@ class SpectateFragment : Fragment(), SpectateContract.View {
         }
 
         fun setGameData(index: Int, gameData: GameData) {
-            gameDataMap.put(gameList.results!![index].id, gameData)
+            gameDataMap.put(gameList.results[index].id, gameData)
             notifyItemChanged(index)
         }
 
         fun doMove(index: Int, move: Move) {
-            gameDataMap[gameList.results!![index].id]?.let { gameData: GameData ->
+            gameDataMap[gameList.results[index].id]?.let { gameData: GameData ->
                 // TODO maybe change this to something better
                 val newMoves = gameData.moves!!.toMutableList()
                 newMoves += move.move

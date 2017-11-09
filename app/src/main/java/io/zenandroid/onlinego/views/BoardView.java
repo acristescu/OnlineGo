@@ -38,6 +38,9 @@ public class BoardView extends View {
     private Paint decorationsPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private Paint stonesPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 
+    private final Drawable whiteStoneDrawable = getResources().getDrawable(R.mipmap.stone_white);
+    private final Drawable blackStoneDrawable = getResources().getDrawable(R.mipmap.stone_black);
+
 //    private final Bitmap texture = BitmapFactory.decodeResource(getResources(), R.mipmap.texture);
     private final Bitmap texture = BitmapFactory.decodeResource(getResources(), R.mipmap.texture1);
 
@@ -203,36 +206,26 @@ public class BoardView extends View {
 
             PointF center = getCellCenter(p.x, p.y);
             //canvas.drawCircle(center.x, center.y, cellSize / 2f - stoneSpacing, stonesPaint);
-            if(type == StoneType.BLACK) {
-                final Drawable drawable = getResources().getDrawable(R.drawable.gradient_black);
-                drawable.setBounds(
-                        (int) (center.x - cellSize / 2f + stoneSpacing),
-                        (int) (center.y - cellSize / 2f + stoneSpacing),
-                        (int) (center.x + cellSize / 2f - stoneSpacing),
-                        (int) (center.y + cellSize / 2f - stoneSpacing)
-                );
-                drawable.draw(canvas);
-            } else {
-                final Drawable drawable = getResources().getDrawable(R.drawable.gradient_white);
-                drawable.setBounds(
-                        (int) (center.x - cellSize / 2f + stoneSpacing),
-                        (int) (center.y - cellSize / 2f + stoneSpacing),
-                        (int) (center.x + cellSize / 2f - stoneSpacing),
-                        (int) (center.y + cellSize / 2f - stoneSpacing)
-                );
-                drawable.draw(canvas);
-            }
+            final Drawable drawable = type == StoneType.BLACK ? blackStoneDrawable : whiteStoneDrawable;
+            drawable.setBounds(
+                    (int) (center.x - cellSize / 2f + stoneSpacing),
+                    (int) (center.y - cellSize / 2f + stoneSpacing),
+                    (int) (center.x + cellSize / 2f - stoneSpacing),
+                    (int) (center.y + cellSize / 2f - stoneSpacing)
+            );
+            drawable.draw(canvas);
+
 
 
             //
             // For white stones, we also draw a black outline
             //
-            if(type == StoneType.WHITE) {
-                stonesPaint.setColor(0x33000000);
-                stonesPaint.setStyle(Paint.Style.STROKE);
-                stonesPaint.setStrokeWidth(0);
-                canvas.drawCircle(center.x, center.y, cellSize / 2f - stoneSpacing, stonesPaint);
-            }
+//            if(type == StoneType.WHITE) {
+//                stonesPaint.setColor(0x33000000);
+//                stonesPaint.setStyle(Paint.Style.STROKE);
+//                stonesPaint.setStrokeWidth(0);
+//                canvas.drawCircle(center.x, center.y, cellSize / 2f - stoneSpacing, stonesPaint);
+//            }
         }
     }
 

@@ -37,8 +37,8 @@ class OGSService {
     }
 
     private var token: LoginToken? = null
-    private var uiConfig: UIConfig? = null
-    private var socket: Socket? = null
+    var uiConfig: UIConfig? = null
+    private val socket: Socket
     private var tokenExpiry: Date
     private val api: OGSRestAPI
     private val moshi = Moshi.Builder().build()
@@ -101,20 +101,12 @@ class OGSService {
     }
 
     fun ensureSocketConnected() {
-        if(socket != null) {
-            return
-        }
-        val options = IO.Options()
-        options.transports = arrayOf("websocket")
-        socket = IO.socket("https://online-go.com", options)
-
-
         AndroidLoggingHandler.reset(AndroidLoggingHandler())
 //                    Logger.getLogger(Socket::class.java.name).level = Level.FINEST
 //                    Logger.getLogger(Manager::class.java.name).level = Level.FINEST
         Logger.getLogger(IOParser::class.java.name).level = Level.FINEST
 
-        socket!!.on(Socket.EVENT_CONNECT) {
+        socket.on(Socket.EVENT_CONNECT) {
             Logger.getLogger(TAG).warning("socket connect")
         }.on(Socket.EVENT_DISCONNECT) {
             Logger.getLogger(TAG).warning("socket disconnect")
@@ -134,13 +126,13 @@ class OGSService {
             Logger.getLogger(TAG).severe("socket connect error")
         }
 
-        socket!!.connect()
+        socket.connect()
 
         val obj = JSONObject()
         obj.put("player_id", uiConfig!!.user.id)
         obj.put("username", uiConfig!!.user.username)
         obj.put("auth", uiConfig!!.chat_auth)
-        socket!!.emit("authenticate", obj)
+        socket.emit("authenticate", obj)
 
 
         //                    socket.emit("gamelist/count/subscribe")
@@ -161,17 +153,29 @@ class OGSService {
         connection.moves = observeEvent("game/$id/move")
                     .map { string -> moshi.adapter(Move::class.java).fromJson(string.toString()) }
 
-        socket!!.emit("game/connect", createJsonObject {
-            put("chat", true)
+        socket.emit("game/connect", createJsonObject {
+            put("chat", false)
             put("game_id", id)
             put("player_id", uiConfig!!.user.id)
         })
         return connection
     }
 
+    fun connectToNotifications(): Flowable<ActiveGameNotification> {
+        val returnVal = observeEvent("active_game")
+                .map { string -> moshi.adapter(ActiveGameNotification::class.java).fromJson(string.toString()) }
+
+        socket.emit("notification/connect", createJsonObject {
+            put("player_id", uiConfig!!.user.id)
+            put("auth", uiConfig!!.notification_auth)
+        })
+
+        return returnVal
+    }
+
     private fun observeEvent(event: String): Flowable<Any> {
         return Flowable.create({ emitter ->
-            socket!!.on(event, {
+            socket.on(event, {
                 params -> emitter.onNext(params[0])
             })
         }
@@ -180,7 +184,7 @@ class OGSService {
 
     fun registerSeekgraph(): Flowable<Any> {
         return observeEvent("seekgraph/global").doOnSubscribe({
-            socket!!.emit("seek_graph/connect", createJsonObject {
+            socket.emit("seek_graph/connect", createJsonObject {
                 put("channel", "global")
             })
         })
@@ -267,6 +271,10 @@ class OGSService {
         uiConfig = PersistenceManager.instance.getUIConfig()
         token = PersistenceManager.instance.getToken()
         tokenExpiry = PersistenceManager.instance.getTokenExpiry()
+
+        val options = IO.Options()
+        options.transports = arrayOf("websocket")
+        socket = IO.socket("https://online-go.com", options)
     }
 
     private fun createJsonObject(func: JSONObject.() -> Unit): JSONObject {

@@ -23,7 +23,7 @@ data class User (
     var tournament_admin: Boolean? = null,
     var auto_advance_after_submit: Boolean? = null,
     var hide_recently_finished_games: Boolean? = null,
-    var id: Int = 0,
+    var id: Long = 0,
     var icon: String? = null
 
 )
