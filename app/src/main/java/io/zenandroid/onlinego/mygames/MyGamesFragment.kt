@@ -57,6 +57,10 @@ class MyGamesFragment : Fragment(), MyGamesContract.View {
         presenter.subscribe()
     }
 
+    override fun clearGames() {
+        adapter.clearGames()
+    }
+
     override fun onStop() {
         super.onStop()
         presenter.unsubscribe()

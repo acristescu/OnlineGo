@@ -12,6 +12,7 @@ interface MyGamesContract {
         fun setGameData(id: Long, gameData: GameData)
         fun doMove(id: Long, move: Move)
         fun addGame(game: Game)
+        fun clearGames()
     }
     interface Presenter {
         fun subscribe()

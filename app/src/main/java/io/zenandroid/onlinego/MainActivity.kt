@@ -31,7 +31,7 @@ class MainActivity : AppCompatActivity() {
 
         setSupportActionBar(findViewById(R.id.toolbar))
 
-        bottomNavigation.setOnNavigationItemSelectedListener { selectItem(it) }
+        bottomNavigation.setOnNavigationItemSelectedListener(this::selectItem)
         bottomNavigation.selectedItemId = R.id.navigation_my_games
 
     }

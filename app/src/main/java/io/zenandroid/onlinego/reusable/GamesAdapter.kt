@@ -33,18 +33,18 @@ class GameAdapter(private val gameList: MutableList<Game>) : RecyclerView.Adapte
                 turn = if (turn == StoneType.BLACK) StoneType.WHITE else StoneType.BLACK;
             }
             holder.boardView.position = pos
-            holder.blackName.text = gameData.players?.white?.username
-            holder.blackRank.text = formatRank(gameData.players?.white?.rank)
-            holder.whiteName.text = gameData.players?.black?.username
-            holder.whiteRank.text = formatRank(gameData.players?.black?.rank)
+            holder.blackName.text = gameData.players?.black?.username
+            holder.blackRank.text = formatRank(gameData.players?.black?.rank)
+            holder.whiteName.text = gameData.players?.white?.username
+            holder.whiteRank.text = formatRank(gameData.players?.white?.rank)
         }
     }
 
     private fun formatRank(rank: Int?): String {
         return when(rank) {
             null -> "?"
-            in 0 .. 29 -> "${30 - rank} Kyu"
-            in 30 .. 100 -> "${(rank - 29)} Dan"
+            in 0 .. 29 -> "${30 - rank}k"
+            in 30 .. 100 -> "${(rank - 29)}d"
             else -> "???"
         }
     }
@@ -88,6 +88,11 @@ class GameAdapter(private val gameList: MutableList<Game>) : RecyclerView.Adapte
     fun addGame(game: Game) {
         gameList.add(game)
         notifyItemInserted(gameList.size - 1)
+    }
+
+    fun clearGames() {
+        gameList.clear()
+        notifyDataSetChanged()
     }
 }
 

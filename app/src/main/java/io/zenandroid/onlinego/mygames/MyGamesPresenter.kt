@@ -15,6 +15,7 @@ class MyGamesPresenter(val view: MyGamesContract.View, private val service: OGSS
     private val subscriptions = CompositeDisposable()
 
     override fun subscribe() {
+        view.clearGames()
         subscriptions.add(
                 activeGameService.activeGamesObservable
                         .subscribeOn(Schedulers.io())
