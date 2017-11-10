@@ -1,4 +1,4 @@
-package io.zenandroid.onlinego.game;
+package io.zenandroid.onlinego.old_game;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;

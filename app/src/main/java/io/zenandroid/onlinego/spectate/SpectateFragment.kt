@@ -11,7 +11,9 @@ import android.view.ViewGroup
 import butterknife.BindView
 import butterknife.ButterKnife
 import butterknife.Unbinder
+import io.zenandroid.onlinego.MainActivity
 import io.zenandroid.onlinego.R
+import io.zenandroid.onlinego.model.ogs.Game
 import io.zenandroid.onlinego.model.ogs.GameList
 import io.zenandroid.onlinego.ogs.GameData
 import io.zenandroid.onlinego.ogs.Move
@@ -36,6 +38,7 @@ class SpectateFragment : Fragment(), SpectateContract.View {
     override var games: GameList? = null
         set(value) {
             adapter = GameAdapter(value!!.results.toMutableList())
+            adapter.clicksSubject.subscribe({presenter.onGameSelected(it)})
             gamesRecycler.adapter = adapter
         }
 
@@ -52,6 +55,10 @@ class SpectateFragment : Fragment(), SpectateContract.View {
         gamesRecycler.layoutManager = LinearLayoutManager(context)
         (gamesRecycler.itemAnimator as SimpleItemAnimator).supportsChangeAnimations = false
         presenter = SpectatePresenter(this, OGSService.instance)
+    }
+
+    override fun navigateToGameScreen(game: Game) {
+        (activity as MainActivity).navigateToGameScreen(game)
     }
 
     override fun onDestroyView() {

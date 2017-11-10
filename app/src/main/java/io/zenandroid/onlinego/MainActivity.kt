@@ -10,6 +10,8 @@ import android.widget.Toast
 import butterknife.BindView
 import butterknife.ButterKnife
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.zenandroid.onlinego.game.GameFragment
+import io.zenandroid.onlinego.model.ogs.Game
 import io.zenandroid.onlinego.mygames.MyGamesFragment
 import io.zenandroid.onlinego.ogs.ActiveGameService
 import io.zenandroid.onlinego.spectate.SpectateFragment
@@ -73,5 +75,9 @@ class MainActivity : AppCompatActivity() {
             else -> false
         }
 
+    }
+
+    fun navigateToGameScreen(game: Game) {
+        supportFragmentManager.beginTransaction().replace(R.id.fragment_container, GameFragment.createFragment(game)).commit()
     }
 }

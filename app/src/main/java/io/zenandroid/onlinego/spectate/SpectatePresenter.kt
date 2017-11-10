@@ -3,6 +3,7 @@ package io.zenandroid.onlinego.spectate
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
+import io.zenandroid.onlinego.model.ogs.Game
 import io.zenandroid.onlinego.model.ogs.GameList
 import io.zenandroid.onlinego.ogs.OGSService
 
@@ -10,6 +11,9 @@ import io.zenandroid.onlinego.ogs.OGSService
  * Created by alex on 05/11/2017.
  */
 class SpectatePresenter(val view: SpectateContract.View, private val service: OGSService) : SpectateContract.Presenter {
+    override fun onGameSelected(game: Game) {
+        view.navigateToGameScreen(game)
+    }
 
     private val subscriptions = CompositeDisposable()
 

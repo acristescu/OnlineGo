@@ -272,4 +272,14 @@ public class BoardView extends View {
     public Position getPosition() {
         return position;
     }
+
+    public int getBoardSize() {
+        return boardSize;
+    }
+
+    public void setBoardSize(int boardSize) {
+        this.boardSize = boardSize;
+        cellSize = getWidth() / boardSize;
+        border = (getWidth() - boardSize * cellSize) / 2;
+    }
 }
