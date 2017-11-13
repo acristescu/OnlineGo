@@ -1,5 +1,6 @@
 package io.zenandroid.onlinego.ogs
 
+import android.graphics.Point
 import com.squareup.moshi.Moshi
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Completable
@@ -135,9 +136,9 @@ class OGSService {
         socket.connect()
 
         val obj = JSONObject()
-        obj.put("player_id", uiConfig!!.user.id)
-        obj.put("username", uiConfig!!.user.username)
-        obj.put("auth", uiConfig!!.chat_auth)
+        obj.put("player_id", uiConfig?.user?.id)
+        obj.put("username", uiConfig?.user?.username)
+        obj.put("auth", uiConfig?.chat_auth)
         emit("authenticate", obj)
 
 
@@ -156,6 +157,10 @@ class OGSService {
 
         connection.gameData = observeEvent("game/$id/gamedata")
                     .map { string -> moshi.adapter(GameData::class.java).fromJson(string.toString()) }
+                    .map { gameData ->
+                        connection.gameAuth = gameData.auth
+                        gameData
+                    }
         connection.moves = observeEvent("game/$id/move")
                     .map { string -> moshi.adapter(Move::class.java).fromJson(string.toString()) }
 
@@ -306,6 +311,16 @@ class OGSService {
     fun disconnectFromGame(id: Long) {
         emit("game/disconnect", createJsonObject {
             put("game_id", id)
+        })
+    }
+
+    fun submitMove(move: Point, gameId: Long, gameAuth: String?) {
+        val encodedMove = ('a' +  move.x) + "" + ('a' + move.y)
+        emit("game/move", createJsonObject {
+            put("auth", gameAuth)
+            put("game_id", gameId)
+            put("player_id", uiConfig?.user?.id)
+            put("move", encodedMove)
         })
     }
 }

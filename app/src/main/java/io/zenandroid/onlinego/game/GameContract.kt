@@ -1,5 +1,7 @@
 package io.zenandroid.onlinego.game
 
+import android.graphics.Point
+import io.reactivex.Observable
 import io.zenandroid.onlinego.model.Position
 
 /**
@@ -16,6 +18,8 @@ interface GameContract {
         var position: Position?
         var highlightBlackName: Boolean
         var highlightWhiteName: Boolean
+        val cellSelection: Observable<Point>
+        fun unselectMove()
     }
 
     interface Presenter {

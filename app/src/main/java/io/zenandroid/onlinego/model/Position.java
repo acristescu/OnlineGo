@@ -167,4 +167,19 @@ public class Position {
     public Point getLastMove() {
         return lastMove;
     }
+
+    public StoneType getLastPlayerToMove() {
+        if(lastMove == null) {
+            return null;
+        }
+
+        return getStoneAt(lastMove.x, lastMove.y);
+    }
+
+    public Position clone() {
+        final Position newPos = new Position(boardSize);
+        newPos.stones.putAll(stones);
+        newPos.lastMove = lastMove;
+        return newPos;
+    }
 }

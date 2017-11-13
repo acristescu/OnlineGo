@@ -10,9 +10,13 @@ import android.graphics.Point;
 import android.graphics.PointF;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
+import android.support.annotation.NonNull;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
 import android.view.View;
 
+import io.reactivex.Observable;
+import io.reactivex.subjects.PublishSubject;
 import io.zenandroid.onlinego.R;
 import io.zenandroid.onlinego.model.Position;
 import io.zenandroid.onlinego.model.StoneType;
@@ -50,6 +54,11 @@ public class BoardView extends View {
     private int cellSize;
     private Position position;
     private float stoneSpacing = getContext().getResources().getDimension(R.dimen.stones_spacing);
+    private boolean interactive = false;
+    private int selectedX = -1;
+    private int selectedY = -1;
+
+    private PublishSubject<Point> selectionSubject = PublishSubject.create();
 
     public BoardView(Context context) {
         super(context);
@@ -77,8 +86,22 @@ public class BoardView extends View {
 //        backgroundPaint.setColor(0xFFDEB066);
         decorationsPaint.setStyle(Paint.Style.STROKE);
         decorationsPaint.setStrokeWidth(3);
+    }
 
+    @Override
+    public boolean onTouchEvent(@NonNull MotionEvent event) {
+        if(!interactive) {
+            return super.onTouchEvent(event);
+        }
+        selectedX = ((int)(event.getX() - border)) / cellSize;
+        selectedY = ((int)(event.getY() - border)) / cellSize;
+        invalidate();
 
+        if(event.getAction() == MotionEvent.ACTION_UP) {
+            selectionSubject.onNext(new Point(selectedX, selectedY));
+        }
+
+        return true;
     }
 
     @Override
@@ -129,6 +152,15 @@ public class BoardView extends View {
             drawStones(canvas);
             drawDecorations(canvas);
         }
+        if(selectedX != -1 && selectedY != -1) {
+            drawSelection(canvas);
+        }
+    }
+
+    private void drawSelection(Canvas canvas) {
+        final PointF center = getCellCenter(selectedX, selectedY);
+        stonesPaint.setColor(getResources().getColor(R.color.colorPrimary));
+        canvas.drawCircle(center.x, center.y, cellSize / 2f - stoneSpacing, stonesPaint);
     }
 
     /**
@@ -281,5 +313,23 @@ public class BoardView extends View {
         this.boardSize = boardSize;
         cellSize = getWidth() / boardSize;
         border = (getWidth() - boardSize * cellSize) / 2;
+    }
+
+    public boolean isInteractive() {
+        return interactive;
+    }
+
+    public void setInteractive(boolean interactive) {
+        this.interactive = interactive;
+    }
+
+    public Observable<Point> selectionObservable() {
+        return selectionSubject.hide();
+    }
+
+    public void clearSelection() {
+        selectedX = -1;
+        selectedY = -1;
+        invalidate();
     }
 }

@@ -1,5 +1,6 @@
 package io.zenandroid.onlinego.ogs
 
+import android.graphics.Point
 import io.reactivex.Flowable
 import io.reactivex.disposables.Disposable
 import java.io.Closeable
@@ -13,6 +14,8 @@ class GameConnection(val gameId: Long) : Disposable, Closeable {
     lateinit var gameData: Flowable<GameData>
     lateinit var moves: Flowable<Move>
 
+    var gameAuth: String? = null
+
     override fun close() {
         OGSService.instance.disconnectFromGame(gameId)
         closed = true
@@ -24,6 +27,10 @@ class GameConnection(val gameId: Long) : Disposable, Closeable {
 
     override fun dispose() {
         close()
+    }
+
+    fun submitMove(move: Point) {
+        OGSService.instance.submitMove(move, gameId, gameAuth)
     }
 }
 

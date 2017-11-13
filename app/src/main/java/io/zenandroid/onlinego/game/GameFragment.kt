@@ -1,5 +1,6 @@
 package io.zenandroid.onlinego.game
 
+import android.graphics.Point
 import android.graphics.Typeface
 import android.os.Bundle
 import android.support.v4.app.Fragment
@@ -10,6 +11,7 @@ import android.widget.TextView
 import butterknife.BindView
 import butterknife.ButterKnife
 import butterknife.Unbinder
+import io.reactivex.Observable
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.model.Position
 import io.zenandroid.onlinego.model.ogs.Game
@@ -90,9 +92,16 @@ class GameFragment : Fragment(), GameContract.View {
 
     override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
+        board.isInteractive = true
 
         presenter = GamePresenter(this, OGSService.instance, game)
+    }
+
+    override val cellSelection: Observable<Point>
+        get() = board.selectionObservable()
+
+    override fun unselectMove() {
+        board.clearSelection()
     }
 
     override fun onDestroyView() {

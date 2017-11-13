@@ -7,6 +7,7 @@ import io.reactivex.schedulers.Schedulers
 import io.zenandroid.onlinego.model.Position
 import io.zenandroid.onlinego.model.StoneType
 import io.zenandroid.onlinego.model.ogs.Game
+import io.zenandroid.onlinego.ogs.GameConnection
 import io.zenandroid.onlinego.ogs.GameData
 import io.zenandroid.onlinego.ogs.Move
 import io.zenandroid.onlinego.ogs.OGSService
@@ -21,10 +22,12 @@ class GamePresenter(
 ) : GameContract.Presenter {
     private val subscriptions = CompositeDisposable()
     private lateinit var gameData: GameData
+    private lateinit var gameConnection: GameConnection
+    private var currentPosition = Position(19)
 
     override fun subscribe() {
         view.boardSize = game.width
-        val gameConnection = service.connectToGame(game.id)
+        gameConnection = service.connectToGame(game.id)
         subscriptions.add(gameConnection)
         subscriptions.add(gameConnection.gameData
                 .subscribeOn(Schedulers.io())
@@ -34,6 +37,25 @@ class GamePresenter(
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
                 .subscribe(this::processMove))
+        subscriptions.add(view.cellSelection
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
+                .subscribe(this::onUserSelectedCell))
+
+    }
+
+    private fun onUserSelectedCell(point: Point) {
+        val nextToMove = currentPosition.lastPlayerToMove?.opponent ?: StoneType.BLACK
+        val validMove = currentPosition.clone().makeMove(nextToMove, point)
+        if(!validMove) {
+            view.unselectMove()
+        } else {
+            //
+            // Move this to onSubmitButton
+            //
+            view.unselectMove()
+            gameConnection.submitMove(point)
+        }
     }
 
     private fun processGameData(gameData: GameData) {
@@ -48,13 +70,13 @@ class GamePresenter(
     }
 
     private fun refreshData() {
-        val pos = Position(19)
+        currentPosition = Position(19)
         var turn = StoneType.BLACK
         for (move in gameData.moves!!) {
-            pos.makeMove(turn, Point(move[0], move[1]))
+            currentPosition.makeMove(turn, Point(move[0], move[1]))
             turn = if (turn == StoneType.BLACK) StoneType.WHITE else StoneType.BLACK
         }
-        view.position = pos
+        view.position = currentPosition
         view.highlightBlackName = turn == StoneType.BLACK
         view.highlightWhiteName = turn == StoneType.WHITE
     }
