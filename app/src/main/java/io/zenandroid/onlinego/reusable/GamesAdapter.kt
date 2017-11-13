@@ -26,7 +26,10 @@ class GameAdapter(private val gameList: MutableList<Game>) : RecyclerView.Adapte
     private val boldTypeface = Typeface.defaultFromStyle(Typeface.BOLD)
     private val normalTypeface = Typeface.defaultFromStyle(Typeface.NORMAL)
 
-    val clicksSubject = PublishSubject.create<Game>()
+    private val clicksSubject = PublishSubject.create<Game>()
+
+    val clicks
+        get() = clicksSubject.hide()
 
     override fun getItemCount(): Int {
         return gameList.size

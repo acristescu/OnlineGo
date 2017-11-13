@@ -41,4 +41,8 @@ class MyGamesPresenter(val view: MyGamesContract.View, private val service: OGSS
     override fun unsubscribe() {
         subscriptions.clear()
     }
+
+    override fun onGameSelected(game: Game) {
+        view.navigateToGameScreen(game)
+    }
 }

@@ -13,9 +13,11 @@ interface MyGamesContract {
         fun doMove(id: Long, move: Move)
         fun addGame(game: Game)
         fun clearGames()
+        fun navigateToGameScreen(game: Game)
     }
     interface Presenter {
         fun subscribe()
         fun unsubscribe()
+        fun onGameSelected(game: Game)
     }
 }

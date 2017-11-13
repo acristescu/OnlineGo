@@ -11,6 +11,7 @@ import android.view.ViewGroup
 import butterknife.BindView
 import butterknife.ButterKnife
 import butterknife.Unbinder
+import io.zenandroid.onlinego.MainActivity
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.model.ogs.Game
 import io.zenandroid.onlinego.ogs.ActiveGameService
@@ -43,8 +44,13 @@ class MyGamesFragment : Fragment(), MyGamesContract.View {
         gamesRecycler.layoutManager = LinearLayoutManager(context)
         (gamesRecycler.itemAnimator as SimpleItemAnimator).supportsChangeAnimations = false
         gamesRecycler.adapter = adapter
+        adapter.clicks.subscribe({presenter.onGameSelected(it)})
 
         presenter = MyGamesPresenter(this, OGSService.instance, ActiveGameService)
+    }
+
+    override fun navigateToGameScreen(game: Game) {
+        (activity as MainActivity).navigateToGameScreen(game)
     }
 
     override fun onDestroyView() {

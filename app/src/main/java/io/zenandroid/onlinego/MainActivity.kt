@@ -5,6 +5,7 @@ import android.support.design.widget.BottomNavigationView
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.AppCompatImageView
 import android.view.MenuItem
+import android.view.View
 import android.widget.TextView
 import android.widget.Toast
 import butterknife.BindView
@@ -24,6 +25,8 @@ class MainActivity : AppCompatActivity() {
 
     private val spectateFragment = SpectateFragment()
     private val myGamesFragment = MyGamesFragment()
+
+    private lateinit var lastSelectedItem: MenuItem
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -59,9 +62,18 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun selectItem(item: MenuItem): Boolean {
+        lastSelectedItem = item
+        if(bottomNavigation.visibility != View.VISIBLE) {
+            bottomNavigation.visibility = View.VISIBLE
+            bottomNavigation.animate()
+                    .translationY(0f)
+                    .alpha(1f)
+        }
         return when(item.itemId) {
             R.id.navigation_spectate -> {
-                supportFragmentManager.beginTransaction().replace(R.id.fragment_container, spectateFragment).commit()
+                supportFragmentManager.beginTransaction()
+                        .replace(R.id.fragment_container, spectateFragment)
+                        .commit()
                 true
             }
             R.id.navigation_challenges -> {
@@ -69,7 +81,9 @@ class MainActivity : AppCompatActivity() {
                 false
             }
             R.id.navigation_my_games -> {
-                supportFragmentManager.beginTransaction().replace(R.id.fragment_container, myGamesFragment).commit()
+                supportFragmentManager.beginTransaction()
+                        .replace(R.id.fragment_container, myGamesFragment)
+                        .commit()
                 true
             }
             else -> false
@@ -78,6 +92,24 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun navigateToGameScreen(game: Game) {
-        supportFragmentManager.beginTransaction().replace(R.id.fragment_container, GameFragment.createFragment(game)).commit()
+        supportFragmentManager.beginTransaction()
+                .replace(R.id.fragment_container, GameFragment.createFragment(game), "game")
+                .runOnCommit({
+                    bottomNavigation.animate()
+                            .translationY(bottomNavigation.height.toFloat())
+                            .alpha(.33f)
+                            .withEndAction({
+                                bottomNavigation.visibility = View.GONE
+                            })
+                })
+                .commit()
+    }
+
+    override fun onBackPressed() {
+        val fragment = supportFragmentManager.findFragmentById(R.id.fragment_container)
+        when(fragment) {
+            is GameFragment -> selectItem(lastSelectedItem)
+            else -> super.onBackPressed()
+        }
     }
 }

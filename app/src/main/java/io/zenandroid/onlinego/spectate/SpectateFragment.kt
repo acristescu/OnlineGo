@@ -38,7 +38,7 @@ class SpectateFragment : Fragment(), SpectateContract.View {
     override var games: GameList? = null
         set(value) {
             adapter = GameAdapter(value!!.results.toMutableList())
-            adapter.clicksSubject.subscribe({presenter.onGameSelected(it)})
+            adapter.clicks.subscribe({presenter.onGameSelected(it)})
             gamesRecycler.adapter = adapter
         }
 
