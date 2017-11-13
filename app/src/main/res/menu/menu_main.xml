@@ -15,5 +15,9 @@
         android:title="Challenges"
         android:icon="@drawable/ic_challenge"
         />
-
+    <!--<item-->
+        <!--android:id="@+id/navigation_more"-->
+        <!--android:title="More"-->
+        <!--android:icon="@drawable/ic_more"-->
+        <!--/>-->
 </menu>

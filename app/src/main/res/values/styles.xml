@@ -10,6 +10,7 @@
 
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
+        <item name="android:windowBackground">@color/colorOffWhite</item>
     </style>
 
     <style name="LoginLabel">

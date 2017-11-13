@@ -51,6 +51,7 @@
                 android:maxLines="1"
                 android:textSize="18sp"
                 android:textStyle="bold"
+                android:textColor="#444444"
                 app:layout_constraintBaseline_toBaselineOf="@+id/white_name"
                 app:layout_constraintEnd_toStartOf="@+id/imageView"
                 app:layout_constraintStart_toEndOf="@+id/black_rank"
@@ -64,6 +65,7 @@
                 android:text="14k"
                 android:textSize="12sp"
                 android:textStyle="italic"
+                android:textColor="#444444"
                 app:layout_constraintBaseline_toBaselineOf="@+id/black_name"
                 app:layout_constraintStart_toStartOf="parent" />
 
@@ -75,6 +77,7 @@
                 android:text="13k"
                 android:textSize="12sp"
                 android:textStyle="italic"
+                android:textColor="#444444"
                 app:layout_constraintBaseline_toBaselineOf="@+id/white_name"
                 app:layout_constraintEnd_toEndOf="parent" />
 
@@ -88,6 +91,7 @@
                 android:maxLines="1"
                 android:textSize="18sp"
                 android:textStyle="bold"
+                android:textColor="#444444"
                 app:layout_constraintEnd_toStartOf="@+id/white_rank"
                 app:layout_constraintStart_toEndOf="@+id/imageView2"
                 app:layout_constraintTop_toTopOf="parent"

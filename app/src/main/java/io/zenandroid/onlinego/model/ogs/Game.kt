@@ -12,7 +12,7 @@ data class Game (
         var width: Int,
         var height: Int,
         var move_number: Int? = null,
-        var paused: Int? = null,
+        var paused: Long? = null,
         var private: Boolean? = null,
         var time_per_move: Int? = null,
         val player_to_move: Long,

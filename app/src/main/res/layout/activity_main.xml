@@ -70,11 +70,11 @@
         android:id="@+id/bottom_navigation"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:itemBackground="@color/colorPrimary"
         app:itemIconTint="@drawable/navigation_selector_color"
         app:itemTextColor="@drawable/navigation_selector_color"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:elevation="8dp"
-        android:elevation="8dp"
-        app:menu="@menu/menu_main" />
+        app:elevation="10dp"
+        app:menu="@menu/menu_main"
+        android:background="@color/white"
+        />
 </android.support.constraint.ConstraintLayout>
