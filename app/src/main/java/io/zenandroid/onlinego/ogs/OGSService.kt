@@ -45,7 +45,9 @@ class OGSService {
     private val api: OGSRestAPI
     private val moshi = Moshi.Builder().build()
 
-    private val loggingAck = Ack { println("ack: $it") }
+    private val loggingAck = Ack {
+        println("ack: $it")
+    }
 
     fun login(username: String, password: String): Completable {
         return api.login(username, password)
@@ -161,8 +163,11 @@ class OGSService {
                         connection.gameAuth = gameData.auth
                         gameData
                     }
+
         connection.moves = observeEvent("game/$id/move")
                     .map { string -> moshi.adapter(Move::class.java).fromJson(string.toString()) }
+        connection.clock = observeEvent("game/$id/clock")
+                    .map { string -> moshi.adapter(Clock::class.java).fromJson(string.toString()) }
 
         emit("game/connect", createJsonObject {
             put("chat", false)
@@ -196,6 +201,11 @@ class OGSService {
                 params ->
                     println("Received event: $event, ${params[0]}")
                     emitter.onNext(params[0])
+            })
+
+            emitter.setCancellable({
+                println("Unregistering for event: $event")
+                socket.off(event)
             })
         }
         , BackpressureStrategy.BUFFER)

@@ -7,10 +7,7 @@ import io.reactivex.schedulers.Schedulers
 import io.zenandroid.onlinego.model.Position
 import io.zenandroid.onlinego.model.StoneType
 import io.zenandroid.onlinego.model.ogs.Game
-import io.zenandroid.onlinego.ogs.GameConnection
-import io.zenandroid.onlinego.ogs.GameData
-import io.zenandroid.onlinego.ogs.Move
-import io.zenandroid.onlinego.ogs.OGSService
+import io.zenandroid.onlinego.ogs.*
 
 /**
  * Created by alex on 10/11/2017.
@@ -37,6 +34,11 @@ class GamePresenter(
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
                 .subscribe(this::processMove))
+        subscriptions.add(gameConnection.clock
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
+                .subscribe(this::onClock))
+
         subscriptions.add(view.cellSelection
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
@@ -53,7 +55,6 @@ class GamePresenter(
             //
             // Move this to onSubmitButton
             //
-            view.unselectMove()
             gameConnection.submitMove(point)
         }
     }
@@ -86,6 +87,12 @@ class GamePresenter(
         newMoves += move.move
         gameData.moves = newMoves
         refreshData()
+    }
+
+    private fun onClock(clock: Clock) {
+        gameData.clock = clock
+
+        view.interactive = clock.current_player == OGSService.instance.uiConfig?.user?.id
     }
 
     override fun unsubscribe() {

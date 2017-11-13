@@ -20,6 +20,7 @@ interface GameContract {
         var highlightWhiteName: Boolean
         val cellSelection: Observable<Point>
         fun unselectMove()
+        var interactive: Boolean
     }
 
     interface Presenter {

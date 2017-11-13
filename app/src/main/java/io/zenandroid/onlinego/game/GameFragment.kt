@@ -104,6 +104,10 @@ class GameFragment : Fragment(), GameContract.View {
         board.clearSelection()
     }
 
+    override var interactive: Boolean
+        get() = board.isInteractive
+        set(value) {board.isInteractive = value}
+
     override fun onDestroyView() {
         super.onDestroyView()
         unbinder.unbind()

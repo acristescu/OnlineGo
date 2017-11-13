@@ -152,7 +152,7 @@ public class BoardView extends View {
             drawStones(canvas);
             drawDecorations(canvas);
         }
-        if(selectedX != -1 && selectedY != -1) {
+        if(interactive && selectedX != -1 && selectedY != -1) {
             drawSelection(canvas);
         }
     }
@@ -321,6 +321,9 @@ public class BoardView extends View {
 
     public void setInteractive(boolean interactive) {
         this.interactive = interactive;
+        selectedX = -1;
+        selectedY = -1;
+        invalidate();
     }
 
     public Observable<Point> selectionObservable() {
