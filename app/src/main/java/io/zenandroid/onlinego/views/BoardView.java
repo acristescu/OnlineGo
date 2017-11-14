@@ -15,6 +15,8 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 
+import java.util.Random;
+
 import io.reactivex.Observable;
 import io.reactivex.subjects.PublishSubject;
 import io.zenandroid.onlinego.R;
@@ -32,6 +34,7 @@ public class BoardView extends View {
     // Supported sizes: 9, 13 and 19
     //
     private int boardSize = 19;
+    private static final boolean FUZZY_PLACEMENT = false;
 
     //
     // Size of border between edge and first line
@@ -44,6 +47,7 @@ public class BoardView extends View {
 
     private final Drawable whiteStoneDrawable = getResources().getDrawable(R.mipmap.stone_white);
     private final Drawable blackStoneDrawable = getResources().getDrawable(R.mipmap.stone_black);
+    private final Drawable shadowDrawable = getResources().getDrawable(R.drawable.gradient_shadow);
 
 //    private final Bitmap texture = BitmapFactory.decodeResource(getResources(), R.mipmap.texture);
     private final Bitmap texture = BitmapFactory.decodeResource(getResources(), R.mipmap.texture1);
@@ -238,6 +242,14 @@ public class BoardView extends View {
 
             PointF center = getCellCenter(p.x, p.y);
             //canvas.drawCircle(center.x, center.y, cellSize / 2f - stoneSpacing, stonesPaint);
+            shadowDrawable.setBounds(
+                    (int) (center.x - cellSize / 2f + stoneSpacing - cellSize / 20f),
+                    (int) (center.y - cellSize / 2f + stoneSpacing - cellSize / 20f),
+                    (int) (center.x + cellSize / 2f - stoneSpacing + cellSize / 12f),
+                    (int) (center.y + cellSize / 2f - stoneSpacing + cellSize / 9f)
+            );
+            shadowDrawable.draw(canvas);
+
             final Drawable drawable = type == StoneType.BLACK ? blackStoneDrawable : whiteStoneDrawable;
             drawable.setBounds(
                     (int) (center.x - cellSize / 2f + stoneSpacing),
@@ -292,6 +304,14 @@ public class BoardView extends View {
         PointF center = new PointF();
         float halfCell = cellSize / 2f;
         center.set(i * cellSize + halfCell, j * cellSize + halfCell);
+        if(FUZZY_PLACEMENT) {
+            // TODO: don't instantiate here
+            final Random r = new Random(i * 100 + j);
+            center.offset(
+                    r.nextFloat() * 3 * stoneSpacing - 1.5f * stoneSpacing,
+                    r.nextFloat() * 3 * stoneSpacing - 1.5f * stoneSpacing
+            );
+        }
 
         return center;
     }
