@@ -6,7 +6,8 @@ import android.view.View;
 import android.widget.Toast;
 
 import io.zenandroid.onlinego.R;
-import io.zenandroid.onlinego.Util;
+import io.zenandroid.onlinego.gamelogic.RulesManager;
+import io.zenandroid.onlinego.gamelogic.Util;
 import io.zenandroid.onlinego.model.Position;
 import io.zenandroid.onlinego.model.StoneType;
 import io.zenandroid.onlinego.views.BoardView;
@@ -50,7 +51,7 @@ public class GameActivity extends AppCompatActivity {
         if(moveSequence.charAt(currentMove * 2) == '.' && moveSequence.charAt(currentMove * 2+1) == '.') {
             Toast.makeText(getApplicationContext(), currentPlayer + " passes", Toast.LENGTH_SHORT).show();
         } else {
-            pos.makeMove(currentPlayer, Util.getCoordinatesFromSGF(moveSequence, currentMove * 2));
+            pos = RulesManager.INSTANCE.makeMove(pos, currentPlayer, Util.getCoordinatesFromSGF(moveSequence, currentMove * 2));
         }
         ((BoardView) findViewById(R.id.board)).setPosition(pos);
     }
@@ -71,7 +72,7 @@ public class GameActivity extends AppCompatActivity {
                 currentPlayer = StoneType.WHITE;
             }
             if(!(moveSequence.charAt(i * 2) == '.' && moveSequence.charAt(i * 2+1) == '.')) {
-                pos.makeMove(currentPlayer, Util.getCoordinatesFromSGF(moveSequence, i * 2));
+                pos = RulesManager.INSTANCE.makeMove(pos, currentPlayer, Util.getCoordinatesFromSGF(moveSequence, i * 2));
             }
         }
         if(moveSequence.charAt(currentMove * 2) == '.' && moveSequence.charAt(currentMove * 2+1) == '.') {
@@ -90,7 +91,7 @@ public class GameActivity extends AppCompatActivity {
                 currentPlayer = StoneType.WHITE;
             }
             if(!(moveSequence.charAt(i*2) == '.' && moveSequence.charAt(i*2+1) == '.')) {
-                pos.makeMove(currentPlayer, Util.getCoordinatesFromSGF(moveSequence, i * 2));
+                pos = RulesManager.INSTANCE.makeMove(pos,currentPlayer, Util.getCoordinatesFromSGF(moveSequence, i * 2));
             }
         }
         if(moveSequence.charAt(currentMove * 2) == '.' && moveSequence.charAt(currentMove * 2+1) == '.') {

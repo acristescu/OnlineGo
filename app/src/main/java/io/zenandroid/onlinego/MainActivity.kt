@@ -2,10 +2,11 @@ package io.zenandroid.onlinego
 
 import android.os.Bundle
 import android.support.design.widget.BottomNavigationView
+import android.support.design.widget.FloatingActionButton
 import android.support.v7.app.AppCompatActivity
-import android.support.v7.widget.AppCompatImageView
 import android.view.MenuItem
 import android.view.View
+import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import butterknife.BindView
@@ -22,6 +23,8 @@ class MainActivity : AppCompatActivity() {
 
     @BindView(R.id.bottom_navigation) lateinit var bottomNavigation: BottomNavigationView
     @BindView(R.id.badge) lateinit var badge: TextView
+    @BindView(R.id.notifications) lateinit var notificationsButton: ImageView
+    @BindView(R.id.fab) lateinit var fab: FloatingActionButton
 
     private val spectateFragment = SpectateFragment()
     private val myGamesFragment = MyGamesFragment()
@@ -47,14 +50,13 @@ class MainActivity : AppCompatActivity() {
         ActiveGameService.myMoveCountObservable
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({ myMoveCount ->
-                    val button = findViewById<AppCompatImageView>(R.id.notifications)
                     if(myMoveCount == 0) {
-                        button.isEnabled = false
-                        button.animate().alpha(.33f)
+                        notificationsButton.isEnabled = false
+                        notificationsButton.animate().alpha(.33f)
                         badge.animate().alpha(0f)
                     } else {
-                        button.isEnabled = true
-                        button.animate().alpha(1f)
+                        notificationsButton.isEnabled = true
+                        notificationsButton.animate().alpha(1f)
                         badge.text = myMoveCount.toString()
                         badge.animate().alpha(1f)
                     }
@@ -68,6 +70,11 @@ class MainActivity : AppCompatActivity() {
             bottomNavigation.animate()
                     .translationY(0f)
                     .alpha(1f)
+            fab.visibility = View.VISIBLE
+            fab.animate()
+                    .alpha(1f)
+                    .scaleX(1f)
+                    .scaleY(1f)
         }
         return when(item.itemId) {
             R.id.navigation_spectate -> {
@@ -92,16 +99,21 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun navigateToGameScreen(game: Game) {
+        bottomNavigation.animate()
+                .translationY(bottomNavigation.height.toFloat())
+                .alpha(.33f)
+                .withEndAction({
+                    bottomNavigation.visibility = View.GONE
+                })
+        fab.animate()
+                .alpha(0f)
+                .scaleX(0f)
+                .scaleY(0f)
+                .withEndAction({
+                    fab.visibility = View.GONE
+                })
         supportFragmentManager.beginTransaction()
                 .replace(R.id.fragment_container, GameFragment.createFragment(game), "game")
-                .runOnCommit({
-                    bottomNavigation.animate()
-                            .translationY(bottomNavigation.height.toFloat())
-                            .alpha(.33f)
-                            .withEndAction({
-                                bottomNavigation.visibility = View.GONE
-                            })
-                })
                 .commit()
     }
 

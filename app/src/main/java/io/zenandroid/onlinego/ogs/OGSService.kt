@@ -1,6 +1,5 @@
 package io.zenandroid.onlinego.ogs
 
-import android.graphics.Point
 import com.squareup.moshi.Moshi
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Completable
@@ -17,8 +16,9 @@ import io.zenandroid.onlinego.model.ogs.GameList
 import io.zenandroid.onlinego.model.ogs.LoginToken
 import io.zenandroid.onlinego.model.ogs.UIConfig
 import io.zenandroid.onlinego.utils.PersistenceManager
+import io.zenandroid.onlinego.utils.createJsonArray
+import io.zenandroid.onlinego.utils.createJsonObject
 import okhttp3.OkHttpClient
-import org.json.JSONArray
 import org.json.JSONObject
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
@@ -189,7 +189,7 @@ class OGSService {
         return returnVal
     }
 
-    private fun emit(event: String, params:Any?) {
+    internal fun emit(event: String, params:Any?) {
         println("Emit: $event with params $params")
         socket.emit(event, params, loggingAck)
     }
@@ -306,31 +306,9 @@ class OGSService {
         socket = IO.socket("https://online-go.com", options)
     }
 
-    private fun createJsonObject(func: JSONObject.() -> Unit): JSONObject {
-        val obj = JSONObject()
-        func(obj)
-        return obj
-    }
-
-    private fun createJsonArray(func: JSONArray.() -> Unit): JSONArray {
-        val obj = JSONArray()
-        func(obj)
-        return obj
-    }
-
     fun disconnectFromGame(id: Long) {
         emit("game/disconnect", createJsonObject {
             put("game_id", id)
-        })
-    }
-
-    fun submitMove(move: Point, gameId: Long, gameAuth: String?) {
-        val encodedMove = ('a' +  move.x) + "" + ('a' + move.y)
-        emit("game/move", createJsonObject {
-            put("auth", gameAuth)
-            put("game_id", gameId)
-            put("player_id", uiConfig?.user?.id)
-            put("move", encodedMove)
         })
     }
 }

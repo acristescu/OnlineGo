@@ -21,11 +21,15 @@ interface GameContract {
         val cellSelection: Observable<Point>
         fun unselectMove()
         var interactive: Boolean
+        var activeUIVisible: Boolean
+        var passButtonEnabled: Boolean
     }
 
     interface Presenter {
         fun subscribe()
         fun unsubscribe()
+        fun onResignConfirmed()
+        fun onPassConfirmed()
 
     }
 }

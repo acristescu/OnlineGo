@@ -1,4 +1,4 @@
-package io.zenandroid.onlinego;
+package io.zenandroid.onlinego.gamelogic;
 
 import android.graphics.Point;
 
@@ -10,9 +10,12 @@ import java.util.List;
  */
 public class Util {
 
-    public static String getSGFCoordinates(int i, int j) {
-        char column = (char)('a' + i);
-        char row = (char)('a' + i);
+    public static String getSGFCoordinates(Point p) {
+        if(p.x == -1) {
+            return "..";
+        }
+        char column = (char)('a' + p.x);
+        char row = (char)('a' + p.y);
         return new String(new char[]{column, row});
     }
 

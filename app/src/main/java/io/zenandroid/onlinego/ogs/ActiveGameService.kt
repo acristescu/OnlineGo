@@ -28,15 +28,22 @@ object ActiveGameService {
 
     init {
         OGSService.instance.connectToNotifications().subscribe({
-            if(activeGames[it.id] == null) {
-                activeGamesSubject.onNext(it)
-            }
-            if(isMyTurn(activeGames[it.id])) {
-                myMoveCount--
-            }
-            activeGames[it.id] = it
-            if(isMyTurn(activeGames[it.id])) {
-                myMoveCount++
+            if (it.phase == Game.Phase.FINISHED) {
+                val oldGameRecord = activeGames.remove(it.id)
+                if(isMyTurn(oldGameRecord)) {
+                    myMoveCount--
+                }
+            } else {
+                if (activeGames[it.id] == null) {
+                    activeGamesSubject.onNext(it)
+                }
+                if (isMyTurn(activeGames[it.id])) {
+                    myMoveCount--
+                }
+                activeGames[it.id] = it
+                if (isMyTurn(activeGames[it.id])) {
+                    myMoveCount++
+                }
             }
             if(lastPublishedMoveCount != myMoveCount) {
                 lastPublishedMoveCount = myMoveCount

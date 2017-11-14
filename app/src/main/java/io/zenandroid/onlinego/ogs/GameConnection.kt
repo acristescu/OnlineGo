@@ -3,6 +3,9 @@ package io.zenandroid.onlinego.ogs
 import android.graphics.Point
 import io.reactivex.Flowable
 import io.reactivex.disposables.Disposable
+import io.zenandroid.onlinego.gamelogic.Util
+import io.zenandroid.onlinego.model.ogs.Game
+import io.zenandroid.onlinego.utils.createJsonObject
 import java.io.Closeable
 
 /**
@@ -31,8 +34,23 @@ class GameConnection(val gameId: Long) : Disposable, Closeable {
     }
 
     fun submitMove(move: Point) {
-        OGSService.instance.submitMove(move, gameId, gameAuth)
+        val encodedMove = Util.getSGFCoordinates(move)
+        OGSService.instance.emit("game/move", createJsonObject {
+            put("auth", gameAuth)
+            put("game_id", gameId)
+            put("player_id", OGSService.instance.uiConfig?.user?.id)
+            put("move", encodedMove)
+        })
     }
+
+    fun resign() {
+        OGSService.instance.emit("game/resign", createJsonObject {
+            put("auth", gameAuth)
+            put("game_id", gameId)
+            put("player_id", OGSService.instance.uiConfig?.user?.id)
+        })
+    }
+
 }
 
 data class GameData (
@@ -52,10 +70,10 @@ data class GameData (
     var white_player_id: Int? = null,
     var players: Players? = null,
     var game_name: String? = null,
-    var phase: String? = null,
+    var phase: Game.Phase,
     //var history: List<Any>? = null,
     var initial_player: String? = null,
-    var moves: List<List<Int>>? = null,
+    var moves: List<List<Int>>,
     var allow_self_capture: Boolean? = null,
     var automatic_stone_removal: Boolean? = null,
     var free_handicap_placement: Boolean? = null,

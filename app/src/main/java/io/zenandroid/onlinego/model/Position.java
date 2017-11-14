@@ -2,12 +2,10 @@ package io.zenandroid.onlinego.model;
 
 import android.graphics.Point;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import org.jetbrains.annotations.NotNull;
 
-import io.zenandroid.onlinego.Util;
+import java.util.HashMap;
+import java.util.Set;
 
 /**
  * A class that models a GO position. It is basically a collection of stones
@@ -56,116 +54,20 @@ public class Position {
         return stones.get(new Point(i,j));
     }
 
+    public StoneType getStoneAt(Point p) {
+        return stones.get(p);
+    }
+
     public Set<Point> getAllStonesCoordinates() {
         return stones.keySet();
     }
 
-    /**
-     * Morph this postion to a new one by performing the move specified.
-     * If the move is invalid, no action is taken and the method returns false.
-     * If the move results in a capture, the captured group is removed from the
-     * position.
-     * @param stone
-     * @param where
-     * @return
-     */
-    public boolean makeMove(StoneType stone, Point where) {
-        if(getStoneAt(where.x, where.y) != null) {
-            //
-            // Can't place a stone on top of another
-            //
-            return false;
-        }
-
-        putStone(where.x, where.y, stone);
-
-        //
-        // Determine if the newly placed stone results in a capture.
-        // For this, we're calling doCapture() on all the neighbours
-        // of the new stones that are of opposite color
-        //
-        List<Point> removedStones = new LinkedList<>();
-        List<Point> neighbours = Util.getNeighbouringSpace(where, boardSize);
-
-        for(Point neighbour : neighbours) {
-            StoneType neighbourType = stones.get(neighbour);
-            if(neighbourType != null && neighbourType != stone) {
-                List<Point> removedGroup = doCapture(neighbour, neighbourType);
-                if(removedGroup != null) {
-                    removedStones.addAll(removedGroup);
-                }
-            }
-        }
-
-        if(!removedStones.isEmpty()) {
-            for(Point p : removedStones) {
-                stones.remove(p);
-            }
-        } else {
-            //
-            // We need to check for suicide
-            //
-            List<Point> suicideGroup = doCapture(where, stone);
-            if(suicideGroup != null && !suicideGroup.isEmpty()) {
-                stones.remove(where);
-                return false;
-            }
-        }
-
-        lastMove = where;
-        return true;
-    }
-
-    /**
-     * Check if the stone group that contains the stone passed as a
-     * parameter is completely surrounded by opposing pieces and the edges
-     * of the board. If so, the entire group is returned
-     *
-     * @param origin
-     * @param type
-     * @return
-     */
-    private List<Point> doCapture(Point origin, StoneType type) {
-        //
-        // For this, we're using a simplified shape recognition mechanism
-        // For each visited node, we're getting all the neighbours, checking
-        // to see if any of them is empty (in which case we immediately exit,
-        // because it means we have no capture) and if not, we add the
-        // neighbours of the same color with the original to the toVisit list
-        // Lastly, we move the visited node from the toVisit to the visited list
-        // At the end, if we did not return before the toVisit list is empty
-        // it means the group is surrounded and the contents of the visited
-        // list is returned.
-        //
-        LinkedList<Point> toVisit = new LinkedList<>();
-        LinkedList<Point> visited = new LinkedList<>();
-
-        toVisit.add(origin);
-
-        while(!toVisit.isEmpty()) {
-            Point current = toVisit.pop();
-            visited.add(current);
-            List<Point> neighbours = Util.getNeighbouringSpace(current, boardSize);
-
-            for(Point toCheck : neighbours) {
-                StoneType checkedStoneType = stones.get(toCheck);
-                if(checkedStoneType == null) {
-                    //
-                    // A liberty, hence no capture
-                    //
-                    return null;
-                }
-                if(checkedStoneType == type && !visited.contains(toCheck)) {
-                    toVisit.add(toCheck);
-                }
-            }
-        }
-
-        return visited;
-    }
-
     public Point getLastMove() {
         return lastMove;
+    }
+
+    public void setLastMove(Point lastMove) {
+        this.lastMove = lastMove;
     }
 
     public StoneType getLastPlayerToMove() {
@@ -181,5 +83,13 @@ public class Position {
         newPos.stones.putAll(stones);
         newPos.lastMove = lastMove;
         return newPos;
+    }
+
+    public int getBoardSize() {
+        return boardSize;
+    }
+
+    public void removeStone(@NotNull Point p) {
+        stones.remove(p);
     }
 }

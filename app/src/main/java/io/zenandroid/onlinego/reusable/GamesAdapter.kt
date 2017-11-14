@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import io.reactivex.subjects.PublishSubject
 import io.zenandroid.onlinego.R
+import io.zenandroid.onlinego.gamelogic.RulesManager
 import io.zenandroid.onlinego.model.Position
 import io.zenandroid.onlinego.model.StoneType
 import io.zenandroid.onlinego.model.ogs.Game
@@ -39,10 +40,10 @@ class GameAdapter(private val gameList: MutableList<Game>) : RecyclerView.Adapte
         val game = gameList[position]
         holder.boardView.boardSize = game.width
         gameDataMap[game.id]?.let { gameData: GameData ->
-            val pos = Position(19)
+            var pos = Position(19)
             var turn = StoneType.BLACK
-            for (move in gameData.moves!!) {
-                pos.makeMove(turn, Point(move[0], move[1]))
+            for (move in gameData.moves) {
+                pos = RulesManager.makeMove(pos, turn, Point(move[0], move[1]))!!
                 turn = if (turn == StoneType.BLACK) StoneType.WHITE else StoneType.BLACK
             }
             holder.boardView.position = pos
@@ -93,7 +94,7 @@ class GameAdapter(private val gameList: MutableList<Game>) : RecyclerView.Adapte
     fun doMove(id: Long, move: Move) {
         gameDataMap[id]?.let { gameData: GameData ->
             // TODO maybe change this to something better
-            val newMoves = gameData.moves?.toMutableList() ?: mutableListOf()
+            val newMoves = gameData.moves.toMutableList()
             newMoves += move.move
             gameData.moves = newMoves
         }

@@ -4,12 +4,15 @@ import android.graphics.Point
 import android.graphics.Typeface
 import android.os.Bundle
 import android.support.v4.app.Fragment
+import android.support.v7.app.AlertDialog
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.TextView
 import butterknife.BindView
 import butterknife.ButterKnife
+import butterknife.OnClick
 import butterknife.Unbinder
 import io.reactivex.Observable
 import io.zenandroid.onlinego.R
@@ -17,6 +20,8 @@ import io.zenandroid.onlinego.model.Position
 import io.zenandroid.onlinego.model.ogs.Game
 import io.zenandroid.onlinego.ogs.OGSService
 import io.zenandroid.onlinego.views.BoardView
+
+
 
 /**
  * Created by alex on 10/11/2017.
@@ -35,11 +40,15 @@ class GameFragment : Fragment(), GameContract.View {
     @BindView(R.id.white_rank) lateinit var whiteRankView: TextView
     @BindView(R.id.black_name) lateinit var blackNameView: TextView
     @BindView(R.id.black_rank) lateinit var blackRankView: TextView
+    @BindView(R.id.pass_button) lateinit var passButton: Button
+    @BindView(R.id.resign_button) lateinit var resignButton: Button
+    @BindView(R.id.active_game_controls) lateinit var activeGameControls: View
 
     private lateinit var unbinder: Unbinder
     private lateinit var presenter: GameContract.Presenter
     private val boldTypeface = Typeface.defaultFromStyle(Typeface.BOLD)
     private val normalTypeface = Typeface.defaultFromStyle(Typeface.NORMAL)
+
     lateinit var game: Game
 
     override var blackName: String? = null
@@ -71,11 +80,17 @@ class GameFragment : Fragment(), GameContract.View {
         set(value) {
             blackNameView.typeface = if(value) boldTypeface else normalTypeface
         }
+    override var activeUIVisible: Boolean = false
+        set(value) {
+            activeGameControls.visibility = if(value) View.VISIBLE else View.GONE
+        }
 
     override var highlightWhiteName: Boolean = false
         set(value) {
             whiteNameView.typeface = if(value) boldTypeface else normalTypeface
         }
+    override var passButtonEnabled: Boolean = true
+        set(value) {passButton.isEnabled = value}
 
     override var boardSize: Int
         get() = board.boardSize
@@ -121,5 +136,23 @@ class GameFragment : Fragment(), GameContract.View {
     override fun onStop() {
         super.onStop()
         presenter.unsubscribe()
+    }
+
+    @OnClick(R.id.resign_button)
+    fun onResignClicked() {
+        AlertDialog.Builder(context)
+                .setTitle("Please confirm")
+                .setMessage("Are you sure you want to resign?")
+                .setPositiveButton("Resign", { _, _ -> presenter.onResignConfirmed() })
+                .setNegativeButton(android.R.string.cancel, null).show()
+    }
+
+    @OnClick(R.id.pass_button)
+    fun onPassClicked() {
+        AlertDialog.Builder(context)
+                .setTitle("Please confirm")
+                .setMessage("Are you sure you want to pass?")
+                .setPositiveButton("Pass", { _, _ -> presenter.onPassConfirmed() })
+                .setNegativeButton(android.R.string.cancel, null).show()
     }
 }

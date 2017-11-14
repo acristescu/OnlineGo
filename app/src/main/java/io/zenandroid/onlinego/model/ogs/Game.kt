@@ -1,5 +1,7 @@
 package io.zenandroid.onlinego.model.ogs
 
+import com.squareup.moshi.Json
+
 /**
  * Created by alex on 04/11/2017.
  */
@@ -7,7 +9,7 @@ data class Game (
         var white: Player? = null,
         var black: Player? = null,
         var id: Long,
-        var phase: String? = null,
+        var phase: Phase,
         var name: String? = null,
         var width: Int,
         var height: Int,
@@ -44,6 +46,12 @@ data class Game (
     data class Related (
             var detail: String? = null
     )
+
+    enum class Phase {
+        @Json(name = "play") PLAY,
+        @Json(name = "stone removal") STONE_REMOVAL,
+        @Json(name = "finished") FINISHED
+    }
 }
 
 
