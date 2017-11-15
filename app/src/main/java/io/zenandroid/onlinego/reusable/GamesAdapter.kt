@@ -15,6 +15,8 @@ import io.zenandroid.onlinego.model.StoneType
 import io.zenandroid.onlinego.model.ogs.Game
 import io.zenandroid.onlinego.ogs.GameData
 import io.zenandroid.onlinego.ogs.Move
+import io.zenandroid.onlinego.utils.egfToRank
+import io.zenandroid.onlinego.utils.formatRank
 import io.zenandroid.onlinego.views.BoardView
 
 
@@ -48,9 +50,9 @@ class GameAdapter(private val gameList: MutableList<Game>) : RecyclerView.Adapte
             }
             holder.boardView.position = pos
             holder.blackName.text = gameData.players?.black?.username
-            holder.blackRank.text = formatRank(gameData.players?.black?.rank)
+            holder.blackRank.text = formatRank(egfToRank(gameData.players?.black?.egf))
             holder.whiteName.text = gameData.players?.white?.username
-            holder.whiteRank.text = formatRank(gameData.players?.white?.rank)
+            holder.whiteRank.text = formatRank(egfToRank(gameData.players?.white?.egf))
 
             if(turn == StoneType.BLACK) {
                 holder.blackName.typeface = boldTypeface
@@ -63,15 +65,6 @@ class GameAdapter(private val gameList: MutableList<Game>) : RecyclerView.Adapte
         holder.itemView.setOnClickListener({
             clicksSubject.onNext(game)
         })
-    }
-
-    private fun formatRank(rank: Int?): String {
-        return when(rank) {
-            null -> "?"
-            in 0 .. 29 -> "${30 - rank}k"
-            in 30 .. 100 -> "${(rank - 29)}d"
-            else -> "???"
-        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {

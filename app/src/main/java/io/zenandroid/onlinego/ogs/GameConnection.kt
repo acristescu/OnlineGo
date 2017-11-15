@@ -135,7 +135,8 @@ data class Player (
     var professional: Boolean? = null,
     //var egf: Int? = null
     var rank: Int? = null,
-    var id: Int? = null
+    var id: Int? = null,
+    var egf: Double? = null
 )
 
 data class TimeControl (

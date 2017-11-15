@@ -9,6 +9,8 @@ import io.zenandroid.onlinego.model.Position
 import io.zenandroid.onlinego.model.StoneType
 import io.zenandroid.onlinego.model.ogs.Game
 import io.zenandroid.onlinego.ogs.*
+import io.zenandroid.onlinego.utils.egfToRank
+import io.zenandroid.onlinego.utils.formatRank
 
 /**
  * Created by alex on 10/11/2017.
@@ -67,9 +69,9 @@ class GamePresenter(
         this.gameData = gameData
 
         view.blackName = gameData.players?.black?.username
-        view.blackRank = formatRank(gameData.players?.black?.rank)
+        view.blackRank = formatRank(egfToRank(gameData.players?.black?.egf))
         view.whiteName = gameData.players?.white?.username
-        view.whiteRank = formatRank(gameData.players?.white?.rank)
+        view.whiteRank = formatRank(egfToRank(gameData.players?.white?.egf))
 
         activeGame = (gameData.phase != Game.Phase.FINISHED) && ((game.black?.id == userId) || (game.white?.id == userId))
         view.activeUIVisible = activeGame
@@ -114,14 +116,5 @@ class GamePresenter(
 
     override fun unsubscribe() {
         subscriptions.clear()
-    }
-
-    private fun formatRank(rank: Int?): String {
-        return when(rank) {
-            null -> "?"
-            in 0 .. 29 -> "${30 - rank}k"
-            in 30 .. 100 -> "${(rank - 29)}d"
-            else -> "???"
-        }
     }
 }
