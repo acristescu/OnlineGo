@@ -1,15 +1,13 @@
 package io.zenandroid.onlinego.game
 
 import android.graphics.Point
-import android.graphics.Typeface
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.app.AlertDialog
+import android.support.v7.widget.AppCompatImageView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.TextView
 import butterknife.BindView
 import butterknife.ButterKnife
 import butterknife.OnClick
@@ -18,9 +16,10 @@ import io.reactivex.Observable
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.model.Position
 import io.zenandroid.onlinego.model.ogs.Game
+import io.zenandroid.onlinego.model.ogs.Player
 import io.zenandroid.onlinego.ogs.OGSService
 import io.zenandroid.onlinego.views.BoardView
-
+import io.zenandroid.onlinego.views.PlayerDetailsView
 
 
 /**
@@ -36,61 +35,51 @@ class GameFragment : Fragment(), GameContract.View {
     }
 
     @BindView(R.id.board) lateinit var board: BoardView
-    @BindView(R.id.white_name) lateinit var whiteNameView: TextView
-    @BindView(R.id.white_rank) lateinit var whiteRankView: TextView
-    @BindView(R.id.black_name) lateinit var blackNameView: TextView
-    @BindView(R.id.black_rank) lateinit var blackRankView: TextView
-    @BindView(R.id.pass_button) lateinit var passButton: Button
-    @BindView(R.id.resign_button) lateinit var resignButton: Button
+    @BindView(R.id.pass_button) lateinit var passButton: AppCompatImageView
+    @BindView(R.id.resign_button) lateinit var resignButton: AppCompatImageView
     @BindView(R.id.active_game_controls) lateinit var activeGameControls: View
+    @BindView(R.id.white_details) lateinit var whiteDetailsView: PlayerDetailsView
+    @BindView(R.id.black_details) lateinit var blackDetailsView: PlayerDetailsView
+
 
     private lateinit var unbinder: Unbinder
     private lateinit var presenter: GameContract.Presenter
-    private val boldTypeface = Typeface.defaultFromStyle(Typeface.BOLD)
-    private val normalTypeface = Typeface.defaultFromStyle(Typeface.NORMAL)
+//    private val boldTypeface = Typeface.defaultFromStyle(Typeface.BOLD)
+//    private val normalTypeface = Typeface.defaultFromStyle(Typeface.NORMAL)
 
     lateinit var game: Game
-
-    override var blackName: String? = null
-        set(value) {
-            blackNameView.text = value
-        }
-
-    override var blackRank: String? = null
-        set(value) {
-            blackRankView.text = value
-        }
-
-    override var whiteName: String? = null
-        set(value) {
-            whiteNameView.text = value
-        }
-
-    override var whiteRank: String? = null
-        set(value) {
-            whiteRankView.text = value
-        }
 
     override var position: Position? = null
         set(value) {
             board.position = value
         }
 
-    override var highlightBlackName: Boolean = false
-        set(value) {
-            blackNameView.typeface = if(value) boldTypeface else normalTypeface
-        }
+//    override var highlightBlackName: Boolean = false
+//        set(value) {
+//            blackNameView.typeface = if(value) boldTypeface else normalTypeface
+//        }
     override var activeUIVisible: Boolean = false
         set(value) {
             activeGameControls.visibility = if(value) View.VISIBLE else View.GONE
         }
 
-    override var highlightWhiteName: Boolean = false
+    override var whitePlayer: Player? = null
         set(value) {
-            whiteNameView.typeface = if(value) boldTypeface else normalTypeface
+            whiteDetailsView.player = value
         }
+
+    override var blackPlayer: Player? = null
+        set(value) {
+            blackDetailsView.player = value
+        }
+    //    override var highlightWhiteName: Boolean = false
+//        set(value) {
+//            whiteNameView.typeface = if(value) boldTypeface else normalTypeface
+//        }
     override var passButtonEnabled: Boolean = true
-        set(value) {passButton.isEnabled = value}
+        set(value) {
+            passButton.isEnabled = value
+        }
 
     override var boardSize: Int
         get() = board.boardSize

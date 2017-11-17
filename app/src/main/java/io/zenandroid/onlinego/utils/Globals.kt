@@ -34,3 +34,11 @@ fun formatRank(rank: Double?) =
         else -> "???"
     }
 
+fun convertCountryCodeToEmojiFlag(country: String):String {
+    val c1 = '\uDDE6' + country[0].minus('a')
+    val c2 = '\uDDE6' + country[1].minus('a')
+    return "\uD83C$c1\uD83C$c2"
+}
+
+
+

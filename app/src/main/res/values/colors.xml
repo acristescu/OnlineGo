@@ -13,6 +13,7 @@
 
     <color name="white">#FFFFFF</color>
     <color name="colorPrimary">#77BAE6</color>
+    <color name="colorPrimaryLight">#E5F0FF</color>
     <color name="colorPrimaryDark">#2588c9</color>
     <color name="colorAccent">#F78686</color>
     <color name="colorOffWhite">#F2F7FF</color>

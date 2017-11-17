@@ -5,6 +5,7 @@ import io.reactivex.Flowable
 import io.reactivex.disposables.Disposable
 import io.zenandroid.onlinego.gamelogic.Util
 import io.zenandroid.onlinego.model.ogs.Game
+import io.zenandroid.onlinego.model.ogs.Player
 import io.zenandroid.onlinego.utils.createJsonObject
 import java.io.Closeable
 
@@ -130,14 +131,6 @@ data class Players (
     var black: Player? = null
 )
 
-data class Player (
-    var username: String? = null,
-    var professional: Boolean? = null,
-    //var egf: Int? = null
-    var rank: Int? = null,
-    var id: Int? = null,
-    var egf: Double? = null
-)
 
 data class TimeControl (
     var system: String? = null,

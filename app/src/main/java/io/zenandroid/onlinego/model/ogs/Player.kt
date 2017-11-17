@@ -9,7 +9,8 @@ data class Player (
         var rank: Int? = null,
         var professional: Boolean? = null,
         var accepted: Boolean? = null,
-        var ratings: Ratings
+        var ratings: Ratings? = null,
+        var egf: Double? = null
 ) {
     data class Ratings(
             var overall: Rating? = null

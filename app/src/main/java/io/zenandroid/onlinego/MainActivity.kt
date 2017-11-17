@@ -111,10 +111,12 @@ class MainActivity : AppCompatActivity() {
                 .scaleY(0f)
                 .withEndAction({
                     fab.visibility = View.GONE
-                })
-        supportFragmentManager.beginTransaction()
+                }).withEndAction({
+            supportFragmentManager.beginTransaction()
                 .replace(R.id.fragment_container, GameFragment.createFragment(game), "game")
                 .commit()
+        })
+
     }
 
     override fun onBackPressed() {
