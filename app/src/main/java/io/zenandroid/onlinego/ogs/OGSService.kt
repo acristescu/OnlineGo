@@ -35,14 +35,14 @@ class OGSService {
     companion object {
         @JvmField
         val instance = OGSService()
-        val TAG = OGSService::class.java.name!!
+        val TAG: String = OGSService::class.java.name
     }
 
     private var token: LoginToken? = null
     var uiConfig: UIConfig? = null
     private val socket: Socket
     private var tokenExpiry: Date
-    private val api: OGSRestAPI
+    val restApi: OGSRestAPI
     private val moshi = Moshi.Builder().build()
 
     private val loggingAck = Ack {
@@ -50,9 +50,9 @@ class OGSService {
     }
 
     fun login(username: String, password: String): Completable {
-        return api.login(username, password)
+        return restApi.login(username, password)
                 .doOnSuccess(this::storeToken)
-                .flatMap { api.uiConfig() }
+                .flatMap { restApi.uiConfig() }
                 .doOnSuccess(this::storeUIConfig)
                 .doOnSuccess({ ensureSocketConnected() })
                 .toCompletable()
@@ -72,7 +72,7 @@ class OGSService {
             //
             // We do have a token but it's expired, we need to refresh everything
             //
-            tokenSource = api.refreshToken(token!!.refresh_token).doOnSuccess(this::storeToken)
+            tokenSource = restApi.refreshToken(token!!.refresh_token).doOnSuccess(this::storeToken)
             uiConfig = null
         } else {
             //
@@ -83,7 +83,7 @@ class OGSService {
 
         val uiConfigSource: Single<UIConfig>
         if(uiConfig == null) {
-            uiConfigSource = tokenSource.flatMap { api.uiConfig() }.doOnSuccess(this::storeUIConfig)
+            uiConfigSource = tokenSource.flatMap { restApi.uiConfig() }.doOnSuccess(this::storeUIConfig)
         } else {
             uiConfigSource = tokenSource.flatMap { Single.just(uiConfig!!)}
         }
@@ -289,7 +289,7 @@ class OGSService {
                     response
                 }
                 .build()
-        api = Retrofit.Builder()
+        restApi = Retrofit.Builder()
                 .baseUrl("https://online-go.com/")
                 .client(httpClient)
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.createWithScheduler(Schedulers.io()))

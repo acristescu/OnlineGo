@@ -1,14 +1,41 @@
 package io.zenandroid.onlinego.gamelogic
 
 import android.graphics.Point
+import android.util.Log
 import io.zenandroid.onlinego.model.Position
 import io.zenandroid.onlinego.model.StoneType
+import io.zenandroid.onlinego.ogs.GameData
 import java.util.*
 
 /**
  * Created by alex on 14/11/2017.
  */
 object RulesManager {
+
+    fun replay(gameData: GameData, limit: Int = Int.MAX_VALUE): Position {
+        var pos = Position(19)
+
+        var turn = StoneType.BLACK
+        if(gameData.initial_player == "white") {
+            turn = StoneType.WHITE
+        }
+
+        gameData.moves.forEachIndexed { index, move ->
+            if(index >= limit) {
+                return@forEachIndexed
+            }
+            val newPos = RulesManager.makeMove(pos, turn, Point(move[0], move[1]))
+            if(newPos == null) {
+                Log.e(this.javaClass.simpleName, "Server returned an invalid move!!! gameId=${gameData.game_id} move=$index")
+                return@forEachIndexed
+            }
+            pos = newPos
+            if(index + 1 >= gameData.handicap ?: 0) {
+                turn = turn.opponent
+            }
+        }
+        return pos
+    }
 
     /**
      * Morph this postion to a new one by performing the move specified.
@@ -56,6 +83,10 @@ object RulesManager {
         if (!removedStones.isEmpty()) {
             for (p in removedStones) {
                 pos.removeStone(p)
+            }
+            when(stone) {
+                StoneType.WHITE -> pos.whiteCapturedCount += removedStones.size
+                StoneType.BLACK -> pos.blackCapturedCount += removedStones.size
             }
         } else {
             //

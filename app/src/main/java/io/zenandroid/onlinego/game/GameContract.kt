@@ -30,5 +30,7 @@ interface GameContract {
         fun onResignConfirmed()
         fun onPassConfirmed()
 
+        fun onPreviousButtonPressed()
+        fun onNextButtonPressed()
     }
 }

@@ -93,6 +93,7 @@
             android:background="?selectableItemBackground"
             />
         <android.support.v7.widget.AppCompatImageView
+            android:id="@+id/previous_button"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             app:srcCompat="@drawable/ic_navigate_previous"
@@ -102,6 +103,7 @@
             android:background="?selectableItemBackground"
             />
         <android.support.v7.widget.AppCompatImageView
+            android:id="@+id/next_button"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             app:srcCompat="@drawable/ic_navigate_next"

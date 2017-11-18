@@ -28,6 +28,8 @@ public class Position {
     private HashMap<Point, StoneType> stones = new HashMap<>();
     private int boardSize = 19;
     private Point lastMove = null;
+    private int whiteCapturedCount = 0;
+    private int blackCapturedCount = 0;
 
     public Position(int boardSize) {
         this.boardSize = boardSize;
@@ -82,6 +84,8 @@ public class Position {
         final Position newPos = new Position(boardSize);
         newPos.stones.putAll(stones);
         newPos.lastMove = lastMove;
+        newPos.blackCapturedCount = blackCapturedCount;
+        newPos.whiteCapturedCount = whiteCapturedCount;
         return newPos;
     }
 
@@ -91,5 +95,21 @@ public class Position {
 
     public void removeStone(@NotNull Point p) {
         stones.remove(p);
+    }
+
+    public int getWhiteCapturedCount() {
+        return whiteCapturedCount;
+    }
+
+    public void setWhiteCapturedCount(int whiteCapturedCount) {
+        this.whiteCapturedCount = whiteCapturedCount;
+    }
+
+    public int getBlackCapturedCount() {
+        return blackCapturedCount;
+    }
+
+    public void setBlackCapturedCount(int blackCapturedCount) {
+        this.blackCapturedCount = blackCapturedCount;
     }
 }

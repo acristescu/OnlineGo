@@ -16,7 +16,7 @@ import io.zenandroid.onlinego.ogs.*
 class GamePresenter(
         private val view: GameContract.View,
         private val service: OGSService,
-        private val game: Game
+        private var game: Game
 ) : GameContract.Presenter {
     private val subscriptions = CompositeDisposable()
     private lateinit var gameData: GameData
@@ -24,6 +24,9 @@ class GamePresenter(
     private var activeGame: Boolean = false
     private var currentPosition = Position(19)
     private val userId = OGSService.instance.uiConfig?.user?.id
+    private var detailedPlayerDetailsSet = false
+    private var currentShownMove = -1
+    private var showingHistory = false
 
     override fun subscribe() {
         view.boardSize = game.width
@@ -43,12 +46,27 @@ class GamePresenter(
                 .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
                 .subscribe(this::onClock))
 
+        subscriptions.add(service.restApi.fetchGame(game.id)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
+                .subscribe(this::processGame))
+
         subscriptions.add(view.cellSelection
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
                 .subscribe(this::onUserSelectedCell))
 
     }
+
+    private fun processGame(game: Game) {
+        this.game = game
+        processGameData(game.gamedata)
+
+        detailedPlayerDetailsSet = true
+        view.whitePlayer = game.players?.white
+        view.blackPlayer = game.players?.black
+    }
+
 
     private fun onUserSelectedCell(point: Point) {
         val nextToMove = currentPosition.lastPlayerToMove?.opponent ?: StoneType.BLACK
@@ -66,23 +84,19 @@ class GamePresenter(
     private fun processGameData(gameData: GameData) {
         this.gameData = gameData
 
-        view.whitePlayer = gameData.players?.white
-        view.blackPlayer = gameData.players?.black
+        if(!detailedPlayerDetailsSet) {
+            view.whitePlayer = gameData.players?.white
+            view.blackPlayer = gameData.players?.black
+        }
 
-        activeGame = (gameData.phase != Game.Phase.FINISHED) && ((game.black?.id == userId) || (game.white?.id == userId))
+        activeGame = (gameData.phase != Game.Phase.FINISHED) && ((game.blackId == userId) || (game.whiteId == userId))
         view.activeUIVisible = activeGame
 
         refreshData()
     }
 
     private fun refreshData() {
-        currentPosition = Position(19)
-        var turn = StoneType.BLACK
-        for (move in gameData.moves) {
-            currentPosition = RulesManager.makeMove(currentPosition, turn, Point(move[0], move[1]))!!
-            turn = if (turn == StoneType.BLACK) StoneType.WHITE else StoneType.BLACK
-        }
-        view.position = currentPosition
+        view.position = RulesManager.replay(gameData)
 //        view.highlightBlackName = turn == StoneType.BLACK
 //        view.highlightWhiteName = turn == StoneType.WHITE
     }
@@ -91,7 +105,9 @@ class GamePresenter(
         val newMoves = gameData.moves.toMutableList()
         newMoves += move.move
         gameData.moves = newMoves
-        refreshData()
+        if(!showingHistory) {
+            refreshData()
+        }
     }
 
     private fun onClock(clock: Clock) {
@@ -108,6 +124,30 @@ class GamePresenter(
 
     override fun onPassConfirmed() {
         gameConnection.submitMove(Point(-1, -1))
+    }
+
+    override fun onNextButtonPressed() {
+        if(currentShownMove < gameData.moves.size) {
+            currentShownMove ++
+        }
+        if(currentShownMove == gameData.moves.size) {
+            showingHistory = false
+//            view.previousButtonEnabled = false
+        }
+        view.position = RulesManager.replay(gameData, currentShownMove)
+    }
+
+    override fun onPreviousButtonPressed() {
+        if(showingHistory) {
+            currentShownMove--
+        } else {
+            showingHistory = true
+            currentShownMove = gameData.moves.size - 1
+        }
+        if(currentShownMove == 0) {
+//            view.previousButtonEnabled = false
+        }
+        view.position = RulesManager.replay(gameData, currentShownMove)
     }
 
     override fun unsubscribe() {

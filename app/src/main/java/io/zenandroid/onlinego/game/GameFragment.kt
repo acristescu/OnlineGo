@@ -52,6 +52,8 @@ class GameFragment : Fragment(), GameContract.View {
     override var position: Position? = null
         set(value) {
             board.position = value
+            whiteDetailsView.captured = value?.whiteCapturedCount
+            blackDetailsView.captured = value?.blackCapturedCount
         }
 
 //    override var highlightBlackName: Boolean = false
@@ -144,4 +146,13 @@ class GameFragment : Fragment(), GameContract.View {
                 .setPositiveButton("Pass", { _, _ -> presenter.onPassConfirmed() })
                 .setNegativeButton(android.R.string.cancel, null).show()
     }
-}
+
+    @OnClick(R.id.previous_button)
+    fun onPreviousClicked() {
+        presenter.onPreviousButtonPressed()
+    }
+
+    @OnClick(R.id.next_button)
+    fun onNextClicked() {
+        presenter.onNextButtonPressed()
+    }}

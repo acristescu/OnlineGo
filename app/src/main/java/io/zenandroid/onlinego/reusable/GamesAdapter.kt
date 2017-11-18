@@ -1,6 +1,5 @@
 package io.zenandroid.onlinego.reusable
 
-import android.graphics.Point
 import android.graphics.Typeface
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
@@ -10,7 +9,6 @@ import android.widget.TextView
 import io.reactivex.subjects.PublishSubject
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.gamelogic.RulesManager
-import io.zenandroid.onlinego.model.Position
 import io.zenandroid.onlinego.model.StoneType
 import io.zenandroid.onlinego.model.ogs.Game
 import io.zenandroid.onlinego.ogs.GameData
@@ -41,20 +39,16 @@ class GameAdapter(private val gameList: MutableList<Game>) : RecyclerView.Adapte
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val game = gameList[position]
         holder.boardView.boardSize = game.width
-        gameDataMap[game.id]?.let { gameData: GameData ->
-            var pos = Position(19)
-            var turn = StoneType.BLACK
-            for (move in gameData.moves) {
-                pos = RulesManager.makeMove(pos, turn, Point(move[0], move[1]))!!
-                turn = if (turn == StoneType.BLACK) StoneType.WHITE else StoneType.BLACK
-            }
+        gameDataMap[game.id]?.let { gameData ->
+            val pos = RulesManager.replay(gameData)
+
             holder.boardView.position = pos
             holder.blackName.text = gameData.players?.black?.username
             holder.blackRank.text = formatRank(egfToRank(gameData.players?.black?.egf))
             holder.whiteName.text = gameData.players?.white?.username
             holder.whiteRank.text = formatRank(egfToRank(gameData.players?.white?.egf))
 
-            if(turn == StoneType.BLACK) {
+            if(pos.getStoneAt(pos.lastMove) != StoneType.BLACK) {
                 holder.blackName.typeface = boldTypeface
                 holder.whiteName.typeface = normalTypeface
             } else {
