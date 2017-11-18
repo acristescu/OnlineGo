@@ -3,6 +3,7 @@ package io.zenandroid.onlinego.game
 import android.graphics.Point
 import io.reactivex.Observable
 import io.zenandroid.onlinego.model.Position
+import io.zenandroid.onlinego.model.StoneType
 import io.zenandroid.onlinego.model.ogs.Player
 
 /**
@@ -18,10 +19,12 @@ interface GameContract {
 //        var highlightBlackName: Boolean
 //        var highlightWhiteName: Boolean
         val cellSelection: Observable<Point>
-        fun unselectMove()
+        val cellHotTrack: Observable<Point>
         var interactive: Boolean
         var activeUIVisible: Boolean
         var passButtonEnabled: Boolean
+        fun showCandidateMove(point: Point?, nextToMove: StoneType? = null)
+        var confirmMoveUIVisible: Boolean
     }
 
     interface Presenter {
@@ -32,5 +35,7 @@ interface GameContract {
 
         fun onPreviousButtonPressed()
         fun onNextButtonPressed()
+        fun onDiscardButtonPressed()
+        fun onConfirmButtonPressed()
     }
 }

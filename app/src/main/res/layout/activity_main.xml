@@ -22,7 +22,7 @@
                 android:layout_gravity="right">
                 <ImageView
                     android:id="@+id/notifications"
-                    app:srcCompat="@drawable/ic_notifications_active"
+                    app:srcCompat="@drawable/ic_move"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:clickable="true"

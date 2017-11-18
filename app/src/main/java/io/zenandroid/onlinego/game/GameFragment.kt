@@ -2,6 +2,7 @@ package io.zenandroid.onlinego.game
 
 import android.graphics.Point
 import android.os.Bundle
+import android.support.transition.TransitionManager
 import android.support.v4.app.Fragment
 import android.support.v7.app.AlertDialog
 import android.support.v7.widget.AppCompatImageView
@@ -15,6 +16,7 @@ import butterknife.Unbinder
 import io.reactivex.Observable
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.model.Position
+import io.zenandroid.onlinego.model.StoneType
 import io.zenandroid.onlinego.model.ogs.Game
 import io.zenandroid.onlinego.model.ogs.Player
 import io.zenandroid.onlinego.ogs.OGSService
@@ -37,7 +39,10 @@ class GameFragment : Fragment(), GameContract.View {
     @BindView(R.id.board) lateinit var board: BoardView
     @BindView(R.id.pass_button) lateinit var passButton: AppCompatImageView
     @BindView(R.id.resign_button) lateinit var resignButton: AppCompatImageView
-    @BindView(R.id.active_game_controls) lateinit var activeGameControls: View
+    @BindView(R.id.previous_button) lateinit var previousButton: AppCompatImageView
+    @BindView(R.id.confirm_button) lateinit var confirmButton: AppCompatImageView
+    @BindView(R.id.discard_button) lateinit var discardButton: AppCompatImageView
+    @BindView(R.id.active_game_controls) lateinit var activeGameControls: ViewGroup
     @BindView(R.id.white_details) lateinit var whiteDetailsView: PlayerDetailsView
     @BindView(R.id.black_details) lateinit var blackDetailsView: PlayerDetailsView
 
@@ -96,6 +101,16 @@ class GameFragment : Fragment(), GameContract.View {
         return view
     }
 
+    override var confirmMoveUIVisible: Boolean = false
+        set(value) {
+            TransitionManager.beginDelayedTransition(activeGameControls)
+            for(i in 0 until activeGameControls.childCount) {
+                activeGameControls.getChildAt(i).visibility = if(value) View.GONE else View.VISIBLE
+            }
+            confirmButton.visibility = if(value) View.VISIBLE else View.GONE
+            discardButton.visibility = if(value) View.VISIBLE else View.GONE
+        }
+
     override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         board.isInteractive = true
@@ -104,11 +119,14 @@ class GameFragment : Fragment(), GameContract.View {
     }
 
     override val cellSelection: Observable<Point>
-        get() = board.selectionObservable()
+        get() = board.tapUpObservable()
 
-    override fun unselectMove() {
-        board.clearSelection()
+    override fun showCandidateMove(point: Point?, nextToMove: StoneType?) {
+        board.showCandidateMove(point, nextToMove)
     }
+
+    override val cellHotTrack: Observable<Point>
+        get() = board.tapMoveObservable()
 
     override var interactive: Boolean
         get() = board.isInteractive
@@ -155,4 +173,15 @@ class GameFragment : Fragment(), GameContract.View {
     @OnClick(R.id.next_button)
     fun onNextClicked() {
         presenter.onNextButtonPressed()
-    }}
+    }
+
+    @OnClick(R.id.discard_button)
+    fun onDiscardClicked() {
+        presenter.onDiscardButtonPressed()
+    }
+
+    @OnClick(R.id.confirm_button)
+    fun onConfirmClicked() {
+        presenter.onConfirmButtonPressed()
+    }
+}

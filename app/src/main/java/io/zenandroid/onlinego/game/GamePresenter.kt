@@ -28,6 +28,8 @@ class GamePresenter(
     private var currentShownMove = -1
     private var showingHistory = false
 
+    private var candidateMove: Point? = null
+
     override fun subscribe() {
         view.boardSize = game.width
 
@@ -56,6 +58,11 @@ class GamePresenter(
                 .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
                 .subscribe(this::onUserSelectedCell))
 
+        subscriptions.add(view.cellHotTrack
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
+                .subscribe(this::onUserHotTrackedCell))
+
     }
 
     private fun processGame(game: Game) {
@@ -67,18 +74,30 @@ class GamePresenter(
         view.blackPlayer = game.players?.black
     }
 
-
-    private fun onUserSelectedCell(point: Point) {
+    private fun onUserHotTrackedCell(point: Point) {
         val nextToMove = currentPosition.lastPlayerToMove?.opponent ?: StoneType.BLACK
         val validMove = RulesManager.makeMove(currentPosition, nextToMove, point) != null
-        if(!validMove) {
-            view.unselectMove()
-        } else {
-            //
-            // Move this to onSubmitButton
-            //
-            gameConnection.submitMove(point)
+        if(validMove) {
+            candidateMove = point
+            view.showCandidateMove(point, nextToMove)
         }
+    }
+
+    private fun onUserSelectedCell(point: Point) {
+        view.confirmMoveUIVisible = true
+    }
+
+    override fun onDiscardButtonPressed() {
+        candidateMove = null
+        view.showCandidateMove(null)
+        view.confirmMoveUIVisible = false
+    }
+
+    override fun onConfirmButtonPressed() {
+        view.interactive = false
+        candidateMove?.let { gameConnection.submitMove(it) }
+        candidateMove = null
+        view.confirmMoveUIVisible = false
     }
 
     private fun processGameData(gameData: GameData) {
@@ -96,12 +115,15 @@ class GamePresenter(
     }
 
     private fun refreshData() {
-        view.position = RulesManager.replay(gameData)
+        currentPosition = RulesManager.replay(gameData)
+        view.position = currentPosition
 //        view.highlightBlackName = turn == StoneType.BLACK
 //        view.highlightWhiteName = turn == StoneType.WHITE
     }
 
     private fun processMove(move: Move) {
+        candidateMove = null
+        view.showCandidateMove(null)
         val newMoves = gameData.moves.toMutableList()
         newMoves += move.move
         gameData.moves = newMoves

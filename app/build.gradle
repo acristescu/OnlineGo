@@ -54,6 +54,8 @@ dependencies {
         exclude group: 'org.json', module: 'json'
     }
 
+    compile 'com.jakewharton.rxbinding2:rxbinding:2.0.0'
+
     compile 'br.com.simplepass:loading-button-android:1.8.3'
     compile 'com.github.bumptech.glide:glide:4.3.1'
     kapt 'com.github.bumptech.glide:compiler:4.3.1'
