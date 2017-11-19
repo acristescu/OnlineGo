@@ -49,7 +49,7 @@
             android:gravity="left"
             android:maxLines="1"
             android:textSize="18sp"
-            tools:text="MrAlexMrAlexMrAlexMrAlexMrAlexMrAlexMrAlexMrAlexMrAlexMrAlex" />
+            tools:text="MrAlex" />
 
         <TextView
             android:id="@+id/rank"

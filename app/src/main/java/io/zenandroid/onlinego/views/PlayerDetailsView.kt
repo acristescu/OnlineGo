@@ -49,7 +49,7 @@ class PlayerDetailsView : FrameLayout {
                 Glide.with(this)
                         .load(processGravatarURL(it))
                         .apply(RequestOptions().centerCrop().placeholder(R.drawable.ic_person_outline))
-                        .apply(RequestOptions().optionalCircleCrop())
+                        .apply(RequestOptions().circleCrop())
                         .transition(DrawableTransitionOptions.withCrossFade())
                         .into(iconView)
             }

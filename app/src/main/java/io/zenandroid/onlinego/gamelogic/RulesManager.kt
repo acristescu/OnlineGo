@@ -34,6 +34,21 @@ object RulesManager {
                 turn = turn.opponent
             }
         }
+        gameData.removed?.let {
+            for (i in 0 until it.length step 2) {
+                pos.markRemoved(Util.getCoordinatesFromSGF(it, i))
+            }
+        }
+        gameData.score?.white?.scoring_positions?.let {
+            for (i in 0 until it.length step 2) {
+                pos.markWhiteTerritory(Util.getCoordinatesFromSGF(it, i))
+            }
+        }
+        gameData.score?.black?.scoring_positions?.let {
+            for (i in 0 until it.length step 2) {
+                pos.markBlackTerritory(Util.getCoordinatesFromSGF(it, i))
+            }
+        }
         return pos
     }
 

@@ -5,6 +5,7 @@ import android.graphics.Point;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -26,6 +27,9 @@ import java.util.Set;
 public class Position {
 
     private HashMap<Point, StoneType> stones = new HashMap<>();
+    private Set<Point> removedSpots = new HashSet<>();
+    private Set<Point> whiteTerritory = new HashSet<>();
+    private Set<Point> blackTerritory = new HashSet<>();
     private int boardSize = 19;
     private Point lastMove = null;
     private int whiteCapturedCount = 0;
@@ -111,5 +115,29 @@ public class Position {
 
     public void setBlackCapturedCount(int blackCapturedCount) {
         this.blackCapturedCount = blackCapturedCount;
+    }
+
+    public Set<Point> getRemovedSpots() {
+        return removedSpots;
+    }
+
+    public void markRemoved(@NotNull Point point) {
+        removedSpots.add(point);
+    }
+
+    public void markWhiteTerritory(@NotNull Point point) {
+        whiteTerritory.add(point);
+    }
+
+    public void markBlackTerritory(@NotNull Point point) {
+        blackTerritory.add(point);
+    }
+
+    public Set<Point> getWhiteTerritory() {
+        return whiteTerritory;
+    }
+
+    public Set<Point> getBlackTerritory() {
+        return blackTerritory;
     }
 }

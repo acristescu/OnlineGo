@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.gamelogic.RulesManager
@@ -29,7 +30,7 @@ class GameAdapter(private val gameList: MutableList<Game>) : RecyclerView.Adapte
 
     private val clicksSubject = PublishSubject.create<Game>()
 
-    val clicks
+    val clicks: Observable<Game>
         get() = clicksSubject.hide()
 
     override fun getItemCount(): Int {
@@ -57,6 +58,8 @@ class GameAdapter(private val gameList: MutableList<Game>) : RecyclerView.Adapte
             }
         }
         holder.itemView.setOnClickListener({
+//            game.id = 10655097
+//            game.id = 10655810
             clicksSubject.onNext(game)
         })
     }

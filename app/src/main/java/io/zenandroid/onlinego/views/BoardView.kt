@@ -104,10 +104,10 @@ class BoardView : View {
 
         val eventCoords = screenToBoardCoordinates(event.x, event.y)
 
+        tapMoveSubject.onNext(eventCoords)
+
         if (event.action == MotionEvent.ACTION_UP) {
             tapUpSubject.onNext(eventCoords)
-        } else {
-            tapMoveSubject.onNext(eventCoords)
         }
 
         return true
@@ -161,17 +161,42 @@ class BoardView : View {
         drawGrid(canvas)
         drawStarPoints(canvas)
         drawCoordinates(canvas)
-        if (this.position != null) {
-            drawStones(canvas)
-            drawDecorations(canvas)
+        position?.let {
+            drawStones(canvas, it)
+            drawDecorations(canvas, it)
+            drawTerritory(canvas, it)
         }
-        if (candidateMove != null) {
-            drawSelection(canvas)
+        candidateMove?.let {
+            drawSelection(canvas, it)
+        }
+
+    }
+
+    private fun drawTerritory(canvas: Canvas, position: Position) {
+        for(i in 0 until boardSize) {
+            for(j in 0 until boardSize) {
+                val p = Point(i, j)
+                val center = getCellCenter(i, j)
+                if(position.whiteTerritory.contains(p)) {
+                    stonesPaint.style = Paint.Style.FILL_AND_STROKE
+                    stonesPaint.color = Color.WHITE
+                    canvas.drawCircle(center.x, center.y, (cellSize / 4).toFloat(), stonesPaint)
+                } else if(position.blackTerritory.contains(p)) {
+                    stonesPaint.color = Color.BLACK
+                    canvas.drawCircle(center.x, center.y, (cellSize / 4).toFloat(), stonesPaint)
+                } else if(position.getStoneAt(p) == null && position.removedSpots.contains(p)) {
+                    //
+                    // "Dame" spot
+                    //
+                    stonesPaint.color = Color.BLUE
+                    canvas.drawCircle(center.x, center.y, (cellSize / 4).toFloat(), stonesPaint)
+                }
+            }
         }
     }
 
-    private fun drawSelection(canvas: Canvas) {
-        val center = getCellCenter(candidateMove!!.x, candidateMove!!.y)
+    private fun drawSelection(canvas: Canvas, candidateMove: Point) {
+        val center = getCellCenter(candidateMove.x, candidateMove.y)
         val drawable = if (candidateType == StoneType.BLACK) blackStoneDrawable else whiteStoneDrawable
         drawable.setBounds(
                 (center.x - cellSize / 2f + stoneSpacing).toInt(),
@@ -253,12 +278,9 @@ class BoardView : View {
         // TODO
     }
 
-    private fun drawStones(canvas: Canvas) {
-        if (this.position == null) {
-            return
-        }
-        for (p in this.position!!.allStonesCoordinates) {
-            val type = this.position!!.getStoneAt(p.x, p.y)
+    private fun drawStones(canvas: Canvas, position: Position) {
+        for (p in position.allStonesCoordinates) {
+            val type = position.getStoneAt(p.x, p.y)
 
             stonesPaint.color = if (type == StoneType.WHITE) Color.WHITE else Color.BLACK
             stonesPaint.style = Paint.Style.FILL
@@ -271,10 +293,12 @@ class BoardView : View {
                     (center.x + cellSize / 2f - stoneSpacing + cellSize / 12f).toInt(),
                     (center.y + cellSize / 2f - stoneSpacing + cellSize / 9f).toInt()
             )
-            shadowDrawable.draw(canvas)
+            if (!position.removedSpots.contains(p)) {
+                shadowDrawable.draw(canvas)
+            }
 
             val drawable = if (type == StoneType.BLACK) blackStoneDrawable else whiteStoneDrawable
-            drawable.alpha = 255
+            drawable.alpha = if (position.removedSpots.contains(p)) 100 else 255
             drawable.setBounds(
                     (center.x - cellSize / 2f + stoneSpacing).toInt(),
                     (center.y - cellSize / 2f + stoneSpacing).toInt(),
@@ -282,17 +306,6 @@ class BoardView : View {
                     (center.y + cellSize / 2f - stoneSpacing).toInt()
             )
             drawable.draw(canvas)
-
-
-            //
-            // For white stones, we also draw a black outline
-            //
-            //            if(type == StoneType.WHITE) {
-            //                stonesPaint.setColor(0x33000000);
-            //                stonesPaint.setStyle(Paint.Style.STROKE);
-            //                stonesPaint.setStrokeWidth(0);
-            //                canvas.drawCircle(center.x, center.y, cellSize / 2f - stoneSpacing, stonesPaint);
-            //            }
         }
     }
 
@@ -302,10 +315,10 @@ class BoardView : View {
      * stone or territory indicators.
      * @param canvas
      */
-    private fun drawDecorations(canvas: Canvas) {
-        val lastMove = this.position!!.lastMove
+    private fun drawDecorations(canvas: Canvas, position: Position) {
+        val lastMove = position.lastMove
         if (lastMove != null) {
-            val type = this.position!!.lastPlayerToMove
+            val type = position.lastPlayerToMove
             val center = getCellCenter(lastMove.x, lastMove.y)
 
             decorationsPaint.color = if (type == StoneType.WHITE) Color.BLACK else Color.WHITE

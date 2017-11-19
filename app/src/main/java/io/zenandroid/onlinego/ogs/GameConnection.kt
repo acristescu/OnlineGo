@@ -98,7 +98,23 @@ data class GameData (
     var game_chat_auth: String? = null,
     var winner: Int? = null,
     var outcome: String? = null,
-    var end_time: Long? = null
+    var end_time: Long? = null,
+    var score: Scores? = null
+)
+
+data class Scores (
+        var white: Score? = null,
+        var black: Score? = null
+)
+
+data class Score (
+        var handicap: Double? = null,
+        var komi: Double? = null,
+        var prisoners: Int? = null,
+        var scoring_positions: String? = null,
+        var stones: Int? = null,
+        var territory: Int? = null,
+        var total: Double? = null
 )
 
 data class InitialState (
