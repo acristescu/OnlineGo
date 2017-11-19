@@ -13,7 +13,7 @@ import java.util.*
 object RulesManager {
 
     fun replay(gameData: GameData, limit: Int = Int.MAX_VALUE): Position {
-        var pos = Position(19)
+        var pos = Position(gameData.height)
 
         var turn = StoneType.BLACK
         if(gameData.initial_player == "white") {

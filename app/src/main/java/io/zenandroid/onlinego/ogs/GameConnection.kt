@@ -58,7 +58,7 @@ data class GameData (
     var handicap: Int? = null,
     var disable_analysis: Boolean? = null,
     var _private: Boolean? = null,
-    var height: Int? = null,
+    var height: Int,
     var time_control: TimeControl? = null,
     var ranked: Boolean? = null,
     //var meta_groups: List<Any>? = null,

@@ -99,15 +99,13 @@ class BoardView : View {
         if (!isInteractive) {
             return super.onTouchEvent(event)
         }
-
-        invalidate()
-
         val eventCoords = screenToBoardCoordinates(event.x, event.y)
 
         tapMoveSubject.onNext(eventCoords)
 
         if (event.action == MotionEvent.ACTION_UP) {
             tapUpSubject.onNext(eventCoords)
+            lastHotTrackedPoint = null
         }
 
         return true
@@ -354,7 +352,10 @@ class BoardView : View {
 
     fun tapUpObservable(): Observable<Point> = tapUpSubject.hide()
 
-    fun tapMoveObservable(): Observable<Point> = tapMoveSubject.distinctUntilChanged()
+    private var lastHotTrackedPoint: Point? = null
+    fun tapMoveObservable(): Observable<Point> = tapMoveSubject.filter {
+        it != lastHotTrackedPoint
+    }.doOnNext { lastHotTrackedPoint = it }
 
     fun showCandidateMove(candidateMove: Point?, candidate: StoneType?) {
         this.candidateMove = candidateMove

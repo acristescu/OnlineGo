@@ -26,7 +26,6 @@ class GamePresenter(
     private val userId = OGSService.instance.uiConfig?.user?.id
     private var detailedPlayerDetailsSet = false
     private var currentShownMove = -1
-    private var showingHistory = false
 
     private var candidateMove: Point? = null
 
@@ -111,12 +110,28 @@ class GamePresenter(
         activeGame = (gameData.phase != Game.Phase.FINISHED) && ((game.blackId == userId) || (game.whiteId == userId))
         view.activeUIVisible = activeGame
 
+        currentShownMove = gameData.moves.size
         refreshData()
+        view.title = "${gameData.players?.black?.username} vs ${gameData.players?.white?.username}"
     }
 
     private fun refreshData() {
         currentPosition = RulesManager.replay(gameData)
         view.position = currentPosition
+        determineHistoryParameters()
+        when(gameData.phase) {
+            Game.Phase.PLAY -> {
+                val toMove = if (currentPosition.lastPlayerToMove == StoneType.BLACK) gameData.players?.black
+                else gameData.players?.white
+                view.subTitle = "${toMove?.username}'s turn"
+            }
+            Game.Phase.STONE_REMOVAL -> {
+                view.subTitle = "Stone removal"
+            }
+            Game.Phase.FINISHED -> {
+                view.subTitle = "Finished"
+            }
+        }
 //        view.highlightBlackName = turn == StoneType.BLACK
 //        view.highlightWhiteName = turn == StoneType.WHITE
     }
@@ -127,9 +142,8 @@ class GamePresenter(
         val newMoves = gameData.moves.toMutableList()
         newMoves += move.move
         gameData.moves = newMoves
-        if(!showingHistory) {
-            refreshData()
-        }
+        currentShownMove = gameData.moves.size
+        refreshData()
     }
 
     private fun onClock(clock: Clock) {
@@ -152,24 +166,23 @@ class GamePresenter(
         if(currentShownMove < gameData.moves.size) {
             currentShownMove ++
         }
-        if(currentShownMove == gameData.moves.size) {
-            showingHistory = false
-//            view.previousButtonEnabled = false
-        }
+
+        currentShownMove.coerceIn(0, gameData.moves.size)
+        determineHistoryParameters()
         view.position = RulesManager.replay(gameData, currentShownMove)
     }
 
     override fun onPreviousButtonPressed() {
-        if(showingHistory) {
-            currentShownMove--
-        } else {
-            showingHistory = true
-            currentShownMove = gameData.moves.size - 1
-        }
-        if(currentShownMove == 0) {
-//            view.previousButtonEnabled = false
-        }
+        currentShownMove--
+
+        currentShownMove.coerceIn(0, gameData.moves.size)
+        determineHistoryParameters()
         view.position = RulesManager.replay(gameData, currentShownMove)
+    }
+
+    private fun determineHistoryParameters() {
+        view.nextButtonEnabled = currentShownMove != gameData.moves.size
+        view.previousButtonEnabled = currentShownMove > 0
     }
 
     override fun unsubscribe() {

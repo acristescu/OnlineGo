@@ -25,6 +25,10 @@ interface GameContract {
         var passButtonEnabled: Boolean
         fun showCandidateMove(point: Point?, nextToMove: StoneType? = null)
         var confirmMoveUIVisible: Boolean
+        var previousButtonEnabled: Boolean
+        var nextButtonEnabled: Boolean
+        var title: String?
+        var subTitle: String?
     }
 
     interface Presenter {
