@@ -46,6 +46,14 @@ class GamePresenter(
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
                 .subscribe(this::onClock))
+        subscriptions.add(gameConnection.phase
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
+                .subscribe(this::onPhase))
+        subscriptions.add(gameConnection.removedStones
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
+                .subscribe(this::onRemovedStones))
 
         subscriptions.add(service.restApi.fetchGame(game.id)
                 .subscribeOn(Schedulers.io())
@@ -151,6 +159,17 @@ class GamePresenter(
 
         view.interactive = gameData.phase == Game.Phase.PLAY && clock.current_player == userId
         view.passButtonEnabled = gameData.phase == Game.Phase.PLAY && clock.current_player == userId
+    }
+
+    private fun onPhase(phase: Game.Phase) {
+        game.phase = phase
+        gameData.phase = phase
+
+        processGameData(gameData)
+    }
+
+    private fun onRemovedStones(removedStones: Any) {
+        println(removedStones)
     }
 
     override fun onResignConfirmed() {

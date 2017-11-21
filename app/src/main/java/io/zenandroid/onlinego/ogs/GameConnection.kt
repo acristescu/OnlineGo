@@ -18,6 +18,8 @@ class GameConnection(val gameId: Long) : Disposable, Closeable {
     lateinit var gameData: Flowable<GameData>
     lateinit var moves: Flowable<Move>
     lateinit var clock: Flowable<Clock>
+    lateinit var phase: Flowable<Game.Phase>
+    lateinit var removedStones: Flowable<Any>
 
     var gameAuth: String? = null
 

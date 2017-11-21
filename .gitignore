@@ -3,3 +3,5 @@
 /.idea
 .DS_Store
 /build
+/app/app.iml
+/app/.externalNativeBuild
