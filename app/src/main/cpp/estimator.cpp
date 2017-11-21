@@ -22,7 +22,7 @@ namespace score_estimator {
 
     extern "C"
     JNIEXPORT jintArray JNICALL
-    Java_io_zenandroid_onlinego_estimator_Estimator_estimate(JNIEnv *env, jobject instance, jint width,
+    Java_io_zenandroid_onlinego_gamelogic_RulesManager_estimate(JNIEnv *env, jobject instance, jint width,
                                                              jint height, jintArray inBoard,
                                                              jint player_to_move, jint trials,
                                                              jfloat tolerance) {

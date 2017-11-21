@@ -12,6 +12,53 @@ import java.util.*
  */
 object RulesManager {
 
+    init {
+        println("loading library")
+        System.loadLibrary("estimator")
+    }
+
+    private external fun estimate(w: Int, h: Int, board: IntArray, playerToMove: Int, trials: Int, tolerance: Float): IntArray
+
+    fun determineTerritory(pos: Position) {
+        val inBoard = IntArray(pos.boardSize * pos.boardSize)
+        pos.allStonesCoordinates
+                .filter { !pos.removedSpots.contains(it) }
+                .forEach {
+                    val type = pos.getStoneAt(it)
+                    inBoard[it.x * pos.boardSize + it.y] = if(type == StoneType.BLACK) 1 else -1
+                }
+        val outBoard = estimate(
+                pos.boardSize,
+                pos.boardSize,
+                inBoard,
+                if(pos.lastPlayerToMove.opponent == StoneType.BLACK) 1 else -1,
+                10000,
+                .3f)
+        pos.clearAllMarkedTerritory()
+        pos.clearAllRemovedSpots()
+        for(x in 0 until pos.boardSize) {
+            for(y in 0 until pos.boardSize) {
+                when(outBoard[x * pos.boardSize + y]) {
+                    -1 -> {
+                        pos.markWhiteTerritory(Point(x, y))
+                        if(pos.getStoneAt(x, y) == StoneType.BLACK) {
+                            pos.markRemoved(Point(x, y))
+                        }
+                    }
+                    0 -> {
+                        pos.markRemoved(Point(x, y))
+                    }
+                    1 -> {
+                        pos.markBlackTerritory(Point(x, y))
+                        if(pos.getStoneAt(x, y) == StoneType.WHITE) {
+                            pos.markRemoved(Point(x, y))
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     fun replay(gameData: GameData, limit: Int = Int.MAX_VALUE): Position {
         var pos = Position(gameData.height)
 

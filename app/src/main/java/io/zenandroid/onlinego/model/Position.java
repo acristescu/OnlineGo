@@ -125,6 +125,15 @@ public class Position {
         removedSpots.add(point);
     }
 
+    public void clearAllRemovedSpots() {
+        removedSpots.clear();
+    }
+
+    public void clearAllMarkedTerritory() {
+        whiteTerritory.clear();
+        blackTerritory.clear();
+    }
+
     public void markWhiteTerritory(@NotNull Point point) {
         whiteTerritory.add(point);
     }

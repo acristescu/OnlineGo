@@ -37,7 +37,7 @@ class BoardView : View {
     private var linesPaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private var linesHighlightPaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val decorationsPaint = Paint(Paint.ANTI_ALIAS_FLAG)
-    private val stonesPaint = Paint(Paint.ANTI_ALIAS_FLAG)
+    private val territoryPaint = Paint(Paint.ANTI_ALIAS_FLAG)
 
     private val whiteStoneDrawable = resources.getDrawable(R.mipmap.stone_white)
     private val blackStoneDrawable = resources.getDrawable(R.mipmap.stone_black)
@@ -89,10 +89,10 @@ class BoardView : View {
         linesHighlightPaint.color = resources.getColor(R.color.white)
         linesHighlightPaint.strokeCap = Paint.Cap.ROUND
 
-
-        //        backgroundPaint.setColor(0xFFDEB066);
         decorationsPaint.style = Paint.Style.STROKE
         decorationsPaint.strokeWidth = 3f
+
+        territoryPaint.strokeWidth = 5f
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
@@ -176,19 +176,30 @@ class BoardView : View {
                 val p = Point(i, j)
                 val center = getCellCenter(i, j)
                 if(position.whiteTerritory.contains(p)) {
-                    stonesPaint.style = Paint.Style.FILL_AND_STROKE
-                    stonesPaint.color = Color.WHITE
-                    canvas.drawCircle(center.x, center.y, (cellSize / 4).toFloat(), stonesPaint)
+                    territoryPaint.color = Color.WHITE
                 } else if(position.blackTerritory.contains(p)) {
-                    stonesPaint.color = Color.BLACK
-                    canvas.drawCircle(center.x, center.y, (cellSize / 4).toFloat(), stonesPaint)
+                    territoryPaint.color = Color.BLACK
                 } else if(position.getStoneAt(p) == null && position.removedSpots.contains(p)) {
-                    //
-                    // "Dame" spot
-                    //
-                    stonesPaint.color = Color.BLUE
-                    canvas.drawCircle(center.x, center.y, (cellSize / 4).toFloat(), stonesPaint)
+                    territoryPaint.color = Color.BLUE
+                } else {
+                    continue
                 }
+                territoryPaint.style = Paint.Style.FILL
+                canvas.drawRect(
+                        center.x - (cellSize / 8).toFloat(),
+                        center.y - (cellSize / 8).toFloat(),
+                        center.x + (cellSize / 8).toFloat(),
+                        center.y + (cellSize / 8).toFloat(),
+                        territoryPaint)
+                territoryPaint.style = Paint.Style.STROKE
+                territoryPaint.color = Color.GRAY
+                canvas.drawRect(
+                        center.x - (cellSize / 8).toFloat(),
+                        center.y - (cellSize / 8).toFloat(),
+                        center.x + (cellSize / 8).toFloat(),
+                        center.y + (cellSize / 8).toFloat(),
+                        territoryPaint)
+
             }
         }
     }
@@ -280,11 +291,8 @@ class BoardView : View {
         for (p in position.allStonesCoordinates) {
             val type = position.getStoneAt(p.x, p.y)
 
-            stonesPaint.color = if (type == StoneType.WHITE) Color.WHITE else Color.BLACK
-            stonesPaint.style = Paint.Style.FILL
-
             val center = getCellCenter(p.x, p.y)
-            //canvas.drawCircle(center.x, center.y, cellSize / 2f - stoneSpacing, stonesPaint);
+            //canvas.drawCircle(center.x, center.y, cellSize / 2f - stoneSpacing, territoryPaint);
             shadowDrawable.setBounds(
                     (center.x - cellSize / 2f + stoneSpacing - cellSize / 20f).toInt(),
                     (center.y - cellSize / 2f + stoneSpacing - cellSize / 20f).toInt(),

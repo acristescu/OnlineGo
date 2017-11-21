@@ -125,12 +125,15 @@ class GamePresenter(
 
     private fun refreshData() {
         currentPosition = RulesManager.replay(gameData)
+        if(gameData.phase == Game.Phase.STONE_REMOVAL) {
+            RulesManager.determineTerritory(currentPosition)
+        }
         view.position = currentPosition
         determineHistoryParameters()
         when(gameData.phase) {
             Game.Phase.PLAY -> {
-                val toMove = if (currentPosition.lastPlayerToMove == StoneType.BLACK) gameData.players?.black
-                else gameData.players?.white
+                val toMove =
+                        if (currentPosition.lastPlayerToMove == StoneType.WHITE) gameData.players?.black else gameData.players?.white
                 view.subTitle = "${toMove?.username}'s turn"
             }
             Game.Phase.STONE_REMOVAL -> {
