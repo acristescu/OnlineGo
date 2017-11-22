@@ -21,14 +21,23 @@ interface GameContract {
         val cellSelection: Observable<Point>
         val cellHotTrack: Observable<Point>
         var interactive: Boolean
-        var activeUIVisible: Boolean
         var passButtonEnabled: Boolean
         fun showCandidateMove(point: Point?, nextToMove: StoneType? = null)
-        var confirmMoveUIVisible: Boolean
         var previousButtonEnabled: Boolean
         var nextButtonEnabled: Boolean
         var title: String?
         var subTitle: String?
+        var nextButtonVisible: Boolean
+        var previousButtonVisible: Boolean
+        var chatButtonVisible: Boolean
+        var passButtonVisible: Boolean
+        var resignButtonVisible: Boolean
+        var confirmButtonVisible: Boolean
+        var discardButtonVisible: Boolean
+        var autoButtonVisible: Boolean
+        var showLastMove: Boolean
+        var showTerritory: Boolean
+        var fadeOutRemovedStones: Boolean
     }
 
     interface Presenter {

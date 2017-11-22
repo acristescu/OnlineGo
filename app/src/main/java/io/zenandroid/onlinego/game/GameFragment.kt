@@ -2,7 +2,6 @@ package io.zenandroid.onlinego.game
 
 import android.graphics.Point
 import android.os.Bundle
-import android.support.transition.TransitionManager
 import android.support.v4.app.Fragment
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
@@ -20,6 +19,7 @@ import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.zenandroid.onlinego.R
+import io.zenandroid.onlinego.extensions.showIf
 import io.zenandroid.onlinego.model.Position
 import io.zenandroid.onlinego.model.StoneType
 import io.zenandroid.onlinego.model.ogs.Game
@@ -49,7 +49,8 @@ class GameFragment : Fragment(), GameContract.View {
     @BindView(R.id.next_button) lateinit var nextButton: AppCompatImageView
     @BindView(R.id.confirm_button) lateinit var confirmButton: AppCompatImageView
     @BindView(R.id.discard_button) lateinit var discardButton: AppCompatImageView
-    @BindView(R.id.active_game_controls) lateinit var activeGameControls: ViewGroup
+    @BindView(R.id.chat_button) lateinit var chatButton: AppCompatImageView
+    @BindView(R.id.play_controls) lateinit var playControls: ViewGroup
     @BindView(R.id.white_details) lateinit var whiteDetailsView: PlayerDetailsView
     @BindView(R.id.black_details) lateinit var blackDetailsView: PlayerDetailsView
 
@@ -74,10 +75,6 @@ class GameFragment : Fragment(), GameContract.View {
 //        set(value) {
 //            blackNameView.typeface = if(value) boldTypeface else normalTypeface
 //        }
-    override var activeUIVisible: Boolean = false
-        set(value) {
-            activeGameControls.visibility = if(value) View.VISIBLE else View.GONE
-        }
 
     override var whitePlayer: Player? = null
         set(value) {
@@ -110,22 +107,20 @@ class GameFragment : Fragment(), GameContract.View {
         return view
     }
 
-    override var confirmMoveUIVisible: Boolean = false
-        set(value) {
-            TransitionManager.beginDelayedTransition(activeGameControls)
-            for(i in 0 until activeGameControls.childCount) {
-                activeGameControls.getChildAt(i).visibility = if(value) View.GONE else View.VISIBLE
-            }
-            confirmButton.visibility = if(value) View.VISIBLE else View.GONE
-            discardButton.visibility = if(value) View.VISIBLE else View.GONE
-        }
-
     override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         board.isInteractive = true
 
         presenter = GamePresenter(this, OGSService.instance, game)
     }
+
+    override var showLastMove = false
+        set(value) { board.drawLastMove = value }
+
+    override var showTerritory = false
+        set(value) { board.drawTerritory = value }
+    override var fadeOutRemovedStones = false
+        set(value) { board.fadeOutRemovedStones = value }
 
     override val cellSelection: Observable<Point>
         get() = board.tapUpObservable()
@@ -149,6 +144,30 @@ class GameFragment : Fragment(), GameContract.View {
         super.onDestroyView()
         unbinder.unbind()
     }
+
+    override var nextButtonVisible = false
+        set(value) { nextButton.showIf(value) }
+
+    override var previousButtonVisible = false
+        set(value) { previousButton.showIf(value) }
+
+    override var chatButtonVisible = false
+        set(value) { chatButton.showIf(value) }
+
+    override var passButtonVisible = false
+        set(value) { passButton.showIf(value) }
+
+    override var resignButtonVisible = false
+        set(value) { resignButton.showIf(value) }
+
+    override var confirmButtonVisible = false
+        set(value) { confirmButton.showIf(value) }
+
+    override var discardButtonVisible = false
+        set(value) { discardButton.showIf(value) }
+
+    override var autoButtonVisible = false
+        set(value) { /*.showIf(value)*/ }
 
     override fun onStart() {
         super.onStart()

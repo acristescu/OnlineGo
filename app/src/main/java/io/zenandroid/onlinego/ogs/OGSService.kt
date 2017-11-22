@@ -171,6 +171,7 @@ class OGSService {
         connection.phase = observeEvent("game/$id/phase")
                     .map { string -> Game.Phase.valueOf(string.toString().toUpperCase().replace(' ', '_')) }
         connection.removedStones = observeEvent("game/$id/removed_stones")
+                    .map { string -> moshi.adapter(RemovedStones::class.java).fromJson(string.toString()) }
 
         emit("game/connect", createJsonObject {
             put("chat", false)

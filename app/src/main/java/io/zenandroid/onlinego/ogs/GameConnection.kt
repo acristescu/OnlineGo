@@ -19,7 +19,7 @@ class GameConnection(val gameId: Long) : Disposable, Closeable {
     lateinit var moves: Flowable<Move>
     lateinit var clock: Flowable<Clock>
     lateinit var phase: Flowable<Game.Phase>
-    lateinit var removedStones: Flowable<Any>
+    lateinit var removedStones: Flowable<RemovedStones>
 
     var gameAuth: String? = null
 
@@ -48,6 +48,14 @@ class GameConnection(val gameId: Long) : Disposable, Closeable {
 
     fun resign() {
         OGSService.instance.emit("game/resign", createJsonObject {
+            put("auth", gameAuth)
+            put("game_id", gameId)
+            put("player_id", OGSService.instance.uiConfig?.user?.id)
+        })
+    }
+
+    fun rejectRemovedStones() {
+        OGSService.instance.emit("game/removed_stones/reject", createJsonObject {
             put("auth", gameAuth)
             put("game_id", gameId)
             put("player_id", OGSService.instance.uiConfig?.user?.id)
@@ -165,4 +173,11 @@ data class Move(
         val game_id: Long,
         val move_number: Int,
         val move: List<Int>
+)
+
+//{"removed":true,"stones":"cidadfdgdieaeceifafhfighgihfhghhhiifigihii","all_removed":"daeafaecdfhfifdghgigfhghhhihcidieifigihiii"}
+data class RemovedStones(
+        val removed: Boolean?,
+        val stones: String?,
+        val all_removed: String?
 )

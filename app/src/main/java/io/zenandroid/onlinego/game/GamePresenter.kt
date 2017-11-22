@@ -21,7 +21,7 @@ class GamePresenter(
     private val subscriptions = CompositeDisposable()
     private lateinit var gameData: GameData
     private lateinit var gameConnection: GameConnection
-    private var activeGame: Boolean = false
+    private var myGame: Boolean = false
     private var currentPosition = Position(19)
     private val userId = OGSService.instance.uiConfig?.user?.id
     private var detailedPlayerDetailsSet = false
@@ -58,7 +58,7 @@ class GamePresenter(
         subscriptions.add(service.restApi.fetchGame(game.id)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
-                .subscribe(this::processGame))
+                .subscribe(this::processRESTGame))
 
         subscriptions.add(view.cellSelection
                 .subscribeOn(Schedulers.io())
@@ -72,7 +72,7 @@ class GamePresenter(
 
     }
 
-    private fun processGame(game: Game) {
+    private fun processRESTGame(game: Game) {
         this.game = game
         processGameData(game.gamedata)
 
@@ -91,20 +91,24 @@ class GamePresenter(
     }
 
     private fun onUserSelectedCell(point: Point) {
-        view.confirmMoveUIVisible = true
+        showConfirmMoveControls()
     }
 
     override fun onDiscardButtonPressed() {
-        candidateMove = null
-        view.showCandidateMove(null)
-        view.confirmMoveUIVisible = false
+        if(gameData.phase == Game.Phase.PLAY) {
+            candidateMove = null
+            view.showCandidateMove(null)
+            showPlayControls()
+        } else {
+            gameConnection.rejectRemovedStones()
+        }
     }
 
     override fun onConfirmButtonPressed() {
         view.interactive = false
         candidateMove?.let { gameConnection.submitMove(it) }
         candidateMove = null
-        view.confirmMoveUIVisible = false
+        showPlayControls()
     }
 
     private fun processGameData(gameData: GameData) {
@@ -115,19 +119,98 @@ class GamePresenter(
             view.blackPlayer = gameData.players?.black
         }
 
-        activeGame = (gameData.phase != Game.Phase.FINISHED) && ((game.blackId == userId) || (game.whiteId == userId))
-        view.activeUIVisible = activeGame
+        myGame = (game.blackId == userId) || (game.whiteId == userId)
+        showControls()
+        configureBoard()
 
         currentShownMove = gameData.moves.size
         refreshData()
         view.title = "${gameData.players?.black?.username} vs ${gameData.players?.white?.username}"
     }
 
+    private fun configureBoard() {
+        when(gameData.phase) {
+            Game.Phase.PLAY -> {
+                view.showLastMove = true
+                view.showTerritory = false
+                view.fadeOutRemovedStones = false
+            }
+            Game.Phase.STONE_REMOVAL -> {
+                view.showLastMove = false
+                view.showTerritory = true
+                view.fadeOutRemovedStones = true
+            }
+            Game.Phase.FINISHED -> {
+                view.showLastMove = false
+                view.showTerritory = true
+                view.fadeOutRemovedStones = true
+            }
+        }
+    }
+
+    private fun showControls() {
+        if(myGame && gameData.phase == Game.Phase.PLAY) {
+            showPlayControls()
+        } else if(myGame && gameData.phase == Game.Phase.STONE_REMOVAL) {
+            showStoneRemovalControls()
+        } else {
+            showSpectateControls()
+        }
+    }
+
+    private fun showPlayControls() {
+        view.nextButtonVisible = true
+        view.previousButtonVisible = true
+        view.chatButtonVisible = true
+        view.passButtonVisible = true
+        view.resignButtonVisible = true
+
+        view.confirmButtonVisible = false
+        view.discardButtonVisible = false
+        view.autoButtonVisible = false
+    }
+
+    private fun showStoneRemovalControls() {
+        view.nextButtonVisible = false
+        view.previousButtonVisible = false
+        view.chatButtonVisible = true
+        view.passButtonVisible = false
+        view.resignButtonVisible = false
+
+        view.confirmButtonVisible = true
+        view.discardButtonVisible = true
+        view.autoButtonVisible = true
+    }
+
+    private fun showSpectateControls() {
+        view.nextButtonVisible = true
+        view.previousButtonVisible = true
+        view.chatButtonVisible = true
+        view.passButtonVisible = false
+        view.resignButtonVisible = false
+
+        view.confirmButtonVisible = false
+        view.discardButtonVisible = false
+        view.autoButtonVisible = false
+    }
+
+    private fun showConfirmMoveControls() {
+        view.nextButtonVisible = false
+        view.previousButtonVisible = false
+        view.chatButtonVisible = false
+        view.passButtonVisible = false
+        view.resignButtonVisible = false
+
+        view.confirmButtonVisible = true
+        view.discardButtonVisible = true
+        view.autoButtonVisible = false
+    }
+
     private fun refreshData() {
         currentPosition = RulesManager.replay(gameData)
-        if(gameData.phase == Game.Phase.STONE_REMOVAL) {
-            RulesManager.determineTerritory(currentPosition)
-        }
+//        if(gameData.phase == Game.Phase.STONE_REMOVAL) {
+//            RulesManager.determineTerritory(currentPosition)
+//        }
         view.position = currentPosition
         determineHistoryParameters()
         when(gameData.phase) {
@@ -171,8 +254,9 @@ class GamePresenter(
         processGameData(gameData)
     }
 
-    private fun onRemovedStones(removedStones: Any) {
-        println(removedStones)
+    private fun onRemovedStones(removedStones: RemovedStones) {
+        gameData.removed = removedStones.all_removed
+        processGameData(gameData)
     }
 
     override fun onResignConfirmed() {

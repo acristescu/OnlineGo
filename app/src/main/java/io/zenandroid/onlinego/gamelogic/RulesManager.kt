@@ -86,6 +86,15 @@ object RulesManager {
                 pos.markRemoved(Util.getCoordinatesFromSGF(it, i))
             }
         }
+        for(i in 0 until pos.boardSize) {
+            (0 until pos.boardSize)
+                    .map { Point(i, it) }
+                    .filter { !isMarkedDame(pos, it) }
+                    .filter { !isLivingStone(pos, it) }
+                    .filter { !pos.whiteTerritory.contains(it) }
+                    .filter { !pos.blackTerritory.contains(it) }
+                    .forEach { markEye(pos, it) }
+        }
         gameData.score?.white?.scoring_positions?.let {
             for (i in 0 until it.length step 2) {
                 pos.markWhiteTerritory(Util.getCoordinatesFromSGF(it, i))
@@ -99,6 +108,47 @@ object RulesManager {
         return pos
     }
 
+    private fun markEye(pos: Position, point: Point) {
+        val toVisit = mutableListOf(point)
+        val visited = mutableSetOf<Point>()
+        var foundWhite = false
+        var foundBlack = false
+        while(!toVisit.isEmpty() && !(foundBlack && foundWhite)) {
+            val p = toVisit.removeAt(toVisit.size - 1)
+            visited.add(p)
+            if(isLivingStone(pos, p)) {
+                if(pos.getStoneAt(p) == StoneType.WHITE) {
+                    foundWhite = true
+                } else {
+                    foundBlack = true
+                }
+                continue
+            }
+            if(isMarkedDame(pos, p)) {
+                continue
+            }
+            toVisit.addAll(
+                    Util.getNeighbouringSpace(p, pos.boardSize)
+                            .filter { !visited.contains(it) })
+        }
+        if(foundWhite && !foundBlack) {
+            visited
+                    .filter { !isMarkedDame(pos, it) }
+                    .filter { !isLivingStone(pos, it) }
+                    .forEach { pos.markWhiteTerritory(it) }
+        } else if(foundBlack && !foundWhite) {
+            visited
+                    .filter { !isMarkedDame(pos, it) }
+                    .filter { !isLivingStone(pos, it) }
+                    .forEach { pos.markBlackTerritory(it) }
+        }
+    }
+
+    private fun isMarkedDame(pos: Position, p: Point) =
+            pos.getStoneAt(p) == null && pos.removedSpots.contains(p)
+
+    private fun isLivingStone(pos: Position, p: Point) =
+            pos.getStoneAt(p) != null && !pos.removedSpots.contains(p)
     /**
      * Morph this postion to a new one by performing the move specified.
      * If the move is invalid, no action is taken and the method returns false.

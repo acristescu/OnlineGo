@@ -29,6 +29,32 @@ class BoardView : View {
             border = ((width - boardSize * cellSize) / 2).toFloat()
         }
 
+    var position: Position? = null
+        set(position) {
+            field = position
+            invalidate()
+        }
+    var isInteractive = false
+        set(interactive) {
+            field = interactive
+            invalidate()
+        }
+    var drawLastMove = true
+        set(value) {
+            field = value
+            invalidate()
+        }
+    var drawTerritory = false
+        set(value) {
+            field = value
+            invalidate()
+        }
+    var fadeOutRemovedStones = false
+        set(value) {
+            field = value
+            invalidate()
+        }
+
     //
     // Size of border between edge and first line
     //
@@ -50,17 +76,7 @@ class BoardView : View {
     // Size (in px) of the cell
     //
     private var cellSize: Int = 0
-    var position: Position? = null
-        set(position) {
-            field = position
-            invalidate()
-        }
     private val stoneSpacing = context.resources.getDimension(R.dimen.stones_spacing)
-    var isInteractive = false
-        set(interactive) {
-            field = interactive
-            invalidate()
-        }
     private var candidateMove: Point? = null
     private var candidateType: StoneType? = null
 
@@ -127,13 +143,12 @@ class BoardView : View {
         val heightMode = View.MeasureSpec.getMode(heightMeasureSpec)
         val heightSize = View.MeasureSpec.getSize(heightMeasureSpec)
 
-        val size: Int
-        if (widthMode == View.MeasureSpec.EXACTLY && widthSize > 0) {
-            size = widthSize
+        val size = if (widthMode == View.MeasureSpec.EXACTLY && widthSize > 0) {
+            widthSize
         } else if (heightMode == View.MeasureSpec.EXACTLY && heightSize > 0) {
-            size = heightSize
+            heightSize
         } else {
-            size = if (widthSize < heightSize) widthSize else heightSize
+            if (widthSize < heightSize) widthSize else heightSize
         }
 
         val finalMeasureSpec = View.MeasureSpec.makeMeasureSpec(size, View.MeasureSpec.EXACTLY)
@@ -171,6 +186,9 @@ class BoardView : View {
     }
 
     private fun drawTerritory(canvas: Canvas, position: Position) {
+        if(!drawTerritory) {
+            return
+        }
         for(i in 0 until boardSize) {
             for(j in 0 until boardSize) {
                 val p = Point(i, j)
@@ -299,12 +317,12 @@ class BoardView : View {
                     (center.x + cellSize / 2f - stoneSpacing + cellSize / 12f).toInt(),
                     (center.y + cellSize / 2f - stoneSpacing + cellSize / 9f).toInt()
             )
-            if (!position.removedSpots.contains(p)) {
+            if (!(fadeOutRemovedStones && position.removedSpots.contains(p))) {
                 shadowDrawable.draw(canvas)
             }
 
             val drawable = if (type == StoneType.BLACK) blackStoneDrawable else whiteStoneDrawable
-            drawable.alpha = if (position.removedSpots.contains(p)) 100 else 255
+            drawable.alpha = if (fadeOutRemovedStones && position.removedSpots.contains(p)) 100 else 255
             drawable.setBounds(
                     (center.x - cellSize / 2f + stoneSpacing).toInt(),
                     (center.y - cellSize / 2f + stoneSpacing).toInt(),
@@ -322,13 +340,15 @@ class BoardView : View {
      * @param canvas
      */
     private fun drawDecorations(canvas: Canvas, position: Position) {
-        val lastMove = position.lastMove
-        if (lastMove != null) {
-            val type = position.lastPlayerToMove
-            val center = getCellCenter(lastMove.x, lastMove.y)
+        if(drawLastMove) {
+            position.lastMove?.let {
 
-            decorationsPaint.color = if (type == StoneType.WHITE) Color.BLACK else Color.WHITE
-            canvas.drawCircle(center.x, center.y, (cellSize / 4).toFloat(), decorationsPaint)
+                val type = position.lastPlayerToMove
+                val center = getCellCenter(it.x, it.y)
+
+                decorationsPaint.color = if (type == StoneType.WHITE) Color.BLACK else Color.WHITE
+                canvas.drawCircle(center.x, center.y, (cellSize / 4).toFloat(), decorationsPaint)
+            }
         }
 
         //TODO: other decorations
