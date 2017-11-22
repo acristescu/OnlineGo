@@ -90,6 +90,9 @@ public class Position {
         newPos.lastMove = lastMove;
         newPos.blackCapturedCount = blackCapturedCount;
         newPos.whiteCapturedCount = whiteCapturedCount;
+        newPos.blackTerritory.addAll(blackTerritory);
+        newPos.whiteTerritory.addAll(whiteTerritory);
+        newPos.removedSpots.addAll(removedSpots);
         return newPos;
     }
 

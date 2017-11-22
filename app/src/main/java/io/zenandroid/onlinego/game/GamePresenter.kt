@@ -82,16 +82,34 @@ class GamePresenter(
     }
 
     private fun onUserHotTrackedCell(point: Point) {
-        val nextToMove = currentPosition.lastPlayerToMove?.opponent ?: StoneType.BLACK
-        val validMove = RulesManager.makeMove(currentPosition, nextToMove, point) != null
-        if(validMove) {
-            candidateMove = point
-            view.showCandidateMove(point, nextToMove)
+        if(gameData.phase == Game.Phase.PLAY) {
+            val nextToMove = currentPosition.lastPlayerToMove?.opponent ?: StoneType.BLACK
+            val validMove = RulesManager.makeMove(currentPosition, nextToMove, point) != null
+            if (validMove) {
+                candidateMove = point
+                view.showCandidateMove(point, nextToMove)
+            }
         }
     }
 
     private fun onUserSelectedCell(point: Point) {
-        showConfirmMoveControls()
+        if(gameData.phase == Game.Phase.PLAY) {
+            if(candidateMove != null) {
+                showConfirmMoveControls()
+            }
+        } else {
+            val newPos = currentPosition.clone()
+            RulesManager.toggleRemoved(newPos, point)
+            var delta = newPos.removedSpots.minus(currentPosition.removedSpots)
+            var removing = true
+            if(delta.isEmpty()) {
+                delta = currentPosition.removedSpots.minus(newPos.removedSpots)
+                removing = false
+            }
+            if(delta.isNotEmpty()) {
+                gameConnection.submitRemovedStones(delta, removing)
+            }
+        }
     }
 
     override fun onDiscardButtonPressed() {
@@ -105,10 +123,14 @@ class GamePresenter(
     }
 
     override fun onConfirmButtonPressed() {
-        view.interactive = false
-        candidateMove?.let { gameConnection.submitMove(it) }
-        candidateMove = null
-        showPlayControls()
+        if(gameData.phase == Game.Phase.PLAY) {
+            view.interactive = false
+            candidateMove?.let { gameConnection.submitMove(it) }
+            candidateMove = null
+            showPlayControls()
+        } else {
+            gameConnection.acceptRemovedStones(currentPosition.removedSpots)
+        }
     }
 
     private fun processGameData(gameData: GameData) {
@@ -134,16 +156,19 @@ class GamePresenter(
                 view.showLastMove = true
                 view.showTerritory = false
                 view.fadeOutRemovedStones = false
+                view.interactive = gameData.clock.current_player == userId
             }
             Game.Phase.STONE_REMOVAL -> {
                 view.showLastMove = false
                 view.showTerritory = true
                 view.fadeOutRemovedStones = true
+                view.interactive = true
             }
             Game.Phase.FINISHED -> {
                 view.showLastMove = false
                 view.showTerritory = true
                 view.fadeOutRemovedStones = true
+                view.interactive = false
             }
         }
     }
@@ -168,6 +193,20 @@ class GamePresenter(
         view.confirmButtonVisible = false
         view.discardButtonVisible = false
         view.autoButtonVisible = false
+
+        view.passButtonEnabled = gameData.clock.current_player == userId
+    }
+
+    override fun onAutoButtonPressed() {
+        if(gameData.phase != Game.Phase.STONE_REMOVAL) {
+            return
+        }
+        val newPos = currentPosition.clone()
+        newPos.clearAllRemovedSpots()
+        RulesManager.determineTerritory(newPos)
+        gameConnection.submitRemovedStones(currentPosition.removedSpots, false)
+        gameConnection.submitRemovedStones(newPos.removedSpots, true)
+
     }
 
     private fun showStoneRemovalControls() {
@@ -243,8 +282,9 @@ class GamePresenter(
     private fun onClock(clock: Clock) {
         gameData.clock = clock
 
-        view.interactive = gameData.phase == Game.Phase.PLAY && clock.current_player == userId
-        view.passButtonEnabled = gameData.phase == Game.Phase.PLAY && clock.current_player == userId
+        processGameData(gameData)
+//        view.interactive = gameData.phase == Game.Phase.PLAY && clock.current_player == userId
+//        view.passButtonEnabled = gameData.phase == Game.Phase.PLAY && clock.current_player == userId
     }
 
     private fun onPhase(phase: Game.Phase) {

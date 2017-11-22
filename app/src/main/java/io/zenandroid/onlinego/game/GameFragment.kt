@@ -49,6 +49,7 @@ class GameFragment : Fragment(), GameContract.View {
     @BindView(R.id.next_button) lateinit var nextButton: AppCompatImageView
     @BindView(R.id.confirm_button) lateinit var confirmButton: AppCompatImageView
     @BindView(R.id.discard_button) lateinit var discardButton: AppCompatImageView
+    @BindView(R.id.auto_button) lateinit var autoButton: AppCompatImageView
     @BindView(R.id.chat_button) lateinit var chatButton: AppCompatImageView
     @BindView(R.id.play_controls) lateinit var playControls: ViewGroup
     @BindView(R.id.white_details) lateinit var whiteDetailsView: PlayerDetailsView
@@ -138,7 +139,7 @@ class GameFragment : Fragment(), GameContract.View {
 
     override var interactive: Boolean
         get() = board.isInteractive
-        set(value) {board.isInteractive = value}
+        set(value) { board.isInteractive = value }
 
     override fun onDestroyView() {
         super.onDestroyView()
@@ -167,7 +168,11 @@ class GameFragment : Fragment(), GameContract.View {
         set(value) { discardButton.showIf(value) }
 
     override var autoButtonVisible = false
-        set(value) { /*.showIf(value)*/ }
+        set(value) {
+            autoButton.showIf(value)
+            autoButton.isEnabled = value
+            field = value
+        }
 
     override fun onStart() {
         super.onStart()
@@ -238,5 +243,10 @@ class GameFragment : Fragment(), GameContract.View {
     @OnClick(R.id.confirm_button)
     fun onConfirmClicked() {
         presenter.onConfirmButtonPressed()
+    }
+
+    @OnClick(R.id.auto_button)
+    fun onAutoClicked() {
+        presenter.onAutoButtonPressed()
     }
 }

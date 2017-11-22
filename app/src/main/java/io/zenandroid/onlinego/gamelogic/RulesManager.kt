@@ -261,4 +261,44 @@ object RulesManager {
         return visited
     }
 
+    fun toggleRemoved(pos: Position, point: Point) {
+        val removing = !pos.removedSpots.contains(point)
+        val isStone = pos.getStoneAt(point) != null
+        val toVisit = mutableListOf(point)
+        val visited = mutableSetOf<Point>()
+        val group = mutableListOf<Point>()
+
+        while(!toVisit.isEmpty()) {
+            val p = toVisit.removeAt(toVisit.size - 1)
+            visited.add(p)
+            if(isStone) {
+                if(pos.getStoneAt(point) != pos.getStoneAt(p)) {
+                    continue
+                }
+            } else if(pos.whiteTerritory.contains(point)) {
+                if(!pos.whiteTerritory.contains(p)) {
+                    continue
+                }
+            } else if(pos.blackTerritory.contains(point)) {
+                if(!pos.blackTerritory.contains(p)) {
+                    continue
+                }
+            } else if(isMarkedDame(pos, point)) {
+                if(!isMarkedDame(pos, p)) {
+                    continue
+                }
+            }
+            group.add(p)
+            toVisit.addAll(
+                    Util.getNeighbouringSpace(p, pos.boardSize)
+                            .filter { !visited.contains(it) })
+        }
+
+        if(removing) {
+            pos.removedSpots.addAll(group)
+        } else {
+            pos.removedSpots.removeAll(group)
+        }
+    }
+
 }

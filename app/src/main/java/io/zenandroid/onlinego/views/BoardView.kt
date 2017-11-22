@@ -35,10 +35,6 @@ class BoardView : View {
             invalidate()
         }
     var isInteractive = false
-        set(interactive) {
-            field = interactive
-            invalidate()
-        }
     var drawLastMove = true
         set(value) {
             field = value
@@ -108,7 +104,7 @@ class BoardView : View {
         decorationsPaint.style = Paint.Style.STROKE
         decorationsPaint.strokeWidth = 3f
 
-        territoryPaint.strokeWidth = 5f
+        territoryPaint.strokeWidth = 4f
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
@@ -198,7 +194,7 @@ class BoardView : View {
                 } else if(position.blackTerritory.contains(p)) {
                     territoryPaint.color = Color.BLACK
                 } else if(position.getStoneAt(p) == null && position.removedSpots.contains(p)) {
-                    territoryPaint.color = Color.BLUE
+                    territoryPaint.color = Color.TRANSPARENT
                 } else {
                     continue
                 }

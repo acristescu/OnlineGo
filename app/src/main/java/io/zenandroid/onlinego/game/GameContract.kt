@@ -50,5 +50,6 @@ interface GameContract {
         fun onNextButtonPressed()
         fun onDiscardButtonPressed()
         fun onConfirmButtonPressed()
+        fun onAutoButtonPressed()
     }
 }

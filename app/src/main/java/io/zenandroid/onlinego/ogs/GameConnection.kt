@@ -62,6 +62,32 @@ class GameConnection(val gameId: Long) : Disposable, Closeable {
         })
     }
 
+    fun submitRemovedStones(delta: Set<Point>, removing: Boolean) {
+        val sb = StringBuilder()
+        delta.forEach { sb.append(Util.getSGFCoordinates(it)) }
+        OGSService.instance.emit("game/removed_stones/set", createJsonObject {
+            put("auth", gameAuth)
+            put("game_id", gameId)
+            put("player_id", OGSService.instance.uiConfig?.user?.id)
+            put("removed", removing)
+            put("stones", sb.toString())
+        })
+    }
+
+    fun acceptRemovedStones(removedSpots: Set<Point>) {
+        val sb = StringBuilder()
+        removedSpots
+                .sortedWith(compareBy(Point::y, Point::x))
+                .forEach { sb.append(Util.getSGFCoordinates(it)) }
+        OGSService.instance.emit("game/removed_stones/accept", createJsonObject {
+            put("auth", gameAuth)
+            put("game_id", gameId)
+            put("player_id", OGSService.instance.uiConfig?.user?.id)
+            put("strict_seki_mode", false)
+            put("stones", sb.toString())
+        })
+    }
+
 }
 
 data class GameData (
