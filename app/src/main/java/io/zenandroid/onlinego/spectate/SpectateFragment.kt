@@ -17,7 +17,7 @@ import io.zenandroid.onlinego.model.ogs.Game
 import io.zenandroid.onlinego.model.ogs.GameList
 import io.zenandroid.onlinego.ogs.GameData
 import io.zenandroid.onlinego.ogs.Move
-import io.zenandroid.onlinego.ogs.OGSService
+import io.zenandroid.onlinego.ogs.OGSServiceImpl
 import io.zenandroid.onlinego.reusable.GameAdapter
 
 
@@ -54,7 +54,7 @@ class SpectateFragment : Fragment(), SpectateContract.View {
 
         gamesRecycler.layoutManager = LinearLayoutManager(context)
         (gamesRecycler.itemAnimator as SimpleItemAnimator).supportsChangeAnimations = false
-        presenter = SpectatePresenter(this, OGSService.instance)
+        presenter = SpectatePresenter(this, OGSServiceImpl.instance)
     }
 
     override fun navigateToGameScreen(game: Game) {

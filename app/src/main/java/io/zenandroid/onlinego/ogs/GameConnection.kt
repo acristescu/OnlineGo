@@ -24,7 +24,7 @@ class GameConnection(val gameId: Long) : Disposable, Closeable {
     var gameAuth: String? = null
 
     override fun close() {
-        OGSService.instance.disconnectFromGame(gameId)
+        OGSServiceImpl.instance.disconnectFromGame(gameId)
         closed = true
     }
 
@@ -38,37 +38,37 @@ class GameConnection(val gameId: Long) : Disposable, Closeable {
 
     fun submitMove(move: Point) {
         val encodedMove = Util.getSGFCoordinates(move)
-        OGSService.instance.emit("game/move", createJsonObject {
+        OGSServiceImpl.instance.emit("game/move", createJsonObject {
             put("auth", gameAuth)
             put("game_id", gameId)
-            put("player_id", OGSService.instance.uiConfig?.user?.id)
+            put("player_id", OGSServiceImpl.instance.uiConfig?.user?.id)
             put("move", encodedMove)
         })
     }
 
     fun resign() {
-        OGSService.instance.emit("game/resign", createJsonObject {
+        OGSServiceImpl.instance.emit("game/resign", createJsonObject {
             put("auth", gameAuth)
             put("game_id", gameId)
-            put("player_id", OGSService.instance.uiConfig?.user?.id)
+            put("player_id", OGSServiceImpl.instance.uiConfig?.user?.id)
         })
     }
 
     fun rejectRemovedStones() {
-        OGSService.instance.emit("game/removed_stones/reject", createJsonObject {
+        OGSServiceImpl.instance.emit("game/removed_stones/reject", createJsonObject {
             put("auth", gameAuth)
             put("game_id", gameId)
-            put("player_id", OGSService.instance.uiConfig?.user?.id)
+            put("player_id", OGSServiceImpl.instance.uiConfig?.user?.id)
         })
     }
 
     fun submitRemovedStones(delta: Set<Point>, removing: Boolean) {
         val sb = StringBuilder()
         delta.forEach { sb.append(Util.getSGFCoordinates(it)) }
-        OGSService.instance.emit("game/removed_stones/set", createJsonObject {
+        OGSServiceImpl.instance.emit("game/removed_stones/set", createJsonObject {
             put("auth", gameAuth)
             put("game_id", gameId)
-            put("player_id", OGSService.instance.uiConfig?.user?.id)
+            put("player_id", OGSServiceImpl.instance.uiConfig?.user?.id)
             put("removed", removing)
             put("stones", sb.toString())
         })
@@ -79,10 +79,10 @@ class GameConnection(val gameId: Long) : Disposable, Closeable {
         removedSpots
                 .sortedWith(compareBy(Point::y, Point::x))
                 .forEach { sb.append(Util.getSGFCoordinates(it)) }
-        OGSService.instance.emit("game/removed_stones/accept", createJsonObject {
+        OGSServiceImpl.instance.emit("game/removed_stones/accept", createJsonObject {
             put("auth", gameAuth)
             put("game_id", gameId)
-            put("player_id", OGSService.instance.uiConfig?.user?.id)
+            put("player_id", OGSServiceImpl.instance.uiConfig?.user?.id)
             put("strict_seki_mode", false)
             put("stones", sb.toString())
         })
@@ -164,19 +164,39 @@ data class Clock (
     var black_player_id: Long,
     var white_player_id: Long,
     var title: String? = null,
-    var last_move: Long? = null,
+    var last_move: Long,
     var expiration: Long? = null,
     var now: Long,
     var paused_since: Long? = null,
-    var black_time: Any? = null,// can be number or Time object
-    var white_time: Any? = null// can be number or Time object
-)
+    var start_mode: Boolean = false,
+    var pause_control: Any? = null,
+    var black_time: Any,// can be number or Time object
+    var white_time: Any// can be number or Time object
+) {
+    var receivedAt: Long = 0
+}
 
 data class Time(
-        //var data: JSONObject? = null
-        var thinking_time: Float? = null,
-        var skip_bonus: Boolean? = null
-)
+        val thinking_time: Long,
+        val skip_bonus: Boolean? = null,
+        val block_time: Long? = null,
+        val periods: Long? = null,
+        val period_time: Long? = null,
+        val moves_left: Long? = null
+) {
+    companion object {
+        fun fromMap(map:Map<*, *>): Time {
+            return Time(
+                    (map["thinking_time"] as Double).toLong(),
+                    map["skip_bonus"] as? Boolean,
+                    (map["block_time"] as Double?)?.toLong(),
+                    (map["periods"] as Double?)?.toLong(),
+                    (map["period_time"] as Double?)?.toLong(),
+                    (map["moves_left"] as Double?)?.toLong()
+            )
+        }
+    }
+}
 
 data class Players (
     var white: Player? = null,

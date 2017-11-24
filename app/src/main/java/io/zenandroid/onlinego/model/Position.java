@@ -35,6 +35,8 @@ public class Position {
     private int whiteCapturedCount = 0;
     private int blackCapturedCount = 0;
 
+    private StoneType nextToMove = StoneType.BLACK;
+
     public Position(int boardSize) {
         this.boardSize = boardSize;
     }
@@ -151,5 +153,13 @@ public class Position {
 
     public Set<Point> getBlackTerritory() {
         return blackTerritory;
+    }
+
+    public StoneType getNextToMove() {
+        return nextToMove;
+    }
+
+    public void setNextToMove(StoneType nextToMove) {
+        this.nextToMove = nextToMove;
     }
 }

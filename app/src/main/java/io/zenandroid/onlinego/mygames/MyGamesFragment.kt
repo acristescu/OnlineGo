@@ -17,7 +17,7 @@ import io.zenandroid.onlinego.model.ogs.Game
 import io.zenandroid.onlinego.ogs.ActiveGameService
 import io.zenandroid.onlinego.ogs.GameData
 import io.zenandroid.onlinego.ogs.Move
-import io.zenandroid.onlinego.ogs.OGSService
+import io.zenandroid.onlinego.ogs.OGSServiceImpl
 import io.zenandroid.onlinego.reusable.GameAdapter
 
 /**
@@ -46,7 +46,7 @@ class MyGamesFragment : Fragment(), MyGamesContract.View {
         gamesRecycler.adapter = adapter
         adapter.clicks.subscribe({presenter.onGameSelected(it)})
 
-        presenter = MyGamesPresenter(this, OGSService.instance, ActiveGameService)
+        presenter = MyGamesPresenter(this, OGSServiceImpl.instance, ActiveGameService)
     }
 
     override fun navigateToGameScreen(game: Game) {

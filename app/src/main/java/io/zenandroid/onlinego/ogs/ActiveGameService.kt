@@ -27,7 +27,7 @@ object ActiveGameService {
         )
 
     init {
-        OGSService.instance.connectToNotifications().subscribe({
+        OGSServiceImpl.instance.connectToNotifications().subscribe({
             if (it.phase == Game.Phase.FINISHED) {
                 val oldGameRecord = activeGames.remove(it.id)
                 if(isMyTurn(oldGameRecord)) {
@@ -53,6 +53,6 @@ object ActiveGameService {
     }
 
     private fun isMyTurn(gameNotification: Game?): Boolean {
-        return gameNotification?.player_to_move == OGSService.instance.uiConfig?.user?.id
+        return gameNotification?.player_to_move == OGSServiceImpl.instance.uiConfig?.user?.id
     }
 }

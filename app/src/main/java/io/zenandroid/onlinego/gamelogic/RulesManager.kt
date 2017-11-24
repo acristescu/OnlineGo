@@ -66,6 +66,7 @@ object RulesManager {
         if(gameData.initial_player == "white") {
             turn = StoneType.WHITE
         }
+        pos.nextToMove = turn
 
         gameData.moves.forEachIndexed { index, move ->
             if(index >= limit) {
@@ -80,6 +81,7 @@ object RulesManager {
             if(index + 1 >= gameData.handicap ?: 0) {
                 turn = turn.opponent
             }
+            newPos.nextToMove = turn
         }
         gameData.removed?.let {
             for (i in 0 until it.length step 2) {

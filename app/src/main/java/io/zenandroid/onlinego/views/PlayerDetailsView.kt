@@ -5,6 +5,7 @@ import android.support.text.emoji.widget.EmojiAppCompatTextView
 import android.support.v7.widget.AppCompatImageView
 import android.util.AttributeSet
 import android.view.View
+import android.view.animation.OvershootInterpolator
 import android.widget.FrameLayout
 import android.widget.TextView
 import butterknife.BindView
@@ -14,6 +15,8 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.bumptech.glide.request.RequestOptions
 import io.zenandroid.onlinego.R
+import io.zenandroid.onlinego.extensions.showIf
+import io.zenandroid.onlinego.model.StoneType
 import io.zenandroid.onlinego.model.ogs.Player
 import io.zenandroid.onlinego.utils.convertCountryCodeToEmojiFlag
 import io.zenandroid.onlinego.utils.egfToRank
@@ -36,6 +39,11 @@ class PlayerDetailsView : FrameLayout {
     @BindView(R.id.icon) lateinit var iconView: AppCompatImageView
     @BindView(R.id.flag) lateinit var flagView: EmojiAppCompatTextView
     @BindView(R.id.score) lateinit var scoreView: TextView
+    @BindView(R.id.timerFirstLine) lateinit var timerFirstLineView: TextView
+    @BindView(R.id.timerSecondLine) lateinit var timerSecondLineView: TextView
+    @BindView(R.id.colorIndicatorBlack) lateinit var colorIndicatorBlack: AppCompatImageView
+    @BindView(R.id.colorIndicatorWhite) lateinit var colorIndicatorWhite: AppCompatImageView
+    @BindView(R.id.clockIcon) lateinit var clockIcon: AppCompatImageView
 
     constructor(context: Context) : this(context, null)
     constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0)
@@ -55,11 +63,41 @@ class PlayerDetailsView : FrameLayout {
             }
         }
 
+    var nextToMove: Boolean = false
+        set(value) {
+            clockIcon.showIf(value)
+            if(value && !field) {
+                clockIcon.scaleX = .75f
+                clockIcon.scaleY = .75f
+                clockIcon.alpha = 0f
+                clockIcon.animate().scaleX(1f).scaleY(1f).alpha(1f).interpolator = OvershootInterpolator(10f)
+            }
+            field = value
+        }
+
+    var timerFirstLine: String? = null
+        set(value) {
+            timerFirstLineView.text = value
+        }
+
+    var timerSecondLine: String? = null
+        set(value) {
+            timerSecondLineView.text = value
+            timerSecondLineView.showIf(value?.isNotEmpty() ?: false)
+        }
+
     var captured: Int? = null
         set(value) {
             if(value != null && value != 0) {
-                scoreView.text = "$value capture" + if(value > 1) "s" else ""
+                scoreView.text = "$value capture${if (value > 1) "s" else ""}"
             }
+        }
+
+    var color: StoneType = StoneType.BLACK
+        set(value) {
+            field = value
+            colorIndicatorBlack.showIf(value == StoneType.BLACK)
+            colorIndicatorWhite.showIf(value == StoneType.WHITE)
         }
 
     private fun processGravatarURL(url: String): String {

@@ -5,12 +5,12 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import io.zenandroid.onlinego.model.ogs.Game
 import io.zenandroid.onlinego.ogs.ActiveGameService
-import io.zenandroid.onlinego.ogs.OGSService
+import io.zenandroid.onlinego.ogs.OGSServiceImpl
 
 /**
  * Created by alex on 05/11/2017.
  */
-class MyGamesPresenter(val view: MyGamesContract.View, private val service: OGSService, private val activeGameService: ActiveGameService) : MyGamesContract.Presenter {
+class MyGamesPresenter(val view: MyGamesContract.View, private val service: OGSServiceImpl, private val activeGameService: ActiveGameService) : MyGamesContract.Presenter {
 
     private val subscriptions = CompositeDisposable()
 

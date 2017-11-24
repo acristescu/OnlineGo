@@ -25,7 +25,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import io.zenandroid.onlinego.MainActivity
 import io.zenandroid.onlinego.R
-import io.zenandroid.onlinego.ogs.OGSService
+import io.zenandroid.onlinego.ogs.OGSServiceImpl
 
 
 /**
@@ -57,7 +57,7 @@ class LoginActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        OGSService.instance.loginWithToken()
+        OGSServiceImpl.instance.loginWithToken()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this::onLoginSuccess, this::onTokenLoginFailure)
@@ -95,7 +95,7 @@ class LoginActivity : AppCompatActivity() {
     @OnClick(R.id.btn_login)
     fun onLoginClicked() {
         button.startAnimation()
-        OGSService.instance.login(username.text.toString(), password.text.toString())
+        OGSServiceImpl.instance.login(username.text.toString(), password.text.toString())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                         this::onLoginSuccess,

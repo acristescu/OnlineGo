@@ -24,7 +24,7 @@ import io.zenandroid.onlinego.model.Position
 import io.zenandroid.onlinego.model.StoneType
 import io.zenandroid.onlinego.model.ogs.Game
 import io.zenandroid.onlinego.model.ogs.Player
-import io.zenandroid.onlinego.ogs.OGSService
+import io.zenandroid.onlinego.ogs.OGSServiceImpl
 import io.zenandroid.onlinego.views.BoardView
 import io.zenandroid.onlinego.views.PlayerDetailsView
 import java.util.concurrent.TimeUnit
@@ -60,9 +60,6 @@ class GameFragment : Fragment(), GameContract.View {
     private lateinit var presenter: GameContract.Presenter
     private val subscriptions = CompositeDisposable()
 
-//    private val boldTypeface = Typeface.defaultFromStyle(Typeface.BOLD)
-//    private val normalTypeface = Typeface.defaultFromStyle(Typeface.NORMAL)
-
     lateinit var game: Game
 
     override var position: Position? = null
@@ -72,10 +69,12 @@ class GameFragment : Fragment(), GameContract.View {
             blackDetailsView.captured = value?.blackCapturedCount
         }
 
-//    override var highlightBlackName: Boolean = false
-//        set(value) {
-//            blackNameView.typeface = if(value) boldTypeface else normalTypeface
-//        }
+    override var activePlayer: StoneType? = null
+        set(value) {
+            field = value
+            whiteDetailsView.nextToMove = value == StoneType.WHITE
+            blackDetailsView.nextToMove = value == StoneType.BLACK
+        }
 
     override var whitePlayer: Player? = null
         set(value) {
@@ -86,10 +85,6 @@ class GameFragment : Fragment(), GameContract.View {
         set(value) {
             blackDetailsView.player = value
         }
-    //    override var highlightWhiteName: Boolean = false
-//        set(value) {
-//            whiteNameView.typeface = if(value) boldTypeface else normalTypeface
-//        }
     override var passButtonEnabled: Boolean = true
         set(value) {
             passButton.isEnabled = value
@@ -112,7 +107,9 @@ class GameFragment : Fragment(), GameContract.View {
         super.onViewCreated(view, savedInstanceState)
         board.isInteractive = true
 
-        presenter = GamePresenter(this, OGSService.instance, game)
+        whiteDetailsView.color = StoneType.WHITE
+        blackDetailsView.color = StoneType.BLACK
+        presenter = GamePresenter(this, OGSServiceImpl.instance, game)
     }
 
     override var showLastMove = false
@@ -125,6 +122,18 @@ class GameFragment : Fragment(), GameContract.View {
 
     override val cellSelection: Observable<Point>
         get() = board.tapUpObservable()
+
+    override var whiteTimer: GamePresenter.TimerDetails? = null
+        set(value) {
+            whiteDetailsView.timerFirstLine = value?.firstLine
+            whiteDetailsView.timerSecondLine = value?.secondLine
+        }
+
+    override var blackTimer: GamePresenter.TimerDetails? = null
+        set(value) {
+            blackDetailsView.timerFirstLine = value?.firstLine
+            blackDetailsView.timerSecondLine = value?.secondLine
+        }
 
     override fun showCandidateMove(point: Point?, nextToMove: StoneType?) {
         board.showCandidateMove(point, nextToMove)

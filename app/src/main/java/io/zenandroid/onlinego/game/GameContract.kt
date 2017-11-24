@@ -38,6 +38,9 @@ interface GameContract {
         var showLastMove: Boolean
         var showTerritory: Boolean
         var fadeOutRemovedStones: Boolean
+        var whiteTimer: GamePresenter.TimerDetails?
+        var blackTimer: GamePresenter.TimerDetails?
+        var activePlayer: StoneType?
     }
 
     interface Presenter {
