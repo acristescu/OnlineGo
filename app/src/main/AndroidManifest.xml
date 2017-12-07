@@ -25,7 +25,13 @@
             </intent-filter>
         </activity>
         <activity android:name=".MainActivity" />
-
+        <service
+            android:exported="false"
+            android:name=".NotificationsService">
+            <intent-filter>
+                <action android:name="com.firebase.jobdispatcher.ACTION_EXECUTE"/>
+            </intent-filter>
+        </service>
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />

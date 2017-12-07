@@ -190,8 +190,8 @@ class OGSServiceImpl : OGSService {
                 .map { string -> moshi.adapter(Game::class.java).fromJson(string.toString()) }
 
         emit("notification/connect", createJsonObject {
-            put("player_id", uiConfig!!.user.id)
-            put("auth", uiConfig!!.notification_auth)
+            put("player_id", uiConfig?.user?.id)
+            put("auth", uiConfig?.notification_auth)
         })
 
         return returnVal

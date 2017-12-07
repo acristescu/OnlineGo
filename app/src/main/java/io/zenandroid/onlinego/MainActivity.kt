@@ -11,6 +11,8 @@ import android.widget.TextView
 import android.widget.Toast
 import butterknife.BindView
 import butterknife.ButterKnife
+import com.firebase.jobdispatcher.*
+import com.firebase.jobdispatcher.Constraint.ON_ANY_NETWORK
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.zenandroid.onlinego.game.GameFragment
 import io.zenandroid.onlinego.model.ogs.Game
@@ -19,7 +21,13 @@ import io.zenandroid.onlinego.ogs.ActiveGameService
 import io.zenandroid.onlinego.spectate.SpectateFragment
 
 
+
+
 class MainActivity : AppCompatActivity() {
+
+    companion object {
+        var isInForeground = false
+    }
 
     @BindView(R.id.bottom_navigation) lateinit var bottomNavigation: BottomNavigationView
     @BindView(R.id.badge) lateinit var badge: TextView
@@ -41,7 +49,18 @@ class MainActivity : AppCompatActivity() {
 
         bottomNavigation.setOnNavigationItemSelectedListener(this::selectItem)
         bottomNavigation.selectedItemId = R.id.navigation_my_games
-
+        val dispatcher = FirebaseJobDispatcher(GooglePlayDriver(this))
+        val job = dispatcher.newJobBuilder()
+                .setLifetime(Lifetime.FOREVER)
+                .setRecurring(true)
+                .setTag("poller")
+                .setTrigger(Trigger.executionWindow(1200, 7200))
+                .setReplaceCurrent(true)
+                .setRetryStrategy(RetryStrategy.DEFAULT_LINEAR)
+                .setService(NotificationsService::class.java)
+                .setConstraints(ON_ANY_NETWORK)
+                .build()
+        dispatcher.mustSchedule(job)
     }
 
     override fun onResume() {
@@ -61,6 +80,12 @@ class MainActivity : AppCompatActivity() {
                         badge.animate().alpha(1f)
                     }
                 })
+        isInForeground = true
+    }
+
+    override fun onPause() {
+        super.onPause()
+        isInForeground = false
     }
 
     private fun selectItem(item: MenuItem): Boolean {
