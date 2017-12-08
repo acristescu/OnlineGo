@@ -1,6 +1,8 @@
 package io.zenandroid.onlinego.ogs
 
+import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi
+import com.squareup.moshi.Types
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Completable
 import io.reactivex.Flowable
@@ -11,10 +13,7 @@ import io.socket.client.IO
 import io.socket.client.Socket
 import io.socket.parser.IOParser
 import io.zenandroid.onlinego.AndroidLoggingHandler
-import io.zenandroid.onlinego.model.ogs.Game
-import io.zenandroid.onlinego.model.ogs.GameList
-import io.zenandroid.onlinego.model.ogs.LoginToken
-import io.zenandroid.onlinego.model.ogs.UIConfig
+import io.zenandroid.onlinego.model.ogs.*
 import io.zenandroid.onlinego.utils.PersistenceManager
 import io.zenandroid.onlinego.utils.createJsonArray
 import io.zenandroid.onlinego.utils.createJsonObject
@@ -26,6 +25,8 @@ import retrofit2.converter.moshi.MoshiConverterFactory
 import java.util.*
 import java.util.logging.Level
 import java.util.logging.Logger
+
+
 
 /**
  * Created by alex on 03/11/2017.
@@ -192,6 +193,26 @@ class OGSServiceImpl : OGSService {
         emit("notification/connect", createJsonObject {
             put("player_id", uiConfig?.user?.id)
             put("auth", uiConfig?.notification_auth)
+        })
+
+        return returnVal
+    }
+
+    fun connectToChallenges(): Flowable<Challenge> {
+        val listMyData = Types.newParameterizedType(List::class.java, Challenge::class.java)
+        val adapter:JsonAdapter<List<Challenge>> = moshi.adapter(listMyData)
+
+        val returnVal = observeEvent("seekgraph/global")
+                .map { string -> adapter.fromJson(string.toString()) }
+                .flatMapIterable { it -> it }
+                .doOnCancel {
+                    emit("seek_graph/disconnect", createJsonObject {
+                        put("channel", "global")
+                    })
+                }
+
+        emit("seek_graph/connect", createJsonObject {
+            put("channel", "global")
         })
 
         return returnVal

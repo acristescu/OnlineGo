@@ -20,10 +20,6 @@ import io.zenandroid.onlinego.ogs.Move
 import io.zenandroid.onlinego.ogs.OGSServiceImpl
 import io.zenandroid.onlinego.reusable.GameAdapter
 
-
-
-
-
 /**
  * Created by alex on 05/11/2017.
  */
@@ -37,9 +33,12 @@ class SpectateFragment : Fragment(), SpectateContract.View {
 
     override var games: GameList? = null
         set(value) {
-            adapter = GameAdapter(value!!.results.toMutableList())
-            adapter.clicks.subscribe({presenter.onGameSelected(it)})
-            gamesRecycler.adapter = adapter
+            field = value
+            if(value != null) {
+                adapter = GameAdapter(value.results.toMutableList())
+                adapter.clicks.subscribe({ presenter.onGameSelected(it) })
+                gamesRecycler.adapter = adapter
+            }
         }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {

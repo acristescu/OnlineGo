@@ -8,7 +8,6 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
-import android.widget.Toast
 import butterknife.BindView
 import butterknife.ButterKnife
 import com.firebase.jobdispatcher.*
@@ -18,9 +17,8 @@ import io.zenandroid.onlinego.game.GameFragment
 import io.zenandroid.onlinego.model.ogs.Game
 import io.zenandroid.onlinego.mygames.MyGamesFragment
 import io.zenandroid.onlinego.ogs.ActiveGameService
+import io.zenandroid.onlinego.spectate.ChallengesFragment
 import io.zenandroid.onlinego.spectate.SpectateFragment
-
-
 
 
 class MainActivity : AppCompatActivity() {
@@ -36,6 +34,7 @@ class MainActivity : AppCompatActivity() {
 
     private val spectateFragment = SpectateFragment()
     private val myGamesFragment = MyGamesFragment()
+    private val challengesFragment = ChallengesFragment()
 
     private lateinit var lastSelectedItem: MenuItem
 
@@ -109,8 +108,10 @@ class MainActivity : AppCompatActivity() {
                 true
             }
             R.id.navigation_challenges -> {
-                Toast.makeText(this, "Not implemented yet", Toast.LENGTH_LONG).show()
-                false
+                supportFragmentManager.beginTransaction()
+                        .replace(R.id.fragment_container, challengesFragment)
+                        .commit()
+                true
             }
             R.id.navigation_my_games -> {
                 supportFragmentManager.beginTransaction()
