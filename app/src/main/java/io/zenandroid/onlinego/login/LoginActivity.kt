@@ -15,6 +15,7 @@ import android.support.v7.widget.AppCompatImageView
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
+import android.widget.TextView
 import android.widget.Toast
 import br.com.simplepass.loading_button_lib.customViews.CircularProgressButton
 import butterknife.BindView
@@ -23,6 +24,7 @@ import butterknife.OnClick
 import butterknife.OnTextChanged
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
+import io.zenandroid.onlinego.BuildConfig
 import io.zenandroid.onlinego.MainActivity
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.ogs.OGSServiceImpl
@@ -41,6 +43,7 @@ class LoginActivity : AppCompatActivity() {
     @BindView(R.id.input_password_layout) lateinit var passwordLayout: TextInputLayout
     @BindView(R.id.logo) lateinit var logo: AppCompatImageView
     @BindView(R.id.btn_login) lateinit var button: CircularProgressButton
+    @BindView(R.id.version) lateinit var versionText: TextView
 
     companion object {
         fun getIntent(context: Context) = Intent(context, LoginActivity::class.java)
@@ -53,6 +56,8 @@ class LoginActivity : AppCompatActivity() {
 
         setContentView(R.layout.activity_login)
         ButterKnife.bind(this)
+
+        versionText.setText("${BuildConfig.VERSION_NAME}")
     }
 
     override fun onResume() {
