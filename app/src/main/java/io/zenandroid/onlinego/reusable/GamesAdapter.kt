@@ -67,7 +67,7 @@ class GameAdapter(private val gameList: MutableList<Game>) : RecyclerView.Adapte
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.game_card, parent, false)
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_game, parent, false)
         return ViewHolder(
                 view,
                 view.findViewById(R.id.board),
