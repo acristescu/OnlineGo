@@ -31,11 +31,21 @@ class MyGamesPresenter(val view: MyGamesContract.View, private val service: OGSS
         subscriptions.add(gameConnection.gameData
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
-                .subscribe({ gameData -> view.setGameData(game.id, gameData) }))
+                .subscribe { gameData ->
+                    view.setGameData(game.id, gameData)
+                })
         subscriptions.add(gameConnection.moves
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
-                .subscribe({ move -> view.doMove(game.id, move) }))
+                .subscribe { move ->
+                    view.doMove(game.id, move)
+                })
+        subscriptions.add(gameConnection.clock
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
+                .subscribe { clock ->
+                    view.setClock(game.id, clock)
+                })
     }
 
     override fun unsubscribe() {

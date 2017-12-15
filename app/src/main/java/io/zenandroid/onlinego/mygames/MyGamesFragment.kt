@@ -14,10 +14,7 @@ import butterknife.Unbinder
 import io.zenandroid.onlinego.MainActivity
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.model.ogs.Game
-import io.zenandroid.onlinego.ogs.ActiveGameService
-import io.zenandroid.onlinego.ogs.GameData
-import io.zenandroid.onlinego.ogs.Move
-import io.zenandroid.onlinego.ogs.OGSServiceImpl
+import io.zenandroid.onlinego.ogs.*
 import io.zenandroid.onlinego.reusable.GameAdapter
 
 /**
@@ -44,7 +41,9 @@ class MyGamesFragment : Fragment(), MyGamesContract.View {
         gamesRecycler.layoutManager = LinearLayoutManager(context)
         (gamesRecycler.itemAnimator as SimpleItemAnimator).supportsChangeAnimations = false
         gamesRecycler.adapter = adapter
-        adapter.clicks.subscribe({presenter.onGameSelected(it)})
+        adapter.clicks.subscribe {
+            presenter.onGameSelected(it)
+        }
 
         presenter = MyGamesPresenter(this, OGSServiceImpl.instance, ActiveGameService)
     }
@@ -82,6 +81,10 @@ class MyGamesFragment : Fragment(), MyGamesContract.View {
 
     override fun addGame(game: Game) {
         adapter.addGame(game)
+    }
+
+    override fun setClock(id: Long, clock: Clock) {
+        adapter.setClock(id, clock);
     }
 
 }

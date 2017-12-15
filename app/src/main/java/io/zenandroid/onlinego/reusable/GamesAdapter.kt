@@ -10,8 +10,10 @@ import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.gamelogic.RulesManager
+import io.zenandroid.onlinego.gamelogic.Util
 import io.zenandroid.onlinego.model.StoneType
 import io.zenandroid.onlinego.model.ogs.Game
+import io.zenandroid.onlinego.ogs.Clock
 import io.zenandroid.onlinego.ogs.GameData
 import io.zenandroid.onlinego.ogs.Move
 import io.zenandroid.onlinego.utils.egfToRank
@@ -82,7 +84,7 @@ class GameAdapter(private val gameList: MutableList<Game>) : RecyclerView.Adapte
     }
 
     fun doMove(id: Long, move: Move) {
-        gameDataMap[id]?.let { gameData: GameData ->
+        gameDataMap[id]?.let { gameData ->
             // TODO maybe change this to something better
             val newMoves = gameData.moves.toMutableList()
             newMoves += move.move
@@ -101,13 +103,43 @@ class GameAdapter(private val gameList: MutableList<Game>) : RecyclerView.Adapte
     ) : RecyclerView.ViewHolder(itemView)
 
     fun addGame(game: Game) {
-        gameList.add(game)
-        notifyItemInserted(gameList.size - 1)
+        val insertPos = (0 until gameList.size).firstOrNull { !Util.isMyTurn(gameList[it]) }
+
+        if(insertPos == null || !Util.isMyTurn(game)) {
+            gameList.add(game)
+            notifyItemInserted(gameList.size - 1)
+        } else {
+            gameList.add(insertPos, game)
+            notifyItemInserted(insertPos)
+        }
     }
 
     fun clearGames() {
         gameList.clear()
         notifyDataSetChanged()
+    }
+
+    fun setClock(id: Long, clock: Clock) {
+        gameDataMap[id]?.let { gameData ->
+            gameData.clock = clock
+        }
+
+        gameList.firstOrNull { it.id == id }?.let { game ->
+            if(game.player_to_move == clock.current_player) {
+                //
+                // handicap game perhaps?
+                //
+                return@let
+            }
+            game.player_to_move = clock.current_player
+            val oldIndex = gameList.indexOf(game)
+            gameList.remove(game)
+            val insertPos = (0 until gameList.size).firstOrNull { !Util.isMyTurn(gameList[it]) } ?: 0
+            gameList.add(insertPos, game)
+
+            notifyItemMoved(oldIndex, insertPos)
+        }
+
     }
 }
 

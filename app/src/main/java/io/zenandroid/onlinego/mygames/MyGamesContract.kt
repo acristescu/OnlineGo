@@ -1,6 +1,7 @@
 package io.zenandroid.onlinego.mygames
 
 import io.zenandroid.onlinego.model.ogs.Game
+import io.zenandroid.onlinego.ogs.Clock
 import io.zenandroid.onlinego.ogs.GameData
 import io.zenandroid.onlinego.ogs.Move
 
@@ -14,6 +15,7 @@ interface MyGamesContract {
         fun addGame(game: Game)
         fun clearGames()
         fun navigateToGameScreen(game: Game)
+        fun setClock(id: Long, clock: Clock)
     }
     interface Presenter {
         fun subscribe()

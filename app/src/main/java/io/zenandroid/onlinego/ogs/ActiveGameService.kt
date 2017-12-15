@@ -3,6 +3,7 @@ package io.zenandroid.onlinego.ogs
 import io.reactivex.Observable
 import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
+import io.zenandroid.onlinego.gamelogic.Util.isMyTurn
 import io.zenandroid.onlinego.model.ogs.Game
 
 /**
@@ -50,9 +51,5 @@ object ActiveGameService {
                 myMoveCountSubject.onNext(myMoveCount)
             }
         })
-    }
-
-    private fun isMyTurn(gameNotification: Game?): Boolean {
-        return gameNotification?.player_to_move == OGSServiceImpl.instance.uiConfig?.user?.id
     }
 }

@@ -10,10 +10,12 @@ import android.widget.ImageView
 import android.widget.TextView
 import butterknife.BindView
 import butterknife.ButterKnife
+import butterknife.OnClick
 import com.firebase.jobdispatcher.*
 import com.firebase.jobdispatcher.Constraint.ON_ANY_NETWORK
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.zenandroid.onlinego.game.GameFragment
+import io.zenandroid.onlinego.gamelogic.Util
 import io.zenandroid.onlinego.model.ogs.Game
 import io.zenandroid.onlinego.mygames.MyGamesFragment
 import io.zenandroid.onlinego.ogs.ActiveGameService
@@ -67,7 +69,7 @@ class MainActivity : AppCompatActivity() {
 
         ActiveGameService.myMoveCountObservable
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({ myMoveCount ->
+                .subscribe { myMoveCount ->
                     if(myMoveCount == 0) {
                         notificationsButton.isEnabled = false
                         notificationsButton.animate().alpha(.33f)
@@ -78,13 +80,22 @@ class MainActivity : AppCompatActivity() {
                         badge.text = myMoveCount.toString()
                         badge.animate().alpha(1f)
                     }
-                })
+                }
         isInForeground = true
     }
 
     override fun onPause() {
         super.onPause()
         isInForeground = false
+    }
+
+    @OnClick(R.id.notifications)
+    fun onNotificationsClicked() {
+        navigateToGameScreen(
+            ActiveGameService.activeGamesObservable
+                    .filter { Util.isMyTurn(it) }
+                    .blockingFirst()
+        )
     }
 
     private fun selectItem(item: MenuItem): Boolean {
