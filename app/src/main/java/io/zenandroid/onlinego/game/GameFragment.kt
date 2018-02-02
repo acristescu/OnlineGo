@@ -142,7 +142,7 @@ class GameFragment : Fragment(), GameContract.View {
     override val cellHotTrack: Observable<Point>
         get() = board.tapMoveObservable()
     override var subTitle: String? = null
-        set(value) { (activity as AppCompatActivity).supportActionBar!!.subtitle = value }
+        set(value) { (activity as? AppCompatActivity)?.supportActionBar?.subtitle = value }
     override var title: String? = null
         set(value) { activity.title = value }
 
@@ -206,8 +206,7 @@ class GameFragment : Fragment(), GameContract.View {
                     if (state) {
                         Observable.concat(
                                 Observable.just(0L),
-                                Observable.interval(500, 100, TimeUnit.MILLISECONDS).take(10),
-                                Observable.interval(20, 20, TimeUnit.MILLISECONDS)
+                                Observable.interval(500, 400, TimeUnit.MILLISECONDS)
                         ).takeWhile { view.isEnabled }
                     } else {
                         Observable.never()

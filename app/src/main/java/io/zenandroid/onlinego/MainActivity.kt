@@ -91,11 +91,10 @@ class MainActivity : AppCompatActivity() {
 
     @OnClick(R.id.notifications)
     fun onNotificationsClicked() {
-        navigateToGameScreen(
-            ActiveGameService.activeGamesObservable
-                    .filter { Util.isMyTurn(it) }
-                    .blockingFirst()
-        )
+        ActiveGameService.activeGamesObservable
+                .filter { Util.isMyTurn(it) }
+                .firstElement()
+                .subscribe(this@MainActivity::navigateToGameScreen)
     }
 
     private fun selectItem(item: MenuItem): Boolean {
