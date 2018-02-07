@@ -52,7 +52,9 @@ class PlayerDetailsView : FrameLayout {
         set(value) {
             nameView.text = value?.username
             rankView.text = formatRank(egfToRank(value?.ratings?.overall?.rating ?: value?.egf))
-            flagView.text = convertCountryCodeToEmojiFlag(value?.country)
+            value?.country?.let {
+                flagView.text = convertCountryCodeToEmojiFlag(it)
+            }
             value?.icon?.let {
                 Glide.with(this)
                         .load(processGravatarURL(it))
@@ -117,8 +119,6 @@ class PlayerDetailsView : FrameLayout {
     constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(context, attrs, defStyleAttr) {
         val view = View.inflate(context, R.layout.view_player_details, this)
         unbinder = ButterKnife.bind(view)
-        val gb = convertCountryCodeToEmojiFlag("gb")
-        view.findViewById<EmojiAppCompatTextView>(R.id.flag).text = gb
     }
 
     override fun onViewRemoved(child: View?) {

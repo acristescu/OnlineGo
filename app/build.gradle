@@ -36,7 +36,7 @@ android {
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile 'com.android.support:appcompat-v7:26.1.0'
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     // retrofit
     compile "com.squareup.retrofit2:retrofit:2.3.0"
     compile "com.squareup.retrofit2:adapter-rxjava2:2.3.0"
