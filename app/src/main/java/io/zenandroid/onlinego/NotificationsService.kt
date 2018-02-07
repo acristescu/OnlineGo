@@ -56,7 +56,7 @@ class NotificationsService : JobService() {
                             if(!lastNotificationHash.contentEquals(hash)) {
                                 lastNotificationHash = hash
 
-                                val notification = NotificationCompat.Builder(this)
+                                val notification = NotificationCompat.Builder(this, "active_games")
                                         .setContentTitle("Your move in ${games.size} game(s)")
                                         .setSmallIcon(R.drawable.ic_launcher_foreground)
                                         .setLargeIcon(BitmapFactory.decodeResource(resources, R.drawable.ic_launcher_foreground))

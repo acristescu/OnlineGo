@@ -1,5 +1,11 @@
 package io.zenandroid.onlinego
 
+import android.annotation.SuppressLint
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.content.Context
+import android.graphics.Color
+import android.os.Build
 import android.os.Bundle
 import android.support.design.widget.BottomNavigationView
 import android.support.design.widget.FloatingActionButton
@@ -50,18 +56,38 @@ class MainActivity : AppCompatActivity() {
 
         bottomNavigation.setOnNavigationItemSelectedListener(this::selectItem)
         bottomNavigation.selectedItemId = R.id.navigation_my_games
+
+        createNotificationChannel()
+
         val dispatcher = FirebaseJobDispatcher(GooglePlayDriver(this))
         val job = dispatcher.newJobBuilder()
                 .setLifetime(Lifetime.FOREVER)
                 .setRecurring(true)
                 .setTag("poller")
-                .setTrigger(Trigger.executionWindow(1200, 7200))
+                .setTrigger(Trigger.executionWindow(300, 600))
                 .setReplaceCurrent(true)
                 .setRetryStrategy(RetryStrategy.DEFAULT_LINEAR)
                 .setService(NotificationsService::class.java)
                 .setConstraints(ON_ANY_NETWORK)
                 .build()
         dispatcher.mustSchedule(job)
+    }
+
+    @SuppressLint("NewApi")
+    private fun createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
+            val channelId = "active_games"
+            val channelName = "Active Games"
+            val importance = NotificationManager.IMPORTANCE_LOW
+            val notificationChannel = NotificationChannel(channelId, channelName, importance)
+            notificationChannel.enableLights(true)
+            notificationChannel.lightColor = Color.RED
+            notificationChannel.enableVibration(true)
+            notificationChannel.vibrationPattern = longArrayOf(100, 200, 300, 400, 500, 400, 300, 200, 400)
+            notificationManager.createNotificationChannel(notificationChannel)
+        }
     }
 
     override fun onResume() {
