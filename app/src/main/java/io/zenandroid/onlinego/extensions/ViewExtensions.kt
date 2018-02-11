@@ -9,6 +9,9 @@ import android.os.Build
 import android.util.Log
 import android.view.View
 import android.view.ViewAnimationUtils
+import android.view.ViewPropertyAnimator
+import android.view.animation.OvershootInterpolator
+import io.zenandroid.onlinego.R
 
 fun View.showIf(show: Boolean) {
     if (show) {
@@ -53,5 +56,21 @@ fun View.circularReveal(backgroundColor: Int) {
         }
     } else {
         showAndSetBackgroundColorFunction.invoke()
+    }
+}
+
+fun View.fadeInAndSlideUp(offset: Float): ViewPropertyAnimator {
+    visibility = View.VISIBLE
+    alpha = 0f
+    translationY = offset
+    return animate()
+            .alpha(1f)
+            .translationY(0f)
+            .setInterpolator(OvershootInterpolator())
+}
+
+fun View.fadeOutAndSlideDown(offset: Float): ViewPropertyAnimator {
+    return animate().alpha(0f).translationY(offset).withEndAction {
+        visibility = View.GONE
     }
 }

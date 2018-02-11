@@ -12,6 +12,7 @@ import android.support.design.widget.FloatingActionButton
 import android.support.v7.app.AppCompatActivity
 import android.view.MenuItem
 import android.view.View
+import android.view.View.GONE
 import android.widget.ImageView
 import android.widget.TextView
 import butterknife.BindView
@@ -20,6 +21,9 @@ import butterknife.OnClick
 import com.firebase.jobdispatcher.*
 import com.firebase.jobdispatcher.Constraint.ON_ANY_NETWORK
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.zenandroid.onlinego.extensions.fadeInAndSlideUp
+import io.zenandroid.onlinego.extensions.fadeOutAndSlideDown
+import io.zenandroid.onlinego.extensions.showIf
 import io.zenandroid.onlinego.game.GameFragment
 import io.zenandroid.onlinego.gamelogic.Util
 import io.zenandroid.onlinego.model.ogs.Game
@@ -39,12 +43,20 @@ class MainActivity : AppCompatActivity() {
     @BindView(R.id.badge) lateinit var badge: TextView
     @BindView(R.id.notifications) lateinit var notificationsButton: ImageView
     @BindView(R.id.fab) lateinit var fab: FloatingActionButton
+    @BindView(R.id.fade_out_mask) lateinit var fadeOutMask: View
+    @BindView(R.id.correspondence_fab) lateinit var correspondenceFab: FloatingActionButton
+    @BindView(R.id.correspondence_label) lateinit var correspondenceLabel: TextView
+    @BindView(R.id.normal_fab) lateinit var normalFab: FloatingActionButton
+    @BindView(R.id.normal_label) lateinit var normalLabel: TextView
+    @BindView(R.id.blitz_fab) lateinit var blitzFab: FloatingActionButton
+    @BindView(R.id.blitz_label) lateinit var blitzLabel: TextView
 
     private val spectateFragment = SpectateFragment()
     private val myGamesFragment = MyGamesFragment()
     private val challengesFragment = ChallengesFragment()
 
     private lateinit var lastSelectedItem: MenuItem
+    private var fabMenuVisible = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -178,6 +190,25 @@ class MainActivity : AppCompatActivity() {
                             .commit()
                 })
 
+    }
+
+    @OnClick(R.id.fab)
+    fun onFabClicked() {
+        val fabMiniSize = resources.getDimension(R.dimen.fab_mini_with_margin)
+        fabMenuVisible = !fabMenuVisible
+        fadeOutMask.showIf(fadeOutMask.visibility == GONE)
+
+        if(fabMenuVisible) {
+            fab.animate().rotation(45f)
+            correspondenceFab.fadeInAndSlideUp(fabMiniSize).withEndAction { correspondenceLabel.animate().alpha(1f) }
+            normalFab.fadeInAndSlideUp(2 * fabMiniSize).withEndAction { normalLabel.animate().alpha(1f) }
+            blitzFab.fadeInAndSlideUp(3 * fabMiniSize).withEndAction { blitzLabel.animate().alpha(1f) }
+        } else {
+            fab.animate().rotation(0f)
+            correspondenceLabel.animate().setDuration(30).alpha(0f).withEndAction { correspondenceFab.fadeOutAndSlideDown(fabMiniSize) }
+            normalLabel.animate().setDuration(30).alpha(0f).withEndAction { normalFab.fadeOutAndSlideDown(2 * fabMiniSize) }
+            blitzLabel.animate().setDuration(30).alpha(0f).withEndAction { blitzFab.fadeOutAndSlideDown(3 * fabMiniSize) }
+        }
     }
 
     override fun onBackPressed() {
