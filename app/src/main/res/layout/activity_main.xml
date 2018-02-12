@@ -111,7 +111,7 @@
         />
 
     <android.support.design.widget.FloatingActionButton
-        android:id="@+id/correspondence_fab"
+        android:id="@+id/long_fab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
@@ -125,13 +125,13 @@
         android:visibility="gone"
         />
     <TextView
-        android:id="@+id/correspondence_label"
+        android:id="@+id/long_label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Correspondence"
-        app:layout_constraintRight_toLeftOf="@id/correspondence_fab"
-        app:layout_constraintTop_toTopOf="@id/correspondence_fab"
-        app:layout_constraintBottom_toBottomOf="@id/correspondence_fab"
+        app:layout_constraintRight_toLeftOf="@id/long_fab"
+        app:layout_constraintTop_toTopOf="@id/long_fab"
+        app:layout_constraintBottom_toBottomOf="@id/long_fab"
         android:alpha="0"
         android:elevation="6dp"
         android:layout_marginRight="16dp"
@@ -145,7 +145,7 @@
         android:layout_marginBottom="16dp"
         android:layout_marginEnd="16dp"
         android:clickable="true"
-        app:layout_constraintBottom_toTopOf="@+id/correspondence_fab"
+        app:layout_constraintBottom_toTopOf="@+id/long_fab"
         app:layout_constraintEnd_toEndOf="parent"
         app:srcCompat="@drawable/ic_clock"
         android:tint="@color/white"

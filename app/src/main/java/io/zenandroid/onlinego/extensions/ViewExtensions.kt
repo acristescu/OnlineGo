@@ -9,9 +9,8 @@ import android.os.Build
 import android.util.Log
 import android.view.View
 import android.view.ViewAnimationUtils
-import android.view.ViewPropertyAnimator
 import android.view.animation.OvershootInterpolator
-import io.zenandroid.onlinego.R
+import io.reactivex.Completable
 
 fun View.showIf(show: Boolean) {
     if (show) {
@@ -59,18 +58,44 @@ fun View.circularReveal(backgroundColor: Int) {
     }
 }
 
-fun View.fadeInAndSlideUp(offset: Float): ViewPropertyAnimator {
-    visibility = View.VISIBLE
-    alpha = 0f
-    translationY = offset
-    return animate()
-            .alpha(1f)
-            .translationY(0f)
-            .setInterpolator(OvershootInterpolator())
+fun View.slideIn(offset: Float): Completable {
+    return Completable.create {
+        visibility = View.VISIBLE
+        alpha = 0f
+        translationY = offset
+        animate().alpha(1f)
+                .translationY(0f)
+                .setInterpolator(OvershootInterpolator())
+                .withEndAction(it::onComplete)
+    }
 }
 
-fun View.fadeOutAndSlideDown(offset: Float): ViewPropertyAnimator {
-    return animate().alpha(0f).translationY(offset).withEndAction {
-        visibility = View.GONE
+fun View.slideOut(offset: Float): Completable {
+    return Completable.create {
+        animate().alpha(0f).translationY(offset).withEndAction {
+            visibility = View.GONE
+            it.onComplete()
+        }
     }
+}
+
+fun View.fadeOut(duration: Long = 30): Completable {
+    return Completable.create {
+        animate().setDuration(duration).alpha(0f).withEndAction {
+            visibility = View.GONE
+            it.onComplete()
+        }
+    }
+}
+
+fun View.fadeIn(): Completable {
+    return Completable.create {
+        visibility = View.VISIBLE
+        alpha = 0f
+        animate().alpha(1f).withEndAction(it::onComplete)
+    }
+}
+
+fun View.rotate(degree: Float): Completable {
+    return Completable.create { animate().rotation(degree).withEndAction(it::onComplete) }
 }
