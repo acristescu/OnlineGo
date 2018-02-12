@@ -7,12 +7,12 @@ import android.content.Context
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
 import android.support.design.widget.BottomNavigationView
 import android.support.design.widget.FloatingActionButton
 import android.support.v7.app.AppCompatActivity
 import android.view.MenuItem
 import android.view.View
-import android.view.View.GONE
 import android.widget.ImageView
 import android.widget.TextView
 import butterknife.BindView
@@ -39,6 +39,10 @@ class MainActivity : AppCompatActivity() {
         var isInForeground = false
     }
 
+    private enum class FabMenuState {
+        OFF, SPEED, SIZE
+    }
+
     @BindView(R.id.bottom_navigation) lateinit var bottomNavigation: BottomNavigationView
     @BindView(R.id.badge) lateinit var badge: TextView
     @BindView(R.id.notifications) lateinit var notificationsButton: ImageView
@@ -50,13 +54,20 @@ class MainActivity : AppCompatActivity() {
     @BindView(R.id.normal_label) lateinit var normalLabel: TextView
     @BindView(R.id.blitz_fab) lateinit var blitzFab: FloatingActionButton
     @BindView(R.id.blitz_label) lateinit var blitzLabel: TextView
+    @BindView(R.id.small_fab) lateinit var smallFab: FloatingActionButton
+    @BindView(R.id.small_label) lateinit var smallLabel: TextView
+    @BindView(R.id.medium_fab) lateinit var mediumFab: FloatingActionButton
+    @BindView(R.id.medium_label) lateinit var mediumLabel: TextView
+    @BindView(R.id.large_fab) lateinit var largeFab: FloatingActionButton
+    @BindView(R.id.large_label) lateinit var largeLabel: TextView
 
     private val spectateFragment = SpectateFragment()
     private val myGamesFragment = MyGamesFragment()
     private val challengesFragment = ChallengesFragment()
 
     private lateinit var lastSelectedItem: MenuItem
-    private var fabMenuVisible = false
+    private var menuState = FabMenuState.OFF
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -194,21 +205,58 @@ class MainActivity : AppCompatActivity() {
 
     @OnClick(R.id.fab)
     fun onFabClicked() {
-        val fabMiniSize = resources.getDimension(R.dimen.fab_mini_with_margin)
-        fabMenuVisible = !fabMenuVisible
-        fadeOutMask.showIf(fadeOutMask.visibility == GONE)
-
-        if(fabMenuVisible) {
-            fab.animate().rotation(45f)
-            correspondenceFab.fadeInAndSlideUp(fabMiniSize).withEndAction { correspondenceLabel.animate().alpha(1f) }
-            normalFab.fadeInAndSlideUp(2 * fabMiniSize).withEndAction { normalLabel.animate().alpha(1f) }
-            blitzFab.fadeInAndSlideUp(3 * fabMiniSize).withEndAction { blitzLabel.animate().alpha(1f) }
-        } else {
-            fab.animate().rotation(0f)
-            correspondenceLabel.animate().setDuration(30).alpha(0f).withEndAction { correspondenceFab.fadeOutAndSlideDown(fabMiniSize) }
-            normalLabel.animate().setDuration(30).alpha(0f).withEndAction { normalFab.fadeOutAndSlideDown(2 * fabMiniSize) }
-            blitzLabel.animate().setDuration(30).alpha(0f).withEndAction { blitzFab.fadeOutAndSlideDown(3 * fabMiniSize) }
+        when(menuState) {
+            FabMenuState.OFF -> showSpeedMenu()
+            FabMenuState.SPEED -> {
+                hideSpeedMenu()
+                menuState = FabMenuState.OFF
+            }
+            FabMenuState.SIZE -> {
+                hideSizeMenu()
+                menuState = FabMenuState.OFF
+            }
         }
+        fadeOutMask.showIf(menuState != FabMenuState.OFF)
+    }
+
+    private fun showSpeedMenu() {
+        val fabMiniSize = resources.getDimension(R.dimen.fab_mini_with_margin)
+        menuState = FabMenuState.SPEED
+        fab.animate().rotation(45f)
+        correspondenceFab.fadeInAndSlideUp(fabMiniSize).withEndAction { correspondenceLabel.animate().alpha(1f) }
+        normalFab.fadeInAndSlideUp(2 * fabMiniSize).withEndAction { normalLabel.animate().alpha(1f) }
+        blitzFab.fadeInAndSlideUp(3 * fabMiniSize).withEndAction { blitzLabel.animate().alpha(1f) }
+    }
+
+    private fun showSizeMenu() {
+        val fabMiniSize = resources.getDimension(R.dimen.fab_mini_with_margin)
+        menuState = FabMenuState.SIZE
+        fab.animate().rotation(45f)
+        largeFab.fadeInAndSlideUp(fabMiniSize).withEndAction { largeLabel.animate().alpha(1f) }
+        mediumFab.fadeInAndSlideUp(2 * fabMiniSize).withEndAction { mediumLabel.animate().alpha(1f) }
+        smallFab.fadeInAndSlideUp(3 * fabMiniSize).withEndAction { smallLabel.animate().alpha(1f) }
+    }
+
+    private fun hideSpeedMenu() {
+        val fabMiniSize = resources.getDimension(R.dimen.fab_mini_with_margin)
+        fab.animate().rotation(0f)
+        correspondenceLabel.animate().setDuration(30).alpha(0f).withEndAction { correspondenceFab.fadeOutAndSlideDown(fabMiniSize) }
+        normalLabel.animate().setDuration(30).alpha(0f).withEndAction { normalFab.fadeOutAndSlideDown(2 * fabMiniSize) }
+        blitzLabel.animate().setDuration(30).alpha(0f).withEndAction { blitzFab.fadeOutAndSlideDown(3 * fabMiniSize) }
+    }
+
+    private fun hideSizeMenu() {
+        val fabMiniSize = resources.getDimension(R.dimen.fab_mini_with_margin)
+        fab.animate().rotation(0f)
+        largeLabel.animate().setDuration(30).alpha(0f).withEndAction { largeFab.fadeOutAndSlideDown(fabMiniSize) }
+        mediumLabel.animate().setDuration(30).alpha(0f).withEndAction { mediumFab.fadeOutAndSlideDown(2 * fabMiniSize) }
+        smallLabel.animate().setDuration(30).alpha(0f).withEndAction { smallFab.fadeOutAndSlideDown(3 * fabMiniSize) }
+    }
+
+    @OnClick(R.id.blitz_fab, R.id.correspondence_fab, R.id.normal_fab)
+    fun onSpeedClicked() {
+        hideSpeedMenu()
+        Handler().postDelayed(this::showSizeMenu, 400)
     }
 
     override fun onBackPressed() {
