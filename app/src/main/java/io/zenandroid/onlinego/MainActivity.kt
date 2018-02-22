@@ -8,7 +8,6 @@ import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
 import android.support.design.widget.BottomNavigationView
-import android.support.design.widget.FloatingActionButton
 import android.support.v7.app.AppCompatActivity
 import android.view.MenuItem
 import android.view.View
@@ -21,11 +20,13 @@ import com.firebase.jobdispatcher.*
 import com.firebase.jobdispatcher.Constraint.ON_ANY_NETWORK
 import io.reactivex.Completable
 import io.reactivex.android.schedulers.AndroidSchedulers
-import io.zenandroid.onlinego.extensions.*
+import io.zenandroid.onlinego.extensions.fadeIn
+import io.zenandroid.onlinego.extensions.fadeOut
 import io.zenandroid.onlinego.game.GameFragment
 import io.zenandroid.onlinego.gamelogic.Util
 import io.zenandroid.onlinego.model.ogs.Game
 import io.zenandroid.onlinego.mygames.MyGamesFragment
+import io.zenandroid.onlinego.newchallenge.NewChallengeView
 import io.zenandroid.onlinego.ogs.ActiveGameService
 import io.zenandroid.onlinego.spectate.ChallengesFragment
 import io.zenandroid.onlinego.spectate.SpectateFragment
@@ -37,36 +38,16 @@ class MainActivity : AppCompatActivity() {
         var isInForeground = false
     }
 
-    private enum class FabMenuState {
-        OFF, SPEED, SIZE
-    }
-
     @BindView(R.id.bottom_navigation) lateinit var bottomNavigation: BottomNavigationView
     @BindView(R.id.badge) lateinit var badge: TextView
     @BindView(R.id.notifications) lateinit var notificationsButton: ImageView
-    @BindView(R.id.fab) lateinit var fab: FloatingActionButton
-    @BindView(R.id.fade_out_mask) lateinit var fadeOutMask: View
-    @BindView(R.id.long_fab) lateinit var longFab: FloatingActionButton
-    @BindView(R.id.long_label) lateinit var longLabel: TextView
-    @BindView(R.id.normal_fab) lateinit var normalFab: FloatingActionButton
-    @BindView(R.id.normal_label) lateinit var normalLabel: TextView
-    @BindView(R.id.blitz_fab) lateinit var blitzFab: FloatingActionButton
-    @BindView(R.id.blitz_label) lateinit var blitzLabel: TextView
-    @BindView(R.id.small_fab) lateinit var smallFab: FloatingActionButton
-    @BindView(R.id.small_label) lateinit var smallLabel: TextView
-    @BindView(R.id.medium_fab) lateinit var mediumFab: FloatingActionButton
-    @BindView(R.id.medium_label) lateinit var mediumLabel: TextView
-    @BindView(R.id.large_fab) lateinit var largeFab: FloatingActionButton
-    @BindView(R.id.large_label) lateinit var largeLabel: TextView
+    @BindView(R.id.new_challenge) lateinit var newChallengeView: NewChallengeView
 
     private val spectateFragment = SpectateFragment()
     private val myGamesFragment = MyGamesFragment()
     private val challengesFragment = ChallengesFragment()
 
     private lateinit var lastSelectedItem: MenuItem
-    private var fabMiniSize: Float = 0f
-    private var menuState = FabMenuState.OFF
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -93,7 +74,6 @@ class MainActivity : AppCompatActivity() {
                 .setConstraints(ON_ANY_NETWORK)
                 .build()
         dispatcher.mustSchedule(job)
-        fabMiniSize = resources.getDimension(R.dimen.fab_mini_with_margin)
     }
 
     @SuppressLint("NewApi")
@@ -115,6 +95,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+        newChallengeView.onResume()
 
         ActiveGameService.myMoveCountObservable
                 .observeOn(AndroidSchedulers.mainThread())
@@ -135,6 +116,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onPause() {
         super.onPause()
+        newChallengeView.onPause()
         isInForeground = false
     }
 
@@ -153,11 +135,7 @@ class MainActivity : AppCompatActivity() {
             bottomNavigation.animate()
                     .translationY(0f)
                     .alpha(1f)
-            fab.visibility = View.VISIBLE
-            fab.animate()
-                    .alpha(1f)
-                    .scaleX(1f)
-                    .scaleY(1f)
+            newChallengeView.fadeIn().subscribe()
         }
         return when(item.itemId) {
             R.id.navigation_spectate -> {
@@ -184,77 +162,14 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun navigateToGameScreen(game: Game) {
-        bottomNavigation.animate()
-                .translationY(bottomNavigation.height.toFloat())
-                .alpha(.33f)
-                .withEndAction({
-                    bottomNavigation.visibility = View.GONE
-                })
-        fab.animate()
-                .alpha(0f)
-                .scaleX(0f)
-                .scaleY(0f)
-                .withEndAction({
-                    fab.visibility = View.GONE
-                    supportFragmentManager.beginTransaction()
-                            .replace(R.id.fragment_container, GameFragment.createFragment(game), "game")
-                            .commit()
-                })
-
-    }
-
-    @OnClick(R.id.fab)
-    fun onFabClicked() {
-        menuState = when(menuState) {
-            FabMenuState.OFF -> {
-                showSpeedMenu().subscribe()
-                FabMenuState.SPEED
-            }
-            FabMenuState.SPEED -> {
-                hideSpeedMenu().subscribe()
-                FabMenuState.OFF
-            }
-            FabMenuState.SIZE -> {
-                hideSizeMenu().subscribe()
-                FabMenuState.OFF
-            }
+        Completable.mergeArray(
+                bottomNavigation.fadeOut(),
+                newChallengeView.fadeOut()
+        ).subscribe {
+            supportFragmentManager.beginTransaction()
+                    .replace(R.id.fragment_container, GameFragment.createFragment(game), "game")
+                    .commit()
         }
-        fadeOutMask.showIf(menuState != FabMenuState.OFF)
-    }
-
-    private fun showSpeedMenu() = Completable.mergeArray(
-            fab.rotate(45f),
-            longFab.slideIn(fabMiniSize).andThen(longLabel.fadeIn()),
-            normalFab.slideIn(2 * fabMiniSize).andThen(normalLabel.fadeIn()),
-            blitzFab.slideIn(3 * fabMiniSize).andThen(blitzLabel.fadeIn())
-    )
-
-    private fun showSizeMenu() = Completable.mergeArray(
-            fab.rotate(45f),
-            largeFab.slideIn(fabMiniSize).andThen(largeLabel.fadeIn()),
-            mediumFab.slideIn(2 * fabMiniSize).andThen(mediumLabel.fadeIn()),
-            smallFab.slideIn(3 * fabMiniSize).andThen(smallLabel.fadeIn())
-    )
-
-    private fun hideSpeedMenu() = Completable.mergeArray(
-            fab.rotate(0f),
-            longLabel.fadeOut().andThen(longFab.slideOut(fabMiniSize)),
-            normalLabel.fadeOut().andThen(normalFab.slideOut(2 * fabMiniSize)),
-            blitzLabel.fadeOut().andThen(blitzFab.slideOut(3 * fabMiniSize))
-    )
-
-    private fun hideSizeMenu() = Completable.mergeArray(
-            fab.rotate(0f),
-            largeLabel.fadeOut().andThen(largeFab.slideOut(fabMiniSize)),
-            mediumLabel.fadeOut().andThen(mediumFab.slideOut(2 * fabMiniSize)),
-            smallLabel.fadeOut().andThen(smallFab.slideOut(3 * fabMiniSize))
-    )
-
-    @OnClick(R.id.blitz_fab, R.id.long_fab, R.id.normal_fab)
-    fun onSpeedClicked() {
-        hideSpeedMenu()
-                .andThen(showSizeMenu())
-                .subscribe { menuState = FabMenuState.SIZE }
     }
 
     override fun onBackPressed() {

@@ -62,9 +62,13 @@ fun View.slideIn(offset: Float): Completable {
     return Completable.create {
         visibility = View.VISIBLE
         alpha = 0f
+        scaleX = 0f
+        scaleY = 0f
         translationY = offset
         animate().alpha(1f)
                 .translationY(0f)
+                .scaleX(1f)
+                .scaleY(1f)
                 .setInterpolator(OvershootInterpolator())
                 .withEndAction(it::onComplete)
     }
@@ -72,19 +76,25 @@ fun View.slideIn(offset: Float): Completable {
 
 fun View.slideOut(offset: Float): Completable {
     return Completable.create {
-        animate().alpha(0f).translationY(offset).withEndAction {
-            visibility = View.GONE
-            it.onComplete()
-        }
+        animate().alpha(0f)
+                .scaleX(0f)
+                .scaleY(0f)
+                .translationY(offset)
+                .withEndAction {
+                    visibility = View.GONE
+                    it.onComplete()
+                }
     }
 }
 
 fun View.fadeOut(duration: Long = 30): Completable {
     return Completable.create {
-        animate().setDuration(duration).alpha(0f).withEndAction {
-            visibility = View.GONE
-            it.onComplete()
-        }
+        animate().setDuration(duration)
+                .alpha(0f)
+                .withEndAction {
+                    visibility = View.GONE
+                    it.onComplete()
+                }
     }
 }
 
@@ -92,7 +102,9 @@ fun View.fadeIn(): Completable {
     return Completable.create {
         visibility = View.VISIBLE
         alpha = 0f
-        animate().alpha(1f).withEndAction(it::onComplete)
+        animate().alpha(1f)
+                .setDuration(200)
+                .withEndAction(it::onComplete)
     }
 }
 

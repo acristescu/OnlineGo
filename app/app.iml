@@ -39,7 +39,7 @@
           </option>
           <option name="pluginClasspaths">
             <array>
-              <option value="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-annotation-processing-gradle/1.2.10/4152af9baeb52652a3abcaff73a8d5f8ba736d5a/kotlin-annotation-processing-gradle-1.2.10.jar" />
+              <option value="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-annotation-processing-gradle/1.2.21/a8217f1d15190b377518c6231200f325342a0ab1/kotlin-annotation-processing-gradle-1.2.21.jar" />
             </array>
           </option>
         </compilerArguments>
@@ -157,14 +157,12 @@
     <orderEntry type="jdk" jdkName="Android API 26 Platform" jdkType="Android SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="com.squareup.retrofit2:converter-gson:2.3.0@jar" level="project" />
-    <orderEntry type="library" name="org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.2.10@jar" level="project" />
     <orderEntry type="library" name="com.android.support:support-media-compat-26.1.0" level="project" />
     <orderEntry type="library" name="com.android.support:recyclerview-v7-26.1.0" level="project" />
     <orderEntry type="library" name="io.socket:socket.io-client:1.0.0@jar" level="project" />
     <orderEntry type="library" name="io.socket:engine.io-client:1.0.0@jar" level="project" />
     <orderEntry type="library" name="android.arch.lifecycle:common:1.0.0@jar" level="project" />
     <orderEntry type="library" name="de.hdodenhof:circleimageview-2.2.0" level="project" />
-    <orderEntry type="library" name="org.jetbrains.kotlin:kotlin-stdlib:1.2.10@jar" level="project" />
     <orderEntry type="library" scope="TEST" name="com.nhaarman:mockito-kotlin-kt1.1:1.5.0@jar" level="project" />
     <orderEntry type="library" name="android.arch.lifecycle:runtime-1.0.0" level="project" />
     <orderEntry type="library" name="com.android.support:appcompat-v7-26.1.0" level="project" />
@@ -181,6 +179,7 @@
     <orderEntry type="library" name="com.github.bumptech.glide:glide:4.3.1@jar" level="project" />
     <orderEntry type="library" name="android.arch.core:common:1.0.0@jar" level="project" />
     <orderEntry type="library" name="io.reactivex.rxjava2:rxjava:2.1.6@jar" level="project" />
+    <orderEntry type="library" name="org.jetbrains.kotlin:kotlin-stdlib:1.2.21@jar" level="project" />
     <orderEntry type="library" name="com.android.support:support-emoji-26.1.0" level="project" />
     <orderEntry type="library" scope="TEST" name="net.bytebuddy:byte-buddy-agent:1.6.14@jar" level="project" />
     <orderEntry type="library" name="com.android.support:design-26.1.0" level="project" />
@@ -203,6 +202,7 @@
     <orderEntry type="library" name="com.android.support:support-emoji-appcompat-26.1.0" level="project" />
     <orderEntry type="library" name="com.squareup.retrofit2:retrofit:2.3.0@jar" level="project" />
     <orderEntry type="library" name="com.squareup.moshi:moshi:1.4.0@jar" level="project" />
+    <orderEntry type="library" name="org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.2.21@jar" level="project" />
     <orderEntry type="library" name="com.jakewharton:butterknife-8.8.1" level="project" />
     <orderEntry type="library" name="io.reactivex.rxjava2:rxandroid-2.0.1" level="project" />
     <orderEntry type="library" name="com.github.bumptech.glide:gifdecoder:4.3.1@jar" level="project" />
