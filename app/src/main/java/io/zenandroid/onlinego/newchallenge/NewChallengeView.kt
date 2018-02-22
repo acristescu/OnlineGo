@@ -12,8 +12,11 @@ import butterknife.BindView
 import butterknife.ButterKnife
 import butterknife.OnClick
 import io.reactivex.Completable
+import io.zenandroid.onlinego.MainActivity
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.extensions.*
+import io.zenandroid.onlinego.ogs.Size
+import io.zenandroid.onlinego.ogs.Speed
 
 /**
  * Created by alex on 22/02/2018.
@@ -102,9 +105,9 @@ class NewChallengeView : FrameLayout, NewChallengeContract.View {
     @OnClick(R.id.blitz_fab, R.id.long_fab, R.id.normal_fab)
     fun onSpeedClicked(view : View) {
         when(view) {
-            blitzFab -> presenter.onSpeedSelected(NewChallengeContract.Speed.BLITZ)
-            normalFab -> presenter.onSpeedSelected(NewChallengeContract.Speed.NORMAL)
-            longFab -> presenter.onSpeedSelected(NewChallengeContract.Speed.LONG)
+            blitzFab -> presenter.onSpeedSelected(Speed.BLITZ)
+            normalFab -> presenter.onSpeedSelected(Speed.NORMAL)
+            longFab -> presenter.onSpeedSelected(Speed.LONG)
             else -> Log.e("NewChallengeView", "Illegal state")
         }
     }
@@ -112,9 +115,9 @@ class NewChallengeView : FrameLayout, NewChallengeContract.View {
     @OnClick(R.id.small_fab, R.id.medium_fab, R.id.large_fab)
     fun onSizeClicked(view : View) {
         when(view) {
-            smallFab -> presenter.onSizeSelected(NewChallengeContract.Size.SMALL)
-            mediumFab -> presenter.onSizeSelected(NewChallengeContract.Size.MEDIUM)
-            largeFab -> presenter.onSizeSelected(NewChallengeContract.Size.LARGE)
+            smallFab -> presenter.onSizeSelected(Size.SMALL)
+            mediumFab -> presenter.onSizeSelected(Size.MEDIUM)
+            largeFab -> presenter.onSizeSelected(Size.LARGE)
             else -> Log.e("NewChallengeView", "Illegal state")
         }
     }
@@ -126,7 +129,14 @@ class NewChallengeView : FrameLayout, NewChallengeContract.View {
         searchDialog = ProgressDialog.show(context, "Searching", null, true, true) {
             presenter.onDialogCancelled()
         }
+    }
 
+    override fun navigateToGame(gameId: Long) {
+        (context as? MainActivity)?.navigateToGameScreenById(gameId)
+    }
+
+    override fun cancelDialog() {
+        searchDialog.cancel()
     }
 
     override fun updateDialogText(message: CharSequence) {

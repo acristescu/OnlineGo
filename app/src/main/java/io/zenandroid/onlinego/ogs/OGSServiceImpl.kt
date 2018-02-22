@@ -158,15 +158,15 @@ class OGSServiceImpl : OGSService {
 //                    socket.emit("game/connect", obj)
     }
 
+    override fun fetchGame(gameId: Long): Single<Game> = restApi.fetchGame(gameId)
 
     override fun connectToGame(id: Long): GameConnection {
         val connection = GameConnection(id)
 
         connection.gameData = observeEvent("game/$id/gamedata")
                     .map { string -> moshi.adapter(GameData::class.java).fromJson(string.toString()) }
-                    .map { gameData ->
-                        connection.gameAuth = gameData.auth
-                        gameData
+                    .doOnNext {
+                        connection.gameAuth = it.auth
                     }
 
         connection.moves = observeEvent("game/$id/move")
@@ -248,22 +248,18 @@ class OGSServiceImpl : OGSService {
         })
     }
 
-    fun startGameSearch() {
+    override fun startGameSearch(size: Size, speed: Speed) : AutomatchChallenge {
         val uuid = UUID.randomUUID().toString()
+        val startFlowable = observeEvent("automatch/start")
+                .map { string -> moshi.adapter(AutomatchChallengeSuccess::class.java).fromJson(string.toString()) }
+        val challenge = AutomatchChallenge(uuid, startFlowable)
+
         val json = createJsonObject {
             put("uuid", uuid)
             put("size_speed_options", createJsonArray {
                 put(createJsonObject {
-                    put("size", "13x13")
-                    put("speed", "live")
-                })
-                put(createJsonObject {
-                    put("size", "9x9")
-                    put("speed", "live")
-                })
-                put(createJsonObject {
-                    put("size", "19x19")
-                    put("speed", "live")
+                    put("size", size.getText())
+                    put("speed", speed.getText())
                 })
             })
             put("lower_rank_diff", 6)
@@ -283,7 +279,14 @@ class OGSServiceImpl : OGSService {
                 put("value", "enabled")
             })
         }
+
         emit("automatch/find_match", json)
+        return challenge
+    }
+
+    override fun cancelAutomatchChallenge(challenge: AutomatchChallenge) {
+        emit("automatch/cancel", challenge.uuid)
+        socket.off("automatch/start")
     }
 
     fun fetchGameList(): Single<GameList> {

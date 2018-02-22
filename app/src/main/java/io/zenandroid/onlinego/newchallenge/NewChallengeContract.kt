@@ -1,13 +1,13 @@
 package io.zenandroid.onlinego.newchallenge
 
 import io.reactivex.Completable
+import io.zenandroid.onlinego.ogs.Size
+import io.zenandroid.onlinego.ogs.Speed
 
 /**
  * Created by alex on 22/02/2018.
  */
 interface NewChallengeContract {
-    enum class Size { SMALL, MEDIUM, LARGE }
-    enum class Speed { BLITZ, NORMAL, LONG }
 
     interface View {
         fun showSpeedMenu(): Completable
@@ -19,6 +19,8 @@ interface NewChallengeContract {
         fun showSearchDialog()
         fun showFab(): Completable
         fun updateDialogText(message: CharSequence)
+        fun cancelDialog()
+        fun navigateToGame(gameId: Long)
     }
     interface Presenter {
         fun subscribe()

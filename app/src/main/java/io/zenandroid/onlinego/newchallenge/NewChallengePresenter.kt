@@ -4,6 +4,10 @@ import android.text.Html
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
+import io.zenandroid.onlinego.ogs.AutomatchChallenge
+import io.zenandroid.onlinego.ogs.OGSServiceImpl
+import io.zenandroid.onlinego.ogs.Size
+import io.zenandroid.onlinego.ogs.Speed
 import java.util.concurrent.TimeUnit
 
 class NewChallengePresenter(val view: NewChallengeContract.View) : NewChallengeContract.Presenter {
@@ -12,10 +16,11 @@ class NewChallengePresenter(val view: NewChallengeContract.View) : NewChallengeC
     }
 
     private var menuState = State.OFF
-    private lateinit var selectedSpeed: NewChallengeContract.Speed
-    private lateinit var selectedSize: NewChallengeContract.Size
+    private lateinit var selectedSpeed: Speed
+    private lateinit var selectedSize: Size
     private var searchStart = 0L
     private lateinit var timer: Disposable
+    private var challenge : AutomatchChallenge? = null
 
     override fun onMainFabClicked() {
         menuState = when(menuState) {
@@ -37,7 +42,7 @@ class NewChallengePresenter(val view: NewChallengeContract.View) : NewChallengeC
 
     }
 
-    override fun onSpeedSelected(speed: NewChallengeContract.Speed) {
+    override fun onSpeedSelected(speed: Speed) {
         selectedSpeed = speed
         view.hideSpeedMenu()
                 .doOnComplete { menuState = State.SIZE }
@@ -45,9 +50,18 @@ class NewChallengePresenter(val view: NewChallengeContract.View) : NewChallengeC
                 .subscribe()
     }
 
-    override fun onSizeSelected(size: NewChallengeContract.Size) {
+    override fun onSizeSelected(size: Size) {
         selectedSize = size
-        view.hideSizeMenu().andThen(view.hideFab()).subscribe(this::showDialog)
+        view.hideSizeMenu().andThen(view.hideFab()).subscribe(this::startSearch)
+    }
+
+    private fun startSearch() {
+        showDialog()
+        challenge = OGSServiceImpl.instance.startGameSearch(selectedSize, selectedSpeed)
+        challenge?.start?.subscribe {
+            view.cancelDialog()
+            view.navigateToGame(it.game_id)
+        }
     }
 
     private fun showDialog() {
@@ -62,13 +76,14 @@ class NewChallengePresenter(val view: NewChallengeContract.View) : NewChallengeC
 
     private fun updateDialogText() {
         val elapsedSeconds = (System.currentTimeMillis() - searchStart) / 1000
-        view.updateDialogText(Html.fromHtml("Game size: <b>$selectedSize</b><br/>Speed: <b>$selectedSpeed</b><br/>Time elapsed: ${elapsedSeconds}s"))
+        view.updateDialogText(Html.fromHtml("Game size: <b>${selectedSize.getText()}</b><br/>Speed: <b>$selectedSpeed</b><br/>Time elapsed: ${elapsedSeconds}s"))
     }
 
     override fun subscribe() {}
     override fun unsubscribe() {}
 
     override fun onDialogCancelled() {
+        challenge?.let(OGSServiceImpl.instance::cancelAutomatchChallenge)
         menuState = State.OFF
         timer.dispose()
         view.showFab().subscribe()

@@ -20,6 +20,7 @@ import com.firebase.jobdispatcher.*
 import com.firebase.jobdispatcher.Constraint.ON_ANY_NETWORK
 import io.reactivex.Completable
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
 import io.zenandroid.onlinego.extensions.fadeIn
 import io.zenandroid.onlinego.extensions.fadeOut
 import io.zenandroid.onlinego.game.GameFragment
@@ -28,6 +29,7 @@ import io.zenandroid.onlinego.model.ogs.Game
 import io.zenandroid.onlinego.mygames.MyGamesFragment
 import io.zenandroid.onlinego.newchallenge.NewChallengeView
 import io.zenandroid.onlinego.ogs.ActiveGameService
+import io.zenandroid.onlinego.ogs.OGSServiceImpl
 import io.zenandroid.onlinego.spectate.ChallengesFragment
 import io.zenandroid.onlinego.spectate.SpectateFragment
 
@@ -159,6 +161,13 @@ class MainActivity : AppCompatActivity() {
             else -> false
         }
 
+    }
+
+    fun navigateToGameScreenById(gameId: Long) {
+        OGSServiceImpl.instance.fetchGame(gameId)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(this::navigateToGameScreen)
     }
 
     fun navigateToGameScreen(game: Game) {
