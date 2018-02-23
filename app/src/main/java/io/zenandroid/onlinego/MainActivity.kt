@@ -106,11 +106,13 @@ class MainActivity : AppCompatActivity() {
                         notificationsButton.isEnabled = false
                         notificationsButton.animate().alpha(.33f)
                         badge.animate().alpha(0f)
+                        NotificationsService.cancelNotification(this)
                     } else {
                         notificationsButton.isEnabled = true
                         notificationsButton.animate().alpha(1f)
                         badge.text = myMoveCount.toString()
                         badge.animate().alpha(1f)
+                        NotificationsService.updateNotification(this, ActiveGameService.activeGamesList, OGSServiceImpl.instance)
                     }
                 }
         isInForeground = true

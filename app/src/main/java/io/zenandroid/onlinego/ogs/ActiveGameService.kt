@@ -27,6 +27,9 @@ object ActiveGameService {
                     activeGamesSubject.hide()
         )
 
+    val activeGamesList: List<Game>
+        get() = activeGames.values.toList()
+
     init {
         OGSServiceImpl.instance.connectToNotifications().subscribe({
             if (it.phase == Game.Phase.FINISHED) {
