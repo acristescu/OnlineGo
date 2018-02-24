@@ -98,7 +98,7 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         title = "OnlineGo"
-        supportActionBar?.subtitle = "beta ${BuildConfig.VERSION_CODE}"
+        supportActionBar?.subtitle = BuildConfig.VERSION_NAME
 
         newChallengeView.onResume()
 
