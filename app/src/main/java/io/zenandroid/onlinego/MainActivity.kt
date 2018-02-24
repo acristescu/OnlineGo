@@ -97,6 +97,9 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+        title = "OnlineGo"
+        supportActionBar?.subtitle = "beta ${BuildConfig.VERSION_CODE}"
+
         newChallengeView.onResume()
 
         ActiveGameService.myMoveCountObservable

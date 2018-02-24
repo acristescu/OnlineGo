@@ -57,7 +57,7 @@ class LoginActivity : AppCompatActivity() {
         setContentView(R.layout.activity_login)
         ButterKnife.bind(this)
 
-        versionText.setText("${BuildConfig.VERSION_NAME}")
+        versionText.text = BuildConfig.VERSION_CODE.toString()
     }
 
     override fun onResume() {
