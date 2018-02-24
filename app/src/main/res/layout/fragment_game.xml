@@ -63,6 +63,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         android:background="@color/white"
         android:elevation="4dp"
+        android:visibility="invisible"
         >
         <android.support.v7.widget.AppCompatImageView
             android:id="@+id/discard_button"

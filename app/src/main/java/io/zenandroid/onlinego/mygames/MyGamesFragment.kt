@@ -21,7 +21,7 @@ import io.zenandroid.onlinego.reusable.GameAdapter
  * Created by alex on 05/11/2017.
  */
 class MyGamesFragment : Fragment(), MyGamesContract.View {
-    private val adapter = GameAdapter(mutableListOf())
+    private val adapter = GameAdapter()
 
     @BindView(R.id.games_recycler) lateinit var gamesRecycler: RecyclerView
 
@@ -80,7 +80,7 @@ class MyGamesFragment : Fragment(), MyGamesContract.View {
     }
 
     override fun addGame(game: Game) {
-        adapter.addGame(game)
+        adapter.addOrReplaceGame(game)
     }
 
     override fun setClock(id: Long, clock: Clock) {

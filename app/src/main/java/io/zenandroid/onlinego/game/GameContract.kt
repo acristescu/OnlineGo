@@ -35,6 +35,7 @@ interface GameContract {
         var confirmButtonVisible: Boolean
         var discardButtonVisible: Boolean
         var autoButtonVisible: Boolean
+        var bottomBarVisible: Boolean
         var showLastMove: Boolean
         var showTerritory: Boolean
         var fadeOutRemovedStones: Boolean

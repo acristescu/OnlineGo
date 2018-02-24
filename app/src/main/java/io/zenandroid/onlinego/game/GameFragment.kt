@@ -19,6 +19,8 @@ import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.zenandroid.onlinego.R
+import io.zenandroid.onlinego.extensions.fadeIn
+import io.zenandroid.onlinego.extensions.fadeOut
 import io.zenandroid.onlinego.extensions.showIf
 import io.zenandroid.onlinego.model.Position
 import io.zenandroid.onlinego.model.StoneType
@@ -175,6 +177,16 @@ class GameFragment : Fragment(), GameContract.View {
 
     override var discardButtonVisible = false
         set(value) { discardButton.showIf(value) }
+
+    override var bottomBarVisible = false
+        set(value) {
+            if(!field && value) {
+                playControls.fadeIn().subscribe()
+            } else if (field && !value) {
+                playControls.fadeOut().subscribe()
+            }
+            field = value
+        }
 
     override var autoButtonVisible = false
         set(value) {

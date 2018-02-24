@@ -12,6 +12,7 @@ import android.support.transition.TransitionInflater
 import android.support.transition.TransitionManager
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.AppCompatImageView
+import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
@@ -28,6 +29,7 @@ import io.zenandroid.onlinego.BuildConfig
 import io.zenandroid.onlinego.MainActivity
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.ogs.OGSServiceImpl
+import retrofit2.HttpException
 
 
 /**
@@ -94,7 +96,12 @@ class LoginActivity : AppCompatActivity() {
 
     private fun onPasswordLoginFailure(t: Throwable) {
         button.revertAnimation()
-        Toast.makeText(this, "Login failed", Toast.LENGTH_LONG).show()
+        Log.e(LoginActivity::class.java.simpleName, t.message, t)
+        if(t is HttpException && t.code() == 401) {
+            Toast.makeText(this, "Invalid username or password", Toast.LENGTH_LONG).show()
+        } else {
+            Toast.makeText(this, "Login failed. Debug info: '${t.message}'", Toast.LENGTH_LONG).show()
+        }
     }
 
     @OnClick(R.id.btn_login)

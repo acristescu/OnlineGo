@@ -29,15 +29,14 @@ class SpectateFragment : Fragment(), SpectateContract.View {
 
     private lateinit var unbinder: Unbinder
     private lateinit var presenter: SpectateContract.Presenter
-    private lateinit var adapter: GameAdapter
+    private val adapter = GameAdapter()
 
     override var games: GameList? = null
         set(value) {
             field = value
-            if(value != null) {
-                adapter = GameAdapter(value.results.toMutableList())
-                adapter.clicks.subscribe({ presenter.onGameSelected(it) })
-                gamesRecycler.adapter = adapter
+            value?.let {
+                adapter.setGames(it.results)
+                adapter.clicks.subscribe(presenter::onGameSelected)
             }
         }
 
@@ -52,6 +51,7 @@ class SpectateFragment : Fragment(), SpectateContract.View {
         super.onViewCreated(view, savedInstanceState)
 
         gamesRecycler.layoutManager = LinearLayoutManager(context)
+        gamesRecycler.adapter = adapter
         (gamesRecycler.itemAnimator as SimpleItemAnimator).supportsChangeAnimations = false
         presenter = SpectatePresenter(this, OGSServiceImpl.instance)
     }

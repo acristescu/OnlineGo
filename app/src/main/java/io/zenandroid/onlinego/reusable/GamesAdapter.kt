@@ -25,10 +25,11 @@ import io.zenandroid.onlinego.views.BoardView
 /**
  * Created by alex on 09/11/2017.
  */
-class GameAdapter(private val gameList: MutableList<Game>) : RecyclerView.Adapter<GameAdapter.ViewHolder>() {
+class GameAdapter : RecyclerView.Adapter<GameAdapter.ViewHolder>() {
     private var gameDataMap = mutableMapOf<Long, GameData>()
     private val boldTypeface = Typeface.defaultFromStyle(Typeface.BOLD)
     private val normalTypeface = Typeface.defaultFromStyle(Typeface.NORMAL)
+    private val gameList = mutableListOf<Game>()
 
     private val clicksSubject = PublishSubject.create<Game>()
 
@@ -79,7 +80,7 @@ class GameAdapter(private val gameList: MutableList<Game>) : RecyclerView.Adapte
     }
 
     fun setGameData(id: Long, gameData: GameData) {
-        gameDataMap.put(id, gameData)
+        gameDataMap[id] = gameData
         notifyItemChanged(gameList.indexOfFirst { it.id == id })
     }
 
@@ -102,15 +103,21 @@ class GameAdapter(private val gameList: MutableList<Game>) : RecyclerView.Adapte
             val blackRank: TextView
     ) : RecyclerView.ViewHolder(itemView)
 
-    fun addGame(game: Game) {
-        val insertPos = (0 until gameList.size).firstOrNull { !Util.isMyTurn(gameList[it]) }
+    fun addOrReplaceGame(game: Game) {
+        val index = gameList.indexOfFirst { it.id == game.id }
+        if(index == -1) {
+            val insertPos = (0 until gameList.size).firstOrNull { !Util.isMyTurn(gameList[it]) }
 
-        if(insertPos == null || !Util.isMyTurn(game)) {
-            gameList.add(game)
-            notifyItemInserted(gameList.size - 1)
+            if(insertPos == null || !Util.isMyTurn(game)) {
+                gameList.add(game)
+                notifyItemInserted(gameList.size - 1)
+            } else {
+                gameList.add(insertPos, game)
+                notifyItemInserted(insertPos)
+            }
         } else {
-            gameList.add(insertPos, game)
-            notifyItemInserted(insertPos)
+            gameList[index] = game
+            notifyItemChanged(index)
         }
     }
 
@@ -140,6 +147,22 @@ class GameAdapter(private val gameList: MutableList<Game>) : RecyclerView.Adapte
             notifyItemMoved(oldIndex, insertPos)
         }
 
+    }
+
+    fun setGames(newGames: List<Game>) {
+        val toRemove = mutableListOf<Game>()
+        gameList.forEach { game ->
+            if (newGames.find { it.id == game.id } == null) {
+                toRemove.add(game)
+            }
+        }
+        toRemove.forEach {
+            val index = gameList.indexOf(it)
+            gameList.removeAt(index)
+            notifyItemRemoved(index)
+        }
+
+        newGames.forEach (this::addOrReplaceGame)
     }
 }
 

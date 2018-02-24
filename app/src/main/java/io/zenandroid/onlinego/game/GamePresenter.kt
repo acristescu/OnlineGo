@@ -22,7 +22,7 @@ class GamePresenter(
         private var game: Game
 ) : GameContract.Presenter {
     private val subscriptions = CompositeDisposable()
-    private lateinit var gameData: GameData
+    private var gameData: GameData? = null
     private lateinit var gameConnection: GameConnection
     private var myGame: Boolean = false
     private var currentPosition = Position(19)
@@ -91,7 +91,7 @@ class GamePresenter(
     }
 
     private fun onUserHotTrackedCell(point: Point) {
-        if(gameData.phase == Game.Phase.PLAY) {
+        if(gameData?.phase == Game.Phase.PLAY) {
             val nextToMove = currentPosition.lastPlayerToMove?.opponent ?: StoneType.BLACK
             val validMove = RulesManager.makeMove(currentPosition, nextToMove, point) != null
             if (validMove) {
@@ -102,7 +102,7 @@ class GamePresenter(
     }
 
     private fun onUserSelectedCell(point: Point) {
-        if(gameData.phase == Game.Phase.PLAY) {
+        if(gameData?.phase == Game.Phase.PLAY) {
             if(candidateMove != null) {
                 showConfirmMoveControls()
             }
@@ -122,7 +122,7 @@ class GamePresenter(
     }
 
     override fun onDiscardButtonPressed() {
-        if(gameData.phase == Game.Phase.PLAY) {
+        if(gameData?.phase == Game.Phase.PLAY) {
             candidateMove = null
             view.showCandidateMove(null)
             showPlayControls()
@@ -132,7 +132,7 @@ class GamePresenter(
     }
 
     override fun onConfirmButtonPressed() {
-        if(gameData.phase == Game.Phase.PLAY) {
+        if(gameData?.phase == Game.Phase.PLAY) {
             view.interactive = false
             candidateMove?.let { gameConnection.submitMove(it) }
             candidateMove = null
@@ -158,12 +158,12 @@ class GamePresenter(
         configureBoard()
 
         currentShownMove = gameData.moves.size
-        refreshData()
+        refreshData(gameData)
         view.title = "${gameData.players?.black?.username} vs ${gameData.players?.white?.username}"
     }
 
     private fun configureBoard() {
-        when(gameData.phase) {
+        when(gameData?.phase) {
             Game.Phase.PLAY -> {
                 view.showLastMove = true
                 view.showTerritory = false
@@ -186,9 +186,9 @@ class GamePresenter(
     }
 
     private fun showControls() {
-        if(myGame && gameData.phase == Game.Phase.PLAY) {
+        if(myGame && gameData?.phase == Game.Phase.PLAY) {
             showPlayControls()
-        } else if(myGame && gameData.phase == Game.Phase.STONE_REMOVAL) {
+        } else if(myGame && gameData?.phase == Game.Phase.STONE_REMOVAL) {
             showStoneRemovalControls()
         } else {
             showSpectateControls()
@@ -196,6 +196,7 @@ class GamePresenter(
     }
 
     private fun showPlayControls() {
+        view.bottomBarVisible = true
         view.nextButtonVisible = true
         view.previousButtonVisible = true
         view.chatButtonVisible = true
@@ -210,7 +211,7 @@ class GamePresenter(
     }
 
     override fun onAutoButtonPressed() {
-        if(gameData.phase != Game.Phase.STONE_REMOVAL) {
+        if(gameData?.phase != Game.Phase.STONE_REMOVAL) {
             return
         }
         val newPos = currentPosition.clone()
@@ -222,6 +223,7 @@ class GamePresenter(
     }
 
     private fun showStoneRemovalControls() {
+        view.bottomBarVisible = true
         view.nextButtonVisible = false
         view.previousButtonVisible = false
         view.chatButtonVisible = true
@@ -234,6 +236,7 @@ class GamePresenter(
     }
 
     private fun showSpectateControls() {
+        view.bottomBarVisible = true
         view.nextButtonVisible = true
         view.previousButtonVisible = true
         view.chatButtonVisible = true
@@ -246,6 +249,7 @@ class GamePresenter(
     }
 
     private fun showConfirmMoveControls() {
+        view.bottomBarVisible = true
         view.nextButtonVisible = false
         view.previousButtonVisible = false
         view.chatButtonVisible = false
@@ -257,7 +261,7 @@ class GamePresenter(
         view.autoButtonVisible = false
     }
 
-    private fun refreshData() {
+    private fun refreshData(gameData: GameData) {
         currentPosition = RulesManager.replay(gameData)
 //        if(gameData.phase == Game.Phase.STONE_REMOVAL) {
 //            RulesManager.determineTerritory(currentPosition)
@@ -267,7 +271,7 @@ class GamePresenter(
         when(gameData.phase) {
             Game.Phase.PLAY -> {
                 val toMove =
-                        if (currentPosition.nextToMove == StoneType.BLACK) gameData.players?.black else gameData.players?.white
+                        if (currentPosition.nextToMove == StoneType.BLACK) gameData?.players?.black else gameData?.players?.white
                 view.subTitle = "${toMove?.username}'s turn"
             }
             Game.Phase.STONE_REMOVAL -> {
@@ -281,13 +285,15 @@ class GamePresenter(
     }
 
     private fun processMove(move: Move) {
-        candidateMove = null
-        view.showCandidateMove(null)
-        val newMoves = gameData.moves.toMutableList()
-        newMoves += move.move
-        gameData.moves = newMoves
-        currentShownMove = gameData.moves.size
-        refreshData()
+        gameData?.let { gameData ->
+            candidateMove = null
+            view.showCandidateMove(null)
+            val newMoves = gameData.moves.toMutableList()
+            newMoves += move.move
+            gameData.moves = newMoves
+            currentShownMove = gameData.moves.size
+            refreshData(gameData)
+        }
     }
 
     private fun clockTick() {
@@ -371,21 +377,22 @@ class GamePresenter(
     private fun onClock(clock: Clock) {
         this.clock = clock
 
-        processGameData(gameData)
+        gameData?.let (this::processGameData)
 //        view.interactive = gameData.phase == Game.Phase.PLAY && clock.current_player == userId
 //        view.passButtonEnabled = gameData.phase == Game.Phase.PLAY && clock.current_player == userId
     }
 
     private fun onPhase(phase: Game.Phase) {
         game.phase = phase
-        gameData.phase = phase
+        gameData?.phase = phase
 
-        processGameData(gameData)
+        gameData?.let (this::processGameData)
+
     }
 
     private fun onRemovedStones(removedStones: RemovedStones) {
-        gameData.removed = removedStones.all_removed
-        processGameData(gameData)
+        gameData?.removed = removedStones.all_removed
+        gameData?.let (this::processGameData)
     }
 
     override fun onResignConfirmed() {
@@ -398,26 +405,33 @@ class GamePresenter(
     }
 
     override fun onNextButtonPressed() {
-        if(currentShownMove < gameData.moves.size) {
-            currentShownMove ++
-        }
+        gameData?.let { gameData ->
+            if (currentShownMove < gameData.moves.size) {
+                currentShownMove++
+            }
 
-        currentShownMove.coerceIn(0, gameData.moves.size)
-        determineHistoryParameters()
-        view.position = RulesManager.replay(gameData, currentShownMove)
+            currentShownMove.coerceIn(0, gameData.moves.size)
+            determineHistoryParameters()
+            view.position = RulesManager.replay(gameData, currentShownMove)
+        }
     }
 
     override fun onPreviousButtonPressed() {
-        currentShownMove--
+        gameData?.let { gameData ->
 
-        currentShownMove.coerceIn(0, gameData.moves.size)
-        determineHistoryParameters()
-        view.position = RulesManager.replay(gameData, currentShownMove)
+            currentShownMove--
+
+            currentShownMove.coerceIn(0, gameData.moves.size)
+            determineHistoryParameters()
+            view.position = RulesManager.replay(gameData, currentShownMove)
+        }
     }
 
     private fun determineHistoryParameters() {
-        view.nextButtonEnabled = currentShownMove != gameData.moves.size
-        view.previousButtonEnabled = currentShownMove > 0
+        gameData?.let { gameData ->
+            view.nextButtonEnabled = currentShownMove != gameData.moves.size
+            view.previousButtonEnabled = currentShownMove > 0
+        }
     }
 
     override fun unsubscribe() {
