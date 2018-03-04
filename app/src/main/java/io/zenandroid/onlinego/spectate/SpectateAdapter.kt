@@ -26,7 +26,7 @@ class SpectateAdapter : GamesAdapter<SpectateAdapter.ViewHolder>() {
         val game = gameList[position]
         holder.boardView.boardSize = game.width
         gameDataMap[game.id]?.let { gameData ->
-            val pos = RulesManager.replay(gameData)
+            val pos = RulesManager.replay(gameData, computeTerritory = false)
 
             holder.boardView.position = pos
             holder.blackName.text = gameData.players?.black?.username

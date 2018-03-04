@@ -59,7 +59,8 @@ object RulesManager {
         }
     }
 
-    fun replay(gameData: GameData, limit: Int = Int.MAX_VALUE): Position {
+    fun replay(gameData: GameData, limit: Int = Int.MAX_VALUE, computeTerritory : Boolean): Position {
+        val start = System.currentTimeMillis()
         var pos = Position(gameData.height)
 
         var turn = StoneType.BLACK
@@ -88,25 +89,31 @@ object RulesManager {
                 pos.markRemoved(Util.getCoordinatesFromSGF(it, i))
             }
         }
-        for(i in 0 until pos.boardSize) {
-            (0 until pos.boardSize)
-                    .map { Point(i, it) }
-                    .filter { !isMarkedDame(pos, it) }
-                    .filter { !isLivingStone(pos, it) }
-                    .filter { !pos.whiteTerritory.contains(it) }
-                    .filter { !pos.blackTerritory.contains(it) }
-                    .forEach { markEye(pos, it) }
-        }
-        gameData.score?.white?.scoring_positions?.let {
-            for (i in 0 until it.length step 2) {
-                pos.markWhiteTerritory(Util.getCoordinatesFromSGF(it, i))
+        //
+        // WARNING: This is time consuming AF, avoid it like the plague
+        //
+        if(computeTerritory) {
+            for (i in 0 until pos.boardSize) {
+                (0 until pos.boardSize)
+                        .map { Point(i, it) }
+                        .filter { !isMarkedDame(pos, it) }
+                        .filter { !isLivingStone(pos, it) }
+                        .filter { !pos.whiteTerritory.contains(it) }
+                        .filter { !pos.blackTerritory.contains(it) }
+                        .forEach { markEye(pos, it) }
+            }
+            gameData.score?.white?.scoring_positions?.let {
+                for (i in 0 until it.length step 2) {
+                    pos.markWhiteTerritory(Util.getCoordinatesFromSGF(it, i))
+                }
+            }
+            gameData.score?.black?.scoring_positions?.let {
+                for (i in 0 until it.length step 2) {
+                    pos.markBlackTerritory(Util.getCoordinatesFromSGF(it, i))
+                }
             }
         }
-        gameData.score?.black?.scoring_positions?.let {
-            for (i in 0 until it.length step 2) {
-                pos.markBlackTerritory(Util.getCoordinatesFromSGF(it, i))
-            }
-        }
+
         return pos
     }
 

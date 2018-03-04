@@ -181,7 +181,6 @@ class BoardView : View {
         candidateMove?.let {
             drawSelection(canvas, it)
         }
-
     }
 
     private fun drawTerritory(canvas: Canvas, position: Position) {

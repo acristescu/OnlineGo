@@ -262,10 +262,8 @@ class GamePresenter(
     }
 
     private fun refreshData(gameData: GameData) {
-        currentPosition = RulesManager.replay(gameData)
-//        if(gameData.phase == Game.Phase.STONE_REMOVAL) {
-//            RulesManager.determineTerritory(currentPosition)
-//        }
+        val shouldComputeTerritory = gameData.phase == Game.Phase.STONE_REMOVAL || gameData.phase == Game.Phase.FINISHED
+        currentPosition = RulesManager.replay(gameData, computeTerritory = shouldComputeTerritory)
         view.position = currentPosition
         determineHistoryParameters()
         when(gameData.phase) {
@@ -412,7 +410,7 @@ class GamePresenter(
 
             currentShownMove.coerceIn(0, gameData.moves.size)
             determineHistoryParameters()
-            view.position = RulesManager.replay(gameData, currentShownMove)
+            view.position = RulesManager.replay(gameData, currentShownMove, false)
         }
     }
 
@@ -423,7 +421,7 @@ class GamePresenter(
 
             currentShownMove.coerceIn(0, gameData.moves.size)
             determineHistoryParameters()
-            view.position = RulesManager.replay(gameData, currentShownMove)
+            view.position = RulesManager.replay(gameData, currentShownMove, false)
         }
     }
 
