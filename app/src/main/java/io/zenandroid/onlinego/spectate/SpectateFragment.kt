@@ -18,7 +18,6 @@ import io.zenandroid.onlinego.model.ogs.GameList
 import io.zenandroid.onlinego.ogs.GameData
 import io.zenandroid.onlinego.ogs.Move
 import io.zenandroid.onlinego.ogs.OGSServiceImpl
-import io.zenandroid.onlinego.reusable.GameAdapter
 
 /**
  * Created by alex on 05/11/2017.
@@ -29,7 +28,7 @@ class SpectateFragment : Fragment(), SpectateContract.View {
 
     private lateinit var unbinder: Unbinder
     private lateinit var presenter: SpectateContract.Presenter
-    private val adapter = GameAdapter()
+    private val adapter = SpectateAdapter()
 
     override var games: GameList? = null
         set(value) {

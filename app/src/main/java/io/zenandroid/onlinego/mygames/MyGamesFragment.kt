@@ -15,13 +15,12 @@ import io.zenandroid.onlinego.MainActivity
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.model.ogs.Game
 import io.zenandroid.onlinego.ogs.*
-import io.zenandroid.onlinego.reusable.GameAdapter
 
 /**
  * Created by alex on 05/11/2017.
  */
 class MyGamesFragment : Fragment(), MyGamesContract.View {
-    private val adapter = GameAdapter()
+    private val adapter = MyGamesAdapter()
 
     @BindView(R.id.games_recycler) lateinit var gamesRecycler: RecyclerView
 

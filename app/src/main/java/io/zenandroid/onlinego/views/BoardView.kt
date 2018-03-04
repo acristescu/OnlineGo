@@ -65,14 +65,13 @@ class BoardView : View {
     private val blackStoneDrawable = resources.getDrawable(R.mipmap.stone_black)
     private val shadowDrawable = resources.getDrawable(R.drawable.gradient_shadow)
 
-    //    private final Bitmap texture = BitmapFactory.decodeResource(getResources(), R.mipmap.texture);
     private val texture = BitmapFactory.decodeResource(resources, R.mipmap.texture1)
 
     //
     // Size (in px) of the cell
     //
     private var cellSize: Int = 0
-    private val stoneSpacing = context.resources.getDimension(R.dimen.stones_spacing)
+    private var stoneSpacing = 0f
     private var candidateMove: Point? = null
     private var candidateType: StoneType? = null
 
@@ -156,6 +155,10 @@ class BoardView : View {
         // We need to adapt to resize events by recomputing the border and cell sizes
         //
         cellSize = w / this.boardSize
+        linesPaint.strokeWidth = (cellSize / 35f).coerceAtMost(2f)
+        linesHighlightPaint.strokeWidth = linesPaint.strokeWidth * 2
+        decorationsPaint.strokeWidth = cellSize / 20f
+        stoneSpacing = cellSize / 35f
         border = ((w - this.boardSize * cellSize) / 2).toFloat()
         super.onSizeChanged(w, h, oldw, oldh)
     }
@@ -272,7 +275,7 @@ class BoardView : View {
 
     private fun drawSingleStarPoint(canvas: Canvas, i: Int, j: Int) {
         val center = getCellCenter(i, j)
-        canvas.drawCircle(center.x, center.y, 7f, linesPaint)
+        canvas.drawCircle(center.x, center.y, cellSize / 15f, linesPaint)
     }
 
     private fun drawGrid(canvas: Canvas) {
