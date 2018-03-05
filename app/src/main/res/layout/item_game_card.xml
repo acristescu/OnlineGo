@@ -19,6 +19,7 @@
         android:orientation="horizontal"
         >
         <View
+            android:id="@+id/color_bar"
             android:layout_width="6dp"
             android:layout_height="match_parent"
             android:background="@color/colorPrimary"
@@ -51,7 +52,7 @@
                 android:id="@+id/first_row"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginRight="8dp"
+                android:layout_marginRight="20dp"
                 android:layout_marginTop="10dp"
                 android:gravity="right"
                 app:layout_constraintHorizontal_bias="0.0"
@@ -69,7 +70,7 @@
                     android:fontFamily="@font/ubuntu_medium"
                     android:gravity="left"
                     android:maxLines="1"
-                    android:textSize="16sp"
+                    android:textSize="14sp"
                     tools:text="MrAlex"
                     android:textColor="@color/colorTextSecondary"
                     />
@@ -80,7 +81,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="8dp"
                     android:layout_marginStart="8dp"
-                    android:fontFamily="@font/ubuntu"
+                    android:fontFamily="@font/ubuntu_condensed_regular"
                     android:textSize="12sp"
                     tools:text="14k"
                     android:textColor="@color/colorTextSecondary"
@@ -97,10 +98,27 @@
             </LinearLayout>
 
             <TextView
+                android:id="@+id/your_turn_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/first_row"
+                android:text="Your turn"
+                android:background="@drawable/rounded_corners"
+                android:textColor="@color/white"
+                android:textSize="10sp"
+                android:fontFamily="@font/ubuntu_bold"
+                android:paddingTop="2dp"
+                android:paddingBottom="2dp"
+                android:paddingLeft="5dp"
+                android:paddingRight="5dp"
+                android:layout_marginTop="2dp"
+                />
+            <TextView
                 android:id="@+id/color"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="black"
+                tools:text="black"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintLeft_toLeftOf="parent"
                 android:layout_marginBottom="10dp"
@@ -113,11 +131,11 @@
                 android:id="@+id/color_label"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:alpha=".7"
+                android:alpha=".6"
                 android:fontFamily="@font/ubuntu_condensed_regular"
                 android:text="You Play"
                 android:textAllCaps="true"
-                android:textSize="12sp"
+                android:textSize="10sp"
                 app:layout_constraintBottom_toTopOf="@id/color"
                 app:layout_constraintLeft_toLeftOf="parent"
                 android:textColor="@color/colorTextSecondary"
@@ -127,137 +145,30 @@
                 android:id="@+id/time"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="1 day"
+                tools:text="1 day"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintLeft_toLeftOf="@id/time_label"
                 android:layout_marginBottom="10dp"
                 android:fontFamily="@font/ubuntu_medium"
                 android:textColor="@color/colorTextSecondary"
                 android:textSize="12sp"
-
                 />
 
             <TextView
                 android:id="@+id/time_label"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:alpha=".7"
+                android:alpha=".6"
                 android:fontFamily="@font/ubuntu_condensed_regular"
                 android:text="Time Left"
                 android:textAllCaps="true"
-                android:textSize="12sp"
+                android:textSize="10sp"
                 app:layout_constraintBottom_toTopOf="@id/time"
                 app:layout_constraintHorizontal_bias="1.0"
                 app:layout_constraintRight_toRightOf="parent"
-                android:layout_marginRight="20dp"
+                android:layout_marginRight="30dp"
                 android:textColor="@color/colorTextSecondary"
                 />
         </android.support.constraint.ConstraintLayout>
     </LinearLayout>
-
-
-    <android.support.v7.widget.CardView
-        android:id="@+id/players_card"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:cardCornerRadius="3dp"
-        app:cardElevation="2dp"
-        android:layout_marginLeft="20dp"
-        android:layout_marginRight="20dp"
-        android:layout_marginTop="-5dp"
-        android:layout_marginBottom="5dp"
-        app:cardBackgroundColor="@color/colorPrimary"
-        android:visibility="gone"
-        >
-
-        <android.support.constraint.ConstraintLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="5dp">
-
-            <TextView
-                android:id="@+id/black_name"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="16dp"
-                android:ellipsize="end"
-                android:gravity="right"
-                android:maxLines="1"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:textColor="#FFFFFF"
-                android:shadowRadius="3"
-                android:shadowColor="@color/colorPrimaryDark"
-                app:layout_constraintBaseline_toBaselineOf="@+id/white_name"
-                app:layout_constraintEnd_toStartOf="@+id/imageView"
-                app:layout_constraintStart_toEndOf="@+id/black_rank"
-                tools:text="Lorem" />
-
-            <TextView
-                android:id="@+id/black_rank"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:text="14k"
-                android:textSize="12sp"
-                android:textStyle="italic"
-                android:textColor="#FFFFFF"
-                app:layout_constraintBaseline_toBaselineOf="@+id/black_name"
-                app:layout_constraintStart_toStartOf="parent" />
-
-            <TextView
-                android:id="@+id/white_rank"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="16dp"
-                android:text="13k"
-                android:textSize="12sp"
-                android:textStyle="italic"
-                android:textColor="#FFFFFF"
-                app:layout_constraintBaseline_toBaselineOf="@+id/white_name"
-                app:layout_constraintEnd_toEndOf="parent" />
-
-            <TextView
-                android:id="@+id/white_name"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="4dp"
-                android:ellipsize="end"
-                android:maxLines="1"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:textColor="#FFFFFF"
-                android:shadowRadius="3"
-                android:shadowColor="@color/colorPrimaryDark"
-                app:layout_constraintEnd_toStartOf="@+id/white_rank"
-                app:layout_constraintStart_toEndOf="@+id/imageView2"
-                app:layout_constraintTop_toTopOf="parent"
-                tools:text="Lorem ipsum dolor sit amet 2" />
-
-            <ImageView
-                android:id="@+id/imageView"
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:layout_marginEnd="14dp"
-                android:layout_marginTop="8dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:srcCompat="@mipmap/stone_black" />
-
-            <ImageView
-                android:id="@+id/imageView2"
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:layout_marginBottom="8dp"
-                android:layout_marginStart="14dp"
-                android:layout_marginTop="8dp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:srcCompat="@mipmap/stone_white" />
-        </android.support.constraint.ConstraintLayout>
-    </android.support.v7.widget.CardView>
 </android.support.v7.widget.CardView>

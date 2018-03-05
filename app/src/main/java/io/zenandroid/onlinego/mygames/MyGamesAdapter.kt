@@ -7,9 +7,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import io.zenandroid.onlinego.R
+import io.zenandroid.onlinego.extensions.showIf
 import io.zenandroid.onlinego.gamelogic.RulesManager
 import io.zenandroid.onlinego.ogs.OGSServiceImpl
 import io.zenandroid.onlinego.reusable.GamesAdapter
+import io.zenandroid.onlinego.utils.computeTimeLeft
 import io.zenandroid.onlinego.utils.egfToRank
 import io.zenandroid.onlinego.utils.formatRank
 import io.zenandroid.onlinego.views.BoardView
@@ -29,26 +31,45 @@ class MyGamesAdapter : GamesAdapter<MyGamesAdapter.ViewHolder>() {
             val pos = RulesManager.replay(gameData, computeTerritory = false)
 
             holder.boardView.position = pos
+            val userId = OGSServiceImpl.instance.uiConfig?.user?.id
             val opponent =
-                    when (OGSServiceImpl.instance.uiConfig?.user?.id) {
+                    when (userId) {
                         gameData.players?.black?.id -> gameData.players?.white
                         gameData.players?.white?.id -> gameData.players?.black
                         else -> null
                     }
+            val currentPlayer =
+                    when (gameData.clock.current_player) {
+                        gameData.players?.black?.id -> gameData.players?.black
+                        gameData.players?.white?.id -> gameData.players?.white
+                        else -> null
+                    }
             holder.opponentName.text = opponent?.username
-            holder.opponentRank.text = formatRank(egfToRank(gameData.players?.black?.egf))
-//            holder.blackName.text = gameData.players?.black?.username
-//            holder.blackRank.text = formatRank(egfToRank(gameData.players?.black?.egf))
-//            holder.whiteName.text = gameData.players?.white?.username
-//            holder.whiteRank.text = formatRank(egfToRank(gameData.players?.white?.egf))
-
-//            if(pos.getStoneAt(pos.lastMove) != StoneType.BLACK) {
-//                holder.blackName.typeface = boldTypeface
-//                holder.whiteName.typeface = normalTypeface
-//            } else {
-//                holder.blackName.typeface = normalTypeface
-//                holder.whiteName.typeface = boldTypeface
-//            }
+            holder.opponentRank.text = formatRank(egfToRank(opponent?.egf))
+            holder.colorBar.setBackgroundColor(
+                if(gameData.clock.current_player == userId)
+                    holder.colorBar.resources.getColor(R.color.color_type_wrong)
+                else
+                    holder.colorBar.resources.getColor(R.color.colorPrimary)
+            )
+            holder.yourTurnLabel.showIf(currentPlayer?.id == userId)
+            holder.colorView.text =
+                    if(gameData.players?.black?.id == userId)
+                        "black"
+                    else
+                        "white"
+            val currentPlayerTime =
+                    if(currentPlayer?.id == gameData.players?.black?.id)
+                        gameData.clock.black_time
+                    else
+                        gameData.clock.white_time
+            val timeLeft = computeTimeLeft(gameData.clock, currentPlayerTime, true).firstLine
+            //
+            // workaround for server bug. Sometimes it gives ridiculous values...
+            //
+            if(timeLeft?.endsWith("weeks") != true) {
+                holder.timeLeft.text = timeLeft
+            }
         }
         holder.itemView.setOnClickListener {
             clicksSubject.onNext(game)
@@ -61,7 +82,11 @@ class MyGamesAdapter : GamesAdapter<MyGamesAdapter.ViewHolder>() {
                 view,
                 view.findViewById(R.id.board),
                 view.findViewById(R.id.opponent_name),
-                view.findViewById(R.id.opponent_rank)
+                view.findViewById(R.id.opponent_rank),
+                view.findViewById(R.id.color_bar),
+                view.findViewById(R.id.your_turn_label),
+                view.findViewById(R.id.color),
+                view.findViewById(R.id.time)
         )
     }
 
@@ -69,6 +94,10 @@ class MyGamesAdapter : GamesAdapter<MyGamesAdapter.ViewHolder>() {
             itemView: View,
             val boardView: BoardView,
             val opponentName: TextView,
-            val opponentRank: TextView
+            val opponentRank: TextView,
+            val colorBar: View,
+            val yourTurnLabel: TextView,
+            val colorView: TextView,
+            val timeLeft: TextView
     ) : RecyclerView.ViewHolder(itemView)
 }

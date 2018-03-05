@@ -68,6 +68,7 @@ abstract class GamesAdapter<T : RecyclerView.ViewHolder> : RecyclerView.Adapter<
     fun setClock(id: Long, clock: Clock) {
         gameDataMap[id]?.let { gameData ->
             gameData.clock = clock
+            notifyItemChanged(gameList.indexOfFirst { it.id == id })
         }
 
         gameList.firstOrNull { it.id == id }?.let { game ->
