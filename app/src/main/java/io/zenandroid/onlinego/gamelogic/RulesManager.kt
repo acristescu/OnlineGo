@@ -60,7 +60,6 @@ object RulesManager {
     }
 
     fun replay(gameData: GameData, limit: Int = Int.MAX_VALUE, computeTerritory : Boolean): Position {
-        val start = System.currentTimeMillis()
         var pos = Position(gameData.height)
 
         var turn = StoneType.BLACK

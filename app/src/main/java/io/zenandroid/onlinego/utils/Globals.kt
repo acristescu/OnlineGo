@@ -1,5 +1,6 @@
 package io.zenandroid.onlinego.utils
 
+import android.os.Build
 import org.json.JSONArray
 import org.json.JSONObject
 import java.lang.Math.ceil
@@ -33,12 +34,13 @@ fun formatRank(rank: Double?) =
         null -> "?"
         in 0 until 30 -> "${ceil(30 - rank).toInt()}k"
         in 30 .. 100 -> "${ceil(rank - 29).toInt()}d"
-        else -> "???"
+        else -> ""
     }
 
 fun convertCountryCodeToEmojiFlag(country: String?): String {
-    if(country == null || country.length != 2) {
-        return "\uD83C\uDDFA\uD83C\uDDF3"
+    if(country == null || country.length != 2 || "un" == country) {
+        return if (Build.VERSION.SDK_INT == Build.VERSION_CODES.M) ""
+        else "\uD83C\uDDFA\uD83C\uDDF3"
     }
     val c1 = '\uDDE6' + country[0].minus('a')
     val c2 = '\uDDE6' + country[1].minus('a')

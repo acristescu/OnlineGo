@@ -269,7 +269,9 @@ class GamePresenter(
         when(gameData.phase) {
             Game.Phase.PLAY -> {
                 val toMove =
-                        if (currentPosition.nextToMove == StoneType.BLACK) gameData?.players?.black else gameData?.players?.white
+                        if (currentPosition.nextToMove == StoneType.BLACK)
+                            gameData.players?.black
+                        else gameData.players?.white
                 view.subTitle = "${toMove?.username}'s turn"
             }
             Game.Phase.STONE_REMOVAL -> {

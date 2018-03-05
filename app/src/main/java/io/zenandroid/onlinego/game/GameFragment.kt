@@ -105,7 +105,7 @@ class GameFragment : Fragment(), GameContract.View {
         return view
     }
 
-    override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         board.isInteractive = true
 
@@ -146,7 +146,7 @@ class GameFragment : Fragment(), GameContract.View {
     override var subTitle: String? = null
         set(value) { (activity as? AppCompatActivity)?.supportActionBar?.subtitle = value }
     override var title: String? = null
-        set(value) { activity.title = value }
+        set(value) { activity?.title = value }
 
     override var interactive: Boolean
         get() = board.isInteractive
@@ -239,20 +239,24 @@ class GameFragment : Fragment(), GameContract.View {
 
     @OnClick(R.id.resign_button)
     fun onResignClicked() {
-        AlertDialog.Builder(context)
-                .setTitle("Please confirm")
-                .setMessage("Are you sure you want to resign?")
-                .setPositiveButton("Resign", { _, _ -> presenter.onResignConfirmed() })
-                .setNegativeButton(android.R.string.cancel, null).show()
+        context?.let {
+            AlertDialog.Builder(it)
+                    .setTitle("Please confirm")
+                    .setMessage("Are you sure you want to resign?")
+                    .setPositiveButton("Resign", { _, _ -> presenter.onResignConfirmed() })
+                    .setNegativeButton(android.R.string.cancel, null).show()
+        }
     }
 
     @OnClick(R.id.pass_button)
     fun onPassClicked() {
-        AlertDialog.Builder(context)
-                .setTitle("Please confirm")
-                .setMessage("Are you sure you want to pass?")
-                .setPositiveButton("Pass", { _, _ -> presenter.onPassConfirmed() })
-                .setNegativeButton(android.R.string.cancel, null).show()
+        context?.let {
+            AlertDialog.Builder(it)
+                    .setTitle("Please confirm")
+                    .setMessage("Are you sure you want to pass?")
+                    .setPositiveButton("Pass", { _, _ -> presenter.onPassConfirmed() })
+                    .setNegativeButton(android.R.string.cancel, null).show()
+        }
     }
 
     @OnClick(R.id.discard_button)

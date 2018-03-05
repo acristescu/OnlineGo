@@ -38,7 +38,7 @@ class ChallengesFragment : Fragment(), ChallengesContract.View {
         return view
     }
 
-    override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         adapter = ArrayAdapter(context, android.R.layout.simple_list_item_1)
