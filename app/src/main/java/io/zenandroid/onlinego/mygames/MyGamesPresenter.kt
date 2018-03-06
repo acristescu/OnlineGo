@@ -21,6 +21,12 @@ class MyGamesPresenter(val view: MyGamesContract.View, private val service: OGSS
                         .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
                         .subscribe(this::addGame)
         )
+        subscriptions.add(
+                activeGameService.finishedGameObservable
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
+                        .subscribe(this::removeGame)
+        )
     }
 
     private fun addGame(game: Game) {
@@ -45,6 +51,10 @@ class MyGamesPresenter(val view: MyGamesContract.View, private val service: OGSS
                 .subscribe { clock ->
                     view.setClock(game.id, clock)
                 })
+    }
+
+    private fun removeGame(game: Game) {
+        view.removeGame(game)
     }
 
     override fun unsubscribe() {

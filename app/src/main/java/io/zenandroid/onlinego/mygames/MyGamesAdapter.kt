@@ -1,6 +1,5 @@
 package io.zenandroid.onlinego.mygames
 
-import android.graphics.Typeface
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
@@ -20,10 +19,6 @@ import io.zenandroid.onlinego.views.BoardView
  * Created by alex on 03/03/2018.
  */
 class MyGamesAdapter : GamesAdapter<MyGamesAdapter.ViewHolder>() {
-    private val boldTypeface = Typeface.defaultFromStyle(Typeface.BOLD)
-    private val normalTypeface = Typeface.defaultFromStyle(Typeface.NORMAL)
-
-
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val game = gameList[position]
         holder.boardView.boardSize = game.width

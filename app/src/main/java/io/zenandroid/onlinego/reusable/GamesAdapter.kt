@@ -104,6 +104,15 @@ abstract class GamesAdapter<T : RecyclerView.ViewHolder> : RecyclerView.Adapter<
 
         newGames.forEach (this::addOrReplaceGame)
     }
+
+    fun removeGame(game: Game) {
+        val index = gameList.indexOfFirst { it.id == game.id }
+        if (index != -1) {
+            gameList.removeAt(index)
+            notifyItemRemoved(index)
+        }
+    }
+
 }
 
 

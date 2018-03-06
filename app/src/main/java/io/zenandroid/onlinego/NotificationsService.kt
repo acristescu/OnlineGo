@@ -86,6 +86,7 @@ class NotificationsService : JobService() {
                 .take(10, TimeUnit.SECONDS)
                 .filter { it.player_to_move == connection.uiConfig?.user?.id }
                 .toList()
+                .map { it.sortedWith(compareBy { it.id }) }
                 .subscribe({
                     if (!MainActivity.isInForeground) {
                         updateNotification(this, it, connection)

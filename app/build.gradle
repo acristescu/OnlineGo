@@ -9,7 +9,7 @@ android {
         minSdkVersion 19
         targetSdkVersion 27
 //        versionCode System.getenv("APPCENTER_BUILD_ID") as Integer ?: 54
-        versionCode 55
+        versionCode 56
         versionName "alpha_b${versionCode}"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true

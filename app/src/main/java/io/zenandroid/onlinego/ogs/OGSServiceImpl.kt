@@ -1,5 +1,6 @@
 package io.zenandroid.onlinego.ogs
 
+import android.util.Log
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types
@@ -36,7 +37,7 @@ class OGSServiceImpl : OGSService {
     companion object {
         @JvmField
         val instance = OGSServiceImpl()
-        val TAG: String = OGSServiceImpl::class.java.name
+        val TAG: String = OGSServiceImpl::class.java.simpleName
     }
 
     private var token: LoginToken? = null
@@ -47,7 +48,7 @@ class OGSServiceImpl : OGSService {
     private val moshi = Moshi.Builder().build()
 
     private val loggingAck = Ack {
-        println("ack: $it")
+        Log.i(TAG, "ack: $it")
     }
 
     fun login(username: String, password: String): Completable {
@@ -219,21 +220,21 @@ class OGSServiceImpl : OGSService {
     }
 
     internal fun emit(event: String, params:Any?) {
-        println("Emit: $event with params $params")
+        Log.i(TAG, "Emit: $event with params $params")
         socket.emit(event, params, loggingAck)
     }
 
     private fun observeEvent(event: String): Flowable<Any> {
-        println("Listening for event: $event")
+        Log.i(TAG, "Listening for event: $event")
         return Flowable.create({ emitter ->
             socket.on(event, {
                 params ->
-                    println("Received event: $event, ${params[0]}")
+                Log.i(TAG, "Received event: $event, ${params[0]}")
                     emitter.onNext(params[0])
             })
 
             emitter.setCancellable({
-                println("Unregistering for event: $event")
+                Log.i(TAG, "Unregistering for event: $event")
                 socket.off(event)
             })
         }
@@ -317,7 +318,7 @@ class OGSServiceImpl : OGSService {
                                 .build()
                     }
                     val response = chain.proceed(request)
-                    println("${request.method()} ${request.url()} -> ${response.code()} ${response.message()}")
+                    Log.i(TAG, "${request.method()} ${request.url()} -> ${response.code()} ${response.message()}")
                     response
                 }
                 .build()

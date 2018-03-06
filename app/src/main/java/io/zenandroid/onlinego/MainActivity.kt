@@ -115,7 +115,8 @@ class MainActivity : AppCompatActivity() {
                         notificationsButton.animate().alpha(1f)
                         badge.text = myMoveCount.toString()
                         badge.animate().alpha(1f)
-                        NotificationsService.updateNotification(this, ActiveGameService.activeGamesList, OGSServiceImpl.instance)
+                        val sortedMyTurnGames = ActiveGameService.myTurnGamesList.sortedWith(compareBy { it.id })
+                        NotificationsService.updateNotification(this, sortedMyTurnGames, OGSServiceImpl.instance)
                     }
                 }
         isInForeground = true

@@ -16,6 +16,7 @@ interface MyGamesContract {
         fun clearGames()
         fun navigateToGameScreen(game: Game)
         fun setClock(id: Long, clock: Clock)
+        fun removeGame(game: Game)
     }
     interface Presenter {
         fun subscribe()

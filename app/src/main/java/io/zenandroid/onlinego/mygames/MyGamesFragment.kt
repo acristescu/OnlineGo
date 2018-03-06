@@ -78,6 +78,10 @@ class MyGamesFragment : Fragment(), MyGamesContract.View {
         adapter.doMove(id, move)
     }
 
+    override fun removeGame(game: Game) {
+        adapter.removeGame(game)
+    }
+
     override fun addGame(game: Game) {
         adapter.addOrReplaceGame(game)
     }
