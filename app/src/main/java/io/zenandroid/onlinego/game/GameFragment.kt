@@ -10,6 +10,7 @@ import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import butterknife.BindView
 import butterknife.ButterKnife
 import butterknife.OnClick
@@ -112,6 +113,10 @@ class GameFragment : Fragment(), GameContract.View {
         whiteDetailsView.color = StoneType.WHITE
         blackDetailsView.color = StoneType.BLACK
         presenter = GamePresenter(this, OGSServiceImpl.instance, game)
+    }
+
+    override fun showError(t: Throwable) {
+        Toast.makeText(context, "Error while talking to the server: {${t.message}", Toast.LENGTH_LONG).show()
     }
 
     override var showLastMove = false

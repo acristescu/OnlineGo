@@ -9,10 +9,12 @@ import android.os.Build
 import android.os.Bundle
 import android.support.design.widget.BottomNavigationView
 import android.support.v7.app.AppCompatActivity
+import android.util.Log
 import android.view.MenuItem
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import butterknife.BindView
 import butterknife.ButterKnife
 import butterknife.OnClick
@@ -32,12 +34,15 @@ import io.zenandroid.onlinego.ogs.ActiveGameService
 import io.zenandroid.onlinego.ogs.OGSServiceImpl
 import io.zenandroid.onlinego.spectate.ChallengesFragment
 import io.zenandroid.onlinego.spectate.SpectateFragment
+import io.zenandroid.onlinego.utils.NotificationUtils.Companion.cancelNotification
+import io.zenandroid.onlinego.utils.NotificationUtils.Companion.updateNotification
 
 
 class MainActivity : AppCompatActivity() {
 
     companion object {
         var isInForeground = false
+        val TAG = MainActivity::class.java.simpleName
     }
 
     @BindView(R.id.bottom_navigation) lateinit var bottomNavigation: BottomNavigationView
@@ -88,9 +93,9 @@ class MainActivity : AppCompatActivity() {
             val importance = NotificationManager.IMPORTANCE_LOW
             val notificationChannel = NotificationChannel(channelId, channelName, importance)
             notificationChannel.enableLights(true)
-            notificationChannel.lightColor = Color.RED
+            notificationChannel.lightColor = Color.WHITE
             notificationChannel.enableVibration(true)
-            notificationChannel.vibrationPattern = longArrayOf(100, 200, 300, 400, 500, 400, 300, 200, 400)
+            notificationChannel.vibrationPattern = longArrayOf(0, 200, 0, 200)
             notificationManager.createNotificationChannel(notificationChannel)
         }
     }
@@ -109,14 +114,14 @@ class MainActivity : AppCompatActivity() {
                         notificationsButton.isEnabled = false
                         notificationsButton.animate().alpha(.33f)
                         badge.animate().alpha(0f)
-                        NotificationsService.cancelNotification(this)
+                        cancelNotification(this)
                     } else {
                         notificationsButton.isEnabled = true
                         notificationsButton.animate().alpha(1f)
                         badge.text = myMoveCount.toString()
                         badge.animate().alpha(1f)
                         val sortedMyTurnGames = ActiveGameService.myTurnGamesList.sortedWith(compareBy { it.id })
-                        NotificationsService.updateNotification(this, sortedMyTurnGames, OGSServiceImpl.instance)
+                        updateNotification(this, sortedMyTurnGames, OGSServiceImpl.instance.uiConfig?.user?.id)
                     }
                 }
         isInForeground = true
@@ -133,7 +138,7 @@ class MainActivity : AppCompatActivity() {
         ActiveGameService.activeGamesObservable
                 .filter { Util.isMyTurn(it) }
                 .firstElement()
-                .subscribe(this@MainActivity::navigateToGameScreen)
+                .subscribe(this::navigateToGameScreen, this::onError)
     }
 
     private fun selectItem(item: MenuItem): Boolean {
@@ -173,7 +178,7 @@ class MainActivity : AppCompatActivity() {
         OGSServiceImpl.instance.fetchGame(gameId)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(this::navigateToGameScreen)
+                .subscribe(this::navigateToGameScreen, this::onError)
     }
 
     fun navigateToGameScreen(game: Game) {
@@ -185,6 +190,11 @@ class MainActivity : AppCompatActivity() {
                     .replace(R.id.fragment_container, GameFragment.createFragment(game), "game")
                     .commit()
         }
+    }
+
+    private fun onError(t: Throwable) {
+        Log.e(TAG, t.message, t)
+        Toast.makeText(this, t.message, Toast.LENGTH_LONG).show()
     }
 
     override fun onBackPressed() {

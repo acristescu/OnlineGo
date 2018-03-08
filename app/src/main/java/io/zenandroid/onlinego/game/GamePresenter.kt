@@ -1,6 +1,7 @@
 package io.zenandroid.onlinego.game
 
 import android.graphics.Point
+import android.util.Log
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -21,6 +22,11 @@ class GamePresenter(
         private val service: OGSService,
         private var game: Game
 ) : GameContract.Presenter {
+
+    companion object {
+        val TAG = GamePresenter::class.java.simpleName
+    }
+
     private val subscriptions = CompositeDisposable()
     private var gameData: GameData? = null
     private lateinit var gameConnection: GameConnection
@@ -62,7 +68,7 @@ class GamePresenter(
         subscriptions.add(service.restApi.fetchGame(game.id)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
-                .subscribe(this::processRESTGame))
+                .subscribe(this::processRESTGame, this::onError))
 
         subscriptions.add(view.cellSelection
                 .subscribeOn(Schedulers.io())
@@ -79,6 +85,11 @@ class GamePresenter(
                 .subscribe({clockTick()})
         )
 
+    }
+
+    private fun onError(t: Throwable) {
+        Log.e(TAG, t.message, t)
+        view.showError(t)
     }
 
     private fun processRESTGame(game: Game) {

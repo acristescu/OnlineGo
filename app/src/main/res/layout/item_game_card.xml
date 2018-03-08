@@ -50,7 +50,7 @@
 
             <LinearLayout
                 android:id="@+id/first_row"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="20dp"
                 android:layout_marginTop="10dp"
@@ -59,7 +59,7 @@
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintWidth_default="wrap"
+                app:layout_constrainedWidth="true"
                 >
 
                 <TextView
@@ -113,6 +113,8 @@
                 android:paddingLeft="5dp"
                 android:paddingRight="5dp"
                 android:layout_marginTop="2dp"
+                android:visibility="gone"
+                tools:visibility="visible"
                 />
             <TextView
                 android:id="@+id/color"

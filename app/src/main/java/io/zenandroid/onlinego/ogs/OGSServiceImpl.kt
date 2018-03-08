@@ -12,13 +12,13 @@ import io.reactivex.schedulers.Schedulers
 import io.socket.client.Ack
 import io.socket.client.IO
 import io.socket.client.Socket
-import io.socket.parser.IOParser
 import io.zenandroid.onlinego.AndroidLoggingHandler
 import io.zenandroid.onlinego.model.ogs.*
 import io.zenandroid.onlinego.utils.PersistenceManager
 import io.zenandroid.onlinego.utils.createJsonArray
 import io.zenandroid.onlinego.utils.createJsonObject
 import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
 import org.json.JSONObject
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
@@ -91,7 +91,7 @@ class OGSServiceImpl : OGSService {
         }
 
        return uiConfigSource
-               .doOnSuccess({ ensureSocketConnected() })
+               .doOnSuccess { ensureSocketConnected() }
                .toCompletable()
     }
 
@@ -110,12 +110,18 @@ class OGSServiceImpl : OGSService {
 
     private fun ensureSocketConnected() {
         if(socket.connected()) {
+            val obj = JSONObject()
+            obj.put("player_id", uiConfig?.user?.id)
+            obj.put("username", uiConfig?.user?.username)
+            obj.put("auth", uiConfig?.chat_auth)
+            emit("authenticate", obj)
             return
         }
         AndroidLoggingHandler.reset(AndroidLoggingHandler())
 //                    Logger.getLogger(Socket::class.java.name).level = Level.FINEST
 //                    Logger.getLogger(Manager::class.java.name).level = Level.FINEST
-        Logger.getLogger(IOParser::class.java.name).level = Level.FINEST
+                    Logger.getLogger(io.socket.engineio.client.Socket::class.java.name).level = Level.FINEST
+//        Logger.getLogger(IOParser::class.java.name).level = Level.FINEST
 
         socket.on(Socket.EVENT_CONNECT) {
             Logger.getLogger(TAG).warning("socket connect")
@@ -159,9 +165,10 @@ class OGSServiceImpl : OGSService {
 //                    socket.emit("game/connect", obj)
     }
 
-    override fun fetchGame(gameId: Long): Single<Game> = restApi.fetchGame(gameId)
+    override fun fetchGame(gameId: Long): Single<Game> = loginWithToken().andThen(restApi.fetchGame(gameId))
 
     override fun connectToGame(id: Long): GameConnection {
+        ensureSocketConnected()
         val connection = GameConnection(id)
 
         connection.gameData = observeEvent("game/$id/gamedata")
@@ -321,6 +328,7 @@ class OGSServiceImpl : OGSService {
                     Log.i(TAG, "${request.method()} ${request.url()} -> ${response.code()} ${response.message()}")
                     response
                 }
+                .addInterceptor(HttpLoggingInterceptor())
                 .build()
         restApi = Retrofit.Builder()
                 .baseUrl("https://online-go.com/")

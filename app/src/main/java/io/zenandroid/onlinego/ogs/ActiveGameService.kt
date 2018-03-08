@@ -16,7 +16,7 @@ object ActiveGameService {
 
     private val myMoveCountSubject = BehaviorSubject.create<Int>()
     private val activeGamesSubject = PublishSubject.create<Game>()
-    private val finishedGameSubject = PublishSubject.create<Game>()
+    private val finishedGameSubject = BehaviorSubject.create<Game>()
 
     val myMoveCountObservable: Observable<Int>
         get() = myMoveCountSubject.distinctUntilChanged()
