@@ -29,7 +29,7 @@ data class Game (
         var rules: String? = null,
         var ranked: Boolean? = null,
         var handicap: Int? = null,
-        var komi: String? = null,
+        var komi: Float? = null,
         var time_control: String? = null,
         var time_control_parameters: String? = null,
         var disable_analysis: Boolean? = null,

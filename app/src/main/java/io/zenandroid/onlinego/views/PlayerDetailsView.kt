@@ -3,9 +3,9 @@ package io.zenandroid.onlinego.views
 import android.content.Context
 import android.support.text.emoji.widget.EmojiAppCompatTextView
 import android.support.v7.widget.AppCompatImageView
+import android.support.v7.widget.CardView
 import android.util.AttributeSet
 import android.view.View
-import android.view.animation.OvershootInterpolator
 import android.widget.FrameLayout
 import android.widget.TextView
 import butterknife.BindView
@@ -38,12 +38,13 @@ class PlayerDetailsView : FrameLayout {
     @BindView(R.id.rank) lateinit var rankView: TextView
     @BindView(R.id.icon) lateinit var iconView: AppCompatImageView
     @BindView(R.id.flag) lateinit var flagView: EmojiAppCompatTextView
-    @BindView(R.id.score) lateinit var scoreView: TextView
-    @BindView(R.id.timerFirstLine) lateinit var timerFirstLineView: TextView
-    @BindView(R.id.timerSecondLine) lateinit var timerSecondLineView: TextView
-    @BindView(R.id.colorIndicatorBlack) lateinit var colorIndicatorBlack: AppCompatImageView
-    @BindView(R.id.colorIndicatorWhite) lateinit var colorIndicatorWhite: AppCompatImageView
-    @BindView(R.id.clockIcon) lateinit var clockIcon: AppCompatImageView
+    @BindView(R.id.points) lateinit var scoreView: TextView
+    @BindView(R.id.main_time) lateinit var timerFirstLineView: TextView
+    @BindView(R.id.extra_time) lateinit var timerSecondLineView: TextView
+    @BindView(R.id.colorIndicatorBlack) lateinit var colorIndicatorBlack: View
+    @BindView(R.id.colorIndicatorWhite) lateinit var colorIndicatorWhite: View
+    @BindView(R.id.your_turn_label) lateinit var theirTurnLabel: View
+    @BindView(R.id.icon_container) lateinit var iconContainer: CardView
 
     constructor(context: Context) : this(context, null)
     constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0)
@@ -67,15 +68,18 @@ class PlayerDetailsView : FrameLayout {
 
     var nextToMove: Boolean = false
         set(value) {
-            clockIcon.showIf(value)
-            if(value && !field) {
-                clockIcon.scaleX = .75f
-                clockIcon.scaleY = .75f
-                clockIcon.alpha = 0f
-                clockIcon.animate().scaleX(1f).scaleY(1f).alpha(1f).interpolator = OvershootInterpolator(10f)
+            if(value) {
+                theirTurnLabel.animate().alpha(1f)
+            } else {
+                theirTurnLabel.animate().alpha(0f)
             }
             field = value
         }
+
+    override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
+        super.onLayout(changed, left, top, right, bottom)
+        iconContainer.radius = iconContainer.width / 2f
+    }
 
     var timerFirstLine: String? = null
         set(value) {
@@ -90,9 +94,8 @@ class PlayerDetailsView : FrameLayout {
 
     var captured: Int? = null
         set(value) {
-            if(value != null && value != 0) {
-                scoreView.text = "$value capture${if (value > 1) "s" else ""}"
-            }
+            field = value
+            updateScore()
         }
 
     var color: StoneType = StoneType.BLACK
@@ -100,6 +103,12 @@ class PlayerDetailsView : FrameLayout {
             field = value
             colorIndicatorBlack.showIf(value == StoneType.BLACK)
             colorIndicatorWhite.showIf(value == StoneType.WHITE)
+        }
+
+    var komi: Float? = null
+        set(value) {
+            field = value
+            updateScore()
         }
 
     private fun processGravatarURL(url: String): String {
@@ -116,6 +125,11 @@ class PlayerDetailsView : FrameLayout {
         return url
     }
 
+    private fun updateScore() {
+        val score = (captured ?: 0) + (komi ?: 0f)
+        scoreView.text = score.toString()
+    }
+
     constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(context, attrs, defStyleAttr) {
         val view = View.inflate(context, R.layout.view_player_details, this)
         unbinder = ButterKnife.bind(view)
@@ -125,4 +139,5 @@ class PlayerDetailsView : FrameLayout {
         super.onViewRemoved(child)
         unbinder.unbind()
     }
+
 }

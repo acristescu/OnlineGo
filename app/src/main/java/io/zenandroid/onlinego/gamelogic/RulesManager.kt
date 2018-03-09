@@ -31,7 +31,7 @@ object RulesManager {
                 pos.boardSize,
                 pos.boardSize,
                 inBoard,
-                if(pos.lastPlayerToMove.opponent == StoneType.BLACK) 1 else -1,
+                if(pos.lastPlayerToMove?.opponent == StoneType.BLACK) 1 else -1,
                 10000,
                 .3f)
         pos.clearAllMarkedTerritory()

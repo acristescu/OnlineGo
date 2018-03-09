@@ -3,23 +3,43 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    >
+
+    <View
+        android:id="@+id/colorIndicatorBlack"
+        android:layout_width="6dp"
+        android:layout_height="match_parent"
+        android:alpha="0.8"
+        android:background="@color/black"
+        app:layout_constraintLeft_toLeftOf="parent" />
+
+    <View
+        android:id="@+id/colorIndicatorWhite"
+        android:layout_width="1px"
+        android:layout_height="match_parent"
+        android:layout_marginLeft="6dp"
+        android:background="@color/black"
+        app:layout_constraintLeft_toLeftOf="parent" />
 
     <android.support.v7.widget.CardView
         android:id="@+id/icon_container"
         android:layout_width="0dp"
-        android:layout_height="40dp"
-        android:layout_marginBottom="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintDimensionRatio="h,1:1"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
+        android:layout_height="0dp"
         app:cardBackgroundColor="@color/white"
-        app:cardCornerRadius="20dp"
+        app:cardCornerRadius="15dp"
         app:cardElevation="2dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginBottom="4dp"
+        app:layout_constraintBottom_toBottomOf="@id/bottom_guide"
+        app:layout_constraintDimensionRatio="h,1:1"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="@id/top_guide"
+        android:layout_marginLeft="24dp"
+        app:layout_constraintHeight_max="70dp"
         >
+
         <android.support.v7.widget.AppCompatImageView
             android:id="@+id/icon"
             android:layout_width="match_parent"
@@ -29,19 +49,32 @@
     </android.support.v7.widget.CardView>
 
 
+    <android.support.constraint.Guideline
+        android:id="@+id/top_guide"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent=".05"
+        />
+    <android.support.constraint.Guideline
+        android:id="@+id/bottom_guide"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent=".9"
+        />
     <LinearLayout
         android:id="@+id/first_row"
-        android:layout_width="0dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginLeft="24dp"
         android:layout_marginRight="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginTop="4dp"
         android:gravity="right"
         app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintRight_toLeftOf="@+id/timer"
         app:layout_constraintLeft_toRightOf="@id/icon_container"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintWidth_default="wrap"
+        app:layout_constraintRight_toLeftOf="@id/your_turn_label"
+        app:layout_constraintTop_toTopOf="@id/icon_container"
+        app:layout_constrainedWidth="true"
         >
 
         <TextView
@@ -49,12 +82,12 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:fontFamily="@font/ubuntu_bold"
+            android:fontFamily="@font/ubuntu_medium"
             android:gravity="left"
             android:maxLines="1"
-            android:textSize="16sp"
-            tools:text="MrAlex"
-            />
+            android:textColor="@color/colorTextSecondary"
+            android:textSize="14sp"
+            tools:text="MrAlex" />
 
         <TextView
             android:id="@+id/rank"
@@ -62,99 +95,128 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
             android:layout_marginStart="8dp"
-            android:fontFamily="@font/ubuntu"
+            android:fontFamily="@font/ubuntu_condensed_regular"
+            android:textColor="@color/colorTextSecondary"
             android:textSize="12sp"
-            tools:text="(14k)" />
+            tools:text="14k" />
 
         <android.support.text.emoji.widget.EmojiAppCompatTextView
             android:id="@+id/flag"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
             android:layout_marginEnd="8dp"
-            android:textSize="14sp"
-            tools:text="flg"
-            android:layout_gravity="center_vertical"
+            android:textSize="12sp"
             />
-
-        <ImageView
-            android:id="@+id/colorIndicatorBlack"
-            android:layout_width="14dp"
-            android:layout_height="14dp"
-            android:src="@drawable/gradient_black"
-            android:layout_gravity="center_vertical"
-            />
-        <ImageView
-            android:id="@+id/colorIndicatorWhite"
-            android:layout_width="14dp"
-            android:layout_height="14dp"
-            android:src="@drawable/gradient_white"
-            android:layout_gravity="center_vertical"
-            />
-
     </LinearLayout>
 
     <TextView
-        android:id="@+id/score"
+        android:id="@+id/your_turn_label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:fontFamily="@font/kanit"
-        tools:text="3 captured + 7.5 komi"
+        android:alpha="0"
+        android:background="@drawable/rounded_corners"
+        android:fontFamily="@font/ubuntu_bold"
+        android:paddingLeft="5dp"
+        android:paddingRight="5dp"
+        android:paddingTop="1dp"
+        android:paddingBottom="1dp"
+        android:text="Their turn"
+        android:textColor="@color/white"
+        android:textSize="10sp"
+        android:visibility="visible"
+        app:layout_goneMarginTop="4dp"
+        tools:alpha="1"
+        app:layout_constraintTop_toTopOf="@id/first_row"
+        app:layout_constraintBottom_toBottomOf="@id/first_row"
+        app:layout_constraintRight_toRightOf="parent"
+        android:layout_marginRight="24dp"
+        />
+
+    <TextView
+        android:id="@+id/points_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:alpha=".6"
+        android:fontFamily="@font/ubuntu_condensed_regular"
+        android:text="Points"
+        android:textAllCaps="true"
+        android:textColor="@color/colorTextSecondary"
+        android:textSize="10sp"
+        app:layout_constraintBottom_toTopOf="@id/points"
         app:layout_constraintLeft_toLeftOf="@id/first_row"
         app:layout_constraintTop_toBottomOf="@id/first_row"
-    />
+        app:layout_constraintVertical_bias="1" />
 
-    <android.support.v7.widget.CardView
-        android:id="@+id/timer"
+    <TextView
+        android:id="@+id/points"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:fontFamily="@font/ubuntu_medium"
+        android:textColor="@color/colorTextSecondary"
+        android:textSize="12sp"
+        app:layout_constraintBottom_toBottomOf="@id/bottom_guide"
+        app:layout_constraintLeft_toLeftOf="@id/points_label"
+        app:layout_constraintVertical_weight="1"
+        tools:text="5.5"
+        />
+
+
+    <TextView
+        android:id="@+id/extra_time"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:fontFamily="@font/ubuntu_medium"
+        android:textColor="@color/colorTextSecondary"
+        android:textSize="12sp"
+        app:layout_constraintTop_toTopOf="@id/points"
+        app:layout_constraintBottom_toBottomOf="@id/points"
+        app:layout_constraintLeft_toLeftOf="@id/extra_time_label"
+        tools:text="1 day" />
+
+    <TextView
+        android:id="@+id/extra_time_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="30dp"
+        android:alpha=".6"
+        android:fontFamily="@font/ubuntu_condensed_regular"
+        android:text="Extra Time"
+        android:textAllCaps="true"
+        android:textColor="@color/colorTextSecondary"
+        android:textSize="10sp"
+        app:layout_constraintTop_toTopOf="@id/points_label"
+        app:layout_constraintBottom_toBottomOf="@id/points_label"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        android:layout_marginRight="4dp"
-        app:cardBackgroundColor="@color/colorOffWhite"
-        app:cardElevation="1dp"
-        app:cardCornerRadius="4dp"
-        >
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_marginLeft="40dp"
-            android:layout_marginRight="8dp"
-            android:layout_marginTop="4sp"
-            android:layout_marginBottom="4dp"
-            android:layout_gravity="center_vertical"
-            >
+        />
 
-            <TextView
-                android:id="@+id/timerFirstLine"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="right"
-                android:fontFamily="@font/kanit_semibold"
-                tools:text="7 : 24"
-                />
+    <TextView
+        android:id="@+id/main_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/ubuntu_medium"
+        android:textColor="@color/colorTextSecondary"
+        android:textSize="12sp"
+        app:layout_constraintTop_toTopOf="@id/points"
+        app:layout_constraintBottom_toBottomOf="@id/points"
+        app:layout_constraintLeft_toLeftOf="@id/main_time_label"
+        tools:text="1 day" />
 
-            <TextView
-                android:id="@+id/timerSecondLine"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="right"
-                android:fontFamily="@font/kanit"
-                app:layout_constraintRight_toRightOf="@id/timerFirstLine"
-                app:layout_constraintTop_toBottomOf="@id/timerFirstLine"
-                android:textSize="12sp"
-                tools:text="5 x 30s"
-                />
-        </LinearLayout>
-        <ImageView
-            android:id="@+id/clockIcon"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            app:srcCompat="@drawable/ic_clock"
-            android:layout_gravity="left|center_vertical"
-            android:layout_marginLeft="8dp"
-            />
-    </android.support.v7.widget.CardView>
+    <TextView
+        android:id="@+id/main_time_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="30dp"
+        android:alpha=".6"
+        android:fontFamily="@font/ubuntu_condensed_regular"
+        android:text="Main Time"
+        android:textAllCaps="true"
+        android:textColor="@color/colorTextSecondary"
+        android:textSize="10sp"
+        app:layout_constraintTop_toTopOf="@id/points_label"
+        app:layout_constraintBottom_toBottomOf="@id/points_label"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintLeft_toLeftOf="@id/points_label"
+        />
 
 </android.support.constraint.ConstraintLayout>

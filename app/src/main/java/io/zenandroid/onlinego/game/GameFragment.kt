@@ -71,6 +71,11 @@ class GameFragment : Fragment(), GameContract.View {
             whiteDetailsView.captured = value?.whiteCapturedCount
             blackDetailsView.captured = value?.blackCapturedCount
         }
+    override var komi: Float? = null
+        set(value) {
+            field = value
+            whiteDetailsView.komi = komi
+        }
 
     override var activePlayer: StoneType? = null
         set(value) {

@@ -328,7 +328,7 @@ class OGSServiceImpl : OGSService {
                     Log.i(TAG, "${request.method()} ${request.url()} -> ${response.code()} ${response.message()}")
                     response
                 }
-                .addInterceptor(HttpLoggingInterceptor())
+                .addInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))
                 .build()
         restApi = Retrofit.Builder()
                 .baseUrl("https://online-go.com/")

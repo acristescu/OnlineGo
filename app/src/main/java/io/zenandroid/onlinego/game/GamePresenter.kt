@@ -99,6 +99,7 @@ class GamePresenter(
         detailedPlayerDetailsSet = true
         view.whitePlayer = game.players?.white
         view.blackPlayer = game.players?.black
+        view.komi = game.komi
     }
 
     private fun onUserHotTrackedCell(point: Point) {

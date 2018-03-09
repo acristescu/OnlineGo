@@ -43,6 +43,7 @@ interface GameContract {
         var blackTimer: GamePresenter.TimerDetails?
         var activePlayer: StoneType?
         fun showError(t: Throwable)
+        var komi: Float?
     }
 
     interface Presenter {
