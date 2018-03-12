@@ -83,12 +83,9 @@ class OGSServiceImpl : OGSService {
             tokenSource = Single.just(token)
         }
 
-        val uiConfigSource: Single<UIConfig>
-        if(uiConfig == null) {
-            uiConfigSource = tokenSource.flatMap { restApi.uiConfig() }.doOnSuccess(this::storeUIConfig)
-        } else {
-            uiConfigSource = tokenSource.flatMap { Single.just(uiConfig!!)}
-        }
+        val uiConfigSource = uiConfig?.let { uiConfig ->
+            tokenSource.flatMap { Single.just(uiConfig)}
+        } ?: tokenSource.flatMap { restApi.uiConfig() }.doOnSuccess(this::storeUIConfig)
 
        return uiConfigSource
                .doOnSuccess { ensureSocketConnected() }

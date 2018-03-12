@@ -16,9 +16,9 @@ class NotificationsService : JobService() {
     }
 
     override fun onStartJob(job: JobParameters): Boolean {
-        // Do some work here
-
+        Log.v(TAG, "Started checking for active games")
         if(MainActivity.isInForeground) {
+            Log.v(TAG, "App is in foreground, giving up")
             return false
         }
         val connection = OGSServiceImpl()
@@ -29,7 +29,9 @@ class NotificationsService : JobService() {
                 .toList()
                 .map { it.sortedWith(compareBy { it.id }) }
                 .subscribe({
+                    Log.v(TAG, "Got ${it.size} games")
                     if (!MainActivity.isInForeground) {
+                        Log.v(TAG, "Updating notification")
                         updateNotification(this, it, connection.uiConfig?.user?.id)
                     }
                     connection.disconnect()
@@ -43,6 +45,7 @@ class NotificationsService : JobService() {
     }
 
     override fun onStopJob(job: JobParameters): Boolean {
+        Log.d(TAG, "onStopJob called, system wants to kill us")
         return true // Answers the question: "Should this job be retried?"
     }
 

@@ -1,6 +1,5 @@
 package io.zenandroid.onlinego.utils
 
-import android.os.Build
 import android.util.Log
 import io.zenandroid.onlinego.game.GamePresenter
 import io.zenandroid.onlinego.ogs.Clock
@@ -43,8 +42,7 @@ fun formatRank(rank: Double?) =
 
 fun convertCountryCodeToEmojiFlag(country: String?): String {
     if(country == null || country.length != 2 || "un" == country) {
-        return if (Build.VERSION.SDK_INT == Build.VERSION_CODES.M) ""
-        else "\uD83C\uDDFA\uD83C\uDDF3"
+        return "\uD83C\uDDFA\uD83C\uDDF3"
     }
     val c1 = '\uDDE6' + country[0].minus('a')
     val c2 = '\uDDE6' + country[1].minus('a')
