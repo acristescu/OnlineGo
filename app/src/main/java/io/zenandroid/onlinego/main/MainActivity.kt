@@ -1,4 +1,4 @@
-package io.zenandroid.onlinego
+package io.zenandroid.onlinego.main
 
 import android.annotation.SuppressLint
 import android.app.NotificationChannel
@@ -9,7 +9,6 @@ import android.os.Build
 import android.os.Bundle
 import android.support.design.widget.BottomNavigationView
 import android.support.v7.app.AppCompatActivity
-import android.util.Log
 import android.view.MenuItem
 import android.view.View
 import android.widget.ImageView
@@ -21,27 +20,24 @@ import butterknife.OnClick
 import com.firebase.jobdispatcher.*
 import com.firebase.jobdispatcher.Constraint.ON_ANY_NETWORK
 import io.reactivex.Completable
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.schedulers.Schedulers
+import io.zenandroid.onlinego.NotificationsService
+import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.extensions.fadeIn
 import io.zenandroid.onlinego.extensions.fadeOut
 import io.zenandroid.onlinego.game.GameFragment
-import io.zenandroid.onlinego.gamelogic.Util
 import io.zenandroid.onlinego.model.ogs.Game
 import io.zenandroid.onlinego.mygames.MyGamesFragment
 import io.zenandroid.onlinego.newchallenge.NewChallengeView
-import io.zenandroid.onlinego.ogs.ActiveGameService
-import io.zenandroid.onlinego.ogs.OGSServiceImpl
+import io.zenandroid.onlinego.ogs.ActiveGameRepository
 import io.zenandroid.onlinego.spectate.ChallengesFragment
 import io.zenandroid.onlinego.spectate.SpectateFragment
-import io.zenandroid.onlinego.utils.NotificationUtils.Companion.cancelNotification
-import io.zenandroid.onlinego.utils.NotificationUtils.Companion.updateNotification
+import io.zenandroid.onlinego.utils.NotificationUtils
 
 
-class MainActivity : AppCompatActivity() {
-
+class MainActivity : AppCompatActivity(), MainContract.View {
     companion object {
         var isInForeground = false
+        var userId: Long? = null
         val TAG = MainActivity::class.java.simpleName
     }
 
@@ -54,7 +50,40 @@ class MainActivity : AppCompatActivity() {
     private val myGamesFragment = MyGamesFragment()
     private val challengesFragment = ChallengesFragment()
 
+    val activeGameRepository: ActiveGameRepository by lazy { ActiveGameRepository() }
+
     private lateinit var lastSelectedItem: MenuItem
+
+    private val presenter: MainPresenter by lazy { MainPresenter(this, activeGameRepository) }
+
+    override var subtitle: CharSequence?
+        get() = supportActionBar?.subtitle
+        set(value) { supportActionBar?.subtitle = value }
+
+    override var mainTitle: CharSequence?
+        get() = title
+        set(value) { title = value }
+
+    override var notificationsButtonEnabled: Boolean
+        get() = notificationsButton.isEnabled
+        set(value) {
+            notificationsButton.isEnabled = value
+            val targetAlpha = if(value) 1f else .33f
+            notificationsButton.animate().alpha(targetAlpha)
+        }
+    override var notificationsBadgeVisible: Boolean
+        get() { return badge.alpha == 1f }
+        set(value) { badge.animate().alpha(if(value) 1f else 0f) }
+    override var notificationsBadgeCount: String? = null
+        set(value) { badge.text = value }
+
+    override fun updateNotification(sortedMyTurnGames: List<Game>) {
+        NotificationUtils.updateNotification(this, sortedMyTurnGames, MainActivity.userId)
+    }
+
+    override fun cancelNotification() {
+        NotificationUtils.cancelNotification(this)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -68,13 +97,17 @@ class MainActivity : AppCompatActivity() {
         bottomNavigation.selectedItemId = R.id.navigation_my_games
 
         createNotificationChannel()
+        scheduleNotificationJob()
 
+    }
+
+    private fun scheduleNotificationJob() {
         val dispatcher = FirebaseJobDispatcher(GooglePlayDriver(this))
         val job = dispatcher.newJobBuilder()
                 .setLifetime(Lifetime.FOREVER)
                 .setRecurring(true)
                 .setTag("poller")
-                .setTrigger(Trigger.executionWindow(300, 600))
+                .setTrigger(Trigger.executionWindow(100, 600))
                 .setReplaceCurrent(true)
                 .setRetryStrategy(RetryStrategy.DEFAULT_LINEAR)
                 .setService(NotificationsService::class.java)
@@ -101,44 +134,22 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onResume() {
-        super.onResume()
-        title = "OnlineGo"
-        supportActionBar?.subtitle = BuildConfig.VERSION_NAME
+        presenter.subscribe()
 
-        newChallengeView.onResume()
-
-        ActiveGameService.myMoveCountObservable
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe { myMoveCount ->
-                    if(myMoveCount == 0) {
-                        notificationsButton.isEnabled = false
-                        notificationsButton.animate().alpha(.33f)
-                        badge.animate().alpha(0f)
-                        cancelNotification(this)
-                    } else {
-                        notificationsButton.isEnabled = true
-                        notificationsButton.animate().alpha(1f)
-                        badge.text = myMoveCount.toString()
-                        badge.animate().alpha(1f)
-                        val sortedMyTurnGames = ActiveGameService.myTurnGamesList.sortedWith(compareBy { it.id })
-                        updateNotification(this, sortedMyTurnGames, OGSServiceImpl.instance.uiConfig?.user?.id)
-                    }
-                }
         isInForeground = true
+        super.onResume()
     }
 
     override fun onPause() {
         super.onPause()
-        newChallengeView.onPause()
+
+        presenter.unsubscribe()
         isInForeground = false
     }
 
     @OnClick(R.id.notifications)
-    fun onNotificationsClicked() {
-        ActiveGameService.activeGamesObservable
-                .filter { Util.isMyTurn(it) }
-                .firstElement()
-                .subscribe(this::navigateToGameScreen, this::onError)
+    fun onNotificationClicked() {
+        presenter.onNotificationClicked()
     }
 
     private fun selectItem(item: MenuItem): Boolean {
@@ -174,14 +185,7 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-    fun navigateToGameScreenById(gameId: Long) {
-        OGSServiceImpl.instance.fetchGame(gameId)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(this::navigateToGameScreen, this::onError)
-    }
-
-    fun navigateToGameScreen(game: Game) {
+    override fun navigateToGameScreen(game: Game) {
         Completable.mergeArray(
                 bottomNavigation.fadeOut(),
                 newChallengeView.fadeOut()
@@ -192,9 +196,8 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun onError(t: Throwable) {
-        Log.e(TAG, t.message, t)
-        Toast.makeText(this, t.message, Toast.LENGTH_LONG).show()
+    override fun showError(msg: String?) {
+        Toast.makeText(this, msg, Toast.LENGTH_LONG).show()
     }
 
     override fun onBackPressed() {
@@ -203,5 +206,9 @@ class MainActivity : AppCompatActivity() {
             is GameFragment -> selectItem(lastSelectedItem)
             else -> super.onBackPressed()
         }
+    }
+
+    fun navigateToGameScreenById(gameId: Long) {
+        presenter.navigateToGameScreenById(gameId)
     }
 }

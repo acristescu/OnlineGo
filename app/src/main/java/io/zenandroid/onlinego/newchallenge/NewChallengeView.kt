@@ -12,9 +12,9 @@ import butterknife.BindView
 import butterknife.ButterKnife
 import butterknife.OnClick
 import io.reactivex.Completable
-import io.zenandroid.onlinego.MainActivity
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.extensions.*
+import io.zenandroid.onlinego.main.MainActivity
 import io.zenandroid.onlinego.ogs.Size
 import io.zenandroid.onlinego.ogs.Speed
 
@@ -55,14 +55,6 @@ class NewChallengeView : FrameLayout, NewChallengeContract.View {
 
         fabMiniSize = resources.getDimension(R.dimen.fab_mini_with_margin)
         presenter = NewChallengePresenter(this)
-    }
-
-    fun onResume() {
-        presenter.subscribe()
-    }
-
-    fun onPause() {
-        presenter.unsubscribe()
     }
 
     @OnClick(R.id.fab)

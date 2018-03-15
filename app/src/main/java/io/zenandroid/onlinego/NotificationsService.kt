@@ -3,9 +3,9 @@ package io.zenandroid.onlinego
 import android.util.Log
 import com.firebase.jobdispatcher.JobParameters
 import com.firebase.jobdispatcher.JobService
+import io.zenandroid.onlinego.main.MainActivity
 import io.zenandroid.onlinego.ogs.OGSServiceImpl
 import io.zenandroid.onlinego.utils.NotificationUtils.Companion.updateNotification
-import java.util.concurrent.TimeUnit
 
 /**
  * Created by alex on 24/11/2017.
@@ -23,10 +23,8 @@ class NotificationsService : JobService() {
         }
         val connection = OGSServiceImpl()
         connection.loginWithToken()
-                .andThen(connection.connectToNotifications())
-                .take(10, TimeUnit.SECONDS)
-                .filter { it.player_to_move == connection.uiConfig?.user?.id }
-                .toList()
+                .andThen(connection.fetchActiveGames())
+                .map { it.filter { it.json?.clock?.current_player == connection.uiConfig?.user?.id } }
                 .map { it.sortedWith(compareBy { it.id }) }
                 .subscribe({
                     Log.v(TAG, "Got ${it.size} games")
@@ -34,11 +32,9 @@ class NotificationsService : JobService() {
                         Log.v(TAG, "Updating notification")
                         updateNotification(this, it, connection.uiConfig?.user?.id)
                     }
-                    connection.disconnect()
                     jobFinished(job, false)
                 }, { e ->
                     Log.e(TAG, "Error when checking for notifications", e)
-                    connection.disconnect()
                     jobFinished(job, true)
                 })
         return true // Answers the question: "Is there still work going on?"

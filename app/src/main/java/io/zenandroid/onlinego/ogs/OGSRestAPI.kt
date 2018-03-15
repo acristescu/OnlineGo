@@ -4,6 +4,7 @@ import io.reactivex.Single
 import io.zenandroid.onlinego.BuildConfig
 import io.zenandroid.onlinego.model.ogs.Game
 import io.zenandroid.onlinego.model.ogs.LoginToken
+import io.zenandroid.onlinego.model.ogs.Overview
 import io.zenandroid.onlinego.model.ogs.UIConfig
 import retrofit2.http.GET
 import retrofit2.http.POST
@@ -33,5 +34,8 @@ interface OGSRestAPI {
 
     @GET("api/v1/games/{game_id}")
     fun fetchGame(@Path("game_id") game_id: Long): Single<Game>
+
+    @GET("api/v1/ui/overview")
+    fun fetchOverview(): Single<Overview>
 
 }

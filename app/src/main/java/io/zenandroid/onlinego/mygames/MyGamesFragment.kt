@@ -11,10 +11,12 @@ import android.view.ViewGroup
 import butterknife.BindView
 import butterknife.ButterKnife
 import butterknife.Unbinder
-import io.zenandroid.onlinego.MainActivity
 import io.zenandroid.onlinego.R
+import io.zenandroid.onlinego.main.MainActivity
 import io.zenandroid.onlinego.model.ogs.Game
-import io.zenandroid.onlinego.ogs.*
+import io.zenandroid.onlinego.ogs.Clock
+import io.zenandroid.onlinego.ogs.GameData
+import io.zenandroid.onlinego.ogs.Move
 
 /**
  * Created by alex on 05/11/2017.
@@ -44,7 +46,7 @@ class MyGamesFragment : Fragment(), MyGamesContract.View {
             presenter.onGameSelected(it)
         }
 
-        presenter = MyGamesPresenter(this, OGSServiceImpl.instance, ActiveGameService)
+        presenter = MyGamesPresenter(this, (activity as MainActivity).activeGameRepository)
     }
 
     override fun navigateToGameScreen(game: Game) {
@@ -86,8 +88,12 @@ class MyGamesFragment : Fragment(), MyGamesContract.View {
         adapter.addOrReplaceGame(game)
     }
 
+    override fun setGames(games: List<Game>) {
+        adapter.setGames(games)
+    }
+
     override fun setClock(id: Long, clock: Clock) {
-        adapter.setClock(id, clock);
+        adapter.setClock(id, clock)
     }
 
 }

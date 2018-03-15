@@ -11,8 +11,8 @@ import android.view.ViewGroup
 import butterknife.BindView
 import butterknife.ButterKnife
 import butterknife.Unbinder
-import io.zenandroid.onlinego.MainActivity
 import io.zenandroid.onlinego.R
+import io.zenandroid.onlinego.main.MainActivity
 import io.zenandroid.onlinego.model.ogs.Game
 import io.zenandroid.onlinego.model.ogs.GameList
 import io.zenandroid.onlinego.ogs.GameData
@@ -64,13 +64,13 @@ class SpectateFragment : Fragment(), SpectateContract.View {
         unbinder.unbind()
     }
 
-    override fun onStart() {
-        super.onStart()
+    override fun onResume() {
+        super.onResume()
         presenter.subscribe()
     }
 
-    override fun onStop() {
-        super.onStop()
+    override fun onPause() {
+        super.onPause()
         presenter.unsubscribe()
     }
 

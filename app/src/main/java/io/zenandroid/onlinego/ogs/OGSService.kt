@@ -15,4 +15,5 @@ interface OGSService {
     fun startGameSearch(size: Size, speed: Speed): AutomatchChallenge
     fun cancelAutomatchChallenge(challenge: AutomatchChallenge)
     fun fetchGame(gameId: Long): Single<Game>
+    fun fetchActiveGames(): Single<List<Game>>
 }

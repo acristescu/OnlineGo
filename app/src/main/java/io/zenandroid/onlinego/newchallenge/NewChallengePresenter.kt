@@ -79,9 +79,6 @@ class NewChallengePresenter(val view: NewChallengeContract.View) : NewChallengeC
         view.updateDialogText(Html.fromHtml("Game size: <b>${selectedSize.getText()}</b><br/>Speed: <b>$selectedSpeed</b><br/>Time elapsed: ${elapsedSeconds}s"))
     }
 
-    override fun subscribe() {}
-    override fun unsubscribe() {}
-
     override fun onDialogCancelled() {
         challenge?.let(OGSServiceImpl.instance::cancelAutomatchChallenge)
         menuState = State.OFF

@@ -26,8 +26,8 @@ import butterknife.OnTextChanged
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import io.zenandroid.onlinego.BuildConfig
-import io.zenandroid.onlinego.MainActivity
 import io.zenandroid.onlinego.R
+import io.zenandroid.onlinego.main.MainActivity
 import io.zenandroid.onlinego.ogs.OGSServiceImpl
 import retrofit2.HttpException
 
@@ -64,7 +64,9 @@ class LoginActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+
         OGSServiceImpl.instance.loginWithToken()
+                .doOnComplete { OGSServiceImpl.instance.ensureSocketConnected() }
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this::onLoginSuccess, this::onTokenLoginFailure)
@@ -108,6 +110,7 @@ class LoginActivity : AppCompatActivity() {
     fun onLoginClicked() {
         button.startAnimation()
         OGSServiceImpl.instance.login(username.text.toString(), password.text.toString())
+                .doOnComplete { OGSServiceImpl.instance.ensureSocketConnected() }
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                         this::onLoginSuccess,

@@ -58,6 +58,12 @@ object Util {
     }
 
     fun isMyTurn(game: Game?): Boolean {
-        return game?.player_to_move == OGSServiceImpl.instance.uiConfig?.user?.id
+        if (game?.player_to_move != 0L) {
+            return game?.player_to_move == OGSServiceImpl.instance.uiConfig?.user?.id
+        }
+        game.json?.let {
+            return it.clock.current_player == OGSServiceImpl.instance.uiConfig?.user?.id
+        }
+        return false
     }
 }

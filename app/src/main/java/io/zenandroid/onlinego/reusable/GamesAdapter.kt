@@ -3,7 +3,7 @@ package io.zenandroid.onlinego.reusable
 import android.support.v7.widget.RecyclerView
 import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
-import io.zenandroid.onlinego.gamelogic.Util
+import io.zenandroid.onlinego.gamelogic.Util.isMyTurn
 import io.zenandroid.onlinego.model.ogs.Game
 import io.zenandroid.onlinego.ogs.Clock
 import io.zenandroid.onlinego.ogs.GameData
@@ -45,18 +45,14 @@ abstract class GamesAdapter<T : RecyclerView.ViewHolder> : RecyclerView.Adapter<
     fun addOrReplaceGame(game: Game) {
         val index = gameList.indexOfFirst { it.id == game.id }
         if(index == -1) {
-            val insertPos = (0 until gameList.size).firstOrNull { !Util.isMyTurn(gameList[it]) }
-
-            if(insertPos == null || !Util.isMyTurn(game)) {
-                gameList.add(game)
-                notifyItemInserted(gameList.size - 1)
-            } else {
-                gameList.add(insertPos, game)
-                notifyItemInserted(insertPos)
-            }
+            gameList.add(game)
+            notifyItemInserted(gameList.size - 1)
         } else {
             gameList[index] = game
             notifyItemChanged(index)
+        }
+        game.json?.let {
+            setGameData(game.id, it)
         }
     }
 
@@ -73,20 +69,16 @@ abstract class GamesAdapter<T : RecyclerView.ViewHolder> : RecyclerView.Adapter<
 
         gameList.firstOrNull { it.id == id }?.let { game ->
             if(game.player_to_move == clock.current_player) {
-                //
-                // handicap game perhaps?
-                //
                 return@let
             }
             game.player_to_move = clock.current_player
             val oldIndex = gameList.indexOf(game)
             gameList.remove(game)
-            val insertPos = (0 until gameList.size).firstOrNull { !Util.isMyTurn(gameList[it]) } ?: 0
+            val insertPos = (0 until gameList.size).firstOrNull { !isMyTurn(gameList[it]) } ?: 0
             gameList.add(insertPos, game)
 
             notifyItemMoved(oldIndex, insertPos)
         }
-
     }
 
     fun setGames(newGames: List<Game>) {

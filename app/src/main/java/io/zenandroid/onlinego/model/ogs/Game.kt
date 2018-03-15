@@ -21,6 +21,7 @@ data class Game (
         var time_per_move: Int? = null,
         var player_to_move: Long,
 
+        var json: GameData? = null,
 
         var related: Related? = null,
         var creator: Int? = null,

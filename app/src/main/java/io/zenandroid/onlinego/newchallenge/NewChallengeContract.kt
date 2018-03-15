@@ -23,8 +23,6 @@ interface NewChallengeContract {
         fun navigateToGame(gameId: Long)
     }
     interface Presenter {
-        fun subscribe()
-        fun unsubscribe()
         fun onMainFabClicked()
         fun onSpeedSelected(speed: Speed)
         fun onSizeSelected(size: Size)

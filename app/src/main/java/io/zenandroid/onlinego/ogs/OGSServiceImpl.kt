@@ -13,6 +13,7 @@ import io.socket.client.Ack
 import io.socket.client.IO
 import io.socket.client.Socket
 import io.zenandroid.onlinego.AndroidLoggingHandler
+import io.zenandroid.onlinego.main.MainActivity
 import io.zenandroid.onlinego.model.ogs.*
 import io.zenandroid.onlinego.utils.PersistenceManager
 import io.zenandroid.onlinego.utils.createJsonArray
@@ -46,6 +47,7 @@ class OGSServiceImpl : OGSService {
     private var tokenExpiry: Date
     override val restApi: OGSRestAPI
     private val moshi = Moshi.Builder().build()
+    private var authSent = false
 
     private val loggingAck = Ack {
         Log.i(TAG, "ack: $it")
@@ -56,7 +58,6 @@ class OGSServiceImpl : OGSService {
                 .doOnSuccess(this::storeToken)
                 .flatMap { restApi.uiConfig() }
                 .doOnSuccess(this::storeUIConfig)
-                .doOnSuccess({ ensureSocketConnected() })
                 .toCompletable()
     }
 
@@ -88,7 +89,6 @@ class OGSServiceImpl : OGSService {
         } ?: tokenSource.flatMap { restApi.uiConfig() }.doOnSuccess(this::storeUIConfig)
 
        return uiConfigSource
-               .doOnSuccess { ensureSocketConnected() }
                .toCompletable()
     }
 
@@ -102,70 +102,30 @@ class OGSServiceImpl : OGSService {
 
     private fun storeUIConfig(uiConfig: UIConfig) {
         this.uiConfig = uiConfig
+        MainActivity.userId = uiConfig.user.id
         PersistenceManager.instance.storeUIConfig(uiConfig)
     }
 
-    private fun ensureSocketConnected() {
+    public fun ensureSocketConnected() {
         if(socket.connected()) {
-            val obj = JSONObject()
-            obj.put("player_id", uiConfig?.user?.id)
-            obj.put("username", uiConfig?.user?.username)
-            obj.put("auth", uiConfig?.chat_auth)
-            emit("authenticate", obj)
             return
-        }
-        AndroidLoggingHandler.reset(AndroidLoggingHandler())
-//                    Logger.getLogger(Socket::class.java.name).level = Level.FINEST
-//                    Logger.getLogger(Manager::class.java.name).level = Level.FINEST
-                    Logger.getLogger(io.socket.engineio.client.Socket::class.java.name).level = Level.FINEST
-//        Logger.getLogger(IOParser::class.java.name).level = Level.FINEST
-
-        socket.on(Socket.EVENT_CONNECT) {
-            Logger.getLogger(TAG).warning("socket connect")
-        }.on(Socket.EVENT_DISCONNECT) {
-            Logger.getLogger(TAG).warning("socket disconnect")
-        }.on(Socket.EVENT_CONNECT_ERROR) {
-            Logger.getLogger(TAG).warning("socket connect error")
-        }.on(Socket.EVENT_ERROR) {
-            Logger.getLogger(TAG).warning("socket error")
-        }.on(Socket.EVENT_CONNECT_TIMEOUT) {
-            Logger.getLogger(TAG).warning("socket connect timeout")
-        }.on(Socket.EVENT_RECONNECT) {
-            Logger.getLogger(TAG).warning("socket reconnect")
-        }.on(Socket.EVENT_MESSAGE) {
-            Logger.getLogger(TAG).warning(it.toString())
-        }.on(Socket.EVENT_CONNECTING) {
-            Logger.getLogger(TAG).warning("socket connecting")
-        }.on(Socket.EVENT_CONNECT_ERROR) {
-            Logger.getLogger(TAG).severe("socket connect error")
-        }.on(Socket.EVENT_PING) {
-            Logger.getLogger(TAG).warning("ping")
-        }.on(Socket.EVENT_PONG) {
-            Logger.getLogger(TAG).warning("pong")
         }
 
         socket.connect()
 
-        val obj = JSONObject()
-        obj.put("player_id", uiConfig?.user?.id)
-        obj.put("username", uiConfig?.user?.username)
-        obj.put("auth", uiConfig?.chat_auth)
-        emit("authenticate", obj)
-
-
-        //                    socket.emit("gamelist/count/subscribe")
-
-//                    obj = JSONObject()
-//                    obj.put("chat", 0)
-//                    obj.put("game_id", 10493024)
-//                    obj.put("player_id", 89194)
-//                    socket.emit("game/connect", obj)
+        if(!authSent) {
+            val obj = JSONObject()
+            obj.put("player_id", uiConfig?.user?.id)
+            obj.put("username", uiConfig?.user?.username)
+            obj.put("auth", uiConfig?.chat_auth)
+            socket.emit("authenticate", obj, loggingAck)
+            authSent = true
+        }
     }
 
     override fun fetchGame(gameId: Long): Single<Game> = loginWithToken().andThen(restApi.fetchGame(gameId))
 
     override fun connectToGame(id: Long): GameConnection {
-        ensureSocketConnected()
         val connection = GameConnection(id)
 
         connection.gameData = observeEvent("game/$id/gamedata")
@@ -195,6 +155,7 @@ class OGSServiceImpl : OGSService {
         val returnVal = observeEvent("active_game")
                 .map { string -> moshi.adapter(Game::class.java).fromJson(string.toString()) }
 
+        emit("notification/disconnect", "")
         emit("notification/connect", createJsonObject {
             put("player_id", uiConfig?.user?.id)
             put("auth", uiConfig?.notification_auth)
@@ -224,6 +185,7 @@ class OGSServiceImpl : OGSService {
     }
 
     internal fun emit(event: String, params:Any?) {
+        ensureSocketConnected()
         Log.i(TAG, "Emit: $event with params $params")
         socket.emit(event, params, loggingAck)
     }
@@ -295,6 +257,7 @@ class OGSServiceImpl : OGSService {
     }
 
     fun fetchGameList(): Single<GameList> {
+        ensureSocketConnected()
         return Single.create({emitter ->
             socket.emit("gamelist/query", createJsonObject {
                 put("list", "live")
@@ -336,12 +299,43 @@ class OGSServiceImpl : OGSService {
                 .create(OGSRestAPI::class.java)
 
         uiConfig = PersistenceManager.instance.getUIConfig()
+        MainActivity.userId = uiConfig?.user?.id
         token = PersistenceManager.instance.getToken()
         tokenExpiry = PersistenceManager.instance.getTokenExpiry()
 
         val options = IO.Options()
         options.transports = arrayOf("websocket")
         socket = IO.socket("https://online-go.com", options)
+
+        socket.on(Socket.EVENT_CONNECT) {
+            Logger.getLogger(TAG).warning("socket connect id=${socket.id()}")
+        }.on(Socket.EVENT_DISCONNECT) {
+            Logger.getLogger(TAG).warning("socket disconnect id=${socket.id()}")
+        }.on(Socket.EVENT_CONNECT_ERROR) {
+            Logger.getLogger(TAG).warning("socket connect error id=${socket.id()}")
+        }.on(Socket.EVENT_ERROR) {
+            Logger.getLogger(TAG).warning("socket error id=${socket.id()}")
+        }.on(Socket.EVENT_CONNECT_TIMEOUT) {
+            Logger.getLogger(TAG).warning("socket connect timeout id=${socket.id()}")
+        }.on(Socket.EVENT_RECONNECT) {
+            Logger.getLogger(TAG).warning("socket reconnect id=${socket.id()}")
+        }.on(Socket.EVENT_MESSAGE) {
+            Logger.getLogger(TAG).warning(it.toString())
+        }.on(Socket.EVENT_CONNECTING) {
+            Logger.getLogger(TAG).warning("socket connecting id=${socket.id()}")
+        }.on(Socket.EVENT_CONNECT_ERROR) {
+            Logger.getLogger(TAG).severe("socket connect error id=${socket.id()}")
+        }.on(Socket.EVENT_PING) {
+            Logger.getLogger(TAG).warning("ping id=${socket.id()}")
+        }.on(Socket.EVENT_PONG) {
+            Logger.getLogger(TAG).warning("pong id=${socket.id()}")
+        }
+
+        AndroidLoggingHandler.reset(AndroidLoggingHandler())
+//                    Logger.getLogger(Socket::class.java.name).level = Level.FINEST
+//                    Logger.getLogger(Manager::class.java.name).level = Level.FINEST
+        Logger.getLogger(io.socket.engineio.client.Socket::class.java.name).level = Level.FINEST
+//        Logger.getLogger(IOParser::class.java.name).level = Level.FINEST
     }
 
     fun disconnectFromGame(id: Long) {
@@ -349,4 +343,19 @@ class OGSServiceImpl : OGSService {
             put("game_id", id)
         })
     }
+
+    override fun fetchActiveGames(): Single<List<Game>> =
+            loginWithToken().andThen(
+                    restApi.fetchOverview()
+                            .map { it -> it.active_games }
+                            .map { it ->
+                                for (game in it) {
+                                    game.json?.clock?.current_player?.let {
+                                        game.player_to_move = it
+                                    }
+                                }
+                                it
+                            }
+            )
+
 }
