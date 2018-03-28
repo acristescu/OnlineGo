@@ -2,7 +2,9 @@ package io.zenandroid.onlinego.utils
 
 import android.util.Log
 import io.zenandroid.onlinego.game.GamePresenter
+import io.zenandroid.onlinego.model.ogs.Game
 import io.zenandroid.onlinego.ogs.Clock
+import io.zenandroid.onlinego.ogs.GameData
 import io.zenandroid.onlinego.ogs.Time
 import org.json.JSONArray
 import org.json.JSONObject
@@ -49,6 +51,21 @@ fun convertCountryCodeToEmojiFlag(country: String?): String {
     return "\uD83C$c1\uD83C$c2"
 }
 
+fun timeLeftForCurrentPlayer(game: Game, gameData: GameData): Long {
+    val currentPlayer =
+            when (gameData.clock.current_player) {
+                gameData.players?.black?.id -> gameData.players?.black
+                gameData.players?.white?.id -> gameData.players?.white
+                else -> null
+            }
+    val currentPlayerTime =
+            if(currentPlayer?.id == gameData.players?.black?.id)
+                gameData.clock.black_time
+            else
+                gameData.clock.white_time
+    return computeTimeLeft(gameData.clock, currentPlayerTime, true).timeLeft ?: 0
+}
+
 fun computeTimeLeft(clock: Clock, playerTimeAny: Any, currentPlayer: Boolean): GamePresenter.TimerDetails {
     val timer = GamePresenter.TimerDetails()
 
@@ -56,7 +73,10 @@ fun computeTimeLeft(clock: Clock, playerTimeAny: Any, currentPlayer: Boolean): G
     if(clock.receivedAt == 0L) {
         clock.receivedAt = now
     }
-    val nowDelta = clock.receivedAt - clock.now
+    var nowDelta = clock.receivedAt - clock.now
+    if(nowDelta > 100000) { // sanity check
+        nowDelta = 0
+    }
     val baseTime = clock.last_move + nowDelta
     var timeLeft = 0L
     if(playerTimeAny is Long) {
@@ -100,6 +120,7 @@ fun computeTimeLeft(clock: Clock, playerTimeAny: Any, currentPlayer: Boolean): G
 
     timer.expired = timeLeft <= 0
     timer.firstLine = formatMillis(timeLeft)
+    timer.timeLeft = timeLeft
     return timer
 }
 

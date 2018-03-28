@@ -59,12 +59,7 @@ class MyGamesAdapter : GamesAdapter<MyGamesAdapter.ViewHolder>() {
                     else
                         gameData.clock.white_time
             val timeLeft = computeTimeLeft(gameData.clock, currentPlayerTime, true).firstLine
-            //
-            // workaround for server bug. Sometimes it gives ridiculous values...
-            //
-            if(timeLeft?.endsWith("weeks") != true) {
-                holder.timeLeft.text = timeLeft
-            }
+            holder.timeLeft.text = timeLeft
         }
         holder.itemView.setOnClickListener {
             clicksSubject.onNext(game)

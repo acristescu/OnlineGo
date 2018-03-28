@@ -42,6 +42,7 @@ class GamePresenter(
     override fun subscribe() {
         view.boardSize = game.width
 
+        service.resendAuth()
         gameConnection = service.connectToGame(game.id)
         subscriptions.add(gameConnection)
         subscriptions.add(gameConnection.gameData
@@ -391,5 +392,6 @@ class GamePresenter(
         var expired = false
         var firstLine: String? = null
         var secondLine: String? = null
+        var timeLeft: Long? = null
     }
 }

@@ -16,4 +16,5 @@ interface OGSService {
     fun cancelAutomatchChallenge(challenge: AutomatchChallenge)
     fun fetchGame(gameId: Long): Single<Game>
     fun fetchActiveGames(): Single<List<Game>>
+    fun resendAuth()
 }

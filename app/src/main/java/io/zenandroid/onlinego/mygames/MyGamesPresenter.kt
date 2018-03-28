@@ -8,6 +8,7 @@ import io.zenandroid.onlinego.gamelogic.Util.isMyTurn
 import io.zenandroid.onlinego.model.ogs.Game
 import io.zenandroid.onlinego.ogs.ActiveGameRepository
 import io.zenandroid.onlinego.ogs.OGSServiceImpl
+import io.zenandroid.onlinego.utils.timeLeftForCurrentPlayer
 
 /**
  * Created by alex on 05/11/2017.
@@ -35,7 +36,9 @@ class MyGamesPresenter(val view: MyGamesContract.View, private val activeGameSer
             when {
                 isMyTurn(left) && !isMyTurn(right) -> -1
                 !isMyTurn(left) && isMyTurn(right) -> 1
-                else -> (left.id - right.id).toInt()
+                else -> {
+                    (timeLeftForCurrentPlayer(left, left.json!!) - timeLeftForCurrentPlayer(right, right.json!!)).toInt()
+                }
             }
         })
     }

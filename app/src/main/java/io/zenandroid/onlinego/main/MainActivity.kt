@@ -154,35 +154,37 @@ class MainActivity : AppCompatActivity(), MainContract.View {
 
     private fun selectItem(item: MenuItem): Boolean {
         lastSelectedItem = item
-        if(bottomNavigation.visibility != View.VISIBLE) {
-            bottomNavigation.visibility = View.VISIBLE
-            bottomNavigation.animate()
-                    .translationY(0f)
-                    .alpha(1f)
-            newChallengeView.fadeIn().subscribe()
-        }
         return when(item.itemId) {
             R.id.navigation_spectate -> {
                 supportFragmentManager.beginTransaction()
                         .replace(R.id.fragment_container, spectateFragment)
+                        .runOnCommit (this::ensureNavigationVisible)
                         .commit()
                 true
             }
             R.id.navigation_challenges -> {
                 supportFragmentManager.beginTransaction()
                         .replace(R.id.fragment_container, challengesFragment)
+                        .runOnCommit (this::ensureNavigationVisible)
                         .commit()
                 true
             }
             R.id.navigation_my_games -> {
                 supportFragmentManager.beginTransaction()
                         .replace(R.id.fragment_container, myGamesFragment)
+                        .runOnCommit (this::ensureNavigationVisible)
                         .commit()
                 true
             }
             else -> false
         }
+    }
 
+    private fun ensureNavigationVisible() {
+        if(bottomNavigation.visibility != View.VISIBLE) {
+            bottomNavigation.fadeIn().subscribe()
+            newChallengeView.fadeIn().subscribe()
+        }
     }
 
     override fun navigateToGameScreen(game: Game) {

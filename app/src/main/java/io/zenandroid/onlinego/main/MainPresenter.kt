@@ -5,6 +5,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import io.zenandroid.onlinego.BuildConfig
+import io.zenandroid.onlinego.model.ogs.Game
 import io.zenandroid.onlinego.ogs.ActiveGameRepository
 import io.zenandroid.onlinego.ogs.OGSServiceImpl
 
@@ -14,12 +15,15 @@ import io.zenandroid.onlinego.ogs.OGSServiceImpl
 class MainPresenter (val view : MainContract.View, val activeGameRepository: ActiveGameRepository) : MainContract.Presenter {
 
     private val subscriptions = CompositeDisposable()
+    private var lastGameNotified: Game? = null
 
     override fun subscribe() {
         view.mainTitle = "OnlineGo"
         view.subtitle = BuildConfig.VERSION_NAME
 
 
+        OGSServiceImpl.instance.ensureSocketConnected()
+        OGSServiceImpl.instance.resendAuth()
         subscriptions.add(
                 activeGameRepository.myMoveCountObservable
                         .observeOn(AndroidSchedulers.mainThread())
@@ -45,6 +49,7 @@ class MainPresenter (val view : MainContract.View, val activeGameRepository: Act
     override fun unsubscribe() {
         activeGameRepository.unsubscribe()
         subscriptions.clear()
+        OGSServiceImpl.instance.disconnect()
     }
 
     fun navigateToGameScreenById(gameId: Long) {
@@ -57,7 +62,17 @@ class MainPresenter (val view : MainContract.View, val activeGameRepository: Act
     }
 
     override fun onNotificationClicked() {
-        view.navigateToGameScreen(activeGameRepository.myTurnGamesList[0])
+        lastGameNotified = if(lastGameNotified == null) {
+            activeGameRepository.myTurnGamesList[0]
+        } else {
+            val index = activeGameRepository.myTurnGamesList.indexOf(lastGameNotified!!)
+            if(index == -1) {
+                activeGameRepository.myTurnGamesList[0]
+            } else {
+                activeGameRepository.myTurnGamesList[(index + 1) % activeGameRepository.myTurnGamesList.size]
+            }
+        }
+        view.navigateToGameScreen(lastGameNotified!!)
     }
 
     private fun onError(t: Throwable) {

@@ -1,5 +1,6 @@
 package io.zenandroid.onlinego.reusable
 
+import android.support.v7.util.DiffUtil
 import android.support.v7.widget.RecyclerView
 import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
@@ -8,7 +9,6 @@ import io.zenandroid.onlinego.model.ogs.Game
 import io.zenandroid.onlinego.ogs.Clock
 import io.zenandroid.onlinego.ogs.GameData
 import io.zenandroid.onlinego.ogs.Move
-
 
 
 /**
@@ -82,19 +82,16 @@ abstract class GamesAdapter<T : RecyclerView.ViewHolder> : RecyclerView.Adapter<
     }
 
     fun setGames(newGames: List<Game>) {
-        val toRemove = mutableListOf<Game>()
+        DiffUtil.calculateDiff(GameDiffUtilCallback(gameList, newGames))
+                .dispatchUpdatesTo(this)
+
+        gameList.clear()
+        gameList.addAll(newGames)
         gameList.forEach { game ->
-            if (newGames.find { it.id == game.id } == null) {
-                toRemove.add(game)
+            game.json?.let {
+                gameDataMap[game.id] = it
             }
         }
-        toRemove.forEach {
-            val index = gameList.indexOf(it)
-            gameList.removeAt(index)
-            notifyItemRemoved(index)
-        }
-
-        newGames.forEach (this::addOrReplaceGame)
     }
 
     fun removeGame(game: Game) {
@@ -105,6 +102,23 @@ abstract class GamesAdapter<T : RecyclerView.ViewHolder> : RecyclerView.Adapter<
         }
     }
 
+    private class GameDiffUtilCallback(
+            val oldList: List<Game>,
+            val newList: List<Game>
+    ) : DiffUtil.Callback() {
+        override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+            return oldList[oldItemPosition].id == newList[newItemPosition].id
+        }
+
+        override fun getOldListSize(): Int = oldList.size
+
+        override fun getNewListSize(): Int = newList.size
+
+        override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+            return true
+        }
+
+    }
 }
 
 

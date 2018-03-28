@@ -69,6 +69,7 @@ class OGSServiceImpl : OGSService {
             return Completable.error(Throwable())
         }
 
+        Log.d(TAG, "Token expiry $tokenExpiry")
         val tokenSource: Single<LoginToken>
 
         if(tokenExpiry.before(Date())) {
@@ -106,20 +107,13 @@ class OGSServiceImpl : OGSService {
         PersistenceManager.instance.storeUIConfig(uiConfig)
     }
 
-    public fun ensureSocketConnected() {
-        if(socket.connected()) {
-            return
+    fun ensureSocketConnected() {
+        if(!socket.connected()) {
+            socket.connect()
         }
 
-        socket.connect()
-
         if(!authSent) {
-            val obj = JSONObject()
-            obj.put("player_id", uiConfig?.user?.id)
-            obj.put("username", uiConfig?.user?.username)
-            obj.put("auth", uiConfig?.chat_auth)
-            socket.emit("authenticate", obj, loggingAck)
-            authSent = true
+            resendAuth()
         }
     }
 
@@ -188,6 +182,15 @@ class OGSServiceImpl : OGSService {
         ensureSocketConnected()
         Log.i(TAG, "Emit: $event with params $params")
         socket.emit(event, params, loggingAck)
+    }
+
+    override fun resendAuth() {
+        val obj = JSONObject()
+        obj.put("player_id", uiConfig?.user?.id)
+        obj.put("username", uiConfig?.user?.username)
+        obj.put("auth", uiConfig?.chat_auth)
+        socket.emit("authenticate", obj, loggingAck)
+        authSent = true
     }
 
     private fun observeEvent(event: String): Flowable<Any> {
