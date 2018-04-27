@@ -21,7 +21,7 @@ class NotificationsService : JobService() {
             Log.v(TAG, "App is in foreground, giving up")
             return false
         }
-        val connection = OGSServiceImpl()
+        val connection = OGSServiceImpl.instance
         connection.loginWithToken()
                 .andThen(connection.fetchActiveGames())
                 .map { it.filter { it.json?.clock?.current_player == connection.uiConfig?.user?.id } }

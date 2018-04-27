@@ -33,7 +33,7 @@ import java.util.logging.Logger
 /**
  * Created by alex on 03/11/2017.
  */
-class OGSServiceImpl : OGSService {
+class OGSServiceImpl private constructor(): OGSService {
 
     companion object {
         @JvmField
@@ -103,6 +103,7 @@ class OGSServiceImpl : OGSService {
 
     private fun storeUIConfig(uiConfig: UIConfig) {
         this.uiConfig = uiConfig
+        authSent = false
         MainActivity.userId = uiConfig.user.id
         PersistenceManager.instance.storeUIConfig(uiConfig)
     }

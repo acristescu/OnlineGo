@@ -58,8 +58,8 @@ class MyGamesFragment : Fragment(), MyGamesContract.View {
         unbinder.unbind()
     }
 
-    override fun onStart() {
-        super.onStart()
+    override fun onResume() {
+        super.onResume()
         presenter.subscribe()
     }
 
@@ -67,8 +67,8 @@ class MyGamesFragment : Fragment(), MyGamesContract.View {
         adapter.clearGames()
     }
 
-    override fun onStop() {
-        super.onStop()
+    override fun onPause() {
+        super.onPause()
         presenter.unsubscribe()
     }
 

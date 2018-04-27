@@ -51,7 +51,7 @@ class ActiveGameRepository {
     }
 
     internal fun unsubscribe() {
-
+        subscriptions.clear()
     }
 
     private fun setActiveGames(games : List<Game>) {

@@ -22,8 +22,13 @@ class MainPresenter (val view : MainContract.View, val activeGameRepository: Act
         view.subtitle = BuildConfig.VERSION_NAME
 
 
-        OGSServiceImpl.instance.ensureSocketConnected()
-        OGSServiceImpl.instance.resendAuth()
+        subscriptions.add(
+                OGSServiceImpl.instance.loginWithToken().
+                        subscribe {
+                            OGSServiceImpl.instance.ensureSocketConnected()
+                            OGSServiceImpl.instance.resendAuth()
+                        }
+        )
         subscriptions.add(
                 activeGameRepository.myMoveCountObservable
                         .observeOn(AndroidSchedulers.mainThread())
