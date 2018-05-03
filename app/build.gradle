@@ -57,6 +57,8 @@ dependencies {
 
     implementation 'de.hdodenhof:circleimageview:2.2.0'
 
+    implementation 'me.zhanghai.android.materialprogressbar:library:1.4.2'
+
     implementation ('io.socket:socket.io-client:1.0.0') {
         // excluding org.json which is provided by Android
         exclude group: 'org.json', module: 'json'
