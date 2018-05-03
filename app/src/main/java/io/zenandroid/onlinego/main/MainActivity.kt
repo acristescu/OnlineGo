@@ -12,6 +12,7 @@ import android.support.v7.app.AppCompatActivity
 import android.view.MenuItem
 import android.view.View
 import android.widget.ImageView
+import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 import butterknife.BindView
@@ -24,6 +25,7 @@ import io.zenandroid.onlinego.NotificationsService
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.extensions.fadeIn
 import io.zenandroid.onlinego.extensions.fadeOut
+import io.zenandroid.onlinego.extensions.showIf
 import io.zenandroid.onlinego.game.GameFragment
 import io.zenandroid.onlinego.model.ogs.Game
 import io.zenandroid.onlinego.mygames.MyGamesFragment
@@ -45,6 +47,7 @@ class MainActivity : AppCompatActivity(), MainContract.View {
     @BindView(R.id.badge) lateinit var badge: TextView
     @BindView(R.id.notifications) lateinit var notificationsButton: ImageView
     @BindView(R.id.new_challenge) lateinit var newChallengeView: NewChallengeView
+    @BindView(R.id.progress_bar) lateinit var progressBar: ProgressBar
 
     private val spectateFragment = SpectateFragment()
     private val myGamesFragment = MyGamesFragment()
@@ -55,6 +58,12 @@ class MainActivity : AppCompatActivity(), MainContract.View {
     private lateinit var lastSelectedItem: MenuItem
 
     private val presenter: MainPresenter by lazy { MainPresenter(this, activeGameRepository) }
+
+    var loading: Boolean = false
+        set(value) {
+            field = value
+            progressBar.showIf(value)
+        }
 
     override var subtitle: CharSequence?
         get() = supportActionBar?.subtitle

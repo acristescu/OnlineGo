@@ -23,6 +23,7 @@ import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.extensions.fadeIn
 import io.zenandroid.onlinego.extensions.fadeOut
 import io.zenandroid.onlinego.extensions.showIf
+import io.zenandroid.onlinego.main.MainActivity
 import io.zenandroid.onlinego.model.Position
 import io.zenandroid.onlinego.model.StoneType
 import io.zenandroid.onlinego.model.ogs.Game
@@ -282,5 +283,9 @@ class GameFragment : Fragment(), GameContract.View {
     @OnClick(R.id.auto_button)
     fun onAutoClicked() {
         presenter.onAutoButtonPressed()
+    }
+
+    override fun setLoading(loading: Boolean) {
+        (activity as? MainActivity)?.loading = loading
     }
 }

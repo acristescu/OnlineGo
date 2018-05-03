@@ -68,6 +68,20 @@
         app:layout_constraintTop_toBottomOf="@id/appbar"
         />
 
+    <me.zhanghai.android.materialprogressbar.MaterialProgressBar
+        android:id="@+id/progress_bar"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:indeterminate="true"
+        app:mpb_progressStyle="horizontal"
+        style="@style/Widget.MaterialProgressBar.ProgressBar.Horizontal"
+        app:mpb_useIntrinsicPadding="false"
+        app:layout_constraintBottom_toBottomOf="@id/appbar"
+        app:mpb_indeterminateTint="@color/white"
+        android:elevation="4dp"
+        android:visibility="gone"
+        />
+
     <android.support.design.widget.BottomNavigationView
         android:id="@+id/bottom_navigation"
         android:layout_width="match_parent"

@@ -29,6 +29,7 @@ class MyGamesPresenter(val view: MyGamesContract.View, private val activeGameSer
                         .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
                         .subscribe(this::setGames, this::onError)
         )
+        view.setLoading(true)
     }
 
     private fun sortGames(unsorted : List<Game>): List<Game> {
@@ -60,6 +61,7 @@ class MyGamesPresenter(val view: MyGamesContract.View, private val activeGameSer
                         .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
                         .subscribe(this::addGame)
         )
+        view.setLoading(false)
     }
 
     private fun connectToGame(game: Game) {
@@ -102,5 +104,6 @@ class MyGamesPresenter(val view: MyGamesContract.View, private val activeGameSer
 
     private fun onError(t: Throwable) {
         Log.e(TAG, t.message, t)
+        view.setLoading(false)
     }
 }

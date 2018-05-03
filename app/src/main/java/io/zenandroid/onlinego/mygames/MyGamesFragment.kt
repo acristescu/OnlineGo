@@ -96,4 +96,8 @@ class MyGamesFragment : Fragment(), MyGamesContract.View {
         adapter.setClock(id, clock)
     }
 
+    override fun setLoading(loading: Boolean) {
+        (activity as? MainActivity)?.loading = loading
+    }
+
 }

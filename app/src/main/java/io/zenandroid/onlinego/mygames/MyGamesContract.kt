@@ -18,6 +18,7 @@ interface MyGamesContract {
         fun setClock(id: Long, clock: Clock)
         fun removeGame(game: Game)
         fun setGames(games: List<Game>)
+        fun setLoading(loading: Boolean)
     }
     interface Presenter {
         fun subscribe()

@@ -44,6 +44,7 @@ interface GameContract {
         var activePlayer: StoneType?
         fun showError(t: Throwable)
         var komi: Float?
+        fun setLoading(loading: Boolean)
     }
 
     interface Presenter {

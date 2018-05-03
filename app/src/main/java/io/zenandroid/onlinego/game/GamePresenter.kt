@@ -40,6 +40,7 @@ class GamePresenter(
     private var candidateMove: Point? = null
 
     override fun subscribe() {
+        view.setLoading(true)
         view.boardSize = game.width
 
         service.resendAuth()
@@ -83,7 +84,7 @@ class GamePresenter(
 
         subscriptions.add(Observable.interval(100, TimeUnit.MILLISECONDS)
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({clockTick()})
+                .subscribe {clockTick()}
         )
 
     }
@@ -156,6 +157,7 @@ class GamePresenter(
     }
 
     private fun processGameData(gameData: GameData) {
+        view.setLoading(false)
         this.gameData = gameData
         if(clock == null) {
             clock = gameData.clock
