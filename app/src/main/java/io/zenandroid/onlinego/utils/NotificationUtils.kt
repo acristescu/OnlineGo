@@ -67,7 +67,7 @@ class NotificationUtils {
 
                     val notification = NotificationCompat.Builder(context, "active_games")
                             .setContentTitle("Your move in ${games.size} game${if(games.size > 1) "s" else ""}")
-                            .setSmallIcon(R.mipmap.ic_board_black_white)
+                            .setSmallIcon(R.drawable.ic_notification_go_board)
                             .setColor(ResourcesCompat.getColor(context.resources, R.color.colorTextSecondary, null))
                             .setBadgeIconType(BADGE_ICON_NONE)
                             .setLargeIcon(BitmapFactory.decodeResource(context.resources, R.mipmap.ic_board_black_white))

@@ -13,8 +13,9 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme"
         android:name=".OnlineGoApplication"
+        android:maxAspectRatio="10.0"
         >
-
+        <meta-data android:name="android.max_aspect" android:value="10.0"/>
         <activity
             android:name=".login.LoginActivity"
             android:label="@string/app_name"
