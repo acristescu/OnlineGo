@@ -5,14 +5,17 @@ import android.app.PendingIntent
 import android.app.PendingIntent.FLAG_UPDATE_CURRENT
 import android.content.Context
 import android.content.Intent
-import android.graphics.BitmapFactory
 import android.preference.PreferenceManager
 import android.support.v4.app.NotificationCompat
 import android.support.v4.app.NotificationCompat.BADGE_ICON_NONE
+import android.support.v4.content.ContextCompat
 import android.support.v4.content.res.ResourcesCompat
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.model.ogs.Game
 import java.security.MessageDigest
+import android.graphics.Bitmap
+import android.graphics.Canvas
+
 
 /**
  * Created by alex on 07/03/2018.
@@ -64,13 +67,17 @@ class NotificationUtils {
                     val vibrationPattern =
                             if(games.size > lastNotificationCount) longArrayOf(0, 200)
                             else longArrayOf(0, 10)
-
+                    val drawable = ContextCompat.getDrawable(context, R.drawable.ic_board_transparent)!!
+                    val bitmap = Bitmap.createBitmap(drawable.intrinsicWidth, drawable.intrinsicHeight, Bitmap.Config.ARGB_8888)
+                    val canvas = Canvas(bitmap)
+                    drawable.setBounds(0, 0, canvas.width, canvas.height)
+                    drawable.draw(canvas)
                     val notification = NotificationCompat.Builder(context, "active_games")
                             .setContentTitle("Your move in ${games.size} game${if(games.size > 1) "s" else ""}")
                             .setSmallIcon(R.drawable.ic_notification_go_board)
                             .setColor(ResourcesCompat.getColor(context.resources, R.color.colorTextSecondary, null))
                             .setBadgeIconType(BADGE_ICON_NONE)
-                            .setLargeIcon(BitmapFactory.decodeResource(context.resources, R.mipmap.ic_board_black_white))
+                            .setLargeIcon(bitmap)
                             .setStyle(style)
                             .setContentIntent(pendingIntent)
                             .setAutoCancel(true)
