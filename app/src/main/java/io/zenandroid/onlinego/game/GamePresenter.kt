@@ -106,11 +106,10 @@ class GamePresenter(
 
     private fun onUserHotTrackedCell(point: Point) {
         if(gameData?.phase == Game.Phase.PLAY) {
-            val nextToMove = currentPosition.lastPlayerToMove?.opponent ?: StoneType.BLACK
-            val validMove = RulesManager.makeMove(currentPosition, nextToMove, point) != null
+            val validMove = RulesManager.makeMove(currentPosition, currentPosition.nextToMove, point) != null
             if (validMove) {
                 candidateMove = point
-                view.showCandidateMove(point, nextToMove)
+                view.showCandidateMove(point, currentPosition.nextToMove)
             }
         }
     }

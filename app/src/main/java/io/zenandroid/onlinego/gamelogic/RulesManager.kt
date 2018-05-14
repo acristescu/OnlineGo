@@ -5,6 +5,7 @@ import android.util.Log
 import io.zenandroid.onlinego.model.Position
 import io.zenandroid.onlinego.model.StoneType
 import io.zenandroid.onlinego.ogs.GameData
+import io.zenandroid.onlinego.ogs.InitialState
 import java.util.*
 
 /**
@@ -60,7 +61,7 @@ object RulesManager {
     }
 
     fun replay(gameData: GameData, limit: Int = Int.MAX_VALUE, computeTerritory : Boolean): Position {
-        var pos = Position(gameData.height)
+        var pos = RulesManager.newPosition(gameData.height, gameData.initial_state)
 
         var turn = StoneType.BLACK
         if(gameData.initial_player == "white") {
@@ -78,9 +79,7 @@ object RulesManager {
                 return@forEachIndexed
             }
             pos = newPos
-            if(index + 1 >= gameData.handicap ?: 0) {
-                turn = turn.opponent
-            }
+            turn = turn.opponent
             newPos.nextToMove = turn
         }
         gameData.removed?.let {
@@ -113,6 +112,25 @@ object RulesManager {
             }
         }
 
+        return pos
+    }
+
+    private fun newPosition(height: Int, initialState: InitialState?): Position {
+        val pos = Position(height)
+        initialState?.let {
+            it.white?.let {
+                for (i in 0 until it.length step 2) {
+                    val stone = Util.getCoordinatesFromSGF(it, i)
+                    pos.putStone(stone.x, stone.y, StoneType.WHITE)
+                }
+            }
+            it.black?.let {
+                for (i in 0 until it.length step 2) {
+                    val stone = Util.getCoordinatesFromSGF(it, i)
+                    pos.putStone(stone.x, stone.y, StoneType.BLACK)
+                }
+            }
+        }
         return pos
     }
 
