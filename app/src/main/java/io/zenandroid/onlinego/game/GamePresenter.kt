@@ -37,6 +37,8 @@ class GamePresenter(
     private var currentShownMove = -1
     private var clock: Clock? = null
 
+    private var finishedDialogShown = false
+
     private var candidateMove: Point? = null
 
     override fun subscribe() {
@@ -172,7 +174,7 @@ class GamePresenter(
         configureBoard()
 
         currentShownMove = gameData.moves.size
-        refreshData(gameData)
+        refreshUI(gameData)
         view.title = "${gameData.players?.black?.username} vs ${gameData.players?.white?.username}"
     }
 
@@ -275,7 +277,7 @@ class GamePresenter(
         view.autoButtonVisible = false
     }
 
-    private fun refreshData(gameData: GameData) {
+    private fun refreshUI(gameData: GameData) {
         val shouldComputeTerritory = gameData.phase == Game.Phase.STONE_REMOVAL || gameData.phase == Game.Phase.FINISHED
         currentPosition = RulesManager.replay(gameData, computeTerritory = shouldComputeTerritory)
         view.position = currentPosition
@@ -292,6 +294,17 @@ class GamePresenter(
                 view.subTitle = "Stone removal"
             }
             Game.Phase.FINISHED -> {
+                if(!finishedDialogShown) {
+                    finishedDialogShown = true
+                    when {
+                        !myGame ->
+                            view.showFinishedDialog()
+                        gameData.winner == userId ->
+                            view.showYouWinDialog()
+                        else ->
+                            view.showYouLoseDialog()
+                    }
+                }
                 view.subTitle = "Finished"
             }
         }
@@ -306,7 +319,7 @@ class GamePresenter(
             newMoves += move.move
             gameData.moves = newMoves
             currentShownMove = gameData.moves.size
-            refreshData(gameData)
+            refreshUI(gameData)
         }
     }
 

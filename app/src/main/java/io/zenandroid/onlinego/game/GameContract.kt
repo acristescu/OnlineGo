@@ -45,6 +45,9 @@ interface GameContract {
         fun showError(t: Throwable)
         var komi: Float?
         fun setLoading(loading: Boolean)
+        fun showFinishedDialog()
+        fun showYouWinDialog()
+        fun showYouLoseDialog()
     }
 
     interface Presenter {

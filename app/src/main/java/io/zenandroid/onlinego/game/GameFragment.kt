@@ -110,6 +110,18 @@ class GameFragment : Fragment(), GameContract.View {
         retainInstance = true
     }
 
+    override fun showFinishedDialog() {
+        Toast.makeText(context, "Game finished", Toast.LENGTH_LONG).show()
+    }
+
+    override fun showYouWinDialog() {
+        Toast.makeText(context, "Congratulations, you won!", Toast.LENGTH_LONG).show()
+    }
+
+    override fun showYouLoseDialog() {
+        Toast.makeText(context, "Unfortunately, you lost...", Toast.LENGTH_LONG).show()
+    }
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_game, container, false)
         unbinder = ButterKnife.bind(this, view)

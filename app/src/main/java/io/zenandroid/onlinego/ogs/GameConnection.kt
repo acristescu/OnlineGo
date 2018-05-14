@@ -132,7 +132,7 @@ data class GameData (
     var removed: String? = null,
     var auth: String? = null,
     var game_chat_auth: String? = null,
-    var winner: Int? = null,
+    var winner: Long? = null,
     var outcome: String? = null,
     var end_time: Long? = null,
     var score: Scores? = null
