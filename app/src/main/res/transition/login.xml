@@ -21,6 +21,7 @@
             <target android:targetId="@id/input_password_layout" />
             <target android:targetId="@id/input_username_layout" />
             <target android:targetId="@id/btn_login" />
+            <target android:targetId="@id/no_account" />
         </targets>
 
     </fade>

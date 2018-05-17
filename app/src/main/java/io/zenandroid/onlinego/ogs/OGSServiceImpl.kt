@@ -61,6 +61,12 @@ class OGSServiceImpl private constructor(): OGSService {
                 .toCompletable()
     }
 
+    fun createAccount(username: String, password: String, email: String): Completable {
+        val ebi = "${Math.random().toString().split(".")[1]}.0.0.0.0.xxx.xxx.${Date().timezoneOffset + 13}"
+        return restApi.createAccount(CreateAccountRequest(username, password, email, ebi))
+                .toCompletable()
+    }
+
     fun loginWithToken(): Completable {
         if(token == null || token?.access_token == null || token?.refresh_token == null) {
             //

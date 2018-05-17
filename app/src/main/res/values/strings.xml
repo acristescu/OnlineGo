@@ -4,5 +4,9 @@
     <string name="app_name">Online Go</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
+    <string name="create_account_prompt">No OGS account? Create one <b>here</b>!</string>
+    <string name="signing_prompt">Already have an account? Log in <b>here</b>!</string>
+    <string name="login_to_ogs">Login to OGS</string>
+    <string name="create_account">Create OGS account</string>
 
 </resources>

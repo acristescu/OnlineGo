@@ -1,15 +1,10 @@
 package io.zenandroid.onlinego.ogs
 
+import io.reactivex.Completable
 import io.reactivex.Single
 import io.zenandroid.onlinego.BuildConfig
-import io.zenandroid.onlinego.model.ogs.Game
-import io.zenandroid.onlinego.model.ogs.LoginToken
-import io.zenandroid.onlinego.model.ogs.Overview
-import io.zenandroid.onlinego.model.ogs.UIConfig
-import retrofit2.http.GET
-import retrofit2.http.POST
-import retrofit2.http.Path
-import retrofit2.http.Query
+import io.zenandroid.onlinego.model.ogs.*
+import retrofit2.http.*
 
 /**
  * Created by alex on 02/11/2017.
@@ -38,4 +33,6 @@ interface OGSRestAPI {
     @GET("api/v1/ui/overview")
     fun fetchOverview(): Single<Overview>
 
+    @POST("api/v0/register")
+    fun createAccount(@Body request: CreateAccountRequest): Single<UIConfig>
 }
