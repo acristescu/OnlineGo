@@ -1,6 +1,7 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
+apply plugin: 'kotlin-android-extensions'
 
 android {
     compileSdkVersion 27
@@ -34,6 +35,12 @@ android {
     }
 }
 
+// IMPORTANT!  Enables view caching in viewholders.
+// See: https://github.com/Kotlin/KEEP/blob/master/proposals/android-extensions-entity-caching.md
+androidExtensions {
+    experimental = true
+}
+
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'com.android.support:appcompat-v7:27.1.1'
@@ -48,6 +55,10 @@ dependencies {
     // rxandroid
     implementation 'io.reactivex.rxjava2:rxandroid:2.0.1'
     implementation 'io.reactivex.rxjava2:rxjava:2.1.6'
+
+    // groupie
+    implementation 'com.xwray:groupie:2.0.3'
+    implementation 'com.xwray:groupie-kotlin-android-extensions:2.0.3'
 
     implementation 'com.android.support:design:27.1.1'
     implementation 'com.android.support.constraint:constraint-layout:1.1.0'
@@ -67,8 +78,8 @@ dependencies {
     implementation 'com.jakewharton.rxbinding2:rxbinding:2.0.0'
 
     implementation 'br.com.simplepass:loading-button-android:1.8.3'
-    implementation 'com.github.bumptech.glide:glide:4.3.1'
-    kapt 'com.github.bumptech.glide:compiler:4.3.1'
+    implementation 'com.github.bumptech.glide:glide:4.7.1'
+    kapt 'com.github.bumptech.glide:compiler:4.4.0'
 
     implementation 'com.jakewharton:butterknife:8.8.1'
     kapt 'com.jakewharton:butterknife-compiler:8.8.1'
