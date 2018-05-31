@@ -29,6 +29,12 @@ class MyGamesPresenter(val view: MyGamesContract.View, private val activeGameSer
                         .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
                         .subscribe(this::setGames, this::onError)
         )
+        subscriptions.add(
+                OGSServiceImpl.instance.fetchHistoricGames()
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
+                        .subscribe(this::setHistoricGames, this::onError)
+        )
         view.setLoading(true)
     }
 
@@ -64,7 +70,14 @@ class MyGamesPresenter(val view: MyGamesContract.View, private val activeGameSer
         view.setLoading(false)
     }
 
-    private fun connectToGame(game: Game) {
+    private fun setHistoricGames(games: List<Game>) {
+        for(game in games) {
+            connectToGame(game, true)
+        }
+        view.setHistoricGames(games)
+    }
+
+    private fun connectToGame(game: Game, historic: Boolean = false) {
         val gameConnection = OGSServiceImpl.instance.connectToGame(game.id)
         subscriptions.add(gameConnection)
         subscriptions.add(gameConnection.gameData
@@ -72,7 +85,7 @@ class MyGamesPresenter(val view: MyGamesContract.View, private val activeGameSer
                 .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
                 .subscribe { gameData ->
                     view.setGameData(game.id, gameData)
-                    if (gameData.phase == Game.Phase.FINISHED) {
+                    if (gameData.phase == Game.Phase.FINISHED && !historic) {
                         removeGame(game)
                     }
                 })

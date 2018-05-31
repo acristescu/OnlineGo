@@ -368,4 +368,10 @@ class OGSServiceImpl private constructor(): OGSService {
                             }
             )
 
+    override fun fetchHistoricGames(): Single<List<Game>> =
+        loginWithToken().andThen(
+                restApi.fetchPlayerFinishedGames(uiConfig?.user?.id!!)
+                        .map { it -> it.results }
+        )
+
 }

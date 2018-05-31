@@ -11,25 +11,13 @@ import android.view.ViewGroup
 import butterknife.BindView
 import butterknife.ButterKnife
 import butterknife.Unbinder
-import com.xwray.groupie.GroupAdapter
-import com.xwray.groupie.Section
-import com.xwray.groupie.kotlinandroidextensions.Item
-import com.xwray.groupie.kotlinandroidextensions.ViewHolder
 import io.zenandroid.onlinego.R
-import io.zenandroid.onlinego.extensions.showIf
-import io.zenandroid.onlinego.gamelogic.RulesManager
 import io.zenandroid.onlinego.main.MainActivity
 import io.zenandroid.onlinego.model.ogs.Game
 import io.zenandroid.onlinego.ogs.Clock
 import io.zenandroid.onlinego.ogs.GameData
 import io.zenandroid.onlinego.ogs.Move
-import io.zenandroid.onlinego.ogs.OGSServiceImpl
 import io.zenandroid.onlinego.reusable.GameItem
-import io.zenandroid.onlinego.utils.computeTimeLeft
-import io.zenandroid.onlinego.utils.egfToRank
-import io.zenandroid.onlinego.utils.formatRank
-import kotlinx.android.synthetic.main.item_game_card.*
-import kotlinx.android.synthetic.main.section_header.*
 
 /**
  * Created by alex on 05/11/2017.
@@ -76,6 +64,10 @@ class MyGamesFragment : Fragment(), MyGamesContract.View {
     override fun onResume() {
         super.onResume()
         presenter.subscribe()
+    }
+
+    override fun setHistoricGames(games: List<Game>) {
+        groupAdapter.setHistoricGames(games)
     }
 
     override fun clearGames() {

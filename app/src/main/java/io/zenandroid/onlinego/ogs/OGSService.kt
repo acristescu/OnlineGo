@@ -17,4 +17,5 @@ interface OGSService {
     fun fetchGame(gameId: Long): Single<Game>
     fun fetchActiveGames(): Single<List<Game>>
     fun resendAuth()
+    fun fetchHistoricGames(): Single<List<Game>>
 }

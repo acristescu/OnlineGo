@@ -19,6 +19,7 @@ interface MyGamesContract {
         fun removeGame(game: Game)
         fun setGames(games: List<Game>)
         fun setLoading(loading: Boolean)
+        fun setHistoricGames(games: List<Game>)
     }
     interface Presenter {
         fun subscribe()

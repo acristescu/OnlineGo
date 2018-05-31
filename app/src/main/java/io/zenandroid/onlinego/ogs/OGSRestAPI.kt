@@ -1,6 +1,5 @@
 package io.zenandroid.onlinego.ogs
 
-import io.reactivex.Completable
 import io.reactivex.Single
 import io.zenandroid.onlinego.BuildConfig
 import io.zenandroid.onlinego.model.ogs.*
@@ -35,4 +34,10 @@ interface OGSRestAPI {
 
     @POST("api/v0/register")
     fun createAccount(@Body request: CreateAccountRequest): Single<UIConfig>
+
+    @GET("api/v1/players/{player_id}/games/?source=play&ended__isnull=false&annulled=false&ordering=-ended")
+    fun fetchPlayerFinishedGames(
+            @Path("player_id") playerId: Long,
+            @Query("page_size") pageSize: Int = 10,
+            @Query("page") page: Int = 1): Single<PagedResult>
 }

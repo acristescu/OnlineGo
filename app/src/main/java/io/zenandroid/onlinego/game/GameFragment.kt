@@ -247,7 +247,9 @@ class GameFragment : Fragment(), GameContract.View {
                     if (state) {
                         Observable.concat(
                                 Observable.just(0L),
-                                Observable.interval(500, 400, TimeUnit.MILLISECONDS)
+                                Observable.interval(500, 400, TimeUnit.MILLISECONDS).take(10),
+                                Observable.interval(100, 100, TimeUnit.MILLISECONDS).take(20),
+                                Observable.interval(20, 20, TimeUnit.MILLISECONDS)
                         ).takeWhile { view.isEnabled }
                     } else {
                         Observable.never()
