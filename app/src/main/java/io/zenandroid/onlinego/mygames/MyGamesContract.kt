@@ -12,7 +12,7 @@ interface MyGamesContract {
     interface View {
         fun setGameData(id: Long, gameData: GameData)
         fun doMove(id: Long, move: Move)
-        fun addGame(game: Game)
+        fun addOrUpdateGame(game: Game)
         fun clearGames()
         fun navigateToGameScreen(game: Game)
         fun setClock(id: Long, clock: Clock)

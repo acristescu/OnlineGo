@@ -46,7 +46,7 @@ class MyGamesPresenter(val view: MyGamesContract.View, private val activeGameSer
 
     private fun addGame(game : Game) {
         connectToGame(game)
-        view.addGame(game)
+        view.addOrUpdateGame(game)
     }
 
     private fun setGames(games : List<Game>) {
