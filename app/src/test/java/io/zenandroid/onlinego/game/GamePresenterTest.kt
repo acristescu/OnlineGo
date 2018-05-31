@@ -22,7 +22,7 @@ class GamePresenterTest {
         val game = Game(null, null, 0L, Game.Phase.PLAY, null, 19, 19, null, null, null, null,0L,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null, null,null,null,null,null,null,null,
                 gamedata = GameData(null,null,null,19,null,null,null,null,null,null,null,null,null,null,null,Game.Phase.PLAY,null, listOf(),null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null, Clock(0L,0L,0L,0L,null,0L,null,0L,null,false,null,0,0),null,null,null,null,null,null,null)
         )
-        val presenter = GamePresenter(view, service, game)
+        val presenter = GamePresenter(view, service, game.id, game.width)
 
         val MILLIS = 1L
         val SECONDS = 1000 * MILLIS

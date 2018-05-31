@@ -20,7 +20,8 @@ import java.util.concurrent.TimeUnit
 class GamePresenter(
         private val view: GameContract.View,
         private val service: OGSService,
-        private var game: Game
+        private val gameId: Long,
+        private val gameSize: Int
 ) : GameContract.Presenter {
 
     companion object {
@@ -36,6 +37,7 @@ class GamePresenter(
     private var detailedPlayerDetailsSet = false
     private var currentShownMove = -1
     private var clock: Clock? = null
+    private var game: Game? = null
 
     private var finishedDialogShown = false
 
@@ -43,10 +45,10 @@ class GamePresenter(
 
     override fun subscribe() {
         view.setLoading(true)
-        view.boardSize = game.width
+        view.boardSize = gameSize
 
         service.resendAuth()
-        gameConnection = service.connectToGame(game.id)
+        gameConnection = service.connectToGame(gameId)
         subscriptions.add(gameConnection)
         subscriptions.add(gameConnection.gameData
                 .subscribeOn(Schedulers.io())
@@ -69,7 +71,7 @@ class GamePresenter(
                 .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
                 .subscribe(this::onRemovedStones))
 
-        subscriptions.add(service.restApi.fetchGame(game.id)
+        subscriptions.add(service.restApi.fetchGame(gameId)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
                 .subscribe(this::processRESTGame, this::onError))
@@ -169,7 +171,7 @@ class GamePresenter(
             view.blackPlayer = gameData.players?.black
         }
 
-        myGame = (game.blackId == userId) || (game.whiteId == userId)
+        myGame = (gameData.black_player_id == userId) || (gameData.white_player_id == userId)
         showControls()
         configureBoard()
 
@@ -347,7 +349,6 @@ class GamePresenter(
     }
 
     private fun onPhase(phase: Game.Phase) {
-        game.phase = phase
         gameData?.phase = phase
 
         gameData?.let (this::processGameData)

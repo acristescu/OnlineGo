@@ -33,16 +33,19 @@ import io.zenandroid.onlinego.views.BoardView
 import io.zenandroid.onlinego.views.PlayerDetailsView
 import java.util.concurrent.TimeUnit
 
+const val GAME_ID = "GAME_ID"
+const val GAME_SIZE = "GAME_SIZE"
 
 /**
  * Created by alex on 10/11/2017.
  */
 class GameFragment : Fragment(), GameContract.View {
     companion object {
-        fun createFragment(game: Game): GameFragment {
-            val fragment = GameFragment()
-            fragment.game = game
-            return fragment
+        fun createFragment(game: Game): GameFragment = GameFragment().apply {
+            arguments = Bundle().apply {
+                putLong(GAME_ID, game.id)
+                putInt(GAME_SIZE, game.width)
+            }
         }
     }
 
@@ -63,8 +66,6 @@ class GameFragment : Fragment(), GameContract.View {
     private lateinit var unbinder: Unbinder
     private lateinit var presenter: GameContract.Presenter
     private val subscriptions = CompositeDisposable()
-
-    lateinit var game: Game
 
     override var position: Position? = null
         set(value) {
@@ -135,7 +136,7 @@ class GameFragment : Fragment(), GameContract.View {
 
         whiteDetailsView.color = StoneType.WHITE
         blackDetailsView.color = StoneType.BLACK
-        presenter = GamePresenter(this, OGSServiceImpl.instance, game)
+        presenter = GamePresenter(this, OGSServiceImpl.instance, arguments!!.getLong(GAME_ID), arguments!!.getInt(GAME_SIZE))
     }
 
     override fun showError(t: Throwable) {
