@@ -9,11 +9,14 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         tools:text="YOUR TURN"
-        android:padding="8dp"
-        android:layout_marginLeft="4dp"
+        android:paddingLeft="12dp"
+        android:paddingTop="16dp"
+        android:paddingBottom="2dp"
         android:textColor="@color/colorTextSecondary"
         android:textSize="12sp"
         android:textAllCaps="true"
+        android:fontFamily="@font/ubuntu_medium"
+        android:alpha=".7"
         />
 
 </LinearLayout>
