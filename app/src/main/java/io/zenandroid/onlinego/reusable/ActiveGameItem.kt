@@ -11,7 +11,7 @@ import io.zenandroid.onlinego.ogs.OGSServiceImpl
 import io.zenandroid.onlinego.utils.computeTimeLeft
 import io.zenandroid.onlinego.utils.egfToRank
 import io.zenandroid.onlinego.utils.formatRank
-import kotlinx.android.synthetic.main.item_game_card.*
+import kotlinx.android.synthetic.main.item_active_game_card.*
 
 class ActiveGameItem constructor(game: Game) : GameItem(game) {
     override fun bind(holder: ViewHolder, position: Int) {
@@ -65,5 +65,5 @@ class ActiveGameItem constructor(game: Game) : GameItem(game) {
         }
     }
 
-    override fun getLayout(): Int = R.layout.item_game_card
+    override fun getLayout(): Int = R.layout.item_active_game_card
 }
