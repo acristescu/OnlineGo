@@ -71,7 +71,7 @@ class GamePresenter(
                 .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
                 .subscribe(this::onRemovedStones))
 
-        subscriptions.add(service.restApi.fetchGame(gameId)
+        subscriptions.add(service.fetchGame(gameId)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
                 .subscribe(this::processRESTGame, this::onError))
@@ -100,7 +100,7 @@ class GamePresenter(
 
     private fun processRESTGame(game: Game) {
         this.game = game
-        processGameData(game.gamedata)
+        game.json?.let(this::processGameData)
 
         detailedPlayerDetailsSet = true
         view.whitePlayer = game.players?.white

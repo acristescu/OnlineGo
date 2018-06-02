@@ -45,7 +45,7 @@ class OGSServiceImpl private constructor(): OGSService {
     override var uiConfig: UIConfig? = null
     private val socket: Socket
     private var tokenExpiry: Date
-    override val restApi: OGSRestAPI
+    private val restApi: OGSRestAPI
     private val moshi = Moshi.Builder().build()
     private var authSent = false
 
@@ -124,7 +124,13 @@ class OGSServiceImpl private constructor(): OGSService {
         }
     }
 
-    override fun fetchGame(gameId: Long): Single<Game> = loginWithToken().andThen(restApi.fetchGame(gameId))
+    override fun fetchGame(gameId: Long): Single<Game> =
+            loginWithToken().andThen(restApi.fetchGame(gameId))
+                    //
+                    // Hack alert! just to keep us on our toes, the same thing is called
+                    // different things when coming through the REST API and the Socket.IO one...
+                    //
+                    .doOnSuccess { it.json = it.gamedata }
 
     override fun connectToGame(id: Long): GameConnection {
         val connection = GameConnection(id)

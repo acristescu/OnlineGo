@@ -46,7 +46,7 @@ data class Game (
         var ended: Any? = null,
         var sgf_filename: Any? = null,
         var players: Players? = null,
-        val gamedata: GameData
+        internal val gamedata: GameData
 ) {
     data class Related (
             var detail: String? = null

@@ -9,7 +9,6 @@ import io.zenandroid.onlinego.model.ogs.UIConfig
  */
 interface OGSService {
     fun connectToGame(id: Long): GameConnection
-    val restApi: OGSRestAPI
     var uiConfig: UIConfig?
 
     fun startGameSearch(size: Size, speed: Speed): AutomatchChallenge
