@@ -2,7 +2,7 @@ package io.zenandroid.onlinego.spectate
 
 import io.zenandroid.onlinego.model.ogs.Game
 import io.zenandroid.onlinego.model.ogs.GameList
-import io.zenandroid.onlinego.ogs.GameData
+import io.zenandroid.onlinego.model.ogs.GameData
 import io.zenandroid.onlinego.ogs.Move
 
 /**

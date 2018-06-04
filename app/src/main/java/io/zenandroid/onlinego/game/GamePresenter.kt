@@ -10,6 +10,7 @@ import io.zenandroid.onlinego.gamelogic.RulesManager
 import io.zenandroid.onlinego.model.Position
 import io.zenandroid.onlinego.model.StoneType
 import io.zenandroid.onlinego.model.ogs.Game
+import io.zenandroid.onlinego.model.ogs.GameData
 import io.zenandroid.onlinego.ogs.*
 import io.zenandroid.onlinego.utils.computeTimeLeft
 import java.util.concurrent.TimeUnit

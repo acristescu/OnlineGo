@@ -2,7 +2,7 @@ package io.zenandroid.onlinego.mygames
 
 import io.zenandroid.onlinego.model.ogs.Game
 import io.zenandroid.onlinego.ogs.Clock
-import io.zenandroid.onlinego.ogs.GameData
+import io.zenandroid.onlinego.model.ogs.GameData
 import io.zenandroid.onlinego.ogs.Move
 
 /**

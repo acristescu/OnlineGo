@@ -4,7 +4,7 @@ import android.util.Log
 import io.zenandroid.onlinego.game.GamePresenter
 import io.zenandroid.onlinego.model.ogs.Game
 import io.zenandroid.onlinego.ogs.Clock
-import io.zenandroid.onlinego.ogs.GameData
+import io.zenandroid.onlinego.model.ogs.GameData
 import io.zenandroid.onlinego.ogs.Time
 import org.json.JSONArray
 import org.json.JSONObject

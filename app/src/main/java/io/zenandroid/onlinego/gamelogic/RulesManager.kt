@@ -4,7 +4,7 @@ import android.graphics.Point
 import android.util.Log
 import io.zenandroid.onlinego.model.Position
 import io.zenandroid.onlinego.model.StoneType
-import io.zenandroid.onlinego.ogs.GameData
+import io.zenandroid.onlinego.model.ogs.GameData
 import io.zenandroid.onlinego.ogs.InitialState
 import java.util.*
 

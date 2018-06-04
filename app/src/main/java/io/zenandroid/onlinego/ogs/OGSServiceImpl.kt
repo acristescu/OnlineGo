@@ -13,6 +13,7 @@ import io.socket.client.Ack
 import io.socket.client.IO
 import io.socket.client.Socket
 import io.zenandroid.onlinego.AndroidLoggingHandler
+import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.main.MainActivity
 import io.zenandroid.onlinego.model.ogs.*
 import io.zenandroid.onlinego.utils.PersistenceManager
@@ -371,6 +372,8 @@ class OGSServiceImpl private constructor(): OGSService {
                                     }
                                 }
                                 it
+                            }.doOnSuccess {
+                                OnlineGoApplication.instance.db.gameDao().insertAll(it)
                             }
             )
 

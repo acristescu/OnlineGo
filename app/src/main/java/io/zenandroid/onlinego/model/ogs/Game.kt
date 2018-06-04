@@ -1,17 +1,24 @@
 package io.zenandroid.onlinego.model.ogs
 
+import android.arch.persistence.room.*
 import com.squareup.moshi.Json
-import io.zenandroid.onlinego.ogs.GameData
+import io.zenandroid.onlinego.R.color.white
 import io.zenandroid.onlinego.ogs.Players
 
 /**
  * Created by alex on 04/11/2017.
  */
+@Entity
+@TypeConverters(Converters::class)
 data class Game (
         var white: Any? = null,
         var black: Any? = null,
+
+        @PrimaryKey
         var id: Long,
+
         var phase: Phase,
+
         var name: String? = null,
         var width: Int,
         var height: Int,
@@ -21,8 +28,10 @@ data class Game (
         var time_per_move: Int? = null,
         var player_to_move: Long,
 
+        @Embedded(prefix = "json_")
         var json: GameData? = null,
 
+        @Embedded(prefix = "related_")
         var related: Related? = null,
         var creator: Int? = null,
         var mode: String? = null,
@@ -34,18 +43,20 @@ data class Game (
         var time_control: String? = null,
         var time_control_parameters: String? = null,
         var disable_analysis: Boolean? = null,
-        var tournament: Any? = null,
-        var tournament_round: Int? = null,
-        var ladder: Any? = null,
+//        var tournament: Any? = null,
+//        var tournament_round: Int? = null,
+//        var ladder: Any? = null,
         var pause_on_weekends: Boolean? = null,
         var outcome: String? = null,
         var black_lost: Boolean? = null,
         var white_lost: Boolean? = null,
         var annulled: Boolean? = null,
         var started: String? = null,
-        var ended: Any? = null,
-        var sgf_filename: Any? = null,
+//        var ended: Any? = null,
+//        var sgf_filename: Any? = null,
         var players: Players? = null,
+
+        @Ignore
         internal val gamedata: GameData
 ) {
     data class Related (
@@ -55,7 +66,7 @@ data class Game (
     enum class Phase {
         @Json(name = "play") PLAY,
         @Json(name = "stone removal") STONE_REMOVAL,
-        @Json(name = "finished") FINISHED
+        @Json(name = "finished") FINISHED;
     }
 
     val blackPlayer: Player?
@@ -71,5 +82,14 @@ data class Game (
         get() = (white as? Double ?: (white as? Map<*, *>)?.get("id") as? Double)?.toLong()
 }
 
+object Converters {
+    @TypeConverter
+    @JvmStatic
+    fun convertToString(phase: Game.Phase): String = phase.toString()
+
+    @TypeConverter
+    @JvmStatic
+    fun fromString(string: String): Game.Phase = Game.Phase.valueOf(string)
+}
 
 
