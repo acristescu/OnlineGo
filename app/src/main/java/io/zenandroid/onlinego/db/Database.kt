@@ -2,13 +2,14 @@ package io.zenandroid.onlinego.db
 
 import android.arch.persistence.room.Database
 import android.arch.persistence.room.RoomDatabase
-import io.zenandroid.onlinego.model.ogs.Game
+import io.zenandroid.onlinego.model.local.DbGame
+import io.zenandroid.onlinego.model.local.DbPlayer
 
 /**
  * Created by 44108952 on 04/06/2018.
  */
 @Database(
-        entities = [Game::class],
+        entities = [DbGame::class, DbPlayer::class],
         version = 1
 )
 abstract class Database: RoomDatabase() {

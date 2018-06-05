@@ -8,13 +8,10 @@ import io.zenandroid.onlinego.ogs.Players
 /**
  * Created by alex on 04/11/2017.
  */
-@Entity
-@TypeConverters(Converters::class)
 data class Game (
         var white: Any? = null,
         var black: Any? = null,
 
-        @PrimaryKey
         var id: Long,
 
         var phase: Phase,
@@ -28,10 +25,8 @@ data class Game (
         var time_per_move: Int? = null,
         var player_to_move: Long,
 
-        @Embedded(prefix = "json_")
         var json: GameData? = null,
 
-        @Embedded(prefix = "related_")
         var related: Related? = null,
         var creator: Int? = null,
         var mode: String? = null,
