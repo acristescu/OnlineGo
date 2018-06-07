@@ -1,5 +1,6 @@
 package io.zenandroid.onlinego.model.ogs
 
+import io.zenandroid.onlinego.model.local.InitialState
 import io.zenandroid.onlinego.ogs.*
 
 data class GameData (
@@ -22,7 +23,7 @@ data class GameData (
         var phase: Game.Phase,
     //var history: List<Any>? = null,
         var initial_player: String? = null,
-        var moves: List<List<Int>>,
+        var moves: MutableList<MutableList<Int>>,
         var allow_self_capture: Boolean? = null,
         var automatic_stone_removal: Boolean? = null,
         var free_handicap_placement: Boolean? = null,

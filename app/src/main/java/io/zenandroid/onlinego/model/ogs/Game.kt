@@ -23,7 +23,7 @@ data class Game (
         var paused: Long? = null,
         var private: Boolean? = null,
         var time_per_move: Int? = null,
-        var player_to_move: Long,
+        var player_to_move: Long? = null,
 
         var json: GameData? = null,
 

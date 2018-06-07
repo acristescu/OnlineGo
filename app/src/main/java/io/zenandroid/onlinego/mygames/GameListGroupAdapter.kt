@@ -3,6 +3,7 @@ package io.zenandroid.onlinego.mygames
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.Section
 import com.xwray.groupie.ViewHolder
+import io.zenandroid.onlinego.model.local.DbGame
 import io.zenandroid.onlinego.model.ogs.Game
 import io.zenandroid.onlinego.ogs.Clock
 import io.zenandroid.onlinego.model.ogs.GameData
@@ -53,14 +54,14 @@ class GameListGroupAdapter : GroupAdapter<ViewHolder>() {
         }
     }
 
-    fun removeGame(game: Game) {
+    fun removeGame(game: DbGame) {
         onGameWithId(game.id) {
             myMoveSection.removeAll(listOf(it))
             opponentMoveSection.removeAll(listOf(it))
         }
     }
 
-    fun addOrUpdateGame(game: Game) {
+    fun addOrUpdateGame(game: DbGame) {
         var foundGame = false
         onGameWithId(game.id) {
             it.game = game
@@ -78,14 +79,14 @@ class GameListGroupAdapter : GroupAdapter<ViewHolder>() {
 
     private fun addGameItem(item: GameItem) {
         val userId = OGSServiceImpl.instance.uiConfig?.user?.id
-        if(item.gameData?.clock?.current_player == userId) {
+        if(item.game.playerToMoveId == userId) {
             myMoveSection.add(item)
         } else {
             opponentMoveSection.add(item)
         }
     }
 
-    fun setGames(games: List<Game>) {
+    fun setGames(games: List<DbGame>) {
         val userId = OGSServiceImpl.instance.uiConfig?.user?.id
         val myTurnList = mutableListOf<GameItem>()
         val opponentTurnList = mutableListOf<GameItem>()
@@ -94,7 +95,7 @@ class GameListGroupAdapter : GroupAdapter<ViewHolder>() {
             game.json?.let {
                 newItem.gameData = game.json
             }
-            if(newItem.gameData?.clock?.current_player == userId) {
+            if(game.playerToMoveId == userId) {
                 myTurnList.add(newItem)
             } else {
                 opponentTurnList.add(newItem)
@@ -110,7 +111,7 @@ class GameListGroupAdapter : GroupAdapter<ViewHolder>() {
                 val currentPlayerChanged = it.clock.current_player != clock.current_player
                 it.clock = clock
                 if(currentPlayerChanged) {
-                    gameItem.game.player_to_move = clock.current_player
+                    gameItem.game.playerToMoveId = clock.current_player
                     myMoveSection.removeAll(listOf(gameItem))
                     opponentMoveSection.removeAll(listOf(gameItem))
                     addGameItem(gameItem)
@@ -132,7 +133,7 @@ class GameListGroupAdapter : GroupAdapter<ViewHolder>() {
         }
     }
 
-    fun setHistoricGames(games: List<Game>) {
+    fun setHistoricGames(games: List<DbGame>) {
         finishedGamesSection.update(games.map(::FinishedGameItem))
     }
 }

@@ -27,6 +27,7 @@ import io.zenandroid.onlinego.extensions.fadeIn
 import io.zenandroid.onlinego.extensions.fadeOut
 import io.zenandroid.onlinego.extensions.showIf
 import io.zenandroid.onlinego.game.GameFragment
+import io.zenandroid.onlinego.model.local.DbGame
 import io.zenandroid.onlinego.model.ogs.Game
 import io.zenandroid.onlinego.mygames.MyGamesFragment
 import io.zenandroid.onlinego.newchallenge.NewChallengeView
@@ -193,6 +194,17 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         if(bottomNavigation.visibility != View.VISIBLE) {
             bottomNavigation.fadeIn().subscribe()
             newChallengeView.fadeIn().subscribe()
+        }
+    }
+
+    override fun navigateToGameScreen(game: DbGame) {
+        Completable.mergeArray(
+                bottomNavigation.fadeOut(),
+                newChallengeView.fadeOut()
+        ).subscribe {
+            supportFragmentManager.beginTransaction()
+                    .replace(R.id.fragment_container, GameFragment.createFragment(game), "game")
+                    .commit()
         }
     }
 

@@ -4,6 +4,7 @@ import android.graphics.Point
 import io.reactivex.Flowable
 import io.reactivex.disposables.Disposable
 import io.zenandroid.onlinego.gamelogic.Util
+import io.zenandroid.onlinego.model.local.Score
 import io.zenandroid.onlinego.model.ogs.Game
 import io.zenandroid.onlinego.model.ogs.GameData
 import io.zenandroid.onlinego.model.ogs.Player
@@ -96,21 +97,6 @@ data class Scores (
         var black: Score? = null
 )
 
-data class Score (
-        var handicap: Double? = null,
-        var komi: Double? = null,
-        var prisoners: Int? = null,
-        var scoring_positions: String? = null,
-        var stones: Int? = null,
-        var territory: Int? = null,
-        var total: Double? = null
-)
-
-data class InitialState (
-    var black: String? = null,
-    var white: String? = null
-)
-
 data class Clock (
     var game_id: Long,
     var current_player: Long,
@@ -171,7 +157,7 @@ data class TimeControl (
 data class Move(
         val game_id: Long,
         val move_number: Int,
-        val move: List<Int>
+        val move: MutableList<Int>
 )
 
 //{"removed":true,"stones":"cidadfdgdieaeceifafhfighgihfhghhhiifigihii","all_removed":"daeafaecdfhfifdghgigfhghhhihcidieifigihiii"}

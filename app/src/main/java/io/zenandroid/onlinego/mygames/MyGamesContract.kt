@@ -1,5 +1,6 @@
 package io.zenandroid.onlinego.mygames
 
+import io.zenandroid.onlinego.model.local.DbGame
 import io.zenandroid.onlinego.model.ogs.Game
 import io.zenandroid.onlinego.ogs.Clock
 import io.zenandroid.onlinego.model.ogs.GameData
@@ -12,18 +13,18 @@ interface MyGamesContract {
     interface View {
         fun setGameData(id: Long, gameData: GameData)
         fun doMove(id: Long, move: Move)
-        fun addOrUpdateGame(game: Game)
+        fun addOrUpdateGame(game: DbGame)
         fun clearGames()
-        fun navigateToGameScreen(game: Game)
+        fun navigateToGameScreen(game: DbGame)
         fun setClock(id: Long, clock: Clock)
-        fun removeGame(game: Game)
-        fun setGames(games: List<Game>)
+        fun removeGame(game: DbGame)
+        fun setGames(games: List<DbGame>)
         fun setLoading(loading: Boolean)
-        fun setHistoricGames(games: List<Game>)
+        fun setHistoricGames(games: List<DbGame>)
     }
     interface Presenter {
         fun subscribe()
         fun unsubscribe()
-        fun onGameSelected(game: Game)
+        fun onGameSelected(game: DbGame)
     }
 }

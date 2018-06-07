@@ -373,8 +373,6 @@ class OGSServiceImpl private constructor(): OGSService {
                                     }
                                 }
                                 it
-                            }.doOnSuccess {
-                                OnlineGoApplication.instance.db.gameDao().insertAll(it.map { DbGame(it.id, it.width, it.height) })
                             }
             )
 

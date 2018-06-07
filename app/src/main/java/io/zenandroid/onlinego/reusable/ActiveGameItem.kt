@@ -5,7 +5,9 @@ import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.extensions.hide
 import io.zenandroid.onlinego.extensions.showIf
 import io.zenandroid.onlinego.gamelogic.RulesManager
+import io.zenandroid.onlinego.main.MainActivity.Companion.userId
 import io.zenandroid.onlinego.model.Position
+import io.zenandroid.onlinego.model.local.DbGame
 import io.zenandroid.onlinego.model.ogs.Game
 import io.zenandroid.onlinego.ogs.OGSServiceImpl
 import io.zenandroid.onlinego.utils.computeTimeLeft
@@ -13,14 +15,15 @@ import io.zenandroid.onlinego.utils.egfToRank
 import io.zenandroid.onlinego.utils.formatRank
 import kotlinx.android.synthetic.main.item_active_game_card.*
 
-class ActiveGameItem constructor(game: Game) : GameItem(game) {
+class ActiveGameItem constructor(game: DbGame) : GameItem(game) {
     override fun bind(holder: ViewHolder, position: Int) {
         holder.board.boardSize = game.width
-        gameData?.let { gameData ->
-            val pos = RulesManager.replay(gameData, computeTerritory = false)
+        val pos = RulesManager.replay(game, computeTerritory = false)
+        holder.board.position = pos
 
-            holder.board.position = pos
-            val userId = OGSServiceImpl.instance.uiConfig?.user?.id
+        val userId = OGSServiceImpl.instance.uiConfig?.user?.id
+
+        gameData?.let { gameData ->
             val opponent =
                     when (userId) {
                         gameData.players?.black?.id -> gameData.players?.white
@@ -55,7 +58,6 @@ class ActiveGameItem constructor(game: Game) : GameItem(game) {
             val timeLeft = computeTimeLeft(gameData.clock, currentPlayerTime, true).firstLine
             holder.time.text = timeLeft
         } ?: run {
-            holder.board.position = Position(game.width)
             holder.opponent_name.text = ""
             holder.opponent_rank.text = ""
             holder.color_bar.setBackgroundColor( holder.color_bar.resources.getColor(R.color.colorOffWhite) )

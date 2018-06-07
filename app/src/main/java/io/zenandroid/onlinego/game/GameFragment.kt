@@ -26,6 +26,7 @@ import io.zenandroid.onlinego.extensions.showIf
 import io.zenandroid.onlinego.main.MainActivity
 import io.zenandroid.onlinego.model.Position
 import io.zenandroid.onlinego.model.StoneType
+import io.zenandroid.onlinego.model.local.DbGame
 import io.zenandroid.onlinego.model.ogs.Game
 import io.zenandroid.onlinego.model.ogs.Player
 import io.zenandroid.onlinego.ogs.OGSServiceImpl
@@ -42,6 +43,13 @@ const val GAME_SIZE = "GAME_SIZE"
 class GameFragment : Fragment(), GameContract.View {
     companion object {
         fun createFragment(game: Game): GameFragment = GameFragment().apply {
+            arguments = Bundle().apply {
+                putLong(GAME_ID, game.id)
+                putInt(GAME_SIZE, game.width)
+            }
+        }
+
+        fun createFragment(game: DbGame): GameFragment = GameFragment().apply {
             arguments = Bundle().apply {
                 putLong(GAME_ID, game.id)
                 putInt(GAME_SIZE, game.width)

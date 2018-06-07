@@ -318,9 +318,7 @@ class GamePresenter(
         gameData?.let { gameData ->
             candidateMove = null
             view.showCandidateMove(null)
-            val newMoves = gameData.moves.toMutableList()
-            newMoves += move.move
-            gameData.moves = newMoves
+            gameData.moves.add(move.move)
             currentShownMove = gameData.moves.size
             refreshUI(gameData)
         }

@@ -1,5 +1,6 @@
 package io.zenandroid.onlinego.main
 
+import io.zenandroid.onlinego.model.local.DbGame
 import io.zenandroid.onlinego.model.ogs.Game
 
 /**
@@ -15,6 +16,7 @@ interface MainContract {
         var notificationsBadgeCount: String?
         fun cancelNotification()
         fun updateNotification(sortedMyTurnGames: List<Game>)
+        fun navigateToGameScreen(game: DbGame)
         fun navigateToGameScreen(game: Game)
     }
     interface Presenter {

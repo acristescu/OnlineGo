@@ -2,6 +2,7 @@ package io.zenandroid.onlinego.db
 
 import android.arch.persistence.room.Database
 import android.arch.persistence.room.RoomDatabase
+import android.arch.persistence.room.TypeConverters
 import io.zenandroid.onlinego.model.local.DbGame
 import io.zenandroid.onlinego.model.local.DbPlayer
 
@@ -12,6 +13,7 @@ import io.zenandroid.onlinego.model.local.DbPlayer
         entities = [DbGame::class, DbPlayer::class],
         version = 1
 )
+@TypeConverters(DbTypeConverters::class)
 abstract class Database: RoomDatabase() {
     abstract fun gameDao(): GameDao
 }
