@@ -19,6 +19,6 @@ interface GameDao {
     @Query("SELECT * FROM dbgame")
     fun getFinishedGames() : Flowable<List<DbGame>>
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAll(games: List<DbGame>)
 }

@@ -10,6 +10,7 @@ import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.gamelogic.Util
 import io.zenandroid.onlinego.gamelogic.Util.isMyTurn
 import io.zenandroid.onlinego.model.local.DbGame
+import io.zenandroid.onlinego.model.local.DbPlayer
 import io.zenandroid.onlinego.model.ogs.Game
 
 /**
@@ -59,6 +60,8 @@ class ActiveGameRepository {
 
     private fun setActiveGames(games : List<Game>) {
         OnlineGoApplication.instance.db.gameDao().insertAll(games.map {
+            val whiteRating = (((it.white as? Map<*, *>)?.get("ratings") as? Map<*, *>)?.get("overall") as? Map<*, *>)?.get("rating") as? Double
+            val blackRating = (((it.black as? Map<*, *>)?.get("ratings") as? Map<*, *>)?.get("overall") as? Map<*, *>)?.get("rating") as? Double
             DbGame(
                     id = it.id,
                     width = it.width,
@@ -72,7 +75,9 @@ class ActiveGameRepository {
                     moves = it.json?.moves,
                     removedStones = it.json?.removed,
                     whiteScore = it.json?.score?.white,
-                    blackScore = it.json?.score?.black
+                    blackScore = it.json?.score?.black,
+                    whitePlayer = DbPlayer(it.json!!.players!!.white!!.id, it.json!!.players!!.white!!.username!!, whiteRating),
+                    blackPlayer = DbPlayer(it.json!!.players!!.black!!.id, it.json!!.players!!.black!!.username!!, blackRating)
                     )
         })
         activeGames.clear()

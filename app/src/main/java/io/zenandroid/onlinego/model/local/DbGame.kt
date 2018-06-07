@@ -1,6 +1,9 @@
 package io.zenandroid.onlinego.model.local
 
-import android.arch.persistence.room.*
+import android.arch.persistence.room.Embedded
+import android.arch.persistence.room.Entity
+import android.arch.persistence.room.Ignore
+import android.arch.persistence.room.PrimaryKey
 import io.zenandroid.onlinego.model.ogs.GameData
 
 /**
@@ -27,7 +30,13 @@ data class DbGame(
         var whiteScore: Score?,
 
         @Embedded(prefix = "black_")
-        var blackScore: Score?
+        var blackScore: Score?,
+
+        @Embedded(prefix = "white_")
+        var whitePlayer: DbPlayer,
+
+        @Embedded(prefix = "black_")
+        var blackPlayer: DbPlayer
 ) {
     @Ignore
     var json: GameData? = null
