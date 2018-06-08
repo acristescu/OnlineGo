@@ -1,9 +1,6 @@
 package io.zenandroid.onlinego.db
 
-import android.arch.persistence.room.Dao
-import android.arch.persistence.room.Insert
-import android.arch.persistence.room.OnConflictStrategy
-import android.arch.persistence.room.Query
+import android.arch.persistence.room.*
 import io.reactivex.Flowable
 import io.zenandroid.onlinego.model.local.DbGame
 
@@ -21,4 +18,7 @@ interface GameDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAll(games: List<DbGame>)
+
+    @Update
+    fun update(game: DbGame)
 }

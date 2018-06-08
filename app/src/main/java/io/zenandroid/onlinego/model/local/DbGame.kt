@@ -36,8 +36,11 @@ data class DbGame(
         var whitePlayer: DbPlayer,
 
         @Embedded(prefix = "black_")
-        var blackPlayer: DbPlayer
-) {
+        var blackPlayer: DbPlayer,
+
+        @Embedded
+        var clock: Clock
+        ) {
     @Ignore
     var json: GameData? = null
 }
@@ -56,3 +59,57 @@ data class Score (
         var territory: Int? = null,
         var total: Double? = null
 )
+
+data class Clock(
+        var lastMove: Long,
+        var expiration: Long? = null,
+        var now: Long,
+        var receivedAt: Long,
+
+        var whiteTimeSimple: Long?,
+
+        @Embedded(prefix = "white_")
+        var whiteTime: Time?,
+
+        var blackTimeSimple: Long?,
+
+        @Embedded(prefix = "black_")
+        var blackTime: Time?
+) {
+    companion object {
+        fun fromOGSClock(clock: io.zenandroid.onlinego.ogs.Clock): Clock =
+                Clock(
+                        lastMove = clock.last_move,
+                        expiration = clock.expiration,
+                        now = clock.now,
+                        receivedAt = if(clock.receivedAt != 0L) clock.receivedAt else System.currentTimeMillis(),
+                        whiteTimeSimple = clock.whiteTimeSimple,
+                        whiteTime = clock.whiteTime,
+                        blackTimeSimple = clock.blackTimeSimple,
+                        blackTime = clock.blackTime
+                )
+    }
+}
+
+data class Time(
+        val thinking_time: Long,
+        val skip_bonus: Boolean? = null,
+        val block_time: Long? = null,
+        val periods: Long? = null,
+        val period_time: Long? = null,
+        val moves_left: Long? = null
+) {
+    companion object {
+        fun fromMap(map:Map<*, *>): Time {
+            return Time(
+                    (map["thinking_time"] as Double).toLong(),
+                    map["skip_bonus"] as? Boolean,
+                    (map["block_time"] as Double?)?.toLong(),
+                    (map["periods"] as Double?)?.toLong(),
+                    (map["period_time"] as Double?)?.toLong(),
+                    (map["moves_left"] as Double?)?.toLong()
+            )
+        }
+    }
+}
+

@@ -79,29 +79,29 @@ class MyGamesPresenter(val view: MyGamesContract.View, private val activeGameSer
     }
 
     private fun connectToGame(game: DbGame, historic: Boolean = false) {
-        val gameConnection = OGSServiceImpl.instance.connectToGame(game.id)
-        subscriptions.add(gameConnection)
-        subscriptions.add(gameConnection.gameData
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
-                .subscribe { gameData ->
-                    view.setGameData(game.id, gameData)
-                    if (gameData.phase == Game.Phase.FINISHED && !historic) {
-                        removeGame(game)
-                    }
-                })
-        subscriptions.add(gameConnection.moves
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
-                .subscribe { move ->
-                    view.doMove(game.id, move)
-                })
-        subscriptions.add(gameConnection.clock
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
-                .subscribe { clock ->
-                    view.setClock(game.id, clock)
-                })
+//        val gameConnection = OGSServiceImpl.instance.connectToGame(game.id)
+//        subscriptions.add(gameConnection)
+//        subscriptions.add(gameConnection.gameData
+//                .subscribeOn(Schedulers.io())
+//                .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
+//                .subscribe { gameData ->
+//                    view.setGameData(game.id, gameData)
+//                    if (gameData.phase == Game.Phase.FINISHED && !historic) {
+//                        removeGame(game)
+//                    }
+//                })
+//        subscriptions.add(gameConnection.moves
+//                .subscribeOn(Schedulers.io())
+//                .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
+//                .subscribe { move ->
+//                    view.doMove(game.id, move)
+//                })
+//        subscriptions.add(gameConnection.clock
+//                .subscribeOn(Schedulers.io())
+//                .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
+//                .subscribe { clock ->
+//                    view.setClock(game.id, clock)
+//                })
     }
 
     private fun removeGame(game: DbGame) {

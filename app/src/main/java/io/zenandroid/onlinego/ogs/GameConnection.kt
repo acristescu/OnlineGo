@@ -5,6 +5,7 @@ import io.reactivex.Flowable
 import io.reactivex.disposables.Disposable
 import io.zenandroid.onlinego.gamelogic.Util
 import io.zenandroid.onlinego.model.local.Score
+import io.zenandroid.onlinego.model.local.Time
 import io.zenandroid.onlinego.model.ogs.Game
 import io.zenandroid.onlinego.model.ogs.GameData
 import io.zenandroid.onlinego.model.ogs.Player
@@ -113,28 +114,13 @@ data class Clock (
     var white_time: Any// can be number or Time object
 ) {
     var receivedAt: Long = 0
-}
+    val whiteTimeSimple get() = white_time as? Long
+    val blackTimeSimple get() = black_time as? Long
+    val whiteTime
+        get() = (white_time as? Map<*, *>)?.let { Time.fromMap(it) }
+    val blackTime
+        get() = (black_time as? Map<*, *>)?.let { Time.fromMap(it) }
 
-data class Time(
-        val thinking_time: Long,
-        val skip_bonus: Boolean? = null,
-        val block_time: Long? = null,
-        val periods: Long? = null,
-        val period_time: Long? = null,
-        val moves_left: Long? = null
-) {
-    companion object {
-        fun fromMap(map:Map<*, *>): Time {
-            return Time(
-                    (map["thinking_time"] as Double).toLong(),
-                    map["skip_bonus"] as? Boolean,
-                    (map["block_time"] as Double?)?.toLong(),
-                    (map["periods"] as Double?)?.toLong(),
-                    (map["period_time"] as Double?)?.toLong(),
-                    (map["moves_left"] as Double?)?.toLong()
-            )
-        }
-    }
 }
 
 data class Players (

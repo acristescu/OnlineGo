@@ -2,6 +2,7 @@ package io.zenandroid.onlinego.ogs
 
 import io.reactivex.Flowable
 import io.reactivex.Observable
+import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.BehaviorSubject
@@ -9,6 +10,7 @@ import io.reactivex.subjects.PublishSubject
 import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.gamelogic.Util
 import io.zenandroid.onlinego.gamelogic.Util.isMyTurn
+import io.zenandroid.onlinego.model.local.Clock
 import io.zenandroid.onlinego.model.local.DbGame
 import io.zenandroid.onlinego.model.local.DbPlayer
 import io.zenandroid.onlinego.model.ogs.Game
@@ -77,12 +79,95 @@ class ActiveGameRepository {
                     whiteScore = it.json?.score?.white,
                     blackScore = it.json?.score?.black,
                     whitePlayer = DbPlayer(it.json!!.players!!.white!!.id, it.json!!.players!!.white!!.username!!, whiteRating),
-                    blackPlayer = DbPlayer(it.json!!.players!!.black!!.id, it.json!!.players!!.black!!.username!!, blackRating)
+                    blackPlayer = DbPlayer(it.json!!.players!!.black!!.id, it.json!!.players!!.black!!.username!!, blackRating),
+                    clock = Clock.fromOGSClock(it.json!!.clock)
                     )
         })
         activeGames.clear()
         for(game in games) {
             activeGames[game.id] = game
+
+            val gameConnection = OGSServiceImpl.instance.connectToGame(game.id)
+            subscriptions.add(gameConnection)
+            subscriptions.add(gameConnection.gameData
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(Schedulers.io())
+                    .subscribe {
+                        val whiteRating = (((game.white as? Map<*, *>)?.get("ratings") as? Map<*, *>)?.get("overall") as? Map<*, *>)?.get("rating") as? Double
+                        val blackRating = (((game.black as? Map<*, *>)?.get("ratings") as? Map<*, *>)?.get("overall") as? Map<*, *>)?.get("rating") as? Double
+                        OnlineGoApplication.instance.db.gameDao().update(
+                                DbGame(
+                                        id = game.id,
+                                        width = it.width,
+                                        height = it.height,
+                                        outcome = it.outcome,
+                                        playerToMoveId = it.clock.current_player,
+                                        whiteLost = game.white_lost,
+                                        blackLost = game.black_lost,
+                                        initialState = it.initial_state,
+                                        whiteGoesFirst = it.initial_player == "white",
+                                        moves = it.moves,
+                                        removedStones = it.removed,
+                                        whiteScore = it.score?.white,
+                                        blackScore = it.score?.black,
+                                        whitePlayer = DbPlayer(it.players!!.white!!.id, it.players!!.white!!.username!!, whiteRating),
+                                        blackPlayer = DbPlayer(it.players!!.black!!.id, it.players!!.black!!.username!!, blackRating),
+                                        clock = Clock.fromOGSClock(it.clock)
+                                )
+                        )
+                    })
+            subscriptions.add(gameConnection.moves
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(Schedulers.io())
+                    .subscribe { move ->
+                        val whiteRating = (((game.white as? Map<*, *>)?.get("ratings") as? Map<*, *>)?.get("overall") as? Map<*, *>)?.get("rating") as? Double
+                        val blackRating = (((game.black as? Map<*, *>)?.get("ratings") as? Map<*, *>)?.get("overall") as? Map<*, *>)?.get("rating") as? Double
+                        OnlineGoApplication.instance.db.gameDao().update(
+                                DbGame(
+                                        id = game.id,
+                                        width = game.width,
+                                        height = game.height,
+                                        outcome = game.outcome,
+                                        playerToMoveId = game.json?.clock?.current_player,
+                                        whiteLost = game.white_lost,
+                                        blackLost = game.black_lost,
+                                        initialState = game.json?.initial_state,
+                                        whiteGoesFirst = game.json?.initial_player == "white",
+                                        moves = game.json?.moves?.apply { add(move.move) },
+                                        removedStones = game.json?.removed,
+                                        whiteScore = game.json?.score?.white,
+                                        blackScore = game.json?.score?.black,
+                                        whitePlayer = DbPlayer(game.json!!.players!!.white!!.id, game.json!!.players!!.white!!.username!!, whiteRating),
+                                        blackPlayer = DbPlayer(game.json!!.players!!.black!!.id, game.json!!.players!!.black!!.username!!, blackRating),
+                                        clock = Clock.fromOGSClock(game.json!!.clock)
+                                )
+                        )
+                    })
+            subscriptions.add(gameConnection.clock
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
+                    .subscribe {
+                        val whiteRating = (((game.white as? Map<*, *>)?.get("ratings") as? Map<*, *>)?.get("overall") as? Map<*, *>)?.get("rating") as? Double
+                        val blackRating = (((game.black as? Map<*, *>)?.get("ratings") as? Map<*, *>)?.get("overall") as? Map<*, *>)?.get("rating") as? Double
+                        DbGame(
+                                id = game.id,
+                                width = game.width,
+                                height = game.height,
+                                outcome = game.outcome,
+                                playerToMoveId = game.json?.clock?.current_player,
+                                whiteLost = game.white_lost,
+                                blackLost = game.black_lost,
+                                initialState = game.json?.initial_state,
+                                whiteGoesFirst = game.json?.initial_player == "white",
+                                moves = game.json?.moves,
+                                removedStones = game.json?.removed,
+                                whiteScore = game.json?.score?.white,
+                                blackScore = game.json?.score?.black,
+                                whitePlayer = DbPlayer(game.json!!.players!!.white!!.id, game.json!!.players!!.white!!.username!!, whiteRating),
+                                blackPlayer = DbPlayer(game.json!!.players!!.black!!.id, game.json!!.players!!.black!!.username!!, blackRating),
+                                clock = Clock.fromOGSClock(it)
+                        )
+                    })
         }
         myMoveCountSubject.onNext(activeGames.values.count { isMyTurn(it) })
     }

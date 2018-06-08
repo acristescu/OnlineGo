@@ -45,23 +45,12 @@ class ActiveGameItem constructor(game: DbGame) : GameItem(game) {
                 if(game.blackPlayer.id == userId) "black"
                 else "white"
 
-        gameData?.let { gameData ->
-
-            val currentPlayerTime =
-                    if(currentPlayer?.id == gameData.players?.black?.id)
-                        gameData.clock.black_time
-                    else
-                        gameData.clock.white_time
-            val timeLeft = computeTimeLeft(gameData.clock, currentPlayerTime, true).firstLine
-            holder.time.text = timeLeft
-        } ?: run {
-//            holder.opponent_name.text = ""
-//            holder.opponent_rank.text = ""
-//            holder.color_bar.setBackgroundColor( holder.color_bar.resources.getColor(R.color.colorOffWhite) )
-//            holder.your_turn_label.hide()
-//            holder.color.text = ""
-//            holder.time.text = ""
-        }
+        val timerDetails =
+                if(currentPlayer?.id == game.blackPlayer.id)
+                    computeTimeLeft(game.clock, game.clock.blackTimeSimple, game.clock.blackTime, true)
+                else
+                    computeTimeLeft(game.clock, game.clock.whiteTimeSimple, game.clock.whiteTime, true)
+        holder.time.text = timerDetails.firstLine
     }
 
     override fun getLayout(): Int = R.layout.item_active_game_card

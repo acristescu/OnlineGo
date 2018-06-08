@@ -45,11 +45,7 @@ class GameListGroupAdapter : GroupAdapter<ViewHolder>() {
 
     fun doMove(id: Long, move: Move) {
         onGameWithId(id) {
-            it.gameData?.let {
-                val newMoves = it.moves.toMutableList()
-                newMoves += move.move
-                it.moves = newMoves
-            }
+            it.gameData?.moves?.add(move.move)
             it.notifyChanged()
         }
     }
