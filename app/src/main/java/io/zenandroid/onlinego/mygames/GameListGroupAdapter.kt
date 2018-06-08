@@ -4,13 +4,11 @@ import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.Section
 import com.xwray.groupie.ViewHolder
 import io.zenandroid.onlinego.model.local.DbGame
-import io.zenandroid.onlinego.model.ogs.Game
-import io.zenandroid.onlinego.ogs.Clock
 import io.zenandroid.onlinego.model.ogs.GameData
+import io.zenandroid.onlinego.ogs.Clock
 import io.zenandroid.onlinego.ogs.Move
 import io.zenandroid.onlinego.ogs.OGSServiceImpl
 import io.zenandroid.onlinego.reusable.ActiveGameItem
-import io.zenandroid.onlinego.reusable.FinishedGameItem
 import io.zenandroid.onlinego.reusable.GameItem
 import io.zenandroid.onlinego.reusable.HeaderItem
 
@@ -88,9 +86,6 @@ class GameListGroupAdapter : GroupAdapter<ViewHolder>() {
         val opponentTurnList = mutableListOf<GameItem>()
         for(game in games) {
             val newItem = ActiveGameItem(game)
-            game.json?.let {
-                newItem.gameData = game.json
-            }
             if(game.playerToMoveId == userId) {
                 myTurnList.add(newItem)
             } else {
@@ -130,6 +125,6 @@ class GameListGroupAdapter : GroupAdapter<ViewHolder>() {
     }
 
     fun setHistoricGames(games: List<DbGame>) {
-        finishedGamesSection.update(games.map(::FinishedGameItem))
+        finishedGamesSection.update(games.map(::ActiveGameItem))
     }
 }

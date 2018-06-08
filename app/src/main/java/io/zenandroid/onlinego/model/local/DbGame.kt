@@ -4,6 +4,7 @@ import android.arch.persistence.room.Embedded
 import android.arch.persistence.room.Entity
 import android.arch.persistence.room.Ignore
 import android.arch.persistence.room.PrimaryKey
+import io.zenandroid.onlinego.model.ogs.Game
 import io.zenandroid.onlinego.model.ogs.GameData
 
 /**
@@ -39,10 +40,44 @@ data class DbGame(
         var blackPlayer: DbPlayer,
 
         @Embedded
-        var clock: Clock
+        var clock: Clock?,
+
+        var phase: Game.Phase?
         ) {
     @Ignore
     var json: GameData? = null
+
+    companion object {
+        fun fromOGSGame(game: Game): DbGame {
+            val whiteRating = ((((game.white as? Map<*, *>)?.get("ratings") as? Map<*, *>)?.get("overall") as? Map<*, *>)?.get("rating") as? Double)
+                    ?: game.gamedata?.players?.white?.ratings?.overall?.rating
+                    ?: game.players?.white?.ratings?.overall?.rating
+            val blackRating = (((game.black as? Map<*, *>)?.get("ratings") as? Map<*, *>)?.get("overall") as? Map<*, *>)?.get("rating") as? Double
+                    ?: game.gamedata?.players?.black?.ratings?.overall?.rating
+                    ?: game.players?.black?.ratings?.overall?.rating
+            val players = game.json?.players ?: game.gamedata?.players ?: game?.players
+            val gamedata = game.json ?: game.gamedata
+            return DbGame(
+                    id = game.id,
+                    width = game.width,
+                    height = game.height,
+                    outcome = game.outcome,
+                    playerToMoveId = gamedata?.clock?.current_player,
+                    whiteLost = game.white_lost,
+                    blackLost = game.black_lost,
+                    initialState = gamedata?.initial_state,
+                    whiteGoesFirst = gamedata?.initial_player == "white",
+                    moves = gamedata?.moves,
+                    removedStones = gamedata?.removed,
+                    whiteScore = gamedata?.score?.white,
+                    blackScore = gamedata?.score?.black,
+                    whitePlayer = DbPlayer(players?.white!!.id, players!!.white!!.username!!, whiteRating),
+                    blackPlayer = DbPlayer(players?.black!!.id, players!!.black!!.username!!, blackRating),
+                    clock = Clock.fromOGSClock(gamedata?.clock),
+                    phase = gamedata?.phase
+            )
+        }
+    }
 }
 
 data class InitialState (
@@ -77,17 +112,19 @@ data class Clock(
         var blackTime: Time?
 ) {
     companion object {
-        fun fromOGSClock(clock: io.zenandroid.onlinego.ogs.Clock): Clock =
-                Clock(
-                        lastMove = clock.last_move,
-                        expiration = clock.expiration,
-                        now = clock.now,
-                        receivedAt = if(clock.receivedAt != 0L) clock.receivedAt else System.currentTimeMillis(),
-                        whiteTimeSimple = clock.whiteTimeSimple,
-                        whiteTime = clock.whiteTime,
-                        blackTimeSimple = clock.blackTimeSimple,
-                        blackTime = clock.blackTime
-                )
+        fun fromOGSClock(clock: io.zenandroid.onlinego.ogs.Clock?): Clock? =
+                clock?.let {
+                    Clock(
+                            lastMove = clock.last_move,
+                            expiration = clock.expiration,
+                            now = clock.now,
+                            receivedAt = if (clock.receivedAt != 0L) clock.receivedAt else System.currentTimeMillis(),
+                            whiteTimeSimple = clock.whiteTimeSimple,
+                            whiteTime = clock.whiteTime,
+                            blackTimeSimple = clock.blackTimeSimple,
+                            blackTime = clock.blackTime
+                    )
+                }
     }
 }
 

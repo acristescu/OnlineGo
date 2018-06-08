@@ -10,15 +10,15 @@ import io.zenandroid.onlinego.model.local.DbGame
 @Dao
 interface GameDao {
 
-    @Query("SELECT * FROM dbgame")
+    @Query("SELECT * FROM dbgame WHERE phase <> 'FINISHED'")
     fun getActiveGames() : Flowable<List<DbGame>>
 
-    @Query("SELECT * FROM dbgame")
+    @Query("SELECT * FROM dbgame WHERE phase = 'FINISHED'")
     fun getFinishedGames() : Flowable<List<DbGame>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAll(games: List<DbGame>)
 
-    @Update
+    @Update()
     fun update(game: DbGame)
 }

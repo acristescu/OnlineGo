@@ -45,12 +45,13 @@ class ActiveGameItem constructor(game: DbGame) : GameItem(game) {
                 if(game.blackPlayer.id == userId) "black"
                 else "white"
 
-        val timerDetails =
-                if(currentPlayer?.id == game.blackPlayer.id)
-                    computeTimeLeft(game.clock, game.clock.blackTimeSimple, game.clock.blackTime, true)
-                else
-                    computeTimeLeft(game.clock, game.clock.whiteTimeSimple, game.clock.whiteTime, true)
-        holder.time.text = timerDetails.firstLine
+        val timerDetails = game.clock?.let {
+            if (currentPlayer?.id == game.blackPlayer.id)
+                computeTimeLeft(it, it.blackTimeSimple, it.blackTime, true)
+            else
+                computeTimeLeft(it, it.whiteTimeSimple, it.whiteTime, true)
+        }
+        holder.time.text = timerDetails?.firstLine ?: ""
     }
 
     override fun getLayout(): Int = R.layout.item_active_game_card
