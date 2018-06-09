@@ -18,6 +18,7 @@ import io.zenandroid.onlinego.model.ogs.Game
 class ActiveGameRepository {
 
     private val activeDbGames = mutableMapOf<Long, DbGame>()
+    private val gameConnections = mutableSetOf<Long>()
 
     private val myMoveCountSubject = BehaviorSubject.create<Int>()
 
@@ -49,16 +50,20 @@ class ActiveGameRepository {
 
     internal fun unsubscribe() {
         subscriptions.clear()
+        gameConnections.clear()
     }
 
     private fun connectToGame(game: DbGame) {
-        activeDbGames[game.id] = game
+        if(gameConnections.contains(game.id)) {
+            return
+        }
+        gameConnections.add(game.id)
 
         val gameConnection = OGSServiceImpl.instance.connectToGame(game.id)
         subscriptions.add(gameConnection)
         subscriptions.add(gameConnection.gameData
                 .subscribeOn(Schedulers.io())
-                .observeOn(Schedulers.io())
+                .observeOn(Schedulers.single())
                 .subscribe {
                     game.apply {
                         outcome = it.outcome
@@ -75,18 +80,36 @@ class ActiveGameRepository {
                 })
         subscriptions.add(gameConnection.moves
                 .subscribeOn(Schedulers.io())
-                .observeOn(Schedulers.io())
+                .observeOn(Schedulers.single())
                 .subscribe { move ->
                     game.moves?.add(mutableListOf(move.move[0], move.move[1]))
                     OnlineGoApplication.instance.db.gameDao().update(game)
                 })
         subscriptions.add(gameConnection.clock
                 .subscribeOn(Schedulers.io())
-                .observeOn(Schedulers.io())
+                .observeOn(Schedulers.single())
                 .subscribe {
                     game.apply {
                         clock = Clock.fromOGSClock(it)
                         playerToMoveId = it.current_player
+                    }
+                    OnlineGoApplication.instance.db.gameDao().update(game)
+                })
+        subscriptions.add(gameConnection.phase
+                .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.single())
+                .subscribe {
+                    game.apply {
+                        phase = it
+                    }
+                    OnlineGoApplication.instance.db.gameDao().update(game)
+                })
+        subscriptions.add(gameConnection.removedStones
+                .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.single())
+                .subscribe {
+                    game.apply {
+                        removedStones = it.all_removed
                     }
                     OnlineGoApplication.instance.db.gameDao().update(game)
                 })
@@ -98,8 +121,29 @@ class ActiveGameRepository {
         val dbGames = games.map(DbGame.Companion::fromOGSGame)
         OnlineGoApplication.instance.db.gameDao().insertAll(dbGames)
         activeDbGames.clear()
-        dbGames.forEach { connectToGame(it) }
+        dbGames.forEach {
+            activeDbGames[it.id] = it
+            connectToGame(it)
+        }
 //        myMoveCountSubject.onNext(activeDbGames.values.count { isMyTurn(it) })
+    }
+
+    private fun fetchGameFromOGS(id: Long) {
+        subscriptions.add(
+                OGSServiceImpl.instance
+                        .fetchGame(id)
+                        .map(DbGame.Companion::fromOGSGame)
+                        .map(::listOf)
+                        .subscribe(OnlineGoApplication.instance.db.gameDao()::insertAll)
+        )
+    }
+
+    fun monitorGame(id: Long): Flowable<DbGame> {
+        // TODO: Maybe check if the data is fresh enough to warrant skipping this call?
+        fetchGameFromOGS(id)
+
+        return OnlineGoApplication.instance.db.gameDao().getGame(id)
+                .doOnNext(this::connectToGame)
     }
 
     fun fetchActiveGames(): Flowable<List<DbGame>> {

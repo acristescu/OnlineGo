@@ -42,7 +42,9 @@ data class DbGame(
         @Embedded
         var clock: Clock?,
 
-        var phase: Game.Phase?
+        var phase: Game.Phase?,
+
+        var komi: Float?
         ) {
     @Ignore
     var json: GameData? = null
@@ -55,8 +57,23 @@ data class DbGame(
             val blackRating = (((game.black as? Map<*, *>)?.get("ratings") as? Map<*, *>)?.get("overall") as? Map<*, *>)?.get("rating") as? Double
                     ?: game.gamedata?.players?.black?.ratings?.overall?.rating
                     ?: game.players?.black?.ratings?.overall?.rating
-            val players = game.json?.players ?: game.gamedata?.players ?: game?.players
+            val players = game.json?.players ?: game.gamedata?.players ?: game.players
             val gamedata = game.json ?: game.gamedata
+
+            val whitePlayer = DbPlayer(
+                    id = players?.white!!.id,
+                    username = players.white!!.username!!,
+                    country = players.white?.country ?: game.whitePlayer?.country ?: game.players?.white?.country,
+                    icon = players.white?.icon ?: game.whitePlayer?.icon ?: game.players?.white?.icon,
+                    rating = whiteRating
+            )
+            val blackPlayer = DbPlayer(
+                    id = players?.black!!.id,
+                    username = players.black!!.username!!,
+                    country = players.black?.country ?: game.blackPlayer?.country ?: game.players?.black?.country,
+                    icon = players.black?.icon ?: game.blackPlayer?.icon ?: game.players?.black?.icon,
+                    rating = blackRating
+            )
             return DbGame(
                     id = game.id,
                     width = game.width,
@@ -71,10 +88,11 @@ data class DbGame(
                     removedStones = gamedata?.removed,
                     whiteScore = gamedata?.score?.white,
                     blackScore = gamedata?.score?.black,
-                    whitePlayer = DbPlayer(players?.white!!.id, players!!.white!!.username!!, whiteRating),
-                    blackPlayer = DbPlayer(players?.black!!.id, players!!.black!!.username!!, blackRating),
+                    whitePlayer = whitePlayer,
+                    blackPlayer = blackPlayer,
                     clock = Clock.fromOGSClock(gamedata?.clock),
-                    phase = gamedata?.phase
+                    phase = gamedata?.phase,
+                    komi = game.komi
             )
         }
     }
@@ -109,7 +127,9 @@ data class Clock(
         var blackTimeSimple: Long?,
 
         @Embedded(prefix = "black_")
-        var blackTime: Time?
+        var blackTime: Time?,
+
+        var startMode: Boolean?
 ) {
     companion object {
         fun fromOGSClock(clock: io.zenandroid.onlinego.ogs.Clock?): Clock? =
@@ -122,7 +142,8 @@ data class Clock(
                             whiteTimeSimple = clock.whiteTimeSimple,
                             whiteTime = clock.whiteTime,
                             blackTimeSimple = clock.blackTimeSimple,
-                            blackTime = clock.blackTime
+                            blackTime = clock.blackTime,
+                            startMode = clock.start_mode
                     )
                 }
     }

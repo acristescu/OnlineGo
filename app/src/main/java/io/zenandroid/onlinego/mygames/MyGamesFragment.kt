@@ -14,7 +14,8 @@ import butterknife.Unbinder
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.main.MainActivity
 import io.zenandroid.onlinego.model.local.DbGame
-import io.zenandroid.onlinego.reusable.GameItem
+import io.zenandroid.onlinego.reusable.ActiveGameItem
+import io.zenandroid.onlinego.reusable.FinishedGameItem
 
 /**
  * Created by alex on 05/11/2017.
@@ -42,7 +43,8 @@ class MyGamesFragment : Fragment(), MyGamesContract.View {
         gamesRecycler.adapter = groupAdapter
         groupAdapter.setOnItemClickListener { item, _ ->
             when(item) {
-                is GameItem -> presenter.onGameSelected(item.game)
+                is ActiveGameItem -> presenter.onGameSelected(item.game)
+                is FinishedGameItem -> presenter.onGameSelected(item.game)
             }
         }
 

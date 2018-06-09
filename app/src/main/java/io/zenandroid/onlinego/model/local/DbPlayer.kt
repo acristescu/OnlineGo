@@ -8,5 +8,7 @@ import android.arch.persistence.room.PrimaryKey
 data class DbPlayer(
     @PrimaryKey var id: Long,
     var username: String,
-    var rating: Double?
+    var rating: Double?,
+    var country: String?,
+    var icon: String?
 )

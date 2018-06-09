@@ -4,7 +4,7 @@ import android.graphics.Point
 import io.reactivex.Observable
 import io.zenandroid.onlinego.model.Position
 import io.zenandroid.onlinego.model.StoneType
-import io.zenandroid.onlinego.model.ogs.Player
+import io.zenandroid.onlinego.model.local.DbPlayer
 
 /**
  * Created by alex on 10/11/2017.
@@ -13,8 +13,8 @@ interface GameContract {
 
     interface View {
         var boardSize: Int
-        var whitePlayer: Player?
-        var blackPlayer: Player?
+        var whitePlayer: DbPlayer?
+        var blackPlayer: DbPlayer?
         var position: Position?
 //        var highlightBlackName: Boolean
 //        var highlightWhiteName: Boolean

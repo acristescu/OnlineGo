@@ -27,8 +27,8 @@ import io.zenandroid.onlinego.main.MainActivity
 import io.zenandroid.onlinego.model.Position
 import io.zenandroid.onlinego.model.StoneType
 import io.zenandroid.onlinego.model.local.DbGame
+import io.zenandroid.onlinego.model.local.DbPlayer
 import io.zenandroid.onlinego.model.ogs.Game
-import io.zenandroid.onlinego.model.ogs.Player
 import io.zenandroid.onlinego.ogs.OGSServiceImpl
 import io.zenandroid.onlinego.views.BoardView
 import io.zenandroid.onlinego.views.PlayerDetailsView
@@ -94,12 +94,12 @@ class GameFragment : Fragment(), GameContract.View {
             blackDetailsView.nextToMove = value == StoneType.BLACK
         }
 
-    override var whitePlayer: Player? = null
+    override var whitePlayer: DbPlayer? = null
         set(value) {
             whiteDetailsView.player = value
         }
 
-    override var blackPlayer: Player? = null
+    override var blackPlayer: DbPlayer? = null
         set(value) {
             blackDetailsView.player = value
         }
@@ -144,7 +144,13 @@ class GameFragment : Fragment(), GameContract.View {
 
         whiteDetailsView.color = StoneType.WHITE
         blackDetailsView.color = StoneType.BLACK
-        presenter = GamePresenter(this, OGSServiceImpl.instance, arguments!!.getLong(GAME_ID), arguments!!.getInt(GAME_SIZE))
+        presenter = GamePresenter(
+                this,
+                OGSServiceImpl.instance,
+                (activity as MainActivity).activeGameRepository,
+                arguments!!.getLong(GAME_ID),
+                arguments!!.getInt(GAME_SIZE)
+        )
     }
 
     override fun showError(t: Throwable) {
@@ -156,6 +162,7 @@ class GameFragment : Fragment(), GameContract.View {
 
     override var showTerritory = false
         set(value) { board.drawTerritory = value }
+
     override var fadeOutRemovedStones = false
         set(value) { board.fadeOutRemovedStones = value }
 

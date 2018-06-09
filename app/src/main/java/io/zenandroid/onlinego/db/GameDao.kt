@@ -24,4 +24,7 @@ interface GameDao {
 
     @Update()
     fun update(game: DbGame)
+
+    @Query("SELECT * FROM dbgame WHERE id = :id")
+    fun getGame(id: Long): Flowable<DbGame>
 }

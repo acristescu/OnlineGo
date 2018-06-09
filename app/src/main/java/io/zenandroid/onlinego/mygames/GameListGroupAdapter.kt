@@ -7,7 +7,6 @@ import io.zenandroid.onlinego.model.local.DbGame
 import io.zenandroid.onlinego.ogs.OGSServiceImpl
 import io.zenandroid.onlinego.reusable.ActiveGameItem
 import io.zenandroid.onlinego.reusable.FinishedGameItem
-import io.zenandroid.onlinego.reusable.GameItem
 import io.zenandroid.onlinego.reusable.HeaderItem
 
 /**
@@ -29,8 +28,8 @@ class GameListGroupAdapter : GroupAdapter<ViewHolder>() {
 
     fun setGames(games: List<DbGame>) {
         val userId = OGSServiceImpl.instance.uiConfig?.user?.id
-        val myTurnList = mutableListOf<GameItem>()
-        val opponentTurnList = mutableListOf<GameItem>()
+        val myTurnList = mutableListOf<ActiveGameItem>()
+        val opponentTurnList = mutableListOf<ActiveGameItem>()
         for(game in games) {
             val newItem = ActiveGameItem(game)
             if(game.playerToMoveId == userId) {

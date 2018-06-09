@@ -1,8 +1,8 @@
 package io.zenandroid.onlinego.model.ogs
 
-import android.arch.persistence.room.*
+import android.arch.persistence.room.Ignore
+import android.arch.persistence.room.TypeConverter
 import com.squareup.moshi.Json
-import io.zenandroid.onlinego.R.color.white
 import io.zenandroid.onlinego.ogs.Players
 
 /**
@@ -52,7 +52,7 @@ data class Game (
         var players: Players? = null,
 
         @Ignore
-        internal val gamedata: GameData
+        internal val gamedata: GameData? = null
 ) {
     data class Related (
             var detail: String? = null
