@@ -50,27 +50,13 @@ class MyGamesPresenter(val view: MyGamesContract.View, private val gameRepositor
         })
     }
 
-    private fun addGame(game : DbGame) {
-        view.addOrUpdateGame(game)
-    }
-
     private fun setGames(games : List<DbGame>) {
         view.setGames(games)
-//        subscriptions.add(
-//                gameRepository.activeGamesObservable
-//                        .subscribeOn(Schedulers.io())
-//                        .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
-//                        .subscribe(this::addGame)
-//        )
         view.setLoading(false)
     }
 
     private fun setHistoricGames(games: List<DbGame>) {
         view.setHistoricGames(games)
-    }
-
-    private fun removeGame(game: DbGame) {
-        view.removeGame(game)
     }
 
     override fun unsubscribe() {

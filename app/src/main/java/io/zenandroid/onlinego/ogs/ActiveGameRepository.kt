@@ -115,8 +115,10 @@ class ActiveGameRepository {
         subscriptions.add(
                 OGSServiceImpl.instance
                         .fetchHistoricGames()
+                        .map { it.map(Game::id) }
+                        .map { it - OnlineGoApplication.instance.db.gameDao().getHistoricGamesThatDontNeedUpdating(it) }
                         .flattenAsObservable { it -> it }
-                        .flatMapSingle { OGSServiceImpl.instance.fetchGame(it.id) }
+                        .flatMapSingle { OGSServiceImpl.instance.fetchGame(it) }
                         .map (DbGame.Companion::fromOGSGame)
                         .toList()
                         .subscribe(OnlineGoApplication.instance.db.gameDao()::insertAll)

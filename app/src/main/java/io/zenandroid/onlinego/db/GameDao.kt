@@ -16,6 +16,9 @@ interface GameDao {
     @Query("SELECT * FROM dbgame WHERE phase = 'FINISHED'")
     fun getFinishedGames() : Flowable<List<DbGame>>
 
+    @Query("SELECT id FROM dbgame WHERE id in (:ids) AND phase = 'FINISHED' AND outcome <> ''")
+    fun getHistoricGamesThatDontNeedUpdating(ids: List<Long>) : List<Long>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAll(games: List<DbGame>)
 

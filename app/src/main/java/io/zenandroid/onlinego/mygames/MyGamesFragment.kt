@@ -14,10 +14,6 @@ import butterknife.Unbinder
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.main.MainActivity
 import io.zenandroid.onlinego.model.local.DbGame
-import io.zenandroid.onlinego.model.ogs.Game
-import io.zenandroid.onlinego.ogs.Clock
-import io.zenandroid.onlinego.model.ogs.GameData
-import io.zenandroid.onlinego.ogs.Move
 import io.zenandroid.onlinego.reusable.GameItem
 
 /**
@@ -71,37 +67,13 @@ class MyGamesFragment : Fragment(), MyGamesContract.View {
         groupAdapter.setHistoricGames(games)
     }
 
-    override fun clearGames() {
-        groupAdapter.clearGames()
-    }
-
     override fun onPause() {
         super.onPause()
         presenter.unsubscribe()
     }
 
-    override fun setGameData(id: Long, gameData: GameData) {
-        groupAdapter.setGameData(id, gameData)
-    }
-
-    override fun doMove(id: Long, move: Move) {
-        groupAdapter.doMove(id, move)
-    }
-
-    override fun removeGame(game: DbGame) {
-        groupAdapter.removeGame(game)
-    }
-
-    override fun addOrUpdateGame(game: DbGame) {
-        groupAdapter.addOrUpdateGame(game)
-    }
-
     override fun setGames(games: List<DbGame>) {
         groupAdapter.setGames(games)
-    }
-
-    override fun setClock(id: Long, clock: Clock) {
-        groupAdapter.setClock(id, clock)
     }
 
     override fun setLoading(loading: Boolean) {

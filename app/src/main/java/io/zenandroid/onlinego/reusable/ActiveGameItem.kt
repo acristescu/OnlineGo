@@ -1,5 +1,6 @@
 package io.zenandroid.onlinego.reusable
 
+import com.xwray.groupie.kotlinandroidextensions.Item
 import com.xwray.groupie.kotlinandroidextensions.ViewHolder
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.extensions.showIf
@@ -11,11 +12,10 @@ import io.zenandroid.onlinego.utils.egfToRank
 import io.zenandroid.onlinego.utils.formatRank
 import kotlinx.android.synthetic.main.item_active_game_card.*
 
-class ActiveGameItem constructor(game: DbGame) : GameItem(game) {
+class ActiveGameItem (val game: DbGame) : Item(game.id) {
     override fun bind(holder: ViewHolder, position: Int) {
         holder.board.boardSize = game.width
-        val pos = RulesManager.replay(game, computeTerritory = false)
-        holder.board.position = pos
+        holder.board.position = RulesManager.replay(game, computeTerritory = false)
 
         val userId = OGSServiceImpl.instance.uiConfig?.user?.id
 
