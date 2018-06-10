@@ -2,6 +2,7 @@ package io.zenandroid.onlinego.db
 
 import android.arch.persistence.room.*
 import io.reactivex.Flowable
+import io.reactivex.Single
 import io.zenandroid.onlinego.model.local.DbGame
 
 /**
@@ -11,10 +12,10 @@ import io.zenandroid.onlinego.model.local.DbGame
 interface GameDao {
 
     @Query("SELECT * FROM dbgame WHERE phase <> 'FINISHED' AND (white_id = :userId OR black_id = :userId)")
-    fun getActiveGames(userId: Long?) : Flowable<List<DbGame>>
+    fun monitorActiveGames(userId: Long?) : Flowable<List<DbGame>>
 
     @Query("SELECT * FROM dbgame WHERE phase = 'FINISHED' AND (white_id = :userId OR black_id = :userId)")
-    fun getFinishedGames(userId: Long?) : Flowable<List<DbGame>>
+    fun monitorHistoricGames(userId: Long?) : Flowable<List<DbGame>>
 
     @Query("SELECT id FROM dbgame WHERE id in (:ids) AND phase = 'FINISHED' AND outcome <> ''")
     fun getHistoricGamesThatDontNeedUpdating(ids: List<Long>) : List<Long>
@@ -26,5 +27,8 @@ interface GameDao {
     fun update(game: DbGame)
 
     @Query("SELECT * FROM dbgame WHERE id = :id")
-    fun getGame(id: Long): Flowable<DbGame>
+    fun monitorGame(id: Long): Flowable<DbGame>
+
+    @Query("SELECT * FROM dbgame WHERE id = :id")
+    fun getGame(id: Long): Single<DbGame>
 }

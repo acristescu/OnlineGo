@@ -101,7 +101,7 @@ class GamePresenter(
 
         currentShownMove = newGame.moves?.size ?: -1
         refreshUI(newGame)
-        view.title = "${game?.blackPlayer?.username} vs ${game?.whitePlayer?.username}"
+        view.title = "${newGame.blackPlayer.username} vs ${newGame.whitePlayer.username}"
 
         view.passButtonEnabled = newGame.phase == Game.Phase.PLAY && newGame.playerToMoveId == userId
 
@@ -304,10 +304,11 @@ class GamePresenter(
             Game.Phase.FINISHED -> {
                 if(!finishedDialogShown) {
                     finishedDialogShown = true
+                    val winner = if(game.blackLost == true) game.whitePlayer.id else game.blackPlayer.id
                     when {
                         !myGame ->
                             view.showFinishedDialog()
-                        game.blackPlayer.id == userId && game.whiteLost == true ->
+                        winner == userId ->
                             view.showYouWinDialog()
                         else ->
                             view.showYouLoseDialog()

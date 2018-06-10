@@ -2,6 +2,7 @@ package io.zenandroid.onlinego.ogs
 
 import io.reactivex.Flowable
 import io.reactivex.Observable
+import io.reactivex.Single
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.BehaviorSubject
@@ -142,8 +143,12 @@ class ActiveGameRepository {
         // TODO: Maybe check if the data is fresh enough to warrant skipping this call?
         fetchGameFromOGS(id)
 
-        return OnlineGoApplication.instance.db.gameDao().getGame(id)
+        return OnlineGoApplication.instance.db.gameDao().monitorGame(id)
                 .doOnNext(this::connectToGame)
+    }
+
+    fun getGameSingle(id: Long): Single<DbGame> {
+        return OnlineGoApplication.instance.db.gameDao().monitorGame(id).take(1).firstOrError()
     }
 
     fun fetchActiveGames(): Flowable<List<DbGame>> {
@@ -152,7 +157,7 @@ class ActiveGameRepository {
                     .fetchActiveGames()
                     .subscribe(this::setActiveGames)
         )
-        return OnlineGoApplication.instance.db.gameDao().getActiveGames(OGSServiceImpl.instance.uiConfig?.user?.id)
+        return OnlineGoApplication.instance.db.gameDao().monitorActiveGames(OGSServiceImpl.instance.uiConfig?.user?.id)
     }
 
     fun fetchHistoricGames(): Flowable<List<DbGame>> {
@@ -167,6 +172,6 @@ class ActiveGameRepository {
                         .toList()
                         .subscribe(OnlineGoApplication.instance.db.gameDao()::insertAll)
         )
-        return OnlineGoApplication.instance.db.gameDao().getFinishedGames(OGSServiceImpl.instance.uiConfig?.user?.id)
+        return OnlineGoApplication.instance.db.gameDao().monitorHistoricGames(OGSServiceImpl.instance.uiConfig?.user?.id)
     }
 }
