@@ -131,10 +131,10 @@ class GamePresenter(
         } else {
             val newPos = currentPosition.clone()
             RulesManager.toggleRemoved(newPos, point)
-            var delta = newPos.removedSpots.minus(currentPosition.removedSpots)
+            var delta = newPos.removedSpots - currentPosition.removedSpots
             var removing = true
             if(delta.isEmpty()) {
-                delta = currentPosition.removedSpots.minus(newPos.removedSpots)
+                delta = currentPosition.removedSpots - newPos.removedSpots
                 removing = false
             }
             if(delta.isNotEmpty()) {
@@ -271,20 +271,22 @@ class GamePresenter(
                 .subscribeOn(Schedulers.computation())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe { pos ->
-                    currentPosition = pos
-                    view.position = currentPosition
+                    view.position = pos
                 }
 
          deferredTerritoryComputation?.let(subscriptions::add)
     }
 
     private fun refreshUI(game: DbGame) {
-        currentPosition = RulesManager.replay(game, computeTerritory = false)
-        view.position = currentPosition
+        val newPos = RulesManager.replay(game, computeTerritory = false)
+        if(newPos != currentPosition) {
+            currentPosition = newPos
+            view.position = currentPosition
 
-        val shouldComputeTerritory = game.phase == Game.Phase.STONE_REMOVAL || game.phase == Game.Phase.FINISHED
-        if(shouldComputeTerritory) {
-            computeTerritoryAsync(game)
+            val shouldComputeTerritory = game.phase == Game.Phase.STONE_REMOVAL || game.phase == Game.Phase.FINISHED
+            if (shouldComputeTerritory) {
+                computeTerritoryAsync(game)
+            }
         }
 
         determineHistoryParameters()

@@ -61,17 +61,17 @@ data class DbGame(
             val gamedata = game.json ?: game.gamedata
 
             val whitePlayer = DbPlayer(
-                    id = players?.white!!.id,
-                    username = players.white!!.username!!,
-                    country = players.white?.country ?: game.whitePlayer?.country ?: game.players?.white?.country,
-                    icon = players.white?.icon ?: game.whitePlayer?.icon ?: game.players?.white?.icon,
+                    id = (players?.white?.id ?: game.whiteId)!!,
+                    username = players?.white?.username ?: (game.white as? Map<*,*>)?.get("username").toString(),
+                    country = players?.white?.country ?: game.whitePlayer?.country ?: game.players?.white?.country,
+                    icon = players?.white?.icon ?: game.whitePlayer?.icon ?: game.players?.white?.icon,
                     rating = whiteRating
             )
             val blackPlayer = DbPlayer(
-                    id = players?.black!!.id,
-                    username = players.black!!.username!!,
-                    country = players.black?.country ?: game.blackPlayer?.country ?: game.players?.black?.country,
-                    icon = players.black?.icon ?: game.blackPlayer?.icon ?: game.players?.black?.icon,
+                    id = (players?.black?.id ?: game.blackId)!!,
+                    username = players?.black?.username ?: (game.black as? Map<*,*>)?.get("username").toString(),
+                    country = players?.black?.country ?: game.blackPlayer?.country ?: game.players?.black?.country,
+                    icon = players?.black?.icon ?: game.blackPlayer?.icon ?: game.players?.black?.icon,
                     rating = blackRating
             )
             return DbGame(
@@ -84,7 +84,7 @@ data class DbGame(
                     blackLost = game.black_lost,
                     initialState = gamedata?.initial_state,
                     whiteGoesFirst = gamedata?.initial_player == "white",
-                    moves = gamedata?.moves,
+                    moves = gamedata?.moves?.apply { forEach { if(it.size == 3) it.removeAt(it.lastIndex) } },
                     removedStones = gamedata?.removed,
                     whiteScore = gamedata?.score?.white,
                     blackScore = gamedata?.score?.black,

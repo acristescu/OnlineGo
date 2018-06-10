@@ -70,7 +70,7 @@ class ActiveGameRepository {
                         playerToMoveId = it.clock.current_player
                         initialState = it.initial_state
                         whiteGoesFirst = it.initial_player == "white"
-                        moves = it.moves
+                        moves = it.moves.apply { forEach { if(it.size == 3) it.removeAt(it.lastIndex) } }
                         removedStones = it.removed
                         whiteScore = it.score?.white
                         blackScore = it.score?.black
@@ -152,7 +152,7 @@ class ActiveGameRepository {
                     .fetchActiveGames()
                     .subscribe(this::setActiveGames)
         )
-        return OnlineGoApplication.instance.db.gameDao().getActiveGames()
+        return OnlineGoApplication.instance.db.gameDao().getActiveGames(OGSServiceImpl.instance.uiConfig?.user?.id)
     }
 
     fun fetchHistoricGames(): Flowable<List<DbGame>> {
@@ -167,6 +167,6 @@ class ActiveGameRepository {
                         .toList()
                         .subscribe(OnlineGoApplication.instance.db.gameDao()::insertAll)
         )
-        return OnlineGoApplication.instance.db.gameDao().getFinishedGames()
+        return OnlineGoApplication.instance.db.gameDao().getFinishedGames(OGSServiceImpl.instance.uiConfig?.user?.id)
     }
 }

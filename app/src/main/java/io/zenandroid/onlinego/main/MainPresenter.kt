@@ -59,7 +59,7 @@ class MainPresenter (val view : MainContract.View, val activeGameRepository: Act
 
     fun navigateToGameScreenById(gameId: Long) {
         subscriptions.add(
-            OGSServiceImpl.instance.fetchGame(gameId)
+            activeGameRepository.monitorGame(gameId)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(view::navigateToGameScreen, this::onError)

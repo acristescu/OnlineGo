@@ -13,9 +13,7 @@ import io.socket.client.Ack
 import io.socket.client.IO
 import io.socket.client.Socket
 import io.zenandroid.onlinego.AndroidLoggingHandler
-import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.main.MainActivity
-import io.zenandroid.onlinego.model.local.DbGame
 import io.zenandroid.onlinego.model.ogs.*
 import io.zenandroid.onlinego.utils.PersistenceManager
 import io.zenandroid.onlinego.utils.createJsonArray
@@ -139,9 +137,6 @@ class OGSServiceImpl private constructor(): OGSService {
 
         connection.gameData = observeEvent("game/$id/gamedata")
                     .map { string -> moshi.adapter(GameData::class.java).fromJson(string.toString()) }
-                    .doOnNext {
-                        connection.gameAuth = it.auth
-                    }
 
         connection.moves = observeEvent("game/$id/move")
                     .map { string -> moshi.adapter(Move::class.java).fromJson(string.toString()) }

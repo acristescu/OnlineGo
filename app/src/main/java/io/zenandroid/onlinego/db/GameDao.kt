@@ -10,11 +10,11 @@ import io.zenandroid.onlinego.model.local.DbGame
 @Dao
 interface GameDao {
 
-    @Query("SELECT * FROM dbgame WHERE phase <> 'FINISHED'")
-    fun getActiveGames() : Flowable<List<DbGame>>
+    @Query("SELECT * FROM dbgame WHERE phase <> 'FINISHED' AND (white_id = :userId OR black_id = :userId)")
+    fun getActiveGames(userId: Long?) : Flowable<List<DbGame>>
 
-    @Query("SELECT * FROM dbgame WHERE phase = 'FINISHED'")
-    fun getFinishedGames() : Flowable<List<DbGame>>
+    @Query("SELECT * FROM dbgame WHERE phase = 'FINISHED' AND (white_id = :userId OR black_id = :userId)")
+    fun getFinishedGames(userId: Long?) : Flowable<List<DbGame>>
 
     @Query("SELECT id FROM dbgame WHERE id in (:ids) AND phase = 'FINISHED' AND outcome <> ''")
     fun getHistoricGamesThatDontNeedUpdating(ids: List<Long>) : List<Long>

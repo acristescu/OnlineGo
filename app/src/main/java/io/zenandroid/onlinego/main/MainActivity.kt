@@ -208,17 +208,6 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         }
     }
 
-    override fun navigateToGameScreen(game: Game) {
-        Completable.mergeArray(
-                bottomNavigation.fadeOut(),
-                newChallengeView.fadeOut()
-        ).subscribe {
-            supportFragmentManager.beginTransaction()
-                    .replace(R.id.fragment_container, GameFragment.createFragment(game), "game")
-                    .commit()
-        }
-    }
-
     override fun showError(msg: String?) {
         Toast.makeText(this, msg, Toast.LENGTH_LONG).show()
     }

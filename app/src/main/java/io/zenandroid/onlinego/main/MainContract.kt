@@ -17,7 +17,6 @@ interface MainContract {
         fun cancelNotification()
         fun updateNotification(sortedMyTurnGames: List<Game>)
         fun navigateToGameScreen(game: DbGame)
-        fun navigateToGameScreen(game: Game)
     }
     interface Presenter {
         fun subscribe()
