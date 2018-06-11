@@ -17,7 +17,7 @@ import com.bumptech.glide.request.RequestOptions
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.extensions.showIf
 import io.zenandroid.onlinego.model.StoneType
-import io.zenandroid.onlinego.model.local.DbPlayer
+import io.zenandroid.onlinego.model.local.Player
 import io.zenandroid.onlinego.utils.convertCountryCodeToEmojiFlag
 import io.zenandroid.onlinego.utils.egfToRank
 import io.zenandroid.onlinego.utils.formatRank
@@ -49,7 +49,7 @@ class PlayerDetailsView : FrameLayout {
     constructor(context: Context) : this(context, null)
     constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0)
 
-    var player: DbPlayer? = null
+    var player: Player? = null
         set(value) {
             if(field == value) {
                 return

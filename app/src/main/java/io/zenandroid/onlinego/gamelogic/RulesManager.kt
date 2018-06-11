@@ -4,7 +4,7 @@ import android.graphics.Point
 import android.util.Log
 import io.zenandroid.onlinego.model.Position
 import io.zenandroid.onlinego.model.StoneType
-import io.zenandroid.onlinego.model.local.DbGame
+import io.zenandroid.onlinego.model.local.Game
 import io.zenandroid.onlinego.model.local.InitialState
 import io.zenandroid.onlinego.model.ogs.GameData
 import java.util.*
@@ -61,7 +61,7 @@ object RulesManager {
         }
     }
 
-    fun replay(game: DbGame, limit: Int = Int.MAX_VALUE, computeTerritory : Boolean): Position {
+    fun replay(game: Game, limit: Int = Int.MAX_VALUE, computeTerritory : Boolean): Position {
         var pos = RulesManager.newPosition(game.height, game.initialState)
 
         var turn = StoneType.BLACK

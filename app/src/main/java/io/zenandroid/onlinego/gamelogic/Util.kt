@@ -1,8 +1,8 @@
 package io.zenandroid.onlinego.gamelogic
 
 import android.graphics.Point
-import io.zenandroid.onlinego.model.local.DbGame
-import io.zenandroid.onlinego.model.ogs.Game
+import io.zenandroid.onlinego.model.local.Game
+import io.zenandroid.onlinego.model.ogs.OGSGame
 import io.zenandroid.onlinego.ogs.OGSServiceImpl
 import java.util.*
 
@@ -58,7 +58,7 @@ object Util {
         return list
     }
 
-    fun isMyTurn(game: Game?): Boolean {
+    fun isMyTurn(game: OGSGame?): Boolean {
         if (game?.player_to_move != 0L) {
             return game?.player_to_move == OGSServiceImpl.instance.uiConfig?.user?.id
         }
@@ -68,7 +68,7 @@ object Util {
         return false
     }
 
-    fun isMyTurn(game: DbGame?): Boolean {
+    fun isMyTurn(game: Game?): Boolean {
         if (game?.playerToMoveId != null) {
             return game.playerToMoveId == OGSServiceImpl.instance.uiConfig?.user?.id
         }

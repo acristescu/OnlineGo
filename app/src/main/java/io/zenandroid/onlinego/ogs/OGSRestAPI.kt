@@ -27,7 +27,7 @@ interface OGSRestAPI {
     fun uiConfig(): Single<UIConfig>
 
     @GET("api/v1/games/{game_id}")
-    fun fetchGame(@Path("game_id") game_id: Long): Single<Game>
+    fun fetchGame(@Path("game_id") game_id: Long): Single<OGSGame>
 
     @GET("api/v1/ui/overview")
     fun fetchOverview(): Single<Overview>

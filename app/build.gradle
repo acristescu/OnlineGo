@@ -52,6 +52,8 @@ dependencies {
     implementation 'com.squareup.retrofit2:converter-moshi:2.3.0'
     implementation 'com.squareup.okhttp3:logging-interceptor:3.9.0'
 
+    implementation 'com.squareup.moshi:moshi-adapters:1.6.0'
+
     // rxandroid
     implementation 'io.reactivex.rxjava2:rxandroid:2.0.1'
     implementation 'io.reactivex.rxjava2:rxjava:2.1.6'

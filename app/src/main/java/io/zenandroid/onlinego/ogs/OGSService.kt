@@ -1,7 +1,7 @@
 package io.zenandroid.onlinego.ogs
 
 import io.reactivex.Single
-import io.zenandroid.onlinego.model.ogs.Game
+import io.zenandroid.onlinego.model.ogs.OGSGame
 import io.zenandroid.onlinego.model.ogs.UIConfig
 
 /**
@@ -13,8 +13,8 @@ interface OGSService {
 
     fun startGameSearch(size: Size, speed: Speed): AutomatchChallenge
     fun cancelAutomatchChallenge(challenge: AutomatchChallenge)
-    fun fetchGame(gameId: Long): Single<Game>
-    fun fetchActiveGames(): Single<List<Game>>
+    fun fetchGame(gameId: Long): Single<OGSGame>
+    fun fetchActiveGames(): Single<List<OGSGame>>
     fun resendAuth()
-    fun fetchHistoricGames(): Single<List<Game>>
+    fun fetchHistoricGames(): Single<List<OGSGame>>
 }

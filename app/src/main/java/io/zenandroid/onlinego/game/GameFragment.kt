@@ -26,8 +26,8 @@ import io.zenandroid.onlinego.extensions.showIf
 import io.zenandroid.onlinego.main.MainActivity
 import io.zenandroid.onlinego.model.Position
 import io.zenandroid.onlinego.model.StoneType
-import io.zenandroid.onlinego.model.local.DbGame
-import io.zenandroid.onlinego.model.local.DbPlayer
+import io.zenandroid.onlinego.model.local.Game
+import io.zenandroid.onlinego.model.local.Player
 import io.zenandroid.onlinego.ogs.OGSServiceImpl
 import io.zenandroid.onlinego.views.BoardView
 import io.zenandroid.onlinego.views.PlayerDetailsView
@@ -41,7 +41,7 @@ const val GAME_SIZE = "GAME_SIZE"
  */
 class GameFragment : Fragment(), GameContract.View {
     companion object {
-        fun createFragment(game: DbGame): GameFragment = GameFragment().apply {
+        fun createFragment(game: Game): GameFragment = GameFragment().apply {
             arguments = Bundle().apply {
                 putLong(GAME_ID, game.id)
                 putInt(GAME_SIZE, game.width)
@@ -86,12 +86,12 @@ class GameFragment : Fragment(), GameContract.View {
             blackDetailsView.nextToMove = value == StoneType.BLACK
         }
 
-    override var whitePlayer: DbPlayer? = null
+    override var whitePlayer: Player? = null
         set(value) {
             whiteDetailsView.player = value
         }
 
-    override var blackPlayer: DbPlayer? = null
+    override var blackPlayer: Player? = null
         set(value) {
             blackDetailsView.player = value
         }

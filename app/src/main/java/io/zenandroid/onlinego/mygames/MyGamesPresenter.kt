@@ -5,8 +5,8 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import io.zenandroid.onlinego.gamelogic.Util.isMyTurn
-import io.zenandroid.onlinego.model.local.DbGame
-import io.zenandroid.onlinego.model.ogs.Game
+import io.zenandroid.onlinego.model.local.Game
+import io.zenandroid.onlinego.model.ogs.OGSGame
 import io.zenandroid.onlinego.ogs.ActiveGameRepository
 import io.zenandroid.onlinego.utils.timeLeftForCurrentPlayer
 
@@ -38,7 +38,7 @@ class MyGamesPresenter(val view: MyGamesContract.View, private val gameRepositor
         view.setLoading(true)
     }
 
-    private fun sortGames(unsorted : List<Game>): List<Game> {
+    private fun sortGames(unsorted : List<OGSGame>): List<OGSGame> {
         return unsorted.sortedWith(Comparator { left, right ->
             when {
                 isMyTurn(left) && !isMyTurn(right) -> -1
@@ -50,12 +50,12 @@ class MyGamesPresenter(val view: MyGamesContract.View, private val gameRepositor
         })
     }
 
-    private fun setGames(games : List<DbGame>) {
+    private fun setGames(games : List<Game>) {
         view.setGames(games)
         view.setLoading(false)
     }
 
-    private fun setHistoricGames(games: List<DbGame>) {
+    private fun setHistoricGames(games: List<Game>) {
         view.setHistoricGames(games)
     }
 
@@ -63,7 +63,7 @@ class MyGamesPresenter(val view: MyGamesContract.View, private val gameRepositor
         subscriptions.clear()
     }
 
-    override fun onGameSelected(game: DbGame) {
+    override fun onGameSelected(game: Game) {
         view.navigateToGameScreen(game)
     }
 

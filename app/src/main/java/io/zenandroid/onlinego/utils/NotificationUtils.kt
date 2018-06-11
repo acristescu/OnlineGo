@@ -11,7 +11,7 @@ import android.support.v4.app.NotificationCompat.BADGE_ICON_NONE
 import android.support.v4.content.ContextCompat
 import android.support.v4.content.res.ResourcesCompat
 import io.zenandroid.onlinego.R
-import io.zenandroid.onlinego.model.ogs.Game
+import io.zenandroid.onlinego.model.ogs.OGSGame
 import java.security.MessageDigest
 import android.graphics.Bitmap
 import android.graphics.Canvas
@@ -32,7 +32,7 @@ class NotificationUtils {
             notificationManager.cancel(NOTIFICATION_ID)
         }
 
-        fun updateNotification(context: Context, games: List<Game>, userId: Long?) {
+        fun updateNotification(context: Context, games: List<OGSGame>, userId: Long?) {
             val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
             val prefs = PreferenceManager.getDefaultSharedPreferences(context)

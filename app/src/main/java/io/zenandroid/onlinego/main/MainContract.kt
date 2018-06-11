@@ -1,7 +1,7 @@
 package io.zenandroid.onlinego.main
 
-import io.zenandroid.onlinego.model.local.DbGame
-import io.zenandroid.onlinego.model.ogs.Game
+import io.zenandroid.onlinego.model.local.Game
+import io.zenandroid.onlinego.model.ogs.OGSGame
 
 /**
  * Created by alex on 14/03/2018.
@@ -15,8 +15,8 @@ interface MainContract {
         var notificationsBadgeVisible: Boolean
         var notificationsBadgeCount: String?
         fun cancelNotification()
-        fun updateNotification(sortedMyTurnGames: List<Game>)
-        fun navigateToGameScreen(game: DbGame)
+        fun updateNotification(sortedMyTurnGames: List<OGSGame>)
+        fun navigateToGameScreen(game: Game)
     }
     interface Presenter {
         fun subscribe()

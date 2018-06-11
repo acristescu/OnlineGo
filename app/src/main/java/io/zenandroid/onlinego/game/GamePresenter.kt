@@ -12,8 +12,8 @@ import io.reactivex.schedulers.Schedulers
 import io.zenandroid.onlinego.gamelogic.RulesManager
 import io.zenandroid.onlinego.model.Position
 import io.zenandroid.onlinego.model.StoneType
-import io.zenandroid.onlinego.model.local.DbGame
-import io.zenandroid.onlinego.model.ogs.Game
+import io.zenandroid.onlinego.model.local.Game
+import io.zenandroid.onlinego.model.ogs.Phase
 import io.zenandroid.onlinego.ogs.ActiveGameRepository
 import io.zenandroid.onlinego.ogs.GameConnection
 import io.zenandroid.onlinego.ogs.OGSService
@@ -41,7 +41,7 @@ class GamePresenter(
     private var currentPosition = Position(19)
     private val userId = service.uiConfig?.user?.id
     private var currentShownMove = -1
-    private var game: DbGame? = null
+    private var game: Game? = null
 
     private var finishedDialogShown = false
 
@@ -83,7 +83,7 @@ class GamePresenter(
         view.showError(t)
     }
 
-    private fun onGameChanged(newGame: DbGame) {
+    private fun onGameChanged(newGame: Game) {
         if(newGame == game) {
             return
         }
@@ -103,7 +103,7 @@ class GamePresenter(
         refreshUI(newGame)
         view.title = "${newGame.blackPlayer.username} vs ${newGame.whitePlayer.username}"
 
-        view.passButtonEnabled = newGame.phase == Game.Phase.PLAY && newGame.playerToMoveId == userId
+        view.passButtonEnabled = newGame.phase == Phase.PLAY && newGame.playerToMoveId == userId
 
         if(newGame.moves != game?.moves) {
             candidateMove = null
@@ -114,7 +114,7 @@ class GamePresenter(
     }
 
     private fun onUserHotTrackedCell(point: Point) {
-        if(game?.phase == Game.Phase.PLAY) {
+        if(game?.phase == Phase.PLAY) {
             val validMove = RulesManager.makeMove(currentPosition, currentPosition.nextToMove, point) != null
             if (validMove) {
                 candidateMove = point
@@ -124,7 +124,7 @@ class GamePresenter(
     }
 
     private fun onUserSelectedCell(point: Point) {
-        if(game?.phase == Game.Phase.PLAY) {
+        if(game?.phase == Phase.PLAY) {
             if(candidateMove != null) {
                 showConfirmMoveControls()
             }
@@ -144,7 +144,7 @@ class GamePresenter(
     }
 
     override fun onDiscardButtonPressed() {
-        if(game?.phase == Game.Phase.PLAY) {
+        if(game?.phase == Phase.PLAY) {
             candidateMove = null
             view.showCandidateMove(null)
             showPlayControls()
@@ -154,7 +154,7 @@ class GamePresenter(
     }
 
     override fun onConfirmButtonPressed() {
-        if(game?.phase == Game.Phase.PLAY) {
+        if(game?.phase == Phase.PLAY) {
             view.interactive = false
             candidateMove?.let { gameConnection.submitMove(it) }
             candidateMove = null
@@ -166,19 +166,19 @@ class GamePresenter(
 
     private fun configureBoard() {
         when(game?.phase) {
-            Game.Phase.PLAY -> {
+            Phase.PLAY -> {
                 view.showLastMove = true
                 view.showTerritory = false
                 view.fadeOutRemovedStones = false
                 view.interactive = game?.playerToMoveId == userId
             }
-            Game.Phase.STONE_REMOVAL -> {
+            Phase.STONE_REMOVAL -> {
                 view.showLastMove = false
                 view.showTerritory = true
                 view.fadeOutRemovedStones = true
                 view.interactive = true
             }
-            Game.Phase.FINISHED -> {
+            Phase.FINISHED -> {
                 view.showLastMove = false
                 view.showTerritory = true
                 view.fadeOutRemovedStones = true
@@ -188,9 +188,9 @@ class GamePresenter(
     }
 
     private fun showControls() {
-        if(myGame && game?.phase == Game.Phase.PLAY) {
+        if(myGame && game?.phase == Phase.PLAY) {
             showPlayControls()
-        } else if(myGame && game?.phase == Game.Phase.STONE_REMOVAL) {
+        } else if(myGame && game?.phase == Phase.STONE_REMOVAL) {
             showStoneRemovalControls()
         } else {
             showSpectateControls()
@@ -213,7 +213,7 @@ class GamePresenter(
     }
 
     override fun onAutoButtonPressed() {
-        if(game?.phase != Game.Phase.STONE_REMOVAL) {
+        if(game?.phase != Phase.STONE_REMOVAL) {
             return
         }
         val newPos = currentPosition.clone()
@@ -263,7 +263,7 @@ class GamePresenter(
         view.autoButtonVisible = false
     }
 
-    private fun computeTerritoryAsync(game: DbGame) {
+    private fun computeTerritoryAsync(game: Game) {
         deferredTerritoryComputation?.dispose()
         deferredTerritoryComputation = Single.create { emitter: SingleEmitter<Position> ->
             emitter.onSuccess(RulesManager.replay(game, computeTerritory = true))
@@ -277,13 +277,13 @@ class GamePresenter(
          deferredTerritoryComputation?.let(subscriptions::add)
     }
 
-    private fun refreshUI(game: DbGame) {
+    private fun refreshUI(game: Game) {
         val newPos = RulesManager.replay(game, computeTerritory = false)
         if(newPos != currentPosition) {
             currentPosition = newPos
             view.position = currentPosition
 
-            val shouldComputeTerritory = game.phase == Game.Phase.STONE_REMOVAL || game.phase == Game.Phase.FINISHED
+            val shouldComputeTerritory = game.phase == Phase.STONE_REMOVAL || game.phase == Phase.FINISHED
             if (shouldComputeTerritory) {
                 computeTerritoryAsync(game)
             }
@@ -291,17 +291,17 @@ class GamePresenter(
 
         determineHistoryParameters()
         when(game.phase) {
-            Game.Phase.PLAY -> {
+            Phase.PLAY -> {
                 val toMove =
                         if (currentPosition.nextToMove == StoneType.BLACK)
                             game.blackPlayer
                         else game.whitePlayer
                 view.subTitle = "${toMove.username}'s turn"
             }
-            Game.Phase.STONE_REMOVAL -> {
+            Phase.STONE_REMOVAL -> {
                 view.subTitle = "Stone removal"
             }
-            Game.Phase.FINISHED -> {
+            Phase.FINISHED -> {
                 if(!finishedDialogShown) {
                     finishedDialogShown = true
                     val winner = if(game.blackLost == true) game.whitePlayer.id else game.blackPlayer.id

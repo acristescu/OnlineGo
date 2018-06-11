@@ -1,15 +1,13 @@
 package io.zenandroid.onlinego.model.ogs
 
 import android.arch.persistence.room.Ignore
-import android.arch.persistence.room.TypeConverter
-import com.squareup.moshi.Json
 import io.zenandroid.onlinego.ogs.Players
 import java.util.*
 
 /**
  * Created by alex on 04/11/2017.
  */
-data class Game (
+data class OGSGame (
         var white: Any? = null,
         var black: Any? = null,
 
@@ -60,33 +58,15 @@ data class Game (
             var detail: String? = null
     )
 
-    enum class Phase {
-        @Json(name = "play") PLAY,
-        @Json(name = "stone removal") STONE_REMOVAL,
-        @Json(name = "finished") FINISHED;
-    }
-
-    val blackPlayer: Player?
-        get() = black as? Player
+    val blackPlayer: OGSPlayer?
+        get() = black as? OGSPlayer
 
     val blackId: Long?
         get() = (black as? Double ?: (black as? Map<*, *>)?.get("id") as? Double)?.toLong()
 
-    val whitePlayer: Player?
-        get() = white as? Player
+    val whitePlayer: OGSPlayer?
+        get() = white as? OGSPlayer
 
     val whiteId: Long?
         get() = (white as? Double ?: (white as? Map<*, *>)?.get("id") as? Double)?.toLong()
 }
-
-object Converters {
-    @TypeConverter
-    @JvmStatic
-    fun convertToString(phase: Game.Phase): String = phase.toString()
-
-    @TypeConverter
-    @JvmStatic
-    fun fromString(string: String): Game.Phase = Game.Phase.valueOf(string)
-}
-
-

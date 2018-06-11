@@ -6,9 +6,9 @@ import io.reactivex.disposables.Disposable
 import io.zenandroid.onlinego.gamelogic.Util
 import io.zenandroid.onlinego.model.local.Score
 import io.zenandroid.onlinego.model.local.Time
-import io.zenandroid.onlinego.model.ogs.Game
 import io.zenandroid.onlinego.model.ogs.GameData
-import io.zenandroid.onlinego.model.ogs.Player
+import io.zenandroid.onlinego.model.ogs.Phase
+import io.zenandroid.onlinego.model.ogs.OGSPlayer
 import io.zenandroid.onlinego.utils.createJsonObject
 import java.io.Closeable
 
@@ -21,7 +21,7 @@ class GameConnection(val gameId: Long) : Disposable, Closeable {
     lateinit var gameData: Flowable<GameData>
     lateinit var moves: Flowable<Move>
     lateinit var clock: Flowable<Clock>
-    lateinit var phase: Flowable<Game.Phase>
+    lateinit var phase: Flowable<Phase>
     lateinit var removedStones: Flowable<RemovedStones>
 
     var gameAuth: String? = null
@@ -124,8 +124,8 @@ data class Clock (
 }
 
 data class Players (
-    var white: Player? = null,
-    var black: Player? = null
+        var white: OGSPlayer? = null,
+        var black: OGSPlayer? = null
 )
 
 

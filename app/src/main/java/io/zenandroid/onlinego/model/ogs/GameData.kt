@@ -20,7 +20,7 @@ data class GameData (
         var white_player_id: Long? = null,
         var players: Players? = null,
         var game_name: String? = null,
-        var phase: Game.Phase,
+        var phase: Phase,
     //var history: List<Any>? = null,
         var initial_player: String? = null,
         var moves: MutableList<MutableList<Int>>,

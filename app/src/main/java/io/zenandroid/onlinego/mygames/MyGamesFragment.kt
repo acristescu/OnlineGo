@@ -13,7 +13,7 @@ import butterknife.ButterKnife
 import butterknife.Unbinder
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.main.MainActivity
-import io.zenandroid.onlinego.model.local.DbGame
+import io.zenandroid.onlinego.model.local.Game
 import io.zenandroid.onlinego.reusable.ActiveGameItem
 import io.zenandroid.onlinego.reusable.FinishedGameItem
 
@@ -51,7 +51,7 @@ class MyGamesFragment : Fragment(), MyGamesContract.View {
         presenter = MyGamesPresenter(this, (activity as MainActivity).activeGameRepository)
     }
 
-    override fun navigateToGameScreen(game: DbGame) {
+    override fun navigateToGameScreen(game: Game) {
         (activity as MainActivity).navigateToGameScreen(game)
     }
 
@@ -65,7 +65,7 @@ class MyGamesFragment : Fragment(), MyGamesContract.View {
         presenter.subscribe()
     }
 
-    override fun setHistoricGames(games: List<DbGame>) {
+    override fun setHistoricGames(games: List<Game>) {
         groupAdapter.setHistoricGames(games)
     }
 
@@ -74,7 +74,7 @@ class MyGamesFragment : Fragment(), MyGamesContract.View {
         presenter.unsubscribe()
     }
 
-    override fun setGames(games: List<DbGame>) {
+    override fun setGames(games: List<Game>) {
         groupAdapter.setGames(games)
     }
 

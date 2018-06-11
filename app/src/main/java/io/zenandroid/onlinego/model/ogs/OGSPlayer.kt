@@ -3,7 +3,7 @@ package io.zenandroid.onlinego.model.ogs
 /**
  * Created by alex on 04/11/2017.
  */
-data class Player (
+data class OGSPlayer (
         var id: Long,
         var username: String? = null,
         var rank: Int? = null,

@@ -4,13 +4,13 @@ import com.xwray.groupie.kotlinandroidextensions.Item
 import com.xwray.groupie.kotlinandroidextensions.ViewHolder
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.gamelogic.RulesManager
-import io.zenandroid.onlinego.model.local.DbGame
+import io.zenandroid.onlinego.model.local.Game
 import io.zenandroid.onlinego.ogs.OGSServiceImpl
 import io.zenandroid.onlinego.utils.egfToRank
 import io.zenandroid.onlinego.utils.formatRank
 import kotlinx.android.synthetic.main.item_finished_game_card.*
 
-class FinishedGameItem (val game: DbGame) : Item(game.id) {
+class FinishedGameItem (val game: Game) : Item(game.id) {
     override fun bind(holder: ViewHolder, position: Int) {
         holder.board.boardSize = game.width
 

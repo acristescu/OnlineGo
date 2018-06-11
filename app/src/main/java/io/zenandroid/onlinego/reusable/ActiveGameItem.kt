@@ -5,14 +5,14 @@ import com.xwray.groupie.kotlinandroidextensions.ViewHolder
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.extensions.showIf
 import io.zenandroid.onlinego.gamelogic.RulesManager
-import io.zenandroid.onlinego.model.local.DbGame
+import io.zenandroid.onlinego.model.local.Game
 import io.zenandroid.onlinego.ogs.OGSServiceImpl
 import io.zenandroid.onlinego.utils.computeTimeLeft
 import io.zenandroid.onlinego.utils.egfToRank
 import io.zenandroid.onlinego.utils.formatRank
 import kotlinx.android.synthetic.main.item_active_game_card.*
 
-class ActiveGameItem (val game: DbGame) : Item(game.id) {
+class ActiveGameItem (val game: Game) : Item(game.id) {
     override fun bind(holder: ViewHolder, position: Int) {
         holder.board.boardSize = game.width
         holder.board.position = RulesManager.replay(game, computeTerritory = false)

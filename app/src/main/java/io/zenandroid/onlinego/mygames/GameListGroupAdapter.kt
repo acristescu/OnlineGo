@@ -3,7 +3,7 @@ package io.zenandroid.onlinego.mygames
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.Section
 import com.xwray.groupie.ViewHolder
-import io.zenandroid.onlinego.model.local.DbGame
+import io.zenandroid.onlinego.model.local.Game
 import io.zenandroid.onlinego.ogs.OGSServiceImpl
 import io.zenandroid.onlinego.reusable.ActiveGameItem
 import io.zenandroid.onlinego.reusable.FinishedGameItem
@@ -26,7 +26,7 @@ class GameListGroupAdapter : GroupAdapter<ViewHolder>() {
         add(finishedGamesSection)
     }
 
-    fun setGames(games: List<DbGame>) {
+    fun setGames(games: List<Game>) {
         val userId = OGSServiceImpl.instance.uiConfig?.user?.id
         val myTurnList = mutableListOf<ActiveGameItem>()
         val opponentTurnList = mutableListOf<ActiveGameItem>()
@@ -42,7 +42,7 @@ class GameListGroupAdapter : GroupAdapter<ViewHolder>() {
         opponentMoveSection.update(opponentTurnList)
     }
 
-    fun setHistoricGames(games: List<DbGame>) {
+    fun setHistoricGames(games: List<Game>) {
         finishedGamesSection.update(games.map(::FinishedGameItem))
     }
 }

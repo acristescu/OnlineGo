@@ -1,7 +1,7 @@
 package io.zenandroid.onlinego.db
 
 import android.arch.persistence.room.TypeConverter
-import io.zenandroid.onlinego.model.ogs.Game
+import io.zenandroid.onlinego.model.ogs.Phase
 
 /**
  * Created by 44108952 on 07/06/2018.
@@ -47,10 +47,10 @@ class DbTypeConverters {
 
         @TypeConverter
         @JvmStatic
-        fun phaseToString(phase: Game.Phase?) = phase?.toString()
+        fun phaseToString(phase: Phase?) = phase?.toString()
 
         @TypeConverter
         @JvmStatic
-        fun stringToPhase(phase: String?) = phase?.let(Game.Phase::valueOf)
+        fun stringToPhase(phase: String?) = phase?.let(Phase::valueOf)
     }
 }

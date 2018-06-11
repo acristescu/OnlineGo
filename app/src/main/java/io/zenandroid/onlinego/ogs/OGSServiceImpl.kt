@@ -125,7 +125,7 @@ class OGSServiceImpl private constructor(): OGSService {
         }
     }
 
-    override fun fetchGame(gameId: Long): Single<Game> =
+    override fun fetchGame(gameId: Long): Single<OGSGame> =
             loginWithToken().andThen(restApi.fetchGame(gameId))
                     //
                     // Hack alert! just to keep us on our toes, the same thing is called
@@ -144,7 +144,7 @@ class OGSServiceImpl private constructor(): OGSService {
         connection.clock = observeEvent("game/$id/clock")
                     .map { string -> moshi.adapter(Clock::class.java).fromJson(string.toString()) }
         connection.phase = observeEvent("game/$id/phase")
-                    .map { string -> Game.Phase.valueOf(string.toString().toUpperCase().replace(' ', '_')) }
+                    .map { string -> Phase.valueOf(string.toString().toUpperCase().replace(' ', '_')) }
         connection.removedStones = observeEvent("game/$id/removed_stones")
                     .map { string -> moshi.adapter(RemovedStones::class.java).fromJson(string.toString()) }
 
@@ -156,9 +156,9 @@ class OGSServiceImpl private constructor(): OGSService {
         return connection
     }
 
-    fun connectToNotifications(): Flowable<Game> {
+    fun connectToNotifications(): Flowable<OGSGame> {
         val returnVal = observeEvent("active_game")
-                .map { string -> moshi.adapter(Game::class.java).fromJson(string.toString()) as Game }
+                .map { string -> moshi.adapter(OGSGame::class.java).fromJson(string.toString()) as OGSGame }
 
         emit("notification/disconnect", "")
         emit("notification/connect", createJsonObject {
@@ -358,7 +358,7 @@ class OGSServiceImpl private constructor(): OGSService {
         })
     }
 
-    override fun fetchActiveGames(): Single<List<Game>> =
+    override fun fetchActiveGames(): Single<List<OGSGame>> =
             loginWithToken().andThen(
                     restApi.fetchOverview()
                             .map { it -> it.active_games }
@@ -372,7 +372,7 @@ class OGSServiceImpl private constructor(): OGSService {
                             }
             )
 
-    override fun fetchHistoricGames(): Single<List<Game>> =
+    override fun fetchHistoricGames(): Single<List<OGSGame>> =
         loginWithToken().andThen(
                 restApi.fetchPlayerFinishedGames(uiConfig?.user?.id!!)
                         .map { it -> it.results }

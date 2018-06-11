@@ -3,7 +3,7 @@ package io.zenandroid.onlinego.utils
 import android.util.Log
 import io.zenandroid.onlinego.game.GamePresenter
 import io.zenandroid.onlinego.model.local.Time
-import io.zenandroid.onlinego.model.ogs.Game
+import io.zenandroid.onlinego.model.ogs.OGSGame
 import io.zenandroid.onlinego.ogs.Clock
 import io.zenandroid.onlinego.model.ogs.GameData
 import org.json.JSONArray
@@ -51,7 +51,7 @@ fun convertCountryCodeToEmojiFlag(country: String?): String {
     return "\uD83C$c1\uD83C$c2"
 }
 
-fun timeLeftForCurrentPlayer(game: Game, gameData: GameData): Long {
+fun timeLeftForCurrentPlayer(game: OGSGame, gameData: GameData): Long {
     val currentPlayer =
             when (gameData.clock.current_player) {
                 gameData.players?.black?.id -> gameData.players?.black

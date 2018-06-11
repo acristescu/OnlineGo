@@ -5,7 +5,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import io.zenandroid.onlinego.BuildConfig
-import io.zenandroid.onlinego.model.local.DbGame
+import io.zenandroid.onlinego.model.local.Game
 import io.zenandroid.onlinego.ogs.ActiveGameRepository
 import io.zenandroid.onlinego.ogs.OGSServiceImpl
 
@@ -15,7 +15,7 @@ import io.zenandroid.onlinego.ogs.OGSServiceImpl
 class MainPresenter (val view : MainContract.View, val activeGameRepository: ActiveGameRepository) : MainContract.Presenter {
 
     private val subscriptions = CompositeDisposable()
-    private var lastGameNotified: DbGame? = null
+    private var lastGameNotified: Game? = null
 
     override fun subscribe() {
         view.mainTitle = "OnlineGo"
