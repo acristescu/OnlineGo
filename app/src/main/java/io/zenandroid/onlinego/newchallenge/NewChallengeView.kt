@@ -136,6 +136,6 @@ class NewChallengeView : FrameLayout, NewChallengeContract.View {
     }
 
     override fun showFab() : Completable =
-        fab.slideIn(0f)
+        fab.slideIn(0f, 700, 3f)
 
 }

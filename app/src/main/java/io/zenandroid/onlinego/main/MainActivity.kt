@@ -84,6 +84,7 @@ class MainActivity : AppCompatActivity(), MainContract.View {
     override var notificationsBadgeVisible: Boolean
         get() { return badge.alpha == 1f }
         set(value) { badge.animate().alpha(if(value) 1f else 0f) }
+
     override var notificationsBadgeCount: String? = null
         set(value) { badge.text = value }
 
@@ -109,6 +110,7 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         createNotificationChannel()
         scheduleNotificationJob()
 
+        newChallengeView.showFab().subscribe()
     }
 
     private fun scheduleNotificationJob() {
@@ -167,6 +169,8 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         return when(item.itemId) {
             R.id.navigation_spectate -> {
                 supportFragmentManager.beginTransaction()
+                        .setCustomAnimations(R.anim.fade_in, R.anim.fade_out,
+                                R.anim.fade_in, R.anim.fade_out)
                         .replace(R.id.fragment_container, spectateFragment)
                         .runOnCommit (this::ensureNavigationVisible)
                         .commit()
@@ -174,6 +178,8 @@ class MainActivity : AppCompatActivity(), MainContract.View {
             }
             R.id.navigation_challenges -> {
                 supportFragmentManager.beginTransaction()
+                        .setCustomAnimations(R.anim.fade_in, R.anim.fade_out,
+                                R.anim.fade_in, R.anim.fade_out)
                         .replace(R.id.fragment_container, challengesFragment)
                         .runOnCommit (this::ensureNavigationVisible)
                         .commit()
@@ -181,6 +187,8 @@ class MainActivity : AppCompatActivity(), MainContract.View {
             }
             R.id.navigation_my_games -> {
                 supportFragmentManager.beginTransaction()
+                        .setCustomAnimations(R.anim.fade_in, R.anim.fade_out,
+                                R.anim.fade_in, R.anim.fade_out)
                         .replace(R.id.fragment_container, myGamesFragment)
                         .runOnCommit (this::ensureNavigationVisible)
                         .commit()
@@ -192,20 +200,22 @@ class MainActivity : AppCompatActivity(), MainContract.View {
 
     private fun ensureNavigationVisible() {
         if(bottomNavigation.visibility != View.VISIBLE) {
-            bottomNavigation.fadeIn().subscribe()
-            newChallengeView.fadeIn().subscribe()
+            bottomNavigation.visibility = View.VISIBLE
+            Completable.mergeArray(
+                    newChallengeView.fadeIn(),
+                    newChallengeView.showFab()
+            ).subscribe()
         }
     }
 
     override fun navigateToGameScreen(game: DbGame) {
-        Completable.mergeArray(
-                bottomNavigation.fadeOut(),
-                newChallengeView.fadeOut()
-        ).subscribe {
-            supportFragmentManager.beginTransaction()
-                    .replace(R.id.fragment_container, GameFragment.createFragment(game), "game")
-                    .commit()
-        }
+        bottomNavigation.visibility = View.GONE
+        newChallengeView.fadeOut().subscribe()
+        supportFragmentManager.beginTransaction()
+                .setCustomAnimations(R.anim.fade_in, R.anim.fade_out,
+                        R.anim.fade_in, R.anim.fade_out)
+                .replace(R.id.fragment_container, GameFragment.createFragment(game), "game")
+                .commit()
     }
 
     override fun showError(msg: String?) {

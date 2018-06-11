@@ -214,7 +214,7 @@ class GameFragment : Fragment(), GameContract.View {
     override var discardButtonVisible = false
         set(value) { discardButton.showIf(value) }
 
-    override var bottomBarVisible = false
+    override var bottomBarVisible = true
         set(value) {
             if(!field && value) {
                 playControls.fadeIn().subscribe()

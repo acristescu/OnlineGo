@@ -6,6 +6,7 @@ import android.arch.persistence.room.Ignore
 import android.arch.persistence.room.PrimaryKey
 import io.zenandroid.onlinego.model.ogs.Game
 import io.zenandroid.onlinego.model.ogs.GameData
+import java.util.*
 
 /**
  * Created by 44108952 on 05/06/2018.
@@ -44,7 +45,9 @@ data class DbGame(
 
         var phase: Game.Phase?,
 
-        var komi: Float?
+        var komi: Float?,
+
+        var ended: Long?
         ) {
     @Ignore
     var json: GameData? = null
@@ -92,7 +95,8 @@ data class DbGame(
                     blackPlayer = blackPlayer,
                     clock = Clock.fromOGSClock(gamedata?.clock),
                     phase = gamedata?.phase,
-                    komi = game.komi
+                    komi = game.komi,
+                    ended = game.ended?.time
             )
         }
     }

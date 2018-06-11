@@ -4,6 +4,7 @@ import android.arch.persistence.room.Ignore
 import android.arch.persistence.room.TypeConverter
 import com.squareup.moshi.Json
 import io.zenandroid.onlinego.ogs.Players
+import java.util.*
 
 /**
  * Created by alex on 04/11/2017.
@@ -24,6 +25,7 @@ data class Game (
         var private: Boolean? = null,
         var time_per_move: Int? = null,
         var player_to_move: Long? = null,
+        var ended: Date? = null,
 
         var json: GameData? = null,
 
