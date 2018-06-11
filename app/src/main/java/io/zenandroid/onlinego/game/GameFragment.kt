@@ -26,8 +26,8 @@ import io.zenandroid.onlinego.extensions.showIf
 import io.zenandroid.onlinego.main.MainActivity
 import io.zenandroid.onlinego.model.Position
 import io.zenandroid.onlinego.model.StoneType
-import io.zenandroid.onlinego.model.ogs.Game
-import io.zenandroid.onlinego.model.ogs.Player
+import io.zenandroid.onlinego.model.local.Game
+import io.zenandroid.onlinego.model.local.Player
 import io.zenandroid.onlinego.ogs.OGSServiceImpl
 import io.zenandroid.onlinego.views.BoardView
 import io.zenandroid.onlinego.views.PlayerDetailsView
@@ -136,7 +136,13 @@ class GameFragment : Fragment(), GameContract.View {
 
         whiteDetailsView.color = StoneType.WHITE
         blackDetailsView.color = StoneType.BLACK
-        presenter = GamePresenter(this, OGSServiceImpl.instance, arguments!!.getLong(GAME_ID), arguments!!.getInt(GAME_SIZE))
+        presenter = GamePresenter(
+                this,
+                OGSServiceImpl.instance,
+                (activity as MainActivity).activeGameRepository,
+                arguments!!.getLong(GAME_ID),
+                arguments!!.getInt(GAME_SIZE)
+        )
     }
 
     override fun showError(t: Throwable) {
@@ -148,6 +154,7 @@ class GameFragment : Fragment(), GameContract.View {
 
     override var showTerritory = false
         set(value) { board.drawTerritory = value }
+
     override var fadeOutRemovedStones = false
         set(value) { board.fadeOutRemovedStones = value }
 
@@ -207,7 +214,7 @@ class GameFragment : Fragment(), GameContract.View {
     override var discardButtonVisible = false
         set(value) { discardButton.showIf(value) }
 
-    override var bottomBarVisible = false
+    override var bottomBarVisible = true
         set(value) {
             if(!field && value) {
                 playControls.fadeIn().subscribe()

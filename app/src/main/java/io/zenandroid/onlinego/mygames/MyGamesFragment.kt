@@ -13,11 +13,9 @@ import butterknife.ButterKnife
 import butterknife.Unbinder
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.main.MainActivity
-import io.zenandroid.onlinego.model.ogs.Game
-import io.zenandroid.onlinego.ogs.Clock
-import io.zenandroid.onlinego.ogs.GameData
-import io.zenandroid.onlinego.ogs.Move
-import io.zenandroid.onlinego.reusable.GameItem
+import io.zenandroid.onlinego.model.local.Game
+import io.zenandroid.onlinego.reusable.ActiveGameItem
+import io.zenandroid.onlinego.reusable.FinishedGameItem
 
 /**
  * Created by alex on 05/11/2017.
@@ -45,7 +43,8 @@ class MyGamesFragment : Fragment(), MyGamesContract.View {
         gamesRecycler.adapter = groupAdapter
         groupAdapter.setOnItemClickListener { item, _ ->
             when(item) {
-                is GameItem -> presenter.onGameSelected(item.game)
+                is ActiveGameItem -> presenter.onGameSelected(item.game)
+                is FinishedGameItem -> presenter.onGameSelected(item.game)
             }
         }
 
@@ -70,37 +69,13 @@ class MyGamesFragment : Fragment(), MyGamesContract.View {
         groupAdapter.setHistoricGames(games)
     }
 
-    override fun clearGames() {
-        groupAdapter.clearGames()
-    }
-
     override fun onPause() {
         super.onPause()
         presenter.unsubscribe()
     }
 
-    override fun setGameData(id: Long, gameData: GameData) {
-        groupAdapter.setGameData(id, gameData)
-    }
-
-    override fun doMove(id: Long, move: Move) {
-        groupAdapter.doMove(id, move)
-    }
-
-    override fun removeGame(game: Game) {
-        groupAdapter.removeGame(game)
-    }
-
-    override fun addOrUpdateGame(game: Game) {
-        groupAdapter.addOrUpdateGame(game)
-    }
-
     override fun setGames(games: List<Game>) {
         groupAdapter.setGames(games)
-    }
-
-    override fun setClock(id: Long, clock: Clock) {
-        groupAdapter.setClock(id, clock)
     }
 
     override fun setLoading(loading: Boolean) {

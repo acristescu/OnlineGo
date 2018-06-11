@@ -26,7 +26,8 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:srcCompat="@drawable/ic_add"
         app:fabSize="normal"
-        app:backgroundTint="@color/colorPrimary" />
+        app:backgroundTint="@color/colorAccent"
+        />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/long_fab"
@@ -39,8 +40,9 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:srcCompat="@drawable/ic_turtle"
         app:fabSize="mini"
-        app:backgroundTint="@color/colorPrimary"
-        android:visibility="gone" />
+        app:backgroundTint="@color/colorAccent"
+        android:visibility="gone"
+        />
 
     <TextView
         android:id="@+id/long_label"
@@ -53,7 +55,8 @@
         android:alpha="0"
         android:elevation="6dp"
         android:layout_marginRight="16dp"
-        android:fontFamily="@font/kanit_semibold" />
+        android:fontFamily="@font/kanit_semibold"
+        />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/normal_fab"
@@ -67,8 +70,9 @@
         app:srcCompat="@drawable/ic_clock"
         android:tint="@color/white"
         app:fabSize="mini"
-        app:backgroundTint="@color/colorPrimary"
-        android:visibility="gone" />
+        app:backgroundTint="@color/colorAccent"
+        android:visibility="gone"
+        />
 
     <TextView
         android:id="@+id/normal_label"
@@ -81,7 +85,8 @@
         android:alpha="0"
         android:elevation="6dp"
         android:layout_marginRight="16dp"
-        android:fontFamily="@font/kanit_semibold" />
+        android:fontFamily="@font/kanit_semibold"
+        />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/blitz_fab"
@@ -94,8 +99,9 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:srcCompat="@drawable/ic_blitz"
         app:fabSize="mini"
-        app:backgroundTint="@color/colorPrimary"
-        android:visibility="gone" />
+        app:backgroundTint="@color/colorAccent"
+        android:visibility="gone"
+        />
 
     <TextView
         android:id="@+id/blitz_label"
@@ -108,7 +114,8 @@
         android:alpha="0"
         android:elevation="6dp"
         android:layout_marginRight="16dp"
-        android:fontFamily="@font/kanit_semibold" />
+        android:fontFamily="@font/kanit_semibold"
+        />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/large_fab"
@@ -121,8 +128,9 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:srcCompat="@drawable/ic_l"
         app:fabSize="mini"
-        app:backgroundTint="@color/colorPrimary"
-        android:visibility="gone" />
+        app:backgroundTint="@color/colorAccent"
+        android:visibility="gone"
+        />
 
     <TextView
         android:id="@+id/large_label"
@@ -135,7 +143,8 @@
         android:alpha="0"
         android:elevation="6dp"
         android:layout_marginRight="16dp"
-        android:fontFamily="@font/kanit_semibold" />
+        android:fontFamily="@font/kanit_semibold"
+        />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/medium_fab"
@@ -149,8 +158,9 @@
         app:srcCompat="@drawable/ic_m"
         android:tint="@color/white"
         app:fabSize="mini"
-        app:backgroundTint="@color/colorPrimary"
-        android:visibility="gone" />
+        app:backgroundTint="@color/colorAccent"
+        android:visibility="gone"
+        />
 
     <TextView
         android:id="@+id/medium_label"
@@ -163,7 +173,8 @@
         android:alpha="0"
         android:elevation="6dp"
         android:layout_marginRight="16dp"
-        android:fontFamily="@font/kanit_semibold" />
+        android:fontFamily="@font/kanit_semibold"
+        />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/small_fab"
@@ -176,8 +187,9 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:srcCompat="@drawable/ic_s"
         app:fabSize="mini"
-        app:backgroundTint="@color/colorPrimary"
-        android:visibility="gone" />
+        app:backgroundTint="@color/colorAccent"
+        android:visibility="gone"
+        />
 
     <TextView
         android:id="@+id/small_label"
@@ -190,5 +202,6 @@
         android:alpha="0"
         android:elevation="6dp"
         android:layout_marginRight="16dp"
-        android:fontFamily="@font/kanit_semibold" />
+        android:fontFamily="@font/kanit_semibold"
+        />
 </android.support.constraint.ConstraintLayout>

@@ -1,10 +1,13 @@
 package io.zenandroid.onlinego
 
 import android.app.Application
+import android.arch.persistence.room.Room
+import android.arch.persistence.room.RoomDatabase
 import android.os.Build
 import android.support.text.emoji.EmojiCompat
 import android.support.text.emoji.FontRequestEmojiCompatConfig
 import android.support.v4.provider.FontRequest
+import io.zenandroid.onlinego.db.Database
 
 
 /**
@@ -15,6 +18,8 @@ class OnlineGoApplication : Application() {
     companion object {
         lateinit var instance: OnlineGoApplication
     }
+
+    val db by lazy { Room.databaseBuilder(this, Database::class.java, "database.db").build() }
 
     override fun onCreate() {
         super.onCreate()

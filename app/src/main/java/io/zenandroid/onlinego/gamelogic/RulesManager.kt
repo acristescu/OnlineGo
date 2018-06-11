@@ -4,8 +4,9 @@ import android.graphics.Point
 import android.util.Log
 import io.zenandroid.onlinego.model.Position
 import io.zenandroid.onlinego.model.StoneType
-import io.zenandroid.onlinego.ogs.GameData
-import io.zenandroid.onlinego.ogs.InitialState
+import io.zenandroid.onlinego.model.local.Game
+import io.zenandroid.onlinego.model.local.InitialState
+import io.zenandroid.onlinego.model.ogs.GameData
 import java.util.*
 
 /**
@@ -58,6 +59,61 @@ object RulesManager {
                 }
             }
         }
+    }
+
+    fun replay(game: Game, limit: Int = Int.MAX_VALUE, computeTerritory : Boolean): Position {
+        var pos = RulesManager.newPosition(game.height, game.initialState)
+
+        var turn = StoneType.BLACK
+        if(game.whiteGoesFirst == true) {
+            turn = StoneType.WHITE
+        }
+        pos.nextToMove = turn
+
+        game.moves?.forEachIndexed { index, move ->
+            if(index >= limit) {
+                return@forEachIndexed
+            }
+            val newPos = RulesManager.makeMove(pos, turn, Point(move[0], move[1]))
+            if(newPos == null) {
+                Log.e(this.javaClass.simpleName, "Server returned an invalid move!!! gameId=${game.id} move=$index")
+                return@forEachIndexed
+            }
+            pos = newPos
+            turn = turn.opponent
+            newPos.nextToMove = turn
+        }
+        game.removedStones?.let {
+            for (i in 0 until it.length step 2) {
+                pos.markRemoved(Util.getCoordinatesFromSGF(it, i))
+            }
+        }
+        //
+        // WARNING: This is time consuming AF, avoid it like the plague
+        //
+        if(computeTerritory) {
+            for (i in 0 until pos.boardSize) {
+                (0 until pos.boardSize)
+                        .map { Point(i, it) }
+                        .filter { !isMarkedDame(pos, it) }
+                        .filter { !isLivingStone(pos, it) }
+                        .filter { !pos.whiteTerritory.contains(it) }
+                        .filter { !pos.blackTerritory.contains(it) }
+                        .forEach { markEye(pos, it) }
+            }
+            game.whiteScore?.scoring_positions?.let {
+                for (i in 0 until it.length step 2) {
+                    pos.markWhiteTerritory(Util.getCoordinatesFromSGF(it, i))
+                }
+            }
+            game.blackScore?.scoring_positions?.let {
+                for (i in 0 until it.length step 2) {
+                    pos.markBlackTerritory(Util.getCoordinatesFromSGF(it, i))
+                }
+            }
+        }
+
+        return pos
     }
 
     fun replay(gameData: GameData, limit: Int = Int.MAX_VALUE, computeTerritory : Boolean): Position {

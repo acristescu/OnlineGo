@@ -4,6 +4,7 @@ import android.util.Log
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types
+import com.squareup.moshi.adapters.Rfc3339DateJsonAdapter
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Completable
 import io.reactivex.Flowable
@@ -46,7 +47,7 @@ class OGSServiceImpl private constructor(): OGSService {
     private val socket: Socket
     private var tokenExpiry: Date
     private val restApi: OGSRestAPI
-    private val moshi = Moshi.Builder().build()
+    private val moshi = Moshi.Builder().add(Date::class.java, Rfc3339DateJsonAdapter().nullSafe()).build()
     private var authSent = false
 
     private val loggingAck = Ack {
@@ -124,7 +125,7 @@ class OGSServiceImpl private constructor(): OGSService {
         }
     }
 
-    override fun fetchGame(gameId: Long): Single<Game> =
+    override fun fetchGame(gameId: Long): Single<OGSGame> =
             loginWithToken().andThen(restApi.fetchGame(gameId))
                     //
                     // Hack alert! just to keep us on our toes, the same thing is called
@@ -137,16 +138,13 @@ class OGSServiceImpl private constructor(): OGSService {
 
         connection.gameData = observeEvent("game/$id/gamedata")
                     .map { string -> moshi.adapter(GameData::class.java).fromJson(string.toString()) }
-                    .doOnNext {
-                        connection.gameAuth = it.auth
-                    }
 
         connection.moves = observeEvent("game/$id/move")
                     .map { string -> moshi.adapter(Move::class.java).fromJson(string.toString()) }
         connection.clock = observeEvent("game/$id/clock")
-                    .map { string -> moshi.adapter(Clock::class.java).fromJson(string.toString()) }
+                    .map { string -> moshi.adapter(OGSClock::class.java).fromJson(string.toString()) }
         connection.phase = observeEvent("game/$id/phase")
-                    .map { string -> Game.Phase.valueOf(string.toString().toUpperCase().replace(' ', '_')) }
+                    .map { string -> Phase.valueOf(string.toString().toUpperCase().replace(' ', '_')) }
         connection.removedStones = observeEvent("game/$id/removed_stones")
                     .map { string -> moshi.adapter(RemovedStones::class.java).fromJson(string.toString()) }
 
@@ -158,9 +156,9 @@ class OGSServiceImpl private constructor(): OGSService {
         return connection
     }
 
-    fun connectToNotifications(): Flowable<Game> {
+    fun connectToNotifications(): Flowable<OGSGame> {
         val returnVal = observeEvent("active_game")
-                .map { string -> moshi.adapter(Game::class.java).fromJson(string.toString()) }
+                .map { string -> moshi.adapter(OGSGame::class.java).fromJson(string.toString()) as OGSGame }
 
         emit("notification/disconnect", "")
         emit("notification/connect", createJsonObject {
@@ -234,7 +232,7 @@ class OGSServiceImpl private constructor(): OGSService {
     override fun startGameSearch(size: Size, speed: Speed) : AutomatchChallenge {
         val uuid = UUID.randomUUID().toString()
         val startFlowable = observeEvent("automatch/start")
-                .map { string -> moshi.adapter(AutomatchChallengeSuccess::class.java).fromJson(string.toString()) }
+                .map { string -> moshi.adapter(AutomatchChallengeSuccess::class.java).fromJson(string.toString()) as AutomatchChallengeSuccess }
         val challenge = AutomatchChallenge(uuid, startFlowable)
 
         val json = createJsonObject {
@@ -281,7 +279,7 @@ class OGSServiceImpl private constructor(): OGSService {
                 put("from", 0)
                 put("limit", 9)
             }, Ack {
-                args -> emitter.onSuccess(moshi.adapter(GameList::class.java).fromJson(args[0].toString()))
+                args -> emitter.onSuccess(moshi.adapter(GameList::class.java).fromJson(args[0].toString()) as GameList )
             })
         })
 
@@ -310,7 +308,7 @@ class OGSServiceImpl private constructor(): OGSService {
                 .baseUrl("https://online-go.com/")
                 .client(httpClient)
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.createWithScheduler(Schedulers.io()))
-                .addConverterFactory(MoshiConverterFactory.create())
+                .addConverterFactory(MoshiConverterFactory.create(moshi))
                 .build()
                 .create(OGSRestAPI::class.java)
 
@@ -360,7 +358,7 @@ class OGSServiceImpl private constructor(): OGSService {
         })
     }
 
-    override fun fetchActiveGames(): Single<List<Game>> =
+    override fun fetchActiveGames(): Single<List<OGSGame>> =
             loginWithToken().andThen(
                     restApi.fetchOverview()
                             .map { it -> it.active_games }
@@ -374,7 +372,7 @@ class OGSServiceImpl private constructor(): OGSService {
                             }
             )
 
-    override fun fetchHistoricGames(): Single<List<Game>> =
+    override fun fetchHistoricGames(): Single<List<OGSGame>> =
         loginWithToken().andThen(
                 restApi.fetchPlayerFinishedGames(uiConfig?.user?.id!!)
                         .map { it -> it.results }

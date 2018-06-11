@@ -47,7 +47,7 @@
         android:layout_height="wrap_content"
         android:id="@+id/play_controls"
         app:layout_constraintBottom_toBottomOf="parent"
-        android:visibility="invisible"
+        android:visibility="visible"
         app:cardBackgroundColor="@color/white"
         app:cardElevation="6dp"
         >

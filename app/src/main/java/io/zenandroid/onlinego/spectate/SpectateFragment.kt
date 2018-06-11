@@ -13,9 +13,10 @@ import butterknife.ButterKnife
 import butterknife.Unbinder
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.main.MainActivity
-import io.zenandroid.onlinego.model.ogs.Game
+import io.zenandroid.onlinego.model.local.Game
+import io.zenandroid.onlinego.model.ogs.OGSGame
+import io.zenandroid.onlinego.model.ogs.GameData
 import io.zenandroid.onlinego.model.ogs.GameList
-import io.zenandroid.onlinego.ogs.GameData
 import io.zenandroid.onlinego.ogs.Move
 import io.zenandroid.onlinego.ogs.OGSServiceImpl
 
@@ -55,8 +56,8 @@ class SpectateFragment : Fragment(), SpectateContract.View {
         presenter = SpectatePresenter(this, OGSServiceImpl.instance)
     }
 
-    override fun navigateToGameScreen(game: Game) {
-        (activity as MainActivity).navigateToGameScreen(game)
+    override fun navigateToGameScreen(game: OGSGame) {
+        (activity as MainActivity).navigateToGameScreen(Game.fromOGSGame(game))
     }
 
     override fun onDestroyView() {

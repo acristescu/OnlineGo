@@ -1,9 +1,11 @@
 package io.zenandroid.onlinego.game
 
 import com.nhaarman.mockito_kotlin.mock
-import io.zenandroid.onlinego.model.ogs.Game
-import io.zenandroid.onlinego.ogs.Clock
-import io.zenandroid.onlinego.ogs.GameData
+import io.zenandroid.onlinego.model.ogs.OGSGame
+import io.zenandroid.onlinego.ogs.OGSClock
+import io.zenandroid.onlinego.model.ogs.GameData
+import io.zenandroid.onlinego.model.ogs.Phase
+import io.zenandroid.onlinego.ogs.ActiveGameRepository
 import io.zenandroid.onlinego.ogs.OGSService
 import io.zenandroid.onlinego.utils.formatMillis
 import org.junit.Assert.assertEquals
@@ -14,16 +16,8 @@ import org.junit.Test
  */
 class GamePresenterTest {
 
-    val view = mock<GameContract.View>()
-    val service = mock<OGSService>()
-
     @Test
     fun whenFormatMillisIsCalled_thenCorrectValueIsReturned() {
-        val game = Game(null, null, 0L, Game.Phase.PLAY, null, 19, 19, null, null, null, null,0L,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null, null,null,null,null,null,null,null,
-                gamedata = GameData(null,null,null,19,null,null,null,null,null,null,null,null,null,null,null,Game.Phase.PLAY,null, listOf(),null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null, Clock(0L,0L,0L,0L,null,0L,null,0L,null,false,null,0,0),null,null,null,null,null,null,null)
-        )
-        val presenter = GamePresenter(view, service, game.id, game.width)
-
         val MILLIS = 1L
         val SECONDS = 1000 * MILLIS
         val MINUTES = 60 * SECONDS

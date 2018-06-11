@@ -17,7 +17,7 @@ import com.bumptech.glide.request.RequestOptions
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.extensions.showIf
 import io.zenandroid.onlinego.model.StoneType
-import io.zenandroid.onlinego.model.ogs.Player
+import io.zenandroid.onlinego.model.local.Player
 import io.zenandroid.onlinego.utils.convertCountryCodeToEmojiFlag
 import io.zenandroid.onlinego.utils.egfToRank
 import io.zenandroid.onlinego.utils.formatRank
@@ -51,8 +51,11 @@ class PlayerDetailsView : FrameLayout {
 
     var player: Player? = null
         set(value) {
+            if(field == value) {
+                return
+            }
             nameView.text = value?.username
-            rankView.text = formatRank(egfToRank(value?.ratings?.overall?.rating ?: value?.egf))
+            rankView.text = formatRank(egfToRank(value?.rating))
             value?.country?.let {
                 flagView.text = convertCountryCodeToEmojiFlag(it)
             }

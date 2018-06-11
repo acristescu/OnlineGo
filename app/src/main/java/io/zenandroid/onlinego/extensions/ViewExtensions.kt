@@ -6,6 +6,7 @@ package io.zenandroid.onlinego.extensions
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.os.Build
+import android.support.v4.view.ViewCompat.animate
 import android.util.Log
 import android.view.View
 import android.view.ViewAnimationUtils
@@ -58,7 +59,7 @@ fun View.circularReveal(backgroundColor: Int) {
     }
 }
 
-fun View.slideIn(offset: Float): Completable {
+fun View.slideIn(offset: Float, duration: Long = 300L, overshootTension: Float = 2f): Completable {
     return Completable.create {
         visibility = View.VISIBLE
         alpha = 0f
@@ -69,7 +70,8 @@ fun View.slideIn(offset: Float): Completable {
                 .translationY(0f)
                 .scaleX(1f)
                 .scaleY(1f)
-                .setInterpolator(OvershootInterpolator())
+                .setDuration(duration)
+                .setInterpolator(OvershootInterpolator(overshootTension))
                 .withEndAction(it::onComplete)
     }
 }

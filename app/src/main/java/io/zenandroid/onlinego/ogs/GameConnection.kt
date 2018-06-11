@@ -4,8 +4,11 @@ import android.graphics.Point
 import io.reactivex.Flowable
 import io.reactivex.disposables.Disposable
 import io.zenandroid.onlinego.gamelogic.Util
-import io.zenandroid.onlinego.model.ogs.Game
-import io.zenandroid.onlinego.model.ogs.Player
+import io.zenandroid.onlinego.model.local.Score
+import io.zenandroid.onlinego.model.local.Time
+import io.zenandroid.onlinego.model.ogs.GameData
+import io.zenandroid.onlinego.model.ogs.Phase
+import io.zenandroid.onlinego.model.ogs.OGSPlayer
 import io.zenandroid.onlinego.utils.createJsonObject
 import java.io.Closeable
 
@@ -17,8 +20,8 @@ class GameConnection(val gameId: Long) : Disposable, Closeable {
 
     lateinit var gameData: Flowable<GameData>
     lateinit var moves: Flowable<Move>
-    lateinit var clock: Flowable<Clock>
-    lateinit var phase: Flowable<Game.Phase>
+    lateinit var clock: Flowable<OGSClock>
+    lateinit var phase: Flowable<Phase>
     lateinit var removedStones: Flowable<RemovedStones>
 
     var gameAuth: String? = null
@@ -90,75 +93,12 @@ class GameConnection(val gameId: Long) : Disposable, Closeable {
 
 }
 
-data class GameData (
-    var handicap: Int? = null,
-    var disable_analysis: Boolean? = null,
-    var _private: Boolean? = null,
-    var height: Int,
-    var time_control: TimeControl? = null,
-    var ranked: Boolean? = null,
-    //var meta_groups: List<Any>? = null,
-    var komi: Float? = null,
-    var game_id: Int? = null,
-    var width: Int? = null,
-    var rules: String? = null,
-    var black_player_id: Long? = null,
-    var pause_on_weekends: Boolean? = null,
-    var white_player_id: Long? = null,
-    var players: Players? = null,
-    var game_name: String? = null,
-    var phase: Game.Phase,
-    //var history: List<Any>? = null,
-    var initial_player: String? = null,
-    var moves: List<List<Int>>,
-    var allow_self_capture: Boolean? = null,
-    var automatic_stone_removal: Boolean? = null,
-    var free_handicap_placement: Boolean? = null,
-    var aga_handicap_scoring: Boolean? = null,
-    var allow_ko: Boolean? = null,
-    var allow_superko: Boolean? = null,
-    var superko_algorithm: String? = null,
-    var score_territory: Boolean? = null,
-    var score_territory_in_seki: Boolean? = null,
-    var score_stones: Boolean? = null,
-    var score_prisoners: Boolean? = null,
-    var score_passes: Boolean? = null,
-    var white_must_pass_last: Boolean? = null,
-    var opponent_plays_first_after_resume: Boolean? = null,
-    var strict_seki_mode: Boolean? = null,
-    var initial_state: InitialState? = null,
-    var start_time: Int? = null,
-    var clock: Clock,
-    var removed: String? = null,
-    var auth: String? = null,
-    var game_chat_auth: String? = null,
-    var winner: Long? = null,
-    var outcome: String? = null,
-    var end_time: Long? = null,
-    var score: Scores? = null
-)
-
 data class Scores (
         var white: Score? = null,
         var black: Score? = null
 )
 
-data class Score (
-        var handicap: Double? = null,
-        var komi: Double? = null,
-        var prisoners: Int? = null,
-        var scoring_positions: String? = null,
-        var stones: Int? = null,
-        var territory: Int? = null,
-        var total: Double? = null
-)
-
-data class InitialState (
-    var black: String? = null,
-    var white: String? = null
-)
-
-data class Clock (
+data class OGSClock (
     var game_id: Long,
     var current_player: Long,
     var black_player_id: Long,
@@ -174,33 +114,18 @@ data class Clock (
     var white_time: Any// can be number or Time object
 ) {
     var receivedAt: Long = 0
-}
+    val whiteTimeSimple get() = white_time as? Long
+    val blackTimeSimple get() = black_time as? Long
+    val whiteTime
+        get() = (white_time as? Map<*, *>)?.let { Time.fromMap(it) }
+    val blackTime
+        get() = (black_time as? Map<*, *>)?.let { Time.fromMap(it) }
 
-data class Time(
-        val thinking_time: Long,
-        val skip_bonus: Boolean? = null,
-        val block_time: Long? = null,
-        val periods: Long? = null,
-        val period_time: Long? = null,
-        val moves_left: Long? = null
-) {
-    companion object {
-        fun fromMap(map:Map<*, *>): Time {
-            return Time(
-                    (map["thinking_time"] as Double).toLong(),
-                    map["skip_bonus"] as? Boolean,
-                    (map["block_time"] as Double?)?.toLong(),
-                    (map["periods"] as Double?)?.toLong(),
-                    (map["period_time"] as Double?)?.toLong(),
-                    (map["moves_left"] as Double?)?.toLong()
-            )
-        }
-    }
 }
 
 data class Players (
-    var white: Player? = null,
-    var black: Player? = null
+        var white: OGSPlayer? = null,
+        var black: OGSPlayer? = null
 )
 
 
@@ -218,7 +143,7 @@ data class TimeControl (
 data class Move(
         val game_id: Long,
         val move_number: Int,
-        val move: List<Int>
+        val move: MutableList<Int>
 )
 
 //{"removed":true,"stones":"cidadfdgdieaeceifafhfighgihfhghhhiifigihii","all_removed":"daeafaecdfhfifdghgigfhghhhihcidieifigihiii"}

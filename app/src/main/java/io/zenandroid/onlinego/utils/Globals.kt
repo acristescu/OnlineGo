@@ -2,10 +2,10 @@ package io.zenandroid.onlinego.utils
 
 import android.util.Log
 import io.zenandroid.onlinego.game.GamePresenter
-import io.zenandroid.onlinego.model.ogs.Game
-import io.zenandroid.onlinego.ogs.Clock
-import io.zenandroid.onlinego.ogs.GameData
-import io.zenandroid.onlinego.ogs.Time
+import io.zenandroid.onlinego.model.local.Clock
+import io.zenandroid.onlinego.model.local.Game
+import io.zenandroid.onlinego.model.local.Time
+import io.zenandroid.onlinego.ogs.OGSClock
 import org.json.JSONArray
 import org.json.JSONObject
 import java.lang.Math.ceil
@@ -51,22 +51,27 @@ fun convertCountryCodeToEmojiFlag(country: String?): String {
     return "\uD83C$c1\uD83C$c2"
 }
 
-fun timeLeftForCurrentPlayer(game: Game, gameData: GameData): Long {
-    val currentPlayer =
-            when (gameData.clock.current_player) {
-                gameData.players?.black?.id -> gameData.players?.black
-                gameData.players?.white?.id -> gameData.players?.white
-                else -> null
+fun timeLeftForCurrentPlayer(game: Game): Long {
+    game.clock?.let { clock ->
+        var playerTime: Time? = null
+        var playerTimeSimple: Long? = null
+        when (game.playerToMoveId) {
+            game.blackPlayer.id -> {
+                playerTime = clock.blackTime
+                playerTimeSimple = clock.blackTimeSimple
             }
-    val currentPlayerTime =
-            if(currentPlayer?.id == gameData.players?.black?.id)
-                gameData.clock.black_time
-            else
-                gameData.clock.white_time
-    return computeTimeLeft(gameData.clock, currentPlayerTime, true).timeLeft ?: 0
+            game.whitePlayer.id -> {
+                playerTime = clock.whiteTime
+                playerTimeSimple = clock.whiteTimeSimple
+            }
+        }
+
+        return computeTimeLeft(clock, playerTimeSimple, playerTime, true).timeLeft ?: 0
+    }
+    return 0
 }
 
-fun computeTimeLeft(clock: Clock, playerTimeAny: Any, currentPlayer: Boolean): GamePresenter.TimerDetails {
+fun computeTimeLeft(clock: Clock, playerTimeSimple: Long?, playerTime: Time?, currentPlayer: Boolean): GamePresenter.TimerDetails {
     val timer = GamePresenter.TimerDetails()
 
     val now = System.currentTimeMillis()
@@ -77,14 +82,12 @@ fun computeTimeLeft(clock: Clock, playerTimeAny: Any, currentPlayer: Boolean): G
     if(nowDelta > 100000) { // sanity check
         nowDelta = 0
     }
-    val baseTime = clock.last_move + nowDelta
+    val baseTime = clock.lastMove + nowDelta
     var timeLeft = 0L
-    if(playerTimeAny is Long) {
+    if(playerTimeSimple != null) {
         // Simple timer
-        timeLeft = playerTimeAny - if(currentPlayer) now else baseTime
-    } else if (playerTimeAny is Map<*, *>) {
-
-        val playerTime = Time.fromMap(playerTimeAny)
+        timeLeft = playerTimeSimple - if(currentPlayer) now else baseTime
+    } else if (playerTime != null) {
         timeLeft = baseTime + playerTime.thinking_time * 1000 - if(currentPlayer) now else baseTime
         if(playerTime.moves_left != null) {
 
@@ -115,7 +118,7 @@ fun computeTimeLeft(clock: Clock, playerTimeAny: Any, currentPlayer: Boolean): G
             timer.secondLine = "$periodsLeft x ${formatMillis(playerTime.period_time!! * 1000)}"
         }
     } else {
-        Log.e("GamePresenter", "Unknown clock object $playerTimeAny")
+        Log.e("GamePresenter", "Clock object has neither simple time or complex time")
     }
 
     timer.expired = timeLeft <= 0

@@ -101,4 +101,37 @@ class Position(val boardSize: Int) {
         blackTerritory.add(point)
     }
 
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as Position
+
+        if (boardSize != other.boardSize) return false
+        if (stones != other.stones) return false
+        if (removedSpots != other.removedSpots) return false
+        if (whiteTerritory != other.whiteTerritory) return false
+        if (blackTerritory != other.blackTerritory) return false
+        if (lastMove != other.lastMove) return false
+        if (whiteCapturedCount != other.whiteCapturedCount) return false
+        if (blackCapturedCount != other.blackCapturedCount) return false
+        if (nextToMove != other.nextToMove) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = boardSize
+        result = 31 * result + stones.hashCode()
+        result = 31 * result + removedSpots.hashCode()
+        result = 31 * result + whiteTerritory.hashCode()
+        result = 31 * result + blackTerritory.hashCode()
+        result = 31 * result + (lastMove?.hashCode() ?: 0)
+        result = 31 * result + whiteCapturedCount
+        result = 31 * result + blackCapturedCount
+        result = 31 * result + nextToMove.hashCode()
+        return result
+    }
+
+
 }

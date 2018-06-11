@@ -7,5 +7,5 @@ data class PagedResult(
         val count: Int,
         val next: String?,
         val previous: String?,
-        val results: List<Game>
+        val results: List<OGSGame>
         )

@@ -10,7 +10,7 @@ android {
         minSdkVersion 19
         targetSdkVersion 27
 //        versionCode System.getenv("APPCENTER_BUILD_ID") as Integer ?: 54
-        versionCode 59
+        versionCode 60
         versionName "alpha_b${versionCode}"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
@@ -52,6 +52,8 @@ dependencies {
     implementation 'com.squareup.retrofit2:converter-moshi:2.3.0'
     implementation 'com.squareup.okhttp3:logging-interceptor:3.9.0'
 
+    implementation 'com.squareup.moshi:moshi-adapters:1.6.0'
+
     // rxandroid
     implementation 'io.reactivex.rxjava2:rxandroid:2.0.1'
     implementation 'io.reactivex.rxjava2:rxjava:2.1.6'
@@ -88,6 +90,10 @@ dependencies {
 
     testImplementation "com.nhaarman:mockito-kotlin-kt1.1:1.5.0"
     testImplementation 'junit:junit:4.12'
+
+    implementation 'android.arch.persistence.room:runtime:1.1.1-rc1'
+    implementation 'android.arch.persistence.room:rxjava2:1.1.1-rc1'
+    kapt 'android.arch.persistence.room:compiler:1.1.1-rc1'
 }
 repositories {
     mavenCentral()

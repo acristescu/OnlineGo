@@ -5,9 +5,9 @@ import android.support.v7.widget.RecyclerView
 import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
 import io.zenandroid.onlinego.gamelogic.Util.isMyTurn
-import io.zenandroid.onlinego.model.ogs.Game
-import io.zenandroid.onlinego.ogs.Clock
-import io.zenandroid.onlinego.ogs.GameData
+import io.zenandroid.onlinego.model.ogs.OGSGame
+import io.zenandroid.onlinego.ogs.OGSClock
+import io.zenandroid.onlinego.model.ogs.GameData
 import io.zenandroid.onlinego.ogs.Move
 
 
@@ -16,11 +16,11 @@ import io.zenandroid.onlinego.ogs.Move
  */
 abstract class GamesAdapter<T : RecyclerView.ViewHolder> : RecyclerView.Adapter<T>() {
     protected val gameDataMap = mutableMapOf<Long, GameData>()
-    protected val gameList = mutableListOf<Game>()
+    protected val gameList = mutableListOf<OGSGame>()
 
-    protected val clicksSubject = PublishSubject.create<Game>()!!
+    protected val clicksSubject = PublishSubject.create<OGSGame>()!!
 
-    val clicks: Observable<Game>
+    val clicks: Observable<OGSGame>
         get() = clicksSubject.hide()
 
     override fun getItemCount(): Int {
@@ -42,7 +42,7 @@ abstract class GamesAdapter<T : RecyclerView.ViewHolder> : RecyclerView.Adapter<
         notifyItemChanged(gameList.indexOfFirst { it.id == id })
     }
 
-    fun addOrReplaceGame(game: Game) {
+    fun addOrReplaceGame(game: OGSGame) {
         val index = gameList.indexOfFirst { it.id == game.id }
         if(index == -1) {
             gameList.add(game)
@@ -61,7 +61,7 @@ abstract class GamesAdapter<T : RecyclerView.ViewHolder> : RecyclerView.Adapter<
         notifyDataSetChanged()
     }
 
-    fun setClock(id: Long, clock: Clock) {
+    fun setClock(id: Long, clock: OGSClock) {
         gameDataMap[id]?.let { gameData ->
             gameData.clock = clock
             notifyItemChanged(gameList.indexOfFirst { it.id == id })
@@ -81,7 +81,7 @@ abstract class GamesAdapter<T : RecyclerView.ViewHolder> : RecyclerView.Adapter<
         }
     }
 
-    fun setGames(newGames: List<Game>) {
+    fun setGames(newGames: List<OGSGame>) {
         DiffUtil.calculateDiff(GameDiffUtilCallback(gameList, newGames))
                 .dispatchUpdatesTo(this)
 
@@ -94,7 +94,7 @@ abstract class GamesAdapter<T : RecyclerView.ViewHolder> : RecyclerView.Adapter<
         }
     }
 
-    fun removeGame(game: Game) {
+    fun removeGame(game: OGSGame) {
         val index = gameList.indexOfFirst { it.id == game.id }
         if (index != -1) {
             gameList.removeAt(index)
@@ -103,8 +103,8 @@ abstract class GamesAdapter<T : RecyclerView.ViewHolder> : RecyclerView.Adapter<
     }
 
     private class GameDiffUtilCallback(
-            val oldList: List<Game>,
-            val newList: List<Game>
+            val oldList: List<OGSGame>,
+            val newList: List<OGSGame>
     ) : DiffUtil.Callback() {
         override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
             return oldList[oldItemPosition].id == newList[newItemPosition].id
