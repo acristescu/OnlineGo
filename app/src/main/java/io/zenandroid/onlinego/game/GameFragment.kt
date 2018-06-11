@@ -19,6 +19,7 @@ import com.jakewharton.rxbinding2.view.RxView
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
+import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.extensions.fadeIn
 import io.zenandroid.onlinego.extensions.fadeOut
@@ -66,6 +67,7 @@ class GameFragment : Fragment(), GameContract.View {
     private lateinit var unbinder: Unbinder
     private lateinit var presenter: GameContract.Presenter
     private val subscriptions = CompositeDisposable()
+    private val analytics = OnlineGoApplication.instance.analytics
 
     override var position: Position? = null
         set(value) {
@@ -73,6 +75,7 @@ class GameFragment : Fragment(), GameContract.View {
             whiteDetailsView.captured = value?.whiteCapturedCount
             blackDetailsView.captured = value?.blackCapturedCount
         }
+
     override var komi: Float? = null
         set(value) {
             field = value
@@ -136,6 +139,7 @@ class GameFragment : Fragment(), GameContract.View {
 
         whiteDetailsView.color = StoneType.WHITE
         blackDetailsView.color = StoneType.BLACK
+        analytics.logEvent("showing_game", arguments)
         presenter = GamePresenter(
                 this,
                 OGSServiceImpl.instance,
@@ -174,13 +178,18 @@ class GameFragment : Fragment(), GameContract.View {
         }
 
     override fun showCandidateMove(point: Point?, nextToMove: StoneType?) {
+        if(point != null) {
+            analytics.logEvent("candidate_move", null)
+        }
         board.showCandidateMove(point, nextToMove)
     }
 
     override val cellHotTrack: Observable<Point>
         get() = board.tapMoveObservable()
+
     override var subTitle: String? = null
         set(value) { (activity as? AppCompatActivity)?.supportActionBar?.subtitle = value }
+
     override var title: String? = null
         set(value) { activity?.title = value }
 
@@ -233,16 +242,23 @@ class GameFragment : Fragment(), GameContract.View {
 
     override fun onStart() {
         super.onStart()
+        analytics.setCurrentScreen(activity!!, javaClass.simpleName, null)
         presenter.subscribe()
         subscriptions.add(
                 repeatingPresses(previousButton)
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe { presenter.onPreviousButtonPressed() }
+                .subscribe {
+                    analytics.logEvent("previous_clicked", null)
+                    presenter.onPreviousButtonPressed()
+                }
         )
         subscriptions.add(
                 repeatingPresses(nextButton)
                         .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe { presenter.onNextButtonPressed() }
+                        .subscribe {
+                            analytics.logEvent("next_clicked", null)
+                            presenter.onNextButtonPressed()
+                        }
         )
     }
 
@@ -266,6 +282,7 @@ class GameFragment : Fragment(), GameContract.View {
 
     override var previousButtonEnabled: Boolean = false
         set(value) { previousButton.isEnabled = value }
+
     override var nextButtonEnabled: Boolean = false
         set(value) { nextButton.isEnabled = value }
 
@@ -277,38 +294,49 @@ class GameFragment : Fragment(), GameContract.View {
 
     @OnClick(R.id.resign_button)
     fun onResignClicked() {
+        analytics.logEvent("resign_clicked", null)
         context?.let {
             AlertDialog.Builder(it)
                     .setTitle("Please confirm")
                     .setMessage("Are you sure you want to resign?")
-                    .setPositiveButton("Resign", { _, _ -> presenter.onResignConfirmed() })
+                    .setPositiveButton("Resign", { _, _ ->
+                        analytics.logEvent("resign_confirmed", null)
+                        presenter.onResignConfirmed()
+                    })
                     .setNegativeButton(android.R.string.cancel, null).show()
         }
     }
 
     @OnClick(R.id.pass_button)
     fun onPassClicked() {
+        analytics.logEvent("resign_clicked", null)
         context?.let {
             AlertDialog.Builder(it)
                     .setTitle("Please confirm")
                     .setMessage("Are you sure you want to pass?")
-                    .setPositiveButton("Pass", { _, _ -> presenter.onPassConfirmed() })
+                    .setPositiveButton("Pass", { _, _ ->
+                        analytics.logEvent("resign_confirmed", null)
+                        presenter.onPassConfirmed()
+                    })
                     .setNegativeButton(android.R.string.cancel, null).show()
         }
     }
 
     @OnClick(R.id.discard_button)
     fun onDiscardClicked() {
+        analytics.logEvent("discard_clicked", null)
         presenter.onDiscardButtonPressed()
     }
 
     @OnClick(R.id.confirm_button)
     fun onConfirmClicked() {
+        analytics.logEvent("confirm_clicked", null)
         presenter.onConfirmButtonPressed()
     }
 
     @OnClick(R.id.auto_button)
     fun onAutoClicked() {
+        analytics.logEvent("auto_clicked", null)
         presenter.onAutoButtonPressed()
     }
 

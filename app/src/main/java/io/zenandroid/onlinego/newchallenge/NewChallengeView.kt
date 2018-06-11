@@ -12,6 +12,7 @@ import butterknife.BindView
 import butterknife.ButterKnife
 import butterknife.OnClick
 import io.reactivex.Completable
+import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.extensions.*
 import io.zenandroid.onlinego.main.MainActivity
@@ -42,6 +43,8 @@ class NewChallengeView : FrameLayout, NewChallengeContract.View {
     private var fabMiniSize: Float = 0f
     private lateinit var searchDialog: ProgressDialog
 
+    private val analytics = OnlineGoApplication.instance.analytics
+
     constructor(context: Context) : this(context, null)
     constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0)
 
@@ -54,7 +57,7 @@ class NewChallengeView : FrameLayout, NewChallengeContract.View {
         ButterKnife.bind(view)
 
         fabMiniSize = resources.getDimension(R.dimen.fab_mini_with_margin)
-        presenter = NewChallengePresenter(this)
+        presenter = NewChallengePresenter(this, analytics)
     }
 
     @OnClick(R.id.fab)

@@ -2,11 +2,11 @@ package io.zenandroid.onlinego
 
 import android.app.Application
 import android.arch.persistence.room.Room
-import android.arch.persistence.room.RoomDatabase
 import android.os.Build
 import android.support.text.emoji.EmojiCompat
 import android.support.text.emoji.FontRequestEmojiCompatConfig
 import android.support.v4.provider.FontRequest
+import com.google.firebase.analytics.FirebaseAnalytics
 import io.zenandroid.onlinego.db.Database
 
 
@@ -20,6 +20,7 @@ class OnlineGoApplication : Application() {
     }
 
     val db by lazy { Room.databaseBuilder(this, Database::class.java, "database.db").build() }
+    val analytics by lazy { FirebaseAnalytics.getInstance(this) }
 
     override fun onCreate() {
         super.onCreate()

@@ -22,6 +22,7 @@ import com.firebase.jobdispatcher.*
 import com.firebase.jobdispatcher.Constraint.ON_ANY_NETWORK
 import io.reactivex.Completable
 import io.zenandroid.onlinego.NotificationsService
+import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.extensions.fadeIn
 import io.zenandroid.onlinego.extensions.fadeOut
@@ -53,6 +54,8 @@ class MainActivity : AppCompatActivity(), MainContract.View {
     private val spectateFragment = SpectateFragment()
     private val myGamesFragment = MyGamesFragment()
     private val challengesFragment = ChallengesFragment()
+
+    private val analytics = OnlineGoApplication.instance.analytics
 
     val activeGameRepository: ActiveGameRepository by lazy { ActiveGameRepository() }
 
@@ -161,6 +164,7 @@ class MainActivity : AppCompatActivity(), MainContract.View {
 
     @OnClick(R.id.notifications)
     fun onNotificationClicked() {
+        analytics.logEvent("my_move_clicked", null)
         presenter.onNotificationClicked()
     }
 

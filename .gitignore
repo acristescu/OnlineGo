@@ -5,3 +5,4 @@
 /build
 /app/app.iml
 /app/.externalNativeBuild
+app/google-services.json

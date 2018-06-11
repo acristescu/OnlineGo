@@ -10,6 +10,7 @@ import android.widget.ListView
 import butterknife.BindView
 import butterknife.ButterKnife
 import butterknife.Unbinder
+import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.extensions.showIf
 import io.zenandroid.onlinego.model.ogs.Challenge
@@ -30,6 +31,8 @@ class ChallengesFragment : Fragment(), ChallengesContract.View {
     private lateinit var unbinder: Unbinder
     private lateinit var presenter: ChallengesContract.Presenter
     private lateinit var adapter: ArrayAdapter<Challenge>
+    private var analytics = OnlineGoApplication.instance.analytics
+
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_challenges, container, false)
@@ -53,13 +56,14 @@ class ChallengesFragment : Fragment(), ChallengesContract.View {
         unbinder.unbind()
     }
 
-    override fun onStart() {
-        super.onStart()
+    override fun onResume() {
+        super.onResume()
+        analytics.setCurrentScreen(activity!!, javaClass.simpleName, null)
         presenter.subscribe()
     }
 
-    override fun onStop() {
-        super.onStop()
+    override fun onPause() {
+        super.onPause()
         presenter.unsubscribe()
     }
 

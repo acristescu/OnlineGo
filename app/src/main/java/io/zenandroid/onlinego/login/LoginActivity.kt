@@ -15,7 +15,6 @@ import android.support.v7.widget.AppCompatImageView
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
-import android.view.inputmethod.InputMethodManager
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
@@ -24,9 +23,10 @@ import butterknife.BindView
 import butterknife.ButterKnife
 import butterknife.OnClick
 import butterknife.OnTextChanged
+import com.google.firebase.analytics.FirebaseAnalytics
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
-import io.socket.client.On.on
+import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.extensions.hide
 import io.zenandroid.onlinego.extensions.show
@@ -54,6 +54,8 @@ class LoginActivity : AppCompatActivity() {
     @BindView(R.id.no_account) lateinit var noAccountView: TextView
 
     private var createAccount = false
+
+    private var analytics = OnlineGoApplication.instance.analytics
 
     companion object {
         fun getIntent(context: Context) = Intent(context, LoginActivity::class.java)
@@ -157,6 +159,7 @@ class LoginActivity : AppCompatActivity() {
         OGSServiceImpl.instance.login(username.text.toString(), password.text.toString())
                 .doOnComplete { OGSServiceImpl.instance.ensureSocketConnected() }
                 .observeOn(AndroidSchedulers.mainThread())
+                .doOnComplete { analytics.logEvent(FirebaseAnalytics.Event.LOGIN, null) }
                 .subscribe(
                         this::onLoginSuccess,
                         this::onPasswordLoginFailure
@@ -164,6 +167,7 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun onCreateAccountSuccess() {
+        analytics.logEvent(FirebaseAnalytics.Event.SIGN_UP, null)
         doLogin()
     }
 

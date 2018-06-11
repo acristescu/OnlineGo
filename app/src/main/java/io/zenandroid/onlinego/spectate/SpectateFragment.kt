@@ -11,12 +11,13 @@ import android.view.ViewGroup
 import butterknife.BindView
 import butterknife.ButterKnife
 import butterknife.Unbinder
+import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.main.MainActivity
 import io.zenandroid.onlinego.model.local.Game
-import io.zenandroid.onlinego.model.ogs.OGSGame
 import io.zenandroid.onlinego.model.ogs.GameData
 import io.zenandroid.onlinego.model.ogs.GameList
+import io.zenandroid.onlinego.model.ogs.OGSGame
 import io.zenandroid.onlinego.ogs.Move
 import io.zenandroid.onlinego.ogs.OGSServiceImpl
 
@@ -30,6 +31,7 @@ class SpectateFragment : Fragment(), SpectateContract.View {
     private lateinit var unbinder: Unbinder
     private lateinit var presenter: SpectateContract.Presenter
     private val adapter = SpectateAdapter()
+    private val analytics = OnlineGoApplication.instance.analytics
 
     override var games: GameList? = null
         set(value) {
@@ -57,6 +59,7 @@ class SpectateFragment : Fragment(), SpectateContract.View {
     }
 
     override fun navigateToGameScreen(game: OGSGame) {
+        analytics.logEvent("spectate_game", Bundle().apply { putLong("GAME_ID", game.id) })
         (activity as MainActivity).navigateToGameScreen(Game.fromOGSGame(game))
     }
 
@@ -67,6 +70,7 @@ class SpectateFragment : Fragment(), SpectateContract.View {
 
     override fun onResume() {
         super.onResume()
+        analytics.setCurrentScreen(activity!!, javaClass.simpleName, null)
         presenter.subscribe()
     }
 

@@ -11,6 +11,7 @@ import android.view.ViewGroup
 import butterknife.BindView
 import butterknife.ButterKnife
 import butterknife.Unbinder
+import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.main.MainActivity
 import io.zenandroid.onlinego.model.local.Game
@@ -27,6 +28,9 @@ class MyGamesFragment : Fragment(), MyGamesContract.View {
 
     private lateinit var unbinder: Unbinder
     private lateinit var presenter: MyGamesContract.Presenter
+    private var analytics = OnlineGoApplication.instance.analytics
+
+    private var lastReportedGameCount = -1
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_mygames, container, false)
@@ -52,6 +56,10 @@ class MyGamesFragment : Fragment(), MyGamesContract.View {
     }
 
     override fun navigateToGameScreen(game: Game) {
+        analytics.logEvent("clicked_game", Bundle().apply {
+            putLong("GAME_ID", game.id)
+            putBoolean("ACTIVE_GAME", game.ended == null)
+        })
         (activity as MainActivity).navigateToGameScreen(game)
     }
 
@@ -62,6 +70,7 @@ class MyGamesFragment : Fragment(), MyGamesContract.View {
 
     override fun onResume() {
         super.onResume()
+        analytics.setCurrentScreen(activity!!, javaClass.simpleName, null)
         presenter.subscribe()
     }
 
@@ -75,6 +84,10 @@ class MyGamesFragment : Fragment(), MyGamesContract.View {
     }
 
     override fun setGames(games: List<Game>) {
+        if(lastReportedGameCount != games.size) {
+            analytics.logEvent("active_games", Bundle().apply { putInt("GAME_COUNT", games.size) })
+            lastReportedGameCount = games.size
+        }
         groupAdapter.setGames(games)
     }
 
