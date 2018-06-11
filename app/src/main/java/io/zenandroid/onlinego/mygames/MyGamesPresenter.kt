@@ -6,7 +6,6 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import io.zenandroid.onlinego.gamelogic.Util.isMyTurn
 import io.zenandroid.onlinego.model.local.Game
-import io.zenandroid.onlinego.model.ogs.OGSGame
 import io.zenandroid.onlinego.ogs.ActiveGameRepository
 import io.zenandroid.onlinego.utils.timeLeftForCurrentPlayer
 
@@ -24,7 +23,7 @@ class MyGamesPresenter(val view: MyGamesContract.View, private val gameRepositor
     override fun subscribe() {
         subscriptions.add(
                 gameRepository.fetchActiveGames()
-//                        .map(this::sortGames)
+                        .map(this::sortGames)
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
                         .subscribe(this::setGames, this::onError)
@@ -38,13 +37,13 @@ class MyGamesPresenter(val view: MyGamesContract.View, private val gameRepositor
         view.setLoading(true)
     }
 
-    private fun sortGames(unsorted : List<OGSGame>): List<OGSGame> {
+    private fun sortGames(unsorted : List<Game>): List<Game> {
         return unsorted.sortedWith(Comparator { left, right ->
             when {
                 isMyTurn(left) && !isMyTurn(right) -> -1
                 !isMyTurn(left) && isMyTurn(right) -> 1
                 else -> {
-                    (timeLeftForCurrentPlayer(left, left.json!!) - timeLeftForCurrentPlayer(right, right.json!!)).toInt()
+                    (timeLeftForCurrentPlayer(left) - timeLeftForCurrentPlayer(right)).toInt()
                 }
             }
         })

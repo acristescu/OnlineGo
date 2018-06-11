@@ -6,7 +6,7 @@ import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
 import io.zenandroid.onlinego.gamelogic.Util.isMyTurn
 import io.zenandroid.onlinego.model.ogs.OGSGame
-import io.zenandroid.onlinego.ogs.Clock
+import io.zenandroid.onlinego.ogs.OGSClock
 import io.zenandroid.onlinego.model.ogs.GameData
 import io.zenandroid.onlinego.ogs.Move
 
@@ -61,7 +61,7 @@ abstract class GamesAdapter<T : RecyclerView.ViewHolder> : RecyclerView.Adapter<
         notifyDataSetChanged()
     }
 
-    fun setClock(id: Long, clock: Clock) {
+    fun setClock(id: Long, clock: OGSClock) {
         gameDataMap[id]?.let { gameData ->
             gameData.clock = clock
             notifyItemChanged(gameList.indexOfFirst { it.id == id })

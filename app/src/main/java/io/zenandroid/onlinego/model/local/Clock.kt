@@ -21,7 +21,7 @@ data class Clock(
         var startMode: Boolean?
 ) {
     companion object {
-        fun fromOGSClock(clock: io.zenandroid.onlinego.ogs.Clock?): Clock? =
+        fun fromOGSClock(clock: io.zenandroid.onlinego.ogs.OGSClock?): Clock? =
                 clock?.let {
                     Clock(
                             lastMove = clock.last_move,

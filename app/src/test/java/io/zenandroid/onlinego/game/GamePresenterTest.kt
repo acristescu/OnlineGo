@@ -2,7 +2,7 @@ package io.zenandroid.onlinego.game
 
 import com.nhaarman.mockito_kotlin.mock
 import io.zenandroid.onlinego.model.ogs.OGSGame
-import io.zenandroid.onlinego.ogs.Clock
+import io.zenandroid.onlinego.ogs.OGSClock
 import io.zenandroid.onlinego.model.ogs.GameData
 import io.zenandroid.onlinego.model.ogs.Phase
 import io.zenandroid.onlinego.ogs.OGSService
@@ -21,7 +21,7 @@ class GamePresenterTest {
     @Test
     fun whenFormatMillisIsCalled_thenCorrectValueIsReturned() {
         val game = OGSGame(null, null, 0L, Phase.PLAY, null, 19, 19, null, null, null, null,0L,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null, null,null,null,null,null,null,null,
-                gamedata = GameData(null, null, null, 19, null, null, null, null, null, null, null, null, null, null, null, Phase.PLAY, null, listOf(), null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, Clock(0L, 0L, 0L, 0L, null, 0L, null, 0L, null, false, null, 0, 0), null, null, null, null, null, null, null)
+                gamedata = GameData(null, null, null, 19, null, null, null, null, null, null, null, null, null, null, null, Phase.PLAY, null, listOf(), null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, OGSClock(0L, 0L, 0L, 0L, null, 0L, null, 0L, null, false, null, 0, 0), null, null, null, null, null, null, null)
         )
         val presenter = GamePresenter(view, service, game.id, game.width)
 

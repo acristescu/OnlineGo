@@ -20,7 +20,7 @@ class GameConnection(val gameId: Long) : Disposable, Closeable {
 
     lateinit var gameData: Flowable<GameData>
     lateinit var moves: Flowable<Move>
-    lateinit var clock: Flowable<Clock>
+    lateinit var clock: Flowable<OGSClock>
     lateinit var phase: Flowable<Phase>
     lateinit var removedStones: Flowable<RemovedStones>
 
@@ -98,7 +98,7 @@ data class Scores (
         var black: Score? = null
 )
 
-data class Clock (
+data class OGSClock (
     var game_id: Long,
     var current_player: Long,
     var black_player_id: Long,

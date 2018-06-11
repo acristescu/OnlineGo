@@ -142,7 +142,7 @@ class OGSServiceImpl private constructor(): OGSService {
         connection.moves = observeEvent("game/$id/move")
                     .map { string -> moshi.adapter(Move::class.java).fromJson(string.toString()) }
         connection.clock = observeEvent("game/$id/clock")
-                    .map { string -> moshi.adapter(Clock::class.java).fromJson(string.toString()) }
+                    .map { string -> moshi.adapter(OGSClock::class.java).fromJson(string.toString()) }
         connection.phase = observeEvent("game/$id/phase")
                     .map { string -> Phase.valueOf(string.toString().toUpperCase().replace(' ', '_')) }
         connection.removedStones = observeEvent("game/$id/removed_stones")
