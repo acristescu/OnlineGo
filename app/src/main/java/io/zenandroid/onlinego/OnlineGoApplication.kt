@@ -19,7 +19,11 @@ class OnlineGoApplication : Application() {
         lateinit var instance: OnlineGoApplication
     }
 
-    val db by lazy { Room.databaseBuilder(this, Database::class.java, "database.db").build() }
+    val db by lazy {
+        Room.databaseBuilder(this, Database::class.java, "database.db")
+                .fallbackToDestructiveMigration()
+                .build()
+    }
     val analytics by lazy { FirebaseAnalytics.getInstance(this) }
 
     override fun onCreate() {

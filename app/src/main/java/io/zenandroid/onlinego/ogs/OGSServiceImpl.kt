@@ -133,27 +133,30 @@ class OGSServiceImpl private constructor(): OGSService {
                     //
                     .doOnSuccess { it.json = it.gamedata }
 
+
+    private val gameConnections = mutableMapOf<Long, GameConnection>()
+
     override fun connectToGame(id: Long): GameConnection {
-        val connection = GameConnection(id)
+        synchronized(gameConnections) {
+            val connection = gameConnections[id] ?:
+            GameConnection(id,
+                    observeEvent("game/$id/gamedata").map { string -> moshi.adapter(GameData::class.java).fromJson(string.toString())!! },
+                    observeEvent("game/$id/move").map { string -> moshi.adapter(Move::class.java).fromJson(string.toString())!! },
+                    observeEvent("game/$id/clock").map { string -> moshi.adapter(OGSClock::class.java).fromJson(string.toString()) },
+                    observeEvent("game/$id/phase").map { string -> Phase.valueOf(string.toString().toUpperCase().replace(' ', '_')) },
+                    observeEvent("game/$id/removed_stones").map { string -> moshi.adapter(RemovedStones::class.java).fromJson(string.toString()) }
+            ).apply {
+                emit("game/connect", createJsonObject {
+                    put("chat", false)
+                    put("game_id", id)
+                    put("player_id", uiConfig!!.user.id)
+                })
 
-        connection.gameData = observeEvent("game/$id/gamedata")
-                    .map { string -> moshi.adapter(GameData::class.java).fromJson(string.toString()) }
-
-        connection.moves = observeEvent("game/$id/move")
-                    .map { string -> moshi.adapter(Move::class.java).fromJson(string.toString()) }
-        connection.clock = observeEvent("game/$id/clock")
-                    .map { string -> moshi.adapter(OGSClock::class.java).fromJson(string.toString()) }
-        connection.phase = observeEvent("game/$id/phase")
-                    .map { string -> Phase.valueOf(string.toString().toUpperCase().replace(' ', '_')) }
-        connection.removedStones = observeEvent("game/$id/removed_stones")
-                    .map { string -> moshi.adapter(RemovedStones::class.java).fromJson(string.toString()) }
-
-        emit("game/connect", createJsonObject {
-            put("chat", false)
-            put("game_id", id)
-            put("player_id", uiConfig!!.user.id)
-        })
-        return connection
+                gameConnections[id] = this
+            }
+            connection.incrementCounter()
+            return connection
+        }
     }
 
     fun connectToNotifications(): Flowable<OGSGame> {
@@ -204,7 +207,7 @@ class OGSServiceImpl private constructor(): OGSService {
         authSent = true
     }
 
-    private fun observeEvent(event: String): Flowable<Any> {
+    fun observeEvent(event: String): Flowable<Any> {
         Log.i(TAG, "Listening for event: $event")
         return Flowable.create({ emitter ->
             socket.on(event, {
@@ -353,9 +356,12 @@ class OGSServiceImpl private constructor(): OGSService {
     }
 
     fun disconnectFromGame(id: Long) {
-        emit("game/disconnect", createJsonObject {
-            put("game_id", id)
-        })
+        synchronized(gameConnections) {
+            gameConnections.remove(id)
+            emit("game/disconnect", createJsonObject {
+                put("game_id", id)
+            })
+        }
     }
 
     override fun fetchActiveGames(): Single<List<OGSGame>> =

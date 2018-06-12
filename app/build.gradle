@@ -3,6 +3,7 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'io.fabric'
+apply plugin: 'com.google.gms.google-services'
 
 android {
     compileSdkVersion 27
@@ -11,10 +12,11 @@ android {
         minSdkVersion 19
         targetSdkVersion 27
 //        versionCode System.getenv("APPCENTER_BUILD_ID") as Integer ?: 54
-        versionCode 60
+        versionCode 42
         versionName "alpha_b${versionCode}"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
+        multiDexEnabled true
 
         buildConfigField "String", "CLIENT_ID", '"' + System.getenv("ONLINE_GO_CLIENT_ID") + '"'
         buildConfigField "String", "CLIENT_SECRET", '"' + System.getenv("ONLINE_GO_CLIENT_SECRET") + '"'
@@ -74,11 +76,11 @@ dependencies {
     implementation 'com.squareup.moshi:moshi-adapters:1.6.0'
 
     // rxandroid
-    implementation 'io.reactivex.rxjava2:rxandroid:2.0.1'
-    implementation 'io.reactivex.rxjava2:rxjava:2.1.6'
+    implementation 'io.reactivex.rxjava2:rxandroid:2.0.2'
+    implementation 'io.reactivex.rxjava2:rxjava:2.1.14'
 
     // groupie
-    implementation 'com.xwray:groupie:2.0.3'
+    implementation 'com.xwray:groupie:2.1.0'
     implementation 'com.xwray:groupie-kotlin-android-extensions:2.0.3'
 
     implementation 'com.android.support:design:27.1.1'
@@ -101,6 +103,7 @@ dependencies {
     implementation 'br.com.simplepass:loading-button-android:1.8.3'
     implementation 'com.github.bumptech.glide:glide:4.7.1'
     implementation 'com.google.firebase:firebase-core:16.0.0'
+
     kapt 'com.github.bumptech.glide:compiler:4.4.0'
 
     implementation 'com.crashlytics.sdk.android:crashlytics:2.9.3'
@@ -120,5 +123,3 @@ dependencies {
 repositories {
     mavenCentral()
 }
-
-apply plugin: 'com.google.gms.google-services'

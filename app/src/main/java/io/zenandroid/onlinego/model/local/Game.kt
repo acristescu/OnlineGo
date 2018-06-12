@@ -87,7 +87,7 @@ data class Game(
                     blackLost = game.black_lost,
                     initialState = gamedata?.initial_state,
                     whiteGoesFirst = gamedata?.initial_player == "white",
-                    moves = gamedata?.moves?.apply { forEach { if(it.size == 3) it.removeAt(it.lastIndex) } },
+                    moves = gamedata?.moves?.map { mutableListOf(it[0].toInt(), it[1].toInt()) }?.toMutableList(),
                     removedStones = gamedata?.removed,
                     whiteScore = gamedata?.score?.white,
                     blackScore = gamedata?.score?.black,

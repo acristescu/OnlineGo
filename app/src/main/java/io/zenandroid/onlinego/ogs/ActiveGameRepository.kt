@@ -1,5 +1,6 @@
 package io.zenandroid.onlinego.ogs
 
+import android.util.Log
 import io.reactivex.Flowable
 import io.reactivex.Observable
 import io.reactivex.Single
@@ -30,13 +31,14 @@ class ActiveGameRepository {
             OGSServiceImpl.instance.fetchGame(game.id)
                     .subscribeOn(Schedulers.io())
                     .map(Game.Companion::fromOGSGame)
-                    .doOnSuccess { OnlineGoApplication.instance.db.gameDao().insertAll(listOf(it)) }
-                    .subscribe(this::connectToGame)
+                    .subscribe({
+                        OnlineGoApplication.instance.db.gameDao().insertAll(listOf(it))
+                    }, this::onError)
         )
     }
 
     val myMoveCountObservable: Observable<Int>
-        get() = myMoveCountSubject.distinctUntilChanged()
+        @Synchronized get() = myMoveCountSubject.distinctUntilChanged()
 
     val myTurnGamesList: List<Game>
         get() = activeDbGames.values.filter(Util::isMyTurn).toList()
@@ -45,7 +47,12 @@ class ActiveGameRepository {
         subscriptions.add(
                 OGSServiceImpl.instance.connectToNotifications()
                         .subscribeOn(Schedulers.io())
-                        .subscribe(this::onNotification)
+                        .subscribe(this::onNotification, this::onError)
+        )
+        subscriptions.add(
+                OnlineGoApplication.instance.db.gameDao()
+                        .monitorActiveGames(OGSServiceImpl.instance.uiConfig?.user?.id)
+                        .subscribe(this::setActiveGames, this::onError)
         )
     }
 
@@ -65,68 +72,66 @@ class ActiveGameRepository {
         subscriptions.add(gameConnection.gameData
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.single())
-                .subscribe {
+                .subscribe ({
                     game.apply {
                         outcome = it.outcome
                         playerToMoveId = it.clock.current_player
                         initialState = it.initial_state
                         whiteGoesFirst = it.initial_player == "white"
-                        moves = it.moves.apply { forEach { if(it.size == 3) it.removeAt(it.lastIndex) } }
+                        moves = it.moves.map { mutableListOf(it[0].toInt(), it[1].toInt()) }.toMutableList()
                         removedStones = it.removed
                         whiteScore = it.score?.white
                         blackScore = it.score?.black
                         clock = Clock.fromOGSClock(it.clock)
                     }
                     OnlineGoApplication.instance.db.gameDao().update(game)
-                })
+                }, this::onError))
         subscriptions.add(gameConnection.moves
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.single())
-                .subscribe { move ->
-                    game.moves?.add(mutableListOf(move.move[0], move.move[1]))
+                .subscribe ({ move ->
+                    game.moves?.add(mutableListOf(move.move[0].toInt(), move.move[1].toInt()))
                     OnlineGoApplication.instance.db.gameDao().update(game)
-                })
+                }, this::onError))
         subscriptions.add(gameConnection.clock
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.single())
-                .subscribe {
+                .subscribe ({
                     game.apply {
                         clock = Clock.fromOGSClock(it)
                         playerToMoveId = it.current_player
                     }
                     OnlineGoApplication.instance.db.gameDao().update(game)
-                })
+                }, this::onError))
         subscriptions.add(gameConnection.phase
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.single())
-                .subscribe {
+                .subscribe ({
                     game.apply {
                         phase = it
                     }
                     OnlineGoApplication.instance.db.gameDao().update(game)
-                })
+                }, this::onError))
         subscriptions.add(gameConnection.removedStones
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.single())
-                .subscribe {
+                .subscribe ({
                     game.apply {
                         removedStones = it.all_removed
                     }
                     OnlineGoApplication.instance.db.gameDao().update(game)
-                })
+                }, this::onError))
 
-        myMoveCountSubject.onNext(activeDbGames.values.count { isMyTurn(it) })
     }
 
-    private fun setActiveGames(games : List<OGSGame>) {
-        val dbGames = games.map(Game.Companion::fromOGSGame)
-        OnlineGoApplication.instance.db.gameDao().insertAll(dbGames)
+    @Synchronized
+    private fun setActiveGames(games : List<Game>) {
         activeDbGames.clear()
-        dbGames.forEach {
+        games.forEach {
             activeDbGames[it.id] = it
             connectToGame(it)
         }
-//        myMoveCountSubject.onNext(activeDbGames.values.count { isMyTurn(it) })
+        myMoveCountSubject.onNext(activeDbGames.values.count { isMyTurn(it) })
     }
 
     private fun fetchGameFromOGS(id: Long) {
@@ -135,7 +140,7 @@ class ActiveGameRepository {
                         .fetchGame(id)
                         .map(Game.Companion::fromOGSGame)
                         .map(::listOf)
-                        .subscribe(OnlineGoApplication.instance.db.gameDao()::insertAll)
+                        .subscribe(OnlineGoApplication.instance.db.gameDao()::insertAll, this::onError)
         )
     }
 
@@ -155,7 +160,10 @@ class ActiveGameRepository {
         subscriptions.add(
             OGSServiceImpl.instance
                     .fetchActiveGames()
-                    .subscribe(this::setActiveGames)
+                    .flattenAsObservable { it -> it }
+                    .map (Game.Companion::fromOGSGame)
+                    .toList()
+                    .subscribe(OnlineGoApplication.instance.db.gameDao()::insertAll, this::onError)
         )
         return OnlineGoApplication.instance.db.gameDao().monitorActiveGames(OGSServiceImpl.instance.uiConfig?.user?.id)
     }
@@ -170,8 +178,13 @@ class ActiveGameRepository {
                         .flatMapSingle { OGSServiceImpl.instance.fetchGame(it) }
                         .map (Game.Companion::fromOGSGame)
                         .toList()
-                        .subscribe(OnlineGoApplication.instance.db.gameDao()::insertAll)
+                        .subscribe(OnlineGoApplication.instance.db.gameDao()::insertAll, this::onError)
         )
         return OnlineGoApplication.instance.db.gameDao().monitorHistoricGames(OGSServiceImpl.instance.uiConfig?.user?.id)
+    }
+
+    private fun onError(t: Throwable) {
+        Log.e("ActiveGameRespository", t.message, t)
+        throw t
     }
 }

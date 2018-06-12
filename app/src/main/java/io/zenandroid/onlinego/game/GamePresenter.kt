@@ -17,6 +17,7 @@ import io.zenandroid.onlinego.model.ogs.Phase
 import io.zenandroid.onlinego.ogs.ActiveGameRepository
 import io.zenandroid.onlinego.ogs.GameConnection
 import io.zenandroid.onlinego.ogs.OGSService
+import io.zenandroid.onlinego.ogs.OGSServiceImpl
 import io.zenandroid.onlinego.utils.computeTimeLeft
 import java.util.concurrent.TimeUnit
 
@@ -36,7 +37,7 @@ class GamePresenter(
     }
 
     private val subscriptions = CompositeDisposable()
-    private var gameConnection: GameConnection = GameConnection(gameId)
+    private var gameConnection: GameConnection? = null
     private var myGame: Boolean = false
     private var currentPosition = Position(19)
     private val userId = service.uiConfig?.user?.id
@@ -74,6 +75,11 @@ class GamePresenter(
         subscriptions.add(Observable.interval(100, TimeUnit.MILLISECONDS)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe { clockTick() }
+        )
+        subscriptions.add(
+                OGSServiceImpl.instance.connectToGame(gameId).apply {
+                    gameConnection = this
+                }
         )
 
     }
@@ -138,7 +144,7 @@ class GamePresenter(
                 removing = false
             }
             if(delta.isNotEmpty()) {
-                gameConnection.submitRemovedStones(delta, removing)
+                gameConnection?.submitRemovedStones(delta, removing)
             }
         }
     }
@@ -149,18 +155,18 @@ class GamePresenter(
             view.showCandidateMove(null)
             showPlayControls()
         } else {
-            gameConnection.rejectRemovedStones()
+            gameConnection?.rejectRemovedStones()
         }
     }
 
     override fun onConfirmButtonPressed() {
         if(game?.phase == Phase.PLAY) {
             view.interactive = false
-            candidateMove?.let { gameConnection.submitMove(it) }
+            candidateMove?.let { gameConnection?.submitMove(it) }
             candidateMove = null
             showPlayControls()
         } else {
-            gameConnection.acceptRemovedStones(currentPosition.removedSpots)
+            gameConnection?.acceptRemovedStones(currentPosition.removedSpots)
         }
     }
 
@@ -219,8 +225,8 @@ class GamePresenter(
         val newPos = currentPosition.clone()
         newPos.clearAllRemovedSpots()
         RulesManager.determineTerritory(newPos)
-        gameConnection.submitRemovedStones(currentPosition.removedSpots, false)
-        gameConnection.submitRemovedStones(newPos.removedSpots, true)
+        gameConnection?.submitRemovedStones(currentPosition.removedSpots, false)
+        gameConnection?.submitRemovedStones(newPos.removedSpots, true)
 
     }
 
@@ -336,12 +342,12 @@ class GamePresenter(
     }
 
     override fun onResignConfirmed() {
-        gameConnection.resign()
+        gameConnection?.resign()
     }
 
 
     override fun onPassConfirmed() {
-        gameConnection.submitMove(Point(-1, -1))
+        gameConnection?.submitMove(Point(-1, -1))
     }
 
     override fun onNextButtonPressed() {
