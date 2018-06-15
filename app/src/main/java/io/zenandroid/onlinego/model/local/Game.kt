@@ -4,8 +4,8 @@ import android.arch.persistence.room.Embedded
 import android.arch.persistence.room.Entity
 import android.arch.persistence.room.Ignore
 import android.arch.persistence.room.PrimaryKey
-import io.zenandroid.onlinego.model.ogs.OGSGame
 import io.zenandroid.onlinego.model.ogs.GameData
+import io.zenandroid.onlinego.model.ogs.OGSGame
 import io.zenandroid.onlinego.model.ogs.Phase
 
 /**
@@ -47,7 +47,10 @@ data class Game(
 
         var komi: Float?,
 
-        var ended: Long?
+        var ended: Long?,
+
+        var freeHandicapPlacement: Boolean?,
+        var handicap: Int?
         ) {
     @Ignore
     var json: GameData? = null
@@ -96,7 +99,9 @@ data class Game(
                     clock = Clock.fromOGSClock(gamedata?.clock),
                     phase = gamedata?.phase,
                     komi = game.komi,
-                    ended = game.ended?.time
+                    ended = game.ended?.time,
+                    freeHandicapPlacement = gamedata?.free_handicap_placement,
+                    handicap = game.handicap
             )
         }
     }

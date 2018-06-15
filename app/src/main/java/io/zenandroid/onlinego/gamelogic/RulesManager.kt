@@ -80,7 +80,10 @@ object RulesManager {
                 return@forEachIndexed
             }
             pos = newPos
-            turn = turn.opponent
+            val handicap = game.handicap ?: 0
+            if(game.freeHandicapPlacement != true || index >= handicap - 1) {
+                    turn = turn.opponent
+            }
             newPos.nextToMove = turn
         }
         game.removedStones?.let {

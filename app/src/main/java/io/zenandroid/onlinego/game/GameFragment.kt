@@ -98,7 +98,7 @@ class GameFragment : Fragment(), GameContract.View {
         set(value) {
             blackDetailsView.player = value
         }
-    
+
     override var passButtonEnabled: Boolean = true
         set(value) {
             passButton.isEnabled = value
