@@ -9,7 +9,7 @@ android {
     compileSdkVersion 27
     defaultConfig {
         applicationId "io.zenandroid.onlinego"
-        minSdkVersion 19
+        minSdkVersion 20
         targetSdkVersion 27
 //        versionCode System.getenv("APPCENTER_BUILD_ID") as Integer ?: 54
         versionCode 42
@@ -101,10 +101,10 @@ dependencies {
     implementation 'com.jakewharton.rxbinding2:rxbinding:2.0.0'
 
     implementation 'br.com.simplepass:loading-button-android:1.8.3'
-    implementation 'com.github.bumptech.glide:glide:4.7.1'
     implementation 'com.google.firebase:firebase-core:16.0.0'
 
-    kapt 'com.github.bumptech.glide:compiler:4.4.0'
+    implementation 'com.github.bumptech.glide:glide:4.7.1'
+    kapt 'com.github.bumptech.glide:compiler:4.7.1'
 
     implementation 'com.crashlytics.sdk.android:crashlytics:2.9.3'
 

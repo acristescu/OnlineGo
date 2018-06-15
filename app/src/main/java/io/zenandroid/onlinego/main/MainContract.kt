@@ -17,6 +17,7 @@ interface MainContract {
         fun cancelNotification()
         fun updateNotification(sortedMyTurnGames: List<OGSGame>)
         fun navigateToGameScreen(game: Game)
+        fun showLogin()
     }
     interface Presenter {
         fun subscribe()

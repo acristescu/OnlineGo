@@ -1,6 +1,5 @@
 package io.zenandroid.onlinego.login
 
-import android.content.Context
 import android.content.Intent
 import android.graphics.BitmapFactory
 import android.os.Bundle
@@ -56,10 +55,6 @@ class LoginActivity : AppCompatActivity() {
     private var createAccount = false
 
     private var analytics = OnlineGoApplication.instance.analytics
-
-    companion object {
-        fun getIntent(context: Context) = Intent(context, LoginActivity::class.java)
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

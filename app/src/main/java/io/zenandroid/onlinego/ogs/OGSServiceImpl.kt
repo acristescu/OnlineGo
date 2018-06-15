@@ -50,6 +50,8 @@ class OGSServiceImpl private constructor(): OGSService {
     private val moshi = Moshi.Builder().add(Date::class.java, Rfc3339DateJsonAdapter().nullSafe()).build()
     private var authSent = false
 
+    private var connectedToChallenges = false
+
     private val loggingAck = Ack {
         Log.i(TAG, "ack: $it")
     }
@@ -59,13 +61,13 @@ class OGSServiceImpl private constructor(): OGSService {
                 .doOnSuccess(this::storeToken)
                 .flatMap { restApi.uiConfig() }
                 .doOnSuccess(this::storeUIConfig)
-                .toCompletable()
+                .ignoreElement()
     }
 
     fun createAccount(username: String, password: String, email: String): Completable {
         val ebi = "${Math.random().toString().split(".")[1]}.0.0.0.0.xxx.xxx.${Date().timezoneOffset + 13}"
         return restApi.createAccount(CreateAccountRequest(username, password, email, ebi))
-                .toCompletable()
+                .ignoreElement()
     }
 
     fun loginWithToken(): Completable {
@@ -97,7 +99,7 @@ class OGSServiceImpl private constructor(): OGSService {
         } ?: tokenSource.flatMap { restApi.uiConfig() }.doOnSuccess(this::storeUIConfig)
 
        return uiConfigSource
-               .toCompletable()
+               .ignoreElement()
     }
 
     private fun storeToken(token: LoginToken) {
@@ -146,17 +148,20 @@ class OGSServiceImpl private constructor(): OGSService {
                     observeEvent("game/$id/phase").map { string -> Phase.valueOf(string.toString().toUpperCase().replace(' ', '_')) },
                     observeEvent("game/$id/removed_stones").map { string -> moshi.adapter(RemovedStones::class.java).fromJson(string.toString()) }
             ).apply {
-                emit("game/connect", createJsonObject {
-                    put("chat", false)
-                    put("game_id", id)
-                    put("player_id", uiConfig!!.user.id)
-                })
-
+                emitGameConnection(id)
                 gameConnections[id] = this
             }
             connection.incrementCounter()
             return connection
         }
+    }
+
+    private fun emitGameConnection(id: Long) {
+        emit("game/connect", createJsonObject {
+            put("chat", false)
+            put("game_id", id)
+            put("player_id", uiConfig!!.user.id)
+        })
     }
 
     fun connectToNotifications(): Flowable<OGSGame> {
@@ -180,11 +185,13 @@ class OGSServiceImpl private constructor(): OGSService {
                 .map { string -> adapter.fromJson(string.toString()) }
                 .flatMapIterable { it -> it }
                 .doOnCancel {
+                    connectedToChallenges = false
                     emit("seek_graph/disconnect", createJsonObject {
                         put("channel", "global")
                     })
                 }
 
+        connectedToChallenges = true
         emit("seek_graph/connect", createJsonObject {
             put("channel", "global")
         })
@@ -207,7 +214,7 @@ class OGSServiceImpl private constructor(): OGSService {
         authSent = true
     }
 
-    fun observeEvent(event: String): Flowable<Any> {
+    private fun observeEvent(event: String): Flowable<Any> {
         Log.i(TAG, "Listening for event: $event")
         return Flowable.create({ emitter ->
             socket.on(event, {
@@ -222,14 +229,6 @@ class OGSServiceImpl private constructor(): OGSService {
             })
         }
         , BackpressureStrategy.BUFFER)
-    }
-
-    fun registerSeekgraph(): Flowable<Any> {
-        return observeEvent("seekgraph/global").doOnSubscribe({
-            emit("seek_graph/connect", createJsonObject {
-                put("channel", "global")
-            })
-        })
     }
 
     override fun startGameSearch(size: Size, speed: Speed) : AutomatchChallenge {
@@ -320,12 +319,17 @@ class OGSServiceImpl private constructor(): OGSService {
         token = PersistenceManager.instance.getToken()
         tokenExpiry = PersistenceManager.instance.getTokenExpiry()
 
-        val options = IO.Options()
-        options.transports = arrayOf("websocket")
-        socket = IO.socket("https://online-go.com", options)
+        socket = IO.socket("https://online-go.com", IO.Options().apply {
+            transports = arrayOf("websocket")
+            reconnection = true
+            reconnectionDelay = 750
+            reconnectionDelayMax = 10000
+        })
+
 
         socket.on(Socket.EVENT_CONNECT) {
             Logger.getLogger(TAG).warning("socket connect id=${socket.id()}")
+            onSockedConnected()
         }.on(Socket.EVENT_DISCONNECT) {
             Logger.getLogger(TAG).warning("socket disconnect id=${socket.id()}")
         }.on(Socket.EVENT_CONNECT_ERROR) {
@@ -353,6 +357,24 @@ class OGSServiceImpl private constructor(): OGSService {
 //                    Logger.getLogger(Manager::class.java.name).level = Level.FINEST
         Logger.getLogger(io.socket.engineio.client.Socket::class.java.name).level = Level.FINEST
 //        Logger.getLogger(IOParser::class.java.name).level = Level.FINEST
+    }
+
+    private fun onSockedConnected() {
+        resendAuth()
+        synchronized(gameConnections) {
+            gameConnections.keys.forEach {
+                emitGameConnection(it)
+            }
+        }
+        emit("notification/connect", createJsonObject {
+            put("player_id", uiConfig?.user?.id)
+            put("auth", uiConfig?.notification_auth)
+        })
+        if(connectedToChallenges) {
+            emit("seek_graph/connect", createJsonObject {
+                put("channel", "global")
+            })
+        }
     }
 
     fun disconnectFromGame(id: Long) {

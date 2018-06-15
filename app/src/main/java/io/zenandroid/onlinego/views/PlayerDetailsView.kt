@@ -12,8 +12,10 @@ import butterknife.BindView
 import butterknife.ButterKnife
 import butterknife.Unbinder
 import com.bumptech.glide.Glide
-import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
+import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade
 import com.bumptech.glide.request.RequestOptions
+import com.bumptech.glide.request.transition.DrawableCrossFadeFactory
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.extensions.showIf
 import io.zenandroid.onlinego.model.StoneType
@@ -62,11 +64,12 @@ class PlayerDetailsView : FrameLayout {
             value?.icon?.let {
                 Glide.with(this)
                         .load(processGravatarURL(it))
+                        .transition(withCrossFade(DrawableCrossFadeFactory.Builder().setCrossFadeEnabled(true).build()))
                         .apply(RequestOptions().centerCrop().placeholder(R.drawable.ic_person_outline))
-                        .apply(RequestOptions().circleCrop())
-                        .transition(DrawableTransitionOptions.withCrossFade())
+                        .apply(RequestOptions().circleCrop().diskCacheStrategy(DiskCacheStrategy.RESOURCE))
                         .into(iconView)
             }
+            field = value
         }
 
     var nextToMove: Boolean = false

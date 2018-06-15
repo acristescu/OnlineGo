@@ -98,6 +98,7 @@ class GameFragment : Fragment(), GameContract.View {
         set(value) {
             blackDetailsView.player = value
         }
+    
     override var passButtonEnabled: Boolean = true
         set(value) {
             passButton.isEnabled = value
@@ -240,8 +241,8 @@ class GameFragment : Fragment(), GameContract.View {
             field = value
         }
 
-    override fun onStart() {
-        super.onStart()
+    override fun onResume() {
+        super.onResume()
         analytics.setCurrentScreen(activity!!, javaClass.simpleName, null)
         presenter.subscribe()
         subscriptions.add(
@@ -286,8 +287,8 @@ class GameFragment : Fragment(), GameContract.View {
     override var nextButtonEnabled: Boolean = false
         set(value) { nextButton.isEnabled = value }
 
-    override fun onStop() {
-        super.onStop()
+    override fun onPause() {
+        super.onPause()
         presenter.unsubscribe()
         subscriptions.clear()
     }

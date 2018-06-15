@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
+import android.content.Intent
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
@@ -28,6 +29,7 @@ import io.zenandroid.onlinego.extensions.fadeIn
 import io.zenandroid.onlinego.extensions.fadeOut
 import io.zenandroid.onlinego.extensions.showIf
 import io.zenandroid.onlinego.game.GameFragment
+import io.zenandroid.onlinego.login.LoginActivity
 import io.zenandroid.onlinego.model.local.Game
 import io.zenandroid.onlinego.model.ogs.OGSGame
 import io.zenandroid.onlinego.mygames.MyGamesFragment
@@ -153,6 +155,10 @@ class MainActivity : AppCompatActivity(), MainContract.View {
 
         isInForeground = true
         super.onResume()
+    }
+
+    override fun showLogin() {
+        startActivity(Intent(this, LoginActivity::class.java))
     }
 
     override fun onPause() {

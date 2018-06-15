@@ -13,6 +13,8 @@ import io.zenandroid.onlinego.gamelogic.Util.isMyTurn
 import io.zenandroid.onlinego.model.local.Clock
 import io.zenandroid.onlinego.model.local.Game
 import io.zenandroid.onlinego.model.ogs.OGSGame
+import java.io.IOException
+import java.util.concurrent.TimeUnit
 
 /**
  * Created by alex on 08/11/2017.
@@ -135,22 +137,28 @@ class ActiveGameRepository {
     }
 
     private fun fetchGameFromOGS(id: Long) {
+
+    }
+
+    fun monitorGame(id: Long): Flowable<Game> {
+        // TODO: Maybe check if the data is fresh enough to warrant skipping this call?
         subscriptions.add(
                 OGSServiceImpl.instance
                         .fetchGame(id)
                         .map(Game.Companion::fromOGSGame)
                         .map(::listOf)
+                        .retryWhen (this::retryIOException)
                         .subscribe(OnlineGoApplication.instance.db.gameDao()::insertAll, this::onError)
         )
-    }
-
-    fun monitorGame(id: Long): Flowable<Game> {
-        // TODO: Maybe check if the data is fresh enough to warrant skipping this call?
-        fetchGameFromOGS(id)
 
         return OnlineGoApplication.instance.db.gameDao().monitorGame(id)
                 .doOnNext(this::connectToGame)
     }
+
+    private fun retryIOException(it: Flowable<Throwable>) =
+            it.map { it as? IOException ?: throw it }
+                    .delay(15, TimeUnit.SECONDS)
+
 
     fun getGameSingle(id: Long): Single<Game> {
         return OnlineGoApplication.instance.db.gameDao().monitorGame(id).take(1).firstOrError()
@@ -163,6 +171,7 @@ class ActiveGameRepository {
                     .flattenAsObservable { it -> it }
                     .map (Game.Companion::fromOGSGame)
                     .toList()
+                    .retryWhen (this::retryIOException)
                     .subscribe(OnlineGoApplication.instance.db.gameDao()::insertAll, this::onError)
         )
         return OnlineGoApplication.instance.db.gameDao().monitorActiveGames(OGSServiceImpl.instance.uiConfig?.user?.id)
@@ -178,6 +187,7 @@ class ActiveGameRepository {
                         .flatMapSingle { OGSServiceImpl.instance.fetchGame(it) }
                         .map (Game.Companion::fromOGSGame)
                         .toList()
+                        .retryWhen (this::retryIOException)
                         .subscribe(OnlineGoApplication.instance.db.gameDao()::insertAll, this::onError)
         )
         return OnlineGoApplication.instance.db.gameDao().monitorHistoricGames(OGSServiceImpl.instance.uiConfig?.user?.id)
