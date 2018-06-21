@@ -33,9 +33,10 @@ class ActiveGameRepository {
             OGSServiceImpl.instance.fetchGame(game.id)
                     .subscribeOn(Schedulers.io())
                     .map(Game.Companion::fromOGSGame)
+                    .retryWhen (this::retryIOException)
                     .subscribe({
                         OnlineGoApplication.instance.db.gameDao().insertAll(listOf(it))
-                    }, this::onError)
+                    }, { this.onError(it, "onNotification") })
         )
     }
 
@@ -49,12 +50,12 @@ class ActiveGameRepository {
         subscriptions.add(
                 OGSServiceImpl.instance.connectToNotifications()
                         .subscribeOn(Schedulers.io())
-                        .subscribe(this::onNotification, this::onError)
+                        .subscribe(this::onNotification) { this.onError(it, "connectToNotifications") }
         )
         subscriptions.add(
                 OnlineGoApplication.instance.db.gameDao()
                         .monitorActiveGames(OGSServiceImpl.instance.uiConfig?.user?.id)
-                        .subscribe(this::setActiveGames, this::onError)
+                        .subscribe(this::setActiveGames) { this.onError(it, "gameDao") }
         )
     }
 
@@ -87,14 +88,14 @@ class ActiveGameRepository {
                         clock = Clock.fromOGSClock(it.clock)
                     }
                     OnlineGoApplication.instance.db.gameDao().update(game)
-                }, this::onError))
+                }, { this.onError(it, "gameData") }))
         subscriptions.add(gameConnection.moves
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.single())
                 .subscribe ({ move ->
                     game.moves?.add(mutableListOf(move.move[0].toInt(), move.move[1].toInt()))
                     OnlineGoApplication.instance.db.gameDao().update(game)
-                }, this::onError))
+                }, { this.onError(it, "moves") }))
         subscriptions.add(gameConnection.clock
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.single())
@@ -104,7 +105,7 @@ class ActiveGameRepository {
                         playerToMoveId = it.current_player
                     }
                     OnlineGoApplication.instance.db.gameDao().update(game)
-                }, this::onError))
+                }, { this.onError(it, "clock") }))
         subscriptions.add(gameConnection.phase
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.single())
@@ -113,7 +114,7 @@ class ActiveGameRepository {
                         phase = it
                     }
                     OnlineGoApplication.instance.db.gameDao().update(game)
-                }, this::onError))
+                }, { this.onError(it, "phase") }))
         subscriptions.add(gameConnection.removedStones
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.single())
@@ -122,7 +123,7 @@ class ActiveGameRepository {
                         removedStones = it.all_removed
                     }
                     OnlineGoApplication.instance.db.gameDao().update(game)
-                }, this::onError))
+                }, { this.onError(it, "removedStones") }))
 
     }
 
@@ -148,7 +149,8 @@ class ActiveGameRepository {
                         .map(Game.Companion::fromOGSGame)
                         .map(::listOf)
                         .retryWhen (this::retryIOException)
-                        .subscribe(OnlineGoApplication.instance.db.gameDao()::insertAll, this::onError)
+                        .subscribe(OnlineGoApplication.instance.db.gameDao()::insertAll)
+                        { this.onError(it, "monitorGame") }
         )
 
         return OnlineGoApplication.instance.db.gameDao().monitorGame(id)
@@ -172,7 +174,8 @@ class ActiveGameRepository {
                     .map (Game.Companion::fromOGSGame)
                     .toList()
                     .retryWhen (this::retryIOException)
-                    .subscribe(OnlineGoApplication.instance.db.gameDao()::insertAll, this::onError)
+                    .subscribe(OnlineGoApplication.instance.db.gameDao()::insertAll)
+                    { this.onError(it, "fetchActiveGames") }
         )
         return OnlineGoApplication.instance.db.gameDao().monitorActiveGames(OGSServiceImpl.instance.uiConfig?.user?.id)
     }
@@ -188,13 +191,14 @@ class ActiveGameRepository {
                         .map (Game.Companion::fromOGSGame)
                         .toList()
                         .retryWhen (this::retryIOException)
-                        .subscribe(OnlineGoApplication.instance.db.gameDao()::insertAll, this::onError)
+                        .subscribe(OnlineGoApplication.instance.db.gameDao()::insertAll)
+                        { this.onError(it, "fetchHistoricGames") }
         )
         return OnlineGoApplication.instance.db.gameDao().monitorHistoricGames(OGSServiceImpl.instance.uiConfig?.user?.id)
     }
 
-    private fun onError(t: Throwable) {
+    private fun onError(t: Throwable, request: String) {
         Log.e("ActiveGameRespository", t.message, t)
-        throw t
+        throw RuntimeException("ActiveGameRespository $request", t)
     }
 }

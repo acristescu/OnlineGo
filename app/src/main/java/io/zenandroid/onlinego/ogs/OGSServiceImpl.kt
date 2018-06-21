@@ -160,7 +160,7 @@ class OGSServiceImpl private constructor(): OGSService {
         emit("game/connect", createJsonObject {
             put("chat", false)
             put("game_id", id)
-            put("player_id", uiConfig!!.user.id)
+            put("player_id", uiConfig?.user?.id)
         })
     }
 
@@ -217,16 +217,15 @@ class OGSServiceImpl private constructor(): OGSService {
     private fun observeEvent(event: String): Flowable<Any> {
         Log.i(TAG, "Listening for event: $event")
         return Flowable.create({ emitter ->
-            socket.on(event, {
-                params ->
+            socket.on(event) { params ->
                 Log.i(TAG, "Received event: $event, ${params[0]}")
-                    emitter.onNext(params[0])
-            })
+                emitter.onNext(params[0])
+            }
 
-            emitter.setCancellable({
+            emitter.setCancellable {
                 Log.i(TAG, "Unregistering for event: $event")
                 socket.off(event)
-            })
+            }
         }
         , BackpressureStrategy.BUFFER)
     }
@@ -401,9 +400,11 @@ class OGSServiceImpl private constructor(): OGSService {
             )
 
     override fun fetchHistoricGames(): Single<List<OGSGame>> =
-        loginWithToken().andThen(
-                restApi.fetchPlayerFinishedGames(uiConfig?.user?.id!!)
-                        .map { it -> it.results }
-        )
+            loginWithToken().andThen(
+                    Single.defer {
+                        uiConfig?.user?.id?.let { restApi.fetchPlayerFinishedGames(it) }
+                                ?: Single.error(RuntimeException("Null UI Config"))
+                    }.map { it.results }
+            )
 
 }

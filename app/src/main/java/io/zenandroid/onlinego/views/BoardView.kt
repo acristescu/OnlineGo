@@ -3,6 +3,7 @@ package io.zenandroid.onlinego.views
 import android.content.Context
 import android.graphics.*
 import android.util.AttributeSet
+import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import io.reactivex.Observable
@@ -65,8 +66,6 @@ class BoardView : View {
     private val blackStoneDrawable = resources.getDrawable(R.mipmap.stone_black)
     private val shadowDrawable = resources.getDrawable(R.drawable.gradient_shadow)
 
-    private val texture = BitmapFactory.decodeResource(resources, R.mipmap.texture1)
-
     //
     // Size (in px) of the cell
     //
@@ -104,6 +103,10 @@ class BoardView : View {
         decorationsPaint.strokeWidth = 3f
 
         territoryPaint.strokeWidth = 4f
+        
+        if(texture == null) {
+            texture = BitmapFactory.decodeResource(resources, R.mipmap.texture)
+        }
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
@@ -355,9 +358,11 @@ class BoardView : View {
     private fun drawBackground(canvas: Canvas) {
         //canvas.drawARGB(255, 0xDE, 0xB0, 0x66);
         //        canvas.drawBitmap(texture, 0, 0, null);
-        val src = Rect(0, 0, texture.width, texture.height)
-        val dest = Rect(0, 0, width, height)
-        canvas.drawBitmap(texture, src, dest, null)
+        texture?.let {
+            val src = Rect(0, 0, it.width, it.height)
+            val dest = Rect(0, 0, width, height)
+            canvas.drawBitmap(texture, src, dest, null)
+        } ?: Log.e("BoardView", "Null background!!!")
     }
 
     private fun getCellCenter(i: Int, j: Int): PointF {
@@ -391,5 +396,6 @@ class BoardView : View {
 
     companion object {
         private val FUZZY_PLACEMENT = false
+        private var texture: Bitmap? = null
     }
 }

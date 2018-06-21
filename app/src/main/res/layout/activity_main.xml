@@ -15,6 +15,7 @@
             android:layout_height="wrap_content"
             app:titleTextColor="#FFFFFF"
             app:subtitleTextColor="#FFFFFF"
+            app:theme="@style/ThemeOverlay.AppCompat.Dark"
             >
             <android.support.constraint.ConstraintLayout
                 android:layout_width="wrap_content"

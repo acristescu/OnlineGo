@@ -77,8 +77,12 @@ class GamePresenter(
                 .subscribe { clockTick() }
         )
         subscriptions.add(
-                OGSServiceImpl.instance.connectToGame(gameId).apply {
-                    gameConnection = this
+                OGSServiceImpl.instance.loginWithToken().subscribe {
+                    subscriptions.add(
+                            OGSServiceImpl.instance.connectToGame(gameId).apply {
+                                gameConnection = this
+                            }
+                    )
                 }
         )
 

@@ -101,7 +101,7 @@ fun computeTimeLeft(clock: Clock, playerTimeSimple: Long?, playerTime: Time?, cu
             // Byo Yomi timer
             var periodsLeft = playerTime.periods
             if(timeLeft < 0 || playerTime.thinking_time == 0L) {
-                val periodOffset = Math.floor((-timeLeft / 1000.0) / playerTime.period_time!!).coerceAtLeast(0.0)
+                val periodOffset = Math.ceil((-timeLeft / 1000.0) / playerTime.period_time!!).coerceAtLeast(0.0)
 
                 while(timeLeft < 0) {
                     timeLeft += playerTime.period_time * 1000

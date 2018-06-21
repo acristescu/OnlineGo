@@ -2,6 +2,7 @@ package io.zenandroid.onlinego.mygames
 
 import android.os.Bundle
 import android.support.v4.app.Fragment
+import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.support.v7.widget.SimpleItemAnimator
@@ -11,6 +12,7 @@ import android.view.ViewGroup
 import butterknife.BindView
 import butterknife.ButterKnife
 import butterknife.Unbinder
+import io.zenandroid.onlinego.BuildConfig
 import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.main.MainActivity
@@ -71,6 +73,12 @@ class MyGamesFragment : Fragment(), MyGamesContract.View {
     override fun onResume() {
         super.onResume()
         analytics.setCurrentScreen(activity!!, javaClass.simpleName, null)
+        (activity as? AppCompatActivity)?.supportActionBar?.apply {
+            setDisplayHomeAsUpEnabled(false)
+            title = "OnlineGo"
+            subtitle = BuildConfig.VERSION_NAME
+        }
+
         presenter.subscribe()
     }
 

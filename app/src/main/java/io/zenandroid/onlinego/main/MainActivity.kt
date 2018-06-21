@@ -9,6 +9,7 @@ import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
 import android.support.design.widget.BottomNavigationView
+import android.support.v4.app.NavUtils
 import android.support.v7.app.AppCompatActivity
 import android.view.MenuItem
 import android.view.View
@@ -99,6 +100,16 @@ class MainActivity : AppCompatActivity(), MainContract.View {
 
     override fun cancelNotification() {
         NotificationUtils.cancelNotification(this)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            android.R.id.home -> {
+                onBackPressed()
+                return true
+            }
+        }
+        return super.onOptionsItemSelected(item)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -225,7 +236,7 @@ class MainActivity : AppCompatActivity(), MainContract.View {
                 .setCustomAnimations(R.anim.fade_in, R.anim.fade_out,
                         R.anim.fade_in, R.anim.fade_out)
                 .replace(R.id.fragment_container, GameFragment.createFragment(game), "game")
-                .commit()
+                .commitAllowingStateLoss()
     }
 
     override fun showError(msg: String?) {

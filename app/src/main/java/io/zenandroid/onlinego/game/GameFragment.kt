@@ -3,13 +3,11 @@ package io.zenandroid.onlinego.game
 import android.graphics.Point
 import android.os.Bundle
 import android.support.v4.app.Fragment
+import android.support.v4.app.NavUtils
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.AppCompatImageView
-import android.view.LayoutInflater
-import android.view.MotionEvent
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.Toast
 import butterknife.BindView
 import butterknife.ButterKnife
@@ -148,6 +146,7 @@ class GameFragment : Fragment(), GameContract.View {
                 arguments!!.getLong(GAME_ID),
                 arguments!!.getInt(GAME_SIZE)
         )
+        (activity as? AppCompatActivity)?.supportActionBar?.setDisplayHomeAsUpEnabled(true)
     }
 
     override fun showError(t: Throwable) {
@@ -192,7 +191,7 @@ class GameFragment : Fragment(), GameContract.View {
         set(value) { (activity as? AppCompatActivity)?.supportActionBar?.subtitle = value }
 
     override var title: String? = null
-        set(value) { activity?.title = value }
+        set(value) { (activity as? AppCompatActivity)?.supportActionBar?.title = value }
 
     override var interactive: Boolean
         get() = board.isInteractive
@@ -300,10 +299,10 @@ class GameFragment : Fragment(), GameContract.View {
             AlertDialog.Builder(it)
                     .setTitle("Please confirm")
                     .setMessage("Are you sure you want to resign?")
-                    .setPositiveButton("Resign", { _, _ ->
+                    .setPositiveButton("Resign") { _, _ ->
                         analytics.logEvent("resign_confirmed", null)
                         presenter.onResignConfirmed()
-                    })
+                    }
                     .setNegativeButton(android.R.string.cancel, null).show()
         }
     }
@@ -315,10 +314,10 @@ class GameFragment : Fragment(), GameContract.View {
             AlertDialog.Builder(it)
                     .setTitle("Please confirm")
                     .setMessage("Are you sure you want to pass?")
-                    .setPositiveButton("Pass", { _, _ ->
+                    .setPositiveButton("Pass") { _, _ ->
                         analytics.logEvent("resign_confirmed", null)
                         presenter.onPassConfirmed()
-                    })
+                    }
                     .setNegativeButton(android.R.string.cancel, null).show()
         }
     }
