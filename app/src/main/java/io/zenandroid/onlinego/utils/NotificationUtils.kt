@@ -5,6 +5,8 @@ import android.app.PendingIntent
 import android.app.PendingIntent.FLAG_UPDATE_CURRENT
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.Canvas
 import android.preference.PreferenceManager
 import android.support.v4.app.NotificationCompat
 import android.support.v4.app.NotificationCompat.BADGE_ICON_NONE
@@ -13,8 +15,6 @@ import android.support.v4.content.res.ResourcesCompat
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.model.ogs.OGSGame
 import java.security.MessageDigest
-import android.graphics.Bitmap
-import android.graphics.Canvas
 
 
 /**
@@ -52,7 +52,7 @@ class NotificationUtils {
                     }
                     style.addLine("vs $opponent")
                     sha.update(it.id.toString().toByteArray())
-                    sha.update(it.move_number.toString().toByteArray())
+                    sha.update(it.json?.moves?.size.toString().toByteArray())
                 }
                 val hash = sha.digest()
 

@@ -134,6 +134,30 @@
         />
 
     <TextView
+        android:id="@+id/passed_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:alpha="0"
+        android:background="@drawable/rounded_corners"
+        android:backgroundTint="@color/colorPrimary"
+        android:fontFamily="@font/ubuntu_bold"
+        android:paddingLeft="5dp"
+        android:paddingRight="5dp"
+        android:paddingTop="1dp"
+        android:paddingBottom="1dp"
+        android:text="Pass!"
+        android:textColor="@color/white"
+        android:textSize="10sp"
+        android:visibility="visible"
+        app:layout_goneMarginTop="4dp"
+        tools:alpha="1"
+        app:layout_constraintTop_toTopOf="@id/first_row"
+        app:layout_constraintBottom_toBottomOf="@id/first_row"
+        app:layout_constraintRight_toRightOf="parent"
+        android:layout_marginRight="24dp"
+        />
+
+    <TextView
         android:id="@+id/points_label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

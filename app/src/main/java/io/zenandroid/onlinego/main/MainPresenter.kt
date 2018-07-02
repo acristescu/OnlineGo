@@ -14,16 +14,12 @@ import java.util.concurrent.TimeUnit
 /**
  * Created by alex on 14/03/2018.
  */
-class MainPresenter (val view : MainContract.View, val activeGameRepository: ActiveGameRepository) : MainContract.Presenter {
+class MainPresenter (val view : MainContract.View, private val activeGameRepository: ActiveGameRepository) : MainContract.Presenter {
 
     private val subscriptions = CompositeDisposable()
     private var lastGameNotified: Game? = null
 
     override fun subscribe() {
-        view.mainTitle = "OnlineGo"
-        view.subtitle = BuildConfig.VERSION_NAME
-
-
         subscriptions.add(
                 OGSServiceImpl.instance.loginWithToken().
                         subscribe ({

@@ -18,6 +18,10 @@ import io.zenandroid.onlinego.ogs.ActiveGameRepository
 import io.zenandroid.onlinego.ogs.GameConnection
 import io.zenandroid.onlinego.ogs.OGSService
 import io.zenandroid.onlinego.ogs.OGSServiceImpl
+import io.zenandroid.onlinego.statuschips.FinishedChip
+import io.zenandroid.onlinego.statuschips.PassedChip
+import io.zenandroid.onlinego.statuschips.PlayingChip
+import io.zenandroid.onlinego.statuschips.StoneRemovalChip
 import io.zenandroid.onlinego.utils.computeTimeLeft
 import java.util.concurrent.TimeUnit
 
@@ -43,6 +47,38 @@ class GamePresenter(
     private val userId = service.uiConfig?.user?.id
     private var currentShownMove = -1
     private var game: Game? = null
+
+    private val playingChip = PlayingChip {
+        view.showInfoDialog("Playing phase",
+                "The game is in the playing phase. Here the players will take " +
+                        "turns placing stones and try to surround the most territory and capture " +
+                        "opponents stones. This phase ends when both players pass their turns.")
+    }
+    private val stoneRemovalChip = StoneRemovalChip {
+        view.showInfoDialog("Scoring phase",
+                "The game is in the scoring phase. Here the players agree on " +
+                        "the dead stones so that the server can count the points. An automatic " +
+                        "estimation is already provided (and you can always reset the status " +
+                        "to that by pressing the wand button below) but you can make modifications " +
+                        "by tapping on the stone group that you think has the wrong status. " +
+                        "Once you are happy with the status of the board, you can press the " +
+                        "accept button below. When both players have accepted, the game is " +
+                        "over and the score is counted. If you cannot agree with your opponent " +
+                        "you can cancel the scoring phase and play on to prove which " +
+                        "group is alive and which is dead.")
+    }
+    private val finishedChip = FinishedChip {
+        view.showInfoDialog("Finished game",
+                "The game is finished. If the outcome was decided by counting " +
+                        "the points (e.g. not by timeout or one of the player resigning) " +
+                        "you can see the score details by tapping on the game info button (not implemented yet)")
+    }
+    private val passedChip = PassedChip {
+        view.showInfoDialog("Player has passed",
+                "The last player to move has passed their turn. This means they think the " +
+                        "game is over. If their opponent agrees and passes too, the game moves on " +
+                        "to the scoring phase.")
+    }
 
     private var finishedDialogShown = false
 
@@ -302,14 +338,21 @@ class GamePresenter(
         determineHistoryParameters()
         when(game.phase) {
             Phase.PLAY -> {
-                val toMove =
-                        if (currentPosition.nextToMove == StoneType.BLACK)
-                            game.blackPlayer
-                        else game.whitePlayer
-                view.subTitle = "${toMove.username}'s turn"
+                val lastMoveWasAPass = game.moves?.lastOrNull()?.get(0) == -1
+                if(lastMoveWasAPass) {
+                    view.setChips(listOf(playingChip, passedChip))
+                    view.setBlackPlayerPassed(currentPosition.nextToMove == StoneType.WHITE)
+                    view.setWhitePlayerPassed(currentPosition.nextToMove == StoneType.BLACK)
+                } else {
+                    view.setChips(listOf(playingChip))
+                    view.setBlackPlayerPassed(false)
+                    view.setWhitePlayerPassed(false)
+                }
             }
             Phase.STONE_REMOVAL -> {
-                view.subTitle = "Stone removal"
+                view.setChips(listOf(stoneRemovalChip))
+                view.setBlackPlayerPassed(false)
+                view.setWhitePlayerPassed(false)
             }
             Phase.FINISHED -> {
                 if(!finishedDialogShown) {
@@ -324,7 +367,9 @@ class GamePresenter(
                             view.showYouLoseDialog()
                     }
                 }
-                view.subTitle = "Finished"
+                view.setChips(listOf(finishedChip))
+                view.setBlackPlayerPassed(false)
+                view.setWhitePlayerPassed(false)
             }
         }
         view.activePlayer = currentPosition.nextToMove

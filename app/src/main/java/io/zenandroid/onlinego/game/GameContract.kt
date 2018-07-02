@@ -5,6 +5,7 @@ import io.reactivex.Observable
 import io.zenandroid.onlinego.model.Position
 import io.zenandroid.onlinego.model.StoneType
 import io.zenandroid.onlinego.model.local.Player
+import io.zenandroid.onlinego.statuschips.Chip
 
 /**
  * Created by alex on 10/11/2017.
@@ -26,7 +27,6 @@ interface GameContract {
         var previousButtonEnabled: Boolean
         var nextButtonEnabled: Boolean
         var title: String?
-        var subTitle: String?
         var nextButtonVisible: Boolean
         var previousButtonVisible: Boolean
         var chatButtonVisible: Boolean
@@ -48,6 +48,10 @@ interface GameContract {
         fun showFinishedDialog()
         fun showYouWinDialog()
         fun showYouLoseDialog()
+        fun setChips(chips: List<Chip>)
+        fun showInfoDialog(title: String, contents: String)
+        fun setBlackPlayerPassed(passed: Boolean)
+        fun setWhitePlayerPassed(passed: Boolean)
     }
 
     interface Presenter {

@@ -16,17 +16,38 @@
             app:titleTextColor="#FFFFFF"
             app:subtitleTextColor="#FFFFFF"
             app:theme="@style/ThemeOverlay.AppCompat.Dark"
+            app:contentInsetStartWithNavigation="0dp"
             >
             <android.support.constraint.ConstraintLayout
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="16dp"
                 android:layout_gravity="right">
+                <TextView
+                    android:id="@+id/title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:text="OnlineGo"
+                    android:textColor="@color/white"
+                    android:textSize="18sp"
+                    android:fontFamily="@font/ubuntu_medium"
+                    />
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/chipList"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintTop_toBottomOf="@id/title"
+                    app:layout_constraintLeft_toLeftOf="@id/title"
+                    app:layout_constraintRight_toLeftOf="@id/notifications"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    />
                 <ImageView
                     android:id="@+id/notifications"
                     app:srcCompat="@drawable/ic_move"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:clickable="true"
                     android:focusable="true"
                     android:scaleType="fitXY"
@@ -34,6 +55,9 @@
                     android:background="?android:selectableItemBackground"
                     android:enabled="false"
                     android:alpha=".33"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
                     />
 
                 <TextView

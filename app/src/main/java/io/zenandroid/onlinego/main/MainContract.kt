@@ -9,8 +9,6 @@ import io.zenandroid.onlinego.model.ogs.OGSGame
 interface MainContract {
     interface View {
         fun showError(msg: String?)
-        var mainTitle: CharSequence?
-        var subtitle: CharSequence?
         var notificationsButtonEnabled: Boolean
         var notificationsBadgeVisible: Boolean
         var notificationsBadgeCount: String?

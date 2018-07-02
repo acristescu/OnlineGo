@@ -3,16 +3,19 @@ package io.zenandroid.onlinego.game
 import android.graphics.Point
 import android.os.Bundle
 import android.support.v4.app.Fragment
-import android.support.v4.app.NavUtils
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.AppCompatImageView
-import android.view.*
+import android.view.LayoutInflater
+import android.view.MotionEvent
+import android.view.View
+import android.view.ViewGroup
 import android.widget.Toast
 import butterknife.BindView
 import butterknife.ButterKnife
 import butterknife.OnClick
 import butterknife.Unbinder
+import com.awesomedialog.blennersilva.awesomedialoglibrary.AwesomeInfoDialog
 import com.jakewharton.rxbinding2.view.RxView
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -28,6 +31,7 @@ import io.zenandroid.onlinego.model.StoneType
 import io.zenandroid.onlinego.model.local.Game
 import io.zenandroid.onlinego.model.local.Player
 import io.zenandroid.onlinego.ogs.OGSServiceImpl
+import io.zenandroid.onlinego.statuschips.Chip
 import io.zenandroid.onlinego.views.BoardView
 import io.zenandroid.onlinego.views.PlayerDetailsView
 import java.util.concurrent.TimeUnit
@@ -86,6 +90,14 @@ class GameFragment : Fragment(), GameContract.View {
             whiteDetailsView.nextToMove = value == StoneType.WHITE
             blackDetailsView.nextToMove = value == StoneType.BLACK
         }
+
+    override fun setBlackPlayerPassed(passed: Boolean) {
+        blackDetailsView.passed = passed
+    }
+
+    override fun setWhitePlayerPassed(passed: Boolean) {
+        whiteDetailsView.passed = passed
+    }
 
     override var whitePlayer: Player? = null
         set(value) {
@@ -187,11 +199,8 @@ class GameFragment : Fragment(), GameContract.View {
     override val cellHotTrack: Observable<Point>
         get() = board.tapMoveObservable()
 
-    override var subTitle: String? = null
-        set(value) { (activity as? AppCompatActivity)?.supportActionBar?.subtitle = value }
-
     override var title: String? = null
-        set(value) { (activity as? AppCompatActivity)?.supportActionBar?.title = value }
+        set(value) { (activity as? MainActivity)?.mainTitle = value }
 
     override var interactive: Boolean
         get() = board.isInteractive
@@ -313,7 +322,7 @@ class GameFragment : Fragment(), GameContract.View {
         context?.let {
             AlertDialog.Builder(it)
                     .setTitle("Please confirm")
-                    .setMessage("Are you sure you want to pass?")
+                    .setMessage("Are you sure you want to pass? This means you think the game is over and will move the game to the scoring phase if your opponent passes too.")
                     .setPositiveButton("Pass") { _, _ ->
                         analytics.logEvent("resign_confirmed", null)
                         presenter.onPassConfirmed()
@@ -342,5 +351,21 @@ class GameFragment : Fragment(), GameContract.View {
 
     override fun setLoading(loading: Boolean) {
         (activity as? MainActivity)?.loading = loading
+    }
+
+    override fun setChips(chips: List<Chip>) {
+        (activity as? MainActivity)?.setChips(chips)
+    }
+
+    override fun showInfoDialog(title: String, contents: String) {
+        AwesomeInfoDialog(context)
+                .setTitle(title)
+                .setMessage(contents)
+                .setCancelable(true)
+                .setColoredCircle(R.color.colorPrimary)
+                .setPositiveButtonText("OK")
+                .setPositiveButtonbackgroundColor(R.color.colorPrimary)
+                .setPositiveButtonClick {  }
+                .show()
     }
 }

@@ -19,6 +19,7 @@ import io.zenandroid.onlinego.main.MainActivity
 import io.zenandroid.onlinego.model.local.Game
 import io.zenandroid.onlinego.reusable.ActiveGameItem
 import io.zenandroid.onlinego.reusable.FinishedGameItem
+import io.zenandroid.onlinego.statuschips.VersionChip
 
 /**
  * Created by alex on 05/11/2017.
@@ -75,8 +76,12 @@ class MyGamesFragment : Fragment(), MyGamesContract.View {
         analytics.setCurrentScreen(activity!!, javaClass.simpleName, null)
         (activity as? AppCompatActivity)?.supportActionBar?.apply {
             setDisplayHomeAsUpEnabled(false)
-            title = "OnlineGo"
-            subtitle = BuildConfig.VERSION_NAME
+        }
+
+        (activity as? MainActivity)?.apply {
+            mainTitle = "OnlineGo"
+
+            setChips(listOf(VersionChip()))
         }
 
         presenter.subscribe()

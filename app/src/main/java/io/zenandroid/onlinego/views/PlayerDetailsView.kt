@@ -46,6 +46,7 @@ class PlayerDetailsView : FrameLayout {
     @BindView(R.id.colorIndicatorBlack) lateinit var colorIndicatorBlack: View
     @BindView(R.id.colorIndicatorWhite) lateinit var colorIndicatorWhite: View
     @BindView(R.id.your_turn_label) lateinit var theirTurnLabel: View
+    @BindView(R.id.passed_label) lateinit var passedLabel: View
     @BindView(R.id.icon_container) lateinit var iconContainer: CardView
 
     constructor(context: Context) : this(context, null)
@@ -78,6 +79,19 @@ class PlayerDetailsView : FrameLayout {
                 theirTurnLabel.animate().alpha(1f)
             } else {
                 theirTurnLabel.animate().alpha(0f)
+            }
+            field = value
+        }
+
+    var passed: Boolean = false
+        set(value) {
+            if(field == value) {
+                return
+            }
+            if(value) {
+                passedLabel.animate().alpha(1f)
+            } else {
+                passedLabel.animate().alpha(0f)
             }
             field = value
         }

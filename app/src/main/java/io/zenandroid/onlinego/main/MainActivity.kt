@@ -8,20 +8,23 @@ import android.content.Intent
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
 import android.support.design.widget.BottomNavigationView
 import android.support.v4.app.NavUtils
 import android.support.v7.app.AppCompatActivity
+import android.support.v7.widget.LinearLayoutManager
+import android.support.v7.widget.RecyclerView
 import android.view.MenuItem
 import android.view.View
-import android.widget.ImageView
-import android.widget.ProgressBar
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import butterknife.BindView
 import butterknife.ButterKnife
 import butterknife.OnClick
 import com.firebase.jobdispatcher.*
 import com.firebase.jobdispatcher.Constraint.ON_ANY_NETWORK
+import com.xwray.groupie.GroupAdapter
+import com.xwray.groupie.ViewHolder
+import com.xwray.groupie.kotlinandroidextensions.Item
 import io.reactivex.Completable
 import io.zenandroid.onlinego.NotificationsService
 import io.zenandroid.onlinego.OnlineGoApplication
@@ -38,6 +41,9 @@ import io.zenandroid.onlinego.newchallenge.NewChallengeView
 import io.zenandroid.onlinego.ogs.ActiveGameRepository
 import io.zenandroid.onlinego.spectate.ChallengesFragment
 import io.zenandroid.onlinego.spectate.SpectateFragment
+import io.zenandroid.onlinego.statuschips.Chip
+import io.zenandroid.onlinego.statuschips.ChipAdapter
+import io.zenandroid.onlinego.statuschips.FinishedChip
 import io.zenandroid.onlinego.utils.NotificationUtils
 
 
@@ -53,12 +59,15 @@ class MainActivity : AppCompatActivity(), MainContract.View {
     @BindView(R.id.notifications) lateinit var notificationsButton: ImageView
     @BindView(R.id.new_challenge) lateinit var newChallengeView: NewChallengeView
     @BindView(R.id.progress_bar) lateinit var progressBar: ProgressBar
+    @BindView(R.id.title) lateinit var titleView: TextView
+    @BindView(R.id.chipList) lateinit var chipList: RecyclerView
 
     private val spectateFragment = SpectateFragment()
     private val myGamesFragment = MyGamesFragment()
     private val challengesFragment = ChallengesFragment()
 
     private val analytics = OnlineGoApplication.instance.analytics
+    private val chipAdapter = ChipAdapter()
 
     val activeGameRepository: ActiveGameRepository by lazy { ActiveGameRepository() }
 
@@ -72,13 +81,11 @@ class MainActivity : AppCompatActivity(), MainContract.View {
             progressBar.showIf(value)
         }
 
-    override var subtitle: CharSequence?
-        get() = supportActionBar?.subtitle
-        set(value) { supportActionBar?.subtitle = value }
-
-    override var mainTitle: CharSequence?
-        get() = title
-        set(value) { title = value }
+    var mainTitle: CharSequence? = null
+        set(value) {
+            field = value
+            titleView.text = value
+        }
 
     override var notificationsButtonEnabled: Boolean
         get() = notificationsButton.isEnabled
@@ -126,6 +133,9 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         createNotificationChannel()
         scheduleNotificationJob()
 
+        chipList.layoutManager = LinearLayoutManager(this, RecyclerView.HORIZONTAL, false)
+        chipList.adapter = chipAdapter
+
         newChallengeView.showFab().subscribe()
     }
 
@@ -160,6 +170,10 @@ class MainActivity : AppCompatActivity(), MainContract.View {
             notificationManager.createNotificationChannel(notificationChannel)
         }
     }
+
+    fun setChips(chips: List<Chip>) = chipAdapter.update(chips)
+
+    fun addChip(chip: Chip) = chipAdapter.add(chip)
 
     override fun onResume() {
         presenter.subscribe()
