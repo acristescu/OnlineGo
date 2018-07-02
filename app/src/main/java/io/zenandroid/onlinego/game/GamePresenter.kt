@@ -44,8 +44,10 @@ class GamePresenter(
     private var gameConnection: GameConnection? = null
     private var myGame: Boolean = false
     private var currentPosition = Position(19)
+    private var analysisPosition = Position(19)
     private val userId = service.uiConfig?.user?.id
     private var currentShownMove = -1
+    private var analysisMode = false
     private var game: Game? = null
 
     private val playingChip = PlayingChip {
@@ -142,9 +144,6 @@ class GamePresenter(
 
         myGame = (newGame.blackPlayer.id == userId) || (newGame.whitePlayer.id == userId)
 
-        showControls()
-        configureBoard()
-
         currentShownMove = newGame.moves?.size ?: -1
         refreshUI(newGame)
         view.title = "${newGame.blackPlayer.username} vs ${newGame.whitePlayer.username}"
@@ -160,42 +159,63 @@ class GamePresenter(
     }
 
     private fun onUserHotTrackedCell(point: Point) {
+        val position = if(analysisMode) analysisPosition else currentPosition
         if(game?.phase == Phase.PLAY) {
-            val validMove = RulesManager.makeMove(currentPosition, currentPosition.nextToMove, point) != null
+            val validMove = RulesManager.makeMove(position, position.nextToMove, point) != null
             if (validMove) {
                 candidateMove = point
-                view.showCandidateMove(point, currentPosition.nextToMove)
+                view.showCandidateMove(point, position.nextToMove)
             }
         }
     }
 
     private fun onUserSelectedCell(point: Point) {
-        if(game?.phase == Phase.PLAY) {
-            if(candidateMove != null) {
-                showConfirmMoveControls()
-            }
-        } else {
-            val newPos = currentPosition.clone()
-            RulesManager.toggleRemoved(newPos, point)
-            var delta = newPos.removedSpots - currentPosition.removedSpots
-            var removing = true
-            if(delta.isEmpty()) {
-                delta = currentPosition.removedSpots - newPos.removedSpots
-                removing = false
-            }
-            if(delta.isNotEmpty()) {
-                gameConnection?.submitRemovedStones(delta, removing)
+        when {
+            analysisMode ->
+                candidateMove?.let { doAnalysisMove(it) }
+            game?.phase == Phase.PLAY ->
+                if(candidateMove != null) {
+                    showConfirmMoveControls()
+                }
+            else -> {
+                val newPos = currentPosition.clone()
+                RulesManager.toggleRemoved(newPos, point)
+                var delta = newPos.removedSpots - currentPosition.removedSpots
+                var removing = true
+                if(delta.isEmpty()) {
+                    delta = currentPosition.removedSpots - newPos.removedSpots
+                    removing = false
+                }
+                if(delta.isNotEmpty()) {
+                    gameConnection?.submitRemovedStones(delta, removing)
+                }
             }
         }
     }
 
+    private fun doAnalysisMove(candidateMove: Point) {
+        RulesManager.makeMove(analysisPosition, analysisPosition.nextToMove, candidateMove)?.let {
+            it.nextToMove = analysisPosition.nextToMove.opponent
+            analysisPosition = it
+            game?.let { refreshUI(it) }
+        }
+    }
+
     override fun onDiscardButtonPressed() {
-        if(game?.phase == Phase.PLAY) {
-            candidateMove = null
-            view.showCandidateMove(null)
-            showPlayControls()
-        } else {
-            gameConnection?.rejectRemovedStones()
+        when {
+            analysisMode -> {
+                analysisMode = false
+                candidateMove = null
+                view.showCandidateMove(null)
+                currentPosition = Position(19)
+                game?.let { refreshUI(it) }
+            }
+            game?.phase == Phase.PLAY -> {
+                candidateMove = null
+                view.showCandidateMove(null)
+                showPlayControls()
+            }
+            else -> gameConnection?.rejectRemovedStones()
         }
     }
 
@@ -211,20 +231,32 @@ class GamePresenter(
     }
 
     private fun configureBoard() {
-        when(game?.phase) {
-            Phase.PLAY -> {
+        when {
+            analysisMode -> {
+                view.showLastMove = true
+                view.showTerritory = false
+                view.fadeOutRemovedStones = false
+                view.interactive = true
+            }
+            currentShownMove != game?.moves?.size -> {
+                view.showLastMove = true
+                view.showTerritory = false
+                view.fadeOutRemovedStones = false
+                view.interactive = false
+            }
+            game?.phase == Phase.PLAY -> {
                 view.showLastMove = true
                 view.showTerritory = false
                 view.fadeOutRemovedStones = false
                 view.interactive = game?.playerToMoveId == userId
             }
-            Phase.STONE_REMOVAL -> {
+            game?.phase == Phase.STONE_REMOVAL -> {
                 view.showLastMove = false
                 view.showTerritory = true
                 view.fadeOutRemovedStones = true
                 view.interactive = true
             }
-            Phase.FINISHED -> {
+            game?.phase == Phase.FINISHED -> {
                 view.showLastMove = false
                 view.showTerritory = true
                 view.fadeOutRemovedStones = true
@@ -234,12 +266,11 @@ class GamePresenter(
     }
 
     private fun showControls() {
-        if(myGame && game?.phase == Phase.PLAY) {
-            showPlayControls()
-        } else if(myGame && game?.phase == Phase.STONE_REMOVAL) {
-            showStoneRemovalControls()
-        } else {
-            showSpectateControls()
+        when {
+            analysisMode -> showAnalysisControls()
+            myGame && game?.phase == Phase.PLAY -> showPlayControls()
+            myGame && game?.phase == Phase.STONE_REMOVAL -> showStoneRemovalControls()
+            else -> showSpectateControls()
         }
     }
 
@@ -250,12 +281,29 @@ class GamePresenter(
         view.chatButtonVisible = true
         view.passButtonVisible = true
         view.resignButtonVisible = true
+        view.analyzeButtonVisible = true
 
         view.confirmButtonVisible = false
         view.discardButtonVisible = false
         view.autoButtonVisible = false
 
         view.passButtonEnabled = game?.playerToMoveId == userId
+    }
+
+    private fun showAnalysisControls() {
+        view.bottomBarVisible = true
+        view.nextButtonVisible = true
+        view.previousButtonVisible = true
+        view.chatButtonVisible = true
+        view.passButtonVisible = false
+        view.resignButtonVisible = false
+        view.analyzeButtonVisible = false
+
+        view.confirmButtonVisible = false
+        view.discardButtonVisible = true
+        view.autoButtonVisible = false
+
+        view.passButtonEnabled = false
     }
 
     override fun onAutoButtonPressed() {
@@ -277,6 +325,7 @@ class GamePresenter(
         view.chatButtonVisible = true
         view.passButtonVisible = false
         view.resignButtonVisible = false
+        view.analyzeButtonVisible = false
 
         view.confirmButtonVisible = true
         view.discardButtonVisible = true
@@ -290,6 +339,7 @@ class GamePresenter(
         view.chatButtonVisible = true
         view.passButtonVisible = false
         view.resignButtonVisible = false
+        view.analyzeButtonVisible = true
 
         view.confirmButtonVisible = false
         view.discardButtonVisible = false
@@ -303,6 +353,7 @@ class GamePresenter(
         view.chatButtonVisible = false
         view.passButtonVisible = false
         view.resignButtonVisible = false
+        view.analyzeButtonVisible = false
 
         view.confirmButtonVisible = true
         view.discardButtonVisible = true
@@ -324,55 +375,62 @@ class GamePresenter(
     }
 
     private fun refreshUI(game: Game) {
-        val newPos = RulesManager.replay(game, computeTerritory = false)
-        if(newPos != currentPosition) {
-            currentPosition = newPos
-            view.position = currentPosition
+        showControls()
+        configureBoard()
 
-            val shouldComputeTerritory = game.phase == Phase.STONE_REMOVAL || game.phase == Phase.FINISHED
-            if (shouldComputeTerritory) {
-                computeTerritoryAsync(game)
+        if(analysisMode) {
+            view.position = analysisPosition
+        } else {
+            val newPos = RulesManager.replay(game, computeTerritory = false)
+            if (newPos != currentPosition) {
+                currentPosition = newPos
+                view.position = currentPosition
+
+                val shouldComputeTerritory = game.phase == Phase.STONE_REMOVAL || game.phase == Phase.FINISHED
+                if (shouldComputeTerritory) {
+                    computeTerritoryAsync(game)
+                }
             }
-        }
 
-        determineHistoryParameters()
-        when(game.phase) {
-            Phase.PLAY -> {
-                val lastMoveWasAPass = game.moves?.lastOrNull()?.get(0) == -1
-                if(lastMoveWasAPass) {
-                    view.setChips(listOf(playingChip, passedChip))
-                    view.setBlackPlayerPassed(currentPosition.nextToMove == StoneType.WHITE)
-                    view.setWhitePlayerPassed(currentPosition.nextToMove == StoneType.BLACK)
-                } else {
-                    view.setChips(listOf(playingChip))
+            determineHistoryParameters()
+            when (game.phase) {
+                Phase.PLAY -> {
+                    val lastMoveWasAPass = game.moves?.lastOrNull()?.get(0) == -1
+                    if (lastMoveWasAPass) {
+                        view.setChips(listOf(playingChip, passedChip))
+                        view.setBlackPlayerPassed(currentPosition.nextToMove == StoneType.WHITE)
+                        view.setWhitePlayerPassed(currentPosition.nextToMove == StoneType.BLACK)
+                    } else {
+                        view.setChips(listOf(playingChip))
+                        view.setBlackPlayerPassed(false)
+                        view.setWhitePlayerPassed(false)
+                    }
+                }
+                Phase.STONE_REMOVAL -> {
+                    view.setChips(listOf(stoneRemovalChip))
+                    view.setBlackPlayerPassed(false)
+                    view.setWhitePlayerPassed(false)
+                }
+                Phase.FINISHED -> {
+                    if (!finishedDialogShown) {
+                        finishedDialogShown = true
+                        val winner = if (game.blackLost == true) game.whitePlayer.id else game.blackPlayer.id
+                        when {
+                            !myGame ->
+                                view.showFinishedDialog()
+                            winner == userId ->
+                                view.showYouWinDialog()
+                            else ->
+                                view.showYouLoseDialog()
+                        }
+                    }
+                    view.setChips(listOf(finishedChip))
                     view.setBlackPlayerPassed(false)
                     view.setWhitePlayerPassed(false)
                 }
             }
-            Phase.STONE_REMOVAL -> {
-                view.setChips(listOf(stoneRemovalChip))
-                view.setBlackPlayerPassed(false)
-                view.setWhitePlayerPassed(false)
-            }
-            Phase.FINISHED -> {
-                if(!finishedDialogShown) {
-                    finishedDialogShown = true
-                    val winner = if(game.blackLost == true) game.whitePlayer.id else game.blackPlayer.id
-                    when {
-                        !myGame ->
-                            view.showFinishedDialog()
-                        winner == userId ->
-                            view.showYouWinDialog()
-                        else ->
-                            view.showYouLoseDialog()
-                    }
-                }
-                view.setChips(listOf(finishedChip))
-                view.setBlackPlayerPassed(false)
-                view.setWhitePlayerPassed(false)
-            }
+            view.activePlayer = currentPosition.nextToMove
         }
-        view.activePlayer = currentPosition.nextToMove
     }
 
     private fun clockTick() {
@@ -419,6 +477,12 @@ class GamePresenter(
                 view.position = RulesManager.replay(game, currentShownMove, false)
             }
         }
+    }
+
+    override fun onAnalyzeButtonPressed() {
+        analysisMode = true
+        analysisPosition = currentPosition.clone()
+        game?.let { refreshUI(it) }
     }
 
     private fun determineHistoryParameters() {

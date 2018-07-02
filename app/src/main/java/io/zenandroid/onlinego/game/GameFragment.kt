@@ -24,6 +24,7 @@ import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.extensions.fadeIn
 import io.zenandroid.onlinego.extensions.fadeOut
+import io.zenandroid.onlinego.extensions.hide
 import io.zenandroid.onlinego.extensions.showIf
 import io.zenandroid.onlinego.main.MainActivity
 import io.zenandroid.onlinego.model.Position
@@ -55,6 +56,7 @@ class GameFragment : Fragment(), GameContract.View {
     @BindView(R.id.board) lateinit var board: BoardView
     @BindView(R.id.pass_button) lateinit var passButton: AppCompatImageView
     @BindView(R.id.resign_button) lateinit var resignButton: AppCompatImageView
+    @BindView(R.id.analyze_button) lateinit var analyzeButton: AppCompatImageView
     @BindView(R.id.previous_button) lateinit var previousButton: AppCompatImageView
     @BindView(R.id.next_button) lateinit var nextButton: AppCompatImageView
     @BindView(R.id.confirm_button) lateinit var confirmButton: AppCompatImageView
@@ -214,11 +216,18 @@ class GameFragment : Fragment(), GameContract.View {
     override var nextButtonVisible = false
         set(value) { nextButton.showIf(value) }
 
+    override var analyzeButtonVisible = false
+        set(value) { analyzeButton.showIf(value) }
+
     override var previousButtonVisible = false
         set(value) { previousButton.showIf(value) }
 
     override var chatButtonVisible = false
-        set(value) { chatButton.showIf(value) }
+        set(value) {
+            //temporarily disable chat button
+            //chatButton.showIf(value)
+            chatButton.hide()
+        }
 
     override var passButtonVisible = false
         set(value) { passButton.showIf(value) }
@@ -335,6 +344,12 @@ class GameFragment : Fragment(), GameContract.View {
     fun onDiscardClicked() {
         analytics.logEvent("discard_clicked", null)
         presenter.onDiscardButtonPressed()
+    }
+
+    @OnClick(R.id.analyze_button)
+    fun onAnalyzeClicked() {
+        analytics.logEvent("analyze_clicked", null)
+        presenter.onAnalyzeButtonPressed()
     }
 
     @OnClick(R.id.confirm_button)

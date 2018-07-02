@@ -73,6 +73,7 @@ class Position(val boardSize: Int) {
         newPos.blackTerritory.addAll(blackTerritory)
         newPos.whiteTerritory.addAll(whiteTerritory)
         newPos.removedSpots.addAll(removedSpots)
+        newPos.nextToMove = nextToMove
         return newPos
     }
 
