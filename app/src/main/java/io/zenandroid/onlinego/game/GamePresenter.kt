@@ -18,10 +18,7 @@ import io.zenandroid.onlinego.ogs.ActiveGameRepository
 import io.zenandroid.onlinego.ogs.GameConnection
 import io.zenandroid.onlinego.ogs.OGSService
 import io.zenandroid.onlinego.ogs.OGSServiceImpl
-import io.zenandroid.onlinego.statuschips.FinishedChip
-import io.zenandroid.onlinego.statuschips.PassedChip
-import io.zenandroid.onlinego.statuschips.PlayingChip
-import io.zenandroid.onlinego.statuschips.StoneRemovalChip
+import io.zenandroid.onlinego.statuschips.*
 import io.zenandroid.onlinego.utils.computeTimeLeft
 import java.util.concurrent.TimeUnit
 
@@ -82,6 +79,15 @@ class GamePresenter(
                 "The last player to move has passed their turn. This means they think the " +
                         "game is over. If their opponent agrees and passes too, the game moves on " +
                         "to the scoring phase.")
+    }
+
+    private val analysisChip = AnalysisChip {
+        view.showInfoDialog("Analysis mode",
+                "You are now in analysis mode. You can try variants here without influencing " +
+                        "the real game. Simply tap on the board to see how a move would look like. " +
+                        "You can navigate forwards and back in the variation. When you are done, use " +
+                        "the cancel button to return to the game."
+                )
     }
 
     private var finishedDialogShown = false
@@ -388,6 +394,9 @@ class GamePresenter(
 
         if(analysisMode) {
             view.position = analysisPosition
+            view.setChips(listOf(analysisChip))
+            view.setBlackPlayerPassed(false)
+            view.setWhitePlayerPassed(false)
         } else {
             val newPos = RulesManager.replay(game, computeTerritory = false)
             if (newPos != currentPosition) {

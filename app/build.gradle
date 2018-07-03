@@ -15,6 +15,7 @@ android {
         versionCode 42
         versionName "alpha_b${versionCode}"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        vectorDrawables.useSupportLibrary = true
         multiDexEnabled true
 
         buildConfigField "String", "CLIENT_ID", '"' + System.getenv("ONLINE_GO_CLIENT_ID") + '"'
