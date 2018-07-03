@@ -33,6 +33,15 @@ class GamePresenter(
         private val gameSize: Int
 ) : GameContract.Presenter {
 
+    private enum class State {
+        LOADING,
+        PLAYING,
+        SCORING,
+        FINISHED,
+        HISTORY,
+        ANALYSIS
+    }
+
     companion object {
         val TAG = GamePresenter::class.java.simpleName
     }
@@ -44,10 +53,11 @@ class GamePresenter(
     private var analysisPosition = Position(19)
     private val userId = service.uiConfig?.user?.id
     private var currentShownMove = -1
-    private var analysisMode = false
     private var game: Game? = null
     private var variation: MutableList<Point> = mutableListOf()
     private var variationCurrentMove = 0
+
+    private var currentState = State.LOADING
 
     private val playingChip = PlayingChip {
         view.showInfoDialog("Playing phase",
@@ -89,6 +99,8 @@ class GamePresenter(
                         "the cancel button to return to the game."
                 )
     }
+
+    private val historyChip = Chip("History")
 
     private var finishedDialogShown = false
 
@@ -144,6 +156,10 @@ class GamePresenter(
             return
         }
 
+        if(currentState != State.ANALYSIS && currentState != State.HISTORY) {
+            currentState = determineStateFromGame()
+        }
+
         view.setLoading(false)
 
         view.whitePlayer = newGame.whitePlayer
@@ -167,8 +183,8 @@ class GamePresenter(
     }
 
     private fun onUserHotTrackedCell(point: Point) {
-        val position = if(analysisMode) analysisPosition else currentPosition
-        if(game?.phase == Phase.PLAY || analysisMode) {
+        val position = if(currentState == State.ANALYSIS) analysisPosition else currentPosition
+        if(currentState == State.ANALYSIS || currentState == State.PLAYING) {
             val validMove = RulesManager.makeMove(position, position.nextToMove, point) != null
             if (validMove) {
                 candidateMove = point
@@ -178,17 +194,17 @@ class GamePresenter(
     }
 
     private fun onUserSelectedCell(point: Point) {
-        when {
-            analysisMode -> {
+        when (currentState){
+            State.ANALYSIS -> {
                 candidateMove?.let { doAnalysisMove(it) }
                 candidateMove = null
                 view.showCandidateMove(null)
             }
-            game?.phase == Phase.PLAY ->
+            State.PLAYING ->
                 if(candidateMove != null) {
                     showConfirmMoveControls()
                 }
-            else -> {
+            State.SCORING -> {
                 val newPos = currentPosition.clone()
                 RulesManager.toggleRemoved(newPos, point)
                 var delta = newPos.removedSpots - currentPosition.removedSpots
@@ -200,6 +216,9 @@ class GamePresenter(
                 if(delta.isNotEmpty()) {
                     gameConnection?.submitRemovedStones(delta, removing)
                 }
+            }
+            else -> {
+                Log.e(TAG, "onUserSelectedCell while state = $currentState")
             }
         }
     }
@@ -215,65 +234,88 @@ class GamePresenter(
         }
     }
 
+    private fun determineStateFromGame() =
+        when(game?.phase) {
+            Phase.PLAY -> State.PLAYING
+            Phase.STONE_REMOVAL -> State.SCORING
+            Phase.FINISHED -> State.FINISHED
+            null -> State.LOADING
+        }
+
     override fun onDiscardButtonPressed() {
-        when {
-            analysisMode -> {
-                analysisMode = false
+        when (currentState){
+            State.ANALYSIS -> {
+                currentState = determineStateFromGame()
                 candidateMove = null
                 view.showCandidateMove(null)
                 currentPosition = Position(19)
                 game?.let { refreshUI(it) }
             }
-            game?.phase == Phase.PLAY -> {
+            State.PLAYING -> {
                 candidateMove = null
                 view.showCandidateMove(null)
                 showPlayControls()
             }
-            else -> gameConnection?.rejectRemovedStones()
+            State.SCORING -> gameConnection?.rejectRemovedStones()
+            else -> {
+                Log.e(TAG, "onDiscardButtonPressed while state = $currentState")
+            }
         }
     }
 
     override fun onConfirmButtonPressed() {
-        if(game?.phase == Phase.PLAY) {
-            view.interactive = false
-            candidateMove?.let { gameConnection?.submitMove(it) }
-            candidateMove = null
-            showPlayControls()
-        } else {
-            gameConnection?.acceptRemovedStones(currentPosition.removedSpots)
+        when(currentState) {
+            State.PLAYING -> {
+                view.interactive = false
+                candidateMove?.let { gameConnection?.submitMove(it) }
+                candidateMove = null
+                showPlayControls()
+            }
+            State.SCORING -> {
+                gameConnection?.acceptRemovedStones(currentPosition.removedSpots)
+            }
+            else -> {
+                Log.e(TAG, "onConfirmButtonPressed while state = $currentState")
+            }
         }
     }
 
     private fun configureBoard() {
-        when {
-            analysisMode -> {
+        when(currentState) {
+            State.ANALYSIS -> {
                 view.showLastMove = variation.isEmpty()
                 view.showTerritory = false
                 view.fadeOutRemovedStones = false
                 view.interactive = true
             }
-            currentShownMove != game?.moves?.size -> {
+            State.HISTORY -> {
                 view.showLastMove = true
                 view.showTerritory = false
                 view.fadeOutRemovedStones = false
                 view.interactive = false
             }
-            game?.phase == Phase.PLAY -> {
+            State.PLAYING -> {
                 view.showLastMove = true
                 view.showTerritory = false
                 view.fadeOutRemovedStones = false
                 view.interactive = game?.playerToMoveId == userId
             }
-            game?.phase == Phase.STONE_REMOVAL -> {
+            State.SCORING -> {
                 view.showLastMove = false
                 view.showTerritory = true
                 view.fadeOutRemovedStones = true
                 view.interactive = true
             }
-            game?.phase == Phase.FINISHED -> {
+            State.FINISHED -> {
                 view.showLastMove = false
                 view.showTerritory = true
                 view.fadeOutRemovedStones = true
+                view.interactive = false
+            }
+            GamePresenter.State.LOADING -> {
+                view.showLastMove = false
+                view.showTerritory = false
+                view.fadeOutRemovedStones = false
                 view.interactive = false
             }
         }
@@ -281,9 +323,9 @@ class GamePresenter(
 
     private fun showControls() {
         when {
-            analysisMode -> showAnalysisControls()
-            myGame && game?.phase == Phase.PLAY -> showPlayControls()
-            myGame && game?.phase == Phase.STONE_REMOVAL -> showStoneRemovalControls()
+            currentState == State.ANALYSIS -> showAnalysisControls()
+            myGame && currentState == State.PLAYING -> showPlayControls()
+            myGame && currentState == State.SCORING -> showStoneRemovalControls()
             else -> showSpectateControls()
         }
     }
@@ -391,44 +433,27 @@ class GamePresenter(
     private fun refreshUI(game: Game) {
         showControls()
         configureBoard()
+        configureChips()
+        configurePassedLabels()
 
-        if(analysisMode) {
-            view.position = analysisPosition
-            view.setChips(listOf(analysisChip))
-            view.setBlackPlayerPassed(false)
-            view.setWhitePlayerPassed(false)
-        } else {
-            val newPos = RulesManager.replay(game, computeTerritory = false)
-            if (newPos != currentPosition) {
-                currentPosition = newPos
-                view.position = currentPosition
-
-                val shouldComputeTerritory = game.phase == Phase.STONE_REMOVAL || game.phase == Phase.FINISHED
-                if (shouldComputeTerritory) {
-                    computeTerritoryAsync(game)
-                }
+        when (currentState) {
+            State.ANALYSIS -> {
+                view.position = analysisPosition
             }
+            else -> {
+                val newPos = RulesManager.replay(game, computeTerritory = false)
+                if (newPos != currentPosition) {
+                    currentPosition = newPos
+                    view.position = currentPosition
 
-            determineHistoryParameters()
-            when (game.phase) {
-                Phase.PLAY -> {
-                    val lastMoveWasAPass = game.moves?.lastOrNull()?.get(0) == -1
-                    if (lastMoveWasAPass) {
-                        view.setChips(listOf(playingChip, passedChip))
-                        view.setBlackPlayerPassed(currentPosition.nextToMove == StoneType.WHITE)
-                        view.setWhitePlayerPassed(currentPosition.nextToMove == StoneType.BLACK)
-                    } else {
-                        view.setChips(listOf(playingChip))
-                        view.setBlackPlayerPassed(false)
-                        view.setWhitePlayerPassed(false)
+                    val shouldComputeTerritory = game.phase == Phase.STONE_REMOVAL || game.phase == Phase.FINISHED
+                    if (shouldComputeTerritory) {
+                        computeTerritoryAsync(game)
                     }
                 }
-                Phase.STONE_REMOVAL -> {
-                    view.setChips(listOf(stoneRemovalChip))
-                    view.setBlackPlayerPassed(false)
-                    view.setWhitePlayerPassed(false)
-                }
-                Phase.FINISHED -> {
+
+                configurePreviousNextButtons()
+                if (game.phase == Phase.FINISHED) {
                     if (!finishedDialogShown) {
                         finishedDialogShown = true
                         val winner = if (game.blackLost == true) game.whitePlayer.id else game.blackPlayer.id
@@ -441,12 +466,55 @@ class GamePresenter(
                                 view.showYouLoseDialog()
                         }
                     }
-                    view.setChips(listOf(finishedChip))
+                }
+                view.activePlayer = currentPosition.nextToMove
+            }
+        }
+    }
+
+    private fun configurePassedLabels() {
+        when (currentState) {
+            GamePresenter.State.PLAYING -> {
+                val lastMoveWasAPass = game?.moves?.lastOrNull()?.get(0) == -1
+                if (lastMoveWasAPass) {
+                    view.setBlackPlayerPassed(currentPosition.nextToMove == StoneType.WHITE)
+                    view.setWhitePlayerPassed(currentPosition.nextToMove == StoneType.BLACK)
+                } else {
                     view.setBlackPlayerPassed(false)
                     view.setWhitePlayerPassed(false)
                 }
             }
-            view.activePlayer = currentPosition.nextToMove
+            else -> {
+                view.setBlackPlayerPassed(false)
+                view.setWhitePlayerPassed(false)
+            }
+        }
+    }
+
+    private fun configureChips() {
+        when (currentState) {
+            State.LOADING -> {}
+            State.PLAYING -> {
+                val lastMoveWasAPass = game?.moves?.lastOrNull()?.get(0) == -1
+                if (lastMoveWasAPass) {
+                    view.setChips(listOf(playingChip, passedChip))
+                } else {
+                    view.setChips(listOf(playingChip))
+                }
+            }
+            State.SCORING ->
+                view.setChips(listOf(stoneRemovalChip))
+            State.FINISHED ->
+                view.setChips(listOf(finishedChip))
+            State.HISTORY -> {
+                historyChip.apply {
+                    text = "Move $currentShownMove/${game?.moves?.size ?: 0}"
+                    notifyChanged()
+                    view.setChips(listOf(this))
+                }
+            }
+            State.ANALYSIS ->
+                view.setChips(listOf(analysisChip))
         }
     }
 
@@ -475,33 +543,51 @@ class GamePresenter(
     }
 
     override fun onNextButtonPressed() {
-        if(analysisMode) {
-            variationCurrentMove = (variationCurrentMove + 1).coerceIn(-1, variation.size - 1)
-            replayAnalysis()
-            return
-        }
-        game?.let { game ->
-            game.moves?.let { moves ->
-                currentShownMove++
-                currentShownMove = currentShownMove.coerceIn(0, moves.size)
-                determineHistoryParameters()
-                view.position = RulesManager.replay(game, currentShownMove, false)
+        when(currentState) {
+            State.ANALYSIS -> {
+                variationCurrentMove = (variationCurrentMove + 1).coerceIn(-1, variation.size - 1)
+                replayAnalysis()
+            }
+            State.HISTORY -> {
+                game?.let { game ->
+                    game.moves?.let { moves ->
+                        currentShownMove++
+                        currentShownMove = currentShownMove.coerceIn(0, moves.size)
+                        configurePreviousNextButtons()
+                        if(currentShownMove == moves.size) {
+                            currentState = determineStateFromGame()
+                        }
+                        view.position = RulesManager.replay(game, currentShownMove, false)
+                        configureChips()
+                    }
+                }
+            }
+            else -> {
+                Log.e(TAG, "onNextButtonPressed while state is $currentState")
             }
         }
     }
 
     override fun onPreviousButtonPressed() {
-        if(analysisMode) {
-            variationCurrentMove = (variationCurrentMove - 1).coerceIn(-1, variation.size - 1)
-            replayAnalysis()
-            return
-        }
-        game?.let { game ->
-            game.moves?.let { moves ->
-                currentShownMove--
-                currentShownMove = currentShownMove.coerceIn(0, moves.size)
-                determineHistoryParameters()
-                view.position = RulesManager.replay(game, currentShownMove, false)
+        when(currentState) {
+            State.ANALYSIS -> {
+                variationCurrentMove = (variationCurrentMove - 1).coerceIn(-1, variation.size - 1)
+                replayAnalysis()
+            }
+            State.PLAYING, State.HISTORY, State.FINISHED -> {
+                currentState = State.HISTORY
+                game?.let { game ->
+                    game.moves?.let { moves ->
+                        currentShownMove--
+                        currentShownMove = currentShownMove.coerceIn(0, moves.size)
+                        configurePreviousNextButtons()
+                        view.position = RulesManager.replay(game, currentShownMove, false)
+                        configureChips()
+                    }
+                }
+            }
+            else -> {
+                Log.e(TAG, "onPreviousButtonPressed while state is $currentState")
             }
         }
     }
@@ -523,14 +609,15 @@ class GamePresenter(
     }
 
     override fun onAnalyzeButtonPressed() {
-        analysisMode = true
+        currentState = State.ANALYSIS
         analysisPosition = currentPosition.clone()
+        currentShownMove = game?.moves?.size ?: currentShownMove
         variation.clear()
         variationCurrentMove = -1
         replayAnalysis()
     }
 
-    private fun determineHistoryParameters() {
+    private fun configurePreviousNextButtons() {
         game?.let { game ->
             view.nextButtonEnabled = currentShownMove != game.moves?.size
             view.previousButtonEnabled = currentShownMove > 0

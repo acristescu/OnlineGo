@@ -13,7 +13,7 @@ import io.zenandroid.onlinego.R
 import kotlinx.android.synthetic.main.view_chip.*
 
 open class Chip(
-        val text: String,
+        var text: String,
         @DrawableRes val icon: Int? = null,
         @ColorRes val bgColor: Int = R.color.white,
         @ColorRes val fgColor: Int = R.color.colorPrimary,
