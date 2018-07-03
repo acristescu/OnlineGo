@@ -38,6 +38,7 @@ class Position(val boardSize: Int) {
 
     val lastPlayerToMove: StoneType?
         get() = lastMove?.let { getStoneAt(it.x, it.y) }
+    var variation: List<Point> = listOf()
 
     /**
      * Adds a stone without checking the game logic. See makeMove() for alternative

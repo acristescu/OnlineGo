@@ -49,6 +49,8 @@ class GamePresenter(
     private var currentShownMove = -1
     private var analysisMode = false
     private var game: Game? = null
+    private var variation: MutableList<Point> = mutableListOf()
+    private var variationCurrentMove = 0
 
     private val playingChip = PlayingChip {
         view.showInfoDialog("Playing phase",
@@ -160,7 +162,7 @@ class GamePresenter(
 
     private fun onUserHotTrackedCell(point: Point) {
         val position = if(analysisMode) analysisPosition else currentPosition
-        if(game?.phase == Phase.PLAY) {
+        if(game?.phase == Phase.PLAY || analysisMode) {
             val validMove = RulesManager.makeMove(position, position.nextToMove, point) != null
             if (validMove) {
                 candidateMove = point
@@ -171,8 +173,11 @@ class GamePresenter(
 
     private fun onUserSelectedCell(point: Point) {
         when {
-            analysisMode ->
+            analysisMode -> {
                 candidateMove?.let { doAnalysisMove(it) }
+                candidateMove = null
+                view.showCandidateMove(null)
+            }
             game?.phase == Phase.PLAY ->
                 if(candidateMove != null) {
                     showConfirmMoveControls()
@@ -195,9 +200,12 @@ class GamePresenter(
 
     private fun doAnalysisMove(candidateMove: Point) {
         RulesManager.makeMove(analysisPosition, analysisPosition.nextToMove, candidateMove)?.let {
-            it.nextToMove = analysisPosition.nextToMove.opponent
-            analysisPosition = it
-            game?.let { refreshUI(it) }
+            variationCurrentMove ++
+            variation = variation.dropLast(variation.size - variationCurrentMove).toMutableList()
+            variation.add(candidateMove)
+            it.variation = variation
+
+            replayAnalysis()
         }
     }
 
@@ -233,7 +241,7 @@ class GamePresenter(
     private fun configureBoard() {
         when {
             analysisMode -> {
-                view.showLastMove = true
+                view.showLastMove = variation.isEmpty()
                 view.showTerritory = false
                 view.fadeOutRemovedStones = false
                 view.interactive = true
@@ -458,6 +466,11 @@ class GamePresenter(
     }
 
     override fun onNextButtonPressed() {
+        if(analysisMode) {
+            variationCurrentMove = (variationCurrentMove + 1).coerceIn(-1, variation.size - 1)
+            replayAnalysis()
+            return
+        }
         game?.let { game ->
             game.moves?.let { moves ->
                 currentShownMove++
@@ -469,6 +482,11 @@ class GamePresenter(
     }
 
     override fun onPreviousButtonPressed() {
+        if(analysisMode) {
+            variationCurrentMove = (variationCurrentMove - 1).coerceIn(-1, variation.size - 1)
+            replayAnalysis()
+            return
+        }
         game?.let { game ->
             game.moves?.let { moves ->
                 currentShownMove--
@@ -479,10 +497,28 @@ class GamePresenter(
         }
     }
 
+    private fun replayAnalysis() {
+        view.nextButtonEnabled = variationCurrentMove < variation.size - 1
+        view.previousButtonEnabled = variationCurrentMove > -1
+        analysisPosition = currentPosition.clone()
+        variation.take(variationCurrentMove + 1).let { truncatedVariation ->
+            truncatedVariation.forEach {
+                RulesManager.makeMove(analysisPosition, analysisPosition.nextToMove, it)?.let {
+                    it.nextToMove = analysisPosition.nextToMove.opponent
+                    analysisPosition = it
+                    analysisPosition.variation = truncatedVariation
+                }
+            }
+        }
+        game?.let { refreshUI(it) }
+    }
+
     override fun onAnalyzeButtonPressed() {
         analysisMode = true
         analysisPosition = currentPosition.clone()
-        game?.let { refreshUI(it) }
+        variation.clear()
+        variationCurrentMove = -1
+        replayAnalysis()
     }
 
     private fun determineHistoryParameters() {

@@ -60,11 +60,14 @@ class BoardView : View {
     private var linesPaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private var linesHighlightPaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val decorationsPaint = Paint(Paint.ANTI_ALIAS_FLAG)
+    private val textPaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val territoryPaint = Paint(Paint.ANTI_ALIAS_FLAG)
 
     private val whiteStoneDrawable = resources.getDrawable(R.mipmap.stone_white)
     private val blackStoneDrawable = resources.getDrawable(R.mipmap.stone_black)
     private val shadowDrawable = resources.getDrawable(R.drawable.gradient_shadow)
+
+    private val textBounds = Rect()
 
     //
     // Size (in px) of the cell
@@ -107,6 +110,11 @@ class BoardView : View {
         if(texture == null) {
             texture = BitmapFactory.decodeResource(resources, R.mipmap.texture)
         }
+    }
+
+    private fun drawTextCentred(canvas: Canvas, paint: Paint, text: String, cx: Float, cy: Float) {
+        paint.getTextBounds(text, 0, text.length, textBounds)
+        canvas.drawText(text, cx - textBounds.exactCenterX(), cy - textBounds.exactCenterY(), paint)
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
@@ -163,6 +171,7 @@ class BoardView : View {
         decorationsPaint.strokeWidth = cellSize / 20f
         stoneSpacing = cellSize / 35f
         border = ((w - this.boardSize * cellSize) / 2).toFloat()
+        textPaint.textSize = cellSize.toFloat() * .65f
         super.onSizeChanged(w, h, oldw, oldh)
     }
 
@@ -352,7 +361,16 @@ class BoardView : View {
             }
         }
 
-        //TODO: other decorations
+        position.variation.forEachIndexed { i, p ->
+            val center = getCellCenter(p.x, p.y)
+            val stone = position.getStoneAt(p)
+            if(stone == null || stone == StoneType.WHITE) {
+                textPaint.color = Color.BLACK
+            } else {
+                textPaint.color = Color.WHITE
+            }
+            drawTextCentred(canvas, textPaint, (i+1).toString(), center.x, center.y)
+        }
     }
 
     private fun drawBackground(canvas: Canvas) {
