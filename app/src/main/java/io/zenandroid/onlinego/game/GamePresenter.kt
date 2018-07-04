@@ -157,7 +157,7 @@ class GamePresenter(
         }
 
         if(currentState != State.ANALYSIS && currentState != State.HISTORY) {
-            currentState = determineStateFromGame()
+            currentState = determineStateFromGame(newGame)
         }
 
         view.setLoading(false)
@@ -234,7 +234,7 @@ class GamePresenter(
         }
     }
 
-    private fun determineStateFromGame() =
+    private fun determineStateFromGame(game: Game?) =
         when(game?.phase) {
             Phase.PLAY -> State.PLAYING
             Phase.STONE_REMOVAL -> State.SCORING
@@ -245,7 +245,7 @@ class GamePresenter(
     override fun onDiscardButtonPressed() {
         when (currentState){
             State.ANALYSIS -> {
-                currentState = determineStateFromGame()
+                currentState = determineStateFromGame(game)
                 candidateMove = null
                 view.showCandidateMove(null)
                 currentPosition = Position(19)
@@ -454,7 +454,7 @@ class GamePresenter(
 
                 configurePreviousNextButtons()
                 if (game.phase == Phase.FINISHED) {
-                    if (!finishedDialogShown) {
+                    if (!finishedDialogShown && game.blackLost != game.whiteLost) {
                         finishedDialogShown = true
                         val winner = if (game.blackLost == true) game.whitePlayer.id else game.blackPlayer.id
                         when {
@@ -555,7 +555,7 @@ class GamePresenter(
                         currentShownMove = currentShownMove.coerceIn(0, moves.size)
                         configurePreviousNextButtons()
                         if(currentShownMove == moves.size) {
-                            currentState = determineStateFromGame()
+                            currentState = determineStateFromGame(game)
                         }
                         view.position = RulesManager.replay(game, currentShownMove, false)
                         configureBoard()

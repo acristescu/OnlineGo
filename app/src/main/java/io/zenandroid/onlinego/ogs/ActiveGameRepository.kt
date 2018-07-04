@@ -35,6 +35,7 @@ class ActiveGameRepository {
         subscriptions.add(
             OGSServiceImpl.instance.fetchGame(game.id)
                     .subscribeOn(Schedulers.io())
+                    .observeOn(Schedulers.single())
                     .map(Game.Companion::fromOGSGame)
                     .retryWhen (this::retryIOException)
                     .subscribe({
@@ -149,6 +150,7 @@ class ActiveGameRepository {
         synchronized(connectedGameCache) {
             connectedGameCache[gameId]?.apply {
                 outcome = gameData.outcome
+                phase = gameData.phase
                 playerToMoveId = gameData.clock.current_player
                 initialState = gameData.initial_state
                 whiteGoesFirst = gameData.initial_player == "white"
