@@ -558,6 +558,7 @@ class GamePresenter(
                             currentState = determineStateFromGame()
                         }
                         view.position = RulesManager.replay(game, currentShownMove, false)
+                        configureBoard()
                         configureChips()
                     }
                 }
@@ -582,6 +583,7 @@ class GamePresenter(
                         currentShownMove = currentShownMove.coerceIn(0, moves.size)
                         configurePreviousNextButtons()
                         view.position = RulesManager.replay(game, currentShownMove, false)
+                        configureBoard()
                         configureChips()
                     }
                 }

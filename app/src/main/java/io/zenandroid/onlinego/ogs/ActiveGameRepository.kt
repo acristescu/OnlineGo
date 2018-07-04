@@ -12,7 +12,9 @@ import io.zenandroid.onlinego.gamelogic.Util
 import io.zenandroid.onlinego.gamelogic.Util.isMyTurn
 import io.zenandroid.onlinego.model.local.Clock
 import io.zenandroid.onlinego.model.local.Game
+import io.zenandroid.onlinego.model.ogs.GameData
 import io.zenandroid.onlinego.model.ogs.OGSGame
+import io.zenandroid.onlinego.model.ogs.Phase
 import java.io.IOException
 import java.util.concurrent.TimeUnit
 
@@ -23,6 +25,7 @@ class ActiveGameRepository {
 
     private val activeDbGames = mutableMapOf<Long, Game>()
     private val gameConnections = mutableSetOf<Long>()
+    private val connectedGameCache = hashMapOf<Long, Game>()
 
     private val myMoveCountSubject = BehaviorSubject.create<Int>()
 
@@ -64,7 +67,11 @@ class ActiveGameRepository {
         gameConnections.clear()
     }
 
-    private fun connectToGame(game: Game) {
+    private fun connectToGame(baseGame: Game) {
+        val game = baseGame.copy()
+        synchronized(connectedGameCache) {
+            connectedGameCache[game.id] = game
+        }
         if(gameConnections.contains(game.id)) {
             return
         }
@@ -75,56 +82,93 @@ class ActiveGameRepository {
         subscriptions.add(gameConnection.gameData
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.single())
-                .subscribe ({
-                    game.apply {
-                        outcome = it.outcome
-                        playerToMoveId = it.clock.current_player
-                        initialState = it.initial_state
-                        whiteGoesFirst = it.initial_player == "white"
-                        moves = it.moves.map { mutableListOf(it[0].toInt(), it[1].toInt()) }.toMutableList()
-                        removedStones = it.removed
-                        whiteScore = it.score?.white
-                        blackScore = it.score?.black
-                        clock = Clock.fromOGSClock(it.clock)
-                    }
-                    OnlineGoApplication.instance.db.gameDao().update(game)
-                }, { this.onError(it, "gameData") }))
+                .subscribe (
+                        { onGameData(game.id, it) },
+                        { this.onError(it, "gameData") }
+                ))
         subscriptions.add(gameConnection.moves
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.single())
-                .subscribe ({ move ->
-                    game.moves?.add(mutableListOf(move.move[0].toInt(), move.move[1].toInt()))
-                    OnlineGoApplication.instance.db.gameDao().update(game)
-                }, { this.onError(it, "moves") }))
+                .subscribe (
+                        { onGameMove(game.id, it) },
+                        { this.onError(it, "moves") }
+                ))
         subscriptions.add(gameConnection.clock
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.single())
-                .subscribe ({
-                    game.apply {
-                        clock = Clock.fromOGSClock(it)
-                        playerToMoveId = it.current_player
-                    }
-                    OnlineGoApplication.instance.db.gameDao().update(game)
-                }, { this.onError(it, "clock") }))
+                .subscribe (
+                        { onGameClock(game.id, it) },
+                        { this.onError(it, "clock") }
+                ))
         subscriptions.add(gameConnection.phase
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.single())
-                .subscribe ({
-                    game.apply {
-                        phase = it
-                    }
-                    OnlineGoApplication.instance.db.gameDao().update(game)
-                }, { this.onError(it, "phase") }))
+                .subscribe (
+                        { onGamePhase(game.id, it) },
+                        { this.onError(it, "phase") }
+                ))
         subscriptions.add(gameConnection.removedStones
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.single())
-                .subscribe ({
-                    game.apply {
-                        removedStones = it.all_removed
-                    }
-                    OnlineGoApplication.instance.db.gameDao().update(game)
-                }, { this.onError(it, "removedStones") }))
+                .subscribe (
+                        { onGameRemovedStones(game.id, it) },
+                        { this.onError(it, "removedStones") }
+                ))
 
+    }
+
+    private fun onGameRemovedStones(gameId: Long, it: RemovedStones) {
+        synchronized(connectedGameCache) {
+            connectedGameCache[gameId]?.apply {
+                removedStones = it.all_removed
+                OnlineGoApplication.instance.db.gameDao().update(this)
+            }
+        }
+    }
+
+    private fun onGamePhase(gameId: Long, newPhase: Phase) {
+        synchronized(connectedGameCache) {
+            connectedGameCache[gameId]?.apply {
+                phase = newPhase
+                OnlineGoApplication.instance.db.gameDao().update(this)
+            }
+        }
+    }
+
+    private fun onGameClock(gameId: Long, it: OGSClock) {
+        synchronized(connectedGameCache) {
+            connectedGameCache[gameId]?.apply {
+                clock = Clock.fromOGSClock(it)
+                playerToMoveId = it.current_player
+                OnlineGoApplication.instance.db.gameDao().update(this)
+            }
+        }
+    }
+
+    private fun onGameData(gameId: Long, gameData: GameData) {
+        synchronized(connectedGameCache) {
+            connectedGameCache[gameId]?.apply {
+                outcome = gameData.outcome
+                playerToMoveId = gameData.clock.current_player
+                initialState = gameData.initial_state
+                whiteGoesFirst = gameData.initial_player == "white"
+                moves = gameData.moves.map { mutableListOf(it[0].toInt(), it[1].toInt()) }.toMutableList()
+                removedStones = gameData.removed
+                whiteScore = gameData.score?.white
+                blackScore = gameData.score?.black
+                clock = Clock.fromOGSClock(gameData.clock)
+                OnlineGoApplication.instance.db.gameDao().update(this)
+            }
+        }
+    }
+
+    private fun onGameMove(gameId: Long, move: Move ) {
+        synchronized(connectedGameCache) {
+            connectedGameCache[gameId]?.apply {
+                moves?.add(mutableListOf(move.move[0].toInt(), move.move[1].toInt()))
+                OnlineGoApplication.instance.db.gameDao().update(this)
+            }
+        }
     }
 
     @Synchronized
@@ -135,10 +179,6 @@ class ActiveGameRepository {
             connectToGame(it)
         }
         myMoveCountSubject.onNext(activeDbGames.values.count { isMyTurn(it) })
-    }
-
-    private fun fetchGameFromOGS(id: Long) {
-
     }
 
     fun monitorGame(id: Long): Flowable<Game> {

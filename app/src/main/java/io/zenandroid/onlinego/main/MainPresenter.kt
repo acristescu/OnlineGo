@@ -5,7 +5,6 @@ import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
-import io.zenandroid.onlinego.BuildConfig
 import io.zenandroid.onlinego.model.local.Game
 import io.zenandroid.onlinego.ogs.ActiveGameRepository
 import io.zenandroid.onlinego.ogs.OGSServiceImpl
@@ -18,6 +17,7 @@ class MainPresenter (val view : MainContract.View, private val activeGameReposit
 
     private val subscriptions = CompositeDisposable()
     private var lastGameNotified: Game? = null
+    private var lastMoveCount: Int? = null
 
     override fun subscribe() {
         subscriptions.add(
@@ -54,7 +54,13 @@ class MainPresenter (val view : MainContract.View, private val activeGameReposit
             view.notificationsBadgeVisible = true
             view.notificationsBadgeCount = myMoveCount.toString()
 //            view.updateNotification(sortedMyTurnGames)
+            lastMoveCount?.let {
+                if(myMoveCount > it) {
+                    view.vibrate()
+                }
+            }
         }
+        lastMoveCount = myMoveCount
     }
 
     override fun unsubscribe() {

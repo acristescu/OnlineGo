@@ -16,6 +16,7 @@ interface MainContract {
         fun updateNotification(sortedMyTurnGames: List<OGSGame>)
         fun navigateToGameScreen(game: Game)
         fun showLogin()
+        fun vibrate()
     }
     interface Presenter {
         fun subscribe()

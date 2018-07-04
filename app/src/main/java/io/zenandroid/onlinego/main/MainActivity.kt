@@ -8,23 +8,23 @@ import android.content.Intent
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
-import android.os.Handler
+import android.os.VibrationEffect
+import android.os.Vibrator
 import android.support.design.widget.BottomNavigationView
-import android.support.v4.app.NavUtils
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.MenuItem
 import android.view.View
-import android.widget.*
+import android.widget.ImageView
+import android.widget.ProgressBar
+import android.widget.TextView
+import android.widget.Toast
 import butterknife.BindView
 import butterknife.ButterKnife
 import butterknife.OnClick
 import com.firebase.jobdispatcher.*
 import com.firebase.jobdispatcher.Constraint.ON_ANY_NETWORK
-import com.xwray.groupie.GroupAdapter
-import com.xwray.groupie.ViewHolder
-import com.xwray.groupie.kotlinandroidextensions.Item
 import io.reactivex.Completable
 import io.zenandroid.onlinego.NotificationsService
 import io.zenandroid.onlinego.OnlineGoApplication
@@ -43,7 +43,6 @@ import io.zenandroid.onlinego.spectate.ChallengesFragment
 import io.zenandroid.onlinego.spectate.SpectateFragment
 import io.zenandroid.onlinego.statuschips.Chip
 import io.zenandroid.onlinego.statuschips.ChipAdapter
-import io.zenandroid.onlinego.statuschips.FinishedChip
 import io.zenandroid.onlinego.utils.NotificationUtils
 
 
@@ -100,6 +99,15 @@ class MainActivity : AppCompatActivity(), MainContract.View {
 
     override var notificationsBadgeCount: String? = null
         set(value) { badge.text = value }
+
+    override fun vibrate() {
+        val v = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            v.vibrate(VibrationEffect.createOneShot(20, VibrationEffect.DEFAULT_AMPLITUDE))
+        } else {
+            v.vibrate(20)
+        }
+    }
 
     override fun updateNotification(sortedMyTurnGames: List<OGSGame>) {
         NotificationUtils.updateNotification(this, sortedMyTurnGames, MainActivity.userId)
@@ -172,8 +180,6 @@ class MainActivity : AppCompatActivity(), MainContract.View {
     }
 
     fun setChips(chips: List<Chip>) = chipAdapter.update(chips)
-
-    fun addChip(chip: Chip) = chipAdapter.add(chip)
 
     override fun onResume() {
         presenter.subscribe()

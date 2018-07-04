@@ -373,14 +373,16 @@ class GameFragment : Fragment(), GameContract.View {
     }
 
     override fun showInfoDialog(title: String, contents: String) {
-        AwesomeInfoDialog(context)
-                .setTitle(title)
-                .setMessage(contents)
-                .setCancelable(true)
-                .setColoredCircle(R.color.colorPrimary)
-                .setPositiveButtonText("OK")
-                .setPositiveButtonbackgroundColor(R.color.colorPrimary)
-                .setPositiveButtonClick {  }
-                .show()
+        context?.let {
+            AwesomeInfoDialog(it)
+                    .setTitle(title)
+                    .setMessage(contents)
+                    .setCancelable(true)
+                    .setColoredCircle(R.color.colorPrimary)
+                    .setPositiveButtonText("OK")
+                    .setPositiveButtonbackgroundColor(R.color.colorPrimary)
+                    .setPositiveButtonClick { }
+                    .show()
+        }
     }
 }
