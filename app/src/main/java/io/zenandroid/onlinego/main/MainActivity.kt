@@ -29,18 +29,18 @@ import io.reactivex.Completable
 import io.zenandroid.onlinego.NotificationsService
 import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.R
+import io.zenandroid.onlinego.extensions.disableShiftMode
 import io.zenandroid.onlinego.extensions.fadeIn
 import io.zenandroid.onlinego.extensions.fadeOut
 import io.zenandroid.onlinego.extensions.showIf
 import io.zenandroid.onlinego.game.GameFragment
+import io.zenandroid.onlinego.learn.LearnFragment
 import io.zenandroid.onlinego.login.LoginActivity
 import io.zenandroid.onlinego.model.local.Game
 import io.zenandroid.onlinego.model.ogs.OGSGame
 import io.zenandroid.onlinego.mygames.MyGamesFragment
 import io.zenandroid.onlinego.newchallenge.NewChallengeView
 import io.zenandroid.onlinego.ogs.ActiveGameRepository
-import io.zenandroid.onlinego.spectate.ChallengesFragment
-import io.zenandroid.onlinego.spectate.SpectateFragment
 import io.zenandroid.onlinego.statuschips.Chip
 import io.zenandroid.onlinego.statuschips.ChipAdapter
 import io.zenandroid.onlinego.utils.NotificationUtils
@@ -61,9 +61,8 @@ class MainActivity : AppCompatActivity(), MainContract.View {
     @BindView(R.id.title) lateinit var titleView: TextView
     @BindView(R.id.chipList) lateinit var chipList: RecyclerView
 
-    private val spectateFragment = SpectateFragment()
     private val myGamesFragment = MyGamesFragment()
-    private val challengesFragment = ChallengesFragment()
+    private val learnFragment = LearnFragment()
 
     private val analytics = OnlineGoApplication.instance.analytics
     private val chipAdapter = ChipAdapter()
@@ -144,6 +143,8 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         chipList.layoutManager = LinearLayoutManager(this, RecyclerView.HORIZONTAL, false)
         chipList.adapter = chipAdapter
 
+        bottomNavigation.disableShiftMode()
+
         newChallengeView.showFab().subscribe()
     }
 
@@ -208,24 +209,6 @@ class MainActivity : AppCompatActivity(), MainContract.View {
     private fun selectItem(item: MenuItem): Boolean {
         lastSelectedItem = item
         return when(item.itemId) {
-            R.id.navigation_spectate -> {
-                supportFragmentManager.beginTransaction()
-                        .setCustomAnimations(R.anim.fade_in, R.anim.fade_out,
-                                R.anim.fade_in, R.anim.fade_out)
-                        .replace(R.id.fragment_container, spectateFragment)
-                        .runOnCommit (this::ensureNavigationVisible)
-                        .commit()
-                true
-            }
-            R.id.navigation_challenges -> {
-                supportFragmentManager.beginTransaction()
-                        .setCustomAnimations(R.anim.fade_in, R.anim.fade_out,
-                                R.anim.fade_in, R.anim.fade_out)
-                        .replace(R.id.fragment_container, challengesFragment)
-                        .runOnCommit (this::ensureNavigationVisible)
-                        .commit()
-                true
-            }
             R.id.navigation_my_games -> {
                 supportFragmentManager.beginTransaction()
                         .setCustomAnimations(R.anim.fade_in, R.anim.fade_out,
@@ -235,7 +218,19 @@ class MainActivity : AppCompatActivity(), MainContract.View {
                         .commit()
                 true
             }
-            else -> false
+            R.id.navigation_learn -> {
+                supportFragmentManager.beginTransaction()
+                        .setCustomAnimations(R.anim.fade_in, R.anim.fade_out,
+                                R.anim.fade_in, R.anim.fade_out)
+                        .replace(R.id.fragment_container, learnFragment)
+                        .runOnCommit (this::ensureNavigationVisible)
+                        .commit()
+                true
+            }
+            else -> {
+                Toast.makeText(this, "Not implemented yet!", Toast.LENGTH_SHORT).show()
+                false
+            }
         }
     }
 

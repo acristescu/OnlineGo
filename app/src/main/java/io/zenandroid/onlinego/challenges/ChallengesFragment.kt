@@ -12,6 +12,8 @@ import butterknife.ButterKnife
 import butterknife.Unbinder
 import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.R
+import io.zenandroid.onlinego.challenges.ChallengesContract
+import io.zenandroid.onlinego.challenges.ChallengesPresenter
 import io.zenandroid.onlinego.extensions.showIf
 import io.zenandroid.onlinego.model.ogs.Challenge
 import io.zenandroid.onlinego.ogs.OGSServiceImpl
@@ -23,6 +25,7 @@ import io.zenandroid.onlinego.ogs.OGSServiceImpl
 /**
  * Created by alex on 05/11/2017.
  */
+@Deprecated("Obsolete")
 class ChallengesFragment : Fragment(), ChallengesContract.View {
 
     @BindView(R.id.challenges_recycler) lateinit var challengesRecycler: ListView

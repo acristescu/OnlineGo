@@ -2,19 +2,34 @@
     xmlns:tools="http://schemas.android.com/tools" tools:context=".main.MainActivity">
     <item
         android:id="@+id/navigation_my_games"
-        android:title="My Games"
-        android:icon="@drawable/ic_go_board"
+        android:title="Play"
+        android:icon="@drawable/ic_board"
         />
     <item
-        android:id="@+id/navigation_spectate"
-        android:title="Spectate"
-        android:icon="@drawable/ic_eye_black_24dp"
+        android:id="@+id/navigation_learn"
+        android:title="Learn"
+        android:icon="@drawable/ic_book"
         />
     <item
-        android:id="@+id/navigation_challenges"
-        android:title="Challenges"
-        android:icon="@drawable/ic_challenge"
+        android:id="@+id/navigation_stats"
+        android:title="Stats"
+        android:icon="@drawable/ic_stats"
         />
+    <item
+        android:id="@+id/navigation_settings"
+        android:title="Settings"
+        android:icon="@drawable/ic_settings"
+        />
+    <!--<item-->
+        <!--android:id="@+id/navigation_spectate"-->
+        <!--android:title="Spectate"-->
+        <!--android:icon="@drawable/ic_eye_black_24dp"-->
+        <!--/>-->
+    <!--<item-->
+        <!--android:id="@+id/navigation_challenges"-->
+        <!--android:title="Challenges"-->
+        <!--android:icon="@drawable/ic_challenge"-->
+        <!--/>-->
     <!--<item-->
         <!--android:id="@+id/navigation_more"-->
         <!--android:title="More"-->

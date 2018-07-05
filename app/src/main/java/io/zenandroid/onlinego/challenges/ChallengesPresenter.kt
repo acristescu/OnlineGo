@@ -1,4 +1,4 @@
-package io.zenandroid.onlinego.spectate
+package io.zenandroid.onlinego.challenges
 
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -10,6 +10,7 @@ import kotlin.math.abs
 /**
  * Created by alex on 05/11/2017.
  */
+@Deprecated("Obsolete")
 class ChallengesPresenter(val view: ChallengesContract.View, private val service: OGSServiceImpl) : ChallengesContract.Presenter {
 
     private val challenges = mutableListOf<Challenge>()

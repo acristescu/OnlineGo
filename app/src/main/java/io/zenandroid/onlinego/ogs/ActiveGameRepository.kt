@@ -166,9 +166,13 @@ class ActiveGameRepository {
 
     private fun onGameMove(gameId: Long, move: Move ) {
         synchronized(connectedGameCache) {
-            connectedGameCache[gameId]?.apply {
-                moves?.add(mutableListOf(move.move[0].toInt(), move.move[1].toInt()))
-                OnlineGoApplication.instance.db.gameDao().update(this)
+            connectedGameCache[gameId]?.let { game ->
+                game.moves?.let {
+                    game.moves = it.toMutableList().apply {
+                        add(mutableListOf(move.move[0].toInt(), move.move[1].toInt()))
+                    }
+                    OnlineGoApplication.instance.db.gameDao().update(game)
+                }
             }
         }
     }

@@ -1,10 +1,11 @@
-package io.zenandroid.onlinego.spectate
+package io.zenandroid.onlinego.challenges
 
 import io.zenandroid.onlinego.model.ogs.Challenge
 
 /**
  * Created by alex on 05/11/2017.
  */
+@Deprecated("Obsolete")
 interface ChallengesContract {
     interface View {
         fun addChallenge(challenge: Challenge)
