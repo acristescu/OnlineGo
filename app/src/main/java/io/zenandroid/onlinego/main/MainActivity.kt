@@ -41,6 +41,7 @@ import io.zenandroid.onlinego.model.ogs.OGSGame
 import io.zenandroid.onlinego.mygames.MyGamesFragment
 import io.zenandroid.onlinego.newchallenge.NewChallengeView
 import io.zenandroid.onlinego.ogs.ActiveGameRepository
+import io.zenandroid.onlinego.settings.SettingsFragment
 import io.zenandroid.onlinego.statuschips.Chip
 import io.zenandroid.onlinego.statuschips.ChipAdapter
 import io.zenandroid.onlinego.utils.NotificationUtils
@@ -63,6 +64,7 @@ class MainActivity : AppCompatActivity(), MainContract.View {
 
     private val myGamesFragment = MyGamesFragment()
     private val learnFragment = LearnFragment()
+    private val settingsFragment = SettingsFragment()
 
     private val analytics = OnlineGoApplication.instance.analytics
     private val chipAdapter = ChipAdapter()
@@ -223,6 +225,15 @@ class MainActivity : AppCompatActivity(), MainContract.View {
                         .setCustomAnimations(R.anim.fade_in, R.anim.fade_out,
                                 R.anim.fade_in, R.anim.fade_out)
                         .replace(R.id.fragment_container, learnFragment)
+                        .runOnCommit (this::ensureNavigationVisible)
+                        .commit()
+                true
+            }
+            R.id.navigation_settings -> {
+                supportFragmentManager.beginTransaction()
+                        .setCustomAnimations(R.anim.fade_in, R.anim.fade_out,
+                                R.anim.fade_in, R.anim.fade_out)
+                        .replace(R.id.fragment_container, settingsFragment)
                         .runOnCommit (this::ensureNavigationVisible)
                         .commit()
                 true
