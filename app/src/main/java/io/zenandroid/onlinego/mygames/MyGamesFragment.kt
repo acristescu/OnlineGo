@@ -12,14 +12,12 @@ import android.view.ViewGroup
 import butterknife.BindView
 import butterknife.ButterKnife
 import butterknife.Unbinder
-import io.zenandroid.onlinego.BuildConfig
 import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.main.MainActivity
 import io.zenandroid.onlinego.model.local.Game
 import io.zenandroid.onlinego.reusable.ActiveGameItem
 import io.zenandroid.onlinego.reusable.FinishedGameItem
-import io.zenandroid.onlinego.statuschips.VersionChip
 
 /**
  * Created by alex on 05/11/2017.
@@ -78,12 +76,15 @@ class MyGamesFragment : Fragment(), MyGamesContract.View {
             setDisplayHomeAsUpEnabled(false)
         }
 
+//        (activity as? MainActivity)?.apply {
+//            mainTitle = "OnlineGo"
+//
+//            setChips(listOf(VersionChip()))
+//        }
+
         (activity as? MainActivity)?.apply {
-            mainTitle = "OnlineGo"
-
-            setChips(listOf(VersionChip()))
+            setLogoVisible(true)
         }
-
         presenter.subscribe()
     }
 

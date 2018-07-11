@@ -23,17 +23,28 @@
                 android:layout_height="wrap_content"
                 android:layout_marginRight="16dp"
                 android:layout_gravity="right">
+
+                <TextView
+                    android:id="@+id/logo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:fontFamily="@font/kaushan_script"
+                    android:textColor="@color/white"
+                    android:textSize="26sp"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    android:text="OnlineGo "
+                    />
                 <TextView
                     android:id="@+id/title"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    app:layout_constraintLeft_toLeftOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    tools:text="OnlineGo"
                     android:textColor="@color/white"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    />
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:text="OnlineGo" />
                 <android.support.v7.widget.RecyclerView
                     android:id="@+id/chipList"
                     android:layout_width="0dp"

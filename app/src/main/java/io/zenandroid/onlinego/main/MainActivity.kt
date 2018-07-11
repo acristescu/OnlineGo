@@ -46,6 +46,7 @@ import io.zenandroid.onlinego.stats.StatsFragment
 import io.zenandroid.onlinego.statuschips.Chip
 import io.zenandroid.onlinego.statuschips.ChipAdapter
 import io.zenandroid.onlinego.utils.NotificationUtils
+import kotlinx.android.synthetic.main.activity_main.*
 
 
 class MainActivity : AppCompatActivity(), MainContract.View {
@@ -88,6 +89,12 @@ class MainActivity : AppCompatActivity(), MainContract.View {
             field = value
             titleView.text = value
         }
+
+    fun setLogoVisible(visible: Boolean) {
+        titleView.showIf(!visible)
+        chipList.showIf(!visible)
+        logo.showIf(visible)
+    }
 
     override var notificationsButtonEnabled: Boolean
         get() = notificationsButton.isEnabled

@@ -202,7 +202,12 @@ class GameFragment : Fragment(), GameContract.View {
         get() = board.tapMoveObservable()
 
     override var title: String? = null
-        set(value) { (activity as? MainActivity)?.mainTitle = value }
+        set(value) {
+            (activity as? MainActivity)?.apply {
+                mainTitle = value
+                setLogoVisible(false)
+            }
+        }
 
     override var interactive: Boolean
         get() = board.isInteractive
