@@ -7,10 +7,10 @@ import io.zenandroid.onlinego.R
 import kotlinx.android.synthetic.main.item_learn.*
 
 class LearnItem(
-        val title: String,
-        val subtitle: String,
-        @DrawableRes val icon: Int,
-        val ctaText: String
+        private val title: String,
+        private val subtitle: String,
+        @DrawableRes private val icon: Int,
+        private val ctaText: String
 ) : Item() {
     override fun bind(holder: ViewHolder, position: Int) {
         holder.titleView.text = title

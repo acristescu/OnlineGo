@@ -30,9 +30,9 @@
         app:layout_constraintLeft_toRightOf="@id/iconView"
         app:layout_constraintTop_toTopOf="parent"
         android:textColor="@color/colorText"
-        android:textSize="20sp"
-        android:fontFamily="@font/ubuntu"
-        android:layout_marginTop="16dp"
+        android:textSize="18sp"
+        android:alpha=".66"
+        android:layout_marginTop="12dp"
         />
     <TextView
         android:id="@+id/subtitleView"
@@ -43,10 +43,10 @@
         app:layout_constraintTop_toBottomOf="@id/titleView"
         app:layout_constraintBottom_toBottomOf="parent"
         android:textColor="@color/colorTextSecondary"
-        android:layout_marginTop="4dp"
+        android:layout_marginTop="2dp"
         android:textSize="12sp"
-        android:fontFamily="@font/ubuntu"
-        android:layout_marginBottom="16dp"
+        android:alpha=".66"
+        android:layout_marginBottom="12dp"
         />
     <TextView
         android:id="@+id/ctaView"
@@ -60,7 +60,7 @@
         app:layout_constraintHorizontal_bias="1"
         android:textColor="@color/colorPrimary"
         android:textSize="14sp"
-        android:fontFamily="@font/ubuntu_bold"
+        android:textStyle="bold"
         />
     <View
         android:id="@+id/spacer"
@@ -70,6 +70,6 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         android:background="@color/colorTextSecondary"
-        android:alpha="0.5"
+        android:alpha="0.2"
         />
 </android.support.constraint.ConstraintLayout>

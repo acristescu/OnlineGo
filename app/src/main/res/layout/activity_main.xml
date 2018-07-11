@@ -31,8 +31,8 @@
                     app:layout_constraintTop_toTopOf="parent"
                     tools:text="OnlineGo"
                     android:textColor="@color/white"
-                    android:textSize="18sp"
-                    android:fontFamily="@font/ubuntu_medium"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
                     />
                 <android.support.v7.widget.RecyclerView
                     android:id="@+id/chipList"
