@@ -1,7 +1,9 @@
 package io.zenandroid.onlinego.login
 
 import android.content.Intent
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Canvas
 import android.os.Bundle
 import android.os.Handler
 import android.support.design.widget.TextInputEditText
@@ -9,6 +11,8 @@ import android.support.design.widget.TextInputLayout
 import android.support.transition.Fade
 import android.support.transition.TransitionInflater
 import android.support.transition.TransitionManager
+import android.support.v4.content.ContextCompat
+import android.support.v4.content.res.ResourcesCompat
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.AppCompatImageView
 import android.util.Log
@@ -48,7 +52,7 @@ class LoginActivity : AppCompatActivity() {
     @BindView(R.id.input_username_layout) lateinit var usernameLayout: TextInputLayout
     @BindView(R.id.input_password_layout) lateinit var passwordLayout: TextInputLayout
     @BindView(R.id.input_email_layout) lateinit var emailLayout: TextInputLayout
-    @BindView(R.id.logo) lateinit var logo: AppCompatImageView
+    @BindView(R.id.logo) lateinit var logo: View
     @BindView(R.id.btn_login) lateinit var button: CircularProgressButton
     @BindView(R.id.no_account) lateinit var noAccountView: TextView
 
@@ -95,7 +99,13 @@ class LoginActivity : AppCompatActivity() {
 
     private fun onLoginSuccess() {
         if(button.visibility == View.VISIBLE) {
-            button.doneLoadingAnimation(resources.getColor(R.color.colorAccent), BitmapFactory.decodeResource(resources, R.mipmap.white_check))
+            val drawable = ContextCompat.getDrawable (this, R.drawable.ic_done_24dp)
+
+            val bitmap = Bitmap.createBitmap (button.width, button.height, Bitmap.Config.ARGB_8888);
+            val canvas = Canvas(bitmap)
+            drawable?.setBounds(0, 0, canvas.width, canvas.height)
+            drawable?.draw(canvas)
+            button.doneLoadingAnimation(ResourcesCompat.getColor(resources, R.color.colorAccent, null), bitmap)
         }
         TransitionManager.beginDelayedTransition(findViewById(R.id.container), Fade(Fade.MODE_OUT).setDuration(100).setStartDelay(400))
         findViewById<ViewGroup>(R.id.container).removeAllViews()
@@ -116,13 +126,6 @@ class LoginActivity : AppCompatActivity() {
         usernameLayout.visibility = View.VISIBLE
         passwordLayout.visibility = View.VISIBLE
         noAccountView.visibility = View.VISIBLE
-//        username.postDelayed({
-//            val inputMethodManager = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-//            inputMethodManager.toggleSoftInputFromWindow(
-//                    username.applicationWindowToken,
-//                    InputMethodManager.SHOW_IMPLICIT, 0)
-//            username.requestFocus()
-//        }, 100)
     }
 
     private fun onPasswordLoginFailure(t: Throwable) {
