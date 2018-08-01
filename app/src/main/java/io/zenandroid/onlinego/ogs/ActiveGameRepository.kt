@@ -118,60 +118,46 @@ class ActiveGameRepository {
 
     }
 
-    private fun onGameRemovedStones(gameId: Long, it: RemovedStones) {
-        synchronized(connectedGameCache) {
-            connectedGameCache[gameId]?.apply {
-                removedStones = it.all_removed
-                OnlineGoApplication.instance.db.gameDao().update(this)
-            }
-        }
+    private fun onGameRemovedStones(gameId: Long, stones: RemovedStones) {
+        OnlineGoApplication.instance.db.gameDao().updateRemovedStones(gameId, stones.all_removed)
     }
 
     private fun onGamePhase(gameId: Long, newPhase: Phase) {
-        synchronized(connectedGameCache) {
-            connectedGameCache[gameId]?.apply {
-                phase = newPhase
-                OnlineGoApplication.instance.db.gameDao().update(this)
-            }
-        }
+        OnlineGoApplication.instance.db.gameDao().updatePhase(gameId, newPhase)
     }
 
-    private fun onGameClock(gameId: Long, it: OGSClock) {
-        synchronized(connectedGameCache) {
-            connectedGameCache[gameId]?.apply {
-                clock = Clock.fromOGSClock(it)
-                playerToMoveId = it.current_player
-                OnlineGoApplication.instance.db.gameDao().update(this)
-            }
-        }
+    private fun onGameClock(gameId: Long, clock: OGSClock) {
+        OnlineGoApplication.instance.db.gameDao().updateClock(
+                id = gameId,
+                playerToMoveId = clock.current_player,
+                clock = Clock.fromOGSClock(clock)
+        )
     }
 
     private fun onGameData(gameId: Long, gameData: GameData) {
-        synchronized(connectedGameCache) {
-            connectedGameCache[gameId]?.apply {
-                outcome = gameData.outcome
-                phase = gameData.phase
-                playerToMoveId = gameData.clock.current_player
-                initialState = gameData.initial_state
-                whiteGoesFirst = gameData.initial_player == "white"
-                moves = gameData.moves.map { mutableListOf(it[0].toInt(), it[1].toInt()) }.toMutableList()
-                removedStones = gameData.removed
-                whiteScore = gameData.score?.white
-                blackScore = gameData.score?.black
+        OnlineGoApplication.instance.db.gameDao().updateGameData(
+                id = gameId,
+                outcome = gameData.outcome,
+                phase = gameData.phase,
+                playerToMoveId = gameData.clock.current_player,
+                initialState = gameData.initial_state,
+                whiteGoesFirst = gameData.initial_player == "white",
+                moves = gameData.moves.map { mutableListOf(it[0].toInt(), it[1].toInt()) }.toMutableList(),
+                removedStones = gameData.removed,
+                whiteScore = gameData.score?.white,
+                blackScore = gameData.score?.black,
                 clock = Clock.fromOGSClock(gameData.clock)
-                OnlineGoApplication.instance.db.gameDao().update(this)
-            }
-        }
+        )
     }
 
     private fun onGameMove(gameId: Long, move: Move ) {
         synchronized(connectedGameCache) {
             connectedGameCache[gameId]?.let { game ->
                 game.moves?.let {
-                    game.moves = it.toMutableList().apply {
+                    val newMoves = it.toMutableList().apply {
                         add(mutableListOf(move.move[0].toInt(), move.move[1].toInt()))
                     }
-                    OnlineGoApplication.instance.db.gameDao().update(game)
+                    OnlineGoApplication.instance.db.gameDao().updateMoves(game.id, newMoves)
                 }
             }
         }
