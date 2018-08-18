@@ -11,7 +11,7 @@ interface OGSService {
     fun connectToGame(id: Long): GameConnection
     var uiConfig: UIConfig?
 
-    fun startGameSearch(size: Size, speed: Speed): AutomatchChallenge
+    fun startGameSearch(sizes: List<Size>, speed: Speed): AutomatchChallenge
     fun cancelAutomatchChallenge(challenge: AutomatchChallenge)
     fun fetchGame(gameId: Long): Single<OGSGame>
     fun fetchActiveGames(): Single<List<OGSGame>>

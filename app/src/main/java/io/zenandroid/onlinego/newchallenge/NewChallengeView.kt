@@ -1,5 +1,6 @@
 package io.zenandroid.onlinego.newchallenge
 
+import android.app.AlertDialog
 import android.app.ProgressDialog
 import android.content.Context
 import android.support.design.widget.FloatingActionButton
@@ -18,6 +19,10 @@ import io.zenandroid.onlinego.extensions.*
 import io.zenandroid.onlinego.main.MainActivity
 import io.zenandroid.onlinego.ogs.Size
 import io.zenandroid.onlinego.ogs.Speed
+import android.support.design.widget.BottomSheetDialog
+import android.view.LayoutInflater
+import android.widget.Toast
+
 
 /**
  * Created by alex on 22/02/2018.
@@ -62,7 +67,9 @@ class NewChallengeView : FrameLayout, NewChallengeContract.View {
 
     @OnClick(R.id.fab)
     fun onFabClicked() {
-        presenter.onMainFabClicked()
+        NewChallengeBottomSheet(context) { speed: Speed, sizes: List<Size> ->
+            presenter.onStartSearch(sizes, speed)
+        }.show()
     }
 
     override fun setFadeOutState(fadedOut: Boolean) {

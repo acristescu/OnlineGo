@@ -18,11 +18,11 @@ class NewChallengePresenter(val view: NewChallengeContract.View, val analytics: 
     }
 
     private var menuState = State.OFF
-    private lateinit var selectedSpeed: Speed
-    private lateinit var selectedSize: Size
     private var searchStart = 0L
     private lateinit var timer: Disposable
     private var challenge : AutomatchChallenge? = null
+    private var searchSpeed: Speed? = null
+    private var searchSizes: List<Size>? = null
 
     override fun onMainFabClicked() {
         menuState = when(menuState) {
@@ -49,7 +49,6 @@ class NewChallengePresenter(val view: NewChallengeContract.View, val analytics: 
 
     override fun onSpeedSelected(speed: Speed) {
         analytics.logEvent("new_game_speed_clicked", Bundle().apply { putString("SPEED", speed.toString()) })
-        selectedSpeed = speed
         view.hideSpeedMenu()
                 .doOnComplete { menuState = State.SIZE }
                 .andThen(view.showSizeMenu())
@@ -58,18 +57,22 @@ class NewChallengePresenter(val view: NewChallengeContract.View, val analytics: 
 
     override fun onSizeSelected(size: Size) {
         analytics.logEvent("new_game_size_clicked", Bundle().apply { putString("SIZE", size.toString()) })
-        selectedSize = size
         view.hideSizeMenu().andThen(view.hideFab()).subscribe(this::startSearch)
     }
 
     private fun startSearch() {
+    }
+
+    override fun onStartSearch(sizes: List<Size>, speed: Speed) {
+        searchSizes = sizes
+        searchSpeed = speed
         val params = Bundle().apply {
-            putString("SPEED", selectedSpeed.toString())
-            putString("SIZE", selectedSize.toString())
+            putString("SPEED", speed.toString())
+            putString("SIZE", getSizesString())
         }
         analytics.logEvent("new_game_search", params)
         showDialog()
-        challenge = OGSServiceImpl.instance.startGameSearch(selectedSize, selectedSpeed)
+        challenge = OGSServiceImpl.instance.startGameSearch(sizes, speed)
         challenge?.start?.subscribe {
             val elapsedSeconds = (System.currentTimeMillis() - searchStart) / 1000
             analytics.logEvent("new_game_found", params.apply { putLong("ELAPSED", elapsedSeconds) })
@@ -90,14 +93,24 @@ class NewChallengePresenter(val view: NewChallengeContract.View, val analytics: 
 
     private fun updateDialogText() {
         val elapsedSeconds = (System.currentTimeMillis() - searchStart) / 1000
-        view.updateDialogText(Html.fromHtml("Game size: <b>${selectedSize.getText()}</b><br/>Speed: <b>$selectedSpeed</b><br/>Time elapsed: ${elapsedSeconds}s"))
+        view.updateDialogText(Html.fromHtml("Game size: <b>${getSizesString()}</b><br/>Speed: <b>$searchSpeed</b><br/>Time elapsed: ${elapsedSeconds}s"))
     }
 
+    private fun getSizesString(): String {
+        val sb = StringBuffer()
+        searchSizes?.forEach {
+            if(!sb.isEmpty()) {
+                sb.append(',')
+            }
+            sb.append(it.toString())
+        }
+        return sb.toString()
+    }
     override fun onDialogCancelled() {
         val elapsedSeconds = (System.currentTimeMillis() - searchStart) / 1000
         val params = Bundle().apply {
-            putString("SPEED", selectedSpeed.toString())
-            putString("SIZE", selectedSize.toString())
+            putString("SPEED", searchSpeed.toString())
+            putString("SIZE", getSizesString())
             putLong("ELAPSED", elapsedSeconds)
         }
         analytics.logEvent("new_game_cancel", params)

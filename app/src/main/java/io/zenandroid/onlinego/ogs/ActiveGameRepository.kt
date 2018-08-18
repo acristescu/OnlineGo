@@ -206,6 +206,8 @@ class ActiveGameRepository {
                     .map (Game.Companion::fromOGSGame)
                     .toList()
                     .retryWhen (this::retryIOException)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(Schedulers.single())
                     .subscribe(OnlineGoApplication.instance.db.gameDao()::insertAll)
                     { this.onError(it, "fetchActiveGames") }
         )
@@ -223,6 +225,8 @@ class ActiveGameRepository {
                         .map (Game.Companion::fromOGSGame)
                         .toList()
                         .retryWhen (this::retryIOException)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(Schedulers.single())
                         .subscribe(OnlineGoApplication.instance.db.gameDao()::insertAll)
                         { this.onError(it, "fetchHistoricGames") }
         )

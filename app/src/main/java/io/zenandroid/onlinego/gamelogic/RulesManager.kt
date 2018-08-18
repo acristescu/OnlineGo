@@ -265,7 +265,7 @@ object RulesManager {
         // For this, we're calling doCapture() on all the neighbours
         // of the new stones that are of opposite color
         //
-        val removedStones = LinkedList<Point>()
+        val removedStones = mutableSetOf<Point>()
         val neighbours = Util.getNeighbouringSpace(where, pos.boardSize)
 
         for (neighbour in neighbours) {

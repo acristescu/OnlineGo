@@ -27,5 +27,6 @@ interface NewChallengeContract {
         fun onSpeedSelected(speed: Speed)
         fun onSizeSelected(size: Size)
         fun onDialogCancelled()
+        fun onStartSearch(sizes: List<Size>, speed: Speed)
     }
 }

@@ -230,7 +230,7 @@ class OGSServiceImpl private constructor(): OGSService {
         , BackpressureStrategy.BUFFER)
     }
 
-    override fun startGameSearch(size: Size, speed: Speed) : AutomatchChallenge {
+    override fun startGameSearch(sizes: List<Size>, speed: Speed) : AutomatchChallenge {
         val uuid = UUID.randomUUID().toString()
         val startFlowable = observeEvent("automatch/start")
                 .map { string -> moshi.adapter(AutomatchChallengeSuccess::class.java).fromJson(string.toString()) as AutomatchChallengeSuccess }
@@ -239,10 +239,12 @@ class OGSServiceImpl private constructor(): OGSService {
         val json = createJsonObject {
             put("uuid", uuid)
             put("size_speed_options", createJsonArray {
-                put(createJsonObject {
-                    put("size", size.getText())
-                    put("speed", speed.getText())
-                })
+                sizes.forEach { size ->
+                    put(createJsonObject {
+                        put("size", size.getText())
+                        put("speed", speed.getText())
+                    })
+                }
             })
             put("lower_rank_diff", 6)
             put("upper_rank_diff", 6)

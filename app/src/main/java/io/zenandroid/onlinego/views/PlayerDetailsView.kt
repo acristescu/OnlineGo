@@ -33,7 +33,7 @@ import java.util.regex.Pattern
 class PlayerDetailsView : FrameLayout {
 
     private val unbinder: Unbinder
-    private val gravatarRegex = Pattern.compile("(.*gravatar.com\\/avatar\\/[0-9a-fA-F]*+).*")
+    private val gravatarRegex = Pattern.compile("(.*gravatar.com/avatar/[0-9a-fA-F]*+).*")
     private val rackcdnRegex = Pattern.compile("(.*rackcdn.com.*)-\\d*\\.png")
 
     @BindView(R.id.name) lateinit var nameView: TextView

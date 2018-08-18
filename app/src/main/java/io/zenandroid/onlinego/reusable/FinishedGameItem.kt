@@ -2,8 +2,13 @@ package io.zenandroid.onlinego.reusable
 
 import com.xwray.groupie.kotlinandroidextensions.Item
 import com.xwray.groupie.kotlinandroidextensions.ViewHolder
+import io.reactivex.Single
+import io.reactivex.SingleEmitter
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.gamelogic.RulesManager
+import io.zenandroid.onlinego.model.Position
 import io.zenandroid.onlinego.model.local.Game
 import io.zenandroid.onlinego.ogs.OGSServiceImpl
 import io.zenandroid.onlinego.utils.egfToRank
@@ -11,10 +16,25 @@ import io.zenandroid.onlinego.utils.formatRank
 import kotlinx.android.synthetic.main.item_finished_game_card.*
 
 class FinishedGameItem (val game: Game) : Item(game.id) {
+    private var pos : Position? = null
+
+    init {
+        Single.create { emitter: SingleEmitter<Position> ->
+            emitter.onSuccess(RulesManager.replay(game, computeTerritory = false))
+        }.subscribeOn(Schedulers.computation())
+        .observeOn(AndroidSchedulers.mainThread())
+                .subscribe { it ->
+                    pos = it
+                    notifyChanged()
+                }
+    }
+
     override fun bind(holder: ViewHolder, position: Int) {
         holder.board.boardSize = game.width
 
-        holder.board.position = RulesManager.replay(game, computeTerritory = false)
+        pos?.let {
+            holder.board.position = it
+        }
 
         val userId = OGSServiceImpl.instance.uiConfig?.user?.id
 
