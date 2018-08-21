@@ -42,7 +42,9 @@ class PlayerDetailsView : FrameLayout {
     @BindView(R.id.flag) lateinit var flagView: EmojiAppCompatTextView
     @BindView(R.id.points) lateinit var scoreView: TextView
     @BindView(R.id.main_time) lateinit var timerFirstLineView: TextView
+    @BindView(R.id.main_time_label) lateinit var timerFirstLineLabelView: View
     @BindView(R.id.extra_time) lateinit var timerSecondLineView: TextView
+    @BindView(R.id.extra_time_label) lateinit var timerSecondLineLabelView: View
     @BindView(R.id.colorIndicatorBlack) lateinit var colorIndicatorBlack: View
     @BindView(R.id.colorIndicatorWhite) lateinit var colorIndicatorWhite: View
     @BindView(R.id.your_turn_label) lateinit var theirTurnLabel: View
@@ -104,18 +106,21 @@ class PlayerDetailsView : FrameLayout {
     var timerFirstLine: String? = null
         set(value) {
             timerFirstLineView.text = value
+            timerFirstLineView.showIf(value?.isNotEmpty() ?: false)
+            timerFirstLineLabelView.showIf(timerFirstLineView.visibility == View.VISIBLE)
         }
 
     var timerSecondLine: String? = null
         set(value) {
             timerSecondLineView.text = value
             timerSecondLineView.showIf(value?.isNotEmpty() ?: false)
+            timerSecondLineLabelView.showIf(timerSecondLineView.visibility == View.VISIBLE)
         }
 
-    var captured: Int? = null
+    var score: Float = 0f
         set(value) {
             field = value
-            updateScore()
+            scoreView.text = score.toString()
         }
 
     var color: StoneType = StoneType.BLACK
@@ -123,12 +128,6 @@ class PlayerDetailsView : FrameLayout {
             field = value
             colorIndicatorBlack.showIf(value == StoneType.BLACK)
             colorIndicatorWhite.showIf(value == StoneType.WHITE)
-        }
-
-    var komi: Float? = null
-        set(value) {
-            field = value
-            updateScore()
         }
 
     private fun processGravatarURL(url: String): String {
@@ -143,11 +142,6 @@ class PlayerDetailsView : FrameLayout {
             return "${matcher.group(1)}-${desired}.png"
         }
         return url
-    }
-
-    private fun updateScore() {
-        val score = (captured ?: 0) + (komi ?: 0f)
-        scoreView.text = score.toString()
     }
 
     constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(context, attrs, defStyleAttr) {

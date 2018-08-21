@@ -76,15 +76,13 @@ class GameFragment : Fragment(), GameContract.View {
     override var position: Position? = null
         set(value) {
             board.position = value
-            whiteDetailsView.captured = value?.whiteCapturedCount
-            blackDetailsView.captured = value?.blackCapturedCount
+            value?.let {
+                whiteDetailsView.score = it.whiteCapturedCount + (komi ?: 0f)
+                blackDetailsView.score = it.blackCapturedCount.toFloat()
+            }
         }
 
     override var komi: Float? = null
-        set(value) {
-            field = value
-            whiteDetailsView.komi = komi
-        }
 
     override var activePlayer: StoneType? = null
         set(value) {

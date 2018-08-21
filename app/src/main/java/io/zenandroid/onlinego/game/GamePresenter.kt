@@ -131,6 +131,7 @@ class GamePresenter(
                 .subscribe(this::onUserHotTrackedCell))
 
         subscriptions.add(Observable.interval(100, TimeUnit.MILLISECONDS)
+                .takeWhile { currentState != State.FINISHED && game?.phase != Phase.FINISHED }
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe { clockTick() }
         )
@@ -454,6 +455,8 @@ class GamePresenter(
 
                 configurePreviousNextButtons()
                 if (game.phase == Phase.FINISHED) {
+                    view.whiteTimer = null
+                    view.blackTimer = null
                     if (!finishedDialogShown && game.blackLost != game.whiteLost) {
                         finishedDialogShown = true
                         val winner = if (game.blackLost == true) game.whitePlayer.id else game.blackPlayer.id

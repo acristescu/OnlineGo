@@ -5,7 +5,6 @@ import io.zenandroid.onlinego.game.GamePresenter
 import io.zenandroid.onlinego.model.local.Clock
 import io.zenandroid.onlinego.model.local.Game
 import io.zenandroid.onlinego.model.local.Time
-import io.zenandroid.onlinego.ogs.OGSClock
 import org.json.JSONArray
 import org.json.JSONObject
 import java.lang.Math.ceil
