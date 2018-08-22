@@ -6,6 +6,7 @@ import android.support.v7.widget.LinearLayoutManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.ViewHolder
 import io.zenandroid.onlinego.OnlineGoApplication
@@ -36,6 +37,9 @@ class LearnFragment : Fragment(), LearnContract.View {
 
         learnRecycler.layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
         learnRecycler.adapter = groupAdapter
+        groupAdapter.setOnItemClickListener { _, _ ->
+            Toast.makeText(context, "Not implemented yet!", Toast.LENGTH_SHORT).show()
+        }
 
         presenter = LearnPresenter(this, analytics)
     }

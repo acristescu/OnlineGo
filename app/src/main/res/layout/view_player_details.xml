@@ -205,7 +205,8 @@
         app:layout_constraintTop_toTopOf="@id/extra_time"
         app:layout_constraintBottom_toBottomOf="@id/extra_time"
         android:layout_marginRight="8dp"
-
+        android:visibility="gone"
+        tools:visibility="visible"
         />
 
     <TextView
