@@ -1,0 +1,47 @@
+language: android
+
+android:
+  components:
+    - tools
+    - platform-tools
+
+    # The BuildTools version used by your project
+    - build-tools-$ANDROID_BUILD_TOOLS
+    - android-$ANDROID_API
+
+    # Additional components
+    - extra-google-google_play_services
+    - extra-google-m2repository
+    - extra-android-m2repository
+    - addon-google_apis-google-$ANDROID_API
+
+  licenses:
+    - android-sdk-preview-license-.+
+    - android-sdk-license-.+
+    - google-gdk-license-.+
+
+env:
+  matrix:
+    - ANDROID_BUILD_TOOLS=27.0.3 ANDROID_API=27
+
+before_install:
+  - yes | sdkmanager "platforms;android-$ANDROID_API"
+  - chmod +x gradlew
+
+install:
+  # Install dependencies to compile native C++ code
+  - yes | sdkmanager "ndk-bundle"
+  - yes | sdkmanager "cmake;3.6.4111459"
+  - yes | sdkmanager "lldb;3.1"
+
+script: ./gradlew connectedAndroidTest
+
+before_cache:
+  - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
+  - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
+
+cache:
+  directories:
+    - $HOME/.gradle/caches/
+    - $HOME/.gradle/wrapper/
+    - $HOME/.android/build-cache
