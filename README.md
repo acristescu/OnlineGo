@@ -17,6 +17,8 @@ You can either:
 
 To build and run the application from the source code, it is recommended to use [Android Studio](https://developer.android.com/studio/install). It automatically downloads the dependencies and build the project.
 
+You also need to generate a `google-services.json` file in order to build the application. You can follow [this guide](https://firebase.google.com/docs/android/setup). One generated you need to copy the file to `app/google-services.json`.
+
 ## Authors
 
 - Original author: [Alexandru Cristescu](acristescu@gmail.com)
