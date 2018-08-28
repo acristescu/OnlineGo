@@ -5,5 +5,5 @@
 /build
 /app/app.iml
 /app/.externalNativeBuild
-#app/google-services.json
+app/google-services.json
 *.iml
