@@ -15,6 +15,10 @@ android:
     - extra-android-m2repository
     - addon-google_apis-google-$ANDROID_API
 
+    # Specify at least one system image,
+    # if you need to run emulator(s) during your tests
+    - sys-img-armeabi-v7a-android-26
+
   licenses:
     - android-sdk-preview-license-.+
     - android-sdk-license-.+
@@ -34,9 +38,26 @@ install:
   - yes | sdkmanager "cmake;3.6.4111459"
   - yes | sdkmanager "lldb;3.1"
 
+# Create virtual device(s)
+before_script:
+  - echo no | android create avd --force -n test -t android-27 --abi armeabi-v7a
+  - emulator -avd test -no-audio -no-window &
+  - android-wait-for-emulator
+  - adb shell input keyevent 82 &
+
 script:
   - ./gradlew --version
-  # Disable compilation for the moment until it's fixed.
+
+  # Build the application
+  - ./gradlew build
+
+  # Run tests.
+  - ./gradlew test
+
+  # Install on virtual device(s).
+  #- ./gradlew installDebugAndroidTest
+
+  # Run tests on virtual devices.
   # - ./gradlew connectedAndroidTest
 
 before_cache:

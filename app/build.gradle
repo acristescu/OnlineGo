@@ -36,6 +36,10 @@ android {
             path 'CMakeLists.txt'
         }
     }
+    lintOptions {
+        abortOnError false
+    }
+
 }
 
 // IMPORTANT!  Enables view caching in viewholders.
