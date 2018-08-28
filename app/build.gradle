@@ -44,24 +44,6 @@ androidExtensions {
     experimental = true
 }
 
-task generateGoogleJson {
-    doLast {
-        def output = new File("app/google-services.json")
-        def input = new File("secret.bin")
-        if (!output.exists()) {
-            def inputBytes = input.bytes
-            def outputBytes = new byte[inputBytes.size()]
-            def passwordBytes = System.env.SECRET_KEY.bytes
-            inputBytes.eachWithIndex { byte b, int i ->
-                outputBytes[i] = b ^ passwordBytes[i % passwordBytes.size()]
-            }
-            output.bytes = outputBytes
-        }
-    }
-}
-
-preBuild.dependsOn(generateGoogleJson)
-
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'com.android.support:appcompat-v7:27.1.1'
