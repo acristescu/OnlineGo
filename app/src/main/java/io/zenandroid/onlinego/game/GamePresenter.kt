@@ -2,6 +2,7 @@ package io.zenandroid.onlinego.game
 
 import android.graphics.Point
 import android.util.Log
+import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.SingleEmitter
@@ -136,13 +137,13 @@ class GamePresenter(
                 .subscribe { clockTick() }
         )
         subscriptions.add(
-                OGSServiceImpl.instance.loginWithToken().subscribe ({
-                    subscriptions.add(
-                            OGSServiceImpl.instance.connectToGame(gameId).apply {
-                                gameConnection = this
-                            }
-                    )
-                }, this::onError)
+                OGSServiceImpl.instance.loginWithToken()
+                        .toSingle { OGSServiceImpl.instance.connectToGame(gameId) }
+                        .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
+                        .subscribe({
+                            subscriptions.add(it)
+                            gameConnection = it
+                        }, this::onError)
         )
 
     }
