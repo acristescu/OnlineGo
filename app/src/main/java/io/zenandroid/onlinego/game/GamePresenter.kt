@@ -282,7 +282,7 @@ class GamePresenter(
         }
     }
 
-    private fun configureBoard() {
+    private fun configureBoard(game: Game) {
         when(currentState) {
             State.ANALYSIS -> {
                 view.showLastMove = variation.isEmpty()
@@ -300,7 +300,8 @@ class GamePresenter(
                 view.showLastMove = true
                 view.showTerritory = false
                 view.fadeOutRemovedStones = false
-                view.interactive = game?.playerToMoveId == userId
+                view.interactive =
+                        (currentPosition.nextToMove == StoneType.WHITE && game.whitePlayer.id == userId) || (currentPosition.nextToMove == StoneType.BLACK && game.blackPlayer.id == userId)
             }
             State.SCORING -> {
                 view.showLastMove = false
@@ -434,7 +435,7 @@ class GamePresenter(
 
     private fun refreshUI(game: Game) {
         showControls()
-        configureBoard()
+        configureBoard(game)
         configureChips()
         configurePassedLabels()
 
@@ -562,7 +563,7 @@ class GamePresenter(
                             currentState = determineStateFromGame(game)
                         }
                         view.position = RulesManager.replay(game, currentShownMove, false)
-                        configureBoard()
+                        configureBoard(game)
                         configureChips()
                     }
                 }
@@ -587,7 +588,7 @@ class GamePresenter(
                         currentShownMove = currentShownMove.coerceIn(0, moves.size)
                         configurePreviousNextButtons()
                         view.position = RulesManager.replay(game, currentShownMove, false)
-                        configureBoard()
+                        configureBoard(game)
                         configureChips()
                     }
                 }
