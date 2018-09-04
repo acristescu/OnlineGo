@@ -5,16 +5,16 @@ import io.reactivex.Flowable
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
-import io.reactivex.internal.util.HalfSerializer.onNext
-import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
+import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.gamelogic.Util
-import io.zenandroid.onlinego.model.local.Game
+import io.zenandroid.onlinego.model.local.Message
 import io.zenandroid.onlinego.model.local.Score
 import io.zenandroid.onlinego.model.local.Time
+import io.zenandroid.onlinego.model.ogs.Chat
 import io.zenandroid.onlinego.model.ogs.GameData
-import io.zenandroid.onlinego.model.ogs.Phase
 import io.zenandroid.onlinego.model.ogs.OGSPlayer
+import io.zenandroid.onlinego.model.ogs.Phase
 import io.zenandroid.onlinego.utils.createJsonObject
 import java.io.Closeable
 
@@ -27,7 +27,8 @@ class GameConnection(
         movesObservable: Flowable<Move>,
         clockObservable: Flowable<OGSClock>,
         phaseObservable: Flowable<Phase>,
-        removedStonesObservable: Flowable<RemovedStones>
+        removedStonesObservable: Flowable<RemovedStones>,
+        chatObservable: Flowable<Chat>
 ) : Disposable, Closeable {
     private var closed = false
     private var counter = 0
@@ -58,6 +59,9 @@ class GameConnection(
         subscriptions.add(clockObservable.subscribe(clockSubject::onNext))
         subscriptions.add(phaseObservable.subscribe(phaseSubject::onNext))
         subscriptions.add(removedStonesObservable.subscribe(removedStonesSubject::onNext))
+        subscriptions.add(chatObservable.subscribe {
+            OnlineGoApplication.instance.chatRepository.addMessage(Message.fromOGSMessage(it, gameId))
+        })
     }
 
     override fun close() {
@@ -140,6 +144,14 @@ class GameConnection(
         })
     }
 
+    fun sendMessage(message: String, moveNumber: Int) {
+        OGSServiceImpl.instance.emit("game/chat", createJsonObject {
+            put("body", message)
+            put("game_id", gameId)
+            put("move_number", moveNumber)
+            put("type", "main")
+        })
+    }
 }
 
 data class Scores (

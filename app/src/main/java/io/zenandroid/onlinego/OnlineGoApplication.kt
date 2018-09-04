@@ -8,6 +8,7 @@ import android.support.text.emoji.FontRequestEmojiCompatConfig
 import android.support.v4.provider.FontRequest
 import com.google.firebase.analytics.FirebaseAnalytics
 import io.zenandroid.onlinego.db.Database
+import io.zenandroid.onlinego.ogs.ChatRepository
 
 
 /**
@@ -25,6 +26,7 @@ class OnlineGoApplication : Application() {
                 .build()
     }
     val analytics by lazy { FirebaseAnalytics.getInstance(this) }
+    val chatRepository by lazy { ChatRepository(db.gameDao()) }
 
     override fun onCreate() {
         super.onCreate()

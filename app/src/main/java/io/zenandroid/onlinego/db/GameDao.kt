@@ -3,12 +3,8 @@ package io.zenandroid.onlinego.db
 import android.arch.persistence.room.*
 import io.reactivex.Flowable
 import io.reactivex.Single
-import io.zenandroid.onlinego.model.local.Clock
-import io.zenandroid.onlinego.model.local.Game
-import io.zenandroid.onlinego.model.local.InitialState
-import io.zenandroid.onlinego.model.local.Score
+import io.zenandroid.onlinego.model.local.*
 import io.zenandroid.onlinego.model.ogs.Phase
-import io.zenandroid.onlinego.ogs.RemovedStones
 
 /**
  * Created by 44108952 on 04/06/2018.
@@ -85,4 +81,10 @@ abstract class GameDao {
 
     @Query("SELECT * FROM game WHERE id = :id")
     abstract fun getGame(id: Long): Single<Game>
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    abstract fun insertMessage(message: Message)
+
+    @Query("SELECT * FROM message WHERE gameId = :gameId")
+    abstract fun getMessagesForGame(gameId: Long): Flowable<List<Message>>
 }

@@ -1,8 +1,8 @@
 package io.zenandroid.onlinego.game
 
 import android.graphics.Point
+import android.os.Handler
 import android.util.Log
-import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.SingleEmitter
@@ -10,10 +10,12 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
+import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.gamelogic.RulesManager
 import io.zenandroid.onlinego.model.Position
 import io.zenandroid.onlinego.model.StoneType
 import io.zenandroid.onlinego.model.local.Game
+import io.zenandroid.onlinego.model.local.Message
 import io.zenandroid.onlinego.model.ogs.Phase
 import io.zenandroid.onlinego.ogs.ActiveGameRepository
 import io.zenandroid.onlinego.ogs.GameConnection
@@ -59,6 +61,7 @@ class GamePresenter(
     private var variationCurrentMove = 0
 
     private var currentState = State.LOADING
+    private var messages: List<Message>? = null
 
     private val playingChip = PlayingChip {
         view.showInfoDialog("Playing phase",
@@ -112,6 +115,7 @@ class GamePresenter(
     override fun subscribe() {
         view.setLoading(true)
         view.boardSize = gameSize
+        view.chatMyId = userId
 
         service.resendAuth()
 
@@ -143,9 +147,33 @@ class GamePresenter(
                         .subscribe({
                             subscriptions.add(it)
                             gameConnection = it
+                            Handler().postDelayed({
+                                sendAutoMessage()
+                            }, 500
+                            )
+                        }, this::onError)
+        )
+        subscriptions.add(
+                OnlineGoApplication.instance.chatRepository.monitorGameChat(gameId)
+                        .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
+                        .subscribe({
+                            messages = it
+                            view.setMessageList(it)
                         }, this::onError)
         )
 
+    }
+
+    private fun sendAutoMessage() {
+        messages?.let { messages ->
+            for(message in messages) {
+                if(message.text.startsWith("[Auto message]")) {
+                    return
+                }
+            }
+        }
+        gameConnection?.sendMessage("[Auto message] I am playing using MrAlex's OnlineGo Android app (https://play.google.com/store/apps/details?id=io.zenandroid.onlinego ). Sharing variations in chat and Malkovitch chat are not supported!",
+                game?.moves?.size ?: 0)
     }
 
     private fun onError(t: Throwable) {
@@ -337,7 +365,6 @@ class GamePresenter(
         view.bottomBarVisible = true
         view.nextButtonVisible = true
         view.previousButtonVisible = true
-        view.chatButtonVisible = true
         view.passButtonVisible = true
         view.resignButtonVisible = true
         view.analyzeButtonVisible = true
@@ -353,7 +380,6 @@ class GamePresenter(
         view.bottomBarVisible = true
         view.nextButtonVisible = true
         view.previousButtonVisible = true
-        view.chatButtonVisible = true
         view.passButtonVisible = false
         view.resignButtonVisible = false
         view.analyzeButtonVisible = false
@@ -381,7 +407,6 @@ class GamePresenter(
         view.bottomBarVisible = true
         view.nextButtonVisible = false
         view.previousButtonVisible = false
-        view.chatButtonVisible = true
         view.passButtonVisible = false
         view.resignButtonVisible = false
         view.analyzeButtonVisible = false
@@ -395,7 +420,6 @@ class GamePresenter(
         view.bottomBarVisible = true
         view.nextButtonVisible = true
         view.previousButtonVisible = true
-        view.chatButtonVisible = true
         view.passButtonVisible = false
         view.resignButtonVisible = false
         view.analyzeButtonVisible = true
@@ -409,7 +433,6 @@ class GamePresenter(
         view.bottomBarVisible = true
         view.nextButtonVisible = false
         view.previousButtonVisible = false
-        view.chatButtonVisible = false
         view.passButtonVisible = false
         view.resignButtonVisible = false
         view.analyzeButtonVisible = false
@@ -475,6 +498,10 @@ class GamePresenter(
                 view.activePlayer = currentPosition.nextToMove
             }
         }
+    }
+
+    override fun onChatClicked() {
+        view.showChat()
     }
 
     private fun configurePassedLabels() {

@@ -13,8 +13,11 @@ import android.support.design.widget.BottomNavigationView
 import android.util.Log
 import android.view.View
 import android.view.ViewAnimationUtils
+import android.view.ViewGroup
 import android.view.animation.OvershootInterpolator
 import io.reactivex.Completable
+
+
 
 
 
@@ -139,4 +142,26 @@ fun BottomNavigationView.disableShiftMode() {
         //Timber.e(e, "Unable to change value of shift mode");
     }
 
+}
+
+fun View.setMargins(left: Int? = null, top: Int? = null, right: Int? = null, bottom: Int? = null) {
+    (layoutParams as? ViewGroup.MarginLayoutParams)?.let {
+        it.setMargins(
+                left ?: it.leftMargin,
+                top ?: it.topMargin,
+                right ?: it.rightMargin,
+                bottom ?: it.bottomMargin
+        )
+        requestLayout()
+    }
+}
+
+fun View.setMarginsDP(left: Int? = null, top: Int? = null, right: Int? = null, bottom: Int? = null) {
+    val density = resources.displayMetrics.density
+    setMargins(
+            if(left != null) (left * density + 0.5f).toInt() else null,
+            if(top != null) (top * density + 0.5f).toInt() else null,
+            if(right != null) (right * density + 0.5f).toInt() else null,
+            if(bottom != null) (bottom * density + 0.5f).toInt() else null
+    )
 }

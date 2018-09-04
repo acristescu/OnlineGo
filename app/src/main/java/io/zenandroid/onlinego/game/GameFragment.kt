@@ -22,14 +22,15 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.R
+import io.zenandroid.onlinego.chat.ChatDialog
 import io.zenandroid.onlinego.extensions.fadeIn
 import io.zenandroid.onlinego.extensions.fadeOut
-import io.zenandroid.onlinego.extensions.hide
 import io.zenandroid.onlinego.extensions.showIf
 import io.zenandroid.onlinego.main.MainActivity
 import io.zenandroid.onlinego.model.Position
 import io.zenandroid.onlinego.model.StoneType
 import io.zenandroid.onlinego.model.local.Game
+import io.zenandroid.onlinego.model.local.Message
 import io.zenandroid.onlinego.model.local.Player
 import io.zenandroid.onlinego.ogs.OGSServiceImpl
 import io.zenandroid.onlinego.statuschips.Chip
@@ -62,7 +63,6 @@ class GameFragment : Fragment(), GameContract.View {
     @BindView(R.id.confirm_button) lateinit var confirmButton: AppCompatImageView
     @BindView(R.id.discard_button) lateinit var discardButton: AppCompatImageView
     @BindView(R.id.auto_button) lateinit var autoButton: AppCompatImageView
-    @BindView(R.id.chat_button) lateinit var chatButton: AppCompatImageView
     @BindView(R.id.play_controls) lateinit var playControls: ViewGroup
     @BindView(R.id.white_details) lateinit var whiteDetailsView: PlayerDetailsView
     @BindView(R.id.black_details) lateinit var blackDetailsView: PlayerDetailsView
@@ -72,6 +72,7 @@ class GameFragment : Fragment(), GameContract.View {
     private lateinit var presenter: GameContract.Presenter
     private val subscriptions = CompositeDisposable()
     private val analytics = OnlineGoApplication.instance.analytics
+    private val chatDialog: ChatDialog by lazy { ChatDialog() }
 
     override var position: Position? = null
         set(value) {
@@ -225,13 +226,6 @@ class GameFragment : Fragment(), GameContract.View {
     override var previousButtonVisible = false
         set(value) { previousButton.showIf(value) }
 
-    override var chatButtonVisible = false
-        set(value) {
-            //temporarily disable chat button
-            //chatButton.showIf(value)
-            chatButton.hide()
-        }
-
     override var passButtonVisible = false
         set(value) { passButton.showIf(value) }
 
@@ -263,7 +257,18 @@ class GameFragment : Fragment(), GameContract.View {
 
     override fun onResume() {
         super.onResume()
-        analytics.setCurrentScreen(activity!!, javaClass.simpleName, null)
+
+        (activity as? MainActivity)?.apply {
+            setChatButtonVisible(true)
+            subscriptions.add(
+                    chatClicks
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribe {
+                                presenter.onChatClicked()
+                            }
+            )
+        }
+        analytics.setCurrentScreen(activity!!, javaClass.simpleName, javaClass.simpleName)
         presenter.subscribe()
         subscriptions.add(
                 repeatingPresses(previousButton)
@@ -282,6 +287,19 @@ class GameFragment : Fragment(), GameContract.View {
                         }
         )
     }
+
+    override fun showChat() {
+        chatDialog.show(fragmentManager, "CHAT")
+    }
+
+    override fun setMessageList(messages: List<Message>) {
+        chatDialog.setMessages(messages)
+    }
+
+    override var chatMyId: Long? = null
+        set(value) {
+            chatDialog.setChatMyId(value)
+        }
 
     private fun repeatingPresses(view: View): Observable<Any> {
         return RxView.touches(view)

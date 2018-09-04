@@ -76,14 +76,9 @@ class MyGamesFragment : Fragment(), MyGamesContract.View {
             setDisplayHomeAsUpEnabled(false)
         }
 
-//        (activity as? MainActivity)?.apply {
-//            mainTitle = "OnlineGo"
-//
-//            setChips(listOf(VersionChip()))
-//        }
-
         (activity as? MainActivity)?.apply {
             setLogoVisible(true)
+            setChatButtonVisible(false)
         }
         presenter.subscribe()
     }

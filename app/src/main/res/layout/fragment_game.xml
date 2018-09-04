@@ -99,16 +99,6 @@
                 android:paddingBottom="10dp"
                 />
             <android.support.v7.widget.AppCompatImageView
-                android:id="@+id/chat_button"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                app:srcCompat="@drawable/ic_chat_bubble"
-                app:tint="@color/disable_black"
-                android:layout_weight="1"
-                android:paddingTop="10dp"
-                android:paddingBottom="10dp"
-                />
-            <android.support.v7.widget.AppCompatImageView
                 android:id="@+id/previous_button"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"

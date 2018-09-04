@@ -25,7 +25,9 @@ import butterknife.ButterKnife
 import butterknife.OnClick
 import com.firebase.jobdispatcher.*
 import com.firebase.jobdispatcher.Constraint.ON_ANY_NETWORK
+import com.jakewharton.rxbinding2.view.RxView
 import io.reactivex.Completable
+import io.reactivex.Observable
 import io.zenandroid.onlinego.NotificationsService
 import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.R
@@ -59,6 +61,7 @@ class MainActivity : AppCompatActivity(), MainContract.View {
     @BindView(R.id.bottom_navigation) lateinit var bottomNavigation: BottomNavigationView
     @BindView(R.id.badge) lateinit var badge: TextView
     @BindView(R.id.notifications) lateinit var notificationsButton: ImageView
+    @BindView(R.id.chat) lateinit var chatButton: ImageView
     @BindView(R.id.new_challenge) lateinit var newChallengeView: NewChallengeView
     @BindView(R.id.progress_bar) lateinit var progressBar: ProgressBar
     @BindView(R.id.title) lateinit var titleView: TextView
@@ -73,6 +76,7 @@ class MainActivity : AppCompatActivity(), MainContract.View {
     private val chipAdapter = ChipAdapter()
 
     val activeGameRepository: ActiveGameRepository by lazy { ActiveGameRepository() }
+    val chatClicks: Observable<Any> by lazy { RxView.clicks(chatButton) }
 
     private lateinit var lastSelectedItem: MenuItem
 
@@ -94,6 +98,10 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         titleView.showIf(!visible)
         chipList.showIf(!visible)
         logo.showIf(visible)
+    }
+
+    fun setChatButtonVisible(visible: Boolean) {
+        chatButton.showIf(visible)
     }
 
     override var notificationsButtonEnabled: Boolean

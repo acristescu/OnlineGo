@@ -146,7 +146,8 @@ class OGSServiceImpl private constructor(): OGSService {
                     observeEvent("game/$id/move").map { string -> moshi.adapter(Move::class.java).fromJson(string.toString())!! },
                     observeEvent("game/$id/clock").map { string -> moshi.adapter(OGSClock::class.java).fromJson(string.toString()) },
                     observeEvent("game/$id/phase").map { string -> Phase.valueOf(string.toString().toUpperCase().replace(' ', '_')) },
-                    observeEvent("game/$id/removed_stones").map { string -> moshi.adapter(RemovedStones::class.java).fromJson(string.toString()) }
+                    observeEvent("game/$id/removed_stones").map { string -> moshi.adapter(RemovedStones::class.java).fromJson(string.toString()) },
+                    observeEvent("game/$id/chat").map { string -> moshi.adapter(Chat::class.java).fromJson(string.toString()) }
             ).apply {
                 emitGameConnection(id)
                 gameConnections[id] = this
@@ -158,7 +159,7 @@ class OGSServiceImpl private constructor(): OGSService {
 
     private fun emitGameConnection(id: Long) {
         emit("game/connect", createJsonObject {
-            put("chat", false)
+            put("chat", true)
             put("game_id", id)
             put("player_id", uiConfig?.user?.id)
         })
@@ -210,6 +211,7 @@ class OGSServiceImpl private constructor(): OGSService {
         obj.put("player_id", uiConfig?.user?.id)
         obj.put("username", uiConfig?.user?.username)
         obj.put("auth", uiConfig?.chat_auth)
+        Log.i(TAG, "Emit: authenticate with params obj")
         socket.emit("authenticate", obj, loggingAck)
         authSent = true
     }

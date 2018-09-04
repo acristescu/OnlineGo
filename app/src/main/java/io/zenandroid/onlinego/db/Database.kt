@@ -4,13 +4,14 @@ import android.arch.persistence.room.Database
 import android.arch.persistence.room.RoomDatabase
 import android.arch.persistence.room.TypeConverters
 import io.zenandroid.onlinego.model.local.Game
+import io.zenandroid.onlinego.model.local.Message
 
 /**
  * Created by 44108952 on 04/06/2018.
  */
 @Database(
-        entities = [Game::class],
-        version = 2
+        entities = [Game::class, Message::class],
+        version = 3
 )
 @TypeConverters(DbTypeConverters::class)
 abstract class Database: RoomDatabase() {

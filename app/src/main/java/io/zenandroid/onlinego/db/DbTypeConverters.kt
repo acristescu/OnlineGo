@@ -1,6 +1,7 @@
 package io.zenandroid.onlinego.db
 
 import android.arch.persistence.room.TypeConverter
+import io.zenandroid.onlinego.model.local.Message
 import io.zenandroid.onlinego.model.ogs.Phase
 
 /**
@@ -52,5 +53,13 @@ class DbTypeConverters {
         @TypeConverter
         @JvmStatic
         fun stringToPhase(phase: String?) = phase?.let(Phase::valueOf)
+
+        @TypeConverter
+        @JvmStatic
+        fun messageTypeToString(type: Message.Type?) = type?.toString()
+
+        @TypeConverter
+        @JvmStatic
+        fun stringToMessageType(type: String?) = type?.let(Message.Type::valueOf)
     }
 }

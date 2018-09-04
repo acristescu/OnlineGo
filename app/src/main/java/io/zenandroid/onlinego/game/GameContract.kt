@@ -4,6 +4,7 @@ import android.graphics.Point
 import io.reactivex.Observable
 import io.zenandroid.onlinego.model.Position
 import io.zenandroid.onlinego.model.StoneType
+import io.zenandroid.onlinego.model.local.Message
 import io.zenandroid.onlinego.model.local.Player
 import io.zenandroid.onlinego.statuschips.Chip
 
@@ -30,7 +31,6 @@ interface GameContract {
         var nextButtonVisible: Boolean
         var analyzeButtonVisible: Boolean
         var previousButtonVisible: Boolean
-        var chatButtonVisible: Boolean
         var passButtonVisible: Boolean
         var resignButtonVisible: Boolean
         var confirmButtonVisible: Boolean
@@ -45,6 +45,8 @@ interface GameContract {
         var activePlayer: StoneType?
         fun showError(t: Throwable)
         var komi: Float?
+        var chatMyId: Long?
+
         fun setLoading(loading: Boolean)
         fun showFinishedDialog()
         fun showYouWinDialog()
@@ -53,6 +55,8 @@ interface GameContract {
         fun showInfoDialog(title: String, contents: String)
         fun setBlackPlayerPassed(passed: Boolean)
         fun setWhitePlayerPassed(passed: Boolean)
+        fun setMessageList(messages: List<Message>)
+        fun showChat()
     }
 
     interface Presenter {
@@ -67,5 +71,6 @@ interface GameContract {
         fun onConfirmButtonPressed()
         fun onAutoButtonPressed()
         fun onAnalyzeButtonPressed()
+        fun onChatClicked()
     }
 }
