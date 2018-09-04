@@ -286,6 +286,13 @@ class GameFragment : Fragment(), GameContract.View {
                             presenter.onNextButtonPressed()
                         }
         )
+        subscriptions.add(
+                chatDialog.newMessages
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe {
+                            presenter.onNewMessage(it)
+                        }
+        )
     }
 
     override fun showChat() {

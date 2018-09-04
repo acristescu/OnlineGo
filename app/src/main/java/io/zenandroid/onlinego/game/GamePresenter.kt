@@ -164,10 +164,14 @@ class GamePresenter(
 
     }
 
+    override fun onNewMessage(message: String) {
+        gameConnection?.sendMessage(message, game?.moves?.size ?: 0)
+    }
+
     private fun sendAutoMessage() {
         messages?.let { messages ->
             for(message in messages) {
-                if(message.text.startsWith("[Auto message]")) {
+                if(message.text.startsWith("[Auto message]") && message.playerId == userId) {
                     return
                 }
             }

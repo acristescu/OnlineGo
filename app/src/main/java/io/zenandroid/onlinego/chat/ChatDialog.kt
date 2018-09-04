@@ -6,6 +6,7 @@ import android.support.v7.widget.LinearLayoutManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import io.reactivex.subjects.PublishSubject
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.model.local.Message
 import kotlinx.android.synthetic.main.dialog_messages.*
@@ -13,6 +14,9 @@ import kotlinx.android.synthetic.main.dialog_messages.*
 class ChatDialog : DialogFragment() {
 
     private val messagesAdapter = MessagesAdapter()
+    private val newMessageSubject = PublishSubject.create<String>()
+
+    val newMessages = newMessageSubject.hide()
 
     fun setMessages(messages: List<Message>) {
         messagesAdapter.setMessageList(messages)
@@ -35,7 +39,14 @@ class ChatDialog : DialogFragment() {
         messagesRecycler.apply {
             layoutManager = LinearLayoutManager(context)
             adapter = messagesAdapter
-            smoothScrollToPosition(10000)
+            smoothScrollToPosition(messagesAdapter.itemCount)
+        }
+
+        sendButton.setOnClickListener {
+            if(!newMessage.text.isNullOrEmpty()) {
+                newMessageSubject.onNext(newMessage.text.toString())
+            }
+            newMessage.setText("")
         }
     }
 
@@ -43,4 +54,11 @@ class ChatDialog : DialogFragment() {
         messagesAdapter.setMyId(myId)
     }
 
+    override fun onResume() {
+        super.onResume()
+        val params = dialog.window!!.attributes
+        params.width = ViewGroup.LayoutParams.MATCH_PARENT
+        params.height = ViewGroup.LayoutParams.MATCH_PARENT
+        dialog.window!!.attributes = params as android.view.WindowManager.LayoutParams
+    }
 }

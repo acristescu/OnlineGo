@@ -72,5 +72,6 @@ interface GameContract {
         fun onAutoButtonPressed()
         fun onAnalyzeButtonPressed()
         fun onChatClicked()
+        fun onNewMessage(message: String)
     }
 }
