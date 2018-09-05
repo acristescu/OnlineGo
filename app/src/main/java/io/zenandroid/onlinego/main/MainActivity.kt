@@ -74,6 +74,7 @@ class MainActivity : AppCompatActivity(), MainContract.View {
 
     private val analytics = OnlineGoApplication.instance.analytics
     private val chipAdapter = ChipAdapter()
+    private var unreadCount = 0
 
     val activeGameRepository: ActiveGameRepository by lazy { ActiveGameRepository() }
     val chatClicks: Observable<Any> by lazy { RxView.clicks(chatButton) }
@@ -102,6 +103,7 @@ class MainActivity : AppCompatActivity(), MainContract.View {
 
     fun setChatButtonVisible(visible: Boolean) {
         chatButton.showIf(visible)
+        chatBadge.showIf(visible && unreadCount != 0)
     }
 
     override var notificationsButtonEnabled: Boolean
@@ -305,5 +307,20 @@ class MainActivity : AppCompatActivity(), MainContract.View {
 
     fun navigateToGameScreenById(gameId: Long) {
         presenter.navigateToGameScreenById(gameId)
+    }
+
+    fun setNewMessagesCount(count: Int) {
+        if(count == 0) {
+            if(unreadCount != 0) {
+                chatBadge.fadeOut().subscribe()
+            }
+        } else {
+            if(unreadCount == 0) {
+                chatBadge.fadeIn().subscribe()
+            }
+            chatBadge.text = count.toString()
+        }
+
+        unreadCount = count
     }
 }

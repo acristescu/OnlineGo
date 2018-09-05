@@ -287,7 +287,7 @@ class GameFragment : Fragment(), GameContract.View {
                         }
         )
         subscriptions.add(
-                chatDialog.newMessages
+                chatDialog.sendMessage
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe {
                             presenter.onNewMessage(it)
@@ -301,6 +301,10 @@ class GameFragment : Fragment(), GameContract.View {
 
     override fun setMessageList(messages: List<Message>) {
         chatDialog.setMessages(messages)
+    }
+
+    override fun setNewMessagesCount(count: Int) {
+        (activity as MainActivity).setNewMessagesCount(count)
     }
 
     override var chatMyId: Long? = null

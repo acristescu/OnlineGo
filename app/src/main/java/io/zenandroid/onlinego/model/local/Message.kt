@@ -14,7 +14,8 @@ data class Message (
         val moveNumber: Long?,
         val date: Long,
         @PrimaryKey val chatId: String,
-        val text: String
+        val text: String,
+        val seen: Boolean = false
 
 ) {
     enum class Type {

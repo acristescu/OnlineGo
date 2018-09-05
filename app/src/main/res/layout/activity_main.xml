@@ -67,6 +67,26 @@
                     android:background="?android:selectableItemBackground"
                     android:tint="@color/white"
                     />
+                <TextView
+                    android:id="@+id/chatBadge"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="right|top"
+                    android:layout_marginEnd="2dp"
+                    android:layout_marginTop="2dp"
+                    android:background="@drawable/oval"
+                    android:elevation="2dp"
+                    android:gravity="center"
+                    tools:text="10"
+                    android:textColor="#FFFFFF"
+                    app:layout_constraintDimensionRatio="w,1:1"
+                    app:layout_constraintEnd_toEndOf="@id/chat"
+                    app:layout_constraintTop_toTopOf="@id/chat"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:alpha="0"
+                    tools:alpha="1"
+                    />
                 <ImageView
                     android:id="@+id/notifications"
                     app:srcCompat="@drawable/ic_go_board"
@@ -103,6 +123,7 @@
                     android:textSize="12sp"
                     android:textStyle="bold"
                     android:alpha="0"
+                    tools:alpha="1"
                     />
             </android.support.constraint.ConstraintLayout>
         </android.support.v7.widget.Toolbar>

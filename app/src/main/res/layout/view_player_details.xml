@@ -234,6 +234,8 @@
         app:layout_constraintTop_toTopOf="@id/main_time"
         app:layout_constraintBottom_toBottomOf="@id/main_time"
         android:layout_marginRight="8dp"
+        android:visibility="gone"
+        tools:visibility="visible"
         />
 
     <android.support.constraint.Barrier

@@ -57,6 +57,7 @@ interface GameContract {
         fun setWhitePlayerPassed(passed: Boolean)
         fun setMessageList(messages: List<Message>)
         fun showChat()
+        fun setNewMessagesCount(count: Int)
     }
 
     interface Presenter {

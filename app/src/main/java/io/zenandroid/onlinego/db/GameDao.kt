@@ -87,4 +87,7 @@ abstract class GameDao {
 
     @Query("SELECT * FROM message WHERE gameId = :gameId")
     abstract fun getMessagesForGame(gameId: Long): Flowable<List<Message>>
+
+    @Query("UPDATE message SET seen = 1 WHERE chatId in (:ids)")
+    abstract fun markMessagesAsRead(ids: List<String>)
 }

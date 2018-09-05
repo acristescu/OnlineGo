@@ -1,5 +1,6 @@
 package io.zenandroid.onlinego.reusable
 
+import android.support.v4.content.res.ResourcesCompat
 import com.xwray.groupie.kotlinandroidextensions.Item
 import com.xwray.groupie.kotlinandroidextensions.ViewHolder
 import io.zenandroid.onlinego.R
@@ -36,9 +37,9 @@ class ActiveGameItem (val game: Game) : Item(game.id) {
         holder.opponent_rank.text = formatRank(egfToRank(opponent?.rating))
         holder.color_bar.setBackgroundColor(
                 if(game.playerToMoveId == userId)
-                    holder.color_bar.resources.getColor(R.color.color_type_wrong)
+                    ResourcesCompat.getColor(holder.color_bar.resources, R.color.color_type_wrong, null)
                 else
-                    holder.color_bar.resources.getColor(R.color.colorPrimary)
+                    ResourcesCompat.getColor(holder.color_bar.resources, R.color.colorPrimary, null)
         )
         holder.your_turn_label.showIf(currentPlayer?.id == userId)
         holder.color.text =

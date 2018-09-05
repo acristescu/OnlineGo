@@ -147,6 +147,12 @@ class GamePresenter(
                         .subscribe({
                             subscriptions.add(it)
                             gameConnection = it
+                            //
+                            // Hack alert: there is no way for us to determine if there are no
+                            // messages or the server is just slow to respond. That's just how
+                            // this Websockets API is implemented. Hence we give the server some
+                            // half a second to respond and then assume that's the whole history
+                            //
                             Handler().postDelayed({
                                 sendAutoMessage()
                             }, 500
@@ -158,6 +164,7 @@ class GamePresenter(
                         .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
                         .subscribe({
                             messages = it
+                            view.setNewMessagesCount(it.count { it.playerId != userId && !it.seen })
                             view.setMessageList(it)
                         }, this::onError)
         )
@@ -176,7 +183,7 @@ class GamePresenter(
                 }
             }
         }
-        gameConnection?.sendMessage("[Auto message] I am playing using MrAlex's OnlineGo Android app (https://play.google.com/store/apps/details?id=io.zenandroid.onlinego ). Sharing variations in chat and Malkovitch chat are not supported!",
+        gameConnection?.sendMessage("[Auto message] I am playing using MrAlex's OnlineGo Android app (https://goo.gl/tiAeU6 ). Sharing variations in chat and Malkovitch chat are not supported!",
                 game?.moves?.size ?: 0)
     }
 

@@ -6,7 +6,10 @@ import android.support.v7.widget.LinearLayoutManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.Window
+import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
+import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.model.local.Message
 import kotlinx.android.synthetic.main.dialog_messages.*
@@ -14,11 +17,16 @@ import kotlinx.android.synthetic.main.dialog_messages.*
 class ChatDialog : DialogFragment() {
 
     private val messagesAdapter = MessagesAdapter()
-    private val newMessageSubject = PublishSubject.create<String>()
+    private val sendMessageSubject = PublishSubject.create<String>()
+    private var messages: List<Message> = listOf()
 
-    val newMessages = newMessageSubject.hide()
+    val sendMessage: Observable<String> = sendMessageSubject.hide()
 
     fun setMessages(messages: List<Message>) {
+        if(dialog?.isShowing == true) {
+            markMessagesAsRead()
+        }
+        this.messages = messages
         messagesAdapter.setMessageList(messages)
     }
 
@@ -30,7 +38,7 @@ class ChatDialog : DialogFragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        dialog.setTitle("Game chat")
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
         return inflater.inflate(R.layout.dialog_messages, container, false)
     }
 
@@ -44,9 +52,13 @@ class ChatDialog : DialogFragment() {
 
         sendButton.setOnClickListener {
             if(!newMessage.text.isNullOrEmpty()) {
-                newMessageSubject.onNext(newMessage.text.toString())
+                sendMessageSubject.onNext(newMessage.text.toString())
             }
             newMessage.setText("")
+        }
+
+        closeButton.setOnClickListener {
+            dismiss()
         }
     }
 
@@ -60,5 +72,11 @@ class ChatDialog : DialogFragment() {
         params.width = ViewGroup.LayoutParams.MATCH_PARENT
         params.height = ViewGroup.LayoutParams.MATCH_PARENT
         dialog.window!!.attributes = params as android.view.WindowManager.LayoutParams
+
+        markMessagesAsRead()
+    }
+
+    private fun markMessagesAsRead() {
+        OnlineGoApplication.instance.chatRepository.markMessagesAsRead(messages.filter { !it.seen })
     }
 }

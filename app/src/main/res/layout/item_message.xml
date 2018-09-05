@@ -26,9 +26,12 @@
             android:layout_marginLeft="8dp"
             android:layout_marginRight="8dp"
             android:layout_marginTop="8dp"
-            tools:text="Lorem ipsum"
-            android:fontFamily="@font/ubuntu"
-            android:textSize="16sp"
+            tools:text="Lorem ipsum www.google.com"
+            android:textSize="14sp"
+            android:lineSpacingMultiplier="1.2"
+            android:autoLink="all"
+            android:linksClickable="true"
+            android:textColorLink="@color/black"
             />
         <LinearLayout
             android:layout_width="match_parent"

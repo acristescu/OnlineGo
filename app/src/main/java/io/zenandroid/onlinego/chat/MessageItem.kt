@@ -29,7 +29,7 @@ class MessageItem(
                 }
             } else {
                 setMarginsDP(left = 10, right = 50)
-                ResourcesCompat.getColorStateList(resources, R.color.colorOffWhite, null)?.let {
+                ResourcesCompat.getColorStateList(resources, R.color.white, null)?.let {
                     setCardBackgroundColor(it)
                 }
             }
