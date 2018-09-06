@@ -16,4 +16,4 @@ This app allows you to play the ancient game of GO (baduk, weiki, 围棋,
 
 ## Authors
 
- - Original author: [Alexandru Cristescu](acristescu@gmail.com)
+ - Original author: [Alexandru Cristescu](mailto:acristescu@gmail.com)
