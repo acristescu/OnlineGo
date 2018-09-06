@@ -1,7 +1,6 @@
 package io.zenandroid.onlinego.game
 
 import android.graphics.Point
-import android.os.Handler
 import android.util.Log
 import io.reactivex.Observable
 import io.reactivex.Single
@@ -153,10 +152,10 @@ class GamePresenter(
                             // this Websockets API is implemented. Hence we give the server some
                             // half a second to respond and then assume that's the whole history
                             //
-                            Handler().postDelayed({
-                                sendAutoMessage()
-                            }, 500
-                            )
+//                            Handler().postDelayed({
+//                                sendAutoMessage()
+//                            }, 500
+//                            )
                         }, this::onError)
         )
         subscriptions.add(
@@ -183,7 +182,7 @@ class GamePresenter(
                 }
             }
         }
-        gameConnection?.sendMessage("[Auto message] I am playing using MrAlex's OnlineGo Android app (https://goo.gl/tiAeU6 ). Sharing variations in chat and Malkovitch chat are not supported!",
+        gameConnection?.sendMessage("[Auto message] This player is using MrAlex's OnlineGo Android app (https://goo.gl/tiAeU6 ). Sharing variations in chat is not supported.",
                 game?.moves?.size ?: 0)
     }
 

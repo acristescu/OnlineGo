@@ -17,15 +17,24 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
+        android:padding="8dp"
         >
 
+        <TextView
+            android:id="@+id/author"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="GreenAsJade (spectator)"
+            android:textSize="14sp"
+            android:layout_marginBottom="3dp"
+            android:textStyle="bold"
+            android:alpha=".9"
+            android:visibility="gone"
+            />
         <TextView
             android:id="@+id/messageText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="8dp"
-            android:layout_marginRight="8dp"
-            android:layout_marginTop="8dp"
             tools:text="Lorem ipsum www.google.com"
             android:textSize="14sp"
             android:lineSpacingMultiplier="1.2"
@@ -37,8 +46,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_marginLeft="8dp"
-            android:layout_marginRight="8dp"
             android:layout_marginTop="3dp"
             >
             <TextView
@@ -46,7 +53,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 tools:text="Move 42"
-                android:layout_marginBottom="8dp"
                 android:fontFamily="@font/ubuntu"
                 android:textSize="10sp"
                 android:alpha=".66"
