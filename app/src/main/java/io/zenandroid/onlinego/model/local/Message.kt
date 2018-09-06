@@ -21,12 +21,18 @@ data class Message (
     enum class Type {
         MAIN,
         MALKOVITCH,
+        SPECTATOR,
         DIRECT
     }
 
     companion object {
         fun fromOGSMessage(chat: Chat, gameId: Long?): Message {
-            val type = if(chat.channel == ChatChannel.MAIN) Type.MAIN else Type.MALKOVITCH
+            val type = when(chat.channel) {
+                ChatChannel.MAIN -> Type.MAIN
+                ChatChannel.SPECTATOR -> Type.SPECTATOR
+                ChatChannel.MALKOVICH -> Type.MALKOVITCH
+            }
+
             val text = chat.line.body as? String ?: "Variation (unsupported)"
             return Message(
                     type = type,
