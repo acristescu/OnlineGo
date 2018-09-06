@@ -9,9 +9,9 @@ This app allows you to play the ancient game of GO (baduk, weiki, 围棋,
 ## Screenshots
 
 <p align="center">
-    <img src="readmeImages/ss1.jpg" width="300" />
-    <img src="readmeImages/ss2.jpg" width="300" />
-    <img src="readmeImages/ss3.jpg" width="300" />
+    <img src="readmeImages/ss1.jpg" width="290" />
+    <img src="readmeImages/ss2.jpg" width="290" />
+    <img src="readmeImages/ss3.jpg" width="290" />
 </p>
 
 ## Authors
