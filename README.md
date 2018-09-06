@@ -4,7 +4,7 @@
 
 This app allows you to play the ancient game of GO (baduk, weiki, 围棋,
 바둑, 囲碁) against other players. The backend is provided by the popular
-[OGS](www.online-go.com) website. You can install the latest release build from the [Play Store](https://play.google.com/store/apps/details?id=io.zenandroid.onlinego).
+[OGS](https://www.online-go.com) website. You can install the latest release build from the [Play Store](https://play.google.com/store/apps/details?id=io.zenandroid.onlinego).
 
 ## Screenshots
 
