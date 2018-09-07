@@ -236,7 +236,7 @@ class MainActivity : AppCompatActivity(), MainContract.View {
                                 R.anim.fade_in, R.anim.fade_out)
                         .replace(R.id.fragment_container, myGamesFragment)
                         .runOnCommit (this::ensureNavigationVisible)
-                        .commit()
+                        .commitAllowingStateLoss()
                 true
             }
             R.id.navigation_learn -> {
@@ -245,7 +245,7 @@ class MainActivity : AppCompatActivity(), MainContract.View {
                                 R.anim.fade_in, R.anim.fade_out)
                         .replace(R.id.fragment_container, learnFragment)
                         .runOnCommit (this::ensureNavigationVisible)
-                        .commit()
+                        .commitAllowingStateLoss()
                 true
             }
             R.id.navigation_settings -> {
@@ -254,7 +254,7 @@ class MainActivity : AppCompatActivity(), MainContract.View {
                                 R.anim.fade_in, R.anim.fade_out)
                         .replace(R.id.fragment_container, settingsFragment)
                         .runOnCommit (this::ensureNavigationVisible)
-                        .commit()
+                        .commitAllowingStateLoss()
                 true
             }
             R.id.navigation_stats -> {
@@ -263,7 +263,7 @@ class MainActivity : AppCompatActivity(), MainContract.View {
                                 R.anim.fade_in, R.anim.fade_out)
                         .replace(R.id.fragment_container, statsFragment)
                         .runOnCommit (this::ensureNavigationVisible)
-                        .commit()
+                        .commitAllowingStateLoss()
                 true
             }
             else -> {

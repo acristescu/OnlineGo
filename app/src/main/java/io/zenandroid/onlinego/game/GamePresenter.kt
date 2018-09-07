@@ -481,6 +481,8 @@ class GamePresenter(
                 if (newPos != currentPosition) {
                     currentPosition = newPos
                     view.position = currentPosition
+                    view.interactive = (currentPosition.nextToMove == StoneType.WHITE && game.whitePlayer.id == userId) || (currentPosition.nextToMove == StoneType.BLACK && game.blackPlayer.id == userId)
+                    currentState = determineStateFromGame(game)
 
                     val shouldComputeTerritory = game.phase == Phase.STONE_REMOVAL || game.phase == Phase.FINISHED
                     if (shouldComputeTerritory) {

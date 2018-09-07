@@ -296,6 +296,9 @@ class GameFragment : Fragment(), GameContract.View {
     }
 
     override fun showChat() {
+        fragmentManager?.findFragmentByTag("CHAT")?.let {
+            fragmentManager?.beginTransaction()?.remove(it)?.commit()
+        }
         chatDialog.show(fragmentManager, "CHAT")
     }
 

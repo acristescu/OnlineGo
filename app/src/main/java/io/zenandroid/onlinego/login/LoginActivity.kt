@@ -2,7 +2,6 @@ package io.zenandroid.onlinego.login
 
 import android.content.Intent
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.os.Bundle
 import android.os.Handler
@@ -14,7 +13,6 @@ import android.support.transition.TransitionManager
 import android.support.v4.content.ContextCompat
 import android.support.v4.content.res.ResourcesCompat
 import android.support.v7.app.AppCompatActivity
-import android.support.v7.widget.AppCompatImageView
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
@@ -175,8 +173,13 @@ class LoginActivity : AppCompatActivity() {
         }
         Log.e(LoginActivity::class.java.simpleName, t.message, t)
         if(t is HttpException && t.response().errorBody() != null) {
-            val error = JSONObject(t.response().errorBody()?.string())["error"].toString()
-            Toast.makeText(this, error, Toast.LENGTH_LONG).show()
+            try {
+                val error = JSONObject(t.response().errorBody()?.string())["error"].toString()
+                Toast.makeText(this, error, Toast.LENGTH_LONG).show()
+            } catch (e: Exception) {
+                Log.e(TAG, "Can't parse error: ${t.response().errorBody()?.string()}")
+                Toast.makeText(this, "Error communicating with server. Server reported error code ${t.response().code()}. Please try again later", Toast.LENGTH_LONG).show()
+            }
         } else {
             Toast.makeText(this, "Create Account failed. Debug info: '${t.message}'", Toast.LENGTH_LONG).show()
         }
