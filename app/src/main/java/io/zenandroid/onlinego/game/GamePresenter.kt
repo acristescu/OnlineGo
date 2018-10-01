@@ -105,7 +105,7 @@ class GamePresenter(
 
     private val historyChip = Chip("History")
 
-    private var finishedDialogShown = false
+    private var resultsDialogPending = false
 
     private var candidateMove: Point? = null
 
@@ -146,16 +146,6 @@ class GamePresenter(
                         .subscribe({
                             subscriptions.add(it)
                             gameConnection = it
-                            //
-                            // Hack alert: there is no way for us to determine if there are no
-                            // messages or the server is just slow to respond. That's just how
-                            // this Websockets API is implemented. Hence we give the server some
-                            // half a second to respond and then assume that's the whole history
-                            //
-//                            Handler().postDelayed({
-//                                sendAutoMessage()
-//                            }, 500
-//                            )
                         }, this::onError)
         )
         subscriptions.add(
@@ -174,18 +164,6 @@ class GamePresenter(
         gameConnection?.sendMessage(message, game?.moves?.size ?: 0)
     }
 
-    private fun sendAutoMessage() {
-        messages?.let { messages ->
-            for(message in messages) {
-                if(message.text.startsWith("[Auto message]") && message.playerId == userId) {
-                    return
-                }
-            }
-        }
-        gameConnection?.sendMessage("[Auto message] This player is using MrAlex's OnlineGo Android app (https://goo.gl/tiAeU6 ). Sharing variations in chat is not supported.",
-                game?.moves?.size ?: 0)
-    }
-
     private fun onError(t: Throwable) {
         Log.e(TAG, t.message, t)
         view.showError(t)
@@ -196,30 +174,76 @@ class GamePresenter(
             return
         }
 
-        if(currentState != State.ANALYSIS && currentState != State.HISTORY) {
-            currentState = determineStateFromGame(newGame)
+        val newGameState = determineStateFromGame(newGame)
+
+        when(currentState) {
+            State.LOADING -> {
+                view.setLoading(false)
+                view.whitePlayer = newGame.whitePlayer
+                view.blackPlayer = newGame.blackPlayer
+                view.komi = newGame.komi
+
+                myGame = (newGame.blackPlayer.id == userId) || (newGame.whitePlayer.id == userId)
+                currentShownMove = newGame.moves?.size ?: -1
+                view.title = "${newGame.blackPlayer.username} vs ${newGame.whitePlayer.username}"
+
+                currentState = newGameState
+
+            }
+
+            State.ANALYSIS -> {}
+
+            State.HISTORY -> {
+                if(newGame.moves != game?.moves || newGameState == State.FINISHED) {
+                    currentState = newGameState
+                }
+            }
+
+            State.PLAYING -> {
+                if(newGame.moves != game?.moves) {
+                    candidateMove = null
+                    view.showCandidateMove(null)
+                    currentShownMove = newGame.moves?.size ?: 0
+                }
+
+                if(newGameState == State.FINISHED) {
+                    resultsDialogPending = true
+                    showResultDialog(newGame)
+                }
+                currentState = newGameState
+            }
+
+            State.FINISHED -> {
+                if(resultsDialogPending) {
+                    showResultDialog(newGame)
+                }
+            }
+
+            State.SCORING -> {
+                if(newGameState == State.FINISHED) {
+                    resultsDialogPending = true
+                    showResultDialog(newGame)
+                }
+                currentState = newGameState
+            }
         }
-
-        view.setLoading(false)
-
-        view.whitePlayer = newGame.whitePlayer
-        view.blackPlayer = newGame.blackPlayer
-        view.komi = newGame.komi
-
-        myGame = (newGame.blackPlayer.id == userId) || (newGame.whitePlayer.id == userId)
-
-        currentShownMove = newGame.moves?.size ?: -1
         refreshUI(newGame)
-        view.title = "${newGame.blackPlayer.username} vs ${newGame.whitePlayer.username}"
-
-        view.passButtonEnabled = newGame.phase == Phase.PLAY && newGame.playerToMoveId == userId
-
-        if(newGame.moves != game?.moves) {
-            candidateMove = null
-            view.showCandidateMove(null)
-            currentShownMove = newGame.moves?.size ?: 0
-        }
         game = newGame
+    }
+
+    private fun showResultDialog(game: Game) {
+        if (game.blackLost != game.whiteLost) {
+            resultsDialogPending = false
+            val winner = if (game.blackLost == true) game.whitePlayer.id else game.blackPlayer.id
+            when {
+                !myGame ->
+                    view.showFinishedDialog()
+                winner == userId ->
+                    view.showYouWinDialog()
+                else ->
+                    view.showYouLoseDialog()
+            }
+        }
     }
 
     private fun onUserHotTrackedCell(point: Point) {
@@ -294,7 +318,7 @@ class GamePresenter(
             State.PLAYING -> {
                 candidateMove = null
                 view.showCandidateMove(null)
-                showPlayControls()
+                game?.let { showPlayControls(it) }
             }
             State.SCORING -> gameConnection?.rejectRemovedStones()
             else -> {
@@ -309,7 +333,7 @@ class GamePresenter(
                 view.interactive = false
                 candidateMove?.let { gameConnection?.submitMove(it) }
                 candidateMove = null
-                showPlayControls()
+                game?.let { showPlayControls(it) }
             }
             State.SCORING -> {
                 gameConnection?.acceptRemovedStones(currentPosition.removedSpots)
@@ -362,16 +386,16 @@ class GamePresenter(
         }
     }
 
-    private fun showControls() {
+    private fun showControls(game: Game) {
         when {
             currentState == State.ANALYSIS -> showAnalysisControls()
-            myGame && currentState == State.PLAYING -> showPlayControls()
+            myGame && currentState == State.PLAYING -> showPlayControls(game)
             myGame && currentState == State.SCORING -> showStoneRemovalControls()
             else -> showSpectateControls()
         }
     }
 
-    private fun showPlayControls() {
+    private fun showPlayControls(game: Game) {
         view.bottomBarVisible = true
         view.nextButtonVisible = true
         view.previousButtonVisible = true
@@ -383,7 +407,7 @@ class GamePresenter(
         view.discardButtonVisible = false
         view.autoButtonVisible = false
 
-        view.passButtonEnabled = game?.playerToMoveId == userId
+        view.passButtonEnabled = game.phase == Phase.PLAY && game.playerToMoveId == userId
     }
 
     private fun showAnalysisControls() {
@@ -467,10 +491,15 @@ class GamePresenter(
     }
 
     private fun refreshUI(game: Game) {
-        showControls()
+        showControls(game)
         configureBoard(game)
-        configureChips()
+        configureChips(game)
         configurePassedLabels()
+
+        if(currentState == State.FINISHED) {
+            view.whiteTimer = null
+            view.blackTimer = null
+        }
 
         when (currentState) {
             State.ANALYSIS -> {
@@ -484,30 +513,15 @@ class GamePresenter(
                     view.interactive = (currentPosition.nextToMove == StoneType.WHITE && game.whitePlayer.id == userId) || (currentPosition.nextToMove == StoneType.BLACK && game.blackPlayer.id == userId)
                     currentState = determineStateFromGame(game)
 
-                    val shouldComputeTerritory = game.phase == Phase.STONE_REMOVAL || game.phase == Phase.FINISHED
+                    val shouldComputeTerritory = game.phase == Phase.STONE_REMOVAL || (game.phase == Phase.FINISHED && game.outcome?.contains("points".toRegex()) == true)
                     if (shouldComputeTerritory) {
                         computeTerritoryAsync(game)
                     }
                 }
 
                 configurePreviousNextButtons()
-                if (game.phase == Phase.FINISHED) {
-                    view.whiteTimer = null
-                    view.blackTimer = null
-                    if (!finishedDialogShown && game.blackLost != game.whiteLost) {
-                        finishedDialogShown = true
-                        val winner = if (game.blackLost == true) game.whitePlayer.id else game.blackPlayer.id
-                        when {
-                            !myGame ->
-                                view.showFinishedDialog()
-                            winner == userId ->
-                                view.showYouWinDialog()
-                            else ->
-                                view.showYouLoseDialog()
-                        }
-                    }
-                }
-                view.activePlayer = currentPosition.nextToMove
+
+                view.activePlayer = if(currentState == State.FINISHED) null else currentPosition.nextToMove
             }
         }
     }
@@ -535,11 +549,11 @@ class GamePresenter(
         }
     }
 
-    private fun configureChips() {
+    private fun configureChips(game: Game) {
         when (currentState) {
             State.LOADING -> {}
             State.PLAYING -> {
-                val lastMoveWasAPass = game?.moves?.lastOrNull()?.get(0) == -1
+                val lastMoveWasAPass = game.moves?.lastOrNull()?.get(0) == -1
                 if (lastMoveWasAPass) {
                     view.setChips(listOf(playingChip, passedChip))
                 } else {
@@ -552,7 +566,7 @@ class GamePresenter(
                 view.setChips(listOf(finishedChip))
             State.HISTORY -> {
                 historyChip.apply {
-                    text = "Move $currentShownMove/${game?.moves?.size ?: 0}"
+                    text = "Move $currentShownMove/${game.moves?.size ?: 0}"
                     notifyChanged()
                     view.setChips(listOf(this))
                 }
@@ -571,8 +585,10 @@ class GamePresenter(
 //                println("pause not implemented yet")
                 //TODO
             } else {
-                view.whiteTimer = computeTimeLeft(clock, clock.whiteTimeSimple, clock.whiteTime, game?.playerToMoveId == game?.whitePlayer?.id)
-                view.blackTimer = computeTimeLeft(clock, clock.blackTimeSimple, clock.blackTime, game?.playerToMoveId == game?.blackPlayer?.id)
+                if((game?.phase == Phase.PLAY || game?.phase == Phase.STONE_REMOVAL) && currentState != State.LOADING) {
+                    view.whiteTimer = computeTimeLeft(clock, clock.whiteTimeSimple, clock.whiteTime, game?.playerToMoveId == game?.whitePlayer?.id)
+                    view.blackTimer = computeTimeLeft(clock, clock.blackTimeSimple, clock.blackTime, game?.playerToMoveId == game?.blackPlayer?.id)
+                }
             }
         }
     }
@@ -603,7 +619,7 @@ class GamePresenter(
                         }
                         view.position = RulesManager.replay(game, currentShownMove, false)
                         configureBoard(game)
-                        configureChips()
+                        configureChips(game)
                     }
                 }
             }
@@ -628,7 +644,7 @@ class GamePresenter(
                         configurePreviousNextButtons()
                         view.position = RulesManager.replay(game, currentShownMove, false)
                         configureBoard(game)
-                        configureChips()
+                        configureChips(game)
                     }
                 }
             }
