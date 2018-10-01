@@ -79,17 +79,18 @@ class MainPresenter (val view : MainContract.View, private val activeGameReposit
     }
 
     override fun onNotificationClicked() {
-        lastGameNotified = if(lastGameNotified == null) {
+        val gameToNavigate = if(lastGameNotified == null) {
             activeGameRepository.myTurnGamesList[0]
         } else {
-            val index = activeGameRepository.myTurnGamesList.indexOf(lastGameNotified!!)
+            val index = activeGameRepository.myTurnGamesList.indexOfFirst { it.id == lastGameNotified?.id }
             if(index == -1) {
                 activeGameRepository.myTurnGamesList[0]
             } else {
                 activeGameRepository.myTurnGamesList[(index + 1) % activeGameRepository.myTurnGamesList.size]
             }
         }
-        view.navigateToGameScreen(lastGameNotified!!)
+        lastGameNotified = gameToNavigate
+        view.navigateToGameScreen(gameToNavigate)
     }
 
     private fun onError(t: Throwable) {
