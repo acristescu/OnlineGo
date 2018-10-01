@@ -17,6 +17,10 @@
             android:key="about"
             android:title="About app"
             />
+        <Preference
+            android:key="privacyPolicy"
+            android:title="Privacy Policy"
+            />
     </PreferenceCategory>
 
 </PreferenceScreen>
