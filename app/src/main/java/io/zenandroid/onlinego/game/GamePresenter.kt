@@ -294,7 +294,7 @@ class GamePresenter(
             variation.add(candidateMove)
             it.variation = variation
 
-            replayAnalysis()
+            game?.let(this::refreshUI)
         }
     }
 
@@ -491,39 +491,34 @@ class GamePresenter(
     }
 
     private fun refreshUI(game: Game) {
+        view.position =
+                when (currentState) {
+                    State.ANALYSIS -> {
+                        replayAnalysis()
+                        analysisPosition
+                    }
+                    State.HISTORY -> {
+                        RulesManager.replay(game, currentShownMove, false)
+                    }
+                    else -> {
+                        currentPosition = RulesManager.replay(game, computeTerritory = false)
+                        currentPosition
+                    }
+                }
+
         showControls(game)
         configureBoard(game)
         configureChips(game)
         configurePassedLabels()
+        configurePreviousNextButtons()
+        view.activePlayer = if(currentState == State.FINISHED) null else currentPosition.nextToMove
+
 
         if(currentState == State.FINISHED) {
             view.whiteTimer = null
             view.blackTimer = null
         }
 
-        when (currentState) {
-            State.ANALYSIS -> {
-                view.position = analysisPosition
-            }
-            else -> {
-                val newPos = RulesManager.replay(game, computeTerritory = false)
-                if (newPos != currentPosition) {
-                    currentPosition = newPos
-                    view.position = currentPosition
-                    view.interactive = (currentPosition.nextToMove == StoneType.WHITE && game.whitePlayer.id == userId) || (currentPosition.nextToMove == StoneType.BLACK && game.blackPlayer.id == userId)
-                    currentState = determineStateFromGame(game)
-
-                    val shouldComputeTerritory = game.phase == Phase.STONE_REMOVAL || (game.phase == Phase.FINISHED && game.outcome?.contains("points".toRegex()) == true)
-                    if (shouldComputeTerritory) {
-                        computeTerritoryAsync(game)
-                    }
-                }
-
-                configurePreviousNextButtons()
-
-                view.activePlayer = if(currentState == State.FINISHED) null else currentPosition.nextToMove
-            }
-        }
     }
 
     override fun onChatClicked() {
@@ -603,60 +598,50 @@ class GamePresenter(
     }
 
     override fun onNextButtonPressed() {
-        when(currentState) {
-            State.ANALYSIS -> {
-                variationCurrentMove = (variationCurrentMove + 1).coerceIn(-1, variation.size - 1)
-                replayAnalysis()
-            }
-            State.HISTORY -> {
-                game?.let { game ->
+        game?.let { game ->
+            when (currentState) {
+                State.ANALYSIS -> {
+                    variationCurrentMove = (variationCurrentMove + 1).coerceIn(-1, variation.size - 1)
+                }
+                State.HISTORY -> {
                     game.moves?.let { moves ->
-                        currentShownMove++
-                        currentShownMove = currentShownMove.coerceIn(0, moves.size)
-                        configurePreviousNextButtons()
-                        if(currentShownMove == moves.size) {
+                        currentShownMove = (currentShownMove + 1).coerceIn(0, moves.size)
+                        if (currentShownMove == moves.size) {
                             currentState = determineStateFromGame(game)
                         }
-                        view.position = RulesManager.replay(game, currentShownMove, false)
-                        configureBoard(game)
-                        configureChips(game)
                     }
                 }
+                else -> {
+                    Log.e(TAG, "onNextButtonPressed while state is $currentState")
+                }
             }
-            else -> {
-                Log.e(TAG, "onNextButtonPressed while state is $currentState")
-            }
+            refreshUI(game)
         }
     }
 
     override fun onPreviousButtonPressed() {
-        when(currentState) {
-            State.ANALYSIS -> {
-                variationCurrentMove = (variationCurrentMove - 1).coerceIn(-1, variation.size - 1)
-                replayAnalysis()
-            }
-            State.PLAYING, State.HISTORY, State.FINISHED -> {
-                currentState = State.HISTORY
-                game?.let { game ->
+        game?.let { game ->
+            when (currentState) {
+                State.ANALYSIS -> {
+                    variationCurrentMove = (variationCurrentMove - 1).coerceIn(-1, variation.size - 1)
+                }
+                State.PLAYING, State.HISTORY, State.FINISHED -> {
+                    currentState = State.HISTORY
                     game.moves?.let { moves ->
                         currentShownMove--
                         currentShownMove = currentShownMove.coerceIn(0, moves.size)
-                        configurePreviousNextButtons()
-                        view.position = RulesManager.replay(game, currentShownMove, false)
-                        configureBoard(game)
-                        configureChips(game)
+                        refreshUI(game)
                     }
                 }
+                else -> {
+                    Log.e(TAG, "onPreviousButtonPressed while state is $currentState")
+                }
             }
-            else -> {
-                Log.e(TAG, "onPreviousButtonPressed while state is $currentState")
-            }
+            refreshUI(game)
         }
     }
 
     private fun replayAnalysis() {
-        view.nextButtonEnabled = variationCurrentMove < variation.size - 1
-        view.previousButtonEnabled = variationCurrentMove > -1
         analysisPosition = currentPosition.clone()
         variation.take(variationCurrentMove + 1).let { truncatedVariation ->
             truncatedVariation.forEach {
@@ -667,7 +652,6 @@ class GamePresenter(
                 }
             }
         }
-        game?.let { refreshUI(it) }
     }
 
     override fun onAnalyzeButtonPressed() {
@@ -676,13 +660,21 @@ class GamePresenter(
         currentShownMove = game?.moves?.size ?: currentShownMove
         variation.clear()
         variationCurrentMove = -1
-        replayAnalysis()
+        game?.let(this::refreshUI)
     }
 
     private fun configurePreviousNextButtons() {
         game?.let { game ->
-            view.nextButtonEnabled = currentShownMove != game.moves?.size
-            view.previousButtonEnabled = currentShownMove > 0
+            when(currentState) {
+                State.ANALYSIS -> {
+                    view.nextButtonEnabled = variationCurrentMove < variation.size - 1
+                    view.previousButtonEnabled = variationCurrentMove > -1
+                }
+                else -> {
+                    view.nextButtonEnabled = currentShownMove != game.moves?.size
+                    view.previousButtonEnabled = currentShownMove > 0
+                }
+            }
         }
     }
 

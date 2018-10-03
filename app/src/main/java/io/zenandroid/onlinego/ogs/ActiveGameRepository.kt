@@ -1,6 +1,7 @@
 package io.zenandroid.onlinego.ogs
 
 import android.util.Log
+import com.crashlytics.android.Crashlytics
 import io.reactivex.Flowable
 import io.reactivex.Observable
 import io.reactivex.Single
@@ -234,7 +235,7 @@ class ActiveGameRepository {
     }
 
     private fun onError(t: Throwable, request: String) {
+        Crashlytics.logException(Exception(request, t))
         Log.e("ActiveGameRespository", t.message, t)
-        throw RuntimeException("ActiveGameRespository $request", t)
     }
 }

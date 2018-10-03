@@ -104,15 +104,16 @@ object RulesManager {
                         .filter { !pos.blackTerritory.contains(it) }
                         .forEach { markEye(pos, it) }
             }
-            game.whiteScore?.scoring_positions?.let {
-                for (i in 0 until it.length step 2) {
-                    pos.markWhiteTerritory(Util.getCoordinatesFromSGF(it, i))
-                }
+        }
+
+        game.whiteScore?.scoring_positions?.let {
+            for (i in 0 until it.length step 2) {
+                pos.markWhiteTerritory(Util.getCoordinatesFromSGF(it, i))
             }
-            game.blackScore?.scoring_positions?.let {
-                for (i in 0 until it.length step 2) {
-                    pos.markBlackTerritory(Util.getCoordinatesFromSGF(it, i))
-                }
+        }
+        game.blackScore?.scoring_positions?.let {
+            for (i in 0 until it.length step 2) {
+                pos.markBlackTerritory(Util.getCoordinatesFromSGF(it, i))
             }
         }
 
