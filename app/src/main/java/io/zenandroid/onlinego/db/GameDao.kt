@@ -36,6 +36,9 @@ abstract class GameDao {
     @Query("UPDATE game SET removedStones = :stones WHERE id = :id")
     abstract fun updateRemovedStones(id: Long, stones: String?)
 
+    @Query("UPDATE game SET undoRequested = :moveNo WHERE id = :id")
+    abstract fun updateUndoRequested(id: Long, moveNo: Int)
+
     @Transaction
     open fun updateClock(
             id: Long,
@@ -60,7 +63,8 @@ abstract class GameDao {
             removedStones: String?,
             whiteScore: Score?,
             blackScore: Score?,
-            clock: Clock?) {
+            clock: Clock?,
+            undoRequested: Int?) {
         getGame(id).blockingGet().let {
             it.outcome = outcome
             it.phase = phase
@@ -72,6 +76,7 @@ abstract class GameDao {
             it.whiteScore = whiteScore
             it.blackScore = blackScore
             it.clock = clock
+            it.undoRequested = undoRequested
             update(it)
         }
     }

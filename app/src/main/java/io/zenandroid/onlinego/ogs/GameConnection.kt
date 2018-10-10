@@ -28,7 +28,8 @@ class GameConnection(
         clockObservable: Flowable<OGSClock>,
         phaseObservable: Flowable<Phase>,
         removedStonesObservable: Flowable<RemovedStones>,
-        chatObservable: Flowable<Chat>
+        chatObservable: Flowable<Chat>,
+        undoRequestedObservable: Flowable<Int>
 ) : Disposable, Closeable {
     private var closed = false
     private var counter = 0
@@ -38,12 +39,14 @@ class GameConnection(
     private val clockSubject =  PublishSubject.create<OGSClock>()
     private val phaseSubject =  PublishSubject.create<Phase>()
     private val removedStonesSubject =  PublishSubject.create<RemovedStones>()
+    private val undoRequestSubject =  PublishSubject.create<Int>()
 
     val gameData: Observable<GameData> = gameDataSubject.hide()
     val moves: Observable<Move> = movesSubject.hide()
     val clock: Observable<OGSClock> = clockSubject.hide()
     val phase: Observable<Phase> = phaseSubject.hide()
     val removedStones: Observable<RemovedStones> = removedStonesSubject.hide()
+    val undoRequested: Observable<Int> = undoRequestSubject.hide()
 
     var gameAuth: String? = null
 
@@ -62,6 +65,7 @@ class GameConnection(
         subscriptions.add(chatObservable.subscribe {
             OnlineGoApplication.instance.chatRepository.addMessage(Message.fromOGSMessage(it, gameId))
         })
+        subscriptions.add(undoRequestedObservable.subscribe(undoRequestSubject::onNext))
     }
 
     override fun close() {

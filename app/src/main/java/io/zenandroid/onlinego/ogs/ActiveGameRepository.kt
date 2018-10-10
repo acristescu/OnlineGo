@@ -116,11 +116,22 @@ class ActiveGameRepository {
                         { onGameRemovedStones(game.id, it) },
                         { this.onError(it, "removedStones") }
                 ))
+        subscriptions.add(gameConnection.undoRequested
+                .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.single())
+                .subscribe (
+                        { onUndoRequested(game.id, it) },
+                        { this.onError(it, "undoRequested") }
+        ))
 
     }
 
     private fun onGameRemovedStones(gameId: Long, stones: RemovedStones) {
         OnlineGoApplication.instance.db.gameDao().updateRemovedStones(gameId, stones.all_removed)
+    }
+
+    private fun onUndoRequested(gameId: Long, moveNo: Int) {
+        OnlineGoApplication.instance.db.gameDao().updateUndoRequested(gameId, moveNo)
     }
 
     private fun onGamePhase(gameId: Long, newPhase: Phase) {
@@ -147,7 +158,8 @@ class ActiveGameRepository {
                 removedStones = gameData.removed,
                 whiteScore = gameData.score?.white,
                 blackScore = gameData.score?.black,
-                clock = Clock.fromOGSClock(gameData.clock)
+                clock = Clock.fromOGSClock(gameData.clock),
+                undoRequested = gameData.undo_requested
         )
     }
 

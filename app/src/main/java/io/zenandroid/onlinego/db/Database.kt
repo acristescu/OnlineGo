@@ -11,7 +11,7 @@ import io.zenandroid.onlinego.model.local.Message
  */
 @Database(
         entities = [Game::class, Message::class],
-        version = 3
+        version = 4
 )
 @TypeConverters(DbTypeConverters::class)
 abstract class Database: RoomDatabase() {

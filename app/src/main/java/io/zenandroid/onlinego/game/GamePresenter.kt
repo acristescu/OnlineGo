@@ -3,8 +3,6 @@ package io.zenandroid.onlinego.game
 import android.graphics.Point
 import android.util.Log
 import io.reactivex.Observable
-import io.reactivex.Single
-import io.reactivex.SingleEmitter
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
@@ -58,6 +56,7 @@ class GamePresenter(
     private var game: Game? = null
     private var variation: MutableList<Point> = mutableListOf()
     private var variationCurrentMove = 0
+    private var undoPromptShownAtMoveNo = -1
 
     private var currentState = State.LOADING
     private var messages: List<Message>? = null
@@ -112,7 +111,7 @@ class GamePresenter(
     private var deferredTerritoryComputation: Disposable? = null
 
     override fun subscribe() {
-        view.setLoading(true)
+        view.setLoading(currentState == State.LOADING)
         view.boardSize = gameSize
         view.chatMyId = userId
 
@@ -181,7 +180,6 @@ class GamePresenter(
                 view.setLoading(false)
                 view.whitePlayer = newGame.whitePlayer
                 view.blackPlayer = newGame.blackPlayer
-                view.komi = newGame.komi
 
                 myGame = (newGame.blackPlayer.id == userId) || (newGame.whitePlayer.id == userId)
                 currentShownMove = newGame.moves?.size ?: -1
@@ -200,6 +198,12 @@ class GamePresenter(
             }
 
             State.PLAYING -> {
+                if(newGame.whitePlayer != game?.whitePlayer) {
+                    view.whitePlayer = newGame.whitePlayer
+                }
+                if(newGame.blackPlayer != game?.blackPlayer) {
+                    view.blackPlayer = newGame.blackPlayer
+                }
                 if(newGame.moves != game?.moves) {
                     candidateMove = null
                     view.showCandidateMove(null)
@@ -223,11 +227,12 @@ class GamePresenter(
                 if(newGameState == State.FINISHED) {
                     resultsDialogPending = true
                     showResultDialog(newGame)
+                } else {
+
                 }
                 currentState = newGameState
             }
         }
-        refreshUI(newGame)
         game = newGame
     }
 
@@ -476,35 +481,27 @@ class GamePresenter(
         view.autoButtonVisible = false
     }
 
-    private fun computeTerritoryAsync(game: Game) {
-        deferredTerritoryComputation?.dispose()
-        deferredTerritoryComputation = Single.create { emitter: SingleEmitter<Position> ->
-            emitter.onSuccess(RulesManager.replay(game, computeTerritory = true))
-        }
-                .subscribeOn(Schedulers.computation())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe { pos ->
-                    view.position = pos
-                }
-
-         deferredTerritoryComputation?.let(subscriptions::add)
-    }
-
     private fun refreshUI(game: Game) {
-        view.position =
-                when (currentState) {
-                    State.ANALYSIS -> {
-                        replayAnalysis()
-                        analysisPosition
-                    }
-                    State.HISTORY -> {
-                        RulesManager.replay(game, currentShownMove, false)
-                    }
-                    else -> {
-                        currentPosition = RulesManager.replay(game, computeTerritory = false)
-                        currentPosition
-                    }
-                }
+        when (currentState) {
+            State.ANALYSIS -> {
+                replayAnalysis()
+                view.position = analysisPosition
+                view.whiteScore = analysisPosition.whiteCapturedCount + (game.komi ?: 0f)
+                view.blackScore = analysisPosition.blackCapturedCount.toFloat()
+            }
+            State.HISTORY -> {
+                val historyPosition = RulesManager.replay(game, currentShownMove, false)
+                view.position = historyPosition
+                view.whiteScore = historyPosition.whiteCapturedCount + (game.komi ?: 0f)
+                view.blackScore = historyPosition.blackCapturedCount.toFloat()
+            }
+            else -> {
+                currentPosition = RulesManager.replay(game, computeTerritory = false)
+                view.position = currentPosition
+                view.whiteScore = game.whiteScore?.total?.toFloat() ?: currentPosition.whiteCapturedCount + (game.komi ?: 0f)
+                view.blackScore = game.blackScore?.total?.toFloat() ?: currentPosition.blackCapturedCount.toFloat()
+            }
+        }
 
         showControls(game)
         configureBoard(game)
@@ -512,6 +509,13 @@ class GamePresenter(
         configurePassedLabels()
         configurePreviousNextButtons()
         view.activePlayer = if(currentState == State.FINISHED) null else currentPosition.nextToMove
+
+        game.undoRequested?.let {
+            if(it != undoPromptShownAtMoveNo) {
+                undoPromptShownAtMoveNo = it
+                view.showUndoPrompt()
+            }
+        }
 
 
         if(currentState == State.FINISHED) {

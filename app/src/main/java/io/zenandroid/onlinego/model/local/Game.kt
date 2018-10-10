@@ -50,7 +50,8 @@ data class Game(
         var ended: Long?,
 
         var freeHandicapPlacement: Boolean?,
-        var handicap: Int?
+        var handicap: Int?,
+        var undoRequested: Int?
         ) {
     @Ignore
     var json: GameData? = null
@@ -101,7 +102,8 @@ data class Game(
                     komi = game.komi,
                     ended = game.ended?.time,
                     freeHandicapPlacement = gamedata?.free_handicap_placement,
-                    handicap = game.handicap
+                    handicap = game.handicap,
+                    undoRequested = gamedata?.undo_requested
             )
         }
     }

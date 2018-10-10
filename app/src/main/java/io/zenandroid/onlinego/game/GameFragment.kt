@@ -77,13 +77,17 @@ class GameFragment : Fragment(), GameContract.View {
     override var position: Position? = null
         set(value) {
             board.position = value
-            value?.let {
-                whiteDetailsView.score = it.whiteCapturedCount + (komi ?: 0f)
-                blackDetailsView.score = it.blackCapturedCount.toFloat()
-            }
         }
 
-    override var komi: Float? = null
+    override var whiteScore: Float = 0f
+        set(value) {
+            whiteDetailsView.score = value
+        }
+
+    override var blackScore: Float = 0f
+        set(value) {
+            blackDetailsView.score = value
+        }
 
     override var activePlayer: StoneType? = null
         set(value) {
@@ -211,6 +215,10 @@ class GameFragment : Fragment(), GameContract.View {
     override var interactive: Boolean
         get() = board.isInteractive
         set(value) { board.isInteractive = value }
+
+    override fun showUndoPrompt() {
+        Toast.makeText(context, "Opponent requested undo", Toast.LENGTH_LONG).show()
+    }
 
     override fun onDestroyView() {
         super.onDestroyView()

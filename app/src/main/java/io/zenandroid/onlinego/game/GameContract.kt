@@ -18,8 +18,6 @@ interface GameContract {
         var whitePlayer: Player?
         var blackPlayer: Player?
         var position: Position?
-//        var highlightBlackName: Boolean
-//        var highlightWhiteName: Boolean
         val cellSelection: Observable<Point>
         val cellHotTrack: Observable<Point>
         var interactive: Boolean
@@ -44,8 +42,9 @@ interface GameContract {
         var blackTimer: GamePresenter.TimerDetails?
         var activePlayer: StoneType?
         fun showError(t: Throwable)
-        var komi: Float?
         var chatMyId: Long?
+        var whiteScore: Float
+        var blackScore: Float
 
         fun setLoading(loading: Boolean)
         fun showFinishedDialog()
@@ -58,6 +57,7 @@ interface GameContract {
         fun setMessageList(messages: List<Message>)
         fun showChat()
         fun setNewMessagesCount(count: Int)
+        fun showUndoPrompt()
     }
 
     interface Presenter {
