@@ -3,6 +3,8 @@ package io.zenandroid.onlinego.game
 import android.graphics.Point
 import android.util.Log
 import io.reactivex.Observable
+import io.reactivex.Single
+import io.reactivex.SingleEmitter
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
@@ -227,13 +229,12 @@ class GamePresenter(
                 if(newGameState == State.FINISHED) {
                     resultsDialogPending = true
                     showResultDialog(newGame)
-                } else {
-
                 }
                 currentState = newGameState
             }
         }
         game = newGame
+        refreshUI(newGame)
     }
 
     private fun showResultDialog(game: Game) {
@@ -481,6 +482,20 @@ class GamePresenter(
         view.autoButtonVisible = false
     }
 
+    private fun computeTerritoryAsync(game: Game) {
+        deferredTerritoryComputation?.dispose()
+        deferredTerritoryComputation = Single.create { emitter: SingleEmitter<Position> ->
+            emitter.onSuccess(RulesManager.replay(game, computeTerritory = true))
+        }
+                .subscribeOn(Schedulers.computation())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe { pos ->
+                    view.position = pos
+                }
+
+         deferredTerritoryComputation?.let(subscriptions::add)
+    }
+
     private fun refreshUI(game: Game) {
         when (currentState) {
             State.ANALYSIS -> {
@@ -496,7 +511,7 @@ class GamePresenter(
                 view.blackScore = historyPosition.blackCapturedCount.toFloat()
             }
             else -> {
-                currentPosition = RulesManager.replay(game, computeTerritory = false)
+                currentPosition = RulesManager.replay(game, computeTerritory = currentState == State.SCORING)
                 view.position = currentPosition
                 view.whiteScore = game.whiteScore?.total?.toFloat() ?: currentPosition.whiteCapturedCount + (game.komi ?: 0f)
                 view.blackScore = game.blackScore?.total?.toFloat() ?: currentPosition.blackCapturedCount.toFloat()
@@ -634,7 +649,6 @@ class GamePresenter(
                     game.moves?.let { moves ->
                         currentShownMove--
                         currentShownMove = currentShownMove.coerceIn(0, moves.size)
-                        refreshUI(game)
                     }
                 }
                 else -> {
