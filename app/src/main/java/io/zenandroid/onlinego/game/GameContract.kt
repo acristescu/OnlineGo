@@ -1,7 +1,9 @@
 package io.zenandroid.onlinego.game
 
 import android.graphics.Point
+import android.support.annotation.ColorRes
 import io.reactivex.Observable
+import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.model.Position
 import io.zenandroid.onlinego.model.StoneType
 import io.zenandroid.onlinego.model.local.Message
@@ -40,7 +42,6 @@ interface GameContract {
         var fadeOutRemovedStones: Boolean
         var whiteTimer: GamePresenter.TimerDetails?
         var blackTimer: GamePresenter.TimerDetails?
-        var activePlayer: StoneType?
         fun showError(t: Throwable)
         var chatMyId: Long?
         var whiteScore: Float
@@ -50,6 +51,8 @@ interface GameContract {
         fun showFinishedDialog()
         fun showYouWinDialog()
         fun showYouLoseDialog()
+        fun setWhitePlayerStatus(text: String?, @ColorRes color: Int = R.color.colorAccent)
+        fun setBlackPlayerStatus(text: String?, @ColorRes color: Int = R.color.colorAccent)
         fun setChips(chips: List<Chip>)
         fun showInfoDialog(title: String, contents: String)
         fun setBlackPlayerPassed(passed: Boolean)

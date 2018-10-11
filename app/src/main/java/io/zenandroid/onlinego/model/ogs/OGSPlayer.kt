@@ -8,7 +8,7 @@ data class OGSPlayer (
         var username: String? = null,
         var rank: Int? = null,
         var professional: Boolean? = null,
-        var accepted: Boolean? = null,
+        var accepted_stones: String? = null,
         var ratings: Ratings? = null,
         var egf: Double? = null,
         var country: String? = null,

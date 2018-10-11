@@ -89,12 +89,13 @@ class GameFragment : Fragment(), GameContract.View {
             blackDetailsView.score = value
         }
 
-    override var activePlayer: StoneType? = null
-        set(value) {
-            field = value
-            whiteDetailsView.nextToMove = value == StoneType.WHITE
-            blackDetailsView.nextToMove = value == StoneType.BLACK
-        }
+    override fun setWhitePlayerStatus(text: String?, color: Int) {
+        whiteDetailsView.setStatus(text, color)
+    }
+
+    override fun setBlackPlayerStatus(text: String?, color: Int) {
+        blackDetailsView.setStatus(text, color)
+    }
 
     override fun setBlackPlayerPassed(passed: Boolean) {
         blackDetailsView.passed = passed

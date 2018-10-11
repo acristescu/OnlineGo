@@ -10,5 +10,6 @@ data class Player(
     var username: String,
     var rating: Double?,
     var country: String?,
-    var icon: String?
+    var icon: String?,
+    var acceptedStones: String?
 )

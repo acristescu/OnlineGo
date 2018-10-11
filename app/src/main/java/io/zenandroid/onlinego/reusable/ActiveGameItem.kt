@@ -7,6 +7,7 @@ import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.extensions.showIf
 import io.zenandroid.onlinego.gamelogic.RulesManager
 import io.zenandroid.onlinego.model.local.Game
+import io.zenandroid.onlinego.model.ogs.Phase
 import io.zenandroid.onlinego.ogs.OGSServiceImpl
 import io.zenandroid.onlinego.utils.computeTimeLeft
 import io.zenandroid.onlinego.utils.egfToRank
@@ -35,13 +36,23 @@ class ActiveGameItem (val game: Game) : Item(game.id) {
                 }
         holder.opponent_name.text = opponent?.username
         holder.opponent_rank.text = formatRank(egfToRank(opponent?.rating))
+
+        val myTurn = when {
+            game.phase == Phase.PLAY -> game.playerToMoveId == userId
+            game.phase == Phase.STONE_REMOVAL -> {
+                val myRemovedStones = if(userId == game.whitePlayer.id) game.whitePlayer.acceptedStones else game.blackPlayer.acceptedStones
+                game.removedStones != myRemovedStones
+            }
+            else -> false
+        }
+
         holder.color_bar.setBackgroundColor(
-                if(game.playerToMoveId == userId)
+                if(myTurn)
                     ResourcesCompat.getColor(holder.color_bar.resources, R.color.color_type_wrong, null)
                 else
                     ResourcesCompat.getColor(holder.color_bar.resources, R.color.colorPrimary, null)
         )
-        holder.your_turn_label.showIf(currentPlayer?.id == userId)
+        holder.your_turn_label.showIf(myTurn)
         holder.color.text =
                 if(game.blackPlayer.id == userId) "black"
                 else "white"

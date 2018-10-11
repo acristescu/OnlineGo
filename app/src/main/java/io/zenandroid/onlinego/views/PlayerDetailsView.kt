@@ -1,7 +1,10 @@
 package io.zenandroid.onlinego.views
 
 import android.content.Context
+import android.content.res.ColorStateList
+import android.support.annotation.ColorRes
 import android.support.text.emoji.widget.EmojiAppCompatTextView
+import android.support.v4.view.ViewCompat
 import android.support.v7.widget.AppCompatImageView
 import android.support.v7.widget.CardView
 import android.util.AttributeSet
@@ -47,7 +50,7 @@ class PlayerDetailsView : FrameLayout {
     @BindView(R.id.extra_time_label) lateinit var timerSecondLineLabelView: View
     @BindView(R.id.colorIndicatorBlack) lateinit var colorIndicatorBlack: View
     @BindView(R.id.colorIndicatorWhite) lateinit var colorIndicatorWhite: View
-    @BindView(R.id.your_turn_label) lateinit var theirTurnLabel: View
+    @BindView(R.id.your_turn_label) lateinit var theirTurnLabel: TextView
     @BindView(R.id.passed_label) lateinit var passedLabel: View
     @BindView(R.id.icon_container) lateinit var iconContainer: CardView
 
@@ -75,15 +78,14 @@ class PlayerDetailsView : FrameLayout {
             field = value
         }
 
-    var nextToMove: Boolean = false
-        set(value) {
-            if(value) {
-                theirTurnLabel.animate().alpha(1f)
-            } else {
-                theirTurnLabel.animate().alpha(0f)
-            }
-            field = value
-        }
+    fun setStatus(text: String?, @ColorRes color: Int = R.color.colorAccent) {
+        text?.let {
+            theirTurnLabel.text = text
+            ViewCompat.setBackgroundTintList(theirTurnLabel, ColorStateList.valueOf(resources.getColor(color)))
+            theirTurnLabel.animate().alpha(1f)
+        } ?: theirTurnLabel.animate().alpha(0f)
+
+    }
 
     var passed: Boolean = false
         set(value) {

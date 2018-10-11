@@ -6,6 +6,7 @@ import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.Section
 import com.xwray.groupie.ViewHolder
 import io.zenandroid.onlinego.model.local.Game
+import io.zenandroid.onlinego.model.ogs.Phase
 import io.zenandroid.onlinego.ogs.OGSServiceImpl
 import io.zenandroid.onlinego.reusable.ActiveGameItem
 import io.zenandroid.onlinego.reusable.FinishedGameItem
@@ -46,7 +47,16 @@ class GameListGroupAdapter : GroupAdapter<ViewHolder>() {
         val opponentTurnList = mutableListOf<ActiveGameItem>()
         for(game in games) {
             val newItem = ActiveGameItem(game)
-            if(game.playerToMoveId == userId) {
+            val myTurn = when {
+                game.phase == Phase.PLAY -> game.playerToMoveId == userId
+                game.phase == Phase.STONE_REMOVAL -> {
+                    val myRemovedStones = if(userId == game.whitePlayer.id) game.whitePlayer.acceptedStones else game.blackPlayer.acceptedStones
+                    game.removedStones != myRemovedStones
+                }
+                else -> false
+            }
+
+            if(myTurn) {
                 myTurnList.add(newItem)
             } else {
                 opponentTurnList.add(newItem)

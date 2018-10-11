@@ -72,14 +72,16 @@ data class Game(
                     username = players?.white?.username ?: (game.white as? Map<*,*>)?.get("username").toString(),
                     country = players?.white?.country ?: game.whitePlayer?.country ?: game.players?.white?.country,
                     icon = players?.white?.icon ?: game.whitePlayer?.icon ?: game.players?.white?.icon,
-                    rating = whiteRating
+                    rating = whiteRating,
+                    acceptedStones = players?.white?.accepted_stones
             )
             val blackPlayer = Player(
                     id = (players?.black?.id ?: game.blackId)!!,
                     username = players?.black?.username ?: (game.black as? Map<*,*>)?.get("username").toString(),
                     country = players?.black?.country ?: game.blackPlayer?.country ?: game.players?.black?.country,
                     icon = players?.black?.icon ?: game.blackPlayer?.icon ?: game.players?.black?.icon,
-                    rating = blackRating
+                    rating = blackRating,
+                    acceptedStones = players?.black?.accepted_stones
             )
             return Game(
                     id = game.id,

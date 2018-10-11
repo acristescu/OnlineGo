@@ -10,6 +10,7 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import io.zenandroid.onlinego.OnlineGoApplication
+import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.gamelogic.RulesManager
 import io.zenandroid.onlinego.model.Position
 import io.zenandroid.onlinego.model.StoneType
@@ -510,8 +511,16 @@ class GamePresenter(
                 view.whiteScore = historyPosition.whiteCapturedCount + (game.komi ?: 0f)
                 view.blackScore = historyPosition.blackCapturedCount.toFloat()
             }
+            State.SCORING -> {
+                currentPosition = RulesManager.replay(game, computeTerritory = true)
+                view.position = currentPosition
+                val whiteDeadStones = currentPosition.removedSpots.filter { currentPosition.getStoneAt(it) == StoneType.WHITE }
+                val blackDeadStones = currentPosition.removedSpots.filter { currentPosition.getStoneAt(it) == StoneType.BLACK }
+                view.whiteScore = blackDeadStones.size + currentPosition.whiteTerritory.size + currentPosition.whiteCapturedCount + (game.komi ?: 0f)
+                view.blackScore = whiteDeadStones.size + currentPosition.blackTerritory.size + currentPosition.blackCapturedCount.toFloat()
+            }
             else -> {
-                currentPosition = RulesManager.replay(game, computeTerritory = currentState == State.SCORING)
+                currentPosition = RulesManager.replay(game, computeTerritory = false)
                 view.position = currentPosition
                 view.whiteScore = game.whiteScore?.total?.toFloat() ?: currentPosition.whiteCapturedCount + (game.komi ?: 0f)
                 view.blackScore = game.blackScore?.total?.toFloat() ?: currentPosition.blackCapturedCount.toFloat()
@@ -523,7 +532,7 @@ class GamePresenter(
         configureChips(game)
         configurePassedLabels()
         configurePreviousNextButtons()
-        view.activePlayer = if(currentState == State.FINISHED) null else currentPosition.nextToMove
+        configurePlayerStatus()
 
         game.undoRequested?.let {
             if(it != undoPromptShownAtMoveNo) {
@@ -679,6 +688,41 @@ class GamePresenter(
         variation.clear()
         variationCurrentMove = -1
         game?.let(this::refreshUI)
+    }
+
+    private fun configurePlayerStatus() {
+        when (currentState) {
+            State.LOADING, State.FINISHED -> {
+                view.setWhitePlayerStatus(null)
+                view.setBlackPlayerStatus(null)
+            }
+            State.SCORING -> {
+                if(game?.removedStones == game?.whitePlayer?.acceptedStones) {
+                    view.setWhitePlayerStatus("Accepted", R.color.colorPrimary)
+                } else {
+                    view.setWhitePlayerStatus("Not accepted")
+                }
+                if(game?.removedStones == game?.blackPlayer?.acceptedStones) {
+                    view.setBlackPlayerStatus("Accepted", R.color.colorPrimary)
+                } else {
+                    view.setBlackPlayerStatus("Not accepted")
+                }
+            }
+            else -> {
+                if(currentPosition.nextToMove == StoneType.WHITE) {
+                    val prefix = if(game?.whitePlayer?.id == userId) "Your" else "Their"
+                    view.setWhitePlayerStatus("$prefix turn")
+                } else {
+                    view.setWhitePlayerStatus(null)
+                }
+                if(currentPosition.nextToMove == StoneType.BLACK) {
+                    val prefix = if(game?.blackPlayer?.id == userId) "Your" else "Their"
+                    view.setBlackPlayerStatus("$prefix turn")
+                } else {
+                    view.setBlackPlayerStatus(null)
+                }
+            }
+        }
     }
 
     private fun configurePreviousNextButtons() {
