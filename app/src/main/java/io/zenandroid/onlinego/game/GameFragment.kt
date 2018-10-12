@@ -18,6 +18,7 @@ import io.reactivex.disposables.CompositeDisposable
 import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.chat.ChatDialog
+import io.zenandroid.onlinego.extensions.addToDisposable
 import io.zenandroid.onlinego.extensions.fadeIn
 import io.zenandroid.onlinego.extensions.fadeOut
 import io.zenandroid.onlinego.extensions.showIf
@@ -245,31 +246,28 @@ class GameFragment : Fragment(), GameContract.View {
 
         (activity as? MainActivity)?.apply {
             setChatButtonVisible(true)
-            subscriptions.add(
-                    chatClicks
-                            .observeOn(AndroidSchedulers.mainThread())
-                            .subscribe {
-                                presenter.onChatClicked()
-                            }
-            )
+            chatClicks
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe {
+                        presenter.onChatClicked()
+                    }
+                    .addToDisposable(subscriptions)
         }
         analytics.setCurrentScreen(activity!!, javaClass.simpleName, javaClass.simpleName)
-        presenter.subscribe()
-        subscriptions.add(
-                repeatingPresses(previousButton)
+        repeatingPresses(previousButton)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe { presenter.onPreviousButtonPressed() }
-        )
-        subscriptions.add(
-                repeatingPresses(nextButton)
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe { presenter.onNextButtonPressed() }
-        )
-        subscriptions.add(
-                chatDialog.sendMessage
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe { presenter.onNewMessage(it) }
-        )
+                .addToDisposable(subscriptions)
+        repeatingPresses(nextButton)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe { presenter.onNextButtonPressed() }
+                .addToDisposable(subscriptions)
+        chatDialog.sendMessage
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe { presenter.onNewMessage(it) }
+                .addToDisposable(subscriptions)
+
+        presenter.subscribe()
     }
 
     override fun showChat() {

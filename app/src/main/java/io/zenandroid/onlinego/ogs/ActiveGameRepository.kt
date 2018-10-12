@@ -9,6 +9,7 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.BehaviorSubject
 import io.zenandroid.onlinego.OnlineGoApplication
+import io.zenandroid.onlinego.extensions.addToDisposable
 import io.zenandroid.onlinego.gamelogic.Util
 import io.zenandroid.onlinego.gamelogic.Util.isMyTurn
 import io.zenandroid.onlinego.model.local.Clock
@@ -33,16 +34,15 @@ class ActiveGameRepository {
     private val subscriptions = CompositeDisposable()
 
     private fun onNotification(game: OGSGame) {
-        subscriptions.add(
-            OGSServiceImpl.instance.fetchGame(game.id)
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(Schedulers.single())
-                    .map(Game.Companion::fromOGSGame)
-                    .retryWhen (this::retryIOException)
-                    .subscribe({
-                        OnlineGoApplication.instance.db.gameDao().insertAll(listOf(it))
-                    }, { this.onError(it, "onNotification") })
-        )
+        OGSServiceImpl.instance.fetchGame(game.id)
+                .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.single())
+                .map(Game.Companion::fromOGSGame)
+                .retryWhen (this::retryIOException)
+                .subscribe({
+                    OnlineGoApplication.instance.db.gameDao().insertAll(listOf(it))
+                }, { this.onError(it, "onNotification") })
+                .addToDisposable(subscriptions)
     }
 
     val myMoveCountObservable: Observable<Int>
@@ -52,16 +52,14 @@ class ActiveGameRepository {
         get() = activeDbGames.values.filter(Util::isMyTurn).toList()
 
     internal fun subscribe() {
-        subscriptions.add(
-                OGSServiceImpl.instance.connectToNotifications()
-                        .subscribeOn(Schedulers.io())
-                        .subscribe(this::onNotification) { this.onError(it, "connectToNotifications") }
-        )
-        subscriptions.add(
-                OnlineGoApplication.instance.db.gameDao()
-                        .monitorActiveGames(OGSServiceImpl.instance.uiConfig?.user?.id)
-                        .subscribe(this::setActiveGames) { this.onError(it, "gameDao") }
-        )
+        OGSServiceImpl.instance.connectToNotifications()
+                .subscribeOn(Schedulers.io())
+                .subscribe(this::onNotification) { this.onError(it, "connectToNotifications") }
+                .addToDisposable(subscriptions)
+        OnlineGoApplication.instance.db.gameDao()
+                .monitorActiveGames(OGSServiceImpl.instance.uiConfig?.user?.id)
+                .subscribe(this::setActiveGames) { this.onError(it, "gameDao") }
+                .addToDisposable(subscriptions)
     }
 
     internal fun unsubscribe() {
@@ -80,49 +78,55 @@ class ActiveGameRepository {
         gameConnections.add(game.id)
 
         val gameConnection = OGSServiceImpl.instance.connectToGame(game.id)
-        subscriptions.add(gameConnection)
-        subscriptions.add(gameConnection.gameData
+        gameConnection.addToDisposable(subscriptions)
+        gameConnection.gameData
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.single())
                 .subscribe (
                         { onGameData(game.id, it) },
                         { this.onError(it, "gameData") }
-                ))
-        subscriptions.add(gameConnection.moves
+                )
+                .addToDisposable(subscriptions)
+        gameConnection.moves
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.single())
                 .subscribe (
                         { onGameMove(game.id, it) },
                         { this.onError(it, "moves") }
-                ))
-        subscriptions.add(gameConnection.clock
+                )
+                .addToDisposable(subscriptions)
+        gameConnection.clock
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.single())
                 .subscribe (
                         { onGameClock(game.id, it) },
                         { this.onError(it, "clock") }
-                ))
-        subscriptions.add(gameConnection.phase
+                )
+                .addToDisposable(subscriptions)
+        gameConnection.phase
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.single())
                 .subscribe (
                         { onGamePhase(game.id, it) },
                         { this.onError(it, "phase") }
-                ))
-        subscriptions.add(gameConnection.removedStones
+                )
+                .addToDisposable(subscriptions)
+        gameConnection.removedStones
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.single())
                 .subscribe (
                         { onGameRemovedStones(game.id, it) },
                         { this.onError(it, "removedStones") }
-                ))
-        subscriptions.add(gameConnection.undoRequested
+                )
+                .addToDisposable(subscriptions)
+        gameConnection.undoRequested
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.single())
                 .subscribe (
                         { onUndoRequested(game.id, it) },
                         { this.onError(it, "undoRequested") }
-        ))
+                )
+                .addToDisposable(subscriptions)
 
     }
 
@@ -188,15 +192,14 @@ class ActiveGameRepository {
 
     fun monitorGame(id: Long): Flowable<Game> {
         // TODO: Maybe check if the data is fresh enough to warrant skipping this call?
-        subscriptions.add(
-                OGSServiceImpl.instance
-                        .fetchGame(id)
-                        .map(Game.Companion::fromOGSGame)
-                        .map(::listOf)
-                        .retryWhen (this::retryIOException)
-                        .subscribe(OnlineGoApplication.instance.db.gameDao()::insertAll)
-                        { this.onError(it, "monitorGame") }
-        )
+        OGSServiceImpl.instance
+                .fetchGame(id)
+                .map(Game.Companion::fromOGSGame)
+                .map(::listOf)
+                .retryWhen (this::retryIOException)
+                .subscribe(OnlineGoApplication.instance.db.gameDao()::insertAll)
+                { this.onError(it, "monitorGame") }
+                .addToDisposable(subscriptions)
 
         return OnlineGoApplication.instance.db.gameDao().monitorGame(id)
                 .doOnNext(this::connectToGame)
@@ -212,37 +215,35 @@ class ActiveGameRepository {
     }
 
     fun fetchActiveGames(): Flowable<List<Game>> {
-        subscriptions.add(
-            OGSServiceImpl.instance
-                    .fetchActiveGames()
-                    .flattenAsObservable { it -> it }
-                    .map (Game.Companion::fromOGSGame)
-                    .toList()
-                    .retryWhen (this::retryIOException)
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(Schedulers.single())
-                    .subscribe(OnlineGoApplication.instance.db.gameDao()::insertAll)
-                    { this.onError(it, "fetchActiveGames") }
-        )
+        OGSServiceImpl.instance
+                .fetchActiveGames()
+                .flattenAsObservable { it -> it }
+                .map (Game.Companion::fromOGSGame)
+                .toList()
+                .retryWhen (this::retryIOException)
+                .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.single())
+                .subscribe(OnlineGoApplication.instance.db.gameDao()::insertAll)
+                { this.onError(it, "fetchActiveGames") }
+                .addToDisposable(subscriptions)
         return OnlineGoApplication.instance.db.gameDao().monitorActiveGames(OGSServiceImpl.instance.uiConfig?.user?.id)
     }
 
     fun fetchHistoricGames(): Flowable<List<Game>> {
-        subscriptions.add(
-                OGSServiceImpl.instance
-                        .fetchHistoricGames()
-                        .map { it.map(OGSGame::id) }
-                        .map { it - OnlineGoApplication.instance.db.gameDao().getHistoricGamesThatDontNeedUpdating(it) }
-                        .flattenAsObservable { it -> it }
-                        .flatMapSingle { OGSServiceImpl.instance.fetchGame(it) }
-                        .map (Game.Companion::fromOGSGame)
-                        .toList()
-                        .retryWhen (this::retryIOException)
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(Schedulers.single())
-                        .subscribe(OnlineGoApplication.instance.db.gameDao()::insertAll)
-                        { this.onError(it, "fetchHistoricGames") }
-        )
+        OGSServiceImpl.instance
+                .fetchHistoricGames()
+                .map { it.map(OGSGame::id) }
+                .map { it - OnlineGoApplication.instance.db.gameDao().getHistoricGamesThatDontNeedUpdating(it) }
+                .flattenAsObservable { it -> it }
+                .flatMapSingle { OGSServiceImpl.instance.fetchGame(it) }
+                .map (Game.Companion::fromOGSGame)
+                .toList()
+                .retryWhen (this::retryIOException)
+                .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.single())
+                .subscribe(OnlineGoApplication.instance.db.gameDao()::insertAll)
+                { this.onError(it, "fetchHistoricGames") }
+                .addToDisposable(subscriptions)
         return OnlineGoApplication.instance.db.gameDao().monitorHistoricGames(OGSServiceImpl.instance.uiConfig?.user?.id)
     }
 

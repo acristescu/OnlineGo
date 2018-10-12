@@ -12,6 +12,7 @@ import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.R
+import io.zenandroid.onlinego.extensions.addToDisposable
 import io.zenandroid.onlinego.gamelogic.RulesManager
 import io.zenandroid.onlinego.model.Position
 import io.zenandroid.onlinego.model.StoneType
@@ -77,10 +78,10 @@ class GamePresenter(
                 "The game is in the scoring phase. Here the players agree on " +
                         "the dead stones so that the server can count the points. An automatic " +
                         "estimation is already provided (and you can always reset the status " +
-                        "to that by pressing the wand loginButton below) but you can make modifications " +
+                        "to that by pressing the wand button below) but you can make modifications " +
                         "by tapping on the stone group that you think has the wrong status. " +
                         "Once you are happy with the status of the board, you can press the " +
-                        "accept loginButton below. When both players have accepted, the game is " +
+                        "accept button below. When both players have accepted, the game is " +
                         "over and the score is counted. If you cannot agree with your opponent " +
                         "you can cancel the scoring phase and play on to prove which " +
                         "group is alive and which is dead.")
@@ -89,7 +90,7 @@ class GamePresenter(
         view.showInfoDialog("Finished game",
                 "The game is finished. If the outcome was decided by counting " +
                         "the points (e.g. not by timeout or one of the player resigning) " +
-                        "you can see the score details by tapping on the game info loginButton (not implemented yet)")
+                        "you can see the score details by tapping on the game info button (not implemented yet)")
     }
     private val passedChip = PassedChip {
         view.showInfoDialog("Player has passed",
@@ -103,7 +104,7 @@ class GamePresenter(
                 "You are now in analysis mode. You can try variants here without influencing " +
                         "the real game. Simply tap on the board to see how a move would look like. " +
                         "You can navigate forwards and back in the variation. When you are done, use " +
-                        "the cancel loginButton to return to the game."
+                        "the cancel button to return to the game."
                 )
     }
 
@@ -122,45 +123,46 @@ class GamePresenter(
 
         service.resendAuth()
 
-        subscriptions.add(
-                gameRepository.monitorGame(gameId)
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
-                        .subscribe(this::onGameChanged)
-        )
-        subscriptions.add(view.cellSelection
+        gameRepository.monitorGame(gameId)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
-                .subscribe(this::onUserSelectedCell))
-
-        subscriptions.add(view.cellHotTrack
+                .subscribe(this::onGameChanged)
+                .addToDisposable(subscriptions)
+        view.cellSelection
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
-                .subscribe(this::onUserHotTrackedCell))
+                .subscribe(this::onUserSelectedCell)
+                .addToDisposable(subscriptions)
 
-        subscriptions.add(Observable.interval(100, TimeUnit.MILLISECONDS)
+        view.cellHotTrack
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
+                .subscribe(this::onUserHotTrackedCell)
+                .addToDisposable(subscriptions)
+
+        Observable.interval(100, TimeUnit.MILLISECONDS)
                 .takeWhile { currentState != State.FINISHED && game?.phase != Phase.FINISHED }
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe { clockTick() }
-        )
-        subscriptions.add(
-                OGSServiceImpl.instance.loginWithToken()
-                        .toSingle { OGSServiceImpl.instance.connectToGame(gameId) }
-                        .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
-                        .subscribe({
-                            subscriptions.add(it)
-                            gameConnection = it
-                        }, this::onError)
-        )
-        subscriptions.add(
-                OnlineGoApplication.instance.chatRepository.monitorGameChat(gameId)
-                        .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
-                        .subscribe({
-                            messages = it
-                            view.setNewMessagesCount(it.count { it.playerId != userId && !it.seen })
-                            view.setMessageList(it)
-                        }, this::onError)
-        )
+                .addToDisposable(subscriptions)
+
+        OGSServiceImpl.instance.loginWithToken()
+                .toSingle { OGSServiceImpl.instance.connectToGame(gameId) }
+                .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
+                .subscribe({
+                    subscriptions.add(it)
+                    gameConnection = it
+                }, this::onError)
+                .addToDisposable(subscriptions)
+
+        OnlineGoApplication.instance.chatRepository.monitorGameChat(gameId)
+                .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
+                .subscribe({
+                    messages = it
+                    view.setNewMessagesCount(it.count { it.playerId != userId && !it.seen })
+                    view.setMessageList(it)
+                }, this::onError)
+                .addToDisposable(subscriptions)
 
     }
 

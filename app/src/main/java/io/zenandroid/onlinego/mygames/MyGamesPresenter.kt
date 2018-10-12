@@ -4,6 +4,7 @@ import android.util.Log
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
+import io.zenandroid.onlinego.extensions.addToDisposable
 import io.zenandroid.onlinego.gamelogic.Util.isMyTurn
 import io.zenandroid.onlinego.model.local.Game
 import io.zenandroid.onlinego.ogs.ActiveGameRepository
@@ -21,19 +22,17 @@ class MyGamesPresenter(val view: MyGamesContract.View, private val gameRepositor
     private val subscriptions = CompositeDisposable()
 
     override fun subscribe() {
-        subscriptions.add(
-                gameRepository.fetchActiveGames()
-                        .map(this::sortGames)
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
-                        .subscribe(this::setGames, this::onError)
-        )
-        subscriptions.add(
-                gameRepository.fetchHistoricGames()
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
-                        .subscribe(this::setHistoricGames, this::onError)
-        )
+        gameRepository.fetchActiveGames()
+                .map(this::sortGames)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
+                .subscribe(this::setGames, this::onError)
+                .addToDisposable(subscriptions)
+        gameRepository.fetchHistoricGames()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
+                .subscribe(this::setHistoricGames, this::onError)
+                .addToDisposable(subscriptions)
         view.setLoading(true)
     }
 

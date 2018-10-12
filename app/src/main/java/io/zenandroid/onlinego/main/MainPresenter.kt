@@ -5,6 +5,7 @@ import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
+import io.zenandroid.onlinego.extensions.addToDisposable
 import io.zenandroid.onlinego.model.local.Game
 import io.zenandroid.onlinego.ogs.ActiveGameRepository
 import io.zenandroid.onlinego.ogs.OGSServiceImpl
@@ -20,26 +21,22 @@ class MainPresenter (val view : MainContract.View, private val activeGameReposit
     private var lastMoveCount: Int? = null
 
     override fun subscribe() {
-        subscriptions.add(
-                OGSServiceImpl.instance.loginWithToken().
-                        subscribe ({
-                            OGSServiceImpl.instance.ensureSocketConnected()
-                            OGSServiceImpl.instance.resendAuth()
-                        }, {
-                            view.showLogin()
-                        })
-
-        )
-        subscriptions.add(
-                activeGameRepository.myMoveCountObservable
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(this::onMyMoveCountChanged)
-        )
-        subscriptions.add(
-                Observable.interval(10, TimeUnit.SECONDS).subscribe {
+        OGSServiceImpl.instance
+                .loginWithToken()
+                .subscribe ({
                     OGSServiceImpl.instance.ensureSocketConnected()
-                }
-        )
+                    OGSServiceImpl.instance.resendAuth()
+                }, { view.showLogin() })
+                .addToDisposable(subscriptions)
+
+        activeGameRepository.myMoveCountObservable
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(this::onMyMoveCountChanged)
+                .addToDisposable(subscriptions)
+        Observable.interval(10, TimeUnit.SECONDS).subscribe {
+            OGSServiceImpl.instance.ensureSocketConnected()
+        }.addToDisposable(subscriptions)
+
         activeGameRepository.subscribe()
     }
 
@@ -70,12 +67,11 @@ class MainPresenter (val view : MainContract.View, private val activeGameReposit
     }
 
     fun navigateToGameScreenById(gameId: Long) {
-        subscriptions.add(
-            activeGameRepository.getGameSingle(gameId)
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(view::navigateToGameScreen, this::onError)
-        )
+        activeGameRepository.getGameSingle(gameId)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(view::navigateToGameScreen, this::onError)
+                .addToDisposable(subscriptions)
     }
 
     override fun onNotificationClicked() {

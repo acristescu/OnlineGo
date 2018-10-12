@@ -1,9 +1,6 @@
 package io.zenandroid.onlinego.utils
 
-import android.text.Editable
-import android.text.TextWatcher
 import android.util.Log
-import android.widget.EditText
 import io.zenandroid.onlinego.game.GamePresenter
 import io.zenandroid.onlinego.model.local.Clock
 import io.zenandroid.onlinego.model.local.Game
@@ -139,13 +136,3 @@ fun formatMillis(millis: Long): String = when {
 }
 
 fun plural(number: Long) = if(number > 1) "s" else ""
-
-fun EditText.onChange(cb: (String) -> Unit) {
-    this.addTextChangedListener(object: TextWatcher {
-        override fun afterTextChanged(s: Editable?) { cb(s.toString()) }
-        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-    })
-}
-
-

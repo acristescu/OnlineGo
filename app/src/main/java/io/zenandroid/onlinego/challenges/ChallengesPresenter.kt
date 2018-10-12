@@ -3,6 +3,7 @@ package io.zenandroid.onlinego.challenges
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
+import io.zenandroid.onlinego.extensions.addToDisposable
 import io.zenandroid.onlinego.model.ogs.Challenge
 import io.zenandroid.onlinego.ogs.OGSServiceImpl
 import kotlin.math.abs
@@ -20,14 +21,13 @@ class ChallengesPresenter(val view: ChallengesContract.View, private val service
     override fun subscribe() {
         challenges.clear()
         view.removeAllChallenges()
-        subscriptions.add(
-                service.connectToChallenges()
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
-                        .filter { it.challenge_id != null }
-                        .filter { canAccept(it) }
-                        .subscribe(this::setChallenge)
-        )
+        service.connectToChallenges()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
+                .filter { it.challenge_id != null }
+                .filter { canAccept(it) }
+                .subscribe(this::setChallenge)
+                .addToDisposable(subscriptions)
     }
 
     private fun setChallenge(challenge: Challenge) {

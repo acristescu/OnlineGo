@@ -7,6 +7,7 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
 import io.reactivex.subjects.PublishSubject
 import io.zenandroid.onlinego.OnlineGoApplication
+import io.zenandroid.onlinego.extensions.addToDisposable
 import io.zenandroid.onlinego.gamelogic.Util
 import io.zenandroid.onlinego.model.local.Message
 import io.zenandroid.onlinego.model.local.Score
@@ -53,19 +54,20 @@ class GameConnection(
     private val subscriptions = CompositeDisposable()
 
     init {
-        subscriptions.add(
-                gameDataObservable.doOnNext{
-                    gameAuth = it.auth
-                }.subscribe(gameDataSubject::onNext)
-        )
-        subscriptions.add(movesObservable.subscribe(movesSubject::onNext))
-        subscriptions.add(clockObservable.subscribe(clockSubject::onNext))
-        subscriptions.add(phaseObservable.subscribe(phaseSubject::onNext))
-        subscriptions.add(removedStonesObservable.subscribe(removedStonesSubject::onNext))
-        subscriptions.add(chatObservable.subscribe {
+        gameDataObservable
+                .doOnNext{ gameAuth = it.auth }
+                .subscribe(gameDataSubject::onNext)
+                .addToDisposable(subscriptions)
+
+        movesObservable.subscribe(movesSubject::onNext).addToDisposable(subscriptions)
+        clockObservable.subscribe(clockSubject::onNext).addToDisposable(subscriptions)
+        phaseObservable.subscribe(phaseSubject::onNext).addToDisposable(subscriptions)
+        removedStonesObservable.subscribe(removedStonesSubject::onNext).addToDisposable(subscriptions)
+        chatObservable.subscribe {
             OnlineGoApplication.instance.chatRepository.addMessage(Message.fromOGSMessage(it, gameId))
-        })
-        subscriptions.add(undoRequestedObservable.subscribe(undoRequestSubject::onNext))
+        }
+                .addToDisposable(subscriptions)
+        undoRequestedObservable.subscribe(undoRequestSubject::onNext).addToDisposable(subscriptions)
     }
 
     override fun close() {

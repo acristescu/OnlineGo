@@ -3,8 +3,9 @@ package io.zenandroid.onlinego.spectate
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
-import io.zenandroid.onlinego.model.ogs.OGSGame
+import io.zenandroid.onlinego.extensions.addToDisposable
 import io.zenandroid.onlinego.model.ogs.GameList
+import io.zenandroid.onlinego.model.ogs.OGSGame
 import io.zenandroid.onlinego.ogs.OGSServiceImpl
 
 /**
@@ -18,26 +19,28 @@ class SpectatePresenter(val view: SpectateContract.View, private val service: OG
     private val subscriptions = CompositeDisposable()
 
     override fun subscribe() {
-        subscriptions.add(
-                service.fetchGameList()
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
-                        .subscribe(this::setGames)
-        )
+        service.fetchGameList()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
+                .subscribe(this::setGames)
+                .addToDisposable(subscriptions)
     }
 
     private fun setGames(games: GameList) {
         games.results.forEach { game ->
             val gameConnection = service.connectToGame(game.id)
-            subscriptions.add(gameConnection)
-            subscriptions.add(gameConnection.gameData
+            gameConnection.addToDisposable(subscriptions)
+            gameConnection.gameData
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
-                    .subscribe({ gameData -> view.setGameData(game.id, gameData) }))
-            subscriptions.add(gameConnection.moves
+                    .subscribe { gameData -> view.setGameData(game.id, gameData) }
+                    .addToDisposable(subscriptions)
+
+            gameConnection.moves
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
-                    .subscribe({ move -> view.doMove(game.id, move) }))
+                    .subscribe { move -> view.doMove(game.id, move) }
+                    .addToDisposable(subscriptions)
         }
 
         view.games = games

@@ -10,11 +10,14 @@ import android.os.Build
 import android.support.design.internal.BottomNavigationItemView
 import android.support.design.internal.BottomNavigationMenuView
 import android.support.design.widget.BottomNavigationView
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import android.view.View
 import android.view.ViewAnimationUtils
 import android.view.ViewGroup
 import android.view.animation.OvershootInterpolator
+import android.widget.EditText
 import io.reactivex.Completable
 
 
@@ -164,4 +167,12 @@ fun View.setMarginsDP(left: Int? = null, top: Int? = null, right: Int? = null, b
             if(right != null) (right * density + 0.5f).toInt() else null,
             if(bottom != null) (bottom * density + 0.5f).toInt() else null
     )
+}
+
+fun EditText.onChange(cb: (String) -> Unit) {
+    this.addTextChangedListener(object: TextWatcher {
+        override fun afterTextChanged(s: Editable?) { cb(s.toString()) }
+        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+    })
 }

@@ -18,14 +18,16 @@ import android.widget.LinearLayout
 import android.widget.Toast
 import com.google.firebase.analytics.FirebaseAnalytics
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.R
+import io.zenandroid.onlinego.extensions.addToDisposable
 import io.zenandroid.onlinego.extensions.hide
+import io.zenandroid.onlinego.extensions.onChange
 import io.zenandroid.onlinego.extensions.show
 import io.zenandroid.onlinego.main.MainActivity
 import io.zenandroid.onlinego.ogs.OGSServiceImpl
-import io.zenandroid.onlinego.utils.onChange
 import kotlinx.android.synthetic.main.activity_login.*
 import org.json.JSONObject
 import retrofit2.HttpException
@@ -41,6 +43,7 @@ class LoginActivity : AppCompatActivity() {
     private var createAccount = false
 
     private var analytics = OnlineGoApplication.instance.analytics
+    private val subscriptions = CompositeDisposable()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,18 +54,6 @@ class LoginActivity : AppCompatActivity() {
 
         noAccountView.setOnClickListener { toggleCreateAccountMode() }
         loginButton.setOnClickListener { onLoginClicked() }
-
-//        val watcher = object : TextWatcher {
-//            override fun afterTextChanged(p0: Editable?) {}
-//
-//            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
-//
-//            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-//                onTextChanged()
-//            }
-//        }
-//        username.addTextChangedListener(watcher)
-//        password.addTextChangedListener(watcher)
 
         username.onChange { onTextChanged() }
         password.onChange { onTextChanged() }
@@ -90,6 +81,7 @@ class LoginActivity : AppCompatActivity() {
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this::onLoginSuccess, this::onTokenLoginFailure)
+                .addToDisposable(subscriptions)
     }
 
     private fun onLoginSuccess() {
@@ -144,6 +136,7 @@ class LoginActivity : AppCompatActivity() {
                             this::onCreateAccountSuccess,
                             this::onCreateAccountFailure
                     )
+                    .addToDisposable(subscriptions)
         }
     }
 
@@ -156,6 +149,7 @@ class LoginActivity : AppCompatActivity() {
                         this::onLoginSuccess,
                         this::onPasswordLoginFailure
                 )
+                .addToDisposable(subscriptions)
     }
 
     private fun onCreateAccountSuccess() {
@@ -181,8 +175,13 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
-    fun onTextChanged() {
+    private fun onTextChanged() {
         loginButton.isEnabled = username.text.isNotEmpty() && password.text.isNotEmpty()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        subscriptions.clear()
     }
 
     override fun onDestroy() {
