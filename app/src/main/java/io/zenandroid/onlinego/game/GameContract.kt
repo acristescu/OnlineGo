@@ -77,5 +77,7 @@ interface GameContract {
         fun onAnalyzeButtonPressed()
         fun onChatClicked()
         fun onNewMessage(message: String)
+        fun onUndoAccepted()
+        fun onUndoRejected()
     }
 }

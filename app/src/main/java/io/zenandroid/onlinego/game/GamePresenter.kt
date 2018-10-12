@@ -552,6 +552,7 @@ class GamePresenter(
 
         game.undoRequested?.let {
             if(it != undoPromptShownAtMoveNo) {
+                analytics.logEvent("undo_requested_by_opponent", null)
                 undoPromptShownAtMoveNo = it
                 view.showUndoPrompt()
             }
@@ -563,6 +564,16 @@ class GamePresenter(
             view.blackTimer = null
         }
 
+    }
+
+    override fun onUndoAccepted() {
+        analytics.logEvent("undo_accepted", null)
+        gameConnection?.acceptUndo(undoPromptShownAtMoveNo)
+        undoPromptShownAtMoveNo = -1
+    }
+
+    override fun onUndoRejected() {
+        analytics.logEvent("undo_rejected", null)
     }
 
     override fun onChatClicked() {

@@ -200,7 +200,21 @@ class GameFragment : Fragment(), GameContract.View {
         set(value) { board.isInteractive = value }
 
     override fun showUndoPrompt() {
-        Toast.makeText(context, "Opponent requested undo", Toast.LENGTH_LONG).show()
+        AwesomeInfoDialog(context)
+                .setTitle("Undo Requested")
+                .setMessage("Your opponent requested to undo his/her last move. This usually means they mis-clicked and are asking you to let them rectify the mistake. You are not obligated to do so however and can ignore their request.")
+                .setColoredCircle(R.color.colorPrimary)
+                .setDialogIconAndColor(R.drawable.ic_dialog_info, R.color.white)
+                .setCancelable(true)
+                .setPositiveButtonText("Allow undo")
+                .setPositiveButtonbackgroundColor(R.color.colorPrimary)
+                .setPositiveButtonTextColor(R.color.white)
+                .setNegativeButtonText("Ignore")
+                .setNegativeButtonbackgroundColor(R.color.colorPrimary)
+                .setNegativeButtonTextColor(R.color.white)
+                .setPositiveButtonClick(presenter::onUndoAccepted)
+                .setNegativeButtonClick(presenter::onUndoRejected)
+                .show()
     }
 
     override var nextButtonVisible = false

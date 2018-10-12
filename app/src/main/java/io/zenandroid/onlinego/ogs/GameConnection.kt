@@ -137,16 +137,16 @@ class GameConnection(
     }
 
     fun acceptRemovedStones(removedSpots: Set<Point>) {
-        val sb = StringBuilder()
-        removedSpots
+        val stones = removedSpots
+                .asSequence()
                 .sortedWith(compareBy(Point::y, Point::x))
-                .forEach { sb.append(Util.getSGFCoordinates(it)) }
+                .joinToString { Util.getSGFCoordinates(it) }
         OGSServiceImpl.instance.emit("game/removed_stones/accept", createJsonObject {
             put("auth", gameAuth)
             put("game_id", gameId)
             put("player_id", OGSServiceImpl.instance.uiConfig?.user?.id)
             put("strict_seki_mode", false)
-            put("stones", sb.toString())
+            put("stones", stones)
         })
     }
 
@@ -156,6 +156,14 @@ class GameConnection(
             put("game_id", gameId)
             put("move_number", moveNumber)
             put("type", "main")
+        })
+    }
+
+    fun acceptUndo(moveNo: Int) {
+        OGSServiceImpl.instance.emit("game/undo/accept", createJsonObject {
+            put("game_id", gameId)
+            put("move_number", moveNo)
+            put("player_id", OGSServiceImpl.instance.uiConfig?.user?.id)
         })
     }
 }
