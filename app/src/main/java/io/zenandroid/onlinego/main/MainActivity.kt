@@ -10,19 +10,12 @@ import android.os.Build
 import android.os.Bundle
 import android.os.VibrationEffect
 import android.os.Vibrator
-import android.support.design.widget.BottomNavigationView
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.MenuItem
 import android.view.View
-import android.widget.ImageView
-import android.widget.ProgressBar
-import android.widget.TextView
 import android.widget.Toast
-import butterknife.BindView
-import butterknife.ButterKnife
-import butterknife.OnClick
 import com.firebase.jobdispatcher.*
 import com.firebase.jobdispatcher.Constraint.ON_ANY_NETWORK
 import com.jakewharton.rxbinding2.view.RxView
@@ -41,7 +34,6 @@ import io.zenandroid.onlinego.login.LoginActivity
 import io.zenandroid.onlinego.model.local.Game
 import io.zenandroid.onlinego.model.ogs.OGSGame
 import io.zenandroid.onlinego.mygames.MyGamesFragment
-import io.zenandroid.onlinego.newchallenge.NewChallengeView
 import io.zenandroid.onlinego.ogs.ActiveGameRepository
 import io.zenandroid.onlinego.settings.SettingsFragment
 import io.zenandroid.onlinego.stats.StatsFragment
@@ -57,15 +49,6 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         var userId: Long? = null
         val TAG = MainActivity::class.java.simpleName
     }
-
-    @BindView(R.id.bottom_navigation) lateinit var bottomNavigation: BottomNavigationView
-    @BindView(R.id.badge) lateinit var badge: TextView
-    @BindView(R.id.notifications) lateinit var notificationsButton: ImageView
-    @BindView(R.id.chat) lateinit var chatButton: ImageView
-    @BindView(R.id.new_challenge) lateinit var newChallengeView: NewChallengeView
-    @BindView(R.id.progress_bar) lateinit var progressBar: ProgressBar
-    @BindView(R.id.title) lateinit var titleView: TextView
-    @BindView(R.id.chipList) lateinit var chipList: RecyclerView
 
     private val myGamesFragment = MyGamesFragment()
     private val learnFragment = LearnFragment()
@@ -151,7 +134,6 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         super.onCreate(savedInstanceState)
 
         setContentView(R.layout.activity_main)
-        ButterKnife.bind(this)
 
         setSupportActionBar(findViewById(R.id.toolbar))
 
@@ -165,6 +147,7 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         chipList.adapter = chipAdapter
 
         bottomNavigation.disableShiftMode()
+        notificationsButton.setOnClickListener { onNotificationClicked() }
 
         newChallengeView.showFab().subscribe()
     }
@@ -221,8 +204,7 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         isInForeground = false
     }
 
-    @OnClick(R.id.notifications)
-    fun onNotificationClicked() {
+    private fun onNotificationClicked() {
         analytics.logEvent("my_move_clicked", null)
         presenter.onNotificationClicked()
     }

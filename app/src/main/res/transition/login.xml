@@ -18,10 +18,10 @@
         android:fadingMode="fade_in"
         >
         <targets>
-            <target android:targetId="@id/input_password_layout" />
-            <target android:targetId="@id/input_username_layout" />
-            <target android:targetId="@id/btn_login" />
-            <target android:targetId="@id/no_account" />
+            <target android:targetId="@id/passwordLayout" />
+            <target android:targetId="@id/usernameLayout" />
+            <target android:targetId="@id/loginButton" />
+            <target android:targetId="@id/noAccountView" />
         </targets>
 
     </fade>

@@ -3,14 +3,10 @@ package io.zenandroid.onlinego.spectate
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
 import android.support.v7.widget.SimpleItemAnimator
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import butterknife.BindView
-import butterknife.ButterKnife
-import butterknife.Unbinder
 import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.main.MainActivity
@@ -20,15 +16,13 @@ import io.zenandroid.onlinego.model.ogs.GameList
 import io.zenandroid.onlinego.model.ogs.OGSGame
 import io.zenandroid.onlinego.ogs.Move
 import io.zenandroid.onlinego.ogs.OGSServiceImpl
+import kotlinx.android.synthetic.main.fragment_spectate.*
 
 /**
  * Created by alex on 05/11/2017.
  */
 class SpectateFragment : Fragment(), SpectateContract.View {
 
-    @BindView(R.id.games_recycler) lateinit var gamesRecycler: RecyclerView
-
-    private lateinit var unbinder: Unbinder
     private lateinit var presenter: SpectateContract.Presenter
     private val adapter = SpectateAdapter()
     private val analytics = OnlineGoApplication.instance.analytics
@@ -42,12 +36,8 @@ class SpectateFragment : Fragment(), SpectateContract.View {
             }
         }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val view = inflater.inflate(R.layout.fragment_spectate, container, false)
-        unbinder = ButterKnife.bind(this, view)
-
-        return view
-    }
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View =
+            inflater.inflate(R.layout.fragment_spectate, container, false)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -61,11 +51,6 @@ class SpectateFragment : Fragment(), SpectateContract.View {
     override fun navigateToGameScreen(game: OGSGame) {
         analytics.logEvent("spectate_game", Bundle().apply { putLong("GAME_ID", game.id) })
         (activity as MainActivity).navigateToGameScreen(Game.fromOGSGame(game))
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        unbinder.unbind()
     }
 
     override fun onResume() {

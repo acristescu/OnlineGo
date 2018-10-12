@@ -85,16 +85,13 @@ dependencies {
 
     implementation 'com.jakewharton.rxbinding2:rxbinding:2.0.0'
 
-    implementation 'br.com.simplepass:loading-button-android:1.8.3'
-    implementation 'com.google.firebase:firebase-core:16.0.1'
+    implementation 'br.com.simplepass:loading-button-android:1.14.0'
+    implementation 'com.google.firebase:firebase-core:16.0.4'
 
     implementation 'com.github.bumptech.glide:glide:4.7.1'
     kapt 'com.github.bumptech.glide:compiler:4.7.1'
 
-    implementation 'com.crashlytics.sdk.android:crashlytics:2.9.4'
-
-    implementation 'com.jakewharton:butterknife:8.8.1'
-    kapt 'com.jakewharton:butterknife-compiler:8.8.1'
+    implementation 'com.crashlytics.sdk.android:crashlytics:2.9.5'
 
     implementation 'com.firebase:firebase-jobdispatcher-with-gcm-dep:0.8.4'
 

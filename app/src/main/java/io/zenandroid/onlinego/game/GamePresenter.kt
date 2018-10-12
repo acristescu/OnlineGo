@@ -2,6 +2,7 @@ package io.zenandroid.onlinego.game
 
 import android.graphics.Point
 import android.util.Log
+import com.google.firebase.analytics.FirebaseAnalytics
 import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.SingleEmitter
@@ -31,6 +32,7 @@ import java.util.concurrent.TimeUnit
 class GamePresenter(
         private val view: GameContract.View,
         private val service: OGSService,
+        private val analytics: FirebaseAnalytics,
         private val gameRepository: ActiveGameRepository,
         private val gameId: Long,
         private val gameSize: Int
@@ -75,10 +77,10 @@ class GamePresenter(
                 "The game is in the scoring phase. Here the players agree on " +
                         "the dead stones so that the server can count the points. An automatic " +
                         "estimation is already provided (and you can always reset the status " +
-                        "to that by pressing the wand button below) but you can make modifications " +
+                        "to that by pressing the wand loginButton below) but you can make modifications " +
                         "by tapping on the stone group that you think has the wrong status. " +
                         "Once you are happy with the status of the board, you can press the " +
-                        "accept button below. When both players have accepted, the game is " +
+                        "accept loginButton below. When both players have accepted, the game is " +
                         "over and the score is counted. If you cannot agree with your opponent " +
                         "you can cancel the scoring phase and play on to prove which " +
                         "group is alive and which is dead.")
@@ -87,7 +89,7 @@ class GamePresenter(
         view.showInfoDialog("Finished game",
                 "The game is finished. If the outcome was decided by counting " +
                         "the points (e.g. not by timeout or one of the player resigning) " +
-                        "you can see the score details by tapping on the game info button (not implemented yet)")
+                        "you can see the score details by tapping on the game info loginButton (not implemented yet)")
     }
     private val passedChip = PassedChip {
         view.showInfoDialog("Player has passed",
@@ -101,7 +103,7 @@ class GamePresenter(
                 "You are now in analysis mode. You can try variants here without influencing " +
                         "the real game. Simply tap on the board to see how a move would look like. " +
                         "You can navigate forwards and back in the variation. When you are done, use " +
-                        "the cancel button to return to the game."
+                        "the cancel loginButton to return to the game."
                 )
     }
 
@@ -163,6 +165,7 @@ class GamePresenter(
     }
 
     override fun onNewMessage(message: String) {
+        analytics.logEvent("message_sent", null)
         gameConnection?.sendMessage(message, game?.moves?.size ?: 0)
     }
 
@@ -273,9 +276,11 @@ class GamePresenter(
             }
             State.PLAYING ->
                 if(candidateMove != null) {
+                    analytics.logEvent("candidate_move", null)
                     showConfirmMoveControls()
                 }
             State.SCORING -> {
+                analytics.logEvent("scoring_change_group", null)
                 val newPos = currentPosition.clone()
                 RulesManager.toggleRemoved(newPos, point)
                 var delta = newPos.removedSpots - currentPosition.removedSpots
@@ -295,6 +300,7 @@ class GamePresenter(
     }
 
     private fun doAnalysisMove(candidateMove: Point) {
+        analytics.logEvent("analysis_move", null)
         RulesManager.makeMove(analysisPosition, analysisPosition.nextToMove, candidateMove)?.let {
             variationCurrentMove ++
             variation = variation.dropLast(variation.size - variationCurrentMove).toMutableList()
@@ -316,6 +322,7 @@ class GamePresenter(
     override fun onDiscardButtonPressed() {
         when (currentState){
             State.ANALYSIS -> {
+                analytics.logEvent("analysis_cancel", null)
                 currentState = determineStateFromGame(game)
                 candidateMove = null
                 view.showCandidateMove(null)
@@ -323,11 +330,15 @@ class GamePresenter(
                 game?.let { refreshUI(it) }
             }
             State.PLAYING -> {
+                analytics.logEvent("discard_move", null)
                 candidateMove = null
                 view.showCandidateMove(null)
                 game?.let { showPlayControls(it) }
             }
-            State.SCORING -> gameConnection?.rejectRemovedStones()
+            State.SCORING -> {
+                analytics.logEvent("resume_from_scoring", null)
+                gameConnection?.rejectRemovedStones()
+            }
             else -> {
                 Log.e(TAG, "onDiscardButtonPressed while state = $currentState")
             }
@@ -337,12 +348,14 @@ class GamePresenter(
     override fun onConfirmButtonPressed() {
         when(currentState) {
             State.PLAYING -> {
+                analytics.logEvent("confirm_move", null)
                 view.interactive = false
                 candidateMove?.let { gameConnection?.submitMove(it) }
                 candidateMove = null
                 game?.let { showPlayControls(it) }
             }
             State.SCORING -> {
+                analytics.logEvent("accept_scoring", null)
                 gameConnection?.acceptRemovedStones(currentPosition.removedSpots)
             }
             else -> {
@@ -436,6 +449,7 @@ class GamePresenter(
         if(game?.phase != Phase.STONE_REMOVAL) {
             return
         }
+        analytics.logEvent("auto_clicked", null)
         val newPos = currentPosition.clone()
         newPos.clearAllRemovedSpots()
         RulesManager.determineTerritory(newPos)
@@ -550,6 +564,7 @@ class GamePresenter(
     }
 
     override fun onChatClicked() {
+        analytics.logEvent("chat_clicked", null)
         view.showChat()
     }
 
@@ -617,11 +632,13 @@ class GamePresenter(
     }
 
     override fun onResignConfirmed() {
+        analytics.logEvent("resign_confirmed", null)
         gameConnection?.resign()
     }
 
 
     override fun onPassConfirmed() {
+        analytics.logEvent("pass_confirmed", null)
         gameConnection?.submitMove(Point(-1, -1))
     }
 
@@ -629,9 +646,11 @@ class GamePresenter(
         game?.let { game ->
             when (currentState) {
                 State.ANALYSIS -> {
+                    analytics.logEvent("next_analytics_clicked", null)
                     variationCurrentMove = (variationCurrentMove + 1).coerceIn(-1, variation.size - 1)
                 }
                 State.HISTORY -> {
+                    analytics.logEvent("next_history_clicked", null)
                     game.moves?.let { moves ->
                         currentShownMove = (currentShownMove + 1).coerceIn(0, moves.size)
                         if (currentShownMove == moves.size) {
@@ -651,9 +670,11 @@ class GamePresenter(
         game?.let { game ->
             when (currentState) {
                 State.ANALYSIS -> {
+                    analytics.logEvent("previous_analytics_clicked", null)
                     variationCurrentMove = (variationCurrentMove - 1).coerceIn(-1, variation.size - 1)
                 }
                 State.PLAYING, State.HISTORY, State.FINISHED -> {
+                    analytics.logEvent("previous_history_clicked", null)
                     currentState = State.HISTORY
                     game.moves?.let { moves ->
                         currentShownMove--
@@ -682,6 +703,7 @@ class GamePresenter(
     }
 
     override fun onAnalyzeButtonPressed() {
+        analytics.logEvent("analyze_clicked", null)
         currentState = State.ANALYSIS
         analysisPosition = currentPosition.clone()
         currentShownMove = game?.moves?.size ?: currentShownMove

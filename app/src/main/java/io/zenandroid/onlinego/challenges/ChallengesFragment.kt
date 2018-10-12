@@ -1,4 +1,4 @@
-package io.zenandroid.onlinego.spectate
+package io.zenandroid.onlinego.challenges
 
 import android.os.Bundle
 import android.support.v4.app.Fragment
@@ -6,20 +6,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
-import android.widget.ListView
-import butterknife.BindView
-import butterknife.ButterKnife
-import butterknife.Unbinder
 import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.R
-import io.zenandroid.onlinego.challenges.ChallengesContract
-import io.zenandroid.onlinego.challenges.ChallengesPresenter
 import io.zenandroid.onlinego.extensions.showIf
 import io.zenandroid.onlinego.model.ogs.Challenge
 import io.zenandroid.onlinego.ogs.OGSServiceImpl
-
-
-
+import kotlinx.android.synthetic.main.fragment_challenges.*
 
 
 /**
@@ -28,21 +20,12 @@ import io.zenandroid.onlinego.ogs.OGSServiceImpl
 @Deprecated("Obsolete")
 class ChallengesFragment : Fragment(), ChallengesContract.View {
 
-    @BindView(R.id.challenges_recycler) lateinit var challengesRecycler: ListView
-    @BindView(R.id.overlay) lateinit var overlay: View
-
-    private lateinit var unbinder: Unbinder
     private lateinit var presenter: ChallengesContract.Presenter
     private lateinit var adapter: ArrayAdapter<Challenge>
     private var analytics = OnlineGoApplication.instance.analytics
 
-
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val view = inflater.inflate(R.layout.fragment_challenges, container, false)
-        unbinder = ButterKnife.bind(this, view)
-
-        return view
-    }
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View =
+            inflater.inflate(R.layout.fragment_challenges, container, false)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -52,11 +35,6 @@ class ChallengesFragment : Fragment(), ChallengesContract.View {
         challengesRecycler.adapter = adapter
 
         presenter = ChallengesPresenter(this, OGSServiceImpl.instance)
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        unbinder.unbind()
     }
 
     override fun onResume() {

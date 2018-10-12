@@ -1,17 +1,11 @@
 package io.zenandroid.onlinego.newchallenge
 
-import android.app.AlertDialog
 import android.app.ProgressDialog
 import android.content.Context
-import android.support.design.widget.FloatingActionButton
 import android.util.AttributeSet
 import android.util.Log
 import android.view.View
 import android.widget.FrameLayout
-import android.widget.TextView
-import butterknife.BindView
-import butterknife.ButterKnife
-import butterknife.OnClick
 import io.reactivex.Completable
 import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.R
@@ -19,30 +13,13 @@ import io.zenandroid.onlinego.extensions.*
 import io.zenandroid.onlinego.main.MainActivity
 import io.zenandroid.onlinego.ogs.Size
 import io.zenandroid.onlinego.ogs.Speed
-import android.support.design.widget.BottomSheetDialog
-import android.view.LayoutInflater
-import android.widget.Toast
+import kotlinx.android.synthetic.main.view_new_challenge.view.*
 
 
 /**
  * Created by alex on 22/02/2018.
  */
 class NewChallengeView : FrameLayout, NewChallengeContract.View {
-
-    @BindView(R.id.fab) lateinit var fab: FloatingActionButton
-    @BindView(R.id.fade_out_mask) lateinit var fadeOutMask: View
-    @BindView(R.id.long_fab) lateinit var longFab: FloatingActionButton
-    @BindView(R.id.long_label) lateinit var longLabel: TextView
-    @BindView(R.id.normal_fab) lateinit var normalFab: FloatingActionButton
-    @BindView(R.id.normal_label) lateinit var normalLabel: TextView
-    @BindView(R.id.blitz_fab) lateinit var blitzFab: FloatingActionButton
-    @BindView(R.id.blitz_label) lateinit var blitzLabel: TextView
-    @BindView(R.id.small_fab) lateinit var smallFab: FloatingActionButton
-    @BindView(R.id.small_label) lateinit var smallLabel: TextView
-    @BindView(R.id.medium_fab) lateinit var mediumFab: FloatingActionButton
-    @BindView(R.id.medium_label) lateinit var mediumLabel: TextView
-    @BindView(R.id.large_fab) lateinit var largeFab: FloatingActionButton
-    @BindView(R.id.large_label) lateinit var largeLabel: TextView
 
     private lateinit var presenter: NewChallengeContract.Presenter
     private var fabMiniSize: Float = 0f
@@ -59,21 +36,22 @@ class NewChallengeView : FrameLayout, NewChallengeContract.View {
 
     private fun init() {
         val view = View.inflate(context, R.layout.view_new_challenge, this)
-        ButterKnife.bind(view)
 
+        fab.setOnClickListener { onFabClicked() }
+        arrayOf(blitzFab, longFab, normalFab).forEach { it.setOnClickListener { onSpeedClicked(it) } }
+        arrayOf(smallFab, mediumFab, largeFab).forEach { it.setOnClickListener { onSizeClicked(it) } }
         fabMiniSize = resources.getDimension(R.dimen.fab_mini_with_margin)
         presenter = NewChallengePresenter(this, analytics)
     }
 
-    @OnClick(R.id.fab)
-    fun onFabClicked() {
+    private fun onFabClicked() {
         NewChallengeBottomSheet(context) { speed: Speed, sizes: List<Size> ->
             presenter.onStartSearch(sizes, speed)
         }.show()
     }
 
     override fun setFadeOutState(fadedOut: Boolean) {
-        fadeOutMask.showIf(fadedOut)
+        scrim.showIf(fadedOut)
     }
 
     override fun showSpeedMenu() = Completable.mergeArray(
@@ -104,8 +82,7 @@ class NewChallengeView : FrameLayout, NewChallengeContract.View {
             smallLabel.fadeOut().andThen(smallFab.slideOut(3 * fabMiniSize))
     )
 
-    @OnClick(R.id.blitz_fab, R.id.long_fab, R.id.normal_fab)
-    fun onSpeedClicked(view : View) {
+    private fun onSpeedClicked(view : View) {
         when(view) {
             blitzFab -> presenter.onSpeedSelected(Speed.BLITZ)
             normalFab -> presenter.onSpeedSelected(Speed.NORMAL)
@@ -114,7 +91,6 @@ class NewChallengeView : FrameLayout, NewChallengeContract.View {
         }
     }
 
-    @OnClick(R.id.small_fab, R.id.medium_fab, R.id.large_fab)
     fun onSizeClicked(view : View) {
         when(view) {
             smallFab -> presenter.onSizeSelected(Size.SMALL)

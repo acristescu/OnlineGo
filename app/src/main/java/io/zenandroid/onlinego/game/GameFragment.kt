@@ -5,16 +5,11 @@ import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
-import android.support.v7.widget.AppCompatImageView
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import butterknife.BindView
-import butterknife.ButterKnife
-import butterknife.OnClick
-import butterknife.Unbinder
 import com.awesomedialog.blennersilva.awesomedialoglibrary.AwesomeInfoDialog
 import com.jakewharton.rxbinding2.view.RxView
 import io.reactivex.Observable
@@ -34,8 +29,7 @@ import io.zenandroid.onlinego.model.local.Message
 import io.zenandroid.onlinego.model.local.Player
 import io.zenandroid.onlinego.ogs.OGSServiceImpl
 import io.zenandroid.onlinego.statuschips.Chip
-import io.zenandroid.onlinego.views.BoardView
-import io.zenandroid.onlinego.views.PlayerDetailsView
+import kotlinx.android.synthetic.main.fragment_game.*
 import java.util.concurrent.TimeUnit
 
 const val GAME_ID = "GAME_ID"
@@ -54,21 +48,6 @@ class GameFragment : Fragment(), GameContract.View {
         }
     }
 
-    @BindView(R.id.board) lateinit var board: BoardView
-    @BindView(R.id.pass_button) lateinit var passButton: AppCompatImageView
-    @BindView(R.id.resign_button) lateinit var resignButton: AppCompatImageView
-    @BindView(R.id.analyze_button) lateinit var analyzeButton: AppCompatImageView
-    @BindView(R.id.previous_button) lateinit var previousButton: AppCompatImageView
-    @BindView(R.id.next_button) lateinit var nextButton: AppCompatImageView
-    @BindView(R.id.confirm_button) lateinit var confirmButton: AppCompatImageView
-    @BindView(R.id.discard_button) lateinit var discardButton: AppCompatImageView
-    @BindView(R.id.auto_button) lateinit var autoButton: AppCompatImageView
-    @BindView(R.id.play_controls) lateinit var playControls: ViewGroup
-    @BindView(R.id.white_details) lateinit var whiteDetailsView: PlayerDetailsView
-    @BindView(R.id.black_details) lateinit var blackDetailsView: PlayerDetailsView
-
-
-    private lateinit var unbinder: Unbinder
     private lateinit var presenter: GameContract.Presenter
     private val subscriptions = CompositeDisposable()
     private val analytics = OnlineGoApplication.instance.analytics
@@ -143,12 +122,8 @@ class GameFragment : Fragment(), GameContract.View {
         Toast.makeText(context, "Unfortunately, you lost...", Toast.LENGTH_LONG).show()
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val view = inflater.inflate(R.layout.fragment_game, container, false)
-        unbinder = ButterKnife.bind(this, view)
-
-        return view
-    }
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?) : View =
+            inflater.inflate(R.layout.fragment_game, container, false)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -156,13 +131,22 @@ class GameFragment : Fragment(), GameContract.View {
 
         whiteDetailsView.color = StoneType.WHITE
         blackDetailsView.color = StoneType.BLACK
+
+        resignButton.setOnClickListener { onResignClicked() }
+        passButton.setOnClickListener { onPassClicked() }
+        discardButton.setOnClickListener { onDiscardClicked() }
+        analyzeButton.setOnClickListener { onAnalyzeClicked() }
+        confirmButton.setOnClickListener { onConfirmClicked() }
+        autoButton.setOnClickListener { onAutoClicked() }
+
         analytics.logEvent("showing_game", arguments)
         presenter = GamePresenter(
-                this,
-                OGSServiceImpl.instance,
-                (activity as MainActivity).activeGameRepository,
-                arguments!!.getLong(GAME_ID),
-                arguments!!.getInt(GAME_SIZE)
+                view = this,
+                service = OGSServiceImpl.instance,
+                analytics = analytics,
+                gameRepository = (activity as MainActivity).activeGameRepository,
+                gameId = arguments!!.getLong(GAME_ID),
+                gameSize = arguments!!.getInt(GAME_SIZE)
         )
         (activity as? AppCompatActivity)?.supportActionBar?.setDisplayHomeAsUpEnabled(true)
     }
@@ -196,9 +180,6 @@ class GameFragment : Fragment(), GameContract.View {
         }
 
     override fun showCandidateMove(point: Point?, nextToMove: StoneType?) {
-        if(point != null) {
-            analytics.logEvent("candidate_move", null)
-        }
         board.showCandidateMove(point, nextToMove)
     }
 
@@ -219,11 +200,6 @@ class GameFragment : Fragment(), GameContract.View {
 
     override fun showUndoPrompt() {
         Toast.makeText(context, "Opponent requested undo", Toast.LENGTH_LONG).show()
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        unbinder.unbind()
     }
 
     override var nextButtonVisible = false
@@ -282,25 +258,17 @@ class GameFragment : Fragment(), GameContract.View {
         subscriptions.add(
                 repeatingPresses(previousButton)
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe {
-                    analytics.logEvent("previous_clicked", null)
-                    presenter.onPreviousButtonPressed()
-                }
+                .subscribe { presenter.onPreviousButtonPressed() }
         )
         subscriptions.add(
                 repeatingPresses(nextButton)
                         .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe {
-                            analytics.logEvent("next_clicked", null)
-                            presenter.onNextButtonPressed()
-                        }
+                        .subscribe { presenter.onNextButtonPressed() }
         )
         subscriptions.add(
                 chatDialog.sendMessage
                         .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe {
-                            presenter.onNewMessage(it)
-                        }
+                        .subscribe { presenter.onNewMessage(it) }
         )
     }
 
@@ -354,57 +322,45 @@ class GameFragment : Fragment(), GameContract.View {
         subscriptions.clear()
     }
 
-    @OnClick(R.id.resign_button)
-    fun onResignClicked() {
+    private fun onResignClicked() {
         analytics.logEvent("resign_clicked", null)
         context?.let {
             AlertDialog.Builder(it)
                     .setTitle("Please confirm")
                     .setMessage("Are you sure you want to resign?")
                     .setPositiveButton("Resign") { _, _ ->
-                        analytics.logEvent("resign_confirmed", null)
                         presenter.onResignConfirmed()
                     }
                     .setNegativeButton(android.R.string.cancel, null).show()
         }
     }
 
-    @OnClick(R.id.pass_button)
-    fun onPassClicked() {
-        analytics.logEvent("resign_clicked", null)
+    private fun onPassClicked() {
+        analytics.logEvent("pass_clicked", null)
         context?.let {
             AlertDialog.Builder(it)
                     .setTitle("Please confirm")
                     .setMessage("Are you sure you want to pass? This means you think the game is over and will move the game to the scoring phase if your opponent passes too.")
                     .setPositiveButton("Pass") { _, _ ->
-                        analytics.logEvent("resign_confirmed", null)
                         presenter.onPassConfirmed()
                     }
                     .setNegativeButton(android.R.string.cancel, null).show()
         }
     }
 
-    @OnClick(R.id.discard_button)
-    fun onDiscardClicked() {
-        analytics.logEvent("discard_clicked", null)
+    private fun onDiscardClicked() {
         presenter.onDiscardButtonPressed()
     }
 
-    @OnClick(R.id.analyze_button)
-    fun onAnalyzeClicked() {
-        analytics.logEvent("analyze_clicked", null)
+    private fun onAnalyzeClicked() {
         presenter.onAnalyzeButtonPressed()
     }
 
-    @OnClick(R.id.confirm_button)
-    fun onConfirmClicked() {
-        analytics.logEvent("confirm_clicked", null)
+    private fun onConfirmClicked() {
         presenter.onConfirmButtonPressed()
     }
 
-    @OnClick(R.id.auto_button)
-    fun onAutoClicked() {
-        analytics.logEvent("auto_clicked", null)
+    private fun onAutoClicked() {
         presenter.onAutoButtonPressed()
     }
 

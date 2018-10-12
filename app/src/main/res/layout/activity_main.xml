@@ -36,7 +36,7 @@
                     android:text="OnlineGo "
                     />
                 <TextView
-                    android:id="@+id/title"
+                    android:id="@+id/titleView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textColor="@color/white"
@@ -49,17 +49,17 @@
                     android:id="@+id/chipList"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    app:layout_constraintTop_toBottomOf="@id/title"
-                    app:layout_constraintLeft_toLeftOf="@id/title"
-                    app:layout_constraintRight_toLeftOf="@id/chat"
+                    app:layout_constraintTop_toBottomOf="@id/titleView"
+                    app:layout_constraintLeft_toLeftOf="@id/titleView"
+                    app:layout_constraintRight_toLeftOf="@id/chatButton"
                     app:layout_constraintBottom_toBottomOf="parent"
                     />
                 <ImageView
-                    android:id="@+id/chat"
+                    android:id="@+id/chatButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     app:srcCompat="@drawable/ic_chat_bubble"
-                    app:layout_constraintRight_toLeftOf="@id/notifications"
+                    app:layout_constraintRight_toLeftOf="@id/notificationsButton"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintBottom_toBottomOf="parent"
                     android:scaleType="fitXY"
@@ -80,15 +80,15 @@
                     tools:text="10"
                     android:textColor="#FFFFFF"
                     app:layout_constraintDimensionRatio="w,1:1"
-                    app:layout_constraintEnd_toEndOf="@id/chat"
-                    app:layout_constraintTop_toTopOf="@id/chat"
+                    app:layout_constraintEnd_toEndOf="@id/chatButton"
+                    app:layout_constraintTop_toTopOf="@id/chatButton"
                     android:textSize="12sp"
                     android:textStyle="bold"
                     android:alpha="0"
                     tools:alpha="1"
                     />
                 <ImageView
-                    android:id="@+id/notifications"
+                    android:id="@+id/notificationsButton"
                     app:srcCompat="@drawable/ic_go_board"
                     android:tint="@color/white"
                     android:layout_width="wrap_content"
@@ -119,7 +119,7 @@
                     android:textColor="#FFFFFF"
                     app:layout_constraintDimensionRatio="w,1:1"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="@+id/notifications"
+                    app:layout_constraintTop_toTopOf="@+id/notificationsButton"
                     android:textSize="12sp"
                     android:textStyle="bold"
                     android:alpha="0"
@@ -133,14 +133,14 @@
         android:id="@+id/fragment_container"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintBottom_toTopOf="@+id/bottom_navigation"
+        app:layout_constraintBottom_toTopOf="@+id/bottomNavigation"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/appbar"
         />
 
     <me.zhanghai.android.materialprogressbar.MaterialProgressBar
-        android:id="@+id/progress_bar"
+        android:id="@+id/progressBar"
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:indeterminate="true"
@@ -154,7 +154,7 @@
         />
 
     <android.support.design.widget.BottomNavigationView
-        android:id="@+id/bottom_navigation"
+        android:id="@+id/bottomNavigation"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:itemIconTint="@drawable/navigation_selector_color"
@@ -166,7 +166,7 @@
         />
 
     <io.zenandroid.onlinego.newchallenge.NewChallengeView
-        android:id="@+id/new_challenge"
+        android:id="@+id/newChallengeView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         />

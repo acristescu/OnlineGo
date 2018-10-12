@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
     <View
-        android:id="@+id/fade_out_mask"
+        android:id="@+id/scrim"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:alpha=".85"
@@ -30,7 +30,7 @@
         />
 
     <android.support.design.widget.FloatingActionButton
-        android:id="@+id/long_fab"
+        android:id="@+id/longFab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
@@ -45,13 +45,13 @@
         />
 
     <TextView
-        android:id="@+id/long_label"
+        android:id="@+id/longLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Correspondence"
-        app:layout_constraintRight_toLeftOf="@id/long_fab"
-        app:layout_constraintTop_toTopOf="@id/long_fab"
-        app:layout_constraintBottom_toBottomOf="@id/long_fab"
+        app:layout_constraintRight_toLeftOf="@id/longFab"
+        app:layout_constraintTop_toTopOf="@id/longFab"
+        app:layout_constraintBottom_toBottomOf="@id/longFab"
         android:alpha="0"
         android:elevation="6dp"
         android:layout_marginRight="16dp"
@@ -59,13 +59,13 @@
         />
 
     <android.support.design.widget.FloatingActionButton
-        android:id="@+id/normal_fab"
+        android:id="@+id/normalFab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
         android:layout_marginEnd="16dp"
         android:clickable="true"
-        app:layout_constraintBottom_toTopOf="@+id/long_fab"
+        app:layout_constraintBottom_toTopOf="@+id/longFab"
         app:layout_constraintEnd_toEndOf="parent"
         app:srcCompat="@drawable/ic_clock"
         android:tint="@color/white"
@@ -75,13 +75,13 @@
         />
 
     <TextView
-        android:id="@+id/normal_label"
+        android:id="@+id/normalLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Normal"
-        app:layout_constraintRight_toLeftOf="@id/normal_fab"
-        app:layout_constraintTop_toTopOf="@id/normal_fab"
-        app:layout_constraintBottom_toBottomOf="@id/normal_fab"
+        app:layout_constraintRight_toLeftOf="@id/normalFab"
+        app:layout_constraintTop_toTopOf="@id/normalFab"
+        app:layout_constraintBottom_toBottomOf="@id/normalFab"
         android:alpha="0"
         android:elevation="6dp"
         android:layout_marginRight="16dp"
@@ -89,13 +89,13 @@
         />
 
     <android.support.design.widget.FloatingActionButton
-        android:id="@+id/blitz_fab"
+        android:id="@+id/blitzFab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
         android:layout_marginEnd="16dp"
         android:clickable="true"
-        app:layout_constraintBottom_toTopOf="@+id/normal_fab"
+        app:layout_constraintBottom_toTopOf="@+id/normalFab"
         app:layout_constraintEnd_toEndOf="parent"
         app:srcCompat="@drawable/ic_blitz"
         app:fabSize="mini"
@@ -104,13 +104,13 @@
         />
 
     <TextView
-        android:id="@+id/blitz_label"
+        android:id="@+id/blitzLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Blitz"
-        app:layout_constraintRight_toLeftOf="@id/blitz_fab"
-        app:layout_constraintTop_toTopOf="@id/blitz_fab"
-        app:layout_constraintBottom_toBottomOf="@id/blitz_fab"
+        app:layout_constraintRight_toLeftOf="@id/blitzFab"
+        app:layout_constraintTop_toTopOf="@id/blitzFab"
+        app:layout_constraintBottom_toBottomOf="@id/blitzFab"
         android:alpha="0"
         android:elevation="6dp"
         android:layout_marginRight="16dp"
@@ -118,7 +118,7 @@
         />
 
     <android.support.design.widget.FloatingActionButton
-        android:id="@+id/large_fab"
+        android:id="@+id/largeFab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
@@ -133,13 +133,13 @@
         />
 
     <TextView
-        android:id="@+id/large_label"
+        android:id="@+id/largeLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="19x19"
-        app:layout_constraintRight_toLeftOf="@id/large_fab"
-        app:layout_constraintTop_toTopOf="@id/large_fab"
-        app:layout_constraintBottom_toBottomOf="@id/large_fab"
+        app:layout_constraintRight_toLeftOf="@id/largeFab"
+        app:layout_constraintTop_toTopOf="@id/largeFab"
+        app:layout_constraintBottom_toBottomOf="@id/largeFab"
         android:alpha="0"
         android:elevation="6dp"
         android:layout_marginRight="16dp"
@@ -147,13 +147,13 @@
         />
 
     <android.support.design.widget.FloatingActionButton
-        android:id="@+id/medium_fab"
+        android:id="@+id/mediumFab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
         android:layout_marginEnd="16dp"
         android:clickable="true"
-        app:layout_constraintBottom_toTopOf="@+id/large_fab"
+        app:layout_constraintBottom_toTopOf="@+id/largeFab"
         app:layout_constraintEnd_toEndOf="parent"
         app:srcCompat="@drawable/ic_m"
         android:tint="@color/white"
@@ -163,13 +163,13 @@
         />
 
     <TextView
-        android:id="@+id/medium_label"
+        android:id="@+id/mediumLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="13x13"
-        app:layout_constraintRight_toLeftOf="@id/medium_fab"
-        app:layout_constraintTop_toTopOf="@id/medium_fab"
-        app:layout_constraintBottom_toBottomOf="@id/medium_fab"
+        app:layout_constraintRight_toLeftOf="@id/mediumFab"
+        app:layout_constraintTop_toTopOf="@id/mediumFab"
+        app:layout_constraintBottom_toBottomOf="@id/mediumFab"
         android:alpha="0"
         android:elevation="6dp"
         android:layout_marginRight="16dp"
@@ -177,13 +177,13 @@
         />
 
     <android.support.design.widget.FloatingActionButton
-        android:id="@+id/small_fab"
+        android:id="@+id/smallFab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
         android:layout_marginEnd="16dp"
         android:clickable="true"
-        app:layout_constraintBottom_toTopOf="@+id/medium_fab"
+        app:layout_constraintBottom_toTopOf="@+id/mediumFab"
         app:layout_constraintEnd_toEndOf="parent"
         app:srcCompat="@drawable/ic_s"
         app:fabSize="mini"
@@ -192,13 +192,13 @@
         />
 
     <TextView
-        android:id="@+id/small_label"
+        android:id="@+id/smallLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="9x9"
-        app:layout_constraintRight_toLeftOf="@id/small_fab"
-        app:layout_constraintTop_toTopOf="@id/small_fab"
-        app:layout_constraintBottom_toBottomOf="@id/small_fab"
+        app:layout_constraintRight_toLeftOf="@id/smallFab"
+        app:layout_constraintTop_toTopOf="@id/smallFab"
+        app:layout_constraintBottom_toBottomOf="@id/smallFab"
         android:alpha="0"
         android:elevation="6dp"
         android:layout_marginRight="16dp"

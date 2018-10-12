@@ -5,8 +5,6 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.os.Bundle
 import android.os.Handler
-import android.support.design.widget.TextInputEditText
-import android.support.design.widget.TextInputLayout
 import android.support.transition.Fade
 import android.support.transition.TransitionInflater
 import android.support.transition.TransitionManager
@@ -17,13 +15,7 @@ import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
-import android.widget.TextView
 import android.widget.Toast
-import br.com.simplepass.loading_button_lib.customViews.CircularProgressButton
-import butterknife.BindView
-import butterknife.ButterKnife
-import butterknife.OnClick
-import butterknife.OnTextChanged
 import com.google.firebase.analytics.FirebaseAnalytics
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
@@ -33,6 +25,8 @@ import io.zenandroid.onlinego.extensions.hide
 import io.zenandroid.onlinego.extensions.show
 import io.zenandroid.onlinego.main.MainActivity
 import io.zenandroid.onlinego.ogs.OGSServiceImpl
+import io.zenandroid.onlinego.utils.onChange
+import kotlinx.android.synthetic.main.activity_login.*
 import org.json.JSONObject
 import retrofit2.HttpException
 
@@ -44,16 +38,6 @@ class LoginActivity : AppCompatActivity() {
 
     val TAG = LoginActivity::class.java.name
 
-    @BindView(R.id.input_username) lateinit var username: TextInputEditText
-    @BindView(R.id.input_password) lateinit var password: TextInputEditText
-    @BindView(R.id.input_email) lateinit var email: TextInputEditText
-    @BindView(R.id.input_username_layout) lateinit var usernameLayout: TextInputLayout
-    @BindView(R.id.input_password_layout) lateinit var passwordLayout: TextInputLayout
-    @BindView(R.id.input_email_layout) lateinit var emailLayout: TextInputLayout
-    @BindView(R.id.logo) lateinit var logo: View
-    @BindView(R.id.btn_login) lateinit var button: CircularProgressButton
-    @BindView(R.id.no_account) lateinit var noAccountView: TextView
-
     private var createAccount = false
 
     private var analytics = OnlineGoApplication.instance.analytics
@@ -64,11 +48,24 @@ class LoginActivity : AppCompatActivity() {
         supportActionBar?.hide()
 
         setContentView(R.layout.activity_login)
-        ButterKnife.bind(this)
 
-        noAccountView.setOnClickListener {
-            toggleCreateAccountMode()
-        }
+        noAccountView.setOnClickListener { toggleCreateAccountMode() }
+        loginButton.setOnClickListener { onLoginClicked() }
+
+//        val watcher = object : TextWatcher {
+//            override fun afterTextChanged(p0: Editable?) {}
+//
+//            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
+//
+//            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+//                onTextChanged()
+//            }
+//        }
+//        username.addTextChangedListener(watcher)
+//        password.addTextChangedListener(watcher)
+
+        username.onChange { onTextChanged() }
+        password.onChange { onTextChanged() }
     }
 
     private fun toggleCreateAccountMode() {
@@ -77,11 +74,11 @@ class LoginActivity : AppCompatActivity() {
         if(createAccount) {
             emailLayout.show()
             noAccountView.setText(R.string.signing_prompt)
-            button.setText(R.string.create_account)
+            loginButton.setText(R.string.create_account)
         } else {
             emailLayout.hide()
             noAccountView.setText(R.string.create_account_prompt)
-            button.setText(R.string.login_to_ogs)
+            loginButton.setText(R.string.login_to_ogs)
         }
     }
 
@@ -96,14 +93,14 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun onLoginSuccess() {
-        if(button.visibility == View.VISIBLE) {
+        if(loginButton.visibility == View.VISIBLE) {
             val drawable = ContextCompat.getDrawable (this, R.drawable.ic_done_24dp)
 
-            val bitmap = Bitmap.createBitmap (button.width, button.height, Bitmap.Config.ARGB_8888);
+            val bitmap = Bitmap.createBitmap (loginButton.width, loginButton.height, Bitmap.Config.ARGB_8888);
             val canvas = Canvas(bitmap)
             drawable?.setBounds(0, 0, canvas.width, canvas.height)
             drawable?.draw(canvas)
-            button.doneLoadingAnimation(ResourcesCompat.getColor(resources, R.color.colorAccent, null), bitmap)
+            loginButton.doneLoadingAnimation(ResourcesCompat.getColor(resources, R.color.colorAccent, null), bitmap)
         }
         TransitionManager.beginDelayedTransition(findViewById(R.id.container), Fade(Fade.MODE_OUT).setDuration(100).setStartDelay(400))
         findViewById<ViewGroup>(R.id.container).removeAllViews()
@@ -120,14 +117,14 @@ class LoginActivity : AppCompatActivity() {
         )
         val params = logo.layoutParams as LinearLayout.LayoutParams
         params.weight = 0f
-        button.visibility = View.VISIBLE
+        loginButton.visibility = View.VISIBLE
         usernameLayout.visibility = View.VISIBLE
         passwordLayout.visibility = View.VISIBLE
         noAccountView.visibility = View.VISIBLE
     }
 
     private fun onPasswordLoginFailure(t: Throwable) {
-        button.revertAnimation()
+        loginButton.revertAnimation()
         Log.e(LoginActivity::class.java.simpleName, t.message, t)
         if(t is HttpException && t.code() == 401) {
             Toast.makeText(this, "Invalid username or password", Toast.LENGTH_LONG).show()
@@ -136,9 +133,8 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
-    @OnClick(R.id.btn_login)
-    fun onLoginClicked() {
-        button.startAnimation()
+    private fun onLoginClicked() {
+        loginButton.startAnimation()
         if(!createAccount) {
             doLogin()
         } else {
@@ -168,8 +164,8 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun onCreateAccountFailure(t: Throwable) {
-        button.revertAnimation {
-            button.setText(R.string.create_account)
+        loginButton.revertAnimation {
+            loginButton.setText(R.string.create_account)
         }
         Log.e(LoginActivity::class.java.simpleName, t.message, t)
         if(t is HttpException && t.response().errorBody() != null) {
@@ -185,13 +181,12 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
-    @OnTextChanged(R.id.input_username, R.id.input_password)
     fun onTextChanged() {
-        button.isEnabled = username.text.isNotEmpty() && password.text.isNotEmpty()
+        loginButton.isEnabled = username.text.isNotEmpty() && password.text.isNotEmpty()
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        button.dispose()
+        loginButton.dispose()
     }
 }

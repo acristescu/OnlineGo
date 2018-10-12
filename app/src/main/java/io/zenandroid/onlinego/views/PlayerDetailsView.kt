@@ -3,17 +3,10 @@ package io.zenandroid.onlinego.views
 import android.content.Context
 import android.content.res.ColorStateList
 import android.support.annotation.ColorRes
-import android.support.text.emoji.widget.EmojiAppCompatTextView
 import android.support.v4.view.ViewCompat
-import android.support.v7.widget.AppCompatImageView
-import android.support.v7.widget.CardView
 import android.util.AttributeSet
 import android.view.View
 import android.widget.FrameLayout
-import android.widget.TextView
-import butterknife.BindView
-import butterknife.ButterKnife
-import butterknife.Unbinder
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade
@@ -26,6 +19,7 @@ import io.zenandroid.onlinego.model.local.Player
 import io.zenandroid.onlinego.utils.convertCountryCodeToEmojiFlag
 import io.zenandroid.onlinego.utils.egfToRank
 import io.zenandroid.onlinego.utils.formatRank
+import kotlinx.android.synthetic.main.view_player_details.view.*
 import java.lang.Math.*
 import java.util.regex.Pattern
 
@@ -35,24 +29,8 @@ import java.util.regex.Pattern
  */
 class PlayerDetailsView : FrameLayout {
 
-    private val unbinder: Unbinder
     private val gravatarRegex = Pattern.compile("(.*gravatar.com/avatar/[0-9a-fA-F]*+).*")
     private val rackcdnRegex = Pattern.compile("(.*rackcdn.com.*)-\\d*\\.png")
-
-    @BindView(R.id.name) lateinit var nameView: TextView
-    @BindView(R.id.rank) lateinit var rankView: TextView
-    @BindView(R.id.icon) lateinit var iconView: AppCompatImageView
-    @BindView(R.id.flag) lateinit var flagView: EmojiAppCompatTextView
-    @BindView(R.id.points) lateinit var scoreView: TextView
-    @BindView(R.id.main_time) lateinit var timerFirstLineView: TextView
-    @BindView(R.id.main_time_label) lateinit var timerFirstLineLabelView: View
-    @BindView(R.id.extra_time) lateinit var timerSecondLineView: TextView
-    @BindView(R.id.extra_time_label) lateinit var timerSecondLineLabelView: View
-    @BindView(R.id.colorIndicatorBlack) lateinit var colorIndicatorBlack: View
-    @BindView(R.id.colorIndicatorWhite) lateinit var colorIndicatorWhite: View
-    @BindView(R.id.your_turn_label) lateinit var theirTurnLabel: TextView
-    @BindView(R.id.passed_label) lateinit var passedLabel: View
-    @BindView(R.id.icon_container) lateinit var iconContainer: CardView
 
     constructor(context: Context) : this(context, null)
     constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0)
@@ -147,13 +125,7 @@ class PlayerDetailsView : FrameLayout {
     }
 
     constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(context, attrs, defStyleAttr) {
-        val view = View.inflate(context, R.layout.view_player_details, this)
-        unbinder = ButterKnife.bind(view)
-    }
-
-    override fun onViewRemoved(child: View?) {
-        super.onViewRemoved(child)
-        unbinder.unbind()
+        View.inflate(context, R.layout.view_player_details, this)
     }
 
 }
