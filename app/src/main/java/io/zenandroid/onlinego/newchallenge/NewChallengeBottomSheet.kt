@@ -57,11 +57,11 @@ class NewChallengeBottomSheet(context: Context, private val onSearch: (Speed, Li
 
         speedRow.setOnClickListener {
             AlertDialog.Builder(context).setTitle("Choose speed")
-                    .setItems(stringsArray, { _, which ->
+                    .setItems(stringsArray) { _, which ->
                         selectedSpeed = speedsArray[which]
                         speedTextView.text = selectedSpeed.getText().capitalize()
                         onSpeedChanged()
-                    })
+                    }
                     .setCancelable(true)
                     .create()
                     .show()

@@ -1,6 +1,8 @@
 package io.zenandroid.onlinego.game
 
+import android.content.Intent
 import android.graphics.Point
+import android.net.Uri
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.app.AlertDialog
@@ -22,6 +24,7 @@ import io.zenandroid.onlinego.extensions.addToDisposable
 import io.zenandroid.onlinego.extensions.fadeIn
 import io.zenandroid.onlinego.extensions.fadeOut
 import io.zenandroid.onlinego.extensions.showIf
+import io.zenandroid.onlinego.game.gameInfo.GameInfoDialog
 import io.zenandroid.onlinego.main.MainActivity
 import io.zenandroid.onlinego.model.Position
 import io.zenandroid.onlinego.model.StoneType
@@ -53,6 +56,7 @@ class GameFragment : Fragment(), GameContract.View {
     private val subscriptions = CompositeDisposable()
     private val analytics = OnlineGoApplication.instance.analytics
     private val chatDialog: ChatDialog by lazy { ChatDialog() }
+    private val gameInfoDialog: GameInfoDialog by lazy { GameInfoDialog() }
 
     override var position: Position? = null
         set(value) {
@@ -135,10 +139,12 @@ class GameFragment : Fragment(), GameContract.View {
 
         resignButton.setOnClickListener { onResignClicked() }
         passButton.setOnClickListener { onPassClicked() }
-        discardButton.setOnClickListener { onDiscardClicked() }
-        analyzeButton.setOnClickListener { onAnalyzeClicked() }
-        confirmButton.setOnClickListener { onConfirmClicked() }
-        autoButton.setOnClickListener { onAutoClicked() }
+        discardButton.setOnClickListener { presenter.onDiscardButtonPressed() }
+        analyzeButton.setOnClickListener { presenter.onAnalyzeButtonClicked() }
+        confirmButton.setOnClickListener { presenter.onConfirmButtonPressed() }
+        autoButton.setOnClickListener { presenter.onAutoButtonPressed() }
+        menuButton.setOnClickListener { presenter.onMenuButtonPressed() }
+
 
         analytics.logEvent("showing_game", arguments)
         presenter = GamePresenter(
@@ -150,6 +156,15 @@ class GameFragment : Fragment(), GameContract.View {
                 gameSize = arguments!!.getInt(GAME_SIZE)
         )
         (activity as? AppCompatActivity)?.supportActionBar?.setDisplayHomeAsUpEnabled(true)
+    }
+
+    override fun showMenu(options: List<GameContract.MenuItem>) {
+        if(options.isEmpty()) {
+            return
+        }
+         context?.let {
+            MenuBottomSheet(it, options, presenter::onMenuItemSelected).show()
+        }
     }
 
     override fun showError(t: Throwable) {
@@ -248,6 +263,9 @@ class GameFragment : Fragment(), GameContract.View {
             field = value
         }
 
+    override var menuButtonVisible = false
+        set(value) { menuButton.showIf(value) }
+
     override var autoButtonVisible = false
         set(value) {
             autoButton.showIf(value)
@@ -335,45 +353,43 @@ class GameFragment : Fragment(), GameContract.View {
     }
 
     private fun onResignClicked() {
-        analytics.logEvent("resign_clicked", null)
+        presenter.onResignClicked()
+    }
+
+    private fun onPassClicked() {
+        presenter.onPassClicked()
+    }
+
+    override fun showResignConfirmation() {
         context?.let {
             AlertDialog.Builder(it)
                     .setTitle("Please confirm")
                     .setMessage("Are you sure you want to resign?")
-                    .setPositiveButton("Resign") { _, _ ->
-                        presenter.onResignConfirmed()
-                    }
+                    .setPositiveButton("Resign") { _, _ -> presenter.onResignConfirmed() }
                     .setNegativeButton(android.R.string.cancel, null).show()
         }
     }
 
-    private fun onPassClicked() {
-        analytics.logEvent("pass_clicked", null)
+    override fun showPassConfirmation() {
         context?.let {
             AlertDialog.Builder(it)
                     .setTitle("Please confirm")
                     .setMessage("Are you sure you want to pass? This means you think the game is over and will move the game to the scoring phase if your opponent passes too.")
-                    .setPositiveButton("Pass") { _, _ ->
-                        presenter.onPassConfirmed()
-                    }
+                    .setPositiveButton("Pass") { _, _ -> presenter.onPassConfirmed() }
                     .setNegativeButton(android.R.string.cancel, null).show()
         }
     }
 
-    private fun onDiscardClicked() {
-        presenter.onDiscardButtonPressed()
+    override fun showGameInfoDialog(game: Game) {
+        fragmentManager?.findFragmentByTag("GAME_INFO")?.let {
+            fragmentManager?.beginTransaction()?.remove(it)?.commit()
+        }
+        gameInfoDialog.show(fragmentManager, "GAME_INFO")
+        gameInfoDialog.game = game
     }
 
-    private fun onAnalyzeClicked() {
-        presenter.onAnalyzeButtonPressed()
-    }
-
-    private fun onConfirmClicked() {
-        presenter.onConfirmButtonPressed()
-    }
-
-    private fun onAutoClicked() {
-        presenter.onAutoButtonPressed()
+    override fun navigateTo(url: String) {
+        startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
     }
 
     override fun setLoading(loading: Boolean) {

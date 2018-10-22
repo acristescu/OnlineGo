@@ -6,6 +6,7 @@ import io.reactivex.Observable
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.model.Position
 import io.zenandroid.onlinego.model.StoneType
+import io.zenandroid.onlinego.model.local.Game
 import io.zenandroid.onlinego.model.local.Message
 import io.zenandroid.onlinego.model.local.Player
 import io.zenandroid.onlinego.statuschips.Chip
@@ -37,6 +38,7 @@ interface GameContract {
         var discardButtonVisible: Boolean
         var autoButtonVisible: Boolean
         var bottomBarVisible: Boolean
+        var menuButtonVisible: Boolean
         var showLastMove: Boolean
         var showTerritory: Boolean
         var fadeOutRemovedStones: Boolean
@@ -61,6 +63,11 @@ interface GameContract {
         fun showChat()
         fun setNewMessagesCount(count: Int)
         fun showUndoPrompt()
+        fun showMenu(options: List<MenuItem>)
+        fun showPassConfirmation()
+        fun showResignConfirmation()
+        fun navigateTo(url: String)
+        fun showGameInfoDialog(game: Game)
     }
 
     interface Presenter {
@@ -74,10 +81,25 @@ interface GameContract {
         fun onDiscardButtonPressed()
         fun onConfirmButtonPressed()
         fun onAutoButtonPressed()
-        fun onAnalyzeButtonPressed()
+        fun onAnalyzeButtonClicked()
         fun onChatClicked()
         fun onNewMessage(message: String)
         fun onUndoAccepted()
         fun onUndoRejected()
+        fun onMenuButtonPressed()
+        fun onMenuItemSelected(item: MenuItem)
+        fun onPassClicked()
+        fun onResignClicked()
+    }
+
+    sealed class MenuItem {
+        object GAME_INFO: MenuItem()
+        object PASS: MenuItem()
+        object RESIGN: MenuItem()
+        object ESTIMATE_SCORE: MenuItem()
+        object ANALYZE: MenuItem()
+        object DOWNLOAD_SGF: MenuItem()
+        object ACCEPT_UNDO: MenuItem()
+        object REQUEST_UNDO: MenuItem()
     }
 }

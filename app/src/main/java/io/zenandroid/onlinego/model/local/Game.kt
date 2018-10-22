@@ -7,6 +7,7 @@ import android.arch.persistence.room.PrimaryKey
 import io.zenandroid.onlinego.model.ogs.GameData
 import io.zenandroid.onlinego.model.ogs.OGSGame
 import io.zenandroid.onlinego.model.ogs.Phase
+import io.zenandroid.onlinego.ogs.TimeControl
 
 /**
  * Created by 44108952 on 05/06/2018.
@@ -51,7 +52,14 @@ data class Game(
 
         var freeHandicapPlacement: Boolean?,
         var handicap: Int?,
-        var undoRequested: Int?
+        var undoRequested: Int?,
+        var scoreStones: Boolean?,
+        val name: String?,
+        val rules: String?,
+        val ranked: Boolean?,
+
+        @Embedded(prefix = "initial_state_")
+        val timeControl: TimeControl?
         ) {
     @Ignore
     var json: GameData? = null
@@ -105,7 +113,12 @@ data class Game(
                     ended = game.ended?.time,
                     freeHandicapPlacement = gamedata?.free_handicap_placement,
                     handicap = game.handicap,
-                    undoRequested = gamedata?.undo_requested
+                    undoRequested = gamedata?.undo_requested,
+                    scoreStones = gamedata?.score_stones,
+                    name = gamedata?.game_name,
+                    rules = gamedata?.rules,
+                    ranked = gamedata?.ranked,
+                    timeControl = gamedata?.time_control
             )
         }
     }

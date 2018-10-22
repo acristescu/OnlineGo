@@ -140,7 +140,9 @@ class GameConnection(
         val stones = removedSpots
                 .asSequence()
                 .sortedWith(compareBy(Point::y, Point::x))
-                .joinToString { Util.getSGFCoordinates(it) }
+                .joinToString(separator = "") {
+                    Util.getSGFCoordinates(it)
+                }
         OGSServiceImpl.instance.emit("game/removed_stones/accept", createJsonObject {
             put("auth", gameAuth)
             put("game_id", gameId)
@@ -211,7 +213,14 @@ data class TimeControl (
     var initial_time: Int? = null,
     var max_time: Int? = null,
     var time_increment: Int? = null,
-    var speed: String? = null
+    var speed: String? = null,
+    var per_move: Int? = null,
+    var main_time: Int? = null,
+    var periods: Int? = null,
+    var period_time: Int? = null,
+    var stones_per_period: Int? = null,
+    var total_time: Int? = null
+
 )
 
 //{game_id: 10528331, move_number: 202, move: [9, 17, 8509]}

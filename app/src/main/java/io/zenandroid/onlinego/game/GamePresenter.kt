@@ -13,6 +13,9 @@ import io.reactivex.schedulers.Schedulers
 import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.extensions.addToDisposable
+import io.zenandroid.onlinego.game.GameContract.MenuItem
+import io.zenandroid.onlinego.game.GameContract.MenuItem.*
+import io.zenandroid.onlinego.game.GamePresenter.State.*
 import io.zenandroid.onlinego.gamelogic.RulesManager
 import io.zenandroid.onlinego.model.Position
 import io.zenandroid.onlinego.model.StoneType
@@ -39,13 +42,14 @@ class GamePresenter(
         private val gameSize: Int
 ) : GameContract.Presenter {
 
-    private enum class State {
+    enum class State {
         LOADING,
         PLAYING,
         SCORING,
         FINISHED,
         HISTORY,
-        ANALYSIS
+        ANALYSIS,
+        ESTIMATION
     }
 
     companion object {
@@ -57,6 +61,7 @@ class GamePresenter(
     private var myGame: Boolean = false
     private var currentPosition = Position(19)
     private var analysisPosition = Position(19)
+    private var estimatePosition = Position(19)
     private val userId = service.uiConfig?.user?.id
     private var currentShownMove = -1
     private var game: Game? = null
@@ -64,8 +69,9 @@ class GamePresenter(
     private var variationCurrentMove = 0
     private var undoPromptShownAtMoveNo = -1
 
-    private var currentState = State.LOADING
+    private var currentState : State = LOADING
     private var messages: List<Message>? = null
+    private var stateToReturnFromEstimation: State = PLAYING
 
     private val playingChip = PlayingChip {
         view.showInfoDialog("Playing phase",
@@ -108,6 +114,16 @@ class GamePresenter(
                 )
     }
 
+    private val estimationChip = EstimationChip {
+        view.showInfoDialog("Score Estimation",
+                "What you see on screen is a computer estimation of how the territory might " +
+                        "be divided between the players and what the score might be if the game " +
+                        "ended right now. It is very inaccurate and intended for a quick count for " +
+                        "beginners and spectators. Quickly and accurately counting territory in ones head " +
+                        "is a skill that is part of what makes a good GO player."
+        )
+    }
+
     private val historyChip = Chip("History")
 
     private var resultsDialogPending = false
@@ -117,7 +133,7 @@ class GamePresenter(
     private var deferredTerritoryComputation: Disposable? = null
 
     override fun subscribe() {
-        view.setLoading(currentState == State.LOADING)
+        view.setLoading(currentState == LOADING)
         view.boardSize = gameSize
         view.chatMyId = userId
 
@@ -141,7 +157,7 @@ class GamePresenter(
                 .addToDisposable(subscriptions)
 
         Observable.interval(100, TimeUnit.MILLISECONDS)
-                .takeWhile { currentState != State.FINISHED && game?.phase != Phase.FINISHED }
+                .takeWhile { currentState != FINISHED && game?.phase != Phase.FINISHED }
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe { clockTick() }
                 .addToDisposable(subscriptions)
@@ -184,7 +200,7 @@ class GamePresenter(
         val newGameState = determineStateFromGame(newGame)
 
         when(currentState) {
-            State.LOADING -> {
+            LOADING -> {
                 view.setLoading(false)
                 view.whitePlayer = newGame.whitePlayer
                 view.blackPlayer = newGame.blackPlayer
@@ -197,15 +213,15 @@ class GamePresenter(
 
             }
 
-            State.ANALYSIS -> {}
+            ANALYSIS, ESTIMATION -> {}
 
-            State.HISTORY -> {
-                if(newGame.moves != game?.moves || newGameState == State.FINISHED) {
+            HISTORY -> {
+                if(newGame.moves != game?.moves || newGameState == FINISHED) {
                     currentState = newGameState
                 }
             }
 
-            State.PLAYING -> {
+            PLAYING -> {
                 if(newGame.whitePlayer != game?.whitePlayer) {
                     view.whitePlayer = newGame.whitePlayer
                 }
@@ -218,21 +234,21 @@ class GamePresenter(
                     currentShownMove = newGame.moves?.size ?: 0
                 }
 
-                if(newGameState == State.FINISHED) {
+                if(newGameState == FINISHED) {
                     resultsDialogPending = true
                     showResultDialog(newGame)
                 }
                 currentState = newGameState
             }
 
-            State.FINISHED -> {
+            FINISHED -> {
                 if(resultsDialogPending) {
                     showResultDialog(newGame)
                 }
             }
 
-            State.SCORING -> {
-                if(newGameState == State.FINISHED) {
+            SCORING -> {
+                if(newGameState == FINISHED) {
                     resultsDialogPending = true
                     showResultDialog(newGame)
                 }
@@ -259,8 +275,8 @@ class GamePresenter(
     }
 
     private fun onUserHotTrackedCell(point: Point) {
-        val position = if(currentState == State.ANALYSIS) analysisPosition else currentPosition
-        if(currentState == State.ANALYSIS || currentState == State.PLAYING) {
+        val position = if(currentState == ANALYSIS) analysisPosition else currentPosition
+        if(currentState == ANALYSIS || currentState == PLAYING) {
             val validMove = RulesManager.makeMove(position, position.nextToMove, point) != null
             if (validMove) {
                 candidateMove = point
@@ -271,17 +287,17 @@ class GamePresenter(
 
     private fun onUserSelectedCell(point: Point) {
         when (currentState){
-            State.ANALYSIS -> {
+            ANALYSIS -> {
                 candidateMove?.let { doAnalysisMove(it) }
                 candidateMove = null
                 view.showCandidateMove(null)
             }
-            State.PLAYING ->
+            PLAYING ->
                 if(candidateMove != null) {
                     analytics.logEvent("candidate_move", null)
                     showConfirmMoveControls()
                 }
-            State.SCORING -> {
+            SCORING -> {
                 analytics.logEvent("scoring_change_group", null)
                 val newPos = currentPosition.clone()
                 RulesManager.toggleRemoved(newPos, point)
@@ -315,15 +331,15 @@ class GamePresenter(
 
     private fun determineStateFromGame(game: Game?) =
         when(game?.phase) {
-            Phase.PLAY -> State.PLAYING
-            Phase.STONE_REMOVAL -> State.SCORING
-            Phase.FINISHED -> State.FINISHED
-            null -> State.LOADING
+            Phase.PLAY -> PLAYING
+            Phase.STONE_REMOVAL -> SCORING
+            Phase.FINISHED -> FINISHED
+            null -> LOADING
         }
 
     override fun onDiscardButtonPressed() {
         when (currentState){
-            State.ANALYSIS -> {
+            ANALYSIS -> {
                 analytics.logEvent("analysis_cancel", null)
                 currentState = determineStateFromGame(game)
                 candidateMove = null
@@ -331,15 +347,20 @@ class GamePresenter(
                 currentPosition = Position(19)
                 game?.let { refreshUI(it) }
             }
-            State.PLAYING -> {
+            PLAYING -> {
                 analytics.logEvent("discard_move", null)
                 candidateMove = null
                 view.showCandidateMove(null)
                 game?.let { showPlayControls(it) }
             }
-            State.SCORING -> {
+            SCORING -> {
                 analytics.logEvent("resume_from_scoring", null)
                 gameConnection?.rejectRemovedStones()
+            }
+            ESTIMATION -> {
+                analytics.logEvent("cancel_estimation", null)
+                currentState = stateToReturnFromEstimation
+                game?.let { refreshUI(it) }
             }
             else -> {
                 Log.e(TAG, "onDiscardButtonPressed while state = $currentState")
@@ -349,14 +370,14 @@ class GamePresenter(
 
     override fun onConfirmButtonPressed() {
         when(currentState) {
-            State.PLAYING -> {
+            PLAYING -> {
                 analytics.logEvent("confirm_move", null)
                 view.interactive = false
                 candidateMove?.let { gameConnection?.submitMove(it) }
                 candidateMove = null
                 game?.let { showPlayControls(it) }
             }
-            State.SCORING -> {
+            SCORING -> {
                 analytics.logEvent("accept_scoring", null)
                 gameConnection?.acceptRemovedStones(currentPosition.removedSpots)
             }
@@ -366,43 +387,112 @@ class GamePresenter(
         }
     }
 
+    override fun onMenuButtonPressed() {
+        val list = mutableListOf<MenuItem>(GAME_INFO)
+        if(myGame && currentState in arrayOf(PLAYING, HISTORY, ANALYSIS)) {
+            list.add(RESIGN)
+        }
+        if(myGame && currentState in arrayOf(PLAYING, HISTORY) && game?.phase == Phase.PLAY && game?.playerToMoveId == userId) {
+            list.add(PASS)
+        }
+        if(currentState != ANALYSIS) {
+            list.add(ANALYZE)
+        }
+        list.add(ESTIMATE_SCORE)
+        list.add(DOWNLOAD_SGF)
+        if(
+                myGame
+                && currentState in arrayOf(PLAYING, HISTORY, ANALYSIS)
+                && game?.phase == Phase.PLAY && game?.playerToMoveId == userId
+                && game?.undoRequested != null
+        ) {
+            list.add(ACCEPT_UNDO)
+        }
+
+        view.showMenu(list)
+    }
+
+    override fun onMenuItemSelected(item: MenuItem) {
+        when(item) {
+            GAME_INFO -> onGameInfoClicked()
+            PASS -> onPassClicked()
+            RESIGN -> onResignClicked()
+            ESTIMATE_SCORE -> onEstimateClicked()
+            ANALYZE -> onAnalyzeButtonClicked()
+            DOWNLOAD_SGF -> onDownloadSGFClicked()
+            ACCEPT_UNDO -> onUndoAccepted()
+            REQUEST_UNDO -> TODO()
+        }
+    }
+
+    private fun onGameInfoClicked() {
+        game?.let { view.showGameInfoDialog(it) }
+    }
+
+    private fun onDownloadSGFClicked() {
+        view.navigateTo("https://online-go.com/api/v1/games/$gameId/sgf")
+    }
+
+    private fun onEstimateClicked() {
+        analytics.logEvent("estimate_clicked", null)
+        game?.let { game ->
+            stateToReturnFromEstimation = currentState
+            currentState = ESTIMATION
+            val pos = when (currentState) {
+                ANALYSIS -> analysisPosition
+                HISTORY -> RulesManager.replay(game, currentShownMove, false)
+                else -> currentPosition
+            }
+            estimatePosition = pos.clone()
+            RulesManager.determineTerritory(estimatePosition)
+
+            refreshUI(game)
+        }
+    }
+
     private fun configureBoard(game: Game) {
         when(currentState) {
-            State.ANALYSIS -> {
+            ANALYSIS -> {
                 view.showLastMove = variation.isEmpty()
                 view.showTerritory = false
                 view.fadeOutRemovedStones = false
                 view.interactive = true
             }
-            State.HISTORY -> {
+            HISTORY -> {
                 view.showLastMove = true
                 view.showTerritory = false
                 view.fadeOutRemovedStones = false
                 view.interactive = false
             }
-            State.PLAYING -> {
+            PLAYING -> {
                 view.showLastMove = true
                 view.showTerritory = false
                 view.fadeOutRemovedStones = false
                 view.interactive =
                         (currentPosition.nextToMove == StoneType.WHITE && game.whitePlayer.id == userId) || (currentPosition.nextToMove == StoneType.BLACK && game.blackPlayer.id == userId)
             }
-            State.SCORING -> {
+            SCORING -> {
                 view.showLastMove = false
                 view.showTerritory = true
                 view.fadeOutRemovedStones = true
                 view.interactive = true
             }
-            State.FINISHED -> {
+            FINISHED -> {
                 view.showLastMove = false
                 view.showTerritory = true
                 view.fadeOutRemovedStones = true
                 view.interactive = false
             }
-            GamePresenter.State.LOADING -> {
+            LOADING -> {
                 view.showLastMove = false
                 view.showTerritory = false
                 view.fadeOutRemovedStones = false
+                view.interactive = false
+            }
+            ESTIMATION -> {
+                view.showLastMove = false
+                view.showTerritory = true
+                view.fadeOutRemovedStones = true
                 view.interactive = false
             }
         }
@@ -410,19 +500,40 @@ class GamePresenter(
 
     private fun showControls(game: Game) {
         when {
-            currentState == State.ANALYSIS -> showAnalysisControls()
-            myGame && currentState == State.PLAYING -> showPlayControls(game)
-            myGame && currentState == State.SCORING -> showStoneRemovalControls()
+            currentState == ANALYSIS -> showAnalysisControls()
+            myGame && currentState == PLAYING -> showPlayControls(game)
+            myGame && currentState == SCORING -> showStoneRemovalControls()
+            currentState == HISTORY -> showHistoryControls(game)
+            currentState == ESTIMATION -> showEstimationControls()
             else -> showSpectateControls()
         }
     }
 
+    private fun showHistoryControls(game: Game) {
+        view.bottomBarVisible = true
+        view.menuButtonVisible = true
+
+        view.nextButtonVisible = true
+        view.previousButtonVisible = true
+        view.passButtonVisible = myGame && game.phase == Phase.PLAY
+        view.resignButtonVisible = myGame && game.phase == Phase.PLAY
+        view.analyzeButtonVisible = true
+
+        view.confirmButtonVisible = false
+        view.discardButtonVisible = false
+        view.autoButtonVisible = false
+
+        view.passButtonEnabled = false
+    }
+
     private fun showPlayControls(game: Game) {
         view.bottomBarVisible = true
+        view.menuButtonVisible = true
+
         view.nextButtonVisible = true
         view.previousButtonVisible = true
         view.passButtonVisible = true
-        view.resignButtonVisible = true
+        view.resignButtonVisible = false
         view.analyzeButtonVisible = true
 
         view.confirmButtonVisible = false
@@ -434,6 +545,7 @@ class GamePresenter(
 
     private fun showAnalysisControls() {
         view.bottomBarVisible = true
+        view.menuButtonVisible = true
         view.nextButtonVisible = true
         view.previousButtonVisible = true
         view.passButtonVisible = false
@@ -447,21 +559,10 @@ class GamePresenter(
         view.passButtonEnabled = false
     }
 
-    override fun onAutoButtonPressed() {
-        if(game?.phase != Phase.STONE_REMOVAL) {
-            return
-        }
-        analytics.logEvent("auto_clicked", null)
-        val newPos = currentPosition.clone()
-        newPos.clearAllRemovedSpots()
-        RulesManager.determineTerritory(newPos)
-        gameConnection?.submitRemovedStones(currentPosition.removedSpots, false)
-        gameConnection?.submitRemovedStones(newPos.removedSpots, true)
-
-    }
-
     private fun showStoneRemovalControls() {
         view.bottomBarVisible = true
+        view.menuButtonVisible = false
+
         view.nextButtonVisible = false
         view.previousButtonVisible = false
         view.passButtonVisible = false
@@ -475,6 +576,8 @@ class GamePresenter(
 
     private fun showSpectateControls() {
         view.bottomBarVisible = true
+        view.menuButtonVisible = true
+
         view.nextButtonVisible = true
         view.previousButtonVisible = true
         view.passButtonVisible = false
@@ -486,8 +589,25 @@ class GamePresenter(
         view.autoButtonVisible = false
     }
 
+    private fun showEstimationControls() {
+        view.bottomBarVisible = true
+        view.menuButtonVisible = false
+
+        view.nextButtonVisible = false
+        view.previousButtonVisible = false
+        view.passButtonVisible = false
+        view.resignButtonVisible = false
+        view.analyzeButtonVisible = false
+
+        view.confirmButtonVisible = false
+        view.discardButtonVisible = true
+        view.autoButtonVisible = false
+    }
+
     private fun showConfirmMoveControls() {
         view.bottomBarVisible = true
+
+        view.menuButtonVisible = false
         view.nextButtonVisible = false
         view.previousButtonVisible = false
         view.passButtonVisible = false
@@ -497,6 +617,18 @@ class GamePresenter(
         view.confirmButtonVisible = true
         view.discardButtonVisible = true
         view.autoButtonVisible = false
+    }
+
+    override fun onAutoButtonPressed() {
+        if(game?.phase != Phase.STONE_REMOVAL) {
+            return
+        }
+        analytics.logEvent("auto_clicked", null)
+        val newPos = currentPosition.clone()
+        newPos.clearAllRemovedSpots()
+        RulesManager.determineTerritory(newPos)
+        gameConnection?.submitRemovedStones(currentPosition.removedSpots, false)
+        gameConnection?.submitRemovedStones(newPos.removedSpots, true)
     }
 
     private fun computeTerritoryAsync(game: Game) {
@@ -515,19 +647,19 @@ class GamePresenter(
 
     private fun refreshUI(game: Game) {
         when (currentState) {
-            State.ANALYSIS -> {
+            ANALYSIS -> {
                 replayAnalysis()
                 view.position = analysisPosition
                 view.whiteScore = analysisPosition.whiteCapturedCount + (game.komi ?: 0f)
                 view.blackScore = analysisPosition.blackCapturedCount.toFloat()
             }
-            State.HISTORY -> {
+            HISTORY -> {
                 val historyPosition = RulesManager.replay(game, currentShownMove, false)
                 view.position = historyPosition
                 view.whiteScore = historyPosition.whiteCapturedCount + (game.komi ?: 0f)
                 view.blackScore = historyPosition.blackCapturedCount.toFloat()
             }
-            State.SCORING -> {
+            SCORING -> {
                 currentPosition = RulesManager.replay(game, computeTerritory = true)
                 view.position = currentPosition
                 val whiteDeadStones = currentPosition.removedSpots.filter { currentPosition.getStoneAt(it) == StoneType.WHITE }
@@ -535,7 +667,21 @@ class GamePresenter(
                 view.whiteScore = blackDeadStones.size + currentPosition.whiteTerritory.size + currentPosition.whiteCapturedCount + (game.komi ?: 0f)
                 view.blackScore = whiteDeadStones.size + currentPosition.blackTerritory.size + currentPosition.blackCapturedCount.toFloat()
             }
-            else -> {
+            ESTIMATION -> {
+                val whiteDeadStones = estimatePosition.removedSpots.filter { estimatePosition.getStoneAt(it) == StoneType.WHITE }
+                val blackDeadStones = estimatePosition.removedSpots.filter { estimatePosition.getStoneAt(it) == StoneType.BLACK }
+                if(game.scoreStones == false) {
+                    estimatePosition.whiteTerritory.removeAll(estimatePosition.whiteStones)
+                    estimatePosition.blackTerritory.removeAll(estimatePosition.blackStones)
+                }
+                view.whiteScore = blackDeadStones.size + estimatePosition.whiteTerritory.size + estimatePosition.whiteCapturedCount + (game.komi
+                        ?: 0f)
+                view.blackScore = whiteDeadStones.size + estimatePosition.blackTerritory.size + estimatePosition.blackCapturedCount.toFloat()
+
+                view.showTerritory = true
+                view.position = estimatePosition
+            }
+            PLAYING, FINISHED, LOADING -> {
                 currentPosition = RulesManager.replay(game, computeTerritory = false)
                 view.position = currentPosition
                 view.whiteScore = game.whiteScore?.total?.toFloat() ?: currentPosition.whiteCapturedCount + (game.komi ?: 0f)
@@ -559,7 +705,7 @@ class GamePresenter(
         }
 
 
-        if(currentState == State.FINISHED) {
+        if(currentState == FINISHED) {
             view.whiteTimer = null
             view.blackTimer = null
         }
@@ -583,7 +729,7 @@ class GamePresenter(
 
     private fun configurePassedLabels() {
         when (currentState) {
-            GamePresenter.State.PLAYING -> {
+            PLAYING -> {
                 val lastMoveWasAPass = game?.moves?.lastOrNull()?.get(0) == -1
                 if (lastMoveWasAPass) {
                     view.setBlackPlayerPassed(currentPosition.nextToMove == StoneType.WHITE)
@@ -602,8 +748,8 @@ class GamePresenter(
 
     private fun configureChips(game: Game) {
         when (currentState) {
-            State.LOADING -> {}
-            State.PLAYING -> {
+            LOADING -> {}
+            PLAYING -> {
                 val lastMoveWasAPass = game.moves?.lastOrNull()?.get(0) == -1
                 if (lastMoveWasAPass) {
                     view.setChips(listOf(playingChip, passedChip))
@@ -611,19 +757,22 @@ class GamePresenter(
                     view.setChips(listOf(playingChip))
                 }
             }
-            State.SCORING ->
+            SCORING ->
                 view.setChips(listOf(stoneRemovalChip))
-            State.FINISHED ->
+            FINISHED ->
                 view.setChips(listOf(finishedChip))
-            State.HISTORY -> {
+            HISTORY -> {
                 historyChip.apply {
                     text = "Move $currentShownMove/${game.moves?.size ?: 0}"
                     notifyChanged()
                     view.setChips(listOf(this))
                 }
             }
-            State.ANALYSIS ->
+            ANALYSIS ->
                 view.setChips(listOf(analysisChip))
+            ESTIMATION -> {
+                view.setChips(listOf(estimationChip))
+            }
         }
     }
 
@@ -636,7 +785,7 @@ class GamePresenter(
 //                println("pause not implemented yet")
                 //TODO
             } else {
-                if((game?.phase == Phase.PLAY || game?.phase == Phase.STONE_REMOVAL) && currentState != State.LOADING) {
+                if((game?.phase == Phase.PLAY || game?.phase == Phase.STONE_REMOVAL) && currentState != LOADING) {
                     view.whiteTimer = computeTimeLeft(clock, clock.whiteTimeSimple, clock.whiteTime, game?.playerToMoveId == game?.whitePlayer?.id)
                     view.blackTimer = computeTimeLeft(clock, clock.blackTimeSimple, clock.blackTime, game?.playerToMoveId == game?.blackPlayer?.id)
                 }
@@ -655,14 +804,24 @@ class GamePresenter(
         gameConnection?.submitMove(Point(-1, -1))
     }
 
+    override fun onPassClicked() {
+        analytics.logEvent("pass_clicked", null)
+        view.showPassConfirmation()
+    }
+
+    override fun onResignClicked() {
+        analytics.logEvent("resign_clicked", null)
+        view.showResignConfirmation()
+    }
+
     override fun onNextButtonPressed() {
         game?.let { game ->
             when (currentState) {
-                State.ANALYSIS -> {
+                ANALYSIS -> {
                     analytics.logEvent("next_analytics_clicked", null)
                     variationCurrentMove = (variationCurrentMove + 1).coerceIn(-1, variation.size - 1)
                 }
-                State.HISTORY -> {
+                HISTORY -> {
                     analytics.logEvent("next_history_clicked", null)
                     game.moves?.let { moves ->
                         currentShownMove = (currentShownMove + 1).coerceIn(0, moves.size)
@@ -682,13 +841,13 @@ class GamePresenter(
     override fun onPreviousButtonPressed() {
         game?.let { game ->
             when (currentState) {
-                State.ANALYSIS -> {
+                ANALYSIS -> {
                     analytics.logEvent("previous_analytics_clicked", null)
                     variationCurrentMove = (variationCurrentMove - 1).coerceIn(-1, variation.size - 1)
                 }
-                State.PLAYING, State.HISTORY, State.FINISHED -> {
+                PLAYING, HISTORY, FINISHED -> {
                     analytics.logEvent("previous_history_clicked", null)
-                    currentState = State.HISTORY
+                    currentState = HISTORY
                     game.moves?.let { moves ->
                         currentShownMove--
                         currentShownMove = currentShownMove.coerceIn(0, moves.size)
@@ -715,9 +874,9 @@ class GamePresenter(
         }
     }
 
-    override fun onAnalyzeButtonPressed() {
+    override fun onAnalyzeButtonClicked() {
         analytics.logEvent("analyze_clicked", null)
-        currentState = State.ANALYSIS
+        currentState = ANALYSIS
         analysisPosition = currentPosition.clone()
         currentShownMove = game?.moves?.size ?: currentShownMove
         variation.clear()
@@ -727,11 +886,11 @@ class GamePresenter(
 
     private fun configurePlayerStatus() {
         when (currentState) {
-            State.LOADING, State.FINISHED -> {
+            LOADING, FINISHED, ESTIMATION -> {
                 view.setWhitePlayerStatus(null)
                 view.setBlackPlayerStatus(null)
             }
-            State.SCORING -> {
+            SCORING -> {
                 if(game?.removedStones == game?.whitePlayer?.acceptedStones) {
                     view.setWhitePlayerStatus("Accepted", R.color.colorPrimary)
                 } else {
@@ -743,7 +902,7 @@ class GamePresenter(
                     view.setBlackPlayerStatus("Not accepted")
                 }
             }
-            else -> {
+            PLAYING, HISTORY, ANALYSIS -> {
                 if(currentPosition.nextToMove == StoneType.WHITE) {
                     val prefix = if(game?.whitePlayer?.id == userId) "Your" else "Their"
                     view.setWhitePlayerStatus("$prefix turn")
@@ -763,7 +922,7 @@ class GamePresenter(
     private fun configurePreviousNextButtons() {
         game?.let { game ->
             when(currentState) {
-                State.ANALYSIS -> {
+                ANALYSIS -> {
                     view.nextButtonEnabled = variationCurrentMove < variation.size - 1
                     view.previousButtonEnabled = variationCurrentMove > -1
                 }

@@ -51,4 +51,5 @@ class PlayingChip(onClick: (() -> Unit)? = null) : Chip("Playing", R.drawable.ic
 class StoneRemovalChip(onClick: (() -> Unit)? = null) : Chip("Scoring", R.drawable.ic_question_mark, onClick = onClick)
 class PassedChip(onClick: (() -> Unit)? = null) : Chip("Player Passed", R.drawable.ic_question_mark, onClick = onClick)
 class AnalysisChip(onClick: (() -> Unit)? = null) : Chip("Analysis", R.drawable.ic_question_mark, onClick = onClick)
+class EstimationChip(onClick: (() -> Unit)? = null) : Chip("Estimation", R.drawable.ic_question_mark, onClick = onClick)
 class VersionChip : Chip(BuildConfig.VERSION_NAME)

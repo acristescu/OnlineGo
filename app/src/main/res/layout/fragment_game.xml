@@ -57,6 +57,18 @@
             android:orientation="horizontal"
             >
             <android.support.v7.widget.AppCompatImageView
+                android:id="@+id/menuButton"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                app:srcCompat="@drawable/ic_menu"
+                app:tint="#000000"
+                android:layout_weight="1"
+                android:paddingTop="10dp"
+                android:paddingBottom="10dp"
+                android:clickable="true"
+                android:focusable="true"
+                />
+            <android.support.v7.widget.AppCompatImageView
                 android:id="@+id/discardButton"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
@@ -92,7 +104,7 @@
                 android:id="@+id/analyzeButton"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                app:srcCompat="@drawable/ic_analyze"
+                app:srcCompat="@drawable/ic_thinking"
                 app:tint="@color/disable_black"
                 android:layout_weight="1"
                 android:paddingTop="10dp"

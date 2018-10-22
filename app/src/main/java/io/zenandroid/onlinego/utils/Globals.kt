@@ -5,6 +5,7 @@ import io.zenandroid.onlinego.game.GamePresenter
 import io.zenandroid.onlinego.model.local.Clock
 import io.zenandroid.onlinego.model.local.Game
 import io.zenandroid.onlinego.model.local.Time
+import io.zenandroid.onlinego.ogs.TimeControl
 import org.json.JSONArray
 import org.json.JSONObject
 import java.lang.Math.ceil
@@ -135,4 +136,54 @@ fun formatMillis(millis: Long): String = when {
     else -> "%d week%s".format(millis/(7 * 24 * 3_600_000), plural(millis/(7 * 24 * 3_600_000)))
 }
 
-fun plural(number: Long) = if(number > 1) "s" else ""
+fun plural(number: Long) = if(number != 1L) "s" else ""
+
+fun timeControlDescription(timeControl: TimeControl): String {
+
+    val system = timeControl.system ?: timeControl.time_control
+    var desc = when(system) {
+        "simple" -> "Simple: ${formatSeconds(timeControl.per_move)} per move."
+        "fischer" -> "Fischer: Clock starts with ${formatSeconds(timeControl.initial_time)} and increments by ${formatSeconds(timeControl.time_increment)} per move up to a maximum of ${formatSeconds(timeControl.max_time)}."
+        "byoyomi" -> "Japanese Byo-Yomi: Clock starts with ${formatSeconds(timeControl.main_time)} main time, followed by ${timeControl.periods} periods of ${formatSeconds(timeControl.period_time)} each."
+        "canadian" -> "Canadian Byo-Yomi: Clock starts with ${formatSeconds(timeControl.main_time)} main time, followed by ${formatSeconds(timeControl.period_time)} per ${timeControl.stones_per_period} stones."
+        "absolute" -> "Absolute: ${formatSeconds(timeControl.total_time)} total play time per player."
+        "none" -> "No time limits."
+        else -> "?"
+    }
+
+    if(timeControl.pause_on_weekends == true) {
+        desc += " Pauses on weekends."
+    }
+
+    return desc
+}
+
+fun pluralButNotZero(number: Long, suffix: String) =
+    if(number > 0) {
+        " $number $suffix${plural(number)}"
+    } else {
+        ""
+    }
+
+fun formatSeconds(seconds: Int?): String {
+    seconds?.let {
+        var s = it.toDouble()
+        val weeks = (s / (86400 * 7)).toLong()
+        s -= weeks . toInt () * 86400 * 7
+        val days = (s / 86400).toLong()
+        s -= days * 86400
+        val hours = (s / 3600).toLong()
+        s -= hours * 3600
+        val minutes = (s / 60).toLong()
+        s -= minutes * 60
+
+        return when {
+            weeks > 0 -> "$weeks week${plural(weeks)}${pluralButNotZero(days, "day")}"
+            days > 0 -> "$days day${plural(days)}${pluralButNotZero(hours, "hour")}"
+            hours > 0 -> "$hours hour${plural(hours)}${pluralButNotZero(minutes, "minute")}"
+            minutes > 0 -> "$minutes minute${plural(minutes)}${pluralButNotZero(s.toLong(), "seconds")}"
+            else -> "${s.toLong()} second${plural(s.toLong())}"
+        }
+    }
+    return "?"
+}
