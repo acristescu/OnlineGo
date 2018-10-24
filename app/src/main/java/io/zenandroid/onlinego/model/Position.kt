@@ -41,6 +41,11 @@ class Position(val boardSize: Int) {
     val blackStones: Set<Point>
         get() = stones.filter { it.value == StoneType.BLACK }.keys
 
+    val whiteDeadStones: Collection<Point>
+        get() = removedSpots.filter { stones[it] == StoneType.WHITE }
+    val blackDeadStones: Collection<Point>
+        get() = removedSpots.filter { stones[it] == StoneType.BLACK }
+
     val lastPlayerToMove: StoneType?
         get() = lastMove?.let { getStoneAt(it.x, it.y) }
     var variation: List<Point> = listOf()

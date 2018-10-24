@@ -83,12 +83,13 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:fontFamily="@font/ubuntu_medium"
             android:gravity="left"
             android:maxLines="1"
             android:textColor="@color/colorTextSecondary"
             android:textSize="14sp"
-            tools:text="MrAlex" />
+            tools:text="MrAlex"
+            android:textStyle="bold"
+            />
 
         <TextView
             android:id="@+id/rankView"
@@ -107,7 +108,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:layout_marginEnd="8dp"
-            android:textSize="12sp"
+            android:textSize="14sp"
             />
     </LinearLayout>
 

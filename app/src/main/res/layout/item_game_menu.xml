@@ -29,8 +29,8 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         android:textColor="@color/colorText"
-        android:textSize="18sp"
-        android:alpha=".75"
+        android:alpha=".9"
+        android:textSize="16sp"
         android:textStyle="bold"
         />
 

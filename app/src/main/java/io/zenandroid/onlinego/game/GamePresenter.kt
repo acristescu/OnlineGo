@@ -3,6 +3,7 @@ package io.zenandroid.onlinego.game
 import android.graphics.Point
 import android.util.Log
 import com.google.firebase.analytics.FirebaseAnalytics
+import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.SingleEmitter
@@ -388,6 +389,7 @@ class GamePresenter(
     }
 
     override fun onMenuButtonPressed() {
+        analytics.logEvent("menu_button_pressed", null)
         val list = mutableListOf<MenuItem>(GAME_INFO)
         if(myGame && currentState in arrayOf(PLAYING, HISTORY, ANALYSIS)) {
             list.add(RESIGN)
@@ -403,7 +405,8 @@ class GamePresenter(
         if(
                 myGame
                 && currentState in arrayOf(PLAYING, HISTORY, ANALYSIS)
-                && game?.phase == Phase.PLAY && game?.playerToMoveId == userId
+                && game?.phase == Phase.PLAY
+                && game?.playerToMoveId == userId
                 && game?.undoRequested != null
         ) {
             list.add(ACCEPT_UNDO)
@@ -436,17 +439,33 @@ class GamePresenter(
     private fun onEstimateClicked() {
         analytics.logEvent("estimate_clicked", null)
         game?.let { game ->
-            stateToReturnFromEstimation = currentState
-            currentState = ESTIMATION
             val pos = when (currentState) {
                 ANALYSIS -> analysisPosition
                 HISTORY -> RulesManager.replay(game, currentShownMove, false)
                 else -> currentPosition
             }
+            stateToReturnFromEstimation = currentState
+            currentState = ESTIMATION
             estimatePosition = pos.clone()
-            RulesManager.determineTerritory(estimatePosition)
 
-            refreshUI(game)
+            view.setLoading(true)
+            Completable.fromAction(this::estimateTerritory)
+                    .subscribeOn(Schedulers.computation())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe {
+                        view.setLoading(false)
+                        refreshUI(game)
+                    }
+                    .addToDisposable(subscriptions)
+
+        }
+    }
+
+    private fun estimateTerritory() {
+        RulesManager.determineTerritory(estimatePosition)
+        if(game?.scoreStones == false) {
+            estimatePosition.whiteTerritory.removeAll(estimatePosition.whiteStones)
+            estimatePosition.blackTerritory.removeAll(estimatePosition.blackStones)
         }
     }
 
@@ -516,7 +535,7 @@ class GamePresenter(
         view.nextButtonVisible = true
         view.previousButtonVisible = true
         view.passButtonVisible = myGame && game.phase == Phase.PLAY
-        view.resignButtonVisible = myGame && game.phase == Phase.PLAY
+        view.resignButtonVisible = false
         view.analyzeButtonVisible = true
 
         view.confirmButtonVisible = false
@@ -662,21 +681,12 @@ class GamePresenter(
             SCORING -> {
                 currentPosition = RulesManager.replay(game, computeTerritory = true)
                 view.position = currentPosition
-                val whiteDeadStones = currentPosition.removedSpots.filter { currentPosition.getStoneAt(it) == StoneType.WHITE }
-                val blackDeadStones = currentPosition.removedSpots.filter { currentPosition.getStoneAt(it) == StoneType.BLACK }
-                view.whiteScore = blackDeadStones.size + currentPosition.whiteTerritory.size + currentPosition.whiteCapturedCount + (game.komi ?: 0f)
-                view.blackScore = whiteDeadStones.size + currentPosition.blackTerritory.size + currentPosition.blackCapturedCount.toFloat()
+                view.whiteScore = currentPosition.blackDeadStones.size + currentPosition.whiteTerritory.size + currentPosition.whiteCapturedCount + (game.komi ?: 0f)
+                view.blackScore = currentPosition.whiteDeadStones.size + currentPosition.blackTerritory.size + currentPosition.blackCapturedCount.toFloat()
             }
             ESTIMATION -> {
-                val whiteDeadStones = estimatePosition.removedSpots.filter { estimatePosition.getStoneAt(it) == StoneType.WHITE }
-                val blackDeadStones = estimatePosition.removedSpots.filter { estimatePosition.getStoneAt(it) == StoneType.BLACK }
-                if(game.scoreStones == false) {
-                    estimatePosition.whiteTerritory.removeAll(estimatePosition.whiteStones)
-                    estimatePosition.blackTerritory.removeAll(estimatePosition.blackStones)
-                }
-                view.whiteScore = blackDeadStones.size + estimatePosition.whiteTerritory.size + estimatePosition.whiteCapturedCount + (game.komi
-                        ?: 0f)
-                view.blackScore = whiteDeadStones.size + estimatePosition.blackTerritory.size + estimatePosition.blackCapturedCount.toFloat()
+                view.whiteScore = estimatePosition.blackDeadStones.size + estimatePosition.whiteTerritory.size + estimatePosition.whiteCapturedCount + (game.komi ?: 0f)
+                view.blackScore = estimatePosition.whiteDeadStones.size + estimatePosition.blackTerritory.size + estimatePosition.blackCapturedCount.toFloat()
 
                 view.showTerritory = true
                 view.position = estimatePosition
