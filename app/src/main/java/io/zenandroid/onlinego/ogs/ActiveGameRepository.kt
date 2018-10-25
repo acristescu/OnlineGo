@@ -49,7 +49,7 @@ class ActiveGameRepository {
         @Synchronized get() = myMoveCountSubject.distinctUntilChanged()
 
     val myTurnGamesList: List<Game>
-        get() = activeDbGames.values.filter(Util::isMyTurn).toList()
+        @Synchronized get() = activeDbGames.values.filter(Util::isMyTurn).toList()
 
     internal fun subscribe() {
         OGSServiceImpl.instance.connectToNotifications()

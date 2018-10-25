@@ -1,6 +1,7 @@
 package io.zenandroid.onlinego.main
 
 import android.util.Log
+import com.crashlytics.android.Crashlytics
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -75,14 +76,19 @@ class MainPresenter (val view : MainContract.View, private val activeGameReposit
     }
 
     override fun onNotificationClicked() {
+        val gamesList = activeGameRepository.myTurnGamesList
+        if(gamesList.isEmpty()) {
+            Crashlytics.log("Notification clicked while no games available")
+            return
+        }
         val gameToNavigate = if(lastGameNotified == null) {
-            activeGameRepository.myTurnGamesList[0]
+            gamesList[0]
         } else {
-            val index = activeGameRepository.myTurnGamesList.indexOfFirst { it.id == lastGameNotified?.id }
+            val index = gamesList.indexOfFirst { it.id == lastGameNotified?.id }
             if(index == -1) {
-                activeGameRepository.myTurnGamesList[0]
+                gamesList[0]
             } else {
-                activeGameRepository.myTurnGamesList[(index + 1) % activeGameRepository.myTurnGamesList.size]
+                gamesList[(index + 1) % gamesList.size]
             }
         }
         lastGameNotified = gameToNavigate
