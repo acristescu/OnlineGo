@@ -4,6 +4,7 @@ import android.arch.persistence.room.Embedded
 import android.arch.persistence.room.Entity
 import android.arch.persistence.room.Ignore
 import android.arch.persistence.room.PrimaryKey
+import com.crashlytics.android.Crashlytics
 import io.zenandroid.onlinego.model.ogs.GameData
 import io.zenandroid.onlinego.model.ogs.OGSGame
 import io.zenandroid.onlinego.model.ogs.Phase
@@ -91,6 +92,16 @@ data class Game(
                     rating = blackRating,
                     acceptedStones = players?.black?.accepted_stones
             )
+
+            val isRanked : Boolean? = when(gamedata?.ranked) {
+                null -> null
+                is Double -> gamedata.ranked != 0.0
+                is Boolean -> gamedata.ranked as Boolean
+                else -> {
+                    Crashlytics.log("gamedata.ranked has unexpected value: ${gamedata.ranked}")
+                    null
+                }
+            }
             return Game(
                     id = game.id,
                     width = game.width,
@@ -117,7 +128,7 @@ data class Game(
                     scoreStones = gamedata?.score_stones,
                     name = gamedata?.game_name,
                     rules = gamedata?.rules,
-                    ranked = gamedata?.ranked,
+                    ranked = isRanked,
                     timeControl = gamedata?.time_control
             )
         }

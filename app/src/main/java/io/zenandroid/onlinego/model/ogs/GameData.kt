@@ -12,7 +12,7 @@ data class GameData (
         var _private: Boolean? = null,
         var height: Int,
         var time_control: TimeControl? = null,
-        var ranked: Boolean? = null,
+        var ranked: Any? = null, // note it's sometimes true/false, sometimes 0/1
         var komi: Float? = null,
         var game_id: Long,
         var width: Int,
