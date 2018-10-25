@@ -10,18 +10,20 @@ import retrofit2.http.*
  */
 interface OGSRestAPI {
 
+    @FormUrlEncoded
     @POST("oauth2/token/")
-    fun login(@Query("username") username: String,
-              @Query("password") password: String,
-              @Query("client_id") client_id: String = BuildConfig.CLIENT_ID,
-              @Query("client_secret") client_secret: String = BuildConfig.CLIENT_SECRET,
-              @Query("grant_type") grant_type: String = "password"): Single<LoginToken>
+    fun login(@Field("username") username: String,
+              @Field("password") password: String,
+              @Field("client_id") client_id: String = BuildConfig.CLIENT_ID,
+              @Field("client_secret") client_secret: String = BuildConfig.CLIENT_SECRET,
+              @Field("grant_type") grant_type: String = "password"): Single<LoginToken>
 
+    @FormUrlEncoded
     @POST("oauth2/token/")
-    fun refreshToken(@Query("refresh_token") refresh_token: String,
-                     @Query("client_id") client_id: String = BuildConfig.CLIENT_ID,
-                     @Query("client_secret") client_secret: String = BuildConfig.CLIENT_SECRET,
-                     @Query("grant_type") grant_type: String = "refresh_token"): Single<LoginToken>
+    fun refreshToken(@Field("refresh_token") refresh_token: String,
+                     @Field("client_id") client_id: String = BuildConfig.CLIENT_ID,
+                     @Field("client_secret") client_secret: String = BuildConfig.CLIENT_SECRET,
+                     @Field("grant_type") grant_type: String = "refresh_token"): Single<LoginToken>
 
     @GET("api/v1/ui/config/")
     fun uiConfig(): Single<UIConfig>
