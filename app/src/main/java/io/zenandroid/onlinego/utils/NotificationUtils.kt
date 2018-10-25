@@ -36,6 +36,7 @@ class NotificationUtils {
             val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
             val prefs = PreferenceManager.getDefaultSharedPreferences(context)
+            val vibrationEnabled = prefs.getBoolean("notification_vibrate", true)
             val lastNotificationCount = prefs.getInt(COUNT_KEY, 0)
             val lastNotificationHash = prefs.getString(HASH_KEY, null)?.toByteArray(Charsets.ISO_8859_1)
             prefs.edit().putInt(COUNT_KEY, games.size).apply()
@@ -64,9 +65,11 @@ class NotificationUtils {
                     notificationIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED
                     val pendingIntent = PendingIntent.getActivity(context, 0, notificationIntent, FLAG_UPDATE_CURRENT)
 
-                    val vibrationPattern =
-                            if(games.size > lastNotificationCount) longArrayOf(0, 200)
-                            else longArrayOf(0, 10)
+                    val vibrationPattern = when {
+                        !vibrationEnabled -> longArrayOf(0)
+                        games.size > lastNotificationCount -> longArrayOf(0, 200)
+                        else -> longArrayOf(0, 10)
+                    }
                     val drawable = ContextCompat.getDrawable(context, R.drawable.ic_board_transparent)!!
                     val bitmap = Bitmap.createBitmap(drawable.intrinsicWidth, drawable.intrinsicHeight, Bitmap.Config.ARGB_8888)
                     val canvas = Canvas(bitmap)

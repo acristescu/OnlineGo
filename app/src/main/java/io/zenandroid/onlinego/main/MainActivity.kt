@@ -158,7 +158,7 @@ class MainActivity : AppCompatActivity(), MainContract.View {
                 .setLifetime(Lifetime.FOREVER)
                 .setRecurring(true)
                 .setTag("poller")
-                .setTrigger(Trigger.executionWindow(100, 600))
+                .setTrigger(Trigger.executionWindow(60, 600))
                 .setReplaceCurrent(true)
                 .setRetryStrategy(RetryStrategy.DEFAULT_LINEAR)
                 .setService(NotificationsService::class.java)
