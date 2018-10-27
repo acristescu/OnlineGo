@@ -1,6 +1,7 @@
 package io.zenandroid.onlinego.ogs
 
 import android.util.Log
+import com.crashlytics.android.Crashlytics
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types
@@ -25,6 +26,7 @@ import org.json.JSONObject
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.moshi.MoshiConverterFactory
+import java.text.SimpleDateFormat
 import java.util.*
 import java.util.logging.Level
 import java.util.logging.Logger
@@ -49,6 +51,7 @@ class OGSServiceImpl private constructor(): OGSService {
     private val restApi: OGSRestAPI
     private val moshi = Moshi.Builder().add(Date::class.java, Rfc3339DateJsonAdapter().nullSafe()).build()
     private var authSent = false
+    private val sdf = SimpleDateFormat("dd-mm hh:mm:ss:")
 
     private var connectedToChallenges = false
 
@@ -106,6 +109,7 @@ class OGSServiceImpl private constructor(): OGSService {
         this.token = token
         Date(Date().time + token.expires_in * 1000).let {
             this.tokenExpiry = it
+            Crashlytics.setString("TOKEN_EXPIRES", it.toString())
             PersistenceManager.instance.storeToken(token, it)
         }
     }
@@ -278,7 +282,7 @@ class OGSServiceImpl private constructor(): OGSService {
 
     fun fetchGameList(): Single<GameList> {
         ensureSocketConnected()
-        return Single.create({emitter ->
+        return Single.create { emitter ->
             socket.emit("gamelist/query", createJsonObject {
                 put("list", "live")
                 put("sort_by", "rank")
@@ -287,7 +291,7 @@ class OGSServiceImpl private constructor(): OGSService {
             }, Ack {
                 args -> emitter.onSuccess(moshi.adapter(GameList::class.java).fromJson(args[0].toString()) as GameList )
             })
-        })
+        }
 
     }
 
@@ -296,6 +300,13 @@ class OGSServiceImpl private constructor(): OGSService {
     }
 
     init {
+        uiConfig = PersistenceManager.instance.getUIConfig()
+        MainActivity.userId = uiConfig?.user?.id
+        token = PersistenceManager.instance.getToken()
+        tokenExpiry = PersistenceManager.instance.getTokenExpiry()
+        Crashlytics.setString("TOKEN_EXPIRES", tokenExpiry.toString())
+        Crashlytics.log("loading persisted token")
+
         val httpClient = OkHttpClient.Builder()
                 .addInterceptor { chain ->
                     var request = chain.request()
@@ -305,7 +316,8 @@ class OGSServiceImpl private constructor(): OGSService {
                                 .build()
                     }
                     val response = chain.proceed(request)
-                    Log.i(TAG, "${request.method()} ${request.url()} -> ${response.code()} ${response.message()}")
+                    val tokenInfo = if(token == null) "NO_TOKEN!!! " else ""
+                    Crashlytics.log(Log.INFO, TAG, "${request.method()} ${request.url()} $tokenInfo-> ${response.code()} ${response.message()}")
                     response
                 }
                 .addInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))
@@ -317,11 +329,6 @@ class OGSServiceImpl private constructor(): OGSService {
                 .addConverterFactory(MoshiConverterFactory.create(moshi))
                 .build()
                 .create(OGSRestAPI::class.java)
-
-        uiConfig = PersistenceManager.instance.getUIConfig()
-        MainActivity.userId = uiConfig?.user?.id
-        token = PersistenceManager.instance.getToken()
-        tokenExpiry = PersistenceManager.instance.getTokenExpiry()
 
         socket = IO.socket("https://online-go.com", IO.Options().apply {
             transports = arrayOf("websocket")
