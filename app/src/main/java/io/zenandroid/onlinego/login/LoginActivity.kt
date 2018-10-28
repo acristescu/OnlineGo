@@ -16,6 +16,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.Toast
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.android.gms.common.Scopes
+import com.google.android.gms.common.api.ApiException
+import com.google.android.gms.common.api.Scope
 import com.google.firebase.analytics.FirebaseAnalytics
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -57,7 +62,51 @@ class LoginActivity : AppCompatActivity() {
 
         username.onChange { onTextChanged() }
         password.onChange { onTextChanged() }
+
+        signInButton.setOnClickListener {
+            val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+//                    .requestServerAuthCode("870935345166-6j2s6i9adl64ms3ta4k9n4flkqjhs229.apps.googleusercontent.com")
+                    .requestIdToken("814240841250-7rdrrjpna21g6litd818nrvk4vg3v1v6.apps.googleusercontent.com")
+                    .requestScopes(Scope(Scopes.OPEN_ID), Scope(Scopes.EMAIL), Scope(Scopes.PROFILE))
+                    .build()
+            val mGoogleSignInClient = GoogleSignIn.getClient(this, gso)
+            val signInIntent = mGoogleSignInClient.getSignInIntent()
+            startActivityForResult(signInIntent, 1)
+        }
     }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent) {
+    super.onActivityResult(requestCode, resultCode, data);
+
+    // Result returned from launching the Intent from GoogleSignInClient.getSignInIntent(...);
+    if (requestCode == 1) {
+        // The Task returned from this call is always completed, no need to attach
+        // a listener.
+        val task = GoogleSignIn.getSignedInAccountFromIntent(data)
+        try {
+            val account = task.getResult(ApiException::class.java)
+
+            // Signed in successfully, show authenticated UI.
+            Toast.makeText(this, account.toString(), Toast.LENGTH_LONG).show()
+
+            account?.idToken?.let {
+                println(it)
+                OGSServiceImpl.instance.loginWithCode(it)
+                        .doOnComplete { OGSServiceImpl.instance.ensureSocketConnected() }
+                        .observeOn(AndroidSchedulers.mainThread())
+//                        .doOnComplete { analytics.logEvent(FirebaseAnalytics.Event.LOGIN, null) }
+                        .subscribe(this::onLoginSuccess, this::onPasswordLoginFailure)
+                        .addToDisposable(subscriptions)
+            }
+
+        } catch (e: ApiException) {
+            // The ApiException status code indicates the detailed failure reason.
+            // Please refer to the GoogleSignInStatusCodes class reference for more information.
+            Log.w(TAG, "signInResult:failed code=" + e.getStatusCode());
+            Toast.makeText(this, "signInResult:failed code=" + e.getStatusCode(), Toast.LENGTH_LONG).show()
+        }
+    }
+}
 
     private fun toggleCreateAccountMode() {
         TransitionManager.beginDelayedTransition(findViewById(R.id.container))
@@ -145,10 +194,7 @@ class LoginActivity : AppCompatActivity() {
                 .doOnComplete { OGSServiceImpl.instance.ensureSocketConnected() }
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnComplete { analytics.logEvent(FirebaseAnalytics.Event.LOGIN, null) }
-                .subscribe(
-                        this::onLoginSuccess,
-                        this::onPasswordLoginFailure
-                )
+                .subscribe(this::onLoginSuccess, this::onPasswordLoginFailure)
                 .addToDisposable(subscriptions)
     }
 

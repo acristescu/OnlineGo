@@ -116,6 +116,11 @@
             android:visibility="gone"
             tools:visibility="visible"
             />
+        <com.google.android.gms.common.SignInButton
+            android:id="@+id/signInButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            />
         <TextView
             android:id="@+id/noAccountView"
             android:layout_width="wrap_content"

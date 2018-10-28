@@ -67,6 +67,14 @@ class OGSServiceImpl private constructor(): OGSService {
                 .ignoreElement()
     }
 
+    fun loginWithCode(code: String): Completable {
+        return restApi.authWithCode(code)
+                .doOnSuccess(this::storeToken)
+                .flatMap { restApi.uiConfig() }
+                .doOnSuccess(this::storeUIConfig)
+                .ignoreElement()
+    }
+
     fun createAccount(username: String, password: String, email: String): Completable {
         val ebi = "${Math.random().toString().split(".")[1]}.0.0.0.0.xxx.xxx.${Date().timezoneOffset + 13}"
         return restApi.createAccount(CreateAccountRequest(username, password, email, ebi))

@@ -25,6 +25,13 @@ interface OGSRestAPI {
                      @Field("client_secret") client_secret: String = BuildConfig.CLIENT_SECRET,
                      @Field("grant_type") grant_type: String = "refresh_token"): Single<LoginToken>
 
+    @FormUrlEncoded
+    @POST("oauth2/token/")
+    fun authWithCode(@Field("code") code: String,
+                     @Field("client_id") client_id: String = BuildConfig.CLIENT_ID,
+                     @Field("client_secret") client_secret: String = BuildConfig.CLIENT_SECRET,
+                     @Field("grant_type") grant_type: String = "authorization_code"): Single<LoginToken>
+
     @GET("api/v1/ui/config/")
     fun uiConfig(): Single<UIConfig>
 
