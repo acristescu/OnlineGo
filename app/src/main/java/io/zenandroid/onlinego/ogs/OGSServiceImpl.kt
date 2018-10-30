@@ -24,6 +24,7 @@ import io.zenandroid.onlinego.model.ogs.*
 import io.zenandroid.onlinego.utils.PersistenceManager
 import io.zenandroid.onlinego.utils.createJsonArray
 import io.zenandroid.onlinego.utils.createJsonObject
+import okhttp3.HttpUrl
 import okhttp3.OkHttpClient
 import okhttp3.ResponseBody
 import okhttp3.logging.HttpLoggingInterceptor
@@ -90,7 +91,9 @@ class OGSServiceImpl private constructor(): OGSService {
     }
 
     fun isLoggedIn() =
-            uiConfig != null
+            (uiConfig != null) &&
+                    cookieJar.loadForRequest(HttpUrl.parse("https://online-go.com/")!!)
+                            .any { it.name() == "sessionid" }
 
     private fun storeUIConfig(uiConfig: UIConfig) {
         this.uiConfig = uiConfig
