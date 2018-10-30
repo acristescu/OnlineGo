@@ -22,13 +22,12 @@ class MainPresenter (val view : MainContract.View, private val activeGameReposit
     private var lastMoveCount: Int? = null
 
     override fun subscribe() {
-        OGSServiceImpl.instance
-                .loginWithToken()
-                .subscribe ({
-                    OGSServiceImpl.instance.ensureSocketConnected()
-                    OGSServiceImpl.instance.resendAuth()
-                }, { view.showLogin() })
-                .addToDisposable(subscriptions)
+        if(OGSServiceImpl.instance.isLoggedIn()) {
+            OGSServiceImpl.instance.ensureSocketConnected()
+            OGSServiceImpl.instance.resendAuth()
+        } else {
+            view.showLogin()
+        }
 
         activeGameRepository.myMoveCountObservable
                 .observeOn(AndroidSchedulers.mainThread())

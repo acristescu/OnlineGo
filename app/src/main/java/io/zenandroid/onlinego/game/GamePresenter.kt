@@ -163,14 +163,10 @@ class GamePresenter(
                 .subscribe { clockTick() }
                 .addToDisposable(subscriptions)
 
-        OGSServiceImpl.instance.loginWithToken()
-                .toSingle { OGSServiceImpl.instance.connectToGame(gameId) }
-                .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
-                .subscribe({
-                    subscriptions.add(it)
-                    gameConnection = it
-                }, this::onError)
-                .addToDisposable(subscriptions)
+        gameConnection = OGSServiceImpl.instance.connectToGame(gameId).apply {
+            subscriptions.add(this)
+        }
+
 
         OnlineGoApplication.instance.chatRepository.monitorGameChat(gameId)
                 .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!

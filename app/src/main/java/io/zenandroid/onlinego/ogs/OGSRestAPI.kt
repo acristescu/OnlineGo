@@ -1,7 +1,6 @@
 package io.zenandroid.onlinego.ogs
 
 import io.reactivex.Single
-import io.zenandroid.onlinego.BuildConfig
 import io.zenandroid.onlinego.model.ogs.*
 import retrofit2.http.*
 
@@ -10,6 +9,7 @@ import retrofit2.http.*
  */
 interface OGSRestAPI {
 
+    /*
     @FormUrlEncoded
     @POST("oauth2/token/")
     fun login(@Field("username") username: String,
@@ -24,6 +24,10 @@ interface OGSRestAPI {
                      @Field("client_id") client_id: String = BuildConfig.CLIENT_ID,
                      @Field("client_secret") client_secret: String = BuildConfig.CLIENT_SECRET,
                      @Field("grant_type") grant_type: String = "refresh_token"): Single<LoginToken>
+    */
+
+    @POST("api/v0/login")
+    fun login(@Body request: CreateAccountRequest): Single<UIConfig>
 
     @GET("api/v1/ui/config/")
     fun uiConfig(): Single<UIConfig>

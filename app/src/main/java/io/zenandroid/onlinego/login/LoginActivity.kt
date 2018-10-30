@@ -3,6 +3,7 @@ package io.zenandroid.onlinego.login
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Canvas
+import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.support.transition.Fade
@@ -17,6 +18,8 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.Toast
 import com.google.firebase.analytics.FirebaseAnalytics
+import io.reactivex.Completable
+import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
@@ -29,6 +32,8 @@ import io.zenandroid.onlinego.extensions.show
 import io.zenandroid.onlinego.main.MainActivity
 import io.zenandroid.onlinego.ogs.OGSServiceImpl
 import kotlinx.android.synthetic.main.activity_login.*
+import okhttp3.OkHttpClient
+import okhttp3.Request
 import org.json.JSONObject
 import retrofit2.HttpException
 
@@ -44,6 +49,10 @@ class LoginActivity : AppCompatActivity() {
 
     private var analytics = OnlineGoApplication.instance.analytics
     private val subscriptions = CompositeDisposable()
+    private val client = OkHttpClient.Builder()
+            .cookieJar(OGSServiceImpl.instance.cookieJar)
+            .followRedirects(false)
+            .build()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -57,6 +66,37 @@ class LoginActivity : AppCompatActivity() {
 
         username.onChange { onTextChanged() }
         password.onChange { onTextChanged() }
+
+        intent.data?.let {
+            val request = Request.Builder()
+                    .url(it.toString())
+                    .get()
+                    .build()
+            Completable.fromCallable { client.newCall(request).execute() }
+                    .andThen(OGSServiceImpl.instance.fetchUIConfig())
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(this::onLoginSuccess, this::onTokenLoginFailure)
+        }
+        facebookSignInButton.setOnClickListener {
+            socialPlatformLogin("https://online-go.com/login/facebook/")
+        }
+        googleSignInButton.setOnClickListener {
+            socialPlatformLogin("https://online-go.com/login/google-oauth2/")
+        }
+    }
+
+    private fun socialPlatformLogin(url: String) {
+        val request = Request.Builder()
+                .url(url)
+                .get()
+                .build()
+        Single.fromCallable { client.newCall(request).execute() }
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe { response ->
+                    startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(response.header("Location"))))
+                }
     }
 
     private fun toggleCreateAccountMode() {
@@ -76,12 +116,12 @@ class LoginActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
 
-        OGSServiceImpl.instance.loginWithToken()
-                .doOnComplete { OGSServiceImpl.instance.ensureSocketConnected() }
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(this::onLoginSuccess, this::onTokenLoginFailure)
-                .addToDisposable(subscriptions)
+        if(OGSServiceImpl.instance.isLoggedIn()) {
+            OGSServiceImpl.instance.ensureSocketConnected()
+            onLoginSuccess()
+        } else if(intent.data == null) {
+            onTokenLoginFailure(java.lang.Exception())
+        }
     }
 
     private fun onLoginSuccess() {
@@ -113,12 +153,14 @@ class LoginActivity : AppCompatActivity() {
         usernameLayout.visibility = View.VISIBLE
         passwordLayout.visibility = View.VISIBLE
         noAccountView.visibility = View.VISIBLE
+        facebookSignInButton.visibility = View.VISIBLE
+        googleSignInButton.visibility = View.VISIBLE
     }
 
     private fun onPasswordLoginFailure(t: Throwable) {
         loginButton.revertAnimation()
         Log.e(LoginActivity::class.java.simpleName, t.message, t)
-        if(t is HttpException && t.code() == 401) {
+        if( (t as? HttpException)?.code() in arrayOf(401, 403) ) {
             Toast.makeText(this, "Invalid username or password", Toast.LENGTH_LONG).show()
         } else {
             Toast.makeText(this, "Login failed. Debug info: '${t.message}'", Toast.LENGTH_LONG).show()

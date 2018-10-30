@@ -2,6 +2,9 @@ package io.zenandroid.onlinego.ogs
 
 import android.util.Log
 import com.crashlytics.android.Crashlytics
+import com.franmontiel.persistentcookiejar.PersistentCookieJar
+import com.franmontiel.persistentcookiejar.cache.SetCookieCache
+import com.franmontiel.persistentcookiejar.persistence.SharedPrefsCookiePersistor
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types
@@ -15,18 +18,21 @@ import io.socket.client.Ack
 import io.socket.client.IO
 import io.socket.client.Socket
 import io.zenandroid.onlinego.AndroidLoggingHandler
+import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.main.MainActivity
 import io.zenandroid.onlinego.model.ogs.*
 import io.zenandroid.onlinego.utils.PersistenceManager
 import io.zenandroid.onlinego.utils.createJsonArray
 import io.zenandroid.onlinego.utils.createJsonObject
 import okhttp3.OkHttpClient
+import okhttp3.ResponseBody
 import okhttp3.logging.HttpLoggingInterceptor
 import org.json.JSONObject
+import retrofit2.HttpException
+import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.moshi.MoshiConverterFactory
-import java.text.SimpleDateFormat
 import java.util.*
 import java.util.logging.Level
 import java.util.logging.Logger
@@ -44,14 +50,13 @@ class OGSServiceImpl private constructor(): OGSService {
         val TAG: String = OGSServiceImpl::class.java.simpleName
     }
 
-    private var token: LoginToken? = null
     override var uiConfig: UIConfig? = null
     private val socket: Socket
-    private var tokenExpiry: Date
     private val restApi: OGSRestAPI
     private val moshi = Moshi.Builder().add(Date::class.java, Rfc3339DateJsonAdapter().nullSafe()).build()
     private var authSent = false
-    private val sdf = SimpleDateFormat("dd-mm hh:mm:ss:")
+
+    val cookieJar = PersistentCookieJar(SetCookieCache(), SharedPrefsCookiePersistor(OnlineGoApplication.instance))
 
     private var connectedToChallenges = false
 
@@ -59,11 +64,22 @@ class OGSServiceImpl private constructor(): OGSService {
         Log.i(TAG, "ack: $it")
     }
 
+    fun fetchUIConfig(): Completable {
+        return restApi.uiConfig().doOnSuccess(this::storeUIConfig).ignoreElement()
+    }
+
     fun login(username: String, password: String): Completable {
-        return restApi.login(username, password)
-                .doOnSuccess(this::storeToken)
-                .flatMap { restApi.uiConfig() }
-                .doOnSuccess(this::storeUIConfig)
+        val ebi = "${Math.random().toString().split(".")[1]}.0.0.0.0.xxx.xxx.${Date().timezoneOffset + 13}"
+        return restApi.login(CreateAccountRequest(username, password, "", ebi))
+                .doOnSuccess {
+                    //
+                    // Hack alert!!! The server sometimes returns 200 even on wrong password :facepalm:
+                    //
+                    if (it.csrf_token.isNullOrBlank()) {
+                        throw HttpException(Response.error<Any>(403, ResponseBody.create(null, "login failed")))
+                    }
+                }
+                .doOnSuccess (this::storeUIConfig)
                 .ignoreElement()
     }
 
@@ -73,46 +89,8 @@ class OGSServiceImpl private constructor(): OGSService {
                 .ignoreElement()
     }
 
-    fun loginWithToken(): Completable {
-        if(token == null || token?.access_token == null || token?.refresh_token == null) {
-            //
-            // No token, we need to log in with password
-            //
-            return Completable.error(Throwable())
-        }
-
-        Log.d(TAG, "Token expiry $tokenExpiry")
-        val tokenSource: Single<LoginToken>
-
-        if(tokenExpiry.before(Date())) {
-            //
-            // We do have a token but it's expired, we need to refresh everything
-            //
-            tokenSource = restApi.refreshToken(token!!.refresh_token).doOnSuccess(this::storeToken)
-            uiConfig = null
-        } else {
-            //
-            // Just use the token we have
-            //
-            tokenSource = Single.just(token)
-        }
-
-        val uiConfigSource = uiConfig?.let { uiConfig ->
-            tokenSource.flatMap { Single.just(uiConfig)}
-        } ?: tokenSource.flatMap { restApi.uiConfig() }.doOnSuccess(this::storeUIConfig)
-
-       return uiConfigSource
-               .ignoreElement()
-    }
-
-    private fun storeToken(token: LoginToken) {
-        this.token = token
-        Date(Date().time + token.expires_in * 1000).let {
-            this.tokenExpiry = it
-            Crashlytics.setString("TOKEN_EXPIRES", it.toString())
-            PersistenceManager.instance.storeToken(token, it)
-        }
-    }
+    fun isLoggedIn() =
+            uiConfig != null
 
     private fun storeUIConfig(uiConfig: UIConfig) {
         this.uiConfig = uiConfig
@@ -132,7 +110,7 @@ class OGSServiceImpl private constructor(): OGSService {
     }
 
     override fun fetchGame(gameId: Long): Single<OGSGame> =
-            loginWithToken().andThen(restApi.fetchGame(gameId))
+            restApi.fetchGame(gameId)
                     //
                     // Hack alert! just to keep us on our toes, the same thing is called
                     // different things when coming through the REST API and the Socket.IO one...
@@ -299,25 +277,24 @@ class OGSServiceImpl private constructor(): OGSService {
         socket.disconnect()
     }
 
+    fun logOut() {
+        uiConfig = null
+        PersistenceManager.instance.deleteUIConfig()
+        cookieJar.clear()
+        disconnect()
+    }
+
     init {
         uiConfig = PersistenceManager.instance.getUIConfig()
         MainActivity.userId = uiConfig?.user?.id
-        token = PersistenceManager.instance.getToken()
-        tokenExpiry = PersistenceManager.instance.getTokenExpiry()
-        Crashlytics.setString("TOKEN_EXPIRES", tokenExpiry.toString())
         Crashlytics.log("loading persisted token")
 
         val httpClient = OkHttpClient.Builder()
+                .cookieJar(cookieJar)
                 .addInterceptor { chain ->
-                    var request = chain.request()
-                    if (token != null) {
-                        request = request.newBuilder()
-                                .addHeader("Authorization", "Bearer ${token?.access_token}")
-                                .build()
-                    }
+                    val request = chain.request()
                     val response = chain.proceed(request)
-                    val tokenInfo = if(token == null) "NO_TOKEN!!! " else ""
-                    Crashlytics.log(Log.INFO, TAG, "${request.method()} ${request.url()} $tokenInfo-> ${response.code()} ${response.message()}")
+                    Crashlytics.log(Log.INFO, TAG, "${request.method()} ${request.url()} -> ${response.code()} ${response.message()}")
                     response
                 }
                 .addInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))
@@ -398,25 +375,20 @@ class OGSServiceImpl private constructor(): OGSService {
     }
 
     override fun fetchActiveGames(): Single<List<OGSGame>> =
-            loginWithToken().andThen(
-                    restApi.fetchOverview()
-                            .map { it -> it.active_games }
-                            .map { it ->
-                                for (game in it) {
-                                    game.json?.clock?.current_player?.let {
-                                        game.player_to_move = it
-                                    }
-                                }
-                                it
-                            }
-            )
+            restApi.fetchOverview()
+                .map { it -> it.active_games }
+                .map { it ->
+                    for (game in it) {
+                        game.json?.clock?.current_player?.let {
+                            game.player_to_move = it
+                        }
+                    }
+                    it
+                }
 
     override fun fetchHistoricGames(): Single<List<OGSGame>> =
-            loginWithToken().andThen(
-                    Single.defer {
-                        uiConfig?.user?.id?.let { restApi.fetchPlayerFinishedGames(it) }
-                                ?: Single.error(RuntimeException("Null UI Config"))
-                    }.map { it.results }
-            )
-
+            Single.defer {
+                uiConfig?.user?.id?.let { restApi.fetchPlayerFinishedGames(it) }
+                        ?: Single.error(RuntimeException("Null UI Config"))
+            }.map { it.results }
 }

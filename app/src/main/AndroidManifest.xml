@@ -27,6 +27,21 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:scheme="https"
+                    android:host="online-go.com"
+                    android:path="/complete/google-oauth2/"
+                    />
+                <data
+                    android:scheme="https"
+                    android:host="online-go.com"
+                    android:path="/complete/facebook/"
+                    />
+            </intent-filter>
         </activity>
         <activity
             android:name=".main.MainActivity"

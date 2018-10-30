@@ -11,6 +11,14 @@
             />
     </PreferenceCategory>
     <PreferenceCategory
+        android:title="Profile"
+        >
+        <Preference
+            android:key="logout"
+            android:title="Log Out"
+            />
+    </PreferenceCategory>
+    <PreferenceCategory
         android:title="About"
         >
         <Preference
@@ -22,5 +30,4 @@
             android:title="Privacy Policy"
             />
     </PreferenceCategory>
-
 </PreferenceScreen>

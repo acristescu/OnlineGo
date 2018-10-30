@@ -17,13 +17,16 @@ class NotificationsService : JobService() {
 
     override fun onStartJob(job: JobParameters): Boolean {
         Log.v(TAG, "Started checking for active games")
+        if(!OGSServiceImpl.instance.isLoggedIn()) {
+            Log.v(TAG, "Not logged in, giving up")
+            return false
+        }
         if(MainActivity.isInForeground) {
             Log.v(TAG, "App is in foreground, giving up")
             return false
         }
         val connection = OGSServiceImpl.instance
-        connection.loginWithToken()
-                .andThen(connection.fetchActiveGames())
+        connection.fetchActiveGames()
                 .map { it.filter { it.json?.clock?.current_player == connection.uiConfig?.user?.id } }
                 .map { it.sortedWith(compareBy { it.id }) }
                 .subscribe({
