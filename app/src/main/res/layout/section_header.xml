@@ -10,12 +10,12 @@
         android:layout_height="wrap_content"
         tools:text="YOUR TURN"
         android:paddingLeft="12dp"
-        android:paddingTop="16dp"
+        android:paddingTop="12dp"
         android:paddingBottom="2dp"
         android:textColor="@color/colorTextSecondary"
         android:textSize="12sp"
         android:textAllCaps="true"
-        android:fontFamily="@font/ubuntu_medium"
+        android:textStyle="bold"
         android:alpha=".7"
         />
 

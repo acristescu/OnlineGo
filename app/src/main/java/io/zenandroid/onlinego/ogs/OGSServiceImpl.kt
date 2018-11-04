@@ -290,14 +290,15 @@ class OGSServiceImpl private constructor(): OGSService {
     init {
         uiConfig = PersistenceManager.instance.getUIConfig()
         MainActivity.userId = uiConfig?.user?.id
-        Crashlytics.log("loading persisted token")
+        Crashlytics.log("Startup")
 
         val httpClient = OkHttpClient.Builder()
                 .cookieJar(cookieJar)
                 .addInterceptor { chain ->
                     val request = chain.request()
                     val response = chain.proceed(request)
-                    Crashlytics.log(Log.INFO, TAG, "${request.method()} ${request.url()} -> ${response.code()} ${response.message()}")
+                    val hasCookie = cookieJar.loadForRequest(request.url()).any { it.name() == "sessionid" }
+                    Crashlytics.log(Log.INFO, TAG, "${request.method()} ${request.url()} $hasCookie -> ${response.code()} ${response.message()}")
                     response
                 }
                 .addInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))

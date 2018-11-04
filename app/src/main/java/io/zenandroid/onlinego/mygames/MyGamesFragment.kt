@@ -40,6 +40,7 @@ class MyGamesFragment : Fragment(), MyGamesContract.View {
             when(item) {
                 is ActiveGameItem -> presenter.onGameSelected(item.game)
                 is FinishedGameItem -> presenter.onGameSelected(item.game)
+                is NewGameItem -> (activity as MainActivity).startNewGameSearch()
             }
         }
 

@@ -305,4 +305,8 @@ class MainActivity : AppCompatActivity(), MainContract.View {
 
         unreadCount = count
     }
+
+    fun startNewGameSearch() {
+        newChallengeView.onFabClicked()
+    }
 }

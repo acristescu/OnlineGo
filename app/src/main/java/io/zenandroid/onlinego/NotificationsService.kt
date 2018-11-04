@@ -1,6 +1,7 @@
 package io.zenandroid.onlinego
 
 import android.util.Log
+import com.crashlytics.android.Crashlytics
 import com.firebase.jobdispatcher.JobParameters
 import com.firebase.jobdispatcher.JobService
 import io.zenandroid.onlinego.main.MainActivity
@@ -37,7 +38,8 @@ class NotificationsService : JobService() {
                     }
                     jobFinished(job, false)
                 }, { e ->
-                    Log.e(TAG, "Error when checking for notifications", e)
+                    Crashlytics.log(Log.ERROR, TAG, "Error when checking for notifications")
+                    Crashlytics.logException(e)
                     jobFinished(job, true)
                 })
         return true // Answers the question: "Is there still work going on?"

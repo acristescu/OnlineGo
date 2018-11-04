@@ -44,7 +44,7 @@ class NewChallengeView : FrameLayout, NewChallengeContract.View {
         presenter = NewChallengePresenter(this, analytics)
     }
 
-    private fun onFabClicked() {
+    fun onFabClicked() {
         NewChallengeBottomSheet(context) { speed: Speed, sizes: List<Size> ->
             presenter.onStartSearch(sizes, speed)
         }.show()

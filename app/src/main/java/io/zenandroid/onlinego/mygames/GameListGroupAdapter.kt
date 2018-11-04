@@ -3,8 +3,10 @@ package io.zenandroid.onlinego.mygames
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import com.xwray.groupie.GroupAdapter
+import com.xwray.groupie.OnItemClickListener
 import com.xwray.groupie.Section
-import com.xwray.groupie.ViewHolder
+import com.xwray.groupie.kotlinandroidextensions.ViewHolder
+import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.model.local.Game
 import io.zenandroid.onlinego.model.ogs.Phase
 import io.zenandroid.onlinego.ogs.OGSServiceImpl
@@ -16,6 +18,8 @@ import io.zenandroid.onlinego.reusable.HeaderItem
  * Created by 44108952 on 31/05/2018.
  */
 class GameListGroupAdapter : GroupAdapter<ViewHolder>() {
+    private var onItemClickListener: OnItemClickListener? = null
+
     private val myMoveSection = object : Section(HeaderItem("YOUR TURN")) {
         override fun notifyItemRangeInserted(positionStart: Int, itemCount: Int) {
             super.notifyItemRangeInserted(positionStart, itemCount)
@@ -29,6 +33,7 @@ class GameListGroupAdapter : GroupAdapter<ViewHolder>() {
 
     private val opponentMoveSection = Section(HeaderItem("OPPONENT'S TURN"))
     private val finishedGamesSection = Section(HeaderItem("RECENTLY FINISHED"))
+//    private val startNewGameSection = Section(HeaderItem("START A NEW GAME"))
 
     private var recyclerView: RecyclerView? = null
 
@@ -36,9 +41,22 @@ class GameListGroupAdapter : GroupAdapter<ViewHolder>() {
         myMoveSection.setHideWhenEmpty(true)
         opponentMoveSection.setHideWhenEmpty(true)
         finishedGamesSection.setHideWhenEmpty(true)
+        add(HeaderItem("START A NEW GAME"))
+        val newGameAdapter = GroupAdapter<ViewHolder>()
+        newGameAdapter.add(NewGameItem("Online", R.drawable.ic_person_filled))
+        newGameAdapter.add(NewGameItem("Bot", R.drawable.ic_person_filled))
+        newGameAdapter.setOnItemClickListener { item, view ->
+            onItemClickListener?.onItemClick(item, view)
+        }
+        add(CarouselItem(newGameAdapter))
         add(myMoveSection)
         add(opponentMoveSection)
         add(finishedGamesSection)
+    }
+
+    override fun setOnItemClickListener(onItemClickListener: OnItemClickListener?) {
+        this.onItemClickListener = onItemClickListener
+        super.setOnItemClickListener(onItemClickListener)
     }
 
     fun setGames(games: List<Game>) {
