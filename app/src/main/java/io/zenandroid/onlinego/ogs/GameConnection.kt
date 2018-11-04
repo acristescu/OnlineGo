@@ -168,6 +168,13 @@ class GameConnection(
             put("player_id", OGSServiceImpl.instance.uiConfig?.user?.id)
         })
     }
+
+    fun abortGame() {
+        OGSServiceImpl.instance.emit("game/cancel", createJsonObject {
+            put("game_id", gameId)
+            put("player_id", OGSServiceImpl.instance.uiConfig?.user?.id)
+        })
+    }
 }
 
 data class Scores (

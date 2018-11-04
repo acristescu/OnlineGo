@@ -246,6 +246,7 @@ object RulesManager {
      */
     fun makeMove(oldPos: Position, stone: StoneType, where: Point): Position? {
         val pos = oldPos.clone()
+        pos.parentPosition = oldPos
         if (where.x == -1) {
             //
             // it's a pass
@@ -299,6 +300,17 @@ object RulesManager {
 
         pos.lastMove = where
         return pos
+    }
+
+    fun isIllegalKO(pos: Position): Boolean {
+        var historyPos = pos.parentPosition
+        while(historyPos != null) {
+            if(historyPos.allStonesCoordinates == pos.allStonesCoordinates) {
+                return true
+            }
+            historyPos = historyPos.parentPosition
+        }
+        return false
     }
 
     /**

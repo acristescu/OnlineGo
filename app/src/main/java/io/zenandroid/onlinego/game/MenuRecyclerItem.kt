@@ -39,7 +39,11 @@ class MenuRecyclerItem(val item: GameContract.MenuItem) : Item(item.hashCode().t
             REQUEST_UNDO -> {
                 viewHolder.titleView.text = "Request undo move"
             }
-        }
+            ABORT_GAME -> {
+                viewHolder.titleView.text = "Abort Game"
+                viewHolder.iconView.setImageResource(R.drawable.ic_cancel)
+            }
+        }.let {}
     }
 
     override fun getLayout() =

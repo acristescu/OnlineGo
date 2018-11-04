@@ -68,6 +68,9 @@ interface GameContract {
         fun showResignConfirmation()
         fun navigateTo(url: String)
         fun showGameInfoDialog(game: Game)
+        fun showAbortGameConfirmation()
+        fun showAbortedDialog()
+        fun showKoDialog()
     }
 
     interface Presenter {
@@ -90,6 +93,7 @@ interface GameContract {
         fun onMenuItemSelected(item: MenuItem)
         fun onPassClicked()
         fun onResignClicked()
+        fun onAbortGameConfirmed()
     }
 
     sealed class MenuItem {
@@ -101,5 +105,6 @@ interface GameContract {
         object DOWNLOAD_SGF: MenuItem()
         object ACCEPT_UNDO: MenuItem()
         object REQUEST_UNDO: MenuItem()
+        object ABORT_GAME: MenuItem()
     }
 }

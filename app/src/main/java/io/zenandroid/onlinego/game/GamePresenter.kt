@@ -260,7 +260,10 @@ class GamePresenter(
         if (game.blackLost != game.whiteLost) {
             resultsDialogPending = false
             val winner = if (game.blackLost == true) game.whitePlayer.id else game.blackPlayer.id
+            val aborted = game.outcome == "Cancellation"
             when {
+                aborted ->
+                    view.showAbortedDialog()
                 !myGame ->
                     view.showFinishedDialog()
                 winner == userId ->
@@ -290,9 +293,17 @@ class GamePresenter(
                 view.showCandidateMove(null)
             }
             PLAYING ->
-                if(candidateMove != null) {
-                    analytics.logEvent("candidate_move", null)
-                    showConfirmMoveControls()
+                candidateMove?.let {
+                    val proposedPosition = RulesManager.makeMove(currentPosition, currentPosition.nextToMove, it)
+                    if(proposedPosition != null && RulesManager.isIllegalKO(proposedPosition)) {
+                        view.showKoDialog()
+                        candidateMove = null
+                        view.showCandidateMove(null)
+                        game?.let { showPlayControls(it) }
+                    } else {
+                        analytics.logEvent("candidate_move", null)
+                        showConfirmMoveControls()
+                    }
                 }
             SCORING -> {
                 analytics.logEvent("scoring_change_group", null)
@@ -317,6 +328,10 @@ class GamePresenter(
     private fun doAnalysisMove(candidateMove: Point) {
         analytics.logEvent("analysis_move", null)
         RulesManager.makeMove(analysisPosition, analysisPosition.nextToMove, candidateMove)?.let {
+            if(RulesManager.isIllegalKO(it)) {
+                view.showKoDialog()
+                return
+            }
             variationCurrentMove ++
             variation = variation.dropLast(variation.size - variationCurrentMove).toMutableList()
             variation.add(candidateMove)
@@ -345,10 +360,15 @@ class GamePresenter(
                 game?.let { refreshUI(it) }
             }
             PLAYING -> {
-                analytics.logEvent("discard_move", null)
-                candidateMove = null
-                view.showCandidateMove(null)
-                game?.let { showPlayControls(it) }
+                if(candidateMove != null) {
+                    analytics.logEvent("discard_move", null)
+                    candidateMove = null
+                    view.showCandidateMove(null)
+                    game?.let { showPlayControls(it) }
+                } else {
+                    analytics.logEvent("abort_game", null)
+                    view.showAbortGameConfirmation()
+                }
             }
             SCORING -> {
                 analytics.logEvent("resume_from_scoring", null)
@@ -363,6 +383,11 @@ class GamePresenter(
                 Log.e(TAG, "onDiscardButtonPressed while state = $currentState")
             }
         }
+    }
+
+    override fun onAbortGameConfirmed() {
+        analytics.logEvent("abort_game_confirmed", null)
+        gameConnection?.abortGame()
     }
 
     override fun onConfirmButtonPressed() {
@@ -388,7 +413,11 @@ class GamePresenter(
         analytics.logEvent("menu_button_pressed", null)
         val list = mutableListOf<MenuItem>(GAME_INFO)
         if(myGame && currentState in arrayOf(PLAYING, HISTORY, ANALYSIS)) {
-            list.add(RESIGN)
+            if(game?.moves?.size ?: 0 < 2) {
+                list.add(ABORT_GAME)
+            } else {
+                list.add(RESIGN)
+            }
         }
         if(myGame && currentState in arrayOf(PLAYING, HISTORY) && game?.phase == Phase.PLAY && game?.playerToMoveId == userId) {
             list.add(PASS)
@@ -421,7 +450,8 @@ class GamePresenter(
             DOWNLOAD_SGF -> onDownloadSGFClicked()
             ACCEPT_UNDO -> onUndoAccepted()
             REQUEST_UNDO -> TODO()
-        }
+            ABORT_GAME -> onDiscardButtonPressed()
+        }.let {  }
     }
 
     private fun onGameInfoClicked() {
@@ -547,12 +577,12 @@ class GamePresenter(
 
         view.nextButtonVisible = true
         view.previousButtonVisible = true
-        view.passButtonVisible = true
+        view.passButtonVisible = game.moves?.size ?: 0 >= 2
         view.resignButtonVisible = false
         view.analyzeButtonVisible = true
 
         view.confirmButtonVisible = false
-        view.discardButtonVisible = false
+        view.discardButtonVisible = game.moves?.size ?: 0 < 2
         view.autoButtonVisible = false
 
         view.passButtonEnabled = game.phase == Phase.PLAY && game.playerToMoveId == userId

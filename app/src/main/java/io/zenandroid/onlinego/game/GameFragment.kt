@@ -127,6 +127,14 @@ class GameFragment : Fragment(), GameContract.View {
         Toast.makeText(context, "Unfortunately, you lost...", Toast.LENGTH_LONG).show()
     }
 
+    override fun showAbortedDialog() {
+        Toast.makeText(context, "Game cancelled", Toast.LENGTH_LONG).show()
+    }
+
+    override fun showKoDialog() {
+        Toast.makeText(context, "Illegal KO move", Toast.LENGTH_LONG).show()
+    }
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?) : View =
             inflater.inflate(R.layout.fragment_game, container, false)
 
@@ -379,6 +387,17 @@ class GameFragment : Fragment(), GameContract.View {
                     .setNegativeButton(android.R.string.cancel, null).show()
         }
     }
+
+    override fun showAbortGameConfirmation() {
+        context?.let {
+            AlertDialog.Builder(it)
+                    .setTitle("Please confirm")
+                    .setMessage("Are you sure you want to abort the game? You can only do this before both players have made their first move. Your rating will not be adjusted.")
+                    .setPositiveButton("Abort Game") { _, _ -> presenter.onAbortGameConfirmed() }
+                    .setNegativeButton(android.R.string.cancel, null).show()
+        }
+    }
+
 
     override fun showGameInfoDialog(game: Game) {
         fragmentManager?.findFragmentByTag("GAME_INFO")?.let {

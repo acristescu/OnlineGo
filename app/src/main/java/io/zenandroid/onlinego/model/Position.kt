@@ -50,6 +50,8 @@ class Position(val boardSize: Int) {
         get() = lastMove?.let { getStoneAt(it.x, it.y) }
     var variation: List<Point> = listOf()
 
+    var parentPosition: Position? = null
+
     /**
      * Adds a stone without checking the game logic. See makeMove() for alternative
      * @param i
@@ -85,6 +87,7 @@ class Position(val boardSize: Int) {
         newPos.whiteTerritory.addAll(whiteTerritory)
         newPos.removedSpots.addAll(removedSpots)
         newPos.nextToMove = nextToMove
+        newPos.parentPosition = parentPosition
         return newPos
     }
 
