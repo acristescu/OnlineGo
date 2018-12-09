@@ -45,5 +45,8 @@ interface OGSRestAPI {
     fun fetchPlayerFinishedGames(
             @Path("player_id") playerId: Long,
             @Query("page_size") pageSize: Int = 10,
-            @Query("page") page: Int = 1): Single<PagedResult>
+            @Query("page") page: Int = 1): Single<PagedResult<OGSGame>>
+
+    @GET("/api/v1/me/challenges?page_size=30")
+    fun fetchChallenges(): Single<PagedResult<OGSChallenge>>
 }

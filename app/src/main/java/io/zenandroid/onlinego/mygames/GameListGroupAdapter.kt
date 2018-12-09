@@ -6,11 +6,12 @@ import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.OnItemClickListener
 import com.xwray.groupie.Section
 import com.xwray.groupie.kotlinandroidextensions.ViewHolder
-import io.zenandroid.onlinego.R
+import io.zenandroid.onlinego.model.local.Challenge
 import io.zenandroid.onlinego.model.local.Game
 import io.zenandroid.onlinego.model.ogs.Phase
 import io.zenandroid.onlinego.ogs.OGSServiceImpl
 import io.zenandroid.onlinego.reusable.ActiveGameItem
+import io.zenandroid.onlinego.reusable.ChallengeItem
 import io.zenandroid.onlinego.reusable.FinishedGameItem
 import io.zenandroid.onlinego.reusable.HeaderItem
 
@@ -34,6 +35,7 @@ class GameListGroupAdapter : GroupAdapter<ViewHolder>() {
     private val opponentMoveSection = Section(HeaderItem("OPPONENT'S TURN"))
     private val finishedGamesSection = Section(HeaderItem("RECENTLY FINISHED"))
 //    private val startNewGameSection = Section(HeaderItem("START A NEW GAME"))
+    private val challengesSection = Section(HeaderItem("CHALLENGES"))
 
     private var recyclerView: RecyclerView? = null
 
@@ -41,14 +43,16 @@ class GameListGroupAdapter : GroupAdapter<ViewHolder>() {
         myMoveSection.setHideWhenEmpty(true)
         opponentMoveSection.setHideWhenEmpty(true)
         finishedGamesSection.setHideWhenEmpty(true)
+        challengesSection.setHideWhenEmpty(true)
         add(HeaderItem("START A NEW GAME"))
         val newGameAdapter = GroupAdapter<ViewHolder>()
-        newGameAdapter.add(NewGameItem("Online", R.drawable.ic_person_filled))
-        newGameAdapter.add(NewGameItem("Bot", R.drawable.ic_person_filled))
+        newGameAdapter.add(NewGameItem.AutoMatch)
+        newGameAdapter.add(NewGameItem.OnlineBot)
         newGameAdapter.setOnItemClickListener { item, view ->
             onItemClickListener?.onItemClick(item, view)
         }
         add(CarouselItem(newGameAdapter))
+        add(challengesSection)
         add(myMoveSection)
         add(opponentMoveSection)
         add(finishedGamesSection)
@@ -86,6 +90,10 @@ class GameListGroupAdapter : GroupAdapter<ViewHolder>() {
 
     fun setHistoricGames(games: List<Game>) {
         finishedGamesSection.update(games.map(::FinishedGameItem))
+    }
+
+    fun setChallenges(challenges: List<Challenge>) {
+        challengesSection.update(challenges.map ( ::ChallengeItem ))
     }
 
     override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {

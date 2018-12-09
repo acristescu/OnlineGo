@@ -11,7 +11,9 @@ import android.view.ViewGroup
 import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.main.MainActivity
+import io.zenandroid.onlinego.model.local.Challenge
 import io.zenandroid.onlinego.model.local.Game
+import io.zenandroid.onlinego.ogs.ChallengesRepository
 import io.zenandroid.onlinego.reusable.ActiveGameItem
 import io.zenandroid.onlinego.reusable.FinishedGameItem
 import kotlinx.android.synthetic.main.fragment_mygames.*
@@ -37,14 +39,23 @@ class MyGamesFragment : Fragment(), MyGamesContract.View {
         (gamesRecycler.itemAnimator as SimpleItemAnimator).supportsChangeAnimations = false
         gamesRecycler.adapter = groupAdapter
         groupAdapter.setOnItemClickListener { item, _ ->
-            when(item) {
+            when (item) {
                 is ActiveGameItem -> presenter.onGameSelected(item.game)
                 is FinishedGameItem -> presenter.onGameSelected(item.game)
-                is NewGameItem -> (activity as MainActivity).startNewGameSearch()
+                is NewGameItem.AutoMatch -> (activity as MainActivity).onAutoMatchSearch()
+                is NewGameItem.OnlineBot -> (activity as MainActivity).onOnlineBotSearch()
             }
         }
 
-        presenter = MyGamesPresenter(this, (activity as MainActivity).activeGameRepository)
+        presenter = MyGamesPresenter(
+                this,
+                (activity as MainActivity).activeGameRepository,
+                ChallengesRepository
+        )
+    }
+
+    override fun setChallenges(challenges: List<Challenge>) {
+        groupAdapter.setChallenges(challenges)
     }
 
     override fun navigateToGameScreen(game: Game) {
@@ -79,7 +90,7 @@ class MyGamesFragment : Fragment(), MyGamesContract.View {
     }
 
     override fun setGames(games: List<Game>) {
-        if(lastReportedGameCount != games.size) {
+        if (lastReportedGameCount != games.size) {
             analytics.logEvent("active_games", Bundle().apply { putInt("GAME_COUNT", games.size) })
             lastReportedGameCount = games.size
         }

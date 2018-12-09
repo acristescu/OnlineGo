@@ -1,98 +1,103 @@
 package io.zenandroid.onlinego.newchallenge
 
-import android.app.AlertDialog
 import android.content.Context
 import android.preference.PreferenceManager
 import android.support.design.widget.BottomSheetDialog
 import android.view.LayoutInflater
+import com.squareup.moshi.Moshi
 import io.zenandroid.onlinego.R
-import io.zenandroid.onlinego.ogs.Size
-import io.zenandroid.onlinego.ogs.Speed
-import kotlinx.android.synthetic.main.dialog_new_game.*
+import io.zenandroid.onlinego.ogs.BotsRepository
+import io.zenandroid.onlinego.utils.egfToRank
+import io.zenandroid.onlinego.utils.formatRank
+import kotlinx.android.synthetic.main.bottom_sheet_new_challenge.*
 
-class NewChallengeBottomSheet(context: Context, private val onSearch: (Speed, List<Size>) -> Unit) : BottomSheetDialog(context) {
-    companion object {
-        private const val SEARCH_GAME_SMALL = "SEARCH_GAME_SMALL"
-        private const val SEARCH_GAME_MEDIUM = "SEARCH_GAME_MEDIUM"
-        private const val SEARCH_GAME_LARGE = "SEARCH_GAME_LARGE"
-        private const val SEARCH_GAME_SPEED = "SEARCH_GAME_SPEED"
-    }
+class NewChallengeBottomSheet(
+        context: Context,
+        private val botsRepository: BotsRepository,
+        private val onSearch: (ChallengeParams) -> Unit
+) : BottomSheetDialog(context) {
 
-    private var selectedSpeed: Speed = Speed.NORMAL
-    private val speedsArray = arrayOf(Speed.BLITZ, Speed.NORMAL, Speed.LONG)
+    private val PARAMS_KEY = "PARAMS"
     val prefs = PreferenceManager.getDefaultSharedPreferences(context)
+    val challenge: ChallengeParams
+    val moshi = Moshi.Builder().build().adapter(ChallengeParams::class.java)
 
     init {
         val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-        val view = inflater.inflate(R.layout.dialog_new_game, null)
+        val view = inflater.inflate(R.layout.bottom_sheet_new_challenge, null)
         setContentView(view)
 
-        setInitialState()
+        challenge = getSavedChallengeParams()
 
-        searchButton.setOnClickListener {
-            dismiss()
-            val selectedSizes = mutableListOf<Size>()
-            if(smallGameCheckbox.isChecked) {
-                selectedSizes.add(Size.SMALL)
-            }
-            if(mediumGameCheckbox.isChecked) {
-                selectedSizes.add(Size.MEDIUM)
-            }
-            if(largeGameCheckbox.isChecked) {
-                selectedSizes.add(Size.LARGE)
-            }
-            onSearch.invoke(selectedSpeed, selectedSizes)
-        }
-
-        arrayOf(smallGameCheckbox, mediumGameCheckbox, largeGameCheckbox).forEach {
-            it.setOnCheckedChangeListener { _, _ ->
-                onSizeChanged()
+        botView.apply {
+            name = "Bot"
+            value = botsRepository.bots.getOrNull(0)?.username ?: "(none)"
+            valuesCallback = {
+                botsRepository.bots
+                        .sortedBy { it.ratings?.overall?.rating }
+                        .map { "${it.username} (${formatRank(egfToRank(it.ratings?.overall?.rating))})" }
             }
         }
-
-        val stringsArray = arrayOfNulls<CharSequence?>(speedsArray.size)
-        speedsArray.forEachIndexed { index, speed ->
-            stringsArray[index] = speed.getText().capitalize()
+        colorView.apply {
+            name = "You play"
+            value = challenge.color
+            valuesCallback = { listOf("Auto", "Black", "White") }
+        }
+        sizeView.apply {
+            name = "Size"
+            value = challenge.size
+            valuesCallback = { listOf("9x9", "13x13", "19x19") }
+        }
+        handicapView.apply {
+            name = "Handicap"
+            value = challenge.handicap
+            valuesCallback = { listOf("Auto", "0", "1", "2", "3", "4", "5") }
+        }
+        speedView.apply {
+            name = "Speed"
+            value = challenge.speed
+            valuesCallback = { listOf("Blitz", "Live", "Correspondence") }
+        }
+        rankedView.apply {
+            name = "Ranked"
+            value = if (challenge.ranked) "Yes" else "No"
+            valuesCallback = { listOf("Yes", "No") }
         }
 
-        speedRow.setOnClickListener {
-            AlertDialog.Builder(context).setTitle("Choose speed")
-                    .setItems(stringsArray) { _, which ->
-                        selectedSpeed = speedsArray[which]
-                        speedTextView.text = selectedSpeed.getText().capitalize()
-                        onSpeedChanged()
-                    }
-                    .setCancelable(true)
-                    .create()
-                    .show()
-        }
+        searchButton.setOnClickListener { this.onSearchClicked() }
+
         setCanceledOnTouchOutside(true)
         setCancelable(true)
     }
 
-    private fun setInitialState() {
-        smallGameCheckbox.isChecked = prefs.getBoolean(SEARCH_GAME_SMALL, true)
-        mediumGameCheckbox.isChecked = prefs.getBoolean(SEARCH_GAME_MEDIUM, false)
-        largeGameCheckbox.isChecked = prefs.getBoolean(SEARCH_GAME_LARGE, false)
-        selectedSpeed = Speed.valueOf(prefs.getString(SEARCH_GAME_SPEED, Speed.NORMAL.toString()))
-        speedTextView.text = selectedSpeed.getText().capitalize()
+    private fun onSearchClicked() {
+        challenge.apply {
+            bot = botsRepository.bots.find { it.username == botView.value }
+            color = colorView.value
+            handicap = handicapView.value
+            ranked = rankedView.value == "Yes"
+            size = sizeView.value
+            speed = speedView.value
+        }
+        dismiss()
+        saveSettings()
+        onSearch(challenge)
     }
 
-    private fun onSizeChanged() {
-        searchButton.isEnabled = smallGameCheckbox.isChecked || mediumGameCheckbox.isChecked || largeGameCheckbox.isChecked
-        saveSettings()
-    }
-
-    private fun onSpeedChanged() {
-        saveSettings()
-    }
+    private fun getSavedChallengeParams() =
+            prefs.getString(PARAMS_KEY, null)?.let ( moshi::fromJson )
+                    ?: ChallengeParams(
+                            bot = null,
+                            color = "Auto",
+                            ranked = true,
+                            handicap = "0",
+                            size = "9x9",
+                            speed = "Live"
+                    )
 
     private fun saveSettings() {
         prefs.edit()
-                .putBoolean(SEARCH_GAME_SMALL, smallGameCheckbox.isChecked)
-                .putBoolean(SEARCH_GAME_MEDIUM, mediumGameCheckbox.isChecked)
-                .putBoolean(SEARCH_GAME_LARGE, largeGameCheckbox.isChecked)
-                .putString(SEARCH_GAME_SPEED, selectedSpeed.toString())
+                .putString(PARAMS_KEY, moshi.toJson(challenge))
                 .apply()
     }
 

@@ -4,7 +4,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import io.zenandroid.onlinego.extensions.addToDisposable
-import io.zenandroid.onlinego.model.ogs.Challenge
+import io.zenandroid.onlinego.model.ogs.SeekGraphChallenge
 import io.zenandroid.onlinego.ogs.OGSServiceImpl
 import kotlin.math.abs
 
@@ -14,7 +14,7 @@ import kotlin.math.abs
 @Deprecated("Obsolete")
 class ChallengesPresenter(val view: ChallengesContract.View, private val service: OGSServiceImpl) : ChallengesContract.Presenter {
 
-    private val challenges = mutableListOf<Challenge>()
+    private val challenges = mutableListOf<SeekGraphChallenge>()
 
     private val subscriptions = CompositeDisposable()
 
@@ -30,7 +30,7 @@ class ChallengesPresenter(val view: ChallengesContract.View, private val service
                 .addToDisposable(subscriptions)
     }
 
-    private fun setChallenge(challenge: Challenge) {
+    private fun setChallenge(challenge: SeekGraphChallenge) {
         if(challenge.delete != null) {
             challenges.filter { it.challenge_id == challenge.challenge_id }.forEach {
                 view.removeChallenge(it)
@@ -47,7 +47,7 @@ class ChallengesPresenter(val view: ChallengesContract.View, private val service
         subscriptions.clear()
     }
 
-    private fun canAccept(challenge: Challenge): Boolean {
+    private fun canAccept(challenge: SeekGraphChallenge): Boolean {
         val myRank = service.uiConfig?.user?.ranking?.toDouble() ?: 0.0
         return myRank in challenge.min_rank .. challenge.max_rank &&
                 (!challenge.ranked || abs(myRank - (challenge.rank ?: 0.0)) <= 9)

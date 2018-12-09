@@ -16,7 +16,9 @@ import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
 import io.socket.client.Ack
 import io.socket.client.IO
+import io.socket.client.Manager
 import io.socket.client.Socket
+import io.socket.parser.IOParser
 import io.zenandroid.onlinego.AndroidLoggingHandler
 import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.main.MainActivity
@@ -104,6 +106,8 @@ class OGSServiceImpl private constructor(): OGSService {
 
     fun ensureSocketConnected() {
         if(!socket.connected()) {
+            BotsRepository.subscribe()
+            ChallengesRepository.subscribe()
             socket.connect()
         }
 
@@ -164,9 +168,36 @@ class OGSServiceImpl private constructor(): OGSService {
         return returnVal
     }
 
-    fun connectToChallenges(): Flowable<Challenge> {
-        val listMyData = Types.newParameterizedType(List::class.java, Challenge::class.java)
-        val adapter:JsonAdapter<List<Challenge>> = moshi.adapter(listMyData)
+    fun connectToUIPushes(): Flowable<UIPush> {
+        val returnVal = observeEvent("ui-push")
+                .map { string -> moshi.adapter(UIPush::class.java).fromJson(string.toString()) as UIPush }
+
+        socket.emit("ui-pushes/subscribe", createJsonObject {
+            put("channel", "undefined")
+        })
+
+        return returnVal
+    }
+
+    fun connectToBots(): Flowable<List<Bot>> {
+        val returnVal = observeEvent("active-bots")
+                .map { string ->
+                    val json = JSONObject(string.toString())
+                    val retval = mutableListOf<Bot>()
+                    for(key in json.keys()) {
+                        moshi.adapter(Bot::class.java).fromJson(json[key].toString())?.let {
+                            retval.add(it)
+                        }
+                    }
+                    return@map retval as List<Bot>
+                }
+
+        return returnVal
+    }
+
+    fun connectToChallenges(): Flowable<SeekGraphChallenge> {
+        val listMyData = Types.newParameterizedType(List::class.java, SeekGraphChallenge::class.java)
+        val adapter:JsonAdapter<List<SeekGraphChallenge>> = moshi.adapter(listMyData)
 
         val returnVal = observeEvent("seekgraph/global")
                 .map { string -> adapter.fromJson(string.toString()) }
@@ -273,10 +304,11 @@ class OGSServiceImpl private constructor(): OGSService {
                 args -> emitter.onSuccess(moshi.adapter(GameList::class.java).fromJson(args[0].toString()) as GameList )
             })
         }
-
     }
 
     fun disconnect() {
+        BotsRepository.unsubscribe()
+        ChallengesRepository.unsubscribe()
         socket.disconnect()
     }
 
@@ -318,7 +350,6 @@ class OGSServiceImpl private constructor(): OGSService {
             reconnectionDelayMax = 10000
         })
 
-
         socket.on(Socket.EVENT_CONNECT) {
             Logger.getLogger(TAG).warning("socket connect id=${socket.id()}")
             onSockedConnected()
@@ -345,10 +376,10 @@ class OGSServiceImpl private constructor(): OGSService {
         }
 
         AndroidLoggingHandler.reset(AndroidLoggingHandler())
-//                    Logger.getLogger(Socket::class.java.name).level = Level.FINEST
-//                    Logger.getLogger(Manager::class.java.name).level = Level.FINEST
+        Logger.getLogger(Socket::class.java.name).level = Level.FINEST
+        Logger.getLogger(Manager::class.java.name).level = Level.FINEST
         Logger.getLogger(io.socket.engineio.client.Socket::class.java.name).level = Level.FINEST
-//        Logger.getLogger(IOParser::class.java.name).level = Level.FINEST
+        Logger.getLogger(IOParser::class.java.name).level = Level.FINEST
     }
 
     private fun onSockedConnected() {
@@ -389,6 +420,9 @@ class OGSServiceImpl private constructor(): OGSService {
                     }
                     it
                 }
+
+    override fun fetchChallenges(): Single<List<OGSChallenge>> =
+            restApi.fetchChallenges().map { it.results }
 
     override fun fetchHistoricGames(): Single<List<OGSGame>> =
             Single.defer {

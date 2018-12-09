@@ -9,7 +9,7 @@ import android.widget.ArrayAdapter
 import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.extensions.showIf
-import io.zenandroid.onlinego.model.ogs.Challenge
+import io.zenandroid.onlinego.model.ogs.SeekGraphChallenge
 import io.zenandroid.onlinego.ogs.OGSServiceImpl
 import kotlinx.android.synthetic.main.fragment_challenges.*
 
@@ -21,7 +21,7 @@ import kotlinx.android.synthetic.main.fragment_challenges.*
 class ChallengesFragment : Fragment(), ChallengesContract.View {
 
     private lateinit var presenter: ChallengesContract.Presenter
-    private lateinit var adapter: ArrayAdapter<Challenge>
+    private lateinit var adapter: ArrayAdapter<SeekGraphChallenge>
     private var analytics = OnlineGoApplication.instance.analytics
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View =
@@ -48,7 +48,7 @@ class ChallengesFragment : Fragment(), ChallengesContract.View {
         presenter.unsubscribe()
     }
 
-    override fun addChallenge(challenge: Challenge) {
+    override fun addChallenge(challenge: SeekGraphChallenge) {
         adapter.add(challenge)
     }
 
@@ -56,7 +56,7 @@ class ChallengesFragment : Fragment(), ChallengesContract.View {
         overlay.showIf(visibility)
     }
 
-    override fun removeChallenge(challenge: Challenge) {
+    override fun removeChallenge(challenge: SeekGraphChallenge) {
         adapter.remove(challenge)
     }
 

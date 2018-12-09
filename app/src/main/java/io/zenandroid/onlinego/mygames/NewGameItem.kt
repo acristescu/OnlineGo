@@ -7,11 +7,15 @@ import com.xwray.groupie.kotlinandroidextensions.Item
 import io.zenandroid.onlinego.R
 import kotlinx.android.synthetic.main.item_new_game.*
 
-open class NewGameItem(
+sealed class NewGameItem(
         var text: String,
         @DrawableRes val icon: Int? = null,
         val onClick: (() -> Unit)? = null
 ) : Item(text.hashCode().toLong()) {
+
+    object AutoMatch : NewGameItem("Online", R.drawable.ic_person_filled)
+    object OnlineBot : NewGameItem("Bot", R.drawable.ic_robot)
+
     override fun bind(viewHolder: com.xwray.groupie.kotlinandroidextensions.ViewHolder, position: Int) {
         viewHolder.text.text = text
         icon?.let {

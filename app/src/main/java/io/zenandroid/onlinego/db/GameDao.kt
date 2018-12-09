@@ -22,7 +22,7 @@ abstract class GameDao {
     abstract fun getHistoricGamesThatDontNeedUpdating(ids: List<Long>) : List<Long>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    abstract fun insertAll(games: List<Game>)
+    abstract fun insertAllGames(games: List<Game>)
 
     @Update()
     abstract fun update(game: Game)
@@ -95,4 +95,19 @@ abstract class GameDao {
 
     @Query("UPDATE message SET seen = 1 WHERE chatId in (:ids)")
     abstract fun markMessagesAsRead(ids: List<String>)
+
+    @Query("DELETE FROM challenge")
+    abstract fun deleteAllChallenges()
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    abstract fun insertAllChallenges(list: List<Challenge>)
+
+    @Transaction
+    open fun replaceAllChallenges(list: List<Challenge>) {
+        deleteAllChallenges()
+        insertAllChallenges(list)
+    }
+
+    @Query ("SELECT * FROM challenge")
+    abstract fun getChallenges(): Flowable<List<Challenge>>
 }

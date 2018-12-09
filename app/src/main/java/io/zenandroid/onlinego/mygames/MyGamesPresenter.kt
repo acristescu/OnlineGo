@@ -6,14 +6,20 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import io.zenandroid.onlinego.extensions.addToDisposable
 import io.zenandroid.onlinego.gamelogic.Util.isMyTurn
+import io.zenandroid.onlinego.model.local.Challenge
 import io.zenandroid.onlinego.model.local.Game
 import io.zenandroid.onlinego.ogs.ActiveGameRepository
+import io.zenandroid.onlinego.ogs.ChallengesRepository
 import io.zenandroid.onlinego.utils.timeLeftForCurrentPlayer
 
 /**
  * Created by alex on 05/11/2017.
  */
-class MyGamesPresenter(val view: MyGamesContract.View, private val gameRepository: ActiveGameRepository) : MyGamesContract.Presenter {
+class MyGamesPresenter(
+        private val view: MyGamesContract.View,
+        private val gameRepository: ActiveGameRepository,
+        private val challengesRepository: ChallengesRepository
+) : MyGamesContract.Presenter {
 
     companion object {
         val TAG = MyGamesPresenter::class.java.simpleName
@@ -32,6 +38,11 @@ class MyGamesPresenter(val view: MyGamesContract.View, private val gameRepositor
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
                 .subscribe(this::setHistoricGames, this::onError)
+                .addToDisposable(subscriptions)
+        challengesRepository.monitorChallenges()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
+                .subscribe(this::setChallenges, this::onError)
                 .addToDisposable(subscriptions)
         view.setLoading(true)
     }
@@ -55,6 +66,10 @@ class MyGamesPresenter(val view: MyGamesContract.View, private val gameRepositor
 
     private fun setHistoricGames(games: List<Game>) {
         view.setHistoricGames(games)
+    }
+
+    private fun setChallenges(challenges: List<Challenge>) {
+        view.setChallenges(challenges)
     }
 
     override fun unsubscribe() {

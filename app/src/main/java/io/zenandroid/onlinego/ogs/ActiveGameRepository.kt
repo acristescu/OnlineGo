@@ -40,7 +40,7 @@ class ActiveGameRepository {
                 .map(Game.Companion::fromOGSGame)
                 .retryWhen (this::retryIOException)
                 .subscribe({
-                    OnlineGoApplication.instance.db.gameDao().insertAll(listOf(it))
+                    OnlineGoApplication.instance.db.gameDao().insertAllGames(listOf(it))
                 }, { this.onError(it, "onNotification") })
                 .addToDisposable(subscriptions)
     }
@@ -197,7 +197,7 @@ class ActiveGameRepository {
                 .map(Game.Companion::fromOGSGame)
                 .map(::listOf)
                 .retryWhen (this::retryIOException)
-                .subscribe(OnlineGoApplication.instance.db.gameDao()::insertAll)
+                .subscribe(OnlineGoApplication.instance.db.gameDao()::insertAllGames)
                 { this.onError(it, "monitorGame") }
                 .addToDisposable(subscriptions)
 
@@ -223,7 +223,7 @@ class ActiveGameRepository {
                 .retryWhen (this::retryIOException)
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.single())
-                .subscribe(OnlineGoApplication.instance.db.gameDao()::insertAll)
+                .subscribe(OnlineGoApplication.instance.db.gameDao()::insertAllGames)
                 { this.onError(it, "fetchActiveGames") }
                 .addToDisposable(subscriptions)
         return OnlineGoApplication.instance.db.gameDao().monitorActiveGames(OGSServiceImpl.instance.uiConfig?.user?.id)
@@ -241,7 +241,7 @@ class ActiveGameRepository {
                 .retryWhen (this::retryIOException)
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.single())
-                .subscribe(OnlineGoApplication.instance.db.gameDao()::insertAll)
+                .subscribe(OnlineGoApplication.instance.db.gameDao()::insertAllGames)
                 { this.onError(it, "fetchHistoricGames") }
                 .addToDisposable(subscriptions)
         return OnlineGoApplication.instance.db.gameDao().monitorHistoricGames(OGSServiceImpl.instance.uiConfig?.user?.id)

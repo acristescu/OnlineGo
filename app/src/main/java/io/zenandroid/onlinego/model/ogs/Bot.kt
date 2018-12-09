@@ -6,11 +6,13 @@ package io.zenandroid.onlinego.model.ogs
 data class Bot (
 
     var username: String? = null,
-    var rating: Float? = null,
+    var rating: Double? = null,
     var ranking: Int? = null,
     var country: String? = null,
     var ui_class: String? = null,
     var id: Int? = null,
-    var icon: String? = null
+    var icon: String? = null,
+
+    var ratings: OGSPlayer.Ratings? = null
 
 )

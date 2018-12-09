@@ -9,13 +9,18 @@ import io.reactivex.schedulers.Schedulers
 import io.zenandroid.onlinego.extensions.addToDisposable
 import io.zenandroid.onlinego.model.local.Game
 import io.zenandroid.onlinego.ogs.ActiveGameRepository
+import io.zenandroid.onlinego.ogs.BotsRepository
 import io.zenandroid.onlinego.ogs.OGSServiceImpl
 import java.util.concurrent.TimeUnit
 
 /**
  * Created by alex on 14/03/2018.
  */
-class MainPresenter (val view : MainContract.View, private val activeGameRepository: ActiveGameRepository) : MainContract.Presenter {
+class MainPresenter (
+        private val view : MainContract.View,
+        private val activeGameRepository: ActiveGameRepository,
+        private val botsRepository: BotsRepository
+) : MainContract.Presenter {
 
     private val subscriptions = CompositeDisposable()
     private var lastGameNotified: Game? = null
@@ -62,6 +67,7 @@ class MainPresenter (val view : MainContract.View, private val activeGameReposit
 
     override fun unsubscribe() {
         activeGameRepository.unsubscribe()
+//        botsRepository.unsubscribe()
         subscriptions.clear()
         OGSServiceImpl.instance.disconnect()
     }

@@ -1,9 +1,11 @@
 /*
 This is free and unencumbered software released into the public domain.
+
 Anyone is free to copy, modify, publish, use, compile, sell, or
 distribute this software, either in source code form or as a compiled
 binary, for any purpose, commercial or non-commercial, and by any
 means.
+
 In jurisdictions that recognize copyright laws, the author or authors
 of this software dedicate any and all copyright interest in the
 software to the public domain. We make this dedication for the benefit
@@ -11,6 +13,7 @@ of the public at large and to the detriment of our heirs and
 successors. We intend this dedication to be an overt act of
 relinquishment in perpetuity of all present and future rights to this
 software under copyright law.
+
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
 EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
 MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
@@ -18,6 +21,7 @@ IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR
 OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
 ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
+
 For more information, please refer to <http://unlicense.org>
 */
 #ifndef RANG_DOT_HPP
@@ -70,125 +74,125 @@ namespace rang {
  * except of reset, bold and reversed.
  * Note that on Windows terminals bold style is same as fgB color.
  */
-    enum class style {
-        reset     = 0,
-        bold      = 1,
-        dim       = 2,
-        italic    = 3,
-        underline = 4,
-        blink     = 5,
-        rblink    = 6,
-        reversed  = 7,
-        conceal   = 8,
-        crossed   = 9
-    };
+enum class style {
+    reset     = 0,
+    bold      = 1,
+    dim       = 2,
+    italic    = 3,
+    underline = 4,
+    blink     = 5,
+    rblink    = 6,
+    reversed  = 7,
+    conceal   = 8,
+    crossed   = 9
+};
 
-    enum class fg {
-        black   = 30,
-        red     = 31,
-        green   = 32,
-        yellow  = 33,
-        blue    = 34,
-        magenta = 35,
-        cyan    = 36,
-        gray    = 37,
-        reset   = 39
-    };
+enum class fg {
+    black   = 30,
+    red     = 31,
+    green   = 32,
+    yellow  = 33,
+    blue    = 34,
+    magenta = 35,
+    cyan    = 36,
+    gray    = 37,
+    reset   = 39
+};
 
-    enum class bg {
-        black   = 40,
-        red     = 41,
-        green   = 42,
-        yellow  = 43,
-        blue    = 44,
-        magenta = 45,
-        cyan    = 46,
-        gray    = 47,
-        reset   = 49
-    };
+enum class bg {
+    black   = 40,
+    red     = 41,
+    green   = 42,
+    yellow  = 43,
+    blue    = 44,
+    magenta = 45,
+    cyan    = 46,
+    gray    = 47,
+    reset   = 49
+};
 
-    enum class fgB {
-        black   = 90,
-        red     = 91,
-        green   = 92,
-        yellow  = 93,
-        blue    = 94,
-        magenta = 95,
-        cyan    = 96,
-        gray    = 97
-    };
+enum class fgB {
+    black   = 90,
+    red     = 91,
+    green   = 92,
+    yellow  = 93,
+    blue    = 94,
+    magenta = 95,
+    cyan    = 96,
+    gray    = 97
+};
 
-    enum class bgB {
-        black   = 100,
-        red     = 101,
-        green   = 102,
-        yellow  = 103,
-        blue    = 104,
-        magenta = 105,
-        cyan    = 106,
-        gray    = 107
-    };
+enum class bgB {
+    black   = 100,
+    red     = 101,
+    green   = 102,
+    yellow  = 103,
+    blue    = 104,
+    magenta = 105,
+    cyan    = 106,
+    gray    = 107
+};
 
-    enum class control {  // Behaviour of rang function calls
-        Off   = 0,  // toggle off rang style/color calls
-        Auto  = 1,  // (Default) autodect terminal and colorize if needed
-        Force = 2  // force ansi color output to non terminal streams
-    };
+enum class control {  // Behaviour of rang function calls
+    Off   = 0,  // toggle off rang style/color calls
+    Auto  = 1,  // (Default) autodect terminal and colorize if needed
+    Force = 2  // force ansi color output to non terminal streams
+};
 // Use rang::setControlMode to set rang control mode
 
-    enum class winTerm {  // Windows Terminal Mode
-        Auto   = 0,  // (Default) automatically detects wheter Ansi or Native API
-        Ansi   = 1,  // Force use Ansi API
-        Native = 2  // Force use Native API
-    };
+enum class winTerm {  // Windows Terminal Mode
+    Auto   = 0,  // (Default) automatically detects wheter Ansi or Native API
+    Ansi   = 1,  // Force use Ansi API
+    Native = 2  // Force use Native API
+};
 // Use rang::setWinTermMode to explicitly set terminal API for Windows
 // Calling rang::setWinTermMode have no effect on other OS
 
-    namespace rang_implementation {
+namespace rang_implementation {
 
-        inline std::atomic<control> &controlMode() noexcept
-        {
-            static std::atomic<control> value(control::Auto);
-            return value;
-        }
+    inline std::atomic<control> &controlMode() noexcept
+    {
+        static std::atomic<control> value(control::Auto);
+        return value;
+    }
 
-        inline std::atomic<winTerm> &winTermMode() noexcept
-        {
-            static std::atomic<winTerm> termMode(winTerm::Auto);
-            return termMode;
-        }
+    inline std::atomic<winTerm> &winTermMode() noexcept
+    {
+        static std::atomic<winTerm> termMode(winTerm::Auto);
+        return termMode;
+    }
 
-        inline bool supportsColor() noexcept
-        {
+    inline bool supportsColor() noexcept
+    {
 #if defined(OS_LINUX) || defined(OS_MAC)
 
-            static const bool result = [] {
-                const char *Terms[]
-                        = { "ansi",    "color",  "console", "cygwin", "gnome",
-                            "konsole", "kterm",  "linux",   "msys",   "putty",
-                            "rxvt",    "screen", "vt100",   "xterm" };
+        static const bool result = [] {
+            const char *Terms[]
+              = { "ansi",    "color",  "console", "cygwin", "gnome",
+                  "konsole", "kterm",  "linux",   "msys",   "putty",
+                  "rxvt",    "screen", "vt100",   "xterm" };
 
-                const char *env_p = std::getenv("TERM");
-                if (env_p == nullptr) {
-                    return false;
-                }
-                return std::any_of(std::begin(Terms), std::end(Terms),
-                                   [&](const char *term) {
-                                       return std::strstr(env_p, term) != nullptr;
-                                   });
-            }();
+            const char *env_p = std::getenv("TERM");
+            if (env_p == nullptr) {
+                return false;
+            }
+            return std::any_of(std::begin(Terms), std::end(Terms),
+                               [&](const char *term) {
+                                   return std::strstr(env_p, term) != nullptr;
+                               });
+        }();
 
 #elif defined(OS_WIN)
-            // All windows versions support colors through native console methods
+        // All windows versions support colors through native console methods
         static constexpr bool result = true;
 #endif
-            return result;
-        }
+        return result;
+    }
 
 #ifdef OS_WIN
 
 
-        inline bool isMsysPty(int fd) noexcept
+    inline bool isMsysPty(int fd) noexcept
     {
         // Dynamic load for binary compability with old Windows
         const auto ptrGetFileInformationByHandleEx
@@ -240,21 +244,21 @@ namespace rang {
 
 #endif
 
-        inline bool isTerminal(const std::streambuf *osbuf) noexcept
-        {
-            using std::cerr;
-            using std::clog;
-            using std::cout;
+    inline bool isTerminal(const std::streambuf *osbuf) noexcept
+    {
+        using std::cerr;
+        using std::clog;
+        using std::cout;
 #if defined(OS_LINUX) || defined(OS_MAC)
-            if (osbuf == cout.rdbuf()) {
-                static const bool cout_term = isatty(fileno(stdout)) != 0;
-                return cout_term;
-            } else if (osbuf == cerr.rdbuf() || osbuf == clog.rdbuf()) {
-                static const bool cerr_term = isatty(fileno(stderr)) != 0;
-                return cerr_term;
-            }
+        if (osbuf == cout.rdbuf()) {
+            static const bool cout_term = isatty(fileno(stdout)) != 0;
+            return cout_term;
+        } else if (osbuf == cerr.rdbuf() || osbuf == clog.rdbuf()) {
+            static const bool cerr_term = isatty(fileno(stderr)) != 0;
+            return cerr_term;
+        }
 #elif defined(OS_WIN)
-            if (osbuf == cout.rdbuf()) {
+        if (osbuf == cout.rdbuf()) {
             static const bool cout_term
               = (_isatty(_fileno(stdout)) || isMsysPty(_fileno(stdout)));
             return cout_term;
@@ -264,20 +268,20 @@ namespace rang {
             return cerr_term;
         }
 #endif
-            return false;
-        }
+        return false;
+    }
 
-        template <typename T>
-        using enableStd = typename std::enable_if<
-                std::is_same<T, rang::style>::value || std::is_same<T, rang::fg>::value
-                || std::is_same<T, rang::bg>::value || std::is_same<T, rang::fgB>::value
-                || std::is_same<T, rang::bgB>::value,
-                std::ostream &>::type;
+    template <typename T>
+    using enableStd = typename std::enable_if<
+      std::is_same<T, rang::style>::value || std::is_same<T, rang::fg>::value
+        || std::is_same<T, rang::bg>::value || std::is_same<T, rang::fgB>::value
+        || std::is_same<T, rang::bgB>::value,
+      std::ostream &>::type;
 
 
 #ifdef OS_WIN
 
-        struct SGR {  // Select Graphic Rendition parameters for Windows console
+    struct SGR {  // Select Graphic Rendition parameters for Windows console
         BYTE fgColor;  // foreground color (0-15) lower 3 rgb bits + intense bit
         BYTE bgColor;  // background color (0-15) lower 3 rgb bits + intense bit
         BYTE bold;  // emulated as FOREGROUND_INTENSITY bit
@@ -481,39 +485,39 @@ namespace rang {
         return os;
     }
 #else
-        template <typename T>
-        inline enableStd<T> setColor(std::ostream &os, T const value)
-        {
-            return os << "\033[" << static_cast<int>(value) << "m";
-        }
-#endif
-    }  // namespace rang_implementation
-
     template <typename T>
-    inline rang_implementation::enableStd<T> operator<<(std::ostream &os,
-                                                        const T value)
+    inline enableStd<T> setColor(std::ostream &os, T const value)
     {
-        const control option = rang_implementation::controlMode();
-        switch (option) {
-            case control::Auto:
-                return rang_implementation::supportsColor()
-                       && rang_implementation::isTerminal(os.rdbuf())
-                       ? rang_implementation::setColor(os, value)
-                       : os;
-            case control::Force: return rang_implementation::setColor(os, value);
-            default: return os;
-        }
+        return os << "\033[" << static_cast<int>(value) << "m";
     }
+#endif
+}  // namespace rang_implementation
 
-    inline void setWinTermMode(const rang::winTerm value) noexcept
-    {
-        rang_implementation::winTermMode() = value;
+template <typename T>
+inline rang_implementation::enableStd<T> operator<<(std::ostream &os,
+                                                    const T value)
+{
+    const control option = rang_implementation::controlMode();
+    switch (option) {
+        case control::Auto:
+            return rang_implementation::supportsColor()
+                && rang_implementation::isTerminal(os.rdbuf())
+              ? rang_implementation::setColor(os, value)
+              : os;
+        case control::Force: return rang_implementation::setColor(os, value);
+        default: return os;
     }
+}
 
-    inline void setControlMode(const control value) noexcept
-    {
-        rang_implementation::controlMode() = value;
-    }
+inline void setWinTermMode(const rang::winTerm value) noexcept
+{
+    rang_implementation::winTermMode() = value;
+}
+
+inline void setControlMode(const control value) noexcept
+{
+    rang_implementation::controlMode() = value;
+}
 
 }  // namespace rang
 

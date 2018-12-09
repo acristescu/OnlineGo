@@ -45,7 +45,7 @@ class NewChallengeView : FrameLayout, NewChallengeContract.View {
     }
 
     fun onFabClicked() {
-        NewChallengeBottomSheet(context) { speed: Speed, sizes: List<Size> ->
+        NewAutomatchChallengeBottomSheet(context) { speed: Speed, sizes: List<Size> ->
             presenter.onStartSearch(sizes, speed)
         }.show()
     }

@@ -1,6 +1,6 @@
 package io.zenandroid.onlinego.challenges
 
-import io.zenandroid.onlinego.model.ogs.Challenge
+import io.zenandroid.onlinego.model.ogs.SeekGraphChallenge
 
 /**
  * Created by alex on 05/11/2017.
@@ -8,8 +8,8 @@ import io.zenandroid.onlinego.model.ogs.Challenge
 @Deprecated("Obsolete")
 interface ChallengesContract {
     interface View {
-        fun addChallenge(challenge: Challenge)
-        fun removeChallenge(challenge: Challenge)
+        fun addChallenge(challenge: SeekGraphChallenge)
+        fun removeChallenge(challenge: SeekGraphChallenge)
         fun removeAllChallenges()
         fun setOverlayVisibility(visibility: Boolean)
     }

@@ -5,7 +5,7 @@ import io.zenandroid.onlinego.utils.formatRank
 /**
  * Created by alex on 08/12/2017.
  */
-data class Challenge (
+data class SeekGraphChallenge (
         var challenge_id: Int? = null,
         var delete: Int? = null,
         var name: String = "",

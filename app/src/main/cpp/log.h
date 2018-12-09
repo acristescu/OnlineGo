@@ -2,7 +2,7 @@
 #define LOG_H
 #ifndef EMSCRIPTEN
 
-#include "rang.h"
+#include "rang.hpp"
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdarg.h>
@@ -34,35 +34,35 @@ typedef enum log_verbosity_t {
 #define TRACE    if (log_verbosity < LOG_TRACE   ) {} else _logger(LOG_TRACE   , __FILE__, __LINE__)
 
 class Logger : public std::basic_ostream<char, std::char_traits< char > >, public std::basic_streambuf<char, std::char_traits<char> > {
-public:
-    Logger();
-    Logger& operator()(log_verbosity_t verbosity, const char file[], int line);
-    Logger& operator()(const char *fmt, ...);
+    public:
+        Logger();
+        Logger& operator()(log_verbosity_t verbosity, const char file[], int line);
+        Logger& operator()(const char *fmt, ...);
 
-    inline virtual int overflow(int c) override {
-        /* Note: we should probably buffer this up instead of doing putc's, then flush in sync() */
-        logfile.put(c);
-        std::cerr.put(c);
-        if (c == '\n') {
-            std::cerr << fg::reset;
-            needs_newline = false;
+        inline virtual int overflow(int c) override {
+            /* Note: we should probably buffer this up instead of doing putc's, then flush in sync() */
+            logfile.put(c);
+            std::cerr.put(c);
+            if (c == '\n') {
+                std::cerr << fg::reset;
+                needs_newline = false;
+            }
+            return 0;
         }
-        return 0;
-    }
 
-    // This function is called when stream is flushed,
-    // for example when std::endl is put to stream.
-    inline virtual int sync(void) override {
-        logfile.flush();
-        std::cerr.flush();
-        return 0;
-    }
+        // This function is called when stream is flushed,
+        // for example when std::endl is put to stream.
+        inline virtual int sync(void) override {
+            logfile.flush();
+            std::cerr.flush();
+            return 0;
+        }
 
-public:
-    std::ofstream    logfile;
+    public:
+        std::ofstream    logfile;
 
-private:
-    bool             needs_newline;
+    private:
+        bool             needs_newline;
 };
 
 
@@ -92,15 +92,15 @@ Logger& Logger::operator()(log_verbosity_t verbosity, const char file[], int lin
     //this->line = line;
 
     switch (verbosity) {
-        case LOG_NONE     : std::cerr << fg::reset; break ;
-        case LOG_CRITICAL : std::cerr << fg::red; break ;
-        case LOG_ERROR    : std::cerr << fg::red; break ;
-        case LOG_WARNING  : std::cerr << fg::yellow; break ;
-        case LOG_NOTE     : std::cerr << fg::cyan; break ;
-        case LOG_INFO     : std::cerr << fg::reset; break ;
-        case LOG_VERBOSE  : std::cerr << style::dim << fg::gray; break ;
-        case LOG_DEBUG    : std::cerr << fg::blue; break ;
-        case LOG_TRACE    : std::cerr << fg::cyan; break ;
+        case LOG_NONE     : std::cerr << fg::reset; break ; 
+        case LOG_CRITICAL : std::cerr << fg::red; break ; 
+        case LOG_ERROR    : std::cerr << fg::red; break ; 
+        case LOG_WARNING  : std::cerr << fg::yellow; break ; 
+        case LOG_NOTE     : std::cerr << fg::cyan; break ; 
+        case LOG_INFO     : std::cerr << fg::reset; break ; 
+        case LOG_VERBOSE  : std::cerr << style::dim << fg::gray; break ; 
+        case LOG_DEBUG    : std::cerr << fg::blue; break ; 
+        case LOG_TRACE    : std::cerr << fg::cyan; break ; 
     }
 
     switch (verbosity) {

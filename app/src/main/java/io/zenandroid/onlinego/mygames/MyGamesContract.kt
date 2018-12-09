@@ -1,5 +1,6 @@
 package io.zenandroid.onlinego.mygames
 
+import io.zenandroid.onlinego.model.local.Challenge
 import io.zenandroid.onlinego.model.local.Game
 
 /**
@@ -11,6 +12,7 @@ interface MyGamesContract {
         fun setGames(games: List<Game>)
         fun setLoading(loading: Boolean)
         fun setHistoricGames(games: List<Game>)
+        fun setChallenges(challenges: List<Challenge>)
     }
     interface Presenter {
         fun subscribe()
