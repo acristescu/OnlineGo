@@ -6,14 +6,10 @@ import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.OnItemClickListener
 import com.xwray.groupie.Section
 import com.xwray.groupie.kotlinandroidextensions.ViewHolder
-import io.zenandroid.onlinego.model.local.Challenge
 import io.zenandroid.onlinego.model.local.Game
 import io.zenandroid.onlinego.model.ogs.Phase
 import io.zenandroid.onlinego.ogs.OGSServiceImpl
-import io.zenandroid.onlinego.reusable.ActiveGameItem
-import io.zenandroid.onlinego.reusable.ChallengeItem
-import io.zenandroid.onlinego.reusable.FinishedGameItem
-import io.zenandroid.onlinego.reusable.HeaderItem
+import io.zenandroid.onlinego.reusable.*
 
 /**
  * Created by 44108952 on 31/05/2018.
@@ -36,6 +32,7 @@ class GameListGroupAdapter : GroupAdapter<ViewHolder>() {
     private val finishedGamesSection = Section(HeaderItem("RECENTLY FINISHED"))
 //    private val startNewGameSection = Section(HeaderItem("START A NEW GAME"))
     private val challengesSection = Section(HeaderItem("CHALLENGES"))
+    private val automatchSection = Section()
 
     private var recyclerView: RecyclerView? = null
 
@@ -52,6 +49,7 @@ class GameListGroupAdapter : GroupAdapter<ViewHolder>() {
             onItemClickListener?.onItemClick(item, view)
         }
         add(CarouselItem(newGameAdapter))
+        add(automatchSection)
         add(challengesSection)
         add(myMoveSection)
         add(opponentMoveSection)
@@ -92,8 +90,8 @@ class GameListGroupAdapter : GroupAdapter<ViewHolder>() {
         finishedGamesSection.update(games.map(::FinishedGameItem))
     }
 
-    fun setChallenges(challenges: List<Challenge>) {
-        challengesSection.update(challenges.map ( ::ChallengeItem ))
+    fun setChallenges(challenges: List<ChallengeItem>) {
+        challengesSection.update(challenges)
     }
 
     override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
@@ -104,5 +102,9 @@ class GameListGroupAdapter : GroupAdapter<ViewHolder>() {
     override fun onDetachedFromRecyclerView(recyclerView: RecyclerView) {
         this.recyclerView = null
         super.onDetachedFromRecyclerView(recyclerView)
+    }
+
+    fun setAutomatches(list: List<AutomatchItem>) {
+        automatchSection.update(list)
     }
 }

@@ -8,9 +8,7 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import io.zenandroid.onlinego.extensions.addToDisposable
 import io.zenandroid.onlinego.model.local.Game
-import io.zenandroid.onlinego.ogs.ActiveGameRepository
-import io.zenandroid.onlinego.ogs.BotsRepository
-import io.zenandroid.onlinego.ogs.OGSServiceImpl
+import io.zenandroid.onlinego.ogs.*
 import java.util.concurrent.TimeUnit
 
 /**
@@ -98,6 +96,10 @@ class MainPresenter (
         }
         lastGameNotified = gameToNavigate
         view.navigateToGameScreen(gameToNavigate)
+    }
+
+    override fun onStartSearch(sizes: List<Size>, speed: Speed) {
+        OGSServiceImpl.instance.startAutomatch(sizes, speed)
     }
 
     private fun onError(t: Throwable) {

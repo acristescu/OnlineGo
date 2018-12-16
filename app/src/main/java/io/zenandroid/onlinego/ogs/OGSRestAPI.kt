@@ -1,5 +1,6 @@
 package io.zenandroid.onlinego.ogs
 
+import io.reactivex.Completable
 import io.reactivex.Single
 import io.zenandroid.onlinego.model.ogs.*
 import retrofit2.http.*
@@ -47,6 +48,12 @@ interface OGSRestAPI {
             @Query("page_size") pageSize: Int = 10,
             @Query("page") page: Int = 1): Single<PagedResult<OGSGame>>
 
-    @GET("/api/v1/me/challenges?page_size=30")
+    @GET("/api/v1/me/automatches?page_size=30")
     fun fetchChallenges(): Single<PagedResult<OGSChallenge>>
+
+    @POST("/api/v1/me/automatches/{challenge_id}/accept")
+    fun acceptChallenge(@Path("challenge_id") id: Long): Completable
+
+    @DELETE("/api/v1/me/automatches/{challenge_id}")
+    fun declineChallenge(@Path("challenge_id") id: Long): Completable
 }

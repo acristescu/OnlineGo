@@ -15,7 +15,6 @@ object BotsRepository {
     internal fun subscribe() {
         OGSServiceImpl.instance.connectToBots()
                 .subscribeOn(Schedulers.io())
-//                .subscribe(OnlineGoApplication.instance.db.gameDao()::insertBots) { Crashlytics.logException(it) }
                 .subscribe(this::storeBots) { Crashlytics.logException(it) }
                 .addToDisposable(subscriptions)
     }
@@ -24,9 +23,6 @@ object BotsRepository {
         bots = newBots
     }
 
-//    fun getBots() =
-//            bots
-//
     internal fun unsubscribe() {
         subscriptions.clear()
     }

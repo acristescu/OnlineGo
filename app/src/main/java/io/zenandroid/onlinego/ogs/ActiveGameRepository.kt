@@ -248,7 +248,11 @@ class ActiveGameRepository {
     }
 
     private fun onError(t: Throwable, request: String) {
-        Crashlytics.logException(Exception(request, t))
+        var message = request
+        if(t is retrofit2.HttpException) {
+            message = "$request: ${t.response().errorBody()?.string()}"
+        }
+        Crashlytics.logException(Exception(message, t))
         Log.e("ActiveGameRespository", t.message, t)
     }
 }

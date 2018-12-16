@@ -13,8 +13,12 @@ import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.main.MainActivity
 import io.zenandroid.onlinego.model.local.Challenge
 import io.zenandroid.onlinego.model.local.Game
+import io.zenandroid.onlinego.model.ogs.OGSAutomatch
+import io.zenandroid.onlinego.ogs.AutomatchRepository
 import io.zenandroid.onlinego.ogs.ChallengesRepository
 import io.zenandroid.onlinego.reusable.ActiveGameItem
+import io.zenandroid.onlinego.reusable.AutomatchItem
+import io.zenandroid.onlinego.reusable.ChallengeItem
 import io.zenandroid.onlinego.reusable.FinishedGameItem
 import kotlinx.android.synthetic.main.fragment_mygames.*
 
@@ -50,12 +54,21 @@ class MyGamesFragment : Fragment(), MyGamesContract.View {
         presenter = MyGamesPresenter(
                 this,
                 (activity as MainActivity).activeGameRepository,
-                ChallengesRepository
+                ChallengesRepository,
+                AutomatchRepository
         )
     }
 
     override fun setChallenges(challenges: List<Challenge>) {
-        groupAdapter.setChallenges(challenges)
+        groupAdapter.setChallenges(challenges.map {
+            ChallengeItem(it, presenter::onChallengeCancelled, presenter::onChallengeAccepted, presenter::onChallengeDeclined)
+        })
+    }
+
+    override fun setAutomatches(automatches: List<OGSAutomatch>) {
+        groupAdapter.setAutomatches(automatches.map {
+            AutomatchItem(it, presenter::onAutomatchCancelled)
+        })
     }
 
     override fun navigateToGameScreen(game: Game) {

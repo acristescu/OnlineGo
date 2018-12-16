@@ -34,9 +34,12 @@ import io.zenandroid.onlinego.login.LoginActivity
 import io.zenandroid.onlinego.model.local.Game
 import io.zenandroid.onlinego.model.ogs.OGSGame
 import io.zenandroid.onlinego.mygames.MyGamesFragment
+import io.zenandroid.onlinego.newchallenge.NewAutomatchChallengeBottomSheet
 import io.zenandroid.onlinego.newchallenge.NewChallengeBottomSheet
 import io.zenandroid.onlinego.ogs.ActiveGameRepository
 import io.zenandroid.onlinego.ogs.BotsRepository
+import io.zenandroid.onlinego.ogs.Size
+import io.zenandroid.onlinego.ogs.Speed
 import io.zenandroid.onlinego.settings.SettingsFragment
 import io.zenandroid.onlinego.stats.StatsFragment
 import io.zenandroid.onlinego.statuschips.Chip
@@ -310,7 +313,14 @@ class MainActivity : AppCompatActivity(), MainContract.View {
     }
 
     fun onAutoMatchSearch() {
-        newChallengeView.onFabClicked()
+        NewAutomatchChallengeBottomSheet(this) { speed: Speed, sizes: List<Size> ->
+            val params = Bundle().apply {
+                putString("SPEED", speed.toString())
+                putString("SIZE", sizes.joinToString { it.toString() })
+            }
+            analytics.logEvent("new_game_search", params)
+            presenter.onStartSearch(sizes, speed)
+        }.show()
     }
 
     fun onOnlineBotSearch() {

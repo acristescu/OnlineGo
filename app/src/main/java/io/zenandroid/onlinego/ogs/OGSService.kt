@@ -1,6 +1,8 @@
 package io.zenandroid.onlinego.ogs
 
+import io.reactivex.Completable
 import io.reactivex.Single
+import io.zenandroid.onlinego.model.ogs.OGSAutomatch
 import io.zenandroid.onlinego.model.ogs.OGSChallenge
 import io.zenandroid.onlinego.model.ogs.OGSGame
 import io.zenandroid.onlinego.model.ogs.UIConfig
@@ -19,4 +21,8 @@ interface OGSService {
     fun resendAuth()
     fun fetchHistoricGames(): Single<List<OGSGame>>
     fun fetchChallenges(): Single<List<OGSChallenge>>
+    fun acceptChallenge(id: Long): Completable
+    fun declineChallenge(id: Long): Completable
+    fun cancelAutomatch(automatch: OGSAutomatch)
+    fun startAutomatch(sizes: List<Size>, speed: Speed): String
 }

@@ -107,6 +107,7 @@ class OGSServiceImpl private constructor(): OGSService {
     fun ensureSocketConnected() {
         if(!socket.connected()) {
             BotsRepository.subscribe()
+            AutomatchRepository.subscribe()
             ChallengesRepository.subscribe()
             socket.connect()
         }
@@ -115,6 +116,12 @@ class OGSServiceImpl private constructor(): OGSService {
             resendAuth()
         }
     }
+
+    override fun acceptChallenge(id: Long): Completable =
+            restApi.acceptChallenge(id)
+
+    override fun declineChallenge(id: Long): Completable =
+            restApi.declineChallenge(id)
 
     override fun fetchGame(gameId: Long): Single<OGSGame> =
             restApi.fetchGame(gameId)
@@ -179,20 +186,29 @@ class OGSServiceImpl private constructor(): OGSService {
         return returnVal
     }
 
-    fun connectToBots(): Flowable<List<Bot>> {
-        val returnVal = observeEvent("active-bots")
-                .map { string ->
-                    val json = JSONObject(string.toString())
-                    val retval = mutableListOf<Bot>()
-                    for(key in json.keys()) {
-                        moshi.adapter(Bot::class.java).fromJson(json[key].toString())?.let {
-                            retval.add(it)
+    fun connectToBots(): Flowable<List<Bot>> =
+            observeEvent("active-bots")
+                    .map { string ->
+                        val json = JSONObject(string.toString())
+                        val retval = mutableListOf<Bot>()
+                        for (key in json.keys()) {
+                            moshi.adapter(Bot::class.java).fromJson(json[key].toString())?.let {
+                                retval.add(it)
+                            }
                         }
+                        return@map retval as List<Bot>
                     }
-                    return@map retval as List<Bot>
-                }
 
-        return returnVal
+    fun listenToNewAutomatchNotifications(): Flowable<OGSAutomatch> =
+            observeEvent("automatch/entry")
+                    .map { string -> moshi.adapter(OGSAutomatch::class.java).fromJson(string.toString()) as OGSAutomatch }
+
+    fun listenToCancelAutomatchNotifications(): Flowable<OGSAutomatch> =
+            observeEvent("automatch/cancel")
+                    .map { string -> moshi.adapter(OGSAutomatch::class.java).fromJson(string.toString()) as OGSAutomatch }
+
+    fun connectToAutomatch() {
+        socket.emit("automatch/list", null)
     }
 
     fun connectToChallenges(): Flowable<SeekGraphChallenge> {
@@ -287,9 +303,47 @@ class OGSServiceImpl private constructor(): OGSService {
         return challenge
     }
 
+    override fun startAutomatch(sizes: List<Size>, speed: Speed) : String {
+        val uuid = UUID.randomUUID().toString()
+        val json = createJsonObject {
+            put("uuid", uuid)
+            put("size_speed_options", createJsonArray {
+                sizes.forEach { size ->
+                    put(createJsonObject {
+                        put("size", size.getText())
+                        put("speed", speed.getText())
+                    })
+                }
+            })
+            put("lower_rank_diff", 6)
+            put("upper_rank_diff", 6)
+            put("rules", createJsonObject {
+                put("condition", "no-preference")
+                put("value", "japanese")
+            })
+            put("time_control", createJsonObject {
+                put("condition", "no-preference")
+                put("value", createJsonObject {
+                    put("system", "byoyomi")
+                })
+            })
+            put("handicap", createJsonObject {
+                put("condition", "no-preference")
+                put("value", "enabled")
+            })
+        }
+
+        emit("automatch/find_match", json)
+        return uuid
+    }
+
     override fun cancelAutomatchChallenge(challenge: AutomatchChallenge) {
         emit("automatch/cancel", challenge.uuid)
         socket.off("automatch/start")
+    }
+
+    override fun cancelAutomatch(automatch: OGSAutomatch) {
+        emit("automatch/cancel", automatch.uuid)
     }
 
     fun fetchGameList(): Single<GameList> {
@@ -308,7 +362,9 @@ class OGSServiceImpl private constructor(): OGSService {
 
     fun disconnect() {
         BotsRepository.unsubscribe()
+        AutomatchRepository.unsubscribe()
         ChallengesRepository.unsubscribe()
+        socket.off()
         socket.disconnect()
     }
 
@@ -327,7 +383,11 @@ class OGSServiceImpl private constructor(): OGSService {
         val httpClient = OkHttpClient.Builder()
                 .cookieJar(cookieJar)
                 .addInterceptor { chain ->
-                    val request = chain.request()
+                    var request = chain.request()
+                    request = request.newBuilder()
+                            .addHeader("referer", "https://online-go.com/overview")
+                            .addHeader("x-csrftoken",  cookieJar.loadForRequest(request.url()).firstOrNull { it.name() == "csrftoken" }?.value() ?: "")
+                            .build()
                     val response = chain.proceed(request)
                     val hasCookie = cookieJar.loadForRequest(request.url()).any { it.name() == "sessionid" }
                     Crashlytics.log(Log.INFO, TAG, "${request.method()} ${request.url()} $hasCookie -> ${response.code()} ${response.message()}")
