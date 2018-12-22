@@ -58,6 +58,7 @@ data class Game(
         val name: String?,
         val rules: String?,
         val ranked: Boolean?,
+        val disableAnalysis: Boolean?,
 
         @Embedded(prefix = "initial_state_")
         val timeControl: TimeControl?
@@ -129,7 +130,8 @@ data class Game(
                     name = gamedata?.game_name,
                     rules = gamedata?.rules,
                     ranked = isRanked,
-                    timeControl = gamedata?.time_control
+                    timeControl = gamedata?.time_control,
+                    disableAnalysis = gamedata?.disable_analysis
             )
         }
     }

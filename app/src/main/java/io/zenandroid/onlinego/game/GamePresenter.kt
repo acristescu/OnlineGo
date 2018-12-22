@@ -422,7 +422,7 @@ class GamePresenter(
         if(myGame && currentState in arrayOf(PLAYING, HISTORY) && game?.phase == Phase.PLAY && game?.playerToMoveId == userId) {
             list.add(PASS)
         }
-        if(currentState != ANALYSIS) {
+        if((currentState != ANALYSIS) && (game?.disableAnalysis == false)) {
             list.add(ANALYZE)
         }
         list.add(ESTIMATE_SCORE)
@@ -562,7 +562,7 @@ class GamePresenter(
         view.previousButtonVisible = true
         view.passButtonVisible = myGame && game.phase == Phase.PLAY
         view.resignButtonVisible = false
-        view.analyzeButtonVisible = true
+        view.analyzeButtonVisible = !(game.disableAnalysis ?: false)
 
         view.confirmButtonVisible = false
         view.discardButtonVisible = false
@@ -579,7 +579,7 @@ class GamePresenter(
         view.previousButtonVisible = true
         view.passButtonVisible = game.moves?.size ?: 0 >= 2
         view.resignButtonVisible = false
-        view.analyzeButtonVisible = true
+        view.analyzeButtonVisible = !(game.disableAnalysis ?: false)
 
         view.confirmButtonVisible = false
         view.discardButtonVisible = game.moves?.size ?: 0 < 2
