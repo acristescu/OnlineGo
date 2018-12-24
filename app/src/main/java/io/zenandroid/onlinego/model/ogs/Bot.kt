@@ -10,7 +10,7 @@ data class Bot (
     var ranking: Int? = null,
     var country: String? = null,
     var ui_class: String? = null,
-    var id: Int? = null,
+    var id: Long,
     var icon: String? = null,
 
     var ratings: OGSPlayer.Ratings? = null

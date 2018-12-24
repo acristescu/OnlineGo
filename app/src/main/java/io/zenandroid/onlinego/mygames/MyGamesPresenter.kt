@@ -1,7 +1,10 @@
 package io.zenandroid.onlinego.mygames
 
+import android.os.Bundle
 import android.util.Log
 import com.crashlytics.android.Crashlytics
+import com.google.firebase.analytics.FirebaseAnalytics
+import io.reactivex.Maybe
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
@@ -10,20 +13,20 @@ import io.zenandroid.onlinego.gamelogic.Util.isMyTurn
 import io.zenandroid.onlinego.model.local.Challenge
 import io.zenandroid.onlinego.model.local.Game
 import io.zenandroid.onlinego.model.ogs.OGSAutomatch
-import io.zenandroid.onlinego.ogs.ActiveGameRepository
-import io.zenandroid.onlinego.ogs.AutomatchRepository
-import io.zenandroid.onlinego.ogs.ChallengesRepository
-import io.zenandroid.onlinego.ogs.OGSServiceImpl
+import io.zenandroid.onlinego.ogs.*
 import io.zenandroid.onlinego.utils.timeLeftForCurrentPlayer
+import org.json.JSONObject
 
 /**
  * Created by alex on 05/11/2017.
  */
 class MyGamesPresenter(
         private val view: MyGamesContract.View,
+        private val analytics: FirebaseAnalytics,
         private val gameRepository: ActiveGameRepository,
         private val challengesRepository: ChallengesRepository,
-        private val automatchRepository: AutomatchRepository
+        private val automatchRepository: AutomatchRepository,
+        private val notificationsRepository: NotificationsRepository
 ) : MyGamesContract.Presenter {
     companion object {
         val TAG = MyGamesPresenter::class.java.simpleName
@@ -53,6 +56,18 @@ class MyGamesPresenter(
                 .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
                 .subscribe(this::setAutomatches, this::onError)
                 .addToDisposable(subscriptions)
+        automatchRepository.gameStartObservable
+                .flatMapMaybe { it.game_id?.let { gameRepository.getGameSingle(it).toMaybe() } ?: Maybe.empty() }
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
+                .subscribe(view::navigateToGameScreen, this::onError)
+                .addToDisposable(subscriptions)
+        notificationsRepository.notificationsObservable()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
+                .subscribe(this::onNotification, this::onError)
+                .addToDisposable(subscriptions)
+
         view.setLoading(true)
     }
 
@@ -94,6 +109,10 @@ class MyGamesPresenter(
     }
 
     override fun onGameSelected(game: Game) {
+        analytics.logEvent("clicked_game", Bundle().apply {
+            putLong("GAME_ID", game.id)
+            putBoolean("ACTIVE_GAME", game.ended == null)
+        })
         view.navigateToGameScreen(game)
     }
 
@@ -127,6 +146,13 @@ class MyGamesPresenter(
                 .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
                 .subscribe({}, this::onError)
                 .addToDisposable(subscriptions)
+    }
+
+    private fun onNotification(notification: JSONObject) {
+        if(notification["type"] == "gameOfferRejected") {
+            notificationsRepository.acknowledgeNotification(notification)
+            view.showMessage("Bot rejected challenge", "This might happen because the bot's maintainer has set some conditions on the challenge parameters. Message is:\n\n${notification["message"]}")
+        }
     }
 
 }

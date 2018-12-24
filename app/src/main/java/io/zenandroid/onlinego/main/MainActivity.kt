@@ -33,13 +33,13 @@ import io.zenandroid.onlinego.learn.LearnFragment
 import io.zenandroid.onlinego.login.LoginActivity
 import io.zenandroid.onlinego.model.local.Game
 import io.zenandroid.onlinego.model.ogs.OGSGame
+import io.zenandroid.onlinego.model.ogs.Size
+import io.zenandroid.onlinego.model.ogs.Speed
 import io.zenandroid.onlinego.mygames.MyGamesFragment
 import io.zenandroid.onlinego.newchallenge.NewAutomatchChallengeBottomSheet
 import io.zenandroid.onlinego.newchallenge.NewChallengeBottomSheet
 import io.zenandroid.onlinego.ogs.ActiveGameRepository
 import io.zenandroid.onlinego.ogs.BotsRepository
-import io.zenandroid.onlinego.ogs.Size
-import io.zenandroid.onlinego.ogs.Speed
 import io.zenandroid.onlinego.settings.SettingsFragment
 import io.zenandroid.onlinego.stats.StatsFragment
 import io.zenandroid.onlinego.statuschips.Chip
@@ -64,13 +64,13 @@ class MainActivity : AppCompatActivity(), MainContract.View {
     private val chipAdapter = ChipAdapter()
     private var unreadCount = 0
 
-    val activeGameRepository: ActiveGameRepository by lazy { ActiveGameRepository() }
+    val activeGameRepository: ActiveGameRepository by lazy { ActiveGameRepository }
     val botsRepository: BotsRepository by lazy { BotsRepository }
     val chatClicks: Observable<Any> by lazy { RxView.clicks(chatButton) }
 
     private lateinit var lastSelectedItem: MenuItem
 
-    private val presenter: MainPresenter by lazy { MainPresenter(this, activeGameRepository, botsRepository) }
+    private val presenter: MainPresenter by lazy { MainPresenter(this, activeGameRepository) }
 
     var loading: Boolean = false
         set(value) {
@@ -156,6 +156,8 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         notificationsButton.setOnClickListener { onNotificationClicked() }
 
         newChallengeView.showFab().subscribe()
+        newChallengeView.onAutomatchClicked = this::onAutoMatchSearch
+        newChallengeView.onOnlineBotClicked = this::onOnlineBotSearch
     }
 
     private fun scheduleNotificationJob() {
@@ -324,41 +326,8 @@ class MainActivity : AppCompatActivity(), MainContract.View {
     }
 
     fun onOnlineBotSearch() {
-        println(botsRepository)
-
         NewChallengeBottomSheet(this, botsRepository) {
-//            {
-//                "initialized":false,
-//                "min_ranking":-1000,
-//                "max_ranking":1000,
-//                "challenger_color":"automatic",
-//                "game":{
-//                    "handicap":"10",
-//                    "time_control":"byoyomi",
-//                    "challenger_color":"black",
-//                    "rules":"japanese",
-//                    "ranked":false,
-//                    "width":19,
-//                    "height":19,
-//                    "komi_auto":"automatic",
-//                    "komi":null,
-//                    "disable_analysis":false,
-//                    "pause_on_weekends":true,
-//                    "initial_state":null,
-//                    "private":true,
-//                    "name":"Friendly Match",
-//                    "time_control_parameters":{
-//                        "system":"byoyomi",
-//                        "speed":"correspondence",
-//                        "main_time":604800,
-//                        "period_time":86400,
-//                        "periods":5,
-//                        "pause_on_weekends":true,
-//                        "time_control":"byoyomi"
-//                    }
-//                },
-//                "aga_ranked":false
-//            }
+            presenter.onNewBotChallenge(it)
         }.show()
     }
 }

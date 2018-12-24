@@ -48,12 +48,15 @@ interface OGSRestAPI {
             @Query("page_size") pageSize: Int = 10,
             @Query("page") page: Int = 1): Single<PagedResult<OGSGame>>
 
-    @GET("/api/v1/me/automatches?page_size=30")
+    @GET("/api/v1/me/challenges?page_size=100")
     fun fetchChallenges(): Single<PagedResult<OGSChallenge>>
 
-    @POST("/api/v1/me/automatches/{challenge_id}/accept")
+    @POST("/api/v1/me/challenges/{challenge_id}/accept")
     fun acceptChallenge(@Path("challenge_id") id: Long): Completable
 
-    @DELETE("/api/v1/me/automatches/{challenge_id}")
+    @DELETE("/api/v1/me/challenges/{challenge_id}")
     fun declineChallenge(@Path("challenge_id") id: Long): Completable
+
+    @POST("/api/v1/players/{id}/challenge")
+    fun challengePlayer(@Path("id") id: Long, @Body request: OGSChallengeRequest): Completable
 }

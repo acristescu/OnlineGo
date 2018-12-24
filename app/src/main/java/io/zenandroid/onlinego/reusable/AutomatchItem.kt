@@ -11,6 +11,9 @@ class AutomatchItem(
         private val onAutomatchCancelled: ((OGSAutomatch) -> Unit)?
 ) : Item() {
     override fun bind(holder: ViewHolder, position: Int) {
+        val speed = automatch.size_speed_options[0].speed.capitalize()
+        val sizes = automatch.size_speed_options.joinToString(separator = "   ") { it.size }
+        holder.details.text = "$speed   $sizes"
         holder.cancelButton.setOnClickListener { onAutomatchCancelled?.invoke(automatch) }
     }
 

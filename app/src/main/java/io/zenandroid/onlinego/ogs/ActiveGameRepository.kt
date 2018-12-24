@@ -23,7 +23,7 @@ import java.util.concurrent.TimeUnit
 /**
  * Created by alex on 08/11/2017.
  */
-class ActiveGameRepository {
+object ActiveGameRepository {
 
     private val activeDbGames = mutableMapOf<Long, Game>()
     private val gameConnections = mutableSetOf<Long>()
@@ -52,9 +52,9 @@ class ActiveGameRepository {
         @Synchronized get() = activeDbGames.values.filter(Util::isMyTurn).toList()
 
     internal fun subscribe() {
-        OGSServiceImpl.instance.connectToNotifications()
+        OGSServiceImpl.instance.connectToActiveGames()
                 .subscribeOn(Schedulers.io())
-                .subscribe(this::onNotification) { this.onError(it, "connectToNotifications") }
+                .subscribe(this::onNotification) { this.onError(it, "connectToActiveGames") }
                 .addToDisposable(subscriptions)
         OnlineGoApplication.instance.db.gameDao()
                 .monitorActiveGames(OGSServiceImpl.instance.uiConfig?.user?.id)
@@ -62,7 +62,7 @@ class ActiveGameRepository {
                 .addToDisposable(subscriptions)
     }
 
-    internal fun unsubscribe() {
+    fun unsubscribe() {
         subscriptions.clear()
         gameConnections.clear()
     }

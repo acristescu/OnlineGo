@@ -23,6 +23,7 @@ import io.zenandroid.onlinego.AndroidLoggingHandler
 import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.main.MainActivity
 import io.zenandroid.onlinego.model.ogs.*
+import io.zenandroid.onlinego.newchallenge.ChallengeParams
 import io.zenandroid.onlinego.utils.PersistenceManager
 import io.zenandroid.onlinego.utils.createJsonArray
 import io.zenandroid.onlinego.utils.createJsonObject
@@ -105,16 +106,88 @@ class OGSServiceImpl private constructor(): OGSService {
     }
 
     fun ensureSocketConnected() {
-        if(!socket.connected()) {
-            BotsRepository.subscribe()
-            AutomatchRepository.subscribe()
-            ChallengesRepository.subscribe()
-            socket.connect()
+        socket.connect()
+    }
+
+//            {
+//                "initialized":false,
+//                "min_ranking":-1000,
+//                "max_ranking":1000,
+//                "challenger_color":"automatic",
+//                "game":{
+//                    "handicap":"10",
+//                    "time_control":"byoyomi",
+//                    "challenger_color":"black",
+//                    "rules":"japanese",
+//                    "ranked":false,
+//                    "width":19,
+//                    "height":19,
+//                    "komi_auto":"automatic",
+//                    "komi":null,
+//                    "disable_analysis":false,
+//                    "pause_on_weekends":true,
+//                    "initial_state":null,
+//                    "private":true,
+//                    "name":"Friendly Match",
+//                    "time_control_parameters":{
+//                        "system":"byoyomi",
+//                        "speed":"correspondence",
+//                        "main_time":604800,
+//                        "period_time":86400,
+//                        "periods":5,
+//                        "pause_on_weekends":true,
+//                        "time_control":"byoyomi"
+//                    }
+//                },
+//                "aga_ranked":false
+//            }
+
+    override fun challengeBot(challengeParams: ChallengeParams): Completable {
+        val size = when(challengeParams.size) {
+            "9x9" -> 9
+            "13x13" -> 13
+            "19x19" -> 19
+            else -> 19
         }
 
-        if(!authSent) {
-            resendAuth()
+        val color = when(challengeParams.color) {
+            "Auto" -> "automatic"
+            "Black" -> "black"
+            "White" -> "white"
+            else -> "automatic"
         }
+
+        val request = OGSChallengeRequest(
+                initialized = false,
+                aga_ranked = false,
+                challenger_color = color,
+                game = OGSChallengeRequest.Game(
+                        handicap = if(challengeParams.handicap == "Auto") "-1" else challengeParams.handicap,
+                        challenger_color = "black",
+                        ranked = challengeParams.ranked,
+                        name = "Bot game",
+                        disable_analysis = false,
+                        height = size,
+                        width = size,
+                        initial_state = null,
+                        komi = null,
+                        komi_auto = "automatic",
+                        pause_on_weekends = true,
+                        private = true,
+                        rules = "japanese",
+                        time_control = "byoyomi",
+                        time_control_parameters = TimeControl(
+                                system = "byoyomi",
+                                time_control = "byoyomi",
+                                speed = challengeParams.speed.toLowerCase(),
+                                main_time = 604800,
+                                period_time = 86400,
+                                periods = 5,
+                                pause_on_weekends = true
+                        )
+                )
+        )
+        return restApi.challengePlayer(challengeParams.bot?.id!!, request)
     }
 
     override fun acceptChallenge(id: Long): Completable =
@@ -162,15 +235,15 @@ class OGSServiceImpl private constructor(): OGSService {
         })
     }
 
-    fun connectToNotifications(): Flowable<OGSGame> {
+    fun connectToActiveGames(): Flowable<OGSGame> {
         val returnVal = observeEvent("active_game")
                 .map { string -> moshi.adapter(OGSGame::class.java).fromJson(string.toString()) as OGSGame }
 
-        emit("notification/disconnect", "")
-        emit("notification/connect", createJsonObject {
-            put("player_id", uiConfig?.user?.id)
-            put("auth", uiConfig?.notification_auth)
-        })
+//        emit("notification/disconnect", "")
+//        emit("notification/connect", createJsonObject {
+//            put("player_id", uiConfig?.user?.id)
+//            put("auth", uiConfig?.notification_auth)
+//        })
 
         return returnVal
     }
@@ -179,7 +252,7 @@ class OGSServiceImpl private constructor(): OGSService {
         val returnVal = observeEvent("ui-push")
                 .map { string -> moshi.adapter(UIPush::class.java).fromJson(string.toString()) as UIPush }
 
-        socket.emit("ui-pushes/subscribe", createJsonObject {
+        emit("ui-pushes/subscribe", createJsonObject {
             put("channel", "undefined")
         })
 
@@ -207,9 +280,26 @@ class OGSServiceImpl private constructor(): OGSService {
             observeEvent("automatch/cancel")
                     .map { string -> moshi.adapter(OGSAutomatch::class.java).fromJson(string.toString()) as OGSAutomatch }
 
+    fun listenToStartAutomatchNotifications(): Flowable<OGSAutomatch> =
+            observeEvent("automatch/start")
+                    .map { string -> moshi.adapter(OGSAutomatch::class.java).fromJson(string.toString()) as OGSAutomatch }
+
+
     fun connectToAutomatch() {
-        socket.emit("automatch/list", null)
+        emit("automatch/list", null)
     }
+
+    fun connectToServerNotifications(): Flowable<JSONObject> =
+            observeEvent("notification")
+                    .map { JSONObject(it.toString()) }
+                    .doOnSubscribe {
+                        emit("notification/connect", createJsonObject {
+                            put("player_id", uiConfig?.user?.id)
+                            put("auth", uiConfig?.notification_auth)
+                        })
+                    }.doOnCancel {
+                        emit("notification/disconnect", "")
+                    }
 
     fun connectToChallenges(): Flowable<SeekGraphChallenge> {
         val listMyData = Types.newParameterizedType(List::class.java, SeekGraphChallenge::class.java)
@@ -235,7 +325,7 @@ class OGSServiceImpl private constructor(): OGSService {
 
     internal fun emit(event: String, params:Any?) {
         ensureSocketConnected()
-        Log.i(TAG, "Emit: $event with params $params")
+        Log.i(TAG, "Emit: $event with params $params thread = ${Thread.currentThread().id}")
         socket.emit(event, params, loggingAck)
     }
 
@@ -263,44 +353,6 @@ class OGSServiceImpl private constructor(): OGSService {
             }
         }
         , BackpressureStrategy.BUFFER)
-    }
-
-    override fun startGameSearch(sizes: List<Size>, speed: Speed) : AutomatchChallenge {
-        val uuid = UUID.randomUUID().toString()
-        val startFlowable = observeEvent("automatch/start")
-                .map { string -> moshi.adapter(AutomatchChallengeSuccess::class.java).fromJson(string.toString()) as AutomatchChallengeSuccess }
-        val challenge = AutomatchChallenge(uuid, startFlowable)
-
-        val json = createJsonObject {
-            put("uuid", uuid)
-            put("size_speed_options", createJsonArray {
-                sizes.forEach { size ->
-                    put(createJsonObject {
-                        put("size", size.getText())
-                        put("speed", speed.getText())
-                    })
-                }
-            })
-            put("lower_rank_diff", 6)
-            put("upper_rank_diff", 6)
-            put("rules", createJsonObject {
-                put("condition", "no-preference")
-                put("value", "japanese")
-            })
-            put("time_control", createJsonObject {
-                put("condition", "no-preference")
-                put("value", createJsonObject {
-                    put("system", "byoyomi")
-                })
-            })
-            put("handicap", createJsonObject {
-                put("condition", "no-preference")
-                put("value", "enabled")
-            })
-        }
-
-        emit("automatch/find_match", json)
-        return challenge
     }
 
     override fun startAutomatch(sizes: List<Size>, speed: Speed) : String {
@@ -337,11 +389,6 @@ class OGSServiceImpl private constructor(): OGSService {
         return uuid
     }
 
-    override fun cancelAutomatchChallenge(challenge: AutomatchChallenge) {
-        emit("automatch/cancel", challenge.uuid)
-        socket.off("automatch/start")
-    }
-
     override fun cancelAutomatch(automatch: OGSAutomatch) {
         emit("automatch/cancel", automatch.uuid)
     }
@@ -361,10 +408,12 @@ class OGSServiceImpl private constructor(): OGSService {
     }
 
     fun disconnect() {
+        ActiveGameRepository.unsubscribe()
         BotsRepository.unsubscribe()
         AutomatchRepository.unsubscribe()
         ChallengesRepository.unsubscribe()
-        socket.off()
+        NotificationsRepository.unsubscribe()
+//        socket.off()
         socket.disconnect()
     }
 
@@ -442,17 +491,27 @@ class OGSServiceImpl private constructor(): OGSService {
         Logger.getLogger(IOParser::class.java.name).level = Level.FINEST
     }
 
+    override fun deleteNotification(notificationId: String) {
+        emit("notification/delete", createJsonObject {
+            put("player_id", uiConfig?.user?.id)
+            put("auth", uiConfig?.notification_auth)
+            put("notification_id", notificationId)
+        })
+    }
+
     private fun onSockedConnected() {
+        authSent = false
         resendAuth()
+        ActiveGameRepository.subscribe()
+        BotsRepository.subscribe()
+        AutomatchRepository.subscribe()
+        ChallengesRepository.subscribe()
+        NotificationsRepository.subscribe()
         synchronized(gameConnections) {
             gameConnections.keys.forEach {
                 emitGameConnection(it)
             }
         }
-        emit("notification/connect", createJsonObject {
-            put("player_id", uiConfig?.user?.id)
-            put("auth", uiConfig?.notification_auth)
-        })
         if(connectedToChallenges) {
             emit("seek_graph/connect", createJsonObject {
                 put("channel", "global")

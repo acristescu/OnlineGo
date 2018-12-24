@@ -8,7 +8,12 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import io.zenandroid.onlinego.extensions.addToDisposable
 import io.zenandroid.onlinego.model.local.Game
-import io.zenandroid.onlinego.ogs.*
+import io.zenandroid.onlinego.model.ogs.Size
+import io.zenandroid.onlinego.model.ogs.Speed
+import io.zenandroid.onlinego.newchallenge.ChallengeParams
+import io.zenandroid.onlinego.ogs.ActiveGameRepository
+import io.zenandroid.onlinego.ogs.AutomatchRepository
+import io.zenandroid.onlinego.ogs.OGSServiceImpl
 import java.util.concurrent.TimeUnit
 
 /**
@@ -16,8 +21,7 @@ import java.util.concurrent.TimeUnit
  */
 class MainPresenter (
         private val view : MainContract.View,
-        private val activeGameRepository: ActiveGameRepository,
-        private val botsRepository: BotsRepository
+        private val activeGameRepository: ActiveGameRepository
 ) : MainContract.Presenter {
 
     private val subscriptions = CompositeDisposable()
@@ -40,7 +44,7 @@ class MainPresenter (
             OGSServiceImpl.instance.ensureSocketConnected()
         }.addToDisposable(subscriptions)
 
-        activeGameRepository.subscribe()
+//        activeGameRepository.subscribe()
     }
 
     private fun onMyMoveCountChanged(myMoveCount: Int) {
@@ -64,8 +68,7 @@ class MainPresenter (
     }
 
     override fun unsubscribe() {
-        activeGameRepository.unsubscribe()
-//        botsRepository.unsubscribe()
+//        activeGameRepository.unsubscribe()
         subscriptions.clear()
         OGSServiceImpl.instance.disconnect()
     }
@@ -99,7 +102,19 @@ class MainPresenter (
     }
 
     override fun onStartSearch(sizes: List<Size>, speed: Speed) {
-        OGSServiceImpl.instance.startAutomatch(sizes, speed)
+        if(speed in arrayOf(Speed.NORMAL, Speed.BLITZ) && AutomatchRepository.automatches.find { it.liveOrBlitz } != null) {
+            view.showError("Can only search for one live or blitz game at a time.")
+        } else {
+            OGSServiceImpl.instance.startAutomatch(sizes, speed)
+        }
+    }
+
+    override fun onNewBotChallenge(challengeParams: ChallengeParams) {
+        OGSServiceImpl.instance.challengeBot(challengeParams)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe({}, this::onError)
+                .addToDisposable(subscriptions)
     }
 
     private fun onError(t: Throwable) {
