@@ -31,6 +31,7 @@ interface GameContract {
         var title: String?
         var nextButtonVisible: Boolean
         var analyzeButtonVisible: Boolean
+        var analysisDisabledButtonVisible: Boolean
         var previousButtonVisible: Boolean
         var passButtonVisible: Boolean
         var resignButtonVisible: Boolean
@@ -85,6 +86,7 @@ interface GameContract {
         fun onConfirmButtonPressed()
         fun onAutoButtonPressed()
         fun onAnalyzeButtonClicked()
+        fun onAnalysisDisabledButtonClicked()
         fun onChatClicked()
         fun onNewMessage(message: String)
         fun onUndoAccepted()

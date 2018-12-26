@@ -55,8 +55,10 @@ class GameInfoDialog : DialogFragment() {
         game.name?.let { groupAdapter.add(GameInfoItem("Game Name", it)) }
         game.rules?.let { groupAdapter.add(GameInfoItem("Rules", it)) }
         game.ranked?.let { groupAdapter.add(GameInfoItem("Ranked", it.yesNo())) }
+        game.disableAnalysis?.let { groupAdapter.add(GameInfoItem("Analysis/Conditional moves", (!it).enabledDisabled()))}
         game.timeControl?.let { groupAdapter.add(GameInfoItem("Time controls", timeControlDescription(it)))}
     }
 
     private fun Boolean.yesNo() = if(this) "yes" else "no"
+    private fun Boolean.enabledDisabled() = if(this) "Enabled" else "Disabled"
 }

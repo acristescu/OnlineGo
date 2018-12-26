@@ -422,7 +422,7 @@ class GamePresenter(
         if(myGame && currentState in arrayOf(PLAYING, HISTORY) && game?.phase == Phase.PLAY && game?.playerToMoveId == userId) {
             list.add(PASS)
         }
-        if((currentState != ANALYSIS) && (game?.disableAnalysis == false)) {
+        if((currentState != ANALYSIS) && (!isAnalysisDisabled(game))) {
             list.add(ANALYZE)
         }
         list.add(ESTIMATE_SCORE)
@@ -562,7 +562,8 @@ class GamePresenter(
         view.previousButtonVisible = true
         view.passButtonVisible = myGame && game.phase == Phase.PLAY
         view.resignButtonVisible = false
-        view.analyzeButtonVisible = !(game.disableAnalysis ?: false)
+        view.analyzeButtonVisible = !isAnalysisDisabled(game)
+        view.analysisDisabledButtonVisible = isAnalysisDisabled(game)
 
         view.confirmButtonVisible = false
         view.discardButtonVisible = false
@@ -579,7 +580,8 @@ class GamePresenter(
         view.previousButtonVisible = true
         view.passButtonVisible = game.moves?.size ?: 0 >= 2
         view.resignButtonVisible = false
-        view.analyzeButtonVisible = !(game.disableAnalysis ?: false)
+        view.analyzeButtonVisible = !isAnalysisDisabled(game)
+        view.analysisDisabledButtonVisible = isAnalysisDisabled(game)
 
         view.confirmButtonVisible = false
         view.discardButtonVisible = game.moves?.size ?: 0 < 2
@@ -596,6 +598,7 @@ class GamePresenter(
         view.passButtonVisible = false
         view.resignButtonVisible = false
         view.analyzeButtonVisible = false
+        view.analysisDisabledButtonVisible = false
 
         view.confirmButtonVisible = false
         view.discardButtonVisible = true
@@ -613,6 +616,7 @@ class GamePresenter(
         view.passButtonVisible = false
         view.resignButtonVisible = false
         view.analyzeButtonVisible = false
+        view.analysisDisabledButtonVisible = false
 
         view.confirmButtonVisible = true
         view.discardButtonVisible = true
@@ -628,6 +632,7 @@ class GamePresenter(
         view.passButtonVisible = false
         view.resignButtonVisible = false
         view.analyzeButtonVisible = true
+        view.analysisDisabledButtonVisible = false
 
         view.confirmButtonVisible = false
         view.discardButtonVisible = false
@@ -643,6 +648,7 @@ class GamePresenter(
         view.passButtonVisible = false
         view.resignButtonVisible = false
         view.analyzeButtonVisible = false
+        view.analysisDisabledButtonVisible = false
 
         view.confirmButtonVisible = false
         view.discardButtonVisible = true
@@ -658,10 +664,15 @@ class GamePresenter(
         view.passButtonVisible = false
         view.resignButtonVisible = false
         view.analyzeButtonVisible = false
+        view.analysisDisabledButtonVisible = false
 
         view.confirmButtonVisible = true
         view.discardButtonVisible = true
         view.autoButtonVisible = false
+    }
+
+    private fun isAnalysisDisabled(game: Game?): Boolean {
+        return (game?.disableAnalysis ?: false)
     }
 
     override fun onAutoButtonPressed() {
@@ -918,6 +929,14 @@ class GamePresenter(
         variation.clear()
         variationCurrentMove = -1
         game?.let(this::refreshUI)
+    }
+
+    override fun onAnalysisDisabledButtonClicked() {
+        analytics.logEvent("analysisDisabled_clicked", null)
+        view.showInfoDialog("Analysis is disabled",
+        "The challenger has configured this game to disable the analysis feature." +
+                "This is often setup by players that wish to mimic real-life conditions, where the reading " +
+                "of variations is visualised rather than played through.")
     }
 
     private fun configurePlayerStatus() {
