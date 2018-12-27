@@ -149,6 +149,7 @@ class GameFragment : Fragment(), GameContract.View {
         passButton.setOnClickListener { onPassClicked() }
         discardButton.setOnClickListener { presenter.onDiscardButtonPressed() }
         analyzeButton.setOnClickListener { presenter.onAnalyzeButtonClicked() }
+        analysisDisabledButton.setOnClickListener { presenter.onAnalysisDisabledButtonClicked() }
         confirmButton.setOnClickListener { presenter.onConfirmButtonPressed() }
         autoButton.setOnClickListener { presenter.onAutoButtonPressed() }
         menuButton.setOnClickListener { presenter.onMenuButtonPressed() }
@@ -245,6 +246,9 @@ class GameFragment : Fragment(), GameContract.View {
 
     override var analyzeButtonVisible = false
         set(value) { analyzeButton.showIf(value) }
+
+    override var analysisDisabledButtonVisible = false
+        set(value) { analysisDisabledButton.showIf(value) }
 
     override var previousButtonVisible = false
         set(value) { previousButton.showIf(value) }

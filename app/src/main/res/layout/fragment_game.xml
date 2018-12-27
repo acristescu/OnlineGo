@@ -100,6 +100,7 @@
                 android:paddingTop="10dp"
                 android:paddingBottom="10dp"
                 />
+
             <android.support.v7.widget.AppCompatImageView
                 android:id="@+id/analyzeButton"
                 android:layout_width="wrap_content"
@@ -110,6 +111,17 @@
                 android:paddingTop="10dp"
                 android:paddingBottom="10dp"
                 />
+
+            <android.support.v7.widget.AppCompatImageView
+                android:id="@+id/analysisDisabledButton"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                app:srcCompat="@drawable/ic_thinking_disabled"
+                android:layout_weight="1"
+                android:paddingTop="10dp"
+                android:paddingBottom="10dp"
+                />
+
             <android.support.v7.widget.AppCompatImageView
                 android:id="@+id/previousButton"
                 android:layout_width="wrap_content"
