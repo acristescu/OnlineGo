@@ -17,7 +17,8 @@ import kotlinx.android.synthetic.main.view_new_challenge.view.*
 class NewChallengeView : FrameLayout {
 
     private var fabMiniSize: Float = 0f
-    private var subMenuVisible = false
+    var subMenuVisible = false
+        private set
 
     private val analytics = OnlineGoApplication.instance.analytics
 

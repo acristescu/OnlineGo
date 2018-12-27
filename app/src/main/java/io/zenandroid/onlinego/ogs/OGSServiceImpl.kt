@@ -157,6 +157,36 @@ class OGSServiceImpl private constructor(): OGSService {
             else -> "automatic"
         }
 
+        val timeControl = when(challengeParams.speed.toLowerCase()) {
+            "correspondence" -> TimeControl(
+                    system = "byoyomi",
+                    time_control = "byoyomi",
+                    speed = "correspondence",
+                    main_time = 604800,
+                    period_time = 86400,
+                    periods = 5,
+                    pause_on_weekends = true
+            )
+            "live" -> TimeControl(
+                    system = "byoyomi",
+                    time_control = "byoyomi",
+                    speed = "live",
+                    main_time = 600,
+                    period_time = 30,
+                    periods = 5,
+                    pause_on_weekends = true
+            )
+            "blitz" -> TimeControl(
+                    system = "byoyomi",
+                    time_control = "byoyomi",
+                    speed = "blitz",
+                    main_time = 30,
+                    period_time = 5,
+                    periods = 5,
+                    pause_on_weekends = true
+            )
+            else -> TimeControl()
+        }
         val request = OGSChallengeRequest(
                 initialized = false,
                 aga_ranked = false,
@@ -176,15 +206,7 @@ class OGSServiceImpl private constructor(): OGSService {
                         private = true,
                         rules = "japanese",
                         time_control = "byoyomi",
-                        time_control_parameters = TimeControl(
-                                system = "byoyomi",
-                                time_control = "byoyomi",
-                                speed = challengeParams.speed.toLowerCase(),
-                                main_time = 604800,
-                                period_time = 86400,
-                                periods = 5,
-                                pause_on_weekends = true
-                        )
+                        time_control_parameters = timeControl
                 )
         )
         return restApi.challengePlayer(challengeParams.bot?.id!!, request)
@@ -236,16 +258,8 @@ class OGSServiceImpl private constructor(): OGSService {
     }
 
     fun connectToActiveGames(): Flowable<OGSGame> {
-        val returnVal = observeEvent("active_game")
+        return observeEvent("active_game")
                 .map { string -> moshi.adapter(OGSGame::class.java).fromJson(string.toString()) as OGSGame }
-
-//        emit("notification/disconnect", "")
-//        emit("notification/connect", createJsonObject {
-//            put("player_id", uiConfig?.user?.id)
-//            put("auth", uiConfig?.notification_auth)
-//        })
-
-        return returnVal
     }
 
     fun connectToUIPushes(): Flowable<UIPush> {
@@ -535,6 +549,9 @@ class OGSServiceImpl private constructor(): OGSService {
                     for (game in it) {
                         game.json?.clock?.current_player?.let {
                             game.player_to_move = it
+                        }
+                        game.json?.handicap?.let {
+                            game.handicap = it
                         }
                     }
                     it

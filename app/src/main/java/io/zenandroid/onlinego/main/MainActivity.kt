@@ -155,9 +155,11 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         bottomNavigation.disableShiftMode()
         notificationsButton.setOnClickListener { onNotificationClicked() }
 
-        newChallengeView.showFab().subscribe()
-        newChallengeView.onAutomatchClicked = this::onAutoMatchSearch
-        newChallengeView.onOnlineBotClicked = this::onOnlineBotSearch
+        newChallengeView.apply {
+            showFab().subscribe()
+            onAutomatchClicked = this@MainActivity::onAutoMatchSearch
+            onOnlineBotClicked = this@MainActivity::onOnlineBotSearch
+        }
     }
 
     private fun scheduleNotificationJob() {
@@ -289,14 +291,11 @@ class MainActivity : AppCompatActivity(), MainContract.View {
 
     override fun onBackPressed() {
         val fragment = supportFragmentManager.findFragmentById(R.id.fragment_container)
-        when(fragment) {
-            is GameFragment -> selectItem(lastSelectedItem)
+        when {
+            fragment is GameFragment -> selectItem(lastSelectedItem)
+            newChallengeView.subMenuVisible -> newChallengeView.toggleSubMenu()
             else -> super.onBackPressed()
         }
-    }
-
-    fun navigateToGameScreenById(gameId: Long) {
-        presenter.navigateToGameScreenById(gameId)
     }
 
     fun setNewMessagesCount(count: Int) {

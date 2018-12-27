@@ -32,7 +32,10 @@ class NewChallengeBottomSheet(
 
         botView.apply {
             name = "Bot"
-            value = botsRepository.bots.getOrNull(0)?.username ?: "(none)"
+            value = botsRepository.bots
+                    .find { it.id == challenge.bot?.id }
+                    ?.let {"${it.username} (${formatRank(egfToRank(it.ratings?.overall?.rating))})"}
+                    ?: "(none)"
             valuesCallback = {
                 botsRepository.bots
                         .sortedBy { it.ratings?.overall?.rating }
