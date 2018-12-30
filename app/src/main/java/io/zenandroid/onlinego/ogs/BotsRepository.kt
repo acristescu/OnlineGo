@@ -13,7 +13,7 @@ object BotsRepository {
         private set
 
     internal fun subscribe() {
-        OGSServiceImpl.instance.connectToBots()
+        OGSServiceImpl.connectToBots()
                 .subscribeOn(Schedulers.io())
                 .subscribe(this::storeBots) { Crashlytics.logException(it) }
                 .addToDisposable(subscriptions)

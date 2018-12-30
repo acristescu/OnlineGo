@@ -19,7 +19,7 @@ class ActiveGameItem (val game: Game) : Item(game.id) {
         holder.board.boardSize = game.width
         holder.board.position = RulesManager.replay(game, computeTerritory = false)
 
-        val userId = OGSServiceImpl.instance.uiConfig?.user?.id
+        val userId = OGSServiceImpl.uiConfig?.user?.id
 
         val opponent =
                 when (userId) {

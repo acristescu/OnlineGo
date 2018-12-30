@@ -8,7 +8,7 @@ import org.json.JSONObject
 
 object NotificationsRepository {
     private val subscriptions = CompositeDisposable()
-    private val ogs = OGSServiceImpl.instance
+    private val ogs = OGSServiceImpl
     private val notificationsHash = hashMapOf<String, JSONObject>()
     private val notificationsSubject = PublishSubject.create<JSONObject>()
 

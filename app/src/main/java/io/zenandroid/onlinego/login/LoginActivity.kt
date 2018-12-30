@@ -17,6 +17,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.Toast
+import com.crashlytics.android.Crashlytics
 import com.google.firebase.analytics.FirebaseAnalytics
 import io.reactivex.Completable
 import io.reactivex.Single
@@ -50,7 +51,7 @@ class LoginActivity : AppCompatActivity() {
     private var analytics = OnlineGoApplication.instance.analytics
     private val subscriptions = CompositeDisposable()
     private val client = OkHttpClient.Builder()
-            .cookieJar(OGSServiceImpl.instance.cookieJar)
+            .cookieJar(OGSServiceImpl.cookieJar)
             .followRedirects(false)
             .build()
 
@@ -73,7 +74,7 @@ class LoginActivity : AppCompatActivity() {
                     .get()
                     .build()
             Completable.fromCallable { client.newCall(request).execute() }
-                    .andThen(OGSServiceImpl.instance.fetchUIConfig())
+                    .andThen(OGSServiceImpl.fetchUIConfig())
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(this::onLoginSuccess, this::onTokenLoginFailure)
@@ -94,9 +95,12 @@ class LoginActivity : AppCompatActivity() {
         Single.fromCallable { client.newCall(request).execute() }
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe { response ->
+                .subscribe ({ response ->
                     startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(response.header("Location"))))
-                }
+                } , {
+                    Crashlytics.logException(it)
+                    Toast.makeText(this, it.message, Toast.LENGTH_LONG).show()
+                }).addToDisposable(subscriptions)
     }
 
     private fun toggleCreateAccountMode() {
@@ -116,8 +120,8 @@ class LoginActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
 
-        if(OGSServiceImpl.instance.isLoggedIn()) {
-            OGSServiceImpl.instance.ensureSocketConnected()
+        if(OGSServiceImpl.isLoggedIn()) {
+            OGSServiceImpl.ensureSocketConnected()
             onLoginSuccess()
         } else if(intent.data == null) {
             onTokenLoginFailure(java.lang.Exception())
@@ -172,7 +176,7 @@ class LoginActivity : AppCompatActivity() {
         if(!createAccount) {
             doLogin()
         } else {
-            OGSServiceImpl.instance.createAccount(username.text.toString().trim(), password.text.toString(), email.text.toString().trim())
+            OGSServiceImpl.createAccount(username.text.toString().trim(), password.text.toString(), email.text.toString().trim())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(
                             this::onCreateAccountSuccess,
@@ -183,8 +187,8 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun doLogin() {
-        OGSServiceImpl.instance.login(username.text.toString(), password.text.toString())
-                .doOnComplete { OGSServiceImpl.instance.ensureSocketConnected() }
+        OGSServiceImpl.login(username.text.toString(), password.text.toString())
+                .doOnComplete { OGSServiceImpl.ensureSocketConnected() }
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnComplete { analytics.logEvent(FirebaseAnalytics.Event.LOGIN, null) }
                 .subscribe(

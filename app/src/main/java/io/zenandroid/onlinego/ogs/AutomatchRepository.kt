@@ -22,23 +22,23 @@ object AutomatchRepository {
 
     internal fun subscribe() {
         automatches.clear()
-        OGSServiceImpl.instance.listenToNewAutomatchNotifications()
+        OGSServiceImpl.listenToNewAutomatchNotifications()
                 .subscribeOn(Schedulers.io())
                 .subscribe(this::addAutomatch) { Crashlytics.logException(it) }
                 .addToDisposable(subscriptions)
 
-        OGSServiceImpl.instance.listenToCancelAutomatchNotifications()
+        OGSServiceImpl.listenToCancelAutomatchNotifications()
                 .subscribeOn(Schedulers.io())
                 .subscribe(this::removeAutomatch) { Crashlytics.logException(it) }
                 .addToDisposable(subscriptions)
 
-        OGSServiceImpl.instance.listenToStartAutomatchNotifications()
+        OGSServiceImpl.listenToStartAutomatchNotifications()
                 .subscribeOn(Schedulers.io())
                 .doOnNext(gameStartSubject::onNext)
                 .subscribe(this::removeAutomatch) { Crashlytics.logException(it) }
                 .addToDisposable(subscriptions)
 
-        OGSServiceImpl.instance.connectToAutomatch()
+        OGSServiceImpl.connectToAutomatch()
     }
 
     private fun removeAutomatch(automatch: OGSAutomatch) {

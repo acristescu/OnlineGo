@@ -48,8 +48,14 @@ class MyGamesFragment : Fragment(), MyGamesContract.View {
             when (item) {
                 is ActiveGameItem -> presenter.onGameSelected(item.game)
                 is FinishedGameItem -> presenter.onGameSelected(item.game)
-                is NewGameItem.AutoMatch -> (activity as MainActivity).onAutoMatchSearch()
-                is NewGameItem.OnlineBot -> (activity as MainActivity).onOnlineBotSearch()
+                is NewGameItem.AutoMatch -> {
+                    analytics.logEvent("automatch_item_clicked", null)
+                    (activity as MainActivity).onAutoMatchSearch()
+                }
+                is NewGameItem.OnlineBot -> {
+                    analytics.logEvent("bot_item_clicked", null)
+                    (activity as MainActivity).onOnlineBotSearch()
+                }
             }
         }
 

@@ -11,7 +11,7 @@ import io.zenandroid.onlinego.model.ogs.OGSChallenge
 
 object ChallengesRepository {
 
-    private val ogs = OGSServiceImpl.instance
+    private val ogs = OGSServiceImpl
     private val dao = OnlineGoApplication.instance.db.gameDao()
     private val disposables = CompositeDisposable()
     private val TAG = ChallengesRepository.javaClass.simpleName

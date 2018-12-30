@@ -101,7 +101,8 @@ class MyGamesPresenter(
     }
 
     override fun onAutomatchCancelled(automatch: OGSAutomatch) {
-        OGSServiceImpl.instance.cancelAutomatch(automatch)
+        analytics.logEvent("new_game_cancelled", null)
+        OGSServiceImpl.cancelAutomatch(automatch)
     }
 
     override fun unsubscribe() {
@@ -128,21 +129,24 @@ class MyGamesPresenter(
     }
 
     override fun onChallengeCancelled(challenge: Challenge) {
-        OGSServiceImpl.instance.declineChallenge(challenge.id)
+        analytics.logEvent("challenge_cancelled", null)
+        OGSServiceImpl.declineChallenge(challenge.id)
                 .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
                 .subscribe({}, this::onError)
                 .addToDisposable(subscriptions)
     }
 
     override fun onChallengeAccepted(challenge: Challenge) {
-        OGSServiceImpl.instance.acceptChallenge(challenge.id)
+        analytics.logEvent("challenge_accepted", null)
+        OGSServiceImpl.acceptChallenge(challenge.id)
                 .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
                 .subscribe({}, this::onError)
                 .addToDisposable(subscriptions)
     }
 
     override fun onChallengeDeclined(challenge: Challenge) {
-        OGSServiceImpl.instance.declineChallenge(challenge.id)
+        analytics.logEvent("challenge_declined", null)
+        OGSServiceImpl.declineChallenge(challenge.id)
                 .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
                 .subscribe({}, this::onError)
                 .addToDisposable(subscriptions)
@@ -151,7 +155,10 @@ class MyGamesPresenter(
     private fun onNotification(notification: JSONObject) {
         if(notification["type"] == "gameOfferRejected") {
             notificationsRepository.acknowledgeNotification(notification)
-            view.showMessage("Bot rejected challenge", "This might happen because the bot's maintainer has set some conditions on the challenge parameters. Message is:\n\n${notification["message"]}")
+            val message = if(notification.has("message")) "Message is:\n\n${notification["message"]}" else ""
+            view.showMessage("Bot rejected challenge", "This might happen because the bot's maintainer has set some conditions on the challenge parameters. $message")
+            analytics.logEvent("bot_refused_challenge", null)
+            Crashlytics.log("Bot refused challenge. $message")
         }
     }
 

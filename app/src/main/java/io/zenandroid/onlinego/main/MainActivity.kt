@@ -205,6 +205,7 @@ class MainActivity : AppCompatActivity(), MainContract.View {
 
     override fun showLogin() {
         startActivity(Intent(this, LoginActivity::class.java))
+        finish()
     }
 
     override fun onPause() {
@@ -326,6 +327,7 @@ class MainActivity : AppCompatActivity(), MainContract.View {
 
     fun onOnlineBotSearch() {
         NewChallengeBottomSheet(this, botsRepository) {
+            analytics.logEvent("bot_challenge", null)
             presenter.onNewBotChallenge(it)
         }.show()
     }

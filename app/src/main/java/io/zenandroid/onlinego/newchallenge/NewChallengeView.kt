@@ -22,8 +22,8 @@ class NewChallengeView : FrameLayout {
 
     private val analytics = OnlineGoApplication.instance.analytics
 
-    public var onAutomatchClicked: (() -> Unit)? = null
-    public var onOnlineBotClicked: (() -> Unit)? = null
+    var onAutomatchClicked: (() -> Unit)? = null
+    var onOnlineBotClicked: (() -> Unit)? = null
 
     constructor(context: Context) : this(context, null)
     constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0)
@@ -35,12 +35,17 @@ class NewChallengeView : FrameLayout {
     private fun init() {
         val view = View.inflate(context, R.layout.view_new_challenge, this)
 
-        fab.setOnClickListener { toggleSubMenu() }
+        fab.setOnClickListener {
+            analytics.logEvent("new_game_fab_clicked", null)
+            toggleSubMenu()
+        }
         onlineFab.setOnClickListener {
+            analytics.logEvent("automatch_fab_clicked", null)
             toggleSubMenu()
             onAutomatchClicked?.invoke()
         }
         botFab.setOnClickListener {
+            analytics.logEvent("bot_fab_clicked", null)
             toggleSubMenu()
             onOnlineBotClicked?.invoke()
         }

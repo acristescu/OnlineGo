@@ -5,6 +5,7 @@ import com.crashlytics.android.Crashlytics
 import com.franmontiel.persistentcookiejar.PersistentCookieJar
 import com.franmontiel.persistentcookiejar.cache.SetCookieCache
 import com.franmontiel.persistentcookiejar.persistence.SharedPrefsCookiePersistor
+import com.google.android.gms.common.util.IOUtils
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types
@@ -37,23 +38,19 @@ import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.moshi.MoshiConverterFactory
+import java.io.ByteArrayInputStream
 import java.util.*
 import java.util.logging.Level
 import java.util.logging.Logger
-
+import java.util.zip.GZIPInputStream
 
 
 /**
  * Created by alex on 03/11/2017.
  */
-class OGSServiceImpl private constructor(): OGSService {
+object OGSServiceImpl : OGSService {
 
-    companion object {
-        @JvmField
-        val instance = OGSServiceImpl()
-        val TAG: String = OGSServiceImpl::class.java.simpleName
-    }
-
+    val TAG: String = OGSServiceImpl::class.java.simpleName
     override var uiConfig: UIConfig? = null
     private val socket: Socket
     private val restApi: OGSRestAPI
@@ -108,39 +105,6 @@ class OGSServiceImpl private constructor(): OGSService {
     fun ensureSocketConnected() {
         socket.connect()
     }
-
-//            {
-//                "initialized":false,
-//                "min_ranking":-1000,
-//                "max_ranking":1000,
-//                "challenger_color":"automatic",
-//                "game":{
-//                    "handicap":"10",
-//                    "time_control":"byoyomi",
-//                    "challenger_color":"black",
-//                    "rules":"japanese",
-//                    "ranked":false,
-//                    "width":19,
-//                    "height":19,
-//                    "komi_auto":"automatic",
-//                    "komi":null,
-//                    "disable_analysis":false,
-//                    "pause_on_weekends":true,
-//                    "initial_state":null,
-//                    "private":true,
-//                    "name":"Friendly Match",
-//                    "time_control_parameters":{
-//                        "system":"byoyomi",
-//                        "speed":"correspondence",
-//                        "main_time":604800,
-//                        "period_time":86400,
-//                        "periods":5,
-//                        "pause_on_weekends":true,
-//                        "time_control":"byoyomi"
-//                    }
-//                },
-//                "aga_ranked":false
-//            }
 
     override fun challengeBot(challengeParams: ChallengeParams): Completable {
         val size = when(challengeParams.size) {
@@ -445,15 +409,43 @@ class OGSServiceImpl private constructor(): OGSService {
 
         val httpClient = OkHttpClient.Builder()
                 .cookieJar(cookieJar)
-                .addInterceptor { chain ->
+                .addNetworkInterceptor { chain ->
                     var request = chain.request()
+                    val csrftoken = cookieJar.loadForRequest(request.url()).firstOrNull { it.name() == "csrftoken" }?.value()
                     request = request.newBuilder()
                             .addHeader("referer", "https://online-go.com/overview")
-                            .addHeader("x-csrftoken",  cookieJar.loadForRequest(request.url()).firstOrNull { it.name() == "csrftoken" }?.value() ?: "")
+                            .apply { csrftoken?.let { addHeader("x-csrftoken",  it) } }
                             .build()
+
+                    val hasSessionCookieInJar = cookieJar.loadForRequest(request.url()).any { it.name() == "sessionid" }
+                    val isSessionCookieExpired = cookieJar.loadForRequest(request.url()).any { it.name() == "sessionid" && it.expiresAt() < System.currentTimeMillis() }
+
                     val response = chain.proceed(request)
-                    val hasCookie = cookieJar.loadForRequest(request.url()).any { it.name() == "sessionid" }
-                    Crashlytics.log(Log.INFO, TAG, "${request.method()} ${request.url()} $hasCookie -> ${response.code()} ${response.message()}")
+
+                    if(response.isSuccessful) {
+                        Crashlytics.log(Log.INFO, TAG, "${request.method()} ${request.url()} -> ${response.code()}")
+                    } else {
+                        val sessionCookieSent = request.header("Cookie")?.contains("sessionid=") == true
+                        val bodyBytes = response.peekBody(1024 * 1024).bytes()
+                        val body =
+                                if(IOUtils.isGzipByteBuffer(bodyBytes))
+                                    String(IOUtils.toByteArray(GZIPInputStream(ByteArrayInputStream(bodyBytes))))
+                                else
+                                    String(bodyBytes)
+
+                        val csrftokenInfo = if(csrftoken == null) "no csrf" else "csrf present"
+                        val cookieJarInfo = when {
+                            isSessionCookieExpired -> "expired session cookie"
+                            hasSessionCookieInJar -> "session cookie in jar"
+                            else -> "no session cookie"
+                        }
+                        val sessionCookieInfo = if(sessionCookieSent) "session cookie sent" else "session cookie not sent"
+                        Crashlytics.log(Log.ERROR, TAG, "${request.method()} ${request.url()} -> ${response.code()} ${response.message()} [$cookieJarInfo] [$csrftokenInfo] [$sessionCookieInfo] $body")
+
+                        if(!sessionCookieSent && hasSessionCookieInJar && !isSessionCookieExpired) {
+                            Crashlytics.logException(Exception("Possible cookie jar problem"))
+                        }
+                    }
                     response
                 }
                 .addInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))

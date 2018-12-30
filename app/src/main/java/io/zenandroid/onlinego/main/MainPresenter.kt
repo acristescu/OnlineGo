@@ -29,9 +29,9 @@ class MainPresenter (
     private var lastMoveCount: Int? = null
 
     override fun subscribe() {
-        if(OGSServiceImpl.instance.isLoggedIn()) {
-            OGSServiceImpl.instance.ensureSocketConnected()
-            OGSServiceImpl.instance.resendAuth()
+        if(OGSServiceImpl.isLoggedIn()) {
+            OGSServiceImpl.ensureSocketConnected()
+            OGSServiceImpl.resendAuth()
         } else {
             view.showLogin()
         }
@@ -41,7 +41,7 @@ class MainPresenter (
                 .subscribe(this::onMyMoveCountChanged)
                 .addToDisposable(subscriptions)
         Observable.interval(10, TimeUnit.SECONDS).subscribe {
-            OGSServiceImpl.instance.ensureSocketConnected()
+            OGSServiceImpl.ensureSocketConnected()
         }.addToDisposable(subscriptions)
 
 //        activeGameRepository.subscribe()
@@ -70,7 +70,7 @@ class MainPresenter (
     override fun unsubscribe() {
 //        activeGameRepository.unsubscribe()
         subscriptions.clear()
-        OGSServiceImpl.instance.disconnect()
+        OGSServiceImpl.disconnect()
     }
 
     fun navigateToGameScreenById(gameId: Long) {
@@ -105,12 +105,12 @@ class MainPresenter (
         if(speed in arrayOf(Speed.NORMAL, Speed.BLITZ) && AutomatchRepository.automatches.find { it.liveOrBlitz } != null) {
             view.showError("Can only search for one live or blitz game at a time.")
         } else {
-            OGSServiceImpl.instance.startAutomatch(sizes, speed)
+            OGSServiceImpl.startAutomatch(sizes, speed)
         }
     }
 
     override fun onNewBotChallenge(challengeParams: ChallengeParams) {
-        OGSServiceImpl.instance.challengeBot(challengeParams)
+        OGSServiceImpl.challengeBot(challengeParams)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({}, this::onError)

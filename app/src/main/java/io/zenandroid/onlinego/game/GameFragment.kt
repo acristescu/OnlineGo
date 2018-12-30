@@ -65,12 +65,12 @@ class GameFragment : Fragment(), GameContract.View {
 
     override var whiteScore: Float = 0f
         set(value) {
-            whiteDetailsView.score = value
+            whiteDetailsView?.score = value
         }
 
     override var blackScore: Float = 0f
         set(value) {
-            blackDetailsView.score = value
+            blackDetailsView?.score = value
         }
 
     override fun setWhitePlayerStatus(text: String?, color: Int) {
@@ -158,7 +158,7 @@ class GameFragment : Fragment(), GameContract.View {
         analytics.logEvent("showing_game", arguments)
         presenter = GamePresenter(
                 view = this,
-                service = OGSServiceImpl.instance,
+                service = OGSServiceImpl,
                 analytics = analytics,
                 gameRepository = (activity as MainActivity).activeGameRepository,
                 gameId = arguments!!.getLong(GAME_ID),
@@ -316,7 +316,7 @@ class GameFragment : Fragment(), GameContract.View {
 
     override fun showChat() {
         fragmentManager?.findFragmentByTag("CHAT")?.let {
-            fragmentManager?.beginTransaction()?.remove(it)?.commit()
+            fragmentManager?.beginTransaction()?.remove(it)?.commitNow()
         }
         chatDialog.show(fragmentManager, "CHAT")
     }
@@ -412,7 +412,9 @@ class GameFragment : Fragment(), GameContract.View {
     }
 
     override fun navigateTo(url: String) {
-        startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+        context?.let {
+            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+        }
     }
 
     override fun setLoading(loading: Boolean) {
