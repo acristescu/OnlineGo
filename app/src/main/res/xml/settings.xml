@@ -11,6 +11,15 @@
             />
     </PreferenceCategory>
     <PreferenceCategory
+            android:title="Game Settings"
+        >
+        <SwitchPreference
+                android:key="show_coordinates"
+                android:title="Show Board Coordinates"
+                android:defaultValue="false"
+        />
+    </PreferenceCategory>
+    <PreferenceCategory
         android:title="Profile"
         >
         <Preference

@@ -26,6 +26,7 @@ interface GameContract {
         var interactive: Boolean
         var passButtonEnabled: Boolean
         fun showCandidateMove(point: Point?, nextToMove: StoneType? = null)
+        fun refreshBoardView()
         var previousButtonEnabled: Boolean
         var nextButtonEnabled: Boolean
         var title: String?
@@ -104,6 +105,8 @@ interface GameContract {
         object RESIGN: MenuItem()
         object ESTIMATE_SCORE: MenuItem()
         object ANALYZE: MenuItem()
+        object SHOW_COORDINATES: MenuItem()
+        object HIDE_COORDINATES: MenuItem()
         object DOWNLOAD_SGF: MenuItem()
         object ACCEPT_UNDO: MenuItem()
         object REQUEST_UNDO: MenuItem()

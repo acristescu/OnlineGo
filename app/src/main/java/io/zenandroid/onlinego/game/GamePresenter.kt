@@ -1,5 +1,6 @@
 package io.zenandroid.onlinego.game
 
+import android.preference.PreferenceManager
 import android.graphics.Point
 import android.util.Log
 import com.google.firebase.analytics.FirebaseAnalytics
@@ -57,6 +58,7 @@ class GamePresenter(
         val TAG = GamePresenter::class.java.simpleName
     }
 
+    private var prefs = PreferenceManager.getDefaultSharedPreferences(OnlineGoApplication.instance.getBaseContext())
     private val subscriptions = CompositeDisposable()
     private var gameConnection: GameConnection? = null
     private var myGame: Boolean = false
@@ -426,7 +428,18 @@ class GamePresenter(
             list.add(ANALYZE)
         }
         list.add(ESTIMATE_SCORE)
-        list.add(DOWNLOAD_SGF)
+        val showCoordinates = prefs.getBoolean("show_coordinates", false)
+        if(showCoordinates) {
+            list.add(HIDE_COORDINATES)
+        }
+        else {
+            list.add(SHOW_COORDINATES)
+        }
+
+        //download SGF doesn't work (disabled by OGS) when analysis is disabled
+        if(!isAnalysisDisabled(game)) {
+            list.add(DOWNLOAD_SGF)
+        }
         if(
                 myGame
                 && currentState in arrayOf(PLAYING, HISTORY, ANALYSIS)
@@ -447,6 +460,8 @@ class GamePresenter(
             RESIGN -> onResignClicked()
             ESTIMATE_SCORE -> onEstimateClicked()
             ANALYZE -> onAnalyzeButtonClicked()
+            SHOW_COORDINATES -> onShowCoordinatesClicked()
+            HIDE_COORDINATES -> onHideCoordinatesClicked()
             DOWNLOAD_SGF -> onDownloadSGFClicked()
             ACCEPT_UNDO -> onUndoAccepted()
             REQUEST_UNDO -> TODO()
@@ -456,6 +471,20 @@ class GamePresenter(
 
     private fun onGameInfoClicked() {
         game?.let { view.showGameInfoDialog(it) }
+    }
+
+    private fun onShowCoordinatesClicked() {
+        prefs.edit()
+                .putBoolean("show_coordinates", true)
+                .apply()
+        view.refreshBoardView()
+    }
+
+    private fun onHideCoordinatesClicked() {
+        prefs.edit()
+                .putBoolean("show_coordinates", false)
+                .apply()
+        view.refreshBoardView()
     }
 
     private fun onDownloadSGFClicked() {
