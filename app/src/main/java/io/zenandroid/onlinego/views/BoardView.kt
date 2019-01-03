@@ -33,7 +33,12 @@ class BoardView : View {
     var boardSize = 19
         set(boardSize) {
             field = boardSize
-            cellSize = width / boardSize
+            var usableWidth = width // available width will be adjusted when coordinates are active
+            if (prefs.getBoolean("show_coordinates", false) && !isGameCard) {
+                usableWidth -= (width / this.boardSize.toFloat() * 0.65).roundToInt()
+
+            }
+            cellSize = usableWidth / boardSize
             border = ((width - boardSize * cellSize) / 2).toFloat()
         }
 
@@ -177,8 +182,7 @@ class BoardView : View {
         //
         // We need to adapt to resize events by recomputing the border and cell sizes
         //
-        // width needs adjustment if coordinates are active
-        var usableWidth = w
+        var usableWidth = w // available width will be adjusted when coordinates are active
         if (prefs.getBoolean("show_coordinates", false) && !isGameCard) {
             usableWidth -= (w / this.boardSize.toFloat() * 0.65).roundToInt()
         }
