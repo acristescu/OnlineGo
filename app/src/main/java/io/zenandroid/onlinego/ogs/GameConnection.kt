@@ -198,8 +198,8 @@ data class OGSClock (
     var white_time: Any// can be number or Time object
 ) {
     var receivedAt: Long = 0
-    val whiteTimeSimple get() = white_time as? Long
-    val blackTimeSimple get() = black_time as? Long
+    val whiteTimeSimple get() = (white_time as? Number)?.toLong()
+    val blackTimeSimple get() = (black_time as? Number)?.toLong()
     val whiteTime
         get() = (white_time as? Map<*, *>)?.let { Time.fromMap(it) }
     val blackTime

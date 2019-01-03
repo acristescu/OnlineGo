@@ -6,9 +6,14 @@ import android.os.Build
 import android.support.text.emoji.EmojiCompat
 import android.support.text.emoji.FontRequestEmojiCompatConfig
 import android.support.v4.provider.FontRequest
+import android.util.Log
 import com.google.firebase.analytics.FirebaseAnalytics
+import io.reactivex.exceptions.UndeliverableException
+import io.reactivex.plugins.RxJavaPlugins
 import io.zenandroid.onlinego.db.Database
 import io.zenandroid.onlinego.ogs.ChatRepository
+import java.io.IOException
+import java.net.SocketException
 
 
 /**
@@ -32,6 +37,29 @@ class OnlineGoApplication : Application() {
         super.onCreate()
         instance = this
 
+        RxJavaPlugins.setErrorHandler {
+            val e = if (it is UndeliverableException) it.cause else it
+            if (e is IOException || e is SocketException) {
+                // fine, irrelevant network problem or API that throws on cancellation
+                return@setErrorHandler
+            }
+            if (e is InterruptedException) {
+                // fine, some blocking code was interrupted by a dispose call
+                return@setErrorHandler
+            }
+            if (e is NullPointerException || e is IllegalArgumentException) {
+                // that's likely a bug in the application
+                Thread.currentThread().uncaughtExceptionHandler.uncaughtException(Thread.currentThread(), e)
+                return@setErrorHandler
+            }
+            if (e is IllegalStateException) {
+                // that's a bug in RxJava or in a custom operator
+                Thread.currentThread().uncaughtExceptionHandler.uncaughtException(Thread.currentThread(), e)
+                return@setErrorHandler
+            }
+            Log.w("OnlineGoApplication", "Undeliverable exception received, not sure what to do", e)
+        }
+        
         val config: EmojiCompat.Config
         val fontRequest = FontRequest(
                 "com.google.android.gms.fonts",

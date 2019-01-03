@@ -1,7 +1,10 @@
 package io.zenandroid.onlinego.ogs
 
+import android.content.Context
 import android.util.Log
 import com.crashlytics.android.Crashlytics
+import com.firebase.jobdispatcher.FirebaseJobDispatcher
+import com.firebase.jobdispatcher.GooglePlayDriver
 import com.franmontiel.persistentcookiejar.PersistentCookieJar
 import com.franmontiel.persistentcookiejar.cache.SetCookieCache
 import com.franmontiel.persistentcookiejar.persistence.SharedPrefsCookiePersistor
@@ -56,6 +59,8 @@ object OGSServiceImpl : OGSService {
     private val restApi: OGSRestAPI
     private val moshi = Moshi.Builder().add(Date::class.java, Rfc3339DateJsonAdapter().nullSafe()).build()
     private var authSent = false
+    private val prefs by lazy { OnlineGoApplication.instance.getSharedPreferences(TAG, Context.MODE_PRIVATE) }
+
 
     val cookieJar = PersistentCookieJar(SetCookieCache(), SharedPrefsCookiePersistor(OnlineGoApplication.instance))
 
@@ -79,6 +84,7 @@ object OGSServiceImpl : OGSService {
                     if (it.csrf_token.isNullOrBlank()) {
                         throw HttpException(Response.error<Any>(403, ResponseBody.create(null, "login failed")))
                     }
+                    prefs.edit().remove("KEY_403").commit()
                 }
                 .doOnSuccess (this::storeUIConfig)
                 .ignoreElement()
@@ -400,6 +406,7 @@ object OGSServiceImpl : OGSService {
         PersistenceManager.instance.deleteUIConfig()
         cookieJar.clear()
         disconnect()
+        FirebaseJobDispatcher(GooglePlayDriver(OnlineGoApplication.instance)).cancel("poller")
     }
 
     init {
@@ -547,6 +554,19 @@ object OGSServiceImpl : OGSService {
                         }
                     }
                     it
+                }
+                .doOnError {
+                    if ((it as? HttpException)?.code() == 403) {
+                        val count403 = prefs.getInt("KEY_403", 0) + 1
+                        Crashlytics.log("Consecutive 403s: $count403")
+                        prefs.edit().putInt("KEY_403", count403).commit()
+                    }
+                }
+                .doOnSuccess {
+                    if(prefs.getInt("KEY_403", 0) != 0) {
+                        Crashlytics.logException(Exception("Recovered from ${prefs.getInt("KEY_403", 0)} 403 without login after!!!"))
+                        prefs.edit().remove("KEY_403").commit()
+                    }
                 }
 
     override fun fetchChallenges(): Single<List<OGSChallenge>> =

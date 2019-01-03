@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.support.v7.preference.Preference
 import android.support.v7.preference.PreferenceFragmentCompat
 import com.awesomedialog.blennersilva.awesomedialoglibrary.AwesomeInfoDialog
+import com.google.firebase.analytics.FirebaseAnalytics
 import io.zenandroid.onlinego.BuildConfig
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.login.LoginActivity
@@ -49,6 +50,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
                         .setNegativeButtonbackgroundColor(R.color.colorPrimary)
                         .setNegativeButtonTextColor(R.color.white)
                         .setPositiveButtonClick {
+                            context?.let { FirebaseAnalytics.getInstance(it).logEvent("logout_clicked", null) }
                             OGSServiceImpl.logOut()
                             startActivity(Intent(context, LoginActivity::class.java))
                             activity?.finish()
