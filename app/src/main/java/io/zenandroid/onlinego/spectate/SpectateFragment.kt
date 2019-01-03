@@ -45,7 +45,7 @@ class SpectateFragment : Fragment(), SpectateContract.View {
         gamesRecycler.layoutManager = LinearLayoutManager(context)
         gamesRecycler.adapter = adapter
         (gamesRecycler.itemAnimator as SimpleItemAnimator).supportsChangeAnimations = false
-        presenter = SpectatePresenter(this, OGSServiceImpl.instance)
+        presenter = SpectatePresenter(this, OGSServiceImpl)
     }
 
     override fun navigateToGameScreen(game: OGSGame) {

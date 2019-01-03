@@ -4,6 +4,7 @@ import android.content.Context
 import android.preference.PreferenceManager
 import android.support.design.widget.BottomSheetDialog
 import android.view.LayoutInflater
+import android.widget.Toast
 import com.squareup.moshi.Moshi
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.ogs.BotsRepository
@@ -31,7 +32,10 @@ class NewChallengeBottomSheet(
 
         botView.apply {
             name = "Bot"
-            value = botsRepository.bots.getOrNull(0)?.username ?: "(none)"
+            value = botsRepository.bots
+                    .find { it.id == challenge.bot?.id }
+                    ?.let {"${it.username} (${formatRank(egfToRank(it.ratings?.overall?.rating))})"}
+                    ?: "(none)"
             valuesCallback = {
                 botsRepository.bots
                         .sortedBy { it.ratings?.overall?.rating }
@@ -72,16 +76,20 @@ class NewChallengeBottomSheet(
 
     private fun onSearchClicked() {
         challenge.apply {
-            bot = botsRepository.bots.find { it.username == botView.value }
+            bot = botsRepository.bots.find { it.username == botView.value.substringBefore(" (") }
             color = colorView.value
             handicap = handicapView.value
             ranked = rankedView.value == "Yes"
             size = sizeView.value
             speed = speedView.value
         }
-        dismiss()
-        saveSettings()
-        onSearch(challenge)
+        if(challenge.bot != null) {
+            dismiss()
+            saveSettings()
+            onSearch(challenge)
+        } else {
+            Toast.makeText(context, "Please select an online bot", Toast.LENGTH_LONG).show()
+        }
     }
 
     private fun getSavedChallengeParams() =

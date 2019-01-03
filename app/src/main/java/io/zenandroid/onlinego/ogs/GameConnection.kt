@@ -93,44 +93,44 @@ class GameConnection(
         counter--
         if(counter == 0) {
             subscriptions.clear()
-            OGSServiceImpl.instance.disconnectFromGame(gameId)
+            OGSServiceImpl.disconnectFromGame(gameId)
             closed = true
         }
     }
 
     fun submitMove(move: Point) {
         val encodedMove = Util.getSGFCoordinates(move)
-        OGSServiceImpl.instance.emit("game/move", createJsonObject {
+        OGSServiceImpl.emit("game/move", createJsonObject {
             put("auth", gameAuth)
             put("game_id", gameId)
-            put("player_id", OGSServiceImpl.instance.uiConfig?.user?.id)
+            put("player_id", OGSServiceImpl.uiConfig?.user?.id)
             put("move", encodedMove)
         })
     }
 
     fun resign() {
-        OGSServiceImpl.instance.emit("game/resign", createJsonObject {
+        OGSServiceImpl.emit("game/resign", createJsonObject {
             put("auth", gameAuth)
             put("game_id", gameId)
-            put("player_id", OGSServiceImpl.instance.uiConfig?.user?.id)
+            put("player_id", OGSServiceImpl.uiConfig?.user?.id)
         })
     }
 
     fun rejectRemovedStones() {
-        OGSServiceImpl.instance.emit("game/removed_stones/reject", createJsonObject {
+        OGSServiceImpl.emit("game/removed_stones/reject", createJsonObject {
             put("auth", gameAuth)
             put("game_id", gameId)
-            put("player_id", OGSServiceImpl.instance.uiConfig?.user?.id)
+            put("player_id", OGSServiceImpl.uiConfig?.user?.id)
         })
     }
 
     fun submitRemovedStones(delta: Set<Point>, removing: Boolean) {
         val sb = StringBuilder()
         delta.forEach { sb.append(Util.getSGFCoordinates(it)) }
-        OGSServiceImpl.instance.emit("game/removed_stones/set", createJsonObject {
+        OGSServiceImpl.emit("game/removed_stones/set", createJsonObject {
             put("auth", gameAuth)
             put("game_id", gameId)
-            put("player_id", OGSServiceImpl.instance.uiConfig?.user?.id)
+            put("player_id", OGSServiceImpl.uiConfig?.user?.id)
             put("removed", removing)
             put("stones", sb.toString())
         })
@@ -143,17 +143,17 @@ class GameConnection(
                 .joinToString(separator = "") {
                     Util.getSGFCoordinates(it)
                 }
-        OGSServiceImpl.instance.emit("game/removed_stones/accept", createJsonObject {
+        OGSServiceImpl.emit("game/removed_stones/accept", createJsonObject {
             put("auth", gameAuth)
             put("game_id", gameId)
-            put("player_id", OGSServiceImpl.instance.uiConfig?.user?.id)
+            put("player_id", OGSServiceImpl.uiConfig?.user?.id)
             put("strict_seki_mode", false)
             put("stones", stones)
         })
     }
 
     fun sendMessage(message: String, moveNumber: Int) {
-        OGSServiceImpl.instance.emit("game/chat", createJsonObject {
+        OGSServiceImpl.emit("game/chat", createJsonObject {
             put("body", message)
             put("game_id", gameId)
             put("move_number", moveNumber)
@@ -162,17 +162,17 @@ class GameConnection(
     }
 
     fun acceptUndo(moveNo: Int) {
-        OGSServiceImpl.instance.emit("game/undo/accept", createJsonObject {
+        OGSServiceImpl.emit("game/undo/accept", createJsonObject {
             put("game_id", gameId)
             put("move_number", moveNo)
-            put("player_id", OGSServiceImpl.instance.uiConfig?.user?.id)
+            put("player_id", OGSServiceImpl.uiConfig?.user?.id)
         })
     }
 
     fun abortGame() {
-        OGSServiceImpl.instance.emit("game/cancel", createJsonObject {
+        OGSServiceImpl.emit("game/cancel", createJsonObject {
             put("game_id", gameId)
-            put("player_id", OGSServiceImpl.instance.uiConfig?.user?.id)
+            put("player_id", OGSServiceImpl.uiConfig?.user?.id)
         })
     }
 }

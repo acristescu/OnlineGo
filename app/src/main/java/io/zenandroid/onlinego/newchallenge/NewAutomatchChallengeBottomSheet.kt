@@ -6,8 +6,8 @@ import android.preference.PreferenceManager
 import android.support.design.widget.BottomSheetDialog
 import android.view.LayoutInflater
 import io.zenandroid.onlinego.R
-import io.zenandroid.onlinego.ogs.Size
-import io.zenandroid.onlinego.ogs.Speed
+import io.zenandroid.onlinego.model.ogs.Size
+import io.zenandroid.onlinego.model.ogs.Speed
 import kotlinx.android.synthetic.main.bottom_sheet_new_automatch.*
 
 class NewAutomatchChallengeBottomSheet(context: Context, private val onSearch: (Speed, List<Size>) -> Unit) : BottomSheetDialog(context) {

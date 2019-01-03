@@ -1,31 +1,29 @@
 package io.zenandroid.onlinego.newchallenge
 
-import android.app.ProgressDialog
 import android.content.Context
 import android.util.AttributeSet
-import android.util.Log
 import android.view.View
 import android.widget.FrameLayout
 import io.reactivex.Completable
 import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.extensions.*
-import io.zenandroid.onlinego.main.MainActivity
-import io.zenandroid.onlinego.ogs.Size
-import io.zenandroid.onlinego.ogs.Speed
 import kotlinx.android.synthetic.main.view_new_challenge.view.*
 
 
 /**
  * Created by alex on 22/02/2018.
  */
-class NewChallengeView : FrameLayout, NewChallengeContract.View {
+class NewChallengeView : FrameLayout {
 
-    private lateinit var presenter: NewChallengeContract.Presenter
     private var fabMiniSize: Float = 0f
-    private lateinit var searchDialog: ProgressDialog
+    var subMenuVisible = false
+        private set
 
     private val analytics = OnlineGoApplication.instance.analytics
+
+    var onAutomatchClicked: (() -> Unit)? = null
+    var onOnlineBotClicked: (() -> Unit)? = null
 
     constructor(context: Context) : this(context, null)
     constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0)
@@ -37,91 +35,49 @@ class NewChallengeView : FrameLayout, NewChallengeContract.View {
     private fun init() {
         val view = View.inflate(context, R.layout.view_new_challenge, this)
 
-        fab.setOnClickListener { onFabClicked() }
-        arrayOf(blitzFab, longFab, normalFab).forEach { it.setOnClickListener { onSpeedClicked(it) } }
-        arrayOf(smallFab, mediumFab, largeFab).forEach { it.setOnClickListener { onSizeClicked(it) } }
+        fab.setOnClickListener {
+            analytics.logEvent("new_game_fab_clicked", null)
+            toggleSubMenu()
+        }
+        onlineFab.setOnClickListener {
+            analytics.logEvent("automatch_fab_clicked", null)
+            toggleSubMenu()
+            onAutomatchClicked?.invoke()
+        }
+        botFab.setOnClickListener {
+            analytics.logEvent("bot_fab_clicked", null)
+            toggleSubMenu()
+            onOnlineBotClicked?.invoke()
+        }
         fabMiniSize = resources.getDimension(R.dimen.fab_mini_with_margin)
-        presenter = NewChallengePresenter(this, analytics)
     }
 
-    fun onFabClicked() {
-        NewAutomatchChallengeBottomSheet(context) { speed: Speed, sizes: List<Size> ->
-            presenter.onStartSearch(sizes, speed)
-        }.show()
-    }
-
-    override fun setFadeOutState(fadedOut: Boolean) {
-        scrim.showIf(fadedOut)
-    }
-
-    override fun showSpeedMenu() = Completable.mergeArray(
-            fab.rotate(45f),
-            longFab.slideIn(fabMiniSize).andThen(longLabel.fadeIn()),
-            normalFab.slideIn(2 * fabMiniSize).andThen(normalLabel.fadeIn()),
-            blitzFab.slideIn(3 * fabMiniSize).andThen(blitzLabel.fadeIn())
-    )
-
-    override fun showSizeMenu() = Completable.mergeArray(
-            fab.rotate(45f),
-            largeFab.slideIn(fabMiniSize).andThen(largeLabel.fadeIn()),
-            mediumFab.slideIn(2 * fabMiniSize).andThen(mediumLabel.fadeIn()),
-            smallFab.slideIn(3 * fabMiniSize).andThen(smallLabel.fadeIn())
-    )
-
-    override fun hideSpeedMenu() = Completable.mergeArray(
-            fab.rotate(0f),
-            longLabel.fadeOut().andThen(longFab.slideOut(fabMiniSize)),
-            normalLabel.fadeOut().andThen(normalFab.slideOut(2 * fabMiniSize)),
-            blitzLabel.fadeOut().andThen(blitzFab.slideOut(3 * fabMiniSize))
-    )
-
-    override fun hideSizeMenu() = Completable.mergeArray(
-            fab.rotate(0f),
-            largeLabel.fadeOut().andThen(largeFab.slideOut(fabMiniSize)),
-            mediumLabel.fadeOut().andThen(mediumFab.slideOut(2 * fabMiniSize)),
-            smallLabel.fadeOut().andThen(smallFab.slideOut(3 * fabMiniSize))
-    )
-
-    private fun onSpeedClicked(view : View) {
-        when(view) {
-            blitzFab -> presenter.onSpeedSelected(Speed.BLITZ)
-            normalFab -> presenter.onSpeedSelected(Speed.NORMAL)
-            longFab -> presenter.onSpeedSelected(Speed.LONG)
-            else -> Log.e("NewChallengeView", "Illegal state")
+    fun toggleSubMenu() {
+        subMenuVisible = !subMenuVisible
+        if(subMenuVisible) {
+            showSubMenu().subscribe()
+        } else {
+            hideSubMenu().subscribe()
         }
+        scrim.showIf(subMenuVisible)
     }
 
-    fun onSizeClicked(view : View) {
-        when(view) {
-            smallFab -> presenter.onSizeSelected(Size.SMALL)
-            mediumFab -> presenter.onSizeSelected(Size.MEDIUM)
-            largeFab -> presenter.onSizeSelected(Size.LARGE)
-            else -> Log.e("NewChallengeView", "Illegal state")
-        }
-    }
+    fun showSubMenu() = Completable.mergeArray(
+            fab.rotate(45f),
+            onlineFab.slideIn(fabMiniSize).andThen(onlineLabel.fadeIn()),
+            botFab.slideIn(2 * fabMiniSize).andThen(botLabel.fadeIn())
+    )
 
-    override fun hideFab(): Completable =
+    fun hideSubMenu() = Completable.mergeArray(
+            fab.rotate(0f),
+            onlineLabel.fadeOut().andThen(onlineFab.slideOut(fabMiniSize)),
+            botLabel.fadeOut().andThen(botFab.slideOut(2 * fabMiniSize))
+    )
+
+    fun hideFab(): Completable =
             fab.slideOut(0f)
 
-    override fun showSearchDialog() {
-        searchDialog = ProgressDialog.show(context, "Searching", null, true, true) {
-            presenter.onDialogCancelled()
-        }
-    }
-
-    override fun navigateToGame(gameId: Long) {
-        (context as? MainActivity)?.navigateToGameScreenById(gameId)
-    }
-
-    override fun cancelDialog() {
-        searchDialog.cancel()
-    }
-
-    override fun updateDialogText(message: CharSequence) {
-        searchDialog.setMessage(message)
-    }
-
-    override fun showFab() : Completable =
+    fun showFab() : Completable =
         fab.slideIn(0f, 700, 3f)
 
 }

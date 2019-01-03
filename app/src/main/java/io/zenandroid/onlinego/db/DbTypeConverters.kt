@@ -33,7 +33,7 @@ class DbTypeConverters {
         @JvmStatic
         fun stringToListOfListOfInt(s: String): MutableList<MutableList<Int>>? {
             if(s.isEmpty()) {
-                return null
+                return mutableListOf()
             }
             val list = mutableListOf<MutableList<Int>>()
             s.split(',').map { it.toInt() }.forEachIndexed { index, value ->

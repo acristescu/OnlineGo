@@ -74,11 +74,11 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:fontFamily="@font/ubuntu_medium"
                     android:gravity="left"
                     android:maxLines="1"
                     android:textSize="14sp"
                     tools:text="MrAlex"
+                    android:textStyle="bold"
                     android:textColor="@color/colorTextSecondary"
                     />
 
@@ -112,8 +112,8 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintLeft_toLeftOf="parent"
                 android:layout_marginBottom="10dp"
-                android:fontFamily="@font/ubuntu_medium"
                 android:textColor="@color/colorTextSecondary"
+                android:textStyle="bold"
                 android:textSize="12sp"
                 />
 

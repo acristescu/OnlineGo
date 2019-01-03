@@ -13,7 +13,7 @@ sealed class NewGameItem(
         val onClick: (() -> Unit)? = null
 ) : Item(text.hashCode().toLong()) {
 
-    object AutoMatch : NewGameItem("Online", R.drawable.ic_person_filled)
+    object AutoMatch : NewGameItem("Auto-match", R.drawable.ic_person_filled)
     object OnlineBot : NewGameItem("Bot", R.drawable.ic_robot)
 
     override fun bind(viewHolder: com.xwray.groupie.kotlinandroidextensions.ViewHolder, position: Int) {

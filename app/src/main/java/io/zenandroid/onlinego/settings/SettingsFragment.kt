@@ -49,7 +49,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
                         .setNegativeButtonbackgroundColor(R.color.colorPrimary)
                         .setNegativeButtonTextColor(R.color.white)
                         .setPositiveButtonClick {
-                            OGSServiceImpl.instance.logOut()
+                            OGSServiceImpl.logOut()
                             startActivity(Intent(context, LoginActivity::class.java))
                             activity?.finish()
                         }

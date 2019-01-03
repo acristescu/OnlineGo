@@ -8,6 +8,7 @@ import android.support.v7.widget.SimpleItemAnimator
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.awesomedialog.blennersilva.awesomedialoglibrary.AwesomeInfoDialog
 import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.main.MainActivity
@@ -16,6 +17,7 @@ import io.zenandroid.onlinego.model.local.Game
 import io.zenandroid.onlinego.model.ogs.OGSAutomatch
 import io.zenandroid.onlinego.ogs.AutomatchRepository
 import io.zenandroid.onlinego.ogs.ChallengesRepository
+import io.zenandroid.onlinego.ogs.NotificationsRepository
 import io.zenandroid.onlinego.reusable.ActiveGameItem
 import io.zenandroid.onlinego.reusable.AutomatchItem
 import io.zenandroid.onlinego.reusable.ChallengeItem
@@ -46,17 +48,39 @@ class MyGamesFragment : Fragment(), MyGamesContract.View {
             when (item) {
                 is ActiveGameItem -> presenter.onGameSelected(item.game)
                 is FinishedGameItem -> presenter.onGameSelected(item.game)
-                is NewGameItem.AutoMatch -> (activity as MainActivity).onAutoMatchSearch()
-                is NewGameItem.OnlineBot -> (activity as MainActivity).onOnlineBotSearch()
+                is NewGameItem.AutoMatch -> {
+                    analytics.logEvent("automatch_item_clicked", null)
+                    (activity as MainActivity).onAutoMatchSearch()
+                }
+                is NewGameItem.OnlineBot -> {
+                    analytics.logEvent("bot_item_clicked", null)
+                    (activity as MainActivity).onOnlineBotSearch()
+                }
             }
         }
 
         presenter = MyGamesPresenter(
                 this,
+                analytics,
                 (activity as MainActivity).activeGameRepository,
                 ChallengesRepository,
-                AutomatchRepository
+                AutomatchRepository,
+                NotificationsRepository
         )
+    }
+
+    override fun showMessage(title: String, message: String) {
+        AwesomeInfoDialog(context)
+                .setTitle(title)
+                .setMessage(message)
+                .setColoredCircle(R.color.colorPrimary)
+                .setDialogIconAndColor(R.drawable.ic_dialog_info, R.color.white)
+                .setCancelable(true)
+                .setPositiveButtonText("OK")
+                .setPositiveButtonbackgroundColor(R.color.colorPrimary)
+                .setPositiveButtonTextColor(R.color.white)
+                .setPositiveButtonClick {  }
+                .show()
     }
 
     override fun setChallenges(challenges: List<Challenge>) {
@@ -72,10 +96,6 @@ class MyGamesFragment : Fragment(), MyGamesContract.View {
     }
 
     override fun navigateToGameScreen(game: Game) {
-        analytics.logEvent("clicked_game", Bundle().apply {
-            putLong("GAME_ID", game.id)
-            putBoolean("ACTIVE_GAME", game.ended == null)
-        })
         (activity as MainActivity).navigateToGameScreen(game)
     }
 

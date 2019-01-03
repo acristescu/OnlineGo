@@ -12,11 +12,9 @@
         android:paddingLeft="12dp"
         android:paddingTop="12dp"
         android:paddingBottom="2dp"
-        android:textColor="@color/colorTextSecondary"
+        android:textColor="#9B9B9B"
         android:textSize="12sp"
-        android:textAllCaps="true"
         android:textStyle="bold"
-        android:alpha=".7"
         />
 
 </LinearLayout>

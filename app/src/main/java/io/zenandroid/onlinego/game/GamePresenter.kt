@@ -165,7 +165,7 @@ class GamePresenter(
                 .subscribe { clockTick() }
                 .addToDisposable(subscriptions)
 
-        gameConnection = OGSServiceImpl.instance.connectToGame(gameId).apply {
+        gameConnection = OGSServiceImpl.connectToGame(gameId).apply {
             subscriptions.add(this)
         }
 
@@ -961,7 +961,7 @@ class GamePresenter(
     }
 
     override fun onAnalysisDisabledButtonClicked() {
-        analytics.logEvent("analysisDisabled_clicked", null)
+        analytics.logEvent("analysis_disabled_clicked", null)
         view.showInfoDialog("Analysis is disabled",
         "The challenger has configured this game to disable the analysis feature." +
                 "This is often setup by players that wish to mimic real-life conditions, where the reading " +

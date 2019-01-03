@@ -30,7 +30,6 @@ class GameListGroupAdapter : GroupAdapter<ViewHolder>() {
 
     private val opponentMoveSection = Section(HeaderItem("OPPONENT'S TURN"))
     private val finishedGamesSection = Section(HeaderItem("RECENTLY FINISHED"))
-//    private val startNewGameSection = Section(HeaderItem("START A NEW GAME"))
     private val challengesSection = Section(HeaderItem("CHALLENGES"))
     private val automatchSection = Section()
 
@@ -41,7 +40,7 @@ class GameListGroupAdapter : GroupAdapter<ViewHolder>() {
         opponentMoveSection.setHideWhenEmpty(true)
         finishedGamesSection.setHideWhenEmpty(true)
         challengesSection.setHideWhenEmpty(true)
-        add(HeaderItem("START A NEW GAME"))
+        add(HeaderItem("NEW GAME"))
         val newGameAdapter = GroupAdapter<ViewHolder>()
         newGameAdapter.add(NewGameItem.AutoMatch)
         newGameAdapter.add(NewGameItem.OnlineBot)
@@ -62,7 +61,7 @@ class GameListGroupAdapter : GroupAdapter<ViewHolder>() {
     }
 
     fun setGames(games: List<Game>) {
-        val userId = OGSServiceImpl.instance.uiConfig?.user?.id
+        val userId = OGSServiceImpl.uiConfig?.user?.id
         val myTurnList = mutableListOf<ActiveGameItem>()
         val opponentTurnList = mutableListOf<ActiveGameItem>()
         for(game in games) {

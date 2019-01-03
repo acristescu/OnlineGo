@@ -37,7 +37,7 @@ class FinishedGameItem (val game: Game) : Item(game.id) {
             holder.board.position = it
         }
 
-        val userId = OGSServiceImpl.instance.uiConfig?.user?.id
+        val userId = OGSServiceImpl.uiConfig?.user?.id
 
         val opponent =
                 when (userId) {

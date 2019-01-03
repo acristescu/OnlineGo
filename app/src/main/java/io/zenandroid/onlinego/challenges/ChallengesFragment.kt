@@ -34,7 +34,7 @@ class ChallengesFragment : Fragment(), ChallengesContract.View {
 //        challengesRecycler.layoutManager = LinearLayoutManager(context)
         challengesRecycler.adapter = adapter
 
-        presenter = ChallengesPresenter(this, OGSServiceImpl.instance)
+        presenter = ChallengesPresenter(this, OGSServiceImpl)
     }
 
     override fun onResume() {

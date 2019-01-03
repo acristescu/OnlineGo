@@ -16,7 +16,7 @@ class ChallengeItem(
         private val onChallengeDeclined: ((Challenge) -> Unit)?
 ) : Item(challenge.id) {
     override fun bind(holder: ViewHolder, position: Int) {
-        if (challenge.challenger?.id == OGSServiceImpl.instance.uiConfig?.user?.id) {
+        if (challenge.challenger?.id == OGSServiceImpl.uiConfig?.user?.id) {
             holder.title.text = "You are challenging ${challenge.challenged?.username}"
             holder.acceptButton.hide()
             holder.declineButton.hide()
