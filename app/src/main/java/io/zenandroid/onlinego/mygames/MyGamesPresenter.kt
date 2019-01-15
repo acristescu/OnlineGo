@@ -26,7 +26,7 @@ class MyGamesPresenter(
         private val gameRepository: ActiveGameRepository,
         private val challengesRepository: ChallengesRepository,
         private val automatchRepository: AutomatchRepository,
-        private val notificationsRepository: NotificationsRepository
+        private val notificationsRepository: ServerNotificationsRepository
 ) : MyGamesContract.Presenter {
     companion object {
         val TAG = MyGamesPresenter::class.java.simpleName
@@ -35,11 +35,14 @@ class MyGamesPresenter(
     private val subscriptions = CompositeDisposable()
 
     override fun subscribe() {
-        gameRepository.fetchActiveGames()
+        gameRepository.monitorActiveGames()
                 .map(this::sortGames)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
                 .subscribe(this::setGames, this::onError)
+                .addToDisposable(subscriptions)
+        gameRepository.refreshActiveGames()
+                .subscribe({}, this::onError)
                 .addToDisposable(subscriptions)
         gameRepository.fetchHistoricGames()
                 .subscribeOn(Schedulers.io())

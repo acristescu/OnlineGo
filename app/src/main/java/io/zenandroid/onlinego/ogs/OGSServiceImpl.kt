@@ -3,8 +3,6 @@ package io.zenandroid.onlinego.ogs
 import android.content.Context
 import android.util.Log
 import com.crashlytics.android.Crashlytics
-import com.firebase.jobdispatcher.FirebaseJobDispatcher
-import com.firebase.jobdispatcher.GooglePlayDriver
 import com.franmontiel.persistentcookiejar.PersistentCookieJar
 import com.franmontiel.persistentcookiejar.cache.SetCookieCache
 import com.franmontiel.persistentcookiejar.persistence.SharedPrefsCookiePersistor
@@ -28,6 +26,7 @@ import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.main.MainActivity
 import io.zenandroid.onlinego.model.ogs.*
 import io.zenandroid.onlinego.newchallenge.ChallengeParams
+import io.zenandroid.onlinego.notifications.SynchronizeGamesWork
 import io.zenandroid.onlinego.utils.PersistenceManager
 import io.zenandroid.onlinego.utils.createJsonArray
 import io.zenandroid.onlinego.utils.createJsonObject
@@ -396,8 +395,7 @@ object OGSServiceImpl : OGSService {
         BotsRepository.unsubscribe()
         AutomatchRepository.unsubscribe()
         ChallengesRepository.unsubscribe()
-        NotificationsRepository.unsubscribe()
-//        socket.off()
+        ServerNotificationsRepository.unsubscribe()
         socket.disconnect()
     }
 
@@ -406,7 +404,7 @@ object OGSServiceImpl : OGSService {
         PersistenceManager.instance.deleteUIConfig()
         cookieJar.clear()
         disconnect()
-        FirebaseJobDispatcher(GooglePlayDriver(OnlineGoApplication.instance)).cancel("poller")
+        SynchronizeGamesWork.unschedule()
     }
 
     init {
@@ -519,7 +517,7 @@ object OGSServiceImpl : OGSService {
         BotsRepository.subscribe()
         AutomatchRepository.subscribe()
         ChallengesRepository.subscribe()
-        NotificationsRepository.subscribe()
+        ServerNotificationsRepository.subscribe()
         synchronized(gameConnections) {
             gameConnections.keys.forEach {
                 emitGameConnection(it)

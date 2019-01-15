@@ -7,14 +7,19 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Canvas
-import android.preference.PreferenceManager
+import android.graphics.Color
+import android.os.Build
 import android.support.v4.app.NotificationCompat
-import android.support.v4.app.NotificationCompat.BADGE_ICON_NONE
-import android.support.v4.content.ContextCompat
 import android.support.v4.content.res.ResourcesCompat
+import android.view.View
+import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.R
-import io.zenandroid.onlinego.model.ogs.OGSGame
-import java.security.MessageDigest
+import io.zenandroid.onlinego.gamelogic.RulesManager
+import io.zenandroid.onlinego.login.LoginActivity
+import io.zenandroid.onlinego.model.local.Game
+import io.zenandroid.onlinego.model.local.GameNotification
+import io.zenandroid.onlinego.model.ogs.Phase
+import io.zenandroid.onlinego.views.BoardView
 
 
 /**
@@ -22,77 +27,153 @@ import java.security.MessageDigest
  */
 class NotificationUtils {
     companion object {
-        const val HASH_KEY = "LAST_NOTIFICATION_HASH"
-        const val COUNT_KEY = "LAST_NOTIFICATION_GAME_COUNT"
         const val NOTIFICATION_ID = 0
         val TAG = NotificationUtils::class.java.simpleName
 
         fun cancelNotification(context: Context) {
             val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            notificationManager.cancel(NOTIFICATION_ID)
+            notificationManager.cancelAll()
         }
 
-        fun updateNotification(context: Context, games: List<OGSGame>, userId: Long?) {
-            val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        private fun supportsNotificationGrouping() =
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.N
 
-            val prefs = PreferenceManager.getDefaultSharedPreferences(context)
-            val vibrationEnabled = prefs.getBoolean("notification_vibrate", true)
-            val lastNotificationCount = prefs.getInt(COUNT_KEY, 0)
-            val lastNotificationHash = prefs.getString(HASH_KEY, null)?.toByteArray(Charsets.ISO_8859_1)
-            prefs.edit().putInt(COUNT_KEY, games.size).apply()
+        fun updateNotification(context: Context, games: List<Game>, notifications: List<GameNotification>, userId: Long) {
+            val newGames = games.filter { game ->
+                notifications.find { it.gameId == game.id } == null
+            }
+            val finishedGames = notifications.filter { gameNotification ->
+                games.find { it.id == gameNotification.gameId } == null
+            }
+            val gamesThatChanged = games.filter { game ->
+                notifications.find {
+                    it.gameId == game.id && (it.moves != game.moves || it.phase != game.phase)
+                } != null
+            }
 
-            if (games.isNotEmpty()) {
-                val style = NotificationCompat.InboxStyle()
-                        .setSummaryText("Your move in ${games.size} game(s)")
-
-                val sha = MessageDigest.getInstance("SHA-1")
-                games.forEach {
-                    var opponent = (it.black as? Map<*, *>)?.get("username")
-                    if (userId == it.blackId) {
-                        opponent = (it.white as? Map<*, *>)?.get("username")
+            val gamesToNotify = (newGames + gamesThatChanged).filter { game ->
+                when {
+                    game.phase == Phase.PLAY -> game.playerToMoveId == userId
+                    game.phase == Phase.STONE_REMOVAL -> {
+                        val myRemovedStones = if(userId == game.whitePlayer.id) game.whitePlayer.acceptedStones else game.blackPlayer.acceptedStones
+                        game.removedStones != myRemovedStones
                     }
-                    style.addLine("vs $opponent")
-                    sha.update(it.id.toString().toByteArray())
-                    sha.update(it.json?.moves?.size.toString().toByteArray())
+                    else -> false
                 }
-                val hash = sha.digest()
+            }
 
-                if(lastNotificationHash?.contentEquals(hash) != true ) {
-                    prefs.edit().putString(HASH_KEY, hash.toString(Charsets.ISO_8859_1)).apply()
-
-                    val notificationIntent = context.packageManager.getLaunchIntentForPackage(context.packageName)!!
-                    notificationIntent.`package` = null
-                    notificationIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED
-                    val pendingIntent = PendingIntent.getActivity(context, 0, notificationIntent, FLAG_UPDATE_CURRENT)
-
-                    val vibrationPattern = when {
-                        !vibrationEnabled -> longArrayOf(0)
-                        games.size > lastNotificationCount -> longArrayOf(0, 200)
-                        else -> longArrayOf(0, 10)
+            if (gamesToNotify.isNotEmpty()) {
+                when {
+                    supportsNotificationGrouping() -> {
+                        notifyIndividual(context, gamesToNotify, userId)
+                        notifySummary(context, gamesToNotify, userId)
                     }
-                    val drawable = ContextCompat.getDrawable(context, R.drawable.ic_board_transparent)!!
-                    val bitmap = Bitmap.createBitmap(drawable.intrinsicWidth, drawable.intrinsicHeight, Bitmap.Config.ARGB_8888)
-                    val canvas = Canvas(bitmap)
-                    drawable.setBounds(0, 0, canvas.width, canvas.height)
-                    drawable.draw(canvas)
-                    val notification = NotificationCompat.Builder(context, "active_games")
-                            .setContentTitle("Your move in ${games.size} game${if(games.size > 1) "s" else ""}")
+                    gamesToNotify.size == 1 -> notifyIndividual(context, gamesToNotify, userId)
+                    else -> notifySummary(context, gamesToNotify, userId)
+                }
+            }
+
+            val newNotifications = games.map { GameNotification(it.id, it.moves, it.phase) }
+            if(newNotifications != notifications) {
+                OnlineGoApplication.instance.db.gameDao().replaceGameNotifications(newNotifications)
+            }
+        }
+
+        private fun View.convertToContentBitmap(): Bitmap {
+            val screenWidth = context.resources.displayMetrics.widthPixels
+            val widthSpec = View.MeasureSpec.makeMeasureSpec(screenWidth, View.MeasureSpec.AT_MOST)
+            val heightSpec = View.MeasureSpec.makeMeasureSpec((256 * context.resources.displayMetrics.density).toInt(), View.MeasureSpec.AT_MOST)
+            measure(widthSpec, heightSpec)
+            layout(0, 0, measuredWidth, measuredHeight)
+            val r = Bitmap.createBitmap(screenWidth, measuredHeight, Bitmap.Config.ARGB_8888)
+            r.eraseColor(Color.TRANSPARENT)
+            val canvas = Canvas(r)
+            canvas.translate((screenWidth - measuredWidth)/2f, 0f)
+            draw(canvas)
+            return r
+        }
+
+        private fun View.convertToIconBitmap(): Bitmap {
+            val width = context.resources.getDimensionPixelSize(android.R.dimen.notification_large_icon_width)
+            val height = context.resources.getDimensionPixelSize(android.R.dimen.notification_large_icon_height)
+            measure(width, height)
+            layout(0, 0, measuredWidth, measuredHeight)
+            val r = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+            r.eraseColor(Color.TRANSPARENT)
+            val canvas = Canvas(r)
+            canvas.translate((width - measuredWidth)/2f, (height - measuredHeight)/2f)
+            draw(canvas)
+            return r
+        }
+
+        private fun notifyIndividual(context: Context, games: List<Game>, userId: Long?) {
+            val board = BoardView(context)
+            games.forEach {
+                context.resources.getDimensionPixelSize(android.R.dimen.notification_large_icon_width)
+                val notificationIntent = Intent(context, LoginActivity::class.java)
+                notificationIntent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
+                notificationIntent.putExtra("GAME_ID", it.id)
+                val pendingIntent = PendingIntent.getActivity(context, 0, notificationIntent, FLAG_UPDATE_CURRENT)
+
+                val opponent = if (userId == it.blackPlayer.id) it.whitePlayer.username else it.blackPlayer.username
+                val message = if(it.phase == Phase.STONE_REMOVAL) "Stone removal phase" else "Your turn"
+
+                board.boardSize = it.height
+                board.position = RulesManager.replay(it, computeTerritory = false)
+                val notification =
+                        NotificationCompat.Builder(context, "active_games")
+                                .setContentTitle(opponent)
+                                .setContentText(message)
+                                .setContentIntent(pendingIntent)
+                                .setLargeIcon(board.convertToIconBitmap())
+                                .setSmallIcon(R.drawable.ic_notification_go_board)
+                                .setColor(ResourcesCompat.getColor(context.resources, R.color.colorTextSecondary, null))
+                                .setGroup("GAME_NOTIFICATIONS")
+                                .setGroupAlertBehavior(NotificationCompat.GROUP_ALERT_SUMMARY)
+                                .setStyle(
+                                        NotificationCompat.BigPictureStyle()
+                                                .bigPicture(board.convertToContentBitmap())
+                                                .bigLargeIcon(null)
+                                )
+                                .setAutoCancel(true)
+                                .build()
+
+                val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+                notificationManager.notify(it.id.toInt(), notification)
+            }
+        }
+
+        private fun notifySummary(context: Context, games: List<Game>, userId: Long?) {
+            val notificationIntent = context.packageManager.getLaunchIntentForPackage(context.packageName)!!
+            notificationIntent.`package` = null
+            notificationIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED
+            val pendingIntent = PendingIntent.getActivity(context, 0, notificationIntent, FLAG_UPDATE_CURRENT)
+
+            val notification =
+                    NotificationCompat.Builder(context, "active_games")
+                            .setContentTitle("Your turn in ${games.size} games")
+                            .setContentText("Your turn in ${games.size} games")
+                            .setAutoCancel(true)
+                            .setContentIntent(pendingIntent)
                             .setSmallIcon(R.drawable.ic_notification_go_board)
                             .setColor(ResourcesCompat.getColor(context.resources, R.color.colorTextSecondary, null))
-                            .setBadgeIconType(BADGE_ICON_NONE)
-                            .setLargeIcon(bitmap)
-                            .setStyle(style)
-                            .setContentIntent(pendingIntent)
-                            .setAutoCancel(true)
-                            .setVibrate(vibrationPattern)
+                            .setGroupSummary(true)
+                            .setGroup("GAME_NOTIFICATIONS")
+                            .setInboxStyle(games, userId)
                             .build()
 
+            val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.notify(NOTIFICATION_ID, notification)
+        }
 
-                    notificationManager.notify(NOTIFICATION_ID, notification)
-                }
-            } else {
-                notificationManager.cancel(NOTIFICATION_ID)
+        private fun NotificationCompat.Builder.setInboxStyle(games: List<Game>, userId: Long?): NotificationCompat.Builder {
+            val inboxStyle = NotificationCompat.InboxStyle()
+            games.forEach {
+                val opponent = if (userId == it.blackPlayer.id) it.whitePlayer.username else it.blackPlayer.username
+                inboxStyle.addLine("vs $opponent")
             }
+            setStyle(inboxStyle)
+            return this
         }
     }
 }

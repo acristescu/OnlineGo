@@ -6,7 +6,7 @@ import io.reactivex.subjects.PublishSubject
 import io.zenandroid.onlinego.extensions.addToDisposable
 import org.json.JSONObject
 
-object NotificationsRepository {
+object ServerNotificationsRepository {
     private val subscriptions = CompositeDisposable()
     private val ogs = OGSServiceImpl
     private val notificationsHash = hashMapOf<String, JSONObject>()

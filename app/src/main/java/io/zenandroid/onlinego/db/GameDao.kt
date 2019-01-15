@@ -110,4 +110,22 @@ abstract class GameDao {
 
     @Query ("SELECT * FROM challenge")
     abstract fun getChallenges(): Flowable<List<Challenge>>
+
+    @Query ("SELECT * FROM gamenotification")
+    abstract fun getGameNotifications(): Flowable<List<GameNotification>>
+
+    @Query("SELECT id FROM game WHERE id not in (:ids) AND phase <> 'FINISHED'")
+    abstract fun getGamesThatShouldBeFinished(ids: List<Long>): List<Long>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    abstract fun insertAllGameNotifications(list: List<GameNotification>)
+
+    @Query("DELETE FROM gamenotification")
+    abstract fun deleteGameNotifications()
+
+    @Transaction
+    open fun replaceGameNotifications(list: List<GameNotification>) {
+        deleteGameNotifications()
+        insertAllGameNotifications(list)
+    }
 }

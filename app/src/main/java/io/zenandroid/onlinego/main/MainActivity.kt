@@ -16,12 +16,11 @@ import android.support.v7.widget.RecyclerView
 import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
-import com.firebase.jobdispatcher.*
-import com.firebase.jobdispatcher.Constraint.ON_ANY_NETWORK
+import com.firebase.jobdispatcher.FirebaseJobDispatcher
+import com.firebase.jobdispatcher.GooglePlayDriver
 import com.jakewharton.rxbinding2.view.RxView
 import io.reactivex.Completable
 import io.reactivex.Observable
-import io.zenandroid.onlinego.NotificationsService
 import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.extensions.disableShiftMode
@@ -38,6 +37,7 @@ import io.zenandroid.onlinego.model.ogs.Speed
 import io.zenandroid.onlinego.mygames.MyGamesFragment
 import io.zenandroid.onlinego.newchallenge.NewAutomatchChallengeBottomSheet
 import io.zenandroid.onlinego.newchallenge.NewChallengeBottomSheet
+import io.zenandroid.onlinego.notifications.SynchronizeGamesWork
 import io.zenandroid.onlinego.ogs.ActiveGameRepository
 import io.zenandroid.onlinego.ogs.BotsRepository
 import io.zenandroid.onlinego.settings.SettingsFragment
@@ -119,7 +119,7 @@ class MainActivity : AppCompatActivity(), MainContract.View {
     }
 
     override fun updateNotification(sortedMyTurnGames: List<OGSGame>) {
-        NotificationUtils.updateNotification(this, sortedMyTurnGames, MainActivity.userId)
+//        NotificationUtils.updateNotification(this, sortedMyTurnGames, MainActivity.userId)
     }
 
     override fun cancelNotification() {
@@ -144,6 +144,9 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         setSupportActionBar(findViewById(R.id.toolbar))
 
         bottomNavigation.setOnNavigationItemSelectedListener(this::selectItem)
+        if(intent.hasExtra("GAME_ID")) {
+            presenter.navigateToGameScreenById(intent.getLongExtra("GAME_ID", 0))
+        }
         bottomNavigation.selectedItemId = R.id.navigation_my_games
 
         createNotificationChannel()
@@ -163,18 +166,8 @@ class MainActivity : AppCompatActivity(), MainContract.View {
     }
 
     private fun scheduleNotificationJob() {
-        val dispatcher = FirebaseJobDispatcher(GooglePlayDriver(this))
-        val job = dispatcher.newJobBuilder()
-                .setLifetime(Lifetime.FOREVER)
-                .setRecurring(true)
-                .setTag("poller")
-                .setTrigger(Trigger.executionWindow(60, 600))
-                .setReplaceCurrent(true)
-                .setRetryStrategy(RetryStrategy.DEFAULT_LINEAR)
-                .setService(NotificationsService::class.java)
-                .setConstraints(ON_ANY_NETWORK)
-                .build()
-        dispatcher.mustSchedule(job)
+        FirebaseJobDispatcher(GooglePlayDriver(OnlineGoApplication.instance)).cancel("poller")
+        SynchronizeGamesWork.schedule()
     }
 
     @SuppressLint("NewApi")

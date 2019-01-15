@@ -17,7 +17,7 @@ import io.zenandroid.onlinego.model.local.Game
 import io.zenandroid.onlinego.model.ogs.OGSAutomatch
 import io.zenandroid.onlinego.ogs.AutomatchRepository
 import io.zenandroid.onlinego.ogs.ChallengesRepository
-import io.zenandroid.onlinego.ogs.NotificationsRepository
+import io.zenandroid.onlinego.ogs.ServerNotificationsRepository
 import io.zenandroid.onlinego.reusable.ActiveGameItem
 import io.zenandroid.onlinego.reusable.AutomatchItem
 import io.zenandroid.onlinego.reusable.ChallengeItem
@@ -65,7 +65,7 @@ class MyGamesFragment : Fragment(), MyGamesContract.View {
                 (activity as MainActivity).activeGameRepository,
                 ChallengesRepository,
                 AutomatchRepository,
-                NotificationsRepository
+                ServerNotificationsRepository
         )
     }
 
