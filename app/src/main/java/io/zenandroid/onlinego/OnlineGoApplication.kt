@@ -7,6 +7,7 @@ import android.support.text.emoji.EmojiCompat
 import android.support.text.emoji.FontRequestEmojiCompatConfig
 import android.support.v4.provider.FontRequest
 import android.util.Log
+import com.facebook.stetho.Stetho
 import com.google.firebase.analytics.FirebaseAnalytics
 import io.reactivex.exceptions.UndeliverableException
 import io.reactivex.plugins.RxJavaPlugins
@@ -35,6 +36,10 @@ class OnlineGoApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
+        if(BuildConfig.DEBUG) {
+            Stetho.initializeWithDefaults(this)
+        }
+
         instance = this
 
         RxJavaPlugins.setErrorHandler {

@@ -3,6 +3,7 @@ package io.zenandroid.onlinego.ogs
 import android.content.Context
 import android.util.Log
 import com.crashlytics.android.Crashlytics
+import com.facebook.stetho.okhttp3.StethoInterceptor
 import com.franmontiel.persistentcookiejar.PersistentCookieJar
 import com.franmontiel.persistentcookiejar.cache.SetCookieCache
 import com.franmontiel.persistentcookiejar.persistence.SharedPrefsCookiePersistor
@@ -22,6 +23,7 @@ import io.socket.client.Manager
 import io.socket.client.Socket
 import io.socket.parser.IOParser
 import io.zenandroid.onlinego.AndroidLoggingHandler
+import io.zenandroid.onlinego.BuildConfig
 import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.main.MainActivity
 import io.zenandroid.onlinego.model.ogs.*
@@ -407,6 +409,11 @@ object OGSServiceImpl : OGSService {
         SynchronizeGamesWork.unschedule()
     }
 
+    private fun OkHttpClient.Builder.addStethoInterceptor() =
+        if(BuildConfig.DEBUG) {
+            addNetworkInterceptor(StethoInterceptor())
+        } else this
+
     init {
         uiConfig = PersistenceManager.instance.getUIConfig()
         MainActivity.userId = uiConfig?.user?.id
@@ -414,6 +421,7 @@ object OGSServiceImpl : OGSService {
 
         val httpClient = OkHttpClient.Builder()
                 .cookieJar(cookieJar)
+                .addStethoInterceptor()
                 .addNetworkInterceptor { chain ->
                     var request = chain.request()
                     val csrftoken = cookieJar.loadForRequest(request.url()).firstOrNull { it.name() == "csrftoken" }?.value()
@@ -463,11 +471,15 @@ object OGSServiceImpl : OGSService {
                 .build()
                 .create(OGSRestAPI::class.java)
 
+
         socket = IO.socket("https://online-go.com", IO.Options().apply {
             transports = arrayOf("websocket")
             reconnection = true
             reconnectionDelay = 750
             reconnectionDelayMax = 10000
+            if(BuildConfig.DEBUG) {
+                webSocketFactory = StethoWebSocketsFactory(httpClient)
+            }
         })
 
         socket.on(Socket.EVENT_CONNECT) {

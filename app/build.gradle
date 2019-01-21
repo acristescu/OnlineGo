@@ -53,8 +53,8 @@ dependencies {
     implementation "com.squareup.retrofit2:adapter-rxjava2:2.3.0"
     implementation "com.squareup.retrofit2:converter-gson:2.3.0"
     implementation 'com.squareup.retrofit2:converter-moshi:2.3.0'
-    implementation 'com.squareup.okhttp3:logging-interceptor:3.9.0'
-    implementation 'com.squareup.okhttp3:okhttp-urlconnection:3.9.0'
+    implementation 'com.squareup.okhttp3:logging-interceptor:3.12.1'
+    implementation 'com.squareup.okhttp3:okhttp-urlconnection:3.12.1'
     implementation 'com.github.franmontiel:PersistentCookieJar:v1.0.1'
 
     implementation 'com.squareup.moshi:moshi-adapters:1.6.0'
@@ -63,8 +63,11 @@ dependencies {
     implementation 'io.reactivex.rxjava2:rxandroid:2.1.0'
     implementation 'io.reactivex.rxjava2:rxjava:2.2.4'
 
-    implementation "android.arch.work:work-runtime-ktx:1.0.0-beta01"
-    implementation "android.arch.work:work-rxjava2:1.0.0-beta01"
+    implementation "android.arch.work:work-runtime-ktx:1.0.0-beta02"
+    implementation "android.arch.work:work-rxjava2:1.0.0-beta02"
+
+    implementation 'com.facebook.stetho:stetho:1.5.0'
+    implementation 'com.facebook.stetho:stetho-okhttp3:1.5.0'
 
     // groupie
     implementation 'com.xwray:groupie:2.1.0'
