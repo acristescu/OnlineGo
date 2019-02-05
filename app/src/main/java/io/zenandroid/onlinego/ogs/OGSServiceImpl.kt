@@ -199,11 +199,12 @@ object OGSServiceImpl : OGSService {
 
 
     private val gameConnections = mutableMapOf<Long, GameConnection>()
+    private val connectionsLock = Any()
 
     override fun connectToGame(id: Long): GameConnection {
-        synchronized(gameConnections) {
+        synchronized(connectionsLock) {
             val connection = gameConnections[id] ?:
-            GameConnection(id,
+            GameConnection(id, connectionsLock,
                     observeEvent("game/$id/gamedata").map { string -> moshi.adapter(GameData::class.java).fromJson(string.toString())!! },
                     observeEvent("game/$id/move").map { string -> moshi.adapter(Move::class.java).fromJson(string.toString())!! },
                     observeEvent("game/$id/clock").map { string -> moshi.adapter(OGSClock::class.java).fromJson(string.toString()) },
@@ -530,7 +531,7 @@ object OGSServiceImpl : OGSService {
         AutomatchRepository.subscribe()
         ChallengesRepository.subscribe()
         ServerNotificationsRepository.subscribe()
-        synchronized(gameConnections) {
+        synchronized(connectionsLock) {
             gameConnections.keys.forEach {
                 emitGameConnection(it)
             }
@@ -543,7 +544,7 @@ object OGSServiceImpl : OGSService {
     }
 
     fun disconnectFromGame(id: Long) {
-        synchronized(gameConnections) {
+        synchronized(connectionsLock) {
             gameConnections.remove(id)
             emit("game/disconnect", createJsonObject {
                 put("game_id", id)

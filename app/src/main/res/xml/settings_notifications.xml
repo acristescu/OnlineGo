@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory
+        android:title="Notifications"
+        >
+        <Preference
+            android:key="notification_advanced"
+            android:title="Advanced notification settings"
+            android:summary="Change sounds, vibration and more"
+            />
+    </PreferenceCategory>
+</PreferenceScreen>

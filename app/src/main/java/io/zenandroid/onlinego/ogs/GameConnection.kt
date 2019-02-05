@@ -24,6 +24,7 @@ import java.io.Closeable
  */
 class GameConnection(
         private val gameId: Long,
+        private val connectionLock: Any,
         gameDataObservable: Flowable<GameData>,
         movesObservable: Flowable<Move>,
         clockObservable: Flowable<OGSClock>,
@@ -83,18 +84,20 @@ class GameConnection(
     }
 
 
-    @Synchronized
     fun incrementCounter() {
-        counter++
+        synchronized(connectionLock) {
+            counter++
+        }
     }
 
-    @Synchronized
     fun decrementCounter() {
-        counter--
-        if(counter == 0) {
-            subscriptions.clear()
-            OGSServiceImpl.disconnectFromGame(gameId)
-            closed = true
+        synchronized(connectionLock) {
+            counter--
+            if (counter == 0) {
+                subscriptions.clear()
+                OGSServiceImpl.disconnectFromGame(gameId)
+                closed = true
+            }
         }
     }
 

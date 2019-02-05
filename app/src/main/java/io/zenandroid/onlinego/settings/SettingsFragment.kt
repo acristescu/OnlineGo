@@ -13,10 +13,14 @@ import io.zenandroid.onlinego.login.LoginActivity
 import io.zenandroid.onlinego.ogs.OGSServiceImpl
 
 
+
+
 class SettingsFragment : PreferenceFragmentCompat() {
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
-        setPreferencesFromResource(R.xml.settings, rootKey)
+        addPreferencesFromResource(R.xml.settings_notifications)
+        addPreferencesFromResource(R.xml.settings)
+//        setPreferencesFromResource(R.xml.settings, rootKey)
     }
 
     override fun onPreferenceTreeClick(preference: Preference?): Boolean {
@@ -57,6 +61,19 @@ class SettingsFragment : PreferenceFragmentCompat() {
                         }
                         .setNegativeButtonClick {}
                         .show()
+            }
+            "notification_advanced" -> {
+                val intent = Intent()
+                intent.action = "android.settings.APP_NOTIFICATION_SETTINGS"
+
+                //for Android 5-7
+                intent.putExtra("app_package", activity?.packageName)
+                intent.putExtra("app_uid", activity?.applicationInfo?.uid)
+
+                // for Android O
+                intent.putExtra("android.provider.extra.APP_PACKAGE", activity?.packageName)
+
+                startActivity(intent)
             }
         }
         return super.onPreferenceTreeClick(preference)

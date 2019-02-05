@@ -176,7 +176,7 @@ class MainActivity : AppCompatActivity(), MainContract.View {
             val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
             val channelId = "active_games"
-            val channelName = "Active Games"
+            val channelName = "Your Turn"
             val importance = NotificationManager.IMPORTANCE_LOW
             val notificationChannel = NotificationChannel(channelId, channelName, importance)
             notificationChannel.enableLights(true)

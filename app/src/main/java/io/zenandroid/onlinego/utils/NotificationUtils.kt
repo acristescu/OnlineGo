@@ -12,6 +12,7 @@ import android.os.Build
 import android.support.v4.app.NotificationCompat
 import android.support.v4.content.res.ResourcesCompat
 import android.view.View
+import android.widget.RemoteViews
 import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.gamelogic.RulesManager
@@ -85,10 +86,10 @@ class NotificationUtils {
             val heightSpec = View.MeasureSpec.makeMeasureSpec((256 * context.resources.displayMetrics.density).toInt(), View.MeasureSpec.AT_MOST)
             measure(widthSpec, heightSpec)
             layout(0, 0, measuredWidth, measuredHeight)
-            val r = Bitmap.createBitmap(screenWidth, measuredHeight, Bitmap.Config.ARGB_8888)
+            val r = Bitmap.createBitmap(measuredHeight, measuredHeight, Bitmap.Config.ARGB_8888)
             r.eraseColor(Color.TRANSPARENT)
             val canvas = Canvas(r)
-            canvas.translate((screenWidth - measuredWidth)/2f, 0f)
+//            canvas.translate(measuredHeight/2f, 0f)
             draw(canvas)
             return r
         }
@@ -117,24 +118,26 @@ class NotificationUtils {
 
                 val opponent = if (userId == it.blackPlayer.id) it.whitePlayer.username else it.blackPlayer.username
                 val message = if(it.phase == Phase.STONE_REMOVAL) "Stone removal phase" else "Your turn"
+                val remoteView = RemoteViews(context.packageName, R.layout.notification_board)
 
                 board.boardSize = it.height
                 board.position = RulesManager.replay(it, computeTerritory = false)
+                remoteView.setImageViewBitmap(R.id.notification_bitmap, board.convertToContentBitmap())
                 val notification =
                         NotificationCompat.Builder(context, "active_games")
                                 .setContentTitle(opponent)
                                 .setContentText(message)
                                 .setContentIntent(pendingIntent)
+                                .setVibrate(arrayOf(0L, 200L, 0L, 200L).toLongArray())
                                 .setLargeIcon(board.convertToIconBitmap())
                                 .setSmallIcon(R.drawable.ic_notification_go_board)
                                 .setColor(ResourcesCompat.getColor(context.resources, R.color.colorTextSecondary, null))
                                 .setGroup("GAME_NOTIFICATIONS")
                                 .setGroupAlertBehavior(NotificationCompat.GROUP_ALERT_SUMMARY)
                                 .setStyle(
-                                        NotificationCompat.BigPictureStyle()
-                                                .bigPicture(board.convertToContentBitmap())
-                                                .bigLargeIcon(null)
+                                        NotificationCompat.DecoratedCustomViewStyle()
                                 )
+                                .setCustomBigContentView(remoteView)
                                 .setAutoCancel(true)
                                 .build()
 
