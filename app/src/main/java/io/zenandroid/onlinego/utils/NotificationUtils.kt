@@ -11,14 +11,17 @@ import android.graphics.Color
 import android.os.Build
 import android.support.v4.app.NotificationCompat
 import android.support.v4.content.res.ResourcesCompat
+import android.util.Log
 import android.view.View
 import android.widget.RemoteViews
 import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.gamelogic.RulesManager
 import io.zenandroid.onlinego.login.LoginActivity
+import io.zenandroid.onlinego.main.MainActivity
 import io.zenandroid.onlinego.model.local.Game
 import io.zenandroid.onlinego.model.local.GameNotification
+import io.zenandroid.onlinego.model.local.GameNotificationWithDetails
 import io.zenandroid.onlinego.model.ogs.Phase
 import io.zenandroid.onlinego.views.BoardView
 
@@ -39,26 +42,30 @@ class NotificationUtils {
         private fun supportsNotificationGrouping() =
                 Build.VERSION.SDK_INT >= Build.VERSION_CODES.N
 
-        fun updateNotification(context: Context, games: List<Game>, notifications: List<GameNotification>, userId: Long) {
+        fun notify(context: Context, games: List<Game>, lastNotifications: List<GameNotificationWithDetails>, userId: Long) {
             val newGames = games.filter { game ->
-                notifications.find { it.gameId == game.id } == null
+                lastNotifications.find { it.notification.gameId == game.id } == null
             }
-            val finishedGames = notifications.filter { gameNotification ->
-                games.find { it.id == gameNotification.gameId } == null
-            }
+            val finishedGames = lastNotifications
+                    .filter { gameNotification ->
+                        games.find { it.id == gameNotification.notification.gameId } == null
+                    }.filter { it.games.isNotEmpty() }
+                    .map { it.games[0] }
+
             val gamesThatChanged = games.filter { game ->
-                notifications.find {
-                    it.gameId == game.id && (it.moves != game.moves || it.phase != game.phase)
+                lastNotifications.find {
+                    it.notification.gameId == game.id && (it.notification.moves != game.moves || it.notification.phase != game.phase)
                 } != null
             }
 
-            val gamesToNotify = (newGames + gamesThatChanged).filter { game ->
+            val gamesToNotify = (newGames + gamesThatChanged + finishedGames).filter { game ->
                 when {
                     game.phase == Phase.PLAY -> game.playerToMoveId == userId
                     game.phase == Phase.STONE_REMOVAL -> {
                         val myRemovedStones = if(userId == game.whitePlayer.id) game.whitePlayer.acceptedStones else game.blackPlayer.acceptedStones
                         game.removedStones != myRemovedStones
                     }
+                    game.phase == Phase.FINISHED -> true
                     else -> false
                 }
             }
@@ -73,9 +80,11 @@ class NotificationUtils {
                     else -> notifySummary(context, gamesToNotify, userId)
                 }
             }
+        }
 
+        fun updateNotifications(games: List<Game>, lastNotifications: List<GameNotificationWithDetails>) {
             val newNotifications = games.map { GameNotification(it.id, it.moves, it.phase) }
-            if(newNotifications != notifications) {
+            if(newNotifications != lastNotifications) {
                 OnlineGoApplication.instance.db.gameDao().replaceGameNotifications(newNotifications)
             }
         }
@@ -117,7 +126,12 @@ class NotificationUtils {
                 val pendingIntent = PendingIntent.getActivity(context, 0, notificationIntent, FLAG_UPDATE_CURRENT)
 
                 val opponent = if (userId == it.blackPlayer.id) it.whitePlayer.username else it.blackPlayer.username
-                val message = if(it.phase == Phase.STONE_REMOVAL) "Stone removal phase" else "Your turn"
+                val message = when(it.phase) {
+                    Phase.FINISHED -> "Game ended"
+                    Phase.PLAY -> "Your turn"
+                    Phase.STONE_REMOVAL -> "Stone removal phase"
+                    else -> "Requires your attention"
+                }
                 val remoteView = RemoteViews(context.packageName, R.layout.notification_board)
 
                 board.boardSize = it.height
@@ -134,9 +148,7 @@ class NotificationUtils {
                                 .setColor(ResourcesCompat.getColor(context.resources, R.color.colorTextSecondary, null))
                                 .setGroup("GAME_NOTIFICATIONS")
                                 .setGroupAlertBehavior(NotificationCompat.GROUP_ALERT_SUMMARY)
-                                .setStyle(
-                                        NotificationCompat.DecoratedCustomViewStyle()
-                                )
+                                .setStyle(NotificationCompat.DecoratedCustomViewStyle())
                                 .setCustomBigContentView(remoteView)
                                 .setAutoCancel(true)
                                 .build()
@@ -154,8 +166,8 @@ class NotificationUtils {
 
             val notification =
                     NotificationCompat.Builder(context, "active_games")
-                            .setContentTitle("Your turn in ${games.size} games")
-                            .setContentText("Your turn in ${games.size} games")
+                            .setContentTitle("${games.size} games require your attention")
+                            .setContentText("${games.size} games require your attention")
                             .setAutoCancel(true)
                             .setContentIntent(pendingIntent)
                             .setSmallIcon(R.drawable.ic_notification_go_board)

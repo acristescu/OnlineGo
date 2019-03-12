@@ -49,10 +49,10 @@ dependencies {
     implementation 'com.android.support:appcompat-v7:27.1.1'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     // retrofit
-    implementation "com.squareup.retrofit2:retrofit:2.3.0"
-    implementation "com.squareup.retrofit2:adapter-rxjava2:2.3.0"
-    implementation "com.squareup.retrofit2:converter-gson:2.3.0"
-    implementation 'com.squareup.retrofit2:converter-moshi:2.3.0'
+    implementation "com.squareup.retrofit2:retrofit:2.5.0"
+    implementation "com.squareup.retrofit2:adapter-rxjava2:2.5.0"
+    implementation "com.squareup.retrofit2:converter-gson:2.5.0"
+    implementation 'com.squareup.retrofit2:converter-moshi:2.5.0'
     implementation 'com.squareup.okhttp3:logging-interceptor:3.12.1'
     implementation 'com.squareup.okhttp3:okhttp-urlconnection:3.12.1'
     implementation 'com.github.franmontiel:PersistentCookieJar:v1.0.1'
@@ -63,8 +63,8 @@ dependencies {
     implementation 'io.reactivex.rxjava2:rxandroid:2.1.0'
     implementation 'io.reactivex.rxjava2:rxjava:2.2.4'
 
-    implementation "android.arch.work:work-runtime-ktx:1.0.0-beta02"
-    implementation "android.arch.work:work-rxjava2:1.0.0-beta02"
+    implementation "android.arch.work:work-runtime-ktx:1.0.0"
+    implementation "android.arch.work:work-rxjava2:1.0.0"
 
     implementation 'com.facebook.stetho:stetho:1.5.0'
     implementation 'com.facebook.stetho:stetho-okhttp3:1.5.0'
@@ -84,7 +84,7 @@ dependencies {
 
     implementation 'me.zhanghai.android.materialprogressbar:library:1.4.2'
 
-    implementation 'com.github.blennerSilva:AwesomeDialog:2.0.5'
+    implementation 'com.github.blennerSilva:AwesomeDialog:2.0.6'
 
     implementation('io.socket:socket.io-client:1.0.0') {
         // excluding org.json which is provided by Android
@@ -94,12 +94,12 @@ dependencies {
     implementation 'com.jakewharton.rxbinding2:rxbinding:2.1.1'
 
     implementation 'br.com.simplepass:loading-button-android:1.14.0'
-    implementation 'com.google.firebase:firebase-core:16.0.6'
+    implementation 'com.google.firebase:firebase-core:16.0.7'
 
     implementation 'com.github.bumptech.glide:glide:4.7.1'
     kapt 'com.github.bumptech.glide:compiler:4.7.1'
 
-    implementation 'com.crashlytics.sdk.android:crashlytics:2.9.8'
+    implementation 'com.crashlytics.sdk.android:crashlytics:2.9.9'
 
     implementation 'com.firebase:firebase-jobdispatcher-with-gcm-dep:0.8.4'
 

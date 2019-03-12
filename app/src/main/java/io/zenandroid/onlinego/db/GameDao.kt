@@ -112,7 +112,7 @@ abstract class GameDao {
     abstract fun getChallenges(): Flowable<List<Challenge>>
 
     @Query ("SELECT * FROM gamenotification")
-    abstract fun getGameNotifications(): Flowable<List<GameNotification>>
+    abstract fun getGameNotifications(): Flowable<List<GameNotificationWithDetails>>
 
     @Query("SELECT id FROM game WHERE id not in (:ids) AND phase <> 'FINISHED'")
     abstract fun getGamesThatShouldBeFinished(ids: List<Long>): List<Long>

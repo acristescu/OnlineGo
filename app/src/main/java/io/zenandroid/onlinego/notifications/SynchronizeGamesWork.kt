@@ -9,10 +9,11 @@ import io.reactivex.functions.BiFunction
 import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.main.MainActivity
 import io.zenandroid.onlinego.model.local.Game
-import io.zenandroid.onlinego.model.local.GameNotification
+import io.zenandroid.onlinego.model.local.GameNotificationWithDetails
 import io.zenandroid.onlinego.ogs.ActiveGameRepository
 import io.zenandroid.onlinego.ogs.OGSServiceImpl
-import io.zenandroid.onlinego.utils.NotificationUtils.Companion.updateNotification
+import io.zenandroid.onlinego.utils.NotificationUtils.Companion.notify
+import io.zenandroid.onlinego.utils.NotificationUtils.Companion.updateNotifications
 import retrofit2.HttpException
 import java.net.ConnectException
 import java.net.SocketTimeoutException
@@ -79,13 +80,14 @@ class SynchronizeGamesWork(val context: Context, params: WorkerParameters) : RxW
                 .andThen(Single.zip(
                         ActiveGameRepository.monitorActiveGames().firstOrError(),
                         OnlineGoApplication.instance.db.gameDao().getGameNotifications().firstOrError(),
-                        BiFunction { a: List<Game>, b: List<GameNotification> -> Pair(a, b) }
+                        BiFunction { a: List<Game>, b: List<GameNotificationWithDetails> -> Pair(a, b) }
                 )).doOnSuccess {
                     Log.v(TAG, "Got ${it.first.size} games")
                     if (!MainActivity.isInForeground) {
                         Log.v(TAG, "Updating notification")
-                        updateNotification(context, it.first, it.second, OGSServiceImpl.uiConfig?.user?.id!!)
+                        notify(context, it.first, it.second, OGSServiceImpl.uiConfig?.user?.id!!)
                     }
+                    updateNotifications(it.first, it.second)
                 }
                 .map { Result.success() }
                 .onErrorReturn { e ->
