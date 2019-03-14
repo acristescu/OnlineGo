@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.Log
 import androidx.work.*
 import com.crashlytics.android.Crashlytics
+import io.reactivex.Completable
 import io.reactivex.Single
 import io.reactivex.functions.BiFunction
 import io.zenandroid.onlinego.OnlineGoApplication
@@ -11,9 +12,11 @@ import io.zenandroid.onlinego.main.MainActivity
 import io.zenandroid.onlinego.model.local.Game
 import io.zenandroid.onlinego.model.local.GameNotificationWithDetails
 import io.zenandroid.onlinego.ogs.ActiveGameRepository
+import io.zenandroid.onlinego.ogs.ChallengesRepository
 import io.zenandroid.onlinego.ogs.OGSServiceImpl
-import io.zenandroid.onlinego.utils.NotificationUtils.Companion.notify
-import io.zenandroid.onlinego.utils.NotificationUtils.Companion.updateNotifications
+import io.zenandroid.onlinego.utils.NotificationUtils.Companion.notifyGames
+import io.zenandroid.onlinego.utils.NotificationUtils.Companion.notifyChallenges
+import io.zenandroid.onlinego.utils.NotificationUtils.Companion.storeGameNotifications
 import retrofit2.HttpException
 import java.net.ConnectException
 import java.net.SocketTimeoutException
@@ -76,20 +79,11 @@ class SynchronizeGamesWork(val context: Context, params: WorkerParameters) : RxW
             Log.v(TAG, "App is in foreground, giving up")
             return Single.just(Result.success()).reschedule()
         }
-        return ActiveGameRepository.refreshActiveGames()
-                .andThen(Single.zip(
-                        ActiveGameRepository.monitorActiveGames().firstOrError(),
-                        OnlineGoApplication.instance.db.gameDao().getGameNotifications().firstOrError(),
-                        BiFunction { a: List<Game>, b: List<GameNotificationWithDetails> -> Pair(a, b) }
-                )).doOnSuccess {
-                    Log.v(TAG, "Got ${it.first.size} games")
-                    if (!MainActivity.isInForeground) {
-                        Log.v(TAG, "Updating notification")
-                        notify(context, it.first, it.second, OGSServiceImpl.uiConfig?.user?.id!!)
-                    }
-                    updateNotifications(it.first, it.second)
-                }
-                .map { Result.success() }
+        return Completable
+                .mergeArray(
+                        notifyGames(),
+                        notifyChallenges()
+                ).toSingleDefault(Result.success())
                 .onErrorReturn { e ->
                     when {
                         (e as? HttpException)?.code() == 403 -> {
@@ -109,6 +103,34 @@ class SynchronizeGamesWork(val context: Context, params: WorkerParameters) : RxW
                     }
                 }.reschedule()
     }
+
+    private fun notifyGames() : Completable =
+            ActiveGameRepository
+                    .refreshActiveGames()
+                    .andThen(Single.zip(
+                            ActiveGameRepository.monitorActiveGames().firstOrError(),
+                            OnlineGoApplication.instance.db.gameDao().getGameNotifications().firstOrError(),
+                            BiFunction { a: List<Game>, b: List<GameNotificationWithDetails> -> Pair(a, b) }
+                    )).doOnSuccess {
+                        Log.v(TAG, "Got ${it.first.size} games")
+                        if (!MainActivity.isInForeground) {
+                            Log.v(TAG, "Updating game notification")
+                            notifyGames(context, it.first, it.second, OGSServiceImpl.uiConfig?.user?.id!!)
+                        }
+                        storeGameNotifications(it.first, it.second)
+                    }.ignoreElement()
+
+    private fun notifyChallenges() : Completable =
+            ChallengesRepository
+                    .refreshChallenges()
+                    .andThen(ChallengesRepository.monitorChallenges().firstOrError())
+                    .doOnSuccess {
+                        Log.v(TAG, "Updating challenges notification")
+                        if (!MainActivity.isInForeground) {
+                            Log.v(TAG, "Updating challenges notification")
+                            notifyChallenges(context, it, OGSServiceImpl.uiConfig?.user?.id!!)
+                        }
+                    }.ignoreElement()
 
     private fun <T : Any> Single<T>.reschedule(): Single<T> {
         return this.doFinally {

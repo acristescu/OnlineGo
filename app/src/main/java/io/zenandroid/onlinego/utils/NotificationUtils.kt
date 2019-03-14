@@ -19,10 +19,13 @@ import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.gamelogic.RulesManager
 import io.zenandroid.onlinego.login.LoginActivity
 import io.zenandroid.onlinego.main.MainActivity
+import io.zenandroid.onlinego.model.local.Challenge
 import io.zenandroid.onlinego.model.local.Game
 import io.zenandroid.onlinego.model.local.GameNotification
 import io.zenandroid.onlinego.model.local.GameNotificationWithDetails
+import io.zenandroid.onlinego.model.ogs.OGSChallenge
 import io.zenandroid.onlinego.model.ogs.Phase
+import io.zenandroid.onlinego.utils.NotificationUtils.Companion.convertToIconBitmap
 import io.zenandroid.onlinego.views.BoardView
 
 
@@ -42,7 +45,7 @@ class NotificationUtils {
         private fun supportsNotificationGrouping() =
                 Build.VERSION.SDK_INT >= Build.VERSION_CODES.N
 
-        fun notify(context: Context, games: List<Game>, lastNotifications: List<GameNotificationWithDetails>, userId: Long) {
+        fun notifyGames(context: Context, games: List<Game>, lastNotifications: List<GameNotificationWithDetails>, userId: Long) {
             val newGames = games.filter { game ->
                 lastNotifications.find { it.notification.gameId == game.id } == null
             }
@@ -82,7 +85,31 @@ class NotificationUtils {
             }
         }
 
-        fun updateNotifications(games: List<Game>, lastNotifications: List<GameNotificationWithDetails>) {
+        fun notifyChallenges(context: Context, challenges: List<Challenge>, userId: Long) {
+            val notificationIntent = Intent(context, LoginActivity::class.java)
+            notificationIntent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
+            val pendingIntent = PendingIntent.getActivity(context, 0, notificationIntent, FLAG_UPDATE_CURRENT)
+
+            challenges.forEach {
+                val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+                notificationManager.notify(it.id.toInt(),
+                        NotificationCompat.Builder(context, "challenges")
+                                .setContentTitle("A new challenge!")
+                                .setContentText("${it.challenger?.username} has issued a challenge")
+                                .setContentIntent(pendingIntent)
+                                .setVibrate(arrayOf(0L, 200L, 0L, 200L).toLongArray())
+                                .setSmallIcon(R.drawable.ic_notification_go_board)
+                                .setColor(ResourcesCompat.getColor(context.resources, R.color.colorTextSecondary, null))
+                                .setGroupAlertBehavior(NotificationCompat.GROUP_ALERT_SUMMARY)
+                                .setStyle(NotificationCompat.BigTextStyle())
+                                .setAutoCancel(true)
+                                .build()
+                )
+            }
+
+        }
+
+        fun storeGameNotifications(games: List<Game>, lastNotifications: List<GameNotificationWithDetails>) {
             val newNotifications = games.map { GameNotification(it.id, it.moves, it.phase) }
             if(newNotifications != lastNotifications) {
                 OnlineGoApplication.instance.db.gameDao().replaceGameNotifications(newNotifications)

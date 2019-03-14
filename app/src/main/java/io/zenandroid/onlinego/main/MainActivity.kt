@@ -175,15 +175,24 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
-            val channelId = "active_games"
-            val channelName = "Your Turn"
-            val importance = NotificationManager.IMPORTANCE_LOW
-            val notificationChannel = NotificationChannel(channelId, channelName, importance)
-            notificationChannel.enableLights(true)
-            notificationChannel.lightColor = Color.WHITE
-            notificationChannel.enableVibration(true)
-            notificationChannel.vibrationPattern = longArrayOf(0, 200, 0, 200)
-            notificationManager.createNotificationChannel(notificationChannel)
+            notificationManager.createNotificationChannels(
+                    listOf(
+                            NotificationChannel("active_games", "Your Turn", NotificationManager.IMPORTANCE_LOW).apply {
+                                enableLights(true)
+                                lightColor = Color.WHITE
+                                enableVibration(true)
+                                vibrationPattern = longArrayOf(0, 200, 0, 200)
+
+                            },
+                            NotificationChannel("challenges", "Challenges", NotificationManager.IMPORTANCE_LOW).apply {
+                                enableLights(true)
+                                lightColor = Color.WHITE
+                                enableVibration(true)
+                                vibrationPattern = longArrayOf(0, 200, 0, 200)
+
+                            }
+                    )
+            )
         }
     }
 
