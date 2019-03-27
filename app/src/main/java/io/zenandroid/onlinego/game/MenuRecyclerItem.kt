@@ -29,6 +29,14 @@ class MenuRecyclerItem(val item: GameContract.MenuItem) : Item(item.hashCode().t
                 viewHolder.titleView.text = "Analyze"
                 viewHolder.iconView.setImageResource(R.drawable.ic_thinking)
             }
+            SHOW_COORDINATES -> {
+                viewHolder.titleView.text = "Show Coordinates"
+                viewHolder.iconView.setImageResource(R.drawable.ic_coordinates)
+            }
+            HIDE_COORDINATES -> {
+                viewHolder.titleView.text = "Hide Coordinates"
+                viewHolder.iconView.setImageResource(R.drawable.ic_coordinates)
+            }
             DOWNLOAD_SGF -> {
                 viewHolder.titleView.text = "Download as SGF"
                 viewHolder.iconView.setImageResource(R.drawable.ic_save_black_24dp)

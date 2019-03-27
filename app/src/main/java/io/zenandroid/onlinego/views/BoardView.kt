@@ -2,16 +2,20 @@ package io.zenandroid.onlinego.views
 
 import android.content.Context
 import android.graphics.*
+import android.preference.PreferenceManager
 import android.util.AttributeSet
 import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
+import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.model.Position
 import io.zenandroid.onlinego.model.StoneType
 import java.util.*
+import kotlin.math.roundToInt
+
 
 /**
  * Created by alex on 1/8/2015.
@@ -23,10 +27,18 @@ class BoardView : View {
     // The logical size (in GO nodes) of the board.
     // Supported sizes: 9, 13 and 19
     //
+    var prefs = PreferenceManager.getDefaultSharedPreferences(OnlineGoApplication.instance.getBaseContext())
+    var isGameCard = false
+
     var boardSize = 19
         set(boardSize) {
             field = boardSize
-            cellSize = width / boardSize
+            var usableWidth = width // available width will be adjusted when coordinates are active
+            if (prefs.getBoolean("show_coordinates", false) && !isGameCard) {
+                usableWidth -= (width / this.boardSize.toFloat() * 0.65).roundToInt()
+
+            }
+            cellSize = usableWidth / boardSize
             border = ((width - boardSize * cellSize) / 2).toFloat()
         }
 
@@ -61,6 +73,7 @@ class BoardView : View {
     private var linesHighlightPaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val decorationsPaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val textPaint = Paint(Paint.ANTI_ALIAS_FLAG)
+    private val coordinatesPaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val territoryPaint = Paint(Paint.ANTI_ALIAS_FLAG)
 
     private val whiteStoneDrawable = resources.getDrawable(R.mipmap.stone_white)
@@ -112,9 +125,13 @@ class BoardView : View {
         }
     }
 
-    private fun drawTextCentred(canvas: Canvas, paint: Paint, text: String, cx: Float, cy: Float) {
+    private fun drawTextCentred(canvas: Canvas, paint: Paint, text: String, cx: Float, cy: Float, ignoreAscentDescent: Boolean = false) {
+        paint.textAlign = Paint.Align.LEFT
         paint.getTextBounds(text, 0, text.length, textBounds)
-        canvas.drawText(text, cx - textBounds.exactCenterX(), cy - textBounds.exactCenterY(), paint)
+        canvas.drawText(text,
+                cx - textBounds.exactCenterX() ,
+                cy - textBounds.exactCenterY() + if (ignoreAscentDescent) (textBounds.bottom.toFloat() / 2) else 0f,
+                paint)
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
@@ -165,13 +182,19 @@ class BoardView : View {
         //
         // We need to adapt to resize events by recomputing the border and cell sizes
         //
-        cellSize = w / this.boardSize
+        var usableWidth = w // available width will be adjusted when coordinates are active
+        if (prefs.getBoolean("show_coordinates", false) && !isGameCard) {
+            usableWidth -= (w / this.boardSize.toFloat() * 0.65).roundToInt()
+        }
+        cellSize = usableWidth / this.boardSize
         linesPaint.strokeWidth = (cellSize / 35f).coerceAtMost(2f)
         linesHighlightPaint.strokeWidth = linesPaint.strokeWidth * 2
         decorationsPaint.strokeWidth = cellSize / 20f
         stoneSpacing = cellSize / 35f
         border = ((w - this.boardSize * cellSize) / 2).toFloat()
         textPaint.textSize = cellSize.toFloat() * .65f
+        coordinatesPaint.textSize = cellSize.toFloat() * .35f
+        coordinatesPaint.typeface = Typeface.DEFAULT_BOLD
         super.onSizeChanged(w, h, oldw, oldh)
     }
 
@@ -312,7 +335,19 @@ class BoardView : View {
     }
 
     private fun drawCoordinates(canvas: Canvas) {
-        // TODO
+        if (prefs.getBoolean("show_coordinates", false) && !isGameCard) {
+            val fullLength = (cellSize * this.boardSize).toFloat()
+            val textX = arrayOf("A","B","C","D","E","F","G","H","J","K","L","M","N","O","P","Q","R","S","T")
+            val textY = arrayOf("1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19")
+            for (i in 0 until this.boardSize) {
+                drawTextCentred(canvas, coordinatesPaint, textX[i], getCellCenter(i, 0).x, 0f - border / 2, true)
+                drawTextCentred(canvas, coordinatesPaint, textX[i], getCellCenter(i, 0).x, fullLength + border / 2, true)
+            }
+            for (i in this.boardSize downTo 1) {
+                drawTextCentred(canvas, coordinatesPaint, textY[i-1], 0f - border / 2, getCellCenter(0, this.boardSize - i).y)
+                drawTextCentred(canvas, coordinatesPaint, textY[i-1], fullLength + border / 2, getCellCenter(0, this.boardSize - i).y)
+            }
+        }
     }
 
     private fun drawStones(canvas: Canvas, position: Position) {
@@ -409,6 +444,12 @@ class BoardView : View {
     fun showCandidateMove(candidateMove: Point?, candidate: StoneType?) {
         this.candidateMove = candidateMove
         this.candidateType = candidate
+        invalidate()
+    }
+
+    fun refreshBoardView() {
+        //dummy onSizeChanged call to trigger the border re-computation
+        onSizeChanged(width, height, width, height)
         invalidate()
     }
 

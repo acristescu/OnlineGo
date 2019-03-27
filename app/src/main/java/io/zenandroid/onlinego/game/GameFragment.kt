@@ -208,6 +208,10 @@ class GameFragment : Fragment(), GameContract.View {
         board.showCandidateMove(point, nextToMove)
     }
 
+    override fun refreshBoardView() {
+        board.refreshBoardView()
+    }
+
     override val cellHotTrack: Observable<Point>
         get() = board.tapMoveObservable()
 
