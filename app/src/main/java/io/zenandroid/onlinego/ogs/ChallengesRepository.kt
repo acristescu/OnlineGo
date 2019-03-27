@@ -2,6 +2,7 @@ package io.zenandroid.onlinego.ogs
 
 import android.util.Log
 import com.crashlytics.android.Crashlytics
+import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.disposables.CompositeDisposable
 import io.zenandroid.onlinego.OnlineGoApplication
@@ -16,20 +17,14 @@ object ChallengesRepository {
     private val disposables = CompositeDisposable()
     private val TAG = ChallengesRepository.javaClass.simpleName
 
-    public fun subscribe() {
-        fetchChallenges()
+    fun subscribe() {
+        refreshChallenges()
+                .subscribe({}, Crashlytics::logException)
+                .addToDisposable(disposables)
         ogs.connectToUIPushes()
                 .filter { it.event == "challenge-list-updated" }
-                .subscribe(
-                        { fetchChallenges() },
-                        { Crashlytics.logException(it) }
-                ).addToDisposable(disposables)
-    }
-
-    private fun fetchChallenges() {
-        Log.i(TAG, "Fetching challenges")
-        ogs.fetchChallenges()
-                .subscribe(this::storeChallenges, Crashlytics::logException)
+                .flatMapCompletable { refreshChallenges() }
+                .subscribe({}, Crashlytics::logException)
                 .addToDisposable(disposables)
     }
 
@@ -37,10 +32,17 @@ object ChallengesRepository {
         dao.replaceAllChallenges(challenges.map { Challenge.fromOGSChallenge (it) })
     }
 
-    public fun monitorChallenges(): Flowable<List<Challenge>> =
-            dao.getChallenges()
+    fun refreshChallenges() : Completable {
+        Log.i(TAG, "Fetching challenges")
+        return ogs.fetchChallenges()
+                .doOnSuccess(this::storeChallenges)
+                .ignoreElement()
+    }
 
-    public fun unsubscribe() {
+    fun monitorChallenges(): Flowable<List<Challenge>> =
+        dao.getChallenges()
+
+    fun unsubscribe() {
         disposables.clear()
     }
 }

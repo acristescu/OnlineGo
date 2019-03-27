@@ -1,7 +1,9 @@
 package io.zenandroid.onlinego.ogs
 
+import android.content.Context
 import android.util.Log
 import com.crashlytics.android.Crashlytics
+import com.facebook.stetho.okhttp3.StethoInterceptor
 import com.franmontiel.persistentcookiejar.PersistentCookieJar
 import com.franmontiel.persistentcookiejar.cache.SetCookieCache
 import com.franmontiel.persistentcookiejar.persistence.SharedPrefsCookiePersistor
@@ -21,10 +23,12 @@ import io.socket.client.Manager
 import io.socket.client.Socket
 import io.socket.parser.IOParser
 import io.zenandroid.onlinego.AndroidLoggingHandler
+import io.zenandroid.onlinego.BuildConfig
 import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.main.MainActivity
 import io.zenandroid.onlinego.model.ogs.*
 import io.zenandroid.onlinego.newchallenge.ChallengeParams
+import io.zenandroid.onlinego.notifications.SynchronizeGamesWork
 import io.zenandroid.onlinego.utils.PersistenceManager
 import io.zenandroid.onlinego.utils.createJsonArray
 import io.zenandroid.onlinego.utils.createJsonObject
@@ -56,6 +60,8 @@ object OGSServiceImpl : OGSService {
     private val restApi: OGSRestAPI
     private val moshi = Moshi.Builder().add(Date::class.java, Rfc3339DateJsonAdapter().nullSafe()).build()
     private var authSent = false
+    private val prefs by lazy { OnlineGoApplication.instance.getSharedPreferences(TAG, Context.MODE_PRIVATE) }
+
 
     val cookieJar = PersistentCookieJar(SetCookieCache(), SharedPrefsCookiePersistor(OnlineGoApplication.instance))
 
@@ -79,6 +85,7 @@ object OGSServiceImpl : OGSService {
                     if (it.csrf_token.isNullOrBlank()) {
                         throw HttpException(Response.error<Any>(403, ResponseBody.create(null, "login failed")))
                     }
+                    prefs.edit().remove("KEY_403").commit()
                 }
                 .doOnSuccess (this::storeUIConfig)
                 .ignoreElement()
@@ -192,11 +199,12 @@ object OGSServiceImpl : OGSService {
 
 
     private val gameConnections = mutableMapOf<Long, GameConnection>()
+    private val connectionsLock = Any()
 
     override fun connectToGame(id: Long): GameConnection {
-        synchronized(gameConnections) {
+        synchronized(connectionsLock) {
             val connection = gameConnections[id] ?:
-            GameConnection(id,
+            GameConnection(id, connectionsLock,
                     observeEvent("game/$id/gamedata").map { string -> moshi.adapter(GameData::class.java).fromJson(string.toString())!! },
                     observeEvent("game/$id/move").map { string -> moshi.adapter(Move::class.java).fromJson(string.toString())!! },
                     observeEvent("game/$id/clock").map { string -> moshi.adapter(OGSClock::class.java).fromJson(string.toString()) },
@@ -390,8 +398,7 @@ object OGSServiceImpl : OGSService {
         BotsRepository.unsubscribe()
         AutomatchRepository.unsubscribe()
         ChallengesRepository.unsubscribe()
-        NotificationsRepository.unsubscribe()
-//        socket.off()
+        ServerNotificationsRepository.unsubscribe()
         socket.disconnect()
     }
 
@@ -400,7 +407,13 @@ object OGSServiceImpl : OGSService {
         PersistenceManager.instance.deleteUIConfig()
         cookieJar.clear()
         disconnect()
+        SynchronizeGamesWork.unschedule()
     }
+
+    private fun OkHttpClient.Builder.addStethoInterceptor() =
+        if(BuildConfig.DEBUG) {
+            addNetworkInterceptor(StethoInterceptor())
+        } else this
 
     init {
         uiConfig = PersistenceManager.instance.getUIConfig()
@@ -409,6 +422,7 @@ object OGSServiceImpl : OGSService {
 
         val httpClient = OkHttpClient.Builder()
                 .cookieJar(cookieJar)
+                .addStethoInterceptor()
                 .addNetworkInterceptor { chain ->
                     var request = chain.request()
                     val csrftoken = cookieJar.loadForRequest(request.url()).firstOrNull { it.name() == "csrftoken" }?.value()
@@ -458,11 +472,15 @@ object OGSServiceImpl : OGSService {
                 .build()
                 .create(OGSRestAPI::class.java)
 
+
         socket = IO.socket("https://online-go.com", IO.Options().apply {
             transports = arrayOf("websocket")
             reconnection = true
             reconnectionDelay = 750
             reconnectionDelayMax = 10000
+            if(BuildConfig.DEBUG) {
+                webSocketFactory = StethoWebSocketsFactory(httpClient)
+            }
         })
 
         socket.on(Socket.EVENT_CONNECT) {
@@ -512,8 +530,8 @@ object OGSServiceImpl : OGSService {
         BotsRepository.subscribe()
         AutomatchRepository.subscribe()
         ChallengesRepository.subscribe()
-        NotificationsRepository.subscribe()
-        synchronized(gameConnections) {
+        ServerNotificationsRepository.subscribe()
+        synchronized(connectionsLock) {
             gameConnections.keys.forEach {
                 emitGameConnection(it)
             }
@@ -526,7 +544,7 @@ object OGSServiceImpl : OGSService {
     }
 
     fun disconnectFromGame(id: Long) {
-        synchronized(gameConnections) {
+        synchronized(connectionsLock) {
             gameConnections.remove(id)
             emit("game/disconnect", createJsonObject {
                 put("game_id", id)
@@ -547,6 +565,19 @@ object OGSServiceImpl : OGSService {
                         }
                     }
                     it
+                }
+                .doOnError {
+                    if ((it as? HttpException)?.code() == 403) {
+                        val count403 = prefs.getInt("KEY_403", 0) + 1
+                        Crashlytics.log("Consecutive 403s: $count403")
+                        prefs.edit().putInt("KEY_403", count403).commit()
+                    }
+                }
+                .doOnSuccess {
+                    if(prefs.getInt("KEY_403", 0) != 0) {
+                        Crashlytics.logException(Exception("Recovered from ${prefs.getInt("KEY_403", 0)} 403 without login after!!!"))
+                        prefs.edit().remove("KEY_403").commit()
+                    }
                 }
 
     override fun fetchChallenges(): Single<List<OGSChallenge>> =

@@ -2,6 +2,7 @@ package io.zenandroid.onlinego.ogs
 
 import android.util.Log
 import com.crashlytics.android.Crashlytics
+import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Observable
 import io.reactivex.Single
@@ -52,6 +53,11 @@ object ActiveGameRepository {
         @Synchronized get() = activeDbGames.values.filter(Util::isMyTurn).toList()
 
     internal fun subscribe() {
+        refreshActiveGames()
+                .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.single())
+                .subscribe({}, { this.onError(it, "monitorActiveGames") })
+                .addToDisposable(subscriptions)
         OGSServiceImpl.connectToActiveGames()
                 .subscribeOn(Schedulers.io())
                 .subscribe(this::onNotification) { this.onError(it, "connectToActiveGames") }
@@ -214,18 +220,23 @@ object ActiveGameRepository {
         return OnlineGoApplication.instance.db.gameDao().monitorGame(id).take(1).firstOrError()
     }
 
-    fun fetchActiveGames(): Flowable<List<Game>> {
-        OGSServiceImpl
-                .fetchActiveGames()
-                .flattenAsObservable { it -> it }
-                .map (Game.Companion::fromOGSGame)
-                .toList()
-                .retryWhen (this::retryIOException)
-                .subscribeOn(Schedulers.io())
-                .observeOn(Schedulers.single())
-                .subscribe(OnlineGoApplication.instance.db.gameDao()::insertAllGames)
-                { this.onError(it, "fetchActiveGames") }
-                .addToDisposable(subscriptions)
+    fun refreshActiveGames(): Completable =
+            OGSServiceImpl.fetchActiveGames()
+                    .flattenAsObservable { it -> it }
+                    .map (Game.Companion::fromOGSGame)
+                    .toList()
+                    .doOnSuccess(OnlineGoApplication.instance.db.gameDao()::insertAllGames)
+                    .map { it.map(Game::id) }
+                    .map { OnlineGoApplication.instance.db.gameDao().getGamesThatShouldBeFinished(it) }
+                    .flattenAsObservable { it -> it }
+                    .flatMapSingle { OGSServiceImpl.fetchGame(it) }
+                    .map (Game.Companion::fromOGSGame)
+                    .toList()
+                    .doOnSuccess(OnlineGoApplication.instance.db.gameDao()::insertAllGames)
+                    .retryWhen (this::retryIOException)
+                    .ignoreElement()
+
+    fun monitorActiveGames(): Flowable<List<Game>> {
         return OnlineGoApplication.instance.db.gameDao().monitorActiveGames(OGSServiceImpl.uiConfig?.user?.id)
     }
 

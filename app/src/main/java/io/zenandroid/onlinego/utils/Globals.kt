@@ -86,7 +86,9 @@ fun computeTimeLeft(clock: Clock, playerTimeSimple: Long?, playerTime: Time?, cu
     var timeLeft = 0L
     if(playerTimeSimple != null) {
         // Simple timer
-        timeLeft = playerTimeSimple - if(currentPlayer) now else baseTime
+        timeLeft = if(playerTimeSimple == 0L) 0 else {
+            playerTimeSimple - if (currentPlayer) now else baseTime
+        }
     } else if (playerTime != null) {
         timeLeft = baseTime + playerTime.thinking_time * 1000 - if(currentPlayer) now else baseTime
         if(playerTime.moves_left != null) {

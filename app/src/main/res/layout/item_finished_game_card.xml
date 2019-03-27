@@ -48,74 +48,74 @@
                 android:layout_height="wrap_content"
                 />
         </android.support.v7.widget.CardView>
+
         <android.support.constraint.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical"
             android:layout_marginLeft="25dp"
-            >
+            android:orientation="vertical">
 
-            <LinearLayout
-                android:id="@+id/first_row"
+            <TextView
+                android:id="@+id/opponent_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginRight="20dp"
+                android:gravity="left"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:maxWidth="190dp"
+                android:textColor="@color/colorTextSecondary"
+                android:textSize="14sp"
+                android:textStyle="bold"
                 android:layout_marginTop="10dp"
-                android:gravity="right"
+                app:layout_constraintRight_toLeftOf="@+id/opponent_rank"
                 app:layout_constraintHorizontal_bias="0.0"
-                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintHorizontal_chainStyle="packed"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:layout_constrainedWidth="true"
-                >
+                tools:text="Bula Bistrucizatorul"
+                />
 
-                <TextView
-                    android:id="@+id/opponent_name"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="left"
-                    android:maxLines="1"
-                    android:textSize="14sp"
-                    tools:text="MrAlex"
-                    android:textStyle="bold"
-                    android:textColor="@color/colorTextSecondary"
-                    />
+            <TextView
+                android:id="@+id/opponent_rank"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp"
+                android:fontFamily="@font/ubuntu_condensed_regular"
+                android:textColor="@color/colorTextSecondary"
+                android:textSize="12sp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintRight_toLeftOf="@+id/opponent_flag"
+                app:layout_constraintLeft_toRightOf="@+id/opponent_name"
+                tools:text="14k"
+                app:layout_constraintBaseline_toBaselineOf="@id/opponent_name"
+                />
 
-                <TextView
-                    android:id="@+id/opponent_rank"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="8dp"
-                    android:layout_marginStart="8dp"
-                    android:fontFamily="@font/ubuntu_condensed_regular"
-                    android:textSize="12sp"
-                    tools:text="14k"
-                    android:textColor="@color/colorTextSecondary"
-                    />
-
-                <android.support.text.emoji.widget.EmojiAppCompatTextView
-                    android:id="@+id/opponent_flag"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="8dp"
-                    android:textSize="14sp"
-                    android:layout_gravity="center_vertical"
-                    />
-            </LinearLayout>
+            <android.support.text.emoji.widget.EmojiAppCompatTextView
+                android:id="@+id/opponent_flag"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginRight="8dp"
+                android:textSize="14sp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintLeft_toRightOf="@+id/opponent_rank"
+                app:layout_constraintBaseline_toBaselineOf="@id/opponent_name"
+                />
 
             <TextView
                 android:id="@+id/outcome"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                tools:text="Won by 34.5 points"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintLeft_toLeftOf="parent"
                 android:layout_marginBottom="10dp"
                 android:textColor="@color/colorTextSecondary"
-                android:textStyle="bold"
                 android:textSize="12sp"
-                />
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                tools:text="Won by 34.5 points" />
 
             <TextView
                 android:id="@+id/outcome_label"
@@ -125,11 +125,10 @@
                 android:fontFamily="@font/ubuntu_condensed_regular"
                 android:text="Outcome"
                 android:textAllCaps="true"
+                android:textColor="@color/colorTextSecondary"
                 android:textSize="10sp"
                 app:layout_constraintBottom_toTopOf="@id/outcome"
-                app:layout_constraintLeft_toLeftOf="parent"
-                android:textColor="@color/colorTextSecondary"
-                />
+                app:layout_constraintLeft_toLeftOf="parent" />
         </android.support.constraint.ConstraintLayout>
     </LinearLayout>
 </android.support.v7.widget.CardView>

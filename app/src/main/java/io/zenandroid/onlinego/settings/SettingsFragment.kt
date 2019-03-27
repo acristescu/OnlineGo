@@ -6,16 +6,21 @@ import android.os.Bundle
 import android.support.v7.preference.Preference
 import android.support.v7.preference.PreferenceFragmentCompat
 import com.awesomedialog.blennersilva.awesomedialoglibrary.AwesomeInfoDialog
+import com.google.firebase.analytics.FirebaseAnalytics
 import io.zenandroid.onlinego.BuildConfig
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.login.LoginActivity
 import io.zenandroid.onlinego.ogs.OGSServiceImpl
 
 
+
+
 class SettingsFragment : PreferenceFragmentCompat() {
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
-        setPreferencesFromResource(R.xml.settings, rootKey)
+        addPreferencesFromResource(R.xml.settings_notifications)
+        addPreferencesFromResource(R.xml.settings)
+//        setPreferencesFromResource(R.xml.settings, rootKey)
     }
 
     override fun onPreferenceTreeClick(preference: Preference?): Boolean {
@@ -49,12 +54,26 @@ class SettingsFragment : PreferenceFragmentCompat() {
                         .setNegativeButtonbackgroundColor(R.color.colorPrimary)
                         .setNegativeButtonTextColor(R.color.white)
                         .setPositiveButtonClick {
+                            context?.let { FirebaseAnalytics.getInstance(it).logEvent("logout_clicked", null) }
                             OGSServiceImpl.logOut()
                             startActivity(Intent(context, LoginActivity::class.java))
                             activity?.finish()
                         }
                         .setNegativeButtonClick {}
                         .show()
+            }
+            "notification_advanced" -> {
+                val intent = Intent()
+                intent.action = "android.settings.APP_NOTIFICATION_SETTINGS"
+
+                //for Android 5-7
+                intent.putExtra("app_package", activity?.packageName)
+                intent.putExtra("app_uid", activity?.applicationInfo?.uid)
+
+                // for Android O
+                intent.putExtra("android.provider.extra.APP_PACKAGE", activity?.packageName)
+
+                startActivity(intent)
             }
         }
         return super.onPreferenceTreeClick(preference)

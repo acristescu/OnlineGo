@@ -141,7 +141,12 @@ class LoginActivity : AppCompatActivity() {
         TransitionManager.beginDelayedTransition(findViewById(R.id.container), Fade(Fade.MODE_OUT).setDuration(100).setStartDelay(400))
         findViewById<ViewGroup>(R.id.container).removeAllViews()
         Handler().postDelayed({
-            startActivity(Intent(this, MainActivity::class.java))
+            val newIntent = Intent(this, MainActivity::class.java).apply {
+                if(intent.hasExtra("GAME_ID")) {
+                    putExtra("GAME_ID", intent.getLongExtra("GAME_ID", 0))
+                }
+            }
+            startActivity(newIntent)
             finish()
         }, 500)
     }
