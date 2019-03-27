@@ -30,7 +30,6 @@ class FinishedGameItem (val game: Game) : Item(game.id) {
     }
 
     override fun bind(holder: ViewHolder, position: Int) {
-        holder.board.isGameCard = true
         holder.board.boardSize = game.width
 
         pos?.let {

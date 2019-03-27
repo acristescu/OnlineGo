@@ -16,7 +16,6 @@ import kotlinx.android.synthetic.main.item_active_game_card.*
 
 class ActiveGameItem (val game: Game) : Item(game.id) {
     override fun bind(holder: ViewHolder, position: Int) {
-        holder.board.isGameCard = true
         holder.board.boardSize = game.width
         holder.board.position = RulesManager.replay(game, computeTerritory = false)
 

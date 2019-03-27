@@ -24,10 +24,8 @@ import io.zenandroid.onlinego.model.StoneType
 import io.zenandroid.onlinego.model.local.Game
 import io.zenandroid.onlinego.model.local.Message
 import io.zenandroid.onlinego.model.ogs.Phase
-import io.zenandroid.onlinego.ogs.ActiveGameRepository
-import io.zenandroid.onlinego.ogs.GameConnection
-import io.zenandroid.onlinego.ogs.OGSService
-import io.zenandroid.onlinego.ogs.OGSServiceImpl
+import io.zenandroid.onlinego.ogs.*
+import io.zenandroid.onlinego.settings.SettingsRepository
 import io.zenandroid.onlinego.statuschips.*
 import io.zenandroid.onlinego.utils.computeTimeLeft
 import java.util.concurrent.TimeUnit
@@ -40,6 +38,7 @@ class GamePresenter(
         private val service: OGSService,
         private val analytics: FirebaseAnalytics,
         private val gameRepository: ActiveGameRepository,
+        private val settingsRepository: SettingsRepository,
         private val gameId: Long,
         private val gameSize: Int
 ) : GameContract.Presenter {
@@ -58,7 +57,6 @@ class GamePresenter(
         val TAG = GamePresenter::class.java.simpleName
     }
 
-    private var prefs = PreferenceManager.getDefaultSharedPreferences(OnlineGoApplication.instance.getBaseContext())
     private val subscriptions = CompositeDisposable()
     private var gameConnection: GameConnection? = null
     private var myGame: Boolean = false
@@ -136,9 +134,12 @@ class GamePresenter(
     private var deferredTerritoryComputation: Disposable? = null
 
     override fun subscribe() {
-        view.setLoading(currentState == LOADING)
-        view.boardSize = gameSize
-        view.chatMyId = userId
+        view.apply {
+            setLoading(currentState == LOADING)
+            boardSize = gameSize
+            chatMyId = userId
+            showCoordinates = settingsRepository.showCoordinates
+        }
 
         service.resendAuth()
 
@@ -428,7 +429,7 @@ class GamePresenter(
             list.add(ANALYZE)
         }
         list.add(ESTIMATE_SCORE)
-        val showCoordinates = prefs.getBoolean("show_coordinates", false)
+        val showCoordinates = settingsRepository.showCoordinates
         if(showCoordinates) {
             list.add(HIDE_COORDINATES)
         }
@@ -460,8 +461,8 @@ class GamePresenter(
             RESIGN -> onResignClicked()
             ESTIMATE_SCORE -> onEstimateClicked()
             ANALYZE -> onAnalyzeButtonClicked()
-            SHOW_COORDINATES -> onShowCoordinatesClicked()
-            HIDE_COORDINATES -> onHideCoordinatesClicked()
+            SHOW_COORDINATES -> toggleCoordinates()
+            HIDE_COORDINATES -> toggleCoordinates()
             DOWNLOAD_SGF -> onDownloadSGFClicked()
             ACCEPT_UNDO -> onUndoAccepted()
             REQUEST_UNDO -> TODO()
@@ -473,18 +474,9 @@ class GamePresenter(
         game?.let { view.showGameInfoDialog(it) }
     }
 
-    private fun onShowCoordinatesClicked() {
-        prefs.edit()
-                .putBoolean("show_coordinates", true)
-                .apply()
-        view.refreshBoardView()
-    }
-
-    private fun onHideCoordinatesClicked() {
-        prefs.edit()
-                .putBoolean("show_coordinates", false)
-                .apply()
-        view.refreshBoardView()
+    private fun toggleCoordinates() {
+        settingsRepository.showCoordinates = !settingsRepository.showCoordinates
+        view.showCoordinates = settingsRepository.showCoordinates
     }
 
     private fun onDownloadSGFClicked() {

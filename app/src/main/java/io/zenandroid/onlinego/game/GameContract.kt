@@ -26,7 +26,6 @@ interface GameContract {
         var interactive: Boolean
         var passButtonEnabled: Boolean
         fun showCandidateMove(point: Point?, nextToMove: StoneType? = null)
-        fun refreshBoardView()
         var previousButtonEnabled: Boolean
         var nextButtonEnabled: Boolean
         var title: String?
@@ -43,6 +42,7 @@ interface GameContract {
         var menuButtonVisible: Boolean
         var showLastMove: Boolean
         var showTerritory: Boolean
+        var showCoordinates: Boolean
         var fadeOutRemovedStones: Boolean
         var whiteTimer: GamePresenter.TimerDetails?
         var blackTimer: GamePresenter.TimerDetails?

@@ -12,15 +12,11 @@ import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.login.LoginActivity
 import io.zenandroid.onlinego.ogs.OGSServiceImpl
 
-
-
-
 class SettingsFragment : PreferenceFragmentCompat() {
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         addPreferencesFromResource(R.xml.settings_notifications)
         addPreferencesFromResource(R.xml.settings)
-//        setPreferencesFromResource(R.xml.settings, rootKey)
     }
 
     override fun onPreferenceTreeClick(preference: Preference?): Boolean {

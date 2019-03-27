@@ -2,14 +2,13 @@ package io.zenandroid.onlinego.views
 
 import android.content.Context
 import android.graphics.*
-import android.preference.PreferenceManager
+import android.support.v4.content.res.ResourcesCompat
 import android.util.AttributeSet
 import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
-import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.model.Position
 import io.zenandroid.onlinego.model.StoneType
@@ -27,19 +26,10 @@ class BoardView : View {
     // The logical size (in GO nodes) of the board.
     // Supported sizes: 9, 13 and 19
     //
-    var prefs = PreferenceManager.getDefaultSharedPreferences(OnlineGoApplication.instance.getBaseContext())
-    var isGameCard = false
-
     var boardSize = 19
         set(boardSize) {
             field = boardSize
-            var usableWidth = width // available width will be adjusted when coordinates are active
-            if (prefs.getBoolean("show_coordinates", false) && !isGameCard) {
-                usableWidth -= (width / this.boardSize.toFloat() * 0.65).roundToInt()
-
-            }
-            cellSize = usableWidth / boardSize
-            border = ((width - boardSize * cellSize) / 2).toFloat()
+            computeDimensions(width)
         }
 
     var position: Position? = null
@@ -58,11 +48,19 @@ class BoardView : View {
             field = value
             invalidate()
         }
+    var drawCoordinates = false
+        set(value) {
+            field = value
+            computeDimensions(width)
+            invalidate()
+        }
     var fadeOutRemovedStones = false
         set(value) {
             field = value
             invalidate()
         }
+    private val coordinatesX = arrayOf("A","B","C","D","E","F","G","H","J","K","L","M","N","O","P","Q","R","S","T")
+    private val coordinatesY = (1..19).map(Int::toString)
 
     //
     // Size of border between edge and first line
@@ -76,9 +74,9 @@ class BoardView : View {
     private val coordinatesPaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val territoryPaint = Paint(Paint.ANTI_ALIAS_FLAG)
 
-    private val whiteStoneDrawable = resources.getDrawable(R.mipmap.stone_white)
-    private val blackStoneDrawable = resources.getDrawable(R.mipmap.stone_black)
-    private val shadowDrawable = resources.getDrawable(R.drawable.gradient_shadow)
+    private val whiteStoneDrawable = ResourcesCompat.getDrawable(resources, R.mipmap.stone_white, null)!!
+    private val blackStoneDrawable = ResourcesCompat.getDrawable(resources, R.mipmap.stone_black, null)!!
+    private val shadowDrawable = ResourcesCompat.getDrawable(resources, R.drawable.gradient_shadow, null)!!
 
     private val textBounds = Rect()
 
@@ -107,19 +105,25 @@ class BoardView : View {
     }
 
     private fun init(context: Context) {
-        linesPaint.strokeWidth = 2f
-        linesPaint.color = -0x33cce7f0
-        linesPaint.strokeCap = Paint.Cap.ROUND
+        linesPaint.apply {
+            strokeWidth = 2f
+            color = -0x33cce7f0
+            strokeCap = Paint.Cap.ROUND
+        }
 
-        linesHighlightPaint.strokeWidth = 4f
-        linesHighlightPaint.color = resources.getColor(R.color.white)
-        linesHighlightPaint.strokeCap = Paint.Cap.ROUND
+        linesHighlightPaint.apply {
+            strokeWidth = 4f
+            color = resources.getColor(R.color.white)
+            strokeCap = Paint.Cap.ROUND
+        }
 
-        decorationsPaint.style = Paint.Style.STROKE
-        decorationsPaint.strokeWidth = 3f
+        decorationsPaint.apply {
+            style = Paint.Style.STROKE
+            strokeWidth = 3f
+        }
 
         territoryPaint.strokeWidth = 4f
-        
+
         if(texture == null) {
             texture = BitmapFactory.decodeResource(resources, R.mipmap.texture)
         }
@@ -179,22 +183,7 @@ class BoardView : View {
     }
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
-        //
-        // We need to adapt to resize events by recomputing the border and cell sizes
-        //
-        var usableWidth = w // available width will be adjusted when coordinates are active
-        if (prefs.getBoolean("show_coordinates", false) && !isGameCard) {
-            usableWidth -= (w / this.boardSize.toFloat() * 0.65).roundToInt()
-        }
-        cellSize = usableWidth / this.boardSize
-        linesPaint.strokeWidth = (cellSize / 35f).coerceAtMost(2f)
-        linesHighlightPaint.strokeWidth = linesPaint.strokeWidth * 2
-        decorationsPaint.strokeWidth = cellSize / 20f
-        stoneSpacing = cellSize / 35f
-        border = ((w - this.boardSize * cellSize) / 2).toFloat()
-        textPaint.textSize = cellSize.toFloat() * .65f
-        coordinatesPaint.textSize = cellSize.toFloat() * .35f
-        coordinatesPaint.typeface = Typeface.DEFAULT_BOLD
+        computeDimensions(w)
         super.onSizeChanged(w, h, oldw, oldh)
     }
 
@@ -203,7 +192,6 @@ class BoardView : View {
 
         drawBackground(canvas)
         canvas.translate(border, border)
-
 
         drawGrid(canvas)
         drawStarPoints(canvas)
@@ -216,6 +204,21 @@ class BoardView : View {
         candidateMove?.let {
             drawSelection(canvas, it)
         }
+    }
+
+    private fun computeDimensions(w: Int) {
+        val usableWidth = if (drawCoordinates) {
+            w - (w / this.boardSize.toFloat() * 1f).roundToInt()
+        } else w
+
+        cellSize = usableWidth / this.boardSize
+        linesPaint.strokeWidth = (cellSize / 35f).coerceAtMost(2f)
+        linesHighlightPaint.strokeWidth = linesPaint.strokeWidth * 2
+        decorationsPaint.strokeWidth = cellSize / 20f
+        stoneSpacing = cellSize / 35f
+        border = ((w - this.boardSize * cellSize) / 2).toFloat()
+        textPaint.textSize = cellSize.toFloat() * .65f
+        coordinatesPaint.textSize = cellSize.toFloat() * .4f
     }
 
     private fun drawTerritory(canvas: Canvas, position: Position) {
@@ -335,17 +338,15 @@ class BoardView : View {
     }
 
     private fun drawCoordinates(canvas: Canvas) {
-        if (prefs.getBoolean("show_coordinates", false) && !isGameCard) {
+        if (drawCoordinates) {
             val fullLength = (cellSize * this.boardSize).toFloat()
-            val textX = arrayOf("A","B","C","D","E","F","G","H","J","K","L","M","N","O","P","Q","R","S","T")
-            val textY = arrayOf("1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19")
             for (i in 0 until this.boardSize) {
-                drawTextCentred(canvas, coordinatesPaint, textX[i], getCellCenter(i, 0).x, 0f - border / 2, true)
-                drawTextCentred(canvas, coordinatesPaint, textX[i], getCellCenter(i, 0).x, fullLength + border / 2, true)
+                drawTextCentred(canvas, coordinatesPaint, coordinatesX[i], getCellCenter(i, 0).x, 0f - border / 2, true)
+                drawTextCentred(canvas, coordinatesPaint, coordinatesX[i], getCellCenter(i, 0).x, fullLength + border / 2, true)
             }
             for (i in this.boardSize downTo 1) {
-                drawTextCentred(canvas, coordinatesPaint, textY[i-1], 0f - border / 2, getCellCenter(0, this.boardSize - i).y)
-                drawTextCentred(canvas, coordinatesPaint, textY[i-1], fullLength + border / 2, getCellCenter(0, this.boardSize - i).y)
+                drawTextCentred(canvas, coordinatesPaint, coordinatesY[i-1], 0f - border / 2, getCellCenter(0, this.boardSize - i).y)
+                drawTextCentred(canvas, coordinatesPaint, coordinatesY[i-1], fullLength + border / 2, getCellCenter(0, this.boardSize - i).y)
             }
         }
     }
@@ -444,12 +445,6 @@ class BoardView : View {
     fun showCandidateMove(candidateMove: Point?, candidate: StoneType?) {
         this.candidateMove = candidateMove
         this.candidateType = candidate
-        invalidate()
-    }
-
-    fun refreshBoardView() {
-        //dummy onSizeChanged call to trigger the border re-computation
-        onSizeChanged(width, height, width, height)
         invalidate()
     }
 

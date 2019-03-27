@@ -32,6 +32,7 @@ import io.zenandroid.onlinego.model.local.Game
 import io.zenandroid.onlinego.model.local.Message
 import io.zenandroid.onlinego.model.local.Player
 import io.zenandroid.onlinego.ogs.OGSServiceImpl
+import io.zenandroid.onlinego.settings.SettingsRepository
 import io.zenandroid.onlinego.statuschips.Chip
 import kotlinx.android.synthetic.main.fragment_game.*
 import java.util.concurrent.TimeUnit
@@ -161,6 +162,7 @@ class GameFragment : Fragment(), GameContract.View {
                 service = OGSServiceImpl,
                 analytics = analytics,
                 gameRepository = (activity as MainActivity).activeGameRepository,
+                settingsRepository = SettingsRepository,
                 gameId = arguments!!.getLong(GAME_ID),
                 gameSize = arguments!!.getInt(GAME_SIZE)
         )
@@ -186,6 +188,9 @@ class GameFragment : Fragment(), GameContract.View {
     override var showTerritory = false
         set(value) { board.drawTerritory = value }
 
+    override var showCoordinates = false
+        set(value) { board.drawCoordinates = value }
+
     override var fadeOutRemovedStones = false
         set(value) { board.fadeOutRemovedStones = value }
 
@@ -206,10 +211,6 @@ class GameFragment : Fragment(), GameContract.View {
 
     override fun showCandidateMove(point: Point?, nextToMove: StoneType?) {
         board.showCandidateMove(point, nextToMove)
-    }
-
-    override fun refreshBoardView() {
-        board.refreshBoardView()
     }
 
     override val cellHotTrack: Observable<Point>
