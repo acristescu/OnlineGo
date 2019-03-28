@@ -227,7 +227,7 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun onTextChanged() {
-        loginButton.isEnabled = username.text.isNotEmpty() && password.text.isNotEmpty()
+        loginButton.isEnabled = username.text?.isNotEmpty() ?: false && password.text?.isNotEmpty() ?: false
     }
 
     override fun onPause() {

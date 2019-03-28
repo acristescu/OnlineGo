@@ -16,8 +16,6 @@ import android.support.v7.widget.RecyclerView
 import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
-import com.firebase.jobdispatcher.FirebaseJobDispatcher
-import com.firebase.jobdispatcher.GooglePlayDriver
 import com.jakewharton.rxbinding2.view.RxView
 import io.reactivex.Completable
 import io.reactivex.Observable
@@ -166,7 +164,6 @@ class MainActivity : AppCompatActivity(), MainContract.View {
     }
 
     private fun scheduleNotificationJob() {
-        FirebaseJobDispatcher(GooglePlayDriver(OnlineGoApplication.instance)).cancel("poller")
         SynchronizeGamesWork.schedule()
     }
 
