@@ -1,7 +1,7 @@
 package io.zenandroid.onlinego.game
 
 import android.graphics.Point
-import android.support.annotation.ColorRes
+import androidx.annotation.ColorRes
 import io.reactivex.Observable
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.model.Position

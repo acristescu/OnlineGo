@@ -4,9 +4,9 @@ import android.content.Intent
 import android.graphics.Point
 import android.net.Uri
 import android.os.Bundle
-import android.support.v4.app.Fragment
-import android.support.v7.app.AlertDialog
-import android.support.v7.app.AppCompatActivity
+import androidx.fragment.app.Fragment
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
@@ -323,7 +323,7 @@ class GameFragment : Fragment(), GameContract.View {
         fragmentManager?.findFragmentByTag("CHAT")?.let {
             fragmentManager?.beginTransaction()?.remove(it)?.commitNow()
         }
-        chatDialog.show(fragmentManager, "CHAT")
+        fragmentManager?.let { chatDialog.show(it, "CHAT") }
     }
 
     override fun setMessageList(messages: List<Message>) {
@@ -412,7 +412,7 @@ class GameFragment : Fragment(), GameContract.View {
         fragmentManager?.findFragmentByTag("GAME_INFO")?.let {
             fragmentManager?.beginTransaction()?.remove(it)?.commit()
         }
-        gameInfoDialog.show(fragmentManager, "GAME_INFO")
+        fragmentManager?.let { gameInfoDialog.show(it, "GAME_INFO") }
         gameInfoDialog.game = game
     }
 

@@ -9,8 +9,8 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
 import android.os.Build
-import android.support.v4.app.NotificationCompat
-import android.support.v4.content.res.ResourcesCompat
+import androidx.core.app.NotificationCompat
+import androidx.core.content.res.ResourcesCompat
 import android.util.Log
 import android.view.View
 import android.widget.RemoteViews

@@ -1,6 +1,6 @@
 package io.zenandroid.onlinego.model.local
 
-import android.arch.persistence.room.PrimaryKey
+import androidx.room.PrimaryKey
 import io.zenandroid.onlinego.model.ogs.OGSPlayer
 
 /**

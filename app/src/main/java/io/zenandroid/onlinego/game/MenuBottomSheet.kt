@@ -1,8 +1,8 @@
 package io.zenandroid.onlinego.game
 
 import android.content.Context
-import android.support.design.widget.BottomSheetDialog
-import android.support.v7.widget.LinearLayoutManager
+import com.google.android.material.bottomsheet.BottomSheetDialog
+import androidx.recyclerview.widget.LinearLayoutManager
 import android.view.LayoutInflater
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.ViewHolder

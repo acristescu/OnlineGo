@@ -1,8 +1,8 @@
 package io.zenandroid.onlinego.model.local
 
-import android.arch.persistence.room.Embedded
-import android.arch.persistence.room.Entity
-import android.arch.persistence.room.PrimaryKey
+import androidx.room.Embedded
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 import io.zenandroid.onlinego.model.ogs.OGSChallenge
 
 @Entity

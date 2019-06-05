@@ -2,7 +2,7 @@ package io.zenandroid.onlinego.newchallenge
 
 import android.content.Context
 import android.preference.PreferenceManager
-import android.support.design.widget.BottomSheetDialog
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import android.view.LayoutInflater
 import android.widget.Toast
 import com.squareup.moshi.Moshi

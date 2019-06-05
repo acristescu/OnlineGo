@@ -1,6 +1,6 @@
 package io.zenandroid.onlinego.model.local
 
-import android.arch.persistence.room.Embedded
+import androidx.room.Embedded
 
 data class Clock(
         var lastMove: Long,

@@ -1,6 +1,6 @@
 package io.zenandroid.onlinego.learn
 
-import android.support.annotation.DrawableRes
+import androidx.annotation.DrawableRes
 import com.xwray.groupie.kotlinandroidextensions.Item
 import com.xwray.groupie.kotlinandroidextensions.ViewHolder
 import io.zenandroid.onlinego.R

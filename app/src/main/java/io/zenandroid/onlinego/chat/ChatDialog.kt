@@ -1,8 +1,8 @@
 package io.zenandroid.onlinego.chat
 
 import android.os.Bundle
-import android.support.v4.app.DialogFragment
-import android.support.v7.widget.LinearLayoutManager
+import androidx.fragment.app.DialogFragment
+import androidx.recyclerview.widget.LinearLayoutManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -38,7 +38,7 @@ class ChatDialog : DialogFragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+        dialog?.requestWindowFeature(Window.FEATURE_NO_TITLE)
         return inflater.inflate(R.layout.dialog_messages, container, false)
     }
 
@@ -68,10 +68,11 @@ class ChatDialog : DialogFragment() {
 
     override fun onResume() {
         super.onResume()
-        val params = dialog.window!!.attributes
-        params.width = ViewGroup.LayoutParams.MATCH_PARENT
-        params.height = ViewGroup.LayoutParams.MATCH_PARENT
-        dialog.window!!.attributes = params as android.view.WindowManager.LayoutParams
+        dialog?.window?.attributes?.let {
+            it.width = ViewGroup.LayoutParams.MATCH_PARENT
+            it.height = ViewGroup.LayoutParams.MATCH_PARENT
+            dialog?.window?.attributes = it
+        }
 
         markMessagesAsRead()
     }

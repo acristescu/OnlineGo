@@ -1,6 +1,6 @@
 package io.zenandroid.onlinego.mygames
 
-import android.support.annotation.DrawableRes
+import androidx.annotation.DrawableRes
 import android.view.View.GONE
 import android.view.View.VISIBLE
 import com.xwray.groupie.kotlinandroidextensions.Item

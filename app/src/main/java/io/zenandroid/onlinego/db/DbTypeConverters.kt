@@ -1,6 +1,6 @@
 package io.zenandroid.onlinego.db
 
-import android.arch.persistence.room.TypeConverter
+import androidx.room.TypeConverter
 import io.zenandroid.onlinego.model.local.Message
 import io.zenandroid.onlinego.model.ogs.Phase
 

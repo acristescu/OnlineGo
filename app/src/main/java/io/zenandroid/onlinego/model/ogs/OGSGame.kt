@@ -1,6 +1,6 @@
 package io.zenandroid.onlinego.model.ogs
 
-import android.arch.persistence.room.Ignore
+import androidx.room.Ignore
 import io.zenandroid.onlinego.ogs.Players
 import java.util.*
 

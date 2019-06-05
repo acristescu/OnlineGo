@@ -1,11 +1,11 @@
 package io.zenandroid.onlinego
 
 import android.app.Application
-import android.arch.persistence.room.Room
+import androidx.room.Room
 import android.os.Build
-import android.support.text.emoji.EmojiCompat
-import android.support.text.emoji.FontRequestEmojiCompatConfig
-import android.support.v4.provider.FontRequest
+import androidx.emoji.text.EmojiCompat
+import androidx.emoji.text.FontRequestEmojiCompatConfig
+import androidx.core.provider.FontRequest
 import android.util.Log
 import com.facebook.stetho.Stetho
 import com.google.firebase.analytics.FirebaseAnalytics

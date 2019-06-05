@@ -1,7 +1,7 @@
 package io.zenandroid.onlinego.model.local
 
-import android.arch.persistence.room.*
-import android.arch.persistence.room.ForeignKey.NO_ACTION
+import androidx.room.*
+import androidx.room.ForeignKey.NO_ACTION
 import io.zenandroid.onlinego.model.ogs.Phase
 
 @Entity

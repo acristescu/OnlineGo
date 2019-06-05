@@ -2,7 +2,7 @@ package io.zenandroid.onlinego.views
 
 import android.content.Context
 import android.graphics.*
-import android.support.v4.content.res.ResourcesCompat
+import androidx.core.content.res.ResourcesCompat
 import android.util.AttributeSet
 import android.util.Log
 import android.view.MotionEvent

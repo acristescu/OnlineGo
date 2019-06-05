@@ -1,6 +1,6 @@
 package io.zenandroid.onlinego.db
 
-import android.arch.persistence.room.*
+import androidx.room.*
 import io.reactivex.Flowable
 import io.reactivex.Single
 import io.zenandroid.onlinego.model.local.*

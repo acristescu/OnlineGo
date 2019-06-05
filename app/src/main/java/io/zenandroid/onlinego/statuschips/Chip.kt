@@ -2,9 +2,9 @@ package io.zenandroid.onlinego.statuschips
 
 import android.content.res.ColorStateList
 import android.os.Build
-import android.support.annotation.ColorRes
-import android.support.annotation.DrawableRes
-import android.support.v4.content.ContextCompat
+import androidx.annotation.ColorRes
+import androidx.annotation.DrawableRes
+import androidx.core.content.ContextCompat
 import android.view.View.GONE
 import android.view.View.VISIBLE
 import com.xwray.groupie.kotlinandroidextensions.Item

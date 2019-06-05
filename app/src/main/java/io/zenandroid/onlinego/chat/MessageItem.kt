@@ -1,6 +1,6 @@
 package io.zenandroid.onlinego.chat
 
-import android.support.v4.content.res.ResourcesCompat
+import androidx.core.content.res.ResourcesCompat
 import com.xwray.groupie.kotlinandroidextensions.Item
 import com.xwray.groupie.kotlinandroidextensions.ViewHolder
 import io.zenandroid.onlinego.R
