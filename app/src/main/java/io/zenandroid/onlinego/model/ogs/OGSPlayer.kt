@@ -6,7 +6,7 @@ package io.zenandroid.onlinego.model.ogs
 data class OGSPlayer (
         var id: Long,
         var username: String? = null,
-        var rank: Int? = null,
+        var rank: Float? = null,
         var professional: Boolean? = null,
         var accepted_stones: String? = null,
         var ratings: Ratings? = null,
