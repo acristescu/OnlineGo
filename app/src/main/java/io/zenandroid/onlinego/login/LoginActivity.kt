@@ -80,9 +80,11 @@ class LoginActivity : AppCompatActivity() {
                     .subscribe(this::onLoginSuccess, this::onTokenLoginFailure)
         }
         facebookSignInButton.setOnClickListener {
+            Crashlytics.setString("LOGIN_METHOD", "FACEBOOK")
             socialPlatformLogin("https://online-go.com/login/facebook/")
         }
         googleSignInButton.setOnClickListener {
+            Crashlytics.setString("LOGIN_METHOD", "GOOGLE")
             socialPlatformLogin("https://online-go.com/login/google-oauth2/")
         }
     }
@@ -129,6 +131,7 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun onLoginSuccess() {
+        Crashlytics.setString("LOGIN_METHOD", "PASSWORD")
         if(loginButton.visibility == View.VISIBLE) {
             val drawable = ContextCompat.getDrawable (this, R.drawable.ic_done_24dp)
 
@@ -204,6 +207,7 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun onCreateAccountSuccess() {
+        Crashlytics.setBool("NEW_ACCOUNT", true)
         analytics.logEvent(FirebaseAnalytics.Event.SIGN_UP, null)
         doLogin()
     }
@@ -227,7 +231,7 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun onTextChanged() {
-        loginButton.isEnabled = username.text?.isNotEmpty() ?: false && password.text?.isNotEmpty() ?: false
+        loginButton.isEnabled = username.text?.isNotEmpty() == true && password.text?.isNotEmpty() == true
     }
 
     override fun onPause() {

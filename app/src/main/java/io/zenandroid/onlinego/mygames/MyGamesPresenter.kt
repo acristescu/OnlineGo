@@ -42,6 +42,8 @@ class MyGamesPresenter(
                 .subscribe(this::setGames, this::onError)
                 .addToDisposable(subscriptions)
         gameRepository.refreshActiveGames()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
                 .subscribe({}, this::onError)
                 .addToDisposable(subscriptions)
         gameRepository.fetchHistoricGames()
@@ -124,6 +126,12 @@ class MyGamesPresenter(
         if(t is retrofit2.HttpException) {
             Crashlytics.logException(Exception(t.response().errorBody()?.string(), t))
         } else {
+            if(t is com.squareup.moshi.JsonDataException) {
+                view.showMessage(
+                        "OGS API error",
+                        "An error occurred white talking to the OGS Server. This usually means the website devs have changed something in the API. Please report this error as the app will probably not work until we adapt to this change."
+                )
+            }
             Crashlytics.logException(t)
         }
 

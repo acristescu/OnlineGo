@@ -15,7 +15,7 @@ abstract class GameDao {
     @Query("SELECT * FROM game WHERE phase <> 'FINISHED' AND (white_id = :userId OR black_id = :userId)")
     abstract fun monitorActiveGames(userId: Long?) : Flowable<List<Game>>
 
-    @Query("SELECT * FROM game WHERE phase = 'FINISHED' AND (white_id = :userId OR black_id = :userId) ORDER BY ended DESC")
+    @Query("SELECT * FROM game WHERE phase = 'FINISHED' AND (white_id = :userId OR black_id = :userId) ORDER BY ended DESC LIMIT 25")
     abstract fun monitorHistoricGames(userId: Long?) : Flowable<List<Game>>
 
     @Query("SELECT id FROM game WHERE id in (:ids) AND phase = 'FINISHED' AND outcome <> ''")

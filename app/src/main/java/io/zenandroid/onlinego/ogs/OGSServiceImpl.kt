@@ -106,6 +106,7 @@ object OGSServiceImpl : OGSService {
         this.uiConfig = uiConfig
         authSent = false
         MainActivity.userId = uiConfig.user.id
+        Crashlytics.setUserIdentifier(uiConfig.user.id.toString())
         PersistenceManager.instance.storeUIConfig(uiConfig)
     }
 
@@ -418,6 +419,7 @@ object OGSServiceImpl : OGSService {
     init {
         uiConfig = PersistenceManager.instance.getUIConfig()
         MainActivity.userId = uiConfig?.user?.id
+        uiConfig?.user?.id?.toString()?.let(Crashlytics::setUserIdentifier)
         Crashlytics.log("Startup")
 
         val httpClient = OkHttpClient.Builder()
@@ -554,8 +556,8 @@ object OGSServiceImpl : OGSService {
 
     override fun fetchActiveGames(): Single<List<OGSGame>> =
             restApi.fetchOverview()
-                .map { it -> it.active_games }
-                .map { it ->
+                .map { it.active_games }
+                .map {
                     for (game in it) {
                         game.json?.clock?.current_player?.let {
                             game.player_to_move = it

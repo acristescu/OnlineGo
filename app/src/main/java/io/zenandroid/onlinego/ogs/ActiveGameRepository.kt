@@ -222,13 +222,13 @@ object ActiveGameRepository {
 
     fun refreshActiveGames(): Completable =
             OGSServiceImpl.fetchActiveGames()
-                    .flattenAsObservable { it -> it }
+                    .flattenAsObservable { it }
                     .map (Game.Companion::fromOGSGame)
                     .toList()
                     .doOnSuccess(OnlineGoApplication.instance.db.gameDao()::insertAllGames)
                     .map { it.map(Game::id) }
                     .map { OnlineGoApplication.instance.db.gameDao().getGamesThatShouldBeFinished(it) }
-                    .flattenAsObservable { it -> it }
+                    .flattenAsObservable { it }
                     .flatMapSingle { OGSServiceImpl.fetchGame(it) }
                     .map (Game.Companion::fromOGSGame)
                     .toList()
@@ -245,7 +245,7 @@ object ActiveGameRepository {
                 .fetchHistoricGames()
                 .map { it.map(OGSGame::id) }
                 .map { it - OnlineGoApplication.instance.db.gameDao().getHistoricGamesThatDontNeedUpdating(it) }
-                .flattenAsObservable { it -> it }
+                .flattenAsObservable { it }
                 .flatMapSingle { OGSServiceImpl.fetchGame(it) }
                 .map (Game.Companion::fromOGSGame)
                 .toList()
@@ -262,6 +262,9 @@ object ActiveGameRepository {
         var message = request
         if(t is retrofit2.HttpException) {
             message = "$request: ${t.response().errorBody()?.string()}"
+            if(t.code() == 429) {
+                Crashlytics.setBool("HIT_RATE_LIMITER", true)
+            }
         }
         Crashlytics.logException(Exception(message, t))
         Log.e("ActiveGameRespository", t.message, t)
