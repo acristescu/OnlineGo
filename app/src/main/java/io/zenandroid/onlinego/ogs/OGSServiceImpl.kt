@@ -331,7 +331,13 @@ object OGSServiceImpl : OGSService {
         return Flowable.create({ emitter ->
             socket.on(event) { params ->
                 Log.i(TAG, "Received event: $event, ${params[0]}")
-                emitter.onNext(params[0])
+
+                if(params[0] != null) {
+                    emitter.onNext(params[0])
+                } else {
+                    Crashlytics.logException(Exception("Unexpected null parameter for event $event"))
+                    emitter.onNext("")
+                }
             }
 
             emitter.setCancellable {
@@ -440,6 +446,19 @@ object OGSServiceImpl : OGSService {
 
                     if(response.isSuccessful) {
                         Crashlytics.log(Log.INFO, TAG, "${request.method()} ${request.url()} -> ${response.code()}")
+                        //
+                        // Note: For some users the server responds with a peculiar answer here, causing Moshi to throw a fit. We will temporarily log this to try and determine
+                        // what's going on
+                        //
+                        if(request.url().encodedPath().endsWith("challenges")) {
+                            val bodyBytes = response.peekBody(1024 * 1024).bytes()
+                            val body =
+                                    if(IOUtils.isGzipByteBuffer(bodyBytes))
+                                        String(IOUtils.toByteArray(GZIPInputStream(ByteArrayInputStream(bodyBytes))))
+                                    else
+                                        String(bodyBytes)
+                            Crashlytics.log(Log.INFO, TAG, body)
+                        }
                     } else {
                         val sessionCookieSent = request.header("Cookie")?.contains("sessionid=") == true
                         val bodyBytes = response.peekBody(1024 * 1024).bytes()

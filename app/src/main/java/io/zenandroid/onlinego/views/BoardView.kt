@@ -59,8 +59,8 @@ class BoardView : View {
             field = value
             invalidate()
         }
-    private val coordinatesX = arrayOf("A","B","C","D","E","F","G","H","J","K","L","M","N","O","P","Q","R","S","T")
-    private val coordinatesY = (1..19).map(Int::toString)
+    private val coordinatesX = arrayOf("A","B","C","D","E","F","G","H","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z")
+    private val coordinatesY = (1..25).map(Int::toString)
 
     //
     // Size of border between edge and first line
