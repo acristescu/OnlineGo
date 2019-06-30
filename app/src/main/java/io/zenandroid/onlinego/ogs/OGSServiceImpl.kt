@@ -63,7 +63,11 @@ object OGSServiceImpl : OGSService {
     private val prefs by lazy { OnlineGoApplication.instance.getSharedPreferences(TAG, Context.MODE_PRIVATE) }
 
 
-    val cookieJar = PersistentCookieJar(SetCookieCache(), SharedPrefsCookiePersistor(OnlineGoApplication.instance))
+    val cookieJar = object: PersistentCookieJar(SetCookieCache(), SharedPrefsCookiePersistor(OnlineGoApplication.instance)) {
+        init {
+            Crashlytics.setString("DATA_DIR", OnlineGoApplication.instance.dataDir.toString())
+        }
+    }
 
     private var connectedToChallenges = false
 
@@ -271,7 +275,6 @@ object OGSServiceImpl : OGSService {
             observeEvent("automatch/start")
                     .map { string -> moshi.adapter(OGSAutomatch::class.java).fromJson(string.toString()) as OGSAutomatch }
 
-
     fun connectToAutomatch() {
         emit("automatch/list", null)
     }
@@ -443,6 +446,11 @@ object OGSServiceImpl : OGSService {
                     val isSessionCookieExpired = cookieJar.loadForRequest(request.url()).any { it.name() == "sessionid" && it.expiresAt() < System.currentTimeMillis() }
 
                     val response = chain.proceed(request)
+
+                    if(request.url().encodedPath().contains("overview") && uiConfig?.user?.id == 40923L) {
+                        val sentCookie = request.header("Cookie")
+                        Crashlytics.logException(java.lang.Exception("Debug response=${response.code()} cookie='$sentCookie'"))
+                    }
 
                     if(response.isSuccessful) {
                         Crashlytics.log(Log.INFO, TAG, "${request.method()} ${request.url()} -> ${response.code()}")
