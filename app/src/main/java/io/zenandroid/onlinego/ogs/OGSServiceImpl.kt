@@ -1,6 +1,7 @@
 package io.zenandroid.onlinego.ogs
 
 import android.content.Context
+import android.os.Build
 import android.util.Log
 import com.crashlytics.android.Crashlytics
 import com.facebook.stetho.okhttp3.StethoInterceptor
@@ -65,7 +66,9 @@ object OGSServiceImpl : OGSService {
 
     val cookieJar = object: PersistentCookieJar(SetCookieCache(), SharedPrefsCookiePersistor(OnlineGoApplication.instance)) {
         init {
-            Crashlytics.setString("DATA_DIR", OnlineGoApplication.instance.dataDir.toString())
+            if(Build.VERSION.SDK_INT >= 24) {
+                Crashlytics.setString("DATA_DIR", OnlineGoApplication.instance.dataDir.toString())
+            }
         }
     }
 
