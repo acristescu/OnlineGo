@@ -1,5 +1,6 @@
 package io.zenandroid.onlinego.mygames
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import com.crashlytics.android.Crashlytics
@@ -10,6 +11,7 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import io.zenandroid.onlinego.extensions.addToDisposable
 import io.zenandroid.onlinego.gamelogic.Util.isMyTurn
+import io.zenandroid.onlinego.login.LoginActivity
 import io.zenandroid.onlinego.model.local.Challenge
 import io.zenandroid.onlinego.model.local.Game
 import io.zenandroid.onlinego.model.ogs.OGSAutomatch
@@ -124,7 +126,13 @@ class MyGamesPresenter(
 
     private fun onError(t: Throwable) {
         if(t is retrofit2.HttpException) {
-            Crashlytics.logException(Exception(t.response().errorBody()?.string(), t))
+            if(t.code() in arrayOf(401, 403)) {
+                Crashlytics.setLong("AUTO_LOGOUT", System.currentTimeMillis())
+                OGSServiceImpl.logOut()
+                view.showLoginScreen()
+            } else {
+                Crashlytics.logException(Exception(t.response().errorBody()?.string(), t))
+            }
         } else {
             if(t is com.squareup.moshi.JsonDataException) {
                 view.showMessage(

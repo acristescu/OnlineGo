@@ -203,18 +203,22 @@ object ActiveGameRepository {
                 .map(Game.Companion::fromOGSGame)
                 .map(::listOf)
                 .retryWhen (this::retryIOException)
-                .subscribe(OnlineGoApplication.instance.db.gameDao()::insertAllGames)
-                { this.onError(it, "monitorGame") }
-                .addToDisposable(subscriptions)
+                .subscribe(
+                        OnlineGoApplication.instance.db.gameDao()::insertAllGames,
+                        { this.onError(it, "monitorGame") }
+                ).addToDisposable(subscriptions)
 
         return OnlineGoApplication.instance.db.gameDao().monitorGame(id)
                 .doOnNext(this::connectToGame)
     }
 
     private fun retryIOException(it: Flowable<Throwable>) =
-            it.map { it as? IOException ?: throw it }
-                    .delay(15, TimeUnit.SECONDS)
-
+            it.flatMap {
+                when (it) {
+                    is IOException -> Flowable.timer(15, TimeUnit.SECONDS)
+                    else -> Flowable.error<Long>(it)
+                }
+            }
 
     fun getGameSingle(id: Long): Single<Game> {
         return OnlineGoApplication.instance.db.gameDao().monitorGame(id).take(1).firstOrError()
@@ -267,6 +271,6 @@ object ActiveGameRepository {
             }
         }
         Crashlytics.logException(Exception(message, t))
-        Log.e("ActiveGameRespository", t.message, t)
+        Log.e("ActiveGameRespository", message, t)
     }
 }

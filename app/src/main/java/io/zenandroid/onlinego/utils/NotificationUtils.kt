@@ -11,21 +11,17 @@ import android.graphics.Color
 import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.core.content.res.ResourcesCompat
-import android.util.Log
 import android.view.View
 import android.widget.RemoteViews
 import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.gamelogic.RulesManager
 import io.zenandroid.onlinego.login.LoginActivity
-import io.zenandroid.onlinego.main.MainActivity
 import io.zenandroid.onlinego.model.local.Challenge
 import io.zenandroid.onlinego.model.local.Game
 import io.zenandroid.onlinego.model.local.GameNotification
 import io.zenandroid.onlinego.model.local.GameNotificationWithDetails
-import io.zenandroid.onlinego.model.ogs.OGSChallenge
 import io.zenandroid.onlinego.model.ogs.Phase
-import io.zenandroid.onlinego.utils.NotificationUtils.Companion.convertToIconBitmap
 import io.zenandroid.onlinego.views.BoardView
 
 
@@ -216,6 +212,26 @@ class NotificationUtils {
             }
             setStyle(inboxStyle)
             return this
+        }
+
+        fun notifyLogout(context: Context) {
+            val notificationIntent = context.packageManager.getLaunchIntentForPackage(context.packageName)!!
+            notificationIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            val pendingIntent = PendingIntent.getActivity(context, 0, notificationIntent, FLAG_UPDATE_CURRENT)
+
+            val notification =
+                    NotificationCompat.Builder(context, "logout")
+                            .setContentTitle("Please log in again")
+                            .setContentText("You have been logged out of the app. This usually happens because you changed your password. Please log in again to re-enable notifications")
+                            .setContentIntent(pendingIntent)
+                            .setSmallIcon(R.drawable.ic_notification_go_board)
+                            .setColor(ResourcesCompat.getColor(context.resources, R.color.colorTextSecondary, null))
+                            .setStyle(NotificationCompat.BigTextStyle())
+                            .setAutoCancel(true)
+                            .build()
+
+            val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.notify(0, notification)
         }
     }
 }

@@ -1,5 +1,6 @@
 package io.zenandroid.onlinego.mygames
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import androidx.appcompat.app.AppCompatActivity
@@ -11,6 +12,7 @@ import android.view.ViewGroup
 import com.awesomedialog.blennersilva.awesomedialoglibrary.AwesomeInfoDialog
 import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.R
+import io.zenandroid.onlinego.login.LoginActivity
 import io.zenandroid.onlinego.main.MainActivity
 import io.zenandroid.onlinego.model.local.Challenge
 import io.zenandroid.onlinego.model.local.Game
@@ -28,6 +30,11 @@ import kotlinx.android.synthetic.main.fragment_mygames.*
  * Created by alex on 05/11/2017.
  */
 class MyGamesFragment : Fragment(), MyGamesContract.View {
+    override fun showLoginScreen() {
+        startActivity(Intent(context, LoginActivity::class.java))
+        activity?.finish()
+    }
+
     private val groupAdapter = GameListGroupAdapter()
 
     private lateinit var presenter: MyGamesContract.Presenter

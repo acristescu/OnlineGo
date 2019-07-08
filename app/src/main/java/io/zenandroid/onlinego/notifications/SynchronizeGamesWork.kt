@@ -14,6 +14,7 @@ import io.zenandroid.onlinego.model.local.GameNotificationWithDetails
 import io.zenandroid.onlinego.ogs.ActiveGameRepository
 import io.zenandroid.onlinego.ogs.ChallengesRepository
 import io.zenandroid.onlinego.ogs.OGSServiceImpl
+import io.zenandroid.onlinego.utils.NotificationUtils
 import io.zenandroid.onlinego.utils.NotificationUtils.Companion.notifyGames
 import io.zenandroid.onlinego.utils.NotificationUtils.Companion.notifyChallenges
 import io.zenandroid.onlinego.utils.NotificationUtils.Companion.storeGameNotifications
@@ -86,9 +87,12 @@ class SynchronizeGamesWork(val context: Context, params: WorkerParameters) : RxW
                 ).toSingleDefault(Result.success())
                 .onErrorReturn { e ->
                     when {
-                        (e as? HttpException)?.code() == 403 -> {
-                            Crashlytics.log(Log.ERROR, TAG, "403 Error when checking for notifications")
+                        (e as? HttpException)?.code() in arrayOf(401, 403) -> {
+                            Crashlytics.log(Log.ERROR, TAG, "Unauthorized when checking for notifications")
                             Crashlytics.logException(e)
+                            Crashlytics.setLong("AUTO_LOGOUT", System.currentTimeMillis())
+                            NotificationUtils.notifyLogout(context)
+                            OGSServiceImpl.logOut()
                             return@onErrorReturn Result.failure()
                         }
                         e is SocketTimeoutException || e is ConnectException -> {

@@ -1,7 +1,6 @@
 package io.zenandroid.onlinego.ogs
 
 import android.content.Context
-import android.os.Build
 import android.util.Log
 import com.crashlytics.android.Crashlytics
 import com.facebook.stetho.okhttp3.StethoInterceptor
@@ -61,16 +60,8 @@ object OGSServiceImpl : OGSService {
     private val restApi: OGSRestAPI
     private val moshi = Moshi.Builder().add(Date::class.java, Rfc3339DateJsonAdapter().nullSafe()).build()
     private var authSent = false
-    private val prefs by lazy { OnlineGoApplication.instance.getSharedPreferences(TAG, Context.MODE_PRIVATE) }
 
-
-    val cookieJar = object: PersistentCookieJar(SetCookieCache(), SharedPrefsCookiePersistor(OnlineGoApplication.instance)) {
-        init {
-            if(Build.VERSION.SDK_INT >= 24) {
-                Crashlytics.setString("DATA_DIR", OnlineGoApplication.instance.dataDir.toString())
-            }
-        }
-    }
+    val cookieJar = PersistentCookieJar(SetCookieCache(), SharedPrefsCookiePersistor(OnlineGoApplication.instance))
 
     private var connectedToChallenges = false
 
@@ -92,7 +83,6 @@ object OGSServiceImpl : OGSService {
                     if (it.csrf_token.isNullOrBlank()) {
                         throw HttpException(Response.error<Any>(403, ResponseBody.create(null, "login failed")))
                     }
-                    prefs.edit().remove("KEY_403").commit()
                 }
                 .doOnSuccess (this::storeUIConfig)
                 .ignoreElement()
@@ -450,11 +440,6 @@ object OGSServiceImpl : OGSService {
 
                     val response = chain.proceed(request)
 
-                    if(request.url().encodedPath().contains("overview") && uiConfig?.user?.id == 40923L) {
-                        val sentCookie = request.header("Cookie")
-                        Crashlytics.logException(java.lang.Exception("Debug response=${response.code()} cookie='$sentCookie'"))
-                    }
-
                     if(response.isSuccessful) {
                         Crashlytics.log(Log.INFO, TAG, "${request.method()} ${request.url()} -> ${response.code()}")
                         //
@@ -462,22 +447,10 @@ object OGSServiceImpl : OGSService {
                         // what's going on
                         //
                         if(request.url().encodedPath().endsWith("challenges")) {
-                            val bodyBytes = response.peekBody(1024 * 1024).bytes()
-                            val body =
-                                    if(IOUtils.isGzipByteBuffer(bodyBytes))
-                                        String(IOUtils.toByteArray(GZIPInputStream(ByteArrayInputStream(bodyBytes))))
-                                    else
-                                        String(bodyBytes)
-                            Crashlytics.log(Log.INFO, TAG, body)
+                            Crashlytics.log(Log.INFO, TAG, peekBody(response))
                         }
                     } else {
                         val sessionCookieSent = request.header("Cookie")?.contains("sessionid=") == true
-                        val bodyBytes = response.peekBody(1024 * 1024).bytes()
-                        val body =
-                                if(IOUtils.isGzipByteBuffer(bodyBytes))
-                                    String(IOUtils.toByteArray(GZIPInputStream(ByteArrayInputStream(bodyBytes))))
-                                else
-                                    String(bodyBytes)
 
                         val csrftokenInfo = if(csrftoken == null) "no csrf" else "csrf present"
                         val cookieJarInfo = when {
@@ -486,7 +459,7 @@ object OGSServiceImpl : OGSService {
                             else -> "no session cookie"
                         }
                         val sessionCookieInfo = if(sessionCookieSent) "session cookie sent" else "session cookie not sent"
-                        Crashlytics.log(Log.ERROR, TAG, "${request.method()} ${request.url()} -> ${response.code()} ${response.message()} [$cookieJarInfo] [$csrftokenInfo] [$sessionCookieInfo] $body")
+                        Crashlytics.log(Log.ERROR, TAG, "${request.method()} ${request.url()} -> ${response.code()} ${response.message()} [$cookieJarInfo] [$csrftokenInfo] [$sessionCookieInfo] ${peekBody(response)}")
 
                         if(!sessionCookieSent && hasSessionCookieInJar && !isSessionCookieExpired) {
                             Crashlytics.logException(Exception("Possible cookie jar problem"))
@@ -547,6 +520,17 @@ object OGSServiceImpl : OGSService {
         Logger.getLogger(IOParser::class.java.name).level = Level.FINEST
     }
 
+    private fun peekBody(response: okhttp3.Response) = try {
+        val bodyBytes = response.peekBody(1024 * 1024).bytes()
+        if(IOUtils.isGzipByteBuffer(bodyBytes))
+            String(IOUtils.toByteArray(GZIPInputStream(ByteArrayInputStream(bodyBytes))))
+        else
+            String(bodyBytes)
+    } catch (t: Throwable) {
+        Crashlytics.logException(t)
+        "<<<Error trying to log body of response ${t.javaClass.name} ${t.message}>>>"
+    }
+
     override fun deleteNotification(notificationId: String) {
         emit("notification/delete", createJsonObject {
             put("player_id", uiConfig?.user?.id)
@@ -597,19 +581,6 @@ object OGSServiceImpl : OGSService {
                         }
                     }
                     it
-                }
-                .doOnError {
-                    if ((it as? HttpException)?.code() == 403) {
-                        val count403 = prefs.getInt("KEY_403", 0) + 1
-                        Crashlytics.log("Consecutive 403s: $count403")
-                        prefs.edit().putInt("KEY_403", count403).commit()
-                    }
-                }
-                .doOnSuccess {
-                    if(prefs.getInt("KEY_403", 0) != 0) {
-                        Crashlytics.logException(Exception("Recovered from ${prefs.getInt("KEY_403", 0)} 403 without login after!!!"))
-                        prefs.edit().remove("KEY_403").commit()
-                    }
                 }
 
     override fun fetchChallenges(): Single<List<OGSChallenge>> =

@@ -16,6 +16,7 @@ interface MyGamesContract {
         fun setChallenges(challenges: List<Challenge>)
         fun setAutomatches(automatches: List<OGSAutomatch>)
         fun showMessage(title: String, message: String)
+        fun showLoginScreen()
     }
     interface Presenter {
         fun subscribe()

@@ -187,6 +187,10 @@ class MainActivity : AppCompatActivity(), MainContract.View {
                                 enableVibration(true)
                                 vibrationPattern = longArrayOf(0, 200, 0, 200)
 
+                            },
+                            NotificationChannel("logout", "Logout", NotificationManager.IMPORTANCE_LOW).apply {
+                                enableLights(false)
+                                enableVibration(false)
                             }
                     )
             )
