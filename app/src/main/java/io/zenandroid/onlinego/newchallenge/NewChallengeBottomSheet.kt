@@ -1,12 +1,19 @@
 package io.zenandroid.onlinego.newchallenge
 
+import android.app.Activity.RESULT_OK
 import android.content.Context
+import android.content.Intent
+import android.os.Bundle
 import android.preference.PreferenceManager
-import com.google.android.material.bottomsheet.BottomSheetDialog
 import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import android.widget.Toast
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.squareup.moshi.Moshi
 import io.zenandroid.onlinego.R
+import io.zenandroid.onlinego.model.ogs.OGSPlayer
+import io.zenandroid.onlinego.newchallenge.selectopponent.SelectOpponentDialog
 import io.zenandroid.onlinego.ogs.BotsRepository
 import io.zenandroid.onlinego.utils.egfToRank
 import io.zenandroid.onlinego.utils.formatRank
@@ -16,30 +23,36 @@ class NewChallengeBottomSheet(
         context: Context,
         private val botsRepository: BotsRepository,
         private val onSearch: (ChallengeParams) -> Unit
-) : BottomSheetDialog(context) {
+) : BottomSheetDialogFragment() {
 
     private val PARAMS_KEY = "PARAMS"
-    val prefs = PreferenceManager.getDefaultSharedPreferences(context)
-    val challenge: ChallengeParams
-    val moshi = Moshi.Builder().build().adapter(ChallengeParams::class.java)
+    private val moshi = Moshi.Builder().build()
+    private val challengeParamsAdapter = moshi.adapter(ChallengeParams::class.java)
+    private val opponentAdapter = moshi.adapter(OGSPlayer::class.java)
+    private val prefs = PreferenceManager.getDefaultSharedPreferences(context)
+    private val challenge: ChallengeParams = getSavedChallengeParams()
+    private var opponent: OGSPlayer? = null
 
-    init {
-        val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-        val view = inflater.inflate(R.layout.bottom_sheet_new_challenge, null)
-        setContentView(view)
 
-        challenge = getSavedChallengeParams()
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        return inflater.inflate(R.layout.bottom_sheet_new_challenge, container, false)
+    }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         botView.apply {
-            name = "Bot"
+            name = "Opponent"
             value = botsRepository.bots
-                    .find { it.id == challenge.bot?.id }
+                    .find { it.id == challenge.opponent?.id }
                     ?.let {"${it.username} (${formatRank(egfToRank(it.ratings?.overall?.rating))})"}
                     ?: "(none)"
-            valuesCallback = {
-                botsRepository.bots
-                        .sortedBy { it.ratings?.overall?.rating }
-                        .map { "${it.username} (${formatRank(egfToRank(it.ratings?.overall?.rating))})" }
+            setOnClickListener {
+                fragmentManager?.let {
+                    SelectOpponentDialog().apply {
+                        setTargetFragment(this@NewChallengeBottomSheet, 1)
+                        show(it, "SELECT_OPPONENT")
+                    }
+                }
             }
         }
         colorView.apply {
@@ -70,32 +83,31 @@ class NewChallengeBottomSheet(
 
         searchButton.setOnClickListener { this.onSearchClicked() }
 
-        setCanceledOnTouchOutside(true)
-        setCancelable(true)
+        isCancelable = true
     }
 
     private fun onSearchClicked() {
         challenge.apply {
-            bot = botsRepository.bots.find { it.username == botView.value.substringBefore(" (") }
+            opponent = this@NewChallengeBottomSheet.opponent
             color = colorView.value
             handicap = handicapView.value
             ranked = rankedView.value == "Yes"
             size = sizeView.value
             speed = speedView.value
         }
-        if(challenge.bot != null) {
+        if(challenge.opponent != null) {
             dismiss()
             saveSettings()
             onSearch(challenge)
         } else {
-            Toast.makeText(context, "Please select an online bot", Toast.LENGTH_LONG).show()
+            Toast.makeText(context, "Please select an online opponent", Toast.LENGTH_LONG).show()
         }
     }
 
     private fun getSavedChallengeParams() =
-            prefs.getString(PARAMS_KEY, null)?.let ( moshi::fromJson )
+            prefs.getString(PARAMS_KEY, null)?.let ( challengeParamsAdapter::fromJson )
                     ?: ChallengeParams(
-                            bot = null,
+                            opponent = null,
                             color = "Auto",
                             ranked = true,
                             handicap = "0",
@@ -105,8 +117,22 @@ class NewChallengeBottomSheet(
 
     private fun saveSettings() {
         prefs.edit()
-                .putString(PARAMS_KEY, moshi.toJson(challenge))
+                .putString(PARAMS_KEY, challengeParamsAdapter.toJson(challenge))
                 .apply()
     }
 
+    private fun selectOpponent(opponent: OGSPlayer?) {
+        botView.value = opponent
+                ?.let {"${it.username} (${formatRank(egfToRank(it.ratings?.overall?.rating))})"}
+                ?: "(none)"
+        this.opponent = opponent
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if(requestCode == 1 && resultCode == RESULT_OK) {
+            data?.getStringExtra("OPPONENT")?.let {
+                selectOpponent(opponentAdapter.fromJson(it))
+            }
+        }
+    }
 }

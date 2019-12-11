@@ -332,6 +332,13 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         NewChallengeBottomSheet(this, botsRepository) {
             analytics.logEvent("bot_challenge", null)
             presenter.onNewBotChallenge(it)
-        }.show()
+        }.show(supportFragmentManager, "BOTTOM_SHEET")
+    }
+
+    fun onFriendChallenge() {
+        NewChallengeBottomSheet(this, botsRepository) {
+            analytics.logEvent("friend_challenge", null)
+            presenter.onNewFriendChallenge(it)
+        }.show(supportFragmentManager, "BOTTOM_SHEET")
     }
 }

@@ -1,9 +1,9 @@
 package io.zenandroid.onlinego.newchallenge
 
-import io.zenandroid.onlinego.model.ogs.Bot
+import io.zenandroid.onlinego.model.ogs.OGSPlayer
 
 data class ChallengeParams(
-        var bot: Bot? = null,
+        var opponent: OGSPlayer? = null,
         var color: String,
         var size: String,
         var handicap: String,

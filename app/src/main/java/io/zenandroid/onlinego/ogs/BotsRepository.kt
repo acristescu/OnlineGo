@@ -4,12 +4,12 @@ import com.crashlytics.android.Crashlytics
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import io.zenandroid.onlinego.extensions.addToDisposable
-import io.zenandroid.onlinego.model.ogs.Bot
+import io.zenandroid.onlinego.model.ogs.OGSPlayer
 
 object BotsRepository {
 
     private val subscriptions = CompositeDisposable()
-    var bots = listOf<Bot>()
+    var bots = listOf<OGSPlayer>()
         private set
 
     internal fun subscribe() {
@@ -19,7 +19,7 @@ object BotsRepository {
                 .addToDisposable(subscriptions)
     }
 
-    private fun storeBots(newBots: List<Bot>) {
+    private fun storeBots(newBots: List<OGSPlayer>) {
         bots = newBots
     }
 

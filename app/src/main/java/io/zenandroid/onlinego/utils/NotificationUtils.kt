@@ -86,23 +86,24 @@ class NotificationUtils {
             notificationIntent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
             val pendingIntent = PendingIntent.getActivity(context, 0, notificationIntent, FLAG_UPDATE_CURRENT)
 
-            challenges.forEach {
-                val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-                notificationManager.notify(it.id.toInt(),
-                        NotificationCompat.Builder(context, "challenges")
-                                .setContentTitle("A new challenge!")
-                                .setContentText("${it.challenger?.username} has issued a challenge")
-                                .setContentIntent(pendingIntent)
-                                .setVibrate(arrayOf(0L, 200L, 0L, 200L).toLongArray())
-                                .setSmallIcon(R.drawable.ic_notification_go_board)
-                                .setColor(ResourcesCompat.getColor(context.resources, R.color.colorTextSecondary, null))
-                                .setGroupAlertBehavior(NotificationCompat.GROUP_ALERT_SUMMARY)
-                                .setStyle(NotificationCompat.BigTextStyle())
-                                .setAutoCancel(true)
-                                .build()
-                )
-            }
-
+            challenges
+                    .filter { it.challenger?.id != userId }
+                    .forEach {
+                        val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+                        notificationManager.notify(it.id.toInt(),
+                                NotificationCompat.Builder(context, "challenges")
+                                        .setContentTitle("A new challenge!")
+                                        .setContentText("${it.challenger?.username} has issued a challenge")
+                                        .setContentIntent(pendingIntent)
+                                        .setVibrate(arrayOf(0L, 200L, 0L, 200L).toLongArray())
+                                        .setSmallIcon(R.drawable.ic_notification_go_board)
+                                        .setColor(ResourcesCompat.getColor(context.resources, R.color.colorTextSecondary, null))
+                                        .setGroupAlertBehavior(NotificationCompat.GROUP_ALERT_SUMMARY)
+                                        .setStyle(NotificationCompat.BigTextStyle())
+                                        .setAutoCancel(true)
+                                        .build()
+                        )
+                    }
         }
 
         fun storeGameNotifications(games: List<Game>, lastNotifications: List<GameNotificationWithDetails>) {

@@ -217,13 +217,13 @@ class LoginActivity : AppCompatActivity() {
             loginButton.setText(R.string.create_account)
         }
         Log.e(LoginActivity::class.java.simpleName, t.message, t)
-        if(t is HttpException && t.response().errorBody() != null) {
+        if(t is HttpException && t.response()?.errorBody() != null) {
             try {
-                val error = JSONObject(t.response().errorBody()?.string())["error"].toString()
+                val error = JSONObject(t.response()?.errorBody()?.string())["error"].toString()
                 Toast.makeText(this, error, Toast.LENGTH_LONG).show()
             } catch (e: Exception) {
-                Log.e(TAG, "Can't parse error: ${t.response().errorBody()?.string()}")
-                Toast.makeText(this, "Error communicating with server. Server reported error code ${t.response().code()}. Please try again later", Toast.LENGTH_LONG).show()
+                Log.e(TAG, "Can't parse error: ${t.response()?.errorBody()?.string()}")
+                Toast.makeText(this, "Error communicating with server. Server reported error code ${t.response()?.code()}. Please try again later", Toast.LENGTH_LONG).show()
             }
         } else {
             Toast.makeText(this, "Create Account failed. Debug info: '${t.message}'", Toast.LENGTH_LONG).show()

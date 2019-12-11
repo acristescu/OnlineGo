@@ -1,6 +1,5 @@
 package io.zenandroid.onlinego.ogs
 
-import android.content.Context
 import android.util.Log
 import com.crashlytics.android.Crashlytics
 import com.facebook.stetho.okhttp3.StethoInterceptor
@@ -178,7 +177,7 @@ object OGSServiceImpl : OGSService {
                         time_control_parameters = timeControl
                 )
         )
-        return restApi.challengePlayer(challengeParams.bot?.id!!, request)
+        return restApi.challengePlayer(challengeParams.opponent?.id!!, request)
     }
 
     override fun acceptChallenge(id: Long): Completable =
@@ -243,17 +242,22 @@ object OGSServiceImpl : OGSService {
         return returnVal
     }
 
-    fun connectToBots(): Flowable<List<Bot>> =
+    fun connectToBots(): Flowable<List<OGSPlayer>> =
             observeEvent("active-bots")
                     .map { string ->
-                        val json = JSONObject(string.toString())
-                        val retval = mutableListOf<Bot>()
+                        //
+                        // HACK alert!!! Oh creators of OGS why do you torment me so and have different names
+                        // for the same field in different places!?!?? :)
+                        //
+                        val fixedString = string.toString().replace("\"icon-url\":", "\"icon\":")
+                        val json = JSONObject(fixedString)
+                        val retval = mutableListOf<OGSPlayer>()
                         for (key in json.keys()) {
-                            moshi.adapter(Bot::class.java).fromJson(json[key].toString())?.let {
+                            moshi.adapter(OGSPlayer::class.java).fromJson(json[key].toString())?.let {
                                 retval.add(it)
                             }
                         }
-                        return@map retval as List<Bot>
+                        return@map retval as List<OGSPlayer>
                     }
 
     fun listenToNewAutomatchNotifications(): Flowable<OGSAutomatch> =

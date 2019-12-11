@@ -4,6 +4,7 @@ import androidx.room.*
 import io.reactivex.Flowable
 import io.reactivex.Single
 import io.zenandroid.onlinego.model.local.*
+import io.zenandroid.onlinego.model.ogs.OGSPlayer
 import io.zenandroid.onlinego.model.ogs.Phase
 
 /**
@@ -24,7 +25,7 @@ abstract class GameDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     abstract fun insertAllGames(games: List<Game>)
 
-    @Update()
+    @Update
     abstract fun update(game: Game)
 
     @Query("UPDATE game SET moves = :moves WHERE id = :id")
@@ -128,4 +129,27 @@ abstract class GameDao {
         deleteGameNotifications()
         insertAllGameNotifications(list)
     }
+
+    @Query("""
+        SELECT 
+            black_id as id,
+            black_username as username,
+            black_icon as icon,
+            black_rating as rating,
+            black_country as country
+        FROM game 
+        WHERE black_id <> :userId 
+        
+        UNION 
+        
+        SELECT 
+            white_id as id,
+            white_username as username,
+            white_icon as icon,
+            white_rating as rating,
+            white_country as country
+        FROM game
+        WHERE white_id <> :userId
+    """)
+    abstract fun getRecentOpponents(userId: Long?): Single<List<Player>>
 }

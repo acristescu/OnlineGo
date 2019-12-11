@@ -6,10 +6,16 @@ import io.zenandroid.onlinego.model.local.Clock
 import io.zenandroid.onlinego.model.local.Game
 import io.zenandroid.onlinego.model.local.Time
 import io.zenandroid.onlinego.ogs.TimeControl
+import kotlinx.android.synthetic.main.view_player_details.view.*
 import org.json.JSONArray
 import org.json.JSONObject
 import java.lang.Math.ceil
 import java.lang.Math.log
+import java.util.regex.Pattern
+import kotlin.math.ln
+import kotlin.math.max
+import kotlin.math.pow
+import kotlin.math.roundToLong
 
 /**
  * Created by alex on 14/11/2017.
@@ -41,6 +47,23 @@ fun formatRank(rank: Double?) =
         in 30 .. 100 -> "${ceil(rank - 29).toInt()}d"
         else -> ""
     }
+
+private val gravatarRegex = Pattern.compile("(.*gravatar.com/avatar/[0-9a-fA-F]*+).*")
+private val rackcdnRegex = Pattern.compile("(.*rackcdn.com.*)-\\d*\\.png")
+
+fun processGravatarURL(url: String, width: Int): String {
+    var matcher = gravatarRegex.matcher(url)
+    if(matcher.matches()) {
+        return "${matcher.group(1)}?s=${width}&d=404"
+    }
+
+    matcher = rackcdnRegex.matcher(url)
+    if(matcher.matches()) {
+        val desired = max(512.0, 2.0.pow(ln(width.toDouble()) / ln(2.0))).toInt()
+        return "${matcher.group(1)}-${desired}.png"
+    }
+    return url
+}
 
 fun convertCountryCodeToEmojiFlag(country: String?): String {
     if(country == null || country.length != 2 || "un" == country) {

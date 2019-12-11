@@ -131,7 +131,7 @@ class MyGamesPresenter(
                 OGSServiceImpl.logOut()
                 view.showLoginScreen()
             } else {
-                Crashlytics.logException(Exception(t.response().errorBody()?.string(), t))
+                Crashlytics.logException(Exception(t.response()?.errorBody()?.string(), t))
             }
         } else {
             if(t is com.squareup.moshi.JsonDataException) {
@@ -175,7 +175,7 @@ class MyGamesPresenter(
         if(notification["type"] == "gameOfferRejected") {
             notificationsRepository.acknowledgeNotification(notification)
             val message = if(notification.has("message")) "Message is:\n\n${notification["message"]}" else ""
-            view.showMessage("Bot rejected challenge", "This might happen because the bot's maintainer has set some conditions on the challenge parameters. $message")
+            view.showMessage("Bot rejected challenge", "This might happen because the opponent's maintainer has set some conditions on the challenge parameters. $message")
             analytics.logEvent("bot_refused_challenge", null)
             Crashlytics.log("Bot refused challenge. $message")
         }

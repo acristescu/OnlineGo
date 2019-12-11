@@ -63,6 +63,10 @@ class MyGamesFragment : Fragment(), MyGamesContract.View {
                     analytics.logEvent("bot_item_clicked", null)
                     (activity as MainActivity).onOnlineBotSearch()
                 }
+                is NewGameItem.Friend -> {
+                    analytics.logEvent("friend_item_clicked", null)
+                    (activity as MainActivity).onFriendChallenge()
+                }
             }
         }
 

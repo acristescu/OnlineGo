@@ -21,7 +21,7 @@ data class UIConfig (
         var ogs: Ogs? = null,
         //public Ignores ignores;
         var release: String? = null,
-        var bots: List<Bot>? = null,
+        var bots: List<OGSPlayer>? = null,
         var aga_ratings_enabled: Boolean? = null,
         var paypal_email: String? = null,
         var user: User

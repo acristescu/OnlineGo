@@ -265,7 +265,7 @@ object ActiveGameRepository {
     private fun onError(t: Throwable, request: String) {
         var message = request
         if(t is retrofit2.HttpException) {
-            message = "$request: ${t.response().errorBody()?.string()}"
+            message = "$request: ${t.response()?.errorBody()?.string()}"
             if(t.code() == 429) {
                 Crashlytics.setBool("HIT_RATE_LIMITER", true)
             }

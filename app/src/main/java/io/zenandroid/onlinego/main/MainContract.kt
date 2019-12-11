@@ -27,5 +27,6 @@ interface MainContract {
         fun onNotificationClicked()
         fun onStartSearch(sizes: List<Size>, speed: Speed)
         fun onNewBotChallenge(challengeParams: ChallengeParams)
+        fun onNewFriendChallenge(challengeParams: ChallengeParams)
     }
 }

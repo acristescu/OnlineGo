@@ -34,7 +34,7 @@ class ChatDialog : DialogFragment() {
         super.onCreate(savedInstanceState)
         retainInstance = true
         isCancelable = true
-        setStyle(DialogFragment.STYLE_NORMAL, 0)
+        setStyle(STYLE_NORMAL, 0)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {

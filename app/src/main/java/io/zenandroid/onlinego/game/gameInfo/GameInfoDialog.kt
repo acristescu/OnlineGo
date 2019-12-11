@@ -24,7 +24,7 @@ class GameInfoDialog : DialogFragment() {
         super.onCreate(savedInstanceState)
         retainInstance = true
         isCancelable = true
-        setStyle(DialogFragment.STYLE_NORMAL, 0)
+        setStyle(STYLE_NORMAL, 0)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -49,7 +49,7 @@ class GameInfoDialog : DialogFragment() {
         dialog?.window?.attributes?.let {
             it.width = ViewGroup.LayoutParams.MATCH_PARENT
             it.height = ViewGroup.LayoutParams.MATCH_PARENT
-            dialog?.window?.attributes = it as android.view.WindowManager.LayoutParams
+            dialog?.window?.attributes = it
         }
 
         groupAdapter.clear()
