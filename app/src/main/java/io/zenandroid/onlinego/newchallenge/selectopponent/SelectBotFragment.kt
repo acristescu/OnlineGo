@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.SimpleItemAnimator
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.Section
 import com.xwray.groupie.ViewHolder
@@ -46,13 +47,19 @@ class SelectBotFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        recycler.layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
-        recycler.adapter = groupAdapter
+        recycler.apply {
+            layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
+            recycler.adapter = groupAdapter
+            (itemAnimator as SimpleItemAnimator).supportsChangeAnimations = false
+        }
         groupAdapter.setOnItemClickListener { item, _ ->
             if(item is OpponentItem) {
                 (parentFragment as OnOpponentSelected).onOpponentSelected(item.opponent)
             }
         }
+        bots.update(botsRepository.bots
+                .sortedBy { it.ratings?.overall?.rating }
+                .map(::OpponentItem))
     }
 
     override fun onAttach(context: Context) {
@@ -61,16 +68,4 @@ class SelectBotFragment : Fragment() {
         }
         super.onAttach(context)
     }
-
-    override fun onResume() {
-        super.onResume()
-        bots.update(botsRepository.bots
-                .sortedBy { it.ratings?.overall?.rating }
-                .map(::OpponentItem))
-    }
-
-    override fun onPause() {
-        super.onPause()
-    }
-
 }

@@ -10,6 +10,7 @@ import android.widget.Toast.LENGTH_LONG
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.SimpleItemAnimator
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.Section
 import com.xwray.groupie.ViewHolder
@@ -34,7 +35,7 @@ class SelectRecentFragment : Fragment() {
         add(object: Item() {
             override fun bind(viewHolder: com.xwray.groupie.kotlinandroidextensions.ViewHolder, position: Int) {
                 viewHolder.title.text = "Recent opponents"
-                viewHolder.value.text = "This is a selection of recent opponents (both bots and actual players) you've played against recently."
+                viewHolder.value.text = "This is a selection of opponents (both bots and actual players) you've played against recently."
             }
 
             override fun getLayout() = R.layout.item_game_info
@@ -49,24 +50,16 @@ class SelectRecentFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        recycler.layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
-        recycler.adapter = groupAdapter
+        recycler.apply {
+            layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
+            recycler.adapter = groupAdapter
+            (itemAnimator as SimpleItemAnimator).supportsChangeAnimations = false
+        }
         groupAdapter.setOnItemClickListener { item, _ ->
             if(item is OpponentItem) {
                 (parentFragment as SelectBotFragment.OnOpponentSelected).onOpponentSelected(item.opponent)
             }
         }
-    }
-
-    override fun onAttach(context: Context) {
-        if(parentFragment !is SelectBotFragment.OnOpponentSelected) {
-            throw Exception("Parent context needs to implement OnOpponentSelected")
-        }
-        super.onAttach(context)
-    }
-
-    override fun onResume() {
-        super.onResume()
         playersRepository.getRecentOpponents()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -83,12 +76,17 @@ class SelectRecentFragment : Fragment() {
                 }, {
                     Toast.makeText(context, "An error occured when loading the recent opponents", LENGTH_LONG).show()
                 }).addToDisposable(compositeDisposable)
-
     }
 
-    override fun onPause() {
+    override fun onDestroyView() {
         compositeDisposable.clear()
-        super.onPause()
+        super.onDestroyView()
     }
 
+    override fun onAttach(context: Context) {
+        if(parentFragment !is SelectBotFragment.OnOpponentSelected) {
+            throw Exception("Parent context needs to implement OnOpponentSelected")
+        }
+        super.onAttach(context)
+    }
 }

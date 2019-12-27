@@ -6,6 +6,7 @@ package io.zenandroid.onlinego.extensions
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.annotation.SuppressLint
+import android.content.res.Resources
 import android.os.Build
 import com.google.android.material.bottomnavigation.BottomNavigationItemView
 import com.google.android.material.bottomnavigation.BottomNavigationMenuView
@@ -176,3 +177,5 @@ fun EditText.onChange(cb: (String) -> Unit) {
         override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
     })
 }
+
+fun Int.DP() = (Resources.getSystem().displayMetrics.density * this + 0.5f).toInt()

@@ -22,8 +22,44 @@ abstract class GameDao {
     @Query("SELECT id FROM game WHERE id in (:ids) AND phase = 'FINISHED' AND outcome <> ''")
     abstract fun getHistoricGamesThatDontNeedUpdating(ids: List<Long>) : List<Long>
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    abstract fun insertAllGames(games: List<Game>)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    abstract fun insertAllGamesInternal(games: List<Game>)
+
+    @Update
+    abstract fun updateGames(games: List<Game>)
+
+    //
+    // All of this complication is needed because sometimes the backend responds with
+    // incomplete data for the players and we don't want to overwrite good data with bad
+    // e.g. icon missing when getting stuff through the /overview call
+    //
+    @Transaction
+    open fun insertAllGames(games: List<Game>) {
+        val existingGames = getGameList(games.map(Game::id))
+        val newGames = games.filter { candidate ->
+            existingGames.find { it.id == candidate.id } == null
+        }
+        insertAllGamesInternal(newGames)
+
+        val updatedGames = mutableListOf<Game>()
+        for(oldGame in existingGames) {
+            val updatedGame = games.find { it.id == oldGame.id }
+            updatedGame?.let {
+                if(it.blackPlayer.country == null) {
+                    it.blackPlayer = oldGame.blackPlayer
+                }
+                if(it.whitePlayer.country == null) {
+                    it.whitePlayer = oldGame.whitePlayer
+                }
+                updatedGames.add(it)
+            }
+        }
+
+        updateGames(updatedGames)
+    }
+
+    @Query("SELECT * FROM game WHERE id in (:ids)")
+    abstract fun getGameList(ids: List<Long>): List<Game>
 
     @Update
     abstract fun update(game: Game)

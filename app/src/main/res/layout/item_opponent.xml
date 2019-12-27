@@ -5,6 +5,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_marginBottom="8dp"
+    android:background="?android:attr/selectableItemBackground"
     >
 
     <androidx.cardview.widget.CardView
@@ -26,7 +27,7 @@
             android:id="@+id/iconView"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            app:srcCompat="@drawable/ic_person_outline"
+            android:background="@drawable/ic_person_outline"
             />
     </androidx.cardview.widget.CardView>
 
@@ -40,7 +41,6 @@
         android:textColor="@color/colorText"
         android:textSize="14sp"
         tools:text="MrAlex"
-        android:textStyle="bold"
         android:layout_marginLeft="12dp"
         />
 
