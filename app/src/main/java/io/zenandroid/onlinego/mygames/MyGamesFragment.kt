@@ -59,13 +59,9 @@ class MyGamesFragment : Fragment(), MyGamesContract.View {
                     analytics.logEvent("automatch_item_clicked", null)
                     (activity as MainActivity).onAutoMatchSearch()
                 }
-                is NewGameItem.OnlineBot -> {
-                    analytics.logEvent("bot_item_clicked", null)
-                    (activity as MainActivity).onOnlineBotSearch()
-                }
-                is NewGameItem.Friend -> {
+                is NewGameItem.Custom -> {
                     analytics.logEvent("friend_item_clicked", null)
-                    (activity as MainActivity).onFriendChallenge()
+                    (activity as MainActivity).onCustomGameSearch()
                 }
             }
         }

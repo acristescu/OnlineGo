@@ -14,7 +14,7 @@ import com.xwray.groupie.Section
 import com.xwray.groupie.ViewHolder
 import com.xwray.groupie.kotlinandroidextensions.Item
 import io.zenandroid.onlinego.R
-import io.zenandroid.onlinego.model.ogs.OGSPlayer
+import io.zenandroid.onlinego.model.local.Player
 import io.zenandroid.onlinego.ogs.BotsRepository
 import kotlinx.android.synthetic.main.fragment_select_bot.*
 import kotlinx.android.synthetic.main.item_game_info.*
@@ -22,7 +22,7 @@ import kotlinx.android.synthetic.main.item_game_info.*
 class SelectBotFragment : Fragment() {
 
     interface OnOpponentSelected {
-        fun onOpponentSelected(opponent: OGSPlayer)
+        fun onOpponentSelected(opponent: Player)
     }
 
     private val bots = Section()
@@ -57,8 +57,9 @@ class SelectBotFragment : Fragment() {
                 (parentFragment as OnOpponentSelected).onOpponentSelected(item.opponent)
             }
         }
-        bots.update(botsRepository.bots
-                .sortedBy { it.ratings?.overall?.rating }
+        bots.update(botsRepository
+                .bots
+                .sortedBy { it.rating }
                 .map(::OpponentItem))
     }
 

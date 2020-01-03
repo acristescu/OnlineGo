@@ -14,8 +14,7 @@ sealed class NewGameItem(
 ) : Item(text.hashCode().toLong()) {
 
     object AutoMatch : NewGameItem("Auto-match", R.drawable.ic_person_filled)
-    object OnlineBot : NewGameItem("Bot", R.drawable.ic_robot)
-    object Friend : NewGameItem("Friend", R.drawable.ic_challenge)
+    object Custom : NewGameItem("Custom", R.drawable.ic_challenge)
 
     override fun bind(viewHolder: com.xwray.groupie.kotlinandroidextensions.ViewHolder, position: Int) {
         viewHolder.text.text = text

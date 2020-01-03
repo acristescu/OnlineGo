@@ -12,27 +12,27 @@ import android.widget.Toast
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.squareup.moshi.Moshi
 import io.zenandroid.onlinego.R
+import io.zenandroid.onlinego.model.local.Player
 import io.zenandroid.onlinego.model.ogs.OGSPlayer
 import io.zenandroid.onlinego.newchallenge.selectopponent.SelectOpponentDialog
 import io.zenandroid.onlinego.ogs.BotsRepository
+import io.zenandroid.onlinego.ogs.PlayersRepository
 import io.zenandroid.onlinego.utils.egfToRank
 import io.zenandroid.onlinego.utils.formatRank
 import kotlinx.android.synthetic.main.bottom_sheet_new_challenge.*
 
 class NewChallengeBottomSheet(
         context: Context,
-        private val botsRepository: BotsRepository,
         private val onSearch: (ChallengeParams) -> Unit
 ) : BottomSheetDialogFragment() {
 
     private val PARAMS_KEY = "PARAMS"
     private val moshi = Moshi.Builder().build()
     private val challengeParamsAdapter = moshi.adapter(ChallengeParams::class.java)
-    private val opponentAdapter = moshi.adapter(OGSPlayer::class.java)
+    private val opponentAdapter = moshi.adapter(Player::class.java)
     private val prefs = PreferenceManager.getDefaultSharedPreferences(context)
     private val challenge: ChallengeParams = getSavedChallengeParams()
-    private var opponent: OGSPlayer? = null
-
+    private var opponent: Player? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.bottom_sheet_new_challenge, container, false)
@@ -42,10 +42,11 @@ class NewChallengeBottomSheet(
         super.onViewCreated(view, savedInstanceState)
         botView.apply {
             name = "Opponent"
-            value = botsRepository.bots
-                    .find { it.id == challenge.opponent?.id }
-                    ?.let {"${it.username} (${formatRank(egfToRank(it.ratings?.overall?.rating))})"}
-                    ?: "(none)"
+            value = "(choose)"
+//            value = playersRepository.getRecentOpponents()
+//                    .find { it.id == challenge.opponent?.id }
+//                    ?.let {"${it.username} (${formatRank(egfToRank(it.rating))})"}
+//                    ?: "(none)"
             setOnClickListener {
                 fragmentManager?.let {
                     SelectOpponentDialog().apply {
@@ -88,7 +89,7 @@ class NewChallengeBottomSheet(
 
     private fun onSearchClicked() {
         challenge.apply {
-            opponent = this@NewChallengeBottomSheet.opponent
+            opponent = this@NewChallengeBottomSheet.opponent?.let(OGSPlayer.Companion::fromPlayer)
             color = colorView.value
             handicap = handicapView.value
             ranked = rankedView.value == "Yes"
@@ -100,7 +101,7 @@ class NewChallengeBottomSheet(
             saveSettings()
             onSearch(challenge)
         } else {
-            Toast.makeText(context, "Please select an online opponent", Toast.LENGTH_LONG).show()
+            Toast.makeText(context, "Please select an opponent", Toast.LENGTH_LONG).show()
         }
     }
 
@@ -121,9 +122,9 @@ class NewChallengeBottomSheet(
                 .apply()
     }
 
-    private fun selectOpponent(opponent: OGSPlayer?) {
+    private fun selectOpponent(opponent: Player?) {
         botView.value = opponent
-                ?.let {"${it.username} (${formatRank(egfToRank(it.ratings?.overall?.rating))})"}
+                ?.let {"${it.username} (${formatRank(egfToRank(it.rating))})"}
                 ?: "(none)"
         this.opponent = opponent
     }

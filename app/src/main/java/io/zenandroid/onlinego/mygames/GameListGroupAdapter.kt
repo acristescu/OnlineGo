@@ -43,8 +43,7 @@ class GameListGroupAdapter : GroupAdapter<ViewHolder>() {
         add(HeaderItem("NEW GAME"))
         val newGameAdapter = GroupAdapter<ViewHolder>()
         newGameAdapter.add(NewGameItem.AutoMatch)
-        newGameAdapter.add(NewGameItem.OnlineBot)
-        newGameAdapter.add(NewGameItem.Friend)
+        newGameAdapter.add(NewGameItem.Custom)
         newGameAdapter.setOnItemClickListener { item, view ->
             onItemClickListener?.onItemClick(item, view)
         }

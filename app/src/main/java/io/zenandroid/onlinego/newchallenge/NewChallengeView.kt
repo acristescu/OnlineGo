@@ -23,7 +23,7 @@ class NewChallengeView : FrameLayout {
     private val analytics = OnlineGoApplication.instance.analytics
 
     var onAutomatchClicked: (() -> Unit)? = null
-    var onOnlineBotClicked: (() -> Unit)? = null
+    var onOnlineCustomClicked: (() -> Unit)? = null
 
     constructor(context: Context) : this(context, null)
     constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0)
@@ -44,10 +44,10 @@ class NewChallengeView : FrameLayout {
             toggleSubMenu()
             onAutomatchClicked?.invoke()
         }
-        botFab.setOnClickListener {
-            analytics.logEvent("bot_fab_clicked", null)
+        customFab.setOnClickListener {
+            analytics.logEvent("custom_fab_clicked", null)
             toggleSubMenu()
-            onOnlineBotClicked?.invoke()
+            onOnlineCustomClicked?.invoke()
         }
         fabMiniSize = resources.getDimension(R.dimen.fab_mini_with_margin)
     }
@@ -65,13 +65,13 @@ class NewChallengeView : FrameLayout {
     fun showSubMenu() = Completable.mergeArray(
             fab.rotate(45f),
             onlineFab.slideIn(fabMiniSize).andThen(onlineLabel.fadeIn()),
-            botFab.slideIn(2 * fabMiniSize).andThen(botLabel.fadeIn())
+            customFab.slideIn(2 * fabMiniSize).andThen(customLabel.fadeIn())
     )
 
     fun hideSubMenu() = Completable.mergeArray(
             fab.rotate(0f),
             onlineLabel.fadeOut().andThen(onlineFab.slideOut(fabMiniSize)),
-            botLabel.fadeOut().andThen(botFab.slideOut(2 * fabMiniSize))
+            customLabel.fadeOut().andThen(customFab.slideOut(2 * fabMiniSize))
     )
 
     fun hideFab(): Completable =

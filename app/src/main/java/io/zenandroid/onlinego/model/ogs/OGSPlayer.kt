@@ -1,5 +1,7 @@
 package io.zenandroid.onlinego.model.ogs
 
+import io.zenandroid.onlinego.model.local.Player
+
 /**
  * Created by alex on 04/11/2017.
  */
@@ -23,4 +25,12 @@ data class OGSPlayer (
             var volatility: Float? = null,
             var games_played: Int? = null
     )
+
+    companion object {
+        fun fromPlayer(player: Player) =
+            OGSPlayer(
+                    id = player.id,
+                    username = player.username
+            )
+    }
 }

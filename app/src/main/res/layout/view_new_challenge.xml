@@ -63,7 +63,7 @@
         />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/botFab"
+        android:id="@+id/customFab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
@@ -71,7 +71,7 @@
         android:clickable="true"
         app:layout_constraintBottom_toTopOf="@+id/onlineFab"
         app:layout_constraintEnd_toEndOf="parent"
-        app:srcCompat="@drawable/ic_robot"
+        app:srcCompat="@drawable/ic_challenge"
         android:tint="@color/white"
         app:fabSize="mini"
         app:backgroundTint="@color/colorAccent"
@@ -80,13 +80,13 @@
         />
 
     <TextView
-        android:id="@+id/botLabel"
+        android:id="@+id/customLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Bot"
-        app:layout_constraintRight_toLeftOf="@id/botFab"
-        app:layout_constraintTop_toTopOf="@id/botFab"
-        app:layout_constraintBottom_toBottomOf="@id/botFab"
+        android:text="Custom"
+        app:layout_constraintRight_toLeftOf="@id/customFab"
+        app:layout_constraintTop_toTopOf="@id/customFab"
+        app:layout_constraintBottom_toBottomOf="@id/customFab"
         android:alpha="0"
         android:textStyle="bold"
         android:textSize="14sp"

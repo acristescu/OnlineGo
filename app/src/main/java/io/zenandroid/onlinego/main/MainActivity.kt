@@ -159,7 +159,7 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         newChallengeView.apply {
             showFab().subscribe()
             onAutomatchClicked = this@MainActivity::onAutoMatchSearch
-            onOnlineBotClicked = this@MainActivity::onOnlineBotSearch
+            onOnlineCustomClicked = this@MainActivity::onCustomGameSearch
         }
     }
 
@@ -328,17 +328,10 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         }.show()
     }
 
-    fun onOnlineBotSearch() {
-        NewChallengeBottomSheet(this, botsRepository) {
+    fun onCustomGameSearch() {
+        NewChallengeBottomSheet(this) {
             analytics.logEvent("bot_challenge", null)
             presenter.onNewBotChallenge(it)
-        }.show(supportFragmentManager, "BOTTOM_SHEET")
-    }
-
-    fun onFriendChallenge() {
-        NewChallengeBottomSheet(this, botsRepository) {
-            analytics.logEvent("friend_challenge", null)
-            presenter.onNewFriendChallenge(it)
         }.show(supportFragmentManager, "BOTTOM_SHEET")
     }
 }

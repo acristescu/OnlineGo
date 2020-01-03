@@ -11,7 +11,7 @@ import com.xwray.groupie.kotlinandroidextensions.Item
 import com.xwray.groupie.kotlinandroidextensions.ViewHolder
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.extensions.DP
-import io.zenandroid.onlinego.model.ogs.OGSPlayer
+import io.zenandroid.onlinego.model.local.Player
 import io.zenandroid.onlinego.utils.egfToRank
 import io.zenandroid.onlinego.utils.formatRank
 import io.zenandroid.onlinego.utils.processGravatarURL
@@ -19,11 +19,11 @@ import kotlinx.android.synthetic.main.item_opponent.*
 
 
 class OpponentItem(
-        val opponent: OGSPlayer
+        val opponent: Player
 ) : Item(opponent.id) {
     override fun bind(viewHolder: ViewHolder, position: Int) {
         viewHolder.nameView.text = opponent.username
-        viewHolder.extraInfoView.text = formatRank(egfToRank(opponent.ratings?.overall?.rating))
+        viewHolder.extraInfoView.text = formatRank(egfToRank(opponent.rating))
         Glide.with(viewHolder.iconView)
                 .load(processGravatarURL(opponent.icon, 40.DP()))
                 .listener(object: RequestListener<Drawable> {

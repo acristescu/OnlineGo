@@ -428,7 +428,6 @@ class GamePresenter(
         if((currentState != ANALYSIS) && (!isAnalysisDisabled(game))) {
             list.add(ANALYZE)
         }
-        list.add(ESTIMATE_SCORE)
         val showCoordinates = settingsRepository.showCoordinates
         if(showCoordinates) {
             list.add(HIDE_COORDINATES)
@@ -439,6 +438,7 @@ class GamePresenter(
 
         //download SGF doesn't work (disabled by OGS) when analysis is disabled
         if(!isAnalysisDisabled(game)) {
+            list.add(ESTIMATE_SCORE)
             list.add(DOWNLOAD_SGF)
         }
         if(

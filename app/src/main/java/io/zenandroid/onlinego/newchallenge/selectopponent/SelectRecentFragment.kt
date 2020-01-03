@@ -63,19 +63,13 @@ class SelectRecentFragment : Fragment() {
         playersRepository.getRecentOpponents()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe ({
-                    recentOpponents.update(
-                            it.map {
-                                OGSPlayer(
-                                        id = it.id,
-                                        username = it.username,
-                                        icon = it.icon,
-                                        ratings = OGSPlayer.Ratings(OGSPlayer.Rating(rating = it.rating))
-                                )
-                            }.map(::OpponentItem))
-                }, {
-                    Toast.makeText(context, "An error occured when loading the recent opponents", LENGTH_LONG).show()
-                }).addToDisposable(compositeDisposable)
+                .map { it.map(::OpponentItem) }
+                .subscribe ( recentOpponents::update, ::onError)
+                .addToDisposable(compositeDisposable)
+    }
+
+    private fun onError(e: Throwable) {
+        Toast.makeText(context, "An error occured when loading the recent opponents", LENGTH_LONG).show()
     }
 
     override fun onDestroyView() {

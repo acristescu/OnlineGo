@@ -13,16 +13,16 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.google.android.material.tabs.TabLayoutMediator
 import com.squareup.moshi.Moshi
 import io.zenandroid.onlinego.R
-import io.zenandroid.onlinego.model.ogs.OGSPlayer
+import io.zenandroid.onlinego.model.local.Player
 import kotlinx.android.synthetic.main.dialog_select_opponent.*
 
 class SelectOpponentDialog : DialogFragment(), SelectBotFragment.OnOpponentSelected {
-    private val moshi = Moshi.Builder().build().adapter(OGSPlayer::class.java)
+    private val moshi = Moshi.Builder().build().adapter(Player::class.java)
 
     private val TABS = listOf(
-            Pair("Bot", SelectBotFragment::class.java),
-            Pair("Recent", SelectRecentFragment::class.java),
-            Pair("Search", SelectBotFragment::class.java)
+            "Bot" to SelectBotFragment::class.java,
+            "Recent" to SelectRecentFragment::class.java,
+            "Search" to SelectBotFragment::class.java
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -60,7 +60,7 @@ class SelectOpponentDialog : DialogFragment(), SelectBotFragment.OnOpponentSelec
         }
     }
 
-    override fun onOpponentSelected(opponent: OGSPlayer) {
+    override fun onOpponentSelected(opponent: Player) {
         val serialized = moshi.toJson(opponent)
         val intent = Intent().putExtra("OPPONENT", serialized)
         targetFragment?.onActivityResult(targetRequestCode, Activity.RESULT_OK, intent)

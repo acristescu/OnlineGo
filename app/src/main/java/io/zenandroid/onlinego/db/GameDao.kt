@@ -4,7 +4,6 @@ import androidx.room.*
 import io.reactivex.Flowable
 import io.reactivex.Single
 import io.zenandroid.onlinego.model.local.*
-import io.zenandroid.onlinego.model.ogs.OGSPlayer
 import io.zenandroid.onlinego.model.ogs.Phase
 
 /**
