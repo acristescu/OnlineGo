@@ -14,6 +14,7 @@ import com.google.android.material.tabs.TabLayoutMediator
 import com.squareup.moshi.Moshi
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.model.local.Player
+import io.zenandroid.onlinego.newchallenge.selectopponent.searchplayer.SearchPlayerFragment
 import kotlinx.android.synthetic.main.dialog_select_opponent.*
 
 class SelectOpponentDialog : DialogFragment(), SelectBotFragment.OnOpponentSelected {
@@ -22,7 +23,7 @@ class SelectOpponentDialog : DialogFragment(), SelectBotFragment.OnOpponentSelec
     private val TABS = listOf(
             "Bot" to SelectBotFragment::class.java,
             "Recent" to SelectRecentFragment::class.java,
-            "Search" to SelectBotFragment::class.java
+            "Search" to SearchPlayerFragment::class.java
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {

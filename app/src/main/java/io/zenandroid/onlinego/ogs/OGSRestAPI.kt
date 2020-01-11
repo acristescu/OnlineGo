@@ -59,4 +59,7 @@ interface OGSRestAPI {
 
     @POST("/api/v1/players/{id}/challenge")
     fun challengePlayer(@Path("id") id: Long, @Body request: OGSChallengeRequest): Completable
+
+    @GET("/api/v1/ui/omniSearch")
+    fun omniSearch(@Query("q") q: String): Single<OmniSearchResponse>
 }

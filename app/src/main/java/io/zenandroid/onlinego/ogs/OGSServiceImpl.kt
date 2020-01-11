@@ -595,4 +595,7 @@ object OGSServiceImpl : OGSService {
                 uiConfig?.user?.id?.let { restApi.fetchPlayerFinishedGames(it) }
                         ?: Single.error(RuntimeException("Null UI Config"))
             }.map { it.results }
+
+    override fun searchPlayers(query: String): Single<List<OGSPlayer>> =
+            restApi.omniSearch(query).map { it.players }
 }

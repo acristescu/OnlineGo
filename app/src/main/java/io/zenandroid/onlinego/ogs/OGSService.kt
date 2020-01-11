@@ -23,4 +23,5 @@ interface OGSService {
     fun startAutomatch(sizes: List<Size>, speed: Speed): String
     fun challengeBot(challengeParams: ChallengeParams): Completable
     fun deleteNotification(notificationId: String)
+    fun searchPlayers(query: String): Single<List<OGSPlayer>>
 }
