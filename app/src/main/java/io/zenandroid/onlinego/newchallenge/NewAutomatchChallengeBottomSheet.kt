@@ -74,7 +74,7 @@ class NewAutomatchChallengeBottomSheet(context: Context, private val onSearch: (
         smallGameCheckbox.isChecked = prefs.getBoolean(SEARCH_GAME_SMALL, true)
         mediumGameCheckbox.isChecked = prefs.getBoolean(SEARCH_GAME_MEDIUM, false)
         largeGameCheckbox.isChecked = prefs.getBoolean(SEARCH_GAME_LARGE, false)
-        selectedSpeed = Speed.valueOf(prefs.getString(SEARCH_GAME_SPEED, Speed.NORMAL.toString()))
+        selectedSpeed = Speed.valueOf(prefs.getString(SEARCH_GAME_SPEED, null) ?: Speed.NORMAL.toString())
         speedTextView.text = selectedSpeed.getText().capitalize()
     }
 

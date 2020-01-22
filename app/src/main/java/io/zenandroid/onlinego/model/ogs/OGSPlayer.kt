@@ -30,7 +30,8 @@ data class OGSPlayer (
         fun fromPlayer(player: Player) =
             OGSPlayer(
                     id = player.id,
-                    username = player.username
+                    username = player.username,
+                    ratings = Ratings(Rating(rating = player.rating))
             )
     }
 }

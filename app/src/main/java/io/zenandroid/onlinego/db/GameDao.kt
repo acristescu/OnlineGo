@@ -166,25 +166,32 @@ abstract class GameDao {
     }
 
     @Query("""
-        SELECT 
-            black_id as id,
-            black_username as username,
-            black_icon as icon,
-            black_rating as rating,
-            black_country as country
-        FROM game 
-        WHERE black_id <> :userId 
-        
-        UNION 
-        
-        SELECT 
-            white_id as id,
-            white_username as username,
-            white_icon as icon,
-            white_rating as rating,
-            white_country as country
-        FROM game
-        WHERE white_id <> :userId
+        SELECT DISTINCT id, username, icon, rating, country FROM (
+            SELECT 
+                black_id as id,
+                black_username as username,
+                black_icon as icon,
+                black_rating as rating,
+                black_country as country,
+                lastMove
+            FROM game 
+            WHERE black_id <> :userId 
+            
+            UNION 
+            
+            SELECT 
+                white_id as id,
+                white_username as username,
+                white_icon as icon,
+                white_rating as rating,
+                white_country as country,
+                lastMove
+            FROM game
+            WHERE white_id <> :userId
+        ) 
+        ORDER BY 
+            lastMove DESC
+        LIMIT 25
     """)
     abstract fun getRecentOpponents(userId: Long?): Single<List<Player>>
 }

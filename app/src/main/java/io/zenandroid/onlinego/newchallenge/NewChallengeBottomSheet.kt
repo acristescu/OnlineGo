@@ -42,11 +42,7 @@ class NewChallengeBottomSheet(
         super.onViewCreated(view, savedInstanceState)
         botView.apply {
             name = "Opponent"
-            value = "(choose)"
-//            value = playersRepository.getRecentOpponents()
-//                    .find { it.id == challenge.opponent?.id }
-//                    ?.let {"${it.username} (${formatRank(egfToRank(it.rating))})"}
-//                    ?: "(none)"
+            value = "${challenge.opponent?.username} (${formatRank(egfToRank(challenge.opponent?.ratings?.overall?.rating))})"
             setOnClickListener {
                 fragmentManager?.let {
                     SelectOpponentDialog().apply {
