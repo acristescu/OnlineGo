@@ -135,6 +135,9 @@ class Position(val boardSize: Int) {
         return true
     }
 
+    fun hasTheSameStonesAs(other: Position) =
+            stones == other.stones
+
     override fun hashCode(): Int {
         var result = boardSize
         result = 31 * result + stones.hashCode()

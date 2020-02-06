@@ -40,9 +40,14 @@ class NewChallengeBottomSheet(
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        challenge.opponent?.let {
+            opponent = Player.fromOGSPlayer(it)
+        }
         botView.apply {
             name = "Opponent"
-            value = "${challenge.opponent?.username} (${formatRank(egfToRank(challenge.opponent?.ratings?.overall?.rating))})"
+            value = challenge.opponent?.let {
+                "${it.username} (${formatRank(egfToRank(it.ratings?.overall?.rating))})"
+            } ?: "(choose)"
             setOnClickListener {
                 fragmentManager?.let {
                     SelectOpponentDialog().apply {

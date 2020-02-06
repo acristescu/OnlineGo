@@ -305,7 +305,7 @@ object RulesManager {
     fun isIllegalKO(pos: Position): Boolean {
         var historyPos = pos.parentPosition
         while(historyPos != null) {
-            if(historyPos.allStonesCoordinates == pos.allStonesCoordinates) {
+            if(historyPos.hasTheSameStonesAs(pos)) {
                 return true
             }
             historyPos = historyPos.parentPosition
