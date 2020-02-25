@@ -1,7 +1,7 @@
 package io.zenandroid.onlinego.game.gameInfo
 
 import com.xwray.groupie.kotlinandroidextensions.Item
-import com.xwray.groupie.kotlinandroidextensions.ViewHolder
+import com.xwray.groupie.kotlinandroidextensions.GroupieViewHolder
 import io.zenandroid.onlinego.R
 import kotlinx.android.synthetic.main.item_game_info.*
 
@@ -11,7 +11,7 @@ class GameInfoItem(
 ): Item() {
     override fun getLayout() = R.layout.item_game_info
 
-    override fun bind(holder: ViewHolder, position: Int) {
+    override fun bind(holder: GroupieViewHolder, position: Int) {
         holder.title.text = title
         holder.value.text = value
     }

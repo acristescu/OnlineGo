@@ -24,5 +24,6 @@ data class UIConfig (
         var bots: List<OGSPlayer>? = null,
         var aga_ratings_enabled: Boolean? = null,
         var paypal_email: String? = null,
-        var user: User
+        var user: User,
+        var user_jwt: String?
 )

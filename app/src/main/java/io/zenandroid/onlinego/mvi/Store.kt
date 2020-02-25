@@ -9,9 +9,9 @@ import io.reactivex.disposables.Disposable
 import io.reactivex.rxkotlin.plusAssign
 import io.reactivex.rxkotlin.withLatestFrom
 
-class Store<A, S> (
+class Store<S, A> (
         private val reducer: Reducer<S, A>,
-        private val middlewares: List<Middleware<A, S>>,
+        private val middlewares: List<Middleware<S, A>>,
         private val initialState: S
 ){
     private val state = BehaviorRelay.createDefault(initialState)

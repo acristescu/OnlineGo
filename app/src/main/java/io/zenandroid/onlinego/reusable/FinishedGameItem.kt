@@ -1,7 +1,7 @@
 package io.zenandroid.onlinego.reusable
 
 import com.xwray.groupie.kotlinandroidextensions.Item
-import com.xwray.groupie.kotlinandroidextensions.ViewHolder
+import com.xwray.groupie.kotlinandroidextensions.GroupieViewHolder
 import io.reactivex.Single
 import io.reactivex.SingleEmitter
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -29,7 +29,7 @@ class FinishedGameItem (val game: Game) : Item(game.id) {
                 }
     }
 
-    override fun bind(holder: ViewHolder, position: Int) {
+    override fun bind(holder: GroupieViewHolder, position: Int) {
         holder.board.boardSize = game.width
 
         pos?.let {

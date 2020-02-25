@@ -1,6 +1,13 @@
 package io.zenandroid.onlinego.model
 
+import android.graphics.Color
 import android.graphics.Point
+import android.util.Log
+import androidx.core.graphics.toColor
+import io.zenandroid.onlinego.gamelogic.RulesManager
+import io.zenandroid.onlinego.model.ogs.JosekiPosition
+import io.zenandroid.onlinego.model.ogs.PlayCategory
+import java.lang.Exception
 import java.util.*
 
 /**
@@ -51,6 +58,8 @@ class Position(val boardSize: Int) {
     var variation: List<Point> = listOf()
 
     var parentPosition: Position? = null
+
+    val customMarks = HashSet<Mark>()
 
     /**
      * Adds a stone without checking the game logic. See makeMove() for alternative
@@ -151,5 +160,74 @@ class Position(val boardSize: Int) {
         return result
     }
 
+    data class Mark(
+            val placement: Point,
+            val text: String?,
+            val category: PlayCategory?
+    )
+
+    companion object {
+        fun fromJosekiPosition(josekiPosition: JosekiPosition): Position {
+            var pos = Position(19)
+            josekiPosition.play?.let {
+                val moves = when {
+                    it.startsWith(".root") -> it.substring(5)
+                    it.startsWith(".root.") -> it.substring(6)
+                    else -> it
+                }.split('.').filter { it != "" }
+
+                var turn  = StoneType.BLACK
+                moves.forEach {
+                    if(it != "pass") {
+                        val point = coordinateToPoint(it)
+                        val newPos = RulesManager.makeMove(pos, turn, point)
+                        if(newPos == null) {
+                            Log.e("Position", "Invalid joseki move!!!")
+                            return pos
+                        }
+                        pos = newPos
+                    }
+                    turn = turn.opponent
+                }
+                pos.nextToMove = turn
+            }
+            josekiPosition.next_moves
+                    ?.filter { it.placement != null && it.placement != "pass" }
+                    ?.map {
+                        val childCoordinate = coordinateToPoint(it.placement!!)
+                        val overlayLabel = josekiPosition.labels?.find { childCoordinate == it.placement }
+                        if(overlayLabel == null) {
+                            Mark(
+                                    childCoordinate,
+                                    it.variation_label,
+                                    it.category
+                            )
+                        } else {
+                            Mark(
+                                    childCoordinate,
+                                    overlayLabel.text,
+                                    it.category
+                            )
+                        }
+                    }
+                    ?.let (pos.customMarks::addAll)
+            josekiPosition.labels
+                    ?.filter { candidate ->
+                        josekiPosition.next_moves
+                                ?.find { it.placement != null && it.placement != "pass" && candidate.placement == coordinateToPoint(it.placement) } == null
+                    }
+                    ?.map { Mark(it.placement, it.text, it.category) }
+                    ?.let (pos.customMarks::addAll)
+            return pos
+        }
+
+        private val coordinatesX = arrayOf("A","B","C","D","E","F","G","H","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z")
+
+        fun coordinateToPoint(coordinate: String) : Point =
+                Point(
+                        coordinatesX.indexOf(coordinate.substring(0, 1)),
+                        (19 - coordinate.substring(1).toInt())
+                )
+    }
 
 }

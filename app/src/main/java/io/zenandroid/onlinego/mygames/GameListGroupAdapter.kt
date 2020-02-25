@@ -5,7 +5,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.OnItemClickListener
 import com.xwray.groupie.Section
-import com.xwray.groupie.kotlinandroidextensions.ViewHolder
+import com.xwray.groupie.kotlinandroidextensions.GroupieViewHolder
 import io.zenandroid.onlinego.model.local.Game
 import io.zenandroid.onlinego.model.ogs.Phase
 import io.zenandroid.onlinego.ogs.OGSServiceImpl
@@ -14,7 +14,7 @@ import io.zenandroid.onlinego.reusable.*
 /**
  * Created by 44108952 on 31/05/2018.
  */
-class GameListGroupAdapter : GroupAdapter<ViewHolder>() {
+class GameListGroupAdapter : GroupAdapter<GroupieViewHolder>() {
     private var onItemClickListener: OnItemClickListener? = null
 
     private val myMoveSection = object : Section(HeaderItem("YOUR TURN")) {
@@ -41,7 +41,7 @@ class GameListGroupAdapter : GroupAdapter<ViewHolder>() {
         finishedGamesSection.setHideWhenEmpty(true)
         challengesSection.setHideWhenEmpty(true)
         add(HeaderItem("NEW GAME"))
-        val newGameAdapter = GroupAdapter<ViewHolder>()
+        val newGameAdapter = GroupAdapter<GroupieViewHolder>()
         newGameAdapter.add(NewGameItem.AutoMatch)
         newGameAdapter.add(NewGameItem.Custom)
         newGameAdapter.setOnItemClickListener { item, view ->

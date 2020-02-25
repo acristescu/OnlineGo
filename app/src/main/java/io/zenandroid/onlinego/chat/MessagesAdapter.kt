@@ -3,10 +3,10 @@ package io.zenandroid.onlinego.chat
 import androidx.recyclerview.widget.RecyclerView
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.Section
-import com.xwray.groupie.ViewHolder
+import com.xwray.groupie.kotlinandroidextensions.GroupieViewHolder
 import io.zenandroid.onlinego.model.local.Message
 
-class MessagesAdapter : GroupAdapter<ViewHolder>() {
+class MessagesAdapter : GroupAdapter<GroupieViewHolder>() {
     private val messagesSection = object : Section() {
         override fun notifyItemRangeInserted(positionStart: Int, itemCount: Int) {
             super.notifyItemRangeInserted(positionStart, itemCount)

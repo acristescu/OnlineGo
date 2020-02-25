@@ -2,7 +2,7 @@ package io.zenandroid.onlinego.reusable
 
 import androidx.core.content.res.ResourcesCompat
 import com.xwray.groupie.kotlinandroidextensions.Item
-import com.xwray.groupie.kotlinandroidextensions.ViewHolder
+import com.xwray.groupie.kotlinandroidextensions.GroupieViewHolder
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.extensions.showIf
 import io.zenandroid.onlinego.gamelogic.RulesManager
@@ -15,7 +15,7 @@ import io.zenandroid.onlinego.utils.formatRank
 import kotlinx.android.synthetic.main.item_active_game_card.*
 
 class ActiveGameItem (val game: Game) : Item(game.id) {
-    override fun bind(holder: ViewHolder, position: Int) {
+    override fun bind(holder: GroupieViewHolder, position: Int) {
         holder.board.boardSize = game.width
         holder.board.position = RulesManager.replay(game, computeTerritory = false)
 

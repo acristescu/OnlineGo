@@ -13,7 +13,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.SimpleItemAnimator
 import com.jakewharton.rxbinding2.widget.RxSearchView
 import com.xwray.groupie.GroupAdapter
-import com.xwray.groupie.kotlinandroidextensions.ViewHolder
+import com.xwray.groupie.kotlinandroidextensions.GroupieViewHolder
 import io.reactivex.Observable
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.extensions.showIf
@@ -25,18 +25,10 @@ import io.zenandroid.onlinego.newchallenge.selectopponent.SelectBotFragment
 import kotlinx.android.synthetic.main.fragment_search_player.*
 import java.util.concurrent.TimeUnit
 
-class SearchPlayerFragment : Fragment(), MviView<SearchPlayerAction, SearchPlayerState> {
+class SearchPlayerFragment : Fragment(R.layout.fragment_search_player), MviView<SearchPlayerAction, SearchPlayerState> {
 
     private lateinit var viewModel: SearchPlayerViewModel
-    private val groupAdapter = GroupAdapter<ViewHolder>()
-
-    interface OnOpponentSelected {
-        fun onOpponentSelected(opponent: Player)
-    }
-
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_search_player, container, false)
-    }
+    private val groupAdapter = GroupAdapter<GroupieViewHolder>()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -86,7 +78,6 @@ class SearchPlayerFragment : Fragment(), MviView<SearchPlayerAction, SearchPlaye
                 }
         ).get(SearchPlayerViewModel::class.java)
     }
-
 
     override val actions: Observable<SearchPlayerAction>
         get() =

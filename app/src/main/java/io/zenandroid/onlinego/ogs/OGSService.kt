@@ -2,6 +2,7 @@ package io.zenandroid.onlinego.ogs
 
 import io.reactivex.Completable
 import io.reactivex.Single
+import io.zenandroid.onlinego.model.ogs.JosekiPosition
 import io.zenandroid.onlinego.model.ogs.*
 import io.zenandroid.onlinego.newchallenge.ChallengeParams
 
@@ -24,4 +25,5 @@ interface OGSService {
     fun challengeBot(challengeParams: ChallengeParams): Completable
     fun deleteNotification(notificationId: String)
     fun searchPlayers(query: String): Single<List<OGSPlayer>>
+    fun getJosekiPosition(id: Long?): Single<JosekiPosition>
 }

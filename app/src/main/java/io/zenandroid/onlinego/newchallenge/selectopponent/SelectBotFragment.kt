@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SimpleItemAnimator
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.Section
-import com.xwray.groupie.ViewHolder
+import com.xwray.groupie.kotlinandroidextensions.GroupieViewHolder
 import com.xwray.groupie.kotlinandroidextensions.Item
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.model.local.Player
@@ -19,7 +19,7 @@ import io.zenandroid.onlinego.ogs.BotsRepository
 import kotlinx.android.synthetic.main.fragment_select_bot.*
 import kotlinx.android.synthetic.main.item_game_info.*
 
-class SelectBotFragment : Fragment() {
+class SelectBotFragment : Fragment(R.layout.fragment_select_bot) {
 
     interface OnOpponentSelected {
         fun onOpponentSelected(opponent: Player)
@@ -28,9 +28,9 @@ class SelectBotFragment : Fragment() {
     private val bots = Section()
     private val botsRepository = BotsRepository
 
-    private var groupAdapter = GroupAdapter<ViewHolder>().apply {
+    private var groupAdapter = GroupAdapter<GroupieViewHolder>().apply {
         add(object: Item() {
-            override fun bind(viewHolder: com.xwray.groupie.kotlinandroidextensions.ViewHolder, position: Int) {
+            override fun bind(viewHolder: GroupieViewHolder, position: Int) {
                 viewHolder.title.text = "Online Bots"
                 viewHolder.value.text = "Online bots are AI programs run and maintained by members of the community at their expense. Playing against them requires an active internet connection."
             }
@@ -38,10 +38,6 @@ class SelectBotFragment : Fragment() {
             override fun getLayout() = R.layout.item_game_info
         })
         add(bots)
-    }
-
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_select_bot, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

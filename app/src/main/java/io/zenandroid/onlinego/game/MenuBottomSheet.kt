@@ -5,7 +5,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
 import androidx.recyclerview.widget.LinearLayoutManager
 import android.view.LayoutInflater
 import com.xwray.groupie.GroupAdapter
-import com.xwray.groupie.ViewHolder
+import com.xwray.groupie.kotlinandroidextensions.GroupieViewHolder
 import io.zenandroid.onlinego.R
 import kotlinx.android.synthetic.main.dialog_game_menu.*
 
@@ -15,7 +15,7 @@ class MenuBottomSheet(
         private val onSelect: (GameContract.MenuItem) -> Unit
 ) : BottomSheetDialog(context) {
 
-    private val adapter = GroupAdapter<ViewHolder>()
+    private val adapter = GroupAdapter<GroupieViewHolder>()
 
     init {
         val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater

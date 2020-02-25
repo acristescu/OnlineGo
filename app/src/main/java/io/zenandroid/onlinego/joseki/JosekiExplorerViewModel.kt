@@ -1,12 +1,12 @@
-package io.zenandroid.onlinego.newchallenge.selectopponent.searchplayer
+package io.zenandroid.onlinego.joseki
 
 import androidx.lifecycle.ViewModel
 import io.reactivex.disposables.Disposable
 import io.zenandroid.onlinego.mvi.MviView
 import io.zenandroid.onlinego.mvi.Store
 
-class SearchPlayerViewModel (private val store: Store<SearchPlayerState, SearchPlayerAction>): ViewModel() {
-
+class JosekiExplorerViewModel (private val store: Store<JosekiExplorerState, JosekiExplorerAction>): ViewModel()
+{
     private val wiring = store.wire()
     private var viewBinding: Disposable? = null
 
@@ -14,7 +14,7 @@ class SearchPlayerViewModel (private val store: Store<SearchPlayerState, SearchP
         wiring.dispose()
     }
 
-    fun bind(view: MviView<SearchPlayerAction, SearchPlayerState>) {
+    fun bind(view: MviView<JosekiExplorerAction, JosekiExplorerState>) {
         viewBinding = store.bind(view)
     }
 

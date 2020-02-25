@@ -8,7 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.Window
 import com.xwray.groupie.GroupAdapter
-import com.xwray.groupie.kotlinandroidextensions.ViewHolder
+import com.xwray.groupie.kotlinandroidextensions.GroupieViewHolder
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.model.local.Game
 import io.zenandroid.onlinego.utils.timeControlDescription
@@ -16,7 +16,7 @@ import kotlinx.android.synthetic.main.dialog_game_info.*
 
 class GameInfoDialog : DialogFragment() {
 
-    private val groupAdapter = GroupAdapter<ViewHolder>()
+    private val groupAdapter = GroupAdapter<GroupieViewHolder>()
 
     lateinit var game: Game
 

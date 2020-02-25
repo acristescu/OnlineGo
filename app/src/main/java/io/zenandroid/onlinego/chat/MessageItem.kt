@@ -2,7 +2,7 @@ package io.zenandroid.onlinego.chat
 
 import androidx.core.content.res.ResourcesCompat
 import com.xwray.groupie.kotlinandroidextensions.Item
-import com.xwray.groupie.kotlinandroidextensions.ViewHolder
+import com.xwray.groupie.kotlinandroidextensions.GroupieViewHolder
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.extensions.hide
 import io.zenandroid.onlinego.extensions.setMarginsDP
@@ -20,7 +20,7 @@ class MessageItem(
         ) : Item() {
     private val sdf = SimpleDateFormat.getTimeInstance(DateFormat.SHORT)
 
-    override fun bind(holder: ViewHolder, position: Int) {
+    override fun bind(holder: GroupieViewHolder, position: Int) {
         holder.messageText.text = message.text
         holder.dateView.text = sdf.format(Date(message.date * 1000))
 

@@ -1,7 +1,7 @@
 package io.zenandroid.onlinego.reusable
 
 import com.xwray.groupie.kotlinandroidextensions.Item
-import com.xwray.groupie.kotlinandroidextensions.ViewHolder
+import com.xwray.groupie.kotlinandroidextensions.GroupieViewHolder
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.extensions.hide
 import io.zenandroid.onlinego.extensions.show
@@ -15,7 +15,7 @@ class ChallengeItem(
         private val onChallengeAccepted: ((Challenge) -> Unit)?,
         private val onChallengeDeclined: ((Challenge) -> Unit)?
 ) : Item(challenge.id) {
-    override fun bind(holder: ViewHolder, position: Int) {
+    override fun bind(holder: GroupieViewHolder, position: Int) {
         if (challenge.challenger?.id == OGSServiceImpl.uiConfig?.user?.id) {
             holder.title.text = "You are challenging ${challenge.challenged?.username}"
             holder.acceptButton.hide()

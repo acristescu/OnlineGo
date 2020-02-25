@@ -1,13 +1,13 @@
 package io.zenandroid.onlinego.game
 
 import com.xwray.groupie.kotlinandroidextensions.Item
-import com.xwray.groupie.kotlinandroidextensions.ViewHolder
+import com.xwray.groupie.kotlinandroidextensions.GroupieViewHolder
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.game.GameContract.MenuItem.*
 import kotlinx.android.synthetic.main.item_game_menu.*
 
 class MenuRecyclerItem(val item: GameContract.MenuItem) : Item(item.hashCode().toLong()) {
-    override fun bind(viewHolder: ViewHolder, position: Int) {
+    override fun bind(viewHolder: GroupieViewHolder, position: Int) {
         when(item) {
             RESIGN -> {
                 viewHolder.titleView.text = "Resign"

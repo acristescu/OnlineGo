@@ -5,7 +5,7 @@ import io.reactivex.schedulers.Schedulers
 import io.zenandroid.onlinego.mvi.Middleware
 import io.zenandroid.onlinego.ogs.PlayersRepository
 
-class SearchMiddleware : Middleware<SearchPlayerAction, SearchPlayerState> {
+class SearchMiddleware : Middleware<SearchPlayerState, SearchPlayerAction> {
 
     override fun bind(
         actions: Observable<SearchPlayerAction>,

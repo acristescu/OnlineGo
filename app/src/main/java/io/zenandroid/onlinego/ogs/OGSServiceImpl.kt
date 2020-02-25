@@ -25,6 +25,7 @@ import io.zenandroid.onlinego.AndroidLoggingHandler
 import io.zenandroid.onlinego.BuildConfig
 import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.main.MainActivity
+import io.zenandroid.onlinego.model.ogs.JosekiPosition
 import io.zenandroid.onlinego.model.ogs.*
 import io.zenandroid.onlinego.newchallenge.ChallengeParams
 import io.zenandroid.onlinego.notifications.SynchronizeGamesWork
@@ -106,7 +107,20 @@ object OGSServiceImpl : OGSService {
         PersistenceManager.instance.storeUIConfig(uiConfig)
     }
 
+    private fun requiresUIConfigRefresh(): Boolean {
+        if(uiConfig?.user_jwt == null) {
+            return true
+        }
+
+        return false
+    }
+
     fun ensureSocketConnected() {
+        if(requiresUIConfigRefresh()) {
+            fetchUIConfig()
+                    .subscribeOn(Schedulers.io())
+                    .subscribe({}, { Crashlytics.log(Log.ERROR,TAG, "Failed to refresh UIConfig $it") })
+        }
         socket.connect()
     }
 
@@ -437,6 +451,13 @@ object OGSServiceImpl : OGSService {
                     request = request.newBuilder()
                             .addHeader("referer", "https://online-go.com/overview")
                             .apply { csrftoken?.let { addHeader("x-csrftoken",  it) } }
+                            .apply {
+                                if(request.url().pathSegments().contains("godojo")) {
+                                    uiConfig?.user_jwt?.let {
+                                        addHeader("X-User-Info", it)
+                                    }
+                                }
+                            }
                             .build()
 
                     val hasSessionCookieInJar = cookieJar.loadForRequest(request.url()).any { it.name() == "sessionid" }
@@ -598,4 +619,7 @@ object OGSServiceImpl : OGSService {
 
     override fun searchPlayers(query: String): Single<List<OGSPlayer>> =
             restApi.omniSearch(query).map { it.players }
+
+    override fun getJosekiPosition(id: Long?): Single<JosekiPosition> =
+            restApi.getJosekiPosition(id?.toString() ?: "root")
 }

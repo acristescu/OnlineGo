@@ -2,6 +2,7 @@ package io.zenandroid.onlinego.ogs
 
 import io.reactivex.Completable
 import io.reactivex.Single
+import io.zenandroid.onlinego.model.ogs.JosekiPosition
 import io.zenandroid.onlinego.model.ogs.*
 import retrofit2.http.*
 
@@ -62,4 +63,8 @@ interface OGSRestAPI {
 
     @GET("/api/v1/ui/omniSearch")
     fun omniSearch(@Query("q") q: String): Single<OmniSearchResponse>
+
+    @Headers("x-godojo-auth-token: foofer")
+    @GET("/godojo/position?mode=0")
+    fun getJosekiPosition(@Query("id") id: String): Single<JosekiPosition>
 }

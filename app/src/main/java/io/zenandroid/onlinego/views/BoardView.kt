@@ -12,6 +12,7 @@ import io.reactivex.subjects.PublishSubject
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.model.Position
 import io.zenandroid.onlinego.model.StoneType
+import io.zenandroid.onlinego.model.ogs.PlayCategory
 import java.util.*
 import kotlin.math.roundToInt
 
@@ -52,6 +53,11 @@ class BoardView : View {
         set(value) {
             field = value
             computeDimensions(width)
+            invalidate()
+        }
+    var drawMarks = false
+        set(value) {
+            field = value
             invalidate()
         }
     var fadeOutRemovedStones = false
@@ -165,20 +171,20 @@ class BoardView : View {
         //
         // We're enforcing the board to be always square
         //
-        val widthMode = View.MeasureSpec.getMode(widthMeasureSpec)
-        val widthSize = View.MeasureSpec.getSize(widthMeasureSpec)
-        val heightMode = View.MeasureSpec.getMode(heightMeasureSpec)
-        val heightSize = View.MeasureSpec.getSize(heightMeasureSpec)
+        val widthMode = MeasureSpec.getMode(widthMeasureSpec)
+        val widthSize = MeasureSpec.getSize(widthMeasureSpec)
+        val heightMode = MeasureSpec.getMode(heightMeasureSpec)
+        val heightSize = MeasureSpec.getSize(heightMeasureSpec)
 
-        val size = if (widthMode == View.MeasureSpec.EXACTLY && widthSize > 0) {
+        val size = if (widthMode == MeasureSpec.EXACTLY && widthSize > 0) {
             widthSize
-        } else if (heightMode == View.MeasureSpec.EXACTLY && heightSize > 0) {
+        } else if (heightMode == MeasureSpec.EXACTLY && heightSize > 0) {
             heightSize
         } else {
             if (widthSize < heightSize) widthSize else heightSize
         }
 
-        val finalMeasureSpec = View.MeasureSpec.makeMeasureSpec(size, View.MeasureSpec.EXACTLY)
+        val finalMeasureSpec = MeasureSpec.makeMeasureSpec(size, MeasureSpec.EXACTLY)
         super.onMeasure(finalMeasureSpec, finalMeasureSpec)
     }
 
@@ -387,13 +393,14 @@ class BoardView : View {
      */
     private fun drawDecorations(canvas: Canvas, position: Position) {
         if(drawLastMove) {
+            decorationsPaint.style = Paint.Style.STROKE
             position.lastMove?.let {
 
                 val type = position.lastPlayerToMove
                 val center = getCellCenter(it.x, it.y)
 
                 decorationsPaint.color = if (type == StoneType.WHITE) Color.BLACK else Color.WHITE
-                canvas.drawCircle(center.x, center.y, (cellSize / 4).toFloat(), decorationsPaint)
+                canvas.drawCircle(center.x, center.y, cellSize / 4f, decorationsPaint)
             }
         }
 
@@ -407,15 +414,25 @@ class BoardView : View {
             }
             drawTextCentred(canvas, textPaint, (i+1).toString(), center.x, center.y)
         }
+
+        if(drawMarks) {
+            decorationsPaint.style = Paint.Style.FILL_AND_STROKE
+            position.customMarks.forEach {
+                val center = getCellCenter(it.placement.x, it.placement.y)
+                decorationsPaint.color = determineMarkColor(it)
+                canvas.drawCircle(center.x, center.y, cellSize / 2f - stoneSpacing, decorationsPaint)
+                it.text?.let {
+                    drawTextCentred(canvas, textPaint, it, center.x, center.y)
+                }
+            }
+        }
     }
 
     private fun drawBackground(canvas: Canvas) {
-        //canvas.drawARGB(255, 0xDE, 0xB0, 0x66);
-        //        canvas.drawBitmap(texture, 0, 0, null);
         texture?.let {
             val src = Rect(0, 0, it.width, it.height)
             val dest = Rect(0, 0, width, height)
-            canvas.drawBitmap(texture, src, dest, null)
+            canvas.drawBitmap(it, src, dest, null)
         } ?: Log.e("BoardView", "Null background!!!")
     }
 
@@ -447,6 +464,17 @@ class BoardView : View {
         this.candidateType = candidate
         invalidate()
     }
+
+    private fun determineMarkColor(mark: Position.Mark) =
+        when(mark.category) {
+            PlayCategory.IDEAL -> 0xC0D0FFC0.toInt()
+            PlayCategory.GOOD -> 0xC0F0FF90.toInt()
+            PlayCategory.MISTAKE -> 0xC0ED7861.toInt()
+            PlayCategory.TRICK -> 0xC0D384F9.toInt()
+            PlayCategory.QUESTION -> 0xC079B3E4.toInt()
+            PlayCategory.LABEL -> 0x70FFFFFF.toInt()
+            null -> Color.GRAY
+        }
 
     companion object {
         private val FUZZY_PLACEMENT = false

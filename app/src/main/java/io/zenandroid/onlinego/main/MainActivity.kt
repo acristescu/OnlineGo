@@ -26,6 +26,7 @@ import io.zenandroid.onlinego.extensions.fadeIn
 import io.zenandroid.onlinego.extensions.fadeOut
 import io.zenandroid.onlinego.extensions.showIf
 import io.zenandroid.onlinego.game.GameFragment
+import io.zenandroid.onlinego.joseki.JosekiExplorerFragment
 import io.zenandroid.onlinego.learn.LearnFragment
 import io.zenandroid.onlinego.login.LoginActivity
 import io.zenandroid.onlinego.model.local.Game
@@ -296,7 +297,7 @@ class MainActivity : AppCompatActivity(), MainContract.View {
     override fun onBackPressed() {
         val fragment = supportFragmentManager.findFragmentById(R.id.fragment_container)
         when {
-            fragment is GameFragment -> selectItem(lastSelectedItem)
+            fragment is GameFragment || fragment is JosekiExplorerFragment -> selectItem(lastSelectedItem)
             newChallengeView.subMenuVisible -> newChallengeView.toggleSubMenu()
             else -> super.onBackPressed()
         }
@@ -333,5 +334,15 @@ class MainActivity : AppCompatActivity(), MainContract.View {
             analytics.logEvent("bot_challenge", null)
             presenter.onNewBotChallenge(it)
         }.show(supportFragmentManager, "BOTTOM_SHEET")
+    }
+
+    fun navigateToJosekiExplorer() {
+        bottomNavigation.visibility = View.GONE
+        newChallengeView.fadeOut().subscribe()
+        supportFragmentManager.beginTransaction()
+                .setCustomAnimations(R.anim.fade_in, R.anim.fade_out,
+                        R.anim.fade_in, R.anim.fade_out)
+                .replace(R.id.fragment_container, JosekiExplorerFragment(), "game")
+                .commitAllowingStateLoss()
     }
 }

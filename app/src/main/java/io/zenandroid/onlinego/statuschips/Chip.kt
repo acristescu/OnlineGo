@@ -7,6 +7,7 @@ import androidx.annotation.DrawableRes
 import androidx.core.content.ContextCompat
 import android.view.View.GONE
 import android.view.View.VISIBLE
+import com.xwray.groupie.kotlinandroidextensions.GroupieViewHolder
 import com.xwray.groupie.kotlinandroidextensions.Item
 import io.zenandroid.onlinego.BuildConfig
 import io.zenandroid.onlinego.R
@@ -19,7 +20,7 @@ open class Chip(
         @ColorRes val fgColor: Int = R.color.colorPrimary,
         val onClick: (() -> Unit)? = null
 ) : Item(text.hashCode().toLong()) {
-    override fun bind(viewHolder: com.xwray.groupie.kotlinandroidextensions.ViewHolder, position: Int) {
+    override fun bind(viewHolder: GroupieViewHolder, position: Int) {
         viewHolder.text.text = text
         viewHolder.card.setCardBackgroundColor(ContextCompat.getColor(viewHolder.icon.context, bgColor))
         viewHolder.text.setTextColor(ContextCompat.getColor(viewHolder.icon.context, fgColor))

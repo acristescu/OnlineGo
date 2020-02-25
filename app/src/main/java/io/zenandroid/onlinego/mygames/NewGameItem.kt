@@ -3,6 +3,7 @@ package io.zenandroid.onlinego.mygames
 import androidx.annotation.DrawableRes
 import android.view.View.GONE
 import android.view.View.VISIBLE
+import com.xwray.groupie.kotlinandroidextensions.GroupieViewHolder
 import com.xwray.groupie.kotlinandroidextensions.Item
 import io.zenandroid.onlinego.R
 import kotlinx.android.synthetic.main.item_new_game.*
@@ -16,7 +17,7 @@ sealed class NewGameItem(
     object AutoMatch : NewGameItem("Auto-match", R.drawable.ic_person_filled)
     object Custom : NewGameItem("Custom", R.drawable.ic_challenge)
 
-    override fun bind(viewHolder: com.xwray.groupie.kotlinandroidextensions.ViewHolder, position: Int) {
+    override fun bind(viewHolder: GroupieViewHolder, position: Int) {
         viewHolder.text.text = text
         icon?.let {
             viewHolder.icon.visibility = VISIBLE

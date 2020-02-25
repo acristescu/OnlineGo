@@ -8,7 +8,7 @@ import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
 import com.xwray.groupie.kotlinandroidextensions.Item
-import com.xwray.groupie.kotlinandroidextensions.ViewHolder
+import com.xwray.groupie.kotlinandroidextensions.GroupieViewHolder
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.extensions.DP
 import io.zenandroid.onlinego.model.local.Player
@@ -21,7 +21,7 @@ import kotlinx.android.synthetic.main.item_opponent.*
 class OpponentItem(
         val opponent: Player
 ) : Item(opponent.id) {
-    override fun bind(viewHolder: ViewHolder, position: Int) {
+    override fun bind(viewHolder: GroupieViewHolder, position: Int) {
         viewHolder.nameView.text = opponent.username
         viewHolder.extraInfoView.text = formatRank(egfToRank(opponent.rating))
         Glide.with(viewHolder.iconView)
@@ -42,7 +42,7 @@ class OpponentItem(
                 .waitForLayout()
     }
 
-    override fun unbind(viewHolder: ViewHolder) {
+    override fun unbind(viewHolder: GroupieViewHolder) {
         Glide.with(viewHolder.iconView).clear(viewHolder.iconView)
         super.unbind(viewHolder)
     }

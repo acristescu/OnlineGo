@@ -9,7 +9,9 @@ import androidx.recyclerview.widget.SimpleItemAnimator
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import com.awesomedialog.blennersilva.awesomedialoglibrary.AwesomeInfoDialog
+import io.reactivex.android.schedulers.AndroidSchedulers
 import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.login.LoginActivity
@@ -17,9 +19,7 @@ import io.zenandroid.onlinego.main.MainActivity
 import io.zenandroid.onlinego.model.local.Challenge
 import io.zenandroid.onlinego.model.local.Game
 import io.zenandroid.onlinego.model.ogs.OGSAutomatch
-import io.zenandroid.onlinego.ogs.AutomatchRepository
-import io.zenandroid.onlinego.ogs.ChallengesRepository
-import io.zenandroid.onlinego.ogs.ServerNotificationsRepository
+import io.zenandroid.onlinego.ogs.*
 import io.zenandroid.onlinego.reusable.ActiveGameItem
 import io.zenandroid.onlinego.reusable.AutomatchItem
 import io.zenandroid.onlinego.reusable.ChallengeItem
@@ -29,7 +29,7 @@ import kotlinx.android.synthetic.main.fragment_mygames.*
 /**
  * Created by alex on 05/11/2017.
  */
-class MyGamesFragment : Fragment(), MyGamesContract.View {
+class MyGamesFragment : Fragment(R.layout.fragment_mygames), MyGamesContract.View {
     override fun showLoginScreen() {
         startActivity(Intent(context, LoginActivity::class.java))
         activity?.finish()
@@ -42,8 +42,6 @@ class MyGamesFragment : Fragment(), MyGamesContract.View {
 
     private var lastReportedGameCount = -1
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View =
-            inflater.inflate(R.layout.fragment_mygames, container, false)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
