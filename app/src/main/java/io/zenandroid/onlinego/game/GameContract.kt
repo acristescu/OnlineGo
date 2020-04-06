@@ -111,5 +111,6 @@ interface GameContract {
         object ACCEPT_UNDO: MenuItem()
         object REQUEST_UNDO: MenuItem()
         object ABORT_GAME: MenuItem()
+        object OPEN_IN_BROWSER: MenuItem()
     }
 }

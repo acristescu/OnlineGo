@@ -51,6 +51,10 @@ class MenuRecyclerItem(val item: GameContract.MenuItem) : Item(item.hashCode().t
                 viewHolder.titleView.text = "Abort Game"
                 viewHolder.iconView.setImageResource(R.drawable.ic_cancel)
             }
+            OPEN_IN_BROWSER -> {
+                viewHolder.titleView.text = "Open in Browser"
+                viewHolder.iconView.setImageResource(R.drawable.ic_link_black_24dp)
+            }
         }.let {}
     }
 

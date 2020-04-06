@@ -451,6 +451,7 @@ class GamePresenter(
             list.add(ACCEPT_UNDO)
         }
 
+        list.add(OPEN_IN_BROWSER)
         view.showMenu(list)
     }
 
@@ -467,6 +468,7 @@ class GamePresenter(
             ACCEPT_UNDO -> onUndoAccepted()
             REQUEST_UNDO -> TODO()
             ABORT_GAME -> onDiscardButtonPressed()
+            OPEN_IN_BROWSER -> onOpenInBrowserClicked()
         }.let {  }
     }
 
@@ -481,6 +483,10 @@ class GamePresenter(
 
     private fun onDownloadSGFClicked() {
         view.navigateTo("https://online-go.com/api/v1/games/$gameId/sgf")
+    }
+
+    private fun onOpenInBrowserClicked() {
+        view.navigateTo("https://online-go.com/game/$gameId")
     }
 
     private fun onEstimateClicked() {
