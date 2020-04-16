@@ -221,6 +221,7 @@ class GameFragment : Fragment(), GameContract.View {
             (activity as? MainActivity)?.apply {
                 mainTitle = value
                 setLogoVisible(false)
+                setChipsVisible(true)
             }
         }
 

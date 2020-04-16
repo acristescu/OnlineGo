@@ -46,6 +46,7 @@
                     android:textStyle="bold"
                     app:layout_constraintLeft_toLeftOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toTopOf="@id/chipList"
                     tools:text="OnlineGo" />
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/chipList"

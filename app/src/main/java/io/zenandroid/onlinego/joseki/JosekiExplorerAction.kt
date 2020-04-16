@@ -11,9 +11,14 @@ sealed class JosekiExplorerAction {
     ): JosekiExplorerAction()
 
     class PositionLoaded(val position: JosekiPosition): JosekiExplorerAction()
-    class UserTappedCoordinate(val coordinate: Point): JosekiExplorerAction()
-    class UserHotTrackedCoordinate(val coordinate: Point): JosekiExplorerAction()
     class LoadPosition(val id: Long?): JosekiExplorerAction()
     class StartDataLoading(val id: Long?): JosekiExplorerAction()
     class ShowCandidateMove(val placement: Point?): JosekiExplorerAction()
+    object Finish: JosekiExplorerAction()
+
+    // User actions
+    class UserTappedCoordinate(val coordinate: Point): JosekiExplorerAction()
+    class UserHotTrackedCoordinate(val coordinate: Point): JosekiExplorerAction()
+    object UserPressedBack: JosekiExplorerAction()
+    object UserPressedPass: JosekiExplorerAction()
 }

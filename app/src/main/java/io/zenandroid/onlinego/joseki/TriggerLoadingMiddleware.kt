@@ -13,7 +13,7 @@ class TriggerLoadingMiddleware : Middleware<JosekiExplorerState, JosekiExplorerA
                 .withLatestFrom(state)
                 .filter { (_, state) -> state.position == null }
                 .map <JosekiExplorerAction> { LoadPosition(null) }
-        val subsequentLoadingObservable = actions
+        val coordinateLoadingObservable = actions
                 .ofType(UserTappedCoordinate::class.java)
                 .withLatestFrom(state)
                 .flatMap <JosekiExplorerAction> { (action, state) ->
@@ -24,6 +24,17 @@ class TriggerLoadingMiddleware : Middleware<JosekiExplorerState, JosekiExplorerA
                     } ?: Observable.just(ShowCandidateMove(null))
                 }
 
-        return initialLoadingObservable.mergeWith(subsequentLoadingObservable)
+        val passLoadingObservable = actions
+                .ofType(UserPressedPass::class.java)
+                .withLatestFrom(state)
+                .map { (_, state) ->
+                    LoadPosition(state?.position?.next_moves?.find { it.placement == "pass" }?.node_id)
+                }
+
+        return Observable.merge(
+                initialLoadingObservable,
+                coordinateLoadingObservable,
+                passLoadingObservable
+        )
     }
 }

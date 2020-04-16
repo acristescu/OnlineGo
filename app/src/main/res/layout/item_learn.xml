@@ -13,7 +13,7 @@
         android:layout_width="32dp"
         android:layout_height="32dp"
         android:background="@drawable/rounded_corners"
-        android:backgroundTint="@color/colorPrimary"
+        android:backgroundTint="@color/colorPrimaryDark"
         android:tint="@color/white"
         android:padding="8dp"
         tools:src="@drawable/ic_book"
@@ -58,7 +58,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toRightOf="@id/titleView"
         app:layout_constraintHorizontal_bias="1"
-        android:textColor="@color/colorPrimary"
+        android:textColor="@color/colorPrimaryDark"
         android:textSize="14sp"
         android:textStyle="bold"
         />

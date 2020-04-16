@@ -3,6 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
     android:background="@color/white">
 
     <ScrollView
@@ -10,6 +11,7 @@
         android:layout_height="0dp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toTopOf="@id/board_container"
+        android:layout_margin="8dp"
         >
         <TextView
             android:id="@+id/description"
@@ -17,6 +19,7 @@
             android:layout_height="wrap_content"
             android:clickable="true"
             android:focusable="true"
+            tools:text="The Vital Point\n\nIt’s common sense to answer an attachment with a hane. However, if the attaching stone is connected to friendly forces, one cannot stubbornly hane. White stretches to here instead. Allowing Black to create a tiger’s mouth with a hane at Q14(X) is intolerable for White. (Vol. 1.)\n\nA and B are joseki.\n\nC and D are asking for a larger corner but leave bad aji."
             />
     </ScrollView>
 

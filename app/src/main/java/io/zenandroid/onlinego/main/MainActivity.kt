@@ -85,8 +85,11 @@ class MainActivity : AppCompatActivity(), MainContract.View {
 
     fun setLogoVisible(visible: Boolean) {
         titleView.showIf(!visible)
-        chipList.showIf(!visible)
         logo.showIf(visible)
+    }
+
+    fun setChipsVisible(visible: Boolean) {
+        chipList.showIf(visible)
     }
 
     fun setChatButtonVisible(visible: Boolean) {
@@ -128,7 +131,7 @@ class MainActivity : AppCompatActivity(), MainContract.View {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             android.R.id.home -> {
-                onBackPressed()
+                selectItem(lastSelectedItem)
                 return true
             }
         }
@@ -297,7 +300,8 @@ class MainActivity : AppCompatActivity(), MainContract.View {
     override fun onBackPressed() {
         val fragment = supportFragmentManager.findFragmentById(R.id.fragment_container)
         when {
-            fragment is GameFragment || fragment is JosekiExplorerFragment -> selectItem(lastSelectedItem)
+            fragment is JosekiExplorerFragment && fragment.canHandleBack() -> fragment.onBackPressed()
+            fragment is GameFragment || fragment is JosekiExplorerFragment-> selectItem(lastSelectedItem)
             newChallengeView.subMenuVisible -> newChallengeView.toggleSubMenu()
             else -> super.onBackPressed()
         }

@@ -113,6 +113,7 @@ class MyGamesFragment : Fragment(R.layout.fragment_mygames), MyGamesContract.Vie
 
         (activity as? MainActivity)?.apply {
             setLogoVisible(true)
+            setChipsVisible(false)
             setChatButtonVisible(false)
         }
         presenter.subscribe()
