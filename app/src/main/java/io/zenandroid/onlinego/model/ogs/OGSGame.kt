@@ -1,6 +1,5 @@
 package io.zenandroid.onlinego.model.ogs
 
-import androidx.room.Ignore
 import io.zenandroid.onlinego.ogs.Players
 import java.util.*
 
@@ -13,7 +12,7 @@ data class OGSGame (
 
         var id: Long,
 
-        var phase: Phase,
+        var phase: Phase?,
 
         var name: String? = null,
         var width: Int,
@@ -51,7 +50,6 @@ data class OGSGame (
 //        var sgf_filename: Any? = null,
         var players: Players? = null,
 
-        @Ignore
         internal val gamedata: GameData? = null
 ) {
     data class Related (

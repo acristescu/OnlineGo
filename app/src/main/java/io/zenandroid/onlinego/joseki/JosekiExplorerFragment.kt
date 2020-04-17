@@ -30,6 +30,7 @@ import io.zenandroid.onlinego.model.StoneType
 import io.zenandroid.onlinego.mvi.MviView
 import io.zenandroid.onlinego.mvi.Store
 import io.zenandroid.onlinego.settings.SettingsRepository
+import io.zenandroid.onlinego.utils.PersistenceManager
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.fragment_joseki.*
 import kotlinx.android.synthetic.main.fragment_joseki.progressBar
@@ -103,6 +104,7 @@ class JosekiExplorerFragment : Fragment(R.layout.fragment_joseki), MviView<Josek
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
+        PersistenceManager.visitedJosekiExplorer = true
         viewModel = ViewModelProviders.of(
                 this,
                 viewModelFactory {
@@ -152,14 +154,18 @@ class JosekiExplorerFragment : Fragment(R.layout.fragment_joseki), MviView<Josek
                                 internalActions.onNext(LoadPosition(link.toLong()))
                             } else {
                                 val uri = Uri.parse(link)
-                                val context = view.context
-                                val intent = Intent(Intent.ACTION_VIEW, uri)
-                                intent.putExtra(Browser.EXTRA_APPLICATION_ID, context.packageName)
-                                try {
-                                    context.startActivity(intent)
-                                } catch (e: ActivityNotFoundException) {
-                                    Log.e(TAG, "Can't resolve link $link")
-                                    Crashlytics.log(Log.ERROR, TAG, "Can't resolve link $link for in the description of joseki pos ${currentState?.position?.node_id}")
+                                if(uri.host?.endsWith("online-go.com") == true && uri.path?.startsWith("/joseki/") == true) {
+                                    internalActions.onNext(LoadPosition(uri.lastPathSegment?.toLong()))
+                                } else {
+                                    val context = view.context
+                                    val intent = Intent(Intent.ACTION_VIEW, uri)
+                                    intent.putExtra(Browser.EXTRA_APPLICATION_ID, context.packageName)
+                                    try {
+                                        context.startActivity(intent)
+                                    } catch (e: ActivityNotFoundException) {
+                                        Log.e(TAG, "Can't resolve link $link")
+                                        Crashlytics.log(Log.ERROR, TAG, "Can't resolve link $link for in the description of joseki pos ${currentState?.position?.node_id}")
+                                    }
                                 }
                             }
                         }

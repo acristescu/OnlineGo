@@ -1,5 +1,7 @@
 package io.zenandroid.onlinego.mvi
 
+import android.util.Log
+import com.crashlytics.android.Crashlytics
 import com.jakewharton.rxrelay2.BehaviorRelay
 import com.jakewharton.rxrelay2.PublishRelay
 import io.reactivex.Observable
@@ -9,7 +11,7 @@ import io.reactivex.disposables.Disposable
 import io.reactivex.rxkotlin.plusAssign
 import io.reactivex.rxkotlin.withLatestFrom
 
-class Store<S, A> (
+class Store<S: Any, A: Any> (
         private val reducer: Reducer<S, A>,
         private val middlewares: List<Middleware<S, A>>,
         private val initialState: S
@@ -21,15 +23,20 @@ class Store<S, A> (
     fun wire(): Disposable {
         val disposable = CompositeDisposable()
 
-        disposable += actions.withLatestFrom(state) { action, state ->
+        disposable += actions.withLatestFrom(state) { action: A, state: S ->
             reducer.reduce(state, action)
         }
             .distinctUntilChanged()
+            .doOnError(this::onError)
+            .onErrorResumeNext(Observable.empty())
             .subscribe(state::accept)
 
         disposable += Observable.merge<A>(
             middlewares.map { it.bind(actions, state) }
-        ).subscribe(actions::accept)
+        )
+                .doOnError(this::onError)
+                .onErrorResumeNext(Observable.empty())
+                .subscribe(actions::accept)
 
         return disposable
     }
@@ -39,5 +46,10 @@ class Store<S, A> (
         disposable += state.observeOn(AndroidSchedulers.mainThread()).subscribe(view::render)
         disposable += view.actions.subscribe(actions::accept)
         return disposable
+    }
+
+    private fun onError(throwable: Throwable) {
+        Log.e("Store", throwable.message, throwable)
+        Crashlytics.logException(throwable)
     }
 }

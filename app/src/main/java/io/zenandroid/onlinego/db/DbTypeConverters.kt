@@ -3,6 +3,7 @@ package io.zenandroid.onlinego.db
 import androidx.room.TypeConverter
 import io.zenandroid.onlinego.model.local.Message
 import io.zenandroid.onlinego.model.ogs.Phase
+import io.zenandroid.onlinego.model.ogs.PlayCategory
 
 /**
  * Created by 44108952 on 07/06/2018.
@@ -48,11 +49,11 @@ class DbTypeConverters {
 
         @TypeConverter
         @JvmStatic
-        fun phaseToString(phase: Phase?) = phase?.toString()
+        fun playCategoryToString(playCategory: PlayCategory?) = playCategory?.toString()
 
         @TypeConverter
         @JvmStatic
-        fun stringToPhase(phase: String?) = phase?.let(Phase::valueOf)
+        fun stringToPlayCategory(playCategory: String?) = playCategory?.let(PlayCategory::valueOf)
 
         @TypeConverter
         @JvmStatic
@@ -61,5 +62,13 @@ class DbTypeConverters {
         @TypeConverter
         @JvmStatic
         fun stringToMessageType(type: String?) = type?.let(Message.Type::valueOf)
+
+        @TypeConverter
+        @JvmStatic
+        fun phaseToString(phase: Phase?) = phase?.toString()
+
+        @TypeConverter
+        @JvmStatic
+        fun stringToPhase(phase: String?) = phase?.let(Phase::valueOf)
     }
 }

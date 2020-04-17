@@ -16,7 +16,7 @@ class LoadPositionMiddleware: Middleware<JosekiExplorerState, JosekiExplorerActi
     ): Observable<JosekiExplorerAction> {
 
         return actions.ofType(LoadPosition::class.java)
-                .flatMap {
+                .switchMap {
                     JosekiRepository.getJosekiPosition(it.id)
                             .subscribeOn(Schedulers.io())
                             .map<JosekiExplorerAction>(::PositionLoaded)

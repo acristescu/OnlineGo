@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView
 import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
+import androidx.core.content.res.ResourcesCompat
 import com.jakewharton.rxbinding2.view.RxView
 import io.reactivex.Completable
 import io.reactivex.Observable
@@ -44,6 +45,7 @@ import io.zenandroid.onlinego.stats.StatsFragment
 import io.zenandroid.onlinego.statuschips.Chip
 import io.zenandroid.onlinego.statuschips.ChipAdapter
 import io.zenandroid.onlinego.utils.NotificationUtils
+import io.zenandroid.onlinego.utils.PersistenceManager
 import kotlinx.android.synthetic.main.activity_main.*
 
 
@@ -64,7 +66,6 @@ class MainActivity : AppCompatActivity(), MainContract.View {
     private var unreadCount = 0
 
     val activeGameRepository: ActiveGameRepository by lazy { ActiveGameRepository }
-    val botsRepository: BotsRepository by lazy { BotsRepository }
     val chatClicks: Observable<Any> by lazy { RxView.clicks(chatButton) }
 
     private lateinit var lastSelectedItem: MenuItem
@@ -158,6 +159,10 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         chipList.adapter = chipAdapter
 
         bottomNavigation.disableShiftMode()
+        bottomNavigation.getOrCreateBadge(R.id.navigation_learn).apply {
+            isVisible = !PersistenceManager.visitedJosekiExplorer
+            backgroundColor = ResourcesCompat.getColor(resources, R.color.colorAccent, null)
+        }
         notificationsButton.setOnClickListener { onNotificationClicked() }
 
         newChallengeView.apply {
@@ -276,6 +281,7 @@ class MainActivity : AppCompatActivity(), MainContract.View {
     private fun ensureNavigationVisible() {
         if(bottomNavigation.visibility != View.VISIBLE) {
             bottomNavigation.visibility = View.VISIBLE
+            bottomNavigation.getOrCreateBadge(R.id.navigation_learn).isVisible = !PersistenceManager.visitedJosekiExplorer
             Completable.mergeArray(
                     newChallengeView.fadeIn(),
                     newChallengeView.showFab()

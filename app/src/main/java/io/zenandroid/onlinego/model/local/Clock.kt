@@ -5,7 +5,7 @@ import androidx.room.Embedded
 data class Clock(
         var lastMove: Long,
         var expiration: Long? = null,
-        var now: Long,
+        var now: Long? = null,
         var receivedAt: Long,
 
         var whiteTimeSimple: Long?,

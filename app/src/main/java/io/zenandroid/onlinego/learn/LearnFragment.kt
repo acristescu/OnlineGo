@@ -13,6 +13,7 @@ import com.xwray.groupie.kotlinandroidextensions.GroupieViewHolder
 import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.main.MainActivity
+import io.zenandroid.onlinego.utils.PersistenceManager
 import kotlinx.android.synthetic.main.fragment_learn.*
 
 
@@ -23,7 +24,7 @@ class LearnFragment : Fragment(R.layout.fragment_learn), LearnContract.View {
 
     private lateinit var presenter: LearnContract.Presenter
     private val learningItems = listOf(
-            LearnItem("Joseki", "Explore openings", R.drawable.ic_book, "EXPLORE")
+            LearnItem("Joseki", "Explore openings", R.drawable.ic_book, "EXPLORE", {!PersistenceManager.visitedJosekiExplorer} )
 //            LearnItem("Pro Games", "Database of pro games", R.drawable.ic_book, "BROWSE"),
 //            LearnItem("Live Games", "Online live games", R.drawable.ic_book, "WATCH"),
 //            LearnItem("Tsumego", "GO problems", R.drawable.ic_book, "SOLVE"),

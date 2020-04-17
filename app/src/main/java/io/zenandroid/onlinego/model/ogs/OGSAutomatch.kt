@@ -3,10 +3,10 @@ package io.zenandroid.onlinego.model.ogs
 data class OGSAutomatch(
         val uuid: String,
         val game_id: Long?,
-        val size_speed_options: List<SizeSpeedOption>
+        val size_speed_options: List<SizeSpeedOption>?
 ) {
     val liveOrBlitz: Boolean
-        get() = size_speed_options.find { it.speed == "blitz" || it.speed == "live" } != null
+        get() = size_speed_options?.find { it.speed == "blitz" || it.speed == "live" } != null
 }
 
 data class SizeSpeedOption(

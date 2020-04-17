@@ -10,7 +10,7 @@ class JosekiExplorerReducer : Reducer<JosekiExplorerState, JosekiExplorerAction>
         return when (action) {
             is PositionLoaded ->
                 if(state.lastRequestedNodeId == null || state.lastRequestedNodeId == action.position.node_id) {
-                    val history = if(state.position != null) state.historyStack + state.position else state.historyStack
+                    val history = if(state.position != null && state.position.node_id != action.position.node_id) state.historyStack + state.position else state.historyStack
                     state.copy(
                             position = action.position,
                             description = descriptionOfPosition(action.position),

@@ -1,6 +1,9 @@
 package io.zenandroid.onlinego.ogs
 
+import android.util.Log
 import com.crashlytics.android.Crashlytics
+import io.reactivex.Flowable
+import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.BehaviorSubject
@@ -24,28 +27,38 @@ object AutomatchRepository {
         automatches.clear()
         OGSServiceImpl.listenToNewAutomatchNotifications()
                 .subscribeOn(Schedulers.io())
-                .subscribe(this::addAutomatch) { Crashlytics.logException(it) }
+                .doOnError(this::onError)
+                .onErrorResumeNext(Flowable.empty())
+                .subscribe(this::addAutomatch)
                 .addToDisposable(subscriptions)
 
         OGSServiceImpl.listenToCancelAutomatchNotifications()
                 .subscribeOn(Schedulers.io())
-                .subscribe(this::removeAutomatch) { Crashlytics.logException(it) }
+                .doOnError(this::onError)
+                .onErrorResumeNext(Flowable.empty())
+                .subscribe(this::removeAutomatch)
                 .addToDisposable(subscriptions)
 
         OGSServiceImpl.listenToStartAutomatchNotifications()
                 .subscribeOn(Schedulers.io())
                 .doOnNext(gameStartSubject::onNext)
-                .subscribe(this::removeAutomatch) { Crashlytics.logException(it) }
+                .doOnError(this::onError)
+                .onErrorResumeNext(Flowable.empty())
+                .subscribe(this::removeAutomatch)
                 .addToDisposable(subscriptions)
 
         OGSServiceImpl.connectToAutomatch()
+    }
+
+    private fun onError(t: Throwable) {
+        Log.e("AutomatchRepository", t.message, t)
+        Crashlytics.logException(t)
     }
 
     private fun removeAutomatch(automatch: OGSAutomatch) {
         automatches.find { it.uuid == automatch.uuid } ?.let {
             automatches.remove(it)
             automatchesSubject.onNext(automatches)
-
         }
     }
 

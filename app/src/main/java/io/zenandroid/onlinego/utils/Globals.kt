@@ -103,7 +103,7 @@ fun computeTimeLeft(clock: Clock, playerTimeSimple: Long?, playerTime: Time?, cu
     if(clock.receivedAt == 0L) {
         clock.receivedAt = now
     }
-    var nowDelta = clock.receivedAt - clock.now
+    var nowDelta = clock.receivedAt - (clock.now ?: 0)
     if(nowDelta > 100000) { // sanity check
         nowDelta = 0
     }

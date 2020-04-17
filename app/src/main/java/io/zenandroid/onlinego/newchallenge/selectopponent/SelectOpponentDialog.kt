@@ -12,13 +12,14 @@ import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.google.android.material.tabs.TabLayoutMediator
 import com.squareup.moshi.Moshi
+import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.model.local.Player
 import io.zenandroid.onlinego.newchallenge.selectopponent.searchplayer.SearchPlayerFragment
 import kotlinx.android.synthetic.main.dialog_select_opponent.*
 
 class SelectOpponentDialog : DialogFragment(), SelectBotFragment.OnOpponentSelected {
-    private val moshi = Moshi.Builder().build().adapter(Player::class.java)
+    private val moshi = Moshi.Builder().add(KotlinJsonAdapterFactory()).build().adapter(Player::class.java)
 
     private val TABS = listOf(
             "Bot" to SelectBotFragment::class.java,

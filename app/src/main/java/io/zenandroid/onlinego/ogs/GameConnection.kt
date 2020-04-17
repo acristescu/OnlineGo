@@ -193,7 +193,7 @@ data class OGSClock (
     var title: String? = null,
     var last_move: Long,
     var expiration: Long? = null,
-    var now: Long,
+    var now: Long? = null,
     var paused_since: Long? = null,
     var start_mode: Boolean = false,
     var pause_control: Any? = null,
@@ -214,7 +214,6 @@ data class Players (
         var white: OGSPlayer? = null,
         var black: OGSPlayer? = null
 )
-
 
 data class TimeControl (
     var system: String? = null,

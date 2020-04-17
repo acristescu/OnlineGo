@@ -16,9 +16,10 @@ class TriggerLoadingMiddleware : Middleware<JosekiExplorerState, JosekiExplorerA
         val coordinateLoadingObservable = actions
                 .ofType(UserTappedCoordinate::class.java)
                 .withLatestFrom(state)
+                .filter { (_, state) -> !state.loading }
                 .flatMap <JosekiExplorerAction> { (action, state) ->
                     state?.position?.next_moves?.find {
-                        it.placement != null && it.placement != "pass" && Position.coordinateToPoint(it.placement) == action.coordinate
+                        it.placement != null && it.placement != "pass" && Position.coordinateToPoint(it.placement!!) == action.coordinate
                     }?.let {
                         Observable.just(LoadPosition(it.node_id))
                     } ?: Observable.just(ShowCandidateMove(null))

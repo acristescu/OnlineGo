@@ -4,6 +4,7 @@ import androidx.room.*
 import io.reactivex.Flowable
 import io.reactivex.Single
 import io.zenandroid.onlinego.model.local.*
+import io.zenandroid.onlinego.model.ogs.JosekiPosition
 import io.zenandroid.onlinego.model.ogs.Phase
 
 /**
@@ -194,4 +195,25 @@ abstract class GameDao {
         LIMIT 25
     """)
     abstract fun getRecentOpponents(userId: Long?): Single<List<Player>>
+
+    @Transaction
+    open fun insertJosekiPositionsWithChildren(fullyLoadedPositions: List<JosekiPosition>, children: List<JosekiPosition>) {
+        insertJosekiPositionsReplacingDuplicates(fullyLoadedPositions)
+        insertJosekiPositionsIgnoringDuplicates(children)
+    }
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    abstract fun insertJosekiPositionsReplacingDuplicates(positions: List<JosekiPosition>)
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    abstract fun insertJosekiPositionsIgnoringDuplicates(positions: List<JosekiPosition>)
+
+    @Query("SELECT * FROM josekiposition WHERE play = '.root'")
+    abstract fun getJosekiRootPosition(): Flowable<JosekiPosition>
+
+    @Query("SELECT * FROM josekiposition WHERE node_id = :posId AND play IS NOT NULL")
+    abstract fun getJosekiPostion(posId: Long): Flowable<JosekiPosition>
+
+    @Query("SELECT * FROM josekiposition WHERE parent_id = :parentId")
+    abstract fun getChildrenPositions(parentId: Long): List<JosekiPosition>
 }

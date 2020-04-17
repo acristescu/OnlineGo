@@ -11,6 +11,7 @@ import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types
 import com.squareup.moshi.adapters.Rfc3339DateJsonAdapter
+import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Completable
 import io.reactivex.Flowable
@@ -33,6 +34,7 @@ import io.zenandroid.onlinego.utils.PersistenceManager
 import io.zenandroid.onlinego.utils.createJsonArray
 import io.zenandroid.onlinego.utils.createJsonObject
 import okhttp3.HttpUrl
+import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import okhttp3.OkHttpClient
 import okhttp3.ResponseBody
 import okhttp3.logging.HttpLoggingInterceptor
@@ -58,7 +60,10 @@ object OGSServiceImpl : OGSService {
     override var uiConfig: UIConfig? = null
     private val socket: Socket
     private val restApi: OGSRestAPI
-    private val moshi = Moshi.Builder().add(Date::class.java, Rfc3339DateJsonAdapter().nullSafe()).build()
+    private val moshi = Moshi.Builder()
+            .add(Date::class.java, Rfc3339DateJsonAdapter().nullSafe())
+            .add(KotlinJsonAdapterFactory())
+            .build()
     private var authSent = false
 
     val cookieJar = PersistentCookieJar(SetCookieCache(), SharedPrefsCookiePersistor(OnlineGoApplication.instance))
@@ -96,15 +101,15 @@ object OGSServiceImpl : OGSService {
 
     fun isLoggedIn() =
             (uiConfig != null) &&
-                    cookieJar.loadForRequest(HttpUrl.parse("https://online-go.com/")!!)
-                            .any { it.name() == "sessionid" }
+                    cookieJar.loadForRequest("https://online-go.com/".toHttpUrlOrNull()!!)
+                            .any { it.name == "sessionid" }
 
     private fun storeUIConfig(uiConfig: UIConfig) {
         this.uiConfig = uiConfig
         authSent = false
         MainActivity.userId = uiConfig.user.id
         Crashlytics.setUserIdentifier(uiConfig.user.id.toString())
-        PersistenceManager.instance.storeUIConfig(uiConfig)
+        PersistenceManager.storeUIConfig(uiConfig)
     }
 
     private fun requiresUIConfigRefresh(): Boolean {
@@ -425,7 +430,7 @@ object OGSServiceImpl : OGSService {
 
     fun logOut() {
         uiConfig = null
-        PersistenceManager.instance.deleteUIConfig()
+        PersistenceManager.deleteUIConfig()
         cookieJar.clear()
         disconnect()
         SynchronizeGamesWork.unschedule()
@@ -437,7 +442,7 @@ object OGSServiceImpl : OGSService {
         } else this
 
     init {
-        uiConfig = PersistenceManager.instance.getUIConfig()
+        uiConfig = PersistenceManager.getUIConfig()
         MainActivity.userId = uiConfig?.user?.id
         uiConfig?.user?.id?.toString()?.let(Crashlytics::setUserIdentifier)
         Crashlytics.log("Startup")
@@ -447,12 +452,12 @@ object OGSServiceImpl : OGSService {
                 .addStethoInterceptor()
                 .addNetworkInterceptor { chain ->
                     var request = chain.request()
-                    val csrftoken = cookieJar.loadForRequest(request.url()).firstOrNull { it.name() == "csrftoken" }?.value()
+                    val csrftoken = cookieJar.loadForRequest(request.url).firstOrNull { it.name == "csrftoken" }?.value
                     request = request.newBuilder()
                             .addHeader("referer", "https://online-go.com/overview")
                             .apply { csrftoken?.let { addHeader("x-csrftoken",  it) } }
                             .apply {
-                                if(request.url().pathSegments().contains("godojo")) {
+                                if(request.url.pathSegments.contains("godojo")) {
                                     uiConfig?.user_jwt?.let {
                                         addHeader("X-User-Info", it)
                                     }
@@ -460,18 +465,18 @@ object OGSServiceImpl : OGSService {
                             }
                             .build()
 
-                    val hasSessionCookieInJar = cookieJar.loadForRequest(request.url()).any { it.name() == "sessionid" }
-                    val isSessionCookieExpired = cookieJar.loadForRequest(request.url()).any { it.name() == "sessionid" && it.expiresAt() < System.currentTimeMillis() }
+                    val hasSessionCookieInJar = cookieJar.loadForRequest(request.url).any { it.name == "sessionid" }
+                    val isSessionCookieExpired = cookieJar.loadForRequest(request.url).any { it.name == "sessionid" && it.expiresAt < System.currentTimeMillis() }
 
                     val response = chain.proceed(request)
 
                     if(response.isSuccessful) {
-                        Crashlytics.log(Log.INFO, TAG, "${request.method()} ${request.url()} -> ${response.code()}")
+                        Crashlytics.log(Log.INFO, TAG, "${request.method} ${request.url} -> ${response.code}")
                         //
                         // Note: For some users the server responds with a peculiar answer here, causing Moshi to throw a fit. We will temporarily log this to try and determine
                         // what's going on
                         //
-                        if(request.url().encodedPath().endsWith("challenges")) {
+                        if(request.url.encodedPath.endsWith("challenges")) {
                             Crashlytics.log(Log.INFO, TAG, peekBody(response))
                         }
                     } else {
@@ -484,7 +489,7 @@ object OGSServiceImpl : OGSService {
                             else -> "no session cookie"
                         }
                         val sessionCookieInfo = if(sessionCookieSent) "session cookie sent" else "session cookie not sent"
-                        Crashlytics.log(Log.ERROR, TAG, "${request.method()} ${request.url()} -> ${response.code()} ${response.message()} [$cookieJarInfo] [$csrftokenInfo] [$sessionCookieInfo] ${peekBody(response)}")
+                        Crashlytics.log(Log.ERROR, TAG, "${request.method} ${request.url} -> ${response.code} ${response.message} [$cookieJarInfo] [$csrftokenInfo] [$sessionCookieInfo] ${peekBody(response)}")
 
                         if(!sessionCookieSent && hasSessionCookieInJar && !isSessionCookieExpired) {
                             Crashlytics.logException(Exception("Possible cookie jar problem"))
@@ -620,6 +625,6 @@ object OGSServiceImpl : OGSService {
     override fun searchPlayers(query: String): Single<List<OGSPlayer>> =
             restApi.omniSearch(query).map { it.players }
 
-    override fun getJosekiPosition(id: Long?): Single<JosekiPosition> =
-            restApi.getJosekiPosition(id?.toString() ?: "root")
+    override fun getJosekiPositions(id: Long?): Single<List<JosekiPosition>> =
+            restApi.getJosekiPositions(id?.toString() ?: "root")
 }

@@ -25,5 +25,5 @@ interface OGSService {
     fun challengeBot(challengeParams: ChallengeParams): Completable
     fun deleteNotification(notificationId: String)
     fun searchPlayers(query: String): Single<List<OGSPlayer>>
-    fun getJosekiPosition(id: Long?): Single<JosekiPosition>
+    fun getJosekiPositions(id: Long?): Single<List<JosekiPosition>>
 }

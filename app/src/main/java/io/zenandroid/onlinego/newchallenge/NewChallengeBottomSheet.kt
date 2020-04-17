@@ -11,6 +11,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.squareup.moshi.Moshi
+import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.model.local.Player
 import io.zenandroid.onlinego.model.ogs.OGSPlayer
@@ -27,7 +28,7 @@ class NewChallengeBottomSheet(
 ) : BottomSheetDialogFragment() {
 
     private val PARAMS_KEY = "PARAMS"
-    private val moshi = Moshi.Builder().build()
+    private val moshi = Moshi.Builder().add(KotlinJsonAdapterFactory()).build()
     private val challengeParamsAdapter = moshi.adapter(ChallengeParams::class.java)
     private val opponentAdapter = moshi.adapter(Player::class.java)
     private val prefs = PreferenceManager.getDefaultSharedPreferences(context)

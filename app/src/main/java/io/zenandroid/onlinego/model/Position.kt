@@ -192,7 +192,7 @@ class Position(val boardSize: Int) {
                 pos.nextToMove = turn
             }
             josekiPosition.next_moves
-                    ?.filter { it.placement != null && it.placement != "pass" }
+                    ?.filter { it.placement != null && it.placement != "pass" && it.placement != "root"}
                     ?.map {
                         val childCoordinate = coordinateToPoint(it.placement!!)
                         val overlayLabel = josekiPosition.labels?.find { childCoordinate == it.placement }
@@ -214,7 +214,7 @@ class Position(val boardSize: Int) {
             josekiPosition.labels
                     ?.filter { candidate ->
                         josekiPosition.next_moves
-                                ?.find { it.placement != null && it.placement != "pass" && candidate.placement == coordinateToPoint(it.placement) } == null
+                                ?.find { it.placement != null && it.placement != "pass" && candidate.placement == coordinateToPoint(it.placement!!) } == null
                     }
                     ?.map { Mark(it.placement, it.text, it.category) }
                     ?.let (pos.customMarks::addAll)

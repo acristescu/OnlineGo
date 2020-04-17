@@ -63,7 +63,7 @@ object Util {
             return game?.player_to_move == OGSServiceImpl.uiConfig?.user?.id
         }
         game.json?.let {
-            return it.clock.current_player == OGSServiceImpl.uiConfig?.user?.id
+            return it.clock?.current_player == OGSServiceImpl.uiConfig?.user?.id
         }
         return false
     }

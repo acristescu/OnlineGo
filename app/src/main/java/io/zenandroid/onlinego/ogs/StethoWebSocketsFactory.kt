@@ -23,7 +23,7 @@ class StethoWebSocketsFactory(private val httpClient: OkHttpClient) : WebSocket.
 
         override fun onOpen(webSocket: WebSocket, response: Response) {
             listener.onOpen(webSocket, response)
-            reporter.webSocketCreated(requestId, webSocket.request().url().toString())
+            reporter.webSocketCreated(requestId, webSocket.request().url.toString())
         }
 
         override fun onClosed(webSocket: WebSocket, code: Int, reason: String) {

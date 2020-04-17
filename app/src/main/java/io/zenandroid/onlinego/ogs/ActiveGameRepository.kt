@@ -161,7 +161,7 @@ object ActiveGameRepository {
                 id = gameId,
                 outcome = gameData.outcome,
                 phase = gameData.phase,
-                playerToMoveId = gameData.clock.current_player,
+                playerToMoveId = gameData.clock?.current_player,
                 initialState = gameData.initial_state,
                 whiteGoesFirst = gameData.initial_player == "white",
                 moves = gameData.moves.map { mutableListOf(it[0].toInt(), it[1].toInt()) }.toMutableList(),

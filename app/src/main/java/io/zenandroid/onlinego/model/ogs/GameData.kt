@@ -42,7 +42,7 @@ data class GameData (
         var strict_seki_mode: Boolean? = null,
         var initial_state: InitialState? = null,
         var start_time: Int? = null,
-        var clock: OGSClock,
+        var clock: OGSClock? = null,
         var removed: String? = null,
         var auth: String? = null,
         var game_chat_auth: String? = null,

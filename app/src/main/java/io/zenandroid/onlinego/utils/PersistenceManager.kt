@@ -1,22 +1,20 @@
 package io.zenandroid.onlinego.utils
 
 import android.content.Context
+import androidx.core.content.edit
 import com.squareup.moshi.Moshi
+import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.model.ogs.UIConfig
 
+private const val UICONFIG_KEY = "UICONFIG_KEY"
+private const val VISITED_JOSEKI = "VISITED_JOSEKI"
 /**
  * Created by alex on 07/11/2017.
  */
-class PersistenceManager {
-    companion object {
-        val instance = PersistenceManager()
-
-        const val UICONFIG_KEY = "UICONFIG_KEY"
-    }
-
+object PersistenceManager {
     private val prefs = OnlineGoApplication.instance.getSharedPreferences("login", Context.MODE_PRIVATE)
-    private val moshi = Moshi.Builder().build()
+    private val moshi = Moshi.Builder().add(KotlinJsonAdapterFactory()).build()
 
     fun storeUIConfig(uiConfig: UIConfig) {
         prefs.edit()
@@ -33,4 +31,11 @@ class PersistenceManager {
             return moshi.adapter(UIConfig::class.java).fromJson(it)
         }
 
+    var visitedJosekiExplorer: Boolean = prefs.getBoolean(VISITED_JOSEKI, false)
+        set(value) {
+            if(field != value) {
+                prefs.edit { putBoolean(VISITED_JOSEKI, value) }
+            }
+            field = value
+        }
 }
