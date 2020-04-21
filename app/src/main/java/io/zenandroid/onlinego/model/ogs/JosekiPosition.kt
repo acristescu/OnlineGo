@@ -29,13 +29,11 @@ data class JosekiPosition (
         var topicId: Long? = null,
         var db_locked_down: Boolean? = null,
         @Ignore
-        val joseki_source: Any? = null
-) {
-    @Transient
-    @Ignore
-    var labels: List<Position.Mark>? = null
-}
-
+        val joseki_source: Any? = null,
+        @Transient
+        @Ignore
+        var labels: List<Position.Mark>? = null
+)
 enum class PlayCategory {
     IDEAL, GOOD, MISTAKE, TRICK, QUESTION, LABEL
 }

@@ -19,6 +19,8 @@ sealed class JosekiExplorerAction {
     // User actions
     class UserTappedCoordinate(val coordinate: Point): JosekiExplorerAction()
     class UserHotTrackedCoordinate(val coordinate: Point): JosekiExplorerAction()
+    object UserPressedPrevious: JosekiExplorerAction()
     object UserPressedBack: JosekiExplorerAction()
+    object UserPressedNext: JosekiExplorerAction()
     object UserPressedPass: JosekiExplorerAction()
 }

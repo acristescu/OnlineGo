@@ -6,8 +6,6 @@ import android.net.Uri
 import android.os.Bundle
 import android.provider.Browser
 import android.util.Log
-import androidx.activity.OnBackPressedCallback
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModel
@@ -22,6 +20,7 @@ import io.noties.markwon.core.MarkwonTheme
 import io.noties.markwon.movement.MovementMethodPlugin
 import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
+import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.extensions.showIf
 import io.zenandroid.onlinego.joseki.JosekiExplorerAction.*
@@ -43,20 +42,23 @@ class JosekiExplorerFragment : Fragment(R.layout.fragment_joseki), MviView<Josek
 
     private val internalActions = PublishSubject.create<JosekiExplorerAction>()
     private var currentState: JosekiExplorerState? = null
+    private var analytics = OnlineGoApplication.instance.analytics
 
     override val actions: Observable<JosekiExplorerAction>
         get() =
             Observable.merge(
                     listOf(
-                        internalActions,
-                        board.tapUpObservable()
-                                .map<JosekiExplorerAction>(::UserTappedCoordinate),
-                        board.tapMoveObservable()
-                                .map<JosekiExplorerAction>(::UserHotTrackedCoordinate),
-                        RxView.clicks(previousButton)
-                                .map<JosekiExplorerAction> { UserPressedBack },
-                        RxView.clicks(passButton)
-                                .map<JosekiExplorerAction> { UserPressedPass }
+                            internalActions,
+                            board.tapUpObservable()
+                                    .map<JosekiExplorerAction>(::UserTappedCoordinate),
+                            board.tapMoveObservable()
+                                    .map<JosekiExplorerAction>(::UserHotTrackedCoordinate),
+                            RxView.clicks(previousButton)
+                                    .map<JosekiExplorerAction> { UserPressedPrevious },
+                            RxView.clicks(nextButton)
+                                    .map<JosekiExplorerAction> { UserPressedNext },
+                            RxView.clicks(passButton)
+                                    .map<JosekiExplorerAction> { UserPressedPass }
                     )
             ).startWith(ViewReady)
 
@@ -79,9 +81,9 @@ class JosekiExplorerFragment : Fragment(R.layout.fragment_joseki), MviView<Josek
             Log.e(TAG, it.message, it)
             Crashlytics.logException(it)
         }
-        previousButton.isEnabled = state.backButtonEnabled
+        previousButton.isEnabled = state.previousButtonEnabled
         passButton.isEnabled = state.passButtonEnabled
-        nextButton.isEnabled = false
+        nextButton.isEnabled = state.nextButtonEnabled
     }
 
     override fun onPause() {
@@ -91,6 +93,7 @@ class JosekiExplorerFragment : Fragment(R.layout.fragment_joseki), MviView<Josek
 
     override fun onResume() {
         super.onResume()
+        analytics.setCurrentScreen(requireActivity(), javaClass.simpleName, null)
         board.apply {
             isInteractive = true
             drawCoordinates = SettingsRepository.showCoordinates
@@ -114,7 +117,8 @@ class JosekiExplorerFragment : Fragment(R.layout.fragment_joseki), MviView<Josek
                                     listOf(
                                             LoadPositionMiddleware(),
                                             HotTrackMiddleware(),
-                                            TriggerLoadingMiddleware()
+                                            TriggerLoadingMiddleware(),
+                                            AnalyticsMiddleware()
                                     ),
                                     JosekiExplorerState()
                             )

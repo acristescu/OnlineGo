@@ -26,7 +26,6 @@ object JosekiRepository {
 
     fun getJosekiPosition(id: Long?): Flowable<JosekiPosition> {
         disposable += OGSServiceImpl.getJosekiPositions(id)
-                .map { it.map(this::processJosekiPosition) }
                 .subscribe(this::savePositionsToDB, this::onError)
 
         val dbObservable =
@@ -34,15 +33,24 @@ object JosekiRepository {
                 else dao.getJosekiPostion(id)
 
         return dbObservable
-                .doOnNext { it.next_moves = dao.getChildrenPositions(it.node_id ?: 0) }
+                .map(this::extractLabelsFromDescription)
+                .doOnNext {
+                    it.next_moves = dao.getChildrenPositions(it.node_id ?: 0).map(this::extractLabelsFromDescription)
+                }
                 .distinctUntilChanged()
     }
 
     private fun savePositionsToDB(list: List<JosekiPosition>) {
         val children = mutableListOf<JosekiPosition>()
-        list.forEach {
-            it.next_moves?.let {
-                children += it
+        list.forEach { pos ->
+            pos.next_moves?.forEach {
+                it.parent_id = pos.node_id
+            }
+            val isRoot = pos.play == ".root"
+            pos.parent_id = if(isRoot) null else pos.parent?.node_id
+
+            pos.next_moves?.let {
+                children += pos
             }
         }
         dao.insertJosekiPositionsWithChildren(list, children)
@@ -53,7 +61,7 @@ object JosekiRepository {
         Crashlytics.logException(error)
     }
 
-    private fun processJosekiPosition(originalPos: JosekiPosition): JosekiPosition {
+    private fun extractLabelsFromDescription(originalPos: JosekiPosition): JosekiPosition {
         var newDescription: String? = null
         originalPos.description?.let {
             newDescription = it.replace(headerWithMissingSpaceRegex, "# ")
@@ -73,12 +81,7 @@ object JosekiRepository {
             newDescription = sb.toString()
         }
 
-        originalPos.next_moves?.forEach {
-            it.parent_id = originalPos.node_id
-        }
-        return originalPos.copy(
-                description = newDescription,
-                parent_id = originalPos.parent?.node_id
-        )
+        originalPos.description = newDescription
+        return originalPos
     }
 }

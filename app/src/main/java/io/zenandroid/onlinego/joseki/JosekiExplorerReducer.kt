@@ -16,10 +16,12 @@ class JosekiExplorerReducer : Reducer<JosekiExplorerState, JosekiExplorerAction>
                             description = descriptionOfPosition(action.position),
                             boardPosition = Position.fromJosekiPosition(action.position),
                             historyStack = history,
+                            nextPosStack = emptyList(),
                             loading = false,
                             candidateMove = null,
                             error = null,
-                            backButtonEnabled = history.isNotEmpty(),
+                            previousButtonEnabled = history.isNotEmpty(),
+                            nextButtonEnabled = false,
                             passButtonEnabled = action.position.next_moves?.find { it.placement == "pass" } != null
                     )
                 } else {
@@ -29,7 +31,7 @@ class JosekiExplorerReducer : Reducer<JosekiExplorerState, JosekiExplorerAction>
             is StartDataLoading -> state.copy(
                     loading = true,
                     lastRequestedNodeId = action.id,
-                    backButtonEnabled = false
+                    previousButtonEnabled = false
             )
 
             is ShowCandidateMove -> state.copy(
@@ -45,24 +47,46 @@ class JosekiExplorerReducer : Reducer<JosekiExplorerState, JosekiExplorerAction>
                     shouldFinish = true
             )
 
-            UserPressedBack -> {
+            UserPressedBack, UserPressedPrevious -> {
                 if(state.historyStack.isEmpty()) {
                     state.copy(shouldFinish = true)
                 } else {
                     val history = state.historyStack.dropLast(1)
                     val position = state.historyStack.last()
+                    val nextPosStack = state.nextPosStack + state.position!!
                     state.copy(
                             position = position,
                             description = descriptionOfPosition(position),
-                            boardPosition = Position.fromJosekiPosition(state.historyStack.last()),
+                            boardPosition = Position.fromJosekiPosition(position),
                             historyStack = history,
+                            nextPosStack = nextPosStack,
                             loading = false,
                             candidateMove = null,
                             error = null,
-                            backButtonEnabled = history.isNotEmpty(),
+                            previousButtonEnabled = history.isNotEmpty(),
+                            nextButtonEnabled = true,
                             passButtonEnabled = position.next_moves?.find { it.placement == "pass" } != null
                     )
                 }
+            }
+
+            UserPressedNext -> {
+                val nextPosStack = state.nextPosStack.dropLast(1)
+                val position = state.nextPosStack.last()
+                val history = state.historyStack + state.position!!
+                state.copy(
+                        position = position,
+                        description = descriptionOfPosition(position),
+                        boardPosition = Position.fromJosekiPosition(position),
+                        historyStack = history,
+                        nextPosStack = nextPosStack,
+                        loading = false,
+                        candidateMove = null,
+                        error = null,
+                        previousButtonEnabled = true,
+                        nextButtonEnabled = nextPosStack.isNotEmpty(),
+                        passButtonEnabled = position.next_moves?.find { it.placement == "pass" } != null
+                )
             }
 
             is UserTappedCoordinate,

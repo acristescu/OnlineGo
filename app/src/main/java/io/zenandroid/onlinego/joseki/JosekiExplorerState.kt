@@ -12,9 +12,11 @@ data class JosekiExplorerState (
         val position: JosekiPosition? = null,
         val description: String? = null,
         val historyStack: List<JosekiPosition> = emptyList(),
+        val nextPosStack: List<JosekiPosition> = emptyList(),
         val boardPosition: Position? = null,
         val error: Throwable? = null,
         val shouldFinish: Boolean = false,
-        val backButtonEnabled: Boolean = false,
+        val previousButtonEnabled: Boolean = false,
+        val nextButtonEnabled: Boolean = false,
         val passButtonEnabled: Boolean = false
 )
