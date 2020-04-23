@@ -83,7 +83,6 @@ class GameConnection(
         close()
     }
 
-
     fun incrementCounter() {
         synchronized(connectionLock) {
             counter++

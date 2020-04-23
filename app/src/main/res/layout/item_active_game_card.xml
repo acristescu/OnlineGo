@@ -93,7 +93,7 @@
                 android:layout_marginRight="8dp"
                 android:textSize="14sp"
                 app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintRight_toLeftOf="@id/chatBubble"
                 app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintLeft_toRightOf="@+id/opponent_rank"
                 app:layout_constraintBaseline_toBaselineOf="@id/opponent_name"

@@ -6,7 +6,7 @@ import io.zenandroid.onlinego.R
 import kotlinx.android.synthetic.main.section_header.*
 
 /**
- * Created by 44108952 on 31/05/2018.
+ * Created by alex on 31/05/2018.
  */
 class HeaderItem(val title: String) : Item() {
     override fun bind(viewHolder: GroupieViewHolder, position: Int) {

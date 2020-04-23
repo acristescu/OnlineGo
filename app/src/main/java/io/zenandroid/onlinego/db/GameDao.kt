@@ -8,7 +8,7 @@ import io.zenandroid.onlinego.model.ogs.JosekiPosition
 import io.zenandroid.onlinego.model.ogs.Phase
 
 /**
- * Created by 44108952 on 04/06/2018.
+ * Created by alex on 04/06/2018.
  */
 @Dao
 abstract class GameDao {
@@ -30,15 +30,33 @@ abstract class GameDao {
         ON message.gameId == game.id 
         WHERE 
             phase <> 'FINISHED' 
-            AND (
-                white_id = :userId 
-                OR black_id = :userId
-            )
+            AND (white_id = :userId OR black_id = :userId)
     """)
     abstract fun monitorActiveGamesWithNewMessagesCount(userId: Long?) : Flowable<List<Game>>
 
+    @Query("""
+        SELECT * 
+        FROM game 
+        LEFT JOIN (
+            SELECT 
+                gameId, 
+                COUNT(*) as messagesCount 
+            FROM message 
+            WHERE seen <> 1 
+            GROUP BY gameId
+        ) message 
+        ON message.gameId == game.id 
+        WHERE 
+            phase = 'FINISHED' 
+            AND (white_id = :userId OR black_id = :userId)
+            AND ended > (SELECT STRFTIME('%s','now','-5 days') * 1000)
+        ORDER BY ended DESC 
+        LIMIT 25
+        """)
+    abstract fun monitorRecentGames(userId: Long?) : Flowable<List<Game>>
+
     @Query("SELECT * FROM game WHERE phase = 'FINISHED' AND (white_id = :userId OR black_id = :userId) ORDER BY ended DESC LIMIT 25")
-    abstract fun monitorHistoricGames(userId: Long?) : Flowable<List<Game>>
+    abstract fun monitorFinishedGames(userId: Long?) : Flowable<List<Game>>
 
     @Query("SELECT id FROM game WHERE id in (:ids) AND phase = 'FINISHED' AND outcome <> ''")
     abstract fun getHistoricGamesThatDontNeedUpdating(ids: List<Long>) : List<Long>

@@ -11,7 +11,7 @@ import io.zenandroid.onlinego.model.ogs.Phase
 import io.zenandroid.onlinego.ogs.TimeControl
 
 /**
- * Created by 44108952 on 05/06/2018.
+ * Created by alex on 05/06/2018.
  */
 @Entity
 data class Game(

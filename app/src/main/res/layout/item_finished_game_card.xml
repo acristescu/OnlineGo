@@ -99,10 +99,40 @@
                 android:layout_marginRight="8dp"
                 android:textSize="14sp"
                 app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintRight_toLeftOf="@id/chatBubble"
                 app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintLeft_toRightOf="@+id/opponent_rank"
                 app:layout_constraintBaseline_toBaselineOf="@id/opponent_name"
+                />
+
+            <ImageView
+                android:id="@+id/chatBubble"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:srcCompat="@drawable/ic_chat_bubble"
+                android:tint="@color/colorTextSecondary"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                android:padding="8dp"
+                android:layout_marginTop="12dp"
+                android:layout_marginRight="29dp"
+                />
+
+            <TextView
+                android:id="@+id/chatBadge"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right|top"
+                android:background="@drawable/oval"
+                android:elevation="2dp"
+                android:gravity="center"
+                android:text="4"
+                android:textColor="#FFFFFF"
+                app:layout_constraintDimensionRatio="w,1:1"
+                app:layout_constraintEnd_toEndOf="@id/chatBubble"
+                app:layout_constraintTop_toTopOf="@id/chatBubble"
+                android:textSize="12sp"
+                android:textStyle="bold"
                 />
 
             <TextView

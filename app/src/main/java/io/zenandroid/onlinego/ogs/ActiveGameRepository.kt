@@ -244,7 +244,7 @@ object ActiveGameRepository {
         return OnlineGoApplication.instance.db.gameDao().monitorActiveGamesWithNewMessagesCount(OGSServiceImpl.uiConfig?.user?.id)
     }
 
-    fun fetchHistoricGames(): Flowable<List<Game>> {
+    fun fetchRecentGames(): Flowable<List<Game>> {
         OGSServiceImpl
                 .fetchHistoricGames()
                 .map { it.map(OGSGame::id) }
@@ -259,7 +259,9 @@ object ActiveGameRepository {
                 .subscribe(OnlineGoApplication.instance.db.gameDao()::insertAllGames)
                 { this.onError(it, "fetchHistoricGames") }
                 .addToDisposable(subscriptions)
-        return OnlineGoApplication.instance.db.gameDao().monitorHistoricGames(OGSServiceImpl.uiConfig?.user?.id)
+        return OnlineGoApplication.instance.db.gameDao()
+                .monitorRecentGames(OGSServiceImpl.uiConfig?.user?.id)
+                .doOnNext { it.forEach(this::connectToGame) } // <- NOTE: We're connecting to the recent games just because of the chat...
     }
 
     private fun onError(t: Throwable, request: String) {

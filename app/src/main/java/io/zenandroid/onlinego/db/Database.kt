@@ -10,7 +10,7 @@ import io.zenandroid.onlinego.model.local.Message
 import io.zenandroid.onlinego.model.ogs.JosekiPosition
 
 /**
- * Created by 44108952 on 04/06/2018.
+ * Created by alex on 04/06/2018.
  */
 @Database(
         entities = [Game::class, Message::class, Challenge::class, GameNotification::class, JosekiPosition::class],

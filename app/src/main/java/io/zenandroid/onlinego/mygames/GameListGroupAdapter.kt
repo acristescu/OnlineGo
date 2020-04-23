@@ -12,7 +12,7 @@ import io.zenandroid.onlinego.ogs.OGSServiceImpl
 import io.zenandroid.onlinego.reusable.*
 
 /**
- * Created by 44108952 on 31/05/2018.
+ * Created by alex on 31/05/2018.
  */
 class GameListGroupAdapter : GroupAdapter<GroupieViewHolder>() {
     private var onItemClickListener: OnItemClickListener? = null

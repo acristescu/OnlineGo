@@ -6,7 +6,7 @@ import io.zenandroid.onlinego.model.ogs.Phase
 import io.zenandroid.onlinego.model.ogs.PlayCategory
 
 /**
- * Created by 44108952 on 07/06/2018.
+ * Created by alex on 07/06/2018.
  */
 class DbTypeConverters {
 
