@@ -6,7 +6,7 @@ import io.zenandroid.onlinego.model.local.Player
  * Created by alex on 04/11/2017.
  */
 data class OGSPlayer (
-        var id: Long,
+        var id: Long? = null,
         var username: String? = null,
         var rank: Float? = null,
         var professional: Boolean? = null,

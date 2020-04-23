@@ -63,7 +63,7 @@ object ActiveGameRepository {
                 .subscribe(this::onNotification) { this.onError(it, "connectToActiveGames") }
                 .addToDisposable(subscriptions)
         OnlineGoApplication.instance.db.gameDao()
-                .monitorActiveGames(OGSServiceImpl.uiConfig?.user?.id)
+                .monitorActiveGamesWithNewMessagesCount(OGSServiceImpl.uiConfig?.user?.id)
                 .subscribe(this::setActiveGames) { this.onError(it, "gameDao") }
                 .addToDisposable(subscriptions)
     }
@@ -241,7 +241,7 @@ object ActiveGameRepository {
                     .ignoreElement()
 
     fun monitorActiveGames(): Flowable<List<Game>> {
-        return OnlineGoApplication.instance.db.gameDao().monitorActiveGames(OGSServiceImpl.uiConfig?.user?.id)
+        return OnlineGoApplication.instance.db.gameDao().monitorActiveGamesWithNewMessagesCount(OGSServiceImpl.uiConfig?.user?.id)
     }
 
     fun fetchHistoricGames(): Flowable<List<Game>> {

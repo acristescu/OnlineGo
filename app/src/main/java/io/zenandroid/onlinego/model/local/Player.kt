@@ -17,7 +17,7 @@ data class Player(
     companion object {
         fun fromOGSPlayer(ogsPlayer: OGSPlayer) =
                 Player(
-                        id = ogsPlayer.id,
+                        id = ogsPlayer.id!!,
                         username = ogsPlayer.username ?: "?",
                         rating = ogsPlayer.ratings?.overall?.rating,
                         country = ogsPlayer.country,

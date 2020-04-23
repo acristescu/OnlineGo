@@ -19,12 +19,12 @@ object ChallengesRepository {
 
     fun subscribe() {
         refreshChallenges()
-                .subscribe({}, Crashlytics::logException)
+                .subscribe({}, this::onError)
                 .addToDisposable(disposables)
         ogs.connectToUIPushes()
                 .filter { it.event == "challenge-list-updated" }
                 .flatMapCompletable { refreshChallenges() }
-                .subscribe({}, Crashlytics::logException)
+                .subscribe({}, this::onError)
                 .addToDisposable(disposables)
     }
 
@@ -41,6 +41,11 @@ object ChallengesRepository {
 
     fun monitorChallenges(): Flowable<List<Challenge>> =
         dao.getChallenges()
+
+    fun onError(throwable: Throwable) {
+        Log.e(TAG, throwable.message, throwable)
+        Crashlytics.logException(throwable)
+    }
 
     fun unsubscribe() {
         disposables.clear()

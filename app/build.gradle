@@ -77,8 +77,10 @@ dependencies {
     implementation 'com.jakewharton.rxrelay2:rxrelay:2.1.1'
     implementation 'io.reactivex.rxjava2:rxkotlin:2.4.0'
 
-    implementation "android.arch.work:work-runtime-ktx:1.0.1"
-    implementation "android.arch.work:work-rxjava2:1.0.1"
+    implementation "androidx.work:work-runtime-ktx:2.3.4"
+    implementation "androidx.work:work-rxjava2:2.3.4"
+
+    implementation "androidx.lifecycle:lifecycle-extensions:2.2.0"
 
     implementation 'com.facebook.stetho:stetho:1.5.1'
     implementation 'com.facebook.stetho:stetho-okhttp3:1.5.1'

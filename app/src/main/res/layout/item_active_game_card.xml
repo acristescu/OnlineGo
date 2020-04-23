@@ -79,8 +79,8 @@
                 android:textColor="@color/colorTextSecondary"
                 android:textSize="12sp"
                 app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintRight_toLeftOf="@+id/opponent_flag"
-                app:layout_constraintLeft_toRightOf="@+id/opponent_name"
+                app:layout_constraintRight_toLeftOf="@id/opponent_flag"
+                app:layout_constraintLeft_toRightOf="@id/opponent_name"
                 tools:text="14k"
                 app:layout_constraintBaseline_toBaselineOf="@id/opponent_name"
                 />
@@ -156,6 +156,37 @@
                 android:textStyle="bold"
                 android:textColor="@color/colorTextSecondary"
                 android:textSize="12sp"
+                />
+
+            <ImageView
+                android:id="@+id/chatBubble"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:srcCompat="@drawable/ic_chat_bubble"
+                android:tint="@color/colorTextSecondary"
+                app:layout_constraintLeft_toLeftOf="@id/time_label"
+                app:layout_constraintRight_toRightOf="@id/time_label"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toTopOf="@id/time_label"
+                android:padding="8dp"
+                android:layout_marginTop="8dp"
+                />
+
+            <TextView
+                android:id="@+id/chatBadge"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right|top"
+                android:background="@drawable/oval"
+                android:elevation="2dp"
+                android:gravity="center"
+                android:text="4"
+                android:textColor="#FFFFFF"
+                app:layout_constraintDimensionRatio="w,1:1"
+                app:layout_constraintEnd_toEndOf="@id/chatBubble"
+                app:layout_constraintTop_toTopOf="@id/chatBubble"
+                android:textSize="12sp"
+                android:textStyle="bold"
                 />
 
             <TextView

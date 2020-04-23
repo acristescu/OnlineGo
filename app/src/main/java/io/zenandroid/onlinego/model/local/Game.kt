@@ -61,7 +61,8 @@ data class Game(
         val disableAnalysis: Boolean?,
 
         @Embedded(prefix = "initial_state_")
-        val timeControl: TimeControl?
+        val timeControl: TimeControl?,
+        val messagesCount: Int? = null
         ) {
     @Ignore
     var json: GameData? = null
@@ -137,3 +138,7 @@ data class Game(
     }
 }
 
+data class GameWithMessagesCount (
+    @Embedded val game: Game,
+    val messagesCount: Int?
+    )

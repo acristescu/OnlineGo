@@ -16,54 +16,59 @@ import kotlinx.android.synthetic.main.item_active_game_card.*
 
 class ActiveGameItem (val game: Game) : Item(game.id) {
     override fun bind(holder: GroupieViewHolder, position: Int) {
-        holder.board.boardSize = game.width
-        holder.board.position = RulesManager.replay(game, computeTerritory = false)
+        holder.apply {
+            board.boardSize = game.width
+            board.position = RulesManager.replay(game, computeTerritory = false)
 
-        val userId = OGSServiceImpl.uiConfig?.user?.id
+            val userId = OGSServiceImpl.uiConfig?.user?.id
 
-        val opponent =
-                when (userId) {
-                    game.blackPlayer.id -> game.whitePlayer
-                    game.whitePlayer.id -> game.blackPlayer
-                    else -> null
+            val opponent =
+                    when (userId) {
+                        game.blackPlayer.id -> game.whitePlayer
+                        game.whitePlayer.id -> game.blackPlayer
+                        else -> null
+                    }
+
+            val currentPlayer =
+                    when (game.playerToMoveId) {
+                        game.blackPlayer.id -> game.blackPlayer
+                        game.whitePlayer.id -> game.whitePlayer
+                        else -> null
+                    }
+            opponent_name.text = opponent?.username
+            opponent_rank.text = formatRank(egfToRank(opponent?.rating))
+            chatBadge.text = game.messagesCount.toString()
+            chatBadge.showIf(game.messagesCount != null && game.messagesCount != 0)
+            chatBubble.showIf(game.messagesCount != null && game.messagesCount != 0)
+
+            val myTurn = when {
+                game.phase == Phase.PLAY -> game.playerToMoveId == userId
+                game.phase == Phase.STONE_REMOVAL -> {
+                    val myRemovedStones = if(userId == game.whitePlayer.id) game.whitePlayer.acceptedStones else game.blackPlayer.acceptedStones
+                    game.removedStones != myRemovedStones
                 }
-
-        val currentPlayer =
-                when (game.playerToMoveId) {
-                    game.blackPlayer.id -> game.blackPlayer
-                    game.whitePlayer.id -> game.whitePlayer
-                    else -> null
-                }
-        holder.opponent_name.text = opponent?.username
-        holder.opponent_rank.text = formatRank(egfToRank(opponent?.rating))
-
-        val myTurn = when {
-            game.phase == Phase.PLAY -> game.playerToMoveId == userId
-            game.phase == Phase.STONE_REMOVAL -> {
-                val myRemovedStones = if(userId == game.whitePlayer.id) game.whitePlayer.acceptedStones else game.blackPlayer.acceptedStones
-                game.removedStones != myRemovedStones
+                else -> false
             }
-            else -> false
-        }
 
-        holder.color_bar.setBackgroundColor(
-                if(myTurn)
-                    ResourcesCompat.getColor(holder.color_bar.resources, R.color.color_type_wrong, null)
+            color_bar.setBackgroundColor(
+                    if(myTurn)
+                        ResourcesCompat.getColor(color_bar.resources, R.color.color_type_wrong, null)
+                    else
+                        ResourcesCompat.getColor(color_bar.resources, R.color.colorPrimary, null)
+            )
+            your_turn_label.showIf(myTurn)
+            color.text =
+                    if(game.blackPlayer.id == userId) "black"
+                    else "white"
+
+            val timerDetails = game.clock?.let {
+                if (currentPlayer?.id == game.blackPlayer.id)
+                    computeTimeLeft(it, it.blackTimeSimple, it.blackTime, true)
                 else
-                    ResourcesCompat.getColor(holder.color_bar.resources, R.color.colorPrimary, null)
-        )
-        holder.your_turn_label.showIf(myTurn)
-        holder.color.text =
-                if(game.blackPlayer.id == userId) "black"
-                else "white"
-
-        val timerDetails = game.clock?.let {
-            if (currentPlayer?.id == game.blackPlayer.id)
-                computeTimeLeft(it, it.blackTimeSimple, it.blackTime, true)
-            else
-                computeTimeLeft(it, it.whiteTimeSimple, it.whiteTime, true)
+                    computeTimeLeft(it, it.whiteTimeSimple, it.whiteTime, true)
+            }
+            time.text = timerDetails?.firstLine ?: ""
         }
-        holder.time.text = timerDetails?.firstLine ?: ""
     }
 
     override fun getLayout(): Int = R.layout.item_active_game_card
