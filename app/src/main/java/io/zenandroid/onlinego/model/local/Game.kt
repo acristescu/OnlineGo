@@ -137,8 +137,3 @@ data class Game(
         }
     }
 }
-
-data class GameWithMessagesCount (
-    @Embedded val game: Game,
-    val messagesCount: Int?
-    )

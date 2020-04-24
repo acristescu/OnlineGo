@@ -1,6 +1,5 @@
 package io.zenandroid.onlinego.game
 
-import android.preference.PreferenceManager
 import android.graphics.Point
 import android.util.Log
 import com.google.firebase.analytics.FirebaseAnalytics
@@ -428,6 +427,9 @@ class GamePresenter(
         if((currentState != ANALYSIS) && (!isAnalysisDisabled(game))) {
             list.add(ANALYZE)
         }
+        if(canRequestUndo()) {
+            list.add(REQUEST_UNDO)
+        }
         val showCoordinates = settingsRepository.showCoordinates
         if(showCoordinates) {
             list.add(HIDE_COORDINATES)
@@ -455,6 +457,13 @@ class GamePresenter(
         view.showMenu(list)
     }
 
+    private fun canRequestUndo() =
+            myGame && currentState == PLAYING
+                    && game?.phase == Phase.PLAY
+                    && game?.playerToMoveId != userId
+                    && game?.moves?.isNotEmpty() == true
+                    && game?.undoRequested != game?.moves?.size
+
     override fun onMenuItemSelected(item: MenuItem) {
         when(item) {
             GAME_INFO -> onGameInfoClicked()
@@ -465,8 +474,8 @@ class GamePresenter(
             SHOW_COORDINATES -> toggleCoordinates()
             HIDE_COORDINATES -> toggleCoordinates()
             DOWNLOAD_SGF -> onDownloadSGFClicked()
-            ACCEPT_UNDO -> onUndoAccepted()
-            REQUEST_UNDO -> TODO()
+            ACCEPT_UNDO -> onAcceptUndo()
+            REQUEST_UNDO -> onRequestUndo()
             ABORT_GAME -> onDiscardButtonPressed()
             OPEN_IN_BROWSER -> onOpenInBrowserClicked()
         }.let {  }
@@ -597,6 +606,8 @@ class GamePresenter(
         view.autoButtonVisible = false
 
         view.passButtonEnabled = false
+        view.undoButtonVisible = false
+        view.undoButtonEnabled = false
     }
 
     private fun showPlayControls(game: Game) {
@@ -605,7 +616,6 @@ class GamePresenter(
 
         view.nextButtonVisible = true
         view.previousButtonVisible = true
-        view.passButtonVisible = game.moves?.size ?: 0 >= 2
         view.resignButtonVisible = false
         view.analyzeButtonVisible = !isAnalysisDisabled(game)
         view.analysisDisabledButtonVisible = isAnalysisDisabled(game)
@@ -614,7 +624,11 @@ class GamePresenter(
         view.discardButtonVisible = game.moves?.size ?: 0 < 2
         view.autoButtonVisible = false
 
-        view.passButtonEnabled = game.phase == Phase.PLAY && game.playerToMoveId == userId
+        view.passButtonVisible = (game.moves?.size ?: 0 >= 2) && game.phase == Phase.PLAY && game.playerToMoveId == userId
+        view.passButtonEnabled = true
+
+        view.undoButtonVisible = (game.moves?.size ?: 0 >= 2) && game.phase == Phase.PLAY && game.playerToMoveId != userId
+        view.undoButtonEnabled = canRequestUndo()
     }
 
     private fun showAnalysisControls() {
@@ -632,6 +646,8 @@ class GamePresenter(
         view.autoButtonVisible = false
 
         view.passButtonEnabled = false
+        view.undoButtonVisible = false
+        view.undoButtonEnabled = false
     }
 
     private fun showStoneRemovalControls() {
@@ -648,6 +664,8 @@ class GamePresenter(
         view.confirmButtonVisible = true
         view.discardButtonVisible = true
         view.autoButtonVisible = true
+        view.undoButtonVisible = false
+        view.undoButtonEnabled = false
     }
 
     private fun showSpectateControls() {
@@ -664,6 +682,8 @@ class GamePresenter(
         view.confirmButtonVisible = false
         view.discardButtonVisible = false
         view.autoButtonVisible = false
+        view.undoButtonVisible = false
+        view.undoButtonEnabled = false
     }
 
     private fun showEstimationControls() {
@@ -680,6 +700,8 @@ class GamePresenter(
         view.confirmButtonVisible = false
         view.discardButtonVisible = true
         view.autoButtonVisible = false
+        view.undoButtonVisible = false
+        view.undoButtonEnabled = false
     }
 
     private fun showConfirmMoveControls() {
@@ -696,6 +718,8 @@ class GamePresenter(
         view.confirmButtonVisible = true
         view.discardButtonVisible = true
         view.autoButtonVisible = false
+        view.undoButtonVisible = false
+        view.undoButtonEnabled = false
     }
 
     private fun isAnalysisDisabled(game: Game?): Boolean {
@@ -771,13 +795,12 @@ class GamePresenter(
         configurePlayerStatus()
 
         game.undoRequested?.let {
-            if(it != undoPromptShownAtMoveNo) {
+            if(it != undoPromptShownAtMoveNo && game.playerToMoveId == userId) {
                 analytics.logEvent("undo_requested_by_opponent", null)
                 undoPromptShownAtMoveNo = it
                 view.showUndoPrompt()
             }
         }
-
 
         if(currentState == FINISHED) {
             view.whiteTimer = null
@@ -786,10 +809,15 @@ class GamePresenter(
 
     }
 
-    override fun onUndoAccepted() {
+    override fun onAcceptUndo() {
         analytics.logEvent("undo_accepted", null)
         gameConnection?.acceptUndo(undoPromptShownAtMoveNo)
         undoPromptShownAtMoveNo = -1
+    }
+
+    override fun onRequestUndo() {
+        analytics.logEvent("undo_requested", null)
+        gameConnection?.requestUndo(game?.moves?.size ?: 0)
     }
 
     override fun onUndoRejected() {
@@ -989,13 +1017,15 @@ class GamePresenter(
                     val prefix = if(game?.whitePlayer?.id == userId) "Your" else "Their"
                     view.setWhitePlayerStatus("$prefix turn")
                 } else {
-                    view.setWhitePlayerStatus(null)
+                    val requestedUndo = game?.undoRequested == game?.moves?.size
+                    view.setWhitePlayerStatus( if(requestedUndo) "Undo requested!" else null, R.color.colorPrimary )
                 }
                 if(currentPosition.nextToMove == StoneType.BLACK) {
                     val prefix = if(game?.blackPlayer?.id == userId) "Your" else "Their"
                     view.setBlackPlayerStatus("$prefix turn")
                 } else {
-                    view.setBlackPlayerStatus(null)
+                    val requestedUndo = game?.undoRequested == game?.moves?.size
+                    view.setBlackPlayerStatus(if(requestedUndo) "Undo requested!" else null, R.color.colorPrimary )
                 }
             }
         }

@@ -24,7 +24,8 @@ abstract class GameDao {
                 gameId, 
                 COUNT(*) as messagesCount 
             FROM message 
-            WHERE seen <> 1 
+            WHERE seen <> 1
+                AND playerId <> :userId
             GROUP BY gameId
         ) message 
         ON message.gameId == game.id 
@@ -43,6 +44,7 @@ abstract class GameDao {
                 COUNT(*) as messagesCount 
             FROM message 
             WHERE seen <> 1 
+                AND playerId <> :userId
             GROUP BY gameId
         ) message 
         ON message.gameId == game.id 
@@ -121,6 +123,9 @@ abstract class GameDao {
             playerToMoveId: Long?,
             clock: Clock?) {
         getGame(id).blockingGet().let {
+            if(it.playerToMoveId != playerToMoveId) {
+                it.undoRequested = null
+            }
             it.playerToMoveId = playerToMoveId
             it.clock = clock
             update(it)

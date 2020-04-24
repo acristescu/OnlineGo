@@ -148,6 +148,7 @@ class GameFragment : Fragment(), GameContract.View {
 
         resignButton.setOnClickListener { onResignClicked() }
         passButton.setOnClickListener { onPassClicked() }
+        undoButton.setOnClickListener { presenter.onRequestUndo() }
         discardButton.setOnClickListener { presenter.onDiscardButtonPressed() }
         analyzeButton.setOnClickListener { presenter.onAnalyzeButtonClicked() }
         analysisDisabledButton.setOnClickListener { presenter.onAnalysisDisabledButtonClicked() }
@@ -242,7 +243,7 @@ class GameFragment : Fragment(), GameContract.View {
                 .setNegativeButtonText("Ignore")
                 .setNegativeButtonbackgroundColor(R.color.colorPrimary)
                 .setNegativeButtonTextColor(R.color.white)
-                .setPositiveButtonClick(presenter::onUndoAccepted)
+                .setPositiveButtonClick(presenter::onAcceptUndo)
                 .setNegativeButtonClick(presenter::onUndoRejected)
                 .show()
     }
@@ -261,6 +262,12 @@ class GameFragment : Fragment(), GameContract.View {
 
     override var passButtonVisible = false
         set(value) { passButton.showIf(value) }
+
+    override var undoButtonVisible: Boolean = false
+        set(value) { undoButton.showIf(value) }
+
+    override var undoButtonEnabled: Boolean = true
+        set(value) { undoButton.isEnabled = value }
 
     override var resignButtonVisible = false
         set(value) { resignButton.showIf(value) }

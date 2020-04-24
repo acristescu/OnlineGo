@@ -171,6 +171,14 @@ class GameConnection(
         })
     }
 
+    fun requestUndo(moveNo: Int) {
+        OGSServiceImpl.emit("game/undo/request", createJsonObject {
+            put("game_id", gameId)
+            put("move_number", moveNo)
+            put("player_id", OGSServiceImpl.uiConfig?.user?.id)
+        })
+    }
+
     fun abortGame() {
         OGSServiceImpl.emit("game/cancel", createJsonObject {
             put("game_id", gameId)
