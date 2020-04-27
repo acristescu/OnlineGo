@@ -204,8 +204,8 @@ data class OGSClock (
     var paused_since: Long? = null,
     var start_mode: Boolean = false,
     var pause_control: Any? = null,
-    var black_time: Any,// can be number or Time object
-    var white_time: Any// can be number or Time object
+    var black_time: Any?,// can be number or Time object
+    var white_time: Any?// can be number or Time object
 ) {
     var receivedAt: Long = 0
     val whiteTimeSimple get() = (white_time as? Number)?.toLong()

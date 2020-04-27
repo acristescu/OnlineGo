@@ -145,7 +145,11 @@ fun computeTimeLeft(clock: Clock, playerTimeSimple: Long?, playerTime: Time?, cu
             timer.secondLine = "$periodsLeft x ${formatMillis(playerTime.period_time!! * 1000)}"
         }
     } else {
-        Log.e("GamePresenter", "Clock object has neither simple time or complex time")
+        return GamePresenter.TimerDetails().apply {
+            expired = false
+            firstLine = "∞"
+            timeLeft = Long.MAX_VALUE
+        }
     }
 
     timer.expired = timeLeft <= 0

@@ -230,13 +230,16 @@ object ActiveGameRepository {
                     .map (Game.Companion::fromOGSGame)
                     .toList()
                     .doOnSuccess(OnlineGoApplication.instance.db.gameDao()::insertAllGames)
+                    .doOnSuccess { Crashlytics.log("overview returned ${it.size} games") }
                     .map { it.map(Game::id) }
                     .map { OnlineGoApplication.instance.db.gameDao().getGamesThatShouldBeFinished(it) }
+                    .doOnSuccess { Crashlytics.log("Found ${it.size} games that are neither active nor marked as finished") }
                     .flattenAsObservable { it }
                     .flatMapSingle { OGSServiceImpl.fetchGame(it) }
                     .map (Game.Companion::fromOGSGame)
+                    .doOnNext { if(it.phase != Phase.FINISHED) Crashlytics.logException(Exception("Game ${it.id} ${it.phase} was not returned by overview but is not yet finished")) }
                     .toList()
-                    .doOnSuccess(OnlineGoApplication.instance.db.gameDao()::insertAllGames)
+                    .doOnSuccess(OnlineGoApplication.instance.db.gameDao()::updateGames)
                     .retryWhen (this::retryIOException)
                     .ignoreElement()
 

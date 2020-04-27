@@ -1,6 +1,7 @@
 package io.zenandroid.onlinego.db
 
 import androidx.room.*
+import com.crashlytics.android.Crashlytics
 import io.reactivex.Flowable
 import io.reactivex.Single
 import io.zenandroid.onlinego.model.local.*
@@ -80,6 +81,7 @@ abstract class GameDao {
         val newGames = games.filter { candidate ->
             existingGames.find { it.id == candidate.id } == null
         }
+        Crashlytics.log("Inserting ${newGames.size} games out of ${games.size}")
         insertAllGamesInternal(newGames)
 
         val updatedGames = mutableListOf<Game>()
@@ -96,6 +98,7 @@ abstract class GameDao {
             }
         }
 
+        Crashlytics.log("Updating ${existingGames.size} games out of ${games.size}")
         updateGames(updatedGames)
     }
 
