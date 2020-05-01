@@ -41,6 +41,7 @@ import io.zenandroid.onlinego.notifications.SynchronizeGamesWork
 import io.zenandroid.onlinego.ogs.ActiveGameRepository
 import io.zenandroid.onlinego.ogs.BotsRepository
 import io.zenandroid.onlinego.settings.SettingsFragment
+import io.zenandroid.onlinego.settings.SettingsRepository
 import io.zenandroid.onlinego.stats.StatsFragment
 import io.zenandroid.onlinego.statuschips.Chip
 import io.zenandroid.onlinego.statuschips.ChipAdapter
@@ -113,6 +114,9 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         set(value) { badge.text = value }
 
     override fun vibrate() {
+        if(!SettingsRepository.vibrate) {
+            return
+        }
         val v = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             v.vibrate(VibrationEffect.createOneShot(20, VibrationEffect.DEFAULT_AMPLITUDE))

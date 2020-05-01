@@ -198,8 +198,18 @@ abstract class GameDao {
     @Query ("SELECT * FROM gamenotification")
     abstract fun getGameNotifications(): Flowable<List<GameNotificationWithDetails>>
 
-    @Query("SELECT id FROM game WHERE id not in (:ids) AND phase <> 'FINISHED'")
-    abstract fun getGamesThatShouldBeFinished(ids: List<Long>): List<Long>
+    @Query("""
+        SELECT id 
+        FROM game 
+        WHERE id NOT IN (:ids) 
+            AND phase <> 'FINISHED'
+            AND (
+                white_id = :userId
+                OR
+                black_id = :userId
+            )
+    """)
+    abstract fun getGamesThatShouldBeFinished(userId: Long?, ids: List<Long>): List<Long>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     abstract fun insertAllGameNotifications(list: List<GameNotification>)

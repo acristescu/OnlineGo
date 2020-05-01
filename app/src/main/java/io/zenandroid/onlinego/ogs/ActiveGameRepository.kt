@@ -232,7 +232,7 @@ object ActiveGameRepository {
                     .doOnSuccess(OnlineGoApplication.instance.db.gameDao()::insertAllGames)
                     .doOnSuccess { Crashlytics.log("overview returned ${it.size} games") }
                     .map { it.map(Game::id) }
-                    .map { OnlineGoApplication.instance.db.gameDao().getGamesThatShouldBeFinished(it) }
+                    .map { OnlineGoApplication.instance.db.gameDao().getGamesThatShouldBeFinished(OGSServiceImpl.uiConfig?.user?.id, it) }
                     .doOnSuccess { Crashlytics.log("Found ${it.size} games that are neither active nor marked as finished") }
                     .flattenAsObservable { it }
                     .flatMapSingle { OGSServiceImpl.fetchGame(it) }

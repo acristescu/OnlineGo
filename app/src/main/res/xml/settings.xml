@@ -13,10 +13,15 @@
             android:title="Game Settings"
         >
         <SwitchPreference
-                android:key="show_coordinates"
-                android:title="Show Board Coordinates"
-                android:defaultValue="false"
-        />
+            android:key="show_coordinates"
+            android:title="Show Board Coordinates"
+            android:defaultValue="false"
+            />
+        <SwitchPreference
+            android:key="vibrate_on_move"
+            android:title="Vibrate when opponent moves"
+            android:defaultValue="true"
+            />
     </PreferenceCategory>
     <PreferenceCategory
         android:title="About"
