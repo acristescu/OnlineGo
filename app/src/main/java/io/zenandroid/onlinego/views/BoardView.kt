@@ -1,6 +1,7 @@
 package io.zenandroid.onlinego.views
 
 import android.content.Context
+import android.content.res.Resources
 import android.graphics.*
 import androidx.core.content.res.ResourcesCompat
 import android.util.AttributeSet
@@ -65,6 +66,12 @@ class BoardView : View {
             field = value
             invalidate()
         }
+    var drawShadow = true
+        set(value) {
+            field = value
+            invalidate()
+        }
+
     private val coordinatesX = arrayOf("A","B","C","D","E","F","G","H","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z")
     private val coordinatesY = (1..25).map(Int::toString)
 
@@ -130,9 +137,7 @@ class BoardView : View {
 
         territoryPaint.strokeWidth = 4f
 
-        if(texture == null) {
-            texture = BitmapFactory.decodeResource(resources, R.mipmap.texture)
-        }
+        preloadResources(resources)
     }
 
     private fun drawTextCentred(canvas: Canvas, paint: Paint, text: String, cx: Float, cy: Float, ignoreAscentDescent: Boolean = false) {
@@ -363,13 +368,14 @@ class BoardView : View {
 
             val center = getCellCenter(p.x, p.y)
             //canvas.drawCircle(center.x, center.y, cellSize / 2f - stoneSpacing, territoryPaint);
-            shadowDrawable.setBounds(
-                    (center.x - cellSize / 2f + stoneSpacing - cellSize / 20f).toInt(),
-                    (center.y - cellSize / 2f + stoneSpacing - cellSize / 20f).toInt(),
-                    (center.x + cellSize / 2f - stoneSpacing + cellSize / 12f).toInt(),
-                    (center.y + cellSize / 2f - stoneSpacing + cellSize / 9f).toInt()
-            )
-            if (!(fadeOutRemovedStones && position.removedSpots.contains(p))) {
+            val isFadedOut = fadeOutRemovedStones && position.removedSpots.contains(p)
+            if (drawShadow && !isFadedOut) {
+                shadowDrawable.setBounds(
+                        (center.x - cellSize / 2f + stoneSpacing - cellSize / 20f).toInt(),
+                        (center.y - cellSize / 2f + stoneSpacing - cellSize / 20f).toInt(),
+                        (center.x + cellSize / 2f - stoneSpacing + cellSize / 12f).toInt(),
+                        (center.y + cellSize / 2f - stoneSpacing + cellSize / 9f).toInt()
+                )
                 shadowDrawable.draw(canvas)
             }
 
@@ -479,5 +485,12 @@ class BoardView : View {
     companion object {
         private val FUZZY_PLACEMENT = false
         private var texture: Bitmap? = null
+
+        @Synchronized
+        fun preloadResources(resources: Resources) {
+            if(texture == null) {
+                texture = BitmapFactory.decodeResource(resources, R.mipmap.texture)
+            }
+        }
     }
 }

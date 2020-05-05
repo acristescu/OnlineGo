@@ -9,6 +9,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import io.zenandroid.onlinego.extensions.addToDisposable
+import io.zenandroid.onlinego.gamelogic.RulesManager
 import io.zenandroid.onlinego.gamelogic.Util.isMyTurn
 import io.zenandroid.onlinego.model.local.Challenge
 import io.zenandroid.onlinego.model.local.Game
@@ -36,8 +37,10 @@ class MyGamesPresenter(
 
     override fun subscribe() {
         gameRepository.monitorActiveGames()
-                .map(this::sortGames)
                 .subscribeOn(Schedulers.io())
+                .map(this::sortGames)
+                .map(this::computePositions)
+                .subscribeOn(Schedulers.computation())
                 .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
                 .subscribe(this::setGames, this::onError)
                 .addToDisposable(subscriptions)
@@ -48,6 +51,8 @@ class MyGamesPresenter(
                 .addToDisposable(subscriptions)
         gameRepository.fetchRecentGames()
                 .subscribeOn(Schedulers.io())
+                .map(this::computePositions)
+                .subscribeOn(Schedulers.computation())
                 .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
                 .subscribe(this::setHistoricGames, this::onError)
                 .addToDisposable(subscriptions)
@@ -87,6 +92,11 @@ class MyGamesPresenter(
             }
         })
     }
+
+    private fun computePositions(games: List<Game>): List<Game> =
+        games.apply {
+            forEach { it.position = RulesManager.replay(it, computeTerritory = false) }
+        }
 
     private fun setGames(games : List<Game>) {
         view.setGames(games)

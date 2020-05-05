@@ -75,6 +75,7 @@ interface GameContract {
         fun showAbortGameConfirmation()
         fun showAbortedDialog()
         fun showKoDialog()
+        fun showUndoRequestConfirmation()
     }
 
     interface Presenter {
@@ -95,6 +96,7 @@ interface GameContract {
         fun onAcceptUndo()
         fun onUndoRejected()
         fun onRequestUndo()
+        fun onUndoRequestConfirmed()
         fun onMenuButtonPressed()
         fun onMenuItemSelected(item: MenuItem)
         fun onPassClicked()

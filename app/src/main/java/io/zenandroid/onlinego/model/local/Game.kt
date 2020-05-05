@@ -5,6 +5,7 @@ import androidx.room.Entity
 import androidx.room.Ignore
 import androidx.room.PrimaryKey
 import com.crashlytics.android.Crashlytics
+import io.zenandroid.onlinego.model.Position
 import io.zenandroid.onlinego.model.ogs.GameData
 import io.zenandroid.onlinego.model.ogs.OGSGame
 import io.zenandroid.onlinego.model.ogs.Phase
@@ -67,6 +68,10 @@ data class Game(
     @Ignore
     var json: GameData? = null
 
+    @Ignore
+    @Transient
+    var position: Position? = null
+
     companion object {
         fun fromOGSGame(game: OGSGame): Game {
             val whiteRating = ((((game.white as? Map<*, *>)?.get("ratings") as? Map<*, *>)?.get("overall") as? Map<*, *>)?.get("rating") as? Double)
@@ -108,10 +113,10 @@ data class Game(
                     id = game.id,
                     width = game.width,
                     height = game.height,
-                    outcome = game.outcome,
+                    outcome = if(game.outcome.isNullOrEmpty()) null else game.outcome,
                     playerToMoveId = gamedata?.clock?.current_player,
-                    whiteLost = game.white_lost,
-                    blackLost = game.black_lost,
+                    whiteLost = if(game.outcome.isNullOrEmpty()) null else game.white_lost,
+                    blackLost = if(game.outcome.isNullOrEmpty()) null else game.black_lost,
                     initialState = gamedata?.initial_state,
                     whiteGoesFirst = gamedata?.initial_player == "white",
                     moves = gamedata?.moves?.map { mutableListOf(it[0].toInt(), it[1].toInt()) }?.toMutableList() ?: mutableListOf(),
@@ -122,7 +127,7 @@ data class Game(
                     blackPlayer = blackPlayer,
                     clock = Clock.fromOGSClock(gamedata?.clock),
                     phase = gamedata?.phase,
-                    komi = game.komi,
+                    komi = if(game.komi == null) gamedata?.komi else game.komi,
                     ended = game.ended?.time,
                     freeHandicapPlacement = gamedata?.free_handicap_placement,
                     handicap = game.handicap,

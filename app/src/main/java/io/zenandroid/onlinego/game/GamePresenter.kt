@@ -130,8 +130,6 @@ class GamePresenter(
 
     private var candidateMove: Point? = null
 
-    private var deferredTerritoryComputation: Disposable? = null
-
     override fun subscribe() {
         view.apply {
             setLoading(currentState == LOADING)
@@ -738,20 +736,6 @@ class GamePresenter(
         gameConnection?.submitRemovedStones(newPos.removedSpots, true)
     }
 
-    private fun computeTerritoryAsync(game: Game) {
-        deferredTerritoryComputation?.dispose()
-        deferredTerritoryComputation = Single.create { emitter: SingleEmitter<Position> ->
-            emitter.onSuccess(RulesManager.replay(game, computeTerritory = true))
-        }
-                .subscribeOn(Schedulers.computation())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe { pos ->
-                    view.position = pos
-                }
-
-         deferredTerritoryComputation?.let(subscriptions::add)
-    }
-
     private fun refreshUI(game: Game) {
         when (currentState) {
             ANALYSIS -> {
@@ -816,6 +800,11 @@ class GamePresenter(
     }
 
     override fun onRequestUndo() {
+        analytics.logEvent("undo_clicked", null)
+        view.showUndoRequestConfirmation()
+    }
+
+    override fun onUndoRequestConfirmed() {
         analytics.logEvent("undo_requested", null)
         gameConnection?.requestUndo(game?.moves?.size ?: 0)
     }

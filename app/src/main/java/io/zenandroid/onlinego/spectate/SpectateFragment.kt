@@ -21,6 +21,7 @@ import kotlinx.android.synthetic.main.fragment_spectate.*
 /**
  * Created by alex on 05/11/2017.
  */
+@Deprecated("Obsolete")
 class SpectateFragment : Fragment(), SpectateContract.View {
 
     private lateinit var presenter: SpectateContract.Presenter

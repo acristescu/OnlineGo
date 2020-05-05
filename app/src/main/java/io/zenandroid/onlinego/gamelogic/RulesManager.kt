@@ -2,6 +2,9 @@ package io.zenandroid.onlinego.gamelogic
 
 import android.graphics.Point
 import android.util.Log
+import android.util.LruCache
+import androidx.core.util.lruCache
+import com.crashlytics.android.Crashlytics
 import io.zenandroid.onlinego.model.Position
 import io.zenandroid.onlinego.model.StoneType
 import io.zenandroid.onlinego.model.local.Game
@@ -18,6 +21,8 @@ object RulesManager {
         println("loading library")
         System.loadLibrary("estimator")
     }
+
+    private val positionsCache = lruCache<CacheKey, Position>(1000)
 
     private external fun estimate(w: Int, h: Int, board: IntArray, playerToMove: Int, trials: Int, tolerance: Float): IntArray
 
@@ -61,8 +66,44 @@ object RulesManager {
         }
     }
 
+    data class CacheKey(
+            val width: Int,
+            val height: Int,
+            val initialState: InitialState?,
+            val whiteGoesFirst: Boolean?,
+            val moves: MutableList<MutableList<Int>>?,
+            val freeHandicapPlacement: Boolean?,
+            val handicap: Int?,
+            val removedStones: String?,
+            val white_scoring_positions: String?,
+            val black_scoring_positions: String?,
+            val computeTerritory: Boolean,
+            val limit: Int
+            )
+
+    private fun getCacheKey(game: Game, limit: Int, computeTerritory: Boolean): CacheKey {
+        return CacheKey(
+                width = game.width,
+                height = game.height,
+                initialState = game.initialState,
+                whiteGoesFirst = game.whiteGoesFirst,
+                moves = game.moves,
+                freeHandicapPlacement = game.freeHandicapPlacement,
+                handicap = game.handicap,
+                removedStones = game.removedStones,
+                white_scoring_positions = game.whiteScore?.scoring_positions,
+                black_scoring_positions = game.blackScore?.scoring_positions,
+                computeTerritory = computeTerritory,
+                limit = limit
+        )
+    }
+
     fun replay(game: Game, limit: Int = Int.MAX_VALUE, computeTerritory : Boolean): Position {
-        var pos = RulesManager.newPosition(game.height, game.initialState)
+        val cacheKey = getCacheKey(game, limit, computeTerritory)
+        positionsCache[cacheKey]?.let {
+            return it
+        }
+        var pos = newPosition(game.height, game.initialState)
 
         var turn = StoneType.BLACK
         if(game.whiteGoesFirst == true) {
@@ -74,9 +115,10 @@ object RulesManager {
             if(index >= limit) {
                 return@forEachIndexed
             }
-            val newPos = RulesManager.makeMove(pos, turn, Point(move[0], move[1]))
+            val newPos = makeMove(pos, turn, Point(move[0], move[1]))
             if(newPos == null) {
                 Log.e(this.javaClass.simpleName, "Server returned an invalid move!!! gameId=${game.id} move=$index")
+                Crashlytics.log(Log.ERROR, this.javaClass.simpleName, "Server returned an invalid move!!! gameId=${game.id} move=$index")
                 return@forEachIndexed
             }
             pos = newPos
@@ -107,19 +149,22 @@ object RulesManager {
         }
 
         game.whiteScore?.scoring_positions?.let {
-            for (i in 0 until it.length step 2) {
+            for (i in it.indices step 2) {
                 pos.markWhiteTerritory(Util.getCoordinatesFromSGF(it, i))
             }
         }
         game.blackScore?.scoring_positions?.let {
-            for (i in 0 until it.length step 2) {
+            for (i in it.indices step 2) {
                 pos.markBlackTerritory(Util.getCoordinatesFromSGF(it, i))
             }
         }
 
+        positionsCache.put(cacheKey, pos)
+
         return pos
     }
 
+    @Deprecated("Obsolete")
     fun replay(gameData: GameData, limit: Int = Int.MAX_VALUE, computeTerritory : Boolean): Position {
         var pos = RulesManager.newPosition(gameData.height, gameData.initial_state)
 
@@ -279,7 +324,7 @@ object RulesManager {
             }
         }
 
-        if (!removedStones.isEmpty()) {
+        if (removedStones.isNotEmpty()) {
             for (p in removedStones) {
                 pos.removeStone(p)
             }
@@ -292,7 +337,7 @@ object RulesManager {
             // We need to check for suicide
             //
             val suicideGroup = doCapture(pos, where, stone)
-            if (suicideGroup != null && !suicideGroup.isEmpty()) {
+            if (suicideGroup != null && suicideGroup.isNotEmpty()) {
                 pos.removeStone(where)
                 return null
             }

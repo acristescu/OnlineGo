@@ -1,5 +1,6 @@
 package io.zenandroid.onlinego.reusable
 
+import android.util.Log
 import androidx.core.content.res.ResourcesCompat
 import com.xwray.groupie.kotlinandroidextensions.Item
 import com.xwray.groupie.kotlinandroidextensions.GroupieViewHolder
@@ -18,7 +19,8 @@ class ActiveGameItem (val game: Game) : Item(game.id) {
     override fun bind(holder: GroupieViewHolder, position: Int) {
         holder.apply {
             board.boardSize = game.width
-            board.position = RulesManager.replay(game, computeTerritory = false)
+            board.drawShadow = false
+            board.position = game.position
 
             val userId = OGSServiceImpl.uiConfig?.user?.id
 
@@ -29,12 +31,6 @@ class ActiveGameItem (val game: Game) : Item(game.id) {
                         else -> null
                     }
 
-            val currentPlayer =
-                    when (game.playerToMoveId) {
-                        game.blackPlayer.id -> game.blackPlayer
-                        game.whitePlayer.id -> game.whitePlayer
-                        else -> null
-                    }
             opponent_name.text = opponent?.username
             opponent_rank.text = formatRank(egfToRank(opponent?.rating))
             chatBadge.text = game.messagesCount.toString()
@@ -61,14 +57,43 @@ class ActiveGameItem (val game: Game) : Item(game.id) {
                     if(game.blackPlayer.id == userId) "black"
                     else "white"
 
-            val timerDetails = game.clock?.let {
-                if (currentPlayer?.id == game.blackPlayer.id)
-                    computeTimeLeft(it, it.blackTimeSimple, it.blackTime, true)
-                else
-                    computeTimeLeft(it, it.whiteTimeSimple, it.whiteTime, true)
-            }
-            time.text = timerDetails?.firstLine ?: ""
+
+            time.text = calculateTimer(game)
         }
+    }
+
+    private fun calculateTimer(game: Game): String {
+        val currentPlayer = when (game.playerToMoveId) {
+            game.blackPlayer.id -> game.blackPlayer
+            game.whitePlayer.id -> game.whitePlayer
+            else -> null
+        }
+        val timerDetails = game.clock?.let {
+            if (currentPlayer?.id == game.blackPlayer.id)
+                computeTimeLeft(it, it.blackTimeSimple, it.blackTime, true)
+            else
+                computeTimeLeft(it, it.whiteTimeSimple, it.whiteTime, true)
+        }
+        return timerDetails?.firstLine ?: ""
+    }
+
+    override fun hasSameContentAs(other: com.xwray.groupie.Item<*>?): Boolean {
+        if(other !is ActiveGameItem) {
+            return false
+        }
+        var game1 = game
+        var game2 = other.game
+        if(calculateTimer(game1) == calculateTimer(game2)) {
+            //
+            // inconsequential clock change
+            //
+            game1 = game1.copy(clock = null)
+            game2 = game2.copy(clock = null)
+        }
+        if(game1 == game2) {
+            return true
+        }
+        return false
     }
 
     override fun getLayout(): Int = R.layout.item_active_game_card

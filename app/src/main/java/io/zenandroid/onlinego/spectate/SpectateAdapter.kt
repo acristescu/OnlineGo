@@ -17,6 +17,7 @@ import io.zenandroid.onlinego.views.BoardView
 /**
  * Created by alex on 03/03/2018.
  */
+@Deprecated("Obsolete")
 class SpectateAdapter : GamesAdapter<SpectateAdapter.ViewHolder>() {
     private val boldTypeface = Typeface.defaultFromStyle(Typeface.BOLD)
     private val normalTypeface = Typeface.defaultFromStyle(Typeface.NORMAL)

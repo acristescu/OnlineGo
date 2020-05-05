@@ -170,6 +170,16 @@ class GameFragment : Fragment(), GameContract.View {
         (activity as? AppCompatActivity)?.supportActionBar?.setDisplayHomeAsUpEnabled(true)
     }
 
+    override fun showUndoRequestConfirmation() {
+        context?.let {
+            AlertDialog.Builder(it)
+                    .setTitle("Please confirm")
+                    .setMessage("Are you sure you want to request an undo? This will ask your opponent to allow the last move to be undone (taken back). Please note it is entirely up to them if they shold accept or not.")
+                    .setPositiveButton("Undo") { _, _ -> presenter.onUndoRequestConfirmed() }
+                    .setNegativeButton(android.R.string.cancel, null).show()
+        }
+    }
+
     override fun showMenu(options: List<GameContract.MenuItem>) {
         if(options.isEmpty()) {
             return

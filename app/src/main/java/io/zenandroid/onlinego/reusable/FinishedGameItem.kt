@@ -1,5 +1,6 @@
 package io.zenandroid.onlinego.reusable
 
+import android.util.Log
 import com.xwray.groupie.kotlinandroidextensions.Item
 import com.xwray.groupie.kotlinandroidextensions.GroupieViewHolder
 import io.reactivex.Single
@@ -24,26 +25,12 @@ import kotlinx.android.synthetic.main.item_finished_game_card.opponent_name
 import kotlinx.android.synthetic.main.item_finished_game_card.opponent_rank
 
 class FinishedGameItem (val game: Game) : Item(game.id) {
-    private var pos : Position? = null
-
-    init {
-        Single.create { emitter: SingleEmitter<Position> ->
-            emitter.onSuccess(RulesManager.replay(game, computeTerritory = false))
-        }.subscribeOn(Schedulers.computation())
-        .observeOn(AndroidSchedulers.mainThread())
-                .subscribe { it ->
-                    pos = it
-                    notifyChanged()
-                }
-    }
-
     override fun bind(holder: GroupieViewHolder, position: Int) {
         holder.apply {
             board.boardSize = game.width
+            board.drawShadow = false
 
-            pos?.let {
-                board.position = it
-            }
+            board.position = game.position
 
             val userId = OGSServiceImpl.uiConfig?.user?.id
 
@@ -78,6 +65,13 @@ class FinishedGameItem (val game: Game) : Item(game.id) {
                     "White won by ${game.outcome}"
             }
         }
+    }
+
+    override fun hasSameContentAs(other: com.xwray.groupie.Item<*>?): Boolean {
+        if(other !is ActiveGameItem) {
+            return false
+        }
+        return other.game.copy(clock = null) == game.copy(clock = null)
     }
 
     override fun getLayout(): Int = R.layout.item_finished_game_card

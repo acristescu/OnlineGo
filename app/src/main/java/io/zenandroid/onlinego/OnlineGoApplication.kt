@@ -9,10 +9,13 @@ import androidx.core.provider.FontRequest
 import android.util.Log
 import com.facebook.stetho.Stetho
 import com.google.firebase.analytics.FirebaseAnalytics
+import io.reactivex.Completable
 import io.reactivex.exceptions.UndeliverableException
 import io.reactivex.plugins.RxJavaPlugins
+import io.reactivex.schedulers.Schedulers
 import io.zenandroid.onlinego.db.Database
 import io.zenandroid.onlinego.ogs.ChatRepository
+import io.zenandroid.onlinego.views.BoardView
 import java.io.IOException
 import java.net.SocketException
 
@@ -74,5 +77,9 @@ class OnlineGoApplication : Application() {
         config = FontRequestEmojiCompatConfig(applicationContext, fontRequest)
                 .setReplaceAll(Build.VERSION.SDK_INT <= Build.VERSION_CODES.M)
         EmojiCompat.init(config)
+
+        Completable.create { BoardView.preloadResources(resources) }
+                .observeOn(Schedulers.io())
+                .subscribe()
     }
 }
