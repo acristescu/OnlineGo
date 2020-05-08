@@ -83,6 +83,11 @@ class NewChallengeBottomSheet(
             value = if (challenge.ranked) "Yes" else "No"
             valuesCallback = { listOf("Yes", "No") }
         }
+        disableAnalysisView.apply {
+            name = "Analysis"
+            value = if (challenge.disable_analysis) "Disabled" else "Enabled"
+            valuesCallback = { listOf("Enabled", "Disabled") }
+        }
 
         searchButton.setOnClickListener { this.onSearchClicked() }
 
@@ -97,6 +102,7 @@ class NewChallengeBottomSheet(
             ranked = rankedView.value == "Yes"
             size = sizeView.value
             speed = speedView.value
+            disable_analysis = disableAnalysisView.value == "Disabled"
         }
         if(challenge.opponent != null) {
             dismiss()
@@ -115,7 +121,8 @@ class NewChallengeBottomSheet(
                             ranked = true,
                             handicap = "0",
                             size = "9x9",
-                            speed = "Live"
+                            speed = "Live",
+                            disable_analysis = false
                     )
 
     private fun saveSettings() {

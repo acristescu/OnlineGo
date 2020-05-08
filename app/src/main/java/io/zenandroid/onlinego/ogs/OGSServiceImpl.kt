@@ -183,7 +183,7 @@ object OGSServiceImpl : OGSService {
                         challenger_color = "black",
                         ranked = challengeParams.ranked,
                         name = "Bot game",
-                        disable_analysis = false,
+                        disable_analysis = challengeParams.disable_analysis,
                         height = size,
                         width = size,
                         initial_state = null,
