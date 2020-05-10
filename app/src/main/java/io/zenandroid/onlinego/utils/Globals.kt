@@ -6,6 +6,7 @@ import io.zenandroid.onlinego.model.local.Clock
 import io.zenandroid.onlinego.model.local.Game
 import io.zenandroid.onlinego.model.local.Time
 import io.zenandroid.onlinego.ogs.TimeControl
+import io.zenandroid.onlinego.settings.SettingsRepository
 import kotlinx.android.synthetic.main.view_player_details.view.*
 import org.json.JSONArray
 import org.json.JSONObject
@@ -41,12 +42,12 @@ fun egfToRank(rating: Double?) =
         }
 
 fun formatRank(rank: Double?) =
-    when(rank) {
-        null -> "?"
-        in 0 until 30 -> "${ceil(30 - rank).toInt()}k"
-        in 30 .. 100 -> "${ceil(rank - 29).toInt()}d"
-        else -> ""
-    }
+        when(rank) {
+            null -> "?"
+            in 0 until 30 -> if (!SettingsRepository.hideRanks) "${ceil(30 - rank).toInt()}k" else ""
+            in 30 .. 100 -> if (!SettingsRepository.hideRanks) "${ceil(rank - 29).toInt()}d" else ""
+            else -> ""
+        }
 
 private val gravatarRegex = Pattern.compile("(.*gravatar.com/avatar/[0-9a-fA-F]*+).*")
 private val rackcdnRegex = Pattern.compile("(.*rackcdn.com.*)-\\d*\\.png")

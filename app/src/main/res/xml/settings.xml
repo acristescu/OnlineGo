@@ -13,6 +13,11 @@
             android:title="Game Settings"
         >
         <SwitchPreference
+            android:key="hide_ranks"
+            android:title="Hide player ranks"
+            android:defaultValue="false"
+            />
+        <SwitchPreference
             android:key="show_coordinates"
             android:title="Show Board Coordinates"
             android:defaultValue="false"
