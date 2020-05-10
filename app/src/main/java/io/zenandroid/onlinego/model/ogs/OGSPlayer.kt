@@ -14,7 +14,8 @@ data class OGSPlayer (
         var ratings: Ratings? = null,
         var egf: Double? = null,
         var country: String? = null,
-        var icon: String? = null
+        var icon: String? = null,
+        var ui_class: String? = null
 ) {
     data class Ratings(
             var overall: Rating? = null
@@ -31,7 +32,8 @@ data class OGSPlayer (
             OGSPlayer(
                     id = player.id,
                     username = player.username,
-                    ratings = Ratings(Rating(rating = player.rating))
+                    ratings = Ratings(Rating(rating = player.rating)),
+                    ui_class = player.ui_class
             )
     }
 }

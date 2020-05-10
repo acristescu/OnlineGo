@@ -9,5 +9,6 @@ data class ChallengeParams(
         var handicap: String,
         var speed: String,
         var ranked: Boolean,
-        var disable_analysis: Boolean
+        var disable_analysis: Boolean = false,
+        var private: Boolean = false
 )

@@ -4,30 +4,27 @@ import io.zenandroid.onlinego.ogs.TimeControl
 
 data class OGSChallengeRequest (
         val initialized: Boolean,
-        val min_ranking: Int = -1000,
-        val max_ranking: Int = 1000,
+        val min_ranking: Int = 0,
+        val max_ranking: Int = 60,
         val challenger_color: String,
-        val aga_ranked: Boolean,
-        val game: Game
-
+        val game: Game,
+        val aga_ranked: Boolean
 ) {
     data class Game(
-            val handicap: String,
-            val time_control: String,
-            val challenger_color: String,
+            val name: String?,
             val rules: String,
             val ranked: Boolean,
             val width: Int,
             val height: Int,
+            val handicap: String,
             val komi_auto: String,
             val komi: Float? = null,
             val disable_analysis: Boolean,
-            val pause_on_weekends: Boolean = true,
             val initial_state: String? = null,
-            val private: Boolean = true,
-            val name: String?,
-            val time_control_parameters: TimeControl
-
+            val private: Boolean = false,
+            val time_control: String,
+            val time_control_parameters: TimeControl,
+            val pause_on_weekends: Boolean = true
     )
 
 }

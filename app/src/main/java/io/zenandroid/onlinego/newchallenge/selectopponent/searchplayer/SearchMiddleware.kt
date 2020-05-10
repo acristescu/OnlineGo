@@ -14,7 +14,7 @@ class SearchMiddleware : Middleware<SearchPlayerState, SearchPlayerAction> {
         actions.ofType(SearchPlayerAction.Search::class.java)
                 .filter { it.query.isNotBlank() }
                 .flatMap { action ->
-                    PlayersRepository.seachPlayers(action.query)
+                    PlayersRepository.searchPlayers(action.query)
                             .subscribeOn(Schedulers.io())
                             .map<SearchPlayerAction> { SearchPlayerAction.Results(action.query, it) }
                             .toObservable()

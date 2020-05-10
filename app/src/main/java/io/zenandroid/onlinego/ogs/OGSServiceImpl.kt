@@ -180,9 +180,10 @@ object OGSServiceImpl : OGSService {
                 challenger_color = color,
                 game = OGSChallengeRequest.Game(
                         handicap = if(challengeParams.handicap == "Auto") "-1" else challengeParams.handicap,
-                        challenger_color = "black",
                         ranked = challengeParams.ranked,
-                        name = "Bot game",
+                        name = if (challengeParams.opponent?.ui_class != null &&
+                                challengeParams.opponent?.ui_class!!.startsWith("bot")) "Bot Match"
+                                else "Friendly Match",
                         disable_analysis = challengeParams.disable_analysis,
                         height = size,
                         width = size,
@@ -190,7 +191,7 @@ object OGSServiceImpl : OGSService {
                         komi = null,
                         komi_auto = "automatic",
                         pause_on_weekends = true,
-                        private = true,
+                        private = challengeParams.private,
                         rules = "japanese",
                         time_control = "byoyomi",
                         time_control_parameters = timeControl

@@ -23,7 +23,7 @@ object PlayersRepository {
                 .getRecentOpponents(OGSServiceImpl.uiConfig?.user?.id)
                 .map { it.distinctBy { it.id } }
 
-    fun seachPlayers(query: String): Single<List<Player>> {
+    fun searchPlayers(query: String): Single<List<Player>> {
         return ogs.searchPlayers(query).map { it.map(Player.Companion::fromOGSPlayer) }
     }
 }
