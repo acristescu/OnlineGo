@@ -13,9 +13,9 @@
             android:title="Game Settings"
         >
         <SwitchPreference
-            android:key="hide_ranks"
-            android:title="Hide player ranks"
-            android:defaultValue="false"
+            android:key="show_ranks"
+            android:title="Show player ranks"
+            android:defaultValue="true"
             />
         <SwitchPreference
             android:key="show_coordinates"
