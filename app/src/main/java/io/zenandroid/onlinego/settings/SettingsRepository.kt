@@ -11,7 +11,7 @@ object SettingsRepository {
     private val prefs = PreferenceManager.getDefaultSharedPreferences(OnlineGoApplication.instance.baseContext)
 
     var showRanks: Boolean
-        get() = prefs.getBoolean(SHOW_RANKS, false)
+        get() = prefs.getBoolean(SHOW_RANKS, true)
         set(value) = prefs.edit().putBoolean(SHOW_RANKS, value).apply()
 
     var showCoordinates: Boolean

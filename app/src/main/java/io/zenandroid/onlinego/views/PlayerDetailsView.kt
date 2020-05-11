@@ -16,6 +16,7 @@ import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.extensions.showIf
 import io.zenandroid.onlinego.model.StoneType
 import io.zenandroid.onlinego.model.local.Player
+import io.zenandroid.onlinego.settings.SettingsRepository
 import io.zenandroid.onlinego.utils.convertCountryCodeToEmojiFlag
 import io.zenandroid.onlinego.utils.egfToRank
 import io.zenandroid.onlinego.utils.formatRank
@@ -37,7 +38,7 @@ class PlayerDetailsView : FrameLayout {
                 return
             }
             nameView.text = value?.username
-            rankView.text = formatRank(egfToRank(value?.rating))
+            rankView.text = if (SettingsRepository.showRanks) formatRank(egfToRank(value?.rating)) else ""
             value?.country?.let {
                 flagView.text = convertCountryCodeToEmojiFlag(it)
             }
