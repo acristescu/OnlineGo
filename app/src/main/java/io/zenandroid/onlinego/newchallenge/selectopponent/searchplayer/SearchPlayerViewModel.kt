@@ -14,7 +14,7 @@ class SearchPlayerViewModel (private val store: Store<SearchPlayerState, SearchP
         wiring.dispose()
     }
 
-    fun bind(view: MviView<SearchPlayerAction, SearchPlayerState>) {
+    fun bind(view: MviView<SearchPlayerState, SearchPlayerAction>) {
         viewBinding = store.bind(view)
     }
 

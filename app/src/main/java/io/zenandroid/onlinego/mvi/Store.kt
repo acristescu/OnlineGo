@@ -28,20 +28,20 @@ class Store<S: Any, A: Any> (
         }
             .distinctUntilChanged()
             .doOnError(this::onError)
-            .onErrorResumeNext(Observable.empty())
+            .onErrorResumeNext(Observable.empty()) // BUG! this completes the observable
             .subscribe(state::accept)
 
         disposable += Observable.merge<A>(
             middlewares.map { it.bind(actions, state) }
         )
                 .doOnError(this::onError)
-                .onErrorResumeNext(Observable.empty())
+                .onErrorResumeNext(Observable.empty()) // BUG! this completes the observable
                 .subscribe(actions::accept)
 
         return disposable
     }
 
-    fun bind(view: MviView<A, S>): Disposable {
+    fun bind(view: MviView<S, A>): Disposable {
         val disposable = CompositeDisposable()
         disposable += state.observeOn(AndroidSchedulers.mainThread()).subscribe(view::render)
         disposable += view.actions.subscribe(actions::accept)

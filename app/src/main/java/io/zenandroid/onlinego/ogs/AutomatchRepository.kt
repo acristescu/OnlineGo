@@ -28,14 +28,14 @@ object AutomatchRepository {
         OGSServiceImpl.listenToNewAutomatchNotifications()
                 .subscribeOn(Schedulers.io())
                 .doOnError(this::onError)
-                .onErrorResumeNext(Flowable.empty())
+                .retry()
                 .subscribe(this::addAutomatch)
                 .addToDisposable(subscriptions)
 
         OGSServiceImpl.listenToCancelAutomatchNotifications()
                 .subscribeOn(Schedulers.io())
                 .doOnError(this::onError)
-                .onErrorResumeNext(Flowable.empty())
+                .retry()
                 .subscribe(this::removeAutomatch)
                 .addToDisposable(subscriptions)
 
@@ -43,7 +43,7 @@ object AutomatchRepository {
                 .subscribeOn(Schedulers.io())
                 .doOnNext(gameStartSubject::onNext)
                 .doOnError(this::onError)
-                .onErrorResumeNext(Flowable.empty())
+                .retry()
                 .subscribe(this::removeAutomatch)
                 .addToDisposable(subscriptions)
 

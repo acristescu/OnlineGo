@@ -25,7 +25,7 @@ import io.zenandroid.onlinego.newchallenge.selectopponent.SelectBotFragment
 import kotlinx.android.synthetic.main.fragment_search_player.*
 import java.util.concurrent.TimeUnit
 
-class SearchPlayerFragment : Fragment(R.layout.fragment_search_player), MviView<SearchPlayerAction, SearchPlayerState> {
+class SearchPlayerFragment : Fragment(R.layout.fragment_search_player), MviView<SearchPlayerState, SearchPlayerAction> {
 
     private lateinit var viewModel: SearchPlayerViewModel
     private val groupAdapter = GroupAdapter<GroupieViewHolder>()

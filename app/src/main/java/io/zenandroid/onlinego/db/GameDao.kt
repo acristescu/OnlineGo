@@ -3,6 +3,7 @@ package io.zenandroid.onlinego.db
 import androidx.room.*
 import com.crashlytics.android.Crashlytics
 import io.reactivex.Flowable
+import io.reactivex.Maybe
 import io.reactivex.Single
 import io.zenandroid.onlinego.model.local.*
 import io.zenandroid.onlinego.model.ogs.JosekiPosition
@@ -61,7 +62,18 @@ abstract class GameDao {
     @Query("SELECT * FROM game WHERE phase = 'FINISHED' AND (white_id = :userId OR black_id = :userId) ORDER BY ended DESC LIMIT 25")
     abstract fun monitorFinishedGames(userId: Long?) : Flowable<List<Game>>
 
-    @Query("SELECT id FROM game WHERE id in (:ids) AND phase = 'FINISHED' AND outcome <> ''")
+    @Query("""
+        SELECT id 
+        FROM game 
+        WHERE 
+            id in (:ids) 
+            AND phase = 'FINISHED' 
+            AND outcome <> '' 
+            AND outcome IS NOT NULL 
+            AND blackLost IS NOT NULL 
+            AND whiteLost IS NOT NULL
+            AND ended IS NOT NULL
+            """)
     abstract fun getHistoricGamesThatDontNeedUpdating(ids: List<Long>) : List<Long>
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
@@ -117,6 +129,15 @@ abstract class GameDao {
     @Query("UPDATE game SET removedStones = :stones WHERE id = :id")
     abstract fun updateRemovedStones(id: Long, stones: String?)
 
+    @Query("""
+        UPDATE game 
+        SET 
+            white_acceptedStones = :white_stones, 
+            black_acceptedstones= :black_stones 
+        WHERE id = :id
+        """)
+    abstract fun updateRemovedStonesAccepted(id: Long, white_stones: String?, black_stones: String?)
+
     @Query("UPDATE game SET undoRequested = :moveNo WHERE id = :id")
     abstract fun updateUndoRequested(id: Long, moveNo: Int)
 
@@ -148,6 +169,9 @@ abstract class GameDao {
             whiteScore: Score?,
             blackScore: Score?,
             clock: Clock?,
+            blackLost: Boolean?,
+            whiteLost: Boolean?,
+            ended: Long?,
             undoRequested: Int?) {
         getGame(id).blockingGet().let {
             it.outcome = outcome
@@ -161,6 +185,11 @@ abstract class GameDao {
             it.blackScore = blackScore
             it.clock = clock
             it.undoRequested = undoRequested
+            it.blackLost = blackLost
+            it.whiteLost = whiteLost
+            if(it.ended == null) {
+                it.ended = ended
+            }
             update(it)
         }
     }
@@ -170,6 +199,9 @@ abstract class GameDao {
 
     @Query("SELECT * FROM game WHERE id = :id")
     abstract fun getGame(id: Long): Single<Game>
+
+    @Query("SELECT * FROM game WHERE id = :id")
+    abstract fun getGameMaybe(id: Long): Maybe<Game>
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     abstract fun insertMessage(message: Message)

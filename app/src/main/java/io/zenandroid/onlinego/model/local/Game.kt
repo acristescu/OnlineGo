@@ -109,14 +109,44 @@ data class Game(
                     null
                 }
             }
+
+            val hasOutcome = !game.outcome.isNullOrEmpty()
+            val whiteLost = when {
+                hasOutcome && game.white_lost != null -> {
+                    game.white_lost
+                }
+                hasOutcome && gamedata?.winner == game.blackId -> {
+                    true
+                }
+                hasOutcome && gamedata?.winner == game.whiteId -> {
+                    false
+                }
+                else -> {
+                    null
+                }
+            }
+            val blackLost = when {
+                hasOutcome && game.black_lost != null -> {
+                    game.black_lost
+                }
+                hasOutcome && gamedata?.winner == game.whiteId -> {
+                    true
+                }
+                hasOutcome && gamedata?.winner == game.blackId -> {
+                    false
+                }
+                else -> {
+                    null
+                }
+            }
             return Game(
                     id = game.id,
                     width = game.width,
                     height = game.height,
                     outcome = if(game.outcome.isNullOrEmpty()) null else game.outcome,
                     playerToMoveId = gamedata?.clock?.current_player,
-                    whiteLost = if(game.outcome.isNullOrEmpty()) null else game.white_lost,
-                    blackLost = if(game.outcome.isNullOrEmpty()) null else game.black_lost,
+                    whiteLost = whiteLost,
+                    blackLost = blackLost,
                     initialState = gamedata?.initial_state,
                     whiteGoesFirst = gamedata?.initial_player == "white",
                     moves = gamedata?.moves?.map { mutableListOf(it[0].toInt(), it[1].toInt()) }?.toMutableList() ?: mutableListOf(),

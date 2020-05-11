@@ -36,7 +36,7 @@ import kotlinx.android.synthetic.main.fragment_joseki.progressBar
 
 private const val TAG = "JosekiExplorerFragment"
 
-class JosekiExplorerFragment : Fragment(R.layout.fragment_joseki), MviView<JosekiExplorerAction, JosekiExplorerState> {
+class JosekiExplorerFragment : Fragment(R.layout.fragment_joseki), MviView<JosekiExplorerState, JosekiExplorerAction> {
     private lateinit var viewModel: JosekiExplorerViewModel
     private val markwon by lazy { buildMarkwon() }
 

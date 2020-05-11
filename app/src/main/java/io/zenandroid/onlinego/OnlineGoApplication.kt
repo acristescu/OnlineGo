@@ -79,7 +79,7 @@ class OnlineGoApplication : Application() {
         EmojiCompat.init(config)
 
         Completable.create { BoardView.preloadResources(resources) }
-                .observeOn(Schedulers.io())
+                .subscribeOn(Schedulers.io())
                 .subscribe()
     }
 }

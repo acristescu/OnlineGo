@@ -227,7 +227,8 @@ object OGSServiceImpl : OGSService {
                     observeEvent("game/$id/phase").map { string -> Phase.valueOf(string.toString().toUpperCase(Locale.ENGLISH).replace(' ', '_')) },
                     observeEvent("game/$id/removed_stones").map { string -> moshi.adapter(RemovedStones::class.java).fromJson(string.toString()) },
                     observeEvent("game/$id/chat").map { string -> moshi.adapter(Chat::class.java).fromJson(string.toString()) },
-                    observeEvent("game/$id/undo_requested").map { string -> string.toString().toInt() }
+                    observeEvent("game/$id/undo_requested").map { string -> string.toString().toInt() },
+                    observeEvent("game/$id/removed_stones_accepted").map { string -> moshi.adapter(RemovedStonesAccepted::class.java).fromJson(string.toString()) }
             ).apply {
                 emitGameConnection(id)
                 gameConnections[id] = this
@@ -304,7 +305,9 @@ object OGSServiceImpl : OGSService {
                             put("auth", uiConfig?.notification_auth)
                         })
                     }.doOnCancel {
-                        emit("notification/disconnect", "")
+                        if(socket.connected()) {
+                            emit("notification/disconnect", "")
+                        }
                     }
 
     fun connectToChallenges(): Flowable<SeekGraphChallenge> {
@@ -361,7 +364,9 @@ object OGSServiceImpl : OGSService {
 
             emitter.setCancellable {
                 Log.i(TAG, "Unregistering for event: $event")
-                socket.off(event)
+                if(socket.connected()) {
+                    socket.off(event)
+                }
             }
         }
         , BackpressureStrategy.BUFFER)
@@ -420,11 +425,13 @@ object OGSServiceImpl : OGSService {
     }
 
     fun disconnect() {
-        ActiveGameRepository.unsubscribe()
-        BotsRepository.unsubscribe()
-        AutomatchRepository.unsubscribe()
-        ChallengesRepository.unsubscribe()
-        ServerNotificationsRepository.unsubscribe()
+        //
+        // Note: cleanup gets called twice, once before the disconnection and once after. If we only
+        // call it after, then the messages to the server don't get sent (since the socket is already
+        // closed). If we only call it before, then if the disconnection is caused by outside factors
+        // then there is no cleanup and we end up subscribing twice...
+        //
+        cleanup()
         socket.disconnect()
     }
 
@@ -523,6 +530,7 @@ object OGSServiceImpl : OGSService {
             onSockedConnected()
         }.on(Socket.EVENT_DISCONNECT) {
             Logger.getLogger(TAG).warning("socket disconnect id=${socket.id()}")
+            onSocketDisconnected()
         }.on(Socket.EVENT_CONNECT_ERROR) {
             Logger.getLogger(TAG).warning("socket connect error id=${socket.id()}")
         }.on(Socket.EVENT_ERROR) {
@@ -589,12 +597,26 @@ object OGSServiceImpl : OGSService {
         }
     }
 
+    private fun cleanup() {
+        ActiveGameRepository.unsubscribe()
+        BotsRepository.unsubscribe()
+        AutomatchRepository.unsubscribe()
+        ChallengesRepository.unsubscribe()
+        ServerNotificationsRepository.unsubscribe()
+    }
+
+    private fun onSocketDisconnected() {
+        cleanup()
+    }
+
     fun disconnectFromGame(id: Long) {
         synchronized(connectionsLock) {
             gameConnections.remove(id)
-            emit("game/disconnect", createJsonObject {
-                put("game_id", id)
-            })
+            if(socket.connected()) {
+                emit("game/disconnect", createJsonObject {
+                    put("game_id", id)
+                })
+            }
         }
     }
 

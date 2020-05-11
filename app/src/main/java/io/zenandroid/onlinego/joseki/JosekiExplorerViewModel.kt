@@ -14,7 +14,7 @@ class JosekiExplorerViewModel (private val store: Store<JosekiExplorerState, Jos
         wiring.dispose()
     }
 
-    fun bind(view: MviView<JosekiExplorerAction, JosekiExplorerState>) {
+    fun bind(view: MviView<JosekiExplorerState, JosekiExplorerAction>) {
         viewBinding = store.bind(view)
     }
 

@@ -1,6 +1,8 @@
 package io.zenandroid.onlinego.ogs
 
 import android.graphics.Point
+import android.util.Log
+import com.crashlytics.android.Crashlytics
 import io.reactivex.Flowable
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
@@ -17,8 +19,10 @@ import io.zenandroid.onlinego.model.ogs.GameData
 import io.zenandroid.onlinego.model.ogs.OGSPlayer
 import io.zenandroid.onlinego.model.ogs.Phase
 import io.zenandroid.onlinego.utils.createJsonObject
+import org.reactivestreams.Publisher
 import java.io.Closeable
 
+private const val TAG = "GameConnection"
 /**
  * Created by alex on 06/11/2017.
  */
@@ -31,7 +35,8 @@ class GameConnection(
         phaseObservable: Flowable<Phase>,
         removedStonesObservable: Flowable<RemovedStones>,
         chatObservable: Flowable<Chat>,
-        undoRequestedObservable: Flowable<Int>
+        undoRequestedObservable: Flowable<Int>,
+        removedStonesAcceptedObservable: Flowable<RemovedStonesAccepted>
 ) : Disposable, Closeable {
     private var closed = false
     private var counter = 0
@@ -42,6 +47,7 @@ class GameConnection(
     private val phaseSubject =  PublishSubject.create<Phase>()
     private val removedStonesSubject =  PublishSubject.create<RemovedStones>()
     private val undoRequestSubject =  PublishSubject.create<Int>()
+    private val removedStonesAcceptedSubject =  PublishSubject.create<RemovedStonesAccepted>()
 
     val gameData: Observable<GameData> = gameDataSubject.hide()
     val moves: Observable<Move> = movesSubject.hide()
@@ -49,6 +55,7 @@ class GameConnection(
     val phase: Observable<Phase> = phaseSubject.hide()
     val removedStones: Observable<RemovedStones> = removedStonesSubject.hide()
     val undoRequested: Observable<Int> = undoRequestSubject.hide()
+    val removedStonesAccepted: Observable<RemovedStonesAccepted> = removedStonesAcceptedSubject.hide()
 
     var gameAuth: String? = null
 
@@ -56,19 +63,54 @@ class GameConnection(
 
     init {
         gameDataObservable
+                .retryOnError("gamedata")
                 .doOnNext{ gameAuth = it.auth }
                 .subscribe(gameDataSubject::onNext)
                 .addToDisposable(subscriptions)
 
-        movesObservable.subscribe(movesSubject::onNext).addToDisposable(subscriptions)
-        clockObservable.subscribe(clockSubject::onNext).addToDisposable(subscriptions)
-        phaseObservable.subscribe(phaseSubject::onNext).addToDisposable(subscriptions)
-        removedStonesObservable.subscribe(removedStonesSubject::onNext).addToDisposable(subscriptions)
-        chatObservable.subscribe {
-            OnlineGoApplication.instance.chatRepository.addMessage(Message.fromOGSMessage(it, gameId))
-        }
+        movesObservable
+                .retryOnError("moves")
+                .subscribe(movesSubject::onNext)
                 .addToDisposable(subscriptions)
-        undoRequestedObservable.subscribe(undoRequestSubject::onNext).addToDisposable(subscriptions)
+        clockObservable
+                .retryOnError("clock")
+                .subscribe(clockSubject::onNext)
+                .addToDisposable(subscriptions)
+
+        phaseObservable
+                .retryOnError("phase")
+                .subscribe(phaseSubject::onNext)
+                .addToDisposable(subscriptions)
+
+        removedStonesObservable
+                .retryOnError("removed_stones")
+                .subscribe(removedStonesSubject::onNext)
+                .addToDisposable(subscriptions)
+
+        chatObservable
+                .retryOnError("chat")
+                .subscribe {
+                    OnlineGoApplication.instance.chatRepository.addMessage(Message.fromOGSMessage(it, gameId))
+                }
+                .addToDisposable(subscriptions)
+
+        undoRequestedObservable
+                .retryOnError("undo_requested")
+                .subscribe(undoRequestSubject::onNext)
+                .addToDisposable(subscriptions)
+
+        removedStonesAcceptedObservable
+                .retryOnError("removed_stones_accepted")
+                .subscribe(removedStonesAcceptedSubject::onNext)
+                .addToDisposable(subscriptions)
+    }
+
+    private fun <T> Flowable<T>.retryOnError(requestTag: String): Flowable<T> {
+        return this.doOnError {
+            Crashlytics.log(Log.ERROR, TAG, "$requestTag error ${it.message}")
+            Crashlytics.logException(it)
+        }
+                .retry()
     }
 
     override fun close() {
@@ -248,7 +290,13 @@ data class Move(
 
 //{"removed":true,"stones":"cidadfdgdieaeceifafhfighgihfhghhhiifigihii","all_removed":"daeafaecdfhfifdghgigfhghhhihcidieifigihiii"}
 data class RemovedStones(
-        val removed: Boolean?,
+        val removed: Any?,
         val stones: String?,
         val all_removed: String?
+)
+
+data class RemovedStonesAccepted(
+        val player_id: Long?,
+        val stones: String?,
+        val players: Players?
 )
