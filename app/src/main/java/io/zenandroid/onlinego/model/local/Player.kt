@@ -12,7 +12,8 @@ data class Player(
     var rating: Double?,
     var country: String?,
     var icon: String?,
-    var acceptedStones: String?
+    var acceptedStones: String?,
+    var ui_class: String?
 ) {
     companion object {
         fun fromOGSPlayer(ogsPlayer: OGSPlayer) =
@@ -22,7 +23,8 @@ data class Player(
                         rating = ogsPlayer.ratings?.overall?.rating,
                         country = ogsPlayer.country,
                         icon = ogsPlayer.icon,
-                        acceptedStones = ogsPlayer.accepted_stones
+                        acceptedStones = ogsPlayer.accepted_stones,
+                        ui_class = ogsPlayer.ui_class
                 )
     }
 }

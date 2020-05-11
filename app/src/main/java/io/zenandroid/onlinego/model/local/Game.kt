@@ -89,7 +89,8 @@ data class Game(
                     country = players?.white?.country ?: game.whitePlayer?.country ?: game.players?.white?.country,
                     icon = players?.white?.icon ?: game.whitePlayer?.icon ?: game.players?.white?.icon,
                     rating = whiteRating,
-                    acceptedStones = players?.white?.accepted_stones
+                    acceptedStones = players?.white?.accepted_stones,
+                    ui_class = players?.white?.ui_class
             )
             val blackPlayer = Player(
                     id = (players?.black?.id ?: game.blackId)!!,
@@ -97,7 +98,8 @@ data class Game(
                     country = players?.black?.country ?: game.blackPlayer?.country ?: game.players?.black?.country,
                     icon = players?.black?.icon ?: game.blackPlayer?.icon ?: game.players?.black?.icon,
                     rating = blackRating,
-                    acceptedStones = players?.black?.accepted_stones
+                    acceptedStones = players?.black?.accepted_stones,
+                    ui_class = players?.black?.ui_class
             )
 
             val isRanked : Boolean? = when(gamedata?.ranked) {

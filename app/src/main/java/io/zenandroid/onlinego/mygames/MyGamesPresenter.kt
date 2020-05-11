@@ -182,8 +182,11 @@ class MyGamesPresenter(
     private fun onNotification(notification: JSONObject) {
         if(notification["type"] == "gameOfferRejected") {
             notificationsRepository.acknowledgeNotification(notification)
-            val message = if(notification.has("message")) "Message is:\n\n${notification["message"]}" else ""
-            view.showMessage("Bot rejected challenge", "This might happen because the opponent's maintainer has set some conditions on the challenge parameters. $message")
+            val message = if(notification.has("message") && notification["message"].toString() != "null") "Message is:\n\n${notification["message"]}" else ""
+            if (notification["name"].toString() == "Bot Match")
+                view.showMessage("Bot rejected challenge", "This might happen because the opponent's maintainer has set some conditions on the challenge parameters. $message")
+            else
+                view.showMessage("Opponent rejected challenge", "You may try again or otherwise contact the opponent to clarify his/her reasons for the rejection. $message")
             analytics.logEvent("bot_refused_challenge", null)
             Crashlytics.log("Bot refused challenge. $message")
         }

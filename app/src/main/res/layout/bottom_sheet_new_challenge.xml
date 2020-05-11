@@ -39,6 +39,12 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
                 />
+            <io.zenandroid.onlinego.newchallenge.NameValueButton
+                android:id="@+id/disableAnalysisView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                />
         </LinearLayout>
         <Space
             android:layout_width="0dp"
@@ -63,6 +69,12 @@
                 />
             <io.zenandroid.onlinego.newchallenge.NameValueButton
                 android:id="@+id/rankedView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                />
+            <io.zenandroid.onlinego.newchallenge.NameValueButton
+                android:id="@+id/privateView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
