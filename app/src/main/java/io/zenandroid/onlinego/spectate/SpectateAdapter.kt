@@ -7,9 +7,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import io.zenandroid.onlinego.R
+import io.zenandroid.onlinego.extensions.showIf
 import io.zenandroid.onlinego.gamelogic.RulesManager
 import io.zenandroid.onlinego.model.StoneType
 import io.zenandroid.onlinego.reusable.GamesAdapter
+import io.zenandroid.onlinego.settings.SettingsRepository
 import io.zenandroid.onlinego.utils.egfToRank
 import io.zenandroid.onlinego.utils.formatRank
 import io.zenandroid.onlinego.views.BoardView
@@ -32,8 +34,10 @@ class SpectateAdapter : GamesAdapter<SpectateAdapter.ViewHolder>() {
             holder.boardView.position = pos
             holder.blackName.text = gameData.players?.black?.username
             holder.blackRank.text = formatRank(egfToRank(gameData.players?.black?.egf))
+            holder.blackRank.showIf(SettingsRepository.showRanks)
             holder.whiteName.text = gameData.players?.white?.username
             holder.whiteRank.text = formatRank(egfToRank(gameData.players?.white?.egf))
+            holder.whiteRank.showIf(SettingsRepository.showRanks)
 
             if(pos.getStoneAt(pos.lastMove) != StoneType.BLACK) {
                 holder.blackName.typeface = boldTypeface

@@ -10,6 +10,7 @@ import io.zenandroid.onlinego.gamelogic.RulesManager
 import io.zenandroid.onlinego.model.local.Game
 import io.zenandroid.onlinego.model.ogs.Phase
 import io.zenandroid.onlinego.ogs.OGSServiceImpl
+import io.zenandroid.onlinego.settings.SettingsRepository
 import io.zenandroid.onlinego.utils.computeTimeLeft
 import io.zenandroid.onlinego.utils.egfToRank
 import io.zenandroid.onlinego.utils.formatRank
@@ -33,6 +34,7 @@ class ActiveGameItem (val game: Game) : Item(game.id) {
 
             opponent_name.text = opponent?.username
             opponent_rank.text = formatRank(egfToRank(opponent?.rating))
+            opponent_rank.showIf(SettingsRepository.showRanks)
             chatBadge.text = game.messagesCount.toString()
             chatBadge.showIf(game.messagesCount != null && game.messagesCount != 0)
             chatBubble.showIf(game.messagesCount != null && game.messagesCount != 0)

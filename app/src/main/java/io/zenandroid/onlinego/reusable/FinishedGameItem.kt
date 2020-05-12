@@ -13,6 +13,7 @@ import io.zenandroid.onlinego.gamelogic.RulesManager
 import io.zenandroid.onlinego.model.Position
 import io.zenandroid.onlinego.model.local.Game
 import io.zenandroid.onlinego.ogs.OGSServiceImpl
+import io.zenandroid.onlinego.settings.SettingsRepository
 import io.zenandroid.onlinego.utils.egfToRank
 import io.zenandroid.onlinego.utils.formatRank
 import kotlinx.android.synthetic.main.item_active_game_card.*
@@ -43,6 +44,7 @@ class FinishedGameItem (val game: Game) : Item(game.id) {
 
             opponent_name.text = opponent?.username
             opponent_rank.text = formatRank(egfToRank(opponent?.rating))
+            opponent_rank.showIf(SettingsRepository.showRanks)
 
             chatBadge.text = game.messagesCount.toString()
             chatBadge.showIf(game.messagesCount != null && game.messagesCount != 0)

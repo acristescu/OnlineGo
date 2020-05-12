@@ -13,6 +13,11 @@
             android:title="Game Settings"
         >
         <SwitchPreference
+            android:key="show_ranks"
+            android:title="Show player ranks"
+            android:defaultValue="true"
+            />
+        <SwitchPreference
             android:key="show_coordinates"
             android:title="Show Board Coordinates"
             android:defaultValue="false"
