@@ -17,6 +17,19 @@ import io.zenandroid.onlinego.reusable.*
 class GameListGroupAdapter : GroupAdapter<GroupieViewHolder>() {
     private var onItemClickListener: OnItemClickListener? = null
 
+    var historicGamesvisible: Boolean = false
+    set(value) {
+        if(field == value) {
+            return
+        }
+        if(value && !field) {
+            add(olderGamesSection)
+        } else {
+            remove(olderGamesSection)
+        }
+        field = value
+    }
+
     private val myMoveSection = object : Section(HeaderItem("YOUR TURN")) {
         override fun notifyItemRangeInserted(positionStart: Int, itemCount: Int) {
             super.notifyItemRangeInserted(positionStart, itemCount)
@@ -28,31 +41,37 @@ class GameListGroupAdapter : GroupAdapter<GroupieViewHolder>() {
         }
     }
 
+    val olderGamesAdapter = OlderGamesAdapter()
+
     private val opponentMoveSection = Section(HeaderItem("OPPONENT'S TURN"))
-    private val finishedGamesSection = Section(HeaderItem("RECENTLY FINISHED"))
+    private val recentGamesSection = Section(HeaderItem("RECENTLY FINISHED"))
     private val challengesSection = Section(HeaderItem("CHALLENGES"))
     private val automatchSection = Section()
+    private val olderGamesSection = Section(HeaderItem("OLDER GAMES"), listOf(CarouselItem(olderGamesAdapter)))
 
     private var recyclerView: RecyclerView? = null
 
     init {
         myMoveSection.setHideWhenEmpty(true)
         opponentMoveSection.setHideWhenEmpty(true)
-        finishedGamesSection.setHideWhenEmpty(true)
+        recentGamesSection.setHideWhenEmpty(true)
         challengesSection.setHideWhenEmpty(true)
+        olderGamesSection.setHideWhenEmpty(true)
+
         add(HeaderItem("NEW GAME"))
-        val newGameAdapter = GroupAdapter<GroupieViewHolder>()
-        newGameAdapter.add(NewGameItem.AutoMatch)
-        newGameAdapter.add(NewGameItem.Custom)
-        newGameAdapter.setOnItemClickListener { item, view ->
-            onItemClickListener?.onItemClick(item, view)
+        val newGameAdapter = GroupAdapter<GroupieViewHolder>().apply {
+            add(NewGameItem.AutoMatch)
+            add(NewGameItem.Custom)
+            setOnItemClickListener { item, view ->
+                onItemClickListener?.onItemClick(item, view)
+            }
         }
         add(CarouselItem(newGameAdapter))
         add(automatchSection)
         add(challengesSection)
         add(myMoveSection)
         add(opponentMoveSection)
-        add(finishedGamesSection)
+        add(recentGamesSection)
     }
 
     override fun setOnItemClickListener(onItemClickListener: OnItemClickListener?) {
@@ -66,9 +85,9 @@ class GameListGroupAdapter : GroupAdapter<GroupieViewHolder>() {
         val opponentTurnList = mutableListOf<ActiveGameItem>()
         for(game in games) {
             val newItem = ActiveGameItem(game)
-            val myTurn = when {
-                game.phase == Phase.PLAY -> game.playerToMoveId == userId
-                game.phase == Phase.STONE_REMOVAL -> {
+            val myTurn = when (game.phase) {
+                Phase.PLAY -> game.playerToMoveId == userId
+                Phase.STONE_REMOVAL -> {
                     val myRemovedStones = if(userId == game.whitePlayer.id) game.whitePlayer.acceptedStones else game.blackPlayer.acceptedStones
                     game.removedStones != myRemovedStones
                 }
@@ -85,8 +104,8 @@ class GameListGroupAdapter : GroupAdapter<GroupieViewHolder>() {
         opponentMoveSection.update(opponentTurnList)
     }
 
-    fun setHistoricGames(games: List<Game>) {
-        finishedGamesSection.update(games.map(::FinishedGameItem))
+    fun setRecentGames(games: List<Game>) {
+        recentGamesSection.update(games.map(::FinishedGameItem))
     }
 
     fun setChallenges(challenges: List<ChallengeItem>) {

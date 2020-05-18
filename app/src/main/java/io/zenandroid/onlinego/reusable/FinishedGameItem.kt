@@ -70,7 +70,7 @@ class FinishedGameItem (val game: Game) : Item(game.id) {
     }
 
     override fun hasSameContentAs(other: com.xwray.groupie.Item<*>?): Boolean {
-        if(other !is ActiveGameItem) {
+        if(other !is FinishedGameItem) {
             return false
         }
         return other.game.copy(clock = null) == game.copy(clock = null)

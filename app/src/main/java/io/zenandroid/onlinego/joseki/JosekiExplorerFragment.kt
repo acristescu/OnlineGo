@@ -33,6 +33,7 @@ import io.zenandroid.onlinego.utils.PersistenceManager
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.fragment_joseki.*
 import kotlinx.android.synthetic.main.fragment_joseki.progressBar
+import org.commonmark.node.*
 
 private const val TAG = "JosekiExplorerFragment"
 
@@ -142,6 +143,26 @@ class JosekiExplorerFragment : Fragment(R.layout.fragment_joseki), MviView<Josek
                         builder
                                 .linkColor(ResourcesCompat.getColor(requireContext().resources, R.color.colorPrimaryDark, requireContext().theme))
                                 .headingBreakColor(0x00FF0000)
+                    }
+
+                    override fun beforeRender(node: Node) {
+                        node.accept(object : AbstractVisitor() {
+                            override fun visit(link: Link) {
+                                val uri = Uri.parse(link.destination)
+                                when {
+                                    link.destination.startsWith("Position:")
+                                            || link.destination.matches("\\d+".toRegex())
+                                            || (uri.host?.endsWith("online-go.com") == true && uri.path?.startsWith("/joseki/") == true) -> {}
+                                    uri.host == "youtube.com" || uri.host == "youtu.be" || uri.host == "www.youtube.com" -> {
+                                        link.appendChild(Text(" (video)"))
+                                    }
+                                    else -> {
+                                        link.appendChild(Text(" (external link)"))
+                                    }
+                                }
+                            }
+                        })
+                        super.beforeRender(node)
                     }
 
                     override fun configureConfiguration(builder: MarkwonConfiguration.Builder) {

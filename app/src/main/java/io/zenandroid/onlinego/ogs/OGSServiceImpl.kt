@@ -45,6 +45,8 @@ import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.moshi.MoshiConverterFactory
 import java.io.ByteArrayInputStream
+import java.text.SimpleDateFormat
+import java.time.format.DateTimeFormatter
 import java.util.*
 import java.util.logging.Level
 import java.util.logging.Logger
@@ -639,10 +641,26 @@ object OGSServiceImpl : OGSService {
     override fun fetchChallenges(): Single<List<OGSChallenge>> =
             restApi.fetchChallenges().map { it.results }
 
-    override fun fetchHistoricGames(): Single<List<OGSGame>> =
+    override fun fetchRecentlyFinishedGames(): Single<List<OGSGame>> =
             Single.defer {
                 uiConfig?.user?.id?.let { restApi.fetchPlayerFinishedGames(it) }
                         ?: Single.error(RuntimeException("Null UI Config"))
+            }.map { it.results }
+
+    private val dateFormatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX", Locale.UK);
+
+    override fun fetchHistoricGamesBefore(beforeDate: Long?): Single<List<OGSGame>> =
+            if(beforeDate == null) {
+                restApi.fetchPlayerFinishedGames(uiConfig?.user?.id!!)
+            } else {
+                restApi.fetchPlayerFinishedBeforeGames(uiConfig?.user?.id!!, 10, dateFormatter.format(Date(beforeDate)), 1)
+            }.map { it.results }
+
+    override fun fetchHistoricGamesAfter(afterDate: Long?): Single<List<OGSGame>> =
+            if(afterDate == null) {
+                restApi.fetchPlayerFinishedGames(uiConfig?.user?.id!!)
+            } else {
+                restApi.fetchPlayerFinishedAfterGames(uiConfig?.user?.id!!, 10, dateFormatter.format(Date(afterDate)), 1)
             }.map { it.results }
 
     override fun searchPlayers(query: String): Single<List<OGSPlayer>> =

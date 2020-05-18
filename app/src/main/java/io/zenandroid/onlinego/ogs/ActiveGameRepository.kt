@@ -15,6 +15,7 @@ import io.zenandroid.onlinego.gamelogic.Util
 import io.zenandroid.onlinego.gamelogic.Util.isMyTurn
 import io.zenandroid.onlinego.model.local.Clock
 import io.zenandroid.onlinego.model.local.Game
+import io.zenandroid.onlinego.model.local.HistoricGamesMetadata
 import io.zenandroid.onlinego.model.ogs.GameData
 import io.zenandroid.onlinego.model.ogs.OGSGame
 import io.zenandroid.onlinego.model.ogs.Phase
@@ -35,6 +36,10 @@ object ActiveGameRepository {
     private val subscriptions = CompositeDisposable()
 
     private val gameDao by lazy { OnlineGoApplication.instance.db.gameDao() }
+
+    private var hasFetchedAllHistoricGames = false
+    private var oldestGameFetchedEndedAt: Long? = null
+    private var newestGameFetchedEndedAt: Long? = null
 
     private fun onNotification(game: OGSGame) {
         if(gameDao.getGameMaybe(game.id).blockingGet() == null) {
@@ -70,6 +75,12 @@ object ActiveGameRepository {
         gameDao
                 .monitorActiveGamesWithNewMessagesCount(OGSServiceImpl.uiConfig?.user?.id)
                 .subscribe(this::setActiveGames) { this.onError(it, "gameDao") }
+                .addToDisposable(subscriptions)
+
+        gameDao.monitorHistoricGameMetadata()
+                .distinctUntilChanged()
+                .subscribeOn(Schedulers.io())
+                .subscribe(this::onMetadata, { this.onError(it, "monitorHistoricGameMetadata") })
                 .addToDisposable(subscriptions)
     }
 
@@ -153,7 +164,7 @@ object ActiveGameRepository {
     }
 
     private fun onGameRemovedStones(gameId: Long, stones: RemovedStones) {
-        gameDao.updateRemovedStones(gameId, stones.all_removed)
+        gameDao.updateRemovedStones(gameId, stones.all_removed ?: "")
     }
 
     private fun onRemovedStonesAccepted(gameId: Long, accepted: RemovedStonesAccepted) {
@@ -268,21 +279,8 @@ object ActiveGameRepository {
         return gameDao.monitorActiveGamesWithNewMessagesCount(OGSServiceImpl.uiConfig?.user?.id)
     }
 
-    fun fetchRecentGames(): Flowable<List<Game>> {
-        OGSServiceImpl
-                .fetchHistoricGames()
-                .map { it.map(OGSGame::id) }
-                .map { it - gameDao.getHistoricGamesThatDontNeedUpdating(it) }
-                .flattenAsObservable { it }
-                .flatMapSingle { OGSServiceImpl.fetchGame(it) }
-                .map (Game.Companion::fromOGSGame)
-                .toList()
-                .retryWhen (this::retryIOException)
-                .subscribeOn(Schedulers.io())
-                .observeOn(Schedulers.single())
-                .subscribe(gameDao::insertAllGames)
-                { this.onError(it, "fetchHistoricGames") }
-                .addToDisposable(subscriptions)
+    fun getRecentlyFinishedGames(): Flowable<List<Game>> {
+        fetchRecentlyFinishedGames()
         return gameDao
                 .monitorRecentGames(OGSServiceImpl.uiConfig?.user?.id)
                 .doOnNext { it.forEach(this::connectToGame) } // <- NOTE: We're connecting to the recent games just because of the chat...
@@ -299,4 +297,115 @@ object ActiveGameRepository {
         Crashlytics.logException(Exception(message, t))
         Log.e("ActiveGameRespository", message, t)
     }
+
+    fun getHistoricGames(endedBefore: Long?): Flowable<HistoricGamesRepositoryResult> {
+        val dbObservable = if(endedBefore == null) {
+            gameDao.monitorFinishedNotRecentGames(OGSServiceImpl.uiConfig?.user?.id)
+        } else {
+            gameDao.monitorFinishedGamesEndedBefore(OGSServiceImpl.uiConfig?.user?.id, endedBefore)
+        }
+
+        return dbObservable.distinctUntilChanged()
+                .map {
+                    if(it.size < 10 && hasFetchedAllHistoricGames) {
+                        return@map HistoricGamesRepositoryResult(it, false)
+                    } else if(it.size < 10) {
+                        fetchMoreHistoricGames()
+                        return@map HistoricGamesRepositoryResult(it, true)
+                    } else {
+                        return@map HistoricGamesRepositoryResult(it, true)
+                    }
+                }
+    }
+
+    private fun fetchRecentlyFinishedGames() {
+        OGSServiceImpl.fetchHistoricGamesAfter(newestGameFetchedEndedAt)
+                .map { it.map(OGSGame::id) }
+                .map { it - gameDao.getHistoricGamesThatDontNeedUpdating(it) }
+                .flattenAsObservable { it }
+                .flatMapSingle { OGSServiceImpl.fetchGame(it) }
+                .map (Game.Companion::fromOGSGame)
+                .toList()
+                .retryWhen (this::retryIOException)
+                .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.single())
+                .subscribe(
+                        { onHistoricGames(it) },
+                        { this.onError(it, "fetchRecentlyFinishedGames") }
+                ).addToDisposable(subscriptions)
+    }
+
+    private fun fetchMoreHistoricGames() {
+        OGSServiceImpl.fetchHistoricGamesBefore(oldestGameFetchedEndedAt)
+                .doOnSuccess {
+                    if(it.isEmpty()) {
+                        val newMetadata = HistoricGamesMetadata(
+                                oldestGameEnded = oldestGameFetchedEndedAt,
+                                newestGameEnded = newestGameFetchedEndedAt,
+                                loadedOldestGame = true
+                        )
+                        gameDao.updateHistoricGameMetadata(newMetadata)
+                        onMetadata(newMetadata)
+                    }
+                }
+                .map { it.map(OGSGame::id) }
+                .map { it - gameDao.getHistoricGamesThatDontNeedUpdating(it) }
+                .flattenAsObservable { it }
+                .flatMapSingle { OGSServiceImpl.fetchGame(it) }
+                .map (Game.Companion::fromOGSGame)
+                .toList()
+                .retryWhen (this::retryIOException)
+                .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.single())
+                .subscribe(
+                        { onHistoricGames(it) },
+                        { this.onError(it, "fetchHistoricGames") }
+                ).addToDisposable(subscriptions)
+    }
+
+    private fun onHistoricGames(games: List<Game>) {
+        val oldestGame = games.minBy { it.ended ?: Long.MAX_VALUE }
+        val newOldestDate = when {
+            oldestGameFetchedEndedAt == null -> {
+                oldestGame?.ended
+            }
+            oldestGame?.ended == null -> {
+                oldestGameFetchedEndedAt
+            }
+            else -> {
+                Math.min(oldestGameFetchedEndedAt!!, oldestGame.ended!!)
+            }
+        }
+
+        val newestGame = games.maxBy { it.ended ?: Long.MIN_VALUE }
+        val newNewestDate = when {
+            newestGameFetchedEndedAt == null -> {
+                newestGame?.ended
+            }
+            newestGame?.ended == null -> {
+                newestGameFetchedEndedAt
+            }
+            else -> {
+                Math.max(newestGameFetchedEndedAt!!, newestGame.ended!!)
+            }
+        }
+        val metadata = HistoricGamesMetadata(
+                oldestGameEnded = newOldestDate,
+                newestGameEnded = newNewestDate,
+                loadedOldestGame = hasFetchedAllHistoricGames
+        )
+        gameDao.insertHistoricGames(games, metadata)
+        onMetadata(metadata)
+    }
+
+    private fun onMetadata(metadata: HistoricGamesMetadata) {
+        hasFetchedAllHistoricGames = metadata.loadedOldestGame ?: false
+        oldestGameFetchedEndedAt = metadata.oldestGameEnded
+        newestGameFetchedEndedAt = metadata.newestGameEnded
+    }
 }
+
+data class HistoricGamesRepositoryResult(
+        val games: List<Game>,
+        val loading: Boolean
+)

@@ -49,6 +49,21 @@ interface OGSRestAPI {
             @Query("page_size") pageSize: Int = 10,
             @Query("page") page: Int = 1): Single<PagedResult<OGSGame>>
 
+    @GET("api/v1/players/{player_id}/games/?source=play&ended__isnull=false&annulled=false&ordering=-ended")
+    fun fetchPlayerFinishedBeforeGames(
+            @Path("player_id") playerId: Long,
+            @Query("page_size") pageSize: Int = 10,
+            @Query("ended__lt") ended: String,
+            @Query("page") page: Int = 1): Single<PagedResult<OGSGame>>
+
+    // NOTE: This is ordered the other way as all the others!!!
+    @GET("api/v1/players/{player_id}/games/?source=play&ended__isnull=false&annulled=false&ordering=ended")
+    fun fetchPlayerFinishedAfterGames(
+            @Path("player_id") playerId: Long,
+            @Query("page_size") pageSize: Int = 100,
+            @Query("ended__gt") ended: String,
+            @Query("page") page: Int = 1): Single<PagedResult<OGSGame>>
+
     @GET("/api/v1/me/challenges?page_size=100")
     fun fetchChallenges(): Single<PagedResult<OGSChallenge>>
 

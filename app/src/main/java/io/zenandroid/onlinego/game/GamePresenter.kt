@@ -990,12 +990,12 @@ class GamePresenter(
                 view.setBlackPlayerStatus(null)
             }
             SCORING -> {
-                if(game?.removedStones == game?.whitePlayer?.acceptedStones) {
+                if(game?.removedStones != null && game?.removedStones == game?.whitePlayer?.acceptedStones) {
                     view.setWhitePlayerStatus("Accepted", R.color.colorPrimary)
                 } else {
                     view.setWhitePlayerStatus("Not accepted")
                 }
-                if(game?.removedStones == game?.blackPlayer?.acceptedStones) {
+                if(game?.removedStones != null && game?.removedStones == game?.blackPlayer?.acceptedStones) {
                     view.setBlackPlayerStatus("Accepted", R.color.colorPrimary)
                 } else {
                     view.setBlackPlayerStatus("Not accepted")

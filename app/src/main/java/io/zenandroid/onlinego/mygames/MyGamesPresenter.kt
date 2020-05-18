@@ -7,6 +7,7 @@ import com.google.firebase.analytics.FirebaseAnalytics
 import io.reactivex.Maybe
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import io.zenandroid.onlinego.extensions.addToDisposable
 import io.zenandroid.onlinego.gamelogic.RulesManager
@@ -34,6 +35,7 @@ class MyGamesPresenter(
     }
 
     private val subscriptions = CompositeDisposable()
+    private var loadOlderGamesSubscription: Disposable? = null
 
     override fun subscribe() {
         gameRepository.monitorActiveGames()
@@ -49,12 +51,12 @@ class MyGamesPresenter(
                 .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
                 .subscribe({}, this::onError)
                 .addToDisposable(subscriptions)
-        gameRepository.fetchRecentGames()
+        gameRepository.getRecentlyFinishedGames()
                 .subscribeOn(Schedulers.io())
                 .map(this::computePositions)
                 .subscribeOn(Schedulers.computation())
                 .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
-                .subscribe(this::setHistoricGames, this::onError)
+                .subscribe(this::setRecentGames, this::onError)
                 .addToDisposable(subscriptions)
         challengesRepository.monitorChallenges()
                 .subscribeOn(Schedulers.io())
@@ -77,6 +79,16 @@ class MyGamesPresenter(
                 .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
                 .subscribe(this::onNotification, this::onError)
                 .addToDisposable(subscriptions)
+
+        view.needsMoreOlderGames
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
+                .subscribe(this::onNeedMoreOlderGames, this::onError)
+                .addToDisposable(subscriptions)
+
+        if(view.isHistoricGamesSectionEmpty()) {
+            onNeedMoreOlderGames(MoreDataRequest())
+        }
 
         view.setLoading(true)
     }
@@ -103,8 +115,8 @@ class MyGamesPresenter(
         view.setLoading(false)
     }
 
-    private fun setHistoricGames(games: List<Game>) {
-        view.setHistoricGames(games)
+    private fun setRecentGames(games: List<Game>) {
+        view.setRecentGames(games)
     }
 
     private fun setChallenges(challenges: List<Challenge>) {
@@ -177,6 +189,19 @@ class MyGamesPresenter(
                 .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
                 .subscribe({}, this::onError)
                 .addToDisposable(subscriptions)
+    }
+
+    private fun onNeedMoreOlderGames(request: MoreDataRequest) {
+        loadOlderGamesSubscription?.dispose()
+        loadOlderGamesSubscription =
+                gameRepository.getHistoricGames(request.game?.ended)
+                        .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
+                        .distinctUntilChanged()
+                        .doOnNext { view.setLoadingMoreHistoricGames(it.loading) }
+                        .map { it.games }
+                        .map(this::computePositions)
+                        .subscribe(view::appendHistoricGames, this::onError)
+        loadOlderGamesSubscription?.addToDisposable(subscriptions)
     }
 
     private fun onNotification(notification: JSONObject) {

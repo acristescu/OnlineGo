@@ -2,6 +2,7 @@ package io.zenandroid.onlinego.db
 
 import androidx.room.*
 import com.crashlytics.android.Crashlytics
+import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Maybe
 import io.reactivex.Single
@@ -53,14 +54,35 @@ abstract class GameDao {
         WHERE 
             phase = 'FINISHED' 
             AND (white_id = :userId OR black_id = :userId)
-            AND ended > (SELECT STRFTIME('%s','now','-5 days') * 1000)
+            AND ended > (SELECT STRFTIME('%s','now','-3 days') * 1000)
         ORDER BY ended DESC 
         LIMIT 25
         """)
     abstract fun monitorRecentGames(userId: Long?) : Flowable<List<Game>>
 
-    @Query("SELECT * FROM game WHERE phase = 'FINISHED' AND (white_id = :userId OR black_id = :userId) ORDER BY ended DESC LIMIT 25")
-    abstract fun monitorFinishedGames(userId: Long?) : Flowable<List<Game>>
+    @Query("""
+        SELECT * 
+        FROM game 
+        WHERE 
+            phase = 'FINISHED' 
+            AND (white_id = :userId OR black_id = :userId)
+            AND id NOT IN (
+                SELECT id 
+                FROM game
+                WHERE 
+                    phase = 'FINISHED' 
+                    AND (white_id = :userId OR black_id = :userId)
+                    AND ended > (SELECT STRFTIME('%s','now','-3 days') * 1000)
+                    ORDER BY ended DESC 
+                    LIMIT 25
+                )
+        ORDER BY ended DESC 
+        LIMIT 10
+        """)
+    abstract fun monitorFinishedNotRecentGames(userId: Long?) : Flowable<List<Game>>
+
+    @Query("SELECT * FROM game WHERE phase = 'FINISHED' AND (white_id = :userId OR black_id = :userId) AND ended <= :endedBefore ORDER BY ended DESC LIMIT 10")
+    abstract fun monitorFinishedGamesEndedBefore(userId: Long?, endedBefore: Long) : Flowable<List<Game>>
 
     @Query("""
         SELECT id 
@@ -106,12 +128,21 @@ abstract class GameDao {
                 if(it.whitePlayer.country == null) {
                     it.whitePlayer = oldGame.whitePlayer
                 }
+                if(it.moves.isNullOrEmpty()) {
+                    it.moves = oldGame.moves
+                }
                 updatedGames.add(it)
             }
         }
 
         Crashlytics.log("Updating ${existingGames.size} games out of ${games.size}")
         updateGames(updatedGames)
+    }
+
+    @Transaction
+    open fun insertHistoricGames(games: List<Game>, metadata: HistoricGamesMetadata) {
+        insertAllGames(games)
+        updateHistoricGameMetadata(metadata)
     }
 
     @Query("SELECT * FROM game WHERE id in (:ids)")
@@ -305,4 +336,10 @@ abstract class GameDao {
 
     @Query("SELECT * FROM josekiposition WHERE parent_id = :parentId")
     abstract fun getChildrenPositions(parentId: Long): List<JosekiPosition>
+
+    @Query("SELECT * FROM historicgamesmetadata WHERE id = 0")
+    abstract fun monitorHistoricGameMetadata(): Flowable<HistoricGamesMetadata>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    abstract fun updateHistoricGameMetadata(metadata: HistoricGamesMetadata)
 }

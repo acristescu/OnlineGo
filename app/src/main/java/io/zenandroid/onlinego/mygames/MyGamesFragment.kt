@@ -16,10 +16,7 @@ import io.zenandroid.onlinego.model.local.Challenge
 import io.zenandroid.onlinego.model.local.Game
 import io.zenandroid.onlinego.model.ogs.OGSAutomatch
 import io.zenandroid.onlinego.ogs.*
-import io.zenandroid.onlinego.reusable.ActiveGameItem
-import io.zenandroid.onlinego.reusable.AutomatchItem
-import io.zenandroid.onlinego.reusable.ChallengeItem
-import io.zenandroid.onlinego.reusable.FinishedGameItem
+import io.zenandroid.onlinego.reusable.*
 import kotlinx.android.synthetic.main.fragment_mygames.*
 
 /**
@@ -38,6 +35,9 @@ class MyGamesFragment : Fragment(R.layout.fragment_mygames), MyGamesContract.Vie
 
     private var lastReportedGameCount = -1
 
+    override val needsMoreOlderGames by lazy {
+        groupAdapter.olderGamesAdapter.needsMoreDataObservable
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -59,6 +59,11 @@ class MyGamesFragment : Fragment(R.layout.fragment_mygames), MyGamesContract.Vie
                 }
             }
         }
+        groupAdapter.olderGamesAdapter.setOnItemClickListener { item, _ ->
+            if(item is HistoricGameItem) {
+                presenter.onGameSelected(item.game)
+            }
+        }
 
         presenter = MyGamesPresenter(
                 this,
@@ -68,6 +73,10 @@ class MyGamesFragment : Fragment(R.layout.fragment_mygames), MyGamesContract.Vie
                 AutomatchRepository,
                 ServerNotificationsRepository
         )
+    }
+
+    override fun setLoadingMoreHistoricGames(loading: Boolean) {
+        groupAdapter.olderGamesAdapter.loading = loading
     }
 
     override fun showMessage(title: String, message: String) {
@@ -115,8 +124,8 @@ class MyGamesFragment : Fragment(R.layout.fragment_mygames), MyGamesContract.Vie
         presenter.subscribe()
     }
 
-    override fun setHistoricGames(games: List<Game>) {
-        groupAdapter.setHistoricGames(games)
+    override fun setRecentGames(games: List<Game>) {
+        groupAdapter.setRecentGames(games)
     }
 
     override fun onPause() {
@@ -136,4 +145,13 @@ class MyGamesFragment : Fragment(R.layout.fragment_mygames), MyGamesContract.Vie
         (activity as? MainActivity)?.loading = loading
     }
 
+    override fun appendHistoricGames(games: List<Game>) {
+        if(games.isNotEmpty()) {
+            groupAdapter.historicGamesvisible = true
+            groupAdapter.olderGamesAdapter.appendData(games)
+        }
+    }
+
+    override fun isHistoricGamesSectionEmpty() =
+        groupAdapter.olderGamesAdapter.isEmpty()
 }

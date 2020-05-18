@@ -16,7 +16,7 @@ interface OGSService {
     fun fetchGame(gameId: Long): Single<OGSGame>
     fun fetchActiveGames(): Single<List<OGSGame>>
     fun resendAuth()
-    fun fetchHistoricGames(): Single<List<OGSGame>>
+    fun fetchRecentlyFinishedGames(): Single<List<OGSGame>>
     fun fetchChallenges(): Single<List<OGSChallenge>>
     fun acceptChallenge(id: Long): Completable
     fun declineChallenge(id: Long): Completable
@@ -26,4 +26,6 @@ interface OGSService {
     fun deleteNotification(notificationId: String)
     fun searchPlayers(query: String): Single<List<OGSPlayer>>
     fun getJosekiPositions(id: Long?): Single<List<JosekiPosition>>
+    fun fetchHistoricGamesBefore(beforeDate: Long?): Single<List<OGSGame>>
+    fun fetchHistoricGamesAfter(afterDate: Long?): Single<List<OGSGame>>
 }
