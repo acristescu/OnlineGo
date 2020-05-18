@@ -16,13 +16,13 @@ import android.widget.RemoteViews
 import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.gamelogic.RulesManager
-import io.zenandroid.onlinego.login.LoginActivity
-import io.zenandroid.onlinego.model.local.Challenge
-import io.zenandroid.onlinego.model.local.Game
-import io.zenandroid.onlinego.model.local.GameNotification
-import io.zenandroid.onlinego.model.local.GameNotificationWithDetails
-import io.zenandroid.onlinego.model.ogs.Phase
-import io.zenandroid.onlinego.views.BoardView
+import io.zenandroid.onlinego.ui.screens.login.LoginActivity
+import io.zenandroid.onlinego.data.model.local.Challenge
+import io.zenandroid.onlinego.data.model.local.Game
+import io.zenandroid.onlinego.data.model.local.GameNotification
+import io.zenandroid.onlinego.data.model.local.GameNotificationWithDetails
+import io.zenandroid.onlinego.data.model.ogs.Phase
+import io.zenandroid.onlinego.ui.views.BoardView
 
 
 /**

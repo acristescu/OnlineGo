@@ -22,24 +22,24 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             >
-            <io.zenandroid.onlinego.newchallenge.NameValueButton
+            <io.zenandroid.onlinego.ui.screens.newchallenge.NameValueButton
                 android:id="@+id/botView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 />
-            <io.zenandroid.onlinego.newchallenge.NameValueButton
+            <io.zenandroid.onlinego.ui.screens.newchallenge.NameValueButton
                 android:id="@+id/colorView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
                 />
-            <io.zenandroid.onlinego.newchallenge.NameValueButton
+            <io.zenandroid.onlinego.ui.screens.newchallenge.NameValueButton
                 android:id="@+id/sizeView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
                 />
-            <io.zenandroid.onlinego.newchallenge.NameValueButton
+            <io.zenandroid.onlinego.ui.screens.newchallenge.NameValueButton
                 android:id="@+id/disableAnalysisView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -56,24 +56,24 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             >
-            <io.zenandroid.onlinego.newchallenge.NameValueButton
+            <io.zenandroid.onlinego.ui.screens.newchallenge.NameValueButton
                 android:id="@+id/handicapView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 />
-            <io.zenandroid.onlinego.newchallenge.NameValueButton
+            <io.zenandroid.onlinego.ui.screens.newchallenge.NameValueButton
                 android:id="@+id/speedView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
                 />
-            <io.zenandroid.onlinego.newchallenge.NameValueButton
+            <io.zenandroid.onlinego.ui.screens.newchallenge.NameValueButton
                 android:id="@+id/rankedView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
                 />
-            <io.zenandroid.onlinego.newchallenge.NameValueButton
+            <io.zenandroid.onlinego.ui.screens.newchallenge.NameValueButton
                 android:id="@+id/privateView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

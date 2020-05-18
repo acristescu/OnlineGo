@@ -8,12 +8,12 @@ import io.reactivex.Completable
 import io.reactivex.Single
 import io.reactivex.functions.BiFunction
 import io.zenandroid.onlinego.OnlineGoApplication
-import io.zenandroid.onlinego.main.MainActivity
-import io.zenandroid.onlinego.model.local.Game
-import io.zenandroid.onlinego.model.local.GameNotificationWithDetails
-import io.zenandroid.onlinego.ogs.ActiveGameRepository
-import io.zenandroid.onlinego.ogs.ChallengesRepository
-import io.zenandroid.onlinego.ogs.OGSServiceImpl
+import io.zenandroid.onlinego.ui.screens.main.MainActivity
+import io.zenandroid.onlinego.data.model.local.Game
+import io.zenandroid.onlinego.data.model.local.GameNotificationWithDetails
+import io.zenandroid.onlinego.data.repositories.ActiveGamesRepository
+import io.zenandroid.onlinego.data.repositories.ChallengesRepository
+import io.zenandroid.onlinego.data.ogs.OGSServiceImpl
 import io.zenandroid.onlinego.utils.NotificationUtils
 import io.zenandroid.onlinego.utils.NotificationUtils.Companion.notifyGames
 import io.zenandroid.onlinego.utils.NotificationUtils.Companion.notifyChallenges
@@ -109,10 +109,10 @@ class SynchronizeGamesWork(val context: Context, params: WorkerParameters) : RxW
     }
 
     private fun notifyGames() : Completable =
-            ActiveGameRepository
+            ActiveGamesRepository
                     .refreshActiveGames()
                     .andThen(Single.zip(
-                            ActiveGameRepository.monitorActiveGames().firstOrError(),
+                            ActiveGamesRepository.monitorActiveGames().firstOrError(),
                             OnlineGoApplication.instance.db.gameDao().getGameNotifications().firstOrError(),
                             BiFunction { a: List<Game>, b: List<GameNotificationWithDetails> -> Pair(a, b) }
                     )).doOnSuccess {

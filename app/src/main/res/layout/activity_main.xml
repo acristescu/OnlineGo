@@ -169,7 +169,7 @@
         android:background="@color/white"
         />
 
-    <io.zenandroid.onlinego.newchallenge.NewChallengeView
+    <io.zenandroid.onlinego.ui.screens.newchallenge.NewChallengeView
         android:id="@+id/newChallengeView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

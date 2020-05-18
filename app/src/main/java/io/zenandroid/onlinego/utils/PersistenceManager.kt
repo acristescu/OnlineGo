@@ -5,7 +5,7 @@ import androidx.core.content.edit
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import io.zenandroid.onlinego.OnlineGoApplication
-import io.zenandroid.onlinego.model.ogs.UIConfig
+import io.zenandroid.onlinego.data.model.ogs.UIConfig
 
 private const val UICONFIG_KEY = "UICONFIG_KEY"
 private const val VISITED_JOSEKI = "VISITED_JOSEKI"

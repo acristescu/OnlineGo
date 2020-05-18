@@ -2,14 +2,13 @@ package io.zenandroid.onlinego.gamelogic
 
 import android.graphics.Point
 import android.util.Log
-import android.util.LruCache
 import androidx.core.util.lruCache
 import com.crashlytics.android.Crashlytics
-import io.zenandroid.onlinego.model.Position
-import io.zenandroid.onlinego.model.StoneType
-import io.zenandroid.onlinego.model.local.Game
-import io.zenandroid.onlinego.model.local.InitialState
-import io.zenandroid.onlinego.model.ogs.GameData
+import io.zenandroid.onlinego.data.model.Position
+import io.zenandroid.onlinego.data.model.StoneType
+import io.zenandroid.onlinego.data.model.local.Game
+import io.zenandroid.onlinego.data.model.local.InitialState
+import io.zenandroid.onlinego.data.model.ogs.GameData
 import java.util.*
 
 /**

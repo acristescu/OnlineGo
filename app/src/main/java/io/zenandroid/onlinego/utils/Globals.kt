@@ -1,10 +1,10 @@
 package io.zenandroid.onlinego.utils
 
-import io.zenandroid.onlinego.game.GamePresenter
-import io.zenandroid.onlinego.model.local.Clock
-import io.zenandroid.onlinego.model.local.Game
-import io.zenandroid.onlinego.model.local.Time
-import io.zenandroid.onlinego.ogs.TimeControl
+import io.zenandroid.onlinego.ui.screens.game.GamePresenter
+import io.zenandroid.onlinego.data.model.local.Clock
+import io.zenandroid.onlinego.data.model.local.Game
+import io.zenandroid.onlinego.data.model.local.Time
+import io.zenandroid.onlinego.data.ogs.TimeControl
 import org.json.JSONArray
 import org.json.JSONObject
 import java.lang.Math.ceil

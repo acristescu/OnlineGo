@@ -13,9 +13,9 @@ import io.reactivex.Completable
 import io.reactivex.exceptions.UndeliverableException
 import io.reactivex.plugins.RxJavaPlugins
 import io.reactivex.schedulers.Schedulers
-import io.zenandroid.onlinego.db.Database
-import io.zenandroid.onlinego.ogs.ChatRepository
-import io.zenandroid.onlinego.views.BoardView
+import io.zenandroid.onlinego.data.db.Database
+import io.zenandroid.onlinego.data.repositories.ChatRepository
+import io.zenandroid.onlinego.ui.views.BoardView
 import java.io.IOException
 import java.net.SocketException
 

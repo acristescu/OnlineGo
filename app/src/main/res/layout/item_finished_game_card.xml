@@ -42,7 +42,7 @@
             android:layout_marginBottom="10dp"
             app:cardPreventCornerOverlap="false"
             >
-            <io.zenandroid.onlinego.views.BoardView
+            <io.zenandroid.onlinego.ui.views.BoardView
                 android:id="@+id/board"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

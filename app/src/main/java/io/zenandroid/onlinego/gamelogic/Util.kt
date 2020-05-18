@@ -1,9 +1,9 @@
 package io.zenandroid.onlinego.gamelogic
 
 import android.graphics.Point
-import io.zenandroid.onlinego.model.local.Game
-import io.zenandroid.onlinego.model.ogs.OGSGame
-import io.zenandroid.onlinego.ogs.OGSServiceImpl
+import io.zenandroid.onlinego.data.model.local.Game
+import io.zenandroid.onlinego.data.model.ogs.OGSGame
+import io.zenandroid.onlinego.data.ogs.OGSServiceImpl
 import java.util.*
 
 /**

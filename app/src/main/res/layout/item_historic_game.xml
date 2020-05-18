@@ -23,7 +23,7 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         >
-        <io.zenandroid.onlinego.views.BoardView
+        <io.zenandroid.onlinego.ui.views.BoardView
             android:id="@+id/board"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
