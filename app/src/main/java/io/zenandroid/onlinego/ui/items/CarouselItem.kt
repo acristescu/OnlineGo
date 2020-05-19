@@ -1,4 +1,4 @@
-package io.zenandroid.onlinego.ui.screens.mygames
+package io.zenandroid.onlinego.ui.items
 
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.xwray.groupie.GroupAdapter

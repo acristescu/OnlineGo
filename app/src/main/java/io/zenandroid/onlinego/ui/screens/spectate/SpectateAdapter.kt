@@ -10,7 +10,6 @@ import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.utils.showIf
 import io.zenandroid.onlinego.gamelogic.RulesManager
 import io.zenandroid.onlinego.data.model.StoneType
-import io.zenandroid.onlinego.ui.items.GamesAdapter
 import io.zenandroid.onlinego.data.repositories.SettingsRepository
 import io.zenandroid.onlinego.utils.egfToRank
 import io.zenandroid.onlinego.utils.formatRank

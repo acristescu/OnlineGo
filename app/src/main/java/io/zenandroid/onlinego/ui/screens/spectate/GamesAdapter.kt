@@ -1,4 +1,4 @@
-package io.zenandroid.onlinego.ui.items
+package io.zenandroid.onlinego.ui.screens.spectate
 
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
@@ -14,6 +14,7 @@ import io.zenandroid.onlinego.data.ogs.Move
 /**
  * Created by alex on 09/11/2017.
  */
+@Deprecated("Obsolete")
 abstract class GamesAdapter<T : RecyclerView.ViewHolder> : RecyclerView.Adapter<T>() {
     protected val gameDataMap = mutableMapOf<Long, GameData>()
     protected val gameList = mutableListOf<OGSGame>()

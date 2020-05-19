@@ -3,6 +3,7 @@ package io.zenandroid.onlinego.data.repositories
 import android.util.Log
 import com.crashlytics.android.Crashlytics
 import io.reactivex.Flowable
+import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import io.zenandroid.onlinego.OnlineGoApplication
@@ -17,7 +18,8 @@ import java.util.concurrent.TimeUnit
 object FinishedGamesRepository {
     data class HistoricGamesRepositoryResult(
             val games: List<Game>,
-            val loading: Boolean
+            val loading: Boolean,
+            val loadedLastPage: Boolean
     )
 
     private val subscriptions = CompositeDisposable()
@@ -69,12 +71,12 @@ object FinishedGamesRepository {
         return dbObservable.distinctUntilChanged()
                 .map {
                     if(it.size < 10 && hasFetchedAllHistoricGames) {
-                        return@map HistoricGamesRepositoryResult(it, false)
+                        return@map HistoricGamesRepositoryResult(it, loading = false, loadedLastPage = true)
                     } else if(it.size < 10) {
                         fetchMoreHistoricGames()
-                        return@map HistoricGamesRepositoryResult(it, true)
+                        return@map HistoricGamesRepositoryResult(it, loading = true, loadedLastPage = false)
                     } else {
-                        return@map HistoricGamesRepositoryResult(it, true)
+                        return@map HistoricGamesRepositoryResult(it, loading = false, loadedLastPage = false)
                     }
                 }
     }
@@ -96,32 +98,50 @@ object FinishedGamesRepository {
                 ).addToDisposable(subscriptions)
     }
 
+    private var historicGamesRequestInFlight = false
+    private var lastHistoricGamesRequestTimestamp = -1L
+
+    @Synchronized
     private fun fetchMoreHistoricGames() {
-        OGSServiceImpl.fetchHistoricGamesBefore(oldestGameFetchedEndedAt)
-                .doOnSuccess {
-                    if(it.isEmpty()) {
-                        val newMetadata = HistoricGamesMetadata(
-                                oldestGameEnded = oldestGameFetchedEndedAt,
-                                newestGameEnded = newestGameFetchedEndedAt,
-                                loadedOldestGame = true
-                        )
-                        gameDao.updateHistoricGameMetadata(newMetadata)
-                        onMetadata(newMetadata)
+        if(!historicGamesRequestInFlight) {
+            historicGamesRequestInFlight = true
+
+            val now = System.currentTimeMillis()
+            val shouldThrottle = now - lastHistoricGamesRequestTimestamp < 30_000
+            lastHistoricGamesRequestTimestamp = now
+
+            OGSServiceImpl.fetchHistoricGamesBefore(oldestGameFetchedEndedAt)
+                    .doOnSuccess {
+                        if (it.isEmpty()) {
+                            val newMetadata = HistoricGamesMetadata(
+                                    oldestGameEnded = oldestGameFetchedEndedAt,
+                                    newestGameEnded = newestGameFetchedEndedAt,
+                                    loadedOldestGame = true
+                            )
+                            gameDao.updateHistoricGameMetadata(newMetadata)
+                            onMetadata(newMetadata)
+                        }
                     }
-                }
-                .map { it.map(OGSGame::id) }
-                .map { it - gameDao.getHistoricGamesThatDontNeedUpdating(it) }
-                .flattenAsObservable { it }
-                .flatMapSingle { OGSServiceImpl.fetchGame(it) }
-                .map (Game.Companion::fromOGSGame)
-                .toList()
-                .retryWhen (this::retryIOException)
-                .subscribeOn(Schedulers.io())
-                .observeOn(Schedulers.single())
-                .subscribe(
-                        { onHistoricGames(it) },
-                        { onError(it, "fetchHistoricGames") }
-                ).addToDisposable(subscriptions)
+                    .map { it.map(OGSGame::id) }
+                    .map { it - gameDao.getHistoricGamesThatDontNeedUpdating(it) }
+                    .flattenAsObservable { it }
+                    .concatMap { Observable.just(it).delay(if(shouldThrottle) 1L else 0L, TimeUnit.SECONDS) }
+                    .flatMapSingle { OGSServiceImpl.fetchGame(it) }
+                    .map(Game.Companion::fromOGSGame)
+                    .toList()
+                    .retryWhen(this::retryIOException)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(Schedulers.single())
+                    .doAfterTerminate {
+                        synchronized(this@FinishedGamesRepository) {
+                            historicGamesRequestInFlight = false
+                        }
+                    }
+                    .subscribe(
+                            { onHistoricGames(it) },
+                            { onError(it, "fetchHistoricGames") }
+                    ).addToDisposable(subscriptions)
+        }
     }
 
     private fun onHistoricGames(games: List<Game>) {

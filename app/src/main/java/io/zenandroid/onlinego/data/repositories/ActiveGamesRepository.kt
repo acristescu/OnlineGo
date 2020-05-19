@@ -62,7 +62,7 @@ object ActiveGamesRepository {
         refreshActiveGames()
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.single())
-                .subscribe({}, { onError(it, "monitorActiveGames") })
+                .subscribe({}, { onError(it, "refreshActiveGames") })
                 .addToDisposable(subscriptions)
         OGSServiceImpl.connectToActiveGames()
                 .subscribeOn(Schedulers.io())

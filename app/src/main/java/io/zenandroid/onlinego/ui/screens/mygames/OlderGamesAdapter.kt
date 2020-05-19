@@ -1,5 +1,7 @@
 package io.zenandroid.onlinego.ui.screens.mygames
 
+import android.util.Log
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.Section
@@ -10,9 +12,12 @@ import io.zenandroid.onlinego.ui.items.HistoricGameItem
 import io.zenandroid.onlinego.ui.items.LoadingGameItemCard
 
 class OlderGamesAdapter: GroupAdapter<GroupieViewHolder>() {
+    data class MoreDataRequest(
+            val game: Game? = null
+    )
 
     private val needsMoreDataSubject = PublishSubject.create<MoreDataRequest>()
-    val needsMoreDataObservable = needsMoreDataSubject.hide()
+    val needsMoreDataObservable = needsMoreDataSubject.hide().distinctUntilChanged()
 
     private val allGames = mutableListOf<Game>()
 
@@ -23,21 +28,31 @@ class OlderGamesAdapter: GroupAdapter<GroupieViewHolder>() {
     }
 
     private val onScrollListener = object : RecyclerView.OnScrollListener() {
-        override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
-            if (!recyclerView.canScrollHorizontally(1) && newState == 0) {
-                needsMoreDataSubject.onNext(MoreDataRequest(allGames.lastOrNull()))
+        override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+            super.onScrolled(recyclerView, dx, dy)
+            val layoutManager = recyclerView.layoutManager as LinearLayoutManager
+            val visibleItemCount: Int = layoutManager.childCount
+            val totalItemCount: Int = layoutManager.itemCount
+            val firstVisibleItemPosition: Int = layoutManager.findFirstVisibleItemPosition()
+
+            if (!loading && !loadedLastPage) {
+                if (visibleItemCount + firstVisibleItemPosition >= totalItemCount - 1 && firstVisibleItemPosition >= 0) {
+                    needsMoreDataSubject.onNext(MoreDataRequest(allGames.lastOrNull()))
+                }
             }
         }
     }
 
-    var loading: Boolean = true
+    var loading: Boolean = false
+
+    var loadedLastPage: Boolean = false
         set(value) {
             if(groupCount != 0) {
                 if (value && !field) {
-                    add(loadingSection)
+                    remove(loadingSection)
                 }
                 if(field && !value) {
-                    remove(loadingSection)
+                    add(loadingSection)
                 }
             }
             field = value
@@ -61,7 +76,7 @@ class OlderGamesAdapter: GroupAdapter<GroupieViewHolder>() {
         gamesSection.addAll(newGames.map(::HistoricGameItem))
         if(groupCount == 0) {
             add(gamesSection)
-            if(loading) {
+            if(!loadedLastPage) {
                 add(loadingSection)
             }
         }
@@ -69,7 +84,3 @@ class OlderGamesAdapter: GroupAdapter<GroupieViewHolder>() {
 
     fun isEmpty() = allGames.isEmpty()
 }
-
-class MoreDataRequest(
-        val game: Game? = null
-)

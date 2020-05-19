@@ -76,6 +76,10 @@ class MyGamesFragment : Fragment(R.layout.fragment_mygames), MyGamesContract.Vie
         )
     }
 
+    override fun setLoadedAllHistoricGames(loadedLastPage: Boolean) {
+        groupAdapter.olderGamesAdapter.loadedLastPage = loadedLastPage
+    }
+
     override fun setLoadingMoreHistoricGames(loading: Boolean) {
         groupAdapter.olderGamesAdapter.loading = loading
     }

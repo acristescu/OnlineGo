@@ -89,7 +89,7 @@ class MyGamesPresenter(
                 .addToDisposable(subscriptions)
 
         if(view.isHistoricGamesSectionEmpty()) {
-            onNeedMoreOlderGames(MoreDataRequest())
+            onNeedMoreOlderGames(OlderGamesAdapter.MoreDataRequest())
         }
 
         view.setLoading(true)
@@ -193,13 +193,16 @@ class MyGamesPresenter(
                 .addToDisposable(subscriptions)
     }
 
-    private fun onNeedMoreOlderGames(request: MoreDataRequest) {
+    private fun onNeedMoreOlderGames(request: OlderGamesAdapter.MoreDataRequest) {
         loadOlderGamesSubscription?.dispose()
         loadOlderGamesSubscription =
                 finishedGamesRepository.getHistoricGames(request.game?.ended)
                         .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
                         .distinctUntilChanged()
-                        .doOnNext { view.setLoadingMoreHistoricGames(it.loading) }
+                        .doOnNext {
+                            view.setLoadingMoreHistoricGames(it.loading)
+                            view.setLoadedAllHistoricGames(it.loadedLastPage)
+                        }
                         .map { it.games }
                         .map(this::computePositions)
                         .subscribe(view::appendHistoricGames, this::onError)

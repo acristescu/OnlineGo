@@ -18,10 +18,11 @@ interface MyGamesContract {
         fun setAutomatches(automatches: List<OGSAutomatch>)
         fun showMessage(title: String, message: String)
         fun showLoginScreen()
-        val needsMoreOlderGames: Observable<MoreDataRequest>
+        val needsMoreOlderGames: Observable<OlderGamesAdapter.MoreDataRequest>
         fun appendHistoricGames(games: List<Game>)
         fun isHistoricGamesSectionEmpty(): Boolean
         fun setLoadingMoreHistoricGames(loading: Boolean)
+        fun setLoadedAllHistoricGames(loadedLastPage: Boolean)
     }
     interface Presenter {
         fun subscribe()
