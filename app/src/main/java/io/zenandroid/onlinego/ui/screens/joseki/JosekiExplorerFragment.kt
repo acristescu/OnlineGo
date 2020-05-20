@@ -8,9 +8,6 @@ import android.provider.Browser
 import android.util.Log
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelProviders
 import com.crashlytics.android.Crashlytics
 import com.jakewharton.rxbinding2.view.RxView
 import io.noties.markwon.AbstractMarkwonPlugin
@@ -27,18 +24,21 @@ import io.zenandroid.onlinego.ui.screens.joseki.JosekiExplorerAction.*
 import io.zenandroid.onlinego.ui.screens.main.MainActivity
 import io.zenandroid.onlinego.data.model.StoneType
 import io.zenandroid.onlinego.mvi.MviView
-import io.zenandroid.onlinego.mvi.Store
 import io.zenandroid.onlinego.data.repositories.SettingsRepository
 import io.zenandroid.onlinego.utils.PersistenceManager
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.fragment_joseki.*
 import kotlinx.android.synthetic.main.fragment_joseki.progressBar
 import org.commonmark.node.*
+import org.koin.android.ext.android.inject
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 private const val TAG = "JosekiExplorerFragment"
 
 class JosekiExplorerFragment : Fragment(R.layout.fragment_joseki), MviView<JosekiExplorerState, JosekiExplorerAction> {
-    private lateinit var viewModel: JosekiExplorerViewModel
+    private val settingsRepository: SettingsRepository by inject()
+    private val viewModel: JosekiExplorerViewModel by viewModel()
+
     private val markwon by lazy { buildMarkwon() }
 
     private val internalActions = PublishSubject.create<JosekiExplorerAction>()
@@ -97,7 +97,7 @@ class JosekiExplorerFragment : Fragment(R.layout.fragment_joseki), MviView<Josek
         analytics.setCurrentScreen(requireActivity(), javaClass.simpleName, null)
         board.apply {
             isInteractive = true
-            drawCoordinates = SettingsRepository.showCoordinates
+            drawCoordinates = settingsRepository.showCoordinates
         }
         viewModel.bind(this)
     }
@@ -109,23 +109,6 @@ class JosekiExplorerFragment : Fragment(R.layout.fragment_joseki), MviView<Josek
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         PersistenceManager.visitedJosekiExplorer = true
-        viewModel = ViewModelProviders.of(
-                this,
-                viewModelFactory {
-                    JosekiExplorerViewModel(
-                            Store(
-                                    JosekiExplorerReducer(),
-                                    listOf(
-                                            LoadPositionMiddleware(),
-                                            HotTrackMiddleware(),
-                                            TriggerLoadingMiddleware(),
-                                            AnalyticsMiddleware()
-                                    ),
-                                    JosekiExplorerState()
-                            )
-                    )
-                }
-        ).get(JosekiExplorerViewModel::class.java)
         (activity as? MainActivity)?.apply {
             supportActionBar?.setDisplayHomeAsUpEnabled(true)
             mainTitle = "Joseki Explorer"
@@ -200,9 +183,4 @@ class JosekiExplorerFragment : Fragment(R.layout.fragment_joseki), MviView<Josek
     }
 
     fun canHandleBack(): Boolean = currentState?.shouldFinish != true
-
-    private inline fun <VM : ViewModel> viewModelFactory(crossinline f: () -> VM) =
-            object : ViewModelProvider.Factory {
-                override fun <T : ViewModel> create(aClass: Class<T>): T = f() as T
-            }
 }

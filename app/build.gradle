@@ -4,6 +4,7 @@ apply plugin: 'kotlin-kapt'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'io.fabric'
 apply plugin: 'com.google.gms.google-services'
+apply plugin: 'koin'
 
 android {
     compileSdkVersion 28
@@ -121,6 +122,8 @@ dependencies {
 
     testImplementation 'com.nhaarman:mockito-kotlin-kt1.1:1.6.0'
     testImplementation 'junit:junit:4.13'
+
+    implementation "org.koin:koin-androidx-viewmodel:2.1.5"
 
     implementation "androidx.core:core-ktx:1.2.0"
 

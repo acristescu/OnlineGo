@@ -15,9 +15,10 @@ import io.zenandroid.onlinego.ui.screens.main.MainActivity
 import io.zenandroid.onlinego.data.model.local.Challenge
 import io.zenandroid.onlinego.data.model.local.Game
 import io.zenandroid.onlinego.data.model.ogs.OGSAutomatch
-import io.zenandroid.onlinego.data.repositories.*
+import io.zenandroid.onlinego.data.repositories.UserSessionRepository
 import io.zenandroid.onlinego.ui.items.*
 import kotlinx.android.synthetic.main.fragment_mygames.*
+import org.koin.android.ext.android.get
 
 /**
  * Created by alex on 05/11/2017.
@@ -28,7 +29,7 @@ class MyGamesFragment : Fragment(R.layout.fragment_mygames), MyGamesContract.Vie
         activity?.finish()
     }
 
-    private val groupAdapter = GameListGroupAdapter()
+    private val groupAdapter = GameListGroupAdapter(get<UserSessionRepository>().userId)
 
     private lateinit var presenter: MyGamesContract.Presenter
     private var analytics = OnlineGoApplication.instance.analytics
@@ -65,15 +66,7 @@ class MyGamesFragment : Fragment(R.layout.fragment_mygames), MyGamesContract.Vie
             }
         }
 
-        presenter = MyGamesPresenter(
-                this,
-                analytics,
-                ActiveGamesRepository,
-                FinishedGamesRepository,
-                ChallengesRepository,
-                AutomatchRepository,
-                ServerNotificationsRepository
-        )
+        presenter = MyGamesPresenter(this, analytics, get(), get(), get(), get(), get(), get(), get(), get())
     }
 
     override fun setLoadedAllHistoricGames(loadedLastPage: Boolean) {

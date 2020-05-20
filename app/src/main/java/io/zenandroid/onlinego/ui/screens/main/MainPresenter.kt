@@ -10,10 +10,12 @@ import io.zenandroid.onlinego.utils.addToDisposable
 import io.zenandroid.onlinego.data.model.local.Game
 import io.zenandroid.onlinego.data.model.ogs.Size
 import io.zenandroid.onlinego.data.model.ogs.Speed
+import io.zenandroid.onlinego.data.ogs.OGSRestService
+import io.zenandroid.onlinego.data.ogs.OGSWebSocketService
 import io.zenandroid.onlinego.ui.screens.newchallenge.ChallengeParams
 import io.zenandroid.onlinego.data.repositories.ActiveGamesRepository
 import io.zenandroid.onlinego.data.repositories.AutomatchRepository
-import io.zenandroid.onlinego.data.ogs.OGSServiceImpl
+import io.zenandroid.onlinego.data.repositories.UserSessionRepository
 import java.util.concurrent.TimeUnit
 
 /**
@@ -21,6 +23,10 @@ import java.util.concurrent.TimeUnit
  */
 class MainPresenter (
         private val view : MainContract.View,
+        private val restService: OGSRestService,
+        private val socketService: OGSWebSocketService,
+        private val userSessionRepository: UserSessionRepository,
+        private val automatchRepository: AutomatchRepository,
         private val activeGameRepository: ActiveGamesRepository
 ) : MainContract.Presenter {
 
@@ -29,9 +35,9 @@ class MainPresenter (
     private var lastMoveCount: Int? = null
 
     override fun subscribe() {
-        if(OGSServiceImpl.isLoggedIn()) {
-            OGSServiceImpl.ensureSocketConnected()
-            OGSServiceImpl.resendAuth()
+        if(userSessionRepository.isLoggedIn()) {
+            socketService.ensureSocketConnected()
+            socketService.resendAuth()
         } else {
             view.showLogin()
         }
@@ -41,7 +47,7 @@ class MainPresenter (
                 .subscribe(this::onMyMoveCountChanged)
                 .addToDisposable(subscriptions)
         Observable.interval(10, TimeUnit.SECONDS).subscribe {
-            OGSServiceImpl.ensureSocketConnected()
+            socketService.ensureSocketConnected()
         }.addToDisposable(subscriptions)
 
 //        activeGameRepository.subscribe()
@@ -68,9 +74,8 @@ class MainPresenter (
     }
 
     override fun unsubscribe() {
-//        activeGameRepository.unsubscribe()
         subscriptions.clear()
-        OGSServiceImpl.disconnect()
+        socketService.disconnect()
     }
 
     fun navigateToGameScreenById(gameId: Long) {
@@ -102,15 +107,15 @@ class MainPresenter (
     }
 
     override fun onStartSearch(sizes: List<Size>, speed: Speed) {
-        if(speed in arrayOf(Speed.NORMAL, Speed.BLITZ) && AutomatchRepository.automatches.find { it.liveOrBlitz } != null) {
+        if(speed in arrayOf(Speed.NORMAL, Speed.BLITZ) && automatchRepository.automatches.find { it.liveOrBlitz } != null) {
             view.showError("Can only search for one live or blitz game at a time.")
         } else {
-            OGSServiceImpl.startAutomatch(sizes, speed)
+            socketService.startAutomatch(sizes, speed)
         }
     }
 
     override fun onNewBotChallenge(challengeParams: ChallengeParams) {
-        OGSServiceImpl.challengeBot(challengeParams)
+        restService.challengeBot(challengeParams)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({}, this::onError)
@@ -118,7 +123,7 @@ class MainPresenter (
     }
 
     override fun onNewFriendChallenge(challengeParams: ChallengeParams) {
-        OGSServiceImpl.challengeBot(challengeParams)
+        restService.challengeBot(challengeParams)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({}, this::onError)

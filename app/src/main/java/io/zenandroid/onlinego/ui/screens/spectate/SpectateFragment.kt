@@ -15,8 +15,8 @@ import io.zenandroid.onlinego.data.model.ogs.GameData
 import io.zenandroid.onlinego.data.model.ogs.GameList
 import io.zenandroid.onlinego.data.model.ogs.OGSGame
 import io.zenandroid.onlinego.data.ogs.Move
-import io.zenandroid.onlinego.data.ogs.OGSServiceImpl
 import kotlinx.android.synthetic.main.fragment_spectate.*
+import org.koin.android.ext.android.get
 
 /**
  * Created by alex on 05/11/2017.
@@ -46,7 +46,7 @@ class SpectateFragment : Fragment(), SpectateContract.View {
         gamesRecycler.layoutManager = LinearLayoutManager(context)
         gamesRecycler.adapter = adapter
         (gamesRecycler.itemAnimator as SimpleItemAnimator).supportsChangeAnimations = false
-        presenter = SpectatePresenter(this, OGSServiceImpl)
+        presenter = SpectatePresenter(this, get())
     }
 
     override fun navigateToGameScreen(game: OGSGame) {

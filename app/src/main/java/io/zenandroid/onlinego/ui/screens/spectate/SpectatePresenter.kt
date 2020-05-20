@@ -3,16 +3,16 @@ package io.zenandroid.onlinego.ui.screens.spectate
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
-import io.zenandroid.onlinego.utils.addToDisposable
 import io.zenandroid.onlinego.data.model.ogs.GameList
 import io.zenandroid.onlinego.data.model.ogs.OGSGame
-import io.zenandroid.onlinego.data.ogs.OGSServiceImpl
+import io.zenandroid.onlinego.data.ogs.OGSWebSocketService
+import io.zenandroid.onlinego.utils.addToDisposable
 
 /**
  * Created by alex on 05/11/2017.
  */
 @Deprecated("")
-class SpectatePresenter(val view: SpectateContract.View, private val service: OGSServiceImpl) : SpectateContract.Presenter {
+class SpectatePresenter(val view: SpectateContract.View, private val service: OGSWebSocketService) : SpectateContract.Presenter {
     override fun onGameSelected(game: OGSGame) {
         view.navigateToGameScreen(game)
     }

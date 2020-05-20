@@ -14,6 +14,7 @@ import io.zenandroid.onlinego.data.repositories.SettingsRepository
 import io.zenandroid.onlinego.utils.egfToRank
 import io.zenandroid.onlinego.utils.formatRank
 import io.zenandroid.onlinego.ui.views.BoardView
+import org.koin.core.context.KoinContextHandler.get
 
 /**
  * Created by alex on 03/03/2018.
@@ -22,6 +23,8 @@ import io.zenandroid.onlinego.ui.views.BoardView
 class SpectateAdapter : GamesAdapter<SpectateAdapter.ViewHolder>() {
     private val boldTypeface = Typeface.defaultFromStyle(Typeface.BOLD)
     private val normalTypeface = Typeface.defaultFromStyle(Typeface.NORMAL)
+
+    private val settingsRepository: SettingsRepository = get().get()
 
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
@@ -33,10 +36,10 @@ class SpectateAdapter : GamesAdapter<SpectateAdapter.ViewHolder>() {
             holder.boardView.position = pos
             holder.blackName.text = gameData.players?.black?.username
             holder.blackRank.text = formatRank(egfToRank(gameData.players?.black?.egf))
-            holder.blackRank.showIf(SettingsRepository.showRanks)
+            holder.blackRank.showIf(settingsRepository.showRanks)
             holder.whiteName.text = gameData.players?.white?.username
             holder.whiteRank.text = formatRank(egfToRank(gameData.players?.white?.egf))
-            holder.whiteRank.showIf(SettingsRepository.showRanks)
+            holder.whiteRank.showIf(settingsRepository.showRanks)
 
             if(pos.getStoneAt(pos.lastMove) != StoneType.BLACK) {
                 holder.blackName.typeface = boldTypeface

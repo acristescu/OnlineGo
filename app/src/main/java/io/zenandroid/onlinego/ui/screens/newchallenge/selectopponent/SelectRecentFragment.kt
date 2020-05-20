@@ -23,11 +23,12 @@ import io.zenandroid.onlinego.utils.addToDisposable
 import io.zenandroid.onlinego.data.repositories.PlayersRepository
 import kotlinx.android.synthetic.main.fragment_select_bot.*
 import kotlinx.android.synthetic.main.item_game_info.*
+import org.koin.android.ext.android.get
 
 class SelectRecentFragment : Fragment() {
 
     private val recentOpponents = Section()
-    private val playersRepository = PlayersRepository
+    private val playersRepository: PlayersRepository = get()
     private val compositeDisposable = CompositeDisposable()
 
     private var groupAdapter = GroupAdapter<GroupieViewHolder>().apply {

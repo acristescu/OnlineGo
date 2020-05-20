@@ -16,6 +16,7 @@ import io.zenandroid.onlinego.data.model.local.Player
 import io.zenandroid.onlinego.data.repositories.BotsRepository
 import kotlinx.android.synthetic.main.fragment_select_bot.*
 import kotlinx.android.synthetic.main.item_game_info.*
+import org.koin.android.ext.android.get
 
 class SelectBotFragment : Fragment(R.layout.fragment_select_bot) {
 
@@ -24,7 +25,7 @@ class SelectBotFragment : Fragment(R.layout.fragment_select_bot) {
     }
 
     private val bots = Section()
-    private val botsRepository = BotsRepository
+    private val botsRepository: BotsRepository = get()
 
     private var groupAdapter = GroupAdapter<GroupieViewHolder>().apply {
         add(object: Item() {

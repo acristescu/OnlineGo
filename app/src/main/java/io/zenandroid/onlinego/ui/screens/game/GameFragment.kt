@@ -31,10 +31,10 @@ import io.zenandroid.onlinego.data.model.StoneType
 import io.zenandroid.onlinego.data.model.local.Game
 import io.zenandroid.onlinego.data.model.local.Message
 import io.zenandroid.onlinego.data.model.local.Player
-import io.zenandroid.onlinego.data.ogs.OGSServiceImpl
 import io.zenandroid.onlinego.data.repositories.SettingsRepository
 import io.zenandroid.onlinego.ui.items.statuschips.Chip
 import kotlinx.android.synthetic.main.fragment_game.*
+import org.koin.android.ext.android.get
 import java.util.concurrent.TimeUnit
 
 const val GAME_ID = "GAME_ID"
@@ -160,12 +160,14 @@ class GameFragment : Fragment(), GameContract.View {
         analytics.logEvent("showing_game", arguments)
         presenter = GamePresenter(
                 view = this,
-                service = OGSServiceImpl,
+                socketService = get(),
+                userSessionRepository = get(),
                 analytics = analytics,
-                gameRepository = (activity as MainActivity).activeGameRepository,
-                settingsRepository = SettingsRepository,
+                gameRepository = get(),
+                settingsRepository = get(),
                 gameId = arguments!!.getLong(GAME_ID),
-                gameSize = arguments!!.getInt(GAME_SIZE)
+                gameSize = arguments!!.getInt(GAME_SIZE),
+                chatRepository = get()
         )
         (activity as? AppCompatActivity)?.supportActionBar?.setDisplayHomeAsUpEnabled(true)
     }

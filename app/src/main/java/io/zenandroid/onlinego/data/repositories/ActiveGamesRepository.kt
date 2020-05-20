@@ -10,6 +10,7 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.BehaviorSubject
 import io.zenandroid.onlinego.OnlineGoApplication
+import io.zenandroid.onlinego.data.db.GameDao
 import io.zenandroid.onlinego.utils.addToDisposable
 import io.zenandroid.onlinego.gamelogic.Util
 import io.zenandroid.onlinego.gamelogic.Util.isMyTurn
@@ -25,7 +26,12 @@ import java.util.concurrent.TimeUnit
 /**
  * Created by alex on 08/11/2017.
  */
-object ActiveGamesRepository {
+class ActiveGamesRepository(
+        private val restService: OGSRestService,
+        private val socketService: OGSWebSocketService,
+        private val userSessionRepository: UserSessionRepository,
+        private val gameDao: GameDao
+): SocketConnectedRepository {
 
     private val activeDbGames = mutableMapOf<Long, Game>()
     private val gameConnections = mutableSetOf<Long>()
@@ -35,12 +41,10 @@ object ActiveGamesRepository {
 
     private val subscriptions = CompositeDisposable()
 
-    private val gameDao by lazy { OnlineGoApplication.instance.db.gameDao() }
-
     private fun onNotification(game: OGSGame) {
         if(gameDao.getGameMaybe(game.id).blockingGet() == null) {
             Crashlytics.log(Log.VERBOSE, "ActiveGameRepository", "New game found from active_game notification ${game.id}")
-            OGSServiceImpl.fetchGame(game.id)
+            restService.fetchGame(game.id)
                     .subscribeOn(Schedulers.io())
                     .observeOn(Schedulers.single())
                     .map(Game.Companion::fromOGSGame)
@@ -58,23 +62,23 @@ object ActiveGamesRepository {
     val myTurnGamesList: List<Game>
         @Synchronized get() = activeDbGames.values.filter(Util::isMyTurn).toList()
 
-    internal fun subscribe() {
+    override fun onSocketConnected() {
         refreshActiveGames()
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.single())
                 .subscribe({}, { onError(it, "refreshActiveGames") })
                 .addToDisposable(subscriptions)
-        OGSServiceImpl.connectToActiveGames()
+        socketService.connectToActiveGames()
                 .subscribeOn(Schedulers.io())
                 .subscribe(this::onNotification) { onError(it, "connectToActiveGames") }
                 .addToDisposable(subscriptions)
         gameDao
-                .monitorActiveGamesWithNewMessagesCount(OGSServiceImpl.uiConfig?.user?.id)
+                .monitorActiveGamesWithNewMessagesCount(userSessionRepository.userId)
                 .subscribe(this::setActiveGames) { onError(it, "gameDao") }
                 .addToDisposable(subscriptions)
     }
 
-    fun unsubscribe() {
+    override fun onSocketDisconnected() {
         subscriptions.clear()
         gameConnections.clear()
     }
@@ -93,7 +97,7 @@ object ActiveGamesRepository {
         }
         gameConnections.add(game.id)
 
-        val gameConnection = OGSServiceImpl.connectToGame(game.id)
+        val gameConnection = socketService.connectToGame(game.id)
         gameConnection.addToDisposable(subscriptions)
         gameConnection.gameData
                 .subscribeOn(Schedulers.io())
@@ -222,7 +226,7 @@ object ActiveGamesRepository {
 
     fun monitorGame(id: Long): Flowable<Game> {
         // TODO: Maybe check if the data is fresh enough to warrant skipping this call?
-        OGSServiceImpl.fetchGame(id)
+        restService.fetchGame(id)
                 .map(Game.Companion::fromOGSGame)
                 .map(::listOf)
                 .retryWhen (this::retryIOException)
@@ -248,15 +252,15 @@ object ActiveGamesRepository {
     }
 
     fun refreshActiveGames(): Completable =
-            OGSServiceImpl.fetchActiveGames()
+            restService.fetchActiveGames()
                     .map { it.map (Game.Companion::fromOGSGame)}
                     .doOnSuccess(gameDao::insertAllGames)
                     .doOnSuccess { Crashlytics.log("overview returned ${it.size} games") }
                     .map { it.map(Game::id) }
-                    .map { gameDao.getGamesThatShouldBeFinished(OGSServiceImpl.uiConfig?.user?.id, it) }
+                    .map { gameDao.getGamesThatShouldBeFinished(userSessionRepository.userId, it) }
                     .doOnSuccess { Crashlytics.log("Found ${it.size} games that are neither active nor marked as finished") }
                     .flattenAsObservable { it }
-                    .flatMapSingle { OGSServiceImpl.fetchGame(it) }
+                    .flatMapSingle { restService.fetchGame(it) }
                     .map (Game.Companion::fromOGSGame)
                     .doOnNext { if(it.phase != Phase.FINISHED) Crashlytics.logException(Exception("Game ${it.id} ${it.phase} was not returned by overview but is not yet finished")) }
                     .toList()
@@ -265,7 +269,7 @@ object ActiveGamesRepository {
                     .ignoreElement()
 
     fun monitorActiveGames(): Flowable<List<Game>> {
-        return gameDao.monitorActiveGamesWithNewMessagesCount(OGSServiceImpl.uiConfig?.user?.id)
+        return gameDao.monitorActiveGamesWithNewMessagesCount(userSessionRepository.userId)
     }
 
     private fun onError(t: Throwable, request: String) {

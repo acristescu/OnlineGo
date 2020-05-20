@@ -26,16 +26,19 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.R
+import io.zenandroid.onlinego.data.ogs.OGSRestService
+import io.zenandroid.onlinego.data.ogs.OGSWebSocketService
+import io.zenandroid.onlinego.data.repositories.UserSessionRepository
 import io.zenandroid.onlinego.utils.addToDisposable
 import io.zenandroid.onlinego.utils.hide
 import io.zenandroid.onlinego.utils.onChange
 import io.zenandroid.onlinego.utils.show
 import io.zenandroid.onlinego.ui.screens.main.MainActivity
-import io.zenandroid.onlinego.data.ogs.OGSServiceImpl
 import kotlinx.android.synthetic.main.activity_login.*
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.json.JSONObject
+import org.koin.android.ext.android.inject
 import retrofit2.HttpException
 
 
@@ -46,12 +49,16 @@ class LoginActivity : AppCompatActivity() {
 
     val TAG = LoginActivity::class.java.name
 
+    private val userSessionRepository: UserSessionRepository by inject()
+    private val ogsRestService: OGSRestService by inject()
+    private val ogsSocketService: OGSWebSocketService by inject()
+
     private var createAccount = false
 
     private var analytics = OnlineGoApplication.instance.analytics
     private val subscriptions = CompositeDisposable()
     private val client = OkHttpClient.Builder()
-            .cookieJar(OGSServiceImpl.cookieJar)
+            .cookieJar(userSessionRepository.cookieJar)
             .followRedirects(false)
             .build()
 
@@ -74,7 +81,7 @@ class LoginActivity : AppCompatActivity() {
                     .get()
                     .build()
             Completable.fromCallable { client.newCall(request).execute() }
-                    .andThen(OGSServiceImpl.fetchUIConfig())
+                    .andThen(ogsRestService.fetchUIConfig())
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(this::onLoginSuccess, this::onTokenLoginFailure)
@@ -122,8 +129,8 @@ class LoginActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
 
-        if(OGSServiceImpl.isLoggedIn()) {
-            OGSServiceImpl.ensureSocketConnected()
+        if(userSessionRepository.isLoggedIn()) {
+            ogsSocketService.ensureSocketConnected()
             onLoginSuccess()
         } else if(intent.data == null) {
             onTokenLoginFailure(java.lang.Exception())
@@ -184,7 +191,7 @@ class LoginActivity : AppCompatActivity() {
         if(!createAccount) {
             doLogin()
         } else {
-            OGSServiceImpl.createAccount(username.text.toString().trim(), password.text.toString(), email.text.toString().trim())
+            ogsRestService.createAccount(username.text.toString().trim(), password.text.toString(), email.text.toString().trim())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(
                             this::onCreateAccountSuccess,
@@ -195,8 +202,8 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun doLogin() {
-        OGSServiceImpl.login(username.text.toString(), password.text.toString())
-                .doOnComplete { OGSServiceImpl.ensureSocketConnected() }
+        ogsRestService.login(username.text.toString(), password.text.toString())
+                .doOnComplete { ogsSocketService.ensureSocketConnected() }
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnComplete { analytics.logEvent(FirebaseAnalytics.Event.LOGIN, null) }
                 .subscribe(

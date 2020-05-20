@@ -6,26 +6,23 @@ import io.reactivex.Flowable
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.plusAssign
 import io.zenandroid.onlinego.OnlineGoApplication
+import io.zenandroid.onlinego.data.db.GameDao
 import io.zenandroid.onlinego.data.model.Position
 import io.zenandroid.onlinego.data.model.ogs.JosekiPosition
 import io.zenandroid.onlinego.data.model.ogs.PlayCategory
-import io.zenandroid.onlinego.data.ogs.OGSServiceImpl
+import io.zenandroid.onlinego.data.ogs.OGSRestService
 
-object JosekiRepository {
+class JosekiRepository(
+        private val restService: OGSRestService,
+        private val dao: GameDao
+) {
 
     private val disposable = CompositeDisposable()
     private val customMarkPattern = "<(.):([A-H]|[J-T]\\d{1,2})>".toPattern()
     private val headerWithMissingSpaceRegex = "#(?!\\s|#)".toRegex()
-    private val dao = OnlineGoApplication.instance.db.gameDao()
-
-    internal fun subscribe() {
-    }
-
-    fun unsubscribe() {
-    }
 
     fun getJosekiPosition(id: Long?): Flowable<JosekiPosition> {
-        disposable += OGSServiceImpl.getJosekiPositions(id)
+        disposable += restService.getJosekiPositions(id)
                 .subscribe(this::savePositionsToDB, this::onError)
 
         val dbObservable =

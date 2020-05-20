@@ -6,11 +6,14 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
-import io.zenandroid.onlinego.utils.addToDisposable
 import io.zenandroid.onlinego.data.model.ogs.OGSAutomatch
-import io.zenandroid.onlinego.data.ogs.OGSServiceImpl
+import io.zenandroid.onlinego.data.ogs.OGSRestService
+import io.zenandroid.onlinego.data.ogs.OGSWebSocketService
+import io.zenandroid.onlinego.utils.addToDisposable
 
-object AutomatchRepository {
+class AutomatchRepository(
+        private val socketService: OGSWebSocketService
+) : SocketConnectedRepository {
     private val subscriptions = CompositeDisposable()
 
     var automatches = mutableListOf<OGSAutomatch>()
@@ -22,23 +25,23 @@ object AutomatchRepository {
     val automatchObservable = automatchesSubject.hide()
     val gameStartObservable = gameStartSubject.hide()
 
-    internal fun subscribe() {
+    override fun onSocketConnected() {
         automatches.clear()
-        OGSServiceImpl.listenToNewAutomatchNotifications()
+        socketService.listenToNewAutomatchNotifications()
                 .subscribeOn(Schedulers.io())
                 .doOnError(this::onError)
                 .retry()
                 .subscribe(this::addAutomatch)
                 .addToDisposable(subscriptions)
 
-        OGSServiceImpl.listenToCancelAutomatchNotifications()
+        socketService.listenToCancelAutomatchNotifications()
                 .subscribeOn(Schedulers.io())
                 .doOnError(this::onError)
                 .retry()
                 .subscribe(this::removeAutomatch)
                 .addToDisposable(subscriptions)
 
-        OGSServiceImpl.listenToStartAutomatchNotifications()
+        socketService.listenToStartAutomatchNotifications()
                 .subscribeOn(Schedulers.io())
                 .doOnNext(gameStartSubject::onNext)
                 .doOnError(this::onError)
@@ -46,7 +49,7 @@ object AutomatchRepository {
                 .subscribe(this::removeAutomatch)
                 .addToDisposable(subscriptions)
 
-        OGSServiceImpl.connectToAutomatch()
+        socketService.connectToAutomatch()
     }
 
     private fun onError(t: Throwable) {
@@ -68,7 +71,7 @@ object AutomatchRepository {
         }
     }
 
-    internal fun unsubscribe() {
+    override fun onSocketDisconnected() {
         subscriptions.clear()
     }
 

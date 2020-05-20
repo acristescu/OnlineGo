@@ -3,23 +3,24 @@ package io.zenandroid.onlinego.data.repositories
 import com.crashlytics.android.Crashlytics
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.PublishSubject
+import io.zenandroid.onlinego.data.ogs.OGSWebSocketService
 import io.zenandroid.onlinego.utils.addToDisposable
-import io.zenandroid.onlinego.data.ogs.OGSServiceImpl
 import org.json.JSONObject
 
-object ServerNotificationsRepository {
+class ServerNotificationsRepository(
+        private val socketService: OGSWebSocketService
+): SocketConnectedRepository {
     private val subscriptions = CompositeDisposable()
-    private val ogs = OGSServiceImpl
     private val notificationsHash = hashMapOf<String, JSONObject>()
     private val notificationsSubject = PublishSubject.create<JSONObject>()
 
-    fun subscribe() {
-        OGSServiceImpl.connectToServerNotifications()
+    override fun onSocketConnected() {
+        socketService.connectToServerNotifications()
                 .subscribe(this::onNewNotification, this::onError)
                 .addToDisposable(subscriptions)
     }
 
-    fun unsubscribe() {
+    override fun onSocketDisconnected() {
         notificationsHash.clear()
         subscriptions.clear()
     }
@@ -40,7 +41,7 @@ object ServerNotificationsRepository {
 
     fun acknowledgeNotification(notification: JSONObject) {
         (notification["id"] as? String)?.let {
-            OGSServiceImpl.deleteNotification(it)
+            socketService.deleteNotification(it)
         }
     }
 }

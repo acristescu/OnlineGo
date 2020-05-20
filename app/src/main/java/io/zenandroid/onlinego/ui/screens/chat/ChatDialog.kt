@@ -12,9 +12,13 @@ import io.reactivex.subjects.PublishSubject
 import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.local.Message
+import io.zenandroid.onlinego.data.repositories.ChatRepository
 import kotlinx.android.synthetic.main.dialog_messages.*
+import org.koin.android.ext.android.inject
 
 class ChatDialog : DialogFragment() {
+
+    private val chatRepository: ChatRepository by inject()
 
     private val messagesAdapter = MessagesAdapter()
     private val sendMessageSubject = PublishSubject.create<String>()
@@ -78,6 +82,6 @@ class ChatDialog : DialogFragment() {
     }
 
     private fun markMessagesAsRead() {
-        OnlineGoApplication.instance.chatRepository.markMessagesAsRead(messages.filter { !it.seen })
+        chatRepository.markMessagesAsRead(messages.filter { !it.seen })
     }
 }

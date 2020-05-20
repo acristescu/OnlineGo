@@ -3,19 +3,21 @@ package io.zenandroid.onlinego.data.repositories
 import com.crashlytics.android.Crashlytics
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
-import io.zenandroid.onlinego.utils.addToDisposable
 import io.zenandroid.onlinego.data.model.local.Player
 import io.zenandroid.onlinego.data.model.ogs.OGSPlayer
-import io.zenandroid.onlinego.data.ogs.OGSServiceImpl
+import io.zenandroid.onlinego.data.ogs.OGSWebSocketService
+import io.zenandroid.onlinego.utils.addToDisposable
 
-object BotsRepository {
+class BotsRepository(
+        private val socketService: OGSWebSocketService
+): SocketConnectedRepository {
 
     private val subscriptions = CompositeDisposable()
     var bots = listOf<Player>()
         private set
 
-    internal fun subscribe() {
-        OGSServiceImpl.connectToBots()
+    override fun onSocketConnected() {
+        socketService.connectToBots()
                 .subscribeOn(Schedulers.io())
                 .subscribe(this::storeBots) { Crashlytics.logException(it) }
                 .addToDisposable(subscriptions)
@@ -25,7 +27,7 @@ object BotsRepository {
         bots = newBots.map { Player.fromOGSPlayer(it) }
     }
 
-    internal fun unsubscribe() {
+    override fun onSocketDisconnected() {
         subscriptions.clear()
     }
 }

@@ -7,21 +7,24 @@ import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.utils.showIf
 import io.zenandroid.onlinego.data.model.local.Game
 import io.zenandroid.onlinego.data.model.ogs.Phase
-import io.zenandroid.onlinego.data.ogs.OGSServiceImpl
 import io.zenandroid.onlinego.data.repositories.SettingsRepository
+import io.zenandroid.onlinego.gamelogic.Util.getCurrentUserId
 import io.zenandroid.onlinego.utils.computeTimeLeft
 import io.zenandroid.onlinego.utils.egfToRank
 import io.zenandroid.onlinego.utils.formatRank
 import kotlinx.android.synthetic.main.item_active_game_card.*
+import org.koin.core.context.KoinContextHandler.get
 
 class ActiveGameItem (val game: Game) : Item(game.id) {
+    private val settingsRepository: SettingsRepository = get().get()
+
     override fun bind(holder: GroupieViewHolder, position: Int) {
         holder.apply {
             board.boardSize = game.width
             board.drawShadow = false
             board.position = game.position
 
-            val userId = OGSServiceImpl.uiConfig?.user?.id
+            val userId = getCurrentUserId()
 
             val opponent =
                     when (userId) {
@@ -32,7 +35,7 @@ class ActiveGameItem (val game: Game) : Item(game.id) {
 
             opponent_name.text = opponent?.username
             opponent_rank.text = formatRank(egfToRank(opponent?.rating))
-            opponent_rank.showIf(SettingsRepository.showRanks)
+            opponent_rank.showIf(settingsRepository.showRanks)
             chatBadge.text = game.messagesCount.toString()
             chatBadge.showIf(game.messagesCount != null && game.messagesCount != 0)
             chatBubble.showIf(game.messagesCount != null && game.messagesCount != 0)

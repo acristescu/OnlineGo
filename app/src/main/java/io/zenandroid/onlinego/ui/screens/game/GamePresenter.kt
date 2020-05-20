@@ -22,7 +22,9 @@ import io.zenandroid.onlinego.data.model.local.Message
 import io.zenandroid.onlinego.data.model.ogs.Phase
 import io.zenandroid.onlinego.data.ogs.*
 import io.zenandroid.onlinego.data.repositories.ActiveGamesRepository
+import io.zenandroid.onlinego.data.repositories.ChatRepository
 import io.zenandroid.onlinego.data.repositories.SettingsRepository
+import io.zenandroid.onlinego.data.repositories.UserSessionRepository
 import io.zenandroid.onlinego.ui.items.statuschips.*
 import io.zenandroid.onlinego.utils.computeTimeLeft
 import java.util.concurrent.TimeUnit
@@ -32,10 +34,12 @@ import java.util.concurrent.TimeUnit
  */
 class GamePresenter(
         private val view: GameContract.View,
-        private val service: OGSService,
+        private val socketService: OGSWebSocketService,
+        private val userSessionRepository: UserSessionRepository,
         private val analytics: FirebaseAnalytics,
         private val gameRepository: ActiveGamesRepository,
         private val settingsRepository: SettingsRepository,
+        private val chatRepository: ChatRepository,
         private val gameId: Long,
         private val gameSize: Int
 ) : GameContract.Presenter {
@@ -60,7 +64,7 @@ class GamePresenter(
     private var currentPosition = Position(19)
     private var analysisPosition = Position(19)
     private var estimatePosition = Position(19)
-    private val userId = service.uiConfig?.user?.id
+    private val userId = userSessionRepository.userId
     private var currentShownMove = -1
     private var game: Game? = null
     private var variation: MutableList<Point> = mutableListOf()
@@ -136,7 +140,7 @@ class GamePresenter(
             showCoordinates = settingsRepository.showCoordinates
         }
 
-        service.resendAuth()
+        socketService.resendAuth()
 
         gameRepository.monitorGame(gameId)
                 .subscribeOn(Schedulers.io())
@@ -161,12 +165,12 @@ class GamePresenter(
                 .subscribe { clockTick() }
                 .addToDisposable(subscriptions)
 
-        gameConnection = OGSServiceImpl.connectToGame(gameId).apply {
+        gameConnection = socketService.connectToGame(gameId).apply {
             subscriptions.add(this)
         }
 
 
-        OnlineGoApplication.instance.chatRepository.monitorGameChat(gameId)
+        chatRepository.monitorGameChat(gameId)
                 .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
                 .subscribe({
                     messages = it

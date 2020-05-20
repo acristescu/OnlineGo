@@ -9,10 +9,13 @@ import com.awesomedialog.blennersilva.awesomedialoglibrary.AwesomeInfoDialog
 import com.google.firebase.analytics.FirebaseAnalytics
 import io.zenandroid.onlinego.BuildConfig
 import io.zenandroid.onlinego.R
+import io.zenandroid.onlinego.data.repositories.UserSessionRepository
 import io.zenandroid.onlinego.ui.screens.login.LoginActivity
-import io.zenandroid.onlinego.data.ogs.OGSServiceImpl
+import org.koin.android.ext.android.inject
 
 class SettingsFragment : PreferenceFragmentCompat() {
+
+    private val userSessionRepository: UserSessionRepository by inject()
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         addPreferencesFromResource(R.xml.settings_notifications)
@@ -51,7 +54,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
                         .setNegativeButtonTextColor(R.color.white)
                         .setPositiveButtonClick {
                             context?.let { FirebaseAnalytics.getInstance(it).logEvent("logout_clicked", null) }
-                            OGSServiceImpl.logOut()
+                            userSessionRepository.logOut()
                             startActivity(Intent(context, LoginActivity::class.java))
                             activity?.finish()
                         }

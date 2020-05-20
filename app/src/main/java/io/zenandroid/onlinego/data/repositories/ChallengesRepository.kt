@@ -6,23 +6,27 @@ import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.disposables.CompositeDisposable
 import io.zenandroid.onlinego.OnlineGoApplication
+import io.zenandroid.onlinego.data.db.GameDao
 import io.zenandroid.onlinego.utils.addToDisposable
 import io.zenandroid.onlinego.data.model.local.Challenge
 import io.zenandroid.onlinego.data.model.ogs.OGSChallenge
-import io.zenandroid.onlinego.data.ogs.OGSServiceImpl
+import io.zenandroid.onlinego.data.ogs.OGSRestService
+import io.zenandroid.onlinego.data.ogs.OGSWebSocketService
 
-object ChallengesRepository {
+class ChallengesRepository(
+        private val restService: OGSRestService,
+        private val socketService: OGSWebSocketService,
+        private val dao: GameDao
+): SocketConnectedRepository {
 
-    private val ogs = OGSServiceImpl
-    private val dao = OnlineGoApplication.instance.db.gameDao()
     private val disposables = CompositeDisposable()
-    private val TAG = ChallengesRepository.javaClass.simpleName
+    private val TAG = ChallengesRepository::class.java.simpleName
 
-    fun subscribe() {
+    override fun onSocketConnected() {
         refreshChallenges()
                 .subscribe({}, this::onError)
                 .addToDisposable(disposables)
-        OGSServiceImpl.connectToUIPushes()
+        socketService.connectToUIPushes()
                 .filter { it.event == "challenge-list-updated" }
                 .flatMapCompletable { refreshChallenges() }
                 .subscribe({}, this::onError)
@@ -35,7 +39,7 @@ object ChallengesRepository {
 
     fun refreshChallenges() : Completable {
         Log.i(TAG, "Fetching challenges")
-        return OGSServiceImpl.fetchChallenges()
+        return restService.fetchChallenges()
                 .doOnSuccess(this::storeChallenges)
                 .ignoreElement()
     }
@@ -48,7 +52,7 @@ object ChallengesRepository {
         Crashlytics.logException(throwable)
     }
 
-    fun unsubscribe() {
+    override fun onSocketDisconnected() {
         disposables.clear()
     }
 }

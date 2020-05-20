@@ -3,16 +3,21 @@ package io.zenandroid.onlinego.ui.screens.challenges
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
-import io.zenandroid.onlinego.utils.addToDisposable
 import io.zenandroid.onlinego.data.model.ogs.SeekGraphChallenge
-import io.zenandroid.onlinego.data.ogs.OGSServiceImpl
+import io.zenandroid.onlinego.data.ogs.OGSWebSocketService
+import io.zenandroid.onlinego.data.repositories.UserSessionRepository
+import io.zenandroid.onlinego.utils.addToDisposable
 import kotlin.math.abs
 
 /**
  * Created by alex on 05/11/2017.
  */
 @Deprecated("Obsolete")
-class ChallengesPresenter(val view: ChallengesContract.View, private val service: OGSServiceImpl) : ChallengesContract.Presenter {
+class ChallengesPresenter(
+        private val view: ChallengesContract.View,
+        private val service: OGSWebSocketService,
+        private val userSessionRepository: UserSessionRepository
+        ) : ChallengesContract.Presenter {
 
     private val challenges = mutableListOf<SeekGraphChallenge>()
 
@@ -48,7 +53,7 @@ class ChallengesPresenter(val view: ChallengesContract.View, private val service
     }
 
     private fun canAccept(challenge: SeekGraphChallenge): Boolean {
-        val myRank = service.uiConfig?.user?.ranking?.toDouble() ?: 0.0
+        val myRank = userSessionRepository.uiConfig?.user?.ranking?.toDouble() ?: 0.0
         return myRank in challenge.min_rank .. challenge.max_rank &&
                 (!challenge.ranked || abs(myRank - (challenge.rank ?: 0.0)) <= 9)
     }

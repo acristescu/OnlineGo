@@ -4,7 +4,7 @@ import com.xwray.groupie.kotlinandroidextensions.Item
 import com.xwray.groupie.kotlinandroidextensions.GroupieViewHolder
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.local.Game
-import io.zenandroid.onlinego.data.ogs.OGSServiceImpl
+import io.zenandroid.onlinego.gamelogic.Util.getCurrentUserId
 import kotlinx.android.synthetic.main.item_finished_game_card.*
 import kotlinx.android.synthetic.main.item_finished_game_card.board
 import kotlinx.android.synthetic.main.item_finished_game_card.opponent_name
@@ -17,7 +17,7 @@ class HistoricGameItem (val game: Game) : Item(game.id) {
 
             board.position = game.position
 
-            val userId = OGSServiceImpl.uiConfig?.user?.id
+            val userId = getCurrentUserId()
 
             val opponent =
                     when (userId) {

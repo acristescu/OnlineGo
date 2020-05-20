@@ -30,7 +30,10 @@ class MyGamesPresenter(
         private val finishedGamesRepository: FinishedGamesRepository,
         private val challengesRepository: ChallengesRepository,
         private val automatchRepository: AutomatchRepository,
-        private val notificationsRepository: ServerNotificationsRepository
+        private val notificationsRepository: ServerNotificationsRepository,
+        private val userSessionRepository: UserSessionRepository,
+        private val socketService: OGSWebSocketService,
+        private val restService: OGSRestService
 ) : MyGamesContract.Presenter {
     companion object {
         val TAG = MyGamesPresenter::class.java.simpleName
@@ -131,7 +134,7 @@ class MyGamesPresenter(
 
     override fun onAutomatchCancelled(automatch: OGSAutomatch) {
         analytics.logEvent("new_game_cancelled", null)
-        OGSServiceImpl.cancelAutomatch(automatch)
+        socketService.cancelAutomatch(automatch)
     }
 
     override fun unsubscribe() {
@@ -150,7 +153,7 @@ class MyGamesPresenter(
         if(t is retrofit2.HttpException) {
             if(t.code() in arrayOf(401, 403)) {
                 Crashlytics.setLong("AUTO_LOGOUT", System.currentTimeMillis())
-                OGSServiceImpl.logOut()
+                userSessionRepository.logOut()
                 view.showLoginScreen()
             } else {
                 Crashlytics.logException(Exception(t.response()?.errorBody()?.string(), t))
@@ -171,7 +174,7 @@ class MyGamesPresenter(
 
     override fun onChallengeCancelled(challenge: Challenge) {
         analytics.logEvent("challenge_cancelled", null)
-        OGSServiceImpl.declineChallenge(challenge.id)
+        restService.declineChallenge(challenge.id)
                 .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
                 .subscribe({}, this::onError)
                 .addToDisposable(subscriptions)
@@ -179,7 +182,7 @@ class MyGamesPresenter(
 
     override fun onChallengeAccepted(challenge: Challenge) {
         analytics.logEvent("challenge_accepted", null)
-        OGSServiceImpl.acceptChallenge(challenge.id)
+        restService.acceptChallenge(challenge.id)
                 .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
                 .subscribe({}, this::onError)
                 .addToDisposable(subscriptions)
@@ -187,7 +190,7 @@ class MyGamesPresenter(
 
     override fun onChallengeDeclined(challenge: Challenge) {
         analytics.logEvent("challenge_declined", null)
-        OGSServiceImpl.declineChallenge(challenge.id)
+        restService.declineChallenge(challenge.id)
                 .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
                 .subscribe({}, this::onError)
                 .addToDisposable(subscriptions)

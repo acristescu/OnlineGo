@@ -22,12 +22,15 @@ import io.zenandroid.onlinego.utils.egfToRank
 import io.zenandroid.onlinego.utils.formatRank
 import io.zenandroid.onlinego.utils.processGravatarURL
 import kotlinx.android.synthetic.main.view_player_details.view.*
+import org.koin.core.context.KoinContextHandler.get
 
 
 /**
  * Created by alex on 17/11/2017.
  */
 class PlayerDetailsView : FrameLayout {
+
+    private val settingsRepository: SettingsRepository = get().get()
 
     constructor(context: Context) : this(context, null)
     constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0)
@@ -38,7 +41,7 @@ class PlayerDetailsView : FrameLayout {
                 return
             }
             nameView.text = value?.username
-            rankView.text = if (SettingsRepository.showRanks) formatRank(egfToRank(value?.rating)) else ""
+            rankView.text = if (settingsRepository.showRanks) formatRank(egfToRank(value?.rating)) else ""
             value?.country?.let {
                 flagView.text = convertCountryCodeToEmojiFlag(it)
             }

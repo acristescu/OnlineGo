@@ -1,7 +1,6 @@
 package io.zenandroid.onlinego
 
 import android.app.Application
-import androidx.room.Room
 import android.os.Build
 import androidx.emoji.text.EmojiCompat
 import androidx.emoji.text.FontRequestEmojiCompatConfig
@@ -13,9 +12,10 @@ import io.reactivex.Completable
 import io.reactivex.exceptions.UndeliverableException
 import io.reactivex.plugins.RxJavaPlugins
 import io.reactivex.schedulers.Schedulers
-import io.zenandroid.onlinego.data.db.Database
-import io.zenandroid.onlinego.data.repositories.ChatRepository
+import io.zenandroid.onlinego.di.*
 import io.zenandroid.onlinego.ui.views.BoardView
+import org.koin.android.ext.koin.androidContext
+import org.koin.core.context.startKoin
 import java.io.IOException
 import java.net.SocketException
 
@@ -29,18 +29,18 @@ class OnlineGoApplication : Application() {
         lateinit var instance: OnlineGoApplication
     }
 
-    val db by lazy {
-        Room.databaseBuilder(this, Database::class.java, "database.db")
-                .fallbackToDestructiveMigration()
-                .build()
-    }
     val analytics by lazy { FirebaseAnalytics.getInstance(this) }
-    val chatRepository by lazy { ChatRepository(db.gameDao()) }
 
     override fun onCreate() {
         super.onCreate()
         if(BuildConfig.DEBUG) {
             Stetho.initializeWithDefaults(this)
+        }
+
+        startKoin {
+            androidContext(this@OnlineGoApplication)
+
+            modules(allKoinModules)
         }
 
         instance = this

@@ -3,13 +3,16 @@ package io.zenandroid.onlinego.gamelogic
 import android.graphics.Point
 import io.zenandroid.onlinego.data.model.local.Game
 import io.zenandroid.onlinego.data.model.ogs.OGSGame
-import io.zenandroid.onlinego.data.ogs.OGSServiceImpl
+import io.zenandroid.onlinego.data.repositories.UserSessionRepository
+import org.koin.core.context.KoinContextHandler.get
 import java.util.*
 
 /**
  * Created by alex on 1/9/2015.
  */
 object Util {
+
+    private val userSessionRepository: UserSessionRepository by get().inject()
 
     fun getSGFCoordinates(p: Point): String {
         if (p.x == -1) {
@@ -60,18 +63,21 @@ object Util {
 
     fun isMyTurn(game: OGSGame?): Boolean {
         if (game?.player_to_move != 0L) {
-            return game?.player_to_move == OGSServiceImpl.uiConfig?.user?.id
+            return game?.player_to_move == getCurrentUserId()
         }
         game.json?.let {
-            return it.clock?.current_player == OGSServiceImpl.uiConfig?.user?.id
+            return it.clock?.current_player == getCurrentUserId()
         }
         return false
     }
 
     fun isMyTurn(game: Game?): Boolean {
         if (game?.playerToMoveId != null) {
-            return game.playerToMoveId == OGSServiceImpl.uiConfig?.user?.id
+            return game.playerToMoveId == getCurrentUserId()
         }
         return false
     }
+
+    fun getCurrentUserId() =
+        userSessionRepository.userId
 }

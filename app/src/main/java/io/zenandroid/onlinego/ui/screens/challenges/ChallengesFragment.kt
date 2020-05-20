@@ -10,8 +10,8 @@ import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.utils.showIf
 import io.zenandroid.onlinego.data.model.ogs.SeekGraphChallenge
-import io.zenandroid.onlinego.data.ogs.OGSServiceImpl
 import kotlinx.android.synthetic.main.fragment_challenges.*
+import org.koin.android.ext.android.get
 
 
 /**
@@ -34,7 +34,7 @@ class ChallengesFragment : Fragment(), ChallengesContract.View {
 //        challengesRecycler.layoutManager = LinearLayoutManager(context)
         challengesRecycler.adapter = adapter
 
-        presenter = ChallengesPresenter(this, OGSServiceImpl)
+        presenter = ChallengesPresenter(this, get(), get())
     }
 
     override fun onResume() {

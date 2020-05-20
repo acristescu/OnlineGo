@@ -47,12 +47,13 @@ import io.zenandroid.onlinego.ui.items.statuschips.ChipAdapter
 import io.zenandroid.onlinego.utils.NotificationUtils
 import io.zenandroid.onlinego.utils.PersistenceManager
 import kotlinx.android.synthetic.main.activity_main.*
+import org.koin.android.ext.android.get
+import org.koin.android.ext.android.inject
 
 
 class MainActivity : AppCompatActivity(), MainContract.View {
     companion object {
         var isInForeground = false
-        var userId: Long? = null
         val TAG = MainActivity::class.java.simpleName
     }
 
@@ -65,12 +66,14 @@ class MainActivity : AppCompatActivity(), MainContract.View {
     private val chipAdapter = ChipAdapter()
     private var unreadCount = 0
 
-    val activeGameRepository: ActiveGamesRepository by lazy { ActiveGamesRepository }
+    private val activeGameRepository: ActiveGamesRepository by inject()
+    private val settingsRepository: SettingsRepository by inject()
+
     val chatClicks: Observable<Any> by lazy { RxView.clicks(chatButton) }
 
     private lateinit var lastSelectedItem: MenuItem
 
-    private val presenter: MainPresenter by lazy { MainPresenter(this, activeGameRepository) }
+    private val presenter: MainPresenter by lazy { MainPresenter(this, get(), get(), get(), get(), get()) }
 
     var loading: Boolean = false
         set(value) {
@@ -113,7 +116,7 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         set(value) { badge.text = value }
 
     override fun vibrate() {
-        if(!SettingsRepository.vibrate) {
+        if(!settingsRepository.vibrate) {
             return
         }
         val v = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator

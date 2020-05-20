@@ -7,7 +7,7 @@ private const val SHOW_RANKS = "show_ranks"
 private const val SHOW_COORDINATES = "show_coordinates"
 private const val VIBRATE = "vibrate_on_move"
 
-object SettingsRepository {
+class SettingsRepository {
     private val prefs = PreferenceManager.getDefaultSharedPreferences(OnlineGoApplication.instance.baseContext)
 
     var showRanks: Boolean

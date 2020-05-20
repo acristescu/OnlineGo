@@ -8,13 +8,14 @@ import com.xwray.groupie.Section
 import com.xwray.groupie.kotlinandroidextensions.GroupieViewHolder
 import io.zenandroid.onlinego.data.model.local.Game
 import io.zenandroid.onlinego.data.model.ogs.Phase
-import io.zenandroid.onlinego.data.ogs.OGSServiceImpl
 import io.zenandroid.onlinego.ui.items.*
 
 /**
  * Created by alex on 31/05/2018.
  */
-class GameListGroupAdapter : GroupAdapter<GroupieViewHolder>() {
+class GameListGroupAdapter(
+        private val userId: Long?
+) : GroupAdapter<GroupieViewHolder>() {
     private var onItemClickListener: OnItemClickListener? = null
 
     var historicGamesvisible: Boolean = false
@@ -80,7 +81,6 @@ class GameListGroupAdapter : GroupAdapter<GroupieViewHolder>() {
     }
 
     fun setGames(games: List<Game>) {
-        val userId = OGSServiceImpl.uiConfig?.user?.id
         val myTurnList = mutableListOf<ActiveGameItem>()
         val opponentTurnList = mutableListOf<ActiveGameItem>()
         for(game in games) {

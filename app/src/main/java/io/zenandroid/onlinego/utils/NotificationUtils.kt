@@ -15,6 +15,7 @@ import android.view.View
 import android.widget.RemoteViews
 import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.R
+import io.zenandroid.onlinego.data.db.GameDao
 import io.zenandroid.onlinego.gamelogic.RulesManager
 import io.zenandroid.onlinego.ui.screens.login.LoginActivity
 import io.zenandroid.onlinego.data.model.local.Challenge
@@ -23,6 +24,7 @@ import io.zenandroid.onlinego.data.model.local.GameNotification
 import io.zenandroid.onlinego.data.model.local.GameNotificationWithDetails
 import io.zenandroid.onlinego.data.model.ogs.Phase
 import io.zenandroid.onlinego.ui.views.BoardView
+import org.koin.core.context.KoinContextHandler.get
 
 
 /**
@@ -104,13 +106,6 @@ class NotificationUtils {
                                         .build()
                         )
                     }
-        }
-
-        fun storeGameNotifications(games: List<Game>, lastNotifications: List<GameNotificationWithDetails>) {
-            val newNotifications = games.map { GameNotification(it.id, it.moves, it.phase) }
-            if(newNotifications != lastNotifications) {
-                OnlineGoApplication.instance.db.gameDao().replaceGameNotifications(newNotifications)
-            }
         }
 
         private fun View.convertToContentBitmap(): Bitmap {

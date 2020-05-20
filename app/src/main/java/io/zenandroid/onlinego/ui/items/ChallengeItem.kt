@@ -6,7 +6,7 @@ import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.utils.hide
 import io.zenandroid.onlinego.utils.show
 import io.zenandroid.onlinego.data.model.local.Challenge
-import io.zenandroid.onlinego.data.ogs.OGSServiceImpl
+import io.zenandroid.onlinego.gamelogic.Util.getCurrentUserId
 import kotlinx.android.synthetic.main.item_challenge.*
 
 class ChallengeItem(
@@ -16,7 +16,7 @@ class ChallengeItem(
         private val onChallengeDeclined: ((Challenge) -> Unit)?
 ) : Item(challenge.id) {
     override fun bind(holder: GroupieViewHolder, position: Int) {
-        if (challenge.challenger?.id == OGSServiceImpl.uiConfig?.user?.id) {
+        if (challenge.challenger?.id == getCurrentUserId()) {
             holder.title.text = "You are challenging ${challenge.challenged?.username}"
             holder.acceptButton.hide()
             holder.declineButton.hide()
