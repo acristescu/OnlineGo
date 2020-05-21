@@ -1,29 +1,18 @@
 package io.zenandroid.onlinego.data.ogs
 
-import android.util.Log
-import com.crashlytics.android.Crashlytics
-import com.facebook.stetho.okhttp3.StethoInterceptor
-import com.google.android.gms.common.util.IOUtils
 import com.squareup.moshi.Moshi
 import io.reactivex.Completable
 import io.reactivex.Single
-import io.reactivex.schedulers.Schedulers
-import io.zenandroid.onlinego.BuildConfig
 import io.zenandroid.onlinego.data.model.ogs.*
 import io.zenandroid.onlinego.data.repositories.UserSessionRepository
 import io.zenandroid.onlinego.ui.screens.newchallenge.ChallengeParams
-import okhttp3.OkHttpClient
+import io.zenandroid.onlinego.utils.microsToISODateTime
 import okhttp3.ResponseBody.Companion.toResponseBody
-import okhttp3.logging.HttpLoggingInterceptor
+import org.threeten.bp.Instant
+import org.threeten.bp.temporal.ChronoUnit
 import retrofit2.HttpException
 import retrofit2.Response
-import retrofit2.Retrofit
-import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
-import retrofit2.converter.moshi.MoshiConverterFactory
-import java.io.ByteArrayInputStream
-import java.text.SimpleDateFormat
 import java.util.*
-import java.util.zip.GZIPInputStream
 
 private const val TAG = "OGSRestService"
 
@@ -161,20 +150,18 @@ class OGSRestService(
     fun fetchChallenges(): Single<List<OGSChallenge>> =
             restApi.fetchChallenges().map { it.results }
 
-    private val dateFormatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX", Locale.UK);
-
     fun fetchHistoricGamesBefore(beforeDate: Long?): Single<List<OGSGame>> =
             if(beforeDate == null) {
                 restApi.fetchPlayerFinishedGames(userSessionRepository.userId!!)
             } else {
-                restApi.fetchPlayerFinishedBeforeGames(userSessionRepository.userId!!, 10, dateFormatter.format(Date(beforeDate)), 1)
+                restApi.fetchPlayerFinishedBeforeGames(userSessionRepository.userId!!, 10, beforeDate.microsToISODateTime(), 1)
             }.map { it.results }
 
     fun fetchHistoricGamesAfter(afterDate: Long?): Single<List<OGSGame>> =
             if(afterDate == null) {
                 restApi.fetchPlayerFinishedGames(userSessionRepository.userId!!)
             } else {
-                restApi.fetchPlayerFinishedAfterGames(userSessionRepository.userId!!, 10, dateFormatter.format(Date(afterDate)), 1)
+                restApi.fetchPlayerFinishedAfterGames(userSessionRepository.userId!!, 10, afterDate.microsToISODateTime(), 1)
             }.map { it.results }
 
     fun searchPlayers(query: String): Single<List<OGSPlayer>> =

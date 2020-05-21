@@ -10,6 +10,9 @@ import io.zenandroid.onlinego.data.model.ogs.GameData
 import io.zenandroid.onlinego.data.model.ogs.OGSGame
 import io.zenandroid.onlinego.data.model.ogs.Phase
 import io.zenandroid.onlinego.data.ogs.TimeControl
+import io.zenandroid.onlinego.utils.toEpochMicros
+import org.threeten.bp.Instant
+import org.threeten.bp.temporal.ChronoUnit
 
 /**
  * Created by alex on 05/06/2018.
@@ -50,6 +53,7 @@ data class Game(
 
         var komi: Float?,
 
+        // Note: This is microseconds (not milliseconds!!!) since the epoch
         var ended: Long?,
 
         var freeHandicapPlacement: Boolean?,
@@ -160,7 +164,7 @@ data class Game(
                     clock = Clock.fromOGSClock(gamedata?.clock),
                     phase = gamedata?.phase ?: if(hasOutcome) Phase.FINISHED else null,
                     komi = if(game.komi == null) gamedata?.komi else game.komi,
-                    ended = game.ended?.time,
+                    ended = game.ended?.toEpochMicros(),
                     freeHandicapPlacement = gamedata?.free_handicap_placement,
                     handicap = game.handicap,
                     undoRequested = gamedata?.undo_requested,

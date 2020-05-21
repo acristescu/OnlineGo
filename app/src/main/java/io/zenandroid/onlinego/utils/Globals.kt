@@ -7,8 +7,14 @@ import io.zenandroid.onlinego.data.model.local.Time
 import io.zenandroid.onlinego.data.ogs.TimeControl
 import org.json.JSONArray
 import org.json.JSONObject
+import org.threeten.bp.Instant
+import org.threeten.bp.ZoneId
+import org.threeten.bp.format.DateTimeFormatter
+import org.threeten.bp.temporal.ChronoUnit
 import java.lang.Math.ceil
 import java.lang.Math.log
+import java.text.SimpleDateFormat
+import java.util.*
 import java.util.regex.Pattern
 import kotlin.math.ln
 import kotlin.math.max
@@ -215,3 +221,14 @@ fun formatSeconds(seconds: Int?): String {
     }
     return "?"
 }
+
+fun Long.microsToISODateTime(): String {
+    val instant = Instant.EPOCH.plus(this, ChronoUnit.MICROS)
+    return DateTimeFormatter.ISO_OFFSET_DATE_TIME
+            .withLocale( Locale.US )
+            .withZone( ZoneId.of("America/New_York") )
+            .format(instant)
+}
+
+fun Instant.toEpochMicros(): Long
+        = ChronoUnit.MICROS.between(Instant.EPOCH, this)

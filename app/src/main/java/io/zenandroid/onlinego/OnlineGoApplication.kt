@@ -8,6 +8,7 @@ import androidx.core.provider.FontRequest
 import android.util.Log
 import com.facebook.stetho.Stetho
 import com.google.firebase.analytics.FirebaseAnalytics
+import com.jakewharton.threetenabp.AndroidThreeTen
 import io.reactivex.Completable
 import io.reactivex.exceptions.UndeliverableException
 import io.reactivex.plugins.RxJavaPlugins
@@ -44,6 +45,7 @@ class OnlineGoApplication : Application() {
         }
 
         instance = this
+        AndroidThreeTen.init(this)
 
         RxJavaPlugins.setErrorHandler {
             val e = if (it is UndeliverableException) it.cause else it

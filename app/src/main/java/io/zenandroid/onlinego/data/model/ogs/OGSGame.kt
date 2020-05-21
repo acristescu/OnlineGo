@@ -1,6 +1,7 @@
 package io.zenandroid.onlinego.data.model.ogs
 
 import io.zenandroid.onlinego.data.ogs.Players
+import org.threeten.bp.Instant
 import java.util.*
 
 /**
@@ -22,7 +23,7 @@ data class OGSGame (
         var private: Boolean? = null,
         var time_per_move: Int? = null,
         var player_to_move: Long? = null,
-        var ended: Date? = null,
+        var ended: Instant? = null,
 
         var json: GameData? = null,
 

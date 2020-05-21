@@ -5,8 +5,6 @@ import com.crashlytics.android.Crashlytics
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types
-import com.squareup.moshi.adapters.Rfc3339DateJsonAdapter
-import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
 import io.reactivex.Single
@@ -26,7 +24,6 @@ import io.zenandroid.onlinego.utils.createJsonObject
 import okhttp3.OkHttpClient
 import org.json.JSONObject
 import org.koin.core.context.KoinContextHandler.get
-import org.koin.java.KoinJavaComponent.inject
 import java.util.*
 import java.util.logging.Level
 import java.util.logging.Logger

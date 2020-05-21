@@ -53,7 +53,7 @@ abstract class GameDao {
         WHERE 
             phase = 'FINISHED' 
             AND (white_id = :userId OR black_id = :userId)
-            AND ended > (SELECT STRFTIME('%s','now','-3 days') * 1000)
+            AND ended > (SELECT STRFTIME('%s','now','-3 days') * 1000000)
         ORDER BY ended DESC 
         LIMIT 25
         """)
@@ -71,7 +71,7 @@ abstract class GameDao {
                 WHERE 
                     phase = 'FINISHED' 
                     AND (white_id = :userId OR black_id = :userId)
-                    AND ended > (SELECT STRFTIME('%s','now','-3 days') * 1000)
+                    AND ended > (SELECT STRFTIME('%s','now','-3 days') * 1000000)
                     ORDER BY ended DESC 
                     LIMIT 25
                 )
@@ -80,7 +80,7 @@ abstract class GameDao {
         """)
     abstract fun monitorFinishedNotRecentGames(userId: Long?) : Flowable<List<Game>>
 
-    @Query("SELECT * FROM game WHERE phase = 'FINISHED' AND (white_id = :userId OR black_id = :userId) AND ended <= :endedBefore ORDER BY ended DESC LIMIT 10")
+    @Query("SELECT * FROM game WHERE phase = 'FINISHED' AND (white_id = :userId OR black_id = :userId) AND ended < :endedBefore ORDER BY ended DESC LIMIT 10")
     abstract fun monitorFinishedGamesEndedBefore(userId: Long?, endedBefore: Long) : Flowable<List<Game>>
 
     @Query("""

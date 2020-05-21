@@ -2,14 +2,10 @@ package io.zenandroid.onlinego.di
 
 import androidx.room.Room
 import com.squareup.moshi.Moshi
-import com.squareup.moshi.adapters.Rfc3339DateJsonAdapter
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import io.reactivex.schedulers.Schedulers
 import io.zenandroid.onlinego.data.db.Database
-import io.zenandroid.onlinego.data.ogs.HTTPConnectionFactory
-import io.zenandroid.onlinego.data.ogs.OGSRestAPI
-import io.zenandroid.onlinego.data.ogs.OGSRestService
-import io.zenandroid.onlinego.data.ogs.OGSWebSocketService
+import io.zenandroid.onlinego.data.ogs.*
 import io.zenandroid.onlinego.data.repositories.*
 import io.zenandroid.onlinego.mvi.Store
 import io.zenandroid.onlinego.ui.screens.joseki.*
@@ -19,10 +15,10 @@ import io.zenandroid.onlinego.ui.screens.newchallenge.selectopponent.searchplaye
 import io.zenandroid.onlinego.ui.screens.newchallenge.selectopponent.searchplayer.SearchPlayerViewModel
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
+import org.threeten.bp.Instant
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.moshi.MoshiConverterFactory
-import java.util.*
 
 private val repositoriesModule = module {
     single {
@@ -66,7 +62,7 @@ private val serverConnectionModule = module {
 
     single {
         Moshi.Builder()
-                .add(Date::class.java, Rfc3339DateJsonAdapter().nullSafe())
+                .add(Instant::class.java, OGSInstantJsonAdapter().nullSafe())
                 .add(KotlinJsonAdapterFactory())
                 .build()
     }

@@ -16,6 +16,8 @@ import io.zenandroid.onlinego.data.ogs.OGSRestService
 import io.zenandroid.onlinego.data.ogs.OGSWebSocketService
 import java.io.IOException
 import java.util.concurrent.TimeUnit
+import kotlin.math.max
+import kotlin.math.min
 
 class FinishedGamesRepository(
         private val restService: OGSRestService,
@@ -159,7 +161,7 @@ class FinishedGamesRepository(
                 oldestGameFetchedEndedAt
             }
             else -> {
-                Math.min(oldestGameFetchedEndedAt!!, oldestGame.ended!!)
+                min(oldestGameFetchedEndedAt!!, oldestGame.ended!!)
             }
         }
 
@@ -172,7 +174,7 @@ class FinishedGamesRepository(
                 newestGameFetchedEndedAt
             }
             else -> {
-                Math.max(newestGameFetchedEndedAt!!, newestGame.ended!!)
+                max(newestGameFetchedEndedAt!!, newestGame.ended!!)
             }
         }
         val metadata = HistoricGamesMetadata(
