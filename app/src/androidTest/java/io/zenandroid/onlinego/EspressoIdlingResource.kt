@@ -1,4 +1,4 @@
-package io.zenandroid.onlinego.utils
+package io.zenandroid.onlinego
 
 /*
  * Copyright (C) 2015 The Android Open Source Project
@@ -18,6 +18,7 @@ package io.zenandroid.onlinego.utils
 
 
 import androidx.test.espresso.IdlingResource
+import io.zenandroid.onlinego.utils.CountingIdlingResource
 
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -31,7 +32,7 @@ import java.util.concurrent.atomic.AtomicInteger
  * This class can then be used to wrap up operations that while in progress should block tests from
  * accessing the UI.
  */
-object EspressoIdlingResource : IdlingResource {
+class EspressoIdlingResource : CountingIdlingResource, IdlingResource {
 
     private val counter = AtomicInteger(0)
 
@@ -54,7 +55,7 @@ object EspressoIdlingResource : IdlingResource {
     /**
      * Increments the count of in-flight transactions to the resource being monitored.
      */
-    fun increment() {
+    override fun increment() {
         counter.getAndIncrement()
     }
 
@@ -65,7 +66,7 @@ object EspressoIdlingResource : IdlingResource {
      *
      * @throws IllegalStateException if the counter is below 0.
      */
-    fun decrement() {
+    override fun decrement() {
         val counterVal = counter.decrementAndGet()
         if (counterVal == 0) {
             // we've gone from non-zero to zero. That means we're idle now! Tell espresso.

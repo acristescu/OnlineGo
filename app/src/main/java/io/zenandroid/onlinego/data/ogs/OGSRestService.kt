@@ -6,11 +6,9 @@ import io.reactivex.Single
 import io.zenandroid.onlinego.data.model.ogs.*
 import io.zenandroid.onlinego.data.repositories.UserSessionRepository
 import io.zenandroid.onlinego.ui.screens.newchallenge.ChallengeParams
-import io.zenandroid.onlinego.utils.EspressoIdlingResource
+import io.zenandroid.onlinego.utils.CountingIdlingResource
 import io.zenandroid.onlinego.utils.microsToISODateTime
 import okhttp3.ResponseBody.Companion.toResponseBody
-import org.threeten.bp.Instant
-import org.threeten.bp.temporal.ChronoUnit
 import retrofit2.HttpException
 import retrofit2.Response
 import java.util.*
@@ -20,6 +18,7 @@ private const val TAG = "OGSRestService"
 class OGSRestService(
         val moshi: Moshi,
         val restApi: OGSRestAPI,
+        val idlingResource: CountingIdlingResource,
         val userSessionRepository: UserSessionRepository
 ) {
 
@@ -28,7 +27,7 @@ class OGSRestService(
     }
 
     fun login(username: String, password: String): Completable {
-        EspressoIdlingResource.increment()
+        idlingResource.increment()
         val ebi = "${Math.random().toString().split(".")[1]}.0.0.0.0.xxx.xxx.${Date().timezoneOffset + 13}"
         return restApi.login(CreateAccountRequest(username, password, "", ebi))
                 .doOnSuccess {
@@ -41,7 +40,7 @@ class OGSRestService(
                 }
                 .doOnSuccess (userSessionRepository::storeUIConfig)
                 .ignoreElement()
-                .doAfterTerminate { EspressoIdlingResource.decrement() }
+                .doAfterTerminate { idlingResource.decrement() }
     }
 
     fun createAccount(username: String, password: String, email: String): Completable {

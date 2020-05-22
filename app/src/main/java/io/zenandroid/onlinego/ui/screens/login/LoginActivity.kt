@@ -49,6 +49,7 @@ class LoginActivity : AppCompatActivity() {
     private val userSessionRepository: UserSessionRepository by inject()
     private val ogsRestService: OGSRestService by inject()
     private val ogsSocketService: OGSWebSocketService by inject()
+    private val idlingResource: CountingIdlingResource by inject()
 
     private var createAccount = false
 
@@ -145,7 +146,7 @@ class LoginActivity : AppCompatActivity() {
             drawable?.draw(canvas)
             loginButton.doneLoadingAnimation(ResourcesCompat.getColor(resources, R.color.colorAccent, null), bitmap)
         }
-        EspressoIdlingResource.increment()
+        idlingResource.increment()
         TransitionManager.beginDelayedTransition(findViewById(R.id.container), Fade(Fade.MODE_OUT).setDuration(100).setStartDelay(400))
         findViewById<ViewGroup>(R.id.container).removeAllViews()
         Handler().postDelayed({
@@ -156,7 +157,7 @@ class LoginActivity : AppCompatActivity() {
             }
             startActivity(newIntent)
             finish()
-            EspressoIdlingResource.decrement()
+            idlingResource.decrement()
         }, 500)
     }
 

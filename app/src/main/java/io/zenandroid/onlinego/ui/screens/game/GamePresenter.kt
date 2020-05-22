@@ -8,7 +8,6 @@ import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
-import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.utils.addToDisposable
 import io.zenandroid.onlinego.ui.screens.game.GameContract.MenuItem
@@ -26,6 +25,7 @@ import io.zenandroid.onlinego.data.repositories.ChatRepository
 import io.zenandroid.onlinego.data.repositories.SettingsRepository
 import io.zenandroid.onlinego.data.repositories.UserSessionRepository
 import io.zenandroid.onlinego.ui.items.statuschips.*
+import io.zenandroid.onlinego.utils.CountingIdlingResource
 import io.zenandroid.onlinego.utils.computeTimeLeft
 import java.util.concurrent.TimeUnit
 
@@ -40,6 +40,7 @@ class GamePresenter(
         private val gameRepository: ActiveGamesRepository,
         private val settingsRepository: SettingsRepository,
         private val chatRepository: ChatRepository,
+        private val idlingResource: CountingIdlingResource,
         private val gameId: Long,
         private val gameSize: Int
 ) : GameContract.Presenter {
@@ -133,6 +134,7 @@ class GamePresenter(
     private var candidateMove: Point? = null
 
     override fun subscribe() {
+        idlingResource.increment()
         view.apply {
             setLoading(currentState == LOADING)
             boardSize = gameSize
@@ -194,6 +196,10 @@ class GamePresenter(
     private fun onGameChanged(newGame: Game) {
         if(newGame == game) {
             return
+        }
+
+        if(game == null) {
+            idlingResource.decrement()
         }
 
         val newGameState = determineStateFromGame(newGame)

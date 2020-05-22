@@ -13,6 +13,8 @@ import io.zenandroid.onlinego.ui.screens.newchallenge.selectopponent.searchplaye
 import io.zenandroid.onlinego.ui.screens.newchallenge.selectopponent.searchplayer.SearchPlayerReducer
 import io.zenandroid.onlinego.ui.screens.newchallenge.selectopponent.searchplayer.SearchPlayerState
 import io.zenandroid.onlinego.ui.screens.newchallenge.selectopponent.searchplayer.SearchPlayerViewModel
+import io.zenandroid.onlinego.utils.CountingIdlingResource
+import io.zenandroid.onlinego.utils.NOOPIdlingResource
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 import org.threeten.bp.Instant
@@ -67,7 +69,7 @@ private val serverConnectionModule = module {
                 .build()
     }
 
-    single { OGSRestService(get(), get(), get()) }
+    single { OGSRestService(get(), get(), get(), get()) }
     single { OGSWebSocketService(get(), get(), get(), get()) }
 }
 
@@ -110,9 +112,14 @@ private val viewModelsModule = module {
     }
 }
 
+private val espressoModule = module {
+    single<CountingIdlingResource> { NOOPIdlingResource() }
+}
+
 val allKoinModules = listOf(
         repositoriesModule,
         serverConnectionModule,
         databaseModule,
-        viewModelsModule
+        viewModelsModule,
+        espressoModule
 )

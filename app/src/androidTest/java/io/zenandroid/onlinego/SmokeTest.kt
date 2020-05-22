@@ -10,12 +10,14 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.rule.ActivityTestRule
 import io.zenandroid.onlinego.ui.screens.login.LoginActivity
-import io.zenandroid.onlinego.utils.EspressoIdlingResource
+import io.zenandroid.onlinego.utils.CountingIdlingResource
 import org.hamcrest.CoreMatchers.not
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.koin.core.context.loadKoinModules
+import org.koin.dsl.module
 
 
 @RunWith(AndroidJUnit4::class)
@@ -25,26 +27,39 @@ class SmokeTest {
     var activityRule: ActivityTestRule<LoginActivity>
             = ActivityTestRule(LoginActivity::class.java)
 
+    private val idlingResource = EspressoIdlingResource()
+
     @Before
     fun setup() {
-        IdlingRegistry.getInstance().register(EspressoIdlingResource)
+        IdlingRegistry.getInstance().register(idlingResource)
+
+        loadKoinModules(
+                module{
+                    single<CountingIdlingResource>(override = true) { idlingResource }
+                }
+        )
     }
 
     @Test
     fun smokeTest() {
-        onView(withId(R.id.username)).check(matches(isDisplayed()))
-        onView(withId(R.id.password)).check(matches(isDisplayed()))
-        onView(withId(R.id.email)).check(matches(not(isDisplayed())))
+        onView(withId(R.id.username))
+                .check(matches(isDisplayed()))
+        onView(withId(R.id.password))
+                .check(matches(isDisplayed()))
+        onView(withId(R.id.email))
+                .check(matches(not(isDisplayed())))
         onView(withId(R.id.loginButton))
                 .check(matches(isDisplayed()))
                 .check(matches(not(isEnabled())))
 
-        onView(withId(R.id.username)).perform(typeText("MrAlex-espresso-test"))
+        onView(withId(R.id.username))
+                .perform(typeText("MrAlex-espresso-test"))
 
         onView(withId(R.id.loginButton))
                 .check(matches(not(isEnabled())))
 
-        onView(withId(R.id.password)).perform(typeText("espresso"))
+        onView(withId(R.id.password))
+                .perform(typeText("espresso"))
 
         onView(withId(R.id.loginButton))
                 .check(matches(isEnabled()))
@@ -52,16 +67,12 @@ class SmokeTest {
 
         onView(withId(R.id.gamesRecycler))
                 .check(matches(hasChildCount(6)))
-                .check(matches(withChild(withChild(withText("NEW GAME")))))
 
         onView(withText("MrAlex-test"))
                 .perform(click())
 
-        //
-        // Wait for 3 seconds just in case something crashes
-        // TODO: do something better here...
-        //
-        Thread.sleep(3000)
+        onView(withText("mralex-espresso-test"))
+                .check(matches(isDisplayed()))
     }
 
 

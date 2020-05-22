@@ -167,7 +167,8 @@ class GameFragment : Fragment(), GameContract.View {
                 settingsRepository = get(),
                 gameId = arguments!!.getLong(GAME_ID),
                 gameSize = arguments!!.getInt(GAME_SIZE),
-                chatRepository = get()
+                chatRepository = get(),
+                idlingResource = get()
         )
         (activity as? AppCompatActivity)?.supportActionBar?.setDisplayHomeAsUpEnabled(true)
     }
