@@ -45,7 +45,7 @@ class ChallengesRepository(
     }
 
     fun monitorChallenges(): Flowable<List<Challenge>> =
-        dao.getChallenges()
+        dao.getChallenges().distinctUntilChanged()
 
     fun onError(throwable: Throwable) {
         Log.e(TAG, throwable.message, throwable)

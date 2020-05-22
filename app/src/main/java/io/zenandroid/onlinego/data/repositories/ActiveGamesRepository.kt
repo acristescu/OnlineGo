@@ -270,6 +270,7 @@ class ActiveGamesRepository(
 
     fun monitorActiveGames(): Flowable<List<Game>> {
         return gameDao.monitorActiveGamesWithNewMessagesCount(userSessionRepository.userId)
+                .distinctUntilChanged()
     }
 
     private fun onError(t: Throwable, request: String) {

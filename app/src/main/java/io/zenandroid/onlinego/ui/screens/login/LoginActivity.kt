@@ -29,11 +29,8 @@ import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.ogs.OGSRestService
 import io.zenandroid.onlinego.data.ogs.OGSWebSocketService
 import io.zenandroid.onlinego.data.repositories.UserSessionRepository
-import io.zenandroid.onlinego.utils.addToDisposable
-import io.zenandroid.onlinego.utils.hide
-import io.zenandroid.onlinego.utils.onChange
-import io.zenandroid.onlinego.utils.show
 import io.zenandroid.onlinego.ui.screens.main.MainActivity
+import io.zenandroid.onlinego.utils.*
 import kotlinx.android.synthetic.main.activity_login.*
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -148,6 +145,7 @@ class LoginActivity : AppCompatActivity() {
             drawable?.draw(canvas)
             loginButton.doneLoadingAnimation(ResourcesCompat.getColor(resources, R.color.colorAccent, null), bitmap)
         }
+        EspressoIdlingResource.increment()
         TransitionManager.beginDelayedTransition(findViewById(R.id.container), Fade(Fade.MODE_OUT).setDuration(100).setStartDelay(400))
         findViewById<ViewGroup>(R.id.container).removeAllViews()
         Handler().postDelayed({
@@ -158,6 +156,7 @@ class LoginActivity : AppCompatActivity() {
             }
             startActivity(newIntent)
             finish()
+            EspressoIdlingResource.decrement()
         }, 500)
     }
 
