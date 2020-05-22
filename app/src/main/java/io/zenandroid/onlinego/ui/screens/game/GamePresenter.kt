@@ -161,11 +161,11 @@ class GamePresenter(
                 .subscribe(this::onUserHotTrackedCell)
                 .addToDisposable(subscriptions)
 
-        Observable.interval(100, TimeUnit.MILLISECONDS)
-                .takeWhile { currentState != FINISHED && game?.phase != Phase.FINISHED }
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe { clockTick() }
-                .addToDisposable(subscriptions)
+//        Observable.interval(100, TimeUnit.MILLISECONDS)
+//                .takeWhile { currentState != FINISHED && game?.phase != Phase.FINISHED }
+//                .observeOn(AndroidSchedulers.mainThread())
+//                .subscribe { clockTick() }
+//                .addToDisposable(subscriptions)
 
         gameConnection = socketService.connectToGame(gameId).apply {
             subscriptions.add(this)
