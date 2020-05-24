@@ -9,7 +9,7 @@
         android:id="@+id/appbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/colorPrimary"
+        android:background="@color/headerPrimary"
         app:layout_constraintTop_toTopOf="parent"
         >
         <androidx.appcompat.widget.Toolbar
@@ -33,7 +33,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:fontFamily="@font/kaushan_script"
-                    android:textColor="@color/headerPrimary"
+                    android:textColor="@color/headerPrimaryText"
                     android:textSize="26sp"
                     app:layout_constraintLeft_toLeftOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
@@ -43,7 +43,7 @@
                     android:id="@+id/titleView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textColor="@color/headerPrimary"
+                    android:textColor="@color/headerPrimaryText"
                     android:textSize="16sp"
                     android:textStyle="bold"
                     app:layout_constraintLeft_toLeftOf="parent"
@@ -70,7 +70,7 @@
                     android:scaleType="fitXY"
                     android:padding="10dp"
                     android:background="?android:selectableItemBackground"
-                    android:tint="@color/headerPrimary"
+                    android:tint="@color/headerPrimaryText"
                     />
                 <TextView
                     android:id="@+id/chatBadge"
@@ -95,7 +95,7 @@
                 <ImageView
                     android:id="@+id/notificationsButton"
                     app:srcCompat="@drawable/ic_go_board"
-                    android:tint="@color/headerPrimary"
+                    android:tint="@color/headerPrimaryText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:clickable="true"
@@ -153,7 +153,7 @@
         style="@style/Widget.MaterialProgressBar.ProgressBar.Horizontal"
         app:mpb_useIntrinsicPadding="false"
         app:layout_constraintBottom_toBottomOf="@id/appbar"
-        app:mpb_indeterminateTint="@color/headerPrimary"
+        app:mpb_indeterminateTint="@color/headerPrimaryText"
         android:elevation="4dp"
         android:visibility="gone"
         />

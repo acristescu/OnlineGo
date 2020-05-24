@@ -20,7 +20,8 @@
 
     <color name="white">#FFFFFF</color>
     <color name="whiteStones">#FFFFFF</color>
-    <color name="headerPrimary">#FFFFFF</color>
+    <color name="headerPrimary">@color/colorPrimary</color>
+    <color name="headerPrimaryText">#FFFFFF</color>
     <color name="colorPrimary">#79b3e4</color>
     <color name="colorPrimaryLight">#E5F0FF</color>
     <color name="colorPrimaryDark">#2588c9</color>

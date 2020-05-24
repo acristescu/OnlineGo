@@ -6,6 +6,9 @@
     <color name="loginBackground">@color/colorOffWhite</color>
     <color name="loginText">@color/colorText</color>
 
+    <color name="headerPrimary">#424242</color>
+    <color name="headerPrimaryText">@color/colorText</color>
+
     <color name="playerDetailsText">@color/colorText</color>
     <color name="gameBottomBarBackground">@color/colorOffWhite</color>
 
@@ -14,8 +17,7 @@
 
     <color name="white">#151515</color>
     <color name="whiteStones">#FFFFFF</color>
-    <color name="headerPrimary">@color/colorText</color>
-    <color name="colorPrimary">#424242</color>
+    <color name="colorPrimary">#0E71C8</color>
     <color name="colorPrimaryLight">#0E71C8</color>
     <color name="colorPrimaryDark">@color/colorOffWhite</color>
     <color name="colorAccent">#0E71C8</color>

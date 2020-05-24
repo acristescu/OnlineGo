@@ -24,7 +24,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
         addPreferencesFromResource(R.xml.settings)
         val themePreference = preferenceManager.findPreference("app_theme")
         if (themePreference != null) {
-            themePreference.onPreferenceChangeListener = Preference.OnPreferenceChangeListener { preference, newValue ->
+            themePreference.onPreferenceChangeListener = Preference.OnPreferenceChangeListener { _, newValue ->
                         var themeOption = newValue as String
                         when (themeOption) {
                             "Light" -> {
@@ -55,9 +55,10 @@ class SettingsFragment : PreferenceFragmentCompat() {
                         .setDialogBodyBackgroundColor(R.color.colorOffWhite)
                         .setDialogIconAndColor(R.drawable.ic_dialog_info, R.color.whiteStones)
                         .setCancelable(true)
-                        .setColoredCircle(R.color.colorPrimaryDark)
+                        .setColoredCircle(R.color.colorPrimary)
                         .setPositiveButtonText("OK")
                         .setPositiveButtonbackgroundColor(R.color.colorPrimaryDark)
+                        .setPositiveButtonTextColor(R.color.whiteStones)
                         .setPositiveButtonClick { }
                         .show()
                 return true
@@ -70,15 +71,15 @@ class SettingsFragment : PreferenceFragmentCompat() {
                         .setTitle("Log Out")
                         .setMessage("Are you sure you want to log out? You won't be able to use the app until you log back in")
                         .setDialogBodyBackgroundColor(R.color.colorOffWhite)
-                        .setColoredCircle(R.color.colorPrimaryDark)
+                        .setColoredCircle(R.color.colorPrimary)
                         .setDialogIconAndColor(R.drawable.ic_dialog_info, R.color.whiteStones)
                         .setCancelable(true)
                         .setPositiveButtonText("Log out")
                         .setPositiveButtonbackgroundColor(R.color.colorPrimaryDark)
-                        .setPositiveButtonTextColor(R.color.colorText)
+                        .setPositiveButtonTextColor(R.color.whiteStones)
                         .setNegativeButtonText("Cancel")
                         .setNegativeButtonbackgroundColor(R.color.colorPrimaryDark)
-                        .setNegativeButtonTextColor(R.color.colorText)
+                        .setNegativeButtonTextColor(R.color.whiteStones)
                         .setPositiveButtonClick {
                             context?.let { FirebaseAnalytics.getInstance(it).logEvent("logout_clicked", null) }
                             userSessionRepository.logOut()
