@@ -10,8 +10,17 @@
     <color name="colorTextSecondary">#757575</color>
 
     <color name="loginBackground">@color/colorPrimary</color>
+    <color name="loginText">@color/colorPrimary</color>
+
+    <color name="playerDetailsText">@color/colorTextSecondary</color>
+    <color name="gameBottomBarBackground">@color/colorOffWhite</color>
+
+    <color name="buttonEnabled">#000000</color>
+    <color name="buttonDisabled">#66000000</color>
 
     <color name="white">#FFFFFF</color>
+    <color name="whiteStones">#FFFFFF</color>
+    <color name="headerPrimary">#FFFFFF</color>
     <color name="colorPrimary">#79b3e4</color>
     <color name="colorPrimaryLight">#E5F0FF</color>
     <color name="colorPrimaryDark">#2588c9</color>
@@ -23,10 +32,4 @@
     <color name="color_type_wrong">#ed7861</color>
     <color name="color_type_warning">#e8bd4b</color>
     <color name="color_type_success">#90b06e</color>
-    <!--<color name="white">#FFFFFF</color>-->
-    <!--<color name="colorPrimary">#7AC795</color>-->
-    <!--<color name="colorPrimaryLight">#8DDCAD</color>-->
-    <!--<color name="colorPrimaryDark">#559E72</color>-->
-    <!--<color name="colorAccent">#F78686</color>-->
-    <!--<color name="colorOffWhite">#F2FFF7</color>-->
 </resources>

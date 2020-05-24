@@ -16,7 +16,7 @@ import kotlinx.android.synthetic.main.view_chip.*
 open class Chip(
         var text: String,
         @DrawableRes val icon: Int? = null,
-        @ColorRes val bgColor: Int = R.color.white,
+        @ColorRes val bgColor: Int = R.color.whiteStones,
         @ColorRes val fgColor: Int = R.color.colorPrimary,
         val onClick: (() -> Unit)? = null
 ) : Item(text.hashCode().toLong()) {

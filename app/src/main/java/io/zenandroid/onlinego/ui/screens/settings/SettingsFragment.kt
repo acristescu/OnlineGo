@@ -2,7 +2,9 @@ package io.zenandroid.onlinego.ui.screens.settings
 
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import com.awesomedialog.blennersilva.awesomedialoglibrary.AwesomeInfoDialog
@@ -20,6 +22,28 @@ class SettingsFragment : PreferenceFragmentCompat() {
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         addPreferencesFromResource(R.xml.settings_notifications)
         addPreferencesFromResource(R.xml.settings)
+        val themePreference = preferenceManager.findPreference("app_theme")
+        if (themePreference != null) {
+            themePreference.onPreferenceChangeListener = Preference.OnPreferenceChangeListener { preference, newValue ->
+                        var themeOption = newValue as String
+                        when (themeOption) {
+                            "Light" -> {
+                                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+                            }
+                            "Dark" -> {
+                                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+                            }
+                            else -> {
+                                if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
+                                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
+                                } else {
+                                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_AUTO_BATTERY)
+                                }
+                            }
+                        }
+                        true
+                    }
+        }
     }
 
     override fun onPreferenceTreeClick(preference: Preference?): Boolean {
@@ -28,10 +52,12 @@ class SettingsFragment : PreferenceFragmentCompat() {
                 AwesomeInfoDialog(context)
                         .setTitle("About")
                         .setMessage("MrAlex's OnlineGo client for OGS server. Version ${BuildConfig.VERSION_NAME}.")
+                        .setDialogBodyBackgroundColor(R.color.colorOffWhite)
+                        .setDialogIconAndColor(R.drawable.ic_dialog_info, R.color.whiteStones)
                         .setCancelable(true)
-                        .setColoredCircle(R.color.colorPrimary)
+                        .setColoredCircle(R.color.colorPrimaryDark)
                         .setPositiveButtonText("OK")
-                        .setPositiveButtonbackgroundColor(R.color.colorPrimary)
+                        .setPositiveButtonbackgroundColor(R.color.colorPrimaryDark)
                         .setPositiveButtonClick { }
                         .show()
                 return true
@@ -43,15 +69,16 @@ class SettingsFragment : PreferenceFragmentCompat() {
                 AwesomeInfoDialog(context)
                         .setTitle("Log Out")
                         .setMessage("Are you sure you want to log out? You won't be able to use the app until you log back in")
-                        .setColoredCircle(R.color.colorPrimary)
-                        .setDialogIconAndColor(R.drawable.ic_dialog_info, R.color.white)
+                        .setDialogBodyBackgroundColor(R.color.colorOffWhite)
+                        .setColoredCircle(R.color.colorPrimaryDark)
+                        .setDialogIconAndColor(R.drawable.ic_dialog_info, R.color.whiteStones)
                         .setCancelable(true)
                         .setPositiveButtonText("Log out")
-                        .setPositiveButtonbackgroundColor(R.color.colorPrimary)
-                        .setPositiveButtonTextColor(R.color.white)
+                        .setPositiveButtonbackgroundColor(R.color.colorPrimaryDark)
+                        .setPositiveButtonTextColor(R.color.colorText)
                         .setNegativeButtonText("Cancel")
-                        .setNegativeButtonbackgroundColor(R.color.colorPrimary)
-                        .setNegativeButtonTextColor(R.color.white)
+                        .setNegativeButtonbackgroundColor(R.color.colorPrimaryDark)
+                        .setNegativeButtonTextColor(R.color.colorText)
                         .setPositiveButtonClick {
                             context?.let { FirebaseAnalytics.getInstance(it).logEvent("logout_clicked", null) }
                             userSessionRepository.logOut()

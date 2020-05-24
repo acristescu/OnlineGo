@@ -91,12 +91,11 @@
         android:id="@+id/searchButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        style="@style/BlueButton"
         android:text="PLAY"
         android:layout_gravity="center"
         android:layout_marginTop="20dp"
         android:background="@color/colorAccent"
-        android:textColor="@color/white"
+        android:textColor="@color/whiteStones"
         android:textStyle="bold"
         />
 </LinearLayout>

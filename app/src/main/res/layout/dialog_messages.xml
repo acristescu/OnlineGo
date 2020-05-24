@@ -29,7 +29,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:srcCompat="@drawable/ic_cancel"
-            android:tint="@color/black"
+            android:tint="@color/colorText"
             />
     </LinearLayout>
 

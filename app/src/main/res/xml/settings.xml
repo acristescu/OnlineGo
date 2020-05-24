@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <PreferenceCategory
         android:title="Profile"
@@ -12,6 +13,14 @@
     <PreferenceCategory
             android:title="Game Settings"
         >
+        <ListPreference
+            android:key="app_theme"
+            android:title="App theme"
+            android:entries="@array/app_theme_values"
+            android:entryValues="@array/app_theme_values"
+            android:defaultValue="Light"
+            android:summary="%s"
+            />
         <SwitchPreference
             android:key="show_ranks"
             android:title="Show player ranks"

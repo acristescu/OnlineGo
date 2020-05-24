@@ -4,6 +4,7 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@color/colorOffWhite"
+    android:textColor="?android:attr/textColorPrimary"
     >
 
     <LinearLayout
@@ -13,7 +14,7 @@
         android:orientation="horizontal"
         app:layout_constraintTop_toTopOf="parent"
         android:padding="8dp"
-        android:background="@color/white"
+        android:background="?android:attr/colorBackground"
         android:elevation="2dp"
         >
         <TextView
@@ -23,13 +24,14 @@
             android:textSize="16sp"
             android:layout_weight="1"
             android:textStyle="bold"
+            android:textColor="?android:attr/textColorPrimary"
             />
         <ImageView
             android:id="@+id/closeButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:srcCompat="@drawable/ic_cancel"
-            android:tint="@color/black"
+            android:tint="?android:attr/textColorPrimary"
             />
     </LinearLayout>
 

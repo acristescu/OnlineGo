@@ -11,7 +11,7 @@
         android:layout_height="match_parent"
         android:alpha=".85"
         android:visibility="gone"
-        android:background="#FFFFFF"
+        android:background="@color/white"
         android:elevation="5dp"
         android:clickable="true"
         android:focusable="true" />

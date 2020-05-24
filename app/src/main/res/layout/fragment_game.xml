@@ -38,9 +38,9 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:elevation="2dp"
-        app:layout_constraintTop_toBottomOf="@+id/board_container"
         app:layout_constraintBottom_toTopOf="@id/playControls"
-        />
+        app:layout_constraintTop_toBottomOf="@+id/board_container"
+        app:layout_constraintVertical_bias="0.6" />
 
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
@@ -48,7 +48,7 @@
         android:id="@+id/playControls"
         app:layout_constraintBottom_toBottomOf="parent"
         android:visibility="visible"
-        app:cardBackgroundColor="@color/white"
+        app:cardBackgroundColor="@color/gameBottomBarBackground"
         app:cardElevation="6dp"
         >
         <LinearLayout
@@ -61,7 +61,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 app:srcCompat="@drawable/ic_menu"
-                app:tint="#000000"
                 android:layout_weight="1"
                 android:paddingTop="10dp"
                 android:paddingBottom="10dp"
@@ -73,7 +72,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 app:srcCompat="@drawable/ic_cancel"
-                app:tint="#000000"
                 android:layout_weight="1"
                 android:paddingTop="10dp"
                 android:paddingBottom="10dp"
@@ -99,7 +97,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 app:srcCompat="@drawable/ic_undo"
-                app:tint="@color/disable_black"
                 android:layout_weight="1"
                 android:paddingTop="10dp"
                 android:paddingBottom="10dp"
@@ -112,7 +109,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 app:srcCompat="@drawable/ic_pass"
-                app:tint="@color/disable_black"
                 android:layout_weight="1"
                 android:paddingTop="10dp"
                 android:paddingBottom="10dp"
@@ -126,7 +122,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 app:srcCompat="@drawable/ic_thinking"
-                app:tint="@color/disable_black"
                 android:layout_weight="1"
                 android:paddingTop="10dp"
                 android:paddingBottom="10dp"
@@ -150,7 +145,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 app:srcCompat="@drawable/ic_navigate_previous"
-                app:tint="@color/disable_black"
                 android:layout_weight="1"
                 android:paddingTop="10dp"
                 android:paddingBottom="10dp"
@@ -163,7 +157,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 app:srcCompat="@drawable/ic_navigate_next"
-                app:tint="@color/disable_black"
                 android:layout_weight="1"
                 android:paddingTop="10dp"
                 android:paddingBottom="10dp"

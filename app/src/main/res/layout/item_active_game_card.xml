@@ -57,7 +57,7 @@
                 android:maxLines="1"
                 android:ellipsize="end"
                 android:maxWidth="190dp"
-                android:textColor="@color/colorTextSecondary"
+                android:textColor="@color/playerDetailsText"
                 android:textSize="14sp"
                 android:textStyle="bold"
                 android:layout_marginTop="10dp"
@@ -127,7 +127,7 @@
                 app:layout_constraintLeft_toLeftOf="parent"
                 android:layout_marginBottom="10dp"
                 android:textStyle="bold"
-                android:textColor="@color/colorTextSecondary"
+                android:textColor="@color/playerDetailsText"
                 android:textSize="12sp"
                 />
 
@@ -154,7 +154,7 @@
                 app:layout_constraintLeft_toLeftOf="@id/time_label"
                 android:layout_marginBottom="10dp"
                 android:textStyle="bold"
-                android:textColor="@color/colorTextSecondary"
+                android:textColor="@color/playerDetailsText"
                 android:textSize="12sp"
                 />
 

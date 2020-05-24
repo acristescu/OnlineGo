@@ -1,6 +1,7 @@
 package io.zenandroid.onlinego.ui.views
 
 import android.content.Context
+import android.content.res.Configuration
 import android.content.res.Resources
 import android.graphics.*
 import androidx.core.content.res.ResourcesCompat
@@ -126,7 +127,7 @@ class BoardView : View {
 
         linesHighlightPaint.apply {
             strokeWidth = 4f
-            color = resources.getColor(R.color.white)
+            color = resources.getColor(R.color.whiteStones)
             strokeCap = Paint.Cap.ROUND
         }
 
@@ -488,8 +489,10 @@ class BoardView : View {
 
         @Synchronized
         fun preloadResources(resources: Resources) {
-            if(texture == null) {
-                texture = BitmapFactory.decodeResource(resources, R.mipmap.texture)
+                val currentNightMode = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
+                when (currentNightMode) {
+                    Configuration.UI_MODE_NIGHT_NO -> {texture = BitmapFactory.decodeResource(resources, R.mipmap.texture)}
+                    Configuration.UI_MODE_NIGHT_YES -> {texture = BitmapFactory.decodeResource(resources, R.mipmap.texture_dark)}
             }
         }
     }
