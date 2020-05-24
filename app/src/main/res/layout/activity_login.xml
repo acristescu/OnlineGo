@@ -94,7 +94,7 @@
                 android:layout_height="wrap_content"
                 android:inputType="textEmailAddress"
                 android:hint="Email (optional)"
-                android:textColor="@color/white"
+                android:textColor="@color/colorTextBackground"
                 />
         </com.google.android.material.textfield.TextInputLayout>
 

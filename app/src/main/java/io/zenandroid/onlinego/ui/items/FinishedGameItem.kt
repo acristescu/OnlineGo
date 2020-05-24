@@ -47,7 +47,7 @@ class FinishedGameItem (val game: Game) : Item(game.id) {
             chatBubble.showIf(game.messagesCount != null && game.messagesCount != 0)
 
             color_bar.setBackgroundColor(color_bar.resources.getColor(
-                    if(opponent?.id == game.blackPlayer.id) R.color.whiteStones else R.color.black
+                    if(opponent?.id == game.blackPlayer.id) R.color.white else R.color.black
             ))
 
             outcome.text = when {

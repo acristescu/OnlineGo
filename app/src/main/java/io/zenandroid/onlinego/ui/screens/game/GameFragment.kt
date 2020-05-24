@@ -17,6 +17,7 @@ import com.jakewharton.rxbinding2.view.RxView
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
+import io.zenandroid.onlinego.BuildConfig
 import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.ui.screens.chat.ChatDialog
@@ -134,6 +135,71 @@ class GameFragment : Fragment(), GameContract.View {
 
     override fun showKoDialog() {
         Toast.makeText(context, "Illegal KO move", Toast.LENGTH_LONG).show()
+    }
+
+    override fun showChipDialog(chipType: String) {
+        var title = ""
+        var message = ""
+        when (chipType) {
+            "Playing" -> {
+                title = "Playing phase"
+                message = "The game is in the playing phase. Here the players will take " +
+                        "turns placing stones and try to surround the most territory and capture " +
+                        "opponents stones. This phase ends when both players pass their turns."
+            }
+            "Scoring" -> {
+                title = "Scoring phase"
+                message = "The game is in the scoring phase. Here the players agree on " +
+                        "the dead stones so that the server can count the points. An automatic " +
+                        "estimation is already provided (and you can always reset the status " +
+                        "to that by pressing the wand button below) but you can make modifications " +
+                        "by tapping on the stone group that you think has the wrong status. " +
+                        "Once you are happy with the status of the board, you can press the " +
+                        "accept button below. When both players have accepted, the game is " +
+                        "over and the score is counted. If you cannot agree with your opponent " +
+                        "you can cancel the scoring phase and play on to prove which " +
+                        "group is alive and which is dead."
+            }
+            "Finished" -> {
+                title = "Finished game"
+                message = "The game is finished. If the outcome was decided by counting " +
+                        "the points (e.g. not by timeout or one of the player resigning) " +
+                        "you can see the score details by tapping on the game info button (not implemented yet)"
+            }
+            "Passed" -> {
+                title = "Player has passed"
+                message = "The last player to move has passed their turn. This means they think the " +
+                        "game is over. If their opponent agrees and passes too, the game moves on " +
+                        "to the scoring phase."
+            }
+            "Analysis" -> {
+                title = "Analysis mode"
+                message = "You are now in analysis mode. You can try variants here without influencing " +
+                        "the real game. Simply tap on the board to see how a move would look like. " +
+                        "You can navigate forwards and back in the variation. When you are done, use " +
+                        "the cancel button to return to the game."
+            }
+            "Estimation" -> {
+                title = "Score Estimation"
+                message = "What you see on screen is a computer estimation of how the territory might " +
+                        "be divided between the players and what the score might be if the game " +
+                        "ended right now. It is very inaccurate and intended for a quick count for " +
+                        "beginners and spectators. Quickly and accurately counting territory in ones head " +
+                        "is a skill that is part of what makes a good GO player."
+            }
+        }
+        AwesomeInfoDialog(context)
+                .setTitle(title)
+                .setMessage(message)
+                .setDialogBodyBackgroundColor(R.color.colorOffWhite)
+                .setDialogIconAndColor(R.drawable.ic_dialog_info, R.color.white)
+                .setCancelable(true)
+                .setColoredCircle(R.color.colorPrimary)
+                .setPositiveButtonText("OK")
+                .setPositiveButtonbackgroundColor(R.color.colorPrimaryDark)
+                .setPositiveButtonTextColor(R.color.white)
+                .setPositiveButtonClick { }
+                .show()
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?) : View =

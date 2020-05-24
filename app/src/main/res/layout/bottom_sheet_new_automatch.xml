@@ -99,7 +99,7 @@
         android:layout_gravity="center"
         android:layout_marginTop="20dp"
         android:background="@color/colorAccent"
-        android:textColor="@color/whiteStones"
+        android:textColor="@color/white"
         android:textStyle="bold"
         />
 </LinearLayout>

@@ -1,12 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!--<color name="white">#FFFFFF</color>-->
-    <!--<color name="colorPrimary">#009688</color>-->
-    <!--<color name="colorPrimaryLight">#B2DFDB</color>-->
-    <!--<color name="colorPrimaryDark">#00796B</color>-->
-    <!--<color name="colorAccent">#FF5722</color>-->
-
     <color name="colorText">#212121</color>
+    <color name="colorTextBackground">#FFFFFF</color>
     <color name="colorTextSecondary">#757575</color>
 
     <color name="loginBackground">@color/colorPrimary</color>
@@ -18,8 +13,6 @@
     <color name="buttonEnabled">#000000</color>
     <color name="buttonDisabled">#66000000</color>
 
-    <color name="white">#FFFFFF</color>
-    <color name="whiteStones">#FFFFFF</color>
     <color name="headerPrimary">@color/colorPrimary</color>
     <color name="headerPrimaryText">#FFFFFF</color>
     <color name="colorPrimary">#79b3e4</color>

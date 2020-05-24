@@ -53,12 +53,12 @@ class SettingsFragment : PreferenceFragmentCompat() {
                         .setTitle("About")
                         .setMessage("MrAlex's OnlineGo client for OGS server. Version ${BuildConfig.VERSION_NAME}.")
                         .setDialogBodyBackgroundColor(R.color.colorOffWhite)
-                        .setDialogIconAndColor(R.drawable.ic_dialog_info, R.color.whiteStones)
+                        .setDialogIconAndColor(R.drawable.ic_dialog_info, R.color.white)
                         .setCancelable(true)
                         .setColoredCircle(R.color.colorPrimary)
                         .setPositiveButtonText("OK")
                         .setPositiveButtonbackgroundColor(R.color.colorPrimaryDark)
-                        .setPositiveButtonTextColor(R.color.whiteStones)
+                        .setPositiveButtonTextColor(R.color.white)
                         .setPositiveButtonClick { }
                         .show()
                 return true
@@ -72,14 +72,14 @@ class SettingsFragment : PreferenceFragmentCompat() {
                         .setMessage("Are you sure you want to log out? You won't be able to use the app until you log back in")
                         .setDialogBodyBackgroundColor(R.color.colorOffWhite)
                         .setColoredCircle(R.color.colorPrimary)
-                        .setDialogIconAndColor(R.drawable.ic_dialog_info, R.color.whiteStones)
+                        .setDialogIconAndColor(R.drawable.ic_dialog_info, R.color.white)
                         .setCancelable(true)
                         .setPositiveButtonText("Log out")
                         .setPositiveButtonbackgroundColor(R.color.colorPrimaryDark)
-                        .setPositiveButtonTextColor(R.color.whiteStones)
+                        .setPositiveButtonTextColor(R.color.white)
                         .setNegativeButtonText("Cancel")
                         .setNegativeButtonbackgroundColor(R.color.colorPrimaryDark)
-                        .setNegativeButtonTextColor(R.color.whiteStones)
+                        .setNegativeButtonTextColor(R.color.white)
                         .setPositiveButtonClick {
                             context?.let { FirebaseAnalytics.getInstance(it).logEvent("logout_clicked", null) }
                             userSessionRepository.logOut()

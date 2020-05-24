@@ -6,6 +6,7 @@ import androidx.emoji.text.EmojiCompat
 import androidx.emoji.text.FontRequestEmojiCompatConfig
 import androidx.core.provider.FontRequest
 import android.util.Log
+import androidx.appcompat.app.AppCompatDelegate
 import com.facebook.stetho.Stetho
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.jakewharton.threetenabp.AndroidThreeTen
@@ -16,6 +17,8 @@ import io.reactivex.schedulers.Schedulers
 import io.zenandroid.onlinego.di.*
 import io.zenandroid.onlinego.ui.views.BoardView
 import org.koin.android.ext.koin.androidContext
+import io.zenandroid.onlinego.data.repositories.SettingsRepository
+import org.koin.core.context.KoinContextHandler
 import org.koin.core.context.startKoin
 import java.io.IOException
 import java.net.SocketException
@@ -68,6 +71,16 @@ class OnlineGoApplication : Application() {
                 return@setErrorHandler
             }
             Log.w("OnlineGoApplication", "Undeliverable exception received, not sure what to do", e)
+        }
+
+        val settingsRepository: SettingsRepository = KoinContextHandler.get().get()
+        when (settingsRepository.appTheme) {
+            "Light" -> {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+            }
+            "Dark" -> {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+            }
         }
         
         val config: EmojiCompat.Config

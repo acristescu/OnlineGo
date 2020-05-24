@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
+    android:background="@color/colorTextBackground"
     tools:maxHeight="150dp"
     >
 
@@ -20,7 +20,7 @@
         android:id="@+id/colorIndicatorWhite"
         android:layout_width="6dp"
         android:layout_height="match_parent"
-        android:background="@color/whiteStones"
+        android:background="@color/white"
         app:layout_constraintLeft_toLeftOf="parent" />
 
     <View
@@ -133,7 +133,7 @@
         android:paddingTop="1dp"
         android:paddingBottom="1dp"
         android:text="Their turn"
-        android:textColor="@color/white"
+        android:textColor="@color/colorTextBackground"
         android:textSize="10sp"
         android:visibility="visible"
         app:layout_goneMarginTop="4dp"
@@ -157,7 +157,7 @@
         android:paddingTop="1dp"
         android:paddingBottom="1dp"
         android:text="Pass!"
-        android:textColor="@color/white"
+        android:textColor="@color/colorTextBackground"
         android:textSize="10sp"
         android:visibility="visible"
         app:layout_goneMarginTop="4dp"

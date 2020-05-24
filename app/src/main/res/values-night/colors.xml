@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="colorText">#F3F3F3</color>
+    <color name="colorTextBackground">#151515</color>
     <color name="colorTextSecondary">#BDBDBD</color>
 
     <color name="loginBackground">@color/colorOffWhite</color>
@@ -15,8 +16,6 @@
     <color name="buttonEnabled">@color/colorText</color>
     <color name="buttonDisabled">#636363</color>
 
-    <color name="white">#151515</color>
-    <color name="whiteStones">#FFFFFF</color>
     <color name="colorPrimary">#0E71C8</color>
     <color name="colorPrimaryLight">#0E71C8</color>
     <color name="colorPrimaryDark">@color/colorOffWhite</color>

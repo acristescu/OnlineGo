@@ -11,7 +11,7 @@
         android:layout_width="56dp"
         android:layout_height="56dp"
         app:cardCornerRadius="28dp"
-        app:cardBackgroundColor="@color/white"
+        app:cardBackgroundColor="@color/colorTextBackground"
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
         android:layout_marginTop="12dp"
@@ -29,7 +29,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 app:srcCompat="@drawable/ic_person_filled"
-                android:tint="@color/white"
+                android:tint="@color/colorTextBackground"
                 android:layout_gravity="center_vertical"
                 android:padding="12dp"
                 />

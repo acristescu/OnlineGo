@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:tools="http://schemas.android.com/tools"
-    android:background="@color/white">
+    android:background="@color/colorTextBackground">
 
     <ScrollView
         android:layout_width="match_parent"
@@ -32,7 +32,7 @@
         style="@style/Widget.MaterialProgressBar.ProgressBar.Horizontal"
         app:mpb_useIntrinsicPadding="false"
         app:layout_constraintTop_toTopOf="parent"
-        app:mpb_indeterminateTint="@color/white"
+        app:mpb_indeterminateTint="@color/colorTextBackground"
         android:background="@color/colorPrimary"
         android:elevation="4dp"
         android:visibility="gone"
@@ -44,7 +44,7 @@
         android:layout_height="0dp"
         app:cardCornerRadius="4dp"
         app:cardElevation="4dp"
-        app:cardBackgroundColor="@color/white"
+        app:cardBackgroundColor="@color/colorTextBackground"
         app:layout_constraintBottom_toTopOf="@id/playControls"
         app:layout_constraintDimensionRatio="1:1"
         app:cardPreventCornerOverlap="false"
@@ -62,7 +62,7 @@
         android:id="@+id/playControls"
         app:layout_constraintBottom_toBottomOf="parent"
         android:visibility="visible"
-        app:cardBackgroundColor="@color/white"
+        app:cardBackgroundColor="@color/colorTextBackground"
         app:cardElevation="6dp"
         >
         <LinearLayout

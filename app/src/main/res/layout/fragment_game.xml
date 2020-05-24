@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white">
+    android:background="@color/colorTextBackground">
 
     <io.zenandroid.onlinego.ui.views.PlayerDetailsView
         android:id="@+id/blackDetailsView"
@@ -20,7 +20,7 @@
         android:layout_height="0dp"
         app:cardCornerRadius="4dp"
         app:cardElevation="4dp"
-        app:cardBackgroundColor="@color/white"
+        app:cardBackgroundColor="@color/colorTextBackground"
         app:layout_constraintBottom_toTopOf="@id/playControls"
         app:layout_constraintDimensionRatio="1:1"
         app:layout_constraintTop_toTopOf="parent"

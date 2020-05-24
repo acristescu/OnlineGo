@@ -46,7 +46,7 @@ class MessageItem(
                 else -> {
                     author.hide()
                     setMarginsDP(left = 10, right = 50)
-                    ResourcesCompat.getColorStateList(resources, R.color.white, null)?.let {
+                    ResourcesCompat.getColorStateList(resources, R.color.colorTextBackground, null)?.let {
                         setCardBackgroundColor(it)
                     }
                 }

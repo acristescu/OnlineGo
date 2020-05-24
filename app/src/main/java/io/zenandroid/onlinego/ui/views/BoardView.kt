@@ -127,7 +127,7 @@ class BoardView : View {
 
         linesHighlightPaint.apply {
             strokeWidth = 4f
-            color = resources.getColor(R.color.whiteStones)
+            color = resources.getColor(R.color.white)
             strokeCap = Paint.Cap.ROUND
         }
 
