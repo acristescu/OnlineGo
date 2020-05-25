@@ -188,18 +188,20 @@ class GameFragment : Fragment(), GameContract.View {
                         "is a skill that is part of what makes a good GO player."
             }
         }
-        AwesomeInfoDialog(context)
-                .setTitle(title)
-                .setMessage(message)
-                .setDialogBodyBackgroundColor(R.color.colorOffWhite)
-                .setDialogIconAndColor(R.drawable.ic_dialog_info, R.color.white)
-                .setCancelable(true)
-                .setColoredCircle(R.color.colorPrimary)
-                .setPositiveButtonText("OK")
-                .setPositiveButtonbackgroundColor(R.color.colorPrimaryDark)
-                .setPositiveButtonTextColor(R.color.white)
-                .setPositiveButtonClick { }
-                .show()
+        context?.let {
+            AwesomeInfoDialog(context)
+                    .setTitle(title)
+                    .setMessage(message)
+                    .setDialogBodyBackgroundColor(R.color.colorOffWhite)
+                    .setDialogIconAndColor(R.drawable.ic_dialog_info, R.color.white)
+                    .setCancelable(true)
+                    .setColoredCircle(R.color.colorPrimary)
+                    .setPositiveButtonText("OK")
+                    .setPositiveButtonbackgroundColor(R.color.colorPrimaryDark)
+                    .setPositiveButtonTextColor(R.color.white)
+                    .setPositiveButtonClick { }
+                    .show()
+        }
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?) : View =
