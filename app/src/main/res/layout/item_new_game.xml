@@ -39,7 +39,7 @@
         android:id="@+id/text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textColor="#989898"
+        android:textColor="@color/colorText"
         tools:text="Online"
         android:textSize="12sp"
         android:gravity="center"
