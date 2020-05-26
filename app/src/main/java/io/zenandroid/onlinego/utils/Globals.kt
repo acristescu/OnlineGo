@@ -94,14 +94,12 @@ fun timeLeftForCurrentPlayer(game: Game): Long {
             }
         }
 
-        return computeTimeLeft(clock, playerTimeSimple, playerTime, true).timeLeft ?: 0
+        return computeTimeLeft(clock, playerTimeSimple, playerTime, true).timeLeft
     }
     return 0
 }
 
 fun computeTimeLeft(clock: Clock, playerTimeSimple: Long?, playerTime: Time?, currentPlayer: Boolean): GamePresenter.TimerDetails {
-    val timer = GamePresenter.TimerDetails()
-
     val now = System.currentTimeMillis()
     if(clock.receivedAt == 0L) {
         clock.receivedAt = now
@@ -112,6 +110,8 @@ fun computeTimeLeft(clock: Clock, playerTimeSimple: Long?, playerTime: Time?, cu
     }
     val baseTime = clock.lastMove + nowDelta
     var timeLeft = 0L
+    var secondLine: String? = null
+
     if(playerTimeSimple != null) {
         // Simple timer
         timeLeft = if(playerTimeSimple == 0L) 0 else {
@@ -125,7 +125,7 @@ fun computeTimeLeft(clock: Clock, playerTimeSimple: Long?, playerTime: Time?, cu
             if(timeLeft < 0 || playerTime.thinking_time == 0L) {
                 timeLeft = baseTime + (playerTime.thinking_time + playerTime.block_time!!) * 1000 - if(currentPlayer) now else baseTime
             }
-            timer.secondLine = "+${formatMillis(playerTime.block_time!! * 1000)} / ${playerTime.moves_left}"
+            secondLine = "+${formatMillis(playerTime.block_time!! * 1000)} / ${playerTime.moves_left}"
         } else if(playerTime.periods != null) {
 
             // Byo Yomi timer
@@ -145,20 +145,24 @@ fun computeTimeLeft(clock: Clock, playerTimeSimple: Long?, playerTime: Time?, cu
             if(!currentPlayer && timeLeft == 0L) {
                 timeLeft = playerTime.period_time!! * 1000
             }
-            timer.secondLine = "$periodsLeft x ${formatMillis(playerTime.period_time!! * 1000)}"
+            secondLine = "$periodsLeft x ${formatMillis(playerTime.period_time!! * 1000)}"
         }
     } else {
-        return GamePresenter.TimerDetails().apply {
-            expired = false
-            firstLine = "∞"
-            timeLeft = Long.MAX_VALUE
-        }
+        // No timer
+        return GamePresenter.TimerDetails(
+                expired = false,
+                firstLine = "∞",
+                secondLine = null,
+                timeLeft = Long.MAX_VALUE
+        )
     }
 
-    timer.expired = timeLeft <= 0
-    timer.firstLine = formatMillis(timeLeft)
-    timer.timeLeft = timeLeft
-    return timer
+    return GamePresenter.TimerDetails(
+            expired = timeLeft <= 0,
+            firstLine = formatMillis(timeLeft),
+            secondLine = secondLine,
+            timeLeft = timeLeft
+    )
 }
 
 fun formatMillis(millis: Long): String = when {

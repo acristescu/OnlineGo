@@ -2,11 +2,13 @@ package io.zenandroid.onlinego.ui.screens.game
 
 import android.graphics.Point
 import android.util.Log
+import com.crashlytics.android.Crashlytics
 import com.google.firebase.analytics.FirebaseAnalytics
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.utils.addToDisposable
@@ -27,7 +29,9 @@ import io.zenandroid.onlinego.data.repositories.UserSessionRepository
 import io.zenandroid.onlinego.ui.items.statuschips.*
 import io.zenandroid.onlinego.utils.CountingIdlingResource
 import io.zenandroid.onlinego.utils.computeTimeLeft
+import io.zenandroid.onlinego.utils.formatMillis
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicLong
 
 /**
  * Created by alex on 10/11/2017.
@@ -75,6 +79,9 @@ class GamePresenter(
     private var currentState : State = LOADING
     private var messages: List<Message>? = null
     private var stateToReturnFromEstimation: State = PLAYING
+
+    private var timerIntervalMillis: AtomicLong? = null
+    private var timerDisposable: Disposable? = null
 
     private val playingChip = PlayingChip {
         view.showInfoDialog("Playing phase",
@@ -161,11 +168,7 @@ class GamePresenter(
                 .subscribe(this::onUserHotTrackedCell)
                 .addToDisposable(subscriptions)
 
-//        Observable.interval(100, TimeUnit.MILLISECONDS)
-//                .takeWhile { currentState != FINISHED && game?.phase != Phase.FINISHED }
-//                .observeOn(AndroidSchedulers.mainThread())
-//                .subscribe { clockTick() }
-//                .addToDisposable(subscriptions)
+        clockTick(game)
 
         gameConnection = socketService.connectToGame(gameId).apply {
             subscriptions.add(this)
@@ -212,10 +215,10 @@ class GamePresenter(
 
                 myGame = (newGame.blackPlayer.id == userId) || (newGame.whitePlayer.id == userId)
                 currentShownMove = newGame.moves?.size ?: -1
-                view.title = "${newGame.blackPlayer.username} vs ${newGame.whitePlayer.username}"
+                view.title = newGame.name
 
                 currentState = newGameState
-
+                clockTick(newGame)
             }
 
             ANALYSIS, ESTIMATION -> {}
@@ -237,6 +240,7 @@ class GamePresenter(
                     candidateMove = null
                     view.showCandidateMove(null)
                     currentShownMove = newGame.moves?.size ?: 0
+                    clockTick(newGame)
                 }
 
                 if(newGameState == FINISHED) {
@@ -875,20 +879,68 @@ class GamePresenter(
         }
     }
 
-    private fun clockTick() {
+    private fun clockTick(game: Game?) {
+        var desiredTimerIntervalMillis: Long? = null
         game?.clock?.let { clock ->
+            val whiteToMove = game.playerToMoveId == game.whitePlayer.id
+            val blackToMove = game.playerToMoveId == game.blackPlayer.id
+
+            val whiteTimer = computeTimeLeft(clock, clock.whiteTimeSimple, clock.whiteTime, whiteToMove)
+            val blackTimer = computeTimeLeft(clock, clock.blackTimeSimple, clock.blackTime, blackToMove)
+
+            var timeLeft = null as Long?
+
             if (clock.startMode == true) {
-                println("start mode not implemented yet")
-                //TODO
-//            } else if (clock.pause_control != null) {
-//                println("pause not implemented yet")
-                //TODO
+                clock.expiration?.let { expiration ->
+                    timeLeft = expiration - System.currentTimeMillis()
+                    val startTimerDetails = TimerDetails(
+                            expired = timeLeft!! < 0,
+                            firstLine = formatMillis(timeLeft!!),
+                            secondLine = "(start)",
+                            timeLeft = timeLeft!!
+                    )
+                    if(whiteToMove) {
+                        view.whiteTimer = startTimerDetails
+                        view.blackTimer = blackTimer
+                    } else {
+                        view.whiteTimer = whiteTimer
+                        view.blackTimer = startTimerDetails
+                    }
+                } ?: Unit
             } else {
-                if((game?.phase == Phase.PLAY || game?.phase == Phase.STONE_REMOVAL) && currentState != LOADING) {
-                    view.whiteTimer = computeTimeLeft(clock, clock.whiteTimeSimple, clock.whiteTime, game?.playerToMoveId == game?.whitePlayer?.id)
-                    view.blackTimer = computeTimeLeft(clock, clock.blackTimeSimple, clock.blackTime, game?.playerToMoveId == game?.blackPlayer?.id)
+                if((game.phase == Phase.PLAY || game.phase == Phase.STONE_REMOVAL) && currentState != LOADING) {
+
+                    view.whiteTimer = whiteTimer
+                    view.blackTimer = blackTimer
+
+                    timeLeft = if(whiteToMove) whiteTimer.timeLeft else blackTimer.timeLeft
+
                 }
             }
+            desiredTimerIntervalMillis = timeLeft?.let {
+                when(it) {
+                    in 0 until 10_000 -> 100
+                    in 10_000 until 3_600_000 -> 1_000
+                    in 3_600_000 until 24 * 3_600_000 -> 60_000
+                    else -> null
+                }
+            }
+        }
+
+        if(timerIntervalMillis?.toLong() != desiredTimerIntervalMillis) {
+            rescheduleTimerTick(desiredTimerIntervalMillis)
+        }
+    }
+
+    @Synchronized
+    private fun rescheduleTimerTick(newTimerTick: Long?) {
+        timerDisposable?.dispose()
+        newTimerTick?.let {
+            Crashlytics.log(Log.DEBUG, "GamePresenter", "Scheduling timer with interval $newTimerTick milliseconds")
+            timerDisposable = Observable.interval(it, TimeUnit.MILLISECONDS)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe { clockTick(game) }
+            timerIntervalMillis = AtomicLong(it)
         }
     }
 
@@ -1045,12 +1097,13 @@ class GamePresenter(
 
     override fun unsubscribe() {
         subscriptions.clear()
+        timerDisposable?.dispose()
     }
 
-    class TimerDetails {
-        var expired = false
-        var firstLine: String? = null
-        var secondLine: String? = null
-        var timeLeft: Long? = null
-    }
+    data class TimerDetails (
+        var expired: Boolean,
+        var firstLine: String? = null,
+        var secondLine: String? = null,
+        var timeLeft: Long
+    )
 }

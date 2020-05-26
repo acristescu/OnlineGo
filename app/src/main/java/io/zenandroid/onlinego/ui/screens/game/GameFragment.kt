@@ -215,12 +215,14 @@ class GameFragment : Fragment(), GameContract.View {
         set(value) {
             whiteDetailsView.timerFirstLine = value?.firstLine
             whiteDetailsView.timerSecondLine = value?.secondLine
+            field = value
         }
 
     override var blackTimer: GamePresenter.TimerDetails? = null
         set(value) {
             blackDetailsView.timerFirstLine = value?.firstLine
             blackDetailsView.timerSecondLine = value?.secondLine
+            field = value
         }
 
     override fun showCandidateMove(point: Point?, nextToMove: StoneType?) {
@@ -237,6 +239,7 @@ class GameFragment : Fragment(), GameContract.View {
                 setLogoVisible(false)
                 setChipsVisible(true)
             }
+            field = value
         }
 
     override var interactive: Boolean
