@@ -18,7 +18,7 @@
             android:title="App theme"
             android:entries="@array/app_theme_values"
             android:entryValues="@array/app_theme_values"
-            android:defaultValue="Light"
+            android:defaultValue="System default"
             android:summary="%s"
             />
         <SwitchPreference

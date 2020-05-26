@@ -24,6 +24,8 @@
             >
             <io.zenandroid.onlinego.ui.screens.newchallenge.NameValueButton
                 android:id="@+id/botView"
+                android:backgroundTint="@color/colorActionableText"
+                android:foregroundTint="@color/colorActionableText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 />
@@ -87,14 +89,14 @@
             />
     </LinearLayout>
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/searchButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="PLAY"
         android:layout_gravity="center"
         android:layout_marginTop="20dp"
-        android:background="@color/colorAccent"
+        app:backgroundTint="@color/colorAccent"
         android:textColor="@color/white"
         android:textStyle="bold"
         />

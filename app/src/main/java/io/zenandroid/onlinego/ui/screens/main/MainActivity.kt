@@ -5,6 +5,7 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
+import android.content.res.Configuration
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
@@ -44,6 +45,7 @@ import io.zenandroid.onlinego.data.repositories.SettingsRepository
 import io.zenandroid.onlinego.ui.screens.stats.StatsFragment
 import io.zenandroid.onlinego.ui.items.statuschips.Chip
 import io.zenandroid.onlinego.ui.items.statuschips.ChipAdapter
+import io.zenandroid.onlinego.ui.views.BoardView
 import io.zenandroid.onlinego.utils.NotificationUtils
 import io.zenandroid.onlinego.utils.PersistenceManager
 import kotlinx.android.synthetic.main.activity_main.*
@@ -219,6 +221,12 @@ class MainActivity : AppCompatActivity(), MainContract.View {
 
         isInForeground = true
         super.onResume()
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        BoardView.preloadResources(resources, true)
+        recreate()
     }
 
     override fun showLogin() {

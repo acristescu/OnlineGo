@@ -12,7 +12,7 @@ class SettingsRepository {
     private val prefs = PreferenceManager.getDefaultSharedPreferences(OnlineGoApplication.instance.baseContext)
 
     var appTheme: String?
-        get() = prefs.getString(APP_THEME, "Light")
+        get() = prefs.getString(APP_THEME, "System default")
         set(value) = prefs.edit().putString(APP_THEME, value).apply()
 
     var showRanks: Boolean

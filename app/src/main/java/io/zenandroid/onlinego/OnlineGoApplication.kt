@@ -81,6 +81,7 @@ class OnlineGoApplication : Application() {
             "Dark" -> {
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
             }
+            //no need to handle System default case - the system will have already set the good YES/NO value
         }
         
         val config: EmojiCompat.Config

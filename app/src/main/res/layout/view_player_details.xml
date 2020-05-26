@@ -28,7 +28,7 @@
         android:layout_width="1px"
         android:layout_height="match_parent"
         android:layout_marginLeft="6dp"
-        android:background="@color/buttonEnabled"
+        android:background="@color/stoneColorSeparator"
         app:layout_constraintLeft_toLeftOf="parent" />
 
     <androidx.cardview.widget.CardView

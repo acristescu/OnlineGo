@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="colorText">#212121</color>
+    <color name="colorActionableText">@color/colorAccent</color>
     <color name="colorTextBackground">#FFFFFF</color>
     <color name="colorTextSecondary">#757575</color>
 
@@ -13,6 +14,9 @@
     <color name="buttonEnabled">#000000</color>
     <color name="buttonDisabled">#66000000</color>
 
+    <color name="stoneColorSeparator">#000000</color>
+
+    <color name="statusBarColor">@color/colorPrimaryDark</color>
     <color name="headerPrimary">@color/colorPrimary</color>
     <color name="headerPrimaryText">#FFFFFF</color>
     <color name="colorPrimary">#79b3e4</color>

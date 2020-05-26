@@ -17,7 +17,7 @@ open class Chip(
         var text: String,
         @DrawableRes val icon: Int? = null,
         @ColorRes val bgColor: Int = R.color.white,
-        @ColorRes val fgColor: Int = R.color.colorPrimary,
+        @ColorRes val fgColor: Int = R.color.headerPrimary,
         val onClick: (() -> Unit)? = null
 ) : Item(text.hashCode().toLong()) {
     override fun bind(viewHolder: GroupieViewHolder, position: Int) {

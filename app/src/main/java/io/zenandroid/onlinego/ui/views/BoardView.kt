@@ -488,11 +488,19 @@ class BoardView : View {
         private var texture: Bitmap? = null
 
         @Synchronized
-        fun preloadResources(resources: Resources) {
-                val currentNightMode = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
-                when (currentNightMode) {
-                    Configuration.UI_MODE_NIGHT_NO -> {texture = BitmapFactory.decodeResource(resources, R.mipmap.texture)}
-                    Configuration.UI_MODE_NIGHT_YES -> {texture = BitmapFactory.decodeResource(resources, R.mipmap.texture_dark)}
+        fun preloadResources(resources: Resources, forceTextureRedraw: Boolean = false ) {
+            if (texture == null || forceTextureRedraw) {
+                when (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) {
+                    Configuration.UI_MODE_NIGHT_NO -> {
+                        texture = BitmapFactory.decodeResource(resources, R.mipmap.texture)
+                    }
+                    Configuration.UI_MODE_NIGHT_YES -> {
+                        texture = BitmapFactory.decodeResource(resources, R.mipmap.texture_dark)
+                    }
+                    else -> {
+                        texture = BitmapFactory.decodeResource(resources, R.mipmap.texture)
+                    }
+                }
             }
         }
     }
