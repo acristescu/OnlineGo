@@ -15,6 +15,8 @@ import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.Position
 import io.zenandroid.onlinego.data.model.StoneType
 import io.zenandroid.onlinego.data.model.ogs.PlayCategory
+import io.zenandroid.onlinego.data.repositories.SettingsRepository
+import org.koin.core.context.KoinContextHandler
 import java.util.*
 import kotlin.math.roundToInt
 
@@ -490,12 +492,22 @@ class BoardView : View {
         @Synchronized
         fun preloadResources(resources: Resources, forceTextureRedraw: Boolean = false ) {
             if (texture == null || forceTextureRedraw) {
-                when (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) {
+                val currentNightMode = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
+                val settingsRepository: SettingsRepository = KoinContextHandler.get().get()
+                when (currentNightMode) {
                     Configuration.UI_MODE_NIGHT_NO -> {
-                        texture = BitmapFactory.decodeResource(resources, R.mipmap.texture)
+                        texture = if(settingsRepository.appTheme == "Dark") {
+                            BitmapFactory.decodeResource(resources, R.mipmap.texture_dark)
+                        } else {
+                            BitmapFactory.decodeResource(resources, R.mipmap.texture)
+                        }
                     }
                     Configuration.UI_MODE_NIGHT_YES -> {
-                        texture = BitmapFactory.decodeResource(resources, R.mipmap.texture_dark)
+                        texture = if(settingsRepository.appTheme == "Light") {
+                            BitmapFactory.decodeResource(resources, R.mipmap.texture)
+                        } else {
+                            BitmapFactory.decodeResource(resources, R.mipmap.texture_dark)
+                        }
                     }
                     else -> {
                         texture = BitmapFactory.decodeResource(resources, R.mipmap.texture)
