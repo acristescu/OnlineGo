@@ -490,28 +490,13 @@ class BoardView : View {
         private var texture: Bitmap? = null
 
         @Synchronized
-        fun preloadResources(resources: Resources, forceTextureRedraw: Boolean = false ) {
-            if (texture == null || forceTextureRedraw) {
-                val currentNightMode = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
+        fun preloadResources(resources: Resources, forceTextureReload: Boolean = false) {
+            if (texture == null || forceTextureReload) {
                 val settingsRepository: SettingsRepository = KoinContextHandler.get().get()
-                when (currentNightMode) {
-                    Configuration.UI_MODE_NIGHT_NO -> {
-                        texture = if(settingsRepository.appTheme == "Dark") {
-                            BitmapFactory.decodeResource(resources, R.mipmap.texture_dark)
-                        } else {
-                            BitmapFactory.decodeResource(resources, R.mipmap.texture)
-                        }
-                    }
-                    Configuration.UI_MODE_NIGHT_YES -> {
-                        texture = if(settingsRepository.appTheme == "Light") {
-                            BitmapFactory.decodeResource(resources, R.mipmap.texture)
-                        } else {
-                            BitmapFactory.decodeResource(resources, R.mipmap.texture_dark)
-                        }
-                    }
-                    else -> {
-                        texture = BitmapFactory.decodeResource(resources, R.mipmap.texture)
-                    }
+                texture = when (settingsRepository.appTheme) {
+                    "Light" -> BitmapFactory.decodeResource(resources, R.drawable.texture_light)
+                    "Dark" -> BitmapFactory.decodeResource(resources, R.drawable.texture_dark)
+                    else -> BitmapFactory.decodeResource(resources, R.drawable.texture)
                 }
             }
         }

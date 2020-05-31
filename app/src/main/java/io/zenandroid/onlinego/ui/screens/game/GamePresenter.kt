@@ -947,10 +947,7 @@ class GamePresenter(
 
     override fun onAnalysisDisabledButtonClicked() {
         analytics.logEvent("analysis_disabled_clicked", null)
-        view.showInfoDialog("Analysis is disabled",
-        "The challenger has configured this game to disable the analysis feature." +
-                "This is often setup by players that wish to mimic real-life conditions, where the reading " +
-                "of variations is visualised rather than played through.")
+        view.showAnalysisDisabledDialog()
     }
 
     private fun configurePlayerStatus() {

@@ -1,6 +1,7 @@
 package io.zenandroid.onlinego
 
 import android.app.Application
+import android.content.res.Configuration
 import android.os.Build
 import androidx.emoji.text.EmojiCompat
 import androidx.emoji.text.FontRequestEmojiCompatConfig
@@ -81,7 +82,18 @@ class OnlineGoApplication : Application() {
             "Dark" -> {
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
             }
-            //no need to handle System default case - the system will have already set the good YES/NO value
+            else -> {
+                val defaultNightMode = AppCompatDelegate.getDefaultNightMode()
+                if (defaultNightMode == AppCompatDelegate.MODE_NIGHT_UNSPECIFIED) {
+                    //special case handling the "unspecified" night mode, the one we get e.g. in
+                    //case of battery saving, which doesn't trigger any night mode decision at startup.
+                    if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
+                        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
+                    } else {
+                        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_AUTO_BATTERY)
+                    }
+                }
+            }
         }
         
         val config: EmojiCompat.Config

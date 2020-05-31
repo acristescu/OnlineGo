@@ -137,6 +137,25 @@ class GameFragment : Fragment(), GameContract.View {
         Toast.makeText(context, "Illegal KO move", Toast.LENGTH_LONG).show()
     }
 
+    override fun showAnalysisDisabledDialog() {
+        context?.let {
+            AwesomeInfoDialog(context)
+                    .setTitle("Analysis is disabled")
+                    .setMessage("The challenger has configured this game to disable the analysis feature." +
+                            "This is often setup by players that wish to mimic real-life conditions, where the reading " +
+                            "of variations is visualised rather than played through.")
+                    .setDialogBodyBackgroundColor(R.color.colorOffWhite)
+                    .setDialogIconAndColor(R.drawable.ic_dialog_info, R.color.white)
+                    .setCancelable(true)
+                    .setColoredCircle(R.color.colorPrimary)
+                    .setPositiveButtonText("OK")
+                    .setPositiveButtonbackgroundColor(R.color.colorPrimaryDark)
+                    .setPositiveButtonTextColor(R.color.white)
+                    .setPositiveButtonClick { }
+                    .show()
+        }
+    }
+
     override fun showChipDialog(chipType: String) {
         var title = ""
         var message = ""

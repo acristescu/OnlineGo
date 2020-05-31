@@ -46,7 +46,6 @@
         <activity
             android:name="io.zenandroid.onlinego.ui.screens.main.MainActivity"
             android:screenOrientation="portrait"
-            android:configChanges="uiMode"
             />
         <meta-data
             android:name="preloaded_fonts"

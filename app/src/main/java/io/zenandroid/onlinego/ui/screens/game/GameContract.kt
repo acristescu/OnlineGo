@@ -75,6 +75,7 @@ interface GameContract {
         fun showAbortGameConfirmation()
         fun showAbortedDialog()
         fun showKoDialog()
+        fun showAnalysisDisabledDialog()
         fun showChipDialog(chipType: String)
         fun showUndoRequestConfirmation()
     }

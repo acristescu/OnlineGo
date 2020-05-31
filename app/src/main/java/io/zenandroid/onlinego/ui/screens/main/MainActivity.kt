@@ -5,7 +5,6 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
-import android.content.res.Configuration
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
@@ -149,6 +148,7 @@ class MainActivity : AppCompatActivity(), MainContract.View {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        BoardView.preloadResources(resources, true)
 
         setContentView(R.layout.activity_main)
 
@@ -221,12 +221,6 @@ class MainActivity : AppCompatActivity(), MainContract.View {
 
         isInForeground = true
         super.onResume()
-    }
-
-    override fun onConfigurationChanged(newConfig: Configuration) {
-        super.onConfigurationChanged(newConfig)
-        BoardView.preloadResources(resources, true)
-        recreate()
     }
 
     override fun showLogin() {
