@@ -9,6 +9,7 @@ import android.util.AttributeSet
 import android.util.Log
 import android.view.MotionEvent
 import android.view.View
+import androidx.appcompat.app.AppCompatDelegate
 import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
 import io.zenandroid.onlinego.R
@@ -490,14 +491,14 @@ class BoardView : View {
         private var texture: Bitmap? = null
 
         @Synchronized
-        fun preloadResources(resources: Resources, forceTextureReload: Boolean = false) {
-            if (texture == null || forceTextureReload) {
-                val settingsRepository: SettingsRepository = KoinContextHandler.get().get()
-                texture = when (settingsRepository.appTheme) {
-                    "Light" -> BitmapFactory.decodeResource(resources, R.drawable.texture_light)
-                    "Dark" -> BitmapFactory.decodeResource(resources, R.drawable.texture_dark)
-                    else -> BitmapFactory.decodeResource(resources, R.drawable.texture)
-                }
+        fun unloadResources() {
+            texture = null
+        }
+
+        @Synchronized
+        fun preloadResources(resources: Resources) {
+            if (texture == null) {
+                texture = BitmapFactory.decodeResource(resources, R.mipmap.texture)
             }
         }
     }

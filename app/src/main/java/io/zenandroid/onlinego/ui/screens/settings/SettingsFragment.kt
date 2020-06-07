@@ -20,8 +20,6 @@ import org.koin.android.ext.android.inject
 class SettingsFragment : PreferenceFragmentCompat() {
 
     private val userSessionRepository: UserSessionRepository by inject()
-    private val listener = SharedPreferences
-            .OnSharedPreferenceChangeListener { _, _ -> applyThemeChange() }
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         addPreferencesFromResource(R.xml.settings_notifications)
@@ -45,15 +43,10 @@ class SettingsFragment : PreferenceFragmentCompat() {
                         }
                     }
                 }
+                BoardView.unloadResources()
                 true
             }
         }
-
-        listener.onSharedPreferenceChanged(preferenceScreen.sharedPreferences, "app_theme")
-    }
-
-    private fun applyThemeChange() {
-        BoardView.preloadResources(resources, true)
     }
 
     override fun onPreferenceTreeClick(preference: Preference?): Boolean {

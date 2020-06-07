@@ -18,6 +18,7 @@
 
     <color name="statusBarColor">@color/colorPrimaryDark</color>
     <color name="headerPrimary">@color/colorPrimary</color>
+    <color name="colorNavigation">@color/colorPrimaryDark</color>
     <color name="headerPrimaryText">#FFFFFF</color>
     <color name="colorPrimary">#79b3e4</color>
     <color name="colorPrimaryLight">#E5F0FF</color>

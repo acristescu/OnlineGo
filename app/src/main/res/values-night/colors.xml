@@ -19,6 +19,7 @@
     <color name="buttonDisabled">#636363</color>
 
     <color name="stoneColorSeparator">@color/colorText</color>
+    <color name="colorNavigation">@color/colorPrimary</color>
 
     <color name="colorPrimary">#389FFF</color>
     <color name="colorPrimaryLight">#0E71C8</color>

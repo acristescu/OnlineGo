@@ -67,7 +67,6 @@ class MainActivity : AppCompatActivity(), MainContract.View {
     private val chipAdapter = ChipAdapter()
     private var unreadCount = 0
 
-    private val activeGameRepository: ActiveGamesRepository by inject()
     private val settingsRepository: SettingsRepository by inject()
 
     val chatClicks: Observable<Any> by lazy { RxView.clicks(chatButton) }
@@ -148,7 +147,6 @@ class MainActivity : AppCompatActivity(), MainContract.View {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        BoardView.preloadResources(resources, true)
 
         setContentView(R.layout.activity_main)
 
@@ -169,7 +167,7 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         bottomNavigation.disableShiftMode()
         bottomNavigation.getOrCreateBadge(R.id.navigation_learn).apply {
             isVisible = !PersistenceManager.visitedJosekiExplorer
-            backgroundColor = ResourcesCompat.getColor(resources, R.color.colorAccent, null)
+            backgroundColor = ResourcesCompat.getColor(resources, R.color.colorAccent, theme)
         }
         notificationsButton.setOnClickListener { onNotificationClicked() }
 
@@ -178,6 +176,8 @@ class MainActivity : AppCompatActivity(), MainContract.View {
             onAutomatchClicked = this@MainActivity::onAutoMatchSearch
             onOnlineCustomClicked = this@MainActivity::onCustomGameSearch
         }
+
+        BoardView.preloadResources(resources)
     }
 
     private fun scheduleNotificationJob() {

@@ -95,7 +95,7 @@ class OnlineGoApplication : Application() {
                 }
             }
         }
-        
+
         val config: EmojiCompat.Config
         val fontRequest = FontRequest(
                 "com.google.android.gms.fonts",
@@ -105,9 +105,5 @@ class OnlineGoApplication : Application() {
         config = FontRequestEmojiCompatConfig(applicationContext, fontRequest)
                 .setReplaceAll(Build.VERSION.SDK_INT <= Build.VERSION_CODES.M)
         EmojiCompat.init(config)
-
-        Completable.create { BoardView.preloadResources(resources) }
-                .subscribeOn(Schedulers.io())
-                .subscribe()
     }
 }
