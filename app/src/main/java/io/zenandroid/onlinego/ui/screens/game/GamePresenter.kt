@@ -82,54 +82,22 @@ class GamePresenter(
     private var timerDisposable: Disposable? = null
 
     private val playingChip = PlayingChip {
-        view.showInfoDialog("Playing phase",
-                "The game is in the playing phase. Here the players will take " +
-                        "turns placing stones and try to surround the most territory and capture " +
-                        "opponents stones. This phase ends when both players pass their turns.")
+        view.showChipDialog("Playing")
     }
     private val stoneRemovalChip = StoneRemovalChip {
-        view.showInfoDialog("Scoring phase",
-                "The game is in the scoring phase. Here the players agree on " +
-                        "the dead stones so that the server can count the points. An automatic " +
-                        "estimation is already provided (and you can always reset the status " +
-                        "to that by pressing the wand button below) but you can make modifications " +
-                        "by tapping on the stone group that you think has the wrong status. " +
-                        "Once you are happy with the status of the board, you can press the " +
-                        "accept button below. When both players have accepted, the game is " +
-                        "over and the score is counted. If you cannot agree with your opponent " +
-                        "you can cancel the scoring phase and play on to prove which " +
-                        "group is alive and which is dead.")
+        view.showChipDialog("Scoring")
     }
     private val finishedChip = FinishedChip {
-        view.showInfoDialog("Finished game",
-                "The game is finished. If the outcome was decided by counting " +
-                        "the points (e.g. not by timeout or one of the player resigning) " +
-                        "you can see the score details by tapping on the game info button (not implemented yet)")
+        view.showChipDialog("Finished")
     }
     private val passedChip = PassedChip {
-        view.showInfoDialog("Player has passed",
-                "The last player to move has passed their turn. This means they think the " +
-                        "game is over. If their opponent agrees and passes too, the game moves on " +
-                        "to the scoring phase.")
+        view.showChipDialog("Passed")
     }
-
     private val analysisChip = AnalysisChip {
-        view.showInfoDialog("Analysis mode",
-                "You are now in analysis mode. You can try variants here without influencing " +
-                        "the real game. Simply tap on the board to see how a move would look like. " +
-                        "You can navigate forwards and back in the variation. When you are done, use " +
-                        "the cancel button to return to the game."
-                )
+        view.showChipDialog("Analysis")
     }
-
     private val estimationChip = EstimationChip {
-        view.showInfoDialog("Score Estimation",
-                "What you see on screen is a computer estimation of how the territory might " +
-                        "be divided between the players and what the score might be if the game " +
-                        "ended right now. It is very inaccurate and intended for a quick count for " +
-                        "beginners and spectators. Quickly and accurately counting territory in ones head " +
-                        "is a skill that is part of what makes a good GO player."
-        )
+        view.showChipDialog("Estimation")
     }
 
     private val historyChip = Chip("History")
@@ -1035,10 +1003,7 @@ class GamePresenter(
 
     override fun onAnalysisDisabledButtonClicked() {
         analytics.logEvent("analysis_disabled_clicked", null)
-        view.showInfoDialog("Analysis is disabled",
-        "The challenger has configured this game to disable the analysis feature." +
-                "This is often setup by players that wish to mimic real-life conditions, where the reading " +
-                "of variations is visualised rather than played through.")
+        view.showAnalysisDisabledDialog()
     }
 
     private fun configurePlayerStatus() {

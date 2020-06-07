@@ -17,7 +17,7 @@ open class Chip(
         var text: String,
         @DrawableRes val icon: Int? = null,
         @ColorRes val bgColor: Int = R.color.white,
-        @ColorRes val fgColor: Int = R.color.colorPrimary,
+        @ColorRes val fgColor: Int = R.color.headerPrimary,
         val onClick: (() -> Unit)? = null
 ) : Item(text.hashCode().toLong()) {
     override fun bind(viewHolder: GroupieViewHolder, position: Int) {
@@ -53,4 +53,3 @@ class StoneRemovalChip(onClick: (() -> Unit)? = null) : Chip("Scoring", R.drawab
 class PassedChip(onClick: (() -> Unit)? = null) : Chip("Player Passed", R.drawable.ic_question_mark, onClick = onClick)
 class AnalysisChip(onClick: (() -> Unit)? = null) : Chip("Analysis", R.drawable.ic_question_mark, onClick = onClick)
 class EstimationChip(onClick: (() -> Unit)? = null) : Chip("Estimation", R.drawable.ic_question_mark, onClick = onClick)
-class VersionChip : Chip(BuildConfig.VERSION_NAME)

@@ -1,11 +1,13 @@
 package io.zenandroid.onlinego
 
 import android.app.Application
+import android.content.res.Configuration
 import android.os.Build
 import androidx.emoji.text.EmojiCompat
 import androidx.emoji.text.FontRequestEmojiCompatConfig
 import androidx.core.provider.FontRequest
 import android.util.Log
+import androidx.appcompat.app.AppCompatDelegate
 import com.facebook.stetho.Stetho
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.jakewharton.threetenabp.AndroidThreeTen
@@ -16,6 +18,8 @@ import io.reactivex.schedulers.Schedulers
 import io.zenandroid.onlinego.di.*
 import io.zenandroid.onlinego.ui.views.BoardView
 import org.koin.android.ext.koin.androidContext
+import io.zenandroid.onlinego.data.repositories.SettingsRepository
+import org.koin.core.context.KoinContextHandler
 import org.koin.core.context.startKoin
 import java.io.IOException
 import java.net.SocketException
@@ -68,6 +72,28 @@ class OnlineGoApplication : Application() {
                 return@setErrorHandler
             }
             Log.w("OnlineGoApplication", "Undeliverable exception received, not sure what to do", e)
+        }
+
+        val settingsRepository: SettingsRepository = KoinContextHandler.get().get()
+        when (settingsRepository.appTheme) {
+            "Light" -> {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+            }
+            "Dark" -> {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+            }
+            else -> {
+                val defaultNightMode = AppCompatDelegate.getDefaultNightMode()
+                if (defaultNightMode == AppCompatDelegate.MODE_NIGHT_UNSPECIFIED) {
+                    //special case handling the "unspecified" night mode, the one we get e.g. in
+                    //case of battery saving, which doesn't trigger any night mode decision at startup.
+                    if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
+                        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
+                    } else {
+                        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_AUTO_BATTERY)
+                    }
+                }
+            }
         }
         
         val config: EmojiCompat.Config

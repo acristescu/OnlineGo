@@ -1,6 +1,7 @@
 package io.zenandroid.onlinego.ui.views
 
 import android.content.Context
+import android.content.res.Configuration
 import android.content.res.Resources
 import android.graphics.*
 import androidx.core.content.res.ResourcesCompat
@@ -14,6 +15,8 @@ import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.Position
 import io.zenandroid.onlinego.data.model.StoneType
 import io.zenandroid.onlinego.data.model.ogs.PlayCategory
+import io.zenandroid.onlinego.data.repositories.SettingsRepository
+import org.koin.core.context.KoinContextHandler
 import java.util.*
 import kotlin.math.roundToInt
 
@@ -487,9 +490,14 @@ class BoardView : View {
         private var texture: Bitmap? = null
 
         @Synchronized
-        fun preloadResources(resources: Resources) {
-            if(texture == null) {
-                texture = BitmapFactory.decodeResource(resources, R.mipmap.texture)
+        fun preloadResources(resources: Resources, forceTextureReload: Boolean = false) {
+            if (texture == null || forceTextureReload) {
+                val settingsRepository: SettingsRepository = KoinContextHandler.get().get()
+                texture = when (settingsRepository.appTheme) {
+                    "Light" -> BitmapFactory.decodeResource(resources, R.drawable.texture_light)
+                    "Dark" -> BitmapFactory.decodeResource(resources, R.drawable.texture_dark)
+                    else -> BitmapFactory.decodeResource(resources, R.drawable.texture)
+                }
             }
         }
     }

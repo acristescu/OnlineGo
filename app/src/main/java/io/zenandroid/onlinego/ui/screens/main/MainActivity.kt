@@ -44,6 +44,7 @@ import io.zenandroid.onlinego.data.repositories.SettingsRepository
 import io.zenandroid.onlinego.ui.screens.stats.StatsFragment
 import io.zenandroid.onlinego.ui.items.statuschips.Chip
 import io.zenandroid.onlinego.ui.items.statuschips.ChipAdapter
+import io.zenandroid.onlinego.ui.views.BoardView
 import io.zenandroid.onlinego.utils.NotificationUtils
 import io.zenandroid.onlinego.utils.PersistenceManager
 import kotlinx.android.synthetic.main.activity_main.*
@@ -147,6 +148,7 @@ class MainActivity : AppCompatActivity(), MainContract.View {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        BoardView.preloadResources(resources, true)
 
         setContentView(R.layout.activity_main)
 

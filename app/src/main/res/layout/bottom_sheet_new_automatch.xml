@@ -86,20 +86,19 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Normal"
-            android:textColor="@color/colorAccent"
+            android:textColor="@color/colorActionableText"
             android:textSize="14sp"
             android:layout_marginTop="4dp"
             />
     </LinearLayout>
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/searchButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        style="@style/BlueButton"
         android:text="Search"
         android:layout_gravity="center"
         android:layout_marginTop="20dp"
-        android:background="@color/colorAccent"
+        android:backgroundTint="@color/colorAccent"
         android:textColor="@color/white"
         android:textStyle="bold"
         />

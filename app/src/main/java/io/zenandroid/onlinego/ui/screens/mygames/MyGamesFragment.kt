@@ -81,6 +81,7 @@ class MyGamesFragment : Fragment(R.layout.fragment_mygames), MyGamesContract.Vie
         AwesomeInfoDialog(context)
                 .setTitle(title)
                 .setMessage(message)
+                .setDialogBodyBackgroundColor(R.color.colorOffWhite)
                 .setColoredCircle(R.color.colorPrimary)
                 .setDialogIconAndColor(R.drawable.ic_dialog_info, R.color.white)
                 .setCancelable(true)

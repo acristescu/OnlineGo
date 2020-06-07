@@ -7,5 +7,6 @@
     android:layout_height="wrap_content"
     android:text="Not implemented yet"
     android:fontFamily="@font/ubuntu_bold"
+    android:textColor="@color/colorText"
     />
 </androidx.constraintlayout.widget.ConstraintLayout>

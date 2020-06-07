@@ -51,9 +51,9 @@ class ActiveGameItem (val game: Game) : Item(game.id) {
 
             color_bar.setBackgroundColor(
                     if(myTurn)
-                        ResourcesCompat.getColor(color_bar.resources, R.color.color_type_wrong, null)
+                        ResourcesCompat.getColor(color_bar.resources, R.color.colorAccent, null)
                     else
-                        ResourcesCompat.getColor(color_bar.resources, R.color.colorPrimary, null)
+                        ResourcesCompat.getColor(color_bar.resources, R.color.headerPrimary, null)
             )
             your_turn_label.showIf(myTurn)
             color.text =

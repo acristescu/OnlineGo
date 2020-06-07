@@ -12,7 +12,7 @@
     android:layout_marginBottom="4dp"
     app:cardElevation="1dp"
     app:cardCornerRadius="5dp"
-    app:cardBackgroundColor="@color/white"
+    app:cardBackgroundColor="@color/colorTextBackground"
     >
     <LinearLayout
         android:layout_width="match_parent"
@@ -57,7 +57,7 @@
                 android:maxLines="1"
                 android:ellipsize="end"
                 android:maxWidth="190dp"
-                android:textColor="@color/colorTextSecondary"
+                android:textColor="@color/playerDetailsText"
                 android:textSize="14sp"
                 android:textStyle="bold"
                 android:layout_marginTop="10dp"
@@ -107,7 +107,7 @@
                 app:layout_constraintTop_toBottomOf="@id/opponent_name"
                 android:text="Your turn"
                 android:background="@drawable/rounded_corners"
-                android:textColor="@color/white"
+                android:textColor="@color/colorTextBackground"
                 android:textSize="10sp"
                 android:fontFamily="@font/ubuntu_bold"
                 android:paddingTop="2dp"
@@ -127,7 +127,7 @@
                 app:layout_constraintLeft_toLeftOf="parent"
                 android:layout_marginBottom="10dp"
                 android:textStyle="bold"
-                android:textColor="@color/colorTextSecondary"
+                android:textColor="@color/playerDetailsText"
                 android:textSize="12sp"
                 />
 
@@ -154,7 +154,7 @@
                 app:layout_constraintLeft_toLeftOf="@id/time_label"
                 android:layout_marginBottom="10dp"
                 android:textStyle="bold"
-                android:textColor="@color/colorTextSecondary"
+                android:textColor="@color/playerDetailsText"
                 android:textSize="12sp"
                 />
 
