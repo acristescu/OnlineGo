@@ -73,9 +73,9 @@ class ActiveGameItem (val game: Game) : Item(game.id) {
         }
         val timerDetails = game.clock?.let {
             if (currentPlayer?.id == game.blackPlayer.id)
-                computeTimeLeft(it, it.blackTimeSimple, it.blackTime, true)
+                computeTimeLeft(it, it.blackTimeSimple, it.blackTime, true, game.pausedSince)
             else
-                computeTimeLeft(it, it.whiteTimeSimple, it.whiteTime, true)
+                computeTimeLeft(it, it.whiteTimeSimple, it.whiteTime, true, game.pausedSince)
         }
         return timerDetails?.firstLine ?: ""
     }

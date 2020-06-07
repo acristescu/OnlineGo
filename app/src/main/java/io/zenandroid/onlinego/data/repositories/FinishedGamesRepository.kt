@@ -139,15 +139,23 @@ class FinishedGamesRepository(
                     .retryWhen(this::retryIOException)
                     .subscribeOn(Schedulers.io())
                     .observeOn(Schedulers.single())
-                    .doAfterTerminate {
-                        synchronized(this@FinishedGamesRepository) {
-                            historicGamesRequestInFlight = false
-                        }
-                    }
+
                     .subscribe(
-                            { onHistoricGames(it) },
-                            { onError(it, "fetchHistoricGames") }
+                            {
+                                synchronized(this@FinishedGamesRepository) {
+                                    onHistoricGames(it)
+                                    historicGamesRequestInFlight = false
+                                }
+                            },
+                            {
+                                synchronized(this@FinishedGamesRepository) {
+                                    historicGamesRequestInFlight = false
+                                }
+                                onError(it, "fetchHistoricGames")
+                            }
                     ).addToDisposable(subscriptions)
+        } else {
+            Log.i("FinishedGamesRepository", "Skipped fetchHistoricGames because request already in flight")
         }
     }
 

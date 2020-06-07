@@ -182,6 +182,10 @@ abstract class GameDao {
             }
             it.playerToMoveId = playerToMoveId
             it.clock = clock
+            when(clock?.newPausedState) {
+                true -> it.pausedSince = clock.newPausedSince
+                false -> it.pausedSince = null
+            }
             update(it)
         }
     }
@@ -201,7 +205,7 @@ abstract class GameDao {
             clock: Clock?,
             blackLost: Boolean?,
             whiteLost: Boolean?,
-            ended: Long?,
+            ended: Long?, // MICROSECONDS!!!
             undoRequested: Int?) {
         getGame(id).blockingGet().let {
             it.outcome = outcome
@@ -217,7 +221,7 @@ abstract class GameDao {
             it.undoRequested = undoRequested
             it.blackLost = blackLost
             it.whiteLost = whiteLost
-            if(it.ended == null) {
+            if(ended != null) {
                 it.ended = ended
             }
             update(it)

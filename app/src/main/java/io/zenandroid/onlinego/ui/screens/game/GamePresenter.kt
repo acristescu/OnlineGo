@@ -22,10 +22,7 @@ import io.zenandroid.onlinego.data.model.local.Game
 import io.zenandroid.onlinego.data.model.local.Message
 import io.zenandroid.onlinego.data.model.ogs.Phase
 import io.zenandroid.onlinego.data.ogs.*
-import io.zenandroid.onlinego.data.repositories.ActiveGamesRepository
-import io.zenandroid.onlinego.data.repositories.ChatRepository
-import io.zenandroid.onlinego.data.repositories.SettingsRepository
-import io.zenandroid.onlinego.data.repositories.UserSessionRepository
+import io.zenandroid.onlinego.data.repositories.*
 import io.zenandroid.onlinego.ui.items.statuschips.*
 import io.zenandroid.onlinego.utils.CountingIdlingResource
 import io.zenandroid.onlinego.utils.computeTimeLeft
@@ -45,6 +42,7 @@ class GamePresenter(
         private val settingsRepository: SettingsRepository,
         private val chatRepository: ChatRepository,
         private val idlingResource: CountingIdlingResource,
+        private val clockDriftRepository: ClockDriftRepository,
         private val gameId: Long,
         private val gameSize: Int
 ) : GameContract.Presenter {
@@ -885,14 +883,14 @@ class GamePresenter(
             val whiteToMove = game.playerToMoveId == game.whitePlayer.id
             val blackToMove = game.playerToMoveId == game.blackPlayer.id
 
-            val whiteTimer = computeTimeLeft(clock, clock.whiteTimeSimple, clock.whiteTime, whiteToMove)
-            val blackTimer = computeTimeLeft(clock, clock.blackTimeSimple, clock.blackTime, blackToMove)
+            val whiteTimer = computeTimeLeft(clock, clock.whiteTimeSimple, clock.whiteTime, whiteToMove, game.pausedSince)
+            val blackTimer = computeTimeLeft(clock, clock.blackTimeSimple, clock.blackTime, blackToMove, game.pausedSince)
 
             var timeLeft = null as Long?
 
             if (clock.startMode == true) {
                 clock.expiration?.let { expiration ->
-                    timeLeft = expiration - System.currentTimeMillis()
+                    timeLeft = expiration - clockDriftRepository.serverTime
                     val startTimerDetails = TimerDetails(
                             expired = timeLeft!! < 0,
                             firstLine = formatMillis(timeLeft!!),

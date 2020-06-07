@@ -30,7 +30,8 @@ private val repositoriesModule = module {
                 get<BotsRepository>(),
                 get<ChallengesRepository>(),
                 get<FinishedGamesRepository>(),
-                get<ServerNotificationsRepository>()
+                get<ServerNotificationsRepository>(),
+                get<ClockDriftRepository>()
         )
     }
 
@@ -45,6 +46,7 @@ private val repositoriesModule = module {
     single { ServerNotificationsRepository(get()) }
     single { SettingsRepository() }
     single { UserSessionRepository() }
+    single { ClockDriftRepository(get()) }
 }
 
 private val serverConnectionModule = module {

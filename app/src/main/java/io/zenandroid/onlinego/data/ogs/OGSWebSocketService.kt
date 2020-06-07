@@ -220,6 +220,10 @@ class OGSWebSocketService(
         return returnVal
     }
 
+    fun listenToNetPongEvents(): Flowable<NetPong> =
+        observeEvent("net/pong")
+                .map { string -> moshi.adapter(NetPong::class.java).fromJson(string.toString()) }
+
     fun emit(event: String, params:Any?) {
         ensureSocketConnected()
         Log.i(TAG, "Emit: $event with params $params thread = ${Thread.currentThread().id}")

@@ -65,6 +65,8 @@ data class Game(
         val ranked: Boolean?,
         val disableAnalysis: Boolean?,
 
+        var pausedSince: Long? = null,
+
         @Embedded(prefix = "initial_state_")
         val timeControl: TimeControl?,
         val messagesCount: Int? = null
@@ -173,7 +175,8 @@ data class Game(
                     rules = gamedata?.rules ?: game.rules,
                     ranked = isRanked,
                     timeControl = gamedata?.time_control,
-                    disableAnalysis = gamedata?.disable_analysis
+                    disableAnalysis = gamedata?.disable_analysis,
+                    pausedSince = gamedata?.paused_since
             )
         }
     }

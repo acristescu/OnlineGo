@@ -19,6 +19,7 @@ data class GameData (
         var rules: String? = null,
         var black_player_id: Long? = null,
         var pause_on_weekends: Boolean? = null,
+        var paused_since: Long? = null,
         var white_player_id: Long? = null,
         var players: Players? = null,
         var game_name: String? = null,
@@ -48,7 +49,7 @@ data class GameData (
         var game_chat_auth: String? = null,
         var winner: Long? = null,
         var outcome: String? = null,
-        var end_time: Long? = null,
+        var end_time: Long? = null, // SECONDS!!!
         var score: Scores? = null,
         var undo_requested: Int? = null
 )

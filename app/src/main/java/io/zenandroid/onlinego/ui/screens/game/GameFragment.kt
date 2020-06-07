@@ -165,6 +165,7 @@ class GameFragment : Fragment(), GameContract.View {
                 analytics = analytics,
                 gameRepository = get(),
                 settingsRepository = get(),
+                clockDriftRepository = get(),
                 gameId = arguments!!.getLong(GAME_ID),
                 gameSize = arguments!!.getInt(GAME_SIZE),
                 chatRepository = get(),

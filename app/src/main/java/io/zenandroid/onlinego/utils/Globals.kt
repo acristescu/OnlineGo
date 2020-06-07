@@ -1,24 +1,23 @@
 package io.zenandroid.onlinego.utils
 
+import android.util.Log
 import io.zenandroid.onlinego.ui.screens.game.GamePresenter
 import io.zenandroid.onlinego.data.model.local.Clock
 import io.zenandroid.onlinego.data.model.local.Game
 import io.zenandroid.onlinego.data.model.local.Time
 import io.zenandroid.onlinego.data.ogs.TimeControl
+import io.zenandroid.onlinego.data.repositories.ClockDriftRepository
 import org.json.JSONArray
 import org.json.JSONObject
+import org.koin.core.context.KoinContextHandler.get
 import org.threeten.bp.Instant
 import org.threeten.bp.ZoneId
 import org.threeten.bp.format.DateTimeFormatter
 import org.threeten.bp.temporal.ChronoUnit
-import java.lang.Math.ceil
 import java.lang.Math.log
-import java.text.SimpleDateFormat
 import java.util.*
 import java.util.regex.Pattern
-import kotlin.math.ln
-import kotlin.math.max
-import kotlin.math.pow
+import kotlin.math.*
 
 /**
  * Created by alex on 14/11/2017.
@@ -94,21 +93,22 @@ fun timeLeftForCurrentPlayer(game: Game): Long {
             }
         }
 
-        return computeTimeLeft(clock, playerTimeSimple, playerTime, true).timeLeft
+        return computeTimeLeft(clock, playerTimeSimple, playerTime, true, game.pausedSince).timeLeft
     }
     return 0
 }
 
-fun computeTimeLeft(clock: Clock, playerTimeSimple: Long?, playerTime: Time?, currentPlayer: Boolean): GamePresenter.TimerDetails {
-    val now = System.currentTimeMillis()
-    if(clock.receivedAt == 0L) {
-        clock.receivedAt = now
-    }
-    var nowDelta = clock.receivedAt - (clock.now ?: clock.receivedAt)
-    if(nowDelta > 100000) { // sanity check
-        nowDelta = 0
-    }
-    val baseTime = clock.lastMove + nowDelta
+private val clockDriftRepository: ClockDriftRepository by get().inject()
+
+fun computeTimeLeft(
+        clock: Clock,
+        playerTimeSimple: Long?,
+        playerTime: Time?,
+        currentPlayer: Boolean,
+        pausedSince: Long?
+): GamePresenter.TimerDetails {
+    val now = clockDriftRepository.serverTime.coerceAtMost(pausedSince ?: Long.MAX_VALUE)
+    val baseTime = clock.lastMove.coerceAtMost(pausedSince ?: Long.MAX_VALUE)
     var timeLeft = 0L
     var secondLine: String? = null
 
@@ -118,23 +118,28 @@ fun computeTimeLeft(clock: Clock, playerTimeSimple: Long?, playerTime: Time?, cu
             playerTimeSimple - if (currentPlayer) now else baseTime
         }
     } else if (playerTime != null) {
-        timeLeft = baseTime + playerTime.thinking_time * 1000 - if(currentPlayer) now else baseTime
+        timeLeft = if(currentPlayer) {
+            baseTime + (playerTime.thinking_time * 1000).toLong() - now
+        } else {
+            (playerTime.thinking_time * 1000).toLong()
+        }
+
         if(playerTime.moves_left != null) {
 
             // Canadian timer
-            if(timeLeft < 0 || playerTime.thinking_time == 0L) {
-                timeLeft = baseTime + (playerTime.thinking_time + playerTime.block_time!!) * 1000 - if(currentPlayer) now else baseTime
+            if(timeLeft < 0 || playerTime.thinking_time == 0.0) {
+                timeLeft = baseTime + ((playerTime.thinking_time + playerTime.block_time!!) * 1000).toLong() - if(currentPlayer) now else baseTime
             }
-            secondLine = "+${formatMillis(playerTime.block_time!! * 1000)} / ${playerTime.moves_left}"
+            secondLine = "+${formatMillis((playerTime.block_time!! * 1000).toLong())} / ${playerTime.moves_left}"
         } else if(playerTime.periods != null) {
 
             // Byo Yomi timer
             var periodsLeft = playerTime.periods
-            if(timeLeft < 0 || playerTime.thinking_time == 0L) {
+            if(timeLeft < 0 || playerTime.thinking_time == 0.0) {
                 val periodOffset = Math.ceil((-timeLeft / 1000.0) / playerTime.period_time!!).coerceAtLeast(0.0)
 
                 while(timeLeft < 0) {
-                    timeLeft += playerTime.period_time * 1000
+                    timeLeft += (playerTime.period_time * 1000).toLong()
                 }
 
                 periodsLeft = playerTime.periods - periodOffset.toLong()
@@ -143,9 +148,11 @@ fun computeTimeLeft(clock: Clock, playerTimeSimple: Long?, playerTime: Time?, cu
                 }
             }
             if(!currentPlayer && timeLeft == 0L) {
-                timeLeft = playerTime.period_time!! * 1000
+                timeLeft = (playerTime.period_time!! * 1000).toLong()
             }
-            secondLine = "$periodsLeft x ${formatMillis(playerTime.period_time!! * 1000)}"
+            secondLine = "$periodsLeft x ${formatMillis((playerTime.period_time!! * 1000).toLong())}"
+        } else {
+            // absolute timer or fischer timer, nothing to do
         }
     } else {
         // No timer
@@ -165,13 +172,24 @@ fun computeTimeLeft(clock: Clock, playerTimeSimple: Long?, playerTime: Time?, cu
     )
 }
 
-fun formatMillis(millis: Long): String = when {
-    millis < 10_000 -> "%.1fs".format(millis / 1000f)
-    millis < 60_000 -> "%.0fs".format(millis / 1000f)
-    millis < 3_600_000 -> "%d : %02d".format(millis / 60_000, (millis % 60_000) / 1000)
-    millis < 24 * 3_600_000 -> "%dh %02dm".format(millis / 3_600_000, (millis % 3_600_000) / 60_000)
-    millis < 7 * 24 * 3_600_000 -> "%d day%s".format(millis / 86_400_000, plural(millis / 86_400_000))
-    else -> "%d week%s".format(millis/(7 * 24 * 3_600_000), plural(millis/(7 * 24 * 3_600_000)))
+fun formatMillis(millis: Long): String {
+    var seconds = ceil((millis - 1) / 1000.0).toLong()
+    val days = seconds / 86_400
+    seconds -= days * 86_400
+    val hours = seconds / 3_600
+    seconds -= hours * 3_600
+    val minutes = seconds / 60
+    seconds -= minutes * 60
+
+    return when {
+        days >= 7 -> "%d week%s".format(days / 7, plural(days / 7))
+        days > 0 -> "%d day%s".format(days, plural(days))
+        hours > 0 -> "%dh %02dm".format(hours, minutes)
+        minutes > 0 -> "%d : %02d".format(minutes, seconds)
+        seconds > 10 -> "%02ds".format(seconds)
+        millis > 0 -> "%.1fs".format(millis / 1000f)
+        else -> "0.0"
+    }
 }
 
 fun plural(number: Long) = if(number != 1L) "s" else ""

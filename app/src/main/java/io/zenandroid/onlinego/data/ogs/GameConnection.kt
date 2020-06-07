@@ -249,9 +249,9 @@ data class OGSClock (
     var last_move: Long,
     var expiration: Long? = null,
     var now: Long? = null,
-    var paused_since: Long? = null,
+//    val paused_since: Long?, // NEVER USE THIS as it is set even on unpaused games
+    val pause: Pause? = null,
     var start_mode: Boolean = false,
-    var pause_control: Any? = null,
     var black_time: Any?,// can be number or Time object
     var white_time: Any?// can be number or Time object
 ) {
@@ -264,6 +264,12 @@ data class OGSClock (
         get() = (black_time as? Map<*, *>)?.let { Time.fromMap(it) }
 
 }
+
+data class Pause(
+        val pause_control: Any?,
+        val paused: Boolean?,
+        val paused_since: Long?
+)
 
 data class Players (
         var white: OGSPlayer? = null,

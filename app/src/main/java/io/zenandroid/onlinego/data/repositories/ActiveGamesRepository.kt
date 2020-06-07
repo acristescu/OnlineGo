@@ -197,7 +197,7 @@ class ActiveGamesRepository(
                 undoRequested = gameData.undo_requested,
                 whiteLost = gameData.winner?.let { it == gameData.black_player_id },
                 blackLost = gameData.winner?.let { it == gameData.white_player_id },
-                ended = gameData.end_time?.let { it * 1000 }
+                ended = gameData.end_time?.let { it * 1_000_000 }
         )
     }
 

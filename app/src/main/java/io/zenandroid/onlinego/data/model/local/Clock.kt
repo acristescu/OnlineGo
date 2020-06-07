@@ -18,21 +18,26 @@ data class Clock(
         @Embedded(prefix = "black_")
         var blackTime: Time?,
 
+        var newPausedSince: Long? = null,
+        var newPausedState: Boolean? = null,
+
         var startMode: Boolean?
 ) {
     companion object {
         fun fromOGSClock(clock: io.zenandroid.onlinego.data.ogs.OGSClock?): Clock? =
                 clock?.let {
                     Clock(
-                            lastMove = clock.last_move,
-                            expiration = clock.expiration,
-                            now = clock.now,
-                            receivedAt = if (clock.receivedAt != 0L) clock.receivedAt else System.currentTimeMillis(),
-                            whiteTimeSimple = clock.whiteTimeSimple,
-                            whiteTime = clock.whiteTime,
-                            blackTimeSimple = clock.blackTimeSimple,
-                            blackTime = clock.blackTime,
-                            startMode = clock.start_mode
+                            lastMove = it.last_move,
+                            expiration = it.expiration,
+                            now = it.now,
+                            receivedAt = if (it.receivedAt != 0L) it.receivedAt else System.currentTimeMillis(),
+                            whiteTimeSimple = it.whiteTimeSimple,
+                            whiteTime = it.whiteTime,
+                            blackTimeSimple = it.blackTimeSimple,
+                            blackTime = it.blackTime,
+                            startMode = it.start_mode,
+                            newPausedSince = it.pause?.paused_since,
+                            newPausedState = it.pause?.paused
                     )
                 }
     }
