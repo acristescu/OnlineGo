@@ -151,7 +151,25 @@ abstract class GameDao {
     abstract fun update(game: Game)
 
     @Query("UPDATE game SET moves = :moves WHERE id = :id")
-    abstract fun updateMoves(id: Long, moves: MutableList<MutableList<Int>>)
+    abstract fun updateMovesInternal(id: Long, moves: MutableList<MutableList<Int>>)
+
+    @Transaction
+    open fun addMoveToGame(gameId: Long, moveNumber: Int, move: MutableList<Int>) {
+        //
+        // Careful, moveNumber is 1-based not 0-based. Pascal FTW!!!
+        //
+        getGame(gameId).blockingGet().let { game ->
+            game.moves?.let {
+                while(it.size < moveNumber) {
+                    it.add(mutableListOf(-1, -1))
+                }
+                it[moveNumber - 1] = move
+                updateMovesInternal(gameId, it)
+            }
+
+        }
+    }
+
 
     @Query("UPDATE game SET phase = :phase WHERE id = :id")
     abstract fun updatePhase(id: Long, phase: Phase)
@@ -170,6 +188,18 @@ abstract class GameDao {
 
     @Query("UPDATE game SET undoRequested = :moveNo WHERE id = :id")
     abstract fun updateUndoRequested(id: Long, moveNo: Int)
+
+    @Transaction
+    open fun updateUndoAccepted(id: Long, moveNo: Int) {
+        getGame(id).blockingGet().let {
+            it.undoRequested = null
+            if(it.moves?.size == moveNo) {
+                it.moves?.removeAt(moveNo - 1)
+            }
+
+            update(it)
+        }
+    }
 
     @Transaction
     open fun updateClock(

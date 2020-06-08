@@ -39,7 +39,8 @@ class GameConnection(
         removedStonesObservable: Flowable<RemovedStones>,
         chatObservable: Flowable<Chat>,
         undoRequestedObservable: Flowable<Int>,
-        removedStonesAcceptedObservable: Flowable<RemovedStonesAccepted>
+        removedStonesAcceptedObservable: Flowable<RemovedStonesAccepted>,
+        undoAcceptedObservable: Flowable<Int>
 ) : Disposable, Closeable {
     private var closed = false
     private var counter = 0
@@ -47,13 +48,14 @@ class GameConnection(
     private val socketService: OGSWebSocketService = get().get()
     private val chatRepository: ChatRepository = get().get()
 
-    private val gameDataSubject =  PublishSubject.create<GameData>()
-    private val movesSubject =  PublishSubject.create<Move>()
-    private val clockSubject =  PublishSubject.create<OGSClock>()
-    private val phaseSubject =  PublishSubject.create<Phase>()
-    private val removedStonesSubject =  PublishSubject.create<RemovedStones>()
-    private val undoRequestSubject =  PublishSubject.create<Int>()
-    private val removedStonesAcceptedSubject =  PublishSubject.create<RemovedStonesAccepted>()
+    private val gameDataSubject = PublishSubject.create<GameData>()
+    private val movesSubject = PublishSubject.create<Move>()
+    private val clockSubject = PublishSubject.create<OGSClock>()
+    private val phaseSubject = PublishSubject.create<Phase>()
+    private val removedStonesSubject = PublishSubject.create<RemovedStones>()
+    private val undoRequestSubject = PublishSubject.create<Int>()
+    private val removedStonesAcceptedSubject = PublishSubject.create<RemovedStonesAccepted>()
+    private val undoAcceptedSubject = PublishSubject.create<Int>()
 
     val gameData: Observable<GameData> = gameDataSubject.hide()
     val moves: Observable<Move> = movesSubject.hide()
@@ -62,6 +64,7 @@ class GameConnection(
     val removedStones: Observable<RemovedStones> = removedStonesSubject.hide()
     val undoRequested: Observable<Int> = undoRequestSubject.hide()
     val removedStonesAccepted: Observable<RemovedStonesAccepted> = removedStonesAcceptedSubject.hide()
+    val undoAccepted: Observable<Int> = undoAcceptedSubject.hide()
 
     var gameAuth: String? = null
 
@@ -108,6 +111,11 @@ class GameConnection(
         removedStonesAcceptedObservable
                 .retryOnError("removed_stones_accepted")
                 .subscribe(removedStonesAcceptedSubject::onNext)
+                .addToDisposable(subscriptions)
+
+        undoAcceptedObservable
+                .retryOnError("undo_accepted")
+                .subscribe(undoAcceptedSubject::onNext)
                 .addToDisposable(subscriptions)
     }
 

@@ -116,7 +116,8 @@ class OGSWebSocketService(
                     observeEvent("game/$id/removed_stones").map { string -> moshi.adapter(RemovedStones::class.java).fromJson(string.toString()) },
                     observeEvent("game/$id/chat").map { string -> moshi.adapter(Chat::class.java).fromJson(string.toString()) },
                     observeEvent("game/$id/undo_requested").map { string -> string.toString().toInt() },
-                    observeEvent("game/$id/removed_stones_accepted").map { string -> moshi.adapter(RemovedStonesAccepted::class.java).fromJson(string.toString()) }
+                    observeEvent("game/$id/removed_stones_accepted").map { string -> moshi.adapter(RemovedStonesAccepted::class.java).fromJson(string.toString()) },
+                    observeEvent("game/$id/undo_accepted").map { string -> string.toString().toInt() }
             ).apply {
                 emitGameConnection(id)
                 gameConnections[id] = this

@@ -35,7 +35,6 @@ class ActiveGamesRepository(
 
     private val activeDbGames = mutableMapOf<Long, Game>()
     private val gameConnections = mutableSetOf<Long>()
-    private val connectedGameCache = hashMapOf<Long, Game>()
 
     private val myMoveCountSubject = BehaviorSubject.create<Int>()
 
@@ -89,9 +88,6 @@ class ActiveGamesRepository(
 
     internal fun connectToGame(baseGame: Game) {
         val game = baseGame.copy()
-        synchronized(connectedGameCache) {
-            connectedGameCache[game.id] = game
-        }
         if(gameConnections.contains(game.id)) {
             return
         }
@@ -155,6 +151,14 @@ class ActiveGamesRepository(
                         { onError(it, "removedStonesAccepted") }
                 )
                 .addToDisposable(subscriptions)
+        gameConnection.undoAccepted
+                .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.single())
+                .subscribe (
+                        { onUndoAccepted(game.id, it) },
+                        { onError(it, "undoRequested") }
+                )
+                .addToDisposable(subscriptions)
     }
 
     private fun onGameRemovedStones(gameId: Long, stones: RemovedStones) {
@@ -167,6 +171,10 @@ class ActiveGamesRepository(
 
     private fun onUndoRequested(gameId: Long, moveNo: Int) {
         gameDao.updateUndoRequested(gameId, moveNo)
+    }
+
+    private fun onUndoAccepted(gameId: Long, moveNo: Int) {
+        gameDao.updateUndoAccepted(gameId, moveNo)
     }
 
     private fun onGamePhase(gameId: Long, newPhase: Phase) {
@@ -202,16 +210,7 @@ class ActiveGamesRepository(
     }
 
     private fun onGameMove(gameId: Long, move: Move) {
-        synchronized(connectedGameCache) {
-            connectedGameCache[gameId]?.let { game ->
-                game.moves?.let {
-                    val newMoves = it.toMutableList().apply {
-                        add(mutableListOf(move.move[0].toInt(), move.move[1].toInt()))
-                    }
-                    gameDao.updateMoves(game.id, newMoves)
-                }
-            }
-        }
+        gameDao.addMoveToGame(gameId, move.move_number, mutableListOf(move.move[0].toInt(), move.move[1].toInt()))
     }
 
     @Synchronized
