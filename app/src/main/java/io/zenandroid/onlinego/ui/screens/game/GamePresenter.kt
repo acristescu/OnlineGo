@@ -817,8 +817,7 @@ class GamePresenter(
 
     private fun configureChips(game: Game) {
         when (currentState) {
-            LOADING -> {}
-            PLAYING -> {
+            LOADING, PLAYING -> {
                 val lastMoveWasAPass = game.moves?.lastOrNull()?.get(0) == -1
                 if (lastMoveWasAPass) {
                     view.setChips(listOf(playingChip, passedChip))
@@ -1059,6 +1058,7 @@ class GamePresenter(
     }
 
     override fun unsubscribe() {
+        view.setChips(emptyList())
         subscriptions.clear()
         timerDisposable?.dispose()
     }

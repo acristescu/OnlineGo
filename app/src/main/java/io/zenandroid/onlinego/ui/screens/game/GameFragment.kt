@@ -4,7 +4,6 @@ import android.content.Intent
 import android.graphics.Point
 import android.net.Uri
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import android.view.LayoutInflater
@@ -12,12 +11,12 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.fragment.app.Fragment
 import com.awesomedialog.blennersilva.awesomedialoglibrary.AwesomeInfoDialog
 import com.jakewharton.rxbinding2.view.RxView
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
-import io.zenandroid.onlinego.BuildConfig
 import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.ui.screens.chat.ChatDialog
@@ -32,7 +31,6 @@ import io.zenandroid.onlinego.data.model.StoneType
 import io.zenandroid.onlinego.data.model.local.Game
 import io.zenandroid.onlinego.data.model.local.Message
 import io.zenandroid.onlinego.data.model.local.Player
-import io.zenandroid.onlinego.data.repositories.SettingsRepository
 import io.zenandroid.onlinego.ui.items.statuschips.Chip
 import kotlinx.android.synthetic.main.fragment_game.*
 import org.koin.android.ext.android.get
@@ -340,6 +338,7 @@ class GameFragment : Fragment(), GameContract.View {
                 .setMessage("Your opponent requested to undo his/her last move. This usually means they mis-clicked and are asking you to let them rectify the mistake. You are not obligated to do so however and can ignore their request.")
                 .setColoredCircle(R.color.colorPrimary)
                 .setDialogIconAndColor(R.drawable.ic_dialog_info, R.color.white)
+                .setDialogBodyBackgroundColor(R.color.colorOffWhite)
                 .setCancelable(true)
                 .setPositiveButtonText("Allow undo")
                 .setPositiveButtonbackgroundColor(R.color.colorPrimary)

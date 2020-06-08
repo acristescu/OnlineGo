@@ -41,15 +41,18 @@
                     />
                 <TextView
                     android:id="@+id/titleView"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:textColor="@color/headerPrimaryText"
                     android:textSize="16sp"
                     android:textStyle="bold"
+                    android:maxLines="2"
+                    android:ellipsize="end"
                     app:layout_constraintLeft_toLeftOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintBottom_toTopOf="@id/chipList"
-                    tools:text="OnlineGo" />
+                    app:layout_constraintRight_toLeftOf="@id/chatButton"
+                    tools:text="Tournament Game: Fast Riesling Cup Fall 2018 (42137) R:8 (fragnix vs MrAlex)" />
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/chipList"
                     android:layout_width="0dp"
