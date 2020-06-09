@@ -61,11 +61,11 @@ class SmokeTest {
         onView(withId(R.id.password))
                 .perform(typeText("espresso"))
 
-        onView(withText("DISMISS"))
-                .perform(click())
-        
         onView(withId(R.id.loginButton))
                 .check(matches(isEnabled()))
+                .perform(click())
+
+        onView(withText("DISMISS"))
                 .perform(click())
 
         onView(withId(R.id.gamesRecycler))
