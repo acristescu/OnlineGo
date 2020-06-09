@@ -142,7 +142,7 @@ class GameFragment : Fragment(), GameContract.View {
                     .setMessage("The challenger has configured this game to disable the analysis feature." +
                             "This is often setup by players that wish to mimic real-life conditions, where the reading " +
                             "of variations is visualised rather than played through.")
-                    .setDialogBodyBackgroundColor(R.color.colorOffWhite)
+                    .setDialogBodyBackgroundColor(R.color.dialogBackground)
                     .setDialogIconAndColor(R.drawable.ic_dialog_info, R.color.white)
                     .setCancelable(true)
                     .setColoredCircle(R.color.colorPrimary)
@@ -209,7 +209,7 @@ class GameFragment : Fragment(), GameContract.View {
             AwesomeInfoDialog(context)
                     .setTitle(title)
                     .setMessage(message)
-                    .setDialogBodyBackgroundColor(R.color.colorOffWhite)
+                    .setDialogBodyBackgroundColor(R.color.dialogBackground)
                     .setDialogIconAndColor(R.drawable.ic_dialog_info, R.color.white)
                     .setCancelable(true)
                     .setColoredCircle(R.color.colorPrimary)
@@ -338,7 +338,7 @@ class GameFragment : Fragment(), GameContract.View {
                 .setMessage("Your opponent requested to undo his/her last move. This usually means they mis-clicked and are asking you to let them rectify the mistake. You are not obligated to do so however and can ignore their request.")
                 .setColoredCircle(R.color.colorPrimary)
                 .setDialogIconAndColor(R.drawable.ic_dialog_info, R.color.white)
-                .setDialogBodyBackgroundColor(R.color.colorOffWhite)
+                .setDialogBodyBackgroundColor(R.color.dialogBackground)
                 .setCancelable(true)
                 .setPositiveButtonText("Allow undo")
                 .setPositiveButtonbackgroundColor(R.color.colorPrimary)

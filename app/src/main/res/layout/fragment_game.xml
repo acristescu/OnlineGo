@@ -48,7 +48,7 @@
         android:id="@+id/playControls"
         app:layout_constraintBottom_toBottomOf="parent"
         android:visibility="visible"
-        app:cardBackgroundColor="@color/gameBottomBarBackground"
+        app:cardBackgroundColor="@color/dialogBackground"
         app:cardElevation="6dp"
         >
         <LinearLayout

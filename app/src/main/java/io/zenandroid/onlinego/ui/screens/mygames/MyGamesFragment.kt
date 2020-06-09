@@ -17,6 +17,7 @@ import io.zenandroid.onlinego.data.model.local.Game
 import io.zenandroid.onlinego.data.model.ogs.OGSAutomatch
 import io.zenandroid.onlinego.data.repositories.UserSessionRepository
 import io.zenandroid.onlinego.ui.items.*
+import io.zenandroid.onlinego.ui.screens.whatsnew.WhatsNewDialog
 import kotlinx.android.synthetic.main.fragment_mygames.*
 import org.koin.android.ext.android.get
 
@@ -30,6 +31,8 @@ class MyGamesFragment : Fragment(R.layout.fragment_mygames), MyGamesContract.Vie
     }
 
     private val groupAdapter = GameListGroupAdapter(get<UserSessionRepository>().userId)
+
+    private val whatsNewDialog: WhatsNewDialog by lazy { WhatsNewDialog() }
 
     private lateinit var presenter: MyGamesContract.Presenter
     private var analytics = OnlineGoApplication.instance.analytics
@@ -67,6 +70,12 @@ class MyGamesFragment : Fragment(R.layout.fragment_mygames), MyGamesContract.Vie
         }
 
         presenter = MyGamesPresenter(this, analytics, get(), get(), get(), get(), get(), get(), get(), get())
+    }
+
+    override fun showWhatsNewDialog() {
+        if(fragmentManager?.findFragmentByTag("WHATS_NEW") == null) {
+            whatsNewDialog.show(fragmentManager!!, "WHATS_NEW")
+        }
     }
 
     override fun setLoadedAllHistoricGames(loadedLastPage: Boolean) {

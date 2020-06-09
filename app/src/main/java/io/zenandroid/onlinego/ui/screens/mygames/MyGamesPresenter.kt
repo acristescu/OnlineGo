@@ -17,6 +17,7 @@ import io.zenandroid.onlinego.data.model.local.Game
 import io.zenandroid.onlinego.data.model.ogs.OGSAutomatch
 import io.zenandroid.onlinego.data.ogs.*
 import io.zenandroid.onlinego.data.repositories.*
+import io.zenandroid.onlinego.utils.WhatsNewUtils
 import io.zenandroid.onlinego.utils.timeLeftForCurrentPlayer
 import org.json.JSONObject
 
@@ -96,6 +97,12 @@ class MyGamesPresenter(
         }
 
         view.setLoading(true)
+
+        if(WhatsNewUtils.shouldDisplayDialog) {
+            view.showWhatsNewDialog()
+        }
+
+        WhatsNewUtils.textShown()
     }
 
     private fun sortGames(unsorted : List<Game>): List<Game> {

@@ -9,6 +9,8 @@ import io.zenandroid.onlinego.data.model.ogs.UIConfig
 
 private const val UICONFIG_KEY = "UICONFIG_KEY"
 private const val VISITED_JOSEKI = "VISITED_JOSEKI"
+private const val WHATS_NEW = "WHATS_NEW"
+
 /**
  * Created by alex on 07/11/2017.
  */
@@ -35,6 +37,14 @@ object PersistenceManager {
         set(value) {
             if(field != value) {
                 prefs.edit { putBoolean(VISITED_JOSEKI, value) }
+            }
+            field = value
+        }
+
+    var lastWhatsNewText: String? = prefs.getString(WHATS_NEW, null)
+        set(value) {
+            if(field != value) {
+                prefs.edit { putString(WHATS_NEW, value) }
             }
             field = value
         }

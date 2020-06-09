@@ -13,7 +13,7 @@
     <color name="headerPrimaryText">@color/colorText</color>
 
     <color name="playerDetailsText">@color/colorText</color>
-    <color name="gameBottomBarBackground">@color/colorOffWhite</color>
+    <color name="dialogBackground">@color/colorOffWhite</color>
 
     <color name="buttonEnabled">@color/colorText</color>
     <color name="buttonDisabled">#636363</color>

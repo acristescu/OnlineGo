@@ -30,6 +30,7 @@ UX is another area that could use improvement. I have some figma mockups that I 
 
 If you don't have the technical expertise and/or time to contribute to the project but still want to support my efforts, you can become a supporter by using the button at the top of the page or this [link](https://github.com/sponsors/acristescu). While it is really unlikely that this project will ever generate enough income to warrant me working full-time on this, I will naturally feel more inclined to spend my spare time on it the more backers it gets.
 
-## Authors
+## Contributors
 
- - Original author: [Alexandru Cristescu](mailto:acristescu@gmail.com)
+ - [Alexandru Cristescu](https://github.com/acristescu) (Original author)
+ - [popz73](https://github.com/popz73)

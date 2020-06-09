@@ -9,7 +9,7 @@
     <color name="loginText">@color/colorPrimary</color>
 
     <color name="playerDetailsText">@color/colorTextSecondary</color>
-    <color name="gameBottomBarBackground">@color/colorOffWhite</color>
+    <color name="dialogBackground">#FFFFFF</color>
 
     <color name="buttonEnabled">#000000</color>
     <color name="buttonDisabled">#66000000</color>

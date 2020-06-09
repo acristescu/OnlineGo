@@ -23,6 +23,7 @@ interface MyGamesContract {
         fun isHistoricGamesSectionEmpty(): Boolean
         fun setLoadingMoreHistoricGames(loading: Boolean)
         fun setLoadedAllHistoricGames(loadedLastPage: Boolean)
+        fun showWhatsNewDialog()
     }
     interface Presenter {
         fun subscribe()
