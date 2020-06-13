@@ -1,14 +1,35 @@
 package io.zenandroid.onlinego.utils
+import java.security.MessageDigest
 
 object WhatsNewUtils {
 
     val shouldDisplayDialog: Boolean
-            get() = PersistenceManager.lastWhatsNewText != currentText
-//            get() = PersistenceManager.lastWhatsNewText != null && PersistenceManager.lastWhatsNewText != currentText
+        get() = PersistenceManager.lastWhatsNewText != hashString(currentText)
+
     val whatsNewText = currentText
 
     fun textShown() {
-        PersistenceManager.lastWhatsNewText = currentText
+        PersistenceManager.lastWhatsNewText = hashString(currentText)
+    }
+
+    private fun hashString(text: String): String {
+        return toHex(MessageDigest.getInstance("MD5").digest(text.toByteArray(Charsets.UTF_8)))
+    }
+
+    private fun toHex(byteArray: ByteArray): String {
+        val result = with(StringBuilder()) {
+            byteArray.forEach {
+                val hex = it.toInt() and (0xFF)
+                val hexStr = Integer.toHexString(hex)
+                if (hexStr.length == 1) {
+                    this.append("0").append(hexStr)
+                } else {
+                    this.append(hexStr)
+                }
+            }
+            this.toString()
+        }
+        return result
     }
 }
 
