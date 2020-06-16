@@ -41,7 +41,7 @@ object PersistenceManager {
             field = value
         }
 
-    var lastWhatsNewText: String? = prefs.getString(WHATS_NEW, null)
+    var previousWhatsNewTextHashed: String? = prefs.getString(WHATS_NEW, null)
         set(value) {
             if(field != value) {
                 prefs.edit { putString(WHATS_NEW, value) }
