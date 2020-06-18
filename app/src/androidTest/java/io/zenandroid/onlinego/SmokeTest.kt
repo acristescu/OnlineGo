@@ -65,9 +65,6 @@ class SmokeTest {
                 .check(matches(isEnabled()))
                 .perform(click())
 
-        onView(withText("DISMISS"))
-                .perform(click())
-
         onView(withId(R.id.gamesRecycler))
                 .check(matches(hasChildCount(6)))
 
