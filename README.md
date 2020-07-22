@@ -16,9 +16,11 @@ This app allows you to play the ancient game of GO (baduk, weiki, 围棋,
 
 ## Contributing
 
-Although this project has been my playground for trying out new techologies you are welcome to contribute. Just pick something that you want to work on (either from the issues or some other feature you'd like to see implemented), check with me that it's not already being worked on, checkout the project, create a branch, work your magic and when done raise a PR for merging back to master (which is protected).
+Although this project has been my playground for trying out new technologies you are welcome to contribute. Just pick something that you want to work on (either from the issues or some other feature you'd like to see implemented), check with me that it's not already being worked on, checkout the project, create a branch, work your magic and when done raise a PR for merging back to master (which is protected).
 
 I'm afraid that I don't have much time to offer support for prospective contributors, but if you run into problems please raise an issue and tag me in it, I will try to answer as time allows. You will find it easier if you are familiar with Kotlin, RxJava, Room, MVP (and in some of the new stuff MVI), Retrofit and general Android development. If not, maybe it's a good way of introducing yourself to these popular technologies.
+
+> See [CONTRIBUTING.md](CONTRIBUTING.md) for help contributing
 
 ## Non-coding contributions
 
