@@ -18,10 +18,9 @@ object WhatsNewUtils {
 
 private const val currentText = """
 ## What's new
-
-## Fixed bugs
-
-- "What's new" dialog should no longer appear once dismissed (not until a new release/announcement)
+- Stats page. 
+Thanks to popz73 for the contribution!
+In addition to your personal record, you can check the stats of your opponents by tapping their name/profile picture on the game screen.
 
 ## About project
 

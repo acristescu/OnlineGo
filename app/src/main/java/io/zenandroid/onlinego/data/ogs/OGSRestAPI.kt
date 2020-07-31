@@ -82,4 +82,10 @@ interface OGSRestAPI {
     @Headers("x-godojo-auth-token: foofer")
     @GET("/godojo/positions?mode=0")
     fun getJosekiPositions(@Query("id") id: String): Single<List<JosekiPosition>>
+
+    @GET("api/v1/players/{player_id}/")
+    fun getPlayerProfile(@Path("player_id") playerId: Long): Single<OGSPlayer>
+
+    @GET("termination-api/player/{player_id}/glicko2-history?speed=overall&size=0")
+    fun getPlayerStats(@Path("player_id") playerId: Long): Single<String>
 }

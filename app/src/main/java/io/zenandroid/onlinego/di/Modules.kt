@@ -21,6 +21,7 @@ import org.threeten.bp.Instant
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.moshi.MoshiConverterFactory
+import retrofit2.converter.scalars.ScalarsConverterFactory
 
 private val repositoriesModule = module {
     single {
@@ -59,6 +60,7 @@ private val serverConnectionModule = module {
             .baseUrl("https://online-go.com/")
             .client(get())
             .addCallAdapterFactory(RxJava2CallAdapterFactory.createWithScheduler(Schedulers.io()))
+            .addConverterFactory(ScalarsConverterFactory.create())
             .addConverterFactory(MoshiConverterFactory.create(get()))
             .build()
             .create(OGSRestAPI::class.java)

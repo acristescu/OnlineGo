@@ -20,10 +20,6 @@ import io.reactivex.disposables.CompositeDisposable
 import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.ui.screens.chat.ChatDialog
-import io.zenandroid.onlinego.utils.addToDisposable
-import io.zenandroid.onlinego.utils.fadeIn
-import io.zenandroid.onlinego.utils.fadeOut
-import io.zenandroid.onlinego.utils.showIf
 import io.zenandroid.onlinego.ui.screens.game.gameInfo.GameInfoDialog
 import io.zenandroid.onlinego.ui.screens.main.MainActivity
 import io.zenandroid.onlinego.data.model.Position
@@ -32,7 +28,9 @@ import io.zenandroid.onlinego.data.model.local.Game
 import io.zenandroid.onlinego.data.model.local.Message
 import io.zenandroid.onlinego.data.model.local.Player
 import io.zenandroid.onlinego.ui.items.statuschips.Chip
+import io.zenandroid.onlinego.utils.*
 import kotlinx.android.synthetic.main.fragment_game.*
+import kotlinx.android.synthetic.main.view_player_details.view.*
 import org.koin.android.ext.android.get
 import java.util.concurrent.TimeUnit
 
@@ -240,6 +238,10 @@ class GameFragment : Fragment(), GameContract.View {
         confirmButton.setOnClickListener { presenter.onConfirmButtonPressed() }
         autoButton.setOnClickListener { presenter.onAutoButtonPressed() }
         menuButton.setOnClickListener { presenter.onMenuButtonPressed() }
+        whiteDetailsView.iconView.setOnClickListener { onWhitePlayerPressed() }
+        whiteDetailsView.nameView.setOnClickListener { onWhitePlayerPressed() }
+        blackDetailsView.iconView.setOnClickListener { onBlackPlayerPressed() }
+        blackDetailsView.nameView.setOnClickListener { onBlackPlayerPressed() }
 
 
         analytics.logEvent("showing_game", arguments)
@@ -486,6 +488,16 @@ class GameFragment : Fragment(), GameContract.View {
 
     private fun onPassClicked() {
         presenter.onPassClicked()
+    }
+
+    private fun onWhitePlayerPressed() {
+        (activity as MainActivity).setChatButtonVisible(false)
+        (activity as MainActivity).navigateToStatsScreen(whiteDetailsView.player!!.id)
+    }
+
+    private fun onBlackPlayerPressed() {
+        (activity as MainActivity).setChatButtonVisible(false)
+        (activity as MainActivity).navigateToStatsScreen(blackDetailsView.player!!.id)
     }
 
     override fun showResignConfirmation() {

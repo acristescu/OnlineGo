@@ -172,4 +172,9 @@ class OGSRestService(
     fun getJosekiPositions(id: Long?): Single<List<JosekiPosition>> =
             restApi.getJosekiPositions(id?.toString() ?: "root")
 
+    fun getPlayerProfile(id: Long): Single<OGSPlayer> =
+            restApi.getPlayerProfile(id)
+
+    fun getPlayerStats(id: Long): Single<String> =
+            restApi.getPlayerStats(id)
 }

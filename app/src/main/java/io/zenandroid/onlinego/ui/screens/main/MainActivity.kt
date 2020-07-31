@@ -22,10 +22,6 @@ import io.reactivex.Completable
 import io.reactivex.Observable
 import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.R
-import io.zenandroid.onlinego.utils.disableShiftMode
-import io.zenandroid.onlinego.utils.fadeIn
-import io.zenandroid.onlinego.utils.fadeOut
-import io.zenandroid.onlinego.utils.showIf
 import io.zenandroid.onlinego.ui.screens.game.GameFragment
 import io.zenandroid.onlinego.ui.screens.joseki.JosekiExplorerFragment
 import io.zenandroid.onlinego.ui.screens.learn.LearnFragment
@@ -38,15 +34,14 @@ import io.zenandroid.onlinego.ui.screens.mygames.MyGamesFragment
 import io.zenandroid.onlinego.ui.screens.newchallenge.NewAutomatchChallengeBottomSheet
 import io.zenandroid.onlinego.ui.screens.newchallenge.NewChallengeBottomSheet
 import io.zenandroid.onlinego.notifications.SynchronizeGamesWork
-import io.zenandroid.onlinego.data.repositories.ActiveGamesRepository
 import io.zenandroid.onlinego.ui.screens.settings.SettingsFragment
 import io.zenandroid.onlinego.data.repositories.SettingsRepository
+import io.zenandroid.onlinego.gamelogic.Util
 import io.zenandroid.onlinego.ui.screens.stats.StatsFragment
 import io.zenandroid.onlinego.ui.items.statuschips.Chip
 import io.zenandroid.onlinego.ui.items.statuschips.ChipAdapter
 import io.zenandroid.onlinego.ui.views.BoardView
-import io.zenandroid.onlinego.utils.NotificationUtils
-import io.zenandroid.onlinego.utils.PersistenceManager
+import io.zenandroid.onlinego.utils.*
 import kotlinx.android.synthetic.main.activity_main.*
 import org.koin.android.ext.android.get
 import org.koin.android.ext.android.inject
@@ -274,7 +269,7 @@ class MainActivity : AppCompatActivity(), MainContract.View {
                 supportFragmentManager.beginTransaction()
                         .setCustomAnimations(R.anim.fade_in, R.anim.fade_out,
                                 R.anim.fade_in, R.anim.fade_out)
-                        .replace(R.id.fragment_container, statsFragment)
+                        .replace(R.id.fragment_container, StatsFragment.createFragment(Util.getCurrentUserId()!!))
                         .runOnCommit (this::ensureNavigationVisible)
                         .commitAllowingStateLoss()
                 true
@@ -307,6 +302,14 @@ class MainActivity : AppCompatActivity(), MainContract.View {
                 .commitAllowingStateLoss()
     }
 
+    override fun navigateToStatsScreen(id: Long) {
+        supportFragmentManager.beginTransaction()
+                .setCustomAnimations(R.anim.fade_in, R.anim.fade_out,
+                        R.anim.fade_in, R.anim.fade_out)
+                .replace(R.id.fragment_container, StatsFragment.createFragment(id))
+                .commitAllowingStateLoss()
+    }
+
     override fun showError(msg: String?) {
         Toast.makeText(this, msg, Toast.LENGTH_LONG).show()
     }
@@ -315,7 +318,9 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         val fragment = supportFragmentManager.findFragmentById(R.id.fragment_container)
         when {
             fragment is JosekiExplorerFragment && fragment.canHandleBack() -> fragment.onBackPressed()
-            fragment is GameFragment || fragment is JosekiExplorerFragment-> selectItem(lastSelectedItem)
+            fragment is GameFragment ||
+                    fragment is JosekiExplorerFragment ||
+                    fragment is StatsFragment -> selectItem(lastSelectedItem)
             newChallengeView.subMenuVisible -> newChallengeView.toggleSubMenu()
             else -> super.onBackPressed()
         }
