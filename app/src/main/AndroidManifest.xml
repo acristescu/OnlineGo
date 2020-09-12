@@ -45,11 +45,12 @@
         </activity>
         <activity
             android:name="io.zenandroid.onlinego.ui.screens.main.MainActivity"
-            android:screenOrientation="portrait"
+            android:screenOrientation="user"
             />
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />
+
     </application>
 
 </manifest>

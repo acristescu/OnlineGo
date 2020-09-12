@@ -24,6 +24,9 @@ android {
         buildConfigField "String", "CLIENT_SECRET", '"' + System.getenv("ONLINE_GO_CLIENT_SECRET") + '"'
     }
     buildTypes {
+        development{
+
+        }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
