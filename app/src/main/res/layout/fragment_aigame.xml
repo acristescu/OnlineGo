@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:background="@color/colorTextBackground">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/board_container"
+        android:layout_margin="8dp"
+        >
+        <TextView
+            android:id="@+id/description"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:clickable="true"
+            android:focusable="true"
+            tools:text="The Vital Point\n\nIt’s common sense to answer an attachment with a hane. However, if the attaching stone is connected to friendly forces, one cannot stubbornly hane. White stretches to here instead. Allowing Black to create a tiger’s mouth with a hane at Q14(X) is intolerable for White. (Vol. 1.)\n\nA and B are joseki.\n\nC and D are asking for a larger corner but leave bad aji."
+            />
+    </ScrollView>
+
+    <me.zhanghai.android.materialprogressbar.MaterialProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:indeterminate="true"
+        app:mpb_progressStyle="horizontal"
+        style="@style/Widget.MaterialProgressBar.ProgressBar.Horizontal"
+        app:mpb_useIntrinsicPadding="false"
+        app:layout_constraintTop_toTopOf="parent"
+        app:mpb_indeterminateTint="@color/colorTextBackground"
+        android:background="@color/colorPrimary"
+        android:elevation="4dp"
+        android:visibility="gone"
+        />
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/board_container"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:cardCornerRadius="4dp"
+        app:cardElevation="4dp"
+        app:cardBackgroundColor="@color/colorTextBackground"
+        app:layout_constraintBottom_toTopOf="@id/playControls"
+        app:layout_constraintDimensionRatio="1:1"
+        app:cardPreventCornerOverlap="false"
+        >
+
+        <io.zenandroid.onlinego.ui.views.BoardView
+            android:id="@+id/board"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+    </androidx.cardview.widget.CardView>
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/playControls"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:visibility="visible"
+        app:cardBackgroundColor="@color/colorTextBackground"
+        app:cardElevation="6dp"
+        >
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:orientation="horizontal"
+            >
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/passButton"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                app:srcCompat="@drawable/ic_pass"
+                app:tint="@color/disable_black"
+                android:layout_weight="1"
+                android:paddingTop="10dp"
+                android:paddingBottom="10dp"
+                android:foreground="?android:attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
+                />
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/previousButton"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                app:srcCompat="@drawable/ic_navigate_previous"
+                app:tint="@color/disable_black"
+                android:layout_weight="1"
+                android:paddingTop="10dp"
+                android:paddingBottom="10dp"
+                android:foreground="?android:attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
+                />
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/nextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                app:srcCompat="@drawable/ic_navigate_next"
+                app:tint="@color/disable_black"
+                android:layout_weight="1"
+                android:paddingTop="10dp"
+                android:paddingBottom="10dp"
+                android:foreground="?android:attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
+                />
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+</androidx.constraintlayout.widget.ConstraintLayout>

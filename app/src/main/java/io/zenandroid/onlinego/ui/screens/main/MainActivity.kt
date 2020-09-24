@@ -38,12 +38,12 @@ import io.zenandroid.onlinego.ui.screens.mygames.MyGamesFragment
 import io.zenandroid.onlinego.ui.screens.newchallenge.NewAutomatchChallengeBottomSheet
 import io.zenandroid.onlinego.ui.screens.newchallenge.NewChallengeBottomSheet
 import io.zenandroid.onlinego.notifications.SynchronizeGamesWork
-import io.zenandroid.onlinego.data.repositories.ActiveGamesRepository
 import io.zenandroid.onlinego.ui.screens.settings.SettingsFragment
 import io.zenandroid.onlinego.data.repositories.SettingsRepository
 import io.zenandroid.onlinego.ui.screens.stats.StatsFragment
 import io.zenandroid.onlinego.ui.items.statuschips.Chip
 import io.zenandroid.onlinego.ui.items.statuschips.ChipAdapter
+import io.zenandroid.onlinego.ui.screens.localai.AiGameFragment
 import io.zenandroid.onlinego.ui.views.BoardView
 import io.zenandroid.onlinego.utils.NotificationUtils
 import io.zenandroid.onlinego.utils.PersistenceManager
@@ -315,7 +315,12 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         val fragment = supportFragmentManager.findFragmentById(R.id.fragment_container)
         when {
             fragment is JosekiExplorerFragment && fragment.canHandleBack() -> fragment.onBackPressed()
-            fragment is GameFragment || fragment is JosekiExplorerFragment-> selectItem(lastSelectedItem)
+
+            fragment is GameFragment ||
+                    fragment is JosekiExplorerFragment ||
+                    fragment is AiGameFragment
+            -> selectItem(lastSelectedItem)
+
             newChallengeView.subMenuVisible -> newChallengeView.toggleSubMenu()
             else -> super.onBackPressed()
         }
@@ -361,6 +366,16 @@ class MainActivity : AppCompatActivity(), MainContract.View {
                 .setCustomAnimations(R.anim.fade_in, R.anim.fade_out,
                         R.anim.fade_in, R.anim.fade_out)
                 .replace(R.id.fragment_container, JosekiExplorerFragment(), "game")
+                .commitAllowingStateLoss()
+    }
+
+    fun onLocalAIClicked() {
+        bottomNavigation.visibility = View.GONE
+        newChallengeView.fadeOut().subscribe()
+        supportFragmentManager.beginTransaction()
+                .setCustomAnimations(R.anim.fade_in, R.anim.fade_out,
+                        R.anim.fade_in, R.anim.fade_out)
+                .replace(R.id.fragment_container, AiGameFragment(), "localai")
                 .commitAllowingStateLoss()
     }
 }

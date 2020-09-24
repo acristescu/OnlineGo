@@ -39,41 +39,55 @@ class BoardView : View {
         }
 
     var position: Position? = null
-        set(position) {
-            field = position
-            invalidate()
+        set(value) {
+            if(field != value) {
+                invalidate()
+            }
+            field = value
         }
     var isInteractive = false
     var drawLastMove = true
         set(value) {
+            if(field != value) {
+                invalidate()
+            }
             field = value
-            invalidate()
         }
     var drawTerritory = false
         set(value) {
+            if(field != value) {
+                invalidate()
+            }
             field = value
-            invalidate()
         }
     var drawCoordinates = false
         set(value) {
-            field = value
-            computeDimensions(width)
-            invalidate()
+            if(field != value) {
+                field = value
+                computeDimensions(width)
+                invalidate()
+            }
         }
     var drawMarks = false
         set(value) {
+            if(field != value) {
+                invalidate()
+            }
             field = value
-            invalidate()
         }
     var fadeOutRemovedStones = false
         set(value) {
+            if(field != value) {
+                invalidate()
+            }
             field = value
-            invalidate()
         }
     var drawShadow = true
         set(value) {
+            if(field != value) {
+                invalidate()
+            }
             field = value
-            invalidate()
         }
 
     private val coordinatesX = arrayOf("A","B","C","D","E","F","G","H","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z")
