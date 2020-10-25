@@ -15,7 +15,7 @@ sealed class NewGameItem(
 
     object AutoMatch : NewGameItem("Auto-match", R.drawable.ic_person_filled)
     object Custom : NewGameItem("Custom", R.drawable.ic_challenge)
-    object LocalAI : NewGameItem("Local AI", R.drawable.ic_robot)
+    object LocalAI : NewGameItem("Offline AI", R.drawable.ic_robot)
 
     override fun bind(viewHolder: GroupieViewHolder, position: Int) {
         viewHolder.text.text = text

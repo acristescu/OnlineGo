@@ -1,7 +1,7 @@
 package io.zenandroid.onlinego.data.repositories
 
 import android.util.Log
-import com.crashlytics.android.Crashlytics
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.reactivex.Flowable
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.plusAssign
@@ -55,7 +55,7 @@ class JosekiRepository(
 
     private fun onError(error: Throwable) {
         Log.e("JosekiRepository", error.message, error)
-        Crashlytics.logException(error)
+        FirebaseCrashlytics.getInstance().recordException(error)
     }
 
     private fun extractLabelsFromDescription(originalPos: JosekiPosition): JosekiPosition {

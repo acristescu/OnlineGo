@@ -4,7 +4,6 @@ import android.graphics.Point
 import io.reactivex.Observable
 import io.reactivex.rxkotlin.withLatestFrom
 import io.zenandroid.onlinego.gamelogic.RulesManager
-import io.zenandroid.onlinego.leela.LeelaZeroService
 import io.zenandroid.onlinego.mvi.Middleware
 import io.zenandroid.onlinego.ui.screens.localai.AiGameAction
 import io.zenandroid.onlinego.ui.screens.localai.AiGameState
@@ -18,10 +17,10 @@ class UserMoveMiddleware : Middleware<AiGameState, AiGameAction> {
 
         return source
                 .withLatestFrom(state)
+                .filter { (_, state) -> state.position != null }
                 .flatMap { (coordinate, state) ->
                     val newPos = RulesManager.makeMove(state.position!!, state.position.nextToMove, coordinate)
                     if (newPos != null) {
-                        LeelaZeroService.playMove(state.position.nextToMove, coordinate, state.position.boardSize)
                         newPos.nextToMove = newPos.nextToMove.opponent
                         Observable.just(AiGameAction.NewPosition(newPos))
                     } else {

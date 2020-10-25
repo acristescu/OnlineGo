@@ -8,18 +8,24 @@ import io.zenandroid.onlinego.ui.screens.joseki.JosekiExplorerAction
 import org.koin.core.context.KoinContextHandler.get
 
 data class AiGameState(
-    val leelaStarted: Boolean = false,
-//    val position: Position = RulesManager.replay(get().get<ActiveGamesRepository>().monitorGame(23575151).blockingFirst(), computeTerritory = false),
-    val position: Position? = null,
-    val boardSize: Int = 19,
-    val secondsPerMove: Int = 10,
-    val leelaPlaysBlack: Boolean = false,
-    val handicap: Int = 3,
-    val boardIsInteractive: Boolean = false,
-    val candidateMove: Point? = null,
-    val passButtonEnabled: Boolean = false,
-    val nextButtonEnabled: Boolean = false,
-    val previousButtonEnabled: Boolean = false,
-    val engineLog: String = "",
-    val redoPosStack: List<Position> = emptyList()
+        val engineStarted: Boolean = false,
+        val position: Position? = null,
+        val boardSize: Int = 19,
+        val enginePlaysBlack: Boolean = false,
+        val handicap: Int = 0,
+        val boardIsInteractive: Boolean = false,
+        val candidateMove: Point? = null,
+        val passButtonEnabled: Boolean = false,
+        val nextButtonEnabled: Boolean = false,
+        val previousButtonEnabled: Boolean = false,
+        val redoPosStack: List<Position> = emptyList(),
+        val newGameDialogShown: Boolean = false,
+        val chatText: String? = null,
+        val showHints: Boolean = false,
+        val showAiEstimatedTerritory: Boolean = false,
+        val showFinalTerritory: Boolean = false,
+        val hintButtonVisible: Boolean = false,
+        val finalWhiteScore: Float? = null,
+        val finalBlackScore: Float? = null,
+        val aiWon: Boolean? = null
 )

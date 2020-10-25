@@ -3,7 +3,7 @@ package io.zenandroid.onlinego.notifications
 import android.content.Context
 import android.util.Log
 import androidx.work.*
-import com.crashlytics.android.Crashlytics
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.reactivex.Completable
 import io.reactivex.Single
 import io.reactivex.functions.BiFunction
@@ -77,7 +77,7 @@ class SynchronizeGamesWork(val context: Context, params: WorkerParameters) : RxW
     private val challengesRepository: ChallengesRepository = get().get()
 
     override fun createWork(): Single<Result> {
-        Crashlytics.log(Log.INFO, TAG, "Started checking for active games")
+        FirebaseCrashlytics.getInstance().log("I/$TAG: Started checking for active games")
         if (!userSessionRepository.isLoggedIn()) {
             Log.v(TAG, "Not logged in, giving up")
             return Single.just(Result.failure())
@@ -94,20 +94,20 @@ class SynchronizeGamesWork(val context: Context, params: WorkerParameters) : RxW
                 .onErrorReturn { e ->
                     when {
                         (e as? HttpException)?.code() in arrayOf(401, 403) -> {
-                            Crashlytics.log(Log.ERROR, TAG, "Unauthorized when checking for notifications")
-                            Crashlytics.logException(e)
-                            Crashlytics.setLong("AUTO_LOGOUT", System.currentTimeMillis())
+                            FirebaseCrashlytics.getInstance().log("E/$TAG: Unauthorized when checking for notifications")
+                            FirebaseCrashlytics.getInstance().recordException(e)
+                            FirebaseCrashlytics.getInstance().setCustomKey("AUTO_LOGOUT", System.currentTimeMillis())
                             NotificationUtils.notifyLogout(context)
                             userSessionRepository.logOut()
                             return@onErrorReturn Result.failure()
                         }
                         e is SocketTimeoutException || e is ConnectException -> {
-                            Crashlytics.log(Log.ERROR, TAG, "Can't connect when checking for notifications")
+                            FirebaseCrashlytics.getInstance().log("E/$TAG: Can't connect when checking for notifications")
                             return@onErrorReturn Result.failure()
                         }
                         else -> {
-                            Crashlytics.log(Log.ERROR, TAG, "Error when checking for notifications")
-                            Crashlytics.logException(e)
+                            FirebaseCrashlytics.getInstance().log("E/$TAG: Error when checking for notifications")
+                            FirebaseCrashlytics.getInstance().recordException(e)
                             return@onErrorReturn Result.retry()
                         }
                     }
@@ -149,11 +149,11 @@ class SynchronizeGamesWork(val context: Context, params: WorkerParameters) : RxW
     private fun <T : Any> Single<T>.reschedule(): Single<T> {
         return this.doFinally {
             try {
-                Crashlytics.log(Log.INFO, TAG, "Enqueue work")
+                FirebaseCrashlytics.getInstance().log("I/$TAG: Enqueue work")
                 schedule()
             } catch (e: Exception) {
                 Log.e(TAG, e.message, e)
-                Crashlytics.logException(e)
+                FirebaseCrashlytics.getInstance().recordException(e)
             }
         }
     }

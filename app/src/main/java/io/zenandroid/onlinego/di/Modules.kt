@@ -122,12 +122,13 @@ private val viewModelsModule = module {
                 Store(
                         AiGameReducer(),
                         listOf(
-                                EngineLogMiddleware(),
+//                                EngineLogMiddleware(),
                                 EngineLifecycleMiddleware(),
                                 AIMoveMiddleware(),
                                 GameTurnMiddleware(),
                                 UserMoveMiddleware(),
-                                UndoRedoMiddleware()
+                                StatePersistenceMiddleware(),
+                                HintMiddleware()
                         ),
                         AiGameState()
                 )

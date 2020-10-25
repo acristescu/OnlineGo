@@ -2,6 +2,8 @@ package io.zenandroid.onlinego.data.model
 
 import android.graphics.Point
 import android.util.Log
+import io.zenandroid.onlinego.data.model.katago.MoveInfo
+import io.zenandroid.onlinego.data.model.katago.Response
 import io.zenandroid.onlinego.gamelogic.RulesManager
 import io.zenandroid.onlinego.data.model.ogs.JosekiPosition
 import io.zenandroid.onlinego.data.model.ogs.PlayCategory
@@ -19,17 +21,17 @@ import java.util.*
  * for validating the move and changing the Position to the new one by enforcing
  * captures for example.
  *
- * Lastly, the user can use getAllStonesCoordinates() to loop throught all the stones.
+ * Lastly, the user can use getAllStonesCoordinates() to loop through all the stones.
  *
  * Created by alex on 1/8/2015.
  */
 class Position(val boardSize: Int) {
 
-    private val stones = HashMap<Point, StoneType>()
+    var stones = HashMap<Point, StoneType>()
 
-    val removedSpots = HashSet<Point>()
-    val whiteTerritory = HashSet<Point>()
-    val blackTerritory = HashSet<Point>()
+    var removedSpots: MutableSet<Point> = HashSet()
+    var whiteTerritory: MutableSet<Point> = HashSet()
+    var blackTerritory: MutableSet<Point> = HashSet()
 
     var lastMove: Point? = null
     var whiteCapturedCount = 0
@@ -50,13 +52,17 @@ class Position(val boardSize: Int) {
     val blackDeadStones: Collection<Point>
         get() = removedSpots.filter { stones[it] == StoneType.BLACK }
 
-    val lastPlayerToMove: StoneType?
-        get() = lastMove?.let { getStoneAt(it.x, it.y) }
+    var lastPlayerToMove: StoneType? = null
+
     var variation: List<Point> = listOf()
 
     var parentPosition: Position? = null
 
     val customMarks = HashSet<Mark>()
+    var komi: Float? = null
+
+    var aiAnalysisResult: Response? = null
+    var aiQuickEstimation: MoveInfo? = null
 
     /**
      * Adds a stone without checking the game logic. See makeMove() for alternative
@@ -94,6 +100,7 @@ class Position(val boardSize: Int) {
         newPos.removedSpots.addAll(removedSpots)
         newPos.nextToMove = nextToMove
         newPos.parentPosition = parentPosition
+        newPos.komi = komi
         return newPos
     }
 
@@ -137,12 +144,16 @@ class Position(val boardSize: Int) {
         if (whiteCapturedCount != other.whiteCapturedCount) return false
         if (blackCapturedCount != other.blackCapturedCount) return false
         if (nextToMove != other.nextToMove) return false
+        if (komi != other.komi) return false
 
         return true
     }
 
     fun hasTheSameStonesAs(other: Position) =
             stones == other.stones
+
+    fun isGameOver() =
+            lastMove?.x == -1 && parentPosition?.lastMove?.x == -1
 
     override fun hashCode(): Int {
         var result = boardSize
@@ -154,6 +165,7 @@ class Position(val boardSize: Int) {
         result = 31 * result + whiteCapturedCount
         result = 31 * result + blackCapturedCount
         result = 31 * result + nextToMove.hashCode()
+        result = 31 * result + (komi?.hashCode() ?: 0)
         return result
     }
 

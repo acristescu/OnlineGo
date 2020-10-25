@@ -2,26 +2,30 @@ package io.zenandroid.onlinego.ui.screens.localai
 
 import android.graphics.Point
 import io.zenandroid.onlinego.data.model.Position
-import io.zenandroid.onlinego.data.model.StoneType
-import io.zenandroid.onlinego.ui.screens.joseki.JosekiExplorerAction
 
 sealed class AiGameAction {
     object ViewReady: AiGameAction()
     object ViewPaused: AiGameAction()
+    class RestoredState(val state: AiGameState): AiGameAction()
+
+    object ShowNewGameDialog: AiGameAction()
+    object DismissNewGameDialog: AiGameAction()
+    class NewGame(
+            val size: Int,
+            val youPlayBlack: Boolean,
+            val handicap: Int
+    ): AiGameAction()
 
     object EngineStarted: AiGameAction()
     object EngineStopped: AiGameAction()
 
-    class EngineLogLine(val line: String): AiGameAction()
-
     object GenerateAiMove: AiGameAction()
     object PromptUserForMove: AiGameAction()
 
-    class AIAnalysisLine(val line: String): AiGameAction()
     class NewPosition(val newPos: Position): AiGameAction()
-//    class UserMove(val newPos: Position): AiGameAction()
-//    class AIMove(point: Point, side: StoneType): AiGameAction()
-//    class UserMove(point: Point, side: StoneType): AiGameAction()
+    class AIMove(val newPos: Position): AiGameAction()
+    object AIHint: AiGameAction()
+    class ScoreComputed(val newPos: Position, val whiteScore: Float, val blackScore: Int, val aiWon: Boolean): AiGameAction()
 
 
     // User actions
@@ -31,5 +35,6 @@ sealed class AiGameAction {
     object UserPressedBack: AiGameAction()
     object UserPressedNext: AiGameAction()
     object UserPressedPass: AiGameAction()
+    object UserAskedForHint: AiGameAction()
 
 }

@@ -1,7 +1,7 @@
 package io.zenandroid.onlinego.data.repositories
 
 import android.util.Log
-import com.crashlytics.android.Crashlytics
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.disposables.CompositeDisposable
@@ -49,7 +49,7 @@ class ChallengesRepository(
 
     fun onError(throwable: Throwable) {
         Log.e(TAG, throwable.message, throwable)
-        Crashlytics.logException(throwable)
+        FirebaseCrashlytics.getInstance().recordException(throwable)
     }
 
     override fun onSocketDisconnected() {

@@ -2,7 +2,7 @@ package io.zenandroid.onlinego.data.ogs
 
 import android.graphics.Point
 import android.util.Log
-import com.crashlytics.android.Crashlytics
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.reactivex.Flowable
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
@@ -121,8 +121,8 @@ class GameConnection(
 
     private fun <T> Flowable<T>.retryOnError(requestTag: String): Flowable<T> {
         return this.doOnError {
-            Crashlytics.log(Log.ERROR, TAG, "$requestTag error ${it.message}")
-            Crashlytics.logException(it)
+            FirebaseCrashlytics.getInstance().log("E/$TAG: $requestTag error ${it.message}")
+            FirebaseCrashlytics.getInstance().recordException(it)
         }
                 .retry()
     }

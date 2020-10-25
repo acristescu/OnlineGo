@@ -4,15 +4,13 @@ import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.Ignore
 import androidx.room.PrimaryKey
-import com.crashlytics.android.Crashlytics
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.zenandroid.onlinego.data.model.Position
 import io.zenandroid.onlinego.data.model.ogs.GameData
 import io.zenandroid.onlinego.data.model.ogs.OGSGame
 import io.zenandroid.onlinego.data.model.ogs.Phase
 import io.zenandroid.onlinego.data.ogs.TimeControl
 import io.zenandroid.onlinego.utils.toEpochMicros
-import org.threeten.bp.Instant
-import org.threeten.bp.temporal.ChronoUnit
 
 /**
  * Created by alex on 05/06/2018.
@@ -113,7 +111,7 @@ data class Game(
                 is Double -> gamedata.ranked != 0.0
                 is Boolean -> gamedata.ranked as Boolean
                 else -> {
-                    Crashlytics.log("gamedata.ranked has unexpected value: ${gamedata.ranked}")
+                    FirebaseCrashlytics.getInstance().log("gamedata.ranked has unexpected value: ${gamedata.ranked}")
                     null
                 }
             }

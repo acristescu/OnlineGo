@@ -4,8 +4,7 @@ import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.rxkotlin.withLatestFrom
 import io.reactivex.schedulers.Schedulers
-import io.zenandroid.onlinego.data.model.Position
-import io.zenandroid.onlinego.leela.LeelaZeroService
+import io.zenandroid.onlinego.ai.KataGoAnalysisEngine
 import io.zenandroid.onlinego.mvi.Middleware
 import io.zenandroid.onlinego.ui.screens.localai.AiGameAction
 import io.zenandroid.onlinego.ui.screens.localai.AiGameAction.*
@@ -22,11 +21,9 @@ class EngineLifecycleMiddleware : Middleware<AiGameState, AiGameAction> {
     private fun startEngineObservable(actions: Observable<AiGameAction>, state: Observable<AiGameState>): Observable<AiGameAction> =
             actions.ofType(ViewReady.javaClass)
                     .withLatestFrom(state)
-                    .filter { (_, state) -> !state.leelaStarted }
+                    .filter { (_, state) -> !state.engineStarted }
                     .flatMapSingle { (_, _) ->
-                        Completable.fromAction {
-                            LeelaZeroService.startEngine()
-                        }
+                        Completable.fromAction { KataGoAnalysisEngine.startEngine() }
                                 .subscribeOn(Schedulers.io())
                                 .toSingle { EngineStarted }
                     }
@@ -34,9 +31,9 @@ class EngineLifecycleMiddleware : Middleware<AiGameState, AiGameAction> {
     private fun stopEngineObservable(actions: Observable<AiGameAction>, state: Observable<AiGameState>): Observable<AiGameAction> =
             actions.ofType(ViewPaused.javaClass)
                     .withLatestFrom(state)
-                    .filter { (_, state) -> state.leelaStarted }
+                    .filter { (_, state) -> state.engineStarted }
                     .flatMapSingle {
-                        Completable.fromAction { LeelaZeroService.stopEngine() }
+                        Completable.fromAction { KataGoAnalysisEngine.stopEngine() }
                                 .subscribeOn(Schedulers.io())
                                 .toSingle { EngineStopped }
                     }
