@@ -10,6 +10,7 @@ import io.zenandroid.onlinego.data.model.StoneType
 import io.zenandroid.onlinego.gamelogic.Util
 import java.io.*
 
+@Deprecated("This worked, but was never released. If we ever decide to bring back that horrible monster called GTP, this is a good stat though.")
 object LeelaZeroService {
 
 //    var executor: Executor? = null

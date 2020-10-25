@@ -13,6 +13,7 @@ import io.zenandroid.onlinego.ui.screens.localai.AiGameReducer
 import io.zenandroid.onlinego.ui.screens.localai.AiGameState
 import io.zenandroid.onlinego.ui.screens.localai.AiGameViewModel
 import io.zenandroid.onlinego.ui.screens.localai.middlewares.*
+import io.zenandroid.onlinego.ui.screens.localai.middlewares.AnalyticsMiddleware
 import io.zenandroid.onlinego.ui.screens.newchallenge.selectopponent.searchplayer.SearchMiddleware
 import io.zenandroid.onlinego.ui.screens.newchallenge.selectopponent.searchplayer.SearchPlayerReducer
 import io.zenandroid.onlinego.ui.screens.newchallenge.selectopponent.searchplayer.SearchPlayerState
@@ -110,7 +111,7 @@ private val viewModelsModule = module {
                                 LoadPositionMiddleware(get()),
                                 HotTrackMiddleware(),
                                 TriggerLoadingMiddleware(),
-                                AnalyticsMiddleware()
+                                io.zenandroid.onlinego.ui.screens.joseki.AnalyticsMiddleware()
                         ),
                         JosekiExplorerState()
                 )
@@ -122,13 +123,13 @@ private val viewModelsModule = module {
                 Store(
                         AiGameReducer(),
                         listOf(
-//                                EngineLogMiddleware(),
                                 EngineLifecycleMiddleware(),
                                 AIMoveMiddleware(),
                                 GameTurnMiddleware(),
                                 UserMoveMiddleware(),
                                 StatePersistenceMiddleware(),
-                                HintMiddleware()
+                                HintMiddleware(),
+                                AnalyticsMiddleware()
                         ),
                         AiGameState()
                 )
