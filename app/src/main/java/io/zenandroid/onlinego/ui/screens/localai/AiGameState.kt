@@ -25,6 +25,7 @@ data class AiGameState(
         val showAiEstimatedTerritory: Boolean = false,
         val showFinalTerritory: Boolean = false,
         val hintButtonVisible: Boolean = false,
+        val ownershipButtonVisible: Boolean = false,
         val finalWhiteScore: Float? = null,
         val finalBlackScore: Float? = null,
         val aiWon: Boolean? = null

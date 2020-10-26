@@ -37,8 +37,10 @@ class AiGameReducer : Reducer<AiGameState, AiGameAction> {
                         action.newPos.isGameOver() && state.aiWon == null -> "Game ended because of two passes. Hang on, I'm computing the final score."
                         else -> state.chatText
                     },
+                    showAiEstimatedTerritory = false,
                     showFinalTerritory = action.newPos.isGameOver() && state.aiWon != null,
-                    hintButtonVisible = !action.newPos.isGameOver()
+                    hintButtonVisible = !action.newPos.isGameOver(),
+                    ownershipButtonVisible = !action.newPos.isGameOver()
             )
             is ScoreComputed -> state.copy(
                     position = action.newPos,
@@ -55,6 +57,7 @@ class AiGameReducer : Reducer<AiGameState, AiGameAction> {
                     showAiEstimatedTerritory = false,
                     showFinalTerritory = true,
                     hintButtonVisible = false,
+                    ownershipButtonVisible = false,
                     showHints = false,
                     candidateMove = null
             )
@@ -95,7 +98,9 @@ class AiGameReducer : Reducer<AiGameState, AiGameAction> {
                         previousButtonEnabled = newPosition.parentPosition?.parentPosition != null,
                         showHints = false,
                         hintButtonVisible = true,
+                        ownershipButtonVisible = true,
                         showFinalTerritory = false,
+                        showAiEstimatedTerritory = false,
                         nextButtonEnabled = true,
                         boardIsInteractive = true,
                         passButtonEnabled = true,
@@ -130,6 +135,7 @@ class AiGameReducer : Reducer<AiGameState, AiGameAction> {
                     finalBlackScore = null,
                     showFinalTerritory = false,
                     hintButtonVisible = true,
+                    ownershipButtonVisible = true,
                     showAiEstimatedTerritory = false,
                     nextButtonEnabled = false,
                     passButtonEnabled = false,
@@ -148,6 +154,26 @@ class AiGameReducer : Reducer<AiGameState, AiGameAction> {
             )
             is RestoredState -> action.state.copy( // Careful, this stomps on everything not in the list below!!!
                     engineStarted = state.engineStarted
+            )
+            AIOwnershipResponse -> state.copy(
+                    boardIsInteractive = true,
+                    showAiEstimatedTerritory = true,
+                    chatText = "Here's what I think the territories look like"
+            )
+            UserAskedForOwnership -> state.copy(
+                    boardIsInteractive = false,
+                    chatText = "Ok, calculating current territory..."
+            )
+            HideOwnership -> state.copy(
+                    showAiEstimatedTerritory = false,
+                    chatText = "Ok, your turn",
+                    boardIsInteractive = true
+            )
+            is EngineWouldNotStart -> state.copy(
+                    boardIsInteractive = false,
+                    hintButtonVisible = false,
+                    ownershipButtonVisible = false,
+                    chatText = "Error when starting KataGO: '${action.error.message}'"
             )
         }
     }

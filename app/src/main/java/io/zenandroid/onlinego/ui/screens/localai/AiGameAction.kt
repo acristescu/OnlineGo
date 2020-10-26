@@ -17,6 +17,7 @@ sealed class AiGameAction {
     ): AiGameAction()
 
     object EngineStarted: AiGameAction()
+    class EngineWouldNotStart(val error: Throwable): AiGameAction()
     object EngineStopped: AiGameAction()
 
     object GenerateAiMove: AiGameAction()
@@ -25,6 +26,8 @@ sealed class AiGameAction {
     class NewPosition(val newPos: Position): AiGameAction()
     class AIMove(val newPos: Position): AiGameAction()
     object AIHint: AiGameAction()
+    object AIOwnershipResponse: AiGameAction()
+    object HideOwnership: AiGameAction()
     class ScoreComputed(val newPos: Position, val whiteScore: Float, val blackScore: Int, val aiWon: Boolean): AiGameAction()
 
 
@@ -36,5 +39,6 @@ sealed class AiGameAction {
     object UserPressedNext: AiGameAction()
     object UserPressedPass: AiGameAction()
     object UserAskedForHint: AiGameAction()
+    object UserAskedForOwnership: AiGameAction()
 
 }

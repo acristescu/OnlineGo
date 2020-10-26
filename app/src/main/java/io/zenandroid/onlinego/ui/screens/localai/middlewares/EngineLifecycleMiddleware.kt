@@ -25,7 +25,8 @@ class EngineLifecycleMiddleware : Middleware<AiGameState, AiGameAction> {
                     .flatMapSingle { (_, _) ->
                         Completable.fromAction { KataGoAnalysisEngine.startEngine() }
                                 .subscribeOn(Schedulers.io())
-                                .toSingle { EngineStarted }
+                                .toSingle<AiGameAction> { EngineStarted }
+                                .onErrorReturn { EngineWouldNotStart(it) }
                     }
 
     private fun stopEngineObservable(actions: Observable<AiGameAction>, state: Observable<AiGameState>): Observable<AiGameAction> =

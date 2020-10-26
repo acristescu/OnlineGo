@@ -308,15 +308,12 @@ class BoardView : View {
     }
 
     private fun drawAiEstimatedOwnership(canvas: Canvas, position: Position) {
-        //TODO: Remove parentposition!!!!
         val ownershipMatrix =
                 position.aiAnalysisResult?.ownership ?:
-                position.aiQuickEstimation?.ownership ?:
-                position.parentPosition?.aiAnalysisResult?.ownership ?:
-                position.parentPosition?.aiQuickEstimation?.ownership
+                position.aiQuickEstimation?.ownership
 
         if(drawAiEstimatedOwnership && ownershipMatrix?.isNotEmpty() == true) {
-            val radius = cellSize / 3.5f
+            val radius = cellSize / 4f
             for (i in 0 until boardSize) {
                 for(j in 0 until boardSize) {
                     val ownership = ownershipMatrix[i*boardSize + j] // a float between -1 and 1, -1 is 100% solid black territory, 1 is 100% solid white territory

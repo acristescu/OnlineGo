@@ -58,7 +58,9 @@ class AiGameFragment : Fragment(R.layout.fragment_aigame), MviView<AiGameState, 
                         RxView.clicks(newGameButton)
                                 .map<AiGameAction> { ShowNewGameDialog },
                         RxView.clicks(hintButton)
-                                .map<AiGameAction> { UserAskedForHint }
+                                .map<AiGameAction> { UserAskedForHint },
+                        RxView.clicks(ownershipButton)
+                                .map<AiGameAction> { UserAskedForOwnership }
                 )
         ).startWith(ViewReady)
 
@@ -112,6 +114,7 @@ class AiGameFragment : Fragment(R.layout.fragment_aigame), MviView<AiGameState, 
         nextButton.isEnabled = state.nextButtonEnabled
 
         hintButton.showIf(state.hintButtonVisible)
+        ownershipButton.showIf(state.ownershipButtonVisible)
         if(state.newGameDialogShown && bottomSheet?.isShowing != true) {
             bottomSheet = NewGameBottomSheet(requireContext()) { size, youPlayBlack, handicap ->
                 internalActions.onNext(NewGame(size, youPlayBlack, handicap))

@@ -14,6 +14,7 @@ import io.zenandroid.onlinego.data.model.katago.Response
 import io.zenandroid.onlinego.data.model.katago.RootInfo
 import io.zenandroid.onlinego.gamelogic.Util
 import java.io.*
+import java.lang.RuntimeException
 import java.util.*
 import java.util.concurrent.atomic.AtomicLong
 
@@ -43,25 +44,29 @@ object KataGoAnalysisEngine {
                 "analysis",
                 "-model", netFile.absolutePath,
                 "-config", cfgFile.absolutePath)
-                .redirectErrorStream(true)
                 .apply { environment()["LD_LIBRARY_PATH"] = "." }
                 .directory(File(OnlineGoApplication.instance.applicationInfo.nativeLibraryDir))
                 .start()
                 .apply {
                     reader = BufferedReader(InputStreamReader(inputStream))
                     writer = OutputStreamWriter(outputStream)
+                    val errorReader = BufferedReader(InputStreamReader(errorStream))
+                    val errors = StringBuffer()
 
                     reader?.let {
                         while(true) {
-                            val line = it.readLine() ?: break
-                            Log.w("KataGoAnalysisEngine", line)
-                            if(line == "Started, ready to begin handling requests") {
+                            val line = errorReader.readLine() ?: break
+                            if(line.startsWith("KataGo v")) {
+                                continue
+                            } else if(line == "Started, ready to begin handling requests") {
                                 requestIDX = AtomicLong(0)
                                 started = true
                                 break
+                            } else {
+                                Log.e("KataGoAnalysisEngine", line)
+                                errors.appendln(line)
                             }
                         }
-
                     }
 
                     if(started) {
@@ -82,7 +87,8 @@ object KataGoAnalysisEngine {
                         }.start()
                     } else {
                         Log.e("KataGoAnalysisEngine", "Could not start KataGo")
-                        FirebaseCrashlytics.getInstance().recordException(Exception("Could not start KataGo"))
+                        FirebaseCrashlytics.getInstance().recordException(Exception("Could not start KataGo $errors"))
+                        throw RuntimeException("Could not start KataGo")
                     }
                 }
     }
@@ -151,6 +157,7 @@ object KataGoAnalysisEngine {
                     val stringQuery = queryAdapter.toJson(query)
 
                     Log.d("KataGoAnalysisEngine", stringQuery)
+                    FirebaseCrashlytics.getInstance().log("KATAGO> $stringQuery")
                     writer?.apply {
                         write(stringQuery)
                         write("\n")
@@ -162,7 +169,7 @@ object KataGoAnalysisEngine {
     private fun generateId() = requestIDX.incrementAndGet().toString()
 
     private const val KATAGO_NET_SIZE = 36948927L
-    private const val KATAGO_CFG_SIZE = 1020L
+    private const val KATAGO_CFG_SIZE = 543L
 
     private fun ensureResourcesAreUnpacked() {
         unpackResource("katago.net", netFile, KATAGO_NET_SIZE)

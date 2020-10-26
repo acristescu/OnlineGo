@@ -81,6 +81,22 @@
         android:paddingRight="0dp"
         />
 
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/ownershipButton"
+        android:layout_width="70dp"
+        android:layout_height="36dp"
+        android:text="Territory"
+        app:layout_constraintRight_toLeftOf="@id/hintButton"
+        app:layout_constraintTop_toBottomOf="@id/chatBubble"
+        style="@style/AIChatButton"
+        android:textColor="@color/colorTextSecondary"
+        android:textAllCaps="false"
+        android:textSize="10sp"
+        android:paddingLeft="0dp"
+        android:paddingRight="0dp"
+        android:layout_marginRight="8dp"
+        />
+
     <TextView
         android:id="@+id/nameLabelLeft"
         android:layout_width="wrap_content"

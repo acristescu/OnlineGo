@@ -129,6 +129,7 @@ private val viewModelsModule = module {
                                 UserMoveMiddleware(),
                                 StatePersistenceMiddleware(),
                                 HintMiddleware(),
+                                OwnershipMiddleware(),
                                 AnalyticsMiddleware()
                         ),
                         AiGameState()
