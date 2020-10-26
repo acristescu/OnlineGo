@@ -13,6 +13,26 @@ import java.util.*
 object Util {
 
     private val userSessionRepository: UserSessionRepository by get().inject()
+    private val coordinatesX = arrayOf("A","B","C","D","E","F","G","H","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z")
+    private val coordinatesY = (1..25).map(Int::toString)
+
+    fun getGTPCoordinates(p: Point, boardSize: Int): String {
+        if (p.x == -1) {
+            return "PASS"
+        }
+
+        return "${coordinatesX[p.x]}${coordinatesY[boardSize - p.y - 1]}"
+    }
+
+    fun getCoordinatesFromGTP(gtp: String, boardSize: Int): Point {
+        if(gtp.toUpperCase(Locale.ROOT) == "PASS") {
+            return Point(-1, -1)
+        }
+
+        val x = coordinatesX.indexOf(gtp.substring(0..0))
+        val y = boardSize - gtp.substring(1).toInt()
+        return Point(x, y)
+    }
 
     fun getSGFCoordinates(p: Point): String {
         if (p.x == -1) {

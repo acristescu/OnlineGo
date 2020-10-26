@@ -1,7 +1,7 @@
 package io.zenandroid.onlinego.data.repositories
 
 import android.util.Log
-import com.crashlytics.android.Crashlytics
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Observable
@@ -42,7 +42,7 @@ class ActiveGamesRepository(
 
     private fun onNotification(game: OGSGame) {
         if(gameDao.getGameMaybe(game.id).blockingGet() == null) {
-            Crashlytics.log(Log.VERBOSE, "ActiveGameRepository", "New game found from active_game notification ${game.id}")
+            FirebaseCrashlytics.getInstance().log("ActiveGameRepository: New game found from active_game notification ${game.id}")
             restService.fetchGame(game.id)
                     .subscribeOn(Schedulers.io())
                     .observeOn(Schedulers.single())
@@ -254,14 +254,14 @@ class ActiveGamesRepository(
             restService.fetchActiveGames()
                     .map { it.map (Game.Companion::fromOGSGame)}
                     .doOnSuccess(gameDao::insertAllGames)
-                    .doOnSuccess { Crashlytics.log("overview returned ${it.size} games") }
+                    .doOnSuccess { FirebaseCrashlytics.getInstance().log("overview returned ${it.size} games") }
                     .map { it.map(Game::id) }
                     .map { gameDao.getGamesThatShouldBeFinished(userSessionRepository.userId, it) }
-                    .doOnSuccess { Crashlytics.log("Found ${it.size} games that are neither active nor marked as finished") }
+                    .doOnSuccess { FirebaseCrashlytics.getInstance().log("Found ${it.size} games that are neither active nor marked as finished") }
                     .flattenAsObservable { it }
                     .flatMapSingle { restService.fetchGame(it) }
                     .map (Game.Companion::fromOGSGame)
-                    .doOnNext { if(it.phase != Phase.FINISHED) Crashlytics.logException(Exception("Game ${it.id} ${it.phase} was not returned by overview but is not yet finished")) }
+                    .doOnNext { if(it.phase != Phase.FINISHED) FirebaseCrashlytics.getInstance().recordException(Exception("Game ${it.id} ${it.phase} was not returned by overview but is not yet finished")) }
                     .toList()
                     .doOnSuccess(gameDao::updateGames)
                     .retryWhen (this::retryIOException)
@@ -277,10 +277,10 @@ class ActiveGamesRepository(
         if(t is retrofit2.HttpException) {
             message = "$request: ${t.response()?.errorBody()?.string()}"
             if(t.code() == 429) {
-                Crashlytics.setBool("HIT_RATE_LIMITER", true)
+                FirebaseCrashlytics.getInstance().setCustomKey("HIT_RATE_LIMITER", true)
             }
         }
-        Crashlytics.logException(Exception(message, t))
+        FirebaseCrashlytics.getInstance().recordException(Exception(message, t))
         Log.e("ActiveGameRespository", message, t)
     }
 }

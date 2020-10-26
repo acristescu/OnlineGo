@@ -1,7 +1,7 @@
 package io.zenandroid.onlinego.data.ogs
 
 import android.util.Log
-import com.crashlytics.android.Crashlytics
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types
@@ -97,7 +97,7 @@ class OGSWebSocketService(
         if(userSessionRepository.requiresUIConfigRefresh()) {
             restService.fetchUIConfig()
                     .subscribeOn(Schedulers.io())
-                    .subscribe({}, { Crashlytics.log(Log.ERROR, TAG, "Failed to refresh UIConfig $it") })
+                    .subscribe({}, { FirebaseCrashlytics.getInstance().log("E/$TAG: Failed to refresh UIConfig $it") })
         }
         socket.connect()
     }
@@ -240,7 +240,7 @@ class OGSWebSocketService(
                 if(params[0] != null) {
                     emitter.onNext(params[0])
                 } else {
-                    Crashlytics.logException(Exception("Unexpected null parameter for event $event"))
+                    FirebaseCrashlytics.getInstance().recordException(Exception("Unexpected null parameter for event $event"))
                     emitter.onNext("")
                 }
             }

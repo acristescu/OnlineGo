@@ -3,7 +3,7 @@ package io.zenandroid.onlinego.gamelogic
 import android.graphics.Point
 import android.util.Log
 import androidx.core.util.lruCache
-import com.crashlytics.android.Crashlytics
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.zenandroid.onlinego.data.model.Position
 import io.zenandroid.onlinego.data.model.StoneType
 import io.zenandroid.onlinego.data.model.local.Game
@@ -117,7 +117,7 @@ object RulesManager {
             val newPos = makeMove(pos, turn, Point(move[0], move[1]))
             if(newPos == null) {
                 Log.e(this.javaClass.simpleName, "Server returned an invalid move!!! gameId=${game.id} move=$index")
-                Crashlytics.log(Log.ERROR, this.javaClass.simpleName, "Server returned an invalid move!!! gameId=${game.id} move=$index")
+                FirebaseCrashlytics.getInstance().log("E/RulesManager: Server returned an invalid move!!! gameId=${game.id} move=$index")
                 return@forEachIndexed
             }
             pos = newPos
@@ -291,6 +291,8 @@ object RulesManager {
     fun makeMove(oldPos: Position, stone: StoneType, where: Point): Position? {
         val pos = oldPos.clone()
         pos.parentPosition = oldPos
+        pos.lastMove = where
+        pos.lastPlayerToMove = stone
         if (where.x == -1) {
             //
             // it's a pass
@@ -342,7 +344,6 @@ object RulesManager {
             }
         }
 
-        pos.lastMove = where
         return pos
     }
 
@@ -443,4 +444,64 @@ object RulesManager {
         }
     }
 
+    private val handicaps = hashMapOf(
+            19 to arrayOf(
+                    "", // handicap = 0, B goes first, komi
+                    "", // handicap = 1, B goes first, no komi
+                    "pddp", // handicap > 1, W goes first, B has extra stones, no komi
+                    "pppddp",
+                    "ddpppddp",
+                    "jjddpppddp",
+                    "djpjddpppddp",
+                    "djpjjjddpppddp",
+                    "jdjpdjpjddpppddp",
+                    "jdjpdjpjjjddpppddp"),
+            13 to arrayOf(
+                    "", // handicap = 0, B goes first, komi
+                    "", // handicap = 1, B goes first, no komi
+                    "jddj", // handicap > 1, W goes first, B has extra stones, no komi
+                    "jjjddj",
+                    "ddjjjddj",
+                    "ggddjjjddj",
+                    "dgjgddjjjddj",
+                    "dgjgggddjjjddj",
+                    "gdgjdgjgddjjjddj",
+                    "gdgjdgjgggddjjjddj"),
+            9 to arrayOf(
+                    "", // handicap = 0, B goes first, komi
+                    "", // handicap = 1, B goes first, komi = 3.5
+                    "gccg", // handicap > 1, W goes first, B has extra stones, komi = 3.5
+                    "gggccg",
+                    "ccgggccg",
+                    "eeccgggccg",
+                    "cegeccgggccg",
+                    "cegeeeccgggccg",
+                    "ecegcegeccgggccg",
+                    "ecegcegeeeccgggccg"
+            )
+    )
+
+
+    fun initializePosition(boardSize: Int, handicap: Int = 0): Position {
+        return Position(boardSize).apply {
+            if(handicap > 1) {
+                nextToMove = StoneType.WHITE
+                val handicapStones = handicaps[boardSize]?.get(handicap) ?:
+                    throw Exception("Handicap on custom board size not supported")
+                for (i in handicapStones.indices step 2) {
+                    val coords = Util.getCoordinatesFromSGF(handicapStones, i)
+                    putStone(coords.x, coords.y, StoneType.BLACK)
+                }
+            }
+            komi = determineKomi(boardSize, handicap)
+        }
+    }
+
+    fun determineKomi(boardSize: Int, handicap: Int = 0): Float {
+        return if(boardSize == 9) {
+            if(handicap == 0) 5.5f else 3.5f
+        } else {
+            if(handicap == 0) 6.5f else 0.5f
+        }
+    }
 }

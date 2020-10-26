@@ -1,7 +1,7 @@
 package io.zenandroid.onlinego.data.repositories
 
 import android.util.Log
-import com.crashlytics.android.Crashlytics
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.BehaviorSubject
@@ -54,7 +54,7 @@ class AutomatchRepository(
 
     private fun onError(t: Throwable) {
         Log.e("AutomatchRepository", t.message, t)
-        Crashlytics.logException(t)
+        FirebaseCrashlytics.getInstance().recordException(t)
     }
 
     private fun removeAutomatch(automatch: OGSAutomatch) {

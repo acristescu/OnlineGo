@@ -19,9 +19,11 @@ object WhatsNewUtils {
 private const val currentText = """
 ## What's new
 
-## Fixed bugs
+## New Feature
 
-- "What's new" dialog should no longer appear once dismissed (not until a new release/announcement)
+You can now play GO offline against the KataGO AI. This is still experimental and I've only really tested it on a Samsung Galaxy S9+. Please raise an issue including the phone's model [here](https://github.com/acristescu/OnlineGo/issues) if it does not work for you.
+
+The bot should play at around 3-4 dan, so most people would require a handicap for an enjoyable game. In the future we're hoping to implement a way to "dumb down" the bot in the style of the Katrain app.
 
 ## About project
 

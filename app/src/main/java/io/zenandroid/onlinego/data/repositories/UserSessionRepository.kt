@@ -1,6 +1,6 @@
 package io.zenandroid.onlinego.data.repositories
 
-import com.crashlytics.android.Crashlytics
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.franmontiel.persistentcookiejar.PersistentCookieJar
 import com.franmontiel.persistentcookiejar.cache.SetCookieCache
 import com.franmontiel.persistentcookiejar.persistence.SharedPrefsCookiePersistor
@@ -27,13 +27,13 @@ class UserSessionRepository {
 
     init {
         uiConfig = PersistenceManager.getUIConfig()
-        userId?.toString()?.let(Crashlytics::setUserIdentifier)
+        userId?.toString()?.let(FirebaseCrashlytics.getInstance()::setUserId)
     }
 
     fun storeUIConfig(uiConfig: UIConfig) {
         this.uiConfig = uiConfig
         socketService.authSent = false
-        Crashlytics.setUserIdentifier(uiConfig.user.id.toString())
+        FirebaseCrashlytics.getInstance().setUserId(uiConfig.user.id.toString())
         PersistenceManager.storeUIConfig(uiConfig)
     }
 

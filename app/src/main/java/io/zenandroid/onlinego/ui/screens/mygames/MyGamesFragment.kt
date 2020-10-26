@@ -61,6 +61,10 @@ class MyGamesFragment : Fragment(R.layout.fragment_mygames), MyGamesContract.Vie
                     analytics.logEvent("friend_item_clicked", null)
                     (activity as MainActivity).onCustomGameSearch()
                 }
+                is NewGameItem.LocalAI -> {
+                    analytics.logEvent("localai_item_clicked", null)
+                    (activity as MainActivity).onLocalAIClicked()
+                }
             }
         }
         groupAdapter.olderGamesAdapter.setOnItemClickListener { item, _ ->

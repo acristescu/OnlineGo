@@ -10,12 +10,12 @@ import kotlinx.android.synthetic.main.item_new_game.*
 
 sealed class NewGameItem(
         var text: String,
-        @DrawableRes val icon: Int? = null,
-        val onClick: (() -> Unit)? = null
+        @DrawableRes val icon: Int? = null
 ) : Item(text.hashCode().toLong()) {
 
     object AutoMatch : NewGameItem("Auto-match", R.drawable.ic_person_filled)
     object Custom : NewGameItem("Custom", R.drawable.ic_challenge)
+    object LocalAI : NewGameItem("Offline AI", R.drawable.ic_robot)
 
     override fun bind(viewHolder: GroupieViewHolder, position: Int) {
         viewHolder.text.text = text
