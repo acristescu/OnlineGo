@@ -17,6 +17,7 @@ package io.zenandroid.onlinego
  */
 
 
+import android.util.Log
 import androidx.test.espresso.IdlingResource
 import io.zenandroid.onlinego.utils.CountingIdlingResource
 
@@ -56,7 +57,8 @@ class EspressoIdlingResource : CountingIdlingResource, IdlingResource {
      * Increments the count of in-flight transactions to the resource being monitored.
      */
     override fun increment() {
-        counter.getAndIncrement()
+        val value = counter.getAndIncrement()
+        Log.d("EspressoIdlingResource", "incrementing to $value")
     }
 
     /**
@@ -68,6 +70,7 @@ class EspressoIdlingResource : CountingIdlingResource, IdlingResource {
      */
     override fun decrement() {
         val counterVal = counter.decrementAndGet()
+        Log.d("EspressoIdlingResource", "decrementing to $counterVal")
         if (counterVal == 0) {
             // we've gone from non-zero to zero. That means we're idle now! Tell espresso.
             resourceCallback?.onTransitionToIdle()
