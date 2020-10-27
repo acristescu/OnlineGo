@@ -19,6 +19,11 @@ object WhatsNewUtils {
 private const val currentText = """
 ## What's new
 
+## Fix
+
+This is a hotfix for the KataGO not starting up on some phones with a file not found error.
+Sorry for the double release.
+
 ## New Feature
 
 You can now play GO offline against the KataGO AI. This is still experimental and I've only really tested it on a Samsung Galaxy S9+. Please raise an issue including the phone's model [here](https://github.com/acristescu/OnlineGo/issues) if it does not work for you.

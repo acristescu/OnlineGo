@@ -40,7 +40,7 @@ object KataGoAnalysisEngine {
         }
         ensureResourcesAreUnpacked()
         process = ProcessBuilder(
-                "./katago.so",
+                "./libkatago.so",
                 "analysis",
                 "-model", netFile.absolutePath,
                 "-config", cfgFile.absolutePath)

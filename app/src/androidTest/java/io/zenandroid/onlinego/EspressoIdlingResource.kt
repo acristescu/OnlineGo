@@ -57,7 +57,7 @@ class EspressoIdlingResource : CountingIdlingResource, IdlingResource {
      * Increments the count of in-flight transactions to the resource being monitored.
      */
     override fun increment() {
-        val value = counter.getAndIncrement()
+        val value = counter.getAndIncrement() + 1
         Log.d("EspressoIdlingResource", "incrementing to $value")
     }
 
