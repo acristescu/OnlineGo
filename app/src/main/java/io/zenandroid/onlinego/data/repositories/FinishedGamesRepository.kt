@@ -1,7 +1,7 @@
 package io.zenandroid.onlinego.data.repositories
 
 import android.util.Log
-import com.crashlytics.android.Crashlytics
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.reactivex.Flowable
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
@@ -61,10 +61,10 @@ class FinishedGamesRepository(
         if(t is retrofit2.HttpException) {
             message = "$request: ${t.response()?.errorBody()?.string()}"
             if(t.code() == 429) {
-                Crashlytics.setBool("HIT_RATE_LIMITER", true)
+                FirebaseCrashlytics.getInstance().setCustomKey("HIT_RATE_LIMITER", true)
             }
         }
-        Crashlytics.logException(Exception(message, t))
+        FirebaseCrashlytics.getInstance().recordException(Exception(message, t))
         Log.e("FinishedGameRepository", message, t)
     }
 

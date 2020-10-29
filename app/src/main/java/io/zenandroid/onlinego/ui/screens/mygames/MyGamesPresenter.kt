@@ -2,7 +2,7 @@ package io.zenandroid.onlinego.ui.screens.mygames
 
 import android.os.Bundle
 import android.util.Log
-import com.crashlytics.android.Crashlytics
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.firebase.analytics.FirebaseAnalytics
 import io.reactivex.Maybe
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -159,11 +159,11 @@ class MyGamesPresenter(
     private fun onError(t: Throwable) {
         if(t is retrofit2.HttpException) {
             if(t.code() in arrayOf(401, 403)) {
-                Crashlytics.setLong("AUTO_LOGOUT", System.currentTimeMillis())
+                FirebaseCrashlytics.getInstance().setCustomKey("AUTO_LOGOUT", System.currentTimeMillis())
                 userSessionRepository.logOut()
                 view.showLoginScreen()
             } else {
-                Crashlytics.logException(Exception(t.response()?.errorBody()?.string(), t))
+                FirebaseCrashlytics.getInstance().recordException(Exception(t.response()?.errorBody()?.string(), t))
             }
         } else {
             if(t is com.squareup.moshi.JsonDataException) {
@@ -172,7 +172,7 @@ class MyGamesPresenter(
                         "An error occurred white talking to the OGS Server. This usually means the website devs have changed something in the API. Please report this error as the app will probably not work until we adapt to this change."
                 )
             }
-            Crashlytics.logException(t)
+            FirebaseCrashlytics.getInstance().recordException(t)
         }
 
         Log.e(TAG, t.message, t)
@@ -228,7 +228,7 @@ class MyGamesPresenter(
             else
                 view.showMessage("Opponent rejected challenge", "You may try again or otherwise contact the opponent to clarify his/her reasons for the rejection. $message")
             analytics.logEvent("bot_refused_challenge", null)
-            Crashlytics.log("Bot refused challenge. $message")
+            FirebaseCrashlytics.getInstance().log("Bot refused challenge. $message")
         }
     }
 

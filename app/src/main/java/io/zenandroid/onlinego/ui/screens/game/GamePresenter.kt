@@ -2,7 +2,7 @@ package io.zenandroid.onlinego.ui.screens.game
 
 import android.graphics.Point
 import android.util.Log
-import com.crashlytics.android.Crashlytics
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.firebase.analytics.FirebaseAnalytics
 import io.reactivex.Completable
 import io.reactivex.Observable
@@ -901,7 +901,7 @@ class GamePresenter(
     private fun rescheduleTimerTick(newTimerTick: Long?) {
         timerDisposable?.dispose()
         newTimerTick?.let {
-            Crashlytics.log(Log.DEBUG, "GamePresenter", "Scheduling timer with interval $newTimerTick milliseconds")
+            FirebaseCrashlytics.getInstance().log("GamePresenter: Scheduling timer with interval $newTimerTick milliseconds")
             timerDisposable = Observable.interval(it, TimeUnit.MILLISECONDS)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe { clockTick(game) }

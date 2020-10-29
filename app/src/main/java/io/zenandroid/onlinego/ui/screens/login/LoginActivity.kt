@@ -17,7 +17,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.Toast
-import com.crashlytics.android.Crashlytics
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.firebase.analytics.FirebaseAnalytics
 import io.reactivex.Completable
 import io.reactivex.Single
@@ -85,11 +85,11 @@ class LoginActivity : AppCompatActivity() {
                     .subscribe(this::onLoginSuccess, this::onTokenLoginFailure)
         }
         facebookSignInButton.setOnClickListener {
-            Crashlytics.setString("LOGIN_METHOD", "FACEBOOK")
+            FirebaseCrashlytics.getInstance().setCustomKey("LOGIN_METHOD", "FACEBOOK")
             socialPlatformLogin("https://online-go.com/login/facebook/")
         }
         googleSignInButton.setOnClickListener {
-            Crashlytics.setString("LOGIN_METHOD", "GOOGLE")
+            FirebaseCrashlytics.getInstance().setCustomKey("LOGIN_METHOD", "GOOGLE")
             socialPlatformLogin("https://online-go.com/login/google-oauth2/")
         }
     }
@@ -105,7 +105,7 @@ class LoginActivity : AppCompatActivity() {
                 .subscribe ({ response ->
                     startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(response.header("Location"))))
                 } , {
-                    Crashlytics.logException(it)
+                    FirebaseCrashlytics.getInstance().recordException(it)
                     Toast.makeText(this, it.message, Toast.LENGTH_LONG).show()
                 }).addToDisposable(subscriptions)
     }
@@ -136,7 +136,7 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun onLoginSuccess() {
-        Crashlytics.setString("LOGIN_METHOD", "PASSWORD")
+        FirebaseCrashlytics.getInstance().setCustomKey("LOGIN_METHOD", "PASSWORD")
         if(loginButton.visibility == View.VISIBLE) {
             val drawable = ContextCompat.getDrawable (this, R.drawable.ic_done_24dp)
 
@@ -214,7 +214,7 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun onCreateAccountSuccess() {
-        Crashlytics.setBool("NEW_ACCOUNT", true)
+        FirebaseCrashlytics.getInstance().setCustomKey("NEW_ACCOUNT", true)
         analytics.logEvent(FirebaseAnalytics.Event.SIGN_UP, null)
         doLogin()
     }

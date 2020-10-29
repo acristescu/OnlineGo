@@ -1,7 +1,7 @@
 package io.zenandroid.onlinego.mvi
 
 import android.util.Log
-import com.crashlytics.android.Crashlytics
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.jakewharton.rxrelay2.BehaviorRelay
 import com.jakewharton.rxrelay2.PublishRelay
 import io.reactivex.Observable
@@ -50,6 +50,6 @@ class Store<S: Any, A: Any> (
 
     private fun onError(throwable: Throwable) {
         Log.e("Store", throwable.message, throwable)
-        Crashlytics.logException(throwable)
+        FirebaseCrashlytics.getInstance().recordException(throwable)
     }
 }

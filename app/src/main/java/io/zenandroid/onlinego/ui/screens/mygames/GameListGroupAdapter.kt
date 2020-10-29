@@ -63,6 +63,7 @@ class GameListGroupAdapter(
         val newGameAdapter = GroupAdapter<GroupieViewHolder>().apply {
             add(NewGameItem.AutoMatch)
             add(NewGameItem.Custom)
+            add(NewGameItem.LocalAI)
             setOnItemClickListener { item, view ->
                 onItemClickListener?.onItemClick(item, view)
             }

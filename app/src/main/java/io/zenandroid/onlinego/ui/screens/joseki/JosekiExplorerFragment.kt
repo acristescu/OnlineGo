@@ -8,7 +8,7 @@ import android.provider.Browser
 import android.util.Log
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
-import com.crashlytics.android.Crashlytics
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.jakewharton.rxbinding2.view.RxView
 import io.noties.markwon.AbstractMarkwonPlugin
 import io.noties.markwon.Markwon
@@ -80,7 +80,7 @@ class JosekiExplorerFragment : Fragment(R.layout.fragment_joseki), MviView<Josek
         state.error?.let {
             description.text = it.message
             Log.e(TAG, it.message, it)
-            Crashlytics.logException(it)
+            FirebaseCrashlytics.getInstance().recordException(it)
         }
         previousButton.isEnabled = state.previousButtonEnabled
         passButton.isEnabled = state.passButtonEnabled
@@ -154,7 +154,7 @@ class JosekiExplorerFragment : Fragment(R.layout.fragment_joseki), MviView<Josek
                                 val posId = link.substring(9).toLongOrNull()
                                 if (posId == null) {
                                     Log.e(TAG, "Can't resolve link $link")
-                                    Crashlytics.log(Log.ERROR, TAG, "Can't resolve link $link for in the description of joseki pos ${currentState?.position?.node_id}")
+                                    FirebaseCrashlytics.getInstance().log("E/$TAG: Can't resolve link $link for in the description of joseki pos ${currentState?.position?.node_id}")
                                 } else {
                                     internalActions.onNext(LoadPosition(posId))
                                 }
@@ -172,7 +172,7 @@ class JosekiExplorerFragment : Fragment(R.layout.fragment_joseki), MviView<Josek
                                         context.startActivity(intent)
                                     } catch (e: ActivityNotFoundException) {
                                         Log.e(TAG, "Can't resolve link $link")
-                                        Crashlytics.log(Log.ERROR, TAG, "Can't resolve link $link for in the description of joseki pos ${currentState?.position?.node_id}")
+                                        FirebaseCrashlytics.getInstance().log("E/$TAG: Can't resolve link $link for in the description of joseki pos ${currentState?.position?.node_id}")
                                     }
                                 }
                             }

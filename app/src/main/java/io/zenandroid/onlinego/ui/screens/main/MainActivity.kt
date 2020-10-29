@@ -40,6 +40,7 @@ import io.zenandroid.onlinego.gamelogic.Util
 import io.zenandroid.onlinego.ui.screens.stats.StatsFragment
 import io.zenandroid.onlinego.ui.items.statuschips.Chip
 import io.zenandroid.onlinego.ui.items.statuschips.ChipAdapter
+import io.zenandroid.onlinego.ui.screens.localai.AiGameFragment
 import io.zenandroid.onlinego.ui.views.BoardView
 import io.zenandroid.onlinego.utils.*
 import kotlinx.android.synthetic.main.activity_main.*
@@ -318,9 +319,13 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         val fragment = supportFragmentManager.findFragmentById(R.id.fragment_container)
         when {
             fragment is JosekiExplorerFragment && fragment.canHandleBack() -> fragment.onBackPressed()
+
             fragment is GameFragment ||
                     fragment is JosekiExplorerFragment ||
-                    fragment is StatsFragment -> selectItem(lastSelectedItem)
+                    fragment is AiGameFragment ||
+                    fragment is StatsFragment
+            -> selectItem(lastSelectedItem)
+
             newChallengeView.subMenuVisible -> newChallengeView.toggleSubMenu()
             else -> super.onBackPressed()
         }
@@ -366,6 +371,16 @@ class MainActivity : AppCompatActivity(), MainContract.View {
                 .setCustomAnimations(R.anim.fade_in, R.anim.fade_out,
                         R.anim.fade_in, R.anim.fade_out)
                 .replace(R.id.fragment_container, JosekiExplorerFragment(), "game")
+                .commitAllowingStateLoss()
+    }
+
+    fun onLocalAIClicked() {
+        bottomNavigation.visibility = View.GONE
+        newChallengeView.fadeOut().subscribe()
+        supportFragmentManager.beginTransaction()
+                .setCustomAnimations(R.anim.fade_in, R.anim.fade_out,
+                        R.anim.fade_in, R.anim.fade_out)
+                .replace(R.id.fragment_container, AiGameFragment(), "localai")
                 .commitAllowingStateLoss()
     }
 }

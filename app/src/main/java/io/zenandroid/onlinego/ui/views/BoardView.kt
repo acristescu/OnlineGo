@@ -10,6 +10,7 @@ import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.graphics.ColorUtils
 import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
 import io.zenandroid.onlinego.R
@@ -17,8 +18,11 @@ import io.zenandroid.onlinego.data.model.Position
 import io.zenandroid.onlinego.data.model.StoneType
 import io.zenandroid.onlinego.data.model.ogs.PlayCategory
 import io.zenandroid.onlinego.data.repositories.SettingsRepository
+import io.zenandroid.onlinego.gamelogic.Util
 import org.koin.core.context.KoinContextHandler
+import java.lang.Integer.min
 import java.util.*
+import kotlin.math.abs
 import kotlin.math.roundToInt
 
 
@@ -39,41 +43,69 @@ class BoardView : View {
         }
 
     var position: Position? = null
-        set(position) {
-            field = position
-            invalidate()
+        set(value) {
+            if(field != value) {
+                invalidate()
+            }
+            field = value
         }
     var isInteractive = false
     var drawLastMove = true
         set(value) {
+            if(field != value) {
+                invalidate()
+            }
             field = value
-            invalidate()
         }
     var drawTerritory = false
         set(value) {
+            if(field != value) {
+                invalidate()
+            }
             field = value
-            invalidate()
         }
     var drawCoordinates = false
         set(value) {
-            field = value
-            computeDimensions(width)
-            invalidate()
+            if(field != value) {
+                field = value
+                computeDimensions(width)
+                invalidate()
+            }
         }
     var drawMarks = false
         set(value) {
+            if(field != value) {
+                invalidate()
+            }
             field = value
-            invalidate()
         }
     var fadeOutRemovedStones = false
         set(value) {
+            if(field != value) {
+                invalidate()
+            }
             field = value
-            invalidate()
         }
     var drawShadow = true
         set(value) {
+            if(field != value) {
+                invalidate()
+            }
             field = value
-            invalidate()
+        }
+    var drawAiEstimatedOwnership = false
+        set(value) {
+            if(field != value) {
+                invalidate()
+            }
+            field = value
+        }
+    var drawHints = false
+        set(value) {
+            if(field != value) {
+                invalidate()
+            }
+            field = value
         }
 
     private val coordinatesX = arrayOf("A","B","C","D","E","F","G","H","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z")
@@ -215,6 +247,8 @@ class BoardView : View {
             drawStones(canvas, it)
             drawDecorations(canvas, it)
             drawTerritory(canvas, it)
+            drawAiEstimatedOwnership(canvas, it)
+            drawHints(canvas, it)
         }
         candidateMove?.let {
             drawSelection(canvas, it)
@@ -269,6 +303,61 @@ class BoardView : View {
                         center.y + (cellSize / 8).toFloat(),
                         territoryPaint)
 
+            }
+        }
+    }
+
+    private fun drawAiEstimatedOwnership(canvas: Canvas, position: Position) {
+        val ownershipMatrix =
+                position.aiAnalysisResult?.ownership ?:
+                position.aiQuickEstimation?.ownership
+
+        if(drawAiEstimatedOwnership && ownershipMatrix?.isNotEmpty() == true) {
+            val radius = cellSize / 4f
+            for (i in 0 until boardSize) {
+                for(j in 0 until boardSize) {
+                    val ownership = ownershipMatrix[i*boardSize + j] // a float between -1 and 1, -1 is 100% solid black territory, 1 is 100% solid white territory
+                    val alpha = (255 * abs(ownership)).toInt()
+
+                    //
+                    // Note: Dark grey instead of pure black as the black is perceived
+                    // much stronger than the white on the light background giving the
+                    // impression that black is always winning.
+                    //
+                    val colorWithoutAlpha = if(ownership > 0) Color.WHITE else Color.DKGRAY
+                    val color = ColorUtils.setAlphaComponent(colorWithoutAlpha, alpha)
+                    val center = getCellCenter(j, i)
+                    if(
+                            !(position.getStoneAt(j, i) == StoneType.WHITE && ownership > 0) &&
+                            !(position.getStoneAt(j, i) == StoneType.BLACK && ownership < 0)
+                    ) {
+                        territoryPaint.color = color
+                        canvas.drawCircle(center.x, center.y, radius, territoryPaint)
+                    }
+                }
+            }
+        }
+
+    }
+
+    private fun drawHints(canvas: Canvas, position: Position) {
+        val hints = position.aiAnalysisResult?.moveInfos
+        if(drawHints && hints != null) {
+            for((index, hint) in hints.take(5).withIndex()) {
+                val coords = Util.getCoordinatesFromGTP(hint.move, position.boardSize)
+                val center = getCellCenter(coords.x, coords.y)
+                val drawable = if (position.nextToMove == StoneType.BLACK) blackStoneDrawable else whiteStoneDrawable
+                drawable.alpha = 100
+                drawable.setBounds(
+                        (center.x - cellSize / 2f + stoneSpacing).toInt(),
+                        (center.y - cellSize / 2f + stoneSpacing).toInt(),
+                        (center.x + cellSize / 2f - stoneSpacing).toInt(),
+                        (center.y + cellSize / 2f - stoneSpacing).toInt()
+                )
+                drawable.draw(canvas)
+
+                textPaint.color = if (position.nextToMove == StoneType.WHITE) Color.BLACK else Color.WHITE
+                drawTextCentred(canvas, textPaint, (index + 1).toString(), center.x, center.y)
             }
         }
     }
@@ -371,7 +460,6 @@ class BoardView : View {
             val type = position.getStoneAt(p.x, p.y)
 
             val center = getCellCenter(p.x, p.y)
-            //canvas.drawCircle(center.x, center.y, cellSize / 2f - stoneSpacing, territoryPaint);
             val isFadedOut = fadeOutRemovedStones && position.removedSpots.contains(p)
             if (drawShadow && !isFadedOut) {
                 shadowDrawable.setBounds(
@@ -405,12 +493,13 @@ class BoardView : View {
         if(drawLastMove) {
             decorationsPaint.style = Paint.Style.STROKE
             position.lastMove?.let {
+                if(it.x != -1) {
+                    val type = position.lastPlayerToMove
+                    val center = getCellCenter(it.x, it.y)
 
-                val type = position.lastPlayerToMove
-                val center = getCellCenter(it.x, it.y)
-
-                decorationsPaint.color = if (type == StoneType.WHITE) Color.BLACK else Color.WHITE
-                canvas.drawCircle(center.x, center.y, cellSize / 4f, decorationsPaint)
+                    decorationsPaint.color = if (type == StoneType.WHITE) Color.BLACK else Color.WHITE
+                    canvas.drawCircle(center.x, center.y, cellSize / 4f, decorationsPaint)
+                }
             }
         }
 
