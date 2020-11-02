@@ -87,5 +87,5 @@ interface OGSRestAPI {
     fun getPlayerProfile(@Path("player_id") playerId: Long): Single<OGSPlayer>
 
     @GET("termination-api/player/{player_id}/glicko2-history?speed=overall&size=0")
-    fun getPlayerStats(@Path("player_id") playerId: Long): Single<String>
+    fun getPlayerStats(@Path("player_id") playerId: Long): Single<Glicko2History>
 }

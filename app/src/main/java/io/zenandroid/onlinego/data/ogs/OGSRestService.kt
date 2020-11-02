@@ -175,6 +175,7 @@ class OGSRestService(
     fun getPlayerProfile(id: Long): Single<OGSPlayer> =
             restApi.getPlayerProfile(id)
 
-    fun getPlayerStats(id: Long): Single<String> =
-            restApi.getPlayerStats(id)
+    fun getPlayerStats(id: Long): Single<Glicko2History> {
+        return restApi.getPlayerStats(id)
+    }
 }
