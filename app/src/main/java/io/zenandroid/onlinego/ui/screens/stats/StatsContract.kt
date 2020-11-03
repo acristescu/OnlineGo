@@ -9,6 +9,8 @@ import io.zenandroid.onlinego.data.model.ogs.OGSPlayer
  */
 interface StatsContract {
     interface View {
+        var title: String?
+
         fun fillPlayerDetails(playerDetails: OGSPlayer)
         fun mostFacedOpponent(playerDetails: OGSPlayer, total: Int, won: Int)
         fun fillHighestWin(playerDetails: OGSPlayer, winningGame: Glicko2HistoryItem)

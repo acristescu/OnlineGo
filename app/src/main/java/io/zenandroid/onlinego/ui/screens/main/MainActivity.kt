@@ -313,21 +313,25 @@ class MainActivity : AppCompatActivity(), MainContract.View {
     }
 
     override fun navigateToGameScreen(game: Game) {
-        locationsStack.push(currentItem)
+        currentItem?.let (locationsStack::push)
         currentItem = null
         bottomNavigation.visibility = View.GONE
         newChallengeView.fadeOut().subscribe()
         supportFragmentManager.beginTransaction()
                 .setCustomAnimations(R.anim.fade_in, R.anim.fade_out,
                         R.anim.fade_in, R.anim.fade_out)
+                .addToBackStack(null)
                 .replace(R.id.fragment_container, GameFragment.createFragment(game), "game")
                 .commitAllowingStateLoss()
     }
 
     override fun navigateToStatsScreen(id: Long) {
+        currentItem?.let(locationsStack::push)
+        currentItem = null
         supportFragmentManager.beginTransaction()
                 .setCustomAnimations(R.anim.fade_in, R.anim.fade_out,
                         R.anim.fade_in, R.anim.fade_out)
+                .addToBackStack(null)
                 .replace(R.id.fragment_container, StatsFragment.createFragment(id))
                 .commitAllowingStateLoss()
     }
@@ -341,6 +345,7 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         when {
             fragment is JosekiExplorerFragment && fragment.canHandleBack() -> fragment.onBackPressed()
             newChallengeView.subMenuVisible -> newChallengeView.toggleSubMenu()
+            fragment is StatsFragment && currentItem == null -> supportFragmentManager.popBackStackImmediate()
 
             fragment is MyGamesFragment || locationsStack.empty() -> super.onBackPressed()
 
@@ -382,7 +387,7 @@ class MainActivity : AppCompatActivity(), MainContract.View {
     }
 
     fun navigateToJosekiExplorer() {
-        locationsStack.push(currentItem)
+        currentItem?.let (locationsStack::push)
         currentItem = null
         bottomNavigation.visibility = View.GONE
         newChallengeView.fadeOut().subscribe()
@@ -394,7 +399,7 @@ class MainActivity : AppCompatActivity(), MainContract.View {
     }
 
     fun onLocalAIClicked() {
-        locationsStack.push(currentItem)
+        currentItem?.let (locationsStack::push)
         currentItem = null
         bottomNavigation.visibility = View.GONE
         newChallengeView.fadeOut().subscribe()

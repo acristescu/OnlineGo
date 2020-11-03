@@ -25,13 +25,13 @@ import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.ogs.Glicko2HistoryItem
 import io.zenandroid.onlinego.data.model.ogs.OGSPlayer
-import io.zenandroid.onlinego.gamelogic.Util
+import io.zenandroid.onlinego.ui.screens.main.MainActivity
 import io.zenandroid.onlinego.utils.convertCountryCodeToEmojiFlag
 import io.zenandroid.onlinego.utils.egfToRank
 import io.zenandroid.onlinego.utils.formatRank
 import io.zenandroid.onlinego.utils.processGravatarURL
+import kotlinx.android.synthetic.main.fragment_stats.*
 import kotlinx.android.synthetic.main.view_player_profile.*
-import kotlinx.android.synthetic.main.view_stats.*
 import org.koin.android.ext.android.get
 import java.text.SimpleDateFormat
 import java.util.*
@@ -39,7 +39,7 @@ import java.util.*
 private const val PLAYER_ID = "PLAYER_ID"
 
 @SuppressLint("SetTextI18n")
-class StatsFragment : Fragment(R.layout.view_stats), StatsContract.View {
+class StatsFragment : Fragment(R.layout.fragment_stats), StatsContract.View {
 
     companion object {
         fun createFragment(id: Long): StatsFragment = StatsFragment().apply {
@@ -50,6 +50,11 @@ class StatsFragment : Fragment(R.layout.view_stats), StatsContract.View {
 
     private lateinit var presenter: StatsContract.Presenter
     private var analytics = OnlineGoApplication.instance.analytics
+    override var title: String? = null
+        set(value) {
+            (requireActivity() as MainActivity).mainTitle = value
+            field = value
+        }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
