@@ -133,9 +133,10 @@ class StatsFragment : Fragment(R.layout.fragment_stats), StatsContract.View {
             val rankDataSet = LineDataSet(entries, "Games").apply {
                 setDrawCircles(false)
                 setDrawValues(false)
-                lineWidth = 1.5f
+                lineWidth = 1f
                 color = ResourcesCompat.getColor(resources, R.color.rankGraphLine, context?.theme)
                 mode = LineDataSet.Mode.HORIZONTAL_BEZIER
+                setDrawFilled(true)
             }
             rankGraph.data = LineData(rankDataSet)
         }
@@ -163,6 +164,7 @@ class StatsFragment : Fragment(R.layout.fragment_stats), StatsContract.View {
             legend.isEnabled = false
             isDoubleTapToZoomEnabled = false
 
+            animateY(250)
             invalidate()
         }
     }
@@ -214,6 +216,8 @@ class StatsFragment : Fragment(R.layout.fragment_stats), StatsContract.View {
             setNoDataText("No ranked games on record")
             setNoDataTextColor(ResourcesCompat.getColor(resources, R.color.colorActionableText, context?.theme))
 
+            animateX(250)
+
             chart.invalidate()
         }
     }
@@ -246,16 +250,16 @@ class DayAxisValueFormatter (private val chart: BarLineChartBase<*>) : ValueForm
     private val monthFormatter = SimpleDateFormat("MMM''yy", Locale.US)
     private val dayFormatter = SimpleDateFormat("dd MMM", Locale.US)
 
-    override fun getFormattedValue(hoursSinceEpoch: Float): String? {
+    override fun getFormattedValue(secondsSinceEpoch: Float): String? {
         return when {
-            chart.visibleXRange > 51840 -> { // 6 years
-                yearFormatter.format(Date(hoursSinceEpoch.toLong() *60*60*1000)).toString()
+            chart.visibleXRange > 189_216_000 -> { // 6 years
+                yearFormatter.format(Date(secondsSinceEpoch.toLong() *1000)).toString()
             }
-            chart.visibleXRange > 4320 -> { // 6 months
-                monthFormatter.format(Date(hoursSinceEpoch.toLong() *60*60*1000)).toString()
+            chart.visibleXRange > 15_780_000 -> { // 6 months
+                monthFormatter.format(Date(secondsSinceEpoch.toLong() *1000)).toString()
             }
             else -> {
-                dayFormatter.format(Date(hoursSinceEpoch.toLong() *60*60*1000)).toString()
+                dayFormatter.format(Date(secondsSinceEpoch.toLong() *1000)).toString()
             }
         }
     }

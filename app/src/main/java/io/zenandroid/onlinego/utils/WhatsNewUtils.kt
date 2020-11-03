@@ -23,12 +23,8 @@ private const val currentText = """
 Thanks to popz73 for the contribution!
 In addition to your personal record, you can check the stats of your opponents by tapping their name/profile picture on the game screen.
 
-## Fix
 
-This is a hotfix for the KataGO not starting up on some phones with a file not found error.
-Sorry for the double release.
-
-## New Feature
+## Previous version
 
 You can now play GO offline against the KataGO AI. This is still experimental and I've only really tested it on a Samsung Galaxy S9+. Please raise an issue including the phone's model [here](https://github.com/acristescu/OnlineGo/issues) if it does not work for you.
 

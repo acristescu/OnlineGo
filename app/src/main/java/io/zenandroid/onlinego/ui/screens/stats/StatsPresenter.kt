@@ -12,6 +12,7 @@ import io.zenandroid.onlinego.data.model.ogs.Glicko2HistoryItem
 import io.zenandroid.onlinego.data.model.ogs.OGSPlayer
 import io.zenandroid.onlinego.data.ogs.OGSRestService
 import io.zenandroid.onlinego.utils.addToDisposable
+import kotlin.math.roundToLong
 
 /**
  * Created by alex on 05/11/2017.
@@ -51,17 +52,17 @@ class StatsPresenter(
             view.fillHighestRank(it.rating, it.ended)
         }
 
-        var lastAddedTimestamp = 0L
-        val entries = history.history
-                .filterIndexed { index, item ->
-                    val take = (index == 0) || lastAddedTimestamp > item.ended + 60*60*24
-                    if(take) {
-                        lastAddedTimestamp = item.ended
-                    }
-                    take
+        val groupCount = 150
+        val newest = history.history.first().ended
+        val oldest = history.history.last().ended
+        val groupWidth = ( oldest - newest ) / groupCount.toFloat()
+        val groups = history.history.groupBy { ((it.ended - oldest) / groupWidth).toInt() }
+                .map { (_, group) ->
+                    val avgDate = group.sumByDouble { it.ended.toDouble() } / group.size
+                    val avgRating = group.sumByDouble { it.rating.toDouble() } / group.size
+                    Entry(avgDate.toFloat(), avgRating.toFloat())
                 }
-                .map { Entry(it.ended / 60 / 60f, it.rating) }
-        view.fillRankGraph(entries)
+        view.fillRankGraph(groups)
 
         val wonCount = history.history.count { it.won }
         val lostCount = history.history.size - wonCount
