@@ -1,12 +1,245 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
-    android:layout_height="match_parent">
-<TextView
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:text="Not implemented yet"
-    android:fontFamily="@font/ubuntu_bold"
-    android:textColor="@color/colorText"
-    />
-</androidx.constraintlayout.widget.ConstraintLayout>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorTextBackground"
+    android:fillViewport="true"
+    >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
+        android:orientation="vertical"
+        >
+
+        <include layout="@layout/view_player_profile"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            />
+
+        <com.github.mikephil.charting.charts.LineChart
+            android:id="@+id/rankGraph"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:minHeight="100dp"
+            android:layout_weight="1"
+            />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:baselineAligned="false"
+            >
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/currentFormTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="5dp"
+                    android:text="Last 10 games"
+                    android:textStyle="bold"
+                    android:textSize="12sp"
+                    />
+
+                <TextView
+                    android:id="@+id/currentForm"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="20sp"
+                    tools:text="WWWLLLW"
+                    />
+
+                <TextView
+                    android:id="@+id/winningStreakTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:text="Longest winning streak"
+                    android:textStyle="bold"
+                    android:textSize="12sp"
+                    />
+
+                <TextView
+                    android:id="@+id/winningStreak"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="12sp"
+                    tools:text="10 game(s)"
+                    />
+
+                <TextView
+                    android:id="@+id/winningStreakDetails"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="12sp"
+                    tools:text="Feb 17 2020 to Feb 20 2020"
+                    />
+
+                <TextView
+                    android:id="@+id/mostFacedOpponentTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp"
+                    android:text="Most played against"
+                    android:textStyle="bold"
+                    android:textSize="12sp"
+                    />
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <androidx.cardview.widget.CardView
+                        android:id="@+id/opponentIconContainer"
+                        android:layout_width="25dp"
+                        android:layout_height="25dp"
+                        app:cardBackgroundColor="#FFFFFF"
+                        app:cardCornerRadius="15dp"
+                        app:cardElevation="2dp"
+                        android:layout_margin="2dp"
+                        >
+
+                        <androidx.appcompat.widget.AppCompatImageView
+                            android:id="@+id/opponentIconView"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            app:srcCompat="@drawable/ic_person_outline"
+                            />
+                    </androidx.cardview.widget.CardView>
+
+                    <TextView
+                        android:id="@+id/mostFacedOpponentView"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="3dp"
+                        android:textSize="20sp"
+                        android:maxLines="1"
+                        app:autoSizeTextType="uniform"
+                        app:autoSizeMinTextSize="8sp"
+                        app:autoSizeMaxTextSize="20sp"
+                        app:autoSizeStepGranularity="1sp"
+                        tools:text="MrAlex"
+                        />
+
+                    <TextView
+                        android:id="@+id/opponentRankView"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="2dp"
+                        android:layout_marginEnd="2dp"
+                        android:textColor="@color/colorTextSecondary"
+                        android:maxLines="1"
+                        android:textSize="16sp"
+                        tools:text="(7k)"
+                        />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/mostFacedOpponentDetailsView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="12sp" />
+
+                <TextView
+                    android:id="@+id/highestWinTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp"
+                    android:text="Highest rated win against"
+                    android:textStyle="bold"
+                    android:textSize="12sp"
+                    />
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    >
+
+                    <androidx.cardview.widget.CardView
+                        android:id="@+id/highestWinIconContainer"
+                        android:layout_width="25dp"
+                        android:layout_height="25dp"
+                        app:cardBackgroundColor="#FFFFFF"
+                        app:cardCornerRadius="15dp"
+                        app:cardElevation="2dp"
+                        android:layout_margin="2dp"
+                        >
+
+                        <androidx.appcompat.widget.AppCompatImageView
+                            android:id="@+id/highestWinIconView"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            app:srcCompat="@drawable/ic_person_outline" />
+                    </androidx.cardview.widget.CardView>
+
+                    <TextView
+                        android:id="@+id/highestWinOpponent"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="3dp"
+                        android:textSize="20sp"
+                        android:maxLines="1"
+                        app:autoSizeTextType="uniform"
+                        app:autoSizeMinTextSize="8sp"
+                        app:autoSizeMaxTextSize="20sp"
+                        app:autoSizeStepGranularity="1sp"
+                        tools:text="MrAlex"
+                        />
+
+                    <TextView
+                        android:id="@+id/highestWinRank"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="2dp"
+                        android:layout_marginEnd="2dp"
+                        android:textColor="@color/colorTextSecondary"
+                        android:maxLines="1"
+                        android:textSize="16sp"
+                        tools:text="(7k)"
+                        />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/highestWinDetails"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="12sp" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                >
+
+                <com.github.mikephil.charting.charts.PieChart
+                    android:id="@+id/chart"
+                    android:layout_marginTop="4dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="200dp" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </LinearLayout>
+</ScrollView>

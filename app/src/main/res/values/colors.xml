@@ -31,4 +31,10 @@
     <color name="color_type_wrong">#ed7861</color>
     <color name="color_type_warning">#e8bd4b</color>
     <color name="color_type_success">#90b06e</color>
+
+
+    <color name="chartWon">#90b06e</color>
+    <color name="chartLost">#ed7861</color>
+    <color name="rankGraphLine">@color/colorPrimary</color>
+
 </resources>
