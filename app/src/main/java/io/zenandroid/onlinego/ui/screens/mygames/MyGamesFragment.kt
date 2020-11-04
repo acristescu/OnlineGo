@@ -132,6 +132,7 @@ class MyGamesFragment : Fragment(R.layout.fragment_mygames), MyGamesContract.Vie
             setLogoVisible(true)
             setChipsVisible(false)
             setChatButtonVisible(false)
+            ensureNavigationVisible()
         }
         presenter.subscribe()
     }

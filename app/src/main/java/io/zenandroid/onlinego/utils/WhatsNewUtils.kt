@@ -23,6 +23,9 @@ private const val currentText = """
 Thanks to popz73 for the contribution!
 In addition to your personal record, you can check the stats of your opponents by tapping their name/profile picture on the game screen.
 
+## Fix
+
+- Hotfix for occasional crash introduced in the last version
 
 ## Previous version
 

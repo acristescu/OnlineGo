@@ -68,9 +68,6 @@ class MainActivity : AppCompatActivity(), MainContract.View {
 
     val chatClicks: Observable<Any> by lazy { RxView.clicks(chatButton) }
 
-    private val locationsStack = Stack<MenuItem>()
-    private var currentItem: MenuItem? = null
-
     private val presenter: MainPresenter by lazy { MainPresenter(this, get(), get(), get(), get(), get()) }
 
     var loading: Boolean = false
@@ -136,8 +133,8 @@ class MainActivity : AppCompatActivity(), MainContract.View {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             android.R.id.home -> {
-                if(locationsStack.isNotEmpty()) {
-                    selectItem(locationsStack.pop(), false)
+                if(supportFragmentManager.backStackEntryCount > 0) {
+                    supportFragmentManager.popBackStackImmediate()
                 } else {
                     onBackPressed()
                 }
@@ -154,11 +151,27 @@ class MainActivity : AppCompatActivity(), MainContract.View {
 
         setSupportActionBar(findViewById(R.id.toolbar))
 
+        bottomNavigation.selectedItemId = R.id.navigation_my_games
+        supportFragmentManager.beginTransaction()
+                .setCustomAnimations(R.anim.fade_in, R.anim.fade_out,
+                        R.anim.fade_in, R.anim.fade_out)
+                .replace(R.id.fragment_container, myGamesFragment)
+                .commitAllowingStateLoss()
+
         bottomNavigation.setOnNavigationItemSelectedListener(this::selectItem)
+        supportFragmentManager.addOnBackStackChangedListener {
+            bottomNavigation.setOnNavigationItemSelectedListener(null)
+            when(supportFragmentManager.fragments.lastOrNull()) {
+                is MyGamesFragment -> bottomNavigation.selectedItemId = R.id.navigation_my_games
+                is LearnFragment -> bottomNavigation.selectedItemId = R.id.navigation_learn
+                is StatsFragment -> bottomNavigation.selectedItemId = R.id.navigation_stats
+                is SettingsFragment -> bottomNavigation.selectedItemId = R.id.navigation_settings
+            }
+            bottomNavigation.setOnNavigationItemSelectedListener(this::selectItem)
+        }
         if(intent.hasExtra("GAME_ID")) {
             presenter.navigateToGameScreenById(intent.getLongExtra("GAME_ID", 0))
         }
-        bottomNavigation.selectedItemId = R.id.navigation_my_games
 
         createNotificationChannel()
         scheduleNotificationJob()
@@ -242,55 +255,44 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         presenter.onNotificationClicked()
     }
 
-    private fun selectItem(item: MenuItem): Boolean =
-        selectItem(item, true)
-
-    private fun selectItem(item: MenuItem, addToStack: Boolean): Boolean {
-        if(currentItem == item) {
+    private fun selectItem(item: MenuItem): Boolean {
+        if(item.itemId == bottomNavigation.selectedItemId) {
             return true
         }
-        if(addToStack) {
-            currentItem?.let { locationsStack.add(it) }
-        }
-        currentItem = item
         return when(item.itemId) {
             R.id.navigation_my_games -> {
-                bottomNavigation.selectedItemId = item.itemId
                 supportFragmentManager.beginTransaction()
                         .setCustomAnimations(R.anim.fade_in, R.anim.fade_out,
                                 R.anim.fade_in, R.anim.fade_out)
                         .replace(R.id.fragment_container, myGamesFragment)
-                        .runOnCommit (this::ensureNavigationVisible)
+                        .addToBackStack(null)
                         .commitAllowingStateLoss()
                 true
             }
             R.id.navigation_learn -> {
-                bottomNavigation.selectedItemId = item.itemId
                 supportFragmentManager.beginTransaction()
                         .setCustomAnimations(R.anim.fade_in, R.anim.fade_out,
                                 R.anim.fade_in, R.anim.fade_out)
                         .replace(R.id.fragment_container, learnFragment)
-                        .runOnCommit (this::ensureNavigationVisible)
+                        .addToBackStack(null)
                         .commitAllowingStateLoss()
                 true
             }
             R.id.navigation_settings -> {
-                bottomNavigation.selectedItemId = item.itemId
                 supportFragmentManager.beginTransaction()
                         .setCustomAnimations(R.anim.fade_in, R.anim.fade_out,
                                 R.anim.fade_in, R.anim.fade_out)
                         .replace(R.id.fragment_container, settingsFragment)
-                        .runOnCommit (this::ensureNavigationVisible)
+                        .addToBackStack(null)
                         .commitAllowingStateLoss()
                 true
             }
             R.id.navigation_stats -> {
-                bottomNavigation.selectedItemId = item.itemId
                 supportFragmentManager.beginTransaction()
                         .setCustomAnimations(R.anim.fade_in, R.anim.fade_out,
                                 R.anim.fade_in, R.anim.fade_out)
                         .replace(R.id.fragment_container, statsFragment)
-                        .runOnCommit (this::ensureNavigationVisible)
+                        .addToBackStack(null)
                         .commitAllowingStateLoss()
                 true
             }
@@ -301,7 +303,7 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         }
     }
 
-    private fun ensureNavigationVisible() {
+    fun ensureNavigationVisible() {
         if(bottomNavigation.visibility != View.VISIBLE) {
             bottomNavigation.visibility = View.VISIBLE
             bottomNavigation.getOrCreateBadge(R.id.navigation_learn).isVisible = !PersistenceManager.visitedJosekiExplorer
@@ -313,8 +315,6 @@ class MainActivity : AppCompatActivity(), MainContract.View {
     }
 
     override fun navigateToGameScreen(game: Game) {
-        currentItem?.let (locationsStack::push)
-        currentItem = null
         bottomNavigation.visibility = View.GONE
         newChallengeView.fadeOut().subscribe()
         supportFragmentManager.beginTransaction()
@@ -326,8 +326,6 @@ class MainActivity : AppCompatActivity(), MainContract.View {
     }
 
     override fun navigateToStatsScreen(id: Long) {
-        currentItem?.let(locationsStack::push)
-        currentItem = null
         supportFragmentManager.beginTransaction()
                 .setCustomAnimations(R.anim.fade_in, R.anim.fade_out,
                         R.anim.fade_in, R.anim.fade_out)
@@ -345,11 +343,9 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         when {
             fragment is JosekiExplorerFragment && fragment.canHandleBack() -> fragment.onBackPressed()
             newChallengeView.subMenuVisible -> newChallengeView.toggleSubMenu()
-            fragment is StatsFragment && currentItem == null -> supportFragmentManager.popBackStackImmediate()
+            supportFragmentManager.backStackEntryCount > 0 -> supportFragmentManager.popBackStackImmediate()
 
-            fragment is MyGamesFragment || locationsStack.empty() -> super.onBackPressed()
-
-            else -> selectItem(locationsStack.pop(), false)
+            else -> super.onBackPressed()
         }
     }
 
@@ -387,26 +383,24 @@ class MainActivity : AppCompatActivity(), MainContract.View {
     }
 
     fun navigateToJosekiExplorer() {
-        currentItem?.let (locationsStack::push)
-        currentItem = null
         bottomNavigation.visibility = View.GONE
         newChallengeView.fadeOut().subscribe()
         supportFragmentManager.beginTransaction()
                 .setCustomAnimations(R.anim.fade_in, R.anim.fade_out,
                         R.anim.fade_in, R.anim.fade_out)
-                .replace(R.id.fragment_container, JosekiExplorerFragment(), "game")
+                .replace(R.id.fragment_container, JosekiExplorerFragment())
+                .addToBackStack(null)
                 .commitAllowingStateLoss()
     }
 
     fun onLocalAIClicked() {
-        currentItem?.let (locationsStack::push)
-        currentItem = null
         bottomNavigation.visibility = View.GONE
         newChallengeView.fadeOut().subscribe()
         supportFragmentManager.beginTransaction()
                 .setCustomAnimations(R.anim.fade_in, R.anim.fade_out,
                         R.anim.fade_in, R.anim.fade_out)
-                .replace(R.id.fragment_container, AiGameFragment(), "localai")
+                .replace(R.id.fragment_container, AiGameFragment())
+                .addToBackStack(null)
                 .commitAllowingStateLoss()
     }
 }

@@ -56,6 +56,7 @@ class LearnFragment : Fragment(R.layout.fragment_learn), LearnContract.View {
             setLogoVisible(true)
             setChipsVisible(false)
             setChatButtonVisible(false)
+            ensureNavigationVisible()
         }
         presenter.subscribe()
     }
