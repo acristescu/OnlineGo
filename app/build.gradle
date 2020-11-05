@@ -2,19 +2,21 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'kotlin-android-extensions'
-apply plugin: 'io.fabric'
 apply plugin: 'com.google.gms.google-services'
+apply plugin: 'com.google.firebase.crashlytics'
+apply plugin: 'koin'
 
 android {
-    compileSdkVersion 27
+    compileSdkVersion 28
+    ndkVersion "21.0.6113669"
     defaultConfig {
         applicationId "io.zenandroid.onlinego"
         minSdkVersion 20
-        targetSdkVersion 27
+        targetSdkVersion 28
 //        versionCode System.getenv("APPCENTER_BUILD_ID") as Integer ?: 54
         versionCode 42
         versionName "alpha_b${versionCode}"
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
         multiDexEnabled true
 
@@ -31,6 +33,9 @@ android {
         targetCompatibility 1.8
         sourceCompatibility 1.8
     }
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
     externalNativeBuild {
         cmake {
             path 'CMakeLists.txt'
@@ -46,62 +51,98 @@ androidExtensions {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'com.android.support:appcompat-v7:27.1.1'
+    implementation 'androidx.appcompat:appcompat:1.1.0'
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     // retrofit
-    implementation "com.squareup.retrofit2:retrofit:2.3.0"
-    implementation "com.squareup.retrofit2:adapter-rxjava2:2.3.0"
-    implementation "com.squareup.retrofit2:converter-gson:2.3.0"
-    implementation 'com.squareup.retrofit2:converter-moshi:2.3.0'
-    implementation 'com.squareup.okhttp3:logging-interceptor:3.9.0'
+    implementation 'com.squareup.retrofit2:retrofit:2.8.1'
+    implementation 'com.squareup.retrofit2:adapter-rxjava2:2.8.1'
+    implementation 'com.squareup.retrofit2:converter-gson:2.8.1'
+    implementation 'com.squareup.retrofit2:converter-moshi:2.8.1'
 
     implementation 'com.google.android.gms:play-services-auth:16.0.1'
-    implementation 'com.squareup.moshi:moshi-adapters:1.6.0'
+    //
+    // Warning! do not upgrade this beyond 4.4.x as 4.5.0 brings in websocket compression
+    // which for whatever reason causes issues.
+    //
+    implementation 'com.squareup.okhttp3:logging-interceptor:4.4.1'
+    implementation 'com.squareup.okhttp3:okhttp-urlconnection:4.4.1'
+    implementation 'com.github.franmontiel:PersistentCookieJar:v1.0.1'
+
+    implementation 'com.squareup.moshi:moshi-kotlin:1.9.2'
 
     // rxandroid
-    implementation 'io.reactivex.rxjava2:rxandroid:2.0.2'
-    implementation 'io.reactivex.rxjava2:rxjava:2.1.16'
+    implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
+    implementation 'io.reactivex.rxjava2:rxjava:2.2.19'
+    implementation 'io.reactivex.rxjava2:rxkotlin:2.4.0'
+    implementation 'com.jakewharton.rxrelay2:rxrelay:2.1.1'
+    implementation 'io.reactivex.rxjava2:rxkotlin:2.4.0'
+
+    implementation "androidx.work:work-runtime-ktx:2.3.4"
+    implementation "androidx.work:work-rxjava2:2.3.4"
+
+    implementation "androidx.lifecycle:lifecycle-extensions:2.2.0"
+
+    implementation 'com.facebook.stetho:stetho:1.5.1'
+    implementation 'com.facebook.stetho:stetho-okhttp3:1.5.1'
 
     // groupie
-    implementation 'com.xwray:groupie:2.1.0'
-    implementation 'com.xwray:groupie-kotlin-android-extensions:2.0.3'
+    implementation 'com.xwray:groupie:2.7.1'
+    implementation 'com.xwray:groupie-kotlin-android-extensions:2.7.1'
 
-    implementation 'com.android.support:design:27.1.1'
-    implementation 'com.android.support.constraint:constraint-layout:1.1.3'
-    implementation 'com.android.support:cardview-v7:27.1.1'
-    implementation "com.android.support:support-emoji-appcompat:27.1.1"
-    implementation "com.android.support:support-emoji:27.1.1"
-    implementation 'com.android.support:preference-v14:27.1.1'
+    implementation 'com.google.android.material:material:1.3.0-alpha03'
+    implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
+    implementation 'androidx.cardview:cardview:1.0.0'
+    implementation 'androidx.emoji:emoji-appcompat:1.0.0'
+    implementation 'androidx.emoji:emoji:1.0.0'
+    implementation 'androidx.legacy:legacy-preference-v14:1.0.0'
 
-    implementation 'de.hdodenhof:circleimageview:2.2.0'
+    implementation 'de.hdodenhof:circleimageview:3.1.0'
 
-    implementation 'me.zhanghai.android.materialprogressbar:library:1.4.2'
+    implementation 'me.zhanghai.android.materialprogressbar:library:1.6.1'
 
-    implementation 'com.github.blennerSilva:AwesomeDialog:2.0.5'
+    implementation 'com.github.blennerSilva:AwesomeDialog:2.0.6'
 
     implementation('io.socket:socket.io-client:1.0.0') {
         // excluding org.json which is provided by Android
         exclude group: 'org.json', module: 'json'
     }
 
-    implementation 'com.jakewharton.rxbinding2:rxbinding:2.0.0'
+    implementation 'com.jakewharton.rxbinding2:rxbinding:2.2.0'
 
-    implementation 'br.com.simplepass:loading-button-android:1.14.0'
-    implementation 'com.google.firebase:firebase-core:16.0.4'
+    implementation 'br.com.simplepass:loading-button-android:2.1.5'
+    implementation 'com.google.firebase:firebase-core:17.3.0'
 
-    implementation 'com.github.bumptech.glide:glide:4.7.1'
-    kapt 'com.github.bumptech.glide:compiler:4.7.1'
+    implementation 'io.noties.markwon:core:4.3.1'
 
-    implementation 'com.crashlytics.sdk.android:crashlytics:2.9.5'
+    implementation 'com.github.bumptech.glide:glide:4.11.0'
+    kapt 'com.github.bumptech.glide:compiler:4.11.0'
 
-    implementation 'com.firebase:firebase-jobdispatcher-with-gcm-dep:0.8.4'
+    implementation "org.koin:koin-androidx-viewmodel:2.1.5"
 
-    testImplementation "com.nhaarman:mockito-kotlin-kt1.1:1.5.0"
-    testImplementation 'junit:junit:4.12'
+    implementation 'com.google.firebase:firebase-crashlytics:17.2.2'
+    implementation "androidx.core:core-ktx:1.2.0"
 
-    implementation 'android.arch.persistence.room:runtime:1.1.1'
-    implementation 'android.arch.persistence.room:rxjava2:1.1.1'
-    kapt 'android.arch.persistence.room:compiler:1.1.1'
+    implementation 'androidx.room:room-runtime:2.2.5'
+    implementation 'androidx.room:room-rxjava2:2.2.5'
+
+    implementation 'com.jakewharton.threetenabp:threetenabp:1.2.4'
+    implementation 'com.github.cpiz:BubbleView:1.0.3'
+
+    kapt 'androidx.room:room-compiler:2.2.5'
+
+    implementation 'androidx.test.espresso:espresso-idling-resource:3.2.0'
+
+    implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0'
+
+    testImplementation 'com.nhaarman:mockito-kotlin-kt1.1:1.6.0'
+    testImplementation 'junit:junit:4.13'
+    testImplementation 'org.koin:koin-test:2.1.5'
+
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.1'
+    androidTestImplementation 'androidx.test:runner:1.2.0'
+    androidTestImplementation 'androidx.test:rules:1.2.0'
 }
 repositories {
     mavenCentral()

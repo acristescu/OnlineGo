@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorText">#F3F3F3</color>
+    <color name="colorActionableText">#389FFF</color>
+    <color name="colorTextBackground">#151515</color>
+    <color name="colorTextSecondary">#BDBDBD</color>
+
+    <color name="loginBackground">@color/colorOffWhite</color>
+    <color name="loginText">@color/colorText</color>
+
+    <color name="statusBarColor">@color/colorOffWhite</color>
+    <color name="headerPrimary">#424242</color>
+    <color name="headerPrimaryText">@color/colorText</color>
+
+    <color name="playerDetailsText">@color/colorText</color>
+    <color name="dialogBackground">@color/colorOffWhite</color>
+
+    <color name="buttonEnabled">@color/colorText</color>
+    <color name="buttonDisabled">#636363</color>
+
+    <color name="stoneColorSeparator">@color/colorText</color>
+    <color name="colorNavigation">@color/colorPrimary</color>
+
+    <color name="colorPrimary">#389FFF</color>
+    <color name="colorPrimaryLight">#0E71C8</color>
+    <color name="colorPrimaryDark">#0E71C8</color> <!--//offWhite-->
+    <color name="colorAccent">#0E71C8</color>
+    <color name="colorOffWhite">#2C2C2C</color>
+
+    <color name="color_type_info">#79b3e4</color>
+    <color name="color_type_help">#e8bd4b</color>
+    <color name="color_type_wrong">#ed7861</color>
+    <color name="color_type_warning">#e8bd4b</color>
+    <color name="color_type_success">#90b06e</color>
+
+    <color name="rankGraphLine">@color/colorActionableText</color>
+
+</resources>

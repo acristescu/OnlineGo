@@ -6,6 +6,6 @@ enum Color {
     WHITE = -1
 };
 
-inline Color other(Color c) {
-    return c == BLACK ? WHITE : BLACK;
+inline Color other(Color c) { 
+    return c == BLACK ? WHITE : BLACK; 
 }

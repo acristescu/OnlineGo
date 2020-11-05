@@ -1,15 +1,23 @@
 package io.zenandroid.onlinego.utils
 
 import android.util.Log
-import io.zenandroid.onlinego.game.GamePresenter
-import io.zenandroid.onlinego.model.local.Clock
-import io.zenandroid.onlinego.model.local.Game
-import io.zenandroid.onlinego.model.local.Time
-import io.zenandroid.onlinego.ogs.TimeControl
+import io.zenandroid.onlinego.ui.screens.game.GamePresenter
+import io.zenandroid.onlinego.data.model.local.Clock
+import io.zenandroid.onlinego.data.model.local.Game
+import io.zenandroid.onlinego.data.model.local.Time
+import io.zenandroid.onlinego.data.ogs.TimeControl
+import io.zenandroid.onlinego.data.repositories.ClockDriftRepository
 import org.json.JSONArray
 import org.json.JSONObject
-import java.lang.Math.ceil
+import org.koin.core.context.KoinContextHandler.get
+import org.threeten.bp.Instant
+import org.threeten.bp.ZoneId
+import org.threeten.bp.format.DateTimeFormatter
+import org.threeten.bp.temporal.ChronoUnit
 import java.lang.Math.log
+import java.util.*
+import java.util.regex.Pattern
+import kotlin.math.*
 
 /**
  * Created by alex on 14/11/2017.
@@ -35,12 +43,31 @@ fun egfToRank(rating: Double?) =
         }
 
 fun formatRank(rank: Double?) =
-    when(rank) {
-        null -> "?"
-        in 0 until 30 -> "${ceil(30 - rank).toInt()}k"
-        in 30 .. 100 -> "${ceil(rank - 29).toInt()}d"
-        else -> ""
+        when(rank) {
+            null -> "?"
+            in 0 until 30 -> "${ceil(30 - rank).toInt()}k"
+            in 30 .. 100 -> "${ceil(rank - 29).toInt()}d"
+            else -> ""
+        }
+
+private val gravatarRegex = Pattern.compile("(.*gravatar.com/avatar/[0-9a-fA-F]*+).*")
+private val rackcdnRegex = Pattern.compile("(.*rackcdn.com.*)-\\d*\\.png")
+
+fun processGravatarURL(url: String?, width: Int): String? {
+    url?.let {
+        var matcher = gravatarRegex.matcher(url)
+        if(matcher.matches()) {
+            return "${matcher.group(1)}?s=${width}&d=404"
+        }
+
+        matcher = rackcdnRegex.matcher(url)
+        if(matcher.matches()) {
+            val desired = max(512.0, 2.0.pow(ln(width.toDouble()) / ln(2.0))).toInt()
+            return "${matcher.group(1)}-${desired}.png"
+        }
     }
+    return url
+}
 
 fun convertCountryCodeToEmojiFlag(country: String?): String {
     if(country == null || country.length != 2 || "un" == country) {
@@ -66,45 +93,53 @@ fun timeLeftForCurrentPlayer(game: Game): Long {
             }
         }
 
-        return computeTimeLeft(clock, playerTimeSimple, playerTime, true).timeLeft ?: 0
+        return computeTimeLeft(clock, playerTimeSimple, playerTime, true, game.pausedSince).timeLeft
     }
     return 0
 }
 
-fun computeTimeLeft(clock: Clock, playerTimeSimple: Long?, playerTime: Time?, currentPlayer: Boolean): GamePresenter.TimerDetails {
-    val timer = GamePresenter.TimerDetails()
+private val clockDriftRepository: ClockDriftRepository by get().inject()
 
-    val now = System.currentTimeMillis()
-    if(clock.receivedAt == 0L) {
-        clock.receivedAt = now
-    }
-    var nowDelta = clock.receivedAt - clock.now
-    if(nowDelta > 100000) { // sanity check
-        nowDelta = 0
-    }
-    val baseTime = clock.lastMove + nowDelta
+fun computeTimeLeft(
+        clock: Clock,
+        playerTimeSimple: Long?,
+        playerTime: Time?,
+        currentPlayer: Boolean,
+        pausedSince: Long?
+): GamePresenter.TimerDetails {
+    val now = clockDriftRepository.serverTime.coerceAtMost(pausedSince ?: Long.MAX_VALUE)
+    val baseTime = clock.lastMove.coerceAtMost(pausedSince ?: Long.MAX_VALUE)
     var timeLeft = 0L
+    var secondLine: String? = null
+
     if(playerTimeSimple != null) {
         // Simple timer
-        timeLeft = playerTimeSimple - if(currentPlayer) now else baseTime
+        timeLeft = if(playerTimeSimple == 0L) 0 else {
+            playerTimeSimple - if (currentPlayer) now else baseTime
+        }
     } else if (playerTime != null) {
-        timeLeft = baseTime + playerTime.thinking_time * 1000 - if(currentPlayer) now else baseTime
+        timeLeft = if(currentPlayer) {
+            baseTime + (playerTime.thinking_time * 1000).toLong() - now
+        } else {
+            (playerTime.thinking_time * 1000).toLong()
+        }
+
         if(playerTime.moves_left != null) {
 
             // Canadian timer
-            if(timeLeft < 0 || playerTime.thinking_time == 0L) {
-                timeLeft = baseTime + (playerTime.thinking_time + playerTime.block_time!!) * 1000 - if(currentPlayer) now else baseTime
+            if(timeLeft < 0 || playerTime.thinking_time == 0.0) {
+                timeLeft = baseTime + ((playerTime.thinking_time + playerTime.block_time!!) * 1000).toLong() - if(currentPlayer) now else baseTime
             }
-            timer.secondLine = "+${formatMillis(playerTime.block_time!! * 1000)} / ${playerTime.moves_left}"
+            secondLine = "+${formatMillis((playerTime.block_time!! * 1000).toLong())} / ${playerTime.moves_left}"
         } else if(playerTime.periods != null) {
 
             // Byo Yomi timer
             var periodsLeft = playerTime.periods
-            if(timeLeft < 0 || playerTime.thinking_time == 0L) {
+            if(timeLeft < 0 || playerTime.thinking_time == 0.0) {
                 val periodOffset = Math.ceil((-timeLeft / 1000.0) / playerTime.period_time!!).coerceAtLeast(0.0)
 
                 while(timeLeft < 0) {
-                    timeLeft += playerTime.period_time * 1000
+                    timeLeft += (playerTime.period_time * 1000).toLong()
                 }
 
                 periodsLeft = playerTime.periods - periodOffset.toLong()
@@ -113,27 +148,48 @@ fun computeTimeLeft(clock: Clock, playerTimeSimple: Long?, playerTime: Time?, cu
                 }
             }
             if(!currentPlayer && timeLeft == 0L) {
-                timeLeft = playerTime.period_time!! * 1000
+                timeLeft = (playerTime.period_time!! * 1000).toLong()
             }
-            timer.secondLine = "$periodsLeft x ${formatMillis(playerTime.period_time!! * 1000)}"
+            secondLine = "$periodsLeft x ${formatMillis((playerTime.period_time!! * 1000).toLong())}"
+        } else {
+            // absolute timer or fischer timer, nothing to do
         }
     } else {
-        Log.e("GamePresenter", "Clock object has neither simple time or complex time")
+        // No timer
+        return GamePresenter.TimerDetails(
+                expired = false,
+                firstLine = "∞",
+                secondLine = null,
+                timeLeft = Long.MAX_VALUE
+        )
     }
 
-    timer.expired = timeLeft <= 0
-    timer.firstLine = formatMillis(timeLeft)
-    timer.timeLeft = timeLeft
-    return timer
+    return GamePresenter.TimerDetails(
+            expired = timeLeft <= 0,
+            firstLine = formatMillis(timeLeft),
+            secondLine = secondLine,
+            timeLeft = timeLeft
+    )
 }
 
-fun formatMillis(millis: Long): String = when {
-    millis < 10_000 -> "%.1fs".format(millis / 1000f)
-    millis < 60_000 -> "%.0fs".format(millis / 1000f)
-    millis < 3_600_000 -> "%d : %02d".format(millis / 60_000, (millis % 60_000) / 1000)
-    millis < 24 * 3_600_000 -> "%dh %02dm".format(millis / 3_600_000, (millis % 3_600_000) / 60_000)
-    millis < 7 * 24 * 3_600_000 -> "%d day%s".format(millis / 86_400_000, plural(millis / 86_400_000))
-    else -> "%d week%s".format(millis/(7 * 24 * 3_600_000), plural(millis/(7 * 24 * 3_600_000)))
+fun formatMillis(millis: Long): String {
+    var seconds = ceil((millis - 1) / 1000.0).toLong()
+    val days = seconds / 86_400
+    seconds -= days * 86_400
+    val hours = seconds / 3_600
+    seconds -= hours * 3_600
+    val minutes = seconds / 60
+    seconds -= minutes * 60
+
+    return when {
+        days >= 7 -> "%d week%s".format(days / 7, plural(days / 7))
+        days > 0 -> "%d day%s".format(days, plural(days))
+        hours > 0 -> "%dh %02dm".format(hours, minutes)
+        minutes > 0 -> "%d : %02d".format(minutes, seconds)
+        seconds > 10 -> "%02ds".format(seconds)
+        millis > 0 -> "%.1fs".format(millis / 1000f)
+        else -> "0.0"
+    }
 }
 
 fun plural(number: Long) = if(number != 1L) "s" else ""
@@ -187,3 +243,14 @@ fun formatSeconds(seconds: Int?): String {
     }
     return "?"
 }
+
+fun Long.microsToISODateTime(): String {
+    val instant = Instant.EPOCH.plus(this, ChronoUnit.MICROS)
+    return DateTimeFormatter.ISO_OFFSET_DATE_TIME
+            .withLocale( Locale.US )
+            .withZone( ZoneId.of("America/New_York") )
+            .format(instant)
+}
+
+fun Instant.toEpochMicros(): Long
+        = ChronoUnit.MICROS.between(Instant.EPOCH, this)

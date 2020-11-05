@@ -13,11 +13,12 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme"
         android:name=".OnlineGoApplication"
+        android:extractNativeLibs="true"
         android:maxAspectRatio="10.0"
         >
         <meta-data android:name="android.max_aspect" android:value="10.0"/>
         <activity
-            android:name=".login.LoginActivity"
+            android:name="io.zenandroid.onlinego.ui.screens.login.LoginActivity"
             android:label="@string/app_name"
             android:theme="@style/LoginActivity"
             android:windowSoftInputMode="adjustResize"
@@ -27,20 +28,26 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:scheme="https"
+                    android:host="online-go.com"
+                    android:path="/complete/google-oauth2/"
+                    />
+                <data
+                    android:scheme="https"
+                    android:host="online-go.com"
+                    android:path="/complete/facebook/"
+                    />
+            </intent-filter>
         </activity>
         <activity
-            android:name=".main.MainActivity"
+            android:name="io.zenandroid.onlinego.ui.screens.main.MainActivity"
             android:screenOrientation="portrait"
             />
-        <service
-            android:exported="false"
-            android:name=".NotificationsService"
-            android:permission="android.permission.BIND_JOB_SERVICE"
-            >
-            <intent-filter>
-                <action android:name="com.firebase.jobdispatcher.ACTION_EXECUTE"/>
-            </intent-filter>
-        </service>
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />

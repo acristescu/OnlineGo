@@ -1,17 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!--<color name="white">#FFFFFF</color>-->
-    <!--<color name="colorPrimary">#009688</color>-->
-    <!--<color name="colorPrimaryLight">#B2DFDB</color>-->
-    <!--<color name="colorPrimaryDark">#00796B</color>-->
-    <!--<color name="colorAccent">#FF5722</color>-->
-
     <color name="colorText">#212121</color>
+    <color name="colorActionableText">@color/colorAccent</color>
+    <color name="colorTextBackground">#FFFFFF</color>
     <color name="colorTextSecondary">#757575</color>
 
     <color name="loginBackground">@color/colorPrimary</color>
+    <color name="loginText">@color/colorPrimary</color>
 
-    <color name="white">#FFFFFF</color>
+    <color name="playerDetailsText">@color/colorTextSecondary</color>
+    <color name="dialogBackground">#FFFFFF</color>
+
+    <color name="buttonEnabled">#000000</color>
+    <color name="buttonDisabled">#66000000</color>
+
+    <color name="stoneColorSeparator">#000000</color>
+
+    <color name="statusBarColor">@color/colorPrimaryDark</color>
+    <color name="headerPrimary">@color/colorPrimary</color>
+    <color name="colorNavigation">@color/colorPrimaryDark</color>
+    <color name="headerPrimaryText">#FFFFFF</color>
     <color name="colorPrimary">#79b3e4</color>
     <color name="colorPrimaryLight">#E5F0FF</color>
     <color name="colorPrimaryDark">#2588c9</color>
@@ -23,10 +31,10 @@
     <color name="color_type_wrong">#ed7861</color>
     <color name="color_type_warning">#e8bd4b</color>
     <color name="color_type_success">#90b06e</color>
-    <!--<color name="white">#FFFFFF</color>-->
-    <!--<color name="colorPrimary">#7AC795</color>-->
-    <!--<color name="colorPrimaryLight">#8DDCAD</color>-->
-    <!--<color name="colorPrimaryDark">#559E72</color>-->
-    <!--<color name="colorAccent">#F78686</color>-->
-    <!--<color name="colorOffWhite">#F2FFF7</color>-->
+
+
+    <color name="chartWon">#90b06e</color>
+    <color name="chartLost">#ed7861</color>
+    <color name="rankGraphLine">@color/colorPrimary</color>
+
 </resources>

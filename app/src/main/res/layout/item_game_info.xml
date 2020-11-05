@@ -20,6 +20,7 @@
         android:layout_marginBottom="3dp"
         android:textStyle="bold"
         android:alpha=".9"
+        android:textColor="?android:attr/textColorPrimary"
         />
     <TextView
         android:id="@+id/value"
@@ -30,6 +31,7 @@
         android:lineSpacingMultiplier="1.2"
         android:autoLink="all"
         android:linksClickable="true"
-        android:textColorLink="@color/black"
+        android:textColorLink="?android:attr/textColorPrimary"
+        android:textColor="?android:attr/textColorPrimary"
         />
 </LinearLayout>

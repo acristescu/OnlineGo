@@ -1,12 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <PreferenceCategory
-        android:title="Notifications"
+        android:title="Profile"
         >
+        <Preference
+            android:key="logout"
+            android:title="Log Out"
+            />
+    </PreferenceCategory>
+    <PreferenceCategory
+            android:title="Game Settings"
+        >
+        <ListPreference
+            android:key="app_theme"
+            android:title="App theme"
+            android:entries="@array/app_theme_values"
+            android:entryValues="@array/app_theme_values"
+            android:defaultValue="System default"
+            android:summary="%s"
+            />
         <SwitchPreference
-            android:key="notification_vibrate"
-            android:title="Vibrate on Notification"
+            android:key="show_ranks"
+            android:title="Show player ranks"
+            android:defaultValue="true"
+            />
+        <SwitchPreference
+            android:key="show_coordinates"
+            android:title="Show Board Coordinates"
+            android:defaultValue="false"
+            />
+        <SwitchPreference
+            android:key="vibrate_on_move"
+            android:title="Vibrate when opponent moves"
             android:defaultValue="true"
             />
     </PreferenceCategory>
@@ -22,5 +49,4 @@
             android:title="Privacy Policy"
             />
     </PreferenceCategory>
-
 </PreferenceScreen>

@@ -18,7 +18,6 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:text="There are no open challenges appropriate to your rank... but we're still looking"
-            android:fontFamily="@font/kanit_semibold"
             android:layout_gravity="center"
             android:gravity="center"
             />

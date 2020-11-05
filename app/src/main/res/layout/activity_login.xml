@@ -26,7 +26,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:fontFamily="@font/kaushan_script"
-            android:textColor="@color/white"
+            android:textColor="#F1F1F1"
             android:textSize="50dp"
             android:text="OnlineGo "
             android:layout_gravity="center_horizontal"
@@ -36,7 +36,7 @@
             android:layout_height="0dp"
             android:layout_weight="1"
             />
-        <android.support.design.widget.TextInputLayout
+        <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
@@ -46,17 +46,17 @@
             android:visibility="gone"
             tools:visibility="visible"
             >
-            <android.support.design.widget.TextInputEditText
+            <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/username"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="textEmailAddress"
                 android:hint="Username"
-                android:textColor="@color/white"
+                android:textColor="#FFFFFF"
                 />
-        </android.support.design.widget.TextInputLayout>
+        </com.google.android.material.textfield.TextInputLayout>
 
-        <android.support.design.widget.TextInputLayout
+        <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
@@ -66,19 +66,19 @@
             android:visibility="gone"
             tools:visibility="visible"
             >
-            <android.support.design.widget.TextInputEditText
+            <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/password"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="textPassword"
                 android:hint="Password"
-                android:textColor="@color/white"
-                android:textColorHighlight="@color/white"
-                android:textColorHint="@color/white"
+                android:textColor="#FFFFFF"
+                android:textColorHighlight="#FFFFFF"
+                android:textColorHint="#FFFFFF"
                 />
-        </android.support.design.widget.TextInputLayout>
+        </com.google.android.material.textfield.TextInputLayout>
 
-        <android.support.design.widget.TextInputLayout
+        <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
@@ -88,23 +88,23 @@
             android:visibility="gone"
             tools:visibility="visible"
             >
-            <android.support.design.widget.TextInputEditText
+            <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/email"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="textEmailAddress"
                 android:hint="Email (optional)"
-                android:textColor="@color/white"
+                android:textColor="@color/colorTextBackground"
                 />
-        </android.support.design.widget.TextInputLayout>
+        </com.google.android.material.textfield.TextInputLayout>
 
-        <br.com.simplepass.loading_button_lib.customViews.CircularProgressButton
+        <br.com.simplepass.loadingbutton.customViews.CircularProgressButton
             android:id="@+id/loginButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
             android:text="@string/login_to_ogs"
-            android:textColor="@color/colorPrimary"
+            android:textColor="@color/loginText"
             android:layout_gravity="center_horizontal"
             android:background="@drawable/button_shape_default_rounded"
             app:spinning_bar_color="@color/colorPrimary"
@@ -115,6 +115,29 @@
             android:enabled="false"
             android:visibility="gone"
             tools:visibility="visible"
+            />
+
+        <Button
+            android:id="@+id/googleSignInButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Google Sign-in"
+            android:visibility="gone"
+            tools:visibility="visible"
+            android:background="@drawable/button_shape_default_rounded"
+            android:layout_marginTop="4dp"
+            android:textColor="@color/loginText"
+            />
+        <Button
+            android:id="@+id/facebookSignInButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Facebook Sign-in"
+            android:visibility="gone"
+            tools:visibility="visible"
+            android:background="@drawable/button_shape_default_rounded"
+            android:layout_marginTop="4dp"
+            android:textColor="@color/loginText"
             />
         <com.google.android.gms.common.SignInButton
             android:id="@+id/signInButton"

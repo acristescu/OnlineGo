@@ -2,11 +2,13 @@ package io.zenandroid.onlinego.gamelogic
 
 import android.graphics.Point
 import android.util.Log
-import io.zenandroid.onlinego.model.Position
-import io.zenandroid.onlinego.model.StoneType
-import io.zenandroid.onlinego.model.local.Game
-import io.zenandroid.onlinego.model.local.InitialState
-import io.zenandroid.onlinego.model.ogs.GameData
+import androidx.core.util.lruCache
+import com.google.firebase.crashlytics.FirebaseCrashlytics
+import io.zenandroid.onlinego.data.model.Position
+import io.zenandroid.onlinego.data.model.StoneType
+import io.zenandroid.onlinego.data.model.local.Game
+import io.zenandroid.onlinego.data.model.local.InitialState
+import io.zenandroid.onlinego.data.model.ogs.GameData
 import java.util.*
 
 /**
@@ -18,6 +20,8 @@ object RulesManager {
         println("loading library")
         System.loadLibrary("estimator")
     }
+
+    private val positionsCache = lruCache<CacheKey, Position>(1000)
 
     private external fun estimate(w: Int, h: Int, board: IntArray, playerToMove: Int, trials: Int, tolerance: Float): IntArray
 
@@ -61,8 +65,44 @@ object RulesManager {
         }
     }
 
+    data class CacheKey(
+            val width: Int,
+            val height: Int,
+            val initialState: InitialState?,
+            val whiteGoesFirst: Boolean?,
+            val moves: MutableList<MutableList<Int>>?,
+            val freeHandicapPlacement: Boolean?,
+            val handicap: Int?,
+            val removedStones: String?,
+            val white_scoring_positions: String?,
+            val black_scoring_positions: String?,
+            val computeTerritory: Boolean,
+            val limit: Int
+            )
+
+    private fun getCacheKey(game: Game, limit: Int, computeTerritory: Boolean): CacheKey {
+        return CacheKey(
+                width = game.width,
+                height = game.height,
+                initialState = game.initialState,
+                whiteGoesFirst = game.whiteGoesFirst,
+                moves = game.moves,
+                freeHandicapPlacement = game.freeHandicapPlacement,
+                handicap = game.handicap,
+                removedStones = game.removedStones,
+                white_scoring_positions = game.whiteScore?.scoring_positions,
+                black_scoring_positions = game.blackScore?.scoring_positions,
+                computeTerritory = computeTerritory,
+                limit = limit
+        )
+    }
+
     fun replay(game: Game, limit: Int = Int.MAX_VALUE, computeTerritory : Boolean): Position {
-        var pos = RulesManager.newPosition(game.height, game.initialState)
+        val cacheKey = getCacheKey(game, limit, computeTerritory)
+        positionsCache[cacheKey]?.let {
+            return it
+        }
+        var pos = newPosition(game.height, game.initialState)
 
         var turn = StoneType.BLACK
         if(game.whiteGoesFirst == true) {
@@ -74,9 +114,10 @@ object RulesManager {
             if(index >= limit) {
                 return@forEachIndexed
             }
-            val newPos = RulesManager.makeMove(pos, turn, Point(move[0], move[1]))
+            val newPos = makeMove(pos, turn, Point(move[0], move[1]))
             if(newPos == null) {
                 Log.e(this.javaClass.simpleName, "Server returned an invalid move!!! gameId=${game.id} move=$index")
+                FirebaseCrashlytics.getInstance().log("E/RulesManager: Server returned an invalid move!!! gameId=${game.id} move=$index")
                 return@forEachIndexed
             }
             pos = newPos
@@ -107,19 +148,22 @@ object RulesManager {
         }
 
         game.whiteScore?.scoring_positions?.let {
-            for (i in 0 until it.length step 2) {
+            for (i in it.indices step 2) {
                 pos.markWhiteTerritory(Util.getCoordinatesFromSGF(it, i))
             }
         }
         game.blackScore?.scoring_positions?.let {
-            for (i in 0 until it.length step 2) {
+            for (i in it.indices step 2) {
                 pos.markBlackTerritory(Util.getCoordinatesFromSGF(it, i))
             }
         }
 
+        positionsCache.put(cacheKey, pos)
+
         return pos
     }
 
+    @Deprecated("Obsolete")
     fun replay(gameData: GameData, limit: Int = Int.MAX_VALUE, computeTerritory : Boolean): Position {
         var pos = RulesManager.newPosition(gameData.height, gameData.initial_state)
 
@@ -246,6 +290,9 @@ object RulesManager {
      */
     fun makeMove(oldPos: Position, stone: StoneType, where: Point): Position? {
         val pos = oldPos.clone()
+        pos.parentPosition = oldPos
+        pos.lastMove = where
+        pos.lastPlayerToMove = stone
         if (where.x == -1) {
             //
             // it's a pass
@@ -278,7 +325,7 @@ object RulesManager {
             }
         }
 
-        if (!removedStones.isEmpty()) {
+        if (removedStones.isNotEmpty()) {
             for (p in removedStones) {
                 pos.removeStone(p)
             }
@@ -291,14 +338,24 @@ object RulesManager {
             // We need to check for suicide
             //
             val suicideGroup = doCapture(pos, where, stone)
-            if (suicideGroup != null && !suicideGroup.isEmpty()) {
+            if (suicideGroup != null && suicideGroup.isNotEmpty()) {
                 pos.removeStone(where)
                 return null
             }
         }
 
-        pos.lastMove = where
         return pos
+    }
+
+    fun isIllegalKO(pos: Position): Boolean {
+        var historyPos = pos.parentPosition
+        while(historyPos != null) {
+            if(historyPos.hasTheSameStonesAs(pos)) {
+                return true
+            }
+            historyPos = historyPos.parentPosition
+        }
+        return false
     }
 
     /**
@@ -387,4 +444,64 @@ object RulesManager {
         }
     }
 
+    private val handicaps = hashMapOf(
+            19 to arrayOf(
+                    "", // handicap = 0, B goes first, komi
+                    "", // handicap = 1, B goes first, no komi
+                    "pddp", // handicap > 1, W goes first, B has extra stones, no komi
+                    "pppddp",
+                    "ddpppddp",
+                    "jjddpppddp",
+                    "djpjddpppddp",
+                    "djpjjjddpppddp",
+                    "jdjpdjpjddpppddp",
+                    "jdjpdjpjjjddpppddp"),
+            13 to arrayOf(
+                    "", // handicap = 0, B goes first, komi
+                    "", // handicap = 1, B goes first, no komi
+                    "jddj", // handicap > 1, W goes first, B has extra stones, no komi
+                    "jjjddj",
+                    "ddjjjddj",
+                    "ggddjjjddj",
+                    "dgjgddjjjddj",
+                    "dgjgggddjjjddj",
+                    "gdgjdgjgddjjjddj",
+                    "gdgjdgjgggddjjjddj"),
+            9 to arrayOf(
+                    "", // handicap = 0, B goes first, komi
+                    "", // handicap = 1, B goes first, komi = 3.5
+                    "gccg", // handicap > 1, W goes first, B has extra stones, komi = 3.5
+                    "gggccg",
+                    "ccgggccg",
+                    "eeccgggccg",
+                    "cegeccgggccg",
+                    "cegeeeccgggccg",
+                    "ecegcegeccgggccg",
+                    "ecegcegeeeccgggccg"
+            )
+    )
+
+
+    fun initializePosition(boardSize: Int, handicap: Int = 0): Position {
+        return Position(boardSize).apply {
+            if(handicap > 1) {
+                nextToMove = StoneType.WHITE
+                val handicapStones = handicaps[boardSize]?.get(handicap) ?:
+                    throw Exception("Handicap on custom board size not supported")
+                for (i in handicapStones.indices step 2) {
+                    val coords = Util.getCoordinatesFromSGF(handicapStones, i)
+                    putStone(coords.x, coords.y, StoneType.BLACK)
+                }
+            }
+            komi = determineKomi(boardSize, handicap)
+        }
+    }
+
+    fun determineKomi(boardSize: Int, handicap: Int = 0): Float {
+        return if(boardSize == 9) {
+            if(handicap == 0) 5.5f else 3.5f
+        } else {
+            if(handicap == 0) 6.5f else 0.5f
+        }
+    }
 }

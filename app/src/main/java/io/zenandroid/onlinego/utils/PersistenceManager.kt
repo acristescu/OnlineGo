@@ -1,33 +1,22 @@
 package io.zenandroid.onlinego.utils
 
 import android.content.Context
+import androidx.core.content.edit
 import com.squareup.moshi.Moshi
+import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import io.zenandroid.onlinego.OnlineGoApplication
-import io.zenandroid.onlinego.model.ogs.LoginToken
-import io.zenandroid.onlinego.model.ogs.UIConfig
-import java.util.*
+import io.zenandroid.onlinego.data.model.ogs.UIConfig
+
+private const val UICONFIG_KEY = "UICONFIG_KEY"
+private const val VISITED_JOSEKI = "VISITED_JOSEKI"
+private const val WHATS_NEW = "WHATS_NEW"
 
 /**
  * Created by alex on 07/11/2017.
  */
-class PersistenceManager {
-    companion object {
-        val instance = PersistenceManager()
-
-        const val TOKEN_KEY = "TOKEN_KEY"
-        const val UICONFIG_KEY = "UICONFIG_KEY"
-        const val TOKEN_EXPIRY_KEY = "TOKEN_EXPIRY_KEY"
-    }
-
+object PersistenceManager {
     private val prefs = OnlineGoApplication.instance.getSharedPreferences("login", Context.MODE_PRIVATE)
-    private val moshi = Moshi.Builder().build()
-
-    fun storeToken(token: LoginToken, tokenExpiry: Date) {
-        prefs.edit()
-            .putString(TOKEN_KEY, moshi.adapter(LoginToken::class.java).toJson(token))
-            .putLong(TOKEN_EXPIRY_KEY, tokenExpiry.time)
-            .apply()
-    }
+    private val moshi = Moshi.Builder().add(KotlinJsonAdapterFactory()).build()
 
     fun storeUIConfig(uiConfig: UIConfig) {
         prefs.edit()
@@ -35,16 +24,28 @@ class PersistenceManager {
             .apply()
     }
 
+    fun deleteUIConfig() {
+        prefs.edit().remove(UICONFIG_KEY).apply()
+    }
+
     fun getUIConfig(): UIConfig? =
         prefs.getString(UICONFIG_KEY, null)?.let {
             return moshi.adapter(UIConfig::class.java).fromJson(it)
         }
 
-    fun getToken(): LoginToken? =
-            prefs.getString(TOKEN_KEY, null)?.let {
-                return moshi.adapter(LoginToken::class.java).fromJson(it)
+    var visitedJosekiExplorer: Boolean = prefs.getBoolean(VISITED_JOSEKI, false)
+        set(value) {
+            if(field != value) {
+                prefs.edit { putBoolean(VISITED_JOSEKI, value) }
             }
+            field = value
+        }
 
-    fun getTokenExpiry(): Date = Date(prefs.getLong(TOKEN_EXPIRY_KEY, 0))
-
+    var previousWhatsNewTextHashed: String? = prefs.getString(WHATS_NEW, null)
+        set(value) {
+            if(field != value) {
+                prefs.edit { putString(WHATS_NEW, value) }
+            }
+            field = value
+        }
 }

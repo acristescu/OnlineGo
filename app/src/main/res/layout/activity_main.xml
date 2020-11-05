@@ -1,15 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <android.support.design.widget.AppBarLayout
+    <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appbar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <android.support.v7.widget.Toolbar
+        android:layout_height="wrap_content"
+        android:background="@color/headerPrimary"
+        app:layout_constraintTop_toTopOf="parent"
+        >
+        <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -18,18 +21,19 @@
             app:theme="@style/ThemeOverlay.AppCompat.Dark"
             app:contentInsetStartWithNavigation="0dp"
             >
-            <android.support.constraint.ConstraintLayout
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="16dp"
-                android:layout_gravity="right">
+                android:layout_gravity="right"
+                >
 
                 <TextView
                     android:id="@+id/logo"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:fontFamily="@font/kaushan_script"
-                    android:textColor="@color/white"
+                    android:textColor="@color/headerPrimaryText"
                     android:textSize="26sp"
                     app:layout_constraintLeft_toLeftOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
@@ -37,15 +41,19 @@
                     />
                 <TextView
                     android:id="@+id/titleView"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:textColor="@color/white"
+                    android:textColor="@color/headerPrimaryText"
                     android:textSize="16sp"
                     android:textStyle="bold"
+                    android:maxLines="2"
+                    android:ellipsize="end"
                     app:layout_constraintLeft_toLeftOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    tools:text="OnlineGo" />
-                <android.support.v7.widget.RecyclerView
+                    app:layout_constraintBottom_toTopOf="@id/chipList"
+                    app:layout_constraintRight_toLeftOf="@id/chatButton"
+                    tools:text="Tournament Game: Fast Riesling Cup Fall 2018 (42137) R:8 (fragnix vs MrAlex)" />
+                <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/chipList"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -65,7 +73,7 @@
                     android:scaleType="fitXY"
                     android:padding="10dp"
                     android:background="?android:selectableItemBackground"
-                    android:tint="@color/white"
+                    android:tint="@color/headerPrimaryText"
                     />
                 <TextView
                     android:id="@+id/chatBadge"
@@ -90,7 +98,7 @@
                 <ImageView
                     android:id="@+id/notificationsButton"
                     app:srcCompat="@drawable/ic_go_board"
-                    android:tint="@color/white"
+                    android:tint="@color/headerPrimaryText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:clickable="true"
@@ -125,9 +133,9 @@
                     android:alpha="0"
                     tools:alpha="1"
                     />
-            </android.support.constraint.ConstraintLayout>
-        </android.support.v7.widget.Toolbar>
-    </android.support.design.widget.AppBarLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </androidx.appcompat.widget.Toolbar>
+    </com.google.android.material.appbar.AppBarLayout>
 
     <FrameLayout
         android:id="@+id/fragment_container"
@@ -148,12 +156,12 @@
         style="@style/Widget.MaterialProgressBar.ProgressBar.Horizontal"
         app:mpb_useIntrinsicPadding="false"
         app:layout_constraintBottom_toBottomOf="@id/appbar"
-        app:mpb_indeterminateTint="@color/white"
+        app:mpb_indeterminateTint="@color/headerPrimaryText"
         android:elevation="4dp"
         android:visibility="gone"
         />
 
-    <android.support.design.widget.BottomNavigationView
+    <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomNavigation"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -162,12 +170,13 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:elevation="4dp"
         app:menu="@menu/menu_main"
-        android:background="@color/white"
+        app:labelVisibilityMode="labeled"
+        android:background="@color/colorTextBackground"
         />
 
-    <io.zenandroid.onlinego.newchallenge.NewChallengeView
+    <io.zenandroid.onlinego.ui.screens.newchallenge.NewChallengeView
         android:id="@+id/newChallengeView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         />
-</android.support.constraint.ConstraintLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

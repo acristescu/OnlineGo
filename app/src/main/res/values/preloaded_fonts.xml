@@ -1,12 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <array name="preloaded_fonts" translatable="false">
-        <item>@font/kanit</item>
-        <item>@font/kanit_semibold</item>
         <item>@font/kaushan_script</item>
         <item>@font/ubuntu</item>
         <item>@font/ubuntu_bold</item>
         <item>@font/ubuntu_condensed_regular</item>
-        <item>@font/ubuntu_medium</item>
     </array>
 </resources>

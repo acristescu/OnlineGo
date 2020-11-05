@@ -1,15 +1,38 @@
 package io.zenandroid.onlinego.gamelogic
 
 import android.graphics.Point
-import io.zenandroid.onlinego.model.local.Game
-import io.zenandroid.onlinego.model.ogs.OGSGame
-import io.zenandroid.onlinego.ogs.OGSServiceImpl
+import io.zenandroid.onlinego.data.model.local.Game
+import io.zenandroid.onlinego.data.model.ogs.OGSGame
+import io.zenandroid.onlinego.data.repositories.UserSessionRepository
+import org.koin.core.context.KoinContextHandler.get
 import java.util.*
 
 /**
  * Created by alex on 1/9/2015.
  */
 object Util {
+
+    private val userSessionRepository: UserSessionRepository by get().inject()
+    private val coordinatesX = arrayOf("A","B","C","D","E","F","G","H","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z")
+    private val coordinatesY = (1..25).map(Int::toString)
+
+    fun getGTPCoordinates(p: Point, boardSize: Int): String {
+        if (p.x == -1) {
+            return "PASS"
+        }
+
+        return "${coordinatesX[p.x]}${coordinatesY[boardSize - p.y - 1]}"
+    }
+
+    fun getCoordinatesFromGTP(gtp: String, boardSize: Int): Point {
+        if(gtp.toUpperCase(Locale.ROOT) == "PASS") {
+            return Point(-1, -1)
+        }
+
+        val x = coordinatesX.indexOf(gtp.substring(0..0))
+        val y = boardSize - gtp.substring(1).toInt()
+        return Point(x, y)
+    }
 
     fun getSGFCoordinates(p: Point): String {
         if (p.x == -1) {
@@ -60,18 +83,21 @@ object Util {
 
     fun isMyTurn(game: OGSGame?): Boolean {
         if (game?.player_to_move != 0L) {
-            return game?.player_to_move == OGSServiceImpl.instance.uiConfig?.user?.id
+            return game?.player_to_move == getCurrentUserId()
         }
         game.json?.let {
-            return it.clock.current_player == OGSServiceImpl.instance.uiConfig?.user?.id
+            return it.clock?.current_player == getCurrentUserId()
         }
         return false
     }
 
     fun isMyTurn(game: Game?): Boolean {
         if (game?.playerToMoveId != null) {
-            return game.playerToMoveId == OGSServiceImpl.instance.uiConfig?.user?.id
+            return game.playerToMoveId == getCurrentUserId()
         }
         return false
     }
+
+    fun getCurrentUserId() =
+        userSessionRepository.userId
 }
