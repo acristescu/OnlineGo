@@ -16,6 +16,7 @@ class HTTPConnectionFactory(
 ) {
     fun buildConnection() =
         OkHttpClient.Builder()
+                .followRedirects(false)
                 .cookieJar(userSessionRepository.cookieJar)
                 .addStethoInterceptor()
                 .addNetworkInterceptor { chain ->

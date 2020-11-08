@@ -21,6 +21,7 @@
             android:name="io.zenandroid.onlinego.ui.screens.login.LoginActivity"
             android:label="@string/app_name"
             android:theme="@style/LoginActivity"
+            android:noHistory="true"
             android:windowSoftInputMode="adjustResize"
             >
             <intent-filter>
@@ -28,6 +29,18 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+        <activity
+            android:name="io.zenandroid.onlinego.ui.screens.main.MainActivity"
+            android:screenOrientation="portrait"
+            />
+        <activity
+            android:name=".ui.screens.login.FacebookLoginCallbackActivity"
+            android:noHistory="true"
+            android:launchMode="singleInstance"
+            android:theme="@style/Theme.AppCompat.Translucent"
+            android:enabled="false"
+            >
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT"/>
@@ -35,19 +48,11 @@
                 <data
                     android:scheme="https"
                     android:host="online-go.com"
-                    android:path="/complete/google-oauth2/"
-                    />
-                <data
-                    android:scheme="https"
-                    android:host="online-go.com"
                     android:path="/complete/facebook/"
                     />
             </intent-filter>
         </activity>
-        <activity
-            android:name="io.zenandroid.onlinego.ui.screens.main.MainActivity"
-            android:screenOrientation="portrait"
-            />
+
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />
