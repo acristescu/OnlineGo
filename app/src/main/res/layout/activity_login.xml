@@ -65,6 +65,8 @@
             android:id="@+id/passwordLayout"
             android:visibility="gone"
             tools:visibility="visible"
+            app:passwordToggleEnabled="true"
+            app:passwordToggleTint="#FFFFFF"
             >
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/password"
@@ -138,11 +140,6 @@
             android:background="@drawable/button_shape_default_rounded"
             android:layout_marginTop="4dp"
             android:textColor="@color/loginText"
-            />
-        <com.google.android.gms.common.SignInButton
-            android:id="@+id/signInButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
             />
         <TextView
             android:id="@+id/noAccountView"

@@ -35,7 +35,7 @@ class OGSRestService(
                     //
                     // Hack alert!!! The server sometimes returns 200 even on wrong password :facepalm:
                     //
-                    if (it.csrf_token.isNullOrBlank()) {
+                    if (it.csrf_token.isNullOrBlank() || it.redirect != null) {
                         throw HttpException(Response.error<Any>(403, "login failed".toResponseBody()))
                     }
                 }

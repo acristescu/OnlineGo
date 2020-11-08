@@ -60,7 +60,7 @@ dependencies {
     implementation 'com.squareup.retrofit2:converter-gson:2.8.1'
     implementation 'com.squareup.retrofit2:converter-moshi:2.8.1'
 
-    implementation 'com.google.android.gms:play-services-auth:16.0.1'
+    implementation 'com.google.android.gms:play-services-auth:18.1.0'
     //
     // Warning! do not upgrade this beyond 4.4.x as 4.5.0 brings in websocket compression
     // which for whatever reason causes issues.

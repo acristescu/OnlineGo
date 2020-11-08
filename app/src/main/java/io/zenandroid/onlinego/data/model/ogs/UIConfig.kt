@@ -8,7 +8,7 @@ data class UIConfig (
         var lang: String? = null,
         var csrf_token: String? = null,
         var profanity_filter: Boolean? = null,
-        var chat_auth: String,
+        var chat_auth: String? = null,
         var server_name: String? = null,
         var cdn: String? = null,
         var notification_auth: String? = null,
@@ -24,6 +24,7 @@ data class UIConfig (
         var bots: List<OGSPlayer>? = null,
         var aga_ratings_enabled: Boolean? = null,
         var paypal_email: String? = null,
-        var user: User,
-        var user_jwt: String?
+        var user: User? = null,
+        var user_jwt: String? = null,
+        var redirect: String? = null
 )
