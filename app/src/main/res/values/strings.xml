@@ -8,5 +8,7 @@
     <string name="signing_prompt">Already have an account? Log in <b>here</b>!</string>
     <string name="login_to_ogs">Login to OGS</string>
     <string name="create_account">Create OGS account</string>
+    <string name="facebook_app_id">680091916248637</string>
+    <string name="fb_login_protocol_scheme">fb680091916248637</string>
 
 </resources>

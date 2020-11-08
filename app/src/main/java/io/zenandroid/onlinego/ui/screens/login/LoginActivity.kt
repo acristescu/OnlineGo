@@ -13,6 +13,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.Toast
+import com.facebook.CallbackManager
+import com.facebook.FacebookCallback
+import com.facebook.FacebookException
+import com.facebook.login.LoginResult
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
@@ -66,6 +70,8 @@ class LoginActivity : AppCompatActivity() {
             .cookieJar(userSessionRepository.cookieJar)
             .followRedirects(false)
             .build()
+    private val callbackManager = CallbackManager.Factory.create()
+
 
     private var googleLoginInProgress = false
 
@@ -87,6 +93,24 @@ class LoginActivity : AppCompatActivity() {
 
         username.onChange { onTextChanged() }
         password.onChange { onTextChanged() }
+
+        login_button.setPermissions(listOf("email"))
+        login_button.authType = "code"
+        login_button.registerCallback(callbackManager, object: FacebookCallback<LoginResult>{
+            override fun onSuccess(result: LoginResult?) {
+                Log.e("*****", result?.toString())
+                Log.e("*****", result!!.accessToken.token)
+            }
+
+            override fun onCancel() {
+                Log.e("*****", "cancel")
+            }
+
+            override fun onError(error: FacebookException?) {
+                Log.e("*****", error?.toString())
+            }
+
+        })
 
         intent.data?.let {
             val request = Request.Builder()
@@ -138,6 +162,7 @@ class LoginActivity : AppCompatActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
+        callbackManager.onActivityResult(requestCode, resultCode, data)
 
         if (requestCode == 1) {
             val task = GoogleSignIn.getSignedInAccountFromIntent(data)
