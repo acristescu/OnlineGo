@@ -5,6 +5,8 @@ import io.reactivex.Single
 import io.zenandroid.onlinego.BuildConfig
 import io.zenandroid.onlinego.data.model.ogs.JosekiPosition
 import io.zenandroid.onlinego.data.model.ogs.*
+import okhttp3.ResponseBody
+import retrofit2.Response
 import retrofit2.http.*
 
 /**
@@ -12,30 +14,15 @@ import retrofit2.http.*
  */
 interface OGSRestAPI {
 
-    /*
-    @FormUrlEncoded
-    @POST("oauth2/token/")
-    fun login(@Field("username") username: String,
-              @Field("password") password: String,
-              @Field("client_id") client_id: String = BuildConfig.CLIENT_ID,
-              @Field("client_secret") client_secret: String = BuildConfig.CLIENT_SECRET,
-              @Field("grant_type") grant_type: String = "password"): Single<LoginToken>
+    @GET("login/google-oauth2/")
+    fun initiateGoogleAuthFlow(): Single<Response<ResponseBody>>
 
-    @FormUrlEncoded
-    @POST("oauth2/token/")
-    fun refreshToken(@Field("refresh_token") refresh_token: String,
-                     @Field("client_id") client_id: String = BuildConfig.CLIENT_ID,
-                     @Field("client_secret") client_secret: String = BuildConfig.CLIENT_SECRET,
-                     @Field("grant_type") grant_type: String = "refresh_token"): Single<LoginToken>
-    */
+    @GET("/complete/google-oauth2/?scope=email+profile+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email+openid+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.profile&authuser=0&prompt=none")
+    fun loginWithGoogleAuth(
+            @Query("code") code: String,
+            @Query("state") state: String
+    ): Single<Response<ResponseBody>>
 
-    @FormUrlEncoded
-    @POST("oauth2/token/")
-    fun authWithCode(@Field("code") code: String,
-                     @Field("client_id") client_id: String = BuildConfig.CLIENT_ID,
-                     @Field("client_secret") client_secret: String = BuildConfig.CLIENT_SECRET,
-                     @Field("grant_type") grant_type: String = "authorization_code"): Single<LoginToken>
-    
     @POST("api/v0/login")
     fun login(@Body request: CreateAccountRequest): Single<UIConfig>
 

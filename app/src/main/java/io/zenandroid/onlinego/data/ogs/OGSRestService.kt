@@ -1,5 +1,6 @@
 package io.zenandroid.onlinego.data.ogs
 
+import android.util.Log
 import com.squareup.moshi.Moshi
 import io.reactivex.Completable
 import io.reactivex.Single
@@ -43,9 +44,31 @@ class OGSRestService(
                 .doAfterTerminate { idlingResource.decrement() }
     }
 
-    fun loginWithCode(code: String): Completable {
-        return restApi.authWithCode(code)
-                .flatMap { restApi.uiConfig() }
+    fun loginWithGoogle(code: String): Completable {
+        return restApi.initiateGoogleAuthFlow()
+                .map {
+                    if(it.code() != 302) {
+                        throw Exception("got code ${it.code()} instead of 302")
+                    }
+                    it.headers().forEach {
+                        if(it.first == "location") {
+                            return@map "&state=([^&]*)&".toRegex().find(it.second)!!.groupValues[1]
+                        }
+                    }
+                    throw Exception("Cannot log in (can't follow redirect)")
+                }
+                .flatMap { state -> restApi.loginWithGoogleAuth(code, state) }
+                .flatMap {
+                    if(it.code() != 302) {
+                        throw Exception("got code ${it.code()} instead of 302")
+                    }
+                    it.headers().forEach {
+                        if(it.first == "location" && it.second == "/") {
+                            return@flatMap restApi.uiConfig()
+                        }
+                    }
+                    throw Exception ("Login failed")
+                }
                 .doOnSuccess(userSessionRepository::storeUIConfig)
                 .ignoreElement()
     }
