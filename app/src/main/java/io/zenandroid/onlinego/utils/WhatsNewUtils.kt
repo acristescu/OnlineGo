@@ -19,17 +19,19 @@ object WhatsNewUtils {
 private const val currentText = """
 ## What's new
 
+- Reworked Google Authentication for a more friendly user experience
+- Minor improvements to login screen
+- During Offline AI game I now show better feedback when a user attempts an invalid move (such as KO or suicide) as well as when the computer passes
+- Fixed a bug that caused the AI to become stuck when the user attempted a KO move
+- 
+
+## Previous version
+
 - Stats page. 
 Thanks to popz73 for the contribution!
 In addition to your personal record, you can check the stats of your opponents by tapping their name/profile picture on the game screen.
 
-## Fix
-
-- Hotfix for occasional crash introduced in the last version
-
-## Previous version
-
-You can now play GO offline against the KataGO AI. This is still experimental and I've only really tested it on a Samsung Galaxy S9+. Please raise an issue including the phone's model [here](https://github.com/acristescu/OnlineGo/issues) if it does not work for you.
+- You can now play GO offline against the KataGO AI. This is still experimental and I've only really tested it on a Samsung Galaxy S9+. Please raise an issue including the phone's model [here](https://github.com/acristescu/OnlineGo/issues) if it does not work for you.
 
 The bot should play at around 3-4 dan, so most people would require a handicap for an enjoyable game. In the future we're hoping to implement a way to "dumb down" the bot in the style of the Katrain app.
 

@@ -19,7 +19,8 @@ class AnalyticsMiddleware: Middleware<AiGameState, AiGameAction> {
         return actions.withLatestFrom(state)
                 .doOnNext { (action, state) ->
                     when(action) {
-                        ViewReady, is RestoredState, ViewPaused, ShowNewGameDialog, DismissNewGameDialog, PromptUserForMove, is NewPosition, is UserHotTrackedCoordinate -> Unit
+                        ViewReady, is RestoredState, ViewPaused, ShowNewGameDialog, DismissNewGameDialog, PromptUserForMove, is NewPosition, is UserHotTrackedCoordinate, AIOwnershipResponse,
+                        HideOwnership -> Unit
                         is NewGame -> {
                             analytics.logEvent("ai_game_new_game", null)
                             state.position?.let {
@@ -62,6 +63,11 @@ class AnalyticsMiddleware: Middleware<AiGameState, AiGameAction> {
                         UserPressedNext -> analytics.logEvent("ai_game_user_redo", null)
                         UserPressedPass -> analytics.logEvent("ai_game_user_pass", null)
                         UserAskedForHint -> analytics.logEvent("ai_game_user_asked_hint", null)
+                        is EngineWouldNotStart -> analytics.logEvent("katago_would_not_start", null)
+                        AIError -> analytics.logEvent("katago_error", null)
+                        UserAskedForOwnership -> analytics.logEvent("ai_game_user_asked_territory", null)
+                        is UserTriedSuicidalMove -> analytics.logEvent("ai_game_user_tried_suicide", null)
+                        is UserTriedKoMove -> analytics.logEvent("ai_game_user_tried_ko", null)
                     }
                 }
                 .switchMap { Observable.empty<AiGameAction>() }

@@ -82,13 +82,28 @@ class AiGameReducer : Reducer<AiGameState, AiGameAction> {
                     boardIsInteractive = true,
                     passButtonEnabled = true,
                     previousButtonEnabled = state.position?.parentPosition?.parentPosition != null,
-                    chatText = if(state.position != null && state.engineStarted) "Your turn!" else state.chatText
+                    chatText = when {
+                        state.engineStarted && state.position?.lastMove?.x == -1 -> "Pass! If you agree the game is over you should pass as well."
+                        state.position != null && state.engineStarted -> "Your turn!"
+                        else -> state.chatText
+                    }
             )
             is UserHotTrackedCoordinate -> state.copy(
                     candidateMove = action.coordinate
             )
             is UserTappedCoordinate -> state.copy(
                     candidateMove = null
+            )
+            is UserTriedKoMove -> state.copy(
+                    candidateMove = null,
+                    chatText = "That is an illegal KO move. Repeating a position is not allowed. Try again!"
+            )
+            is UserTriedSuicidalMove -> state.copy(
+                    candidateMove = null,
+                    chatText = "That move is illegal because you would kill your own group. Try again!"
+            )
+            AIError -> state.copy(
+                    chatText = "An error occurred communicating with the AI"
             )
             UserPressedPrevious -> {
                 val newPosition = if(aiMovedLast(state)) state.position?.parentPosition?.parentPosition!! else state.position?.parentPosition!!

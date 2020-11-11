@@ -25,6 +25,7 @@ sealed class AiGameAction {
 
     class NewPosition(val newPos: Position): AiGameAction()
     class AIMove(val newPos: Position): AiGameAction()
+    object AIError: AiGameAction()
     object AIHint: AiGameAction()
     object AIOwnershipResponse: AiGameAction()
     object HideOwnership: AiGameAction()
@@ -40,5 +41,8 @@ sealed class AiGameAction {
     object UserPressedPass: AiGameAction()
     object UserAskedForHint: AiGameAction()
     object UserAskedForOwnership: AiGameAction()
+    class UserTriedSuicidalMove(val coordinate: Point): AiGameAction()
+    class UserTriedKoMove(val coordinate: Point): AiGameAction()
+
 
 }
