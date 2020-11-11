@@ -7,12 +7,12 @@ apply plugin: 'com.google.firebase.crashlytics'
 apply plugin: 'koin'
 
 android {
-    compileSdkVersion 28
+    compileSdkVersion 29
     ndkVersion "21.0.6113669"
     defaultConfig {
         applicationId "io.zenandroid.onlinego"
         minSdkVersion 20
-        targetSdkVersion 28
+        targetSdkVersion 29
 //        versionCode System.getenv("APPCENTER_BUILD_ID") as Integer ?: 54
         versionCode 42
         versionName "alpha_b${versionCode}"
