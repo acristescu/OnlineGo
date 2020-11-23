@@ -317,14 +317,11 @@ class MainActivity : AppCompatActivity(), MainContract.View {
     override fun navigateToGameScreen(game: Game) {
         bottomNavigation.visibility = View.GONE
         newChallengeView.fadeOut().subscribe()
-        var transaction = supportFragmentManager.beginTransaction()
+        supportFragmentManager.beginTransaction()
                 .setCustomAnimations(R.anim.fade_in, R.anim.fade_out,
                         R.anim.fade_in, R.anim.fade_out)
-        val fragment = supportFragmentManager.findFragmentById(R.id.fragment_container)
-        if (fragment !is GameFragment) {
-            transaction = transaction.addToBackStack(null)
-        }
-        transaction.replace(R.id.fragment_container, GameFragment.createFragment(game), "game")
+                .addToBackStack(null)
+                .replace(R.id.fragment_container, GameFragment.createFragment(game), "game")
                 .commitAllowingStateLoss()
     }
 
