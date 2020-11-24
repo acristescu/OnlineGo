@@ -17,6 +17,7 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
 import androidx.core.content.res.ResourcesCompat
+import androidx.fragment.app.Fragment
 import com.jakewharton.rxbinding2.view.RxView
 import io.reactivex.Completable
 import io.reactivex.Observable
@@ -134,7 +135,7 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         when (item.itemId) {
             android.R.id.home -> {
                 if(supportFragmentManager.backStackEntryCount > 0) {
-                    supportFragmentManager.popBackStackImmediate()
+                    goBackOneScreen()
                 } else {
                     onBackPressed()
                 }
@@ -142,6 +143,19 @@ class MainActivity : AppCompatActivity(), MainContract.View {
             }
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    private fun goBackOneScreen() {
+        do {
+            supportFragmentManager.popBackStackImmediate()
+
+            // Game fragments are added to the stack each time we tap on the notification button,
+            // so we keep unstacking them until we reach another kind of fragment.
+        } while (getCurrentFragment() is GameFragment)
+    }
+
+    private fun getCurrentFragment(): Fragment? {
+        return supportFragmentManager.findFragmentById(R.id.fragment_container)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -339,11 +353,11 @@ class MainActivity : AppCompatActivity(), MainContract.View {
     }
 
     override fun onBackPressed() {
-        val fragment = supportFragmentManager.findFragmentById(R.id.fragment_container)
+        val fragment = getCurrentFragment()
         when {
             fragment is JosekiExplorerFragment && fragment.canHandleBack() -> fragment.onBackPressed()
             newChallengeView.subMenuVisible -> newChallengeView.toggleSubMenu()
-            supportFragmentManager.backStackEntryCount > 0 -> supportFragmentManager.popBackStackImmediate()
+            supportFragmentManager.backStackEntryCount > 0 -> goBackOneScreen()
 
             else -> super.onBackPressed()
         }
