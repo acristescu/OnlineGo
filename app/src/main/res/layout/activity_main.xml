@@ -73,7 +73,7 @@
                     android:scaleType="fitXY"
                     android:padding="10dp"
                     android:background="?android:selectableItemBackground"
-                    android:tint="@color/headerPrimaryText"
+                    app:tint="@color/headerPrimaryText"
                     />
                 <TextView
                     android:id="@+id/chatBadge"
@@ -98,7 +98,7 @@
                 <ImageView
                     android:id="@+id/notificationsButton"
                     app:srcCompat="@drawable/ic_go_board"
-                    android:tint="@color/headerPrimaryText"
+                    app:tint="@color/headerPrimaryText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:clickable="true"

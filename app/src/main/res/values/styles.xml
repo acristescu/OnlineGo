@@ -42,4 +42,47 @@
         <item name="android:windowIsTranslucent">true</item>
         <item name="android:windowAnimationStyle">@android:style/Animation</item>
     </style>
+
+    <style name="SupporterReasonTitle">
+        <item name="android:textSize">14sp</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:layout_marginTop">24dp</item>
+        <item name="android:layout_marginLeft">64dp</item>
+        <item name="android:layout_marginRight">16dp</item>
+    </style>
+    <style name="SupporterReasonContent">
+        <item name="android:alpha">0.7</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:layout_marginTop">8dp</item>
+        <item name="android:layout_marginLeft">64dp</item>
+        <item name="android:layout_marginRight">16dp</item>
+        <item name="android:lineSpacingMultiplier">1.1</item>
+    </style>
+    <style name="SupporterFAQTitle" parent="SupporterReasonTitle">
+        <item name="android:layout_marginLeft">0dp</item>
+        <item name="android:layout_marginTop">16dp</item>
+    </style>
+    <style name="SupporterFAQContent" parent="SupporterReasonContent">
+        <item name="android:layout_marginLeft">0dp</item>
+        <item name="android:layout_marginTop">8dp</item>
+    </style>
+    <style name="RedSlider" parent="Widget.MaterialComponents.Slider">
+        <item name="materialThemeOverlay">@style/ThemeOverlay.App.Slider</item>
+    </style>
+    <style name="ThemeOverlay.App.Slider" parent="">
+        <item name="colorPrimary">@color/colorAccent</item>
+        <item name="colorOnSurface">@color/colorAccent</item>
+        <item name="android:textColor">@color/white</item>
+    </style>
+    <style name="SupporterButton">
+        <item name="backgroundTint">@null</item>
+        <item name="android:background">@drawable/ic_background_linear</item>
+        <item name="icon">@drawable/ic_star</item>
+        <item name="iconGravity">textStart</item>
+        <item name="android:layout_gravity">center</item>
+        <item name="android:paddingTop">0dp</item>
+        <item name="android:paddingBottom">0dp</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="iconTint">@color/white</item>
+    </style>
 </resources>

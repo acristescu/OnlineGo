@@ -176,7 +176,7 @@
         app:layout_constraintRight_toLeftOf="@id/values_barrier"
         app:layout_constraintTop_toTopOf="@id/scoreView"
         app:layout_constraintBottom_toBottomOf="@id/scoreView"
-        app:srcCompat="@drawable/ic_score" />
+        app:srcCompat="@drawable/ic_territory" />
 
     <TextView
         android:id="@+id/scoreView"
@@ -238,7 +238,7 @@
         android:id="@+id/timerFirstLineLabelView"
         android:layout_width="14dp"
         android:layout_height="14dp"
-        app:srcCompat="@drawable/ic_stopwatch"
+        app:srcCompat="@drawable/ic_big_clock"
         android:fontFamily="@font/ubuntu_condensed_regular"
         app:layout_constraintRight_toLeftOf="@id/values_barrier"
         app:layout_constraintTop_toTopOf="@id/timerFirstLineView"

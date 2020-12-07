@@ -19,21 +19,12 @@ object WhatsNewUtils {
 private const val currentText = """
 ## What's new
 
-- Reworked Google Authentication for a more friendly user experience
-- Minor improvements to login screen
-- During Offline AI game I now show better feedback when a user attempts an invalid move (such as KO or suicide) as well as when the computer passes
-- Fixed a bug that caused the AI to become stuck when the user attempted a KO move
-- 
-
-## Previous version
-
-- Stats page. 
-Thanks to popz73 for the contribution!
-In addition to your personal record, you can check the stats of your opponents by tapping their name/profile picture on the game screen.
-
-- You can now play GO offline against the KataGO AI. This is still experimental and I've only really tested it on a Samsung Galaxy S9+. Please raise an issue including the phone's model [here](https://github.com/acristescu/OnlineGo/issues) if it does not work for you.
-
-The bot should play at around 3-4 dan, so most people would require a handicap for an enjoyable game. In the future we're hoping to implement a way to "dumb down" the bot in the style of the Katrain app.
+- Shiny new app icon.
+- I rewrote the settings screen so that it looks cleaner and helps people find the desired settings easier.
+- Added the ability to become a project supporter by doing a monthly donation though Google Play. There are no supporter-only features, this is meant as a donation for the project. 
+- Fixed a bug that prevented old low-memory devices from using google login
+- Changed a few of the icons to make them more consistent. Yes, I did have to learn how to create vector icons using Figma...
+- Pressing back after navigating to several games now takes you back directly to the home screen (thanks to sdeframond for the contribution)
 
 ## About project
 

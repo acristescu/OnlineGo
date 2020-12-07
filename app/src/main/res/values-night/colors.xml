@@ -24,7 +24,7 @@
     <color name="colorPrimary">#389FFF</color>
     <color name="colorPrimaryLight">#0E71C8</color>
     <color name="colorPrimaryDark">#0E71C8</color> <!--//offWhite-->
-    <color name="colorAccent">#0E71C8</color>
+    <color name="colorAccent">#389FFF</color>
     <color name="colorOffWhite">#2C2C2C</color>
 
     <color name="color_type_info">#79b3e4</color>
@@ -34,5 +34,8 @@
     <color name="color_type_success">#90b06e</color>
 
     <color name="rankGraphLine">@color/colorActionableText</color>
-
+    <color name="panelBackground">@color/headerPrimary</color>
+    <color name="accentGradientStart">@color/colorPrimary</color>
+    <color name="accentGradientEnd">@color/colorPrimaryDark</color>
+    <color name="colorToolbarBackground">@color/colorOffWhite</color>
 </resources>

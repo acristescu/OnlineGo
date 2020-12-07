@@ -11,9 +11,8 @@ android {
     ndkVersion "21.0.6113669"
     defaultConfig {
         applicationId "io.zenandroid.onlinego"
-        minSdkVersion 20
+        minSdkVersion 21
         targetSdkVersion 29
-//        versionCode System.getenv("APPCENTER_BUILD_ID") as Integer ?: 54
         versionCode 42
         versionName "alpha_b${versionCode}"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -97,7 +96,6 @@ dependencies {
     implementation 'androidx.emoji:emoji:1.0.0'
     implementation 'androidx.legacy:legacy-preference-v14:1.0.0'
 
-    implementation 'de.hdodenhof:circleimageview:3.1.0'
 
     implementation 'me.zhanghai.android.materialprogressbar:library:1.6.1'
 
@@ -119,6 +117,8 @@ dependencies {
     kapt 'com.github.bumptech.glide:compiler:4.11.0'
 
     implementation "org.koin:koin-androidx-viewmodel:2.1.5"
+
+    implementation "com.android.billingclient:billing-ktx:3.0.1"
 
     implementation 'com.google.firebase:firebase-crashlytics:17.2.2'
     implementation "androidx.core:core-ktx:1.2.0"

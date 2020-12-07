@@ -35,19 +35,19 @@ import io.zenandroid.onlinego.ui.screens.mygames.MyGamesFragment
 import io.zenandroid.onlinego.ui.screens.newchallenge.NewAutomatchChallengeBottomSheet
 import io.zenandroid.onlinego.ui.screens.newchallenge.NewChallengeBottomSheet
 import io.zenandroid.onlinego.notifications.SynchronizeGamesWork
-import io.zenandroid.onlinego.ui.screens.settings.SettingsFragment
 import io.zenandroid.onlinego.data.repositories.SettingsRepository
 import io.zenandroid.onlinego.gamelogic.Util
 import io.zenandroid.onlinego.ui.screens.stats.StatsFragment
 import io.zenandroid.onlinego.ui.items.statuschips.Chip
 import io.zenandroid.onlinego.ui.items.statuschips.ChipAdapter
 import io.zenandroid.onlinego.ui.screens.localai.AiGameFragment
+import io.zenandroid.onlinego.ui.screens.settings.SettingsFragment
+import io.zenandroid.onlinego.ui.screens.supporter.SupporterFragment
 import io.zenandroid.onlinego.ui.views.BoardView
 import io.zenandroid.onlinego.utils.*
 import kotlinx.android.synthetic.main.activity_main.*
 import org.koin.android.ext.android.get
 import org.koin.android.ext.android.inject
-import java.util.*
 
 
 class MainActivity : AppCompatActivity(), MainContract.View {
@@ -176,10 +176,26 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         supportFragmentManager.addOnBackStackChangedListener {
             bottomNavigation.setOnNavigationItemSelectedListener(null)
             when(supportFragmentManager.fragments.lastOrNull()) {
-                is MyGamesFragment -> bottomNavigation.selectedItemId = R.id.navigation_my_games
-                is LearnFragment -> bottomNavigation.selectedItemId = R.id.navigation_learn
-                is StatsFragment -> bottomNavigation.selectedItemId = R.id.navigation_stats
-                is SettingsFragment -> bottomNavigation.selectedItemId = R.id.navigation_settings
+                is MyGamesFragment -> {
+                    bottomNavigation.selectedItemId = R.id.navigation_my_games
+                    ensureNavigationVisible()
+                    setToolbarVisible(true)
+                }
+                is LearnFragment -> {
+                    bottomNavigation.selectedItemId = R.id.navigation_learn
+                    ensureNavigationVisible()
+                    setToolbarVisible(true)
+                }
+                statsFragment -> {
+                    bottomNavigation.selectedItemId = R.id.navigation_stats
+                    ensureNavigationVisible()
+                    setToolbarVisible(true)
+                }
+                is SettingsFragment -> {
+                    bottomNavigation.selectedItemId = R.id.navigation_settings
+                    ensureNavigationVisible()
+                    setToolbarVisible(false)
+                }
             }
             bottomNavigation.setOnNavigationItemSelectedListener(this::selectItem)
         }
@@ -275,6 +291,8 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         }
         return when(item.itemId) {
             R.id.navigation_my_games -> {
+                setToolbarVisible(true)
+                ensureNavigationVisible()
                 supportFragmentManager.beginTransaction()
                         .setCustomAnimations(R.anim.fade_in, R.anim.fade_out,
                                 R.anim.fade_in, R.anim.fade_out)
@@ -284,6 +302,8 @@ class MainActivity : AppCompatActivity(), MainContract.View {
                 true
             }
             R.id.navigation_learn -> {
+                setToolbarVisible(true)
+                ensureNavigationVisible()
                 supportFragmentManager.beginTransaction()
                         .setCustomAnimations(R.anim.fade_in, R.anim.fade_out,
                                 R.anim.fade_in, R.anim.fade_out)
@@ -293,6 +313,9 @@ class MainActivity : AppCompatActivity(), MainContract.View {
                 true
             }
             R.id.navigation_settings -> {
+                setToolbarVisible(false)
+                bottomNavigation.visibility = View.VISIBLE
+                newChallengeView.fadeOut().subscribe()
                 supportFragmentManager.beginTransaction()
                         .setCustomAnimations(R.anim.fade_in, R.anim.fade_out,
                                 R.anim.fade_in, R.anim.fade_out)
@@ -302,6 +325,8 @@ class MainActivity : AppCompatActivity(), MainContract.View {
                 true
             }
             R.id.navigation_stats -> {
+                setToolbarVisible(true)
+                ensureNavigationVisible()
                 supportFragmentManager.beginTransaction()
                         .setCustomAnimations(R.anim.fade_in, R.anim.fade_out,
                                 R.anim.fade_in, R.anim.fade_out)
@@ -317,6 +342,10 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         }
     }
 
+    private fun setToolbarVisible(visible: Boolean) {
+        toolbar.showIf(visible)
+    }
+
     fun ensureNavigationVisible() {
         if(bottomNavigation.visibility != View.VISIBLE) {
             bottomNavigation.visibility = View.VISIBLE
@@ -329,6 +358,7 @@ class MainActivity : AppCompatActivity(), MainContract.View {
     }
 
     override fun navigateToGameScreen(game: Game) {
+        setToolbarVisible(true)
         bottomNavigation.visibility = View.GONE
         newChallengeView.fadeOut().subscribe()
         supportFragmentManager.beginTransaction()
@@ -397,6 +427,7 @@ class MainActivity : AppCompatActivity(), MainContract.View {
     }
 
     fun navigateToJosekiExplorer() {
+        setToolbarVisible(true)
         bottomNavigation.visibility = View.GONE
         newChallengeView.fadeOut().subscribe()
         supportFragmentManager.beginTransaction()
@@ -408,12 +439,25 @@ class MainActivity : AppCompatActivity(), MainContract.View {
     }
 
     fun onLocalAIClicked() {
+        setToolbarVisible(true)
         bottomNavigation.visibility = View.GONE
         newChallengeView.fadeOut().subscribe()
         supportFragmentManager.beginTransaction()
                 .setCustomAnimations(R.anim.fade_in, R.anim.fade_out,
                         R.anim.fade_in, R.anim.fade_out)
                 .replace(R.id.fragment_container, AiGameFragment())
+                .addToBackStack(null)
+                .commitAllowingStateLoss()
+    }
+
+    fun navigateToSupporterScreen() {
+        setToolbarVisible(false)
+        bottomNavigation.visibility = View.GONE
+        newChallengeView.fadeOut().subscribe()
+        supportFragmentManager.beginTransaction()
+                .setCustomAnimations(R.anim.fade_in, R.anim.fade_out,
+                        R.anim.fade_in, R.anim.fade_out)
+                .replace(R.id.fragment_container, SupporterFragment())
                 .addToBackStack(null)
                 .commitAllowingStateLoss()
     }

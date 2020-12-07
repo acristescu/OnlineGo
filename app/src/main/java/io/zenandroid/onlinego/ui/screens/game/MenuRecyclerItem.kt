@@ -23,7 +23,7 @@ class MenuRecyclerItem(val item: GameContract.MenuItem) : Item(item.hashCode().t
             }
             ESTIMATE_SCORE -> {
                 viewHolder.titleView.text = "Estimate Score"
-                viewHolder.iconView.setImageResource(R.drawable.ic_score)
+                viewHolder.iconView.setImageResource(R.drawable.ic_territory)
             }
             ANALYZE -> {
                 viewHolder.titleView.text = "Analyze"
@@ -55,7 +55,7 @@ class MenuRecyclerItem(val item: GameContract.MenuItem) : Item(item.hashCode().t
             }
             OPEN_IN_BROWSER -> {
                 viewHolder.titleView.text = "Open in Browser"
-                viewHolder.iconView.setImageResource(R.drawable.ic_link_black_24dp)
+                viewHolder.iconView.setImageResource(R.drawable.ic_chrome)
             }
         }.let {}
     }

@@ -14,7 +14,7 @@
         android:layout_height="32dp"
         android:background="@drawable/rounded_corners"
         android:backgroundTint="@color/headerPrimary"
-        android:tint="@color/headerPrimaryText"
+        app:tint="@color/headerPrimaryText"
         android:padding="8dp"
         tools:src="@drawable/ic_book"
         app:layout_constraintLeft_toLeftOf="parent"

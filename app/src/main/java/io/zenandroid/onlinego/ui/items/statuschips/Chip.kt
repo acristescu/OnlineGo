@@ -27,9 +27,7 @@ open class Chip(
         icon?.let {
             viewHolder.icon.visibility = VISIBLE
             viewHolder.icon.setImageResource(it)
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                viewHolder.icon.imageTintList = ColorStateList.valueOf(ContextCompat.getColor(viewHolder.icon.context, fgColor))
-            }
+            viewHolder.icon.imageTintList = ColorStateList.valueOf(ContextCompat.getColor(viewHolder.icon.context, fgColor))
         } ?: run { viewHolder.icon.visibility = GONE }
 
     }

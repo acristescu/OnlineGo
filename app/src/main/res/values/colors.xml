@@ -36,5 +36,9 @@
     <color name="chartWon">#90b06e</color>
     <color name="chartLost">#ed7861</color>
     <color name="rankGraphLine">@color/colorPrimary</color>
+    <color name="panelBackground">@color/white</color>
+    <color name="accentGradientStart">#ff9a83</color>
+    <color name="accentGradientEnd">#df6a53</color>
+    <color name="colorToolbarBackground">#FFFFFF</color>
 
 </resources>
