@@ -54,12 +54,13 @@ class GamePresenterTest {
         assertEquals("1h 59m", formatMillis(1 * HOURS + 59 * MINUTES + 59 * SECONDS))
         assertEquals("2h 00m", formatMillis(2 * HOURS + 0 * MINUTES))
         assertEquals("23h 59m", formatMillis(23 * HOURS + 59 * MINUTES + 59 * SECONDS))
-        assertEquals("1 day", formatMillis(1 * DAYS))
-        assertEquals("1 day", formatMillis(1 * DAYS + 23 * HOURS + 59 * MINUTES))
-        assertEquals("2 days", formatMillis(2 * DAYS))
-        assertEquals("6 days", formatMillis(6 * DAYS + 23 * HOURS + 59 * MINUTES))
+        assertEquals("24h", formatMillis(1 * DAYS))
+        assertEquals("47h", formatMillis(1 * DAYS + 23 * HOURS + 59 * MINUTES))
+        assertEquals("48h", formatMillis(2 * DAYS))
+        assertEquals("3 days", formatMillis(3 * DAYS))
+        assertEquals("6 days 23 hours", formatMillis(6 * DAYS + 23 * HOURS + 59 * MINUTES))
         assertEquals("1 week", formatMillis(1 * WEEKS))
-        assertEquals("1 week", formatMillis(1 * WEEKS + 6 * DAYS + 23 * HOURS))
+        assertEquals("1 week 6 days", formatMillis(1 * WEEKS + 6 * DAYS + 23 * HOURS))
         assertEquals("2 weeks", formatMillis(2 * WEEKS))
     }
 }
