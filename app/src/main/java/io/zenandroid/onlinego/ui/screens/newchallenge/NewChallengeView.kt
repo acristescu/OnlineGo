@@ -2,13 +2,13 @@ package io.zenandroid.onlinego.ui.screens.newchallenge
 
 import android.content.Context
 import android.util.AttributeSet
-import android.view.View
+import android.view.LayoutInflater
 import android.widget.FrameLayout
 import io.reactivex.Completable
 import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.R
+import io.zenandroid.onlinego.databinding.ViewNewChallengeBinding
 import io.zenandroid.onlinego.utils.*
-import kotlinx.android.synthetic.main.view_new_challenge.view.*
 
 
 /**
@@ -22,6 +22,8 @@ class NewChallengeView : FrameLayout {
 
     private val analytics = OnlineGoApplication.instance.analytics
 
+    private lateinit var binding: ViewNewChallengeBinding
+
     var onAutomatchClicked: (() -> Unit)? = null
     var onOnlineCustomClicked: (() -> Unit)? = null
 
@@ -33,18 +35,19 @@ class NewChallengeView : FrameLayout {
     }
 
     private fun init() {
-        val view = View.inflate(context, R.layout.view_new_challenge, this)
+        val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+        binding = ViewNewChallengeBinding.inflate(inflater, this, true)
 
-        fab.setOnClickListener {
+        binding.fab.setOnClickListener {
             analytics.logEvent("new_game_fab_clicked", null)
             toggleSubMenu()
         }
-        onlineFab.setOnClickListener {
+        binding.onlineFab.setOnClickListener {
             analytics.logEvent("automatch_fab_clicked", null)
             toggleSubMenu()
             onAutomatchClicked?.invoke()
         }
-        customFab.setOnClickListener {
+        binding.customFab.setOnClickListener {
             analytics.logEvent("custom_fab_clicked", null)
             toggleSubMenu()
             onOnlineCustomClicked?.invoke()
@@ -59,25 +62,25 @@ class NewChallengeView : FrameLayout {
         } else {
             hideSubMenu().subscribe()
         }
-        scrim.showIf(subMenuVisible)
+        binding.scrim.showIf(subMenuVisible)
     }
 
     fun showSubMenu() = Completable.mergeArray(
-            fab.rotate(45f),
-            onlineFab.slideIn(fabMiniSize).andThen(onlineLabel.fadeIn()),
-            customFab.slideIn(2 * fabMiniSize).andThen(customLabel.fadeIn())
+            binding.fab.rotate(45f),
+            binding.onlineFab.slideIn(fabMiniSize).andThen(binding.onlineLabel.fadeIn()),
+            binding.customFab.slideIn(2 * fabMiniSize).andThen(binding.customLabel.fadeIn())
     )
 
     fun hideSubMenu() = Completable.mergeArray(
-            fab.rotate(0f),
-            onlineLabel.fadeOut().andThen(onlineFab.slideOut(fabMiniSize)),
-            customLabel.fadeOut().andThen(customFab.slideOut(2 * fabMiniSize))
+            binding.fab.rotate(0f),
+            binding.onlineLabel.fadeOut().andThen(binding.onlineFab.slideOut(fabMiniSize)),
+            binding.customLabel.fadeOut().andThen(binding.customFab.slideOut(2 * fabMiniSize))
     )
 
     fun hideFab(): Completable =
-            fab.slideOut(0f)
+            binding.fab.slideOut(0f)
 
     fun showFab() : Completable =
-        fab.slideIn(0f, 700, 3f)
+            binding.fab.slideIn(0f, 700, 3f)
 
 }

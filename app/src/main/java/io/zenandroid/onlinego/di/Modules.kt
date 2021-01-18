@@ -10,6 +10,7 @@ import io.zenandroid.onlinego.data.repositories.*
 import io.zenandroid.onlinego.mvi.Store
 import io.zenandroid.onlinego.playstore.PlayStoreService
 import io.zenandroid.onlinego.ui.screens.joseki.*
+import io.zenandroid.onlinego.ui.screens.learn.LearnViewModel
 import io.zenandroid.onlinego.ui.screens.localai.AiGameReducer
 import io.zenandroid.onlinego.ui.screens.localai.AiGameState
 import io.zenandroid.onlinego.ui.screens.localai.AiGameViewModel
@@ -19,6 +20,7 @@ import io.zenandroid.onlinego.ui.screens.newchallenge.selectopponent.searchplaye
 import io.zenandroid.onlinego.ui.screens.newchallenge.selectopponent.searchplayer.SearchPlayerReducer
 import io.zenandroid.onlinego.ui.screens.newchallenge.selectopponent.searchplayer.SearchPlayerState
 import io.zenandroid.onlinego.ui.screens.newchallenge.selectopponent.searchplayer.SearchPlayerViewModel
+import io.zenandroid.onlinego.ui.screens.tutorial.TutorialViewModel
 import io.zenandroid.onlinego.utils.CountingIdlingResource
 import io.zenandroid.onlinego.utils.CustomConverterFactory
 import io.zenandroid.onlinego.utils.NOOPIdlingResource
@@ -54,6 +56,7 @@ private val repositoriesModule = module {
     single { SettingsRepository() }
     single { UserSessionRepository() }
     single { ClockDriftRepository(get()) }
+    single { TutorialsRepository() }
 }
 
 private val serverConnectionModule = module {
@@ -138,6 +141,14 @@ private val viewModelsModule = module {
                         AiGameState()
                 )
         )
+    }
+
+    viewModel {
+        LearnViewModel(get())
+    }
+
+    viewModel {
+        TutorialViewModel(get())
     }
 }
 

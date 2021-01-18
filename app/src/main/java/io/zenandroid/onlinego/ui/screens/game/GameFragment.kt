@@ -27,10 +27,9 @@ import io.zenandroid.onlinego.data.model.StoneType
 import io.zenandroid.onlinego.data.model.local.Game
 import io.zenandroid.onlinego.data.model.local.Message
 import io.zenandroid.onlinego.data.model.local.Player
+import io.zenandroid.onlinego.databinding.FragmentGameBinding
 import io.zenandroid.onlinego.ui.items.statuschips.Chip
 import io.zenandroid.onlinego.utils.*
-import kotlinx.android.synthetic.main.fragment_game.*
-import kotlinx.android.synthetic.main.view_player_details.view.*
 import org.koin.android.ext.android.get
 import java.util.concurrent.TimeUnit
 
@@ -56,56 +55,58 @@ class GameFragment : Fragment(), GameContract.View {
     private val chatDialog: ChatDialog by lazy { ChatDialog() }
     private val gameInfoDialog: GameInfoDialog by lazy { GameInfoDialog() }
 
+    private lateinit var binding: FragmentGameBinding
+
     override var position: Position? = null
         set(value) {
-            board.position = value
+            binding.board.position = value
         }
 
     override var whiteScore: Float = 0f
         set(value) {
-            whiteDetailsView?.score = value
+            binding.whiteDetailsView?.score = value
         }
 
     override var blackScore: Float = 0f
         set(value) {
-            blackDetailsView?.score = value
+            binding.blackDetailsView?.score = value
         }
 
     override fun setWhitePlayerStatus(text: String?, color: Int) {
-        whiteDetailsView.setStatus(text, color)
+        binding.whiteDetailsView.setStatus(text, color)
     }
 
     override fun setBlackPlayerStatus(text: String?, color: Int) {
-        blackDetailsView.setStatus(text, color)
+        binding.blackDetailsView.setStatus(text, color)
     }
 
     override fun setBlackPlayerPassed(passed: Boolean) {
-        blackDetailsView.passed = passed
+        binding.blackDetailsView.passed = passed
     }
 
     override fun setWhitePlayerPassed(passed: Boolean) {
-        whiteDetailsView.passed = passed
+        binding.whiteDetailsView.passed = passed
     }
 
     override var whitePlayer: Player? = null
         set(value) {
-            whiteDetailsView.player = value
+            binding.whiteDetailsView.player = value
         }
 
     override var blackPlayer: Player? = null
         set(value) {
-            blackDetailsView.player = value
+            binding.blackDetailsView.player = value
         }
 
     override var passButtonEnabled: Boolean = true
         set(value) {
-            passButton.isEnabled = value
+            binding.passButton.isEnabled = value
         }
 
     override var boardSize: Int
-        get() = board.boardSize
+        get() = binding.board.boardSize
         set(value) {
-            board.boardSize = value
+            binding.board.boardSize = value
         }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -219,29 +220,31 @@ class GameFragment : Fragment(), GameContract.View {
         }
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?) : View =
-            inflater.inflate(R.layout.fragment_game, container, false)
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?) : View {
+        binding = FragmentGameBinding.inflate(inflater, container, false)
+        return binding.root
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        board.isInteractive = true
+        binding.apply {
+            board.isInteractive = true
 
-        whiteDetailsView.color = StoneType.WHITE
-        blackDetailsView.color = StoneType.BLACK
+            whiteDetailsView.color = StoneType.WHITE
+            blackDetailsView.color = StoneType.BLACK
 
-        resignButton.setOnClickListener { onResignClicked() }
-        passButton.setOnClickListener { onPassClicked() }
-        undoButton.setOnClickListener { presenter.onRequestUndo() }
-        discardButton.setOnClickListener { presenter.onDiscardButtonPressed() }
-        analyzeButton.setOnClickListener { presenter.onAnalyzeButtonClicked() }
-        analysisDisabledButton.setOnClickListener { presenter.onAnalysisDisabledButtonClicked() }
-        confirmButton.setOnClickListener { presenter.onConfirmButtonPressed() }
-        autoButton.setOnClickListener { presenter.onAutoButtonPressed() }
-        menuButton.setOnClickListener { presenter.onMenuButtonPressed() }
-        whiteDetailsView.iconView.setOnClickListener { onWhitePlayerPressed() }
-        whiteDetailsView.nameView.setOnClickListener { onWhitePlayerPressed() }
-        blackDetailsView.iconView.setOnClickListener { onBlackPlayerPressed() }
-        blackDetailsView.nameView.setOnClickListener { onBlackPlayerPressed() }
+            resignButton.setOnClickListener { onResignClicked() }
+            passButton.setOnClickListener { onPassClicked() }
+            undoButton.setOnClickListener { presenter.onRequestUndo() }
+            discardButton.setOnClickListener { presenter.onDiscardButtonPressed() }
+            analyzeButton.setOnClickListener { presenter.onAnalyzeButtonClicked() }
+            analysisDisabledButton.setOnClickListener { presenter.onAnalysisDisabledButtonClicked() }
+            confirmButton.setOnClickListener { presenter.onConfirmButtonPressed() }
+            autoButton.setOnClickListener { presenter.onAutoButtonPressed() }
+            menuButton.setOnClickListener { presenter.onMenuButtonPressed() }
+            whiteDetailsView.onUserClickedListener = ::onWhitePlayerPressed
+            blackDetailsView.onUserClickedListener = ::onBlackPlayerPressed
+        }
 
 
         analytics.logEvent("showing_game", arguments)
@@ -253,8 +256,8 @@ class GameFragment : Fragment(), GameContract.View {
                 gameRepository = get(),
                 settingsRepository = get(),
                 clockDriftRepository = get(),
-                gameId = arguments!!.getLong(GAME_ID),
-                gameSize = arguments!!.getInt(GAME_SIZE),
+                gameId = requireArguments().getLong(GAME_ID),
+                gameSize = requireArguments().getInt(GAME_SIZE),
                 chatRepository = get(),
                 idlingResource = get()
         )
@@ -285,40 +288,40 @@ class GameFragment : Fragment(), GameContract.View {
     }
 
     override var showLastMove = false
-        set(value) { board.drawLastMove = value }
+        set(value) { binding.board.drawLastMove = value }
 
     override var showTerritory = false
-        set(value) { board.drawTerritory = value }
+        set(value) { binding.board.drawTerritory = value }
 
     override var showCoordinates = false
-        set(value) { board.drawCoordinates = value }
+        set(value) { binding.board.drawCoordinates = value }
 
     override var fadeOutRemovedStones = false
-        set(value) { board.fadeOutRemovedStones = value }
+        set(value) { binding.board.fadeOutRemovedStones = value }
 
     override val cellSelection: Observable<Point>
-        get() = board.tapUpObservable()
+        get() = binding.board.tapUpObservable()
 
     override var whiteTimer: GamePresenter.TimerDetails? = null
         set(value) {
-            whiteDetailsView.timerFirstLine = value?.firstLine
-            whiteDetailsView.timerSecondLine = value?.secondLine
+            binding.whiteDetailsView.timerFirstLine = value?.firstLine
+            binding.whiteDetailsView.timerSecondLine = value?.secondLine
             field = value
         }
 
     override var blackTimer: GamePresenter.TimerDetails? = null
         set(value) {
-            blackDetailsView.timerFirstLine = value?.firstLine
-            blackDetailsView.timerSecondLine = value?.secondLine
+            binding.blackDetailsView.timerFirstLine = value?.firstLine
+            binding.blackDetailsView.timerSecondLine = value?.secondLine
             field = value
         }
 
     override fun showCandidateMove(point: Point?, nextToMove: StoneType?) {
-        board.showCandidateMove(point, nextToMove)
+        binding.board.showCandidateMove(point, nextToMove)
     }
 
     override val cellHotTrack: Observable<Point>
-        get() = board.tapMoveObservable()
+        get() = binding.board.tapMoveObservable()
 
     override var title: String? = null
         set(value) {
@@ -331,8 +334,8 @@ class GameFragment : Fragment(), GameContract.View {
         }
 
     override var interactive: Boolean
-        get() = board.isInteractive
-        set(value) { board.isInteractive = value }
+        get() = binding.board.isInteractive
+        set(value) { binding.board.isInteractive = value }
 
     override fun showUndoPrompt() {
         AwesomeInfoDialog(context)
@@ -354,52 +357,52 @@ class GameFragment : Fragment(), GameContract.View {
     }
 
     override var nextButtonVisible = false
-        set(value) { nextButton.showIf(value) }
+        set(value) { binding.nextButton.showIf(value) }
 
     override var analyzeButtonVisible = false
-        set(value) { analyzeButton.showIf(value) }
+        set(value) { binding.analyzeButton.showIf(value) }
 
     override var analysisDisabledButtonVisible = false
-        set(value) { analysisDisabledButton.showIf(value) }
+        set(value) { binding.analysisDisabledButton.showIf(value) }
 
     override var previousButtonVisible = false
-        set(value) { previousButton.showIf(value) }
+        set(value) { binding.previousButton.showIf(value) }
 
     override var passButtonVisible = false
-        set(value) { passButton.showIf(value) }
+        set(value) { binding.passButton.showIf(value) }
 
     override var undoButtonVisible: Boolean = false
-        set(value) { undoButton.showIf(value) }
+        set(value) { binding.undoButton.showIf(value) }
 
     override var undoButtonEnabled: Boolean = true
-        set(value) { undoButton.isEnabled = value }
+        set(value) { binding.undoButton.isEnabled = value }
 
     override var resignButtonVisible = false
-        set(value) { resignButton.showIf(value) }
+        set(value) { binding.resignButton.showIf(value) }
 
     override var confirmButtonVisible = false
-        set(value) { confirmButton.showIf(value) }
+        set(value) { binding.confirmButton.showIf(value) }
 
     override var discardButtonVisible = false
-        set(value) { discardButton.showIf(value) }
+        set(value) { binding.discardButton.showIf(value) }
 
     override var bottomBarVisible = true
         set(value) {
             if(!field && value) {
-                playControls.fadeIn().subscribe()
+                binding.playControls.fadeIn().subscribe()
             } else if (field && !value) {
-                playControls.fadeOut().subscribe()
+                binding.playControls.fadeOut().subscribe()
             }
             field = value
         }
 
     override var menuButtonVisible = false
-        set(value) { menuButton.showIf(value) }
+        set(value) { binding.menuButton.showIf(value) }
 
     override var autoButtonVisible = false
         set(value) {
-            autoButton.showIf(value)
-            autoButton.isEnabled = value
+            binding.autoButton.showIf(value)
+            binding.autoButton.isEnabled = value
             field = value
         }
 
@@ -415,12 +418,12 @@ class GameFragment : Fragment(), GameContract.View {
                     }
                     .addToDisposable(subscriptions)
         }
-        analytics.setCurrentScreen(activity!!, javaClass.simpleName, javaClass.simpleName)
-        repeatingPresses(previousButton)
+        analytics.setCurrentScreen(requireActivity(), javaClass.simpleName, javaClass.simpleName)
+        repeatingPresses(binding.previousButton)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe { presenter.onPreviousButtonPressed() }
                 .addToDisposable(subscriptions)
-        repeatingPresses(nextButton)
+        repeatingPresses(binding.nextButton)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe { presenter.onNextButtonPressed() }
                 .addToDisposable(subscriptions)
@@ -471,10 +474,10 @@ class GameFragment : Fragment(), GameContract.View {
     }
 
     override var previousButtonEnabled: Boolean = false
-        set(value) { previousButton.isEnabled = value }
+        set(value) { binding.previousButton.isEnabled = value }
 
     override var nextButtonEnabled: Boolean = false
-        set(value) { nextButton.isEnabled = value }
+        set(value) { binding.nextButton.isEnabled = value }
 
     override fun onPause() {
         super.onPause()
@@ -492,12 +495,12 @@ class GameFragment : Fragment(), GameContract.View {
 
     private fun onWhitePlayerPressed() {
         (activity as MainActivity).setChatButtonVisible(false)
-        (activity as MainActivity).navigateToStatsScreen(whiteDetailsView.player!!.id)
+        (activity as MainActivity).navigateToStatsScreen(binding.whiteDetailsView.player!!.id)
     }
 
     private fun onBlackPlayerPressed() {
         (activity as MainActivity).setChatButtonVisible(false)
-        (activity as MainActivity).navigateToStatsScreen(blackDetailsView.player!!.id)
+        (activity as MainActivity).navigateToStatsScreen(binding.blackDetailsView.player!!.id)
     }
 
     override fun showResignConfirmation() {

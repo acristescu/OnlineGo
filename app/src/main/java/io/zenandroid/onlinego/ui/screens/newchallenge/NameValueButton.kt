@@ -5,23 +5,23 @@ import android.content.Context
 import android.util.AttributeSet
 import android.view.View
 import android.widget.FrameLayout
+import android.widget.TextView
 import androidx.core.content.res.ResourcesCompat
 import io.zenandroid.onlinego.R
-import kotlinx.android.synthetic.main.view_name_value_button.view.*
 
 class NameValueButton : FrameLayout {
 
     var name: String? = null
         set(value) {
             field = value
-            nameView.text = value
+            findViewById<TextView>(R.id.nameView).text = value
         }
 
     var value: String = ""
         set(value) {
             field = value
-            valueView.text = value
-            valueView.setTextColor(ResourcesCompat.getColor(this.resources, R.color.colorActionableText, null))
+            findViewById<TextView>(R.id.valueView).text = value
+            findViewById<TextView>(R.id.valueView).setTextColor(ResourcesCompat.getColor(this.resources, R.color.colorActionableText, null))
         }
 
     var valuesCallback: (() -> List<String?>)? = null

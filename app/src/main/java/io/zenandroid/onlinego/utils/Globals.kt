@@ -45,8 +45,8 @@ fun egfToRank(rating: Double?) =
 fun formatRank(rank: Double?) =
         when(rank) {
             null -> "?"
-            in 0 until 30 -> "${ceil(30 - rank).toInt()}k"
-            in 30 .. 100 -> "${ceil(rank - 29).toInt()}d"
+            in 30f .. 100f -> "${ceil(rank - 29).toInt()}d"
+            in 0f .. 30f -> "${ceil(30 - rank).toInt()}k"
             else -> ""
         }
 

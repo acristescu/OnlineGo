@@ -9,11 +9,9 @@ import android.view.ViewGroup
 import android.view.Window
 import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
-import io.zenandroid.onlinego.OnlineGoApplication
-import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.local.Message
 import io.zenandroid.onlinego.data.repositories.ChatRepository
-import kotlinx.android.synthetic.main.dialog_messages.*
+import io.zenandroid.onlinego.databinding.DialogMessagesBinding
 import org.koin.android.ext.android.inject
 
 class ChatDialog : DialogFragment() {
@@ -23,6 +21,8 @@ class ChatDialog : DialogFragment() {
     private val messagesAdapter = MessagesAdapter()
     private val sendMessageSubject = PublishSubject.create<String>()
     private var messages: List<Message> = listOf()
+
+    private lateinit var binding: DialogMessagesBinding
 
     val sendMessage: Observable<String> = sendMessageSubject.hide()
 
@@ -43,25 +43,26 @@ class ChatDialog : DialogFragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         dialog?.requestWindowFeature(Window.FEATURE_NO_TITLE)
-        return inflater.inflate(R.layout.dialog_messages, container, false)
+        binding = DialogMessagesBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        messagesRecycler.apply {
+        binding.messagesRecycler.apply {
             layoutManager = LinearLayoutManager(context)
             adapter = messagesAdapter
             smoothScrollToPosition(messagesAdapter.itemCount)
         }
 
-        sendButton.setOnClickListener {
-            if(!newMessage.text.isNullOrEmpty()) {
-                sendMessageSubject.onNext(newMessage.text.toString())
+        binding.sendButton.setOnClickListener {
+            if(!binding.newMessage.text.isNullOrEmpty()) {
+                sendMessageSubject.onNext(binding.newMessage.text.toString())
             }
-            newMessage.setText("")
+            binding.newMessage.setText("")
         }
 
-        closeButton.setOnClickListener {
+        binding.closeButton.setOnClickListener {
             dismiss()
         }
     }

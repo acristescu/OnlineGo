@@ -1,15 +1,15 @@
 package io.zenandroid.onlinego.ui.screens.chat
 
+import android.view.View
 import androidx.core.content.res.ResourcesCompat
-import com.xwray.groupie.kotlinandroidextensions.Item
-import com.xwray.groupie.kotlinandroidextensions.GroupieViewHolder
+import com.xwray.groupie.Item
+import com.xwray.groupie.viewbinding.BindableItem
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.utils.hide
 import io.zenandroid.onlinego.utils.setMarginsDP
 import io.zenandroid.onlinego.utils.show
 import io.zenandroid.onlinego.data.model.local.Message
-import kotlinx.android.synthetic.main.item_message.*
-import kotlinx.android.synthetic.main.item_message.view.*
+import io.zenandroid.onlinego.databinding.ItemMessageBinding
 import java.text.DateFormat
 import java.text.SimpleDateFormat
 import java.util.*
@@ -17,34 +17,34 @@ import java.util.*
 class MessageItem(
         private val message : Message,
         private val myMessage : Boolean
-        ) : Item() {
+        ) : BindableItem<ItemMessageBinding>() {
     private val sdf = SimpleDateFormat.getTimeInstance(DateFormat.SHORT)
 
-    override fun bind(holder: GroupieViewHolder, position: Int) {
-        holder.messageText.text = message.text
-        holder.dateView.text = sdf.format(Date(message.date * 1000))
+    override fun bind(binding: ItemMessageBinding, position: Int) {
+        binding.messageText.text = message.text
+        binding.dateView.text = sdf.format(Date(message.date * 1000))
 
         val hiddenUntilSuffix = if(message.type == Message.Type.MALKOVITCH) " (hidden until game ends)" else ""
-        holder.moveNo.text = "Move ${message.moveNumber.toString()}$hiddenUntilSuffix"
-        holder.chatBubble.apply {
+        binding.moveNo.text = "Move ${message.moveNumber.toString()}$hiddenUntilSuffix"
+        binding.chatBubble.apply {
             when {
                 myMessage -> {
-                    author.hide()
+                    binding.author.hide()
                     setMarginsDP(left = 50, right = 10)
                     ResourcesCompat.getColorStateList(resources, R.color.colorPrimaryLight, null)?.let {
                         setCardBackgroundColor(it)
                     }
                 }
                 message.type == Message.Type.SPECTATOR -> {
-                    author.show()
-                    author.text = "${message.username} (spectator)"
+                    binding.author.show()
+                    binding.author.text = "${message.username} (spectator)"
                     setMarginsDP(left = 10, right = 50)
                     ResourcesCompat.getColorStateList(resources, R.color.colorOffWhite, null)?.let {
                         setCardBackgroundColor(it)
                     }
                 }
                 else -> {
-                    author.hide()
+                    binding.author.hide()
                     setMarginsDP(left = 10, right = 50)
                     ResourcesCompat.getColorStateList(resources, R.color.colorTextBackground, null)?.let {
                         setCardBackgroundColor(it)
@@ -57,7 +57,7 @@ class MessageItem(
     override fun getLayout()
             = R.layout.item_message
 
-    override fun isSameAs(other: com.xwray.groupie.Item<*>?): Boolean {
+    override fun isSameAs(other: Item<*>): Boolean {
         if (other !is MessageItem) {
             return false
         }
@@ -74,4 +74,6 @@ class MessageItem(
     override fun hashCode(): Int {
         return message.hashCode()
     }
+
+    override fun initializeViewBinding(view: View): ItemMessageBinding = ItemMessageBinding.bind(view)
 }

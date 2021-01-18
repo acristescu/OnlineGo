@@ -1,31 +1,26 @@
 package io.zenandroid.onlinego.ui.items
 
-import com.xwray.groupie.kotlinandroidextensions.Item
-import com.xwray.groupie.kotlinandroidextensions.GroupieViewHolder
+import android.view.View
+import com.xwray.groupie.Item
+import com.xwray.groupie.viewbinding.BindableItem
 import io.zenandroid.onlinego.R
-import io.zenandroid.onlinego.utils.showIf
 import io.zenandroid.onlinego.data.model.local.Game
 import io.zenandroid.onlinego.data.repositories.SettingsRepository
+import io.zenandroid.onlinego.databinding.ItemFinishedGameCardBinding
 import io.zenandroid.onlinego.gamelogic.Util.getCurrentUserId
 import io.zenandroid.onlinego.utils.egfToRank
 import io.zenandroid.onlinego.utils.formatRank
-import kotlinx.android.synthetic.main.item_finished_game_card.*
-import kotlinx.android.synthetic.main.item_finished_game_card.board
-import kotlinx.android.synthetic.main.item_finished_game_card.chatBadge
-import kotlinx.android.synthetic.main.item_finished_game_card.chatBubble
-import kotlinx.android.synthetic.main.item_finished_game_card.color_bar
-import kotlinx.android.synthetic.main.item_finished_game_card.opponent_name
-import kotlinx.android.synthetic.main.item_finished_game_card.opponent_rank
-import org.koin.core.context.KoinContextHandler
+import io.zenandroid.onlinego.utils.showIf
 import org.koin.core.context.KoinContextHandler.get
 
-class FinishedGameItem (val game: Game) : Item(game.id) {
+class FinishedGameItem (val game: Game) : BindableItem<ItemFinishedGameCardBinding>(game.id) {
     private val settingsRepository: SettingsRepository = get().get()
 
-    override fun bind(holder: GroupieViewHolder, position: Int) {
-        holder.apply {
+    override fun bind(binding: ItemFinishedGameCardBinding, position: Int) {
+        binding.apply {
             board.boardSize = game.width
             board.drawShadow = false
+            board.animationEnabled = false
 
             board.position = game.position
 
@@ -38,15 +33,15 @@ class FinishedGameItem (val game: Game) : Item(game.id) {
                         else -> null
                     }
 
-            opponent_name.text = opponent?.username
-            opponent_rank.text = formatRank(egfToRank(opponent?.rating))
-            opponent_rank.showIf(settingsRepository.showRanks)
+            opponentName.text = opponent?.username
+            opponentRank.text = formatRank(egfToRank(opponent?.rating))
+            opponentRank.showIf(settingsRepository.showRanks)
 
             chatBadge.text = game.messagesCount.toString()
             chatBadge.showIf(game.messagesCount != null && game.messagesCount != 0)
             chatBubble.showIf(game.messagesCount != null && game.messagesCount != 0)
 
-            color_bar.setBackgroundColor(color_bar.resources.getColor(
+            colorBar.setBackgroundColor(colorBar.resources.getColor(
                     if(opponent?.id == game.blackPlayer.id) R.color.white else R.color.black
             ))
 
@@ -65,7 +60,7 @@ class FinishedGameItem (val game: Game) : Item(game.id) {
         }
     }
 
-    override fun hasSameContentAs(other: com.xwray.groupie.Item<*>?): Boolean {
+    override fun hasSameContentAs(other: Item<*>): Boolean {
         if(other !is FinishedGameItem) {
             return false
         }
@@ -73,4 +68,5 @@ class FinishedGameItem (val game: Game) : Item(game.id) {
     }
 
     override fun getLayout(): Int = R.layout.item_finished_game_card
+    override fun initializeViewBinding(view: View): ItemFinishedGameCardBinding = ItemFinishedGameCardBinding.bind(view)
 }

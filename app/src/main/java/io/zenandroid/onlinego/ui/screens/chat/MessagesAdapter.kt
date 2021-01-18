@@ -2,8 +2,8 @@ package io.zenandroid.onlinego.ui.screens.chat
 
 import androidx.recyclerview.widget.RecyclerView
 import com.xwray.groupie.GroupAdapter
+import com.xwray.groupie.GroupieViewHolder
 import com.xwray.groupie.Section
-import com.xwray.groupie.kotlinandroidextensions.GroupieViewHolder
 import io.zenandroid.onlinego.data.model.local.Message
 
 class MessagesAdapter : GroupAdapter<GroupieViewHolder>() {

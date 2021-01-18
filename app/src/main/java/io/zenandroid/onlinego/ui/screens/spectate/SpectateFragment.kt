@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.SimpleItemAnimator
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.recyclerview.widget.RecyclerView
 import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.ui.screens.main.MainActivity
@@ -15,7 +16,6 @@ import io.zenandroid.onlinego.data.model.ogs.GameData
 import io.zenandroid.onlinego.data.model.ogs.GameList
 import io.zenandroid.onlinego.data.model.ogs.OGSGame
 import io.zenandroid.onlinego.data.ogs.Move
-import kotlinx.android.synthetic.main.fragment_spectate.*
 import org.koin.android.ext.android.get
 
 /**
@@ -25,15 +25,15 @@ import org.koin.android.ext.android.get
 class SpectateFragment : Fragment(), SpectateContract.View {
 
     private lateinit var presenter: SpectateContract.Presenter
-    private val adapter = SpectateAdapter()
+    private val spectateAdapter = SpectateAdapter()
     private val analytics = OnlineGoApplication.instance.analytics
 
     override var games: GameList? = null
         set(value) {
             field = value
             value?.let {
-                adapter.setGames(it.results)
-                adapter.clicks.subscribe(presenter::onGameSelected)
+                spectateAdapter.setGames(it.results)
+                spectateAdapter.clicks.subscribe(presenter::onGameSelected)
             }
         }
 
@@ -43,9 +43,11 @@ class SpectateFragment : Fragment(), SpectateContract.View {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        gamesRecycler.layoutManager = LinearLayoutManager(context)
-        gamesRecycler.adapter = adapter
-        (gamesRecycler.itemAnimator as SimpleItemAnimator).supportsChangeAnimations = false
+        view.findViewById<RecyclerView>(R.id.gamesRecycler).apply {
+            layoutManager = LinearLayoutManager(context)
+            adapter = spectateAdapter
+            (itemAnimator as SimpleItemAnimator).supportsChangeAnimations = false
+        }
         presenter = SpectatePresenter(this, get())
     }
 
@@ -56,7 +58,7 @@ class SpectateFragment : Fragment(), SpectateContract.View {
 
     override fun onResume() {
         super.onResume()
-        analytics.setCurrentScreen(activity!!, javaClass.simpleName, null)
+        analytics.setCurrentScreen(requireActivity(), javaClass.simpleName, null)
         presenter.subscribe()
     }
 
@@ -66,11 +68,11 @@ class SpectateFragment : Fragment(), SpectateContract.View {
     }
 
     override fun setGameData(id: Long, gameData: GameData) {
-        adapter.setGameData(id, gameData)
+        spectateAdapter.setGameData(id, gameData)
     }
 
     override fun doMove(id: Long, move: Move) {
-        adapter.doMove(id, move)
+        spectateAdapter.doMove(id, move)
     }
 
 }

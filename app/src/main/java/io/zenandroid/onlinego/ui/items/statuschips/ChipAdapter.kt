@@ -1,7 +1,7 @@
 package io.zenandroid.onlinego.ui.items.statuschips
 
 import com.xwray.groupie.GroupAdapter
-import com.xwray.groupie.kotlinandroidextensions.GroupieViewHolder
+import com.xwray.groupie.GroupieViewHolder
 
 class ChipAdapter : GroupAdapter<GroupieViewHolder>() {
     init {

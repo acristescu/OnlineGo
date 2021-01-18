@@ -1,9 +1,13 @@
 package io.zenandroid.onlinego.ui.screens.localai
 
 import android.graphics.Color
+import android.os.Bundle
 import android.util.Log
+import android.view.LayoutInflater
+import android.view.View
 import android.view.View.GONE
 import android.view.View.VISIBLE
+import android.view.ViewGroup
 import androidx.core.view.doOnLayout
 import androidx.fragment.app.Fragment
 import com.bumptech.glide.Glide
@@ -18,26 +22,22 @@ import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.repositories.SettingsRepository
 import io.zenandroid.onlinego.data.repositories.UserSessionRepository
+import io.zenandroid.onlinego.databinding.FragmentAigameBinding
 import io.zenandroid.onlinego.mvi.MviView
 import io.zenandroid.onlinego.ui.screens.localai.AiGameAction.*
 import io.zenandroid.onlinego.utils.processGravatarURL
 import io.zenandroid.onlinego.utils.showIf
-import kotlinx.android.synthetic.main.fragment_aigame.*
-import kotlinx.android.synthetic.main.fragment_aigame.board
-import kotlinx.android.synthetic.main.fragment_aigame.progressBar
-import kotlinx.android.synthetic.main.fragment_joseki.nextButton
-import kotlinx.android.synthetic.main.fragment_joseki.passButton
-import kotlinx.android.synthetic.main.fragment_joseki.previousButton
 import org.koin.android.ext.android.get
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import kotlin.math.abs
 
-class AiGameFragment : Fragment(R.layout.fragment_aigame), MviView<AiGameState, AiGameAction> {
+class AiGameFragment : Fragment(), MviView<AiGameState, AiGameAction> {
     private val viewModel: AiGameViewModel by viewModel()
     private var analytics = OnlineGoApplication.instance.analytics
     private val settingsRepository: SettingsRepository by inject()
     private var bottomSheet: NewGameBottomSheet? = null
+    private lateinit var binding: FragmentAigameBinding
 
     private val internalActions = PublishSubject.create<AiGameAction>()
 
@@ -45,24 +45,29 @@ class AiGameFragment : Fragment(R.layout.fragment_aigame), MviView<AiGameState, 
         get() =             Observable.merge(
                 listOf(
                         internalActions,
-                        board.tapUpObservable()
+                        binding.board.tapUpObservable()
                                 .map<AiGameAction>(AiGameAction::UserTappedCoordinate),
-                        board.tapMoveObservable()
+                        binding.board.tapMoveObservable()
                                 .map<AiGameAction>(AiGameAction::UserHotTrackedCoordinate),
-                        RxView.clicks(previousButton)
+                        RxView.clicks(binding.previousButton)
                                 .map<AiGameAction> { UserPressedPrevious },
-                        RxView.clicks(nextButton)
+                        RxView.clicks(binding.nextButton)
                                 .map<AiGameAction> { UserPressedNext },
-                        RxView.clicks(passButton)
+                        RxView.clicks(binding.passButton)
                                 .map<AiGameAction> { UserPressedPass },
-                        RxView.clicks(newGameButton)
+                        RxView.clicks(binding.newGameButton)
                                 .map<AiGameAction> { ShowNewGameDialog },
-                        RxView.clicks(hintButton)
+                        RxView.clicks(binding.hintButton)
                                 .map<AiGameAction> { UserAskedForHint },
-                        RxView.clicks(ownershipButton)
+                        RxView.clicks(binding.ownershipButton)
                                 .map<AiGameAction> { UserAskedForOwnership }
                 )
         ).startWith(ViewReady)
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        binding = FragmentAigameBinding.inflate(inflater, container, false)
+        return binding.root
+    }
 
     override fun onPause() {
         internalActions.onNext(ViewPaused)
@@ -73,21 +78,21 @@ class AiGameFragment : Fragment(R.layout.fragment_aigame), MviView<AiGameState, 
     override fun onResume() {
         super.onResume()
         analytics.setCurrentScreen(requireActivity(), javaClass.simpleName, null)
-        board.apply {
+        binding.board.apply {
             drawCoordinates = settingsRepository.showCoordinates
         }
 
 
         view?.doOnLayout {
-            iconContainerLeft.radius = iconContainerLeft.width / 2f
-            iconContainerRight.radius = iconContainerRight.width / 2f
+            binding.iconContainerLeft.radius = binding.iconContainerLeft.width / 2f
+            binding.iconContainerRight.radius = binding.iconContainerRight.width / 2f
             get<UserSessionRepository>().uiConfig?.user?.icon?.let {
                 Glide.with(this)
-                        .load(processGravatarURL(it, iconViewRight.width))
+                        .load(processGravatarURL(it, binding.iconViewRight.width))
                         .transition(DrawableTransitionOptions.withCrossFade(DrawableCrossFadeFactory.Builder().setCrossFadeEnabled(true).build()))
                         .apply(RequestOptions().centerCrop().placeholder(R.drawable.ic_person_outline))
                         .apply(RequestOptions().circleCrop().diskCacheStrategy(DiskCacheStrategy.RESOURCE))
-                        .into(iconViewRight)
+                        .into(binding.iconViewRight)
             }
         }
 
@@ -96,8 +101,8 @@ class AiGameFragment : Fragment(R.layout.fragment_aigame), MviView<AiGameState, 
 
     override fun render(state: AiGameState) {
         Log.v("AiGame", "rendering state=$state")
-        progressBar.showIf(!state.engineStarted)
-        board.apply {
+        binding.progressBar.showIf(!state.engineStarted)
+        binding.board.apply {
             isInteractive = state.boardIsInteractive
             boardSize = state.boardSize
             drawTerritory = state.showFinalTerritory
@@ -109,12 +114,12 @@ class AiGameFragment : Fragment(R.layout.fragment_aigame), MviView<AiGameState, 
                 showCandidateMove(state.candidateMove, it.nextToMove)
             }
         }
-        passButton.isEnabled = state.passButtonEnabled
-        previousButton.isEnabled = state.previousButtonEnabled
-        nextButton.isEnabled = state.nextButtonEnabled
+        binding.passButton.isEnabled = state.passButtonEnabled
+        binding.previousButton.isEnabled = state.previousButtonEnabled
+        binding.nextButton.isEnabled = state.nextButtonEnabled
 
-        hintButton.showIf(state.hintButtonVisible)
-        ownershipButton.showIf(state.ownershipButtonVisible)
+        binding.hintButton.showIf(state.hintButtonVisible)
+        binding.ownershipButton.showIf(state.ownershipButtonVisible)
         if(state.newGameDialogShown && bottomSheet?.isShowing != true) {
             bottomSheet = NewGameBottomSheet(requireContext()) { size, youPlayBlack, handicap ->
                 internalActions.onNext(NewGame(size, youPlayBlack, handicap))
@@ -131,28 +136,28 @@ class AiGameFragment : Fragment(R.layout.fragment_aigame), MviView<AiGameState, 
         val winrate = state.position?.aiAnalysisResult?.rootInfo?.winrate ?: state.position?.aiQuickEstimation?.winrate
         winrate?.let {
             val winrateAsPercentage = (it * 1000).toInt() / 10f
-            winrateLabel.text = "White's chance to win: $winrateAsPercentage%"
-            winrateProgressBar.progress = winrateAsPercentage.toInt()
+            binding.winrateLabel.text = "White's chance to win: $winrateAsPercentage%"
+            binding.winrateProgressBar.progress = winrateAsPercentage.toInt()
         }
         state.position?.let {
-            prisonersLeft.text = if(state.enginePlaysBlack) it.blackCapturedCount.toString() else it.whiteCapturedCount.toString()
-            prisonersRight.text = if(state.enginePlaysBlack) it.whiteCapturedCount.toString() else it.blackCapturedCount.toString()
-            komiLeft.text = if(state.enginePlaysBlack) "" else it.komi.toString()
-            komiRight.text = if(state.enginePlaysBlack) it.komi.toString() else ""
+            binding.prisonersLeft.text = if(state.enginePlaysBlack) it.blackCapturedCount.toString() else it.whiteCapturedCount.toString()
+            binding.prisonersRight.text = if(state.enginePlaysBlack) it.whiteCapturedCount.toString() else it.blackCapturedCount.toString()
+            binding.komiLeft.text = if(state.enginePlaysBlack) "" else it.komi.toString()
+            binding.komiRight.text = if(state.enginePlaysBlack) it.komi.toString() else ""
         }
-        colorIndicatorLeft.setColorFilter(if(state.enginePlaysBlack) Color.BLACK else Color.WHITE)
-        colorIndicatorRight.setColorFilter(if(state.enginePlaysBlack) Color.WHITE else Color.BLACK)
+        binding.colorIndicatorLeft.setColorFilter(if(state.enginePlaysBlack) Color.BLACK else Color.WHITE)
+        binding.colorIndicatorRight.setColorFilter(if(state.enginePlaysBlack) Color.WHITE else Color.BLACK)
 
         state.chatText?.let {
-            chatBubble.visibility = VISIBLE
-            chatBubble.text = it
-        } ?: run { chatBubble.visibility = GONE }
+            binding.chatBubble.visibility = VISIBLE
+            binding.chatBubble.text = it
+        } ?: run { binding.chatBubble.visibility = GONE }
 
         val scoreLead = state.position?.aiAnalysisResult?.rootInfo?.scoreLead ?: state.position?.aiQuickEstimation?.scoreLead
         scoreLead?.let {
             val leader = if (scoreLead > 0) "white" else "black"
             val lead = abs(scoreLead * 10).toInt() / 10f
-            scoreleadLabel.text = "Score prediction: $leader leads by $lead"
+            binding.scoreleadLabel.text = "Score prediction: $leader leads by $lead"
         }
     }
 }

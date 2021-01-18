@@ -36,9 +36,9 @@ import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.ogs.OGSRestService
 import io.zenandroid.onlinego.data.ogs.OGSWebSocketService
 import io.zenandroid.onlinego.data.repositories.UserSessionRepository
+import io.zenandroid.onlinego.databinding.ActivityLoginBinding
 import io.zenandroid.onlinego.ui.screens.main.MainActivity
 import io.zenandroid.onlinego.utils.*
-import kotlinx.android.synthetic.main.activity_login.*
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.json.JSONObject
@@ -57,6 +57,7 @@ class LoginActivity : AppCompatActivity() {
     private val ogsRestService: OGSRestService by inject()
     private val ogsSocketService: OGSWebSocketService by inject()
     private val idlingResource: CountingIdlingResource by inject()
+    private lateinit var binding: ActivityLoginBinding
 
     private var createAccount = false
 
@@ -80,13 +81,14 @@ class LoginActivity : AppCompatActivity() {
 
         supportActionBar?.hide()
 
-        setContentView(R.layout.activity_login)
+        binding = ActivityLoginBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-        noAccountView.setOnClickListener { toggleCreateAccountMode() }
-        loginButton.setOnClickListener { onLoginClicked() }
+        binding.noAccountView.setOnClickListener { toggleCreateAccountMode() }
+        binding.loginButton.setOnClickListener { onLoginClicked() }
 
-        username.onChange { onTextChanged() }
-        password.onChange { onTextChanged() }
+        binding.username.onChange { onTextChanged() }
+        binding.password.onChange { onTextChanged() }
 
         intent.data?.let {
             val request = Request.Builder()
@@ -99,8 +101,8 @@ class LoginActivity : AppCompatActivity() {
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(this::onLoginSuccess, this::onTokenLoginFailure)
         }
-        facebookSignInButton.setOnClickListener { doFacebookFlow() }
-        googleSignInButton.setOnClickListener { doGoogleFlow() }
+        binding.facebookSignInButton.setOnClickListener { doFacebookFlow() }
+        binding.googleSignInButton.setOnClickListener { doGoogleFlow() }
     }
 
     private fun doFacebookFlow() {
@@ -147,12 +149,12 @@ class LoginActivity : AppCompatActivity() {
                 account?.serverAuthCode?.let {
 
                     googleLoginInProgress = true
-                    loginButton.visibility = View.GONE
-                    usernameLayout.visibility = View.GONE
-                    passwordLayout.visibility = View.GONE
-                    noAccountView.visibility = View.GONE
-                    facebookSignInButton.visibility = View.GONE
-                    googleSignInButton.visibility = View.GONE
+                    binding.loginButton.visibility = View.GONE
+                    binding.usernameLayout.visibility = View.GONE
+                    binding.passwordLayout.visibility = View.GONE
+                    binding.noAccountView.visibility = View.GONE
+                    binding.facebookSignInButton.visibility = View.GONE
+                    binding.googleSignInButton.visibility = View.GONE
 
                     ogsRestService.loginWithGoogle(it)
                             .doOnComplete { ogsSocketService.ensureSocketConnected() }
@@ -174,13 +176,13 @@ class LoginActivity : AppCompatActivity() {
         TransitionManager.beginDelayedTransition(findViewById(R.id.container))
         createAccount = !createAccount
         if(createAccount) {
-            emailLayout.show()
-            noAccountView.setText(R.string.signing_prompt)
-            loginButton.setText(R.string.create_account)
+            binding.emailLayout.show()
+            binding.noAccountView.setText(R.string.signing_prompt)
+            binding.loginButton.setText(R.string.create_account)
         } else {
-            emailLayout.hide()
-            noAccountView.setText(R.string.create_account_prompt)
-            loginButton.setText(R.string.login_to_ogs)
+            binding.emailLayout.hide()
+            binding.noAccountView.setText(R.string.create_account_prompt)
+            binding.loginButton.setText(R.string.login_to_ogs)
         }
     }
 
@@ -196,14 +198,14 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun onLoginSuccess() {
-        if(loginButton.visibility == View.VISIBLE) {
+        if(binding.loginButton.visibility == View.VISIBLE) {
             val drawable = ContextCompat.getDrawable(this, R.drawable.ic_done_24dp)
 
-            val bitmap = Bitmap.createBitmap(loginButton.width, loginButton.height, Bitmap.Config.ARGB_8888);
+            val bitmap = Bitmap.createBitmap(binding.loginButton.width, binding.loginButton.height, Bitmap.Config.ARGB_8888);
             val canvas = Canvas(bitmap)
             drawable?.setBounds(0, 0, canvas.width, canvas.height)
             drawable?.draw(canvas)
-            loginButton.doneLoadingAnimation(ResourcesCompat.getColor(resources, R.color.colorAccent, null), bitmap)
+            binding.loginButton.doneLoadingAnimation(ResourcesCompat.getColor(resources, R.color.colorAccent, null), bitmap)
         }
         idlingResource.increment()
         TransitionManager.beginDelayedTransition(findViewById(R.id.container), Fade(Fade.MODE_OUT).setDuration(100).setStartDelay(400))
@@ -230,18 +232,18 @@ class LoginActivity : AppCompatActivity() {
                 findViewById(R.id.container),
                 TransitionInflater.from(this).inflateTransition(R.transition.login)
         )
-        val params = logo.layoutParams as LinearLayout.LayoutParams
+        val params = binding.logo.layoutParams as LinearLayout.LayoutParams
         params.weight = 0f
-        loginButton.visibility = View.VISIBLE
-        usernameLayout.visibility = View.VISIBLE
-        passwordLayout.visibility = View.VISIBLE
-        noAccountView.visibility = View.VISIBLE
-        facebookSignInButton.visibility = View.VISIBLE
-        googleSignInButton.visibility = View.VISIBLE
+        binding.loginButton.visibility = View.VISIBLE
+        binding.usernameLayout.visibility = View.VISIBLE
+        binding.passwordLayout.visibility = View.VISIBLE
+        binding.noAccountView.visibility = View.VISIBLE
+        binding.facebookSignInButton.visibility = View.VISIBLE
+        binding.googleSignInButton.visibility = View.VISIBLE
     }
 
     private fun onPasswordLoginFailure(t: Throwable) {
-        loginButton.revertAnimation()
+        binding.loginButton.revertAnimation()
         Log.e(LoginActivity::class.java.simpleName, t.message, t)
         FirebaseCrashlytics.getInstance().recordException(t)
         if( (t as? HttpException)?.code() in arrayOf(401, 403) ) {
@@ -253,11 +255,11 @@ class LoginActivity : AppCompatActivity() {
 
     private fun onLoginClicked() {
         FirebaseCrashlytics.getInstance().setCustomKey("LOGIN_METHOD", "PASSWORD")
-        loginButton.startAnimation()
+        binding.loginButton.startAnimation()
         if(!createAccount) {
             doLogin()
         } else {
-            ogsRestService.createAccount(username.text.toString().trim(), password.text.toString(), email.text.toString().trim())
+            ogsRestService.createAccount(binding.username.text.toString().trim(), binding.password.text.toString(), binding.email.text.toString().trim())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(
                             this::onCreateAccountSuccess,
@@ -268,7 +270,7 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun doLogin() {
-        ogsRestService.login(username.text.toString(), password.text.toString())
+        ogsRestService.login(binding.username.text.toString(), binding.password.text.toString())
                 .doOnComplete { ogsSocketService.ensureSocketConnected() }
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnComplete { analytics.logEvent(FirebaseAnalytics.Event.LOGIN, null) }
@@ -283,8 +285,8 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun onCreateAccountFailure(t: Throwable) {
-        loginButton.revertAnimation {
-            loginButton.setText(R.string.create_account)
+        binding.loginButton.revertAnimation {
+            binding.loginButton.setText(R.string.create_account)
         }
         Log.e(LoginActivity::class.java.simpleName, t.message, t)
         if(t is HttpException && t.response()?.errorBody() != null) {
@@ -301,7 +303,7 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun onTextChanged() {
-        loginButton.isEnabled = username.text?.isNotEmpty() == true && password.text?.isNotEmpty() == true
+        binding.loginButton.isEnabled = binding.username.text?.isNotEmpty() == true && binding.password.text?.isNotEmpty() == true
     }
 
     override fun onPause() {
@@ -311,6 +313,6 @@ class LoginActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        loginButton.dispose()
+        binding.loginButton.dispose()
     }
 }

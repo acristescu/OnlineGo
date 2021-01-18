@@ -10,13 +10,13 @@ import android.view.Window
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
+import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayoutMediator
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.local.Player
 import io.zenandroid.onlinego.ui.screens.newchallenge.selectopponent.searchplayer.SearchPlayerFragment
-import kotlinx.android.synthetic.main.dialog_select_opponent.*
 
 class SelectOpponentDialog : DialogFragment(), SelectBotFragment.OnOpponentSelected {
     private val moshi = Moshi.Builder().add(KotlinJsonAdapterFactory()).build().adapter(Player::class.java)
@@ -42,7 +42,7 @@ class SelectOpponentDialog : DialogFragment(), SelectBotFragment.OnOpponentSelec
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewPager.adapter = object : FragmentStateAdapter(this) {
+        view.findViewById<ViewPager2>(R.id.viewPager).adapter = object : FragmentStateAdapter(this) {
             override fun getItemCount() = TABS.size
 
             override fun createFragment(position: Int): Fragment {
@@ -50,7 +50,7 @@ class SelectOpponentDialog : DialogFragment(), SelectBotFragment.OnOpponentSelec
             }
 
         }
-        TabLayoutMediator(tabs, viewPager, TabLayoutMediator.TabConfigurationStrategy { tab, position -> tab.text = TABS[position].first }).attach()
+        TabLayoutMediator(view.findViewById(R.id.tabs), view.findViewById(R.id.viewPager), TabLayoutMediator.TabConfigurationStrategy { tab, position -> tab.text = TABS[position].first }).attach()
     }
 
     override fun onResume() {

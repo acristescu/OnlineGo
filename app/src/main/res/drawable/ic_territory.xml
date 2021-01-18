@@ -7,17 +7,17 @@
       android:pathData="M3,20C5,15 19,15 21,20H3Z"
       android:strokeLineJoin="round"
       android:strokeWidth="2"
-      android:fillColor="#000000"
-      android:strokeColor="#000000"
+      android:fillColor="@color/buttonEnabled"
+      android:strokeColor="@color/buttonEnabled"
       android:strokeLineCap="round"/>
   <path
       android:pathData="M17.5,4H12V8H17.5L16,6L17.5,4Z"
-      android:fillColor="#000000"/>
+      android:fillColor="@color/buttonEnabled"/>
   <path
       android:pathData="M12,15.5V8M12,8V4H17.5L16,6L17.5,8H12Z"
       android:strokeLineJoin="round"
       android:strokeWidth="1.5"
-      android:fillColor="#00000000"
-      android:strokeColor="#000000"
+      android:fillColor="@color/buttonEnabled"
+      android:strokeColor="@color/buttonEnabled"
       android:strokeLineCap="round"/>
 </vector>

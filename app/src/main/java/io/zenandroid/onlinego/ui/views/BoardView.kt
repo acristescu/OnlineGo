@@ -1,7 +1,7 @@
 package io.zenandroid.onlinego.ui.views
 
+import android.animation.ValueAnimator
 import android.content.Context
-import android.content.res.Configuration
 import android.content.res.Resources
 import android.graphics.*
 import androidx.core.content.res.ResourcesCompat
@@ -9,7 +9,7 @@ import android.util.AttributeSet
 import android.util.Log
 import android.view.MotionEvent
 import android.view.View
-import androidx.appcompat.app.AppCompatDelegate
+import androidx.compose.ui.unit.dp
 import androidx.core.graphics.ColorUtils
 import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
@@ -17,13 +17,11 @@ import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.Position
 import io.zenandroid.onlinego.data.model.StoneType
 import io.zenandroid.onlinego.data.model.ogs.PlayCategory
-import io.zenandroid.onlinego.data.repositories.SettingsRepository
 import io.zenandroid.onlinego.gamelogic.Util
-import org.koin.core.context.KoinContextHandler
-import java.lang.Integer.min
 import java.util.*
 import kotlin.math.abs
 import kotlin.math.roundToInt
+import kotlin.math.sqrt
 
 
 /**
@@ -42,9 +40,39 @@ class BoardView : View {
             computeDimensions(width)
         }
 
+    var animationEnabled = true
+    private var fadeInAnimationAlpha = 0
+    private var fadeOutAnimationAlpha = 0
+
     var position: Position? = null
         set(value) {
             if(field != value) {
+                if(value != null && field != null && field?.hasTheSameStonesAs(value) == false) {
+                    val newStones = value.stones.filter { field?.stones?.containsKey(it.key) == false || field?.stones?.get(it.key) != it.value }
+                    if(newStones.isNotEmpty()) {
+                        ValueAnimator.ofInt(100, 255).apply {
+                            duration = 100
+                            addUpdateListener {
+                                fadeInAnimationAlpha = it.animatedValue as Int
+                                invalidate()
+                            }
+                            start()
+                        }
+                    }
+                    val disappearingStones = field?.stones?.filter { !value.stones.containsKey(it.key) } ?: emptyMap()
+                    if(disappearingStones.isNotEmpty()) {
+                        ValueAnimator.ofInt(255, 0).apply {
+                            duration = 100
+                            addUpdateListener {
+                                fadeOutAnimationAlpha = it.animatedValue as Int
+                                invalidate()
+                            }
+                            start()
+                        }
+                    }
+                    stonesToFadeIn = newStones
+                    stonesToFadeOut = disappearingStones
+                }
                 invalidate()
             }
             field = value
@@ -139,7 +167,11 @@ class BoardView : View {
 
     private val tapUpSubject = PublishSubject.create<Point>()
     private val tapMoveSubject = PublishSubject.create<Point>()
+    private var stonesToFadeIn: Map<Point, StoneType> = mapOf()
+    private var stonesToFadeOut: Map<Point, StoneType> = mapOf()
 
+    var onTapMove: ((Point) -> Unit)? = null
+    var onTapUp: ((Point) -> Unit)? = null
 
     constructor(context: Context) : super(context) {
         init(context)
@@ -171,6 +203,10 @@ class BoardView : View {
             strokeWidth = 3f
         }
 
+        textPaint.apply {
+            setShadowLayer(6.dp.value, 0f, 0f, Color.WHITE)
+        }
+
         territoryPaint.strokeWidth = 4f
 
         preloadResources(resources)
@@ -192,9 +228,13 @@ class BoardView : View {
         val eventCoords = screenToBoardCoordinates(event.x, event.y)
 
         tapMoveSubject.onNext(eventCoords)
+        if(eventCoords != lastHotTrackedPoint) {
+            onTapMove?.invoke(eventCoords)
+        }
 
         if (event.action == MotionEvent.ACTION_UP) {
             tapUpSubject.onNext(eventCoords)
+            onTapUp?.invoke(eventCoords)
             lastHotTrackedPoint = null
         }
 
@@ -456,31 +496,44 @@ class BoardView : View {
     }
 
     private fun drawStones(canvas: Canvas, position: Position) {
+        for (item in stonesToFadeOut) {
+            drawStone(canvas, position, item.key, item.value)
+        }
         for (p in position.allStonesCoordinates) {
             val type = position.getStoneAt(p.x, p.y)
-
-            val center = getCellCenter(p.x, p.y)
-            val isFadedOut = fadeOutRemovedStones && position.removedSpots.contains(p)
-            if (drawShadow && !isFadedOut) {
-                shadowDrawable.setBounds(
-                        (center.x - cellSize / 2f + stoneSpacing - cellSize / 20f).toInt(),
-                        (center.y - cellSize / 2f + stoneSpacing - cellSize / 20f).toInt(),
-                        (center.x + cellSize / 2f - stoneSpacing + cellSize / 12f).toInt(),
-                        (center.y + cellSize / 2f - stoneSpacing + cellSize / 9f).toInt()
-                )
-                shadowDrawable.draw(canvas)
-            }
-
-            val drawable = if (type == StoneType.BLACK) blackStoneDrawable else whiteStoneDrawable
-            drawable.alpha = if (fadeOutRemovedStones && position.removedSpots.contains(p)) 100 else 255
-            drawable.setBounds(
-                    (center.x - cellSize / 2f + stoneSpacing).toInt(),
-                    (center.y - cellSize / 2f + stoneSpacing).toInt(),
-                    (center.x + cellSize / 2f - stoneSpacing).toInt(),
-                    (center.y + cellSize / 2f - stoneSpacing).toInt()
-            )
-            drawable.draw(canvas)
+            drawStone(canvas, position, p, type)
         }
+    }
+
+    private fun drawStone(canvas: Canvas, position: Position, p: Point, type: StoneType?) {
+        val center = getCellCenter(p.x, p.y)
+        val alpha = when {
+            fadeOutRemovedStones && position.removedSpots.contains(p) -> 100
+            animationEnabled && stonesToFadeIn[p] == type -> fadeInAnimationAlpha
+            animationEnabled && stonesToFadeOut[p] == type -> fadeOutAnimationAlpha
+            else -> 255
+        }
+        val isFadedOut = fadeOutRemovedStones && position.removedSpots.contains(p)
+        if (drawShadow && !isFadedOut) {
+            shadowDrawable.alpha = if(alpha == 255) 255 else ((alpha / 255f) * (alpha / 255f) * 255f).toInt()
+            shadowDrawable.setBounds(
+                    (center.x - cellSize / 2f + stoneSpacing - cellSize / 20f).toInt(),
+                    (center.y - cellSize / 2f + stoneSpacing - cellSize / 20f).toInt(),
+                    (center.x + cellSize / 2f - stoneSpacing + cellSize / 12f).toInt(),
+                    (center.y + cellSize / 2f - stoneSpacing + cellSize / 9f).toInt()
+            )
+            shadowDrawable.draw(canvas)
+        }
+
+        val drawable = if (type == StoneType.BLACK) blackStoneDrawable else whiteStoneDrawable
+        drawable.alpha = alpha
+        drawable.setBounds(
+                (center.x - cellSize / 2f + stoneSpacing).toInt(),
+                (center.y - cellSize / 2f + stoneSpacing).toInt(),
+                (center.x + cellSize / 2f - stoneSpacing).toInt(),
+                (center.y + cellSize / 2f - stoneSpacing).toInt()
+        )
+        drawable.draw(canvas)
     }
 
     /**
@@ -515,13 +568,25 @@ class BoardView : View {
         }
 
         if(drawMarks) {
-            decorationsPaint.style = Paint.Style.FILL_AND_STROKE
             position.customMarks.forEach {
-                val center = getCellCenter(it.placement.x, it.placement.y)
-                decorationsPaint.color = determineMarkColor(it)
-                canvas.drawCircle(center.x, center.y, cellSize / 2f - stoneSpacing, decorationsPaint)
-                it.text?.let {
-                    drawTextCentred(canvas, textPaint, it, center.x, center.y)
+                when(it.text) {
+                    "#" -> { // last move mark
+                        val type = position.getStoneAt(it.placement)
+                        val center = getCellCenter(it.placement.x, it.placement.y)
+
+                        decorationsPaint.style = Paint.Style.STROKE
+                        decorationsPaint.color = if (type == StoneType.WHITE) Color.BLACK else Color.WHITE
+                        canvas.drawCircle(center.x, center.y, cellSize / 4f, decorationsPaint)
+                    }
+                    else -> {
+                        decorationsPaint.style = Paint.Style.FILL_AND_STROKE
+                        decorationsPaint.color = determineMarkColor(it)
+                        val center = getCellCenter(it.placement.x, it.placement.y)
+                        canvas.drawCircle(center.x, center.y, cellSize / 2f - stoneSpacing, decorationsPaint)
+                        it.text?.let {
+                            drawTextCentred(canvas, textPaint, it, center.x, center.y)
+                        }
+                    }
                 }
             }
         }
@@ -572,7 +637,7 @@ class BoardView : View {
             PlayCategory.TRICK -> 0xC0D384F9.toInt()
             PlayCategory.QUESTION -> 0xC079B3E4.toInt()
             PlayCategory.LABEL -> 0x70FFFFFF.toInt()
-            null -> Color.GRAY
+            null -> 0x00FFFFFF.toInt()
         }
 
     companion object {

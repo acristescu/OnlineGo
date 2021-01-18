@@ -5,7 +5,7 @@ import android.preference.PreferenceManager
 import android.view.LayoutInflater
 import io.zenandroid.onlinego.R
 import com.google.android.material.bottomsheet.BottomSheetDialog
-import kotlinx.android.synthetic.main.bottom_sheet_new_ai_game.*
+import io.zenandroid.onlinego.databinding.BottomSheetNewAiGameBinding
 
 private const val SIZE = "AI_GAME_SIZE"
 private const val COLOR = "AI_GAME_COLOR"
@@ -13,29 +13,31 @@ private const val HANDICAP = "AI_GAME_HANDICAP"
 
 class NewGameBottomSheet(context: Context, private val onOk: (Int, Boolean, Int) -> Unit) : BottomSheetDialog(context) {
     private val prefs = PreferenceManager.getDefaultSharedPreferences(context)!!
+    private lateinit var binding: BottomSheetNewAiGameBinding
 
     init {
         val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-        val view = inflater.inflate(R.layout.bottom_sheet_new_ai_game, null)
+        binding = BottomSheetNewAiGameBinding.inflate(inflater)
+        val view = binding.root
         setContentView(view)
 
         setInitialState()
 
-        playButton.setOnClickListener {
+        binding.playButton.setOnClickListener {
             dismiss()
             val selectedSize = when {
-                smallGameButton.isChecked -> 9
-                mediumGameButton.isChecked -> 13
+                binding.smallGameButton.isChecked -> 9
+                binding.mediumGameButton.isChecked -> 13
                 else -> 19
             }
-            val youPlayBlack = blackButton.isChecked
-            val handicap = handicapSlider.value.toInt()
+            val youPlayBlack = binding.blackButton.isChecked
+            val handicap = binding.handicapSlider.value.toInt()
             saveSettings()
             onOk.invoke(selectedSize, youPlayBlack, handicap)
         }
 
-        handicapSlider.addOnChangeListener { _, value, _ ->
-            handicapLabel.text = when(value) {
+        binding.handicapSlider.addOnChangeListener { _, value, _ ->
+            binding.handicapLabel.text = when(value) {
                 0f -> "None"
                 1f -> "No komi"
                 else -> value.toInt().toString()
@@ -53,28 +55,28 @@ class NewGameBottomSheet(context: Context, private val onOk: (Int, Boolean, Int)
             19 -> R.id.largeGameButton
             else -> -1
         }
-        sizeToggleGroup.check(checkedSizeButtonId)
+        binding.sizeToggleGroup.check(checkedSizeButtonId)
 
         val checkedColorButtonId = when(prefs.getInt(COLOR, 0)) {
             0 -> R.id.blackButton
             1 -> R.id.whiteButton
             else -> -1
         }
-        colorToggleGroup.check(checkedColorButtonId)
+        binding.colorToggleGroup.check(checkedColorButtonId)
 
-        handicapSlider.value = prefs.getFloat(HANDICAP, 0f)
+        binding.handicapSlider.value = prefs.getFloat(HANDICAP, 0f)
     }
 
     private fun saveSettings() {
         val selectedSize = when {
-            smallGameButton.isChecked -> 9
-            mediumGameButton.isChecked -> 13
+            binding.smallGameButton.isChecked -> 9
+            binding.mediumGameButton.isChecked -> 13
             else -> 19
         }
         prefs.edit()
                 .putInt(SIZE, selectedSize)
-                .putInt(COLOR, if(blackButton.isChecked) 0 else 1)
-                .putFloat(HANDICAP, handicapSlider.value)
+                .putInt(COLOR, if(binding.blackButton.isChecked) 0 else 1)
+                .putFloat(HANDICAP, binding.handicapSlider.value)
                 .apply()
     }
 

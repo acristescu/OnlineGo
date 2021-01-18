@@ -1,19 +1,20 @@
 package io.zenandroid.onlinego.ui.items
 
-import com.xwray.groupie.kotlinandroidextensions.Item
-import com.xwray.groupie.kotlinandroidextensions.GroupieViewHolder
+import android.view.View
+import com.xwray.groupie.Item
+import com.xwray.groupie.viewbinding.BindableItem
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.local.Game
+import io.zenandroid.onlinego.databinding.ItemFinishedGameCardBinding
+import io.zenandroid.onlinego.databinding.ItemHistoricGameBinding
 import io.zenandroid.onlinego.gamelogic.Util.getCurrentUserId
-import kotlinx.android.synthetic.main.item_finished_game_card.*
-import kotlinx.android.synthetic.main.item_finished_game_card.board
-import kotlinx.android.synthetic.main.item_finished_game_card.opponent_name
 
-class HistoricGameItem (val game: Game) : Item(game.id) {
-    override fun bind(holder: GroupieViewHolder, position: Int) {
-        holder.apply {
+class HistoricGameItem (val game: Game) : BindableItem<ItemHistoricGameBinding>(game.id) {
+    override fun bind(binding: ItemHistoricGameBinding, position: Int) {
+        binding.apply {
             board.boardSize = game.width
             board.drawShadow = false
+            board.animationEnabled = false
 
             board.position = game.position
 
@@ -26,7 +27,7 @@ class HistoricGameItem (val game: Game) : Item(game.id) {
                         else -> null
                     }
 
-            opponent_name.text = opponent?.username
+            opponentName.text = opponent?.username
 
             outcome.text = when {
                 userId == game.blackPlayer.id ->
@@ -43,7 +44,7 @@ class HistoricGameItem (val game: Game) : Item(game.id) {
         }
     }
 
-    override fun hasSameContentAs(other: com.xwray.groupie.Item<*>?): Boolean {
+    override fun hasSameContentAs(other: Item<*>): Boolean {
         if(other !is HistoricGameItem) {
             return false
         }
@@ -54,4 +55,5 @@ class HistoricGameItem (val game: Game) : Item(game.id) {
     }
 
     override fun getLayout(): Int = R.layout.item_historic_game
+    override fun initializeViewBinding(view: View): ItemHistoricGameBinding = ItemHistoricGameBinding.bind(view)
 }

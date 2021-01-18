@@ -1,6 +1,8 @@
 package io.zenandroid.onlinego.gamelogic
 
 import android.graphics.Point
+import io.zenandroid.onlinego.data.model.Position
+import io.zenandroid.onlinego.data.model.StoneType
 import io.zenandroid.onlinego.data.model.local.Game
 import io.zenandroid.onlinego.data.model.ogs.OGSGame
 import io.zenandroid.onlinego.data.repositories.UserSessionRepository
@@ -43,7 +45,7 @@ object Util {
         return String(charArrayOf(column, row))
     }
 
-    fun getCoordinatesFromSGF(sgf: String, offset: Int): Point {
+    fun getCoordinatesFromSGF(sgf: String, offset: Int = 0): Point {
         val column = sgf[offset]
         val row = sgf[offset + 1]
 
@@ -52,6 +54,21 @@ object Util {
         point.y = row - 'a'
 
         return point
+    }
+
+    fun Position.populateWithSGF(sgf: String) {
+        for(i in sgf.indices step 5) {
+            val p = getCoordinatesFromSGF(sgf, i + 2)
+            val stone = if(sgf[i] == 'B') StoneType.BLACK else StoneType.WHITE
+            putStone(p.x, p.y, stone)
+        }
+    }
+
+    fun Position.populateWithMarks(marks: String) {
+        for(i in marks.indices step 5) {
+            val p = getCoordinatesFromSGF(marks, i + 2)
+            customMarks.add(Position.Mark(p, marks[i].toString(), null))
+        }
     }
 
     fun getNeighbouringSpace(current: Point, boardSize: Int): List<Point> {

@@ -8,15 +8,15 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.Window
 import com.xwray.groupie.GroupAdapter
-import com.xwray.groupie.kotlinandroidextensions.GroupieViewHolder
-import io.zenandroid.onlinego.R
+import com.xwray.groupie.GroupieViewHolder
 import io.zenandroid.onlinego.data.model.local.Game
+import io.zenandroid.onlinego.databinding.DialogGameInfoBinding
 import io.zenandroid.onlinego.utils.timeControlDescription
-import kotlinx.android.synthetic.main.dialog_game_info.*
 
 class GameInfoDialog : DialogFragment() {
 
     private val groupAdapter = GroupAdapter<GroupieViewHolder>()
+    private lateinit var binding: DialogGameInfoBinding
 
     lateinit var game: Game
 
@@ -29,17 +29,18 @@ class GameInfoDialog : DialogFragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         dialog?.requestWindowFeature(Window.FEATURE_NO_TITLE)
-        return inflater.inflate(R.layout.dialog_game_info, container, false)
+        binding = DialogGameInfoBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        recycler.apply {
+        binding.recycler.apply {
             layoutManager = LinearLayoutManager(context)
             adapter = groupAdapter
         }
 
-        closeButton.setOnClickListener {
+        binding.closeButton.setOnClickListener {
             dismiss()
         }
     }

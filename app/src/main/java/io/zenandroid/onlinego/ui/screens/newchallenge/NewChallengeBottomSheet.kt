@@ -12,13 +12,12 @@ import android.widget.Toast
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
-import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.local.Player
 import io.zenandroid.onlinego.data.model.ogs.OGSPlayer
+import io.zenandroid.onlinego.databinding.BottomSheetNewChallengeBinding
 import io.zenandroid.onlinego.ui.screens.newchallenge.selectopponent.SelectOpponentDialog
 import io.zenandroid.onlinego.utils.egfToRank
 import io.zenandroid.onlinego.utils.formatRank
-import kotlinx.android.synthetic.main.bottom_sheet_new_challenge.*
 
 class NewChallengeBottomSheet(
         context: Context,
@@ -32,9 +31,11 @@ class NewChallengeBottomSheet(
     private val prefs = PreferenceManager.getDefaultSharedPreferences(context)
     private val challenge: ChallengeParams = getSavedChallengeParams()
     private var opponent: Player? = null
+    private lateinit var binding: BottomSheetNewChallengeBinding
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.bottom_sheet_new_challenge, container, false)
+        binding = BottomSheetNewChallengeBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -42,71 +43,73 @@ class NewChallengeBottomSheet(
         challenge.opponent?.let {
             opponent = Player.fromOGSPlayer(it)
         }
-        botView.apply {
-            name = "Opponent"
-            value = challenge.opponent?.let {
-                "${it.username} (${formatRank(egfToRank(it.ratings?.overall?.rating))})"
-            } ?: "(choose)"
-            setOnClickListener {
-                fragmentManager?.let {
-                    SelectOpponentDialog().apply {
-                        setTargetFragment(this@NewChallengeBottomSheet, 1)
-                        show(it, "SELECT_OPPONENT")
+        binding.apply {
+            botView.apply {
+                name = "Opponent"
+                value = challenge.opponent?.let {
+                    "${it.username} (${formatRank(egfToRank(it.ratings?.overall?.rating))})"
+                } ?: "(choose)"
+                setOnClickListener {
+                    fragmentManager?.let {
+                        SelectOpponentDialog().apply {
+                            setTargetFragment(this@NewChallengeBottomSheet, 1)
+                            show(it, "SELECT_OPPONENT")
+                        }
                     }
                 }
             }
-        }
-        colorView.apply {
-            name = "You play"
-            value = challenge.color
-            valuesCallback = { listOf("Auto", "Black", "White") }
-        }
-        sizeView.apply {
-            name = "Size"
-            value = challenge.size
-            valuesCallback = { listOf("9x9", "13x13", "19x19") }
-        }
-        handicapView.apply {
-            name = "Handicap"
-            value = challenge.handicap
-            valuesCallback = { listOf("Auto", "0", "1", "2", "3", "4", "5") }
-        }
-        speedView.apply {
-            name = "Speed"
-            value = challenge.speed
-            valuesCallback = { listOf("Blitz", "Live", "Correspondence") }
-        }
-        rankedView.apply {
-            name = "Ranked"
-            value = if (challenge.ranked) "Yes" else "No"
-            valuesCallback = { listOf("Yes", "No") }
-        }
-        disableAnalysisView.apply {
-            name = "Analysis"
-            value = if (challenge.disable_analysis) "Disabled" else "Enabled"
-            valuesCallback = { listOf("Enabled", "Disabled") }
-        }
+            colorView.apply {
+                name = "You play"
+                value = challenge.color
+                valuesCallback = { listOf("Auto", "Black", "White") }
+            }
+            sizeView.apply {
+                name = "Size"
+                value = challenge.size
+                valuesCallback = { listOf("9x9", "13x13", "19x19") }
+            }
+            handicapView.apply {
+                name = "Handicap"
+                value = challenge.handicap
+                valuesCallback = { listOf("Auto", "0", "1", "2", "3", "4", "5") }
+            }
+            speedView.apply {
+                name = "Speed"
+                value = challenge.speed
+                valuesCallback = { listOf("Blitz", "Live", "Correspondence") }
+            }
+            rankedView.apply {
+                name = "Ranked"
+                value = if (challenge.ranked) "Yes" else "No"
+                valuesCallback = { listOf("Yes", "No") }
+            }
+            disableAnalysisView.apply {
+                name = "Analysis"
+                value = if (challenge.disable_analysis) "Disabled" else "Enabled"
+                valuesCallback = { listOf("Enabled", "Disabled") }
+            }
 
-        privateView.apply {
-            name = "Private"
-            value = if (challenge.private) "Yes" else "No"
-            valuesCallback = { listOf("Yes", "No") }
-        }
-        searchButton.setOnClickListener { this.onSearchClicked() }
+            privateView.apply {
+                name = "Private"
+                value = if (challenge.private) "Yes" else "No"
+                valuesCallback = { listOf("Yes", "No") }
+            }
+            searchButton.setOnClickListener { this@NewChallengeBottomSheet.onSearchClicked() }
 
-        isCancelable = true
+            isCancelable = true
+        }
     }
 
     private fun onSearchClicked() {
         challenge.apply {
             opponent = this@NewChallengeBottomSheet.opponent?.let(OGSPlayer.Companion::fromPlayer)
-            color = colorView.value
-            handicap = handicapView.value
-            ranked = rankedView.value == "Yes"
-            size = sizeView.value
-            speed = speedView.value
-            disable_analysis = disableAnalysisView.value == "Disabled"
-            private = privateView.value == "Yes"
+            color = binding.colorView.value
+            handicap = binding.handicapView.value
+            ranked = binding.rankedView.value == "Yes"
+            size = binding.sizeView.value
+            speed = binding.speedView.value
+            disable_analysis = binding.disableAnalysisView.value == "Disabled"
+            private = binding.privateView.value == "Yes"
         }
         if(challenge.opponent != null) {
             dismiss()
@@ -137,7 +140,7 @@ class NewChallengeBottomSheet(
     }
 
     private fun selectOpponent(opponent: Player?) {
-        botView.value = opponent
+        binding.botView.value = opponent
                 ?.let {"${it.username} (${formatRank(egfToRank(it.rating))})"}
                 ?: "(none)"
         this.opponent = opponent

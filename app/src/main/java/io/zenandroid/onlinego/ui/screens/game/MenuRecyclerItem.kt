@@ -1,65 +1,67 @@
 package io.zenandroid.onlinego.ui.screens.game
 
-import com.xwray.groupie.kotlinandroidextensions.Item
-import com.xwray.groupie.kotlinandroidextensions.GroupieViewHolder
+import android.view.View
+import com.xwray.groupie.viewbinding.BindableItem
 import io.zenandroid.onlinego.R
+import io.zenandroid.onlinego.databinding.ItemGameMenuBinding
 import io.zenandroid.onlinego.ui.screens.game.GameContract.MenuItem.*
-import kotlinx.android.synthetic.main.item_game_menu.*
 
-class MenuRecyclerItem(val item: GameContract.MenuItem) : Item(item.hashCode().toLong()) {
-    override fun bind(viewHolder: GroupieViewHolder, position: Int) {
+class MenuRecyclerItem(val item: GameContract.MenuItem) : BindableItem<ItemGameMenuBinding>(item.hashCode().toLong()) {
+    override fun bind(binding: ItemGameMenuBinding, position: Int) {
         when(item) {
             RESIGN -> {
-                viewHolder.titleView.text = "Resign"
-                viewHolder.iconView.setImageResource(R.drawable.ic_flag)
+                binding.titleView.text = "Resign"
+                binding.iconView.setImageResource(R.drawable.ic_flag)
             }
             PASS -> {
-                viewHolder.titleView.text = "Pass"
-                viewHolder.iconView.setImageResource(R.drawable.ic_pass)
+                binding.titleView.text = "Pass"
+                binding.iconView.setImageResource(R.drawable.ic_pass)
             }
             GAME_INFO -> {
-                viewHolder.titleView.text = "Game Info"
-                viewHolder.iconView.setImageResource(R.drawable.ic_dialog_info)
+                binding.titleView.text = "Game Info"
+                binding.iconView.setImageResource(R.drawable.ic_dialog_info)
             }
             ESTIMATE_SCORE -> {
-                viewHolder.titleView.text = "Estimate Score"
-                viewHolder.iconView.setImageResource(R.drawable.ic_territory)
+                binding.titleView.text = "Estimate Score"
+                binding.iconView.setImageResource(R.drawable.ic_territory)
             }
             ANALYZE -> {
-                viewHolder.titleView.text = "Analyze"
-                viewHolder.iconView.setImageResource(R.drawable.ic_thinking)
+                binding.titleView.text = "Analyze"
+                binding.iconView.setImageResource(R.drawable.ic_thinking)
             }
             SHOW_COORDINATES -> {
-                viewHolder.titleView.text = "Show Coordinates"
-                viewHolder.iconView.setImageResource(R.drawable.ic_coordinates)
+                binding.titleView.text = "Show Coordinates"
+                binding.iconView.setImageResource(R.drawable.ic_coordinates)
             }
             HIDE_COORDINATES -> {
-                viewHolder.titleView.text = "Hide Coordinates"
-                viewHolder.iconView.setImageResource(R.drawable.ic_coordinates)
+                binding.titleView.text = "Hide Coordinates"
+                binding.iconView.setImageResource(R.drawable.ic_coordinates)
             }
             DOWNLOAD_SGF -> {
-                viewHolder.titleView.text = "Download as SGF"
-                viewHolder.iconView.setImageResource(R.drawable.ic_save_black_24dp)
+                binding.titleView.text = "Download as SGF"
+                binding.iconView.setImageResource(R.drawable.ic_save_black_24dp)
             }
             ACCEPT_UNDO -> {
-                viewHolder.titleView.text = "Accept undo"
-                viewHolder.iconView.setImageResource(R.drawable.ic_undo)
+                binding.titleView.text = "Accept undo"
+                binding.iconView.setImageResource(R.drawable.ic_undo)
             }
             REQUEST_UNDO -> {
-                viewHolder.titleView.text = "Request undo"
-                viewHolder.iconView.setImageResource(R.drawable.ic_undo)
+                binding.titleView.text = "Request undo"
+                binding.iconView.setImageResource(R.drawable.ic_undo)
             }
             ABORT_GAME -> {
-                viewHolder.titleView.text = "Abort Game"
-                viewHolder.iconView.setImageResource(R.drawable.ic_cancel)
+                binding.titleView.text = "Abort Game"
+                binding.iconView.setImageResource(R.drawable.ic_cancel)
             }
             OPEN_IN_BROWSER -> {
-                viewHolder.titleView.text = "Open in Browser"
-                viewHolder.iconView.setImageResource(R.drawable.ic_chrome)
+                binding.titleView.text = "Open in Browser"
+                binding.iconView.setImageResource(R.drawable.ic_chrome)
             }
         }.let {}
     }
 
     override fun getLayout() =
             R.layout.item_game_menu
+
+    override fun initializeViewBinding(view: View): ItemGameMenuBinding = ItemGameMenuBinding.bind(view)
 }

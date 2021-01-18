@@ -282,9 +282,8 @@
         app:layout_constraintTop_toBottomOf="@id/scoreleadLabel"
         />
 
-    <com.google.android.material.progressindicator.ProgressIndicator
+    <com.google.android.material.progressindicator.LinearProgressIndicator
         android:id="@+id/winrateProgressBar"
-        style="@style/Widget.MaterialComponents.ProgressIndicator.Linear.Determinate"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="14dp"
@@ -294,7 +293,7 @@
         android:padding="1dp"
         android:progress="50"
         app:indicatorColor="@color/white"
-        app:indicatorCornerRadius="3dp"
+        app:trackCornerRadius="3dp"
         app:layout_constraintBottom_toTopOf="@id/playControls"
         app:layout_constraintTop_toBottomOf="@id/winrateLabel"
         app:trackColor="@color/black" />

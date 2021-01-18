@@ -1,28 +1,28 @@
 package io.zenandroid.onlinego.ui.screens.mygames
 
+import android.view.View
 import androidx.annotation.DrawableRes
 import android.view.View.GONE
 import android.view.View.VISIBLE
-import com.xwray.groupie.kotlinandroidextensions.GroupieViewHolder
-import com.xwray.groupie.kotlinandroidextensions.Item
+import com.xwray.groupie.viewbinding.BindableItem
 import io.zenandroid.onlinego.R
-import kotlinx.android.synthetic.main.item_new_game.*
+import io.zenandroid.onlinego.databinding.ItemNewGameBinding
 
 sealed class NewGameItem(
         var text: String,
         @DrawableRes val icon: Int? = null
-) : Item(text.hashCode().toLong()) {
+) : BindableItem<ItemNewGameBinding>(text.hashCode().toLong()) {
 
     object AutoMatch : NewGameItem("Auto-match", R.drawable.ic_person_filled)
     object Custom : NewGameItem("Custom", R.drawable.ic_challenge)
     object LocalAI : NewGameItem("Offline AI", R.drawable.ic_robot)
 
-    override fun bind(viewHolder: GroupieViewHolder, position: Int) {
-        viewHolder.text.text = text
+    override fun bind(binding: ItemNewGameBinding, position: Int) {
+        binding.text.text = text
         icon?.let {
-            viewHolder.icon.visibility = VISIBLE
-            viewHolder.icon.setImageResource(it)
-        } ?: run { viewHolder.icon.visibility = GONE }
+            binding.icon.visibility = VISIBLE
+            binding.icon.setImageResource(it)
+        } ?: run { binding.icon.visibility = GONE }
 
     }
 
@@ -37,4 +37,6 @@ sealed class NewGameItem(
         result = 31 * result + (icon ?: 0)
         return result
     }
+
+    override fun initializeViewBinding(view: View): ItemNewGameBinding = ItemNewGameBinding.bind(view)
 }

@@ -77,8 +77,8 @@
                     />
                 <TextView
                     android:id="@+id/chatBadge"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
                     android:layout_gravity="right|top"
                     android:layout_marginEnd="2dp"
                     android:layout_marginTop="2dp"
@@ -115,8 +115,8 @@
 
                 <TextView
                     android:id="@+id/badge"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
                     android:layout_gravity="right|top"
                     android:layout_marginEnd="2dp"
                     android:layout_marginTop="2dp"
@@ -127,7 +127,7 @@
                     android:textColor="#FFFFFF"
                     app:layout_constraintDimensionRatio="w,1:1"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="@+id/notificationsButton"
+                    app:layout_constraintTop_toTopOf="@id/notificationsButton"
                     android:textSize="12sp"
                     android:textStyle="bold"
                     android:alpha="0"

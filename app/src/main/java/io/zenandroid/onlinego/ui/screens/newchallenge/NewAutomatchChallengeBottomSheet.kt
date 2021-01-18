@@ -8,7 +8,7 @@ import android.view.LayoutInflater
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.ogs.Size
 import io.zenandroid.onlinego.data.model.ogs.Speed
-import kotlinx.android.synthetic.main.bottom_sheet_new_automatch.*
+import io.zenandroid.onlinego.databinding.BottomSheetNewAutomatchBinding
 
 class NewAutomatchChallengeBottomSheet(context: Context, private val onSearch: (Speed, List<Size>) -> Unit) : BottomSheetDialog(context) {
     companion object {
@@ -21,30 +21,32 @@ class NewAutomatchChallengeBottomSheet(context: Context, private val onSearch: (
     private var selectedSpeed: Speed = Speed.NORMAL
     private val speedsArray = arrayOf(Speed.BLITZ, Speed.NORMAL, Speed.LONG)
     val prefs = PreferenceManager.getDefaultSharedPreferences(context)
+    private lateinit var binding: BottomSheetNewAutomatchBinding
 
     init {
         val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-        val view = inflater.inflate(R.layout.bottom_sheet_new_automatch, null)
-        setContentView(view)
+        binding = BottomSheetNewAutomatchBinding.inflate(inflater)
+
+        setContentView(binding.root)
 
         setInitialState()
 
-        searchButton.setOnClickListener {
+        binding.searchButton.setOnClickListener {
             dismiss()
             val selectedSizes = mutableListOf<Size>()
-            if(smallGameCheckbox.isChecked) {
+            if(binding.smallGameCheckbox.isChecked) {
                 selectedSizes.add(Size.SMALL)
             }
-            if(mediumGameCheckbox.isChecked) {
+            if(binding.mediumGameCheckbox.isChecked) {
                 selectedSizes.add(Size.MEDIUM)
             }
-            if(largeGameCheckbox.isChecked) {
+            if(binding.largeGameCheckbox.isChecked) {
                 selectedSizes.add(Size.LARGE)
             }
             onSearch.invoke(selectedSpeed, selectedSizes)
         }
 
-        arrayOf(smallGameCheckbox, mediumGameCheckbox, largeGameCheckbox).forEach {
+        arrayOf(binding.smallGameCheckbox, binding.mediumGameCheckbox, binding.largeGameCheckbox).forEach {
             it.setOnCheckedChangeListener { _, _ ->
                 onSizeChanged()
             }
@@ -55,11 +57,11 @@ class NewAutomatchChallengeBottomSheet(context: Context, private val onSearch: (
             stringsArray[index] = speed.getText().capitalize()
         }
 
-        speedRow.setOnClickListener {
+        binding.speedRow.setOnClickListener {
             AlertDialog.Builder(context).setTitle("Choose speed")
                     .setItems(stringsArray) { _, which ->
                         selectedSpeed = speedsArray[which]
-                        speedTextView.text = selectedSpeed.getText().capitalize()
+                        binding.speedTextView.text = selectedSpeed.getText().capitalize()
                         onSpeedChanged()
                     }
                     .setCancelable(true)
@@ -71,15 +73,15 @@ class NewAutomatchChallengeBottomSheet(context: Context, private val onSearch: (
     }
 
     private fun setInitialState() {
-        smallGameCheckbox.isChecked = prefs.getBoolean(SEARCH_GAME_SMALL, true)
-        mediumGameCheckbox.isChecked = prefs.getBoolean(SEARCH_GAME_MEDIUM, false)
-        largeGameCheckbox.isChecked = prefs.getBoolean(SEARCH_GAME_LARGE, false)
+        binding.smallGameCheckbox.isChecked = prefs.getBoolean(SEARCH_GAME_SMALL, true)
+        binding.mediumGameCheckbox.isChecked = prefs.getBoolean(SEARCH_GAME_MEDIUM, false)
+        binding.largeGameCheckbox.isChecked = prefs.getBoolean(SEARCH_GAME_LARGE, false)
         selectedSpeed = Speed.valueOf(prefs.getString(SEARCH_GAME_SPEED, null) ?: Speed.NORMAL.toString())
-        speedTextView.text = selectedSpeed.getText().capitalize()
+        binding.speedTextView.text = selectedSpeed.getText().capitalize()
     }
 
     private fun onSizeChanged() {
-        searchButton.isEnabled = smallGameCheckbox.isChecked || mediumGameCheckbox.isChecked || largeGameCheckbox.isChecked
+        binding.searchButton.isEnabled = binding.smallGameCheckbox.isChecked || binding.mediumGameCheckbox.isChecked || binding.largeGameCheckbox.isChecked
         saveSettings()
     }
 
@@ -89,9 +91,9 @@ class NewAutomatchChallengeBottomSheet(context: Context, private val onSearch: (
 
     private fun saveSettings() {
         prefs.edit()
-                .putBoolean(SEARCH_GAME_SMALL, smallGameCheckbox.isChecked)
-                .putBoolean(SEARCH_GAME_MEDIUM, mediumGameCheckbox.isChecked)
-                .putBoolean(SEARCH_GAME_LARGE, largeGameCheckbox.isChecked)
+                .putBoolean(SEARCH_GAME_SMALL, binding.smallGameCheckbox.isChecked)
+                .putBoolean(SEARCH_GAME_MEDIUM, binding.mediumGameCheckbox.isChecked)
+                .putBoolean(SEARCH_GAME_LARGE, binding.largeGameCheckbox.isChecked)
                 .putString(SEARCH_GAME_SPEED, selectedSpeed.toString())
                 .apply()
     }

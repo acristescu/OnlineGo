@@ -2,11 +2,13 @@ package io.zenandroid.onlinego.ui.screens.mygames
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.LayoutInflater
 import androidx.fragment.app.Fragment
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.SimpleItemAnimator
 import android.view.View
+import android.view.ViewGroup
 import com.awesomedialog.blennersilva.awesomedialoglibrary.AwesomeInfoDialog
 import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.R
@@ -16,15 +18,15 @@ import io.zenandroid.onlinego.data.model.local.Challenge
 import io.zenandroid.onlinego.data.model.local.Game
 import io.zenandroid.onlinego.data.model.ogs.OGSAutomatch
 import io.zenandroid.onlinego.data.repositories.UserSessionRepository
+import io.zenandroid.onlinego.databinding.FragmentMygamesBinding
 import io.zenandroid.onlinego.ui.items.*
 import io.zenandroid.onlinego.ui.screens.whatsnew.WhatsNewDialog
-import kotlinx.android.synthetic.main.fragment_mygames.*
 import org.koin.android.ext.android.get
 
 /**
  * Created by alex on 05/11/2017.
  */
-class MyGamesFragment : Fragment(R.layout.fragment_mygames), MyGamesContract.View {
+class MyGamesFragment : Fragment(), MyGamesContract.View {
     override fun showLoginScreen() {
         startActivity(Intent(context, LoginActivity::class.java))
         activity?.finish()
@@ -37,18 +39,25 @@ class MyGamesFragment : Fragment(R.layout.fragment_mygames), MyGamesContract.Vie
     private lateinit var presenter: MyGamesContract.Presenter
     private var analytics = OnlineGoApplication.instance.analytics
 
+    private lateinit var binding: FragmentMygamesBinding
+
     private var lastReportedGameCount = -1
 
     override val needsMoreOlderGames by lazy {
         groupAdapter.olderGamesAdapter.needsMoreDataObservable
     }
 
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        binding = FragmentMygamesBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        gamesRecycler.layoutManager = LinearLayoutManager(context)
-        (gamesRecycler.itemAnimator as SimpleItemAnimator).supportsChangeAnimations = false
-        gamesRecycler.adapter = groupAdapter
+        binding.gamesRecycler.layoutManager = LinearLayoutManager(context)
+        (binding.gamesRecycler.itemAnimator as SimpleItemAnimator).supportsChangeAnimations = false
+        binding.gamesRecycler.adapter = groupAdapter
         groupAdapter.setOnItemClickListener { item, _ ->
             when (item) {
                 is ActiveGameItem -> presenter.onGameSelected(item.game)
@@ -77,8 +86,8 @@ class MyGamesFragment : Fragment(R.layout.fragment_mygames), MyGamesContract.Vie
     }
 
     override fun showWhatsNewDialog() {
-        if(fragmentManager?.findFragmentByTag("WHATS_NEW") == null) {
-            whatsNewDialog.show(fragmentManager!!, "WHATS_NEW")
+        if(parentFragmentManager.findFragmentByTag("WHATS_NEW") == null) {
+            whatsNewDialog.show(parentFragmentManager, "WHATS_NEW")
         }
     }
 
@@ -123,7 +132,7 @@ class MyGamesFragment : Fragment(R.layout.fragment_mygames), MyGamesContract.Vie
 
     override fun onResume() {
         super.onResume()
-        analytics.setCurrentScreen(activity!!, javaClass.simpleName, null)
+        analytics.setCurrentScreen(requireActivity(), javaClass.simpleName, null)
         (activity as? AppCompatActivity)?.supportActionBar?.apply {
             setDisplayHomeAsUpEnabled(false)
         }

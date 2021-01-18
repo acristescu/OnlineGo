@@ -1,23 +1,24 @@
 package io.zenandroid.onlinego.ui.items
 
-import com.xwray.groupie.kotlinandroidextensions.Item
-import com.xwray.groupie.kotlinandroidextensions.GroupieViewHolder
+import android.view.View
+import com.xwray.groupie.Item
+import com.xwray.groupie.viewbinding.BindableItem
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.ogs.OGSAutomatch
-import kotlinx.android.synthetic.main.item_automatch.*
+import io.zenandroid.onlinego.databinding.ItemAutomatchBinding
 
 class AutomatchItem(
         val automatch: OGSAutomatch,
         private val onAutomatchCancelled: ((OGSAutomatch) -> Unit)?
-) : Item() {
-    override fun bind(holder: GroupieViewHolder, position: Int) {
+) : BindableItem<ItemAutomatchBinding>() {
+    override fun bind(viewBinding: ItemAutomatchBinding, position: Int) {
         val speed = automatch.size_speed_options?.get(0)?.speed?.capitalize()
         val sizes = automatch.size_speed_options?.joinToString(separator = "   ") { it.size }
-        holder.details.text = "$speed   $sizes"
-        holder.cancelButton.setOnClickListener { onAutomatchCancelled?.invoke(automatch) }
+        viewBinding.details.text = "$speed   $sizes"
+        viewBinding.cancelButton.setOnClickListener { onAutomatchCancelled?.invoke(automatch) }
     }
 
-    override fun isSameAs(other: com.xwray.groupie.Item<*>?): Boolean {
+    override fun isSameAs(other: Item<*>): Boolean {
         (other as? AutomatchItem)?.let {
             return it.automatch.uuid == automatch.uuid
         }
@@ -26,4 +27,5 @@ class AutomatchItem(
     }
 
     override fun getLayout(): Int = R.layout.item_automatch
+    override fun initializeViewBinding(view: View): ItemAutomatchBinding = ItemAutomatchBinding.bind(view)
 }

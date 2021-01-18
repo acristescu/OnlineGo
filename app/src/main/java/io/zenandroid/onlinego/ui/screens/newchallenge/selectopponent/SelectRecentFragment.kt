@@ -12,17 +12,16 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SimpleItemAnimator
 import com.xwray.groupie.GroupAdapter
+import com.xwray.groupie.GroupieViewHolder
 import com.xwray.groupie.Section
-import com.xwray.groupie.kotlinandroidextensions.GroupieViewHolder
-import com.xwray.groupie.kotlinandroidextensions.Item
+import com.xwray.groupie.viewbinding.BindableItem
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.utils.addToDisposable
 import io.zenandroid.onlinego.data.repositories.PlayersRepository
-import kotlinx.android.synthetic.main.fragment_select_bot.*
-import kotlinx.android.synthetic.main.item_game_info.*
+import io.zenandroid.onlinego.databinding.ItemGameInfoBinding
 import org.koin.android.ext.android.get
 
 class SelectRecentFragment : Fragment() {
@@ -32,13 +31,14 @@ class SelectRecentFragment : Fragment() {
     private val compositeDisposable = CompositeDisposable()
 
     private var groupAdapter = GroupAdapter<GroupieViewHolder>().apply {
-        add(object: Item() {
-            override fun bind(viewHolder: GroupieViewHolder, position: Int) {
-                viewHolder.title.text = "Recent opponents"
-                viewHolder.value.text = "This is a selection of opponents (both bots and actual players) you've played against recently."
+        add(object: BindableItem<ItemGameInfoBinding>() {
+            override fun bind(binding: ItemGameInfoBinding, position: Int) {
+                binding.title.text = "Recent opponents"
+                binding.value.text = "This is a selection of opponents (both bots and actual players) you've played against recently."
             }
 
             override fun getLayout() = R.layout.item_game_info
+            override fun initializeViewBinding(view: View): ItemGameInfoBinding = ItemGameInfoBinding.bind(view)
         })
         add(recentOpponents)
     }
@@ -50,9 +50,9 @@ class SelectRecentFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        recycler.apply {
+        view.findViewById<RecyclerView>(R.id.recycler).apply {
             layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
-            recycler.adapter = groupAdapter
+            adapter = groupAdapter
             (itemAnimator as SimpleItemAnimator).supportsChangeAnimations = false
         }
         groupAdapter.setOnItemClickListener { item, _ ->

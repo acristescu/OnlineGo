@@ -58,7 +58,7 @@ class Position(val boardSize: Int) {
 
     var parentPosition: Position? = null
 
-    val customMarks = HashSet<Mark>()
+    val customMarks: MutableSet<Mark> = mutableSetOf()
     var komi: Float? = null
 
     var aiAnalysisResult: Response? = null

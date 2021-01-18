@@ -3,7 +3,9 @@ package io.zenandroid.onlinego.ui.screens.stats
 import android.annotation.SuppressLint
 import android.os.Bundle
 import android.text.SpannableStringBuilder
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.os.bundleOf
 import androidx.core.text.bold
@@ -25,13 +27,12 @@ import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.ogs.Glicko2HistoryItem
 import io.zenandroid.onlinego.data.model.ogs.OGSPlayer
+import io.zenandroid.onlinego.databinding.FragmentStatsBinding
 import io.zenandroid.onlinego.ui.screens.main.MainActivity
 import io.zenandroid.onlinego.utils.convertCountryCodeToEmojiFlag
 import io.zenandroid.onlinego.utils.egfToRank
 import io.zenandroid.onlinego.utils.formatRank
 import io.zenandroid.onlinego.utils.processGravatarURL
-import kotlinx.android.synthetic.main.fragment_stats.*
-import kotlinx.android.synthetic.main.view_player_profile.*
 import org.koin.android.ext.android.get
 import java.text.SimpleDateFormat
 import java.util.*
@@ -39,7 +40,7 @@ import java.util.*
 private const val PLAYER_ID = "PLAYER_ID"
 
 @SuppressLint("SetTextI18n")
-class StatsFragment : Fragment(R.layout.fragment_stats), StatsContract.View {
+class StatsFragment : Fragment(), StatsContract.View {
 
     companion object {
         fun createFragment(id: Long): StatsFragment = StatsFragment().apply {
@@ -47,6 +48,7 @@ class StatsFragment : Fragment(R.layout.fragment_stats), StatsContract.View {
         }
     }
     private val dateFormat = SimpleDateFormat("MMM d, yyyy", Locale.US)
+    private lateinit var binding: FragmentStatsBinding
 
     private lateinit var presenter: StatsContract.Presenter
     private var analytics = OnlineGoApplication.instance.analytics
@@ -56,9 +58,14 @@ class StatsFragment : Fragment(R.layout.fragment_stats), StatsContract.View {
             field = value
         }
 
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        binding = FragmentStatsBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        presenter = StatsPresenter(this, analytics, get(), arguments!!.getLong(PLAYER_ID))
+        presenter = StatsPresenter(this, analytics, get(), requireArguments().getLong(PLAYER_ID))
     }
 
     override fun onResume() {
@@ -73,57 +80,63 @@ class StatsFragment : Fragment(R.layout.fragment_stats), StatsContract.View {
     }
 
     override fun fillPlayerDetails(playerDetails: OGSPlayer ) {
-        nameView.text = playerDetails.username
-        playerDetails.country?.let {
-            flagView.text = convertCountryCodeToEmojiFlag(it)
-        }
-        playerDetails.icon?.let {
-            Glide.with(this)
-                    .load(processGravatarURL(it, iconView.width))
-                    .transition(DrawableTransitionOptions.withCrossFade(DrawableCrossFadeFactory.Builder().setCrossFadeEnabled(true).build()))
-                    .apply(RequestOptions().centerCrop().placeholder(R.drawable.ic_person_outline))
-                    .into(iconView)
-        }
+        binding.playerProfile.apply {
+            nameView.text = playerDetails.username
+            playerDetails.country?.let {
+                flagView.text = convertCountryCodeToEmojiFlag(it)
+            }
+            playerDetails.icon?.let {
+                Glide.with(this@StatsFragment)
+                        .load(processGravatarURL(it, iconView.width))
+                        .transition(DrawableTransitionOptions.withCrossFade(DrawableCrossFadeFactory.Builder().setCrossFadeEnabled(true).build()))
+                        .apply(RequestOptions().centerCrop().placeholder(R.drawable.ic_person_outline))
+                        .into(iconView)
+            }
 
-        val glicko = playerDetails.ratings?.overall?.rating?.toInt()
-        val deviation = playerDetails.ratings?.overall?.deviation?.toInt()
-        rankView.text = formatRank(egfToRank(playerDetails.ratings?.overall?.rating))
-        glickoView.text = "$glicko ± $deviation"
+            val glicko = playerDetails.ratings?.overall?.rating?.toInt()
+            val deviation = playerDetails.ratings?.overall?.deviation?.toInt()
+            rankView.text = formatRank(egfToRank(playerDetails.ratings?.overall?.rating))
+            glickoView.text = "$glicko ± $deviation"
+        }
     }
 
     override fun mostFacedOpponent(playerDetails: OGSPlayer, total: Int, won: Int) {
-        mostFacedOpponentView.text = playerDetails.username
-        opponentRankView.text = "(${formatRank(egfToRank(playerDetails.ratings?.overall?.rating))})"
-        playerDetails.icon?.let {
-            Glide.with(this)
-                    .load(processGravatarURL(it, opponentIconView.width))
-                    .transition(DrawableTransitionOptions.withCrossFade(DrawableCrossFadeFactory.Builder().setCrossFadeEnabled(true).build()))
-                    .apply(RequestOptions().centerCrop().placeholder(R.drawable.ic_person_outline))
-                    .apply(RequestOptions().circleCrop().diskCacheStrategy(DiskCacheStrategy.RESOURCE))
-                    .into(opponentIconView)
+        binding.apply {
+            mostFacedOpponentView.text = playerDetails.username
+            opponentRankView.text = "(${formatRank(egfToRank(playerDetails.ratings?.overall?.rating))})"
+            playerDetails.icon?.let {
+                Glide.with(this@StatsFragment)
+                        .load(processGravatarURL(it, opponentIconView.width))
+                        .transition(DrawableTransitionOptions.withCrossFade(DrawableCrossFadeFactory.Builder().setCrossFadeEnabled(true).build()))
+                        .apply(RequestOptions().centerCrop().placeholder(R.drawable.ic_person_outline))
+                        .apply(RequestOptions().circleCrop().diskCacheStrategy(DiskCacheStrategy.RESOURCE))
+                        .into(opponentIconView)
+            }
+            mostFacedOpponentDetailsView.text = "$total games ($won wins, ${total - won} losses)"
         }
-        mostFacedOpponentDetailsView.text = "$total games ($won wins, ${total - won} losses)"
     }
 
     override fun fillHighestWin(playerDetails: OGSPlayer, winningGame: Glicko2HistoryItem) {
-        val rank = formatRank(egfToRank(playerDetails.ratings?.overall?.rating))
+        binding.apply {
+            val rank = formatRank(egfToRank(playerDetails.ratings?.overall?.rating))
 
-        highestWinOpponent.text = playerDetails.username
-        highestWinRank.text = "($rank)"
-        playerDetails.icon?.let {
-            Glide.with(this)
-                    .load(processGravatarURL(it, highestWinIconView.width))
-                    .transition(DrawableTransitionOptions.withCrossFade(DrawableCrossFadeFactory.Builder().setCrossFadeEnabled(true).build()))
-                    .apply(RequestOptions().centerCrop().placeholder(R.drawable.ic_person_outline))
-                    .apply(RequestOptions().circleCrop().diskCacheStrategy(DiskCacheStrategy.RESOURCE))
-                    .into(highestWinIconView)
+            highestWinOpponent.text = playerDetails.username
+            highestWinRank.text = "($rank)"
+            playerDetails.icon?.let {
+                Glide.with(this@StatsFragment)
+                        .load(processGravatarURL(it, highestWinIconView.width))
+                        .transition(DrawableTransitionOptions.withCrossFade(DrawableCrossFadeFactory.Builder().setCrossFadeEnabled(true).build()))
+                        .apply(RequestOptions().centerCrop().placeholder(R.drawable.ic_person_outline))
+                        .apply(RequestOptions().circleCrop().diskCacheStrategy(DiskCacheStrategy.RESOURCE))
+                        .into(highestWinIconView)
+            }
+            highestWinDetails.text = dateFormat.format(Date(winningGame.ended * 1000))
         }
-        highestWinDetails.text = dateFormat.format(Date(winningGame.ended * 1000))
     }
 
     override fun fillHighestRank(highestRank: Float, highestRankTimestamp: Long) {
-        highestRankView.text = formatRank(egfToRank(highestRank.toDouble()))
-        highestRankDateView.text = dateFormat.format(Date(highestRankTimestamp * 1000))
+        binding.playerProfile.highestRankView.text = formatRank(egfToRank(highestRank.toDouble()))
+        binding.playerProfile.highestRankDateView.text = dateFormat.format(Date(highestRankTimestamp * 1000))
     }
 
 
@@ -138,9 +151,9 @@ class StatsFragment : Fragment(R.layout.fragment_stats), StatsContract.View {
                 mode = LineDataSet.Mode.HORIZONTAL_BEZIER
                 setDrawFilled(true)
             }
-            rankGraph.data = LineData(rankDataSet)
+            binding.rankGraph.data = LineData(rankDataSet)
         }
-        rankGraph.apply {
+        binding.rankGraph.apply {
             xAxis.position = XAxis.XAxisPosition.BOTTOM
             xAxis.valueFormatter = DayAxisValueFormatter(this)
             xAxis.setLabelCount(6, true)
@@ -178,7 +191,7 @@ class StatsFragment : Fragment(R.layout.fragment_stats), StatsContract.View {
                 setDrawValues(false)
             }
 
-            chart.data = PieData(dataSet)
+            binding.chart.data = PieData(dataSet)
 
             val gamesWon = wonEntry.value.toInt()
             val gamesLost = lostEntry.value.toInt()
@@ -201,9 +214,9 @@ class StatsFragment : Fragment(R.layout.fragment_stats), StatsContract.View {
                         append(" $gamesLostString%")
                     }
 
-            chart.centerText = centerText
+            binding.chart.centerText = centerText
         }
-        chart.apply {
+        binding.chart.apply {
             offsetLeftAndRight(0)
             setTransparentCircleAlpha(0)
             holeRadius = 60f
@@ -218,15 +231,15 @@ class StatsFragment : Fragment(R.layout.fragment_stats), StatsContract.View {
 
             animateX(250)
 
-            chart.invalidate()
+            invalidate()
         }
     }
 
     override fun fillLongestStreak(length: Int, start: Long, end: Long) {
         val startDate = dateFormat.format(Date(start * 1000))
         val endDate = dateFormat.format(Date(end * 1000))
-        winningStreak.text = "$length game(s)"
-        winningStreakDetails.text = "$startDate to $endDate"
+        binding.winningStreak.text = "$length game(s)"
+        binding.winningStreakDetails.text = "$startDate to $endDate"
     }
 
     override fun fillCurrentForm(lastGames: List<Glicko2HistoryItem>) {
@@ -240,7 +253,7 @@ class StatsFragment : Fragment(R.layout.fragment_stats), StatsContract.View {
                 currentFormSpan.color(lostColor) { append("L") }
             }
         }
-        currentForm.text = currentFormSpan
+        binding.currentForm.text = currentFormSpan
     }
 }
 

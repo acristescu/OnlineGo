@@ -11,7 +11,6 @@ import io.noties.markwon.Markwon
 import io.noties.markwon.core.MarkwonTheme
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.utils.WhatsNewUtils
-import kotlinx.android.synthetic.main.dialog_whatsnew.*
 
 class WhatsNewDialog : DialogFragment() {
 
@@ -49,11 +48,11 @@ class WhatsNewDialog : DialogFragment() {
                 })
                 .build()
 
-        dismissButton.setOnClickListener {
+        view.findViewById<View>(R.id.dismissButton).setOnClickListener {
             dismiss()
         }
 
-        markwon.setMarkdown(text, WhatsNewUtils.whatsNewText)
+        markwon.setMarkdown(view.findViewById(R.id.text), WhatsNewUtils.whatsNewText)
     }
 
 }

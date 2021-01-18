@@ -1,0 +1,2849 @@
+[
+  {
+    "name": "Basics",
+    "icon": "BEGINNER",
+    "tutorials": [
+      {
+        "name": "The Basics",
+        "steps": [
+          {
+            "type": "Interactive",
+            "name": "basic1",
+            "size": "9",
+            "text": "Please remember the 3 rules below:\n1. Black and White take turns placing \"stones\" on the board\n2. Stones are placed on the intersection of the lines.\n3. Once a stone is placed it can never be moved, but it may be captured.\n\nPlace a stone to continue!",
+            "init": "",
+            "branches": [
+              {
+                "move": "zz",
+                "success": true
+              }
+            ]
+          },
+          {
+            "type": "Lesson",
+            "name": "capture1",
+            "size": "9",
+            "pages": [
+              {
+                "text": "With one more move, the white stone will be completely surrounded and captured. Stones that can be captured in one move are said to be in \"Atari\".",
+                "position": "B[fe]B[ed]B[de]W[ee]"
+              },
+              {
+                "text": "The white stone is now surrounded, so...",
+                "position": "B[fe]B[ed]B[de]W[ee]B[ef]"
+              },
+              {
+                "text": "... it's removed from the board",
+                "position": "B[fe]B[ed]B[de]B[ef]"
+              },
+              {
+                "text": "If it were white's turn, it could \"escape\" by connecting another stone.",
+                "position": "B[fe]B[ed]B[de]W[ee]W[ef]"
+              }
+            ]
+          },
+          {
+            "type": "Interactive",
+            "name": "capture2",
+            "size": "9",
+            "text": "Your turn! Capture the white stone.",
+            "init": "B[de]W[ee]B[ed]B[ef]",
+            "branches": [
+              {
+                "move": "fe",
+                "success": true
+              },
+              {
+                "move": "zz",
+                "reply": "fe",
+                "failed": true
+              }
+            ]
+          },
+          {
+            "type": "Interactive",
+            "name": "capture3",
+            "size": "9",
+            "text": "You can capture two stones with a single move this time!",
+            "init": "B[cc]B[cd]B[db]W[dc]W[dd]B[de]B[ec]",
+            "branches": [
+              {
+                "move": "ed",
+                "success": true
+              },
+              {
+                "move": "zz",
+                "reply": "ed",
+                "failed": true
+              }
+            ]
+          },
+          {
+            "type": "Interactive",
+            "name": "capture4",
+            "size": "9",
+            "text": "Even if there are other stones nearby, just do the same.",
+            "init": "W[cd]B[ce]W[dc]B[dd]W[de]B[df]W[ef]W[bd]",
+            "branches": [
+              {
+                "move": "ee",
+                "success": true
+              },
+              {
+                "move": "ed",
+                "reply": "ee",
+                "failed": true
+              },
+              {
+                "move": "zz",
+                "reply": "ed",
+                "failed": true
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Capturing stones",
+        "steps": [
+          {
+            "type": "Interactive",
+            "name": "capture5",
+            "size": "9",
+            "text": "At the edge of the board, the situation is a little different. Stones on the edge have fewer liberties and are easier to capture.",
+            "init": "B[ca]W[da]B[db]W[ea]B[eb]W[gb]W[ga]",
+            "branches": [
+              {
+                "move": "fa",
+                "success": true
+              },
+              {
+                "move": "zz",
+                "reply": "fa",
+                "message": "The white stones are connected.",
+                "failed": true
+              }
+            ]
+          },
+          {
+            "type": "Interactive",
+            "name": "capture6",
+            "size": "9",
+            "text": "Stones in the corner are even more vulnerable.",
+            "init": "B[ga]B[gb]B[gc]B[ha]W[ia]W[ic]W[hc]W[hd]",
+            "branches": [
+              {
+                "move": "ib",
+                "success": true
+              },
+              {
+                "move": "zz",
+                "reply": "ib",
+                "failed": true
+              }
+            ]
+          },
+          {
+            "type": "Interactive",
+            "name": "capture7",
+            "size": "9",
+            "text": "Two stones are in atari this time. Capture them!",
+            "init": "B[cd]B[ce]B[dc]W[dd]W[de]B[df]B[ee]W[ef]W[fd]",
+            "branches": [
+              {
+                "move": "ed",
+                "success": true
+              },
+              {
+                "move": "zz",
+                "reply": "ed",
+                "failed": true
+              }
+            ]
+          },
+          {
+            "type": "Interactive",
+            "name": "capture8",
+            "size": "9",
+            "text": "This time it takes two moves to capture the white stones. Careful, your first move is important!",
+            "init": "B[cd]B[ce]B[cf]B[dc]W[dd]W[de]W[df]B[dg]B[ef]W[fd]W[ff]",
+            "branches": [
+              {
+                "move": "ed",
+                "reply": "ee",
+                "branches": [
+                  {
+                    "move": "fe",
+                    "success": true
+                  },
+                  {
+                    "move": "ec",
+                    "reply": "eg",
+                    "failed": true
+                  },
+                  {
+                    "move": "zz",
+                    "reply": "ec",
+                    "failed": true
+                  }
+                ]
+              },
+              {
+                "move": "zz",
+                "reply": "ed",
+                "failed": true
+              }
+            ]
+          },
+          {
+            "type": "Interactive",
+            "name": "capture9",
+            "size": "9",
+            "text": "It's hard to run away with stones on the edge. Capture the two white stones on the first line!",
+            "init": "W[ad]W[ae]B[af]B[be]W[ca]W[cb]W[cc]W[cd]",
+            "branches": [
+              {
+                "move": "bd",
+                "reply": "ac",
+                "branches": [
+                  {
+                    "move": "bc",
+                    "reply": "ab",
+                    "branches": [
+                      {
+                        "move": "bb",
+                        "reply": "aa",
+                        "branches": [
+                          {
+                            "move": "ba",
+                            "success": true
+                          },
+                          {
+                            "move": "zz",
+                            "reply": "ba",
+                            "failed": true
+                          }
+                        ]
+                      },
+                      {
+                        "move": "zz",
+                        "reply": "bb",
+                        "failed": true
+                      }
+                    ]
+                  },
+                  {
+                    "move": "zz",
+                    "reply": "bc",
+                    "failed": true
+                  }
+                ]
+              },
+              {
+                "move": "zz",
+                "reply": "bd",
+                "failed": true
+              }
+            ]
+          },
+          {
+            "type": "Interactive",
+            "name": "capture10",
+            "size": "9",
+            "text": "So many stones! Look for the stones that are in Atari, and capture them. If you get it wrong, your stones will be captured instead.",
+            "init": "B[bd]W[be]B[cc]W[cd]B[ce]W[cf]B[db]W[dc]W[dd]B[de]W[eb]W[ec]B[ed]B[ee]W[ef]W[cb]B[fb]B[fc]W[fd]W[fe]B[ff]W[fg]W[fh]B[gd]W[ge]B[gf]B[gg]B[gh]B[hd]W[he]",
+            "branches": [
+              {
+                "move": "ea",
+                "success": true
+              },
+              {
+                "move": "df",
+                "reply": "dg",
+                "failed": true
+              },
+              {
+                "move": "zz",
+                "reply": "df",
+                "failed": true
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Double Atari",
+        "steps": [
+          {
+            "type": "Interactive",
+            "name": "doubleAtari1",
+            "size": "9",
+            "text": "In certain positions, black can put two different white groups in Atari at the same time.\nBlack will usually capture at least one in this situation!",
+            "init": "B[cc]B[cd]B[dc]B[eb]W[be]W[ce]W[dd]W[ec]W[fb]",
+            "branches": [
+              {
+                "move": "ed",
+                "reply": "fc",
+                "branches": [
+                  {
+                    "move": "de",
+                    "success": true
+                  },
+                  {
+                    "move": "zz",
+                    "reply": "de",
+                    "failed": true
+                  }
+                ]
+              },
+              {
+                "move": "zz",
+                "reply": "ed",
+                "failed": true
+              }
+            ]
+          },
+          {
+            "type": "Interactive",
+            "name": "doubleAtari2",
+            "size": "9",
+            "text": "Here's another one. Where can you make a double Atari?",
+            "init": "B[bd]B[be]B[cc]W[cd]W[ce]B[cf]B[db]W[dc]W[df]B[eb]W[ec]W[ee]B[fc]W[fd]",
+            "branches": [
+              {
+                "move": "dd",
+                "reply": "de",
+                "branches": [
+                  {
+                    "move": "ed",
+                    "success": true
+                  },
+                  {
+                    "move": "zz",
+                    "reply": "ed",
+                    "failed": true
+                  }
+                ]
+              },
+              {
+                "move": "zz",
+                "reply": "dd",
+                "failed": true
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Illegal moves (the suicide rule)",
+        "steps": [
+          {
+            "type": "Lesson",
+            "name": "suicide1",
+            "size": "9",
+            "pages": [
+              {
+                "text": "You can play almost anywhere on the board with a few exceptions. In the example below, black cannot play at A, as his new stone would already be surrounded.",
+                "position": "W[fe]W[ed]W[de]W[ef]",
+                "marks": "A[ee]"
+              },
+              {
+                "text": "This is said to be a \"suicide\" move and is forbidden.",
+                "position": "W[fe]W[ed]W[de]W[ef]B[ee]",
+                "marks": "x[ee]"
+              },
+              {
+                "text": "There is an exception though. If a move at would capture one or more white stones (like B below), the move is allowed.",
+                "position": "W[fe]W[ed]W[de]W[ef]B[fd]B[ge]B[ff]B[eg]B[df]",
+                "marks": "B[ee]"
+              },
+              {
+                "text": "The resulting position looks like this:",
+                "position": "W[de]W[ed]B[fd]B[ge]B[ff]B[eg]B[df]B[ee]",
+                "marks": "#[ee]"
+              }
+            ]
+          },
+          {
+            "type": "Interactive",
+            "name": "suicide2",
+            "size": "9",
+            "text": "Your turn to capture some stones again! Hint: At first it may seem it's an illegal move...",
+            "init": "B[cc]B[cd]B[db]W[dc]W[dd]B[de]W[ea]W[eb]W[ed]B[ee]B[fb]W[fc]B[fd]W[gc]",
+            "branches": [
+              {
+                "move": "ec",
+                "success": true
+              },
+              {
+                "move": "zz",
+                "reply": "ec",
+                "failed": true
+              }
+            ]
+          },
+          {
+            "type": "Interactive",
+            "name": "suicide3",
+            "size": "9",
+            "text": "The 4 black stones are in Atari! Capture the white stones before they capture you!",
+            "init": "W[ab]B[ac]W[ad]W[cd]W[dd]B[bc]B[cc]B[dc]W[ec]W[ba]W[ca]W[da]W[bb]W[cb]W[db]B[ea]B[eb]",
+            "branches": [
+              {
+                "move": "aa",
+                "success": true
+              },
+              {
+                "move": "bd",
+                "reply": "be",
+                "failed": true
+              },
+              {
+                "move": "zz",
+                "reply": "bd",
+                "failed": true
+              }
+            ]
+          },
+          {
+            "type": "Interactive",
+            "name": "suicide4",
+            "size": "9",
+            "text": "Capture the 2 white stones touching the black ones. Here, you can't capture white with one move.",
+            "init": "W[dc]W[eb]W[bd]B[ce]W[de]W[ee]B[fd]B[fe]B[df]B[ef]",
+            "branches": [
+              {
+                "move": "dd",
+                "reply": "ed",
+                "branches": [
+                  {
+                    "move": "ec",
+                    "success": true
+                  },
+                  {
+                    "move": "zz",
+                    "reply": "ec",
+                    "failed": true
+                  }
+                ]
+              },
+              {
+                "move": "zz",
+                "reply": "dd",
+                "failed": true
+              }
+            ]
+          },
+          {
+            "type": "Interactive",
+            "name": "suicide5",
+            "size": "9",
+            "text": "The white stone at D5 is separating your stones. If you capture it, you can connect your stones and make a strong group. This is a very important pattern in GO!",
+            "init": "W[bc]B[cd]B[ce]W[cf]W[cg]W[de]B[df]B[ef]W[eg]W[fc]",
+            "branches": [
+              {
+                "move": "ed",
+                "reply": "dd",
+                "branches": [
+                  {
+                    "move": "dc",
+                    "reply": "ee",
+                    "branches": [
+                      {
+                        "move": "fe",
+                        "success": true
+                      },
+                      {
+                        "move": "zz",
+                        "reply": "fe",
+                        "failed": true
+                      }
+                    ]
+                  },
+                  {
+                    "move": "zz",
+                    "reply": "dc",
+                    "failed": true
+                  }
+                ]
+              },
+              {
+                "move": "dd",
+                "reply": "ee",
+                "branches": [
+                  {
+                    "move": "fe",
+                    "reply": "ed",
+                    "failed": true
+                  },
+                  {
+                    "move": "zz",
+                    "reply": "fe",
+                    "failed": true
+                  }
+                ]
+              },
+              {
+                "move": "ee",
+                "reply": "dd",
+                "branches": [
+                  {
+                    "move": "dc",
+                    "reply": "ed",
+                    "failed": true
+                  },
+                  {
+                    "move": "zz",
+                    "reply": "dc",
+                    "failed": true
+                  }
+                ]
+              },
+              {
+                "move": "ec",
+                "reply": "ee",
+                "branches": [
+                  {
+                    "move": "ff",
+                    "reply": "fe",
+                    "failed": true
+                  },
+                  {
+                    "move": "zz",
+                    "reply": "ff",
+                    "failed": true
+                  }
+                ]
+              },
+              {
+                "move": "fd",
+                "reply": "ee",
+                "branches": [
+                  {
+                    "move": "ff",
+                    "reply": "fe",
+                    "failed": true
+                  },
+                  {
+                    "move": "zz",
+                    "reply": "ff",
+                    "failed": true
+                  }
+                ]
+              },
+              {
+                "move": "zz",
+                "reply": "ed",
+                "failed": true
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "Intermediate",
+    "icon": "INTERMEDIATE",
+    "tutorials": [
+      {
+        "name": "Ladders",
+        "steps": [
+          {
+            "type": "Interactive",
+            "name": "ladder1",
+            "size": "9",
+            "text": "Capture the white stone! If you play the right moves, white cannot escape. Try to make successive Ataris until white has nowhere else to go.",
+            "init": "B[be]B[bf]B[cg]W[cf]",
+            "branches": [
+              {
+                "move": "df",
+                "reply": "ce",
+                "message": "White tries to escape...",
+                "branches": [
+                  {
+                    "move": "cd",
+                    "reply": "de",
+                    "branches": [
+                      {
+                        "move": "ee",
+                        "reply": "dd",
+                        "branches": [
+                          {
+                            "move": "dc",
+                            "reply": "ed",
+                            "branches": [
+                              {
+                                "move": "fd",
+                                "reply": "ec",
+                                "message": "Can you see where this is going?",
+                                "branches": [
+                                  {
+                                    "move": "eb",
+                                    "reply": "fc",
+                                    "branches": [
+                                      {
+                                        "move": "gc",
+                                        "reply": "fb",
+                                        "branches": [
+                                          {
+                                            "move": "fa",
+                                            "reply": "gb",
+                                            "branches": [
+                                              {
+                                                "move": "hb",
+                                                "reply": "ef",
+                                                "message": "If white tries to resist...",
+                                                "branches": [
+                                                  {
+                                                    "move": "ga",
+                                                    "success": true
+                                                  },
+                                                  {
+                                                    "move": "dg",
+                                                    "reply": "fe",
+                                                    "failed": true
+                                                  },
+                                                  {
+                                                    "move": "zz",
+                                                    "reply": "dg",
+                                                    "failed": true
+                                                  }
+                                                ]
+                                              },
+                                              {
+                                                "move": "zz",
+                                                "reply": "hb",
+                                                "failed": true
+                                              }
+                                            ]
+                                          },
+                                          {
+                                            "move": "gb",
+                                            "reply": "fa",
+                                            "branches": [
+                                              {
+                                                "move": "ea",
+                                                "reply": "ef",
+                                                "message": "If white tries to resist...",
+                                                "branches": [
+                                                  {
+                                                    "move": "ga",
+                                                    "success": true
+                                                  },
+                                                  {
+                                                    "move": "dg",
+                                                    "reply": "fe",
+                                                    "failed": true
+                                                  },
+                                                  {
+                                                    "move": "zz",
+                                                    "reply": "dg",
+                                                    "failed": true
+                                                  }
+                                                ]
+                                              },
+                                              {
+                                                "move": "ga",
+                                                "reply": "ef",
+                                                "message": "If white tries to resist...",
+                                                "branches": [
+                                                  {
+                                                    "move": "ea",
+                                                    "success": true
+                                                  },
+                                                  {
+                                                    "move": "dg",
+                                                    "reply": "fe",
+                                                    "failed": true
+                                                  },
+                                                  {
+                                                    "move": "zz",
+                                                    "reply": "dg",
+                                                    "failed": true
+                                                  }
+                                                ]
+                                              },
+                                              {
+                                                "move": "gd",
+                                                "reply": "cc",
+                                                "failed": true
+                                              },
+                                              {
+                                                "move": "ge",
+                                                "reply": "cc",
+                                                "failed": true
+                                              },
+                                              {
+                                                "move": "fe",
+                                                "reply": "cc",
+                                                "failed": true
+                                              },
+                                              {
+                                                "move": "ff",
+                                                "reply": "cc",
+                                                "failed": true
+                                              },
+                                              {
+                                                "move": "ef",
+                                                "reply": "cc",
+                                                "failed": true
+                                              },
+                                              {
+                                                "move": "zz",
+                                                "reply": "fe",
+                                                "failed": true
+                                              }
+                                            ]
+                                          },
+                                          {
+                                            "move": "gd",
+                                            "reply": "cc",
+                                            "failed": true
+                                          },
+                                          {
+                                            "move": "ge",
+                                            "reply": "cc",
+                                            "failed": true
+                                          },
+                                          {
+                                            "move": "fe",
+                                            "reply": "cc",
+                                            "failed": true
+                                          },
+                                          {
+                                            "move": "ff",
+                                            "reply": "cc",
+                                            "failed": true
+                                          },
+                                          {
+                                            "move": "ef",
+                                            "reply": "cc",
+                                            "failed": true
+                                          },
+                                          {
+                                            "move": "zz",
+                                            "reply": "fe",
+                                            "failed": true
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "move": "zz",
+                                        "reply": "gc",
+                                        "failed": true
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "move": "zz",
+                                    "reply": "eb",
+                                    "failed": true
+                                  }
+                                ]
+                              },
+                              {
+                                "move": "zz",
+                                "reply": "fd",
+                                "failed": true
+                              }
+                            ]
+                          },
+                          {
+                            "move": "zz",
+                            "reply": "dc",
+                            "failed": true
+                          }
+                        ]
+                      },
+                      {
+                        "move": "zz",
+                        "reply": "ee",
+                        "failed": true
+                      }
+                    ]
+                  },
+                  {
+                    "move": "zz",
+                    "reply": "cd",
+                    "failed": true
+                  }
+                ]
+              },
+              {
+                "move": "zz",
+                "reply": "df",
+                "failed": true
+              }
+            ]
+          },
+          {
+            "type": "Interactive",
+            "name": "ladder2",
+            "size": "9",
+            "text": "Here's another ladder. Now it's your turn to escape. The situation is not hopeless this time though. Your stone at F2 is in the ladder's path. If you can get to it you're safe. Such a stone is called a \"ladder breaker\"",
+            "init": "B[cd]W[bd]W[be]W[cc]W[dd]B[fh]",
+            "branches": [
+              {
+                "move": "ce",
+                "reply": "cf",
+                "branches": [
+                  {
+                    "move": "de",
+                    "reply": "ee",
+                    "branches": [
+                      {
+                        "move": "df",
+                        "reply": "dg",
+                        "branches": [
+                          {
+                            "move": "ef",
+                            "reply": "ff",
+                            "branches": [
+                              {
+                                "move": "eg",
+                                "reply": "eh",
+                                "branches": [
+                                  {
+                                    "move": "fg",
+                                    "success": true
+                                  },
+                                  {
+                                    "move": "zz",
+                                    "reply": "fg",
+                                    "failed": true
+                                  }
+                                ]
+                              },
+                              {
+                                "move": "zz",
+                                "reply": "eg",
+                                "failed": true
+                              }
+                            ]
+                          },
+                          {
+                            "move": "zz",
+                            "reply": "ef",
+                            "failed": true
+                          }
+                        ]
+                      },
+                      {
+                        "move": "zz",
+                        "reply": "df",
+                        "failed": true
+                      }
+                    ]
+                  },
+                  {
+                    "move": "zz",
+                    "reply": "de",
+                    "failed": true
+                  }
+                ]
+              },
+              {
+                "move": "zz",
+                "reply": "ce",
+                "failed": true
+              }
+            ]
+          },
+          {
+            "type": "Lesson",
+            "name": "ladder3",
+            "size": "9",
+            "pages": [
+              {
+                "text": "Ladders are very important in GO. But you need to think ahead a few moves and not start a ladder fight unless you are sure you can win it! Here's what happens to White if they play out the losing ladder in the previous example...",
+                "position": "B[cd]W[bd]W[be]W[cc]W[dd]B[fh]B[ce]W[cf]B[de]W[ee]B[df]W[dg]B[ef]W[ff]B[eg]W[eh]B[fg]W[fe]B[cg]"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Two Eyes",
+        "steps": [
+          {
+            "type": "Interactive",
+            "name": "two_eyes1",
+            "size": "9",
+            "text": "You are completely surrounded! What's the only move that can save you?",
+            "init": "W[bc]W[bd]W[be]W[cb]W[db]W[eb]W[fb]W[gb]W[hc]W[hd]W[he]W[cf]W[df]W[ef]W[ff]W[gf]B[cc]B[dc]B[ec]B[fc]B[gc]B[ce]B[de]B[ee]B[fe]B[ge]B[cd]B[gd]",
+            "branches": [
+              {
+                "move": "ed",
+                "success": true
+              },
+              {
+                "move": "dd",
+                "reply": "ed",
+                "branches": [
+                  {
+                    "move": "fd",
+                    "reply": "ed",
+                    "failed": true
+                  },
+                  {
+                    "move": "zz",
+                    "reply": "fd",
+                    "failed": true
+                  }
+                ]
+              },
+              {
+                "move": "fd",
+                "reply": "ed",
+                "branches": [
+                  {
+                    "move": "dd",
+                    "reply": "ed",
+                    "failed": true
+                  },
+                  {
+                    "move": "zz",
+                    "reply": "dd",
+                    "failed": true
+                  }
+                ]
+              },
+              {
+                "move": "zz",
+                "reply": "ed",
+                "failed": true
+              }
+            ]
+          },
+          {
+            "type": "Lesson",
+            "name": "two_eyes2",
+            "size": "9",
+            "pages": [
+              {
+                "text": "Correct! In this position both A and B are illegal moves for white since they would be suicidal moves without capturing any of your stones. Therefore, your group can never be captured!",
+                "position": "W[bc]W[bd]W[be]W[cb]W[db]W[eb]W[fb]W[gb]W[hc]W[hd]W[he]W[cf]W[df]W[ef]W[ff]W[gf]B[cc]B[dc]B[ec]B[fc]B[gc]B[ce]B[de]B[ee]B[fe]B[ge]B[cd]B[gd]B[ed]",
+                "marks": "A[dd]B[fd]"
+              }
+            ]
+          },
+          {
+            "type": "Interactive",
+            "name": "two_eyes3",
+            "size": "9",
+            "text": "How about here? How can you ensure your stones won't get captured?",
+            "init": "W[bd]W[be]W[bf]W[cc]W[cd]B[ce]B[cf]W[cg]W[dc]B[dd]B[df]W[dg]W[eb]W[fb]B[ec]B[fc]B[fd]B[eg]W[eh]B[ff]B[fg]W[fh]W[gc]W[gd]B[ge]B[gf]W[gg]W[hg]W[he]W[hf]",
+            "branches": [
+              {
+                "move": "ee",
+                "success": true
+              },
+              {
+                "move": "zz",
+                "reply": "ee",
+                "failed": true
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Capture races",
+        "steps": [
+          {
+            "type": "Interactive",
+            "name": "capture_race_1",
+            "size": "9",
+            "text": "In this puzzle, both the black and the white groups in the top middle are surrounded. As neither has two eyes, both sides can try and capture the other. This situation is called a capture race (semeai) and is usually won by the side with more liberties. In this case, both groups have 3 liberties, so whoever is next to move will win.\n\nCapture the white stones!",
+            "init": "B[ca]B[cb]B[cc]B[dd]B[ed]W[ea]W[eb]W[ec]W[fd]W[gd]B[fa]B[fb]B[fc]W[ha]W[hb]W[hc]",
+            "branches": [
+              {
+                "move": "da",
+                "reply": "gc",
+                "branches": [
+                  {
+                    "move": "db",
+                    "reply": "gb",
+                    "branches": [
+                      {
+                        "move": "dc",
+                        "success": true
+                      },
+                      {
+                        "move": "zz",
+                        "reply": "ga",
+                        "failed": true
+                      }
+                    ]
+                  },
+                  {
+                    "move": "dc",
+                    "reply": "gb",
+                    "branches": [
+                      {
+                        "move": "db",
+                        "success": true
+                      },
+                      {
+                        "move": "zz",
+                        "reply": "ga",
+                        "failed": true
+                      }
+                    ]
+                  },
+                  {
+                    "move": "gb",
+                    "reply": "ga",
+                    "failed": true
+                  },
+                  {
+                    "move": "zz",
+                    "reply": "gb",
+                    "failed": true
+                  }
+                ]
+              },
+              {
+                "move": "db",
+                "reply": "gc",
+                "branches": [
+                  {
+                    "move": "da",
+                    "reply": "gb",
+                    "branches": [
+                      {
+                        "move": "dc",
+                        "success": true
+                      },
+                      {
+                        "move": "zz",
+                        "reply": "ga",
+                        "failed": true
+                      }
+                    ]
+                  },
+                  {
+                    "move": "dc",
+                    "reply": "gb",
+                    "branches": [
+                      {
+                        "move": "da",
+                        "success": true
+                      },
+                      {
+                        "move": "zz",
+                        "reply": "ga",
+                        "failed": true
+                      }
+                    ]
+                  },
+                  {
+                    "move": "gb",
+                    "reply": "ga",
+                    "failed": true
+                  },
+                  {
+                    "move": "zz",
+                    "reply": "gb",
+                    "failed": true
+                  }
+                ]
+              },
+              {
+                "move": "dc",
+                "reply": "gc",
+                "branches": [
+                  {
+                    "move": "da",
+                    "reply": "gb",
+                    "branches": [
+                      {
+                        "move": "db",
+                        "success": true
+                      },
+                      {
+                        "move": "zz",
+                        "reply": "ga",
+                        "failed": true
+                      }
+                    ]
+                  },
+                  {
+                    "move": "db",
+                    "reply": "gb",
+                    "branches": [
+                      {
+                        "move": "da",
+                        "success": true
+                      },
+                      {
+                        "move": "zz",
+                        "reply": "ga",
+                        "failed": true
+                      }
+                    ]
+                  },
+                  {
+                    "move": "gb",
+                    "reply": "ga",
+                    "failed": true
+                  },
+                  {
+                    "move": "zz",
+                    "reply": "gb",
+                    "failed": true
+                  }
+                ]
+              },
+              {
+                "move": "gc",
+                "reply": "gb",
+                "failed": true
+              },
+              {
+                "move": "zz",
+                "reply": "gc",
+                "failed": true
+              }
+            ]
+          },
+          {
+            "type": "Interactive",
+            "name": "capture_race_2",
+            "size": "9",
+            "text": "Here's another semeai. Win the race and capture white!",
+            "init": "W[ba]W[bb]W[bc]B[bd]B[be]B[bf]B[ca]B[cb]B[cc]W[cd]W[dd]W[ec]W[eb]",
+            "branches": [
+              {
+                "move": "ac",
+                "reply": "da",
+                "branches": [
+                  {
+                    "move": "ab",
+                    "reply": "db",
+                    "branches": [
+                      {
+                        "move": "aa",
+                        "success": true
+                      },
+                      {
+                        "move": "zz",
+                        "reply": "dc",
+                        "failed": true
+                      }
+                    ]
+                  },
+                  {
+                    "move": "aa",
+                    "reply": "db",
+                    "branches": [
+                      {
+                        "move": "ab",
+                        "success": true
+                      },
+                      {
+                        "move": "zz",
+                        "reply": "dc",
+                        "failed": true
+                      }
+                    ]
+                  },
+                  {
+                    "move": "db",
+                    "reply": "dc",
+                    "failed": true
+                  },
+                  {
+                    "move": "zz",
+                    "reply": "db",
+                    "failed": true
+                  }
+                ]
+              },
+              {
+                "move": "ab",
+                "reply": "da",
+                "branches": [
+                  {
+                    "move": "ac",
+                    "reply": "db",
+                    "branches": [
+                      {
+                        "move": "aa",
+                        "success": true
+                      },
+                      {
+                        "move": "zz",
+                        "reply": "dc",
+                        "failed": true
+                      }
+                    ]
+                  },
+                  {
+                    "move": "aa",
+                    "reply": "ac",
+                    "failed": true
+                  },
+                  {
+                    "move": "db",
+                    "reply": "dc",
+                    "failed": true
+                  },
+                  {
+                    "move": "zz",
+                    "reply": "db",
+                    "failed": true
+                  }
+                ]
+              },
+              {
+                "move": "aa",
+                "reply": "ab",
+                "branches": [
+                  {
+                    "move": "ad",
+                    "reply": "da",
+                    "branches": [
+                      {
+                        "move": "ac",
+                        "reply": "db",
+                        "branches": [
+                          {
+                            "move": "aa",
+                            "success": true
+                          },
+                          {
+                            "move": "zz",
+                            "reply": "dc",
+                            "failed": true
+                          }
+                        ]
+                      },
+                      {
+                        "move": "dc",
+                        "reply": "db",
+                        "failed": true
+                      },
+                      {
+                        "move": "zz",
+                        "reply": "dc",
+                        "failed": true
+                      }
+                    ]
+                  },
+                  {
+                    "move": "ac",
+                    "reply": "ad",
+                    "failed": true
+                  },
+                  {
+                    "move": "da",
+                    "reply": "ea",
+                    "failed": true
+                  },
+                  {
+                    "move": "db",
+                    "reply": "dc",
+                    "failed": true
+                  },
+                  {
+                    "move": "ea",
+                    "reply": "da",
+                    "branches": [
+                      {
+                        "move": "db",
+                        "reply": "dc",
+                        "branches": [
+                          {
+                            "move": "da",
+                            "reply": "fa",
+                            "failed": true
+                          },
+                          {
+                            "move": "zz",
+                            "reply": "da",
+                            "failed": true
+                          }
+                        ]
+                      },
+                      {
+                        "move": "zz",
+                        "reply": "db",
+                        "failed": true
+                      }
+                    ]
+                  },
+                  {
+                    "move": "zz",
+                    "reply": "da",
+                    "failed": true
+                  }
+                ]
+              },
+              {
+                "move": "da",
+                "reply": "ea",
+                "failed": true
+              },
+              {
+                "move": "db",
+                "reply": "dc",
+                "failed": true
+              },
+              {
+                "move": "ea",
+                "reply": "db",
+                "branches": [
+                  {
+                    "move": "da",
+                    "reply": "fa",
+                    "failed": true
+                  },
+                  {
+                    "move": "zz",
+                    "reply": "da",
+                    "failed": true
+                  }
+                ]
+              },
+              {
+                "move": "zz",
+                "reply": "da",
+                "failed": true
+              }
+            ]
+          },
+          {
+            "type": "Interactive",
+            "name": "capture_race_3",
+            "size": "9",
+            "text": "Save the black stones in the corner!",
+            "init": "B[ac]B[bc]B[cc]W[ad]W[bd]W[cd]W[cf]W[cg]B[dd]B[de]W[dc]W[ec]W[fc]W[db]W[ca]",
+            "branches": [
+              {
+                "move": "ce",
+                "reply": "be",
+                "branches": [
+                  {
+                    "move": "bf",
+                    "reply": "bg",
+                    "branches": [
+                      {
+                        "move": "ae",
+                        "success": true
+                      },
+                      {
+                        "move": "af",
+                        "reply": "ag",
+                        "branches": [
+                          {
+                            "move": "ae",
+                            "success": true
+                          },
+                          {
+                            "move": "zz",
+                            "reply": "ae",
+                            "failed": true
+                          }
+                        ]
+                      },
+                      {
+                        "move": "zz",
+                        "reply": "af",
+                        "failed": true
+                      }
+                    ]
+                  },
+                  {
+                    "move": "zz",
+                    "reply": "bf",
+                    "failed": true
+                  }
+                ]
+              },
+              {
+                "move": "cb",
+                "reply": "bb",
+                "failed": true
+              },
+              {
+                "move": "ba",
+                "reply": "bb",
+                "branches": [
+                  {
+                    "move": "ab",
+                    "reply": "cb",
+                    "failed": true
+                  },
+                  {
+                    "move": "cb",
+                    "reply": "ab",
+                    "failed": true
+                  },
+                  {
+                    "move": "zz",
+                    "reply": "cb",
+                    "failed": true
+                  }
+                ]
+              },
+              {
+                "move": "be",
+                "reply": "ce",
+                "failed": true
+              },
+              {
+                "move": "ae",
+                "reply": "ce",
+                "failed": true
+              },
+              {
+                "move": "bf",
+                "reply": "ce",
+                "failed": true
+              },
+              {
+                "move": "zz",
+                "reply": "cb",
+                "failed": true
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Snapback",
+        "steps": [
+          {
+            "type": "Interactive",
+            "name": "snapback_1",
+            "size": "9",
+            "text": "Now you will discover a technique called a \"snapback\". Capture the 4 white stones!\n\nHint: you must sacrifice a stone first!",
+            "init": "B[cc]B[cd]B[ce]B[cf]B[db]W[dc]W[dd]W[de]W[df]B[dg]W[eb]B[ee]B[ef]W[gc]W[fc]B[fd]",
+            "branches": [
+              {
+                "move": "ed",
+                "reply": "ec",
+                "failed": true
+              },
+              {
+                "move": "ec",
+                "reply": "ed",
+                "branches": [
+                  {
+                    "move": "ec",
+                    "success": true
+                  },
+                  {
+                    "move": "zz",
+                    "reply": "ec",
+                    "failed": true
+                  }
+                ]
+              },
+              {
+                "move": "zz",
+                "reply": "ec",
+                "failed": true
+              }
+            ]
+          },
+          {
+            "type": "Interactive",
+            "name": "snapback_2",
+            "size": "9",
+            "text": "As you've discovered, sometimes forcing white to capture one of your stone puts them into atari. Use the same technique here!",
+            "init": "W[cd]W[dd]W[cg]W[dg]B[de]B[df]B[ec]B[ed]W[ee]W[ef]B[eg]W[fd]B[fg]W[ge]B[gf]",
+            "branches": [
+              {
+                "move": "ff",
+                "reply": "fe",
+                "failed": true
+              },
+              {
+                "move": "fe",
+                "reply": "ff",
+                "branches": [
+                  {
+                    "move": "fe",
+                    "success": true
+                  },
+                  {
+                    "move": "zz",
+                    "reply": "fe",
+                    "failed": true
+                  }
+                ]
+              },
+              {
+                "move": "zz",
+                "reply": "fe",
+                "failed": true
+              }
+            ]
+          },
+          {
+            "type": "Interactive",
+            "name": "snapback_3",
+            "size": "9",
+            "text": "Here's another snapback situation at the edge.",
+            "init": "B[bh]W[ch]B[ci]W[df]W[dg]B[eg]W[eh]W[ei]B[fh]B[fi]",
+            "branches": [
+              {
+                "move": "di",
+                "reply": "dh",
+                "failed": true
+              },
+              {
+                "move": "dh",
+                "reply": "di",
+                "branches": [
+                  {
+                    "move": "dh",
+                    "success": true
+                  },
+                  {
+                    "move": "zz",
+                    "reply": "dh",
+                    "failed": true
+                  }
+                ]
+              },
+              {
+                "move": "zz",
+                "reply": "dh",
+                "failed": true
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "KO - the \"no repetition\" rule",
+        "steps": [
+          {
+            "type": "Lesson",
+            "name": "ko",
+            "size": "9",
+            "pages": [
+              {
+                "text": "Now we'll look at the last rule that you need to know in order to play GO: the KO rule. The rule states that a move is invalid if it would produce a repetition (e.g. a previous position).\n\nLet's look at an example. The white stone at E6 is in Atari. So, black can capture it.",
+                "position": "B[dd]B[ec]B[ee]W[ed]W[fc]W[fe]W[gd]"
+              },
+              {
+                "text": "Now the new black stone at F6 is in atari. Without the KO rule, white would be able to capture it, but if they did, the the resulting position...",
+                "position": "B[dd]B[ec]B[ee]W[fc]W[fe]W[gd]B[fd]",
+                "marks": "#[fd]"
+              },
+              {
+                "text": "... would be the same as the initial one! Here, without the KO rule, Black would capture again...",
+                "position": "B[dd]B[ec]B[ee]W[ed]W[fc]W[fe]W[gd]",
+                "marks": "#[ed]"
+              },
+              {
+                "text": "... and the game would be stuck in a loop. In order to avoid this, the KO rule states that white cannot recapture at E6 here, but must play elsewhere first.",
+                "position": "B[dd]B[ec]B[ee]W[fc]W[fe]W[gd]B[fd]",
+                "marks": "#[fd]"
+              },
+              {
+                "text": "Now if black wants to save the stone in atari she is can play at E6...",
+                "position": "B[dd]B[ec]B[ee]W[fc]W[fe]W[gd]B[fd]W[gg]",
+                "marks": "#[gg]"
+              },
+              {
+                "text": "Black has thus won the ko fight, but note that it's white's turn again and so white gained two moves for the price of that one stone.",
+                "position": "B[dd]B[ec]B[ee]W[fc]W[fe]W[gd]B[fd]W[gg]B[ed]",
+                "marks": "#[ed]"
+              },
+              {
+                "text": "Those two free moves might sometimes be worth more points than winning the ko fight, so both players will constantly assess if it's worth continuing the ko fight or getting the extra moves.",
+                "position": "B[dd]B[ec]B[ee]W[fc]W[fe]W[gd]B[fd]W[gg]B[ed]W[cg]",
+                "marks": "#[cg]"
+              },
+              {
+                "text": "How can this occur in a real game? Here's an example. Both black and white have a 5-stone group in danger at the top. The only way for black to save her group is to play at E8. A KO fight has started!",
+                "position": "W[bb]W[bc]B[ca]B[cb]B[cc]W[cd]B[da]B[dc]W[dd]W[ea]W[db]W[ec]B[ed]W[fa]W[fb]W[fc]B[fd]B[gb]B[gc]W[be]W[ag]W[ae]W[bg]W[cg]W[dg]W[eg]B[cf]B[df]B[ef]B[ah]B[ai]B[bh]B[bi]B[ch]B[ci]B[dh]B[di]B[fh]B[fi]B[fg]"
+              },
+              {
+                "text": "White's 5 stones at the top are now in Atari, but he can't take back at D8 as that would repeat the last position! Thus he plays somewhere Black can't ignore, such as E2",
+                "position": "W[bb]W[bc]B[ca]B[cb]B[cc]W[cd]B[da]B[dc]W[dd]W[ea]W[ec]B[ed]W[fa]W[fb]W[fc]B[fd]B[gb]B[gc]W[be]W[ag]W[ae]W[bg]W[cg]W[dg]W[eg]B[cf]B[df]B[ef]B[ah]B[ai]B[bh]B[bi]B[ch]B[ci]B[dh]B[di]B[fh]B[fi]B[fg]B[eb]",
+                "marks": "#[eb]"
+              },
+              {
+                "text": "Now Black's 8 stones at the bottom left are in danger so Black does the math: would she rather lose 8 stones at the bottom or 5 at the top? Reluctantly, Black chooses to continue the KO fight and save the stones at the bottom with E1",
+                "position": "W[bb]W[bc]B[ca]B[cb]B[cc]W[cd]B[da]B[dc]W[dd]W[ea]W[ec]B[ed]W[fa]W[fb]W[fc]B[fd]B[gb]B[gc]W[be]W[ag]W[ae]W[bg]W[cg]W[dg]W[eg]B[cf]B[df]B[ef]B[ah]B[ai]B[bh]B[bi]B[ch]B[ci]B[dh]B[di]B[fh]B[fi]B[fg]B[eb]W[eh]",
+                "marks": "#[eh]"
+              },
+              {
+                "text": "White now takes back the KO",
+                "position": "W[bb]W[bc]B[ca]B[cb]B[cc]W[cd]B[da]B[dc]W[dd]W[ea]W[ec]B[ed]W[fa]W[fb]W[fc]B[fd]B[gb]B[gc]W[be]W[ag]W[ae]W[bg]W[cg]W[dg]W[eg]B[cf]B[df]B[ef]B[ah]B[ai]B[bh]B[bi]B[ch]B[ci]B[dh]B[di]B[fh]B[fi]B[fg]B[eb]W[eh]B[ei]",
+                "marks": "#[ei]"
+              },
+              {
+                "text": "It's black's turn now and she can't take back because of the KO rule. She has one more chance though: a move at B4 threatens the white group at the bottom!",
+                "position": "W[bb]W[bc]B[ca]B[cb]B[cc]W[cd]B[da]B[dc]W[dd]W[ea]W[ec]B[ed]W[fa]W[fb]W[fc]B[fd]B[gb]B[gc]W[be]W[ag]W[ae]W[bg]W[cg]W[dg]W[eg]B[cf]B[df]B[ef]B[ah]B[ai]B[bh]B[bi]B[ch]B[ci]B[dh]B[di]B[fh]B[fi]B[fg]W[eh]B[ei]W[db]",
+                "marks": "#[db]"
+              },
+              {
+                "text": "White's turn to choose now. Should he capture the 5 stones at the top with a move at B9 or save the 6 stones at the bottom? He chooses to play at A4...",
+                "position": "W[bb]W[bc]B[ca]B[cb]B[cc]W[cd]B[da]B[dc]W[dd]W[ea]W[ec]B[ed]W[fa]W[fb]W[fc]B[fd]B[gb]B[gc]W[be]W[ag]W[ae]W[bg]W[cg]W[dg]W[eg]B[cf]B[df]B[ef]B[ah]B[ai]B[bh]B[bi]B[ch]B[ci]B[dh]B[di]B[fh]B[fi]B[fg]W[eh]B[ei]W[db]B[bf]",
+                "marks": "#[bf]"
+              },
+              {
+                "text": "Black doesn't need much encouragement to play at E8 now...",
+                "position": "W[bb]W[bc]B[ca]B[cb]B[cc]W[cd]B[da]B[dc]W[dd]W[ea]W[ec]B[ed]W[fa]W[fb]W[fc]B[fd]B[gb]B[gc]W[be]W[ag]W[ae]W[bg]W[cg]W[dg]W[eg]B[cf]B[df]B[ef]B[ah]B[ai]B[bh]B[bi]B[ch]B[ci]B[dh]B[di]B[fh]B[fi]B[fg]W[eh]B[ei]W[db]B[bf]W[af]",
+                "marks": "#[af]"
+              },
+              {
+                "text": "White reluctantly admits that he has no other good threats. He plays elsewhere, such as F4 and admits he lost the KO fight.",
+                "position": "W[bb]W[bc]B[ca]B[cb]B[cc]W[cd]B[da]B[dc]W[dd]W[ea]W[ec]B[ed]W[fa]W[fb]W[fc]B[fd]B[gb]B[gc]W[be]W[ag]W[ae]W[bg]W[cg]W[dg]W[eg]B[cf]B[df]B[ef]B[ah]B[ai]B[bh]B[bi]B[ch]B[ci]B[dh]B[di]B[fh]B[fi]B[fg]W[eh]B[ei]B[bf]W[af]B[eb]",
+                "marks": "#[eb]"
+              },
+              {
+                "text": "Black will happily claim her prize at the top with G9 now",
+                "position": "W[bb]W[bc]B[ca]B[cb]B[cc]W[cd]B[da]B[dc]W[dd]W[ea]W[ec]B[ed]W[fa]W[fb]W[fc]B[fd]B[gb]B[gc]W[be]W[ag]W[ae]W[bg]W[cg]W[dg]W[eg]B[cf]B[df]B[ef]B[ah]B[ai]B[bh]B[bi]B[ch]B[ci]B[dh]B[di]B[fh]B[fi]B[fg]W[eh]B[ei]B[bf]W[af]B[eb]W[ff]",
+                "marks": "#[ff]"
+              },
+              {
+                "text": "Don't worry if this seems too complicated right now. As a beginner, just remember that you can't recapture a stone back if it repeats the previous position.",
+                "position": "W[bb]W[bc]B[ca]B[cb]B[cc]W[cd]B[da]B[dc]W[dd]B[ed]B[fd]B[gb]B[gc]W[be]W[ag]W[ae]W[bg]W[cg]W[dg]W[eg]B[cf]B[df]B[ef]B[ah]B[ai]B[bh]B[bi]B[ch]B[ci]B[dh]B[di]B[fh]B[fi]B[fg]W[eh]B[ei]B[bf]W[af]B[eb]W[ff]B[ga]",
+                "marks": "#[ga]"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Puzzles",
+        "steps": [
+          {
+            "type": "Interactive",
+            "name": "puzzles_1",
+            "size": "9",
+            "text": "Capture the 3 white stones! This is sometimes called the \"crane's nest\"",
+            "init": "B[ce]B[cf]B[dg]B[eg]B[fg]B[gf]B[ge]W[ed]W[df]W[ef]W[ff]",
+            "branches": [
+              {
+                "move": "ee",
+                "reply": "de",
+                "branches": [
+                  {
+                    "move": "dd",
+                    "reply": "fe",
+                    "branches": [
+                      {
+                        "move": "fd",
+                        "reply": "ee",
+                        "branches": [
+                          {
+                            "move": "ec",
+                            "success": true
+                          },
+                          {
+                            "move": "zz",
+                            "reply": "ec",
+                            "failed": true
+                          }
+                        ]
+                      },
+                      {
+                        "move": "fc",
+                        "reply": "ec",
+                        "failed": true
+                      },
+                      {
+                        "move": "zz",
+                        "reply": "fc",
+                        "failed": true
+                      }
+                    ]
+                  },
+                  {
+                    "move": "zz",
+                    "reply": "dd",
+                    "failed": true
+                  }
+                ]
+              },
+              {
+                "move": "dd",
+                "reply": "fd",
+                "branches": [
+                  {
+                    "move": "ee",
+                    "reply": "fe",
+                    "failed": true
+                  },
+                  {
+                    "move": "fe",
+                    "reply": "ee",
+                    "failed": true
+                  },
+                  {
+                    "move": "gc",
+                    "reply": "dc",
+                    "failed": true
+                  },
+                  {
+                    "move": "zz",
+                    "reply": "gc",
+                    "failed": true
+                  }
+                ]
+              },
+              {
+                "move": "de",
+                "reply": "fd",
+                "branches": [
+                  {
+                    "move": "ee",
+                    "reply": "fe",
+                    "failed": true
+                  },
+                  {
+                    "move": "fe",
+                    "reply": "ee",
+                    "failed": true
+                  },
+                  {
+                    "move": "gc",
+                    "reply": "dc",
+                    "failed": true
+                  },
+                  {
+                    "move": "zz",
+                    "reply": "gc",
+                    "failed": true
+                  }
+                ]
+              },
+              {
+                "move": "fd",
+                "reply": "dd",
+                "branches": [
+                  {
+                    "move": "ee",
+                    "reply": "de",
+                    "failed": true
+                  },
+                  {
+                    "move": "de",
+                    "reply": "ee",
+                    "failed": true
+                  },
+                  {
+                    "move": "cc",
+                    "reply": "fc",
+                    "failed": true
+                  },
+                  {
+                    "move": "zz",
+                    "reply": "cc",
+                    "failed": true
+                  }
+                ]
+              },
+              {
+                "move": "fe",
+                "reply": "dd",
+                "branches": [
+                  {
+                    "move": "ee",
+                    "reply": "de",
+                    "failed": true
+                  },
+                  {
+                    "move": "de",
+                    "reply": "ee",
+                    "failed": true
+                  },
+                  {
+                    "move": "cc",
+                    "reply": "fc",
+                    "failed": true
+                  },
+                  {
+                    "move": "zz",
+                    "reply": "cc",
+                    "failed": true
+                  }
+                ]
+              },
+              {
+                "move": "zz",
+                "reply": "dd",
+                "failed": true
+              }
+            ]
+          },
+          {
+            "type": "Interactive",
+            "name": "puzzles_2",
+            "size": "9",
+            "text": "It's a capture race, can you win it?",
+            "init": "W[bd]W[be]W[bf]W[bg]W[cb]W[cc]B[cd]B[ce]B[cf]B[cg]W[ch]W[db]W[eb]W[fb]W[gb]W[hb]W[ib]W[ic]W[id]W[ie]W[ig]W[dh]W[eh]W[fh]W[gh]W[hh]B[dc]B[ec]B[fc]B[gc]B[hc]B[dg]B[eg]B[fg]B[gg]B[gf]B[hd]B[he]B[hf]W[dd]W[de]W[df]W[ed]W[fd]W[gd]W[ge]W[ef]W[ff]",
+            "branches": [
+              {
+                "move": "ee",
+                "reply": "fe",
+                "branches": [
+                  {
+                    "move": "ee",
+                    "success": true
+                  },
+                  {
+                    "move": "hg",
+                    "reply": "if",
+                    "failed": true
+                  },
+                  {
+                    "move": "if",
+                    "reply": "hg",
+                    "failed": true
+                  },
+                  {
+                    "move": "zz",
+                    "reply": "if",
+                    "branches": [
+                      {
+                        "move": "ee",
+                        "success": true
+                      },
+                      {
+                        "move": "zz",
+                        "reply": "hg",
+                        "failed": true
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "move": "fe",
+                "reply": "ee",
+                "branches": [
+                  {
+                    "move": "fe",
+                    "success": true
+                  },
+                  {
+                    "move": "hg",
+                    "reply": "if",
+                    "failed": true
+                  },
+                  {
+                    "move": "if",
+                    "reply": "hg",
+                    "failed": true
+                  },
+                  {
+                    "move": "zz",
+                    "reply": "if",
+                    "branches": [
+                      {
+                        "move": "fe",
+                        "success": true
+                      },
+                      {
+                        "move": "zz",
+                        "reply": "hg",
+                        "failed": true
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "move": "hg",
+                "reply": "if",
+                "failed": true
+              },
+              {
+                "move": "if",
+                "reply": "hg",
+                "failed": true
+              },
+              {
+                "move": "zz",
+                "reply": "hg",
+                "branches": [
+                  {
+                    "move": "ee",
+                    "reply": "if",
+                    "failed": true
+                  },
+                  {
+                    "move": "fe",
+                    "reply": "if",
+                    "failed": true
+                  },
+                  {
+                    "move": "zz",
+                    "reply": "if",
+                    "failed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "Interactive",
+            "name": "corner_1",
+            "size": "9",
+            "text": "In GO, fights in the corners are very common. Here is a capture race in the corner. Can you come up on top?",
+            "init": "W[bf]W[cf]B[df]B[bg]B[cg]W[dg]B[eg]W[ch]W[dh]B[eh]",
+            "branches": [
+              {
+                "move": "bh",
+                "reply": "bi",
+                "branches": [
+                  {
+                    "move": "di",
+                    "reply": "ag",
+                    "branches": [
+                      {
+                        "move": "ci",
+                        "success": true
+                      },
+                      {
+                        "move": "ah",
+                        "reply": "ai",
+                        "failed": true
+                      },
+                      {
+                        "move": "zz",
+                        "reply": "ah",
+                        "failed": true
+                      }
+                    ]
+                  },
+                  {
+                    "move": "ci",
+                    "reply": "di",
+                    "branches": [
+                      {
+                        "move": "ei",
+                        "reply": "ag",
+                        "branches": [
+                          {
+                            "move": "ci",
+                            "success": true
+                          },
+                          {
+                            "move": "ah",
+                            "reply": "ai",
+                            "failed": true
+                          },
+                          {
+                            "move": "zz",
+                            "reply": "ah",
+                            "failed": true
+                          }
+                        ]
+                      },
+                      {
+                        "move": "ai",
+                        "reply": "ah",
+                        "failed": true
+                      },
+                      {
+                        "move": "ah",
+                        "reply": "af",
+                        "branches": [
+                          {
+                            "move": "ei",
+                            "reply": "ag",
+                            "branches": [
+                              {
+                                "move": "ci",
+                                "success": true
+                              },
+                              {
+                                "move": "zz",
+                                "reply": "ai",
+                                "failed": true
+                              }
+                            ]
+                          },
+                          {
+                            "move": "ag",
+                            "reply": "ai",
+                            "failed": true
+                          },
+                          {
+                            "move": "zz",
+                            "reply": "ag",
+                            "failed": true
+                          }
+                        ]
+                      },
+                      {
+                        "move": "ag",
+                        "reply": "af",
+                        "failed": true
+                      },
+                      {
+                        "move": "af",
+                        "reply": "ah",
+                        "branches": [
+                          {
+                            "move": "ag",
+                            "reply": "ae",
+                            "failed": true
+                          },
+                          {
+                            "move": "zz",
+                            "reply": "ag",
+                            "failed": true
+                          }
+                        ]
+                      },
+                      {
+                        "move": "zz",
+                        "reply": "ag",
+                        "failed": true
+                      }
+                    ]
+                  },
+                  {
+                    "move": "ai",
+                    "reply": "ah",
+                    "failed": true
+                  },
+                  {
+                    "move": "ah",
+                    "reply": "af",
+                    "branches": [
+                      {
+                        "move": "di",
+                        "reply": "ag",
+                        "branches": [
+                          {
+                            "move": "ci",
+                            "success": true
+                          },
+                          {
+                            "move": "ai",
+                            "reply": "ci",
+                            "failed": true
+                          },
+                          {
+                            "move": "zz",
+                            "reply": "aa",
+                            "failed": true
+                          }
+                        ]
+                      },
+                      {
+                        "move": "ci",
+                        "reply": "di",
+                        "branches": [
+                          {
+                            "move": "ei",
+                            "reply": "ag",
+                            "branches": [
+                              {
+                                "move": "ci",
+                                "success": true
+                              },
+                              {
+                                "move": "zz",
+                                "reply": "ai",
+                                "failed": true
+                              }
+                            ]
+                          },
+                          {
+                            "move": "ag",
+                            "reply": "ai",
+                            "failed": true
+                          },
+                          {
+                            "move": "aa",
+                            "reply": "ag",
+                            "failed": true
+                          },
+                          {
+                            "move": "zz",
+                            "reply": "ag",
+                            "failed": true
+                          }
+                        ]
+                      },
+                      {
+                        "move": "ag",
+                        "reply": "ai",
+                        "failed": true
+                      },
+                      {
+                        "move": "zz",
+                        "reply": "ag",
+                        "failed": true
+                      }
+                    ]
+                  },
+                  {
+                    "move": "ag",
+                    "reply": "af",
+                    "branches": [
+                      {
+                        "move": "ah",
+                        "reply": "ai",
+                        "failed": true
+                      },
+                      {
+                        "move": "zz",
+                        "reply": "ah",
+                        "failed": true
+                      }
+                    ]
+                  },
+                  {
+                    "move": "af",
+                    "reply": "ah",
+                    "branches": [
+                      {
+                        "move": "ag",
+                        "reply": "ae",
+                        "failed": true
+                      },
+                      {
+                        "move": "zz",
+                        "reply": "ag",
+                        "failed": true
+                      }
+                    ]
+                  },
+                  {
+                    "move": "zz",
+                    "reply": "ag",
+                    "failed": true
+                  }
+                ]
+              },
+              {
+                "move": "ag",
+                "reply": "bh",
+                "branches": [
+                  {
+                    "move": "af",
+                    "reply": "ae",
+                    "failed": true
+                  },
+                  {
+                    "move": "ah",
+                    "reply": "af",
+                    "failed": true
+                  },
+                  {
+                    "move": "ae",
+                    "reply": "af",
+                    "failed": true
+                  },
+                  {
+                    "move": "zz",
+                    "reply": "ah",
+                    "failed": true
+                  }
+                ]
+              },
+              {
+                "move": "af",
+                "reply": "bh",
+                "branches": [
+                  {
+                    "move": "ag",
+                    "reply": "ae",
+                    "branches": [
+                      {
+                        "move": "ah",
+                        "reply": "ai",
+                        "failed": true
+                      },
+                      {
+                        "move": "zz",
+                        "reply": "ah",
+                        "failed": true
+                      }
+                    ]
+                  },
+                  {
+                    "move": "zz",
+                    "reply": "ag",
+                    "failed": true
+                  }
+                ]
+              },
+              {
+                "move": "zz",
+                "reply": "bh",
+                "failed": true
+              }
+            ]
+          },
+          {
+            "type": "Interactive",
+            "name": "corner_2",
+            "size": "9",
+            "text": "Capture the white stone which is cutting black.\nBe careful from which side you make the Atari!",
+            "init": "B[fh]B[gh]W[gf]W[gg]W[he]B[hf]B[hg]W[hh]",
+            "branches": [
+              {
+                "move": "ih",
+                "reply": "hi",
+                "branches": [
+                  {
+                    "move": "gi",
+                    "reply": "if",
+                    "branches": [
+                      {
+                        "move": "ii",
+                        "success": true
+                      },
+                      {
+                        "move": "ig",
+                        "reply": "ii",
+                        "failed": true
+                      },
+                      {
+                        "move": "zz",
+                        "reply": "ig",
+                        "failed": true
+                      }
+                    ]
+                  },
+                  {
+                    "move": "ii",
+                    "reply": "ig",
+                    "failed": true
+                  },
+                  {
+                    "move": "if",
+                    "reply": "ie",
+                    "branches": [
+                      {
+                        "move": "ig",
+                        "reply": "ii",
+                        "failed": true
+                      },
+                      {
+                        "move": "zz",
+                        "reply": "ig",
+                        "failed": true
+                      }
+                    ]
+                  },
+                  {
+                    "move": "ig",
+                    "reply": "ie",
+                    "branches": [
+                      {
+                        "move": "gi",
+                        "reply": "if",
+                        "branches": [
+                          {
+                            "move": "ii",
+                            "success": true
+                          },
+                          {
+                            "move": "zz",
+                            "reply": "ii",
+                            "failed": true
+                          }
+                        ]
+                      },
+                      {
+                        "move": "ii",
+                        "reply": "if",
+                        "failed": true
+                      },
+                      {
+                        "move": "if",
+                        "reply": "ii",
+                        "failed": true
+                      },
+                      {
+                        "move": "zz",
+                        "reply": "if",
+                        "failed": true,
+                        "message": "4 black stones are dead"
+                      }
+                    ]
+                  },
+                  {
+                    "move": "ie",
+                    "reply": "ig",
+                    "branches": [
+                      {
+                        "move": "if",
+                        "reply": "id",
+                        "branches": [
+                          {
+                            "move": "ig",
+                            "reply": "ii",
+                            "failed": true
+                          },
+                          {
+                            "move": "zz",
+                            "reply": "ig",
+                            "failed": true
+                          }
+                        ]
+                      },
+                      {
+                        "move": "zz",
+                        "reply": "if",
+                        "failed": true
+                      }
+                    ]
+                  },
+                  {
+                    "move": "zz",
+                    "reply": "ig",
+                    "failed": true
+                  }
+                ]
+              },
+              {
+                "move": "hi",
+                "reply": "ih",
+                "branches": [
+                  {
+                    "move": "ig",
+                    "reply": "if",
+                    "failed": true
+                  },
+                  {
+                    "move": "ii",
+                    "reply": "gi",
+                    "failed": true
+                  },
+                  {
+                    "move": "if",
+                    "reply": "ie",
+                    "failed": true,
+                    "message": "3 black stones are dead"
+                  },
+                  {
+                    "move": "ie",
+                    "reply": "ig",
+                    "branches": [
+                      {
+                        "move": "if",
+                        "reply": "id",
+                        "failed": true
+                      },
+                      {
+                        "move": "zz",
+                        "reply": "if",
+                        "failed": true
+                      }
+                    ]
+                  },
+                  {
+                    "move": "zz",
+                    "reply": "if",
+                    "failed": true,
+                    "message": "2 black stones are dead"
+                  }
+                ]
+              },
+              {
+                "move": "ie",
+                "reply": "ig",
+                "branches": [
+                  {
+                    "move": "if",
+                    "reply": "id",
+                    "failed": true
+                  },
+                  {
+                    "move": "zz",
+                    "reply": "if",
+                    "failed": true
+                  }
+                ]
+              },
+              {
+                "move": "ig",
+                "reply": "ih",
+                "failed": true,
+                "message": "Black can't escape"
+              },
+              {
+                "move": "if",
+                "reply": "ie",
+                "branches": [
+                  {
+                    "move": "ig",
+                    "reply": "ih",
+                    "failed": true
+                  },
+                  {
+                    "move": "zz",
+                    "reply": "ig",
+                    "failed": true
+                  }
+                ]
+              },
+              {
+                "move": "zz",
+                "reply": "ig",
+                "failed": true,
+                "message": "Black can't escape"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "False eyes",
+        "steps": [
+          {
+            "type": "Lesson",
+            "name": "false_eyes_1",
+            "size": "9",
+            "pages": [
+              {
+                "text": "If you remember the earlier tutorial, a group with two eyes can never be captured. However, sometimes part of the stones that are surrounding an eye are not connected to the main group and can be captured separately. For example, in the position below, D5 appears to be an eye, however the stone at C5 is in Atari and can be captured, leaving the middle group with a single eye.\n\nWe call D5 a \"false eye\".",
+                "position": "B[dc]B[ec]B[fc]B[gc]B[bd]B[be]B[cd]W[ce]B[cf]W[dd]W[ed]W[fd]W[ee]W[df]W[ef]W[ff]W[gf]W[ge]B[dg]B[eg]B[fg]B[gg]B[gd]B[he]B[hf]"
+              }
+            ]
+          },
+          {
+            "type": "Interactive",
+            "name": "false_eyes_2",
+            "size": "9",
+            "text": "White tried saving his C5 stone by playing at D5. What's the winning move here?",
+            "init": "B[dc]B[ec]B[fc]B[gc]B[bd]B[be]B[cd]W[ce]B[cf]W[dd]W[ed]W[fd]W[ee]W[df]W[ef]W[ff]W[gf]W[ge]B[dg]B[eg]B[fg]B[gg]B[gd]B[he]B[hf]W[de]",
+            "branches": [
+              {
+                "move": "fe",
+                "success": true
+              },
+              {
+                "move": "zz",
+                "failed": true
+              }
+            ]
+          },
+          {
+            "type": "Interactive",
+            "name": "false_eyes_3",
+            "size": "9",
+            "text": "If white instead tries fighting back another way, it doesn't matter, you can still capture the middle group!",
+            "init": "B[dc]B[ec]B[fc]B[gc]B[bd]B[be]B[cd]W[ce]B[cf]W[dd]W[ed]W[fd]W[ee]W[df]W[ef]W[ff]W[gf]W[ge]B[dg]B[eg]B[fg]B[gg]B[gd]B[he]B[hf]W[cg]",
+            "branches": [
+              {
+                "move": "bf",
+                "reply": "cc",
+                "branches": [
+                  {
+                    "move": "de",
+                    "reply": "bg",
+                    "branches": [
+                      {
+                        "move": "fe",
+                        "success": true
+                      },
+                      {
+                        "move": "ce",
+                        "failed": true
+                      },
+                      {
+                        "move": "zz",
+                        "reply": "ce",
+                        "failed": true
+                      }
+                    ]
+                  },
+                  {
+                    "move": "zz",
+                    "failed": true
+                  }
+                ]
+              },
+              {
+                "move": "de",
+                "reply": "bf",
+                "branches": [
+                  {
+                    "move": "fe",
+                    "success": true
+                  },
+                  {
+                    "move": "ce",
+                    "success": true
+                  },
+                  {
+                    "move": "zz",
+                    "reply": "ce",
+                    "failed": true
+                  }
+                ]
+              },
+              {
+                "move": "zz",
+                "reply": "bf",
+                "failed": true
+              }
+            ]
+          },
+          {
+            "type": "Interactive",
+            "name": "false_eyes_4",
+            "size": "9",
+            "text": "You're on the defensive this time. Survive by making two true eyes!",
+            "init": "W[cd]W[ce]W[cf]W[dc]B[dd]B[de]B[df]W[dg]W[dh]W[ec]B[ed]B[ef]B[eg]W[eh]W[fc]B[fe]B[fg]W[fh]W[gd]W[ge]B[gf]W[hf]W[hg]",
+            "branches": [
+              {
+                "move": "gg",
+                "success": true
+              },
+              {
+                "move": "ee",
+                "reply": "gg",
+                "failed": true,
+                "message": "You filled your own eye"
+              },
+              {
+                "move": "ff",
+                "reply": "gg",
+                "failed": true,
+                "message": "You filled your own eye"
+              },
+              {
+                "move": "zz",
+                "reply": "gg",
+                "failed": true,
+                "message": "F4 is now a false eye"
+              }
+            ]
+          },
+          {
+            "type": "Interactive",
+            "name": "false_eyes_5",
+            "size": "9",
+            "text": "Both eyes need fixing this time!",
+            "init": "W[dc]W[ec]W[fc]W[gc]W[bc]W[be]W[cc]B[be]B[cd]B[cf]W[ce]W[cg]W[bd]W[ae]B[dd]B[ed]B[fd]B[ee]B[df]B[ef]B[ff]B[ge]W[dg]W[eg]W[fg]W[hd]W[he]W[hf]W[bg]",
+            "branches": [
+              {
+                "move": "bf",
+                "reply": "gf",
+                "branches": [
+                  {
+                    "move": "gd",
+                    "success": true
+                  },
+                  {
+                    "move": "zz",
+                    "reply": "gd",
+                    "failed": true,
+                    "message": "F5 is now a false eye."
+                  }
+                ]
+              },
+              {
+                "move": "de",
+                "reply": "bf",
+                "failed": true,
+                "message": "C5 is a false eye."
+              },
+              {
+                "move": "zz",
+                "reply": "bf",
+                "failed": true
+              }
+            ]
+          },
+          {
+            "type": "Interactive",
+            "name": "false_eyes_6",
+            "size": "9",
+            "text": "Here's a common pattern for a false eye on the edge. Fix it!",
+            "init": "B[ab]B[bb]B[ca]B[cb]B[db]B[dc]B[ea]B[ec]W[bc]W[be]W[cd]W[dd]W[ed]W[fb]W[fc]W[gd]W[hb]",
+            "branches": [
+              {
+                "move": "eb",
+                "success": true
+              },
+              {
+                "move": "da",
+                "reply": "eb",
+                "failed": true,
+                "message": "You filled your own eye"
+              },
+              {
+                "move": "zz",
+                "reply": "eb",
+                "failed": true,
+                "message": "D9 is now a false eye"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "More Puzzles",
+        "steps": [
+          {
+            "type": "Interactive",
+            "name": "puzzles_3",
+            "size": "9",
+            "text": "Try not to get dizzy.",
+            "init": "W[bb]W[bc]B[bd]W[bf]B[bg]B[cb]B[cc]W[cd]W[cf]B[cg]B[dc]W[dd]W[de]B[df]W[eb]W[ec]B[ed]W[ee]B[ef]W[eg]B[eh]B[fb]B[fd]B[fe]W[ff]W[fg]B[fh]W[gb]B[gc]W[gd]W[ge]W[gg]B[gh]W[hc]B[hd]W[hf]B[hg]",
+            "branches": [
+              {
+                "move": "ce",
+                "success": true
+              },
+              {
+                "move": "fc",
+                "reply": "fa",
+                "failed": true
+              },
+              {
+                "move": "zz",
+                "reply": "fc",
+                "failed": true
+              }
+            ]
+          },
+          {
+            "type": "Interactive",
+            "name": "puzzles_4",
+            "size": "9",
+            "text": "What should you do first?",
+            "init": "B[bf]W[bg]W[bh]W[cf]W[df]B[cg]B[dg]B[dh]W[ch]W[di]B[ee]B[ef]W[eg]W[gf]W[cd]",
+            "branches": [
+              {
+                "move": "eh",
+                "reply": "fg",
+                "branches": [
+                  {
+                    "move": "ce",
+                    "reply": "be",
+                    "branches": [
+                      {
+                        "move": "de",
+                        "success": true
+                      },
+                      {
+                        "move": "af",
+                        "reply": "de",
+                        "failed": true,
+                        "message": "Black groups are separated"
+                      },
+                      {
+                        "move": "zz",
+                        "reply": "af",
+                        "failed": true
+                      }
+                    ]
+                  },
+                  {
+                    "move": "de",
+                    "reply": "ce",
+                    "failed": true,
+                    "message": "Black groups are separated"
+                  },
+                  {
+                    "move": "be",
+                    "reply": "ce",
+                    "failed": true,
+                    "message": "Black groups are separated"
+                  },
+                  {
+                    "move": "af",
+                    "reply": "be",
+                    "failed": true,
+                    "message": "Black groups are separated"
+                  },
+                  {
+                    "move": "ci",
+                    "reply": "be",
+                    "branches": [
+                      {
+                        "move": "ei",
+                        "reply": "fh",
+                        "failed": true,
+                        "message": "Black is isolated"
+                      },
+                      {
+                        "move": "bi",
+                        "reply": "ai",
+                        "failed": true,
+                        "message": "Black  is isolated"
+                      },
+                      {
+                        "move": "fh",
+                        "reply": "gh",
+                        "failed": true,
+                        "message": "Black  is isolated"
+                      },
+                      {
+                        "move": "gh",
+                        "reply": "fh",
+                        "failed": true,
+                        "message": "Black is isolated"
+                      },
+                      {
+                        "move": "zz",
+                        "reply": "bi",
+                        "failed": true,
+                        "message": "Black is isolated"
+                      }
+                    ]
+                  },
+                  {
+                    "move": "zz",
+                    "reply": "be",
+                    "failed": true,
+                    "message": "Black is isolated"
+                  }
+                ]
+              },
+              {
+                "move": "zz",
+                "reply": "eh",
+                "failed": true
+              }
+            ]
+          },
+          {
+            "type": "Interactive",
+            "name": "puzzles_5",
+            "size": "9",
+            "text": "Beat the symmetry",
+            "init": "B[ch]B[dg]B[eg]B[fh]B[gh]W[dh]W[eh]W[fg]W[gg]W[hh]",
+            "branches": [
+              {
+                "move": "di",
+                "reply": "gi",
+                "branches": [
+                  {
+                    "move": "ei",
+                    "success": true
+                  },
+                  {
+                    "move": "fi",
+                    "reply": "ei",
+                    "failed": true
+                  },
+                  {
+                    "move": "zz",
+                    "reply": "fi",
+                    "failed": true
+                  }
+                ]
+              },
+              {
+                "move": "ei",
+                "reply": "gi",
+                "branches": [
+                  {
+                    "move": "di",
+                    "success": true
+                  },
+                  {
+                    "move": "fi",
+                    "reply": "di",
+                    "failed": true
+                  },
+                  {
+                    "move": "zz",
+                    "reply": "fi",
+                    "failed": true
+                  }
+                ]
+              },
+              {
+                "move": "fi",
+                "reply": "hi",
+                "branches": [
+                  {
+                    "move": "di",
+                    "reply": "gi",
+                    "branches": [
+                      {
+                        "move": "ei",
+                        "success": true
+                      },
+                      {
+                        "move": "zz",
+                        "reply": "ei",
+                        "failed": true
+                      }
+                    ]
+                  },
+                  {
+                    "move": "ei",
+                    "reply": "gi",
+                    "branches": [
+                      {
+                        "move": "di",
+                        "success": true
+                      },
+                      {
+                        "move": "zz",
+                        "reply": "di",
+                        "failed": true
+                      }
+                    ]
+                  },
+                  {
+                    "move": "gi",
+                    "reply": "ei",
+                    "failed": true
+                  },
+                  {
+                    "move": "zz",
+                    "reply": "gi",
+                    "failed": true,
+                    "message": "Three black stones can't escape."
+                  }
+                ]
+              },
+              {
+                "move": "gi",
+                "reply": "hi",
+                "branches": [
+                  {
+                    "move": "fi",
+                    "reply": "ei",
+                    "failed": true
+                  },
+                  {
+                    "move": "zz",
+                    "reply": "fi",
+                    "failed": true
+                  }
+                ]
+              },
+              {
+                "move": "hi",
+                "reply": "fi",
+                "failed": true,
+                "message": "Two black stones can't escape"
+              },
+              {
+                "move": "zz",
+                "reply": "gi",
+                "failed": true,
+                "message": "Two black stones can't escape"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "Advanced",
+    "icon": "ADVANCED",
+    "tutorials": [
+
+    ]
+  }
+]

@@ -6,6 +6,9 @@ import android.net.Uri
 import android.os.Bundle
 import android.provider.Browser
 import android.util.Log
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import com.google.firebase.crashlytics.FirebaseCrashlytics
@@ -25,17 +28,15 @@ import io.zenandroid.onlinego.ui.screens.main.MainActivity
 import io.zenandroid.onlinego.data.model.StoneType
 import io.zenandroid.onlinego.mvi.MviView
 import io.zenandroid.onlinego.data.repositories.SettingsRepository
+import io.zenandroid.onlinego.databinding.FragmentJosekiBinding
 import io.zenandroid.onlinego.utils.PersistenceManager
-import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.fragment_joseki.*
-import kotlinx.android.synthetic.main.fragment_joseki.progressBar
 import org.commonmark.node.*
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 private const val TAG = "JosekiExplorerFragment"
 
-class JosekiExplorerFragment : Fragment(R.layout.fragment_joseki), MviView<JosekiExplorerState, JosekiExplorerAction> {
+class JosekiExplorerFragment : Fragment(), MviView<JosekiExplorerState, JosekiExplorerAction> {
     private val settingsRepository: SettingsRepository by inject()
     private val viewModel: JosekiExplorerViewModel by viewModel()
 
@@ -44,21 +45,27 @@ class JosekiExplorerFragment : Fragment(R.layout.fragment_joseki), MviView<Josek
     private val internalActions = PublishSubject.create<JosekiExplorerAction>()
     private var currentState: JosekiExplorerState? = null
     private var analytics = OnlineGoApplication.instance.analytics
+    private lateinit var binding: FragmentJosekiBinding
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        binding = FragmentJosekiBinding.inflate(inflater, container, false)
+        return binding.root
+    }
 
     override val actions: Observable<JosekiExplorerAction>
         get() =
             Observable.merge(
                     listOf(
                             internalActions,
-                            board.tapUpObservable()
+                            binding.board.tapUpObservable()
                                     .map<JosekiExplorerAction>(::UserTappedCoordinate),
-                            board.tapMoveObservable()
+                            binding.board.tapMoveObservable()
                                     .map<JosekiExplorerAction>(::UserHotTrackedCoordinate),
-                            RxView.clicks(previousButton)
+                            RxView.clicks(binding.previousButton)
                                     .map<JosekiExplorerAction> { UserPressedPrevious },
-                            RxView.clicks(nextButton)
+                            RxView.clicks(binding.nextButton)
                                     .map<JosekiExplorerAction> { UserPressedNext },
-                            RxView.clicks(passButton)
+                            RxView.clicks(binding.passButton)
                                     .map<JosekiExplorerAction> { UserPressedPass }
                     )
             ).startWith(ViewReady)
@@ -68,23 +75,23 @@ class JosekiExplorerFragment : Fragment(R.layout.fragment_joseki), MviView<Josek
         if(state.shouldFinish) {
             requireActivity().onBackPressed()
         }
-        progressBar.showIf(state.loading)
-        board.showCandidateMove(state.candidateMove, board.position?.nextToMove ?: StoneType.BLACK)
-        board.drawMarks = !state.loading
+        binding.progressBar.showIf(state.loading)
+        binding.board.showCandidateMove(state.candidateMove, binding.board.position?.nextToMove ?: StoneType.BLACK)
+        binding.board.drawMarks = !state.loading
         state.description?.let {
-            markwon.setMarkdown(description, it)
+            markwon.setMarkdown(binding.description, it)
         }
         state.boardPosition?.let {
-            board.position = it
+            binding.board.position = it
         }
         state.error?.let {
-            description.text = it.message
+            binding.description.text = it.message
             Log.e(TAG, it.message, it)
             FirebaseCrashlytics.getInstance().recordException(it)
         }
-        previousButton.isEnabled = state.previousButtonEnabled
-        passButton.isEnabled = state.passButtonEnabled
-        nextButton.isEnabled = state.nextButtonEnabled
+        binding.previousButton.isEnabled = state.previousButtonEnabled
+        binding.passButton.isEnabled = state.passButtonEnabled
+        binding.nextButton.isEnabled = state.nextButtonEnabled
     }
 
     override fun onPause() {
@@ -95,7 +102,7 @@ class JosekiExplorerFragment : Fragment(R.layout.fragment_joseki), MviView<Josek
     override fun onResume() {
         super.onResume()
         analytics.setCurrentScreen(requireActivity(), javaClass.simpleName, null)
-        board.apply {
+        binding.board.apply {
             isInteractive = true
             drawCoordinates = settingsRepository.showCoordinates
         }
@@ -112,7 +119,6 @@ class JosekiExplorerFragment : Fragment(R.layout.fragment_joseki), MviView<Josek
         (activity as? MainActivity)?.apply {
             supportActionBar?.setDisplayHomeAsUpEnabled(true)
             mainTitle = "Joseki Explorer"
-            chipList
             setLogoVisible(false)
             setChipsVisible(false)
         }

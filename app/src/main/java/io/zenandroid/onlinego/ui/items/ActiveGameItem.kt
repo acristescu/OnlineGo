@@ -1,27 +1,29 @@
 package io.zenandroid.onlinego.ui.items
 
+import android.view.View
 import androidx.core.content.res.ResourcesCompat
-import com.xwray.groupie.kotlinandroidextensions.Item
-import com.xwray.groupie.kotlinandroidextensions.GroupieViewHolder
+import com.xwray.groupie.Item
+import com.xwray.groupie.viewbinding.BindableItem
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.utils.showIf
 import io.zenandroid.onlinego.data.model.local.Game
 import io.zenandroid.onlinego.data.model.ogs.Phase
 import io.zenandroid.onlinego.data.repositories.SettingsRepository
+import io.zenandroid.onlinego.databinding.ItemActiveGameCardBinding
 import io.zenandroid.onlinego.gamelogic.Util.getCurrentUserId
 import io.zenandroid.onlinego.utils.computeTimeLeft
 import io.zenandroid.onlinego.utils.egfToRank
 import io.zenandroid.onlinego.utils.formatRank
-import kotlinx.android.synthetic.main.item_active_game_card.*
 import org.koin.core.context.KoinContextHandler.get
 
-class ActiveGameItem (val game: Game) : Item(game.id) {
+class ActiveGameItem (val game: Game) : BindableItem<ItemActiveGameCardBinding>(game.id) {
     private val settingsRepository: SettingsRepository = get().get()
 
-    override fun bind(holder: GroupieViewHolder, position: Int) {
-        holder.apply {
+    override fun bind(viewBinding: ItemActiveGameCardBinding, position: Int) {
+        viewBinding.apply {
             board.boardSize = game.width
             board.drawShadow = false
+            board.animationEnabled = false
             board.position = game.position
 
             val userId = getCurrentUserId()
@@ -33,9 +35,9 @@ class ActiveGameItem (val game: Game) : Item(game.id) {
                         else -> null
                     }
 
-            opponent_name.text = opponent?.username
-            opponent_rank.text = formatRank(egfToRank(opponent?.rating))
-            opponent_rank.showIf(settingsRepository.showRanks)
+            opponentName.text = opponent?.username
+            opponentRank.text = formatRank(egfToRank(opponent?.rating))
+            opponentRank.showIf(settingsRepository.showRanks)
             chatBadge.text = game.messagesCount.toString()
             chatBadge.showIf(game.messagesCount != null && game.messagesCount != 0)
             chatBubble.showIf(game.messagesCount != null && game.messagesCount != 0)
@@ -49,13 +51,13 @@ class ActiveGameItem (val game: Game) : Item(game.id) {
                 else -> false
             }
 
-            color_bar.setBackgroundColor(
+            colorBar.setBackgroundColor(
                     if(myTurn)
-                        ResourcesCompat.getColor(color_bar.resources, R.color.colorAccent, null)
+                        ResourcesCompat.getColor(colorBar.resources, R.color.colorAccent, null)
                     else
-                        ResourcesCompat.getColor(color_bar.resources, R.color.headerPrimary, null)
+                        ResourcesCompat.getColor(colorBar.resources, R.color.headerPrimary, null)
             )
-            your_turn_label.showIf(myTurn)
+            yourTurnLabel.showIf(myTurn)
             color.text =
                     if(game.blackPlayer.id == userId) "black"
                     else "white"
@@ -80,7 +82,7 @@ class ActiveGameItem (val game: Game) : Item(game.id) {
         return timerDetails?.firstLine ?: ""
     }
 
-    override fun hasSameContentAs(other: com.xwray.groupie.Item<*>?): Boolean {
+    override fun hasSameContentAs(other: Item<*>): Boolean {
         if(other !is ActiveGameItem) {
             return false
         }
@@ -100,4 +102,5 @@ class ActiveGameItem (val game: Game) : Item(game.id) {
     }
 
     override fun getLayout(): Int = R.layout.item_active_game_card
+    override fun initializeViewBinding(view: View): ItemActiveGameCardBinding = ItemActiveGameCardBinding.bind(view)
 }

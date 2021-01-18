@@ -27,7 +27,7 @@
             android:layout_marginLeft="15dp"
             android:layout_marginTop="10dp"
             android:layout_marginBottom="10dp"
-            android:tint="@color/colorAccent"
+            app:tint="@color/colorAccent"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintDimensionRatio="1.0"
             app:layout_constraintLeft_toLeftOf="parent"

@@ -347,7 +347,7 @@
         android:background="@color/colorToolbarBackground"
         tools:visibility="gone"
         />
-    <com.google.android.material.progressindicator.ProgressIndicator
+    <com.google.android.material.progressindicator.LinearProgressIndicator
         android:id="@+id/loadingProgressView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -355,7 +355,6 @@
         app:layout_constraintBottom_toBottomOf="@id/bottomBar"
         app:layout_constraintLeft_toLeftOf="@id/bottomBar"
         app:layout_constraintRight_toRightOf="@id/bottomBar"
-        app:indicatorType="circular"
         app:indicatorColor="@color/colorAccent"
         android:indeterminate="true"
         android:elevation="16dp"

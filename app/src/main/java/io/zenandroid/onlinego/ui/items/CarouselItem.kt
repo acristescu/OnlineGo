@@ -1,20 +1,22 @@
 package io.zenandroid.onlinego.ui.items
 
+import android.view.View
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.xwray.groupie.GroupAdapter
-import com.xwray.groupie.kotlinandroidextensions.Item
-import com.xwray.groupie.kotlinandroidextensions.GroupieViewHolder
+import com.xwray.groupie.GroupieViewHolder
+import com.xwray.groupie.viewbinding.BindableItem
 import io.zenandroid.onlinego.R
-import kotlinx.android.synthetic.main.item_carousel.*
+import io.zenandroid.onlinego.databinding.ItemCarouselBinding
 
 class CarouselItem(
         private val adapter: GroupAdapter<GroupieViewHolder>
-) : Item() {
+) : BindableItem<ItemCarouselBinding>() {
 
-    override fun bind(viewHolder: GroupieViewHolder, position: Int) {
-        viewHolder.recycler_view.layoutManager = LinearLayoutManager(viewHolder.recycler_view.context, LinearLayoutManager.HORIZONTAL, false)
-        viewHolder.recycler_view.adapter = adapter
+    override fun bind(viewBinding: ItemCarouselBinding, position: Int) {
+        viewBinding.recyclerView.layoutManager = LinearLayoutManager(viewBinding.recyclerView.context, LinearLayoutManager.HORIZONTAL, false)
+        viewBinding.recyclerView.adapter = adapter
     }
 
     override fun getLayout() = R.layout.item_carousel
+    override fun initializeViewBinding(view: View): ItemCarouselBinding = ItemCarouselBinding.bind(view)
 }

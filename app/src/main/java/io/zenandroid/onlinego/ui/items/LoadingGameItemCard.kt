@@ -1,13 +1,15 @@
 package io.zenandroid.onlinego.ui.items
 
-import com.xwray.groupie.kotlinandroidextensions.GroupieViewHolder
-import com.xwray.groupie.kotlinandroidextensions.Item
+import android.view.View
+import com.xwray.groupie.viewbinding.BindableItem
 import io.zenandroid.onlinego.R
+import io.zenandroid.onlinego.databinding.ItemLoadingGameBinding
 
-class LoadingGameItemCard : Item() {
-    override fun bind(viewHolder: GroupieViewHolder, position: Int) {
+class LoadingGameItemCard : BindableItem<ItemLoadingGameBinding>() {
+    override fun bind(binding: ItemLoadingGameBinding, position: Int) {
 
     }
 
     override fun getLayout() = R.layout.item_loading_game
+    override fun initializeViewBinding(view: View): ItemLoadingGameBinding = ItemLoadingGameBinding.bind(view)
 }

@@ -1,17 +1,15 @@
 package io.zenandroid.onlinego.ui.items.statuschips
 
 import android.content.res.ColorStateList
-import android.os.Build
+import android.view.View
 import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
 import androidx.core.content.ContextCompat
 import android.view.View.GONE
 import android.view.View.VISIBLE
-import com.xwray.groupie.kotlinandroidextensions.GroupieViewHolder
-import com.xwray.groupie.kotlinandroidextensions.Item
-import io.zenandroid.onlinego.BuildConfig
+import com.xwray.groupie.viewbinding.BindableItem
 import io.zenandroid.onlinego.R
-import kotlinx.android.synthetic.main.view_chip.*
+import io.zenandroid.onlinego.databinding.ViewChipBinding
 
 open class Chip(
         var text: String,
@@ -19,16 +17,16 @@ open class Chip(
         @ColorRes val bgColor: Int = R.color.white,
         @ColorRes val fgColor: Int = R.color.headerPrimary,
         val onClick: (() -> Unit)? = null
-) : Item(text.hashCode().toLong()) {
-    override fun bind(viewHolder: GroupieViewHolder, position: Int) {
-        viewHolder.text.text = text
-        viewHolder.card.setCardBackgroundColor(ContextCompat.getColor(viewHolder.icon.context, bgColor))
-        viewHolder.text.setTextColor(ContextCompat.getColor(viewHolder.icon.context, fgColor))
+) : BindableItem<ViewChipBinding>(text.hashCode().toLong()) {
+    override fun bind(binding: ViewChipBinding, position: Int) {
+        binding.text.text = text
+        binding.card.setCardBackgroundColor(ContextCompat.getColor(binding.icon.context, bgColor))
+        binding.text.setTextColor(ContextCompat.getColor(binding.icon.context, fgColor))
         icon?.let {
-            viewHolder.icon.visibility = VISIBLE
-            viewHolder.icon.setImageResource(it)
-            viewHolder.icon.imageTintList = ColorStateList.valueOf(ContextCompat.getColor(viewHolder.icon.context, fgColor))
-        } ?: run { viewHolder.icon.visibility = GONE }
+            binding.icon.visibility = VISIBLE
+            binding.icon.setImageResource(it)
+            binding.icon.imageTintList = ColorStateList.valueOf(ContextCompat.getColor(binding.icon.context, fgColor))
+        } ?: run { binding.icon.visibility = GONE }
 
     }
 
@@ -43,6 +41,8 @@ open class Chip(
         result = 31 * result + (icon ?: 0)
         return result
     }
+
+    override fun initializeViewBinding(view: View): ViewChipBinding = ViewChipBinding.bind(view)
 }
 
 class FinishedChip(onClick: (() -> Unit)? = null) : Chip("Finished", R.drawable.ic_question_mark, onClick = onClick)
