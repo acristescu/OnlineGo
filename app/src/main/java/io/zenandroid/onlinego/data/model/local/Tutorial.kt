@@ -5,8 +5,7 @@ import io.zenandroid.onlinego.R
 
 data class Tutorial(
         val name: String,
-        val steps: List<TutorialStep>,
-        val completed: Boolean = false
+        val steps: List<TutorialStep>
 )
 
 data class TutorialGroup(

@@ -123,6 +123,7 @@ class TutorialViewModel(
     private fun onTutorialDone() {
         val state = _state.value
         state.tutorial?.let { tutorial ->
+            tutorialsRepository.markTutorialCompleted(tutorial)
             state.tutorialGroups?.let { groups ->
                 groups.find { it.tutorials.contains(tutorial) } ?. let { parent ->
                     val nextTutorial = if(parent.tutorials.last() == tutorial) {

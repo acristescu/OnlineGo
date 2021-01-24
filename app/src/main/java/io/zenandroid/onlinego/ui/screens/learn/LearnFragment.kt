@@ -93,7 +93,8 @@ fun Screen(state: LearnState, listener: (LearnAction) -> Unit) {
                     AnimatedVisibility(visible = state.expandedTutorialGroup == it, initiallyVisible = false) {
                         Column {
                             for (tutorial in it.tutorials) {
-                                SecondaryRow(tutorial) {
+                                val completed = state.completedTutorialsNames?.contains(tutorial.name) == true
+                                SecondaryRow(tutorial, completed) {
                                     listener.invoke(LearnAction.TutorialClicked(tutorial))
                                 }
                             }
@@ -103,7 +104,7 @@ fun Screen(state: LearnState, listener: (LearnAction) -> Unit) {
             }
         }
         Section(title = "Study") {
-            PrimaryRow(title = "Joseki explorer", R.drawable.ic_learn) { listener(LearnAction.JosekiExplorerClicked) }
+            PrimaryRow(title = "Joseki explorer", R.drawable.ic_go_board) { listener(LearnAction.JosekiExplorerClicked) }
         }
     }
 }
@@ -115,7 +116,7 @@ private fun Section(title: String, content: @Composable () -> Unit) {
             shape = MaterialTheme.shapes.medium,
             modifier = Modifier.fillMaxWidth()
     ) {
-        Column(modifier = Modifier.padding(top = 20.dp, bottom = 20.dp)) {
+        Column(modifier = Modifier.padding(vertical = 12.dp)) {
             content()
         }
     }
@@ -146,13 +147,13 @@ fun PrimaryRow(title: String, @DrawableRes icon: Int, onClick: () -> Unit) {
 }
 
 @Composable
-fun SecondaryRow(tutorial: Tutorial, onClick: () -> Unit) {
+fun SecondaryRow(tutorial: Tutorial, completed: Boolean, onClick: () -> Unit) {
     Row(modifier = Modifier
             .clickable(onClick = onClick)
             .fillMaxWidth()
             .padding(start = 72.dp, top = 8.dp, bottom = 8.dp)
     ) {
-        if(tutorial.completed) {
+        if(completed) {
             Image(painterResource(R.drawable.ic_checked_square), modifier = Modifier.align(Alignment.CenterVertically))
         } else {
             Image(painterResource(R.drawable.ic_unchecked_square), modifier = Modifier.align(Alignment.CenterVertically))

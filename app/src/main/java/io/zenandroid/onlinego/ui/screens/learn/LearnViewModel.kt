@@ -1,7 +1,11 @@
 package io.zenandroid.onlinego.ui.screens.learn
 
 import androidx.lifecycle.ViewModel
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
+import io.zenandroid.onlinego.data.model.local.TutorialGroup
 import io.zenandroid.onlinego.data.repositories.TutorialsRepository
+import io.zenandroid.onlinego.utils.addToDisposable
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
@@ -19,23 +23,37 @@ class LearnViewModel(
         }
     }
 
+    private val disposables = CompositeDisposable()
     private val _state = MutableStateFlow(initialState())
 
     val state: StateFlow<LearnState> = _state
 
     private fun initialState(): LearnState {
-        var state = LearnState(
+        tutorialsRepository.completedTutorialsNames
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(::onCompletedTutorialsChanged)
+                .addToDisposable(disposables)
+
+        return LearnState(
                 tutorialsRepository.getTutorialGroups()
         )
-        for(group in state.tutorialGroups!!) {
-            if(group.tutorials.find { !it.completed } != null) {
-                state = state.copy(
-                        expandedTutorialGroup = group
-                )
+    }
+
+    private fun onCompletedTutorialsChanged(completedNames: Set<String>) {
+        var expandedTutorialGroup: TutorialGroup? = null
+        for (group in _state.value.tutorialGroups!!) {
+            if (group.tutorials.find { !completedNames.contains(it.name) } != null) {
+                expandedTutorialGroup = group
                 break
             }
         }
-        return state
+        _state.value = _state.value.copy(
+                completedTutorialsNames = completedNames,
+                expandedTutorialGroup = expandedTutorialGroup
+        )
+    }
 
+    override fun onCleared() {
+        disposables.clear()
     }
 }
