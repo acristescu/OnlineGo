@@ -16,6 +16,7 @@ import androidx.core.text.color
 import androidx.core.text.italic
 import androidx.core.view.doOnLayout
 import androidx.fragment.app.Fragment
+import androidx.navigation.findNavController
 import com.awesomedialog.blennersilva.awesomedialoglibrary.AwesomeInfoDialog
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
@@ -52,7 +53,7 @@ class SettingsFragment : Fragment() {
 
         binding.apply {
             subscribeButton.setOnClickListener {
-                (requireActivity() as MainActivity).navigateToSupporterScreen()
+                view.findNavController().navigate(R.id.action_settingsFragment_to_supporterFragment)
             }
 
             aboutButton.setOnClickListener {

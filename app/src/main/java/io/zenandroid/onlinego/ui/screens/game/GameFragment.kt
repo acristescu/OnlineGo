@@ -11,7 +11,9 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
+import androidx.navigation.findNavController
 import com.awesomedialog.blennersilva.awesomedialoglibrary.AwesomeInfoDialog
 import com.jakewharton.rxbinding2.view.RxView
 import io.reactivex.Observable
@@ -29,6 +31,7 @@ import io.zenandroid.onlinego.data.model.local.Message
 import io.zenandroid.onlinego.data.model.local.Player
 import io.zenandroid.onlinego.databinding.FragmentGameBinding
 import io.zenandroid.onlinego.ui.items.statuschips.Chip
+import io.zenandroid.onlinego.ui.screens.stats.PLAYER_ID
 import io.zenandroid.onlinego.utils.*
 import org.koin.android.ext.android.get
 import java.util.concurrent.TimeUnit
@@ -40,15 +43,6 @@ const val GAME_SIZE = "GAME_SIZE"
  * Created by alex on 10/11/2017.
  */
 class GameFragment : Fragment(), GameContract.View {
-    companion object {
-        fun createFragment(game: Game): GameFragment = GameFragment().apply {
-            arguments = Bundle().apply {
-                putLong(GAME_ID, game.id)
-                putInt(GAME_SIZE, game.width)
-            }
-        }
-    }
-
     private lateinit var presenter: GameContract.Presenter
     private val subscriptions = CompositeDisposable()
     private val analytics = OnlineGoApplication.instance.analytics
@@ -328,7 +322,6 @@ class GameFragment : Fragment(), GameContract.View {
             (activity as? MainActivity)?.apply {
                 mainTitle = value
                 setLogoVisible(false)
-                setChipsVisible(true)
             }
             field = value
         }
@@ -410,7 +403,6 @@ class GameFragment : Fragment(), GameContract.View {
         super.onResume()
 
         (activity as? MainActivity)?.apply {
-            setChatButtonVisible(true)
             chatClicks
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe {
@@ -494,13 +486,17 @@ class GameFragment : Fragment(), GameContract.View {
     }
 
     private fun onWhitePlayerPressed() {
-        (activity as MainActivity).setChatButtonVisible(false)
-        (activity as MainActivity).navigateToStatsScreen(binding.whiteDetailsView.player!!.id)
+        view?.findNavController()?.navigate(
+                R.id.action_gameFragment_to_statsFragment,
+                bundleOf(PLAYER_ID to binding.whiteDetailsView.player!!.id)
+        )
     }
 
     private fun onBlackPlayerPressed() {
-        (activity as MainActivity).setChatButtonVisible(false)
-        (activity as MainActivity).navigateToStatsScreen(binding.blackDetailsView.player!!.id)
+        view?.findNavController()?.navigate(
+                R.id.action_gameFragment_to_statsFragment,
+                bundleOf(PLAYER_ID to binding.blackDetailsView.player!!.id)
+        )
     }
 
     override fun showResignConfirmation() {

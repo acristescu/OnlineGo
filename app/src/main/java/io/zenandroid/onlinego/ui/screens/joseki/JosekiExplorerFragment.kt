@@ -1,6 +1,7 @@
 package io.zenandroid.onlinego.ui.screens.joseki
 
 import android.content.ActivityNotFoundException
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -9,6 +10,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.OnBackPressedCallback
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import com.google.firebase.crashlytics.FirebaseCrashlytics
@@ -47,6 +49,12 @@ class JosekiExplorerFragment : Fragment(), MviView<JosekiExplorerState, JosekiEx
     private var analytics = OnlineGoApplication.instance.analytics
     private lateinit var binding: FragmentJosekiBinding
 
+    private val onBackPressedCallback = object : OnBackPressedCallback(true) {
+        override fun handleOnBackPressed() {
+            internalActions.onNext(UserPressedBack)
+        }
+    }
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         binding = FragmentJosekiBinding.inflate(inflater, container, false)
         return binding.root
@@ -73,6 +81,7 @@ class JosekiExplorerFragment : Fragment(), MviView<JosekiExplorerState, JosekiEx
     override fun render(state: JosekiExplorerState) {
         currentState = state
         if(state.shouldFinish) {
+            onBackPressedCallback.isEnabled = false
             requireActivity().onBackPressed()
         }
         binding.progressBar.showIf(state.loading)
@@ -109,8 +118,9 @@ class JosekiExplorerFragment : Fragment(), MviView<JosekiExplorerState, JosekiEx
         viewModel.bind(this)
     }
 
-    fun onBackPressed() {
-        internalActions.onNext(UserPressedBack)
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        requireActivity().onBackPressedDispatcher.addCallback(this, onBackPressedCallback)
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
@@ -120,7 +130,6 @@ class JosekiExplorerFragment : Fragment(), MviView<JosekiExplorerState, JosekiEx
             supportActionBar?.setDisplayHomeAsUpEnabled(true)
             mainTitle = "Joseki Explorer"
             setLogoVisible(false)
-            setChipsVisible(false)
         }
     }
 
@@ -187,6 +196,4 @@ class JosekiExplorerFragment : Fragment(), MviView<JosekiExplorerState, JosekiEx
                 })
                 .build()
     }
-
-    fun canHandleBack(): Boolean = currentState?.shouldFinish != true
 }

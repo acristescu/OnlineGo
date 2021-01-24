@@ -14,40 +14,32 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import android.view.MenuItem
-import android.view.View
 import android.widget.Toast
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.material.ExperimentalMaterialApi
-import androidx.core.content.res.ResourcesCompat
-import androidx.fragment.app.Fragment
+import androidx.core.os.bundleOf
+import androidx.navigation.NavOptions
+import androidx.navigation.findNavController
+import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.ui.setupWithNavController
 import com.jakewharton.rxbinding2.view.RxView
-import io.reactivex.Completable
 import io.reactivex.Observable
 import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.R
-import io.zenandroid.onlinego.ui.screens.game.GameFragment
-import io.zenandroid.onlinego.ui.screens.joseki.JosekiExplorerFragment
-import io.zenandroid.onlinego.ui.screens.learn.LearnFragment
 import io.zenandroid.onlinego.ui.screens.login.LoginActivity
 import io.zenandroid.onlinego.data.model.local.Game
-import io.zenandroid.onlinego.data.model.local.Tutorial
 import io.zenandroid.onlinego.data.model.ogs.OGSGame
 import io.zenandroid.onlinego.data.model.ogs.Size
 import io.zenandroid.onlinego.data.model.ogs.Speed
-import io.zenandroid.onlinego.ui.screens.mygames.MyGamesFragment
 import io.zenandroid.onlinego.ui.screens.newchallenge.NewAutomatchChallengeBottomSheet
 import io.zenandroid.onlinego.ui.screens.newchallenge.NewChallengeBottomSheet
 import io.zenandroid.onlinego.notifications.SynchronizeGamesWork
 import io.zenandroid.onlinego.data.repositories.SettingsRepository
 import io.zenandroid.onlinego.databinding.ActivityMainBinding
-import io.zenandroid.onlinego.gamelogic.Util
-import io.zenandroid.onlinego.ui.screens.stats.StatsFragment
 import io.zenandroid.onlinego.ui.items.statuschips.Chip
 import io.zenandroid.onlinego.ui.items.statuschips.ChipAdapter
-import io.zenandroid.onlinego.ui.screens.localai.AiGameFragment
-import io.zenandroid.onlinego.ui.screens.settings.SettingsFragment
-import io.zenandroid.onlinego.ui.screens.supporter.SupporterFragment
-import io.zenandroid.onlinego.ui.screens.tutorial.TutorialFragment
+import io.zenandroid.onlinego.ui.screens.game.GAME_ID
+import io.zenandroid.onlinego.ui.screens.game.GAME_SIZE
 import io.zenandroid.onlinego.ui.views.BoardView
 import io.zenandroid.onlinego.utils.*
 import org.koin.android.ext.android.get
@@ -59,13 +51,6 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         var isInForeground = false
         val TAG = MainActivity::class.java.simpleName
     }
-
-    private val myGamesFragment = MyGamesFragment()
-    @ExperimentalAnimationApi
-    @ExperimentalMaterialApi
-    private val learnFragment = LearnFragment()
-    private val settingsFragment = SettingsFragment()
-    private val statsFragment = StatsFragment.createFragment(Util.getCurrentUserId()!!)
 
     private val analytics = OnlineGoApplication.instance.analytics
     private val chipAdapter = ChipAdapter()
@@ -93,10 +78,6 @@ class MainActivity : AppCompatActivity(), MainContract.View {
     fun setLogoVisible(visible: Boolean) {
         binding.titleView.showIf(!visible)
         binding.logo.showIf(visible)
-    }
-
-    fun setChipsVisible(visible: Boolean) {
-        binding.chipList.showIf(visible)
     }
 
     fun setChatButtonVisible(visible: Boolean) {
@@ -139,30 +120,11 @@ class MainActivity : AppCompatActivity(), MainContract.View {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            android.R.id.home -> {
-                if(supportFragmentManager.backStackEntryCount > 0) {
-                    goBackOneScreen()
-                } else {
-                    onBackPressed()
-                }
-                return true
-            }
+        if (item.itemId == android.R.id.home) {
+            onBackPressed()
+            return true
         }
         return super.onOptionsItemSelected(item)
-    }
-
-    private fun goBackOneScreen() {
-        do {
-            supportFragmentManager.popBackStackImmediate()
-
-            // Game fragments are added to the stack each time we tap on the notification button,
-            // so we keep unstacking them until we reach another kind of fragment.
-        } while (getCurrentFragment() is GameFragment)
-    }
-
-    private fun getCurrentFragment(): Fragment? {
-        return supportFragmentManager.findFragmentById(R.id.fragment_container)
     }
 
     @ExperimentalAnimationApi
@@ -173,44 +135,15 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        setSupportActionBar(findViewById(R.id.toolbar))
-
-        binding.bottomNavigation.selectedItemId = R.id.navigation_my_games
-        supportFragmentManager.beginTransaction()
-                .setCustomAnimations(R.anim.fade_in, R.anim.fade_out,
-                        R.anim.fade_in, R.anim.fade_out)
-                .replace(R.id.fragment_container, myGamesFragment)
-                .commitAllowingStateLoss()
-
-        binding.bottomNavigation.setOnNavigationItemSelectedListener(this::selectItem)
-        supportFragmentManager.addOnBackStackChangedListener {
-            binding.bottomNavigation.setOnNavigationItemSelectedListener(null)
-            when(supportFragmentManager.fragments.lastOrNull()) {
-                is MyGamesFragment -> {
-                    binding.bottomNavigation.selectedItemId = R.id.navigation_my_games
-                    ensureNavigationVisible()
-                    setToolbarVisible(true)
-                }
-                is LearnFragment -> {
-                    binding.bottomNavigation.selectedItemId = R.id.navigation_learn
-                    ensureNavigationVisible()
-                    setToolbarVisible(true)
-                }
-                statsFragment -> {
-                    binding.bottomNavigation.selectedItemId = R.id.navigation_stats
-                    ensureNavigationVisible()
-                    setToolbarVisible(true)
-                }
-                is SettingsFragment -> {
-                    binding.bottomNavigation.selectedItemId = R.id.navigation_settings
-                    ensureNavigationVisible()
-                    setToolbarVisible(false)
-                }
-            }
-            binding.bottomNavigation.setOnNavigationItemSelectedListener(this::selectItem)
-        }
-        if(intent.hasExtra("GAME_ID")) {
-            presenter.navigateToGameScreenById(intent.getLongExtra("GAME_ID", 0))
+        setSupportActionBar(binding.toolbar)
+        val navHostFragment = supportFragmentManager.findFragmentById(R.id.fragment_container) as NavHostFragment
+        binding.bottomNavigation.setupWithNavController(navHostFragment.navController)
+        navHostFragment.navController.addOnDestinationChangedListener { _, destination, arguments ->
+            binding.bottomNavigation.showIf(destination.id in arrayOf(R.id.myGames, R.id.learn, R.id.settings) || (destination.id == R.id.stats && arguments?.isEmpty != false))
+            binding.newChallengeView.showIf(destination.id == R.id.myGames)
+            binding.toolbar.showIf(destination.id in arrayOf(R.id.myGames, R.id.learn, R.id.stats, R.id.gameFragment, R.id.aiGameFragment, R.id.josekiExplorerFragment))
+            binding.chipList.showIf(destination.id == R.id.gameFragment)
+            setChatButtonVisible(destination.id == R.id.gameFragment)
         }
 
         createNotificationChannel()
@@ -220,10 +153,6 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         binding.chipList.adapter = chipAdapter
 
         binding.bottomNavigation.disableShiftMode()
-        binding.bottomNavigation.getOrCreateBadge(R.id.navigation_learn).apply {
-            isVisible = !PersistenceManager.visitedJosekiExplorer
-            backgroundColor = ResourcesCompat.getColor(resources, R.color.colorAccent, theme)
-        }
         binding.notificationsButton.setOnClickListener { onNotificationClicked() }
 
         binding.newChallengeView.apply {
@@ -295,114 +224,19 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         presenter.onNotificationClicked()
     }
 
-    @ExperimentalAnimationApi
-    @ExperimentalMaterialApi
-    private fun selectItem(item: MenuItem): Boolean {
-        if(item.itemId == binding.bottomNavigation.selectedItemId) {
-            return true
-        }
-        return when(item.itemId) {
-            R.id.navigation_my_games -> {
-                setToolbarVisible(true)
-                ensureNavigationVisible()
-                supportFragmentManager.beginTransaction()
-                        .setCustomAnimations(R.anim.fade_in, R.anim.fade_out,
-                                R.anim.fade_in, R.anim.fade_out)
-                        .replace(R.id.fragment_container, myGamesFragment)
-                        .addToBackStack(null)
-                        .commitAllowingStateLoss()
-                true
-            }
-            R.id.navigation_learn -> {
-                setToolbarVisible(true)
-                ensureNavigationVisible()
-                supportFragmentManager.beginTransaction()
-                        .setCustomAnimations(R.anim.fade_in, R.anim.fade_out,
-                                R.anim.fade_in, R.anim.fade_out)
-                        .replace(R.id.fragment_container, learnFragment)
-                        .addToBackStack(null)
-                        .commitAllowingStateLoss()
-                true
-            }
-            R.id.navigation_settings -> {
-                setToolbarVisible(false)
-                binding.bottomNavigation.visibility = View.VISIBLE
-                binding.newChallengeView.fadeOut().subscribe()
-                supportFragmentManager.beginTransaction()
-                        .setCustomAnimations(R.anim.fade_in, R.anim.fade_out,
-                                R.anim.fade_in, R.anim.fade_out)
-                        .replace(R.id.fragment_container, settingsFragment)
-                        .addToBackStack(null)
-                        .commitAllowingStateLoss()
-                true
-            }
-            R.id.navigation_stats -> {
-                setToolbarVisible(true)
-                ensureNavigationVisible()
-                supportFragmentManager.beginTransaction()
-                        .setCustomAnimations(R.anim.fade_in, R.anim.fade_out,
-                                R.anim.fade_in, R.anim.fade_out)
-                        .replace(R.id.fragment_container, statsFragment)
-                        .addToBackStack(null)
-                        .commitAllowingStateLoss()
-                true
-            }
-            else -> {
-                Toast.makeText(this, "Not implemented yet!", Toast.LENGTH_SHORT).show()
-                false
-            }
-        }
-    }
-
-    private fun setToolbarVisible(visible: Boolean) {
-        binding.toolbar.showIf(visible)
-    }
-
-    fun ensureNavigationVisible() {
-        if(binding.bottomNavigation.visibility != View.VISIBLE) {
-            binding.bottomNavigation.visibility = View.VISIBLE
-            binding.bottomNavigation.getOrCreateBadge(R.id.navigation_learn).isVisible = !PersistenceManager.visitedJosekiExplorer
-            Completable.mergeArray(
-                    binding.newChallengeView.fadeIn(),
-                    binding.newChallengeView.showFab()
-            ).subscribe()
-        }
-    }
-
     override fun navigateToGameScreen(game: Game) {
-        setToolbarVisible(true)
-        binding.bottomNavigation.visibility = View.GONE
-        binding.newChallengeView.fadeOut().subscribe()
-        supportFragmentManager.beginTransaction()
-                .setCustomAnimations(R.anim.fade_in, R.anim.fade_out,
-                        R.anim.fade_in, R.anim.fade_out)
-                .addToBackStack(null)
-                .replace(R.id.fragment_container, GameFragment.createFragment(game), "game")
-                .commitAllowingStateLoss()
-    }
-
-    override fun navigateToStatsScreen(id: Long) {
-        supportFragmentManager.beginTransaction()
-                .setCustomAnimations(R.anim.fade_in, R.anim.fade_out,
-                        R.anim.fade_in, R.anim.fade_out)
-                .addToBackStack(null)
-                .replace(R.id.fragment_container, StatsFragment.createFragment(id))
-                .commitAllowingStateLoss()
+        findNavController(R.id.fragment_container)
+                .navigate(
+                        R.id.gameFragment,
+                        bundleOf(GAME_ID to game.id, GAME_SIZE to game.width),
+                        NavOptions.Builder()
+                                .setLaunchSingleTop(true)
+                                .build()
+                )
     }
 
     override fun showError(msg: String?) {
         Toast.makeText(this, msg, Toast.LENGTH_LONG).show()
-    }
-
-    override fun onBackPressed() {
-        val fragment = getCurrentFragment()
-        when {
-            fragment is JosekiExplorerFragment && fragment.canHandleBack() -> fragment.onBackPressed()
-            binding.newChallengeView.subMenuVisible -> binding.newChallengeView.toggleSubMenu()
-            supportFragmentManager.backStackEntryCount > 0 -> goBackOneScreen()
-
-            else -> super.onBackPressed()
-        }
     }
 
     fun setNewMessagesCount(count: Int) {
@@ -438,51 +272,4 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         }.show(supportFragmentManager, "BOTTOM_SHEET")
     }
 
-    fun navigateToJosekiExplorer() {
-        setToolbarVisible(true)
-        binding.bottomNavigation.visibility = View.GONE
-        binding.newChallengeView.fadeOut().subscribe()
-        supportFragmentManager.beginTransaction()
-                .setCustomAnimations(R.anim.fade_in, R.anim.fade_out,
-                        R.anim.fade_in, R.anim.fade_out)
-                .replace(R.id.fragment_container, JosekiExplorerFragment())
-                .addToBackStack(null)
-                .commitAllowingStateLoss()
-    }
-
-    fun navigateToTutorialScreen(tutorial: Tutorial) {
-        setToolbarVisible(false)
-        binding.bottomNavigation.visibility = View.GONE
-        binding.newChallengeView.fadeOut().subscribe()
-        supportFragmentManager.beginTransaction()
-                .setCustomAnimations(R.anim.fade_in, R.anim.fade_out,
-                        R.anim.fade_in, R.anim.fade_out)
-                .replace(R.id.fragment_container, TutorialFragment.newInstance(tutorial.name))
-                .addToBackStack(null)
-                .commitAllowingStateLoss()
-    }
-
-    fun onLocalAIClicked() {
-        setToolbarVisible(true)
-        binding.bottomNavigation.visibility = View.GONE
-        binding.newChallengeView.fadeOut().subscribe()
-        supportFragmentManager.beginTransaction()
-                .setCustomAnimations(R.anim.fade_in, R.anim.fade_out,
-                        R.anim.fade_in, R.anim.fade_out)
-                .replace(R.id.fragment_container, AiGameFragment())
-                .addToBackStack(null)
-                .commitAllowingStateLoss()
-    }
-
-    fun navigateToSupporterScreen() {
-        setToolbarVisible(false)
-        binding.bottomNavigation.visibility = View.GONE
-        binding.newChallengeView.fadeOut().subscribe()
-        supportFragmentManager.beginTransaction()
-                .setCustomAnimations(R.anim.fade_in, R.anim.fade_out,
-                        R.anim.fade_in, R.anim.fade_out)
-                .replace(R.id.fragment_container, SupporterFragment())
-                .addToBackStack(null)
-                .commitAllowingStateLoss()
-    }
 }

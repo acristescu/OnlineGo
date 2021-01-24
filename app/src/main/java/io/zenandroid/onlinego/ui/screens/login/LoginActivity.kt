@@ -217,12 +217,7 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun proceedToMainScreen() {
-        val newIntent = Intent(this, MainActivity::class.java).apply {
-            if (intent.hasExtra("GAME_ID")) {
-                putExtra("GAME_ID", intent.getLongExtra("GAME_ID", 0))
-            }
-        }
-        startActivity(newIntent)
+        startActivity(Intent(this, MainActivity::class.java))
         finish()
     }
 

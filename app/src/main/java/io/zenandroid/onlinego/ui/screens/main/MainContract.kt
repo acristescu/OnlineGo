@@ -18,7 +18,6 @@ interface MainContract {
         fun cancelNotification()
         fun updateNotification(sortedMyTurnGames: List<OGSGame>)
         fun navigateToGameScreen(game: Game)
-        fun navigateToStatsScreen(id: Long)
         fun showLogin()
         fun vibrate()
     }

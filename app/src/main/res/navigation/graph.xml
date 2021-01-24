@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/main"
+    app:startDestination="@id/myGames">
+
+    <fragment
+        android:id="@+id/myGames"
+        android:name="io.zenandroid.onlinego.ui.screens.mygames.MyGamesFragment"
+        android:label="MyGamesFragment" >
+        <action
+            android:id="@+id/action_myGamesFragment_to_aiGameFragment"
+            app:destination="@id/aiGameFragment" />
+        <action
+            android:id="@+id/action_myGamesFragment_to_gameFragment"
+            app:destination="@id/gameFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/aiGameFragment"
+        android:name="io.zenandroid.onlinego.ui.screens.localai.AiGameFragment"
+        android:label="AiGameFragment" />
+    <fragment
+        android:id="@+id/learn"
+        android:name="io.zenandroid.onlinego.ui.screens.learn.LearnFragment"
+        android:label="LearnFragment" >
+        <action
+            android:id="@+id/action_learnFragment_to_josekiExplorerFragment"
+            app:destination="@id/josekiExplorerFragment" />
+        <action
+            android:id="@+id/action_learnFragment_to_tutorialFragment"
+            app:destination="@id/tutorialFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/josekiExplorerFragment"
+        android:name="io.zenandroid.onlinego.ui.screens.joseki.JosekiExplorerFragment"
+        android:label="JosekiExplorerFragment" />
+    <fragment
+        android:id="@+id/gameFragment"
+        android:name="io.zenandroid.onlinego.ui.screens.game.GameFragment"
+        android:label="GameFragment" >
+        <action
+            android:id="@+id/action_gameFragment_to_statsFragment"
+            app:destination="@id/stats" />
+    </fragment>
+    <fragment
+        android:id="@+id/settings"
+        android:name="io.zenandroid.onlinego.ui.screens.settings.SettingsFragment"
+        android:label="SettingsFragment" >
+        <action
+            android:id="@+id/action_settingsFragment_to_supporterFragment"
+            app:destination="@id/supporterFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/stats"
+        android:name="io.zenandroid.onlinego.ui.screens.stats.StatsFragment"
+        android:label="StatsFragment" />
+    <fragment
+        android:id="@+id/tutorialFragment"
+        android:name="io.zenandroid.onlinego.ui.screens.tutorial.TutorialFragment"
+        android:label="TutorialFragment" />
+    <fragment
+        android:id="@+id/supporterFragment"
+        android:name="io.zenandroid.onlinego.ui.screens.supporter.SupporterFragment"
+        android:label="SupporterFragment" />
+</navigation>

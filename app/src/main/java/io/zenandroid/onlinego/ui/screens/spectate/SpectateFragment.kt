@@ -7,6 +7,8 @@ import androidx.recyclerview.widget.SimpleItemAnimator
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.os.bundleOf
+import androidx.navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.R
@@ -16,6 +18,8 @@ import io.zenandroid.onlinego.data.model.ogs.GameData
 import io.zenandroid.onlinego.data.model.ogs.GameList
 import io.zenandroid.onlinego.data.model.ogs.OGSGame
 import io.zenandroid.onlinego.data.ogs.Move
+import io.zenandroid.onlinego.ui.screens.game.GAME_ID
+import io.zenandroid.onlinego.ui.screens.game.GAME_SIZE
 import org.koin.android.ext.android.get
 
 /**
@@ -53,7 +57,7 @@ class SpectateFragment : Fragment(), SpectateContract.View {
 
     override fun navigateToGameScreen(game: OGSGame) {
         analytics.logEvent("spectate_game", Bundle().apply { putLong("GAME_ID", game.id) })
-        (activity as MainActivity).navigateToGameScreen(Game.fromOGSGame(game))
+        view?.findNavController()?.navigate(R.id.gameFragment, bundleOf(GAME_ID to game.id, GAME_SIZE to game.width))
     }
 
     override fun onResume() {

@@ -28,6 +28,7 @@ import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.ogs.Glicko2HistoryItem
 import io.zenandroid.onlinego.data.model.ogs.OGSPlayer
 import io.zenandroid.onlinego.databinding.FragmentStatsBinding
+import io.zenandroid.onlinego.gamelogic.Util
 import io.zenandroid.onlinego.ui.screens.main.MainActivity
 import io.zenandroid.onlinego.utils.convertCountryCodeToEmojiFlag
 import io.zenandroid.onlinego.utils.egfToRank
@@ -37,7 +38,7 @@ import org.koin.android.ext.android.get
 import java.text.SimpleDateFormat
 import java.util.*
 
-private const val PLAYER_ID = "PLAYER_ID"
+const val PLAYER_ID = "PLAYER_ID"
 
 @SuppressLint("SetTextI18n")
 class StatsFragment : Fragment(), StatsContract.View {
@@ -65,7 +66,8 @@ class StatsFragment : Fragment(), StatsContract.View {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        presenter = StatsPresenter(this, analytics, get(), requireArguments().getLong(PLAYER_ID))
+        val playerId = arguments?.getLong(PLAYER_ID) ?: Util.getCurrentUserId()!!
+        presenter = StatsPresenter(this, analytics, get(), playerId)
     }
 
     override fun onResume() {

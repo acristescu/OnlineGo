@@ -78,14 +78,6 @@ class MainPresenter (
         socketService.disconnect()
     }
 
-    fun navigateToGameScreenById(gameId: Long) {
-        activeGameRepository.getGameSingle(gameId)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(view::navigateToGameScreen, this::onError)
-                .addToDisposable(subscriptions)
-    }
-
     override fun onNotificationClicked() {
         val gamesList = activeGameRepository.myTurnGamesList
         if(gamesList.isEmpty()) {

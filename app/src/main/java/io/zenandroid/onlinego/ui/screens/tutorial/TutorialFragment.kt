@@ -48,7 +48,7 @@ import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
 import io.zenandroid.onlinego.ui.views.BoardView
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
-private const val TUTORIAL_NAME = "TUTORIAL_NAME"
+const val TUTORIAL_NAME = "TUTORIAL_NAME"
 
 class TutorialFragment : Fragment() {
 
@@ -79,7 +79,7 @@ class TutorialFragment : Fragment() {
     private fun acceptAction(tutorialAction: TutorialAction) {
         if(tutorialAction is HandledByFragment) {
             when(tutorialAction) {
-                BackArrowPressed -> (requireActivity() as MainActivity).onBackPressed()
+                BackArrowPressed -> requireActivity().onBackPressed()
             }
         } else {
             viewModel.acceptAction(tutorialAction as HandledByViewModel)

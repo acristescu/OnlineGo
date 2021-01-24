@@ -1,22 +1,22 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools" tools:context=".ui.screens.main.MainActivity">
     <item
-        android:id="@+id/navigation_my_games"
+        android:id="@id/myGames"
         android:title="Play"
         android:icon="@drawable/ic_board_filled"
         />
     <item
-        android:id="@+id/navigation_learn"
+        android:id="@id/learn"
         android:title="Learn"
         android:icon="@drawable/ic_learn"
         />
     <item
-        android:id="@+id/navigation_stats"
+        android:id="@id/stats"
         android:title="Stats"
         android:icon="@drawable/ic_diagram"
         />
     <item
-        android:id="@+id/navigation_settings"
+        android:id="@id/settings"
         android:title="Settings"
         android:icon="@drawable/ic_settings_filled"
         />

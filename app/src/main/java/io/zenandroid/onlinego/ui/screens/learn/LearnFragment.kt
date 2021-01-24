@@ -19,16 +19,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ComposeView
-import androidx.compose.ui.res.loadVectorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.os.bundleOf
 import androidx.lifecycle.asLiveData
+import androidx.navigation.findNavController
 import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.local.Tutorial
 import io.zenandroid.onlinego.data.repositories.TutorialsRepository
 import io.zenandroid.onlinego.ui.screens.main.MainActivity
+import io.zenandroid.onlinego.ui.screens.tutorial.TUTORIAL_NAME
 import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -60,8 +62,8 @@ class LearnFragment : Fragment() {
 
     private fun onAction(action: LearnAction) {
         when(action) {
-            LearnAction.JosekiExplorerClicked -> (activity as MainActivity).navigateToJosekiExplorer()
-            is LearnAction.TutorialClicked -> (activity as MainActivity).navigateToTutorialScreen(action.tutorial)
+            LearnAction.JosekiExplorerClicked -> view?.findNavController()?.navigate(R.id.action_learnFragment_to_josekiExplorerFragment)
+            is LearnAction.TutorialClicked -> view?.findNavController()?.navigate(R.id.action_learnFragment_to_tutorialFragment, bundleOf(TUTORIAL_NAME to action.tutorial.name))
             else -> viewModel.onAction(action)
         }
     }
@@ -73,9 +75,6 @@ class LearnFragment : Fragment() {
         (activity as? MainActivity)?.apply {
             supportActionBar?.setDisplayHomeAsUpEnabled(false)
             setLogoVisible(true)
-            setChipsVisible(false)
-            setChatButtonVisible(false)
-            ensureNavigationVisible()
         }
 
     }

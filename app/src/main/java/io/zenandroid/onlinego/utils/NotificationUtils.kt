@@ -13,6 +13,8 @@ import androidx.core.app.NotificationCompat
 import androidx.core.content.res.ResourcesCompat
 import android.view.View
 import android.widget.RemoteViews
+import androidx.core.os.bundleOf
+import androidx.navigation.NavDeepLinkBuilder
 import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.db.GameDao
@@ -23,6 +25,9 @@ import io.zenandroid.onlinego.data.model.local.Game
 import io.zenandroid.onlinego.data.model.local.GameNotification
 import io.zenandroid.onlinego.data.model.local.GameNotificationWithDetails
 import io.zenandroid.onlinego.data.model.ogs.Phase
+import io.zenandroid.onlinego.ui.screens.game.GAME_ID
+import io.zenandroid.onlinego.ui.screens.game.GAME_SIZE
+import io.zenandroid.onlinego.ui.screens.main.MainActivity
 import io.zenandroid.onlinego.ui.views.BoardView
 import org.koin.core.context.KoinContextHandler.get
 
@@ -139,10 +144,15 @@ class NotificationUtils {
             val board = BoardView(context)
             games.forEach {
                 context.resources.getDimensionPixelSize(android.R.dimen.notification_large_icon_width)
-                val notificationIntent = Intent(context, LoginActivity::class.java)
-                notificationIntent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
-                notificationIntent.putExtra("GAME_ID", it.id)
-                val pendingIntent = PendingIntent.getActivity(context, 0, notificationIntent, FLAG_UPDATE_CURRENT)
+                val pendingIntent = NavDeepLinkBuilder(context)
+                        .setComponentName(MainActivity::class.java)
+                        .setGraph(R.navigation.graph)
+                        .setDestination(R.id.gameFragment)
+                        .setArguments(bundleOf(
+                                GAME_ID to it.id,
+                                GAME_SIZE to it.width
+                        ))
+                        .createPendingIntent()
 
                 val opponent = if (userId == it.blackPlayer.id) it.whitePlayer.username else it.blackPlayer.username
                 val message = when(it.phase) {

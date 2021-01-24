@@ -9,6 +9,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.SimpleItemAnimator
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.os.bundleOf
+import androidx.navigation.findNavController
 import com.awesomedialog.blennersilva.awesomedialoglibrary.AwesomeInfoDialog
 import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.R
@@ -20,6 +22,8 @@ import io.zenandroid.onlinego.data.model.ogs.OGSAutomatch
 import io.zenandroid.onlinego.data.repositories.UserSessionRepository
 import io.zenandroid.onlinego.databinding.FragmentMygamesBinding
 import io.zenandroid.onlinego.ui.items.*
+import io.zenandroid.onlinego.ui.screens.game.GAME_ID
+import io.zenandroid.onlinego.ui.screens.game.GAME_SIZE
 import io.zenandroid.onlinego.ui.screens.whatsnew.WhatsNewDialog
 import org.koin.android.ext.android.get
 
@@ -72,7 +76,7 @@ class MyGamesFragment : Fragment(), MyGamesContract.View {
                 }
                 is NewGameItem.LocalAI -> {
                     analytics.logEvent("localai_item_clicked", null)
-                    (activity as MainActivity).onLocalAIClicked()
+                    view.findNavController().navigate(R.id.action_myGamesFragment_to_aiGameFragment)
                 }
             }
         }
@@ -127,7 +131,7 @@ class MyGamesFragment : Fragment(), MyGamesContract.View {
     }
 
     override fun navigateToGameScreen(game: Game) {
-        (activity as MainActivity).navigateToGameScreen(game)
+        view?.findNavController()?.navigate(R.id.action_myGamesFragment_to_gameFragment, bundleOf(GAME_ID to game.id, GAME_SIZE to game.width))
     }
 
     override fun onResume() {
@@ -139,9 +143,6 @@ class MyGamesFragment : Fragment(), MyGamesContract.View {
 
         (activity as? MainActivity)?.apply {
             setLogoVisible(true)
-            setChipsVisible(false)
-            setChatButtonVisible(false)
-            ensureNavigationVisible()
         }
         presenter.subscribe()
     }

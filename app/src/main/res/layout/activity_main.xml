@@ -137,7 +137,10 @@
         </androidx.appcompat.widget.Toolbar>
     </com.google.android.material.appbar.AppBarLayout>
 
-    <FrameLayout
+    <androidx.fragment.app.FragmentContainerView
+        android:name="androidx.navigation.fragment.NavHostFragment"
+        app:navGraph="@navigation/graph"
+        app:defaultNavHost="true"
         android:id="@+id/fragment_container"
         android:layout_width="0dp"
         android:layout_height="0dp"
