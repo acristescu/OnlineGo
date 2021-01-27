@@ -39,7 +39,7 @@ val MAX_RATING = 6000.0
 
 fun egfToRank(rating: Double?) =
         rating?.let {
-            log(it.coerceIn(MIN_RATING, MAX_RATING) / 850.0) / 0.032
+            log(it.coerceIn(MIN_RATING, MAX_RATING) / 525) * 23.15
         }
 
 fun formatRank(rank: Double?) =
