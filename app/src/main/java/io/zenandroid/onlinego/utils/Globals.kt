@@ -182,7 +182,7 @@ fun formatMillis(millis: Long): String {
     seconds -= minutes * 60
 
     return when {
-        days > 7 -> "%d days".format(days)
+        days >= 7 -> "%d days".format(days)
         days >= 2 && hours > 0 -> "%dd %dh".format(days, hours)
         days > 2 -> "%d day%s".format(days, plural(days))
         days > 0 -> "%dh".format(days * 24 + hours)
