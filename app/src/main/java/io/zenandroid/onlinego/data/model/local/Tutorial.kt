@@ -29,6 +29,13 @@ sealed class TutorialStep(val type: String) {
             val size: Int,
             val pages: List<Page>
     ): TutorialStep("Lesson")
+
+    data class GameExample(
+            val name: String,
+            val size: Int,
+            val text: String,
+            val sgf: String
+    ): TutorialStep("Game")
 }
 
 data class Node (
@@ -43,7 +50,8 @@ data class Node (
 data class Page(
         val text: String,
         val position: String,
-        val marks: String? = null
+        val marks: String? = null,
+        val areas: String? = null
 )
 
 enum class TutorialIcon(@DrawableRes val resId: Int) {

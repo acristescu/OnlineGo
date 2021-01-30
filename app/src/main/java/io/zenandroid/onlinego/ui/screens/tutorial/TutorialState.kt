@@ -2,6 +2,7 @@ package io.zenandroid.onlinego.ui.screens.tutorial
 
 import android.graphics.Point
 import io.zenandroid.onlinego.data.model.Position
+import io.zenandroid.onlinego.data.model.StoneType
 import io.zenandroid.onlinego.data.model.local.*
 
 
@@ -11,6 +12,9 @@ data class TutorialState (
         val step: TutorialStep? = null,
         val node: Node? = null,
         val page: Page? = null,
+        val gameExamplePositions: List<Position> = emptyList(),
+        val gameExamplePositionIndex: Int = 0,
+        val removedStones: Map<Point, StoneType>? = null,
 
         val position: Position? = null,
         val hoveredCell: Point? = null,

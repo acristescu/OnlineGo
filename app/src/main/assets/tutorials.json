@@ -2843,7 +2843,54 @@
     "name": "Advanced",
     "icon": "ADVANCED",
     "tutorials": [
-
+      {
+        "name": "The first moves",
+        "steps": [
+          {
+            "type": "Lesson",
+            "name": "first_moves_1",
+            "size": "19",
+            "pages": [
+              {
+                "text": "Until now we've focused on capturing pieces. However in the beginning of the game there are no stones on the board. We'll take a look at where to play your first moves in order to increase your chances of winning.\n\nFirst, let's divide the board into 3 areas. These are the corners:",
+                "position": "",
+                "areas": "o[aaee]o[ooss]o[oesa]o[aoes]"
+              },
+              {
+                "text": "... these are the sides...",
+                "position": "",
+                "areas": "o[afen]o[fane]o[ofsn]o[fons]"
+              },
+              {
+                "text": "... and this is the middle. Of course these are just names we use for orientation and there are no special rules for any of these.",
+                "position": "",
+                "areas": "o[ffnn]"
+              },
+              {
+                "text": "The object of the game is to encircle more territory than your opponent. Since you and your opponent take turns placing stones, you will both get the same amount of stones. Therefore, the winner is the player who uses their stones more efficiently.\n\nWhere is it more efficient to encircle territory? In the corners, on the sides, or in the middle?",
+                "position": "B[ad]B[bd]B[cd]B[da]B[db]B[dc]B[pd]B[pe]B[pf]B[qc]B[rc]B[sc]B[qg]B[rg]B[sg]W[dg]W[dh]W[di]W[ef]W[ff]W[gf]W[ej]W[fj]W[gj]W[hg]W[hh]W[hi]"
+              },
+              {
+                "text": "Each of the groups below encircles exactly 9 spaces so each gains 9 points. However, the one in the corner requires just 6 stones, the one on the side 9 while the one in the middle requires 12!",
+                "position": "B[ad]B[bd]B[cd]B[da]B[db]B[dc]B[pd]B[pe]B[pf]B[qc]B[rc]B[sc]B[qg]B[rg]B[sg]W[dg]W[dh]W[di]W[ef]W[ff]W[gf]W[ej]W[fj]W[gj]W[hg]W[hh]W[hi]",
+                "areas": "o[aacc]o[qdsf]#[eggi]"
+              },
+              {
+                "text": "Therefore wise players will play in the corners first and only once those are occupied will they move to the sides, leaving the middle for last.",
+                "position": "B[ad]B[bd]B[cd]B[da]B[db]B[dc]B[pd]B[pe]B[pf]B[qc]B[rc]B[sc]B[qg]B[rg]B[sg]W[dg]W[dh]W[di]W[ef]W[ff]W[gf]W[ej]W[fj]W[gj]W[hg]W[hh]W[hi]",
+                "areas": "o[aacc]o[qdsf]#[eggi]"
+              }
+            ]
+          },
+          {
+            "type": "Game",
+            "name": "first_moves_2",
+            "size": "19",
+            "text": "Here are the first 20 moves of a real game played between two profession players.",
+            "sgf": "B[pd]W[dd]B[pp]W[dp]B[cj]W[qj]B[fq]W[cn]B[cg]W[gc]B[dr]W[cq]B[iq]W[qn]B[np]W[qg]B[nc]W[ce]B[ic]"
+          }
+        ]
+      }
     ]
   }
 ]

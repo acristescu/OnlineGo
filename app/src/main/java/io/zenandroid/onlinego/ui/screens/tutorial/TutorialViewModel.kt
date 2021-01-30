@@ -9,10 +9,11 @@ import io.zenandroid.onlinego.data.model.StoneType
 import io.zenandroid.onlinego.data.model.local.Page
 import io.zenandroid.onlinego.data.model.local.Tutorial
 import io.zenandroid.onlinego.data.model.local.TutorialStep
-import io.zenandroid.onlinego.data.model.local.TutorialStep.Interactive
+import io.zenandroid.onlinego.data.model.local.TutorialStep.*
 import io.zenandroid.onlinego.data.repositories.TutorialsRepository
 import io.zenandroid.onlinego.gamelogic.RulesManager
 import io.zenandroid.onlinego.gamelogic.Util
+import io.zenandroid.onlinego.gamelogic.Util.populateWithAreas
 import io.zenandroid.onlinego.gamelogic.Util.populateWithMarks
 import io.zenandroid.onlinego.gamelogic.Util.populateWithSGF
 import io.zenandroid.onlinego.ui.screens.tutorial.TutorialAction.HandledByViewModel
@@ -47,6 +48,7 @@ class TutorialViewModel(
                         tutorial = tutorial,
                         step = step,
                         position = Position(step.size).apply { populateWithSGF(step.init) },
+                        removedStones = null,
                         text = step.text,
                         node = null,
                         page = null,
@@ -55,9 +57,12 @@ class TutorialViewModel(
                         boardInteractive = step.branches.isNotEmpty()
                 )
             }
-            is TutorialStep.Lesson -> {
+            is Lesson -> {
                 val initialPage = step.pages[0]
                 loadPage(tutorial, step, initialPage)
+            }
+            is GameExample -> {
+                loadGame(tutorial, step)
             }
         }
     }
@@ -74,25 +79,51 @@ class TutorialViewModel(
                 loadStep(state.tutorial!!, state.step!!)
             }
             NextPressed -> {
-                if(state.page != null) {
-                    val step = state.step as TutorialStep.Lesson
-                    val nextPageIndex = step.pages.indexOf(state.page) + 1
-                    if(nextPageIndex >= step.pages.size) {
-                        onStepDone()
-                    } else {
-                        loadPage(state.tutorial, step, step.pages[nextPageIndex])
+                when(state.step) {
+                    is Lesson -> {
+                        val nextPageIndex = state.step.pages.indexOf(state.page) + 1
+                        if(nextPageIndex >= state.step.pages.size) {
+                            onStepDone()
+                        } else {
+                            loadPage(state.tutorial, state.step, state.step.pages[nextPageIndex])
+                        }
                     }
-                } else {
-                    onStepDone()
+                    is GameExample -> {
+                        if(state.gameExamplePositionIndex >= state.gameExamplePositions.size - 1) {
+                            onStepDone()
+                        } else {
+                            _state.value = state.copy(
+                                    gameExamplePositionIndex = state.gameExamplePositionIndex + 1,
+                                    position = state.gameExamplePositions[state.gameExamplePositionIndex + 1],
+                                    removedStones = null
+                            )
+                        }
+                    }
+                    else -> {
+                        onStepDone()
+                    }
                 }
             }
         }
     }
 
-    private fun loadPage(tutorial: Tutorial?, step: TutorialStep.Lesson, page: Page) {
+    private fun loadGame(tutorial: Tutorial, game: GameExample) {
+        val positions = Util.sgfToPositionList(game.sgf, game.size)
+        _state.value = state.value.copy(
+                gameExamplePositions = positions,
+                gameExamplePositionIndex = 0,
+                position = positions[0],
+                removedStones = null,
+                text = game.text,
+                step = game
+        )
+    }
+
+    private fun loadPage(tutorial: Tutorial?, step: Lesson, page: Page) {
         val pos = Position(step.size).apply {
             populateWithSGF(page.position)
             page.marks?.let { populateWithMarks(page.marks) }
+            page.areas?.let { populateWithAreas(page.areas) }
         }
         _state.value = _state.value.copy(
                 tutorialGroups = tutorialsRepository.getTutorialGroups(),
@@ -101,6 +132,7 @@ class TutorialViewModel(
                 page = page,
                 text = page.text,
                 position = pos,
+                removedStones = null,
                 node = null,
                 retryButtonVisible = false,
                 nextButtonVisible = true,
@@ -168,7 +200,8 @@ class TutorialViewModel(
                         _state.value = state.copy(
                                 position = position,
                                 boardInteractive = false,
-                                hoveredCell = null
+                                hoveredCell = null,
+                                removedStones = Util.getRemovedStonesInLastMove(position)
                         )
                         delay(600)
                         position = RulesManager.makeMove(position, StoneType.WHITE, Util.getCoordinatesFromSGF(it))
@@ -178,7 +211,8 @@ class TutorialViewModel(
                             position = position,
                             boardInteractive = !node.success && !node.failed,
                             node = node,
-                            hoveredCell = null
+                            hoveredCell = null,
+                            removedStones = Util.getRemovedStonesInLastMove(position)
                     )
                 }
             }

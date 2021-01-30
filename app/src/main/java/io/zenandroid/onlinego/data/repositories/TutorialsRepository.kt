@@ -5,7 +5,9 @@ import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types
 import com.squareup.moshi.adapters.PolymorphicJsonAdapterFactory
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
+import io.reactivex.Completable
 import io.reactivex.Flowable
+import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
 import io.zenandroid.onlinego.OnlineGoApplication
@@ -20,12 +22,13 @@ import okio.source
 
 private const val COMPLETED_TUTORIALS_KEY = "COMPLETED_TUTORIALS_KEY"
 
-class TutorialsRepository {
+class TutorialsRepository : SocketConnectedRepository{
 
     private val moshiAdapter = Moshi.Builder()
             .add(PolymorphicJsonAdapterFactory.of(TutorialStep::class.java, "type")
                     .withSubtype(Interactive::class.java, "Interactive")
                     .withSubtype(Lesson::class.java, "Lesson")
+                    .withSubtype(GameExample::class.java, "Game")
             )
             .addLast(KotlinJsonAdapterFactory())
             .build()
@@ -33,7 +36,7 @@ class TutorialsRepository {
 
     private val prefs = PreferenceManager.getDefaultSharedPreferences(OnlineGoApplication.instance)
 
-    private val hardcodedTutorialsData = readJSONFromResources()
+    private lateinit var hardcodedTutorialsData: List<TutorialGroup>
     private val _completedTutorialsNames = BehaviorSubject.create<Set<String>>()
     val completedTutorialsNames = _completedTutorialsNames.hide()
 
@@ -71,6 +74,19 @@ class TutorialsRepository {
                 .putStringSet(COMPLETED_TUTORIALS_KEY, alreadyCompletedNames)
                 .apply()
         _completedTutorialsNames.onNext(alreadyCompletedNames)
+    }
+
+    override fun onSocketConnected() {
+        Completable.fromAction {
+            hardcodedTutorialsData = readJSONFromResources()
+        }
+                .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.single())
+                .subscribe()
+    }
+
+    override fun onSocketDisconnected() {
+
     }
 
 }

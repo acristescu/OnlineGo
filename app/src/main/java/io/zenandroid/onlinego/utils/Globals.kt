@@ -174,8 +174,6 @@ fun computeTimeLeft(
 
 fun formatMillis(millis: Long): String {
     var seconds = ceil((millis - 1) / 1000.0).toLong()
-    val weeks = seconds / 604_800
-    seconds -= weeks * 604_800
     val days = seconds / 86_400
     seconds -= days * 86_400
     val hours = seconds / 3_600
@@ -184,9 +182,8 @@ fun formatMillis(millis: Long): String {
     seconds -= minutes * 60
 
     return when {
-        weeks > 0 && days > 0 -> "%d week%s %d day%s".format(weeks, plural(weeks), days, plural(days))
-        weeks > 0 -> "%d week%s".format(weeks, plural(weeks))
-        days >= 2 && hours > 0 -> "%d day%s %d hour%s".format(days, plural(days), hours, plural(hours))
+        days > 7 -> "%d days".format(days)
+        days >= 2 && hours > 0 -> "%dd %dh".format(days, hours)
         days > 2 -> "%d day%s".format(days, plural(days))
         days > 0 -> "%dh".format(days * 24 + hours)
         hours > 0 -> "%dh %02dm".format(hours, minutes)

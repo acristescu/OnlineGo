@@ -121,7 +121,7 @@ class MainActivity : AppCompatActivity(), MainContract.View {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == android.R.id.home) {
-            onBackPressed()
+            findNavController(R.id.fragment_container).navigateUp()
             return true
         }
         return super.onOptionsItemSelected(item)
@@ -139,10 +139,12 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         val navHostFragment = supportFragmentManager.findFragmentById(R.id.fragment_container) as NavHostFragment
         binding.bottomNavigation.setupWithNavController(navHostFragment.navController)
         navHostFragment.navController.addOnDestinationChangedListener { _, destination, arguments ->
-            binding.bottomNavigation.showIf(destination.id in arrayOf(R.id.myGames, R.id.learn, R.id.settings) || (destination.id == R.id.stats && arguments?.isEmpty != false))
-            binding.newChallengeView.showIf(destination.id == R.id.myGames)
-            binding.toolbar.showIf(destination.id in arrayOf(R.id.myGames, R.id.learn, R.id.stats, R.id.gameFragment, R.id.aiGameFragment, R.id.josekiExplorerFragment))
-            binding.chipList.showIf(destination.id == R.id.gameFragment)
+            binding.apply {
+                bottomNavigation.showIf(destination.id in arrayOf(R.id.myGames, R.id.learn, R.id.settings) || (destination.id == R.id.stats && arguments?.isEmpty != false))
+                newChallengeView.showIf(destination.id == R.id.myGames)
+                toolbar.showIf(destination.id in arrayOf(R.id.myGames, R.id.learn, R.id.stats, R.id.gameFragment, R.id.aiGameFragment, R.id.josekiExplorerFragment))
+                chipList.showIf(destination.id == R.id.gameFragment)
+            }
             setChatButtonVisible(destination.id == R.id.gameFragment)
         }
 

@@ -1,11 +1,15 @@
 package io.zenandroid.onlinego.ui.screens.tutorial
 
-import android.content.Context
+import android.graphics.*
+import android.graphics.Paint
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import androidx.annotation.ColorInt
 import androidx.annotation.DrawableRes
 import androidx.compose.animation.*
 import androidx.compose.foundation.*
@@ -15,48 +19,52 @@ import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.ProvidableAmbient
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.AmbientContext
+import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
+import androidx.compose.ui.graphics.drawscope.translate
+import androidx.compose.ui.input.pointer.pointerInteropFilter
+import androidx.compose.ui.layout.layout
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.viewinterop.AndroidView
-import androidx.core.os.bundleOf
+import androidx.core.content.res.ResourcesCompat
+import androidx.core.graphics.withSave
 import androidx.lifecycle.asLiveData
+import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat
+import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.R
+import io.zenandroid.onlinego.data.model.Position
 import io.zenandroid.onlinego.data.model.StoneType
-import io.zenandroid.onlinego.data.model.local.TutorialStep
-import io.zenandroid.onlinego.ui.screens.main.MainActivity
+import io.zenandroid.onlinego.data.model.ogs.PlayCategory
+import io.zenandroid.onlinego.ui.composables.Board
 import io.zenandroid.onlinego.ui.screens.tutorial.TutorialAction.HandledByFragment
 import io.zenandroid.onlinego.ui.screens.tutorial.TutorialAction.HandledByFragment.BackArrowPressed
 import io.zenandroid.onlinego.ui.screens.tutorial.TutorialAction.HandledByViewModel
 import io.zenandroid.onlinego.ui.screens.tutorial.TutorialAction.HandledByViewModel.*
 import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
-import io.zenandroid.onlinego.ui.views.BoardView
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import kotlin.math.ceil
+import kotlin.math.roundToInt
 
 const val TUTORIAL_NAME = "TUTORIAL_NAME"
 
 class TutorialFragment : Fragment() {
-
-    companion object {
-        fun newInstance(tutorialName: String) = TutorialFragment().apply {
-            arguments = bundleOf(TUTORIAL_NAME to tutorialName)
-        }
-    }
 
     private val viewModel: TutorialViewModel by viewModel()
 
@@ -114,7 +122,6 @@ fun TutorialScreen(state: TutorialState, listener: (TutorialAction) -> Unit) {
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
                             .weight(1f)
-//                            .background(MaterialTheme.colors.surface)
                             .padding(start = 16.dp, end = 16.dp, top = 8.dp),
             ) {
                 ScrollableColumn {
@@ -128,29 +135,18 @@ fun TutorialScreen(state: TutorialState, listener: (TutorialAction) -> Unit) {
                 }
             }
 
-            // Board
-            val context = AmbientContext.current
-            val boardView = remember {
-                BoardView(context).apply {
-                    onTapMove = { listener(BoardCellHovered(it)) }
-                    onTapUp = { listener(BoardCellTapped(it)) }
-                    drawCoordinates = true
-                    drawMarks = true
-                    drawLastMove = true
-                }
-            }
-            AndroidView({ boardView },
+            Board(
                     modifier = Modifier
                             .padding(12.dp)
-                            .shadow(6.dp, MaterialTheme.shapes.large)
-            ) { view ->
-                view.apply {
-                    boardSize = 9
-                    position = state.position
-                    isInteractive = state.boardInteractive
-                    showCandidateMove(state.hoveredCell, StoneType.BLACK)
-                }
-            }
+                            .shadow(6.dp, MaterialTheme.shapes.large),
+                    boardSize = state.position?.boardSize ?: 9,
+                    position = state.position,
+                    removedStones = state.removedStones,
+                    candidateMove = state.hoveredCell,
+                    candidateMoveType = StoneType.BLACK,
+                    onTapMove = { if(state.boardInteractive) listener(BoardCellHovered(it)) },
+                    onTapUp = { if(state.boardInteractive) listener(BoardCellTapped(it)) }
+            )
 
             // Bottom buttons
             Box {
@@ -170,7 +166,6 @@ fun TutorialScreen(state: TutorialState, listener: (TutorialAction) -> Unit) {
                         }
                     }
                 }
-
                 Snackbar(
                         visible = state.node?.success == true,
                         text = "Nice one!",

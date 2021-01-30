@@ -40,7 +40,8 @@ private val repositoriesModule = module {
                 get<ChallengesRepository>(),
                 get<FinishedGamesRepository>(),
                 get<ServerNotificationsRepository>(),
-                get<ClockDriftRepository>()
+                get<ClockDriftRepository>(),
+                get<TutorialsRepository>()
         )
     }
 

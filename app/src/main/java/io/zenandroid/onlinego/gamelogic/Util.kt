@@ -6,7 +6,10 @@ import io.zenandroid.onlinego.data.model.StoneType
 import io.zenandroid.onlinego.data.model.local.Game
 import io.zenandroid.onlinego.data.model.ogs.OGSGame
 import io.zenandroid.onlinego.data.repositories.UserSessionRepository
+import okhttp3.internal.toImmutableList
 import org.koin.core.context.KoinContextHandler.get
+import kotlin.math.min
+import kotlin.math.max
 import java.util.*
 
 /**
@@ -71,6 +74,31 @@ object Util {
         }
     }
 
+    fun Position.populateWithAreas(areas: String) {
+        for(i in areas.indices step 7) {
+            val corner1 = getCoordinatesFromSGF(areas, i+2)
+            val corner2 = getCoordinatesFromSGF(areas, i+4)
+            for(x in min(corner1.x, corner2.x).. max(corner1.x, corner2.x)) {
+                for(y in min(corner1.y, corner2.y) .. max(corner1.y, corner2.y)) {
+                    customMarks.add(Position.Mark(Point(x, y), areas[i].toString(), null))
+                }
+            }
+        }
+    }
+
+    fun sgfToPositionList(sgf: String, size: Int): List<Position> {
+        var pos = Position(size)
+        val retval = mutableListOf<Position>()
+        retval.add(pos)
+        for(i in sgf.indices step 5) {
+            val p = getCoordinatesFromSGF(sgf, i + 2)
+            val stone = if(sgf[i] == 'B') StoneType.BLACK else StoneType.WHITE
+            pos = RulesManager.makeMove(pos, stone, p)!!
+            retval.add(pos)
+        }
+        return retval.toImmutableList()
+    }
+
     fun getNeighbouringSpace(current: Point, boardSize: Int): List<Point> {
         val left = Point(current)
         left.offset(-1, 0)
@@ -117,4 +145,7 @@ object Util {
 
     fun getCurrentUserId() =
         userSessionRepository.userId
+
+    fun getRemovedStonesInLastMove(position: Position): Map<Point, StoneType> =
+        position.parentPosition?.stones?.filter { !position.stones.contains(it.key)} ?: emptyMap()
 }
