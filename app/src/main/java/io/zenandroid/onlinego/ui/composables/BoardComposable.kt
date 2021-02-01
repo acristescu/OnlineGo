@@ -4,6 +4,7 @@ import android.graphics.Bitmap
 import android.graphics.Point
 import android.graphics.PointF
 import android.graphics.Rect
+import android.os.Build
 import android.view.MotionEvent
 import androidx.annotation.ColorInt
 import androidx.compose.animation.core.FloatPropKey
@@ -27,6 +28,7 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import androidx.core.content.res.ResourcesCompat
 import androidx.core.graphics.withSave
 import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat
 import io.zenandroid.onlinego.OnlineGoApplication
@@ -38,8 +40,9 @@ import kotlin.math.ceil
 import kotlin.math.roundToInt
 
 
-val whiteStone = VectorDrawableCompat.create(OnlineGoApplication.instance.resources, R.drawable.ic_stone_white_svg, null)!!
-val blackStone = VectorDrawableCompat.create(OnlineGoApplication.instance.resources, R.drawable.ic_stone_black_svg, null)!!
+private val whiteStone = VectorDrawableCompat.create(OnlineGoApplication.instance.resources, R.drawable.ic_stone_white_svg, null)!!
+private val blackStone = VectorDrawableCompat.create(OnlineGoApplication.instance.resources, R.drawable.ic_stone_black_svg, null)!!
+private val shadowDrawable = ResourcesCompat.getDrawable(OnlineGoApplication.instance.resources, R.drawable.gradient_shadow, null)!!
 
 @Composable
 fun Board(
@@ -204,6 +207,7 @@ private fun DrawScope.drawTextCentred(text: String, cx: Float, cy: Float, textSi
     val textBounds = Rect()
     paint.apply {
         textAlign = android.graphics.Paint.Align.LEFT
+        isSubpixelText = true
         setTextSize(textSize)
         getTextBounds(text, 0, text.length, textBounds)
         setColor(color)
@@ -278,7 +282,17 @@ private fun DrawScope.drawStone(p: Point, type: StoneType?, alpha: Float = 1f, d
     val center = getCellCenter(p.x, p.y, measurements)
     drawIntoCanvas {
         if(drawShadow && alpha > .75) {
-            it.drawCircle(Offset(center.x, center.y), measurements.stoneRadius - 1.5f, measurements.shadowPaint) // we don't care about the circle really, but the paint produces a fast shadow...
+            if(Build.VERSION.SDK_INT >= 28) {
+                it.drawCircle(Offset(center.x, center.y), measurements.stoneRadius - 1.5f, measurements.shadowPaint) // we don't care about the circle really, but the paint produces a fast shadow...
+            } else {
+                shadowDrawable.setBounds(
+                        (center.x - measurements.stoneRadius - measurements.cellSize / 20f).toInt(),
+                        (center.y - measurements.stoneRadius - measurements.cellSize / 20f).toInt(),
+                        (center.x + measurements.stoneRadius + measurements.cellSize / 12f).toInt(),
+                        (center.y + measurements.stoneRadius + measurements.cellSize / 9f).toInt()
+                )
+                shadowDrawable.draw(it.nativeCanvas)
+            }
         }
 
         if(alpha != 1f) {
@@ -370,10 +384,10 @@ private fun doMeasurements(width: Int, boardSize: Int, drawCoordinates: Boolean)
     } else width
     val cellSize = usableWidth / boardSize
     val border = (width - boardSize * cellSize) / 2f
-    val linesWidth = (cellSize / 35f).coerceAtMost(2f)
+    val linesWidth = (cellSize / 35f).coerceIn(1f, 2f)
     val highlightLinesWidth = linesWidth * 2
     val decorationsLineWidth = cellSize / 20f
-    val stoneSpacing = cellSize / 35f
+    val stoneSpacing = (cellSize / 35f).coerceAtLeast(1f)
     val textSize = cellSize.toFloat() * .65f
     val coordinatesTextSize = cellSize.toFloat() * .4f
     val shadowPaint = Paint().apply {

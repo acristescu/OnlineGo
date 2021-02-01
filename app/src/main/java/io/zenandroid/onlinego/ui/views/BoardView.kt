@@ -4,6 +4,7 @@ import android.animation.ValueAnimator
 import android.content.Context
 import android.content.res.Resources
 import android.graphics.*
+import android.os.Build
 import androidx.core.content.res.ResourcesCompat
 import android.util.AttributeSet
 import android.util.Log
@@ -22,7 +23,6 @@ import io.zenandroid.onlinego.data.model.Position
 import io.zenandroid.onlinego.data.model.StoneType
 import io.zenandroid.onlinego.data.model.ogs.PlayCategory
 import io.zenandroid.onlinego.gamelogic.Util
-import io.zenandroid.onlinego.ui.composables.whiteStone
 import java.util.*
 import kotlin.math.abs
 import kotlin.math.ceil
@@ -53,7 +53,7 @@ class BoardView : View {
     var position: Position? = null
         set(value) {
             if(field != value) {
-                if(value != null && field != null && field?.hasTheSameStonesAs(value) == false) {
+                if(animationEnabled && value != null && field != null && field?.hasTheSameStonesAs(value) == false) {
                     val newStones = value.stones.filter { field?.stones?.containsKey(it.key) == false || field?.stones?.get(it.key) != it.value }
                     if(newStones.isNotEmpty()) {
                         ValueAnimator.ofInt(100, 255).apply {
@@ -178,8 +178,8 @@ class BoardView : View {
     private val tapMoveSubject = PublishSubject.create<Point>()
     private var stonesToFadeIn: Map<Point, StoneType> = mapOf()
     private var stonesToFadeOut: Map<Point, StoneType> = mapOf()
-    private val stonePaint = Paint()
-    private val shadowPaint = Paint()
+    private val stonePaint = Paint(Paint.ANTI_ALIAS_FLAG)
+    private val shadowPaint = Paint(Paint.ANTI_ALIAS_FLAG)
 
     var onTapMove: ((Point) -> Unit)? = null
     var onTapUp: ((Point) -> Unit)? = null
@@ -199,9 +199,14 @@ class BoardView : View {
     private fun init(context: Context) {
         linesPaint.apply {
             strokeWidth = 2f
-            color = -0x33cce7f0
+            color = 0xAA331810.toInt()
             strokeCap = Paint.Cap.ROUND
+            style = Paint.Style.FILL
+        }
+
+        stonePaint.apply {
             style = Paint.Style.STROKE
+            strokeWidth = 1f
         }
 
         linesHighlightPaint.apply {
@@ -216,6 +221,7 @@ class BoardView : View {
         }
 
         textPaint.apply {
+            isSubpixelText = true
             setShadowLayer(6.dp.value, 0f, 0f, Color.WHITE)
         }
 
@@ -313,10 +319,10 @@ class BoardView : View {
         } else w
 
         cellSize = usableWidth / this.boardSize
-        linesPaint.strokeWidth = (cellSize / 35f).coerceAtMost(2f)
+        linesPaint.strokeWidth = (cellSize / 35f).coerceIn(1f, 2f)
         linesHighlightPaint.strokeWidth = linesPaint.strokeWidth * 2
         decorationsPaint.strokeWidth = cellSize / 20f
-        stoneSpacing = cellSize / 35f
+        stoneSpacing = (cellSize / 35f).coerceAtLeast(1f)
         border = ((w - this.boardSize * cellSize) / 2).toFloat()
         textPaint.textSize = cellSize.toFloat() * .65f
         coordinatesPaint.textSize = cellSize.toFloat() * .4f
@@ -327,15 +333,14 @@ class BoardView : View {
         }
 
         shadowPaint.apply {
-            color = 0xAAFF0000.toInt()
+            color = 0x01FF0000
             style = Paint.Style.FILL
             setShadowLayer(
                     cellSize / 10f,
                     0f,
                     stoneSpacing * 2,
-                    Color.BLACK
-            )
-        }
+                    0xBB000000.toInt()
+            )        }
     }
 
     private fun convertVectorIntoBitmap(vector: Int, width: Int): Bitmap {
@@ -493,7 +498,7 @@ class BoardView : View {
 
     private fun drawSingleStarPoint(canvas: Canvas, i: Int, j: Int) {
         val center = getCellCenter(i, j)
-        canvas.drawCircle(center.x, center.y, cellSize / 15f, linesPaint)
+        canvas.drawCircle(center.x, center.y, (cellSize / 15f).coerceAtLeast(2f), linesPaint)
     }
 
     private fun drawGrid(canvas: Canvas) {
@@ -552,18 +557,32 @@ class BoardView : View {
         }
         val isFadedOut = fadeOutRemovedStones && position.removedSpots.contains(p)
         if (drawShadow && alpha == 255) {
-            canvas.drawCircle(center.x, center.y, cellSize / 2f - stoneSpacing - 1.5f, shadowPaint)
+            if(Build.VERSION.SDK_INT >= 28) {
+                canvas.drawCircle(center.x, center.y, cellSize / 2f - stoneSpacing - 1.5f, shadowPaint)
+            } else {
+                shadowDrawable.alpha = if(alpha == 255) 255 else ((alpha / 255f) * (alpha / 255f) * 255f).toInt()
+                shadowDrawable.setBounds(
+                        (center.x - cellSize / 2f + stoneSpacing - cellSize / 20f).toInt(),
+                        (center.y - cellSize / 2f + stoneSpacing - cellSize / 20f).toInt(),
+                        (center.x + cellSize / 2f - stoneSpacing + cellSize / 12f).toInt(),
+                        (center.y + cellSize / 2f - stoneSpacing + cellSize / 9f).toInt()
+                )
+                shadowDrawable.draw(canvas)
+            }
         }
 
+        stonePaint.alpha = alpha
         if(cellSize > 30) {
             val bitmap = if (type == StoneType.BLACK) blackStoneBitmap else whiteStoneBitmap
-            stonePaint.alpha = alpha
             canvas.drawBitmap(bitmap, center.x - cellSize / 2f + stoneSpacing, center.y - cellSize / 2f + stoneSpacing, stonePaint)
         } else {
             stonePaint.color = if (type == StoneType.BLACK) Color.BLACK else Color.WHITE
+            stonePaint.style = Paint.Style.FILL
             canvas.drawCircle(center.x, center.y, cellSize / 2f - stoneSpacing, stonePaint)
             if(type == StoneType.WHITE) {
-                canvas.drawCircle(center.x, center.y, cellSize / 2f - stoneSpacing, linesPaint)
+                stonePaint.color = 0xCC331810.toInt()
+                stonePaint.style = Paint.Style.STROKE
+                canvas.drawCircle(center.x, center.y, cellSize / 2f - stoneSpacing, stonePaint)
             }
         }
     }
