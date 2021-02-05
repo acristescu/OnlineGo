@@ -384,7 +384,7 @@ private fun doMeasurements(width: Int, boardSize: Int, drawCoordinates: Boolean)
     } else width
     val cellSize = usableWidth / boardSize
     val border = (width - boardSize * cellSize) / 2f
-    val linesWidth = (cellSize / 35f).coerceIn(1f, 2f)
+    val linesWidth = (cellSize / 35f).coerceAtMost(2f)
     val highlightLinesWidth = linesWidth * 2
     val decorationsLineWidth = cellSize / 20f
     val stoneSpacing = (cellSize / 35f).coerceAtLeast(1f)

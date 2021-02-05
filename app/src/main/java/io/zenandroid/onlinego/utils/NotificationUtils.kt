@@ -141,7 +141,9 @@ class NotificationUtils {
         }
 
         private fun notifyIndividual(context: Context, games: List<Game>, userId: Long?) {
-            val board = BoardView(context)
+            val board = BoardView(context).apply {
+                animationEnabled = false
+            }
             games.forEach {
                 context.resources.getDimensionPixelSize(android.R.dimen.notification_large_icon_width)
                 val pendingIntent = NavDeepLinkBuilder(context)

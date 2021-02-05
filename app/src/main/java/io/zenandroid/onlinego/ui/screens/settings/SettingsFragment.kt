@@ -1,8 +1,6 @@
 package io.zenandroid.onlinego.ui.screens.settings
 
-import android.content.Context
 import android.content.Intent
-import android.graphics.Color
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -31,7 +29,6 @@ import io.zenandroid.onlinego.data.repositories.SettingsRepository
 import io.zenandroid.onlinego.data.repositories.UserSessionRepository
 import io.zenandroid.onlinego.databinding.FragmentSettingsBinding
 import io.zenandroid.onlinego.ui.screens.login.LoginActivity
-import io.zenandroid.onlinego.ui.screens.main.MainActivity
 import io.zenandroid.onlinego.ui.views.BoardView
 import io.zenandroid.onlinego.utils.processGravatarURL
 import org.koin.android.ext.android.inject

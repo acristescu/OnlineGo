@@ -347,7 +347,7 @@ object RulesManager {
         return pos
     }
 
-    fun isIllegalKO(pos: Position): Boolean {
+    fun isIllegalSuperKO(pos: Position): Boolean {
         var historyPos = pos.parentPosition
         while(historyPos != null) {
             if(historyPos.hasTheSameStonesAs(pos)) {
@@ -356,6 +356,10 @@ object RulesManager {
             historyPos = historyPos.parentPosition
         }
         return false
+    }
+
+    fun isIllegalKO(pos: Position): Boolean {
+        return pos.parentPosition?.parentPosition?.hasTheSameStonesAs(pos) == true
     }
 
     /**

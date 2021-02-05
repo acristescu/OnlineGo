@@ -71,10 +71,9 @@ class SynchronizeGamesWork(val context: Context, params: WorkerParameters) : RxW
 
     private val TAG = SynchronizeGamesWork::class.java.simpleName
 
-    private val gameDao: GameDao = get().get()
+    private val task = CheckNotificationsTask(context)
+
     private val userSessionRepository: UserSessionRepository = get().get()
-    private val activeGamesRepository: ActiveGamesRepository = get().get()
-    private val challengesRepository: ChallengesRepository = get().get()
 
     override fun createWork(): Single<Result> {
         FirebaseCrashlytics.getInstance().log("I/$TAG: Started checking for active games")
@@ -86,65 +85,8 @@ class SynchronizeGamesWork(val context: Context, params: WorkerParameters) : RxW
             Log.v(TAG, "App is in foreground, giving up")
             return Single.just(Result.success()).reschedule()
         }
-        return Completable
-                .mergeArray(
-                        notifyGames(),
-                        notifyChallenges()
-                ).toSingleDefault(Result.success())
-                .onErrorReturn { e ->
-                    when {
-                        (e as? HttpException)?.code() in arrayOf(401, 403) -> {
-                            FirebaseCrashlytics.getInstance().log("E/$TAG: Unauthorized when checking for notifications")
-                            FirebaseCrashlytics.getInstance().recordException(e)
-                            FirebaseCrashlytics.getInstance().setCustomKey("AUTO_LOGOUT", System.currentTimeMillis())
-                            NotificationUtils.notifyLogout(context)
-                            userSessionRepository.logOut()
-                            return@onErrorReturn Result.failure()
-                        }
-                        e is SocketTimeoutException || e is ConnectException -> {
-                            FirebaseCrashlytics.getInstance().log("E/$TAG: Can't connect when checking for notifications")
-                            return@onErrorReturn Result.failure()
-                        }
-                        else -> {
-                            FirebaseCrashlytics.getInstance().log("E/$TAG: Error when checking for notifications")
-                            FirebaseCrashlytics.getInstance().recordException(e)
-                            return@onErrorReturn Result.retry()
-                        }
-                    }
-                }.reschedule()
+        return task.doWork().reschedule()
     }
-
-    private fun notifyGames() : Completable =
-            activeGamesRepository
-                    .refreshActiveGames()
-                    .andThen(Single.zip(
-                            activeGamesRepository.monitorActiveGames().firstOrError(),
-                            gameDao.getGameNotifications().firstOrError(),
-                            BiFunction { a: List<Game>, b: List<GameNotificationWithDetails> -> Pair(a, b) }
-                    )).doOnSuccess {
-                        Log.v(TAG, "Got ${it.first.size} games")
-                        if (!MainActivity.isInForeground) {
-                            Log.v(TAG, "Updating game notification")
-                            notifyGames(context, it.first, it.second, userSessionRepository.userId!!)
-                        }
-
-                        val newNotifications = it.first.map { GameNotification(it.id, it.moves, it.phase) }
-                        if(newNotifications != it.second) {
-                            gameDao.replaceGameNotifications(newNotifications)
-                        }
-                    }.ignoreElement()
-
-    private fun notifyChallenges() : Completable =
-            challengesRepository
-                    .refreshChallenges()
-                    .andThen(challengesRepository.monitorChallenges().firstOrError())
-                    .doOnSuccess {
-                        Log.v(TAG, "Updating challenges notification")
-                        if (!MainActivity.isInForeground) {
-                            Log.v(TAG, "Updating challenges notification")
-                            notifyChallenges(context, it, userSessionRepository.userId!!)
-                        }
-                    }.ignoreElement()
 
     private fun <T : Any> Single<T>.reschedule(): Single<T> {
         return this.doFinally {

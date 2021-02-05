@@ -19,6 +19,12 @@ object WhatsNewUtils {
 private const val currentText = """
 ## What's new
 
+- Fixed a bug where repeated notifications were shown for the same game
+- Fixed an issue where SuperKO moves were rejected even though the used ruleset might allow it (e.g. Japanese rules). We now only reject immediate KO and let the server figure out the SuperKO situation.
+- Reverted the changes to the line thickness of the thumbnail boards. Made the color of the lines pure black for dark theme to compensate.
+
+## Previous version
+
 - New tutorial based on the now defunct "Interactive way to go" (with permission). It's incomplete right now, but there is plenty to send feedback about
 - Fixed back button navigation once and for all (hopefully). For those that care, we're now using Jetpack Navigation under the hood
 - Reimplemented the learn page as it was looking a bit dated

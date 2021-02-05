@@ -2,6 +2,7 @@ package io.zenandroid.onlinego.ui.views
 
 import android.animation.ValueAnimator
 import android.content.Context
+import android.content.res.Configuration
 import android.content.res.Resources
 import android.graphics.*
 import android.os.Build
@@ -10,8 +11,6 @@ import android.util.AttributeSet
 import android.util.Log
 import android.view.MotionEvent
 import android.view.View
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.ColorUtils
 import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat
@@ -196,10 +195,13 @@ class BoardView : View {
         init(context)
     }
 
+    private fun darkMode() =
+        resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES
+
     private fun init(context: Context) {
         linesPaint.apply {
             strokeWidth = 2f
-            color = 0xAA331810.toInt()
+            color = if(darkMode()) 0xFF000000.toInt() else 0xCC331810.toInt()
             strokeCap = Paint.Cap.ROUND
             style = Paint.Style.FILL
         }
@@ -319,7 +321,7 @@ class BoardView : View {
         } else w
 
         cellSize = usableWidth / this.boardSize
-        linesPaint.strokeWidth = (cellSize / 35f).coerceIn(1f, 2f)
+        linesPaint.strokeWidth = (cellSize / 35f).coerceAtMost(2f)
         linesHighlightPaint.strokeWidth = linesPaint.strokeWidth * 2
         decorationsPaint.strokeWidth = cellSize / 20f
         stoneSpacing = (cellSize / 35f).coerceAtLeast(1f)
