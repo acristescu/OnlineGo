@@ -43,6 +43,14 @@ class TutorialsRepository : SocketConnectedRepository{
     init {
         val completed = prefs.getStringSet(COMPLETED_TUTORIALS_KEY, emptySet())!!
         _completedTutorialsNames.onNext(completed)
+        if(!this::hardcodedTutorialsData.isInitialized) {
+            Completable.fromAction {
+                hardcodedTutorialsData = readJSONFromResources()
+            }
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(Schedulers.single())
+                    .subscribe()
+        }
     }
 
     fun loadTutorial(tutorialName: String): Tutorial? {
@@ -77,12 +85,6 @@ class TutorialsRepository : SocketConnectedRepository{
     }
 
     override fun onSocketConnected() {
-        Completable.fromAction {
-            hardcodedTutorialsData = readJSONFromResources()
-        }
-                .subscribeOn(Schedulers.io())
-                .observeOn(Schedulers.single())
-                .subscribe()
     }
 
     override fun onSocketDisconnected() {
