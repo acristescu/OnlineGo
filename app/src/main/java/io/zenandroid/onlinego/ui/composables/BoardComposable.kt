@@ -14,6 +14,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.transition
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -78,9 +79,11 @@ fun Board(
         stonesToFadeOut = null
     }
     Canvas(modifier = modifier
-            .fillMaxWidth()
             .aspectRatio(1f)
             .pointerInteropFilter {
+                if(measurements.cellSize == 0) {
+                    return@pointerInteropFilter false
+                }
                 val eventCoords = screenToBoardCoordinates(it.x, it.y, measurements.border, measurements.cellSize, boardSize)
 
                 if (eventCoords != lastHotTrackedPoint) {

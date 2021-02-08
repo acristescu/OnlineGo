@@ -1,5 +1,6 @@
 package io.zenandroid.onlinego.ui.screens.tutorial
 
+import android.content.res.Configuration
 import android.graphics.*
 import android.graphics.Paint
 import android.os.Bundle
@@ -34,6 +35,7 @@ import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.AmbientConfiguration
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.res.painterResource
@@ -117,76 +119,108 @@ fun TutorialScreen(state: TutorialState, listener: (TutorialAction) -> Unit) {
         )
 
         state.step?.let {
-            // Text description area
-            Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                            .weight(1f)
-                            .padding(start = 16.dp, end = 16.dp, top = 8.dp),
-            ) {
-                ScrollableColumn {
-                    Text(text = state.text ?: "",
-                            textAlign = TextAlign.Center,
-                            style = MaterialTheme.typography.body2,
-                            fontSize = TextUnit(18),
-                            color = MaterialTheme.colors.onSurface,
-                            modifier = Modifier.fillMaxWidth()
-                    )
-                }
-            }
-
-            Board(
-                    modifier = Modifier
-                            .padding(12.dp)
-                            .shadow(6.dp, MaterialTheme.shapes.large),
-                    boardSize = state.position?.boardSize ?: 9,
-                    position = state.position,
-                    removedStones = state.removedStones,
-                    candidateMove = state.hoveredCell,
-                    candidateMoveType = StoneType.BLACK,
-                    onTapMove = { if(state.boardInteractive) listener(BoardCellHovered(it)) },
-                    onTapUp = { if(state.boardInteractive) listener(BoardCellTapped(it)) }
-            )
-
-            // Bottom buttons
-            Box {
-                Row(horizontalArrangement = Arrangement.SpaceAround,
-                        modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 12.dp, vertical = 16.dp)) {
-                    if(state.retryButtonVisible) {
-                        OutlinedButton(onClick = { listener.invoke(RetryPressed) }, modifier = Modifier.weight(1f)) {
-                            Icon(imageVector = Icons.Filled.Refresh, tint = MaterialTheme.colors.onSurface, modifier = Modifier.size(16.dp))
-                            Text(text = "RETRY", color = MaterialTheme.colors.onSurface, modifier = Modifier.padding(start = 8.dp))
+            when(AmbientConfiguration.current.orientation) {
+                Configuration.ORIENTATION_LANDSCAPE -> {
+                    Row {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Description(
+                                    modifier = Modifier
+                                            .weight(1f)
+                                            .padding(start = 16.dp, end = 16.dp, top = 8.dp),
+                                    state = state
+                            )
+                            ButtonBar(state, listener)
                         }
-                    }
-                    if(state.nextButtonVisible) {
-                        Button(onClick = { listener.invoke(NextPressed) }, modifier = Modifier.weight(1f)) {
-                            Text(text = "NEXT")
-                        }
+
+                        Board(state, listener)
                     }
                 }
-                Snackbar(
-                        visible = state.node?.success == true,
-                        text = "Nice one!",
-                        button = "NEXT",
-                        icon = R.drawable.ic_check_circle,
-                        modifier = Modifier.align(Alignment.Center),
-                        tint = MaterialTheme.colors.secondary,
-                        listener = { listener.invoke(NextPressed) }
-                )
+                else -> {
+                    Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier
+                                    .weight(1f)
+                                    .padding(start = 16.dp, end = 16.dp, top = 8.dp),
+                    ) {
+                        Description(state = state)
+                    }
 
-                Snackbar(
-                        visible = state.node?.failed == true,
-                        text = state.node?.message ?: "That's not quite right!",
-                        button = "RETRY",
-                        icon = R.drawable.ic_x_circle,
-                        modifier = Modifier.align(Alignment.Center),
-                        tint = MaterialTheme.colors.secondary,
-                        listener = { listener.invoke(RetryPressed) }
-                )
+                    Board(state, listener)
+                    ButtonBar(state, listener)
+                }
             }
         }
+    }
+}
+
+@Composable
+private fun Board(state: TutorialState, listener: (TutorialAction) -> Unit) {
+    Board(
+            modifier = Modifier
+                    .padding(12.dp)
+                    .shadow(6.dp, MaterialTheme.shapes.large),
+            boardSize = state.position?.boardSize ?: 9,
+            position = state.position,
+            removedStones = state.removedStones,
+            candidateMove = state.hoveredCell,
+            candidateMoveType = StoneType.BLACK,
+            onTapMove = { if (state.boardInteractive) listener(BoardCellHovered(it)) },
+            onTapUp = { if (state.boardInteractive) listener(BoardCellTapped(it)) }
+    )
+}
+
+@Composable
+private fun Description(modifier: Modifier = Modifier, state: TutorialState) {
+    ScrollableColumn(modifier = modifier) {
+        Text(text = state.text ?: "",
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.body2,
+                fontSize = TextUnit(18),
+                color = MaterialTheme.colors.onSurface,
+                modifier = Modifier.fillMaxWidth()
+        )
+    }
+}
+
+@ExperimentalAnimationApi
+@Composable
+private fun ButtonBar(state: TutorialState, listener: (TutorialAction) -> Unit) {
+    Box {
+        Row(horizontalArrangement = Arrangement.SpaceAround,
+                modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 12.dp, vertical = 16.dp)) {
+            if (state.retryButtonVisible) {
+                OutlinedButton(onClick = { listener.invoke(RetryPressed) }, modifier = Modifier.weight(1f)) {
+                    Icon(imageVector = Icons.Filled.Refresh, tint = MaterialTheme.colors.onSurface, modifier = Modifier.size(16.dp))
+                    Text(text = "RETRY", color = MaterialTheme.colors.onSurface, modifier = Modifier.padding(start = 8.dp))
+                }
+            }
+            if (state.nextButtonVisible) {
+                Button(onClick = { listener.invoke(NextPressed) }, modifier = Modifier.weight(1f)) {
+                    Text(text = "NEXT")
+                }
+            }
+        }
+        Snackbar(
+                visible = state.node?.success == true,
+                text = "Nice one!",
+                button = "NEXT",
+                icon = R.drawable.ic_check_circle,
+                modifier = Modifier.align(Alignment.Center),
+                tint = MaterialTheme.colors.secondary,
+                listener = { listener.invoke(NextPressed) }
+        )
+
+        Snackbar(
+                visible = state.node?.failed == true,
+                text = state.node?.message ?: "That's not quite right!",
+                button = "RETRY",
+                icon = R.drawable.ic_x_circle,
+                modifier = Modifier.align(Alignment.Center),
+                tint = MaterialTheme.colors.secondary,
+                listener = { listener.invoke(RetryPressed) }
+        )
     }
 }
 

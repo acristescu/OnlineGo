@@ -31,7 +31,6 @@
         </activity>
         <activity
             android:name="io.zenandroid.onlinego.ui.screens.main.MainActivity"
-            android:screenOrientation="portrait"
             />
         <activity
             android:name=".ui.screens.login.FacebookLoginCallbackActivity"

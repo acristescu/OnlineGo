@@ -64,7 +64,12 @@ class TutorialsRepository : SocketConnectedRepository{
         return null
     }
 
-    fun getTutorialGroups() = hardcodedTutorialsData
+    fun getTutorialGroups(): List<TutorialGroup> {
+        if(!this::hardcodedTutorialsData.isInitialized) {
+            hardcodedTutorialsData = readJSONFromResources()
+        }
+        return hardcodedTutorialsData
+    }
 
     private fun readJSONFromResources(): List<TutorialGroup> {
         OnlineGoApplication.instance.assets.open("tutorials.json").source().buffer().use {

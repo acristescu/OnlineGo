@@ -67,7 +67,7 @@ class CheckNotificationsTask(val context: Context, val supressWhenInForeground: 
                             BiFunction { a: List<Game>, b: List<GameNotificationWithDetails> -> Pair(a, b) }
                     )).doOnSuccess {
                         Log.v(TAG, "Got ${it.first.size} games")
-                        if (!supressWhenInForeground || MainActivity.isInForeground) {
+                        if (!(supressWhenInForeground && MainActivity.isInForeground)) {
                             Log.v(TAG, "Updating game notification")
                             NotificationUtils.notifyGames(context, it.first, it.second, userSessionRepository.userId!!)
                         }
@@ -84,7 +84,7 @@ class CheckNotificationsTask(val context: Context, val supressWhenInForeground: 
                     .andThen(challengesRepository.monitorChallenges().firstOrError())
                     .doOnSuccess {
                         Log.v(TAG, "Updating challenges notification")
-                        if (!supressWhenInForeground || MainActivity.isInForeground) {
+                        if (!(supressWhenInForeground && MainActivity.isInForeground)) {
                             Log.v(TAG, "Updating challenges notification")
                             NotificationUtils.notifyChallenges(context, it, userSessionRepository.userId!!)
                         }

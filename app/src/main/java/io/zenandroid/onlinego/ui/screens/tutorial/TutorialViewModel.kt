@@ -35,6 +35,10 @@ class TutorialViewModel(
     private fun initialState() = TutorialState()
 
     fun loadTutorial(tutorialName: String) {
+        if(_state.value.tutorial != null) {
+            // probably just recreating the view, the ViewModel is unimpressed
+            return
+        }
         val tutorial = tutorialsRepository.loadTutorial(tutorialName)!!
         val step = tutorial.steps[0]
         loadStep(tutorial, step)
