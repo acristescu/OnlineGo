@@ -15,10 +15,15 @@
     <color name="buttonDisabled">#66000000</color>
 
     <color name="stoneColorSeparator">#000000</color>
+    <color name="sectionHeader">#9b9b9b</color>
 
     <color name="statusBarColor">@color/colorPrimaryDark</color>
     <color name="headerPrimary">@color/colorPrimary</color>
     <color name="colorNavigation">@color/colorPrimaryDark</color>
+    <color name="colorNavigationUnselected">@color/colorTextSecondary</color>
+    <color name="cardBorder">#00FFFFFF</color>
+    <color name="roundButtonBorder">#FFFFFF</color>
+    <color name="roundButtonBackground">@color/colorAccent</color>
     <color name="headerPrimaryText">#FFFFFF</color>
     <color name="colorPrimary">#79b3e4</color>
     <color name="colorPrimaryLight">#E5F0FF</color>

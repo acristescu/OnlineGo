@@ -5,7 +5,7 @@ import android.content.Context
 import android.preference.PreferenceManager
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import android.view.LayoutInflater
-import io.zenandroid.onlinego.R
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import io.zenandroid.onlinego.data.model.ogs.Size
 import io.zenandroid.onlinego.data.model.ogs.Speed
 import io.zenandroid.onlinego.databinding.BottomSheetNewAutomatchBinding
@@ -70,6 +70,12 @@ class NewAutomatchChallengeBottomSheet(context: Context, private val onSearch: (
         }
         setCanceledOnTouchOutside(true)
         setCancelable(true)
+        setOnShowListener {
+            BottomSheetBehavior.from(findViewById(com.google.android.material.R.id.design_bottom_sheet)!!).apply {
+                state = BottomSheetBehavior.STATE_EXPANDED
+                skipCollapsed = true
+            }
+        }
     }
 
     private fun setInitialState() {

@@ -168,7 +168,7 @@ class BoardView : View {
     //
     // Size (in px) of the cell
     //
-    private var cellSize: Int = 0
+    private var cellSize: Float = 0f
     private var stoneSpacing = 0f
     private var candidateMove: Point? = null
     private var candidateType: StoneType? = null
@@ -263,8 +263,8 @@ class BoardView : View {
 
     private fun screenToBoardCoordinates(x: Float, y: Float): Point {
         return Point(
-                ((x - border).toInt() / cellSize).coerceIn(0, boardSize - 1),
-                ((y - border).toInt() / cellSize).coerceIn(0, boardSize - 1)
+                ((x - border) / cellSize).coerceIn(0f, boardSize - 1f).toInt(),
+                ((y - border) / cellSize).coerceIn(0f, boardSize - 1f).toInt()
         )
     }
 
@@ -277,12 +277,13 @@ class BoardView : View {
         val heightMode = MeasureSpec.getMode(heightMeasureSpec)
         val heightSize = MeasureSpec.getSize(heightMeasureSpec)
 
-        val size = if (widthMode == MeasureSpec.EXACTLY && widthSize > 0) {
-            widthSize
-        } else if (heightMode == MeasureSpec.EXACTLY && heightSize > 0) {
-            heightSize
-        } else {
-            if (widthSize < heightSize) widthSize else heightSize
+        val size = when {
+            widthMode == MeasureSpec.EXACTLY && widthSize > 0 -> widthSize
+            heightMode == MeasureSpec.EXACTLY && heightSize > 0 -> heightSize
+            widthSize != 0 && heightSize != 0 && widthSize < heightSize -> widthSize
+            widthSize != 0 && heightSize != 0 && widthSize >= heightSize -> heightSize
+            widthSize == 0 -> heightSize
+            else -> widthSize
         }
 
         val finalMeasureSpec = MeasureSpec.makeMeasureSpec(size, MeasureSpec.EXACTLY)
@@ -320,7 +321,7 @@ class BoardView : View {
             w - (w / this.boardSize.toFloat() * 1f).roundToInt()
         } else w
 
-        cellSize = usableWidth / this.boardSize
+        cellSize = usableWidth.toFloat() / this.boardSize
         linesPaint.strokeWidth = (cellSize / 35f).coerceAtMost(2f)
         linesHighlightPaint.strokeWidth = linesPaint.strokeWidth * 2
         decorationsPaint.strokeWidth = cellSize / 20f

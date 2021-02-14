@@ -65,16 +65,15 @@
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/white"
             app:cardElevation="0dp"
             app:cardCornerRadius="5dp"
             android:layout_marginTop="4dp"
+            app:cardBackgroundColor="@color/panelBackground"
             >
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:background="@color/panelBackground"
                 >
                 <TextView
                     android:id="@+id/notificationsButton"
@@ -115,7 +114,7 @@
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/white"
+            app:cardBackgroundColor="@color/panelBackground"
             app:cardElevation="0dp"
             app:cardCornerRadius="5dp"
             android:layout_marginTop="4dp"
@@ -153,7 +152,7 @@
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/white"
+            app:cardBackgroundColor="@color/panelBackground"
             app:cardElevation="0dp"
             app:cardCornerRadius="5dp"
             android:layout_marginTop="4dp"
@@ -201,7 +200,7 @@
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/white"
+            app:cardBackgroundColor="@color/panelBackground"
             app:cardElevation="0dp"
             app:cardCornerRadius="5dp"
             android:layout_marginTop="4dp"
@@ -238,7 +237,7 @@
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/white"
+            app:cardBackgroundColor="@color/panelBackground"
             app:cardElevation="0dp"
             app:cardCornerRadius="5dp"
             android:layout_marginTop="4dp"

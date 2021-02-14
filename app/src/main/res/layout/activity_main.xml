@@ -135,6 +135,11 @@
                     />
             </androidx.constraintlayout.widget.ConstraintLayout>
         </androidx.appcompat.widget.Toolbar>
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1px"
+            android:background="@color/cardBorder"
+            />
     </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.fragment.app.FragmentContainerView
@@ -164,6 +169,12 @@
         android:visibility="gone"
         />
 
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1px"
+        android:background="@color/cardBorder"
+        app:layout_constraintBottom_toTopOf="@id/bottomNavigation"
+        />
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomNavigation"
         android:layout_width="match_parent"
@@ -174,7 +185,7 @@
         app:elevation="4dp"
         app:menu="@menu/menu_main"
         app:labelVisibilityMode="labeled"
-        android:background="@color/colorTextBackground"
+        android:background="@color/dialogBackground"
         />
 
     <io.zenandroid.onlinego.ui.screens.newchallenge.NewChallengeView

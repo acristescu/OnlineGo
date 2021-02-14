@@ -1,15 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorText">#F3F3F3</color>
+    <color name="colorText">#F0F0F0</color>
     <color name="colorActionableText">#389FFF</color>
-    <color name="colorTextBackground">#151515</color>
-    <color name="colorTextSecondary">#BDBDBD</color>
+    <color name="colorTextBackground">#16151A</color>
+    <color name="colorTextSecondary">#F0F0F0</color>
+    <color name="sectionHeader">@color/colorText</color>
 
     <color name="loginBackground">@color/colorOffWhite</color>
     <color name="loginText">@color/colorText</color>
 
     <color name="statusBarColor">@color/colorOffWhite</color>
-    <color name="headerPrimary">#424242</color>
+    <color name="headerPrimary">#16151A</color>
     <color name="headerPrimaryText">@color/colorText</color>
 
     <color name="playerDetailsText">@color/colorText</color>
@@ -20,12 +21,15 @@
 
     <color name="stoneColorSeparator">@color/colorText</color>
     <color name="colorNavigation">@color/colorPrimary</color>
-
+    <color name="colorNavigationUnselected">@color/colorText</color>
+    <color name="cardBorder">#333333</color>
+    <color name="roundButtonBorder">#444444</color>
+    <color name="roundButtonBackground">#323038</color>
     <color name="colorPrimary">#389FFF</color>
     <color name="colorPrimaryLight">#0E71C8</color>
     <color name="colorPrimaryDark">#0E71C8</color> <!--//offWhite-->
     <color name="colorAccent">#389FFF</color>
-    <color name="colorOffWhite">#2C2C2C</color>
+    <color name="colorOffWhite">#000000</color>
 
     <color name="color_type_info">#79b3e4</color>
     <color name="color_type_help">#e8bd4b</color>

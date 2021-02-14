@@ -3,8 +3,9 @@ package io.zenandroid.onlinego.ui.screens.localai
 import android.content.Context
 import android.preference.PreferenceManager
 import android.view.LayoutInflater
-import io.zenandroid.onlinego.R
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
+import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.databinding.BottomSheetNewAiGameBinding
 
 private const val SIZE = "AI_GAME_SIZE"
@@ -46,6 +47,12 @@ class NewGameBottomSheet(context: Context, private val onOk: (Int, Boolean, Int)
 
         setCanceledOnTouchOutside(true)
         setCancelable(true)
+        setOnShowListener {
+            BottomSheetBehavior.from(findViewById(com.google.android.material.R.id.design_bottom_sheet)!!).apply {
+                state = BottomSheetBehavior.STATE_EXPANDED
+                skipCollapsed = true
+            }
+        }
     }
 
     private fun setInitialState() {
@@ -75,7 +82,7 @@ class NewGameBottomSheet(context: Context, private val onOk: (Int, Boolean, Int)
         }
         prefs.edit()
                 .putInt(SIZE, selectedSize)
-                .putInt(COLOR, if(binding.blackButton.isChecked) 0 else 1)
+                .putInt(COLOR, if (binding.blackButton.isChecked) 0 else 1)
                 .putFloat(HANDICAP, binding.handicapSlider.value)
                 .apply()
     }

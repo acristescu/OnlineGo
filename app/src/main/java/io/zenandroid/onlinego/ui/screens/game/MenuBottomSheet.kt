@@ -5,6 +5,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
 import androidx.recyclerview.widget.LinearLayoutManager
 import android.view.LayoutInflater
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.GroupieViewHolder
 import io.zenandroid.onlinego.R
@@ -31,5 +32,13 @@ class MenuBottomSheet(
             onSelect((item as MenuRecyclerItem).item)
          }
         groupAdapter.update(options.map(::MenuRecyclerItem))
+
+        setOnShowListener {
+            BottomSheetBehavior.from(findViewById(com.google.android.material.R.id.design_bottom_sheet)!!).apply {
+                state = BottomSheetBehavior.STATE_EXPANDED
+                skipCollapsed = true
+            }
+        }
+
     }
 }

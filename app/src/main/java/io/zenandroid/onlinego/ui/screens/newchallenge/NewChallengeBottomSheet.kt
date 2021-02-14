@@ -1,6 +1,7 @@
 package io.zenandroid.onlinego.ui.screens.newchallenge
 
 import android.app.Activity.RESULT_OK
+import android.app.Dialog
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -9,6 +10,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
@@ -98,6 +100,19 @@ class NewChallengeBottomSheet(
 
             isCancelable = true
         }
+    }
+
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        val dialog = super.onCreateDialog(savedInstanceState)
+
+        dialog.setOnShowListener {
+            BottomSheetBehavior.from(dialog.findViewById(com.google.android.material.R.id.design_bottom_sheet)!!).apply {
+                state = BottomSheetBehavior.STATE_EXPANDED
+                skipCollapsed = true
+            }
+        }
+
+        return dialog
     }
 
     private fun onSearchClicked() {
