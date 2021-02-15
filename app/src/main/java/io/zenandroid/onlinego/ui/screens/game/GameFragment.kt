@@ -14,6 +14,9 @@ import android.widget.Toast
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
+import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.awesomedialog.blennersilva.awesomedialoglibrary.AwesomeInfoDialog
 import com.jakewharton.rxbinding2.view.RxView
 import io.reactivex.Observable
@@ -31,6 +34,7 @@ import io.zenandroid.onlinego.data.model.local.Message
 import io.zenandroid.onlinego.data.model.local.Player
 import io.zenandroid.onlinego.databinding.FragmentGameBinding
 import io.zenandroid.onlinego.ui.items.statuschips.Chip
+import io.zenandroid.onlinego.ui.items.statuschips.ChipAdapter
 import io.zenandroid.onlinego.ui.screens.stats.PLAYER_ID
 import io.zenandroid.onlinego.utils.*
 import org.koin.android.ext.android.get
@@ -48,6 +52,10 @@ class GameFragment : Fragment(), GameContract.View {
     private val analytics = OnlineGoApplication.instance.analytics
     private val chatDialog: ChatDialog by lazy { ChatDialog() }
     private val gameInfoDialog: GameInfoDialog by lazy { GameInfoDialog() }
+
+    private val chatClicks: Observable<Any> by lazy { RxView.clicks(binding.chatButton!!) }
+    private val chipAdapter = ChipAdapter()
+    private var unreadCount = 0
 
     private lateinit var binding: FragmentGameBinding
 
@@ -216,6 +224,11 @@ class GameFragment : Fragment(), GameContract.View {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?) : View {
         binding = FragmentGameBinding.inflate(inflater, container, false)
+        binding.chipList.apply {
+            layoutManager = LinearLayoutManager(context, RecyclerView.HORIZONTAL, false)
+            adapter = chipAdapter
+        }
+        binding.backArrow.setOnClickListener { findNavController().navigateUp() }
         return binding.root
     }
 
@@ -319,11 +332,8 @@ class GameFragment : Fragment(), GameContract.View {
 
     override var title: String? = null
         set(value) {
-            (activity as? MainActivity)?.apply {
-                mainTitle = value
-                setLogoVisible(false)
-            }
             field = value
+            binding.titleView?.text = value
         }
 
     override var interactive: Boolean
@@ -439,7 +449,18 @@ class GameFragment : Fragment(), GameContract.View {
     }
 
     override fun setNewMessagesCount(count: Int) {
-        (activity as MainActivity).setNewMessagesCount(count)
+        if(count == 0) {
+            if(unreadCount != 0) {
+                binding.chatBadge?.fadeOut()?.subscribe()
+            }
+        } else {
+            if(unreadCount == 0) {
+                binding.chatBadge?.fadeIn()?.subscribe()
+            }
+            binding.chatBadge?.text = count.toString()
+        }
+
+        unreadCount = count
     }
 
     override var chatMyId: Long? = null
@@ -545,11 +566,11 @@ class GameFragment : Fragment(), GameContract.View {
     }
 
     override fun setLoading(loading: Boolean) {
-        (activity as? MainActivity)?.loading = loading
+        binding.progressBar?.showIf(loading)
     }
 
     override fun setChips(chips: List<Chip>) {
-        (activity as? MainActivity)?.setChips(chips)
+        chipAdapter.update(chips)
     }
 
     override fun showInfoDialog(title: String, contents: String) {

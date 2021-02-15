@@ -5,7 +5,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     app:cardCornerRadius="8dp"
-    app:cardBackgroundColor="@color/colorTextBackground"
+    app:cardBackgroundColor="@color/colorPrimary"
     app:cardElevation="0dp"
     android:layout_marginRight="4dp"
     android:id="@+id/card"
@@ -23,7 +23,7 @@
             android:id="@+id/text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@color/colorPrimary"
+            android:textColor="@color/colorTextBackground"
             tools:text="Finished"
             android:fontFamily="@font/ubuntu"
             android:textSize="10sp"
@@ -33,10 +33,10 @@
             android:layout_width="12dp"
             android:layout_height="12dp"
             android:src="@drawable/ic_question_mark"
-            android:tint="@color/colorPrimary"
             android:layout_gravity="center_vertical"
             android:layout_marginLeft="8dp"
             android:paddingTop="1dp"
+            app:tint="@color/colorTextBackground"
             />
     </LinearLayout>
 

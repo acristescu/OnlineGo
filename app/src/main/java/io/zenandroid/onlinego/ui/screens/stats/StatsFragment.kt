@@ -53,11 +53,6 @@ class StatsFragment : Fragment(), StatsContract.View {
 
     private lateinit var presenter: StatsContract.Presenter
     private var analytics = OnlineGoApplication.instance.analytics
-    override var title: String? = null
-        set(value) {
-            (requireActivity() as MainActivity).mainTitle = value
-            field = value
-        }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         binding = FragmentStatsBinding.inflate(inflater, container, false)

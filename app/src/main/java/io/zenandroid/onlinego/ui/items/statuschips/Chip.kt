@@ -1,10 +1,7 @@
 package io.zenandroid.onlinego.ui.items.statuschips
 
-import android.content.res.ColorStateList
 import android.view.View
-import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
-import androidx.core.content.ContextCompat
 import android.view.View.GONE
 import android.view.View.VISIBLE
 import com.xwray.groupie.viewbinding.BindableItem
@@ -14,18 +11,13 @@ import io.zenandroid.onlinego.databinding.ViewChipBinding
 open class Chip(
         var text: String,
         @DrawableRes val icon: Int? = null,
-        @ColorRes val bgColor: Int = R.color.white,
-        @ColorRes val fgColor: Int = R.color.headerPrimary,
         val onClick: (() -> Unit)? = null
 ) : BindableItem<ViewChipBinding>(text.hashCode().toLong()) {
     override fun bind(binding: ViewChipBinding, position: Int) {
         binding.text.text = text
-        binding.card.setCardBackgroundColor(ContextCompat.getColor(binding.icon.context, bgColor))
-        binding.text.setTextColor(ContextCompat.getColor(binding.icon.context, fgColor))
         icon?.let {
             binding.icon.visibility = VISIBLE
             binding.icon.setImageResource(it)
-            binding.icon.imageTintList = ColorStateList.valueOf(ContextCompat.getColor(binding.icon.context, fgColor))
         } ?: run { binding.icon.visibility = GONE }
 
     }

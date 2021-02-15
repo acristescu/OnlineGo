@@ -13,6 +13,7 @@ import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.jakewharton.rxbinding2.view.RxView
 import io.noties.markwon.AbstractMarkwonPlugin
@@ -57,6 +58,7 @@ class JosekiExplorerFragment : Fragment(), MviView<JosekiExplorerState, JosekiEx
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         binding = FragmentJosekiBinding.inflate(inflater, container, false)
+        binding.backArrow?.setOnClickListener { findNavController().navigateUp() }
         return binding.root
     }
 
@@ -126,11 +128,6 @@ class JosekiExplorerFragment : Fragment(), MviView<JosekiExplorerState, JosekiEx
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         PersistenceManager.visitedJosekiExplorer = true
-        (activity as? MainActivity)?.apply {
-            supportActionBar?.setDisplayHomeAsUpEnabled(true)
-            mainTitle = "Joseki Explorer"
-            setLogoVisible(false)
-        }
     }
 
     private fun buildMarkwon(): Markwon {

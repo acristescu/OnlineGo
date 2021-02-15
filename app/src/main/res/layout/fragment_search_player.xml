@@ -21,7 +21,6 @@
         app:mpb_progressStyle="horizontal"
         style="@style/Widget.MaterialProgressBar.ProgressBar.Horizontal"
         app:mpb_useIntrinsicPadding="false"
-        app:layout_constraintBottom_toBottomOf="@id/appbar"
         android:elevation="4dp"
         android:visibility="gone"
         />

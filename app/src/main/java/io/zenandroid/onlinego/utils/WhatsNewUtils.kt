@@ -19,9 +19,11 @@ object WhatsNewUtils {
 private const val currentText = """
 ## What's new
 
-- Enabled landscape mode. Please report any issues, particularly when switching orientation. 
-- Fixed a bug related to notifications.
-- Fixed a crash on old devices when using the tutorial.
+- Made the dark mode darker, as per your feedback
+- Reworked the toolbar in order to give it a more modern look (more to come)
+- Fixed a bug where the border of the game thumbnails was too large on some devices
+- Improved the landscape mode layouts to give more space to the game board
+- Made the bottom sheet dialogs appear expanded even in landscape mode
 
 ## About project
 

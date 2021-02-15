@@ -13,6 +13,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
@@ -31,6 +33,7 @@ import io.zenandroid.onlinego.data.model.local.Tutorial
 import io.zenandroid.onlinego.data.repositories.TutorialsRepository
 import io.zenandroid.onlinego.ui.screens.main.MainActivity
 import io.zenandroid.onlinego.ui.screens.tutorial.TUTORIAL_NAME
+import io.zenandroid.onlinego.ui.screens.tutorial.TutorialAction
 import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -71,12 +74,6 @@ class LearnFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         analytics.setCurrentScreen(requireActivity(), javaClass.simpleName, null)
-
-        (activity as? MainActivity)?.apply {
-            supportActionBar?.setDisplayHomeAsUpEnabled(false)
-            setLogoVisible(true)
-        }
-
     }
 }
 
@@ -84,26 +81,33 @@ class LearnFragment : Fragment() {
 @ExperimentalAnimationApi
 @Composable
 fun Screen(state: LearnState, listener: (LearnAction) -> Unit) {
-    ScrollableColumn(modifier = Modifier.padding(horizontal = 12.dp)) {
-        Section(title = "Tutorials") {
-            state.tutorialGroups?.forEach {
-                PrimaryRow(title = it.name, it.icon.resId) { listener(LearnAction.TutorialGroupClicked(it)) }
-                Column(modifier = Modifier.fillMaxWidth()) {
-                    AnimatedVisibility(visible = state.expandedTutorialGroup == it, initiallyVisible = false) {
-                        Column {
-                            for (tutorial in it.tutorials) {
-                                val completed = state.completedTutorialsNames?.contains(tutorial.name) == true
-                                SecondaryRow(tutorial, completed) {
-                                    listener.invoke(LearnAction.TutorialClicked(tutorial))
+    Column {
+        TopAppBar(
+            title = { Text(text = "Learn", style = MaterialTheme.typography.h1) },
+            elevation = 0.dp,
+            backgroundColor = MaterialTheme.colors.background
+        )
+        ScrollableColumn(modifier = Modifier.padding(horizontal = 12.dp)) {
+            Section(title = "Tutorials") {
+                state.tutorialGroups?.forEach {
+                    PrimaryRow(title = it.name, it.icon.resId) { listener(LearnAction.TutorialGroupClicked(it)) }
+                    Column(modifier = Modifier.fillMaxWidth()) {
+                        AnimatedVisibility(visible = state.expandedTutorialGroup == it, initiallyVisible = false) {
+                            Column {
+                                for (tutorial in it.tutorials) {
+                                    val completed = state.completedTutorialsNames?.contains(tutorial.name) == true
+                                    SecondaryRow(tutorial, completed) {
+                                        listener.invoke(LearnAction.TutorialClicked(tutorial))
+                                    }
                                 }
                             }
                         }
                     }
                 }
             }
-        }
-        Section(title = "Study") {
-            PrimaryRow(title = "Joseki explorer", R.drawable.ic_go_board) { listener(LearnAction.JosekiExplorerClicked) }
+            Section(title = "Study") {
+                PrimaryRow(title = "Joseki explorer", R.drawable.ic_go_board) { listener(LearnAction.JosekiExplorerClicked) }
+            }
         }
     }
 }

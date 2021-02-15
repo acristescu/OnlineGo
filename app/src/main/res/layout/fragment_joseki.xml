@@ -6,10 +6,37 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:background="@color/colorTextBackground">
 
+    <ImageView
+        android:id="@+id/backArrow"
+        android:layout_width="wrap_content"
+        android:layout_height="56dp"
+        android:src="@drawable/ic_arrow_back"
+        android:paddingHorizontal="10dp"
+        app:tint="@color/colorText"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:background="?android:selectableItemBackground"
+        />
+    <TextView
+        android:id="@+id/titleView"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:textColor="@color/colorText"
+        android:textSize="16sp"
+        android:fontFamily="sans-serif-medium"
+        android:layout_marginRight="18dp"
+        android:maxLines="1"
+        android:ellipsize="end"
+        app:layout_constraintLeft_toRightOf="@id/backArrow"
+        app:layout_constraintTop_toTopOf="@id/backArrow"
+        app:layout_constraintBottom_toBottomOf="@id/backArrow"
+        app:layout_constraintRight_toRightOf="parent"
+        android:text="Joseki Explorer"
+        />
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/backArrow"
         app:layout_constraintBottom_toTopOf="@id/board_container"
         android:layout_margin="8dp"
         >

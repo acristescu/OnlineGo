@@ -28,7 +28,6 @@ class StatsPresenter(
     private var highestWin: Glicko2HistoryItem? = null
 
     override fun subscribe() {
-        view.title = ""
         restService.getPlayerProfile(playerId)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())

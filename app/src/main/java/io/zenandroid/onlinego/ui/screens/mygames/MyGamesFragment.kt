@@ -25,6 +25,7 @@ import io.zenandroid.onlinego.ui.items.*
 import io.zenandroid.onlinego.ui.screens.game.GAME_ID
 import io.zenandroid.onlinego.ui.screens.game.GAME_SIZE
 import io.zenandroid.onlinego.ui.screens.whatsnew.WhatsNewDialog
+import io.zenandroid.onlinego.utils.showIf
 import org.koin.android.ext.android.get
 
 /**
@@ -137,13 +138,6 @@ class MyGamesFragment : Fragment(), MyGamesContract.View {
     override fun onResume() {
         super.onResume()
         analytics.setCurrentScreen(requireActivity(), javaClass.simpleName, null)
-        (activity as? AppCompatActivity)?.supportActionBar?.apply {
-            setDisplayHomeAsUpEnabled(false)
-        }
-
-        (activity as? MainActivity)?.apply {
-            setLogoVisible(true)
-        }
         presenter.subscribe()
     }
 
@@ -165,7 +159,7 @@ class MyGamesFragment : Fragment(), MyGamesContract.View {
     }
 
     override fun setLoading(loading: Boolean) {
-        (activity as? MainActivity)?.loading = loading
+        binding.progressBar.showIf(loading)
     }
 
     override fun appendHistoricGames(games: List<Game>) {

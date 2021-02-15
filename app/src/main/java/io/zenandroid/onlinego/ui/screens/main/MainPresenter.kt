@@ -26,13 +26,10 @@ class MainPresenter (
         private val restService: OGSRestService,
         private val socketService: OGSWebSocketService,
         private val userSessionRepository: UserSessionRepository,
-        private val automatchRepository: AutomatchRepository,
-        private val activeGameRepository: ActiveGamesRepository
+        private val automatchRepository: AutomatchRepository
 ) : MainContract.Presenter {
 
     private val subscriptions = CompositeDisposable()
-    private var lastGameNotified: Game? = null
-    private var lastMoveCount: Int? = null
 
     override fun subscribe() {
         if(userSessionRepository.isLoggedIn()) {
@@ -42,60 +39,15 @@ class MainPresenter (
             view.showLogin()
         }
 
-        activeGameRepository.myMoveCountObservable
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(this::onMyMoveCountChanged)
-                .addToDisposable(subscriptions)
         Observable.interval(10, TimeUnit.SECONDS).subscribe {
             socketService.ensureSocketConnected()
         }.addToDisposable(subscriptions)
 
-//        activeGameRepository.subscribe()
-    }
-
-    private fun onMyMoveCountChanged(myMoveCount: Int) {
-        if (myMoveCount == 0) {
-            view.notificationsButtonEnabled = false
-            view.notificationsBadgeVisible = false
-            view.cancelNotification()
-        } else {
-//            val sortedMyTurnGames = activeGameRepository.myTurnGamesList.sortedWith(compareBy { it.id })
-            view.notificationsButtonEnabled = true
-            view.notificationsBadgeVisible = true
-            view.notificationsBadgeCount = myMoveCount.toString()
-//            view.updateNotification(sortedMyTurnGames)
-            lastMoveCount?.let {
-                if(myMoveCount > it) {
-                    view.vibrate()
-                }
-            }
-        }
-        lastMoveCount = myMoveCount
     }
 
     override fun unsubscribe() {
         subscriptions.clear()
         socketService.disconnect()
-    }
-
-    override fun onNotificationClicked() {
-        val gamesList = activeGameRepository.myTurnGamesList
-        if(gamesList.isEmpty()) {
-            FirebaseCrashlytics.getInstance().log("Notification clicked while no games available")
-            return
-        }
-        val gameToNavigate = if(lastGameNotified == null) {
-            gamesList[0]
-        } else {
-            val index = gamesList.indexOfFirst { it.id == lastGameNotified?.id }
-            if(index == -1) {
-                gamesList[0]
-            } else {
-                gamesList[(index + 1) % gamesList.size]
-            }
-        }
-        lastGameNotified = gameToNavigate
-        view.navigateToGameScreen(gameToNavigate)
     }
 
     override fun onStartSearch(sizes: List<Size>, speed: Speed) {
