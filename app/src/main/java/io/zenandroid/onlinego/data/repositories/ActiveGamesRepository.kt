@@ -197,7 +197,7 @@ class ActiveGamesRepository(
                 playerToMoveId = gameData.clock?.current_player,
                 initialState = gameData.initial_state,
                 whiteGoesFirst = gameData.initial_player == "white",
-                moves = gameData.moves.map { mutableListOf(it[0].toInt(), it[1].toInt()) }.toMutableList(),
+                moves = gameData.moves.map { mutableListOf((it[0] as Double).toInt(), (it[1] as Double).toInt()) }.toMutableList(),
                 removedStones = gameData.removed,
                 whiteScore = gameData.score?.white,
                 blackScore = gameData.score?.black,

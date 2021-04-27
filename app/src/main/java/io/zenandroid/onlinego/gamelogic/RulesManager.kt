@@ -177,7 +177,7 @@ object RulesManager {
             if(index >= limit) {
                 return@forEachIndexed
             }
-            val newPos = RulesManager.makeMove(pos, turn, Point(move[0].toInt(), move[1].toInt()))
+            val newPos = RulesManager.makeMove(pos, turn, Point((move[0] as Double).toInt(), (move[1] as Double).toInt()))
             if(newPos == null) {
                 Log.e(this.javaClass.simpleName, "Server returned an invalid move!!! gameId=${gameData.game_id} move=$index")
                 return@forEachIndexed

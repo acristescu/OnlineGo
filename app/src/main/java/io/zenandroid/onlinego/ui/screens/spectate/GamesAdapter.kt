@@ -36,7 +36,7 @@ abstract class GamesAdapter<T : RecyclerView.ViewHolder> : RecyclerView.Adapter<
     fun doMove(id: Long, move: Move) {
         gameDataMap[id]?.let { gameData ->
             // TODO maybe change this to something better
-            gameData.moves.add(move.move)
+            gameData.moves.add(move.move.map { it }.toMutableList())
         }
         notifyItemChanged(gameList.indexOfFirst { it.id == id })
     }

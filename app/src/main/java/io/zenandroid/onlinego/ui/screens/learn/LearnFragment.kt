@@ -142,7 +142,7 @@ fun PrimaryRow(title: String, @DrawableRes icon: Int, onClick: () -> Unit) {
             .fillMaxWidth()
             .padding(start = 24.dp, top = 8.dp, bottom = 8.dp)
     ) {
-        Icon(painterResource(icon))
+        Icon(painter = painterResource(icon), contentDescription = null)
         Text(title, style = MaterialTheme.typography.body2, modifier = Modifier
                 .padding(start = 24.dp)
                 .align(Alignment.CenterVertically))
@@ -157,9 +157,9 @@ fun SecondaryRow(tutorial: Tutorial, completed: Boolean, onClick: () -> Unit) {
             .padding(start = 72.dp, top = 8.dp, bottom = 8.dp)
     ) {
         if(completed) {
-            Image(painterResource(R.drawable.ic_checked_square), modifier = Modifier.align(Alignment.CenterVertically))
+            Image(painter = painterResource(R.drawable.ic_checked_square), modifier = Modifier.align(Alignment.CenterVertically), contentDescription = null)
         } else {
-            Image(painterResource(R.drawable.ic_unchecked_square), modifier = Modifier.align(Alignment.CenterVertically))
+            Image(painter = painterResource(R.drawable.ic_unchecked_square), modifier = Modifier.align(Alignment.CenterVertically), contentDescription = null)
         }
         Text(tutorial.name, style = MaterialTheme.typography.body2, modifier = Modifier
                 .padding(start = 24.dp)

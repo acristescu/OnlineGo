@@ -25,7 +25,7 @@ data class GameData (
         var game_name: String? = null,
         var phase: Phase,
         var initial_player: String? = null,
-        var moves: MutableList<MutableList<Long>>,
+        var moves: MutableList<MutableList<Any?>>,
         var allow_self_capture: Boolean? = null,
         var automatic_stone_removal: Boolean? = null,
         var free_handicap_placement: Boolean? = null,

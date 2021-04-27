@@ -112,7 +112,7 @@ fun TutorialScreen(state: TutorialState, listener: (TutorialAction) -> Unit) {
                 elevation = 1.dp,
                 navigationIcon = {
                     IconButton(onClick = { listener.invoke(BackArrowPressed) }) {
-                        Icon(imageVector = Icons.Default.ArrowBack)
+                        Icon(imageVector = Icons.Default.ArrowBack, contentDescription = null)
                     }
                 },
                 backgroundColor = MaterialTheme.colors.surface
@@ -192,7 +192,7 @@ private fun ButtonBar(state: TutorialState, listener: (TutorialAction) -> Unit) 
                         .padding(horizontal = 12.dp, vertical = 16.dp)) {
             if (state.retryButtonVisible) {
                 OutlinedButton(onClick = { listener.invoke(RetryPressed) }, modifier = Modifier.weight(1f)) {
-                    Icon(imageVector = Icons.Filled.Refresh, tint = MaterialTheme.colors.onSurface, modifier = Modifier.size(16.dp))
+                    Icon(imageVector = Icons.Filled.Refresh, tint = MaterialTheme.colors.onSurface, modifier = Modifier.size(16.dp), contentDescription = null)
                     Text(text = "RETRY", color = MaterialTheme.colors.onSurface, modifier = Modifier.padding(start = 8.dp))
                 }
             }
@@ -239,14 +239,15 @@ private fun Snackbar(visible: Boolean, text: String, button: String, @DrawableRe
                 border = BorderStroke(width = .5.dp, Color.LightGray),
                 shape = MaterialTheme.shapes.medium,
                 modifier = Modifier
-                        .clickable(onClick = {}, indication = null)
+                        .clickable(onClick = {})
                         .padding(horizontal = 8.dp, vertical = 4.dp)
         ) {
             Row(modifier = Modifier.fillMaxWidth()) {
                 Image(painter = painterResource(icon),
                         modifier = Modifier
                                 .align(Alignment.CenterVertically)
-                                .padding(start = 18.dp)
+                                .padding(start = 18.dp),
+                    contentDescription = null
                 )
                 Text(text = text,
                         modifier = Modifier
