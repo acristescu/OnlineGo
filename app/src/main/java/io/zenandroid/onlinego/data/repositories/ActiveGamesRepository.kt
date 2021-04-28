@@ -210,7 +210,7 @@ class ActiveGamesRepository(
     }
 
     private fun onGameMove(gameId: Long, move: Move) {
-        gameDao.addMoveToGame(gameId, move.move_number, mutableListOf(move.move[0].toInt(), move.move[1].toInt()))
+        gameDao.addMoveToGame(gameId, move.move_number, mutableListOf((move.move[0] as Double).toInt(), (move.move[1] as Double).toInt()))
     }
 
     @Synchronized

@@ -305,7 +305,7 @@ data class TimeControl (
 data class Move(
         val game_id: Long,
         val move_number: Int,
-        val move: MutableList<Long>
+        val move: MutableList<Any?>
 )
 
 //{"removed":true,"stones":"cidadfdgdieaeceifafhfighgihfhghhhiifigihii","all_removed":"daeafaecdfhfifdghgigfhghhhihcidieifigihiii"}
