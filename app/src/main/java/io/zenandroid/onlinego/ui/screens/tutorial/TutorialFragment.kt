@@ -35,8 +35,8 @@ import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.platform.AmbientConfiguration
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -45,6 +45,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.graphics.withSave
 import androidx.lifecycle.asLiveData
@@ -119,14 +120,14 @@ fun TutorialScreen(state: TutorialState, listener: (TutorialAction) -> Unit) {
         )
 
         state.step?.let {
-            when(AmbientConfiguration.current.orientation) {
+            when(LocalConfiguration.current.orientation) {
                 Configuration.ORIENTATION_LANDSCAPE -> {
                     Row {
                         Column(modifier = Modifier.weight(1f)) {
                             Description(
                                     modifier = Modifier
-                                            .weight(1f)
-                                            .padding(start = 16.dp, end = 16.dp, top = 8.dp),
+                                        .weight(1f)
+                                        .padding(start = 16.dp, end = 16.dp, top = 8.dp),
                                     state = state
                             )
                             ButtonBar(state, listener)
@@ -171,11 +172,11 @@ private fun Board(state: TutorialState, listener: (TutorialAction) -> Unit) {
 
 @Composable
 private fun Description(modifier: Modifier = Modifier, state: TutorialState) {
-    ScrollableColumn(modifier = modifier) {
+    Column(modifier = modifier.verticalScroll(rememberScrollState())) {
         Text(text = state.text ?: "",
                 textAlign = TextAlign.Center,
                 style = MaterialTheme.typography.body2,
-                fontSize = TextUnit(18),
+                fontSize = 18.sp,
                 color = MaterialTheme.colors.onSurface,
                 modifier = Modifier.fillMaxWidth()
         )
@@ -227,9 +228,8 @@ private fun ButtonBar(state: TutorialState, listener: (TutorialAction) -> Unit) 
 @ExperimentalAnimationApi
 @Composable
 private fun Snackbar(visible: Boolean, text: String, button: String, @DrawableRes icon: Int, tint: Color, modifier: Modifier = Modifier, listener: () -> Unit) {
-    ColumnScope.AnimatedVisibility(
+    AnimatedVisibility(
             visible = visible,
-            initiallyVisible = false,
             enter = fadeIn() + slideInVertically(initialOffsetY = { it }),
             exit = fadeOut() + slideOutVertically(targetOffsetY = { it }),
             modifier = modifier,

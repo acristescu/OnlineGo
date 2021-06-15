@@ -160,7 +160,7 @@ class FinishedGamesRepository(
     }
 
     private fun onHistoricGames(games: List<Game>) {
-        val oldestGame = games.minBy { it.ended ?: Long.MAX_VALUE }
+        val oldestGame = games.minByOrNull { it.ended ?: Long.MAX_VALUE }
         val newOldestDate = when {
             oldestGameFetchedEndedAt == null -> {
                 oldestGame?.ended
@@ -173,7 +173,7 @@ class FinishedGamesRepository(
             }
         }
 
-        val newestGame = games.maxBy { it.ended ?: Long.MIN_VALUE }
+        val newestGame = games.maxByOrNull { it.ended ?: Long.MIN_VALUE }
         val newNewestDate = when {
             newestGameFetchedEndedAt == null -> {
                 newestGame?.ended

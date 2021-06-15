@@ -60,7 +60,7 @@ fun Board(
     val drawShadow = true
     val drawMarks = true
     val fadeOutRemovedStones = true
-    val background: ImageBitmap = imageResource(id = R.mipmap.texture)
+    val background: ImageBitmap = ImageBitmap.imageResource(id = R.mipmap.texture)
 
     var width by remember { mutableStateOf(0) }
     val measurements = remember(width, boardSize) { doMeasurements(width, boardSize, drawCoordinates) }

@@ -47,7 +47,7 @@ class StatsPresenter(
 
     private fun fillPlayerStats(history: Glicko2History) {
 
-        history.history.maxBy { it.rating }?.let {
+        history.history.maxByOrNull { it.rating }?.let {
             view.fillHighestRank(it.rating, it.ended)
         }
 
@@ -97,7 +97,7 @@ class StatsPresenter(
         val mostFacedId = history.history
                 .groupingBy { it.opponentId }
                 .eachCount()
-                .maxBy { it.value }
+                .maxByOrNull { it.value }
                 ?.key
 
         if(mostFacedId != null) {
@@ -117,7 +117,7 @@ class StatsPresenter(
         highestWin = history.history
                 .filter { it.won }
                 .filter { it.opponentDeviation < 100 } // excludes provisional players
-                .maxBy { it.opponentRating }
+                .maxByOrNull { it.opponentRating }
 
         highestWin?.let { winningGame ->
             restService.getPlayerProfile(winningGame.opponentId)

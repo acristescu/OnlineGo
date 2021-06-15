@@ -87,12 +87,12 @@ fun Screen(state: LearnState, listener: (LearnAction) -> Unit) {
             elevation = 0.dp,
             backgroundColor = MaterialTheme.colors.background
         )
-        ScrollableColumn(modifier = Modifier.padding(horizontal = 12.dp)) {
+        Column(modifier = Modifier.verticalScroll(rememberScrollState()).padding(horizontal = 12.dp)) {
             Section(title = "Tutorials") {
                 state.tutorialGroups?.forEach {
                     PrimaryRow(title = it.name, it.icon.resId) { listener(LearnAction.TutorialGroupClicked(it)) }
                     Column(modifier = Modifier.fillMaxWidth()) {
-                        AnimatedVisibility(visible = state.expandedTutorialGroup == it, initiallyVisible = false) {
+                        AnimatedVisibility(visible = state.expandedTutorialGroup == it) {
                             Column {
                                 for (tutorial in it.tutorials) {
                                     val completed = state.completedTutorialsNames?.contains(tutorial.name) == true
