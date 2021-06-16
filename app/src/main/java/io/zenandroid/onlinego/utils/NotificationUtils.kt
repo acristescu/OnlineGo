@@ -29,7 +29,7 @@ import io.zenandroid.onlinego.ui.screens.game.GAME_ID
 import io.zenandroid.onlinego.ui.screens.game.GAME_SIZE
 import io.zenandroid.onlinego.ui.screens.main.MainActivity
 import io.zenandroid.onlinego.ui.views.BoardView
-import org.koin.core.context.KoinContextHandler.get
+import org.koin.core.context.GlobalContext.get
 
 
 /**

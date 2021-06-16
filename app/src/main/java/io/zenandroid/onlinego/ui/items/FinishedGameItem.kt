@@ -11,7 +11,7 @@ import io.zenandroid.onlinego.gamelogic.Util.getCurrentUserId
 import io.zenandroid.onlinego.utils.egfToRank
 import io.zenandroid.onlinego.utils.formatRank
 import io.zenandroid.onlinego.utils.showIf
-import org.koin.core.context.KoinContextHandler.get
+import org.koin.core.context.GlobalContext.get
 
 class FinishedGameItem (val game: Game) : BindableItem<ItemFinishedGameCardBinding>(game.id) {
     private val settingsRepository: SettingsRepository = get().get()

@@ -4,7 +4,7 @@ import io.reactivex.Observable
 import io.reactivex.schedulers.Schedulers
 import io.zenandroid.onlinego.mvi.Middleware
 import io.zenandroid.onlinego.data.repositories.PlayersRepository
-import org.koin.core.context.KoinContextHandler.get
+import org.koin.core.context.GlobalContext.get
 
 class SearchMiddleware(
         private val playersRepository: PlayersRepository

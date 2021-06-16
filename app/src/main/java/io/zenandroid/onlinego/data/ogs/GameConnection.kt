@@ -22,7 +22,7 @@ import io.zenandroid.onlinego.data.repositories.ChatRepository
 import io.zenandroid.onlinego.data.repositories.UserSessionRepository
 import io.zenandroid.onlinego.gamelogic.Util.getCurrentUserId
 import io.zenandroid.onlinego.utils.createJsonObject
-import org.koin.core.context.KoinContextHandler.get
+import org.koin.core.context.GlobalContext.get
 import java.io.Closeable
 
 private const val TAG = "GameConnection"

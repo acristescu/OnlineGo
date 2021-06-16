@@ -5,7 +5,7 @@ import io.zenandroid.onlinego.data.model.Position
 import io.zenandroid.onlinego.data.repositories.ActiveGamesRepository
 import io.zenandroid.onlinego.gamelogic.RulesManager
 import io.zenandroid.onlinego.ui.screens.joseki.JosekiExplorerAction
-import org.koin.core.context.KoinContextHandler.get
+import org.koin.core.context.GlobalContext.get
 
 data class AiGameState(
         val engineStarted: Boolean = false,

@@ -18,7 +18,7 @@ import io.zenandroid.onlinego.data.repositories.UserSessionRepository
 import io.zenandroid.onlinego.utils.NotificationUtils
 import io.zenandroid.onlinego.utils.NotificationUtils.Companion.notifyGames
 import io.zenandroid.onlinego.utils.NotificationUtils.Companion.notifyChallenges
-import org.koin.core.context.KoinContextHandler.get
+import org.koin.core.context.GlobalContext.get
 import retrofit2.HttpException
 import java.net.ConnectException
 import java.net.SocketTimeoutException

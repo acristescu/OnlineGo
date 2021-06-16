@@ -23,7 +23,7 @@ import io.zenandroid.onlinego.utils.createJsonArray
 import io.zenandroid.onlinego.utils.createJsonObject
 import okhttp3.OkHttpClient
 import org.json.JSONObject
-import org.koin.core.context.KoinContextHandler.get
+import org.koin.core.context.GlobalContext.get
 import java.util.*
 import java.util.logging.Level
 import java.util.logging.Logger

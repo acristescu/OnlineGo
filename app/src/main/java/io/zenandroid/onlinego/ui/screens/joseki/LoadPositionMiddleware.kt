@@ -5,7 +5,7 @@ import io.reactivex.schedulers.Schedulers
 import io.zenandroid.onlinego.ui.screens.joseki.JosekiExplorerAction.*
 import io.zenandroid.onlinego.mvi.Middleware
 import io.zenandroid.onlinego.data.repositories.JosekiRepository
-import org.koin.core.context.KoinContextHandler.get
+import org.koin.core.context.GlobalContext.get
 import org.koin.java.KoinJavaComponent.inject
 
 class LoadPositionMiddleware(

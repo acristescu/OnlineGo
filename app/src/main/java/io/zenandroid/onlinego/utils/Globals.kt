@@ -9,7 +9,7 @@ import io.zenandroid.onlinego.data.ogs.TimeControl
 import io.zenandroid.onlinego.data.repositories.ClockDriftRepository
 import org.json.JSONArray
 import org.json.JSONObject
-import org.koin.core.context.KoinContextHandler.get
+import org.koin.core.context.GlobalContext.get
 import org.threeten.bp.Instant
 import org.threeten.bp.ZoneId
 import org.threeten.bp.format.DateTimeFormatter

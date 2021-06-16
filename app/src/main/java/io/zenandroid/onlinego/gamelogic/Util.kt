@@ -7,7 +7,7 @@ import io.zenandroid.onlinego.data.model.local.Game
 import io.zenandroid.onlinego.data.model.ogs.OGSGame
 import io.zenandroid.onlinego.data.repositories.UserSessionRepository
 import okhttp3.internal.toImmutableList
-import org.koin.core.context.KoinContextHandler.get
+import org.koin.core.context.GlobalContext.get
 import kotlin.math.min
 import kotlin.math.max
 import java.util.*

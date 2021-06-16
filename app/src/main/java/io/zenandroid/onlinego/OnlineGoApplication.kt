@@ -19,7 +19,7 @@ import io.zenandroid.onlinego.di.*
 import io.zenandroid.onlinego.ui.views.BoardView
 import org.koin.android.ext.koin.androidContext
 import io.zenandroid.onlinego.data.repositories.SettingsRepository
-import org.koin.core.context.KoinContextHandler
+import org.koin.core.context.GlobalContext
 import org.koin.core.context.startKoin
 import java.io.IOException
 import java.net.SocketException
@@ -74,7 +74,7 @@ class OnlineGoApplication : Application() {
             Log.w("OnlineGoApplication", "Undeliverable exception received, not sure what to do", e)
         }
 
-        val settingsRepository: SettingsRepository = KoinContextHandler.get().get()
+        val settingsRepository: SettingsRepository = GlobalContext.get().get()
         when (settingsRepository.appTheme) {
             "Light" -> {
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)

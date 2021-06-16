@@ -10,7 +10,7 @@ import io.zenandroid.onlinego.data.ogs.OGSWebSocketService
 import io.zenandroid.onlinego.notifications.SynchronizeGamesWork
 import io.zenandroid.onlinego.utils.PersistenceManager
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
-import org.koin.core.context.KoinContextHandler.get
+import org.koin.core.context.GlobalContext.get
 
 class UserSessionRepository {
     // Note: Can't use constructor injection here because it will create a dependency loop and
