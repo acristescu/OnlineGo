@@ -9,6 +9,13 @@ import android.view.LayoutInflater
 import android.widget.FrameLayout
 import androidx.core.content.ContextCompat.getSystemService
 import androidx.core.os.bundleOf
+import androidx.core.view.isGone
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.findViewTreeLifecycleOwner
+import androidx.lifecycle.get
 import androidx.navigation.NavOptions
 import androidx.navigation.findNavController
 import com.google.firebase.crashlytics.FirebaseCrashlytics
@@ -24,6 +31,9 @@ import io.zenandroid.onlinego.ui.screens.game.GAME_ID
 import io.zenandroid.onlinego.ui.screens.game.GAME_SIZE
 import io.zenandroid.onlinego.utils.NotificationUtils
 import io.zenandroid.onlinego.utils.addToDisposable
+import io.zenandroid.onlinego.utils.hide
+import io.zenandroid.onlinego.utils.show
+import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.context.GlobalContext.get
 
 class GameNotificationsButton: FrameLayout {
@@ -31,26 +41,11 @@ class GameNotificationsButton: FrameLayout {
     private val binding: ViewGameNotificationsButtonBinding
 
     private val analytics = OnlineGoApplication.instance.analytics
-    private val activeGameRepository: ActiveGamesRepository = get().get()
     private val settingsRepository: SettingsRepository = get().get()
 
-    private var lastGameNotified: Game? = null
+    private var viewModel: GameNotificationsButtonViewModel? = null
+
     private var lastMoveCount: Int? = null
-    private val subscriptions = CompositeDisposable()
-
-    private var notificationsButtonEnabled: Boolean
-        get() = binding.notificationsButton.isEnabled
-        set(value) {
-            binding.notificationsButton.isEnabled = value
-            val targetAlpha = if(value) 1f else .33f
-            binding.notificationsButton.animate().alpha(targetAlpha)
-        }
-    private var notificationsBadgeVisible: Boolean
-        get() { return binding.badge.alpha == 1f }
-        set(value) { binding.badge.animate().alpha(if(value) 1f else 0f) }
-
-    private var notificationsBadgeCount: String? = null
-        set(value) { binding.badge.text = value }
 
 
     constructor(context: Context) : this(context, null)
@@ -64,23 +59,7 @@ class GameNotificationsButton: FrameLayout {
 
     private fun onNotificationClicked() {
         analytics.logEvent("my_move_clicked", null)
-        val gamesList = activeGameRepository.myTurnGamesList
-        if(gamesList.isEmpty()) {
-            FirebaseCrashlytics.getInstance().log("Notification clicked while no games available")
-            return
-        }
-        val gameToNavigate = if(lastGameNotified == null) {
-            gamesList[0]
-        } else {
-            val index = gamesList.indexOfFirst { it.id == lastGameNotified?.id }
-            if(index == -1) {
-                gamesList[0]
-            } else {
-                gamesList[(index + 1) % gamesList.size]
-            }
-        }
-        lastGameNotified = gameToNavigate
-        navigateToGameScreen(gameToNavigate)
+        viewModel?.onNotificationClicked()
     }
 
     private fun navigateToGameScreen(game: Game) {
@@ -94,23 +73,23 @@ class GameNotificationsButton: FrameLayout {
             )
     }
 
-    override fun onAttachedToWindow() {
-        super.onAttachedToWindow()
-        activeGameRepository.myMoveCountObservable
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(this::onMyMoveCountChanged)
-            .addToDisposable(subscriptions)
-    }
-
     private fun onMyMoveCountChanged(myMoveCount: Int) {
         if (myMoveCount == 0) {
-            notificationsButtonEnabled = false
-            notificationsBadgeVisible = false
-            NotificationUtils.cancelNotification(context)
+            binding.notificationsButton.apply {
+                isEnabled = false
+                alpha = .33f
+            }
+            binding.badge.alpha = 0f
+            NotificationUtils.cancelNotification()
         } else {
-            notificationsButtonEnabled = true
-            notificationsBadgeVisible = true
-            notificationsBadgeCount = myMoveCount.toString()
+            binding.notificationsButton.apply {
+                isEnabled = true
+                alpha = 1f
+            }
+            binding.badge.apply {
+                alpha = 1f
+                text = myMoveCount.toString()
+            }
             lastMoveCount?.let {
                 if(myMoveCount > it) {
                     vibrate()
@@ -120,9 +99,20 @@ class GameNotificationsButton: FrameLayout {
         lastMoveCount = myMoveCount
     }
 
-    override fun onDetachedFromWindow() {
-        subscriptions.clear()
-        super.onDetachedFromWindow()
+
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+        viewModel = ViewModelProvider(FragmentManager.findFragment<Fragment>(this).requireActivity(), object:
+            ViewModelProvider.Factory {
+            override fun <T : ViewModel?> create(modelClass: Class<T>): T {
+                return GameNotificationsButtonViewModel(get().get()) as T
+            }
+        }).get()
+        viewModel?.apply {
+            gamesCount.value?.let { onMyMoveCountChanged(it) }
+            gamesCount.observe(findViewTreeLifecycleOwner()!!, ::onMyMoveCountChanged)
+            navigateToGame.observe(findViewTreeLifecycleOwner()!!, ::navigateToGameScreen)
+        }
     }
 
     private fun vibrate() {

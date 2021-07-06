@@ -14,6 +14,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.runtime.*
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.*
@@ -43,6 +44,7 @@ private val whiteStone = VectorDrawableCompat.create(OnlineGoApplication.instanc
 private val blackStone = VectorDrawableCompat.create(OnlineGoApplication.instance.resources, R.drawable.ic_stone_black_svg, null)!!
 private val shadowDrawable = ResourcesCompat.getDrawable(OnlineGoApplication.instance.resources, R.drawable.gradient_shadow, null)!!
 
+@ExperimentalComposeUiApi
 @Composable
 fun Board(
         modifier: Modifier = Modifier,

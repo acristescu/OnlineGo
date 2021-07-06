@@ -23,6 +23,7 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
@@ -71,6 +72,7 @@ class TutorialFragment : Fragment() {
 
     private val viewModel: TutorialViewModel by viewModel()
 
+    @ExperimentalComposeUiApi
     @ExperimentalAnimationApi
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
@@ -103,6 +105,7 @@ class TutorialFragment : Fragment() {
     }
 }
 
+@ExperimentalComposeUiApi
 @ExperimentalAnimationApi
 @Composable
 fun TutorialScreen(state: TutorialState, listener: (TutorialAction) -> Unit) {
@@ -154,6 +157,7 @@ fun TutorialScreen(state: TutorialState, listener: (TutorialAction) -> Unit) {
     }
 }
 
+@ExperimentalComposeUiApi
 @Composable
 private fun Board(state: TutorialState, listener: (TutorialAction) -> Unit) {
     Board(
@@ -265,6 +269,7 @@ private fun Snackbar(visible: Boolean, text: String, button: String, @DrawableRe
     }
 }
 
+@ExperimentalComposeUiApi
 @ExperimentalAnimationApi
 @Preview
 @Composable

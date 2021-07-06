@@ -19,7 +19,9 @@ object WhatsNewUtils {
 private const val currentText = """
 ## What's new
 
-- Fixed a bug that was introduced by a change in the OGS API
+- Fixed a bug that prevented the game notification button (top right on most screens) from cycling through available games
+- Fixed a bug that caused the notification button's badge to flicker while changing screens
+- Fixed a bug on high DPI devices where the tutorials could not be clicked correctly
 
 ## About project
 

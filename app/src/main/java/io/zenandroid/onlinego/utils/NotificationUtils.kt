@@ -40,8 +40,8 @@ class NotificationUtils {
         const val NOTIFICATION_ID = 0
         val TAG = NotificationUtils::class.java.simpleName
 
-        fun cancelNotification(context: Context) {
-            val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        fun cancelNotification() {
+            val notificationManager = OnlineGoApplication.instance.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             notificationManager.cancelAll()
         }
 

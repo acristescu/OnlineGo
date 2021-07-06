@@ -6,7 +6,7 @@ apply plugin: 'com.google.firebase.crashlytics'
 apply plugin: 'koin'
 
 android {
-    compileSdkVersion 29
+    compileSdkVersion 30
     ndkVersion "21.0.6113669"
     defaultConfig {
         applicationId "io.zenandroid.onlinego"
@@ -41,7 +41,6 @@ android {
     }
     composeOptions {
         kotlinCompilerExtensionVersion compose_version
-        kotlinCompilerVersion kotlin_version
     }
     externalNativeBuild {
         cmake {
