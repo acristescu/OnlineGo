@@ -13,6 +13,7 @@ interface MainContract {
         fun showError(msg: String?)
         fun navigateToGameScreen(game: Game)
         fun showLogin()
+        fun showMyGames()
     }
     interface Presenter {
         fun subscribe()

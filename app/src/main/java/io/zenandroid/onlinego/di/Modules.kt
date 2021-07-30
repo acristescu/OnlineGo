@@ -20,6 +20,7 @@ import io.zenandroid.onlinego.ui.screens.newchallenge.selectopponent.searchplaye
 import io.zenandroid.onlinego.ui.screens.newchallenge.selectopponent.searchplayer.SearchPlayerReducer
 import io.zenandroid.onlinego.ui.screens.newchallenge.selectopponent.searchplayer.SearchPlayerState
 import io.zenandroid.onlinego.ui.screens.newchallenge.selectopponent.searchplayer.SearchPlayerViewModel
+import io.zenandroid.onlinego.ui.screens.onboarding.OnboardingViewModel
 import io.zenandroid.onlinego.ui.screens.tutorial.TutorialViewModel
 import io.zenandroid.onlinego.utils.CountingIdlingResource
 import io.zenandroid.onlinego.utils.CustomConverterFactory
@@ -150,6 +151,10 @@ private val viewModelsModule = module {
 
     viewModel {
         TutorialViewModel(get())
+    }
+
+    viewModel {
+        OnboardingViewModel(get(), get())
     }
 }
 

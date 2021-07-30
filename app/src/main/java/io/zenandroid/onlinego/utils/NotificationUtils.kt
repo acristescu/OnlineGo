@@ -17,20 +17,15 @@ import androidx.core.os.bundleOf
 import androidx.navigation.NavDeepLinkBuilder
 import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.R
-import io.zenandroid.onlinego.data.db.GameDao
 import io.zenandroid.onlinego.gamelogic.RulesManager
-import io.zenandroid.onlinego.ui.screens.login.LoginActivity
 import io.zenandroid.onlinego.data.model.local.Challenge
 import io.zenandroid.onlinego.data.model.local.Game
-import io.zenandroid.onlinego.data.model.local.GameNotification
 import io.zenandroid.onlinego.data.model.local.GameNotificationWithDetails
 import io.zenandroid.onlinego.data.model.ogs.Phase
 import io.zenandroid.onlinego.ui.screens.game.GAME_ID
 import io.zenandroid.onlinego.ui.screens.game.GAME_SIZE
 import io.zenandroid.onlinego.ui.screens.main.MainActivity
 import io.zenandroid.onlinego.ui.views.BoardView
-import org.koin.core.context.GlobalContext.get
-
 
 /**
  * Created by alex on 07/03/2018.
@@ -89,7 +84,7 @@ class NotificationUtils {
         }
 
         fun notifyChallenges(context: Context, challenges: List<Challenge>, userId: Long) {
-            val notificationIntent = Intent(context, LoginActivity::class.java)
+            val notificationIntent = Intent(context, MainActivity::class.java)
             notificationIntent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
             val pendingIntent = PendingIntent.getActivity(context, 0, notificationIntent, FLAG_UPDATE_CURRENT)
 

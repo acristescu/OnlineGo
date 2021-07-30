@@ -5,6 +5,18 @@
     app:startDestination="@id/myGames">
 
     <fragment
+        android:id="@+id/onboardingFragment"
+        android:name="io.zenandroid.onlinego.ui.screens.onboarding.OnboardingFragment"
+        android:label="OnboardingFragment"
+        >
+        <action
+            android:id="@+id/onboarding_to_mygames"
+            app:destination="@id/myGames"
+            app:popUpTo="@id/onboardingFragment"
+            app:popUpToInclusive="true"
+            />
+    </fragment>
+    <fragment
         android:id="@+id/myGames"
         android:name="io.zenandroid.onlinego.ui.screens.mygames.MyGamesFragment"
         android:label="MyGamesFragment" >

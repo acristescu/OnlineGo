@@ -28,7 +28,7 @@ import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.repositories.SettingsRepository
 import io.zenandroid.onlinego.data.repositories.UserSessionRepository
 import io.zenandroid.onlinego.databinding.FragmentSettingsBinding
-import io.zenandroid.onlinego.ui.screens.login.LoginActivity
+import io.zenandroid.onlinego.ui.screens.main.MainActivity
 import io.zenandroid.onlinego.ui.views.BoardView
 import io.zenandroid.onlinego.utils.processGravatarURL
 import org.koin.android.ext.android.inject
@@ -87,8 +87,7 @@ class SettingsFragment : Fragment() {
                         .setPositiveButtonClick {
                             context?.let { FirebaseAnalytics.getInstance(it).logEvent("logout_clicked", null) }
                             userSessionRepository.logOut()
-                            startActivity(Intent(context, LoginActivity::class.java))
-                            activity?.finish()
+                            (activity as? MainActivity)?.showLogin()
                         }
                         .setNegativeButtonClick {}
                         .show()

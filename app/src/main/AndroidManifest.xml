@@ -18,10 +18,7 @@
         >
         <meta-data android:name="android.max_aspect" android:value="10.0"/>
         <activity
-            android:name="io.zenandroid.onlinego.ui.screens.login.LoginActivity"
-            android:label="@string/app_name"
-            android:theme="@style/LoginActivity"
-            android:windowSoftInputMode="adjustResize"
+            android:name="io.zenandroid.onlinego.ui.screens.main.MainActivity"
             >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -29,9 +26,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name="io.zenandroid.onlinego.ui.screens.main.MainActivity"
-            />
         <activity
             android:name=".ui.screens.login.FacebookLoginCallbackActivity"
             android:noHistory="true"

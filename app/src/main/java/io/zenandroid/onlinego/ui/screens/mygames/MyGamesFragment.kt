@@ -14,7 +14,6 @@ import androidx.navigation.findNavController
 import com.awesomedialog.blennersilva.awesomedialoglibrary.AwesomeInfoDialog
 import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.R
-import io.zenandroid.onlinego.ui.screens.login.LoginActivity
 import io.zenandroid.onlinego.ui.screens.main.MainActivity
 import io.zenandroid.onlinego.data.model.local.Challenge
 import io.zenandroid.onlinego.data.model.local.Game
@@ -33,8 +32,7 @@ import org.koin.android.ext.android.get
  */
 class MyGamesFragment : Fragment(), MyGamesContract.View {
     override fun showLoginScreen() {
-        startActivity(Intent(context, LoginActivity::class.java))
-        activity?.finish()
+        (activity as? MainActivity)?.showLogin()
     }
 
     private val groupAdapter = GameListGroupAdapter(get<UserSessionRepository>().userId)

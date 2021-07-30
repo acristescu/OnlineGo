@@ -3,8 +3,9 @@ package io.zenandroid.onlinego.ui.screens.main
 import android.annotation.SuppressLint
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.content.ComponentName
 import android.content.Context
-import android.content.Intent
+import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.graphics.Color
 import android.os.Build
@@ -29,7 +30,7 @@ import io.zenandroid.onlinego.databinding.ActivityMainBinding
 import io.zenandroid.onlinego.notifications.SynchronizeGamesWork
 import io.zenandroid.onlinego.ui.screens.game.GAME_ID
 import io.zenandroid.onlinego.ui.screens.game.GAME_SIZE
-import io.zenandroid.onlinego.ui.screens.login.LoginActivity
+import io.zenandroid.onlinego.ui.screens.login.FacebookLoginCallbackActivity
 import io.zenandroid.onlinego.ui.screens.newchallenge.NewAutomatchChallengeBottomSheet
 import io.zenandroid.onlinego.ui.screens.newchallenge.NewChallengeBottomSheet
 import io.zenandroid.onlinego.ui.views.BoardView
@@ -96,6 +97,12 @@ class MainActivity : AppCompatActivity(), MainContract.View {
             onOnlineCustomClicked = this@MainActivity::onCustomGameSearch
         }
 
+        packageManager.setComponentEnabledSetting(
+            ComponentName(this, FacebookLoginCallbackActivity::class.java),
+            PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
+            PackageManager.DONT_KILL_APP
+        )
+
         BoardView.preloadResources(resources)
     }
 
@@ -141,8 +148,19 @@ class MainActivity : AppCompatActivity(), MainContract.View {
     }
 
     override fun showLogin() {
-        startActivity(Intent(this, LoginActivity::class.java))
-        finish()
+        findNavController(R.id.fragment_container).apply {
+            if(currentDestination?.id != R.id.onboardingFragment) {
+                navigate(R.id.onboardingFragment)
+            }
+        }
+    }
+
+    override fun showMyGames() {
+        findNavController(R.id.fragment_container).apply {
+            if(currentDestination?.id != R.id.myGames) {
+                navigate(R.id.myGames)
+            }
+        }
     }
 
     override fun onPause() {

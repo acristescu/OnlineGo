@@ -9,7 +9,6 @@ import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.rule.ActivityTestRule
-import io.zenandroid.onlinego.ui.screens.login.LoginActivity
 import io.zenandroid.onlinego.utils.CountingIdlingResource
 import org.hamcrest.CoreMatchers.not
 import org.junit.Before

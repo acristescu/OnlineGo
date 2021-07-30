@@ -111,6 +111,7 @@ dependencies {
     implementation 'androidx.legacy:legacy-preference-v14:1.0.0'
     implementation "androidx.lifecycle:lifecycle-livedata-ktx:2.3.1"
     implementation "androidx.compose.runtime:runtime-livedata:$compose_version"
+    implementation "androidx.compose.material:material-icons-extended:$compose_version"
 
     implementation 'me.zhanghai.android.materialprogressbar:library:1.6.1'
 
