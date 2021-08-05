@@ -79,6 +79,7 @@ class OnboardingViewModel(
         (isExistingAccount || email.isNotBlank()) && username.isNotBlank() && password.isNotBlank()
 
     private fun goToPage(pageIndex: Int) {
+        analytics.logEvent("oboarding_page_$pageIndex", null)
         val state = _state.value
         _state.value = state?.copy(
             currentPageIndex = pageIndex,
@@ -164,14 +165,14 @@ private val pages = arrayOf(
     OnboardingPage(
         R.drawable.ic_board_transparent,
         "Online GO Android app",
-        "This app started back in 2015 as a personal project by Alexandru Cristescu. It is now open-source, meaning the code is freely available for everybody to browse and modify. The app is and will always be free. Contributions of any kind are welcome. The app would particularly benefit from some consistent icons designed for it. Find out how you can help on the project’s GitHub page.",
+        "This app started back in 2015 as a personal project by Alexandru Cristescu. It is now open-source, meaning the code is freely available for everybody to browse and modify. The app is and will always be free. Contributions are welcome. Find out how you can help on the project’s GitHub page. If coding is not your thing, you can become a supporter by pledging a monthly contribution. Or, you can just enjoy the app for free, the choice is entirely up to you!",
         "Continue"
     ),
     OnboardingPage(
         R.drawable.logo_ogs,
         "OGS Server",
         "The OGS Server is one of the most popular websites for playing GO online. The Online GO Android app uses the services provided by OGS in order to enable online play. While not associated with OGS, we do have their permission to use their services. A (free) OGS account is required in order to play. You can create one in the next step if you don’t already have it.",
-        "Log in"
+        "Link OGS account"
     ),
     MultipleChoicePage(
         "Do you already have an OGS (online-go.com) account?",
