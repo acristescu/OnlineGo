@@ -20,9 +20,12 @@ private const val currentText = """
 ## What's new
 
 - Fixed a bug that prevented the game notification button (top right on most screens) from cycling through available games
+- Fixed a bug that caused the AI to get stuck until you kill the app once you navigate away from an AI game
 - Fixed a bug that caused the notification button's badge to flicker while changing screens
 - Fixed a bug on high DPI devices where the tutorials could not be clicked correctly
-- Implemented a new login system and onboarding screen. You can give it a spin by just logging out if you're curious.
+- Faster app startup (no more blue background screen flickering)
+- Implemented a new login system and onboarding screen. You can give it a spin by just logging out if you're curious. Just make sure you know your password :)
+- Made all chats that are older than your most recent chat be considered "read". This should make it easier for people that are using both the website AND the app to chat.
 
 ## About project
 

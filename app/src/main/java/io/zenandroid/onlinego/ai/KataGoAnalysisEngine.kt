@@ -84,6 +84,7 @@ object KataGoAnalysisEngine {
                                 }
                             }
                             Log.d("KataGoAnalysisEngine", "End of input, killing reader thread")
+                            started = false
                         }.start()
                     } else {
                         Log.e("KataGoAnalysisEngine", "Could not start KataGo")
@@ -98,10 +99,16 @@ object KataGoAnalysisEngine {
         if(!started) {
             return
         }
-        writer?.close()
-        process?.waitFor()
-        process = null
-        started = false
+        Thread {
+            try {
+                writer?.close()
+                process?.waitFor()
+            } catch (t: Throwable) {
+                process?.destroy()
+            }
+            process = null
+            started = false
+        }.start()
     }
 
     fun analyzePosition(

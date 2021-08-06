@@ -276,6 +276,9 @@ abstract class GameDao {
     @Query("UPDATE message SET seen = 1 WHERE chatId in (:ids)")
     abstract fun markMessagesAsRead(ids: List<String>)
 
+    @Query("UPDATE message SET seen = 1 WHERE gameId = :gameId AND date <= :date")
+    abstract fun markGameMessagesAsReadUpTo(gameId: Long, date: Long)
+
     @Query("DELETE FROM challenge")
     abstract fun deleteAllChallenges()
 
