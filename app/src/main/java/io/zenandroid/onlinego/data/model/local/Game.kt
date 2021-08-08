@@ -67,7 +67,10 @@ data class Game(
 
         @Embedded(prefix = "initial_state_")
         val timeControl: TimeControl?,
-        val messagesCount: Int? = null
+        val messagesCount: Int? = null,
+
+        @Embedded(prefix = "pause_")
+        val pauseControl: PauseControl? = null,
         ) {
     @Ignore
     var json: GameData? = null
@@ -145,6 +148,19 @@ data class Game(
                     null
                 }
             }
+
+            val pauseControl = gamedata?.pause_control?.let {
+                //pause_control: {weekend: true, vacation-43936: true}
+                PauseControl(
+                    weekend = it["weekend"] != null,
+                    moderator = it["moderator_paused"] != null,
+                    server = it["server"] != null || it["system"] != null,
+                    stoneRemoval = it["stone-removal"] != null,
+                    pausedByThirdParty = it["paused"] != null,
+                    vacationWhite = it["vacation-${whitePlayer.id}"] != null,
+                    vacationBlack = it["vacation-${blackPlayer.id}"] != null,
+                )
+            }
             return Game(
                     id = game.id,
                     width = game.width,
@@ -174,7 +190,8 @@ data class Game(
                     ranked = isRanked,
                     timeControl = gamedata?.time_control,
                     disableAnalysis = gamedata?.disable_analysis,
-                    pausedSince = gamedata?.paused_since
+                    pausedSince = gamedata?.paused_since,
+                    pauseControl = pauseControl
             )
         }
     }

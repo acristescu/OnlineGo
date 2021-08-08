@@ -1,10 +1,7 @@
 package io.zenandroid.onlinego.data.model.ogs
 
 import io.zenandroid.onlinego.data.model.local.InitialState
-import io.zenandroid.onlinego.data.ogs.OGSClock
-import io.zenandroid.onlinego.data.ogs.Players
-import io.zenandroid.onlinego.data.ogs.Scores
-import io.zenandroid.onlinego.data.ogs.TimeControl
+import io.zenandroid.onlinego.data.ogs.*
 
 data class GameData (
         var handicap: Int? = null,
@@ -19,6 +16,7 @@ data class GameData (
         var rules: String? = null,
         var black_player_id: Long? = null,
         var pause_on_weekends: Boolean? = null,
+        var pause_control: Map<String, Any>? = null,
         var paused_since: Long? = null,
         var white_player_id: Long? = null,
         var players: Players? = null,

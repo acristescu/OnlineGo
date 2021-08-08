@@ -7,6 +7,7 @@ import com.xwray.groupie.viewbinding.BindableItem
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.utils.showIf
 import io.zenandroid.onlinego.data.model.local.Game
+import io.zenandroid.onlinego.data.model.local.isPaused
 import io.zenandroid.onlinego.data.model.ogs.Phase
 import io.zenandroid.onlinego.data.repositories.SettingsRepository
 import io.zenandroid.onlinego.databinding.ItemActiveGameCardBinding
@@ -62,6 +63,7 @@ class ActiveGameItem (val game: Game) : BindableItem<ItemActiveGameCardBinding>(
                     if(game.blackPlayer.id == userId) "black"
                     else "white"
 
+            pausedLabel.showIf(game.pauseControl.isPaused())
 
             time.text = calculateTimer(game)
         }
