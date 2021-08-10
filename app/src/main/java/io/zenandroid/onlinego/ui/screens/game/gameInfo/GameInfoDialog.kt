@@ -54,11 +54,29 @@ class GameInfoDialog : DialogFragment() {
         }
 
         groupAdapter.clear()
-        game.name?.let { groupAdapter.add(GameInfoItem("Game Name", it)) }
-        game.rules?.let { groupAdapter.add(GameInfoItem("Rules", it)) }
-        game.ranked?.let { groupAdapter.add(GameInfoItem("Ranked", it.yesNo())) }
-        game.disableAnalysis?.let { groupAdapter.add(GameInfoItem("Analysis/Conditional moves", (!it).enabledDisabled()))}
-        game.timeControl?.let { groupAdapter.add(GameInfoItem("Time controls", timeControlDescription(it)))}
+        if(this::game.isInitialized) {
+            game.name?.let { groupAdapter.add(GameInfoItem("Game Name", it)) }
+            game.rules?.let { groupAdapter.add(GameInfoItem("Rules", it)) }
+            game.ranked?.let { groupAdapter.add(GameInfoItem("Ranked", it.yesNo())) }
+            game.disableAnalysis?.let {
+                groupAdapter.add(
+                    GameInfoItem(
+                        "Analysis/Conditional moves",
+                        (!it).enabledDisabled()
+                    )
+                )
+            }
+            game.timeControl?.let {
+                groupAdapter.add(
+                    GameInfoItem(
+                        "Time controls",
+                        timeControlDescription(it)
+                    )
+                )
+            }
+        } else {
+            dismiss()
+        }
     }
 
     private fun Boolean.yesNo() = if(this) "yes" else "no"

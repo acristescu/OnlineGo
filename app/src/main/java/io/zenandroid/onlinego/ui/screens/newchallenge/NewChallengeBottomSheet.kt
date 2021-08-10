@@ -2,7 +2,6 @@ package io.zenandroid.onlinego.ui.screens.newchallenge
 
 import android.app.Activity.RESULT_OK
 import android.app.Dialog
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.preference.PreferenceManager
@@ -14,23 +13,22 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
+import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.data.model.local.Player
 import io.zenandroid.onlinego.data.model.ogs.OGSPlayer
 import io.zenandroid.onlinego.databinding.BottomSheetNewChallengeBinding
+import io.zenandroid.onlinego.ui.screens.main.MainActivity
 import io.zenandroid.onlinego.ui.screens.newchallenge.selectopponent.SelectOpponentDialog
 import io.zenandroid.onlinego.utils.egfToRank
 import io.zenandroid.onlinego.utils.formatRank
 
-class NewChallengeBottomSheet(
-        context: Context,
-        private val onSearch: (ChallengeParams) -> Unit
-) : BottomSheetDialogFragment() {
+class NewChallengeBottomSheet : BottomSheetDialogFragment() {
 
     private val PARAMS_KEY = "PARAMS"
     private val moshi = Moshi.Builder().add(KotlinJsonAdapterFactory()).build()
     private val challengeParamsAdapter = moshi.adapter(ChallengeParams::class.java)
     private val opponentAdapter = moshi.adapter(Player::class.java)
-    private val prefs = PreferenceManager.getDefaultSharedPreferences(context)
+    private val prefs = PreferenceManager.getDefaultSharedPreferences(OnlineGoApplication.instance)
     private val challenge: ChallengeParams = getSavedChallengeParams()
     private var opponent: Player? = null
     private lateinit var binding: BottomSheetNewChallengeBinding
@@ -129,7 +127,7 @@ class NewChallengeBottomSheet(
         if(challenge.opponent != null) {
             dismiss()
             saveSettings()
-            onSearch(challenge)
+            (activity as? MainActivity)?.onNewChallengeSearchClicked(challenge)
         } else {
             Toast.makeText(context, "Please select an opponent", Toast.LENGTH_LONG).show()
         }

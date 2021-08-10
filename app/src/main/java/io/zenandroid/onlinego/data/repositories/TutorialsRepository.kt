@@ -54,6 +54,9 @@ class TutorialsRepository : SocketConnectedRepository{
     }
 
     fun loadTutorial(tutorialName: String): Tutorial? {
+        if(!this::hardcodedTutorialsData.isInitialized) {
+            hardcodedTutorialsData = readJSONFromResources()
+        }
         hardcodedTutorialsData.forEach { group ->
             group.tutorials.find {
                 it.name == tutorialName

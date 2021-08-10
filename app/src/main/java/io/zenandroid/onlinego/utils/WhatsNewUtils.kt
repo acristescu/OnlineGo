@@ -19,6 +19,11 @@ object WhatsNewUtils {
 private const val currentText = """
 ## What's new
 
+- Games that are paused (for example during the weekend or for a vacation) are now marked as such in the main screen
+- Fixed a few rare crashes that happened when going out of the app with some dialogs shown
+
+## Last version:
+
 - Fixed a bug that prevented the game notification button (top right on most screens) from cycling through available games
 - Fixed a bug that caused the AI to get stuck until you kill the app once you navigate away from an AI game
 - Fixed a bug that caused the notification button's badge to flicker while changing screens

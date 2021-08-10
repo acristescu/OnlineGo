@@ -31,6 +31,7 @@ import io.zenandroid.onlinego.notifications.SynchronizeGamesWork
 import io.zenandroid.onlinego.ui.screens.game.GAME_ID
 import io.zenandroid.onlinego.ui.screens.game.GAME_SIZE
 import io.zenandroid.onlinego.ui.screens.login.FacebookLoginCallbackActivity
+import io.zenandroid.onlinego.ui.screens.newchallenge.ChallengeParams
 import io.zenandroid.onlinego.ui.screens.newchallenge.NewAutomatchChallengeBottomSheet
 import io.zenandroid.onlinego.ui.screens.newchallenge.NewChallengeBottomSheet
 import io.zenandroid.onlinego.ui.views.BoardView
@@ -197,10 +198,11 @@ class MainActivity : AppCompatActivity(), MainContract.View {
     }
 
     fun onCustomGameSearch() {
-        NewChallengeBottomSheet(this) {
-            analytics.logEvent("bot_challenge", null)
-            presenter.onNewBotChallenge(it)
-        }.show(supportFragmentManager, "BOTTOM_SHEET")
+        NewChallengeBottomSheet().show(supportFragmentManager, "BOTTOM_SHEET")
     }
 
+    fun onNewChallengeSearchClicked(challengeParams: ChallengeParams) {
+        analytics.logEvent("bot_challenge", null)
+        presenter.onNewBotChallenge(challengeParams)
+    }
 }
