@@ -2890,6 +2890,260 @@
             "sgf": "B[pd]W[dd]B[pp]W[dp]B[cj]W[qj]B[fq]W[cn]B[cg]W[gc]B[dr]W[cq]B[iq]W[qn]B[np]W[qg]B[nc]W[ce]B[ic]"
           }
         ]
+      },
+      {
+        "name": "The middle-game",
+        "steps": [
+          {
+            "type": "Interactive",
+            "name": "middlegame_1",
+            "size": "9",
+            "text": "Black is blocked in the bottom left corner. The group will be surrounded if you do nothing.",
+            "init": "W[be]B[bf]B[bg]B[bh]W[cd]W[cf]B[cg]W[ch]W[df]W[dg]B[gd]B[gg]",
+            "branches": [
+              {
+                "move": "dh",
+                "reply": "eh",
+                "branches": [
+                  {
+                    "move": "ci",
+                    "success": true
+                  },
+                  {
+                    "move": "di",
+                    "reply": "ei",
+                    "branches": [
+                      {
+                        "move": "ci",
+                        "success": true
+                      },
+                      {
+                        "move": "zz",
+                        "reply": "ci",
+                        "failed": true
+                      }
+                    ]
+                  },
+                  {
+                    "move": "zz",
+                    "reply": "di",
+                    "failed": true
+                  }
+                ]
+              },
+              {
+                "move": "zz",
+                "reply": "dh",
+                "failed": true
+              }
+            ]
+          },
+          {
+            "type": "Interactive",
+            "name": "middlegame_2",
+            "size": "9",
+            "text": "Black is blocking white on the bottom right area. White doesn't yet have 2 eyes.\nThen white played G2.\n\nLook what happens if black answers at F1 ( or G1) before you find the right answer.",
+            "init": "W[bc]B[bd]B[be]W[cd]B[cf]B[cg]B[ch]W[dg]W[dh]B[di]W[ec]B[ee]W[eg]W[fg]B[eh]B[fh]W[gh]W[gc]B[ge]W[hc]B[he]W[hf]",
+            "branches": [
+              {
+                "move": "ei",
+                "success": true
+              },
+              {
+                "move": "ci",
+                "reply": "fi",
+                "branches": [
+                  {
+                    "move": "ei",
+                    "success": true
+                  },
+                  {
+                    "move": "zz",
+                    "reply": "ei",
+                    "failed": true
+                  }
+                ]
+              },
+              {
+                "move": "fi",
+                "reply": "gi",
+                "branches": [
+                  {
+                    "move": "ei",
+                    "reply": "ci",
+                    "failed": true
+                  },
+                  {
+                    "move": "zz",
+                    "reply": "ei",
+                    "failed": true
+                  }
+                ]
+              },
+              {
+                "move": "gi",
+                "reply": "ei",
+                "branches": [
+                  {
+                    "move": "fi",
+                    "reply": "hi",
+                    "branches": [
+                      {
+                        "move": "ei",
+                        "reply": "ci",
+                        "failed": true
+                      },
+                      {
+                        "move": "zz",
+                        "reply": "ei",
+                        "failed": true
+                      }
+                    ]
+                  },
+                  {
+                    "move": "zz",
+                    "reply": "fi",
+                    "failed": true
+                  }
+                ]
+              },
+              {
+                "move": "zz",
+                "reply": "fi",
+                "branches": [
+                  {
+                    "move": "ei",
+                    "reply": "ci",
+                    "failed": true
+                  },
+                  {
+                    "move": "zz",
+                    "reply": "ei",
+                    "failed": true
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "End-game: Scoring",
+        "steps": [
+          {
+            "type": "Lesson",
+            "name": "end_game_1",
+            "size": "5",
+            "pages": [
+              {
+                "text": "Here you will learn how to tell when a game is finished and how to count territories using 5x5 boards. Both players made 5 moves, then both passed and thus the game is considered done. All that is left is to count the territory.\n\nTry to count how many intersections did black surround. What about white?\n\nHint: remember to count all intersections, including sides and corners, but not spots that are occupied by stones.",
+                "position": "B[ba]B[bb]B[bc]B[bd]B[be]W[ca]W[cb]W[cc]W[cd]W[ce]"
+              },
+              {
+                "text": "Black has 5 points on the left and white has 10 points on the right.\n\nThus white wins by 5 points.",
+                "position": "B[ba]B[bb]B[bc]B[bd]B[be]W[ca]W[cb]W[cc]W[cd]W[ce]",
+                "marks": "1[aa]2[ab]3[ac]4[ad]5[ae]1[da]2[db]3[dc]4[dd]5[de]6[ea]7[eb]8[ec]9[ed]0[ee]"
+              },
+              {
+                "text": "But why did black not try to continue playing then?\n\nWell, there in no move that black can do that increases their score. For example, if black invades the right side, white can easily defend and the new stone is dead.\n\nWhite reduced his territory by 1 but got 1 point back because the black stone is dead and counted as a prisoner.\n\nThe score here is still 10-5",
+                "position": "B[ba]B[bb]B[bc]B[bd]B[be]W[ca]W[cb]W[cc]W[cd]W[ce]B[dc]W[dd]",
+                "marks": "#[dd]X[dc]"
+              },
+              {
+                "text": "What if black plays on the left side then?\n\nAll they would achieve is that their territory is now smaller, thus they lost a point.\n\nHence, black has no good moves and should pass. White has more points so he's happy to pass as well.\n\nThus the game is over and white wins.",
+                "position": "B[ba]B[bb]B[bc]B[bd]B[be]W[ca]W[cb]W[cc]W[cd]W[ce]B[ac]",
+                "marks": "1[aa]2[ab]3[ad]4[ae]1[da]2[db]3[dc]4[dd]5[de]6[ea]7[eb]8[ec]9[ed]0[ee]"
+              },
+              {
+                "text": "Here is another finished game situation. Black has 5 points while white has 6.\n\nThe two intersections in the middle are neutral territory ('Dame') and do not count for either player's score.\n\nEither player could play there but they would not gain or lose any points.",
+                "position": "B[ba]B[bb]B[bc]B[bd]B[be]B[ca]W[da]W[db]W[dc]W[dd]W[cd]W[ce]"
+              },
+              {
+                "text": "While the territory is by far the biggest part of the score, remember, that there are other bonus points that need to be added.\n\nAny captured stones count 1 point each, as do 'dead' stones still on the board (that have no chance of making 2 eyes).\n\nAlso, since black plays first he has an advantage, and to compensate for this white gets a small bonus of points (called 'komi').\n\nThe value of komi depends on the size of the board, but it's usually 5.5 or 6.5 points. The 0.5 ensures there are no drawn games.\n\nLuckily, the app does all of these calculations for you :)",
+                "position": ""
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Cutting Stones",
+        "steps": [
+          {
+            "type": "Interactive",
+            "name": "cutting1",
+            "size": "9",
+            "init": "B[cf]B[cg]B[dc]B[dd]B[de]W[df]W[dg]W[ec]W[ed]W[ee]",
+            "text": "It looks as if white has the larger territory.\nHowever, her wall has a weak point. Just \"cut\" white's wall.\n\nIf you succeed white will have a tough time ensuring both groups survive.",
+            "branches": [
+              {
+                "move": "ef",
+                "reply": "eg",
+                "branches": [
+                  {
+                    "move": "ff",
+                    "success": true
+                  },
+                  {
+                    "move": "zz",
+                    "reply": "ff",
+                    "failed": true
+                  }
+                ]
+              },
+              {
+                "move": "zz",
+                "reply": "ef",
+                "failed": true,
+                "message": "The white stones are connected."
+              }
+            ]
+          },
+          {
+            "type": "Interactive",
+            "name": "cutting2",
+            "size": "9",
+            "init": "B[ad]B[bd]B[ce]B[de]B[ee]B[fe]B[fd]B[gd]B[hd]B[id]W[ae]W[be]W[cf]W[df]W[ef]W[ff]W[gf]W[ge]W[he]W[ie]",
+            "text": "Black has 30 points while white has 31 points. Thus it looks like white has a 1 point win.\nHowever, the territory on the lower side is not all white's.\n\nJust cut white's wall.",
+            "branches": [
+              {
+                "move": "bf",
+                "reply": "bg",
+                "branches": [
+                  {
+                    "move": "af",
+                    "success": true
+                  },
+                  {
+                    "move": "ag",
+                    "reply": "ah",
+                    "branches": [
+                      {
+                        "move": "af",
+                        "success": true
+                      },
+                      {
+                        "move": "zz",
+                        "reply": "af",
+                        "failed": true
+                      }
+                    ]
+                  },
+                  {
+                    "move": "zz",
+                    "reply": "af",
+                    "failed": true
+                  }
+                ]
+              },
+              {
+                "move": "zz",
+                "reply": "bf",
+                "failed": true
+              }
+            ]
+          }
+        ]
       }
     ]
   }
