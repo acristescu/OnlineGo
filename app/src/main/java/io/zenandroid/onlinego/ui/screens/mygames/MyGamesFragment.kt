@@ -9,26 +9,33 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.SimpleItemAnimator
 import android.view.View
 import android.view.ViewGroup
-import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.background
+import androidx.annotation.DrawableRes
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Button
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.platform.ViewCompositionStrategy.DisposeOnLifecycleDestroyed
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -84,7 +91,7 @@ class MyGamesFragment : Fragment(), MyGamesContract.View {
             )
             setContent {
                 OnlineGoTheme {
-                    TutorialItem(percentage = 73, tutorial = "Advanced > Snapback")
+                    MyGamesScreen()
                 }
             }
         }
@@ -276,10 +283,61 @@ fun TutorialItem(percentage: Int, tutorial: String) {
     }
 }
 
+@Composable
+fun NewGameButtonsRow(modifier: Modifier = Modifier) {
+    Row (
+        horizontalArrangement = Arrangement.SpaceEvenly,
+        modifier = modifier.fillMaxWidth()
+    ) {
+        NewGameButton(img = R.drawable.ic_person_filled, text = "Play\nOnline") {}
+        NewGameButton(img = R.drawable.ic_challenge, text = "Custom\nGame") {}
+        NewGameButton(img = R.drawable.ic_robot, text = "Play\nOffline") {}
+    }
+}
+
+@Composable
+fun NewGameButton(@DrawableRes img: Int, text: String, onClick: () -> Unit) {
+    Column(modifier = Modifier
+        .clickable { onClick.invoke() }
+        .padding(horizontal = 24.dp, vertical = 8.dp)
+    ) {
+        Image(
+            painter = painterResource(id = img),
+            contentDescription = null,
+            colorFilter = ColorFilter.tint(Color.White),
+            modifier = Modifier
+                .align(CenterHorizontally)
+                .background(color = salmon, shape = CircleShape)
+                .padding(16.dp)
+        )
+        Text(
+            text = text,
+            textAlign = TextAlign.Center,
+            fontSize = 12.sp,
+            modifier = Modifier.align(CenterHorizontally)
+                .padding(top = 4.dp)
+        )
+    }
+}
+
+@Composable
+fun MyGamesScreen() {
+    LazyColumn {
+        item {
+            TutorialItem(percentage = 73, tutorial = "Basics > Capturing")
+        }
+        item {
+            NewGameButtonsRow(modifier = Modifier.padding(top = 10.dp))
+        }
+    }
+}
+
 @Preview
 @Composable
 fun Preview() {
     OnlineGoTheme {
-        TutorialItem(percentage = 73, tutorial = "Basics > Capturing")
+        Box(modifier = Modifier.background(Color(0xFFF2F4F7))) {
+            MyGamesScreen()
+        }
     }
 }
