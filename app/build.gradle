@@ -112,6 +112,7 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-livedata-ktx:2.3.1"
     implementation "androidx.compose.runtime:runtime-livedata:$compose_version"
     implementation "androidx.compose.material:material-icons-extended:$compose_version"
+    implementation "androidx.compose.ui:ui-util:$compose_version"
 
     implementation 'me.zhanghai.android.materialprogressbar:library:1.6.1'
 
@@ -149,6 +150,9 @@ dependencies {
 
     implementation 'com.jakewharton.threetenabp:threetenabp:1.3.0'
     implementation 'com.github.cpiz:BubbleView:1.0.3'
+
+    implementation "com.google.accompanist:accompanist-pager:0.18.0"
+    implementation "com.google.accompanist:accompanist-pager-indicators:0.18.0"
 
     kapt 'androidx.room:room-compiler:2.3.0'
 

@@ -12,7 +12,11 @@ import android.view.ViewGroup
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyItemScope
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
@@ -20,28 +24,33 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Alignment.Companion.CenterVertically
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.graphics.PathEffect
-import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.platform.ViewCompositionStrategy.DisposeOnLifecycleDestroyed
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.font.FontWeight.Companion.Bold
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.util.lerp
 import androidx.core.os.bundleOf
 import androidx.navigation.findNavController
 import com.awesomedialog.blennersilva.awesomedialoglibrary.AwesomeInfoDialog
+import com.google.accompanist.pager.*
 import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.ui.screens.main.MainActivity
@@ -50,20 +59,27 @@ import io.zenandroid.onlinego.data.model.local.Game
 import io.zenandroid.onlinego.data.model.ogs.OGSAutomatch
 import io.zenandroid.onlinego.data.repositories.UserSessionRepository
 import io.zenandroid.onlinego.databinding.FragmentMygamesBinding
+import io.zenandroid.onlinego.ui.composables.Board
 import io.zenandroid.onlinego.ui.items.*
 import io.zenandroid.onlinego.ui.screens.game.GAME_ID
 import io.zenandroid.onlinego.ui.screens.game.GAME_SIZE
+import io.zenandroid.onlinego.ui.screens.mygames.Action.GameSelected
 import io.zenandroid.onlinego.ui.screens.whatsnew.WhatsNewDialog
 import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
 import io.zenandroid.onlinego.ui.theme.salmon
 import io.zenandroid.onlinego.ui.theme.shapes
+import io.zenandroid.onlinego.utils.computeTimeLeft
 import io.zenandroid.onlinego.utils.showIf
 import org.koin.android.ext.android.get
+import org.koin.androidx.viewmodel.ext.android.viewModel
+import kotlin.math.absoluteValue
 
 /**
  * Created by alex on 05/11/2017.
  */
 class MyGamesFragment : Fragment(), MyGamesContract.View {
+
+    private val viewModel: MyGamesViewModel by viewModel()
     override fun showLoginScreen() {
         (activity as? MainActivity)?.showLogin()
     }
@@ -83,6 +99,9 @@ class MyGamesFragment : Fragment(), MyGamesContract.View {
         groupAdapter.olderGamesAdapter.needsMoreDataObservable
     }
 
+    @ExperimentalFoundationApi
+    @ExperimentalPagerApi
+    @ExperimentalComposeUiApi
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         binding = FragmentMygamesBinding.inflate(inflater, container, false)
         binding.tutorialView.apply {
@@ -91,11 +110,37 @@ class MyGamesFragment : Fragment(), MyGamesContract.View {
             )
             setContent {
                 OnlineGoTheme {
-                    MyGamesScreen()
+                    val state by viewModel.state.observeAsState()
+                    MyGamesScreen(state!!, ::onAction)
                 }
             }
         }
         return binding.root
+    }
+
+    private fun onAction(action: Action) {
+        when(action) {
+            Action.CustomGame -> {
+                analytics.logEvent("friend_item_clicked", null)
+                (activity as MainActivity).onCustomGameSearch()
+            }
+            Action.PlayOffline -> {
+                analytics.logEvent("localai_item_clicked", null)
+                view?.findNavController()?.navigate(R.id.action_myGamesFragment_to_aiGameFragment)
+            }
+            Action.PlayOnline -> {
+                analytics.logEvent("automatch_item_clicked", null)
+                (activity as MainActivity).onAutoMatchSearch()
+            }
+            is GameSelected -> {
+                val game = action.game
+                analytics.logEvent("clicked_game", Bundle().apply {
+                    putLong("GAME_ID", game.id)
+                    putBoolean("ACTIVE_GAME", game.ended == null)
+                })
+                navigateToGameScreen(game)
+            }
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -184,6 +229,8 @@ class MyGamesFragment : Fragment(), MyGamesContract.View {
 
     override fun setRecentGames(games: List<Game>) {
         groupAdapter.setRecentGames(games)
+
+        viewModel.setRecentGames(games)
     }
 
     override fun onPause() {
@@ -197,6 +244,8 @@ class MyGamesFragment : Fragment(), MyGamesContract.View {
             lastReportedGameCount = games.size
         }
         groupAdapter.setGames(games)
+
+        viewModel.setGames(games)
     }
 
     override fun setLoading(loading: Boolean) {
@@ -283,15 +332,22 @@ fun TutorialItem(percentage: Int, tutorial: String) {
     }
 }
 
+sealed class Action {
+    object PlayOnline: Action()
+    object CustomGame: Action()
+    object PlayOffline: Action()
+    class GameSelected(val game: Game): Action()
+}
+
 @Composable
-fun NewGameButtonsRow(modifier: Modifier = Modifier) {
+fun NewGameButtonsRow(modifier: Modifier = Modifier, onAction: (Action) -> Unit) {
     Row (
         horizontalArrangement = Arrangement.SpaceEvenly,
         modifier = modifier.fillMaxWidth()
     ) {
-        NewGameButton(img = R.drawable.ic_person_filled, text = "Play\nOnline") {}
-        NewGameButton(img = R.drawable.ic_challenge, text = "Custom\nGame") {}
-        NewGameButton(img = R.drawable.ic_robot, text = "Play\nOffline") {}
+        NewGameButton(img = R.drawable.ic_person_filled, text = "Play\nOnline") { onAction(Action.PlayOnline) }
+        NewGameButton(img = R.drawable.ic_challenge, text = "Custom\nGame") { onAction(Action.CustomGame) }
+        NewGameButton(img = R.drawable.ic_robot, text = "Play\nOffline") { onAction(Action.PlayOffline) }
     }
 }
 
@@ -314,30 +370,222 @@ fun NewGameButton(@DrawableRes img: Int, text: String, onClick: () -> Unit) {
             text = text,
             textAlign = TextAlign.Center,
             fontSize = 12.sp,
-            modifier = Modifier.align(CenterHorizontally)
+            modifier = Modifier
+                .align(CenterHorizontally)
                 .padding(top = 4.dp)
         )
     }
 }
 
+@ExperimentalFoundationApi
+@ExperimentalPagerApi
+@ExperimentalComposeUiApi
 @Composable
-fun MyGamesScreen() {
-    LazyColumn {
+fun MyGamesScreen(state: MyGamesState, onAction: (Action) -> Unit) {
+    val listState = rememberLazyListState()
+    LazyColumn (
+        state = listState,
+        modifier = Modifier.fillMaxHeight()
+    ) {
         item {
             TutorialItem(percentage = 73, tutorial = "Basics > Capturing")
         }
+        if(state.myTurnGames.isNotEmpty()) {
+            item {
+                MyTurnCarousel(state.myTurnGames, state.userId, onAction)
+            }
+        }
         item {
-            NewGameButtonsRow(modifier = Modifier.padding(top = 10.dp))
+            NewGameButtonsRow(modifier = Modifier.padding(top = 10.dp), onAction)
+        }
+        if(state.opponentTurnGames.isNotEmpty()) {
+            item {
+                Text(
+                    text = "Opponent's turn",
+                    color = Color(0xFF757575),
+                    fontSize = 12.sp,
+                    fontWeight = Bold,
+                    modifier = Modifier.padding(start = 8.dp, top = 8.dp, bottom = 8.dp)
+                )
+            }
+        }
+        items (items = state.opponentTurnGames) {
+            OpponentsTurnGameItem(it, onAction)
+        }
+
+        if(state.recentGames.isNotEmpty()) {
+            item {
+                Text(
+                    text = "Recently finished",
+                    color = Color(0xFF757575),
+                    fontSize = 12.sp,
+                    fontWeight = Bold,
+                    modifier = Modifier.padding(start = 8.dp, top = 8.dp, bottom = 8.dp)
+                )
+            }
+        }
+        items (items = state.recentGames) {
+            OpponentsTurnGameItem(game = it, onAction = onAction)
+        }
+
+    }
+}
+
+@ExperimentalComposeUiApi
+@Composable
+fun OpponentsTurnGameItem(game: Game, onAction: (Action) -> Unit) {
+    Surface(
+        shape = MaterialTheme.shapes.medium,
+        modifier = Modifier
+            .height(110.dp)
+            .fillMaxWidth()
+            .padding(horizontal = 8.dp, vertical = 4.dp)
+    ) {
+        Row(modifier = Modifier.clickable { onAction(GameSelected(game)) }) {
+            Board(
+                boardSize = game.width,
+                position = game.position,
+                drawCoordinates = false,
+                interactive = false,
+                drawShadow = false,
+                candidateMove = null,
+                candidateMoveType = null,
+                modifier = Modifier
+                    .align(CenterVertically)
+                    .padding(horizontal = 10.dp, vertical = 10.dp)
+            )
         }
     }
 }
 
+@ExperimentalPagerApi
+@ExperimentalComposeUiApi
+@Composable
+fun MyTurnCarousel(games: List<Game>, userId: Long, onAction: (Action) -> Unit) {
+    Column {
+        val pagerState = rememberPagerState(pageCount = games.size)
+        HorizontalPager(
+            state = pagerState,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 24.dp)
+        ) { page ->
+            val game = games[page]
+            val opponent =
+                when (userId) {
+                    game.blackPlayer.id -> game.whitePlayer
+                    game.whitePlayer.id -> game.blackPlayer
+                    else -> null
+                }
+            Box(modifier = Modifier
+                .fillMaxWidth()
+                .graphicsLayer {
+                    val pageOffset = calculateCurrentOffsetForPage(page).absoluteValue
+
+                    lerp(
+                        start = 0.25f,
+                        stop = 1f,
+                        fraction = 1f - pageOffset.coerceIn(0f, 1f)
+                    ).also { scale ->
+                        scaleX = scale
+                        scaleY = scale
+                    }
+
+                    alpha = lerp(
+                        start = 0.25f,
+                        stop = 1f,
+                        fraction = 1f - pageOffset.coerceIn(0f, 1f)
+                    )
+                }
+            ) {
+                Surface(
+                    shape = MaterialTheme.shapes.large,
+                    modifier = Modifier
+                        .fillMaxWidth(.75f)
+                        .align(Center)
+
+                ) {
+                    Column(modifier = Modifier
+                        .clickable {
+                            onAction(GameSelected(game))
+                        }
+                        .padding(
+                            vertical = 16.dp,
+                            horizontal = 24.dp
+                        )) {
+                        Board(
+                            boardSize = game.width,
+                            position = game.position,
+                            drawCoordinates = false,
+                            interactive = false,
+                            candidateMove = null,
+                            candidateMoveType = null,
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Row {
+                            Text(
+                                text = opponent?.username ?: "Unknown",
+                                style = TextStyle.Default.copy(
+                                    color = Color(0xFF757575),
+                                    fontSize = 14.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            )
+                            val circleColor = if (opponent?.id == game.blackPlayer.id) Color(0xFF757575) else Color.White
+                            Box(
+                                modifier = Modifier
+                                    .padding(top = 2.dp, start = 8.dp)
+                                    .background(Color(0xFF757575), shape = CircleShape)
+                                    .padding(all = 1.dp) // width of the line of the empty circle
+                                    .background(color = circleColor, shape = CircleShape)
+                                    .size(8.dp) // size of the middle circle
+                                    .align(CenterVertically)
+                            )
+                        }
+                        Text(
+                            text = calculateTimer(game),
+                            style = TextStyle.Default.copy(
+                                color = Color(0xFF757575),
+                                fontSize = 12.sp,
+                            )
+                        )
+                    }
+                }
+            }
+        }
+        HorizontalPagerIndicator(
+            pagerState = pagerState,
+            modifier = Modifier
+                .align(CenterHorizontally)
+                .padding(16.dp)
+        )
+    }
+}
+
+private fun calculateTimer(game: Game): String {
+    val currentPlayer = when (game.playerToMoveId) {
+        game.blackPlayer.id -> game.blackPlayer
+        game.whitePlayer.id -> game.whitePlayer
+        else -> null
+    }
+    val timerDetails = game.clock?.let {
+        if (currentPlayer?.id == game.blackPlayer.id)
+            computeTimeLeft(it, it.blackTimeSimple, it.blackTime, true, game.pausedSince)
+        else
+            computeTimeLeft(it, it.whiteTimeSimple, it.whiteTime, true, game.pausedSince)
+    }
+    return timerDetails?.firstLine ?: ""
+}
+
+@ExperimentalFoundationApi
+@ExperimentalPagerApi
+@ExperimentalComposeUiApi
 @Preview
 @Composable
 fun Preview() {
     OnlineGoTheme {
         Box(modifier = Modifier.background(Color(0xFFF2F4F7))) {
-            MyGamesScreen()
+            MyGamesScreen(MyGamesState(userId = 0L)) {}
         }
     }
 }

@@ -18,10 +18,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.*
-import androidx.compose.ui.graphics.drawscope.DrawScope
-import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
-import androidx.compose.ui.graphics.drawscope.translate
+import androidx.compose.ui.graphics.drawscope.*
 import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.res.imageResource
@@ -52,14 +49,15 @@ fun Board(
         position: Position?,
         candidateMove: Point?,
         candidateMoveType: StoneType?,
+        drawCoordinates: Boolean = true,
+        interactive: Boolean = true,
+        drawShadow: Boolean = true,
         removedStones: Map<Point, StoneType>? = null,
         onTapMove: ((Point) -> Unit)? = null,
         onTapUp: ((Point) -> Unit)? = null
 ) {
     val fadeInLastMove = true
     val drawLastMove = true
-    val drawCoordinates = true
-    val drawShadow = true
     val drawMarks = true
     val fadeOutRemovedStones = true
     val background: ImageBitmap = ImageBitmap.imageResource(id = R.mipmap.texture)
@@ -98,22 +96,28 @@ fun Board(
 //    }
     Canvas(modifier = modifier
             .aspectRatio(1f)
-            .pointerInteropFilter {
-                if(measurements.cellSize == 0) {
-                    return@pointerInteropFilter false
-                }
-                val eventCoords = screenToBoardCoordinates(it.x, it.y, measurements.border, measurements.cellSize, boardSize)
+            .run {
+                if(interactive) {
+                    pointerInteropFilter {
+                        if(measurements.cellSize == 0) {
+                            return@pointerInteropFilter false
+                        }
+                        val eventCoords = screenToBoardCoordinates(it.x, it.y, measurements.border, measurements.cellSize, boardSize)
 
-                if (eventCoords != lastHotTrackedPoint) {
-                    onTapMove?.invoke(eventCoords)
-                    lastHotTrackedPoint = eventCoords
-                }
+                        if (eventCoords != lastHotTrackedPoint) {
+                            onTapMove?.invoke(eventCoords)
+                            lastHotTrackedPoint = eventCoords
+                        }
 
-                if (it.action == MotionEvent.ACTION_UP) {
-                    onTapUp?.invoke(eventCoords)
-                    lastHotTrackedPoint = null
+                        if (it.action == MotionEvent.ACTION_UP) {
+                            onTapUp?.invoke(eventCoords)
+                            lastHotTrackedPoint = null
+                        }
+                        true
+                    }
+                } else {
+                    this
                 }
-                true
             }
             .onGloballyPositioned {
                 width = it.size.width
@@ -317,15 +321,36 @@ private fun DrawScope.drawStone(p: Point, type: StoneType?, alpha: Float = 1f, d
             }
         }
 
-        if(alpha != 1f) {
-            val bitmap = if(type == StoneType.WHITE) measurements.whiteStoneBitmap else measurements.blackStoneBitmap
-            drawImage(bitmap!!, Offset(center.x - measurements.stoneRadius, center.y - measurements.stoneRadius), alpha = alpha)
-        } else {
-            val stone = if (type == StoneType.WHITE) whiteStone else blackStone
-            it.nativeCanvas.withSave {
-                it.nativeCanvas.translate(center.x, center.y)
-                stone.draw(it.nativeCanvas)
+        if(measurements.cellSize > 30) {
+            if (alpha != 1f) {
+                val bitmap =
+                    if (type == StoneType.WHITE) measurements.whiteStoneBitmap else measurements.blackStoneBitmap
+                drawImage(
+                    bitmap!!,
+                    Offset(
+                        center.x - measurements.stoneRadius,
+                        center.y - measurements.stoneRadius
+                    ),
+                    alpha = alpha
+                )
+            } else {
+                val stone = if (type == StoneType.WHITE) whiteStone else blackStone
+                it.nativeCanvas.withSave {
+                    it.nativeCanvas.translate(center.x, center.y)
+                    stone.draw(it.nativeCanvas)
+                }
             }
+        } else {
+            val color = if (type == StoneType.BLACK) Color.Black else Color.White
+
+//            stonePaint.style = android.graphics.Paint.Style.FILL
+            drawCircle(color = color, center = Offset(center.x, center.y), radius = measurements.cellSize / 2f - measurements.stoneSpacing, style = Fill)
+            if(type == StoneType.WHITE) {
+//                stonePaint.color = 0xCC331810.toInt()
+//                stonePaint.style = android.graphics.Paint.Style.STROKE
+                drawCircle(color = Color(0xCC331810), center = Offset(center.x, center.y), radius = measurements.cellSize / 2f - measurements.stoneSpacing, style = Stroke(1f))
+            }
+
         }
     }
 }
