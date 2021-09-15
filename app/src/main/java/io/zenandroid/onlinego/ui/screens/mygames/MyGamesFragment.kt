@@ -19,10 +19,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Button
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -30,6 +27,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Alignment.Companion.CenterVertically
+import androidx.compose.ui.Alignment.Companion.End
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -38,6 +36,7 @@ import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.platform.ViewCompositionStrategy.DisposeOnLifecycleDestroyed
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -56,9 +55,11 @@ import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.ui.screens.main.MainActivity
 import io.zenandroid.onlinego.data.model.local.Challenge
 import io.zenandroid.onlinego.data.model.local.Game
+import io.zenandroid.onlinego.data.model.local.Player
 import io.zenandroid.onlinego.data.model.ogs.OGSAutomatch
 import io.zenandroid.onlinego.data.repositories.UserSessionRepository
 import io.zenandroid.onlinego.databinding.FragmentMygamesBinding
+import io.zenandroid.onlinego.gamelogic.Util
 import io.zenandroid.onlinego.ui.composables.Board
 import io.zenandroid.onlinego.ui.items.*
 import io.zenandroid.onlinego.ui.screens.game.GAME_ID
@@ -140,6 +141,7 @@ class MyGamesFragment : Fragment(), MyGamesContract.View {
                 })
                 navigateToGameScreen(game)
             }
+            else -> viewModel.onAction(action)
         }
     }
 
@@ -209,6 +211,8 @@ class MyGamesFragment : Fragment(), MyGamesContract.View {
         groupAdapter.setChallenges(challenges.map {
             ChallengeItem(it, presenter::onChallengeCancelled, presenter::onChallengeAccepted, presenter::onChallengeDeclined)
         })
+
+        viewModel.setChallenges(challenges)
     }
 
     override fun setAutomatches(automatches: List<OGSAutomatch>) {
@@ -337,6 +341,9 @@ sealed class Action {
     object CustomGame: Action()
     object PlayOffline: Action()
     class GameSelected(val game: Game): Action()
+    class ChallengeCancelled(val challenge: Challenge): Action()
+    class ChallengeAccepted(val challenge: Challenge): Action()
+    class ChallengeDeclined(val challenge: Challenge): Action()
 }
 
 @Composable
@@ -395,9 +402,27 @@ fun MyGamesScreen(state: MyGamesState, onAction: (Action) -> Unit) {
                 MyTurnCarousel(state.myTurnGames, state.userId, onAction)
             }
         }
+
+        if(state.challenges.isNotEmpty()) {
+            item {
+                Text(
+                    text = "Challenges",
+                    color = Color(0xFF757575),
+                    fontSize = 12.sp,
+                    fontWeight = Bold,
+                    modifier = Modifier.padding(start = 8.dp, top = 8.dp, bottom = 8.dp)
+                )
+            }
+        }
+
+        items(items = state.challenges) {
+            ChallengeItemCompose(it, state.userId, onAction)
+        }
+
         item {
             NewGameButtonsRow(modifier = Modifier.padding(top = 10.dp), onAction)
         }
+
         if(state.opponentTurnGames.isNotEmpty()) {
             item {
                 Text(
@@ -431,6 +456,65 @@ fun MyGamesScreen(state: MyGamesState, onAction: (Action) -> Unit) {
     }
 }
 
+@Composable
+fun ChallengeItemCompose(challenge: Challenge, userId: Long, onAction: (Action) -> Unit) {
+    Surface(
+        shape = MaterialTheme.shapes.medium,
+        modifier = Modifier
+            .height(90.dp)
+            .fillMaxWidth()
+            .padding(horizontal = 8.dp, vertical = 4.dp)
+    ) {
+        Row {
+            Image(
+                painter = painterResource(id = R.drawable.ic_person_filled),
+                contentDescription = null,
+                colorFilter = ColorFilter.tint(colorResource(id = R.color.colorAccent)),
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .aspectRatio(1f)
+                    .padding(top = 10.dp, bottom = 10.dp, start = 15.dp)
+            )
+
+            Column(modifier = Modifier.padding(top = 10.dp)) {
+                val text = if(challenge.challenger?.id == userId) {
+                    "You are challenging ${challenge.challenged?.username}"
+                } else {
+                    "${challenge.challenger?.username} is challenging you"
+                }
+
+                Text(
+                    text = text,
+                    fontSize = 14.sp,
+                    fontWeight = Bold,
+                    color = Color(0xFF757575),
+                    modifier = Modifier.align(CenterHorizontally)
+                )
+                Spacer(modifier = Modifier.weight(1f))
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(end = 16.dp, bottom = 8.dp),
+                    horizontalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    if(challenge.challenger?.id == userId) {
+                        TextButton(onClick = { onAction(Action.ChallengeCancelled(challenge)) }) {
+                            Text("Cancel")
+                        }
+                    } else {
+                        TextButton(onClick = { onAction(Action.ChallengeAccepted(challenge)) }) {
+                            Text("Accept")
+                        }
+                        TextButton(onClick = { onAction(Action.ChallengeDeclined(challenge)) }) {
+                            Text("Decline")
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
 @ExperimentalComposeUiApi
 @Composable
 fun OpponentsTurnGameItem(game: Game, onAction: (Action) -> Unit) {
@@ -450,6 +534,8 @@ fun OpponentsTurnGameItem(game: Game, onAction: (Action) -> Unit) {
                 drawShadow = false,
                 candidateMove = null,
                 candidateMoveType = null,
+                fadeInLastMove = false,
+                fadeOutRemovedStones = false,
                 modifier = Modifier
                     .align(CenterVertically)
                     .padding(horizontal = 10.dp, vertical = 10.dp)
@@ -518,6 +604,8 @@ fun MyTurnCarousel(games: List<Game>, userId: Long, onAction: (Action) -> Unit) 
                             position = game.position,
                             drawCoordinates = false,
                             interactive = false,
+                            fadeInLastMove = false,
+                            fadeOutRemovedStones = false,
                             candidateMove = null,
                             candidateMoveType = null,
                         )
@@ -585,7 +673,53 @@ private fun calculateTimer(game: Game): String {
 fun Preview() {
     OnlineGoTheme {
         Box(modifier = Modifier.background(Color(0xFFF2F4F7))) {
-            MyGamesScreen(MyGamesState(userId = 0L)) {}
+            MyGamesScreen(MyGamesState(
+                userId = 0L,
+                challenges = listOf(
+                    Challenge(
+                        id = 0L,
+                        challenger = Player(
+                            id = 0L,
+                            username = "Me",
+                            rating = null,
+                            acceptedStones = null,
+                            country = null,
+                            icon = null,
+                            ui_class = null
+                        ),
+                        challenged = Player(
+                            id = 1L,
+                            username = "Somebody",
+                            rating = null,
+                            acceptedStones = null,
+                            country = null,
+                            icon = null,
+                            ui_class = null
+                        )
+                    ),
+                    Challenge(
+                        id = 1L,
+                        challenger = Player(
+                            id = 1L,
+                            username = "Somebody",
+                            rating = null,
+                            acceptedStones = null,
+                            country = null,
+                            icon = null,
+                            ui_class = null
+                        ),
+                        challenged = Player(
+                            id = 0L,
+                            username = "Me",
+                            rating = null,
+                            acceptedStones = null,
+                            country = null,
+                            icon = null,
+                            ui_class = null
+                        )
+                    ),
+                )
+            )) {}
         }
     }
 }

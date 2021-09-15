@@ -52,14 +52,14 @@ fun Board(
         drawCoordinates: Boolean = true,
         interactive: Boolean = true,
         drawShadow: Boolean = true,
+        fadeInLastMove: Boolean = true,
+        fadeOutRemovedStones: Boolean = true,
         removedStones: Map<Point, StoneType>? = null,
         onTapMove: ((Point) -> Unit)? = null,
         onTapUp: ((Point) -> Unit)? = null
 ) {
-    val fadeInLastMove = true
     val drawLastMove = true
     val drawMarks = true
-    val fadeOutRemovedStones = true
     val background: ImageBitmap = ImageBitmap.imageResource(id = R.mipmap.texture)
 
     var width by remember { mutableStateOf(0) }
@@ -71,16 +71,17 @@ fun Board(
     val fadeInAlpha = remember { Animatable(.4f) }
     val fadeOutAlpha = remember { Animatable(1f) }
 
-    if(stoneToFadeIn != null) {
+    if(fadeInLastMove && stoneToFadeIn != null) {
         LaunchedEffect(stoneToFadeIn) {
-            Log.e("***", "Launching")
+            Log.e("***", "Launching fade in")
             fadeInAlpha.snapTo(.4f)
             fadeInAlpha.animateTo(1f, animationSpec = tween(150))
             stoneToFadeIn = null
         }
     }
-    if(stonesToFadeOut?.isNotEmpty() == true) {
+    if(fadeOutRemovedStones && stonesToFadeOut?.isNotEmpty() == true) {
         LaunchedEffect(stonesToFadeOut) {
+            Log.e("***", "Launching fade out")
             fadeOutAlpha.snapTo(1f)
             fadeOutAlpha.animateTo(0f, animationSpec = tween(150, 75))
             stonesToFadeOut = null
@@ -140,6 +141,7 @@ fun Board(
             drawStarPoints(boardSize, measurements)
             drawCoordinates(boardSize, drawCoordinates, measurements)
 
+            Log.e("***", "fadeOutAlpha = ${fadeOutAlpha.value}")
             for (item in stonesToFadeOut ?: emptyMap()) {
                 drawStone(item.key, item.value, fadeOutAlpha.value, true, measurements)
             }
@@ -149,7 +151,7 @@ fun Board(
                     val type = position.getStoneAt(p.x, p.y)
                     Log.e("***", fadeInAlpha.value.toString())
                     val alpha = when {
-                        p == stoneToFadeIn -> fadeInAlpha.value
+                        fadeInLastMove && p == stoneToFadeIn -> fadeInAlpha.value
                         fadeOutRemovedStones && it.removedSpots.contains(p) -> .4f
                         else -> 1f
                     }

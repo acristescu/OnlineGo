@@ -4,6 +4,7 @@ import androidx.room.Room
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import io.reactivex.schedulers.Schedulers
+import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.data.db.Database
 import io.zenandroid.onlinego.data.ogs.*
 import io.zenandroid.onlinego.data.repositories.*
@@ -159,7 +160,7 @@ private val viewModelsModule = module {
     }
 
     viewModel {
-        MyGamesViewModel(get())
+        MyGamesViewModel(get(), OnlineGoApplication.instance.analytics, get())
     }
 }
 
