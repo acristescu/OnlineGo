@@ -160,7 +160,7 @@ private val viewModelsModule = module {
     }
 
     viewModel {
-        MyGamesViewModel(get(), OnlineGoApplication.instance.analytics, get())
+        MyGamesViewModel(get(), OnlineGoApplication.instance.analytics, get(), get())
     }
 }
 

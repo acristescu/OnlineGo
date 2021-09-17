@@ -19,7 +19,7 @@ class AutomatchRepository(
     var automatches = mutableListOf<OGSAutomatch>()
         private set
 
-    private val automatchesSubject = BehaviorSubject.createDefault(automatches)
+    private val automatchesSubject = BehaviorSubject.createDefault<List<OGSAutomatch>>(automatches)
     private val gameStartSubject = PublishSubject.create<OGSAutomatch>()
 
     val automatchObservable = automatchesSubject.hide()
@@ -60,14 +60,14 @@ class AutomatchRepository(
     private fun removeAutomatch(automatch: OGSAutomatch) {
         automatches.find { it.uuid == automatch.uuid } ?.let {
             automatches.remove(it)
-            automatchesSubject.onNext(automatches)
+            automatchesSubject.onNext(automatches.toList())
         }
     }
 
     private fun addAutomatch(automatch: OGSAutomatch) {
         if(automatches.find { it.uuid == automatch.uuid } == null) {
             automatches.add(automatch)
-            automatchesSubject.onNext(automatches)
+            automatchesSubject.onNext(automatches.toList())
         }
     }
 

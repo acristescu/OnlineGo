@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.SimpleItemAnimator
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
@@ -21,6 +22,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
@@ -28,8 +30,10 @@ import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Alignment.Companion.End
+import androidx.compose.ui.Alignment.Companion.TopEnd
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.*
@@ -56,7 +60,9 @@ import io.zenandroid.onlinego.ui.screens.main.MainActivity
 import io.zenandroid.onlinego.data.model.local.Challenge
 import io.zenandroid.onlinego.data.model.local.Game
 import io.zenandroid.onlinego.data.model.local.Player
+import io.zenandroid.onlinego.data.model.local.isPaused
 import io.zenandroid.onlinego.data.model.ogs.OGSAutomatch
+import io.zenandroid.onlinego.data.model.ogs.SizeSpeedOption
 import io.zenandroid.onlinego.data.repositories.UserSessionRepository
 import io.zenandroid.onlinego.databinding.FragmentMygamesBinding
 import io.zenandroid.onlinego.gamelogic.Util
@@ -67,6 +73,7 @@ import io.zenandroid.onlinego.ui.screens.game.GAME_SIZE
 import io.zenandroid.onlinego.ui.screens.mygames.Action.GameSelected
 import io.zenandroid.onlinego.ui.screens.whatsnew.WhatsNewDialog
 import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
+import io.zenandroid.onlinego.ui.theme.background
 import io.zenandroid.onlinego.ui.theme.salmon
 import io.zenandroid.onlinego.ui.theme.shapes
 import io.zenandroid.onlinego.utils.computeTimeLeft
@@ -111,8 +118,14 @@ class MyGamesFragment : Fragment(), MyGamesContract.View {
             )
             setContent {
                 OnlineGoTheme {
-                    val state by viewModel.state.observeAsState()
-                    MyGamesScreen(state!!, ::onAction)
+                    val state by viewModel.state.observeAsState(MyGamesState(userId = 0L))
+
+                    if(state.errorMessage != null) {
+                        LaunchedEffect(state.errorMessage) {
+                            Toast.makeText(context, state.errorMessage, Toast.LENGTH_LONG).show()
+                        }
+                    }
+                    MyGamesScreen(state, ::onAction)
                 }
             }
         }
@@ -219,6 +232,8 @@ class MyGamesFragment : Fragment(), MyGamesContract.View {
         groupAdapter.setAutomatches(automatches.map {
             AutomatchItem(it, presenter::onAutomatchCancelled)
         })
+
+        viewModel.setAutomatches(automatches)
     }
 
     override fun navigateToGameScreen(game: Game) {
@@ -319,14 +334,14 @@ fun TutorialItem(percentage: Int, tutorial: String) {
                     Text(
                         text = "Learn to play",
                         color = Color.White,
-                        fontWeight = FontWeight.Bold,
+                        fontWeight = Bold,
                         fontSize = 14.sp,
                         modifier = Modifier.padding(start = 70.dp, top = 20.dp)
                     )
                     Text(
                         text = tutorial,
                         color = Color.White,
-                        fontWeight = FontWeight.Bold,
+                        fontWeight = Bold,
                         fontSize = 12.sp,
                         modifier = Modifier.padding(start = 70.dp, top = 18.dp)
                     )
@@ -344,6 +359,7 @@ sealed class Action {
     class ChallengeCancelled(val challenge: Challenge): Action()
     class ChallengeAccepted(val challenge: Challenge): Action()
     class ChallengeDeclined(val challenge: Challenge): Action()
+    class AutomatchCancelled(val automatch: OGSAutomatch): Action()
 }
 
 @Composable
@@ -394,8 +410,11 @@ fun MyGamesScreen(state: MyGamesState, onAction: (Action) -> Unit) {
         state = listState,
         modifier = Modifier.fillMaxHeight()
     ) {
-        item {
-            TutorialItem(percentage = 73, tutorial = "Basics > Capturing")
+//        item {
+//            TutorialItem(percentage = 73, tutorial = "Basics > Capturing")
+//        }
+        items(items = state.automatches) {
+            AutomatchItemCompose(it, onAction)
         }
         if(state.myTurnGames.isNotEmpty()) {
             item {
@@ -435,7 +454,7 @@ fun MyGamesScreen(state: MyGamesState, onAction: (Action) -> Unit) {
             }
         }
         items (items = state.opponentTurnGames) {
-            OpponentsTurnGameItem(it, onAction)
+            OpponentsTurnGameItem(it, state.userId, onAction)
         }
 
         if(state.recentGames.isNotEmpty()) {
@@ -450,9 +469,39 @@ fun MyGamesScreen(state: MyGamesState, onAction: (Action) -> Unit) {
             }
         }
         items (items = state.recentGames) {
-            OpponentsTurnGameItem(game = it, onAction = onAction)
+            OpponentsTurnGameItem(game = it, state.userId, onAction = onAction)
         }
+    }
+}
 
+@Composable
+fun AutomatchItemCompose(automatch: OGSAutomatch, onAction: (Action) -> Unit) {
+    Surface (
+        shape = MaterialTheme.shapes.medium,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 24.dp, vertical = 16.dp)
+    ) {
+        Column (modifier = Modifier.padding(horizontal = 16.dp)){
+            Text(
+                text = "Searching for a game",
+                fontSize = 14.sp,
+                fontWeight = Bold,
+                color = Color(0xFF757575),
+                modifier = Modifier
+                    .align(CenterHorizontally)
+                    .padding(top = 16.dp)
+            )
+            Spacer(modifier = Modifier.weight(1f))
+            TextButton(
+                onClick = { onAction(Action.AutomatchCancelled(automatch)) },
+                modifier = Modifier
+                    .align(CenterHorizontally)
+                    .padding(vertical = 8.dp)
+            ) {
+                Text("Cancel")
+            }
+        }
     }
 }
 
@@ -517,7 +566,7 @@ fun ChallengeItemCompose(challenge: Challenge, userId: Long, onAction: (Action) 
 
 @ExperimentalComposeUiApi
 @Composable
-fun OpponentsTurnGameItem(game: Game, onAction: (Action) -> Unit) {
+fun OpponentsTurnGameItem(game: Game, userId: Long, onAction: (Action) -> Unit) {
     Surface(
         shape = MaterialTheme.shapes.medium,
         modifier = Modifier
@@ -525,6 +574,12 @@ fun OpponentsTurnGameItem(game: Game, onAction: (Action) -> Unit) {
             .fillMaxWidth()
             .padding(horizontal = 8.dp, vertical = 4.dp)
     ) {
+        val opponent =
+            when (userId) {
+                game.blackPlayer.id -> game.whitePlayer
+                game.whitePlayer.id -> game.blackPlayer
+                else -> null
+            }
         Row(modifier = Modifier.clickable { onAction(GameSelected(game)) }) {
             Board(
                 boardSize = game.width,
@@ -539,10 +594,106 @@ fun OpponentsTurnGameItem(game: Game, onAction: (Action) -> Unit) {
                 modifier = Modifier
                     .align(CenterVertically)
                     .padding(horizontal = 10.dp, vertical = 10.dp)
+                    .clip(MaterialTheme.shapes.small)
             )
+            Column {
+                Row (modifier = Modifier.padding(top = 8.dp)) {
+                    Text(
+                        text = opponent?.username ?: "Unknown",
+                        style = TextStyle.Default.copy(
+                            color = Color(0xFF757575),
+                            fontSize = 14.sp,
+                            fontWeight = Bold
+                        )
+                    )
+                    val circleColor = if (opponent?.id == game.blackPlayer.id) Color(0xFF757575) else Color.White
+                    Box(
+                        modifier = Modifier
+                            .padding(top = 2.dp, start = 8.dp)
+                            .background(Color(0xFF757575), shape = CircleShape)
+                            .padding(all = 1.dp) // width of the line of the empty circle
+                            .background(color = circleColor, shape = CircleShape)
+                            .size(8.dp) // size of the middle circle
+                            .align(CenterVertically)
+                    )
+                }
+                if(game.blackLost != true && game.whiteLost != true) {
+                    Row(modifier = Modifier.padding(top = 4.dp)) {
+                        Text(
+                            text = calculateTimer(game),
+                            style = TextStyle.Default.copy(
+                                color = Color(0xFF757575),
+                                fontSize = 12.sp,
+                            ),
+                        )
+                        if (game.pauseControl.isPaused()) {
+                            Text(
+                                text = "  ·  paused",
+                                style = TextStyle.Default.copy(
+                                    color = Color(0xFF757575),
+                                    fontSize = 12.sp,
+                                ),
+                            )
+                        }
+                    }
+                } else {
+                    val outcome = when {
+                        game.outcome == "Cancellation" -> "Cancelled"
+                        userId == game.blackPlayer.id ->
+                            if (game.blackLost == true) "Lost by ${game.outcome}"
+                            else "Won by ${game.outcome}"
+                        userId == game.whitePlayer.id ->
+                            if (game.whiteLost == true) "Lost by ${game.outcome}"
+                            else "Won by ${game.outcome}"
+                        game.whiteLost == true ->
+                            "Black won by ${game.outcome}"
+                        else ->
+                            "White won by ${game.outcome}"
+                    }
+                    Text(
+                        text = outcome,
+                        style = TextStyle.Default.copy(
+                            color = Color(0xFF757575),
+                            fontSize = 12.sp,
+                        ),
+                    )
+                }
+                Spacer(modifier = Modifier.weight(1f))
+                if(game.messagesCount != null && game.messagesCount != 0) {
+                    ChatIndicator(
+                        chatCount = game.messagesCount,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
+                }
+            }
         }
     }
 }
+
+
+@Composable
+fun ChatIndicator(chatCount: Int, modifier: Modifier = Modifier) {
+    Box(modifier = modifier.size(40.dp)) {
+        Image(
+            painter = painterResource(id = R.drawable.ic_chat_bubble),
+            colorFilter = ColorFilter.tint(Color(0xFF757575)),
+            contentDescription = null,
+            modifier = Modifier.align(Center)
+        )
+        Text(
+            text = chatCount.toString(),
+            color = Color.White,
+            fontSize = 12.sp,
+            fontWeight = Bold,
+            textAlign = TextAlign.Center,
+            modifier = Modifier
+                .size(18.dp)
+                .background(color = MaterialTheme.colors.primary, shape = CircleShape)
+                .align(TopEnd)
+        )
+    }
+}
+
 
 @ExperimentalPagerApi
 @ExperimentalComposeUiApi
@@ -608,6 +759,7 @@ fun MyTurnCarousel(games: List<Game>, userId: Long, onAction: (Action) -> Unit) 
                             fadeOutRemovedStones = false,
                             candidateMove = null,
                             candidateMoveType = null,
+                            modifier = Modifier.clip(MaterialTheme.shapes.large)
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         Row {
@@ -616,7 +768,7 @@ fun MyTurnCarousel(games: List<Game>, userId: Long, onAction: (Action) -> Unit) 
                                 style = TextStyle.Default.copy(
                                     color = Color(0xFF757575),
                                     fontSize = 14.sp,
-                                    fontWeight = FontWeight.Bold
+                                    fontWeight = Bold
                                 )
                             )
                             val circleColor = if (opponent?.id == game.blackPlayer.id) Color(0xFF757575) else Color.White
@@ -630,13 +782,24 @@ fun MyTurnCarousel(games: List<Game>, userId: Long, onAction: (Action) -> Unit) 
                                     .align(CenterVertically)
                             )
                         }
-                        Text(
-                            text = calculateTimer(game),
-                            style = TextStyle.Default.copy(
-                                color = Color(0xFF757575),
-                                fontSize = 12.sp,
+                        Row {
+                            Text(
+                                text = calculateTimer(game),
+                                style = TextStyle.Default.copy(
+                                    color = Color(0xFF757575),
+                                    fontSize = 12.sp,
+                                )
                             )
-                        )
+                            if (game.pauseControl.isPaused()) {
+                                Text(
+                                    text = "  ·  paused",
+                                    style = TextStyle.Default.copy(
+                                        color = Color(0xFF757575),
+                                        fontSize = 12.sp,
+                                    ),
+                                )
+                            }
+                        }
                     }
                 }
             }
@@ -675,6 +838,15 @@ fun Preview() {
         Box(modifier = Modifier.background(Color(0xFFF2F4F7))) {
             MyGamesScreen(MyGamesState(
                 userId = 0L,
+                automatches = listOf(
+                    OGSAutomatch(
+                        uuid = "aaa",
+                        game_id = null,
+                        size_speed_options = listOf(
+                            SizeSpeedOption("9x9", "blitz"),
+                        )
+                    )
+                ),
                 challenges = listOf(
                     Challenge(
                         id = 0L,
