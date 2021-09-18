@@ -8,18 +8,22 @@ import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.disposables.Disposable
 import io.zenandroid.onlinego.data.model.local.Challenge
 import io.zenandroid.onlinego.data.model.local.Game
 import io.zenandroid.onlinego.data.model.ogs.OGSAutomatch
 import io.zenandroid.onlinego.data.model.ogs.Phase
 import io.zenandroid.onlinego.data.ogs.OGSRestService
 import io.zenandroid.onlinego.data.ogs.OGSWebSocketService
+import io.zenandroid.onlinego.data.repositories.FinishedGamesRepository
 import io.zenandroid.onlinego.data.repositories.UserSessionRepository
+import io.zenandroid.onlinego.gamelogic.RulesManager
 import io.zenandroid.onlinego.utils.addToDisposable
 import javax.annotation.concurrent.Immutable
 
 class MyGamesViewModel(
     private val userSessionRepository: UserSessionRepository,
+    private val finishedGamesRepository: FinishedGamesRepository,
     private val analytics: FirebaseAnalytics,
     private val restService: OGSRestService,
     private val socketService: OGSWebSocketService,
@@ -27,10 +31,16 @@ class MyGamesViewModel(
     private val _state = MutableLiveData(MyGamesState(userId = userSessionRepository.userId ?: 0))
     val state: LiveData<MyGamesState> = _state
     private val subscriptions = CompositeDisposable()
+    private var loadOlderGamesSubscription: Disposable? = null
 
     override fun onCleared() {
         subscriptions.clear()
+        loadOlderGamesSubscription?.dispose()
         super.onCleared()
+    }
+
+    init {
+        onNeedMoreOlderGames(OlderGamesAdapter.MoreDataRequest())
     }
 
     fun setGames(games: List<Game>) {
@@ -138,9 +148,39 @@ class MyGamesViewModel(
             is Action.ChallengeCancelled -> onChallengeCancelled(action.challenge)
             is Action.ChallengeDeclined -> onChallengeDeclined(action.challenge)
             is Action.AutomatchCancelled -> onAutomatchCancelled(action.automatch)
+            is Action.LoadMoreHistoricGames -> onNeedMoreOlderGames(OlderGamesAdapter.MoreDataRequest(action.game))
 
             Action.CustomGame, is Action.GameSelected, Action.PlayOffline, Action.PlayOnline -> {} // intentionally left blank
         }
+    }
+
+    private fun onNeedMoreOlderGames(request: OlderGamesAdapter.MoreDataRequest) {
+        loadOlderGamesSubscription?.dispose()
+        loadOlderGamesSubscription =
+            finishedGamesRepository.getHistoricGames(request.game?.ended)
+                .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
+                .distinctUntilChanged()
+                .doOnNext {
+                    _state.value = _state.value?.copy(
+                        loadingHistoricGames = it.loading,
+                        loadedAllHistoricGames = it.loadedLastPage
+                    )
+                }
+                .map { it.games }
+                .map(this::computePositions)
+                .subscribe(this::onHistoricGames, this::onError)
+        loadOlderGamesSubscription?.addToDisposable(subscriptions)
+    }
+
+    private fun computePositions(games: List<Game>): List<Game> =
+        games.onEach { it.position = RulesManager.replay(it, computeTerritory = false) }
+
+    private fun onHistoricGames(games: List<Game>) {
+        val existingGames = _state.value?.historicGames?: emptyList()
+        val newGames = games.filter { candidate -> existingGames.find { candidate.id == it.id } == null }
+        _state.value = _state.value?.copy(
+            historicGames = existingGames + newGames
+        )
     }
 
 }
@@ -152,6 +192,9 @@ data class MyGamesState(
     val recentGames: List<Game> = emptyList(),
     val challenges: List<Challenge> = emptyList(),
     val automatches: List<OGSAutomatch> = emptyList(),
+    val historicGames: List<Game> = emptyList(),
+    val loadingHistoricGames: Boolean = false,
+    val loadedAllHistoricGames: Boolean = false,
     val userId: Long,
     val userIsLoggedOut: Boolean = false,
     val errorMessage: String? = null

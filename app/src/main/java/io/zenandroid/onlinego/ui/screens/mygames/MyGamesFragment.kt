@@ -2,6 +2,7 @@ package io.zenandroid.onlinego.ui.screens.mygames
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import androidx.fragment.app.Fragment
 import androidx.appcompat.app.AppCompatActivity
@@ -14,16 +15,11 @@ import androidx.annotation.DrawableRes
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyItemScope
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.lazy.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.Center
@@ -360,6 +356,7 @@ sealed class Action {
     class ChallengeAccepted(val challenge: Challenge): Action()
     class ChallengeDeclined(val challenge: Challenge): Action()
     class AutomatchCancelled(val automatch: OGSAutomatch): Action()
+    class LoadMoreHistoricGames(val game: Game?): Action()
 }
 
 @Composable
@@ -470,6 +467,109 @@ fun MyGamesScreen(state: MyGamesState, onAction: (Action) -> Unit) {
         }
         items (items = state.recentGames) {
             OpponentsTurnGameItem(game = it, state.userId, onAction = onAction)
+        }
+
+        if(state.historicGames.isNotEmpty()) {
+            item {
+                Text(
+                    text = "Older games",
+                    color = Color(0xFF757575),
+                    fontSize = 12.sp,
+                    fontWeight = Bold,
+                    modifier = Modifier.padding(start = 8.dp, top = 8.dp, bottom = 8.dp)
+                )
+            }
+            item {
+                LazyRow {
+                    items(state.historicGames) { game ->
+                        Surface(
+                            shape = MaterialTheme.shapes.medium,
+                            modifier = Modifier
+                                .size(width = 105.dp, height = 140.dp)
+                                .padding(horizontal = 8.dp)
+                        ) {
+                            Column {
+                                Board(
+                                    boardSize = game.width,
+                                    position = game.position,
+                                    drawCoordinates = false,
+                                    interactive = false,
+                                    drawShadow = false,
+                                    fadeInLastMove = false,
+                                    fadeOutRemovedStones = false,
+                                    modifier = Modifier
+                                        .clip(MaterialTheme.shapes.large)
+                                        .padding(15.dp)
+                                )
+                                val opponent =
+                                    when (state.userId) {
+                                        game.blackPlayer.id -> game.whitePlayer
+                                        game.whitePlayer.id -> game.blackPlayer
+                                        else -> null
+                                    }
+
+                                Row (modifier = Modifier.padding(top = 8.dp)) {
+                                    Text(
+                                        text = opponent?.username ?: "Unknown",
+                                        style = TextStyle.Default.copy(
+                                            color = Color(0xFF757575),
+                                            fontSize = 14.sp,
+                                            fontWeight = Bold
+                                        )
+                                    )
+                                    val circleColor = if (opponent?.id == game.blackPlayer.id) Color(0xFF757575) else Color.White
+                                    Box(
+                                        modifier = Modifier
+                                            .padding(top = 2.dp, start = 8.dp)
+                                            .background(Color(0xFF757575), shape = CircleShape)
+                                            .padding(all = 1.dp) // width of the line of the empty circle
+                                            .background(color = circleColor, shape = CircleShape)
+                                            .size(8.dp) // size of the middle circle
+                                            .align(CenterVertically)
+                                    )
+                                }
+                                val outcome = when {
+                                    game.outcome == "Cancellation" -> "Cancelled"
+                                    state.userId == game.blackPlayer.id ->
+                                        if (game.blackLost == true) "Lost by ${game.outcome}"
+                                        else "Won by ${game.outcome}"
+                                    state.userId == game.whitePlayer.id ->
+                                        if (game.whiteLost == true) "Lost by ${game.outcome}"
+                                        else "Won by ${game.outcome}"
+                                    game.whiteLost == true ->
+                                        "Black won by ${game.outcome}"
+                                    else ->
+                                        "White won by ${game.outcome}"
+                                }
+                                Text(
+                                    text = outcome,
+                                    style = TextStyle.Default.copy(
+                                        color = Color(0xFF757575),
+                                        fontSize = 12.sp,
+                                    ),
+                                )
+                            }
+                        }
+                    }
+                    if(!state.loadedAllHistoricGames) {
+                        item {
+                            Surface(
+                                shape = MaterialTheme.shapes.medium,
+                                modifier = Modifier
+                                    .size(width = 105.dp, height = 140.dp)
+                                    .padding(horizontal = 8.dp)
+                            ) {
+                                Log.e("****", "recomposing")
+                                LaunchedEffect(state.historicGames) {
+                                    Log.e("****", "load more")
+                                    onAction(Action.LoadMoreHistoricGames(state.historicGames.lastOrNull()))
+                                }
+                                CircularProgressIndicator()
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }
@@ -587,8 +687,6 @@ fun OpponentsTurnGameItem(game: Game, userId: Long, onAction: (Action) -> Unit) 
                 drawCoordinates = false,
                 interactive = false,
                 drawShadow = false,
-                candidateMove = null,
-                candidateMoveType = null,
                 fadeInLastMove = false,
                 fadeOutRemovedStones = false,
                 modifier = Modifier
@@ -757,8 +855,6 @@ fun MyTurnCarousel(games: List<Game>, userId: Long, onAction: (Action) -> Unit) 
                             interactive = false,
                             fadeInLastMove = false,
                             fadeOutRemovedStones = false,
-                            candidateMove = null,
-                            candidateMoveType = null,
                             modifier = Modifier.clip(MaterialTheme.shapes.large)
                         )
                         Spacer(modifier = Modifier.height(8.dp))
