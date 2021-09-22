@@ -44,65 +44,65 @@ class MyGamesPresenter(
     private var loadOlderGamesSubscription: Disposable? = null
 
     override fun subscribe() {
-        activeGamesRepository.monitorActiveGames()
-                .subscribeOn(Schedulers.io())
-                .map(this::sortGames)
-                .map(this::computePositions)
-                .subscribeOn(Schedulers.computation())
-                .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
-                .subscribe(this::setGames, this::onError)
-                .addToDisposable(subscriptions)
-        activeGamesRepository.refreshActiveGames()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
-                .subscribe({}, this::onError)
-                .addToDisposable(subscriptions)
-        finishedGamesRepository.getRecentlyFinishedGames()
-                .subscribeOn(Schedulers.io())
-                .map(this::computePositions)
-                .subscribeOn(Schedulers.computation())
-                .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
-                .subscribe(this::setRecentGames, this::onError)
-                .addToDisposable(subscriptions)
-        challengesRepository.monitorChallenges()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
-                .subscribe(this::setChallenges, this::onError)
-                .addToDisposable(subscriptions)
-        automatchRepository.automatchObservable
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
-                .subscribe(this::setAutomatches, this::onError)
-                .addToDisposable(subscriptions)
-        automatchRepository.gameStartObservable
-                .flatMapMaybe { it.game_id?.let { activeGamesRepository.getGameSingle(it).toMaybe() } ?: Maybe.empty() }
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
-                .subscribe(view::navigateToGameScreen, this::onError)
-                .addToDisposable(subscriptions)
-        notificationsRepository.notificationsObservable()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
-                .subscribe(this::onNotification, this::onError)
-                .addToDisposable(subscriptions)
-
-        view.needsMoreOlderGames
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
-                .subscribe(this::onNeedMoreOlderGames, this::onError)
-                .addToDisposable(subscriptions)
-
-        if(view.isHistoricGamesSectionEmpty()) {
-            onNeedMoreOlderGames(OlderGamesAdapter.MoreDataRequest())
-        }
-
-        view.setLoading(true)
-
-        if(WhatsNewUtils.shouldDisplayDialog) {
-            view.showWhatsNewDialog()
-        }
-
-        WhatsNewUtils.textShown()
+//        activeGamesRepository.monitorActiveGames()
+//                .subscribeOn(Schedulers.io())
+//                .map(this::sortGames)
+//                .map(this::computePositions)
+//                .subscribeOn(Schedulers.computation())
+//                .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
+//                .subscribe(this::setGames, this::onError)
+//                .addToDisposable(subscriptions)
+//        activeGamesRepository.refreshActiveGames()
+//                .subscribeOn(Schedulers.io())
+//                .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
+//                .subscribe({}, this::onError)
+//                .addToDisposable(subscriptions)
+//        finishedGamesRepository.getRecentlyFinishedGames()
+//                .subscribeOn(Schedulers.io())
+//                .map(this::computePositions)
+//                .subscribeOn(Schedulers.computation())
+//                .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
+//                .subscribe(this::setRecentGames, this::onError)
+//                .addToDisposable(subscriptions)
+//        challengesRepository.monitorChallenges()
+//                .subscribeOn(Schedulers.io())
+//                .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
+//                .subscribe(this::setChallenges, this::onError)
+//                .addToDisposable(subscriptions)
+//        automatchRepository.automatchObservable
+//                .subscribeOn(Schedulers.io())
+//                .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
+//                .subscribe(this::setAutomatches, this::onError)
+//                .addToDisposable(subscriptions)
+//        automatchRepository.gameStartObservable
+//                .flatMapMaybe { it.game_id?.let { activeGamesRepository.getGameSingle(it).toMaybe() } ?: Maybe.empty() }
+//                .subscribeOn(Schedulers.io())
+//                .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
+//                .subscribe(view::navigateToGameScreen, this::onError)
+//                .addToDisposable(subscriptions)
+//        notificationsRepository.notificationsObservable()
+//                .subscribeOn(Schedulers.io())
+//                .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
+//                .subscribe(this::onNotification, this::onError)
+//                .addToDisposable(subscriptions)
+//
+//        view.needsMoreOlderGames
+//                .subscribeOn(Schedulers.io())
+//                .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
+//                .subscribe(this::onNeedMoreOlderGames, this::onError)
+//                .addToDisposable(subscriptions)
+//
+//        if(view.isHistoricGamesSectionEmpty()) {
+//            onNeedMoreOlderGames(OlderGamesAdapter.MoreDataRequest())
+//        }
+//
+//        view.setLoading(true)
+//
+//        if(WhatsNewUtils.shouldDisplayDialog) {
+//            view.showWhatsNewDialog()
+//        }
+//
+//        WhatsNewUtils.textShown()
     }
 
     private fun sortGames(unsorted : List<Game>): List<Game> {

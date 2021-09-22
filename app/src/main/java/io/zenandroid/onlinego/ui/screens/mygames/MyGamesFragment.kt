@@ -42,6 +42,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.font.FontWeight.Companion.Bold
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -61,17 +62,15 @@ import io.zenandroid.onlinego.data.model.ogs.OGSAutomatch
 import io.zenandroid.onlinego.data.model.ogs.SizeSpeedOption
 import io.zenandroid.onlinego.data.repositories.UserSessionRepository
 import io.zenandroid.onlinego.databinding.FragmentMygamesBinding
-import io.zenandroid.onlinego.gamelogic.Util
 import io.zenandroid.onlinego.ui.composables.Board
 import io.zenandroid.onlinego.ui.items.*
 import io.zenandroid.onlinego.ui.screens.game.GAME_ID
 import io.zenandroid.onlinego.ui.screens.game.GAME_SIZE
 import io.zenandroid.onlinego.ui.screens.mygames.Action.GameSelected
+import io.zenandroid.onlinego.ui.screens.mygames.Action.LoadMoreHistoricGames
 import io.zenandroid.onlinego.ui.screens.whatsnew.WhatsNewDialog
 import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
-import io.zenandroid.onlinego.ui.theme.background
 import io.zenandroid.onlinego.ui.theme.salmon
-import io.zenandroid.onlinego.ui.theme.shapes
 import io.zenandroid.onlinego.utils.computeTimeLeft
 import io.zenandroid.onlinego.utils.showIf
 import org.koin.android.ext.android.get
@@ -81,27 +80,27 @@ import kotlin.math.absoluteValue
 /**
  * Created by alex on 05/11/2017.
  */
-class MyGamesFragment : Fragment(), MyGamesContract.View {
+class MyGamesFragment : Fragment() {
 
     private val viewModel: MyGamesViewModel by viewModel()
-    override fun showLoginScreen() {
-        (activity as? MainActivity)?.showLogin()
-    }
+//    fun showLoginScreen() {
+//        (activity as? MainActivity)?.showLogin()
+//    }
 
-    private val groupAdapter = GameListGroupAdapter(get<UserSessionRepository>().userId)
-
-    private val whatsNewDialog: WhatsNewDialog by lazy { WhatsNewDialog() }
-
-    private lateinit var presenter: MyGamesContract.Presenter
+//    private val groupAdapter = GameListGroupAdapter(get<UserSessionRepository>().userId)
+//
+//    private val whatsNewDialog: WhatsNewDialog by lazy { WhatsNewDialog() }
+//
+//    private lateinit var presenter: MyGamesContract.Presenter
     private var analytics = OnlineGoApplication.instance.analytics
 
     private lateinit var binding: FragmentMygamesBinding
 
     private var lastReportedGameCount = -1
 
-    override val needsMoreOlderGames by lazy {
-        groupAdapter.olderGamesAdapter.needsMoreDataObservable
-    }
+//    override val needsMoreOlderGames by lazy {
+//        groupAdapter.olderGamesAdapter.needsMoreDataObservable
+//    }
 
     @ExperimentalFoundationApi
     @ExperimentalPagerApi
@@ -116,12 +115,25 @@ class MyGamesFragment : Fragment(), MyGamesContract.View {
                 OnlineGoTheme {
                     val state by viewModel.state.observeAsState(MyGamesState(userId = 0L))
 
-                    if(state.errorMessage != null) {
-                        LaunchedEffect(state.errorMessage) {
-                            Toast.makeText(context, state.errorMessage, Toast.LENGTH_LONG).show()
+                    MyGamesScreen(state, ::onAction)
+
+                    if(state.alertDialogText != null) {
+                        AlertDialog(
+                            title = { state.alertDialogTitle?.let { Text(it) } },
+                            text = { state.alertDialogText?.let { Text(it) } },
+                            confirmButton = {
+                                Button(onClick = { onAction(Action.DismissAlertDialog) }) {
+                                    Text("OK")
+                                }
+                            },
+                            onDismissRequest = { onAction(Action.DismissAlertDialog) }
+                        )
+                    }
+                    if(state.gameNavigationPending != null) {
+                        LaunchedEffect(state.gameNavigationPending) {
+                            navigateToGameScreen(state.gameNavigationPending!!)
                         }
                     }
-                    MyGamesScreen(state, ::onAction)
                 }
             }
         }
@@ -157,125 +169,117 @@ class MyGamesFragment : Fragment(), MyGamesContract.View {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.gamesRecycler.layoutManager = LinearLayoutManager(context)
-        (binding.gamesRecycler.itemAnimator as SimpleItemAnimator).supportsChangeAnimations = false
-        binding.gamesRecycler.adapter = groupAdapter
-        groupAdapter.setOnItemClickListener { item, _ ->
-            when (item) {
-                is ActiveGameItem -> presenter.onGameSelected(item.game)
-                is FinishedGameItem -> presenter.onGameSelected(item.game)
-                is NewGameItem.AutoMatch -> {
-                    analytics.logEvent("automatch_item_clicked", null)
-                    (activity as MainActivity).onAutoMatchSearch()
-                }
-                is NewGameItem.Custom -> {
-                    analytics.logEvent("friend_item_clicked", null)
-                    (activity as MainActivity).onCustomGameSearch()
-                }
-                is NewGameItem.LocalAI -> {
-                    analytics.logEvent("localai_item_clicked", null)
-                    view.findNavController().navigate(R.id.action_myGamesFragment_to_aiGameFragment)
-                }
-            }
-        }
-        groupAdapter.olderGamesAdapter.setOnItemClickListener { item, _ ->
-            if(item is HistoricGameItem) {
-                presenter.onGameSelected(item.game)
-            }
-        }
-
-        presenter = MyGamesPresenter(this, analytics, get(), get(), get(), get(), get(), get(), get(), get())
+//        binding.gamesRecycler.layoutManager = LinearLayoutManager(context)
+//        (binding.gamesRecycler.itemAnimator as SimpleItemAnimator).supportsChangeAnimations = false
+//        binding.gamesRecycler.adapter = groupAdapter
+//        groupAdapter.setOnItemClickListener { item, _ ->
+//            when (item) {
+//                is ActiveGameItem -> presenter.onGameSelected(item.game)
+//                is FinishedGameItem -> presenter.onGameSelected(item.game)
+//                is NewGameItem.AutoMatch -> {
+//                    analytics.logEvent("automatch_item_clicked", null)
+//                    (activity as MainActivity).onAutoMatchSearch()
+//                }
+//                is NewGameItem.Custom -> {
+//                    analytics.logEvent("friend_item_clicked", null)
+//                    (activity as MainActivity).onCustomGameSearch()
+//                }
+//                is NewGameItem.LocalAI -> {
+//                    analytics.logEvent("localai_item_clicked", null)
+//                    view.findNavController().navigate(R.id.action_myGamesFragment_to_aiGameFragment)
+//                }
+//            }
+//        }
+//        groupAdapter.olderGamesAdapter.setOnItemClickListener { item, _ ->
+//            if(item is HistoricGameItem) {
+//                presenter.onGameSelected(item.game)
+//            }
+//        }
+//
+//        presenter = MyGamesPresenter(this, analytics, get(), get(), get(), get(), get(), get(), get(), get())
     }
 
-    override fun showWhatsNewDialog() {
-        if(parentFragmentManager.findFragmentByTag("WHATS_NEW") == null) {
-            whatsNewDialog.show(parentFragmentManager, "WHATS_NEW")
-        }
-    }
+//    override fun showWhatsNewDialog() {
+//        if(parentFragmentManager.findFragmentByTag("WHATS_NEW") == null) {
+//            whatsNewDialog.show(parentFragmentManager, "WHATS_NEW")
+//        }
+//    }
+//
+//    override fun setLoadedAllHistoricGames(loadedLastPage: Boolean) {
+//        groupAdapter.olderGamesAdapter.loadedLastPage = loadedLastPage
+//    }
+//
+//    override fun setLoadingMoreHistoricGames(loading: Boolean) {
+//        groupAdapter.olderGamesAdapter.loading = loading
+//    }
+//
+//    override fun showMessage(title: String, message: String) {
+//        AwesomeInfoDialog(context)
+//                .setTitle(title)
+//                .setMessage(message)
+//                .setDialogBodyBackgroundColor(R.color.colorOffWhite)
+//                .setColoredCircle(R.color.colorPrimary)
+//                .setDialogIconAndColor(R.drawable.ic_dialog_info, R.color.white)
+//                .setCancelable(true)
+//                .setPositiveButtonText("OK")
+//                .setPositiveButtonbackgroundColor(R.color.colorPrimary)
+//                .setPositiveButtonTextColor(R.color.white)
+//                .setPositiveButtonClick {  }
+//                .show()
+//    }
 
-    override fun setLoadedAllHistoricGames(loadedLastPage: Boolean) {
-        groupAdapter.olderGamesAdapter.loadedLastPage = loadedLastPage
-    }
+//    override fun setChallenges(challenges: List<Challenge>) {
+//        groupAdapter.setChallenges(challenges.map {
+//            ChallengeItem(it, presenter::onChallengeCancelled, presenter::onChallengeAccepted, presenter::onChallengeDeclined)
+//        })
+//    }
 
-    override fun setLoadingMoreHistoricGames(loading: Boolean) {
-        groupAdapter.olderGamesAdapter.loading = loading
-    }
+//    override fun setAutomatches(automatches: List<OGSAutomatch>) {
+//        groupAdapter.setAutomatches(automatches.map {
+//            AutomatchItem(it, presenter::onAutomatchCancelled)
+//        })
+//    }
 
-    override fun showMessage(title: String, message: String) {
-        AwesomeInfoDialog(context)
-                .setTitle(title)
-                .setMessage(message)
-                .setDialogBodyBackgroundColor(R.color.colorOffWhite)
-                .setColoredCircle(R.color.colorPrimary)
-                .setDialogIconAndColor(R.drawable.ic_dialog_info, R.color.white)
-                .setCancelable(true)
-                .setPositiveButtonText("OK")
-                .setPositiveButtonbackgroundColor(R.color.colorPrimary)
-                .setPositiveButtonTextColor(R.color.white)
-                .setPositiveButtonClick {  }
-                .show()
-    }
-
-    override fun setChallenges(challenges: List<Challenge>) {
-        groupAdapter.setChallenges(challenges.map {
-            ChallengeItem(it, presenter::onChallengeCancelled, presenter::onChallengeAccepted, presenter::onChallengeDeclined)
-        })
-
-        viewModel.setChallenges(challenges)
-    }
-
-    override fun setAutomatches(automatches: List<OGSAutomatch>) {
-        groupAdapter.setAutomatches(automatches.map {
-            AutomatchItem(it, presenter::onAutomatchCancelled)
-        })
-
-        viewModel.setAutomatches(automatches)
-    }
-
-    override fun navigateToGameScreen(game: Game) {
+    fun navigateToGameScreen(game: Game) {
         view?.findNavController()?.navigate(R.id.action_myGamesFragment_to_gameFragment, bundleOf(GAME_ID to game.id, GAME_SIZE to game.width))
     }
 
     override fun onResume() {
         super.onResume()
         analytics.setCurrentScreen(requireActivity(), javaClass.simpleName, null)
-        presenter.subscribe()
+//        presenter.subscribe()
     }
 
-    override fun setRecentGames(games: List<Game>) {
-        groupAdapter.setRecentGames(games)
+//    override fun setRecentGames(games: List<Game>) {
+//        groupAdapter.setRecentGames(games)
+//    }
+//
+//    override fun onPause() {
+//        super.onPause()
+//        presenter.unsubscribe()
+//    }
 
-        viewModel.setRecentGames(games)
-    }
+//    override fun setGames(games: List<Game>) {
+//        if (lastReportedGameCount != games.size) {
+//            analytics.logEvent("active_games", Bundle().apply { putInt("GAME_COUNT", games.size) })
+//            lastReportedGameCount = games.size
+//        }
+//        groupAdapter.setGames(games)
+//    }
 
-    override fun onPause() {
-        super.onPause()
-        presenter.unsubscribe()
-    }
-
-    override fun setGames(games: List<Game>) {
-        if (lastReportedGameCount != games.size) {
-            analytics.logEvent("active_games", Bundle().apply { putInt("GAME_COUNT", games.size) })
-            lastReportedGameCount = games.size
-        }
-        groupAdapter.setGames(games)
-
-        viewModel.setGames(games)
-    }
-
-    override fun setLoading(loading: Boolean) {
-        binding.progressBar.showIf(loading)
-    }
-
-    override fun appendHistoricGames(games: List<Game>) {
-        if(games.isNotEmpty()) {
-            groupAdapter.historicGamesvisible = true
-            groupAdapter.olderGamesAdapter.appendData(games)
-        }
-    }
-
-    override fun isHistoricGamesSectionEmpty() =
-        groupAdapter.olderGamesAdapter.isEmpty()
+//    override fun setLoading(loading: Boolean) {
+//        binding.progressBar.showIf(loading)
+//    }
+//
+//    override fun appendHistoricGames(games: List<Game>) {
+//        if(games.isNotEmpty()) {
+//            groupAdapter.historicGamesvisible = true
+//            groupAdapter.olderGamesAdapter.appendData(games)
+//        }
+//    }
+//
+//    override fun isHistoricGamesSectionEmpty() =
+//        groupAdapter.olderGamesAdapter.isEmpty()
 }
 
 
@@ -351,6 +355,7 @@ sealed class Action {
     object PlayOnline: Action()
     object CustomGame: Action()
     object PlayOffline: Action()
+    object DismissAlertDialog: Action()
     class GameSelected(val game: Game): Action()
     class ChallengeCancelled(val challenge: Challenge): Action()
     class ChallengeAccepted(val challenge: Challenge): Action()
@@ -421,13 +426,7 @@ fun MyGamesScreen(state: MyGamesState, onAction: (Action) -> Unit) {
 
         if(state.challenges.isNotEmpty()) {
             item {
-                Text(
-                    text = "Challenges",
-                    color = Color(0xFF757575),
-                    fontSize = 12.sp,
-                    fontWeight = Bold,
-                    modifier = Modifier.padding(start = 8.dp, top = 8.dp, bottom = 8.dp)
-                )
+                Header("Challenges")
             }
         }
 
@@ -441,13 +440,7 @@ fun MyGamesScreen(state: MyGamesState, onAction: (Action) -> Unit) {
 
         if(state.opponentTurnGames.isNotEmpty()) {
             item {
-                Text(
-                    text = "Opponent's turn",
-                    color = Color(0xFF757575),
-                    fontSize = 12.sp,
-                    fontWeight = Bold,
-                    modifier = Modifier.padding(start = 8.dp, top = 8.dp, bottom = 8.dp)
-                )
+                Header("Opponent's turn")
             }
         }
         items (items = state.opponentTurnGames) {
@@ -456,13 +449,7 @@ fun MyGamesScreen(state: MyGamesState, onAction: (Action) -> Unit) {
 
         if(state.recentGames.isNotEmpty()) {
             item {
-                Text(
-                    text = "Recently finished",
-                    color = Color(0xFF757575),
-                    fontSize = 12.sp,
-                    fontWeight = Bold,
-                    modifier = Modifier.padding(start = 8.dp, top = 8.dp, bottom = 8.dp)
-                )
+                Header("Recently finished")
             }
         }
         items (items = state.recentGames) {
@@ -471,103 +458,115 @@ fun MyGamesScreen(state: MyGamesState, onAction: (Action) -> Unit) {
 
         if(state.historicGames.isNotEmpty()) {
             item {
-                Text(
-                    text = "Older games",
-                    color = Color(0xFF757575),
-                    fontSize = 12.sp,
-                    fontWeight = Bold,
-                    modifier = Modifier.padding(start = 8.dp, top = 8.dp, bottom = 8.dp)
-                )
+                Header("Older games")
             }
             item {
-                LazyRow {
-                    items(state.historicGames) { game ->
-                        Surface(
-                            shape = MaterialTheme.shapes.medium,
-                            modifier = Modifier
-                                .size(width = 105.dp, height = 140.dp)
-                                .padding(horizontal = 8.dp)
-                        ) {
-                            Column {
-                                Board(
-                                    boardSize = game.width,
-                                    position = game.position,
-                                    drawCoordinates = false,
-                                    interactive = false,
-                                    drawShadow = false,
-                                    fadeInLastMove = false,
-                                    fadeOutRemovedStones = false,
-                                    modifier = Modifier
-                                        .clip(MaterialTheme.shapes.large)
-                                        .padding(15.dp)
-                                )
-                                val opponent =
-                                    when (state.userId) {
-                                        game.blackPlayer.id -> game.whitePlayer
-                                        game.whitePlayer.id -> game.blackPlayer
-                                        else -> null
-                                    }
+                HistoricGameLazyRow(state.historicGames, state.userId, state.loadedAllHistoricGames, onAction)
+            }
+        }
+    }
+}
 
-                                Row (modifier = Modifier.padding(top = 8.dp)) {
-                                    Text(
-                                        text = opponent?.username ?: "Unknown",
-                                        style = TextStyle.Default.copy(
-                                            color = Color(0xFF757575),
-                                            fontSize = 14.sp,
-                                            fontWeight = Bold
-                                        )
-                                    )
-                                    val circleColor = if (opponent?.id == game.blackPlayer.id) Color(0xFF757575) else Color.White
-                                    Box(
-                                        modifier = Modifier
-                                            .padding(top = 2.dp, start = 8.dp)
-                                            .background(Color(0xFF757575), shape = CircleShape)
-                                            .padding(all = 1.dp) // width of the line of the empty circle
-                                            .background(color = circleColor, shape = CircleShape)
-                                            .size(8.dp) // size of the middle circle
-                                            .align(CenterVertically)
-                                    )
-                                }
-                                val outcome = when {
-                                    game.outcome == "Cancellation" -> "Cancelled"
-                                    state.userId == game.blackPlayer.id ->
-                                        if (game.blackLost == true) "Lost by ${game.outcome}"
-                                        else "Won by ${game.outcome}"
-                                    state.userId == game.whitePlayer.id ->
-                                        if (game.whiteLost == true) "Lost by ${game.outcome}"
-                                        else "Won by ${game.outcome}"
-                                    game.whiteLost == true ->
-                                        "Black won by ${game.outcome}"
-                                    else ->
-                                        "White won by ${game.outcome}"
-                                }
-                                Text(
-                                    text = outcome,
-                                    style = TextStyle.Default.copy(
-                                        color = Color(0xFF757575),
-                                        fontSize = 12.sp,
-                                    ),
-                                )
-                            }
-                        }
+@Composable
+private fun Header(text: String) {
+    Text(
+        text = text,
+        color = Color(0xFF757575),
+        fontSize = 12.sp,
+        fontWeight = Bold,
+        modifier = Modifier.padding(start = 8.dp, top = 8.dp, bottom = 8.dp)
+    )
+}
+
+@ExperimentalComposeUiApi
+@Composable
+private fun HistoricGameLazyRow(
+    games: List<Game>,
+    userId: Long,
+    loadedAllHistoricGames: Boolean,
+    onAction: (Action) -> Unit
+) {
+    LazyRow {
+        items(games) { game ->
+            Surface(
+                shape = MaterialTheme.shapes.medium,
+                modifier = Modifier
+                    .size(width = 125.dp, height = 140.dp)
+                    .padding(horizontal = 8.dp)
+            ) {
+                Column(
+                    modifier = Modifier.clickable {
+                        onAction(GameSelected(game))
                     }
-                    if(!state.loadedAllHistoricGames) {
-                        item {
-                            Surface(
-                                shape = MaterialTheme.shapes.medium,
-                                modifier = Modifier
-                                    .size(width = 105.dp, height = 140.dp)
-                                    .padding(horizontal = 8.dp)
-                            ) {
-                                Log.e("****", "recomposing")
-                                LaunchedEffect(state.historicGames) {
-                                    Log.e("****", "load more")
-                                    onAction(Action.LoadMoreHistoricGames(state.historicGames.lastOrNull()))
-                                }
-                                CircularProgressIndicator()
-                            }
+                ) {
+                    Board(
+                        boardSize = game.width,
+                        position = game.position,
+                        drawCoordinates = false,
+                        interactive = false,
+                        drawShadow = false,
+                        fadeInLastMove = false,
+                        fadeOutRemovedStones = false,
+                        modifier = Modifier
+                            .padding(horizontal = 15.dp, vertical = 10.dp)
+                            .clip(MaterialTheme.shapes.small)
+                    )
+                    val opponent =
+                        when (userId) {
+                            game.blackPlayer.id -> game.whitePlayer
+                            game.whitePlayer.id -> game.blackPlayer
+                            else -> null
                         }
+
+                    Text(
+                        text = opponent?.username ?: "Unknown",
+                        overflow = TextOverflow.Ellipsis,
+                        maxLines = 1,
+                        style = TextStyle.Default.copy(
+                            color = Color(0xFF757575),
+                            fontSize = 14.sp,
+                            fontWeight = Bold
+                        ),
+                        modifier = Modifier.padding(horizontal = 15.dp)
+                    )
+                    val outcome = when {
+                        game.outcome == "Cancellation" -> "Cancelled"
+                        userId == game.blackPlayer.id ->
+                            if (game.blackLost == true) "Lost"
+                            else "Won"
+                        userId == game.whitePlayer.id ->
+                            if (game.whiteLost == true) "Lost"
+                            else "Won"
+                        game.whiteLost == true ->
+                            "Black won"
+                        else ->
+                            "White won"
                     }
+                    Text(
+                        text = outcome,
+                        style = TextStyle.Default.copy(
+                            color = Color(0xFF757575),
+                            fontSize = 12.sp,
+                        ),
+                        modifier = Modifier.padding(horizontal = 15.dp)
+                    )
+                }
+            }
+        }
+        if (!loadedAllHistoricGames) {
+            item {
+                Surface(
+                    shape = MaterialTheme.shapes.medium,
+                    modifier = Modifier
+                        .size(width = 125.dp, height = 140.dp)
+                        .padding(horizontal = 8.dp)
+                ) {
+                    LaunchedEffect(games) {
+                        onAction(LoadMoreHistoricGames(games.lastOrNull()))
+                    }
+                    CircularProgressIndicator(
+                        modifier = Modifier.padding(horizontal = 15.dp, vertical = 10.dp)
+                    )
                 }
             }
         }

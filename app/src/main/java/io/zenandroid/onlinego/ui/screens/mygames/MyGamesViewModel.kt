@@ -6,24 +6,33 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.crashlytics.FirebaseCrashlytics
+import io.reactivex.Maybe
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
+import io.reactivex.schedulers.Schedulers
 import io.zenandroid.onlinego.data.model.local.Challenge
 import io.zenandroid.onlinego.data.model.local.Game
 import io.zenandroid.onlinego.data.model.ogs.OGSAutomatch
 import io.zenandroid.onlinego.data.model.ogs.Phase
 import io.zenandroid.onlinego.data.ogs.OGSRestService
 import io.zenandroid.onlinego.data.ogs.OGSWebSocketService
-import io.zenandroid.onlinego.data.repositories.FinishedGamesRepository
-import io.zenandroid.onlinego.data.repositories.UserSessionRepository
+import io.zenandroid.onlinego.data.repositories.*
 import io.zenandroid.onlinego.gamelogic.RulesManager
+import io.zenandroid.onlinego.gamelogic.Util
+import io.zenandroid.onlinego.utils.WhatsNewUtils
 import io.zenandroid.onlinego.utils.addToDisposable
+import io.zenandroid.onlinego.utils.timeLeftForCurrentPlayer
+import org.json.JSONObject
 import javax.annotation.concurrent.Immutable
 
 class MyGamesViewModel(
     private val userSessionRepository: UserSessionRepository,
     private val finishedGamesRepository: FinishedGamesRepository,
+    private val activeGamesRepository: ActiveGamesRepository,
+    private val challengesRepository: ChallengesRepository,
+    private val automatchRepository: AutomatchRepository,
+    private val notificationsRepository: ServerNotificationsRepository,
     private val analytics: FirebaseAnalytics,
     private val restService: OGSRestService,
     private val socketService: OGSWebSocketService,
@@ -40,7 +49,67 @@ class MyGamesViewModel(
     }
 
     init {
+        activeGamesRepository.monitorActiveGames()
+            .subscribeOn(Schedulers.io())
+            .map(this::sortGames)
+            .map(this::computePositions)
+            .subscribeOn(Schedulers.computation())
+            .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
+            .subscribe(this::setGames, this::onError)
+            .addToDisposable(subscriptions)
+        activeGamesRepository.refreshActiveGames()
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
+            .subscribe({}, this::onError)
+            .addToDisposable(subscriptions)
+        finishedGamesRepository.getRecentlyFinishedGames()
+            .subscribeOn(Schedulers.io())
+            .map(this::computePositions)
+            .subscribeOn(Schedulers.computation())
+            .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
+            .subscribe(this::setRecentGames, this::onError)
+            .addToDisposable(subscriptions)
+        challengesRepository.monitorChallenges()
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
+            .subscribe(this::setChallenges, this::onError)
+            .addToDisposable(subscriptions)
+        automatchRepository.automatchObservable
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
+            .subscribe(this::setAutomatches, this::onError)
+            .addToDisposable(subscriptions)
+        automatchRepository.gameStartObservable
+            .flatMapMaybe { it.game_id?.let { activeGamesRepository.getGameSingle(it).toMaybe() } ?: Maybe.empty() }
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
+            .subscribe(this::onGameStart, this::onError)
+            .addToDisposable(subscriptions)
+        notificationsRepository.notificationsObservable()
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
+            .subscribe(this::onNotification, this::onError)
+            .addToDisposable(subscriptions)
+
         onNeedMoreOlderGames(OlderGamesAdapter.MoreDataRequest())
+
+//        if(WhatsNewUtils.shouldDisplayDialog) {
+//            view.showWhatsNewDialog()
+//        }
+//
+//        WhatsNewUtils.textShown()
+    }
+
+    private fun sortGames(unsorted : List<Game>): List<Game> {
+        return unsorted.sortedWith(Comparator { left, right ->
+            when {
+                Util.isMyTurn(left) && !Util.isMyTurn(right) -> -1
+                !Util.isMyTurn(left) && Util.isMyTurn(right) -> 1
+                else -> {
+                    (timeLeftForCurrentPlayer(left) - timeLeftForCurrentPlayer(right)).toInt()
+                }
+            }
+        })
     }
 
     fun setGames(games: List<Game>) {
@@ -89,7 +158,7 @@ class MyGamesViewModel(
     }
 
 
-    fun onChallengeCancelled(challenge: Challenge) {
+    private fun onChallengeCancelled(challenge: Challenge) {
         analytics.logEvent("challenge_cancelled", null)
         restService.declineChallenge(challenge.id)
             .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
@@ -97,7 +166,7 @@ class MyGamesViewModel(
             .addToDisposable(subscriptions)
     }
 
-    fun onChallengeAccepted(challenge: Challenge) {
+    private fun onChallengeAccepted(challenge: Challenge) {
         analytics.logEvent("challenge_accepted", null)
         restService.acceptChallenge(challenge.id)
             .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
@@ -105,7 +174,7 @@ class MyGamesViewModel(
             .addToDisposable(subscriptions)
     }
 
-    fun onChallengeDeclined(challenge: Challenge) {
+    private fun onChallengeDeclined(challenge: Challenge) {
         analytics.logEvent("challenge_declined", null)
         restService.declineChallenge(challenge.id)
             .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
@@ -113,11 +182,30 @@ class MyGamesViewModel(
             .addToDisposable(subscriptions)
     }
 
-    fun onAutomatchCancelled(automatch: OGSAutomatch) {
+    private fun onAutomatchCancelled(automatch: OGSAutomatch) {
         analytics.logEvent("new_game_cancelled", null)
         socketService.cancelAutomatch(automatch)
     }
 
+    private fun onNotification(notification: JSONObject) {
+        if(notification["type"] == "gameOfferRejected") {
+            notificationsRepository.acknowledgeNotification(notification)
+            val message = if(notification.has("message") && notification["message"].toString() != "null") "Message is:\n\n${notification["message"]}" else ""
+            if (notification["name"].toString() == "Bot Match") {
+                _state.value = _state.value?.copy(
+                    alertDialogTitle = "Bot rejected challenge",
+                    alertDialogText = "This might happen because the opponent's maintainer has set some conditions on the challenge parameters. $message"
+                )
+                analytics.logEvent("bot_refused_challenge", null)
+                FirebaseCrashlytics.getInstance().log("Bot refused challenge. $message")
+            } else {
+                _state.value = _state.value?.copy(
+                    alertDialogTitle = "Opponent rejected challenge",
+                    alertDialogText = "You may try again or otherwise contact the opponent to clarify his/her reasons for the rejection. $message"
+                )
+            }
+        }
+    }
 
     private fun onError(t: Throwable) {
         if(t is retrofit2.HttpException) {
@@ -133,7 +221,8 @@ class MyGamesViewModel(
         } else {
             if(t is com.squareup.moshi.JsonDataException) {
                 _state.value = _state.value?.copy(
-                    errorMessage = "An error occurred white talking to the OGS Server. This usually means the website devs have changed something in the API. Please report this error as the app will probably not work until we adapt to this change."
+                    alertDialogTitle = "OGS Error",
+                    alertDialogText = "An error occurred white talking to the OGS Server. This usually means the website devs have changed something in the API. Please report this error as the app will probably not work until we adapt to this change."
                 )
             }
             FirebaseCrashlytics.getInstance().recordException(t)
@@ -149,9 +238,23 @@ class MyGamesViewModel(
             is Action.ChallengeDeclined -> onChallengeDeclined(action.challenge)
             is Action.AutomatchCancelled -> onAutomatchCancelled(action.automatch)
             is Action.LoadMoreHistoricGames -> onNeedMoreOlderGames(OlderGamesAdapter.MoreDataRequest(action.game))
+            Action.DismissAlertDialog -> onDismissAlertDialog()
 
             Action.CustomGame, is Action.GameSelected, Action.PlayOffline, Action.PlayOnline -> {} // intentionally left blank
         }
+    }
+
+    private fun onDismissAlertDialog() {
+        _state.value = _state.value?.copy(
+            alertDialogText = null,
+            alertDialogTitle = null
+        )
+    }
+
+    private fun onGameStart(game: Game) {
+        _state.value = _state.value?.copy(
+            gameNavigationPending = game
+        )
     }
 
     private fun onNeedMoreOlderGames(request: OlderGamesAdapter.MoreDataRequest) {
@@ -197,5 +300,7 @@ data class MyGamesState(
     val loadedAllHistoricGames: Boolean = false,
     val userId: Long,
     val userIsLoggedOut: Boolean = false,
-    val errorMessage: String? = null
+    val alertDialogTitle: String? = null,
+    val alertDialogText: String? = null,
+    val gameNavigationPending: Game? = null,
 )
