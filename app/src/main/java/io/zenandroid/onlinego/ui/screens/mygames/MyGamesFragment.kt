@@ -21,11 +21,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Alignment.Companion.CenterVertically
-import androidx.compose.ui.Alignment.Companion.End
 import androidx.compose.ui.Alignment.Companion.TopEnd
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -34,7 +32,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.platform.ViewCompositionStrategy.DisposeOnLifecycleDestroyed
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
@@ -49,7 +46,6 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.lerp
 import androidx.core.os.bundleOf
 import androidx.navigation.findNavController
-import com.awesomedialog.blennersilva.awesomedialoglibrary.AwesomeInfoDialog
 import com.google.accompanist.pager.*
 import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.R
@@ -71,9 +67,8 @@ import io.zenandroid.onlinego.ui.screens.mygames.Action.LoadMoreHistoricGames
 import io.zenandroid.onlinego.ui.screens.whatsnew.WhatsNewDialog
 import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
 import io.zenandroid.onlinego.ui.theme.salmon
+import io.zenandroid.onlinego.utils.WhatsNewUtils
 import io.zenandroid.onlinego.utils.computeTimeLeft
-import io.zenandroid.onlinego.utils.showIf
-import org.koin.android.ext.android.get
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import kotlin.math.absoluteValue
 
@@ -83,24 +78,9 @@ import kotlin.math.absoluteValue
 class MyGamesFragment : Fragment() {
 
     private val viewModel: MyGamesViewModel by viewModel()
-//    fun showLoginScreen() {
-//        (activity as? MainActivity)?.showLogin()
-//    }
-
-//    private val groupAdapter = GameListGroupAdapter(get<UserSessionRepository>().userId)
-//
-//    private val whatsNewDialog: WhatsNewDialog by lazy { WhatsNewDialog() }
-//
-//    private lateinit var presenter: MyGamesContract.Presenter
     private var analytics = OnlineGoApplication.instance.analytics
 
     private lateinit var binding: FragmentMygamesBinding
-
-    private var lastReportedGameCount = -1
-
-//    override val needsMoreOlderGames by lazy {
-//        groupAdapter.olderGamesAdapter.needsMoreDataObservable
-//    }
 
     @ExperimentalFoundationApi
     @ExperimentalPagerApi
@@ -134,6 +114,22 @@ class MyGamesFragment : Fragment() {
                             navigateToGameScreen(state.gameNavigationPending!!)
                         }
                     }
+                    if(state.whatsNewDialogVisible) {
+                        AlertDialog(
+                            onDismissRequest = { onAction(Action.DismissWhatsNewDialog) },
+                            dismissButton = {
+                                TextButton(onClick = { onAction(Action.DismissWhatsNewDialog) }) {
+                                    Text("OK")
+                                }
+                            },
+                            confirmButton = {
+                                TextButton(onClick = { onAction(Action.SupportClicked) }) {
+                                    Text("SUPPORT")
+                                }
+                            },
+                            text = { Text(WhatsNewUtils.whatsNewTextAnnotated) }
+                        )
+                    }
                 }
             }
         }
@@ -154,6 +150,10 @@ class MyGamesFragment : Fragment() {
                 analytics.logEvent("automatch_item_clicked", null)
                 (activity as MainActivity).onAutoMatchSearch()
             }
+            Action.SupportClicked -> {
+                analytics.logEvent("support_whats_new_clicked", null)
+                (activity as MainActivity).onNavigateToSupport()
+            }
             is GameSelected -> {
                 val game = action.game
                 analytics.logEvent("clicked_game", Bundle().apply {
@@ -166,122 +166,16 @@ class MyGamesFragment : Fragment() {
         }
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-//        binding.gamesRecycler.layoutManager = LinearLayoutManager(context)
-//        (binding.gamesRecycler.itemAnimator as SimpleItemAnimator).supportsChangeAnimations = false
-//        binding.gamesRecycler.adapter = groupAdapter
-//        groupAdapter.setOnItemClickListener { item, _ ->
-//            when (item) {
-//                is ActiveGameItem -> presenter.onGameSelected(item.game)
-//                is FinishedGameItem -> presenter.onGameSelected(item.game)
-//                is NewGameItem.AutoMatch -> {
-//                    analytics.logEvent("automatch_item_clicked", null)
-//                    (activity as MainActivity).onAutoMatchSearch()
-//                }
-//                is NewGameItem.Custom -> {
-//                    analytics.logEvent("friend_item_clicked", null)
-//                    (activity as MainActivity).onCustomGameSearch()
-//                }
-//                is NewGameItem.LocalAI -> {
-//                    analytics.logEvent("localai_item_clicked", null)
-//                    view.findNavController().navigate(R.id.action_myGamesFragment_to_aiGameFragment)
-//                }
-//            }
-//        }
-//        groupAdapter.olderGamesAdapter.setOnItemClickListener { item, _ ->
-//            if(item is HistoricGameItem) {
-//                presenter.onGameSelected(item.game)
-//            }
-//        }
-//
-//        presenter = MyGamesPresenter(this, analytics, get(), get(), get(), get(), get(), get(), get(), get())
-    }
-
-//    override fun showWhatsNewDialog() {
-//        if(parentFragmentManager.findFragmentByTag("WHATS_NEW") == null) {
-//            whatsNewDialog.show(parentFragmentManager, "WHATS_NEW")
-//        }
-//    }
-//
-//    override fun setLoadedAllHistoricGames(loadedLastPage: Boolean) {
-//        groupAdapter.olderGamesAdapter.loadedLastPage = loadedLastPage
-//    }
-//
-//    override fun setLoadingMoreHistoricGames(loading: Boolean) {
-//        groupAdapter.olderGamesAdapter.loading = loading
-//    }
-//
-//    override fun showMessage(title: String, message: String) {
-//        AwesomeInfoDialog(context)
-//                .setTitle(title)
-//                .setMessage(message)
-//                .setDialogBodyBackgroundColor(R.color.colorOffWhite)
-//                .setColoredCircle(R.color.colorPrimary)
-//                .setDialogIconAndColor(R.drawable.ic_dialog_info, R.color.white)
-//                .setCancelable(true)
-//                .setPositiveButtonText("OK")
-//                .setPositiveButtonbackgroundColor(R.color.colorPrimary)
-//                .setPositiveButtonTextColor(R.color.white)
-//                .setPositiveButtonClick {  }
-//                .show()
-//    }
-
-//    override fun setChallenges(challenges: List<Challenge>) {
-//        groupAdapter.setChallenges(challenges.map {
-//            ChallengeItem(it, presenter::onChallengeCancelled, presenter::onChallengeAccepted, presenter::onChallengeDeclined)
-//        })
-//    }
-
-//    override fun setAutomatches(automatches: List<OGSAutomatch>) {
-//        groupAdapter.setAutomatches(automatches.map {
-//            AutomatchItem(it, presenter::onAutomatchCancelled)
-//        })
-//    }
-
-    fun navigateToGameScreen(game: Game) {
+    private fun navigateToGameScreen(game: Game) {
         view?.findNavController()?.navigate(R.id.action_myGamesFragment_to_gameFragment, bundleOf(GAME_ID to game.id, GAME_SIZE to game.width))
     }
 
     override fun onResume() {
         super.onResume()
         analytics.setCurrentScreen(requireActivity(), javaClass.simpleName, null)
-//        presenter.subscribe()
     }
 
-//    override fun setRecentGames(games: List<Game>) {
-//        groupAdapter.setRecentGames(games)
-//    }
-//
-//    override fun onPause() {
-//        super.onPause()
-//        presenter.unsubscribe()
-//    }
-
-//    override fun setGames(games: List<Game>) {
-//        if (lastReportedGameCount != games.size) {
-//            analytics.logEvent("active_games", Bundle().apply { putInt("GAME_COUNT", games.size) })
-//            lastReportedGameCount = games.size
-//        }
-//        groupAdapter.setGames(games)
-//    }
-
-//    override fun setLoading(loading: Boolean) {
-//        binding.progressBar.showIf(loading)
-//    }
-//
-//    override fun appendHistoricGames(games: List<Game>) {
-//        if(games.isNotEmpty()) {
-//            groupAdapter.historicGamesvisible = true
-//            groupAdapter.olderGamesAdapter.appendData(games)
-//        }
-//    }
-//
-//    override fun isHistoricGamesSectionEmpty() =
-//        groupAdapter.olderGamesAdapter.isEmpty()
 }
-
 
 @Composable
 fun TutorialItem(percentage: Int, tutorial: String) {
@@ -355,6 +249,8 @@ sealed class Action {
     object PlayOnline: Action()
     object CustomGame: Action()
     object PlayOffline: Action()
+    object SupportClicked: Action()
+    object DismissWhatsNewDialog: Action()
     object DismissAlertDialog: Action()
     class GameSelected(val game: Game): Action()
     class ChallengeCancelled(val challenge: Challenge): Action()

@@ -37,7 +37,10 @@ class MyGamesViewModel(
     private val restService: OGSRestService,
     private val socketService: OGSWebSocketService,
     ) : ViewModel() {
-    private val _state = MutableLiveData(MyGamesState(userId = userSessionRepository.userId ?: 0))
+    private val _state = MutableLiveData(MyGamesState(
+        userId = userSessionRepository.userId ?: 0,
+        whatsNewDialogVisible = WhatsNewUtils.shouldDisplayDialog
+    ))
     val state: LiveData<MyGamesState> = _state
     private val subscriptions = CompositeDisposable()
     private var loadOlderGamesSubscription: Disposable? = null
@@ -91,13 +94,8 @@ class MyGamesViewModel(
             .subscribe(this::onNotification, this::onError)
             .addToDisposable(subscriptions)
 
-        onNeedMoreOlderGames(OlderGamesAdapter.MoreDataRequest())
+        onNeedMoreOlderGames(null)
 
-//        if(WhatsNewUtils.shouldDisplayDialog) {
-//            view.showWhatsNewDialog()
-//        }
-//
-//        WhatsNewUtils.textShown()
     }
 
     private fun sortGames(unsorted : List<Game>): List<Game> {
@@ -228,7 +226,7 @@ class MyGamesViewModel(
             FirebaseCrashlytics.getInstance().recordException(t)
         }
 
-        Log.e(MyGamesPresenter.TAG, t.message, t)
+        Log.e("MyGamesViewModel", t.message, t)
     }
 
     fun onAction(action: Action) {
@@ -237,7 +235,8 @@ class MyGamesViewModel(
             is Action.ChallengeCancelled -> onChallengeCancelled(action.challenge)
             is Action.ChallengeDeclined -> onChallengeDeclined(action.challenge)
             is Action.AutomatchCancelled -> onAutomatchCancelled(action.automatch)
-            is Action.LoadMoreHistoricGames -> onNeedMoreOlderGames(OlderGamesAdapter.MoreDataRequest(action.game))
+            is Action.LoadMoreHistoricGames -> onNeedMoreOlderGames(action.game)
+            is Action.DismissWhatsNewDialog -> onDismissWhatsNewDialog()
             Action.DismissAlertDialog -> onDismissAlertDialog()
 
             Action.CustomGame, is Action.GameSelected, Action.PlayOffline, Action.PlayOnline -> {} // intentionally left blank
@@ -251,16 +250,23 @@ class MyGamesViewModel(
         )
     }
 
+    private fun onDismissWhatsNewDialog() {
+        WhatsNewUtils.textShown()
+        _state.value = _state.value?.copy(
+            whatsNewDialogVisible = false
+        )
+    }
+
     private fun onGameStart(game: Game) {
         _state.value = _state.value?.copy(
             gameNavigationPending = game
         )
     }
 
-    private fun onNeedMoreOlderGames(request: OlderGamesAdapter.MoreDataRequest) {
+    private fun onNeedMoreOlderGames(lastGame: Game?) {
         loadOlderGamesSubscription?.dispose()
         loadOlderGamesSubscription =
-            finishedGamesRepository.getHistoricGames(request.game?.ended)
+            finishedGamesRepository.getHistoricGames(lastGame?.ended)
                 .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
                 .distinctUntilChanged()
                 .doOnNext {
@@ -303,4 +309,5 @@ data class MyGamesState(
     val alertDialogTitle: String? = null,
     val alertDialogText: String? = null,
     val gameNavigationPending: Game? = null,
+    val whatsNewDialogVisible: Boolean = false,
 )

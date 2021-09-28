@@ -197,6 +197,10 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         }.show()
     }
 
+    fun onNavigateToSupport() {
+        findNavController(R.id.fragment_container).navigate(R.id.supporterFragment)
+    }
+
     fun onCustomGameSearch() {
         NewChallengeBottomSheet().show(supportFragmentManager, "BOTTOM_SHEET")
     }
