@@ -73,7 +73,7 @@
         android:clickable="true"
         app:layout_constraintBottom_toTopOf="@+id/onlineFab"
         app:layout_constraintEnd_toEndOf="parent"
-        app:srcCompat="@drawable/ic_challenge"
+        app:srcCompat="@drawable/ic_tool"
         app:tint="@color/colorTextBackground"
         app:fabSize="mini"
         app:backgroundTint="@color/colorAccent"

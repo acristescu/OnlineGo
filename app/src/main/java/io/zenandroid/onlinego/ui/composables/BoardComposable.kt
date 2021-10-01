@@ -73,7 +73,6 @@ fun Board(
 
     if(fadeInLastMove && stoneToFadeIn != null) {
         LaunchedEffect(stoneToFadeIn) {
-            Log.e("***", "Launching fade in")
             fadeInAlpha.snapTo(.4f)
             fadeInAlpha.animateTo(1f, animationSpec = tween(150))
             stoneToFadeIn = null
@@ -81,20 +80,11 @@ fun Board(
     }
     if(fadeOutRemovedStones && stonesToFadeOut?.isNotEmpty() == true) {
         LaunchedEffect(stonesToFadeOut) {
-            Log.e("***", "Launching fade out")
             fadeOutAlpha.snapTo(1f)
             fadeOutAlpha.animateTo(0f, animationSpec = tween(150, 75))
             stonesToFadeOut = null
         }
     }
-//    val animationState = transition(
-//            definition = transition,
-//            initState = AnimationState.INITIAL,
-//            toState = if(stoneToFadeIn != null || stonesToFadeOut != null) AnimationState.FINAL else AnimationState.INITIAL
-//    ) {
-//        stoneToFadeIn = null
-//        stonesToFadeOut = null
-//    }
     Canvas(modifier = modifier
             .aspectRatio(1f)
             .run {
@@ -141,7 +131,6 @@ fun Board(
             drawStarPoints(boardSize, measurements)
             drawCoordinates(boardSize, drawCoordinates, measurements)
 
-            Log.e("***", "fadeOutAlpha = ${fadeOutAlpha.value}")
             for (item in stonesToFadeOut ?: emptyMap()) {
                 drawStone(item.key, item.value, fadeOutAlpha.value, true, measurements)
             }
@@ -149,7 +138,6 @@ fun Board(
                 // stones
                 for (p in position.allStonesCoordinates) {
                     val type = position.getStoneAt(p.x, p.y)
-                    Log.e("***", fadeInAlpha.value.toString())
                     val alpha = when {
                         fadeInLastMove && p == stoneToFadeIn -> fadeInAlpha.value
                         fadeOutRemovedStones && it.removedSpots.contains(p) -> .4f
@@ -170,30 +158,6 @@ fun Board(
         }
     }
 }
-
-private enum class AnimationState {
-    INITIAL, FINAL
-}
-//private val fadeInAlpha = FloatPropKey()
-//private val fadeOutAlpha = FloatPropKey()
-//private val transition = transitionDefinition<AnimationState> {
-//    state(AnimationState.INITIAL) {
-//        this[fadeInAlpha] = .4f
-//        this[fadeOutAlpha] = 1f
-//    }
-//    state(AnimationState.FINAL) {
-//        this[fadeInAlpha] = 1f
-//        this[fadeOutAlpha] = 0f
-//    }
-//    transition(AnimationState.INITIAL to AnimationState.FINAL) {
-//        fadeInAlpha using tween(durationMillis = 150)
-//        fadeOutAlpha using tween(durationMillis = 150, delayMillis = 75)
-//    }
-//    transition(AnimationState.FINAL to AnimationState.INITIAL) {
-//        fadeInAlpha using snap()
-//        fadeOutAlpha using snap()
-//    }
-//}
 
 private fun screenToBoardCoordinates(x: Float, y: Float, border: Float, cellSize: Int, boardSize: Int): Point {
     return Point(

@@ -11,7 +11,10 @@ private val LightColorPalette = lightColors(
     primary = salmon,
     primaryVariant = darkBlue,
     secondary = salmon,
-    background = background
+    background = background,
+    onSurface = lightOnSurface,
+    onBackground = lightOnBackground,
+    onPrimary = lightOnPrimary,
 
     /* Other default colors to override
 background = Color.White,
@@ -29,7 +32,9 @@ private val DarkColorPalette = darkColors(
     secondary = salmon,
     surface = nightSurface,
     onSurface = nightOnSurface,
-    background = nightBackground
+    background = nightBackground,
+    onBackground = nightOnBackground,
+    onPrimary = nightOnPrimary,
 )
 
 

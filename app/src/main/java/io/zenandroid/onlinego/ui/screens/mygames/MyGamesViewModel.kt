@@ -239,7 +239,7 @@ class MyGamesViewModel(
             is Action.DismissWhatsNewDialog -> onDismissWhatsNewDialog()
             Action.DismissAlertDialog -> onDismissAlertDialog()
 
-            Action.CustomGame, is Action.GameSelected, Action.PlayOffline, Action.PlayOnline -> {} // intentionally left blank
+            Action.CustomGame, is Action.GameSelected, Action.PlayAgainstAI, Action.PlayOnline -> {} // intentionally left blank
         }
     }
 

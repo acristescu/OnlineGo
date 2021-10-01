@@ -28,34 +28,48 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.google.accompanist.pager.ExperimentalPagerApi
+import com.google.accompanist.pager.HorizontalPagerIndicator
+import com.google.accompanist.pager.PagerState
+import com.google.accompanist.pager.rememberPagerState
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
 
+@ExperimentalPagerApi
 @Composable
 fun Screen(state: OnboardingState, listener: (OnboardingAction) -> Unit) {
-    Column (modifier = Modifier
-        .fillMaxHeight()
-        .background(Color.White)
-        .padding(36.dp, 16.dp)
-        .verticalScroll(rememberScrollState())
-    ) {
-        PageIndicator(
-            currentPage = state.currentPageIndex,
-            numberOfPages = state.totalPages,
-            modifier = Modifier.align(Alignment.CenterHorizontally)
-        )
-        when (state.currentPage) {
-            is Page.OnboardingPage -> InfoPage(page = state.currentPage, listener = listener)
-            is Page.MultipleChoicePage -> QuestionPage(page = state.currentPage, listener = listener)
-            is Page.LoginPage -> when (state.loginMethod!!) {
-                Page.LoginMethod.GOOGLE -> {}
-                Page.LoginMethod.FACEBOOK -> {}
-                Page.LoginMethod.PASSWORD -> LoginPage(
-                    state = state,
+    Surface(modifier = Modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier
+                .padding(36.dp, 16.dp)
+                .verticalScroll(rememberScrollState())
+        ) {
+            PageIndicator(
+                currentPage = state.currentPageIndex,
+                numberOfPages = state.totalPages,
+                modifier = Modifier.align(Alignment.CenterHorizontally)
+            )
+            when (state.currentPage) {
+                is Page.OnboardingPage -> InfoPage(
+                    page = state.currentPage,
                     listener = listener
                 )
-            }
+                is Page.MultipleChoicePage -> QuestionPage(
+                    page = state.currentPage,
+                    listener = listener
+                )
+                is Page.LoginPage -> when (state.loginMethod!!) {
+                    Page.LoginMethod.GOOGLE -> {
+                    }
+                    Page.LoginMethod.FACEBOOK -> {
+                    }
+                    Page.LoginMethod.PASSWORD -> LoginPage(
+                        state = state,
+                        listener = listener
+                    )
+                }
 
+            }
         }
     }
 }
@@ -232,43 +246,44 @@ private fun ColumnScope.InfoPage(page: Page.OnboardingPage, listener: (Onboardin
     }
 }
 
+@ExperimentalPagerApi
 @Composable
 private fun PageIndicator(modifier: Modifier = Modifier, currentPage: Int, numberOfPages: Int) {
-    Row(modifier = modifier) {
-        repeat(times = numberOfPages) { page ->
-            val circleColor = if (page == currentPage) Color.Black else Color.White
-            Box(
-                modifier = Modifier
-                    .padding(horizontal = 5.dp) // this is the space between the dots
-                    .background(Color.Black, shape = CircleShape)
-                    .padding(all = 1.dp) // width of the line of the empty circle
-                    .background(color = circleColor, shape = CircleShape)
-                    .size(6.dp) // size of the middle circle
-            )
-        }
+    val state = rememberPagerState(pageCount = numberOfPages)
+    LaunchedEffect(currentPage) {
+        state.animateScrollToPage(currentPage)
     }
+    HorizontalPagerIndicator(
+        pagerState = state,
+        activeColor = MaterialTheme.colors.onSurface,
+        modifier = modifier
+            .padding(16.dp)
+    )
 }
 
+@ExperimentalPagerApi
 @Preview
 @Composable
 fun DefaultPreview() {
-    OnlineGoTheme {
+    OnlineGoTheme (darkTheme = true) {
         Screen(OnboardingState()) { _ -> }
     }
 }
 
+@ExperimentalPagerApi
 @Preview
 @Composable
 fun DefaultPreview1() {
-    OnlineGoTheme {
+    OnlineGoTheme (darkTheme = true) {
         Screen(OnboardingState(currentPage = Page.MultipleChoicePage("Is there a cow level? Lorem ipsum dolor sit amet", listOf("Yes", "NO!!!")))) { _ -> }
     }
 }
 
+@ExperimentalPagerApi
 @Preview
 @Composable
 fun DefaultPreview2() {
-    OnlineGoTheme {
+    OnlineGoTheme (darkTheme = true) {
         Screen(OnboardingState(currentPage = Page.LoginPage, loginMethod = Page.LoginMethod.PASSWORD, isExistingAccount = false)) { _ -> }
     }
 }

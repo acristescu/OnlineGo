@@ -19,6 +19,7 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
+import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.Scopes
@@ -33,6 +34,7 @@ import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.repositories.UserSessionRepository
 import io.zenandroid.onlinego.ui.screens.login.FacebookLoginCallbackActivity
 import io.zenandroid.onlinego.ui.screens.onboarding.OnboardingAction.BackPressed
+import io.zenandroid.onlinego.ui.screens.onboarding.OnboardingAction.SocialPlatformLoginFailed
 import io.zenandroid.onlinego.ui.screens.onboarding.Page.LoginMethod
 import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
 import io.zenandroid.onlinego.utils.addToDisposable
@@ -59,9 +61,11 @@ class OnboardingFragment : Fragment() {
             Log.w("OnboardingFragment", "signInResult:failed code=" + e.statusCode)
             FirebaseCrashlytics.getInstance().recordException(e)
             Toast.makeText(requireContext(), "signInResult:failed code=" + e.statusCode, Toast.LENGTH_LONG).show()
+            viewModel.onAction(SocialPlatformLoginFailed)
         }
     }
 
+    @ExperimentalPagerApi
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -125,6 +129,7 @@ class OnboardingFragment : Fragment() {
             }, {
                 FirebaseCrashlytics.getInstance().recordException(it)
                 Toast.makeText(context, it.message, Toast.LENGTH_LONG).show()
+                viewModel.onAction(SocialPlatformLoginFailed)
             }).addToDisposable(subscriptions)
     }
 

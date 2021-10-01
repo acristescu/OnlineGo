@@ -40,7 +40,9 @@ class MainPresenter (
         }
 
         Observable.interval(10, TimeUnit.SECONDS).subscribe {
-            socketService.ensureSocketConnected()
+            if(userSessionRepository.isLoggedIn()) {
+                socketService.ensureSocketConnected()
+            }
         }.addToDisposable(subscriptions)
 
     }

@@ -72,6 +72,11 @@ class OnboardingViewModel(
                 _state.value = state.copy(loginProcessing = true)
             }
             OnboardingAction.DialogDismissed -> _state.value = state.copy(loginErrorDialogText = null)
+            OnboardingAction.SocialPlatformLoginFailed -> _state.value = state.copy(
+                loginMethod = null,
+                currentPageIndex = state.currentPageIndex - 1,
+                currentPage = pages[state.currentPageIndex - 1],
+            )
         }
     }
 
@@ -225,6 +230,7 @@ sealed class OnboardingAction {
     object BackPressed: OnboardingAction()
     object LoginPressed : OnboardingAction()
     object DialogDismissed : OnboardingAction()
+    object SocialPlatformLoginFailed: OnboardingAction()
 
     class AnswerSelected(val answerIndex: Int): OnboardingAction()
     class UsernameChanged(val newUsername: String): OnboardingAction()

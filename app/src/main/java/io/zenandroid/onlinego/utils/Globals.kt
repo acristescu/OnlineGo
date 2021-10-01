@@ -100,6 +100,21 @@ fun timeLeftForCurrentPlayer(game: Game): Long {
 
 private val clockDriftRepository: ClockDriftRepository by get().inject()
 
+fun calculateTimer(game: Game): String {
+    val currentPlayer = when (game.playerToMoveId) {
+        game.blackPlayer.id -> game.blackPlayer
+        game.whitePlayer.id -> game.whitePlayer
+        else -> null
+    }
+    val timerDetails = game.clock?.let {
+        if (currentPlayer?.id == game.blackPlayer.id)
+            computeTimeLeft(it, it.blackTimeSimple, it.blackTime, true, game.pausedSince)
+        else
+            computeTimeLeft(it, it.whiteTimeSimple, it.whiteTime, true, game.pausedSince)
+    }
+    return timerDetails?.firstLine ?: ""
+}
+
 fun computeTimeLeft(
         clock: Clock,
         playerTimeSimple: Long?,
