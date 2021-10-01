@@ -311,3 +311,19 @@ data class MyGamesState(
     val gameNavigationPending: Game? = null,
     val whatsNewDialogVisible: Boolean = false,
 )
+
+
+sealed class Action {
+    object PlayOnline: Action()
+    object CustomGame: Action()
+    object PlayAgainstAI: Action()
+    object SupportClicked: Action()
+    object DismissWhatsNewDialog: Action()
+    object DismissAlertDialog: Action()
+    class GameSelected(val game: Game): Action()
+    class ChallengeCancelled(val challenge: Challenge): Action()
+    class ChallengeAccepted(val challenge: Challenge): Action()
+    class ChallengeDeclined(val challenge: Challenge): Action()
+    class AutomatchCancelled(val automatch: OGSAutomatch): Action()
+    class LoadMoreHistoricGames(val game: Game?): Action()
+}

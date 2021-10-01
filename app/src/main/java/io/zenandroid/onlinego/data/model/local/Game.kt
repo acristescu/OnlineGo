@@ -194,5 +194,39 @@ data class Game(
                     pauseControl = pauseControl
             )
         }
+
+        fun sampleData() =
+            Game(
+                id = 1968L,
+                width = 19,
+                height = 19,
+                outcome = null,
+                playerToMoveId = 1L,
+                whiteLost = false,
+                blackLost = false,
+                initialState = null,
+                whiteGoesFirst = true,
+                moves = mutableListOf(mutableListOf(3, 3), mutableListOf(13, 13)),
+                removedStones = "",
+                whiteScore = Score(komi = 5.5, prisoners = 3),
+                blackScore = Score(prisoners = 1),
+                whitePlayer = Player(id = 1L, username = "Bula", rating = 5.5, country = "UK", icon = null, acceptedStones = null, ui_class = null),
+                blackPlayer = Player(id = 0L, username = "Playa", rating = 6.5, country = "UK", icon = null, acceptedStones = null, ui_class = null),
+                clock = Clock(lastMove = 120L, receivedAt = 120L, whiteTime = null, whiteTimeSimple = null, startMode = false, blackTime = null, blackTimeSimple = null),
+                phase = null,
+                komi = 5.5f,
+                ended = null,
+                freeHandicapPlacement = false,
+                handicap = null,
+                undoRequested = null,
+                scoreStones = null,
+                name = "Game name",
+                rules = "Japanese",
+                ranked = false,
+                timeControl = null,
+                disableAnalysis = false,
+                pausedSince = null,
+                pauseControl = null
+            )
     }
 }
