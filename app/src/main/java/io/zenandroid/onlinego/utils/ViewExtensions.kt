@@ -138,7 +138,7 @@ fun BottomNavigationView.disableShiftMode() {
             val item = menuView.getChildAt(i) as BottomNavigationItemView
             item.setShifting(false)
             // set once again checked value, so view will be updated
-            item.setChecked(item.itemData.isChecked)
+            item.setChecked(item.itemData?.isChecked ?: false)
         }
     } catch (e: NoSuchFieldException) {
         //Timber.e(e, "Unable to get shift mode field");

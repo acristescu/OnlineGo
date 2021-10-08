@@ -19,6 +19,7 @@
         <meta-data android:name="android.max_aspect" android:value="10.0"/>
         <activity
             android:name="io.zenandroid.onlinego.ui.screens.main.MainActivity"
+            android:exported="true"
             >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -32,6 +33,7 @@
             android:launchMode="singleInstance"
             android:theme="@style/Theme.AppCompat.Translucent"
             android:enabled="false"
+            android:exported="true"
             >
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />

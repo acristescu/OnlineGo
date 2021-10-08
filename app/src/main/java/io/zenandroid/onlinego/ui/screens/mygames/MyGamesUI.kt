@@ -32,6 +32,13 @@ fun MyGamesScreen(state: MyGamesState, onAction: (Action) -> Unit) {
         state = listState,
         modifier = Modifier.fillMaxHeight()
     ) {
+        item {
+            HomeScreenHeader(
+                image = state.userImageURL,
+                mainText = state.headerMainText,
+                subText = state.headerSubText
+            )
+        }
 //        item {
 //            TutorialItem(percentage = 73, tutorial = "Basics > Capturing")
 //        }
@@ -106,11 +113,12 @@ private fun Header(text: String) {
 @ExperimentalComposeUiApi
 @Preview
 @Composable
-fun Preview() {
-    OnlineGoTheme (darkTheme = true) {
+private fun Preview() {
+    OnlineGoTheme (darkTheme = false) {
         Box(modifier = Modifier.background(MaterialTheme.colors.background)) {
             MyGamesScreen(MyGamesState(
                 userId = 0L,
+                headerMainText = "Hi MrAlex!",
                 automatches = listOf(
                     OGSAutomatch(
                         uuid = "aaa",

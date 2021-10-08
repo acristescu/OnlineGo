@@ -30,7 +30,12 @@ import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
 fun Screen(state: LearnState, listener: (LearnAction) -> Unit) {
     Column {
         TopAppBar(
-            title = { Text(text = "Learn", style = MaterialTheme.typography.h1) },
+            title = {
+                Text(
+                    text = "Learn",
+                    style = MaterialTheme.typography.h1,
+                    color = MaterialTheme.colors.onSurface
+                )},
             elevation = 0.dp,
             backgroundColor = MaterialTheme.colors.background
         )

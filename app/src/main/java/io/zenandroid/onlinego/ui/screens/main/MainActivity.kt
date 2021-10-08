@@ -90,8 +90,6 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         createNotificationChannel()
         scheduleNotificationJob()
 
-        binding.bottomNavigation.disableShiftMode()
-
         binding.newChallengeView.apply {
             showFab().subscribe()
             onAutomatchClicked = this@MainActivity::onAutoMatchSearch

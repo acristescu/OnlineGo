@@ -33,6 +33,7 @@ interface OGSRestAPI {
     fun fetchGame(@Path("game_id") game_id: Long): Single<OGSGame>
 
     @GET("api/v1/ui/overview")
+//    @GET("api/v1/players/126739/full")
     fun fetchOverview(): Single<Overview>
 
     @POST("api/v0/register")
@@ -84,3 +85,18 @@ interface OGSRestAPI {
     @GET("termination-api/player/{player_id}/v5-rating-history?speed=overall&size=0")
     fun getPlayerStats(@Path("player_id") playerId: Long): Single<Glicko2History>
 }
+
+/*
+Other interesting APIs:
+
+https://online-go.com/api/v1/players/89194/full -> gives full list of moves!!!
+
+https://forums.online-go.com/t/ogs-api-notes/17136
+https://ogs.readme.io/docs/real-time-api
+https://ogs.docs.apiary.io/#reference/games
+
+https://github.com/flovo/ogs_api
+https://forums.online-go.com/t/live-games-via-api/1867/2
+
+power user - 126739
+ */

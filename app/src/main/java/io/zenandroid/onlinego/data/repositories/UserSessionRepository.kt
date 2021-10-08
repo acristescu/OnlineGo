@@ -22,6 +22,7 @@ class UserSessionRepository {
 
     val userId: Long?
         get() = uiConfig?.user?.id
+//        get() = 126739L
 
     val cookieJar = PersistentCookieJar(SetCookieCache(), SharedPrefsCookiePersistor(OnlineGoApplication.instance))
 

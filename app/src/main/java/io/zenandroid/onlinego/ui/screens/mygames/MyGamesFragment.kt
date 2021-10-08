@@ -13,6 +13,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy.DisposeOnLifecycleDestroyed
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
@@ -21,7 +22,6 @@ import com.google.accompanist.pager.ExperimentalPagerApi
 import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.local.Game
-import io.zenandroid.onlinego.databinding.FragmentMygamesBinding
 import io.zenandroid.onlinego.ui.screens.game.GAME_ID
 import io.zenandroid.onlinego.ui.screens.game.GAME_SIZE
 import io.zenandroid.onlinego.ui.screens.main.MainActivity
@@ -38,20 +38,17 @@ class MyGamesFragment : Fragment() {
     private val viewModel: MyGamesViewModel by viewModel()
     private var analytics = OnlineGoApplication.instance.analytics
 
-    private lateinit var binding: FragmentMygamesBinding
-
     @ExperimentalFoundationApi
     @ExperimentalPagerApi
     @ExperimentalComposeUiApi
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        binding = FragmentMygamesBinding.inflate(inflater, container, false)
-        binding.tutorialView.apply {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View =
+        ComposeView(requireContext()).apply {
             setViewCompositionStrategy(
                 DisposeOnLifecycleDestroyed(viewLifecycleOwner)
             )
             setContent {
                 OnlineGoTheme {
-                    val state by viewModel.state.observeAsState(MyGamesState(userId = 0L))
+                    val state by viewModel.state.observeAsState(MyGamesState(userId = 0L, headerMainText = "Hi"))
 
                     MyGamesScreen(state, ::onAction)
 
@@ -70,6 +67,7 @@ class MyGamesFragment : Fragment() {
                     if(state.gameNavigationPending != null) {
                         LaunchedEffect(state.gameNavigationPending) {
                             navigateToGameScreen(state.gameNavigationPending!!)
+                            viewModel.onAction(Action.GameNavigationConsumed)
                         }
                     }
                     if(state.whatsNewDialogVisible) {
@@ -91,8 +89,6 @@ class MyGamesFragment : Fragment() {
                 }
             }
         }
-        return binding.root
-    }
 
     private fun onAction(action: Action) {
         when(action) {
@@ -125,7 +121,7 @@ class MyGamesFragment : Fragment() {
     }
 
     private fun navigateToGameScreen(game: Game) {
-        view?.findNavController()?.navigate(R.id.action_myGamesFragment_to_gameFragment, bundleOf(GAME_ID to game.id, GAME_SIZE to game.width))
+        view?.findNavController()?.navigate(R.id.gameFragment, bundleOf(GAME_ID to game.id, GAME_SIZE to game.width))
     }
 
     override fun onResume() {

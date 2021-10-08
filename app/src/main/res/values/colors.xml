@@ -25,7 +25,13 @@
     <color name="roundButtonBorder">#FFFFFF</color>
     <color name="roundButtonBackground">@color/colorAccent</color>
     <color name="headerPrimaryText">#FFFFFF</color>
-    <color name="colorPrimary">#79b3e4</color>
+
+    <color name="colorSecondary">#79b3e4</color>
+    <color name="colorSecondaryVariant">#e4f0fa</color>
+    <color name="colorPrimary">#ed7861</color>
+    <color name="colorPrimaryVariant">#fad7d0</color>
+    <color name="colorOnSurface">#e8bd4b</color>
+
     <color name="colorPrimaryLight">#E5F0FF</color>
     <color name="colorPrimaryDark">#2588c9</color>
     <color name="colorAccent">#ed7861</color>
@@ -40,7 +46,7 @@
 
     <color name="chartWon">#90b06e</color>
     <color name="chartLost">#ed7861</color>
-    <color name="rankGraphLine">@color/colorPrimary</color>
+    <color name="rankGraphLine">#2588c9</color>
     <color name="panelBackground">@color/white</color>
     <color name="accentGradientStart">#ff9a83</color>
     <color name="accentGradientEnd">#df6a53</color>

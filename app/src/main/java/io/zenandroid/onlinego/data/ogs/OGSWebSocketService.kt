@@ -3,6 +3,7 @@ package io.zenandroid.onlinego.data.ogs
 import android.util.Log
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.squareup.moshi.JsonAdapter
+import com.squareup.moshi.JsonEncodingException
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types
 import io.reactivex.BackpressureStrategy
@@ -109,14 +110,14 @@ class OGSWebSocketService(
         synchronized(connectionsLock) {
             val connection = gameConnections[id] ?:
             GameConnection(id, connectionsLock,
-                    observeEvent("game/$id/gamedata").map { string -> moshi.adapter(GameData::class.java).fromJson(string.toString())!! },
-                    observeEvent("game/$id/move").map { string -> moshi.adapter(Move::class.java).fromJson(string.toString())!! },
-                    observeEvent("game/$id/clock").map { string -> moshi.adapter(OGSClock::class.java).fromJson(string.toString()) },
-                    observeEvent("game/$id/phase").map { string -> Phase.valueOf(string.toString().toUpperCase(Locale.ENGLISH).replace(' ', '_')) },
-                    observeEvent("game/$id/removed_stones").map { string -> moshi.adapter(RemovedStones::class.java).fromJson(string.toString()) },
-                    observeEvent("game/$id/chat").map { string -> moshi.adapter(Chat::class.java).fromJson(string.toString()) },
+                    observeEvent("game/$id/gamedata").parseJSON(),
+                    observeEvent("game/$id/move").parseJSON(),
+                    observeEvent("game/$id/clock").parseJSON(),
+                    observeEvent("game/$id/phase").map { string -> Phase.valueOf(string.toString().uppercase(Locale.ENGLISH).replace(' ', '_')) },
+                    observeEvent("game/$id/removed_stones").parseJSON(),
+                    observeEvent("game/$id/chat").parseJSON(),
                     observeEvent("game/$id/undo_requested").map { string -> string.toString().toInt() },
-                    observeEvent("game/$id/removed_stones_accepted").map { string -> moshi.adapter(RemovedStonesAccepted::class.java).fromJson(string.toString()) },
+                    observeEvent("game/$id/removed_stones_accepted").parseJSON(),
                     observeEvent("game/$id/undo_accepted").map { string -> string.toString().toInt() }
             ).apply {
                 emitGameConnection(id)
@@ -127,6 +128,18 @@ class OGSWebSocketService(
         }
     }
 
+    private inline fun <reified T> adapter(string: Any): T? {
+        try {
+            return moshi.adapter(T::class.java).fromJson(string.toString())
+        } catch (e: JsonEncodingException) {
+            FirebaseCrashlytics.getInstance().recordException(Exception("Error parsing JSON: $string", e))
+            throw e
+        }
+    }
+
+    private inline fun <reified T> Flowable<Any>.parseJSON() =
+        map { adapter<T>(it)!! }
+
     private fun emitGameConnection(id: Long) {
         emit("game/connect", createJsonObject {
             put("chat", true)
@@ -136,13 +149,11 @@ class OGSWebSocketService(
     }
 
     fun connectToActiveGames(): Flowable<OGSGame> {
-        return observeEvent("active_game")
-                .map { string -> moshi.adapter(OGSGame::class.java).fromJson(string.toString()) as OGSGame }
+        return observeEvent("active_game").parseJSON()
     }
 
     fun connectToUIPushes(): Flowable<UIPush> {
-        val returnVal = observeEvent("ui-push")
-                .map { string -> moshi.adapter(UIPush::class.java).fromJson(string.toString()) as UIPush }
+        val returnVal: Flowable<UIPush> = observeEvent("ui-push").parseJSON()
 
         emit("ui-pushes/subscribe", createJsonObject {
             put("channel", "undefined")
@@ -162,7 +173,7 @@ class OGSWebSocketService(
                         val json = JSONObject(fixedString)
                         val retval = mutableListOf<OGSPlayer>()
                         for (key in json.keys()) {
-                            moshi.adapter(OGSPlayer::class.java).fromJson(json[key].toString())?.let {
+                            adapter<OGSPlayer>(json[key])?.let {
                                 retval.add(it)
                             }
                         }
@@ -170,16 +181,13 @@ class OGSWebSocketService(
                     }
 
     fun listenToNewAutomatchNotifications(): Flowable<OGSAutomatch> =
-            observeEvent("automatch/entry")
-                    .map { string -> moshi.adapter(OGSAutomatch::class.java).fromJson(string.toString()) as OGSAutomatch }
+            observeEvent("automatch/entry").parseJSON()
 
     fun listenToCancelAutomatchNotifications(): Flowable<OGSAutomatch> =
-            observeEvent("automatch/cancel")
-                    .map { string -> moshi.adapter(OGSAutomatch::class.java).fromJson(string.toString()) as OGSAutomatch }
+            observeEvent("automatch/cancel").parseJSON()
 
     fun listenToStartAutomatchNotifications(): Flowable<OGSAutomatch> =
-            observeEvent("automatch/start")
-                    .map { string -> moshi.adapter(OGSAutomatch::class.java).fromJson(string.toString()) as OGSAutomatch }
+            observeEvent("automatch/start").parseJSON()
 
     fun connectToAutomatch() {
         emit("automatch/list", null)
@@ -222,8 +230,7 @@ class OGSWebSocketService(
     }
 
     fun listenToNetPongEvents(): Flowable<NetPong> =
-        observeEvent("net/pong")
-                .map { string -> moshi.adapter(NetPong::class.java).fromJson(string.toString()) }
+        observeEvent("net/pong").parseJSON()
 
     fun emit(event: String, params:Any?) {
         ensureSocketConnected()
@@ -302,7 +309,7 @@ class OGSWebSocketService(
                 put("from", 0)
                 put("limit", 9)
             }, Ack {
-                args -> emitter.onSuccess(moshi.adapter(GameList::class.java).fromJson(args[0].toString()) as GameList )
+                args -> emitter.onSuccess(adapter(args[0].toString())!!)
             })
         }
     }

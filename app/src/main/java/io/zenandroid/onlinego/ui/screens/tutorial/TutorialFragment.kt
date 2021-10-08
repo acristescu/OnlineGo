@@ -273,7 +273,7 @@ private fun Snackbar(visible: Boolean, text: String, button: String, @DrawableRe
 @ExperimentalAnimationApi
 @Preview
 @Composable
-fun Preview() {
+private fun Preview() {
     OnlineGoTheme {
         TutorialScreen(TutorialState(), {})
     }

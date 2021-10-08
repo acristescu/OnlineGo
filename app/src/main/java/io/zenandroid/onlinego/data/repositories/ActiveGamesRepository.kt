@@ -257,15 +257,44 @@ class ActiveGamesRepository(
                     .doOnSuccess { FirebaseCrashlytics.getInstance().log("overview returned ${it.size} games") }
                     .map { it.map(Game::id) }
                     .map { gameDao.getGamesThatShouldBeFinished(userSessionRepository.userId, it) }
-                    .doOnSuccess { FirebaseCrashlytics.getInstance().log("Found ${it.size} games that are neither active nor marked as finished") }
-                    .flattenAsObservable { it }
-                    .flatMapSingle { restService.fetchGame(it) }
-                    .map (Game.Companion::fromOGSGame)
-                    .doOnNext { if(it.phase != Phase.FINISHED) FirebaseCrashlytics.getInstance().recordException(Exception("Game ${it.id} ${it.phase} was not returned by overview but is not yet finished")) }
-                    .toList()
-                    .doOnSuccess(gameDao::updateGames)
+                    .doOnSuccess (this::updateGamesThatFinishedSinceLastUpdate)
                     .retryWhen (this::retryIOException)
                     .ignoreElement()
+
+    private fun updateGamesThatFinishedSinceLastUpdate(gameIds: List<Long>) {
+        FirebaseCrashlytics.getInstance().log("Found ${gameIds.size} games that are neither active nor marked as finished")
+        val games = mutableListOf<Game>()
+        gameIds.forEach {
+            var backoffMillis = 10000L
+            while (true) {
+                try {
+                    games += Game.fromOGSGame(
+                        restService.fetchGame(it).blockingGet()
+                    )
+                    break
+                } catch (e: Exception) {
+                    // Update whatever games we have so far before handling the error
+                    if(games.isNotEmpty()) {
+                        gameDao.updateGames(games)
+                        games.clear()
+                    }
+
+                    // request is throttled
+                    if(e is retrofit2.HttpException && e.code() == 429) {
+                        FirebaseCrashlytics.getInstance().apply {
+                            setCustomKey("HIT_RATE_LIMITER", true)
+                            log("Hit rate limiter backing off $backoffMillis milliseconds")
+                        }
+                        Thread.sleep(backoffMillis)
+                        backoffMillis *= 2
+                    } else {
+                        throw e
+                    }
+                }
+            }
+        }
+        gameDao.updateGames(games)
+    }
 
     fun monitorActiveGames(): Flowable<List<Game>> {
         return gameDao.monitorActiveGamesWithNewMessagesCount(userSessionRepository.userId)

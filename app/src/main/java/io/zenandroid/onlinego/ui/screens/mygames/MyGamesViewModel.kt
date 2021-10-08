@@ -19,10 +19,8 @@ import io.zenandroid.onlinego.data.ogs.OGSRestService
 import io.zenandroid.onlinego.data.ogs.OGSWebSocketService
 import io.zenandroid.onlinego.data.repositories.*
 import io.zenandroid.onlinego.gamelogic.RulesManager
-import io.zenandroid.onlinego.gamelogic.Util
 import io.zenandroid.onlinego.utils.WhatsNewUtils
 import io.zenandroid.onlinego.utils.addToDisposable
-import io.zenandroid.onlinego.utils.timeLeftForCurrentPlayer
 import org.json.JSONObject
 import javax.annotation.concurrent.Immutable
 
@@ -39,7 +37,9 @@ class MyGamesViewModel(
     ) : ViewModel() {
     private val _state = MutableLiveData(MyGamesState(
         userId = userSessionRepository.userId ?: 0,
-        whatsNewDialogVisible = WhatsNewUtils.shouldDisplayDialog
+        whatsNewDialogVisible = WhatsNewUtils.shouldDisplayDialog,
+        headerMainText = "Hi ${userSessionRepository.uiConfig?.user?.username},",
+        userImageURL = userSessionRepository.uiConfig?.user?.icon
     ))
     val state: LiveData<MyGamesState> = _state
     private val subscriptions = CompositeDisposable()
@@ -54,7 +54,6 @@ class MyGamesViewModel(
     init {
         activeGamesRepository.monitorActiveGames()
             .subscribeOn(Schedulers.io())
-            .map(this::sortGames)
             .map(this::computePositions)
             .subscribeOn(Schedulers.computation())
             .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
@@ -95,22 +94,9 @@ class MyGamesViewModel(
             .addToDisposable(subscriptions)
 
         onNeedMoreOlderGames(null)
-
     }
 
-    private fun sortGames(unsorted : List<Game>): List<Game> {
-        return unsorted.sortedWith(Comparator { left, right ->
-            when {
-                Util.isMyTurn(left) && !Util.isMyTurn(right) -> -1
-                !Util.isMyTurn(left) && Util.isMyTurn(right) -> 1
-                else -> {
-                    (timeLeftForCurrentPlayer(left) - timeLeftForCurrentPlayer(right)).toInt()
-                }
-            }
-        })
-    }
-
-    fun setGames(games: List<Game>) {
+    private fun setGames(games: List<Game>) {
         val myTurnList = mutableListOf<Game>()
         val opponentTurnList = mutableListOf<Game>()
         for(game in games) {
@@ -132,24 +118,35 @@ class MyGamesViewModel(
 
         _state.value = _state.value?.copy(
             myTurnGames = myTurnList,
-            opponentTurnGames = opponentTurnList
+            opponentTurnGames = opponentTurnList,
+            headerSubText = determineText(myTurnList, opponentTurnList)
         )
     }
 
-    fun setRecentGames(games: List<Game>) {
+    private fun determineText(myTurnGames: List<Game>, opponentTurnGames: List<Game>): String? {
+        if(myTurnGames.isNotEmpty()) {
+            return "It's your turn in ${myTurnGames.size} games."
+        }
+        if(opponentTurnGames.isNotEmpty()) {
+            return "You have ${opponentTurnGames.size} active games."
+        }
+        return "You have no active games. How about stating one?"
+    }
+
+    private fun setRecentGames(games: List<Game>) {
         _state.value = _state.value?.copy(
             recentGames = games
         )
     }
 
-    fun setChallenges(challenges: List<Challenge>) {
+    private fun setChallenges(challenges: List<Challenge>) {
         _state.value = _state.value?.copy(
             challenges = challenges
         )
     }
 
 
-    fun setAutomatches(automatches: List<OGSAutomatch>) {
+    private fun setAutomatches(automatches: List<OGSAutomatch>) {
         _state.value = _state.value?.copy(
             automatches = automatches
         )
@@ -238,9 +235,16 @@ class MyGamesViewModel(
             is Action.LoadMoreHistoricGames -> onNeedMoreOlderGames(action.game)
             is Action.DismissWhatsNewDialog -> onDismissWhatsNewDialog()
             Action.DismissAlertDialog -> onDismissAlertDialog()
+            Action.GameNavigationConsumed -> onGameNavigationConsumed()
 
-            Action.CustomGame, is Action.GameSelected, Action.PlayAgainstAI, Action.PlayOnline -> {} // intentionally left blank
+            Action.CustomGame, is Action.GameSelected, Action.PlayAgainstAI, Action.PlayOnline, Action.SupportClicked -> {} // intentionally left blank
         }
+    }
+
+    private fun onGameNavigationConsumed() {
+        _state.value = _state.value?.copy(
+            gameNavigationPending = null
+        )
     }
 
     private fun onDismissAlertDialog() {
@@ -310,6 +314,9 @@ data class MyGamesState(
     val alertDialogText: String? = null,
     val gameNavigationPending: Game? = null,
     val whatsNewDialogVisible: Boolean = false,
+    val userImageURL: String? = null,
+    val headerMainText: String,
+    val headerSubText: String? = null,
 )
 
 
@@ -320,6 +327,7 @@ sealed class Action {
     object SupportClicked: Action()
     object DismissWhatsNewDialog: Action()
     object DismissAlertDialog: Action()
+    object GameNavigationConsumed: Action()
     class GameSelected(val game: Game): Action()
     class ChallengeCancelled(val challenge: Challenge): Action()
     class ChallengeAccepted(val challenge: Challenge): Action()
