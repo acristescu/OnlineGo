@@ -68,22 +68,8 @@ class OGSWebSocketService(
             onSocketDisconnected()
         }.on(Socket.EVENT_CONNECT_ERROR) {
             Logger.getLogger(TAG).warning("socket connect error id=${socket.id()}")
-        }.on(Socket.EVENT_ERROR) {
-            Logger.getLogger(TAG).warning("socket error id=${socket.id()}")
-        }.on(Socket.EVENT_CONNECT_TIMEOUT) {
-            Logger.getLogger(TAG).warning("socket connect timeout id=${socket.id()}")
-        }.on(Socket.EVENT_RECONNECT) {
-            Logger.getLogger(TAG).warning("socket reconnect id=${socket.id()}")
-        }.on(Socket.EVENT_MESSAGE) {
-            Logger.getLogger(TAG).warning(it.toString())
-        }.on(Socket.EVENT_CONNECTING) {
-            Logger.getLogger(TAG).warning("socket connecting id=${socket.id()}")
         }.on(Socket.EVENT_CONNECT_ERROR) {
             Logger.getLogger(TAG).severe("socket connect error id=${socket.id()}")
-        }.on(Socket.EVENT_PING) {
-            Logger.getLogger(TAG).warning("ping id=${socket.id()}")
-        }.on(Socket.EVENT_PONG) {
-            Logger.getLogger(TAG).warning("pong id=${socket.id()}")
         }
 
         AndroidLoggingHandler.reset(AndroidLoggingHandler())
@@ -244,6 +230,12 @@ class OGSWebSocketService(
         return Flowable.create({ emitter ->
             socket.on(event) { params ->
                 Log.i(TAG, "Received event: $event, ${params[0]}")
+
+                if(params.size != 1) {
+                    FirebaseCrashlytics.getInstance().recordException(Exception("Unexpected response (${params.size} params) while listening for event $event: parameter list is ${params.joinToString("|||")}"))
+                } else if(params[0] == event) {
+                    FirebaseCrashlytics.getInstance().recordException(Exception("Unexpected response (params[0] == event) while listening for event $event: parameter list is ${params.joinToString("|||")}"))
+                }
 
                 if(params[0] != null) {
                     emitter.onNext(params[0])

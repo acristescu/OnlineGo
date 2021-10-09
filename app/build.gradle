@@ -67,8 +67,8 @@ dependencies {
     // Warning! do not upgrade this beyond 4.4.x as 4.5.0 brings in websocket compression
     // which for whatever reason causes issues.
     //
-    implementation 'com.squareup.okhttp3:logging-interceptor:4.4.1'
-    implementation 'com.squareup.okhttp3:okhttp-urlconnection:4.4.1'
+    implementation 'com.squareup.okhttp3:logging-interceptor:4.9.2'
+    implementation 'com.squareup.okhttp3:okhttp-urlconnection:4.9.2'
     implementation 'com.github.franmontiel:PersistentCookieJar:v1.0.1'
 
     implementation 'com.squareup.moshi:moshi-kotlin:1.11.0'
@@ -85,8 +85,8 @@ dependencies {
     implementation 'com.jakewharton.rxrelay2:rxrelay:2.1.1'
     implementation 'io.reactivex.rxjava2:rxkotlin:2.4.0'
 
-    implementation "androidx.work:work-runtime-ktx:2.6.0"
-    implementation "androidx.work:work-rxjava2:2.6.0"
+    implementation "androidx.work:work-runtime-ktx:2.7.0-rc01"
+    implementation "androidx.work:work-rxjava2:2.7.0-rc01"
 
     implementation "androidx.lifecycle:lifecycle-extensions:2.2.0"
 
@@ -112,7 +112,7 @@ dependencies {
 
     implementation 'com.github.blennerSilva:AwesomeDialog:2.0.6'
 
-    implementation('io.socket:socket.io-client:1.0.0') {
+    implementation('io.socket:socket.io-client:2.0.1') {
         // excluding org.json which is provided by Android
         exclude group: 'org.json', module: 'json'
     }
@@ -124,8 +124,8 @@ dependencies {
     implementation 'com.jakewharton.rxbinding2:rxbinding:2.2.0'
 
     implementation 'br.com.simplepass:loading-button-android:2.1.5'
-    implementation 'com.google.firebase:firebase-core:19.0.1'
-    implementation 'com.google.firebase:firebase-crashlytics:18.2.1'
+    implementation 'com.google.firebase:firebase-analytics-ktx:19.0.2'
+    implementation 'com.google.firebase:firebase-crashlytics:18.2.3'
     implementation 'com.google.firebase:firebase-messaging:22.0.0'
 
     implementation 'io.noties.markwon:core:4.3.1'
