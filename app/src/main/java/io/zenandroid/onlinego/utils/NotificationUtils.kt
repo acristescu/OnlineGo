@@ -2,6 +2,7 @@ package io.zenandroid.onlinego.utils
 
 import android.app.NotificationManager
 import android.app.PendingIntent
+import android.app.PendingIntent.FLAG_IMMUTABLE
 import android.app.PendingIntent.FLAG_UPDATE_CURRENT
 import android.content.Context
 import android.content.Intent
@@ -86,7 +87,7 @@ class NotificationUtils {
         fun notifyChallenges(context: Context, challenges: List<Challenge>, userId: Long) {
             val notificationIntent = Intent(context, MainActivity::class.java)
             notificationIntent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
-            val pendingIntent = PendingIntent.getActivity(context, 0, notificationIntent, FLAG_UPDATE_CURRENT)
+            val pendingIntent = PendingIntent.getActivity(context, 0, notificationIntent, FLAG_UPDATE_CURRENT or FLAG_IMMUTABLE)
 
             challenges
                     .filter { it.challenger?.id != userId }
@@ -188,7 +189,7 @@ class NotificationUtils {
             val notificationIntent = context.packageManager.getLaunchIntentForPackage(context.packageName)!!
             notificationIntent.`package` = null
             notificationIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED
-            val pendingIntent = PendingIntent.getActivity(context, 0, notificationIntent, FLAG_UPDATE_CURRENT)
+            val pendingIntent = PendingIntent.getActivity(context, 0, notificationIntent, FLAG_UPDATE_CURRENT or FLAG_IMMUTABLE)
 
             val notification =
                     NotificationCompat.Builder(context, "active_games")
@@ -220,7 +221,7 @@ class NotificationUtils {
         fun notifyLogout(context: Context) {
             val notificationIntent = context.packageManager.getLaunchIntentForPackage(context.packageName)!!
             notificationIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-            val pendingIntent = PendingIntent.getActivity(context, 0, notificationIntent, FLAG_UPDATE_CURRENT)
+            val pendingIntent = PendingIntent.getActivity(context, 0, notificationIntent, FLAG_UPDATE_CURRENT or FLAG_IMMUTABLE)
 
             val notification =
                     NotificationCompat.Builder(context, "logout")

@@ -69,6 +69,7 @@ class GameNotificationsButton: FrameLayout {
                 bundleOf(GAME_ID to game.id, GAME_SIZE to game.width),
                 NavOptions.Builder()
                     .setLaunchSingleTop(true)
+                    .setPopUpTo(R.id.gameFragment, true)
                     .build()
             )
     }

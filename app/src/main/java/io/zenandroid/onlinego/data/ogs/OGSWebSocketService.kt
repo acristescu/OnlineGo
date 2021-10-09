@@ -132,8 +132,9 @@ class OGSWebSocketService(
         try {
             return moshi.adapter(T::class.java).fromJson(string.toString())
         } catch (e: JsonEncodingException) {
-            FirebaseCrashlytics.getInstance().recordException(Exception("Error parsing JSON: $string", e))
-            throw e
+            val up = Exception("Error parsing JSON: $string", e)
+            FirebaseCrashlytics.getInstance().recordException(up)
+            throw up
         }
     }
 
