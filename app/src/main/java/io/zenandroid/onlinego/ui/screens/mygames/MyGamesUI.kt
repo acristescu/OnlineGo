@@ -46,8 +46,17 @@ fun MyGamesScreen(state: MyGamesState, onAction: (Action) -> Unit) {
             AutomatchItem(it, onAction)
         }
         if(state.myTurnGames.isNotEmpty()) {
-            item {
-                MyTurnCarousel(state.myTurnGames, state.userId, onAction)
+            if(state.myTurnGames.size > 10) {
+                item {
+                    Header("Your turn")
+                }
+                items (items = state.myTurnGames) {
+                    SmallGameItem(game = it, state.userId, onAction = onAction)
+                }
+            } else {
+                item {
+                    MyTurnCarousel(state.myTurnGames, state.userId, onAction)
+                }
             }
         }
 

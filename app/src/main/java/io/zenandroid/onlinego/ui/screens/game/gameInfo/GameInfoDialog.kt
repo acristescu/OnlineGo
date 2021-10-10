@@ -57,6 +57,7 @@ class GameInfoDialog : DialogFragment() {
         if(this::game.isInitialized) {
             game.name?.let { groupAdapter.add(GameInfoItem("Game Name", it)) }
             game.rules?.let { groupAdapter.add(GameInfoItem("Rules", it)) }
+            game.handicap?.let { groupAdapter.add(GameInfoItem("Handicap", it.toString())) }
             game.ranked?.let { groupAdapter.add(GameInfoItem("Ranked", it.yesNo())) }
             game.disableAnalysis?.let {
                 groupAdapter.add(

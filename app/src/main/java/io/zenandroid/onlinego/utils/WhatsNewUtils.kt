@@ -24,20 +24,27 @@ private val annotatedCurrentText = AnnotatedString.Builder().run {
     pushStyle(SpanStyle(fontSize = 18.sp))
     append("What's new\n\n")
     pop()
+
     pushStyle(SpanStyle(fontWeight = FontWeight.Normal))
-    append("· Hotfix as the last version broke notifications on Android 12. OOPS!\n\n")
+    append("· If it's your turn in more than 10 games, we show a list of them instead of using a carousel.\n\n")
+    append("· Some more bug fixes for people with a lot of games.\n\n")
+    append("· Game handicap is now visible in Game Info\n\n")
     pop()
+
     pushStyle(SpanStyle(fontSize = 18.sp))
     append("Previous version\n\n")
     pop()
+
     pushStyle(SpanStyle(fontWeight = FontWeight.Normal))
     append("· Bug fixes for people playing MAAANY games (800+)\n\n")
     append("· Bug fix that caused some user to not be able to return to the main screen after playing a live game\n\n")
     append("· More UI redesign (moving towards Material You)\n\n")
     pop()
+
     pushStyle(SpanStyle(fontSize = 18.sp))
     append("About project\n\n")
     pop()
+
     pushStyle(SpanStyle(fontWeight = FontWeight.Normal))
     append("This is an open-source project. If you want to contribute, the code is available on Github. If you'd like to financially support the project instead, please visit the Support page.")
     toAnnotatedString()

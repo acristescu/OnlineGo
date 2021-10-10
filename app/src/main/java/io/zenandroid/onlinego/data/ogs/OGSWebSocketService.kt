@@ -72,11 +72,13 @@ class OGSWebSocketService(
             Logger.getLogger(TAG).severe("socket connect error id=${socket.id()}")
         }
 
-        AndroidLoggingHandler.reset(AndroidLoggingHandler())
-        Logger.getLogger(Socket::class.java.name).level = Level.FINEST
-        Logger.getLogger(Manager::class.java.name).level = Level.FINEST
-        Logger.getLogger(io.socket.engineio.client.Socket::class.java.name).level = Level.FINEST
-        Logger.getLogger(IOParser::class.java.name).level = Level.FINEST
+        if(BuildConfig.DEBUG) {
+            AndroidLoggingHandler.reset(AndroidLoggingHandler())
+            Logger.getLogger(Socket::class.java.name).level = Level.FINEST
+            Logger.getLogger(Manager::class.java.name).level = Level.FINEST
+            Logger.getLogger(io.socket.engineio.client.Socket::class.java.name).level = Level.FINEST
+            Logger.getLogger(IOParser::class.java.name).level = Level.FINEST
+        }
 
     }
     
@@ -238,7 +240,9 @@ class OGSWebSocketService(
                 }
 
                 if(params[0] != null) {
-                    emitter.onNext(params[0])
+                    // Sometimes, rarely, the first parameter is the name of the channel repeated (!?!?)
+                    val response = if(params[0] == event && params.size > 1) params[1] else params[0]
+                    emitter.onNext(response)
                 } else {
                     FirebaseCrashlytics.getInstance().recordException(Exception("Unexpected null parameter for event $event"))
                     emitter.onNext("")

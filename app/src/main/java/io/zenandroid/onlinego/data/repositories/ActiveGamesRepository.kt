@@ -88,10 +88,12 @@ class ActiveGamesRepository(
 
     internal fun connectToGame(baseGame: Game) {
         val game = baseGame.copy()
-        if(gameConnections.contains(game.id)) {
-            return
+        synchronized(gameConnections) {
+            if (gameConnections.contains(game.id)) {
+                return
+            }
+            gameConnections.add(game.id)
         }
-        gameConnections.add(game.id)
 
         val gameConnection = socketService.connectToGame(game.id)
         gameConnection.addToDisposable(subscriptions)
