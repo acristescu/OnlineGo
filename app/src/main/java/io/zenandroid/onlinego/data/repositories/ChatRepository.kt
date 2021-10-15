@@ -8,15 +8,28 @@ import io.zenandroid.onlinego.data.model.local.Message
 import io.zenandroid.onlinego.gamelogic.Util.getCurrentUserId
 
 class ChatRepository(private val gameDao: GameDao) {
+
+    private val knownMessageIds = mutableSetOf<String>()
+
+    init {
+        gameDao.getAllMessageIDs()
+            .subscribeOn(Schedulers.io())
+            .subscribe ( {knownMessageIds.addAll(it) }, {} )
+    }
+
     fun addMessage(message: Message) {
-        gameDao.insertMessage(message)
-        if(message.playerId == getCurrentUserId() && message.gameId != null) {
-            gameDao.markGameMessagesAsReadUpTo(message.gameId, message.date)
+        if(!knownMessageIds.contains(message.chatId)) {
+            gameDao.insertMessage(message)
+            if (message.playerId == getCurrentUserId() && message.gameId != null) {
+                gameDao.markGameMessagesAsReadUpTo(message.gameId, message.date)
+            }
+            knownMessageIds.add(message.chatId)
         }
     }
 
     fun monitorGameChat(gameId: Long): Flowable<List<Message>> =
         gameDao.getMessagesForGame(gameId)
+            .doOnNext { it.forEach { knownMessageIds.add(it.chatId) } }
 
     fun markMessagesAsRead(messages: List<Message>) {
         Completable

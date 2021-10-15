@@ -21,6 +21,7 @@ import io.zenandroid.onlinego.data.repositories.*
 import io.zenandroid.onlinego.gamelogic.RulesManager
 import io.zenandroid.onlinego.utils.WhatsNewUtils
 import io.zenandroid.onlinego.utils.addToDisposable
+import io.zenandroid.onlinego.utils.timeLeftForCurrentPlayer
 import org.json.JSONObject
 import javax.annotation.concurrent.Immutable
 
@@ -117,7 +118,7 @@ class MyGamesViewModel(
         }
 
         _state.value = _state.value?.copy(
-            myTurnGames = myTurnList,
+            myTurnGames = myTurnList.sortedBy { timeLeftForCurrentPlayer(it) },
             opponentTurnGames = opponentTurnList,
             headerSubText = determineText(myTurnList, opponentTurnList)
         )

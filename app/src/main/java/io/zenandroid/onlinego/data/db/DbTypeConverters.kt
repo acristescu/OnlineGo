@@ -15,17 +15,10 @@ class DbTypeConverters {
         @TypeConverter
         @JvmStatic
         fun listOfListOfIntToString(list: MutableList<MutableList<Int>>?): String {
-            val buf = StringBuffer()
+            val buf = StringBuffer(list?.size ?:0 * 2)
             list?.forEach {
-                it.forEachIndexed { index, value ->
-                    if(index % 3 != 2) {
-                        buf.append(value.toString())
-                        buf.append(',')
-                    }
-                }
-            }
-            if (buf.endsWith(',')) {
-                buf.deleteCharAt(buf.lastIndex)
+                buf.append('a' + it[0] )
+                buf.append('a' + it[1] )
             }
             return buf.toString()
         }
@@ -37,12 +30,8 @@ class DbTypeConverters {
                 return mutableListOf()
             }
             val list = mutableListOf<MutableList<Int>>()
-            s.split(',').map { it.toInt() }.forEachIndexed { index, value ->
-                if (index % 2 == 0) {
-                    list += mutableListOf(value)
-                } else {
-                    list.last().add(value)
-                }
+            for( i in s.indices step 2) {
+                list += mutableListOf(s[i] - 'a', s[i+1] - 'a')
             }
             return list
         }
