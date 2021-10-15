@@ -81,8 +81,9 @@ private val serverConnectionModule = module {
 
     single {
         Moshi.Builder()
+                .add(java.lang.Boolean::class.java, OGSBooleanJsonAdapter())
                 .add(Instant::class.java, OGSInstantJsonAdapter().nullSafe())
-                .add(KotlinJsonAdapterFactory())
+                .addLast(KotlinJsonAdapterFactory())
                 .build()
     }
 
