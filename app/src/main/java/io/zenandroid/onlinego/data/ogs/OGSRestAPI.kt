@@ -69,6 +69,9 @@ interface OGSRestAPI {
     @DELETE("/api/v1/me/challenges/{challenge_id}")
     fun declineChallenge(@Path("challenge_id") id: Long): Completable
 
+    @POST("/api/v1/challenges")
+    fun openChallenge(@Body request: OGSChallengeRequest): Completable
+
     @POST("/api/v1/players/{id}/challenge")
     fun challengePlayer(@Path("id") id: Long, @Body request: OGSChallengeRequest): Completable
 
