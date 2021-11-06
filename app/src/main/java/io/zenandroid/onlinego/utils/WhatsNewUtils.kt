@@ -29,6 +29,7 @@ private val annotatedCurrentText = AnnotatedString.Builder().run {
     append("· Non square games are now supported (if started from the website).\n\n")
     append("· Your turn games are sorted by time left.\n\n")
     append("· Speed and memory improvements for people with lots of games.\n\n")
+    append("· Removed the floating button on the main screen as it was rarely used.\n\n")
     append("· Bugfixes.\n\n")
     pop()
 

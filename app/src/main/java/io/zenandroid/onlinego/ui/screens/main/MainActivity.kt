@@ -84,18 +84,11 @@ class MainActivity : AppCompatActivity(), MainContract.View {
                     )
                     setOnNavigationItemReselectedListener { }
                 }
-                newChallengeView.showIf(destination.id == R.id.myGames)
             }
         }
 
         createNotificationChannel()
         scheduleNotificationJob()
-
-        binding.newChallengeView.apply {
-            showFab().subscribe()
-            onAutomatchClicked = this@MainActivity::onAutoMatchSearch
-            onOnlineCustomClicked = this@MainActivity::onCustomGameSearch
-        }
 
         packageManager.setComponentEnabledSetting(
             ComponentName(this, FacebookLoginCallbackActivity::class.java),
