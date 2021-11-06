@@ -40,15 +40,13 @@ class NewChallengeBottomSheet : BottomSheetDialogFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        challenge.opponent?.let {
-            opponent = Player.fromOGSPlayer(it)
-        }
+        challenge.opponent = null
         binding.apply {
             botView.apply {
                 name = "Opponent"
                 value = challenge.opponent?.let {
                     "${it.username} (${formatRank(egfToRank(it.ratings?.overall?.rating))})"
-                } ?: "(choose)"
+                } ?: "[Open Offer]"
                 setOnClickListener {
                     fragmentManager?.let {
                         SelectOpponentDialog().apply {
@@ -124,13 +122,9 @@ class NewChallengeBottomSheet : BottomSheetDialogFragment() {
             disable_analysis = binding.disableAnalysisView.value == "Disabled"
             private = binding.privateView.value == "Yes"
         }
-        if(challenge.opponent != null) {
-            dismiss()
-            saveSettings()
-            (activity as? MainActivity)?.onNewChallengeSearchClicked(challenge)
-        } else {
-            Toast.makeText(context, "Please select an opponent", Toast.LENGTH_LONG).show()
-        }
+        dismiss()
+        saveSettings()
+        (activity as? MainActivity)?.onNewChallengeSearchClicked(challenge)
     }
 
     private fun getSavedChallengeParams() =
@@ -155,7 +149,7 @@ class NewChallengeBottomSheet : BottomSheetDialogFragment() {
     private fun selectOpponent(opponent: Player?) {
         binding.botView.value = opponent
                 ?.let {"${it.username} (${formatRank(egfToRank(it.rating))})"}
-                ?: "(none)"
+                ?: "[Open Offer]"
         this.opponent = opponent
     }
 

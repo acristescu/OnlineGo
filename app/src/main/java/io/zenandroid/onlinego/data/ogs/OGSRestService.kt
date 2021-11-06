@@ -147,7 +147,14 @@ class OGSRestService(
                         time_control_parameters = timeControl
                 )
         )
-        return restApi.challengePlayer(challengeParams.opponent?.id!!, request)
+        return when {
+            challengeParams.opponent != null -> {
+                restApi.challengePlayer(challengeParams.opponent?.id!!, request)
+            }
+            else -> {
+                restApi.openChallenge(request)
+            }
+        }
     }
 
     fun acceptChallenge(id: Long): Completable =
