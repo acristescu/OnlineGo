@@ -28,8 +28,9 @@ import io.zenandroid.onlinego.data.model.ogs.Size
 import io.zenandroid.onlinego.data.model.ogs.Speed
 import io.zenandroid.onlinego.databinding.ActivityMainBinding
 import io.zenandroid.onlinego.notifications.SynchronizeGamesWork
+import io.zenandroid.onlinego.ui.screens.game.GAME_HEIGHT
 import io.zenandroid.onlinego.ui.screens.game.GAME_ID
-import io.zenandroid.onlinego.ui.screens.game.GAME_SIZE
+import io.zenandroid.onlinego.ui.screens.game.GAME_WIDTH
 import io.zenandroid.onlinego.ui.screens.login.FacebookLoginCallbackActivity
 import io.zenandroid.onlinego.ui.screens.newchallenge.ChallengeParams
 import io.zenandroid.onlinego.ui.screens.newchallenge.NewAutomatchChallengeBottomSheet
@@ -173,7 +174,11 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         findNavController(R.id.fragment_container)
                 .navigate(
                         R.id.gameFragment,
-                        bundleOf(GAME_ID to game.id, GAME_SIZE to game.width),
+                        bundleOf(
+                            GAME_ID to game.id,
+                            GAME_WIDTH to game.width,
+                            GAME_HEIGHT to game.height,
+                        ),
                         NavOptions.Builder()
                                 .setLaunchSingleTop(true)
                                 .build()

@@ -21,21 +21,21 @@ object Util {
     private val coordinatesX = arrayOf("A","B","C","D","E","F","G","H","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z")
     private val coordinatesY = (1..25).map(Int::toString)
 
-    fun getGTPCoordinates(p: Point, boardSize: Int): String {
+    fun getGTPCoordinates(p: Point, boardHeight: Int): String {
         if (p.x == -1) {
             return "PASS"
         }
 
-        return "${coordinatesX[p.x]}${coordinatesY[boardSize - p.y - 1]}"
+        return "${coordinatesX[p.x]}${coordinatesY[boardHeight - p.y - 1]}"
     }
 
-    fun getCoordinatesFromGTP(gtp: String, boardSize: Int): Point {
+    fun getCoordinatesFromGTP(gtp: String, boardHeight: Int): Point {
         if(gtp.toUpperCase(Locale.ROOT) == "PASS") {
             return Point(-1, -1)
         }
 
         val x = coordinatesX.indexOf(gtp.substring(0..0))
-        val y = boardSize - gtp.substring(1).toInt()
+        val y = boardHeight - gtp.substring(1).toInt()
         return Point(x, y)
     }
 
@@ -87,7 +87,7 @@ object Util {
     }
 
     fun sgfToPositionList(sgf: String, size: Int): List<Position> {
-        var pos = Position(size)
+        var pos = Position(size, size)
         val retval = mutableListOf<Position>()
         retval.add(pos)
         for(i in sgf.indices step 5) {
@@ -99,7 +99,7 @@ object Util {
         return retval.toImmutableList()
     }
 
-    fun getNeighbouringSpace(current: Point, boardSize: Int): List<Point> {
+    fun getNeighbouringSpace(current: Point, boardWidth: Int, boardHeight: Int): List<Point> {
         val left = Point(current)
         left.offset(-1, 0)
         val right = Point(current)
@@ -110,16 +110,16 @@ object Util {
         down.offset(0, 1)
 
         val list = LinkedList<Point>()
-        if (up.x in 0..(boardSize - 1) && up.y in 0..(boardSize - 1)) {
+        if (up.x in 0 until boardWidth && up.y in 0 until boardHeight) {
             list.add(up)
         }
-        if (down.x in 0..(boardSize - 1) && down.y in 0..(boardSize - 1)) {
+        if (down.x in 0 until boardWidth && down.y in 0 until boardHeight) {
             list.add(down)
         }
-        if (left.x in 0..(boardSize - 1) && left.y in 0..(boardSize - 1)) {
+        if (left.x in 0 until boardWidth && left.y in 0 until boardHeight) {
             list.add(left)
         }
-        if (right.x in 0..(boardSize - 1) && right.y in 0..(boardSize - 1)) {
+        if (right.x in 0 until boardWidth && right.y in 0 until boardHeight) {
             list.add(right)
         }
 

@@ -164,7 +164,8 @@ private fun Board(state: TutorialState, listener: (TutorialAction) -> Unit) {
             modifier = Modifier
                     .padding(12.dp)
                     .shadow(6.dp, MaterialTheme.shapes.large),
-            boardSize = state.position?.boardSize ?: 9,
+            boardWidth = state.position?.boardWidth ?: 9,
+            boardHeight = state.position?.boardHeight ?: 9,
             position = state.position,
             removedStones = state.removedStones,
             candidateMove = state.hoveredCell,

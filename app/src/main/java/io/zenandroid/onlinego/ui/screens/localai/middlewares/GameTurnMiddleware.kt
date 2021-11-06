@@ -59,10 +59,10 @@ class GameTurnMiddleware : Middleware<AiGameState, AiGameAction> {
                                     val newPos = state.position.clone().apply {
                                         aiAnalysisResult = it
                                         clearAllMarkedTerritory()
-                                        for(i in 0 until boardSize) {
-                                            for(j in 0 until boardSize) {
+                                        for(i in 0 until boardWidth) {
+                                            for(j in 0 until boardHeight) {
                                                 val p = Point(i, j)
-                                                val ownership = it.ownership!![j*boardSize + i] // a float between -1 and 1, -1 is 100% solid black territory, 1 is 100% solid white territory
+                                                val ownership = it.ownership!![j*boardWidth + i] // a float between -1 and 1, -1 is 100% solid black territory, 1 is 100% solid white territory
                                                 when(getStoneAt(p)) {
                                                     StoneType.WHITE -> {
                                                         if(ownership < 0) {

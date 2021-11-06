@@ -41,7 +41,8 @@ fun SmallGameItem(game: Game, userId: Long, onAction: (Action) -> Unit) {
             }
         Row(modifier = Modifier.clickable { onAction(Action.GameSelected(game)) }) {
             Board(
-                boardSize = game.width,
+                boardWidth = game.width,
+                boardHeight = game.height,
                 position = game.position,
                 drawCoordinates = false,
                 interactive = false,

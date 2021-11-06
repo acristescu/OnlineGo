@@ -47,7 +47,8 @@ fun HistoricGameLazyRow(
                     }
                 ) {
                     Board(
-                        boardSize = game.width,
+                        boardWidth = game.width,
+                        boardHeight = game.height,
                         position = game.position,
                         drawCoordinates = false,
                         interactive = false,

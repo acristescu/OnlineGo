@@ -27,8 +27,9 @@ import io.zenandroid.onlinego.data.model.local.Game
 import io.zenandroid.onlinego.data.repositories.ActiveGamesRepository
 import io.zenandroid.onlinego.data.repositories.SettingsRepository
 import io.zenandroid.onlinego.databinding.ViewGameNotificationsButtonBinding
+import io.zenandroid.onlinego.ui.screens.game.GAME_HEIGHT
 import io.zenandroid.onlinego.ui.screens.game.GAME_ID
-import io.zenandroid.onlinego.ui.screens.game.GAME_SIZE
+import io.zenandroid.onlinego.ui.screens.game.GAME_WIDTH
 import io.zenandroid.onlinego.utils.NotificationUtils
 import io.zenandroid.onlinego.utils.addToDisposable
 import io.zenandroid.onlinego.utils.hide
@@ -66,7 +67,7 @@ class GameNotificationsButton: FrameLayout {
         findNavController()
             .navigate(
                 R.id.gameFragment,
-                bundleOf(GAME_ID to game.id, GAME_SIZE to game.width),
+                bundleOf(GAME_ID to game.id, GAME_WIDTH to game.width, GAME_HEIGHT to game.height),
                 NavOptions.Builder()
                     .setLaunchSingleTop(true)
                     .setPopUpTo(R.id.gameFragment, true)

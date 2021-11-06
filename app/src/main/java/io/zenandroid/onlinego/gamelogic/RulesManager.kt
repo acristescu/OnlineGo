@@ -26,25 +26,25 @@ object RulesManager {
     private external fun estimate(w: Int, h: Int, board: IntArray, playerToMove: Int, trials: Int, tolerance: Float): IntArray
 
     fun determineTerritory(pos: Position) {
-        val inBoard = IntArray(pos.boardSize * pos.boardSize)
+        val inBoard = IntArray(pos.boardWidth * pos.boardHeight)
         pos.allStonesCoordinates
                 .filter { !pos.removedSpots.contains(it) }
                 .forEach {
                     val type = pos.getStoneAt(it)
-                    inBoard[it.x * pos.boardSize + it.y] = if(type == StoneType.BLACK) 1 else -1
+                    inBoard[it.x * pos.boardHeight + it.y] = if(type == StoneType.BLACK) 1 else -1
                 }
         val outBoard = estimate(
-                pos.boardSize,
-                pos.boardSize,
+                pos.boardHeight, // Note: There is a bug in the estimator somewhere, width and height should be in the different order!!!
+                pos.boardWidth, // Note: There is a bug in the estimator somewhere, width and height should be in the different order!!!
                 inBoard,
                 if(pos.lastPlayerToMove?.opponent == StoneType.BLACK) 1 else -1,
                 10000,
                 .3f)
         pos.clearAllMarkedTerritory()
         pos.clearAllRemovedSpots()
-        for(x in 0 until pos.boardSize) {
-            for(y in 0 until pos.boardSize) {
-                when(outBoard[x * pos.boardSize + y]) {
+        for(x in 0 until pos.boardWidth) {
+            for(y in 0 until pos.boardHeight) {
+                when(outBoard[x * pos.boardHeight + y]) {
                     -1 -> {
                         pos.markWhiteTerritory(Point(x, y))
                         if(pos.getStoneAt(x, y) == StoneType.BLACK) {
@@ -102,7 +102,7 @@ object RulesManager {
         positionsCache[cacheKey]?.let {
             return it
         }
-        var pos = newPosition(game.height, game.initialState)
+        var pos = newPosition(game.width, game.height, game.initialState)
 
         var turn = StoneType.BLACK
         if(game.whiteGoesFirst == true) {
@@ -136,8 +136,8 @@ object RulesManager {
         // WARNING: This is time consuming AF, avoid it like the plague
         //
         if(computeTerritory) {
-            for (i in 0 until pos.boardSize) {
-                (0 until pos.boardSize)
+            for (i in 0 until pos.boardWidth) {
+                (0 until pos.boardHeight)
                         .map { Point(i, it) }
                         .filter { !isMarkedDame(pos, it) }
                         .filter { !isLivingStone(pos, it) }
@@ -165,7 +165,7 @@ object RulesManager {
 
     @Deprecated("Obsolete")
     fun replay(gameData: GameData, limit: Int = Int.MAX_VALUE, computeTerritory : Boolean): Position {
-        var pos = RulesManager.newPosition(gameData.height, gameData.initial_state)
+        var pos = RulesManager.newPosition(gameData.width, gameData.height, gameData.initial_state)
 
         var turn = StoneType.BLACK
         if(gameData.initial_player == "white") {
@@ -195,8 +195,8 @@ object RulesManager {
         // WARNING: This is time consuming AF, avoid it like the plague
         //
         if(computeTerritory) {
-            for (i in 0 until pos.boardSize) {
-                (0 until pos.boardSize)
+            for (i in 0 until pos.boardWidth) {
+                (0 until pos.boardHeight)
                         .map { Point(i, it) }
                         .filter { !isMarkedDame(pos, it) }
                         .filter { !isLivingStone(pos, it) }
@@ -219,8 +219,8 @@ object RulesManager {
         return pos
     }
 
-    private fun newPosition(height: Int, initialState: InitialState?): Position {
-        val pos = Position(height)
+    private fun newPosition(width: Int, height: Int, initialState: InitialState?): Position {
+        val pos = Position(width, height)
         initialState?.let {
             it.white?.let {
                 for (i in 0 until it.length step 2) {
@@ -258,7 +258,7 @@ object RulesManager {
                 continue
             }
             toVisit.addAll(
-                    Util.getNeighbouringSpace(p, pos.boardSize)
+                    Util.getNeighbouringSpace(p, pos.boardWidth, pos.boardHeight)
                             .filter { !visited.contains(it) })
         }
         if(foundWhite && !foundBlack) {
@@ -314,7 +314,7 @@ object RulesManager {
         // of the new stones that are of opposite color
         //
         val removedStones = mutableSetOf<Point>()
-        val neighbours = Util.getNeighbouringSpace(where, pos.boardSize)
+        val neighbours = Util.getNeighbouringSpace(where, pos.boardWidth, pos.boardHeight)
 
         for (neighbour in neighbours) {
             val neighbourType = pos.getStoneAt(neighbour)
@@ -391,7 +391,7 @@ object RulesManager {
         while (!toVisit.isEmpty()) {
             val current = toVisit.pop()
             visited.add(current)
-            val neighbours = Util.getNeighbouringSpace(current, pos.boardSize)
+            val neighbours = Util.getNeighbouringSpace(current, pos.boardWidth, pos.boardHeight)
 
             for (toCheck in neighbours) {
                 val checkedStoneType = pos.getStoneAt(toCheck) ?:
@@ -437,7 +437,7 @@ object RulesManager {
             }
             group.add(p)
             toVisit.addAll(
-                    Util.getNeighbouringSpace(p, pos.boardSize)
+                    Util.getNeighbouringSpace(p, pos.boardWidth, pos.boardHeight)
                             .filter { !visited.contains(it) })
         }
 
@@ -487,7 +487,7 @@ object RulesManager {
 
 
     fun initializePosition(boardSize: Int, handicap: Int = 0): Position {
-        return Position(boardSize).apply {
+        return Position(boardSize, boardSize).apply {
             if(handicap > 1) {
                 nextToMove = StoneType.WHITE
                 val handicapStones = handicaps[boardSize]?.get(handicap) ?:

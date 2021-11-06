@@ -45,7 +45,8 @@ private val shadowDrawable = ResourcesCompat.getDrawable(OnlineGoApplication.ins
 @Composable
 fun Board(
         modifier: Modifier = Modifier,
-        boardSize: Int,
+        boardWidth: Int,
+        boardHeight: Int,
         position: Position?,
         candidateMove: Point? = null,
         candidateMoveType: StoneType? = null,
@@ -63,7 +64,9 @@ fun Board(
     val background: ImageBitmap = ImageBitmap.imageResource(id = R.mipmap.texture)
 
     var width by remember { mutableStateOf(0) }
-    val measurements = remember(width, boardSize) { doMeasurements(width, boardSize, drawCoordinates) }
+    var height by remember { mutableStateOf(0) }
+    val measurements = remember(width, height, boardWidth, boardHeight) { doMeasurements(width, height, boardWidth, boardHeight, drawCoordinates) }
+
     var lastHotTrackedPoint: Point? by remember { mutableStateOf(null) }
     var stoneToFadeIn: Point? by remember(position?.lastMove) { mutableStateOf(position?.lastMove) }
     var stonesToFadeOut: Map<Point, StoneType>? by remember(removedStones) { mutableStateOf(removedStones) }
@@ -93,7 +96,7 @@ fun Board(
                         if(measurements.cellSize == 0) {
                             return@pointerInteropFilter false
                         }
-                        val eventCoords = screenToBoardCoordinates(it.x, it.y, measurements.border, measurements.cellSize, boardSize)
+                        val eventCoords = screenToBoardCoordinates(it.x, it.y, measurements, boardWidth, boardHeight)
 
                         if (eventCoords != lastHotTrackedPoint) {
                             onTapMove?.invoke(eventCoords)
@@ -112,6 +115,7 @@ fun Board(
             }
             .onGloballyPositioned {
                 width = it.size.width
+                height = it.size.height
             }
     ) {
         if (measurements.width == 0) {
@@ -125,11 +129,11 @@ fun Board(
                 image = background,
                 dstSize = IntSize(ceil(this.size.width).toInt(), ceil(this.size.height).toInt())
         )
-        translate(measurements.border, measurements.border) {
+        translate(measurements.border + measurements.xOffsetForNonSquareBoard, measurements.border + measurements.yOffsetForNonSquareBoard) {
 
-            drawGrid(boardSize, candidateMove, measurements)
-            drawStarPoints(boardSize, measurements)
-            drawCoordinates(boardSize, drawCoordinates, measurements)
+            drawGrid(boardWidth, boardHeight, candidateMove, measurements)
+            drawStarPoints(boardWidth, boardHeight, measurements)
+            drawCoordinates(boardWidth, boardHeight, drawCoordinates, measurements)
 
             for (item in stonesToFadeOut ?: emptyMap()) {
                 drawStone(item.key, item.value, fadeOutAlpha.value, true, measurements)
@@ -159,10 +163,10 @@ fun Board(
     }
 }
 
-private fun screenToBoardCoordinates(x: Float, y: Float, border: Float, cellSize: Int, boardSize: Int): Point {
+private fun screenToBoardCoordinates(x: Float, y: Float, measurements: Measurements, boardWidth: Int, boardHeight: Int): Point {
     return Point(
-            ((x - border).toInt() / cellSize).coerceIn(0, boardSize - 1),
-            ((y - border).toInt() / cellSize).coerceIn(0, boardSize - 1)
+            ((x - measurements.border - measurements.xOffsetForNonSquareBoard).toInt() / measurements.cellSize).coerceIn(0, boardWidth - 1),
+            ((y - measurements.border - measurements.yOffsetForNonSquareBoard).toInt() / measurements.cellSize).coerceIn(0, boardHeight - 1)
     )
 }
 
@@ -182,6 +186,8 @@ private data class Measurements(
         val shadowPaint: Paint,
         val halfCell: Float,
         val stoneRadius: Int,
+        val xOffsetForNonSquareBoard: Float,
+        val yOffsetForNonSquareBoard: Float,
         val whiteStoneBitmap: ImageBitmap?,
         val blackStoneBitmap: ImageBitmap?
 )
@@ -321,82 +327,87 @@ private fun DrawScope.drawStone(p: Point, type: StoneType?, alpha: Float = 1f, d
     }
 }
 
-private fun DrawScope.drawGrid(boardSize: Int, candidateMove: Point?, measurements: Measurements) {
-    for (i in 0 until boardSize) {
-        //
-        // As an optimisation, we're taking advantage of the fact that
-        // the board is square and draw a horizontal and a vertical line
-        // with each iteration
-        //
+private fun DrawScope.drawGrid(boardWidth: Int, boardHeight: Int, candidateMove: Point?, measurements: Measurements) {
+    for (i in 0 until boardWidth) {
         val start = i * measurements.cellSize + measurements.halfCell
-        val fullLength = (measurements.cellSize * boardSize).toFloat()
+        val fullLength = (measurements.cellSize * boardHeight).toFloat()
 
-        drawLine(Color.Black, Offset(start, measurements.halfCell), Offset(start, fullLength - measurements.halfCell), measurements.linesWidth)
-        drawLine(Color.Black, Offset(measurements.halfCell, start), Offset(fullLength - measurements.halfCell, start), measurements.linesWidth)
-        if((i == candidateMove?.x)) {
-            drawLine(Color.White, Offset(start, measurements.halfCell), Offset(start, fullLength - measurements.halfCell), measurements.highlightLinesWidth)
-        }
-        if(i == candidateMove?.y) {
-            drawLine(Color.White, Offset(measurements.halfCell, start), Offset(fullLength - measurements.halfCell, start), measurements.highlightLinesWidth)
+        val (color, lineWidth) = if(i == candidateMove?.x) Color.White to measurements.highlightLinesWidth else Color.Black to measurements.linesWidth
+        drawLine(color, Offset(start, measurements.halfCell), Offset(start, fullLength - measurements.halfCell), lineWidth)
+    }
+    for (i in 0 until boardHeight) {
+        val start = i * measurements.cellSize + measurements.halfCell
+        val fullLength = (measurements.cellSize * boardWidth).toFloat()
+
+        val (color, lineWidth) = if(i == candidateMove?.x) Color.White to measurements.highlightLinesWidth else Color.Black to measurements.linesWidth
+        drawLine(color, Offset(measurements.halfCell, start), Offset(fullLength - measurements.halfCell, start), lineWidth)
+    }
+}
+
+private fun DrawScope.drawStarPoints(boardWidth: Int, boardHeight: Int, measurements: Measurements) {
+    if(boardWidth == boardHeight) {
+        when (boardWidth) {
+            19 -> {
+                drawSingleStarPoint(3, 3, measurements)
+                drawSingleStarPoint(15, 15, measurements)
+                drawSingleStarPoint(3, 15, measurements)
+                drawSingleStarPoint(15, 3, measurements)
+
+                drawSingleStarPoint(3, 9, measurements)
+                drawSingleStarPoint(9, 3, measurements)
+                drawSingleStarPoint(15, 9, measurements)
+                drawSingleStarPoint(9, 15, measurements)
+
+                drawSingleStarPoint(9, 9, measurements)
+            }
+            13 -> {
+                drawSingleStarPoint(3, 3, measurements)
+                drawSingleStarPoint(9, 9, measurements)
+                drawSingleStarPoint(3, 9, measurements)
+                drawSingleStarPoint(9, 3, measurements)
+
+                drawSingleStarPoint(6, 6, measurements)
+            }
+            9 -> {
+                drawSingleStarPoint(2, 2, measurements)
+                drawSingleStarPoint(6, 6, measurements)
+                drawSingleStarPoint(2, 6, measurements)
+                drawSingleStarPoint(6, 2, measurements)
+
+                drawSingleStarPoint(4, 4, measurements)
+            }
         }
     }
 }
 
-private fun DrawScope.drawStarPoints(boardSize: Int, measurements: Measurements) {
-    when (boardSize) {
-        19 -> {
-            drawSingleStarPoint(3, 3, measurements)
-            drawSingleStarPoint(15, 15, measurements)
-            drawSingleStarPoint(3, 15, measurements)
-            drawSingleStarPoint(15, 3, measurements)
-
-            drawSingleStarPoint(3, 9, measurements)
-            drawSingleStarPoint(9, 3, measurements)
-            drawSingleStarPoint(15, 9, measurements)
-            drawSingleStarPoint(9, 15, measurements)
-
-            drawSingleStarPoint(9, 9, measurements)
-        }
-        13 -> {
-            drawSingleStarPoint(3, 3, measurements)
-            drawSingleStarPoint(9, 9, measurements)
-            drawSingleStarPoint(3, 9, measurements)
-            drawSingleStarPoint(9, 3, measurements)
-
-            drawSingleStarPoint(6, 6, measurements)
-        }
-        9 -> {
-            drawSingleStarPoint(2, 2, measurements)
-            drawSingleStarPoint(6, 6, measurements)
-            drawSingleStarPoint(2, 6, measurements)
-            drawSingleStarPoint(6, 2, measurements)
-
-            drawSingleStarPoint(4, 4, measurements)
-        }
-    }
-}
-
-private fun DrawScope.drawCoordinates(boardSize: Int, drawCoordinates: Boolean, measurements: Measurements) {
+private fun DrawScope.drawCoordinates(boardWidth: Int, boardHeight: Int, drawCoordinates: Boolean, measurements: Measurements) {
     if (drawCoordinates) {
-        val fullLength = (measurements.cellSize * boardSize).toFloat()
-        for (i in 0 until boardSize) {
+        for (i in 0 until boardWidth) {
             drawTextCentred(coordinatesX[i], getCellCenter(i, 0, measurements).x, 0f - measurements.border / 2, textSize = measurements.coordinatesTextSize, shadow = false, ignoreAscentDescent = true)
-            drawTextCentred(coordinatesX[i], getCellCenter(i, 0, measurements).x, fullLength + measurements.border / 2, textSize = measurements.coordinatesTextSize, shadow = false, ignoreAscentDescent = true)
+            drawTextCentred(coordinatesX[i], getCellCenter(i, 0, measurements).x, measurements.cellSize * boardHeight + measurements.border / 2, textSize = measurements.coordinatesTextSize, shadow = false, ignoreAscentDescent = true)
         }
-        for (i in boardSize downTo 1) {
-            drawTextCentred(coordinatesY[i - 1], 0f - measurements.border / 2, getCellCenter(0, boardSize - i, measurements).y, textSize = measurements.coordinatesTextSize, shadow = false)
-            drawTextCentred(coordinatesY[i - 1], fullLength + measurements.border / 2, getCellCenter(0, boardSize - i, measurements).y, textSize = measurements.coordinatesTextSize, shadow = false)
+        for (i in boardHeight downTo 1) {
+            drawTextCentred(coordinatesY[i - 1], 0f - measurements.border / 2, getCellCenter(0, boardHeight - i, measurements).y, textSize = measurements.coordinatesTextSize, shadow = false)
+            drawTextCentred(coordinatesY[i - 1], measurements.cellSize * boardWidth + measurements.border / 2, getCellCenter(0, boardHeight - i, measurements).y, textSize = measurements.coordinatesTextSize, shadow = false)
         }
     }
 
 }
 
-private fun doMeasurements(width: Int, boardSize: Int, drawCoordinates: Boolean): Measurements {
+private fun doMeasurements(width: Int, height: Int, boardWidth: Int, boardHeight: Int, drawCoordinates: Boolean): Measurements {
     val usableWidth = if (drawCoordinates) {
-        width - (width  / boardSize.toFloat()).roundToInt()
+        width - (width  / boardWidth.toFloat()).roundToInt()
     } else width
-    val cellSize = usableWidth / boardSize
-    val border = (width - boardSize * cellSize) / 2f
+
+    val usableHeight = if (drawCoordinates) {
+        height - (height  / boardHeight.toFloat()).roundToInt()
+    } else height
+
+    val cellSize = minOf(usableWidth / boardWidth, usableHeight / boardHeight)
+    val border = minOf((width - boardWidth * cellSize) / 2f, (width - boardHeight * cellSize) / 2f)
+    val xOffsetForNonSquareBoard = ((boardHeight - boardWidth) * cellSize / 2f).coerceAtLeast(0f)
+    val yOffsetForNonSquareBoard = ((boardWidth - boardHeight) * cellSize / 2f).coerceAtLeast(0f)
+
     val linesWidth = (cellSize / 35f).coerceAtMost(2f)
     val highlightLinesWidth = linesWidth * 2
     val decorationsLineWidth = cellSize / 20f
@@ -438,6 +449,8 @@ private fun doMeasurements(width: Int, boardSize: Int, drawCoordinates: Boolean)
             shadowPaint = shadowPaint,
             halfCell = halfCell,
             stoneRadius = stoneRadius,
+            xOffsetForNonSquareBoard = xOffsetForNonSquareBoard,
+            yOffsetForNonSquareBoard = yOffsetForNonSquareBoard,
             blackStoneBitmap = blackBitmap,
             whiteStoneBitmap = whiteBitmap
     )

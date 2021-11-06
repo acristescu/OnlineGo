@@ -41,7 +41,8 @@ import org.koin.android.ext.android.get
 import java.util.concurrent.TimeUnit
 
 const val GAME_ID = "GAME_ID"
-const val GAME_SIZE = "GAME_SIZE"
+const val GAME_WIDTH = "GAME_WIDTH"
+const val GAME_HEIGHT = "GAME_HEIGHT"
 
 /**
  * Created by alex on 10/11/2017.
@@ -105,10 +106,16 @@ class GameFragment : Fragment(), GameContract.View {
             binding.passButton.isEnabled = value
         }
 
-    override var boardSize: Int
-        get() = binding.board.boardSize
+    override var boardWidth: Int
+        get() = binding.board.boardWidth
         set(value) {
-            binding.board.boardSize = value
+            binding.board.boardWidth = value
+        }
+
+    override var boardHeight: Int
+        get() = binding.board.boardHeight
+        set(value) {
+            binding.board.boardHeight = value
         }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -264,7 +271,8 @@ class GameFragment : Fragment(), GameContract.View {
                 settingsRepository = get(),
                 clockDriftRepository = get(),
                 gameId = requireArguments().getLong(GAME_ID),
-                gameSize = requireArguments().getInt(GAME_SIZE),
+                gameWidth = requireArguments().getInt(GAME_WIDTH),
+                gameHeight = requireArguments().getInt(GAME_HEIGHT),
                 chatRepository = get(),
                 idlingResource = get()
         )

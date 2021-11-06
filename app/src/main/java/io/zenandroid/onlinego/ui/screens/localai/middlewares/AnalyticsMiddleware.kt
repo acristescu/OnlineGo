@@ -30,7 +30,7 @@ class AnalyticsMiddleware: Middleware<AiGameState, AiGameAction> {
                                     moves++
                                     cursor = cursor.parentPosition!!
                                 }
-                                if(moves > it.boardSize) {
+                                if(moves > it.boardWidth) {
                                     analytics.logEvent("ai_game_abandoned_late", bundleOf("MOVES" to moves))
                                 } else {
                                     analytics.logEvent("ai_game_abandoned_early", bundleOf("MOVES" to moves))

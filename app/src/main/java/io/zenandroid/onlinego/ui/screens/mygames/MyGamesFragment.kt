@@ -17,13 +17,15 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy.DisposeOnLifecycleDestroyed
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
+import androidx.navigation.NavOptions
 import androidx.navigation.findNavController
 import com.google.accompanist.pager.ExperimentalPagerApi
 import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.local.Game
+import io.zenandroid.onlinego.ui.screens.game.GAME_HEIGHT
 import io.zenandroid.onlinego.ui.screens.game.GAME_ID
-import io.zenandroid.onlinego.ui.screens.game.GAME_SIZE
+import io.zenandroid.onlinego.ui.screens.game.GAME_WIDTH
 import io.zenandroid.onlinego.ui.screens.main.MainActivity
 import io.zenandroid.onlinego.ui.screens.mygames.Action.GameSelected
 import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
@@ -121,7 +123,17 @@ class MyGamesFragment : Fragment() {
     }
 
     private fun navigateToGameScreen(game: Game) {
-        view?.findNavController()?.navigate(R.id.gameFragment, bundleOf(GAME_ID to game.id, GAME_SIZE to game.width))
+        view?.findNavController()?.navigate(
+            R.id.gameFragment,
+            bundleOf(
+                GAME_ID to game.id,
+                GAME_WIDTH to game.width,
+                GAME_HEIGHT to game.height,
+            ),
+            NavOptions.Builder()
+                .setLaunchSingleTop(true)
+                .build()
+        )
     }
 
     override fun onResume() {

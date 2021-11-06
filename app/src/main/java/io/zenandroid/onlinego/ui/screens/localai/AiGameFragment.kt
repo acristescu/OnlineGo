@@ -104,7 +104,8 @@ class AiGameFragment : Fragment(), MviView<AiGameState, AiGameAction> {
         binding.progressBar.showIf(!state.engineStarted)
         binding.board.apply {
             isInteractive = state.boardIsInteractive
-            boardSize = state.boardSize
+            boardWidth = state.boardSize
+            boardHeight = state.boardSize
             drawTerritory = state.showFinalTerritory
             fadeOutRemovedStones = state.showFinalTerritory
             drawAiEstimatedOwnership = state.showAiEstimatedTerritory

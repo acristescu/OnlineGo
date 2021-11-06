@@ -23,8 +23,9 @@ import io.zenandroid.onlinego.data.model.local.Challenge
 import io.zenandroid.onlinego.data.model.local.Game
 import io.zenandroid.onlinego.data.model.local.GameNotificationWithDetails
 import io.zenandroid.onlinego.data.model.ogs.Phase
+import io.zenandroid.onlinego.ui.screens.game.GAME_HEIGHT
 import io.zenandroid.onlinego.ui.screens.game.GAME_ID
-import io.zenandroid.onlinego.ui.screens.game.GAME_SIZE
+import io.zenandroid.onlinego.ui.screens.game.GAME_WIDTH
 import io.zenandroid.onlinego.ui.screens.main.MainActivity
 import io.zenandroid.onlinego.ui.views.BoardView
 
@@ -148,7 +149,8 @@ class NotificationUtils {
                         .setDestination(R.id.gameFragment)
                         .setArguments(bundleOf(
                                 GAME_ID to it.id,
-                                GAME_SIZE to it.width
+                                GAME_WIDTH to it.width,
+                                GAME_HEIGHT to it.height
                         ))
                         .createPendingIntent()
 
@@ -161,7 +163,8 @@ class NotificationUtils {
                 }
                 val remoteView = RemoteViews(context.packageName, R.layout.notification_board)
 
-                board.boardSize = it.height
+                board.boardWidth = it.width
+                board.boardHeight = it.height
                 board.position = RulesManager.replay(it, computeTerritory = false)
                 remoteView.setImageViewBitmap(R.id.notification_bitmap, board.convertToContentBitmap())
                 val notification =

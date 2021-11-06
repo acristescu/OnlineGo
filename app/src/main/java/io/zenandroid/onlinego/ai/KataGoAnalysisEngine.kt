@@ -133,7 +133,7 @@ object KataGoAnalysisEngine {
                         }
                         cursor.lastMove?.let {
                             val lastPlayer = if(cursor?.lastPlayerToMove == StoneType.BLACK) "B" else "W"
-                            val lastMove = Util.getGTPCoordinates(it, pos.boardSize)
+                            val lastMove = Util.getGTPCoordinates(it, pos.boardHeight)
                             history.push(listOf(lastPlayer, lastMove))
                         }
                         cursor = cursor.parentPosition
@@ -141,16 +141,16 @@ object KataGoAnalysisEngine {
 
                     val initialPosition = mutableSetOf<List<String>>()
                     cursor?.whiteStones?.forEach {
-                        initialPosition.add(listOf("W", Util.getGTPCoordinates(it, pos.boardSize)))
+                        initialPosition.add(listOf("W", Util.getGTPCoordinates(it, pos.boardHeight)))
                     }
                     cursor?.blackStones?.forEach {
-                        initialPosition.add(listOf("B", Util.getGTPCoordinates(it, pos.boardSize)))
+                        initialPosition.add(listOf("B", Util.getGTPCoordinates(it, pos.boardHeight)))
                     }
 
                     val query = Query(
                             id = id,
-                            boardXSize = pos.boardSize,
-                            boardYSize = pos.boardSize,
+                            boardXSize = pos.boardWidth,
+                            boardYSize = pos.boardHeight,
                             includeOwnership = includeOwnership,
                             includeMovesOwnership = includeMovesOwnership,
                             includePolicy = includePolicy,

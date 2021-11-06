@@ -51,7 +51,8 @@ fun LargeGameItem(game: Game, userId: Long, onAction: (Action) -> Unit, modifier
                 horizontal = 24.dp
             )) {
             Board(
-                boardSize = game.width,
+                boardWidth = game.width,
+                boardHeight = game.height,
                 position = game.position,
                 drawCoordinates = false,
                 interactive = false,

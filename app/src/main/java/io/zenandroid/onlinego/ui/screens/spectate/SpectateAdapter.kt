@@ -29,7 +29,8 @@ class SpectateAdapter : GamesAdapter<SpectateAdapter.ViewHolder>() {
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val game = gameList[position]
-        holder.boardView.boardSize = game.width
+        holder.boardView.boardWidth = game.width
+        holder.boardView.boardHeight = game.width
         gameDataMap[game.id]?.let { gameData ->
             val pos = RulesManager.replay(gameData, computeTerritory = false)
 

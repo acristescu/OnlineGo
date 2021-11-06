@@ -17,7 +17,8 @@ import io.zenandroid.onlinego.ui.items.statuschips.Chip
 interface GameContract {
 
     interface View {
-        var boardSize: Int
+        var boardWidth: Int
+        var boardHeight: Int
         var whitePlayer: Player?
         var blackPlayer: Player?
         var position: Position?

@@ -35,14 +35,16 @@ import kotlin.math.sqrt
  * that is passed to it via setPosition()
  */
 class BoardView : View {
-    //
-    // The logical size (in GO nodes) of the board.
-    // Supported sizes: 9, 13 and 19
-    //
-    var boardSize = 19
-        set(boardSize) {
-            field = boardSize
-            computeDimensions(width)
+    var boardWidth = 19
+        set(boardWidth) {
+            field = boardWidth
+            computeDimensions(width, height)
+        }
+
+    var boardHeight = 19
+        set(boardHeight) {
+            field = boardHeight
+            computeDimensions(width, height)
         }
 
     var animationEnabled = true
@@ -101,7 +103,7 @@ class BoardView : View {
         set(value) {
             if(field != value) {
                 field = value
-                computeDimensions(width)
+                computeDimensions(width, height)
                 invalidate()
             }
         }
@@ -148,6 +150,9 @@ class BoardView : View {
     // Size of border between edge and first line
     //
     private var border = 0f
+
+    private var xOffsetForNonSquareBoard = 0f
+    private var yOffsetForNonSquareBoard = 0f
 
     private var linesPaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private var linesHighlightPaint = Paint(Paint.ANTI_ALIAS_FLAG)
@@ -263,8 +268,8 @@ class BoardView : View {
 
     private fun screenToBoardCoordinates(x: Float, y: Float): Point {
         return Point(
-                ((x - border) / cellSize).coerceIn(0f, boardSize - 1f).toInt(),
-                ((y - border) / cellSize).coerceIn(0f, boardSize - 1f).toInt()
+                ((x - border - xOffsetForNonSquareBoard) / cellSize).coerceIn(0f, boardWidth - 1f).toInt(),
+                ((y - border - yOffsetForNonSquareBoard) / cellSize).coerceIn(0f, boardHeight - 1f).toInt()
         )
     }
 
@@ -291,7 +296,7 @@ class BoardView : View {
     }
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
-        computeDimensions(w)
+        computeDimensions(w, h)
         super.onSizeChanged(w, h, oldw, oldh)
     }
 
@@ -299,7 +304,7 @@ class BoardView : View {
         super.onDraw(canvas)
 
         drawBackground(canvas)
-        canvas.translate(border, border)
+        canvas.translate(xOffsetForNonSquareBoard + border, yOffsetForNonSquareBoard + border)
 
         drawGrid(canvas)
         drawStarPoints(canvas)
@@ -316,19 +321,26 @@ class BoardView : View {
         }
     }
 
-    private fun computeDimensions(w: Int) {
+    private fun computeDimensions(w: Int, h: Int) {
         val usableWidth = if (drawCoordinates) {
-            w - (w / this.boardSize.toFloat() * 1f).roundToInt()
+            w - (w / this.boardWidth.toFloat()).roundToInt()
         } else w
 
-        cellSize = usableWidth.toFloat() / this.boardSize
+        val usableHeight = if (drawCoordinates) {
+            h - (h / this.boardHeight.toFloat()).roundToInt()
+        } else h
+
+        cellSize = minOf(usableWidth.toFloat() / this.boardWidth, usableHeight.toFloat() / this.boardHeight)
         linesPaint.strokeWidth = (cellSize / 35f).coerceAtMost(2f)
         linesHighlightPaint.strokeWidth = linesPaint.strokeWidth * 2
         decorationsPaint.strokeWidth = cellSize / 20f
         stoneSpacing = (cellSize / 35f).coerceAtLeast(1f)
-        border = ((w - this.boardSize * cellSize) / 2).toFloat()
-        textPaint.textSize = cellSize.toFloat() * .65f
-        coordinatesPaint.textSize = cellSize.toFloat() * .4f
+        border = minOf((w - this.boardWidth * cellSize) / 2, (h - this.boardHeight * cellSize) / 2)
+        textPaint.textSize = cellSize * .65f
+        coordinatesPaint.textSize = cellSize * .4f
+
+        xOffsetForNonSquareBoard = ((boardHeight - boardWidth) * cellSize / 2).coerceAtLeast(0f)
+        yOffsetForNonSquareBoard = ((boardWidth - boardHeight) * cellSize / 2).coerceAtLeast(0f)
 
         if(cellSize > 0) {
             whiteStoneBitmap = convertVectorIntoBitmap(R.drawable.ic_stone_white_svg, ceil(cellSize - 2 * stoneSpacing).toInt())
@@ -359,8 +371,8 @@ class BoardView : View {
         if(!drawTerritory) {
             return
         }
-        for(i in 0 until boardSize) {
-            for(j in 0 until boardSize) {
+        for(i in 0 until boardWidth) {
+            for(j in 0 until boardHeight) {
                 val p = Point(i, j)
                 val center = getCellCenter(i, j)
                 if(position.whiteTerritory.contains(p)) {
@@ -399,9 +411,9 @@ class BoardView : View {
 
         if(drawAiEstimatedOwnership && ownershipMatrix?.isNotEmpty() == true) {
             val radius = cellSize / 4f
-            for (i in 0 until boardSize) {
-                for(j in 0 until boardSize) {
-                    val ownership = ownershipMatrix[i*boardSize + j] // a float between -1 and 1, -1 is 100% solid black territory, 1 is 100% solid white territory
+            for (i in 0 until boardWidth) {
+                for(j in 0 until boardHeight) {
+                    val ownership = ownershipMatrix[i*boardWidth + j] // a float between -1 and 1, -1 is 100% solid black territory, 1 is 100% solid white territory
                     val alpha = (255 * abs(ownership)).toInt()
 
                     //
@@ -429,7 +441,7 @@ class BoardView : View {
         val hints = position.aiAnalysisResult?.moveInfos
         if(drawHints && hints != null) {
             for((index, hint) in hints.take(5).withIndex()) {
-                val coords = Util.getCoordinatesFromGTP(hint.move, position.boardSize)
+                val coords = Util.getCoordinatesFromGTP(hint.move, position.boardHeight)
                 val center = getCellCenter(coords.x, coords.y)
                 val drawable = if (position.nextToMove == StoneType.BLACK) blackStoneDrawable else whiteStoneDrawable
                 drawable.alpha = 100
@@ -466,35 +478,37 @@ class BoardView : View {
      * @param canvas
      */
     private fun drawStarPoints(canvas: Canvas) {
-        when (this.boardSize) {
-            19 -> {
-                drawSingleStarPoint(canvas, 3, 3)
-                drawSingleStarPoint(canvas, 15, 15)
-                drawSingleStarPoint(canvas, 3, 15)
-                drawSingleStarPoint(canvas, 15, 3)
+        if(boardWidth == boardHeight) {
+            when (boardWidth) {
+                19 -> {
+                    drawSingleStarPoint(canvas, 3, 3)
+                    drawSingleStarPoint(canvas, 15, 15)
+                    drawSingleStarPoint(canvas, 3, 15)
+                    drawSingleStarPoint(canvas, 15, 3)
 
-                drawSingleStarPoint(canvas, 3, 9)
-                drawSingleStarPoint(canvas, 9, 3)
-                drawSingleStarPoint(canvas, 15, 9)
-                drawSingleStarPoint(canvas, 9, 15)
+                    drawSingleStarPoint(canvas, 3, 9)
+                    drawSingleStarPoint(canvas, 9, 3)
+                    drawSingleStarPoint(canvas, 15, 9)
+                    drawSingleStarPoint(canvas, 9, 15)
 
-                drawSingleStarPoint(canvas, 9, 9)
-            }
-            13 -> {
-                drawSingleStarPoint(canvas, 3, 3)
-                drawSingleStarPoint(canvas, 9, 9)
-                drawSingleStarPoint(canvas, 3, 9)
-                drawSingleStarPoint(canvas, 9, 3)
+                    drawSingleStarPoint(canvas, 9, 9)
+                }
+                13 -> {
+                    drawSingleStarPoint(canvas, 3, 3)
+                    drawSingleStarPoint(canvas, 9, 9)
+                    drawSingleStarPoint(canvas, 3, 9)
+                    drawSingleStarPoint(canvas, 9, 3)
 
-                drawSingleStarPoint(canvas, 6, 6)
-            }
-            9 -> {
-                drawSingleStarPoint(canvas, 2, 2)
-                drawSingleStarPoint(canvas, 6, 6)
-                drawSingleStarPoint(canvas, 2, 6)
-                drawSingleStarPoint(canvas, 6, 2)
+                    drawSingleStarPoint(canvas, 6, 6)
+                }
+                9 -> {
+                    drawSingleStarPoint(canvas, 2, 2)
+                    drawSingleStarPoint(canvas, 6, 6)
+                    drawSingleStarPoint(canvas, 2, 6)
+                    drawSingleStarPoint(canvas, 6, 2)
 
-                drawSingleStarPoint(canvas, 4, 4)
+                    drawSingleStarPoint(canvas, 4, 4)
+                }
             }
         }
     }
@@ -505,21 +519,22 @@ class BoardView : View {
     }
 
     private fun drawGrid(canvas: Canvas) {
-        for (i in 0 until this.boardSize) {
-            //
-            // As an optimisation, we're taking advantage of the fact that
-            // the board is square and draw a horizontal and a vertical line
-            // with each iteration
-            //
+        for (i in 0 until boardWidth) {
             val halfCell = cellSize / 2f
             val start = i * cellSize + halfCell
-            val fullLength = (cellSize * this.boardSize).toFloat()
+            val fullLength = (cellSize * this.boardHeight).toFloat()
 
             canvas.drawLine(start, halfCell, start, fullLength - halfCell, linesPaint)
-            canvas.drawLine(halfCell, start, fullLength - halfCell, start, linesPaint)
             if((i == candidateMove?.x)) {
                 canvas.drawLine(start, halfCell, start, fullLength - halfCell, linesHighlightPaint)
             }
+        }
+        for (i in 0 until boardHeight) {
+            val halfCell = cellSize / 2f
+            val start = i * cellSize + halfCell
+            val fullLength = cellSize * this.boardWidth
+
+            canvas.drawLine(halfCell, start, fullLength - halfCell, start, linesPaint)
             if(i == candidateMove?.y) {
                 canvas.drawLine(halfCell, start, fullLength - halfCell, start, linesHighlightPaint)
             }
@@ -528,14 +543,13 @@ class BoardView : View {
 
     private fun drawCoordinates(canvas: Canvas) {
         if (drawCoordinates) {
-            val fullLength = (cellSize * this.boardSize).toFloat()
-            for (i in 0 until this.boardSize) {
+            for (i in 0 until this.boardWidth) {
                 drawTextCentred(canvas, coordinatesPaint, coordinatesX[i], getCellCenter(i, 0).x, 0f - border / 2, true)
-                drawTextCentred(canvas, coordinatesPaint, coordinatesX[i], getCellCenter(i, 0).x, fullLength + border / 2, true)
+                drawTextCentred(canvas, coordinatesPaint, coordinatesX[i], getCellCenter(i, 0).x, cellSize * this.boardHeight + border / 2, true)
             }
-            for (i in this.boardSize downTo 1) {
-                drawTextCentred(canvas, coordinatesPaint, coordinatesY[i-1], 0f - border / 2, getCellCenter(0, this.boardSize - i).y)
-                drawTextCentred(canvas, coordinatesPaint, coordinatesY[i-1], fullLength + border / 2, getCellCenter(0, this.boardSize - i).y)
+            for (i in this.boardHeight downTo 1) {
+                drawTextCentred(canvas, coordinatesPaint, coordinatesY[i-1], 0f - border / 2, getCellCenter(0, this.boardHeight - i).y)
+                drawTextCentred(canvas, coordinatesPaint, coordinatesY[i-1], cellSize * this.boardWidth + border / 2, getCellCenter(0, this.boardHeight - i).y)
             }
         }
     }

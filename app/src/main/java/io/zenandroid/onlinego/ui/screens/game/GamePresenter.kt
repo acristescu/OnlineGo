@@ -44,7 +44,8 @@ class GamePresenter(
         private val idlingResource: CountingIdlingResource,
         private val clockDriftRepository: ClockDriftRepository,
         private val gameId: Long,
-        private val gameSize: Int
+        private val gameWidth: Int,
+        private val gameHeight: Int,
 ) : GameContract.Presenter {
 
     enum class State {
@@ -64,9 +65,9 @@ class GamePresenter(
     private val subscriptions = CompositeDisposable()
     private var gameConnection: GameConnection? = null
     private var myGame: Boolean = false
-    private var currentPosition = Position(19)
-    private var analysisPosition = Position(19)
-    private var estimatePosition = Position(19)
+    private var currentPosition = Position(19, 19)
+    private var analysisPosition = Position(19, 19)
+    private var estimatePosition = Position(19, 19)
     private val userId = userSessionRepository.userId
     private var currentShownMove = -1
     private var game: Game? = null
@@ -110,7 +111,8 @@ class GamePresenter(
         idlingResource.increment()
         view.apply {
             setLoading(currentState == LOADING)
-            boardSize = gameSize
+            boardWidth = gameWidth
+            boardHeight = gameHeight
             chatMyId = userId
             showCoordinates = settingsRepository.showCoordinates
         }
@@ -334,7 +336,7 @@ class GamePresenter(
                 currentState = determineStateFromGame(game)
                 candidateMove = null
                 view.showCandidateMove(null)
-                currentPosition = Position(19)
+                currentPosition = Position(19, 19)
                 game?.let { refreshUI(it) }
             }
             PLAYING -> {

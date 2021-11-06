@@ -25,7 +25,10 @@ import java.util.*
  *
  * Created by alex on 1/8/2015.
  */
-class Position(val boardSize: Int) {
+class Position(
+    val boardWidth: Int,
+    val boardHeight: Int,
+    ) {
 
     var stones = HashMap<Point, StoneType>()
 
@@ -90,7 +93,7 @@ class Position(val boardSize: Int) {
     }
 
     fun clone(): Position {
-        val newPos = Position(boardSize)
+        val newPos = Position(boardWidth, boardHeight)
         newPos.stones.putAll(stones)
         newPos.lastMove = lastMove
         newPos.blackCapturedCount = blackCapturedCount
@@ -135,7 +138,8 @@ class Position(val boardSize: Int) {
 
         other as Position
 
-        if (boardSize != other.boardSize) return false
+        if (boardWidth != other.boardWidth) return false
+        if (boardHeight != other.boardHeight) return false
         if (stones != other.stones) return false
         if (removedSpots != other.removedSpots) return false
         if (whiteTerritory != other.whiteTerritory) return false
@@ -156,7 +160,8 @@ class Position(val boardSize: Int) {
             lastMove?.x == -1 && parentPosition?.lastMove?.x == -1
 
     override fun hashCode(): Int {
-        var result = boardSize
+        var result = boardWidth
+        result = 31 * result + boardHeight
         result = 31 * result + stones.hashCode()
         result = 31 * result + removedSpots.hashCode()
         result = 31 * result + whiteTerritory.hashCode()
@@ -177,7 +182,7 @@ class Position(val boardSize: Int) {
 
     companion object {
         fun fromJosekiPosition(josekiPosition: JosekiPosition): Position {
-            var pos = Position(19)
+            var pos = Position(19, 19)
             josekiPosition.play?.let {
                 val moves = when {
                     it.startsWith(".root") -> it.substring(5)

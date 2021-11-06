@@ -51,7 +51,7 @@ class TutorialViewModel(
                         tutorialGroups = tutorialsRepository.getTutorialGroups(),
                         tutorial = tutorial,
                         step = step,
-                        position = Position(step.size).apply { populateWithSGF(step.init) },
+                        position = Position(step.size, step.size).apply { populateWithSGF(step.init) },
                         removedStones = null,
                         text = step.text,
                         node = null,
@@ -124,7 +124,7 @@ class TutorialViewModel(
     }
 
     private fun loadPage(tutorial: Tutorial?, step: Lesson, page: Page) {
-        val pos = Position(step.size).apply {
+        val pos = Position(step.size, step.size).apply {
             populateWithSGF(page.position)
             page.marks?.let { populateWithMarks(page.marks) }
             page.areas?.let { populateWithAreas(page.areas) }

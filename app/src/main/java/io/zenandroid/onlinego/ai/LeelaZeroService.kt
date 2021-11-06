@@ -95,7 +95,7 @@ object LeelaZeroService {
         }
         var blackToMove = currentPos?.nextToMove != StoneType.WHITE
         moves.reversed()
-                .map { Util.getGTPCoordinates(it, pos.boardSize) }
+                .map { Util.getGTPCoordinates(it, pos.boardHeight) }
                 .forEach {
                     val color = if(blackToMove) "black" else "white"
                     sendCommand("play $color $it")
