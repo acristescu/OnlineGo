@@ -4,6 +4,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import io.zenandroid.onlinego.data.model.ogs.Chat
 import io.zenandroid.onlinego.data.model.ogs.ChatChannel
+import io.zenandroid.onlinego.gamelogic.Util
 
 @Entity
 data class Message (
@@ -27,7 +28,7 @@ data class Message (
     }
 
     companion object {
-        fun fromOGSMessage(chat: Chat, gameId: Long?): Message {
+        fun fromOGSMessage(chat: Chat, gameId: Long?, gameSize: Int?): Message {
             val type = when(chat.channel) {
                 ChatChannel.MAIN -> Type.MAIN
                 ChatChannel.SPECTATOR -> Type.SPECTATOR
@@ -35,7 +36,23 @@ data class Message (
                 ChatChannel.PERSONAL -> Type.PERSONAL
             }
 
-            val text = chat.line.body as? String ?: "Variation (unsupported)"
+            val text = chat.line.body as? String
+                ?: (chat.line.body as? Map<String, Any>)?.let {
+                    val type = it["type"] as? String
+                    if(type == "analysis") {
+                        val name = it["name"] as? String
+                        val from = (it["from"] as? Double)?.toLong()
+                        val moves = (it["moves"] as? String)?.let {
+                            if (it.matches("\\w+".toRegex())) {
+                                it.lowercase().chunked(2).map {
+                                    val point = Util.getCoordinatesFromSGF(it)
+                                    Util.getGTPCoordinates(point, gameSize!!)
+                                }.joinToString(" ")
+                            } else it
+                        }
+                        "Variation \"${name ?: ""}\" from move ${from ?: "?"}: ${moves}"
+                    } else type?.capitalize()?.let { "${it} (unsupported)" }
+                } ?: "(Unsupported message)"
             return Message(
                     type = type,
                     gameId = gameId,

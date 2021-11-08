@@ -65,13 +65,17 @@ class GameConnection(
     val undoAccepted: Observable<Int> = undoAcceptedSubject.hide()
 
     var gameAuth: String? = null
+    var gameSize: Int? = null
 
     private val subscriptions = CompositeDisposable()
 
     init {
         gameDataObservable
                 .retryOnError("gamedata")
-                .doOnNext{ gameAuth = it.auth }
+                .doOnNext{
+                    gameAuth = it.auth
+                    gameSize = it.height
+                }
                 .subscribe(gameDataSubject::onNext)
                 .addToDisposable(subscriptions)
 
@@ -97,7 +101,7 @@ class GameConnection(
         chatObservable
                 .retryOnError("chat")
                 .subscribe {
-                    chatRepository.addMessage(Message.fromOGSMessage(it, gameId))
+                    chatRepository.addMessage(Message.fromOGSMessage(it, gameId, gameSize))
                 }
                 .addToDisposable(subscriptions)
 
