@@ -33,8 +33,7 @@ class AIMoveMiddleware : Middleware<AiGameState, AiGameAction> {
                             .map {
                                 val selectedMove = selectMove(it)
                                 val move = Util.getCoordinatesFromGTP(selectedMove.move, state.position!!.boardHeight)
-                                val side = if(state.enginePlaysBlack) StoneType.BLACK else StoneType.WHITE
-                                val newPos = RulesManager.makeMove(state.position, side, move)
+                                val newPos = RulesManager.makeMove(state.position, state.position.nextToMove, move)
                                 if(newPos == null) {
                                     recordException(Exception("KataGO wants to play move ${selectedMove.move} ($move), but RulesManager rejects it as invalid"))
                                     AIError

@@ -1,6 +1,7 @@
 package io.zenandroid.onlinego.ui.screens.localai.middlewares
 
 import android.os.Bundle
+import android.util.Log
 import androidx.core.os.bundleOf
 import io.reactivex.Observable
 import io.reactivex.rxkotlin.withLatestFrom
@@ -35,7 +36,7 @@ class AnalyticsMiddleware: Middleware<AiGameState, AiGameAction> {
                         is AIMove -> analytics.logEvent("katago_move", null)
                         is AIHint -> analytics.logEvent("katago_hint", null)
 
-                        is ScoreComputed -> if(action.aiWon) {
+                        is ScoreComputed -> if(action.whiteWon) {
                             analytics.logEvent("katago_won", Bundle().apply {
                                 OnlineGoApplication.instance.get< UserSessionRepository>().uiConfig?.user?.ranking?.let {
                                     putInt("RANKING", it)

@@ -15,6 +15,7 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.transition.DrawableCrossFadeFactory
+import com.jakewharton.rxbinding2.view.RxView
 import com.jakewharton.rxbinding3.view.clicks
 import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
@@ -68,7 +69,11 @@ class AiGameFragment : Fragment(), MviView<AiGameState, AiGameAction> {
                         binding.hintButton.clicks()
                                 .map<AiGameAction> { UserAskedForHint },
                         binding.ownershipButton.clicks()
-                                .map<AiGameAction> { UserAskedForOwnership }
+                                .map<AiGameAction> { UserAskedForOwnership },
+                        binding.nameButtonLeft.clicks()
+                                .map<AiGameAction> { ToggleAIBlack },
+                        binding.nameButtonRight.clicks()
+                                .map<AiGameAction> { ToggleAIWhite }
                 )
         ).startWith(ViewReady)
 
@@ -130,9 +135,11 @@ class AiGameFragment : Fragment(), MviView<AiGameState, AiGameAction> {
 
         binding.hintButton.showIf(state.hintButtonVisible)
         binding.ownershipButton.showIf(state.ownershipButtonVisible)
+        binding.nameButtonLeft.setText(if(state.enginePlaysBlack) "KataGo" else "Player")
+        binding.nameButtonRight.setText(if(state.enginePlaysWhite) "KataGo" else "Player")
         if(state.newGameDialogShown && bottomSheet?.isShowing != true) {
-            bottomSheet = NewGameBottomSheet(requireContext()) { size, youPlayBlack, handicap ->
-                internalActions.onNext(NewGame(size, youPlayBlack, handicap))
+            bottomSheet = NewGameBottomSheet(requireContext()) { size, youPlayBlack, youPlayWhite, handicap ->
+                internalActions.onNext(NewGame(size, youPlayBlack, youPlayWhite, handicap))
             }.apply {
                 setOnCancelListener {
                     internalActions.onNext(DismissNewGameDialog)
@@ -150,13 +157,13 @@ class AiGameFragment : Fragment(), MviView<AiGameState, AiGameAction> {
             binding.winrateProgressBar.progress = winrateAsPercentage.toInt()
         }
         state.position?.let {
-            binding.prisonersLeft.text = if(state.enginePlaysBlack) it.blackCaptureCount.toString() else it.whiteCaptureCount.toString()
-            binding.prisonersRight.text = if(state.enginePlaysBlack) it.whiteCaptureCount.toString() else it.blackCaptureCount.toString()
-            binding.komiLeft.text = if(state.enginePlaysBlack) "" else it.komi.toString()
-            binding.komiRight.text = if(state.enginePlaysBlack) it.komi.toString() else ""
+            binding.prisonersLeft.text = it.blackCaptureCount.toString()
+            binding.prisonersRight.text = it.whiteCaptureCount.toString()
+            binding.komiLeft.text = "-"
+            binding.komiRight.text = it.komi.toString()
         }
-        binding.colorIndicatorLeft.setColorFilter(if(state.enginePlaysBlack) Color.BLACK else Color.WHITE)
-        binding.colorIndicatorRight.setColorFilter(if(state.enginePlaysBlack) Color.WHITE else Color.BLACK)
+        binding.colorIndicatorLeft.setColorFilter(Color.BLACK)
+        binding.colorIndicatorRight.setColorFilter(Color.WHITE)
 
         state.chatText?.let {
             binding.chatBubble.visibility = VISIBLE

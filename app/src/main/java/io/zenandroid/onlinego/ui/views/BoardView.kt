@@ -248,6 +248,7 @@ class BoardView : View {
     private fun drawTextCentred(canvas: Canvas, paint: Paint, text: String, cx: Float, cy: Float, ignoreAscentDescent: Boolean = false) {
         paint.textAlign = Paint.Align.LEFT
         paint.getTextBounds(text, 0, text.length, textBounds)
+        paint.setTextSize(20.0f)
         canvas.drawText(text,
                 cx - textBounds.exactCenterX() ,
                 cy - textBounds.exactCenterY() + if (ignoreAscentDescent) (textBounds.bottom.toFloat() / 2) else 0f,
@@ -444,7 +445,7 @@ class BoardView : View {
 
     private fun drawHints(canvas: Canvas, position: Position) {
         hints?.let {
-            for((index, hint) in it.take(5).withIndex()) {
+            for((index, hint) in it.take(10).withIndex()) {
                 val coords = Util.getCoordinatesFromGTP(hint.move, position.boardHeight)
                 val center = getCellCenter(coords.x, coords.y)
                 val drawable = if (position.nextToMove == StoneType.BLACK) blackStoneDrawable else whiteStoneDrawable
@@ -458,7 +459,7 @@ class BoardView : View {
                 drawable.draw(canvas)
 
                 textPaint.color = if (position.nextToMove == StoneType.WHITE) Color.BLACK else Color.WHITE
-                drawTextCentred(canvas, textPaint, (index + 1).toString(), center.x, center.y)
+                drawTextCentred(canvas, textPaint, "${index + 1}\n${String.format("%.2f", hint.winrate)}", center.x, center.y)
             }
         }
     }
