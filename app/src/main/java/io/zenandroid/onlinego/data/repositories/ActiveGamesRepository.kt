@@ -2,6 +2,7 @@ package io.zenandroid.onlinego.data.repositories
 
 import android.util.Log
 import com.google.firebase.crashlytics.FirebaseCrashlytics
+import com.squareup.moshi.JsonEncodingException
 import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Observable
@@ -243,8 +244,9 @@ class ActiveGamesRepository(
     private fun retryIOException(it: Flowable<Throwable>) =
             it.flatMap {
                 when (it) {
+                    is JsonEncodingException -> Flowable.error(it)
                     is IOException -> Flowable.timer(15, TimeUnit.SECONDS)
-                    else -> Flowable.error<Long>(it)
+                    else -> Flowable.error(it)
                 }
             }
 

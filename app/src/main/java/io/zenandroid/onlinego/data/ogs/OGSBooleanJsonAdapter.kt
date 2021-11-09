@@ -7,6 +7,7 @@ class OGSBooleanJsonAdapter : JsonAdapter<Boolean?>() {
         return when (reader.peek()) {
             JsonReader.Token.NUMBER -> reader.nextInt() != 0
             JsonReader.Token.BOOLEAN -> reader.nextBoolean()
+            JsonReader.Token.STRING -> reader.nextString().equals("true", true)
             JsonReader.Token.NULL -> reader.nextNull<Boolean>()
             else -> throw JsonEncodingException("Error trying to parse `${reader.peek()}` as boolean at ${reader.path}")
         }
