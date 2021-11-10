@@ -54,7 +54,7 @@ class GameTurnMiddleware : Middleware<AiGameState, AiGameAction> {
                     .flatMap { (_, state) ->
                         KataGoAnalysisEngine.analyzeMoveSequence(
                                 sequence = state.history,
-                                maxVisits = 10,
+                                //maxVisits = 10,
                                 komi = state.position!!.komi,
                                 includeOwnership = true
                         )

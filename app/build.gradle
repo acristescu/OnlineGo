@@ -161,6 +161,8 @@ dependencies {
 
     implementation 'me.zhanghai.android.materialprogressbar:library:1.6.1'
 
+    implementation 'com.github.sephiroth74:NumberSlidingPicker:v1.0.3'
+
     implementation('io.socket:socket.io-client:2.0.1') {
         // excluding org.json which is provided by Android
         exclude group: 'org.json', module: 'json'

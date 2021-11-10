@@ -25,7 +25,7 @@ class AIMoveMiddleware : Middleware<AiGameState, AiGameAction> {
                 .flatMapSingle { (_, state) ->
                     KataGoAnalysisEngine.analyzeMoveSequence(
                             sequence = state.history,
-                            maxVisits = 20,
+                            // maxVisits = 20,
                             komi = state.position?.komi ?: 0f,
                             includeOwnership = false,
                             includeMovesOwnership = false

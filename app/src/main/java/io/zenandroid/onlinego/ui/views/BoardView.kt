@@ -14,6 +14,8 @@ import android.view.View
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.ColorUtils
 import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat
+import com.squareup.moshi.Moshi
+import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
 import io.zenandroid.onlinego.OnlineGoApplication
