@@ -30,8 +30,9 @@ private const val TAG = "GameConnection"
  * Created by alex on 06/11/2017.
  */
 class GameConnection(
-        private val gameId: Long,
+        val gameId: Long,
         private val connectionLock: Any,
+        var includeChat: Boolean,
         gameDataObservable: Flowable<GameData>,
         movesObservable: Flowable<Move>,
         clockObservable: Flowable<OGSClock>,

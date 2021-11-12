@@ -43,8 +43,6 @@ class OGSWebSocketService(
     // Note: Don't use constructor injection here as it creates a dependency loop
     private val socketConnectedRepositories: List<SocketConnectedRepository> by get().inject()
 
-    var authSent = false
-
     private val loggingAck = Ack {
         Log.i(TAG, "ack: $it")
     }
@@ -76,7 +74,7 @@ class OGSWebSocketService(
             AndroidLoggingHandler.reset(AndroidLoggingHandler())
             Logger.getLogger(Socket::class.java.name).level = Level.FINEST
             Logger.getLogger(Manager::class.java.name).level = Level.FINEST
-            Logger.getLogger(io.socket.engineio.client.Socket::class.java.name).level = Level.FINEST
+//            Logger.getLogger(io.socket.engineio.client.Socket::class.java.name).level = Level.FINEST
             Logger.getLogger(IOParser::class.java.name).level = Level.FINEST
         }
 
@@ -94,10 +92,10 @@ class OGSWebSocketService(
     private val gameConnections = mutableMapOf<Long, GameConnection>()
     private val connectionsLock = Any()
 
-    fun connectToGame(id: Long): GameConnection {
+    fun connectToGame(id: Long, includeChat: Boolean): GameConnection {
         synchronized(connectionsLock) {
             val connection = gameConnections[id] ?:
-            GameConnection(id, connectionsLock,
+            GameConnection(id, connectionsLock, includeChat,
                     observeEvent("game/$id/gamedata").parseJSON(),
                     observeEvent("game/$id/move").parseJSON(),
                     observeEvent("game/$id/clock").parseJSON(),
@@ -108,12 +106,29 @@ class OGSWebSocketService(
                     observeEvent("game/$id/removed_stones_accepted").parseJSON(),
                     observeEvent("game/$id/undo_accepted").map { string -> string.toString().toInt() }
             ).apply {
-                emitGameConnection(id)
+                emitGameConnection(id, includeChat)
                 gameConnections[id] = this
+            }
+            if(includeChat && !connection.includeChat) {
+                enableChatOnConnection(connection)
             }
             connection.incrementCounter()
             return connection
         }
+    }
+
+    fun enableChatOnConnection(gameId: Long) {
+        gameConnections[gameId]?.let {
+            if(!it.includeChat) {
+                enableChatOnConnection(it)
+            }
+        }
+    }
+
+    private fun enableChatOnConnection(connection: GameConnection) {
+        emitGameDisconnect(connection.gameId)
+        emitGameConnection(connection.gameId, true)
+        connection.includeChat = true
     }
 
     private inline fun <reified T> adapter(string: Any): T? {
@@ -129,9 +144,9 @@ class OGSWebSocketService(
     private inline fun <reified T> Flowable<Any>.parseJSON() =
         map { adapter<T>(it)!! }
 
-    private fun emitGameConnection(id: Long) {
+    private fun emitGameConnection(id: Long, includeChat: Boolean) {
         emit("game/connect", createJsonObject {
-            put("chat", true)
+            put("chat", includeChat)
             put("game_id", id)
             put("player_id", userSessionRepository.userId)
         })
@@ -331,12 +346,11 @@ class OGSWebSocketService(
     }
 
     private fun onSockedConnected() {
-        authSent = false
         resendAuth()
         socketConnectedRepositories.forEach { it.onSocketConnected()}
         synchronized(connectionsLock) {
-            gameConnections.keys.forEach {
-                emitGameConnection(it)
+            gameConnections.values.forEach {
+                emitGameConnection(it.gameId, it.includeChat)
             }
         }
         if(connectedToChallenges) {
@@ -358,21 +372,25 @@ class OGSWebSocketService(
         synchronized(connectionsLock) {
             gameConnections.remove(id)
             if(socket.connected()) {
-                emit("game/disconnect", createJsonObject {
-                    put("game_id", id)
-                })
+                emitGameDisconnect(id)
             }
         }
     }
 
+    private fun emitGameDisconnect(id: Long) {
+        emit("game/disconnect", createJsonObject {
+            put("game_id", id)
+        })
+    }
+
     fun resendAuth() {
-        val obj = JSONObject()
-        obj.put("player_id", userSessionRepository.userId)
-        obj.put("username", userSessionRepository.uiConfig?.user?.username)
-        obj.put("auth", userSessionRepository.uiConfig?.chat_auth)
+        val obj = JSONObject().apply {
+            put("player_id", userSessionRepository.userId)
+            put("username", userSessionRepository.uiConfig?.user?.username)
+            put("auth", userSessionRepository.uiConfig?.chat_auth)
+        }
         Log.i(TAG, "Emit: authenticate with params obj")
         socket.emit("authenticate", obj, loggingAck)
-        authSent = true
     }
 
 }

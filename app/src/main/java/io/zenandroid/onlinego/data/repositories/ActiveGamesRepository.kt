@@ -24,6 +24,7 @@ import io.zenandroid.onlinego.data.ogs.*
 import java.io.IOException
 import java.util.concurrent.TimeUnit
 
+private const val maxNumberOfActiveGamesBeforeThrottling = 150
 /**
  * Created by alex on 08/11/2017.
  */
@@ -87,16 +88,19 @@ class ActiveGamesRepository(
     private fun isGameActive(id: Long) =
             activeDbGames.containsKey(id)
 
-    internal fun connectToGame(baseGame: Game) {
+    internal fun connectToGame(baseGame: Game, includeChat: Boolean = true) {
         val game = baseGame.copy()
         synchronized(gameConnections) {
             if (gameConnections.contains(game.id)) {
+                if(includeChat) {
+                    socketService.enableChatOnConnection(game.id)
+                }
                 return
             }
             gameConnections.add(game.id)
         }
 
-        val gameConnection = socketService.connectToGame(game.id)
+        val gameConnection = socketService.connectToGame(game.id, includeChat)
         gameConnection.addToDisposable(subscriptions)
         gameConnection.gameData
                 .subscribeOn(Schedulers.io())
@@ -221,7 +225,7 @@ class ActiveGamesRepository(
         activeDbGames.clear()
         games.forEach {
             activeDbGames[it.id] = it
-            connectToGame(it)
+            connectToGame(it, games.count() <= maxNumberOfActiveGamesBeforeThrottling)
         }
         myMoveCountSubject.onNext(activeDbGames.values.count { isMyTurn(it) })
     }
@@ -316,4 +320,7 @@ class ActiveGamesRepository(
         FirebaseCrashlytics.getInstance().recordException(Exception(message, t))
         Log.e("ActiveGameRespository", message, t)
     }
+
+    fun hasTooManyActiveGames() =
+        activeDbGames.count() > maxNumberOfActiveGamesBeforeThrottling
 }

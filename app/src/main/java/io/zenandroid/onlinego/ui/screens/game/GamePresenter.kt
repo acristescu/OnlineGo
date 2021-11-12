@@ -138,7 +138,7 @@ class GamePresenter(
 
         clockTick(game)
 
-        gameConnection = socketService.connectToGame(gameId).apply {
+        gameConnection = socketService.connectToGame(gameId, true).apply {
             subscriptions.add(this)
         }
 

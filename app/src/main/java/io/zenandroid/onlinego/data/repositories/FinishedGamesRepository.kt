@@ -53,7 +53,11 @@ class FinishedGamesRepository(
         fetchRecentlyFinishedGames()
         return gameDao
                 .monitorRecentGames(userSessionRepository.userId)
-                .doOnNext { it.forEach(activeGamesRepository::connectToGame) } // <- NOTE: We're connecting to the recent games just because of the chat...
+                .doOnNext {// <- NOTE: We're connecting to the recent games just because of the chat...
+                    if (!activeGamesRepository.hasTooManyActiveGames()) {
+                        it.forEach { activeGamesRepository.connectToGame(it, true) }
+                    }
+                }
     }
 
     private fun onError(t: Throwable, request: String) {

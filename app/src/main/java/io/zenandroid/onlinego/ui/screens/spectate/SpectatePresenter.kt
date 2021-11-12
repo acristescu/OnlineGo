@@ -29,7 +29,7 @@ class SpectatePresenter(val view: SpectateContract.View, private val service: OG
 
     private fun setGames(games: GameList) {
         games.results.forEach { game ->
-            val gameConnection = service.connectToGame(game.id)
+            val gameConnection = service.connectToGame(game.id, false)
             gameConnection.addToDisposable(subscriptions)
             gameConnection.gameData
                     .subscribeOn(Schedulers.io())

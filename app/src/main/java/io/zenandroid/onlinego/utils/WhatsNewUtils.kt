@@ -26,6 +26,7 @@ private val annotatedCurrentText = AnnotatedString.Builder().run {
     pop()
 
     pushStyle(SpanStyle(fontWeight = FontWeight.Normal))
+    append("· Users that have more than 150 active games will no longer get chats messages before clicking into the game. This is done for performance reasons.\n\n")
     append("· Fixed a bug with 'Malkowich' chat sometimes showing before the game was over.\n\n")
     pop()
 
