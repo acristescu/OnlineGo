@@ -213,12 +213,14 @@ class GamePresenter(
 
                 if(newGameState == FINISHED) {
                     resultsDialogPending = true
+                    view.hideOpponentMalkowichChat = false
                     showResultDialog(newGame)
                 }
                 currentState = newGameState
             }
 
             FINISHED -> {
+                view.hideOpponentMalkowichChat = false
                 if(resultsDialogPending) {
                     showResultDialog(newGame)
                 }

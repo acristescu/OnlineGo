@@ -7,6 +7,7 @@ import com.xwray.groupie.Section
 import io.zenandroid.onlinego.data.model.local.Message
 
 class MessagesAdapter : GroupAdapter<GroupieViewHolder>() {
+    private var messages: List<Message> = emptyList()
     private val messagesSection = object : Section() {
         override fun notifyItemRangeInserted(positionStart: Int, itemCount: Int) {
             super.notifyItemRangeInserted(positionStart, itemCount)
@@ -15,9 +16,21 @@ class MessagesAdapter : GroupAdapter<GroupieViewHolder>() {
     }
     private var myId : Long? = null
     private var recyclerView: RecyclerView? = null
+    var hideOpponentMalkowichChat: Boolean = true
+        set(value) {
+            if(field != value) {
+                field = value
+                setMessageList(messages)
+            }
+        }
 
     fun setMessageList(messages : List<Message>) {
-        messagesSection.update(messages.map { MessageItem(it, myId == it.playerId) })
+        this.messages = messages
+        messagesSection.update(
+            messages
+                .filter { !(hideOpponentMalkowichChat && it.type == Message.Type.MALKOVITCH && it.playerId != myId) }
+                .map { MessageItem(it, myId == it.playerId) }
+        )
     }
 
     fun setMyId(myId: Long?) {

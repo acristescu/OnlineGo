@@ -53,6 +53,7 @@ interface GameContract {
         var chatMyId: Long?
         var whiteScore: Float
         var blackScore: Float
+        var hideOpponentMalkowichChat: Boolean
 
         fun setLoading(loading: Boolean)
         fun showFinishedDialog()

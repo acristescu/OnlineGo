@@ -16,6 +16,12 @@ import org.koin.android.ext.android.inject
 
 class ChatDialog : DialogFragment() {
 
+    var hideOpponentMalkowichChat: Boolean = true
+    set(value) {
+        messagesAdapter.hideOpponentMalkowichChat = value
+        field = value
+    }
+
     private val chatRepository: ChatRepository by inject()
 
     private val messagesAdapter = MessagesAdapter()

@@ -106,6 +106,14 @@ class GameFragment : Fragment(), GameContract.View {
             binding.passButton.isEnabled = value
         }
 
+    override var hideOpponentMalkowichChat: Boolean = true
+        set(value) {
+            if(field != value) {
+                chatDialog.hideOpponentMalkowichChat = value
+            }
+            field = value
+        }
+
     override var boardWidth: Int
         get() = binding.board.boardWidth
         set(value) {
