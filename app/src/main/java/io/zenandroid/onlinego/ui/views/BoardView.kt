@@ -27,6 +27,9 @@ import io.zenandroid.onlinego.data.model.StoneType
 import io.zenandroid.onlinego.data.model.katago.MoveInfo
 import io.zenandroid.onlinego.data.model.ogs.PlayCategory
 import io.zenandroid.onlinego.gamelogic.Util
+import io.zenandroid.onlinego.data.model.katago.MoveInfo
+import io.zenandroid.onlinego.data.model.katago.RootInfo
+import io.zenandroid.onlinego.data.repositories.SettingsRepository
 import java.util.*
 import kotlin.math.abs
 import kotlin.math.ceil
@@ -39,6 +42,8 @@ import kotlin.math.roundToInt
  * that is passed to it via setPosition()
  */
 class BoardView : View {
+    private val settingsRepository: SettingsRepository = get().get()
+
     var boardWidth = 19
         set(boardWidth) {
             field = boardWidth
@@ -250,7 +255,6 @@ class BoardView : View {
     private fun drawTextCentred(canvas: Canvas, paint: Paint, text: String, cx: Float, cy: Float, ignoreAscentDescent: Boolean = false) {
         paint.textAlign = Paint.Align.LEFT
         paint.getTextBounds(text, 0, text.length, textBounds)
-        paint.setTextSize(20.0f)
         canvas.drawText(text,
                 cx - textBounds.exactCenterX() ,
                 cy - textBounds.exactCenterY() + if (ignoreAscentDescent) (textBounds.bottom.toFloat() / 2) else 0f,
@@ -447,10 +451,22 @@ class BoardView : View {
 
     private fun drawHints(canvas: Canvas, position: Position) {
         hints?.let {
-            for((index, hint) in it.take(10).withIndex()) {
+            //val root = position.aiAnalysisResult?.rootInfo
+            val moshi = Moshi.Builder().add(KotlinJsonAdapterFactory()).build()
+            //val adapter = moshi.adapter(RootInfo::class.java)
+            val adapter = moshi.adapter(MoveInfo::class.java)
+            for((index, hint) in it.withIndex()) {
+                val winrateHighest = hints?.map { it.winrate }.filterNotNull().maxOrNull() ?: 100f
+                val winrateLowest = hints?.map { it.winrate }.filterNotNull().minOrNull() ?: 0f
+                val winrate = hint.winrate * 100
+                val playouts = hint.visits
+                val blackScoreDiff = hint.scoreLead.minus(root?.scoreLead ?: 0f)
+                val scoreDiff = blackScoreDiff *
+                        if(position.nextToMove == StoneType.WHITE) -1 else 1
+
                 val coords = Util.getCoordinatesFromGTP(hint.move, position.boardHeight)
                 val center = getCellCenter(coords.x, coords.y)
-                val drawable = if (position.nextToMove == StoneType.BLACK) blackStoneDrawable else whiteStoneDrawable
+                val drawable = if (position.nextToMove == StoneType.WHITE || settingsRepository.detailedAnalysis) whiteStoneDrawable else blackStoneDrawable
                 drawable.alpha = 100
                 drawable.setBounds(
                         (center.x - cellSize / 2f + stoneSpacing).toInt(),
@@ -458,11 +474,33 @@ class BoardView : View {
                         (center.x + cellSize / 2f - stoneSpacing).toInt(),
                         (center.y + cellSize / 2f - stoneSpacing).toInt()
                 )
+                val rank = (hint.winrate - winrateLowest) / (winrateHighest - winrateLowest)
+                val red = if(rank > 0.5) 1 - 2 * rank else 1.0f
+                val green = if(rank > 0.5) 1.0f else 2 * rank
+                val colour = if(index == 0) Color.argb(1f, 0f, 1f, 1f)
+                             else Color.argb(1f, red, green, 0f)
+                drawable.setColorFilter(colour, PorterDuff.Mode.MULTIPLY)
                 drawable.draw(canvas)
 
-                textPaint.color = if (position.nextToMove == StoneType.WHITE) Color.BLACK else Color.WHITE
-                drawTextCentred(canvas, textPaint, "${index + 1}\n${String.format("%.2f", hint.winrate)}", center.x, center.y)
+                if (settingsRepository.detailedAnalysis) {
+                    val aiTextPaint = android.text.TextPaint(textPaint).also {
+                        it.color = Color.BLACK
+                        it.textSize = cellSize * .22f
+                    }
+                    Log.d("BoardView", "Prediction: ${adapter.toJson(hint)}")
+                    val height = aiTextPaint.getFontMetrics().let { it.ascent - it.descent }
+                    drawTextCentred(canvas, aiTextPaint, "${String.format("%.2g", scoreDiff)}", center.x, center.y - height)
+                    drawTextCentred(canvas, aiTextPaint, "#${index + 1}  |  ${playouts} ", center.x, center.y)
+                    aiTextPaint.let {
+                        it.setTypeface(Typeface.create(it.getTypeface(), Typeface.BOLD))
+                    }
+                    drawTextCentred(canvas, aiTextPaint, "${String.format("%.1f", winrate)}%", center.x, center.y + height)
+                } else {
+                    textPaint.color = if (position.nextToMove == StoneType.WHITE) Color.BLACK else Color.WHITE
+                    drawTextCentred(canvas, textPaint, "${index + 1}", center.x, center.y)
+                }
             }
+            whiteStoneDrawable.clearColorFilter()
         }
     }
 

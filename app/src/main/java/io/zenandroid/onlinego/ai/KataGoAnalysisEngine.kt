@@ -18,7 +18,7 @@ import io.zenandroid.onlinego.utils.recordException
 import java.io.*
 import java.util.*
 import java.util.concurrent.atomic.AtomicLong
-import org.koin.core.context.GlobalContext
+import org.koin.core.context.GlobalContext.get
 
 object KataGoAnalysisEngine {
   var started = false
