@@ -334,7 +334,7 @@
                 android:foreground="?android:attr/selectableItemBackground"
                 android:paddingTop="10dp"
                 android:paddingBottom="10dp"
-                app:srcCompat="@drawable/ic_board"
+                app:srcCompat="@drawable/ic_menu"
                 app:tint="@color/disable_black" />
 
             <androidx.appcompat.widget.AppCompatImageView

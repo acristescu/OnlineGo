@@ -28,8 +28,9 @@ import com.vmadalin.easypermissions.*
 import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
 import io.zenandroid.onlinego.R
-import io.zenandroid.onlinego.data.model.StoneType
+import io.zenandroid.onlinego.data.model.local.SgfData
 import io.zenandroid.onlinego.data.model.Position
+import io.zenandroid.onlinego.data.model.StoneType
 import io.zenandroid.onlinego.data.repositories.SettingsRepository
 import io.zenandroid.onlinego.data.repositories.UserSessionRepository
 import io.zenandroid.onlinego.databinding.FragmentAigameBinding
@@ -64,7 +65,7 @@ class AiGameFragment : Fragment(), MviView<AiGameState, AiGameAction> {
     private val viewModel: AiGameViewModel by viewModel()
     private val settingsRepository: SettingsRepository by inject()
     private var bottomSheet: NewGameBottomSheet? = null
-    private var initialPosition: Position? = null
+    private var setupSgf: SgfData? = null
     private lateinit var binding: FragmentAigameBinding
 
     private val internalActions = PublishSubject.create<AiGameAction>()
@@ -94,7 +95,7 @@ class AiGameFragment : Fragment(), MviView<AiGameState, AiGameAction> {
                         binding.nameButtonRight.clicks()
                                 .map<AiGameAction> { ToggleAIWhite }
                 )
-        ).startWith(ViewReady(initialPosition.also { initialPosition = null }))
+        ).startWith(ViewReady(setupSgf).also { setupSgf = null })
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         binding = FragmentAigameBinding.inflate(inflater, container, false)
@@ -254,6 +255,9 @@ class AiGameFragment : Fragment(), MviView<AiGameState, AiGameAction> {
 
         val size = sgf?.getProperty("SZ")?.split(":")?.let { it.plus(it) }?.take(2)
         var pos = Position(size!![0].toInt(), size!![1].toInt())
+        sgf?.getProperty("KM")?.toFloat()?.let { pos.komi = it }
+        var handi = sgf?.getProperty("HA")?.toInt()
+        var name = sgf?.getProperty("GN") ?: data.getPath()
         var move = sgf?.getRootNode()?.getNextNode()
         while (move != null) {
             Log.d("AiGameFragment", "makeMove(\"${move}\")")
@@ -278,7 +282,12 @@ class AiGameFragment : Fragment(), MviView<AiGameState, AiGameAction> {
             move = move.getNextNode()
         }
         Log.d("AiGameFragment", "loadPosition(\"${pos}\")")
-        initialPosition = pos
+        setupSgf = SgfData(
+            position = pos,
+            handicap = handi,
+            name = name,
+            rules = null
+        )
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

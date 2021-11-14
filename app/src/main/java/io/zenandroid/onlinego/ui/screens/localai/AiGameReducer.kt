@@ -56,14 +56,14 @@ class AiGameReducer : Reducer<AiGameState, AiGameAction> {
                     chatText = "Give me a second, I'm getting ready...",
             ).let {
                 Log.d("AiGameReducer", "Game Loaded")
-                action.loadPos?.let { position ->
+                action.loadData?.let { data ->
                     it.copy(
-                        position = position,
-                        boardSize = when(position.boardWidth) {
-                            position.boardHeight -> position.boardWidth
+                        position = data.position,
+                        boardSize = when(data.position?.boardWidth) {
+                            data.position?.boardHeight -> data.position?.boardWidth
                             else -> null //nonsquare
                         }!!,
-                        handicap = 0, //todo: properly parse
+                        handicap = data.handicap ?: 0,
                         enginePlaysBlack = false,
                         enginePlaysWhite = false,
                         chatText = "Game Loaded!",
