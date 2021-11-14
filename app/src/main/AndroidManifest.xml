@@ -39,6 +39,24 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="file" android:mimeType="application/x-go-sgf" android:pathPattern=".*\\.sgf" />
+                <data android:scheme="content" android:pathPattern=".*\\.sgf" android:mimeType="application/x-go-sgf" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="http" android:host="*" android:mimeType="application/x-go-sgf" />
+                <data android:scheme="https" android:host="*" android:mimeType="application/x-go-sgf" />
+            </intent-filter>
         </activity>
         <activity
             android:name=".ui.screens.login.FacebookLoginCallbackActivity"

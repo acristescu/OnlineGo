@@ -5,7 +5,9 @@ import android.content.Intent
 import android.graphics.Color
 import android.graphics.Point
 import android.Manifest.permission
+import android.net.Uri
 import android.os.Bundle
+import android.os.StrictMode
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -50,6 +52,9 @@ import io.zenandroid.onlinego.utils.processGravatarURL
 import io.zenandroid.onlinego.utils.showIf
 import java.io.BufferedReader
 import java.io.File
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.Response
 import org.koin.android.ext.android.get
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -89,7 +94,7 @@ class AiGameFragment : Fragment(), MviView<AiGameState, AiGameAction> {
                         binding.nameButtonRight.clicks()
                                 .map<AiGameAction> { ToggleAIWhite }
                 )
-        ).startWith(ViewReady(initialPosition))
+        ).startWith(ViewReady(initialPosition.also { initialPosition = null }))
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         binding = FragmentAigameBinding.inflate(inflater, container, false)
@@ -105,6 +110,10 @@ class AiGameFragment : Fragment(), MviView<AiGameState, AiGameAction> {
     override fun onResume() {
         super.onResume()
         analyticsReportScreen("AiGame")
+
+        getArguments()?.getString("SGF_LOCAL")?.let { loadSGF(Uri.parse(it)) }
+        getArguments()?.getString("SGF_REMOTE")?.let { loadSGF(Uri.parse(it)) }
+
         binding.board.apply {
             drawCoordinates = settingsRepository.showCoordinates
         }
@@ -223,36 +232,60 @@ class AiGameFragment : Fragment(), MviView<AiGameState, AiGameAction> {
         }
     }
 
+    private fun loadSGF(data: Uri) {
+        val stream = when(data.getScheme()) {
+            "http", "https" -> OkHttpClient.Builder()
+                .cookieJar(get<UserSessionRepository>().cookieJar)
+                .followRedirects(true)
+                .build().let { client ->
+                    val threadPolicy = StrictMode.ThreadPolicy.Builder().permitAll().build()
+                    StrictMode.setThreadPolicy(threadPolicy) // UI thread for this intent only
+
+                    val request = Request.Builder().url(data.toString()).build()
+                    val response = client.newCall(request).execute()
+                    response?.body?.byteStream()
+                }
+            else -> requireContext().getContentResolver().openInputStream(data)
+        }
+        val text = stream?.bufferedReader()?.use(BufferedReader::readText)
+        Log.d("AiGameFragment", "onLoad(\"${data}\") = \"${text}\"")
+        val sgf = text?.let { Sgf.createFromString(it) }
+        Log.d("AiGameFragment", "SGF ${sgf.toString()}")
+
+        val size = sgf?.getProperty("SZ")?.split(":")?.let { it.plus(it) }?.take(2)
+        var pos = Position(size!![0].toInt(), size!![1].toInt())
+        var move = sgf?.getRootNode()?.getNextNode()
+        while (move != null) {
+            Log.d("AiGameFragment", "makeMove(\"${move}\")")
+            val colour = when(move.getColor()) {
+                "W" -> StoneType.WHITE
+                "B" -> StoneType.BLACK
+                else -> null
+            }!!
+            if (move.getMoveString().isNullOrBlank()) {
+                pos = RulesManager.makeMove(pos, pos.nextToMove, Point(-1, -1))!!
+                pos.nextToMove = pos.nextToMove.opponent
+            } else {
+                if (pos.nextToMove != colour) {
+                    pos = RulesManager.makeMove(pos, pos.nextToMove, Point(-1, -1))!!
+                    pos.nextToMove = pos.nextToMove.opponent
+                }
+                pos = RulesManager.makeMove(pos, colour, move.getCoords().let {
+                    Point(it[0], it[1])
+                })!!
+            }
+            pos.nextToMove = pos.nextToMove.opponent
+            move = move.getNextNode()
+        }
+        Log.d("AiGameFragment", "loadPosition(\"${pos}\")")
+        initialPosition = pos
+    }
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if(requestCode == 1 && resultCode == RESULT_OK)
             data?.getData()?.let {
-                val stream = requireContext().getContentResolver().openInputStream(it)
-                val text = stream?.bufferedReader()?.use(BufferedReader::readText)
-                val sgf = text?.let { Sgf.createFromString(it) }
-                Log.d("AiGameFragment", "onLoad(\"${it.getPath()}\") = \"${text}\"\n${sgf.toString()}")
-                val size = sgf?.getProperty("SZ")?.split(":")?.let { it.plus(it) }?.take(2)
-                var pos = Position(size!![0].toInt(), size!![1].toInt())
-                var move = sgf?.getRootNode()?.getNextNode()
-                while (move != null) {
-                    Log.d("AiGameFragment", "makeMove(\"${move}\")")
-                    val colour = when(move.getColor()) {
-                        "W" -> StoneType.WHITE
-                        "B" -> StoneType.BLACK
-                        else -> null
-                    }!!
-                    if (pos.nextToMove != colour) {
-                        pos = RulesManager.makeMove(pos, pos.nextToMove, Point(-1, -1))!!
-                        pos.nextToMove = pos.nextToMove.opponent
-                    }
-                    pos = RulesManager.makeMove(pos, colour, move.getCoords().let {
-                        Point(it[0], it[1])
-                    })!!
-                    pos.nextToMove = pos.nextToMove.opponent
-                    move = move.getNextNode()
-                }
-                Log.d("AiGameFragment", "loadPosition(\"${pos}\")")
-                initialPosition = pos
+                loadSGF(it)
             }
         if(requestCode == 2 && resultCode == RESULT_OK)
             data?.getData()?.getPath()?.let {
