@@ -55,8 +55,8 @@ class AiGameReducer : Reducer<AiGameState, AiGameAction> {
             is ViewReady -> state.copy(
                     chatText = "Give me a second, I'm getting ready...",
             ).let {
-                Log.d("AiGameReducer", "Game Loaded")
                 action.loadData?.let { data ->
+                    Log.d("AiGameReducer", "Game Loaded")
                     it.copy(
                         position = data.position,
                         boardSize = when(data.position?.boardWidth) {
@@ -68,6 +68,11 @@ class AiGameReducer : Reducer<AiGameState, AiGameAction> {
                         enginePlaysWhite = false,
                         chatText = "Game Loaded!",
                         redoPosStack = emptyList()
+                    )
+                } ?: action.savedData?.let { data ->
+                    Log.d("AiGameReducer", "Game Saved")
+                    it.copy(
+                        chatText = "Game Saved!",
                     )
                 } ?: it
             }

@@ -24,6 +24,8 @@ import com.bumptech.glide.request.transition.DrawableCrossFadeFactory
 import com.jakewharton.rxbinding2.view.RxView
 import com.jakewharton.rxbinding3.view.clicks
 import com.toomasr.sgf4j.Sgf
+import com.toomasr.sgf4j.parser.Game
+import com.toomasr.sgf4j.parser.GameNode
 import com.vmadalin.easypermissions.*
 import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
@@ -35,6 +37,7 @@ import io.zenandroid.onlinego.data.repositories.SettingsRepository
 import io.zenandroid.onlinego.data.repositories.UserSessionRepository
 import io.zenandroid.onlinego.databinding.FragmentAigameBinding
 import io.zenandroid.onlinego.gamelogic.RulesManager
+import io.zenandroid.onlinego.gamelogic.Util.getSGFCoordinates
 import io.zenandroid.onlinego.mvi.MviView
 import io.zenandroid.onlinego.ui.screens.localai.AiGameAction.DismissNewGameDialog
 import io.zenandroid.onlinego.ui.screens.localai.AiGameAction.NewGame
@@ -66,6 +69,7 @@ class AiGameFragment : Fragment(), MviView<AiGameState, AiGameAction> {
     private val settingsRepository: SettingsRepository by inject()
     private var bottomSheet: NewGameBottomSheet? = null
     private var setupSgf: SgfData? = null
+    private var savedSgf: String? = null
     private lateinit var binding: FragmentAigameBinding
 
     private val internalActions = PublishSubject.create<AiGameAction>()
@@ -95,7 +99,10 @@ class AiGameFragment : Fragment(), MviView<AiGameState, AiGameAction> {
                         binding.nameButtonRight.clicks()
                                 .map<AiGameAction> { ToggleAIWhite }
                 )
-        ).startWith(ViewReady(setupSgf).also { setupSgf = null })
+        ).startWith(ViewReady(setupSgf, savedSgf).also {
+            setupSgf = null
+            savedSgf = null
+        })
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         binding = FragmentAigameBinding.inflate(inflater, container, false)
@@ -118,7 +125,6 @@ class AiGameFragment : Fragment(), MviView<AiGameState, AiGameAction> {
         binding.board.apply {
             drawCoordinates = settingsRepository.showCoordinates
         }
-
 
         view?.doOnLayout {
             binding.iconContainerLeft.radius = binding.iconContainerLeft.width / 2f
@@ -185,6 +191,7 @@ class AiGameFragment : Fragment(), MviView<AiGameState, AiGameAction> {
                     chooseFile.addCategory(Intent.CATEGORY_OPENABLE)
                     chooseFile.setType("application/x-go-sgf")
                     chooseFile.putExtra(Intent.EXTRA_TITLE, "go.sgf")
+                    saveSGF(state)
                     startActivityForResult(chooseFile, 2)
                     internalActions.onNext(DismissNewGameDialog)
                 } else {
@@ -266,18 +273,19 @@ class AiGameFragment : Fragment(), MviView<AiGameState, AiGameAction> {
                 "B" -> StoneType.BLACK
                 else -> null
             }!!
-            if (move.getMoveString().isNullOrBlank()) {
+            if (pos.nextToMove != colour) {
                 pos = RulesManager.makeMove(pos, pos.nextToMove, Point(-1, -1))!!
                 pos.nextToMove = pos.nextToMove.opponent
-            } else {
-                if (pos.nextToMove != colour) {
-                    pos = RulesManager.makeMove(pos, pos.nextToMove, Point(-1, -1))!!
-                    pos.nextToMove = pos.nextToMove.opponent
-                }
-                pos = RulesManager.makeMove(pos, colour, move.getCoords().let {
-                    Point(it[0], it[1])
-                })!!
             }
+            pos = RulesManager.makeMove(pos, colour,
+                if (move.getMoveString().isNullOrBlank()) {
+                    Point(-1, -1)
+                } else {
+                    move.getCoords().let {
+                        Point(it[0], it[1])
+                    }
+                }
+            )!!
             pos.nextToMove = pos.nextToMove.opponent
             move = move.getNextNode()
         }
@@ -290,6 +298,49 @@ class AiGameFragment : Fragment(), MviView<AiGameState, AiGameAction> {
         )
     }
 
+    private fun saveSGF(state: AiGameState) {
+        val game = Game()
+        state.handicap?.let { game.addProperty("HA", it.toString()) }
+        state.position?.let {
+            if(it.boardWidth == it.boardHeight) {
+                game.addProperty("SZ", "${it.boardWidth}")
+            } else {
+                game.addProperty("SZ", "${it.boardWidth}:${it.boardHeight}")
+            }
+            it.komi?.let { game.addProperty("KM", it.toString()) }
+
+            var positions = listOf(it)
+            while (positions.last()!!.parentPosition != null) {
+                positions = positions.plus(positions.last()!!.parentPosition!!)
+            }
+            Log.d("AiGameFragment", "Serializing ${positions.size} moves")
+
+            var cursor = game.getRootNode()
+            positions.reversed().forEach { position ->
+                Log.d("AiGameFragment", "Serializing ${position}")
+                position.lastMove?.let {
+                    if (it.x == -1 || it.y == -1) {
+                        Log.d("AiGameFragment", "mkPass")
+                    } else {
+                        val node = GameNode(cursor)
+                        if (cursor == null) game.setRootNode(node)
+                        else cursor.addChild(node)
+                        cursor = node
+                        val colour = when(position.lastPlayerToMove) {
+                            StoneType.WHITE -> "W"
+                            StoneType.BLACK -> "B"
+                            else -> null
+                        }!!
+                        node.addProperty(colour, getSGFCoordinates(it))
+                        Log.d("AiGameFragment", "mkNode(${node})")
+                    }
+                }
+            }
+        }
+        Log.d("AiGameFragment", "sgf(${game.getGeneratedSgf()})")
+        savedSgf = game.getGeneratedSgf()
+    }
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if(requestCode == 1 && resultCode == RESULT_OK)
@@ -297,8 +348,10 @@ class AiGameFragment : Fragment(), MviView<AiGameState, AiGameAction> {
                 loadSGF(it)
             }
         if(requestCode == 2 && resultCode == RESULT_OK)
-            data?.getData()?.getPath()?.let {
-                Log.d("AiGameFragment", "onSave(\"${it}\")")
+            data?.getData()?.let {
+                Log.d("AiGameFragment", "onSave(\"${it}\") = \"${savedSgf}\"")
+                val stream = requireContext().getContentResolver().openOutputStream(it)
+                stream?.bufferedWriter()?.use { out -> out.write(savedSgf!!) }
             }
     }
 
