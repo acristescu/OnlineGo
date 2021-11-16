@@ -87,6 +87,9 @@ interface OGSRestAPI {
 
     @GET("termination-api/player/{player_id}/v5-rating-history?speed=overall&size=0")
     fun getPlayerStats(@Path("player_id") playerId: Long): Single<Glicko2History>
+
+    @GET("termination-api/my/game-chat-history-since/{last_message_id}")
+    fun getMessages(@Path("last_message_id") lastMessageId: String): Single<List<Chat>>
 }
 
 /*

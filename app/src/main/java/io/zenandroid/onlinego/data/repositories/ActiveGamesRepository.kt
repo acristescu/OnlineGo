@@ -24,7 +24,6 @@ import io.zenandroid.onlinego.data.ogs.*
 import java.io.IOException
 import java.util.concurrent.TimeUnit
 
-private const val maxNumberOfActiveGamesBeforeThrottling = 150
 /**
  * Created by alex on 08/11/2017.
  */
@@ -225,7 +224,7 @@ class ActiveGamesRepository(
         activeDbGames.clear()
         games.forEach {
             activeDbGames[it.id] = it
-            connectToGame(it, games.count() <= maxNumberOfActiveGamesBeforeThrottling)
+            connectToGame(it, false)
         }
         myMoveCountSubject.onNext(activeDbGames.values.count { isMyTurn(it) })
     }
@@ -320,7 +319,4 @@ class ActiveGamesRepository(
         FirebaseCrashlytics.getInstance().recordException(Exception(message, t))
         Log.e("ActiveGameRespository", message, t)
     }
-
-    fun hasTooManyActiveGames() =
-        activeDbGames.count() > maxNumberOfActiveGamesBeforeThrottling
 }

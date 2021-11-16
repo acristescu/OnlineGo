@@ -138,6 +138,7 @@ class MyGamesFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
+        viewModel.onAction(Action.ViewResumed)
         analytics.setCurrentScreen(requireActivity(), javaClass.simpleName, null)
     }
 }

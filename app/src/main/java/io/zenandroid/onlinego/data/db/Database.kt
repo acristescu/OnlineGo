@@ -10,8 +10,8 @@ import io.zenandroid.onlinego.data.model.ogs.JosekiPosition
  * Created by alex on 04/06/2018.
  */
 @Database(
-        entities = [Game::class, Message::class, Challenge::class, GameNotification::class, JosekiPosition::class, HistoricGamesMetadata::class],
-        version = 13
+        entities = [Game::class, Message::class, Challenge::class, GameNotification::class, JosekiPosition::class, HistoricGamesMetadata::class, ChatMetadata::class],
+        version = 14
 )
 @TypeConverters(DbTypeConverters::class)
 abstract class Database: RoomDatabase() {

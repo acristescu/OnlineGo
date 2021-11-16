@@ -4,8 +4,10 @@ import com.squareup.moshi.Json
 
 data class Chat (
     val channel: ChatChannel,
-    val line: ChatLine
-)
+    val line: ChatLine,
+    val game_id: Long?,
+    val chat_id: String?
+    )
 
 enum class ChatChannel {
     @Json(name = "main") MAIN,
@@ -19,6 +21,6 @@ data class ChatLine (
         val player_id: Long,
         val move_number: Long?,
         val date: Long,
-        val chat_id: String,
+        val chat_id: String?,
         val body: Any
 )

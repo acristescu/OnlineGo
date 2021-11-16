@@ -31,6 +31,7 @@ class MyGamesViewModel(
     private val activeGamesRepository: ActiveGamesRepository,
     private val challengesRepository: ChallengesRepository,
     private val automatchRepository: AutomatchRepository,
+    private val chatRepository: ChatRepository,
     private val notificationsRepository: ServerNotificationsRepository,
     private val analytics: FirebaseAnalytics,
     private val restService: OGSRestService,
@@ -237,9 +238,14 @@ class MyGamesViewModel(
             is Action.DismissWhatsNewDialog -> onDismissWhatsNewDialog()
             Action.DismissAlertDialog -> onDismissAlertDialog()
             Action.GameNavigationConsumed -> onGameNavigationConsumed()
+            Action.ViewResumed -> onViewResumed()
 
             Action.CustomGame, is Action.GameSelected, Action.PlayAgainstAI, Action.PlayOnline, Action.SupportClicked -> {} // intentionally left blank
         }
+    }
+
+    private fun onViewResumed() {
+        chatRepository.fetchRecentChatMessages()
     }
 
     private fun onGameNavigationConsumed() {
@@ -335,4 +341,5 @@ sealed class Action {
     class ChallengeDeclined(val challenge: Challenge): Action()
     class AutomatchCancelled(val automatch: OGSAutomatch): Action()
     class LoadMoreHistoricGames(val game: Game?): Action()
+    object ViewResumed: Action()
 }

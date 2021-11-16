@@ -35,13 +35,14 @@ import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.moshi.MoshiConverterFactory
 
 private val repositoriesModule = module {
-    single {
+    single<List<SocketConnectedRepository>> {
         listOf(
                 get<ActiveGamesRepository>(),
                 get<AutomatchRepository>(),
                 get<BotsRepository>(),
                 get<ChallengesRepository>(),
                 get<FinishedGamesRepository>(),
+                get<ChatRepository>(),
                 get<ServerNotificationsRepository>(),
                 get<ClockDriftRepository>(),
                 get<TutorialsRepository>()
@@ -52,8 +53,8 @@ private val repositoriesModule = module {
     single { AutomatchRepository(get()) }
     single { BotsRepository(get()) }
     single { ChallengesRepository(get(), get(), get()) }
-    single { ChatRepository(get()) }
-    single { FinishedGamesRepository(get(), get(), get(), get()) }
+    single { ChatRepository(get(), get()) }
+    single { FinishedGamesRepository(get(), get(), get()) }
     single { JosekiRepository(get(), get()) }
     single { PlayersRepository(get(), get(), get()) }
     single { ServerNotificationsRepository(get()) }
@@ -161,7 +162,7 @@ private val viewModelsModule = module {
     }
 
     viewModel {
-        MyGamesViewModel(get(), get(), get(), get(), get(), get(), OnlineGoApplication.instance.analytics, get(), get())
+        MyGamesViewModel(get(), get(), get(), get(), get(), get(), get(), OnlineGoApplication.instance.analytics, get(), get())
     }
 }
 

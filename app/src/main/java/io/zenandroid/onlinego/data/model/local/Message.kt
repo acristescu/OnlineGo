@@ -41,7 +41,7 @@ data class Message (
                     playerId = chat.line.player_id,
                     moveNumber = chat.line.move_number,
                     date = chat.line.date,
-                    chatId = chat.line.chat_id,
+                    chatId = chat.line.chat_id ?: chat.chat_id!!,
                     text = text
             )
         }

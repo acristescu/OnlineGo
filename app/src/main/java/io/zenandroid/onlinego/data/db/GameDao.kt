@@ -270,7 +270,7 @@ abstract class GameDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     abstract fun insertMessage(message: Message)
 
-    @Query("SELECT * FROM message WHERE gameId = :gameId")
+    @Query("SELECT * FROM message WHERE gameId = :gameId ORDER BY date ASC")
     abstract fun getMessagesForGame(gameId: Long): Flowable<List<Message>>
 
     @Query("SELECT chatId FROM message")
@@ -381,4 +381,21 @@ abstract class GameDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     abstract fun updateHistoricGameMetadata(metadata: HistoricGamesMetadata)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    abstract fun updateChatMetadata(metadata: ChatMetadata)
+
+    @Query("SELECT * FROM ChatMetadata WHERE id = 0")
+    abstract fun monitorChatMetadata(): Flowable<ChatMetadata>
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    abstract fun insertMessages(messages: List<Message>)
+
+    @Transaction
+    open fun insertMessagesFromRest(messages: List<Message>) {
+        if(messages.isNotEmpty()) {
+            insertMessages(messages)
+            updateChatMetadata(ChatMetadata(0, messages.last().chatId))
+        }
+    }
 }

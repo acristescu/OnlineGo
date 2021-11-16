@@ -22,7 +22,6 @@ import kotlin.math.min
 class FinishedGamesRepository(
         private val restService: OGSRestService,
         private val userSessionRepository: UserSessionRepository,
-        private val activeGamesRepository: ActiveGamesRepository,
         private val gameDao: GameDao
 ): SocketConnectedRepository {
     data class HistoricGamesRepositoryResult(
@@ -53,11 +52,6 @@ class FinishedGamesRepository(
         fetchRecentlyFinishedGames()
         return gameDao
                 .monitorRecentGames(userSessionRepository.userId)
-                .doOnNext {// <- NOTE: We're connecting to the recent games just because of the chat...
-                    if (!activeGamesRepository.hasTooManyActiveGames()) {
-                        it.forEach { activeGamesRepository.connectToGame(it, true) }
-                    }
-                }
     }
 
     private fun onError(t: Throwable, request: String) {
