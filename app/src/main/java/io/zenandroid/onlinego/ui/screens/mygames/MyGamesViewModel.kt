@@ -78,6 +78,7 @@ class MyGamesViewModel(
         headerMainText = "Hi ${userSessionRepository.uiConfig?.user?.username},",
         userImageURL = userSessionRepository.uiConfig?.user?.icon,
         boardTheme = settingsRepository.boardTheme,
+        ranking = userSessionRepository.uiConfig?.user?.ranking
     ))
     val state: StateFlow<MyGamesState> = _state
     private val subscriptions = CompositeDisposable()
@@ -434,6 +435,7 @@ data class MyGamesState(
     val boardTheme: BoardTheme,
     val online: Boolean = true,
     val challengeDetailsStatus: ChallengeDialogStatus? = null,
+    val ranking: Int? = null,
 )
 
 

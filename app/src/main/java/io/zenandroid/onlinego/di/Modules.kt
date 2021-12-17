@@ -25,6 +25,7 @@ import io.zenandroid.onlinego.data.repositories.FinishedGamesRepository
 import io.zenandroid.onlinego.data.repositories.JosekiRepository
 import io.zenandroid.onlinego.data.repositories.PlayersRepository
 import io.zenandroid.onlinego.data.repositories.PuzzleRepository
+import io.zenandroid.onlinego.data.repositories.SeekGraphRepository
 import io.zenandroid.onlinego.data.repositories.ServerNotificationsRepository
 import io.zenandroid.onlinego.data.repositories.SettingsRepository
 import io.zenandroid.onlinego.data.repositories.TutorialsRepository
@@ -88,6 +89,7 @@ private val repositoriesModule = module {
       get<ChallengesRepository>(),
       get<FinishedGamesRepository>(),
       get<ChatRepository>(),
+      get<SeekGraphRepository>(),
       get<ServerNotificationsRepository>(),
       get<ClockDriftRepository>(),
       get<TutorialsRepository>()
@@ -103,6 +105,7 @@ private val repositoriesModule = module {
   single { JosekiRepository(get(), get()) }
   single { PuzzleRepository(get(), get()) }
   single { PlayersRepository(get(), get(), get()) }
+  single { SeekGraphRepository(get()) }
   single { ServerNotificationsRepository(get()) }
   single { SettingsRepository() }
   single { UserSessionRepository() }
