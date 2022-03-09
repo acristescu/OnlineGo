@@ -26,6 +26,14 @@ private val annotatedCurrentText = AnnotatedString.Builder().run {
     pop()
 
     pushStyle(SpanStyle(fontWeight = FontWeight.Normal))
+    append("· Fixed a bug where users with more than 1000 active games are not getting updates correctly.\n\n")
+    pop()
+
+    pushStyle(SpanStyle(fontSize = 18.sp))
+    append("Previous version\n\n")
+    pop()
+
+    pushStyle(SpanStyle(fontWeight = FontWeight.Normal))
     append("· Implemented a new way of fetching the chat messages. For performance reasons, chats are only fetched when you load the main screen of the app. This should massively impact users with lots of games.\n\n")
     append("· Fixed a bug with 'Malkowich' chat sometimes showing before the game was over.\n\n")
     pop()

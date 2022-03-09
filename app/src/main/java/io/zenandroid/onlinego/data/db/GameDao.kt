@@ -9,6 +9,8 @@ import io.zenandroid.onlinego.data.model.local.*
 import io.zenandroid.onlinego.data.model.ogs.JosekiPosition
 import io.zenandroid.onlinego.data.model.ogs.Phase
 
+private const val MAX_ALLOWED_SQL_PARAMS = 999
+
 /**
  * Created by alex on 04/06/2018.
  */
@@ -110,7 +112,7 @@ abstract class GameDao {
     //
     @Transaction
     open fun insertAllGames(games: List<Game>) {
-        val existingGames = getGameList(games.map(Game::id))
+        val existingGames = games.map(Game::id).chunked(MAX_ALLOWED_SQL_PARAMS).flatMap(::getGameList)
         val newGames = games.filter { candidate ->
             existingGames.find { it.id == candidate.id } == null
         }
