@@ -40,9 +40,6 @@ class MyGamesFragment : Fragment() {
     private val viewModel: MyGamesViewModel by viewModel()
     private var analytics = OnlineGoApplication.instance.analytics
 
-    @ExperimentalFoundationApi
-    @ExperimentalPagerApi
-    @ExperimentalComposeUiApi
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View =
         ComposeView(requireContext()).apply {
             setViewCompositionStrategy(

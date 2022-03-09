@@ -60,8 +60,6 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         return super.onOptionsItemSelected(item)
     }
 
-    @ExperimentalAnimationApi
-    @ExperimentalMaterialApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 

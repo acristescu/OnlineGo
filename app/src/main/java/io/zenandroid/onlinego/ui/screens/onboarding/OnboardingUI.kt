@@ -1,10 +1,9 @@
 package io.zenandroid.onlinego.ui.screens.onboarding
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
@@ -16,7 +15,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -28,10 +26,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.google.accompanist.pager.ExperimentalPagerApi
-import com.google.accompanist.pager.HorizontalPagerIndicator
-import com.google.accompanist.pager.PagerState
-import com.google.accompanist.pager.rememberPagerState
+import com.google.accompanist.pager.*
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
 
@@ -249,7 +244,9 @@ private fun ColumnScope.InfoPage(page: Page.OnboardingPage, listener: (Onboardin
 @ExperimentalPagerApi
 @Composable
 private fun PageIndicator(modifier: Modifier = Modifier, currentPage: Int, numberOfPages: Int) {
-    val state = rememberPagerState(pageCount = numberOfPages)
+    val state = rememberPagerState()
+    HorizontalPager(count = numberOfPages, state = state) {} // Dirty hack to set the number of pages since that's no longer supported
+
     LaunchedEffect(currentPage) {
         state.animateScrollToPage(currentPage)
     }
@@ -258,6 +255,7 @@ private fun PageIndicator(modifier: Modifier = Modifier, currentPage: Int, numbe
         activeColor = MaterialTheme.colors.onSurface,
         modifier = modifier
             .padding(16.dp)
+            .clickable(enabled = false) {}
     )
 }
 
@@ -266,7 +264,7 @@ private fun PageIndicator(modifier: Modifier = Modifier, currentPage: Int, numbe
 @Composable
 fun DefaultPreview() {
     OnlineGoTheme (darkTheme = true) {
-        Screen(OnboardingState()) { _ -> }
+        Screen(OnboardingState()) { }
     }
 }
 
@@ -275,7 +273,7 @@ fun DefaultPreview() {
 @Composable
 fun DefaultPreview1() {
     OnlineGoTheme (darkTheme = true) {
-        Screen(OnboardingState(currentPage = Page.MultipleChoicePage("Is there a cow level? Lorem ipsum dolor sit amet", listOf("Yes", "NO!!!")))) { _ -> }
+        Screen(OnboardingState(currentPage = Page.MultipleChoicePage("Is there a cow level? Lorem ipsum dolor sit amet", listOf("Yes", "NO!!!")))) { }
     }
 }
 
@@ -284,6 +282,6 @@ fun DefaultPreview1() {
 @Composable
 fun DefaultPreview2() {
     OnlineGoTheme (darkTheme = true) {
-        Screen(OnboardingState(currentPage = Page.LoginPage, loginMethod = Page.LoginMethod.PASSWORD, isExistingAccount = false)) { _ -> }
+        Screen(OnboardingState(currentPage = Page.LoginPage, loginMethod = Page.LoginMethod.PASSWORD, isExistingAccount = false)) { }
     }
 }

@@ -31,6 +31,16 @@ android {
         targetCompatibility 1.8
         sourceCompatibility 1.8
     }
+    tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
+        kotlinOptions {
+            freeCompilerArgs += "-opt-in=androidx.compose.animation.ExperimentalAnimationApi"
+            freeCompilerArgs += "-opt-in=androidx.compose.material.ExperimentalMaterialApi"
+            freeCompilerArgs += "-opt-in=androidx.compose.foundation.ExperimentalFoundationApi"
+            freeCompilerArgs += "-opt-in=androidx.compose.ui.ExperimentalComposeUiApi"
+            freeCompilerArgs += "-opt-in=com.google.accompanist.pager.ExperimentalPagerApi"
+            freeCompilerArgs += '-Xjvm-default=enable'
+        }
+    }
     kotlinOptions {
         jvmTarget = "1.8"
         useIR = true
@@ -53,7 +63,7 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'androidx.appcompat:appcompat:1.3.1'
+    implementation 'androidx.appcompat:appcompat:1.4.1'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
 
     // retrofit
@@ -64,10 +74,6 @@ dependencies {
     implementation 'com.google.android.gms:play-services-auth:19.2.0'
 
     implementation "io.coil-kt:coil-compose:1.3.2"
-    //
-    // Warning! do not upgrade this beyond 4.4.x as 4.5.0 brings in websocket compression
-    // which for whatever reason causes issues.
-    //
     implementation 'com.squareup.okhttp3:logging-interceptor:4.9.2'
     implementation 'com.squareup.okhttp3:okhttp-urlconnection:4.9.2'
     implementation 'com.github.franmontiel:PersistentCookieJar:v1.0.1'
@@ -75,9 +81,9 @@ dependencies {
     implementation 'com.squareup.moshi:moshi-kotlin:1.11.0'
     implementation 'com.squareup.moshi:moshi-adapters:1.11.0'
 
-    implementation "androidx.navigation:navigation-fragment-ktx:2.4.0-alpha10"
-    implementation "androidx.navigation:navigation-ui-ktx:2.4.0-alpha10"
-    implementation "androidx.core:core-ktx:1.7.0-beta02"
+    implementation "androidx.navigation:navigation-fragment-ktx:2.5.0-alpha03"
+    implementation "androidx.navigation:navigation-ui-ktx:2.5.0-alpha03"
+    implementation "androidx.core:core-ktx:1.9.0-alpha01"
 
     // rxandroid
     implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
@@ -86,8 +92,8 @@ dependencies {
     implementation 'com.jakewharton.rxrelay2:rxrelay:2.1.1'
     implementation 'io.reactivex.rxjava2:rxkotlin:2.4.0'
 
-    implementation "androidx.work:work-runtime-ktx:2.7.0-rc01"
-    implementation "androidx.work:work-rxjava2:2.7.0-rc01"
+    implementation "androidx.work:work-runtime-ktx:2.8.0-alpha01"
+    implementation "androidx.work:work-rxjava2:2.8.0-alpha01"
 
     implementation "androidx.lifecycle:lifecycle-extensions:2.2.0"
 
@@ -98,13 +104,13 @@ dependencies {
     implementation 'com.xwray:groupie:2.8.1'
     implementation 'com.xwray:groupie-viewbinding:2.8.1'
 
-    implementation 'com.google.android.material:material:1.5.0-alpha04'
-    implementation 'androidx.constraintlayout:constraintlayout:2.1.1'
+    implementation 'com.google.android.material:material:1.6.0-alpha03'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.3'
     implementation 'androidx.cardview:cardview:1.0.0'
     implementation 'androidx.emoji:emoji-appcompat:1.1.0'
     implementation 'androidx.emoji:emoji:1.1.0'
     implementation 'androidx.legacy:legacy-preference-v14:1.0.0'
-    implementation "androidx.lifecycle:lifecycle-livedata-ktx:2.3.1"
+    implementation "androidx.lifecycle:lifecycle-livedata-ktx:2.4.1"
     implementation "androidx.compose.runtime:runtime-livedata:$compose_version"
     implementation "androidx.compose.material:material-icons-extended:$compose_version"
     implementation "androidx.compose.ui:ui-util:$compose_version"
@@ -126,29 +132,29 @@ dependencies {
 
     implementation 'br.com.simplepass:loading-button-android:2.1.5'
     implementation 'com.google.firebase:firebase-analytics-ktx:19.0.2'
-    implementation 'com.google.firebase:firebase-crashlytics:18.2.3'
+    implementation 'com.google.firebase:firebase-crashlytics:18.2.8'
     implementation 'com.google.firebase:firebase-messaging:22.0.0'
 
     implementation 'io.noties.markwon:core:4.3.1'
 
     implementation 'com.github.bumptech.glide:glide:4.11.0'
-    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.3.1'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.4.1'
     kapt 'com.github.bumptech.glide:compiler:4.11.0'
 
     implementation "io.insert-koin:koin-android:3.1.0"
 
     implementation "com.android.billingclient:billing-ktx:3.0.2"
 
-    implementation 'androidx.room:room-runtime:2.3.0'
-    implementation 'androidx.room:room-rxjava2:2.3.0'
+    implementation 'androidx.room:room-runtime:2.4.2'
+    implementation 'androidx.room:room-rxjava2:2.4.2'
 
     implementation 'com.jakewharton.threetenabp:threetenabp:1.3.1'
     implementation 'com.github.cpiz:BubbleView:1.0.3'
 
-    implementation "com.google.accompanist:accompanist-pager:0.18.0"
-    implementation "com.google.accompanist:accompanist-pager-indicators:0.18.0"
+    implementation "com.google.accompanist:accompanist-pager:0.23.1"
+    implementation "com.google.accompanist:accompanist-pager-indicators:0.23.1"
 
-    kapt 'androidx.room:room-compiler:2.3.0'
+    kapt 'androidx.room:room-compiler:2.4.2'
 
     implementation 'androidx.test.espresso:espresso-idling-resource:3.4.0'
 

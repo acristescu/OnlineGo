@@ -72,8 +72,6 @@ class TutorialFragment : Fragment() {
 
     private val viewModel: TutorialViewModel by viewModel()
 
-    @ExperimentalComposeUiApi
-    @ExperimentalAnimationApi
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
         return ComposeView(requireContext()).apply {

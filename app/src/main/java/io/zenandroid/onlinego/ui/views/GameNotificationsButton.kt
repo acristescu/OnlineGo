@@ -106,7 +106,7 @@ class GameNotificationsButton: FrameLayout {
         super.onAttachedToWindow()
         viewModel = ViewModelProvider(FragmentManager.findFragment<Fragment>(this).requireActivity(), object:
             ViewModelProvider.Factory {
-            override fun <T : ViewModel?> create(modelClass: Class<T>): T {
+            override fun <T : ViewModel> create(modelClass: Class<T>): T {
                 return GameNotificationsButtonViewModel(get().get()) as T
             }
         }).get()

@@ -65,7 +65,6 @@ class OnboardingFragment : Fragment() {
         }
     }
 
-    @ExperimentalPagerApi
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
