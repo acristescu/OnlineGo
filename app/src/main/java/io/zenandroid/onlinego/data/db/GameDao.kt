@@ -17,8 +17,8 @@ private const val MAX_ALLOWED_SQL_PARAMS = 999
 @Dao
 abstract class GameDao {
 
-    @Query("SELECT * FROM game WHERE phase <> 'FINISHED' AND (white_id = :userId OR black_id = :userId)")
-    abstract fun monitorActiveGames(userId: Long?) : Flowable<List<Game>>
+    @Query("SELECT id FROM game WHERE phase <> 'FINISHED' AND (white_id = :userId OR black_id = :userId)")
+    abstract fun getActiveGameIds(userId: Long?) : List<Long>
 
     @Query("""
         SELECT *
@@ -301,19 +301,6 @@ abstract class GameDao {
 
     @Query ("SELECT * FROM gamenotification")
     abstract fun getGameNotifications(): Flowable<List<GameNotificationWithDetails>>
-
-    @Query("""
-        SELECT id 
-        FROM game 
-        WHERE id NOT IN (:ids) 
-            AND phase <> 'FINISHED'
-            AND (
-                white_id = :userId
-                OR
-                black_id = :userId
-            )
-    """)
-    abstract fun getGamesThatShouldBeFinished(userId: Long?, ids: List<Long>): List<Long>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     abstract fun insertAllGameNotifications(list: List<GameNotification>)

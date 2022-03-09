@@ -10,7 +10,6 @@ import io.reactivex.Single
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.BehaviorSubject
-import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.data.db.GameDao
 import io.zenandroid.onlinego.utils.addToDisposable
 import io.zenandroid.onlinego.gamelogic.Util
@@ -262,8 +261,8 @@ class ActiveGamesRepository(
                     .map { it.map (Game.Companion::fromOGSGame)}
                     .doOnSuccess(gameDao::insertAllGames)
                     .doOnSuccess { FirebaseCrashlytics.getInstance().log("overview returned ${it.size} games") }
-                    .map { it.map(Game::id) }
-                    .map { gameDao.getGamesThatShouldBeFinished(userSessionRepository.userId, it) }
+                    .map { it.map(Game::id).toSet() }
+                    .map { gameDao.getActiveGameIds(userSessionRepository.userId) - it }
                     .doOnSuccess (this::updateGamesThatFinishedSinceLastUpdate)
                     .retryWhen (this::retryIOException)
                     .ignoreElement()
