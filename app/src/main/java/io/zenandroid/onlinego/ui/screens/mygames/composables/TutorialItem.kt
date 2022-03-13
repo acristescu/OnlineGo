@@ -56,7 +56,7 @@ fun TutorialItem(percentage: Int, tutorial: String) {
                     drawArc(
                         color = Color.White,
                         startAngle = 90f,
-                        sweepAngle = -180f * .73f,
+                        sweepAngle = -180f * percentage / 100f,
                         useCenter = false,
                         topLeft = Offset(-size.width, 0f),
                         size = Size(size.width * 2, size.height),

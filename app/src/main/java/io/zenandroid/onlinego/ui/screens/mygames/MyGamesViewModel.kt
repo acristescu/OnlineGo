@@ -33,6 +33,7 @@ class MyGamesViewModel(
     private val automatchRepository: AutomatchRepository,
     private val chatRepository: ChatRepository,
     private val notificationsRepository: ServerNotificationsRepository,
+    private val tutorialsRepository: TutorialsRepository,
     private val analytics: FirebaseAnalytics,
     private val restService: OGSRestService,
     private val socketService: OGSWebSocketService,
@@ -324,6 +325,9 @@ data class MyGamesState(
     val userImageURL: String? = null,
     val headerMainText: String,
     val headerSubText: String? = null,
+    val tutorialPercentage: Int? = 100,
+    val tutorialVisible: Boolean = false,
+    val tutorialTitle: String? = null,
 )
 
 

@@ -42,7 +42,12 @@ class StatePersistenceMiddleware : Middleware<AiGameState, AiGameAction> {
                 .map {
                     if(prefs.contains(STATE_KEY)) {
                         val json = prefs.getString(STATE_KEY, "")!!
-                        val newState = stateAdapter.fromJson(json)
+                        val newState = try {
+                            stateAdapter.fromJson(json)
+                        } catch (e: java.lang.Exception) {
+                            Log.e("StatePersistenceMiddlew", "Cannot deserialize state", e)
+                            null
+                        }
                         newState?.let { RestoredState(it) }
                                 ?: run {
                                     FirebaseCrashlytics.getInstance().recordException(Exception("Cannot deserialize state"))

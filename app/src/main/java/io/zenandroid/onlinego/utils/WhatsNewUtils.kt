@@ -27,6 +27,7 @@ private val annotatedCurrentText = AnnotatedString.Builder().run {
 
     pushStyle(SpanStyle(fontWeight = FontWeight.Normal))
     append("· Fixed a bug where users with more than 1000 active games are not getting updates correctly.\n\n")
+    append("· Fixed a bug where AI game would sometimes get stuck after a version upgrade.\n\n")
     pop()
 
     pushStyle(SpanStyle(fontSize = 18.sp))

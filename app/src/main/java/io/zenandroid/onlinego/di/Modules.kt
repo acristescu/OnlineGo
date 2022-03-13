@@ -162,7 +162,7 @@ private val viewModelsModule = module {
     }
 
     viewModel {
-        MyGamesViewModel(get(), get(), get(), get(), get(), get(), get(), OnlineGoApplication.instance.analytics, get(), get())
+        MyGamesViewModel(get(), get(), get(), get(), get(), get(), get(), get(), OnlineGoApplication.instance.analytics, get(), get())
     }
 }
 

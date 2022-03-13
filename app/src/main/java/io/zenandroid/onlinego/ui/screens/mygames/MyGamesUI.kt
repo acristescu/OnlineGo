@@ -39,9 +39,11 @@ fun MyGamesScreen(state: MyGamesState, onAction: (Action) -> Unit) {
                 subText = state.headerSubText
             )
         }
-//        item {
-//            TutorialItem(percentage = 73, tutorial = "Basics > Capturing")
-//        }
+        if(state.tutorialVisible) {
+            item {
+                TutorialItem(percentage = state.tutorialPercentage ?: 0, tutorial = state.tutorialTitle ?: "")
+            }
+        }
         items(items = state.automatches) {
             AutomatchItem(it, onAction)
         }
@@ -128,6 +130,9 @@ private fun Preview() {
             MyGamesScreen(MyGamesState(
                 userId = 0L,
                 headerMainText = "Hi MrAlex!",
+                tutorialVisible = true,
+                tutorialPercentage = 23,
+                tutorialTitle = "Basics > How to capture",
                 automatches = listOf(
                     OGSAutomatch(
                         uuid = "aaa",

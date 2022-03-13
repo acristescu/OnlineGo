@@ -1,9 +1,7 @@
 package io.zenandroid.onlinego.ui.screens.localai
 
 import android.util.Log
-import io.zenandroid.onlinego.data.model.Position
 import io.zenandroid.onlinego.data.model.StoneType
-import io.zenandroid.onlinego.gamelogic.RulesManager
 import io.zenandroid.onlinego.mvi.Reducer
 import io.zenandroid.onlinego.ui.screens.localai.AiGameAction.*
 
