@@ -2,6 +2,7 @@ package io.zenandroid.onlinego.ui.screens.localai
 
 import android.util.Log
 import io.zenandroid.onlinego.data.model.StoneType
+import io.zenandroid.onlinego.gamelogic.RulesManager
 import io.zenandroid.onlinego.mvi.Reducer
 import io.zenandroid.onlinego.ui.screens.localai.AiGameAction.*
 
@@ -156,7 +157,8 @@ class AiGameReducer : Reducer<AiGameState, AiGameAction> {
                     previousButtonEnabled = false,
                     boardIsInteractive = false,
                     redoPosStack = emptyList(),
-                    candidateMove = null
+                    candidateMove = null,
+                    position = RulesManager.initializePosition(action.size, action.handicap),
             )
             AIHint -> state.copy(
                     showHints = true,
@@ -166,7 +168,12 @@ class AiGameReducer : Reducer<AiGameState, AiGameAction> {
                     chatText = "Hmmm..."
             )
             is RestoredState -> action.state.copy( // Careful, this stomps on everything not in the list below!!!
-                    engineStarted = state.engineStarted
+                    engineStarted = state.engineStarted,
+                    stateRestorePending = false,
+            )
+            CantRestoreState -> state.copy(
+                    newGameDialogShown = true,
+                    stateRestorePending = false,
             )
             AIOwnershipResponse -> state.copy(
                     boardIsInteractive = true,

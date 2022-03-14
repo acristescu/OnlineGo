@@ -7,6 +7,7 @@ sealed class AiGameAction {
     object ViewReady: AiGameAction()
     object ViewPaused: AiGameAction()
     class RestoredState(val state: AiGameState): AiGameAction()
+    object CantRestoreState: AiGameAction()
 
     object ShowNewGameDialog: AiGameAction()
     object DismissNewGameDialog: AiGameAction()

@@ -22,9 +22,9 @@ class GameTurnMiddleware : Middleware<AiGameState, AiGameAction> {
             )
 
     private fun engineStarted(actions: Observable<AiGameAction>, state: Observable<AiGameState>) =
-            actions.ofType(EngineStarted::class.java)
-                    .withLatestFrom(state)
-                    .filter { (_, state) -> state.position != null && !(state.position.isGameOver() && state.aiWon != null) }
+            actions.filter { it is EngineStarted || it is RestoredState }
+                .withLatestFrom(state)
+                    .filter { (_, state) -> !state.stateRestorePending && state.engineStarted && state.position != null && !(state.position.isGameOver() && state.aiWon != null) }
                     .map { (_, state) -> NewPosition(state.position!!) }
 
     private fun newGame(actions: Observable<AiGameAction>) =

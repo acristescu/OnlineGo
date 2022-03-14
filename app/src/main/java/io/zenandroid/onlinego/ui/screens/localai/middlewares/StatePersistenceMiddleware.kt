@@ -51,10 +51,10 @@ class StatePersistenceMiddleware : Middleware<AiGameState, AiGameAction> {
                                 ?: run {
                                     FirebaseCrashlytics.getInstance().recordException(Exception("Cannot deserialize state"))
                                     Log.e("StatePersistenceMiddlew", "Cannot deserialize state")
-                                    ShowNewGameDialog
+                                    CantRestoreState
                                 }
                     } else {
-                        ShowNewGameDialog
+                        CantRestoreState
                     }
                 }
 

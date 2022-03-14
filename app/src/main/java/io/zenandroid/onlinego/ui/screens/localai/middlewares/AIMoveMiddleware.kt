@@ -20,7 +20,7 @@ class AIMoveMiddleware : Middleware<AiGameState, AiGameAction> {
     override fun bind(actions: Observable<AiGameAction>, state: Observable<AiGameState>): Observable<AiGameAction> =
         actions.ofType(GenerateAiMove::class.java)
                 .withLatestFrom(state)
-                .filter { (_, state) -> state.engineStarted && state.position != null }
+                .filter { (_, state) -> state.engineStarted && !state.stateRestorePending && state.position != null }
                 .flatMapSingle { (_, state) ->
                     KataGoAnalysisEngine.analyzePosition(
                             pos = state.position!!,
@@ -31,7 +31,7 @@ class AIMoveMiddleware : Middleware<AiGameState, AiGameAction> {
                     )
                             .map {
                                 val selectedMove = selectMove(it)
-                                val move = Util.getCoordinatesFromGTP(selectedMove.move, state.boardSize)
+                                val move = Util.getCoordinatesFromGTP(selectedMove.move, state.position.boardHeight)
                                 val side = if(state.enginePlaysBlack) StoneType.BLACK else StoneType.WHITE
                                 state.position.aiAnalysisResult = it
                                 val newPos = RulesManager.makeMove(state.position, side, move)?.apply {

@@ -26,5 +26,6 @@ data class AiGameState(
         val ownershipButtonVisible: Boolean = false,
         val finalWhiteScore: Float? = null,
         val finalBlackScore: Float? = null,
-        val aiWon: Boolean? = null
+        val aiWon: Boolean? = null,
+        val stateRestorePending: Boolean = true,
 )
