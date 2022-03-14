@@ -128,7 +128,7 @@ object RulesManager {
             newPos.nextToMove = turn
         }
         game.removedStones?.let {
-            for (i in 0 until it.length step 2) {
+            for (i in it.indices step 2) {
                 pos.markRemoved(Util.getCoordinatesFromSGF(it, i))
             }
         }
@@ -138,12 +138,14 @@ object RulesManager {
         if(computeTerritory) {
             for (i in 0 until pos.boardWidth) {
                 (0 until pos.boardHeight)
-                        .map { Cell(i, it) }
-                        .filter { !isMarkedDame(pos, it) }
-                        .filter { !isLivingStone(pos, it) }
-                        .filter { !pos.whiteTerritory.contains(it) }
-                        .filter { !pos.blackTerritory.contains(it) }
-                        .forEach { markEye(pos, it) }
+                    .asSequence()
+                    .map { Cell(i, it) }
+                    .filter { !isMarkedDame(pos, it) }
+                    .filter { !isLivingStone(pos, it) }
+                    .filter { !pos.whiteTerritory.contains(it) }
+                    .filter { !pos.blackTerritory.contains(it) }
+                    .toList()
+                    .forEach { markEye(pos, it) }
             }
         }
 
@@ -223,13 +225,13 @@ object RulesManager {
         val pos = Position(width, height)
         initialState?.let {
             it.white?.let {
-                for (i in 0 until it.length step 2) {
+                for (i in it.indices step 2) {
                     val stone = Util.getCoordinatesFromSGF(it, i)
                     pos.putStone(stone.x, stone.y, StoneType.WHITE)
                 }
             }
             it.black?.let {
-                for (i in 0 until it.length step 2) {
+                for (i in it.indices step 2) {
                     val stone = Util.getCoordinatesFromSGF(it, i)
                     pos.putStone(stone.x, stone.y, StoneType.BLACK)
                 }
