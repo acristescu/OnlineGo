@@ -57,9 +57,6 @@ fun Board(
     onTapMove: ((Cell) -> Unit)? = null,
     onTapUp: ((Cell) -> Unit)? = null
 ) {
-    SideEffect {
-        Log.e("aaa", "Recomposing Board")
-    }
     val drawLastMove = true
     val drawMarks = true
     val background: ImageBitmap = ImageBitmap.imageResource(id = R.mipmap.texture)
@@ -120,7 +117,6 @@ fun Board(
             height = it.size.height
         }
     ) {
-        Log.e("aaa", "Redrawing Canvas")
         if (measurements.width == 0) {
             return@Canvas
         }

@@ -1,11 +1,12 @@
 package io.zenandroid.onlinego.ui.screens.tutorial
 
+import androidx.compose.runtime.Immutable
 import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.Position
 import io.zenandroid.onlinego.data.model.StoneType
 import io.zenandroid.onlinego.data.model.local.*
 
-
+@Immutable
 data class TutorialState (
         val tutorialGroups: List<TutorialGroup>? = null,
         val tutorial: Tutorial? = null,
