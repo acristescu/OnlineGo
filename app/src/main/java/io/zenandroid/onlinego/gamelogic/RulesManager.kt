@@ -1,9 +1,9 @@
 package io.zenandroid.onlinego.gamelogic
 
-import android.graphics.Point
 import android.util.Log
 import androidx.core.util.lruCache
 import com.google.firebase.crashlytics.FirebaseCrashlytics
+import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.Position
 import io.zenandroid.onlinego.data.model.StoneType
 import io.zenandroid.onlinego.data.model.local.Game
@@ -46,18 +46,18 @@ object RulesManager {
             for(y in 0 until pos.boardHeight) {
                 when(outBoard[x * pos.boardHeight + y]) {
                     -1 -> {
-                        pos.markWhiteTerritory(Point(x, y))
+                        pos.markWhiteTerritory(Cell(x, y))
                         if(pos.getStoneAt(x, y) == StoneType.BLACK) {
-                            pos.markRemoved(Point(x, y))
+                            pos.markRemoved(Cell(x, y))
                         }
                     }
                     0 -> {
-                        pos.markRemoved(Point(x, y))
+                        pos.markRemoved(Cell(x, y))
                     }
                     1 -> {
-                        pos.markBlackTerritory(Point(x, y))
+                        pos.markBlackTerritory(Cell(x, y))
                         if(pos.getStoneAt(x, y) == StoneType.WHITE) {
-                            pos.markRemoved(Point(x, y))
+                            pos.markRemoved(Cell(x, y))
                         }
                     }
                 }
@@ -114,7 +114,7 @@ object RulesManager {
             if(index >= limit) {
                 return@forEachIndexed
             }
-            val newPos = makeMove(pos, turn, Point(move[0], move[1]))
+            val newPos = makeMove(pos, turn, Cell(move[0], move[1]))
             if(newPos == null) {
                 Log.e(this.javaClass.simpleName, "Server returned an invalid move!!! gameId=${game.id} move=$index")
                 FirebaseCrashlytics.getInstance().log("E/RulesManager: Server returned an invalid move!!! gameId=${game.id} move=$index")
@@ -138,7 +138,7 @@ object RulesManager {
         if(computeTerritory) {
             for (i in 0 until pos.boardWidth) {
                 (0 until pos.boardHeight)
-                        .map { Point(i, it) }
+                        .map { Cell(i, it) }
                         .filter { !isMarkedDame(pos, it) }
                         .filter { !isLivingStone(pos, it) }
                         .filter { !pos.whiteTerritory.contains(it) }
@@ -177,7 +177,7 @@ object RulesManager {
             if(index >= limit) {
                 return@forEachIndexed
             }
-            val newPos = RulesManager.makeMove(pos, turn, Point((move[0] as Double).toInt(), (move[1] as Double).toInt()))
+            val newPos = RulesManager.makeMove(pos, turn, Cell((move[0] as Double).toInt(), (move[1] as Double).toInt()))
             if(newPos == null) {
                 Log.e(this.javaClass.simpleName, "Server returned an invalid move!!! gameId=${gameData.game_id} move=$index")
                 return@forEachIndexed
@@ -197,7 +197,7 @@ object RulesManager {
         if(computeTerritory) {
             for (i in 0 until pos.boardWidth) {
                 (0 until pos.boardHeight)
-                        .map { Point(i, it) }
+                        .map { Cell(i, it) }
                         .filter { !isMarkedDame(pos, it) }
                         .filter { !isLivingStone(pos, it) }
                         .filter { !pos.whiteTerritory.contains(it) }
@@ -238,9 +238,9 @@ object RulesManager {
         return pos
     }
 
-    private fun markEye(pos: Position, point: Point) {
-        val toVisit = mutableListOf(point)
-        val visited = mutableSetOf<Point>()
+    private fun markEye(pos: Position, cell: Cell) {
+        val toVisit = mutableListOf(cell)
+        val visited = mutableSetOf<Cell>()
         var foundWhite = false
         var foundBlack = false
         while(!toVisit.isEmpty() && !(foundBlack && foundWhite)) {
@@ -274,10 +274,10 @@ object RulesManager {
         }
     }
 
-    private fun isMarkedDame(pos: Position, p: Point) =
+    private fun isMarkedDame(pos: Position, p: Cell) =
             pos.getStoneAt(p) == null && pos.removedSpots.contains(p)
 
-    private fun isLivingStone(pos: Position, p: Point) =
+    private fun isLivingStone(pos: Position, p: Cell) =
             pos.getStoneAt(p) != null && !pos.removedSpots.contains(p)
     /**
      * Morph this postion to a new one by performing the move specified.
@@ -288,7 +288,7 @@ object RulesManager {
      * @param where
      * @return
      */
-    fun makeMove(oldPos: Position, stone: StoneType, where: Point): Position? {
+    fun makeMove(oldPos: Position, stone: StoneType, where: Cell): Position? {
         val pos = oldPos.clone()
         pos.parentPosition = oldPos
         pos.lastMove = where
@@ -313,7 +313,7 @@ object RulesManager {
         // For this, we're calling doCapture() on all the neighbours
         // of the new stones that are of opposite color
         //
-        val removedStones = mutableSetOf<Point>()
+        val removedStones = mutableSetOf<Cell>()
         val neighbours = Util.getNeighbouringSpace(where, pos.boardWidth, pos.boardHeight)
 
         for (neighbour in neighbours) {
@@ -371,7 +371,7 @@ object RulesManager {
      * @param type
      * @return
      */
-    private fun doCapture(pos: Position, origin: Point, type: StoneType): List<Point>? {
+    private fun doCapture(pos: Position, origin: Cell, type: StoneType): List<Cell>? {
         //
         // For this, we're using a simplified shape recognition mechanism
         // For each visited node, we're getting all the neighbours, checking
@@ -383,8 +383,8 @@ object RulesManager {
         // it means the group is surrounded and the contents of the visited
         // list is returned.
         //
-        val toVisit = LinkedList<Point>()
-        val visited = LinkedList<Point>()
+        val toVisit = LinkedList<Cell>()
+        val visited = LinkedList<Cell>()
 
         toVisit.add(origin)
 
@@ -408,12 +408,12 @@ object RulesManager {
         return visited
     }
 
-    fun toggleRemoved(pos: Position, point: Point) {
+    fun toggleRemoved(pos: Position, point: Cell) {
         val removing = !pos.removedSpots.contains(point)
         val isStone = pos.getStoneAt(point) != null
         val toVisit = mutableListOf(point)
-        val visited = mutableSetOf<Point>()
-        val group = mutableListOf<Point>()
+        val visited = mutableSetOf<Cell>()
+        val group = mutableListOf<Cell>()
 
         while(!toVisit.isEmpty()) {
             val p = toVisit.removeAt(toVisit.size - 1)

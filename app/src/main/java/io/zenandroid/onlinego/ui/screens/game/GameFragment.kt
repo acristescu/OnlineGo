@@ -1,7 +1,6 @@
 package io.zenandroid.onlinego.ui.screens.game
 
 import android.content.Intent
-import android.graphics.Point
 import android.net.Uri
 import android.os.Bundle
 import androidx.appcompat.app.AlertDialog
@@ -24,6 +23,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.R
+import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.ui.screens.chat.ChatDialog
 import io.zenandroid.onlinego.ui.screens.game.gameInfo.GameInfoDialog
 import io.zenandroid.onlinego.ui.screens.main.MainActivity
@@ -322,7 +322,7 @@ class GameFragment : Fragment(), GameContract.View {
     override var fadeOutRemovedStones = false
         set(value) { binding.board.fadeOutRemovedStones = value }
 
-    override val cellSelection: Observable<Point>
+    override val cellSelection: Observable<Cell>
         get() = binding.board.tapUpObservable()
 
     override var whiteTimer: GamePresenter.TimerDetails? = null
@@ -339,11 +339,11 @@ class GameFragment : Fragment(), GameContract.View {
             field = value
         }
 
-    override fun showCandidateMove(point: Point?, nextToMove: StoneType?) {
+    override fun showCandidateMove(point: Cell?, nextToMove: StoneType?) {
         binding.board.showCandidateMove(point, nextToMove)
     }
 
-    override val cellHotTrack: Observable<Point>
+    override val cellHotTrack: Observable<Cell>
         get() = binding.board.tapMoveObservable()
 
     override var title: String? = null

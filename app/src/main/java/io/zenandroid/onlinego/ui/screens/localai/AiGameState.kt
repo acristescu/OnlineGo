@@ -1,12 +1,10 @@
 package io.zenandroid.onlinego.ui.screens.localai
 
-import android.graphics.Point
+import androidx.compose.runtime.Immutable
+import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.Position
-import io.zenandroid.onlinego.data.repositories.ActiveGamesRepository
-import io.zenandroid.onlinego.gamelogic.RulesManager
-import io.zenandroid.onlinego.ui.screens.joseki.JosekiExplorerAction
-import org.koin.core.context.GlobalContext.get
 
+@Immutable
 data class AiGameState(
         val engineStarted: Boolean = false,
         val position: Position? = null,
@@ -14,7 +12,7 @@ data class AiGameState(
         val enginePlaysBlack: Boolean = false,
         val handicap: Int = 0,
         val boardIsInteractive: Boolean = false,
-        val candidateMove: Point? = null,
+        val candidateMove: Cell? = null,
         val passButtonEnabled: Boolean = false,
         val nextButtonEnabled: Boolean = false,
         val previousButtonEnabled: Boolean = false,

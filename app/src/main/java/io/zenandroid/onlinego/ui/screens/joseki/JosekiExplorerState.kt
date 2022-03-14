@@ -1,12 +1,14 @@
 package io.zenandroid.onlinego.ui.screens.joseki
 
-import android.graphics.Point
+import androidx.compose.runtime.Immutable
+import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.Position
 import io.zenandroid.onlinego.data.model.ogs.JosekiPosition
 
+@Immutable
 data class JosekiExplorerState (
         val lastRequestedNodeId: Long? = null,
-        val candidateMove: Point? = null,
+        val candidateMove: Cell? = null,
         val loading: Boolean = false,
         val position: JosekiPosition? = null,
         val description: String? = null,

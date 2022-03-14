@@ -1,6 +1,6 @@
 package io.zenandroid.onlinego.ui.screens.localai
 
-import android.graphics.Point
+import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.Position
 
 sealed class AiGameAction {
@@ -33,16 +33,16 @@ sealed class AiGameAction {
 
 
     // User actions
-    class UserTappedCoordinate(val coordinate: Point): AiGameAction()
-    class UserHotTrackedCoordinate(val coordinate: Point): AiGameAction()
+    class UserTappedCoordinate(val coordinate: Cell): AiGameAction()
+    class UserHotTrackedCoordinate(val coordinate: Cell): AiGameAction()
     object UserPressedPrevious: AiGameAction()
     object UserPressedBack: AiGameAction()
     object UserPressedNext: AiGameAction()
     object UserPressedPass: AiGameAction()
     object UserAskedForHint: AiGameAction()
     object UserAskedForOwnership: AiGameAction()
-    class UserTriedSuicidalMove(val coordinate: Point): AiGameAction()
-    class UserTriedKoMove(val coordinate: Point): AiGameAction()
+    class UserTriedSuicidalMove(val coordinate: Cell): AiGameAction()
+    class UserTriedKoMove(val coordinate: Cell): AiGameAction()
 
 
 }

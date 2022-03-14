@@ -18,6 +18,7 @@ import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
 import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.R
+import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.Position
 import io.zenandroid.onlinego.data.model.StoneType
 import io.zenandroid.onlinego.data.model.ogs.PlayCategory
@@ -175,18 +176,18 @@ class BoardView : View {
     //
     private var cellSize: Float = 0f
     private var stoneSpacing = 0f
-    private var candidateMove: Point? = null
+    private var candidateMove: Cell? = null
     private var candidateType: StoneType? = null
 
-    private val tapUpSubject = PublishSubject.create<Point>()
-    private val tapMoveSubject = PublishSubject.create<Point>()
-    private var stonesToFadeIn: Map<Point, StoneType> = mapOf()
-    private var stonesToFadeOut: Map<Point, StoneType> = mapOf()
+    private val tapUpSubject = PublishSubject.create<Cell>()
+    private val tapMoveSubject = PublishSubject.create<Cell>()
+    private var stonesToFadeIn: Map<Cell, StoneType> = mapOf()
+    private var stonesToFadeOut: Map<Cell, StoneType> = mapOf()
     private val stonePaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val shadowPaint = Paint(Paint.ANTI_ALIAS_FLAG)
 
-    var onTapMove: ((Point) -> Unit)? = null
-    var onTapUp: ((Point) -> Unit)? = null
+    var onTapMove: ((Cell) -> Unit)? = null
+    var onTapUp: ((Cell) -> Unit)? = null
 
     constructor(context: Context) : super(context) {
         init(context)
@@ -266,8 +267,8 @@ class BoardView : View {
         return true
     }
 
-    private fun screenToBoardCoordinates(x: Float, y: Float): Point {
-        return Point(
+    private fun screenToBoardCoordinates(x: Float, y: Float): Cell {
+        return Cell(
                 ((x - border - xOffsetForNonSquareBoard) / cellSize).coerceIn(0f, boardWidth - 1f).toInt(),
                 ((y - border - yOffsetForNonSquareBoard) / cellSize).coerceIn(0f, boardHeight - 1f).toInt()
         )
@@ -373,7 +374,7 @@ class BoardView : View {
         }
         for(i in 0 until boardWidth) {
             for(j in 0 until boardHeight) {
-                val p = Point(i, j)
+                val p = Cell(i, j)
                 val center = getCellCenter(i, j)
                 if(position.whiteTerritory.contains(p)) {
                     territoryPaint.color = Color.WHITE
@@ -459,7 +460,7 @@ class BoardView : View {
         }
     }
 
-    private fun drawSelection(canvas: Canvas, candidateMove: Point) {
+    private fun drawSelection(canvas: Canvas, candidateMove: Cell) {
         val center = getCellCenter(candidateMove.x, candidateMove.y)
         val drawable = if (candidateType == StoneType.BLACK) blackStoneDrawable else whiteStoneDrawable
         drawable.setBounds(
@@ -564,7 +565,7 @@ class BoardView : View {
         }
     }
 
-    private fun drawStone(canvas: Canvas, position: Position, p: Point, type: StoneType?) {
+    private fun drawStone(canvas: Canvas, position: Position, p: Cell, type: StoneType?) {
         val center = getCellCenter(p.x, p.y)
         val alpha = when {
             fadeOutRemovedStones && position.removedSpots.contains(p) -> 100
@@ -684,14 +685,14 @@ class BoardView : View {
         return center
     }
 
-    fun tapUpObservable(): Observable<Point> = tapUpSubject.hide()
+    fun tapUpObservable(): Observable<Cell> = tapUpSubject.hide()
 
-    private var lastHotTrackedPoint: Point? = null
-    fun tapMoveObservable(): Observable<Point> = tapMoveSubject.filter {
+    private var lastHotTrackedPoint: Cell? = null
+    fun tapMoveObservable(): Observable<Cell> = tapMoveSubject.filter {
         it != lastHotTrackedPoint
     }.doOnNext { lastHotTrackedPoint = it }
 
-    fun showCandidateMove(candidateMove: Point?, candidate: StoneType?) {
+    fun showCandidateMove(candidateMove: Cell?, candidate: StoneType?) {
         this.candidateMove = candidateMove
         this.candidateType = candidate
         invalidate()

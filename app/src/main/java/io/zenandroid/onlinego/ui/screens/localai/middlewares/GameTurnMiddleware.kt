@@ -1,10 +1,10 @@
 package io.zenandroid.onlinego.ui.screens.localai.middlewares
 
-import android.graphics.Point
 import io.reactivex.Observable
 import io.reactivex.rxkotlin.withLatestFrom
 import io.reactivex.schedulers.Schedulers
 import io.zenandroid.onlinego.ai.KataGoAnalysisEngine
+import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.StoneType
 import io.zenandroid.onlinego.gamelogic.RulesManager
 import io.zenandroid.onlinego.mvi.Middleware
@@ -61,7 +61,7 @@ class GameTurnMiddleware : Middleware<AiGameState, AiGameAction> {
                                         clearAllMarkedTerritory()
                                         for(i in 0 until boardWidth) {
                                             for(j in 0 until boardHeight) {
-                                                val p = Point(i, j)
+                                                val p = Cell(i, j)
                                                 val ownership = it.ownership!![j*boardWidth + i] // a float between -1 and 1, -1 is 100% solid black territory, 1 is 100% solid white territory
                                                 when(getStoneAt(p)) {
                                                     StoneType.WHITE -> {

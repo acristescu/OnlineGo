@@ -1,7 +1,6 @@
 package io.zenandroid.onlinego.ui.composables
 
 import android.graphics.Bitmap
-import android.graphics.Point
 import android.graphics.PointF
 import android.graphics.Rect
 import android.os.Build
@@ -9,7 +8,6 @@ import android.util.Log
 import android.view.MotionEvent
 import androidx.annotation.ColorInt
 import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.aspectRatio
@@ -29,10 +27,10 @@ import androidx.core.graphics.withSave
 import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat
 import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.R
+import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.Position
 import io.zenandroid.onlinego.data.model.StoneType
 import io.zenandroid.onlinego.data.model.ogs.PlayCategory
-import kotlinx.coroutines.coroutineScope
 import kotlin.math.ceil
 import kotlin.math.roundToInt
 
@@ -44,21 +42,24 @@ private val shadowDrawable = ResourcesCompat.getDrawable(OnlineGoApplication.ins
 @ExperimentalComposeUiApi
 @Composable
 fun Board(
-        modifier: Modifier = Modifier,
-        boardWidth: Int,
-        boardHeight: Int,
-        position: Position?,
-        candidateMove: Point? = null,
-        candidateMoveType: StoneType? = null,
-        drawCoordinates: Boolean = true,
-        interactive: Boolean = true,
-        drawShadow: Boolean = true,
-        fadeInLastMove: Boolean = true,
-        fadeOutRemovedStones: Boolean = true,
-        removedStones: Map<Point, StoneType>? = null,
-        onTapMove: ((Point) -> Unit)? = null,
-        onTapUp: ((Point) -> Unit)? = null
+    modifier: Modifier = Modifier,
+    boardWidth: Int,
+    boardHeight: Int,
+    position: Position?,
+    candidateMove: Cell? = null,
+    candidateMoveType: StoneType? = null,
+    drawCoordinates: Boolean = true,
+    interactive: Boolean = true,
+    drawShadow: Boolean = true,
+    fadeInLastMove: Boolean = true,
+    fadeOutRemovedStones: Boolean = true,
+    removedStones: Map<Cell, StoneType>? = null,
+    onTapMove: ((Cell) -> Unit)? = null,
+    onTapUp: ((Cell) -> Unit)? = null
 ) {
+    SideEffect {
+        Log.e("aaa", "Recomposing Board")
+    }
     val drawLastMove = true
     val drawMarks = true
     val background: ImageBitmap = ImageBitmap.imageResource(id = R.mipmap.texture)
@@ -67,9 +68,9 @@ fun Board(
     var height by remember { mutableStateOf(0) }
     val measurements = remember(width, height, boardWidth, boardHeight) { doMeasurements(width, height, boardWidth, boardHeight, drawCoordinates) }
 
-    var lastHotTrackedPoint: Point? by remember { mutableStateOf(null) }
-    var stoneToFadeIn: Point? by remember(position?.lastMove) { mutableStateOf(position?.lastMove) }
-    var stonesToFadeOut: Map<Point, StoneType>? by remember(removedStones) { mutableStateOf(removedStones) }
+    var lastHotTrackedPoint: Cell? by remember { mutableStateOf(null) }
+    var stoneToFadeIn: Cell? by remember(position?.lastMove) { mutableStateOf(position?.lastMove) }
+    var stonesToFadeOut: Map<Cell, StoneType>? by remember(removedStones) { mutableStateOf(removedStones) }
 
     val fadeInAlpha = remember { Animatable(.4f) }
     val fadeOutAlpha = remember { Animatable(1f) }
@@ -89,35 +90,37 @@ fun Board(
         }
     }
     Canvas(modifier = modifier
-            .aspectRatio(1f)
-            .run {
-                if(interactive) {
-                    pointerInteropFilter {
-                        if(measurements.cellSize == 0) {
-                            return@pointerInteropFilter false
-                        }
-                        val eventCoords = screenToBoardCoordinates(it.x, it.y, measurements, boardWidth, boardHeight)
-
-                        if (eventCoords != lastHotTrackedPoint) {
-                            onTapMove?.invoke(eventCoords)
-                            lastHotTrackedPoint = eventCoords
-                        }
-
-                        if (it.action == MotionEvent.ACTION_UP) {
-                            onTapUp?.invoke(eventCoords)
-                            lastHotTrackedPoint = null
-                        }
-                        true
+        .aspectRatio(1f)
+        .run {
+            if (interactive) {
+                pointerInteropFilter {
+                    if (measurements.cellSize == 0) {
+                        return@pointerInteropFilter false
                     }
-                } else {
-                    this
+                    val eventCoords =
+                        screenToBoardCoordinates(it.x, it.y, measurements, boardWidth, boardHeight)
+
+                    if (eventCoords != lastHotTrackedPoint) {
+                        onTapMove?.invoke(eventCoords)
+                        lastHotTrackedPoint = eventCoords
+                    }
+
+                    if (it.action == MotionEvent.ACTION_UP) {
+                        onTapUp?.invoke(eventCoords)
+                        lastHotTrackedPoint = null
+                    }
+                    true
                 }
+            } else {
+                this
             }
-            .onGloballyPositioned {
-                width = it.size.width
-                height = it.size.height
-            }
+        }
+        .onGloballyPositioned {
+            width = it.size.width
+            height = it.size.height
+        }
     ) {
+        Log.e("aaa", "Redrawing Canvas")
         if (measurements.width == 0) {
             return@Canvas
         }
@@ -163,8 +166,8 @@ fun Board(
     }
 }
 
-private fun screenToBoardCoordinates(x: Float, y: Float, measurements: Measurements, boardWidth: Int, boardHeight: Int): Point {
-    return Point(
+private fun screenToBoardCoordinates(x: Float, y: Float, measurements: Measurements, boardWidth: Int, boardHeight: Int): Cell {
+    return Cell(
             ((x - measurements.border - measurements.xOffsetForNonSquareBoard).toInt() / measurements.cellSize).coerceIn(0, boardWidth - 1),
             ((y - measurements.border - measurements.yOffsetForNonSquareBoard).toInt() / measurements.cellSize).coerceIn(0, boardHeight - 1)
     )
@@ -276,7 +279,7 @@ private fun DrawScope.drawDecorations(position: Position, drawLastMove: Boolean,
     }
 }
 
-private fun DrawScope.drawStone(p: Point, type: StoneType?, alpha: Float = 1f, drawShadow: Boolean, measurements: Measurements) {
+private fun DrawScope.drawStone(p: Cell, type: StoneType?, alpha: Float = 1f, drawShadow: Boolean, measurements: Measurements) {
     val center = getCellCenter(p.x, p.y, measurements)
     drawIntoCanvas {
         if(drawShadow && alpha > .75) {
@@ -327,7 +330,7 @@ private fun DrawScope.drawStone(p: Point, type: StoneType?, alpha: Float = 1f, d
     }
 }
 
-private fun DrawScope.drawGrid(boardWidth: Int, boardHeight: Int, candidateMove: Point?, measurements: Measurements) {
+private fun DrawScope.drawGrid(boardWidth: Int, boardHeight: Int, candidateMove: Cell?, measurements: Measurements) {
     for (i in 0 until boardWidth) {
         val start = i * measurements.cellSize + measurements.halfCell
         val fullLength = (measurements.cellSize * boardHeight).toFloat()

@@ -1,7 +1,7 @@
 package io.zenandroid.onlinego.data.model
 
-import android.graphics.Point
 import android.util.Log
+import androidx.compose.runtime.Immutable
 import io.zenandroid.onlinego.data.model.katago.MoveInfo
 import io.zenandroid.onlinego.data.model.katago.Response
 import io.zenandroid.onlinego.gamelogic.RulesManager
@@ -25,39 +25,40 @@ import java.util.*
  *
  * Created by alex on 1/8/2015.
  */
+@Immutable
 class Position(
     val boardWidth: Int,
     val boardHeight: Int,
     ) {
 
-    var stones = HashMap<Point, StoneType>()
+    var stones = HashMap<Cell, StoneType>()
 
-    var removedSpots: MutableSet<Point> = HashSet()
-    var whiteTerritory: MutableSet<Point> = HashSet()
-    var blackTerritory: MutableSet<Point> = HashSet()
+    var removedSpots: MutableSet<Cell> = HashSet()
+    var whiteTerritory: MutableSet<Cell> = HashSet()
+    var blackTerritory: MutableSet<Cell> = HashSet()
 
-    var lastMove: Point? = null
+    var lastMove: Cell? = null
     var whiteCapturedCount = 0
     var blackCapturedCount = 0
 
     var nextToMove = StoneType.BLACK
 
-    val allStonesCoordinates: Set<Point>
+    val allStonesCoordinates: Set<Cell>
         get() = stones.keys
 
-    val whiteStones: Set<Point>
+    val whiteStones: Set<Cell>
         get() = stones.filter { it.value == StoneType.WHITE }.keys
-    val blackStones: Set<Point>
+    val blackStones: Set<Cell>
         get() = stones.filter { it.value == StoneType.BLACK }.keys
 
-    val whiteDeadStones: Collection<Point>
+    val whiteDeadStones: Collection<Cell>
         get() = removedSpots.filter { stones[it] == StoneType.WHITE }
-    val blackDeadStones: Collection<Point>
+    val blackDeadStones: Collection<Cell>
         get() = removedSpots.filter { stones[it] == StoneType.BLACK }
 
     var lastPlayerToMove: StoneType? = null
 
-    var variation: List<Point> = listOf()
+    var variation: List<Cell> = listOf()
 
     var parentPosition: Position? = null
 
@@ -74,7 +75,7 @@ class Position(
      * @param type
      */
     fun putStone(i: Int, j: Int, type: StoneType) {
-        stones[Point(i, j)] = type
+        stones[Cell(i, j)] = type
     }
 
     /**
@@ -85,10 +86,10 @@ class Position(
      * @return
      */
     fun getStoneAt(i: Int, j: Int): StoneType? {
-        return stones[Point(i, j)]
+        return stones[Cell(i, j)]
     }
 
-    fun getStoneAt(p: Point?): StoneType? {
+    fun getStoneAt(p: Cell?): StoneType? {
         return stones[p]
     }
 
@@ -107,11 +108,11 @@ class Position(
         return newPos
     }
 
-    fun removeStone(p: Point) {
+    fun removeStone(p: Cell) {
         stones.remove(p)
     }
 
-    fun markRemoved(point: Point) {
+    fun markRemoved(point: Cell) {
         removedSpots.add(point)
     }
 
@@ -124,11 +125,11 @@ class Position(
         blackTerritory.clear()
     }
 
-    fun markWhiteTerritory(point: Point) {
+    fun markWhiteTerritory(point: Cell) {
         whiteTerritory.add(point)
     }
 
-    fun markBlackTerritory(point: Point) {
+    fun markBlackTerritory(point: Cell) {
         blackTerritory.add(point)
     }
 
@@ -175,7 +176,7 @@ class Position(
     }
 
     data class Mark(
-            val placement: Point,
+            val placement: Cell,
             val text: String?,
             val category: PlayCategory?
     )
@@ -193,7 +194,7 @@ class Position(
                 var turn  = StoneType.BLACK
                 moves.forEach {
                     if(it != "pass") {
-                        val point = coordinateToPoint(it)
+                        val point = coordinateToCell(it)
                         val newPos = RulesManager.makeMove(pos, turn, point)
                         if(newPos == null) {
                             Log.e("Position", "Invalid joseki move!!!")
@@ -208,7 +209,7 @@ class Position(
             josekiPosition.next_moves
                     ?.filter { it.placement != null && it.placement != "pass" && it.placement != "root"}
                     ?.map {
-                        val childCoordinate = coordinateToPoint(it.placement!!)
+                        val childCoordinate = coordinateToCell(it.placement!!)
                         val overlayLabel = josekiPosition.labels?.find { childCoordinate == it.placement }
                         if(overlayLabel == null) {
                             Mark(
@@ -228,7 +229,7 @@ class Position(
             josekiPosition.labels
                     ?.filter { candidate ->
                         josekiPosition.next_moves
-                                ?.find { it.placement != null && it.placement != "pass" && candidate.placement == coordinateToPoint(it.placement!!) } == null
+                                ?.find { it.placement != null && it.placement != "pass" && candidate.placement == coordinateToCell(it.placement!!) } == null
                     }
                     ?.map { Mark(it.placement, it.text, it.category) }
                     ?.let (pos.customMarks::addAll)
@@ -237,11 +238,25 @@ class Position(
 
         private val coordinatesX = arrayOf("A","B","C","D","E","F","G","H","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z")
 
-        fun coordinateToPoint(coordinate: String) : Point =
-                Point(
+        fun coordinateToCell(coordinate: String) : Cell =
+            Cell(
                         coordinatesX.indexOf(coordinate.substring(0, 1)),
                         (19 - coordinate.substring(1).toInt())
                 )
     }
 
+}
+
+data class Cell(
+    val x: Int,
+    val y: Int
+) {
+    val leftNeighbour: Cell
+        get() = Cell(x - 1, y)
+    val rightNeighbour: Cell
+        get() = Cell(x + 1, y)
+    val topNeighbour: Cell
+        get() = Cell(x, y - 1)
+    val bottomNeighbour: Cell
+        get() = Cell(x, y + 1)
 }

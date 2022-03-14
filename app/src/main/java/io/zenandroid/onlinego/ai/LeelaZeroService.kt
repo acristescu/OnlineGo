@@ -1,10 +1,10 @@
 package io.zenandroid.onlinego.ai
 
-import android.graphics.Point
 import android.util.Log
 import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
 import io.zenandroid.onlinego.OnlineGoApplication
+import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.Position
 import io.zenandroid.onlinego.data.model.StoneType
 import io.zenandroid.onlinego.gamelogic.Util
@@ -87,7 +87,7 @@ object LeelaZeroService {
     }
 
     fun setPosition(pos: Position) {
-        val moves = mutableListOf<Point>()
+        val moves = mutableListOf<Cell>()
         var currentPos: Position? = pos
         while (currentPos?.lastMove != null) {
             moves.add(currentPos.lastMove!!)
@@ -145,7 +145,7 @@ object LeelaZeroService {
         Log.v("LeelaZeroService", "`$command` complete")
     }
 
-    fun playMove(side: StoneType, coordinate: Point, boardSize: Int) {
+    fun playMove(side: StoneType, coordinate: Cell, boardSize: Int) {
         val gtpMove = Util.getGTPCoordinates(coordinate, boardSize)
         sendCommand("play $side $gtpMove")
     }
@@ -154,8 +154,8 @@ object LeelaZeroService {
         sendCommand("undo")
     }
 
-    fun setFixedHandicap(handicap: Int, boardSize: Int): List<Point> {
-        val handicapStones = mutableListOf<Point>()
+    fun setFixedHandicap(handicap: Int, boardSize: Int): List<Cell> {
+        val handicapStones = mutableListOf<Cell>()
         sendCommand("fixed_handicap $handicap") {
             if(it.startsWith("=")) {
                 it.split(" ")

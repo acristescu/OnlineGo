@@ -1,9 +1,8 @@
 package io.zenandroid.onlinego.ui.screens.tutorial
 
-import android.graphics.Point
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.Position
 import io.zenandroid.onlinego.data.model.StoneType
 import io.zenandroid.onlinego.data.model.local.Page
@@ -186,7 +185,7 @@ class TutorialViewModel(
 
     }
 
-    private fun makeMove(state: TutorialState, move: Point) {
+    private fun makeMove(state: TutorialState, move: Cell) {
         (state.step as? Interactive)?.let { step ->
             val sgfMove = Util.getSGFCoordinates(move)
             val branches = state.node?.branches ?: step.branches

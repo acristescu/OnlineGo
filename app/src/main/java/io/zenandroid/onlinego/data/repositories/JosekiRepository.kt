@@ -5,7 +5,6 @@ import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.reactivex.Flowable
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.plusAssign
-import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.data.db.GameDao
 import io.zenandroid.onlinego.data.model.Position
 import io.zenandroid.onlinego.data.model.ogs.JosekiPosition
@@ -69,7 +68,7 @@ class JosekiRepository(
                 val label = matcher.group(1)
                 val coordinate = matcher.group(2)
 
-                labels.add(Position.Mark(Position.coordinateToPoint(coordinate), label, PlayCategory.LABEL))
+                labels.add(Position.Mark(Position.coordinateToCell(coordinate), label, PlayCategory.LABEL))
 
                 matcher.appendReplacement(sb, "**$label**")
             }

@@ -1,11 +1,13 @@
 package io.zenandroid.onlinego.data.model.ogs
 
+import androidx.compose.runtime.Immutable
 import androidx.room.Entity
 import androidx.room.Ignore
 import androidx.room.PrimaryKey
 import io.zenandroid.onlinego.data.model.Position
 
 @Entity
+@Immutable
 data class JosekiPosition (
         var description: String? = null,
         var variation_label: String? = null,

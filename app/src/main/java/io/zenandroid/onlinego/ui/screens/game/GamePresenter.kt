@@ -1,6 +1,5 @@
 package io.zenandroid.onlinego.ui.screens.game
 
-import android.graphics.Point
 import android.util.Log
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.firebase.analytics.FirebaseAnalytics
@@ -11,6 +10,7 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import io.zenandroid.onlinego.R
+import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.utils.addToDisposable
 import io.zenandroid.onlinego.ui.screens.game.GameContract.MenuItem
 import io.zenandroid.onlinego.ui.screens.game.GameContract.MenuItem.*
@@ -71,7 +71,7 @@ class GamePresenter(
     private val userId = userSessionRepository.userId
     private var currentShownMove = -1
     private var game: Game? = null
-    private var variation: MutableList<Point> = mutableListOf()
+    private var variation: MutableList<Cell> = mutableListOf()
     private var variationCurrentMove = 0
     private var undoPromptShownAtMoveNo = -1
 
@@ -105,7 +105,7 @@ class GamePresenter(
 
     private var resultsDialogPending = false
 
-    private var candidateMove: Point? = null
+    private var candidateMove: Cell? = null
 
     override fun subscribe() {
         idlingResource.increment()
@@ -256,7 +256,7 @@ class GamePresenter(
         }
     }
 
-    private fun onUserHotTrackedCell(point: Point) {
+    private fun onUserHotTrackedCell(point: Cell) {
         val position = if(currentState == ANALYSIS) analysisPosition else currentPosition
         if(currentState == ANALYSIS || currentState == PLAYING) {
             val validMove = RulesManager.makeMove(position, position.nextToMove, point) != null
@@ -267,7 +267,7 @@ class GamePresenter(
         }
     }
 
-    private fun onUserSelectedCell(point: Point) {
+    private fun onUserSelectedCell(point: Cell) {
         when (currentState){
             ANALYSIS -> {
                 candidateMove?.let { doAnalysisMove(it) }
@@ -307,7 +307,7 @@ class GamePresenter(
         }
     }
 
-    private fun doAnalysisMove(candidateMove: Point) {
+    private fun doAnalysisMove(candidateMove: Cell) {
         analytics.logEvent("analysis_move", null)
         RulesManager.makeMove(analysisPosition, analysisPosition.nextToMove, candidateMove)?.let {
             if(RulesManager.isIllegalKO(it)) {
@@ -921,7 +921,7 @@ class GamePresenter(
 
     override fun onPassConfirmed() {
         analytics.logEvent("pass_confirmed", null)
-        gameConnection?.submitMove(Point(-1, -1))
+        gameConnection?.submitMove(Cell(-1, -1))
     }
 
     override fun onPassClicked() {

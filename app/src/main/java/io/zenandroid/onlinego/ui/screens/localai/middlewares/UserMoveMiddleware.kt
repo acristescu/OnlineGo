@@ -1,8 +1,8 @@
 package io.zenandroid.onlinego.ui.screens.localai.middlewares
 
-import android.graphics.Point
 import io.reactivex.Observable
 import io.reactivex.rxkotlin.withLatestFrom
+import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.gamelogic.RulesManager
 import io.zenandroid.onlinego.mvi.Middleware
 import io.zenandroid.onlinego.ui.screens.localai.AiGameAction
@@ -12,7 +12,7 @@ class UserMoveMiddleware : Middleware<AiGameState, AiGameAction> {
     override fun bind(actions: Observable<AiGameAction>, state: Observable<AiGameState>): Observable<AiGameAction> {
         val source = Observable.merge(
                 actions.ofType(AiGameAction.UserTappedCoordinate::class.java).map { it.coordinate },
-                actions.ofType(AiGameAction.UserPressedPass::class.java).map { Point(-1, -1) }
+                actions.ofType(AiGameAction.UserPressedPass::class.java).map { Cell(-1, -1) }
         )
 
         return source

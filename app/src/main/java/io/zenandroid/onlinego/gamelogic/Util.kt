@@ -1,6 +1,6 @@
 package io.zenandroid.onlinego.gamelogic
 
-import android.graphics.Point
+import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.Position
 import io.zenandroid.onlinego.data.model.StoneType
 import io.zenandroid.onlinego.data.model.local.Game
@@ -21,7 +21,7 @@ object Util {
     private val coordinatesX = arrayOf("A","B","C","D","E","F","G","H","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z")
     private val coordinatesY = (1..25).map(Int::toString)
 
-    fun getGTPCoordinates(p: Point, boardHeight: Int): String {
+    fun getGTPCoordinates(p: Cell, boardHeight: Int): String {
         if (p.x == -1) {
             return "PASS"
         }
@@ -29,17 +29,17 @@ object Util {
         return "${coordinatesX[p.x]}${coordinatesY[boardHeight - p.y - 1]}"
     }
 
-    fun getCoordinatesFromGTP(gtp: String, boardHeight: Int): Point {
+    fun getCoordinatesFromGTP(gtp: String, boardHeight: Int): Cell {
         if(gtp.toUpperCase(Locale.ROOT) == "PASS") {
-            return Point(-1, -1)
+            return Cell(-1, -1)
         }
 
         val x = coordinatesX.indexOf(gtp.substring(0..0))
         val y = boardHeight - gtp.substring(1).toInt()
-        return Point(x, y)
+        return Cell(x, y)
     }
 
-    fun getSGFCoordinates(p: Point): String {
+    fun getSGFCoordinates(p: Cell): String {
         if (p.x == -1) {
             return ".."
         }
@@ -48,15 +48,11 @@ object Util {
         return String(charArrayOf(column, row))
     }
 
-    fun getCoordinatesFromSGF(sgf: String, offset: Int = 0): Point {
+    fun getCoordinatesFromSGF(sgf: String, offset: Int = 0): Cell {
         val column = sgf[offset]
         val row = sgf[offset + 1]
 
-        val point = Point()
-        point.x = column - 'a'
-        point.y = row - 'a'
-
-        return point
+        return Cell(column - 'a', row - 'a')
     }
 
     fun Position.populateWithSGF(sgf: String) {
@@ -80,7 +76,7 @@ object Util {
             val corner2 = getCoordinatesFromSGF(areas, i+4)
             for(x in min(corner1.x, corner2.x).. max(corner1.x, corner2.x)) {
                 for(y in min(corner1.y, corner2.y) .. max(corner1.y, corner2.y)) {
-                    customMarks.add(Position.Mark(Point(x, y), areas[i].toString(), null))
+                    customMarks.add(Position.Mark(Cell(x, y), areas[i].toString(), null))
                 }
             }
         }
@@ -99,17 +95,13 @@ object Util {
         return retval.toImmutableList()
     }
 
-    fun getNeighbouringSpace(current: Point, boardWidth: Int, boardHeight: Int): List<Point> {
-        val left = Point(current)
-        left.offset(-1, 0)
-        val right = Point(current)
-        right.offset(1, 0)
-        val up = Point(current)
-        up.offset(0, -1)
-        val down = Point(current)
-        down.offset(0, 1)
+    fun getNeighbouringSpace(current: Cell, boardWidth: Int, boardHeight: Int): List<Cell> {
+        val left = current.leftNeighbour
+        val right = current.rightNeighbour
+        val up = current.topNeighbour
+        val down = current.bottomNeighbour
 
-        val list = LinkedList<Point>()
+        val list = LinkedList<Cell>()
         if (up.x in 0 until boardWidth && up.y in 0 until boardHeight) {
             list.add(up)
         }
@@ -146,6 +138,6 @@ object Util {
     fun getCurrentUserId() =
         userSessionRepository.userId
 
-    fun getRemovedStonesInLastMove(position: Position): Map<Point, StoneType> =
+    fun getRemovedStonesInLastMove(position: Position): Map<Cell, StoneType> =
         position.parentPosition?.stones?.filter { !position.stones.contains(it.key)} ?: emptyMap()
 }

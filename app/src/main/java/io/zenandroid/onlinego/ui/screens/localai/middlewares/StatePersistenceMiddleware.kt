@@ -12,8 +12,7 @@ import io.zenandroid.onlinego.ui.screens.localai.AiGameState
 import io.reactivex.rxkotlin.withLatestFrom
 import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.ui.screens.localai.AiGameAction.*
-import io.zenandroid.onlinego.utils.moshiadapters.HashMapOfPointToStoneTypeMoshiAdapter
-import io.zenandroid.onlinego.utils.moshiadapters.PointMoshiAdapter
+import io.zenandroid.onlinego.utils.moshiadapters.HashMapOfCellToStoneTypeMoshiAdapter
 import io.zenandroid.onlinego.utils.moshiadapters.ResponseBriefMoshiAdapter
 
 private const val STATE_KEY = "AIGAME_STATE_KEY"
@@ -22,9 +21,9 @@ class StatePersistenceMiddleware : Middleware<AiGameState, AiGameAction> {
     private val prefs = PreferenceManager.getDefaultSharedPreferences(OnlineGoApplication.instance.baseContext)
 
     private val stateAdapter = Moshi.Builder()
-            .add(PointMoshiAdapter())
+//            .add(PointMoshiAdapter())
             .add(ResponseBriefMoshiAdapter())
-            .add(HashMapOfPointToStoneTypeMoshiAdapter())
+            .add(HashMapOfCellToStoneTypeMoshiAdapter())
             .add(KotlinJsonAdapterFactory())
             .build()
             .adapter(AiGameState::class.java)

@@ -1,9 +1,9 @@
 package io.zenandroid.onlinego.ui.screens.game
 
-import android.graphics.Point
 import androidx.annotation.ColorRes
 import io.reactivex.Observable
 import io.zenandroid.onlinego.R
+import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.Position
 import io.zenandroid.onlinego.data.model.StoneType
 import io.zenandroid.onlinego.data.model.local.Game
@@ -22,11 +22,11 @@ interface GameContract {
         var whitePlayer: Player?
         var blackPlayer: Player?
         var position: Position?
-        val cellSelection: Observable<Point>
-        val cellHotTrack: Observable<Point>
+        val cellSelection: Observable<Cell>
+        val cellHotTrack: Observable<Cell>
         var interactive: Boolean
         var passButtonEnabled: Boolean
-        fun showCandidateMove(point: Point?, nextToMove: StoneType? = null)
+        fun showCandidateMove(point: Cell?, nextToMove: StoneType? = null)
         var previousButtonEnabled: Boolean
         var nextButtonEnabled: Boolean
         var title: String?

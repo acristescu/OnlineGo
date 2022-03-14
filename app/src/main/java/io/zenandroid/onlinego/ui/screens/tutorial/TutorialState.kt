@@ -1,6 +1,6 @@
 package io.zenandroid.onlinego.ui.screens.tutorial
 
-import android.graphics.Point
+import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.Position
 import io.zenandroid.onlinego.data.model.StoneType
 import io.zenandroid.onlinego.data.model.local.*
@@ -14,10 +14,10 @@ data class TutorialState (
         val page: Page? = null,
         val gameExamplePositions: List<Position> = emptyList(),
         val gameExamplePositionIndex: Int = 0,
-        val removedStones: Map<Point, StoneType>? = null,
+        val removedStones: Map<Cell, StoneType>? = null,
 
         val position: Position? = null,
-        val hoveredCell: Point? = null,
+        val hoveredCell: Cell? = null,
         val text: String? = null,
         val boardInteractive: Boolean = true,
         val retryButtonVisible: Boolean = true,
