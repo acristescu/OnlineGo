@@ -707,7 +707,7 @@ class GamePresenter(
     }
 
     private fun isAnalysisDisabled(game: Game?): Boolean {
-        return (game?.disableAnalysis ?: false)
+        return game?.phase != Phase.FINISHED && game?.disableAnalysis == true
     }
 
     override fun onAutoButtonPressed() {
