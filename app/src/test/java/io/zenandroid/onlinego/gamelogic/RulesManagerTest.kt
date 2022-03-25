@@ -29,7 +29,7 @@ class RulesManagerTest {
         .addLast(KotlinJsonAdapterFactory())
         .build()
 
-    @Test
+//    @Test
     fun fullGameTest() {
         val game = Game.fromOGSGame(moshi.adapter(OGSGame::class.java).fromJson(testGameString)!!)
 
