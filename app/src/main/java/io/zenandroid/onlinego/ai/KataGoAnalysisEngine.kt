@@ -64,7 +64,7 @@ object KataGoAnalysisEngine {
                                 break
                             } else {
                                 Log.e("KataGoAnalysisEngine", line)
-                                errors.appendln(line)
+                                errors.appendLine(line)
                             }
                         }
                     }
@@ -111,8 +111,8 @@ object KataGoAnalysisEngine {
         }.start()
     }
 
-    fun analyzePosition(
-            pos: Position,
+    fun analyzeMoveSequence(
+            sequence: List<Position>,
             komi: Float? = null,
             maxVisits: Int? = null,
             includeOwnership: Boolean? = null,
@@ -125,39 +125,30 @@ object KataGoAnalysisEngine {
                 .filter { it.id == id }
                 .firstOrError()
                 .doOnSubscribe {
-                    var cursor: Position? = pos
+                    val initialPosition = mutableSetOf<List<String>>()
                     val history = Stack<List<String>>()
-                    while(true) {
-                        if(cursor?.parentPosition == null) {
-                            break
-                        }
-                        cursor.lastMove?.let {
-                            val lastPlayer = if(cursor?.lastPlayerToMove == StoneType.BLACK) "B" else "W"
-                            val lastMove = Util.getGTPCoordinates(it, pos.boardHeight)
+                    sequence.map { pos ->
+                        if(pos.lastMove == null) {
+                            initialPosition.addAll(pos.whiteStones.map { listOf("W", Util.getGTPCoordinates(it, pos.boardHeight)) })
+                            initialPosition.addAll(pos.blackStones.map { listOf("B", Util.getGTPCoordinates(it, pos.boardHeight)) })
+                        } else {
+                            val lastPlayer = if(pos.lastPlayerToMove == StoneType.BLACK) "B" else "W"
+                            val lastMove = Util.getGTPCoordinates(pos.lastMove, pos.boardHeight)
                             history.push(listOf(lastPlayer, lastMove))
                         }
-                        cursor = cursor.parentPosition
-                    }
-
-                    val initialPosition = mutableSetOf<List<String>>()
-                    cursor?.whiteStones?.forEach {
-                        initialPosition.add(listOf("W", Util.getGTPCoordinates(it, pos.boardHeight)))
-                    }
-                    cursor?.blackStones?.forEach {
-                        initialPosition.add(listOf("B", Util.getGTPCoordinates(it, pos.boardHeight)))
                     }
 
                     val query = Query(
                             id = id,
-                            boardXSize = pos.boardWidth,
-                            boardYSize = pos.boardHeight,
+                            boardXSize = sequence.firstOrNull()?.boardWidth ?: 19,
+                            boardYSize = sequence.firstOrNull()?.boardHeight ?: 19,
                             includeOwnership = includeOwnership,
                             includeMovesOwnership = includeMovesOwnership,
                             includePolicy = includePolicy,
                             initialStones = initialPosition.toList(),
                             komi = komi,
                             maxVisits = maxVisits,
-                            moves = history.reversed(),
+                            moves = history,
                             rules = "japanese"
                     )
 

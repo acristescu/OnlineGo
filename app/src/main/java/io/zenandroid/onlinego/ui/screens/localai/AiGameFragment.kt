@@ -109,7 +109,8 @@ class AiGameFragment : Fragment(), MviView<AiGameState, AiGameAction> {
             drawTerritory = state.showFinalTerritory
             fadeOutRemovedStones = state.showFinalTerritory
             drawAiEstimatedOwnership = state.showAiEstimatedTerritory
-            drawHints = state.showHints
+            ownership = state.aiAnalysis?.ownership
+            hints = if(state.showHints) state.aiAnalysis?.moveInfos else null
             state.position?.let {
                 position = it
                 showCandidateMove(state.candidateMove, it.nextToMove)
@@ -134,15 +135,15 @@ class AiGameFragment : Fragment(), MviView<AiGameState, AiGameAction> {
         if(!state.newGameDialogShown && bottomSheet?.isShowing == true) {
             bottomSheet?.dismiss()
         }
-        val winrate = state.position?.aiAnalysisResult?.rootInfo?.winrate ?: state.position?.aiQuickEstimation?.winrate
+        val winrate = state.aiAnalysis?.rootInfo?.winrate ?: state.aiQuickEstimation?.winrate
         winrate?.let {
             val winrateAsPercentage = (it * 1000).toInt() / 10f
             binding.winrateLabel.text = "White's chance to win: $winrateAsPercentage%"
             binding.winrateProgressBar.progress = winrateAsPercentage.toInt()
         }
         state.position?.let {
-            binding.prisonersLeft.text = if(state.enginePlaysBlack) it.blackCapturedCount.toString() else it.whiteCapturedCount.toString()
-            binding.prisonersRight.text = if(state.enginePlaysBlack) it.whiteCapturedCount.toString() else it.blackCapturedCount.toString()
+            binding.prisonersLeft.text = if(state.enginePlaysBlack) it.blackCaptureCount.toString() else it.whiteCaptureCount.toString()
+            binding.prisonersRight.text = if(state.enginePlaysBlack) it.whiteCaptureCount.toString() else it.blackCaptureCount.toString()
             binding.komiLeft.text = if(state.enginePlaysBlack) "" else it.komi.toString()
             binding.komiRight.text = if(state.enginePlaysBlack) it.komi.toString() else ""
         }
@@ -154,7 +155,7 @@ class AiGameFragment : Fragment(), MviView<AiGameState, AiGameAction> {
             binding.chatBubble.text = it
         } ?: run { binding.chatBubble.visibility = GONE }
 
-        val scoreLead = state.position?.aiAnalysisResult?.rootInfo?.scoreLead ?: state.position?.aiQuickEstimation?.scoreLead
+        val scoreLead = state.aiAnalysis?.rootInfo?.scoreLead ?: state.aiQuickEstimation?.scoreLead
         scoreLead?.let {
             val leader = if (scoreLead > 0) "white" else "black"
             val lead = abs(scoreLead * 10).toInt() / 10f

@@ -4,6 +4,7 @@ import io.reactivex.Observable
 import io.reactivex.rxkotlin.withLatestFrom
 import io.zenandroid.onlinego.ui.screens.joseki.JosekiExplorerAction.*
 import io.zenandroid.onlinego.data.model.Position
+import io.zenandroid.onlinego.gamelogic.RulesManager.coordinateToCell
 import io.zenandroid.onlinego.mvi.Middleware
 
 class TriggerLoadingMiddleware : Middleware<JosekiExplorerState, JosekiExplorerAction> {
@@ -19,7 +20,7 @@ class TriggerLoadingMiddleware : Middleware<JosekiExplorerState, JosekiExplorerA
                 .filter { (_, state) -> !state.loading }
                 .flatMap <JosekiExplorerAction> { (action, state) ->
                     state?.position?.next_moves?.find {
-                        it.placement != null && it.placement != "pass" && Position.coordinateToCell(it.placement!!) == action.coordinate
+                        it.placement != null && it.placement != "pass" && coordinateToCell(it.placement!!) == action.coordinate
                     }?.let {
                         Observable.just(LoadPosition(it.node_id))
                     } ?: Observable.just(ShowCandidateMove(null))

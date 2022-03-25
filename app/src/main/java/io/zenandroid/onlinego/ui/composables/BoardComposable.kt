@@ -53,7 +53,7 @@ fun Board(
     drawShadow: Boolean = true,
     fadeInLastMove: Boolean = true,
     fadeOutRemovedStones: Boolean = true,
-    removedStones: Map<Cell, StoneType>? = null,
+    removedStones: List<Pair<Cell, StoneType>>? = null,
     onTapMove: ((Cell) -> Unit)? = null,
     onTapUp: ((Cell) -> Unit)? = null
 ) {
@@ -67,7 +67,7 @@ fun Board(
 
     var lastHotTrackedPoint: Cell? by remember { mutableStateOf(null) }
     var stoneToFadeIn: Cell? by remember(position?.lastMove) { mutableStateOf(position?.lastMove) }
-    var stonesToFadeOut: Map<Cell, StoneType>? by remember(removedStones) { mutableStateOf(removedStones) }
+    var stonesToFadeOut: List<Pair<Cell, StoneType>>? by remember(removedStones) { mutableStateOf(removedStones) }
 
     val fadeInAlpha = remember { Animatable(.4f) }
     val fadeOutAlpha = remember { Animatable(1f) }
@@ -134,19 +134,26 @@ fun Board(
             drawStarPoints(boardWidth, boardHeight, measurements)
             drawCoordinates(boardWidth, boardHeight, drawCoordinates, measurements)
 
-            for (item in stonesToFadeOut ?: emptyMap()) {
-                drawStone(item.key, item.value, fadeOutAlpha.value, true, measurements)
+            for (item in stonesToFadeOut ?: emptyList()) {
+                drawStone(item.first, item.second, fadeOutAlpha.value, true, measurements)
             }
             position?.let {
                 // stones
-                for (p in position.allStonesCoordinates) {
-                    val type = position.getStoneAt(p.x, p.y)
+                for (p in position.whiteStones) {
                     val alpha = when {
                         fadeInLastMove && p == stoneToFadeIn -> fadeInAlpha.value
                         fadeOutRemovedStones && it.removedSpots.contains(p) -> .4f
                         else -> 1f
                     }
-                    drawStone(p, type, alpha, drawShadow, measurements)
+                    drawStone(p, StoneType.WHITE, alpha, drawShadow, measurements)
+                }
+                for (p in position.blackStones) {
+                    val alpha = when {
+                        fadeInLastMove && p == stoneToFadeIn -> fadeInAlpha.value
+                        fadeOutRemovedStones && it.removedSpots.contains(p) -> .4f
+                        else -> 1f
+                    }
+                    drawStone(p, StoneType.BLACK, alpha, drawShadow, measurements)
                 }
 
                 drawDecorations(it, drawLastMove, drawMarks, measurements)

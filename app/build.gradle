@@ -59,6 +59,9 @@ android {
         }
     }
     namespace 'io.zenandroid.onlinego'
+    packagingOptions {
+        resources.excludes.add("META-INF/*")
+    }
 }
 
 dependencies {
@@ -66,11 +69,13 @@ dependencies {
     def play_services_version = '19.2.0'
     def accompanist_version = '0.24.2-alpha'
     def room_version = '2.4.2'
+    def firebase_version = '29.2.0'
 
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'androidx.appcompat:appcompat:1.4.1'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
 
+    implementation platform("com.google.firebase:firebase-bom:$firebase_version")
     // retrofit
     implementation 'com.squareup.retrofit2:retrofit:2.9.0'
     implementation 'com.squareup.retrofit2:adapter-rxjava2:2.9.0'
@@ -136,9 +141,9 @@ dependencies {
     implementation 'com.jakewharton.rxbinding2:rxbinding:2.2.0'
 
     implementation 'br.com.simplepass:loading-button-android:2.1.5'
-    implementation 'com.google.firebase:firebase-analytics-ktx:19.0.2'
-    implementation 'com.google.firebase:firebase-crashlytics:18.2.8'
-    implementation 'com.google.firebase:firebase-messaging:22.0.0'
+    implementation 'com.google.firebase:firebase-analytics-ktx'
+    implementation 'com.google.firebase:firebase-crashlytics'
+    implementation 'com.google.firebase:firebase-messaging'
 
     implementation 'io.noties.markwon:core:4.3.1'
 

@@ -6,10 +6,12 @@ import io.reactivex.Flowable
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.plusAssign
 import io.zenandroid.onlinego.data.db.GameDao
+import io.zenandroid.onlinego.data.model.Mark
 import io.zenandroid.onlinego.data.model.Position
 import io.zenandroid.onlinego.data.model.ogs.JosekiPosition
 import io.zenandroid.onlinego.data.model.ogs.PlayCategory
 import io.zenandroid.onlinego.data.ogs.OGSRestService
+import io.zenandroid.onlinego.gamelogic.RulesManager
 
 class JosekiRepository(
         private val restService: OGSRestService,
@@ -63,12 +65,12 @@ class JosekiRepository(
             newDescription = it.replace(headerWithMissingSpaceRegex, "# ")
             val matcher = customMarkPattern.matcher(newDescription)
             val sb = StringBuffer()
-            val labels = mutableListOf<Position.Mark>()
+            val labels = mutableListOf<Mark>()
             while(matcher.find()) {
                 val label = matcher.group(1)
-                val coordinate = matcher.group(2)
+                val coordinate = matcher.group(2)!!
 
-                labels.add(Position.Mark(Position.coordinateToCell(coordinate), label, PlayCategory.LABEL))
+                labels.add(Mark(RulesManager.coordinateToCell(coordinate), label, PlayCategory.LABEL))
 
                 matcher.appendReplacement(sb, "**$label**")
             }

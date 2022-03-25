@@ -15,15 +15,12 @@ class HintMiddleware : Middleware<AiGameState, AiGameAction> {
                 .withLatestFrom(state)
                 .filter{ (_, state) -> state.engineStarted && state.position != null}
                 .flatMapSingle { (_, state) ->
-                    KataGoAnalysisEngine.analyzePosition(
-                            pos = state.position!!,
+                    KataGoAnalysisEngine.analyzeMoveSequence(
+                            sequence = state.history,
                             maxVisits = 30,
-                            komi = state.position.komi,
+                            komi = state.position?.komi ?: 0f,
                             includeOwnership = false
-                    ).map {
-                        state.position.aiAnalysisResult = it
-                        AIHint
-                    }
+                    ).map(::AIHint)
                 }
 
     }

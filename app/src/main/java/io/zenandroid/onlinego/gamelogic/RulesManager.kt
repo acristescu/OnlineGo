@@ -3,12 +3,10 @@ package io.zenandroid.onlinego.gamelogic
 import android.util.Log
 import androidx.core.util.lruCache
 import com.google.firebase.crashlytics.FirebaseCrashlytics
-import io.zenandroid.onlinego.data.model.Cell
-import io.zenandroid.onlinego.data.model.Position
-import io.zenandroid.onlinego.data.model.StoneType
+import io.zenandroid.onlinego.data.model.*
 import io.zenandroid.onlinego.data.model.local.Game
 import io.zenandroid.onlinego.data.model.local.InitialState
-import io.zenandroid.onlinego.data.model.ogs.GameData
+import io.zenandroid.onlinego.gamelogic.Util.toCoordinateSet
 import java.util.*
 
 /**
@@ -25,44 +23,62 @@ object RulesManager {
 
     private external fun estimate(w: Int, h: Int, board: IntArray, playerToMove: Int, trials: Int, tolerance: Float): IntArray
 
-    fun determineTerritory(pos: Position) {
+    fun determineTerritory(pos: Position, scoreStones: Boolean): Position {
         val inBoard = IntArray(pos.boardWidth * pos.boardHeight)
-        pos.allStonesCoordinates
+        pos.blackStones
                 .filter { !pos.removedSpots.contains(it) }
                 .forEach {
-                    val type = pos.getStoneAt(it)
-                    inBoard[it.x * pos.boardHeight + it.y] = if(type == StoneType.BLACK) 1 else -1
+                    inBoard[it.x * pos.boardHeight + it.y] = 1
                 }
+        pos.whiteStones
+            .filter { !pos.removedSpots.contains(it) }
+            .forEach {
+                inBoard[it.x * pos.boardHeight + it.y] = -1
+            }
         val outBoard = estimate(
                 pos.boardHeight, // Note: There is a bug in the estimator somewhere, width and height should be in the different order!!!
                 pos.boardWidth, // Note: There is a bug in the estimator somewhere, width and height should be in the different order!!!
                 inBoard,
-                if(pos.lastPlayerToMove?.opponent == StoneType.BLACK) 1 else -1,
+                if(pos.nextToMove == StoneType.BLACK) 1 else -1,
                 10000,
                 .3f)
-        pos.clearAllMarkedTerritory()
-        pos.clearAllRemovedSpots()
+        val whiteTerritory = mutableSetOf<Cell>()
+        val blackTerritory = mutableSetOf<Cell>()
+        val removedCells = mutableSetOf<Cell>()
+
         for(x in 0 until pos.boardWidth) {
             for(y in 0 until pos.boardHeight) {
                 when(outBoard[x * pos.boardHeight + y]) {
                     -1 -> {
-                        pos.markWhiteTerritory(Cell(x, y))
-                        if(pos.getStoneAt(x, y) == StoneType.BLACK) {
-                            pos.markRemoved(Cell(x, y))
+                        val cell = Cell(x, y)
+                        whiteTerritory += cell
+                        if(pos.getStoneAt(cell) == StoneType.BLACK) {
+                            removedCells += cell
                         }
                     }
                     0 -> {
-                        pos.markRemoved(Cell(x, y))
+                        removedCells += Cell(x, y)
                     }
                     1 -> {
-                        pos.markBlackTerritory(Cell(x, y))
-                        if(pos.getStoneAt(x, y) == StoneType.WHITE) {
-                            pos.markRemoved(Cell(x, y))
+                        val cell = Cell(x, y)
+                        blackTerritory += cell
+                        if(pos.getStoneAt(cell) == StoneType.WHITE) {
+                            removedCells += cell
                         }
                     }
                 }
             }
         }
+
+        if(!scoreStones) {
+            whiteTerritory.removeAll(pos.whiteStones)
+            blackTerritory.removeAll(pos.blackStones)
+        }
+        return pos.copy(
+            whiteTerritory = whiteTerritory,
+            blackTerritory = blackTerritory,
+            removedSpots = removedCells,
+        )
     }
 
     data class CacheKey(
@@ -70,14 +86,13 @@ object RulesManager {
             val height: Int,
             val initialState: InitialState?,
             val whiteGoesFirst: Boolean?,
-            val moves: MutableList<MutableList<Int>>?,
+            val moves: List<List<Int>>?,
             val freeHandicapPlacement: Boolean?,
             val handicap: Int?,
             val removedStones: String?,
             val white_scoring_positions: String?,
             val black_scoring_positions: String?,
             val computeTerritory: Boolean,
-            val limit: Int
             )
 
     private fun getCacheKey(game: Game, limit: Int, computeTerritory: Boolean): CacheKey {
@@ -86,78 +101,42 @@ object RulesManager {
                 height = game.height,
                 initialState = game.initialState,
                 whiteGoesFirst = game.whiteGoesFirst,
-                moves = game.moves,
+                moves = game.moves?.take(limit),
                 freeHandicapPlacement = game.freeHandicapPlacement,
                 handicap = game.handicap,
                 removedStones = game.removedStones,
                 white_scoring_positions = game.whiteScore?.scoring_positions,
                 black_scoring_positions = game.blackScore?.scoring_positions,
                 computeTerritory = computeTerritory,
-                limit = limit
         )
     }
 
-    fun replay(game: Game, limit: Int = Int.MAX_VALUE, computeTerritory : Boolean): Position {
+    fun replay(game: Game, limit: Int = Int.MAX_VALUE, computeTerritory : Boolean = false): Position {
         val cacheKey = getCacheKey(game, limit, computeTerritory)
         positionsCache[cacheKey]?.let {
             return it
         }
-        var pos = newPosition(game.width, game.height, game.initialState)
 
-        var turn = StoneType.BLACK
-        if(game.whiteGoesFirst == true) {
-            turn = StoneType.WHITE
-        }
-        pos.nextToMove = turn
+        val pos = buildPos(
+            moves = game.moves?.take(limit)?.map { Cell(it[0], it[1]) } ?: emptyList(),
+            nextToMove = if(game.whiteGoesFirst == true) StoneType.WHITE else StoneType.BLACK,
+            boardWidth = game.width,
+            boardHeight = game.height,
+            blackInitialState = game.initialState?.black.toCoordinateSet(),
+            whiteInitialState = game.initialState?.white.toCoordinateSet(),
+            handicap = if(game.freeHandicapPlacement == true) game.handicap ?: 0 else 0,
+            removedCells = game.removedStones.toCoordinateSet(),
+            computeTerritory = computeTerritory,
+            whiteScoringPositions = game.whiteScore?.scoring_positions,
+            blackScoringPositions = game.blackScore?.scoring_positions,
+            komi = game.komi,
+        )
 
-        game.moves?.forEachIndexed { index, move ->
-            if(index >= limit) {
-                return@forEachIndexed
-            }
-            val newPos = makeMove(pos, turn, Cell(move[0], move[1]))
-            if(newPos == null) {
-                Log.e(this.javaClass.simpleName, "Server returned an invalid move!!! gameId=${game.id} move=$index")
-                FirebaseCrashlytics.getInstance().log("E/RulesManager: Server returned an invalid move!!! gameId=${game.id} move=$index")
-                return@forEachIndexed
-            }
-            pos = newPos
-            val handicap = game.handicap ?: 0
-            if(game.freeHandicapPlacement != true || index >= handicap - 1) {
-                    turn = turn.opponent
-            }
-            newPos.nextToMove = turn
-        }
-        game.removedStones?.let {
-            for (i in it.indices step 2) {
-                pos.markRemoved(Util.getCoordinatesFromSGF(it, i))
-            }
-        }
-        //
-        // WARNING: This is time consuming AF, avoid it like the plague
-        //
-        if(computeTerritory) {
-            for (i in 0 until pos.boardWidth) {
-                (0 until pos.boardHeight)
-                    .asSequence()
-                    .map { Cell(i, it) }
-                    .filter { !isMarkedDame(pos, it) }
-                    .filter { !isLivingStone(pos, it) }
-                    .filter { !pos.whiteTerritory.contains(it) }
-                    .filter { !pos.blackTerritory.contains(it) }
-                    .toList()
-                    .forEach { markEye(pos, it) }
-            }
-        }
-
-        game.whiteScore?.scoring_positions?.let {
-            for (i in it.indices step 2) {
-                pos.markWhiteTerritory(Util.getCoordinatesFromSGF(it, i))
-            }
-        }
-        game.blackScore?.scoring_positions?.let {
-            for (i in it.indices step 2) {
-                pos.markBlackTerritory(Util.getCoordinatesFromSGF(it, i))
-            }
+        if(pos == null) {
+            Log.e(this.javaClass.simpleName, "Server returned an invalid move!!! gameId=${game.id}")
+            FirebaseCrashlytics.getInstance()
+                .log("E/RulesManager: Server returned an invalid move!!! gameId=${game.id}")
+            return Position(game.width, game.height)
         }
 
         positionsCache.put(cacheKey, pos)
@@ -165,215 +144,217 @@ object RulesManager {
         return pos
     }
 
-    @Deprecated("Obsolete")
-    fun replay(gameData: GameData, limit: Int = Int.MAX_VALUE, computeTerritory : Boolean): Position {
-        var pos = RulesManager.newPosition(gameData.width, gameData.height, gameData.initial_state)
-
-        var turn = StoneType.BLACK
-        if(gameData.initial_player == "white") {
-            turn = StoneType.WHITE
-        }
-        pos.nextToMove = turn
-
-        gameData.moves.forEachIndexed { index, move ->
-            if(index >= limit) {
-                return@forEachIndexed
-            }
-            val newPos = RulesManager.makeMove(pos, turn, Cell((move[0] as Double).toInt(), (move[1] as Double).toInt()))
-            if(newPos == null) {
-                Log.e(this.javaClass.simpleName, "Server returned an invalid move!!! gameId=${gameData.game_id} move=$index")
-                return@forEachIndexed
-            }
-            pos = newPos
-            turn = turn.opponent
-            newPos.nextToMove = turn
-        }
-        gameData.removed?.let {
-            for (i in 0 until it.length step 2) {
-                pos.markRemoved(Util.getCoordinatesFromSGF(it, i))
-            }
-        }
-        //
-        // WARNING: This is time consuming AF, avoid it like the plague
-        //
-        if(computeTerritory) {
-            for (i in 0 until pos.boardWidth) {
-                (0 until pos.boardHeight)
-                        .map { Cell(i, it) }
-                        .filter { !isMarkedDame(pos, it) }
-                        .filter { !isLivingStone(pos, it) }
-                        .filter { !pos.whiteTerritory.contains(it) }
-                        .filter { !pos.blackTerritory.contains(it) }
-                        .forEach { markEye(pos, it) }
-            }
-            gameData.score?.white?.scoring_positions?.let {
-                for (i in 0 until it.length step 2) {
-                    pos.markWhiteTerritory(Util.getCoordinatesFromSGF(it, i))
-                }
-            }
-            gameData.score?.black?.scoring_positions?.let {
-                for (i in 0 until it.length step 2) {
-                    pos.markBlackTerritory(Util.getCoordinatesFromSGF(it, i))
-                }
-            }
-        }
-
-        return pos
-    }
-
-    private fun newPosition(width: Int, height: Int, initialState: InitialState?): Position {
-        val pos = Position(width, height)
-        initialState?.let {
-            it.white?.let {
-                for (i in it.indices step 2) {
-                    val stone = Util.getCoordinatesFromSGF(it, i)
-                    pos.putStone(stone.x, stone.y, StoneType.WHITE)
-                }
-            }
-            it.black?.let {
-                for (i in it.indices step 2) {
-                    val stone = Util.getCoordinatesFromSGF(it, i)
-                    pos.putStone(stone.x, stone.y, StoneType.BLACK)
-                }
-            }
-        }
-        return pos
-    }
-
-    private fun markEye(pos: Position, cell: Cell) {
-        val toVisit = mutableListOf(cell)
-        val visited = mutableSetOf<Cell>()
-        var foundWhite = false
-        var foundBlack = false
-        while(!toVisit.isEmpty() && !(foundBlack && foundWhite)) {
-            val p = toVisit.removeAt(toVisit.size - 1)
-            visited.add(p)
-            if(isLivingStone(pos, p)) {
-                if(pos.getStoneAt(p) == StoneType.WHITE) {
-                    foundWhite = true
-                } else {
-                    foundBlack = true
-                }
-                continue
-            }
-            if(isMarkedDame(pos, p)) {
-                continue
-            }
-            toVisit.addAll(
-                    Util.getNeighbouringSpace(p, pos.boardWidth, pos.boardHeight)
-                            .filter { !visited.contains(it) })
-        }
-        if(foundWhite && !foundBlack) {
-            visited
-                    .filter { !isMarkedDame(pos, it) }
-                    .filter { !isLivingStone(pos, it) }
-                    .forEach { pos.markWhiteTerritory(it) }
-        } else if(foundBlack && !foundWhite) {
-            visited
-                    .filter { !isMarkedDame(pos, it) }
-                    .filter { !isLivingStone(pos, it) }
-                    .forEach { pos.markBlackTerritory(it) }
-        }
-    }
-
     private fun isMarkedDame(pos: Position, p: Cell) =
             pos.getStoneAt(p) == null && pos.removedSpots.contains(p)
 
     private fun isLivingStone(pos: Position, p: Cell) =
             pos.getStoneAt(p) != null && !pos.removedSpots.contains(p)
-    /**
-     * Morph this postion to a new one by performing the move specified.
-     * If the move is invalid, no action is taken and the method returns false.
-     * If the move results in a capture, the captured group is removed from the
-     * position.
-     * @param stone
-     * @param where
-     * @return
-     */
-    fun makeMove(oldPos: Position, stone: StoneType, where: Cell): Position? {
-        val pos = oldPos.clone()
-        pos.parentPosition = oldPos
-        pos.lastMove = where
-        pos.lastPlayerToMove = stone
-        if (where.x == -1) {
-            //
-            // it's a pass
-            //
-            return pos
-        }
-        if (pos.getStoneAt(where.x, where.y) != null) {
-            //
-            // Can't place a stone on top of another
-            //
-            return null
-        }
 
-        pos.putStone(where.x, where.y, stone)
+    fun Cell?.isPass() =
+        this?.x == -1
 
-        //
-        // Determine if the newly placed stone results in a capture.
-        // For this, we're calling doCapture() on all the neighbours
-        // of the new stones that are of opposite color
-        //
-        val removedStones = mutableSetOf<Cell>()
-        val neighbours = Util.getNeighbouringSpace(where, pos.boardWidth, pos.boardHeight)
+    fun List<Position>.isGameOver() =
+        size >= 2 && last().lastMove.isPass() && this[size - 2].lastMove.isPass()
 
-        for (neighbour in neighbours) {
-            val neighbourType = pos.getStoneAt(neighbour)
-            if (neighbourType != null && neighbourType != stone) {
-                doCapture(pos, neighbour, neighbourType)?.let {
-                    removedStones.addAll(it)
+    private val coordinatesX = arrayOf("A","B","C","D","E","F","G","H","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z")
+
+    fun coordinateToCell(coordinate: String) : Cell =
+        Cell(
+            coordinatesX.indexOf(coordinate.substring(0, 1)),
+            (19 - coordinate.substring(1).toInt())
+        )
+
+    fun makeMove(pos: Position, player: StoneType, move: Cell): Position? =
+        buildPos(
+            moves = listOf(move),
+            boardWidth = pos.boardWidth,
+            boardHeight = pos.boardHeight,
+            whiteInitialState = pos.whiteStones,
+            blackInitialState = pos.blackStones,
+            removedCells = pos.removedSpots,
+            nextToMove = player,
+            komi = pos.komi,
+            whiteCaptureCount = pos.whiteCaptureCount,
+            blackCapturesCount = pos.blackCaptureCount,
+        )
+
+    fun buildPos(
+        moves: List<Cell>,
+        boardWidth: Int,
+        boardHeight: Int,
+        handicap: Int = 0,
+        marks: Set<Mark> = emptySet(),
+        whiteInitialState: Set<Cell> = emptySet(),
+        blackInitialState: Set<Cell> = emptySet(),
+        removedCells: Set<Cell> = emptySet(),
+        nextToMove: StoneType = StoneType.BLACK,
+        computeTerritory: Boolean = false,
+        whiteScoringPositions: String? = null,
+        blackScoringPositions: String? = null,
+        komi: Float? = null,
+        whiteCaptureCount: Int = 0,
+        blackCapturesCount: Int = 0,
+    ): Position? {
+        var nextPlayer = nextToMove
+        var lastPlayer: StoneType? = null
+        val whiteStones: MutableSet<Cell> = whiteInitialState.toMutableSet()
+        val blackStones: MutableSet<Cell> = blackInitialState.toMutableSet()
+        var whiteCaptures = whiteCaptureCount
+        var blackCaptures = blackCapturesCount
+        val whiteTerritory = mutableSetOf<Cell>()
+        val blackTerritory = mutableSetOf<Cell>()
+
+        moves.forEachIndexed { i, move ->
+            if(move.x != -1) {
+                if (whiteStones.contains(move) || blackStones.contains(move)) {
+                    return null
+                }
+                val currentPlayerStones =
+                    if (nextPlayer == StoneType.BLACK) blackStones else whiteStones
+                val opponentPlayerStones =
+                    if (nextPlayer == StoneType.BLACK) whiteStones else blackStones
+
+                currentPlayerStones.add(move)
+
+                //
+                // Determine if the newly placed stone results in a capture.
+                // For this, we're calling doCapture() on all the neighbours
+                // of the new stones that are of opposite color
+                //
+                val removedStones = mutableSetOf<Cell>()
+                val neighbours = Util.getNeighbouringSpace(move, boardWidth, boardHeight)
+
+                for (neighbour in neighbours) {
+                    if (opponentPlayerStones.contains(neighbour)) {
+                        doCapture(
+                            currentPlayerStones,
+                            opponentPlayerStones,
+                            neighbour,
+                            boardWidth,
+                            boardHeight
+                        )?.let {
+                            removedStones.addAll(it)
+                        }
+                    }
+                }
+
+                if (removedStones.isNotEmpty()) {
+                    opponentPlayerStones.removeAll(removedStones)
+                    when (nextPlayer) {
+                        StoneType.WHITE -> whiteCaptures += removedStones.size
+                        StoneType.BLACK -> blackCaptures += removedStones.size
+                    }
+                } else {
+                    //
+                    // We need to check for suicide
+                    //
+                    val suicideGroup = doCapture(
+                        opponentPlayerStones,
+                        currentPlayerStones,
+                        move,
+                        boardWidth,
+                        boardHeight
+                    )
+                    if (suicideGroup != null && suicideGroup.isNotEmpty()) {
+                        return null
+                    }
                 }
             }
-        }
-
-        if (removedStones.isNotEmpty()) {
-            for (p in removedStones) {
-                pos.removeStone(p)
-            }
-            when(stone) {
-                StoneType.WHITE -> pos.whiteCapturedCount += removedStones.size
-                StoneType.BLACK -> pos.blackCapturedCount += removedStones.size
-            }
-        } else {
-            //
-            // We need to check for suicide
-            //
-            val suicideGroup = doCapture(pos, where, stone)
-            if (suicideGroup != null && suicideGroup.isNotEmpty()) {
-                pos.removeStone(where)
-                return null
+            lastPlayer = nextPlayer
+            if(i >= handicap - 1) {
+                nextPlayer = nextPlayer.opponent
             }
         }
 
-        return pos
-    }
-
-    fun isIllegalSuperKO(pos: Position): Boolean {
-        var historyPos = pos.parentPosition
-        while(historyPos != null) {
-            if(historyPos.hasTheSameStonesAs(pos)) {
-                return true
+        //
+        // WARNING: This is time consuming AF, avoid it like the plague
+        //
+        if(computeTerritory) {
+            val alreadyVisited = mutableSetOf<Cell>()
+            for (i in 0 until boardWidth) {
+                (0 until boardHeight)
+                    .map { Cell(i, it) }
+                    .asSequence()
+                    .filter { !whiteStones.contains(it) }
+                    .filter { !blackStones.contains(it) }
+                    .filter { !removedCells.contains(it) }
+                    .filter { !whiteTerritory.contains(it) }
+                    .filter { !blackTerritory.contains(it) }
+                    .filter { !alreadyVisited.contains(it) }
+                    .forEach {
+                        val toVisit = mutableListOf(it)
+                        val visited = mutableSetOf<Cell>()
+                        var foundWhite = false
+                        var foundBlack = false
+                        while(toVisit.isNotEmpty() && !(foundBlack && foundWhite)) {
+                            val p = toVisit.removeLast()
+                            visited.add(p)
+                            if(whiteStones.contains(p)) {
+                                foundWhite = true
+                                continue
+                            }
+                            if(blackStones.contains(p)) {
+                                foundBlack = true
+                                continue
+                            }
+                            if(removedCells.contains(p)) {
+                                continue
+                            }
+                            toVisit.addAll(
+                                Util.getNeighbouringSpace(p, boardWidth, boardHeight)
+                                    .filter { !visited.contains(it) })
+                        }
+                        if(foundWhite && !foundBlack) {
+                            whiteTerritory.addAll(
+                                visited
+                                    .filter { !removedCells.contains(it) }
+                                    .filter { !blackTerritory.contains(it) }
+                            )
+                        } else if(foundBlack && !foundWhite) {
+                            blackTerritory.addAll(
+                                visited
+                                    .filter { !removedCells.contains(it) }
+                                    .filter { !whiteTerritory.contains(it) }
+                            )
+                        }
+                        alreadyVisited.addAll(visited)
+                    }
             }
-            historyPos = historyPos.parentPosition
         }
-        return false
+
+        whiteScoringPositions?.let {
+            for (i in it.indices step 2) {
+                whiteTerritory += Util.getCoordinatesFromSGF(it, i)
+            }
+        }
+        blackScoringPositions?.let {
+            for (i in it.indices step 2) {
+                blackTerritory += Util.getCoordinatesFromSGF(it, i)
+            }
+        }
+
+        return Position(
+            boardWidth = boardWidth,
+            boardHeight = boardHeight,
+            whiteStones = whiteStones,
+            blackStones = blackStones,
+            whiteCaptureCount = whiteCaptures,
+            blackCaptureCount = blackCaptures,
+            lastMove = moves.lastOrNull(),
+            lastPlayerToMove = lastPlayer,
+            nextToMove = nextPlayer,
+            customMarks = marks,
+            removedSpots = removedCells,
+            whiteTerritory = whiteTerritory,
+            blackTerritory = blackTerritory,
+            komi = komi,
+        )
     }
 
-    fun isIllegalKO(pos: Position): Boolean {
-        return pos.parentPosition?.parentPosition?.hasTheSameStonesAs(pos) == true
-    }
+    fun isIllegalKO(history: List<Position>, pos: Position) =
+        history.size > 1 && history[history.lastIndex - 1].hasTheSameStonesAs(pos)
 
-    /**
-     * Check if the stone group that contains the stone passed as a
-     * parameter is completely surrounded by opposing pieces and the edges
-     * of the board. If so, the entire group is returned
-     *
-     * @param origin
-     * @param type
-     * @return
-     */
-    private fun doCapture(pos: Position, origin: Cell, type: StoneType): List<Cell>? {
+    private fun doCapture(myStones: Set<Cell>, opponentStones: Set<Cell>, origin: Cell, boardWidth: Int, boardHeight: Int): Set<Cell>? {
         //
         // For this, we're using a simplified shape recognition mechanism
         // For each visited node, we're getting all the neighbours, checking
@@ -386,22 +367,20 @@ object RulesManager {
         // list is returned.
         //
         val toVisit = LinkedList<Cell>()
-        val visited = LinkedList<Cell>()
+        val visited = mutableSetOf<Cell>()
 
         toVisit.add(origin)
 
         while (!toVisit.isEmpty()) {
             val current = toVisit.pop()
             visited.add(current)
-            val neighbours = Util.getNeighbouringSpace(current, pos.boardWidth, pos.boardHeight)
+            val neighbours = Util.getNeighbouringSpace(current, boardWidth, boardHeight)
 
             for (toCheck in neighbours) {
-                val checkedStoneType = pos.getStoneAt(toCheck) ?:
-                        //
-                        // A liberty, hence no capture
-                        //
-                        return null
-                if (checkedStoneType == type && !visited.contains(toCheck)) {
+                if(!opponentStones.contains(toCheck) && !myStones.contains(toCheck)) {
+                    return null
+                }
+                if (opponentStones.contains(toCheck) && !visited.contains(toCheck)) {
                     toVisit.add(toCheck)
                 }
             }
@@ -410,14 +389,14 @@ object RulesManager {
         return visited
     }
 
-    fun toggleRemoved(pos: Position, point: Cell) {
+    fun toggleRemoved(pos: Position, point: Cell): Pair<Boolean, Set<Cell>> {
         val removing = !pos.removedSpots.contains(point)
         val isStone = pos.getStoneAt(point) != null
         val toVisit = mutableListOf(point)
         val visited = mutableSetOf<Cell>()
-        val group = mutableListOf<Cell>()
+        val group = mutableSetOf<Cell>()
 
-        while(!toVisit.isEmpty()) {
+        while(toVisit.isNotEmpty()) {
             val p = toVisit.removeAt(toVisit.size - 1)
             visited.add(p)
             if(isStone) {
@@ -442,12 +421,7 @@ object RulesManager {
                     Util.getNeighbouringSpace(p, pos.boardWidth, pos.boardHeight)
                             .filter { !visited.contains(it) })
         }
-
-        if(removing) {
-            pos.removedSpots.addAll(group)
-        } else {
-            pos.removedSpots.removeAll(group)
-        }
+        return removing to group
     }
 
     private val handicaps = hashMapOf(
@@ -487,20 +461,24 @@ object RulesManager {
             )
     )
 
-
     fun initializePosition(boardSize: Int, handicap: Int = 0): Position {
-        return Position(boardSize, boardSize).apply {
-            if(handicap > 1) {
-                nextToMove = StoneType.WHITE
-                val handicapStones = handicaps[boardSize]?.get(handicap) ?:
-                    throw Exception("Handicap on custom board size not supported")
-                for (i in handicapStones.indices step 2) {
-                    val coords = Util.getCoordinatesFromSGF(handicapStones, i)
-                    putStone(coords.x, coords.y, StoneType.BLACK)
-                }
+        val blackStones = mutableSetOf<Cell>()
+        if(handicap > 1) {
+            val handicapStones = handicaps[boardSize]?.get(handicap) ?:
+            throw Exception("Handicap on custom board size not supported")
+            for (i in handicapStones.indices step 2) {
+                val coords = Util.getCoordinatesFromSGF(handicapStones, i)
+                blackStones += coords
             }
-            komi = determineKomi(boardSize, handicap)
         }
+        return Position(
+            boardWidth = boardSize,
+            boardHeight = boardSize,
+            komi = determineKomi(boardSize, handicap),
+            nextToMove = if(handicap > 1) StoneType.WHITE else StoneType.BLACK,
+            blackStones = blackStones,
+
+        )
     }
 
     fun determineKomi(boardSize: Int, handicap: Int = 0): Float {

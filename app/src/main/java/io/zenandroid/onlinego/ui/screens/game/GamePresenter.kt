@@ -67,6 +67,7 @@ class GamePresenter(
     private var myGame: Boolean = false
     private var currentPosition = Position(19, 19)
     private var analysisPosition = Position(19, 19)
+    private var analysisRootPosition = Position(19, 19)
     private var estimatePosition = Position(19, 19)
     private val userId = userSessionRepository.userId
     private var currentShownMove = -1
@@ -277,7 +278,8 @@ class GamePresenter(
             PLAYING ->
                 candidateMove?.let {
                     val proposedPosition = RulesManager.makeMove(currentPosition, currentPosition.nextToMove, it)
-                    if(proposedPosition != null && RulesManager.isIllegalKO(proposedPosition)) {
+                    val historySize = game?.moves?.size ?: 0
+                    if(proposedPosition != null && historySize > 1 && RulesManager.replay(game!!, historySize - 1, false).hasTheSameStonesAs(proposedPosition)) {
                         view.showKoDialog()
                         candidateMove = null
                         view.showCandidateMove(null)
@@ -289,14 +291,7 @@ class GamePresenter(
                 }
             SCORING -> {
                 analytics.logEvent("scoring_change_group", null)
-                val newPos = currentPosition.clone()
-                RulesManager.toggleRemoved(newPos, point)
-                var delta = newPos.removedSpots - currentPosition.removedSpots
-                var removing = true
-                if(delta.isEmpty()) {
-                    delta = currentPosition.removedSpots - newPos.removedSpots
-                    removing = false
-                }
+                val (removing, delta) = RulesManager.toggleRemoved(currentPosition, point)
                 if(delta.isNotEmpty()) {
                     gameConnection?.submitRemovedStones(delta, removing)
                 }
@@ -310,14 +305,28 @@ class GamePresenter(
     private fun doAnalysisMove(candidateMove: Cell) {
         analytics.logEvent("analysis_move", null)
         RulesManager.makeMove(analysisPosition, analysisPosition.nextToMove, candidateMove)?.let {
-            if(RulesManager.isIllegalKO(it)) {
+            val moves = game!!.moves!!
+            val potentialKOPosition = when {
+                variation.size == 0 && currentShownMove > 1 -> RulesManager.replay(game!!, currentShownMove - 1, false)
+                variation.size >= 1 -> {
+                    var cursor = analysisRootPosition
+                    variation.dropLast(1).forEach {
+                        RulesManager.makeMove(cursor, cursor.nextToMove, it)?.let {
+                            cursor = it
+                        }
+                    }
+                    cursor
+                }
+                else -> null
+            }
+
+            if(potentialKOPosition?.hasTheSameStonesAs(it) == true) {
                 view.showKoDialog()
                 return
             }
             variationCurrentMove ++
             variation = variation.dropLast(variation.size - variationCurrentMove).toMutableList()
             variation.add(candidateMove)
-            it.variation = variation
 
             game?.let(this::refreshUI)
         }
@@ -335,7 +344,7 @@ class GamePresenter(
         when (currentState){
             ANALYSIS -> {
                 analytics.logEvent("analysis_cancel", null)
-                currentState = determineStateFromGame(game)
+                currentState = if(currentShownMove != game?.moves?.size) HISTORY else determineStateFromGame(game)
                 candidateMove = null
                 view.showCandidateMove(null)
                 currentPosition = Position(19, 19)
@@ -488,10 +497,9 @@ class GamePresenter(
             }
             stateToReturnFromEstimation = currentState
             currentState = ESTIMATION
-            estimatePosition = pos.clone()
 
             view.setLoading(true)
-            Completable.fromAction(this::estimateTerritory)
+            Completable.fromAction { estimateTerritory(pos) }
                     .subscribeOn(Schedulers.computation())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe {
@@ -503,12 +511,8 @@ class GamePresenter(
         }
     }
 
-    private fun estimateTerritory() {
-        RulesManager.determineTerritory(estimatePosition)
-        if(game?.scoreStones == false) {
-            estimatePosition.whiteTerritory.removeAll(estimatePosition.whiteStones)
-            estimatePosition.blackTerritory.removeAll(estimatePosition.blackStones)
-        }
+    private fun estimateTerritory(pos: Position) {
+        estimatePosition = RulesManager.determineTerritory(pos, game?.scoreStones == true)
     }
 
     private fun configureBoard(game: Game) {
@@ -711,9 +715,7 @@ class GamePresenter(
             return
         }
         analytics.logEvent("auto_clicked", null)
-        val newPos = currentPosition.clone()
-        newPos.clearAllRemovedSpots()
-        RulesManager.determineTerritory(newPos)
+        val newPos = RulesManager.determineTerritory(currentPosition, game?.scoreStones == true)
         gameConnection?.submitRemovedStones(currentPosition.removedSpots, false)
         gameConnection?.submitRemovedStones(newPos.removedSpots, true)
     }
@@ -723,24 +725,24 @@ class GamePresenter(
             ANALYSIS -> {
                 replayAnalysis()
                 view.position = analysisPosition
-                view.whiteScore = analysisPosition.whiteCapturedCount + (game.komi ?: 0f)
-                view.blackScore = analysisPosition.blackCapturedCount.toFloat()
+                view.whiteScore = analysisPosition.whiteCaptureCount + (game.komi ?: 0f)
+                view.blackScore = analysisPosition.blackCaptureCount.toFloat()
             }
             HISTORY -> {
                 val historyPosition = RulesManager.replay(game, currentShownMove, false)
                 view.position = historyPosition
-                view.whiteScore = historyPosition.whiteCapturedCount + (game.komi ?: 0f)
-                view.blackScore = historyPosition.blackCapturedCount.toFloat()
+                view.whiteScore = historyPosition.whiteCaptureCount + (game.komi ?: 0f)
+                view.blackScore = historyPosition.blackCaptureCount.toFloat()
             }
             SCORING -> {
                 currentPosition = RulesManager.replay(game, computeTerritory = true)
                 view.position = currentPosition
-                view.whiteScore = currentPosition.blackDeadStones.size + currentPosition.whiteTerritory.size + currentPosition.whiteCapturedCount + (game.komi ?: 0f)
-                view.blackScore = currentPosition.whiteDeadStones.size + currentPosition.blackTerritory.size + currentPosition.blackCapturedCount.toFloat()
+                view.whiteScore = currentPosition.blackDeadStones.size + currentPosition.whiteTerritory.size + currentPosition.whiteCaptureCount + (game.komi ?: 0f)
+                view.blackScore = currentPosition.whiteDeadStones.size + currentPosition.blackTerritory.size + currentPosition.blackCaptureCount.toFloat()
             }
             ESTIMATION -> {
-                view.whiteScore = estimatePosition.blackDeadStones.size + estimatePosition.whiteTerritory.size + estimatePosition.whiteCapturedCount + (game.komi ?: 0f)
-                view.blackScore = estimatePosition.whiteDeadStones.size + estimatePosition.blackTerritory.size + estimatePosition.blackCapturedCount.toFloat()
+                view.whiteScore = estimatePosition.blackDeadStones.size + estimatePosition.whiteTerritory.size + estimatePosition.whiteCaptureCount + (game.komi ?: 0f)
+                view.blackScore = estimatePosition.whiteDeadStones.size + estimatePosition.blackTerritory.size + estimatePosition.blackCaptureCount.toFloat()
 
                 view.showTerritory = true
                 view.position = estimatePosition
@@ -748,8 +750,8 @@ class GamePresenter(
             PLAYING, FINISHED, LOADING -> {
                 currentPosition = RulesManager.replay(game, computeTerritory = false)
                 view.position = currentPosition
-                view.whiteScore = game.whiteScore?.total?.toFloat() ?: currentPosition.whiteCapturedCount + (game.komi ?: 0f)
-                view.blackScore = game.blackScore?.total?.toFloat() ?: currentPosition.blackCapturedCount.toFloat()
+                view.whiteScore = game.whiteScore?.total?.toFloat() ?: currentPosition.whiteCaptureCount + (game.komi ?: 0f)
+                view.blackScore = game.blackScore?.total?.toFloat() ?: currentPosition.blackCaptureCount.toFloat()
             }
         }
 
@@ -982,23 +984,23 @@ class GamePresenter(
     }
 
     private fun replayAnalysis() {
-        analysisPosition = currentPosition.clone()
+        analysisPosition = analysisRootPosition
         variation.take(variationCurrentMove + 1).let { truncatedVariation ->
             truncatedVariation.forEach {
                 RulesManager.makeMove(analysisPosition, analysisPosition.nextToMove, it)?.let {
-                    it.nextToMove = analysisPosition.nextToMove.opponent
                     analysisPosition = it
-                    analysisPosition.variation = truncatedVariation
                 }
             }
+            analysisPosition = analysisPosition.copy(
+                variation = truncatedVariation
+            )
         }
     }
 
     override fun onAnalyzeButtonClicked() {
         analytics.logEvent("analyze_clicked", null)
+        analysisRootPosition = if(currentState == HISTORY) RulesManager.replay(game!!, currentShownMove, false) else currentPosition
         currentState = ANALYSIS
-        analysisPosition = currentPosition.clone()
-        currentShownMove = game?.moves?.size ?: currentShownMove
         variation.clear()
         variationCurrentMove = -1
         game?.let(this::refreshUI)

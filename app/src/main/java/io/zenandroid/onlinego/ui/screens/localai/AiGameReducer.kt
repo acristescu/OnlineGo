@@ -3,6 +3,7 @@ package io.zenandroid.onlinego.ui.screens.localai
 import android.util.Log
 import io.zenandroid.onlinego.data.model.StoneType
 import io.zenandroid.onlinego.gamelogic.RulesManager
+import io.zenandroid.onlinego.gamelogic.RulesManager.isGameOver
 import io.zenandroid.onlinego.mvi.Reducer
 import io.zenandroid.onlinego.ui.screens.localai.AiGameAction.*
 
@@ -25,24 +26,30 @@ class AiGameReducer : Reducer<AiGameState, AiGameAction> {
             ViewReady -> state.copy(
                     chatText = "Give me a second, I'm getting ready..."
             )
-            is NewPosition -> state.copy(
+            is NewPosition -> {
+                val newVariation = if(state.history.lastOrNull() == action.newPos) state.history else state.history + action.newPos
+                state.copy(
                     position = action.newPos,
+                    history = newVariation,
                     nextButtonEnabled = false,
                     redoPosStack = emptyList(),
                     boardIsInteractive = false,
+                    showHints = false,
                     chatText = when {
-                        action.newPos.isGameOver() && state.aiWon == true -> "Game ended because of two passes. Final score is black ${state.finalBlackScore?.toInt()} to white ${state.finalWhiteScore}. Looks like I win this time."
-                        action.newPos.isGameOver() && state.aiWon == false -> "Game ended because of two passes. Final score is black ${state.finalBlackScore?.toInt()} to white ${state.finalWhiteScore}. Congrats, looks like you got the better of me."
-                        action.newPos.isGameOver() && state.aiWon == null -> "Game ended because of two passes. Hang on, I'm computing the final score."
+                        newVariation.isGameOver() && state.aiWon == true -> "Game ended because of two passes. Final score is black ${state.finalBlackScore?.toInt()} to white ${state.finalWhiteScore}. Looks like I win this time."
+                        newVariation.isGameOver() && state.aiWon == false -> "Game ended because of two passes. Final score is black ${state.finalBlackScore?.toInt()} to white ${state.finalWhiteScore}. Congrats, looks like you got the better of me."
+                        newVariation.isGameOver() && state.aiWon == null -> "Game ended because of two passes. Hang on, I'm computing the final score."
                         else -> state.chatText
                     },
                     showAiEstimatedTerritory = false,
-                    showFinalTerritory = action.newPos.isGameOver() && state.aiWon != null,
-                    hintButtonVisible = !action.newPos.isGameOver(),
-                    ownershipButtonVisible = !action.newPos.isGameOver()
-            )
+                    showFinalTerritory = newVariation.isGameOver() && state.aiWon != null,
+                    hintButtonVisible = !newVariation.isGameOver(),
+                    ownershipButtonVisible = !newVariation.isGameOver()
+                )
+            }
             is ScoreComputed -> state.copy(
                     position = action.newPos,
+                    history = state.history.dropLast(1) + action.newPos,
                     nextButtonEnabled = false,
                     passButtonEnabled = false,
                     redoPosStack = emptyList(),
@@ -58,18 +65,25 @@ class AiGameReducer : Reducer<AiGameState, AiGameAction> {
                     hintButtonVisible = false,
                     ownershipButtonVisible = false,
                     showHints = false,
-                    candidateMove = null
+                    candidateMove = null,
+                    aiAnalysis = action.aiAnalisis,
             )
-            is AIMove -> state.copy(
+            is AIMove -> {
+                val newVariation = state.history + action.newPos
+                state.copy(
                     position = action.newPos,
+                    history = newVariation,
                     nextButtonEnabled = false,
+                    aiAnalysis = action.aiAnalisis,
+                    aiQuickEstimation = action.selectedMove,
                     chatText = when {
-                        action.newPos.isGameOver() && state.aiWon == true -> "Game ended because of two passes. Final score is black ${state.finalBlackScore?.toInt()} to white ${state.finalWhiteScore}. Looks like I win this time."
-                        action.newPos.isGameOver() && state.aiWon == false -> "Game ended because of two passes. Final score is black ${state.finalBlackScore?.toInt()} to white ${state.finalWhiteScore}. Congrats, looks like you got the better of me."
-                        action.newPos.isGameOver() && state.aiWon == null -> "Game ended because of two passes. Hang on, I'm computing the final score."
+                        newVariation.isGameOver() && state.aiWon == true -> "Game ended because of two passes. Final score is black ${state.finalBlackScore?.toInt()} to white ${state.finalWhiteScore}. Looks like I win this time."
+                        newVariation.isGameOver() && state.aiWon == false -> "Game ended because of two passes. Final score is black ${state.finalBlackScore?.toInt()} to white ${state.finalWhiteScore}. Congrats, looks like you got the better of me."
+                        newVariation.isGameOver() && state.aiWon == null -> "Game ended because of two passes. Hang on, I'm computing the final score."
                         else -> state.chatText
                     }
-            )
+                )
+            }
             GenerateAiMove -> state.copy(
                     boardIsInteractive = false,
                     passButtonEnabled = false,
@@ -80,7 +94,7 @@ class AiGameReducer : Reducer<AiGameState, AiGameAction> {
             PromptUserForMove -> state.copy(
                     boardIsInteractive = true,
                     passButtonEnabled = true,
-                    previousButtonEnabled = state.position?.parentPosition?.parentPosition != null,
+                    previousButtonEnabled = state.history.size >= 2,
                     chatText = when {
                         state.engineStarted && state.position?.lastMove?.x == -1 -> "Pass! If you agree the game is over you should pass as well."
                         state.position != null && state.engineStarted -> "Your turn!"
@@ -105,11 +119,12 @@ class AiGameReducer : Reducer<AiGameState, AiGameAction> {
                     chatText = "An error occurred communicating with the AI"
             )
             UserPressedPrevious -> {
-                val newPosition = if(aiMovedLast(state)) state.position?.parentPosition?.parentPosition!! else state.position?.parentPosition!!
+                val newHistory = state.history.dropLast(2)
                 state.copy(
-                        position = newPosition,
-                        redoPosStack = state.redoPosStack + state.position,
-                        previousButtonEnabled = newPosition.parentPosition?.parentPosition != null,
+                        position = newHistory.lastOrNull(),
+                        redoPosStack = state.redoPosStack + state.history.takeLast(2),
+                        history = newHistory,
+                        previousButtonEnabled = newHistory.size >= 2,
                         showHints = false,
                         hintButtonVisible = true,
                         ownershipButtonVisible = true,
@@ -124,13 +139,17 @@ class AiGameReducer : Reducer<AiGameState, AiGameAction> {
                         finalWhiteScore = null
                 )
             }
-            UserPressedNext -> state.copy(
-                    position = state.redoPosStack.last(),
-                    redoPosStack = state.redoPosStack.dropLast(1),
+            UserPressedNext -> {
+                val newHistory = state.history + state.redoPosStack.takeLast(2)
+                state.copy(
+                    position = newHistory.lastOrNull(),
+                    history = newHistory,
+                    redoPosStack = state.redoPosStack.dropLast(2),
                     previousButtonEnabled = true,
                     showHints = false,
-                    nextButtonEnabled = state.redoPosStack.size > 1
-            )
+                    nextButtonEnabled = state.redoPosStack.size > 2
+                )
+            }
             ShowNewGameDialog -> state.copy(
                     newGameDialogShown = true
             )
@@ -158,10 +177,12 @@ class AiGameReducer : Reducer<AiGameState, AiGameAction> {
                     boardIsInteractive = false,
                     redoPosStack = emptyList(),
                     candidateMove = null,
+                    history = emptyList(),
                     position = RulesManager.initializePosition(action.size, action.handicap),
             )
-            AIHint -> state.copy(
+            is AIHint -> state.copy(
                     showHints = true,
+                    aiAnalysis = action.aiAnalisis,
                     chatText = "Here are a few moves to consider"
             )
             UserAskedForHint -> state.copy(
@@ -175,8 +196,9 @@ class AiGameReducer : Reducer<AiGameState, AiGameAction> {
                     newGameDialogShown = true,
                     stateRestorePending = false,
             )
-            AIOwnershipResponse -> state.copy(
+            is AIOwnershipResponse -> state.copy(
                     boardIsInteractive = true,
+                    aiAnalysis = action.aiAnalisis,
                     showAiEstimatedTerritory = true,
                     chatText = "Here's what I think the territories look like"
             )
@@ -197,9 +219,4 @@ class AiGameReducer : Reducer<AiGameState, AiGameAction> {
             )
         }
     }
-
-    private fun aiMovedLast(state: AiGameState): Boolean =
-            (state.position?.lastPlayerToMove == StoneType.BLACK && state.enginePlaysBlack) ||
-                    (state.position?.lastPlayerToMove == StoneType.WHITE && !state.enginePlaysBlack)
-
 }

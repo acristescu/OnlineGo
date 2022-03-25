@@ -1547,7 +1547,7 @@
                 "marks": "#[fd]"
               },
               {
-                "text": "Now if black wants to save the stone in atari she is can play at E6...",
+                "text": "Now if black wants to save the stone in atari she can play at E6...",
                 "position": "B[dd]B[ec]B[ee]W[fc]W[fe]W[gd]B[fd]W[gg]",
                 "marks": "#[gg]"
               },
@@ -2886,7 +2886,7 @@
             "type": "Game",
             "name": "first_moves_2",
             "size": "19",
-            "text": "Here are the first 20 moves of a real game played between two profession players.",
+            "text": "Here are the first 20 moves of a real game played between two professional players.",
             "sgf": "B[pd]W[dd]B[pp]W[dp]B[cj]W[qj]B[fq]W[cn]B[cg]W[gc]B[dr]W[cq]B[iq]W[qn]B[np]W[qg]B[nc]W[ce]B[ic]"
           }
         ]

@@ -1,252 +1,118 @@
 package io.zenandroid.onlinego.data.model
 
-import android.util.Log
 import androidx.compose.runtime.Immutable
-import io.zenandroid.onlinego.data.model.katago.MoveInfo
-import io.zenandroid.onlinego.data.model.katago.Response
-import io.zenandroid.onlinego.gamelogic.RulesManager
 import io.zenandroid.onlinego.data.model.ogs.JosekiPosition
 import io.zenandroid.onlinego.data.model.ogs.PlayCategory
-import java.util.*
+import io.zenandroid.onlinego.gamelogic.RulesManager
 
-/**
- * A class that models a GO position. It is basically a collection of stones
- * that are placed on the intersections of the lines of a GO board.
- * For quick retrieval, the stones are kept as a HashMap (a hashtable).
- *
- * To determine if a stone is present at a position (and which kind) a user
- * can use the getStoneAt() method.
- *
- * To morph the position one can use the makeMove() method. This method is responsible
- * for validating the move and changing the Position to the new one by enforcing
- * captures for example.
- *
- * Lastly, the user can use getAllStonesCoordinates() to loop through all the stones.
- *
- * Created by alex on 1/8/2015.
- */
 @Immutable
-class Position(
+data class Position(
     val boardWidth: Int,
     val boardHeight: Int,
-    ) {
+    val whiteStones: Set<Cell> = emptySet(),
+    val blackStones: Set<Cell> = emptySet(),
+    val whiteCaptureCount: Int = 0,
+    val blackCaptureCount: Int = 0,
+    val komi: Float? = null,
+    val whiteTerritory: Set<Cell> = emptySet(),
+    val blackTerritory: Set<Cell> = emptySet(),
+    val lastMove: Cell? = null,
+    val lastPlayerToMove: StoneType? = null,
+    val removedSpots: Set<Cell> = emptySet(),
+    val nextToMove: StoneType = StoneType.BLACK,
+    val customMarks: Set<Mark> = emptySet(),
+    val variation: List<Cell> = listOf()
+) {
+    fun getStoneAt(where: Cell): StoneType? =
+        when {
+            whiteStones.contains(where) -> StoneType.WHITE
+            blackStones.contains(where) -> StoneType.BLACK
+            else -> null
+        }
 
-    var stones = HashMap<Cell, StoneType>()
+    val whiteDeadStones: Set<Cell>
+        get() = removedSpots.intersect(whiteStones)
 
-    var removedSpots: MutableSet<Cell> = HashSet()
-    var whiteTerritory: MutableSet<Cell> = HashSet()
-    var blackTerritory: MutableSet<Cell> = HashSet()
-
-    var lastMove: Cell? = null
-    var whiteCapturedCount = 0
-    var blackCapturedCount = 0
-
-    var nextToMove = StoneType.BLACK
-
-    val allStonesCoordinates: Set<Cell>
-        get() = stones.keys
-
-    val whiteStones: Set<Cell>
-        get() = stones.filter { it.value == StoneType.WHITE }.keys
-    val blackStones: Set<Cell>
-        get() = stones.filter { it.value == StoneType.BLACK }.keys
-
-    val whiteDeadStones: Collection<Cell>
-        get() = removedSpots.filter { stones[it] == StoneType.WHITE }
-    val blackDeadStones: Collection<Cell>
-        get() = removedSpots.filter { stones[it] == StoneType.BLACK }
-
-    var lastPlayerToMove: StoneType? = null
-
-    var variation: List<Cell> = listOf()
-
-    var parentPosition: Position? = null
-
-    val customMarks: MutableSet<Mark> = mutableSetOf()
-    var komi: Float? = null
-
-    var aiAnalysisResult: Response? = null
-    var aiQuickEstimation: MoveInfo? = null
-
-    /**
-     * Adds a stone without checking the game logic. See makeMove() for alternative
-     * @param i
-     * @param j
-     * @param type
-     */
-    fun putStone(i: Int, j: Int, type: StoneType) {
-        stones[Cell(i, j)] = type
-    }
-
-    /**
-     * Returns the type of stone at the specified intersection or null if there is
-     * no stone there.
-     * @param i
-     * @param j
-     * @return
-     */
-    fun getStoneAt(i: Int, j: Int): StoneType? {
-        return stones[Cell(i, j)]
-    }
-
-    fun getStoneAt(p: Cell?): StoneType? {
-        return stones[p]
-    }
-
-    fun clone(): Position {
-        val newPos = Position(boardWidth, boardHeight)
-        newPos.stones.putAll(stones)
-        newPos.lastMove = lastMove
-        newPos.blackCapturedCount = blackCapturedCount
-        newPos.whiteCapturedCount = whiteCapturedCount
-        newPos.blackTerritory.addAll(blackTerritory)
-        newPos.whiteTerritory.addAll(whiteTerritory)
-        newPos.removedSpots.addAll(removedSpots)
-        newPos.nextToMove = nextToMove
-        newPos.parentPosition = parentPosition
-        newPos.komi = komi
-        return newPos
-    }
-
-    fun removeStone(p: Cell) {
-        stones.remove(p)
-    }
-
-    fun markRemoved(point: Cell) {
-        removedSpots.add(point)
-    }
-
-    fun clearAllRemovedSpots() {
-        removedSpots.clear()
-    }
-
-    fun clearAllMarkedTerritory() {
-        whiteTerritory.clear()
-        blackTerritory.clear()
-    }
-
-    fun markWhiteTerritory(point: Cell) {
-        whiteTerritory.add(point)
-    }
-
-    fun markBlackTerritory(point: Cell) {
-        blackTerritory.add(point)
-    }
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-
-        other as Position
-
-        if (boardWidth != other.boardWidth) return false
-        if (boardHeight != other.boardHeight) return false
-        if (stones != other.stones) return false
-        if (removedSpots != other.removedSpots) return false
-        if (whiteTerritory != other.whiteTerritory) return false
-        if (blackTerritory != other.blackTerritory) return false
-        if (lastMove != other.lastMove) return false
-        if (whiteCapturedCount != other.whiteCapturedCount) return false
-        if (blackCapturedCount != other.blackCapturedCount) return false
-        if (nextToMove != other.nextToMove) return false
-        if (komi != other.komi) return false
-
-        return true
-    }
-
-    fun hasTheSameStonesAs(other: Position) =
-            stones == other.stones
-
-    fun isGameOver() =
-            lastMove?.x == -1 && parentPosition?.lastMove?.x == -1
-
-    override fun hashCode(): Int {
-        var result = boardWidth
-        result = 31 * result + boardHeight
-        result = 31 * result + stones.hashCode()
-        result = 31 * result + removedSpots.hashCode()
-        result = 31 * result + whiteTerritory.hashCode()
-        result = 31 * result + blackTerritory.hashCode()
-        result = 31 * result + (lastMove?.hashCode() ?: 0)
-        result = 31 * result + whiteCapturedCount
-        result = 31 * result + blackCapturedCount
-        result = 31 * result + nextToMove.hashCode()
-        result = 31 * result + (komi?.hashCode() ?: 0)
-        return result
-    }
-
-    data class Mark(
-            val placement: Cell,
-            val text: String?,
-            val category: PlayCategory?
-    )
+    val blackDeadStones: Set<Cell>
+        get() = removedSpots.intersect(blackStones)
 
     companion object {
         fun fromJosekiPosition(josekiPosition: JosekiPosition): Position {
-            var pos = Position(19, 19)
+            val customMarks = josekiPosition.next_moves
+                ?.filter { it.placement != null && it.placement != "pass" && it.placement != "root" }
+                ?.map {
+                    val childCoordinate = RulesManager.coordinateToCell(it.placement!!)
+                    val overlayLabel =
+                        josekiPosition.labels?.find { childCoordinate == it.placement }
+                    if (overlayLabel == null) {
+                        Mark(
+                            childCoordinate,
+                            it.variation_label,
+                            it.category
+                        )
+                    } else {
+                        Mark(
+                            childCoordinate,
+                            overlayLabel.text,
+                            it.category
+                        )
+                    }
+                }?.toSet()
+                ?: emptySet()
+            val labels = josekiPosition.labels
+                ?.filter { candidate ->
+                    josekiPosition.next_moves
+                        ?.find {
+                            it.placement != null && it.placement != "pass" && candidate.placement == RulesManager.coordinateToCell(
+                                it.placement!!
+                            )
+                        } == null
+                }
+                ?.map { Mark(it.placement, it.text, it.category) }
+                ?.toSet()
+                ?: emptySet()
             josekiPosition.play?.let {
                 val moves = when {
                     it.startsWith(".root") -> it.substring(5)
                     it.startsWith(".root.") -> it.substring(6)
                     else -> it
-                }.split('.').filter { it != "" }
-
-                var turn  = StoneType.BLACK
-                moves.forEach {
-                    if(it != "pass") {
-                        val point = coordinateToCell(it)
-                        val newPos = RulesManager.makeMove(pos, turn, point)
-                        if(newPos == null) {
-                            Log.e("Position", "Invalid joseki move!!!")
-                            return pos
-                        }
-                        pos = newPos
-                    }
-                    turn = turn.opponent
-                }
-                pos.nextToMove = turn
-            }
-            josekiPosition.next_moves
-                    ?.filter { it.placement != null && it.placement != "pass" && it.placement != "root"}
-                    ?.map {
-                        val childCoordinate = coordinateToCell(it.placement!!)
-                        val overlayLabel = josekiPosition.labels?.find { childCoordinate == it.placement }
-                        if(overlayLabel == null) {
-                            Mark(
-                                    childCoordinate,
-                                    it.variation_label,
-                                    it.category
-                            )
+                }.split('.')
+                    .filter { it != "" }
+                    .map {
+                        if (it == "pass") {
+                            Cell(-1, -1)
                         } else {
-                            Mark(
-                                    childCoordinate,
-                                    overlayLabel.text,
-                                    it.category
-                            )
+                            RulesManager.coordinateToCell(it)
                         }
                     }
-                    ?.let (pos.customMarks::addAll)
-            josekiPosition.labels
-                    ?.filter { candidate ->
-                        josekiPosition.next_moves
-                                ?.find { it.placement != null && it.placement != "pass" && candidate.placement == coordinateToCell(it.placement!!) } == null
-                    }
-                    ?.map { Mark(it.placement, it.text, it.category) }
-                    ?.let (pos.customMarks::addAll)
-            return pos
+
+                return RulesManager.buildPos(
+                    moves,
+                    19,
+                    19,
+                    marks = customMarks + labels,
+                ) ?: Position(19, 19)
+            }
+            return Position(
+                boardHeight = 19,
+                boardWidth = 19,
+            )
         }
 
-        private val coordinatesX = arrayOf("A","B","C","D","E","F","G","H","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z")
-
-        fun coordinateToCell(coordinate: String) : Cell =
-            Cell(
-                        coordinatesX.indexOf(coordinate.substring(0, 1)),
-                        (19 - coordinate.substring(1).toInt())
-                )
     }
 
+    fun hasTheSameStonesAs(other: Position) =
+        whiteStones == other.whiteStones && blackStones == other.blackStones
 }
 
+@Immutable
+data class Mark(
+    val placement: Cell,
+    val text: String?,
+    val category: PlayCategory?
+)
+
+@Immutable
 data class Cell(
     val x: Int,
     val y: Int

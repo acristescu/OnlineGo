@@ -22,27 +22,23 @@ class AIMoveMiddleware : Middleware<AiGameState, AiGameAction> {
                 .withLatestFrom(state)
                 .filter { (_, state) -> state.engineStarted && !state.stateRestorePending && state.position != null }
                 .flatMapSingle { (_, state) ->
-                    KataGoAnalysisEngine.analyzePosition(
-                            pos = state.position!!,
+                    KataGoAnalysisEngine.analyzeMoveSequence(
+                            sequence = state.history,
                             maxVisits = 20,
-                            komi = state.position.komi,
+                            komi = state.position?.komi ?: 0f,
                             includeOwnership = false,
                             includeMovesOwnership = false
                     )
                             .map {
                                 val selectedMove = selectMove(it)
-                                val move = Util.getCoordinatesFromGTP(selectedMove.move, state.position.boardHeight)
+                                val move = Util.getCoordinatesFromGTP(selectedMove.move, state.position!!.boardHeight)
                                 val side = if(state.enginePlaysBlack) StoneType.BLACK else StoneType.WHITE
-                                state.position.aiAnalysisResult = it
-                                val newPos = RulesManager.makeMove(state.position, side, move)?.apply {
-                                    nextToMove = nextToMove.opponent
-                                    aiQuickEstimation = selectedMove
-                                }
+                                val newPos = RulesManager.makeMove(state.position, side, move)
                                 if(newPos == null) {
                                     FirebaseCrashlytics.getInstance().recordException(Exception("KataGO wants to play move ${selectedMove.move} ($move), but RulesManager rejects it as invalid"))
                                     AIError
                                 } else {
-                                    AIMove(newPos)
+                                    AIMove(newPos, it, selectedMove)
                                 }
                             }
                             .subscribeOn(Schedulers.io())

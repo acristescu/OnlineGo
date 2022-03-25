@@ -1,6 +1,7 @@
 package io.zenandroid.onlinego.gamelogic
 
 import io.zenandroid.onlinego.data.model.Cell
+import io.zenandroid.onlinego.data.model.Mark
 import io.zenandroid.onlinego.data.model.Position
 import io.zenandroid.onlinego.data.model.StoneType
 import io.zenandroid.onlinego.data.model.local.Game
@@ -55,31 +56,48 @@ object Util {
         return Cell(column - 'a', row - 'a')
     }
 
-    fun Position.populateWithSGF(sgf: String) {
+    fun String?.toCoordinateSet(): Set<Cell> =
+        this?.indices?.step(2)?.map { Util.getCoordinatesFromSGF(this, it) }?.toSet() ?: emptySet()
+
+    fun decodeSGF(
+        boardWidth: Int,
+        boardHeight: Int,
+        sgf: String,
+        areas: String?,
+        marks: String?,
+    ): Position {
+        val whiteStones = mutableSetOf<Cell>()
+        val blackStones = mutableSetOf<Cell>()
+        val customMarks = mutableSetOf<Mark>()
         for(i in sgf.indices step 5) {
             val p = getCoordinatesFromSGF(sgf, i + 2)
-            val stone = if(sgf[i] == 'B') StoneType.BLACK else StoneType.WHITE
-            putStone(p.x, p.y, stone)
+            (if(sgf[i] == 'B') blackStones else whiteStones).add(p)
         }
-    }
-
-    fun Position.populateWithMarks(marks: String) {
-        for(i in marks.indices step 5) {
-            val p = getCoordinatesFromSGF(marks, i + 2)
-            customMarks.add(Position.Mark(p, marks[i].toString(), null))
+        if(marks != null) {
+            for (i in marks.indices step 5) {
+                val p = getCoordinatesFromSGF(marks, i + 2)
+                customMarks.add(Mark(p, marks[i].toString(), null))
+            }
         }
-    }
-
-    fun Position.populateWithAreas(areas: String) {
-        for(i in areas.indices step 7) {
-            val corner1 = getCoordinatesFromSGF(areas, i+2)
-            val corner2 = getCoordinatesFromSGF(areas, i+4)
-            for(x in min(corner1.x, corner2.x).. max(corner1.x, corner2.x)) {
-                for(y in min(corner1.y, corner2.y) .. max(corner1.y, corner2.y)) {
-                    customMarks.add(Position.Mark(Cell(x, y), areas[i].toString(), null))
+        if(areas != null) {
+            for (i in areas.indices step 7) {
+                val corner1 = getCoordinatesFromSGF(areas, i + 2)
+                val corner2 = getCoordinatesFromSGF(areas, i + 4)
+                for (x in min(corner1.x, corner2.x)..max(corner1.x, corner2.x)) {
+                    for (y in min(corner1.y, corner2.y)..max(corner1.y, corner2.y)) {
+                        customMarks.add(Mark(Cell(x, y), areas[i].toString(), null))
+                    }
                 }
             }
         }
+
+        return Position(
+            boardWidth = boardWidth,
+            boardHeight = boardHeight,
+            whiteStones = whiteStones,
+            blackStones = blackStones,
+            customMarks = customMarks,
+        )
     }
 
     fun sgfToPositionList(sgf: String, size: Int): List<Position> {
@@ -138,6 +156,7 @@ object Util {
     fun getCurrentUserId() =
         userSessionRepository.userId
 
-    fun getRemovedStonesInLastMove(position: Position): Map<Cell, StoneType> =
-        position.parentPosition?.stones?.filter { !position.stones.contains(it.key)} ?: emptyMap()
+    fun getRemovedStones(oldPos: Position, newPos: Position): List<Pair<Cell, StoneType>> =
+        (newPos.whiteStones - oldPos.whiteStones).map { it to StoneType.WHITE } +
+        (newPos.blackStones - oldPos.blackStones).map { it to StoneType.BLACK }
 }

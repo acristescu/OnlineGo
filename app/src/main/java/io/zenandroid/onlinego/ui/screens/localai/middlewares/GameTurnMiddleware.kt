@@ -7,6 +7,7 @@ import io.zenandroid.onlinego.ai.KataGoAnalysisEngine
 import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.StoneType
 import io.zenandroid.onlinego.gamelogic.RulesManager
+import io.zenandroid.onlinego.gamelogic.RulesManager.isGameOver
 import io.zenandroid.onlinego.mvi.Middleware
 import io.zenandroid.onlinego.ui.screens.localai.AiGameAction
 import io.zenandroid.onlinego.ui.screens.localai.AiGameAction.*
@@ -24,7 +25,7 @@ class GameTurnMiddleware : Middleware<AiGameState, AiGameAction> {
     private fun engineStarted(actions: Observable<AiGameAction>, state: Observable<AiGameState>) =
             actions.filter { it is EngineStarted || it is RestoredState }
                 .withLatestFrom(state)
-                    .filter { (_, state) -> !state.stateRestorePending && state.engineStarted && state.position != null && !(state.position.isGameOver() && state.aiWon != null) }
+                    .filter { (_, state) -> !state.stateRestorePending && state.engineStarted && state.position != null && !(state.history.isGameOver() && state.aiWon != null) }
                     .map { (_, state) -> NewPosition(state.position!!) }
 
     private fun newGame(actions: Observable<AiGameAction>) =
@@ -34,7 +35,7 @@ class GameTurnMiddleware : Middleware<AiGameState, AiGameAction> {
     private fun nextMove(actions: Observable<AiGameAction>, state: Observable<AiGameState>) =
             actions.filter { it is NewPosition || it is AIMove }
                     .withLatestFrom(state)
-                    .filter { (_, state) -> state.position?.isGameOver() == false }
+                    .filter { (_, state) -> !state.history.isGameOver() }
                     .map { (_, state) ->
                         val isBlacksTurn = state.position?.nextToMove != StoneType.WHITE
                         if (isBlacksTurn == state.enginePlaysBlack) {
@@ -47,49 +48,48 @@ class GameTurnMiddleware : Middleware<AiGameState, AiGameAction> {
     private fun computeScore(actions: Observable<AiGameAction>, state: Observable<AiGameState>) =
             actions.filter { it is NewPosition || it is AIMove }
                     .withLatestFrom(state)
-                    .filter { (_, state) -> state.position?.isGameOver() == true }
+                    .filter { (_, state) -> state.history.isGameOver() }
                     .flatMapSingle { (_, state) ->
-                        KataGoAnalysisEngine.analyzePosition(
-                                pos = state.position!!,
+                        KataGoAnalysisEngine.analyzeMoveSequence(
+                                sequence = state.history,
                                 maxVisits = 10,
-                                komi = state.position.komi,
+                                komi = state.position!!.komi,
                                 includeOwnership = true
                         )
                                 .map {
-                                    val newPos = state.position.clone().apply {
-                                        aiAnalysisResult = it
-                                        clearAllMarkedTerritory()
-                                        for(i in 0 until boardWidth) {
-                                            for(j in 0 until boardHeight) {
-                                                val p = Cell(i, j)
-                                                val ownership = it.ownership!![j*boardWidth + i] // a float between -1 and 1, -1 is 100% solid black territory, 1 is 100% solid white territory
-                                                when(getStoneAt(p)) {
-                                                    StoneType.WHITE -> {
-                                                        if(ownership < 0) {
-                                                            markBlackTerritory(p)
-                                                            markRemoved(p)
-                                                        }
-                                                    }
-                                                    StoneType.BLACK -> {
-                                                        if(ownership > 0) {
-                                                            markWhiteTerritory(p)
-                                                            markRemoved(p)
-                                                        }
-                                                    }
-                                                    null -> when {
-                                                        ownership > 0.6 -> markWhiteTerritory(p)
-                                                        ownership < -0.6 -> markBlackTerritory(p)
-                                                        else -> markRemoved(p)  // dame
-                                                    }
+                                    val blackTerritory = mutableSetOf<Cell>()
+                                    val whiteTerritory = mutableSetOf<Cell>()
+                                    val removedSpots = mutableSetOf<Cell>()
+
+                                    for(i in 0 until state.position.boardWidth) {
+                                        for(j in 0 until state.position.boardHeight) {
+                                            val p = Cell(i, j)
+                                            val ownership = it.ownership!![j*state.position.boardWidth + i] // a float between -1 and 1, -1 is 100% solid black territory, 1 is 100% solid white territory
+                                            when {
+                                                state.position.whiteStones.contains(p) && ownership < 0 -> {
+                                                    blackTerritory += p
+                                                    removedSpots += p
                                                 }
+                                                state.position.blackStones.contains(p) && ownership > 0 -> {
+                                                    whiteTerritory += p
+                                                    removedSpots += p
+                                                }
+                                                ownership > 0.6 -> whiteTerritory += p
+                                                ownership < -0.6 -> blackTerritory += p
+                                                else -> removedSpots += p  // dame
                                             }
                                         }
                                     }
+                                    val newPos = state.position.copy(
+                                        blackTerritory = blackTerritory,
+                                        whiteTerritory = whiteTerritory,
+                                        removedSpots = removedSpots,
+                                    )
 
-                                    val whiteScore = (newPos.komi ?: 0f) + newPos.whiteTerritory.size + newPos.whiteCapturedCount + newPos.blackDeadStones.size
-                                    val blackScore = newPos.blackTerritory.size + newPos.blackCapturedCount + newPos.whiteDeadStones.size
+                                    val whiteScore = (newPos.komi ?: 0f) + newPos.whiteTerritory.size + newPos.whiteCaptureCount + newPos.blackDeadStones.size
+                                    val blackScore = newPos.blackTerritory.size + newPos.blackCaptureCount + newPos.whiteDeadStones.size
                                     val aiWon = state.enginePlaysBlack == (blackScore > whiteScore)
-                                    ScoreComputed(newPos, whiteScore, blackScore, aiWon)
+                                    ScoreComputed(newPos, whiteScore, blackScore, aiWon, it)
                                 }
                                 .subscribeOn(Schedulers.io())
                     }

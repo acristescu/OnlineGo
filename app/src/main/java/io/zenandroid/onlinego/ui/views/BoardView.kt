@@ -19,8 +19,11 @@ import io.reactivex.subjects.PublishSubject
 import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.Cell
+import io.zenandroid.onlinego.data.model.Mark
 import io.zenandroid.onlinego.data.model.Position
 import io.zenandroid.onlinego.data.model.StoneType
+import io.zenandroid.onlinego.data.model.katago.MoveInfo
+import io.zenandroid.onlinego.data.model.katago.Response
 import io.zenandroid.onlinego.data.model.ogs.PlayCategory
 import io.zenandroid.onlinego.gamelogic.Util
 import java.util.*
@@ -56,7 +59,7 @@ class BoardView : View {
         set(value) {
             if(field != value) {
                 if(animationEnabled && value != null && field != null && field?.hasTheSameStonesAs(value) == false) {
-                    val newStones = value.stones.filter { field?.stones?.containsKey(it.key) == false || field?.stones?.get(it.key) != it.value }
+                    val newStones = field?.let { (value.whiteStones - it.whiteStones) + (value.blackStones - it.blackStones) } ?: emptySet()
                     if(newStones.isNotEmpty()) {
                         ValueAnimator.ofInt(100, 255).apply {
                             duration = 100
@@ -67,8 +70,9 @@ class BoardView : View {
                             start()
                         }
                     }
-                    val disappearingStones = field?.stones?.filter { !value.stones.containsKey(it.key) } ?: emptyMap()
-                    if(disappearingStones.isNotEmpty()) {
+                    val disappearingWhiteStones = field?.let { it.whiteStones - value.whiteStones } ?: emptySet()
+                    val disappearingBlackStones = field?.let { it.blackStones - value.blackStones } ?: emptySet()
+                    if(disappearingWhiteStones.isNotEmpty() || disappearingBlackStones.isNotEmpty()) {
                         ValueAnimator.ofInt(255, 0).apply {
                             duration = 100
                             addUpdateListener {
@@ -79,7 +83,8 @@ class BoardView : View {
                         }
                     }
                     stonesToFadeIn = newStones
-                    stonesToFadeOut = disappearingStones
+                    stonesToFadeOutWhite = disappearingWhiteStones
+                    stonesToFadeOutBlack = disappearingBlackStones
                 }
                 invalidate()
             }
@@ -136,13 +141,8 @@ class BoardView : View {
             }
             field = value
         }
-    var drawHints = false
-        set(value) {
-            if(field != value) {
-                invalidate()
-            }
-            field = value
-        }
+    var hints: List<MoveInfo>? = null
+    var ownership: List<Float>? = null
 
     private val coordinatesX = arrayOf("A","B","C","D","E","F","G","H","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z")
     private val coordinatesY = (1..25).map(Int::toString)
@@ -181,8 +181,9 @@ class BoardView : View {
 
     private val tapUpSubject = PublishSubject.create<Cell>()
     private val tapMoveSubject = PublishSubject.create<Cell>()
-    private var stonesToFadeIn: Map<Cell, StoneType> = mapOf()
-    private var stonesToFadeOut: Map<Cell, StoneType> = mapOf()
+    private var stonesToFadeIn: Set<Cell> = setOf()
+    private var stonesToFadeOutWhite: Set<Cell> = setOf()
+    private var stonesToFadeOutBlack: Set<Cell> = setOf()
     private val stonePaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val shadowPaint = Paint(Paint.ANTI_ALIAS_FLAG)
 
@@ -406,42 +407,38 @@ class BoardView : View {
     }
 
     private fun drawAiEstimatedOwnership(canvas: Canvas, position: Position) {
-        val ownershipMatrix =
-                position.aiAnalysisResult?.ownership ?:
-                position.aiQuickEstimation?.ownership
+        ownership?.let { ownership ->
+            if(drawAiEstimatedOwnership && ownership.isNotEmpty()) {
+                val radius = cellSize / 4f
+                for (i in 0 until boardWidth) {
+                    for(j in 0 until boardHeight) {
+                        val value = ownership[i*boardWidth + j] // a float between -1 and 1, -1 is 100% solid black territory, 1 is 100% solid white territory
+                        val alpha = (255 * abs(value)).toInt()
 
-        if(drawAiEstimatedOwnership && ownershipMatrix?.isNotEmpty() == true) {
-            val radius = cellSize / 4f
-            for (i in 0 until boardWidth) {
-                for(j in 0 until boardHeight) {
-                    val ownership = ownershipMatrix[i*boardWidth + j] // a float between -1 and 1, -1 is 100% solid black territory, 1 is 100% solid white territory
-                    val alpha = (255 * abs(ownership)).toInt()
-
-                    //
-                    // Note: Dark grey instead of pure black as the black is perceived
-                    // much stronger than the white on the light background giving the
-                    // impression that black is always winning.
-                    //
-                    val colorWithoutAlpha = if(ownership > 0) Color.WHITE else Color.DKGRAY
-                    val color = ColorUtils.setAlphaComponent(colorWithoutAlpha, alpha)
-                    val center = getCellCenter(j, i)
-                    if(
-                            !(position.getStoneAt(j, i) == StoneType.WHITE && ownership > 0) &&
-                            !(position.getStoneAt(j, i) == StoneType.BLACK && ownership < 0)
-                    ) {
-                        territoryPaint.color = color
-                        canvas.drawCircle(center.x, center.y, radius, territoryPaint)
+                        //
+                        // Note: Dark grey instead of pure black as the black is perceived
+                        // much stronger than the white on the light background giving the
+                        // impression that black is always winning.
+                        //
+                        val colorWithoutAlpha = if(value > 0) Color.WHITE else Color.DKGRAY
+                        val color = ColorUtils.setAlphaComponent(colorWithoutAlpha, alpha)
+                        val center = getCellCenter(j, i)
+                        if(
+                                !(position.whiteStones.contains(Cell(j, i)) && value > 0) &&
+                                !(position.blackStones.contains(Cell(j, i)) && value < 0)
+                        ) {
+                            territoryPaint.color = color
+                            canvas.drawCircle(center.x, center.y, radius, territoryPaint)
+                        }
                     }
                 }
             }
         }
-
     }
 
     private fun drawHints(canvas: Canvas, position: Position) {
-        val hints = position.aiAnalysisResult?.moveInfos
-        if(drawHints && hints != null) {
-            for((index, hint) in hints.take(5).withIndex()) {
+        hints?.let {
+            for((index, hint) in it.take(5).withIndex()) {
                 val coords = Util.getCoordinatesFromGTP(hint.move, position.boardHeight)
                 val center = getCellCenter(coords.x, coords.y)
                 val drawable = if (position.nextToMove == StoneType.BLACK) blackStoneDrawable else whiteStoneDrawable
@@ -556,21 +553,23 @@ class BoardView : View {
     }
 
     private fun drawStones(canvas: Canvas, position: Position) {
-        for (item in stonesToFadeOut) {
-            drawStone(canvas, position, item.key, item.value)
+        for (item in stonesToFadeOutWhite) {
+            drawStone(canvas, position, item, StoneType.WHITE)
         }
-        for (p in position.allStonesCoordinates) {
-            val type = position.getStoneAt(p.x, p.y)
-            drawStone(canvas, position, p, type)
+        for (item in stonesToFadeOutBlack) {
+            drawStone(canvas, position, item, StoneType.BLACK)
         }
+
+        position.whiteStones.forEach { drawStone(canvas, position, it, StoneType.WHITE) }
+        position.blackStones.forEach { drawStone(canvas, position, it, StoneType.BLACK) }
     }
 
     private fun drawStone(canvas: Canvas, position: Position, p: Cell, type: StoneType?) {
         val center = getCellCenter(p.x, p.y)
         val alpha = when {
             fadeOutRemovedStones && position.removedSpots.contains(p) -> 100
-            animationEnabled && stonesToFadeIn[p] == type -> fadeInAnimationAlpha
-            animationEnabled && stonesToFadeOut[p] == type -> fadeOutAnimationAlpha
+            animationEnabled && stonesToFadeIn.contains(p) -> fadeInAnimationAlpha
+            animationEnabled && (stonesToFadeOutWhite.contains(p) || stonesToFadeOutBlack.contains(p)) -> fadeOutAnimationAlpha
             else -> 255
         }
         val isFadedOut = fadeOutRemovedStones && position.removedSpots.contains(p)
@@ -698,7 +697,7 @@ class BoardView : View {
         invalidate()
     }
 
-    private fun determineMarkColor(mark: Position.Mark) =
+    private fun determineMarkColor(mark: Mark) =
         when(mark.category) {
             PlayCategory.IDEAL -> 0xC0D0FFC0.toInt()
             PlayCategory.GOOD -> 0xC0F0FF90.toInt()

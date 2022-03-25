@@ -12,9 +12,7 @@ import io.zenandroid.onlinego.data.model.local.TutorialStep.*
 import io.zenandroid.onlinego.data.repositories.TutorialsRepository
 import io.zenandroid.onlinego.gamelogic.RulesManager
 import io.zenandroid.onlinego.gamelogic.Util
-import io.zenandroid.onlinego.gamelogic.Util.populateWithAreas
-import io.zenandroid.onlinego.gamelogic.Util.populateWithMarks
-import io.zenandroid.onlinego.gamelogic.Util.populateWithSGF
+import io.zenandroid.onlinego.gamelogic.Util.decodeSGF
 import io.zenandroid.onlinego.ui.screens.tutorial.TutorialAction.HandledByViewModel
 import io.zenandroid.onlinego.ui.screens.tutorial.TutorialAction.HandledByViewModel.*
 import kotlinx.coroutines.Job
@@ -50,7 +48,7 @@ class TutorialViewModel(
                         tutorialGroups = tutorialsRepository.getTutorialGroups(),
                         tutorial = tutorial,
                         step = step,
-                        position = Position(step.size, step.size).apply { populateWithSGF(step.init) },
+                        position = decodeSGF(step.size, step.size, step.init, null, null),
                         removedStones = null,
                         text = step.text,
                         node = null,
@@ -123,11 +121,7 @@ class TutorialViewModel(
     }
 
     private fun loadPage(tutorial: Tutorial?, step: Lesson, page: Page) {
-        val pos = Position(step.size, step.size).apply {
-            populateWithSGF(page.position)
-            page.marks?.let { populateWithMarks(page.marks) }
-            page.areas?.let { populateWithAreas(page.areas) }
-        }
+        val pos = decodeSGF(step.size, step.size, page.position, page.areas, page.marks)
         _state.value = _state.value.copy(
                 tutorialGroups = tutorialsRepository.getTutorialGroups(),
                 tutorial = tutorial,
@@ -204,7 +198,7 @@ class TutorialViewModel(
                                 position = position,
                                 boardInteractive = false,
                                 hoveredCell = null,
-                                removedStones = Util.getRemovedStonesInLastMove(position)
+                                removedStones = Util.getRemovedStones(state.position, position)
                         )
                         delay(600)
                         position = RulesManager.makeMove(position, StoneType.WHITE, Util.getCoordinatesFromSGF(it))
@@ -215,7 +209,7 @@ class TutorialViewModel(
                             boardInteractive = !node.success && !node.failed,
                             node = node,
                             hoveredCell = null,
-                            removedStones = Util.getRemovedStonesInLastMove(position)
+                            removedStones = Util.getRemovedStones(state.position, position)
                     )
                 }
             }

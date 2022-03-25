@@ -15,7 +15,7 @@ data class TutorialState (
         val page: Page? = null,
         val gameExamplePositions: List<Position> = emptyList(),
         val gameExamplePositionIndex: Int = 0,
-        val removedStones: Map<Cell, StoneType>? = null,
+        val removedStones: List<Pair<Cell, StoneType>>? = null,
 
         val position: Position? = null,
         val hoveredCell: Cell? = null,

@@ -91,7 +91,7 @@ object LeelaZeroService {
         var currentPos: Position? = pos
         while (currentPos?.lastMove != null) {
             moves.add(currentPos.lastMove!!)
-            currentPos = currentPos.parentPosition
+//            currentPos = currentPos.parentPosition
         }
         var blackToMove = currentPos?.nextToMove != StoneType.WHITE
         moves.reversed()

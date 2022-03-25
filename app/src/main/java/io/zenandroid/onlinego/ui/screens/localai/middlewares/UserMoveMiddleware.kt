@@ -23,9 +23,8 @@ class UserMoveMiddleware : Middleware<AiGameState, AiGameAction> {
                     when {
                         newPos == null && state.position.getStoneAt(coordinate) != null -> Observable.empty()
                         newPos == null -> Observable.just(AiGameAction.UserTriedSuicidalMove(coordinate))
-                        coordinate.x != -1 && RulesManager.isIllegalKO(newPos) -> Observable.just(AiGameAction.UserTriedKoMove(coordinate))
+                        coordinate.x != -1 && RulesManager.isIllegalKO(state.history, newPos) -> Observable.just(AiGameAction.UserTriedKoMove(coordinate))
                         else -> {
-                            newPos.nextToMove = newPos.nextToMove.opponent
                             Observable.just(AiGameAction.NewPosition(newPos))
                         }
                     }

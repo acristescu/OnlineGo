@@ -2,6 +2,8 @@ package io.zenandroid.onlinego.ui.screens.localai
 
 import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.Position
+import io.zenandroid.onlinego.data.model.katago.MoveInfo
+import io.zenandroid.onlinego.data.model.katago.Response
 
 sealed class AiGameAction {
     object ViewReady: AiGameAction()
@@ -25,12 +27,12 @@ sealed class AiGameAction {
     object PromptUserForMove: AiGameAction()
 
     class NewPosition(val newPos: Position): AiGameAction()
-    class AIMove(val newPos: Position): AiGameAction()
+    class AIMove(val newPos: Position, val aiAnalisis: Response, val selectedMove: MoveInfo): AiGameAction()
     object AIError: AiGameAction()
-    object AIHint: AiGameAction()
-    object AIOwnershipResponse: AiGameAction()
+    class AIHint(val aiAnalisis: Response): AiGameAction()
+    class AIOwnershipResponse(val aiAnalisis: Response): AiGameAction()
     object HideOwnership: AiGameAction()
-    class ScoreComputed(val newPos: Position, val whiteScore: Float, val blackScore: Int, val aiWon: Boolean): AiGameAction()
+    class ScoreComputed(val newPos: Position, val whiteScore: Float, val blackScore: Int, val aiWon: Boolean, val aiAnalisis: Response): AiGameAction()
 
 
     // User actions

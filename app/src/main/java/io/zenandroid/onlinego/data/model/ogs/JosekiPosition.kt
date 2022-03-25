@@ -4,7 +4,7 @@ import androidx.compose.runtime.Immutable
 import androidx.room.Entity
 import androidx.room.Ignore
 import androidx.room.PrimaryKey
-import io.zenandroid.onlinego.data.model.Position
+import io.zenandroid.onlinego.data.model.Mark
 
 @Entity
 @Immutable
@@ -34,7 +34,7 @@ data class JosekiPosition (
         val joseki_source: Any? = null,
         @Transient
         @Ignore
-        var labels: List<Position.Mark>? = null
+        var labels: List<Mark>? = null
 )
 enum class PlayCategory {
     IDEAL, GOOD, MISTAKE, TRICK, QUESTION, LABEL

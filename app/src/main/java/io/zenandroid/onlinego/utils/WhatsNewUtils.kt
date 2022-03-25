@@ -26,17 +26,9 @@ private val annotatedCurrentText = AnnotatedString.Builder().run {
     pop()
 
     pushStyle(SpanStyle(fontWeight = FontWeight.Normal))
-    append("· Fixed a bug where users with more than 1000 active games are not getting updates correctly.\n\n")
-    append("· Fixed a bug where AI game would sometimes get stuck after a version upgrade.\n\n")
-    pop()
-
-    pushStyle(SpanStyle(fontSize = 18.sp))
-    append("Previous version\n\n")
-    pop()
-
-    pushStyle(SpanStyle(fontWeight = FontWeight.Normal))
-    append("· Implemented a new way of fetching the chat messages. For performance reasons, chats are only fetched when you load the main screen of the app. This should massively impact users with lots of games.\n\n")
-    append("· Fixed a bug with 'Malkowich' chat sometimes showing before the game was over.\n\n")
+    append("· You can now start analyzing (trying out what-if scenarios) from the history of the game, not just the last move.\n\n")
+    append("· Rewrote the game logic to optimize for memory usage. This should help users with old devices and/or many games. Please report any issues you may encounter.\n\n")
+    append("· Fixed some AI game bugs.\n\n")
     pop()
 
     pushStyle(SpanStyle(fontSize = 18.sp))

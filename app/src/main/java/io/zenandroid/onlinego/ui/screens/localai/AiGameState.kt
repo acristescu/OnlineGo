@@ -3,11 +3,14 @@ package io.zenandroid.onlinego.ui.screens.localai
 import androidx.compose.runtime.Immutable
 import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.Position
+import io.zenandroid.onlinego.data.model.katago.MoveInfo
+import io.zenandroid.onlinego.data.model.katago.Response
 
 @Immutable
 data class AiGameState(
         val engineStarted: Boolean = false,
         val position: Position? = null,
+        val history: List<Position> = emptyList(),
         val boardSize: Int = 19,
         val enginePlaysBlack: Boolean = false,
         val handicap: Int = 0,
@@ -28,4 +31,6 @@ data class AiGameState(
         val finalBlackScore: Float? = null,
         val aiWon: Boolean? = null,
         val stateRestorePending: Boolean = true,
+        val aiAnalysis: Response? = null,
+        val aiQuickEstimation: MoveInfo? = null,
 )
