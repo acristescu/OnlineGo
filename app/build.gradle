@@ -69,7 +69,7 @@ dependencies {
     def play_services_version = '19.2.0'
     def accompanist_version = '0.24.2-alpha'
     def room_version = '2.4.2'
-    def firebase_version = '29.2.0'
+    def firebase_version = '29.2.1'
 
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'androidx.appcompat:appcompat:1.4.1'
