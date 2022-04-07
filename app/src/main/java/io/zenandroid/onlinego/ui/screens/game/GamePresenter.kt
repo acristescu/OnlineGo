@@ -305,12 +305,11 @@ class GamePresenter(
     private fun doAnalysisMove(candidateMove: Cell) {
         analytics.logEvent("analysis_move", null)
         RulesManager.makeMove(analysisPosition, analysisPosition.nextToMove, candidateMove)?.let {
-            val moves = game!!.moves!!
             val potentialKOPosition = when {
-                variation.size == 0 && currentShownMove > 1 -> RulesManager.replay(game!!, currentShownMove - 1, false)
+                variationCurrentMove == -1 && currentShownMove > 1 -> RulesManager.replay(game!!, currentShownMove - 1, false)
                 variation.size >= 1 -> {
                     var cursor = analysisRootPosition
-                    variation.dropLast(1).forEach {
+                    variation.take(variationCurrentMove).forEach {
                         RulesManager.makeMove(cursor, cursor.nextToMove, it)?.let {
                             cursor = it
                         }
