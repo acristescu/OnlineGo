@@ -79,7 +79,7 @@ interface OGSRestAPI {
     fun omniSearch(@Query("q") q: String): Single<OmniSearchResponse>
 
     @Headers("x-godojo-auth-token: foofer")
-    @GET("/godojo/positions?mode=0")
+    @GET("/oje/positions?mode=0")
     fun getJosekiPositions(@Query("id") id: String): Single<List<JosekiPosition>>
 
     @GET("api/v1/players/{player_id}/")
