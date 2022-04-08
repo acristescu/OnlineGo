@@ -714,9 +714,19 @@ class GamePresenter(
             return
         }
         analytics.logEvent("auto_clicked", null)
-        val newPos = RulesManager.determineTerritory(currentPosition, game?.scoreStones == true)
-        gameConnection?.submitRemovedStones(currentPosition.removedSpots, false)
-        gameConnection?.submitRemovedStones(newPos.removedSpots, true)
+
+        view.setLoading(true)
+        Completable.fromAction {
+            val newPos = RulesManager.determineTerritory(currentPosition, game?.scoreStones == true)
+            gameConnection?.submitRemovedStones(currentPosition.removedSpots, false)
+            gameConnection?.submitRemovedStones(newPos.removedSpots, true)
+        }
+            .subscribeOn(Schedulers.computation())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe {
+                view.setLoading(false)
+            }
+            .addToDisposable(subscriptions)
     }
 
     private fun refreshUI(game: Game) {
@@ -724,20 +734,20 @@ class GamePresenter(
             ANALYSIS -> {
                 replayAnalysis()
                 view.position = analysisPosition
-                view.whiteScore = analysisPosition.whiteCaptureCount + (game.komi ?: 0f)
-                view.blackScore = analysisPosition.blackCaptureCount.toFloat()
+                view.whiteScore = (if(game.scorePrisoners == true) analysisPosition.whiteCaptureCount else 0) + (game.komi ?: 0f)
+                view.blackScore = if(game.scorePrisoners == true) analysisPosition.blackCaptureCount.toFloat() else 0f
             }
             HISTORY -> {
                 val historyPosition = RulesManager.replay(game, currentShownMove, false)
                 view.position = historyPosition
-                view.whiteScore = historyPosition.whiteCaptureCount + (game.komi ?: 0f)
-                view.blackScore = historyPosition.blackCaptureCount.toFloat()
+                view.whiteScore = (if(game.scorePrisoners == true) historyPosition.whiteCaptureCount else 0) + (game.komi ?: 0f)
+                view.blackScore = if(game.scorePrisoners == true) historyPosition.blackCaptureCount.toFloat() else 0f
             }
             SCORING -> {
                 currentPosition = RulesManager.replay(game, computeTerritory = true)
                 view.position = currentPosition
-                view.whiteScore = currentPosition.blackDeadStones.size + currentPosition.whiteTerritory.size + currentPosition.whiteCaptureCount + (game.komi ?: 0f)
-                view.blackScore = currentPosition.whiteDeadStones.size + currentPosition.blackTerritory.size + currentPosition.blackCaptureCount.toFloat()
+                view.whiteScore = (if(game.scorePrisoners == true) currentPosition.blackDeadStones.size + currentPosition.whiteCaptureCount else 0) + currentPosition.whiteTerritory.size + (game.komi ?: 0f)
+                view.blackScore = (if(game.scorePrisoners == true) currentPosition.whiteDeadStones.size + currentPosition.blackCaptureCount else 0) + currentPosition.blackTerritory.size.toFloat()
             }
             ESTIMATION -> {
                 view.whiteScore = estimatePosition.blackDeadStones.size + estimatePosition.whiteTerritory.size + estimatePosition.whiteCaptureCount + (game.komi ?: 0f)
@@ -749,8 +759,8 @@ class GamePresenter(
             PLAYING, FINISHED, LOADING -> {
                 currentPosition = RulesManager.replay(game, computeTerritory = false)
                 view.position = currentPosition
-                view.whiteScore = game.whiteScore?.total?.toFloat() ?: currentPosition.whiteCaptureCount + (game.komi ?: 0f)
-                view.blackScore = game.blackScore?.total?.toFloat() ?: currentPosition.blackCaptureCount.toFloat()
+                view.whiteScore = game.whiteScore?.total?.toFloat() ?: ((if(game.scorePrisoners == true) currentPosition.whiteCaptureCount else 0) + (game.komi ?: 0f))
+                view.blackScore = game.blackScore?.total?.toFloat() ?: if(game.scorePrisoners == true) currentPosition.blackCaptureCount.toFloat() else 0f
             }
         }
 

@@ -70,6 +70,7 @@ dependencies {
     def accompanist_version = '0.24.2-alpha'
     def room_version = '2.4.2'
     def firebase_version = '29.2.1'
+    def emoji2_version = "1.2.0-alpha03"
 
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'androidx.appcompat:appcompat:1.4.1'
@@ -117,8 +118,9 @@ dependencies {
     implementation 'com.google.android.material:material:1.6.0-alpha03'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.3'
     implementation 'androidx.cardview:cardview:1.0.0'
-    implementation 'androidx.emoji:emoji-appcompat:1.1.0'
-    implementation 'androidx.emoji:emoji:1.1.0'
+    implementation "androidx.emoji2:emoji2:$emoji2_version"
+    implementation "androidx.emoji2:emoji2-views:$emoji2_version"
+    implementation "androidx.emoji2:emoji2-views-helper:$emoji2_version"
     implementation 'androidx.legacy:legacy-preference-v14:1.0.0'
     implementation "androidx.lifecycle:lifecycle-livedata-ktx:2.4.1"
     implementation "androidx.compose.runtime:runtime-livedata:$compose_version"

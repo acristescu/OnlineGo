@@ -127,6 +127,7 @@ object RulesManager {
             handicap = if(game.freeHandicapPlacement == true) game.handicap ?: 0 else 0,
             removedCells = game.removedStones.toCoordinateSet(),
             computeTerritory = computeTerritory,
+            scoreStones = game.scoreStones ?: false,
             whiteScoringPositions = game.whiteScore?.scoring_positions,
             blackScoringPositions = game.blackScore?.scoring_positions,
             komi = game.komi,
@@ -189,6 +190,7 @@ object RulesManager {
         removedCells: Set<Cell> = emptySet(),
         nextToMove: StoneType = StoneType.BLACK,
         computeTerritory: Boolean = false,
+        scoreStones: Boolean = false,
         whiteScoringPositions: String? = null,
         blackScoringPositions: String? = null,
         komi: Float? = null,
@@ -319,6 +321,10 @@ object RulesManager {
                         }
                         alreadyVisited.addAll(visited)
                     }
+            }
+            if(scoreStones) {
+                whiteTerritory.addAll(whiteStones - removedCells)
+                blackTerritory.addAll(blackStones - removedCells)
             }
         }
 

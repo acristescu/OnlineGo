@@ -3,11 +3,11 @@ package io.zenandroid.onlinego
 import android.app.Application
 import android.content.res.Configuration
 import android.os.Build
-import androidx.emoji.text.EmojiCompat
-import androidx.emoji.text.FontRequestEmojiCompatConfig
 import androidx.core.provider.FontRequest
 import android.util.Log
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.emoji2.text.EmojiCompat
+import androidx.emoji2.text.FontRequestEmojiCompatConfig
 import com.facebook.stetho.Stetho
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.jakewharton.threetenabp.AndroidThreeTen
