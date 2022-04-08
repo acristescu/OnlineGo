@@ -3,10 +3,11 @@ package io.zenandroid.onlinego.data.model.ogs
 import androidx.compose.runtime.Immutable
 import androidx.room.Entity
 import androidx.room.Ignore
+import androidx.room.Index
 import androidx.room.PrimaryKey
 import io.zenandroid.onlinego.data.model.Mark
 
-@Entity
+@Entity(indices = [Index(value = ["play"], unique = true)])
 @Immutable
 data class JosekiPosition (
         var description: String? = null,

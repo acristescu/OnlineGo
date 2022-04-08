@@ -347,6 +347,7 @@ abstract class GameDao {
     @Transaction
     open fun insertJosekiPositionsWithChildren(fullyLoadedPositions: List<JosekiPosition>, children: List<JosekiPosition>) {
         insertJosekiPositionsReplacingDuplicates(fullyLoadedPositions)
+        deleteOldJosekiPosition(children.map { it.node_id!! }, children.map { it.play!! })
         insertJosekiPositionsIgnoringDuplicates(children)
     }
 
@@ -355,6 +356,9 @@ abstract class GameDao {
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     abstract fun insertJosekiPositionsIgnoringDuplicates(positions: List<JosekiPosition>)
+
+    @Query("DELETE FROM josekiposition WHERE node_id NOT IN (:nodeIds) AND play IN (:play)")
+    abstract fun deleteOldJosekiPosition(nodeIds: List<Long>, play: List<String>)
 
     @Query("SELECT * FROM josekiposition WHERE play = '.root'")
     abstract fun getJosekiRootPosition(): Flowable<JosekiPosition>

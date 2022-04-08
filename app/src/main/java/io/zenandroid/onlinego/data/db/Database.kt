@@ -11,7 +11,7 @@ import io.zenandroid.onlinego.data.model.ogs.JosekiPosition
  */
 @Database(
         entities = [Game::class, Message::class, Challenge::class, GameNotification::class, JosekiPosition::class, HistoricGamesMetadata::class, ChatMetadata::class],
-        version = 14
+        version = 15
 )
 @TypeConverters(DbTypeConverters::class)
 abstract class Database: RoomDatabase() {
