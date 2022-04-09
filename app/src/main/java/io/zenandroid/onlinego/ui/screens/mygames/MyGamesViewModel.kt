@@ -133,7 +133,7 @@ class MyGamesViewModel(
         if(opponentTurnGames.isNotEmpty()) {
             return "You have ${opponentTurnGames.size} active games."
         }
-        return "You have no active games. How about stating one?"
+        return "You have no active games. How about starting one?"
     }
 
     private fun setRecentGames(games: List<Game>) {
