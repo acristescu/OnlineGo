@@ -1,10 +1,12 @@
 package io.zenandroid.onlinego.data.model.local
 
+import androidx.compose.runtime.Immutable
 import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.Ignore
 import androidx.room.PrimaryKey
 import com.google.firebase.crashlytics.FirebaseCrashlytics
+import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.Position
 import io.zenandroid.onlinego.data.model.ogs.GameData
 import io.zenandroid.onlinego.data.model.ogs.OGSGame
@@ -16,69 +18,74 @@ import io.zenandroid.onlinego.utils.toEpochMicros
  * Created by alex on 05/06/2018.
  */
 @Entity
+@Immutable
 data class Game(
-        @PrimaryKey var id: Long,
-        var width: Int,
-        var height: Int,
-        var playerToMoveId: Long?,
-        var outcome: String?,
-        var whiteLost: Boolean?,
-        var blackLost: Boolean?,
+    @PrimaryKey val id: Long,
+    val width: Int,
+    val height: Int,
+    val playerToMoveId: Long?,
+    val outcome: String?,
+    val whiteLost: Boolean?,
+    val blackLost: Boolean?,
 
-        @Embedded(prefix = "initial_state_")
-        var initialState: InitialState?,
+    @Embedded(prefix = "initial_state_")
+        val initialState: InitialState?,
 
-        var whiteGoesFirst: Boolean?,
-        var moves: MutableList<MutableList<Int>>?,
-        var removedStones: String?,
+    val whiteGoesFirst: Boolean?,
+    val moves: List<Cell>?,
+    val removedStones: String?,
 
-        @Embedded(prefix = "white_")
-        var whiteScore: Score?,
+    @Embedded(prefix = "white_")
+        val whiteScore: Score?,
 
-        @Embedded(prefix = "black_")
-        var blackScore: Score?,
+    @Embedded(prefix = "black_")
+        val blackScore: Score?,
 
-        @Embedded(prefix = "white_")
-        var whitePlayer: Player,
+    @Embedded(prefix = "white_")
+        val whitePlayer: Player,
 
-        @Embedded(prefix = "black_")
-        var blackPlayer: Player,
+    @Embedded(prefix = "black_")
+        val blackPlayer: Player,
 
-        @Embedded
-        var clock: Clock?,
+    @Embedded
+        val clock: Clock?,
 
-        var phase: Phase?,
+    val phase: Phase?,
 
-        var komi: Float?,
+    val komi: Float?,
 
-        // Note: This is microseconds (not milliseconds!!!) since the epoch
-        var ended: Long?,
+    // Note: This is microseconds (not milliseconds!!!) since the epoch
+    val ended: Long?,
 
-        var freeHandicapPlacement: Boolean?,
-        var handicap: Int?,
-        var undoRequested: Int?,
-        var scoreStones: Boolean?,
-        var scorePrisoners: Boolean?,
-        val name: String?,
-        val rules: String?,
-        val ranked: Boolean?,
-        val disableAnalysis: Boolean?,
+    val freeHandicapPlacement: Boolean?,
+    val handicap: Int?,
+    val undoRequested: Int?,
+    val scoreHandicap: Boolean?,
+    val scorePasses: Boolean?,
+    val scorePrisoners: Boolean?,
+    val scoreStones: Boolean?,
+    val scoreTerritory: Boolean?,
+    val scoreTerritoryInSeki: Boolean?,
+    val name: String?,
+    val rules: String?,
+    val ranked: Boolean?,
+    val disableAnalysis: Boolean?,
 
-        var pausedSince: Long? = null,
+    val pausedSince: Long? = null,
 
-        @Embedded(prefix = "initial_state_")
-        val timeControl: TimeControl?,
-        val messagesCount: Int? = null,
+    @Embedded(prefix = "initial_state_")
+    val timeControl: TimeControl?,
+    val messagesCount: Int? = null,
 
-        @Embedded(prefix = "pause_")
-        val pauseControl: PauseControl? = null,
-        ) {
-    @Ignore
-    var json: GameData? = null
-
+    @Embedded(prefix = "pause_")
+    val pauseControl: PauseControl? = null,
+) {
     @Ignore
     @Transient
-    var position: Position? = null
+    lateinit var position: Position
+
+    @Ignore
+    val json: GameData? = null
 
     companion object {
         fun fromOGSGame(game: OGSGame): Game {
@@ -172,7 +179,7 @@ data class Game(
                     blackLost = blackLost,
                     initialState = gamedata?.initial_state,
                     whiteGoesFirst = gamedata?.initial_player == "white",
-                    moves = gamedata?.moves?.map { mutableListOf((it[0] as Double).toInt(), (it[1] as Double).toInt()) }?.toMutableList() ?: mutableListOf(),
+                    moves = gamedata?.moves?.map { Cell((it[0] as Double).toInt(), (it[1] as Double).toInt()) } ?: emptyList(),
                     removedStones = gamedata?.removed,
                     whiteScore = gamedata?.score?.white,
                     blackScore = gamedata?.score?.black,
@@ -185,8 +192,12 @@ data class Game(
                     freeHandicapPlacement = gamedata?.free_handicap_placement,
                     handicap = game.handicap,
                     undoRequested = gamedata?.undo_requested,
-                    scoreStones = gamedata?.score_stones,
+                    scoreHandicap = gamedata?.score_handicap,
+                    scorePasses = gamedata?.score_passes,
                     scorePrisoners = gamedata?.score_prisoners,
+                    scoreStones = gamedata?.score_stones,
+                    scoreTerritory = gamedata?.score_territory,
+                    scoreTerritoryInSeki = gamedata?.score_territory_in_seki,
                     name = gamedata?.game_name ?: game.name,
                     rules = gamedata?.rules ?: game.rules,
                     ranked = isRanked,
@@ -208,7 +219,7 @@ data class Game(
                 blackLost = false,
                 initialState = null,
                 whiteGoesFirst = true,
-                moves = mutableListOf(mutableListOf(3, 3), mutableListOf(13, 13)),
+                moves = listOf(Cell(3, 3), Cell(13, 13)),
                 removedStones = "",
                 whiteScore = Score(komi = 5.5, prisoners = 3),
                 blackScore = Score(prisoners = 1),
@@ -221,8 +232,12 @@ data class Game(
                 freeHandicapPlacement = false,
                 handicap = null,
                 undoRequested = null,
-                scoreStones = null,
-                scorePrisoners = null,
+                scoreHandicap = false,
+                scorePasses = false,
+                scorePrisoners = true,
+                scoreStones = false,
+                scoreTerritory = true,
+                scoreTerritoryInSeki = false,
                 name = "Game name",
                 rules = "Japanese",
                 ranked = false,

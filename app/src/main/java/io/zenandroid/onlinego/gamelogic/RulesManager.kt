@@ -86,7 +86,7 @@ object RulesManager {
             val height: Int,
             val initialState: InitialState?,
             val whiteGoesFirst: Boolean?,
-            val moves: List<List<Int>>?,
+            val moves: List<Cell>?,
             val freeHandicapPlacement: Boolean?,
             val handicap: Int?,
             val removedStones: String?,
@@ -118,7 +118,7 @@ object RulesManager {
         }
 
         val pos = buildPos(
-            moves = game.moves?.take(limit)?.map { Cell(it[0], it[1]) } ?: emptyList(),
+            moves = game.moves?.take(limit)?.map { Cell(it.x, it.y) } ?: emptyList(),
             nextToMove = if(game.whiteGoesFirst == true) StoneType.WHITE else StoneType.BLACK,
             boardWidth = game.width,
             boardHeight = game.height,

@@ -11,6 +11,7 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.BehaviorSubject
 import io.zenandroid.onlinego.data.db.GameDao
+import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.utils.addToDisposable
 import io.zenandroid.onlinego.gamelogic.Util
 import io.zenandroid.onlinego.gamelogic.Util.isMyTurn
@@ -202,7 +203,7 @@ class ActiveGamesRepository(
                 playerToMoveId = gameData.clock?.current_player,
                 initialState = gameData.initial_state,
                 whiteGoesFirst = gameData.initial_player == "white",
-                moves = gameData.moves.map { mutableListOf((it[0] as Double).toInt(), (it[1] as Double).toInt()) }.toMutableList(),
+                moves = gameData.moves.map { Cell((it[0] as Double).toInt(), (it[1] as Double).toInt()) },
                 removedStones = gameData.removed,
                 whiteScore = gameData.score?.white,
                 blackScore = gameData.score?.black,
@@ -215,7 +216,7 @@ class ActiveGamesRepository(
     }
 
     private fun onGameMove(gameId: Long, move: Move) {
-        gameDao.addMoveToGame(gameId, move.move_number, mutableListOf((move.move[0] as Double).toInt(), (move.move[1] as Double).toInt()))
+        gameDao.addMoveToGame(gameId, move.move_number, Cell((move.move[0] as Double).toInt(), (move.move[1] as Double).toInt()))
     }
 
     @Synchronized

@@ -1,6 +1,7 @@
 package io.zenandroid.onlinego.data.db
 
 import androidx.room.TypeConverter
+import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.local.Message
 import io.zenandroid.onlinego.data.model.ogs.Phase
 import io.zenandroid.onlinego.data.model.ogs.PlayCategory
@@ -14,26 +15,26 @@ class DbTypeConverters {
 
         @TypeConverter
         @JvmStatic
-        fun listOfListOfIntToString(list: MutableList<MutableList<Int>>?): String {
-            val buf = StringBuffer(list?.size ?:0 * 2)
-            list?.forEach {
-                buf.append('a' + it[0] )
-                buf.append('a' + it[1] )
+        fun stringToListOfCell(s: String): MutableList<Cell>? {
+            if(s.isEmpty()) {
+                return mutableListOf()
             }
-            return buf.toString()
+            val list = mutableListOf<Cell>()
+            for( i in s.indices step 2) {
+                list += Cell(s[i] - 'a', s[i+1] - 'a')
+            }
+            return list
         }
 
         @TypeConverter
         @JvmStatic
-        fun stringToListOfListOfInt(s: String): MutableList<MutableList<Int>>? {
-            if(s.isEmpty()) {
-                return mutableListOf()
+        fun listOfCellToString(list: MutableList<Cell>?): String {
+            val buf = StringBuffer((list?.size ?:0) * 2)
+            list?.forEach {
+                buf.append('a' + it.x )
+                buf.append('a' + it.y )
             }
-            val list = mutableListOf<MutableList<Int>>()
-            for( i in s.indices step 2) {
-                list += mutableListOf(s[i] - 'a', s[i+1] - 'a')
-            }
-            return list
+            return buf.toString()
         }
 
         @TypeConverter

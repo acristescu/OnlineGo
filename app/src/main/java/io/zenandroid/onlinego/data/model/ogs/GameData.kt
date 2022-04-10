@@ -35,6 +35,7 @@ data class GameData (
         var score_territory_in_seki: Boolean? = null,
         var score_stones: Boolean? = null,
         var score_prisoners: Boolean? = null,
+        var score_handicap: Boolean? = null,
         var score_passes: Boolean? = null,
         var white_must_pass_last: Boolean? = null,
         var opponent_plays_first_after_resume: Boolean? = null,

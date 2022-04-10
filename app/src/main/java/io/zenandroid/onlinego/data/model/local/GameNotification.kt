@@ -1,13 +1,14 @@
 package io.zenandroid.onlinego.data.model.local
 
 import androidx.room.*
+import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.ogs.Phase
 
 @Entity
 data class GameNotification (
         @PrimaryKey
         val gameId: Long,
-        val moves: MutableList<MutableList<Int>>?,
+        val moves: List<Cell>?,
         val phase: Phase?
 )
 

@@ -814,7 +814,7 @@ class GamePresenter(
     private fun configurePassedLabels() {
         when (currentState) {
             PLAYING -> {
-                val lastMoveWasAPass = game?.moves?.lastOrNull()?.get(0) == -1
+                val lastMoveWasAPass = game?.moves?.lastOrNull()?.x == -1
                 if (lastMoveWasAPass) {
                     view.setBlackPlayerPassed(currentPosition.nextToMove == StoneType.WHITE)
                     view.setWhitePlayerPassed(currentPosition.nextToMove == StoneType.BLACK)
@@ -833,7 +833,7 @@ class GamePresenter(
     private fun configureChips(game: Game) {
         when (currentState) {
             LOADING, PLAYING -> {
-                val lastMoveWasAPass = game.moves?.lastOrNull()?.get(0) == -1
+                val lastMoveWasAPass = game.moves?.lastOrNull()?.x == -1
                 if (lastMoveWasAPass) {
                     view.setChips(listOf(playingChip, passedChip))
                 } else {
