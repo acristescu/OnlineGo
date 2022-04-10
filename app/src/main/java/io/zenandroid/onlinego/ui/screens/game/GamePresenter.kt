@@ -750,8 +750,8 @@ class GamePresenter(
                 view.blackScore = (if(game.scorePrisoners == true) currentPosition.whiteDeadStones.size + currentPosition.blackCaptureCount else 0) + currentPosition.blackTerritory.size.toFloat()
             }
             ESTIMATION -> {
-                view.whiteScore = estimatePosition.blackDeadStones.size + estimatePosition.whiteTerritory.size + estimatePosition.whiteCaptureCount + (game.komi ?: 0f)
-                view.blackScore = estimatePosition.whiteDeadStones.size + estimatePosition.blackTerritory.size + estimatePosition.blackCaptureCount.toFloat()
+                view.whiteScore = (if(game.scorePrisoners == true) estimatePosition.blackDeadStones.size + estimatePosition.whiteCaptureCount else 0) + estimatePosition.whiteTerritory.size + (game.komi ?: 0f)
+                view.blackScore = (if(game.scorePrisoners == true) estimatePosition.whiteDeadStones.size + estimatePosition.blackCaptureCount else 0) + estimatePosition.blackTerritory.size.toFloat()
 
                 view.showTerritory = true
                 view.position = estimatePosition

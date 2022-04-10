@@ -29,6 +29,7 @@ private val annotatedCurrentText = AnnotatedString.Builder().run {
     append("· You can now use analysis on games that are finished even if analysis was disabled.\n\n")
     append("· Fixed a bug that misinterpreted KO during analysis.\n\n")
     append("· Fixed some problems with the Joseki Explorer.\n\n")
+    append("· Fixed some problems scoring under Chinese rules.\n\n")
     pop()
 
     pushStyle(SpanStyle(fontSize = 18.sp))

@@ -40,7 +40,7 @@ object RulesManager {
                 pos.boardWidth, // Note: There is a bug in the estimator somewhere, width and height should be in the different order!!!
                 inBoard,
                 if(pos.nextToMove == StoneType.BLACK) 1 else -1,
-                10000,
+                1000,
                 .3f)
         val whiteTerritory = mutableSetOf<Cell>()
         val blackTerritory = mutableSetOf<Cell>()
