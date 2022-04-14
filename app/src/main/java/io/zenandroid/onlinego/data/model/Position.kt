@@ -14,6 +14,7 @@ data class Position(
     val whiteCaptureCount: Int = 0,
     val blackCaptureCount: Int = 0,
     val komi: Float? = null,
+    val handicap: Int = 0,
     val whiteTerritory: Set<Cell> = emptySet(),
     val blackTerritory: Set<Cell> = emptySet(),
     val lastMove: Cell? = null,

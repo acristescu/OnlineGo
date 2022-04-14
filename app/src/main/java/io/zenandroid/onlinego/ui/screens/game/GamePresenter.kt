@@ -734,24 +734,28 @@ class GamePresenter(
             ANALYSIS -> {
                 replayAnalysis()
                 view.position = analysisPosition
-                view.whiteScore = (if(game.scorePrisoners == true) analysisPosition.whiteCaptureCount else 0) + (game.komi ?: 0f)
-                view.blackScore = if(game.scorePrisoners == true) analysisPosition.blackCaptureCount.toFloat() else 0f
+                val score = RulesManager.scorePosition(analysisPosition, game)
+                view.whiteScore = score.first
+                view.blackScore = score.second
             }
             HISTORY -> {
                 val historyPosition = RulesManager.replay(game, currentShownMove, false)
                 view.position = historyPosition
-                view.whiteScore = (if(game.scorePrisoners == true) historyPosition.whiteCaptureCount else 0) + (game.komi ?: 0f)
-                view.blackScore = if(game.scorePrisoners == true) historyPosition.blackCaptureCount.toFloat() else 0f
+                val score = RulesManager.scorePosition(historyPosition, game)
+                view.whiteScore = score.first
+                view.blackScore = score.second
             }
             SCORING -> {
                 currentPosition = RulesManager.replay(game, computeTerritory = true)
                 view.position = currentPosition
-                view.whiteScore = (if(game.scorePrisoners == true) currentPosition.blackDeadStones.size + currentPosition.whiteCaptureCount else 0) + currentPosition.whiteTerritory.size + (game.komi ?: 0f)
-                view.blackScore = (if(game.scorePrisoners == true) currentPosition.whiteDeadStones.size + currentPosition.blackCaptureCount else 0) + currentPosition.blackTerritory.size.toFloat()
+                val score = RulesManager.scorePosition(currentPosition, game)
+                view.whiteScore = score.first
+                view.blackScore = score.second
             }
             ESTIMATION -> {
-                view.whiteScore = (if(game.scorePrisoners == true) estimatePosition.blackDeadStones.size + estimatePosition.whiteCaptureCount else 0) + estimatePosition.whiteTerritory.size + (game.komi ?: 0f)
-                view.blackScore = (if(game.scorePrisoners == true) estimatePosition.whiteDeadStones.size + estimatePosition.blackCaptureCount else 0) + estimatePosition.blackTerritory.size.toFloat()
+                val score = RulesManager.scorePosition(estimatePosition, game)
+                view.whiteScore = score.first
+                view.blackScore = score.second
 
                 view.showTerritory = true
                 view.position = estimatePosition
@@ -759,8 +763,9 @@ class GamePresenter(
             PLAYING, FINISHED, LOADING -> {
                 currentPosition = RulesManager.replay(game, computeTerritory = false)
                 view.position = currentPosition
-                view.whiteScore = game.whiteScore?.total?.toFloat() ?: ((if(game.scorePrisoners == true) currentPosition.whiteCaptureCount else 0) + (game.komi ?: 0f))
-                view.blackScore = game.blackScore?.total?.toFloat() ?: if(game.scorePrisoners == true) currentPosition.blackCaptureCount.toFloat() else 0f
+                val score = RulesManager.scorePosition(currentPosition, game)
+                view.whiteScore = score.first
+                view.blackScore = score.second
             }
         }
 

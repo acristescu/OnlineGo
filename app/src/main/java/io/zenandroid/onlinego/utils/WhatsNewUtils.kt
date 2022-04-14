@@ -26,10 +26,8 @@ private val annotatedCurrentText = AnnotatedString.Builder().run {
     pop()
 
     pushStyle(SpanStyle(fontWeight = FontWeight.Normal))
-    append("· You can now use analysis on games that are finished even if analysis was disabled.\n\n")
-    append("· Fixed a bug that misinterpreted KO during analysis.\n\n")
-    append("· Fixed some problems with the Joseki Explorer.\n\n")
-    append("· Fixed some problems scoring under Chinese rules.\n\n")
+    append("· Fixed a bunch of bugs during the scoring (aka Stone Removal) phase.\n\n")
+    append("· Fixed a scoring problem for chinese rules with handicap.\n\n")
     pop()
 
     pushStyle(SpanStyle(fontSize = 18.sp))
@@ -37,6 +35,10 @@ private val annotatedCurrentText = AnnotatedString.Builder().run {
     pop()
 
     pushStyle(SpanStyle(fontWeight = FontWeight.Normal))
+    append("· You can now use analysis on games that are finished even if analysis was disabled.\n\n")
+    append("· Fixed a bug that misinterpreted KO during analysis.\n\n")
+    append("· Fixed some problems with the Joseki Explorer.\n\n")
+    append("· Fixed some problems scoring under Chinese rules.\n\n")
     append("· You can now start analyzing (trying out what-if scenarios) from the history of the game, not just the last move.\n\n")
     append("· Rewrote the game logic to optimize for memory usage. This should help users with old devices and/or many games. Please report any issues you may encounter.\n\n")
     append("· Fixed some AI game bugs.\n\n")

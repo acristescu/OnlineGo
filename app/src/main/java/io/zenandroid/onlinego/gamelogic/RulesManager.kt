@@ -175,6 +175,7 @@ object RulesManager {
             removedCells = pos.removedSpots,
             nextToMove = player,
             komi = pos.komi,
+            handicap = pos.handicap,
             whiteCaptureCount = pos.whiteCaptureCount,
             blackCapturesCount = pos.blackCaptureCount,
         )
@@ -268,6 +269,8 @@ object RulesManager {
             }
         }
 
+        val isLiveStone: (Cell) -> Boolean = { (whiteStones.contains(it) || blackStones.contains(it)) && !removedCells.contains(it)}
+        val isMarkedDame: (Cell) -> Boolean = { removedCells.contains(it) && !whiteStones.contains(it) && !blackStones.contains(it) }
         //
         // WARNING: This is time consuming AF, avoid it like the plague
         //
@@ -277,45 +280,46 @@ object RulesManager {
                 (0 until boardHeight)
                     .map { Cell(i, it) }
                     .asSequence()
-                    .filter { !whiteStones.contains(it) }
-                    .filter { !blackStones.contains(it) }
-                    .filter { !removedCells.contains(it) }
+                    .filter { !isLiveStone(it) }
+                    .filter { !isMarkedDame(it) }
                     .filter { !whiteTerritory.contains(it) }
                     .filter { !blackTerritory.contains(it) }
                     .filter { !alreadyVisited.contains(it) }
                     .forEach {
                         val toVisit = mutableListOf(it)
                         val visited = mutableSetOf<Cell>()
+                        val eye = mutableSetOf<Cell>()
                         var foundWhite = false
                         var foundBlack = false
                         while(toVisit.isNotEmpty() && !(foundBlack && foundWhite)) {
                             val p = toVisit.removeLast()
                             visited.add(p)
-                            if(whiteStones.contains(p)) {
+                            if(whiteStones.contains(p) && !removedCells.contains(p)) {
                                 foundWhite = true
                                 continue
                             }
-                            if(blackStones.contains(p)) {
+                            if(blackStones.contains(p) && !removedCells.contains(p)) {
                                 foundBlack = true
                                 continue
                             }
-                            if(removedCells.contains(p)) {
+                            if(isMarkedDame(it)) {
                                 continue
                             }
+                            eye.add(p)
                             toVisit.addAll(
                                 Util.getNeighbouringSpace(p, boardWidth, boardHeight)
                                     .filter { !visited.contains(it) })
                         }
                         if(foundWhite && !foundBlack) {
                             whiteTerritory.addAll(
-                                visited
-                                    .filter { !removedCells.contains(it) }
+                                eye
+                                    .filter { !isMarkedDame(it) }
                                     .filter { !blackTerritory.contains(it) }
                             )
                         } else if(foundBlack && !foundWhite) {
                             blackTerritory.addAll(
-                                visited
-                                    .filter { !removedCells.contains(it) }
+                                eye
+                                    .filter { !isMarkedDame(it) }
                                     .filter { !whiteTerritory.contains(it) }
                             )
                         }
@@ -344,6 +348,7 @@ object RulesManager {
             boardHeight = boardHeight,
             whiteStones = whiteStones,
             blackStones = blackStones,
+            handicap = handicap,
             whiteCaptureCount = whiteCaptures,
             blackCaptureCount = blackCaptures,
             lastMove = moves.lastOrNull(),
@@ -403,31 +408,41 @@ object RulesManager {
         val group = mutableSetOf<Cell>()
 
         while(toVisit.isNotEmpty()) {
-            val p = toVisit.removeAt(toVisit.size - 1)
-            visited.add(p)
-            if(isStone) {
-                if(pos.getStoneAt(point) != pos.getStoneAt(p)) {
-                    continue
-                }
-            } else if(pos.whiteTerritory.contains(point)) {
-                if(!pos.whiteTerritory.contains(p)) {
-                    continue
-                }
-            } else if(pos.blackTerritory.contains(point)) {
-                if(!pos.blackTerritory.contains(p)) {
-                    continue
-                }
-            } else if(isMarkedDame(pos, point)) {
-                if(!isMarkedDame(pos, p)) {
-                    continue
-                }
+            val current = toVisit.removeAt(toVisit.size - 1)
+            visited.add(current)
+            if(pos.getStoneAt(current) != null && pos.getStoneAt(point) != pos.getStoneAt(current)) {
+                continue
+            } else if(isStone && pos.getStoneAt(current) == null) {
+                continue
+            } else if(pos.whiteTerritory.contains(point) && !pos.whiteTerritory.contains(current)) {
+                continue
+            } else if(pos.blackTerritory.contains(point) && !pos.blackTerritory.contains(current)) {
+                continue
+            } else if(isMarkedDame(pos, point) && !isMarkedDame(pos, current)) {
+                continue
             }
-            group.add(p)
+            group.add(current)
             toVisit.addAll(
-                    Util.getNeighbouringSpace(p, pos.boardWidth, pos.boardHeight)
+                    Util.getNeighbouringSpace(current, pos.boardWidth, pos.boardHeight)
                             .filter { !visited.contains(it) })
         }
         return removing to group
+    }
+
+    fun scorePosition(pos: Position, game: Game) =
+        scorePosition(pos, game.scoreHandicap == true, game.scorePasses == true, game.scorePrisoners == true, game.scoreStones == true, game.scoreTerritory == true, game.scoreTerritoryInSeki == true)
+
+    fun scorePosition(pos: Position, scoreHandicap: Boolean, scorePasses: Boolean, scorePrisoners: Boolean, scoreStones: Boolean, scoreTerritory: Boolean, scoreTerritoryInSeki: Boolean): Pair<Float, Float> {
+        val whiteScore =
+            (if (scorePrisoners) pos.blackDeadStones.size + pos.whiteCaptureCount else 0) +
+                    (if (scoreTerritory) pos.whiteTerritory.size else 0) +
+                    (if (scoreHandicap) pos.handicap else 0) +
+                    (pos.komi ?: 0f)
+        val blackScore =
+            (if (scorePrisoners) pos.whiteDeadStones.size + pos.blackCaptureCount else 0) +
+                    (if (scoreTerritory) pos.blackTerritory.size else 0)
+
+        return whiteScore to blackScore.toFloat()
     }
 
     private val handicaps = hashMapOf(
