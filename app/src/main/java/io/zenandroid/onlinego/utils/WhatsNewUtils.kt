@@ -26,8 +26,7 @@ private val annotatedCurrentText = AnnotatedString.Builder().run {
     pop()
 
     pushStyle(SpanStyle(fontWeight = FontWeight.Normal))
-    append("· Fixed a bunch of bugs during the scoring (aka Stone Removal) phase.\n\n")
-    append("· Fixed a scoring problem for chinese rules with handicap.\n\n")
+    append("· Bugfixes\n\n")
     pop()
 
     pushStyle(SpanStyle(fontSize = 18.sp))

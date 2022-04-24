@@ -253,7 +253,7 @@ data class OGSClock (
     var white_player_id: Long,
     var title: String? = null,
     var last_move: Long,
-    var expiration: Long? = null,
+    var expiration: Double? = null,
     var now: Long? = null,
 //    val paused_since: Long?, // NEVER USE THIS as it is set even on unpaused games
     val pause: Pause? = null,

@@ -28,7 +28,7 @@ data class Clock(
                 clock?.let {
                     Clock(
                             lastMove = it.last_move,
-                            expiration = it.expiration,
+                            expiration = it.expiration?.toLong(),
                             now = it.now,
                             receivedAt = if (it.receivedAt != 0L) it.receivedAt else System.currentTimeMillis(),
                             whiteTimeSimple = it.whiteTimeSimple,
