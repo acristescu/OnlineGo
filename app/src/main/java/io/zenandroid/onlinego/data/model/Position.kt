@@ -22,7 +22,8 @@ data class Position(
     val removedSpots: Set<Cell> = emptySet(),
     val nextToMove: StoneType = StoneType.BLACK,
     val customMarks: Set<Mark> = emptySet(),
-    val variation: List<Cell> = listOf()
+    val variation: List<Cell> = listOf(),
+    val currentMoveIndex: Int = 0
 ) {
     fun getStoneAt(where: Cell): StoneType? =
         when {

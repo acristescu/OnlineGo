@@ -178,6 +178,7 @@ object RulesManager {
             handicap = pos.handicap,
             whiteCaptureCount = pos.whiteCaptureCount,
             blackCapturesCount = pos.blackCaptureCount,
+            currentMoveIndex = pos.currentMoveIndex,
         )
 
     fun buildPos(
@@ -197,6 +198,7 @@ object RulesManager {
         komi: Float? = null,
         whiteCaptureCount: Int = 0,
         blackCapturesCount: Int = 0,
+        currentMoveIndex: Int = 0,
     ): Position? {
         var nextPlayer = nextToMove
         var lastPlayer: StoneType? = null
@@ -264,7 +266,7 @@ object RulesManager {
                 }
             }
             lastPlayer = nextPlayer
-            if(i >= handicap - 1) {
+            if(i + currentMoveIndex >= handicap - 1) {
                 nextPlayer = nextPlayer.opponent
             }
         }
@@ -359,6 +361,7 @@ object RulesManager {
             whiteTerritory = whiteTerritory,
             blackTerritory = blackTerritory,
             komi = komi,
+            currentMoveIndex = currentMoveIndex + moves.size,
         )
     }
 
