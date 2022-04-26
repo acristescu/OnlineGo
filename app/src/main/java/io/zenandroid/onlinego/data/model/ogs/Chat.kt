@@ -17,7 +17,7 @@ enum class ChatChannel {
 
 data class ChatLine (
         val username: String,
-        val ratings: OGSPlayer.Ratings,
+        val ratings: OGSPlayer.Ratings?,
         val player_id: Long,
         val move_number: Long?,
         val date: Long,
