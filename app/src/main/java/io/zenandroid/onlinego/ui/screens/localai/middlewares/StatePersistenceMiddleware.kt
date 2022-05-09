@@ -1,6 +1,7 @@
 package io.zenandroid.onlinego.ui.screens.localai.middlewares
 
 import android.util.Log
+import androidx.compose.ui.util.fastForEachIndexed
 import androidx.preference.PreferenceManager
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.squareup.moshi.Moshi
@@ -11,6 +12,8 @@ import io.zenandroid.onlinego.ui.screens.localai.AiGameAction
 import io.zenandroid.onlinego.ui.screens.localai.AiGameState
 import io.reactivex.rxkotlin.withLatestFrom
 import io.zenandroid.onlinego.OnlineGoApplication
+import io.zenandroid.onlinego.data.model.Cell
+import io.zenandroid.onlinego.gamelogic.RulesManager
 import io.zenandroid.onlinego.ui.screens.localai.AiGameAction.*
 import io.zenandroid.onlinego.utils.moshiadapters.HashMapOfCellToStoneTypeMoshiAdapter
 import io.zenandroid.onlinego.utils.moshiadapters.ResponseBriefMoshiAdapter
@@ -47,16 +50,39 @@ class StatePersistenceMiddleware : Middleware<AiGameState, AiGameAction> {
                             Log.e("StatePersistenceMiddlew", "Cannot deserialize state", e)
                             null
                         }
-                        newState?.let { RestoredState(it) }
-                                ?: run {
-                                    FirebaseCrashlytics.getInstance().recordException(Exception("Cannot deserialize state"))
-                                    Log.e("StatePersistenceMiddlew", "Cannot deserialize state")
-                                    CantRestoreState
-                                }
+                        newState?.let {
+                            if(validState(it)) {
+                                RestoredState(it)
+                            } else {
+                                null
+                            }
+                        } ?: run {
+                            FirebaseCrashlytics.getInstance()
+                                .recordException(Exception("Cannot deserialize state"))
+                            Log.e("StatePersistenceMiddlew", "Cannot deserialize state")
+                            CantRestoreState
+                        }
                     } else {
                         CantRestoreState
                     }
                 }
+
+    private fun validState(state: AiGameState): Boolean {
+        if(state.history.isNotEmpty()) {
+            val whiteInitial = state.history[0].whiteStones
+            val blackInitial = state.history[0].blackStones
+            val moves = mutableListOf<Cell>()
+            state.history.drop(1).forEach {
+                if(it.lastMove == null || it.boardHeight != state.boardSize) {
+                    return false
+                }
+                moves.add(it.lastMove)
+                val pos = RulesManager.buildPos(moves, state.boardSize, state.boardSize, state.handicap, whiteInitialState = whiteInitial, blackInitialState = blackInitial)
+                if(pos == null) return false
+            }
+        }
+        return true
+    }
 
     private fun serializeObservable(actions: Observable<AiGameAction>, state: Observable<AiGameState>) =
             actions.ofType(ViewPaused::class.java)

@@ -94,7 +94,7 @@ class AiGameReducer : Reducer<AiGameState, AiGameAction> {
             PromptUserForMove -> state.copy(
                     boardIsInteractive = true,
                     passButtonEnabled = true,
-                    previousButtonEnabled = state.history.size >= 2,
+                    previousButtonEnabled = state.history.size > 2,
                     chatText = when {
                         state.engineStarted && state.position?.lastMove?.x == -1 -> "Pass! If you agree the game is over you should pass as well."
                         state.position != null && state.engineStarted -> "Your turn!"
@@ -124,7 +124,7 @@ class AiGameReducer : Reducer<AiGameState, AiGameAction> {
                         position = newHistory.lastOrNull(),
                         redoPosStack = state.redoPosStack + state.history.takeLast(2),
                         history = newHistory,
-                        previousButtonEnabled = newHistory.size >= 2,
+                        previousButtonEnabled = newHistory.size > 2,
                         showHints = false,
                         hintButtonVisible = true,
                         ownershipButtonVisible = true,
