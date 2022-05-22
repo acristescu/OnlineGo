@@ -1,4 +1,4 @@
-package io.zenandroid.onlinego.ui.screens.game
+package io.zenandroid.onlinego.ui.screens.game_legacy
 
 import android.util.Log
 import com.google.firebase.crashlytics.FirebaseCrashlytics
@@ -12,9 +12,9 @@ import io.reactivex.schedulers.Schedulers
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.utils.addToDisposable
-import io.zenandroid.onlinego.ui.screens.game.GameContract.MenuItem
-import io.zenandroid.onlinego.ui.screens.game.GameContract.MenuItem.*
-import io.zenandroid.onlinego.ui.screens.game.GamePresenter.State.*
+import io.zenandroid.onlinego.ui.screens.game_legacy.GameContract.MenuItem
+import io.zenandroid.onlinego.ui.screens.game_legacy.GameContract.MenuItem.*
+import io.zenandroid.onlinego.ui.screens.game_legacy.GamePresenter.State.*
 import io.zenandroid.onlinego.gamelogic.RulesManager
 import io.zenandroid.onlinego.data.model.Position
 import io.zenandroid.onlinego.data.model.StoneType

@@ -1,4 +1,4 @@
-package io.zenandroid.onlinego.ui.screens.game
+package io.zenandroid.onlinego.ui.screens.game_legacy
 
 import com.squareup.moshi.Moshi
 import io.zenandroid.onlinego.data.model.ogs.User

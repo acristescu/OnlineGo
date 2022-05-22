@@ -1,4 +1,4 @@
-package io.zenandroid.onlinego.ui.screens.game.gameInfo
+package io.zenandroid.onlinego.ui.screens.game_legacy.gameInfo
 
 import android.os.Bundle
 import androidx.fragment.app.DialogFragment

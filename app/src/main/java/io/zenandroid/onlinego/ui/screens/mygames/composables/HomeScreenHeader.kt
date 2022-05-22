@@ -30,10 +30,9 @@ fun HomeScreenHeader(
     subText: String? = null
 ) {
     Row(modifier = Modifier.padding(20.dp)) {
-        val imageSize = 56.dp
         Image(
             painter = rememberImagePainter(
-                data = processGravatarURL(image, LocalDensity.current.run { imageSize.roundToPx() } ),
+                data = processGravatarURL(image, LocalDensity.current.run { 56.dp.roundToPx() } ),
                 builder = {
                     crossfade(true)
                     placeholder(R.drawable.ic_person_filled)

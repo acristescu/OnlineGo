@@ -21,6 +21,8 @@ import io.zenandroid.onlinego.data.model.ogs.GameData
 import io.zenandroid.onlinego.data.model.ogs.OGSGame
 import io.zenandroid.onlinego.data.model.ogs.Phase
 import io.zenandroid.onlinego.data.ogs.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.onEach
 import java.io.IOException
 import java.util.concurrent.TimeUnit
 
@@ -242,6 +244,20 @@ class ActiveGamesRepository(
 
         return gameDao.monitorGame(id)
                 .doOnNext(this::connectToGame)
+    }
+
+    fun monitorGameFlow(id: Long): Flow<Game> {
+        restService.fetchGame(id)
+            .map(Game.Companion::fromOGSGame)
+            .map(::listOf)
+            .retryWhen (this::retryIOException)
+            .subscribe(
+                gameDao::insertAllGames,
+                { onError(it, "monitorGame") }
+            ).addToDisposable(subscriptions)
+
+        return gameDao.monitorGameFlow(id)
+            .onEach(this::connectToGame)
     }
 
     private fun retryIOException(it: Flowable<Throwable>) =

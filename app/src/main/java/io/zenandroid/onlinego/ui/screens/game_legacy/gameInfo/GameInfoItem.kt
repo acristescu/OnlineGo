@@ -1,4 +1,4 @@
-package io.zenandroid.onlinego.ui.screens.game.gameInfo
+package io.zenandroid.onlinego.ui.screens.game_legacy.gameInfo
 
 import android.view.View
 import com.xwray.groupie.viewbinding.BindableItem

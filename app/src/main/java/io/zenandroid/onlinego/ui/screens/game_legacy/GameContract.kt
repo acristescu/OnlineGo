@@ -1,4 +1,4 @@
-package io.zenandroid.onlinego.ui.screens.game
+package io.zenandroid.onlinego.ui.screens.game_legacy
 
 import androidx.annotation.ColorRes
 import io.reactivex.Observable

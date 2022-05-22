@@ -1,20 +1,16 @@
 package io.zenandroid.onlinego.utils
 
-import android.util.Log
-import io.zenandroid.onlinego.ui.screens.game.GamePresenter
+import io.zenandroid.onlinego.ui.screens.game_legacy.GamePresenter
 import io.zenandroid.onlinego.data.model.local.Clock
 import io.zenandroid.onlinego.data.model.local.Game
 import io.zenandroid.onlinego.data.model.local.Time
 import io.zenandroid.onlinego.data.ogs.TimeControl
-import io.zenandroid.onlinego.data.repositories.ClockDriftRepository
 import org.json.JSONArray
 import org.json.JSONObject
-import org.koin.core.context.GlobalContext.get
 import org.threeten.bp.Instant
 import org.threeten.bp.ZoneId
 import org.threeten.bp.format.DateTimeFormatter
 import org.threeten.bp.temporal.ChronoUnit
-import java.lang.Math.log
 import java.util.*
 import java.util.regex.Pattern
 import kotlin.math.*

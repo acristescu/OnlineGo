@@ -10,6 +10,7 @@ import io.zenandroid.onlinego.data.ogs.*
 import io.zenandroid.onlinego.data.repositories.*
 import io.zenandroid.onlinego.mvi.Store
 import io.zenandroid.onlinego.playstore.PlayStoreService
+import io.zenandroid.onlinego.ui.screens.game.GameViewModel
 import io.zenandroid.onlinego.ui.screens.joseki.*
 import io.zenandroid.onlinego.ui.screens.learn.LearnViewModel
 import io.zenandroid.onlinego.ui.screens.localai.AiGameReducer
@@ -35,7 +36,7 @@ import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.moshi.MoshiConverterFactory
 
 private val repositoriesModule = module {
-    single<List<SocketConnectedRepository>> {
+    single {
         listOf(
                 get<ActiveGamesRepository>(),
                 get<AutomatchRepository>(),
@@ -163,6 +164,10 @@ private val viewModelsModule = module {
 
     viewModel {
         MyGamesViewModel(get(), get(), get(), get(), get(), get(), get(), get(), OnlineGoApplication.instance.analytics, get(), get())
+    }
+
+    viewModel {
+        GameViewModel(get(), get(), get(), get())
     }
 }
 

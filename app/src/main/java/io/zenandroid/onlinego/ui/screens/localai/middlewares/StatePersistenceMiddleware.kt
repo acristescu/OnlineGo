@@ -24,7 +24,6 @@ class StatePersistenceMiddleware : Middleware<AiGameState, AiGameAction> {
     private val prefs = PreferenceManager.getDefaultSharedPreferences(OnlineGoApplication.instance.baseContext)
 
     private val stateAdapter = Moshi.Builder()
-//            .add(PointMoshiAdapter())
             .add(ResponseBriefMoshiAdapter())
             .add(HashMapOfCellToStoneTypeMoshiAdapter())
             .add(KotlinJsonAdapterFactory())

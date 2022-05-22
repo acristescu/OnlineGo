@@ -19,13 +19,12 @@ import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.drawscope.*
 import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
-import androidx.core.content.res.ResourcesCompat
 import androidx.core.graphics.withSave
 import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat
-import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.Position
@@ -33,11 +32,6 @@ import io.zenandroid.onlinego.data.model.StoneType
 import io.zenandroid.onlinego.data.model.ogs.PlayCategory
 import kotlin.math.ceil
 import kotlin.math.roundToInt
-
-
-private val whiteStone = VectorDrawableCompat.create(OnlineGoApplication.instance.resources, R.drawable.ic_stone_white_svg, null)!!
-private val blackStone = VectorDrawableCompat.create(OnlineGoApplication.instance.resources, R.drawable.ic_stone_black_svg, null)!!
-private val shadowDrawable = ResourcesCompat.getDrawable(OnlineGoApplication.instance.resources, R.drawable.gradient_shadow, null)!!
 
 @ExperimentalComposeUiApi
 @Composable
@@ -345,7 +339,7 @@ private fun DrawScope.drawGrid(boardWidth: Int, boardHeight: Int, candidateMove:
         val start = i * measurements.cellSize + measurements.halfCell
         val fullLength = (measurements.cellSize * boardWidth).toFloat()
 
-        val (color, lineWidth) = if(i == candidateMove?.x) Color.White to measurements.highlightLinesWidth else Color.Black to measurements.linesWidth
+        val (color, lineWidth) = if(i == candidateMove?.y) Color.White to measurements.highlightLinesWidth else Color.Black to measurements.linesWidth
         drawLine(color, Offset(measurements.halfCell, start), Offset(fullLength - measurements.halfCell, start), lineWidth)
     }
 }

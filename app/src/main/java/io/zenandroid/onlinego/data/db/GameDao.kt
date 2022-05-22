@@ -9,6 +9,7 @@ import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.local.*
 import io.zenandroid.onlinego.data.model.ogs.JosekiPosition
 import io.zenandroid.onlinego.data.model.ogs.Phase
+import kotlinx.coroutines.flow.Flow
 
 private const val MAX_ALLOWED_SQL_PARAMS = 999
 
@@ -256,6 +257,9 @@ abstract class GameDao {
 
     @Query("SELECT * FROM game WHERE id = :id")
     abstract fun monitorGame(id: Long): Flowable<Game>
+
+    @Query("SELECT * FROM game WHERE id = :id")
+    abstract fun monitorGameFlow(id: Long): Flow<Game>
 
     @Query("SELECT * FROM game WHERE id = :id")
     abstract fun getGame(id: Long): Single<Game>

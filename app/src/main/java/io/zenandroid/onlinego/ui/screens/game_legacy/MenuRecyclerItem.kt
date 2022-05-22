@@ -1,10 +1,10 @@
-package io.zenandroid.onlinego.ui.screens.game
+package io.zenandroid.onlinego.ui.screens.game_legacy
 
 import android.view.View
 import com.xwray.groupie.viewbinding.BindableItem
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.databinding.ItemGameMenuBinding
-import io.zenandroid.onlinego.ui.screens.game.GameContract.MenuItem.*
+import io.zenandroid.onlinego.ui.screens.game_legacy.GameContract.MenuItem.*
 
 class MenuRecyclerItem(val item: GameContract.MenuItem) : BindableItem<ItemGameMenuBinding>(item.hashCode().toLong()) {
     override fun bind(binding: ItemGameMenuBinding, position: Int) {

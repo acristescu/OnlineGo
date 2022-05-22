@@ -24,10 +24,25 @@ val typography = Typography(
                 fontWeight = FontWeight.Bold,
                 fontSize = 24.sp
         ),
+        h2 = TextStyle(
+                fontFamily = FontFamily.Default,
+                fontWeight = FontWeight.Bold,
+                fontSize = 20.sp
+        ),
+        h3 = TextStyle(
+                fontFamily = FontFamily.Default,
+                fontWeight = FontWeight.Bold,
+                fontSize = 14.sp
+        ),
         h4 = TextStyle(
                 fontFamily = FontFamily.Default,
                 fontWeight = FontWeight.Bold,
                 fontSize = 12.sp
+        ),
+        h5 = TextStyle(
+                fontFamily = FontFamily.Default,
+                fontWeight = FontWeight.Bold,
+                fontSize = 8.sp
         ),
         h6 = TextStyle(
                 fontFamily = FontFamily.Default,

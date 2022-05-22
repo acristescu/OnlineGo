@@ -1,4 +1,4 @@
-package io.zenandroid.onlinego.ui.screens.game
+package io.zenandroid.onlinego.ui.screens.game_legacy
 
 import android.content.Context
 import com.google.android.material.bottomsheet.BottomSheetDialog

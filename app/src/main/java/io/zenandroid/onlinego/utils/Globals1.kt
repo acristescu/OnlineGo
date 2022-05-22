@@ -3,7 +3,6 @@ package io.zenandroid.onlinego.utils
 import io.zenandroid.onlinego.data.model.local.Clock
 import io.zenandroid.onlinego.data.model.local.Time
 import io.zenandroid.onlinego.data.repositories.ClockDriftRepository
-import io.zenandroid.onlinego.ui.screens.game.GamePresenter
 import org.koin.core.context.GlobalContext
 
 private val clockDriftRepository: ClockDriftRepository by GlobalContext.get().inject()
