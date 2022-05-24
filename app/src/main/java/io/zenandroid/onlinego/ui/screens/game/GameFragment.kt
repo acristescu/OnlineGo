@@ -141,7 +141,6 @@ fun GameScreen(state: GameState,
             candidateMoveType = state.position?.nextToMove,
             onTapMove = onTapMove,
             onTapUp = onTapUp,
-            modifier = Modifier.let { if(LocalInspectionMode.current) it.background(Color(0xFFFFcc55)) else it }
         )
         PlayerCard(
             player = state.whitePlayer,
@@ -284,7 +283,7 @@ private fun Button.getIcon() = when(this) {
 fun Preview() {
     OnlineGoTheme {
         GameScreen(state = GameState(
-            position = Position(19, 19),
+            position = Position(19, 19, whiteStones = setOf(Cell(3, 3)), blackStones = setOf(Cell(15, 15))),
             loading = false,
             gameWidth = 19,
             gameHeight = 19,
@@ -325,7 +324,7 @@ fun Preview() {
 fun Preview1() {
     OnlineGoTheme {
         GameScreen(state = GameState(
-            position = Position(19, 19),
+            position = Position(19, 19, whiteStones = setOf(Cell(3, 3)), blackStones = setOf(Cell(15, 15))),
             loading = false,
             gameWidth = 19,
             gameHeight = 19,
@@ -356,7 +355,7 @@ fun Preview1() {
                 blackFirstLine = "04:26",
                 blackSecondLine = "+ 3 × 01:00",
                 blackPercentage = 15,
-            )
+            ),
         ))
     }
 }

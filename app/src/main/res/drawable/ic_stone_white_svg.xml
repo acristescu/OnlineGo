@@ -5,11 +5,9 @@
     android:viewportWidth="43"
     android:viewportHeight="43">
   <path
-      android:pathData="M21.5,41.5C32.5457,41.5 41.5,32.5457 41.5,21.5C41.5,10.4543 32.5457,1.5 21.5,1.5C10.4543,1.5 1.5,10.4543 1.5,21.5C1.5,32.5457 10.4543,41.5 21.5,41.5Z"
-      android:strokeWidth="1.998"
-      android:strokeColor="#C3C3C3">
+      android:pathData="M21.5,41.5C32.5457,41.5 41.5,32.5457 41.5,21.5C41.5,10.4543 32.5457,1.5 21.5,1.5C10.4543,1.5 1.5,10.4543 1.5,21.5C1.5,32.5457 10.4543,41.5 21.5,41.5Z">
     <aapt:attr name="android:fillColor">
-      <gradient 
+      <gradient
           android:startY="41.4104"
           android:startX="20.8473"
           android:endY="1.59141"
@@ -25,7 +23,7 @@
       android:strokeWidth="2.007"
       android:fillColor="#00000000">
     <aapt:attr name="android:strokeColor">
-      <gradient 
+      <gradient
           android:startY="40.1674"
           android:startX="20.9156"
           android:endY="25.8842"

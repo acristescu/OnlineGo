@@ -1,30 +1,32 @@
 package io.zenandroid.onlinego.ui.composables
 
-import android.graphics.Bitmap
 import android.graphics.PointF
 import android.graphics.Rect
 import android.os.Build
-import android.util.Log
 import android.view.MotionEvent
 import androidx.annotation.ColorInt
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.*
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.drawscope.*
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.input.pointer.pointerInteropFilter
-import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.platform.LocalInspectionMode
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.imageResource
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
-import androidx.core.graphics.withSave
-import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.Position
@@ -51,113 +53,104 @@ fun Board(
     onTapMove: ((Cell) -> Unit)? = null,
     onTapUp: ((Cell) -> Unit)? = null
 ) {
-    val drawLastMove = true
-    val drawMarks = true
-    val background: ImageBitmap = ImageBitmap.imageResource(id = R.mipmap.texture)
+    BoxWithConstraints(modifier = modifier.aspectRatio(1f)) {
+        val drawLastMove = true
+        val drawMarks = true
+        val background: ImageBitmap = ImageBitmap.imageResource(id = R.mipmap.texture)
 
-    var width by remember { mutableStateOf(0) }
-    var height by remember { mutableStateOf(0) }
-    val measurements = remember(width, height, boardWidth, boardHeight) { doMeasurements(width, height, boardWidth, boardHeight, drawCoordinates) }
+        val width = with(LocalDensity.current) { maxWidth.roundToPx() }
+        val height = with(LocalDensity.current) { maxHeight.roundToPx() }
 
-    var lastHotTrackedPoint: Cell? by remember { mutableStateOf(null) }
-    var stoneToFadeIn: Cell? by remember(position?.lastMove) { mutableStateOf(position?.lastMove) }
-    var stonesToFadeOut: List<Pair<Cell, StoneType>>? by remember(removedStones) { mutableStateOf(removedStones) }
+        val measurements = remember(width, height, boardWidth, boardHeight) { doMeasurements(width, height, boardWidth, boardHeight, drawCoordinates) }
 
-    val fadeInAlpha = remember { Animatable(.4f) }
-    val fadeOutAlpha = remember { Animatable(1f) }
+        var lastHotTrackedPoint: Cell? by remember { mutableStateOf(null) }
+        var stoneToFadeIn: Cell? by remember(position?.lastMove) { mutableStateOf(position?.lastMove) }
+        var stonesToFadeOut: List<Pair<Cell, StoneType>>? by remember(removedStones) { mutableStateOf(removedStones) }
 
-    if(fadeInLastMove && stoneToFadeIn != null) {
-        LaunchedEffect(stoneToFadeIn) {
-            fadeInAlpha.snapTo(.4f)
-            fadeInAlpha.animateTo(1f, animationSpec = tween(150))
-            stoneToFadeIn = null
-        }
-    }
-    if(fadeOutRemovedStones && stonesToFadeOut?.isNotEmpty() == true) {
-        LaunchedEffect(stonesToFadeOut) {
-            fadeOutAlpha.snapTo(1f)
-            fadeOutAlpha.animateTo(0f, animationSpec = tween(150, 75))
-            stonesToFadeOut = null
-        }
-    }
-    Canvas(modifier = modifier
-        .aspectRatio(1f)
-        .run {
-            if (interactive) {
-                pointerInteropFilter {
-                    if (measurements.cellSize == 0) {
-                        return@pointerInteropFilter false
-                    }
-                    val eventCoords =
-                        screenToBoardCoordinates(it.x, it.y, measurements, boardWidth, boardHeight)
+        val fadeInAlpha = remember { Animatable(.4f) }
+        val fadeOutAlpha = remember { Animatable(1f) }
 
-                    if (eventCoords != lastHotTrackedPoint) {
-                        onTapMove?.invoke(eventCoords)
-                        lastHotTrackedPoint = eventCoords
-                    }
-
-                    if (it.action == MotionEvent.ACTION_UP) {
-                        onTapUp?.invoke(eventCoords)
-                        lastHotTrackedPoint = null
-                    }
-                    true
-                }
-            } else {
-                this
+        if(fadeInLastMove && stoneToFadeIn != null) {
+            LaunchedEffect(stoneToFadeIn) {
+                fadeInAlpha.snapTo(.4f)
+                fadeInAlpha.animateTo(1f, animationSpec = tween(150))
+                stoneToFadeIn = null
             }
         }
-        .onGloballyPositioned {
-            width = it.size.width
-            height = it.size.height
-        }
-    ) {
-        if (measurements.width == 0) {
-            return@Canvas
-        }
-        arrayOf(whiteStone, blackStone).forEach {
-            it.setBounds(-measurements.stoneRadius, -measurements.stoneRadius, measurements.stoneRadius, measurements.stoneRadius)
-        }
-
-        drawImage(
-                image = background,
-                dstSize = IntSize(ceil(this.size.width).toInt(), ceil(this.size.height).toInt())
-        )
-        translate(measurements.border + measurements.xOffsetForNonSquareBoard, measurements.border + measurements.yOffsetForNonSquareBoard) {
-
-            drawGrid(boardWidth, boardHeight, candidateMove, measurements)
-            drawStarPoints(boardWidth, boardHeight, measurements)
-            drawCoordinates(boardWidth, boardHeight, drawCoordinates, measurements)
-
-            for (item in stonesToFadeOut ?: emptyList()) {
-                drawStone(item.first, item.second, fadeOutAlpha.value, true, measurements)
+        if(fadeOutRemovedStones && stonesToFadeOut?.isNotEmpty() == true) {
+            LaunchedEffect(stonesToFadeOut) {
+                fadeOutAlpha.snapTo(1f)
+                fadeOutAlpha.animateTo(0f, animationSpec = tween(150, 75))
+                stonesToFadeOut = null
             }
-            position?.let {
-                // stones
-                for (p in position.whiteStones) {
-                    val alpha = when {
-                        fadeInLastMove && p == stoneToFadeIn -> fadeInAlpha.value
-                        fadeOutRemovedStones && it.removedSpots.contains(p) -> .4f
-                        else -> 1f
-                    }
-                    drawStone(p, StoneType.WHITE, alpha, drawShadow, measurements)
-                }
-                for (p in position.blackStones) {
-                    val alpha = when {
-                        fadeInLastMove && p == stoneToFadeIn -> fadeInAlpha.value
-                        fadeOutRemovedStones && it.removedSpots.contains(p) -> .4f
-                        else -> 1f
-                    }
-                    drawStone(p, StoneType.BLACK, alpha, drawShadow, measurements)
-                }
+        }
+        val whiteStone = rememberVectorPainter(image = ImageVector.vectorResource(id = R.drawable.ic_stone_white_svg))
+        val blackStone = rememberVectorPainter(image = ImageVector.vectorResource(id = R.drawable.ic_stone_black_svg))
 
-                drawDecorations(it, drawLastMove, drawMarks, measurements)
+        Canvas(modifier = Modifier.fillMaxSize()
+            .run {
+                if (interactive) {
+                    pointerInteropFilter {
+                        if (measurements.cellSize == 0) {
+                            return@pointerInteropFilter false
+                        }
+                        val eventCoords =
+                            screenToBoardCoordinates(it.x, it.y, measurements, boardWidth, boardHeight)
+
+                        if (eventCoords != lastHotTrackedPoint) {
+                            onTapMove?.invoke(eventCoords)
+                            lastHotTrackedPoint = eventCoords
+                        }
+
+                        if (it.action == MotionEvent.ACTION_UP) {
+                            onTapUp?.invoke(eventCoords)
+                            lastHotTrackedPoint = null
+                        }
+                        true
+                    }
+                } else {
+                    this
+                }
+            }
+        ) {
+            drawImage(image = background, dstSize = IntSize(ceil(this.size.width).toInt(), ceil(this.size.height).toInt()))
+            translate(measurements.border + measurements.xOffsetForNonSquareBoard, measurements.border + measurements.yOffsetForNonSquareBoard) {
+
+                drawGrid(boardWidth, boardHeight, candidateMove, measurements)
+                drawStarPoints(boardWidth, boardHeight, measurements)
+                drawCoordinates(boardWidth, boardHeight, drawCoordinates, measurements)
+
+                for (item in stonesToFadeOut ?: emptyList()) {
+                    drawStone(item.first, item.second, if (item.second == StoneType.WHITE) whiteStone else blackStone, fadeOutAlpha.value, true, measurements)
+                }
+                position?.let {
+                    // stones
+                    for (p in position.whiteStones) {
+                        val alpha = when {
+                            fadeInLastMove && p == stoneToFadeIn -> fadeInAlpha.value
+                            fadeOutRemovedStones && it.removedSpots.contains(p) -> .4f
+                            else -> 1f
+                        }
+                        drawStone(p, StoneType.WHITE, whiteStone, alpha, drawShadow, measurements)
+                    }
+                    for (p in position.blackStones) {
+                        val alpha = when {
+                            fadeInLastMove && p == stoneToFadeIn -> fadeInAlpha.value
+                            fadeOutRemovedStones && it.removedSpots.contains(p) -> .4f
+                            else -> 1f
+                        }
+                        drawStone(p, StoneType.BLACK, blackStone, alpha, drawShadow, measurements)
+                    }
+
+                    drawDecorations(it, drawLastMove, drawMarks, measurements)
 
 //                drawTerritory(canvas, it)
 //                drawAiEstimatedOwnership(canvas, it)
 //                drawHints(canvas, it)
-            }
-            candidateMove?.let {
-                drawStone(it, candidateMoveType, .4f, false, measurements)
+                }
+                candidateMove?.let {
+                    drawStone(it, candidateMoveType, if (candidateMoveType == StoneType.WHITE) whiteStone else blackStone, .4f, false, measurements)
+                }
             }
         }
     }
@@ -188,8 +181,6 @@ private data class Measurements(
         val stoneRadius: Int,
         val xOffsetForNonSquareBoard: Float,
         val yOffsetForNonSquareBoard: Float,
-        val whiteStoneBitmap: ImageBitmap?,
-        val blackStoneBitmap: ImageBitmap?
 )
 
 private fun getCellCenter(i: Int, j: Int, measurements: Measurements) =
@@ -276,51 +267,32 @@ private fun DrawScope.drawDecorations(position: Position, drawLastMove: Boolean,
     }
 }
 
-private fun DrawScope.drawStone(p: Cell, type: StoneType?, alpha: Float = 1f, drawShadow: Boolean, measurements: Measurements) {
+private fun DrawScope.drawStone(p: Cell, type: StoneType?, stonePainter: Painter, alpha: Float = 1f, drawShadow: Boolean, measurements: Measurements) {
     val center = getCellCenter(p.x, p.y, measurements)
     drawIntoCanvas {
         if(drawShadow && alpha > .75) {
             if(Build.VERSION.SDK_INT >= 28) {
-                it.drawCircle(Offset(center.x, center.y), measurements.stoneRadius - 1.5f, measurements.shadowPaint) // we don't care about the circle really, but the paint produces a fast shadow...
+                it.drawCircle(Offset(center.x, center.y), measurements.stoneRadius - 2.5f, measurements.shadowPaint) // we don't care about the circle really, but the paint produces a fast shadow...
             } else {
-                shadowDrawable.setBounds(
-                        (center.x - measurements.stoneRadius - measurements.cellSize / 20f).toInt(),
-                        (center.y - measurements.stoneRadius - measurements.cellSize / 20f).toInt(),
-                        (center.x + measurements.stoneRadius + measurements.cellSize / 12f).toInt(),
-                        (center.y + measurements.stoneRadius + measurements.cellSize / 9f).toInt()
-                )
-                shadowDrawable.draw(it.nativeCanvas)
+                it.drawCircle(Offset(center.x + 2, center.y + 2), measurements.stoneRadius.toFloat(), measurements.shadowPaint)
             }
         }
 
         if(measurements.cellSize > 30) {
-            if (alpha != 1f) {
-                val bitmap =
-                    if (type == StoneType.WHITE) measurements.whiteStoneBitmap else measurements.blackStoneBitmap
-                drawImage(
-                    bitmap!!,
-                    Offset(
-                        center.x - measurements.stoneRadius,
-                        center.y - measurements.stoneRadius
-                    ),
-                    alpha = alpha
-                )
-            } else {
-                val stone = if (type == StoneType.WHITE) whiteStone else blackStone
-                it.nativeCanvas.withSave {
-                    it.nativeCanvas.translate(center.x, center.y)
-                    stone.draw(it.nativeCanvas)
+            translate (center.x - measurements.stoneRadius, center.y - measurements.stoneRadius) {
+                with(stonePainter) {
+                    draw(Size(measurements.stoneRadius * 2f, measurements.stoneRadius * 2f), alpha = alpha)
                 }
             }
         } else {
             val color = if (type == StoneType.BLACK) Color.Black else Color.White
 
 //            stonePaint.style = android.graphics.Paint.Style.FILL
-            drawCircle(color = color, center = Offset(center.x, center.y), radius = measurements.cellSize / 2f - measurements.stoneSpacing, style = Fill)
+            drawCircle(color = color, center = Offset(center.x, center.y), radius = measurements.stoneRadius.toFloat(), style = Fill)
             if(type == StoneType.WHITE) {
 //                stonePaint.color = 0xCC331810.toInt()
 //                stonePaint.style = android.graphics.Paint.Style.STROKE
-                drawCircle(color = Color(0xCC331810), center = Offset(center.x, center.y), radius = measurements.cellSize / 2f - measurements.stoneSpacing, style = Stroke(1f))
+                drawCircle(color = Color(0xCC331810), center = Offset(center.x, center.y), radius = measurements.stoneRadius.toFloat(), style = Stroke(1f))
             }
 
         }
@@ -416,25 +388,17 @@ private fun doMeasurements(width: Int, height: Int, boardWidth: Int, boardHeight
     val coordinatesTextSize = cellSize.toFloat() * .4f
     val shadowPaint = Paint().apply {
             asFrameworkPaint().run {
-                color = 0x01FF0000
+                color = if(Build.VERSION.SDK_INT >= 28) 0x01000000 else 0x22000000
                 setShadowLayer(
-                        cellSize / 10f,
+                        cellSize / 11f,
                         0f,
-                        stoneSpacing * 2,
+                        stoneSpacing * 2 - 1,
                         0xBB000000.toInt()
                 )
             }
         }
     val halfCell = cellSize / 2f
     val stoneRadius = (cellSize / 2f - stoneSpacing).toInt()
-
-    val whiteBitmap = if(width == 0) null else {
-        convertVectorIntoBitmap(whiteStone, ceil(cellSize - 2 * stoneSpacing).toInt())
-    }
-
-    val blackBitmap = if(width == 0) null else {
-        convertVectorIntoBitmap(blackStone, ceil(cellSize - 2 * stoneSpacing).toInt())
-    }
 
     return Measurements(
             cellSize = cellSize,
@@ -451,15 +415,5 @@ private fun doMeasurements(width: Int, height: Int, boardWidth: Int, boardHeight
             stoneRadius = stoneRadius,
             xOffsetForNonSquareBoard = xOffsetForNonSquareBoard,
             yOffsetForNonSquareBoard = yOffsetForNonSquareBoard,
-            blackStoneBitmap = blackBitmap,
-            whiteStoneBitmap = whiteBitmap
     )
-}
-
-private fun convertVectorIntoBitmap(vector: VectorDrawableCompat, width: Int): ImageBitmap {
-    val bitmap = Bitmap.createBitmap(width, width, Bitmap.Config.ARGB_8888)
-    val canvas = android.graphics.Canvas(bitmap)
-    vector.setBounds(0, 0, canvas.width, canvas.height)
-    vector.draw(canvas)
-    return bitmap.asImageBitmap()
 }
