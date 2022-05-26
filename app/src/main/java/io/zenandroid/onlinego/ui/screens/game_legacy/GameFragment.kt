@@ -16,8 +16,8 @@ import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.awesomedialog.blennersilva.awesomedialoglibrary.AwesomeInfoDialog
-import com.jakewharton.rxbinding2.view.RxView
+import com.jakewharton.rxbinding3.view.clicks
+import com.jakewharton.rxbinding3.view.touches
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -54,7 +54,7 @@ class GameFragment : Fragment(), GameContract.View {
     private val chatDialog: ChatDialog by lazy { ChatDialog() }
     private val gameInfoDialog: GameInfoDialog by lazy { GameInfoDialog() }
 
-    private val chatClicks: Observable<Any> by lazy { RxView.clicks(binding.chatButton!!) }
+    private val chatClicks: Observable<Unit> by lazy { binding.chatButton.clicks() }
     private val chipAdapter = ChipAdapter()
     private var unreadCount = 0
 
@@ -153,20 +153,20 @@ class GameFragment : Fragment(), GameContract.View {
 
     override fun showAnalysisDisabledDialog() {
         context?.let {
-            AwesomeInfoDialog(context)
-                    .setTitle("Analysis is disabled")
-                    .setMessage("The challenger has configured this game to disable the analysis feature." +
-                            "This is often setup by players that wish to mimic real-life conditions, where the reading " +
-                            "of variations is visualised rather than played through.")
-                    .setDialogBodyBackgroundColor(R.color.dialogBackground)
-                    .setDialogIconAndColor(R.drawable.ic_dialog_info, R.color.white)
-                    .setCancelable(true)
-                    .setColoredCircle(R.color.colorPrimary)
-                    .setPositiveButtonText("OK")
-                    .setPositiveButtonbackgroundColor(R.color.colorPrimaryDark)
-                    .setPositiveButtonTextColor(R.color.white)
-                    .setPositiveButtonClick { }
-                    .show()
+//            AwesomeInfoDialog(context)
+//                    .setTitle("Analysis is disabled")
+//                    .setMessage("The challenger has configured this game to disable the analysis feature." +
+//                            "This is often setup by players that wish to mimic real-life conditions, where the reading " +
+//                            "of variations is visualised rather than played through.")
+//                    .setDialogBodyBackgroundColor(R.color.dialogBackground)
+//                    .setDialogIconAndColor(R.drawable.ic_dialog_info, R.color.white)
+//                    .setCancelable(true)
+//                    .setColoredCircle(R.color.colorPrimary)
+//                    .setPositiveButtonText("OK")
+//                    .setPositiveButtonbackgroundColor(R.color.colorPrimaryDark)
+//                    .setPositiveButtonTextColor(R.color.white)
+//                    .setPositiveButtonClick { }
+//                    .show()
         }
     }
 
@@ -222,18 +222,18 @@ class GameFragment : Fragment(), GameContract.View {
             }
         }
         context?.let {
-            AwesomeInfoDialog(context)
-                    .setTitle(title)
-                    .setMessage(message)
-                    .setDialogBodyBackgroundColor(R.color.dialogBackground)
-                    .setDialogIconAndColor(R.drawable.ic_dialog_info, R.color.white)
-                    .setCancelable(true)
-                    .setColoredCircle(R.color.colorPrimary)
-                    .setPositiveButtonText("OK")
-                    .setPositiveButtonbackgroundColor(R.color.colorPrimaryDark)
-                    .setPositiveButtonTextColor(R.color.white)
-                    .setPositiveButtonClick { }
-                    .show()
+//            AwesomeInfoDialog(context)
+//                    .setTitle(title)
+//                    .setMessage(message)
+//                    .setDialogBodyBackgroundColor(R.color.dialogBackground)
+//                    .setDialogIconAndColor(R.drawable.ic_dialog_info, R.color.white)
+//                    .setCancelable(true)
+//                    .setColoredCircle(R.color.colorPrimary)
+//                    .setPositiveButtonText("OK")
+//                    .setPositiveButtonbackgroundColor(R.color.colorPrimaryDark)
+//                    .setPositiveButtonTextColor(R.color.white)
+//                    .setPositiveButtonClick { }
+//                    .show()
         }
     }
 
@@ -357,22 +357,22 @@ class GameFragment : Fragment(), GameContract.View {
         set(value) { binding.board.isInteractive = value }
 
     override fun showUndoPrompt() {
-        AwesomeInfoDialog(context)
-                .setTitle("Undo Requested")
-                .setMessage("Your opponent requested to undo his/her last move. This usually means they mis-clicked and are asking you to let them rectify the mistake. You are not obligated to do so however and can ignore their request.")
-                .setColoredCircle(R.color.colorPrimary)
-                .setDialogIconAndColor(R.drawable.ic_dialog_info, R.color.white)
-                .setDialogBodyBackgroundColor(R.color.dialogBackground)
-                .setCancelable(true)
-                .setPositiveButtonText("Allow undo")
-                .setPositiveButtonbackgroundColor(R.color.colorPrimary)
-                .setPositiveButtonTextColor(R.color.white)
-                .setNegativeButtonText("Ignore")
-                .setNegativeButtonbackgroundColor(R.color.colorPrimary)
-                .setNegativeButtonTextColor(R.color.white)
-                .setPositiveButtonClick(presenter::onAcceptUndo)
-                .setNegativeButtonClick(presenter::onUndoRejected)
-                .show()
+//        AwesomeInfoDialog(context)
+//                .setTitle("Undo Requested")
+//                .setMessage("Your opponent requested to undo his/her last move. This usually means they mis-clicked and are asking you to let them rectify the mistake. You are not obligated to do so however and can ignore their request.")
+//                .setColoredCircle(R.color.colorPrimary)
+//                .setDialogIconAndColor(R.drawable.ic_dialog_info, R.color.white)
+//                .setDialogBodyBackgroundColor(R.color.dialogBackground)
+//                .setCancelable(true)
+//                .setPositiveButtonText("Allow undo")
+//                .setPositiveButtonbackgroundColor(R.color.colorPrimary)
+//                .setPositiveButtonTextColor(R.color.white)
+//                .setNegativeButtonText("Ignore")
+//                .setNegativeButtonbackgroundColor(R.color.colorPrimary)
+//                .setNegativeButtonTextColor(R.color.white)
+//                .setPositiveButtonClick(presenter::onAcceptUndo)
+//                .setNegativeButtonClick(presenter::onUndoRejected)
+//                .show()
     }
 
     override var nextButtonVisible = false
@@ -485,7 +485,7 @@ class GameFragment : Fragment(), GameContract.View {
         }
 
     private fun repeatingPresses(view: View): Observable<Any> {
-        return RxView.touches(view)
+        return view.touches()
                 .filter { it.action == MotionEvent.ACTION_DOWN || it.action == MotionEvent.ACTION_UP || it.action == MotionEvent.ACTION_CANCEL }
                 .map { it.action == MotionEvent.ACTION_DOWN }
                 .switchMap { state ->
@@ -591,15 +591,15 @@ class GameFragment : Fragment(), GameContract.View {
 
     override fun showInfoDialog(title: String, contents: String) {
         context?.let {
-            AwesomeInfoDialog(it)
-                    .setTitle(title)
-                    .setMessage(contents)
-                    .setCancelable(true)
-                    .setColoredCircle(R.color.colorPrimary)
-                    .setPositiveButtonText("OK")
-                    .setPositiveButtonbackgroundColor(R.color.colorPrimary)
-                    .setPositiveButtonClick { }
-                    .show()
+//            AwesomeInfoDialog(it)
+//                    .setTitle(title)
+//                    .setMessage(contents)
+//                    .setCancelable(true)
+//                    .setColoredCircle(R.color.colorPrimary)
+//                    .setPositiveButtonText("OK")
+//                    .setPositiveButtonbackgroundColor(R.color.colorPrimary)
+//                    .setPositiveButtonClick { }
+//                    .show()
         }
     }
 }

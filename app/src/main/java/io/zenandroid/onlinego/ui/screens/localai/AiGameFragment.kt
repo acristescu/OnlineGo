@@ -15,7 +15,7 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.transition.DrawableCrossFadeFactory
-import com.jakewharton.rxbinding2.view.RxView
+import com.jakewharton.rxbinding3.view.clicks
 import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
 import io.zenandroid.onlinego.OnlineGoApplication
@@ -49,17 +49,17 @@ class AiGameFragment : Fragment(), MviView<AiGameState, AiGameAction> {
                                 .map<AiGameAction>(AiGameAction::UserTappedCoordinate),
                         binding.board.tapMoveObservable()
                                 .map<AiGameAction>(AiGameAction::UserHotTrackedCoordinate),
-                        RxView.clicks(binding.previousButton)
+                        binding.previousButton.clicks()
                                 .map<AiGameAction> { UserPressedPrevious },
-                        RxView.clicks(binding.nextButton)
+                        binding.nextButton.clicks()
                                 .map<AiGameAction> { UserPressedNext },
-                        RxView.clicks(binding.passButton)
+                        binding.passButton.clicks()
                                 .map<AiGameAction> { UserPressedPass },
-                        RxView.clicks(binding.newGameButton)
+                        binding.newGameButton.clicks()
                                 .map<AiGameAction> { ShowNewGameDialog },
-                        RxView.clicks(binding.hintButton)
+                        binding.hintButton.clicks()
                                 .map<AiGameAction> { UserAskedForHint },
-                        RxView.clicks(binding.ownershipButton)
+                        binding.ownershipButton.clicks()
                                 .map<AiGameAction> { UserAskedForOwnership }
                 )
         ).startWith(ViewReady)

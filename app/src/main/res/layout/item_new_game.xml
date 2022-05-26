@@ -29,7 +29,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 app:srcCompat="@drawable/ic_person_filled"
-                app:tint="@color/white"
+                app:tint="#FFFFFF"
                 android:layout_gravity="center_vertical"
                 android:padding="12dp"
                 />

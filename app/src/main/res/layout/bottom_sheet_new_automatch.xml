@@ -100,7 +100,7 @@
         android:layout_gravity="center"
         android:layout_marginTop="20dp"
         android:backgroundTint="@color/colorAccent"
-        android:textColor="@color/white"
+        android:textColor="#FFFFFF"
         android:textStyle="bold"
         />
 </LinearLayout>

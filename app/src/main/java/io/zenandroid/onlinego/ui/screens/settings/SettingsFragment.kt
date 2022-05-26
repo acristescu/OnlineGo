@@ -1,6 +1,9 @@
 package io.zenandroid.onlinego.ui.screens.settings
 
+import android.app.Dialog
+import android.content.DialogInterface
 import android.content.Intent
+import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -15,7 +18,6 @@ import androidx.core.text.italic
 import androidx.core.view.doOnLayout
 import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
-import com.awesomedialog.blennersilva.awesomedialoglibrary.AwesomeInfoDialog
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
@@ -54,42 +56,28 @@ class SettingsFragment : Fragment() {
             }
 
             aboutButton.setOnClickListener {
-                AwesomeInfoDialog(context)
+                MaterialAlertDialogBuilder(requireContext())
                         .setTitle("About")
                         .setMessage("MrAlex's OnlineGo client for OGS server. Version ${BuildConfig.VERSION_NAME}.")
-                        .setDialogBodyBackgroundColor(R.color.colorOffWhite)
-                        .setDialogIconAndColor(R.drawable.ic_dialog_info, R.color.white)
+                        .setBackground(ColorDrawable(resources.getColor(R.color.colorOffWhite)))
                         .setCancelable(true)
-                        .setColoredCircle(R.color.colorPrimary)
-                        .setPositiveButtonText("OK")
-                        .setPositiveButtonbackgroundColor(R.color.colorPrimaryDark)
-                        .setPositiveButtonTextColor(R.color.white)
-                        .setPositiveButtonClick { }
+                        .setPositiveButton("OK") { _, _ -> }
                         .show()
             }
             privacyPolicyButton.setOnClickListener {
                 startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://www.freeprivacypolicy.com/privacy/view/40f932df1dfc9af1b04df367aa6f14f0")))
             }
             logoutButton.setOnClickListener {
-                AwesomeInfoDialog(context)
+                MaterialAlertDialogBuilder(requireContext())
                         .setTitle("Log Out")
                         .setMessage("Are you sure you want to log out? You won't be able to use the app until you log back in")
-                        .setDialogBodyBackgroundColor(R.color.colorOffWhite)
-                        .setColoredCircle(R.color.colorPrimary)
-                        .setDialogIconAndColor(R.drawable.ic_dialog_info, R.color.white)
                         .setCancelable(true)
-                        .setPositiveButtonText("Log out")
-                        .setPositiveButtonbackgroundColor(R.color.colorPrimaryDark)
-                        .setPositiveButtonTextColor(R.color.white)
-                        .setNegativeButtonText("Cancel")
-                        .setNegativeButtonbackgroundColor(R.color.colorPrimaryDark)
-                        .setNegativeButtonTextColor(R.color.white)
-                        .setPositiveButtonClick {
+                        .setPositiveButton("Log out") { _, _ ->
                             context?.let { FirebaseAnalytics.getInstance(it).logEvent("logout_clicked", null) }
                             userSessionRepository.logOut()
                             (activity as? MainActivity)?.showLogin()
                         }
-                        .setNegativeButtonClick {}
+                        .setNegativeButton("Cancel") { _, _ -> }
                         .show()
             }
             notificationsButton.setOnClickListener {

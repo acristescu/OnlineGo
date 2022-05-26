@@ -15,7 +15,7 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.google.firebase.crashlytics.FirebaseCrashlytics
-import com.jakewharton.rxbinding2.view.RxView
+import com.jakewharton.rxbinding3.view.clicks
 import io.noties.markwon.AbstractMarkwonPlugin
 import io.noties.markwon.Markwon
 import io.noties.markwon.MarkwonConfiguration
@@ -71,11 +71,11 @@ class JosekiExplorerFragment : Fragment(), MviView<JosekiExplorerState, JosekiEx
                                     .map<JosekiExplorerAction>(::UserTappedCoordinate),
                             binding.board.tapMoveObservable()
                                     .map<JosekiExplorerAction>(::UserHotTrackedCoordinate),
-                            RxView.clicks(binding.previousButton)
+                            binding.previousButton.clicks()
                                     .map<JosekiExplorerAction> { UserPressedPrevious },
-                            RxView.clicks(binding.nextButton)
+                            binding.nextButton.clicks()
                                     .map<JosekiExplorerAction> { UserPressedNext },
-                            RxView.clicks(binding.passButton)
+                            binding.passButton.clicks()
                                     .map<JosekiExplorerAction> { UserPressedPass }
                     )
             ).startWith(ViewReady)

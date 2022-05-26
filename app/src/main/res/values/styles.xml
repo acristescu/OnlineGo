@@ -76,7 +76,7 @@
     <style name="ThemeOverlay.App.Slider" parent="">
         <item name="colorPrimary">@color/colorAccent</item>
         <item name="colorOnSurface">@color/colorAccent</item>
-        <item name="android:textColor">@color/white</item>
+        <item name="android:textColor">#FFFFFF</item>
     </style>
     <style name="SupporterButton">
         <item name="backgroundTint">@null</item>
@@ -86,7 +86,7 @@
         <item name="android:layout_gravity">center</item>
         <item name="android:paddingTop">0dp</item>
         <item name="android:paddingBottom">0dp</item>
-        <item name="android:textColor">@color/white</item>
-        <item name="iconTint">@color/white</item>
+        <item name="android:textColor">#FFFFFF</item>
+        <item name="iconTint">#FFFFFF</item>
     </style>
 </resources>

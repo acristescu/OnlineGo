@@ -139,7 +139,7 @@
         android:text="New game"
         android:layout_gravity="center"
         android:layout_marginTop="20dp"
-        android:textColor="@color/white"
+        android:textColor="#FFFFFF"
         android:textStyle="bold"
         />
 

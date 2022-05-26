@@ -8,7 +8,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.SimpleItemAnimator
-import com.jakewharton.rxbinding2.widget.RxSearchView
+import com.jakewharton.rxbinding3.widget.queryTextChangeEvents
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.GroupieViewHolder
 import io.reactivex.Observable
@@ -67,10 +67,10 @@ class SearchPlayerFragment : Fragment(), MviView<SearchPlayerState, SearchPlayer
 
     override val actions: Observable<SearchPlayerAction>
         get() =
-            RxSearchView.queryTextChangeEvents(binding.searchView)
+            binding.searchView.queryTextChangeEvents()
                     .debounce(150, TimeUnit.MILLISECONDS)
                     .distinctUntilChanged()
-                    .map { SearchPlayerAction.Search(it.queryText().toString()) }
+                    .map { SearchPlayerAction.Search(it.queryText.toString()) }
 
     override fun render(state: SearchPlayerState) {
         binding.progressBar.showIf(state.loading)

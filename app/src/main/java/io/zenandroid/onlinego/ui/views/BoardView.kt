@@ -220,7 +220,7 @@ class BoardView : View {
 
         linesHighlightPaint.apply {
             strokeWidth = 4f
-            color = resources.getColor(R.color.white)
+            color = 0xFFFFFF
             strokeCap = Paint.Cap.ROUND
         }
 
