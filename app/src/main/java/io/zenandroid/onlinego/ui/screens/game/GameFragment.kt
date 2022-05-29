@@ -8,18 +8,18 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Forum
 import androidx.compose.material.icons.outlined.Flag
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.rounded.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.ui.Alignment
@@ -29,21 +29,19 @@ import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.capitalize
-import androidx.compose.ui.text.toLowerCase
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import androidx.fragment.app.Fragment
 import coil.compose.rememberImagePainter
 import io.zenandroid.onlinego.R
@@ -51,6 +49,7 @@ import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.Position
 import io.zenandroid.onlinego.data.model.StoneType
 import io.zenandroid.onlinego.ui.composables.Board
+import io.zenandroid.onlinego.ui.composables.DotsFlashing
 import io.zenandroid.onlinego.ui.screens.game.Button.*
 import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
 import io.zenandroid.onlinego.ui.theme.background
@@ -82,7 +81,17 @@ class GameFragment : Fragment() {
                 val state by rememberStateWithLifecycle(viewModel.state)
 
                 OnlineGoTheme {
-                    GameScreen(state, viewModel::onCellTracked, viewModel::onCellTapUp, viewModel::onButtonPressed, ::onBackPressed)
+                    GameScreen(
+                        state = state,
+                        onTapMove = viewModel::onCellTracked,
+                        onTapUp = viewModel::onCellTapUp,
+                        onButtonPressed = viewModel::onButtonPressed,
+                        onBack = ::onBackPressed,
+                        onGameInfo = {},
+                        onMore = {},
+                        onRetryDialogDismissed = viewModel::onRetryDialogDismissed,
+                        onRetryDialogRetry = viewModel::onRetryDialogRetry
+                    )
                 }
             }
         }
@@ -95,12 +104,14 @@ class GameFragment : Fragment() {
 
 @Composable
 fun GameScreen(state: GameState,
-               onTapMove: ((Cell) -> Unit)? = null,
-               onTapUp: ((Cell) -> Unit)? = null,
-               onButtonPressed: ((Button) -> Unit)? = null,
-               onBack: (() -> Unit)? = null,
-               onGameInfo: (() -> Unit)? = null,
-               onMore: (() -> Unit)? = null,
+               onTapMove: ((Cell) -> Unit),
+               onTapUp: ((Cell) -> Unit),
+               onButtonPressed: ((Button) -> Unit),
+               onBack: (() -> Unit),
+               onGameInfo: (() -> Unit),
+               onMore: (() -> Unit),
+               onRetryDialogDismissed: (() -> Unit),
+               onRetryDialogRetry: (() -> Unit),
 ) {
     Column (Modifier.background(Color.White)){
         Row {
@@ -158,7 +169,7 @@ fun GameScreen(state: GameState,
                         modifier = Modifier
                             .fillMaxHeight()
                             .weight(1f)
-                            .background(if(it == CONFIRM_MOVE) Color(0xFFFEDF47) else Color.White)
+                            .background(if (it == CONFIRM_MOVE) Color(0xFFFEDF47) else Color.White)
                             .clickable { onButtonPressed?.invoke(it) },
                         horizontalAlignment = CenterHorizontally,
                         verticalArrangement = Arrangement.Center,
@@ -175,6 +186,75 @@ fun GameScreen(state: GameState,
                             color = Color(0xFF443741),
                         )
                     }
+                }
+            }
+            state.bottomText?.let { text ->
+                Spacer(modifier = Modifier.weight(.5f))
+                Text(
+                    text = text,
+                    style = MaterialTheme.typography.h2,
+                    modifier = Modifier.align(CenterVertically)
+                )
+                DotsFlashing(
+                    dotSize = 4.dp,
+                    color = Color.Gray,
+                    modifier = Modifier
+                        .align(CenterVertically)
+                        .padding(top = 10.dp, start = 4.dp))
+                Spacer(modifier = Modifier.weight(.5f))
+            }
+        }
+    }
+    if (state.retryMoveDialogShown) {
+        Dialog(onDismissRequest = onRetryDialogDismissed) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier
+                    .shadow(4.dp)
+                    .background(
+                        color = Color.White,
+                        shape = RoundedCornerShape(10.dp)
+                    )
+                    .padding(16.dp)
+            ) {
+                Text(
+                    text = "CONNECTION PROBLEMS",
+                    style = MaterialTheme.typography.h6,
+                    color = Color(0xFF443741),
+                    )
+                Text(
+                    text = "The server is not responding. Please check your internet connection.",
+                    style = MaterialTheme.typography.body1,
+                    textAlign = TextAlign.Center,
+                    color = Color(0xFF443741),
+                    modifier = Modifier.padding(vertical = 36.dp)
+                )
+                TextButton(
+                    colors = ButtonDefaults.textButtonColors(
+                        backgroundColor = Color(0xFFFEDF47),
+                        contentColor = Color(0xFF443741)
+                    ),
+                    elevation = ButtonDefaults.elevation(
+                        defaultElevation = 8.dp,
+                        pressedElevation = 4.dp,
+                    ),
+                    onClick = onRetryDialogRetry,
+                ) {
+                    Text(
+                        text = "TRY AGAIN",
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+                TextButton(
+                    colors = ButtonDefaults.textButtonColors(contentColor = Color(0xFF443741)),
+                    onClick = onRetryDialogDismissed,
+                ) {
+                    Text(
+                        text = "CANCEL",
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth()
+                    )
                 }
             }
         }
@@ -314,8 +394,12 @@ fun Preview() {
                 blackFirstLine = "04:26",
                 blackSecondLine = "+ 3 × 01:00",
                 blackPercentage = 15,
-            )
-        ))
+            ),
+            bottomText = null,
+            retryMoveDialogShown = false,
+        ),
+            {}, {}, {}, {}, {}, {}, {}, {}
+        )
     }
 }
 
@@ -356,6 +440,99 @@ fun Preview1() {
                 blackSecondLine = "+ 3 × 01:00",
                 blackPercentage = 15,
             ),
-        ))
+            bottomText = null,
+            retryMoveDialogShown = false,
+        ),
+            {}, {}, {}, {}, {}, {}, {}, {}
+        )
+    }
+}
+
+@Preview (showBackground = true)
+@Composable
+fun Preview2() {
+    OnlineGoTheme {
+        GameScreen(state = GameState(
+            position = Position(19, 19, whiteStones = setOf(Cell(3, 3)), blackStones = setOf(Cell(15, 15))),
+            loading = false,
+            gameWidth = 19,
+            gameHeight = 19,
+            candidateMove = null,
+            boardInteractive = false,
+            buttons = emptyList(),
+            title = "Move 132 · Chinese · Black",
+            whitePlayer = PlayerData(
+                name = "MrAlex-test",
+                details = "+5.5 points",
+                rank = "13k",
+                flagCode = "\uD83C\uDDEC\uD83C\uDDE7",
+                iconURL = "https://secure.gravatar.com/avatar/d740835c39d6dd7c60977b244ac821db?s=64&d=retro",
+                color = StoneType.WHITE,
+            ),
+            blackPlayer = PlayerData(
+                name = "MrAlex",
+                details = "",
+                rank = "9k",
+                flagCode = "\uD83C\uDDEC\uD83C\uDDE7",
+                iconURL = "https://secure.gravatar.com/avatar/d740835c39d6dd7c60977b244ac821db?s=64&d=retro",
+                color = StoneType.BLACK,
+                ),
+            timerDetails = TimerDetails(
+                whiteFirstLine = "04:26",
+                whiteSecondLine = "+ 3 × 01:00",
+                whitePercentage = 80,
+                blackFirstLine = "04:26",
+                blackSecondLine = "+ 3 × 01:00",
+                blackPercentage = 15,
+            ),
+            bottomText = "Submitting move",
+            retryMoveDialogShown = false,
+        ),
+            {}, {}, {}, {}, {}, {}, {}, {}
+        )
+    }
+}
+@Preview (showBackground = true)
+@Composable
+fun Preview3() {
+    OnlineGoTheme {
+        GameScreen(state = GameState(
+            position = Position(19, 19, whiteStones = setOf(Cell(3, 3)), blackStones = setOf(Cell(15, 15))),
+            loading = false,
+            gameWidth = 19,
+            gameHeight = 19,
+            candidateMove = null,
+            boardInteractive = false,
+            buttons = emptyList(),
+            title = "Move 132 · Chinese · Black",
+            whitePlayer = PlayerData(
+                name = "MrAlex-test",
+                details = "+5.5 points",
+                rank = "13k",
+                flagCode = "\uD83C\uDDEC\uD83C\uDDE7",
+                iconURL = "https://secure.gravatar.com/avatar/d740835c39d6dd7c60977b244ac821db?s=64&d=retro",
+                color = StoneType.WHITE,
+            ),
+            blackPlayer = PlayerData(
+                name = "MrAlex",
+                details = "",
+                rank = "9k",
+                flagCode = "\uD83C\uDDEC\uD83C\uDDE7",
+                iconURL = "https://secure.gravatar.com/avatar/d740835c39d6dd7c60977b244ac821db?s=64&d=retro",
+                color = StoneType.BLACK,
+                ),
+            timerDetails = TimerDetails(
+                whiteFirstLine = "04:26",
+                whiteSecondLine = "+ 3 × 01:00",
+                whitePercentage = 80,
+                blackFirstLine = "04:26",
+                blackSecondLine = "+ 3 × 01:00",
+                blackPercentage = 15,
+            ),
+            bottomText = "Submitting move",
+            retryMoveDialogShown = true,
+        ),
+            {}, {}, {}, {}, {}, {}, {}, {}
+        )
     }
 }

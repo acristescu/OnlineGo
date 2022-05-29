@@ -22,6 +22,9 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
+private const val MAX_ATTEMPTS = 3
+private const val DELAY_BETWEEN_ATTEMTS = 5000L
+
 class GameViewModel(
     private val activeGamesRepository: ActiveGamesRepository,
     userSessionRepository: UserSessionRepository,
@@ -37,6 +40,8 @@ class GameViewModel(
     private lateinit var gameConnection: GameConnection
     private val gameState = MutableStateFlow<Game?>(null)
     private val timer = MutableStateFlow(TimerDetails("", "", "", "", 0, 0))
+    private val pendingMove = MutableStateFlow<PendingMove?>(null)
+    private val retrySendMoveDialogShown = MutableStateFlow(false)
 
     fun initialize(gameId: Long, gameWidth: Int, gameHeight: Int) {
         val gameFlow = activeGamesRepository.monitorGameFlow(gameId).distinctUntilChanged()
@@ -49,13 +54,14 @@ class GameViewModel(
                     position.emit(RulesManager.replay(game))
                     gameState.emit(game)
                     loading.emit(false)
-                    viewModelScope.launch {
-                        timerRefresher()
-                    }
+                    checkPendingMove(game)
                 }
             }
         }
 
+        viewModelScope.launch {
+            timerRefresher()
+        }
 
         state = combine(
             loading,
@@ -63,10 +69,13 @@ class GameViewModel(
             position,
             timer,
             candidateMove,
-        ) { loading, game, position, timer, candidateMove ->
+            pendingMove,
+            retrySendMoveDialogShown,
+        ) { loading, game, position, timer, candidateMove, pendingMove, retryMoveDialog ->
             val isMyTurn = game?.phase == Phase.PLAY && (position.nextToMove == StoneType.WHITE && game.whitePlayer.id == userId) || (position.nextToMove == StoneType.BLACK && game?.blackPlayer?.id == userId)
             val visibleButtons =
                 when {
+                    pendingMove != null -> emptyList()
                     isMyTurn && candidateMove == null -> listOf(ANALYZE, PASS, RESIGN, CHAT, NEXT_GAME)
                     isMyTurn && candidateMove != null -> listOf(CONFIRM_MOVE, DISCARD_MOVE)
                     !isMyTurn && game?.phase == Phase.PLAY -> listOf(ANALYZE, UNDO, RESIGN, CHAT, NEXT_GAME)
@@ -74,18 +83,25 @@ class GameViewModel(
                 }
 
             val whiteToMove = game?.playerToMoveId == game?.whitePlayer?.id
+            val bottomText = when {
+                pendingMove != null && pendingMove.attempt == 1 -> "Submitting move"
+                pendingMove != null -> "Submitting move (attempt #${pendingMove.attempt})"
+                else -> null
+            }
             GameState(
                 position = position,
                 loading = loading,
                 gameWidth = gameWidth,
                 gameHeight = gameHeight,
                 candidateMove = candidateMove,
-                boardInteractive = isMyTurn,
+                boardInteractive = isMyTurn && pendingMove == null,
                 buttons = visibleButtons,
                 title = if(loading) "Loading..." else "Move ${game?.moves?.size} · ${game?.rules?.capitalize()} · ${if(whiteToMove) "White" else "Black"}",
                 whitePlayer = game?.whitePlayer?.data(StoneType.WHITE),
                 blackPlayer = game?.blackPlayer?.data(StoneType.BLACK),
                 timerDetails = timer,
+                bottomText = bottomText,
+                retryMoveDialogShown = retryMoveDialog,
             )
         }.stateIn(
             scope = viewModelScope,
@@ -102,8 +118,26 @@ class GameViewModel(
                 whitePlayer = null,
                 blackPlayer = null,
                 timerDetails = null,
+                bottomText = null,
+                retryMoveDialogShown = false,
             ),
         )
+    }
+
+    fun onRetryDialogDismissed() {
+        viewModelScope.launch {
+            retrySendMoveDialogShown.emit(false)
+            pendingMove.emit(null)
+        }
+    }
+
+    fun onRetryDialogRetry() {
+        viewModelScope.launch {
+            retrySendMoveDialogShown.emit(false)
+            pendingMove.value?.let {
+                submitMove(it.cell, it.moveNo)
+            }
+        }
     }
 
     private suspend fun timerRefresher() {
@@ -222,7 +256,7 @@ class GameViewModel(
 
     fun onButtonPressed(button: Button) {
         when(button) {
-            CONFIRM_MOVE -> candidateMove.value?.let { gameConnection.submitMove(it) }
+            CONFIRM_MOVE -> candidateMove.value?.let { submitMove(it,gameState.value?.moves?.size ?: 0) }
             DISCARD_MOVE -> candidateMove.value = null
             ANALYZE -> TODO()
             PASS -> TODO()
@@ -230,6 +264,39 @@ class GameViewModel(
             CHAT -> TODO()
             NEXT_GAME -> TODO()
             UNDO -> TODO()
+        }
+    }
+
+    private fun submitMove(move: Cell, moveNo: Int, attempt: Int = 1) {
+        viewModelScope.launch {
+            val newMove = PendingMove(
+                cell = move,
+                moveNo = moveNo,
+                attempt = attempt
+            )
+            pendingMove.emit(newMove)
+            gameConnection.submitMove(move)
+            delay(DELAY_BETWEEN_ATTEMTS)
+            if(pendingMove.value == newMove) {
+                if(attempt >= MAX_ATTEMPTS) {
+                    onSubmitMoveFailed()
+                } else {
+                    submitMove(move, moveNo, attempt + 1)
+                }
+            }
+        }
+    }
+
+    private suspend fun onSubmitMoveFailed() {
+        retrySendMoveDialogShown.emit(true)
+    }
+
+    private suspend fun checkPendingMove(game: Game) {
+        val expectedMove = pendingMove.value ?: return
+        if(game?.moves?.getOrNull(expectedMove.moveNo) == expectedMove.cell) {
+            pendingMove.emit(null)
+            candidateMove.emit(null)
+            retrySendMoveDialogShown.emit(false)
         }
     }
 }
@@ -246,6 +313,8 @@ data class GameState(
     val whitePlayer: PlayerData?,
     val blackPlayer: PlayerData?,
     val timerDetails: TimerDetails?,
+    val bottomText: String?,
+    val retryMoveDialogShown: Boolean,
 )
 
 data class PlayerData(
@@ -275,4 +344,10 @@ data class TimerDetails(
     val blackSecondLine: String,
     val whitePercentage: Int,
     val blackPercentage: Int,
+)
+
+data class PendingMove(
+    val cell: Cell,
+    val moveNo: Int,
+    val attempt: Int,
 )
