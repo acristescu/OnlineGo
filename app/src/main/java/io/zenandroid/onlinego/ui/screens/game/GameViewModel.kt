@@ -42,6 +42,11 @@ class GameViewModel(
     private val timer = MutableStateFlow(TimerDetails("", "", "", "", 0, 0))
     private val pendingMove = MutableStateFlow<PendingMove?>(null)
     private val retrySendMoveDialogShown = MutableStateFlow(false)
+    private val analyzeMode = MutableStateFlow<Boolean>(false)
+    private val analysisPosition = MutableStateFlow<Position?>(null)
+    private val analysisShownMoveNumber = MutableStateFlow(0)
+    private val passDialogShowing = MutableStateFlow(false)
+    private val resignDialogShowing = MutableStateFlow(false)
 
     fun initialize(gameId: Long, gameWidth: Int, gameHeight: Int) {
         val gameFlow = activeGamesRepository.monitorGameFlow(gameId).distinctUntilChanged()
@@ -60,6 +65,14 @@ class GameViewModel(
         }
 
         viewModelScope.launch {
+            analysisShownMoveNumber.collect {
+                gameState.value?.let { game ->
+                    analysisPosition.emit(RulesManager.replay(game, it, false))
+                }
+            }
+        }
+
+        viewModelScope.launch {
             timerRefresher()
         }
 
@@ -71,10 +84,15 @@ class GameViewModel(
             candidateMove,
             pendingMove,
             retrySendMoveDialogShown,
-        ) { loading, game, position, timer, candidateMove, pendingMove, retryMoveDialog ->
+            analyzeMode,
+            analysisPosition,
+            passDialogShowing,
+            resignDialogShowing,
+        ) { loading, game, position, timer, candidateMove, pendingMove, retryMoveDialog, analyzeMode, analysisPosition, passDialogShowing, resignDialogShowing ->
             val isMyTurn = game?.phase == Phase.PLAY && (position.nextToMove == StoneType.WHITE && game.whitePlayer.id == userId) || (position.nextToMove == StoneType.BLACK && game?.blackPlayer?.id == userId)
             val visibleButtons =
                 when {
+                    analyzeMode -> listOf(EXIT_ANALYSIS, ESTIMATE, PREVIOUS, NEXT)
                     pendingMove != null -> emptyList()
                     isMyTurn && candidateMove == null -> listOf(ANALYZE, PASS, RESIGN, CHAT, NEXT_GAME)
                     isMyTurn && candidateMove != null -> listOf(CONFIRM_MOVE, DISCARD_MOVE)
@@ -89,7 +107,7 @@ class GameViewModel(
                 else -> null
             }
             GameState(
-                position = position,
+                position = if(analyzeMode) analysisPosition else position,
                 loading = loading,
                 gameWidth = gameWidth,
                 gameHeight = gameHeight,
@@ -102,6 +120,10 @@ class GameViewModel(
                 timerDetails = timer,
                 bottomText = bottomText,
                 retryMoveDialogShown = retryMoveDialog,
+                showAnalysisPanel = analyzeMode,
+                showPlayers = !analyzeMode,
+                passDialogShowing = passDialogShowing,
+                resignDialogShowing = resignDialogShowing,
             )
         }.stateIn(
             scope = viewModelScope,
@@ -120,7 +142,11 @@ class GameViewModel(
                 timerDetails = null,
                 bottomText = null,
                 retryMoveDialogShown = false,
-            ),
+                showAnalysisPanel = false,
+                showPlayers = true,
+                passDialogShowing = false,
+                resignDialogShowing = false,
+                ),
         )
     }
 
@@ -138,6 +164,24 @@ class GameViewModel(
                 submitMove(it.cell, it.moveNo)
             }
         }
+    }
+
+    fun onPassDialogDismissed() {
+        passDialogShowing.value = false
+    }
+
+    fun onPassDialogConfirm() {
+        passDialogShowing.value = false
+        submitMove(Cell(-1, -1), gameState.value?.moves?.size ?: 0)
+    }
+
+    fun onResignDialogDismissed() {
+        resignDialogShowing.value = false
+    }
+
+    fun onResignDialogConfirm() {
+        resignDialogShowing.value = false
+        gameConnection.resign()
     }
 
     private suspend fun timerRefresher() {
@@ -213,7 +257,7 @@ class GameViewModel(
                             in 0 until 10_000 -> 100
                             in 10_000 until 3_600_000 -> 1_000
                             in 3_600_000 until 24 * 3_600_000 -> 60_000
-                            else -> null
+                            else -> 12 * 60_000
                         }
                     } ?: 1000
                 }
@@ -258,12 +302,20 @@ class GameViewModel(
         when(button) {
             CONFIRM_MOVE -> candidateMove.value?.let { submitMove(it,gameState.value?.moves?.size ?: 0) }
             DISCARD_MOVE -> candidateMove.value = null
-            ANALYZE -> TODO()
-            PASS -> TODO()
-            RESIGN -> TODO()
+            ANALYZE -> viewModelScope.launch {
+                analysisShownMoveNumber.emit(gameState.value?.moves?.size ?: 0)
+                analysisPosition.emit(position.value)
+                analyzeMode.emit(true)
+            }
+            PASS -> passDialogShowing.value = true
+            RESIGN -> resignDialogShowing.value = true
             CHAT -> TODO()
             NEXT_GAME -> TODO()
             UNDO -> TODO()
+            EXIT_ANALYSIS -> analyzeMode.value = false
+            ESTIMATE -> TODO()
+            PREVIOUS -> analysisShownMoveNumber.value = (analysisShownMoveNumber.value - 1).coerceIn(0 until (gameState.value?.moves?.size ?: 0))
+            NEXT -> analysisShownMoveNumber.value = (analysisShownMoveNumber.value + 1).coerceIn(0 until (gameState.value?.moves?.size ?: 0))
         }
     }
 
@@ -315,6 +367,10 @@ data class GameState(
     val timerDetails: TimerDetails?,
     val bottomText: String?,
     val retryMoveDialogShown: Boolean,
+    val showPlayers: Boolean,
+    val showAnalysisPanel: Boolean,
+    val passDialogShowing: Boolean,
+    val resignDialogShowing: Boolean,
 )
 
 data class PlayerData(
@@ -326,7 +382,9 @@ data class PlayerData(
     val color: StoneType,
 )
 
-enum class Button {
+enum class Button(
+    val repeatable: Boolean = false
+) {
     CONFIRM_MOVE,
     DISCARD_MOVE,
     ANALYZE,
@@ -335,6 +393,10 @@ enum class Button {
     CHAT,
     NEXT_GAME,
     UNDO,
+    EXIT_ANALYSIS,
+    ESTIMATE,
+    PREVIOUS (repeatable = true),
+    NEXT (repeatable = true),
 }
 
 data class TimerDetails(

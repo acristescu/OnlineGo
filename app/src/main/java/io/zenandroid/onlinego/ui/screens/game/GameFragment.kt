@@ -2,13 +2,17 @@ package io.zenandroid.onlinego.ui.screens.game
 
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
-import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.*
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.gestures.forEachGesture
+import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.foundation.interaction.InteractionSource
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -18,22 +22,23 @@ import androidx.compose.material.icons.filled.Forum
 import androidx.compose.material.icons.outlined.Flag
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.rounded.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.State
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
+import androidx.compose.material.ripple.rememberRipple
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.BottomEnd
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
@@ -51,10 +56,15 @@ import io.zenandroid.onlinego.data.model.StoneType
 import io.zenandroid.onlinego.ui.composables.Board
 import io.zenandroid.onlinego.ui.composables.DotsFlashing
 import io.zenandroid.onlinego.ui.screens.game.Button.*
+import io.zenandroid.onlinego.ui.screens.mygames.Action
 import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
 import io.zenandroid.onlinego.ui.theme.background
+import io.zenandroid.onlinego.utils.WhatsNewUtils
 import io.zenandroid.onlinego.utils.processGravatarURL
 import io.zenandroid.onlinego.utils.rememberStateWithLifecycle
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import java.util.*
 
@@ -90,7 +100,11 @@ class GameFragment : Fragment() {
                         onGameInfo = {},
                         onMore = {},
                         onRetryDialogDismissed = viewModel::onRetryDialogDismissed,
-                        onRetryDialogRetry = viewModel::onRetryDialogRetry
+                        onRetryDialogRetry = viewModel::onRetryDialogRetry,
+                        onPassDialogConfirm = viewModel::onPassDialogConfirm,
+                        onPassDialogDismissed = viewModel::onPassDialogDismissed,
+                        onResignDialogConfirm = viewModel::onResignDialogConfirm,
+                        onResignDialogDismissed = viewModel::onResignDialogDismissed,
                     )
                 }
             }
@@ -112,6 +126,10 @@ fun GameScreen(state: GameState,
                onMore: (() -> Unit),
                onRetryDialogDismissed: (() -> Unit),
                onRetryDialogRetry: (() -> Unit),
+               onPassDialogDismissed: (() -> Unit),
+               onPassDialogConfirm: (() -> Unit),
+               onResignDialogDismissed: (() -> Unit),
+               onResignDialogConfirm: (() -> Unit),
 ) {
     Column (Modifier.background(Color.White)){
         Row {
@@ -134,15 +152,20 @@ fun GameScreen(state: GameState,
                 Icon(Icons.Rounded.MoreVert, "More", tint = Color(0xFF443741))
             }
         }
-        PlayerCard(
-            player = state.blackPlayer,
-            timerMain = state.timerDetails?.blackFirstLine ?: "",
-            timerExtra = state.timerDetails?.blackSecondLine ?: "",
-            timerPercent = state.timerDetails?.blackPercentage ?: 0,
-            modifier = Modifier
-                .weight(.5f)
-                .fillMaxWidth()
-        )
+        if(state.showAnalysisPanel) {
+            Spacer(modifier = Modifier.weight(1f))
+        }
+        if(state.showPlayers) {
+            PlayerCard(
+                player = state.blackPlayer,
+                timerMain = state.timerDetails?.blackFirstLine ?: "",
+                timerExtra = state.timerDetails?.blackSecondLine ?: "",
+                timerPercent = state.timerDetails?.blackPercentage ?: 0,
+                modifier = Modifier
+                    .weight(.5f)
+                    .fillMaxWidth()
+            )
+        }
         Board(
             boardWidth = state.gameWidth,
             boardHeight = state.gameHeight,
@@ -153,15 +176,17 @@ fun GameScreen(state: GameState,
             onTapMove = onTapMove,
             onTapUp = onTapUp,
         )
-        PlayerCard(
-            player = state.whitePlayer,
-            timerMain = state.timerDetails?.whiteFirstLine ?: "",
-            timerExtra = state.timerDetails?.whiteSecondLine ?: "",
-            timerPercent = state.timerDetails?.whitePercentage ?: 0,
-            modifier = Modifier
-                .weight(.5f)
-                .fillMaxWidth()
-        )
+        if(state.showPlayers) {
+            PlayerCard(
+                player = state.whitePlayer,
+                timerMain = state.timerDetails?.whiteFirstLine ?: "",
+                timerExtra = state.timerDetails?.whiteSecondLine ?: "",
+                timerPercent = state.timerDetails?.whitePercentage ?: 0,
+                modifier = Modifier
+                    .weight(.5f)
+                    .fillMaxWidth()
+            )
+        }
         Row (modifier = Modifier.height(56.dp)) {
             state.buttons.forEach {
                 key(it) {
@@ -170,7 +195,11 @@ fun GameScreen(state: GameState,
                             .fillMaxHeight()
                             .weight(1f)
                             .background(if (it == CONFIRM_MOVE) Color(0xFFFEDF47) else Color.White)
-                            .clickable { onButtonPressed?.invoke(it) },
+                            .clickable { if (!it.repeatable) onButtonPressed?.invoke(it) }
+                            .repeatingClickable(
+                                remember { MutableInteractionSource() },
+                                it.repeatable
+                            ) { onButtonPressed?.invoke(it) },
                         horizontalAlignment = CenterHorizontally,
                         verticalArrangement = Arrangement.Center,
                     ) {
@@ -258,6 +287,40 @@ fun GameScreen(state: GameState,
                 }
             }
         }
+    }
+    if(state.passDialogShowing) {
+        AlertDialog(
+            onDismissRequest = onPassDialogDismissed,
+            dismissButton = {
+                TextButton(onClick = onPassDialogDismissed) {
+                    Text("CANCEL")
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = onPassDialogConfirm) {
+                    Text("PASS")
+                }
+            },
+            text = { Text("Are you sure you want to pass? You should only do this if you think the game is over and there are no more moves to be made. If your opponent passes too, the game proceeds to the scoring phase.") },
+            title = { Text("Please confirm") },
+        )
+    }
+    if(state.resignDialogShowing) {
+        AlertDialog(
+            onDismissRequest = onPassDialogDismissed,
+            dismissButton = {
+                TextButton(onClick = onResignDialogDismissed) {
+                    Text("CANCEL")
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = onResignDialogConfirm) {
+                    Text("RESIGN")
+                }
+            },
+            text = { Text("Are you sure you want to resign?") },
+            title = { Text("Please confirm") },
+        )
     }
 }
 
@@ -347,6 +410,39 @@ fun PlayerCard(player: PlayerData?, timerMain: String, timerExtra: String, timer
     }
 }
 
+fun Modifier.repeatingClickable(
+    interactionSource: InteractionSource,
+    enabled: Boolean,
+    maxDelayMillis: Long = 300,
+    minDelayMillis: Long = 20,
+    delayDecayFactor: Float = .15f,
+    onClick: () -> Unit
+): Modifier = composed {
+
+    val currentClickListener by rememberUpdatedState(onClick)
+
+    pointerInput(interactionSource, enabled) {
+        forEachGesture {
+            coroutineScope {
+                awaitPointerEventScope {
+                    val down = awaitFirstDown(requireUnconsumed = false)
+                    val heldButtonJob = launch {
+                        var currentDelayMillis = maxDelayMillis
+                        while (enabled && down.pressed) {
+                            currentClickListener()
+                            delay(currentDelayMillis)
+                            val nextMillis = currentDelayMillis - (currentDelayMillis * delayDecayFactor)
+                            currentDelayMillis = nextMillis.toLong().coerceAtLeast(minDelayMillis)
+                        }
+                    }
+                    waitForUpOrCancellation()
+                    heldButtonJob.cancel()
+                }
+            }
+        }
+    }
+}
+
 private fun Button.getIcon() = when(this) {
     CONFIRM_MOVE -> Icons.Rounded.ThumbUp
     DISCARD_MOVE -> Icons.Rounded.Cancel
@@ -356,6 +452,10 @@ private fun Button.getIcon() = when(this) {
     CHAT -> Icons.Filled.Forum
     NEXT_GAME -> Icons.Rounded.NextPlan
     UNDO -> Icons.Rounded.Undo
+    EXIT_ANALYSIS -> Icons.Rounded.HighlightOff
+    ESTIMATE -> Icons.Rounded.Functions
+    PREVIOUS -> Icons.Rounded.SkipPrevious
+    NEXT -> Icons.Rounded.SkipNext
 }
 
 @Preview (showBackground = true)
@@ -397,8 +497,12 @@ fun Preview() {
             ),
             bottomText = null,
             retryMoveDialogShown = false,
+            showPlayers = true,
+            showAnalysisPanel = false,
+            passDialogShowing = false,
+            resignDialogShowing = false,
         ),
-            {}, {}, {}, {}, {}, {}, {}, {}
+            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
         )
     }
 }
@@ -442,8 +546,12 @@ fun Preview1() {
             ),
             bottomText = null,
             retryMoveDialogShown = false,
-        ),
-            {}, {}, {}, {}, {}, {}, {}, {}
+            showPlayers = true,
+            showAnalysisPanel = false,
+            passDialogShowing = false,
+            resignDialogShowing = false,
+            ),
+            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
         )
     }
 }
@@ -487,8 +595,12 @@ fun Preview2() {
             ),
             bottomText = "Submitting move",
             retryMoveDialogShown = false,
+            showPlayers = true,
+            showAnalysisPanel = false,
+            passDialogShowing = false,
+            resignDialogShowing = false,
         ),
-            {}, {}, {}, {}, {}, {}, {}, {}
+            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
         )
     }
 }
@@ -531,8 +643,61 @@ fun Preview3() {
             ),
             bottomText = "Submitting move",
             retryMoveDialogShown = true,
-        ),
-            {}, {}, {}, {}, {}, {}, {}, {}
+            showPlayers = true,
+            showAnalysisPanel = false,
+            passDialogShowing = false,
+            resignDialogShowing = false,
+            ),
+            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
+        )
+    }
+}
+
+@Preview (showBackground = true)
+@Composable
+fun Preview4() {
+    OnlineGoTheme {
+        GameScreen(state = GameState(
+            position = Position(19, 19, whiteStones = setOf(Cell(3, 3)), blackStones = setOf(Cell(15, 15))),
+            loading = false,
+            gameWidth = 19,
+            gameHeight = 19,
+            candidateMove = null,
+            boardInteractive = false,
+            buttons = listOf(EXIT_ANALYSIS, ESTIMATE, PREVIOUS, NEXT),
+            title = "Move 132 · Chinese · Black",
+            whitePlayer = PlayerData(
+                name = "MrAlex-test",
+                details = "+5.5 points",
+                rank = "13k",
+                flagCode = "\uD83C\uDDEC\uD83C\uDDE7",
+                iconURL = "https://secure.gravatar.com/avatar/d740835c39d6dd7c60977b244ac821db?s=64&d=retro",
+                color = StoneType.WHITE,
+            ),
+            blackPlayer = PlayerData(
+                name = "MrAlex",
+                details = "",
+                rank = "9k",
+                flagCode = "\uD83C\uDDEC\uD83C\uDDE7",
+                iconURL = "https://secure.gravatar.com/avatar/d740835c39d6dd7c60977b244ac821db?s=64&d=retro",
+                color = StoneType.BLACK,
+                ),
+            timerDetails = TimerDetails(
+                whiteFirstLine = "04:26",
+                whiteSecondLine = "+ 3 × 01:00",
+                whitePercentage = 80,
+                blackFirstLine = "04:26",
+                blackSecondLine = "+ 3 × 01:00",
+                blackPercentage = 15,
+            ),
+            bottomText = null,
+            retryMoveDialogShown = false,
+            showPlayers = false,
+            showAnalysisPanel = true,
+            passDialogShowing = false,
+            resignDialogShowing = false,
+            ),
+            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
         )
     }
 }
