@@ -203,7 +203,8 @@ fun computeTimeLeft(
     playerTimeSimple: Long?,
     playerTime: Time?,
     currentPlayer: Boolean,
-    pausedSince: Long?
+    pausedSince: Long?,
+    timeControl: TimeControl? = null,
 ): GamePresenter.TimerDetails {
     val now = serverTime.coerceAtMost(pausedSince ?: Long.MAX_VALUE)
     val baseTime = clock.lastMove.coerceAtMost(pausedSince ?: Long.MAX_VALUE)
@@ -249,8 +250,10 @@ fun computeTimeLeft(
                 timeLeft = (playerTime.period_time!! * 1000).toLong()
             }
             secondLine = "$periodsLeft x ${formatMillis((playerTime.period_time!! * 1000).toLong())}"
+        } else if(timeControl?.time_control == "fischer"){
+            secondLine = "+ ${formatMillis(timeControl.time_increment!! * 1000L)} / move"
         } else {
-            // absolute timer or fischer timer, nothing to do
+            //absolute timer
         }
     } else {
         // No timer

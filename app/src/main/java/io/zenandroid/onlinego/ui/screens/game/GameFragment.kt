@@ -29,8 +29,10 @@ import androidx.compose.ui.Alignment.Companion.BottomEnd
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Alignment.Companion.CenterVertically
+import androidx.compose.ui.Alignment.Companion.Top
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
@@ -46,6 +48,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.fragment.app.Fragment
 import coil.compose.rememberImagePainter
@@ -161,6 +164,7 @@ fun GameScreen(state: GameState,
                 timerMain = state.timerDetails?.blackFirstLine ?: "",
                 timerExtra = state.timerDetails?.blackSecondLine ?: "",
                 timerPercent = state.timerDetails?.blackPercentage ?: 0,
+                timerFaded = state.timerDetails?.blackFaded ?: true,
                 modifier = Modifier
                     .weight(.5f)
                     .fillMaxWidth()
@@ -182,6 +186,7 @@ fun GameScreen(state: GameState,
                 timerMain = state.timerDetails?.whiteFirstLine ?: "",
                 timerExtra = state.timerDetails?.whiteSecondLine ?: "",
                 timerPercent = state.timerDetails?.whitePercentage ?: 0,
+                timerFaded = state.timerDetails?.whiteFaded ?: true,
                 modifier = Modifier
                     .weight(.5f)
                     .fillMaxWidth()
@@ -325,7 +330,8 @@ fun GameScreen(state: GameState,
 }
 
 @Composable
-fun PlayerCard(player: PlayerData?, timerMain: String, timerExtra: String, timerPercent: Int, modifier: Modifier = Modifier) {
+fun PlayerCard(player: PlayerData?, timerMain: String, timerExtra: String, timerPercent: Int, timerFaded: Boolean, modifier: Modifier = Modifier) {
+    val alpha = if(timerFaded) .6f else 1f
     player?.let {
         Row(verticalAlignment = CenterVertically,
             modifier = modifier
@@ -335,6 +341,7 @@ fun PlayerCard(player: PlayerData?, timerMain: String, timerExtra: String, timer
                     modifier = Modifier
                         .size(30.dp, 30.dp)
                         .align(CenterHorizontally)
+                        .alpha(alpha)
                 ) {
                     drawCircle(
                         color = Color(0xFF443741),
@@ -353,12 +360,12 @@ fun PlayerCard(player: PlayerData?, timerMain: String, timerExtra: String, timer
                 Text(
                     text = timerMain,
                     style = MaterialTheme.typography.h6,
-                    color = Color(0xFF443741),
+                    color = Color(0xFF443741).copy(alpha = alpha),
                 )
                 Text(
                     text = timerExtra,
                     style = MaterialTheme.typography.h5,
-                    color = Color(0xFF443741),
+                    color = Color(0xFF443741).copy(alpha = alpha),
                 )
             }
             Box(modifier = Modifier
@@ -400,12 +407,20 @@ fun PlayerCard(player: PlayerData?, timerMain: String, timerExtra: String, timer
                 }
             }
 
-            Text(
-                text = player.name,
-                style = MaterialTheme.typography.h2,
-                color = Color(0xFF443741),
-                modifier = Modifier.padding(start = 16.dp)
-            )
+            Column(modifier = Modifier.padding(start = 16.dp)) {
+                Text(
+                    text = player.name + "  " + player.flagCode,
+                    style = MaterialTheme.typography.h2,
+                    color = Color(0xFF443741),
+                    modifier = Modifier
+                )
+                Text(
+                    text = player.details,
+                    style = MaterialTheme.typography.h5.copy(fontSize = 10.sp),
+                    color = Color(0xFF443741),
+                    modifier = Modifier.padding(top = 6.dp)
+                )
+            }
         }
     }
 }
@@ -462,13 +477,9 @@ private fun Button.getIcon() = when(this) {
 @Composable
 fun Preview() {
     OnlineGoTheme {
-        GameScreen(state = GameState(
+        GameScreen(state = GameState.DEFAULT.copy(
             position = Position(19, 19, whiteStones = setOf(Cell(3, 3)), blackStones = setOf(Cell(15, 15))),
             loading = false,
-            gameWidth = 19,
-            gameHeight = 19,
-            candidateMove = null,
-            boardInteractive = false,
             buttons = listOf(ANALYZE, PASS, RESIGN, CHAT, NEXT_GAME),
             title = "Move 132 · Chinese · Black",
             whitePlayer = PlayerData(
@@ -491,18 +502,13 @@ fun Preview() {
                 whiteFirstLine = "04:26",
                 whiteSecondLine = "+ 3 × 01:00",
                 whitePercentage = 80,
+                whiteFaded = true,
                 blackFirstLine = "04:26",
                 blackSecondLine = "+ 3 × 01:00",
                 blackPercentage = 15,
+                blackFaded = false,
             ),
-            bottomText = null,
-            retryMoveDialogShown = false,
-            showPlayers = true,
-            showAnalysisPanel = false,
-            passDialogShowing = false,
-            resignDialogShowing = false,
-        ),
-            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
+        ), {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
         )
     }
 }
@@ -511,13 +517,9 @@ fun Preview() {
 @Composable
 fun Preview1() {
     OnlineGoTheme {
-        GameScreen(state = GameState(
+        GameScreen(state = GameState.DEFAULT.copy(
             position = Position(19, 19, whiteStones = setOf(Cell(3, 3)), blackStones = setOf(Cell(15, 15))),
             loading = false,
-            gameWidth = 19,
-            gameHeight = 19,
-            candidateMove = null,
-            boardInteractive = false,
             buttons = listOf(CONFIRM_MOVE, DISCARD_MOVE),
             title = "Move 132 · Chinese · Black",
             whitePlayer = PlayerData(
@@ -540,18 +542,13 @@ fun Preview1() {
                 whiteFirstLine = "04:26",
                 whiteSecondLine = "+ 3 × 01:00",
                 whitePercentage = 80,
+                whiteFaded = true,
                 blackFirstLine = "04:26",
                 blackSecondLine = "+ 3 × 01:00",
                 blackPercentage = 15,
+                blackFaded = false,
             ),
-            bottomText = null,
-            retryMoveDialogShown = false,
-            showPlayers = true,
-            showAnalysisPanel = false,
-            passDialogShowing = false,
-            resignDialogShowing = false,
-            ),
-            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
+        ), {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
         )
     }
 }
@@ -560,14 +557,9 @@ fun Preview1() {
 @Composable
 fun Preview2() {
     OnlineGoTheme {
-        GameScreen(state = GameState(
+        GameScreen(state = GameState.DEFAULT.copy(
             position = Position(19, 19, whiteStones = setOf(Cell(3, 3)), blackStones = setOf(Cell(15, 15))),
             loading = false,
-            gameWidth = 19,
-            gameHeight = 19,
-            candidateMove = null,
-            boardInteractive = false,
-            buttons = emptyList(),
             title = "Move 132 · Chinese · Black",
             whitePlayer = PlayerData(
                 name = "MrAlex-test",
@@ -589,16 +581,13 @@ fun Preview2() {
                 whiteFirstLine = "04:26",
                 whiteSecondLine = "+ 3 × 01:00",
                 whitePercentage = 80,
+                whiteFaded = true,
                 blackFirstLine = "04:26",
                 blackSecondLine = "+ 3 × 01:00",
                 blackPercentage = 15,
+                blackFaded = false,
             ),
             bottomText = "Submitting move",
-            retryMoveDialogShown = false,
-            showPlayers = true,
-            showAnalysisPanel = false,
-            passDialogShowing = false,
-            resignDialogShowing = false,
         ),
             {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
         )
@@ -608,14 +597,9 @@ fun Preview2() {
 @Composable
 fun Preview3() {
     OnlineGoTheme {
-        GameScreen(state = GameState(
+        GameScreen(state = GameState.DEFAULT.copy(
             position = Position(19, 19, whiteStones = setOf(Cell(3, 3)), blackStones = setOf(Cell(15, 15))),
             loading = false,
-            gameWidth = 19,
-            gameHeight = 19,
-            candidateMove = null,
-            boardInteractive = false,
-            buttons = emptyList(),
             title = "Move 132 · Chinese · Black",
             whitePlayer = PlayerData(
                 name = "MrAlex-test",
@@ -637,16 +621,14 @@ fun Preview3() {
                 whiteFirstLine = "04:26",
                 whiteSecondLine = "+ 3 × 01:00",
                 whitePercentage = 80,
+                whiteFaded = true,
                 blackFirstLine = "04:26",
                 blackSecondLine = "+ 3 × 01:00",
                 blackPercentage = 15,
+                blackFaded = false,
             ),
             bottomText = "Submitting move",
             retryMoveDialogShown = true,
-            showPlayers = true,
-            showAnalysisPanel = false,
-            passDialogShowing = false,
-            resignDialogShowing = false,
             ),
             {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
         )
@@ -657,13 +639,9 @@ fun Preview3() {
 @Composable
 fun Preview4() {
     OnlineGoTheme {
-        GameScreen(state = GameState(
+        GameScreen(state = GameState.DEFAULT.copy(
             position = Position(19, 19, whiteStones = setOf(Cell(3, 3)), blackStones = setOf(Cell(15, 15))),
             loading = false,
-            gameWidth = 19,
-            gameHeight = 19,
-            candidateMove = null,
-            boardInteractive = false,
             buttons = listOf(EXIT_ANALYSIS, ESTIMATE, PREVIOUS, NEXT),
             title = "Move 132 · Chinese · Black",
             whitePlayer = PlayerData(
@@ -686,16 +664,14 @@ fun Preview4() {
                 whiteFirstLine = "04:26",
                 whiteSecondLine = "+ 3 × 01:00",
                 whitePercentage = 80,
+                whiteFaded = true,
                 blackFirstLine = "04:26",
                 blackSecondLine = "+ 3 × 01:00",
                 blackPercentage = 15,
+                blackFaded = false,
             ),
-            bottomText = null,
-            retryMoveDialogShown = false,
             showPlayers = false,
             showAnalysisPanel = true,
-            passDialogShowing = false,
-            resignDialogShowing = false,
             ),
             {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
         )

@@ -39,10 +39,10 @@ class GameViewModel(
     private val candidateMove = MutableStateFlow<Cell?>(null)
     private lateinit var gameConnection: GameConnection
     private val gameState = MutableStateFlow<Game?>(null)
-    private val timer = MutableStateFlow(TimerDetails("", "", "", "", 0, 0))
+    private val timer = MutableStateFlow(TimerDetails("", "", "", "", 0, 0, false, false))
     private val pendingMove = MutableStateFlow<PendingMove?>(null)
-    private val retrySendMoveDialogShown = MutableStateFlow(false)
-    private val analyzeMode = MutableStateFlow<Boolean>(false)
+    private val retrySendMoveDialogShowing = MutableStateFlow(false)
+    private val analyzeMode = MutableStateFlow(false)
     private val analysisPosition = MutableStateFlow<Position?>(null)
     private val analysisShownMoveNumber = MutableStateFlow(0)
     private val passDialogShowing = MutableStateFlow(false)
@@ -83,7 +83,7 @@ class GameViewModel(
             timer,
             candidateMove,
             pendingMove,
-            retrySendMoveDialogShown,
+            retrySendMoveDialogShowing,
             analyzeMode,
             analysisPosition,
             passDialogShowing,
@@ -106,8 +106,10 @@ class GameViewModel(
                 pendingMove != null -> "Submitting move (attempt #${pendingMove.attempt})"
                 else -> null
             }
+            val shownPosition = if(analyzeMode) analysisPosition else position
+            val score = if(shownPosition != null && game != null) RulesManager.scorePosition(shownPosition, game) else (0f to 0f)
             GameState(
-                position = if(analyzeMode) analysisPosition else position,
+                position = shownPosition,
                 loading = loading,
                 gameWidth = gameWidth,
                 gameHeight = gameHeight,
@@ -115,8 +117,8 @@ class GameViewModel(
                 boardInteractive = isMyTurn && pendingMove == null,
                 buttons = visibleButtons,
                 title = if(loading) "Loading..." else "Move ${game?.moves?.size} · ${game?.rules?.capitalize()} · ${if(whiteToMove) "White" else "Black"}",
-                whitePlayer = game?.whitePlayer?.data(StoneType.WHITE),
-                blackPlayer = game?.blackPlayer?.data(StoneType.BLACK),
+                whitePlayer = game?.whitePlayer?.data(StoneType.WHITE, score.first),
+                blackPlayer = game?.blackPlayer?.data(StoneType.BLACK, score.second),
                 timerDetails = timer,
                 bottomText = bottomText,
                 retryMoveDialogShown = retryMoveDialog,
@@ -128,38 +130,23 @@ class GameViewModel(
         }.stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
-            initialValue = GameState(
-                position = null,
-                loading = true,
+            initialValue = GameState.DEFAULT.copy(
                 gameWidth = gameWidth,
                 gameHeight = gameHeight,
-                candidateMove = null,
-                boardInteractive = false,
-                buttons = emptyList(),
-                title = "Loading...",
-                whitePlayer = null,
-                blackPlayer = null,
-                timerDetails = null,
-                bottomText = null,
-                retryMoveDialogShown = false,
-                showAnalysisPanel = false,
-                showPlayers = true,
-                passDialogShowing = false,
-                resignDialogShowing = false,
-                ),
+            ),
         )
     }
 
     fun onRetryDialogDismissed() {
         viewModelScope.launch {
-            retrySendMoveDialogShown.emit(false)
+            retrySendMoveDialogShowing.emit(false)
             pendingMove.emit(null)
         }
     }
 
     fun onRetryDialogRetry() {
         viewModelScope.launch {
-            retrySendMoveDialogShown.emit(false)
+            retrySendMoveDialogShowing.emit(false)
             pendingMove.value?.let {
                 submitMove(it.cell, it.moveNo)
             }
@@ -188,6 +175,12 @@ class GameViewModel(
         while (true) {
             var delayUntilNextUpdate = 1000L
             gameState.value?.let { game ->
+                val maxTime = game.timeControl?.let { timeControl ->
+                    when(timeControl.system) {
+                        "fischer" -> timeControl.initial_time?.times(1000L)
+                        else -> null
+                    }
+                } ?: 1
                 game.clock?.let { clock ->
                     val whiteToMove = game.playerToMoveId == game.whitePlayer.id
                     val blackToMove = game.playerToMoveId == game.blackPlayer.id
@@ -197,15 +190,17 @@ class GameViewModel(
                         clock.whiteTimeSimple,
                         clock.whiteTime,
                         whiteToMove,
-                        game.pausedSince
+                        game.pausedSince,
+                        game.timeControl,
                     )
                     val blackTimer = computeTimeLeft(
                         clock,
                         clock.blackTimeSimple,
                         clock.blackTime,
                         blackToMove,
-                        game.pausedSince
-                    )
+                        game.pausedSince,
+                        game.timeControl,
+                        )
 
                     var timeLeft = null as Long?
 
@@ -217,19 +212,23 @@ class GameViewModel(
                                     TimerDetails(
                                         whiteFirstLine = formatMillis(timeLeft!!),
                                         whiteSecondLine = "(start)",
-                                        whitePercentage = 45,
+                                        whitePercentage = (timeLeft!! / 300000.0 * 100).toInt(),
+                                        whiteFaded = false,
                                         blackFirstLine = blackTimer.firstLine ?: "",
                                         blackSecondLine = blackTimer.secondLine ?: "",
-                                        blackPercentage = 45,
+                                        blackPercentage = 100,
+                                        blackFaded = true,
                                     )
                                 else
                                     TimerDetails(
                                         whiteFirstLine = whiteTimer.firstLine ?: "",
                                         whiteSecondLine = whiteTimer.secondLine ?: "",
-                                        whitePercentage = 45,
+                                        whitePercentage = 100,
+                                        whiteFaded = true,
                                         blackFirstLine = formatMillis(timeLeft!!),
                                         blackSecondLine = "(start)",
-                                        blackPercentage = 45,
+                                        blackPercentage = (timeLeft!! / 300000.0 * 100).toInt(),
+                                        blackFaded = false,
                                     )
                             )
                         }
@@ -240,10 +239,12 @@ class GameViewModel(
                                 TimerDetails(
                                     whiteFirstLine = whiteTimer.firstLine ?: "",
                                     whiteSecondLine = whiteTimer.secondLine ?: "",
-                                    whitePercentage = 45,
+                                    whitePercentage = (whiteTimer.timeLeft / maxTime.toDouble() * 100).toInt(),
+                                    whiteFaded = blackToMove,
                                     blackFirstLine = blackTimer.firstLine ?: "",
                                     blackSecondLine = blackTimer.secondLine ?: "",
-                                    blackPercentage = 45,
+                                    blackPercentage = (blackTimer.timeLeft / maxTime.toDouble() * 100).toInt(),
+                                    blackFaded = whiteToMove,
                                 )
                             )
 
@@ -267,10 +268,10 @@ class GameViewModel(
         }
     }
 
-    private fun Player.data(color: StoneType): PlayerData {
+    private fun Player.data(color: StoneType, score: Float): PlayerData {
         return PlayerData(
             name = username,
-            details = "TODO",
+            details = if(score != 0f) "+ $score points" else "",
             rank = formatRank(egfToRank(rating)),
             flagCode = convertCountryCodeToEmojiFlag(country),
             iconURL = icon,
@@ -340,7 +341,7 @@ class GameViewModel(
     }
 
     private suspend fun onSubmitMoveFailed() {
-        retrySendMoveDialogShown.emit(true)
+        retrySendMoveDialogShowing.emit(true)
     }
 
     private suspend fun checkPendingMove(game: Game) {
@@ -348,7 +349,7 @@ class GameViewModel(
         if(game?.moves?.getOrNull(expectedMove.moveNo) == expectedMove.cell) {
             pendingMove.emit(null)
             candidateMove.emit(null)
-            retrySendMoveDialogShown.emit(false)
+            retrySendMoveDialogShowing.emit(false)
         }
     }
 }
@@ -371,7 +372,29 @@ data class GameState(
     val showAnalysisPanel: Boolean,
     val passDialogShowing: Boolean,
     val resignDialogShowing: Boolean,
-)
+) {
+    companion object {
+        val DEFAULT = GameState(
+            position = null,
+            loading = true,
+            gameWidth = 19,
+            gameHeight = 19,
+            candidateMove = null,
+            boardInteractive = false,
+            buttons = emptyList(),
+            title = "Loading...",
+            whitePlayer = null,
+            blackPlayer = null,
+            timerDetails = null,
+            bottomText = null,
+            retryMoveDialogShown = false,
+            showAnalysisPanel = false,
+            showPlayers = true,
+            passDialogShowing = false,
+            resignDialogShowing = false,
+        )
+    }
+}
 
 data class PlayerData(
     val name: String,
@@ -406,6 +429,8 @@ data class TimerDetails(
     val blackSecondLine: String,
     val whitePercentage: Int,
     val blackPercentage: Int,
+    val whiteFaded: Boolean,
+    val blackFaded: Boolean,
 )
 
 data class PendingMove(

@@ -2,6 +2,7 @@ package io.zenandroid.onlinego.utils
 
 import io.zenandroid.onlinego.data.model.local.Clock
 import io.zenandroid.onlinego.data.model.local.Time
+import io.zenandroid.onlinego.data.ogs.TimeControl
 import io.zenandroid.onlinego.data.repositories.ClockDriftRepository
 import org.koin.core.context.GlobalContext
 
@@ -12,5 +13,6 @@ fun computeTimeLeft(
     playerTimeSimple: Long?,
     playerTime: Time?,
     currentPlayer: Boolean,
-    pausedSince: Long?
-) = computeTimeLeft(clockDriftRepository.serverTime, clock, playerTimeSimple, playerTime, currentPlayer, pausedSince)
+    pausedSince: Long?,
+    timeControl: TimeControl? = null,
+) = computeTimeLeft(clockDriftRepository.serverTime, clock, playerTimeSimple, playerTime, currentPlayer, pausedSince, timeControl)
