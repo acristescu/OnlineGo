@@ -3,7 +3,7 @@
 buildscript {
     ext {
         compose_version = '1.2.0-beta02'
-        kotlin_version = "1.6.21"
+        kotlin_version = "1.6.10"
     }
     repositories {
         google()
@@ -21,6 +21,8 @@ buildscript {
         classpath 'com.google.firebase:firebase-crashlytics-gradle:2.8.1'
 
         classpath "org.koin:koin-gradle-plugin:2.2.1"
+
+        classpath "app.cash.molecule:molecule-gradle-plugin:0.2.0"
     }
 }
 

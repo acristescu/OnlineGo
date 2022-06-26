@@ -4,6 +4,7 @@ apply plugin: 'kotlin-kapt'
 apply plugin: 'com.google.gms.google-services'
 apply plugin: 'com.google.firebase.crashlytics'
 apply plugin: 'koin'
+apply plugin: 'app.cash.molecule'
 
 android {
     compileSdkVersion 31

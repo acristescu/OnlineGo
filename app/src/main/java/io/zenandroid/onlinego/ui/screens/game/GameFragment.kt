@@ -2,13 +2,10 @@ package io.zenandroid.onlinego.ui.screens.game
 
 import android.os.Bundle
 import android.view.LayoutInflater
-import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.*
 import androidx.compose.foundation.gestures.awaitFirstDown
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.forEachGesture
 import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.foundation.interaction.InteractionSource
@@ -22,14 +19,12 @@ import androidx.compose.material.icons.filled.Forum
 import androidx.compose.material.icons.outlined.Flag
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.rounded.*
-import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.BottomEnd
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Alignment.Companion.CenterVertically
-import androidx.compose.ui.Alignment.Companion.Top
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.draw.alpha
@@ -38,18 +33,25 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.vector.VectorPainter
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.core.text.parseAsHtml
+import androidx.core.text.toSpannable
 import androidx.fragment.app.Fragment
 import coil.compose.rememberImagePainter
 import io.zenandroid.onlinego.R
@@ -59,10 +61,7 @@ import io.zenandroid.onlinego.data.model.StoneType
 import io.zenandroid.onlinego.ui.composables.Board
 import io.zenandroid.onlinego.ui.composables.DotsFlashing
 import io.zenandroid.onlinego.ui.screens.game.Button.*
-import io.zenandroid.onlinego.ui.screens.mygames.Action
 import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
-import io.zenandroid.onlinego.ui.theme.background
-import io.zenandroid.onlinego.utils.WhatsNewUtils
 import io.zenandroid.onlinego.utils.processGravatarURL
 import io.zenandroid.onlinego.utils.rememberStateWithLifecycle
 import kotlinx.coroutines.coroutineScope
@@ -108,6 +107,8 @@ class GameFragment : Fragment() {
                         onPassDialogDismissed = viewModel::onPassDialogDismissed,
                         onResignDialogConfirm = viewModel::onResignDialogConfirm,
                         onResignDialogDismissed = viewModel::onResignDialogDismissed,
+                        onGameOverDialogAnalyze = viewModel::onGameOverDialogAnalyze,
+                        onGameOverDialogDismissed = viewModel::onGameOverDialogDismissed,
                     )
                 }
             }
@@ -133,6 +134,8 @@ fun GameScreen(state: GameState,
                onPassDialogConfirm: (() -> Unit),
                onResignDialogDismissed: (() -> Unit),
                onResignDialogConfirm: (() -> Unit),
+               onGameOverDialogDismissed: (() -> Unit),
+               onGameOverDialogAnalyze: (() -> Unit),
 ) {
     Column (Modifier.background(Color.White)){
         Row {
@@ -327,6 +330,88 @@ fun GameScreen(state: GameState,
             title = { Text("Please confirm") },
         )
     }
+    if(state.gameOverDialogShowing) {
+        Dialog(onDismissRequest = onGameOverDialogDismissed) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier
+                    .shadow(4.dp)
+                    .background(
+                        color = Color.White,
+                        shape = RoundedCornerShape(10.dp)
+                    )
+                    .padding(16.dp)
+            ) {
+                Text(
+                    text = "CONGRATULATIONS\nYOU WON",
+                    style = MaterialTheme.typography.h2,
+                    color = Color(0xFF443741),
+                    textAlign = TextAlign.Center,
+                )
+                Image(
+                    painter = rememberVectorPainter(image = Icons.Rounded.ThumbUp),
+                    contentDescription = "",
+                    colorFilter = ColorFilter.tint(Color(0xFF443741)),
+                    modifier = Modifier
+                        .padding(vertical = 24.dp)
+                        .size(128.dp)
+                )
+                Text(
+                    text = buildAnnotatedString {
+                        pushStyle(SpanStyle(fontWeight = FontWeight.Bold))
+                        append("MrAlex")
+                        pop()
+                        append(" resigned on move 132")
+                    },
+                    style = MaterialTheme.typography.body1,
+                    textAlign = TextAlign.Center,
+                    color = Color(0xFF443741),
+                )
+                Text(
+                    text = buildAnnotatedString {
+                        append("Your rating is now ")
+                        pushStyle(SpanStyle(fontWeight = FontWeight.Bold))
+                        append("7 kyu")
+                        pop()
+                        append(" - 1432 ")
+                        pushStyle(SpanStyle(fontStyle = FontStyle.Italic))
+                        append("(+13)")
+                    },
+                    style = MaterialTheme.typography.body1,
+                    textAlign = TextAlign.Center,
+                    color = Color(0xFF443741),
+                    modifier = Modifier.padding(top = 8.dp),
+                )
+                TextButton(
+                    colors = ButtonDefaults.textButtonColors(
+                        backgroundColor = Color(0xFFFEDF47),
+                        contentColor = Color(0xFF443741)
+                    ),
+                    elevation = ButtonDefaults.elevation(
+                        defaultElevation = 8.dp,
+                        pressedElevation = 4.dp,
+                    ),
+                    onClick = onRetryDialogRetry,
+                ) {
+                    Text(
+                        text = "TRY AGAIN",
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+                TextButton(
+                    colors = ButtonDefaults.textButtonColors(contentColor = Color(0xFF443741)),
+                    onClick = onRetryDialogDismissed,
+                ) {
+                    Text(
+                        text = "CANCEL",
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            }
+        }
+    }
 }
 
 @Composable
@@ -508,7 +593,7 @@ fun Preview() {
                 blackPercentage = 15,
                 blackFaded = false,
             ),
-        ), {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
+        ), {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
         )
     }
 }
@@ -548,7 +633,7 @@ fun Preview1() {
                 blackPercentage = 15,
                 blackFaded = false,
             ),
-        ), {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
+        ), {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
         )
     }
 }
@@ -589,7 +674,7 @@ fun Preview2() {
             ),
             bottomText = "Submitting move",
         ),
-            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
+            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
         )
     }
 }
@@ -630,7 +715,7 @@ fun Preview3() {
             bottomText = "Submitting move",
             retryMoveDialogShown = true,
             ),
-            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
+            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
         )
     }
 }
@@ -673,7 +758,51 @@ fun Preview4() {
             showPlayers = false,
             showAnalysisPanel = true,
             ),
-            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
+            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
+        )
+    }
+}
+
+@Preview (showBackground = true)
+@Composable
+fun Preview5() {
+    OnlineGoTheme {
+        GameScreen(state = GameState.DEFAULT.copy(
+            position = Position(19, 19, whiteStones = setOf(Cell(3, 3)), blackStones = setOf(Cell(15, 15))),
+            loading = false,
+            buttons = listOf(EXIT_ANALYSIS, ESTIMATE, PREVIOUS, NEXT),
+            title = "Move 132 · Chinese · Black",
+            whitePlayer = PlayerData(
+                name = "MrAlex-test",
+                details = "+5.5 points",
+                rank = "13k",
+                flagCode = "\uD83C\uDDEC\uD83C\uDDE7",
+                iconURL = "https://secure.gravatar.com/avatar/d740835c39d6dd7c60977b244ac821db?s=64&d=retro",
+                color = StoneType.WHITE,
+            ),
+            blackPlayer = PlayerData(
+                name = "MrAlex",
+                details = "",
+                rank = "9k",
+                flagCode = "\uD83C\uDDEC\uD83C\uDDE7",
+                iconURL = "https://secure.gravatar.com/avatar/d740835c39d6dd7c60977b244ac821db?s=64&d=retro",
+                color = StoneType.BLACK,
+                ),
+            timerDetails = TimerDetails(
+                whiteFirstLine = "04:26",
+                whiteSecondLine = "+ 3 × 01:00",
+                whitePercentage = 80,
+                whiteFaded = true,
+                blackFirstLine = "04:26",
+                blackSecondLine = "+ 3 × 01:00",
+                blackPercentage = 15,
+                blackFaded = false,
+            ),
+            showPlayers = false,
+            showAnalysisPanel = true,
+            gameOverDialogShowing = true,
+            ),
+            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
         )
     }
 }
