@@ -23,7 +23,7 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 
 private const val MAX_ATTEMPTS = 3
-private const val DELAY_BETWEEN_ATTEMTS = 5000L
+private const val DELAY_BETWEEN_ATTEMPTS = 5000L
 
 class GameViewModel(
     private val activeGamesRepository: ActiveGamesRepository,
@@ -36,21 +36,21 @@ class GameViewModel(
     // See: https://github.com/cashapp/molecule/#frame-clock
     private val moleculeScope = CoroutineScope(viewModelScope.coroutineContext + AndroidUiDispatcher.Main)
 
-    private val loading = mutableStateOf(true)
+    private var loading by mutableStateOf(true)
     private lateinit var position: MutableState<Position>
     private val userId = userSessionRepository.userId
-    private val candidateMove = mutableStateOf<Cell?>(null)
+    private var candidateMove by mutableStateOf<Cell?>(null)
     private lateinit var gameConnection: GameConnection
-    private val gameState = mutableStateOf<Game?>(null)
-    private val timer = mutableStateOf(TimerDetails("", "", "", "", 0, 0, false, false))
-    private val pendingMove = mutableStateOf<PendingMove?>(null)
-    private val retrySendMoveDialogShowing = mutableStateOf(false)
-    private val analyzeMode = mutableStateOf(false)
-    private val analysisShownMoveNumber = mutableStateOf(0)
-    private val passDialogShowing = mutableStateOf(false)
-    private val resignDialogShowing = mutableStateOf(false)
-    private val gameFinished = mutableStateOf<Boolean?>(null)
-    private val gameJustFinished = mutableStateOf(false)
+    private var gameState by mutableStateOf<Game?>(null)
+    private var timer by mutableStateOf(TimerDetails("", "", "", "", 0, 0, false, false))
+    private var pendingMove by mutableStateOf<PendingMove?>(null)
+    private var retrySendMoveDialogShowing by mutableStateOf(false)
+    private var analyzeMode by mutableStateOf(false)
+    private var analysisShownMoveNumber by mutableStateOf(0)
+    private var passDialogShowing by mutableStateOf(false)
+    private var resignDialogShowing by mutableStateOf(false)
+    private var gameFinished by mutableStateOf<Boolean?>(null)
+    private var gameJustFinished by mutableStateOf(false)
 
     private var timerJob: Job? = null
 
@@ -65,44 +65,30 @@ class GameViewModel(
             gameFlow.collect { game ->
                 withContext(Dispatchers.IO) {
                     position.value = RulesManager.replay(game)
-                    gameState.value = game
-                    loading.value = false
+                    gameState = game
+                    loading = false
                     checkPendingMove(game)
                     timerJob?.cancel()
                     timerJob = viewModelScope.launch {
                         timerRefresher()
                     }
-                    if (game.phase == Phase.FINISHED && gameFinished.value == false) { // Game just finished
-                        gameJustFinished.value = true
+                    if (game.phase == Phase.FINISHED && gameFinished == false) { // Game just finished
+                        gameJustFinished = true
                     }
-                    gameFinished.value = game.phase == Phase.FINISHED
+                    gameFinished = game.phase == Phase.FINISHED
                 }
             }
         }
 
         state = moleculeScope.launchMolecule {
-            val loading by loading
-            val game by gameState
-            val position by position
-            val timer by timer
-            val candidateMove by candidateMove
-            val pendingMove by pendingMove
-            val retryMoveDialog by retrySendMoveDialogShowing
-            val analyzeMode by analyzeMode
-            val passDialogShowing by passDialogShowing
-            val resignDialogShowing by resignDialogShowing
-            val gameFinished by gameFinished
-            val gameJustFinished by gameJustFinished
-            val analysisShownMoveNumber by analysisShownMoveNumber
-
-            val analysisPosition = remember(analysisShownMoveNumber, game != null) {
-                game?.let {
-                    RulesManager.replay(game!!, analysisShownMoveNumber, false)
+            val analysisPosition = remember(analysisShownMoveNumber, gameState != null) {
+                gameState?.let {
+                    RulesManager.replay(it, analysisShownMoveNumber, false)
                 }
             }
 
             val isMyTurn =
-                game?.phase == Phase.PLAY && (position.nextToMove == StoneType.WHITE && game?.whitePlayer?.id == userId) || (position.nextToMove == StoneType.BLACK && game?.blackPlayer?.id == userId)
+                gameState?.phase == Phase.PLAY && (position.value.nextToMove == StoneType.WHITE && gameState?.whitePlayer?.id == userId) || (position.value.nextToMove == StoneType.BLACK && gameState?.blackPlayer?.id == userId)
             val visibleButtons =
                 when {
                     gameFinished == true -> listOf(CHAT, ESTIMATE, PREVIOUS, NEXT)
@@ -110,19 +96,19 @@ class GameViewModel(
                     pendingMove != null -> emptyList()
                     isMyTurn && candidateMove == null -> listOf(ANALYZE, PASS, RESIGN, CHAT, NEXT_GAME)
                     isMyTurn && candidateMove != null -> listOf(CONFIRM_MOVE, DISCARD_MOVE)
-                    !isMyTurn && game?.phase == Phase.PLAY -> listOf(ANALYZE, UNDO, RESIGN, CHAT, NEXT_GAME)
+                    !isMyTurn && gameState?.phase == Phase.PLAY -> listOf(ANALYZE, UNDO, RESIGN, CHAT, NEXT_GAME)
                     else -> emptyList()
                 }
 
-            val whiteToMove = game?.playerToMoveId == game?.whitePlayer?.id
+            val whiteToMove = gameState?.playerToMoveId == gameState?.whitePlayer?.id
             val bottomText = when {
                 pendingMove != null && pendingMove?.attempt == 1 -> "Submitting move"
                 pendingMove != null -> "Submitting move (attempt #${pendingMove?.attempt})"
                 else -> null
             }
             val shownPosition =
-                if (analyzeMode || gameFinished == true) analysisPosition else position
-            val score = if (shownPosition != null && game != null) RulesManager.scorePosition(shownPosition, game!!) else (0f to 0f)
+                if (analyzeMode || gameFinished == true) analysisPosition else position.value
+            val score = if (shownPosition != null && gameState != null) RulesManager.scorePosition(shownPosition, gameState!!) else (0f to 0f)
             GameState(
                 position = shownPosition,
                 loading = loading,
@@ -131,12 +117,12 @@ class GameViewModel(
                 candidateMove = candidateMove,
                 boardInteractive = isMyTurn && pendingMove == null,
                 buttons = visibleButtons,
-                title = if (loading) "Loading..." else "Move ${game?.moves?.size} · ${game?.rules?.capitalize()} · ${if (whiteToMove) "White" else "Black"}",
-                whitePlayer = game?.whitePlayer?.data(StoneType.WHITE, score.first),
-                blackPlayer = game?.blackPlayer?.data(StoneType.BLACK, score.second),
+                title = if (loading) "Loading..." else "Move ${gameState?.moves?.size} · ${gameState?.rules?.capitalize()} · ${if (whiteToMove) "White" else "Black"}",
+                whitePlayer = gameState?.whitePlayer?.data(StoneType.WHITE, score.first),
+                blackPlayer = gameState?.blackPlayer?.data(StoneType.BLACK, score.second),
                 timerDetails = timer,
                 bottomText = bottomText,
-                retryMoveDialogShown = retryMoveDialog,
+                retryMoveDialogShown = retrySendMoveDialogShowing,
                 showAnalysisPanel = analyzeMode || gameFinished == true,
                 showPlayers = !(analyzeMode || gameFinished == true),
                 passDialogShowing = passDialogShowing,
@@ -148,40 +134,40 @@ class GameViewModel(
 
     fun onRetryDialogDismissed() {
         viewModelScope.launch {
-            retrySendMoveDialogShowing.value = false
-            pendingMove.value = null
+            retrySendMoveDialogShowing = false
+            pendingMove = null
         }
     }
 
     fun onRetryDialogRetry() {
         viewModelScope.launch {
-            retrySendMoveDialogShowing.value = false
-            pendingMove.value?.let {
+            retrySendMoveDialogShowing = false
+            pendingMove?.let {
                 submitMove(it.cell, it.moveNo)
             }
         }
     }
 
     fun onPassDialogDismissed() {
-        passDialogShowing.value = false
+        passDialogShowing = false
     }
 
     fun onPassDialogConfirm() {
-        passDialogShowing.value = false
-        submitMove(Cell(-1, -1), gameState.value?.moves?.size ?: 0)
+        passDialogShowing = false
+        submitMove(Cell(-1, -1), gameState?.moves?.size ?: 0)
     }
 
     fun onResignDialogDismissed() {
-        resignDialogShowing.value = false
+        resignDialogShowing = false
     }
 
     fun onResignDialogConfirm() {
-        resignDialogShowing.value = false
+        resignDialogShowing = false
         gameConnection.resign()
     }
 
     fun onGameOverDialogAnalyze() {
-        gameJustFinished.value = false
+        gameJustFinished = false
     }
 
     fun onGameOverDialogDismissed() {
@@ -191,7 +177,7 @@ class GameViewModel(
     private suspend fun timerRefresher() {
         while (true) {
             var delayUntilNextUpdate = 1000L
-            gameState.value?.let { game ->
+            gameState?.let { game ->
                 val maxTime = game.timeControl?.let { timeControl ->
                     when(timeControl.system) {
                         "fischer" -> timeControl.initial_time?.times(1000L)
@@ -224,7 +210,7 @@ class GameViewModel(
                     if (clock.startMode == true) {
                         clock.expiration?.let { expiration ->
                             timeLeft = expiration - clockDriftRepository.serverTime
-                            timer.value =
+                            timer =
                                 if (whiteToMove)
                                     TimerDetails(
                                         whiteFirstLine = formatMillis(timeLeft!!),
@@ -249,9 +235,9 @@ class GameViewModel(
                                     )
                         }
                     } else {
-                        if ((game.phase == Phase.PLAY || game.phase == Phase.STONE_REMOVAL) && !loading.value) {
+                        if ((game.phase == Phase.PLAY || game.phase == Phase.STONE_REMOVAL) && !loading) {
 
-                            timer.value =
+                            timer =
                                 TimerDetails(
                                     whiteFirstLine = whiteTimer.firstLine ?: "",
                                     whiteSecondLine = whiteTimer.secondLine ?: "",
@@ -300,7 +286,7 @@ class GameViewModel(
 
     fun onCellTracked(cell: Cell) {
         if(!position.value.blackStones.contains(cell) && !position.value.whiteStones.contains(cell)) {
-            candidateMove.value = cell
+            candidateMove = cell
         }
     }
 
@@ -308,28 +294,28 @@ class GameViewModel(
         viewModelScope.launch {
             val newPosition = RulesManager.makeMove(position.value, position.value.nextToMove, cell)
             if(newPosition == null) {
-                candidateMove.value = null
+                candidateMove = null
             }
         }
     }
 
     fun onButtonPressed(button: Button) {
         when(button) {
-            CONFIRM_MOVE -> candidateMove.value?.let { submitMove(it,gameState.value?.moves?.size ?: 0) }
-            DISCARD_MOVE -> candidateMove.value = null
+            CONFIRM_MOVE -> candidateMove?.let { submitMove(it,gameState?.moves?.size ?: 0) }
+            DISCARD_MOVE -> candidateMove = null
             ANALYZE -> viewModelScope.launch {
-                analysisShownMoveNumber.value = gameState.value?.moves?.size ?: 0
-                analyzeMode.value = true
+                analysisShownMoveNumber = gameState?.moves?.size ?: 0
+                analyzeMode = true
             }
-            PASS -> passDialogShowing.value = true
-            RESIGN -> resignDialogShowing.value = true
+            PASS -> passDialogShowing = true
+            RESIGN -> resignDialogShowing = true
             CHAT -> TODO()
             NEXT_GAME -> TODO()
             UNDO -> TODO()
-            EXIT_ANALYSIS -> analyzeMode.value = false
+            EXIT_ANALYSIS -> analyzeMode = false
             ESTIMATE -> TODO()
-            PREVIOUS -> analysisShownMoveNumber.value = (analysisShownMoveNumber.value - 1).coerceIn(0 .. (gameState.value?.moves?.size ?: 0))
-            NEXT -> analysisShownMoveNumber.value = (analysisShownMoveNumber.value + 1).coerceIn(0 .. (gameState.value?.moves?.size ?: 0))
+            PREVIOUS -> analysisShownMoveNumber = (analysisShownMoveNumber - 1).coerceIn(0 .. (gameState?.moves?.size ?: 0))
+            NEXT -> analysisShownMoveNumber = (analysisShownMoveNumber + 1).coerceIn(0 .. (gameState?.moves?.size ?: 0))
         }
     }
 
@@ -340,10 +326,10 @@ class GameViewModel(
                 moveNo = moveNo,
                 attempt = attempt
             )
-            pendingMove.value = newMove
+            pendingMove = newMove
             gameConnection.submitMove(move)
-            delay(DELAY_BETWEEN_ATTEMTS)
-            if(pendingMove.value == newMove) {
+            delay(DELAY_BETWEEN_ATTEMPTS)
+            if(pendingMove == newMove) {
                 if(attempt >= MAX_ATTEMPTS) {
                     onSubmitMoveFailed()
                 } else {
@@ -354,15 +340,15 @@ class GameViewModel(
     }
 
     private fun onSubmitMoveFailed() {
-        retrySendMoveDialogShowing.value = true
+        retrySendMoveDialogShowing = true
     }
 
     private fun checkPendingMove(game: Game) {
-        val expectedMove = pendingMove.value ?: return
+        val expectedMove = pendingMove ?: return
         if(game?.moves?.getOrNull(expectedMove.moveNo) == expectedMove.cell) {
-            pendingMove.value = null
-            candidateMove.value = null
-            retrySendMoveDialogShowing.value = false
+            pendingMove = null
+            candidateMove = null
+            retrySendMoveDialogShowing = false
         }
     }
 }
