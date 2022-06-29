@@ -55,6 +55,7 @@ class GameViewModel(
     private var timerJob: Job? = null
 
     lateinit var state: StateFlow<GameState>
+    var pendingNavigation by mutableStateOf<PendingNavigation?>(null)
 
     fun initialize(gameId: Long, gameWidth: Int, gameHeight: Int) {
         val gameFlow = activeGamesRepository.monitorGameFlow(gameId).distinctUntilChanged()
@@ -89,14 +90,16 @@ class GameViewModel(
 
             val isMyTurn =
                 gameState?.phase == Phase.PLAY && (position.value.nextToMove == StoneType.WHITE && gameState?.whitePlayer?.id == userId) || (position.value.nextToMove == StoneType.BLACK && gameState?.blackPlayer?.id == userId)
+
+            val nextGame = remember(activeGamesRepository.myTurnGames) { getNextGame() }
             val visibleButtons =
                 when {
                     gameFinished == true -> listOf(CHAT, ESTIMATE, PREVIOUS, NEXT)
                     analyzeMode -> listOf(EXIT_ANALYSIS, ESTIMATE, PREVIOUS, NEXT)
                     pendingMove != null -> emptyList()
-                    isMyTurn && candidateMove == null -> listOf(ANALYZE, PASS, RESIGN, CHAT, NEXT_GAME)
+                    isMyTurn && candidateMove == null -> listOf(ANALYZE, PASS, RESIGN, CHAT, if(nextGame != null) NEXT_GAME else NEXT_GAME_DISABLED)
                     isMyTurn && candidateMove != null -> listOf(CONFIRM_MOVE, DISCARD_MOVE)
-                    !isMyTurn && gameState?.phase == Phase.PLAY -> listOf(ANALYZE, UNDO, RESIGN, CHAT, NEXT_GAME)
+                    !isMyTurn && gameState?.phase == Phase.PLAY -> listOf(ANALYZE, UNDO, RESIGN, CHAT, if(nextGame != null) NEXT_GAME else NEXT_GAME_DISABLED)
                     else -> emptyList()
                 }
 
@@ -129,6 +132,15 @@ class GameViewModel(
                 resignDialogShowing = resignDialogShowing,
                 gameOverDialogShowing = gameJustFinished,
             )
+        }
+    }
+
+    private fun getNextGame(): Game? {
+        val ourIndex = activeGamesRepository.myTurnGames.indexOfFirst { it.id == gameState?.id }
+        return when {
+            ourIndex == -1 -> activeGamesRepository.myTurnGames.firstOrNull()
+            activeGamesRepository.myTurnGames.size == 1 -> null
+            else -> activeGamesRepository.myTurnGames[(ourIndex + 1) % activeGamesRepository.myTurnGames.size]
         }
     }
 
@@ -310,12 +322,13 @@ class GameViewModel(
             PASS -> passDialogShowing = true
             RESIGN -> resignDialogShowing = true
             CHAT -> TODO()
-            NEXT_GAME -> TODO()
+            NEXT_GAME -> getNextGame()?.let { pendingNavigation = PendingNavigation.NavigateToGame(it) }
             UNDO -> TODO()
             EXIT_ANALYSIS -> analyzeMode = false
             ESTIMATE -> TODO()
             PREVIOUS -> analysisShownMoveNumber = (analysisShownMoveNumber - 1).coerceIn(0 .. (gameState?.moves?.size ?: 0))
             NEXT -> analysisShownMoveNumber = (analysisShownMoveNumber + 1).coerceIn(0 .. (gameState?.moves?.size ?: 0))
+            NEXT_GAME_DISABLED -> {}
         }
     }
 
@@ -407,7 +420,8 @@ data class PlayerData(
 )
 
 enum class Button(
-    val repeatable: Boolean = false
+    val repeatable: Boolean = false,
+    val enabled: Boolean = true,
 ) {
     CONFIRM_MOVE,
     DISCARD_MOVE,
@@ -416,11 +430,12 @@ enum class Button(
     RESIGN,
     CHAT,
     NEXT_GAME,
+    NEXT_GAME_DISABLED (enabled = false),
     UNDO,
     EXIT_ANALYSIS,
     ESTIMATE,
     PREVIOUS (repeatable = true),
-    NEXT (repeatable = true),
+    NEXT (repeatable = true)
 }
 
 data class TimerDetails(
@@ -439,3 +454,7 @@ data class PendingMove(
     val moveNo: Int,
     val attempt: Int,
 )
+
+sealed class PendingNavigation {
+    class NavigateToGame(val game: Game) : PendingNavigation()
+}

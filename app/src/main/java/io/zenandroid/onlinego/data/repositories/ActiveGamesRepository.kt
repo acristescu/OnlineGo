@@ -1,6 +1,9 @@
 package io.zenandroid.onlinego.data.repositories
 
 import android.util.Log
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.squareup.moshi.JsonEncodingException
 import io.reactivex.Completable
@@ -63,6 +66,8 @@ class ActiveGamesRepository(
 
     val myTurnGamesList: List<Game>
         @Synchronized get() = activeDbGames.values.filter(Util::isMyTurn).toList()
+
+    var myTurnGames by mutableStateOf(emptyList<Game>())
 
     override fun onSocketConnected() {
         refreshActiveGames()
@@ -228,6 +233,7 @@ class ActiveGamesRepository(
             activeDbGames[it.id] = it
             connectToGame(it, false)
         }
+        myTurnGames = activeDbGames.values.filter(Util::isMyTurn).toList()
         myMoveCountSubject.onNext(activeDbGames.values.count { isMyTurn(it) })
     }
 

@@ -50,14 +50,18 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.core.os.bundleOf
 import androidx.core.text.parseAsHtml
 import androidx.core.text.toSpannable
 import androidx.fragment.app.Fragment
+import androidx.navigation.NavOptions
+import androidx.navigation.findNavController
 import coil.compose.rememberImagePainter
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.Position
 import io.zenandroid.onlinego.data.model.StoneType
+import io.zenandroid.onlinego.data.model.local.Game
 import io.zenandroid.onlinego.ui.composables.Board
 import io.zenandroid.onlinego.ui.composables.DotsFlashing
 import io.zenandroid.onlinego.ui.screens.game.Button.*
@@ -90,6 +94,12 @@ class GameFragment : Fragment() {
         )
         return ComposeView(requireContext()).apply {
             setContent {
+                viewModel.pendingNavigation ?.let { nav ->
+                    when(nav) {
+                        is PendingNavigation.NavigateToGame -> navigateToGameScreen(nav.game)
+                    }
+                }
+
                 val state by rememberStateWithLifecycle(viewModel.state)
 
                 OnlineGoTheme {
@@ -113,6 +123,18 @@ class GameFragment : Fragment() {
                 }
             }
         }
+    }
+
+    private fun navigateToGameScreen(game: Game) {
+        view?.findNavController()
+            ?.navigate(
+                R.id.gameFragment,
+                bundleOf(GAME_ID to game.id, GAME_WIDTH to game.width, GAME_HEIGHT to game.height),
+                NavOptions.Builder()
+                    .setLaunchSingleTop(true)
+                    .setPopUpTo(R.id.gameFragment, true)
+                    .build()
+            )
     }
 
     private fun onBackPressed() {
@@ -201,12 +223,13 @@ fun GameScreen(state: GameState,
                     Column(
                         modifier = Modifier
                             .fillMaxHeight()
+                            .alpha(if(it.enabled) 1f else .4f)
                             .weight(1f)
                             .background(if (it == CONFIRM_MOVE) Color(0xFFFEDF47) else Color.White)
-                            .clickable { if (!it.repeatable) onButtonPressed?.invoke(it) }
+                            .clickable(enabled = it.enabled) { if (!it.repeatable) onButtonPressed?.invoke(it) }
                             .repeatingClickable(
                                 remember { MutableInteractionSource() },
-                                it.repeatable
+                                it.repeatable && it.enabled
                             ) { onButtonPressed?.invoke(it) },
                         horizontalAlignment = CenterHorizontally,
                         verticalArrangement = Arrangement.Center,
@@ -218,7 +241,7 @@ fun GameScreen(state: GameState,
                             tint = Color(0xFF443741),
                         )
                         Text(
-                            text = it.name.lowercase().capitalize(Locale.ROOT).replace('_', ' '),
+                            text = it.getLabel(),
                             style = MaterialTheme.typography.h5,
                             color = Color(0xFF443741),
                         )
@@ -550,12 +573,19 @@ private fun Button.getIcon() = when(this) {
     PASS -> Icons.Rounded.Stop
     RESIGN -> Icons.Outlined.Flag
     CHAT -> Icons.Filled.Forum
-    NEXT_GAME -> Icons.Rounded.NextPlan
+    NEXT_GAME, NEXT_GAME_DISABLED -> Icons.Rounded.NextPlan
     UNDO -> Icons.Rounded.Undo
     EXIT_ANALYSIS -> Icons.Rounded.HighlightOff
     ESTIMATE -> Icons.Rounded.Functions
     PREVIOUS -> Icons.Rounded.SkipPrevious
     NEXT -> Icons.Rounded.SkipNext
+}
+
+private fun Button.getLabel() = when(this) {
+    NEXT_GAME_DISABLED -> "Next game"
+    else -> name.lowercase()
+        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.ROOT) else it.toString() }
+        .replace('_', ' ')
 }
 
 @Preview (showBackground = true)
