@@ -1,6 +1,10 @@
 package io.zenandroid.onlinego.ui.screens.game
 
 import androidx.compose.runtime.*
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.cash.molecule.AndroidUiDispatcher
@@ -50,7 +54,7 @@ class GameViewModel(
     private var passDialogShowing by mutableStateOf(false)
     private var resignDialogShowing by mutableStateOf(false)
     private var gameFinished by mutableStateOf<Boolean?>(null)
-    private var gameJustFinished by mutableStateOf(false)
+    private var gameOverDialog by mutableStateOf<GameOverDialogDetails?>(null)
 
     private var timerJob: Job? = null
 
@@ -73,8 +77,9 @@ class GameViewModel(
                     timerJob = viewModelScope.launch {
                         timerRefresher()
                     }
-                    if (game.phase == Phase.FINISHED && gameFinished == false) { // Game just finished
-                        gameJustFinished = true
+                    if (game.phase == Phase.FINISHED && gameFinished == false && game.blackLost != game.whiteLost) { // Game just finished
+                        gameOverDialog = calculateGameOverDetails(game)
+                        analysisShownMoveNumber = gameState?.moves?.size ?: 0
                     }
                     gameFinished = game.phase == Phase.FINISHED
                 }
@@ -130,9 +135,59 @@ class GameViewModel(
                 showPlayers = !(analyzeMode || gameFinished == true),
                 passDialogShowing = passDialogShowing,
                 resignDialogShowing = resignDialogShowing,
-                gameOverDialogShowing = gameJustFinished,
+                gameOverDialogShowing = gameOverDialog,
             )
         }
+    }
+
+    private fun calculateGameOverDetails(game: Game): GameOverDialogDetails {
+        val playerWon = (game.blackLost == true && game.whitePlayer.id == userId) || (game.whiteLost == true && game.blackPlayer.id == userId)
+        val winner = if(game.blackLost == true) game.whitePlayer else game.blackPlayer
+        val loser = if(game.blackLost == true) game.blackPlayer else game.whitePlayer
+        val you = if(game.whitePlayer.id == userId) game.whitePlayer else game.blackPlayer
+
+        var details = when {
+            game.outcome == "Resignation" -> buildAnnotatedString {
+                pushStyle(SpanStyle(fontWeight = FontWeight.Bold))
+                append(loser.username)
+                pop()
+                append(" resigned on move ${game.moves?.size}")
+            }
+            game.outcome?.endsWith("points") == true -> buildAnnotatedString {
+                pushStyle(SpanStyle(fontWeight = FontWeight.Bold))
+                append(winner.username)
+                pop()
+                append(" has ${game.outcome?.substringBefore(' ')} more points")
+            }
+            game.outcome == "Timeout" -> buildAnnotatedString {
+                pushStyle(SpanStyle(fontWeight = FontWeight.Bold))
+                append(loser.username)
+                pop()
+                append(" timed out.")
+            }
+            game.outcome == "Cancellation" -> buildAnnotatedString {
+                pushStyle(SpanStyle(fontWeight = FontWeight.Bold))
+                append(loser.username)
+                pop()
+                append(" cancelled the game.")
+            }
+            else -> AnnotatedString("Result unknown (${game.outcome})")
+        }
+
+        if(game.ranked == true) {
+            details += buildAnnotatedString {
+                append("\nYour rating is now ")
+                pushStyle(SpanStyle(fontWeight = FontWeight.Bold))
+                append(formatRank(egfToRank(you.rating)))
+                pop()
+                append(" - ${egfToRank(you.rating)}")
+            }
+        }
+
+        return GameOverDialogDetails(
+            playerWon = playerWon,
+            detailsText = details
+        )
     }
 
     private fun getNextGame(): Game? {
@@ -179,11 +234,15 @@ class GameViewModel(
     }
 
     fun onGameOverDialogAnalyze() {
-        gameJustFinished = false
+        gameOverDialog = null
     }
 
     fun onGameOverDialogDismissed() {
+        gameOverDialog = null
+    }
 
+    fun onGameOverDialogNextGame() {
+        getNextGame()?.let { pendingNavigation = PendingNavigation.NavigateToGame(it) }
     }
 
     private suspend fun timerRefresher() {
@@ -384,7 +443,7 @@ data class GameState(
     val showAnalysisPanel: Boolean,
     val passDialogShowing: Boolean,
     val resignDialogShowing: Boolean,
-    val gameOverDialogShowing: Boolean,
+    val gameOverDialogShowing: GameOverDialogDetails?,
 ) {
     companion object {
         val DEFAULT = GameState(
@@ -405,10 +464,15 @@ data class GameState(
             showPlayers = true,
             passDialogShowing = false,
             resignDialogShowing = false,
-            gameOverDialogShowing = false,
+            gameOverDialogShowing = null,
         )
     }
 }
+
+data class GameOverDialogDetails(
+    val playerWon: Boolean,
+    val detailsText: AnnotatedString,
+)
 
 data class PlayerData(
     val name: String,

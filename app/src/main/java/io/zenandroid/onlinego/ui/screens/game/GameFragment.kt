@@ -119,6 +119,7 @@ class GameFragment : Fragment() {
                         onResignDialogDismissed = viewModel::onResignDialogDismissed,
                         onGameOverDialogAnalyze = viewModel::onGameOverDialogAnalyze,
                         onGameOverDialogDismissed = viewModel::onGameOverDialogDismissed,
+                        onGameOverDialogNextGame = viewModel::onGameOverDialogNextGame,
                     )
                 }
             }
@@ -158,6 +159,7 @@ fun GameScreen(state: GameState,
                onResignDialogConfirm: (() -> Unit),
                onGameOverDialogDismissed: (() -> Unit),
                onGameOverDialogAnalyze: (() -> Unit),
+               onGameOverDialogNextGame: (() -> Unit),
 ) {
     Column (Modifier.background(Color.White)){
         Row {
@@ -223,7 +225,7 @@ fun GameScreen(state: GameState,
                     Column(
                         modifier = Modifier
                             .fillMaxHeight()
-                            .alpha(if(it.enabled) 1f else .4f)
+                            .alpha(if (it.enabled) 1f else .4f)
                             .weight(1f)
                             .background(if (it == CONFIRM_MOVE) Color(0xFFFEDF47) else Color.White)
                             .clickable(enabled = it.enabled) { if (!it.repeatable) onButtonPressed?.invoke(it) }
@@ -353,7 +355,7 @@ fun GameScreen(state: GameState,
             title = { Text("Please confirm") },
         )
     }
-    if(state.gameOverDialogShowing) {
+    state.gameOverDialogShowing?.let { dialog ->
         Dialog(onDismissRequest = onGameOverDialogDismissed) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -366,13 +368,13 @@ fun GameScreen(state: GameState,
                     .padding(16.dp)
             ) {
                 Text(
-                    text = "CONGRATULATIONS\nYOU WON",
+                    text = if(dialog.playerWon) "CONGRATULATIONS\nYOU WON" else "YOU LOST",
                     style = MaterialTheme.typography.h2,
                     color = Color(0xFF443741),
                     textAlign = TextAlign.Center,
                 )
                 Image(
-                    painter = rememberVectorPainter(image = Icons.Rounded.ThumbUp),
+                    painter = rememberVectorPainter(image = if(dialog.playerWon) Icons.Rounded.ThumbUp else Icons.Rounded.ThumbDown),
                     contentDescription = "",
                     colorFilter = ColorFilter.tint(Color(0xFF443741)),
                     modifier = Modifier
@@ -380,31 +382,12 @@ fun GameScreen(state: GameState,
                         .size(128.dp)
                 )
                 Text(
-                    text = buildAnnotatedString {
-                        pushStyle(SpanStyle(fontWeight = FontWeight.Bold))
-                        append("MrAlex")
-                        pop()
-                        append(" resigned on move 132")
-                    },
+                    text = dialog.detailsText,
                     style = MaterialTheme.typography.body1,
                     textAlign = TextAlign.Center,
                     color = Color(0xFF443741),
                 )
-                Text(
-                    text = buildAnnotatedString {
-                        append("Your rating is now ")
-                        pushStyle(SpanStyle(fontWeight = FontWeight.Bold))
-                        append("7 kyu")
-                        pop()
-                        append(" - 1432 ")
-                        pushStyle(SpanStyle(fontStyle = FontStyle.Italic))
-                        append("(+13)")
-                    },
-                    style = MaterialTheme.typography.body1,
-                    textAlign = TextAlign.Center,
-                    color = Color(0xFF443741),
-                    modifier = Modifier.padding(top = 8.dp),
-                )
+                Spacer(modifier = Modifier.height(28.dp))
                 TextButton(
                     colors = ButtonDefaults.textButtonColors(
                         backgroundColor = Color(0xFFFEDF47),
@@ -414,20 +397,20 @@ fun GameScreen(state: GameState,
                         defaultElevation = 8.dp,
                         pressedElevation = 4.dp,
                     ),
-                    onClick = onRetryDialogRetry,
+                    onClick = onGameOverDialogAnalyze,
                 ) {
                     Text(
-                        text = "TRY AGAIN",
+                        text = "ANALYZE",
                         textAlign = TextAlign.Center,
                         modifier = Modifier.fillMaxWidth()
                     )
                 }
                 TextButton(
                     colors = ButtonDefaults.textButtonColors(contentColor = Color(0xFF443741)),
-                    onClick = onRetryDialogDismissed,
+                    onClick = onGameOverDialogNextGame,
                 ) {
                     Text(
-                        text = "CANCEL",
+                        text = "NEXT GAME",
                         textAlign = TextAlign.Center,
                         modifier = Modifier.fillMaxWidth()
                     )
@@ -623,7 +606,7 @@ fun Preview() {
                 blackPercentage = 15,
                 blackFaded = false,
             ),
-        ), {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
+        ), {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
         )
     }
 }
@@ -663,7 +646,7 @@ fun Preview1() {
                 blackPercentage = 15,
                 blackFaded = false,
             ),
-        ), {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
+        ), {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
         )
     }
 }
@@ -704,7 +687,7 @@ fun Preview2() {
             ),
             bottomText = "Submitting move",
         ),
-            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
+            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
         )
     }
 }
@@ -745,7 +728,7 @@ fun Preview3() {
             bottomText = "Submitting move",
             retryMoveDialogShown = true,
             ),
-            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
+            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
         )
     }
 }
@@ -788,7 +771,7 @@ fun Preview4() {
             showPlayers = false,
             showAnalysisPanel = true,
             ),
-            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
+            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
         )
     }
 }
@@ -830,9 +813,17 @@ fun Preview5() {
             ),
             showPlayers = false,
             showAnalysisPanel = true,
-            gameOverDialogShowing = true,
+            gameOverDialogShowing = GameOverDialogDetails(
+                playerWon = false,
+                detailsText = buildAnnotatedString {
+                    pushStyle(SpanStyle(fontWeight = FontWeight.Bold))
+                    append("MrAlex")
+                    pop()
+                    append(" resigned on move 132")
+                }
             ),
-            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
+            ),
+            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
         )
     }
 }
