@@ -1,5 +1,6 @@
 package io.zenandroid.onlinego.ui.screens.game
 
+import android.media.MediaPlayer
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -54,9 +55,13 @@ import androidx.core.os.bundleOf
 import androidx.core.text.parseAsHtml
 import androidx.core.text.toSpannable
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.flowWithLifecycle
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavOptions
 import androidx.navigation.findNavController
 import coil.compose.rememberImagePainter
+import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.Position
@@ -67,9 +72,12 @@ import io.zenandroid.onlinego.ui.composables.DotsFlashing
 import io.zenandroid.onlinego.ui.screens.game.Button.*
 import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
 import io.zenandroid.onlinego.utils.processGravatarURL
+import io.zenandroid.onlinego.utils.rememberFlowWithLifecycle
 import io.zenandroid.onlinego.utils.rememberStateWithLifecycle
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import java.util.*
@@ -81,6 +89,7 @@ const val GAME_HEIGHT = "GAME_HEIGHT"
 class GameFragment : Fragment() {
 
     private val viewModel: GameViewModel by viewModel()
+    private val stoneSoundMediaPlayer = MediaPlayer.create(OnlineGoApplication.instance, R.raw.stone)
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -92,6 +101,16 @@ class GameFragment : Fragment() {
             gameWidth = requireArguments().getInt(GAME_WIDTH),
             gameHeight = requireArguments().getInt(GAME_HEIGHT),
         )
+
+        lifecycleScope.launch {
+            viewModel.events.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).collect {
+                when(it) {
+                    Event.PlayStoneSound -> stoneSoundMediaPlayer.start()
+                    null -> {}
+                }
+            }
+        }
+
         return ComposeView(requireContext()).apply {
             setContent {
                 viewModel.pendingNavigation ?.let { nav ->
@@ -228,7 +247,11 @@ fun GameScreen(state: GameState,
                             .alpha(if (it.enabled) 1f else .4f)
                             .weight(1f)
                             .background(if (it == CONFIRM_MOVE) Color(0xFFFEDF47) else Color.White)
-                            .clickable(enabled = it.enabled) { if (!it.repeatable) onButtonPressed?.invoke(it) }
+                            .clickable(enabled = it.enabled) {
+                                if (!it.repeatable) onButtonPressed?.invoke(
+                                    it
+                                )
+                            }
                             .repeatingClickable(
                                 remember { MutableInteractionSource() },
                                 it.repeatable && it.enabled

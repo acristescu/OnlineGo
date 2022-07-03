@@ -55,11 +55,15 @@ class GameViewModel(
     private var resignDialogShowing by mutableStateOf(false)
     private var gameFinished by mutableStateOf<Boolean?>(null)
     private var gameOverDialog by mutableStateOf<GameOverDialogDetails?>(null)
+    private var lastMoveList by mutableStateOf<List<Cell>?>(null)
 
     private var timerJob: Job? = null
 
     lateinit var state: StateFlow<GameState>
     var pendingNavigation by mutableStateOf<PendingNavigation?>(null)
+        private set
+    private val _events = MutableSharedFlow<Event?>()
+    val events = _events.asSharedFlow()
 
     fun initialize(gameId: Long, gameWidth: Int, gameHeight: Int) {
         val gameFlow = activeGamesRepository.monitorGameFlow(gameId).distinctUntilChanged()
@@ -82,6 +86,10 @@ class GameViewModel(
                         analysisShownMoveNumber = gameState?.moves?.size ?: 0
                     }
                     gameFinished = game.phase == Phase.FINISHED
+                    if(lastMoveList != null && lastMoveList != game.moves) {
+                        _events.emit(Event.PlayStoneSound)
+                    }
+                    lastMoveList = game.moves
                 }
             }
         }
@@ -180,7 +188,7 @@ class GameViewModel(
                 pushStyle(SpanStyle(fontWeight = FontWeight.Bold))
                 append(formatRank(egfToRank(you.rating)))
                 pop()
-                append(" - ${egfToRank(you.rating)}")
+                append(" - ${String.format("%.0f", you.rating)}")
             }
         }
 
@@ -342,7 +350,7 @@ class GameViewModel(
     private fun Player.data(color: StoneType, score: Float): PlayerData {
         return PlayerData(
             name = username,
-            details = if(score != 0f) "+ $score points" else "",
+            details = if(score != 0f) "${if(score > 0) "+ " else ""}$score points" else "",
             rank = formatRank(egfToRank(rating)),
             flagCode = convertCountryCodeToEmojiFlag(country),
             iconURL = icon,
@@ -521,4 +529,8 @@ data class PendingMove(
 
 sealed class PendingNavigation {
     class NavigateToGame(val game: Game) : PendingNavigation()
+}
+
+sealed class Event {
+    object PlayStoneSound: Event()
 }
