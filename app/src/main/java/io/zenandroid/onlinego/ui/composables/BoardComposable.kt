@@ -1,6 +1,5 @@
 package io.zenandroid.onlinego.ui.composables
 
-import android.graphics.PointF
 import android.graphics.Rect
 import android.os.Build
 import android.view.MotionEvent
@@ -14,10 +13,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.*
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.*
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.drawscope.*
+import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
@@ -47,6 +50,7 @@ fun Board(
     drawCoordinates: Boolean = true,
     interactive: Boolean = true,
     drawShadow: Boolean = true,
+    drawTerritory: Boolean = false,
     fadeInLastMove: Boolean = true,
     fadeOutRemovedStones: Boolean = true,
     removedStones: List<Pair<Cell, StoneType>>? = null,
@@ -144,7 +148,10 @@ fun Board(
 
                     drawDecorations(it, drawLastMove, drawMarks, measurements)
 
-//                drawTerritory(canvas, it)
+                    if(drawTerritory) {
+                        drawTerritory(it, measurements)
+                    }
+
 //                drawAiEstimatedOwnership(canvas, it)
 //                drawHints(canvas, it)
                 }
@@ -184,7 +191,7 @@ private data class Measurements(
 )
 
 private fun getCellCenter(i: Int, j: Int, measurements: Measurements) =
-        PointF(i * measurements.cellSize + measurements.halfCell, j * measurements.cellSize + measurements.halfCell)
+        Offset(i * measurements.cellSize + measurements.halfCell, j * measurements.cellSize + measurements.halfCell)
 
 private fun DrawScope.drawSingleStarPoint(i: Int, j: Int, measurements: Measurements) {
     val center = getCellCenter(i, j, measurements)
@@ -210,6 +217,48 @@ private fun DrawScope.drawTextCentred(text: String, cx: Float, cy: Float, textSi
                 cx - textBounds.exactCenterX(),
                 cy - textBounds.exactCenterY() + if (ignoreAscentDescent) (textBounds.bottom.toFloat() / 2) else 0f,
                 paint)
+    }
+}
+
+private fun DrawScope.drawTerritory(position: Position, measurements: Measurements) {
+    for(i in 0 until position.boardWidth) {
+        for(j in 0 until position.boardHeight) {
+            val p = Cell(i, j)
+            val center = getCellCenter(i, j, measurements)
+
+            val fillColor = when {
+                position.whiteTerritory.contains(p) -> Color.White
+                position.blackTerritory.contains(p) -> Color.Black
+                position.getStoneAt(p) == null && position.removedSpots.contains(p) -> Color.Transparent
+                else -> continue
+            }
+            drawRoundRect(
+                color = fillColor,
+                topLeft = Offset(
+                    x = center.x - (measurements.cellSize / 8).toFloat(),
+                    y = center.y - (measurements.cellSize / 8).toFloat(),
+                ),
+                size = Size(
+                    width = measurements.cellSize / 4f,
+                    height = measurements.cellSize / 4f,
+                ),
+                style = Fill,
+                cornerRadius = CornerRadius(measurements.cellSize / 16f, measurements.cellSize / 16f),
+            )
+            drawRoundRect(
+                color = Color.Gray,
+                topLeft = Offset(
+                    x = center.x - (measurements.cellSize / 8).toFloat(),
+                    y = center.y - (measurements.cellSize / 8).toFloat(),
+                ),
+                size = Size(
+                    width = measurements.cellSize / 4f,
+                    height = measurements.cellSize / 4f,
+                ),
+                style = Stroke(width = 2f),
+                cornerRadius = CornerRadius(measurements.cellSize / 16f, measurements.cellSize / 16f),
+            )
+         }
     }
 }
 

@@ -182,7 +182,7 @@ fun GameScreen(state: GameState,
 ) {
     Column (Modifier.background(Color.White)){
         Row {
-            IconButton(onClick = { onBack?.invoke() }) {
+            IconButton(onClick = { onBack.invoke() }) {
                 Icon(Icons.Rounded.ArrowBack, "Back", tint = Color(0xFF443741))
             }
             Spacer(modifier = Modifier.weight(.5f))
@@ -197,7 +197,7 @@ fun GameScreen(state: GameState,
                 .align(CenterVertically)
                 .padding(start = 6.dp))
             Spacer(modifier = Modifier.weight(.5f))
-            IconButton(onClick = { onMore?.invoke() }) {
+            IconButton(onClick = { onMore.invoke() }) {
                 Icon(Icons.Rounded.MoreVert, "More", tint = Color(0xFF443741))
             }
         }
@@ -221,6 +221,8 @@ fun GameScreen(state: GameState,
             boardHeight = state.gameHeight,
             position = state.position,
             interactive = state.boardInteractive,
+            drawTerritory = state.drawTerritory,
+            fadeOutRemovedStones = state.fadeOutRemovedStones,
             candidateMove = state.candidateMove,
             candidateMoveType = state.position?.nextToMove,
             onTapMove = onTapMove,
@@ -246,16 +248,14 @@ fun GameScreen(state: GameState,
                             .fillMaxHeight()
                             .alpha(if (it.enabled) 1f else .4f)
                             .weight(1f)
-                            .background(if (it == CONFIRM_MOVE) Color(0xFFFEDF47) else Color.White)
+                            .background(if (it == CONFIRM_MOVE || it == ACCEPT_STONE_REMOVAL) Color(0xFFFEDF47) else Color.White)
                             .clickable(enabled = it.enabled) {
-                                if (!it.repeatable) onButtonPressed?.invoke(
-                                    it
-                                )
+                                if (!it.repeatable) onButtonPressed.invoke(it)
                             }
                             .repeatingClickable(
                                 remember { MutableInteractionSource() },
                                 it.repeatable && it.enabled
-                            ) { onButtonPressed?.invoke(it) },
+                            ) { onButtonPressed.invoke(it) },
                         horizontalAlignment = CenterHorizontally,
                         verticalArrangement = Arrangement.Center,
                     ) {
@@ -585,10 +585,14 @@ private fun Button.getIcon() = when(this) {
     ESTIMATE -> Icons.Rounded.Functions
     PREVIOUS -> Icons.Rounded.SkipPrevious
     NEXT -> Icons.Rounded.SkipNext
+    ACCEPT_STONE_REMOVAL -> Icons.Rounded.ThumbUp
+    REJECT_STONE_REMOVAL -> Icons.Rounded.ThumbDown
 }
 
 private fun Button.getLabel() = when(this) {
     NEXT_GAME_DISABLED -> "Next game"
+    ACCEPT_STONE_REMOVAL -> "Accept"
+    REJECT_STONE_REMOVAL -> "Reject"
     else -> name.lowercase()
         .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.ROOT) else it.toString() }
         .replace('_', ' ')

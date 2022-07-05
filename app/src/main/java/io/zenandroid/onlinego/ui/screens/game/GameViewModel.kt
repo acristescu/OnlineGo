@@ -73,7 +73,7 @@ class GameViewModel(
         viewModelScope.launch {
             gameFlow.collect { game ->
                 withContext(Dispatchers.IO) {
-                    position.value = RulesManager.replay(game)
+                    position.value = RulesManager.replay(game = game, computeTerritory = game.phase == Phase.STONE_REMOVAL)
                     gameState = game
                     loading = false
                     checkPendingMove(game)
@@ -107,6 +107,7 @@ class GameViewModel(
             val nextGame = remember(activeGamesRepository.myTurnGames) { getNextGame() }
             val visibleButtons =
                 when {
+                    gameState?.phase == Phase.STONE_REMOVAL -> listOf(ACCEPT_STONE_REMOVAL, REJECT_STONE_REMOVAL)
                     gameFinished == true -> listOf(CHAT, ESTIMATE, PREVIOUS, NEXT)
                     analyzeMode -> listOf(EXIT_ANALYSIS, ESTIMATE, PREVIOUS, NEXT)
                     pendingMove != null -> emptyList()
@@ -131,7 +132,9 @@ class GameViewModel(
                 gameWidth = gameWidth,
                 gameHeight = gameHeight,
                 candidateMove = candidateMove,
-                boardInteractive = isMyTurn && pendingMove == null,
+                boardInteractive = (isMyTurn && pendingMove == null) || gameState?.phase == Phase.STONE_REMOVAL,
+                drawTerritory = gameState?.phase == Phase.STONE_REMOVAL || gameFinished == true,
+                fadeOutRemovedStones = gameState?.phase == Phase.STONE_REMOVAL || gameFinished == true,
                 buttons = visibleButtons,
                 title = if (loading) "Loading..." else "Move ${gameState?.moves?.size} · ${gameState?.rules?.capitalize()} · ${if (whiteToMove) "White" else "Black"}",
                 whitePlayer = gameState?.whitePlayer?.data(StoneType.WHITE, score.first),
@@ -364,16 +367,24 @@ class GameViewModel(
     }
 
     fun onCellTracked(cell: Cell) {
-        if(!position.value.blackStones.contains(cell) && !position.value.whiteStones.contains(cell)) {
+        if(gameState?.phase == Phase.PLAY && !position.value.blackStones.contains(cell) && !position.value.whiteStones.contains(cell)) {
             candidateMove = cell
         }
     }
 
     fun onCellTapUp(cell: Cell) {
-        viewModelScope.launch {
-            val newPosition = RulesManager.makeMove(position.value, position.value.nextToMove, cell)
-            if(newPosition == null) {
-                candidateMove = null
+        if(gameState?.phase == Phase.PLAY) {
+            viewModelScope.launch {
+                val newPosition =
+                    RulesManager.makeMove(position.value, position.value.nextToMove, cell)
+                if (newPosition == null) {
+                    candidateMove = null
+                }
+            }
+        } else if(gameState?.phase == Phase.STONE_REMOVAL) {
+            val (removing, delta) = RulesManager.toggleRemoved(position.value, cell)
+            if(delta.isNotEmpty()) {
+                gameConnection.submitRemovedStones(delta, removing)
             }
         }
     }
@@ -396,6 +407,8 @@ class GameViewModel(
             PREVIOUS -> analysisShownMoveNumber = (analysisShownMoveNumber - 1).coerceIn(0 .. (gameState?.moves?.size ?: 0))
             NEXT -> analysisShownMoveNumber = (analysisShownMoveNumber + 1).coerceIn(0 .. (gameState?.moves?.size ?: 0))
             NEXT_GAME_DISABLED -> {}
+            ACCEPT_STONE_REMOVAL -> gameConnection.acceptRemovedStones(position.value.removedSpots)
+            REJECT_STONE_REMOVAL -> gameConnection.rejectRemovedStones()
         }
     }
 
@@ -440,6 +453,8 @@ data class GameState(
     val gameHeight: Int,
     val candidateMove: Cell?,
     val boardInteractive: Boolean,
+    val drawTerritory: Boolean,
+    val fadeOutRemovedStones: Boolean,
     val buttons: List<Button>,
     val title: String,
     val whitePlayer: PlayerData?,
@@ -461,6 +476,8 @@ data class GameState(
             gameHeight = 19,
             candidateMove = null,
             boardInteractive = false,
+            drawTerritory = false,
+            fadeOutRemovedStones = false,
             buttons = emptyList(),
             title = "Loading...",
             whitePlayer = null,
@@ -497,6 +514,8 @@ enum class Button(
 ) {
     CONFIRM_MOVE,
     DISCARD_MOVE,
+    ACCEPT_STONE_REMOVAL,
+    REJECT_STONE_REMOVAL,
     ANALYZE,
     PASS,
     RESIGN,
