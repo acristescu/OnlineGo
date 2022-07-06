@@ -9,14 +9,21 @@ This app allows you to play the ancient game of GO (baduk, weiki, 围棋,
 ## Screenshots
 
 <p align="center">
-    <img src="readmeImages/ss1.jpg" width="220" />
-    <img src="readmeImages/ss2.jpg" width="220" />
-    <img src="readmeImages/ss3.jpg" width="220" />
+    <img src="readmeImages/ss1.png" width="220" />
+    <img src="readmeImages/ss2.png" width="220" />
+    <img src="readmeImages/ss3.png" width="220" />
+    <img src="readmeImages/ss4.png" width="220" />
 </p>
+
+## Tech stack
+
+Over the years the app has evolved from an MVP app written in JAVA to a modern architecture using Kotlin, Jetpack Compose, coroutines, Room database caching, kotlin flows and even the more exotic [Molecule library](https://code.cash.app/the-state-of-managing-state-with-compose). 
+Sadly not every part of the app is updated to the latest and greatest architecture, so bits and pieces remain. In particular, much of the app is still using RxJava 2, so some familiarity with that
+is needed for the would-be contributor.
 
 ## Contributing
 
-Although this project has been my playground for trying out new techologies you are welcome to contribute. Just pick something that you want to work on (either from the issues or some other feature you'd like to see implemented), check with me that it's not already being worked on, checkout the project, create a branch, work your magic and when done raise a PR for merging back to master (which is protected).
+Although this project has been my playground for trying out new technologies you are welcome to contribute. Just pick something that you want to work on (either from the issues or some other feature you'd like to see implemented), check with me that it's not already being worked on, checkout the project, create a branch, work your magic and when done raise a PR for merging back to master (which is protected).
 
 I'm afraid that I don't have much time to offer support for prospective contributors, but if you run into problems please raise an issue and tag me in it, I will try to answer as time allows. You will find it easier if you are familiar with Kotlin, RxJava, Room, MVP (and in some of the new stuff MVI), Retrofit and general Android development. If not, maybe it's a good way of introducing yourself to these popular technologies.
 
