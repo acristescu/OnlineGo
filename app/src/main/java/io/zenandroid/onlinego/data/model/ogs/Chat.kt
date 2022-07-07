@@ -12,7 +12,8 @@ data class Chat (
 enum class ChatChannel {
     @Json(name = "main") MAIN,
     @Json(name = "malkovich") MALKOVICH,
-    @Json(name = "spectator") SPECTATOR
+    @Json(name = "spectator") SPECTATOR,
+    @Json(name = "personal") PERSONAL,
 }
 
 data class ChatLine (

@@ -13,11 +13,13 @@ import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.Position
 import io.zenandroid.onlinego.data.model.StoneType
 import io.zenandroid.onlinego.data.model.local.Game
+import io.zenandroid.onlinego.data.model.local.Message
 import io.zenandroid.onlinego.data.model.local.Player
 import io.zenandroid.onlinego.data.model.ogs.Phase
 import io.zenandroid.onlinego.data.ogs.GameConnection
 import io.zenandroid.onlinego.data.ogs.OGSWebSocketService
 import io.zenandroid.onlinego.data.repositories.ActiveGamesRepository
+import io.zenandroid.onlinego.data.repositories.ChatRepository
 import io.zenandroid.onlinego.data.repositories.ClockDriftRepository
 import io.zenandroid.onlinego.data.repositories.UserSessionRepository
 import io.zenandroid.onlinego.gamelogic.RulesManager
@@ -34,6 +36,7 @@ class GameViewModel(
     userSessionRepository: UserSessionRepository,
     private val clockDriftRepository: ClockDriftRepository,
     private val socketService: OGSWebSocketService,
+    private val chatRepository: ChatRepository,
 ): ViewModel() {
 
     // Need to add a MonotonicFrameClock
@@ -56,6 +59,7 @@ class GameViewModel(
     private var gameFinished by mutableStateOf<Boolean?>(null)
     private var gameOverDialog by mutableStateOf<GameOverDialogDetails?>(null)
     private var lastMoveList by mutableStateOf<List<Cell>?>(null)
+    private var chatDialogShowing by mutableStateOf(false)
 
     private var timerJob: Job? = null
 
@@ -70,12 +74,24 @@ class GameViewModel(
         position = mutableStateOf(Position(gameWidth, gameHeight))
         gameConnection = socketService.connectToGame(gameId, true)
 
+        val messagesFlow = chatRepository.monitorGameChat(gameId)
+            .map { messages ->
+                messages.map {
+                    ChatMessage(
+                        fromUser = it.playerId == userId,
+                        message = it,
+                    )
+                }.filter { it.fromUser || it.message.type == Message.Type.MAIN || (gameFinished == true && it.message.type == Message.Type.MALKOVITCH) }
+            }
+
         viewModelScope.launch {
             gameFlow.collect { game ->
                 withContext(Dispatchers.IO) {
                     position.value = RulesManager.replay(game = game, computeTerritory = game.phase == Phase.STONE_REMOVAL)
+                    if(loading) {
+                        analysisShownMoveNumber = game.moves?.size ?: 0
+                    }
                     gameState = game
-                    loading = false
                     checkPendingMove(game)
                     timerJob?.cancel()
                     timerJob = viewModelScope.launch {
@@ -90,11 +106,13 @@ class GameViewModel(
                         _events.emit(Event.PlayStoneSound)
                     }
                     lastMoveList = game.moves
+                    loading = false
                 }
             }
         }
 
         state = moleculeScope.launchMolecule {
+            val messages by messagesFlow.collectAsState(emptyList())
             val analysisPosition = remember(analysisShownMoveNumber, gameState != null) {
                 gameState?.let {
                     RulesManager.replay(it, analysisShownMoveNumber, false)
@@ -147,6 +165,8 @@ class GameViewModel(
                 passDialogShowing = passDialogShowing,
                 resignDialogShowing = resignDialogShowing,
                 gameOverDialogShowing = gameOverDialog,
+                messages = messages,
+                chatDialogShowing = chatDialogShowing,
             )
         }
     }
@@ -254,6 +274,10 @@ class GameViewModel(
 
     fun onGameOverDialogNextGame() {
         getNextGame()?.let { pendingNavigation = PendingNavigation.NavigateToGame(it) }
+    }
+
+    fun onChatDialogDismissed() {
+        chatDialogShowing = false
     }
 
     private suspend fun timerRefresher() {
@@ -399,7 +423,7 @@ class GameViewModel(
             }
             PASS -> passDialogShowing = true
             RESIGN -> resignDialogShowing = true
-            CHAT -> TODO()
+            CHAT -> chatDialogShowing = true
             NEXT_GAME -> getNextGame()?.let { pendingNavigation = PendingNavigation.NavigateToGame(it) }
             UNDO -> TODO()
             EXIT_ANALYSIS -> analyzeMode = false
@@ -446,6 +470,7 @@ class GameViewModel(
     }
 }
 
+@Immutable
 data class GameState(
     val position: Position?,
     val loading: Boolean,
@@ -466,6 +491,8 @@ data class GameState(
     val showAnalysisPanel: Boolean,
     val passDialogShowing: Boolean,
     val resignDialogShowing: Boolean,
+    val messages: List<ChatMessage>,
+    val chatDialogShowing: Boolean,
     val gameOverDialogShowing: GameOverDialogDetails?,
 ) {
     companion object {
@@ -490,9 +517,17 @@ data class GameState(
             passDialogShowing = false,
             resignDialogShowing = false,
             gameOverDialogShowing = null,
+            messages = emptyList(),
+            chatDialogShowing = false,
         )
     }
 }
+
+
+data class ChatMessage(
+    val fromUser: Boolean,
+    val message: Message,
+)
 
 data class GameOverDialogDetails(
     val playerWon: Boolean,

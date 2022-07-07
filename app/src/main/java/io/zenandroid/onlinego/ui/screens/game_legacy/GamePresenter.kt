@@ -144,7 +144,7 @@ class GamePresenter(
         }
 
 
-        chatRepository.monitorGameChat(gameId)
+        chatRepository.monitorGameChatRxJava(gameId)
                 .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
                 .subscribe({
                     messages = it

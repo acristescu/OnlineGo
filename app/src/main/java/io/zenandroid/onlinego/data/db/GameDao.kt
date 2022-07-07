@@ -271,7 +271,10 @@ abstract class GameDao {
     abstract fun insertMessage(message: Message)
 
     @Query("SELECT * FROM message WHERE gameId = :gameId ORDER BY date ASC")
-    abstract fun getMessagesForGame(gameId: Long): Flowable<List<Message>>
+    abstract fun getMessagesForGameRxJava(gameId: Long): Flowable<List<Message>>
+
+    @Query("SELECT * FROM message WHERE gameId = :gameId ORDER BY date ASC")
+    abstract fun getMessagesForGame(gameId: Long): Flow<List<Message>>
 
     @Query("SELECT chatId FROM message")
     abstract fun getAllMessageIDs(): Single<List<String>>

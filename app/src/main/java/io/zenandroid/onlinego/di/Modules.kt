@@ -167,7 +167,7 @@ private val viewModelsModule = module {
     }
 
     viewModel {
-        GameViewModel(get(), get(), get(), get())
+        GameViewModel(get(), get(), get(), get(), get())
     }
 }
 

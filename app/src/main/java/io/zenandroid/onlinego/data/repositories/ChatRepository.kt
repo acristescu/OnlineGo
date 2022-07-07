@@ -12,6 +12,8 @@ import io.zenandroid.onlinego.data.model.local.Message
 import io.zenandroid.onlinego.data.ogs.OGSRestAPI
 import io.zenandroid.onlinego.gamelogic.Util.getCurrentUserId
 import io.zenandroid.onlinego.utils.addToDisposable
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.onEach
 
 class ChatRepository(
     private val gameDao: GameDao,
@@ -63,9 +65,14 @@ class ChatRepository(
             ).addToDisposable(subscriptions)
     }
 
-    fun monitorGameChat(gameId: Long): Flowable<List<Message>> =
-        gameDao.getMessagesForGame(gameId)
+    @Deprecated("Use the flow variant instead")
+    fun monitorGameChatRxJava(gameId: Long): Flowable<List<Message>> =
+        gameDao.getMessagesForGameRxJava(gameId)
             .doOnNext { it.forEach { knownMessageIds.add(it.chatId) } }
+
+    fun monitorGameChat(gameId: Long): Flow<List<Message>> =
+        gameDao.getMessagesForGame(gameId)
+            .onEach { it.forEach { knownMessageIds.add(it.chatId) } }
 
     fun markMessagesAsRead(messages: List<Message>) {
         Completable

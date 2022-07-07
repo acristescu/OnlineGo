@@ -22,6 +22,7 @@ data class Message (
         MAIN,
         MALKOVITCH,
         SPECTATOR,
+        PERSONAL,
         DIRECT
     }
 
@@ -31,6 +32,7 @@ data class Message (
                 ChatChannel.MAIN -> Type.MAIN
                 ChatChannel.SPECTATOR -> Type.SPECTATOR
                 ChatChannel.MALKOVICH -> Type.MALKOVITCH
+                ChatChannel.PERSONAL -> Type.PERSONAL
             }
 
             val text = chat.line.body as? String ?: "Variation (unsupported)"

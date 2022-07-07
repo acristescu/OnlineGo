@@ -12,12 +12,13 @@ import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Forum
-import androidx.compose.material.icons.outlined.Flag
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.rounded.*
 import androidx.compose.runtime.*
@@ -36,7 +37,6 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.graphics.vector.VectorPainter
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.ComposeView
@@ -44,7 +44,6 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -52,8 +51,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.core.os.bundleOf
-import androidx.core.text.parseAsHtml
-import androidx.core.text.toSpannable
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
@@ -72,12 +69,9 @@ import io.zenandroid.onlinego.ui.composables.DotsFlashing
 import io.zenandroid.onlinego.ui.screens.game.Button.*
 import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
 import io.zenandroid.onlinego.utils.processGravatarURL
-import io.zenandroid.onlinego.utils.rememberFlowWithLifecycle
 import io.zenandroid.onlinego.utils.rememberStateWithLifecycle
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import java.util.*
@@ -139,6 +133,7 @@ class GameFragment : Fragment() {
                         onGameOverDialogAnalyze = viewModel::onGameOverDialogAnalyze,
                         onGameOverDialogDismissed = viewModel::onGameOverDialogDismissed,
                         onGameOverDialogNextGame = viewModel::onGameOverDialogNextGame,
+                        onChatDialogDismissed = viewModel::onChatDialogDismissed,
                     )
                 }
             }
@@ -179,6 +174,7 @@ fun GameScreen(state: GameState,
                onGameOverDialogDismissed: (() -> Unit),
                onGameOverDialogAnalyze: (() -> Unit),
                onGameOverDialogNextGame: (() -> Unit),
+               onChatDialogDismissed: (() -> Unit),
 ) {
     Column (Modifier.background(Color.White)){
         Row {
@@ -287,6 +283,63 @@ fun GameScreen(state: GameState,
                         .align(CenterVertically)
                         .padding(top = 10.dp, start = 4.dp))
                 Spacer(modifier = Modifier.weight(.5f))
+            }
+        }
+    }
+    if(state.chatDialogShowing) {
+        Dialog(onDismissRequest = onChatDialogDismissed) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier
+                    .fillMaxWidth(1f)
+                    .fillMaxHeight(.9f)
+                    .shadow(4.dp)
+                    .background(
+                        color = Color.White,
+                        shape = RoundedCornerShape(10.dp)
+                    )
+                    .padding(16.dp)
+            ) {
+                LazyColumn(state = rememberLazyListState()) {
+                    items(state.messages) {
+                        if(it.fromUser) {
+                            Row(
+                                horizontalArrangement = Arrangement.End,
+                                modifier = Modifier.fillParentMaxWidth()
+                                    .padding(bottom = 8.dp)
+                            ) {
+                                Text(
+                                    text = it.message.text,
+                                    color = Color(0xFF443741),
+                                    style = MaterialTheme.typography.body2,
+                                    modifier = Modifier
+                                        .border(
+                                            width = 1.dp,
+                                            color = Color(0xFF443741),
+                                            shape = RoundedCornerShape(24.dp, 0.dp, 24.dp, 24.dp)
+                                        )
+                                        .padding(horizontal = 16.dp, vertical = 10.dp)
+                                )
+                            }
+                        } else {
+                            Row(modifier = Modifier.fillParentMaxWidth()
+                                    .padding(bottom = 8.dp)
+                            ) {
+                                Text(
+                                    text = it.message.text,
+                                    color = Color.White,
+                                    style = MaterialTheme.typography.body2,
+                                    modifier = Modifier
+                                        .background(
+                                            color = Color(0xFF443741),
+                                            shape = RoundedCornerShape(0.dp, 24.dp, 24.dp, 24.dp)
+                                        )
+                                        .padding(horizontal = 16.dp, vertical = 10.dp)
+                                )
+                            }
+                        }
+                    }
+                }
             }
         }
     }
@@ -577,8 +630,8 @@ private fun Button.getIcon() = when(this) {
     DISCARD_MOVE -> Icons.Rounded.Cancel
     ANALYZE -> Icons.Rounded.Biotech
     PASS -> Icons.Rounded.Stop
-    RESIGN -> Icons.Outlined.Flag
-    CHAT -> Icons.Filled.Forum
+    RESIGN -> Icons.Rounded.OutlinedFlag
+    CHAT -> Icons.Rounded.Forum
     NEXT_GAME, NEXT_GAME_DISABLED -> Icons.Rounded.NextPlan
     UNDO -> Icons.Rounded.Undo
     EXIT_ANALYSIS -> Icons.Rounded.HighlightOff
@@ -633,7 +686,7 @@ fun Preview() {
                 blackPercentage = 15,
                 blackFaded = false,
             ),
-        ), {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
+        ), {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
         )
     }
 }
@@ -673,7 +726,7 @@ fun Preview1() {
                 blackPercentage = 15,
                 blackFaded = false,
             ),
-        ), {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
+        ), {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
         )
     }
 }
@@ -714,7 +767,7 @@ fun Preview2() {
             ),
             bottomText = "Submitting move",
         ),
-            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
+            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
         )
     }
 }
@@ -755,7 +808,7 @@ fun Preview3() {
             bottomText = "Submitting move",
             retryMoveDialogShown = true,
             ),
-            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
+            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
         )
     }
 }
@@ -798,7 +851,7 @@ fun Preview4() {
             showPlayers = false,
             showAnalysisPanel = true,
             ),
-            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
+            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
         )
     }
 }
@@ -850,7 +903,7 @@ fun Preview5() {
                 }
             ),
             ),
-            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
+            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
         )
     }
 }
