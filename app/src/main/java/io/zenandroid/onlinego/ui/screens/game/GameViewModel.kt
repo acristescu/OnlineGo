@@ -81,7 +81,8 @@ class GameViewModel(
                         fromUser = it.playerId == userId,
                         message = it,
                     )
-                }.filter { it.fromUser || it.message.type == Message.Type.MAIN || (gameFinished == true && it.message.type == Message.Type.MALKOVITCH) }
+                }.filter { it.fromUser || it.message.type == Message.Type.MAIN || gameFinished == true }
+                    .groupBy { it.message.moveNumber ?: 0 }
             }
 
         viewModelScope.launch {
@@ -112,7 +113,7 @@ class GameViewModel(
         }
 
         state = moleculeScope.launchMolecule {
-            val messages by messagesFlow.collectAsState(emptyList())
+            val messages by messagesFlow.collectAsState(emptyMap())
             val analysisPosition = remember(analysisShownMoveNumber, gameState != null) {
                 gameState?.let {
                     RulesManager.replay(it, analysisShownMoveNumber, false)
@@ -491,7 +492,7 @@ data class GameState(
     val showAnalysisPanel: Boolean,
     val passDialogShowing: Boolean,
     val resignDialogShowing: Boolean,
-    val messages: List<ChatMessage>,
+    val messages: Map<Long, List<ChatMessage>>,
     val chatDialogShowing: Boolean,
     val gameOverDialogShowing: GameOverDialogDetails?,
 ) {
@@ -517,7 +518,7 @@ data class GameState(
             passDialogShowing = false,
             resignDialogShowing = false,
             gameOverDialogShowing = null,
-            messages = emptyList(),
+            messages = emptyMap(),
             chatDialogShowing = false,
         )
     }

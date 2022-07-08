@@ -244,7 +244,11 @@ fun GameScreen(state: GameState,
                             .fillMaxHeight()
                             .alpha(if (it.enabled) 1f else .4f)
                             .weight(1f)
-                            .background(if (it == CONFIRM_MOVE || it == ACCEPT_STONE_REMOVAL) Color(0xFFFEDF47) else Color.White)
+                            .background(
+                                if (it == CONFIRM_MOVE || it == ACCEPT_STONE_REMOVAL) Color(
+                                    0xFFFEDF47
+                                ) else Color.White
+                            )
                             .clickable(enabled = it.enabled) {
                                 if (!it.repeatable) onButtonPressed.invoke(it)
                             }
@@ -301,41 +305,55 @@ fun GameScreen(state: GameState,
                     .padding(16.dp)
             ) {
                 LazyColumn(state = rememberLazyListState()) {
-                    items(state.messages) {
-                        if(it.fromUser) {
-                            Row(
-                                horizontalArrangement = Arrangement.End,
-                                modifier = Modifier.fillParentMaxWidth()
-                                    .padding(bottom = 8.dp)
-                            ) {
-                                Text(
-                                    text = it.message.text,
-                                    color = Color(0xFF443741),
-                                    style = MaterialTheme.typography.body2,
+                    state.messages.keys.sortedBy { it }.forEach { moveNo ->
+                        stickyHeader {
+                            Text(
+                                text = "Move $moveNo",
+                                style = MaterialTheme.typography.h5,
+                                color = Color(0xFF867484),
+                                modifier = Modifier.fillMaxWidth(1f)
+                                    .padding(bottom = 8.dp),
+                                textAlign = TextAlign.Center,
+                            )
+                        }
+                        items(state.messages[moveNo] ?: emptyList()) {
+                            if(it.fromUser) {
+                                Row(
+                                    horizontalArrangement = Arrangement.End,
                                     modifier = Modifier
-                                        .border(
-                                            width = 1.dp,
-                                            color = Color(0xFF443741),
-                                            shape = RoundedCornerShape(24.dp, 0.dp, 24.dp, 24.dp)
-                                        )
-                                        .padding(horizontal = 16.dp, vertical = 10.dp)
-                                )
-                            }
-                        } else {
-                            Row(modifier = Modifier.fillParentMaxWidth()
+                                        .fillParentMaxWidth()
+                                        .padding(bottom = 8.dp)
+                                ) {
+                                    Text(
+                                        text = it.message.text,
+                                        color = Color(0xFF443741),
+                                        style = MaterialTheme.typography.body2,
+                                        modifier = Modifier
+                                            .border(
+                                                width = 1.dp,
+                                                color = Color(0xFF443741),
+                                                shape = RoundedCornerShape(24.dp, 0.dp, 24.dp, 24.dp)
+                                            )
+                                            .padding(horizontal = 16.dp, vertical = 10.dp)
+                                    )
+                                }
+                            } else {
+                                Row(modifier = Modifier
+                                    .fillParentMaxWidth()
                                     .padding(bottom = 8.dp)
-                            ) {
-                                Text(
-                                    text = it.message.text,
-                                    color = Color.White,
-                                    style = MaterialTheme.typography.body2,
-                                    modifier = Modifier
-                                        .background(
-                                            color = Color(0xFF443741),
-                                            shape = RoundedCornerShape(0.dp, 24.dp, 24.dp, 24.dp)
-                                        )
-                                        .padding(horizontal = 16.dp, vertical = 10.dp)
-                                )
+                                ) {
+                                    Text(
+                                        text = it.message.text,
+                                        color = Color.White,
+                                        style = MaterialTheme.typography.body2,
+                                        modifier = Modifier
+                                            .background(
+                                                color = Color(0xFF443741),
+                                                shape = RoundedCornerShape(0.dp, 24.dp, 24.dp, 24.dp)
+                                            )
+                                            .padding(horizontal = 16.dp, vertical = 10.dp)
+                                    )
+                                }
                             }
                         }
                     }
