@@ -7,7 +7,7 @@ apply plugin: 'koin'
 apply plugin: 'app.cash.molecule'
 
 android {
-    compileSdkVersion 31
+    compileSdkVersion 32
     ndkVersion "21.0.6113669"
     defaultConfig {
         applicationId "io.zenandroid.onlinego"
@@ -74,7 +74,7 @@ dependencies {
     def emoji2_version = "1.2.0-alpha04"
 
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'androidx.appcompat:appcompat:1.4.1'
+    implementation 'androidx.appcompat:appcompat:1.4.2'
 
     implementation platform("com.google.firebase:firebase-bom:$firebase_version")
     // retrofit
@@ -85,16 +85,16 @@ dependencies {
     implementation "com.google.android.gms:play-services-auth:$play_services_version"
 
     implementation "io.coil-kt:coil-compose:1.4.0"
-    implementation 'com.squareup.okhttp3:logging-interceptor:4.9.2'
-    implementation 'com.squareup.okhttp3:okhttp-urlconnection:4.9.2'
+    implementation 'com.squareup.okhttp3:logging-interceptor:4.9.3'
+    implementation 'com.squareup.okhttp3:okhttp-urlconnection:4.9.3'
     implementation 'com.github.franmontiel:PersistentCookieJar:v1.0.1'
 
     implementation 'com.squareup.moshi:moshi-kotlin:1.11.0'
     implementation 'com.squareup.moshi:moshi-adapters:1.11.0'
 
-    implementation "androidx.navigation:navigation-fragment-ktx:2.5.0-rc01"
-    implementation "androidx.navigation:navigation-ui-ktx:2.5.0-rc01"
-    implementation "androidx.core:core-ktx:1.9.0-alpha04"
+    implementation "androidx.navigation:navigation-fragment-ktx:2.5.0"
+    implementation "androidx.navigation:navigation-ui-ktx:2.5.0"
+    implementation "androidx.core:core-ktx:1.9.0-alpha05"
 
     // rxandroid
     implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
@@ -125,6 +125,7 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-livedata-ktx:2.4.1"
     implementation "androidx.compose.runtime:runtime-livedata:$compose_version"
     implementation "androidx.compose.material:material-icons-extended:$compose_version"
+    implementation "androidx.activity:activity-compose:1.5.0"
     implementation "androidx.compose.ui:ui-util:$compose_version"
 
     implementation 'me.zhanghai.android.materialprogressbar:library:1.6.1'

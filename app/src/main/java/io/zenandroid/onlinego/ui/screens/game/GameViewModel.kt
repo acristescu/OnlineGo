@@ -281,6 +281,10 @@ class GameViewModel(
         chatDialogShowing = false
     }
 
+    fun onSendChat(message: String) {
+        gameConnection.sendMessage(message, gameState?.moves?.size ?: 0)
+    }
+
     private suspend fun timerRefresher() {
         while (true) {
             var delayUntilNextUpdate = 1000L
@@ -424,7 +428,10 @@ class GameViewModel(
             }
             PASS -> passDialogShowing = true
             RESIGN -> resignDialogShowing = true
-            CHAT -> chatDialogShowing = true
+            CHAT -> {
+                chatDialogShowing = true
+                chatRepository.markMessagesAsRead(state.value.messages.flatMap { it.value }.map { it.message }.filter { !it.seen })
+            }
             NEXT_GAME -> getNextGame()?.let { pendingNavigation = PendingNavigation.NavigateToGame(it) }
             UNDO -> TODO()
             EXIT_ANALYSIS -> analyzeMode = false

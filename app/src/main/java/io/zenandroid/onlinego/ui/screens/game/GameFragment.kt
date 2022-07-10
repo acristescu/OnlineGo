@@ -5,10 +5,10 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.compose.BackHandler
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.*
-import androidx.compose.foundation.gestures.awaitFirstDown
-import androidx.compose.foundation.gestures.forEachGesture
-import androidx.compose.foundation.gestures.waitForUpOrCancellation
+import androidx.compose.foundation.gestures.*
 import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
@@ -22,6 +22,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.rounded.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.BottomEnd
 import androidx.compose.ui.Alignment.Companion.Center
@@ -45,11 +46,13 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
@@ -134,6 +137,7 @@ class GameFragment : Fragment() {
                         onGameOverDialogDismissed = viewModel::onGameOverDialogDismissed,
                         onGameOverDialogNextGame = viewModel::onGameOverDialogNextGame,
                         onChatDialogDismissed = viewModel::onChatDialogDismissed,
+                        onSendChat = viewModel::onSendChat,
                     )
                 }
             }
@@ -175,128 +179,143 @@ fun GameScreen(state: GameState,
                onGameOverDialogAnalyze: (() -> Unit),
                onGameOverDialogNextGame: (() -> Unit),
                onChatDialogDismissed: (() -> Unit),
+               onSendChat: ((String) -> Unit),
 ) {
-    Column (Modifier.background(Color.White)){
-        Row {
-            IconButton(onClick = { onBack.invoke() }) {
-                Icon(Icons.Rounded.ArrowBack, "Back", tint = Color(0xFF443741))
-            }
-            Spacer(modifier = Modifier.weight(.5f))
-            Text(
-                text = state.title,
-                style = MaterialTheme.typography.h3,
-                color = Color(0xFF443741),
-                modifier = Modifier.align(CenterVertically)
-            )
-            Icon(Icons.Outlined.Info, "Game Info", tint = Color(0xFF443741), modifier = Modifier
-                .size(18.dp)
-                .align(CenterVertically)
-                .padding(start = 6.dp))
-            Spacer(modifier = Modifier.weight(.5f))
-            IconButton(onClick = { onMore.invoke() }) {
-                Icon(Icons.Rounded.MoreVert, "More", tint = Color(0xFF443741))
-            }
-        }
-        if(state.showAnalysisPanel) {
-            Spacer(modifier = Modifier.weight(1f))
-        }
-        if(state.showPlayers) {
-            PlayerCard(
-                player = state.blackPlayer,
-                timerMain = state.timerDetails?.blackFirstLine ?: "",
-                timerExtra = state.timerDetails?.blackSecondLine ?: "",
-                timerPercent = state.timerDetails?.blackPercentage ?: 0,
-                timerFaded = state.timerDetails?.blackFaded ?: true,
-                modifier = Modifier
-                    .weight(.5f)
-                    .fillMaxWidth()
-            )
-        }
-        Board(
-            boardWidth = state.gameWidth,
-            boardHeight = state.gameHeight,
-            position = state.position,
-            interactive = state.boardInteractive,
-            drawTerritory = state.drawTerritory,
-            fadeOutRemovedStones = state.fadeOutRemovedStones,
-            candidateMove = state.candidateMove,
-            candidateMoveType = state.position?.nextToMove,
-            onTapMove = onTapMove,
-            onTapUp = onTapUp,
-        )
-        if(state.showPlayers) {
-            PlayerCard(
-                player = state.whitePlayer,
-                timerMain = state.timerDetails?.whiteFirstLine ?: "",
-                timerExtra = state.timerDetails?.whiteSecondLine ?: "",
-                timerPercent = state.timerDetails?.whitePercentage ?: 0,
-                timerFaded = state.timerDetails?.whiteFaded ?: true,
-                modifier = Modifier
-                    .weight(.5f)
-                    .fillMaxWidth()
-            )
-        }
-        Row (modifier = Modifier.height(56.dp)) {
-            state.buttons.forEach {
-                key(it) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxHeight()
-                            .alpha(if (it.enabled) 1f else .4f)
-                            .weight(1f)
-                            .background(
-                                if (it == CONFIRM_MOVE || it == ACCEPT_STONE_REMOVAL) Color(
-                                    0xFFFEDF47
-                                ) else Color.White
-                            )
-                            .clickable(enabled = it.enabled) {
-                                if (!it.repeatable) onButtonPressed.invoke(it)
-                            }
-                            .repeatingClickable(
-                                remember { MutableInteractionSource() },
-                                it.repeatable && it.enabled
-                            ) { onButtonPressed.invoke(it) },
-                        horizontalAlignment = CenterHorizontally,
-                        verticalArrangement = Arrangement.Center,
-                    ) {
-                        Icon(
-                            it.getIcon(),
-                            null,
-                            modifier = Modifier.size(24.dp),
-                            tint = Color(0xFF443741),
-                        )
-                        Text(
-                            text = it.getLabel(),
-                            style = MaterialTheme.typography.h5,
-                            color = Color(0xFF443741),
-                        )
-                    }
+    Box {
+        Column(Modifier.background(Color.White)) {
+            Row {
+                IconButton(onClick = { onBack.invoke() }) {
+                    Icon(Icons.Rounded.ArrowBack, "Back", tint = Color(0xFF443741))
                 }
-            }
-            state.bottomText?.let { text ->
                 Spacer(modifier = Modifier.weight(.5f))
                 Text(
-                    text = text,
-                    style = MaterialTheme.typography.h2,
+                    text = state.title,
+                    style = MaterialTheme.typography.h3,
+                    color = Color(0xFF443741),
                     modifier = Modifier.align(CenterVertically)
                 )
-                DotsFlashing(
-                    dotSize = 4.dp,
-                    color = Color.Gray,
-                    modifier = Modifier
+                Icon(
+                    Icons.Outlined.Info, "Game Info", tint = Color(0xFF443741), modifier = Modifier
+                        .size(18.dp)
                         .align(CenterVertically)
-                        .padding(top = 10.dp, start = 4.dp))
+                        .padding(start = 6.dp)
+                )
                 Spacer(modifier = Modifier.weight(.5f))
+                IconButton(onClick = { onMore.invoke() }) {
+                    Icon(Icons.Rounded.MoreVert, "More", tint = Color(0xFF443741))
+                }
+            }
+            if (state.showAnalysisPanel) {
+                Spacer(modifier = Modifier.weight(1f))
+            }
+            if (state.showPlayers) {
+                PlayerCard(
+                    player = state.blackPlayer,
+                    timerMain = state.timerDetails?.blackFirstLine ?: "",
+                    timerExtra = state.timerDetails?.blackSecondLine ?: "",
+                    timerPercent = state.timerDetails?.blackPercentage ?: 0,
+                    timerFaded = state.timerDetails?.blackFaded ?: true,
+                    modifier = Modifier
+                        .weight(.5f)
+                        .fillMaxWidth()
+                )
+            }
+            Board(
+                boardWidth = state.gameWidth,
+                boardHeight = state.gameHeight,
+                position = state.position,
+                interactive = state.boardInteractive,
+                drawTerritory = state.drawTerritory,
+                fadeOutRemovedStones = state.fadeOutRemovedStones,
+                candidateMove = state.candidateMove,
+                candidateMoveType = state.position?.nextToMove,
+                onTapMove = onTapMove,
+                onTapUp = onTapUp,
+            )
+            if (state.showPlayers) {
+                PlayerCard(
+                    player = state.whitePlayer,
+                    timerMain = state.timerDetails?.whiteFirstLine ?: "",
+                    timerExtra = state.timerDetails?.whiteSecondLine ?: "",
+                    timerPercent = state.timerDetails?.whitePercentage ?: 0,
+                    timerFaded = state.timerDetails?.whiteFaded ?: true,
+                    modifier = Modifier
+                        .weight(.5f)
+                        .fillMaxWidth()
+                )
+            }
+            Row(modifier = Modifier.height(56.dp)) {
+                state.buttons.forEach {
+                    key(it) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxHeight()
+                                .alpha(if (it.enabled) 1f else .4f)
+                                .weight(1f)
+                                .background(
+                                    if (it == CONFIRM_MOVE || it == ACCEPT_STONE_REMOVAL) Color(
+                                        0xFFFEDF47
+                                    ) else Color.White
+                                )
+                                .clickable(enabled = it.enabled) {
+                                    if (!it.repeatable) onButtonPressed.invoke(it)
+                                }
+                                .repeatingClickable(
+                                    remember { MutableInteractionSource() },
+                                    it.repeatable && it.enabled
+                                ) { onButtonPressed.invoke(it) },
+                            horizontalAlignment = CenterHorizontally,
+                            verticalArrangement = Arrangement.Center,
+                        ) {
+                            Icon(
+                                it.getIcon(),
+                                null,
+                                modifier = Modifier.size(24.dp),
+                                tint = Color(0xFF443741),
+                            )
+                            Text(
+                                text = it.getLabel(),
+                                style = MaterialTheme.typography.h5,
+                                color = Color(0xFF443741),
+                            )
+                        }
+                    }
+                }
+                state.bottomText?.let { text ->
+                    Spacer(modifier = Modifier.weight(.5f))
+                    Text(
+                        text = text,
+                        style = MaterialTheme.typography.h2,
+                        modifier = Modifier.align(CenterVertically)
+                    )
+                    DotsFlashing(
+                        dotSize = 4.dp,
+                        color = Color.Gray,
+                        modifier = Modifier
+                            .align(CenterVertically)
+                            .padding(top = 10.dp, start = 4.dp)
+                    )
+                    Spacer(modifier = Modifier.weight(.5f))
+                }
             }
         }
-    }
-    if(state.chatDialogShowing) {
-        Dialog(onDismissRequest = onChatDialogDismissed) {
+        if(state.chatDialogShowing) {
+            BackHandler { onChatDialogDismissed() }
+            Spacer(modifier = Modifier
+                .fillMaxSize()
+                .background(Color(0x88000000))
+                .clickable { onChatDialogDismissed() }
+            )
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
-                    .fillMaxWidth(1f)
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null
+                    ) { }
+                    .fillMaxWidth(.9f)
                     .fillMaxHeight(.9f)
+                    .align(Center)
                     .shadow(4.dp)
                     .background(
                         color = Color.White,
@@ -304,14 +323,22 @@ fun GameScreen(state: GameState,
                     )
                     .padding(16.dp)
             ) {
-                LazyColumn(state = rememberLazyListState()) {
+                val listState = rememberLazyListState()
+                LaunchedEffect(state.messages) {
+                    listState.animateScrollToItem(state.messages.values.fold(state.messages.keys.size) { count, list -> count + list.size } - 1)
+                }
+                LazyColumn(
+                    state = listState,
+                    modifier = Modifier.weight(1f)
+                ) {
                     state.messages.keys.sortedBy { it }.forEach { moveNo ->
                         stickyHeader {
                             Text(
                                 text = "Move $moveNo",
                                 style = MaterialTheme.typography.h5,
                                 color = Color(0xFF867484),
-                                modifier = Modifier.fillMaxWidth(1f)
+                                modifier = Modifier
+                                    .fillMaxWidth(1f)
                                     .padding(bottom = 8.dp),
                                 textAlign = TextAlign.Center,
                             )
@@ -356,6 +383,24 @@ fun GameScreen(state: GameState,
                                 }
                             }
                         }
+                    }
+                }
+                Row {
+                    var message by rememberSaveable { mutableStateOf("") }
+                    TextField(
+                        value = message,
+                        onValueChange = { message = it},
+                        modifier = Modifier.weight(1f),
+                    )
+                    IconButton(onClick = {
+                        onSendChat(message)
+                        message = ""
+                    }) {
+                        Icon(
+                            painter = rememberVectorPainter(image = Icons.Rounded.Send),
+                            tint = Color(0xFF443741),
+                            contentDescription = "send",
+                        )
                     }
                 }
             }
@@ -704,7 +749,7 @@ fun Preview() {
                 blackPercentage = 15,
                 blackFaded = false,
             ),
-        ), {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
+        ), {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
         )
     }
 }
@@ -744,7 +789,7 @@ fun Preview1() {
                 blackPercentage = 15,
                 blackFaded = false,
             ),
-        ), {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
+        ), {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
         )
     }
 }
@@ -785,7 +830,7 @@ fun Preview2() {
             ),
             bottomText = "Submitting move",
         ),
-            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
+            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
         )
     }
 }
@@ -826,7 +871,7 @@ fun Preview3() {
             bottomText = "Submitting move",
             retryMoveDialogShown = true,
             ),
-            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
+            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
         )
     }
 }
@@ -869,7 +914,7 @@ fun Preview4() {
             showPlayers = false,
             showAnalysisPanel = true,
             ),
-            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
+            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
         )
     }
 }
@@ -921,7 +966,7 @@ fun Preview5() {
                 }
             ),
             ),
-            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
+            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
         )
     }
 }
