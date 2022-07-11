@@ -220,6 +220,19 @@ fun GameScreen(state: GameState,
                         .fillMaxWidth()
                 )
             }
+            if(state.blackExtraStatus != null) {
+                Text(
+                    text = state.blackExtraStatus,
+                    style = MaterialTheme.typography.h3,
+                    color = Color.White,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .background(Color(0xFF867484))
+                        .fillMaxWidth()
+                        .padding(4.dp)
+                        .align(CenterHorizontally),
+                )
+            }
             Board(
                 boardWidth = state.gameWidth,
                 boardHeight = state.gameHeight,
@@ -232,6 +245,19 @@ fun GameScreen(state: GameState,
                 onTapMove = onTapMove,
                 onTapUp = onTapUp,
             )
+            if(state.whiteExtraStatus != null) {
+                Text(
+                    text = state.whiteExtraStatus,
+                    style = MaterialTheme.typography.h3,
+                    color = Color.White,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .background(Color(0xFF867484))
+                        .fillMaxWidth()
+                        .padding(4.dp)
+                        .align(CenterHorizontally),
+                )
+            }
             if (state.showPlayers) {
                 PlayerCard(
                     player = state.whitePlayer,
@@ -748,6 +774,8 @@ fun Preview() {
                 blackSecondLine = "+ 3 × 01:00",
                 blackPercentage = 15,
                 blackFaded = false,
+                whiteStartTimer = null,
+                blackStartTimer = null,
             ),
         ), {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
         )
@@ -788,6 +816,8 @@ fun Preview1() {
                 blackSecondLine = "+ 3 × 01:00",
                 blackPercentage = 15,
                 blackFaded = false,
+                whiteStartTimer = null,
+                blackStartTimer = null,
             ),
         ), {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
         )
@@ -827,6 +857,8 @@ fun Preview2() {
                 blackSecondLine = "+ 3 × 01:00",
                 blackPercentage = 15,
                 blackFaded = false,
+                whiteStartTimer = null,
+                blackStartTimer = null,
             ),
             bottomText = "Submitting move",
         ),
@@ -867,6 +899,8 @@ fun Preview3() {
                 blackSecondLine = "+ 3 × 01:00",
                 blackPercentage = 15,
                 blackFaded = false,
+                whiteStartTimer = null,
+                blackStartTimer = null,
             ),
             bottomText = "Submitting move",
             retryMoveDialogShown = true,
@@ -910,6 +944,8 @@ fun Preview4() {
                 blackSecondLine = "+ 3 × 01:00",
                 blackPercentage = 15,
                 blackFaded = false,
+                whiteStartTimer = null,
+                blackStartTimer = null,
             ),
             showPlayers = false,
             showAnalysisPanel = true,
@@ -953,6 +989,8 @@ fun Preview5() {
                 blackSecondLine = "+ 3 × 01:00",
                 blackPercentage = 15,
                 blackFaded = false,
+                whiteStartTimer = null,
+                blackStartTimer = null,
             ),
             showPlayers = false,
             showAnalysisPanel = true,

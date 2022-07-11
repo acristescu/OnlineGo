@@ -23,6 +23,7 @@ import io.zenandroid.onlinego.data.repositories.ChatRepository
 import io.zenandroid.onlinego.data.repositories.ClockDriftRepository
 import io.zenandroid.onlinego.data.repositories.UserSessionRepository
 import io.zenandroid.onlinego.gamelogic.RulesManager
+import io.zenandroid.onlinego.gamelogic.RulesManager.isPass
 import io.zenandroid.onlinego.ui.screens.game.Button.*
 import io.zenandroid.onlinego.utils.*
 import kotlinx.coroutines.*
@@ -49,7 +50,7 @@ class GameViewModel(
     private var candidateMove by mutableStateOf<Cell?>(null)
     private lateinit var gameConnection: GameConnection
     private var gameState by mutableStateOf<Game?>(null)
-    private var timer by mutableStateOf(TimerDetails("", "", "", "", 0, 0, false, false))
+    private var timer by mutableStateOf(TimerDetails("", "", "", "", 0, 0, false, false, null, null))
     private var pendingMove by mutableStateOf<PendingMove?>(null)
     private var retrySendMoveDialogShowing by mutableStateOf(false)
     private var analyzeMode by mutableStateOf(false)
@@ -145,6 +146,21 @@ class GameViewModel(
             val shownPosition =
                 if (analyzeMode || gameFinished == true) analysisPosition else position.value
             val score = if (shownPosition != null && gameState != null) RulesManager.scorePosition(shownPosition, gameState!!) else (0f to 0f)
+
+            val blackExtraStatus = when {
+                gameState?.phase == Phase.PLAY && whiteToMove && gameState?.moves?.lastOrNull()?.isPass() == true -> "Player passed!"
+                gameState?.phase == Phase.STONE_REMOVAL && gameState?.removedStones != null && gameState?.removedStones == gameState?.blackPlayer?.acceptedStones -> "Accepted"
+                timer.blackStartTimer != null -> "${timer.blackStartTimer} to make first move"
+                else -> null
+            }
+
+            val whiteExtraStatus = when {
+                gameState?.phase == Phase.PLAY && !whiteToMove && gameState?.moves?.lastOrNull()?.isPass() == true -> "Player passed!"
+                gameState?.phase == Phase.STONE_REMOVAL && gameState?.removedStones != null && gameState?.removedStones == gameState?.whitePlayer?.acceptedStones -> "Accepted"
+                timer.whiteStartTimer != null -> "${timer.whiteStartTimer} to make first move"
+                else -> null
+            }
+
             GameState(
                 position = shownPosition,
                 loading = loading,
@@ -168,6 +184,8 @@ class GameViewModel(
                 gameOverDialogShowing = gameOverDialog,
                 messages = messages,
                 chatDialogShowing = chatDialogShowing,
+                whiteExtraStatus = whiteExtraStatus,
+                blackExtraStatus = blackExtraStatus,
             )
         }
     }
@@ -324,14 +342,16 @@ class GameViewModel(
                             timer =
                                 if (whiteToMove)
                                     TimerDetails(
-                                        whiteFirstLine = formatMillis(timeLeft!!),
-                                        whiteSecondLine = "(start)",
-                                        whitePercentage = (timeLeft!! / 300000.0 * 100).toInt(),
-                                        whiteFaded = false,
+                                        whiteFirstLine = blackTimer.firstLine ?: "", // opposing color is intended!
+                                        whiteSecondLine = blackTimer.secondLine ?: "", // opposing color is intended!
+                                        whitePercentage = 100,
+                                        whiteFaded = true,
                                         blackFirstLine = blackTimer.firstLine ?: "",
                                         blackSecondLine = blackTimer.secondLine ?: "",
                                         blackPercentage = 100,
                                         blackFaded = true,
+                                        whiteStartTimer = formatMillis(timeLeft!!),
+                                        blackStartTimer = null,
                                     )
                                 else
                                     TimerDetails(
@@ -339,10 +359,12 @@ class GameViewModel(
                                         whiteSecondLine = whiteTimer.secondLine ?: "",
                                         whitePercentage = 100,
                                         whiteFaded = true,
-                                        blackFirstLine = formatMillis(timeLeft!!),
-                                        blackSecondLine = "(start)",
-                                        blackPercentage = (timeLeft!! / 300000.0 * 100).toInt(),
-                                        blackFaded = false,
+                                        blackFirstLine = whiteTimer.firstLine ?: "", // opposing color is intended!
+                                        blackSecondLine = whiteTimer.secondLine ?: "", // opposing color is intended!
+                                        blackPercentage = 100,
+                                        blackFaded = true,
+                                        whiteStartTimer = null,
+                                        blackStartTimer = formatMillis(timeLeft!!),
                                     )
                         }
                     } else {
@@ -358,6 +380,8 @@ class GameViewModel(
                                     blackSecondLine = blackTimer.secondLine ?: "",
                                     blackPercentage = (blackTimer.timeLeft / maxTime.toDouble() * 100).toInt(),
                                     blackFaded = whiteToMove,
+                                    whiteStartTimer = null,
+                                    blackStartTimer = null,
                                 )
 
                             timeLeft = if (whiteToMove) whiteTimer.timeLeft else blackTimer.timeLeft
@@ -492,6 +516,8 @@ data class GameState(
     val title: String,
     val whitePlayer: PlayerData?,
     val blackPlayer: PlayerData?,
+    val whiteExtraStatus: String?,
+    val blackExtraStatus: String?,
     val timerDetails: TimerDetails?,
     val bottomText: String?,
     val retryMoveDialogShown: Boolean,
@@ -527,6 +553,8 @@ data class GameState(
             gameOverDialogShowing = null,
             messages = emptyMap(),
             chatDialogShowing = false,
+            whiteExtraStatus = null,
+            blackExtraStatus = null,
         )
     }
 }
@@ -581,6 +609,8 @@ data class TimerDetails(
     val blackPercentage: Int,
     val whiteFaded: Boolean,
     val blackFaded: Boolean,
+    val whiteStartTimer: String?,
+    val blackStartTimer: String?,
 )
 
 data class PendingMove(
