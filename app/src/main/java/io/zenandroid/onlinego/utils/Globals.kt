@@ -18,10 +18,20 @@ import kotlin.math.*
 /**
  * Created by alex on 14/11/2017.
  */
-fun createJsonObject(func: JSONObject.() -> Unit): JSONObject {
+fun json(func: JsonObjectScope.() -> Unit): JSONObject {
     val obj = JSONObject()
-    func(obj)
+    object: JsonObjectScope{
+        override val json = obj
+    }.func()
     return obj
+}
+
+interface JsonObjectScope {
+    val json: JSONObject
+
+    infix operator fun String.minus(value: Any?) {
+        json.put(this, value)
+    }
 }
 
 fun createJsonArray(func: JSONArray.() -> Unit): JSONArray {

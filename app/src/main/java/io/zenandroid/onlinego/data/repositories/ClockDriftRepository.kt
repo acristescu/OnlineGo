@@ -8,7 +8,6 @@ import io.reactivex.rxkotlin.plusAssign
 import io.reactivex.schedulers.Schedulers
 import io.zenandroid.onlinego.data.model.ogs.NetPong
 import io.zenandroid.onlinego.data.ogs.OGSWebSocketService
-import io.zenandroid.onlinego.utils.createJsonObject
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicLong
 
@@ -38,13 +37,11 @@ class ClockDriftRepository(
     }
 
     private fun doPing() {
-        socketService.emit("net/ping",
-                createJsonObject {
-                    put("client", System.currentTimeMillis())
-                    put("drift", drift.get())
-                    put("latecy", latency.get())
-                }
-        )
+        socketService.emit("net/ping") {
+            "client" - System.currentTimeMillis()
+            "drift" - drift.get()
+            "latecy" - latency.get()
+        }
     }
 
     private fun onError(t: Throwable) {

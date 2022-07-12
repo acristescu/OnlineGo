@@ -18,7 +18,6 @@ import io.zenandroid.onlinego.data.model.ogs.OGSPlayer
 import io.zenandroid.onlinego.data.model.ogs.Phase
 import io.zenandroid.onlinego.data.repositories.ChatRepository
 import io.zenandroid.onlinego.gamelogic.Util.getCurrentUserId
-import io.zenandroid.onlinego.utils.createJsonObject
 import org.koin.core.context.GlobalContext.get
 import java.io.Closeable
 
@@ -156,40 +155,40 @@ class GameConnection(
 
     fun submitMove(move: Cell) {
         val encodedMove = Util.getSGFCoordinates(move)
-        socketService.emit("game/move", createJsonObject {
-            put("auth", gameAuth)
-            put("game_id", gameId)
-            put("player_id", getCurrentUserId())
-            put("move", encodedMove)
-        })
+        socketService.emit("game/move") {
+            "auth" - gameAuth
+            "game_id" - gameId
+            "player_id" - getCurrentUserId()
+            "move" - encodedMove
+        }
     }
 
     fun resign() {
-        socketService.emit("game/resign", createJsonObject {
-            put("auth", gameAuth)
-            put("game_id", gameId)
-            put("player_id", getCurrentUserId())
-        })
+        socketService.emit("game/resign") {
+            "auth" - gameAuth
+            "game_id" - gameId
+            "player_id" - getCurrentUserId()
+        }
     }
 
     fun rejectRemovedStones() {
-        socketService.emit("game/removed_stones/reject", createJsonObject {
-            put("auth", gameAuth)
-            put("game_id", gameId)
-            put("player_id", getCurrentUserId())
-        })
+        socketService.emit("game/removed_stones/reject") {
+            "auth" - gameAuth
+            "game_id" - gameId
+            "player_id" - getCurrentUserId()
+        }
     }
 
     fun submitRemovedStones(delta: Set<Cell>, removing: Boolean) {
         val sb = StringBuilder()
         delta.forEach { sb.append(Util.getSGFCoordinates(it)) }
-        socketService.emit("game/removed_stones/set", createJsonObject {
-            put("auth", gameAuth)
-            put("game_id", gameId)
-            put("player_id", getCurrentUserId())
-            put("removed", removing)
-            put("stones", sb.toString())
-        })
+        socketService.emit("game/removed_stones/set") {
+            "auth" - gameAuth
+            "game_id" - gameId
+            "player_id" - getCurrentUserId()
+            "removed" - removing
+            "stones" - sb.toString()
+        }
     }
 
     fun acceptRemovedStones(removedSpots: Set<Cell>) {
@@ -199,45 +198,45 @@ class GameConnection(
                 .joinToString(separator = "") {
                     Util.getSGFCoordinates(it)
                 }
-        socketService.emit("game/removed_stones/accept", createJsonObject {
-            put("auth", gameAuth)
-            put("game_id", gameId)
-            put("player_id", getCurrentUserId())
-            put("strict_seki_mode", false)
-            put("stones", stones)
-        })
+        socketService.emit("game/removed_stones/accept") {
+            "auth" - gameAuth
+            "game_id" - gameId
+            "player_id" - getCurrentUserId()
+            "strict_seki_mode" - false
+            "stones" - stones
+        }
     }
 
     fun sendMessage(message: String, moveNumber: Int) {
-        socketService.emit("game/chat", createJsonObject {
-            put("body", message)
-            put("game_id", gameId)
-            put("move_number", moveNumber)
-            put("type", "main")
-        })
+        socketService.emit("game/chat") {
+            "body" - message
+            "game_id" - gameId
+            "move_number" - moveNumber
+            "type" - "main"
+        }
     }
 
     fun acceptUndo(moveNo: Int) {
-        socketService.emit("game/undo/accept", createJsonObject {
-            put("game_id", gameId)
-            put("move_number", moveNo)
-            put("player_id", getCurrentUserId())
-        })
+        socketService.emit("game/undo/accept") {
+            "game_id" - gameId
+            "move_number" - moveNo
+            "player_id" - getCurrentUserId()
+        }
     }
 
     fun requestUndo(moveNo: Int) {
-        socketService.emit("game/undo/request", createJsonObject {
-            put("game_id", gameId)
-            put("move_number", moveNo)
-            put("player_id", getCurrentUserId())
-        })
+        socketService.emit("game/undo/request") {
+            "game_id" - gameId
+            "move_number" - moveNo
+            "player_id" - getCurrentUserId()
+        }
     }
 
     fun abortGame() {
-        socketService.emit("game/cancel", createJsonObject {
-            put("game_id", gameId)
-            put("player_id", getCurrentUserId())
-        })
+        socketService.emit("game/cancel") {
+            "game_id" - gameId
+            "player_id" - getCurrentUserId()
+        }
     }
 }
 

@@ -18,10 +18,7 @@ import io.socket.parser.IOParser
 import io.zenandroid.onlinego.BuildConfig
 import io.zenandroid.onlinego.data.model.ogs.*
 import io.zenandroid.onlinego.data.repositories.*
-import io.zenandroid.onlinego.utils.AndroidLoggingHandler
-import io.zenandroid.onlinego.utils.StethoWebSocketsFactory
-import io.zenandroid.onlinego.utils.createJsonArray
-import io.zenandroid.onlinego.utils.createJsonObject
+import io.zenandroid.onlinego.utils.*
 import okhttp3.OkHttpClient
 import org.json.JSONObject
 import org.koin.core.context.GlobalContext.get
@@ -73,9 +70,9 @@ class OGSWebSocketService(
         if(BuildConfig.DEBUG) {
             AndroidLoggingHandler.reset(AndroidLoggingHandler())
             Logger.getLogger(Socket::class.java.name).level = Level.FINEST
-            Logger.getLogger(Manager::class.java.name).level = Level.FINEST
+//            Logger.getLogger(Manager::class.java.name).level = Level.FINEST
 //            Logger.getLogger(io.socket.engineio.client.Socket::class.java.name).level = Level.FINEST
-            Logger.getLogger(IOParser::class.java.name).level = Level.FINEST
+//            Logger.getLogger(IOParser::class.java.name).level = Level.FINEST
         }
 
     }
@@ -145,11 +142,21 @@ class OGSWebSocketService(
         map { adapter<T>(it)!! }
 
     private fun emitGameConnection(id: Long, includeChat: Boolean) {
-        emit("game/connect", createJsonObject {
-            put("chat", includeChat)
-            put("game_id", id)
-            put("player_id", userSessionRepository.userId)
-        })
+        emit("game/connect"){
+            "chat" - includeChat
+            "game_id" - id
+            "player_id" - userSessionRepository.userId
+        }
+        if(includeChat) {
+            emit("chat/connect") {
+                "player_id" - userSessionRepository.userId
+                "username" - userSessionRepository.uiConfig?.user?.username
+                "auth" - userSessionRepository.uiConfig?.chat_auth
+            }
+            emit("chat/join") {
+                "channel" - "game-$id"
+            }
+        }
     }
 
     fun connectToActiveGames(): Flowable<OGSGame> {
@@ -159,9 +166,9 @@ class OGSWebSocketService(
     fun connectToUIPushes(): Flowable<UIPush> {
         val returnVal: Flowable<UIPush> = observeEvent("ui-push").parseJSON()
 
-        emit("ui-pushes/subscribe", createJsonObject {
-            put("channel", "undefined")
-        })
+        emit("ui-pushes/subscribe") {
+            "channel" - "undefined"
+        }
 
         return returnVal
     }
@@ -201,10 +208,10 @@ class OGSWebSocketService(
             observeEvent("notification")
                     .map { JSONObject(it.toString()) }
                     .doOnSubscribe {
-                        emit("notification/connect", createJsonObject {
-                            put("player_id", userSessionRepository.userId)
-                            put("auth", userSessionRepository.uiConfig?.notification_auth)
-                        })
+                        emit("notification/connect") {
+                            "player_id" - userSessionRepository.userId
+                            "auth" - userSessionRepository.uiConfig?.notification_auth
+                        }
                     }.doOnCancel {
                         if(socket.connected()) {
                             emit("notification/disconnect", "")
@@ -220,15 +227,15 @@ class OGSWebSocketService(
                 .flatMapIterable { it -> it }
                 .doOnCancel {
                     connectedToChallenges = false
-                    emit("seek_graph/disconnect", createJsonObject {
-                        put("channel", "global")
-                    })
+                    emit("seek_graph/disconnect") {
+                        "channel" - "global"
+                    }
                 }
 
         connectedToChallenges = true
-        emit("seek_graph/connect", createJsonObject {
-            put("channel", "global")
-        })
+        emit("seek_graph/connect") {
+            "channel" - "global"
+        }
 
         return returnVal
     }
@@ -238,15 +245,19 @@ class OGSWebSocketService(
 
     fun emit(event: String, params:Any?) {
         ensureSocketConnected()
-        Log.i(TAG, "Emit: $event with params $params thread = ${Thread.currentThread().id}")
+        Log.i(TAG, "==> $event with params $params")
         socket.emit(event, params, loggingAck)
+    }
+
+    fun emit(event: String, json: JsonObjectScope.() -> Unit) {
+        emit(event, json { json() })
     }
 
     private fun observeEvent(event: String): Flowable<Any> {
         Log.i(TAG, "Listening for event: $event")
         return Flowable.create({ emitter ->
             socket.on(event) { params ->
-                Log.i(TAG, "Received event: $event, ${params[0]}")
+                Log.i(TAG, "<== $event, ${params[0]}")
 
                 if(params.size != 1) {
                     FirebaseCrashlytics.getInstance().recordException(Exception("Unexpected response (${params.size} params) while listening for event $event: parameter list is ${params.joinToString("|||")}"))
@@ -276,35 +287,34 @@ class OGSWebSocketService(
 
     fun startAutomatch(sizes: List<Size>, speed: Speed) : String {
         val uuid = UUID.randomUUID().toString()
-        val json = createJsonObject {
-            put("uuid", uuid)
-            put("size_speed_options", createJsonArray {
+
+        emit("automatch/find_match"){
+            "uuid" - uuid
+            "size_speed_options" - createJsonArray {
                 sizes.forEach { size ->
-                    put(createJsonObject {
-                        put("size", size.getText())
-                        put("speed", speed.getText())
+                    put(json {
+                        "size" - size.getText()
+                        "speed" - speed.getText()
                     })
                 }
-            })
-            put("lower_rank_diff", 6)
-            put("upper_rank_diff", 6)
-            put("rules", createJsonObject {
-                put("condition", "no-preference")
-                put("value", "japanese")
-            })
-            put("time_control", createJsonObject {
-                put("condition", "no-preference")
-                put("value", createJsonObject {
-                    put("system", "byoyomi")
-                })
-            })
-            put("handicap", createJsonObject {
-                put("condition", "no-preference")
-                put("value", "enabled")
-            })
+            }
+            "lower_rank_diff" - 6
+            "upper_rank_diff" - 6
+            "rules" - json {
+                "condition" - "no-preference"
+                "value" - "japanese"
+            }
+            "time_control" - json {
+                "condition" - "no-preference"
+                "value" - json {
+                    "system" - "byoyomi"
+                }
+            }
+            "handicap" - json {
+                "condition" - "no-preference"
+                "value" - "enabled"
+            }
         }
-
-        emit("automatch/find_match", json)
         return uuid
     }
 
@@ -315,11 +325,11 @@ class OGSWebSocketService(
     fun fetchGameList(): Single<GameList> {
         ensureSocketConnected()
         return Single.create { emitter ->
-            socket.emit("gamelist/query", createJsonObject {
-                put("list", "live")
-                put("sort_by", "rank")
-                put("from", 0)
-                put("limit", 9)
+            socket.emit("gamelist/query", json {
+                "list" - "live"
+                "sort_by" - "rank"
+                "from" - 0
+                "limit" - 9
             }, Ack {
                 args -> emitter.onSuccess(adapter(args[0].toString())!!)
             })
@@ -338,11 +348,11 @@ class OGSWebSocketService(
     }
 
     fun deleteNotification(notificationId: String) {
-        emit("notification/delete", createJsonObject {
-            put("player_id", userSessionRepository.userId)
-            put("auth", userSessionRepository.uiConfig?.notification_auth)
-            put("notification_id", notificationId)
-        })
+        emit("notification/delete") {
+            "player_id" - userSessionRepository.userId
+            "auth" - userSessionRepository.uiConfig?.notification_auth
+            "notification_id" - notificationId
+        }
     }
 
     private fun onSockedConnected() {
@@ -354,9 +364,9 @@ class OGSWebSocketService(
             }
         }
         if(connectedToChallenges) {
-            emit("seek_graph/connect", createJsonObject {
-                put("channel", "global")
-            })
+            emit("seek_graph/connect") {
+                "channel" - "global"
+            }
         }
     }
 
@@ -378,9 +388,9 @@ class OGSWebSocketService(
     }
 
     private fun emitGameDisconnect(id: Long) {
-        emit("game/disconnect", createJsonObject {
-            put("game_id", id)
-        })
+        emit("game/disconnect") {
+            "game_id" - id
+        }
     }
 
     fun resendAuth() {
@@ -389,7 +399,7 @@ class OGSWebSocketService(
             put("username", userSessionRepository.uiConfig?.user?.username)
             put("auth", userSessionRepository.uiConfig?.chat_auth)
         }
-        Log.i(TAG, "Emit: authenticate with params obj")
+        Log.i(TAG, "==> authenticate with params $obj")
         socket.emit("authenticate", obj, loggingAck)
     }
 

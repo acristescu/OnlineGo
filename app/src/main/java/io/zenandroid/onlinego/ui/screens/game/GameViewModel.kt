@@ -73,6 +73,8 @@ class GameViewModel(
     fun initialize(gameId: Long, gameWidth: Int, gameHeight: Int) {
         val gameFlow = activeGamesRepository.monitorGameFlow(gameId).distinctUntilChanged()
         position = mutableStateOf(Position(gameWidth, gameHeight))
+
+        socketService.resendAuth()
         gameConnection = socketService.connectToGame(gameId, true)
 
         val messagesFlow = chatRepository.monitorGameChat(gameId)
@@ -307,12 +309,7 @@ class GameViewModel(
         while (true) {
             var delayUntilNextUpdate = 1000L
             gameState?.let { game ->
-                val maxTime = game.timeControl?.let { timeControl ->
-                    when(timeControl.system) {
-                        "fischer" -> timeControl.initial_time?.times(1000L)
-                        else -> null
-                    }
-                } ?: 1
+                val maxTime = (game.timeControl?.initial_time ?: game.timeControl?.per_move ?: game.timeControl?.main_time ?: game.timeControl?.total_time ?: 1) * 1000
                 game.clock?.let { clock ->
                     val whiteToMove = game.playerToMoveId == game.whitePlayer.id
                     val blackToMove = game.playerToMoveId == game.blackPlayer.id

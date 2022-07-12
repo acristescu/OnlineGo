@@ -351,7 +351,8 @@ fun GameScreen(state: GameState,
             ) {
                 val listState = rememberLazyListState()
                 LaunchedEffect(state.messages) {
-                    listState.animateScrollToItem(state.messages.values.fold(state.messages.keys.size) { count, list -> count + list.size } - 1)
+                    val index = state.messages.values.fold(state.messages.keys.size) { count, list -> count + list.size } - 1
+                    listState.animateScrollToItem(index.coerceAtLeast(0))
                 }
                 LazyColumn(
                     state = listState,
