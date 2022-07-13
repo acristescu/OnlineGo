@@ -252,7 +252,7 @@ class ActiveGamesRepository(
                 .doOnNext(this::connectToGame)
     }
 
-    fun monitorGameFlow(id: Long): Flow<Game> {
+    fun refreshGameData(id: Long) {
         restService.fetchGame(id)
             .map(Game.Companion::fromOGSGame)
             .map(::listOf)
@@ -261,6 +261,10 @@ class ActiveGamesRepository(
                 gameDao::insertAllGames,
                 { onError(it, "monitorGame") }
             ).addToDisposable(subscriptions)
+    }
+
+    fun monitorGameFlow(id: Long): Flow<Game> {
+        refreshGameData(id)
 
         return gameDao.monitorGameFlow(id)
             .onEach(this::connectToGame)

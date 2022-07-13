@@ -136,6 +136,7 @@ class GameFragment : Fragment() {
                         onGameOverDialogAnalyze = viewModel::onGameOverDialogAnalyze,
                         onGameOverDialogDismissed = viewModel::onGameOverDialogDismissed,
                         onGameOverDialogNextGame = viewModel::onGameOverDialogNextGame,
+                        onGameOverDialogQuickReplay = viewModel::onGameOverDialogQuickReplay,
                         onChatDialogDismissed = viewModel::onChatDialogDismissed,
                         onSendChat = viewModel::onSendChat,
                     )
@@ -178,6 +179,7 @@ fun GameScreen(state: GameState,
                onGameOverDialogDismissed: (() -> Unit),
                onGameOverDialogAnalyze: (() -> Unit),
                onGameOverDialogNextGame: (() -> Unit),
+               onGameOverDialogQuickReplay: (() -> Unit),
                onChatDialogDismissed: (() -> Unit),
                onSendChat: ((String) -> Unit),
 ) {
@@ -581,6 +583,16 @@ fun GameScreen(state: GameState,
                         modifier = Modifier.fillMaxWidth()
                     )
                 }
+                TextButton(
+                    colors = ButtonDefaults.textButtonColors(contentColor = Color(0xFF443741)),
+                    onClick = onGameOverDialogQuickReplay,
+                ) {
+                    Text(
+                        text = "QUICK REPLAY",
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
             }
         }
     }
@@ -778,7 +790,7 @@ fun Preview() {
                 whiteStartTimer = null,
                 blackStartTimer = null,
             ),
-        ), {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
+        ), {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
         )
     }
 }
@@ -820,7 +832,7 @@ fun Preview1() {
                 whiteStartTimer = null,
                 blackStartTimer = null,
             ),
-        ), {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
+        ), {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
         )
     }
 }
@@ -863,7 +875,7 @@ fun Preview2() {
             ),
             bottomText = "Submitting move",
         ),
-            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
+            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
         )
     }
 }
@@ -906,7 +918,7 @@ fun Preview3() {
             bottomText = "Submitting move",
             retryMoveDialogShown = true,
             ),
-            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
+            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
         )
     }
 }
@@ -951,7 +963,7 @@ fun Preview4() {
             showPlayers = false,
             showAnalysisPanel = true,
             ),
-            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
+            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
         )
     }
 }
@@ -1005,7 +1017,7 @@ fun Preview5() {
                 }
             ),
             ),
-            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
+            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
         )
     }
 }

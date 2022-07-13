@@ -58,11 +58,9 @@ class GameViewModel(
     private var passDialogShowing by mutableStateOf(false)
     private var resignDialogShowing by mutableStateOf(false)
     private var gameFinished by mutableStateOf<Boolean?>(null)
-    private var gameOverDialog by mutableStateOf<GameOverDialogDetails?>(null)
-    private var lastMoveList by mutableStateOf<List<Cell>?>(null)
+    private var gameOverDetails by mutableStateOf<GameOverDialogDetails?>(null)
+    private var gameOverDialogShowing by mutableStateOf<Boolean>(false)
     private var chatDialogShowing by mutableStateOf(false)
-
-    private var timerJob: Job? = null
 
     lateinit var state: StateFlow<GameState>
     var pendingNavigation by mutableStateOf<PendingNavigation?>(null)
@@ -88,58 +86,62 @@ class GameViewModel(
                     .groupBy { it.message.moveNumber ?: 0 }
             }
 
-        viewModelScope.launch {
-            gameFlow.collect { game ->
-                withContext(Dispatchers.IO) {
+
+        state = moleculeScope.launchMolecule {
+            val game by gameFlow.collectAsState(initial = null)
+            val messages by messagesFlow.collectAsState(emptyMap())
+
+            LaunchedEffect(game?.moves) {
+                if(!loading && !game?.moves.isNullOrEmpty()) {
+                    _events.emit(Event.PlayStoneSound)
+                }
+            }
+            game?.let { game ->
+                LaunchedEffect(game) {
                     position.value = RulesManager.replay(game = game, computeTerritory = game.phase == Phase.STONE_REMOVAL)
                     if(loading) {
                         analysisShownMoveNumber = game.moves?.size ?: 0
                     }
                     gameState = game
                     checkPendingMove(game)
-                    timerJob?.cancel()
-                    timerJob = viewModelScope.launch {
-                        timerRefresher()
-                    }
                     if (game.phase == Phase.FINISHED && gameFinished == false && game.blackLost != game.whiteLost) { // Game just finished
-                        gameOverDialog = calculateGameOverDetails(game)
-                        analysisShownMoveNumber = gameState?.moves?.size ?: 0
+                        if(game.ranked == true) {
+                            activeGamesRepository.refreshGameData(gameId) // just to get the latest ratings...
+                        }
+                        gameOverDialogShowing = true
+                        analysisShownMoveNumber = game.moves?.size ?: 0
                     }
+                    gameOverDetails = calculateGameOverDetails(game)
                     gameFinished = game.phase == Phase.FINISHED
-                    if(lastMoveList != null && lastMoveList != game.moves) {
-                        _events.emit(Event.PlayStoneSound)
-                    }
-                    lastMoveList = game.moves
                     loading = false
                 }
+                LaunchedEffect(game) {
+                    timerRefresher()
+                }
             }
-        }
-
-        state = moleculeScope.launchMolecule {
-            val messages by messagesFlow.collectAsState(emptyMap())
-            val analysisPosition = remember(analysisShownMoveNumber, gameState != null) {
-                gameState?.let {
+            val analysisPosition = remember(analysisShownMoveNumber, game != null) {
+                game?.let {
                     RulesManager.replay(it, analysisShownMoveNumber, false)
                 }
             }
 
             val isMyTurn =
-                gameState?.phase == Phase.PLAY && (position.value.nextToMove == StoneType.WHITE && gameState?.whitePlayer?.id == userId) || (position.value.nextToMove == StoneType.BLACK && gameState?.blackPlayer?.id == userId)
+                game?.phase == Phase.PLAY && (position.value.nextToMove == StoneType.WHITE && game?.whitePlayer?.id == userId) || (position.value.nextToMove == StoneType.BLACK && game?.blackPlayer?.id == userId)
 
             val nextGame = remember(activeGamesRepository.myTurnGames) { getNextGame() }
             val visibleButtons =
                 when {
-                    gameState?.phase == Phase.STONE_REMOVAL -> listOf(ACCEPT_STONE_REMOVAL, REJECT_STONE_REMOVAL)
+                    game?.phase == Phase.STONE_REMOVAL -> listOf(ACCEPT_STONE_REMOVAL, REJECT_STONE_REMOVAL)
                     gameFinished == true -> listOf(CHAT, ESTIMATE, PREVIOUS, NEXT)
                     analyzeMode -> listOf(EXIT_ANALYSIS, ESTIMATE, PREVIOUS, NEXT)
                     pendingMove != null -> emptyList()
                     isMyTurn && candidateMove == null -> listOf(ANALYZE, PASS, RESIGN, CHAT, if(nextGame != null) NEXT_GAME else NEXT_GAME_DISABLED)
                     isMyTurn && candidateMove != null -> listOf(CONFIRM_MOVE, DISCARD_MOVE)
-                    !isMyTurn && gameState?.phase == Phase.PLAY -> listOf(ANALYZE, UNDO, RESIGN, CHAT, if(nextGame != null) NEXT_GAME else NEXT_GAME_DISABLED)
+                    !isMyTurn && game?.phase == Phase.PLAY -> listOf(ANALYZE, UNDO, RESIGN, CHAT, if(nextGame != null) NEXT_GAME else NEXT_GAME_DISABLED)
                     else -> emptyList()
                 }
 
-            val whiteToMove = gameState?.playerToMoveId == gameState?.whitePlayer?.id
+            val whiteToMove = game?.playerToMoveId == game?.whitePlayer?.id
             val bottomText = when {
                 pendingMove != null && pendingMove?.attempt == 1 -> "Submitting move"
                 pendingMove != null -> "Submitting move (attempt #${pendingMove?.attempt})"
@@ -147,18 +149,24 @@ class GameViewModel(
             }
             val shownPosition =
                 if (analyzeMode || gameFinished == true) analysisPosition else position.value
-            val score = if (shownPosition != null && gameState != null) RulesManager.scorePosition(shownPosition, gameState!!) else (0f to 0f)
+            val score = if (shownPosition != null && game != null) RulesManager.scorePosition(shownPosition, game!!) else (0f to 0f)
 
             val blackExtraStatus = when {
-                gameState?.phase == Phase.PLAY && whiteToMove && gameState?.moves?.lastOrNull()?.isPass() == true -> "Player passed!"
-                gameState?.phase == Phase.STONE_REMOVAL && gameState?.removedStones != null && gameState?.removedStones == gameState?.blackPlayer?.acceptedStones -> "Accepted"
+                game?.phase == Phase.PLAY && whiteToMove && game?.moves?.lastOrNull()?.isPass() == true -> "Player passed!"
+                game?.phase == Phase.STONE_REMOVAL && game?.removedStones != null && game?.removedStones == game?.blackPlayer?.acceptedStones -> "Accepted"
+                game?.phase == Phase.FINISHED && game?.blackLost == true && game?.outcome == "Resignation" -> "Resigned"
+                game?.phase == Phase.FINISHED && game?.blackLost == true && game?.outcome == "Timeout" -> "Timed out"
+                game?.phase == Phase.FINISHED && game?.blackLost == true && game?.outcome == "Cancellation" -> "Cancelled the game"
                 timer.blackStartTimer != null -> "${timer.blackStartTimer} to make first move"
                 else -> null
             }
 
             val whiteExtraStatus = when {
-                gameState?.phase == Phase.PLAY && !whiteToMove && gameState?.moves?.lastOrNull()?.isPass() == true -> "Player passed!"
-                gameState?.phase == Phase.STONE_REMOVAL && gameState?.removedStones != null && gameState?.removedStones == gameState?.whitePlayer?.acceptedStones -> "Accepted"
+                game?.phase == Phase.PLAY && !whiteToMove && game?.moves?.lastOrNull()?.isPass() == true -> "Player passed!"
+                game?.phase == Phase.STONE_REMOVAL && game?.removedStones != null && game?.removedStones == game?.whitePlayer?.acceptedStones -> "Accepted"
+                game?.phase == Phase.FINISHED && game?.whiteLost == true && game?.outcome == "Resignation" -> "Resigned"
+                game?.phase == Phase.FINISHED && game?.whiteLost == true && game?.outcome == "Timeout" -> "Timed out"
+                game?.phase == Phase.FINISHED && game?.whiteLost == true && game?.outcome == "Cancellation" -> "Cancelled the game"
                 timer.whiteStartTimer != null -> "${timer.whiteStartTimer} to make first move"
                 else -> null
             }
@@ -169,21 +177,21 @@ class GameViewModel(
                 gameWidth = gameWidth,
                 gameHeight = gameHeight,
                 candidateMove = candidateMove,
-                boardInteractive = (isMyTurn && pendingMove == null) || gameState?.phase == Phase.STONE_REMOVAL,
-                drawTerritory = gameState?.phase == Phase.STONE_REMOVAL || gameFinished == true,
-                fadeOutRemovedStones = gameState?.phase == Phase.STONE_REMOVAL || gameFinished == true,
+                boardInteractive = (isMyTurn && pendingMove == null) || game?.phase == Phase.STONE_REMOVAL,
+                drawTerritory = game?.phase == Phase.STONE_REMOVAL || (gameFinished == true && analysisShownMoveNumber == game?.moves?.size),
+                fadeOutRemovedStones = game?.phase == Phase.STONE_REMOVAL || (gameFinished == true && analysisShownMoveNumber == game?.moves?.size),
                 buttons = visibleButtons,
-                title = if (loading) "Loading..." else "Move ${gameState?.moves?.size} · ${gameState?.rules?.capitalize()} · ${if (whiteToMove) "White" else "Black"}",
-                whitePlayer = gameState?.whitePlayer?.data(StoneType.WHITE, score.first),
-                blackPlayer = gameState?.blackPlayer?.data(StoneType.BLACK, score.second),
+                title = if (loading) "Loading..." else "Move ${game?.moves?.size} · ${game?.rules?.capitalize()} · ${if (whiteToMove) "White" else "Black"}",
+                whitePlayer = game?.whitePlayer?.data(StoneType.WHITE, score.first),
+                blackPlayer = game?.blackPlayer?.data(StoneType.BLACK, score.second),
                 timerDetails = timer,
                 bottomText = bottomText,
                 retryMoveDialogShown = retrySendMoveDialogShowing,
-                showAnalysisPanel = analyzeMode || gameFinished == true,
-                showPlayers = !(analyzeMode || gameFinished == true),
+                showAnalysisPanel = analyzeMode,
+                showPlayers = !analyzeMode,
                 passDialogShowing = passDialogShowing,
                 resignDialogShowing = resignDialogShowing,
-                gameOverDialogShowing = gameOverDialog,
+                gameOverDialogShowing = if(gameOverDialogShowing) gameOverDetails else null,
                 messages = messages,
                 chatDialogShowing = chatDialogShowing,
                 whiteExtraStatus = whiteExtraStatus,
@@ -192,7 +200,10 @@ class GameViewModel(
         }
     }
 
-    private fun calculateGameOverDetails(game: Game): GameOverDialogDetails {
+    private fun calculateGameOverDetails(game: Game): GameOverDialogDetails? {
+        if(game.phase != Phase.FINISHED || game.whiteLost == game.blackLost) {
+            return null
+        }
         val playerWon = (game.blackLost == true && game.whitePlayer.id == userId) || (game.whiteLost == true && game.blackPlayer.id == userId)
         val winner = if(game.blackLost == true) game.whitePlayer else game.blackPlayer
         val loser = if(game.blackLost == true) game.blackPlayer else game.whitePlayer
@@ -209,7 +220,7 @@ class GameViewModel(
                 pushStyle(SpanStyle(fontWeight = FontWeight.Bold))
                 append(winner.username)
                 pop()
-                append(" has ${game.outcome?.substringBefore(' ')} more points")
+                append(" has ${game.outcome.substringBefore(' ')} more points")
             }
             game.outcome == "Timeout" -> buildAnnotatedString {
                 pushStyle(SpanStyle(fontWeight = FontWeight.Bold))
@@ -222,6 +233,12 @@ class GameViewModel(
                 append(loser.username)
                 pop()
                 append(" cancelled the game.")
+            }
+            game.outcome == "Disconnection" -> buildAnnotatedString {
+                pushStyle(SpanStyle(fontWeight = FontWeight.Bold))
+                append(loser.username)
+                pop()
+                append(" disconnected.")
             }
             else -> AnnotatedString("Result unknown (${game.outcome})")
         }
@@ -286,15 +303,25 @@ class GameViewModel(
     }
 
     fun onGameOverDialogAnalyze() {
-        gameOverDialog = null
+        gameOverDialogShowing = false
     }
 
     fun onGameOverDialogDismissed() {
-        gameOverDialog = null
+        gameOverDialogShowing = false
     }
 
     fun onGameOverDialogNextGame() {
         getNextGame()?.let { pendingNavigation = PendingNavigation.NavigateToGame(it) }
+    }
+
+    fun onGameOverDialogQuickReplay() {
+        gameOverDialogShowing = false
+        viewModelScope.launch {
+            for(i in 0 until (gameState?.moves?.size ?: 0)) {
+                analysisShownMoveNumber = i
+                delay(700)
+            }
+        }
     }
 
     fun onChatDialogDismissed() {
@@ -387,10 +414,10 @@ class GameViewModel(
                     }
                     delayUntilNextUpdate = timeLeft?.let {
                         when (it) {
-                            in 0 until 10_000 -> 100
-                            in 10_000 until 3_600_000 -> 1_000
-                            in 3_600_000 until 24 * 3_600_000 -> 60_000
-                            else -> 12 * 60_000
+                            in 0 until 10_000 -> it % 100
+                            in 10_000 until 3_600_000 -> it % 1_000
+                            in 3_600_000 until 24 * 3_600_000 -> it % 60_000
+                            else -> it % (12 * 60_000)
                         }
                     } ?: 1000
                 }
