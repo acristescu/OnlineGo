@@ -9,11 +9,11 @@ import androidx.compose.ui.graphics.Color
 
 private val LightColorPalette = lightColors(
     primary = salmon,
-    primaryVariant = darkBlue,
-    secondary = salmon,
+    primaryVariant = accent,
+    secondary = brownMedium,
     background = background,
-    onSurface = lightOnSurface,
-    onBackground = lightOnBackground,
+    onSurface = brown,
+    onBackground = brownLite,
     onPrimary = lightOnPrimary,
 
     /* Other default colors to override
@@ -36,7 +36,6 @@ private val DarkColorPalette = darkColors(
     onBackground = nightOnBackground,
     onPrimary = nightOnPrimary,
 )
-
 
 @Composable
 fun OnlineGoTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable () -> Unit) {

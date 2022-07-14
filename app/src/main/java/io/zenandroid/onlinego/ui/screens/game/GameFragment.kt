@@ -6,9 +6,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.compose.BackHandler
-import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.*
-import androidx.compose.foundation.gestures.*
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.forEachGesture
+import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
@@ -46,13 +47,11 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
@@ -71,6 +70,7 @@ import io.zenandroid.onlinego.ui.composables.Board
 import io.zenandroid.onlinego.ui.composables.DotsFlashing
 import io.zenandroid.onlinego.ui.screens.game.Button.*
 import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
+import io.zenandroid.onlinego.ui.theme.brown
 import io.zenandroid.onlinego.utils.processGravatarURL
 import io.zenandroid.onlinego.utils.rememberStateWithLifecycle
 import kotlinx.coroutines.coroutineScope
@@ -184,27 +184,27 @@ fun GameScreen(state: GameState,
                onSendChat: ((String) -> Unit),
 ) {
     Box {
-        Column(Modifier.background(Color.White)) {
+        Column(Modifier.background(MaterialTheme.colors.surface)) {
             Row {
                 IconButton(onClick = { onBack.invoke() }) {
-                    Icon(Icons.Rounded.ArrowBack, "Back", tint = Color(0xFF443741))
+                    Icon(Icons.Rounded.ArrowBack, "Back", tint = MaterialTheme.colors.onSurface)
                 }
                 Spacer(modifier = Modifier.weight(.5f))
                 Text(
                     text = state.title,
+                    color = MaterialTheme.colors.onSurface,
                     style = MaterialTheme.typography.h3,
-                    color = Color(0xFF443741),
                     modifier = Modifier.align(CenterVertically)
                 )
                 Icon(
-                    Icons.Outlined.Info, "Game Info", tint = Color(0xFF443741), modifier = Modifier
+                    Icons.Outlined.Info, "Game Info", tint = MaterialTheme.colors.onSurface, modifier = Modifier
                         .size(18.dp)
                         .align(CenterVertically)
                         .padding(start = 6.dp)
                 )
                 Spacer(modifier = Modifier.weight(.5f))
                 IconButton(onClick = { onMore.invoke() }) {
-                    Icon(Icons.Rounded.MoreVert, "More", tint = Color(0xFF443741))
+                    Icon(Icons.Rounded.MoreVert, "More", tint = MaterialTheme.colors.onSurface)
                 }
             }
             if (state.showAnalysisPanel) {
@@ -281,9 +281,7 @@ fun GameScreen(state: GameState,
                                 .alpha(if (it.enabled) 1f else .4f)
                                 .weight(1f)
                                 .background(
-                                    if (it == CONFIRM_MOVE || it == ACCEPT_STONE_REMOVAL) Color(
-                                        0xFFFEDF47
-                                    ) else Color.White
+                                    if (it == CONFIRM_MOVE || it == ACCEPT_STONE_REMOVAL) MaterialTheme.colors.primaryVariant else MaterialTheme.colors.surface
                                 )
                                 .clickable(enabled = it.enabled) {
                                     if (!it.repeatable) onButtonPressed.invoke(it)
@@ -299,12 +297,12 @@ fun GameScreen(state: GameState,
                                 it.getIcon(),
                                 null,
                                 modifier = Modifier.size(24.dp),
-                                tint = Color(0xFF443741),
+                                tint = MaterialTheme.colors.onSurface,
                             )
                             Text(
                                 text = it.getLabel(),
                                 style = MaterialTheme.typography.h5,
-                                color = Color(0xFF443741),
+                                color = MaterialTheme.colors.onSurface,
                             )
                         }
                     }
@@ -314,11 +312,12 @@ fun GameScreen(state: GameState,
                     Text(
                         text = text,
                         style = MaterialTheme.typography.h2,
+                        color = MaterialTheme.colors.onSurface,
                         modifier = Modifier.align(CenterVertically)
                     )
                     DotsFlashing(
                         dotSize = 4.dp,
-                        color = Color.Gray,
+                        color = MaterialTheme.colors.onBackground,
                         modifier = Modifier
                             .align(CenterVertically)
                             .padding(top = 10.dp, start = 4.dp)
@@ -346,7 +345,7 @@ fun GameScreen(state: GameState,
                     .align(Center)
                     .shadow(4.dp)
                     .background(
-                        color = Color.White,
+                        color = MaterialTheme.colors.surface,
                         shape = RoundedCornerShape(10.dp)
                     )
                     .padding(16.dp)
@@ -365,7 +364,7 @@ fun GameScreen(state: GameState,
                             Text(
                                 text = "Move $moveNo",
                                 style = MaterialTheme.typography.h5,
-                                color = Color(0xFF867484),
+                                color = MaterialTheme.colors.onBackground,
                                 modifier = Modifier
                                     .fillMaxWidth(1f)
                                     .padding(bottom = 8.dp),
@@ -382,12 +381,12 @@ fun GameScreen(state: GameState,
                                 ) {
                                     Text(
                                         text = it.message.text,
-                                        color = Color(0xFF443741),
+                                        color = MaterialTheme.colors.onSurface,
                                         style = MaterialTheme.typography.body2,
                                         modifier = Modifier
                                             .border(
                                                 width = 1.dp,
-                                                color = Color(0xFF443741),
+                                                color = MaterialTheme.colors.onSurface,
                                                 shape = RoundedCornerShape(24.dp, 0.dp, 24.dp, 24.dp)
                                             )
                                             .padding(horizontal = 16.dp, vertical = 10.dp)
@@ -400,11 +399,11 @@ fun GameScreen(state: GameState,
                                 ) {
                                     Text(
                                         text = it.message.text,
-                                        color = Color.White,
+                                        color = MaterialTheme.colors.surface,
                                         style = MaterialTheme.typography.body2,
                                         modifier = Modifier
                                             .background(
-                                                color = Color(0xFF443741),
+                                                color = MaterialTheme.colors.onSurface,
                                                 shape = RoundedCornerShape(0.dp, 24.dp, 24.dp, 24.dp)
                                             )
                                             .padding(horizontal = 16.dp, vertical = 10.dp)
@@ -424,10 +423,12 @@ fun GameScreen(state: GameState,
                     IconButton(onClick = {
                         onSendChat(message)
                         message = ""
-                    }) {
+                    },
+                        enabled = !message.isBlank()
+                    ) {
                         Icon(
                             painter = rememberVectorPainter(image = Icons.Rounded.Send),
-                            tint = Color(0xFF443741),
+                            tint = MaterialTheme.colors.onSurface,
                             contentDescription = "send",
                         )
                     }
@@ -442,7 +443,7 @@ fun GameScreen(state: GameState,
                 modifier = Modifier
                     .shadow(4.dp)
                     .background(
-                        color = Color.White,
+                        color = MaterialTheme.colors.surface,
                         shape = RoundedCornerShape(10.dp)
                     )
                     .padding(16.dp)
@@ -450,19 +451,19 @@ fun GameScreen(state: GameState,
                 Text(
                     text = "CONNECTION PROBLEMS",
                     style = MaterialTheme.typography.h6,
-                    color = Color(0xFF443741),
+                    color = MaterialTheme.colors.onSurface,
                     )
                 Text(
                     text = "The server is not responding. Please check your internet connection.",
                     style = MaterialTheme.typography.body1,
                     textAlign = TextAlign.Center,
-                    color = Color(0xFF443741),
+                    color = MaterialTheme.colors.onSurface,
                     modifier = Modifier.padding(vertical = 36.dp)
                 )
                 TextButton(
                     colors = ButtonDefaults.textButtonColors(
-                        backgroundColor = Color(0xFFFEDF47),
-                        contentColor = Color(0xFF443741)
+                        backgroundColor = MaterialTheme.colors.primaryVariant,
+                        contentColor = MaterialTheme.colors.onSurface
                     ),
                     elevation = ButtonDefaults.elevation(
                         defaultElevation = 8.dp,
@@ -477,7 +478,7 @@ fun GameScreen(state: GameState,
                     )
                 }
                 TextButton(
-                    colors = ButtonDefaults.textButtonColors(contentColor = Color(0xFF443741)),
+                    colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colors.onSurface),
                     onClick = onRetryDialogDismissed,
                 ) {
                     Text(
@@ -530,7 +531,7 @@ fun GameScreen(state: GameState,
                 modifier = Modifier
                     .shadow(4.dp)
                     .background(
-                        color = Color.White,
+                        color = MaterialTheme.colors.surface,
                         shape = RoundedCornerShape(10.dp)
                     )
                     .padding(16.dp)
@@ -538,13 +539,13 @@ fun GameScreen(state: GameState,
                 Text(
                     text = if(dialog.playerWon) "CONGRATULATIONS\nYOU WON" else "YOU LOST",
                     style = MaterialTheme.typography.h2,
-                    color = Color(0xFF443741),
+                    color = MaterialTheme.colors.onSurface,
                     textAlign = TextAlign.Center,
                 )
                 Image(
                     painter = rememberVectorPainter(image = if(dialog.playerWon) Icons.Rounded.ThumbUp else Icons.Rounded.ThumbDown),
                     contentDescription = "",
-                    colorFilter = ColorFilter.tint(Color(0xFF443741)),
+                    colorFilter = ColorFilter.tint(MaterialTheme.colors.onSurface),
                     modifier = Modifier
                         .padding(vertical = 24.dp)
                         .size(128.dp)
@@ -553,13 +554,13 @@ fun GameScreen(state: GameState,
                     text = dialog.detailsText,
                     style = MaterialTheme.typography.body1,
                     textAlign = TextAlign.Center,
-                    color = Color(0xFF443741),
+                    color = MaterialTheme.colors.onSurface,
                 )
                 Spacer(modifier = Modifier.height(28.dp))
                 TextButton(
                     colors = ButtonDefaults.textButtonColors(
-                        backgroundColor = Color(0xFFFEDF47),
-                        contentColor = Color(0xFF443741)
+                        backgroundColor = MaterialTheme.colors.primaryVariant,
+                        contentColor = MaterialTheme.colors.onSurface
                     ),
                     elevation = ButtonDefaults.elevation(
                         defaultElevation = 8.dp,
@@ -574,7 +575,7 @@ fun GameScreen(state: GameState,
                     )
                 }
                 TextButton(
-                    colors = ButtonDefaults.textButtonColors(contentColor = Color(0xFF443741)),
+                    colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colors.onSurface),
                     onClick = onGameOverDialogNextGame,
                 ) {
                     Text(
@@ -584,7 +585,7 @@ fun GameScreen(state: GameState,
                     )
                 }
                 TextButton(
-                    colors = ButtonDefaults.textButtonColors(contentColor = Color(0xFF443741)),
+                    colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colors.onSurface),
                     onClick = onGameOverDialogQuickReplay,
                 ) {
                     Text(
@@ -606,6 +607,7 @@ fun PlayerCard(player: PlayerData?, timerMain: String, timerExtra: String, timer
             modifier = modifier
         ) {
             Column(modifier = Modifier.padding(start = 18.dp)){
+                val color = MaterialTheme.colors.onSurface
                 Canvas(
                     modifier = Modifier
                         .size(30.dp, 30.dp)
@@ -613,12 +615,12 @@ fun PlayerCard(player: PlayerData?, timerMain: String, timerExtra: String, timer
                         .alpha(alpha)
                 ) {
                     drawCircle(
-                        color = Color(0xFF443741),
+                        color = color,
                         radius = 14.dp.toPx(),
                         style = Stroke(width = 2.dp.toPx())
                     )
                     drawArc(
-                        color = Color(0xFF443741),
+                        color = color,
                         topLeft = Offset(3.dp.toPx(), 3.dp.toPx()),
                         size = Size(this.size.width - 6.dp.toPx(), this.size.height - 6.dp.toPx()),
                         startAngle = -90f,
@@ -629,12 +631,12 @@ fun PlayerCard(player: PlayerData?, timerMain: String, timerExtra: String, timer
                 Text(
                     text = timerMain,
                     style = MaterialTheme.typography.h6,
-                    color = Color(0xFF443741).copy(alpha = alpha),
+                    color = MaterialTheme.colors.onSurface.copy(alpha = alpha),
                 )
                 Text(
                     text = timerExtra,
                     style = MaterialTheme.typography.h5,
-                    color = Color(0xFF443741).copy(alpha = alpha),
+                    color = MaterialTheme.colors.onSurface.copy(alpha = alpha),
                 )
             }
             Box(modifier = Modifier
@@ -668,7 +670,7 @@ fun PlayerCard(player: PlayerData?, timerMain: String, timerExtra: String, timer
                     Text(
                         text = player.rank,
                         style = MaterialTheme.typography.h5,
-                        color = if (player.color == StoneType.WHITE) Color(0xFF443741) else Color.White,
+                        color = if (player.color == StoneType.WHITE) brown else Color.White,
                         modifier = Modifier
                             .align(Center)
                             .padding(bottom = 5.dp, end = 1.dp)
@@ -680,13 +682,13 @@ fun PlayerCard(player: PlayerData?, timerMain: String, timerExtra: String, timer
                 Text(
                     text = player.name + "  " + player.flagCode,
                     style = MaterialTheme.typography.h2,
-                    color = Color(0xFF443741),
+                    color = MaterialTheme.colors.onSurface,
                     modifier = Modifier
                 )
                 Text(
                     text = player.details,
                     style = MaterialTheme.typography.h5.copy(fontSize = 10.sp),
-                    color = Color(0xFF443741),
+                    color = MaterialTheme.colors.onSurface,
                     modifier = Modifier.padding(top = 6.dp)
                 )
             }

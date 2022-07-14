@@ -58,6 +58,7 @@ fun SmallGameItem(game: Game, userId: Long, onAction: (Action) -> Unit) {
                 Row (modifier = Modifier.padding(top = 8.dp)) {
                     Text(
                         text = opponent?.username ?: "Unknown",
+                        color = MaterialTheme.colors.onSurface,
                         style = TextStyle.Default.copy(
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Bold
@@ -73,6 +74,7 @@ fun SmallGameItem(game: Game, userId: Long, onAction: (Action) -> Unit) {
                     Row(modifier = Modifier.padding(top = 4.dp)) {
                         Text(
                             text = calculateTimer(game),
+                            color = MaterialTheme.colors.onSurface,
                             style = TextStyle.Default.copy(
                                 fontSize = 12.sp,
                             ),
@@ -80,6 +82,7 @@ fun SmallGameItem(game: Game, userId: Long, onAction: (Action) -> Unit) {
                         if (game.pauseControl.isPaused()) {
                             Text(
                                 text = "  ·  paused",
+                                color = MaterialTheme.colors.onSurface,
                                 style = TextStyle.Default.copy(
                                     fontSize = 12.sp,
                                 ),
@@ -102,6 +105,7 @@ fun SmallGameItem(game: Game, userId: Long, onAction: (Action) -> Unit) {
                     }
                     Text(
                         text = outcome,
+                        color = MaterialTheme.colors.onSurface,
                         fontSize = 12.sp,
                     )
                 }

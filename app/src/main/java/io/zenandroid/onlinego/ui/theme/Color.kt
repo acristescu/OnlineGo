@@ -11,6 +11,11 @@ val lightOnSurface = Color(0xFF212121)
 val lightOnBackground = Color(0xFF9B9B9B)
 val lightOnPrimary = Color.White
 
+val brown = Color(0xFF443741)
+val brownMedium = Color(0xFF6B5569)
+val brownLite = Color(0xFF867484)
+val accent = Color(0xFFFEDF47)
+
 val nightSurface = Color(0xFF16151A)
 val nightOnSurface = Color(0xFFF0F0F0)
 val nightBackground = Color(0xFF000000)
