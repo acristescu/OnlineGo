@@ -7,6 +7,7 @@ import io.zenandroid.onlinego.data.model.*
 import io.zenandroid.onlinego.data.model.local.Game
 import io.zenandroid.onlinego.data.model.local.InitialState
 import io.zenandroid.onlinego.gamelogic.Util.toCoordinateSet
+import io.zenandroid.onlinego.ui.screens.game.Variation
 import java.util.*
 
 /**
@@ -95,30 +96,35 @@ object RulesManager {
             val computeTerritory: Boolean,
             )
 
-    private fun getCacheKey(game: Game, limit: Int, computeTerritory: Boolean): CacheKey {
+    private fun getCacheKey(game: Game, actualMoves: List<Cell>, computeTerritory: Boolean): CacheKey {
         return CacheKey(
-                width = game.width,
-                height = game.height,
-                initialState = game.initialState,
-                whiteGoesFirst = game.whiteGoesFirst,
-                moves = game.moves?.take(limit),
-                freeHandicapPlacement = game.freeHandicapPlacement,
-                handicap = game.handicap,
-                removedStones = game.removedStones,
-                white_scoring_positions = game.whiteScore?.scoring_positions,
-                black_scoring_positions = game.blackScore?.scoring_positions,
-                computeTerritory = computeTerritory,
+            width = game.width,
+            height = game.height,
+            initialState = game.initialState,
+            whiteGoesFirst = game.whiteGoesFirst,
+            moves = actualMoves,
+            freeHandicapPlacement = game.freeHandicapPlacement,
+            handicap = game.handicap,
+            removedStones = game.removedStones,
+            white_scoring_positions = game.whiteScore?.scoring_positions,
+            black_scoring_positions = game.blackScore?.scoring_positions,
+            computeTerritory = computeTerritory,
         )
     }
 
-    fun replay(game: Game, limit: Int = Int.MAX_VALUE, computeTerritory : Boolean = false): Position {
-        val cacheKey = getCacheKey(game, limit, computeTerritory)
+    fun replay(game: Game, limit: Int = Int.MAX_VALUE, computeTerritory : Boolean = false, variation: Variation? = null): Position {
+        val actualMoves = when {
+            variation == null || limit < variation.rootMoveNo -> game.moves?.take(limit)?.map { Cell(it.x, it.y) }
+            else -> game.moves?.take(variation.rootMoveNo)?.map { Cell(it.x, it.y) }?.plus(variation.moves.take(limit - variation.rootMoveNo))
+        } ?: emptyList()
+
+        val cacheKey = getCacheKey(game, actualMoves, computeTerritory)
         positionsCache[cacheKey]?.let {
             return it
         }
 
         val pos = buildPos(
-            moves = game.moves?.take(limit)?.map { Cell(it.x, it.y) } ?: emptyList(),
+            moves = actualMoves,
             nextToMove = if(game.whiteGoesFirst == true) StoneType.WHITE else StoneType.BLACK,
             boardWidth = game.width,
             boardHeight = game.height,
@@ -132,6 +138,7 @@ object RulesManager {
             whiteScoringPositions = game.whiteScore?.scoring_positions,
             blackScoringPositions = game.blackScore?.scoring_positions,
             komi = game.komi,
+            variation = if(variation != null && limit > variation.rootMoveNo) actualMoves.takeLast(limit - variation.rootMoveNo) else emptyList(),
         )
 
         if(pos == null) {
@@ -202,6 +209,7 @@ object RulesManager {
         whiteCaptureCount: Int = 0,
         blackCapturesCount: Int = 0,
         currentMoveIndex: Int = 0,
+        variation: List<Cell> = emptyList(),
     ): Position? {
         var nextPlayer = nextToMove
         var lastPlayer: StoneType? = null
@@ -366,6 +374,7 @@ object RulesManager {
             blackTerritory = blackTerritory,
             komi = komi,
             currentMoveIndex = currentMoveIndex + moves.size,
+            variation = variation,
         )
     }
 

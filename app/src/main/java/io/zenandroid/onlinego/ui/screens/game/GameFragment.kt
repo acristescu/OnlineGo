@@ -245,6 +245,7 @@ fun GameScreen(state: GameState,
                 position = state.position,
                 interactive = state.boardInteractive,
                 drawTerritory = state.drawTerritory,
+                drawLastMove = state.showLastMove,
                 fadeOutRemovedStones = state.fadeOutRemovedStones,
                 candidateMove = state.candidateMove,
                 candidateMoveType = state.position?.nextToMove,
@@ -789,17 +790,20 @@ private fun Button.getIcon() = when(this) {
     NEXT_GAME, NEXT_GAME_DISABLED -> Icons.Rounded.NextPlan
     UNDO -> Icons.Rounded.Undo
     EXIT_ANALYSIS -> Icons.Rounded.HighlightOff
+    EXIT_ESTIMATE -> Icons.Rounded.HighlightOff
     ESTIMATE -> Icons.Rounded.Functions
     PREVIOUS -> Icons.Rounded.SkipPrevious
-    NEXT -> Icons.Rounded.SkipNext
+    NEXT, NEXT_DISABLED -> Icons.Rounded.SkipNext
     ACCEPT_STONE_REMOVAL -> Icons.Rounded.ThumbUp
     REJECT_STONE_REMOVAL -> Icons.Rounded.ThumbDown
 }
 
 private fun Button.getLabel() = when(this) {
     NEXT_GAME_DISABLED -> "Next game"
+    NEXT_DISABLED -> "Next"
     ACCEPT_STONE_REMOVAL -> "Accept"
     REJECT_STONE_REMOVAL -> "Reject"
+    EXIT_ESTIMATE -> "Return"
     else -> name.lowercase()
         .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.ROOT) else it.toString() }
         .replace('_', ' ')

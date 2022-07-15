@@ -51,6 +51,7 @@ fun Board(
     interactive: Boolean = true,
     drawShadow: Boolean = true,
     drawTerritory: Boolean = false,
+    drawLastMove: Boolean = true,
     fadeInLastMove: Boolean = true,
     fadeOutRemovedStones: Boolean = true,
     removedStones: List<Pair<Cell, StoneType>>? = null,
@@ -58,7 +59,6 @@ fun Board(
     onTapUp: ((Cell) -> Unit)? = null
 ) {
     BoxWithConstraints(modifier = modifier.aspectRatio(1f)) {
-        val drawLastMove = true
         val drawMarks = true
         val background: ImageBitmap = ImageBitmap.imageResource(id = R.mipmap.texture)
 

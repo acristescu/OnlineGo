@@ -10,6 +10,7 @@ import androidx.lifecycle.viewModelScope
 import app.cash.molecule.AndroidUiDispatcher
 import app.cash.molecule.launchMolecule
 import io.zenandroid.onlinego.data.model.Cell
+import io.zenandroid.onlinego.data.model.Mark
 import io.zenandroid.onlinego.data.model.Position
 import io.zenandroid.onlinego.data.model.StoneType
 import io.zenandroid.onlinego.data.model.local.Game
@@ -45,7 +46,10 @@ class GameViewModel(
     private val moleculeScope = CoroutineScope(viewModelScope.coroutineContext + AndroidUiDispatcher.Main)
 
     private var loading by mutableStateOf(true)
-    private lateinit var position: MutableState<Position>
+    private lateinit var currentGamePosition: MutableState<Position>
+    private lateinit var shownPosition: MutableState<Position>
+    private var estimatePosition by mutableStateOf<Position?>(null)
+    private var analysisPosition by mutableStateOf<Position?>(null)
     private val userId = userSessionRepository.userId
     private var candidateMove by mutableStateOf<Cell?>(null)
     private lateinit var gameConnection: GameConnection
@@ -54,6 +58,7 @@ class GameViewModel(
     private var pendingMove by mutableStateOf<PendingMove?>(null)
     private var retrySendMoveDialogShowing by mutableStateOf(false)
     private var analyzeMode by mutableStateOf(false)
+    private var estimateMode by mutableStateOf(false)
     private var analysisShownMoveNumber by mutableStateOf(0)
     private var passDialogShowing by mutableStateOf(false)
     private var resignDialogShowing by mutableStateOf(false)
@@ -62,6 +67,7 @@ class GameViewModel(
     private var gameOverDetails by mutableStateOf<GameOverDialogDetails?>(null)
     private var gameOverDialogShowing by mutableStateOf<Boolean>(false)
     private var chatDialogShowing by mutableStateOf(false)
+    private var currentVariation by mutableStateOf<Variation?>(null)
 
     lateinit var state: StateFlow<GameState>
     var pendingNavigation by mutableStateOf<PendingNavigation?>(null)
@@ -71,7 +77,8 @@ class GameViewModel(
 
     fun initialize(gameId: Long, gameWidth: Int, gameHeight: Int) {
         val gameFlow = activeGamesRepository.monitorGameFlow(gameId).distinctUntilChanged()
-        position = mutableStateOf(Position(gameWidth, gameHeight))
+        currentGamePosition = mutableStateOf(Position(gameWidth, gameHeight))
+        shownPosition = mutableStateOf(Position(gameWidth, gameHeight))
 
         socketService.resendAuth()
         gameConnection = socketService.connectToGame(gameId, true)
@@ -100,7 +107,7 @@ class GameViewModel(
             }
             game?.let { game ->
                 LaunchedEffect(game) {
-                    position.value = RulesManager.replay(game = game, computeTerritory = game.phase == Phase.STONE_REMOVAL)
+                    currentGamePosition.value = RulesManager.replay(game = game, computeTerritory = game.phase == Phase.STONE_REMOVAL)
                     if(loading) {
                         analysisShownMoveNumber = game.moves?.size ?: 0
                     }
@@ -121,24 +128,44 @@ class GameViewModel(
                     timerRefresher()
                 }
             }
-            val analysisPosition = remember(analysisShownMoveNumber, game != null) {
-                game?.let {
-                    RulesManager.replay(it, analysisShownMoveNumber, false)
+            if(analyzeMode) {
+                LaunchedEffect(analysisShownMoveNumber, game != null) {
+                    game?.let {
+                        val variation = currentVariation
+                        val nextMoveInMainline = if((variation == null || analysisShownMoveNumber <= variation.rootMoveNo) && analysisShownMoveNumber < moveNo) listOf(game?.moves?.get(analysisShownMoveNumber)!!) else emptyList()
+                        val nextMoveVariation = if(variation != null && analysisShownMoveNumber >= variation.rootMoveNo && analysisShownMoveNumber < variation.rootMoveNo + variation.moves.size) listOf(variation.moves[analysisShownMoveNumber - variation.rootMoveNo]) else emptyList()
+                        analysisPosition = RulesManager.replay(it, analysisShownMoveNumber, false, currentVariation).copy(
+                            customMarks = (nextMoveInMainline + nextMoveVariation).mapIndexed { index, cell ->  Mark(cell, "XABCDEFG"[index % 8].toString(), null) }.toSet()
+                        )
+                    }
+                }
+            }
+            if(estimateMode) {
+                LaunchedEffect(shownPosition, game != null) {
+                    game?.let {
+                        estimatePosition = RulesManager.determineTerritory(shownPosition.value, it.scoreStones == true)
+                    }
                 }
             }
 
             val isMyTurn =
-                game?.phase == Phase.PLAY && (position.value.nextToMove == StoneType.WHITE && game?.whitePlayer?.id == userId) || (position.value.nextToMove == StoneType.BLACK && game?.blackPlayer?.id == userId)
+                game?.phase == Phase.PLAY && (currentGamePosition.value.nextToMove == StoneType.WHITE && game?.whitePlayer?.id == userId) || (currentGamePosition.value.nextToMove == StoneType.BLACK && game?.blackPlayer?.id == userId)
 
             val nextGame = remember(activeGamesRepository.myTurnGames) { getNextGame() }
 
             val nextGameButton = if(nextGame != null) NEXT_GAME else NEXT_GAME_DISABLED
             val endGameButton = if(game.canBeCancelled()) CANCEL_GAME else RESIGN
+            val maxAnalysisMoveNumber = currentVariation?.let {
+                it.rootMoveNo + it.moves.size
+            } ?: game?.moves?.size ?: 0
+            val nextButton = if(analysisShownMoveNumber < maxAnalysisMoveNumber) NEXT else NEXT_DISABLED
+
             val visibleButtons =
                 when {
+                    estimateMode -> listOf(EXIT_ESTIMATE)
                     game?.phase == Phase.STONE_REMOVAL -> listOf(ACCEPT_STONE_REMOVAL, REJECT_STONE_REMOVAL)
-                    gameFinished == true -> listOf(CHAT, ESTIMATE, PREVIOUS, NEXT)
-                    analyzeMode -> listOf(EXIT_ANALYSIS, ESTIMATE, PREVIOUS, NEXT)
+                    gameFinished == true -> listOf(CHAT, ESTIMATE, PREVIOUS, nextButton)
+                    analyzeMode -> listOf(EXIT_ANALYSIS, ESTIMATE, PREVIOUS, nextButton)
                     pendingMove != null -> emptyList()
                     isMyTurn && candidateMove == null -> listOf(ANALYZE, PASS, endGameButton, CHAT, nextGameButton)
                     isMyTurn && candidateMove != null -> listOf(CONFIRM_MOVE, DISCARD_MOVE)
@@ -150,11 +177,15 @@ class GameViewModel(
             val bottomText = when {
                 pendingMove != null && pendingMove?.attempt == 1 -> "Submitting move"
                 pendingMove != null -> "Submitting move (attempt #${pendingMove?.attempt})"
+                estimateMode && estimatePosition == null -> "Estimating"
                 else -> null
             }
-            val shownPosition =
-                if (analyzeMode || gameFinished == true) analysisPosition else position.value
-            val score = if (shownPosition != null && game != null) RulesManager.scorePosition(shownPosition, game!!) else (0f to 0f)
+            shownPosition.value = when {
+                estimateMode && estimatePosition != null -> estimatePosition!!
+                (analyzeMode || gameFinished == true) && analysisPosition != null -> analysisPosition!!
+                else -> currentGamePosition.value
+            }
+            val score = if (game != null) RulesManager.scorePosition(shownPosition.value, game!!) else (0f to 0f)
 
             val blackExtraStatus = when {
                 game?.phase == Phase.PLAY && whiteToMove && game?.moves?.lastOrNull()?.isPass() == true -> "Player passed!"
@@ -177,14 +208,14 @@ class GameViewModel(
             }
 
             GameState(
-                position = shownPosition,
+                position = shownPosition.value,
                 loading = loading,
                 gameWidth = gameWidth,
                 gameHeight = gameHeight,
                 candidateMove = candidateMove,
-                boardInteractive = (isMyTurn && pendingMove == null) || game?.phase == Phase.STONE_REMOVAL,
-                drawTerritory = game?.phase == Phase.STONE_REMOVAL || (gameFinished == true && analysisShownMoveNumber == game?.moves?.size),
-                fadeOutRemovedStones = game?.phase == Phase.STONE_REMOVAL || (gameFinished == true && analysisShownMoveNumber == game?.moves?.size),
+                boardInteractive = (isMyTurn && pendingMove == null && !analyzeMode && !estimateMode) || game?.phase == Phase.STONE_REMOVAL || (analyzeMode && !estimateMode),
+                drawTerritory = game?.phase == Phase.STONE_REMOVAL || (gameFinished == true && analysisShownMoveNumber == game?.moves?.size) || (estimateMode && estimatePosition != null),
+                fadeOutRemovedStones = game?.phase == Phase.STONE_REMOVAL || (gameFinished == true && analysisShownMoveNumber == game?.moves?.size) || (estimateMode && estimatePosition != null),
                 buttons = visibleButtons,
                 title = if (loading) "Loading..." else "Move ${game?.moves?.size} · ${game?.rules?.capitalize()} · ${if (whiteToMove) "White" else "Black"}",
                 whitePlayer = game?.whitePlayer?.data(StoneType.WHITE, score.first),
@@ -192,8 +223,10 @@ class GameViewModel(
                 timerDetails = timer,
                 bottomText = bottomText,
                 retryMoveDialogShown = retrySendMoveDialogShowing,
-                showAnalysisPanel = analyzeMode,
-                showPlayers = !analyzeMode,
+//                showAnalysisPanel = analyzeMode,
+                showAnalysisPanel = false,
+//                showPlayers = !analyzeMode,
+                showPlayers = true,
                 passDialogShowing = passDialogShowing,
                 resignDialogShowing = resignDialogShowing,
                 cancelDialogShowing = cancelDialogShowing,
@@ -202,6 +235,7 @@ class GameViewModel(
                 chatDialogShowing = chatDialogShowing,
                 whiteExtraStatus = whiteExtraStatus,
                 blackExtraStatus = blackExtraStatus,
+                showLastMove = !(analyzeMode && currentVariation != null && currentVariation?.rootMoveNo!! < analysisShownMoveNumber)
             )
         }
     }
@@ -465,24 +499,46 @@ class GameViewModel(
     }
 
     fun onCellTracked(cell: Cell) {
-        if(gameState?.phase == Phase.PLAY && !position.value.blackStones.contains(cell) && !position.value.whiteStones.contains(cell)) {
+        if(gameState?.phase == Phase.PLAY && !currentGamePosition.value.blackStones.contains(cell) && !currentGamePosition.value.whiteStones.contains(cell)) {
             candidateMove = cell
         }
     }
 
     fun onCellTapUp(cell: Cell) {
-        if(gameState?.phase == Phase.PLAY) {
-            viewModelScope.launch {
-                val newPosition =
-                    RulesManager.makeMove(position.value, position.value.nextToMove, cell)
-                if (newPosition == null) {
-                    candidateMove = null
+        when {
+            gameState?.phase == Phase.PLAY && !analyzeMode && !estimateMode -> {
+                viewModelScope.launch {
+                    val newPosition =
+                        RulesManager.makeMove(currentGamePosition.value, currentGamePosition.value.nextToMove, cell)
+                    if (newPosition == null) {
+                        candidateMove = null
+                    }
                 }
             }
-        } else if(gameState?.phase == Phase.STONE_REMOVAL) {
-            val (removing, delta) = RulesManager.toggleRemoved(position.value, cell)
-            if(delta.isNotEmpty()) {
-                gameConnection.submitRemovedStones(delta, removing)
+            gameState?.phase == Phase.STONE_REMOVAL -> {
+                val (removing, delta) = RulesManager.toggleRemoved(currentGamePosition.value, cell)
+                if(delta.isNotEmpty()) {
+                    gameConnection.submitRemovedStones(delta, removing)
+                }
+            }
+            analyzeMode && analysisPosition != null && !estimateMode -> {
+                viewModelScope.launch {
+                    analysisPosition?.let { pos ->
+                        val newPosition = RulesManager.makeMove(pos, pos.nextToMove, cell)
+                        if (newPosition != null) {
+                            currentVariation = currentVariation?.let { variation ->
+                                when {
+                                    analysisShownMoveNumber == variation.rootMoveNo + variation.moves.size -> variation.copy(moves = variation.moves + cell)
+                                    analysisShownMoveNumber < variation.rootMoveNo -> Variation(analysisShownMoveNumber, listOf(cell))
+                                    variation.moves[analysisShownMoveNumber - variation.rootMoveNo] == cell -> variation
+                                    else -> variation.copy(moves = variation.moves.take(analysisShownMoveNumber - variation.rootMoveNo) + cell)
+                                }
+                            } ?: Variation(analysisShownMoveNumber, listOf(cell))
+                            analysisShownMoveNumber++
+                            candidateMove = null
+                        }
+                    }
+                }
             }
         }
     }
@@ -491,7 +547,7 @@ class GameViewModel(
         when(button) {
             CONFIRM_MOVE -> candidateMove?.let { submitMove(it,gameState?.moves?.size ?: 0) }
             DISCARD_MOVE -> candidateMove = null
-            ANALYZE -> viewModelScope.launch {
+            ANALYZE -> {
                 analysisShownMoveNumber = gameState?.moves?.size ?: 0
                 analyzeMode = true
             }
@@ -505,13 +561,22 @@ class GameViewModel(
             NEXT_GAME -> getNextGame()?.let { pendingNavigation = PendingNavigation.NavigateToGame(it) }
             UNDO -> TODO()
             EXIT_ANALYSIS -> analyzeMode = false
-            ESTIMATE -> TODO()
-            PREVIOUS -> analysisShownMoveNumber = (analysisShownMoveNumber - 1).coerceIn(0 .. (gameState?.moves?.size ?: 0))
-            NEXT -> analysisShownMoveNumber = (analysisShownMoveNumber + 1).coerceIn(0 .. (gameState?.moves?.size ?: 0))
-            NEXT_GAME_DISABLED -> {}
-            ACCEPT_STONE_REMOVAL -> gameConnection.acceptRemovedStones(position.value.removedSpots)
+            ESTIMATE -> {
+                estimatePosition = null
+                estimateMode = true
+            }
+            EXIT_ESTIMATE -> estimateMode = false
+            PREVIOUS -> analysisShownMoveNumber = (analysisShownMoveNumber - 1).coerceAtLeast(0)
+            NEXT -> {
+                val max = currentVariation?.let {
+                    it.rootMoveNo + it.moves.size
+                } ?: gameState?.moves?.size ?: 0
+                analysisShownMoveNumber = (analysisShownMoveNumber + 1).coerceIn(0 .. max)
+            }
+            NEXT_GAME_DISABLED, NEXT_DISABLED -> {}
+            ACCEPT_STONE_REMOVAL -> gameConnection.acceptRemovedStones(currentGamePosition.value.removedSpots)
             REJECT_STONE_REMOVAL -> gameConnection.rejectRemovedStones()
-        }
+        }.run {} // makes the while exhaustive
     }
 
     private fun submitMove(move: Cell, moveNo: Int, attempt: Int = 1) {
@@ -558,6 +623,7 @@ data class GameState(
     val boardInteractive: Boolean,
     val drawTerritory: Boolean,
     val fadeOutRemovedStones: Boolean,
+    val showLastMove: Boolean,
     val buttons: List<Button>,
     val title: String,
     val whitePlayer: PlayerData?,
@@ -586,6 +652,7 @@ data class GameState(
             boardInteractive = false,
             drawTerritory = false,
             fadeOutRemovedStones = false,
+            showLastMove = true,
             buttons = emptyList(),
             title = "Loading...",
             whitePlayer = null,
@@ -646,8 +713,10 @@ enum class Button(
     UNDO,
     EXIT_ANALYSIS,
     ESTIMATE,
+    EXIT_ESTIMATE,
     PREVIOUS (repeatable = true),
-    NEXT (repeatable = true)
+    NEXT (repeatable = true),
+    NEXT_DISABLED (enabled = false),
 }
 
 data class TimerDetails(
@@ -676,3 +745,8 @@ sealed class PendingNavigation {
 sealed class Event {
     object PlayStoneSound: Event()
 }
+
+data class Variation (
+    val rootMoveNo: Int,
+    val moves: List<Cell>,
+)
