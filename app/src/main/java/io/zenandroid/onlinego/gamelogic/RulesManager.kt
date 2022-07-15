@@ -124,7 +124,8 @@ object RulesManager {
             boardHeight = game.height,
             blackInitialState = game.initialState?.black.toCoordinateSet(),
             whiteInitialState = game.initialState?.white.toCoordinateSet(),
-            handicap = if(game.freeHandicapPlacement == true) game.handicap ?: 0 else 0,
+            handicap = game.handicap ?: 0,
+            freeHandicapPlacement = game.freeHandicapPlacement ?: false,
             removedCells = game.removedStones.toCoordinateSet(),
             computeTerritory = computeTerritory,
             scoreStones = game.scoreStones ?: false,
@@ -176,6 +177,7 @@ object RulesManager {
             nextToMove = player,
             komi = pos.komi,
             handicap = pos.handicap,
+            freeHandicapPlacement = pos.freeHandicapPlacement,
             whiteCaptureCount = pos.whiteCaptureCount,
             blackCapturesCount = pos.blackCaptureCount,
             currentMoveIndex = pos.currentMoveIndex,
@@ -186,6 +188,7 @@ object RulesManager {
         boardWidth: Int,
         boardHeight: Int,
         handicap: Int = 0,
+        freeHandicapPlacement: Boolean = false,
         marks: Set<Mark> = emptySet(),
         whiteInitialState: Set<Cell> = emptySet(),
         blackInitialState: Set<Cell> = emptySet(),
@@ -266,7 +269,7 @@ object RulesManager {
                 }
             }
             lastPlayer = nextPlayer
-            if(i + currentMoveIndex >= handicap - 1) {
+            if(!freeHandicapPlacement || i + currentMoveIndex >= handicap - 1) {
                 nextPlayer = nextPlayer.opponent
             }
         }
@@ -351,6 +354,7 @@ object RulesManager {
             whiteStones = whiteStones,
             blackStones = blackStones,
             handicap = handicap,
+            freeHandicapPlacement = freeHandicapPlacement,
             whiteCaptureCount = whiteCaptures,
             blackCaptureCount = blackCaptures,
             lastMove = moves.lastOrNull(),
@@ -433,13 +437,14 @@ object RulesManager {
     }
 
     fun scorePosition(pos: Position, game: Game) =
-        scorePosition(pos, game.scoreHandicap == true, game.scorePasses == true, game.scorePrisoners == true, game.scoreStones == true, game.scoreTerritory == true, game.scoreTerritoryInSeki == true)
+        scorePosition(pos, game.scoreHandicap == true, game.scoreAGAHandicap == true, game.scorePasses == true, game.scorePrisoners == true, game.scoreStones == true, game.scoreTerritory == true, game.scoreTerritoryInSeki == true)
 
-    fun scorePosition(pos: Position, scoreHandicap: Boolean, scorePasses: Boolean, scorePrisoners: Boolean, scoreStones: Boolean, scoreTerritory: Boolean, scoreTerritoryInSeki: Boolean): Pair<Float, Float> {
+    private fun scorePosition(pos: Position, scoreHandicap: Boolean, scoreAGAHandicap: Boolean, scorePasses: Boolean, scorePrisoners: Boolean, scoreStones: Boolean, scoreTerritory: Boolean, scoreTerritoryInSeki: Boolean): Pair<Float, Float> {
         val whiteScore =
             (if (scorePrisoners) pos.blackDeadStones.size + pos.whiteCaptureCount else 0) +
                     (if (scoreTerritory) pos.whiteTerritory.size else 0) +
-                    (if (scoreHandicap) pos.handicap else 0) +
+                    (if (scoreHandicap && scoreAGAHandicap) pos.handicap - 1 else 0) +
+                    (if (scoreHandicap && !scoreAGAHandicap) pos.handicap else 0) +
                     (pos.komi ?: 0f)
         val blackScore =
             (if (scorePrisoners) pos.whiteDeadStones.size + pos.blackCaptureCount else 0) +

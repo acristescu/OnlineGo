@@ -57,6 +57,7 @@ class GameViewModel(
     private var analysisShownMoveNumber by mutableStateOf(0)
     private var passDialogShowing by mutableStateOf(false)
     private var resignDialogShowing by mutableStateOf(false)
+    private var cancelDialogShowing by mutableStateOf(false)
     private var gameFinished by mutableStateOf<Boolean?>(null)
     private var gameOverDetails by mutableStateOf<GameOverDialogDetails?>(null)
     private var gameOverDialogShowing by mutableStateOf<Boolean>(false)
@@ -91,6 +92,7 @@ class GameViewModel(
             val game by gameFlow.collectAsState(initial = null)
             val messages by messagesFlow.collectAsState(emptyMap())
 
+            val moveNo = game?.moves?.size ?: 0
             LaunchedEffect(game?.moves) {
                 if(!loading && !game?.moves.isNullOrEmpty()) {
                     _events.emit(Event.PlayStoneSound)
@@ -129,15 +131,18 @@ class GameViewModel(
                 game?.phase == Phase.PLAY && (position.value.nextToMove == StoneType.WHITE && game?.whitePlayer?.id == userId) || (position.value.nextToMove == StoneType.BLACK && game?.blackPlayer?.id == userId)
 
             val nextGame = remember(activeGamesRepository.myTurnGames) { getNextGame() }
+
+            val nextGameButton = if(nextGame != null) NEXT_GAME else NEXT_GAME_DISABLED
+            val endGameButton = if(game.canBeCancelled()) CANCEL_GAME else RESIGN
             val visibleButtons =
                 when {
                     game?.phase == Phase.STONE_REMOVAL -> listOf(ACCEPT_STONE_REMOVAL, REJECT_STONE_REMOVAL)
                     gameFinished == true -> listOf(CHAT, ESTIMATE, PREVIOUS, NEXT)
                     analyzeMode -> listOf(EXIT_ANALYSIS, ESTIMATE, PREVIOUS, NEXT)
                     pendingMove != null -> emptyList()
-                    isMyTurn && candidateMove == null -> listOf(ANALYZE, PASS, RESIGN, CHAT, if(nextGame != null) NEXT_GAME else NEXT_GAME_DISABLED)
+                    isMyTurn && candidateMove == null -> listOf(ANALYZE, PASS, endGameButton, CHAT, nextGameButton)
                     isMyTurn && candidateMove != null -> listOf(CONFIRM_MOVE, DISCARD_MOVE)
-                    !isMyTurn && game?.phase == Phase.PLAY -> listOf(ANALYZE, UNDO, RESIGN, CHAT, if(nextGame != null) NEXT_GAME else NEXT_GAME_DISABLED)
+                    !isMyTurn && game?.phase == Phase.PLAY -> listOf(ANALYZE, UNDO, endGameButton, CHAT, nextGameButton)
                     else -> emptyList()
                 }
 
@@ -191,6 +196,7 @@ class GameViewModel(
                 showPlayers = !analyzeMode,
                 passDialogShowing = passDialogShowing,
                 resignDialogShowing = resignDialogShowing,
+                cancelDialogShowing = cancelDialogShowing,
                 gameOverDialogShowing = if(gameOverDialogShowing) gameOverDetails else null,
                 messages = messages,
                 chatDialogShowing = chatDialogShowing,
@@ -198,6 +204,11 @@ class GameViewModel(
                 blackExtraStatus = blackExtraStatus,
             )
         }
+    }
+
+    private fun Game?.canBeCancelled(): Boolean {
+        val maxMoveNumber = 5 + if (this?.freeHandicapPlacement == true) this.handicap ?: 1 else 1
+        return (this?.moves?.size ?: 0) < maxMoveNumber
     }
 
     private fun calculateGameOverDetails(game: Game): GameOverDialogDetails? {
@@ -254,6 +265,7 @@ class GameViewModel(
         }
 
         return GameOverDialogDetails(
+            gameCancelled = game.outcome == "Cancellation",
             playerWon = playerWon,
             detailsText = details
         )
@@ -300,6 +312,15 @@ class GameViewModel(
     fun onResignDialogConfirm() {
         resignDialogShowing = false
         gameConnection.resign()
+    }
+
+    fun onCancelDialogDismissed() {
+        cancelDialogShowing = false
+    }
+
+    fun onCancelDialogConfirm() {
+        cancelDialogShowing = false
+        gameConnection.abortGame()
     }
 
     fun onGameOverDialogAnalyze() {
@@ -476,6 +497,7 @@ class GameViewModel(
             }
             PASS -> passDialogShowing = true
             RESIGN -> resignDialogShowing = true
+            CANCEL_GAME -> cancelDialogShowing = true
             CHAT -> {
                 chatDialogShowing = true
                 chatRepository.markMessagesAsRead(state.value.messages.flatMap { it.value }.map { it.message }.filter { !it.seen })
@@ -518,7 +540,7 @@ class GameViewModel(
 
     private fun checkPendingMove(game: Game) {
         val expectedMove = pendingMove ?: return
-        if(game?.moves?.getOrNull(expectedMove.moveNo) == expectedMove.cell) {
+        if(game.moves?.getOrNull(expectedMove.moveNo) == expectedMove.cell) {
             pendingMove = null
             candidateMove = null
             retrySendMoveDialogShowing = false
@@ -549,6 +571,7 @@ data class GameState(
     val showAnalysisPanel: Boolean,
     val passDialogShowing: Boolean,
     val resignDialogShowing: Boolean,
+    val cancelDialogShowing: Boolean,
     val messages: Map<Long, List<ChatMessage>>,
     val chatDialogShowing: Boolean,
     val gameOverDialogShowing: GameOverDialogDetails?,
@@ -574,6 +597,7 @@ data class GameState(
             showPlayers = true,
             passDialogShowing = false,
             resignDialogShowing = false,
+            cancelDialogShowing = false,
             gameOverDialogShowing = null,
             messages = emptyMap(),
             chatDialogShowing = false,
@@ -590,6 +614,7 @@ data class ChatMessage(
 )
 
 data class GameOverDialogDetails(
+    val gameCancelled: Boolean,
     val playerWon: Boolean,
     val detailsText: AnnotatedString,
 )
@@ -614,6 +639,7 @@ enum class Button(
     ANALYZE,
     PASS,
     RESIGN,
+    CANCEL_GAME,
     CHAT,
     NEXT_GAME,
     NEXT_GAME_DISABLED (enabled = false),

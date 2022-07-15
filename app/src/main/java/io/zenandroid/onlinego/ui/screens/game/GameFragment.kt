@@ -133,6 +133,8 @@ class GameFragment : Fragment() {
                         onPassDialogDismissed = viewModel::onPassDialogDismissed,
                         onResignDialogConfirm = viewModel::onResignDialogConfirm,
                         onResignDialogDismissed = viewModel::onResignDialogDismissed,
+                        onCancelDialogConfirm = viewModel::onCancelDialogConfirm,
+                        onCancelDialogDismissed = viewModel::onCancelDialogDismissed,
                         onGameOverDialogAnalyze = viewModel::onGameOverDialogAnalyze,
                         onGameOverDialogDismissed = viewModel::onGameOverDialogDismissed,
                         onGameOverDialogNextGame = viewModel::onGameOverDialogNextGame,
@@ -176,6 +178,8 @@ fun GameScreen(state: GameState,
                onPassDialogConfirm: (() -> Unit),
                onResignDialogDismissed: (() -> Unit),
                onResignDialogConfirm: (() -> Unit),
+               onCancelDialogDismissed: (() -> Unit),
+               onCancelDialogConfirm: (() -> Unit),
                onGameOverDialogDismissed: (() -> Unit),
                onGameOverDialogAnalyze: (() -> Unit),
                onGameOverDialogNextGame: (() -> Unit),
@@ -509,7 +513,7 @@ fun GameScreen(state: GameState,
     }
     if(state.resignDialogShowing) {
         AlertDialog(
-            onDismissRequest = onPassDialogDismissed,
+            onDismissRequest = onResignDialogDismissed,
             dismissButton = {
                 TextButton(onClick = onResignDialogDismissed) {
                     Text("CANCEL")
@@ -521,6 +525,23 @@ fun GameScreen(state: GameState,
                 }
             },
             text = { Text("Are you sure you want to resign?") },
+            title = { Text("Please confirm") },
+        )
+    }
+    if(state.cancelDialogShowing) {
+        AlertDialog(
+            onDismissRequest = onCancelDialogDismissed,
+            dismissButton = {
+                TextButton(onClick = onCancelDialogDismissed) {
+                    Text("DON'T CANCEL GAME")
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = onCancelDialogConfirm) {
+                    Text("CANCEL GAME")
+                }
+            },
+            text = { Text("Are you sure you want to cancel the game?") },
             title = { Text("Please confirm") },
         )
     }
@@ -536,14 +557,24 @@ fun GameScreen(state: GameState,
                     )
                     .padding(16.dp)
             ) {
+                val text = when {
+                    dialog.gameCancelled -> "GAME WAS CANCELLED"
+                    dialog.playerWon -> "CONGRATULATIONS\nYOU WON"
+                    else -> "YOU LOST"
+                }
+                val icon = when {
+                    dialog.gameCancelled -> Icons.Rounded.Cancel
+                    dialog.playerWon -> Icons.Rounded.ThumbUp
+                    else -> Icons.Rounded.ThumbDown
+                }
                 Text(
-                    text = if(dialog.playerWon) "CONGRATULATIONS\nYOU WON" else "YOU LOST",
+                    text = text,
                     style = MaterialTheme.typography.h2,
                     color = MaterialTheme.colors.onSurface,
                     textAlign = TextAlign.Center,
                 )
                 Image(
-                    painter = rememberVectorPainter(image = if(dialog.playerWon) Icons.Rounded.ThumbUp else Icons.Rounded.ThumbDown),
+                    painter = rememberVectorPainter(image = icon),
                     contentDescription = "",
                     colorFilter = ColorFilter.tint(MaterialTheme.colors.onSurface),
                     modifier = Modifier
@@ -606,17 +637,28 @@ fun PlayerCard(player: PlayerData?, timerMain: String, timerExtra: String, timer
         Row(verticalAlignment = CenterVertically,
             modifier = modifier
         ) {
-            Column(modifier = Modifier.padding(start = 18.dp)){
+            val maxSize = 84.dp
+            val minSize = 64.dp
+            Column(
+                verticalArrangement = Arrangement.SpaceEvenly,
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.padding(start = 18.dp)
+                    .sizeIn(minHeight = minSize, maxHeight = maxSize, minWidth = 64.dp)
+                    .fillMaxHeight(1f)
+            ){
                 val color = MaterialTheme.colors.onSurface
                 Canvas(
                     modifier = Modifier
-                        .size(30.dp, 30.dp)
+                        .size(0.dp)
+                        .weight(1f)
+                        .aspectRatio(1f, true)
                         .align(CenterHorizontally)
                         .alpha(alpha)
                 ) {
+                    val radius = (this.size.width - 2.dp.toPx()) / 2
                     drawCircle(
                         color = color,
-                        radius = 14.dp.toPx(),
+                        radius = radius,
                         style = Stroke(width = 2.dp.toPx())
                     )
                     drawArc(
@@ -641,8 +683,11 @@ fun PlayerCard(player: PlayerData?, timerMain: String, timerExtra: String, timer
             }
             Box(modifier = Modifier
                 .padding(start = 16.dp)
-                .size(64.dp)
+                .sizeIn(minHeight = minSize, maxHeight = maxSize)
+                .aspectRatio(1f, true)
             ) {
+                val shape = CircleShape
+//                val shape = RoundedCornerShape(14.dp)
                 Image(
                     painter = rememberImagePainter(
                         data = processGravatarURL(player.iconURL, LocalDensity.current.run { 60.dp.roundToPx() }),
@@ -655,7 +700,8 @@ fun PlayerCard(player: PlayerData?, timerMain: String, timerExtra: String, timer
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(bottom = 4.dp, end = 4.dp)
-                        .clip(CircleShape)
+                        .shadow(2.dp, shape)
+                        .clip(shape)
                 )
                 Box(modifier = Modifier
                     .align(BottomEnd)
@@ -678,7 +724,10 @@ fun PlayerCard(player: PlayerData?, timerMain: String, timerExtra: String, timer
                 }
             }
 
-            Column(modifier = Modifier.padding(start = 16.dp)) {
+            Column(modifier = Modifier.padding(start = 16.dp)
+                .sizeIn(minHeight = minSize, maxHeight = maxSize)
+                .fillMaxHeight(1f)
+            ) {
                 Text(
                     text = player.name + "  " + player.flagCode,
                     style = MaterialTheme.typography.h2,
@@ -735,6 +784,7 @@ private fun Button.getIcon() = when(this) {
     ANALYZE -> Icons.Rounded.Biotech
     PASS -> Icons.Rounded.Stop
     RESIGN -> Icons.Rounded.OutlinedFlag
+    CANCEL_GAME -> Icons.Rounded.Cancel
     CHAT -> Icons.Rounded.Forum
     NEXT_GAME, NEXT_GAME_DISABLED -> Icons.Rounded.NextPlan
     UNDO -> Icons.Rounded.Undo
@@ -792,7 +842,7 @@ fun Preview() {
                 whiteStartTimer = null,
                 blackStartTimer = null,
             ),
-        ), {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
+        ), {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
         )
     }
 }
@@ -834,7 +884,7 @@ fun Preview1() {
                 whiteStartTimer = null,
                 blackStartTimer = null,
             ),
-        ), {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
+        ), {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
         )
     }
 }
@@ -877,7 +927,7 @@ fun Preview2() {
             ),
             bottomText = "Submitting move",
         ),
-            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
+            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
         )
     }
 }
@@ -920,7 +970,7 @@ fun Preview3() {
             bottomText = "Submitting move",
             retryMoveDialogShown = true,
             ),
-            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
+            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
         )
     }
 }
@@ -965,7 +1015,7 @@ fun Preview4() {
             showPlayers = false,
             showAnalysisPanel = true,
             ),
-            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
+            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
         )
     }
 }
@@ -1010,6 +1060,7 @@ fun Preview5() {
             showPlayers = false,
             showAnalysisPanel = true,
             gameOverDialogShowing = GameOverDialogDetails(
+                gameCancelled = false,
                 playerWon = false,
                 detailsText = buildAnnotatedString {
                     pushStyle(SpanStyle(fontWeight = FontWeight.Bold))
@@ -1019,7 +1070,7 @@ fun Preview5() {
                 }
             ),
             ),
-            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
+            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
         )
     }
 }
