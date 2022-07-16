@@ -16,6 +16,7 @@ import io.zenandroid.onlinego.data.model.StoneType
 import io.zenandroid.onlinego.data.model.local.Game
 import io.zenandroid.onlinego.data.model.local.Message
 import io.zenandroid.onlinego.data.model.local.Player
+import io.zenandroid.onlinego.data.model.local.isPaused
 import io.zenandroid.onlinego.data.model.ogs.Phase
 import io.zenandroid.onlinego.data.ogs.GameConnection
 import io.zenandroid.onlinego.data.ogs.OGSWebSocketService
@@ -107,43 +108,55 @@ class GameViewModel(
             }
             game?.let { game ->
                 LaunchedEffect(game) {
-                    currentGamePosition.value = RulesManager.replay(game = game, computeTerritory = game.phase == Phase.STONE_REMOVAL)
-                    if(loading) {
-                        analysisShownMoveNumber = game.moves?.size ?: 0
-                    }
-                    gameState = game
-                    checkPendingMove(game)
-                    if (game.phase == Phase.FINISHED && gameFinished == false && game.blackLost != game.whiteLost) { // Game just finished
-                        if(game.ranked == true) {
-                            activeGamesRepository.refreshGameData(gameId) // just to get the latest ratings...
+                    withContext(Dispatchers.IO) {
+                        currentGamePosition.value = RulesManager.replay(
+                            game = game,
+                            computeTerritory = game.phase == Phase.STONE_REMOVAL
+                        )
+                        if (loading) {
+                            analysisShownMoveNumber = game.moves?.size ?: 0
                         }
-                        gameOverDialogShowing = true
-                        analysisShownMoveNumber = game.moves?.size ?: 0
+                        gameState = game
+                        checkPendingMove(game)
+                        if (game.phase == Phase.FINISHED && gameFinished == false && game.blackLost != game.whiteLost) { // Game just finished
+                            if (game.ranked == true) {
+                                activeGamesRepository.refreshGameData(gameId) // just to get the latest ratings...
+                            }
+                            gameOverDialogShowing = true
+                            analysisShownMoveNumber = game.moves?.size ?: 0
+                        }
+                        gameOverDetails = calculateGameOverDetails(game)
+                        gameFinished = game.phase == Phase.FINISHED
+                        loading = false
                     }
-                    gameOverDetails = calculateGameOverDetails(game)
-                    gameFinished = game.phase == Phase.FINISHED
-                    loading = false
                 }
                 LaunchedEffect(game) {
-                    timerRefresher()
+                    withContext(Dispatchers.IO) {
+                        timerRefresher()
+                    }
                 }
             }
             if(analyzeMode) {
                 LaunchedEffect(analysisShownMoveNumber, game != null) {
-                    game?.let {
-                        val variation = currentVariation
-                        val nextMoveInMainline = if((variation == null || analysisShownMoveNumber <= variation.rootMoveNo) && analysisShownMoveNumber < moveNo) listOf(game?.moves?.get(analysisShownMoveNumber)!!) else emptyList()
-                        val nextMoveVariation = if(variation != null && analysisShownMoveNumber >= variation.rootMoveNo && analysisShownMoveNumber < variation.rootMoveNo + variation.moves.size) listOf(variation.moves[analysisShownMoveNumber - variation.rootMoveNo]) else emptyList()
-                        analysisPosition = RulesManager.replay(it, analysisShownMoveNumber, false, currentVariation).copy(
-                            customMarks = (nextMoveInMainline + nextMoveVariation).mapIndexed { index, cell ->  Mark(cell, "XABCDEFG"[index % 8].toString(), null) }.toSet()
-                        )
+                    withContext(Dispatchers.IO) {
+                        game?.let {
+                            val variation = currentVariation
+                            val nextMoveInMainline = if((variation == null || analysisShownMoveNumber <= variation.rootMoveNo) && analysisShownMoveNumber < moveNo) listOf(game?.moves?.get(analysisShownMoveNumber)!!) else emptyList()
+                            val nextMoveVariation = if(variation != null && analysisShownMoveNumber >= variation.rootMoveNo && analysisShownMoveNumber < variation.rootMoveNo + variation.moves.size) listOf(variation.moves[analysisShownMoveNumber - variation.rootMoveNo]) else emptyList()
+                            analysisPosition = RulesManager.replay(it, analysisShownMoveNumber, false, currentVariation).copy(
+                                customMarks = (nextMoveInMainline + nextMoveVariation).mapIndexed { index, cell ->  Mark(cell, "XABCDEFG"[index % 8].toString(), null) }.toSet()
+                            )
+                        }
                     }
                 }
             }
             if(estimateMode) {
                 LaunchedEffect(shownPosition, game != null) {
-                    game?.let {
-                        estimatePosition = RulesManager.determineTerritory(shownPosition.value, it.scoreStones == true)
+                    withContext(Dispatchers.IO) {
+                        game?.let {
+                            estimatePosition = RulesManager.determineTerritory(shownPosition.value, it.scoreStones == true
+                            )
+                        }
                     }
                 }
             }
@@ -464,21 +477,23 @@ class GameViewModel(
                                 )
 
                             timeLeft = if (whiteToMove) whiteTimer.timeLeft else blackTimer.timeLeft
-
                         }
+                    }
+                    if(game.pauseControl.isPaused()) {
+                        return
                     }
                     delayUntilNextUpdate = timeLeft?.let {
                         when (it) {
-                            in 0 until 10_000 -> it % 100
-                            in 10_000 until 3_600_000 -> it % 1_000
-                            in 3_600_000 until 24 * 3_600_000 -> it % 60_000
-                            else -> it % (12 * 60_000)
+                            in 0 until 2_000 -> it % 101
+                            in 2_000 until 3_600_000 -> it % 1_001
+                            in 3_600_000 until 24 * 3_600_000 -> it % 60_001
+                            else -> it % (12 * 60_000 + 1)
                         }
                     } ?: 1000
                 }
             }
 
-            delay(delayUntilNextUpdate)
+            delay(delayUntilNextUpdate.coerceAtLeast(50))
         }
     }
 
