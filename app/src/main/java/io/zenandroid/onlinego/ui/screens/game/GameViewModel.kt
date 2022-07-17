@@ -58,6 +58,7 @@ class GameViewModel(
     private var timer by mutableStateOf(TimerDetails("", "", "", "", 0, 0, false, false, null, null))
     private var pendingMove by mutableStateOf<PendingMove?>(null)
     private var retrySendMoveDialogShowing by mutableStateOf(false)
+    private var koMoveDialogShowing by mutableStateOf(false)
     private var analyzeMode by mutableStateOf(false)
     private var estimateMode by mutableStateOf(false)
     private var analysisShownMoveNumber by mutableStateOf(0)
@@ -69,6 +70,7 @@ class GameViewModel(
     private var gameOverDialogShowing by mutableStateOf<Boolean>(false)
     private var chatDialogShowing by mutableStateOf(false)
     private var currentVariation by mutableStateOf<Variation?>(null)
+    private var unreadMessagesCount by mutableStateOf(0)
 
     lateinit var state: StateFlow<GameState>
     var pendingNavigation by mutableStateOf<PendingNavigation?>(null)
@@ -86,6 +88,7 @@ class GameViewModel(
 
         val messagesFlow = chatRepository.monitorGameChat(gameId)
             .map { messages ->
+                unreadMessagesCount = messages.count { !it.seen }
                 messages.map {
                     ChatMessage(
                         fromUser = it.playerId == userId,
@@ -166,23 +169,24 @@ class GameViewModel(
 
             val nextGame = remember(activeGamesRepository.myTurnGames) { getNextGame() }
 
-            val nextGameButton = if(nextGame != null) NEXT_GAME else NEXT_GAME_DISABLED
-            val endGameButton = if(game.canBeCancelled()) CANCEL_GAME else RESIGN
+            val nextGameButton = NextGame(nextGame != null)
+            val endGameButton = if(game.canBeCancelled()) CancelGame else Resign
             val maxAnalysisMoveNumber = currentVariation?.let {
                 it.rootMoveNo + it.moves.size
             } ?: game?.moves?.size ?: 0
-            val nextButton = if(analysisShownMoveNumber < maxAnalysisMoveNumber) NEXT else NEXT_DISABLED
+            val nextButton = Next(analysisShownMoveNumber < maxAnalysisMoveNumber)
+            val chatButton = Chat(if(unreadMessagesCount > 0) unreadMessagesCount.toString() else null)
 
             val visibleButtons =
                 when {
-                    estimateMode -> listOf(EXIT_ESTIMATE)
-                    game?.phase == Phase.STONE_REMOVAL -> listOf(ACCEPT_STONE_REMOVAL, REJECT_STONE_REMOVAL)
-                    gameFinished == true -> listOf(CHAT, ESTIMATE, PREVIOUS, nextButton)
-                    analyzeMode -> listOf(EXIT_ANALYSIS, ESTIMATE, PREVIOUS, nextButton)
+                    estimateMode -> listOf(ExitEstimate)
+                    game?.phase == Phase.STONE_REMOVAL -> listOf(AcceptStoneRemoval, RejectStoneRemoval)
+                    gameFinished == true -> listOf(chatButton, Estimate, Previous, nextButton)
+                    analyzeMode -> listOf(ExitAnalysis, Estimate, Previous, nextButton)
                     pendingMove != null -> emptyList()
-                    isMyTurn && candidateMove == null -> listOf(ANALYZE, PASS, endGameButton, CHAT, nextGameButton)
-                    isMyTurn && candidateMove != null -> listOf(CONFIRM_MOVE, DISCARD_MOVE)
-                    !isMyTurn && game?.phase == Phase.PLAY -> listOf(ANALYZE, UNDO, endGameButton, CHAT, nextGameButton)
+                    isMyTurn && candidateMove == null -> listOf(Analyze, Pass, endGameButton, chatButton, nextGameButton)
+                    isMyTurn && candidateMove != null -> listOf(ConfirmMove, DiscardMove)
+                    !isMyTurn && game?.phase == Phase.PLAY -> listOf(Analyze, Undo, endGameButton, chatButton, nextGameButton)
                     else -> emptyList()
                 }
 
@@ -235,7 +239,8 @@ class GameViewModel(
                 blackPlayer = game?.blackPlayer?.data(StoneType.BLACK, score.second),
                 timerDetails = timer,
                 bottomText = bottomText,
-                retryMoveDialogShown = retrySendMoveDialogShowing,
+                retryMoveDialogShowing = retrySendMoveDialogShowing,
+                koMoveDialogShowing = koMoveDialogShowing,
 //                showAnalysisPanel = analyzeMode,
                 showAnalysisPanel = false,
 //                showPlayers = !analyzeMode,
@@ -327,62 +332,7 @@ class GameViewModel(
         }
     }
 
-    fun onRetryDialogDismissed() {
-        viewModelScope.launch {
-            retrySendMoveDialogShowing = false
-            pendingMove = null
-        }
-    }
-
-    fun onRetryDialogRetry() {
-        viewModelScope.launch {
-            retrySendMoveDialogShowing = false
-            pendingMove?.let {
-                submitMove(it.cell, it.moveNo)
-            }
-        }
-    }
-
-    fun onPassDialogDismissed() {
-        passDialogShowing = false
-    }
-
-    fun onPassDialogConfirm() {
-        passDialogShowing = false
-        submitMove(Cell(-1, -1), gameState?.moves?.size ?: 0)
-    }
-
-    fun onResignDialogDismissed() {
-        resignDialogShowing = false
-    }
-
-    fun onResignDialogConfirm() {
-        resignDialogShowing = false
-        gameConnection.resign()
-    }
-
-    fun onCancelDialogDismissed() {
-        cancelDialogShowing = false
-    }
-
-    fun onCancelDialogConfirm() {
-        cancelDialogShowing = false
-        gameConnection.abortGame()
-    }
-
-    fun onGameOverDialogAnalyze() {
-        gameOverDialogShowing = false
-    }
-
-    fun onGameOverDialogDismissed() {
-        gameOverDialogShowing = false
-    }
-
-    fun onGameOverDialogNextGame() {
-        getNextGame()?.let { pendingNavigation = PendingNavigation.NavigateToGame(it) }
-    }
-
-    fun onGameOverDialogQuickReplay() {
+    private fun onGameOverDialogQuickReplay() {
         gameOverDialogShowing = false
         viewModelScope.launch {
             for(i in 0 until (gameState?.moves?.size ?: 0)) {
@@ -390,14 +340,6 @@ class GameViewModel(
                 delay(700)
             }
         }
-    }
-
-    fun onChatDialogDismissed() {
-        chatDialogShowing = false
-    }
-
-    fun onSendChat(message: String) {
-        gameConnection.sendMessage(message, gameState?.moves?.size ?: 0)
     }
 
     private suspend fun timerRefresher() {
@@ -426,7 +368,7 @@ class GameViewModel(
                         game.timeControl,
                         )
 
-                    var timeLeft = null as Long?
+                    var timeLeft: Long? = null
 
                     if (clock.startMode == true) {
                         clock.expiration?.let { expiration ->
@@ -513,20 +455,24 @@ class GameViewModel(
         super.onCleared()
     }
 
-    fun onCellTracked(cell: Cell) {
+    private fun onCellTracked(cell: Cell) {
         if(gameState?.phase == Phase.PLAY && !currentGamePosition.value.blackStones.contains(cell) && !currentGamePosition.value.whiteStones.contains(cell)) {
             candidateMove = cell
         }
     }
 
-    fun onCellTapUp(cell: Cell) {
+    private fun onCellTapUp(cell: Cell) {
         when {
             gameState?.phase == Phase.PLAY && !analyzeMode && !estimateMode -> {
                 viewModelScope.launch {
-                    val newPosition =
-                        RulesManager.makeMove(currentGamePosition.value, currentGamePosition.value.nextToMove, cell)
+                    val pos = currentGamePosition.value
+                    val historySize = gameState?.moves?.size ?: 0
+                    val newPosition = RulesManager.makeMove(pos, pos.nextToMove, cell)
                     if (newPosition == null) {
                         candidateMove = null
+                    } else if(historySize > 1 && RulesManager.replay(gameState!!, historySize - 1, false).hasTheSameStonesAs(newPosition)) {
+                        candidateMove = null
+                        koMoveDialogShowing = true
                     }
                 }
             }
@@ -558,39 +504,83 @@ class GameViewModel(
         }
     }
 
-    fun onButtonPressed(button: Button) {
+    fun onUserAction(action: UserAction) {
+        when(action) {
+            is UserAction.BoardCellDragged -> onCellTracked(action.cell)
+            is UserAction.BoardCellTapUp -> onCellTapUp(action.cell)
+            is UserAction.BottomButtonPressed -> onButtonPressed(action.button)
+            UserAction.CancelDialogConfirm -> {
+                cancelDialogShowing = false
+                gameConnection.abortGame()
+            }
+            UserAction.CancelDialogDismiss -> cancelDialogShowing = false
+            UserAction.ChatDialogDismiss -> chatDialogShowing = false
+            UserAction.KOMoveDialogDismiss -> koMoveDialogShowing = false
+            is UserAction.ChatSend -> gameConnection.sendMessage(action.message, gameState?.moves?.size ?: 0)
+            UserAction.GameInfoClick -> {} // TODO
+            UserAction.GameOverDialogDismiss -> gameOverDialogShowing = false
+            UserAction.GameOverDialogAnalyze -> {
+                gameOverDialogShowing = false
+                analyzeMode = true
+            }
+            UserAction.GameOverDialogNextGame -> getNextGame()?.let { pendingNavigation = PendingNavigation.NavigateToGame(it) }
+            UserAction.GameOverDialogQuickReplay -> onGameOverDialogQuickReplay()
+            UserAction.MoreClick -> {} //TODO()
+            UserAction.PassDialogConfirm -> {
+                passDialogShowing = false
+                submitMove(Cell(-1, -1), gameState?.moves?.size ?: 0)
+            }
+            UserAction.PassDialogDismiss -> passDialogShowing = false
+            UserAction.ResignDialogDismiss -> resignDialogShowing = false
+            UserAction.ResignDialogConfirm -> {
+                resignDialogShowing = false
+                gameConnection.resign()
+            }
+            UserAction.RetryDialogDismiss -> {
+                retrySendMoveDialogShowing = false
+                pendingMove = null
+            }
+            UserAction.RetryDialogRetry -> {
+                retrySendMoveDialogShowing = false
+                pendingMove?.let {
+                    submitMove(it.cell, it.moveNo)
+                }
+            }
+        }. run {}
+    }
+
+    private fun onButtonPressed(button: Button) {
         when(button) {
-            CONFIRM_MOVE -> candidateMove?.let { submitMove(it,gameState?.moves?.size ?: 0) }
-            DISCARD_MOVE -> candidateMove = null
-            ANALYZE -> {
+            ConfirmMove -> candidateMove?.let { submitMove(it,gameState?.moves?.size ?: 0) }
+            DiscardMove -> candidateMove = null
+            Analyze -> {
                 analysisShownMoveNumber = gameState?.moves?.size ?: 0
                 analyzeMode = true
             }
-            PASS -> passDialogShowing = true
-            RESIGN -> resignDialogShowing = true
-            CANCEL_GAME -> cancelDialogShowing = true
-            CHAT -> {
+            Pass -> passDialogShowing = true
+            Resign -> resignDialogShowing = true
+            CancelGame -> cancelDialogShowing = true
+            is Chat -> {
                 chatDialogShowing = true
                 chatRepository.markMessagesAsRead(state.value.messages.flatMap { it.value }.map { it.message }.filter { !it.seen })
             }
-            NEXT_GAME -> getNextGame()?.let { pendingNavigation = PendingNavigation.NavigateToGame(it) }
-            UNDO -> TODO()
-            EXIT_ANALYSIS -> analyzeMode = false
-            ESTIMATE -> {
+            is NextGame -> getNextGame()?.let { pendingNavigation = PendingNavigation.NavigateToGame(it) }
+            Undo -> TODO()
+            ExitAnalysis -> analyzeMode = false
+            Estimate -> {
                 estimatePosition = null
                 estimateMode = true
             }
-            EXIT_ESTIMATE -> estimateMode = false
-            PREVIOUS -> analysisShownMoveNumber = (analysisShownMoveNumber - 1).coerceAtLeast(0)
-            NEXT -> {
+            ExitEstimate -> estimateMode = false
+            Previous -> analysisShownMoveNumber = (analysisShownMoveNumber - 1).coerceAtLeast(0)
+            is Next -> {
                 val max = currentVariation?.let {
                     it.rootMoveNo + it.moves.size
                 } ?: gameState?.moves?.size ?: 0
                 analysisShownMoveNumber = (analysisShownMoveNumber + 1).coerceIn(0 .. max)
             }
-            NEXT_GAME_DISABLED, NEXT_DISABLED -> {}
-            ACCEPT_STONE_REMOVAL -> gameConnection.acceptRemovedStones(currentGamePosition.value.removedSpots)
-            REJECT_STONE_REMOVAL -> gameConnection.rejectRemovedStones()
+            AcceptStoneRemoval -> gameConnection.acceptRemovedStones(currentGamePosition.value.removedSpots)
+            RejectStoneRemoval -> gameConnection.rejectRemovedStones()
         }.run {} // makes the while exhaustive
     }
 
@@ -647,7 +637,8 @@ data class GameState(
     val blackExtraStatus: String?,
     val timerDetails: TimerDetails?,
     val bottomText: String?,
-    val retryMoveDialogShown: Boolean,
+    val retryMoveDialogShowing: Boolean,
+    val koMoveDialogShowing: Boolean,
     val showPlayers: Boolean,
     val showAnalysisPanel: Boolean,
     val passDialogShowing: Boolean,
@@ -674,7 +665,8 @@ data class GameState(
             blackPlayer = null,
             timerDetails = null,
             bottomText = null,
-            retryMoveDialogShown = false,
+            retryMoveDialogShowing = false,
+            koMoveDialogShowing = false,
             showAnalysisPanel = false,
             showPlayers = true,
             passDialogShowing = false,
@@ -710,28 +702,50 @@ data class PlayerData(
     val color: StoneType,
 )
 
-enum class Button(
+sealed class Button(
     val repeatable: Boolean = false,
     val enabled: Boolean = true,
+    val bubbleText: String? = null,
 ) {
-    CONFIRM_MOVE,
-    DISCARD_MOVE,
-    ACCEPT_STONE_REMOVAL,
-    REJECT_STONE_REMOVAL,
-    ANALYZE,
-    PASS,
-    RESIGN,
-    CANCEL_GAME,
-    CHAT,
-    NEXT_GAME,
-    NEXT_GAME_DISABLED (enabled = false),
-    UNDO,
-    EXIT_ANALYSIS,
-    ESTIMATE,
-    EXIT_ESTIMATE,
-    PREVIOUS (repeatable = true),
-    NEXT (repeatable = true),
-    NEXT_DISABLED (enabled = false),
+    object ConfirmMove : Button()
+    object DiscardMove : Button()
+    object AcceptStoneRemoval : Button()
+    object RejectStoneRemoval : Button()
+    object Analyze : Button()
+    object Pass : Button()
+    object Resign : Button()
+    object CancelGame : Button()
+    class Chat(bubbleText: String? = null) : Button(bubbleText = bubbleText)
+    class NextGame(enabled: Boolean = true, bubbleText: String? = null) : Button(enabled = enabled, bubbleText = bubbleText)
+    object Undo : Button()
+    object ExitAnalysis : Button()
+    object Estimate : Button()
+    object ExitEstimate : Button()
+    object Previous : Button(repeatable = true)
+    class Next(enabled: Boolean = true) : Button(repeatable = true, enabled = enabled)
+}
+
+sealed interface UserAction {
+    class BottomButtonPressed(val button: Button): UserAction
+    class BoardCellDragged(val cell: Cell): UserAction
+    class BoardCellTapUp(val cell: Cell): UserAction
+    object GameInfoClick: UserAction
+    object MoreClick: UserAction
+    object RetryDialogDismiss: UserAction
+    object RetryDialogRetry: UserAction
+    object PassDialogDismiss: UserAction
+    object PassDialogConfirm: UserAction
+    object ResignDialogDismiss: UserAction
+    object ResignDialogConfirm: UserAction
+    object CancelDialogDismiss: UserAction
+    object CancelDialogConfirm: UserAction
+    object GameOverDialogDismiss: UserAction
+    object GameOverDialogAnalyze: UserAction
+    object GameOverDialogNextGame: UserAction
+    object GameOverDialogQuickReplay: UserAction
+    object ChatDialogDismiss: UserAction
+    object KOMoveDialogDismiss: UserAction
+    class ChatSend(val message: String): UserAction
 }
 
 data class TimerDetails(
