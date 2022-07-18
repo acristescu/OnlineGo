@@ -4,6 +4,7 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -36,55 +37,13 @@ fun PlayerCard(player: PlayerData?, timerMain: String, timerExtra: String, timer
         ) {
             val maxSize = 84.dp
             val minSize = 64.dp
-            Column(
-                verticalArrangement = Arrangement.SpaceEvenly,
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.padding(start = 18.dp)
-                    .sizeIn(minHeight = minSize, maxHeight = maxSize, minWidth = 64.dp)
-                    .fillMaxHeight(1f)
-            ){
-                val color = MaterialTheme.colors.onSurface
-                Canvas(
-                    modifier = Modifier
-                        .size(0.dp)
-                        .weight(1f)
-                        .aspectRatio(1f, true)
-                        .align(Alignment.CenterHorizontally)
-                        .alpha(alpha)
-                ) {
-                    val radius = (this.size.width - 2.dp.toPx()) / 2
-                    drawCircle(
-                        color = color,
-                        radius = radius,
-                        style = Stroke(width = 2.dp.toPx())
-                    )
-                    drawArc(
-                        color = color,
-                        topLeft = Offset(3.dp.toPx(), 3.dp.toPx()),
-                        size = Size(this.size.width - 6.dp.toPx(), this.size.height - 6.dp.toPx()),
-                        startAngle = -90f,
-                        sweepAngle = -360f * timerPercent / 100f,
-                        useCenter = true,
-                    )
-                }
-                Text(
-                    text = timerMain,
-                    style = MaterialTheme.typography.h6,
-                    color = MaterialTheme.colors.onSurface.copy(alpha = alpha),
-                )
-                Text(
-                    text = timerExtra,
-                    style = MaterialTheme.typography.h5,
-                    color = MaterialTheme.colors.onSurface.copy(alpha = alpha),
-                )
-            }
             Box(modifier = Modifier
                 .padding(start = 16.dp)
                 .sizeIn(minHeight = minSize, maxHeight = maxSize)
                 .aspectRatio(1f, true)
             ) {
-                val shape = CircleShape
-//                val shape = RoundedCornerShape(14.dp)
+//                val shape = CircleShape
+                val shape = RoundedCornerShape(14.dp)
                 Image(
                     painter = rememberImagePainter(
                         data = processGravatarURL(player.iconURL, LocalDensity.current.run { 60.dp.roundToPx() }),
@@ -123,6 +82,7 @@ fun PlayerCard(player: PlayerData?, timerMain: String, timerExtra: String, timer
 
             Column(modifier = Modifier.padding(start = 16.dp)
                 .sizeIn(minHeight = minSize, maxHeight = maxSize)
+                .weight(1f)
                 .fillMaxHeight(1f)
             ) {
                 Text(
@@ -136,6 +96,48 @@ fun PlayerCard(player: PlayerData?, timerMain: String, timerExtra: String, timer
                     style = MaterialTheme.typography.h5.copy(fontSize = 10.sp),
                     color = MaterialTheme.colors.onSurface,
                     modifier = Modifier.padding(top = 6.dp)
+                )
+            }
+            Column(
+                verticalArrangement = Arrangement.SpaceEvenly,
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.padding(horizontal = 18.dp)
+                    .sizeIn(minHeight = minSize, maxHeight = maxSize, minWidth = 64.dp)
+                    .fillMaxHeight(1f)
+            ){
+                val color = MaterialTheme.colors.onSurface
+                Canvas(
+                    modifier = Modifier
+                        .size(0.dp)
+                        .weight(1f)
+                        .aspectRatio(1f, true)
+                        .align(Alignment.CenterHorizontally)
+                        .alpha(alpha)
+                ) {
+                    val radius = (this.size.width - 2.dp.toPx()) / 2
+                    drawCircle(
+                        color = color,
+                        radius = radius,
+                        style = Stroke(width = 2.dp.toPx())
+                    )
+                    drawArc(
+                        color = color,
+                        topLeft = Offset(3.dp.toPx(), 3.dp.toPx()),
+                        size = Size(this.size.width - 6.dp.toPx(), this.size.height - 6.dp.toPx()),
+                        startAngle = -90f,
+                        sweepAngle = -360f * timerPercent / 100f,
+                        useCenter = true,
+                    )
+                }
+                Text(
+                    text = timerMain,
+                    style = MaterialTheme.typography.h6,
+                    color = MaterialTheme.colors.onSurface.copy(alpha = alpha),
+                )
+                Text(
+                    text = timerExtra,
+                    style = MaterialTheme.typography.h5,
+                    color = MaterialTheme.colors.onSurface.copy(alpha = alpha),
                 )
             }
         }

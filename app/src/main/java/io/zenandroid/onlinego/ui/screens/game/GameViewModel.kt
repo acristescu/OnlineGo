@@ -27,6 +27,8 @@ import io.zenandroid.onlinego.data.repositories.UserSessionRepository
 import io.zenandroid.onlinego.gamelogic.RulesManager
 import io.zenandroid.onlinego.gamelogic.RulesManager.isPass
 import io.zenandroid.onlinego.ui.screens.game.Button.*
+import io.zenandroid.onlinego.ui.screens.game.PendingNavigation.*
+import io.zenandroid.onlinego.ui.screens.game.UserAction.*
 import io.zenandroid.onlinego.utils.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
@@ -131,10 +133,6 @@ class GameViewModel(
                         gameOverDetails = calculateGameOverDetails(game)
                         gameFinished = game.phase == Phase.FINISHED
                         loading = false
-                    }
-                }
-                LaunchedEffect(game) {
-                    withContext(Dispatchers.IO) {
                         timerRefresher()
                     }
                 }
@@ -157,8 +155,7 @@ class GameViewModel(
                 LaunchedEffect(shownPosition, game != null) {
                     withContext(Dispatchers.IO) {
                         game?.let {
-                            estimatePosition = RulesManager.determineTerritory(shownPosition.value, it.scoreStones == true
-                            )
+                            estimatePosition = RulesManager.determineTerritory(shownPosition.value, it.scoreStones == true)
                         }
                     }
                 }
@@ -402,7 +399,7 @@ class GameViewModel(
                                     )
                         }
                     } else {
-                        if ((game.phase == Phase.PLAY || game.phase == Phase.STONE_REMOVAL) && !loading) {
+                        if ((game.phase == Phase.PLAY || game.phase == Phase.STONE_REMOVAL)) {
 
                             timer =
                                 TimerDetails(
@@ -506,46 +503,47 @@ class GameViewModel(
 
     fun onUserAction(action: UserAction) {
         when(action) {
-            is UserAction.BoardCellDragged -> onCellTracked(action.cell)
-            is UserAction.BoardCellTapUp -> onCellTapUp(action.cell)
-            is UserAction.BottomButtonPressed -> onButtonPressed(action.button)
-            UserAction.CancelDialogConfirm -> {
+            is BoardCellDragged -> onCellTracked(action.cell)
+            is BoardCellTapUp -> onCellTapUp(action.cell)
+            is BottomButtonPressed -> onButtonPressed(action.button)
+            CancelDialogConfirm -> {
                 cancelDialogShowing = false
                 gameConnection.abortGame()
             }
-            UserAction.CancelDialogDismiss -> cancelDialogShowing = false
-            UserAction.ChatDialogDismiss -> chatDialogShowing = false
-            UserAction.KOMoveDialogDismiss -> koMoveDialogShowing = false
-            is UserAction.ChatSend -> gameConnection.sendMessage(action.message, gameState?.moves?.size ?: 0)
-            UserAction.GameInfoClick -> {} // TODO
-            UserAction.GameOverDialogDismiss -> gameOverDialogShowing = false
-            UserAction.GameOverDialogAnalyze -> {
+            CancelDialogDismiss -> cancelDialogShowing = false
+            ChatDialogDismiss -> chatDialogShowing = false
+            KOMoveDialogDismiss -> koMoveDialogShowing = false
+            is ChatSend -> gameConnection.sendMessage(action.message, gameState?.moves?.size ?: 0)
+            GameInfoClick -> {} // TODO
+            GameOverDialogDismiss -> gameOverDialogShowing = false
+            GameOverDialogAnalyze -> {
                 gameOverDialogShowing = false
                 analyzeMode = true
             }
-            UserAction.GameOverDialogNextGame -> getNextGame()?.let { pendingNavigation = PendingNavigation.NavigateToGame(it) }
-            UserAction.GameOverDialogQuickReplay -> onGameOverDialogQuickReplay()
-            UserAction.MoreClick -> {} //TODO()
-            UserAction.PassDialogConfirm -> {
+            GameOverDialogNextGame -> getNextGame()?.let { pendingNavigation = NavigateToGame(it) }
+            GameOverDialogQuickReplay -> onGameOverDialogQuickReplay()
+            PassDialogConfirm -> {
                 passDialogShowing = false
                 submitMove(Cell(-1, -1), gameState?.moves?.size ?: 0)
             }
-            UserAction.PassDialogDismiss -> passDialogShowing = false
-            UserAction.ResignDialogDismiss -> resignDialogShowing = false
-            UserAction.ResignDialogConfirm -> {
+            PassDialogDismiss -> passDialogShowing = false
+            ResignDialogDismiss -> resignDialogShowing = false
+            ResignDialogConfirm -> {
                 resignDialogShowing = false
                 gameConnection.resign()
             }
-            UserAction.RetryDialogDismiss -> {
+            RetryDialogDismiss -> {
                 retrySendMoveDialogShowing = false
                 pendingMove = null
             }
-            UserAction.RetryDialogRetry -> {
+            RetryDialogRetry -> {
                 retrySendMoveDialogShowing = false
                 pendingMove?.let {
                     submitMove(it.cell, it.moveNo)
                 }
             }
+            OpenInBrowser -> pendingNavigation = OpenURL("https://online-go.com/game/${gameState?.id}")
+            DownloadSGF -> pendingNavigation = OpenURL("https://online-go.com/api/v1/games/${gameState?.id}/sgf")
         }. run {}
     }
 
@@ -564,7 +562,7 @@ class GameViewModel(
                 chatDialogShowing = true
                 chatRepository.markMessagesAsRead(state.value.messages.flatMap { it.value }.map { it.message }.filter { !it.seen })
             }
-            is NextGame -> getNextGame()?.let { pendingNavigation = PendingNavigation.NavigateToGame(it) }
+            is NextGame -> getNextGame()?.let { pendingNavigation = NavigateToGame(it) }
             Undo -> TODO()
             ExitAnalysis -> analyzeMode = false
             Estimate -> {
@@ -730,7 +728,6 @@ sealed interface UserAction {
     class BoardCellDragged(val cell: Cell): UserAction
     class BoardCellTapUp(val cell: Cell): UserAction
     object GameInfoClick: UserAction
-    object MoreClick: UserAction
     object RetryDialogDismiss: UserAction
     object RetryDialogRetry: UserAction
     object PassDialogDismiss: UserAction
@@ -746,6 +743,8 @@ sealed interface UserAction {
     object ChatDialogDismiss: UserAction
     object KOMoveDialogDismiss: UserAction
     class ChatSend(val message: String): UserAction
+    object OpenInBrowser: UserAction
+    object DownloadSGF: UserAction
 }
 
 data class TimerDetails(
@@ -767,8 +766,9 @@ data class PendingMove(
     val attempt: Int,
 )
 
-sealed class PendingNavigation {
-    class NavigateToGame(val game: Game) : PendingNavigation()
+sealed interface PendingNavigation {
+    class NavigateToGame(val game: Game) : PendingNavigation
+    class OpenURL(val url: String) : PendingNavigation
 }
 
 sealed class Event {

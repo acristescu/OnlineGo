@@ -11,9 +11,8 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.rounded.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.key
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -456,8 +455,46 @@ private fun Header(
                 .padding(start = 6.dp)
         )
         Spacer(modifier = Modifier.weight(.5f))
-        IconButton(onClick = { onUserAction(MoreClick) }) {
-            Icon(Icons.Rounded.MoreVert, "More", tint = MaterialTheme.colors.onSurface)
+        Box {
+            var moreMenuOpen by rememberSaveable { mutableStateOf(false) }
+            IconButton(onClick = { moreMenuOpen = true }) {
+                Icon(Icons.Rounded.MoreVert, "More", tint = MaterialTheme.colors.onSurface)
+            }
+            DropdownMenu(
+                expanded = moreMenuOpen,
+                onDismissRequest = { moreMenuOpen = false },
+            ) {
+                DropdownMenuItem(onClick = {
+                    moreMenuOpen = false
+                    onUserAction(OpenInBrowser)
+                }) {
+                    Icon(
+                        painter = rememberVectorPainter(image = Icons.Rounded.OpenInBrowser),
+                        contentDescription = "Open in browser",
+                        tint = MaterialTheme.colors.onSurface,
+                    )
+                    Text(
+                        text = "Open in browser",
+                        color = MaterialTheme.colors.onSurface,
+                        modifier = Modifier.padding(start = 8.dp)
+                    )
+                }
+                DropdownMenuItem(onClick = {
+                    moreMenuOpen = false
+                    onUserAction(DownloadSGF)
+                }) {
+                    Icon(
+                        painter = rememberVectorPainter(image = Icons.Rounded.Download),
+                        contentDescription = "Download as SGF",
+                        tint = MaterialTheme.colors.onSurface,
+                    )
+                    Text(
+                        text = "Download as SGF",
+                        color = MaterialTheme.colors.onSurface,
+                        modifier = Modifier.padding(start = 8.dp)
+                    )
+                }
+            }
         }
     }
 }

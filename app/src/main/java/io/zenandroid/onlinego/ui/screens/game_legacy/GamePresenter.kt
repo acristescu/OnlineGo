@@ -33,6 +33,7 @@ import java.util.concurrent.atomic.AtomicLong
 /**
  * Created by alex on 10/11/2017.
  */
+@Deprecated("")
 class GamePresenter(
         private val view: GameContract.View,
         private val socketService: OGSWebSocketService,
