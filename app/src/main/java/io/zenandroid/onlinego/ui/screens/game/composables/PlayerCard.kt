@@ -1,5 +1,8 @@
 package io.zenandroid.onlinego.ui.screens.game.composables
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
@@ -19,6 +22,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberImagePainter
@@ -29,7 +33,7 @@ import io.zenandroid.onlinego.ui.theme.brown
 import io.zenandroid.onlinego.utils.processGravatarURL
 
 @Composable
-fun PlayerCard(player: PlayerData?, timerMain: String, timerExtra: String, timerPercent: Int, timerFaded: Boolean, modifier: Modifier = Modifier) {
+fun PlayerCard(player: PlayerData?, timerMain: String, timerExtra: String, timerPercent: Int, timerFaded: Boolean, timerShown: Boolean, modifier: Modifier = Modifier) {
     val alpha = if(timerFaded) .6f else 1f
     player?.let {
         Row(verticalAlignment = Alignment.CenterVertically,
@@ -80,7 +84,8 @@ fun PlayerCard(player: PlayerData?, timerMain: String, timerExtra: String, timer
                 }
             }
 
-            Column(modifier = Modifier.padding(start = 16.dp)
+            Column(modifier = Modifier
+                .padding(start = 16.dp)
                 .sizeIn(minHeight = minSize, maxHeight = maxSize)
                 .weight(1f)
                 .fillMaxHeight(1f)
@@ -98,48 +103,63 @@ fun PlayerCard(player: PlayerData?, timerMain: String, timerExtra: String, timer
                     modifier = Modifier.padding(top = 6.dp)
                 )
             }
-            Column(
-                verticalArrangement = Arrangement.SpaceEvenly,
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.padding(horizontal = 18.dp)
-                    .sizeIn(minHeight = minSize, maxHeight = maxSize, minWidth = 64.dp)
-                    .fillMaxHeight(1f)
-            ){
-                val color = MaterialTheme.colors.onSurface
-                Canvas(
-                    modifier = Modifier
-                        .size(0.dp)
-                        .weight(1f)
-                        .aspectRatio(1f, true)
-                        .align(Alignment.CenterHorizontally)
-                        .alpha(alpha)
-                ) {
-                    val radius = (this.size.width - 2.dp.toPx()) / 2
-                    drawCircle(
-                        color = color,
-                        radius = radius,
-                        style = Stroke(width = 2.dp.toPx())
-                    )
-                    drawArc(
-                        color = color,
-                        topLeft = Offset(3.dp.toPx(), 3.dp.toPx()),
-                        size = Size(this.size.width - 6.dp.toPx(), this.size.height - 6.dp.toPx()),
-                        startAngle = -90f,
-                        sweepAngle = -360f * timerPercent / 100f,
-                        useCenter = true,
-                    )
-                }
-                Text(
-                    text = timerMain,
-                    style = MaterialTheme.typography.h6,
-                    color = MaterialTheme.colors.onSurface.copy(alpha = alpha),
-                )
-                Text(
-                    text = timerExtra,
-                    style = MaterialTheme.typography.h5,
-                    color = MaterialTheme.colors.onSurface.copy(alpha = alpha),
-                )
+            AnimatedVisibility(visible = timerShown, exit = fadeOut(), enter = fadeIn()) {
+                Timer(minSize, maxSize, alpha, timerPercent, timerMain, timerExtra)
             }
         }
+    }
+}
+
+@Composable
+private fun Timer(
+    minSize: Dp,
+    maxSize: Dp,
+    alpha: Float,
+    timerPercent: Int,
+    timerMain: String,
+    timerExtra: String
+) {
+    Column(
+        verticalArrangement = Arrangement.SpaceEvenly,
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier
+            .padding(horizontal = 18.dp)
+            .sizeIn(minHeight = minSize, maxHeight = maxSize, minWidth = 64.dp)
+            .fillMaxHeight(1f)
+    ) {
+        val color = MaterialTheme.colors.onSurface
+        Canvas(
+            modifier = Modifier
+                .size(0.dp)
+                .weight(1f)
+                .aspectRatio(1f, true)
+                .align(Alignment.CenterHorizontally)
+                .alpha(alpha)
+        ) {
+            val radius = (this.size.width - 2.dp.toPx()) / 2
+            drawCircle(
+                color = color,
+                radius = radius,
+                style = Stroke(width = 2.dp.toPx())
+            )
+            drawArc(
+                color = color,
+                topLeft = Offset(3.dp.toPx(), 3.dp.toPx()),
+                size = Size(this.size.width - 6.dp.toPx(), this.size.height - 6.dp.toPx()),
+                startAngle = -90f,
+                sweepAngle = -360f * timerPercent / 100f,
+                useCenter = true,
+            )
+        }
+        Text(
+            text = timerMain,
+            style = MaterialTheme.typography.h6,
+            color = MaterialTheme.colors.onSurface.copy(alpha = alpha),
+        )
+        Text(
+            text = timerExtra,
+            style = MaterialTheme.typography.h5,
+            color = MaterialTheme.colors.onSurface.copy(alpha = alpha),
+        )
     }
 }

@@ -1,5 +1,10 @@
 package io.zenandroid.onlinego.ui.screens.game
 
+import androidx.compose.animation.*
+import androidx.compose.animation.core.AnimationSpec
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.SpringSpec
+import androidx.compose.animation.core.TweenSpec
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -16,6 +21,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
@@ -64,14 +70,15 @@ fun GameScreen(state: GameState,
                     timerExtra = state.timerDetails?.blackSecondLine ?: "",
                     timerPercent = state.timerDetails?.blackPercentage ?: 0,
                     timerFaded = state.timerDetails?.blackFaded ?: true,
+                    timerShown = state.showTimers,
                     modifier = Modifier
                         .weight(.5f)
                         .fillMaxWidth()
                 )
             }
-            if(state.blackExtraStatus != null) {
+            AnimatedVisibility(visible = state.blackExtraStatus != null) {
                 Text(
-                    text = state.blackExtraStatus,
+                    text = state.blackExtraStatus ?: "",
                     style = MaterialTheme.typography.h3,
                     color = Color.White,
                     textAlign = TextAlign.Center,
@@ -94,10 +101,13 @@ fun GameScreen(state: GameState,
                 candidateMoveType = state.position?.nextToMove,
                 onTapMove = { onUserAction(BoardCellDragged(it)) },
                 onTapUp = { onUserAction(BoardCellTapUp(it)) },
+                modifier = Modifier
+                    .shadow(1.dp, MaterialTheme.shapes.medium)
+                    .clip(MaterialTheme.shapes.medium)
             )
-            if(state.whiteExtraStatus != null) {
+            AnimatedVisibility(visible = state.whiteExtraStatus != null) {
                 Text(
-                    text = state.whiteExtraStatus,
+                    text = state.whiteExtraStatus ?: "",
                     style = MaterialTheme.typography.h3,
                     color = Color.White,
                     textAlign = TextAlign.Center,
@@ -115,6 +125,7 @@ fun GameScreen(state: GameState,
                     timerExtra = state.timerDetails?.whiteSecondLine ?: "",
                     timerPercent = state.timerDetails?.whitePercentage ?: 0,
                     timerFaded = state.timerDetails?.whiteFaded ?: true,
+                    timerShown = state.showTimers,
                     modifier = Modifier
                         .weight(.5f)
                         .fillMaxWidth()
@@ -390,20 +401,28 @@ private fun BottomBar(
                             color = MaterialTheme.colors.onSurface,
                         )
                     }
-                    it.bubbleText?.let { bubble ->
-                        Text(
-                            text = bubble,
-                            fontSize = 9.sp,
-                            fontWeight = Bold,
-                            textAlign = TextAlign.Center,
-                            color = MaterialTheme.colors.surface,
-                            modifier = Modifier
-                                .align(Alignment.TopCenter)
-                                .padding(start = 19.dp, top = 5.dp)
-                                .background(MaterialTheme.colors.primary, CircleShape)
-                                .size(16.dp)
-                                .wrapContentHeight()
-                        )
+                    androidx.compose.animation.AnimatedVisibility(
+                        visible = it.bubbleText != null,
+                        enter = fadeIn(TweenSpec( 500)) + scaleIn(SpringSpec(Spring.DampingRatioHighBouncy)),
+                        exit = fadeOut() + shrinkOut(),
+                        modifier = Modifier
+                            .align(Alignment.TopCenter)
+                    ) {
+                        it.bubbleText?.let { bubble ->
+                            Text(
+                                text = bubble,
+                                fontSize = 9.sp,
+                                fontWeight = Bold,
+                                textAlign = TextAlign.Center,
+                                color = MaterialTheme.colors.surface,
+                                modifier = Modifier
+                                    .padding(start = 19.dp, top = 5.dp)
+                                    .background(MaterialTheme.colors.primary, CircleShape)
+                                    .size(16.dp)
+                                    .wrapContentHeight(),
+
+                                )
+                        }
                     }
                 }
             }
