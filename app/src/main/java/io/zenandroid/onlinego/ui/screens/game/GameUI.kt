@@ -1,5 +1,6 @@
 package io.zenandroid.onlinego.ui.screens.game
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.*
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.Spring
@@ -61,7 +62,7 @@ fun GameScreen(state: GameState,
                 onUserAction = onUserAction
             )
             if (state.showAnalysisPanel) {
-                Spacer(modifier = Modifier.weight(1f))
+                Spacer(modifier = Modifier.weight(1f)) // Placeholder
             }
             if (state.showPlayers) {
                 PlayerCard(
@@ -148,6 +149,9 @@ fun GameScreen(state: GameState,
     if (state.retryMoveDialogShowing) {
         RetryMoveDialog(onUserAction)
     }
+    AnimatedVisibility (state.gameInfoDialogShowing, enter = fadeIn(), exit = fadeOut()) {
+        GameInfoDialog(state, onUserAction)
+    }
     if(state.koMoveDialogShowing) {
         AlertDialog(
             onDismissRequest = { onUserAction(KOMoveDialogDismiss) },
@@ -213,6 +217,77 @@ fun GameScreen(state: GameState,
     }
     state.gameOverDialogShowing?.let { dialog ->
         GameOverDialog(onUserAction, dialog)
+    }
+}
+
+@Composable
+private fun GameInfoDialog(state: GameState, onUserAction: (UserAction) -> Unit) {
+    BackHandler { onUserAction(GameInfoDismiss) }
+    Box(modifier = Modifier
+        .fillMaxSize()
+        .background(Color(0x88000000))
+        .clickable { onUserAction(GameInfoDismiss) }
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier
+                .padding(vertical = 80.dp)
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null
+                ) { }
+                .fillMaxWidth(.9f)
+                .fillMaxHeight()
+                .align(Alignment.Center)
+
+                .shadow(4.dp)
+                .background(
+                    color = MaterialTheme.colors.surface,
+                    shape = RoundedCornerShape(10.dp)
+                )
+                .padding(16.dp)
+        ) {
+            Spacer(modifier = Modifier.height(100.dp))
+            Text(text = buildAnnotatedString {
+                pushStyle(SpanStyle(fontWeight = Bold))
+                append(state.blackPlayer?.name ?: "?")
+                pop()
+                append("    vs    ")
+                pushStyle(SpanStyle(fontWeight = Bold))
+                append(state.whitePlayer?.name ?: "?")
+                pop()
+            })
+        }
+        Board(
+            boardWidth = state.gameWidth,
+            boardHeight = state.gameHeight,
+            position = state.position,
+            interactive = false,
+            drawTerritory = false,
+            drawLastMove = false,
+            drawCoordinates = false,
+            fadeOutRemovedStones = false,
+            modifier = Modifier
+                .align(Alignment.TopCenter)
+                .padding(top = 29.dp)
+                .clip(RoundedCornerShape(10.dp))
+                .background(MaterialTheme.colors.surface)
+                .padding(4.dp)
+                .size(124.dp)
+                .clip(RoundedCornerShape(8.dp))
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null
+                ) { }
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun GameInfoPreview() {
+    OnlineGoTheme {
+        GameInfoDialog(GameState.DEFAULT, {} )
     }
 }
 
@@ -462,7 +537,9 @@ private fun Header(
             text = title,
             color = MaterialTheme.colors.onSurface,
             style = MaterialTheme.typography.h3,
-            modifier = Modifier.align(Alignment.CenterVertically)
+            modifier = Modifier
+                .align(Alignment.CenterVertically)
+                .clickable { onUserAction(GameInfoClick) }
         )
         Icon(
             Icons.Outlined.Info,
@@ -472,6 +549,7 @@ private fun Header(
                 .size(18.dp)
                 .align(Alignment.CenterVertically)
                 .padding(start = 6.dp)
+                .clickable { onUserAction(GameInfoClick) }
         )
         Spacer(modifier = Modifier.weight(.5f))
         Box {
@@ -814,7 +892,7 @@ fun Preview5() {
                 gameCancelled = false,
                 playerWon = false,
                 detailsText = buildAnnotatedString {
-                    pushStyle(SpanStyle(fontWeight = FontWeight.Bold))
+                    pushStyle(SpanStyle(fontWeight = Bold))
                     append("MrAlex")
                     pop()
                     append(" resigned on move 132")

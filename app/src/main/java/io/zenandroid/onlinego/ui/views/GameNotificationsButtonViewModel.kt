@@ -11,6 +11,7 @@ import io.zenandroid.onlinego.data.repositories.ActiveGamesRepository
 import io.zenandroid.onlinego.utils.SingleLiveEvent
 import io.zenandroid.onlinego.utils.addToDisposable
 
+@Deprecated("")
 class GameNotificationsButtonViewModel(
     private val activeGamesRepository: ActiveGamesRepository
 ) : ViewModel() {
@@ -22,7 +23,6 @@ class GameNotificationsButtonViewModel(
     private var lastGameNotified: Game? = null
 
     init {
-        Log.d("***", "instantiated")
         activeGamesRepository.myMoveCountObservable
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(this::onMyMoveCountChanged)

@@ -37,6 +37,7 @@ import io.zenandroid.onlinego.utils.show
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.context.GlobalContext.get
 
+@Deprecated("")
 class GameNotificationsButton: FrameLayout {
 
     private val binding: ViewGameNotificationsButtonBinding

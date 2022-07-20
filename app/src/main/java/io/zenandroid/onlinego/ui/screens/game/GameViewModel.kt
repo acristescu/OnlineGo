@@ -68,10 +68,11 @@ class GameViewModel(
     private var cancelDialogShowing by mutableStateOf(false)
     private var gameFinished by mutableStateOf<Boolean?>(null)
     private var gameOverDetails by mutableStateOf<GameOverDialogDetails?>(null)
-    private var gameOverDialogShowing by mutableStateOf<Boolean>(false)
+    private var gameOverDialogShowing by mutableStateOf(false)
     private var chatDialogShowing by mutableStateOf(false)
     private var currentVariation by mutableStateOf<Variation?>(null)
     private var unreadMessagesCount by mutableStateOf(0)
+    private var gameInfoDialogShowing by mutableStateOf(false)
 
     lateinit var state: StateFlow<GameState>
     var pendingNavigation by mutableStateOf<PendingNavigation?>(null)
@@ -207,7 +208,8 @@ class GameViewModel(
                 chatDialogShowing = chatDialogShowing,
                 whiteExtraStatus = whiteExtraStatus,
                 blackExtraStatus = blackExtraStatus,
-                showLastMove = !(analyzeMode && currentVariation != null && currentVariation?.rootMoveNo!! < analysisShownMoveNumber)
+                showLastMove = !(analyzeMode && currentVariation != null && currentVariation?.rootMoveNo!! < analysisShownMoveNumber),
+                gameInfoDialogShowing = gameInfoDialogShowing,
             )
         }
     }
@@ -528,7 +530,8 @@ class GameViewModel(
             ChatDialogDismiss -> chatDialogShowing = false
             KOMoveDialogDismiss -> koMoveDialogShowing = false
             is ChatSend -> gameConnection.sendMessage(action.message, gameState?.moves?.size ?: 0)
-            GameInfoClick -> {} // TODO
+            GameInfoClick -> gameInfoDialogShowing = true
+            GameInfoDismiss -> gameInfoDialogShowing = false
             GameOverDialogDismiss -> gameOverDialogShowing = false
             GameOverDialogAnalyze -> {
                 gameOverDialogShowing = false
@@ -577,7 +580,7 @@ class GameViewModel(
                 chatRepository.markMessagesAsRead(state.value.messages.flatMap { it.value }.map { it.message }.filter { !it.seen })
             }
             is NextGame -> getNextGame()?.let { pendingNavigation = NavigateToGame(it) }
-            Undo -> TODO()
+            Undo -> {} //TODO()
             ExitAnalysis -> analyzeMode = false
             Estimate -> {
                 estimatePosition = null
@@ -660,6 +663,7 @@ data class GameState(
     val messages: Map<Long, List<ChatMessage>>,
     val chatDialogShowing: Boolean,
     val gameOverDialogShowing: GameOverDialogDetails?,
+    val gameInfoDialogShowing: Boolean,
 ) {
     companion object {
         val DEFAULT = GameState(
@@ -691,6 +695,7 @@ data class GameState(
             chatDialogShowing = false,
             whiteExtraStatus = null,
             blackExtraStatus = null,
+            gameInfoDialogShowing = false,
         )
     }
 }
@@ -744,6 +749,7 @@ sealed interface UserAction {
     class BoardCellDragged(val cell: Cell): UserAction
     class BoardCellTapUp(val cell: Cell): UserAction
     object GameInfoClick: UserAction
+    object GameInfoDismiss: UserAction
     object RetryDialogDismiss: UserAction
     object RetryDialogRetry: UserAction
     object PassDialogDismiss: UserAction
