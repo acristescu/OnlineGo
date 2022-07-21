@@ -13,10 +13,7 @@ import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.Mark
 import io.zenandroid.onlinego.data.model.Position
 import io.zenandroid.onlinego.data.model.StoneType
-import io.zenandroid.onlinego.data.model.local.Game
-import io.zenandroid.onlinego.data.model.local.Message
-import io.zenandroid.onlinego.data.model.local.Player
-import io.zenandroid.onlinego.data.model.local.isPaused
+import io.zenandroid.onlinego.data.model.local.*
 import io.zenandroid.onlinego.data.model.ogs.Phase
 import io.zenandroid.onlinego.data.ogs.GameConnection
 import io.zenandroid.onlinego.data.ogs.OGSWebSocketService
@@ -173,7 +170,10 @@ class GameViewModel(
                 estimateMode && estimatePosition == null -> "Estimating"
                 else -> null
             }
-            val score = if (game != null) RulesManager.scorePosition(shownPosition, game!!) else (0f to 0f)
+            val score = if (game != null) RulesManager.scorePositionPartial(shownPosition, game!!) else Score() to Score()
+
+            val whiteScore = if(shownPosition == currentGamePosition.value) game?.whiteScore ?: score.first else score.first
+            val blackScore = if(shownPosition == currentGamePosition.value) game?.blackScore ?: score.second else score.second
 
             val whiteExtraStatus = calculateExtraStatus(game, whiteToMove, game?.whitePlayer?.acceptedStones, game?.whiteLost, timer.whiteStartTimer)
             val blackExtraStatus = calculateExtraStatus(game, !whiteToMove, game?.blackPlayer?.acceptedStones, game?.blackLost, timer.blackStartTimer)
@@ -189,8 +189,10 @@ class GameViewModel(
                 fadeOutRemovedStones = game?.phase == Phase.STONE_REMOVAL || (gameFinished == true && analysisShownMoveNumber == game?.moves?.size) || (estimateMode && estimatePosition != null),
                 buttons = visibleButtons,
                 title = if (loading) "Loading..." else "Move ${game?.moves?.size} · ${game?.rules?.capitalize()} · ${if (whiteToMove) "White" else "Black"}",
-                whitePlayer = game?.whitePlayer?.data(StoneType.WHITE, score.first),
-                blackPlayer = game?.blackPlayer?.data(StoneType.BLACK, score.second),
+                whitePlayer = game?.whitePlayer?.data(StoneType.WHITE, whiteScore.total ?: 0f),
+                blackPlayer = game?.blackPlayer?.data(StoneType.BLACK, blackScore.total ?: 0f),
+                whiteScore = whiteScore,
+                blackScore = blackScore,
                 timerDetails = timer,
                 bottomText = bottomText,
                 retryMoveDialogShowing = retrySendMoveDialogShowing,
@@ -646,6 +648,8 @@ data class GameState(
     val showLastMove: Boolean,
     val buttons: List<Button>,
     val title: String,
+    val whiteScore: Score,
+    val blackScore: Score,
     val whitePlayer: PlayerData?,
     val blackPlayer: PlayerData?,
     val whiteExtraStatus: String?,
@@ -680,6 +684,8 @@ data class GameState(
             title = "Loading...",
             whitePlayer = null,
             blackPlayer = null,
+            whiteScore = Score(komi = 5.5f, prisoners = 0, territory = 13, total = 18.5f),
+            blackScore = Score(prisoners = 2, territory = 5, total = 7f),
             timerDetails = null,
             bottomText = null,
             retryMoveDialogShowing = false,

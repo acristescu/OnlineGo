@@ -6,6 +6,7 @@ import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.zenandroid.onlinego.data.model.*
 import io.zenandroid.onlinego.data.model.local.Game
 import io.zenandroid.onlinego.data.model.local.InitialState
+import io.zenandroid.onlinego.data.model.local.Score
 import io.zenandroid.onlinego.gamelogic.Util.toCoordinateSet
 import io.zenandroid.onlinego.ui.screens.game.Variation
 import java.util.*
@@ -445,10 +446,38 @@ object RulesManager {
         return removing to group
     }
 
-    fun scorePosition(pos: Position, game: Game) =
-        scorePosition(pos, game.scoreHandicap == true, game.scoreAGAHandicap == true, game.scorePasses == true, game.scorePrisoners == true, game.scoreStones == true, game.scoreTerritory == true, game.scoreTerritoryInSeki == true)
+    fun scorePositionPartial(pos: Position, game: Game): Pair<Score, Score> {
+        val whiteHandicap = if(game.scoreHandicap != true) null else if(game.scoreAGAHandicap == true) pos.handicap - 1 else pos.handicap
+        val whitePrisoners = if (game.scorePrisoners == true) pos.blackDeadStones.size + pos.whiteCaptureCount else null
+        val whiteTerritory = if(game.scoreTerritory == true) pos.whiteTerritory.size else null
+        val whiteScore = Score(
+            handicap = whiteHandicap,
+            komi = pos.komi,
+            prisoners = whitePrisoners,
+            scoring_positions = null,
+            stones = null,
+            territory = whiteTerritory,
+            total = (whiteHandicap ?: 0) + (pos.komi ?: 0f) + (whitePrisoners ?: 0) + (whiteTerritory ?: 0),
+        )
+        val blackPrisoners = if (game.scorePrisoners == true) pos.blackDeadStones.size + pos.whiteCaptureCount else null
+        val blackTerritory = if(game.scoreTerritory == true) pos.whiteTerritory.size else null
+        val blackScore = Score(
+            handicap = null,
+            komi = null,
+            prisoners = blackPrisoners,
+            scoring_positions = null,
+            stones = null,
+            territory = blackTerritory,
+            total = (blackPrisoners ?: 0) + (blackTerritory ?: 0).toFloat(),
+        )
 
-    private fun scorePosition(pos: Position, scoreHandicap: Boolean, scoreAGAHandicap: Boolean, scorePasses: Boolean, scorePrisoners: Boolean, scoreStones: Boolean, scoreTerritory: Boolean, scoreTerritoryInSeki: Boolean): Pair<Float, Float> {
+        return whiteScore to blackScore
+    }
+
+    fun scorePositionOld(pos: Position, game: Game) =
+        scorePositionOld(pos, game.scoreHandicap == true, game.scoreAGAHandicap == true, game.scorePasses == true, game.scorePrisoners == true, game.scoreStones == true, game.scoreTerritory == true, game.scoreTerritoryInSeki == true)
+
+    private fun scorePositionOld(pos: Position, scoreHandicap: Boolean, scoreAGAHandicap: Boolean, scorePasses: Boolean, scorePrisoners: Boolean, scoreStones: Boolean, scoreTerritory: Boolean, scoreTerritoryInSeki: Boolean): Pair<Float, Float> {
         val whiteScore =
             (if (scorePrisoners) pos.blackDeadStones.size + pos.whiteCaptureCount else 0) +
                     (if (scoreTerritory) pos.whiteTerritory.size else 0) +

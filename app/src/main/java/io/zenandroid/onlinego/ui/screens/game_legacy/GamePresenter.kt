@@ -735,26 +735,26 @@ class GamePresenter(
             ANALYSIS -> {
                 replayAnalysis()
                 view.position = analysisPosition
-                val score = RulesManager.scorePosition(analysisPosition, game)
+                val score = RulesManager.scorePositionOld(analysisPosition, game)
                 view.whiteScore = score.first
                 view.blackScore = score.second
             }
             HISTORY -> {
                 val historyPosition = RulesManager.replay(game, currentShownMove, false)
                 view.position = historyPosition
-                val score = RulesManager.scorePosition(historyPosition, game)
+                val score = RulesManager.scorePositionOld(historyPosition, game)
                 view.whiteScore = score.first
                 view.blackScore = score.second
             }
             SCORING -> {
                 currentPosition = RulesManager.replay(game, computeTerritory = true)
                 view.position = currentPosition
-                val score = RulesManager.scorePosition(currentPosition, game)
+                val score = RulesManager.scorePositionOld(currentPosition, game)
                 view.whiteScore = score.first
                 view.blackScore = score.second
             }
             ESTIMATION -> {
-                val score = RulesManager.scorePosition(estimatePosition, game)
+                val score = RulesManager.scorePositionOld(estimatePosition, game)
                 view.whiteScore = score.first
                 view.blackScore = score.second
 
@@ -764,7 +764,7 @@ class GamePresenter(
             PLAYING, FINISHED, LOADING -> {
                 currentPosition = RulesManager.replay(game, computeTerritory = false)
                 view.position = currentPosition
-                val score = RulesManager.scorePosition(currentPosition, game)
+                val score = RulesManager.scorePositionOld(currentPosition, game)
                 view.whiteScore = score.first
                 view.blackScore = score.second
             }

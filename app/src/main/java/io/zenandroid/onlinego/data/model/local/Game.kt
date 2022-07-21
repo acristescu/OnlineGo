@@ -223,7 +223,7 @@ data class Game(
                 whiteGoesFirst = true,
                 moves = listOf(Cell(3, 3), Cell(13, 13)),
                 removedStones = "",
-                whiteScore = Score(komi = 5.5, prisoners = 3),
+                whiteScore = Score(komi = 5.5f, prisoners = 3),
                 blackScore = Score(prisoners = 1),
                 whitePlayer = Player(id = 1L, username = "Bula", rating = 5.5, country = "UK", icon = null, acceptedStones = null, ui_class = null),
                 blackPlayer = Player(id = 0L, username = "Playa", rating = 6.5, country = "UK", icon = null, acceptedStones = null, ui_class = null),

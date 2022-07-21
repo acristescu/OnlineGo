@@ -31,6 +31,7 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.font.FontWeight.Companion.Bold
+import androidx.compose.ui.text.font.FontWeight.Companion.Medium
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -257,6 +258,17 @@ private fun GameInfoDialog(state: GameState, onUserAction: (UserAction) -> Unit)
                 append(state.whitePlayer?.name ?: "?")
                 pop()
             })
+            Text(
+                text = "Score",
+                style = MaterialTheme.typography.h3,
+                modifier = Modifier.padding(top = 14.dp, bottom = 8.dp)
+            )
+            ScoreRow(state.whiteScore.komi?.toString(), state.blackScore.komi?.toString(), "komi")
+            ScoreRow(state.whiteScore.handicap?.toString(), state.blackScore.handicap?.toString(), "handicap")
+            ScoreRow(state.whiteScore.prisoners?.toString(), state.blackScore.prisoners?.toString(), "prisoners")
+            ScoreRow(state.whiteScore.stones?.toString(), state.blackScore.stones?.toString(), "stones")
+            ScoreRow(state.whiteScore.territory?.toString(), state.blackScore.territory?.toString(), "territory")
+            ScoreRow(state.whiteScore.total?.toString(), state.blackScore.total?.toInt()?.toString(), "total")
         }
         Board(
             boardWidth = state.gameWidth,
@@ -280,6 +292,35 @@ private fun GameInfoDialog(state: GameState, onUserAction: (UserAction) -> Unit)
                     indication = null
                 ) { }
         )
+    }
+}
+
+@Composable
+private fun ScoreRow(whiteScore: String?, blackScore: String?, title: String) {
+    if (whiteScore != null || blackScore != null) {
+        Row {
+            Text(
+                text = whiteScore ?: "",
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .width(0.dp)
+                    .weight(1f),
+            )
+            Text(
+                text = title,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .width(0.dp)
+                    .weight(1f),
+            )
+            Text(
+                text = blackScore ?: "",
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .width(0.dp)
+                    .weight(1f),
+            )
+        }
     }
 }
 
