@@ -7,13 +7,13 @@ import io.zenandroid.onlinego.data.model.ogs.OGSChallenge
 
 @Entity
 data class Challenge(
-        @PrimaryKey var id: Long,
+        @PrimaryKey val id: Long,
 
         @Embedded(prefix = "challenger_")
-        var challenger: Player?,
+        val challenger: Player?,
 
         @Embedded(prefix = "challenged_")
-        var challenged: Player?
+        val challenged: Player?
 ) {
         companion object {
                 fun fromOGSChallenge(ogsChallenge: OGSChallenge) =

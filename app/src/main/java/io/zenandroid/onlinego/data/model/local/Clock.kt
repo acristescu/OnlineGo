@@ -3,25 +3,25 @@ package io.zenandroid.onlinego.data.model.local
 import androidx.room.Embedded
 
 data class Clock(
-        var lastMove: Long,
-        var expiration: Long? = null,
-        var now: Long? = null,
-        var receivedAt: Long,
+        val lastMove: Long,
+        val expiration: Long? = null,
+        val now: Long? = null,
+        val receivedAt: Long,
 
-        var whiteTimeSimple: Long?,
+        val whiteTimeSimple: Long?,
 
         @Embedded(prefix = "white_")
-        var whiteTime: Time?,
+        val whiteTime: Time?,
 
-        var blackTimeSimple: Long?,
+        val blackTimeSimple: Long?,
 
         @Embedded(prefix = "black_")
-        var blackTime: Time?,
+        val blackTime: Time?,
 
-        var newPausedSince: Long? = null,
-        var newPausedState: Boolean? = null,
+        val newPausedSince: Long? = null,
+        val newPausedState: Boolean? = null,
 
-        var startMode: Boolean?
+        val startMode: Boolean?
 ) {
     companion object {
         fun fromOGSClock(clock: io.zenandroid.onlinego.data.ogs.OGSClock?): Clock? =

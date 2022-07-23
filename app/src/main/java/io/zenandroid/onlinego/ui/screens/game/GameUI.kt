@@ -72,7 +72,7 @@ fun GameScreen(state: GameState,
             }
             if (state.showPlayers) {
                 BlackPlayerCard(
-                    state, onUserAction, onBack,
+                    state, onUserAction,
                     modifier = Modifier
                         .weight(.5f)
                         .fillMaxWidth()
@@ -87,7 +87,7 @@ fun GameScreen(state: GameState,
                     .align(Alignment.CenterHorizontally),
             )
             Board(
-                state, onUserAction, onBack,
+                state, onUserAction,
                 modifier = Modifier
                     .shadow(1.dp, MaterialTheme.shapes.medium)
                     .clip(MaterialTheme.shapes.medium)
@@ -102,7 +102,7 @@ fun GameScreen(state: GameState,
             )
             if (state.showPlayers) {
                 WhitePlayerCard(
-                    state, onUserAction, onBack,
+                    state, onUserAction,
                     modifier = Modifier
                         .weight(.5f)
                         .fillMaxWidth()
@@ -131,13 +131,13 @@ fun GameScreen(state: GameState,
                     )
                     if (state.showPlayers) {
                         BlackPlayerCard(
-                            state, onUserAction, onBack,
+                            state, onUserAction,
                             modifier = Modifier
                                 .weight(.5f)
                                 .fillMaxWidth()
                         )
                         WhitePlayerCard(
-                            state, onUserAction, onBack,
+                            state, onUserAction,
                             modifier = Modifier
                                 .weight(.5f)
                                 .fillMaxWidth()
@@ -158,7 +158,7 @@ fun GameScreen(state: GameState,
                     )
                 }
                 Board(
-                    state, onUserAction, onBack,
+                    state, onUserAction,
                     modifier = Modifier
                         .shadow(1.dp, MaterialTheme.shapes.medium)
                         .clip(MaterialTheme.shapes.medium)
@@ -251,7 +251,7 @@ fun GameScreen(state: GameState,
 }
 
 @Composable
-private fun BlackPlayerCard(state: GameState, onUserAction: ((UserAction) -> Unit), onBack: (() -> Unit), modifier: Modifier = Modifier) {
+private fun BlackPlayerCard(state: GameState, onUserAction: ((UserAction) -> Unit), modifier: Modifier = Modifier) {
     PlayerCard(
         player = state.blackPlayer,
         timerMain = state.timerDetails?.blackFirstLine ?: "",
@@ -265,7 +265,7 @@ private fun BlackPlayerCard(state: GameState, onUserAction: ((UserAction) -> Uni
 }
 
 @Composable
-private fun WhitePlayerCard(state: GameState, onUserAction: ((UserAction) -> Unit), onBack: (() -> Unit), modifier: Modifier = Modifier) {
+private fun WhitePlayerCard(state: GameState, onUserAction: ((UserAction) -> Unit), modifier: Modifier = Modifier) {
     PlayerCard(
         player = state.whitePlayer,
         timerMain = state.timerDetails?.whiteFirstLine ?: "",
@@ -279,7 +279,7 @@ private fun WhitePlayerCard(state: GameState, onUserAction: ((UserAction) -> Uni
 }
 
 @Composable
-private fun Board(state: GameState, onUserAction: ((UserAction) -> Unit), onBack: (() -> Unit), modifier: Modifier = Modifier) {
+private fun Board(state: GameState, onUserAction: ((UserAction) -> Unit), modifier: Modifier = Modifier) {
     Board(
         boardWidth = state.gameWidth,
         boardHeight = state.gameHeight,
