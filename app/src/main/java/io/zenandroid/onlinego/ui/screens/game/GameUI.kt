@@ -1,11 +1,9 @@
 package io.zenandroid.onlinego.ui.screens.game
 
+import android.content.res.Configuration.ORIENTATION_PORTRAIT
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.*
-import androidx.compose.animation.core.AnimationSpec
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.SpringSpec
-import androidx.compose.animation.core.TweenSpec
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -27,19 +25,22 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.font.FontWeight.Companion.Bold
-import androidx.compose.ui.text.font.FontWeight.Companion.Medium
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import coil.compose.rememberImagePainter
+import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.Position
 import io.zenandroid.onlinego.data.model.StoneType
+import io.zenandroid.onlinego.data.model.local.Player
 import io.zenandroid.onlinego.ui.composables.Board
 import io.zenandroid.onlinego.ui.composables.DotsFlashing
 import io.zenandroid.onlinego.ui.screens.game.Button.*
@@ -47,16 +48,20 @@ import io.zenandroid.onlinego.ui.screens.game.UserAction.*
 import io.zenandroid.onlinego.ui.screens.game.composables.ChatDialog
 import io.zenandroid.onlinego.ui.screens.game.composables.PlayerCard
 import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
+import io.zenandroid.onlinego.utils.egfToRank
+import io.zenandroid.onlinego.utils.formatRank
+import io.zenandroid.onlinego.utils.processGravatarURL
 import io.zenandroid.onlinego.utils.repeatingClickable
-
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @Composable
 fun GameScreen(state: GameState,
                onUserAction: ((UserAction) -> Unit),
                onBack: (() -> Unit),
 ) {
-    Box {
-        Column(Modifier.background(MaterialTheme.colors.surface)) {
+    Column(Modifier.background(MaterialTheme.colors.surface)) {
+        if(LocalConfiguration.current.orientation == ORIENTATION_PORTRAIT) {
             Header(
                 title = state.title,
                 onBack = onBack,
@@ -66,68 +71,38 @@ fun GameScreen(state: GameState,
                 Spacer(modifier = Modifier.weight(1f)) // Placeholder
             }
             if (state.showPlayers) {
-                PlayerCard(
-                    player = state.blackPlayer,
-                    timerMain = state.timerDetails?.blackFirstLine ?: "",
-                    timerExtra = state.timerDetails?.blackSecondLine ?: "",
-                    timerPercent = state.timerDetails?.blackPercentage ?: 0,
-                    timerFaded = state.timerDetails?.blackFaded ?: true,
-                    timerShown = state.showTimers,
+                BlackPlayerCard(
+                    state, onUserAction, onBack,
                     modifier = Modifier
                         .weight(.5f)
                         .fillMaxWidth()
                 )
             }
-            AnimatedVisibility(visible = state.blackExtraStatus != null) {
-                Text(
-                    text = state.blackExtraStatus ?: "",
-                    style = MaterialTheme.typography.h3,
-                    color = Color.White,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier
-                        .background(Color(0xFF867484))
-                        .fillMaxWidth()
-                        .padding(4.dp)
-                        .align(Alignment.CenterHorizontally),
-                )
-            }
+            ExtraStatusField(
+                text = state.blackExtraStatus,
+                modifier = Modifier
+                    .background(Color(0xFF867484))
+                    .fillMaxWidth()
+                    .padding(4.dp)
+                    .align(Alignment.CenterHorizontally),
+            )
             Board(
-                boardWidth = state.gameWidth,
-                boardHeight = state.gameHeight,
-                position = state.position,
-                interactive = state.boardInteractive,
-                drawTerritory = state.drawTerritory,
-                drawLastMove = state.showLastMove,
-                fadeOutRemovedStones = state.fadeOutRemovedStones,
-                candidateMove = state.candidateMove,
-                candidateMoveType = state.position?.nextToMove,
-                onTapMove = { onUserAction(BoardCellDragged(it)) },
-                onTapUp = { onUserAction(BoardCellTapUp(it)) },
+                state, onUserAction, onBack,
                 modifier = Modifier
                     .shadow(1.dp, MaterialTheme.shapes.medium)
                     .clip(MaterialTheme.shapes.medium)
             )
-            AnimatedVisibility(visible = state.whiteExtraStatus != null) {
-                Text(
-                    text = state.whiteExtraStatus ?: "",
-                    style = MaterialTheme.typography.h3,
-                    color = Color.White,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier
-                        .background(Color(0xFF867484))
-                        .fillMaxWidth()
-                        .padding(4.dp)
-                        .align(Alignment.CenterHorizontally),
-                )
-            }
+            ExtraStatusField(
+                text = state.whiteExtraStatus,
+                modifier = Modifier
+                    .background(Color(0xFF867484))
+                    .fillMaxWidth()
+                    .padding(4.dp)
+                    .align(Alignment.CenterHorizontally),
+            )
             if (state.showPlayers) {
-                PlayerCard(
-                    player = state.whitePlayer,
-                    timerMain = state.timerDetails?.whiteFirstLine ?: "",
-                    timerExtra = state.timerDetails?.whiteSecondLine ?: "",
-                    timerPercent = state.timerDetails?.whitePercentage ?: 0,
-                    timerFaded = state.timerDetails?.whiteFaded ?: true,
-                    timerShown = state.showTimers,
+                WhitePlayerCard(
+                    state, onUserAction, onBack,
                     modifier = Modifier
                         .weight(.5f)
                         .fillMaxWidth()
@@ -138,14 +113,65 @@ fun GameScreen(state: GameState,
                 bottomText = state.bottomText,
                 onUserAction = onUserAction
             )
+        } else {
+            Row {
+                Column(Modifier.width(0.dp).weight(1f)) {
+                    Header(
+                        title = state.title,
+                        onBack = onBack,
+                        onUserAction = onUserAction
+                    )
+                    ExtraStatusField(
+                        text = state.blackExtraStatus,
+                        modifier = Modifier
+                            .background(Color(0xFF867484))
+                            .fillMaxWidth()
+                            .padding(4.dp)
+                            .align(Alignment.CenterHorizontally),
+                    )
+                    if (state.showPlayers) {
+                        BlackPlayerCard(
+                            state, onUserAction, onBack,
+                            modifier = Modifier
+                                .weight(.5f)
+                                .fillMaxWidth()
+                        )
+                        WhitePlayerCard(
+                            state, onUserAction, onBack,
+                            modifier = Modifier
+                                .weight(.5f)
+                                .fillMaxWidth()
+                        )
+                    }
+                    ExtraStatusField(
+                        text = state.whiteExtraStatus,
+                        modifier = Modifier
+                            .background(Color(0xFF867484))
+                            .fillMaxWidth()
+                            .padding(4.dp)
+                            .align(Alignment.CenterHorizontally),
+                    )
+                    BottomBar(
+                        buttons = state.buttons,
+                        bottomText = state.bottomText,
+                        onUserAction = onUserAction
+                    )
+                }
+                Board(
+                    state, onUserAction, onBack,
+                    modifier = Modifier
+                        .shadow(1.dp, MaterialTheme.shapes.medium)
+                        .clip(MaterialTheme.shapes.medium)
+                )
+            }
         }
-        if(state.chatDialogShowing) {
-            ChatDialog(
-                messages = state.messages,
-                onDialogDismiss = { onUserAction(ChatDialogDismiss) },
-                onSendMessage = { onUserAction(ChatSend(it)) }
-            )
-        }
+    }
+    if(state.chatDialogShowing) {
+        ChatDialog(
+            messages = state.messages,
+            onDialogDismiss = { onUserAction(ChatDialogDismiss) },
+            onSendMessage = { onUserAction(ChatSend(it)) }
+        )
     }
     if (state.retryMoveDialogShowing) {
         RetryMoveDialog(onUserAction)
@@ -219,15 +245,83 @@ fun GameScreen(state: GameState,
     state.gameOverDialogShowing?.let { dialog ->
         GameOverDialog(onUserAction, dialog)
     }
+    state.playerDetailsDialogShowing?.let {
+        PlayerDetailsDialog( { onUserAction(PlayerDetailsDialogDismissed) }, it)
+    }
 }
 
 @Composable
-private fun GameInfoDialog(state: GameState, onUserAction: (UserAction) -> Unit) {
-    BackHandler { onUserAction(GameInfoDismiss) }
+private fun BlackPlayerCard(state: GameState, onUserAction: ((UserAction) -> Unit), onBack: (() -> Unit), modifier: Modifier = Modifier) {
+    PlayerCard(
+        player = state.blackPlayer,
+        timerMain = state.timerDetails?.blackFirstLine ?: "",
+        timerExtra = state.timerDetails?.blackSecondLine ?: "",
+        timerPercent = state.timerDetails?.blackPercentage ?: 0,
+        timerFaded = state.timerDetails?.blackFaded ?: true,
+        timerShown = state.showTimers,
+        onUserClicked = { onUserAction(BlackPlayerClicked) },
+        modifier = modifier
+    )
+}
+
+@Composable
+private fun WhitePlayerCard(state: GameState, onUserAction: ((UserAction) -> Unit), onBack: (() -> Unit), modifier: Modifier = Modifier) {
+    PlayerCard(
+        player = state.whitePlayer,
+        timerMain = state.timerDetails?.whiteFirstLine ?: "",
+        timerExtra = state.timerDetails?.whiteSecondLine ?: "",
+        timerPercent = state.timerDetails?.whitePercentage ?: 0,
+        timerFaded = state.timerDetails?.whiteFaded ?: true,
+        timerShown = state.showTimers,
+        onUserClicked = { onUserAction(WhitePlayerClicked) },
+        modifier = modifier
+    )
+}
+
+@Composable
+private fun Board(state: GameState, onUserAction: ((UserAction) -> Unit), onBack: (() -> Unit), modifier: Modifier = Modifier) {
+    Board(
+        boardWidth = state.gameWidth,
+        boardHeight = state.gameHeight,
+        position = state.position,
+        interactive = state.boardInteractive,
+        drawTerritory = state.drawTerritory,
+        drawLastMove = state.showLastMove,
+        fadeOutRemovedStones = state.fadeOutRemovedStones,
+        candidateMove = state.candidateMove,
+        candidateMoveType = state.position?.nextToMove,
+        onTapMove = { onUserAction(BoardCellDragged(it)) },
+        onTapUp = { onUserAction(BoardCellTapUp(it)) },
+        modifier = modifier
+    )
+}
+
+@Composable
+fun ExtraStatusField(text: String?, modifier: Modifier = Modifier) {
+    AnimatedVisibility(visible = text != null) {
+        Text(
+            text = text ?: "",
+            style = MaterialTheme.typography.h3,
+            color = Color.White,
+            textAlign = TextAlign.Center,
+            modifier = modifier
+        )
+    }
+}
+
+@Composable
+private fun PlayerDetailsDialog(
+    onDialogDismissed: () -> Unit,
+    player: Player
+) {
+    BackHandler { onDialogDismissed() }
     Box(modifier = Modifier
         .fillMaxSize()
         .background(Color(0x88000000))
-        .clickable { onUserAction(GameInfoDismiss) }
+        .clickable(
+            interactionSource = remember { MutableInteractionSource() },
+            indication = null
+        ) { onDialogDismissed() }
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -240,7 +334,77 @@ private fun GameInfoDialog(state: GameState, onUserAction: (UserAction) -> Unit)
                 .fillMaxWidth(.9f)
                 .fillMaxHeight()
                 .align(Alignment.Center)
+                .shadow(4.dp)
+                .background(
+                    color = MaterialTheme.colors.surface,
+                    shape = RoundedCornerShape(10.dp)
+                )
+                .padding(16.dp)
+        ) {
+            Spacer(modifier = Modifier.height(100.dp))
+            Text(
+                text = player.username,
+                style = MaterialTheme.typography.h1,
+                color = MaterialTheme.colors.onSurface,
+                modifier = Modifier.padding(top = 14.dp, bottom = 8.dp)
+            )
 
+            val rank = formatRank(egfToRank(player.rating), true)
+            val rating = player.rating?.toInt()?.toString() ?: ""
+
+            Text(
+                text = "$rank ($rating)",
+                color = MaterialTheme.colors.onSurface,
+                style = MaterialTheme.typography.body2,
+            )
+        }
+        Image(
+            painter = rememberImagePainter(
+                data = processGravatarURL(player.icon, LocalDensity.current.run { 124.dp.roundToPx() }),
+                builder = {
+                    placeholder(R.mipmap.placeholder)
+                    error(R.mipmap.placeholder)
+                }
+            ),
+            contentDescription = "Avatar",
+            modifier = Modifier
+                .align(Alignment.TopCenter)
+                .padding(top = 29.dp)
+                .clip(RoundedCornerShape(10.dp))
+                .background(MaterialTheme.colors.surface)
+                .padding(4.dp)
+                .size(124.dp)
+                .clip(RoundedCornerShape(8.dp))
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null
+                ) { }
+        )
+    }
+}
+
+@Composable
+private fun GameInfoDialog(state: GameState, onUserAction: (UserAction) -> Unit) {
+    BackHandler { onUserAction(GameInfoDismiss) }
+    Box(modifier = Modifier
+        .fillMaxSize()
+        .background(Color(0x88000000))
+        .clickable(
+            interactionSource = remember { MutableInteractionSource() },
+            indication = null
+        ) { onUserAction(GameInfoDismiss) }
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier
+                .padding(vertical = 80.dp)
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null
+                ) { }
+                .fillMaxWidth(.9f)
+                .fillMaxHeight()
+                .align(Alignment.Center)
                 .shadow(4.dp)
                 .background(
                     color = MaterialTheme.colors.surface,
@@ -253,22 +417,25 @@ private fun GameInfoDialog(state: GameState, onUserAction: (UserAction) -> Unit)
                 pushStyle(SpanStyle(fontWeight = Bold))
                 append(state.blackPlayer?.name ?: "?")
                 pop()
-                append("    vs    ")
+                append("      vs      ")
                 pushStyle(SpanStyle(fontWeight = Bold))
                 append(state.whitePlayer?.name ?: "?")
                 pop()
-            })
+            },
+                color = MaterialTheme.colors.onSurface,
+            )
             Text(
                 text = "Score",
                 style = MaterialTheme.typography.h3,
+                color = MaterialTheme.colors.onSurface,
                 modifier = Modifier.padding(top = 14.dp, bottom = 8.dp)
             )
-            ScoreRow(state.whiteScore.komi?.toString(), state.blackScore.komi?.toString(), "komi")
-            ScoreRow(state.whiteScore.handicap?.toString(), state.blackScore.handicap?.toString(), "handicap")
-            ScoreRow(state.whiteScore.prisoners?.toString(), state.blackScore.prisoners?.toString(), "prisoners")
-            ScoreRow(state.whiteScore.stones?.toString(), state.blackScore.stones?.toString(), "stones")
-            ScoreRow(state.whiteScore.territory?.toString(), state.blackScore.territory?.toString(), "territory")
-            ScoreRow(state.whiteScore.total?.toString(), state.blackScore.total?.toInt()?.toString(), "total")
+            ScoreRow(state.blackScore.komi?.toString(), state.whiteScore.komi?.toString(), "komi")
+            ScoreRow(state.blackScore.handicap?.toString(), state.whiteScore.handicap?.toString(), "handicap")
+            ScoreRow(state.blackScore.prisoners?.toString(), state.whiteScore.prisoners?.toString(), "prisoners")
+            ScoreRow(state.blackScore.stones?.toString(), state.whiteScore.stones?.toString(), "stones")
+            ScoreRow(state.blackScore.territory?.toString(), state.whiteScore.territory?.toString(), "territory")
+            ScoreRow(state.blackScore.total?.toInt()?.toString(), state.whiteScore.total?.toString(), "total")
         }
         Board(
             boardWidth = state.gameWidth,
@@ -302,6 +469,7 @@ private fun ScoreRow(whiteScore: String?, blackScore: String?, title: String) {
             Text(
                 text = whiteScore ?: "",
                 textAlign = TextAlign.Center,
+                color = MaterialTheme.colors.onSurface,
                 modifier = Modifier
                     .width(0.dp)
                     .weight(1f),
@@ -309,6 +477,7 @@ private fun ScoreRow(whiteScore: String?, blackScore: String?, title: String) {
             Text(
                 text = title,
                 textAlign = TextAlign.Center,
+                color = MaterialTheme.colors.onSurface,
                 modifier = Modifier
                     .width(0.dp)
                     .weight(1f),
@@ -316,6 +485,7 @@ private fun ScoreRow(whiteScore: String?, blackScore: String?, title: String) {
             Text(
                 text = blackScore ?: "",
                 textAlign = TextAlign.Center,
+                color = MaterialTheme.colors.onSurface,
                 modifier = Modifier
                     .width(0.dp)
                     .weight(1f),

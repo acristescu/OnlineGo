@@ -139,7 +139,6 @@ object RulesManager {
             whiteScoringPositions = game.whiteScore?.scoring_positions,
             blackScoringPositions = game.blackScore?.scoring_positions,
             komi = game.komi,
-            variation = if(variation != null && limit > variation.rootMoveNo) actualMoves.takeLast(limit - variation.rootMoveNo) else emptyList(),
         )
 
         if(pos == null) {
@@ -210,7 +209,6 @@ object RulesManager {
         whiteCaptureCount: Int = 0,
         blackCapturesCount: Int = 0,
         currentMoveIndex: Int = 0,
-        variation: List<Cell> = emptyList(),
     ): Position? {
         var nextPlayer = nextToMove
         var lastPlayer: StoneType? = null
@@ -375,7 +373,6 @@ object RulesManager {
             blackTerritory = blackTerritory,
             komi = komi,
             currentMoveIndex = currentMoveIndex + moves.size,
-            variation = variation,
         )
     }
 
@@ -459,8 +456,8 @@ object RulesManager {
             territory = whiteTerritory,
             total = (whiteHandicap ?: 0) + (pos.komi ?: 0f) + (whitePrisoners ?: 0) + (whiteTerritory ?: 0),
         )
-        val blackPrisoners = if (game.scorePrisoners == true) pos.blackDeadStones.size + pos.whiteCaptureCount else null
-        val blackTerritory = if(game.scoreTerritory == true) pos.whiteTerritory.size else null
+        val blackPrisoners = if (game.scorePrisoners == true) pos.whiteDeadStones.size + pos.blackCaptureCount else null
+        val blackTerritory = if(game.scoreTerritory == true) pos.blackTerritory.size else null
         val blackScore = Score(
             handicap = null,
             komi = null,
@@ -481,7 +478,7 @@ object RulesManager {
         val whiteScore =
             (if (scorePrisoners) pos.blackDeadStones.size + pos.whiteCaptureCount else 0) +
                     (if (scoreTerritory) pos.whiteTerritory.size else 0) +
-                    (if (scoreHandicap && scoreAGAHandicap) pos.handicap - 1 else 0) +
+                    (if (scoreHandicap && scoreAGAHandicap && pos.handicap != 0) pos.handicap - 1 else 0) +
                     (if (scoreHandicap && !scoreAGAHandicap) pos.handicap else 0) +
                     (pos.komi ?: 0f)
         val blackScore =

@@ -2,25 +2,26 @@
 
 buildscript {
     ext {
-        compose_version = '1.2.0-beta02'
+        compose_version = '1.2.0-rc02' // can't update this further until Molecule gets an update to support kotlin 1.7
+        kotlin_compiler_extension_version = '1.1.0'
         kotlin_version = "1.6.10"
     }
     repositories {
         google()
-        jcenter()
+        mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.2.1'
+        classpath 'com.android.tools.build:gradle:7.4.0-alpha08'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "org.jetbrains.kotlin:kotlin-android-extensions:$kotlin_version"
 
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
-        classpath 'com.google.gms:google-services:4.3.10'
+        classpath 'com.google.gms:google-services:4.3.13'
 
-        classpath 'com.google.firebase:firebase-crashlytics-gradle:2.8.1'
+        classpath 'com.google.firebase:firebase-crashlytics-gradle:2.9.1'
 
-        classpath "org.koin:koin-gradle-plugin:2.2.1"
+        classpath "io.insert-koin:koin-gradle-plugin:3.2.0"
 
         classpath "app.cash.molecule:molecule-gradle-plugin:0.2.0"
     }
@@ -29,7 +30,7 @@ buildscript {
 allprojects {
     repositories {
         google()
-        jcenter()
+        mavenCentral()
         maven {
             url 'https://jitpack.io'
         }

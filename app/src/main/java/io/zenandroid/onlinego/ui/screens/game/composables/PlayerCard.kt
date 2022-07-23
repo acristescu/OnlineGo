@@ -5,6 +5,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -33,11 +34,11 @@ import io.zenandroid.onlinego.ui.theme.brown
 import io.zenandroid.onlinego.utils.processGravatarURL
 
 @Composable
-fun PlayerCard(player: PlayerData?, timerMain: String, timerExtra: String, timerPercent: Int, timerFaded: Boolean, timerShown: Boolean, modifier: Modifier = Modifier) {
+fun PlayerCard(player: PlayerData?, timerMain: String, timerExtra: String, timerPercent: Int, timerFaded: Boolean, timerShown: Boolean, onUserClicked: () -> Unit, modifier: Modifier = Modifier) {
     val alpha = if(timerFaded) .6f else 1f
     player?.let {
         Row(verticalAlignment = Alignment.CenterVertically,
-            modifier = modifier
+            modifier = modifier.clickable { onUserClicked() }
         ) {
             val maxSize = 84.dp
             val minSize = 64.dp
@@ -58,6 +59,7 @@ fun PlayerCard(player: PlayerData?, timerMain: String, timerExtra: String, timer
                     ),
                     contentDescription = "Avatar",
                     modifier = Modifier
+                        .sizeIn(maxHeight = maxSize)
                         .fillMaxSize()
                         .padding(bottom = 4.dp, end = 4.dp)
                         .shadow(2.dp, shape)

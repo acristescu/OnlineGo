@@ -25,121 +25,126 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import io.zenandroid.onlinego.data.model.local.Message
 import io.zenandroid.onlinego.ui.screens.game.ChatMessage
+import io.zenandroid.onlinego.ui.screens.game.UserAction
 import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
 
 @Composable
-fun BoxScope.ChatDialog(
+fun ChatDialog(
     messages: Map<Long, List<ChatMessage>>,
     onDialogDismiss: (() -> Unit),
     onSendMessage: ((String) -> Unit),
 ) {
     BackHandler { onDialogDismiss() }
-    Spacer(modifier = Modifier
+    Box(modifier = Modifier
         .fillMaxSize()
         .background(Color(0x88000000))
-        .clickable { onDialogDismiss() }
-    )
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier
-            .clickable(
-                interactionSource = remember { MutableInteractionSource() },
-                indication = null
-            ) { }
-            .fillMaxWidth(.9f)
-            .fillMaxHeight(.9f)
-            .align(Alignment.Center)
-            .shadow(4.dp)
-            .background(
-                color = MaterialTheme.colors.surface,
-                shape = RoundedCornerShape(10.dp)
-            )
-            .padding(16.dp)
+        .clickable(
+            interactionSource = remember { MutableInteractionSource() },
+            indication = null
+        ) { onDialogDismiss() }
     ) {
-        val listState = rememberLazyListState()
-        LaunchedEffect(messages) {
-            val index =
-                messages.values.fold(messages.keys.size) { count, list -> count + list.size } - 1
-            listState.animateScrollToItem(index.coerceAtLeast(0))
-        }
-        LazyColumn(
-            state = listState,
-            modifier = Modifier.weight(1f)
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null
+                ) { }
+                .fillMaxWidth(.9f)
+                .fillMaxHeight(.9f)
+                .align(Alignment.Center)
+                .shadow(4.dp)
+                .background(
+                    color = MaterialTheme.colors.surface,
+                    shape = RoundedCornerShape(10.dp)
+                )
+                .padding(16.dp)
         ) {
-            messages.keys.sortedBy { it }.forEach { moveNo ->
-                stickyHeader {
-                    Text(
-                        text = "Move $moveNo",
-                        style = MaterialTheme.typography.h5,
-                        color = MaterialTheme.colors.onBackground,
-                        modifier = Modifier
-                            .fillMaxWidth(1f)
-                            .padding(bottom = 8.dp),
-                        textAlign = TextAlign.Center,
-                    )
-                }
-                items(messages[moveNo] ?: emptyList()) {
-                    if (it.fromUser) {
-                        Row(
-                            horizontalArrangement = Arrangement.End,
+            val listState = rememberLazyListState()
+            LaunchedEffect(messages) {
+                val index =
+                    messages.values.fold(messages.keys.size) { count, list -> count + list.size } - 1
+                listState.animateScrollToItem(index.coerceAtLeast(0))
+            }
+            LazyColumn(
+                state = listState,
+                modifier = Modifier.weight(1f)
+            ) {
+                messages.keys.sortedBy { it }.forEach { moveNo ->
+                    stickyHeader {
+                        Text(
+                            text = "Move $moveNo",
+                            style = MaterialTheme.typography.h5,
+                            color = MaterialTheme.colors.onBackground,
                             modifier = Modifier
-                                .fillParentMaxWidth()
-                                .padding(bottom = 8.dp)
-                        ) {
-                            Text(
-                                text = it.message.text,
-                                color = MaterialTheme.colors.onSurface,
-                                style = MaterialTheme.typography.body2,
+                                .fillMaxWidth(1f)
+                                .padding(bottom = 8.dp),
+                            textAlign = TextAlign.Center,
+                        )
+                    }
+                    items(messages[moveNo] ?: emptyList()) {
+                        if (it.fromUser) {
+                            Row(
+                                horizontalArrangement = Arrangement.End,
                                 modifier = Modifier
-                                    .border(
-                                        width = 1.dp,
-                                        color = MaterialTheme.colors.onSurface,
-                                        shape = RoundedCornerShape(24.dp, 0.dp, 24.dp, 24.dp)
-                                    )
-                                    .padding(horizontal = 16.dp, vertical = 10.dp)
-                            )
-                        }
-                    } else {
-                        Row(
-                            modifier = Modifier
-                                .fillParentMaxWidth()
-                                .padding(bottom = 8.dp)
-                        ) {
-                            Text(
-                                text = it.message.text,
-                                color = MaterialTheme.colors.surface,
-                                style = MaterialTheme.typography.body2,
+                                    .fillParentMaxWidth()
+                                    .padding(bottom = 8.dp)
+                            ) {
+                                Text(
+                                    text = it.message.text,
+                                    color = MaterialTheme.colors.onSurface,
+                                    style = MaterialTheme.typography.body2,
+                                    modifier = Modifier
+                                        .border(
+                                            width = 1.dp,
+                                            color = MaterialTheme.colors.onSurface,
+                                            shape = RoundedCornerShape(24.dp, 0.dp, 24.dp, 24.dp)
+                                        )
+                                        .padding(horizontal = 16.dp, vertical = 10.dp)
+                                )
+                            }
+                        } else {
+                            Row(
                                 modifier = Modifier
-                                    .background(
-                                        color = MaterialTheme.colors.onSurface,
-                                        shape = RoundedCornerShape(0.dp, 24.dp, 24.dp, 24.dp)
-                                    )
-                                    .padding(horizontal = 16.dp, vertical = 10.dp)
-                            )
+                                    .fillParentMaxWidth()
+                                    .padding(bottom = 8.dp)
+                            ) {
+                                Text(
+                                    text = it.message.text,
+                                    color = MaterialTheme.colors.surface,
+                                    style = MaterialTheme.typography.body2,
+                                    modifier = Modifier
+                                        .background(
+                                            color = MaterialTheme.colors.onSurface,
+                                            shape = RoundedCornerShape(0.dp, 24.dp, 24.dp, 24.dp)
+                                        )
+                                        .padding(horizontal = 16.dp, vertical = 10.dp)
+                                )
+                            }
                         }
                     }
                 }
             }
-        }
-        Row {
-            var message by rememberSaveable { mutableStateOf("") }
-            TextField(
-                value = message,
-                onValueChange = { message = it },
-                modifier = Modifier.weight(1f),
-            )
-            IconButton(
-                onClick = {
-                    onSendMessage(message)
-                    message = ""
-                },
-                enabled = message.isNotBlank()
-            ) {
-                Icon(
-                    painter = rememberVectorPainter(image = Icons.Rounded.Send),
-                    tint = MaterialTheme.colors.onSurface,
-                    contentDescription = "send",
+            Row {
+                var message by rememberSaveable { mutableStateOf("") }
+                TextField(
+                    value = message,
+                    onValueChange = { message = it },
+                    modifier = Modifier.weight(1f),
                 )
+                IconButton(
+                    onClick = {
+                        onSendMessage(message)
+                        message = ""
+                    },
+                    enabled = message.isNotBlank()
+                ) {
+                    Icon(
+                        painter = rememberVectorPainter(image = Icons.Rounded.Send),
+                        tint = MaterialTheme.colors.onSurface,
+                        contentDescription = "send",
+                    )
+                }
             }
         }
     }

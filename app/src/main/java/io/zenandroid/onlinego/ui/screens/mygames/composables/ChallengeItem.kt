@@ -93,8 +93,9 @@ private fun Preview() {
                     acceptedStones = null,
                     country = null,
                     icon = null,
-                    ui_class = null
-                ),
+                    ui_class = null,
+                    historicRating = null,
+                    ),
                 challenged = Player(
                     id = 1L,
                     username = "Somebody",
@@ -102,8 +103,9 @@ private fun Preview() {
                     acceptedStones = null,
                     country = null,
                     icon = null,
-                    ui_class = null
-                )
+                    ui_class = null,
+                    historicRating = null,
+                    )
             ),
             userId = 0L,
             onAction = {}
@@ -125,8 +127,9 @@ private fun Preview1() {
                     acceptedStones = null,
                     country = null,
                     icon = null,
-                    ui_class = null
-                ),
+                    ui_class = null,
+                    historicRating = null,
+                    ),
                 challenged = Player(
                     id = 0L,
                     username = "Me",
@@ -134,8 +137,9 @@ private fun Preview1() {
                     acceptedStones = null,
                     country = null,
                     icon = null,
-                    ui_class = null
-                )
+                    ui_class = null,
+                    historicRating = null,
+                    )
             ),
             userId = 0L,
             onAction = {}

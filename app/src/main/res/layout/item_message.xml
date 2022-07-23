@@ -40,7 +40,7 @@
             android:lineSpacingMultiplier="1.2"
             android:autoLink="all"
             android:linksClickable="true"
-            android:textColorLink="@color/black"
+            android:textColorLink="@android:color/black"
             />
         <LinearLayout
             android:layout_width="match_parent"

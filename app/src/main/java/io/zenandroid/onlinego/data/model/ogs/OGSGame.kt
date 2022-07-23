@@ -24,6 +24,7 @@ data class OGSGame (
         var time_per_move: Int? = null,
         var player_to_move: Long? = null,
         var ended: Instant? = null,
+        var historical_ratings: Players? = null,
 
         var json: GameData? = null,
 

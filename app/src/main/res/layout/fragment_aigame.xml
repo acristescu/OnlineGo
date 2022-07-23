@@ -115,7 +115,7 @@
         android:layout_height="16dp"
         android:layout_marginLeft="8dp"
         android:background="@drawable/ic_check_circle"
-        android:backgroundTint="@color/black"
+        android:backgroundTint="@android:color/black"
         android:padding="1dp"
         android:src="@drawable/ic_check_circle"
         app:layout_constraintBottom_toBottomOf="@id/nameLabelLeft"
@@ -144,14 +144,14 @@
         android:layout_height="16dp"
         android:layout_marginRight="8dp"
         android:background="@drawable/ic_check_circle"
-        android:backgroundTint="@color/black"
+        android:backgroundTint="@android:color/black"
         android:padding="1dp"
         android:src="@drawable/ic_check_circle"
         app:layout_constraintBottom_toBottomOf="@id/nameLabelRight"
         app:layout_constraintLeft_toLeftOf="@id/iconContainerRight"
         app:layout_constraintRight_toLeftOf="@id/nameLabelRight"
         app:layout_constraintTop_toTopOf="@id/nameLabelRight"
-        app:tint="@color/black" />
+        app:tint="@android:color/black" />
 
 
     <androidx.cardview.widget.CardView
@@ -289,14 +289,14 @@
         android:layout_marginLeft="14dp"
         android:layout_marginRight="14dp"
         android:background="@drawable/rounded_corners"
-        android:backgroundTint="@color/black"
+        android:backgroundTint="@android:color/black"
         android:padding="1dp"
         android:progress="50"
         app:indicatorColor="#FFFFFF"
         app:trackCornerRadius="3dp"
         app:layout_constraintBottom_toTopOf="@id/playControls"
         app:layout_constraintTop_toBottomOf="@id/winrateLabel"
-        app:trackColor="@color/black" />
+        app:trackColor="@android:color/black" />
 
     <androidx.cardview.widget.CardView
         android:id="@+id/playControls"

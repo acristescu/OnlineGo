@@ -48,11 +48,11 @@ fun egfToRank(rating: Double?) =
             ln(it.coerceIn(MIN_RATING, MAX_RATING) / 525) * 23.15
         }
 
-fun formatRank(rank: Double?) =
+fun formatRank(rank: Double?, longFormat: Boolean = false) =
         when(rank) {
             null -> "?"
-            in 30f .. 100f -> "${ceil(rank - 29).toInt()}d"
-            in 0f .. 30f -> "${ceil(30 - rank).toInt()}k"
+            in 30f .. 100f -> "${ceil(rank - 29).toInt()}${if(longFormat) " dan" else "d"}"
+            in 0f .. 30f -> "${ceil(30 - rank).toInt()}${if (longFormat) " kyu" else "k"}"
             else -> ""
         }
 

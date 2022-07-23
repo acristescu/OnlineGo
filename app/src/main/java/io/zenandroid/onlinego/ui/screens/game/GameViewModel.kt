@@ -4,6 +4,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -70,6 +71,7 @@ class GameViewModel(
     private var currentVariation by mutableStateOf<Variation?>(null)
     private var unreadMessagesCount by mutableStateOf(0)
     private var gameInfoDialogShowing by mutableStateOf(false)
+    private var playerDetailsDialogShowing by mutableStateOf<Player?>(null)
 
     lateinit var state: StateFlow<GameState>
     var pendingNavigation by mutableStateOf<PendingNavigation?>(null)
@@ -212,6 +214,7 @@ class GameViewModel(
                 blackExtraStatus = blackExtraStatus,
                 showLastMove = !(analyzeMode && currentVariation != null && currentVariation?.rootMoveNo!! < analysisShownMoveNumber),
                 gameInfoDialogShowing = gameInfoDialogShowing,
+                playerDetailsDialogShowing = playerDetailsDialogShowing,
             )
         }
     }
@@ -246,7 +249,8 @@ class GameViewModel(
             analysisPosition = RulesManager.replay(it, analysisShownMoveNumber, false, currentVariation).copy(
                     customMarks = (nextMoveInMainline + nextMoveVariation).mapIndexed { index, cell ->
                         Mark(cell, "XABCDEFG"[index % 8].toString(), null)
-                    }.toSet()
+                    }.toSet(),
+                    variation = if(variation != null && analysisShownMoveNumber > variation.rootMoveNo) variation.moves.take(analysisShownMoveNumber - variation.rootMoveNo) else emptyList()
                 )
         }
     }
@@ -321,13 +325,21 @@ class GameViewModel(
             else -> AnnotatedString("Result unknown (${game.outcome})")
         }
 
-        if(game.ranked == true) {
+        if(game.ranked == true && you.rating != null) {
+            val historicRating = you.historicRating ?: you.rating
+            val difference = if(you.rating >= historicRating ) "+${you.rating.toInt() - historicRating.toInt()}" else "${you.rating.toInt() - historicRating.toInt()}"
             details += buildAnnotatedString {
                 append("\nYour rating is now ")
                 pushStyle(SpanStyle(fontWeight = FontWeight.Bold))
                 append(formatRank(egfToRank(you.rating)))
                 pop()
-                append(" - ${String.format("%.0f", you.rating)}")
+                append(" - ${String.format("%.0f", you.rating)} (")
+                if(you.rating != historicRating) {
+                    pushStyle(SpanStyle(fontStyle = FontStyle.Italic))
+                    append(difference)
+                    pop()
+                    append(")")
+                }
             }
         }
 
@@ -348,9 +360,10 @@ class GameViewModel(
     }
 
     private fun onGameOverDialogQuickReplay() {
+        analyzeMode = true
         gameOverDialogShowing = false
         viewModelScope.launch {
-            for(i in 0 until (gameState?.moves?.size ?: 0)) {
+            for(i in 0 .. (gameState?.moves?.size ?: 0)) {
                 analysisShownMoveNumber = i
                 delay(700)
             }
@@ -538,6 +551,7 @@ class GameViewModel(
             GameOverDialogAnalyze -> {
                 gameOverDialogShowing = false
                 analyzeMode = true
+                analysisShownMoveNumber = gameState?.moves?.size ?: 0
             }
             GameOverDialogNextGame -> getNextGame()?.let { pendingNavigation = NavigateToGame(it) }
             GameOverDialogQuickReplay -> onGameOverDialogQuickReplay()
@@ -563,6 +577,9 @@ class GameViewModel(
             }
             OpenInBrowser -> pendingNavigation = OpenURL("https://online-go.com/game/${gameState?.id}")
             DownloadSGF -> pendingNavigation = OpenURL("https://online-go.com/api/v1/games/${gameState?.id}/sgf")
+            BlackPlayerClicked -> playerDetailsDialogShowing = gameState?.blackPlayer
+            WhitePlayerClicked -> playerDetailsDialogShowing = gameState?.whitePlayer
+            PlayerDetailsDialogDismissed -> playerDetailsDialogShowing = null
         }. run {}
     }
 
@@ -583,7 +600,10 @@ class GameViewModel(
             }
             is NextGame -> getNextGame()?.let { pendingNavigation = NavigateToGame(it) }
             Undo -> {} //TODO()
-            ExitAnalysis -> analyzeMode = false
+            ExitAnalysis -> {
+                analyzeMode = false
+                currentVariation = null
+            }
             Estimate -> {
                 estimatePosition = null
                 estimateMode = true
@@ -668,6 +688,7 @@ data class GameState(
     val chatDialogShowing: Boolean,
     val gameOverDialogShowing: GameOverDialogDetails?,
     val gameInfoDialogShowing: Boolean,
+    val playerDetailsDialogShowing: Player?,
 ) {
     companion object {
         val DEFAULT = GameState(
@@ -702,6 +723,7 @@ data class GameState(
             whiteExtraStatus = null,
             blackExtraStatus = null,
             gameInfoDialogShowing = false,
+            playerDetailsDialogShowing = null,
         )
     }
 }
@@ -768,6 +790,9 @@ sealed interface UserAction {
     object GameOverDialogAnalyze: UserAction
     object GameOverDialogNextGame: UserAction
     object GameOverDialogQuickReplay: UserAction
+    object BlackPlayerClicked: UserAction
+    object WhitePlayerClicked: UserAction
+    object PlayerDetailsDialogDismissed: UserAction
     object ChatDialogDismiss: UserAction
     object KOMoveDialogDismiss: UserAction
     class ChatSend(val message: String): UserAction

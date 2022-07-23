@@ -100,22 +100,24 @@ data class Game(
             val gamedata = game.json ?: game.gamedata
 
             val whitePlayer = Player(
-                    id = (players?.white?.id ?: game.whiteId)!!,
-                    username = players?.white?.username ?: (game.white as? Map<*,*>)?.get("username").toString(),
-                    country = players?.white?.country ?: game.whitePlayer?.country ?: game.players?.white?.country,
-                    icon = players?.white?.icon ?: game.whitePlayer?.icon ?: game.players?.white?.icon,
-                    rating = whiteRating,
-                    acceptedStones = players?.white?.accepted_stones,
-                    ui_class = players?.white?.ui_class
+                id = (players?.white?.id ?: game.whiteId)!!,
+                username = players?.white?.username ?: (game.white as? Map<*,*>)?.get("username").toString(),
+                country = players?.white?.country ?: game.whitePlayer?.country ?: game.players?.white?.country,
+                icon = players?.white?.icon ?: game.whitePlayer?.icon ?: game.players?.white?.icon,
+                rating = whiteRating,
+                acceptedStones = players?.white?.accepted_stones,
+                ui_class = players?.white?.ui_class,
+                historicRating = game.historical_ratings?.white?.ratings?.overall?.rating,
             )
             val blackPlayer = Player(
-                    id = (players?.black?.id ?: game.blackId)!!,
-                    username = players?.black?.username ?: (game.black as? Map<*,*>)?.get("username").toString(),
-                    country = players?.black?.country ?: game.blackPlayer?.country ?: game.players?.black?.country,
-                    icon = players?.black?.icon ?: game.blackPlayer?.icon ?: game.players?.black?.icon,
-                    rating = blackRating,
-                    acceptedStones = players?.black?.accepted_stones,
-                    ui_class = players?.black?.ui_class
+                id = (players?.black?.id ?: game.blackId)!!,
+                username = players?.black?.username ?: (game.black as? Map<*,*>)?.get("username").toString(),
+                country = players?.black?.country ?: game.blackPlayer?.country ?: game.players?.black?.country,
+                icon = players?.black?.icon ?: game.blackPlayer?.icon ?: game.players?.black?.icon,
+                rating = blackRating,
+                acceptedStones = players?.black?.accepted_stones,
+                ui_class = players?.black?.ui_class,
+                historicRating = game.historical_ratings?.black?.ratings?.overall?.rating,
             )
 
             val isRanked : Boolean? = when(gamedata?.ranked) {
@@ -225,8 +227,8 @@ data class Game(
                 removedStones = "",
                 whiteScore = Score(komi = 5.5f, prisoners = 3),
                 blackScore = Score(prisoners = 1),
-                whitePlayer = Player(id = 1L, username = "Bula", rating = 5.5, country = "UK", icon = null, acceptedStones = null, ui_class = null),
-                blackPlayer = Player(id = 0L, username = "Playa", rating = 6.5, country = "UK", icon = null, acceptedStones = null, ui_class = null),
+                whitePlayer = Player(id = 1L, username = "Bula", rating = 1500.5, country = "UK", icon = null, acceptedStones = null, ui_class = null, historicRating = 1550.0),
+                blackPlayer = Player(id = 0L, username = "Playa", rating = 1600.5, country = "UK", icon = null, acceptedStones = null, ui_class = null, historicRating = 1550.0),
                 clock = Clock(lastMove = 120L, receivedAt = 120L, whiteTime = null, whiteTimeSimple = null, startMode = false, blackTime = null, blackTimeSimple = null),
                 phase = null,
                 komi = 5.5f,
