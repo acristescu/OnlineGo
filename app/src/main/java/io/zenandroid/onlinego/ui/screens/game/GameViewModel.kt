@@ -64,6 +64,7 @@ class GameViewModel(
     private var passDialogShowing by mutableStateOf(false)
     private var resignDialogShowing by mutableStateOf(false)
     private var cancelDialogShowing by mutableStateOf(false)
+    private var userUndoDialogShowing by mutableStateOf(false)
     private var gameFinished by mutableStateOf<Boolean?>(null)
     private var gameOverDetails by mutableStateOf<GameOverDialogDetails?>(null)
     private var gameOverDialogShowing by mutableStateOf(false)
@@ -72,6 +73,7 @@ class GameViewModel(
     private var unreadMessagesCount by mutableStateOf(0)
     private var gameInfoDialogShowing by mutableStateOf(false)
     private var playerDetailsDialogShowing by mutableStateOf<Player?>(null)
+    private var dismissedUndoDialogAtMove by mutableStateOf<Int?>(null)
 
     lateinit var state: StateFlow<GameState>
     var pendingNavigation by mutableStateOf<PendingNavigation?>(null)
@@ -130,6 +132,11 @@ class GameViewModel(
             //
             // Note to future self: be careful of backward writes. Try no to write to state variables below this comment
             //
+
+            val opponentRequestedUndo = game?.phase == Phase.PLAY
+                    && game?.playerToMoveId == userId
+                    && game?.undoRequested != null
+            val shouldShowUndoRequestedDialog = opponentRequestedUndo && dismissedUndoDialogAtMove != gameState?.moves?.size
 
             val shownPosition = when {
                 estimateMode && estimatePosition != null -> estimatePosition!!
@@ -215,12 +222,16 @@ class GameViewModel(
                 showLastMove = !(analyzeMode && currentVariation != null && currentVariation?.rootMoveNo!! < analysisShownMoveNumber),
                 gameInfoDialogShowing = gameInfoDialogShowing,
                 playerDetailsDialogShowing = playerDetailsDialogShowing,
+                opponentRequestedUndo = opponentRequestedUndo,
+                opponentRequestedUndoDialogShowing = shouldShowUndoRequestedDialog,
+                requestUndoDialogShowing = userUndoDialogShowing,
             )
         }
     }
 
     private fun calculateExtraStatus(game: Game?, playerToMove: Boolean, playerAcceptedStones: String?, playerLost: Boolean?, playerStartTimer: String?): String? =
         when {
+            game?.phase == Phase.PLAY && !playerToMove && game.undoRequested != null -> "Requested undo"
             game?.phase == Phase.PLAY && !playerToMove && game.moves?.lastOrNull()?.isPass() == true -> "Player passed!"
             game?.phase == Phase.STONE_REMOVAL && game.removedStones != null && game.removedStones == playerAcceptedStones -> "Accepted"
             game?.phase == Phase.FINISHED && playerLost == true && game.outcome == "Resignation" -> "Resigned"
@@ -581,6 +592,13 @@ class GameViewModel(
             BlackPlayerClicked -> playerDetailsDialogShowing = gameState?.blackPlayer
             WhitePlayerClicked -> playerDetailsDialogShowing = gameState?.whitePlayer
             PlayerDetailsDialogDismissed -> playerDetailsDialogShowing = null
+            OpponentUndoRequestAccepted -> gameConnection.acceptUndo(gameState?.moves?.size ?: 0)
+            OpponentUndoRequestRejected -> dismissedUndoDialogAtMove = gameState?.moves?.size
+            UserUndoDialogConfirm -> {
+                gameConnection.requestUndo(gameState?.moves?.size ?: 0)
+                userUndoDialogShowing = false
+            }
+            UserUndoDialogDismiss -> userUndoDialogShowing = false
         }. run {}
     }
 
@@ -600,7 +618,7 @@ class GameViewModel(
                 chatRepository.markMessagesAsRead(state.value.messages.flatMap { it.value }.map { it.message }.filter { !it.seen })
             }
             is NextGame -> getNextGame()?.let { pendingNavigation = NavigateToGame(it) }
-            Undo -> {} //TODO()
+            Undo -> userUndoDialogShowing = true
             ExitAnalysis -> {
                 analyzeMode = false
                 currentVariation = null
@@ -690,6 +708,9 @@ data class GameState(
     val gameOverDialogShowing: GameOverDialogDetails?,
     val gameInfoDialogShowing: Boolean,
     val playerDetailsDialogShowing: Player?,
+    val opponentRequestedUndo: Boolean,
+    val opponentRequestedUndoDialogShowing: Boolean,
+    val requestUndoDialogShowing: Boolean,
 ) {
     companion object {
         val DEFAULT = GameState(
@@ -725,6 +746,9 @@ data class GameState(
             blackExtraStatus = null,
             gameInfoDialogShowing = false,
             playerDetailsDialogShowing = null,
+            opponentRequestedUndo = false,
+            opponentRequestedUndoDialogShowing = false,
+            requestUndoDialogShowing = true,
         )
     }
 }
@@ -799,6 +823,10 @@ sealed interface UserAction {
     class ChatSend(val message: String): UserAction
     object OpenInBrowser: UserAction
     object DownloadSGF: UserAction
+    object OpponentUndoRequestAccepted: UserAction
+    object OpponentUndoRequestRejected: UserAction
+    object UserUndoDialogConfirm: UserAction
+    object UserUndoDialogDismiss: UserAction
 }
 
 data class TimerDetails(

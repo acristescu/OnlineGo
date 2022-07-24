@@ -129,6 +129,7 @@ abstract class GameDao {
                     blackPlayer = if(it.blackPlayer.country == null) oldGame.blackPlayer else it.blackPlayer,
                     whitePlayer = if(it.whitePlayer.country == null) oldGame.whitePlayer else it.whitePlayer,
                     moves = if(it.moves.isNullOrEmpty()) oldGame.moves else it.moves,
+                    undoRequested = if(oldGame.undoRequested != null && it.undoRequested == null && oldGame.moves == it.moves) oldGame.undoRequested else it.undoRequested
                 ))
             }
         }

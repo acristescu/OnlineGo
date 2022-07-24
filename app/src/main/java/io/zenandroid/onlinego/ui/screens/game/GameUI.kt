@@ -52,8 +52,6 @@ import io.zenandroid.onlinego.utils.egfToRank
 import io.zenandroid.onlinego.utils.formatRank
 import io.zenandroid.onlinego.utils.processGravatarURL
 import io.zenandroid.onlinego.utils.repeatingClickable
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 @Composable
 fun GameScreen(state: GameState,
@@ -64,6 +62,7 @@ fun GameScreen(state: GameState,
         if(LocalConfiguration.current.orientation == ORIENTATION_PORTRAIT) {
             Header(
                 title = state.title,
+                opponentRequestedUndo = state.opponentRequestedUndo,
                 onBack = onBack,
                 onUserAction = onUserAction
             )
@@ -118,6 +117,7 @@ fun GameScreen(state: GameState,
                 Column(Modifier.width(0.dp).weight(1f)) {
                     Header(
                         title = state.title,
+                        opponentRequestedUndo = state.opponentRequestedUndo,
                         onBack = onBack,
                         onUserAction = onUserAction
                     )
@@ -189,6 +189,40 @@ fun GameScreen(state: GameState,
             },
             text = { Text("That move would repeat the board position. That's called a KO, and it is not allowed. Try to make another move first, preferably a threat that the opponent can't ignore.") },
             title = { Text("Illegal KO move") },
+        )
+    }
+    if(state.opponentRequestedUndoDialogShowing) {
+        AlertDialog(
+            onDismissRequest = { onUserAction(OpponentUndoRequestRejected) },
+            dismissButton = {
+                TextButton(onClick = { onUserAction(OpponentUndoRequestRejected) }) {
+                    Text("IGNORE")
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { onUserAction(OpponentUndoRequestAccepted) }) {
+                    Text("UNDO MOVE")
+                }
+            },
+            text = { Text("Your opponent would like to undo their last move. Do you accept?") },
+            title = { Text("Opponent asked to undo") },
+        )
+    }
+    if(state.requestUndoDialogShowing) {
+        AlertDialog(
+            onDismissRequest = { onUserAction(UserUndoDialogDismiss) },
+            dismissButton = {
+                TextButton(onClick = { onUserAction(UserUndoDialogDismiss) }) {
+                    Text("CANCEL")
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { onUserAction(UserUndoDialogConfirm) }) {
+                    Text("REQUEST UNDO")
+                }
+            },
+            text = { Text("If you made the last move by mistake, you can ask your opponent if they allow you to undo it.") },
+            title = { Text("Request Undo?") },
         )
     }
     if(state.passDialogShowing) {
@@ -738,6 +772,7 @@ private fun BottomBar(
 @Composable
 private fun Header(
     title: String,
+    opponentRequestedUndo: Boolean,
     onBack: () -> Unit,
     onUserAction: (UserAction) -> Unit
 ) {
@@ -803,6 +838,23 @@ private fun Header(
                         color = MaterialTheme.colors.onSurface,
                         modifier = Modifier.padding(start = 8.dp)
                     )
+                }
+                if(opponentRequestedUndo) {
+                    DropdownMenuItem(onClick = {
+                        moreMenuOpen = false
+                        onUserAction(OpponentUndoRequestAccepted)
+                    }) {
+                        Icon(
+                            painter = rememberVectorPainter(image = Icons.Rounded.Undo),
+                            contentDescription = "Accept Undo",
+                            tint = MaterialTheme.colors.onSurface,
+                        )
+                        Text(
+                            text = "Accept Undo",
+                            color = MaterialTheme.colors.onSurface,
+                            modifier = Modifier.padding(start = 8.dp)
+                        )
+                    }
                 }
             }
         }
