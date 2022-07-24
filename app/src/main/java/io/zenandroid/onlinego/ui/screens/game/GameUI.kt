@@ -260,6 +260,7 @@ private fun BlackPlayerCard(state: GameState, onUserAction: ((UserAction) -> Uni
         timerFaded = state.timerDetails?.blackFaded ?: true,
         timerShown = state.showTimers,
         onUserClicked = { onUserAction(BlackPlayerClicked) },
+        onGameDetailsClicked = { onUserAction(GameInfoClick) },
         modifier = modifier
     )
 }
@@ -274,6 +275,7 @@ private fun WhitePlayerCard(state: GameState, onUserAction: ((UserAction) -> Uni
         timerFaded = state.timerDetails?.whiteFaded ?: true,
         timerShown = state.showTimers,
         onUserClicked = { onUserAction(WhitePlayerClicked) },
+        onGameDetailsClicked = { onUserAction(GameInfoClick) },
         modifier = modifier
     )
 }
@@ -297,7 +299,7 @@ private fun Board(state: GameState, onUserAction: ((UserAction) -> Unit), modifi
 }
 
 @Composable
-fun ExtraStatusField(text: String?, modifier: Modifier = Modifier) {
+fun ColumnScope.ExtraStatusField(text: String?, modifier: Modifier = Modifier) {
     AnimatedVisibility(visible = text != null) {
         Text(
             text = text ?: "",
@@ -654,7 +656,7 @@ private fun BottomBar(
 ) {
     Row(modifier = Modifier.height(56.dp)) {
         buttons.forEach {
-            key(it) {
+            key(it.javaClass) {
                 Box(modifier = Modifier
                     .fillMaxHeight()
                     .weight(1f)) {

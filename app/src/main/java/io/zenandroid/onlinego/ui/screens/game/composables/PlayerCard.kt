@@ -11,7 +11,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -21,9 +21,11 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberImagePainter
@@ -34,24 +36,35 @@ import io.zenandroid.onlinego.ui.theme.brown
 import io.zenandroid.onlinego.utils.processGravatarURL
 
 @Composable
-fun PlayerCard(player: PlayerData?, timerMain: String, timerExtra: String, timerPercent: Int, timerFaded: Boolean, timerShown: Boolean, onUserClicked: () -> Unit, modifier: Modifier = Modifier) {
+fun PlayerCard(
+    player: PlayerData?,
+    timerMain: String,
+    timerExtra: String,
+    timerPercent: Int,
+    timerFaded: Boolean,
+    timerShown: Boolean,
+    onUserClicked: () -> Unit,
+    onGameDetailsClicked: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     val alpha = if(timerFaded) .6f else 1f
     player?.let {
-        Row(verticalAlignment = Alignment.CenterVertically,
-            modifier = modifier.clickable { onUserClicked() }
-        ) {
+        Row(verticalAlignment = Alignment.CenterVertically, modifier = modifier) {
             val maxSize = 84.dp
             val minSize = 64.dp
             Box(modifier = Modifier
                 .padding(start = 16.dp)
                 .sizeIn(minHeight = minSize, maxHeight = maxSize)
                 .aspectRatio(1f, true)
+                .clickable { onUserClicked() }
             ) {
 //                val shape = CircleShape
                 val shape = RoundedCornerShape(14.dp)
+                val defaultSize = LocalDensity.current.run { IntSize(maxSize.roundToPx(), maxSize.roundToPx()) }
+                var size by remember { mutableStateOf(defaultSize) }
                 Image(
                     painter = rememberImagePainter(
-                        data = processGravatarURL(player.iconURL, LocalDensity.current.run { 60.dp.roundToPx() }),
+                        data = processGravatarURL(player.iconURL, LocalDensity.current.run { size.width }),
                         builder = {
                             placeholder(R.mipmap.placeholder)
                             error(R.mipmap.placeholder)
@@ -64,6 +77,7 @@ fun PlayerCard(player: PlayerData?, timerMain: String, timerExtra: String, timer
                         .padding(bottom = 4.dp, end = 4.dp)
                         .shadow(2.dp, shape)
                         .clip(shape)
+                        .onGloballyPositioned { size = it.size}
                 )
                 Box(modifier = Modifier
                     .align(Alignment.BottomEnd)
@@ -96,17 +110,19 @@ fun PlayerCard(player: PlayerData?, timerMain: String, timerExtra: String, timer
                     text = player.name + "  " + player.flagCode,
                     style = MaterialTheme.typography.h2,
                     color = MaterialTheme.colors.onSurface,
-                    modifier = Modifier
+                    modifier = Modifier.clickable { onUserClicked() }
                 )
                 Text(
                     text = player.details,
                     style = MaterialTheme.typography.h5.copy(fontSize = 10.sp),
                     color = MaterialTheme.colors.onSurface,
-                    modifier = Modifier.padding(top = 6.dp)
+                    modifier = Modifier.padding(top = 6.dp).clickable { onGameDetailsClicked() }
                 )
             }
             AnimatedVisibility(visible = timerShown, exit = fadeOut(), enter = fadeIn()) {
-                Timer(minSize, maxSize, alpha, timerPercent, timerMain, timerExtra)
+                Timer(minSize, maxSize, alpha, timerPercent, timerMain, timerExtra,
+                    modifier = Modifier.clickable { onGameDetailsClicked() }
+                )
             }
         }
     }
@@ -119,12 +135,13 @@ private fun Timer(
     alpha: Float,
     timerPercent: Int,
     timerMain: String,
-    timerExtra: String
+    timerExtra: String,
+    modifier: Modifier = Modifier,
 ) {
     Column(
         verticalArrangement = Arrangement.SpaceEvenly,
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier
+        modifier = modifier
             .padding(horizontal = 18.dp)
             .sizeIn(minHeight = minSize, maxHeight = maxSize, minWidth = 64.dp)
             .fillMaxHeight(1f)

@@ -7,12 +7,12 @@ apply plugin: 'koin'
 apply plugin: 'app.cash.molecule'
 
 android {
-    compileSdkVersion 32
+    compileSdkVersion 33
     ndkVersion "21.0.6113669"
     defaultConfig {
         applicationId "io.zenandroid.onlinego"
         minSdkVersion 21
-        targetSdkVersion 31
+        targetSdkVersion 33
         versionCode 42
         versionName "alpha_b${versionCode}"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -47,7 +47,6 @@ android {
     }
     kotlinOptions {
         jvmTarget = JavaVersion.VERSION_11
-        useIR = true
     }
     buildFeatures {
         compose true

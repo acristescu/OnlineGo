@@ -327,7 +327,7 @@ private fun DrawScope.drawStone(p: Cell, type: StoneType?, stonePainter: Painter
             }
         }
 
-        if(measurements.cellSize > 30) {
+        if(measurements.cellSize > 40) {
             translate (center.x - measurements.stoneRadius, center.y - measurements.stoneRadius) {
                 with(stonePainter) {
                     draw(Size(measurements.stoneRadius * 2f, measurements.stoneRadius * 2f), alpha = alpha)

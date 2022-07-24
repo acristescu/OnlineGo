@@ -57,7 +57,7 @@ fun View.circularReveal(backgroundColor: Int) {
                 val animator = ViewAnimationUtils.createCircularReveal(this, cx, cy, 0f, finalRadius)
                 animator.startDelay = 50
                 animator.addListener(object : AnimatorListenerAdapter() {
-                    override fun onAnimationStart(animation: Animator?) {
+                    override fun onAnimationStart(animation: Animator) {
                         showAndSetBackgroundColorFunction.invoke()
                     }
                 })

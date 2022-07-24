@@ -260,6 +260,7 @@ class GameViewModel(
             currentGamePosition.value = RulesManager.replay(game = game, computeTerritory = game.phase == Phase.STONE_REMOVAL)
             if (loading) {
                 analysisShownMoveNumber = game.moves?.size ?: 0
+                analyzeMode = game.phase == Phase.FINISHED
             }
             gameState = game
             checkPendingMove(game)
