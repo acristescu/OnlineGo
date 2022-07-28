@@ -26,6 +26,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -35,7 +36,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import coil.compose.rememberAsyncImagePainter
 import coil.compose.rememberImagePainter
+import coil.request.ImageRequest
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.Position
@@ -321,6 +324,7 @@ private fun Board(state: GameState, onUserAction: ((UserAction) -> Unit), modifi
         boardHeight = state.gameHeight,
         position = state.position,
         interactive = state.boardInteractive,
+        drawCoordinates = state.showCoordinates,
         drawTerritory = state.drawTerritory,
         drawLastMove = state.showLastMove,
         fadeOutRemovedStones = state.fadeOutRemovedStones,
@@ -395,12 +399,13 @@ private fun PlayerDetailsDialog(
             )
         }
         Image(
-            painter = rememberImagePainter(
-                data = processGravatarURL(player.icon, LocalDensity.current.run { 124.dp.roundToPx() }),
-                builder = {
-                    placeholder(R.mipmap.placeholder)
-                    error(R.mipmap.placeholder)
-                }
+            painter = rememberAsyncImagePainter(
+                model = ImageRequest.Builder(LocalContext.current)
+                    .data(processGravatarURL(player.icon, LocalDensity.current.run { 124.dp.roundToPx() }))
+                    .crossfade(true)
+                    .placeholder(R.drawable.ic_person_filled_with_background)
+                    .error(R.mipmap.placeholder)
+                    .build()
             ),
             contentDescription = "Avatar",
             modifier = Modifier
@@ -873,7 +878,7 @@ private fun Button.getIcon() = when(this) {
     Undo -> Icons.Rounded.Undo
     ExitAnalysis -> Icons.Rounded.HighlightOff
     ExitEstimate -> Icons.Rounded.HighlightOff
-    Estimate -> Icons.Rounded.Functions
+    is Estimate -> Icons.Rounded.Functions
     Previous -> Icons.Rounded.SkipPrevious
     is Next -> Icons.Rounded.SkipNext
     AcceptStoneRemoval -> Icons.Rounded.ThumbUp
@@ -889,7 +894,7 @@ private fun Button.getLabel() = when(this) {
     is Chat -> "Chat"
     ConfirmMove -> "Confirm Move"
     DiscardMove -> "Discard Move"
-    Estimate -> "Estimate"
+    is Estimate -> "Estimate"
     ExitAnalysis -> "Exit Analysis"
     is Next -> "Next"
     is NextGame -> "Next Game"
@@ -1076,7 +1081,7 @@ fun Preview4() {
         GameScreen(state = GameState.DEFAULT.copy(
             position = Position(19, 19, whiteStones = setOf(Cell(3, 3)), blackStones = setOf(Cell(15, 15))),
             loading = false,
-            buttons = listOf(ExitAnalysis, Estimate, Previous, Next()),
+            buttons = listOf(ExitAnalysis, Estimate(), Previous, Next()),
             title = "Move 132 · Chinese · Black",
             whitePlayer = PlayerData(
                 name = "MrAlex-test",
@@ -1121,7 +1126,7 @@ fun Preview5() {
         GameScreen(state = GameState.DEFAULT.copy(
             position = Position(19, 19, whiteStones = setOf(Cell(3, 3)), blackStones = setOf(Cell(15, 15))),
             loading = false,
-            buttons = listOf(ExitAnalysis, Estimate, Previous, Next()),
+            buttons = listOf(ExitAnalysis, Estimate(), Previous, Next()),
             title = "Move 132 · Chinese · Black",
             whitePlayer = PlayerData(
                 name = "MrAlex-test",

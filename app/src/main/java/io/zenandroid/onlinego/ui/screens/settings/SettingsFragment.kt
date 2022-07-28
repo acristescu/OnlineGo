@@ -99,6 +99,11 @@ class SettingsFragment : Fragment() {
                 setOnCheckedChangeListener { _, isChecked -> settingsRepository.vibrate = isChecked }
             }
 
+            soundButton.apply {
+                isChecked = settingsRepository.sound
+                setOnCheckedChangeListener { _, isChecked -> settingsRepository.sound = isChecked }
+            }
+
             coordinates.apply {
                 isChecked = settingsRepository.showCoordinates
                 setOnCheckedChangeListener { _, isChecked -> settingsRepository.showCoordinates = isChecked }

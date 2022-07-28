@@ -7,7 +7,6 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
@@ -22,13 +21,15 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.rememberImagePainter
+import coil.compose.rememberAsyncImagePainter
+import coil.request.ImageRequest
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.StoneType
 import io.zenandroid.onlinego.ui.screens.game.PlayerData
@@ -63,12 +64,12 @@ fun PlayerCard(
                 val defaultSize = LocalDensity.current.run { IntSize(maxSize.roundToPx(), maxSize.roundToPx()) }
                 var size by remember { mutableStateOf(defaultSize) }
                 Image(
-                    painter = rememberImagePainter(
-                        data = processGravatarURL(player.iconURL, LocalDensity.current.run { size.width }),
-                        builder = {
-                            placeholder(R.mipmap.placeholder)
-                            error(R.mipmap.placeholder)
-                        }
+                    painter = rememberAsyncImagePainter(
+                        model = ImageRequest.Builder(LocalContext.current)
+                            .data(processGravatarURL(player.iconURL, LocalDensity.current.run { size.width }))
+                            .placeholder(R.mipmap.placeholder)
+                            .error(R.mipmap.placeholder)
+                            .build()
                     ),
                     contentDescription = "Avatar",
                     modifier = Modifier

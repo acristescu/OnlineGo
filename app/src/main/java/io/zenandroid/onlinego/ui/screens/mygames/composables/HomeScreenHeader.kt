@@ -1,7 +1,6 @@
 package io.zenandroid.onlinego.ui.screens.mygames.composables
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
@@ -12,13 +11,14 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.rememberImagePainter
+import coil.compose.rememberAsyncImagePainter
+import coil.request.ImageRequest
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
 import io.zenandroid.onlinego.utils.processGravatarURL
@@ -31,12 +31,13 @@ fun HomeScreenHeader(
 ) {
     Row(modifier = Modifier.padding(20.dp)) {
         Image(
-            painter = rememberImagePainter(
-                data = processGravatarURL(image, LocalDensity.current.run { 56.dp.roundToPx() } ),
-                builder = {
-                    crossfade(true)
-                    placeholder(R.drawable.ic_person_filled)
-                }
+            painter = rememberAsyncImagePainter(
+                model = ImageRequest.Builder(LocalContext.current)
+                    .data(processGravatarURL(image, LocalDensity.current.run { 56.dp.roundToPx() } ))
+                    .crossfade(true)
+                    .placeholder(R.drawable.ic_person_filled_with_background)
+                    .error(R.drawable.ic_person_filled_with_background)
+                    .build()
             ),
             contentDescription = "Icon",
             modifier = Modifier

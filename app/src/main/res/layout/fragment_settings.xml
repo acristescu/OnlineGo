@@ -100,6 +100,18 @@
                     android:drawableLeft="@drawable/ic_vibrate"
                     android:checked="true"
                     />
+                <com.google.android.material.switchmaterial.SwitchMaterial
+                    android:id="@+id/soundButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="64dp"
+                    android:text="Stone sounds"
+                    android:paddingRight="12dp"
+                    android:paddingLeft="24dp"
+                    android:drawablePadding="24dp"
+                    android:fontFamily="sans-serif-medium"
+                    android:drawableLeft="@drawable/ic_sound"
+                    android:checked="true"
+                    />
             </LinearLayout>
         </androidx.cardview.widget.CardView>
         <TextView

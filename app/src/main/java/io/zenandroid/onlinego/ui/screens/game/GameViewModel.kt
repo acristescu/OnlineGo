@@ -18,10 +18,7 @@ import io.zenandroid.onlinego.data.model.local.*
 import io.zenandroid.onlinego.data.model.ogs.Phase
 import io.zenandroid.onlinego.data.ogs.GameConnection
 import io.zenandroid.onlinego.data.ogs.OGSWebSocketService
-import io.zenandroid.onlinego.data.repositories.ActiveGamesRepository
-import io.zenandroid.onlinego.data.repositories.ChatRepository
-import io.zenandroid.onlinego.data.repositories.ClockDriftRepository
-import io.zenandroid.onlinego.data.repositories.UserSessionRepository
+import io.zenandroid.onlinego.data.repositories.*
 import io.zenandroid.onlinego.gamelogic.RulesManager
 import io.zenandroid.onlinego.gamelogic.RulesManager.isPass
 import io.zenandroid.onlinego.ui.screens.game.Button.*
@@ -40,6 +37,7 @@ class GameViewModel(
     private val clockDriftRepository: ClockDriftRepository,
     private val socketService: OGSWebSocketService,
     private val chatRepository: ChatRepository,
+    private val settingsRepository: SettingsRepository,
 ): ViewModel() {
 
     // Need to add a MonotonicFrameClock
@@ -106,7 +104,7 @@ class GameViewModel(
             val messages by messagesFlow.collectAsState(emptyMap())
 
             LaunchedEffect(game?.moves) {
-                if(!loading && !game?.moves.isNullOrEmpty()) {
+                if(!loading && !game?.moves.isNullOrEmpty() && settingsRepository.sound) {
                     _events.emit(Event.PlayStoneSound)
                 }
             }
@@ -163,8 +161,8 @@ class GameViewModel(
                 when {
                     estimateMode -> listOf(ExitEstimate)
                     game?.phase == Phase.STONE_REMOVAL -> listOf(AcceptStoneRemoval, RejectStoneRemoval)
-                    gameFinished == true -> listOf(chatButton, Estimate, Previous, nextButton)
-                    analyzeMode -> listOf(ExitAnalysis, Estimate, Previous, nextButton)
+                    gameFinished == true -> listOf(chatButton, Estimate(true), Previous, nextButton)
+                    analyzeMode -> listOf(ExitAnalysis, Estimate(!isAnalysisDisabled()), Previous, nextButton)
                     pendingMove != null -> emptyList()
                     isMyTurn && candidateMove == null -> listOf(Analyze, Pass, endGameButton, chatButton, nextGameButton)
                     isMyTurn && candidateMove != null -> listOf(ConfirmMove, DiscardMove)
@@ -186,6 +184,7 @@ class GameViewModel(
 
             val whiteExtraStatus = calculateExtraStatus(game, whiteToMove, game?.whitePlayer?.acceptedStones, game?.whiteLost, timer.whiteStartTimer)
             val blackExtraStatus = calculateExtraStatus(game, !whiteToMove, game?.blackPlayer?.acceptedStones, game?.blackLost, timer.blackStartTimer)
+            val boardInteractive = (isMyTurn && pendingMove == null && !analyzeMode && !estimateMode) || game?.phase == Phase.STONE_REMOVAL || (analyzeMode && !estimateMode && !isAnalysisDisabled())
 
             GameState(
                 position = shownPosition,
@@ -193,7 +192,8 @@ class GameViewModel(
                 gameWidth = gameWidth,
                 gameHeight = gameHeight,
                 candidateMove = candidateMove,
-                boardInteractive = (isMyTurn && pendingMove == null && !analyzeMode && !estimateMode) || game?.phase == Phase.STONE_REMOVAL || (analyzeMode && !estimateMode),
+                showCoordinates = settingsRepository.showCoordinates,
+                boardInteractive = boardInteractive,
                 drawTerritory = game?.phase == Phase.STONE_REMOVAL || (gameFinished == true && analysisShownMoveNumber == game?.moves?.size) || (estimateMode && estimatePosition != null),
                 fadeOutRemovedStones = game?.phase == Phase.STONE_REMOVAL || (gameFinished == true && analysisShownMoveNumber == game?.moves?.size) || (estimateMode && estimatePosition != null),
                 buttons = visibleButtons,
@@ -483,11 +483,15 @@ class GameViewModel(
         return PlayerData(
             name = username,
             details = if(score != 0f) "${if(score > 0) "+ " else ""}$score points" else "",
-            rank = formatRank(egfToRank(rating)),
+            rank = if(settingsRepository.showRanks) formatRank(egfToRank(rating)) else "",
             flagCode = convertCountryCodeToEmojiFlag(country),
             iconURL = icon,
             color = color,
         )
+    }
+
+    private fun isAnalysisDisabled(): Boolean {
+        return gameState?.phase != Phase.FINISHED && gameState?.disableAnalysis == true
     }
 
     override fun onCleared() {
@@ -623,7 +627,7 @@ class GameViewModel(
                 analyzeMode = false
                 currentVariation = null
             }
-            Estimate -> {
+            is Estimate -> {
                 estimatePosition = null
                 estimateMode = true
             }
@@ -682,6 +686,7 @@ data class GameState(
     val gameHeight: Int,
     val candidateMove: Cell?,
     val boardInteractive: Boolean,
+    val showCoordinates: Boolean,
     val drawTerritory: Boolean,
     val fadeOutRemovedStones: Boolean,
     val showLastMove: Boolean,
@@ -720,6 +725,7 @@ data class GameState(
             gameHeight = 19,
             candidateMove = null,
             boardInteractive = false,
+            showCoordinates = true,
             drawTerritory = false,
             fadeOutRemovedStones = false,
             showLastMove = true,
@@ -791,7 +797,7 @@ sealed class Button(
     class NextGame(enabled: Boolean = true, bubbleText: String? = null) : Button(enabled = enabled, bubbleText = bubbleText)
     object Undo : Button()
     object ExitAnalysis : Button()
-    object Estimate : Button()
+    class Estimate(enabled: Boolean = true) : Button(enabled = enabled)
     object ExitEstimate : Button()
     object Previous : Button(repeatable = true)
     class Next(enabled: Boolean = true) : Button(repeatable = true, enabled = enabled)

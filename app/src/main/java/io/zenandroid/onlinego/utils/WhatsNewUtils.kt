@@ -34,13 +34,7 @@ private val annotatedCurrentText = AnnotatedString.Builder().run {
     pop()
 
     pushStyle(SpanStyle(fontWeight = FontWeight.Normal))
-    append("· You can now use analysis on games that are finished even if analysis was disabled.\n\n")
-    append("· Fixed a bug that misinterpreted KO during analysis.\n\n")
-    append("· Fixed some problems with the Joseki Explorer.\n\n")
-    append("· Fixed some problems scoring under Chinese rules.\n\n")
-    append("· You can now start analyzing (trying out what-if scenarios) from the history of the game, not just the last move.\n\n")
-    append("· Rewrote the game logic to optimize for memory usage. This should help users with old devices and/or many games. Please report any issues you may encounter.\n\n")
-    append("· Fixed some AI game bugs.\n\n")
+    append("· Rewrote the entire game screen to use modern technologies (Jetpack Compose and the Molecule library). This should make any further development a lot easier, but will likely introduce a lot of bugs initially. Please report any bugs you find.\n\n")
     pop()
 
     pushStyle(SpanStyle(fontSize = 18.sp))

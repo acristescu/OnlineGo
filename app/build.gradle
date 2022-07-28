@@ -86,7 +86,7 @@ dependencies {
 
     implementation "com.google.android.gms:play-services-auth:$play_services_version"
 
-    implementation "io.coil-kt:coil-compose:1.4.0"
+    implementation "io.coil-kt:coil-compose:2.1.0"
     implementation 'com.squareup.okhttp3:logging-interceptor:4.9.3'
     implementation 'com.squareup.okhttp3:okhttp-urlconnection:4.9.3'
     implementation 'com.github.franmontiel:PersistentCookieJar:v1.0.1'
