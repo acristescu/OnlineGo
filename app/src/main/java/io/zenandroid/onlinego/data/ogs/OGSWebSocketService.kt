@@ -41,7 +41,9 @@ class OGSWebSocketService(
     private val socketConnectedRepositories: List<SocketConnectedRepository> by get().inject()
 
     private val loggingAck = Ack {
-        Log.i(TAG, "ack: $it")
+        if(BuildConfig.DEBUG) {
+            Log.i(TAG, "ack: $it")
+        }
     }
 
     init {
@@ -56,15 +58,15 @@ class OGSWebSocketService(
         })
 
         socket.on(Socket.EVENT_CONNECT) {
-            Logger.getLogger(TAG).warning("socket connect id=${socket.id()}")
+            if(BuildConfig.DEBUG) Logger.getLogger(TAG).warning("socket connect id=${socket.id()}")
             onSockedConnected()
         }.on(Socket.EVENT_DISCONNECT) {
-            Logger.getLogger(TAG).warning("socket disconnect id=${socket.id()}")
+            if(BuildConfig.DEBUG) Logger.getLogger(TAG).warning("socket disconnect id=${socket.id()}")
             onSocketDisconnected()
         }.on(Socket.EVENT_CONNECT_ERROR) {
-            Logger.getLogger(TAG).warning("socket connect error id=${socket.id()}")
+            if(BuildConfig.DEBUG) Logger.getLogger(TAG).warning("socket connect error id=${socket.id()}")
         }.on(Socket.EVENT_CONNECT_ERROR) {
-            Logger.getLogger(TAG).severe("socket connect error id=${socket.id()}")
+            if(BuildConfig.DEBUG) Logger.getLogger(TAG).severe("socket connect error id=${socket.id()}")
         }
 
         if(BuildConfig.DEBUG) {
@@ -245,7 +247,7 @@ class OGSWebSocketService(
 
     fun emit(event: String, params:Any?) {
         ensureSocketConnected()
-        Log.i(TAG, "==> $event with params $params")
+        if(BuildConfig.DEBUG) Log.i(TAG, "==> $event with params $params")
         socket.emit(event, params, loggingAck)
     }
 
@@ -254,10 +256,10 @@ class OGSWebSocketService(
     }
 
     private fun observeEvent(event: String): Flowable<Any> {
-        Log.i(TAG, "Listening for event: $event")
+        if(BuildConfig.DEBUG) Log.i(TAG, "Listening for event: $event")
         return Flowable.create({ emitter ->
             socket.on(event) { params ->
-                Log.i(TAG, "<== $event, ${params[0]}")
+                if(BuildConfig.DEBUG) Log.i(TAG, "<== $event, ${params[0]}")
 
                 if(params.size != 1) {
                     FirebaseCrashlytics.getInstance().recordException(Exception("Unexpected response (${params.size} params) while listening for event $event: parameter list is ${params.joinToString("|||")}"))
@@ -276,7 +278,7 @@ class OGSWebSocketService(
             }
 
             emitter.setCancellable {
-                Log.i(TAG, "Unregistering for event: $event")
+                if(BuildConfig.DEBUG) Log.i(TAG, "Unregistering for event: $event")
                 if(socket.connected()) {
                     socket.off(event)
                 }
@@ -399,7 +401,7 @@ class OGSWebSocketService(
             put("username", userSessionRepository.uiConfig?.user?.username)
             put("auth", userSessionRepository.uiConfig?.chat_auth)
         }
-        Log.i(TAG, "==> authenticate with params $obj")
+        if(BuildConfig.DEBUG) Log.i(TAG, "==> authenticate with params $obj")
         socket.emit("authenticate", obj, loggingAck)
     }
 

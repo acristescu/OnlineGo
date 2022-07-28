@@ -123,7 +123,7 @@ class OGSRestService(
                     main_time = 600,
                     period_time = 30,
                     periods = 5,
-                    pause_on_weekends = true
+                    pause_on_weekends = false
             )
             "blitz" -> TimeControl(
                     system = "byoyomi",
@@ -132,7 +132,7 @@ class OGSRestService(
                     main_time = 30,
                     period_time = 5,
                     periods = 5,
-                    pause_on_weekends = true
+                    pause_on_weekends = false
             )
             else -> TimeControl()
         }
@@ -152,7 +152,7 @@ class OGSRestService(
                         initial_state = null,
                         komi = null,
                         komi_auto = "automatic",
-                        pause_on_weekends = true,
+                        pause_on_weekends = timeControl.pause_on_weekends == true,
                         private = challengeParams.private,
                         rules = "japanese",
                         time_control = "byoyomi",
