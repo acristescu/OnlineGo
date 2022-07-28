@@ -130,6 +130,9 @@ fun ChatDialog(
                 TextField(
                     value = message,
                     onValueChange = { message = it },
+                    colors = TextFieldDefaults.textFieldColors(
+                        textColor = MaterialTheme.colors.onSurface
+                    ),
                     modifier = Modifier.weight(1f),
                 )
                 IconButton(
