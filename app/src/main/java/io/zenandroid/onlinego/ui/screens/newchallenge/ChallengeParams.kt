@@ -1,7 +1,9 @@
 package io.zenandroid.onlinego.ui.screens.newchallenge
 
+import androidx.annotation.Keep
 import io.zenandroid.onlinego.data.model.ogs.OGSPlayer
 
+@Keep
 data class ChallengeParams(
         var opponent: OGSPlayer? = null,
         var color: String,
