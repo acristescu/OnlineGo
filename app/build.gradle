@@ -74,10 +74,10 @@ android {
 dependencies {
     def koin_version = '3.2.0'
     def play_services_version = '20.2.0'
-    def accompanist_version = '0.24.2-alpha'
+    def accompanist_version = '0.24.13-rc'
     def room_version = '2.5.0-alpha02'
     def firebase_version = '29.2.1'
-    def emoji2_version = "1.2.0-beta01"
+    def emoji2_version = "1.2.0-rc01"
 
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'androidx.appcompat:appcompat:1.4.2'
@@ -91,15 +91,15 @@ dependencies {
     implementation "com.google.android.gms:play-services-auth:$play_services_version"
 
     implementation "io.coil-kt:coil-compose:2.1.0"
-    implementation 'com.squareup.okhttp3:logging-interceptor:4.9.3'
-    implementation 'com.squareup.okhttp3:okhttp-urlconnection:4.9.3'
+    implementation 'com.squareup.okhttp3:logging-interceptor:4.10.0'
+    implementation 'com.squareup.okhttp3:okhttp-urlconnection:4.10.0'
     implementation 'com.github.franmontiel:PersistentCookieJar:v1.0.1'
 
     implementation 'com.squareup.moshi:moshi-kotlin:1.11.0'
     implementation 'com.squareup.moshi:moshi-adapters:1.11.0'
 
-    implementation "androidx.navigation:navigation-fragment-ktx:2.5.0"
-    implementation "androidx.navigation:navigation-ui-ktx:2.5.0"
+    implementation "androidx.navigation:navigation-fragment-ktx:2.5.1"
+    implementation "androidx.navigation:navigation-ui-ktx:2.5.1"
     implementation "androidx.core:core-ktx:1.9.0-alpha05"
 
     // rxandroid
@@ -129,7 +129,7 @@ dependencies {
     implementation "androidx.emoji2:emoji2-views-helper:$emoji2_version"
     implementation 'androidx.legacy:legacy-preference-v14:1.0.0'
     implementation "androidx.compose.material:material-icons-extended:$compose_version"
-    implementation "androidx.activity:activity-compose:1.5.0"
+    implementation "androidx.activity:activity-compose:1.5.1"
     implementation "androidx.compose.ui:ui-util:$compose_version"
 
     implementation 'me.zhanghai.android.materialprogressbar:library:1.6.1'
@@ -153,7 +153,7 @@ dependencies {
     implementation 'io.noties.markwon:core:4.3.1'
 
     implementation 'com.github.bumptech.glide:glide:4.11.0'
-    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.0'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.1'
     kapt 'com.github.bumptech.glide:compiler:4.11.0'
 
     implementation "io.insert-koin:koin-android:$koin_version"
@@ -164,7 +164,7 @@ dependencies {
     implementation "androidx.room:room-rxjava2:$room_version"
     implementation "androidx.room:room-ktx:$room_version"
 
-    implementation 'com.jakewharton.threetenabp:threetenabp:1.3.1'
+    implementation 'com.jakewharton.threetenabp:threetenabp:1.4.0'
     implementation 'com.github.cpiz:BubbleView:1.0.3'
 
     implementation "com.google.accompanist:accompanist-pager:$accompanist_version"

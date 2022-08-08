@@ -20,6 +20,7 @@ class LearnViewModel(
             is LearnAction.TutorialGroupClicked -> _state.value = _state.value.copy(
                     expandedTutorialGroup = if (_state.value.expandedTutorialGroup == action.group) null else action.group
             )
+            else -> {}
         }
     }
 

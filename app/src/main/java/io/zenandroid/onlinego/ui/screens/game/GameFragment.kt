@@ -62,7 +62,7 @@ class GameFragment : Fragment() {
                     when(nav) {
                         is PendingNavigation.NavigateToGame -> navigateToGameScreen(nav.game)
                         is PendingNavigation.OpenURL -> startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(nav.url)))
-                    }.run {}
+                    }
                 }
 
                 val state by rememberStateWithLifecycle(viewModel.state)
