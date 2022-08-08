@@ -80,9 +80,11 @@ class ActiveGamesRepository(
                 .subscribe(this::onNotification) { onError(it, "connectToActiveGames") }
                 .addToDisposable(subscriptions)
         gameDao
-                .monitorActiveGamesWithNewMessagesCount(userSessionRepository.userId)
-                .subscribe(this::setActiveGames) { onError(it, "gameDao") }
-                .addToDisposable(subscriptions)
+            .monitorActiveGamesWithNewMessagesCount(userSessionRepository.userId)
+            .subscribeOn(Schedulers.io())
+            .observeOn(Schedulers.single())
+            .subscribe(this::setActiveGames) { onError(it, "monitorActiveGamesWithNewMessagesCount") }
+            .addToDisposable(subscriptions)
     }
 
     override fun onSocketDisconnected() {
@@ -94,7 +96,7 @@ class ActiveGamesRepository(
     private fun isGameActive(id: Long) =
             activeDbGames.containsKey(id)
 
-    internal fun connectToGame(baseGame: Game, includeChat: Boolean = true) {
+    private fun connectToGame(baseGame: Game, includeChat: Boolean = true) {
         val game = baseGame.copy()
         synchronized(gameConnections) {
             if (gameConnections.contains(game.id)) {

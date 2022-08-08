@@ -38,11 +38,7 @@ class NewGameBottomSheet(context: Context, private val onOk: (Int, Boolean, Int)
         }
 
         binding.handicapSlider.addOnChangeListener { _, value, _ ->
-            binding.handicapLabel.text = when(value) {
-                0f -> "None"
-                1f -> "No komi"
-                else -> value.toInt().toString()
-            }
+            setLabel(value)
         }
 
         setCanceledOnTouchOutside(true)
@@ -52,6 +48,14 @@ class NewGameBottomSheet(context: Context, private val onOk: (Int, Boolean, Int)
                 state = BottomSheetBehavior.STATE_EXPANDED
                 skipCollapsed = true
             }
+        }
+    }
+
+    private fun setLabel(handicap: Float) {
+        binding.handicapLabel.text = when (handicap) {
+            0f -> "None"
+            1f -> "No komi"
+            else -> handicap.toInt().toString()
         }
     }
 
@@ -72,6 +76,7 @@ class NewGameBottomSheet(context: Context, private val onOk: (Int, Boolean, Int)
         binding.colorToggleGroup.check(checkedColorButtonId)
 
         binding.handicapSlider.value = prefs.getFloat(HANDICAP, 0f)
+        setLabel(binding.handicapSlider.value)
     }
 
     private fun saveSettings() {

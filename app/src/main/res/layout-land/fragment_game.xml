@@ -46,7 +46,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:srcCompat="@drawable/ic_chat_bubble"
-        app:layout_constraintRight_toLeftOf="@id/notificationsButton"
+        app:layout_constraintRight_toLeftOf="@id/board_container"
         app:layout_constraintTop_toTopOf="parent"
         android:scaleType="fitXY"
         android:padding="10dp"
@@ -74,13 +74,6 @@
         tools:alpha="1"
         />
 
-    <io.zenandroid.onlinego.ui.views.GameNotificationsButton
-        android:id="@+id/notificationsButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintRight_toLeftOf="@id/board_container"
-        app:layout_constraintTop_toTopOf="parent"
-        />
     <me.zhanghai.android.materialprogressbar.MaterialProgressBar
         android:id="@+id/progressBar"
         android:layout_width="match_parent"

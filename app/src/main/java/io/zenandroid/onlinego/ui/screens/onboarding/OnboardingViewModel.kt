@@ -1,8 +1,6 @@
 package io.zenandroid.onlinego.ui.screens.onboarding
 
 import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.crashlytics.FirebaseCrashlytics
@@ -16,6 +14,9 @@ import io.zenandroid.onlinego.data.ogs.OGSWebSocketService
 import io.zenandroid.onlinego.ui.screens.onboarding.Page.MultipleChoicePage
 import io.zenandroid.onlinego.ui.screens.onboarding.Page.OnboardingPage
 import io.zenandroid.onlinego.utils.addToDisposable
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import org.json.JSONObject
 import retrofit2.HttpException
 
@@ -27,15 +28,13 @@ class OnboardingViewModel(
     private val analytics = OnlineGoApplication.instance.analytics
     private val subscriptions = CompositeDisposable()
 
-    private val _state: MutableLiveData<OnboardingState> = MutableLiveData(
+    private val _state = MutableStateFlow(
         OnboardingState(
             currentPageIndex = 0,
             currentPage = pages[0]
         )
     )
-    val state: LiveData<OnboardingState>
-        get() = _state
-
+    val state: StateFlow<OnboardingState> = _state.asStateFlow()
 
     override fun onCleared() {
         subscriptions.clear()
@@ -43,7 +42,7 @@ class OnboardingViewModel(
     }
 
     fun onAction(action: OnboardingAction) {
-        val state = _state.value!!
+        val state = _state.value
         when(action) {
             OnboardingAction.BackPressed -> {
                 if(state.currentPageIndex != 0) {
@@ -86,7 +85,7 @@ class OnboardingViewModel(
     private fun goToPage(pageIndex: Int) {
         analytics.logEvent("oboarding_page_$pageIndex", null)
         val state = _state.value
-        _state.value = state?.copy(
+        _state.value = state.copy(
             currentPageIndex = pageIndex,
             currentPage = pages[pageIndex],
             logInButtonEnabled = shouldEnableLogInButton(state.email, state.username, state.password, state.isExistingAccount)
@@ -117,20 +116,20 @@ class OnboardingViewModel(
     private fun onCreateAccountSuccess() {
         FirebaseCrashlytics.getInstance().setCustomKey("NEW_ACCOUNT", true)
         analytics.logEvent(FirebaseAnalytics.Event.SIGN_UP, null)
-        doLogin(_state.value!!)
+        doLogin(_state.value)
     }
 
     private fun onLoginSuccess() {
-        _state.value = _state.value!!.copy(loginSuccessful = true)
+        _state.value = _state.value.copy(loginSuccessful = true)
     }
 
     private fun onPasswordLoginFailure(t: Throwable) {
         Log.e(OnboardingViewModel::class.java.simpleName, t.message, t)
         FirebaseCrashlytics.getInstance().recordException(t)
         if( (t as? HttpException)?.code() in arrayOf(401, 403) ) {
-            _state.value = state.value!!.copy(loginProcessing = false, loginErrorDialogText = "Invalid username or password")
+            _state.value = state.value.copy(loginProcessing = false, loginErrorDialogText = "Invalid username or password")
         } else {
-            _state.value = state.value!!.copy(loginProcessing = false, loginErrorDialogText = "Login failed. Debug info: '${t.message}'")
+            _state.value = state.value.copy(loginProcessing = false, loginErrorDialogText = "Login failed. Debug info: '${t.message}'")
         }
     }
 
@@ -138,14 +137,14 @@ class OnboardingViewModel(
         Log.e(OnboardingViewModel::class.java.simpleName, t.message, t)
         if(t is HttpException && t.response()?.errorBody() != null) {
             try {
-                val error = JSONObject(t.response()?.errorBody()?.string())["error"].toString()
-                _state.value = state.value!!.copy(loginProcessing = false, loginErrorDialogText = error)
+                val error = JSONObject(t.response()?.errorBody()!!.string())["error"].toString()
+                _state.value = state.value.copy(loginProcessing = false, loginErrorDialogText = error)
             } catch (e: Exception) {
                 Log.e(OnboardingViewModel::class.java.simpleName, "Can't parse error: ${t.response()?.errorBody()?.string()}")
-                _state.value = state.value!!.copy(loginProcessing = false, loginErrorDialogText = "Error communicating with server. Server reported error code ${t.response()?.code()}. Please try again later")
+                _state.value = state.value.copy(loginProcessing = false, loginErrorDialogText = "Error communicating with server. Server reported error code ${t.response()?.code()}. Please try again later")
             }
         } else {
-            _state.value = state.value!!.copy(loginProcessing = false, loginErrorDialogText = "Create Account failed. Debug info: '${t.message}'")
+            _state.value = state.value.copy(loginProcessing = false, loginErrorDialogText = "Create Account failed. Debug info: '${t.message}'")
         }
     }
 

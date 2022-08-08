@@ -10,7 +10,6 @@ import androidx.compose.material.Text
 import androidx.compose.material.TextButton
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy.DisposeOnLifecycleDestroyed
 import androidx.core.os.bundleOf
@@ -27,6 +26,7 @@ import io.zenandroid.onlinego.ui.screens.main.MainActivity
 import io.zenandroid.onlinego.ui.screens.mygames.Action.GameSelected
 import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
 import io.zenandroid.onlinego.utils.WhatsNewUtils
+import io.zenandroid.onlinego.utils.rememberStateWithLifecycle
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 /**
@@ -44,7 +44,7 @@ class MyGamesFragment : Fragment() {
             )
             setContent {
                 OnlineGoTheme {
-                    val state by viewModel.state.observeAsState(MyGamesState(userId = 0L, headerMainText = "Hi"))
+                    val state by rememberStateWithLifecycle(viewModel.state)
 
                     MyGamesScreen(state, ::onAction)
 

@@ -8,15 +8,14 @@ import android.view.ViewGroup
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.material.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.platform.ComposeView
 import androidx.core.os.bundleOf
-import androidx.lifecycle.asLiveData
 import androidx.navigation.findNavController
 import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.ui.screens.tutorial.TUTORIAL_NAME
 import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
+import io.zenandroid.onlinego.utils.rememberStateWithLifecycle
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 
@@ -34,12 +33,10 @@ class LearnFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         return ComposeView(requireContext()).apply {
             setContent {
-                val state by viewModel.state.asLiveData().observeAsState()
+                val state by rememberStateWithLifecycle(viewModel.state)
 
-                state?.let {
-                    OnlineGoTheme {
-                        Screen(it, ::onAction)
-                    }
+                OnlineGoTheme {
+                    Screen(state, ::onAction)
                 }
             }
         }

@@ -128,8 +128,6 @@ dependencies {
     implementation "androidx.emoji2:emoji2-views:$emoji2_version"
     implementation "androidx.emoji2:emoji2-views-helper:$emoji2_version"
     implementation 'androidx.legacy:legacy-preference-v14:1.0.0'
-    implementation "androidx.lifecycle:lifecycle-livedata-ktx:2.5.0"
-    implementation "androidx.compose.runtime:runtime-livedata:$compose_version"
     implementation "androidx.compose.material:material-icons-extended:$compose_version"
     implementation "androidx.activity:activity-compose:1.5.0"
     implementation "androidx.compose.ui:ui-util:$compose_version"

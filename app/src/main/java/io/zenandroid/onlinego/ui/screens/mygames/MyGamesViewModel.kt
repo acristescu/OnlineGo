@@ -1,8 +1,6 @@
 package io.zenandroid.onlinego.ui.screens.mygames
 
 import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.crashlytics.FirebaseCrashlytics
@@ -22,6 +20,8 @@ import io.zenandroid.onlinego.gamelogic.RulesManager
 import io.zenandroid.onlinego.utils.WhatsNewUtils
 import io.zenandroid.onlinego.utils.addToDisposable
 import io.zenandroid.onlinego.utils.timeLeftForCurrentPlayer
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import org.json.JSONObject
 import javax.annotation.concurrent.Immutable
 
@@ -38,13 +38,13 @@ class MyGamesViewModel(
     private val restService: OGSRestService,
     private val socketService: OGSWebSocketService,
     ) : ViewModel() {
-    private val _state = MutableLiveData(MyGamesState(
+    private val _state = MutableStateFlow(MyGamesState(
         userId = userSessionRepository.userId ?: 0,
         whatsNewDialogVisible = WhatsNewUtils.shouldDisplayDialog,
         headerMainText = "Hi ${userSessionRepository.uiConfig?.user?.username},",
         userImageURL = userSessionRepository.uiConfig?.user?.icon
     ))
-    val state: LiveData<MyGamesState> = _state
+    val state: StateFlow<MyGamesState> = _state
     private val subscriptions = CompositeDisposable()
     private var loadOlderGamesSubscription: Disposable? = null
 
@@ -119,14 +119,14 @@ class MyGamesViewModel(
             }
         }
 
-        _state.value = _state.value?.copy(
+        _state.value = _state.value.copy(
             myTurnGames = myTurnList.sortedBy { timeLeftForCurrentPlayer(it) },
             opponentTurnGames = opponentTurnList,
             headerSubText = determineText(myTurnList, opponentTurnList)
         )
     }
 
-    private fun determineText(myTurnGames: List<Game>, opponentTurnGames: List<Game>): String? {
+    private fun determineText(myTurnGames: List<Game>, opponentTurnGames: List<Game>): String {
         if(myTurnGames.isNotEmpty()) {
             return "It's your turn in ${myTurnGames.size} games."
         }
@@ -137,20 +137,20 @@ class MyGamesViewModel(
     }
 
     private fun setRecentGames(games: List<Game>) {
-        _state.value = _state.value?.copy(
+        _state.value = _state.value.copy(
             recentGames = games
         )
     }
 
     private fun setChallenges(challenges: List<Challenge>) {
-        _state.value = _state.value?.copy(
+        _state.value = _state.value.copy(
             challenges = challenges
         )
     }
 
 
     private fun setAutomatches(automatches: List<OGSAutomatch>) {
-        _state.value = _state.value?.copy(
+        _state.value = _state.value.copy(
             automatches = automatches
         )
     }
@@ -190,14 +190,14 @@ class MyGamesViewModel(
             notificationsRepository.acknowledgeNotification(notification)
             val message = if(notification.has("message") && notification["message"].toString() != "null") "Message is:\n\n${notification["message"]}" else ""
             if (notification["name"].toString() == "Bot Match") {
-                _state.value = _state.value?.copy(
+                _state.value = _state.value.copy(
                     alertDialogTitle = "Bot rejected challenge",
                     alertDialogText = "This might happen because the opponent's maintainer has set some conditions on the challenge parameters. $message"
                 )
                 analytics.logEvent("bot_refused_challenge", null)
                 FirebaseCrashlytics.getInstance().log("Bot refused challenge. $message")
             } else {
-                _state.value = _state.value?.copy(
+                _state.value = _state.value.copy(
                     alertDialogTitle = "Opponent rejected challenge",
                     alertDialogText = "You may try again or otherwise contact the opponent to clarify his/her reasons for the rejection. $message"
                 )
@@ -210,7 +210,7 @@ class MyGamesViewModel(
             if(t.code() in arrayOf(401, 403)) {
                 FirebaseCrashlytics.getInstance().setCustomKey("AUTO_LOGOUT", System.currentTimeMillis())
                 userSessionRepository.logOut()
-                _state.value = _state.value?.copy(
+                _state.value = _state.value.copy(
                     userIsLoggedOut = true
                 )
             } else {
@@ -218,7 +218,7 @@ class MyGamesViewModel(
             }
         } else {
             if(t is com.squareup.moshi.JsonDataException) {
-                _state.value = _state.value?.copy(
+                _state.value = _state.value.copy(
                     alertDialogTitle = "OGS Error",
                     alertDialogText = "An error occurred white talking to the OGS Server. This usually means the website devs have changed something in the API. Please report this error as the app will probably not work until we adapt to this change."
                 )
@@ -250,13 +250,13 @@ class MyGamesViewModel(
     }
 
     private fun onGameNavigationConsumed() {
-        _state.value = _state.value?.copy(
+        _state.value = _state.value.copy(
             gameNavigationPending = null
         )
     }
 
     private fun onDismissAlertDialog() {
-        _state.value = _state.value?.copy(
+        _state.value = _state.value.copy(
             alertDialogText = null,
             alertDialogTitle = null
         )
@@ -264,13 +264,13 @@ class MyGamesViewModel(
 
     private fun onDismissWhatsNewDialog() {
         WhatsNewUtils.textShown()
-        _state.value = _state.value?.copy(
+        _state.value = _state.value.copy(
             whatsNewDialogVisible = false
         )
     }
 
     private fun onGameStart(game: Game) {
-        _state.value = _state.value?.copy(
+        _state.value = _state.value.copy(
             gameNavigationPending = game
         )
     }
@@ -282,7 +282,7 @@ class MyGamesViewModel(
                 .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
                 .distinctUntilChanged()
                 .doOnNext {
-                    _state.value = _state.value?.copy(
+                    _state.value = _state.value.copy(
                         loadingHistoricGames = it.loading,
                         loadedAllHistoricGames = it.loadedLastPage
                     )
@@ -297,9 +297,9 @@ class MyGamesViewModel(
         games.onEach { it.position = RulesManager.replay(it, computeTerritory = false) }
 
     private fun onHistoricGames(games: List<Game>) {
-        val existingGames = _state.value?.historicGames?: emptyList()
+        val existingGames = _state.value.historicGames
         val newGames = games.filter { candidate -> existingGames.find { candidate.id == it.id } == null }
-        _state.value = _state.value?.copy(
+        _state.value = _state.value.copy(
             historicGames = existingGames + newGames
         )
     }

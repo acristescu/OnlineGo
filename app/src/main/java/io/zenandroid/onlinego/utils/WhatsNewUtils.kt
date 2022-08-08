@@ -26,7 +26,7 @@ private val annotatedCurrentText = AnnotatedString.Builder().run {
     pop()
 
     pushStyle(SpanStyle(fontWeight = FontWeight.Normal))
-    append("· Bugfixes\n\n")
+    append("· Fixed a bug in which looking for a game (aka AutoMatch) would not show up on the main screen.\n\n")
     pop()
 
     pushStyle(SpanStyle(fontSize = 18.sp))

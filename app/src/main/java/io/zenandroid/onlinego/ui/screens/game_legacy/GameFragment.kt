@@ -47,6 +47,7 @@ const val GAME_HEIGHT = "GAME_HEIGHT"
 /**
  * Created by alex on 10/11/2017.
  */
+@Deprecated("")
 class GameFragment : Fragment(), GameContract.View {
     private lateinit var presenter: GameContract.Presenter
     private val subscriptions = CompositeDisposable()

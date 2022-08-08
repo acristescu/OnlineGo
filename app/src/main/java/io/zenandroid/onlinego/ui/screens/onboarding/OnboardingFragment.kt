@@ -15,11 +15,9 @@ import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
-import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.Scopes
@@ -38,6 +36,7 @@ import io.zenandroid.onlinego.ui.screens.onboarding.OnboardingAction.SocialPlatf
 import io.zenandroid.onlinego.ui.screens.onboarding.Page.LoginMethod
 import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
 import io.zenandroid.onlinego.utils.addToDisposable
+import io.zenandroid.onlinego.utils.rememberStateWithLifecycle
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.koin.android.ext.android.inject
@@ -65,6 +64,7 @@ class OnboardingFragment : Fragment() {
         }
     }
 
+    @Suppress("DEPRECATION")
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -75,22 +75,20 @@ class OnboardingFragment : Fragment() {
 
         return ComposeView(requireContext()).apply {
             setContent {
-                val state by viewModel.state.observeAsState()
+                val state by rememberStateWithLifecycle(viewModel.state)
 
-                state?.let {
-                    when {
-                        state?.finish == true -> {
-                            requireActivity().finish()
-                        }
-                        state?.loginSuccessful == true -> {
-                            findNavController().navigate(R.id.onboarding_to_mygames)
-                        }
-                        state?.loginMethod == LoginMethod.FACEBOOK -> doFacebookFlow()
-                        state?.loginMethod == LoginMethod.GOOGLE -> doGoogleFlow()
-                        else -> {
-                            OnlineGoTheme {
-                                Screen(it, viewModel::onAction)
-                            }
+                when {
+                    state.finish -> {
+                        requireActivity().finish()
+                    }
+                    state.loginSuccessful -> {
+                        findNavController().navigate(R.id.onboarding_to_mygames)
+                    }
+                    state.loginMethod == LoginMethod.FACEBOOK -> doFacebookFlow()
+                    state.loginMethod == LoginMethod.GOOGLE -> doGoogleFlow()
+                    else -> {
+                        OnlineGoTheme {
+                            Screen(state, viewModel::onAction)
                         }
                     }
                 }
