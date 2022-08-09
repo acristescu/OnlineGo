@@ -56,8 +56,7 @@ fun Screen(state: OnboardingState, listener: (OnboardingAction) -> Unit) {
                 is Page.LoginPage -> when (state.loginMethod!!) {
                     Page.LoginMethod.GOOGLE -> {
                     }
-                    Page.LoginMethod.FACEBOOK -> {
-                    }
+//                    Page.LoginMethod.FACEBOOK -> {}
                     Page.LoginMethod.PASSWORD -> LoginPage(
                         state = state,
                         listener = listener

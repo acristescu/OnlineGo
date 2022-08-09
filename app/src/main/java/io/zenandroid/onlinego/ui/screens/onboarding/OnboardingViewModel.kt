@@ -184,13 +184,13 @@ private val pages = arrayOf(
     ),
     MultipleChoicePage(
         "What log in method do you want to use?",
-        listOf("Google Sign-in", "Facebook Sign-in", "Username and password")
+        listOf("Google Sign-in", /*"Facebook Sign-in", */"Username and password")
     ),
     Page.LoginPage
 )
 
 sealed class Page {
-    enum class LoginMethod { GOOGLE, FACEBOOK, PASSWORD }
+    enum class LoginMethod { GOOGLE,  /*FACEBOOK, */PASSWORD }
 
     data class OnboardingPage(
         val art: Int,

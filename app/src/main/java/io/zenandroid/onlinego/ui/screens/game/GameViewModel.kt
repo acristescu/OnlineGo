@@ -137,11 +137,7 @@ class GameViewModel(
                     && game?.undoRequested != null
             val shouldShowUndoRequestedDialog = opponentRequestedUndo && dismissedUndoDialogAtMove != gameState?.moves?.size
 
-            val shownPosition = when {
-                estimateMode && estimatePosition != null -> estimatePosition!!
-                (analyzeMode || gameFinished == true) && analysisPosition != null -> analysisPosition!!
-                else -> currentGamePosition.value
-            }
+            val shownPosition = getShownPosition()
 
             val isMyTurn =
                 game?.phase == Phase.PLAY &&
@@ -228,6 +224,12 @@ class GameViewModel(
                 requestUndoDialogShowing = userUndoDialogShowing,
             )
         }
+    }
+
+    private fun getShownPosition() = when {
+        estimateMode && estimatePosition != null -> estimatePosition!!
+        (analyzeMode || gameFinished == true) && analysisPosition != null -> analysisPosition!!
+        else -> currentGamePosition.value
     }
 
     private fun calculateExtraStatus(game: Game?, playerToMove: Boolean, playerAcceptedStones: String?, playerLost: Boolean?, playerStartTimer: String?): String? =
@@ -501,7 +503,8 @@ class GameViewModel(
     }
 
     private fun onCellTracked(cell: Cell) {
-        if(gameState?.phase == Phase.PLAY && !currentGamePosition.value.blackStones.contains(cell) && !currentGamePosition.value.whiteStones.contains(cell)) {
+        val shownPosition = getShownPosition()
+        if(gameState?.phase == Phase.PLAY && !shownPosition.blackStones.contains(cell) && !shownPosition.whiteStones.contains(cell)) {
             candidateMove = cell
         }
     }
@@ -532,14 +535,17 @@ class GameViewModel(
                     analysisPosition?.let { pos ->
                         val newPosition = RulesManager.makeMove(pos, pos.nextToMove, cell)
                         if (newPosition != null) {
-                            currentVariation = currentVariation?.let { variation ->
-                                when {
-                                    analysisShownMoveNumber == variation.rootMoveNo + variation.moves.size -> variation.copy(moves = variation.moves + cell)
-                                    analysisShownMoveNumber < variation.rootMoveNo -> Variation(analysisShownMoveNumber, listOf(cell))
-                                    variation.moves[analysisShownMoveNumber - variation.rootMoveNo] == cell -> variation
-                                    else -> variation.copy(moves = variation.moves.take(analysisShownMoveNumber - variation.rootMoveNo) + cell)
-                                }
-                            } ?: Variation(analysisShownMoveNumber, listOf(cell))
+                            val variation = currentVariation
+                            currentVariation = when {
+                                variation == null && analysisShownMoveNumber <= (gameState?.moves?.size ?: 0) && gameState?.moves?.getOrNull(analysisShownMoveNumber) == cell -> null
+                                variation == null -> Variation(analysisShownMoveNumber, listOf(cell))
+                                analysisShownMoveNumber == variation.rootMoveNo + variation.moves.size -> variation.copy(moves = variation.moves + cell)
+                                analysisShownMoveNumber < variation.rootMoveNo && gameState?.moves?.get(analysisShownMoveNumber) == cell -> variation
+                                analysisShownMoveNumber == variation.rootMoveNo && gameState?.moves?.get(analysisShownMoveNumber) == cell -> null
+                                analysisShownMoveNumber < variation.rootMoveNo && gameState?.moves?.get(analysisShownMoveNumber) != cell -> Variation(analysisShownMoveNumber, listOf(cell))
+                                variation.moves[analysisShownMoveNumber - variation.rootMoveNo] == cell -> variation
+                                else -> variation.copy(moves = variation.moves.take(analysisShownMoveNumber - variation.rootMoveNo) + cell)
+                            }
                             analysisShownMoveNumber++
                             candidateMove = null
                         }

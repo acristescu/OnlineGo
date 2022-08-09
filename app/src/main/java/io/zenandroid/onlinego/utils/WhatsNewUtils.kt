@@ -27,6 +27,9 @@ private val annotatedCurrentText = AnnotatedString.Builder().run {
 
     pushStyle(SpanStyle(fontWeight = FontWeight.Normal))
     append("· Fixed a bug in which looking for a game (aka AutoMatch) would not show up on the main screen.\n\n")
+    append("· Fixed a bug in which the app behaved weirdly after logging out. Logging out now forcefully restarts the app.\n\n")
+    append("· Disabled Facebook log in as it stopped working for Android 12 and up.\n\n")
+    append("· Fixed some issues with Analysis mode.\n\n")
     pop()
 
     pushStyle(SpanStyle(fontSize = 18.sp))

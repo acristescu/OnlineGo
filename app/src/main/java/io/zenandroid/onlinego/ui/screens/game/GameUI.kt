@@ -602,7 +602,7 @@ private fun GameOverDialog(
                 onClick = { onUserAction(GameOverDialogAnalyze) },
             ) {
                 Text(
-                    text = "ANALYZE",
+                    text = "VIEW BOARD",
                     textAlign = TextAlign.Center,
                     modifier = Modifier.fillMaxWidth()
                 )

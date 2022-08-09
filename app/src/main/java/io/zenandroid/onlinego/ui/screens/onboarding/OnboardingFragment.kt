@@ -84,7 +84,7 @@ class OnboardingFragment : Fragment() {
                     state.loginSuccessful -> {
                         findNavController().navigate(R.id.onboarding_to_mygames)
                     }
-                    state.loginMethod == LoginMethod.FACEBOOK -> doFacebookFlow()
+//                    state.loginMethod == LoginMethod.FACEBOOK -> doFacebookFlow()
                     state.loginMethod == LoginMethod.GOOGLE -> doGoogleFlow()
                     else -> {
                         OnlineGoTheme {
@@ -105,6 +105,13 @@ class OnboardingFragment : Fragment() {
         })
     }
 
+    /**
+     * This stopped working in Android 12 because:
+     * Starting in Android 12 (API level 31), a generic web intent resolves to an activity in your
+     * app only if your app is approved for the specific domain contained in that web intent. If
+     * your app isn't approved for the domain, the web intent resolves to the user's default
+     * browser app instead.
+     */
     private fun doFacebookFlow() {
         FirebaseCrashlytics.getInstance().setCustomKey("LOGIN_METHOD", "FACEBOOK")
         val url = "https://online-go.com/login/facebook/"
