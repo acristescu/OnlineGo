@@ -1,5 +1,8 @@
 package io.zenandroid.onlinego.data.repositories
 
+import android.app.ActivityManager
+import android.content.Context.ACTIVITY_SERVICE
+import android.util.Log
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.franmontiel.persistentcookiejar.PersistentCookieJar
 import com.franmontiel.persistentcookiejar.cache.SetCookieCache
@@ -53,10 +56,7 @@ class UserSessionRepository {
 
     fun logOut() {
         uiConfig = null
-        PersistenceManager.deleteUIConfig()
-        cookieJar.clear()
-        socketService.disconnect()
-        SynchronizeGamesWork.unschedule()
+        (OnlineGoApplication.instance.getSystemService(ACTIVITY_SERVICE) as ActivityManager).clearApplicationUserData()
     }
 
 }

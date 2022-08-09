@@ -209,6 +209,8 @@ class MyGamesViewModel(
         if(t is retrofit2.HttpException) {
             if(t.code() in arrayOf(401, 403)) {
                 FirebaseCrashlytics.getInstance().setCustomKey("AUTO_LOGOUT", System.currentTimeMillis())
+                FirebaseCrashlytics.getInstance().recordException(Exception(t.response()?.errorBody()?.string(), t))
+                FirebaseCrashlytics.getInstance().sendUnsentReports()
                 userSessionRepository.logOut()
                 _state.value = _state.value.copy(
                     userIsLoggedOut = true

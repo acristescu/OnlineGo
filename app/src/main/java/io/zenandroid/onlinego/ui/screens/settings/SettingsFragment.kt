@@ -25,6 +25,7 @@ import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.transition.DrawableCrossFadeFactory
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.zenandroid.onlinego.BuildConfig
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.repositories.SettingsRepository
@@ -74,6 +75,7 @@ class SettingsFragment : Fragment() {
                         .setCancelable(true)
                         .setPositiveButton("Log out") { _, _ ->
                             context?.let { FirebaseAnalytics.getInstance(it).logEvent("logout_clicked", null) }
+                            FirebaseCrashlytics.getInstance().sendUnsentReports()
                             userSessionRepository.logOut()
                             (activity as? MainActivity)?.showLogin()
                         }
