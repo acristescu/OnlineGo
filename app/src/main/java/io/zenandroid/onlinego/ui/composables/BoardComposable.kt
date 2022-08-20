@@ -16,11 +16,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.Paint
+import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.drawscope.*
-import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
@@ -35,6 +32,7 @@ import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.Position
 import io.zenandroid.onlinego.data.model.StoneType
 import io.zenandroid.onlinego.data.model.ogs.PlayCategory
+import io.zenandroid.onlinego.gamelogic.RulesManager.isPass
 import kotlin.math.ceil
 import kotlin.math.roundToInt
 
@@ -52,6 +50,7 @@ fun Board(
     drawShadow: Boolean = true,
     drawTerritory: Boolean = false,
     drawLastMove: Boolean = true,
+    lastMoveMarker: String = "#",
     fadeInLastMove: Boolean = true,
     fadeOutRemovedStones: Boolean = true,
     removedStones: List<Pair<Cell, StoneType>>? = null,
@@ -146,7 +145,7 @@ fun Board(
                         drawStone(p, StoneType.BLACK, blackStone, alpha, drawShadow, measurements)
                     }
 
-                    drawDecorations(it, drawLastMove, drawMarks, measurements)
+                    drawDecorations(it, drawLastMove, drawMarks, lastMoveMarker, measurements)
 
                     if(drawTerritory) {
                         drawTerritory(it, measurements)
@@ -262,14 +261,17 @@ private fun DrawScope.drawTerritory(position: Position, measurements: Measuremen
     }
 }
 
-private fun DrawScope.drawDecorations(position: Position, drawLastMove: Boolean, drawMarks: Boolean, measurements: Measurements) {
+private fun DrawScope.drawDecorations(position: Position, drawLastMove: Boolean, drawMarks: Boolean, lastMoveMarker: String, measurements: Measurements) {
     if(drawLastMove) {
         position.lastMove?.let {
-            if(it.x != -1) {
-                val center = getCellCenter(it.x, it.y, measurements)
+            if(!it.isPass()) {
                 val color = if (position.lastPlayerToMove == StoneType.WHITE) Color.Black else Color.White
-
-                drawCircle(color, measurements.cellSize / 4f, Offset(center.x, center.y), style = Stroke(measurements.decorationsLineWidth))
+                if(lastMoveMarker == "#") {
+                    drawDefaultLastMoveMarker(it, measurements, color)
+                } else {
+                    val center = getCellCenter(it.x, it.y, measurements)
+                    drawTextCentred(lastMoveMarker, center.x, center.y, textSize = measurements.textSize, color = color.toArgb())
+                }
             }
         }
     }
@@ -285,12 +287,8 @@ private fun DrawScope.drawDecorations(position: Position, drawLastMove: Boolean,
         position.customMarks.forEach {
             when(it.text) {
                 "#" -> { // last move mark
-                    val type = position.getStoneAt(it.placement)
-                    val center = getCellCenter(it.placement.x, it.placement.y, measurements)
-
-                    val color = if (type == StoneType.WHITE) Color.Black else Color.White
-
-                    drawCircle(color, measurements.cellSize / 4f, Offset(center.x, center.y), style = Stroke(measurements.decorationsLineWidth))
+                    val color = if (position.getStoneAt(it.placement) == StoneType.WHITE) Color.Black else Color.White
+                    drawDefaultLastMoveMarker(it.placement, measurements, color)
                 }
                 else -> {
                     val center = getCellCenter(it.placement.x, it.placement.y, measurements)
@@ -314,6 +312,11 @@ private fun DrawScope.drawDecorations(position: Position, drawLastMove: Boolean,
             }
         }
     }
+}
+
+private fun DrawScope.drawDefaultLastMoveMarker(cell: Cell, measurements: Measurements, color: Color) {
+    val center = getCellCenter(cell.x, cell.y, measurements)
+    drawCircle(color, measurements.cellSize / 4f, center, style = Stroke(measurements.decorationsLineWidth))
 }
 
 private fun DrawScope.drawStone(p: Cell, type: StoneType?, stonePainter: Painter, alpha: Float = 1f, drawShadow: Boolean, measurements: Measurements) {

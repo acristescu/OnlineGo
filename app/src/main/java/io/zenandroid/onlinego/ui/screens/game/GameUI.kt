@@ -26,8 +26,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight.Companion.Bold
@@ -36,15 +34,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
-import coil.compose.rememberAsyncImagePainter
-import coil.compose.rememberImagePainter
-import coil.request.ImageRequest
-import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.Position
 import io.zenandroid.onlinego.data.model.StoneType
-import io.zenandroid.onlinego.data.model.local.Player
-import io.zenandroid.onlinego.data.model.local.UserStats
 import io.zenandroid.onlinego.ui.composables.Board
 import io.zenandroid.onlinego.ui.composables.DotsFlashing
 import io.zenandroid.onlinego.ui.screens.game.Button.*
@@ -326,6 +318,7 @@ private fun Board(state: GameState, onUserAction: ((UserAction) -> Unit), modifi
         drawCoordinates = state.showCoordinates,
         drawTerritory = state.drawTerritory,
         drawLastMove = state.showLastMove,
+        lastMoveMarker = state.lastMoveMarker,
         fadeOutRemovedStones = state.fadeOutRemovedStones,
         candidateMove = state.candidateMove,
         candidateMoveType = state.position?.nextToMove,
@@ -864,6 +857,7 @@ fun Preview() {
                 blackFaded = false,
                 whiteStartTimer = null,
                 blackStartTimer = null,
+                timeLeft = 1000,
             ),
         ), {}, {},
         )
@@ -906,7 +900,8 @@ fun Preview1() {
                 blackFaded = false,
                 whiteStartTimer = null,
                 blackStartTimer = null,
-            ),
+                timeLeft = 1000,
+                ),
         ), {}, {},
         )
     }
@@ -947,7 +942,8 @@ fun Preview2() {
                 blackFaded = false,
                 whiteStartTimer = null,
                 blackStartTimer = null,
-            ),
+                timeLeft = 1000,
+                ),
             bottomText = "Submitting move",
         ),
             {}, {},
@@ -989,7 +985,8 @@ fun Preview3() {
                 blackFaded = false,
                 whiteStartTimer = null,
                 blackStartTimer = null,
-            ),
+                timeLeft = 1000,
+                ),
             bottomText = "Submitting move",
             retryMoveDialogShowing = true,
         ),
@@ -1034,7 +1031,8 @@ fun Preview4() {
                 blackFaded = false,
                 whiteStartTimer = null,
                 blackStartTimer = null,
-            ),
+                timeLeft = 1000,
+                ),
             showPlayers = false,
             showAnalysisPanel = true,
         ),
@@ -1079,7 +1077,8 @@ fun Preview5() {
                 blackFaded = false,
                 whiteStartTimer = null,
                 blackStartTimer = null,
-            ),
+                timeLeft = 1000,
+                ),
             showPlayers = false,
             showAnalysisPanel = true,
             gameOverDialogShowing = GameOverDialogDetails(

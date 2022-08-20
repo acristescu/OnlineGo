@@ -29,6 +29,7 @@ import io.zenandroid.onlinego.usecases.GetUserStatsUseCase
 import io.zenandroid.onlinego.utils.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
+import kotlin.math.roundToInt
 
 private const val MAX_ATTEMPTS = 3
 private const val DELAY_BETWEEN_ATTEMPTS = 5000L
@@ -55,7 +56,7 @@ class GameViewModel(
     private var candidateMove by mutableStateOf<Cell?>(null)
     private lateinit var gameConnection: GameConnection
     private var gameState by mutableStateOf<Game?>(null)
-    private var timer by mutableStateOf(TimerDetails("", "", "", "", 0, 0, false, false, null, null))
+    private var timer by mutableStateOf(TimerDetails("", "", "", "", 0, 0, false, false, null, null, 1000000))
     private var pendingMove by mutableStateOf<PendingMove?>(null)
     private var retrySendMoveDialogShowing by mutableStateOf(false)
     private var koMoveDialogShowing by mutableStateOf(false)
@@ -190,6 +191,7 @@ class GameViewModel(
             val whiteExtraStatus = calculateExtraStatus(game, whiteToMove, game?.whitePlayer?.acceptedStones, game?.whiteLost, timer.whiteStartTimer)
             val blackExtraStatus = calculateExtraStatus(game, !whiteToMove, game?.blackPlayer?.acceptedStones, game?.blackLost, timer.blackStartTimer)
             val boardInteractive = (isMyTurn && pendingMove == null && !analyzeMode && !estimateMode) || game?.phase == Phase.STONE_REMOVAL || (analyzeMode && !estimateMode && !isAnalysisDisabled())
+            val nextMoveMarker = if(timer.timeLeft in 0 until 10_000) (timer.timeLeft / 1000.0).roundToInt().toString() else "#"
 
             GameState(
                 position = shownPosition,
@@ -208,6 +210,7 @@ class GameViewModel(
                 whiteScore = whiteScore,
                 blackScore = blackScore,
                 timerDetails = timer,
+                lastMoveMarker = nextMoveMarker,
                 bottomText = bottomText,
                 retryMoveDialogShowing = retrySendMoveDialogShowing,
                 koMoveDialogShowing = koMoveDialogShowing,
@@ -438,6 +441,7 @@ class GameViewModel(
                                         blackFaded = true,
                                         whiteStartTimer = formatMillis(timeLeft!!),
                                         blackStartTimer = null,
+                                        timeLeft = timeLeft!!,
                                     )
                                 else
                                     TimerDetails(
@@ -451,11 +455,13 @@ class GameViewModel(
                                         blackFaded = true,
                                         whiteStartTimer = null,
                                         blackStartTimer = formatMillis(timeLeft!!),
-                                    )
+                                        timeLeft = timeLeft!!,
+                                        )
                         }
                     } else {
                         if ((game.phase == Phase.PLAY || game.phase == Phase.STONE_REMOVAL)) {
 
+                            timeLeft = if (whiteToMove) whiteTimer.timeLeft else blackTimer.timeLeft
                             timer =
                                 TimerDetails(
                                     whiteFirstLine = whiteTimer.firstLine ?: "",
@@ -468,9 +474,8 @@ class GameViewModel(
                                     blackFaded = whiteToMove,
                                     whiteStartTimer = null,
                                     blackStartTimer = null,
-                                )
-
-                            timeLeft = if (whiteToMove) whiteTimer.timeLeft else blackTimer.timeLeft
+                                    timeLeft = timeLeft!!,
+                                    )
                         }
                     }
                     if(game.pauseControl.isPaused()) {
@@ -706,6 +711,7 @@ data class GameState(
     val drawTerritory: Boolean,
     val fadeOutRemovedStones: Boolean,
     val showLastMove: Boolean,
+    val lastMoveMarker: String,
     val buttons: List<Button>,
     val title: String,
     val whiteScore: Score,
@@ -773,6 +779,7 @@ data class GameState(
             opponentRequestedUndoDialogShowing = false,
             requestUndoDialogShowing = true,
             playerStats = null,
+            lastMoveMarker = "#",
         )
     }
 }
@@ -864,6 +871,7 @@ data class TimerDetails(
     val blackFaded: Boolean,
     val whiteStartTimer: String?,
     val blackStartTimer: String?,
+    val timeLeft: Long,
 )
 
 data class PendingMove(
