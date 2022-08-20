@@ -25,6 +25,7 @@ import io.zenandroid.onlinego.gamelogic.RulesManager.isPass
 import io.zenandroid.onlinego.ui.screens.game.Button.*
 import io.zenandroid.onlinego.ui.screens.game.PendingNavigation.*
 import io.zenandroid.onlinego.ui.screens.game.UserAction.*
+import io.zenandroid.onlinego.usecases.GetUserStatsUseCase
 import io.zenandroid.onlinego.utils.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
@@ -39,6 +40,7 @@ class GameViewModel(
     private val socketService: OGSWebSocketService,
     private val chatRepository: ChatRepository,
     private val settingsRepository: SettingsRepository,
+    private val getUserStatsUseCase: GetUserStatsUseCase,
 ): ViewModel() {
 
     // Need to add a MonotonicFrameClock
@@ -73,6 +75,7 @@ class GameViewModel(
     private var gameInfoDialogShowing by mutableStateOf(false)
     private var playerDetailsDialogShowing by mutableStateOf<Player?>(null)
     private var dismissedUndoDialogAtMove by mutableStateOf<Int?>(null)
+    private var playerStats by mutableStateOf<UserStats?>(null)
 
     lateinit var state: StateFlow<GameState>
     var pendingNavigation by mutableStateOf<PendingNavigation?>(null)
@@ -125,6 +128,11 @@ class GameViewModel(
                             estimatePosition = RulesManager.determineTerritory(basePosition, it.scoreStones == true)
                         }
                     }
+                }
+            }
+            if(playerDetailsDialogShowing != null && playerStats == null) {
+                LaunchedEffect(playerDetailsDialogShowing) {
+                    playerStats = playerDetailsDialogShowing?.id?.let { getUserStatsUseCase.getPlayerStatsAsync(it) }
                 }
             }
 
@@ -222,6 +230,7 @@ class GameViewModel(
                 opponentRequestedUndo = opponentRequestedUndo,
                 opponentRequestedUndoDialogShowing = shouldShowUndoRequestedDialog,
                 requestUndoDialogShowing = userUndoDialogShowing,
+                playerStats = playerStats,
             )
         }
     }
@@ -540,9 +549,9 @@ class GameViewModel(
                                 variation == null && analysisShownMoveNumber <= (gameState?.moves?.size ?: 0) && gameState?.moves?.getOrNull(analysisShownMoveNumber) == cell -> null
                                 variation == null -> Variation(analysisShownMoveNumber, listOf(cell))
                                 analysisShownMoveNumber == variation.rootMoveNo + variation.moves.size -> variation.copy(moves = variation.moves + cell)
-                                analysisShownMoveNumber < variation.rootMoveNo && gameState?.moves?.get(analysisShownMoveNumber) == cell -> variation
-                                analysisShownMoveNumber == variation.rootMoveNo && gameState?.moves?.get(analysisShownMoveNumber) == cell -> null
-                                analysisShownMoveNumber < variation.rootMoveNo && gameState?.moves?.get(analysisShownMoveNumber) != cell -> Variation(analysisShownMoveNumber, listOf(cell))
+                                analysisShownMoveNumber < variation.rootMoveNo && gameState?.moves?.getOrNull(analysisShownMoveNumber) == cell -> variation
+                                analysisShownMoveNumber == variation.rootMoveNo && gameState?.moves?.getOrNull(analysisShownMoveNumber) == cell -> null
+                                analysisShownMoveNumber < variation.rootMoveNo && gameState?.moves?.getOrNull(analysisShownMoveNumber) != cell -> Variation(analysisShownMoveNumber, listOf(cell))
                                 variation.moves[analysisShownMoveNumber - variation.rootMoveNo] == cell -> variation
                                 else -> variation.copy(moves = variation.moves.take(analysisShownMoveNumber - variation.rootMoveNo) + cell)
                             }
@@ -723,6 +732,7 @@ data class GameState(
     val opponentRequestedUndo: Boolean,
     val opponentRequestedUndoDialogShowing: Boolean,
     val requestUndoDialogShowing: Boolean,
+    val playerStats: UserStats?,
 ) {
     companion object {
         val DEFAULT = GameState(
@@ -762,6 +772,7 @@ data class GameState(
             opponentRequestedUndo = false,
             opponentRequestedUndoDialogShowing = false,
             requestUndoDialogShowing = true,
+            playerStats = null,
         )
     }
 }

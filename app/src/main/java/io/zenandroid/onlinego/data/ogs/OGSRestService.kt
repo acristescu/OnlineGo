@@ -227,4 +227,8 @@ class OGSRestService(
     fun getPlayerStats(id: Long): Single<Glicko2History> {
         return restApi.getPlayerStats(id)
     }
+
+    suspend fun getPlayerStatsAsync(id: Long): Glicko2History {
+        return restApi.getPlayerStatsAsync(id)
+    }
 }

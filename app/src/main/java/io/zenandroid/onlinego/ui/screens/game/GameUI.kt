@@ -44,17 +44,16 @@ import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.Position
 import io.zenandroid.onlinego.data.model.StoneType
 import io.zenandroid.onlinego.data.model.local.Player
+import io.zenandroid.onlinego.data.model.local.UserStats
 import io.zenandroid.onlinego.ui.composables.Board
 import io.zenandroid.onlinego.ui.composables.DotsFlashing
 import io.zenandroid.onlinego.ui.screens.game.Button.*
 import io.zenandroid.onlinego.ui.screens.game.UserAction.*
 import io.zenandroid.onlinego.ui.screens.game.composables.ChatDialog
 import io.zenandroid.onlinego.ui.screens.game.composables.PlayerCard
+import io.zenandroid.onlinego.ui.screens.game.composables.PlayerDetailsDialog
 import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
-import io.zenandroid.onlinego.utils.egfToRank
-import io.zenandroid.onlinego.utils.formatRank
-import io.zenandroid.onlinego.utils.processGravatarURL
-import io.zenandroid.onlinego.utils.repeatingClickable
+import io.zenandroid.onlinego.utils.*
 
 @Composable
 fun GameScreen(state: GameState,
@@ -283,7 +282,7 @@ fun GameScreen(state: GameState,
         GameOverDialog(onUserAction, dialog)
     }
     state.playerDetailsDialogShowing?.let {
-        PlayerDetailsDialog( { onUserAction(PlayerDetailsDialogDismissed) }, it)
+        PlayerDetailsDialog( { onUserAction(PlayerDetailsDialogDismissed) }, it, state.playerStats)
     }
 }
 
@@ -345,81 +344,6 @@ fun ColumnScope.ExtraStatusField(text: String?, modifier: Modifier = Modifier) {
             color = Color.White,
             textAlign = TextAlign.Center,
             modifier = modifier
-        )
-    }
-}
-
-@Composable
-private fun PlayerDetailsDialog(
-    onDialogDismissed: () -> Unit,
-    player: Player
-) {
-    BackHandler { onDialogDismissed() }
-    Box(modifier = Modifier
-        .fillMaxSize()
-        .background(Color(0x88000000))
-        .clickable(
-            interactionSource = remember { MutableInteractionSource() },
-            indication = null
-        ) { onDialogDismissed() }
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
-                .padding(vertical = 80.dp)
-                .clickable(
-                    interactionSource = remember { MutableInteractionSource() },
-                    indication = null
-                ) { }
-                .fillMaxWidth(.9f)
-                .fillMaxHeight()
-                .align(Alignment.Center)
-                .shadow(4.dp)
-                .background(
-                    color = MaterialTheme.colors.surface,
-                    shape = RoundedCornerShape(10.dp)
-                )
-                .padding(16.dp)
-        ) {
-            Spacer(modifier = Modifier.height(100.dp))
-            Text(
-                text = player.username,
-                style = MaterialTheme.typography.h1,
-                color = MaterialTheme.colors.onSurface,
-                modifier = Modifier.padding(top = 14.dp, bottom = 8.dp)
-            )
-
-            val rank = formatRank(egfToRank(player.rating), true)
-            val rating = player.rating?.toInt()?.toString() ?: ""
-
-            Text(
-                text = "$rank ($rating)",
-                color = MaterialTheme.colors.onSurface,
-                style = MaterialTheme.typography.body2,
-            )
-        }
-        Image(
-            painter = rememberAsyncImagePainter(
-                model = ImageRequest.Builder(LocalContext.current)
-                    .data(processGravatarURL(player.icon, LocalDensity.current.run { 124.dp.roundToPx() }))
-                    .crossfade(true)
-                    .placeholder(R.drawable.ic_person_filled_with_background)
-                    .error(R.mipmap.placeholder)
-                    .build()
-            ),
-            contentDescription = "Avatar",
-            modifier = Modifier
-                .align(Alignment.TopCenter)
-                .padding(top = 29.dp)
-                .clip(RoundedCornerShape(10.dp))
-                .background(MaterialTheme.colors.surface)
-                .padding(4.dp)
-                .size(124.dp)
-                .clip(RoundedCornerShape(8.dp))
-                .clickable(
-                    interactionSource = remember { MutableInteractionSource() },
-                    indication = null
-                ) { }
         )
     }
 }

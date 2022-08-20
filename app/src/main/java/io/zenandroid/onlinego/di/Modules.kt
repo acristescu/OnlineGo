@@ -25,6 +25,7 @@ import io.zenandroid.onlinego.ui.screens.newchallenge.selectopponent.searchplaye
 import io.zenandroid.onlinego.ui.screens.newchallenge.selectopponent.searchplayer.SearchPlayerViewModel
 import io.zenandroid.onlinego.ui.screens.onboarding.OnboardingViewModel
 import io.zenandroid.onlinego.ui.screens.tutorial.TutorialViewModel
+import io.zenandroid.onlinego.usecases.GetUserStatsUseCase
 import io.zenandroid.onlinego.utils.CountingIdlingResource
 import io.zenandroid.onlinego.utils.CustomConverterFactory
 import io.zenandroid.onlinego.utils.NOOPIdlingResource
@@ -105,6 +106,12 @@ private val databaseModule = module {
     }
 }
 
+private val useCasesModule = module {
+    single {
+        GetUserStatsUseCase(get())
+    }
+}
+
 private val viewModelsModule = module {
     viewModel {
         SearchPlayerViewModel(
@@ -167,7 +174,7 @@ private val viewModelsModule = module {
     }
 
     viewModel {
-        GameViewModel(get(), get(), get(), get(), get(), get())
+        GameViewModel(get(), get(), get(), get(), get(), get(), get())
     }
 }
 
@@ -180,10 +187,11 @@ private val playStoreModule = module {
 }
 
 val allKoinModules = listOf(
-        repositoriesModule,
-        serverConnectionModule,
-        databaseModule,
-        viewModelsModule,
-        espressoModule,
-        playStoreModule
+    repositoriesModule,
+    serverConnectionModule,
+    databaseModule,
+    viewModelsModule,
+    useCasesModule,
+    espressoModule,
+    playStoreModule
 )

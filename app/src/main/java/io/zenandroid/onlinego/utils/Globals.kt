@@ -15,6 +15,13 @@ import java.util.*
 import java.util.regex.Pattern
 import kotlin.math.*
 
+val PERCENTILES = arrayOf(0, 477, 550, 600, 640, 671, 701, 725, 754, 774, 794, 815, 829, 847, 866, 881, 896, 912, 924, 940, 952, 969, 982, 994, 1007, 1016, 1029, 1043, 1056, 1066, 1080, 1089, 1098, 1113, 1122, 1137, 1147, 1157, 1167, 1182, 1192, 1203, 1213, 1224, 1234, 1245, 1256, 1267, 1278, 1289, 1300, 1311, 1323, 1334, 1346, 1357, 1369, 1381, 1387, 1399, 1411, 1424, 1436, 1448, 1461, 1474, 1486, 1499, 1512, 1525, 1539, 1552, 1565, 1579, 1593, 1607, 1621, 1635, 1649, 1670, 1685, 1699, 1714, 1729, 1752, 1767, 1790, 1805, 1829, 1845, 1869, 1893, 1918, 1943, 1968, 2003, 2038, 2091, 2146, 2241)
+
+fun getPercentile(rating: Double): Int {
+    PERCENTILES.forEachIndexed { index, i -> if(rating < i) return index-1 }
+    return 99
+}
+
 /**
  * Created by alex on 14/11/2017.
  */
@@ -51,7 +58,7 @@ fun egfToRank(rating: Double?) =
 fun formatRank(rank: Double?, longFormat: Boolean = false) =
         when(rank) {
             null -> "?"
-            in 30f .. 100f -> "${ceil(rank - 29).toInt()}${if(longFormat) " dan" else "d"}"
+            in 30f .. 100f -> "${floor(rank - 29).toInt()}${if(longFormat) " dan" else "d"}"
             in 0f .. 30f -> "${ceil(30 - rank).toInt()}${if (longFormat) " kyu" else "k"}"
             else -> ""
         }
