@@ -76,7 +76,8 @@ class GameViewModel(
     private var gameInfoDialogShowing by mutableStateOf(false)
     private var playerDetailsDialogShowing by mutableStateOf<Player?>(null)
     private var dismissedUndoDialogAtMove by mutableStateOf<Int?>(null)
-    private var playerStats by mutableStateOf<UserStats?>(null)
+    private var whitePlayerStats by mutableStateOf<UserStats?>(null)
+    private var blackPlayerStats by mutableStateOf<UserStats?>(null)
 
     lateinit var state: StateFlow<GameState>
     var pendingNavigation by mutableStateOf<PendingNavigation?>(null)
@@ -131,9 +132,20 @@ class GameViewModel(
                     }
                 }
             }
-            if(playerDetailsDialogShowing != null && playerStats == null) {
-                LaunchedEffect(playerDetailsDialogShowing) {
-                    playerStats = playerDetailsDialogShowing?.id?.let { getUserStatsUseCase.getPlayerStatsAsync(it) }
+            if(playerDetailsDialogShowing != null)  {
+                if((playerDetailsDialogShowing == game?.whitePlayer && whitePlayerStats == null)) {
+                    LaunchedEffect(playerDetailsDialogShowing) {
+                        whitePlayerStats = playerDetailsDialogShowing?.id?.let {
+                            getUserStatsUseCase.getPlayerStatsAsync(it)
+                        }
+                    }
+                }
+                if((playerDetailsDialogShowing == game?.blackPlayer && blackPlayerStats == null)) {
+                    LaunchedEffect(playerDetailsDialogShowing) {
+                        blackPlayerStats = playerDetailsDialogShowing?.id?.let {
+                            getUserStatsUseCase.getPlayerStatsAsync(it)
+                        }
+                    }
                 }
             }
 
@@ -233,7 +245,7 @@ class GameViewModel(
                 opponentRequestedUndo = opponentRequestedUndo,
                 opponentRequestedUndoDialogShowing = shouldShowUndoRequestedDialog,
                 requestUndoDialogShowing = userUndoDialogShowing,
-                playerStats = playerStats,
+                playerStats = if(playerDetailsDialogShowing == game?.whitePlayer) whitePlayerStats else blackPlayerStats,
             )
         }
     }
