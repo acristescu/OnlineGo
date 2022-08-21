@@ -346,12 +346,18 @@ object RulesManager {
 
         whiteScoringPositions?.let {
             for (i in it.indices step 2) {
-                whiteTerritory += Util.getCoordinatesFromSGF(it, i)
+                val cell = Util.getCoordinatesFromSGF(it, i)
+                if(!isMarkedDame(cell)) {
+                    whiteTerritory += cell
+                }
             }
         }
         blackScoringPositions?.let {
             for (i in it.indices step 2) {
-                blackTerritory += Util.getCoordinatesFromSGF(it, i)
+                val cell = Util.getCoordinatesFromSGF(it, i)
+                if(!isMarkedDame(cell)) {
+                    blackTerritory += cell
+                }
             }
         }
 

@@ -26,8 +26,9 @@ private val annotatedCurrentText = AnnotatedString.Builder().run {
     pop()
 
     pushStyle(SpanStyle(fontWeight = FontWeight.Normal))
-    append("· Fixed a bug in which looking for a game (aka AutoMatch) would not show up on the main screen.\n\n")
     append("· Added a countdown timer on top of the last move marker when playing live and you're in the last 10 seconds of your time (or byo-yomi period).\n\n")
+    append("· Fixed a bug where forced dame points (tapping inside one's territory) were not showing up correctly in the app.\n\n")
+    append("· Fixed a bug in which looking for a game (aka AutoMatch) would not show up on the main screen.\n\n")
     append("· Fixed a bug in which the app behaved weirdly after logging out. Logging out now forcefully restarts the app.\n\n")
     append("· Disabled Facebook log in as it stopped working for Android 12 and up.\n\n")
     append("· Added a couple more stats to the game's player details dialog. One of them is the percentile, which means the percentage of OGS users who are rated lower than you. More to come.\n\n")
