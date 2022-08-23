@@ -10,6 +10,7 @@ import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Observable
 import io.reactivex.Single
+import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.BehaviorSubject
@@ -82,7 +83,7 @@ class ActiveGamesRepository(
         gameDao
             .monitorActiveGamesWithNewMessagesCount(userSessionRepository.userId)
             .subscribeOn(Schedulers.io())
-            .observeOn(Schedulers.single())
+            .observeOn(AndroidSchedulers.mainThread())
             .subscribe(this::setActiveGames) { onError(it, "monitorActiveGamesWithNewMessagesCount") }
             .addToDisposable(subscriptions)
     }
