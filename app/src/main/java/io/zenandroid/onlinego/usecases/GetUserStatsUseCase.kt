@@ -31,8 +31,8 @@ class GetUserStatsUseCase (
         }
 
         val groupCount = 150
-        val newest = history.history.first().ended
-        val oldest = history.history.last().ended
+        val newest = history.history.firstOrNull()?.ended ?: 0
+        val oldest = history.history.firstOrNull()?.ended ?: 0
         val groupWidth = ( oldest - newest ) / groupCount.toFloat()
         val groups = history.history.groupBy { ((it.ended - oldest) / groupWidth).toInt() }
             .map { (_, group) ->

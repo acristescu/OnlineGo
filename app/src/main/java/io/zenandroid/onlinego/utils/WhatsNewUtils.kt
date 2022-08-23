@@ -26,6 +26,13 @@ private val annotatedCurrentText = AnnotatedString.Builder().run {
     pop()
 
     pushStyle(SpanStyle(fontWeight = FontWeight.Normal))
+    append("· Added support for Android 13 themed icons.\n\n")
+    append("· Added support for Android 13 notification request. Thanks to Fabien for his help!\n\n")
+    append("· Fixed a crash related to stats for users that have no games completed.\n\n")
+    pop()
+
+    pushStyle(SpanStyle(fontSize = 18.sp))
+    append("Previous version\n\n")
     append("· Added a countdown timer on top of the last move marker when playing live and you're in the last 10 seconds of your time (or byo-yomi period).\n\n")
     append("· Fixed a bug where forced dame points (tapping inside one's territory) were not showing up correctly in the app.\n\n")
     append("· Fixed a bug in which looking for a game (aka AutoMatch) would not show up on the main screen.\n\n")
@@ -33,10 +40,6 @@ private val annotatedCurrentText = AnnotatedString.Builder().run {
     append("· Disabled Facebook log in as it stopped working for Android 12 and up.\n\n")
     append("· Added a couple more stats to the game's player details dialog. One of them is the percentile, which means the percentage of OGS users who are rated lower than you. More to come.\n\n")
     append("· Fixed some issues with Analysis mode.\n\n")
-    pop()
-
-    pushStyle(SpanStyle(fontSize = 18.sp))
-    append("Previous version\n\n")
     pop()
 
     pushStyle(SpanStyle(fontWeight = FontWeight.Normal))
