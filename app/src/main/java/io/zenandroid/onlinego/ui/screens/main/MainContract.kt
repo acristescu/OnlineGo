@@ -14,6 +14,7 @@ interface MainContract {
         fun navigateToGameScreen(game: Game)
         fun showLogin()
         fun showMyGames()
+        fun askForNotificationsPermission(delayed: Boolean)
     }
     interface Presenter {
         fun subscribe()

@@ -6,6 +6,8 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -31,6 +33,7 @@ import io.reactivex.schedulers.Schedulers
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.repositories.UserSessionRepository
 import io.zenandroid.onlinego.ui.screens.login.FacebookLoginCallbackActivity
+import io.zenandroid.onlinego.ui.screens.main.MainActivity
 import io.zenandroid.onlinego.ui.screens.onboarding.OnboardingAction.BackPressed
 import io.zenandroid.onlinego.ui.screens.onboarding.OnboardingAction.SocialPlatformLoginFailed
 import io.zenandroid.onlinego.ui.screens.onboarding.Page.LoginMethod
@@ -83,6 +86,7 @@ class OnboardingFragment : Fragment() {
                     }
                     state.loginSuccessful -> {
                         findNavController().navigate(R.id.onboarding_to_mygames)
+                        (requireActivity() as MainActivity).askForNotificationsPermission(true)
                     }
 //                    state.loginMethod == LoginMethod.FACEBOOK -> doFacebookFlow()
                     state.loginMethod == LoginMethod.GOOGLE -> doGoogleFlow()

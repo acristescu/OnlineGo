@@ -1,6 +1,6 @@
 package io.zenandroid.onlinego.ui.screens.main
 
-import android.annotation.SuppressLint
+import android.Manifest
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.ComponentName
@@ -14,12 +14,12 @@ import android.os.Handler
 import android.os.Looper
 import android.view.MenuItem
 import android.widget.Toast
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.material.ExperimentalMaterialApi
+import androidx.core.content.ContextCompat
 import androidx.core.os.bundleOf
 import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsControllerCompat
 import androidx.navigation.NavOptions
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
@@ -39,7 +39,11 @@ import io.zenandroid.onlinego.ui.screens.newchallenge.ChallengeParams
 import io.zenandroid.onlinego.ui.screens.newchallenge.NewAutomatchChallengeBottomSheet
 import io.zenandroid.onlinego.ui.screens.newchallenge.NewChallengeBottomSheet
 import io.zenandroid.onlinego.ui.views.BoardView
-import io.zenandroid.onlinego.utils.*
+import io.zenandroid.onlinego.utils.showIf
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import org.koin.android.ext.android.get
 
 
@@ -52,6 +56,8 @@ class MainActivity : AppCompatActivity(), MainContract.View {
     private val analytics = OnlineGoApplication.instance.analytics
 
     private lateinit var binding: ActivityMainBinding
+
+    private lateinit var requestPermissionLauncher: ActivityResultLauncher<String>
 
     private val presenter: MainPresenter by lazy { MainPresenter(this, get(), get(), get(), get()) }
 
@@ -91,6 +97,7 @@ class MainActivity : AppCompatActivity(), MainContract.View {
             }
         }
 
+        requestPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) {}
         createNotificationChannel()
         scheduleNotificationJob()
 
@@ -107,7 +114,6 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         SynchronizeGamesWork.schedule()
     }
 
-    @SuppressLint("NewApi")
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
@@ -134,6 +140,19 @@ class MainActivity : AppCompatActivity(), MainContract.View {
                             }
                     )
             )
+        }
+    }
+
+    override fun askForNotificationsPermission(delayed: Boolean) {
+        CoroutineScope(Dispatchers.Main).launch {
+            if(delayed) {
+                delay(5000)
+            }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                if (ContextCompat.checkSelfPermission(applicationContext, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                    requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                }
+            }
         }
     }
 

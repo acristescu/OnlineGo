@@ -33,6 +33,7 @@ class MainPresenter (
 
     override fun subscribe() {
         if(userSessionRepository.isLoggedIn()) {
+            view.askForNotificationsPermission(false)
             socketService.ensureSocketConnected()
             socketService.resendAuth()
         } else {
