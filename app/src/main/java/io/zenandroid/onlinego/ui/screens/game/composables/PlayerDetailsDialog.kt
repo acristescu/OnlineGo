@@ -96,18 +96,32 @@ fun PlayerDetailsDialog(
             }
 
             stats?.let { stats ->
-                Text(
-                    text = "Ranked Games",
-                    color = MaterialTheme.colors.onSurface,
-                    style = MaterialTheme.typography.body2,
-                    modifier = Modifier.padding(vertical = 16.dp)
-                )
                 val total = stats.wonCount + stats.lostCount
-                val wonRatio = (stats.wonCount.toFloat() / total * 100).roundToInt()
-                val lossRatio = (stats.lostCount.toFloat() / total * 100).roundToInt()
-                StatsRowDualValue(title = "Wins", value1 = stats.wonCount, value2 = "${wonRatio}%")
-                StatsRowDualValue(title = "Losses", value1 = stats.lostCount, value2 = "${lossRatio}%")
-                StatsRowDualValue(title = "Total", value1 = stats.wonCount + stats.lostCount, value2 = "100%")
+                if(total != 0) {
+                    Text(
+                        text = "Ranked Games",
+                        color = MaterialTheme.colors.onSurface,
+                        style = MaterialTheme.typography.body2,
+                        modifier = Modifier.padding(vertical = 16.dp)
+                    )
+                    val wonRatio = (stats.wonCount.toFloat() / total * 100).roundToInt()
+                    val lossRatio = (stats.lostCount.toFloat() / total * 100).roundToInt()
+                    StatsRowDualValue(
+                        title = "Wins",
+                        value1 = stats.wonCount,
+                        value2 = "${wonRatio}%"
+                    )
+                    StatsRowDualValue(
+                        title = "Losses",
+                        value1 = stats.lostCount,
+                        value2 = "${lossRatio}%"
+                    )
+                    StatsRowDualValue(
+                        title = "Total",
+                        value1 = stats.wonCount + stats.lostCount,
+                        value2 = "100%"
+                    )
+                }
             }
         }
         Image(
@@ -185,7 +199,11 @@ fun PreviewPlayerDetailsDialog() {
                 stats = UserStats(
                     highestRating = 1512.0f,
                     highestRatingTimestamp = 34564325L,
-                    rankData = emptyList(),
+                    chartData1M = emptyList(),
+                    chartData3M = emptyList(),
+                    chartData1Y = emptyList(),
+                    chartData5Y = emptyList(),
+                    chartDataAll = emptyList(),
                     wonCount = 789,
                     lostCount = 453,
                     bestStreak = 45,

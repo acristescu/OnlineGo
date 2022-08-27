@@ -19,7 +19,12 @@ interface StatsContract {
         fun fillLongestStreak(length: Int, start: Long = 0L, end: Long = 0L)
     }
     interface Presenter {
+        var currentFilter: Filter
         fun subscribe()
         fun unsubscribe()
+    }
+
+    enum class Filter {
+        ONE_MONTH, THREE_MONTHS, ONE_YEAR, FIVE_YEARS, ALL
     }
 }

@@ -9,6 +9,7 @@ import io.reactivex.schedulers.Schedulers
 import io.zenandroid.onlinego.data.model.local.UserStats
 import io.zenandroid.onlinego.data.model.ogs.OGSPlayer
 import io.zenandroid.onlinego.data.ogs.OGSRestService
+import io.zenandroid.onlinego.ui.screens.stats.StatsContract.Filter.*
 import io.zenandroid.onlinego.usecases.GetUserStatsUseCase
 import io.zenandroid.onlinego.utils.addToDisposable
 
@@ -24,7 +25,20 @@ class StatsPresenter(
 ) : StatsContract.Presenter {
 
     private val subscriptions = CompositeDisposable()
-
+    private var stats: UserStats? = null
+    override var currentFilter = ONE_MONTH
+    set(value) {
+        field = value
+        stats?.let {
+            view.fillRankGraph(when(value) {
+                ONE_MONTH -> it.chartData1M
+                THREE_MONTHS -> it.chartData3M
+                ONE_YEAR -> it.chartData1Y
+                FIVE_YEARS -> it.chartData5Y
+                ALL -> it.chartDataAll
+            })
+        }
+    }
 
     override fun subscribe() {
         restService.getPlayerProfile(playerId)
@@ -43,11 +57,18 @@ class StatsPresenter(
     }
 
     private fun fillPlayerStats(stats: UserStats) {
+        this.stats = stats
 
         if(stats.highestRating != null && stats.highestRatingTimestamp != null) {
             view.fillHighestRank(stats.highestRating, stats.highestRatingTimestamp)
         }
-        view.fillRankGraph(stats.rankData)
+        view.fillRankGraph(when(currentFilter) {
+            ONE_MONTH -> stats.chartData1M
+            THREE_MONTHS -> stats.chartData3M
+            ONE_YEAR -> stats.chartData1Y
+            FIVE_YEARS -> stats.chartData5Y
+            ALL -> stats.chartDataAll
+        })
         view.fillOutcomePieChart(stats.lostCount, stats.wonCount)
         view.fillCurrentForm(stats.last10Games)
         view.fillLongestStreak(stats.bestStreak, stats.bestStreakStart, stats.bestStreakEnd)

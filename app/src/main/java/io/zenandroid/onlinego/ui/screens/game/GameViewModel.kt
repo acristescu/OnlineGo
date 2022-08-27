@@ -569,6 +569,7 @@ class GameViewModel(
                                 analysisShownMoveNumber < variation.rootMoveNo && gameState?.moves?.getOrNull(analysisShownMoveNumber) == cell -> variation
                                 analysisShownMoveNumber == variation.rootMoveNo && gameState?.moves?.getOrNull(analysisShownMoveNumber) == cell -> null
                                 analysisShownMoveNumber < variation.rootMoveNo && gameState?.moves?.getOrNull(analysisShownMoveNumber) != cell -> Variation(analysisShownMoveNumber, listOf(cell))
+                                analysisShownMoveNumber >= variation.rootMoveNo + variation.moves.size -> null
                                 variation.moves[analysisShownMoveNumber - variation.rootMoveNo] == cell -> variation
                                 else -> variation.copy(moves = variation.moves.take(analysisShownMoveNumber - variation.rootMoveNo) + cell)
                             }

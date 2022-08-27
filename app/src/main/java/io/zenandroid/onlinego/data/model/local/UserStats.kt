@@ -8,7 +8,11 @@ import javax.annotation.concurrent.Immutable
 data class UserStats(
     val highestRating: Float?,
     val highestRatingTimestamp: Long?,
-    val rankData: List<Entry>,
+    val chartDataAll: List<Entry>,
+    val chartData1M: List<Entry>,
+    val chartData3M: List<Entry>,
+    val chartData1Y: List<Entry>,
+    val chartData5Y: List<Entry>,
     val wonCount: Int,
     val lostCount: Int,
     val bestStreak: Int,

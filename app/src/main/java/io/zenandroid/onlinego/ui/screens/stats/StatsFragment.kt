@@ -1,9 +1,12 @@
 package io.zenandroid.onlinego.ui.screens.stats
 
 import android.annotation.SuppressLint
+import android.graphics.Color
+import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.text.SpannableStringBuilder
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.res.ResourcesCompat
@@ -22,19 +25,28 @@ import com.github.mikephil.charting.components.AxisBase
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.*
 import com.github.mikephil.charting.formatter.ValueFormatter
+import com.github.mikephil.charting.highlight.Highlight
+import com.github.mikephil.charting.listener.ChartTouchListener.*
+import com.github.mikephil.charting.listener.OnChartGestureListener
+import com.github.mikephil.charting.listener.OnChartValueSelectedListener
 import com.github.mikephil.charting.utils.EntryXComparator
+import com.google.android.material.tabs.TabLayout
+import com.google.android.material.tabs.TabLayout.OnTabSelectedListener
 import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.ogs.Glicko2HistoryItem
 import io.zenandroid.onlinego.data.model.ogs.OGSPlayer
 import io.zenandroid.onlinego.databinding.FragmentStatsBinding
 import io.zenandroid.onlinego.gamelogic.Util
-import io.zenandroid.onlinego.ui.screens.main.MainActivity
 import io.zenandroid.onlinego.utils.convertCountryCodeToEmojiFlag
 import io.zenandroid.onlinego.utils.egfToRank
 import io.zenandroid.onlinego.utils.formatRank
 import io.zenandroid.onlinego.utils.processGravatarURL
 import org.koin.android.ext.android.get
+import org.threeten.bp.*
+import org.threeten.bp.format.DateTimeFormatter
+import org.threeten.bp.temporal.ChronoUnit
+import org.threeten.bp.temporal.TemporalUnit
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -49,6 +61,7 @@ class StatsFragment : Fragment(), StatsContract.View {
         }
     }
     private val dateFormat = SimpleDateFormat("MMM d, yyyy", Locale.US)
+    val shortFormat = DateTimeFormatter.ofPattern("d MMM uuuu")
     private lateinit var binding: FragmentStatsBinding
 
     private lateinit var presenter: StatsContract.Presenter
@@ -62,6 +75,18 @@ class StatsFragment : Fragment(), StatsContract.View {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val playerId = arguments?.getLong(PLAYER_ID) ?: Util.getCurrentUserId()!!
+        binding.tabLayout.addOnTabSelectedListener(object : OnTabSelectedListener {
+            override fun onTabSelected(tab: TabLayout.Tab?) {
+                tab?.let {
+                    presenter.currentFilter = StatsContract.Filter.values()[it.position]
+                }
+            }
+
+            override fun onTabUnselected(tab: TabLayout.Tab?) {}
+
+            override fun onTabReselected(tab: TabLayout.Tab?) {}
+
+        })
         presenter = StatsPresenter(this, analytics, get(), get(), playerId)
     }
 
@@ -141,32 +166,92 @@ class StatsFragment : Fragment(), StatsContract.View {
         if (entries.isNotEmpty()) {
             Collections.sort(entries, EntryXComparator())
             val rankDataSet = LineDataSet(entries, "Games").apply {
+                setDrawIcons(false)
+                lineWidth = 1.3f
+                highLightColor = Color.GRAY
+                highlightLineWidth = 0.7f
+                enableDashedHighlightLine(7f, 2f, 0f)
                 setDrawCircles(false)
                 setDrawValues(false)
-                lineWidth = 1f
                 color = ResourcesCompat.getColor(resources, R.color.rankGraphLine, context?.theme)
-                mode = LineDataSet.Mode.HORIZONTAL_BEZIER
+                mode = LineDataSet.Mode.LINEAR
                 setDrawFilled(true)
+                fillDrawable = GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM, arrayOf(ResourcesCompat.getColor(resources, R.color.color_type_info, context?.theme), Color.TRANSPARENT).toIntArray())
             }
             binding.rankGraph.data = LineData(rankDataSet)
         }
         binding.rankGraph.apply {
-            xAxis.position = XAxis.XAxisPosition.BOTTOM
-            xAxis.valueFormatter = DayAxisValueFormatter(this)
-            xAxis.setLabelCount(6, true)
-            xAxis.textColor = ResourcesCompat.getColor(resources, R.color.colorText, context?.theme)
-            xAxis.setDrawGridLines(false)
+            xAxis.apply {
+                position = XAxis.XAxisPosition.BOTTOM
+                valueFormatter = DayAxisValueFormatter(binding.rankGraph)
+                setDrawAxisLine(false)
+                setDrawLabels(false)
+                textColor = ResourcesCompat.getColor(resources, R.color.colorText, context?.theme)
+                setDrawGridLines(false)
+            }
 
-            axisLeft.setDrawGridLines(false)
-            axisLeft.textColor = ResourcesCompat.getColor(resources, R.color.colorText, context?.theme)
-            axisRight.setDrawGridLines(false)
-            axisRight.valueFormatter = object : ValueFormatter() {
-                override fun getAxisLabel(value: Float, axis: AxisBase?): String {
-                    return formatRank(egfToRank(value.toDouble()))
+            axisLeft.apply {
+                setDrawGridLines(false)
+                textColor = ResourcesCompat.getColor(resources, R.color.colorText, context?.theme)
+                setDrawLabels(false)
+                setDrawAxisLine(false)
+            }
+
+            axisRight.apply {
+                setDrawGridLines(false)
+                setDrawLabels(false)
+                setDrawAxisLine(false)
+                valueFormatter = object : ValueFormatter() {
+                    override fun getAxisLabel(value: Float, axis: AxisBase?): String {
+                        return formatRank(egfToRank(value.toDouble()))
+                    }
                 }
             }
 
-            axisRight.textColor = ResourcesCompat.getColor(resources, R.color.colorText, context?.theme)
+            val onChartValueSelectedListener = object : OnChartValueSelectedListener {
+                override fun onValueSelected(e: Entry?, h: Highlight?) {
+                    if(e == null) {
+                        onNothingSelected()
+                    } else {
+                        binding.chartDetails.text = "${e?.y?.toInt()} ELO (${formatRank(egfToRank(e.y.toDouble()), true)}) on ${formatDate(e.x.toLong())}"
+                    }
+                }
+
+                override fun onNothingSelected() {
+                    if(entries.isNotEmpty()) {
+                        binding.chartDetails.text = "${(entries.last().y - entries.first().y).toInt()} ELO since ${formatDate(entries.first().x.toLong())}"
+                    }
+                }
+            }
+            onChartValueSelectedListener.onNothingSelected()
+
+            setOnChartValueSelectedListener(onChartValueSelectedListener)
+
+            onChartGestureListener = object : OnChartGestureListener {
+                override fun onChartGestureStart(me: MotionEvent, lastPerformedGesture: ChartGesture) {
+                    data?.setDrawValues(false)
+                }
+
+                override fun onChartGestureEnd(me: MotionEvent, lastPerformedGesture: ChartGesture) {
+                    data?.setDrawValues(false)
+
+                    onChartValueSelectedListener.onNothingSelected()
+                    highlightValues(null)
+                }
+
+                override fun onChartLongPressed(me: MotionEvent) {}
+                override fun onChartDoubleTapped(me: MotionEvent) {}
+                override fun onChartSingleTapped(me: MotionEvent) {}
+                override fun onChartFling(me1: MotionEvent, me2: MotionEvent, velocityX: Float, velocityY: Float) {}
+                override fun onChartScale(me: MotionEvent, scaleX: Float, scaleY: Float) {}
+                override fun onChartTranslate(me: MotionEvent, dX: Float, dY: Float) {}
+            }
+
+            setViewPortOffsets(0f, 0f, 0f, 0f)
+
+            axisLeft.axisMinimum = entries.minOf { it.y } * .85f
+            axisRight.axisMinimum = entries.minOf { it.y } * .85f
+
             description.isEnabled = false
             setDrawMarkers(false)
             setNoDataText("No ranked games on record")
@@ -176,7 +261,12 @@ class StatsFragment : Fragment(), StatsContract.View {
 
             animateY(250)
             invalidate()
+            notifyDataSetChanged()
         }
+    }
+
+    private fun formatDate(secondsSinceEpoch: Long): String {
+        return shortFormat.format(LocalDateTime.ofEpochSecond(secondsSinceEpoch, 0,  OffsetDateTime.now().offset))
     }
 
     override fun fillOutcomePieChart(lostCount: Int, wonCount: Int) {
