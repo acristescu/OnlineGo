@@ -74,9 +74,9 @@ class GameTurnMiddleware : Middleware<AiGameState, AiGameAction> {
                                                     whiteTerritory += p
                                                     removedSpots += p
                                                 }
-                                                ownership > 0.6 -> whiteTerritory += p
-                                                ownership < -0.6 -> blackTerritory += p
-                                                else -> removedSpots += p  // dame
+                                                ownership > 0.6 && !state.position.whiteStones.contains(p) -> whiteTerritory += p
+                                                ownership < -0.6 && !state.position.blackStones.contains(p) -> blackTerritory += p
+                                                ownership >= -0.6 && ownership < 0.6 -> removedSpots += p  // dame
                                             }
                                         }
                                     }

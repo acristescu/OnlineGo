@@ -27,6 +27,7 @@ private val annotatedCurrentText = AnnotatedString.Builder().run {
 
     pushStyle(SpanStyle(fontWeight = FontWeight.Normal))
     append("· Implemented a new chart in the stats page. Don't forget to tap on it to see details!\n\n")
+    append("· Fixed a bug with the scoring of AI games. Thanks to @ArsenLapin1 for pointing that out.\n\n")
     append("· Fixed a few crashes.\n\n")
     pop()
 
