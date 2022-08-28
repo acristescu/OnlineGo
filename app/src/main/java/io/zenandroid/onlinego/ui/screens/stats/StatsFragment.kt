@@ -45,10 +45,9 @@ import io.zenandroid.onlinego.utils.processGravatarURL
 import org.koin.android.ext.android.get
 import org.threeten.bp.*
 import org.threeten.bp.format.DateTimeFormatter
-import org.threeten.bp.temporal.ChronoUnit
-import org.threeten.bp.temporal.TemporalUnit
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.math.abs
 
 const val PLAYER_ID = "PLAYER_ID"
 
@@ -213,13 +212,22 @@ class StatsFragment : Fragment(), StatsContract.View {
                     if(e == null) {
                         onNothingSelected()
                     } else {
-                        binding.chartDetails.text = "${e?.y?.toInt()} ELO (${formatRank(egfToRank(e.y.toDouble()), true)}) on ${formatDate(e.x.toLong())}"
+                        binding.chartDetails.text = SpannableStringBuilder()
+                            .bold { append("${e?.y?.toInt()} ELO (${formatRank(egfToRank(e.y.toDouble()), true)})") }
+                            .append(" on ${formatDate(e.x.toLong())}")
                     }
                 }
 
                 override fun onNothingSelected() {
                     if(entries.isNotEmpty()) {
-                        binding.chartDetails.text = "${(entries.last().y - entries.first().y).toInt()} ELO since ${formatDate(entries.first().x.toLong())}"
+                        val delta = (entries.last().y - entries.first().y).toInt()
+                        val color = ResourcesCompat.getColor(resources, if(delta < 0) R.color.chartLost else R.color.chartWon, context?.theme)
+                        val arrow = if(delta < 0 ) "⬇" else "⬆"
+                        binding.chartDetails.text = SpannableStringBuilder()
+                            .color(color) {
+                                bold { append("$arrow ${abs(entries.last().y - entries.first().y).toInt()} ELO")}
+                            }
+                            .append(" since ${formatDate(entries.first().x.toLong())}")
                     }
                 }
             }
@@ -249,8 +257,10 @@ class StatsFragment : Fragment(), StatsContract.View {
 
             setViewPortOffsets(0f, 0f, 0f, 0f)
 
-            axisLeft.axisMinimum = entries.minOf { it.y } * .85f
-            axisRight.axisMinimum = entries.minOf { it.y } * .85f
+            if(entries.isNotEmpty()) {
+                axisLeft.axisMinimum = entries.minOf { it.y } * .85f
+                axisRight.axisMinimum = entries.minOf { it.y } * .85f
+            }
 
             description.isEnabled = false
             setDrawMarkers(false)

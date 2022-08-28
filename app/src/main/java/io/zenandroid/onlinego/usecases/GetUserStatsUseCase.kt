@@ -37,7 +37,7 @@ class GetUserStatsUseCase (
         var dataIndex = 0
         return (0 until groupCount).map { i ->
             val x = targetDate + i * groupWidth
-            while(dataIndex < rawData.size && rawData[dataIndex].ended < x) {
+            while(dataIndex < rawData.size && rawData[dataIndex].ended <= x) {
                 currentRank = rawData[dataIndex].rating
                 dataIndex++
             }

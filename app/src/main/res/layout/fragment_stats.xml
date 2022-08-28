@@ -48,8 +48,9 @@
                 android:layout_marginStart="16dp"
                 android:layout_marginEnd="16dp"
                 android:layout_marginBottom="8dp"
-                android:layout_marginTop="8dp"
-                tools:text="7k (ELO: 1450) on 20 Feb 2022"
+                android:layout_marginTop="16dp"
+                tools:text="1450 ELO (7 kyu) on 20 Feb 2022"
+                android:textSize="12sp"
                 />
 
             <com.github.mikephil.charting.charts.LineChart
