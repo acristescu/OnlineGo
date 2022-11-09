@@ -574,8 +574,8 @@ class GameViewModel(
                                 else -> variation.copy(moves = variation.moves.take(analysisShownMoveNumber - variation.rootMoveNo) + cell)
                             }
                             analysisShownMoveNumber++
-                            candidateMove = null
                         }
+                        candidateMove = null
                     }
                 }
             }
@@ -637,7 +637,7 @@ class GameViewModel(
                 userUndoDialogShowing = false
             }
             UserUndoDialogDismiss -> userUndoDialogShowing = false
-        }. run {}
+        }.run {}
     }
 
     private fun onButtonPressed(button: Button) {
