@@ -7,26 +7,28 @@ import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
 import io.zenandroid.onlinego.data.model.ogs.OGSAutomatch
-import io.zenandroid.onlinego.data.ogs.OGSRestService
 import io.zenandroid.onlinego.data.ogs.OGSWebSocketService
 import io.zenandroid.onlinego.utils.addToDisposable
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.plus
 
 class AutomatchRepository(
         private val socketService: OGSWebSocketService
 ) : SocketConnectedRepository {
     private val subscriptions = CompositeDisposable()
 
-    var automatches = mutableListOf<OGSAutomatch>()
+    var automatches = persistentListOf<OGSAutomatch>()
         private set
 
-    private val automatchesSubject = BehaviorSubject.createDefault<List<OGSAutomatch>>(automatches)
+    private val automatchesSubject = BehaviorSubject.createDefault<ImmutableList<OGSAutomatch>>(automatches)
     private val gameStartSubject = PublishSubject.create<OGSAutomatch>()
 
     val automatchObservable = automatchesSubject.hide()
     val gameStartObservable = gameStartSubject.hide()
 
     override fun onSocketConnected() {
-        automatches.clear()
+        automatches = automatches.clear()
         socketService.listenToNewAutomatchNotifications()
                 .subscribeOn(Schedulers.io())
                 .doOnError(this::onError)
@@ -58,20 +60,22 @@ class AutomatchRepository(
     }
 
     private fun removeAutomatch(automatch: OGSAutomatch) {
-        automatches.find { it.uuid == automatch.uuid } ?.let {
-            automatches.remove(it)
-            automatchesSubject.onNext(automatches.toList())
-        }
+        automatches = automatches.removeAll { it.uuid == automatch.uuid }
+        automatchesSubject.onNext(automatches)
     }
 
     private fun addAutomatch(automatch: OGSAutomatch) {
         if(automatches.find { it.uuid == automatch.uuid } == null) {
-            automatches.add(automatch)
-            automatchesSubject.onNext(automatches.toList())
+            automatches += automatch
+            automatchesSubject.onNext(automatches)
         }
     }
 
     override fun onSocketDisconnected() {
+        automatches = automatches.builder().apply {
+            removeAll { it.liveOrBlitz }
+        }.build()
+        automatchesSubject.onNext(automatches)
         subscriptions.clear()
     }
 

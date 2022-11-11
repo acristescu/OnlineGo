@@ -26,9 +26,8 @@ private val annotatedCurrentText = AnnotatedString.Builder().run {
     pop()
 
     pushStyle(SpanStyle(fontWeight = FontWeight.Normal))
-    append("· Implemented a new chart in the stats page. Don't forget to tap on it to see details!\n\n")
-    append("· Fixed a bug with the scoring of AI games. Thanks to @ArsenLapin1 for pointing that out.\n\n")
-    append("· Fixed a few crashes.\n\n")
+    append("· Fixed a bug where an invalid ko move during analysis would become a candidate move in the real game.\n\n")
+    append("· Fixed an issue with live and blitz auto-matches not showing up as cancelled when switching out of the app.\n\n")
     pop()
 
     pushStyle(SpanStyle(fontSize = 18.sp))
