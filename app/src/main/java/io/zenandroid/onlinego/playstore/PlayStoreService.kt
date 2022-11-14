@@ -5,22 +5,25 @@ import android.content.Context
 import android.util.Log
 import com.android.billingclient.api.*
 import com.android.billingclient.api.BillingClient.BillingResponseCode
+import com.android.billingclient.api.BillingClient.ProductType
 import com.android.billingclient.api.BillingFlowParams.ProrationMode.IMMEDIATE_WITHOUT_PRORATION
+import com.android.billingclient.api.BillingFlowParams.SubscriptionUpdateParams
 import com.google.firebase.crashlytics.FirebaseCrashlytics
-import com.jakewharton.rxrelay2.PublishRelay
 import io.reactivex.Completable
 import io.reactivex.Single
-import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
-import java.util.concurrent.locks.Lock
-import java.util.concurrent.locks.ReentrantLock
 
 class PlayStoreService(
         private val context: Context
 ) {
     private var connectionInProgress = false
     private val connectionSubject = PublishSubject.create<Unit>()
-    private val possibleSubscriptions = (1..25).map { "supporter_$it" }
+    private val possibleSubscriptions = (1..25).map {
+        QueryProductDetailsParams.Product.newBuilder()
+            .setProductId("supporter_$it")
+            .setProductType(ProductType.SUBS)
+            .build()
+    }
 
     private val billingClient = BillingClient.newBuilder(context)
             .setListener { billingResult, purchases ->
@@ -81,14 +84,13 @@ class PlayStoreService(
     }
 
     fun queryAvailableSubscriptions() = connect().andThen(
-            Single.create<List<SkuDetails>> {
-                val params = SkuDetailsParams.newBuilder()
-                        .setSkusList(possibleSubscriptions)
-                        .setType(BillingClient.SkuType.SUBS)
+            Single.create<List<ProductDetails>> {
+                val params = QueryProductDetailsParams.newBuilder()
+                        .setProductList(possibleSubscriptions)
 
-                billingClient.querySkuDetailsAsync(params.build()) { billingResult, skuDetailsList ->
-                    if (billingResult.responseCode == BillingResponseCode.OK && !skuDetailsList.isNullOrEmpty()) {
-                        it.onSuccess(skuDetailsList)
+                billingClient.queryProductDetailsAsync(params.build()) { billingResult, productDetailsList ->
+                    if (billingResult.responseCode == BillingResponseCode.OK && !productDetailsList.isNullOrEmpty()) {
+                        it.onSuccess(productDetailsList)
                     } else {
                         it.onError(Exception("${billingResult.responseCode}:${billingResult.debugMessage}"))
                     }
@@ -98,27 +100,41 @@ class PlayStoreService(
 
     fun queryPurchases() = connect().andThen(
             Single.create<List<Purchase>> {
-                val billingResult = billingClient.queryPurchases(BillingClient.SkuType.SUBS)
-                if (billingResult.responseCode == BillingResponseCode.OK && billingResult.purchasesList != null) {
-                    it.onSuccess(billingResult.purchasesList!!)
-                } else {
-                    it.onError(Exception("${billingResult.responseCode}:"))
+                billingClient.queryPurchasesAsync(
+                    QueryPurchasesParams.newBuilder()
+                        .setProductType(ProductType.SUBS)
+                        .build()
+                ) { billingResult, purchaseList ->
+                    if (billingResult.responseCode == BillingResponseCode.OK) {
+                        it.onSuccess(purchaseList)
+                    } else {
+                        it.onError(Exception("${billingResult.responseCode}:"))
+                    }
                 }
             }
     )
 
-    fun launchBillingFlow(activity: Activity, skuDetails: SkuDetails, oldSkuPurchase: Purchase?) =
+    fun launchBillingFlow(activity: Activity, productDetails: ProductDetails, oldProductPurchase: Purchase?) =
         connect().andThen(
                 Completable.create {
+                    val offerToken = productDetails.subscriptionOfferDetails?.get(0)?.offerToken ?: throw Exception("Cannot get offerToken")
+                    val productDetailsParamsList =
+                        listOf(
+                            BillingFlowParams.ProductDetailsParams.newBuilder()
+                                .setProductDetails(productDetails)
+                                .setOfferToken(offerToken)
+                                .build()
+                        )
                     val params = BillingFlowParams.newBuilder()
-                            .setSkuDetails(skuDetails)
-                            .apply {
-                                if(oldSkuPurchase != null) {
-                                    setOldSku(oldSkuPurchase.sku, oldSkuPurchase.purchaseToken)
-                                    setReplaceSkusProrationMode(IMMEDIATE_WITHOUT_PRORATION)
+                            .setProductDetailsParamsList(productDetailsParamsList).apply {
+                                if(oldProductPurchase != null) {
+                                    setSubscriptionUpdateParams(SubscriptionUpdateParams.newBuilder()
+                                        .setOldPurchaseToken(oldProductPurchase.purchaseToken)
+                                        .setReplaceProrationMode(IMMEDIATE_WITHOUT_PRORATION)
+                                        .build()
+                                    )
                                 }
-                            }
-                            .build()
+                            }.build()
                     val billingResult = billingClient.launchBillingFlow(activity, params)
                     if(billingResult.responseCode != BillingResponseCode.OK) {
                         it.onError(Exception("${billingResult.responseCode}:${billingResult.debugMessage}"))

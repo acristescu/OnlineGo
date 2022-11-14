@@ -88,11 +88,11 @@ class SupporterFragment : Fragment(), SupporterContract.View {
                 if (amountSlider.value.toInt() != it) {
                     amountSlider.value = it.toFloat()
                 }
-                valueLabel.text = state.skus?.get(it)?.price ?: ""
+                valueLabel.text = state.products?.get(it)?.subscriptionOfferDetails?.get(0)?.pricingPhases?.pricingPhaseList?.get(0)?.formattedPrice ?: ""
             }
 
-            state.skus?.let {
-                amountSlider.setLabelFormatter { index -> it[index.toInt()].price }
+            state.products?.let {
+                amountSlider.setLabelFormatter { index -> it[index.toInt()]?.subscriptionOfferDetails?.get(0)?.pricingPhases?.pricingPhaseList?.get(0)?.formattedPrice ?: "?" }
             }
 
             state.subscribeTitleText?.let {
