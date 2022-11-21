@@ -2,8 +2,10 @@ package io.zenandroid.onlinego.data.repositories
 
 import androidx.preference.PreferenceManager
 import io.zenandroid.onlinego.OnlineGoApplication
+import io.zenandroid.onlinego.data.model.BoardTheme
 
 private const val APP_THEME = "app_theme"
+private const val BOARD_THEME = "board_theme"
 private const val SHOW_RANKS = "show_ranks"
 private const val SHOW_COORDINATES = "show_coordinates"
 private const val VIBRATE = "vibrate_on_move"
@@ -15,6 +17,22 @@ class SettingsRepository {
     var appTheme: String?
         get() = prefs.getString(APP_THEME, "System default")
         set(value) = prefs.edit().putString(APP_THEME, value).apply()
+
+    var boardTheme: BoardTheme
+        get() = getBoardThemeFromPref()
+        set(value) = prefs.edit().putString(BOARD_THEME, value.name).apply()
+
+    private fun getBoardThemeFromPref(): BoardTheme {
+        val themeFromPref: String? = prefs.getString(BOARD_THEME, BoardTheme.WOOD.name)
+        if (themeFromPref != null) {
+            return try {
+                BoardTheme.valueOf(themeFromPref)
+            } catch (e: IllegalArgumentException) {
+                BoardTheme.WOOD
+            }
+        }
+        return BoardTheme.WOOD
+    }
 
     var showRanks: Boolean
         get() = prefs.getBoolean(SHOW_RANKS, true)

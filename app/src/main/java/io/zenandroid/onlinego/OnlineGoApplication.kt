@@ -1,7 +1,6 @@
 package io.zenandroid.onlinego
 
 import android.app.Application
-import android.content.res.Configuration
 import android.os.Build
 import androidx.core.provider.FontRequest
 import android.util.Log
@@ -11,12 +10,9 @@ import androidx.emoji2.text.FontRequestEmojiCompatConfig
 import com.facebook.stetho.Stetho
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.jakewharton.threetenabp.AndroidThreeTen
-import io.reactivex.Completable
 import io.reactivex.exceptions.UndeliverableException
 import io.reactivex.plugins.RxJavaPlugins
-import io.reactivex.schedulers.Schedulers
 import io.zenandroid.onlinego.di.*
-import io.zenandroid.onlinego.ui.views.BoardView
 import org.koin.android.ext.koin.androidContext
 import io.zenandroid.onlinego.data.repositories.SettingsRepository
 import org.koin.core.context.GlobalContext

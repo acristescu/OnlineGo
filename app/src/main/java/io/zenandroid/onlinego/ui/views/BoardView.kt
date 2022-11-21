@@ -23,14 +23,12 @@ import io.zenandroid.onlinego.data.model.Mark
 import io.zenandroid.onlinego.data.model.Position
 import io.zenandroid.onlinego.data.model.StoneType
 import io.zenandroid.onlinego.data.model.katago.MoveInfo
-import io.zenandroid.onlinego.data.model.katago.Response
 import io.zenandroid.onlinego.data.model.ogs.PlayCategory
 import io.zenandroid.onlinego.gamelogic.Util
 import java.util.*
 import kotlin.math.abs
 import kotlin.math.ceil
 import kotlin.math.roundToInt
-import kotlin.math.sqrt
 
 
 /**
@@ -106,6 +104,14 @@ class BoardView : View {
             field = value
         }
     var drawCoordinates = false
+        set(value) {
+            if(field != value) {
+                field = value
+                computeDimensions(width, height)
+                invalidate()
+            }
+        }
+    var texture = BitmapFactory.decodeResource(resources, R.drawable.wood)
         set(value) {
             if(field != value) {
                 field = value
@@ -720,7 +726,7 @@ class BoardView : View {
         @Synchronized
         fun preloadResources(resources: Resources) {
             if (texture == null) {
-                texture = BitmapFactory.decodeResource(resources, R.mipmap.texture)
+                texture = BitmapFactory.decodeResource(resources, R.drawable.wood)
             }
         }
     }

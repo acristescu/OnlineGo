@@ -23,18 +23,21 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
-import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.Position
 import io.zenandroid.onlinego.data.model.StoneType
 import io.zenandroid.onlinego.data.model.ogs.PlayCategory
+import io.zenandroid.onlinego.data.repositories.SettingsRepository
 import io.zenandroid.onlinego.gamelogic.RulesManager.isPass
+import org.koin.core.context.GlobalContext
 import kotlin.math.ceil
 import kotlin.math.roundToInt
+
 
 @ExperimentalComposeUiApi
 @Composable
@@ -58,8 +61,27 @@ fun Board(
     onTapUp: ((Cell) -> Unit)? = null
 ) {
     BoxWithConstraints(modifier = modifier.aspectRatio(1f)) {
+        val settingsRepository: SettingsRepository = GlobalContext.get().get()
+
         val drawMarks = true
-        val background: ImageBitmap = ImageBitmap.imageResource(id = R.mipmap.texture)
+
+        val boardTheme = settingsRepository.boardTheme
+
+        // Board background image, it is either a jpg or a svg
+        var backgroundImage: ImageBitmap? = null
+        if (boardTheme.backgroundImage != null) {
+            backgroundImage = ImageBitmap.imageResource(id = boardTheme.backgroundImage)
+        }
+        var backgroundColor: Color? = null
+        if (boardTheme.backgroundColor != null) {
+            backgroundColor = colorResource(boardTheme.backgroundColor)
+        }
+
+        var gridColor = boardTheme.gridColor
+
+        // Stones images
+        val blackStone = rememberVectorPainter(image = ImageVector.vectorResource(id = boardTheme.blackStone))
+        val whiteStone = rememberVectorPainter(image = ImageVector.vectorResource(id = boardTheme.whiteStone))
 
         val width = with(LocalDensity.current) { maxWidth.roundToPx() }
         val height = with(LocalDensity.current) { maxHeight.roundToPx() }
@@ -87,8 +109,6 @@ fun Board(
                 stonesToFadeOut = null
             }
         }
-        val whiteStone = rememberVectorPainter(image = ImageVector.vectorResource(id = R.drawable.ic_stone_white_svg))
-        val blackStone = rememberVectorPainter(image = ImageVector.vectorResource(id = R.drawable.ic_stone_black_svg))
 
         Canvas(modifier = Modifier.fillMaxSize()
             .run {
@@ -116,10 +136,10 @@ fun Board(
                 }
             }
         ) {
-            drawImage(image = background, dstSize = IntSize(ceil(this.size.width).toInt(), ceil(this.size.height).toInt()))
+            drawBackground(backgroundImage, backgroundColor)
             translate(measurements.border + measurements.xOffsetForNonSquareBoard, measurements.border + measurements.yOffsetForNonSquareBoard) {
 
-                drawGrid(boardWidth, boardHeight, candidateMove, measurements)
+                drawGrid(boardWidth, boardHeight, candidateMove, measurements, gridColor)
                 drawStarPoints(boardWidth, boardHeight, measurements)
                 drawCoordinates(boardWidth, boardHeight, drawCoordinates, measurements)
 
@@ -216,6 +236,16 @@ private fun DrawScope.drawTextCentred(text: String, cx: Float, cy: Float, textSi
                 cx - textBounds.exactCenterX(),
                 cy - textBounds.exactCenterY() + if (ignoreAscentDescent) (textBounds.bottom.toFloat() / 2) else 0f,
                 paint)
+    }
+}
+
+private fun DrawScope.drawBackground(backgroundImage: ImageBitmap?, backgroundColor: Color?) {
+    if (backgroundImage != null) {
+        drawImage(image = backgroundImage, dstSize = IntSize(ceil(this.size.width).toInt(), ceil(this.size.height).toInt()))
+    }
+    if (backgroundColor != null) {
+        val size = Size(ceil(this.size.width), ceil(this.size.height))
+        drawRect(color = backgroundColor, size = size)
     }
 }
 
@@ -351,19 +381,26 @@ private fun DrawScope.drawStone(p: Cell, type: StoneType?, stonePainter: Painter
     }
 }
 
-private fun DrawScope.drawGrid(boardWidth: Int, boardHeight: Int, candidateMove: Cell?, measurements: Measurements) {
+//TODO
+private fun DrawScope.drawGrid(
+    boardWidth: Int,
+    boardHeight: Int,
+    candidateMove: Cell?,
+    measurements: Measurements,
+    gridColor: Color
+) {
     for (i in 0 until boardWidth) {
         val start = i * measurements.cellSize + measurements.halfCell
         val fullLength = (measurements.cellSize * boardHeight).toFloat()
 
-        val (color, lineWidth) = if(i == candidateMove?.x) Color.White to measurements.highlightLinesWidth else Color.Black to measurements.linesWidth
+        val (color, lineWidth) = if(i == candidateMove?.x) Color.White to measurements.highlightLinesWidth else gridColor to measurements.linesWidth
         drawLine(color, Offset(start, measurements.halfCell), Offset(start, fullLength - measurements.halfCell), lineWidth)
     }
     for (i in 0 until boardHeight) {
         val start = i * measurements.cellSize + measurements.halfCell
         val fullLength = (measurements.cellSize * boardWidth).toFloat()
 
-        val (color, lineWidth) = if(i == candidateMove?.y) Color.White to measurements.highlightLinesWidth else Color.Black to measurements.linesWidth
+        val (color, lineWidth) = if(i == candidateMove?.y) Color.White to measurements.highlightLinesWidth else gridColor to measurements.linesWidth
         drawLine(color, Offset(measurements.halfCell, start), Offset(fullLength - measurements.halfCell, start), lineWidth)
     }
 }
