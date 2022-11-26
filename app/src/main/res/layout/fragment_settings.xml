@@ -157,7 +157,7 @@
                     android:layout_height="64dp"
                     android:background="?android:selectableItemBackground"
                     android:clickable="true"
-                    android:drawableLeft="@drawable/ic_theme"
+                    android:drawableLeft="@drawable/ic_board_setting"
                     android:drawablePadding="24dp"
                     android:fontFamily="sans-serif-medium"
                     android:gravity="center_vertical"
