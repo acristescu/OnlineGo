@@ -170,7 +170,7 @@ class SettingsFragment : Fragment() {
                     }
                 }
 
-                val adapter = CustomAdapter(boardThemes, context)
+                val adapter = BoardThemePreviewAdapter(boardThemes, context)
 
                 setOnClickListener {
                     MaterialAlertDialogBuilder(context)
