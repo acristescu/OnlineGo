@@ -25,6 +25,7 @@ import io.zenandroid.onlinego.data.model.ogs.GameData
 import io.zenandroid.onlinego.data.model.ogs.OGSGame
 import io.zenandroid.onlinego.data.model.ogs.Phase
 import io.zenandroid.onlinego.data.ogs.*
+import io.zenandroid.onlinego.utils.timeLeftForCurrentPlayer
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.onEach
 import java.io.IOException
@@ -68,6 +69,7 @@ class ActiveGamesRepository(
     val myTurnGamesList: List<Game>
         @Synchronized get() = activeDbGames.values.filter(Util::isMyTurn).toList()
 
+    // Game where it is your turn, ordered by remaining time to play
     var myTurnGames by mutableStateOf(emptyList<Game>())
 
     override fun onSocketConnected() {
@@ -236,7 +238,7 @@ class ActiveGamesRepository(
             activeDbGames[it.id] = it
             connectToGame(it, false)
         }
-        myTurnGames = activeDbGames.values.filter(Util::isMyTurn).toList()
+        myTurnGames = activeDbGames.values.filter(Util::isMyTurn).toList().sortedBy { timeLeftForCurrentPlayer(it) }
         myMoveCountSubject.onNext(activeDbGames.values.count { isMyTurn(it) })
     }
 
