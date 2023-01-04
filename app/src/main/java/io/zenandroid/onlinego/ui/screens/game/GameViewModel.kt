@@ -11,6 +11,7 @@ import androidx.lifecycle.viewModelScope
 import app.cash.molecule.AndroidUiDispatcher
 import app.cash.molecule.RecompositionClock
 import app.cash.molecule.launchMolecule
+import io.zenandroid.onlinego.data.model.BoardTheme
 import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.Mark
 import io.zenandroid.onlinego.data.model.Position
@@ -211,6 +212,7 @@ class GameViewModel(
                 gameWidth = gameWidth,
                 gameHeight = gameHeight,
                 candidateMove = candidateMove,
+                boardTheme = settingsRepository.boardTheme,
                 showCoordinates = settingsRepository.showCoordinates,
                 boardInteractive = boardInteractive,
                 drawTerritory = game?.phase == Phase.STONE_REMOVAL || (gameFinished == true && analysisShownMoveNumber == game?.moves?.size) || (estimateMode && estimatePosition != null),
@@ -720,6 +722,7 @@ data class GameState(
     val gameHeight: Int,
     val candidateMove: Cell?,
     val boardInteractive: Boolean,
+    val boardTheme: BoardTheme,
     val showCoordinates: Boolean,
     val drawTerritory: Boolean,
     val fadeOutRemovedStones: Boolean,
@@ -761,6 +764,7 @@ data class GameState(
             gameHeight = 19,
             candidateMove = null,
             boardInteractive = false,
+            boardTheme = BoardTheme.WOOD,
             showCoordinates = true,
             drawTerritory = false,
             fadeOutRemovedStones = false,

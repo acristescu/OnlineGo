@@ -14,6 +14,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.google.accompanist.pager.*
+import io.zenandroid.onlinego.data.model.BoardTheme
 import io.zenandroid.onlinego.data.model.local.Challenge
 import io.zenandroid.onlinego.data.model.local.Player
 import io.zenandroid.onlinego.data.model.ogs.OGSAutomatch
@@ -53,11 +54,11 @@ fun MyGamesScreen(state: MyGamesState, onAction: (Action) -> Unit) {
                     Header("Your turn")
                 }
                 items (items = state.myTurnGames) {
-                    SmallGameItem(game = it, state.userId, onAction = onAction)
+                    SmallGameItem(game = it, boardTheme = state.boardTheme, state.userId, onAction = onAction)
                 }
             } else {
                 item {
-                    MyTurnCarousel(state.myTurnGames, state.userId, onAction)
+                    MyTurnCarousel(state.myTurnGames, boardTheme = state.boardTheme, state.userId, onAction)
                 }
             }
         }
@@ -82,7 +83,7 @@ fun MyGamesScreen(state: MyGamesState, onAction: (Action) -> Unit) {
             }
         }
         items (items = state.opponentTurnGames) {
-            SmallGameItem(it, state.userId, onAction)
+            SmallGameItem(it, boardTheme = state.boardTheme, state.userId, onAction)
         }
 
         if(state.recentGames.isNotEmpty()) {
@@ -91,7 +92,7 @@ fun MyGamesScreen(state: MyGamesState, onAction: (Action) -> Unit) {
             }
         }
         items (items = state.recentGames) {
-            SmallGameItem(game = it, state.userId, onAction = onAction)
+            SmallGameItem(game = it, boardTheme = state.boardTheme, state.userId, onAction = onAction)
         }
 
         if(state.historicGames.isNotEmpty()) {
@@ -99,7 +100,7 @@ fun MyGamesScreen(state: MyGamesState, onAction: (Action) -> Unit) {
                 Header("Older games")
             }
             item {
-                HistoricGameLazyRow(state.historicGames, state.userId, state.loadedAllHistoricGames, onAction)
+                HistoricGameLazyRow(state.historicGames, boardTheme = state.boardTheme, state.userId, state.loadedAllHistoricGames, onAction)
             }
         }
         item {
@@ -189,7 +190,8 @@ private fun Preview() {
                             historicRating = null,
                             )
                     ),
-                )
+                ),
+                boardTheme = BoardTheme.WOOD,
             )) {}
         }
     }

@@ -315,6 +315,7 @@ private fun Board(state: GameState, onUserAction: ((UserAction) -> Unit), modifi
         boardHeight = state.gameHeight,
         position = state.position,
         interactive = state.boardInteractive,
+        boardTheme = state.boardTheme,
         drawCoordinates = state.showCoordinates,
         drawTerritory = state.drawTerritory,
         drawLastMove = state.showLastMove,
@@ -402,6 +403,7 @@ private fun GameInfoDialog(state: GameState, onUserAction: (UserAction) -> Unit)
             interactive = false,
             drawTerritory = false,
             drawLastMove = false,
+            boardTheme = state.boardTheme,
             drawCoordinates = false,
             fadeOutRemovedStones = false,
             modifier = Modifier

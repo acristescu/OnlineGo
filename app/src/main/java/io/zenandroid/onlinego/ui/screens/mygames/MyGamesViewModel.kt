@@ -9,6 +9,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
+import io.zenandroid.onlinego.data.model.BoardTheme
 import io.zenandroid.onlinego.data.model.local.Challenge
 import io.zenandroid.onlinego.data.model.local.Game
 import io.zenandroid.onlinego.data.model.ogs.OGSAutomatch
@@ -37,12 +38,14 @@ class MyGamesViewModel(
     private val analytics: FirebaseAnalytics,
     private val restService: OGSRestService,
     private val socketService: OGSWebSocketService,
+    private val settingsRepository: SettingsRepository
     ) : ViewModel() {
     private val _state = MutableStateFlow(MyGamesState(
         userId = userSessionRepository.userId ?: 0,
         whatsNewDialogVisible = WhatsNewUtils.shouldDisplayDialog,
         headerMainText = "Hi ${userSessionRepository.uiConfig?.user?.username},",
-        userImageURL = userSessionRepository.uiConfig?.user?.icon
+        userImageURL = userSessionRepository.uiConfig?.user?.icon,
+        boardTheme = settingsRepository.boardTheme,
     ))
     val state: StateFlow<MyGamesState> = _state
     private val subscriptions = CompositeDisposable()
@@ -249,6 +252,10 @@ class MyGamesViewModel(
 
     private fun onViewResumed() {
         chatRepository.fetchRecentChatMessages()
+        _state.value = _state.value.copy(
+            // Check if board theme had been changed in the settings
+            boardTheme = settingsRepository.boardTheme
+        )
     }
 
     private fun onGameNavigationConsumed() {
@@ -330,6 +337,7 @@ data class MyGamesState(
     val tutorialPercentage: Int? = 100,
     val tutorialVisible: Boolean = false,
     val tutorialTitle: String? = null,
+    val boardTheme: BoardTheme,
 )
 
 

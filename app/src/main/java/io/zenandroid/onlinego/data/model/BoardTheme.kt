@@ -6,7 +6,7 @@ import io.zenandroid.onlinego.R
 
 
 /**
- * Created by alex on 1/9/2015.
+ * Created by Shaggy on 21/11/2022.
  */
 @Immutable
 enum class BoardTheme(
@@ -65,5 +65,4 @@ enum class BoardTheme(
         R.drawable.ic_stone_black_svg,
         Color.Gray
     )
-    ;
 }

@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.fragment.app.Fragment
 import io.zenandroid.onlinego.R
+import io.zenandroid.onlinego.data.model.BoardTheme
 import io.zenandroid.onlinego.data.model.StoneType
 import io.zenandroid.onlinego.ui.composables.Board
 import io.zenandroid.onlinego.ui.screens.tutorial.TutorialAction.HandledByFragment
@@ -136,6 +137,7 @@ private fun Board(state: TutorialState, listener: (TutorialAction) -> Unit) {
                     .shadow(6.dp, MaterialTheme.shapes.large),
             boardWidth = state.position?.boardWidth ?: 9,
             boardHeight = state.position?.boardHeight ?: 9,
+            boardTheme = BoardTheme.WOOD,
             position = state.position,
             removedStones = state.removedStones,
             candidateMove = state.hoveredCell,
