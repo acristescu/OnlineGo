@@ -18,6 +18,8 @@ import androidx.compose.material.icons.rounded.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Alignment.Companion.CenterHorizontally
+import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
@@ -80,10 +82,11 @@ fun GameScreen(state: GameState,
                     .align(Alignment.CenterHorizontally),
             )
             Board(
-                state, onUserAction,
+                state = state,
+                onUserAction = onUserAction,
                 modifier = Modifier
-                    .shadow(1.dp, MaterialTheme.shapes.medium)
-                    .clip(MaterialTheme.shapes.medium)
+                    .heightIn(0.dp, (LocalConfiguration.current.screenHeightDp * .6).dp)
+                    .align(CenterHorizontally)
             )
             ExtraStatusField(
                 text = state.whiteExtraStatus,
@@ -152,10 +155,11 @@ fun GameScreen(state: GameState,
                     )
                 }
                 Board(
-                    state, onUserAction,
+                    state = state,
+                    onUserAction = onUserAction,
                     modifier = Modifier
-                        .shadow(1.dp, MaterialTheme.shapes.medium)
-                        .clip(MaterialTheme.shapes.medium)
+                        .widthIn(0.dp, (LocalConfiguration.current.screenWidthDp * .6).dp)
+                        .align(CenterVertically)
                 )
             }
         }
@@ -324,7 +328,8 @@ private fun Board(state: GameState, onUserAction: ((UserAction) -> Unit), modifi
         candidateMoveType = state.position?.nextToMove,
         onTapMove = { onUserAction(BoardCellDragged(it)) },
         onTapUp = { onUserAction(BoardCellTapUp(it)) },
-        modifier = modifier
+        modifier = modifier.shadow(1.dp, MaterialTheme.shapes.medium)
+            .clip(MaterialTheme.shapes.medium)
     )
 }
 
