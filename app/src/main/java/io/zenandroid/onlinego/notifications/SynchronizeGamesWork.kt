@@ -4,24 +4,10 @@ import android.content.Context
 import android.util.Log
 import androidx.work.*
 import com.google.firebase.crashlytics.FirebaseCrashlytics
-import io.reactivex.Completable
 import io.reactivex.Single
-import io.reactivex.functions.BiFunction
-import io.zenandroid.onlinego.data.db.GameDao
-import io.zenandroid.onlinego.ui.screens.main.MainActivity
-import io.zenandroid.onlinego.data.model.local.Game
-import io.zenandroid.onlinego.data.model.local.GameNotification
-import io.zenandroid.onlinego.data.model.local.GameNotificationWithDetails
-import io.zenandroid.onlinego.data.repositories.ActiveGamesRepository
-import io.zenandroid.onlinego.data.repositories.ChallengesRepository
 import io.zenandroid.onlinego.data.repositories.UserSessionRepository
-import io.zenandroid.onlinego.utils.NotificationUtils
-import io.zenandroid.onlinego.utils.NotificationUtils.Companion.notifyGames
-import io.zenandroid.onlinego.utils.NotificationUtils.Companion.notifyChallenges
+import io.zenandroid.onlinego.ui.screens.main.MainActivity
 import org.koin.core.context.GlobalContext.get
-import retrofit2.HttpException
-import java.net.ConnectException
-import java.net.SocketTimeoutException
 import java.util.concurrent.TimeUnit
 
 private const val NOT_CHARGING_PERIOD_MINUTES = 30L
