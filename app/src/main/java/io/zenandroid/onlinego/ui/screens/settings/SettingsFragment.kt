@@ -185,7 +185,7 @@ class SettingsFragment : Fragment() {
                                         R.color.colorTextSecondary
                                     )
                                 ) {
-                                    italic { append(boardThemes[newBoardTheme].name) }
+                                    italic { append(boardThemes[newBoardTheme].displayName) }
                                 }
                             }
                         }
