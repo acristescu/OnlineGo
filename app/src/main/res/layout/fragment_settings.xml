@@ -150,6 +150,20 @@
                     android:clickable="true"
                     android:background="?android:selectableItemBackground"
                     />
+
+                <TextView
+                    android:id="@+id/boardBackgroundTheme"
+                    android:layout_width="match_parent"
+                    android:layout_height="64dp"
+                    android:background="?android:selectableItemBackground"
+                    android:clickable="true"
+                    android:drawableLeft="@drawable/ic_board_setting"
+                    android:drawablePadding="24dp"
+                    android:fontFamily="sans-serif-medium"
+                    android:gravity="center_vertical"
+                    android:lineSpacingExtra="4dp"
+                    android:paddingLeft="24dp"
+                    android:text="Board theme\nWood" />
             </LinearLayout>
         </androidx.cardview.widget.CardView>
         <TextView

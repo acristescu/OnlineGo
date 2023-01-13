@@ -23,18 +23,22 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
-import io.zenandroid.onlinego.R
+import io.zenandroid.onlinego.data.model.BoardTheme
 import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.Position
 import io.zenandroid.onlinego.data.model.StoneType
 import io.zenandroid.onlinego.data.model.ogs.PlayCategory
+import io.zenandroid.onlinego.data.repositories.SettingsRepository
 import io.zenandroid.onlinego.gamelogic.RulesManager.isPass
+import org.koin.core.context.GlobalContext
 import kotlin.math.ceil
 import kotlin.math.roundToInt
+
 
 @ExperimentalComposeUiApi
 @Composable
@@ -45,6 +49,7 @@ fun Board(
     position: Position?,
     candidateMove: Cell? = null,
     candidateMoveType: StoneType? = null,
+    boardTheme: BoardTheme,
     drawCoordinates: Boolean = true,
     interactive: Boolean = true,
     drawShadow: Boolean = true,
@@ -58,8 +63,20 @@ fun Board(
     onTapUp: ((Cell) -> Unit)? = null
 ) {
     BoxWithConstraints(modifier = modifier.aspectRatio(1f)) {
+
         val drawMarks = true
-        val background: ImageBitmap = ImageBitmap.imageResource(id = R.mipmap.texture)
+
+        // Board background image, it is either a jpg or a svg
+        val backgroundImage: ImageBitmap? = boardTheme.backgroundImage?.let {
+            ImageBitmap.imageResource(id = boardTheme.backgroundImage)
+        }
+        val backgroundColor: Color? = boardTheme.backgroundColor?.let {
+            colorResource(boardTheme.backgroundColor)
+        }
+
+        // Stones images
+        val blackStone = rememberVectorPainter(image = ImageVector.vectorResource(id = boardTheme.blackStone))
+        val whiteStone = rememberVectorPainter(image = ImageVector.vectorResource(id = boardTheme.whiteStone))
 
         val width = with(LocalDensity.current) { maxWidth.roundToPx() }
         val height = with(LocalDensity.current) { maxHeight.roundToPx() }
@@ -87,8 +104,6 @@ fun Board(
                 stonesToFadeOut = null
             }
         }
-        val whiteStone = rememberVectorPainter(image = ImageVector.vectorResource(id = R.drawable.ic_stone_white_svg))
-        val blackStone = rememberVectorPainter(image = ImageVector.vectorResource(id = R.drawable.ic_stone_black_svg))
 
         Canvas(modifier = Modifier.fillMaxSize()
             .run {
@@ -116,12 +131,12 @@ fun Board(
                 }
             }
         ) {
-            drawImage(image = background, dstSize = IntSize(ceil(this.size.width).toInt(), ceil(this.size.height).toInt()))
+            drawBackground(backgroundImage, backgroundColor)
             translate(measurements.border + measurements.xOffsetForNonSquareBoard, measurements.border + measurements.yOffsetForNonSquareBoard) {
 
-                drawGrid(boardWidth, boardHeight, candidateMove, measurements)
-                drawStarPoints(boardWidth, boardHeight, measurements)
-                drawCoordinates(boardWidth, boardHeight, drawCoordinates, measurements)
+                drawGrid(boardWidth, boardHeight, candidateMove, boardTheme.textAndGridColor, measurements)
+                drawStarPoints(boardWidth, boardHeight, boardTheme.textAndGridColor, measurements)
+                drawCoordinates(boardWidth, boardHeight, boardTheme, drawCoordinates, measurements)
 
                 for (item in stonesToFadeOut ?: emptyList()) {
                     drawStone(item.first, item.second, if (item.second == StoneType.WHITE) whiteStone else blackStone, fadeOutAlpha.value, true, measurements)
@@ -173,28 +188,28 @@ private val coordinatesX = arrayOf("A", "B", "C", "D", "E", "F", "G", "H", "J", 
 private val coordinatesY = (1..25).map(Int::toString)
 
 private data class Measurements(
-        var width: Int,
-        val cellSize: Int,
-        val border: Float,
-        val linesWidth: Float,
-        val highlightLinesWidth: Float,
-        val decorationsLineWidth: Float,
-        val stoneSpacing: Float,
-        val textSize: Float,
-        val coordinatesTextSize: Float,
-        val shadowPaint: Paint,
-        val halfCell: Float,
-        val stoneRadius: Int,
-        val xOffsetForNonSquareBoard: Float,
-        val yOffsetForNonSquareBoard: Float,
+    var width: Int,
+    val cellSize: Int,
+    val border: Float,
+    val linesWidth: Float,
+    val highlightLinesWidth: Float,
+    val decorationsLineWidth: Float,
+    val stoneSpacing: Float,
+    val textSize: Float,
+    val coordinatesTextSize: Float,
+    val shadowPaint: Paint,
+    val halfCell: Float,
+    val stoneRadius: Int,
+    val xOffsetForNonSquareBoard: Float,
+    val yOffsetForNonSquareBoard: Float,
 )
 
 private fun getCellCenter(i: Int, j: Int, measurements: Measurements) =
         Offset(i * measurements.cellSize + measurements.halfCell, j * measurements.cellSize + measurements.halfCell)
 
-private fun DrawScope.drawSingleStarPoint(i: Int, j: Int, measurements: Measurements) {
+private fun DrawScope.drawSingleStarPoint(i: Int, j: Int, color: Color, measurements: Measurements) {
     val center = getCellCenter(i, j, measurements)
-    drawCircle(Color.Black, measurements.cellSize / 15f, Offset(center.x, center.y))
+    drawCircle(color, measurements.cellSize / 15f, Offset(center.x, center.y))
 }
 
 private fun DrawScope.drawTextCentred(text: String, cx: Float, cy: Float, textSize: Float, @ColorInt color: Int = android.graphics.Color.BLACK, shadow: Boolean = true, ignoreAscentDescent: Boolean = false) {
@@ -216,6 +231,16 @@ private fun DrawScope.drawTextCentred(text: String, cx: Float, cy: Float, textSi
                 cx - textBounds.exactCenterX(),
                 cy - textBounds.exactCenterY() + if (ignoreAscentDescent) (textBounds.bottom.toFloat() / 2) else 0f,
                 paint)
+    }
+}
+
+private fun DrawScope.drawBackground(backgroundImage: ImageBitmap?, backgroundColor: Color?) {
+    if (backgroundImage != null) {
+        drawImage(image = backgroundImage, dstSize = IntSize(ceil(this.size.width).toInt(), ceil(this.size.height).toInt()))
+    }
+    if (backgroundColor != null) {
+        val size = Size(ceil(this.size.width), ceil(this.size.height))
+        drawRect(color = backgroundColor, size = size)
     }
 }
 
@@ -351,74 +376,87 @@ private fun DrawScope.drawStone(p: Cell, type: StoneType?, stonePainter: Painter
     }
 }
 
-private fun DrawScope.drawGrid(boardWidth: Int, boardHeight: Int, candidateMove: Cell?, measurements: Measurements) {
+private fun DrawScope.drawGrid(
+    boardWidth: Int,
+    boardHeight: Int,
+    candidateMove: Cell?,
+    textAndGridColor: Color,
+    measurements: Measurements,
+) {
     for (i in 0 until boardWidth) {
         val start = i * measurements.cellSize + measurements.halfCell
         val fullLength = (measurements.cellSize * boardHeight).toFloat()
 
-        val (color, lineWidth) = if(i == candidateMove?.x) Color.White to measurements.highlightLinesWidth else Color.Black to measurements.linesWidth
+        val (color, lineWidth) = if(i == candidateMove?.x) Color.White to measurements.highlightLinesWidth else textAndGridColor to measurements.linesWidth
         drawLine(color, Offset(start, measurements.halfCell), Offset(start, fullLength - measurements.halfCell), lineWidth)
     }
     for (i in 0 until boardHeight) {
         val start = i * measurements.cellSize + measurements.halfCell
         val fullLength = (measurements.cellSize * boardWidth).toFloat()
 
-        val (color, lineWidth) = if(i == candidateMove?.y) Color.White to measurements.highlightLinesWidth else Color.Black to measurements.linesWidth
+        val (color, lineWidth) = if(i == candidateMove?.y) Color.White to measurements.highlightLinesWidth else textAndGridColor to measurements.linesWidth
         drawLine(color, Offset(measurements.halfCell, start), Offset(fullLength - measurements.halfCell, start), lineWidth)
     }
 }
 
-private fun DrawScope.drawStarPoints(boardWidth: Int, boardHeight: Int, measurements: Measurements) {
+private fun DrawScope.drawStarPoints(boardWidth: Int, boardHeight: Int, color: Color, measurements: Measurements) {
     if(boardWidth == boardHeight) {
         when (boardWidth) {
             19 -> {
-                drawSingleStarPoint(3, 3, measurements)
-                drawSingleStarPoint(15, 15, measurements)
-                drawSingleStarPoint(3, 15, measurements)
-                drawSingleStarPoint(15, 3, measurements)
+                drawSingleStarPoint(3, 3, color, measurements)
+                drawSingleStarPoint(15, 15, color, measurements)
+                drawSingleStarPoint(3, 15, color, measurements)
+                drawSingleStarPoint(15, 3, color, measurements)
 
-                drawSingleStarPoint(3, 9, measurements)
-                drawSingleStarPoint(9, 3, measurements)
-                drawSingleStarPoint(15, 9, measurements)
-                drawSingleStarPoint(9, 15, measurements)
+                drawSingleStarPoint(3, 9, color, measurements)
+                drawSingleStarPoint(9, 3, color, measurements)
+                drawSingleStarPoint(15, 9, color, measurements)
+                drawSingleStarPoint(9, 15, color, measurements)
 
-                drawSingleStarPoint(9, 9, measurements)
+                drawSingleStarPoint(9, 9, color, measurements)
             }
             13 -> {
-                drawSingleStarPoint(3, 3, measurements)
-                drawSingleStarPoint(9, 9, measurements)
-                drawSingleStarPoint(3, 9, measurements)
-                drawSingleStarPoint(9, 3, measurements)
+                drawSingleStarPoint(3, 3, color, measurements)
+                drawSingleStarPoint(9, 9, color, measurements)
+                drawSingleStarPoint(3, 9, color, measurements)
+                drawSingleStarPoint(9, 3, color, measurements)
 
-                drawSingleStarPoint(6, 6, measurements)
+                drawSingleStarPoint(6, 6, color, measurements)
             }
             9 -> {
-                drawSingleStarPoint(2, 2, measurements)
-                drawSingleStarPoint(6, 6, measurements)
-                drawSingleStarPoint(2, 6, measurements)
-                drawSingleStarPoint(6, 2, measurements)
+                drawSingleStarPoint(2, 2, color, measurements)
+                drawSingleStarPoint(6, 6, color, measurements)
+                drawSingleStarPoint(2, 6, color, measurements)
+                drawSingleStarPoint(6, 2, color, measurements)
 
-                drawSingleStarPoint(4, 4, measurements)
+                drawSingleStarPoint(4, 4, color, measurements)
             }
         }
     }
 }
 
-private fun DrawScope.drawCoordinates(boardWidth: Int, boardHeight: Int, drawCoordinates: Boolean, measurements: Measurements) {
+private fun DrawScope.drawCoordinates(boardWidth: Int, boardHeight: Int, boardTheme: BoardTheme, drawCoordinates: Boolean, measurements: Measurements) {
     if (drawCoordinates) {
+        val textColor: Int = boardTheme.textAndGridColor.toArgb()
         for (i in 0 until boardWidth) {
-            drawTextCentred(coordinatesX[i], getCellCenter(i, 0, measurements).x, 0f - measurements.border / 2, textSize = measurements.coordinatesTextSize, shadow = false, ignoreAscentDescent = true)
-            drawTextCentred(coordinatesX[i], getCellCenter(i, 0, measurements).x, measurements.cellSize * boardHeight + measurements.border / 2, textSize = measurements.coordinatesTextSize, shadow = false, ignoreAscentDescent = true)
+            drawTextCentred(coordinatesX[i], getCellCenter(i, 0, measurements).x, 0f - measurements.border / 2, textSize = measurements.coordinatesTextSize, shadow = false, ignoreAscentDescent = true, color = textColor)
+            drawTextCentred(coordinatesX[i], getCellCenter(i, 0, measurements).x, measurements.cellSize * boardHeight + measurements.border / 2, textSize = measurements.coordinatesTextSize, shadow = false, ignoreAscentDescent = true,  color = textColor)
         }
         for (i in boardHeight downTo 1) {
-            drawTextCentred(coordinatesY[i - 1], 0f - measurements.border / 2, getCellCenter(0, boardHeight - i, measurements).y, textSize = measurements.coordinatesTextSize, shadow = false)
-            drawTextCentred(coordinatesY[i - 1], measurements.cellSize * boardWidth + measurements.border / 2, getCellCenter(0, boardHeight - i, measurements).y, textSize = measurements.coordinatesTextSize, shadow = false)
+            drawTextCentred(coordinatesY[i - 1], 0f - measurements.border / 2, getCellCenter(0, boardHeight - i, measurements).y, textSize = measurements.coordinatesTextSize, shadow = false, color = textColor)
+            drawTextCentred(coordinatesY[i - 1], measurements.cellSize * boardWidth + measurements.border / 2, getCellCenter(0, boardHeight - i, measurements).y, textSize = measurements.coordinatesTextSize, shadow = false, color = textColor)
         }
     }
 
 }
 
-private fun doMeasurements(width: Int, height: Int, boardWidth: Int, boardHeight: Int, drawCoordinates: Boolean): Measurements {
+private fun doMeasurements(
+    width: Int,
+    height: Int,
+    boardWidth: Int,
+    boardHeight: Int,
+    drawCoordinates: Boolean,
+): Measurements {
     val usableWidth = if (drawCoordinates) {
         width - (width  / boardWidth.toFloat()).roundToInt()
     } else width

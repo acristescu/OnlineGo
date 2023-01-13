@@ -1,7 +1,5 @@
 package io.zenandroid.onlinego.ui.screens.settings
 
-import android.app.Dialog
-import android.content.DialogInterface
 import android.content.Intent
 import android.graphics.drawable.ColorDrawable
 import android.net.Uri
@@ -28,6 +26,7 @@ import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.zenandroid.onlinego.BuildConfig
 import io.zenandroid.onlinego.R
+import io.zenandroid.onlinego.data.model.BoardTheme
 import io.zenandroid.onlinego.data.repositories.SettingsRepository
 import io.zenandroid.onlinego.data.repositories.UserSessionRepository
 import io.zenandroid.onlinego.databinding.FragmentSettingsBinding
@@ -36,14 +35,16 @@ import io.zenandroid.onlinego.ui.views.BoardView
 import io.zenandroid.onlinego.utils.processGravatarURL
 import org.koin.android.ext.android.inject
 
+
 class SettingsFragment : Fragment() {
 
     private val userSessionRepository: UserSessionRepository by inject()
     private val settingsRepository: SettingsRepository by inject()
     private val themes = arrayOf("System default", "Light", "Dark")
+    private val boardThemes = BoardTheme.values()
     private lateinit var binding: FragmentSettingsBinding
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentSettingsBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -116,12 +117,13 @@ class SettingsFragment : Fragment() {
                 setOnCheckedChangeListener { _, isChecked -> settingsRepository.showRanks = isChecked }
             }
 
-            val currentTheme = settingsRepository.appTheme
+            // Light / Dark Theme
+            val currentLightDarkTheme = settingsRepository.appTheme
             themeButton.apply {
                 text = buildSpannedString {
-                    append("Theme\n")
+                    append("Light/Dark Theme\n")
                     color(ContextCompat.getColor(requireContext(), R.color.colorTextSecondary)) {
-                        italic { append(currentTheme) }
+                        italic { append(currentLightDarkTheme) }
                     }
                 }
 
@@ -155,6 +157,39 @@ class SettingsFragment : Fragment() {
                                 }
                             }
                             .show()
+                }
+            }
+
+            //Board Theme
+            val currentBoardBackground = settingsRepository.boardTheme.name
+            boardBackgroundTheme.apply {
+                text = buildSpannedString {
+                    append("Board theme\n")
+                    color(ContextCompat.getColor(requireContext(), R.color.colorTextSecondary)) {
+                        italic { append(currentBoardBackground) }
+                    }
+                }
+
+                val adapter = BoardThemePreviewAdapter(boardThemes, context)
+
+                setOnClickListener {
+                    MaterialAlertDialogBuilder(context)
+                        .setTitle("Select board theme")
+                        .setAdapter(adapter) { _, newBoardTheme ->
+                            settingsRepository.boardTheme = BoardTheme.valueOf(boardThemes[newBoardTheme].name)
+                            text = buildSpannedString {
+                                append("Board theme\n")
+                                color(
+                                    ContextCompat.getColor(
+                                        requireContext(),
+                                        R.color.colorTextSecondary
+                                    )
+                                ) {
+                                    italic { append(boardThemes[newBoardTheme].displayName) }
+                                }
+                            }
+                        }
+                        .show()
                 }
             }
 

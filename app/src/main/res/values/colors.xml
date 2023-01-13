@@ -52,4 +52,11 @@
     <color name="accentGradientEnd">#df6a53</color>
     <color name="colorToolbarBackground">#FFFFFF</color>
 
+    <!--Color used for board background-->
+    <color name="bg_yellow">#FFEB3B</color>
+    <color name="bg_cyan">#00E7FB</color>
+    <color name="bg_dark_blue">#090C1F</color>
+    <color name="bg_book">#FFFFFF</color>
+    <color name="bg_nocturne">#444444</color>
+
 </resources>

@@ -20,6 +20,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import io.zenandroid.onlinego.data.model.BoardTheme
 import io.zenandroid.onlinego.data.model.local.Game
 import io.zenandroid.onlinego.ui.composables.Board
 import io.zenandroid.onlinego.ui.screens.mygames.Action
@@ -29,6 +30,7 @@ import io.zenandroid.onlinego.ui.screens.mygames.Action
 @Composable
 fun HistoricGameLazyRow(
     games: List<Game>,
+    boardTheme: BoardTheme,
     userId: Long,
     loadedAllHistoricGames: Boolean,
     onAction: (Action) -> Unit
@@ -50,6 +52,7 @@ fun HistoricGameLazyRow(
                         boardWidth = game.width,
                         boardHeight = game.height,
                         position = game.position,
+                        boardTheme = boardTheme,
                         drawCoordinates = false,
                         interactive = false,
                         drawShadow = false,

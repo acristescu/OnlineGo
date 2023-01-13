@@ -14,6 +14,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import io.zenandroid.onlinego.data.model.BoardTheme
 import io.zenandroid.onlinego.data.model.StoneType
 import io.zenandroid.onlinego.data.model.local.Game
 import io.zenandroid.onlinego.data.model.local.isPaused
@@ -25,7 +26,7 @@ import io.zenandroid.onlinego.utils.calculateTimer
 
 @ExperimentalComposeUiApi
 @Composable
-fun SmallGameItem(game: Game, userId: Long, onAction: (Action) -> Unit) {
+fun SmallGameItem(game: Game, boardTheme: BoardTheme, userId: Long, onAction: (Action) -> Unit) {
     Surface(
         shape = MaterialTheme.shapes.medium,
         modifier = Modifier
@@ -44,6 +45,7 @@ fun SmallGameItem(game: Game, userId: Long, onAction: (Action) -> Unit) {
                 boardWidth = game.width,
                 boardHeight = game.height,
                 position = game.position,
+                boardTheme = boardTheme,
                 drawCoordinates = false,
                 interactive = false,
                 drawShadow = false,
