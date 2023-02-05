@@ -55,13 +55,21 @@ fun egfToRank(rating: Double?) =
             ln(it.coerceIn(MIN_RATING, MAX_RATING) / 525) * 23.15
         }
 
-fun formatRank(rank: Double?, longFormat: Boolean = false) =
-        when(rank) {
-            null -> "?"
-            in 30f .. 100f -> "${floor(rank - 29).toInt()}${if(longFormat) " dan" else "d"}"
-            in 0f .. 30f -> "${ceil(30 - rank).toInt()}${if (longFormat) " kyu" else "k"}"
-            else -> ""
+fun formatRank(rank: Double?, deviation: Double? = 0.0, longFormat: Boolean = false): String {
+    deviation?.let {
+        Log.d("deviation test", it.toString())
+        when {
+            it >= 160.0 -> return "?"
+            else -> {}
         }
+    }
+    return when(rank) {
+        null -> "?"
+        in 30f .. 100f -> "${floor(rank - 29).toInt()}${if(longFormat) " dan" else "d"}"
+        in 0f .. 30f -> "${ceil(30 - rank).toInt()}${if (longFormat) " kyu" else "k"}"
+        else -> ""
+    }
+}
 
 private val gravatarRegex = Pattern.compile("(.*gravatar.com/avatar/[0-9a-fA-F]*+).*")
 private val rackcdnRegex = Pattern.compile("(.*rackcdn.com.*)-\\d*\\.png")

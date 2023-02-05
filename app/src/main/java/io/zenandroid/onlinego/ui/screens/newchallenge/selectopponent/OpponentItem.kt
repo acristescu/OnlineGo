@@ -24,7 +24,7 @@ class OpponentItem(
 ) : BindableItem<ItemOpponentBinding>(opponent.id) {
     override fun bind(binding: ItemOpponentBinding, position: Int) {
         binding.nameView.text = opponent.username
-        binding.extraInfoView.text = formatRank(egfToRank(opponent.rating))
+        binding.extraInfoView.text = formatRank(egfToRank(opponent.rating), opponent.deviation)
         Glide.with(binding.iconView)
                 .load(processGravatarURL(opponent.icon, 40.DP()))
                 .listener(object: RequestListener<Drawable> {

@@ -155,6 +155,7 @@ private fun Preview() {
                             icon = null,
                             ui_class = null,
                             historicRating = null,
+                            deviation = null
                         ),
                         challenged = Player(
                             id = 1L,
@@ -165,6 +166,7 @@ private fun Preview() {
                             icon = null,
                             ui_class = null,
                             historicRating = null,
+                            deviation = null
                             )
                     ),
                     Challenge(
@@ -178,6 +180,7 @@ private fun Preview() {
                             icon = null,
                             ui_class = null,
                             historicRating = null,
+                            deviation = null,
                             ),
                         challenged = Player(
                             id = 0L,
@@ -188,6 +191,7 @@ private fun Preview() {
                             icon = null,
                             ui_class = null,
                             historicRating = null,
+                            deviation = null
                             )
                     ),
                 ),

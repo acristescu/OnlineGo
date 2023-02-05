@@ -45,7 +45,7 @@ class NewChallengeBottomSheet : BottomSheetDialogFragment() {
             botView.apply {
                 name = "Opponent"
                 value = challenge.opponent?.let {
-                    "${it.username} (${formatRank(egfToRank(it.ratings?.overall?.rating))})"
+                    "${it.username} (${formatRank(egfToRank(it.ratings?.overall?.rating), it.ratings?.overall?.deviation)})"
                 } ?: "[Open Offer]"
                 setOnClickListener {
                     fragmentManager?.let {
@@ -148,7 +148,7 @@ class NewChallengeBottomSheet : BottomSheetDialogFragment() {
 
     private fun selectOpponent(opponent: Player?) {
         binding.botView.value = opponent
-                ?.let {"${it.username} (${formatRank(egfToRank(it.rating))})"}
+                ?.let {"${it.username} (${formatRank(egfToRank(it.rating), it.deviation)})"}
                 ?: "[Open Offer]"
         this.opponent = opponent
     }

@@ -45,7 +45,7 @@ class PlayerDetailsView : FrameLayout {
                 return
             }
             binding.nameView.text = value?.username
-            binding.rankView.text = if (settingsRepository.showRanks) formatRank(egfToRank(value?.rating)) else ""
+            binding.rankView.text = if (settingsRepository.showRanks) formatRank(egfToRank(value?.rating), value?.deviation) else ""
             value?.country?.let {
                 binding.flagView.text = convertCountryCodeToEmojiFlag(it)
             }

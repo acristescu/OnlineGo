@@ -99,6 +99,14 @@ data class Game(
             val players = game.json?.players ?: game.gamedata?.players ?: game.players
             val gamedata = game.json ?: game.gamedata
 
+            val whiteDeviation = ((((game.white as? Map<*, *>)?.get("ratings") as? Map<*, *>)?.get("overall") as? Map<*, *>)?.get("deviation") as? Double)
+                ?: game.gamedata?.players?.white?.ratings?.overall?.deviation
+                ?: game.players?.white?.ratings?.overall?.deviation
+
+            val blackDeviation = ((((game.black as? Map<*, *>)?.get("ratings") as? Map<*, *>)?.get("overall") as? Map<*, *>)?.get("deviation") as? Double)
+                ?: game.gamedata?.players?.black?.ratings?.overall?.deviation
+                ?: game.players?.black?.ratings?.overall?.deviation
+
             val whitePlayer = Player(
                 id = (players?.white?.id ?: game.whiteId)!!,
                 username = players?.white?.username ?: (game.white as? Map<*,*>)?.get("username").toString(),
@@ -108,6 +116,7 @@ data class Game(
                 acceptedStones = players?.white?.accepted_stones,
                 ui_class = players?.white?.ui_class,
                 historicRating = game.historical_ratings?.white?.ratings?.overall?.rating,
+                deviation = whiteDeviation
             )
             val blackPlayer = Player(
                 id = (players?.black?.id ?: game.blackId)!!,
@@ -118,6 +127,7 @@ data class Game(
                 acceptedStones = players?.black?.accepted_stones,
                 ui_class = players?.black?.ui_class,
                 historicRating = game.historical_ratings?.black?.ratings?.overall?.rating,
+                deviation = blackDeviation
             )
 
             val isRanked : Boolean? = when(gamedata?.ranked) {
@@ -227,8 +237,8 @@ data class Game(
                 removedStones = "",
                 whiteScore = Score(komi = 5.5f, prisoners = 3),
                 blackScore = Score(prisoners = 1),
-                whitePlayer = Player(id = 1L, username = "Bula", rating = 1500.5, country = "UK", icon = null, acceptedStones = null, ui_class = null, historicRating = 1550.0),
-                blackPlayer = Player(id = 0L, username = "Playa", rating = 1600.5, country = "UK", icon = null, acceptedStones = null, ui_class = null, historicRating = 1550.0),
+                whitePlayer = Player(id = 1L, username = "Bula", rating = 1500.5, country = "UK", icon = null, acceptedStones = null, ui_class = null, historicRating = 1550.0, deviation = 50.0),
+                blackPlayer = Player(id = 0L, username = "Playa", rating = 1600.5, country = "UK", icon = null, acceptedStones = null, ui_class = null, historicRating = 1550.0, deviation = 50.0),
                 clock = Clock(lastMove = 120L, receivedAt = 120L, whiteTime = null, whiteTimeSimple = null, startMode = false, blackTime = null, blackTimeSimple = null),
                 phase = null,
                 komi = 5.5f,
