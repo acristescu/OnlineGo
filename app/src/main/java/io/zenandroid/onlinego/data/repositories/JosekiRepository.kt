@@ -62,7 +62,7 @@ class JosekiRepository(
         var newDescription: String? = null
         originalPos.description?.let {
             newDescription = it.replace(headerWithMissingSpaceRegex, "# ")
-            val matcher = customMarkPattern.matcher(newDescription)
+            val matcher = customMarkPattern.matcher(newDescription!!)
             val sb = StringBuffer()
             val labels = mutableListOf<Mark>()
             while(matcher.find()) {

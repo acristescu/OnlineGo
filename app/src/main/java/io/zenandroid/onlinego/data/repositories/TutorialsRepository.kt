@@ -6,10 +6,8 @@ import com.squareup.moshi.Types
 import com.squareup.moshi.adapters.PolymorphicJsonAdapterFactory
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import io.reactivex.Completable
-import io.reactivex.Flowable
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.BehaviorSubject
-import io.reactivex.subjects.PublishSubject
 import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.data.model.local.Tutorial
 import io.zenandroid.onlinego.data.model.local.TutorialGroup

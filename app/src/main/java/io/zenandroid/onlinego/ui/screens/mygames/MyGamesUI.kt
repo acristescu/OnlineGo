@@ -37,7 +37,8 @@ fun MyGamesScreen(state: MyGamesState, onAction: (Action) -> Unit) {
             HomeScreenHeader(
                 image = state.userImageURL,
                 mainText = state.headerMainText,
-                subText = state.headerSubText
+                subText = state.headerSubText,
+                offline = !state.online,
             )
         }
         if(state.tutorialVisible) {
@@ -64,7 +65,7 @@ fun MyGamesScreen(state: MyGamesState, onAction: (Action) -> Unit) {
         }
 
         if(state.challenges.isNotEmpty()) {
-            item {
+            item(key = "Challenges") {
                 Header("Challenges")
             }
         }

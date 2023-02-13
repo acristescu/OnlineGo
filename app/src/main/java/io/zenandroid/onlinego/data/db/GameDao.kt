@@ -22,6 +22,7 @@ abstract class GameDao {
     @Query("SELECT id FROM game WHERE phase <> 'FINISHED' AND (white_id = :userId OR black_id = :userId)")
     abstract fun getActiveGameIds(userId: Long?) : List<Long>
 
+    @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
     @Query("""
         SELECT *
         FROM game 
@@ -41,6 +42,7 @@ abstract class GameDao {
     """)
     abstract fun monitorActiveGamesWithNewMessagesCount(userId: Long?) : Flowable<List<Game>>
 
+    @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
     @Query("""
         SELECT * 
         FROM game 
@@ -301,6 +303,7 @@ abstract class GameDao {
     @Query ("SELECT * FROM challenge")
     abstract fun getChallenges(): Flowable<List<Challenge>>
 
+    @Transaction
     @Query ("SELECT * FROM gamenotification")
     abstract fun getGameNotifications(): Flowable<List<GameNotificationWithDetails>>
 
@@ -316,6 +319,7 @@ abstract class GameDao {
         insertAllGameNotifications(list)
     }
 
+    @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
     @Query("""
         SELECT DISTINCT id, username, icon, rating, country FROM (
             SELECT 

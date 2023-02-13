@@ -2,6 +2,7 @@ package io.zenandroid.onlinego.ui.screens.mygames
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.reactivex.Maybe
@@ -23,6 +24,8 @@ import io.zenandroid.onlinego.utils.addToDisposable
 import io.zenandroid.onlinego.utils.timeLeftForCurrentPlayer
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 import org.json.JSONObject
 import javax.annotation.concurrent.Immutable
 
@@ -99,6 +102,11 @@ class MyGamesViewModel(
             .subscribe(this::onNotification, this::onError)
             .addToDisposable(subscriptions)
 
+        viewModelScope.launch {
+            socketService.connectionState.collect { online ->
+                _state.value = _state.value.copy(online = online)
+            }
+        }
         onNeedMoreOlderGames(null)
     }
 
@@ -338,6 +346,7 @@ data class MyGamesState(
     val tutorialVisible: Boolean = false,
     val tutorialTitle: String? = null,
     val boardTheme: BoardTheme,
+    val online: Boolean = true,
 )
 
 

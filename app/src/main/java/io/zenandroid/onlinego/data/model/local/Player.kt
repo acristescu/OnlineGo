@@ -7,7 +7,7 @@ import io.zenandroid.onlinego.data.model.ogs.OGSPlayer
  * Created by alex on 05/06/2018.
  */
 data class Player(
-    @PrimaryKey val id: Long,
+    val id: Long,
     val username: String,
     val rating: Double?,
     val historicRating: Double?,

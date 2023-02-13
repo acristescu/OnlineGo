@@ -3,14 +3,23 @@ package io.zenandroid.onlinego.ui.screens.mygames.composables
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CloudOff
+import androidx.compose.material.icons.filled.OfflineBolt
+import androidx.compose.material.icons.filled.OfflinePin
+import androidx.compose.material.icons.filled.OfflineShare
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.ColorFilter.Companion
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
@@ -27,7 +36,8 @@ import io.zenandroid.onlinego.utils.processGravatarURL
 fun HomeScreenHeader(
     image: String? = null,
     mainText: String,
-    subText: String? = null
+    subText: String? = null,
+    offline: Boolean
 ) {
     Row(modifier = Modifier.padding(20.dp)) {
         Image(
@@ -62,6 +72,15 @@ fun HomeScreenHeader(
                 )
             }
         }
+        if(offline) {
+            Spacer(modifier = Modifier.weight(1f))
+            Image(
+                imageVector = Icons.Default.CloudOff,
+                contentDescription = "Offline",
+                colorFilter = ColorFilter.tint(MaterialTheme.colors.onSurface),
+                modifier = Modifier.size(48.dp),
+            )
+        }
     }
 }
 
@@ -71,7 +90,20 @@ private fun Preview() {
     OnlineGoTheme(darkTheme = true) {
         HomeScreenHeader(
             mainText = "Hi Alex,",
-            subText = "It's your turn in 4 games."
+            subText = "It's your turn in 4 games.",
+            offline = true,
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun Preview1() {
+    OnlineGoTheme(darkTheme = true) {
+        HomeScreenHeader(
+            mainText = "Hi Alex,",
+            subText = "It's your turn in 4 games.",
+            offline = false,
         )
     }
 }

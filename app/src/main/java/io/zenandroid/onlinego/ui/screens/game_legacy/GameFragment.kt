@@ -68,12 +68,12 @@ class GameFragment : Fragment(), GameContract.View {
 
     override var whiteScore: Float = 0f
         set(value) {
-            binding.whiteDetailsView?.score = value
+            binding.whiteDetailsView.score = value
         }
 
     override var blackScore: Float = 0f
         set(value) {
-            binding.blackDetailsView?.score = value
+            binding.blackDetailsView.score = value
         }
 
     override fun setWhitePlayerStatus(text: String?, color: Int) {

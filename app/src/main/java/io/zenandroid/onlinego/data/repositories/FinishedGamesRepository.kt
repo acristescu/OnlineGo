@@ -167,7 +167,7 @@ class FinishedGamesRepository(
                 oldestGameFetchedEndedAt
             }
             else -> {
-                min(oldestGameFetchedEndedAt!!, oldestGame.ended!!)
+                min(oldestGameFetchedEndedAt!!, oldestGame.ended)
             }
         }
 
@@ -180,7 +180,7 @@ class FinishedGamesRepository(
                 newestGameFetchedEndedAt
             }
             else -> {
-                max(newestGameFetchedEndedAt!!, newestGame.ended!!)
+                max(newestGameFetchedEndedAt!!, newestGame.ended)
             }
         }
         val metadata = HistoricGamesMetadata(

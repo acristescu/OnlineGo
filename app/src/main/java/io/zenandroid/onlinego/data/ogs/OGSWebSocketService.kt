@@ -19,6 +19,9 @@ import io.zenandroid.onlinego.BuildConfig
 import io.zenandroid.onlinego.data.model.ogs.*
 import io.zenandroid.onlinego.data.repositories.*
 import io.zenandroid.onlinego.utils.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import okhttp3.OkHttpClient
 import org.json.JSONObject
 import org.koin.core.context.GlobalContext.get
@@ -34,6 +37,9 @@ class OGSWebSocketService(
         private val restService: OGSRestService,
         private val userSessionRepository: UserSessionRepository
 ) {
+    private val _connectionState = MutableStateFlow(false)
+    val connectionState = _connectionState.asStateFlow()
+
     private val socket: Socket
     private var connectedToChallenges = false
 
@@ -358,6 +364,7 @@ class OGSWebSocketService(
     }
 
     private fun onSockedConnected() {
+        _connectionState.value = true
         resendAuth()
         socketConnectedRepositories.forEach { it.onSocketConnected()}
         synchronized(connectionsLock) {
@@ -377,6 +384,7 @@ class OGSWebSocketService(
     }
 
     private fun onSocketDisconnected() {
+        _connectionState.value = false
         cleanup()
     }
 

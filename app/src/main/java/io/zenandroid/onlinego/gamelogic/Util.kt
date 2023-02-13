@@ -31,7 +31,7 @@ object Util {
     }
 
     fun getCoordinatesFromGTP(gtp: String, boardHeight: Int): Cell {
-        if(gtp.toUpperCase(Locale.ROOT) == "PASS") {
+        if(gtp.uppercase(Locale.ROOT) == "PASS") {
             return Cell(-1, -1)
         }
 

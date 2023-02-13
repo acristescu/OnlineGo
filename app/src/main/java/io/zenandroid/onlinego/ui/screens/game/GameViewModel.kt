@@ -311,6 +311,7 @@ class GameViewModel(
                 gameOverDialogShowing = true
                 analysisShownMoveNumber = game.moves?.size ?: 0
             }
+            candidateMove = null
             gameOverDetails = calculateGameOverDetails(game)
             gameFinished = game.phase == Phase.FINISHED
             loading = false
@@ -603,6 +604,7 @@ class GameViewModel(
             GameOverDialogAnalyze -> {
                 gameOverDialogShowing = false
                 analyzeMode = true
+                currentVariation = null
                 analysisShownMoveNumber = gameState?.moves?.size ?: 0
             }
             GameOverDialogNextGame -> getNextGame()?.let { pendingNavigation = NavigateToGame(it) }
