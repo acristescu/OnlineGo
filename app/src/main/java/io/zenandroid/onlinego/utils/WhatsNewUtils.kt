@@ -26,10 +26,11 @@ private val annotatedCurrentText = AnnotatedString.Builder().run {
     pop()
 
     pushStyle(SpanStyle(fontWeight = FontWeight.Normal))
-    append("· Active games are now ordered by remaining time (thanks to MathieuDreano for the contrib).\n\n")
-    append("· Fixed the layout for opened foldable phones (and other square-ish devices).\n\n")
-    append("· Fixed a bug where an invalid ko move during analysis would become a candidate move in the real game.\n\n")
-    append("· Fixed an issue with live and blitz auto-matches not showing up as cancelled when switching out of the app.\n\n")
+    append("· Added ability to change the board background (thanks to MathieuDreano for the contribution).")
+    append("· Player with provisional ranks have a ? displayed instead of their rank (thanks to Chosenundead15 for the contribution).")
+    append("· Starting from next version, the status of the messages will not reset when updating the app.")
+    append("· Implemented an offline icon on the main page (work in progress).")
+    append("· Fixed a bug in which the last analysis position was shown when the game was over.")
     pop()
 
     // pushStyle(SpanStyle(fontSize = 18.sp))

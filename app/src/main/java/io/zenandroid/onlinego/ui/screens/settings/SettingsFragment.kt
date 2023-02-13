@@ -161,7 +161,7 @@ class SettingsFragment : Fragment() {
             }
 
             //Board Theme
-            val currentBoardBackground = settingsRepository.boardTheme.name
+            val currentBoardBackground = settingsRepository.boardTheme.displayName
             boardBackgroundTheme.apply {
                 text = buildSpannedString {
                     append("Board theme\n")

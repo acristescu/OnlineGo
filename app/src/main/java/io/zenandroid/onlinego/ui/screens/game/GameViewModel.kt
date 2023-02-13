@@ -254,7 +254,7 @@ class GameViewModel(
 
     private fun getShownPosition() = when {
         estimateMode && estimatePosition != null -> estimatePosition!!
-        (analyzeMode || gameFinished == true) && analysisPosition != null -> analysisPosition!!
+        analyzeMode && analysisPosition != null -> analysisPosition!!
         else -> currentGamePosition.value
     }
 
