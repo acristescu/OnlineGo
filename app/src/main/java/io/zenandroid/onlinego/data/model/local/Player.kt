@@ -14,7 +14,8 @@ data class Player(
     val country: String?,
     val icon: String?,
     val acceptedStones: String?,
-    val ui_class: String?
+    val ui_class: String?,
+    val deviation: Double?,
 ) {
     companion object {
         fun fromOGSPlayer(ogsPlayer: OGSPlayer) =
@@ -26,7 +27,8 @@ data class Player(
                         country = ogsPlayer.country,
                         icon = ogsPlayer.icon,
                         acceptedStones = ogsPlayer.accepted_stones,
-                        ui_class = ogsPlayer.ui_class
+                        ui_class = ogsPlayer.ui_class,
+                        deviation = ogsPlayer.ratings?.overall?.deviation,
                 )
     }
 }

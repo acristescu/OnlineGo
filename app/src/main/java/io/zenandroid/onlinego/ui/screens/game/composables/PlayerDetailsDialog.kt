@@ -75,7 +75,7 @@ fun PlayerDetailsDialog(
                 modifier = Modifier.padding(top = 14.dp, bottom = 8.dp)
             )
 
-            val rank = formatRank(egfToRank(player.rating), true)
+            val rank = formatRank(egfToRank(player.rating), player.deviation, true)
             val rating = player.rating?.toInt()?.toString() ?: ""
 
             Text(
@@ -86,7 +86,7 @@ fun PlayerDetailsDialog(
             )
 
             stats?.highestRating?.let { highestRatingFloat ->
-                val highestRank = formatRank(egfToRank(highestRatingFloat.toDouble()), true)
+                val highestRank = formatRank(egfToRank(highestRatingFloat.toDouble()), longFormat = true)
                 val highestRating = highestRatingFloat.toInt().toString()
                 StatsRow(title = "Highest rank", value = "$highestRank ($highestRating)")
             }
@@ -194,7 +194,8 @@ fun PreviewPlayerDetailsDialog() {
                     country = "UK",
                     icon = null,
                     acceptedStones = null,
-                    ui_class = null
+                    ui_class = null,
+                    deviation = null
                 ),
                 stats = UserStats(
                     highestRating = 1512.0f,

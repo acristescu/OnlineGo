@@ -116,7 +116,7 @@ class StatsFragment : Fragment(), StatsContract.View {
 
             val glicko = playerDetails.ratings?.overall?.rating?.toInt()
             val deviation = playerDetails.ratings?.overall?.deviation?.toInt()
-            rankView.text = formatRank(egfToRank(playerDetails.ratings?.overall?.rating))
+            rankView.text = formatRank(egfToRank(playerDetails.ratings?.overall?.rating), playerDetails.ratings?.overall?.deviation)
             glickoView.text = "$glicko ± $deviation"
         }
     }
@@ -124,7 +124,7 @@ class StatsFragment : Fragment(), StatsContract.View {
     override fun mostFacedOpponent(playerDetails: OGSPlayer, total: Int, won: Int) {
         binding.apply {
             mostFacedOpponentView.text = playerDetails.username
-            opponentRankView.text = "(${formatRank(egfToRank(playerDetails.ratings?.overall?.rating))})"
+            opponentRankView.text = "(${formatRank(egfToRank(playerDetails.ratings?.overall?.rating), playerDetails.ratings?.overall?.deviation)})"
             playerDetails.icon?.let {
                 Glide.with(this@StatsFragment)
                         .load(processGravatarURL(it, opponentIconView.width))
@@ -139,7 +139,7 @@ class StatsFragment : Fragment(), StatsContract.View {
 
     override fun fillHighestWin(playerDetails: OGSPlayer, winningGame: Glicko2HistoryItem) {
         binding.apply {
-            val rank = formatRank(egfToRank(playerDetails.ratings?.overall?.rating))
+            val rank = formatRank(egfToRank(playerDetails.ratings?.overall?.rating), playerDetails.ratings?.overall?.rating)
 
             highestWinOpponent.text = playerDetails.username
             highestWinRank.text = "($rank)"
@@ -213,7 +213,7 @@ class StatsFragment : Fragment(), StatsContract.View {
                         onNothingSelected()
                     } else {
                         binding.chartDetails.text = SpannableStringBuilder()
-                            .bold { append("${e?.y?.toInt()} ELO (${formatRank(egfToRank(e.y.toDouble()), true)})") }
+                            .bold { append("${e?.y?.toInt()} ELO (${formatRank(egfToRank(e.y.toDouble()), longFormat = true)})") }
                             .append(" on ${formatDate(e.x.toLong())}")
                     }
                 }

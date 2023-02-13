@@ -373,7 +373,7 @@ class GameViewModel(
             details += buildAnnotatedString {
                 append("\nYour rating is now ")
                 pushStyle(SpanStyle(fontWeight = FontWeight.Bold))
-                append(formatRank(egfToRank(you.rating)))
+                append(formatRank(egfToRank(you.rating), you.deviation))
                 pop()
                 append(" - ${String.format("%.0f", you.rating)} (")
                 if(you.rating != historicRating) {
@@ -515,7 +515,7 @@ class GameViewModel(
         return PlayerData(
             name = username,
             details = if(score != 0f) "${if(score > 0) "+ " else ""}$score points" else "",
-            rank = if(settingsRepository.showRanks) formatRank(egfToRank(rating)) else "",
+            rank = if(settingsRepository.showRanks) formatRank(egfToRank(rating), deviation) else "",
             flagCode = convertCountryCodeToEmojiFlag(country),
             iconURL = icon,
             color = color,
