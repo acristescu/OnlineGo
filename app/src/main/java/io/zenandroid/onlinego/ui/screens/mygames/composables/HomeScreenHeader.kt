@@ -1,5 +1,8 @@
 package io.zenandroid.onlinego.ui.screens.mygames.composables
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -15,6 +18,7 @@ import androidx.compose.material.icons.filled.OfflineBolt
 import androidx.compose.material.icons.filled.OfflinePin
 import androidx.compose.material.icons.filled.OfflineShare
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -72,13 +76,18 @@ fun HomeScreenHeader(
                 )
             }
         }
-        if(offline) {
-            Spacer(modifier = Modifier.weight(1f))
+        Spacer(modifier = Modifier.weight(1f))
+        AnimatedVisibility(
+            visible = offline,
+            enter = fadeIn(),
+            exit = fadeOut(),
+            modifier = Modifier.align(Alignment.CenterVertically)
+        ) {
             Image(
                 imageVector = Icons.Default.CloudOff,
                 contentDescription = "Offline",
                 colorFilter = ColorFilter.tint(MaterialTheme.colors.onSurface),
-                modifier = Modifier.size(48.dp),
+                modifier = Modifier.size(24.dp),
             )
         }
     }
