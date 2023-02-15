@@ -93,6 +93,18 @@ fun processGravatarURL(url: String?, width: Int): String? {
 
 private val SPECIAL_FLAGS = mapOf(
     "_LGBT" to "\uD83C\uDFF3\uFE0F\u200D\uD83C\uDF08",
+
+    // These have two letter iso codes, but OGS uses a custom identifier
+    "_European_Union" to "\uD83C\uDDEA\uD83C\uDDFA",
+    "_Kosovo" to "\uD83C\uDDFD\uD83C\uDDF0",
+
+    // RGI subdivisions
+    "_England" to "\uD83C\uDFF4\uDB40\uDC67\uDB40\uDC62\uDB40\uDC65\uDB40\uDC6E\uDB40\uDC67\uDB40\uDC7F",
+    "_Scotland" to "\uD83C\uDFF4\uDB40\uDC67\uDB40\uDC62\uDB40\uDC73\uDB40\uDC63\uDB40\uDC74\uDB40\uDC7F",
+    "_Wales" to "\uD83C\uDFF4\uDB40\uDC67\uDB40\uDC62\uDB40\uDC77\uDB40\uDC6C\uDB40\uDC73\uDB40\uDC7F",
+
+    // Just for fun
+    "_Pirate" to "\uD83C\uDFF4\u200D\u2620\uFE0F",
 )
 
 fun convertCountryCodeToEmojiFlag(country: String?): String {
