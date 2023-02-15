@@ -91,7 +91,13 @@ fun processGravatarURL(url: String?, width: Int): String? {
     return url
 }
 
+private val SPECIAL_FLAGS = mapOf(
+    "_LGBT" to "\uD83C\uDFF3\uFE0F\u200D\uD83C\uDF08",
+)
+
 fun convertCountryCodeToEmojiFlag(country: String?): String {
+    SPECIAL_FLAGS[country]?.let { return it }
+
     if(country == null || country.length != 2 || "un" == country) {
         return "\uD83C\uDDFA\uD83C\uDDF3"
     }
