@@ -45,8 +45,8 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_11
-        targetCompatibility JavaVersion.VERSION_11
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
     tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
         kotlinOptions {
@@ -59,7 +59,7 @@ android {
         }
     }
     kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_11
+        jvmTarget = JavaVersion.VERSION_17
     }
     buildFeatures {
         compose true
@@ -98,7 +98,7 @@ dependencies {
     implementation "androidx.compose.ui:ui-util"
     debugImplementation "androidx.compose.ui:ui-tooling"
 
-    implementation 'androidx.appcompat:appcompat:1.6.0'
+    implementation 'androidx.appcompat:appcompat:1.6.1'
 
     implementation platform("com.google.firebase:firebase-bom:$firebase_version")
     // retrofit
@@ -111,7 +111,6 @@ dependencies {
 
     implementation "io.coil-kt:coil-compose:2.1.0"
     implementation 'com.squareup.okhttp3:logging-interceptor:4.10.0'
-    implementation 'com.squareup.okhttp3:okhttp-urlconnection:4.10.0'
     implementation 'com.github.franmontiel:PersistentCookieJar:v1.0.1'
 
     implementation 'com.squareup.moshi:moshi-kotlin:1.13.0'
@@ -127,8 +126,8 @@ dependencies {
     implementation 'com.jakewharton.rxrelay2:rxrelay:2.1.1'
     implementation 'io.reactivex.rxjava2:rxkotlin:2.4.0'
 
-    implementation "androidx.work:work-runtime-ktx:2.8.0-rc01"
-    implementation "androidx.work:work-rxjava2:2.8.0-rc01"
+    implementation "androidx.work:work-runtime-ktx:2.8.0"
+    implementation "androidx.work:work-rxjava2:2.8.0"
 
     implementation "androidx.lifecycle:lifecycle-extensions:2.2.0"
 

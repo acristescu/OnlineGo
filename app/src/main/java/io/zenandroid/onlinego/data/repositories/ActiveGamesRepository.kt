@@ -8,6 +8,7 @@ import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.squareup.moshi.JsonEncodingException
 import io.reactivex.Completable
 import io.reactivex.Flowable
+import io.reactivex.Maybe
 import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -29,6 +30,7 @@ import io.zenandroid.onlinego.utils.timeLeftForCurrentPlayer
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.onEach
 import java.io.IOException
+import java.security.InvalidParameterException
 import java.util.concurrent.TimeUnit
 
 /**
@@ -262,6 +264,37 @@ class ActiveGamesRepository(
             .map(Game.Companion::fromOGSGame)
             .map(::listOf)
             .retryWhen (this::retryIOException)
+            .subscribe(
+                gameDao::insertAllGames,
+                { onError(it, "monitorGame") }
+            ).addToDisposable(subscriptions)
+    }
+
+    /**
+     * Poll the server repeatedly until either your rating changes or a max number of attempts has
+     * elapsed
+     */
+    fun pollServerForNewRating(id: Long, white: Boolean, historicRating: Double?) {
+        var retryCount = 0
+        restService.fetchGame(id)
+            .map(Game.Companion::fromOGSGame)
+            .retryWhen (this::retryIOException)
+            .flatMap {
+                if((white && it.whitePlayer.rating != historicRating) || historicRating != it.blackPlayer.rating) {
+                    Single.just(listOf(it))
+                } else {
+                    Single.error(InvalidParameterException())
+                }
+            }.retryWhen {
+                it.flatMap {
+                    if(it is InvalidParameterException && retryCount < 10) {
+                        retryCount++
+                        Flowable.timer(1, TimeUnit.SECONDS)
+                    } else {
+                        Flowable.error(it)
+                    }
+                }
+            }
             .subscribe(
                 gameDao::insertAllGames,
                 { onError(it, "monitorGame") }

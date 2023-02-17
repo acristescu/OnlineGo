@@ -296,27 +296,32 @@ class GameViewModel(
     }
 
     private suspend fun onGameChanged(game: Game) {
+        var newPos: Position
         withContext(Dispatchers.Default) {
-            currentGamePosition.value = RulesManager.replay(game = game, computeTerritory = game.phase == Phase.STONE_REMOVAL)
-            if (loading) {
-                analysisShownMoveNumber = game.moves?.size ?: 0
-                analyzeMode = game.phase == Phase.FINISHED
-            }
-            gameState = game
-            checkPendingMove(game)
-            if (game.phase == Phase.FINISHED && gameFinished == false && game.blackLost != game.whiteLost) { // Game just finished
-                if (game.ranked == true) {
-                    activeGamesRepository.refreshGameData(game.id) // just to get the latest ratings...
-                }
-                gameOverDialogShowing = true
-                analysisShownMoveNumber = game.moves?.size ?: 0
-            }
-            candidateMove = null
-            gameOverDetails = calculateGameOverDetails(game)
-            gameFinished = game.phase == Phase.FINISHED
-            loading = false
-            timerRefresher()
+            newPos = RulesManager.replay(game = game, computeTerritory = game.phase == Phase.STONE_REMOVAL)
         }
+        currentGamePosition.value = newPos
+        if (loading) {
+            analysisShownMoveNumber = game.moves?.size ?: 0
+            analyzeMode = game.phase == Phase.FINISHED
+        }
+        gameState = game
+        checkPendingMove(game)
+        if (game.phase == Phase.FINISHED && gameFinished == false && game.blackLost != game.whiteLost) { // Game just finished
+            if (game.ranked == true && game.outcome != "Cancellation") {
+                val youPlayWhite = game.whitePlayer.id == userId
+                val you = if(youPlayWhite) game.whitePlayer else game.blackPlayer
+                val historicRating = you.historicRating ?: you.rating
+                activeGamesRepository.pollServerForNewRating(game.id, youPlayWhite, historicRating)
+            }
+            gameOverDialogShowing = true
+            analysisShownMoveNumber = game.moves?.size ?: 0
+        }
+        candidateMove = null
+        gameOverDetails = calculateGameOverDetails(game)
+        gameFinished = game.phase == Phase.FINISHED
+        loading = false
+        timerRefresher()
     }
 
     private fun Game?.canBeCancelled(): Boolean {
@@ -370,17 +375,23 @@ class GameViewModel(
         if(game.ranked == true && you.rating != null) {
             val historicRating = you.historicRating ?: you.rating
             val difference = if(you.rating >= historicRating ) "+${you.rating.toInt() - historicRating.toInt()}" else "${you.rating.toInt() - historicRating.toInt()}"
-            details += buildAnnotatedString {
-                append("\nYour rating is now ")
-                pushStyle(SpanStyle(fontWeight = FontWeight.Bold))
-                append(formatRank(egfToRank(you.rating), you.deviation))
-                pop()
-                append(" - ${String.format("%.0f", you.rating)} (")
-                if(you.rating != historicRating) {
-                    pushStyle(SpanStyle(fontStyle = FontStyle.Italic))
-                    append(difference)
+            if(you.rating == historicRating && game.outcome != "Cancellation") {
+                details += buildAnnotatedString {
+                    append("\nYour rating is being updated")
+                }
+            } else {
+                details += buildAnnotatedString {
+                    append("\nYour rating is now ")
+                    pushStyle(SpanStyle(fontWeight = FontWeight.Bold))
+                    append(formatRank(egfToRank(you.rating), you.deviation))
                     pop()
-                    append(")")
+                    append(" - ${String.format("%.0f", you.rating)} (")
+                    if (you.rating != historicRating) {
+                        pushStyle(SpanStyle(fontStyle = FontStyle.Italic))
+                        append(difference)
+                        pop()
+                        append(")")
+                    }
                 }
             }
         }
