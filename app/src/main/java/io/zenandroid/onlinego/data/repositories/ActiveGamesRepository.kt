@@ -280,7 +280,7 @@ class ActiveGamesRepository(
             .map(Game.Companion::fromOGSGame)
             .retryWhen (this::retryIOException)
             .flatMap {
-                if((white && it.whitePlayer.rating != historicRating) || historicRating != it.blackPlayer.rating) {
+                if((white && it.whitePlayer.rating != historicRating) || (!white && historicRating != it.blackPlayer.rating)) {
                     Single.just(listOf(it))
                 } else {
                     Single.error(InvalidParameterException())
@@ -297,7 +297,7 @@ class ActiveGamesRepository(
             }
             .subscribe(
                 gameDao::insertAllGames,
-                { onError(it, "monitorGame") }
+                { onError(it, "pollServerForNewRating") }
             ).addToDisposable(subscriptions)
     }
 
