@@ -36,6 +36,9 @@ interface OGSRestAPI {
 //    @GET("api/v1/players/126739/full")
     fun fetchOverview(): Single<Overview>
 
+    @GET("api/v1/players/{player_id}/full")
+    suspend fun getPlayerFullProfileAsync(@Path("player_id") playerId: Long): OGSPlayerProfile
+
     @POST("api/v0/register")
     fun createAccount(@Body request: CreateAccountRequest): Single<UIConfig>
 

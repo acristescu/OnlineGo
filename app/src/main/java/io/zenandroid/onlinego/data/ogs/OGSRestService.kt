@@ -231,4 +231,8 @@ class OGSRestService(
     suspend fun getPlayerStatsAsync(id: Long): Glicko2History {
         return restApi.getPlayerStatsAsync(id)
     }
+
+    suspend fun getPlayerVersusStats(id: Long): VersusStats {
+        return restApi.getPlayerFullProfileAsync(id).vs
+    }
 }

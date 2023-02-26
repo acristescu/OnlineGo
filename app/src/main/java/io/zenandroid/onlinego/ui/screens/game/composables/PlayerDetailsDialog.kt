@@ -27,6 +27,7 @@ import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.local.Player
 import io.zenandroid.onlinego.data.model.local.UserStats
 import io.zenandroid.onlinego.data.model.ogs.Glicko2HistoryItem
+import io.zenandroid.onlinego.data.model.ogs.VersusStats
 import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
 import io.zenandroid.onlinego.utils.egfToRank
 import io.zenandroid.onlinego.utils.formatRank
@@ -39,6 +40,7 @@ fun PlayerDetailsDialog(
     onDialogDismissed: () -> Unit,
     player: Player,
     stats: UserStats?,
+    versusStats: VersusStats?,
 ) {
     BackHandler { onDialogDismissed() }
     Box(modifier = Modifier
@@ -93,6 +95,35 @@ fun PlayerDetailsDialog(
 
             player.rating?.let {
                 StatsRow(title = "Percentile", value = getPercentile(it))
+            }
+
+            versusStats?.let { stats ->
+                val total = stats.wins + stats.losses
+                if(total != 0) {
+                    Text(
+                        text = "Played vs you",
+                        color = MaterialTheme.colors.onSurface,
+                        style = MaterialTheme.typography.body2,
+                        modifier = Modifier.padding(vertical = 16.dp)
+                    )
+                    val wonRatio = (stats.wins.toFloat() / total * 100).roundToInt()
+                    val lossRatio = (stats.losses.toFloat() / total * 100).roundToInt()
+                    StatsRowDualValue(
+                        title = "Wins",
+                        value1 = stats.wins,
+                        value2 = "${wonRatio}%"
+                    )
+                    StatsRowDualValue(
+                        title = "Losses",
+                        value1 = stats.losses,
+                        value2 = "${lossRatio}%"
+                    )
+                    StatsRowDualValue(
+                        title = "Total",
+                        value1 = stats.wins + stats.losses,
+                        value2 = "100%"
+                    )
+                }
             }
 
             stats?.let { stats ->
@@ -215,6 +246,12 @@ fun PreviewPlayerDetailsDialog() {
                     mostFacedWon = 23,
                     highestWin = Glicko2HistoryItem(ended = 100L, gameId = 2345L, playedBlack = true, handicap = 3, rating = 2345f, 60f, 60f, 43456L, 2342f, 60f, true, "", false, "Resignation"),
                     last10Games = emptyList(),
+                ),
+                versusStats = VersusStats(
+                    draws = 0,
+                    history = emptyList(),
+                    losses = 10,
+                    wins = 40,
                 )
             )
         }

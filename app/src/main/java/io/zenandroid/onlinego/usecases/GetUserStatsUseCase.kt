@@ -6,6 +6,7 @@ import io.reactivex.schedulers.Schedulers
 import io.zenandroid.onlinego.data.model.local.UserStats
 import io.zenandroid.onlinego.data.model.ogs.Glicko2History
 import io.zenandroid.onlinego.data.model.ogs.Glicko2HistoryItem
+import io.zenandroid.onlinego.data.model.ogs.VersusStats
 import io.zenandroid.onlinego.data.ogs.OGSRestService
 import org.threeten.bp.Duration
 import org.threeten.bp.LocalDateTime
@@ -25,6 +26,10 @@ class GetUserStatsUseCase (
     suspend fun getPlayerStatsAsync(playerId: Long): UserStats {
         val history = restService.getPlayerStatsAsync(playerId)
         return processPlayerStats(history)
+    }
+
+    suspend fun getVSStats(playerId: Long): VersusStats {
+        return restService.getPlayerVersusStats(playerId)
     }
 
     private fun generateChartData(duration: Long?, groupCount: Int, rawData: List<Glicko2HistoryItem>): List<Entry> {

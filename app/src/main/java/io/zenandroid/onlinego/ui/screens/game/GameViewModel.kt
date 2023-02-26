@@ -18,6 +18,7 @@ import io.zenandroid.onlinego.data.model.Position
 import io.zenandroid.onlinego.data.model.StoneType
 import io.zenandroid.onlinego.data.model.local.*
 import io.zenandroid.onlinego.data.model.ogs.Phase
+import io.zenandroid.onlinego.data.model.ogs.VersusStats
 import io.zenandroid.onlinego.data.ogs.GameConnection
 import io.zenandroid.onlinego.data.ogs.OGSWebSocketService
 import io.zenandroid.onlinego.data.repositories.*
@@ -79,6 +80,8 @@ class GameViewModel(
     private var dismissedUndoDialogAtMove by mutableStateOf<Int?>(null)
     private var whitePlayerStats by mutableStateOf<UserStats?>(null)
     private var blackPlayerStats by mutableStateOf<UserStats?>(null)
+    private var whitePlayerVersusStats by mutableStateOf<VersusStats?>(null)
+    private var blackPlayerVersusStats by mutableStateOf<VersusStats?>(null)
 
     lateinit var state: StateFlow<GameState>
     var pendingNavigation by mutableStateOf<PendingNavigation?>(null)
@@ -134,17 +137,35 @@ class GameViewModel(
                 }
             }
             if(playerDetailsDialogShowing != null)  {
-                if((playerDetailsDialogShowing == game?.whitePlayer && whitePlayerStats == null)) {
-                    LaunchedEffect(playerDetailsDialogShowing) {
-                        whitePlayerStats = playerDetailsDialogShowing?.id?.let {
-                            getUserStatsUseCase.getPlayerStatsAsync(it)
+                if((playerDetailsDialogShowing == game?.whitePlayer)) {
+                    if(whitePlayerStats == null) {
+                        LaunchedEffect(playerDetailsDialogShowing) {
+                            whitePlayerStats = playerDetailsDialogShowing?.id?.let {
+                                getUserStatsUseCase.getPlayerStatsAsync(it)
+                            }
+                        }
+                    }
+                    if(whitePlayerVersusStats == null && game?.blackPlayer?.id == userId) {
+                        LaunchedEffect(playerDetailsDialogShowing) {
+                            whitePlayerVersusStats = playerDetailsDialogShowing?.id?.let {
+                                getUserStatsUseCase.getVSStats(it)
+                            }
                         }
                     }
                 }
-                if((playerDetailsDialogShowing == game?.blackPlayer && blackPlayerStats == null)) {
-                    LaunchedEffect(playerDetailsDialogShowing) {
-                        blackPlayerStats = playerDetailsDialogShowing?.id?.let {
-                            getUserStatsUseCase.getPlayerStatsAsync(it)
+                if((playerDetailsDialogShowing == game?.blackPlayer)) {
+                    if(blackPlayerStats == null) {
+                        LaunchedEffect(playerDetailsDialogShowing) {
+                            blackPlayerStats = playerDetailsDialogShowing?.id?.let {
+                                getUserStatsUseCase.getPlayerStatsAsync(it)
+                            }
+                        }
+                    }
+                    if(blackPlayerVersusStats == null && game?.whitePlayer?.id == userId) {
+                        LaunchedEffect(playerDetailsDialogShowing) {
+                            blackPlayerVersusStats = playerDetailsDialogShowing?.id?.let {
+                                getUserStatsUseCase.getVSStats(it)
+                            }
                         }
                     }
                 }
@@ -248,6 +269,11 @@ class GameViewModel(
                 opponentRequestedUndoDialogShowing = shouldShowUndoRequestedDialog,
                 requestUndoDialogShowing = userUndoDialogShowing,
                 playerStats = if(playerDetailsDialogShowing == game?.whitePlayer) whitePlayerStats else blackPlayerStats,
+                versusStats = when(playerDetailsDialogShowing?.id) {
+                    userId, null -> null
+                    game?.whitePlayer?.id -> whitePlayerVersusStats
+                    else -> blackPlayerVersusStats
+                }
             )
         }
     }
@@ -768,6 +794,7 @@ data class GameState(
     val opponentRequestedUndoDialogShowing: Boolean,
     val requestUndoDialogShowing: Boolean,
     val playerStats: UserStats?,
+    val versusStats: VersusStats?,
 ) {
     companion object {
         val DEFAULT = GameState(
@@ -810,6 +837,7 @@ data class GameState(
             requestUndoDialogShowing = true,
             playerStats = null,
             lastMoveMarker = "#",
+            versusStats = null,
         )
     }
 }
