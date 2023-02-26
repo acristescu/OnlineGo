@@ -8,6 +8,8 @@ import io.reactivex.Completable
 import io.reactivex.Single
 import io.reactivex.functions.BiFunction
 import io.zenandroid.onlinego.data.db.GameDao
+import io.zenandroid.onlinego.data.model.local.Challenge
+import io.zenandroid.onlinego.data.model.local.ChallengeNotification
 import io.zenandroid.onlinego.data.model.local.Game
 import io.zenandroid.onlinego.data.model.local.GameNotification
 import io.zenandroid.onlinego.data.model.local.GameNotificationWithDetails
@@ -81,12 +83,16 @@ class CheckNotificationsTask(val context: Context, val supressWhenInForeground: 
     private fun notifyChallenges() : Completable =
             challengesRepository
                     .refreshChallenges()
-                    .andThen(challengesRepository.monitorChallenges().firstOrError())
-                    .doOnSuccess {
+                    .andThen(Single.zip(
+                        challengesRepository.monitorChallenges().firstOrError(),
+                        gameDao.getChallengeNotifications().firstOrError(),
+                        BiFunction { a: List<Challenge>, b: List<ChallengeNotification> -> Pair(a, b) }
+                    )).doOnSuccess {
                         Log.v(TAG, "Updating challenges notification")
                         if (!(supressWhenInForeground && MainActivity.isInForeground)) {
                             Log.v(TAG, "Updating challenges notification")
-                            NotificationUtils.notifyChallenges(context, it, userSessionRepository.userId!!)
+                            NotificationUtils.notifyChallenges(context, it.first, it.second, userSessionRepository.userId!!)
+                            gameDao.replaceChallengeNotifications(it.first.map { ChallengeNotification(it.id) })
                         }
                     }.ignoreElement()
 

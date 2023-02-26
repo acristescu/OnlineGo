@@ -24,6 +24,7 @@ import io.zenandroid.onlinego.ui.screens.game.GAME_ID
 import io.zenandroid.onlinego.ui.screens.game.GAME_WIDTH
 import io.zenandroid.onlinego.ui.screens.main.MainActivity
 import io.zenandroid.onlinego.ui.screens.mygames.Action.GameSelected
+import io.zenandroid.onlinego.ui.screens.mygames.composables.ChallengeDetailsDialog
 import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
 import io.zenandroid.onlinego.utils.WhatsNewUtils
 import io.zenandroid.onlinego.utils.rememberStateWithLifecycle
@@ -80,6 +81,14 @@ class MyGamesFragment : Fragment() {
                                 }
                             },
                             text = { Text(WhatsNewUtils.whatsNewTextAnnotated) }
+                        )
+                    }
+                    state.challengeDetailsStatus?.let {
+                        ChallengeDetailsDialog(
+                            onChallengeAccepted = { onAction(Action.ChallengeAccepted(it))},
+                            onChallengeDeclined = { onAction(Action.ChallengeDeclined(it))},
+                            onDialogDismissed = { onAction(Action.ChallengeDialogDismissed) },
+                            status = it,
                         )
                     }
                 }

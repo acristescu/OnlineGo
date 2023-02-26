@@ -303,6 +303,21 @@ abstract class GameDao {
     @Query ("SELECT * FROM challenge")
     abstract fun getChallenges(): Flowable<List<Challenge>>
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    abstract fun insertChallengeNotifications(list: List<ChallengeNotification>)
+
+    @Query("DELETE FROM challengeNotification")
+    abstract fun deleteChallengeNotifications()
+
+    @Transaction
+    open fun replaceChallengeNotifications(list: List<ChallengeNotification>) {
+        deleteChallengeNotifications()
+        insertChallengeNotifications(list)
+    }
+
+    @Query ("SELECT * FROM challengeNotification")
+    abstract fun getChallengeNotifications(): Flowable<List<ChallengeNotification>>
+
     @Transaction
     @Query ("SELECT * FROM gamenotification")
     abstract fun getGameNotifications(): Flowable<List<GameNotificationWithDetails>>

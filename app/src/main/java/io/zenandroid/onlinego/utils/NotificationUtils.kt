@@ -20,6 +20,7 @@ import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.gamelogic.RulesManager
 import io.zenandroid.onlinego.data.model.local.Challenge
+import io.zenandroid.onlinego.data.model.local.ChallengeNotification
 import io.zenandroid.onlinego.data.model.local.Game
 import io.zenandroid.onlinego.data.model.local.GameNotificationWithDetails
 import io.zenandroid.onlinego.data.model.ogs.Phase
@@ -85,13 +86,14 @@ class NotificationUtils {
             }
         }
 
-        fun notifyChallenges(context: Context, challenges: List<Challenge>, userId: Long) {
+        fun notifyChallenges(context: Context, challenges: List<Challenge>, previousNotifications: List<ChallengeNotification>, userId: Long) {
             val notificationIntent = Intent(context, MainActivity::class.java)
             notificationIntent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
             val pendingIntent = PendingIntent.getActivity(context, 0, notificationIntent, FLAG_UPDATE_CURRENT or FLAG_IMMUTABLE)
 
             challenges
                     .filter { it.challenger?.id != userId }
+                    .filter { previousNotifications.find { previous -> it.id == previous.id } == null }
                     .forEach {
                         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
                         notificationManager.notify(it.id.toInt(),

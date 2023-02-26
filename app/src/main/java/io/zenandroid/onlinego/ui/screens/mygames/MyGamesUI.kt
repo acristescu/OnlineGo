@@ -168,7 +168,15 @@ private fun Preview() {
                             ui_class = null,
                             historicRating = null,
                             deviation = null
-                            )
+                            ),
+                        rules = "japanese",
+                        handicap = 0,
+                        gameId = 123L,
+                        disabledAnalysis = true,
+                        height = 19,
+                        width = 19,
+                        ranked = true,
+                        speed = "correspondence",
                     ),
                     Challenge(
                         id = 1L,
@@ -192,8 +200,16 @@ private fun Preview() {
                             icon = null,
                             ui_class = null,
                             historicRating = null,
-                            deviation = null
-                            )
+                            deviation = null,
+                            ),
+                        rules = "japanese",
+                        handicap = 0,
+                        gameId = 123L,
+                        disabledAnalysis = true,
+                        height = 19,
+                        width = 19,
+                        ranked = true,
+                        speed = "correspondence",
                     ),
                 ),
                 boardTheme = BoardTheme.WOOD,

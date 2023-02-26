@@ -1,6 +1,8 @@
 package io.zenandroid.onlinego.ui.screens.mygames
 
 import android.util.Log
+import androidx.compose.ui.text.capitalize
+import androidx.compose.ui.text.toUpperCase
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.analytics.FirebaseAnalytics
@@ -21,12 +23,18 @@ import io.zenandroid.onlinego.data.repositories.*
 import io.zenandroid.onlinego.gamelogic.RulesManager
 import io.zenandroid.onlinego.utils.WhatsNewUtils
 import io.zenandroid.onlinego.utils.addToDisposable
+import io.zenandroid.onlinego.utils.egfToRank
+import io.zenandroid.onlinego.utils.formatRank
 import io.zenandroid.onlinego.utils.timeLeftForCurrentPlayer
+import kotlinx.collections.immutable.ImmutableList
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+import okhttp3.internal.immutableListOf
+import okhttp3.internal.toImmutableList
 import org.json.JSONObject
+import java.util.Locale
 import javax.annotation.concurrent.Immutable
 
 class MyGamesViewModel(
@@ -167,6 +175,28 @@ class MyGamesViewModel(
     }
 
 
+    private fun onChallengeSeeDetails(challenge: Challenge) {
+        val rank = formatRank(egfToRank(challenge.challenger?.rating), challenge.challenger?.deviation, true)
+        val rating = challenge.challenger?.rating?.toInt()?.toString() ?: ""
+        val status = ChallengeDialogStatus(
+            challenge = challenge,
+            imageURL = challenge.challenger?.icon,
+            name = challenge.challenger?.username,
+            rank = "$rank ($rating)",
+            details = listOf(
+                "Board Size" to "${challenge.width}x${challenge.height}",
+                "Speed" to "${challenge.speed?.capitalize(Locale.UK)}",
+                "Ranked" to if(challenge.ranked == true) "Yes" else "No",
+                "Analysis" to if(challenge.disabledAnalysis == true) "Disabled" else "Enabled",
+                "Handicap" to "${challenge.handicap ?: "Auto"}",
+                "Rules" to "${challenge.rules?.capitalize(Locale.UK)}",
+            ),
+        )
+        _state.value = _state.value.copy(
+            challengeDetailsStatus = status,
+        )
+    }
+
     private fun onChallengeCancelled(challenge: Challenge) {
         analytics.logEvent("challenge_cancelled", null)
         restService.declineChallenge(challenge.id)
@@ -245,11 +275,13 @@ class MyGamesViewModel(
     fun onAction(action: Action) {
         when(action) {
             is Action.ChallengeAccepted -> onChallengeAccepted(action.challenge)
+            is Action.ChallengeSeeDetails -> onChallengeSeeDetails(action.challenge)
             is Action.ChallengeCancelled -> onChallengeCancelled(action.challenge)
             is Action.ChallengeDeclined -> onChallengeDeclined(action.challenge)
             is Action.AutomatchCancelled -> onAutomatchCancelled(action.automatch)
             is Action.LoadMoreHistoricGames -> onNeedMoreOlderGames(action.game)
             is Action.DismissWhatsNewDialog -> onDismissWhatsNewDialog()
+            Action.ChallengeDialogDismissed -> _state.value = _state.value.copy(challengeDetailsStatus = null)
             Action.DismissAlertDialog -> onDismissAlertDialog()
             Action.GameNavigationConsumed -> onGameNavigationConsumed()
             Action.ViewResumed -> onViewResumed()
@@ -347,6 +379,7 @@ data class MyGamesState(
     val tutorialTitle: String? = null,
     val boardTheme: BoardTheme,
     val online: Boolean = true,
+    val challengeDetailsStatus: ChallengeDialogStatus? = null,
 )
 
 
@@ -360,9 +393,20 @@ sealed class Action {
     object GameNavigationConsumed: Action()
     class GameSelected(val game: Game): Action()
     class ChallengeCancelled(val challenge: Challenge): Action()
+    class ChallengeSeeDetails(val challenge: Challenge): Action()
     class ChallengeAccepted(val challenge: Challenge): Action()
+    object ChallengeDialogDismissed: Action()
     class ChallengeDeclined(val challenge: Challenge): Action()
     class AutomatchCancelled(val automatch: OGSAutomatch): Action()
     class LoadMoreHistoricGames(val game: Game?): Action()
     object ViewResumed: Action()
 }
+
+@Immutable
+data class ChallengeDialogStatus(
+    val challenge: Challenge,
+    val imageURL: String?,
+    val name: String?,
+    val rank: String,
+    val details: List<Pair<String, String>>
+)
