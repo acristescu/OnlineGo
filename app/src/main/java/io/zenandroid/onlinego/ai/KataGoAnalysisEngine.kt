@@ -157,8 +157,7 @@ object KataGoAnalysisEngine {
                     Log.d("KataGoAnalysisEngine", stringQuery)
                     FirebaseCrashlytics.getInstance().log("KATAGO> $stringQuery")
                     writer?.apply {
-                        write(stringQuery)
-                        write("\n")
+                        write(stringQuery + "\n")
                         flush()
                     }
                 }
