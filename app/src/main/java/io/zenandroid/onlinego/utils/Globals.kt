@@ -1,6 +1,5 @@
 package io.zenandroid.onlinego.utils
 
-import io.zenandroid.onlinego.ui.screens.game_legacy.GamePresenter
 import io.zenandroid.onlinego.data.model.local.Clock
 import io.zenandroid.onlinego.data.model.local.Game
 import io.zenandroid.onlinego.data.model.local.Time
@@ -249,7 +248,7 @@ fun computeTimeLeft(
     currentPlayer: Boolean,
     pausedSince: Long?,
     timeControl: TimeControl? = null,
-): GamePresenter.TimerDetails {
+): TimerDetails {
     val now = serverTime.coerceAtMost(pausedSince ?: Long.MAX_VALUE)
     val baseTime = clock.lastMove.coerceAtMost(pausedSince ?: Long.MAX_VALUE)
     var timeLeft = 0L
@@ -301,7 +300,7 @@ fun computeTimeLeft(
         }
     } else {
         // No timer
-        return GamePresenter.TimerDetails(
+        return TimerDetails(
             expired = false,
             firstLine = "∞",
             secondLine = null,
@@ -309,10 +308,17 @@ fun computeTimeLeft(
         )
     }
 
-    return GamePresenter.TimerDetails(
+    return TimerDetails(
         expired = timeLeft <= 0,
         firstLine = formatMillis(timeLeft),
         secondLine = secondLine,
         timeLeft = timeLeft
     )
 }
+
+data class TimerDetails (
+    var expired: Boolean,
+    var firstLine: String? = null,
+    var secondLine: String? = null,
+    var timeLeft: Long
+)
