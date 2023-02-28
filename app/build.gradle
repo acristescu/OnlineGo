@@ -48,6 +48,9 @@ android {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
     }
+    testOptions {
+        unitTests.returnDefaultValues = true
+    }
     tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
         kotlinOptions {
             freeCompilerArgs += "-opt-in=androidx.compose.animation.ExperimentalAnimationApi"
@@ -188,6 +191,9 @@ dependencies {
 
     testImplementation 'com.nhaarman:mockito-kotlin-kt1.1:1.6.0'
     testImplementation 'junit:junit:4.13.2'
+    testImplementation "org.mockito:mockito-inline:3.11.2"
+    testImplementation "androidx.arch.core:core-testing:2.2.0"
+    testImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.4'
     testImplementation "io.insert-koin:koin-test-junit4:$koin_version"
 
     androidTestImplementation composeBom

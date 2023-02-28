@@ -18,7 +18,9 @@ object RulesManager {
 
     init {
         println("loading library")
-        System.loadLibrary("estimator")
+        try {
+            System.loadLibrary("estimator")
+        } catch (e: Throwable) {}
     }
 
     private val positionsCache = lruCache<CacheKey, Position>(1000)

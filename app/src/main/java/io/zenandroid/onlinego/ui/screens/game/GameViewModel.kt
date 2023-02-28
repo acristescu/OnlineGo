@@ -44,11 +44,12 @@ class GameViewModel(
     private val chatRepository: ChatRepository,
     private val settingsRepository: SettingsRepository,
     private val getUserStatsUseCase: GetUserStatsUseCase,
+    coroutineScope: CoroutineScope? = null,
 ): ViewModel() {
 
     // Need to add a MonotonicFrameClock
     // See: https://github.com/cashapp/molecule/#frame-clock
-    private val moleculeScope = CoroutineScope(viewModelScope.coroutineContext + AndroidUiDispatcher.Main)
+    private val moleculeScope = coroutineScope ?: CoroutineScope(viewModelScope.coroutineContext + AndroidUiDispatcher.Main)
 
     private var loading by mutableStateOf(true)
     private lateinit var currentGamePosition: MutableState<Position>
@@ -109,9 +110,13 @@ class GameViewModel(
             }
 
 
-        state = moleculeScope.launchMolecule(clock = RecompositionClock.ContextClock) {
-            val game by gameFlow.collectAsState(initial = null)
+        state = moleculeScope.launchMolecule(clock = RecompositionClock.Immediate) {
+            // val game by gameFlow.collectAsState(initial = null)
             val messages by messagesFlow.collectAsState(emptyMap())
+            var game by remember { mutableStateOf<Game?>(null) }
+            LaunchedEffect(gameFlow) { gameFlow.collect { game = it } }
+
+            println(game)
 
             LaunchedEffect(game?.moves) {
                 if(!loading && !game?.moves.isNullOrEmpty() && settingsRepository.sound) {
@@ -602,7 +607,7 @@ class GameViewModel(
                         val newPosition = RulesManager.makeMove(pos, pos.nextToMove, cell)
                         if (newPosition != null) {
                             val variation = currentVariation
-                            currentVariation = when {
+                            val newVariation = when {
                                 variation == null && analysisShownMoveNumber <= (gameState?.moves?.size ?: 0) && gameState?.moves?.getOrNull(analysisShownMoveNumber) == cell -> null
                                 variation == null -> Variation(analysisShownMoveNumber, listOf(cell))
                                 analysisShownMoveNumber == variation.rootMoveNo + variation.moves.size -> variation.copy(moves = variation.moves + cell)
@@ -613,6 +618,21 @@ class GameViewModel(
                                 variation.moves[analysisShownMoveNumber - variation.rootMoveNo] == cell -> variation
                                 else -> variation.copy(moves = variation.moves.take(analysisShownMoveNumber - variation.rootMoveNo) + cell)
                             }
+
+                            if(newVariation != null && (newVariation.moves.size > 2 || newVariation.rootMoveNo > 0)) {
+                                val potentialKoPosition = if(newVariation.moves.size == 1) {
+                                    RulesManager.replay(gameState!!, newVariation.rootMoveNo - 1)
+                                } else {
+                                    RulesManager.replay(gameState!!, newVariation.rootMoveNo + newVariation.moves.size - 2, false, newVariation)
+                                }
+                                if(potentialKoPosition.hasTheSameStonesAs(newPosition)) {
+                                    koMoveDialogShowing = true
+                                    candidateMove = null
+                                    return@launch
+                                }
+                            }
+
+                            currentVariation = newVariation
                             analysisShownMoveNumber++
                         }
                         candidateMove = null
