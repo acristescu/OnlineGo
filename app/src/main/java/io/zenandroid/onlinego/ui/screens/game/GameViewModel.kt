@@ -602,7 +602,7 @@ class GameViewModel(
                         val newPosition = RulesManager.makeMove(pos, pos.nextToMove, cell)
                         if (newPosition != null) {
                             val variation = currentVariation
-                            currentVariation = when {
+                            val newVariation = when {
                                 variation == null && analysisShownMoveNumber <= (gameState?.moves?.size ?: 0) && gameState?.moves?.getOrNull(analysisShownMoveNumber) == cell -> null
                                 variation == null -> Variation(analysisShownMoveNumber, listOf(cell))
                                 analysisShownMoveNumber == variation.rootMoveNo + variation.moves.size -> variation.copy(moves = variation.moves + cell)
@@ -613,6 +613,22 @@ class GameViewModel(
                                 variation.moves[analysisShownMoveNumber - variation.rootMoveNo] == cell -> variation
                                 else -> variation.copy(moves = variation.moves.take(analysisShownMoveNumber - variation.rootMoveNo) + cell)
                             }
+
+
+                            if(newVariation != null && (newVariation.moves.size > 2 || newVariation.rootMoveNo > 0)) {
+                                val potentialKoPosition = if(newVariation.moves.size == 1) {
+                                    RulesManager.replay(gameState!!, newVariation.rootMoveNo - 1)
+                                } else {
+                                    RulesManager.replay(gameState!!, newVariation.rootMoveNo + newVariation.moves.size - 2, false, newVariation)
+                                }
+                                if(potentialKoPosition.hasTheSameStonesAs(newPosition)) {
+                                    koMoveDialogShowing = true
+                                    candidateMove = null
+                                    return@launch
+                                }
+                            }
+
+                            currentVariation = newVariation
                             analysisShownMoveNumber++
                         }
                         candidateMove = null
