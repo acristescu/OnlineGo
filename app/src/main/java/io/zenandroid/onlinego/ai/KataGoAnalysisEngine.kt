@@ -21,6 +21,8 @@ import java.util.concurrent.atomic.AtomicLong
 object KataGoAnalysisEngine {
     var started = false
         private set
+    var shouldShutDown = false
+        private set
     private var process: Process? = null
     private var writer: OutputStreamWriter? = null
     private var reader: BufferedReader? = null
@@ -35,6 +37,7 @@ object KataGoAnalysisEngine {
     @Throws(IOException::class)
     @Synchronized
     fun startEngine() {
+        shouldShutDown = false
         if (started) {
             return
         }
@@ -96,18 +99,25 @@ object KataGoAnalysisEngine {
 
     @Synchronized
     fun stopEngine() {
+        shouldShutDown = true
         if(!started) {
             return
         }
         Thread {
-            try {
-                writer?.close()
-                process?.waitFor()
-            } catch (t: Throwable) {
-                process?.destroy()
+            Thread.sleep(2000)
+            synchronized(KataGoAnalysisEngine) {
+                if(shouldShutDown && started) {
+                    try {
+                        writer?.close()
+                        process?.waitFor()
+                    } catch (t: Throwable) {
+                        process?.destroy()
+                    }
+                    process = null
+                    started = false
+                    shouldShutDown = false
+                }
             }
-            process = null
-            started = false
         }.start()
     }
 

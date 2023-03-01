@@ -26,11 +26,12 @@ private val annotatedCurrentText = AnnotatedString.Builder().run {
     pop()
 
     pushStyle(SpanStyle(fontWeight = FontWeight.Normal))
-    append("· Added ability to change the board background (thanks to MathieuDreano for the contribution).")
-    append("· Player with provisional ranks have a ? displayed instead of their rank (thanks to Chosenundead15 for the contribution).")
-    append("· Starting from next version, the status of the messages will not reset when updating the app.")
-    append("· Implemented an offline icon on the main page (work in progress).")
-    append("· Fixed a bug in which the last analysis position was shown when the game was over.")
+    append("· Added LGBT, EU, England, Scotland, Wales and other special flags (thanks to benjaminpjones for the contribution).")
+    append("· Implemented some improvements to the offline indicator.")
+    append("· Added details to incoming challenges.")
+    append("· Added versus stats to player details.")
+    append("· Fixed some issues with KataGo.")
+    append("· Implemented KO detection in Analysis mode.")
     pop()
 
     // pushStyle(SpanStyle(fontSize = 18.sp))
