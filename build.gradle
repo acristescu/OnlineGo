@@ -21,10 +21,12 @@ buildscript {
 
         classpath "io.insert-koin:koin-gradle-plugin:3.2.0"
 
-        classpath "app.cash.molecule:molecule-gradle-plugin:0.7.0"
+        classpath "app.cash.molecule:molecule-gradle-plugin:0.7.1"
     }
 }
-
+plugins {
+    id 'com.google.devtools.ksp' version '1.8.0-1.0.9' apply false
+}
 allprojects {
     repositories {
         google()

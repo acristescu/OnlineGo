@@ -15,7 +15,7 @@ class DbTypeConverters {
 
         @TypeConverter
         @JvmStatic
-        fun stringToListOfCell(s: String): MutableList<Cell>? {
+        fun stringToListOfCell(s: String): List<Cell>? {
             if(s.isEmpty()) {
                 return mutableListOf()
             }
@@ -28,7 +28,7 @@ class DbTypeConverters {
 
         @TypeConverter
         @JvmStatic
-        fun listOfCellToString(list: MutableList<Cell>?): String {
+        fun listOfCellToString(list: List<Cell>?): String {
             val buf = StringBuffer((list?.size ?:0) * 2)
             list?.forEach {
                 buf.append('a' + it.x )
