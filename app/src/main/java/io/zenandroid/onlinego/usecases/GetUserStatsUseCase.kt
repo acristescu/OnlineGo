@@ -1,6 +1,7 @@
 package io.zenandroid.onlinego.usecases
 
 import com.github.mikephil.charting.data.Entry
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import io.zenandroid.onlinego.data.model.local.UserStats
@@ -8,10 +9,8 @@ import io.zenandroid.onlinego.data.model.ogs.Glicko2History
 import io.zenandroid.onlinego.data.model.ogs.Glicko2HistoryItem
 import io.zenandroid.onlinego.data.model.ogs.VersusStats
 import io.zenandroid.onlinego.data.ogs.OGSRestService
-import org.threeten.bp.Duration
 import org.threeten.bp.LocalDateTime
 import org.threeten.bp.ZoneOffset
-import java.util.*
 
 class GetUserStatsUseCase (
     private val restService: OGSRestService,
@@ -23,13 +22,23 @@ class GetUserStatsUseCase (
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
 
-    suspend fun getPlayerStatsAsync(playerId: Long): UserStats {
-        val history = restService.getPlayerStatsAsync(playerId)
-        return processPlayerStats(history)
+    suspend fun getPlayerStatsAsync(playerId: Long): UserStats? {
+        return try {
+            val history = restService.getPlayerStatsAsync(playerId)
+            processPlayerStats(history)
+        } catch (e: Exception) {
+            FirebaseCrashlytics.getInstance().recordException(e)
+            null
+        }
     }
 
-    suspend fun getVSStats(playerId: Long): VersusStats {
-        return restService.getPlayerVersusStats(playerId)
+    suspend fun getVSStats(playerId: Long): VersusStats? {
+        return try {
+            restService.getPlayerVersusStats(playerId)
+        } catch (e: Exception) {
+            FirebaseCrashlytics.getInstance().recordException(e)
+            null
+        }
     }
 
     private fun generateChartData(duration: Long?, groupCount: Int, rawData: List<Glicko2HistoryItem>): List<Entry> {

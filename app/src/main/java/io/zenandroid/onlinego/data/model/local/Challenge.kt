@@ -39,7 +39,7 @@ data class Challenge(
                                 ranked = ogsChallenge.game?.ranked,
                                 handicap = ogsChallenge.game?.handicap,
                                 rules = ogsChallenge.game?.rules,
-                                speed = params.getString("speed")
+                                speed = params.optString("speed")
                         )
                 }
         }
