@@ -20,6 +20,7 @@ class JosekiRepository(
     private val disposable = CompositeDisposable()
     private val customMarkPattern = "<(.):([A-H]|[J-T]\\d{1,2})>".toPattern()
     private val headerWithMissingSpaceRegex = "#(?!\\s|#)".toRegex()
+    private val positionLink = "<position: (\\d+)>".toRegex()
 
     fun getJosekiPosition(id: Long?): Flowable<JosekiPosition> {
         disposable += restService.getJosekiPositions(id)
@@ -75,7 +76,9 @@ class JosekiRepository(
             }
             originalPos.labels = labels
             matcher.appendTail(sb)
-            newDescription = sb.toString()
+            newDescription = sb.toString().replace(positionLink) { match: MatchResult ->
+                "[Position ${match.groupValues[1]}](${match.groupValues[1]})"
+            }
         }
 
         originalPos.description = newDescription
