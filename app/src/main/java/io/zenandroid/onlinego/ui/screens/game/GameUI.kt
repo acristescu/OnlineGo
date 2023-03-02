@@ -278,7 +278,7 @@ fun GameScreen(state: GameState,
         GameOverDialog(onUserAction, dialog)
     }
     state.playerDetailsDialogShowing?.let {
-        PlayerDetailsDialog( { onUserAction(PlayerDetailsDialogDismissed) }, it, state.playerStats, state.versusStats)
+        PlayerDetailsDialog( { onUserAction(PlayerDetailsDialogDismissed) }, it, state.playerStats, state.versusStats, state.versusStatsHidden)
     }
 }
 

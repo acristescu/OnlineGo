@@ -28,6 +28,8 @@ import io.zenandroid.onlinego.ui.screens.game.Button.*
 import io.zenandroid.onlinego.ui.screens.game.PendingNavigation.*
 import io.zenandroid.onlinego.ui.screens.game.UserAction.*
 import io.zenandroid.onlinego.usecases.GetUserStatsUseCase
+import io.zenandroid.onlinego.usecases.RepoResult
+import io.zenandroid.onlinego.usecases.RepoResult.Loading
 import io.zenandroid.onlinego.utils.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
@@ -78,10 +80,10 @@ class GameViewModel(
     private var gameInfoDialogShowing by mutableStateOf(false)
     private var playerDetailsDialogShowing by mutableStateOf<Player?>(null)
     private var dismissedUndoDialogAtMove by mutableStateOf<Int?>(null)
-    private var whitePlayerStats by mutableStateOf<UserStats?>(null)
-    private var blackPlayerStats by mutableStateOf<UserStats?>(null)
-    private var whitePlayerVersusStats by mutableStateOf<VersusStats?>(null)
-    private var blackPlayerVersusStats by mutableStateOf<VersusStats?>(null)
+    private var whitePlayerStats by mutableStateOf<RepoResult<UserStats>>(Loading())
+    private var blackPlayerStats by mutableStateOf<RepoResult<UserStats>>(Loading())
+    private var whitePlayerVersusStats by mutableStateOf<RepoResult<VersusStats>>(Loading())
+    private var blackPlayerVersusStats by mutableStateOf<RepoResult<VersusStats>>(Loading())
 
     lateinit var state: StateFlow<GameState>
     var pendingNavigation by mutableStateOf<PendingNavigation?>(null)
@@ -138,34 +140,34 @@ class GameViewModel(
             }
             if(playerDetailsDialogShowing != null)  {
                 if((playerDetailsDialogShowing == game?.whitePlayer)) {
-                    if(whitePlayerStats == null) {
+                    if(whitePlayerStats is Loading) {
                         LaunchedEffect(playerDetailsDialogShowing) {
                             whitePlayerStats = playerDetailsDialogShowing?.id?.let {
                                 getUserStatsUseCase.getPlayerStatsAsync(it)
-                            }
+                            } ?: Loading()
                         }
                     }
-                    if(whitePlayerVersusStats == null && game?.blackPlayer?.id == userId) {
+                    if(whitePlayerVersusStats is Loading && game?.blackPlayer?.id == userId) {
                         LaunchedEffect(playerDetailsDialogShowing) {
                             whitePlayerVersusStats = playerDetailsDialogShowing?.id?.let {
                                 getUserStatsUseCase.getVSStats(it)
-                            }
+                            } ?: Loading()
                         }
                     }
                 }
                 if((playerDetailsDialogShowing == game?.blackPlayer)) {
-                    if(blackPlayerStats == null) {
+                    if(blackPlayerStats is Loading) {
                         LaunchedEffect(playerDetailsDialogShowing) {
                             blackPlayerStats = playerDetailsDialogShowing?.id?.let {
                                 getUserStatsUseCase.getPlayerStatsAsync(it)
-                            }
+                            } ?: Loading()
                         }
                     }
-                    if(blackPlayerVersusStats == null && game?.whitePlayer?.id == userId) {
+                    if(blackPlayerVersusStats is Loading && game?.whitePlayer?.id == userId) {
                         LaunchedEffect(playerDetailsDialogShowing) {
                             blackPlayerVersusStats = playerDetailsDialogShowing?.id?.let {
                                 getUserStatsUseCase.getVSStats(it)
-                            }
+                            } ?: Loading()
                         }
                     }
                 }
@@ -270,10 +272,11 @@ class GameViewModel(
                 requestUndoDialogShowing = userUndoDialogShowing,
                 playerStats = if(playerDetailsDialogShowing == game?.whitePlayer) whitePlayerStats else blackPlayerStats,
                 versusStats = when(playerDetailsDialogShowing?.id) {
-                    userId, null -> null
+                    userId, null -> Loading()
                     game?.whitePlayer?.id -> whitePlayerVersusStats
                     else -> blackPlayerVersusStats
-                }
+                },
+                versusStatsHidden = playerDetailsDialogShowing?.id == userId
             )
         }
     }
@@ -395,7 +398,7 @@ class GameViewModel(
                 pop()
                 append(" disconnected.")
             }
-            else -> AnnotatedString("Result unknown (${game.outcome})")
+            else -> AnnotatedString("RepoResult unknown (${game.outcome})")
         }
 
         if(game.ranked == true && you.rating != null) {
@@ -809,8 +812,9 @@ data class GameState(
     val opponentRequestedUndo: Boolean,
     val opponentRequestedUndoDialogShowing: Boolean,
     val requestUndoDialogShowing: Boolean,
-    val playerStats: UserStats?,
-    val versusStats: VersusStats?,
+    val playerStats: RepoResult<UserStats>,
+    val versusStats: RepoResult<VersusStats>,
+    val versusStatsHidden: Boolean,
 ) {
     companion object {
         val DEFAULT = GameState(
@@ -851,9 +855,10 @@ data class GameState(
             opponentRequestedUndo = false,
             opponentRequestedUndoDialogShowing = false,
             requestUndoDialogShowing = true,
-            playerStats = null,
+            playerStats = Loading(),
             lastMoveMarker = "#",
-            versusStats = null,
+            versusStats = Loading(),
+            versusStatsHidden = false,
         )
     }
 }

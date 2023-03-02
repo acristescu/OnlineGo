@@ -182,7 +182,7 @@ class MyGamesViewModel(
             challenge = challenge,
             imageURL = challenge.challenger?.icon,
             name = challenge.challenger?.username,
-            rank = "$rank ($rating)",
+            rank = if(settingsRepository.showRanks) "$rank ($rating)" else "",
             details = listOf(
                 "Board Size" to "${challenge.width}x${challenge.height}",
                 "Speed" to "${challenge.speed?.capitalize(Locale.UK)}",

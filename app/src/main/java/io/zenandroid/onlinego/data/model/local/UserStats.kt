@@ -23,4 +23,11 @@ data class UserStats(
     val mostFacedWon: Int,
     val highestWin: Glicko2HistoryItem?,
     val last10Games: List<Glicko2HistoryItem>
-)
+) {
+    companion object {
+        val EMPTY = UserStats(
+            0f, 0L, emptyList(), emptyList(), emptyList(), emptyList(),
+            emptyList(), 0, 0, 0, 0L, 0L, null, 0, 0, null, emptyList()
+        )
+    }
+}

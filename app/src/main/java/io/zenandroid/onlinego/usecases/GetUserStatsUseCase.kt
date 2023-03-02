@@ -9,6 +9,8 @@ import io.zenandroid.onlinego.data.model.ogs.Glicko2History
 import io.zenandroid.onlinego.data.model.ogs.Glicko2HistoryItem
 import io.zenandroid.onlinego.data.model.ogs.VersusStats
 import io.zenandroid.onlinego.data.ogs.OGSRestService
+import io.zenandroid.onlinego.usecases.RepoResult.Error
+import io.zenandroid.onlinego.usecases.RepoResult.Success
 import org.threeten.bp.LocalDateTime
 import org.threeten.bp.ZoneOffset
 
@@ -22,22 +24,22 @@ class GetUserStatsUseCase (
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
 
-    suspend fun getPlayerStatsAsync(playerId: Long): UserStats? {
+    suspend fun getPlayerStatsAsync(playerId: Long): RepoResult<UserStats> {
         return try {
             val history = restService.getPlayerStatsAsync(playerId)
-            processPlayerStats(history)
+            Success(processPlayerStats(history))
         } catch (e: Exception) {
             FirebaseCrashlytics.getInstance().recordException(e)
-            null
+            Error(e)
         }
     }
 
-    suspend fun getVSStats(playerId: Long): VersusStats? {
+    suspend fun getVSStats(playerId: Long): RepoResult<VersusStats> {
         return try {
-            restService.getPlayerVersusStats(playerId)
+            Success(restService.getPlayerVersusStats(playerId))
         } catch (e: Exception) {
             FirebaseCrashlytics.getInstance().recordException(e)
-            null
+            Error(e)
         }
     }
 
@@ -137,4 +139,10 @@ class GetUserStatsUseCase (
             last10Games = history.history.take(10).reversed(),
         )
     }
+}
+
+sealed interface RepoResult<T> {
+    class Loading<T>: RepoResult<T>
+    class Error<T>(val throwable: Throwable): RepoResult<T>
+    class Success<T>(val data: T): RepoResult<T>
 }
