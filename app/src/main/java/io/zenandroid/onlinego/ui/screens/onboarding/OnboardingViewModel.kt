@@ -73,8 +73,8 @@ class OnboardingViewModel(
             OnboardingAction.DialogDismissed -> _state.value = state.copy(loginErrorDialogText = null)
             OnboardingAction.SocialPlatformLoginFailed -> _state.value = state.copy(
                 loginMethod = null,
-                currentPageIndex = state.currentPageIndex - 1,
-                currentPage = pages[state.currentPageIndex - 1],
+                currentPageIndex = if(state.currentPageIndex == 0) 0 else state.currentPageIndex - 1,
+                currentPage = if(state.currentPageIndex == 0) pages[0] else pages[state.currentPageIndex - 1],
             )
         }
     }
