@@ -10,6 +10,8 @@ import io.zenandroid.onlinego.data.ogs.*
 import io.zenandroid.onlinego.data.repositories.*
 import io.zenandroid.onlinego.mvi.Store
 import io.zenandroid.onlinego.playstore.PlayStoreService
+import io.zenandroid.onlinego.ui.screens.face2face.FaceToFaceScreen
+import io.zenandroid.onlinego.ui.screens.face2face.FaceToFaceViewModel
 import io.zenandroid.onlinego.ui.screens.game.GameViewModel
 import io.zenandroid.onlinego.ui.screens.joseki.*
 import io.zenandroid.onlinego.ui.screens.learn.LearnViewModel
@@ -175,6 +177,10 @@ private val viewModelsModule = module {
 
     viewModel {
         GameViewModel(get(), get(), get(), get(), get(), get(), get())
+    }
+
+    viewModel {
+        FaceToFaceViewModel(get())
     }
 }
 

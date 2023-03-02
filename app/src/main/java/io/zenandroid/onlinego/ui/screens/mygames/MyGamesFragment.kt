@@ -105,6 +105,10 @@ class MyGamesFragment : Fragment() {
                 analytics.logEvent("localai_item_clicked", null)
                 view?.findNavController()?.navigate(R.id.action_myGamesFragment_to_aiGameFragment)
             }
+            Action.FaceToFace -> {
+                analytics.logEvent("face2face_item_clicked", null)
+                view?.findNavController()?.navigate(R.id.action_myGamesFragment_to_faceToFaceFragment)
+            }
             Action.PlayOnline -> {
                 analytics.logEvent("automatch_item_clicked", null)
                 (activity as MainActivity).onAutoMatchSearch()

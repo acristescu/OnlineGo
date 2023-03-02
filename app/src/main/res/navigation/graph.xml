@@ -24,6 +24,9 @@
             android:id="@+id/action_myGamesFragment_to_aiGameFragment"
             app:destination="@id/aiGameFragment" />
         <action
+            android:id="@+id/action_myGamesFragment_to_faceToFaceFragment"
+            app:destination="@id/faceToFaceFragment" />
+        <action
             android:id="@+id/action_myGamesFragment_to_gameFragment"
             app:destination="@id/gameFragment" />
     </fragment>
@@ -31,6 +34,10 @@
         android:id="@+id/aiGameFragment"
         android:name="io.zenandroid.onlinego.ui.screens.localai.AiGameFragment"
         android:label="AiGameFragment" />
+    <fragment
+        android:id="@+id/faceToFaceFragment"
+        android:name="io.zenandroid.onlinego.ui.screens.face2face.FaceToFaceFragment"
+        android:label="FaceToFaceFragment" />
     <fragment
         android:id="@+id/learn"
         android:name="io.zenandroid.onlinego.ui.screens.learn.LearnFragment"

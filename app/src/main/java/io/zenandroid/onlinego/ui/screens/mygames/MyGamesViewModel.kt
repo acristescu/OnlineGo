@@ -21,6 +21,7 @@ import io.zenandroid.onlinego.data.ogs.OGSRestService
 import io.zenandroid.onlinego.data.ogs.OGSWebSocketService
 import io.zenandroid.onlinego.data.repositories.*
 import io.zenandroid.onlinego.gamelogic.RulesManager
+import io.zenandroid.onlinego.ui.screens.mygames.Action.*
 import io.zenandroid.onlinego.utils.WhatsNewUtils
 import io.zenandroid.onlinego.utils.addToDisposable
 import io.zenandroid.onlinego.utils.egfToRank
@@ -274,19 +275,19 @@ class MyGamesViewModel(
 
     fun onAction(action: Action) {
         when(action) {
-            is Action.ChallengeAccepted -> onChallengeAccepted(action.challenge)
-            is Action.ChallengeSeeDetails -> onChallengeSeeDetails(action.challenge)
-            is Action.ChallengeCancelled -> onChallengeCancelled(action.challenge)
-            is Action.ChallengeDeclined -> onChallengeDeclined(action.challenge)
-            is Action.AutomatchCancelled -> onAutomatchCancelled(action.automatch)
-            is Action.LoadMoreHistoricGames -> onNeedMoreOlderGames(action.game)
-            is Action.DismissWhatsNewDialog -> onDismissWhatsNewDialog()
-            Action.ChallengeDialogDismissed -> _state.value = _state.value.copy(challengeDetailsStatus = null)
-            Action.DismissAlertDialog -> onDismissAlertDialog()
-            Action.GameNavigationConsumed -> onGameNavigationConsumed()
-            Action.ViewResumed -> onViewResumed()
+            is ChallengeAccepted -> onChallengeAccepted(action.challenge)
+            is ChallengeSeeDetails -> onChallengeSeeDetails(action.challenge)
+            is ChallengeCancelled -> onChallengeCancelled(action.challenge)
+            is ChallengeDeclined -> onChallengeDeclined(action.challenge)
+            is AutomatchCancelled -> onAutomatchCancelled(action.automatch)
+            is LoadMoreHistoricGames -> onNeedMoreOlderGames(action.game)
+            is DismissWhatsNewDialog -> onDismissWhatsNewDialog()
+            ChallengeDialogDismissed -> _state.value = _state.value.copy(challengeDetailsStatus = null)
+            DismissAlertDialog -> onDismissAlertDialog()
+            GameNavigationConsumed -> onGameNavigationConsumed()
+            ViewResumed -> onViewResumed()
 
-            Action.CustomGame, is Action.GameSelected, Action.PlayAgainstAI, Action.PlayOnline, Action.SupportClicked -> {} // intentionally left blank
+            CustomGame, is GameSelected, PlayAgainstAI, FaceToFace, PlayOnline, SupportClicked -> {} // intentionally left blank
         }
     }
 
@@ -387,6 +388,7 @@ sealed class Action {
     object PlayOnline: Action()
     object CustomGame: Action()
     object PlayAgainstAI: Action()
+    object FaceToFace: Action()
     object SupportClicked: Action()
     object DismissWhatsNewDialog: Action()
     object DismissAlertDialog: Action()

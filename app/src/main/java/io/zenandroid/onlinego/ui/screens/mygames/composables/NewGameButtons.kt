@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.SportsBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -31,6 +33,8 @@ fun NewGameButtonsRow(modifier: Modifier = Modifier, onAction: (Action) -> Unit)
         NewGameButton(img = R.drawable.ic_person_filled, text = "Play\nOnline") { onAction(Action.PlayOnline) }
         NewGameButton(img = R.drawable.ic_tool, text = "Custom\nGame") { onAction(Action.CustomGame) }
         NewGameButton(img = R.drawable.ic_robot, text = "Play\nAgainst AI") { onAction(Action.PlayAgainstAI) }
+        NewGameButton(img = R.drawable.ic_robot, text = "Face\nto Face") { onAction(Action.FaceToFace) }
+        // NewGameButton(img = Icons.Rounded.SportsBar, text = "Face\nto Face") { onAction(Action.FaceToFace) }
     }
 }
 
@@ -38,7 +42,7 @@ fun NewGameButtonsRow(modifier: Modifier = Modifier, onAction: (Action) -> Unit)
 fun NewGameButton(@DrawableRes img: Int, text: String, onClick: () -> Unit) {
     Column(modifier = Modifier
         .clickable { onClick.invoke() }
-        .padding(horizontal = 24.dp, vertical = 8.dp)
+        .padding(vertical = 8.dp)
     ) {
         Image(
             painter = painterResource(id = img),
