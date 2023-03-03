@@ -1,5 +1,6 @@
 package io.zenandroid.onlinego.ui.screens.game
 
+import android.content.Context
 import android.content.Intent
 import android.media.MediaPlayer
 import android.net.Uri
@@ -7,9 +8,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.ComposeView
 import androidx.core.os.bundleOf
@@ -68,13 +66,11 @@ class GameFragment : Fragment() {
                 val state by rememberStateWithLifecycle(viewModel.state)
 
                 OnlineGoTheme {
-                    AnimatedVisibility(visible = !state.loading, enter = fadeIn(animationSpec = tween(60))) {
-                        GameScreen(
-                            state = state,
-                            onBack = ::onBackPressed,
-                            onUserAction = viewModel::onUserAction
-                        )
-                    }
+                    GameScreen(
+                        state = state,
+                        onBack = ::onBackPressed,
+                        onUserAction = viewModel::onUserAction
+                    )
                 }
             }
         }
