@@ -39,6 +39,8 @@ import io.zenandroid.onlinego.ui.screens.newchallenge.ChallengeParams
 import io.zenandroid.onlinego.ui.screens.newchallenge.NewAutomatchChallengeBottomSheet
 import io.zenandroid.onlinego.ui.screens.newchallenge.NewChallengeBottomSheet
 import io.zenandroid.onlinego.ui.views.BoardView
+import io.zenandroid.onlinego.utils.hide
+import io.zenandroid.onlinego.utils.show
 import io.zenandroid.onlinego.utils.showIf
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -85,13 +87,25 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         navHostFragment.navController.addOnDestinationChangedListener { _, destination, arguments ->
             binding.apply {
                 bottomNavigation.apply {
-                    showIf(
+                    val shouldBeVisible =
                         destination.id in arrayOf(
-                            R.id.myGames,
-                            R.id.learn,
-                            R.id.settings
-                        ) || (destination.id == R.id.stats && arguments?.isEmpty != false)
-                    )
+                        R.id.myGames,
+                        R.id.learn,
+                        R.id.settings
+                    ) || (destination.id == R.id.stats && arguments?.isEmpty != false)
+                    if(shouldBeVisible) {
+                        alpha = 1f
+                        show()
+                    } else {
+                        animate().alpha(0f)
+                            .setUpdateListener {
+                                if (it.animatedFraction == 1f) {
+                                    hide()
+                                }
+                            }
+                            .setDuration(70)
+                            .start()
+                    }
                     setOnNavigationItemReselectedListener { }
                 }
             }

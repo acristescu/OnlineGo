@@ -14,7 +14,6 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy.DisposeOnLifecycleDestroyed
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
-import androidx.navigation.NavOptions
 import androidx.navigation.findNavController
 import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.R
@@ -131,15 +130,12 @@ class MyGamesFragment : Fragment() {
 
     private fun navigateToGameScreen(game: Game) {
         view?.findNavController()?.navigate(
-            R.id.gameFragment,
+            R.id.action_myGamesFragment_to_gameFragment,
             bundleOf(
                 GAME_ID to game.id,
                 GAME_WIDTH to game.width,
                 GAME_HEIGHT to game.height,
             ),
-            NavOptions.Builder()
-                .setLaunchSingleTop(true)
-                .build()
         )
     }
 
