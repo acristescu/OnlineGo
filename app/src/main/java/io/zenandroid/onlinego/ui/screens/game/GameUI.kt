@@ -684,13 +684,13 @@ private fun BottomBar(
                 text = text,
                 style = MaterialTheme.typography.h2,
                 color = MaterialTheme.colors.onSurface,
-                modifier = Modifier.align(Alignment.CenterVertically)
+                modifier = Modifier.align(CenterVertically)
             )
             DotsFlashing(
                 dotSize = 4.dp,
                 color = MaterialTheme.colors.onBackground,
                 modifier = Modifier
-                    .align(Alignment.CenterVertically)
+                    .align(CenterVertically)
                     .padding(top = 10.dp, start = 4.dp)
             )
             Spacer(modifier = Modifier.weight(.5f))
@@ -715,7 +715,7 @@ private fun Header(
             color = MaterialTheme.colors.onSurface,
             style = MaterialTheme.typography.h3,
             modifier = Modifier
-                .align(Alignment.CenterVertically)
+                .align(CenterVertically)
                 .clickable { onUserAction(GameInfoClick) }
         )
         Icon(
@@ -724,7 +724,7 @@ private fun Header(
             tint = MaterialTheme.colors.onSurface,
             modifier = Modifier
                 .size(18.dp)
-                .align(Alignment.CenterVertically)
+                .align(CenterVertically)
                 .padding(start = 6.dp)
                 .clickable { onUserAction(GameInfoClick) }
         )

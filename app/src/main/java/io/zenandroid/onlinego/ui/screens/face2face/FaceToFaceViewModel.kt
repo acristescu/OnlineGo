@@ -7,13 +7,12 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.cash.molecule.AndroidUiDispatcher
-import app.cash.molecule.RecompositionClock.Immediate
+import app.cash.molecule.RecompositionClock.ContextClock
 import app.cash.molecule.launchMolecule
 import io.zenandroid.onlinego.data.model.BoardTheme
 import io.zenandroid.onlinego.data.model.BoardTheme.WOOD
 import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.Position
-import io.zenandroid.onlinego.data.model.ogs.Phase
 import io.zenandroid.onlinego.data.repositories.SettingsRepository
 import io.zenandroid.onlinego.gamelogic.RulesManager
 import io.zenandroid.onlinego.ui.screens.face2face.Action.BoardCellDragged
@@ -43,7 +42,7 @@ class FaceToFaceViewModel(
 
   val state: StateFlow<FaceToFaceState> =
     if (testing) MutableStateFlow(FaceToFaceState.INITIAL)
-    else moleculeScope.launchMolecule(clock = Immediate) {
+    else moleculeScope.launchMolecule(clock = ContextClock) {
       Molecule()
     }
 
