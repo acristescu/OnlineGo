@@ -1,14 +1,17 @@
 package io.zenandroid.onlinego.ui.screens.face2face
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.preference.PreferenceManager
 import app.cash.molecule.AndroidUiDispatcher
 import app.cash.molecule.RecompositionClock.ContextClock
 import app.cash.molecule.launchMolecule
+import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.data.model.BoardTheme
 import io.zenandroid.onlinego.data.model.BoardTheme.WOOD
 import io.zenandroid.onlinego.data.model.Cell
@@ -22,10 +25,14 @@ import io.zenandroid.onlinego.ui.screens.face2face.Action.NextButtonPressed
 import io.zenandroid.onlinego.ui.screens.face2face.Action.PreviousButtonPressed
 import io.zenandroid.onlinego.ui.screens.game.GameOverDialogDetails
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.annotation.concurrent.Immutable
+
+private const val STATE_KEY = "FACE_TO_FACE_STATE_KEY"
 
 class FaceToFaceViewModel(
   private val settingsRepository: SettingsRepository,
@@ -45,6 +52,8 @@ class FaceToFaceViewModel(
   private var gameOverDetails by mutableStateOf<GameOverDialogDetails?>(null)
   private var gameOverDialogShowing by mutableStateOf(false)
 
+  private val prefs = PreferenceManager.getDefaultSharedPreferences(OnlineGoApplication.instance.baseContext)
+
   val state: StateFlow<FaceToFaceState> =
     if (testing) MutableStateFlow(FaceToFaceState.INITIAL)
     else moleculeScope.launchMolecule(clock = ContextClock) {
@@ -53,6 +62,9 @@ class FaceToFaceViewModel(
 
   @Composable
   fun Molecule(): FaceToFaceState {
+    LaunchedEffect(null) {
+      loadSavedData()
+    }
 
     val historyIndex = historyIndex
 
@@ -75,6 +87,27 @@ class FaceToFaceViewModel(
       showLastMove = true,
       koMoveDialogShowing = koMoveDialogShowing,
     )
+  }
+
+  private suspend fun loadSavedData() {
+    if(prefs.contains(STATE_KEY)) {
+      val historyString = withContext(Dispatchers.IO) {
+        prefs.getString(STATE_KEY, "")
+      }
+      historyString?.let {
+        history = it.split(" ").map {
+          val parts = it.split(",")
+          Cell(parts[0].toInt(), parts[1].toInt())
+        }
+        currentPosition = historyPosition(history.lastIndex)
+      }
+    }
+    loading = false
+  }
+
+  override fun onCleared() {
+    prefs.edit().putString(STATE_KEY, history.joinToString(separator = " ") { "${it.x},${it.y}" }).apply()
+    super.onCleared()
   }
 
   fun onAction(action: Action) {

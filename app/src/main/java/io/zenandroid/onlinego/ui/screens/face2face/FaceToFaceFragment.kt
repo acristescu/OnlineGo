@@ -22,6 +22,7 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.TextButton
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Functions
 import androidx.compose.material.icons.rounded.SkipNext
 import androidx.compose.material.icons.rounded.SkipPrevious
 import androidx.compose.material.icons.rounded.Tune
@@ -67,7 +68,7 @@ class FaceToFaceFragment: Fragment() {
         FaceToFaceScreen(
           state = state,
           onUserAction = viewModel::onAction,
-          onBackPressed = { requireActivity().onBackPressed() }
+          onBackPressed = { requireActivity().onBackPressedDispatcher.onBackPressed() }
         )
       }
     }
@@ -90,7 +91,7 @@ fun FaceToFaceScreen(
         title = "Face to Face",
         titleIcon = null,
         onTitleClicked = null,
-        onBack = { onBackPressed },
+        onBack = onBackPressed,
         moreMenuItems = emptyList(),
     )
       Board(
@@ -114,6 +115,7 @@ fun FaceToFaceScreen(
       Spacer(modifier = Modifier.weight(1f))
       Row(modifier = Modifier.height(56.dp)) {
         BottomBarButton(label = "Game settings", icon = Icons.Rounded.Tune, enabled = true, repeatable = false, modifier = Modifier.weight(1f),) {}
+        BottomBarButton(label = "Auto-score", icon = Icons.Rounded.Functions, enabled = true, repeatable = false, modifier = Modifier.weight(1f),) {}
         BottomBarButton(label = "Undo", icon = Icons.Rounded.SkipPrevious, enabled = state.previousButtonEnabled, repeatable = true, modifier = Modifier.weight(1f),) { onUserAction(PreviousButtonPressed) }
         BottomBarButton(label = "Redo", icon = Icons.Rounded.SkipNext, enabled = state.nextButtonEnabled, repeatable = true, modifier = Modifier.weight(1f),) { onUserAction(NextButtonPressed) }
       }

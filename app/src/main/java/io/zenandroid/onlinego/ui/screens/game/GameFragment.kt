@@ -89,6 +89,6 @@ class GameFragment : Fragment() {
     }
 
     private fun onBackPressed() {
-        requireActivity().onBackPressed()
+        requireActivity().onBackPressedDispatcher.onBackPressed()
     }
 }
