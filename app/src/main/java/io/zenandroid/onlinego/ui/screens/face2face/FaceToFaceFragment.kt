@@ -16,9 +16,11 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
+import androidx.compose.material.AlertDialog
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
+import androidx.compose.material.TextButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.SkipNext
 import androidx.compose.material.icons.rounded.SkipPrevious
@@ -37,8 +39,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.Fragment
 import io.zenandroid.onlinego.ui.composables.Board
+import io.zenandroid.onlinego.ui.composables.TitleBar
 import io.zenandroid.onlinego.ui.screens.face2face.Action.BoardCellDragged
 import io.zenandroid.onlinego.ui.screens.face2face.Action.BoardCellTapUp
+import io.zenandroid.onlinego.ui.screens.face2face.Action.KOMoveDialogDismiss
+import io.zenandroid.onlinego.ui.screens.face2face.Action.NextButtonPressed
+import io.zenandroid.onlinego.ui.screens.face2face.Action.PreviousButtonPressed
 import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
 import io.zenandroid.onlinego.utils.rememberStateWithLifecycle
 import io.zenandroid.onlinego.utils.repeatingClickable
@@ -58,20 +64,35 @@ class FaceToFaceFragment: Fragment() {
       setContent {
         val state by rememberStateWithLifecycle(viewModel.state)
 
-        FaceToFaceScreen(state, viewModel::onAction)
+        FaceToFaceScreen(
+          state = state,
+          onUserAction = viewModel::onAction,
+          onBackPressed = { requireActivity().onBackPressed() }
+        )
       }
     }
   }
 }
 
 @Composable
-fun FaceToFaceScreen(state : FaceToFaceState, onUserAction: (Action) -> Unit) {
+fun FaceToFaceScreen(
+  state : FaceToFaceState,
+  onUserAction: (Action) -> Unit,
+  onBackPressed: () -> Unit,
+) {
   OnlineGoTheme {
     Column(
       Modifier
         .background(MaterialTheme.colors.surface)
         .fillMaxSize()
     ) {
+      TitleBar(
+        title = "Face to Face",
+        titleIcon = null,
+        onTitleClicked = null,
+        onBack = { onBackPressed },
+        moreMenuItems = emptyList(),
+    )
       Board(
         boardWidth = state.gameWidth,
         boardHeight = state.gameHeight,
@@ -92,11 +113,25 @@ fun FaceToFaceScreen(state : FaceToFaceState, onUserAction: (Action) -> Unit) {
       )
       Spacer(modifier = Modifier.weight(1f))
       Row(modifier = Modifier.height(56.dp)) {
-        BottomBarButton(label = "Game settings", icon = Icons.Rounded.Tune, enabled = true, repeatable = true, modifier = Modifier.weight(1f),) {}
-        BottomBarButton(label = "Undo", icon = Icons.Rounded.SkipPrevious, enabled = true, repeatable = true, modifier = Modifier.weight(1f),) {}
-        BottomBarButton(label = "Redo", icon = Icons.Rounded.SkipNext, enabled = false, repeatable = true, modifier = Modifier.weight(1f),) {}
+        BottomBarButton(label = "Game settings", icon = Icons.Rounded.Tune, enabled = true, repeatable = false, modifier = Modifier.weight(1f),) {}
+        BottomBarButton(label = "Undo", icon = Icons.Rounded.SkipPrevious, enabled = state.previousButtonEnabled, repeatable = true, modifier = Modifier.weight(1f),) { onUserAction(PreviousButtonPressed) }
+        BottomBarButton(label = "Redo", icon = Icons.Rounded.SkipNext, enabled = state.nextButtonEnabled, repeatable = true, modifier = Modifier.weight(1f),) { onUserAction(NextButtonPressed) }
       }
     }
+
+    if(state.koMoveDialogShowing) {
+      AlertDialog(
+        onDismissRequest = { onUserAction(KOMoveDialogDismiss) },
+        confirmButton = {
+          TextButton(onClick = { onUserAction(KOMoveDialogDismiss) }) {
+            Text("OK")
+          }
+        },
+        text = { Text("That move would repeat the board position. That's called a KO, and it is not allowed. Try to make another move first, preferably a threat that the opponent can't ignore.") },
+        title = { Text("Illegal KO move") },
+      )
+    }
+
   }
 }
 
@@ -147,6 +182,7 @@ fun BottomBarButton(
 fun Preview() {
   FaceToFaceScreen(
     state = FaceToFaceState.INITIAL,
-    onUserAction = {}
+    onUserAction = {},
+    onBackPressed = {},
   )
 }

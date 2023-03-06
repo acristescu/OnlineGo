@@ -13,6 +13,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.Icons.Outlined
+import androidx.compose.material.icons.Icons.Rounded
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.rounded.*
 import androidx.compose.runtime.*
@@ -26,6 +28,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.SpanStyle
@@ -41,6 +44,8 @@ import io.zenandroid.onlinego.data.model.Position
 import io.zenandroid.onlinego.data.model.StoneType
 import io.zenandroid.onlinego.ui.composables.Board
 import io.zenandroid.onlinego.ui.composables.DotsFlashing
+import io.zenandroid.onlinego.ui.composables.MoreMenuItem
+import io.zenandroid.onlinego.ui.composables.TitleBar
 import io.zenandroid.onlinego.ui.screens.game.Button.*
 import io.zenandroid.onlinego.ui.screens.game.UserAction.*
 import io.zenandroid.onlinego.ui.screens.game.composables.ChatDialog
@@ -111,7 +116,10 @@ fun GameScreen(state: GameState,
             )
         } else {
             Row {
-                Column(Modifier.width(0.dp).weight(1f)) {
+                Column(
+                    Modifier
+                        .width(0.dp)
+                        .weight(1f)) {
                     Header(
                         title = state.title,
                         opponentRequestedUndo = state.opponentRequestedUndo,
@@ -329,7 +337,8 @@ private fun Board(state: GameState, onUserAction: ((UserAction) -> Unit), modifi
         candidateMoveType = state.position?.nextToMove,
         onTapMove = { onUserAction(BoardCellDragged(it)) },
         onTapUp = { onUserAction(BoardCellTapUp(it)) },
-        modifier = modifier.shadow(1.dp, MaterialTheme.shapes.medium)
+        modifier = modifier
+            .shadow(1.dp, MaterialTheme.shapes.medium)
             .clip(MaterialTheme.shapes.medium)
     )
 }
@@ -705,89 +714,23 @@ private fun Header(
     onBack: () -> Unit,
     onUserAction: (UserAction) -> Unit
 ) {
-    Row {
-        IconButton(onClick = { onBack() }) {
-            Icon(Icons.Rounded.ArrowBack, "Back", tint = MaterialTheme.colors.onSurface)
-        }
-        Spacer(modifier = Modifier.weight(.5f))
-        Text(
-            text = title,
-            color = MaterialTheme.colors.onSurface,
-            style = MaterialTheme.typography.h3,
-            modifier = Modifier
-                .align(CenterVertically)
-                .clickable { onUserAction(GameInfoClick) }
+    val items = remember(opponentRequestedUndo) {
+        val items = mutableListOf(
+            MoreMenuItem("Open in browser", Rounded.OpenInBrowser) { onUserAction(OpenInBrowser) },
+            MoreMenuItem("Download as SGF", Icons.Rounded.Download) { onUserAction(OpenInBrowser) },
         )
-        Icon(
-            Icons.Outlined.Info,
-            "Game Info",
-            tint = MaterialTheme.colors.onSurface,
-            modifier = Modifier
-                .size(18.dp)
-                .align(CenterVertically)
-                .padding(start = 6.dp)
-                .clickable { onUserAction(GameInfoClick) }
-        )
-        Spacer(modifier = Modifier.weight(.5f))
-        Box {
-            var moreMenuOpen by rememberSaveable { mutableStateOf(false) }
-            IconButton(onClick = { moreMenuOpen = true }) {
-                Icon(Icons.Rounded.MoreVert, "More", tint = MaterialTheme.colors.onSurface)
-            }
-            DropdownMenu(
-                expanded = moreMenuOpen,
-                onDismissRequest = { moreMenuOpen = false },
-            ) {
-                DropdownMenuItem(onClick = {
-                    moreMenuOpen = false
-                    onUserAction(OpenInBrowser)
-                }) {
-                    Icon(
-                        painter = rememberVectorPainter(image = Icons.Rounded.OpenInBrowser),
-                        contentDescription = "Open in browser",
-                        tint = MaterialTheme.colors.onSurface,
-                    )
-                    Text(
-                        text = "Open in browser",
-                        color = MaterialTheme.colors.onSurface,
-                        modifier = Modifier.padding(start = 8.dp)
-                    )
-                }
-                DropdownMenuItem(onClick = {
-                    moreMenuOpen = false
-                    onUserAction(DownloadSGF)
-                }) {
-                    Icon(
-                        painter = rememberVectorPainter(image = Icons.Rounded.Download),
-                        contentDescription = "Download as SGF",
-                        tint = MaterialTheme.colors.onSurface,
-                    )
-                    Text(
-                        text = "Download as SGF",
-                        color = MaterialTheme.colors.onSurface,
-                        modifier = Modifier.padding(start = 8.dp)
-                    )
-                }
-                if(opponentRequestedUndo) {
-                    DropdownMenuItem(onClick = {
-                        moreMenuOpen = false
-                        onUserAction(OpponentUndoRequestAccepted)
-                    }) {
-                        Icon(
-                            painter = rememberVectorPainter(image = Icons.Rounded.Undo),
-                            contentDescription = "Accept Undo",
-                            tint = MaterialTheme.colors.onSurface,
-                        )
-                        Text(
-                            text = "Accept Undo",
-                            color = MaterialTheme.colors.onSurface,
-                            modifier = Modifier.padding(start = 8.dp)
-                        )
-                    }
-                }
-            }
+        if(opponentRequestedUndo) {
+            items.add(MoreMenuItem("Accept Undo", Icons.Rounded.Undo) { onUserAction(OpponentUndoRequestAccepted) } )
         }
+        items
     }
+    TitleBar(
+        title = title,
+        titleIcon = Outlined.Info,
+        onTitleClicked = { onUserAction(GameInfoClick) },
+        onBack = onBack,
+        moreMenuItems = items,
+    )
 }
 
 private fun Button.getIcon() = when(this) {

@@ -17,6 +17,9 @@ import io.zenandroid.onlinego.data.repositories.SettingsRepository
 import io.zenandroid.onlinego.gamelogic.RulesManager
 import io.zenandroid.onlinego.ui.screens.face2face.Action.BoardCellDragged
 import io.zenandroid.onlinego.ui.screens.face2face.Action.BoardCellTapUp
+import io.zenandroid.onlinego.ui.screens.face2face.Action.KOMoveDialogDismiss
+import io.zenandroid.onlinego.ui.screens.face2face.Action.NextButtonPressed
+import io.zenandroid.onlinego.ui.screens.face2face.Action.PreviousButtonPressed
 import io.zenandroid.onlinego.ui.screens.game.GameOverDialogDetails
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -35,6 +38,8 @@ class FaceToFaceViewModel(
   private var loading by mutableStateOf(true)
   private var currentPosition by mutableStateOf(Position(19, 19))
   private var candidateMove by mutableStateOf<Cell?>(null)
+  private var history by mutableStateOf<List<Cell>>(emptyList())
+  private var historyIndex by mutableStateOf<Int?>(null)
   private var koMoveDialogShowing by mutableStateOf(false)
   private var gameFinished by mutableStateOf<Boolean?>(null)
   private var gameOverDetails by mutableStateOf<GameOverDialogDetails?>(null)
@@ -49,11 +54,18 @@ class FaceToFaceViewModel(
   @Composable
   fun Molecule(): FaceToFaceState {
 
+    val historyIndex = historyIndex
+
     return FaceToFaceState(
       loading = loading,
       position = currentPosition,
       gameWidth = 19,
       gameHeight = 19,
+      handicap = 0,
+      gameFinished = false,
+      history = history,
+      previousButtonEnabled = history.isNotEmpty() && (historyIndex == null || historyIndex >= 0),
+      nextButtonEnabled = history.isNotEmpty() && historyIndex != null && historyIndex < history.size,
       boardInteractive = true,
       candidateMove = candidateMove,
       boardTheme = settingsRepository.boardTheme,
@@ -61,6 +73,7 @@ class FaceToFaceViewModel(
       drawTerritory = false,
       fadeOutRemovedStones = false,
       showLastMove = true,
+      koMoveDialogShowing = koMoveDialogShowing,
     )
   }
 
@@ -68,15 +81,50 @@ class FaceToFaceViewModel(
     when (action) {
       is BoardCellDragged -> candidateMove = action.cell
       is BoardCellTapUp -> onCellTapUp(action.cell)
+      NextButtonPressed -> onNextPressed()
+      PreviousButtonPressed -> onPreviousPressed()
+      KOMoveDialogDismiss -> koMoveDialogShowing = false
     }
   }
+
+  private fun onPreviousPressed() {
+    val newIndex = historyIndex?.minus(1) ?: (history.lastIndex - 1)
+    val newPos = historyPosition(newIndex)
+    historyIndex = newIndex
+    currentPosition = newPos
+  }
+
+  private fun onNextPressed() {
+    val newIndex = historyIndex?.plus(1) ?: history.lastIndex
+    val newPos = historyPosition(newIndex)
+    historyIndex = if(newIndex < history.lastIndex) newIndex else null
+    currentPosition = newPos
+  }
+
+  private fun historyPosition(index: Int) =
+    RulesManager.buildPos(
+      moves = history.subList(0, index + 1),
+      boardWidth = currentPosition.boardWidth,
+      boardHeight = currentPosition.boardHeight,
+      handicap = currentPosition.handicap
+    )!!
 
   private fun onCellTapUp(cell: Cell) {
     viewModelScope.launch {
       val pos = currentPosition
       val newPosition = RulesManager.makeMove(pos, pos.nextToMove, cell)
       if(newPosition != null) {
-        currentPosition = newPosition
+        val index = historyIndex ?: history.lastIndex
+        val potentialKOPosition = if(index > 0) {
+          historyPosition(index - 1)
+        } else null
+        if(potentialKOPosition?.hasTheSameStonesAs(newPosition) == true) {
+          koMoveDialogShowing = true
+        } else {
+          currentPosition = newPosition
+          history = history.subList(0, index + 1) + cell
+          historyIndex = null
+        }
       }
       candidateMove = null
     }
@@ -89,6 +137,11 @@ data class FaceToFaceState(
   val loading: Boolean,
   val gameWidth: Int,
   val gameHeight: Int,
+  val handicap: Int,
+  val gameFinished: Boolean,
+  val history: List<Cell>,
+  val previousButtonEnabled: Boolean,
+  val nextButtonEnabled: Boolean,
   val candidateMove: Cell?,
   val boardInteractive: Boolean,
   val boardTheme: BoardTheme,
@@ -96,6 +149,7 @@ data class FaceToFaceState(
   val drawTerritory: Boolean,
   val fadeOutRemovedStones: Boolean,
   val showLastMove: Boolean,
+  val koMoveDialogShowing: Boolean,
 ) {
   companion object {
     val INITIAL = FaceToFaceState(
@@ -103,6 +157,11 @@ data class FaceToFaceState(
       position = Position(19, 19),
       gameWidth = 19,
       gameHeight = 19,
+      handicap = 0,
+      gameFinished = false,
+      history = emptyList(),
+      previousButtonEnabled = false,
+      nextButtonEnabled = false,
       boardInteractive = true,
       candidateMove = null,
       boardTheme = WOOD,
@@ -110,6 +169,7 @@ data class FaceToFaceState(
       drawTerritory = false,
       fadeOutRemovedStones = false,
       showLastMove = true,
+      koMoveDialogShowing = false,
     )
   }
 }
@@ -117,4 +177,7 @@ data class FaceToFaceState(
 sealed interface Action {
   class BoardCellDragged(val cell: Cell) : Action
   class BoardCellTapUp(val cell: Cell) : Action
+  object PreviousButtonPressed: Action
+  object NextButtonPressed: Action
+  object KOMoveDialogDismiss: Action
 }
