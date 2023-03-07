@@ -59,7 +59,6 @@ fun PlayerCard(
                 .aspectRatio(1f, true)
                 .clickable { onUserClicked() }
             ) {
-//                val shape = CircleShape
                 val shape = RoundedCornerShape(14.dp)
                 val defaultSize = LocalDensity.current.run { IntSize(maxSize.roundToPx(), maxSize.roundToPx()) }
                 var size by remember { mutableStateOf(defaultSize) }

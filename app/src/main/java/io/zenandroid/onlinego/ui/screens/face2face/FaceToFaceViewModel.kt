@@ -16,6 +16,8 @@ import io.zenandroid.onlinego.data.model.BoardTheme
 import io.zenandroid.onlinego.data.model.BoardTheme.WOOD
 import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.Position
+import io.zenandroid.onlinego.data.model.StoneType.WHITE
+import io.zenandroid.onlinego.data.model.StoneType.BLACK
 import io.zenandroid.onlinego.data.repositories.SettingsRepository
 import io.zenandroid.onlinego.gamelogic.RulesManager
 import io.zenandroid.onlinego.ui.screens.face2face.Action.BoardCellDragged
@@ -67,10 +69,18 @@ class FaceToFaceViewModel(
     }
 
     val historyIndex = historyIndex
+    val title = when {
+      loading -> "Face to face · Loading"
+      gameFinished == true -> "Face to face · Game Over"
+      currentPosition.nextToMove == WHITE -> "Face to face · White's turn"
+      currentPosition.nextToMove == BLACK -> "Face to face · Black's turn"
+      else -> "Face to face"
+    }
 
     return FaceToFaceState(
       loading = loading,
       position = currentPosition,
+      title = title,
       gameWidth = 19,
       gameHeight = 19,
       handicap = 0,
@@ -168,6 +178,7 @@ class FaceToFaceViewModel(
 data class FaceToFaceState(
   val position: Position?,
   val loading: Boolean,
+  val title: String,
   val gameWidth: Int,
   val gameHeight: Int,
   val handicap: Int,
@@ -187,6 +198,7 @@ data class FaceToFaceState(
   companion object {
     val INITIAL = FaceToFaceState(
       loading = true,
+      title = "Face to face · Loading",
       position = Position(19, 19),
       gameWidth = 19,
       gameHeight = 19,

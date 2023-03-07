@@ -114,9 +114,9 @@ fun PlayerDetailsDialog(
                 val versusData = if (versusStats is Success) versusStats.data else VersusStats.EMPTY
                 val total = versusData.wins + versusData.losses
                 val wonRatio =
-                    if (total == 0) 100 else (versusData.wins.toFloat() / total * 100).roundToInt()
+                    if (total == 0) 0 else (versusData.wins.toFloat() / total * 100).roundToInt()
                 val lossRatio =
-                    if (total == 0) 1000 else (versusData.losses.toFloat() / total * 100).roundToInt()
+                    if (total == 0) 0 else (versusData.losses.toFloat() / total * 100).roundToInt()
 
                 Text(
                     text = "Played vs you",
@@ -140,7 +140,7 @@ fun PlayerDetailsDialog(
                 StatsRowDualValue(
                     title = "Total",
                     value1 = versusData.wins + versusData.losses,
-                    value2 = "100%",
+                    value2 = if(total == 0) "0%" else "100%",
                     loading = versusStats !is Success,
                 )
             }

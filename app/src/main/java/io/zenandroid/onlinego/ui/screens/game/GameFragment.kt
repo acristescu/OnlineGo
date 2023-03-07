@@ -33,6 +33,7 @@ class GameFragment : Fragment() {
 
     private val viewModel: GameViewModel by viewModel()
     private val stoneSoundMediaPlayer = MediaPlayer.create(OnlineGoApplication.instance, R.raw.stone)
+    private val analytics by lazy { OnlineGoApplication.instance.analytics }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -90,5 +91,10 @@ class GameFragment : Fragment() {
 
     private fun onBackPressed() {
         requireActivity().onBackPressedDispatcher.onBackPressed()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        analytics.setCurrentScreen(requireActivity(), javaClass.simpleName, null)
     }
 }
