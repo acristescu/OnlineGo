@@ -105,10 +105,12 @@ class FaceToFaceViewModel(
         prefs.getString(STATE_KEY, "")
       }
       historyString?.let {
-        history = it.split(" ").map {
-          val parts = it.split(",")
-          Cell(parts[0].toInt(), parts[1].toInt())
-        }
+        history = it.split(" ")
+          .filter { it.isNotEmpty() }
+          .map {
+            val parts = it.split(",")
+            Cell(parts[0].toInt(), parts[1].toInt())
+          }
         currentPosition = historyPosition(history.lastIndex)
       }
     }

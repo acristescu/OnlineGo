@@ -25,18 +25,21 @@
             app:destination="@id/aiGameFragment"
             app:enterAnim="@anim/slide_in_fragment"
             app:exitAnim="@anim/slide_out_fragment"
+            app:popExitAnim="@anim/slide_out_fragment_fast"
             />
         <action
             android:id="@+id/action_myGamesFragment_to_faceToFaceFragment"
             app:destination="@id/faceToFaceFragment"
             app:enterAnim="@anim/slide_in_fragment"
             app:exitAnim="@anim/slide_out_fragment"
+            app:popExitAnim="@anim/slide_out_fragment_fast"
             />
         <action
             android:id="@+id/action_myGamesFragment_to_gameFragment"
             app:destination="@id/gameFragment"
             app:enterAnim="@anim/slide_in_fragment"
             app:exitAnim="@anim/slide_out_fragment"
+            app:popExitAnim="@anim/slide_out_fragment_fast"
             app:launchSingleTop="true"
             />
     </fragment>

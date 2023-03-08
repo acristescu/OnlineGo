@@ -94,8 +94,13 @@ class MainActivity : AppCompatActivity(), MainContract.View {
                         R.id.settings
                     ) || (destination.id == R.id.stats && arguments?.isEmpty != false)
                     if(shouldBeVisible) {
-                        alpha = 1f
-                        show()
+                        animate().alpha(1f).setUpdateListener {
+                            if (it.animatedFraction == 1f) {
+                                show()
+                            }
+                        }
+                        .setDuration(150)
+                        .start()
                     } else {
                         animate().alpha(0f)
                             .setUpdateListener {
