@@ -1,8 +1,5 @@
 package io.zenandroid.onlinego.ui.screens.game.composables
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -119,7 +116,7 @@ fun PlayerCard(
                     modifier = Modifier.padding(top = 6.dp).clickable { onGameDetailsClicked() }
                 )
             }
-            AnimatedVisibility(visible = timerShown, exit = fadeOut(), enter = fadeIn()) {
+            if(timerShown) {
                 Timer(minSize, maxSize, alpha, timerPercent, timerMain, timerExtra,
                     modifier = Modifier.clickable { onGameDetailsClicked() }
                 )
