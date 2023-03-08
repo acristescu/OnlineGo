@@ -43,6 +43,7 @@ import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.Position
 import io.zenandroid.onlinego.data.model.StoneType
 import io.zenandroid.onlinego.ui.composables.Board
+import io.zenandroid.onlinego.ui.composables.BottomBar
 import io.zenandroid.onlinego.ui.composables.DotsFlashing
 import io.zenandroid.onlinego.ui.composables.MoreMenuItem
 import io.zenandroid.onlinego.ui.composables.TitleBar
@@ -112,7 +113,7 @@ fun GameScreen(state: GameState,
             BottomBar(
                 buttons = state.buttons,
                 bottomText = state.bottomText,
-                onUserAction = onUserAction
+                onButtonPressed = { onUserAction(BottomButtonPressed(it as Button)) },
             )
         } else {
             Row {
@@ -159,7 +160,7 @@ fun GameScreen(state: GameState,
                     BottomBar(
                         buttons = state.buttons,
                         bottomText = state.bottomText,
-                        onUserAction = onUserAction
+                        onButtonPressed = { onUserAction(BottomButtonPressed(it as Button)) },
                     )
                 }
                 Board(
@@ -621,93 +622,6 @@ private fun RetryMoveDialog(onUserAction: (UserAction) -> Unit) {
 }
 
 @Composable
-private fun BottomBar(
-    buttons: List<Button>,
-    bottomText: String?,
-    onUserAction: (UserAction) -> Unit
-) {
-    Row(modifier = Modifier.height(56.dp)) {
-        buttons.forEach {
-            key(it.javaClass) {
-                Box(modifier = Modifier
-                    .fillMaxHeight()
-                    .weight(1f)) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .alpha(if (it.enabled) 1f else .4f)
-                            .background(
-                                if (it == ConfirmMove || it == AcceptStoneRemoval) MaterialTheme.colors.primaryVariant else MaterialTheme.colors.surface
-                            )
-                            .clickable(enabled = it.enabled) {
-                                if (!it.repeatable) onUserAction(BottomButtonPressed(it))
-                            }
-                            .repeatingClickable(
-                                remember { MutableInteractionSource() },
-                                it.repeatable && it.enabled
-                            ) { onUserAction(BottomButtonPressed(it)) },
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center,
-                    ) {
-                        Icon(
-                            it.getIcon(),
-                            null,
-                            modifier = Modifier.size(24.dp),
-                            tint = MaterialTheme.colors.onSurface,
-                        )
-                        Text(
-                            text = it.getLabel(),
-                            style = MaterialTheme.typography.h5,
-                            color = MaterialTheme.colors.onSurface,
-                        )
-                    }
-                    androidx.compose.animation.AnimatedVisibility(
-                        visible = it.bubbleText != null,
-                        enter = fadeIn(TweenSpec( 500)) + scaleIn(SpringSpec(Spring.DampingRatioHighBouncy)),
-                        exit = fadeOut() + shrinkOut(),
-                        modifier = Modifier
-                            .align(Alignment.TopCenter)
-                    ) {
-                        it.bubbleText?.let { bubble ->
-                            Text(
-                                text = bubble,
-                                fontSize = 9.sp,
-                                fontWeight = Bold,
-                                textAlign = TextAlign.Center,
-                                color = MaterialTheme.colors.surface,
-                                modifier = Modifier
-                                    .padding(start = 19.dp, top = 5.dp)
-                                    .background(MaterialTheme.colors.primary, CircleShape)
-                                    .size(16.dp)
-                                    .wrapContentHeight(),
-
-                                )
-                        }
-                    }
-                }
-            }
-        }
-        bottomText?.let { text ->
-            Spacer(modifier = Modifier.weight(.5f))
-            Text(
-                text = text,
-                style = MaterialTheme.typography.h2,
-                color = MaterialTheme.colors.onSurface,
-                modifier = Modifier.align(CenterVertically)
-            )
-            DotsFlashing(
-                dotSize = 4.dp,
-                color = MaterialTheme.colors.onBackground,
-                modifier = Modifier
-                    .align(CenterVertically)
-                    .padding(top = 10.dp, start = 4.dp)
-            )
-            Spacer(modifier = Modifier.weight(.5f))
-        }
-    }
-}
-
-@Composable
 private fun Header(
     title: String,
     opponentRequestedUndo: Boolean,
@@ -731,44 +645,6 @@ private fun Header(
         onBack = onBack,
         moreMenuItems = items,
     )
-}
-
-private fun Button.getIcon() = when(this) {
-    ConfirmMove -> Icons.Rounded.ThumbUp
-    DiscardMove -> Icons.Rounded.Cancel
-    Analyze -> Icons.Rounded.Biotech
-    Pass -> Icons.Rounded.Stop
-    Resign -> Icons.Rounded.OutlinedFlag
-    CancelGame -> Icons.Rounded.Cancel
-    is Chat -> Icons.Rounded.Forum
-    is NextGame -> Icons.Rounded.NextPlan
-    Undo -> Icons.Rounded.Undo
-    ExitAnalysis -> Icons.Rounded.HighlightOff
-    ExitEstimate -> Icons.Rounded.HighlightOff
-    is Estimate -> Icons.Rounded.Functions
-    Previous -> Icons.Rounded.SkipPrevious
-    is Next -> Icons.Rounded.SkipNext
-    AcceptStoneRemoval -> Icons.Rounded.ThumbUp
-    RejectStoneRemoval -> Icons.Rounded.ThumbDown
-}
-
-private fun Button.getLabel() = when(this) {
-    AcceptStoneRemoval -> "Accept"
-    RejectStoneRemoval -> "Reject"
-    ExitEstimate -> "Return"
-    Analyze -> "Analyze"
-    CancelGame -> "Cancel Game"
-    is Chat -> "Chat"
-    ConfirmMove -> "Confirm Move"
-    DiscardMove -> "Discard Move"
-    is Estimate -> "Estimate"
-    ExitAnalysis -> "Exit Analysis"
-    is Next -> "Next"
-    is NextGame -> "Next Game"
-    Pass -> "Pass"
-    Previous -> "Previous"
-    Resign -> "Resign"
-    Undo -> "Undo"
 }
 
 @Preview(showBackground = true)

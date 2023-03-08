@@ -1,6 +1,21 @@
 package io.zenandroid.onlinego.ui.screens.game
 
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Biotech
+import androidx.compose.material.icons.rounded.Cancel
+import androidx.compose.material.icons.rounded.Forum
+import androidx.compose.material.icons.rounded.Functions
+import androidx.compose.material.icons.rounded.HighlightOff
+import androidx.compose.material.icons.rounded.NextPlan
+import androidx.compose.material.icons.rounded.OutlinedFlag
+import androidx.compose.material.icons.rounded.SkipNext
+import androidx.compose.material.icons.rounded.SkipPrevious
+import androidx.compose.material.icons.rounded.Stop
+import androidx.compose.material.icons.rounded.ThumbDown
+import androidx.compose.material.icons.rounded.ThumbUp
+import androidx.compose.material.icons.rounded.Undo
 import androidx.compose.runtime.*
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -24,6 +39,7 @@ import io.zenandroid.onlinego.data.ogs.OGSWebSocketService
 import io.zenandroid.onlinego.data.repositories.*
 import io.zenandroid.onlinego.gamelogic.RulesManager
 import io.zenandroid.onlinego.gamelogic.RulesManager.isPass
+import io.zenandroid.onlinego.ui.composables.BottomBarButton
 import io.zenandroid.onlinego.ui.screens.game.Button.*
 import io.zenandroid.onlinego.ui.screens.game.PendingNavigation.*
 import io.zenandroid.onlinego.ui.screens.game.UserAction.*
@@ -885,26 +901,29 @@ data class PlayerData(
 )
 
 sealed class Button(
-    val repeatable: Boolean = false,
-    val enabled: Boolean = true,
-    val bubbleText: String? = null,
-) {
-    object ConfirmMove : Button()
-    object DiscardMove : Button()
-    object AcceptStoneRemoval : Button()
-    object RejectStoneRemoval : Button()
-    object Analyze : Button()
-    object Pass : Button()
-    object Resign : Button()
-    object CancelGame : Button()
-    class Chat(bubbleText: String? = null) : Button(bubbleText = bubbleText)
-    class NextGame(enabled: Boolean = true, bubbleText: String? = null) : Button(enabled = enabled, bubbleText = bubbleText)
-    object Undo : Button()
-    object ExitAnalysis : Button()
-    class Estimate(enabled: Boolean = true) : Button(enabled = enabled)
-    object ExitEstimate : Button()
-    object Previous : Button(repeatable = true)
-    class Next(enabled: Boolean = true) : Button(repeatable = true, enabled = enabled)
+    override val icon: ImageVector,
+    override val label: String,
+    override val repeatable: Boolean = false,
+    override val enabled: Boolean = true,
+    override val bubbleText: String? = null,
+    override val highlighted: Boolean = false,
+) : BottomBarButton {
+    object ConfirmMove : Button(Icons.Rounded.ThumbUp, "Confirm Move", highlighted =  true)
+    object DiscardMove : Button(Icons.Rounded.Cancel, "Discard Move")
+    object AcceptStoneRemoval : Button(Icons.Rounded.ThumbUp, "Accept", highlighted = true)
+    object RejectStoneRemoval : Button(Icons.Rounded.ThumbDown, "Reject")
+    object Analyze : Button(Icons.Rounded.Biotech, "Analyze")
+    object Pass : Button(Icons.Rounded.Stop, "Pass")
+    object Resign : Button(Icons.Rounded.OutlinedFlag, "Resign")
+    object CancelGame : Button(Icons.Rounded.Cancel, "Cancel Game")
+    class Chat(bubbleText: String? = null) : Button(bubbleText = bubbleText, icon = Icons.Rounded.Forum, label = "Chat")
+    class NextGame(enabled: Boolean = true, bubbleText: String? = null) : Button(enabled = enabled, bubbleText = bubbleText, icon = Icons.Rounded.NextPlan, label = "Next Game")
+    object Undo : Button(Icons.Rounded.Undo, "Undo")
+    object ExitAnalysis : Button(Icons.Rounded.HighlightOff, "Exit Analysis")
+    class Estimate(enabled: Boolean = true) : Button(enabled = enabled, icon = Icons.Rounded.Functions, label = "Estimate")
+    object ExitEstimate : Button(Icons.Rounded.HighlightOff, "Return")
+    object Previous : Button(repeatable = true, icon = Icons.Rounded.SkipPrevious, label = "Previous")
+    class Next(enabled: Boolean = true) : Button(repeatable = true, enabled = enabled, icon = Icons.Rounded.SkipNext, label = "Next")
 }
 
 sealed interface UserAction {

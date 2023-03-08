@@ -65,15 +65,17 @@ import io.zenandroid.onlinego.data.model.StoneType
 import io.zenandroid.onlinego.data.model.StoneType.BLACK
 import io.zenandroid.onlinego.data.model.StoneType.WHITE
 import io.zenandroid.onlinego.ui.composables.Board
+import io.zenandroid.onlinego.ui.composables.BottomBar
 import io.zenandroid.onlinego.ui.composables.TitleBar
 import io.zenandroid.onlinego.ui.screens.face2face.Action.BoardCellDragged
 import io.zenandroid.onlinego.ui.screens.face2face.Action.BoardCellTapUp
+import io.zenandroid.onlinego.ui.screens.face2face.Action.BottomButtonPressed
 import io.zenandroid.onlinego.ui.screens.face2face.Action.KOMoveDialogDismiss
-import io.zenandroid.onlinego.ui.screens.face2face.Action.NextButtonPressed
-import io.zenandroid.onlinego.ui.screens.face2face.Action.PreviousButtonPressed
+import io.zenandroid.onlinego.ui.screens.face2face.Button.Estimate
+import io.zenandroid.onlinego.ui.screens.face2face.Button.GameSettings
+import io.zenandroid.onlinego.ui.screens.face2face.Button.Next
+import io.zenandroid.onlinego.ui.screens.face2face.Button.Previous
 import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
-import io.zenandroid.onlinego.ui.theme.brown
-import io.zenandroid.onlinego.utils.processGravatarURL
 import io.zenandroid.onlinego.utils.rememberStateWithLifecycle
 import io.zenandroid.onlinego.utils.repeatingClickable
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -177,9 +179,9 @@ fun FaceToFaceScreen(
       )
       Spacer(modifier = Modifier.weight(1f))
       BottomBar(
-        previousButtonEnabled = state.previousButtonEnabled,
-        nextButtonEnabled = state.nextButtonEnabled,
-        onUserAction = onUserAction
+        buttons = state.buttons,
+        bottomText = state.bottomText,
+        onButtonPressed = { onUserAction(BottomButtonPressed(it as Button)) }
       )
     }
 
@@ -229,91 +231,13 @@ private fun UserImage(color: StoneType) {
   }
 }
 
-@Composable
-private fun BottomBar(
-  previousButtonEnabled: Boolean,
-  nextButtonEnabled:Boolean,
-  onUserAction: (Action) -> Unit,
-) {
-  Row(modifier = Modifier.height(56.dp)) {
-    BottomBarButton(
-      label = "Game settings",
-      icon = Icons.Rounded.Tune,
-      enabled = true,
-      repeatable = false,
-      modifier = Modifier.weight(1f),
-    ) {}
-    BottomBarButton(
-      label = "Auto-score",
-      icon = Icons.Rounded.Functions,
-      enabled = true,
-      repeatable = false,
-      modifier = Modifier.weight(1f),
-    ) {}
-    BottomBarButton(
-      label = "Undo",
-      icon = Icons.Rounded.SkipPrevious,
-      enabled = previousButtonEnabled,
-      repeatable = true,
-      modifier = Modifier.weight(1f),
-    ) { onUserAction(PreviousButtonPressed) }
-    BottomBarButton(
-      label = "Redo",
-      icon = Icons.Rounded.SkipNext,
-      enabled = nextButtonEnabled,
-      repeatable = true,
-      modifier = Modifier.weight(1f),
-    ) { onUserAction(NextButtonPressed) }
-  }
-}
-
-@Composable
-fun BottomBarButton(
-  label: String,
-  icon: ImageVector,
-  enabled: Boolean,
-  repeatable: Boolean,
-  modifier: Modifier = Modifier,
-  onClick: () -> Unit
-) {
-  Box(
-    modifier = modifier
-      .fillMaxHeight()
-  ) {
-    Column(
-      modifier = Modifier
-        .fillMaxSize()
-        .alpha(if (enabled) 1f else .4f)
-        .clickable(enabled = enabled) {
-          if (!repeatable) onClick()
-        }
-        .repeatingClickable(
-          remember { MutableInteractionSource() },
-          repeatable && enabled
-        ) { onClick() },
-      horizontalAlignment = Alignment.CenterHorizontally,
-      verticalArrangement = Arrangement.Center,
-    ) {
-      Icon(
-        icon,
-        null,
-        modifier = Modifier.size(24.dp),
-        tint = MaterialTheme.colors.onSurface,
-      )
-      Text(
-        text = label,
-        style = MaterialTheme.typography.h5,
-        color = MaterialTheme.colors.onSurface,
-      )
-    }
-  }
-}
-
 @Preview
 @Composable
 fun Preview() {
   FaceToFaceScreen(
-    state = FaceToFaceState.INITIAL,
+    state = FaceToFaceState.INITIAL.copy(
+      buttons = listOf(GameSettings, Estimate, Previous(false), Next(false) )
+    ),
     onUserAction = {},
     onBackPressed = {},
   )

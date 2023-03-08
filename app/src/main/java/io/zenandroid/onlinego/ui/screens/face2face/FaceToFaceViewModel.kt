@@ -1,10 +1,17 @@
 package io.zenandroid.onlinego.ui.screens.face2face
 
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Functions
+import androidx.compose.material.icons.rounded.HighlightOff
+import androidx.compose.material.icons.rounded.SkipNext
+import androidx.compose.material.icons.rounded.SkipPrevious
+import androidx.compose.material.icons.rounded.Tune
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.preference.PreferenceManager
@@ -20,14 +27,22 @@ import io.zenandroid.onlinego.data.model.StoneType.WHITE
 import io.zenandroid.onlinego.data.model.StoneType.BLACK
 import io.zenandroid.onlinego.data.repositories.SettingsRepository
 import io.zenandroid.onlinego.gamelogic.RulesManager
+import io.zenandroid.onlinego.ui.composables.BottomBarButton
 import io.zenandroid.onlinego.ui.screens.face2face.Action.BoardCellDragged
 import io.zenandroid.onlinego.ui.screens.face2face.Action.BoardCellTapUp
+import io.zenandroid.onlinego.ui.screens.face2face.Action.BottomButtonPressed
 import io.zenandroid.onlinego.ui.screens.face2face.Action.KOMoveDialogDismiss
-import io.zenandroid.onlinego.ui.screens.face2face.Action.NextButtonPressed
-import io.zenandroid.onlinego.ui.screens.face2face.Action.PreviousButtonPressed
-import io.zenandroid.onlinego.ui.screens.game.GameOverDialogDetails
+import io.zenandroid.onlinego.ui.screens.face2face.Button.CloseEstimate
+import io.zenandroid.onlinego.ui.screens.face2face.Button.Estimate
+import io.zenandroid.onlinego.ui.screens.face2face.Button.GameSettings
+import io.zenandroid.onlinego.ui.screens.face2face.Button.Next
+import io.zenandroid.onlinego.ui.screens.face2face.Button.Previous
+import io.zenandroid.onlinego.ui.screens.face2face.EstimateStatus.Idle
+import io.zenandroid.onlinego.ui.screens.face2face.EstimateStatus.Success
+import io.zenandroid.onlinego.ui.screens.face2face.EstimateStatus.Working
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -51,7 +66,7 @@ class FaceToFaceViewModel(
   private var historyIndex by mutableStateOf<Int?>(null)
   private var koMoveDialogShowing by mutableStateOf(false)
   private var gameFinished by mutableStateOf<Boolean?>(null)
-  private var gameOverDetails by mutableStateOf<GameOverDialogDetails?>(null)
+  private var estimateStatus by mutableStateOf<EstimateStatus>(Idle)
   private var gameOverDialogShowing by mutableStateOf(false)
 
   private val prefs = PreferenceManager.getDefaultSharedPreferences(OnlineGoApplication.instance.baseContext)
@@ -77,25 +92,42 @@ class FaceToFaceViewModel(
       else -> "Face to face"
     }
 
+    val estimateStatus = estimateStatus
+    val position = when {
+      estimateStatus is Success -> estimateStatus.result
+      else -> currentPosition
+    }
+
+    val previousButtonEnabled = history.isNotEmpty() && (historyIndex == null || historyIndex >= 0)
+    val nextButtonEnabled = history.isNotEmpty() && historyIndex != null && historyIndex < history.size
+
+    val (buttons, bottomText) = when {
+      estimateStatus is Working -> emptyList<Button>() to "Estimating"
+      estimateStatus is Success -> listOf(CloseEstimate) to null
+      else -> listOf(
+        GameSettings, Estimate, Previous(previousButtonEnabled), Next(nextButtonEnabled)
+      ) to null
+    }
+
     return FaceToFaceState(
       loading = loading,
-      position = currentPosition,
+      position = position,
       title = title,
       gameWidth = 19,
       gameHeight = 19,
       handicap = 0,
       gameFinished = false,
       history = history,
-      previousButtonEnabled = history.isNotEmpty() && (historyIndex == null || historyIndex >= 0),
-      nextButtonEnabled = history.isNotEmpty() && historyIndex != null && historyIndex < history.size,
       boardInteractive = true,
       candidateMove = candidateMove,
       boardTheme = settingsRepository.boardTheme,
       showCoordinates = settingsRepository.showCoordinates,
-      drawTerritory = false,
+      drawTerritory = estimateStatus is Success,
       fadeOutRemovedStones = false,
       showLastMove = true,
       koMoveDialogShowing = koMoveDialogShowing,
+      buttons = buttons,
+      bottomText = bottomText,
     )
   }
 
@@ -126,9 +158,28 @@ class FaceToFaceViewModel(
     when (action) {
       is BoardCellDragged -> candidateMove = action.cell
       is BoardCellTapUp -> onCellTapUp(action.cell)
-      NextButtonPressed -> onNextPressed()
-      PreviousButtonPressed -> onPreviousPressed()
       KOMoveDialogDismiss -> koMoveDialogShowing = false
+      is BottomButtonPressed -> onButtonPressed(action.button)
+    }
+  }
+
+  private fun onButtonPressed(button: Button) {
+    when(button) {
+      is Estimate -> onEstimatePressed()
+      is GameSettings -> {}
+      is Next -> onNextPressed()
+      is Previous -> onPreviousPressed()
+      is CloseEstimate -> estimateStatus = Idle
+    }
+  }
+
+  private fun onEstimatePressed() {
+    estimateStatus = Working
+    viewModelScope.launch(Dispatchers.IO) {
+      val estimate = RulesManager.determineTerritory(currentPosition, false)
+      withContext(Dispatchers.Main) {
+        estimateStatus = Success(estimate)
+      }
     }
   }
 
@@ -181,13 +232,13 @@ data class FaceToFaceState(
   val position: Position?,
   val loading: Boolean,
   val title: String,
+  val buttons: List<Button>,
+  val bottomText: String?,
   val gameWidth: Int,
   val gameHeight: Int,
   val handicap: Int,
   val gameFinished: Boolean,
   val history: List<Cell>,
-  val previousButtonEnabled: Boolean,
-  val nextButtonEnabled: Boolean,
   val candidateMove: Cell?,
   val boardInteractive: Boolean,
   val boardTheme: BoardTheme,
@@ -207,8 +258,6 @@ data class FaceToFaceState(
       handicap = 0,
       gameFinished = false,
       history = emptyList(),
-      previousButtonEnabled = false,
-      nextButtonEnabled = false,
       boardInteractive = true,
       candidateMove = null,
       boardTheme = WOOD,
@@ -217,14 +266,36 @@ data class FaceToFaceState(
       fadeOutRemovedStones = false,
       showLastMove = true,
       koMoveDialogShowing = false,
+      buttons = emptyList(),
+      bottomText = null,
     )
   }
+}
+
+sealed class Button(
+  override val icon: ImageVector,
+  override val label: String,
+  override val repeatable: Boolean = false,
+  override val enabled: Boolean = true,
+  override val bubbleText: String? = null,
+  override val highlighted: Boolean = false,
+) : BottomBarButton {
+  object GameSettings : Button(Icons.Rounded.Tune, "Game Settings")
+  object Estimate : Button(Icons.Rounded.Functions, "Auto-score")
+  class Previous(enabled: Boolean = true) : Button(repeatable = true, enabled = enabled, icon = Icons.Rounded.SkipPrevious, label = "Previous")
+  class Next(enabled: Boolean = true) : Button(repeatable = true, enabled = enabled, icon = Icons.Rounded.SkipNext, label = "Next")
+  object CloseEstimate : Button(Icons.Rounded.HighlightOff, "Return")
 }
 
 sealed interface Action {
   class BoardCellDragged(val cell: Cell) : Action
   class BoardCellTapUp(val cell: Cell) : Action
-  object PreviousButtonPressed: Action
-  object NextButtonPressed: Action
+  class BottomButtonPressed(val button: Button) : Action
   object KOMoveDialogDismiss: Action
+}
+
+sealed interface EstimateStatus {
+  object Idle: EstimateStatus
+  object Working: EstimateStatus
+  data class Success(val result: Position): EstimateStatus
 }
