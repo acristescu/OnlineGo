@@ -23,8 +23,8 @@ import io.zenandroid.onlinego.data.model.BoardTheme
 import io.zenandroid.onlinego.data.model.BoardTheme.WOOD
 import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.Position
-import io.zenandroid.onlinego.data.model.StoneType.WHITE
 import io.zenandroid.onlinego.data.model.StoneType.BLACK
+import io.zenandroid.onlinego.data.model.StoneType.WHITE
 import io.zenandroid.onlinego.data.repositories.SettingsRepository
 import io.zenandroid.onlinego.gamelogic.RulesManager
 import io.zenandroid.onlinego.ui.composables.BottomBarButton
@@ -32,6 +32,7 @@ import io.zenandroid.onlinego.ui.screens.face2face.Action.BoardCellDragged
 import io.zenandroid.onlinego.ui.screens.face2face.Action.BoardCellTapUp
 import io.zenandroid.onlinego.ui.screens.face2face.Action.BottomButtonPressed
 import io.zenandroid.onlinego.ui.screens.face2face.Action.KOMoveDialogDismiss
+import io.zenandroid.onlinego.ui.screens.face2face.Action.NewGameDialogDismiss
 import io.zenandroid.onlinego.ui.screens.face2face.Button.CloseEstimate
 import io.zenandroid.onlinego.ui.screens.face2face.Button.Estimate
 import io.zenandroid.onlinego.ui.screens.face2face.Button.GameSettings
@@ -42,7 +43,6 @@ import io.zenandroid.onlinego.ui.screens.face2face.EstimateStatus.Success
 import io.zenandroid.onlinego.ui.screens.face2face.EstimateStatus.Working
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -67,7 +67,7 @@ class FaceToFaceViewModel(
   private var koMoveDialogShowing by mutableStateOf(false)
   private var gameFinished by mutableStateOf<Boolean?>(null)
   private var estimateStatus by mutableStateOf<EstimateStatus>(Idle)
-  private var gameOverDialogShowing by mutableStateOf(false)
+  private var newGameDialogShowing by mutableStateOf(false)
 
   private val prefs = PreferenceManager.getDefaultSharedPreferences(OnlineGoApplication.instance.baseContext)
 
@@ -128,6 +128,7 @@ class FaceToFaceViewModel(
       koMoveDialogShowing = koMoveDialogShowing,
       buttons = buttons,
       bottomText = bottomText,
+      newGameDialogShowing = newGameDialogShowing,
     )
   }
 
@@ -160,13 +161,14 @@ class FaceToFaceViewModel(
       is BoardCellTapUp -> onCellTapUp(action.cell)
       KOMoveDialogDismiss -> koMoveDialogShowing = false
       is BottomButtonPressed -> onButtonPressed(action.button)
+      NewGameDialogDismiss -> newGameDialogShowing = false
     }
   }
 
   private fun onButtonPressed(button: Button) {
     when(button) {
       is Estimate -> onEstimatePressed()
-      is GameSettings -> {}
+      is GameSettings -> newGameDialogShowing = true
       is Next -> onNextPressed()
       is Previous -> onPreviousPressed()
       is CloseEstimate -> estimateStatus = Idle
@@ -247,6 +249,7 @@ data class FaceToFaceState(
   val fadeOutRemovedStones: Boolean,
   val showLastMove: Boolean,
   val koMoveDialogShowing: Boolean,
+  val newGameDialogShowing: Boolean,
 ) {
   companion object {
     val INITIAL = FaceToFaceState(
@@ -268,6 +271,7 @@ data class FaceToFaceState(
       koMoveDialogShowing = false,
       buttons = emptyList(),
       bottomText = null,
+      newGameDialogShowing = false,
     )
   }
 }
@@ -292,6 +296,7 @@ sealed interface Action {
   class BoardCellTapUp(val cell: Cell) : Action
   class BottomButtonPressed(val button: Button) : Action
   object KOMoveDialogDismiss: Action
+  object NewGameDialogDismiss: Action
 }
 
 sealed interface EstimateStatus {
