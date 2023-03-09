@@ -3,13 +3,16 @@ package io.zenandroid.onlinego.gamelogic
 import android.util.Log
 import androidx.core.util.lruCache
 import com.google.firebase.crashlytics.FirebaseCrashlytics
-import io.zenandroid.onlinego.data.model.*
+import io.zenandroid.onlinego.data.model.Cell
+import io.zenandroid.onlinego.data.model.Mark
+import io.zenandroid.onlinego.data.model.Position
+import io.zenandroid.onlinego.data.model.StoneType
 import io.zenandroid.onlinego.data.model.local.Game
 import io.zenandroid.onlinego.data.model.local.InitialState
 import io.zenandroid.onlinego.data.model.local.Score
 import io.zenandroid.onlinego.gamelogic.Util.toCoordinateSet
 import io.zenandroid.onlinego.ui.screens.game.Variation
-import java.util.*
+import java.util.LinkedList
 
 /**
  * Created by alex on 14/11/2017.
@@ -17,7 +20,6 @@ import java.util.*
 object RulesManager {
 
     init {
-        println("loading library")
         System.loadLibrary("estimator")
     }
 
@@ -110,6 +112,29 @@ object RulesManager {
             white_scoring_positions = game.whiteScore?.scoring_positions,
             black_scoring_positions = game.blackScore?.scoring_positions,
             computeTerritory = computeTerritory,
+        )
+    }
+
+    fun replay(moves: List<Cell>, width: Int, height: Int, handicap: Int, freeHandicapPlacement: Boolean = false): Position? {
+        val blackStones = mutableSetOf<Cell>()
+        if(handicap > 0 && !freeHandicapPlacement) {
+            if(width != height || handicaps[width] == null || handicap > 9) {
+                throw Exception("Handicap on custom board size not supported")
+            }
+            val handicapStones = handicaps[width]?.get(handicap)!!
+            for (i in handicapStones.indices step 2) {
+                val coords = Util.getCoordinatesFromSGF(handicapStones, i)
+                blackStones += coords
+            }
+        }
+        return buildPos(
+            moves = moves,
+            boardWidth = width,
+            boardHeight = height,
+            komi = determineKomi(width, handicap),
+            handicap = handicap,
+            freeHandicapPlacement = freeHandicapPlacement,
+            blackInitialState = blackStones,
         )
     }
 
@@ -477,23 +502,6 @@ object RulesManager {
         return whiteScore to blackScore
     }
 
-    fun scorePositionOld(pos: Position, game: Game) =
-        scorePositionOld(pos, game.scoreHandicap == true, game.scoreAGAHandicap == true, game.scorePasses == true, game.scorePrisoners == true, game.scoreStones == true, game.scoreTerritory == true, game.scoreTerritoryInSeki == true)
-
-    private fun scorePositionOld(pos: Position, scoreHandicap: Boolean, scoreAGAHandicap: Boolean, scorePasses: Boolean, scorePrisoners: Boolean, scoreStones: Boolean, scoreTerritory: Boolean, scoreTerritoryInSeki: Boolean): Pair<Float, Float> {
-        val whiteScore =
-            (if (scorePrisoners) pos.blackDeadStones.size + pos.whiteCaptureCount else 0) +
-                    (if (scoreTerritory) pos.whiteTerritory.size else 0) +
-                    (if (scoreHandicap && scoreAGAHandicap && pos.handicap != 0) pos.handicap - 1 else 0) +
-                    (if (scoreHandicap && !scoreAGAHandicap) pos.handicap else 0) +
-                    (pos.komi ?: 0f)
-        val blackScore =
-            (if (scorePrisoners) pos.whiteDeadStones.size + pos.blackCaptureCount else 0) +
-                    (if (scoreTerritory) pos.blackTerritory.size else 0)
-
-        return whiteScore to blackScore.toFloat()
-    }
-
     private val handicaps = hashMapOf(
             19 to arrayOf(
                     "", // handicap = 0, B goes first, komi
@@ -547,11 +555,10 @@ object RulesManager {
             komi = determineKomi(boardSize, handicap),
             nextToMove = if(handicap > 1) StoneType.WHITE else StoneType.BLACK,
             blackStones = blackStones,
-
         )
     }
 
-    fun determineKomi(boardSize: Int, handicap: Int = 0): Float {
+    private fun determineKomi(boardSize: Int, handicap: Int = 0): Float {
         return if(boardSize == 9) {
             if(handicap == 0) 5.5f else 3.5f
         } else {

@@ -51,6 +51,7 @@ import io.zenandroid.onlinego.ui.screens.face2face.Action.BoardCellTapUp
 import io.zenandroid.onlinego.ui.screens.face2face.Action.BottomButtonPressed
 import io.zenandroid.onlinego.ui.screens.face2face.Action.KOMoveDialogDismiss
 import io.zenandroid.onlinego.ui.screens.face2face.Action.NewGameDialogDismiss
+import io.zenandroid.onlinego.ui.screens.face2face.Action.StartNewGame
 import io.zenandroid.onlinego.ui.screens.face2face.Button.Estimate
 import io.zenandroid.onlinego.ui.screens.face2face.Button.GameSettings
 import io.zenandroid.onlinego.ui.screens.face2face.Button.Next
@@ -107,8 +108,8 @@ fun FaceToFaceScreen(
         )
       }
       Board(
-        boardWidth = state.gameWidth,
-        boardHeight = state.gameHeight,
+        boardWidth = state.position?.boardWidth ?: 19,
+        boardHeight = state.position?.boardHeight ?: 19,
         position = state.position,
         interactive = state.boardInteractive,
         boardTheme = state.boardTheme,
@@ -146,13 +147,13 @@ fun FaceToFaceScreen(
     }
 
     if (state.newGameDialogShowing) {
-      NewGameDialog(onUserAction)
+      NewGameDialog(onUserAction, state.newGameParameters)
     }
   }
 }
 
 @Composable
-private fun NewGameDialog(onUserAction: (Action) -> Unit) {
+private fun NewGameDialog(onUserAction: (Action) -> Unit, newGameParameters: GameParameters) {
   Box(modifier = Modifier
     .fillMaxSize()
     .background(Color(0x88000000))
@@ -176,12 +177,26 @@ private fun NewGameDialog(onUserAction: (Action) -> Unit) {
         color = MaterialTheme.colors.onSurface,
         style = MaterialTheme.typography.h1,
         )
-      SettingsRow(label = "Size", options = listOf("9 × 9", "13 × 13", "19 × 19"), selected = "9 × 9", onSelectionChanged = {})
-      SettingsRow(label = "Handicap", options = (0..9).map { it.toString() }, selected = "0", onSelectionChanged = {})
+      SettingsRow(
+        label = "Size",
+        options = BoardSize.values().toList(),
+        selected = newGameParameters.size,
+        onSelectionChanged = {
+          onUserAction(Action.NewGameParametersChanged(newGameParameters.copy(size = it)))
+        }
+      )
+      SettingsRow(
+        label = "Handicap",
+        options = (0..9).toList(),
+        selected = newGameParameters.handicap,
+        onSelectionChanged = {
+          onUserAction(Action.NewGameParametersChanged(newGameParameters.copy(handicap = it)))
+        }
+      )
       Button(
         modifier = Modifier.fillMaxWidth()
           .padding(top = 32.dp),
-        onClick = { /*TODO*/ }
+        onClick = { onUserAction(StartNewGame) }
       ) {
         Text(text = "START NEW GAME")
       }
@@ -190,7 +205,7 @@ private fun NewGameDialog(onUserAction: (Action) -> Unit) {
 }
 
 @Composable
-private fun SettingsRow(label: String, options: List<String>, selected: String, onSelectionChanged: (String) -> Unit) {
+private fun <T>SettingsRow(label: String, options: List<T>, selected: T, onSelectionChanged: (T) -> Unit) {
   Row {
     Text(
       text = label,
@@ -200,24 +215,25 @@ private fun SettingsRow(label: String, options: List<String>, selected: String, 
     )
     Spacer(modifier = Modifier.weight(1f))
     var expanded by remember { mutableStateOf(false) }
-    // var selectedOptionText by remember { mutableStateOf(options[0]) }
     ExposedDropdownMenuBox(
       expanded = expanded,
       onExpandedChange = {
         expanded = !expanded
       },
-      modifier = Modifier.width(120.dp)
+      modifier = Modifier.width(130.dp)
     ) {
       TextField(
         readOnly = true,
-        value = selected,
+        value = selected.toString(),
         onValueChange = { },
         trailingIcon = {
           ExposedDropdownMenuDefaults.TrailingIcon(
             expanded = expanded
           )
         },
-        colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors()
+        colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(
+          textColor = MaterialTheme.colors.onSurface,
+        )
       )
       ExposedDropdownMenu(
         expanded = expanded,
@@ -232,7 +248,7 @@ private fun SettingsRow(label: String, options: List<String>, selected: String, 
               expanded = false
             }
           ) {
-            Text(text = selectionOption)
+            Text(text = selectionOption.toString())
           }
         }
       }

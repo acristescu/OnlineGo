@@ -1,11 +1,11 @@
 package io.zenandroid.onlinego.ui.screens.face2face
 
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.AddCircle
 import androidx.compose.material.icons.rounded.Functions
 import androidx.compose.material.icons.rounded.HighlightOff
 import androidx.compose.material.icons.rounded.SkipNext
 import androidx.compose.material.icons.rounded.SkipPrevious
-import androidx.compose.material.icons.rounded.Tune
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -33,6 +33,7 @@ import io.zenandroid.onlinego.ui.screens.face2face.Action.BoardCellTapUp
 import io.zenandroid.onlinego.ui.screens.face2face.Action.BottomButtonPressed
 import io.zenandroid.onlinego.ui.screens.face2face.Action.KOMoveDialogDismiss
 import io.zenandroid.onlinego.ui.screens.face2face.Action.NewGameDialogDismiss
+import io.zenandroid.onlinego.ui.screens.face2face.Action.NewGameParametersChanged
 import io.zenandroid.onlinego.ui.screens.face2face.Button.CloseEstimate
 import io.zenandroid.onlinego.ui.screens.face2face.Button.Estimate
 import io.zenandroid.onlinego.ui.screens.face2face.Button.GameSettings
@@ -49,7 +50,9 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.annotation.concurrent.Immutable
 
-private const val STATE_KEY = "FACE_TO_FACE_STATE_KEY"
+private const val HISTORY_KEY = "FACE_TO_FACE_HISTORY_KEY"
+private const val BOARD_SIZE_KEY = "FACE_TO_FACE_BOARD_SIZE_KEY"
+private const val HANDICAP_KEY = "FACE_TO_FACE_HANDICAP_KEY"
 
 class FaceToFaceViewModel(
   private val settingsRepository: SettingsRepository,
@@ -68,6 +71,8 @@ class FaceToFaceViewModel(
   private var gameFinished by mutableStateOf<Boolean?>(null)
   private var estimateStatus by mutableStateOf<EstimateStatus>(Idle)
   private var newGameDialogShowing by mutableStateOf(false)
+  private var currentGameParameters by mutableStateOf(GameParameters(BoardSize.LARGE, 0))
+  private var newGameParameters by mutableStateOf(GameParameters(BoardSize.LARGE, 0))
 
   private val prefs = PreferenceManager.getDefaultSharedPreferences(OnlineGoApplication.instance.baseContext)
 
@@ -113,9 +118,6 @@ class FaceToFaceViewModel(
       loading = loading,
       position = position,
       title = title,
-      gameWidth = 19,
-      gameHeight = 19,
-      handicap = 0,
       gameFinished = false,
       history = history,
       boardInteractive = true,
@@ -129,29 +131,42 @@ class FaceToFaceViewModel(
       buttons = buttons,
       bottomText = bottomText,
       newGameDialogShowing = newGameDialogShowing,
+      currentGameParameters = currentGameParameters,
+      newGameParameters = newGameParameters,
     )
   }
 
   private suspend fun loadSavedData() {
-    if(prefs.contains(STATE_KEY)) {
-      val historyString = withContext(Dispatchers.IO) {
-        prefs.getString(STATE_KEY, "")
+    if(prefs.contains(HISTORY_KEY) && prefs.contains(BOARD_SIZE_KEY) && prefs.contains(HANDICAP_KEY)) {
+      var historyString: String
+      var sizeString: String
+      var handicap: Int
+
+      withContext(Dispatchers.IO) {
+        historyString = prefs.getString(HISTORY_KEY, "")!!
+        sizeString = prefs.getString(BOARD_SIZE_KEY, "")!!
+        handicap = prefs.getInt(HANDICAP_KEY, 0)
       }
-      historyString?.let {
-        history = it.split(" ")
-          .filter { it.isNotEmpty() }
-          .map {
-            val parts = it.split(",")
-            Cell(parts[0].toInt(), parts[1].toInt())
-          }
-        currentPosition = historyPosition(history.lastIndex)
-      }
+      history = historyString.split(" ")
+        .filter { it.isNotEmpty() }
+        .map {
+          val parts = it.split(",")
+          Cell(parts[0].toInt(), parts[1].toInt())
+        }
+      val size = BoardSize.values().first { it.prettyName == sizeString }
+      currentGameParameters = GameParameters(size, handicap)
+      newGameParameters = currentGameParameters
+      currentPosition = historyPosition(history.lastIndex)
     }
     loading = false
   }
 
   override fun onCleared() {
-    prefs.edit().putString(STATE_KEY, history.joinToString(separator = " ") { "${it.x},${it.y}" }).apply()
+    prefs.edit()
+      .putString(HISTORY_KEY, history.joinToString(separator = " ") { "${it.x},${it.y}" })
+      .putString(BOARD_SIZE_KEY, currentGameParameters.size.toString())
+      .putInt(HANDICAP_KEY, currentGameParameters.handicap)
+      .apply()
     super.onCleared()
   }
 
@@ -162,6 +177,8 @@ class FaceToFaceViewModel(
       KOMoveDialogDismiss -> koMoveDialogShowing = false
       is BottomButtonPressed -> onButtonPressed(action.button)
       NewGameDialogDismiss -> newGameDialogShowing = false
+      is NewGameParametersChanged -> newGameParameters = action.params
+      Action.StartNewGame -> onStartNewGame()
     }
   }
 
@@ -199,12 +216,22 @@ class FaceToFaceViewModel(
     currentPosition = newPos
   }
 
+  private fun onStartNewGame() {
+    val params = newGameParameters
+    currentPosition = RulesManager.initializePosition(params.size.height, params.handicap)
+    estimateStatus = Idle
+    history = emptyList()
+    currentGameParameters = params
+    historyIndex = null
+    newGameDialogShowing = false
+  }
+
   private fun historyPosition(index: Int) =
-    RulesManager.buildPos(
+    RulesManager.replay(
       moves = history.subList(0, index + 1),
-      boardWidth = currentPosition.boardWidth,
-      boardHeight = currentPosition.boardHeight,
-      handicap = currentPosition.handicap
+      width = currentGameParameters.size.width,
+      height = currentGameParameters.size.height,
+      handicap = currentGameParameters.handicap
     )!!
 
   private fun onCellTapUp(cell: Cell) {
@@ -236,9 +263,6 @@ data class FaceToFaceState(
   val title: String,
   val buttons: List<Button>,
   val bottomText: String?,
-  val gameWidth: Int,
-  val gameHeight: Int,
-  val handicap: Int,
   val gameFinished: Boolean,
   val history: List<Cell>,
   val candidateMove: Cell?,
@@ -250,15 +274,14 @@ data class FaceToFaceState(
   val showLastMove: Boolean,
   val koMoveDialogShowing: Boolean,
   val newGameDialogShowing: Boolean,
+  val currentGameParameters: GameParameters,
+  val newGameParameters: GameParameters,
 ) {
   companion object {
     val INITIAL = FaceToFaceState(
       loading = true,
       title = "Face to face · Loading",
       position = Position(19, 19),
-      gameWidth = 19,
-      gameHeight = 19,
-      handicap = 0,
       gameFinished = false,
       history = emptyList(),
       boardInteractive = true,
@@ -272,7 +295,29 @@ data class FaceToFaceState(
       buttons = emptyList(),
       bottomText = null,
       newGameDialogShowing = false,
+      currentGameParameters = GameParameters(BoardSize.LARGE, 0),
+      newGameParameters = GameParameters(BoardSize.LARGE, 0),
     )
+  }
+}
+
+@Immutable
+data class GameParameters(
+  val size: BoardSize,
+  val handicap: Int,
+)
+
+enum class BoardSize(
+  val width: Int,
+  val height: Int,
+  val prettyName: String,
+) {
+  SMALL(9, 9, "9 × 9"),
+  MEDIUM(13, 13, "13 × 13"),
+  LARGE(19, 19, "19 × 19");
+
+  override fun toString(): String {
+    return prettyName
   }
 }
 
@@ -284,7 +329,7 @@ sealed class Button(
   override val bubbleText: String? = null,
   override val highlighted: Boolean = false,
 ) : BottomBarButton {
-  object GameSettings : Button(Icons.Rounded.Tune, "Game Settings")
+  object GameSettings : Button(Icons.Rounded.AddCircle, "New Game")
   object Estimate : Button(Icons.Rounded.Functions, "Auto-score")
   class Previous(enabled: Boolean = true) : Button(repeatable = true, enabled = enabled, icon = Icons.Rounded.SkipPrevious, label = "Previous")
   class Next(enabled: Boolean = true) : Button(repeatable = true, enabled = enabled, icon = Icons.Rounded.SkipNext, label = "Next")
@@ -297,6 +342,8 @@ sealed interface Action {
   class BottomButtonPressed(val button: Button) : Action
   object KOMoveDialogDismiss: Action
   object NewGameDialogDismiss: Action
+  class NewGameParametersChanged(val params: GameParameters): Action
+  object StartNewGame: Action
 }
 
 sealed interface EstimateStatus {
