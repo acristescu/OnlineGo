@@ -1,5 +1,6 @@
 package io.zenandroid.onlinego.ui.screens.face2face
 
+import android.content.res.Configuration
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -37,6 +38,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
@@ -72,72 +74,147 @@ fun FaceToFaceScreen(
   onBackPressed: () -> Unit,
 ) {
   OnlineGoTheme {
-    Column(
-      Modifier
-        .background(MaterialTheme.colors.surface)
-        .fillMaxSize()
-    ) {
-      TitleBar(
-        title = state.title,
-        titleIcon = null,
-        onTitleClicked = null,
-        onBack = onBackPressed,
-        moreMenuItems = emptyList(),
-      )
-
-      Row(
-        horizontalArrangement = Arrangement.SpaceBetween,
-        modifier = Modifier
-          .padding(horizontal = 16.dp)
-          .padding(top = 16.dp, bottom = 16.dp)
-          .fillMaxWidth()
+    if (LocalConfiguration.current.orientation == Configuration.ORIENTATION_PORTRAIT) {
+      Column(
+        Modifier
+          .background(MaterialTheme.colors.surface)
+          .fillMaxSize()
       ) {
-        Column {
-          UserImage(BLACK)
-          Text(
-            text = "Player 1",
-            textAlign = TextAlign.Center,
-            color = MaterialTheme.colors.onSurface,
-            style = MaterialTheme.typography.h3,
-            modifier = Modifier.width(84.dp)
-          )
+        TitleBar(
+          title = state.title,
+          titleIcon = null,
+          onTitleClicked = null,
+          onBack = onBackPressed,
+          moreMenuItems = emptyList(),
+        )
+
+        Row(
+          horizontalArrangement = Arrangement.SpaceBetween,
+          modifier = Modifier
+            .padding(horizontal = 16.dp)
+            .padding(top = 16.dp, bottom = 16.dp)
+            .fillMaxWidth()
+        ) {
+          Column {
+            UserImage(BLACK)
+            Text(
+              text = "Player 1",
+              textAlign = TextAlign.Center,
+              color = MaterialTheme.colors.onSurface,
+              style = MaterialTheme.typography.h3,
+              modifier = Modifier.width(84.dp)
+            )
+          }
+          state.position?.let { ScoreSheet(it) } ?: Spacer(modifier = Modifier.weight(1f))
+          Column {
+            UserImage(WHITE, Modifier.padding(start = 4.dp))
+            Text(
+              text = "Player 2",
+              textAlign = TextAlign.Center,
+              color = MaterialTheme.colors.onSurface,
+              style = MaterialTheme.typography.h3,
+              modifier = Modifier.width(84.dp)
+            )
+          }
         }
-        state.position?.let { ScoreSheet(it) } ?: Spacer(modifier = Modifier.weight(1f))
-        Column {
-          UserImage(WHITE, Modifier.padding(start = 4.dp))
-          Text(
-            text = "Player 2",
-            textAlign = TextAlign.Center,
-            color = MaterialTheme.colors.onSurface,
-            style = MaterialTheme.typography.h3,
-            modifier = Modifier.width(84.dp)
-          )
-        }
+        Board(
+          boardWidth = state.position?.boardWidth ?: 19,
+          boardHeight = state.position?.boardHeight ?: 19,
+          position = state.position,
+          interactive = state.boardInteractive,
+          boardTheme = state.boardTheme,
+          drawCoordinates = state.showCoordinates,
+          drawTerritory = state.drawTerritory,
+          drawLastMove = state.showLastMove,
+          fadeOutRemovedStones = state.fadeOutRemovedStones,
+          candidateMove = state.candidateMove,
+          candidateMoveType = state.position?.nextToMove,
+          onTapMove = { onUserAction(BoardCellDragged(it)) },
+          onTapUp = { onUserAction(BoardCellTapUp(it)) },
+          modifier = Modifier
+            .shadow(1.dp, MaterialTheme.shapes.medium)
+            .clip(MaterialTheme.shapes.medium)
+        )
+        Spacer(modifier = Modifier.weight(1f))
+        BottomBar(
+          buttons = state.buttons,
+          bottomText = state.bottomText,
+          onButtonPressed = { onUserAction(BottomButtonPressed(it as Button)) }
+        )
       }
-      Board(
-        boardWidth = state.position?.boardWidth ?: 19,
-        boardHeight = state.position?.boardHeight ?: 19,
-        position = state.position,
-        interactive = state.boardInteractive,
-        boardTheme = state.boardTheme,
-        drawCoordinates = state.showCoordinates,
-        drawTerritory = state.drawTerritory,
-        drawLastMove = state.showLastMove,
-        fadeOutRemovedStones = state.fadeOutRemovedStones,
-        candidateMove = state.candidateMove,
-        candidateMoveType = state.position?.nextToMove,
-        onTapMove = { onUserAction(BoardCellDragged(it)) },
-        onTapUp = { onUserAction(BoardCellTapUp(it)) },
-        modifier = Modifier
-          .shadow(1.dp, MaterialTheme.shapes.medium)
-          .clip(MaterialTheme.shapes.medium)
-      )
-      Spacer(modifier = Modifier.weight(1f))
-      BottomBar(
-        buttons = state.buttons,
-        bottomText = state.bottomText,
-        onButtonPressed = { onUserAction(BottomButtonPressed(it as Button)) }
-      )
+    } else {
+      Row(
+        Modifier
+          .background(MaterialTheme.colors.surface)
+          .fillMaxSize()
+      ) {
+        Column(
+          Modifier.width(0.dp)
+            .weight(1f)
+        ) {
+          TitleBar(
+            title = state.title,
+            titleIcon = null,
+            onTitleClicked = null,
+            onBack = onBackPressed,
+            moreMenuItems = emptyList(),
+          )
+
+          Row(
+            horizontalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier
+              .padding(horizontal = 16.dp)
+              .padding(top = 16.dp, bottom = 16.dp)
+              .fillMaxWidth()
+          ) {
+            Column {
+              UserImage(BLACK)
+              Text(
+                text = "Player 1",
+                textAlign = TextAlign.Center,
+                color = MaterialTheme.colors.onSurface,
+                style = MaterialTheme.typography.h3,
+                modifier = Modifier.width(84.dp)
+              )
+            }
+            state.position?.let { ScoreSheet(it) } ?: Spacer(modifier = Modifier.weight(1f))
+            Column {
+              UserImage(WHITE, Modifier.padding(start = 4.dp))
+              Text(
+                text = "Player 2",
+                textAlign = TextAlign.Center,
+                color = MaterialTheme.colors.onSurface,
+                style = MaterialTheme.typography.h3,
+                modifier = Modifier.width(84.dp)
+              )
+            }
+          }
+          Spacer(modifier = Modifier.weight(1f))
+          BottomBar(
+            buttons = state.buttons,
+            bottomText = state.bottomText,
+            onButtonPressed = { onUserAction(BottomButtonPressed(it as Button)) }
+          )
+        }
+        Board(
+          boardWidth = state.position?.boardWidth ?: 19,
+          boardHeight = state.position?.boardHeight ?: 19,
+          position = state.position,
+          interactive = state.boardInteractive,
+          boardTheme = state.boardTheme,
+          drawCoordinates = state.showCoordinates,
+          drawTerritory = state.drawTerritory,
+          drawLastMove = state.showLastMove,
+          fadeOutRemovedStones = state.fadeOutRemovedStones,
+          candidateMove = state.candidateMove,
+          candidateMoveType = state.position?.nextToMove,
+          onTapMove = { onUserAction(BoardCellDragged(it)) },
+          onTapUp = { onUserAction(BoardCellTapUp(it)) },
+          modifier = Modifier
+            .shadow(1.dp, MaterialTheme.shapes.medium)
+            .clip(MaterialTheme.shapes.medium)
+        )
+      }
     }
 
     if (state.koMoveDialogShowing) {

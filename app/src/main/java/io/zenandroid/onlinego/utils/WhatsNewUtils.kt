@@ -26,12 +26,9 @@ private val annotatedCurrentText = AnnotatedString.Builder().run {
     pop()
 
     pushStyle(SpanStyle(fontWeight = FontWeight.Normal))
-    append("· Added LGBT, EU, England, Scotland, Wales and other special flags (thanks to benjaminpjones for the contribution).")
-    append("· Implemented some improvements to the offline indicator.")
-    append("· Added details to incoming challenges.")
-    append("· Added versus stats to player details.")
-    append("· Fixed some issues with KataGo.")
-    append("· Implemented KO detection in Analysis mode.")
+    append("· New feature: ability to play face to face (e.g. pass-and-play).")
+    append("· Tweaked transition animations.")
+    append("· Fixed a bug with keyboard in chat.")
     pop()
 
     // pushStyle(SpanStyle(fontSize = 18.sp))
