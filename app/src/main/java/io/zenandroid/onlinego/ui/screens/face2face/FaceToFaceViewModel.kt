@@ -1,5 +1,7 @@
 package io.zenandroid.onlinego.ui.screens.face2face
 
+import android.content.SharedPreferences
+import androidx.annotation.VisibleForTesting
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.AddCircle
 import androidx.compose.material.icons.rounded.Functions
@@ -56,6 +58,7 @@ private const val HANDICAP_KEY = "FACE_TO_FACE_HANDICAP_KEY"
 
 class FaceToFaceViewModel(
   private val settingsRepository: SettingsRepository,
+  private val prefs: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(OnlineGoApplication.instance.baseContext),
   testing: Boolean = false
 ) : ViewModel() {
 
@@ -74,16 +77,16 @@ class FaceToFaceViewModel(
   private var currentGameParameters by mutableStateOf(GameParameters(BoardSize.LARGE, 0))
   private var newGameParameters by mutableStateOf(GameParameters(BoardSize.LARGE, 0))
 
-  private val prefs = PreferenceManager.getDefaultSharedPreferences(OnlineGoApplication.instance.baseContext)
 
   val state: StateFlow<FaceToFaceState> =
     if (testing) MutableStateFlow(FaceToFaceState.INITIAL)
     else moleculeScope.launchMolecule(clock = ContextClock) {
-      Molecule()
+      molecule()
     }
 
+  @VisibleForTesting
   @Composable
-  fun Molecule(): FaceToFaceState {
+  fun molecule(): FaceToFaceState {
     LaunchedEffect(null) {
       loadSavedData()
     }
@@ -156,8 +159,8 @@ class FaceToFaceViewModel(
       val size = BoardSize.values().first { it.prettyName == sizeString }
       currentGameParameters = GameParameters(size, handicap)
       newGameParameters = currentGameParameters
-      currentPosition = historyPosition(history.lastIndex)
     }
+    currentPosition = historyPosition(history.lastIndex)
     loading = false
   }
 

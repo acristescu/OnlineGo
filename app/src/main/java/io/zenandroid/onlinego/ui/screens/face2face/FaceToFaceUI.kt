@@ -2,6 +2,7 @@ package io.zenandroid.onlinego.ui.screens.face2face
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -18,11 +19,14 @@ import androidx.compose.material.Button
 import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.ExposedDropdownMenuBox
 import androidx.compose.material.ExposedDropdownMenuDefaults
+import androidx.compose.material.LocalContentColor
+import androidx.compose.material.LocalTextStyle
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.TextButton
 import androidx.compose.material.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -34,12 +38,14 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import io.zenandroid.onlinego.R.drawable
 import io.zenandroid.onlinego.R.mipmap
+import io.zenandroid.onlinego.data.model.Position
 import io.zenandroid.onlinego.data.model.StoneType
 import io.zenandroid.onlinego.data.model.StoneType.BLACK
 import io.zenandroid.onlinego.data.model.StoneType.WHITE
@@ -57,6 +63,7 @@ import io.zenandroid.onlinego.ui.screens.face2face.Button.GameSettings
 import io.zenandroid.onlinego.ui.screens.face2face.Button.Next
 import io.zenandroid.onlinego.ui.screens.face2face.Button.Previous
 import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
+import java.lang.Float.max
 
 @Composable
 fun FaceToFaceScreen(
@@ -78,34 +85,34 @@ fun FaceToFaceScreen(
         moreMenuItems = emptyList(),
       )
 
-      Row(modifier = Modifier
-        .padding(horizontal = 16.dp)
-        .padding(top = 16.dp, bottom = 4.dp)
-        .fillMaxWidth()
+      Row(
+        horizontalArrangement = Arrangement.SpaceBetween,
+        modifier = Modifier
+          .padding(horizontal = 16.dp)
+          .padding(top = 16.dp, bottom = 16.dp)
+          .fillMaxWidth()
       ) {
-        UserImage(BLACK)
-        Spacer(modifier = Modifier.weight(1f))
-        UserImage(WHITE)
-      }
-      Row(modifier = Modifier
-        .padding(horizontal = 16.dp)
-        .padding(bottom = 16.dp)
-      ) {
-        Text(
-          text = "Player 1",
-          textAlign = TextAlign.Center,
-          color = MaterialTheme.colors.onSurface,
-          style = MaterialTheme.typography.h3,
-          modifier = Modifier.width(84.dp)
-        )
-        Spacer(modifier = Modifier.weight(1f))
-        Text(
-          text = "Player 2",
-          textAlign = TextAlign.Center,
-          color = MaterialTheme.colors.onSurface,
-          style = MaterialTheme.typography.h3,
-          modifier = Modifier.width(84.dp)
-        )
+        Column {
+          UserImage(BLACK)
+          Text(
+            text = "Player 1",
+            textAlign = TextAlign.Center,
+            color = MaterialTheme.colors.onSurface,
+            style = MaterialTheme.typography.h3,
+            modifier = Modifier.width(84.dp)
+          )
+        }
+        state.position?.let { ScoreSheet(it) } ?: Spacer(modifier = Modifier.weight(1f))
+        Column {
+          UserImage(WHITE, Modifier.padding(start = 4.dp))
+          Text(
+            text = "Player 2",
+            textAlign = TextAlign.Center,
+            color = MaterialTheme.colors.onSurface,
+            style = MaterialTheme.typography.h3,
+            modifier = Modifier.width(84.dp)
+          )
+        }
       }
       Board(
         boardWidth = state.position?.boardWidth ?: 19,
@@ -153,6 +160,68 @@ fun FaceToFaceScreen(
 }
 
 @Composable
+private fun ScoreSheet(pos: Position, modifier: Modifier = Modifier) {
+  CompositionLocalProvider(
+    LocalContentColor provides MaterialTheme.colors.onSurface,
+    LocalTextStyle provides MaterialTheme.typography.body2.copy(fontFamily = FontFamily.Monospace),
+  ) {
+    val hasDeadStones =
+      pos.blackDeadStones.isNotEmpty() || pos.whiteDeadStones.isNotEmpty()
+    val hasTerritory =
+      pos.blackTerritory.isNotEmpty() || pos.whiteTerritory.isNotEmpty()
+    val whiteScore = (pos.komi ?: 0f) + pos.whiteTerritory.size + pos.whiteCaptureCount + pos.blackDeadStones.size
+    val blackScore = pos.blackTerritory.size + pos.blackCaptureCount + pos.whiteDeadStones.size
+
+    val maxWhite = max(whiteScore, pos.whiteCaptureCount.toFloat())
+    val padding = when {
+      maxWhite >= 100 -> 3
+      maxWhite >= 10 -> 2
+      else -> 1
+    }
+    Column(
+      horizontalAlignment = Alignment.End,
+    ) {
+      Text(
+        text = "0".padStart(padding + 2, ' '),
+      )
+      Text(text = pos.blackCaptureCount.toString(),)
+      if (hasDeadStones) {
+        Text(text = pos.whiteDeadStones.size.toString(),)
+      }
+      if (hasTerritory) {
+        Text(text = pos.blackTerritory.size.toString(),)
+        Text(text = blackScore.toString(),)
+      }
+    }
+    Column(
+      horizontalAlignment = Alignment.CenterHorizontally,
+      modifier = Modifier.padding(horizontal = 8.dp)
+    ) {
+      Text(text = "komi",)
+      Text(text = "captures",)
+      if (hasDeadStones) {
+        Text(text = "dead",)
+      }
+      if (hasTerritory) {
+        Text(text = "territory",)
+        Text(text = "total",)
+      }
+    }
+    Column {
+      Text(text = (pos.komi ?: 0f).toString().padStart(padding + 2, ' '),)
+      Text(text = pos.whiteCaptureCount.toString().padStart(padding, ' '),)
+      if (hasDeadStones) {
+        Text(text = pos.blackDeadStones.size.toString().padStart(padding, ' '),)
+      }
+      if (hasTerritory) {
+        Text(text = pos.whiteTerritory.size.toString().padStart(padding, ' '),)
+        Text(text = whiteScore.toString().padStart(padding, ' '),)
+      }
+    }
+  }
+}
+
+@Composable
 private fun NewGameDialog(onUserAction: (Action) -> Unit, newGameParameters: GameParameters) {
   Box(modifier = Modifier
     .fillMaxSize()
@@ -194,7 +263,8 @@ private fun NewGameDialog(onUserAction: (Action) -> Unit, newGameParameters: Gam
         }
       )
       Button(
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+          .fillMaxWidth()
           .padding(top = 32.dp),
         onClick = { onUserAction(StartNewGame) }
       ) {
@@ -257,8 +327,11 @@ private fun <T>SettingsRow(label: String, options: List<T>, selected: T, onSelec
 }
 
 @Composable
-private fun UserImage(color: StoneType) {
-  Box(modifier = Modifier
+private fun UserImage(
+  color: StoneType,
+  modifier: Modifier = Modifier
+) {
+  Box(modifier = modifier
     .size(84.dp)
     .aspectRatio(1f, true)
   ) {

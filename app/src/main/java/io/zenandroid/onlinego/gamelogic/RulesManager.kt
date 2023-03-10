@@ -20,7 +20,11 @@ import java.util.LinkedList
 object RulesManager {
 
     init {
-        System.loadLibrary("estimator")
+        try {
+            System.loadLibrary("estimator")
+        } catch (e: UnsatisfiedLinkError) {
+            Log.e("libestimator", "Error loading estimator")
+        }
     }
 
     private val positionsCache = lruCache<CacheKey, Position>(1000)
