@@ -1,22 +1,24 @@
 package io.zenandroid.onlinego.ui.screens.localai.middlewares
 
 import android.util.Log
-import androidx.compose.ui.util.fastForEachIndexed
 import androidx.preference.PreferenceManager
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import io.reactivex.Observable
-import io.zenandroid.onlinego.mvi.Middleware
-import io.zenandroid.onlinego.ui.screens.localai.AiGameAction
-import io.zenandroid.onlinego.ui.screens.localai.AiGameState
 import io.reactivex.rxkotlin.withLatestFrom
 import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.gamelogic.RulesManager
-import io.zenandroid.onlinego.ui.screens.localai.AiGameAction.*
+import io.zenandroid.onlinego.mvi.Middleware
+import io.zenandroid.onlinego.ui.screens.localai.AiGameAction
+import io.zenandroid.onlinego.ui.screens.localai.AiGameAction.CantRestoreState
+import io.zenandroid.onlinego.ui.screens.localai.AiGameAction.RestoredState
+import io.zenandroid.onlinego.ui.screens.localai.AiGameAction.ViewPaused
+import io.zenandroid.onlinego.ui.screens.localai.AiGameAction.ViewReady
+import io.zenandroid.onlinego.ui.screens.localai.AiGameState
 import io.zenandroid.onlinego.utils.moshiadapters.HashMapOfCellToStoneTypeMoshiAdapter
 import io.zenandroid.onlinego.utils.moshiadapters.ResponseBriefMoshiAdapter
+import io.zenandroid.onlinego.utils.recordException
 
 private const val STATE_KEY = "AIGAME_STATE_KEY"
 
@@ -56,8 +58,7 @@ class StatePersistenceMiddleware : Middleware<AiGameState, AiGameAction> {
                                 null
                             }
                         } ?: run {
-                            FirebaseCrashlytics.getInstance()
-                                .recordException(Exception("Cannot deserialize state $json"))
+                            recordException(Exception("Cannot deserialize state $json"))
                             Log.e("StatePersistenceMiddlew", "Cannot deserialize state")
                             CantRestoreState
                         }

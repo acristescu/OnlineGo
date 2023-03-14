@@ -1,10 +1,10 @@
 package io.zenandroid.onlinego.data.repositories
 
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.PublishSubject
 import io.zenandroid.onlinego.data.ogs.OGSWebSocketService
 import io.zenandroid.onlinego.utils.addToDisposable
+import io.zenandroid.onlinego.utils.recordException
 import org.json.JSONObject
 
 class ServerNotificationsRepository(
@@ -16,7 +16,7 @@ class ServerNotificationsRepository(
 
     override fun onSocketConnected() {
         socketService.connectToServerNotifications()
-                .subscribe(this::onNewNotification, this::onError)
+                .subscribe(this::onNewNotification, ::recordException)
                 .addToDisposable(subscriptions)
     }
 
@@ -30,10 +30,6 @@ class ServerNotificationsRepository(
             notificationsHash[it] = notification
             notificationsSubject.onNext(notification)
         }
-    }
-
-    private fun onError(t: Throwable) {
-        FirebaseCrashlytics.getInstance().recordException(t)
     }
 
     fun notificationsObservable() =

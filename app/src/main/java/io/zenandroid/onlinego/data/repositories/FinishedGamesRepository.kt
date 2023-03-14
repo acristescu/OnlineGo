@@ -6,14 +6,13 @@ import io.reactivex.Flowable
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
-import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.data.db.GameDao
-import io.zenandroid.onlinego.utils.addToDisposable
 import io.zenandroid.onlinego.data.model.local.Game
 import io.zenandroid.onlinego.data.model.local.HistoricGamesMetadata
 import io.zenandroid.onlinego.data.model.ogs.OGSGame
 import io.zenandroid.onlinego.data.ogs.OGSRestService
-import io.zenandroid.onlinego.data.ogs.OGSWebSocketService
+import io.zenandroid.onlinego.utils.addToDisposable
+import io.zenandroid.onlinego.utils.recordException
 import java.io.IOException
 import java.util.concurrent.TimeUnit
 import kotlin.math.max
@@ -62,7 +61,7 @@ class FinishedGamesRepository(
                 FirebaseCrashlytics.getInstance().setCustomKey("HIT_RATE_LIMITER", true)
             }
         }
-        FirebaseCrashlytics.getInstance().recordException(Exception(message, t))
+        recordException(Exception(message, t))
         Log.e("FinishedGameRepository", message, t)
     }
 

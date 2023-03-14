@@ -2,16 +2,20 @@ package io.zenandroid.onlinego.ui.screens.stats
 
 import android.util.Log
 import com.google.firebase.analytics.FirebaseAnalytics
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import io.zenandroid.onlinego.data.model.local.UserStats
 import io.zenandroid.onlinego.data.model.ogs.OGSPlayer
 import io.zenandroid.onlinego.data.ogs.OGSRestService
-import io.zenandroid.onlinego.ui.screens.stats.StatsContract.Filter.*
+import io.zenandroid.onlinego.ui.screens.stats.StatsContract.Filter.ALL
+import io.zenandroid.onlinego.ui.screens.stats.StatsContract.Filter.FIVE_YEARS
+import io.zenandroid.onlinego.ui.screens.stats.StatsContract.Filter.ONE_MONTH
+import io.zenandroid.onlinego.ui.screens.stats.StatsContract.Filter.ONE_YEAR
+import io.zenandroid.onlinego.ui.screens.stats.StatsContract.Filter.THREE_MONTHS
 import io.zenandroid.onlinego.usecases.GetUserStatsUseCase
 import io.zenandroid.onlinego.utils.addToDisposable
+import io.zenandroid.onlinego.utils.recordException
 
 /**
  * Created by alex on 05/11/2017.
@@ -98,7 +102,7 @@ class StatsPresenter(
 
     private fun onError(t: Throwable) {
         Log.e("StatsPresenter", t.message, t)
-        FirebaseCrashlytics.getInstance().recordException(t)
+        recordException(t)
     }
 
     override fun unsubscribe() {

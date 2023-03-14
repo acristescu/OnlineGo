@@ -1,8 +1,6 @@
 package io.zenandroid.onlinego.ui.screens.mygames
 
 import android.util.Log
-import androidx.compose.ui.text.capitalize
-import androidx.compose.ui.text.toUpperCase
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.analytics.FirebaseAnalytics
@@ -19,21 +17,42 @@ import io.zenandroid.onlinego.data.model.ogs.OGSAutomatch
 import io.zenandroid.onlinego.data.model.ogs.Phase
 import io.zenandroid.onlinego.data.ogs.OGSRestService
 import io.zenandroid.onlinego.data.ogs.OGSWebSocketService
-import io.zenandroid.onlinego.data.repositories.*
+import io.zenandroid.onlinego.data.repositories.ActiveGamesRepository
+import io.zenandroid.onlinego.data.repositories.AutomatchRepository
+import io.zenandroid.onlinego.data.repositories.ChallengesRepository
+import io.zenandroid.onlinego.data.repositories.ChatRepository
+import io.zenandroid.onlinego.data.repositories.FinishedGamesRepository
+import io.zenandroid.onlinego.data.repositories.ServerNotificationsRepository
+import io.zenandroid.onlinego.data.repositories.SettingsRepository
+import io.zenandroid.onlinego.data.repositories.TutorialsRepository
+import io.zenandroid.onlinego.data.repositories.UserSessionRepository
 import io.zenandroid.onlinego.gamelogic.RulesManager
-import io.zenandroid.onlinego.ui.screens.mygames.Action.*
+import io.zenandroid.onlinego.ui.screens.mygames.Action.AutomatchCancelled
+import io.zenandroid.onlinego.ui.screens.mygames.Action.ChallengeAccepted
+import io.zenandroid.onlinego.ui.screens.mygames.Action.ChallengeCancelled
+import io.zenandroid.onlinego.ui.screens.mygames.Action.ChallengeDeclined
+import io.zenandroid.onlinego.ui.screens.mygames.Action.ChallengeDialogDismissed
+import io.zenandroid.onlinego.ui.screens.mygames.Action.ChallengeSeeDetails
+import io.zenandroid.onlinego.ui.screens.mygames.Action.CustomGame
+import io.zenandroid.onlinego.ui.screens.mygames.Action.DismissAlertDialog
+import io.zenandroid.onlinego.ui.screens.mygames.Action.DismissWhatsNewDialog
+import io.zenandroid.onlinego.ui.screens.mygames.Action.FaceToFace
+import io.zenandroid.onlinego.ui.screens.mygames.Action.GameNavigationConsumed
+import io.zenandroid.onlinego.ui.screens.mygames.Action.GameSelected
+import io.zenandroid.onlinego.ui.screens.mygames.Action.LoadMoreHistoricGames
+import io.zenandroid.onlinego.ui.screens.mygames.Action.PlayAgainstAI
+import io.zenandroid.onlinego.ui.screens.mygames.Action.PlayOnline
+import io.zenandroid.onlinego.ui.screens.mygames.Action.SupportClicked
+import io.zenandroid.onlinego.ui.screens.mygames.Action.ViewResumed
 import io.zenandroid.onlinego.utils.WhatsNewUtils
 import io.zenandroid.onlinego.utils.addToDisposable
 import io.zenandroid.onlinego.utils.egfToRank
 import io.zenandroid.onlinego.utils.formatRank
+import io.zenandroid.onlinego.utils.recordException
 import io.zenandroid.onlinego.utils.timeLeftForCurrentPlayer
-import kotlinx.collections.immutable.ImmutableList
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
-import okhttp3.internal.immutableListOf
-import okhttp3.internal.toImmutableList
 import org.json.JSONObject
 import java.util.Locale
 import javax.annotation.concurrent.Immutable
@@ -251,14 +270,14 @@ class MyGamesViewModel(
         if(t is retrofit2.HttpException) {
             if(t.code() in arrayOf(401, 403)) {
                 FirebaseCrashlytics.getInstance().setCustomKey("AUTO_LOGOUT", System.currentTimeMillis())
-                FirebaseCrashlytics.getInstance().recordException(Exception(t.response()?.errorBody()?.string(), t))
+                recordException(Exception(t.response()?.errorBody()?.string(), t))
                 FirebaseCrashlytics.getInstance().sendUnsentReports()
                 userSessionRepository.logOut()
                 _state.value = _state.value.copy(
                     userIsLoggedOut = true
                 )
             } else {
-                FirebaseCrashlytics.getInstance().recordException(Exception(t.response()?.errorBody()?.string(), t))
+                recordException(Exception(t.response()?.errorBody()?.string(), t))
             }
         } else {
             if(t is com.squareup.moshi.JsonDataException) {
@@ -267,7 +286,7 @@ class MyGamesViewModel(
                     alertDialogText = "An error occurred white talking to the OGS Server. This usually means the website devs have changed something in the API. Please report this error as the app will probably not work until we adapt to this change."
                 )
             }
-            FirebaseCrashlytics.getInstance().recordException(t)
+            recordException(t)
         }
 
         Log.e("MyGamesViewModel", t.message, t)

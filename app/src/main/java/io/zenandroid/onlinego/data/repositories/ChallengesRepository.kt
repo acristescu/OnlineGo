@@ -1,17 +1,16 @@
 package io.zenandroid.onlinego.data.repositories
 
 import android.util.Log
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.disposables.CompositeDisposable
-import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.data.db.GameDao
-import io.zenandroid.onlinego.utils.addToDisposable
 import io.zenandroid.onlinego.data.model.local.Challenge
 import io.zenandroid.onlinego.data.model.ogs.OGSChallenge
 import io.zenandroid.onlinego.data.ogs.OGSRestService
 import io.zenandroid.onlinego.data.ogs.OGSWebSocketService
+import io.zenandroid.onlinego.utils.addToDisposable
+import io.zenandroid.onlinego.utils.recordException
 
 class ChallengesRepository(
         private val restService: OGSRestService,
@@ -49,7 +48,7 @@ class ChallengesRepository(
 
     fun onError(throwable: Throwable) {
         Log.e(TAG, throwable.message, throwable)
-        FirebaseCrashlytics.getInstance().recordException(throwable)
+        recordException(throwable)
     }
 
     override fun onSocketDisconnected() {

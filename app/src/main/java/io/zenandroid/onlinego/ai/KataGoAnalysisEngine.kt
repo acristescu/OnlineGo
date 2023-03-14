@@ -11,10 +11,9 @@ import io.zenandroid.onlinego.data.model.Position
 import io.zenandroid.onlinego.data.model.StoneType
 import io.zenandroid.onlinego.data.model.katago.Query
 import io.zenandroid.onlinego.data.model.katago.Response
-import io.zenandroid.onlinego.data.model.katago.RootInfo
 import io.zenandroid.onlinego.gamelogic.Util
+import io.zenandroid.onlinego.utils.recordException
 import java.io.*
-import java.lang.RuntimeException
 import java.util.*
 import java.util.concurrent.atomic.AtomicLong
 
@@ -79,7 +78,7 @@ object KataGoAnalysisEngine {
                                 Log.d("KataGoAnalysisEngine", line)
                                 if(line.startsWith("{\"error\"") || line.startsWith("{\"warning\":\"WARNING_MESSAGE\"")) {
                                     Log.e("KataGoAnalysisEngine", line)
-                                    FirebaseCrashlytics.getInstance().recordException(Exception("Katago: $line"))
+                                    recordException(Exception("Katago: $line"))
                                 } else {
                                     responseAdapter.fromJson(line)?.let {
                                         responseSubject.onNext(it)
@@ -91,7 +90,7 @@ object KataGoAnalysisEngine {
                         }.start()
                     } else {
                         Log.e("KataGoAnalysisEngine", "Could not start KataGo")
-                        FirebaseCrashlytics.getInstance().recordException(Exception("Could not start KataGo $errors"))
+                        recordException(Exception("Could not start KataGo $errors"))
                         throw RuntimeException("Could not start KataGo")
                     }
                 }

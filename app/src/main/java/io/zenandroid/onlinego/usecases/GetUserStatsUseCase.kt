@@ -1,7 +1,6 @@
 package io.zenandroid.onlinego.usecases
 
 import com.github.mikephil.charting.data.Entry
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import io.zenandroid.onlinego.data.model.local.UserStats
@@ -11,6 +10,7 @@ import io.zenandroid.onlinego.data.model.ogs.VersusStats
 import io.zenandroid.onlinego.data.ogs.OGSRestService
 import io.zenandroid.onlinego.usecases.RepoResult.Error
 import io.zenandroid.onlinego.usecases.RepoResult.Success
+import io.zenandroid.onlinego.utils.recordException
 import org.threeten.bp.LocalDateTime
 import org.threeten.bp.ZoneOffset
 
@@ -29,7 +29,7 @@ class GetUserStatsUseCase (
             val history = restService.getPlayerStatsAsync(playerId)
             Success(processPlayerStats(history))
         } catch (e: Exception) {
-            FirebaseCrashlytics.getInstance().recordException(e)
+            recordException(e)
             Error(e)
         }
     }
@@ -38,7 +38,7 @@ class GetUserStatsUseCase (
         return try {
             Success(restService.getPlayerVersusStats(playerId))
         } catch (e: Exception) {
-            FirebaseCrashlytics.getInstance().recordException(e)
+            recordException(e)
             Error(e)
         }
     }

@@ -2,11 +2,18 @@ package io.zenandroid.onlinego.notifications
 
 import android.content.Context
 import android.util.Log
-import androidx.work.*
+import androidx.work.Constraints
+import androidx.work.ExistingWorkPolicy
+import androidx.work.NetworkType
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.RxWorker
+import androidx.work.WorkManager
+import androidx.work.WorkerParameters
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.reactivex.Single
 import io.zenandroid.onlinego.data.repositories.UserSessionRepository
 import io.zenandroid.onlinego.ui.screens.main.MainActivity
+import io.zenandroid.onlinego.utils.recordException
 import org.koin.core.context.GlobalContext.get
 import java.util.concurrent.TimeUnit
 
@@ -81,7 +88,7 @@ class SynchronizeGamesWork(val context: Context, params: WorkerParameters) : RxW
                 schedule()
             } catch (e: Exception) {
                 Log.e(TAG, e.message, e)
-                FirebaseCrashlytics.getInstance().recordException(e)
+                recordException(e)
             }
         }
     }

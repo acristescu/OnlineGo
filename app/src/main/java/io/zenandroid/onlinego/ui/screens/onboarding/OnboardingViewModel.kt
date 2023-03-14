@@ -14,6 +14,7 @@ import io.zenandroid.onlinego.data.ogs.OGSWebSocketService
 import io.zenandroid.onlinego.ui.screens.onboarding.Page.MultipleChoicePage
 import io.zenandroid.onlinego.ui.screens.onboarding.Page.OnboardingPage
 import io.zenandroid.onlinego.utils.addToDisposable
+import io.zenandroid.onlinego.utils.recordException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -125,10 +126,10 @@ class OnboardingViewModel(
 
     private fun onPasswordLoginFailure(t: Throwable) {
         Log.e(OnboardingViewModel::class.java.simpleName, t.message, t)
-        FirebaseCrashlytics.getInstance().recordException(t)
         if( (t as? HttpException)?.code() in arrayOf(401, 403) ) {
             _state.value = state.value.copy(loginProcessing = false, loginErrorDialogText = "Invalid username or password")
         } else {
+            recordException(t)
             _state.value = state.value.copy(loginProcessing = false, loginErrorDialogText = "Login failed. Debug info: '${t.message}'")
         }
     }

@@ -25,15 +25,25 @@ import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
 import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.R
-import io.zenandroid.onlinego.utils.showIf
-import io.zenandroid.onlinego.ui.screens.joseki.JosekiExplorerAction.*
-import io.zenandroid.onlinego.ui.screens.main.MainActivity
 import io.zenandroid.onlinego.data.model.StoneType
-import io.zenandroid.onlinego.mvi.MviView
 import io.zenandroid.onlinego.data.repositories.SettingsRepository
 import io.zenandroid.onlinego.databinding.FragmentJosekiBinding
+import io.zenandroid.onlinego.mvi.MviView
+import io.zenandroid.onlinego.ui.screens.joseki.JosekiExplorerAction.LoadPosition
+import io.zenandroid.onlinego.ui.screens.joseki.JosekiExplorerAction.UserHotTrackedCoordinate
+import io.zenandroid.onlinego.ui.screens.joseki.JosekiExplorerAction.UserPressedBack
+import io.zenandroid.onlinego.ui.screens.joseki.JosekiExplorerAction.UserPressedNext
+import io.zenandroid.onlinego.ui.screens.joseki.JosekiExplorerAction.UserPressedPass
+import io.zenandroid.onlinego.ui.screens.joseki.JosekiExplorerAction.UserPressedPrevious
+import io.zenandroid.onlinego.ui.screens.joseki.JosekiExplorerAction.UserTappedCoordinate
+import io.zenandroid.onlinego.ui.screens.joseki.JosekiExplorerAction.ViewReady
 import io.zenandroid.onlinego.utils.PersistenceManager
-import org.commonmark.node.*
+import io.zenandroid.onlinego.utils.recordException
+import io.zenandroid.onlinego.utils.showIf
+import org.commonmark.node.AbstractVisitor
+import org.commonmark.node.Link
+import org.commonmark.node.Node
+import org.commonmark.node.Text
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -98,7 +108,7 @@ class JosekiExplorerFragment : Fragment(), MviView<JosekiExplorerState, JosekiEx
         state.error?.let {
             binding.description.text = it.message
             Log.e(TAG, it.message, it)
-            FirebaseCrashlytics.getInstance().recordException(it)
+            recordException(it)
         }
         binding.previousButton.isEnabled = state.previousButtonEnabled
         binding.passButton.isEnabled = state.passButtonEnabled

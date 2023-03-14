@@ -165,7 +165,7 @@ class FaceToFaceViewModel(
       historyPosition(history.lastIndex)
     } catch (e: Exception) {
       FirebaseCrashlytics.getInstance().log("FaceToFaceViewModel Cannot load history $history")
-      FirebaseCrashlytics.getInstance().recordException(e)
+      recordException(e)
       historyPosition(0)
     }
     loading = false

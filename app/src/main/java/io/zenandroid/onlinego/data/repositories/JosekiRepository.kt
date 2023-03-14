@@ -1,7 +1,6 @@
 package io.zenandroid.onlinego.data.repositories
 
 import android.util.Log
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.reactivex.Flowable
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.plusAssign
@@ -11,6 +10,7 @@ import io.zenandroid.onlinego.data.model.ogs.JosekiPosition
 import io.zenandroid.onlinego.data.model.ogs.PlayCategory
 import io.zenandroid.onlinego.data.ogs.OGSRestService
 import io.zenandroid.onlinego.gamelogic.RulesManager
+import io.zenandroid.onlinego.utils.recordException
 
 class JosekiRepository(
         private val restService: OGSRestService,
@@ -56,7 +56,7 @@ class JosekiRepository(
 
     private fun onError(error: Throwable) {
         Log.e("JosekiRepository", error.message, error)
-        FirebaseCrashlytics.getInstance().recordException(error)
+        recordException(error)
     }
 
     private fun extractLabelsFromDescription(originalPos: JosekiPosition): JosekiPosition {

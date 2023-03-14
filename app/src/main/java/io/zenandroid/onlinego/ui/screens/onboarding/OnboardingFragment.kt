@@ -6,8 +6,6 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -39,6 +37,7 @@ import io.zenandroid.onlinego.ui.screens.onboarding.OnboardingAction.SocialPlatf
 import io.zenandroid.onlinego.ui.screens.onboarding.Page.LoginMethod
 import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
 import io.zenandroid.onlinego.utils.addToDisposable
+import io.zenandroid.onlinego.utils.recordException
 import io.zenandroid.onlinego.utils.rememberStateWithLifecycle
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -61,7 +60,7 @@ class OnboardingFragment : Fragment() {
             }
         } catch (e: ApiException) {
             Log.w("OnboardingFragment", "signInResult:failed code=" + e.statusCode)
-            FirebaseCrashlytics.getInstance().recordException(e)
+            recordException(e)
             Toast.makeText(requireContext(), "signInResult:failed code=" + e.statusCode, Toast.LENGTH_LONG).show()
             viewModel.onAction(SocialPlatformLoginFailed)
         }
@@ -135,7 +134,7 @@ class OnboardingFragment : Fragment() {
 
                 startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(response.header("Location"))))
             }, {
-                FirebaseCrashlytics.getInstance().recordException(it)
+                recordException(it)
                 Toast.makeText(context, it.message, Toast.LENGTH_LONG).show()
                 viewModel.onAction(SocialPlatformLoginFailed)
             }).addToDisposable(subscriptions)

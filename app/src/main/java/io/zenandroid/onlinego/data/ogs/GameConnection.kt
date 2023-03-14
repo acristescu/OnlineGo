@@ -7,8 +7,6 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
 import io.reactivex.subjects.PublishSubject
 import io.zenandroid.onlinego.data.model.Cell
-import io.zenandroid.onlinego.utils.addToDisposable
-import io.zenandroid.onlinego.gamelogic.Util
 import io.zenandroid.onlinego.data.model.local.Message
 import io.zenandroid.onlinego.data.model.local.Score
 import io.zenandroid.onlinego.data.model.local.Time
@@ -17,7 +15,10 @@ import io.zenandroid.onlinego.data.model.ogs.GameData
 import io.zenandroid.onlinego.data.model.ogs.OGSPlayer
 import io.zenandroid.onlinego.data.model.ogs.Phase
 import io.zenandroid.onlinego.data.repositories.ChatRepository
+import io.zenandroid.onlinego.gamelogic.Util
 import io.zenandroid.onlinego.gamelogic.Util.getCurrentUserId
+import io.zenandroid.onlinego.utils.addToDisposable
+import io.zenandroid.onlinego.utils.recordException
 import org.koin.core.context.GlobalContext.get
 import java.io.Closeable
 
@@ -119,7 +120,7 @@ class GameConnection(
     private fun <T> Flowable<T>.retryOnError(requestTag: String): Flowable<T> {
         return this.doOnError {
             FirebaseCrashlytics.getInstance().log("E/$TAG: $requestTag error ${it.message}")
-            FirebaseCrashlytics.getInstance().recordException(it)
+            recordException(it)
         }
                 .retry()
     }

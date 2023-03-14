@@ -8,7 +8,6 @@ import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.squareup.moshi.JsonEncodingException
 import io.reactivex.Completable
 import io.reactivex.Flowable
-import io.reactivex.Maybe
 import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -17,15 +16,21 @@ import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.BehaviorSubject
 import io.zenandroid.onlinego.data.db.GameDao
 import io.zenandroid.onlinego.data.model.Cell
-import io.zenandroid.onlinego.utils.addToDisposable
-import io.zenandroid.onlinego.gamelogic.Util
-import io.zenandroid.onlinego.gamelogic.Util.isMyTurn
 import io.zenandroid.onlinego.data.model.local.Clock
 import io.zenandroid.onlinego.data.model.local.Game
 import io.zenandroid.onlinego.data.model.ogs.GameData
 import io.zenandroid.onlinego.data.model.ogs.OGSGame
 import io.zenandroid.onlinego.data.model.ogs.Phase
-import io.zenandroid.onlinego.data.ogs.*
+import io.zenandroid.onlinego.data.ogs.Move
+import io.zenandroid.onlinego.data.ogs.OGSClock
+import io.zenandroid.onlinego.data.ogs.OGSRestService
+import io.zenandroid.onlinego.data.ogs.OGSWebSocketService
+import io.zenandroid.onlinego.data.ogs.RemovedStones
+import io.zenandroid.onlinego.data.ogs.RemovedStonesAccepted
+import io.zenandroid.onlinego.gamelogic.Util
+import io.zenandroid.onlinego.gamelogic.Util.isMyTurn
+import io.zenandroid.onlinego.utils.addToDisposable
+import io.zenandroid.onlinego.utils.recordException
 import io.zenandroid.onlinego.utils.timeLeftForCurrentPlayer
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.onEach
@@ -380,7 +385,7 @@ class ActiveGamesRepository(
                 FirebaseCrashlytics.getInstance().setCustomKey("HIT_RATE_LIMITER", true)
             }
         }
-        FirebaseCrashlytics.getInstance().recordException(Exception(message, t))
+        recordException(Exception(message, t))
         Log.e("ActiveGameRespository", message, t)
     }
 }

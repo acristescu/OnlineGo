@@ -18,11 +18,12 @@ import io.zenandroid.onlinego.data.repositories.ChallengesRepository
 import io.zenandroid.onlinego.data.repositories.UserSessionRepository
 import io.zenandroid.onlinego.ui.screens.main.MainActivity
 import io.zenandroid.onlinego.utils.NotificationUtils
+import io.zenandroid.onlinego.utils.recordException
 import org.koin.core.context.GlobalContext
 import retrofit2.HttpException
 import java.net.ConnectException
 import java.net.SocketTimeoutException
-
+import java.net.UnknownHostException
 
 private const val TAG = "CheckNotificationsTask"
 class CheckNotificationsTask(val context: Context, val supressWhenInForeground: Boolean = true) {
@@ -42,19 +43,19 @@ class CheckNotificationsTask(val context: Context, val supressWhenInForeground: 
                         when {
                             (e as? HttpException)?.code() in arrayOf(401, 403) -> {
                                 FirebaseCrashlytics.getInstance().log("E/$TAG: Unauthorized when checking for notifications")
-                                FirebaseCrashlytics.getInstance().recordException(e)
+                                recordException(e)
                                 FirebaseCrashlytics.getInstance().setCustomKey("AUTO_LOGOUT", System.currentTimeMillis())
                                 NotificationUtils.notifyLogout(context)
                                 userSessionRepository.logOut()
                                 return@onErrorReturn ListenableWorker.Result.failure()
                             }
-                            e is SocketTimeoutException || e is ConnectException -> {
+                            e is SocketTimeoutException || e is ConnectException || e is UnknownHostException -> {
                                 FirebaseCrashlytics.getInstance().log("E/$TAG: Can't connect when checking for notifications")
                                 return@onErrorReturn ListenableWorker.Result.failure()
                             }
                             else -> {
                                 FirebaseCrashlytics.getInstance().log("E/$TAG: Error when checking for notifications")
-                                FirebaseCrashlytics.getInstance().recordException(e)
+                                recordException(e)
                                 return@onErrorReturn ListenableWorker.Result.retry()
                             }
                         }

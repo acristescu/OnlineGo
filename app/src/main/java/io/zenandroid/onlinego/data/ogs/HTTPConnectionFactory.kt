@@ -6,6 +6,7 @@ import com.google.android.gms.common.util.IOUtils
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.zenandroid.onlinego.BuildConfig
 import io.zenandroid.onlinego.data.repositories.UserSessionRepository
+import io.zenandroid.onlinego.utils.recordException
 import okhttp3.Dns
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -65,7 +66,7 @@ class HTTPConnectionFactory(
                     FirebaseCrashlytics.getInstance().log("E/HTTP_REQUEST: ${request.method} ${request.url} -> ${response.code} ${response.message} [$cookieJarInfo] [$csrftokenInfo] [$sessionCookieInfo] ${peekBody(response)}")
 
                     if(!sessionCookieSent && hasSessionCookieInJar && !isSessionCookieExpired) {
-                        FirebaseCrashlytics.getInstance().recordException(Exception("Possible cookie jar problem"))
+                        recordException(Exception("Possible cookie jar problem"))
                     }
                 }
                 response
@@ -105,7 +106,7 @@ class HTTPConnectionFactory(
         else
             String(bodyBytes)
     } catch (t: Throwable) {
-        FirebaseCrashlytics.getInstance().recordException(t)
+        recordException(t)
         "<<<Error trying to log body of response ${t.javaClass.name} ${t.message}>>>"
     }
 }

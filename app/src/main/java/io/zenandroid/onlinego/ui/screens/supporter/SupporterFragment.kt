@@ -10,9 +10,9 @@ import android.widget.Toast
 import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
 import com.google.firebase.analytics.FirebaseAnalytics
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.databinding.FragmentSupporterBinding
+import io.zenandroid.onlinego.utils.recordException
 import io.zenandroid.onlinego.utils.showIf
 import org.koin.android.ext.android.get
 
@@ -74,7 +74,7 @@ class SupporterFragment : Fragment(), SupporterContract.View {
     }
 
     override fun showError(t: Throwable) {
-        FirebaseCrashlytics.getInstance().recordException(t)
+        recordException(t)
         Toast.makeText(requireContext(), t.message, Toast.LENGTH_LONG).show()
     }
 

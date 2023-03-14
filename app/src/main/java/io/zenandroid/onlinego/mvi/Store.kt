@@ -1,7 +1,6 @@
 package io.zenandroid.onlinego.mvi
 
 import android.util.Log
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.jakewharton.rxrelay2.BehaviorRelay
 import com.jakewharton.rxrelay2.PublishRelay
 import io.reactivex.Observable
@@ -10,6 +9,7 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
 import io.reactivex.rxkotlin.plusAssign
 import io.reactivex.rxkotlin.withLatestFrom
+import io.zenandroid.onlinego.utils.recordException
 
 class Store<S: Any, A: Any> (
         private val reducer: Reducer<S, A>,
@@ -50,6 +50,6 @@ class Store<S: Any, A: Any> (
 
     private fun onError(throwable: Throwable) {
         Log.e("Store", throwable.message, throwable)
-        FirebaseCrashlytics.getInstance().recordException(throwable)
+        recordException(throwable)
     }
 }

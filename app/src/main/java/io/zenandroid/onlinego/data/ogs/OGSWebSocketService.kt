@@ -12,20 +12,33 @@ import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
 import io.socket.client.Ack
 import io.socket.client.IO
-import io.socket.client.Manager
 import io.socket.client.Socket
-import io.socket.parser.IOParser
 import io.zenandroid.onlinego.BuildConfig
-import io.zenandroid.onlinego.data.model.ogs.*
-import io.zenandroid.onlinego.data.repositories.*
-import io.zenandroid.onlinego.utils.*
+import io.zenandroid.onlinego.data.model.ogs.GameList
+import io.zenandroid.onlinego.data.model.ogs.NetPong
+import io.zenandroid.onlinego.data.model.ogs.OGSAutomatch
+import io.zenandroid.onlinego.data.model.ogs.OGSGame
+import io.zenandroid.onlinego.data.model.ogs.OGSPlayer
+import io.zenandroid.onlinego.data.model.ogs.Phase
+import io.zenandroid.onlinego.data.model.ogs.SeekGraphChallenge
+import io.zenandroid.onlinego.data.model.ogs.Size
+import io.zenandroid.onlinego.data.model.ogs.Speed
+import io.zenandroid.onlinego.data.model.ogs.UIPush
+import io.zenandroid.onlinego.data.repositories.SocketConnectedRepository
+import io.zenandroid.onlinego.data.repositories.UserSessionRepository
+import io.zenandroid.onlinego.utils.AndroidLoggingHandler
+import io.zenandroid.onlinego.utils.JsonObjectScope
+import io.zenandroid.onlinego.utils.StethoWebSocketsFactory
+import io.zenandroid.onlinego.utils.createJsonArray
+import io.zenandroid.onlinego.utils.json
+import io.zenandroid.onlinego.utils.recordException
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import okhttp3.OkHttpClient
 import org.json.JSONObject
 import org.koin.core.context.GlobalContext.get
-import java.util.*
+import java.util.Locale
+import java.util.UUID
 import java.util.logging.Level
 import java.util.logging.Logger
 
@@ -141,7 +154,7 @@ class OGSWebSocketService(
             return moshi.adapter(T::class.java).fromJson(string.toString())
         } catch (e: JsonEncodingException) {
             val up = Exception("Error parsing JSON: $string", e)
-            FirebaseCrashlytics.getInstance().recordException(up)
+            recordException(up)
             throw up
         }
     }
@@ -268,9 +281,9 @@ class OGSWebSocketService(
                 if(BuildConfig.DEBUG) Log.i(TAG, "<== $event, ${params[0]}")
 
                 if(params.size != 1) {
-                    FirebaseCrashlytics.getInstance().recordException(Exception("Unexpected response (${params.size} params) while listening for event $event: parameter list is ${params.joinToString("|||")}"))
+                    recordException(Exception("Unexpected response (${params.size} params) while listening for event $event: parameter list is ${params.joinToString("|||")}"))
                 } else if(params[0] == event) {
-                    FirebaseCrashlytics.getInstance().recordException(Exception("Unexpected response (params[0] == event) while listening for event $event: parameter list is ${params.joinToString("|||")}"))
+                    recordException(Exception("Unexpected response (params[0] == event) while listening for event $event: parameter list is ${params.joinToString("|||")}"))
                 }
 
                 if(params[0] != null) {
@@ -278,7 +291,7 @@ class OGSWebSocketService(
                     val response = if(params[0] == event && params.size > 1) params[1] else params[0]
                     emitter.onNext(response)
                 } else {
-                    FirebaseCrashlytics.getInstance().recordException(Exception("Unexpected null parameter for event $event"))
+                    recordException(Exception("Unexpected null parameter for event $event"))
                     emitter.onNext("")
                 }
             }
