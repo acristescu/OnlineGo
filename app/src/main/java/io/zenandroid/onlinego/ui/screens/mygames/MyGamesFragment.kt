@@ -129,14 +129,22 @@ class MyGamesFragment : Fragment() {
     }
 
     private fun navigateToGameScreen(game: Game) {
-        view?.findNavController()?.navigate(
-            R.id.action_myGamesFragment_to_gameFragment,
-            bundleOf(
-                GAME_ID to game.id,
-                GAME_WIDTH to game.width,
-                GAME_HEIGHT to game.height,
-            ),
-        )
+        view?.findNavController()?.apply {
+            //
+            // Note: the following check is needed to avoid crashing
+            // on spamming navigation events
+            //
+            if(currentDestination?.id == R.id.myGames) {
+                navigate(
+                    R.id.action_myGamesFragment_to_gameFragment,
+                    bundleOf(
+                        GAME_ID to game.id,
+                        GAME_WIDTH to game.width,
+                        GAME_HEIGHT to game.height,
+                    ),
+                )
+            }
+        }
     }
 
     override fun onResume() {

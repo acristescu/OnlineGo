@@ -9,7 +9,6 @@ import androidx.compose.material.icons.rounded.HighlightOff
 import androidx.compose.material.icons.rounded.SkipNext
 import androidx.compose.material.icons.rounded.SkipPrevious
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -20,6 +19,7 @@ import androidx.preference.PreferenceManager
 import app.cash.molecule.AndroidUiDispatcher
 import app.cash.molecule.RecompositionClock.ContextClock
 import app.cash.molecule.launchMolecule
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.data.model.BoardTheme
 import io.zenandroid.onlinego.data.model.BoardTheme.WOOD
@@ -77,6 +77,11 @@ class FaceToFaceViewModel(
   private var currentGameParameters by mutableStateOf(GameParameters(BoardSize.LARGE, 0))
   private var newGameParameters by mutableStateOf(GameParameters(BoardSize.LARGE, 0))
 
+  init {
+    viewModelScope.launch {
+      loadSavedData()
+    }
+  }
 
   val state: StateFlow<FaceToFaceState> =
     if (testing) MutableStateFlow(FaceToFaceState.INITIAL)
@@ -87,10 +92,6 @@ class FaceToFaceViewModel(
   @VisibleForTesting
   @Composable
   fun molecule(): FaceToFaceState {
-    LaunchedEffect(null) {
-      loadSavedData()
-    }
-
     val historyIndex = historyIndex
     val title = when {
       loading -> "Face to face · Loading"
@@ -106,8 +107,8 @@ class FaceToFaceViewModel(
       else -> currentPosition
     }
 
-    val previousButtonEnabled = history.isNotEmpty() && (historyIndex == null || historyIndex >= 0)
-    val nextButtonEnabled = history.isNotEmpty() && historyIndex != null && historyIndex < history.size
+    val previousButtonEnabled = !loading && history.isNotEmpty() && (historyIndex == null || historyIndex >= 0)
+    val nextButtonEnabled = !loading && history.isNotEmpty() && historyIndex != null && historyIndex < history.size
 
     val (buttons, bottomText) = when {
       estimateStatus is Working -> emptyList<Button>() to "Estimating"
@@ -123,13 +124,13 @@ class FaceToFaceViewModel(
       title = title,
       gameFinished = false,
       history = history,
-      boardInteractive = true,
+      boardInteractive = !loading,
       candidateMove = candidateMove,
       boardTheme = settingsRepository.boardTheme,
       showCoordinates = settingsRepository.showCoordinates,
       drawTerritory = estimateStatus is Success,
-      fadeOutRemovedStones = false,
-      showLastMove = true,
+      fadeOutRemovedStones = estimateStatus is Success,
+      showLastMove = estimateStatus !is Success,
       koMoveDialogShowing = koMoveDialogShowing,
       buttons = buttons,
       bottomText = bottomText,
@@ -160,7 +161,13 @@ class FaceToFaceViewModel(
       currentGameParameters = GameParameters(size, handicap)
       newGameParameters = currentGameParameters
     }
-    currentPosition = historyPosition(history.lastIndex)
+    currentPosition = try {
+      historyPosition(history.lastIndex)
+    } catch (e: Exception) {
+      FirebaseCrashlytics.getInstance().log("FaceToFaceViewModel Cannot load history $history")
+      FirebaseCrashlytics.getInstance().recordException(e)
+      historyPosition(0)
+    }
     loading = false
   }
 
@@ -207,6 +214,14 @@ class FaceToFaceViewModel(
 
   private fun onPreviousPressed() {
     val newIndex = historyIndex?.minus(1) ?: (history.lastIndex - 1)
+    if(newIndex < -1) {
+      //
+      // Note: this can happen with repeating buttons: the button
+      // could fire twice in the space between two frames
+      // thus not giving a chance to the button to be disabled
+      //
+      return
+    }
     val newPos = historyPosition(newIndex)
     historyIndex = newIndex
     currentPosition = newPos
@@ -214,6 +229,14 @@ class FaceToFaceViewModel(
 
   private fun onNextPressed() {
     val newIndex = historyIndex?.plus(1) ?: history.lastIndex
+    if(newIndex > history.lastIndex) {
+      //
+      // Note: this can happen with repeating buttons: the button
+      // could fire twice in the space between two frames
+      // thus not giving a chance to the button to be disabled
+      //
+      return
+    }
     val newPos = historyPosition(newIndex)
     historyIndex = if(newIndex < history.lastIndex) newIndex else null
     currentPosition = newPos
@@ -287,7 +310,7 @@ data class FaceToFaceState(
       position = Position(19, 19),
       gameFinished = false,
       history = emptyList(),
-      boardInteractive = true,
+      boardInteractive = false,
       candidateMove = null,
       boardTheme = WOOD,
       showCoordinates = true,

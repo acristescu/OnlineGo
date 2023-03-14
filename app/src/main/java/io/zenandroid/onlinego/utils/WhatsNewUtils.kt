@@ -1,8 +1,14 @@
 package io.zenandroid.onlinego.utils
+import androidx.compose.material.AlertDialog
+import androidx.compose.material.Text
+import androidx.compose.material.TextButton
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
+import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
 import java.security.MessageDigest
 
 object WhatsNewUtils {
@@ -27,7 +33,9 @@ private val annotatedCurrentText = AnnotatedString.Builder().run {
 
     pushStyle(SpanStyle(fontWeight = FontWeight.Normal))
     append("· New feature: ability to play face to face (e.g. pass-and-play).")
+    append("\n")
     append("· Tweaked transition animations.")
+    append("\n")
     append("· Fixed a bug with keyboard in chat.")
     pop()
 
@@ -38,15 +46,30 @@ private val annotatedCurrentText = AnnotatedString.Builder().run {
     // append("· Fixed a crash related to stats for users that have no games completed.\n\n")
     // pop()
 
-    pushStyle(SpanStyle(fontWeight = FontWeight.Normal))
-    append("· Rewrote the entire game screen to use modern technologies (Jetpack Compose and the Molecule library). This should make any further development a lot easier, but will likely introduce a lot of bugs initially. Please report any bugs you find.\n\n")
-    pop()
-
     pushStyle(SpanStyle(fontSize = 18.sp))
+    append("\n\n")
     append("About project\n\n")
     pop()
 
     pushStyle(SpanStyle(fontWeight = FontWeight.Normal))
-    append("This is an open-source project. If you want to contribute, the code is available on Github. If you'd like to financially support the project instead, please visit the Support page.")
+    append("This is an open-source project. If you want to contribute, the code is available on Github.")
     toAnnotatedString()
+}
+
+@Preview
+@Composable
+fun Preview() {
+    OnlineGoTheme {
+        AlertDialog(onDismissRequest = { /*TODO*/ },
+            dismissButton = {
+                TextButton(onClick = {}) { Text("OK") }
+            },
+            confirmButton = {
+                TextButton(onClick = { }) { Text("SUPPORT") }
+            },
+            text = {
+                Text(text = WhatsNewUtils.whatsNewTextAnnotated)
+            }
+        )
+    }
 }
