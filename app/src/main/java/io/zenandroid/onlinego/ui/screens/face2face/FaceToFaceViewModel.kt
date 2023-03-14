@@ -44,6 +44,7 @@ import io.zenandroid.onlinego.ui.screens.face2face.Button.Previous
 import io.zenandroid.onlinego.ui.screens.face2face.EstimateStatus.Idle
 import io.zenandroid.onlinego.ui.screens.face2face.EstimateStatus.Success
 import io.zenandroid.onlinego.ui.screens.face2face.EstimateStatus.Working
+import io.zenandroid.onlinego.utils.recordException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow

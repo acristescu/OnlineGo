@@ -1,7 +1,6 @@
 package io.zenandroid.onlinego.data.repositories
 
 import android.util.Log
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.BehaviorSubject
@@ -9,6 +8,7 @@ import io.reactivex.subjects.PublishSubject
 import io.zenandroid.onlinego.data.model.ogs.OGSAutomatch
 import io.zenandroid.onlinego.data.ogs.OGSWebSocketService
 import io.zenandroid.onlinego.utils.addToDisposable
+import io.zenandroid.onlinego.utils.recordException
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.plus
