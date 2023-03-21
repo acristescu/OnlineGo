@@ -2,8 +2,8 @@ package io.zenandroid.onlinego.ui.screens.localai
 
 import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.Position
+import io.zenandroid.onlinego.data.model.katago.KataGoResponse.Response
 import io.zenandroid.onlinego.data.model.katago.MoveInfo
-import io.zenandroid.onlinego.data.model.katago.Response
 
 sealed class AiGameAction {
     object ViewReady: AiGameAction()

@@ -2,7 +2,7 @@ package io.zenandroid.onlinego.utils.moshiadapters
 
 import com.squareup.moshi.FromJson
 import com.squareup.moshi.ToJson
-import io.zenandroid.onlinego.data.model.katago.Response
+import io.zenandroid.onlinego.data.model.katago.KataGoResponse.Response
 import io.zenandroid.onlinego.data.model.katago.ResponseAbreviatedJSON
 
 class ResponseBriefMoshiAdapter {

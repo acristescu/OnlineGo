@@ -5,8 +5,8 @@ import io.reactivex.rxkotlin.withLatestFrom
 import io.reactivex.schedulers.Schedulers
 import io.zenandroid.onlinego.ai.KataGoAnalysisEngine
 import io.zenandroid.onlinego.data.model.StoneType
+import io.zenandroid.onlinego.data.model.katago.KataGoResponse.Response
 import io.zenandroid.onlinego.data.model.katago.MoveInfo
-import io.zenandroid.onlinego.data.model.katago.Response
 import io.zenandroid.onlinego.gamelogic.RulesManager
 import io.zenandroid.onlinego.gamelogic.Util
 import io.zenandroid.onlinego.mvi.Middleware
@@ -42,6 +42,7 @@ class AIMoveMiddleware : Middleware<AiGameState, AiGameAction> {
                                     AIMove(newPos, it, selectedMove)
                                 }
                             }
+                            .onErrorReturn { AIError }
                             .subscribeOn(Schedulers.io())
                 }
 

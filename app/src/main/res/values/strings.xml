@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">Online Go</string>
+    <string name="app_name">Sente - Online GO</string>
     <string name="create_account_prompt">No OGS account? Create one <b>here</b>!</string>
     <string name="login_to_ogs">Login to OGS</string>
     <string name="create_account">Create OGS account</string>
