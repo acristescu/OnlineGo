@@ -32,11 +32,15 @@ private val annotatedCurrentText = AnnotatedString.Builder().run {
     pop()
 
     pushStyle(SpanStyle(fontWeight = FontWeight.Normal))
-    append("· New feature: ability to play face to face (e.g. pass-and-play).")
+    append("· Fixed a bug with KO rule in analysis mode.")
     append("\n")
-    append("· Tweaked transition animations.")
+    append("· Fixed value of komi with handicap in face-to-face mode.")
     append("\n")
-    append("· Fixed a bug with keyboard in chat.")
+    append("· Added ability to 'pass' in face-to-face mode.")
+    append("\n")
+    append("· Fixed a crash related to quickly mashing the bottom navigation bar.")
+    append("\n")
+    append("· Fixed a few minor issues in the new face-to-face screen.")
     pop()
 
     // pushStyle(SpanStyle(fontSize = 18.sp))
