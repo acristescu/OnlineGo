@@ -14,7 +14,14 @@ import androidx.compose.material.icons.rounded.Stop
 import androidx.compose.material.icons.rounded.ThumbDown
 import androidx.compose.material.icons.rounded.ThumbUp
 import androidx.compose.material.icons.rounded.Undo
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
@@ -31,25 +38,91 @@ import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.Mark
 import io.zenandroid.onlinego.data.model.Position
 import io.zenandroid.onlinego.data.model.StoneType
-import io.zenandroid.onlinego.data.model.local.*
+import io.zenandroid.onlinego.data.model.local.Game
+import io.zenandroid.onlinego.data.model.local.Message
+import io.zenandroid.onlinego.data.model.local.Player
+import io.zenandroid.onlinego.data.model.local.Score
+import io.zenandroid.onlinego.data.model.local.UserStats
+import io.zenandroid.onlinego.data.model.local.isPaused
 import io.zenandroid.onlinego.data.model.ogs.Phase
 import io.zenandroid.onlinego.data.model.ogs.VersusStats
 import io.zenandroid.onlinego.data.ogs.GameConnection
 import io.zenandroid.onlinego.data.ogs.OGSWebSocketService
-import io.zenandroid.onlinego.data.repositories.*
+import io.zenandroid.onlinego.data.repositories.ActiveGamesRepository
+import io.zenandroid.onlinego.data.repositories.ChatRepository
+import io.zenandroid.onlinego.data.repositories.ClockDriftRepository
+import io.zenandroid.onlinego.data.repositories.SettingsRepository
+import io.zenandroid.onlinego.data.repositories.UserSessionRepository
 import io.zenandroid.onlinego.gamelogic.RulesManager
 import io.zenandroid.onlinego.gamelogic.RulesManager.isPass
 import io.zenandroid.onlinego.ui.composables.BottomBarButton
-import io.zenandroid.onlinego.ui.screens.game.Button.*
-import io.zenandroid.onlinego.ui.screens.game.PendingNavigation.*
-import io.zenandroid.onlinego.ui.screens.game.UserAction.*
+import io.zenandroid.onlinego.ui.screens.game.Button.AcceptStoneRemoval
+import io.zenandroid.onlinego.ui.screens.game.Button.Analyze
+import io.zenandroid.onlinego.ui.screens.game.Button.CancelGame
+import io.zenandroid.onlinego.ui.screens.game.Button.Chat
+import io.zenandroid.onlinego.ui.screens.game.Button.ConfirmMove
+import io.zenandroid.onlinego.ui.screens.game.Button.DiscardMove
+import io.zenandroid.onlinego.ui.screens.game.Button.Estimate
+import io.zenandroid.onlinego.ui.screens.game.Button.ExitAnalysis
+import io.zenandroid.onlinego.ui.screens.game.Button.ExitEstimate
+import io.zenandroid.onlinego.ui.screens.game.Button.Next
+import io.zenandroid.onlinego.ui.screens.game.Button.NextGame
+import io.zenandroid.onlinego.ui.screens.game.Button.Pass
+import io.zenandroid.onlinego.ui.screens.game.Button.Previous
+import io.zenandroid.onlinego.ui.screens.game.Button.RejectStoneRemoval
+import io.zenandroid.onlinego.ui.screens.game.Button.Resign
+import io.zenandroid.onlinego.ui.screens.game.Button.Undo
+import io.zenandroid.onlinego.ui.screens.game.PendingNavigation.NavigateToGame
+import io.zenandroid.onlinego.ui.screens.game.PendingNavigation.OpenURL
+import io.zenandroid.onlinego.ui.screens.game.UserAction.BlackPlayerClicked
+import io.zenandroid.onlinego.ui.screens.game.UserAction.BoardCellDragged
+import io.zenandroid.onlinego.ui.screens.game.UserAction.BoardCellTapUp
+import io.zenandroid.onlinego.ui.screens.game.UserAction.BottomButtonPressed
+import io.zenandroid.onlinego.ui.screens.game.UserAction.CancelDialogConfirm
+import io.zenandroid.onlinego.ui.screens.game.UserAction.CancelDialogDismiss
+import io.zenandroid.onlinego.ui.screens.game.UserAction.ChatDialogDismiss
+import io.zenandroid.onlinego.ui.screens.game.UserAction.ChatSend
+import io.zenandroid.onlinego.ui.screens.game.UserAction.DownloadSGF
+import io.zenandroid.onlinego.ui.screens.game.UserAction.GameInfoClick
+import io.zenandroid.onlinego.ui.screens.game.UserAction.GameInfoDismiss
+import io.zenandroid.onlinego.ui.screens.game.UserAction.GameOverDialogAnalyze
+import io.zenandroid.onlinego.ui.screens.game.UserAction.GameOverDialogDismiss
+import io.zenandroid.onlinego.ui.screens.game.UserAction.GameOverDialogNextGame
+import io.zenandroid.onlinego.ui.screens.game.UserAction.GameOverDialogQuickReplay
+import io.zenandroid.onlinego.ui.screens.game.UserAction.KOMoveDialogDismiss
+import io.zenandroid.onlinego.ui.screens.game.UserAction.OpenInBrowser
+import io.zenandroid.onlinego.ui.screens.game.UserAction.OpponentUndoRequestAccepted
+import io.zenandroid.onlinego.ui.screens.game.UserAction.OpponentUndoRequestRejected
+import io.zenandroid.onlinego.ui.screens.game.UserAction.PassDialogConfirm
+import io.zenandroid.onlinego.ui.screens.game.UserAction.PassDialogDismiss
+import io.zenandroid.onlinego.ui.screens.game.UserAction.PlayerDetailsDialogDismissed
+import io.zenandroid.onlinego.ui.screens.game.UserAction.ResignDialogConfirm
+import io.zenandroid.onlinego.ui.screens.game.UserAction.ResignDialogDismiss
+import io.zenandroid.onlinego.ui.screens.game.UserAction.RetryDialogDismiss
+import io.zenandroid.onlinego.ui.screens.game.UserAction.RetryDialogRetry
+import io.zenandroid.onlinego.ui.screens.game.UserAction.UserUndoDialogConfirm
+import io.zenandroid.onlinego.ui.screens.game.UserAction.UserUndoDialogDismiss
+import io.zenandroid.onlinego.ui.screens.game.UserAction.WhitePlayerClicked
 import io.zenandroid.onlinego.usecases.GetUserStatsUseCase
 import io.zenandroid.onlinego.usecases.RepoResult
 import io.zenandroid.onlinego.usecases.RepoResult.Loading
-import io.zenandroid.onlinego.utils.*
-import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.*
+import io.zenandroid.onlinego.utils.computeTimeLeft
+import io.zenandroid.onlinego.utils.convertCountryCodeToEmojiFlag
+import io.zenandroid.onlinego.utils.egfToRank
+import io.zenandroid.onlinego.utils.formatMillis
+import io.zenandroid.onlinego.utils.formatRank
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlin.math.roundToInt
+import kotlin.ranges.contains
 
 private const val MAX_ATTEMPTS = 3
 private const val DELAY_BETWEEN_ATTEMPTS = 5000L
@@ -633,8 +706,7 @@ class GameViewModel(
                                 else -> variation.copy(moves = variation.moves.take(analysisShownMoveNumber - variation.rootMoveNo) + cell)
                             }
 
-
-                            if(newVariation != null && (newVariation.moves.size > 2 || newVariation.rootMoveNo > 0)) {
+                            if(newVariation != null && (newVariation != variation) && (newVariation.moves.size > 2 || newVariation.rootMoveNo > 0)) {
                                 val potentialKoPosition = if(newVariation.moves.size == 1) {
                                     RulesManager.replay(gameState!!, newVariation.rootMoveNo - 1)
                                 } else {

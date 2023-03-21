@@ -1,6 +1,9 @@
 package io.zenandroid.onlinego.utils
 
+import androidx.core.os.bundleOf
+import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.crashlytics.FirebaseCrashlytics
+import io.zenandroid.onlinego.OnlineGoApplication
 import kotlinx.coroutines.CancellationException
 import java.net.ConnectException
 import java.net.SocketTimeoutException
@@ -15,4 +18,11 @@ fun recordException(t: Throwable) {
   ) {
     FirebaseCrashlytics.getInstance().recordException(t)
   }
+}
+
+fun analyticsReportScreen(screenName: String) {
+  FirebaseAnalytics.getInstance(OnlineGoApplication.instance).logEvent(
+    FirebaseAnalytics.Event.SCREEN_VIEW,
+    bundleOf(FirebaseAnalytics.Param.SCREEN_NAME to screenName)
+  )
 }

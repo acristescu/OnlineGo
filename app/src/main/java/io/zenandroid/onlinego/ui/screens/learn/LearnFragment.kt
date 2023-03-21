@@ -2,19 +2,19 @@ package io.zenandroid.onlinego.ui.screens.learn
 
 import android.os.Bundle
 import android.view.LayoutInflater
-import androidx.fragment.app.Fragment
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.material.*
-import androidx.compose.runtime.*
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.ComposeView
 import androidx.core.os.bundleOf
+import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
-import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.ui.screens.tutorial.TUTORIAL_NAME
 import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
+import io.zenandroid.onlinego.utils.analyticsReportScreen
 import io.zenandroid.onlinego.utils.rememberStateWithLifecycle
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -28,7 +28,6 @@ class LearnFragment : Fragment() {
 
 
     private val viewModel: LearnViewModel by viewModel()
-    private val analytics = OnlineGoApplication.instance.analytics
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         return ComposeView(requireContext()).apply {
@@ -52,6 +51,6 @@ class LearnFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        analytics.setCurrentScreen(requireActivity(), javaClass.simpleName, null)
+        analyticsReportScreen("Learn")
     }
 }

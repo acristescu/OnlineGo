@@ -8,6 +8,7 @@ import androidx.compose.material.icons.rounded.Functions
 import androidx.compose.material.icons.rounded.HighlightOff
 import androidx.compose.material.icons.rounded.SkipNext
 import androidx.compose.material.icons.rounded.SkipPrevious
+import androidx.compose.material.icons.rounded.Stop
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -40,6 +41,7 @@ import io.zenandroid.onlinego.ui.screens.face2face.Button.CloseEstimate
 import io.zenandroid.onlinego.ui.screens.face2face.Button.Estimate
 import io.zenandroid.onlinego.ui.screens.face2face.Button.GameSettings
 import io.zenandroid.onlinego.ui.screens.face2face.Button.Next
+import io.zenandroid.onlinego.ui.screens.face2face.Button.Pass
 import io.zenandroid.onlinego.ui.screens.face2face.Button.Previous
 import io.zenandroid.onlinego.ui.screens.face2face.EstimateStatus.Idle
 import io.zenandroid.onlinego.ui.screens.face2face.EstimateStatus.Success
@@ -115,8 +117,14 @@ class FaceToFaceViewModel(
       estimateStatus is Working -> emptyList<Button>() to "Estimating"
       estimateStatus is Success -> listOf(CloseEstimate) to null
       else -> listOf(
-        GameSettings, Estimate, Previous(previousButtonEnabled), Next(nextButtonEnabled)
+        GameSettings, Estimate, Pass, Previous(previousButtonEnabled), Next(nextButtonEnabled)
       ) to null
+    }
+
+    val extraStatus = when {
+      estimateStatus is Success && estimateStatus.gameIsOver -> "Game is over!"
+      estimateStatus is Success && !estimateStatus.gameIsOver -> "Recommendation: Game is not over!"
+      else -> null
     }
 
     return FaceToFaceState(
@@ -138,6 +146,7 @@ class FaceToFaceViewModel(
       newGameDialogShowing = newGameDialogShowing,
       currentGameParameters = currentGameParameters,
       newGameParameters = newGameParameters,
+      extraStatus = extraStatus,
     )
   }
 
@@ -195,20 +204,25 @@ class FaceToFaceViewModel(
 
   private fun onButtonPressed(button: Button) {
     when(button) {
-      is Estimate -> onEstimatePressed()
+      is Estimate -> doEstimation()
       is GameSettings -> newGameDialogShowing = true
       is Next -> onNextPressed()
       is Previous -> onPreviousPressed()
       is CloseEstimate -> estimateStatus = Idle
+      is Pass -> onPassPressed()
     }
   }
 
-  private fun onEstimatePressed() {
+  private fun doEstimation() {
     estimateStatus = Working
     viewModelScope.launch(Dispatchers.IO) {
       val estimate = RulesManager.determineTerritory(currentPosition, false)
       withContext(Dispatchers.Main) {
-        estimateStatus = Success(estimate)
+        val index = historyIndex ?: history.lastIndex
+        val finished =
+          index > currentGameParameters.size.width &&
+            estimate.dame.size < currentGameParameters.size.width
+        estimateStatus = Success(estimate, finished)
       }
     }
   }
@@ -261,13 +275,17 @@ class FaceToFaceViewModel(
       handicap = currentGameParameters.handicap
     )!!
 
+  private fun onPassPressed() {
+    onCellTapUp(Cell(-1, -1))
+  }
+
   private fun onCellTapUp(cell: Cell) {
     viewModelScope.launch {
       val pos = currentPosition
       val newPosition = RulesManager.makeMove(pos, pos.nextToMove, cell)
       if(newPosition != null) {
         val index = historyIndex ?: history.lastIndex
-        val potentialKOPosition = if(index > 0) {
+        val potentialKOPosition = if(index > 0 && !cell.isPass) {
           historyPosition(index - 1)
         } else null
         if(potentialKOPosition?.hasTheSameStonesAs(newPosition) == true) {
@@ -276,6 +294,9 @@ class FaceToFaceViewModel(
           currentPosition = newPosition
           history = history.subList(0, index + 1) + cell
           historyIndex = null
+          if(index > 0 && cell.isPass && history[index].isPass) {
+            doEstimation()
+          }
         }
       }
       candidateMove = null
@@ -303,6 +324,7 @@ data class FaceToFaceState(
   val newGameDialogShowing: Boolean,
   val currentGameParameters: GameParameters,
   val newGameParameters: GameParameters,
+  val extraStatus: String?,
 ) {
   companion object {
     val INITIAL = FaceToFaceState(
@@ -324,6 +346,7 @@ data class FaceToFaceState(
       newGameDialogShowing = false,
       currentGameParameters = GameParameters(BoardSize.LARGE, 0),
       newGameParameters = GameParameters(BoardSize.LARGE, 0),
+      extraStatus = null,
     )
   }
 }
@@ -357,10 +380,11 @@ sealed class Button(
   override val highlighted: Boolean = false,
 ) : BottomBarButton {
   object GameSettings : Button(Icons.Rounded.AddCircle, "New Game")
-  object Estimate : Button(Icons.Rounded.Functions, "Auto-score")
+  object Estimate : Button(Icons.Rounded.Functions, "Estimate Score")
   class Previous(enabled: Boolean = true) : Button(repeatable = true, enabled = enabled, icon = Icons.Rounded.SkipPrevious, label = "Previous")
   class Next(enabled: Boolean = true) : Button(repeatable = true, enabled = enabled, icon = Icons.Rounded.SkipNext, label = "Next")
   object CloseEstimate : Button(Icons.Rounded.HighlightOff, "Return")
+  object Pass : Button(Icons.Rounded.Stop, "Pass")
 }
 
 sealed interface Action {
@@ -376,5 +400,5 @@ sealed interface Action {
 sealed interface EstimateStatus {
   object Idle: EstimateStatus
   object Working: EstimateStatus
-  data class Success(val result: Position): EstimateStatus
+  data class Success(val result: Position, val gameIsOver: Boolean): EstimateStatus
 }

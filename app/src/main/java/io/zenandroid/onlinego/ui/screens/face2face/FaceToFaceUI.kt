@@ -64,6 +64,7 @@ import io.zenandroid.onlinego.ui.screens.face2face.Button.Estimate
 import io.zenandroid.onlinego.ui.screens.face2face.Button.GameSettings
 import io.zenandroid.onlinego.ui.screens.face2face.Button.Next
 import io.zenandroid.onlinego.ui.screens.face2face.Button.Previous
+import io.zenandroid.onlinego.ui.screens.game.ExtraStatusField
 import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
 import java.lang.Float.max
 
@@ -134,6 +135,14 @@ fun FaceToFaceScreen(
           modifier = Modifier
             .shadow(1.dp, MaterialTheme.shapes.medium)
             .clip(MaterialTheme.shapes.medium)
+        )
+        ExtraStatusField(
+          text = state.extraStatus,
+          modifier = Modifier
+            .background(Color(0xFF867484))
+            .fillMaxWidth()
+            .padding(4.dp)
+            .align(Alignment.CenterHorizontally),
         )
         Spacer(modifier = Modifier.weight(1f))
         BottomBar(

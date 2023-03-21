@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.Fragment
-import io.zenandroid.onlinego.OnlineGoApplication
+import io.zenandroid.onlinego.utils.analyticsReportScreen
 import io.zenandroid.onlinego.utils.rememberStateWithLifecycle
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -15,11 +15,10 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 class FaceToFaceFragment: Fragment() {
   
   private val viewModel: FaceToFaceViewModel by viewModel()
-  private val analytics by lazy { OnlineGoApplication.instance.analytics }
 
   override fun onResume() {
     super.onResume()
-    analytics.setCurrentScreen(requireActivity(), javaClass.simpleName, null)
+    analyticsReportScreen("FaceToFace")
   }
 
   override fun onCreateView(

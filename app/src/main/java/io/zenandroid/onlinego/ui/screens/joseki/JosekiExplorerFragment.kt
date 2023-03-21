@@ -23,7 +23,6 @@ import io.noties.markwon.core.MarkwonTheme
 import io.noties.markwon.movement.MovementMethodPlugin
 import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
-import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.StoneType
 import io.zenandroid.onlinego.data.repositories.SettingsRepository
@@ -38,6 +37,7 @@ import io.zenandroid.onlinego.ui.screens.joseki.JosekiExplorerAction.UserPressed
 import io.zenandroid.onlinego.ui.screens.joseki.JosekiExplorerAction.UserTappedCoordinate
 import io.zenandroid.onlinego.ui.screens.joseki.JosekiExplorerAction.ViewReady
 import io.zenandroid.onlinego.utils.PersistenceManager
+import io.zenandroid.onlinego.utils.analyticsReportScreen
 import io.zenandroid.onlinego.utils.recordException
 import io.zenandroid.onlinego.utils.showIf
 import org.commonmark.node.AbstractVisitor
@@ -57,7 +57,6 @@ class JosekiExplorerFragment : Fragment(), MviView<JosekiExplorerState, JosekiEx
 
     private val internalActions = PublishSubject.create<JosekiExplorerAction>()
     private var currentState: JosekiExplorerState? = null
-    private var analytics = OnlineGoApplication.instance.analytics
     private lateinit var binding: FragmentJosekiBinding
 
     private val onBackPressedCallback = object : OnBackPressedCallback(true) {
@@ -122,7 +121,7 @@ class JosekiExplorerFragment : Fragment(), MviView<JosekiExplorerState, JosekiEx
 
     override fun onResume() {
         super.onResume()
-        analytics.setCurrentScreen(requireActivity(), javaClass.simpleName, null)
+        analyticsReportScreen("Joseki Explorer")
         binding.board.apply {
             isInteractive = true
             drawCoordinates = settingsRepository.showCoordinates

@@ -38,6 +38,7 @@ import io.zenandroid.onlinego.data.model.ogs.Glicko2HistoryItem
 import io.zenandroid.onlinego.data.model.ogs.OGSPlayer
 import io.zenandroid.onlinego.databinding.FragmentStatsBinding
 import io.zenandroid.onlinego.gamelogic.Util
+import io.zenandroid.onlinego.utils.analyticsReportScreen
 import io.zenandroid.onlinego.utils.convertCountryCodeToEmojiFlag
 import io.zenandroid.onlinego.utils.egfToRank
 import io.zenandroid.onlinego.utils.formatRank
@@ -91,7 +92,7 @@ class StatsFragment : Fragment(), StatsContract.View {
 
     override fun onResume() {
         super.onResume()
-        analytics.setCurrentScreen(requireActivity(), javaClass.simpleName, javaClass.simpleName)
+        analyticsReportScreen("Stats")
         presenter.subscribe()
     }
 

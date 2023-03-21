@@ -39,6 +39,9 @@ data class Position(
     val blackDeadStones: Set<Cell>
         get() = removedSpots.intersect(blackStones)
 
+    val dame: Set<Cell>
+        get() = removedSpots.subtract(whiteTerritory).subtract(blackTerritory)
+
     companion object {
         fun fromJosekiPosition(josekiPosition: JosekiPosition): Position {
             val customMarks = josekiPosition.next_moves
@@ -128,4 +131,10 @@ data class Cell(
         get() = Cell(x, y - 1)
     val bottomNeighbour: Cell
         get() = Cell(x, y + 1)
+    val isPass: Boolean
+        get() = this == PASS
+
+    companion object {
+        val PASS = Cell(-1, -1)
+    }
 }

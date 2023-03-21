@@ -18,13 +18,22 @@ import com.bumptech.glide.request.transition.DrawableCrossFadeFactory
 import com.jakewharton.rxbinding3.view.clicks
 import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
-import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.repositories.SettingsRepository
 import io.zenandroid.onlinego.data.repositories.UserSessionRepository
 import io.zenandroid.onlinego.databinding.FragmentAigameBinding
 import io.zenandroid.onlinego.mvi.MviView
-import io.zenandroid.onlinego.ui.screens.localai.AiGameAction.*
+import io.zenandroid.onlinego.ui.screens.localai.AiGameAction.DismissNewGameDialog
+import io.zenandroid.onlinego.ui.screens.localai.AiGameAction.NewGame
+import io.zenandroid.onlinego.ui.screens.localai.AiGameAction.ShowNewGameDialog
+import io.zenandroid.onlinego.ui.screens.localai.AiGameAction.UserAskedForHint
+import io.zenandroid.onlinego.ui.screens.localai.AiGameAction.UserAskedForOwnership
+import io.zenandroid.onlinego.ui.screens.localai.AiGameAction.UserPressedNext
+import io.zenandroid.onlinego.ui.screens.localai.AiGameAction.UserPressedPass
+import io.zenandroid.onlinego.ui.screens.localai.AiGameAction.UserPressedPrevious
+import io.zenandroid.onlinego.ui.screens.localai.AiGameAction.ViewPaused
+import io.zenandroid.onlinego.ui.screens.localai.AiGameAction.ViewReady
+import io.zenandroid.onlinego.utils.analyticsReportScreen
 import io.zenandroid.onlinego.utils.processGravatarURL
 import io.zenandroid.onlinego.utils.showIf
 import org.koin.android.ext.android.get
@@ -34,7 +43,6 @@ import kotlin.math.abs
 
 class AiGameFragment : Fragment(), MviView<AiGameState, AiGameAction> {
     private val viewModel: AiGameViewModel by viewModel()
-    private var analytics = OnlineGoApplication.instance.analytics
     private val settingsRepository: SettingsRepository by inject()
     private var bottomSheet: NewGameBottomSheet? = null
     private lateinit var binding: FragmentAigameBinding
@@ -77,7 +85,7 @@ class AiGameFragment : Fragment(), MviView<AiGameState, AiGameAction> {
 
     override fun onResume() {
         super.onResume()
-        analytics.setCurrentScreen(requireActivity(), javaClass.simpleName, null)
+        analyticsReportScreen("AiGame")
         binding.board.apply {
             drawCoordinates = settingsRepository.showCoordinates
         }

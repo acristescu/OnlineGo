@@ -26,6 +26,7 @@ import io.zenandroid.onlinego.ui.screens.mygames.Action.GameSelected
 import io.zenandroid.onlinego.ui.screens.mygames.composables.ChallengeDetailsDialog
 import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
 import io.zenandroid.onlinego.utils.WhatsNewUtils
+import io.zenandroid.onlinego.utils.analyticsReportScreen
 import io.zenandroid.onlinego.utils.rememberStateWithLifecycle
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -150,6 +151,6 @@ class MyGamesFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         viewModel.onAction(Action.ViewResumed)
-        analytics.setCurrentScreen(requireActivity(), javaClass.simpleName, null)
+        analyticsReportScreen("My Games")
     }
 }

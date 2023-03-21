@@ -1,6 +1,5 @@
 package io.zenandroid.onlinego.ui.screens.game
 
-import android.content.Context
 import android.content.Intent
 import android.media.MediaPlayer
 import android.net.Uri
@@ -21,6 +20,7 @@ import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.local.Game
 import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
+import io.zenandroid.onlinego.utils.analyticsReportScreen
 import io.zenandroid.onlinego.utils.rememberStateWithLifecycle
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -33,7 +33,6 @@ class GameFragment : Fragment() {
 
     private val viewModel: GameViewModel by viewModel()
     private val stoneSoundMediaPlayer = MediaPlayer.create(OnlineGoApplication.instance, R.raw.stone)
-    private val analytics by lazy { OnlineGoApplication.instance.analytics }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -95,6 +94,6 @@ class GameFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        analytics.setCurrentScreen(requireActivity(), javaClass.simpleName, null)
+        analyticsReportScreen("Game")
     }
 }

@@ -543,7 +543,7 @@ object RulesManager {
             )
     )
 
-    fun initializePosition(boardSize: Int, handicap: Int = 0): Position {
+    fun initializePosition(boardSize: Int, handicap: Int = 0, komi: Float? = null): Position {
         val blackStones = mutableSetOf<Cell>()
         if(handicap > 1) {
             val handicapStones = handicaps[boardSize]?.get(handicap) ?:
@@ -556,17 +556,42 @@ object RulesManager {
         return Position(
             boardWidth = boardSize,
             boardHeight = boardSize,
-            komi = determineKomi(boardSize, handicap),
+            komi = komi ?: determineKomi(boardSize, handicap),
             nextToMove = if(handicap > 1) StoneType.WHITE else StoneType.BLACK,
             blackStones = blackStones,
         )
     }
 
     private fun determineKomi(boardSize: Int, handicap: Int = 0): Float {
-        return if(boardSize == 9) {
-            if(handicap == 0) 5.5f else 3.5f
-        } else {
-            if(handicap == 0) 6.5f else 0.5f
+        when(boardSize) {
+            19 -> return if(handicap == 0) 6.5f else 0.5f
+            13 -> return when(handicap) {
+                0 -> 6.5f
+                1 -> 0.5f
+                2 -> -4.5f
+                3 -> 5.5f
+                4 -> 0.5f
+                5 -> -4.5f
+                6 -> 5.5f
+                7 -> 0.5f
+                8 -> -4.5f
+                9 -> 5.5f
+                else -> 0.5f
+            }
+            9 -> return when(handicap) {
+                0 -> 5.5f
+                1 -> 3.5f
+                2 -> 0.5f
+                3 -> -2.5f
+                4 -> -5.5f
+                5 -> 3.5f
+                6 -> 0.5f
+                7 -> -2.5f
+                8 -> -5.5f
+                9 -> 3.5f
+                else -> 0.5f
+            }
+            else -> return 0.5f
         }
     }
 }
