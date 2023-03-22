@@ -16,13 +16,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.preference.PreferenceManager
 import app.cash.molecule.AndroidUiDispatcher
 import app.cash.molecule.RecompositionClock.ContextClock
 import app.cash.molecule.launchMolecule
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.crashlytics.FirebaseCrashlytics
-import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.data.model.BoardTheme
 import io.zenandroid.onlinego.data.model.BoardTheme.WOOD
 import io.zenandroid.onlinego.data.model.Cell
@@ -62,7 +60,9 @@ private const val HANDICAP_KEY = "FACE_TO_FACE_HANDICAP_KEY"
 
 class FaceToFaceViewModel(
   private val settingsRepository: SettingsRepository,
-  private val prefs: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(OnlineGoApplication.instance.baseContext),
+  private val prefs: SharedPreferences,
+  private val analytics: FirebaseAnalytics,
+  private val crashlytics: FirebaseCrashlytics,
   testing: Boolean = false
 ) : ViewModel() {
 
@@ -82,7 +82,7 @@ class FaceToFaceViewModel(
   private var newGameParameters by mutableStateOf(GameParameters(BoardSize.LARGE, 0))
 
   init {
-    FirebaseAnalytics.getInstance(OnlineGoApplication.instance).logEvent("face_to_face_opened", null)
+    analytics.logEvent("face_to_face_opened", null)
     viewModelScope.launch {
       loadSavedData()
     }
@@ -154,7 +154,7 @@ class FaceToFaceViewModel(
 
   private suspend fun loadSavedData() {
     if(prefs.contains(HISTORY_KEY) && prefs.contains(BOARD_SIZE_KEY) && prefs.contains(HANDICAP_KEY)) {
-      FirebaseAnalytics.getInstance(OnlineGoApplication.instance).logEvent("face_to_face_loading", null)
+      analytics.logEvent("face_to_face_loading", null)
       var historyString: String
       var sizeString: String
       var handicap: Int
@@ -177,12 +177,12 @@ class FaceToFaceViewModel(
     currentPosition = try {
       historyPosition(history.lastIndex)
     } catch (e: Exception) {
-      FirebaseCrashlytics.getInstance().log("FaceToFaceViewModel Cannot load history $history")
+      crashlytics.log("FaceToFaceViewModel Cannot load history $history")
       recordException(e)
       historyPosition(0)
     }
     loading = false
-    FirebaseAnalytics.getInstance(OnlineGoApplication.instance).logEvent("face_to_face_loaded", null)
+    analytics.logEvent("face_to_face_loaded", null)
   }
 
   override fun onCleared() {
@@ -279,7 +279,7 @@ class FaceToFaceViewModel(
       handicap = currentGameParameters.handicap
     ) ?: run {
       val historyString = history.fold("") { acc, cell -> "$acc ${cell.x},${cell.y}}" }
-      FirebaseCrashlytics.getInstance().log("FaceToFaceViewModel Cannot replay history $historyString")
+      crashlytics.log("FaceToFaceViewModel Cannot replay history $historyString")
       recordException(IllegalStateException("Cannot replay history history=$historyString idx=$index historyIndex=$historyIndex"))
       Position(
         boardWidth = currentGameParameters.size.width,
@@ -293,7 +293,7 @@ class FaceToFaceViewModel(
   }
 
   private fun onCellTapUp(cell: Cell) {
-    FirebaseCrashlytics.getInstance().log("onCellTapUp $cell")
+    crashlytics.log("onCellTapUp $cell")
     val pos = currentPosition
     val newPosition = RulesManager.makeMove(pos, pos.nextToMove, cell)
     if (newPosition != null) {

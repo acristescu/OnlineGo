@@ -1,25 +1,54 @@
 package io.zenandroid.onlinego.di
 
+import androidx.preference.PreferenceManager
 import androidx.room.Room
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import io.reactivex.schedulers.Schedulers
 import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.data.db.Database
-import io.zenandroid.onlinego.data.ogs.*
-import io.zenandroid.onlinego.data.repositories.*
+import io.zenandroid.onlinego.data.ogs.HTTPConnectionFactory
+import io.zenandroid.onlinego.data.ogs.OGSBooleanJsonAdapter
+import io.zenandroid.onlinego.data.ogs.OGSInstantJsonAdapter
+import io.zenandroid.onlinego.data.ogs.OGSRestAPI
+import io.zenandroid.onlinego.data.ogs.OGSRestService
+import io.zenandroid.onlinego.data.ogs.OGSWebSocketService
+import io.zenandroid.onlinego.data.repositories.ActiveGamesRepository
+import io.zenandroid.onlinego.data.repositories.AutomatchRepository
+import io.zenandroid.onlinego.data.repositories.BotsRepository
+import io.zenandroid.onlinego.data.repositories.ChallengesRepository
+import io.zenandroid.onlinego.data.repositories.ChatRepository
+import io.zenandroid.onlinego.data.repositories.ClockDriftRepository
+import io.zenandroid.onlinego.data.repositories.FinishedGamesRepository
+import io.zenandroid.onlinego.data.repositories.JosekiRepository
+import io.zenandroid.onlinego.data.repositories.PlayersRepository
+import io.zenandroid.onlinego.data.repositories.ServerNotificationsRepository
+import io.zenandroid.onlinego.data.repositories.SettingsRepository
+import io.zenandroid.onlinego.data.repositories.TutorialsRepository
+import io.zenandroid.onlinego.data.repositories.UserSessionRepository
 import io.zenandroid.onlinego.mvi.Store
 import io.zenandroid.onlinego.playstore.PlayStoreService
-import io.zenandroid.onlinego.ui.screens.face2face.FaceToFaceScreen
 import io.zenandroid.onlinego.ui.screens.face2face.FaceToFaceViewModel
 import io.zenandroid.onlinego.ui.screens.game.GameViewModel
-import io.zenandroid.onlinego.ui.screens.joseki.*
+import io.zenandroid.onlinego.ui.screens.joseki.HotTrackMiddleware
+import io.zenandroid.onlinego.ui.screens.joseki.JosekiExplorerReducer
+import io.zenandroid.onlinego.ui.screens.joseki.JosekiExplorerState
+import io.zenandroid.onlinego.ui.screens.joseki.JosekiExplorerViewModel
+import io.zenandroid.onlinego.ui.screens.joseki.LoadPositionMiddleware
+import io.zenandroid.onlinego.ui.screens.joseki.TriggerLoadingMiddleware
 import io.zenandroid.onlinego.ui.screens.learn.LearnViewModel
 import io.zenandroid.onlinego.ui.screens.localai.AiGameReducer
 import io.zenandroid.onlinego.ui.screens.localai.AiGameState
 import io.zenandroid.onlinego.ui.screens.localai.AiGameViewModel
-import io.zenandroid.onlinego.ui.screens.localai.middlewares.*
+import io.zenandroid.onlinego.ui.screens.localai.middlewares.AIMoveMiddleware
 import io.zenandroid.onlinego.ui.screens.localai.middlewares.AnalyticsMiddleware
+import io.zenandroid.onlinego.ui.screens.localai.middlewares.EngineLifecycleMiddleware
+import io.zenandroid.onlinego.ui.screens.localai.middlewares.GameTurnMiddleware
+import io.zenandroid.onlinego.ui.screens.localai.middlewares.HintMiddleware
+import io.zenandroid.onlinego.ui.screens.localai.middlewares.OwnershipMiddleware
+import io.zenandroid.onlinego.ui.screens.localai.middlewares.StatePersistenceMiddleware
+import io.zenandroid.onlinego.ui.screens.localai.middlewares.UserMoveMiddleware
 import io.zenandroid.onlinego.ui.screens.mygames.MyGamesViewModel
 import io.zenandroid.onlinego.ui.screens.newchallenge.selectopponent.searchplayer.SearchMiddleware
 import io.zenandroid.onlinego.ui.screens.newchallenge.selectopponent.searchplayer.SearchPlayerReducer
@@ -180,7 +209,7 @@ private val viewModelsModule = module {
     }
 
     viewModel {
-        FaceToFaceViewModel(get())
+        FaceToFaceViewModel(get(), PreferenceManager.getDefaultSharedPreferences(OnlineGoApplication.instance.baseContext), OnlineGoApplication.instance.analytics, FirebaseCrashlytics.getInstance())
     }
 }
 

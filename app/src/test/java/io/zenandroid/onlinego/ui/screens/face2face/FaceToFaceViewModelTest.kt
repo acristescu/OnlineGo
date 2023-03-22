@@ -5,6 +5,8 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import app.cash.molecule.RecompositionClock
 import app.cash.molecule.moleculeFlow
 import app.cash.turbine.test
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.nhaarman.mockito_kotlin.any
 import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.whenever
@@ -45,6 +47,8 @@ class FaceToFaceViewModelTest {
   }
 
   private val prefs: SharedPreferences = mock {}
+  private val analytics: FirebaseAnalytics = mock {}
+  private val crashlytics: FirebaseCrashlytics = mock {}
 
   private lateinit var viewModel: FaceToFaceViewModel
 
@@ -53,6 +57,8 @@ class FaceToFaceViewModelTest {
     Dispatchers.setMain(StandardTestDispatcher())
     viewModel = FaceToFaceViewModel(
       settingsRepository = settingsRepository,
+      analytics = analytics,
+      crashlytics = crashlytics,
       prefs = prefs,
       testing = true
     )
