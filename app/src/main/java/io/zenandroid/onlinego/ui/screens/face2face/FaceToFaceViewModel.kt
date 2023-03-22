@@ -20,6 +20,7 @@ import androidx.preference.PreferenceManager
 import app.cash.molecule.AndroidUiDispatcher
 import app.cash.molecule.RecompositionClock.ContextClock
 import app.cash.molecule.launchMolecule
+import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.data.model.BoardTheme
@@ -81,6 +82,7 @@ class FaceToFaceViewModel(
   private var newGameParameters by mutableStateOf(GameParameters(BoardSize.LARGE, 0))
 
   init {
+    FirebaseAnalytics.getInstance(OnlineGoApplication.instance).logEvent("face_to_face_opened", null)
     viewModelScope.launch {
       loadSavedData()
     }
@@ -152,6 +154,7 @@ class FaceToFaceViewModel(
 
   private suspend fun loadSavedData() {
     if(prefs.contains(HISTORY_KEY) && prefs.contains(BOARD_SIZE_KEY) && prefs.contains(HANDICAP_KEY)) {
+      FirebaseAnalytics.getInstance(OnlineGoApplication.instance).logEvent("face_to_face_loading", null)
       var historyString: String
       var sizeString: String
       var handicap: Int
@@ -179,6 +182,7 @@ class FaceToFaceViewModel(
       historyPosition(0)
     }
     loading = false
+    FirebaseAnalytics.getInstance(OnlineGoApplication.instance).logEvent("face_to_face_loaded", null)
   }
 
   override fun onCleared() {
@@ -273,34 +277,42 @@ class FaceToFaceViewModel(
       width = currentGameParameters.size.width,
       height = currentGameParameters.size.height,
       handicap = currentGameParameters.handicap
-    )!!
+    ) ?: run {
+      val historyString = history.fold("") { acc, cell -> "$acc ${cell.x},${cell.y}}" }
+      FirebaseCrashlytics.getInstance().log("FaceToFaceViewModel Cannot replay history $historyString")
+      recordException(IllegalStateException("Cannot replay history history=$historyString idx=$index historyIndex=$historyIndex"))
+      Position(
+        boardWidth = currentGameParameters.size.width,
+        boardHeight = currentGameParameters.size.height,
+        handicap = currentGameParameters.handicap,
+        )
+    }
 
   private fun onPassPressed() {
     onCellTapUp(Cell(-1, -1))
   }
 
   private fun onCellTapUp(cell: Cell) {
-    viewModelScope.launch {
-      val pos = currentPosition
-      val newPosition = RulesManager.makeMove(pos, pos.nextToMove, cell)
-      if(newPosition != null) {
-        val index = historyIndex ?: history.lastIndex
-        val potentialKOPosition = if(index > 0 && !cell.isPass) {
-          historyPosition(index - 1)
-        } else null
-        if(potentialKOPosition?.hasTheSameStonesAs(newPosition) == true) {
-          koMoveDialogShowing = true
-        } else {
-          currentPosition = newPosition
-          history = history.subList(0, index + 1) + cell
-          historyIndex = null
-          if(index > 0 && cell.isPass && history[index].isPass) {
-            doEstimation()
-          }
+    FirebaseCrashlytics.getInstance().log("onCellTapUp $cell")
+    val pos = currentPosition
+    val newPosition = RulesManager.makeMove(pos, pos.nextToMove, cell)
+    if (newPosition != null) {
+      val index = historyIndex ?: history.lastIndex
+      val potentialKOPosition = if (index > 0 && !cell.isPass) {
+        historyPosition(index - 1)
+      } else null
+      if (potentialKOPosition?.hasTheSameStonesAs(newPosition) == true) {
+        koMoveDialogShowing = true
+      } else {
+        currentPosition = newPosition
+        history = history.subList(0, index + 1) + cell
+        historyIndex = null
+        if (index > 0 && cell.isPass && history[index].isPass) {
+          doEstimation()
         }
       }
-      candidateMove = null
     }
+    candidateMove = null
   }
 }
 
