@@ -10,15 +10,16 @@ import java.net.SocketTimeoutException
 import java.net.UnknownHostException
 
 fun recordException(t: Throwable) {
-  if (
-    t !is CancellationException &&
-    t !is SocketTimeoutException &&
-    t !is ConnectException &&
-    t !is UnknownHostException
-  ) {
+  if (!t.isNetworkError() && !t.cause.isNetworkError()) {
     FirebaseCrashlytics.getInstance().recordException(t)
   }
 }
+
+private fun Throwable?.isNetworkError() =
+  this is CancellationException ||
+    this is SocketTimeoutException ||
+    this is ConnectException ||
+    this is UnknownHostException
 
 fun analyticsReportScreen(screenName: String) {
   FirebaseAnalytics.getInstance(OnlineGoApplication.instance).logEvent(

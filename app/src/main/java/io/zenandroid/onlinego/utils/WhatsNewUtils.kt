@@ -32,6 +32,15 @@ private val annotatedCurrentText = AnnotatedString.Builder().run {
     pop()
 
     pushStyle(SpanStyle(fontWeight = FontWeight.Normal))
+    append("· Fixed a bug where AI will keep playing even if was not their turn.")
+    append("\n")
+    append("· Added Github releases.")
+    pop()
+
+    pushStyle(SpanStyle(fontSize = 18.sp))
+    append("\n\nPrevious version\n\n")
+    pop()
+    pushStyle(SpanStyle(fontWeight = FontWeight.Normal))
     append("· Fixed a bug with KO rule in analysis mode.")
     append("\n")
     append("· Fixed value of komi with handicap in face-to-face mode.")
@@ -42,13 +51,6 @@ private val annotatedCurrentText = AnnotatedString.Builder().run {
     append("\n")
     append("· Fixed a few minor issues in the new face-to-face screen.")
     pop()
-
-    // pushStyle(SpanStyle(fontSize = 18.sp))
-    // append("Previous version\n\n")
-    // append("· Added support for Android 13 themed icons.\n\n")
-    // append("· Added support for Android 13 notification request. Thanks to Fabien for his help!\n\n")
-    // append("· Fixed a crash related to stats for users that have no games completed.\n\n")
-    // pop()
 
     pushStyle(SpanStyle(fontSize = 18.sp))
     append("\n\n")
