@@ -2,15 +2,14 @@ package io.zenandroid.onlinego.data.repositories
 
 import android.app.ActivityManager
 import android.content.Context.ACTIVITY_SERVICE
-import android.util.Log
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.franmontiel.persistentcookiejar.PersistentCookieJar
 import com.franmontiel.persistentcookiejar.cache.SetCookieCache
 import com.franmontiel.persistentcookiejar.persistence.SharedPrefsCookiePersistor
+import com.google.firebase.crashlytics.FirebaseCrashlytics
+import io.zenandroid.onlinego.BuildConfig
 import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.data.model.ogs.UIConfig
 import io.zenandroid.onlinego.data.ogs.OGSWebSocketService
-import io.zenandroid.onlinego.notifications.SynchronizeGamesWork
 import io.zenandroid.onlinego.utils.PersistenceManager
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import org.koin.core.context.GlobalContext.get
@@ -51,7 +50,7 @@ class UserSessionRepository {
 
     fun isLoggedIn() =
             (uiConfig != null) &&
-                    cookieJar.loadForRequest("https://online-go.com/".toHttpUrlOrNull()!!)
+                    cookieJar.loadForRequest(BuildConfig.BASE_URL.toHttpUrlOrNull()!!)
                             .any { it.name == "sessionid" }
 
     fun logOut() {

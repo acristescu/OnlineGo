@@ -66,7 +66,7 @@ class OGSWebSocketService(
     }
 
     init {
-        socket = IO.socket("https://online-go.com", IO.Options().apply {
+        socket = IO.socket(BuildConfig.BASE_URL, IO.Options().apply {
             transports = arrayOf("websocket")
             reconnection = true
             reconnectionDelay = 750

@@ -28,6 +28,7 @@ import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
+import io.zenandroid.onlinego.BuildConfig
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.repositories.UserSessionRepository
 import io.zenandroid.onlinego.ui.screens.login.FacebookLoginCallbackActivity
@@ -117,7 +118,7 @@ class OnboardingFragment : Fragment() {
      */
     private fun doFacebookFlow() {
         FirebaseCrashlytics.getInstance().setCustomKey("LOGIN_METHOD", "FACEBOOK")
-        val url = "https://online-go.com/login/facebook/"
+        val url = BuildConfig.BASE_URL + "/login/facebook/"
         val request = Request.Builder()
             .url(url)
             .get()

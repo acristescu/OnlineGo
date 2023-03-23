@@ -6,6 +6,7 @@ import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import io.reactivex.schedulers.Schedulers
+import io.zenandroid.onlinego.BuildConfig
 import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.data.db.Database
 import io.zenandroid.onlinego.data.ogs.HTTPConnectionFactory
@@ -104,7 +105,7 @@ private val serverConnectionModule = module {
 
     single {
         Retrofit.Builder()
-            .baseUrl("https://online-go.com/")
+            .baseUrl(BuildConfig.BASE_URL)
             .client(get())
             .addCallAdapterFactory(RxJava2CallAdapterFactory.createWithScheduler(Schedulers.io()))
             .addConverterFactory(CustomConverterFactory())

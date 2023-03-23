@@ -33,6 +33,7 @@ import androidx.lifecycle.viewModelScope
 import app.cash.molecule.AndroidUiDispatcher
 import app.cash.molecule.RecompositionClock
 import app.cash.molecule.launchMolecule
+import io.zenandroid.onlinego.BuildConfig
 import io.zenandroid.onlinego.data.model.BoardTheme
 import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.Mark
@@ -773,8 +774,8 @@ class GameViewModel(
                     submitMove(it.cell, it.moveNo)
                 }
             }
-            OpenInBrowser -> pendingNavigation = OpenURL("https://online-go.com/game/${gameState?.id}")
-            DownloadSGF -> pendingNavigation = OpenURL("https://online-go.com/api/v1/games/${gameState?.id}/sgf")
+            OpenInBrowser -> pendingNavigation = OpenURL(BuildConfig.BASE_URL + "/game/${gameState?.id}")
+            DownloadSGF -> pendingNavigation = OpenURL(BuildConfig.BASE_URL + "/api/v1/games/${gameState?.id}/sgf")
             BlackPlayerClicked -> playerDetailsDialogShowing = gameState?.blackPlayer
             WhitePlayerClicked -> playerDetailsDialogShowing = gameState?.whitePlayer
             PlayerDetailsDialogDismissed -> playerDetailsDialogShowing = null

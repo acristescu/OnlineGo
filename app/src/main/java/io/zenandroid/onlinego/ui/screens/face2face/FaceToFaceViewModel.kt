@@ -135,7 +135,7 @@ class FaceToFaceViewModel(
       title = title,
       gameFinished = false,
       history = history,
-      boardInteractive = !loading,
+      boardInteractive = !loading && estimateStatus is Idle,
       candidateMove = candidateMove,
       boardTheme = settingsRepository.boardTheme,
       showCoordinates = settingsRepository.showCoordinates,
