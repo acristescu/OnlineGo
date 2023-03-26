@@ -708,10 +708,12 @@ class GameViewModel(
                             }
 
                             if(newVariation != null && (newVariation != variation) && (newVariation.moves.size > 2 || newVariation.rootMoveNo > 0)) {
-                                val potentialKoPosition = if(newVariation.moves.size == 1) {
-                                    RulesManager.replay(gameState!!, newVariation.rootMoveNo - 1)
-                                } else {
-                                    RulesManager.replay(gameState!!, newVariation.rootMoveNo + newVariation.moves.size - 2, false, newVariation)
+                                val potentialKoPosition = withContext(Dispatchers.IO) {
+                                    if(newVariation.moves.size == 1) {
+                                        RulesManager.replay(gameState!!, newVariation.rootMoveNo - 1)
+                                    } else {
+                                        RulesManager.replay(gameState!!, newVariation.rootMoveNo + newVariation.moves.size - 2, false, newVariation)
+                                    }
                                 }
                                 if(potentialKoPosition.hasTheSameStonesAs(newPosition)) {
                                     koMoveDialogShowing = true

@@ -2,6 +2,7 @@ package io.zenandroid.onlinego.ui.screens.localai.middlewares
 
 import android.util.Log
 import androidx.preference.PreferenceManager
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import io.reactivex.Observable
@@ -9,6 +10,7 @@ import io.reactivex.rxkotlin.withLatestFrom
 import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.gamelogic.RulesManager
+import io.zenandroid.onlinego.gamelogic.Util.toGTP
 import io.zenandroid.onlinego.mvi.Middleware
 import io.zenandroid.onlinego.ui.screens.localai.AiGameAction
 import io.zenandroid.onlinego.ui.screens.localai.AiGameAction.CantRestoreState
@@ -74,11 +76,15 @@ class StatePersistenceMiddleware : Middleware<AiGameState, AiGameAction> {
             val moves = mutableListOf<Cell>()
             state.history.drop(1).forEach {
                 if(it.lastMove == null || it.boardHeight != state.boardSize) {
+                    FirebaseCrashlytics.getInstance().log("Invalid position in history: lastMove=${it.lastMove} boardHeight=${it.boardHeight} boardSize=${state.boardSize}")
                     return false
                 }
                 moves.add(it.lastMove)
                 val pos = RulesManager.buildPos(moves, state.boardSize, state.boardSize, state.handicap, whiteInitialState = whiteInitial, blackInitialState = blackInitial)
-                if(pos == null) return false
+                if(pos == null) {
+                    FirebaseCrashlytics.getInstance().log("Invalid history: ${moves.toGTP(it.boardHeight)}")
+                    return false
+                }
             }
         }
         return true

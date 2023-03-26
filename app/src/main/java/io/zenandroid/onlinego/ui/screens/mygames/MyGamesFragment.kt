@@ -103,11 +103,19 @@ class MyGamesFragment : Fragment() {
             }
             Action.PlayAgainstAI -> {
                 analytics.logEvent("localai_item_clicked", null)
-                view?.findNavController()?.navigate(R.id.action_myGamesFragment_to_aiGameFragment)
+                view?.findNavController()?.apply {
+                    if(currentDestination?.id == R.id.myGames) {
+                        navigate(R.id.action_myGamesFragment_to_aiGameFragment)
+                    }
+                }
             }
             Action.FaceToFace -> {
                 analytics.logEvent("face2face_item_clicked", null)
-                view?.findNavController()?.navigate(R.id.action_myGamesFragment_to_faceToFaceFragment)
+                view?.findNavController()?.apply {
+                    if(currentDestination?.id == R.id.myGames) {
+                        navigate(R.id.action_myGamesFragment_to_faceToFaceFragment)
+                    }
+                }
             }
             Action.PlayOnline -> {
                 analytics.logEvent("automatch_item_clicked", null)

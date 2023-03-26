@@ -29,6 +29,8 @@ import io.zenandroid.onlinego.data.model.StoneType.BLACK
 import io.zenandroid.onlinego.data.model.StoneType.WHITE
 import io.zenandroid.onlinego.data.repositories.SettingsRepository
 import io.zenandroid.onlinego.gamelogic.RulesManager
+import io.zenandroid.onlinego.gamelogic.Util
+import io.zenandroid.onlinego.gamelogic.Util.toGTP
 import io.zenandroid.onlinego.ui.composables.BottomBarButton
 import io.zenandroid.onlinego.ui.screens.face2face.Action.BoardCellDragged
 import io.zenandroid.onlinego.ui.screens.face2face.Action.BoardCellTapUp
@@ -232,6 +234,7 @@ class FaceToFaceViewModel(
   }
 
   private fun onPreviousPressed() {
+    crashlytics.log("FaceToFaceViewModel onPreviousPressed")
     val newIndex = historyIndex?.minus(1) ?: (history.lastIndex - 1)
     if(newIndex < -1) {
       //
@@ -247,6 +250,7 @@ class FaceToFaceViewModel(
   }
 
   private fun onNextPressed() {
+    crashlytics.log("FaceToFaceViewModel onNextPressed")
     val newIndex = historyIndex?.plus(1) ?: history.lastIndex
     if(newIndex > history.lastIndex) {
       //
@@ -262,6 +266,7 @@ class FaceToFaceViewModel(
   }
 
   private fun onStartNewGame() {
+    crashlytics.log("FaceToFaceViewModel Starting new game")
     val params = newGameParameters
     currentPosition = RulesManager.initializePosition(params.size.height, params.handicap)
     estimateStatus = Idle
@@ -278,9 +283,11 @@ class FaceToFaceViewModel(
       height = currentGameParameters.size.height,
       handicap = currentGameParameters.handicap
     ) ?: run {
-      val historyString = history.fold("") { acc, cell -> "$acc ${cell.x},${cell.y}}" }
+      val historyString = history.toGTP(currentGameParameters.size.height)
+      val whiteStones = currentPosition.whiteStones.toGTP(currentGameParameters.size.height)
+        val blackStones = currentPosition.blackStones.toGTP(currentGameParameters.size.height)
       crashlytics.log("FaceToFaceViewModel Cannot replay history $historyString")
-      recordException(IllegalStateException("Cannot replay history history=$historyString idx=$index historyIndex=$historyIndex"))
+      recordException(IllegalStateException("Cannot replay history history=$historyString idx=$index historyIndex=$historyIndex currentPos.whiteStones=$whiteStones currentPos.blackStones=$blackStones"))
       Position(
         boardWidth = currentGameParameters.size.width,
         boardHeight = currentGameParameters.size.height,
@@ -293,7 +300,7 @@ class FaceToFaceViewModel(
   }
 
   private fun onCellTapUp(cell: Cell) {
-    crashlytics.log("onCellTapUp $cell")
+    crashlytics.log("onCellTapUp ${Util.getGTPCoordinates(cell, currentGameParameters.size.height)}")
     val pos = currentPosition
     val newPosition = RulesManager.makeMove(pos, pos.nextToMove, cell)
     if (newPosition != null) {

@@ -81,7 +81,6 @@ object KataGoAnalysisEngine {
           Thread {
             while (true) {
               val line = reader?.readLine() ?: break
-              Log.d("KataGoAnalysisEngine", line)
               if (line.startsWith("{\"error\"") || line.startsWith("{\"warning\":\"WARNING_MESSAGE\"")) {
                 Log.e("KataGoAnalysisEngine", line)
                 recordException(Exception("Katago: $line"))
@@ -89,12 +88,15 @@ object KataGoAnalysisEngine {
                   responseSubject.onNext(it)
                 }
               } else {
+                Log.d("KataGoAnalysisEngine", line)
+                FirebaseCrashlytics.getInstance().log("KATAGO < $line")
                 responseAdapter.fromJson(line)?.let {
                   responseSubject.onNext(it)
                 }
               }
             }
             Log.d("KataGoAnalysisEngine", "End of input, killing reader thread")
+            FirebaseCrashlytics.getInstance().log("KATAGO < End of input, killing reader thread")
             started = false
           }.start()
         } else {

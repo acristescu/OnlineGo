@@ -9,9 +9,10 @@ import io.zenandroid.onlinego.data.model.ogs.OGSGame
 import io.zenandroid.onlinego.data.repositories.UserSessionRepository
 import okhttp3.internal.toImmutableList
 import org.koin.core.context.GlobalContext.get
-import kotlin.math.min
+import java.util.LinkedList
+import java.util.Locale
 import kotlin.math.max
-import java.util.*
+import kotlin.math.min
 
 /**
  * Created by alex on 1/9/2015.
@@ -21,6 +22,8 @@ object Util {
     private val userSessionRepository: UserSessionRepository by get().inject()
     private val coordinatesX = arrayOf("A","B","C","D","E","F","G","H","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z")
     private val coordinatesY = (1..25).map(Int::toString)
+
+    fun Collection<Cell>.toGTP(boardHeight: Int): String = joinToString(", ") { getGTPCoordinates(it, boardHeight) }
 
     fun getGTPCoordinates(p: Cell, boardHeight: Int): String {
         if (p.x == -1) {

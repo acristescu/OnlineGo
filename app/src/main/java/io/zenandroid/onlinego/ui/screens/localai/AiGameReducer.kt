@@ -1,11 +1,38 @@
 package io.zenandroid.onlinego.ui.screens.localai
 
 import android.util.Log
-import io.zenandroid.onlinego.data.model.StoneType
 import io.zenandroid.onlinego.gamelogic.RulesManager
 import io.zenandroid.onlinego.gamelogic.RulesManager.isGameOver
 import io.zenandroid.onlinego.mvi.Reducer
-import io.zenandroid.onlinego.ui.screens.localai.AiGameAction.*
+import io.zenandroid.onlinego.ui.screens.localai.AiGameAction.AIError
+import io.zenandroid.onlinego.ui.screens.localai.AiGameAction.AIHint
+import io.zenandroid.onlinego.ui.screens.localai.AiGameAction.AIMove
+import io.zenandroid.onlinego.ui.screens.localai.AiGameAction.AIOwnershipResponse
+import io.zenandroid.onlinego.ui.screens.localai.AiGameAction.CantRestoreState
+import io.zenandroid.onlinego.ui.screens.localai.AiGameAction.DismissNewGameDialog
+import io.zenandroid.onlinego.ui.screens.localai.AiGameAction.EngineStarted
+import io.zenandroid.onlinego.ui.screens.localai.AiGameAction.EngineStopped
+import io.zenandroid.onlinego.ui.screens.localai.AiGameAction.EngineWouldNotStart
+import io.zenandroid.onlinego.ui.screens.localai.AiGameAction.GenerateAiMove
+import io.zenandroid.onlinego.ui.screens.localai.AiGameAction.HideOwnership
+import io.zenandroid.onlinego.ui.screens.localai.AiGameAction.NewGame
+import io.zenandroid.onlinego.ui.screens.localai.AiGameAction.NewPosition
+import io.zenandroid.onlinego.ui.screens.localai.AiGameAction.PromptUserForMove
+import io.zenandroid.onlinego.ui.screens.localai.AiGameAction.RestoredState
+import io.zenandroid.onlinego.ui.screens.localai.AiGameAction.ScoreComputed
+import io.zenandroid.onlinego.ui.screens.localai.AiGameAction.ShowNewGameDialog
+import io.zenandroid.onlinego.ui.screens.localai.AiGameAction.UserAskedForHint
+import io.zenandroid.onlinego.ui.screens.localai.AiGameAction.UserAskedForOwnership
+import io.zenandroid.onlinego.ui.screens.localai.AiGameAction.UserHotTrackedCoordinate
+import io.zenandroid.onlinego.ui.screens.localai.AiGameAction.UserPressedBack
+import io.zenandroid.onlinego.ui.screens.localai.AiGameAction.UserPressedNext
+import io.zenandroid.onlinego.ui.screens.localai.AiGameAction.UserPressedPass
+import io.zenandroid.onlinego.ui.screens.localai.AiGameAction.UserPressedPrevious
+import io.zenandroid.onlinego.ui.screens.localai.AiGameAction.UserTappedCoordinate
+import io.zenandroid.onlinego.ui.screens.localai.AiGameAction.UserTriedKoMove
+import io.zenandroid.onlinego.ui.screens.localai.AiGameAction.UserTriedSuicidalMove
+import io.zenandroid.onlinego.ui.screens.localai.AiGameAction.ViewPaused
+import io.zenandroid.onlinego.ui.screens.localai.AiGameAction.ViewReady
 
 class AiGameReducer : Reducer<AiGameState, AiGameAction> {
     override fun reduce(state: AiGameState, action: AiGameAction): AiGameState {
@@ -69,7 +96,7 @@ class AiGameReducer : Reducer<AiGameState, AiGameAction> {
                     aiAnalysis = action.aiAnalisis,
             )
             is AIMove -> {
-                val newVariation = state.history + action.newPos
+                val newVariation = if(state.history.lastOrNull() == action.newPos) state.history else state.history + action.newPos
                 state.copy(
                     position = action.newPos,
                     history = newVariation,
