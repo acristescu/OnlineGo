@@ -86,10 +86,11 @@ dependencies {
     def koin_version = '3.2.0'
     def play_services_version = '20.4.1'
     def accompanist_version = '0.29.2-rc'
-    def room_version = '2.5.0'
+    def room_version = '2.5.1'
     def firebase_version = '31.2.0'
-    def emoji2_version = "1.3.0-rc01"
-    def compose_version = "1.4.0-rc01"
+    def emoji2_version = "1.3.0"
+    def compose_version = "1.4.0"
+    def work_manager_version = "2.8.1"
 //    def composeBom = platform('androidx.compose:compose-bom:2023.01.00')
 
     implementation fileTree(dir: 'libs', include: ['*.jar'])
@@ -135,8 +136,8 @@ dependencies {
     implementation 'com.jakewharton.rxrelay2:rxrelay:2.1.1'
     implementation 'io.reactivex.rxjava2:rxkotlin:2.4.0'
 
-    implementation "androidx.work:work-runtime-ktx:2.8.0"
-    implementation "androidx.work:work-rxjava2:2.8.0"
+    implementation "androidx.work:work-runtime-ktx:$work_manager_version"
+    implementation "androidx.work:work-rxjava2:$work_manager_version"
 
     implementation "androidx.lifecycle:lifecycle-extensions:2.2.0"
 
@@ -154,7 +155,7 @@ dependencies {
     implementation "androidx.emoji2:emoji2-views:$emoji2_version"
     implementation "androidx.emoji2:emoji2-views-helper:$emoji2_version"
     implementation 'androidx.legacy:legacy-preference-v14:1.0.0'
-    implementation "androidx.activity:activity-compose:1.6.1"
+    implementation "androidx.activity:activity-compose:1.7.0"
 
     implementation 'me.zhanghai.android.materialprogressbar:library:1.6.1'
 
@@ -172,7 +173,7 @@ dependencies {
     implementation 'io.noties.markwon:core:4.3.1'
 
     implementation 'com.github.bumptech.glide:glide:4.11.0'
-    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.1'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.1'
     ksp 'com.github.bumptech.glide:compiler:4.11.0'
 
     implementation "io.insert-koin:koin-android:$koin_version"

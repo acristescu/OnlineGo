@@ -4,6 +4,7 @@ import androidx.compose.runtime.Immutable
 import io.zenandroid.onlinego.data.model.ogs.JosekiPosition
 import io.zenandroid.onlinego.data.model.ogs.PlayCategory
 import io.zenandroid.onlinego.gamelogic.RulesManager
+import io.zenandroid.onlinego.gamelogic.Util
 
 @Immutable
 data class Position(
@@ -135,6 +136,12 @@ data class Cell(
         get() = this == PASS
 
     companion object {
+        fun fromSGF(s: String) =
+            Util.getCoordinatesFromSGF(s)
+
+        fun fromGTP(s: String, boardSize: Int) =
+            Util.getCoordinatesFromGTP(s, boardSize)
+
         val PASS = Cell(-1, -1)
     }
 }

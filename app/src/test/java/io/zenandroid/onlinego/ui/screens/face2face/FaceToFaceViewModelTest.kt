@@ -161,4 +161,35 @@ class FaceToFaceViewModelTest {
       }
     }
   }
+
+
+  @Test
+  fun `ko is recognized`() {
+    val moves = "E5, D6, E7, E8, E6, F6, F7, D7, G6, F8, F5, F4, G5, H5, E4, H6, G4, H4, F3, D5, E3, D3, D4, C4, C6, E2, C5, F2, C7, C8, D8, D9, D7, B7, B8, B6, C9, B9, E9, F9, G8, H8, G9, H9, H7, J7, J8, J9, J8, J6, A9, B5, B4, A3, A4, B3, A5, A6, A7, A8, A7"
+      .split(", ")
+      .map { Cell.fromGTP(it, 9) }
+
+    runTest {
+      moleculeFlow(RecompositionClock.Immediate) {
+        viewModel.molecule()
+      }.test {
+        skipItems(3)
+
+        viewModel.onAction(Action.NewGameParametersChanged(GameParameters(BoardSize.SMALL, 0)))
+        skipItems(1)
+        viewModel.onAction(Action.StartNewGame)
+        var item = awaitItem()
+        skipItems(1)
+        moves.dropLast(1).forEach { cell ->
+          viewModel.onAction(Action.BoardCellTapUp(cell))
+          skipItems(2)
+        }
+        viewModel.onAction(Action.BoardCellTapUp(moves.last()))
+        item = awaitItem()
+        Assert.assertEquals(item.koMoveDialogShowing, true)
+        Assert.assertEquals(item.history, moves.dropLast(1))
+        cancel()
+      }
+    }
+  }
 }

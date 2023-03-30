@@ -82,7 +82,7 @@ class StatePersistenceMiddleware : Middleware<AiGameState, AiGameAction> {
                 moves.add(it.lastMove)
                 val pos = RulesManager.buildPos(moves, state.boardSize, state.boardSize, state.handicap, whiteInitialState = whiteInitial, blackInitialState = blackInitial)
                 if(pos == null) {
-                    FirebaseCrashlytics.getInstance().log("Invalid history: ${moves.toGTP(it.boardHeight)}")
+                    FirebaseCrashlytics.getInstance().log("Invalid history: ${moves.toGTP(it.boardHeight)} whiteInitial=$whiteInitial blackInitial=$blackInitial")
                     return false
                 }
             }

@@ -309,6 +309,7 @@ class FaceToFaceViewModel(
         historyPosition(index - 1)
       } else null
       if (potentialKOPosition?.hasTheSameStonesAs(newPosition) == true) {
+        crashlytics.log("FaceToFaceViewModel KO move detected")
         koMoveDialogShowing = true
       } else {
         currentPosition = newPosition

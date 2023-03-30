@@ -2,9 +2,9 @@ package io.zenandroid.onlinego
 
 import android.app.Application
 import android.os.Build
-import androidx.core.provider.FontRequest
 import android.util.Log
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.provider.FontRequest
 import androidx.emoji2.text.EmojiCompat
 import androidx.emoji2.text.FontRequestEmojiCompatConfig
 import com.facebook.stetho.Stetho
@@ -12,9 +12,9 @@ import com.google.firebase.analytics.FirebaseAnalytics
 import com.jakewharton.threetenabp.AndroidThreeTen
 import io.reactivex.exceptions.UndeliverableException
 import io.reactivex.plugins.RxJavaPlugins
-import io.zenandroid.onlinego.di.*
-import org.koin.android.ext.koin.androidContext
 import io.zenandroid.onlinego.data.repositories.SettingsRepository
+import io.zenandroid.onlinego.di.allKoinModules
+import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.GlobalContext
 import org.koin.core.context.startKoin
 import java.io.IOException
@@ -34,6 +34,8 @@ class OnlineGoApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
+        instance = this
+
         if(BuildConfig.DEBUG) {
             Stetho.initializeWithDefaults(this)
         }
@@ -44,7 +46,6 @@ class OnlineGoApplication : Application() {
             modules(allKoinModules)
         }
 
-        instance = this
         AndroidThreeTen.init(this)
 
         RxJavaPlugins.setErrorHandler {
