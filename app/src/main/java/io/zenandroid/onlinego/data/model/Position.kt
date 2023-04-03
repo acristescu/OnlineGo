@@ -46,7 +46,7 @@ data class Position(
     companion object {
         fun fromJosekiPosition(josekiPosition: JosekiPosition): Position {
             val customMarks = josekiPosition.next_moves
-                ?.filter { it.placement != null && it.placement != "pass" && it.placement != "root" }
+                ?.filter { !it.placement.isNullOrBlank() && it.placement != "pass" && it.placement != "root" }
                 ?.map {
                     val childCoordinate = RulesManager.coordinateToCell(it.placement!!)
                     val overlayLabel =

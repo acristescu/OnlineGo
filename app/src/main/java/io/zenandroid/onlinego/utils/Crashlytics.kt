@@ -1,12 +1,14 @@
 package io.zenandroid.onlinego.utils
 
 import androidx.core.os.bundleOf
+import com.google.android.gms.common.api.ApiException
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.zenandroid.onlinego.OnlineGoApplication
 import kotlinx.coroutines.CancellationException
 import retrofit2.HttpException
 import java.net.ConnectException
+import java.net.SocketException
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
 
@@ -26,8 +28,10 @@ private class ServerException(cause: Throwable?) : Exception(cause)
 private fun Throwable?.isNetworkError() =
   this is CancellationException ||
     this is SocketTimeoutException ||
+    this is SocketException ||
     this is ConnectException ||
-    this is UnknownHostException
+    this is UnknownHostException ||
+    (this is ApiException && this.statusCode == 12501) // Google Auth cancelled
 
 private fun Throwable?.isHttp5XXError() =
   this is HttpException && this.code() / 100 == 5
