@@ -56,6 +56,7 @@ import io.zenandroid.onlinego.ui.screens.newchallenge.selectopponent.searchplaye
 import io.zenandroid.onlinego.ui.screens.newchallenge.selectopponent.searchplayer.SearchPlayerState
 import io.zenandroid.onlinego.ui.screens.newchallenge.selectopponent.searchplayer.SearchPlayerViewModel
 import io.zenandroid.onlinego.ui.screens.onboarding.OnboardingViewModel
+import io.zenandroid.onlinego.ui.screens.settings.SettingsViewModel
 import io.zenandroid.onlinego.ui.screens.tutorial.TutorialViewModel
 import io.zenandroid.onlinego.usecases.GetUserStatsUseCase
 import io.zenandroid.onlinego.utils.CountingIdlingResource
@@ -69,165 +70,187 @@ import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.moshi.MoshiConverterFactory
 
 private val repositoriesModule = module {
-    single {
-        listOf(
-                get<ActiveGamesRepository>(),
-                get<AutomatchRepository>(),
-                get<BotsRepository>(),
-                get<ChallengesRepository>(),
-                get<FinishedGamesRepository>(),
-                get<ChatRepository>(),
-                get<ServerNotificationsRepository>(),
-                get<ClockDriftRepository>(),
-                get<TutorialsRepository>()
-        )
-    }
+  single {
+    listOf(
+      get<ActiveGamesRepository>(),
+      get<AutomatchRepository>(),
+      get<BotsRepository>(),
+      get<ChallengesRepository>(),
+      get<FinishedGamesRepository>(),
+      get<ChatRepository>(),
+      get<ServerNotificationsRepository>(),
+      get<ClockDriftRepository>(),
+      get<TutorialsRepository>()
+    )
+  }
 
-    single { ActiveGamesRepository(get(), get(), get(), get()) }
-    single { AutomatchRepository(get()) }
-    single { BotsRepository(get()) }
-    single { ChallengesRepository(get(), get(), get()) }
-    single { ChatRepository(get(), get()) }
-    single { FinishedGamesRepository(get(), get(), get()) }
-    single { JosekiRepository(get(), get()) }
-    single { PlayersRepository(get(), get(), get()) }
-    single { ServerNotificationsRepository(get()) }
-    single { SettingsRepository() }
-    single { UserSessionRepository() }
-    single { ClockDriftRepository(get()) }
-    single { TutorialsRepository() }
+  single { ActiveGamesRepository(get(), get(), get(), get()) }
+  single { AutomatchRepository(get()) }
+  single { BotsRepository(get()) }
+  single { ChallengesRepository(get(), get(), get()) }
+  single { ChatRepository(get(), get()) }
+  single { FinishedGamesRepository(get(), get(), get()) }
+  single { JosekiRepository(get(), get()) }
+  single { PlayersRepository(get(), get(), get()) }
+  single { ServerNotificationsRepository(get()) }
+  single { SettingsRepository() }
+  single { UserSessionRepository() }
+  single { ClockDriftRepository(get()) }
+  single { TutorialsRepository() }
 }
 
 private val serverConnectionModule = module {
 
-    single { HTTPConnectionFactory(get()) }
-    single { get<HTTPConnectionFactory>().buildConnection() }
+  single { HTTPConnectionFactory(get()) }
+  single { get<HTTPConnectionFactory>().buildConnection() }
 
-    single {
-        Retrofit.Builder()
-            .baseUrl(BuildConfig.BASE_URL)
-            .client(get())
-            .addCallAdapterFactory(RxJava2CallAdapterFactory.createWithScheduler(Schedulers.io()))
-            .addConverterFactory(CustomConverterFactory())
-            .addConverterFactory(MoshiConverterFactory.create(get()))
-            .build()
-            .create(OGSRestAPI::class.java)
-    }
+  single {
+    Retrofit.Builder()
+      .baseUrl(BuildConfig.BASE_URL)
+      .client(get())
+      .addCallAdapterFactory(RxJava2CallAdapterFactory.createWithScheduler(Schedulers.io()))
+      .addConverterFactory(CustomConverterFactory())
+      .addConverterFactory(MoshiConverterFactory.create(get()))
+      .build()
+      .create(OGSRestAPI::class.java)
+  }
 
-    single {
-        Moshi.Builder()
-                .add(java.lang.Boolean::class.java, OGSBooleanJsonAdapter())
-                .add(Instant::class.java, OGSInstantJsonAdapter().nullSafe())
-                .addLast(KotlinJsonAdapterFactory())
-                .build()
-    }
+  single {
+    Moshi.Builder()
+      .add(java.lang.Boolean::class.java, OGSBooleanJsonAdapter())
+      .add(Instant::class.java, OGSInstantJsonAdapter().nullSafe())
+      .addLast(KotlinJsonAdapterFactory())
+      .build()
+  }
 
-    single { OGSRestService(get(), get(), get(), get()) }
-    single { OGSWebSocketService(get(), get(), get(), get()) }
+  single { OGSRestService(get(), get(), get(), get()) }
+  single { OGSWebSocketService(get(), get(), get(), get()) }
 }
 
 private val databaseModule = module {
-    single {
-        Room.databaseBuilder(get(), Database::class.java, "database.db")
-                .fallbackToDestructiveMigration()
-                .build()
-    }
+  single {
+    Room.databaseBuilder(get(), Database::class.java, "database.db")
+      .fallbackToDestructiveMigration()
+      .build()
+  }
 
-    single {
-        get<Database>().gameDao()
-    }
+  single {
+    get<Database>().gameDao()
+  }
 }
 
 private val useCasesModule = module {
-    single {
-        GetUserStatsUseCase(get())
-    }
+  single {
+    GetUserStatsUseCase(get())
+  }
 }
 
 private val viewModelsModule = module {
-    viewModel {
-        SearchPlayerViewModel(
-                Store(
-                        SearchPlayerReducer(),
-                        listOf(SearchMiddleware(get())),
-                        SearchPlayerState()
-                )
-        )
-    }
+  viewModel {
+    SearchPlayerViewModel(
+      Store(
+        SearchPlayerReducer(),
+        listOf(SearchMiddleware(get())),
+        SearchPlayerState()
+      )
+    )
+  }
 
-    viewModel {
-        JosekiExplorerViewModel(
-                Store(
-                        JosekiExplorerReducer(),
-                        listOf(
-                                LoadPositionMiddleware(get()),
-                                HotTrackMiddleware(),
-                                TriggerLoadingMiddleware(),
-                                io.zenandroid.onlinego.ui.screens.joseki.AnalyticsMiddleware()
-                        ),
-                        JosekiExplorerState()
-                )
-        )
-    }
+  viewModel {
+    JosekiExplorerViewModel(
+      Store(
+        JosekiExplorerReducer(),
+        listOf(
+          LoadPositionMiddleware(get()),
+          HotTrackMiddleware(),
+          TriggerLoadingMiddleware(),
+          io.zenandroid.onlinego.ui.screens.joseki.AnalyticsMiddleware()
+        ),
+        JosekiExplorerState()
+      )
+    )
+  }
 
-    viewModel {
-        AiGameViewModel(
-                Store(
-                        AiGameReducer(),
-                        listOf(
-                                EngineLifecycleMiddleware(),
-                                AIMoveMiddleware(),
-                                GameTurnMiddleware(),
-                                UserMoveMiddleware(),
-                                StatePersistenceMiddleware(),
-                                HintMiddleware(),
-                                OwnershipMiddleware(),
-                                AnalyticsMiddleware()
-                        ),
-                        AiGameState()
-                )
-        )
-    }
+  viewModel {
+    AiGameViewModel(
+      Store(
+        AiGameReducer(),
+        listOf(
+          EngineLifecycleMiddleware(),
+          AIMoveMiddleware(),
+          GameTurnMiddleware(),
+          UserMoveMiddleware(),
+          StatePersistenceMiddleware(),
+          HintMiddleware(),
+          OwnershipMiddleware(),
+          AnalyticsMiddleware()
+        ),
+        AiGameState()
+      )
+    )
+  }
 
-    viewModel {
-        LearnViewModel(get())
-    }
+  viewModel {
+    LearnViewModel(get())
+  }
 
-    viewModel {
-        TutorialViewModel(get())
-    }
+  viewModel {
+    TutorialViewModel(get())
+  }
 
-    viewModel {
-        OnboardingViewModel(get(), get())
-    }
+  viewModel {
+    OnboardingViewModel(get(), get())
+  }
 
-    viewModel {
-        MyGamesViewModel(get(), get(), get(), get(), get(), get(), get(), get(), OnlineGoApplication.instance.analytics, get(), get(), get())
-    }
+  viewModel {
+    MyGamesViewModel(
+      get(),
+      get(),
+      get(),
+      get(),
+      get(),
+      get(),
+      get(),
+      get(),
+      OnlineGoApplication.instance.analytics,
+      get(),
+      get(),
+      get()
+    )
+  }
 
-    viewModel {
-        GameViewModel(get(), get(), get(), get(), get(), get(), get())
-    }
+  viewModel {
+    GameViewModel(get(), get(), get(), get(), get(), get(), get())
+  }
 
-    viewModel {
-        FaceToFaceViewModel(get(), PreferenceManager.getDefaultSharedPreferences(OnlineGoApplication.instance.baseContext), OnlineGoApplication.instance.analytics, FirebaseCrashlytics.getInstance())
-    }
+  viewModel {
+    FaceToFaceViewModel(
+      get(),
+      PreferenceManager.getDefaultSharedPreferences(OnlineGoApplication.instance.baseContext),
+      OnlineGoApplication.instance.analytics,
+      FirebaseCrashlytics.getInstance()
+    )
+  }
+
+  viewModel {
+    SettingsViewModel(get())
+  }
 }
 
 private val espressoModule = module {
-    single<CountingIdlingResource> { NOOPIdlingResource() }
+  single<CountingIdlingResource> { NOOPIdlingResource() }
 }
 
 private val playStoreModule = module {
-    single { PlayStoreService(get()) }
+  single { PlayStoreService(get()) }
 }
 
 val allKoinModules = listOf(
-    repositoriesModule,
-    serverConnectionModule,
-    databaseModule,
-    viewModelsModule,
-    useCasesModule,
-    espressoModule,
-    playStoreModule
+  repositoriesModule,
+  serverConnectionModule,
+  databaseModule,
+  viewModelsModule,
+  useCasesModule,
+  espressoModule,
+  playStoreModule
 )

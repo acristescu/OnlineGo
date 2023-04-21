@@ -84,12 +84,12 @@ android {
 
 dependencies {
     def koin_version = '3.2.0'
-    def play_services_version = '20.4.1'
+    def play_services_version = '20.5.0'
     def accompanist_version = '0.29.2-rc'
     def room_version = '2.5.1'
     def firebase_version = '31.2.0'
     def emoji2_version = "1.3.0"
-    def compose_version = "1.4.0"
+    def compose_version = "1.4.2"
     def work_manager_version = "2.8.1"
 //    def composeBom = platform('androidx.compose:compose-bom:2023.01.00')
 
@@ -128,7 +128,7 @@ dependencies {
 
     implementation "androidx.navigation:navigation-fragment-ktx:2.5.3"
     implementation "androidx.navigation:navigation-ui-ktx:2.5.3"
-    implementation "androidx.core:core-ktx:1.9.0"
+    implementation "androidx.core:core-ktx:1.10.0"
 
     implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
     implementation 'io.reactivex.rxjava2:rxjava:2.2.21'
@@ -178,7 +178,7 @@ dependencies {
 
     implementation "io.insert-koin:koin-android:$koin_version"
 
-    implementation "com.android.billingclient:billing-ktx:5.1.0"
+    implementation "com.android.billingclient:billing-ktx:5.2.0"
 
     implementation "androidx.room:room-runtime:$room_version"
     implementation "androidx.room:room-rxjava2:$room_version"

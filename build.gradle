@@ -9,7 +9,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:8.1.0-alpha10'
+        classpath 'com.android.tools.build:gradle:8.1.0-alpha11'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "org.jetbrains.kotlin:kotlin-android-extensions:$kotlin_version"
 
@@ -17,7 +17,7 @@ buildscript {
         // in the individual module build.gradle files
         classpath 'com.google.gms:google-services:4.3.15'
 
-        classpath 'com.google.firebase:firebase-crashlytics-gradle:2.9.4'
+        classpath 'com.google.firebase:firebase-crashlytics-gradle:2.9.5'
 
         classpath "io.insert-koin:koin-gradle-plugin:3.2.0"
 

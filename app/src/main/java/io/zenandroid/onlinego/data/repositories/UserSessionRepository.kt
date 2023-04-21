@@ -58,4 +58,8 @@ class UserSessionRepository {
         (OnlineGoApplication.instance.getSystemService(ACTIVITY_SERVICE) as ActivityManager).clearApplicationUserData()
     }
 
+    fun deleteAccount() {
+
+    }
+
 }
