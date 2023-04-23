@@ -1,6 +1,5 @@
 package io.zenandroid.onlinego.ui.screens.settings
 
-import android.annotation.SuppressLint
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -57,6 +56,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontStyle
@@ -66,6 +67,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
+import coil.compose.rememberAsyncImagePainter
+import coil.request.ImageRequest
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.zenandroid.onlinego.BuildConfig
@@ -75,6 +78,7 @@ import io.zenandroid.onlinego.R.mipmap
 import io.zenandroid.onlinego.data.model.BoardTheme
 import io.zenandroid.onlinego.data.repositories.UserSessionRepository
 import io.zenandroid.onlinego.ui.screens.main.MainActivity
+import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.BoardThemeClicked
 import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.CoordinatesClicked
 import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.DeleteAccountClicked
 import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.LogoutClicked
@@ -86,6 +90,7 @@ import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.SupportClicked
 import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.ThemeClicked
 import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.VibrateClicked
 import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
+import io.zenandroid.onlinego.utils.processGravatarURL
 import io.zenandroid.onlinego.utils.rememberStateWithLifecycle
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -119,7 +124,6 @@ class SettingsFragment : Fragment() {
     onPositive = { doDeleteAccount() },
   )
 
-  @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
   override fun onCreateView(
     inflater: LayoutInflater,
     container: ViewGroup?,
@@ -214,7 +218,13 @@ fun SettingsScreen(state: SettingsState, onAction: (SettingsAction) -> Unit) {
     ) {
       val shape = RoundedCornerShape(14.dp)
       Image(
-        painter = painterResource(id = mipmap.placeholder),
+        painter = rememberAsyncImagePainter(
+          model = ImageRequest.Builder(LocalContext.current)
+            .data(processGravatarURL(state.avatarURL, LocalDensity.current.run { 84.dp.toPx().toInt() }))
+            .placeholder(mipmap.placeholder)
+            .error(mipmap.placeholder)
+            .build()
+        ),
         contentDescription = "Avatar",
         modifier = Modifier
           .size(84.dp)
@@ -226,7 +236,7 @@ fun SettingsScreen(state: SettingsState, onAction: (SettingsAction) -> Unit) {
     }
 
     Text(
-      text = "Username",
+      text = state.username,
       fontWeight = FontWeight.Medium,
       fontSize = 16.sp,
       color = MaterialTheme.colors.onSurface,
@@ -284,9 +294,9 @@ fun SettingsScreen(state: SettingsState, onAction: (SettingsAction) -> Unit) {
           icon = Rounded.DarkMode,
           checkbox = false,
           checked = true,
-          value = "System",
+          value = state.theme,
           possibleValues = listOf(
-            null to "System",
+            null to "System Default",
             null to "Light",
             null to "Dark"
           ),
@@ -300,7 +310,7 @@ fun SettingsScreen(state: SettingsState, onAction: (SettingsAction) -> Unit) {
           value = "Dark Wood",
           possibleValues = BoardTheme.values()
             .map { it.backgroundImage to it.displayName },
-          onValueClick = { onAction(ThemeClicked(it)) }
+          onValueClick = { onAction(BoardThemeClicked(it)) }
         )
       }
     }
@@ -476,7 +486,7 @@ private fun Section(title: String, content: @Composable () -> Unit) {
 private fun SettingsScreenPreview() {
   OnlineGoTheme {
     Box(modifier = Modifier.background(MaterialTheme.colors.background)) {
-      SettingsScreen(SettingsState(), {})
+      SettingsScreen(SettingsState().copy(username = "Username"), {})
     }
   }
 }

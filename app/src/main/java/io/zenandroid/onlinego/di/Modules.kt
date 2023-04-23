@@ -233,7 +233,7 @@ private val viewModelsModule = module {
   }
 
   viewModel {
-    SettingsViewModel(get())
+    SettingsViewModel(get(), get())
   }
 }
 

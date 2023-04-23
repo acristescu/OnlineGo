@@ -285,7 +285,7 @@ class FaceToFaceViewModel(
     ) ?: run {
       val historyString = history.toGTP(currentGameParameters.size.height)
       val whiteStones = currentPosition.whiteStones.toGTP(currentGameParameters.size.height)
-        val blackStones = currentPosition.blackStones.toGTP(currentGameParameters.size.height)
+      val blackStones = currentPosition.blackStones.toGTP(currentGameParameters.size.height)
       crashlytics.log("FaceToFaceViewModel Cannot replay history $historyString")
       recordException(IllegalStateException("Cannot replay history history=$historyString idx=$index historyIndex=$historyIndex currentPos.whiteStones=$whiteStones currentPos.blackStones=$blackStones"))
       Position(
