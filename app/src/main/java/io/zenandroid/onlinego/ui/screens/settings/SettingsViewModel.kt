@@ -2,6 +2,7 @@ package io.zenandroid.onlinego.ui.screens.settings
 
 import android.os.Build
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.zenandroid.onlinego.data.model.BoardTheme
@@ -9,7 +10,9 @@ import io.zenandroid.onlinego.data.repositories.SettingsRepository
 import io.zenandroid.onlinego.data.repositories.UserSessionRepository
 import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.BoardThemeClicked
 import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.CoordinatesClicked
+import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.DeleteAccountCanceled
 import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.DeleteAccountClicked
+import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.DeleteAccountConfirmed
 import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.LogoutClicked
 import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.NotificationsClicked
 import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.PrivacyClicked
@@ -17,7 +20,6 @@ import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.RanksClicked
 import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.SoundsClicked
 import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.SupportClicked
 import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.ThemeClicked
-import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.VibrateClicked
 import io.zenandroid.onlinego.ui.views.BoardView
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -30,7 +32,7 @@ class SettingsViewModel(
   val state = MutableStateFlow(
     SettingsState(
       theme = settingsRepository.appTheme ?: "System Default",
-      vibrate = settingsRepository.vibrate,
+      boardTheme = settingsRepository.boardTheme.displayName,
       sounds = settingsRepository.sound,
       ranks = settingsRepository.showRanks,
       coordinates = settingsRepository.showCoordinates,
@@ -45,11 +47,6 @@ class SettingsViewModel(
       CoordinatesClicked -> {
         settingsRepository.showCoordinates = !state.coordinates
         this.state.value = state.copy(coordinates = !state.coordinates)
-      }
-
-      VibrateClicked -> {
-        settingsRepository.vibrate = !state.vibrate
-        this.state.value = state.copy(vibrate = !state.vibrate)
       }
 
       RanksClicked -> {
@@ -95,26 +92,70 @@ class SettingsViewModel(
         this.state.value = state.copy(boardTheme = action.boardDisplayName)
       }
 
-      DeleteAccountClicked, PrivacyClicked, SupportClicked, LogoutClicked, NotificationsClicked -> {}
+      is DeleteAccountClicked -> this.state.value = state.copy(
+        passwordDialogVisible = true,
+      )
+
+      is DeleteAccountCanceled -> this.state.value = state.copy(
+        passwordDialogVisible = false,
+        modalVisible = false,
+        deleteAccountError = null,
+      )
+
+      is DeleteAccountConfirmed -> {
+        this.state.value = state.copy(
+          passwordDialogVisible = false,
+          modalVisible = true,
+        )
+        viewModelScope.launch {
+          try {
+            userSessionRepository.deleteAccount(action.password)
+            this@SettingsViewModel.state.value = state.copy(
+              modalVisible = false,
+              deleteAccountError = "Account deleted. Sorry to see you go! The app will close in 5s."
+            )
+            delay(5000)
+            userSessionRepository.logOut()
+          } catch (e: Exception) {
+            if(e.message?.contains("403") == true) {
+              this@SettingsViewModel.state.value = state.copy(
+                passwordDialogVisible = false,
+                modalVisible = false,
+                deleteAccountError = "Wrong password"
+              )
+            } else {
+              this@SettingsViewModel.state.value = state.copy(
+                passwordDialogVisible = false,
+                modalVisible = false,
+                deleteAccountError = e.message,
+              )
+            }
+          }
+        }
+      }
+
+      PrivacyClicked, SupportClicked, LogoutClicked, NotificationsClicked -> {}
     }
   }
 
 }
 
+@Immutable
 data class SettingsState(
   val theme: String = "Default",
   val boardTheme: String = "Default",
-  val vibrate: Boolean = true,
   val sounds: Boolean = true,
   val ranks: Boolean = true,
   val coordinates: Boolean = true,
   val username: String = "",
   val avatarURL: String? = null,
+  val passwordDialogVisible: Boolean = false,
+  val modalVisible: Boolean = false,
+  val deleteAccountError: String? = null,
 )
 
 sealed interface SettingsAction {
   object NotificationsClicked : SettingsAction
-  object VibrateClicked : SettingsAction
   object SoundsClicked : SettingsAction
   class ThemeClicked(val theme: String) : SettingsAction
   class BoardThemeClicked(val boardDisplayName: String) : SettingsAction
@@ -122,6 +163,8 @@ sealed interface SettingsAction {
   object RanksClicked : SettingsAction
   object LogoutClicked : SettingsAction
   object DeleteAccountClicked : SettingsAction
+  object DeleteAccountCanceled : SettingsAction
+  class DeleteAccountConfirmed(val password: String) : SettingsAction
   object PrivacyClicked : SettingsAction
   object SupportClicked : SettingsAction
 }

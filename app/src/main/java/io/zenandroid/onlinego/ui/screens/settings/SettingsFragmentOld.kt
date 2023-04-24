@@ -97,11 +97,6 @@ class SettingsFragmentOld : Fragment() {
                 startActivity(intent)
             }
 
-            vibrateButton.apply {
-                isChecked = settingsRepository.vibrate
-                setOnCheckedChangeListener { _, isChecked -> settingsRepository.vibrate = isChecked }
-            }
-
             soundButton.apply {
                 isChecked = settingsRepository.sound
                 setOnCheckedChangeListener { _, isChecked -> settingsRepository.sound = isChecked }

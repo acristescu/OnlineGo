@@ -1,13 +1,19 @@
 package io.zenandroid.onlinego.data.ogs
 
-import android.content.SharedPreferences
 import android.preference.PreferenceManager
-import android.util.Log
 import com.squareup.moshi.Moshi
 import io.reactivex.Completable
 import io.reactivex.Single
 import io.zenandroid.onlinego.OnlineGoApplication
-import io.zenandroid.onlinego.data.model.ogs.*
+import io.zenandroid.onlinego.data.model.ogs.CreateAccountRequest
+import io.zenandroid.onlinego.data.model.ogs.Glicko2History
+import io.zenandroid.onlinego.data.model.ogs.JosekiPosition
+import io.zenandroid.onlinego.data.model.ogs.OGSChallenge
+import io.zenandroid.onlinego.data.model.ogs.OGSChallengeRequest
+import io.zenandroid.onlinego.data.model.ogs.OGSGame
+import io.zenandroid.onlinego.data.model.ogs.OGSPlayer
+import io.zenandroid.onlinego.data.model.ogs.PasswordBody
+import io.zenandroid.onlinego.data.model.ogs.VersusStats
 import io.zenandroid.onlinego.data.repositories.UserSessionRepository
 import io.zenandroid.onlinego.ui.screens.newchallenge.ChallengeParams
 import io.zenandroid.onlinego.utils.CountingIdlingResource
@@ -15,7 +21,7 @@ import io.zenandroid.onlinego.utils.microsToISODateTime
 import okhttp3.ResponseBody.Companion.toResponseBody
 import retrofit2.HttpException
 import retrofit2.Response
-import java.util.*
+import java.util.Date
 
 private const val TAG = "OGSRestService"
 private const val OGS_EBI = "OGS_EBI"
@@ -235,4 +241,11 @@ class OGSRestService(
     suspend fun getPlayerVersusStats(id: Long): VersusStats {
         return restApi.getPlayerFullProfileAsync(id).vs
     }
+
+  suspend fun deleteMyAccount(password: String) {
+    return restApi.deleteAccount(
+      userSessionRepository.userId!!,
+      PasswordBody(password)
+    )
+  }
 }

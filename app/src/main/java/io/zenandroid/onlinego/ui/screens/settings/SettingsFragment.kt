@@ -12,6 +12,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -20,13 +21,17 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.AlertDialog
 import androidx.compose.material.Button
+import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.DropdownMenu
 import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Surface
 import androidx.compose.material.Switch
 import androidx.compose.material.Text
@@ -36,6 +41,8 @@ import androidx.compose.material.icons.Icons.Filled
 import androidx.compose.material.icons.Icons.Rounded
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material.icons.filled.VolumeUp
 import androidx.compose.material.icons.rounded.DarkMode
 import androidx.compose.material.icons.rounded.HeartBroken
@@ -62,9 +69,14 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
 import coil.compose.rememberAsyncImagePainter
@@ -80,7 +92,9 @@ import io.zenandroid.onlinego.data.repositories.UserSessionRepository
 import io.zenandroid.onlinego.ui.screens.main.MainActivity
 import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.BoardThemeClicked
 import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.CoordinatesClicked
+import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.DeleteAccountCanceled
 import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.DeleteAccountClicked
+import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.DeleteAccountConfirmed
 import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.LogoutClicked
 import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.NotificationsClicked
 import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.PrivacyClicked
@@ -88,7 +102,6 @@ import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.RanksClicked
 import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.SoundsClicked
 import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.SupportClicked
 import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.ThemeClicked
-import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.VibrateClicked
 import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
 import io.zenandroid.onlinego.utils.processGravatarURL
 import io.zenandroid.onlinego.utils.rememberStateWithLifecycle
@@ -116,13 +129,6 @@ class SettingsFragment : Fragment() {
     negativeButton = "Cancel",
     onPositive = { doLogout() },
   )
-  private val deleteAccountDialogData = DialogData(
-    title = "Delete account",
-    message = "Are you sure you want to delete the account? You won't be able to use the app until you create a new one.",
-    positiveButton = "Delete account",
-    negativeButton = "Cancel",
-    onPositive = { doDeleteAccount() },
-  )
 
   override fun onCreateView(
     inflater: LayoutInflater,
@@ -147,7 +153,6 @@ class SettingsFragment : Fragment() {
               )
 
               is LogoutClicked -> dialogData = logoutDialogData
-              is DeleteAccountClicked -> dialogData = deleteAccountDialogData
               is SupportClicked -> view?.findNavController()?.navigate(R.id.action_settingsFragment_to_supporterFragment)
               else -> viewModel.onAction(it)
             }
@@ -168,6 +173,87 @@ class SettingsFragment : Fragment() {
               },
               text = { Text(data.message) },
               title = { Text(data.title) },
+            )
+          }
+
+          if(state.passwordDialogVisible) {
+            var password by remember { mutableStateOf("") }
+
+            AlertDialog(
+              onDismissRequest = { viewModel.onAction(DeleteAccountCanceled) },
+              confirmButton = {
+                TextButton(onClick = {
+                  if(password.isNotBlank()) {
+                    viewModel.onAction(
+                      DeleteAccountConfirmed(password)
+                    )
+                  }
+                }) {
+                  Text("DELETE ACCOUNT")
+                }
+              },
+              dismissButton = {
+                TextButton(onClick = { viewModel.onAction(DeleteAccountCanceled) }) {
+                  Text("CANCEL")
+                }
+              },
+              text = {
+                Column {
+                  Text("Please enter your password to confirm account deletion")
+                  Spacer(modifier = Modifier.height(8.dp))
+
+                  var passwordVisibility by remember { mutableStateOf(false) }
+                  OutlinedTextField(
+                    value = password,
+                    onValueChange = { password = it },
+                    label = { Text("Password") },
+                    visualTransformation = if(!passwordVisibility) PasswordVisualTransformation() else VisualTransformation.None,
+                    singleLine = true,
+                    trailingIcon = {
+                      IconButton(onClick = { passwordVisibility = !passwordVisibility }) {
+                        Icon(
+                          imageVector  = if (passwordVisibility) Filled.Visibility else Filled.VisibilityOff,
+                          contentDescription = ""
+                        )
+                      }
+                    },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                  )
+                }
+              },
+              title = { Text("Delete Account") },
+            )
+          }
+
+          if(state.modalVisible) {
+            Dialog(
+              onDismissRequest = { },
+              DialogProperties(dismissOnBackPress = false, dismissOnClickOutside = false)
+            ) {
+              Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier
+                  .size(100.dp)
+                  .background(
+                    color = MaterialTheme.colors.surface,
+                    shape = RoundedCornerShape(8.dp)
+                  )
+              ) {
+                CircularProgressIndicator()
+              }
+            }
+          }
+
+          state.deleteAccountError?.let {
+            AlertDialog(
+              onDismissRequest = { viewModel.onAction(DeleteAccountCanceled) },
+              confirmButton = {
+                TextButton(onClick = { viewModel.onAction(DeleteAccountCanceled) }) {
+                  Text("OK")
+                }
+              },
+              text = { Text(it) },
+              title = { Text("Error") },
             )
           }
         }
@@ -194,12 +280,6 @@ class SettingsFragment : Fragment() {
     FirebaseCrashlytics.getInstance().sendUnsentReports()
     userSessionRepository.logOut()
     (activity as? MainActivity)?.showLogin()
-  }
-
-  private fun doDeleteAccount() {
-    context?.let { FirebaseAnalytics.getInstance(it).logEvent("delete_account_clicked", null) }
-    FirebaseCrashlytics.getInstance().sendUnsentReports()
-    userSessionRepository.deleteAccount()
   }
 }
 
@@ -272,13 +352,6 @@ fun SettingsScreen(state: SettingsState, onAction: (SettingsAction) -> Unit) {
           onClick = { onAction(NotificationsClicked) }
         )
         SettingsRow(
-          title = "Vibrate when opponent moves",
-          icon = ImageVector.vectorResource(id = drawable.ic_vibrate),
-          checkbox = true,
-          checked = state.vibrate,
-          onClick = { onAction(VibrateClicked) }
-        )
-        SettingsRow(
           title = "Stone Sounds",
           icon = Icons.Default.VolumeUp,
           checkbox = true,
@@ -307,7 +380,7 @@ fun SettingsScreen(state: SettingsState, onAction: (SettingsAction) -> Unit) {
           icon = Rounded.Palette,
           checkbox = false,
           checked = true,
-          value = "Dark Wood",
+          value = state.boardTheme,
           possibleValues = BoardTheme.values()
             .map { it.backgroundImage to it.displayName },
           onValueClick = { onAction(BoardThemeClicked(it)) }
@@ -486,7 +559,10 @@ private fun Section(title: String, content: @Composable () -> Unit) {
 private fun SettingsScreenPreview() {
   OnlineGoTheme {
     Box(modifier = Modifier.background(MaterialTheme.colors.background)) {
-      SettingsScreen(SettingsState().copy(username = "Username"), {})
+      SettingsScreen(
+        SettingsState().copy(
+          username = "Username",
+        ), {})
     }
   }
 }

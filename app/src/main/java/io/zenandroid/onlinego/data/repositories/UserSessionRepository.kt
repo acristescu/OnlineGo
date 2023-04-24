@@ -9,6 +9,7 @@ import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.zenandroid.onlinego.BuildConfig
 import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.data.model.ogs.UIConfig
+import io.zenandroid.onlinego.data.ogs.OGSRestService
 import io.zenandroid.onlinego.data.ogs.OGSWebSocketService
 import io.zenandroid.onlinego.utils.PersistenceManager
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
@@ -18,6 +19,7 @@ class UserSessionRepository {
     // Note: Can't use constructor injection here because it will create a dependency loop and
     // Koin will throw a fit (at runtime)
     private val socketService: OGSWebSocketService by get().inject()
+    private val restService: OGSRestService by get().inject()
 
     var uiConfig: UIConfig? = null
         private set
@@ -54,12 +56,13 @@ class UserSessionRepository {
                             .any { it.name == "sessionid" }
 
     fun logOut() {
+        FirebaseCrashlytics.getInstance().sendUnsentReports()
         uiConfig = null
         (OnlineGoApplication.instance.getSystemService(ACTIVITY_SERVICE) as ActivityManager).clearApplicationUserData()
     }
 
-    fun deleteAccount() {
-
+    suspend fun deleteAccount(password: String) {
+        restService.deleteMyAccount(password)
     }
 
 }

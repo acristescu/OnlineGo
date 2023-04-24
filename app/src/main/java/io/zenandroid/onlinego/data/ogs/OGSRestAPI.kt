@@ -2,8 +2,6 @@ package io.zenandroid.onlinego.data.ogs
 
 import io.reactivex.Completable
 import io.reactivex.Single
-import io.zenandroid.onlinego.BuildConfig
-import io.zenandroid.onlinego.data.model.ogs.JosekiPosition
 import io.zenandroid.onlinego.data.model.ogs.*
 import okhttp3.ResponseBody
 import retrofit2.Response
@@ -96,6 +94,9 @@ interface OGSRestAPI {
 
     @GET("termination-api/my/game-chat-history-since/{last_message_id}")
     fun getMessages(@Path("last_message_id") lastMessageId: String): Single<List<Chat>>
+
+    @HTTP(method = "DELETE", path="api/v1/players/{player_id}", hasBody = true)
+    suspend fun deleteAccount(@Path("player_id") playerId: Long, @Body body: PasswordBody)
 }
 
 /*
