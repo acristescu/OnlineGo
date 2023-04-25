@@ -110,21 +110,22 @@ class SettingsViewModel(
         viewModelScope.launch {
           try {
             userSessionRepository.deleteAccount(action.password)
-            this@SettingsViewModel.state.value = state.copy(
+            this@SettingsViewModel.state.value = this@SettingsViewModel.state.value.copy(
               modalVisible = false,
+              passwordDialogVisible = false,
               deleteAccountError = "Account deleted. Sorry to see you go! The app will close in 5s."
             )
             delay(5000)
             userSessionRepository.logOut()
           } catch (e: Exception) {
             if(e.message?.contains("403") == true) {
-              this@SettingsViewModel.state.value = state.copy(
+              this@SettingsViewModel.state.value = this@SettingsViewModel.state.value.copy(
                 passwordDialogVisible = false,
                 modalVisible = false,
                 deleteAccountError = "Wrong password"
               )
             } else {
-              this@SettingsViewModel.state.value = state.copy(
+              this@SettingsViewModel.state.value = this@SettingsViewModel.state.value.copy(
                 passwordDialogVisible = false,
                 modalVisible = false,
                 deleteAccountError = e.message,

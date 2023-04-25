@@ -61,10 +61,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontStyle
@@ -369,9 +371,9 @@ fun SettingsScreen(state: SettingsState, onAction: (SettingsAction) -> Unit) {
           checked = true,
           value = state.theme,
           possibleValues = listOf(
-            null to "System Default",
-            null to "Light",
-            null to "Dark"
+            "System Default",
+            "Light",
+            "Dark"
           ),
           onValueClick = { onAction(ThemeClicked(it)) }
         )
@@ -381,8 +383,7 @@ fun SettingsScreen(state: SettingsState, onAction: (SettingsAction) -> Unit) {
           checkbox = false,
           checked = true,
           value = state.boardTheme,
-          possibleValues = BoardTheme.values()
-            .map { it.backgroundImage to it.displayName },
+          possibleValues = BoardTheme.values().toList(),
           onValueClick = { onAction(BoardThemeClicked(it)) }
         )
       }
@@ -452,7 +453,7 @@ private fun SettingsRow(
   checkbox: Boolean = false,
   checked: Boolean = false,
   value: String? = null,
-  possibleValues: List<Pair<Int?, String>> = emptyList(),
+  possibleValues: List<Any> = emptyList(),
   onClick: () -> Unit = {},
   onValueClick: (String) -> Unit = {},
 ) {
@@ -507,22 +508,35 @@ private fun SettingsRow(
               key(it) {
                 DropdownMenuItem(onClick = {
                   menuOpen = false
-                  onValueClick(it.second)
+                  onValueClick(it.toString())
                 }) {
-                  Row {
-                    if(it.first != null) {
+                  if (it is BoardTheme) {
+                    Box(modifier = Modifier.size(24.dp)) {
+                      if(it.backgroundImage != null) {
+                        Image(
+                          painter = painterResource(id = it.backgroundImage),
+                          contentDescription = "Icon",
+                          modifier = Modifier.size(24.dp)
+                        )
+                      } else {
+                        Image(
+                          painter = ColorPainter(colorResource(it.backgroundColor!!)),
+                          contentDescription = "Icon",
+                          modifier = Modifier.size(24.dp)
+                        )
+                      }
                       Image(
-                        painter = painterResource(id = it.first!!),
+                        painter = painterResource(id = it.gridPreview),
                         contentDescription = "Icon",
                         modifier = Modifier.size(24.dp)
                       )
                     }
-                    Text(
-                      text = it.second,
-                      color = MaterialTheme.colors.onSurface,
-                      modifier = Modifier.padding(start = 8.dp)
-                    )
                   }
+                  Text(
+                    text = it.toString(),
+                    color = MaterialTheme.colors.onSurface,
+                    modifier = Modifier.padding(start = 8.dp)
+                  )
                 }
               }
             }

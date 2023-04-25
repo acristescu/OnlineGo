@@ -71,5 +71,9 @@ enum class BoardTheme(
         R.drawable.ic_stone_white_svg,
         R.drawable.ic_stone_black_svg,
         Color.Gray
-    )
+    );
+
+    override fun toString(): String =
+        displayName
+
 }
