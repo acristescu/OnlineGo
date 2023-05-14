@@ -9,7 +9,7 @@
         android:id="@+id/title"
         android:layout_width="wrap_content"
         android:layout_height="56dp"
-        android:text="Stats"
+        android:text="@string/stats"
         android:textStyle="bold"
         android:textSize="24sp"
         android:gravity="center"
@@ -92,7 +92,7 @@
                 <com.google.android.material.tabs.TabItem
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="All"
+                    android:text="@string/all"
                     />
             </com.google.android.material.tabs.TabLayout>
 
@@ -116,7 +116,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="5dp"
-                        android:text="Last 10 games"
+                        android:text="@string/last_10_games"
                         android:textStyle="bold"
                         android:textSize="12sp"
                         />
@@ -134,7 +134,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="10dp"
-                        android:text="Longest winning streak"
+                        android:text="@string/longest_winning_streak"
                         android:textStyle="bold"
                         android:textSize="12sp"
                         />
@@ -160,7 +160,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="14dp"
-                        android:text="Most played against"
+                        android:text="@string/most_played_against"
                         android:textStyle="bold"
                         android:textSize="12sp"
                         />
@@ -227,7 +227,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="14dp"
-                        android:text="Highest rated win against"
+                        android:text="@string/highest_rated_win_against"
                         android:textStyle="bold"
                         android:textSize="12sp"
                         />

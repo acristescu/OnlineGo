@@ -210,3 +210,16 @@ dependencies {
 repositories {
     mavenCentral()
 }
+
+/**
+ * Uncomment this part to allow translation. Commented
+ * localazy plugin because keys can't be pushed on github
+ */
+apply plugin: 'com.localazy.gradle'
+localazy {
+    Properties properties = new Properties()
+    properties.load(project.rootProject.file('local.properties').newDataInputStream())
+
+    readKey properties.getProperty("localazy.readKey")
+    writeKey properties.getProperty("localazy.writeKey")
+}

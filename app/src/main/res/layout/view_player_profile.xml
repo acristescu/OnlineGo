@@ -84,7 +84,7 @@
                     android:id="@+id/rankViewTitle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Current rank"
+                    android:text="@string/current_rank"
                     android:textSize="12sp"
                     />
 
@@ -115,7 +115,7 @@
                     android:id="@+id/highestRankViewTitle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Highest"
+                    android:text="@string/highest"
                     android:textSize="12sp"
                     />
 

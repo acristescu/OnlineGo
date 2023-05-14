@@ -31,7 +31,7 @@
         app:layout_constraintTop_toTopOf="@id/backArrow"
         app:layout_constraintBottom_toBottomOf="@id/backArrow"
         app:layout_constraintRight_toRightOf="parent"
-        android:text="Joseki Explorer"
+        android:text="@string/joseki_explorer"
         />
     <ScrollView
         android:layout_width="match_parent"

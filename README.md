@@ -29,9 +29,15 @@ I'm afraid that I don't have much time to offer support for prospective contribu
 
 ## Non-coding contributions
 
-Since I am a coder by trade, I realize some of the non-coding aspects of the app are not quite up to par. While I did my best to locate free assets online for example, I could not always locate appropriate icons. The icons I did manage to locate are not always in the same style and quality (varying stroke weights, etc). If a professional graphical artist would like to contribute their time for this I would definitely not object.
+Since I am a coder by trade, I realize some of the non-coding aspects of the app are not quite up to par.
 
+### Graphic
+While I did my best to locate free assets online for example, I could not always locate appropriate icons. The icons I did manage to locate are not always in the same style and quality (varying stroke weights, etc).
+If a professional graphical artist would like to contribute their time for this I would definitely not object.
 UX is another area that could use improvement. I have some figma mockups that I use but I could benefit from some assistance here as well.
+### Translation
+In an effort to make Go accessible worldwide there is an ongoing translation of the app.
+Feel free to submit some translation ! [contribute to translation](https://localazy.com/p/onlinego)
 
 ## Donations
 
@@ -42,3 +48,4 @@ If you don't have the technical expertise and/or time to contribute to the proje
  - [Alexandru Cristescu](https://github.com/acristescu) (Original author)
  - [popz73](https://github.com/popz73)
  - [frony](https://github.com/bqv)
+ - [Mathieu Dréano](https://github.com/MathieuDreano)

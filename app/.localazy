@@ -1,0 +1,7 @@
+[packages]
+io.zenandroid.onlinego = raa
+
+[localazy]
+allStringsUploaded = true
+showWelcomeMessage = false
+

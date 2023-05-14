@@ -55,7 +55,7 @@ class MyGamesFragment : Fragment() {
                             text = { state.alertDialogText?.let { Text(it) } },
                             confirmButton = {
                                 Button(onClick = { onAction(Action.DismissAlertDialog) }) {
-                                    Text("OK")
+                                    Text(context.getString(R.string.OK).uppercase())
                                 }
                             },
                             onDismissRequest = { onAction(Action.DismissAlertDialog) }
@@ -72,12 +72,12 @@ class MyGamesFragment : Fragment() {
                             onDismissRequest = { onAction(Action.DismissWhatsNewDialog) },
                             dismissButton = {
                                 TextButton(onClick = { onAction(Action.DismissWhatsNewDialog) }) {
-                                    Text("OK")
+                                    Text(context.getString(R.string.OK).uppercase())
                                 }
                             },
                             confirmButton = {
                                 TextButton(onClick = { onAction(Action.SupportClicked) }) {
-                                    Text("SUPPORT")
+                                    Text(context.getString(R.string.support).uppercase())
                                 }
                             },
                             text = { Text(WhatsNewUtils.whatsNewTextAnnotated) }

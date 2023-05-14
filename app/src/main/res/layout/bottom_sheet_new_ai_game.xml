@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
@@ -10,7 +11,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="New AI Game"
+        android:text="@string/new_ai_game"
         android:textStyle="bold"
         android:textSize="16sp"
         />
@@ -18,14 +19,14 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Play a game against Kata GO, which is an open-source GO AI trained in a similar fashion to Google's Alpha GO."
+        android:text="@string/play_a_game_against_kata_go_which_is_an_open_source_go_ai_trained_in_a_similar_fashion_to_google_s_alpha_go"
         android:textSize="16sp"
         android:layout_marginTop="20dp"
     />
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Size"
+        android:text="@string/size"
         android:textSize="16sp"
         android:layout_marginTop="20dp"
         />
@@ -45,7 +46,7 @@
             android:layout_weight="1"
             android:text="9x9"
             android:textAllCaps="false"
-            />
+            tools:ignore="HardcodedText" />
         <com.google.android.material.button.MaterialButton
             android:id="@+id/mediumGameButton"
             android:layout_width="wrap_content"
@@ -54,7 +55,7 @@
             android:layout_weight="1"
             android:text="13x13"
             android:textAllCaps="false"
-            />
+            tools:ignore="HardcodedText" />
         <com.google.android.material.button.MaterialButton
             android:id="@+id/largeGameButton"
             android:layout_width="wrap_content"
@@ -63,12 +64,12 @@
             android:layout_weight="1"
             android:text="19x19"
             android:textAllCaps="false"
-            />
+            tools:ignore="HardcodedText" />
     </com.google.android.material.button.MaterialButtonToggleGroup>
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="You play"
+        android:text="@string/you_play"
         android:textSize="16sp"
         android:layout_marginTop="20dp"
         />
@@ -86,7 +87,7 @@
             android:layout_height="wrap_content"
             style="?attr/materialButtonOutlinedStyle"
             android:layout_weight="1"
-            android:text="Black"
+            android:text="@string/black"
 
             />
         <com.google.android.material.button.MaterialButton
@@ -95,7 +96,7 @@
             android:layout_height="wrap_content"
             style="?attr/materialButtonOutlinedStyle"
             android:layout_weight="1"
-            android:text="White"
+            android:text="@string/white"
             />
     </com.google.android.material.button.MaterialButtonToggleGroup>
     <LinearLayout
@@ -107,7 +108,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Handicap"
+            android:text="@string/handicap"
             android:textSize="16sp"
             />
         <TextView
@@ -115,7 +116,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="right"
-            android:text="None"
+            android:text="@string/none"
             android:textSize="16sp"
             android:textStyle="italic"
             />
@@ -136,7 +137,7 @@
         android:id="@+id/playButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="New game"
+        android:text="@string/new_game"
         android:layout_gravity="center"
         android:layout_marginTop="20dp"
         android:textColor="#FFFFFF"

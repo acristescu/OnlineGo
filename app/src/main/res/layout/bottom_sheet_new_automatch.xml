@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
@@ -11,7 +12,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Size"
+        android:text="@string/size"
         android:textSize="16sp"
         android:textStyle="bold"
         />
@@ -32,7 +33,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="9x9"
-            />
+            tools:ignore="HardcodedText" />
         <Space
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -43,7 +44,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="13x13"
-            />
+            tools:ignore="HardcodedText" />
         <Space
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -55,7 +56,7 @@
             android:layout_height="wrap_content"
             android:text="19x19"
             android:checked="true"
-            />
+            tools:ignore="HardcodedText" />
         <Space
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -78,7 +79,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Speed"
+            android:text="@string/speed"
             android:textSize="16sp"
             android:textStyle="bold"
             />
@@ -86,7 +87,7 @@
             android:id="@+id/speedTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Normal"
+            android:text="@string/normal"
             android:textColor="@color/colorActionableText"
             android:textSize="14sp"
             android:layout_marginTop="4dp"
@@ -96,7 +97,7 @@
         android:id="@+id/searchButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Search"
+        android:text="@string/search"
         android:layout_gravity="center"
         android:layout_marginTop="20dp"
         android:backgroundTint="@color/colorAccent"

@@ -1,9 +1,164 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">Sente - Online GO</string>
+    <string name="app_name" translatable="false">Sente - Online GO</string>
     <string name="create_account_prompt">No OGS account? Create one <b>here</b>!</string>
     <string name="login_to_ogs">Login to OGS</string>
     <string name="create_account">Create OGS account</string>
+
+    <!-- menu item-->
+
+    <string name="play">Play</string>
+    <string name="learn">Learn</string>
+    <string name="stats">Stats</string>
+    <string name="settings">Settings</string>
+
+    <string name="having_a_professionally_developed_android_app_allows_more_people_to_discover_this_amazing_game">Having a professionally developed Android app allows more people to discover this amazing game.</string>
+    <string name="promote_go">Promote GO</string>
+    <string name="what_is_the_money_used_for">What is the money used for?</string>
+    <string name="the_money_enables_our_main_developer_who_is_a_professiosnal_android_contractor_to_take_time_off_between_contracts_to_work_on_this_project_in_the_future_he_could_dedicate_full_time_to_improving_the_app_at_a_much_faster_pace">The money enables our main developer, who is a professiosnal Android contractor, to take time off between contracts to work on this project. In the future, he could dedicate full-time to improving the app at a much faster pace.</string>
+    <string name="are_there_any_supporter_only_features">Are there any supporter-only features?</string>
+    <string name="no_because_we_believe_that_everyone_should_have_access_to_a_professionally_made_android_app_for_go_support_is_entirely_optional">No, because we believe that everyone should have access to a professionally made Android app for GO. Support is entirely optional.</string>
+    <string name="can_i_change_or_cancel_my_subscription">Can I change or cancel my subscription?</string>
+    <string name="yes_at_any_time_either_from_this_page_or_from_the_subscriptions_page_in_google_play">Yes, at any time, either from this page or from the \'Subscriptions\' page in Google Play.</string>
+    <string name="are_there_any_other_methods_of_payment">Are there any other methods of payment?</string>
+    <string name="apps_distributed_through_google_play_are_required_to_use_google_pay_as_google_charges_30_of_the_proceeds_we_are_not_allowed_to_offer_any_alternative_means_of_payment_in_app">Apps distributed through Google Play are required to use Google Pay, as Google charges 30% of the proceeds. We are not allowed to offer any alternative means of payment in-app.</string>
+    <string name="select_your_monthly_contribution">Select your monthly contribution</string>
+    <string name="become_a_supporter">Become a Supporter</string>
+    <string name="cancel_subscription">Cancel subscription</string>
+    <string name="the_app_is_and_always_will_be_open_source_this_means_you_can_browse_its_code_contribute_fixes_and_features_or_study_how_it_works">The app is and always will be open source. This means you can browse its code, contribute fixes and features or study how it works.</string>
+    <string name="support_open_source">Support open-source</string>
+    <string name="we_want_the_app_to_be_free_for_everyone_forever_free_from_ads_free_to_download_free_from_enforced_subscriptions">We want the app to be free for everyone. Forever. Free from ads, free to download, free from enforced subscriptions.</string>
+    <string name="faqs">FAQs</string>
+    <string name="support_the_online_go_project">Support the Online GO Project</string>
+    <string name="the_online_go_project_was_started_back_in_2015_as_a_hobby_while_excellent_browser_based_services_such_as_ogs_existed_there_were_no_similar_quality_mobile_apps_the_goal_was_to_create_a_free_professionally_made_android_app_that_allows_go_players_to_interact_and_discover_this_amazing_game_n_nwe_rely_on_support_from_people_like_you_to_make_it_possible_if_you_enjoy_using_the_app_please_consider_supporting_us_with_a_monthly_contribution_and_becoming_a_supporter">The Online GO project was started back in 2015 as a hobby. While excellent browser-based services (such as OGS) existed, there were no similar quality mobile apps. The goal was to create a free, professionally made Android app that allows GO players to interact and discover this amazing game.\n\nWe rely on support from people like you to make it possible. If you enjoy using the app, please consider supporting us with a monthly contribution and becoming a Supporter!</string>
+    <string name="help_us_develop_the_app_faster">Help us develop the app faster</string>
+    <string name="keep_the_app_free">Keep the app free</string>
+    <string name="supporters_make_it_feasible_to_allocate_more_time_for_development_of_new_features_such_as_katago_ai_integration_ai_assisted_analysis_sgf_editor_etc">Supporters make it feasible to allocate more time for development of new features such as KataGo AI integration, AI assisted analysis, SGF editor etc.</string>
+    <string name="new_ai_game">New AI Game</string>
+    <string name="play_a_game_against_kata_go_which_is_an_open_source_go_ai_trained_in_a_similar_fashion_to_google_s_alpha_go">Play a game against Kata GO, which is an open-source GO AI trained in a similar fashion to Google\'s Alpha GO.</string>
+    <string name="size">Size</string>
+    <string name="you_play">You play</string>
+    <string name="black">Black</string>
+    <string name="white">White</string>
+    <string name="handicap">Handicap</string>
+    <string name="none">None</string>
+    <string name="new_game">New game</string>
+    <string name="speed">Speed</string>
+    <string name="normal">Normal</string>
+    <string name="search">Search</string>
+    <string name="game_info">Game Info</string>
+    <string name="game_chat">Game Chat</string>
+    <string name="type_a_message">Type a message…</string>
+    <string name="dismiss">DISMISS</string>
+    <string name="give_me_a_second_i_m_starting_up">Give me a second, I\'m starting up…</string>
+    <string name="hint">Hint</string>
+    <string name="territory">Territory</string>
+    <string name="player">Player</string>
+    <string name="prisoners">Prisoners</string>
+    <string name="score_prediction_white_leads_by_0_5">Score prediction: white leads by 0.5</string>
+    <string name="white_winrate">White winrate:</string>
+    <string name="current_rank">Current rank</string>
+    <string name="highest">Highest</string>
+    <string name="pass">Pass!</string>
+    <string name="their_turn">Their turn</string>
+    <string name="highest_rated_win_against">Highest rated win against</string>
+    <string name="most_played_against">Most played against</string>
+    <string name="longest_winning_streak">Longest winning streak</string>
+    <string name="last_10_games">Last 10 games</string>
+    <string name="all">All</string>
+    <string name="joseki_explorer">Joseki Explorer</string>
+
+    <!-- Settings -->
+
+    <string name="notifications">Notifications</string>
+    <string name="system_notifications">System notifications</string>
+    <string name="vibrate_when_opponent_moves">Vibrate when opponent moves</string>
+    <string name="appearance">Appearance</string>
+    <string name="theme_nsystem">Theme\nSystem</string>
+    <string name="game_settings">Game Settings</string>
+    <string name="show_coordinates">Show coordinates</string>
+    <string name="show_player_ranks">Show player ranks</string>
+    <string name="account">Account</string>
+    <string name="logout">Logout</string>
+    <string name="about">About</string>
+    <string name="about_app">About app</string>
+    <string name="privacy_policy">Privacy policy</string>
+    <string name="stone_sounds">Stone sounds</string>
+
+    <!-- My Games -->
+
+    <string name="older_games">Older games</string>
+    <string name="recently_finished">Recently finished</string>
+    <string name="opponent_turn">Opponent\'s turn</string>
+    <string name="challenges">Challenges</string>
+    <string name="your_turn">Your turn</string>
+    <string name="OK">OK</string>
+    <string name="support">SUPPORT</string>
+    <string name="basic_how_to_capture">Basics > How to capture</string>
+
+    <!-- MyGamesViewModel -->
+
+    <string name="no_active_game">You have no active games. How about starting one?</string>
+    <string name="x_active_game_opponent_turn">You have %1$s active games.</string>
+    <string name="x_active_game_your_turn">It\'s your turn in %1$s games.</string>
+    <string name="bot_rejected_challenge">Bot rejected challenge</string>
+    <string name="challenge_conditions_param">This might happen because the opponent\'s maintainer has set some conditions on the challenge parameters. %1$s</string>
+    <string name="challenge_rejection_by_opponent">You may try again or otherwise contact the opponent to clarify his/her reasons for the rejection. %1$s</string>
+    <string name="opponent_rejected_challenge">Opponent rejected challenge</string>
+    <string name="unknown_username">Unknown</string>
+    <string name="cancelled">Cancelled</string>
+    <string name="lost">Lost</string>
+    <string name="won">Won</string>
+    <string name="black_won">Black won</string>
+    <string name="white_won">White won</string>
+
+    <!-- Home Page -->
+
+    <string name="play_online">Play\nOnline</string>
+    <string name="custom_game">Custom\nGame</string>
+    <string name="play_against_AI">Play\nAgainst AI</string>
+
+    <!-- Game UI-->
+
+    <string name="view_board">VIEW BOARD</string>
+    <string name="next_game">NEXT GAME</string>
+    <string name="quick_replay">QUICK REPLAY</string>
+    <string name="connection_problems">CONNECTION PROBLEMS</string>
+    <string name="server_not_responding">The server is not responding. Please check your internet connection.</string>
+    <string name="try_again">TRY AGAIN</string>
+    <string name="cancel">CANCEL</string>
+    <string name="back">Back</string>
+    <string name="more">More</string>
+    <string name="open_in_browser">Open in browser</string>
+    <string name="download_as_SGF">Download as SGF</string>
+    <string name="accept_undo">Accept Undo</string>
+    <string name="ko_rule">That move would repeat the board position. That\'s called a KO, and it is not allowed. Try to make another move first, preferably a threat that the opponent can\'t ignore.</string>
+    <string name="illegal_ko">Illegal KO move</string>
+    <string name="ignore">IGNORE</string>
+    <string name="undo_move">UNDO MOVE</string>
+    <string name="accept_undo_question">Your opponent would like to undo their last move. Do you accept?</string>
+    <string name="undo_accepted">Opponent asked to undo</string>
+    <string name="request_undo">REQUEST UNDO</string>
+    <string name="undo_available">If you made the last move by mistake, you can ask your opponent if they allow you to undo it.</string>
+    <string name="request_undo_confirmation">Request Undo?</string>
+    <string name="please_confirm">Please confirm</string>
+    <string name="pass_confirmation">Are you sure you want to pass? You should only do this if you think the game is over and there are no more moves to be made. If your opponent passes too, the game proceeds to the scoring phase.</string>
+    <string name="resign">RESIGN</string>
+    <string name="resign_confirmation">Are you sure you want to resign?</string>
+    <string name="dont_cancel_game">DON\'T CANCEL GAME</string>
+    <string name="concel_game">CANCEL GAME</string>
+    <string name="cancel_game_confirmation">Are you sure you want to cancel the game?</string>
+    <string name="stones">stones</string>
+    <string name="total">total</string>
+    <string name="game_was_cancelled">GAME WAS CANCELLED</string>
+    <string name="congratulation_you_won">CONGRATULATION\nYOU WON</string>
+    <string name="you_lost">YOU LOST</string>
+    <string name="ranked_games">Ranked Games</string>
+    <string name="wins">Wins</string>
+    <string name="losses">Losses</string>
+    <string name="highest_rank">Highest rank</string>
+    <string name="percentile">Percentile</string>
+    <string name="avatar">Avatar</string>
 
 </resources>

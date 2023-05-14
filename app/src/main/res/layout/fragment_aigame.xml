@@ -51,7 +51,7 @@
         app:layout_constraintTop_toTopOf="@id/iconContainerLeft"
         app:layout_constraintLeft_toRightOf="@id/iconContainerLeft"
         app:layout_constraintRight_toLeftOf="@id/iconContainerRight"
-        android:text="Give me a second, I'm starting up..."
+        android:text="@string/give_me_a_second_i_m_starting_up"
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
         app:bb_cornerRadius="6dp"
@@ -70,7 +70,7 @@
         android:id="@+id/hintButton"
         android:layout_width="50dp"
         android:layout_height="36dp"
-        android:text="Hint"
+        android:text="@string/hint"
         app:layout_constraintRight_toRightOf="@id/chatBubble"
         app:layout_constraintTop_toBottomOf="@id/chatBubble"
         style="@style/AIChatButton"
@@ -85,7 +85,7 @@
         android:id="@+id/ownershipButton"
         android:layout_width="70dp"
         android:layout_height="36dp"
-        android:text="Territory"
+        android:text="@string/territory"
         app:layout_constraintRight_toLeftOf="@id/hintButton"
         app:layout_constraintTop_toBottomOf="@id/chatBubble"
         style="@style/AIChatButton"
@@ -107,7 +107,8 @@
         app:layout_constraintBottom_toTopOf="@id/board_container"
         app:layout_constraintLeft_toLeftOf="@id/iconContainerLeft"
         app:layout_constraintRight_toLeftOf="@id/colorIndicatorLeft"
-        app:layout_constraintTop_toBottomOf="@id/iconContainerLeft" />
+        app:layout_constraintTop_toBottomOf="@id/iconContainerLeft"
+        tools:ignore="HardcodedText" />
 
     <ImageView
         android:id="@+id/colorIndicatorLeft"
@@ -130,7 +131,7 @@
         android:ellipsize="end"
         android:maxWidth="80dp"
         android:maxLines="1"
-        android:text="Player"
+        android:text="@string/player"
         android:textSize="16sp"
         android:textStyle="bold"
         app:layout_constraintBottom_toTopOf="@id/board_container"
@@ -181,7 +182,7 @@
         android:id="@+id/prisonersLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Prisoners"
+        android:text="@string/prisoners"
         android:textSize="12sp"
         app:layout_constraintBottom_toTopOf="@id/nameLabelLeft"
         app:layout_constraintLeft_toLeftOf="parent"
@@ -196,7 +197,8 @@
         android:textSize="12sp"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/prisonersLabel" />
+        app:layout_constraintTop_toBottomOf="@id/prisonersLabel"
+        tools:ignore="HardcodedText" />
 
     <TextView
         android:id="@+id/prisonersLeft"
@@ -263,7 +265,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginLeft="14dp"
-        android:text="Score prediction: white leads by 0.5"
+        android:text="@string/score_prediction_white_leads_by_0_5"
         android:textSize="12sp"
         app:layout_constraintBottom_toTopOf="@id/winrateLabel"
         app:layout_constraintLeft_toLeftOf="parent"
@@ -275,7 +277,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginLeft="14dp"
-        android:text="White winrate:"
+        android:text="@string/white_winrate"
         android:textSize="12sp"
         app:layout_constraintBottom_toTopOf="@id/winrateProgressBar"
         app:layout_constraintLeft_toLeftOf="parent"
