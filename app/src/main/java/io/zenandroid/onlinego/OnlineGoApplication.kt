@@ -9,7 +9,6 @@ import androidx.emoji2.text.EmojiCompat
 import androidx.emoji2.text.FontRequestEmojiCompatConfig
 import com.facebook.stetho.Stetho
 import com.google.firebase.analytics.FirebaseAnalytics
-import com.jakewharton.threetenabp.AndroidThreeTen
 import io.reactivex.exceptions.UndeliverableException
 import io.reactivex.plugins.RxJavaPlugins
 import io.zenandroid.onlinego.data.repositories.SettingsRepository
@@ -45,8 +44,6 @@ class OnlineGoApplication : Application() {
 
             modules(allKoinModules)
         }
-
-        AndroidThreeTen.init(this)
 
         RxJavaPlugins.setErrorHandler {
             val e = if (it is UndeliverableException) it.cause else it

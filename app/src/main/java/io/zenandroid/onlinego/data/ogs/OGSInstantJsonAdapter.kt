@@ -3,10 +3,10 @@ package io.zenandroid.onlinego.data.ogs
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.JsonReader
 import com.squareup.moshi.JsonWriter
-import org.threeten.bp.Instant
-import org.threeten.bp.ZoneId
-import org.threeten.bp.format.DateTimeFormatter
-import java.util.*
+import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 class OGSInstantJsonAdapter : JsonAdapter<Instant>() {
     override fun fromJson(reader: JsonReader): Instant? {

@@ -86,11 +86,15 @@ interface OGSRestAPI {
     @GET("api/v1/players/{player_id}/")
     fun getPlayerProfile(@Path("player_id") playerId: Long): Single<OGSPlayer>
 
-    @GET("termination-api/player/{player_id}/v5-rating-history?speed=overall&size=0")
-    fun getPlayerStats(@Path("player_id") playerId: Long): Single<Glicko2History>
+    @GET("api/v1/players/{player_id}/")
+    suspend fun getPlayerProfileAsync(@Path("player_id") playerId: Long): OGSPlayer
 
-    @GET("termination-api/player/{player_id}/v5-rating-history?speed=overall&size=0")
-    suspend fun getPlayerStatsAsync(@Path("player_id") playerId: Long): Glicko2History
+    @GET("termination-api/player/{player_id}/v5-rating-history")
+    suspend fun getPlayerStatsAsync(
+      @Path("player_id") playerId: Long,
+      @Query("speed") speed: String,
+      @Query("size") size: Int,
+    ): Glicko2History
 
     @GET("termination-api/my/game-chat-history-since/{last_message_id}")
     fun getMessages(@Path("last_message_id") lastMessageId: String): Single<List<Chat>>

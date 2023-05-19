@@ -9,10 +9,9 @@ import io.zenandroid.onlinego.data.ogs.OGSInstantJsonAdapter
 import io.zenandroid.onlinego.di.allKoinModules
 import org.junit.Assert
 import org.junit.Rule
-import org.junit.Test
 import org.koin.core.logger.Level
 import org.koin.test.KoinTestRule
-import org.threeten.bp.Instant
+import java.time.Instant
 
 class RulesManagerTest {
     @get:Rule

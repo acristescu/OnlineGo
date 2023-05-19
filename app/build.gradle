@@ -9,7 +9,7 @@ apply plugin: 'app.cash.molecule'
 apply plugin: 'com.google.devtools.ksp'
 
 android {
-    compileSdkVersion 33
+    compileSdk 33
     ndkVersion "21.0.6113669"
     defaultConfig {
         applicationId "io.zenandroid.onlinego"
@@ -44,6 +44,7 @@ android {
         }
     }
     compileOptions {
+        coreLibraryDesugaringEnabled true
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
     }
@@ -184,7 +185,8 @@ dependencies {
     implementation "androidx.room:room-rxjava2:$room_version"
     implementation "androidx.room:room-ktx:$room_version"
 
-    implementation 'com.jakewharton.threetenabp:threetenabp:1.4.4'
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.3'
+
     implementation 'com.github.cpiz:BubbleView:1.0.3'
 
     ksp "androidx.room:room-compiler:$room_version"

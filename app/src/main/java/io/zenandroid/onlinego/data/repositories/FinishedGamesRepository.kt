@@ -88,7 +88,7 @@ class FinishedGamesRepository(
     private fun fetchRecentlyFinishedGames() {
         restService.fetchHistoricGamesAfter(newestGameFetchedEndedAt)
                 .map { it.map(OGSGame::id) }
-                .map { it - gameDao.getHistoricGamesThatDontNeedUpdating(it) }
+                .map { it - gameDao.getHistoricGamesThatDontNeedUpdating(it).toSet() }
                 .flattenAsObservable { it }
                 .flatMapSingle { restService.fetchGame(it) }
                 .map (Game.Companion::fromOGSGame)

@@ -69,7 +69,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -495,8 +495,11 @@ private fun SettingsRow(
         Text(
           text = value,
           fontSize = 14.sp,
-          fontWeight = FontWeight.Light,
-          fontStyle = FontStyle.Italic,
+          style = TextStyle(
+            fontWeight = FontWeight.Normal,
+            fontSize = 12.sp,
+            letterSpacing = 0.4.sp
+          ),
           modifier = Modifier.padding(end = 16.dp, bottom = 16.dp, top = 16.dp)
         )
         if(possibleValues.isNotEmpty()) {

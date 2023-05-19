@@ -13,7 +13,7 @@ private val LightColorPalette = lightColors(
     secondaryVariant = salmon,
     background = background,
     onSurface = brown,
-    onBackground = brownLite,
+    onBackground = brown.copy(alpha = 0.8f),
     onPrimary = lightOnPrimary,
     onSecondary = lightOnPrimary,
 

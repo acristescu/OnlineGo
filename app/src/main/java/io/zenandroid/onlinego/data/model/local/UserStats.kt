@@ -1,7 +1,6 @@
 package io.zenandroid.onlinego.data.model.local
 
 import com.github.mikephil.charting.data.Entry
-import io.zenandroid.onlinego.data.model.ogs.Glicko2HistoryItem
 import javax.annotation.concurrent.Immutable
 
 @Immutable
@@ -21,13 +20,31 @@ data class UserStats(
     val mostFacedId: Long?,
     val mostFacedGameCount: Int,
     val mostFacedWon: Int,
-    val highestWin: Glicko2HistoryItem?,
-    val last10Games: List<Glicko2HistoryItem>
+    val highestWin: HistoryItem?,
+    val last10Games: List<HistoryItem>,
+    val allGames: WinLossStats,
+    val smallBoard: WinLossStats,
+    val mediumBoard: WinLossStats,
+    val largeBoard: WinLossStats,
 ) {
     companion object {
         val EMPTY = UserStats(
             0f, 0L, emptyList(), emptyList(), emptyList(), emptyList(),
-            emptyList(), 0, 0, 0, 0L, 0L, null, 0, 0, null, emptyList()
+            emptyList(), 0, 0, 0, 0L, 0L, null, 0, 0, null, emptyList(),
+            WinLossStats(0, 0f, 0, 0, 0f, 0f),
+            WinLossStats(0, 0f, 0, 0, 0f, 0f),
+            WinLossStats(0, 0f, 0, 0, 0f, 0f),
+            WinLossStats(0, 0f, 0, 0, 0f, 0f),
         )
     }
 }
+
+@Immutable
+data class WinLossStats(
+    val total: Int,
+    val totalRatio: Float,
+    val won: Int,
+    val lost: Int,
+    val winRate: Float,
+    val lossRate: Float,
+)

@@ -57,17 +57,19 @@ import io.zenandroid.onlinego.ui.screens.newchallenge.selectopponent.searchplaye
 import io.zenandroid.onlinego.ui.screens.newchallenge.selectopponent.searchplayer.SearchPlayerViewModel
 import io.zenandroid.onlinego.ui.screens.onboarding.OnboardingViewModel
 import io.zenandroid.onlinego.ui.screens.settings.SettingsViewModel
+import io.zenandroid.onlinego.ui.screens.stats.StatsViewModel
 import io.zenandroid.onlinego.ui.screens.tutorial.TutorialViewModel
 import io.zenandroid.onlinego.usecases.GetUserStatsUseCase
 import io.zenandroid.onlinego.utils.CountingIdlingResource
 import io.zenandroid.onlinego.utils.CustomConverterFactory
 import io.zenandroid.onlinego.utils.NOOPIdlingResource
 import org.koin.androidx.viewmodel.dsl.viewModel
+import org.koin.androidx.viewmodel.dsl.viewModelOf
 import org.koin.dsl.module
-import org.threeten.bp.Instant
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.moshi.MoshiConverterFactory
+import java.time.Instant
 
 private val repositoriesModule = module {
   single {
@@ -190,17 +192,10 @@ private val viewModelsModule = module {
     )
   }
 
-  viewModel {
-    LearnViewModel(get())
-  }
-
-  viewModel {
-    TutorialViewModel(get())
-  }
-
-  viewModel {
-    OnboardingViewModel(get(), get())
-  }
+  viewModelOf(::StatsViewModel)
+  viewModelOf(::LearnViewModel)
+  viewModelOf(::TutorialViewModel)
+  viewModelOf(::OnboardingViewModel)
 
   viewModel {
     MyGamesViewModel(
@@ -219,9 +214,7 @@ private val viewModelsModule = module {
     )
   }
 
-  viewModel {
-    GameViewModel(get(), get(), get(), get(), get(), get(), get())
-  }
+  viewModelOf(::GameViewModel)
 
   viewModel {
     FaceToFaceViewModel(
@@ -232,9 +225,7 @@ private val viewModelsModule = module {
     )
   }
 
-  viewModel {
-    SettingsViewModel(get(), get())
-  }
+  viewModelOf(::SettingsViewModel)
 }
 
 private val espressoModule = module {

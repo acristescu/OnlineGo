@@ -1,7 +1,7 @@
 package io.zenandroid.onlinego.data.model.ogs
 
 import io.zenandroid.onlinego.data.model.local.Player
-import org.threeten.bp.Instant
+import java.time.Instant
 import javax.annotation.concurrent.Immutable
 
 @Immutable

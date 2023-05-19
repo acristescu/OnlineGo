@@ -1,8 +1,7 @@
 package io.zenandroid.onlinego.data.model.ogs
 
 import io.zenandroid.onlinego.data.ogs.Players
-import org.threeten.bp.Instant
-import java.util.*
+import java.time.Instant
 
 /**
  * Created by alex on 04/11/2017.

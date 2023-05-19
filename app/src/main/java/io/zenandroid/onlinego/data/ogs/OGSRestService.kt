@@ -230,12 +230,15 @@ class OGSRestService(
     fun getPlayerProfile(id: Long): Single<OGSPlayer> =
             restApi.getPlayerProfile(id)
 
-    fun getPlayerStats(id: Long): Single<Glicko2History> {
-        return restApi.getPlayerStats(id)
-    }
+    suspend fun getPlayerProfileAsync(id: Long): OGSPlayer =
+            restApi.getPlayerProfileAsync(id)
 
     suspend fun getPlayerStatsAsync(id: Long): Glicko2History {
-        return restApi.getPlayerStatsAsync(id)
+        return getPlayerStatsAsync(id, "overall", 0)
+    }
+
+    suspend fun getPlayerStatsAsync(id: Long, speed: String, size: Int): Glicko2History {
+        return restApi.getPlayerStatsAsync(id, speed, size)
     }
 
     suspend fun getPlayerVersusStats(id: Long): VersusStats {
