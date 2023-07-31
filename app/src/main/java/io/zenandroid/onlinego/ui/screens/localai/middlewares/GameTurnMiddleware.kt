@@ -1,5 +1,6 @@
 package io.zenandroid.onlinego.ui.screens.localai.middlewares
 
+import android.util.Log
 import io.reactivex.Observable
 import io.reactivex.rxkotlin.withLatestFrom
 import io.reactivex.schedulers.Schedulers
@@ -12,6 +13,7 @@ import io.zenandroid.onlinego.mvi.Middleware
 import io.zenandroid.onlinego.ui.screens.localai.AiGameAction
 import io.zenandroid.onlinego.ui.screens.localai.AiGameAction.*
 import io.zenandroid.onlinego.ui.screens.localai.AiGameState
+import io.zenandroid.onlinego.utils.recordException
 
 class GameTurnMiddleware : Middleware<AiGameState, AiGameAction> {
     override fun bind(actions: Observable<AiGameAction>, state: Observable<AiGameState>): Observable<AiGameAction> =
@@ -49,7 +51,7 @@ class GameTurnMiddleware : Middleware<AiGameState, AiGameAction> {
             actions.filter { it is NewPosition || it is AIMove }
                     .withLatestFrom(state)
                     .filter { (_, state) -> state.history.isGameOver() }
-                    .flatMapSingle { (_, state) ->
+                    .flatMap { (_, state) ->
                         KataGoAnalysisEngine.analyzeMoveSequence(
                                 sequence = state.history,
                                 maxVisits = 10,
@@ -92,5 +94,13 @@ class GameTurnMiddleware : Middleware<AiGameState, AiGameAction> {
                                     ScoreComputed(newPos, whiteScore, blackScore, aiWon, it)
                                 }
                                 .subscribeOn(Schedulers.io())
+                                .toObservable()
+                                .doOnError(this::onError)
+                                .onErrorResumeNext(Observable.empty())
                     }
+
+    private fun onError(throwable: Throwable) {
+        Log.e("GameTurnMiddleware", throwable.message, throwable)
+        recordException(throwable)
+    }
 }

@@ -28,14 +28,14 @@ class Store<S: Any, A: Any> (
         }
             .distinctUntilChanged()
             .doOnError(this::onError)
-            .onErrorResumeNext(Observable.empty()) // BUG! this completes the observable
+            .onErrorResumeNext(Observable.empty()) // this completes the observable, so reducers have to handle all the errors themselves
             .subscribe(state::accept)
 
         disposable += Observable.merge<A>(
             middlewares.map { it.bind(actions, state) }
         )
                 .doOnError(this::onError)
-                .onErrorResumeNext(Observable.empty()) // BUG! this completes the observable
+                .onErrorResumeNext(Observable.empty()) // this completes the observable, so middlewares have to handle all the errors themselves
                 .subscribe(actions::accept)
 
         return disposable
