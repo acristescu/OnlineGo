@@ -1,5 +1,6 @@
 package io.zenandroid.onlinego.ui.screens.localai.middlewares
 
+import android.util.Log
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.rxkotlin.withLatestFrom
@@ -9,6 +10,7 @@ import io.zenandroid.onlinego.mvi.Middleware
 import io.zenandroid.onlinego.ui.screens.localai.AiGameAction
 import io.zenandroid.onlinego.ui.screens.localai.AiGameAction.*
 import io.zenandroid.onlinego.ui.screens.localai.AiGameState
+import io.zenandroid.onlinego.utils.recordException
 
 class EngineLifecycleMiddleware : Middleware<AiGameState, AiGameAction> {
     override fun bind(actions: Observable<AiGameAction>, state: Observable<AiGameState>): Observable<AiGameAction> {
@@ -33,9 +35,17 @@ class EngineLifecycleMiddleware : Middleware<AiGameState, AiGameAction> {
             actions.ofType(ViewPaused.javaClass)
                     .withLatestFrom(state)
                     .filter { (_, state) -> state.engineStarted }
-                    .flatMapSingle {
+                    .flatMap {
                         Completable.fromAction { KataGoAnalysisEngine.stopEngine() }
                                 .subscribeOn(Schedulers.io())
                                 .toSingle { EngineStopped }
+                                .toObservable()
+                                .doOnError(this::onError)
+                                .onErrorResumeNext(Observable.empty())
                     }
+
+    private fun onError(throwable: Throwable) {
+        Log.e("EngineLifecycleMiddlew", throwable.message, throwable)
+        recordException(throwable)
+    }
 }
