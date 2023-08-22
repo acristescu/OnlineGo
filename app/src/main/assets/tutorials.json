@@ -3045,7 +3045,7 @@
                 "marks": "1[aa]2[ab]3[ac]4[ad]5[ae]1[da]2[db]3[dc]4[dd]5[de]6[ea]7[eb]8[ec]9[ed]0[ee]"
               },
               {
-                "text": "But why did black not try to continue playing then?\n\nWell, there in no move that black can do that increases their score. For example, if black invades the right side, white can easily defend and the new stone is dead.\n\nWhite reduced his territory by 1 but got 1 point back because the black stone is dead and counted as a prisoner.\n\nThe score here is still 10-5",
+                "text": "But why did black not try to continue playing then?\n\nWell, there is no move that black can do that increases their score. For example, if black invades the right side, white can easily defend and the new stone is dead.\n\nWhite reduced his territory by 1 but got 1 point back because the black stone is dead and counted as a prisoner.\n\nThe score here is still 10-5",
                 "position": "B[ba]B[bb]B[bc]B[bd]B[be]W[ca]W[cb]W[cc]W[cd]W[ce]B[dc]W[dd]",
                 "marks": "#[dd]X[dc]"
               },
