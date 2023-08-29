@@ -5,8 +5,6 @@ import android.os.Build
 import android.util.Log
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.provider.FontRequest
-import androidx.emoji2.text.EmojiCompat
-import androidx.emoji2.text.FontRequestEmojiCompatConfig
 import com.facebook.stetho.Stetho
 import com.google.firebase.analytics.FirebaseAnalytics
 import io.reactivex.exceptions.UndeliverableException
@@ -89,15 +87,5 @@ class OnlineGoApplication : Application() {
                 }
             }
         }
-
-        val config: EmojiCompat.Config
-        val fontRequest = FontRequest(
-                "com.google.android.gms.fonts",
-                "com.google.android.gms",
-                "Noto Color Emoji Compat",
-                R.array.com_google_android_gms_fonts_certs)
-        config = FontRequestEmojiCompatConfig(applicationContext, fontRequest)
-                .setReplaceAll(Build.VERSION.SDK_INT <= Build.VERSION_CODES.M)
-        EmojiCompat.init(config)
     }
 }

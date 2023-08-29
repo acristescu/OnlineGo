@@ -2,14 +2,14 @@
 
 buildscript {
     ext {
-        kotlin_version = "1.7.10"
+        kotlin_version = "1.9.0"
     }
     repositories {
         google()
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:8.2.0-alpha03'
+        classpath 'com.android.tools.build:gradle:8.2.0-alpha08'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "org.jetbrains.kotlin:kotlin-android-extensions:$kotlin_version"
 
@@ -17,15 +17,15 @@ buildscript {
         // in the individual module build.gradle files
         classpath 'com.google.gms:google-services:4.3.15'
 
-        classpath 'com.google.firebase:firebase-crashlytics-gradle:2.9.5'
+        classpath 'com.google.firebase:firebase-crashlytics-gradle:2.9.9'
 
         classpath "io.insert-koin:koin-gradle-plugin:3.2.0"
 
-        classpath "app.cash.molecule:molecule-gradle-plugin:0.7.1"
+        classpath "app.cash.molecule:molecule-gradle-plugin:1.2.0"
     }
 }
 plugins {
-    id 'com.google.devtools.ksp' version '1.8.0-1.0.9' apply false
+    id 'com.google.devtools.ksp' version '1.9.10-1.0.13' apply false
 }
 allprojects {
     repositories {

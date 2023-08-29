@@ -1,11 +1,8 @@
 package io.zenandroid.onlinego.ui.screens.stats
 
 import android.annotation.SuppressLint
-import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
-import android.text.SpannableStringBuilder
 import android.view.LayoutInflater
-import android.view.MotionEvent
 import android.view.ViewGroup
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -41,30 +38,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.content.res.ResourcesCompat
-import androidx.core.text.bold
-import androidx.core.text.color
-import androidx.core.text.scale
 import androidx.fragment.app.Fragment
-import com.bumptech.glide.Glide
-import com.bumptech.glide.load.engine.DiskCacheStrategy
-import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
-import com.bumptech.glide.request.RequestOptions
-import com.bumptech.glide.request.transition.DrawableCrossFadeFactory
 import com.github.mikephil.charting.charts.BarLineChartBase
-import com.github.mikephil.charting.components.AxisBase
-import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.*
 import com.github.mikephil.charting.formatter.ValueFormatter
-import com.github.mikephil.charting.highlight.Highlight
 import com.github.mikephil.charting.listener.ChartTouchListener.*
-import com.github.mikephil.charting.listener.OnChartGestureListener
-import com.github.mikephil.charting.listener.OnChartValueSelectedListener
-import com.github.mikephil.charting.utils.EntryXComparator
-import io.zenandroid.onlinego.R
-import io.zenandroid.onlinego.data.model.local.HistoryItem
-import io.zenandroid.onlinego.data.model.ogs.OGSPlayer
-import io.zenandroid.onlinego.databinding.FragmentStatsBinding
 import io.zenandroid.onlinego.gamelogic.Util
 import io.zenandroid.onlinego.ui.screens.game.composables.BoxWithImage
 import io.zenandroid.onlinego.ui.screens.game.composables.shimmer
@@ -72,17 +50,12 @@ import io.zenandroid.onlinego.ui.screens.stats.StatsViewModel.Filter
 import io.zenandroid.onlinego.ui.screens.stats.StatsViewModel.StatsState
 import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
 import io.zenandroid.onlinego.utils.analyticsReportScreen
-import io.zenandroid.onlinego.utils.convertCountryCodeToEmojiFlag
 import io.zenandroid.onlinego.utils.egfToRank
 import io.zenandroid.onlinego.utils.formatRank
-import io.zenandroid.onlinego.utils.processGravatarURL
 import io.zenandroid.onlinego.utils.rememberStateWithLifecycle
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.parameter.parametersOf
 import java.text.SimpleDateFormat
-import java.time.LocalDateTime
-import java.time.OffsetDateTime
-import java.time.format.DateTimeFormatter
 import java.util.*
 import kotlin.math.abs
 
@@ -96,9 +69,6 @@ class StatsFragment : Fragment() {
       arguments?.getLong(PLAYER_ID) ?: Util.getCurrentUserId()!!
     )
   }
-  private val dateFormat = SimpleDateFormat("MMM d, yyyy", Locale.US)
-  private val shortFormat = DateTimeFormatter.ofPattern("d MMM uuuu")
-  private lateinit var binding: FragmentStatsBinding
 
   override fun onCreateView(
     inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -115,306 +85,6 @@ class StatsFragment : Fragment() {
   override fun onResume() {
     super.onResume()
     analyticsReportScreen("Stats")
-  }
-
-  private fun render(state: StatsViewModel.StatsState) {
-    state.playerDetails?.let { fillPlayerDetails(it) }
-    state.mostFacedOpponent?.let {
-      mostFacedOpponent(
-        it, state.mostFacedGameCount!!, state.mostFacedWon!!
-      )
-    }
-    state.highestWin?.let { fillHighestWin(it, state.winningGame!!) }
-    state.highestRank?.let {
-      binding.playerProfile.highestRankView.text = state.highestRank
-      binding.playerProfile.highestRankDateView.text = state.highestRankDate
-    }
-    fillRankGraph(state.chartData)
-    fillOutcomePieChart(state.lostCount ?: 0, state.wonCount ?: 0)
-    state.streak?.let {
-      binding.winningStreak.text = "$it game(s)"
-      binding.winningStreakDetails.text = "${state.startDate} to ${state.endDate}"
-    }
-    state.last10Games?.let { fillCurrentForm(it) }
-  }
-
-  private fun fillPlayerDetails(playerDetails: OGSPlayer) {
-    binding.playerProfile.apply {
-      nameView.text = playerDetails.username
-      playerDetails.country?.let {
-        flagView.text = convertCountryCodeToEmojiFlag(it)
-      }
-      playerDetails.icon?.let {
-        Glide.with(this@StatsFragment).load(processGravatarURL(it, iconView.width)).transition(
-            DrawableTransitionOptions.withCrossFade(
-              DrawableCrossFadeFactory.Builder().setCrossFadeEnabled(true).build()
-            )
-          ).apply(RequestOptions().centerCrop().placeholder(R.drawable.ic_person_outline))
-          .into(iconView)
-      }
-
-      val glicko = playerDetails.ratings?.overall?.rating?.toInt()
-      val deviation = playerDetails.ratings?.overall?.deviation?.toInt()
-      rankView.text = formatRank(
-        egfToRank(playerDetails.ratings?.overall?.rating), playerDetails.ratings?.overall?.deviation
-      )
-      glickoView.text = "$glicko ± $deviation"
-    }
-  }
-
-  private fun mostFacedOpponent(playerDetails: OGSPlayer, total: Int, won: Int) {
-    binding.apply {
-      mostFacedOpponentView.text = playerDetails.username
-      opponentRankView.text = "(${
-        formatRank(
-          egfToRank(playerDetails.ratings?.overall?.rating),
-          playerDetails.ratings?.overall?.deviation
-        )
-      })"
-      playerDetails.icon?.let {
-        Glide.with(this@StatsFragment).load(processGravatarURL(it, opponentIconView.width))
-          .transition(
-            DrawableTransitionOptions.withCrossFade(
-              DrawableCrossFadeFactory.Builder().setCrossFadeEnabled(true).build()
-            )
-          ).apply(RequestOptions().centerCrop().placeholder(R.drawable.ic_person_outline))
-          .apply(RequestOptions().circleCrop().diskCacheStrategy(DiskCacheStrategy.RESOURCE))
-          .into(opponentIconView)
-      }
-      mostFacedOpponentDetailsView.text = "$total games ($won wins, ${total - won} losses)"
-    }
-  }
-
-  private fun fillHighestWin(playerDetails: OGSPlayer, winningGame: HistoryItem) {
-    binding.apply {
-      val rank = formatRank(
-        egfToRank(playerDetails.ratings?.overall?.rating), playerDetails.ratings?.overall?.rating
-      )
-
-      highestWinOpponent.text = playerDetails.username
-      highestWinRank.text = "($rank)"
-      playerDetails.icon?.let {
-        Glide.with(this@StatsFragment).load(processGravatarURL(it, highestWinIconView.width))
-          .transition(
-            DrawableTransitionOptions.withCrossFade(
-              DrawableCrossFadeFactory.Builder().setCrossFadeEnabled(true).build()
-            )
-          ).apply(RequestOptions().centerCrop().placeholder(R.drawable.ic_person_outline))
-          .apply(RequestOptions().circleCrop().diskCacheStrategy(DiskCacheStrategy.RESOURCE))
-          .into(highestWinIconView)
-      }
-      highestWinDetails.text = dateFormat.format(Date(winningGame.ended * 1000))
-    }
-  }
-
-  private fun fillRankGraph(entries: List<Entry>) {
-    if (entries.isNotEmpty()) {
-      Collections.sort(entries, EntryXComparator())
-      val rankDataSet = LineDataSet(entries, "Games").apply {
-        setDrawIcons(false)
-        lineWidth = 1.3f
-        highLightColor = android.graphics.Color.GRAY
-        highlightLineWidth = 0.7f
-        enableDashedHighlightLine(7f, 2f, 0f)
-        setDrawCircles(false)
-        setDrawValues(false)
-        color = ResourcesCompat.getColor(resources, R.color.rankGraphLine, context?.theme)
-        mode = LineDataSet.Mode.LINEAR
-        setDrawFilled(true)
-        fillDrawable = GradientDrawable(
-          GradientDrawable.Orientation.TOP_BOTTOM, arrayOf(
-            ResourcesCompat.getColor(resources, R.color.color_type_info, context?.theme),
-            android.graphics.Color.TRANSPARENT
-          ).toIntArray()
-        )
-      }
-      binding.rankGraph.data = LineData(rankDataSet)
-    }
-    binding.rankGraph.apply {
-      xAxis.apply {
-        position = XAxis.XAxisPosition.BOTTOM
-        valueFormatter = DayAxisValueFormatter(binding.rankGraph)
-        setDrawAxisLine(false)
-        setDrawLabels(false)
-        textColor = ResourcesCompat.getColor(resources, R.color.colorText, context?.theme)
-        setDrawGridLines(false)
-      }
-
-      axisLeft.apply {
-        setDrawGridLines(false)
-        textColor = ResourcesCompat.getColor(resources, R.color.colorText, context?.theme)
-        setDrawLabels(false)
-        setDrawAxisLine(false)
-      }
-
-      axisRight.apply {
-        setDrawGridLines(false)
-        setDrawLabels(false)
-        setDrawAxisLine(false)
-        valueFormatter = object : ValueFormatter() {
-          override fun getAxisLabel(value: Float, axis: AxisBase?): String {
-            return formatRank(egfToRank(value.toDouble()))
-          }
-        }
-      }
-
-      val onChartValueSelectedListener = object : OnChartValueSelectedListener {
-        override fun onValueSelected(e: Entry?, h: Highlight?) {
-          if (e == null) {
-            onNothingSelected()
-          } else {
-            binding.chartDetails.text = SpannableStringBuilder().bold {
-                append(
-                  "${e?.y?.toInt()} ELO (${
-                    formatRank(
-                      egfToRank(e.y.toDouble()), longFormat = true
-                    )
-                  })"
-                )
-              }.append(" on ${formatDate(e.x.toLong())}")
-          }
-        }
-
-        override fun onNothingSelected() {
-          if (entries.isNotEmpty()) {
-            val delta = (entries.last().y - entries.first().y).toInt()
-            val color = ResourcesCompat.getColor(
-              resources, if (delta < 0) R.color.chartLost else R.color.chartWon, context?.theme
-            )
-            val arrow = if (delta < 0) "⬇" else "⬆"
-            binding.chartDetails.text = SpannableStringBuilder().color(color) {
-                bold { append("$arrow ${abs(entries.last().y - entries.first().y).toInt()} ELO") }
-              }.append(" since ${formatDate(entries.first().x.toLong())}")
-          }
-        }
-      }
-      onChartValueSelectedListener.onNothingSelected()
-
-      setOnChartValueSelectedListener(onChartValueSelectedListener)
-
-      onChartGestureListener = object : OnChartGestureListener {
-        override fun onChartGestureStart(me: MotionEvent, lastPerformedGesture: ChartGesture) {
-          data?.setDrawValues(false)
-        }
-
-        override fun onChartGestureEnd(me: MotionEvent, lastPerformedGesture: ChartGesture) {
-          data?.setDrawValues(false)
-
-          onChartValueSelectedListener.onNothingSelected()
-          highlightValues(null)
-        }
-
-        override fun onChartLongPressed(me: MotionEvent) {}
-        override fun onChartDoubleTapped(me: MotionEvent) {}
-        override fun onChartSingleTapped(me: MotionEvent) {}
-        override fun onChartFling(
-          me1: MotionEvent, me2: MotionEvent, velocityX: Float, velocityY: Float
-        ) {
-        }
-
-        override fun onChartScale(me: MotionEvent, scaleX: Float, scaleY: Float) {}
-        override fun onChartTranslate(me: MotionEvent, dX: Float, dY: Float) {}
-      }
-
-      setViewPortOffsets(0f, 0f, 0f, 0f)
-
-      if (entries.isNotEmpty()) {
-        axisLeft.axisMinimum = entries.minOf { it.y } * .85f
-        axisRight.axisMinimum = entries.minOf { it.y } * .85f
-      }
-
-      description.isEnabled = false
-      setDrawMarkers(false)
-      setNoDataText("No ranked games on record")
-      setNoDataTextColor(
-        ResourcesCompat.getColor(
-          resources, R.color.colorActionableText, context?.theme
-        )
-      )
-      legend.isEnabled = false
-      isDoubleTapToZoomEnabled = false
-
-      animateY(250)
-      invalidate()
-      notifyDataSetChanged()
-    }
-  }
-
-  private fun formatDate(secondsSinceEpoch: Long): String {
-    return shortFormat.format(
-      LocalDateTime.ofEpochSecond(
-        secondsSinceEpoch, 0, OffsetDateTime.now().offset
-      )
-    )
-  }
-
-  private fun fillOutcomePieChart(lostCount: Int, wonCount: Int) {
-    if (wonCount + lostCount != 0) {
-      val lostEntry = PieEntry(lostCount.toFloat(), "Lost")
-      val wonEntry = PieEntry(wonCount.toFloat(), "Won")
-      val dataSet = PieDataSet(listOf(lostEntry, wonEntry), "Games").apply {
-        setColors(intArrayOf(R.color.chartLost, R.color.chartWon), context)
-        setDrawValues(false)
-      }
-
-      binding.chart.data = PieData(dataSet)
-
-      val gamesWon = wonEntry.value.toInt()
-      val gamesLost = lostEntry.value.toInt()
-      val gamesWonPercent = (gamesWon * 100 / (gamesWon + gamesLost).toFloat())
-      val gamesLostPercent = 100 - gamesWonPercent
-
-      val gamesWonString = String.format("%.1f", gamesWonPercent)
-      val gamesLostString = String.format("%.1f", gamesLostPercent)
-
-      val wonColor = ResourcesCompat.getColor(resources, R.color.chartWon, context?.theme)
-      val lostColor = ResourcesCompat.getColor(resources, R.color.chartLost, context?.theme)
-
-      val centerText = SpannableStringBuilder().color(wonColor) {
-          scale(1.8f) { bold { append(gamesWon.toString()) } }
-          append(" $gamesWonString%")
-        }.append('\n').color(lostColor) {
-          scale(1.8f) { bold { append(gamesLost.toString()) } }
-          append(" $gamesLostString%")
-        }
-
-      binding.chart.centerText = centerText
-    }
-    binding.chart.apply {
-      offsetLeftAndRight(0)
-      setTransparentCircleAlpha(0)
-      holeRadius = 60f
-      setHoleColor(ResourcesCompat.getColor(resources, R.color.colorTextBackground, context?.theme))
-      setTouchEnabled(false)
-      legend.isEnabled = false
-      description.isEnabled = false
-      setDrawEntryLabels(false)
-      setDrawMarkers(false)
-      setNoDataText("No ranked games on record")
-      setNoDataTextColor(
-        ResourcesCompat.getColor(
-          resources, R.color.colorActionableText, context?.theme
-        )
-      )
-
-      animateX(250)
-
-      invalidate()
-    }
-  }
-
-  private fun fillCurrentForm(lastGames: List<HistoryItem>) {
-    val currentFormSpan = SpannableStringBuilder()
-    val wonColor = ResourcesCompat.getColor(resources, R.color.chartWon, context?.theme)
-    val lostColor = ResourcesCompat.getColor(resources, R.color.chartLost, context?.theme)
-    lastGames.forEach {
-      if (it.won) {
-        currentFormSpan.color(wonColor) { append("W") }
-      } else {
-        currentFormSpan.color(lostColor) { append("L") }
-      }
-    }
-    binding.currentForm.text = currentFormSpan
   }
 }
 

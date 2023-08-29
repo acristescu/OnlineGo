@@ -17,7 +17,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.cash.molecule.AndroidUiDispatcher
-import app.cash.molecule.RecompositionClock.ContextClock
+import app.cash.molecule.RecompositionMode.ContextClock
 import app.cash.molecule.launchMolecule
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.crashlytics.FirebaseCrashlytics
@@ -92,7 +92,7 @@ class FaceToFaceViewModel(
 
   val state: StateFlow<FaceToFaceState> =
     if (testing) MutableStateFlow(FaceToFaceState.INITIAL)
-    else moleculeScope.launchMolecule(clock = ContextClock) {
+    else moleculeScope.launchMolecule(mode = ContextClock) {
       molecule()
     }
 

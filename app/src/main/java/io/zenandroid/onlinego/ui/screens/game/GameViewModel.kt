@@ -31,7 +31,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.cash.molecule.AndroidUiDispatcher
-import app.cash.molecule.RecompositionClock
+import app.cash.molecule.RecompositionMode.ContextClock
 import app.cash.molecule.launchMolecule
 import io.zenandroid.onlinego.BuildConfig
 import io.zenandroid.onlinego.data.model.BoardTheme
@@ -201,7 +201,7 @@ class GameViewModel(
             }
 
 
-        state = moleculeScope.launchMolecule(clock = RecompositionClock.ContextClock) {
+        state = moleculeScope.launchMolecule(mode = ContextClock) {
             val game by gameFlow.collectAsState(initial = null)
             val messages by messagesFlow.collectAsState(emptyMap())
 
