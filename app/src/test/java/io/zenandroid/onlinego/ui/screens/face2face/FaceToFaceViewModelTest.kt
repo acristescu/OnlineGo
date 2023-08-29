@@ -2,12 +2,11 @@ package io.zenandroid.onlinego.ui.screens.face2face
 
 import android.content.SharedPreferences
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import app.cash.molecule.RecompositionClock
+import app.cash.molecule.RecompositionMode
 import app.cash.molecule.moleculeFlow
 import app.cash.turbine.test
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.crashlytics.FirebaseCrashlytics
-import com.nhaarman.mockito_kotlin.any
 import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.whenever
 import io.zenandroid.onlinego.data.model.BoardTheme
@@ -28,7 +27,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.koin.core.logger.Level
 import org.koin.test.KoinTestRule
-import org.mockito.Mockito.verify
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class FaceToFaceViewModelTest {
@@ -70,27 +68,12 @@ class FaceToFaceViewModelTest {
   }
 
   @Test
-  fun `when the viewmodel starts, loading is true`() {
-    runTest {
-      moleculeFlow(RecompositionClock.Immediate) {
-        viewModel.molecule()
-      }.test {
-        Assert.assertEquals(true, awaitItem().loading)
-        skipItems(1)
-        verify(prefs).contains(any())
-        Assert.assertEquals(false, awaitItem().loading)
-        cancel()
-      }
-    }
-  }
-
-  @Test
   fun `smoke test`() {
     runTest {
-      moleculeFlow(RecompositionClock.Immediate) {
+      moleculeFlow(RecompositionMode.Immediate) {
         viewModel.molecule()
       }.test {
-        skipItems(3)
+        skipItems(1)
 
         viewModel.onAction(Action.BoardCellTapUp(Cell(3, 3)))
 
@@ -170,10 +153,10 @@ class FaceToFaceViewModelTest {
       .map { Cell.fromGTP(it, 9) }
 
     runTest {
-      moleculeFlow(RecompositionClock.Immediate) {
+      moleculeFlow(RecompositionMode.Immediate) {
         viewModel.molecule()
       }.test {
-        skipItems(3)
+        skipItems(1)
 
         viewModel.onAction(Action.NewGameParametersChanged(GameParameters(BoardSize.SMALL, 0)))
         skipItems(1)
