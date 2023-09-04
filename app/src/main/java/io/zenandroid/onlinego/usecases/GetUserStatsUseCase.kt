@@ -29,17 +29,31 @@ class GetUserStatsUseCase (
 
     suspend fun getPlayerStatsWithSizesAsync(playerId: Long): RepoResult<UserStats> {
         return try {
-            val smallHistory = restService.getPlayerStatsAsync(playerId, "overall", 9 ).history.map { it.toHistoryItem("overall", 9) }
-            val mediumHistory = restService.getPlayerStatsAsync(playerId, "overall", 13).history.map { it.toHistoryItem("overall", 13) }
-            val largeHistory = restService.getPlayerStatsAsync(playerId, "overall", 19).history.map { it.toHistoryItem("overall", 19) }
-            val history = restService.getPlayerStatsAsync(playerId).history.map { it.toHistoryItem("overall", 0) }
+            val sizes = listOf(9, 13, 19)
+            val speeds = listOf("blitz", "live", "correspondence")
+            val allHistory: MutableList<HistoryItem> = mutableListOf()
+            sizes.forEach { size ->
+                speeds.forEach { speed ->
+                    allHistory.addAll(
+                        restService.getPlayerStatsAsync(playerId, speed, size )
+                            .history
+                            .map { it.toHistoryItem(speed, size) }
+                    )
+                }
+            }
+            allHistory.sortedBy { -it.ended }
 
-            val allHistory = listOf(smallHistory, mediumHistory, largeHistory)
-                .flatten()
-                .sortedBy { -it.ended }
+            // val smallHistory = restService.getPlayerStatsAsync(playerId, "overall", 9 ).history.map { it.toHistoryItem("overall", 9) }
+            // val mediumHistory = restService.getPlayerStatsAsync(playerId, "overall", 13).history.map { it.toHistoryItem("overall", 13) }
+            // val largeHistory = restService.getPlayerStatsAsync(playerId, "overall", 19).history.map { it.toHistoryItem("overall", 19) }
+            // val history = restService.getPlayerStatsAsync(playerId).history.map { it.toHistoryItem("overall", 0) }
 
-            val missing = history.filterNot { x ->  allHistory.any { it.gameId == x.gameId } }
-            missing.forEach { println("*** $it") }
+            // val allHistory = listOf(smallHistory, mediumHistory, largeHistory)
+            //     .flatten()
+            //     .sortedBy { -it.ended }
+
+            // val missing = history.filterNot { x ->  allHistory.any { it.gameId == x.gameId } }
+            // missing.forEach { println("*** $it") }
 
             Success(processPlayerStats(allHistory))
         } catch (e: Exception) {
@@ -108,6 +122,12 @@ class GetUserStatsUseCase (
         var smallBoardWon = 0
         var mediumBoardWon = 0
         var largeBoardWon = 0
+        var blitz = 0
+        var blitzWon = 0
+        var live = 0
+        var liveWon = 0
+        var correspondence = 0
+        var correspondenceWon = 0
 
         for (game in history) {
             when(game.size) {
@@ -129,6 +149,27 @@ class GetUserStatsUseCase (
                         largeBoardWon++
                     }
                 }
+            }
+            when(game.speed) {
+                "blitz" -> {
+                    blitz++
+                    if(game.won) {
+                        blitzWon++
+                    }
+                }
+                "live" -> {
+                    live++
+                    if(game.won) {
+                        liveWon++
+                    }
+                }
+                "correspondence" -> {
+                    correspondence++
+                    if(game.won) {
+                        correspondenceWon++
+                    }
+                }
+
             }
             if (game.won) {
                 if (streakCount == 0) {
@@ -177,33 +218,25 @@ class GetUserStatsUseCase (
             mostFacedWon = mostFacedGameList.count { it.won },
             highestWin = highestWin,
             last10Games = history.take(10).reversed(),
-            allGames = WinLossStats(history.size, 1f, wonCount, lostCount, wonCount.toFloat() / history.size, lostCount.toFloat() / history.size),
-            smallBoard = WinLossStats(
-                total = smallBoard,
-                totalRatio = if (history.isEmpty()) 0f else smallBoard.toFloat() / history.size,
-                won = smallBoardWon,
-                lost = smallBoard - smallBoardWon,
-                winRate = smallBoardWon.toFloat() / smallBoard,
-                lossRate = 1f - (smallBoardWon.toFloat() / smallBoard)
-            ),
-            mediumBoard = WinLossStats(
-                total = mediumBoard,
-                totalRatio = if (history.isEmpty()) 0f else mediumBoard.toFloat() / history.size,
-                won = mediumBoardWon,
-                lost = mediumBoard - mediumBoardWon,
-                winRate = mediumBoardWon.toFloat() / mediumBoard,
-                lossRate = 1f - (mediumBoardWon.toFloat() / mediumBoard)
-            ),
-            largeBoard = WinLossStats(
-                total = largeBoard,
-                totalRatio = if (history.isEmpty()) 0f else largeBoard.toFloat() / history.size,
-                won = largeBoardWon,
-                lost = largeBoard - largeBoardWon,
-                winRate = largeBoardWon.toFloat() / largeBoard,
-                lossRate = 1f - (largeBoardWon.toFloat() / largeBoard)
-            ),
+            allGames = statsOf(history.size, history.size, wonCount),
+            smallBoard = statsOf(history.size, smallBoard, smallBoardWon),
+            mediumBoard = statsOf(history.size, mediumBoard, mediumBoardWon),
+            largeBoard = statsOf(history.size, largeBoard, largeBoardWon),
+            blitz = statsOf(history.size, blitz, blitzWon),
+            live = statsOf(history.size, live, liveWon),
+            correspondence = statsOf(history.size, correspondence, correspondenceWon),
         )
     }
+
+    private fun statsOf(total: Int, matching: Int, winning: Int) =
+        WinLossStats(
+            total = matching,
+            totalRatio = if (total == 0) 0f else matching.toFloat() / total,
+            won = winning,
+            lost = matching - winning,
+            winRate = winning.toFloat() / matching,
+            lossRate = 1f - (winning.toFloat() / matching)
+        )
 }
 
 sealed interface RepoResult<T> {

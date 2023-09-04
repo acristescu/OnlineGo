@@ -139,6 +139,9 @@ class StatsViewModel(
       smallBoard = stats.smallBoard,
       mediumBoard = stats.mediumBoard,
       largeBoard = stats.largeBoard,
+      blitz = stats.blitz,
+      live = stats.live,
+      correspondence = stats.correspondence,
     )
 
     if (stats.mostFacedId != null) {
@@ -214,6 +217,9 @@ class StatsViewModel(
     val smallBoard: WinLossStats?,
     val mediumBoard: WinLossStats?,
     val largeBoard: WinLossStats?,
+    val blitz: WinLossStats?,
+    val live: WinLossStats?,
+    val correspondence: WinLossStats?,
     ) {
     companion object {
       val Initial = StatsState(
@@ -238,6 +244,9 @@ class StatsViewModel(
         smallBoard = null,
         mediumBoard = null,
         largeBoard = null,
+        blitz = null,
+        live = null,
+        correspondence = null,
       )
     }
   }

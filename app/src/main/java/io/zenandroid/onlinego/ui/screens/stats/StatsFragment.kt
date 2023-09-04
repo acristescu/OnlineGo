@@ -234,19 +234,19 @@ class DayAxisValueFormatter(private val chart: BarLineChartBase<*>) : ValueForma
         ) {
           StatsBar(
             text = "9×9",
-            textMiddle = state.smallBoard?.total?.toString() ?: "",
+            textMiddle = state.smallBoard?.total?.toString().orEmpty(),
             value = state.smallBoard?.totalRatio ?: 0f,
             color = COLORS[0],
           )
           StatsBar(
             text = "13×13",
-            textMiddle = state.mediumBoard?.total?.toString() ?: "",
+            textMiddle = state.mediumBoard?.total?.toString().orEmpty(),
             value = state.mediumBoard?.totalRatio ?: 0f,
             color = COLORS[1],
           )
           StatsBar(
             text = "19×19",
-            textMiddle = state.largeBoard?.total?.toString() ?: "",
+            textMiddle = state.largeBoard?.total?.toString().orEmpty(),
             value = state.largeBoard?.totalRatio ?: 0f,
             color = COLORS[2],
           )
@@ -256,8 +256,8 @@ class DayAxisValueFormatter(private val chart: BarLineChartBase<*>) : ValueForma
     StatsSurface(title = "Games played by time controls") {
       Row(modifier = Modifier.padding(18.dp)) {
         StatsChart(
-          values = listOf(1456f, 4657f, 464f),
-          topText = "3456",
+          values = listOf(state.blitz?.total ?: 0, state.live?.total ?: 0, state.correspondence?.total ?: 0 ).map { it.toFloat() },
+          topText = state.allGames?.total?.toString().orEmpty(),
           bottomText = "Played",
         )
         Column(
@@ -268,20 +268,20 @@ class DayAxisValueFormatter(private val chart: BarLineChartBase<*>) : ValueForma
         ) {
           StatsBar(
             text = "Blitz",
-            textMiddle = " 342",
-            value = 27.3f,
+            textMiddle = state.blitz?.total?.toString().orEmpty(),
+            value = state.blitz?.totalRatio ?: 0f,
             color = COLORS[0],
           )
           StatsBar(
             text = "Live",
-            textMiddle = "1442",
-            value = 67.3f,
+            textMiddle = state.live?.total?.toString().orEmpty(),
+            value = state.live?.totalRatio ?: 0f,
             color = COLORS[1],
           )
           StatsBar(
             text = "Corresp.",
-            textMiddle = "  42",
-            value = 7.3f,
+            textMiddle = state.correspondence?.total?.toString().orEmpty(),
+            value = state.correspondence?.totalRatio ?: 0f,
             color = COLORS[2],
           )
         }

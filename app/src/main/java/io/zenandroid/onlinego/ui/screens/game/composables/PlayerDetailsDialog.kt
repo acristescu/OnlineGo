@@ -312,6 +312,9 @@ fun PreviewPlayerDetailsDialog() {
                     smallBoard = WinLossStats(1456, .23f, 234, 1245, .36f, .64f),
                     mediumBoard = WinLossStats(1456, .34f, 234, 1245, .36f, .64f),
                     largeBoard = WinLossStats(1456, .43f, 234, 1245, .36f, .64f),
+                    blitz = WinLossStats(1456, .43f, 234, 1245, .36f, .64f),
+                    live = WinLossStats(1456, .43f, 234, 1245, .36f, .64f),
+                    correspondence = WinLossStats(1456, .43f, 234, 1245, .36f, .64f),
                 )),
                 versusStats = Success(VersusStats(
                     draws = 0,
