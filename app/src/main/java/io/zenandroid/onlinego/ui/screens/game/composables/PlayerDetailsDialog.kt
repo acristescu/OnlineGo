@@ -314,6 +314,8 @@ fun PreviewPlayerDetailsDialog() {
                     largeBoard = WinLossStats(1456, .43f, 234, 1245, .36f, .64f),
                     blitz = WinLossStats(1456, .43f, 234, 1245, .36f, .64f),
                     live = WinLossStats(1456, .43f, 234, 1245, .36f, .64f),
+                    asBlack = WinLossStats(1456, .43f, 234, 1245, .36f, .64f),
+                    asWhite = WinLossStats(1456, .43f, 234, 1245, .36f, .64f),
                     correspondence = WinLossStats(1456, .43f, 234, 1245, .36f, .64f),
                 )),
                 versusStats = Success(VersusStats(

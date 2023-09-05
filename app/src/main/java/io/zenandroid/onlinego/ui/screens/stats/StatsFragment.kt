@@ -43,6 +43,7 @@ import com.github.mikephil.charting.charts.BarLineChartBase
 import com.github.mikephil.charting.data.*
 import com.github.mikephil.charting.formatter.ValueFormatter
 import com.github.mikephil.charting.listener.ChartTouchListener.*
+import io.zenandroid.onlinego.data.model.local.WinLossStats
 import io.zenandroid.onlinego.gamelogic.Util
 import io.zenandroid.onlinego.ui.screens.game.composables.BoxWithImage
 import io.zenandroid.onlinego.ui.screens.game.composables.shimmer
@@ -152,64 +153,16 @@ class DayAxisValueFormatter(private val chart: BarLineChartBase<*>) : ValueForma
       )
 
       Row {
-        Column(modifier = Modifier.weight(1f)) {
-          Text(
-            text = state.allGames?.total?.toString() ?: "",
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.align(Alignment.CenterHorizontally),
-          )
-          Text(
-            text = "ranked games",
-            modifier = Modifier.align(Alignment.CenterHorizontally),
-            style = TextStyle(
-              fontWeight = FontWeight.Normal, fontSize = 12.sp, letterSpacing = 0.4.sp
-            )
-          )
-        }
-        Column(modifier = Modifier.weight(1f)) {
-          Text(
-            text = state.allGames?.winRate?.toString() ?: "",
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.align(Alignment.CenterHorizontally),
-          )
-          Text(
-            text = "win rate",
-            modifier = Modifier.align(Alignment.CenterHorizontally),
-            style = TextStyle(
-              fontWeight = FontWeight.Normal, fontSize = 12.sp, letterSpacing = 0.4.sp
-            )
-          )
-        }
-      }
-      Row(modifier = Modifier.padding(top = 8.dp)) {
-        Column(modifier = Modifier.weight(1f)) {
-          Text(
-            text = "3456",
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.align(Alignment.CenterHorizontally),
-          )
-          Text(
-            text = "ranked games",
-            modifier = Modifier.align(Alignment.CenterHorizontally),
-            style = TextStyle(
-              fontWeight = FontWeight.Normal, fontSize = 12.sp, letterSpacing = 0.4.sp
-            )
-          )
-        }
-        Column(modifier = Modifier.weight(1f)) {
-          Text(
-            text = "89%",
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.align(Alignment.CenterHorizontally),
-          )
-          Text(
-            text = "long time control",
-            modifier = Modifier.align(Alignment.CenterHorizontally),
-            style = TextStyle(
-              fontWeight = FontWeight.Normal, fontSize = 12.sp, letterSpacing = 0.4.sp
-            )
-          )
-        }
+        StatsGridCell(
+          name = "ranked games",
+          value = state.allGames?.total?.toString(),
+          modifier = Modifier.weight(1f)
+        )
+        StatsGridCell(
+          name = "win rate",
+          value = state.allGames?.winRate?.let { "${"%.1f".format(it * 100f)}%" },
+          modifier = Modifier.weight(1f)
+        )
       }
     }
     StatsSurface(title = "Rating over time") {
@@ -222,8 +175,12 @@ class DayAxisValueFormatter(private val chart: BarLineChartBase<*>) : ValueForma
     StatsSurface(title = "Games played by board size") {
       Row(modifier = Modifier.padding(18.dp)) {
         StatsChart(
-          values = listOf(state.smallBoard?.total ?: 0, state.mediumBoard?.total ?: 0, state.largeBoard?.total ?: 0).map { it.toFloat() },
-          topText = state.allGames?.total?.toString() ?: "",
+          values = listOf(
+            state.smallBoard?.total ?: 0,
+            state.mediumBoard?.total ?: 0,
+            state.largeBoard?.total ?: 0
+          ).map { it.toFloat() },
+          topText = state.allGames?.total?.toString(),
           bottomText = "Played",
         )
         Column(
@@ -234,20 +191,20 @@ class DayAxisValueFormatter(private val chart: BarLineChartBase<*>) : ValueForma
         ) {
           StatsBar(
             text = "9×9",
-            textMiddle = state.smallBoard?.total?.toString().orEmpty(),
-            value = state.smallBoard?.totalRatio ?: 0f,
+            textMiddle = state.smallBoard?.total?.toString(),
+            value = state.smallBoard?.totalRatio,
             color = COLORS[0],
           )
           StatsBar(
             text = "13×13",
-            textMiddle = state.mediumBoard?.total?.toString().orEmpty(),
-            value = state.mediumBoard?.totalRatio ?: 0f,
+            textMiddle = state.mediumBoard?.total?.toString(),
+            value = state.mediumBoard?.totalRatio,
             color = COLORS[1],
           )
           StatsBar(
             text = "19×19",
-            textMiddle = state.largeBoard?.total?.toString().orEmpty(),
-            value = state.largeBoard?.totalRatio ?: 0f,
+            textMiddle = state.largeBoard?.total?.toString(),
+            value = state.largeBoard?.totalRatio,
             color = COLORS[2],
           )
         }
@@ -256,8 +213,12 @@ class DayAxisValueFormatter(private val chart: BarLineChartBase<*>) : ValueForma
     StatsSurface(title = "Games played by time controls") {
       Row(modifier = Modifier.padding(18.dp)) {
         StatsChart(
-          values = listOf(state.blitz?.total ?: 0, state.live?.total ?: 0, state.correspondence?.total ?: 0 ).map { it.toFloat() },
-          topText = state.allGames?.total?.toString().orEmpty(),
+          values = listOf(
+            state.blitz?.total ?: 0,
+            state.live?.total ?: 0,
+            state.correspondence?.total ?: 0
+          ).map { it.toFloat() },
+          topText = state.allGames?.total?.toString(),
           bottomText = "Played",
         )
         Column(
@@ -268,20 +229,20 @@ class DayAxisValueFormatter(private val chart: BarLineChartBase<*>) : ValueForma
         ) {
           StatsBar(
             text = "Blitz",
-            textMiddle = state.blitz?.total?.toString().orEmpty(),
-            value = state.blitz?.totalRatio ?: 0f,
+            textMiddle = state.blitz?.total?.toString(),
+            value = state.blitz?.totalRatio,
             color = COLORS[0],
           )
           StatsBar(
             text = "Live",
-            textMiddle = state.live?.total?.toString().orEmpty(),
-            value = state.live?.totalRatio ?: 0f,
+            textMiddle = state.live?.total?.toString(),
+            value = state.live?.totalRatio,
             color = COLORS[1],
           )
           StatsBar(
             text = "Corresp.",
-            textMiddle = state.correspondence?.total?.toString().orEmpty(),
-            value = state.correspondence?.totalRatio ?: 0f,
+            textMiddle = state.correspondence?.total?.toString(),
+            value = state.correspondence?.totalRatio,
             color = COLORS[2],
           )
         }
@@ -291,30 +252,26 @@ class DayAxisValueFormatter(private val chart: BarLineChartBase<*>) : ValueForma
       Column(
         modifier = Modifier.padding(16.dp)
       ) {
-        GainLossStatsBar(
+        WinLossStatsBar(
           text = "All games",
-          secondaryText = "Wins: ${state.allGames?.won} Losses: ${state.allGames?.lost}",
-          value = state.allGames?.winRate?.minus(state.allGames.lossRate)?.times(50) ?: 0f,
+          stats = state.allGames,
           modifier = Modifier
         )
-        GainLossStatsBar(
+        WinLossStatsBar(
           text = "9×9",
-          secondaryText = "Wins: ${state.smallBoard?.won} Losses: ${state.smallBoard?.lost}",
-          value = state.smallBoard?.winRate?.minus(state.smallBoard.lossRate)?.times(50) ?: 0f,
+          stats = state.smallBoard,
           modifier = Modifier
             .padding(top = 24.dp)
         )
-        GainLossStatsBar(
+        WinLossStatsBar(
           text = "13×13",
-          secondaryText = "Wins: ${state.mediumBoard?.won} Losses: ${state.mediumBoard?.lost}",
-          value = state.mediumBoard?.winRate?.minus(state.mediumBoard.lossRate)?.times(50) ?: 0f,
+          stats = state.mediumBoard,
           modifier = Modifier
             .padding(top = 24.dp)
         )
-        GainLossStatsBar(
+        WinLossStatsBar(
           text = "19×19",
-          secondaryText = "Wins: ${state.largeBoard?.won} Losses: ${state.largeBoard?.lost}",
-          value = state.largeBoard?.winRate?.minus(state.largeBoard.lossRate)?.times(50) ?: 0f,
+          stats = state.largeBoard,
           modifier = Modifier
             .padding(top = 24.dp)
         )
@@ -324,40 +281,35 @@ class DayAxisValueFormatter(private val chart: BarLineChartBase<*>) : ValueForma
       Column(
         modifier = Modifier.padding(16.dp)
       ) {
-        GainLossStatsBar(
+        WinLossStatsBar(
           text = "Blitz",
-          secondaryText = "Wins: 34 Losses: 435",
-          value = 0.3f,
+          stats = state.blitz,
         )
-        GainLossStatsBar(
+        WinLossStatsBar(
           text = "Live",
-          secondaryText = "Wins: 34 Losses: 435",
-          value = 0f,
+          stats = state.live,
           modifier = Modifier
             .padding(top = 24.dp)
         )
-        GainLossStatsBar(
+        WinLossStatsBar(
           text = "Correspondence",
-          secondaryText = "Wins: 34 Losses: 435",
-          value = -1.3f,
+          stats = state.correspondence,
           modifier = Modifier
             .padding(top = 24.dp)
         )
       }
     }
-    StatsSurface(title = "Win ratio by Colour") {
+    StatsSurface(title = "Win ratio by colour") {
       Column(
         modifier = Modifier.padding(16.dp)
       ) {
-        GainLossStatsBar(
+        WinLossStatsBar(
           text = "Black",
-          secondaryText = "Wins: 34 Losses: 435",
-          value = 1.3f,
+          stats = state.asBlack,
         )
-        GainLossStatsBar(
+        WinLossStatsBar(
           text = "White",
-          secondaryText = "Wins: 34 Losses: 435",
-          value = 2.3f,
+          stats = state.asWhite,
           modifier = Modifier
             .padding(top = 24.dp)
         )
@@ -367,12 +319,37 @@ class DayAxisValueFormatter(private val chart: BarLineChartBase<*>) : ValueForma
   }
 }
 
-@Composable private fun GainLossStatsBar(
+@Composable
+private fun StatsGridCell(
+  name: String,
+  value: String?,
+  modifier: Modifier = Modifier
+) {
+  Column(modifier = modifier) {
+    Text(
+      text = value ?: " ".repeat(10),
+      fontWeight = FontWeight.Bold,
+      modifier = Modifier
+        .align(Alignment.CenterHorizontally)
+        .shimmer(value == null),
+    )
+    Text(
+      text = name,
+      modifier = Modifier.align(Alignment.CenterHorizontally),
+      style = TextStyle(
+        fontWeight = FontWeight.Normal, fontSize = 12.sp, letterSpacing = 0.4.sp
+      )
+    )
+  }
+}
+
+@Composable
+private fun WinLossStatsBar(
   modifier: Modifier = Modifier,
   text: String,
-  secondaryText: String,
-  value: Float,
+  stats: WinLossStats?,
 ) {
+  val value = if (stats == null) 0f else (stats.winRate - stats.lossRate) * 50f
   Column(modifier = modifier) {
     Row {
       Column {
@@ -383,24 +360,27 @@ class DayAxisValueFormatter(private val chart: BarLineChartBase<*>) : ValueForma
           modifier = Modifier.padding(bottom = 4.dp),
         )
         Text(
-          text = secondaryText,
+          text = stats?.let { "${stats.won} won · ${stats.lost} lost" } ?: " ".repeat(10),
           style = TextStyle(
             fontWeight = FontWeight.Normal,
             fontSize = 12.sp,
             letterSpacing = 0.4.sp
           ),
-          modifier = Modifier.padding(bottom = 4.dp),
+          modifier = Modifier
+            .padding(bottom = 4.dp)
+            .shimmer(stats == null),
         )
       }
+      Spacer(modifier = Modifier.weight(1f))
       Text(
-        text = "${"%+.1f".format(value)}%",
+        text = stats?.let { "${"%+.1f".format(value)}%" } ?: " ".repeat(10),
         textAlign = TextAlign.End,
-        fontWeight = FontWeight.ExtraBold,
+        fontWeight = FontWeight.SemiBold,
         fontSize = 16.sp,
-        color = if (value >= 0) COLORS[1] else COLORS[0],
+        color = MaterialTheme.colors.onSurface,
         modifier = Modifier
-          .weight(1f)
-          .align(Alignment.CenterVertically),
+          .align(Alignment.CenterVertically)
+          .shimmer(stats == null),
       )
     }
     Box(
@@ -437,7 +417,7 @@ class DayAxisValueFormatter(private val chart: BarLineChartBase<*>) : ValueForma
   modifier: Modifier = Modifier,
   text: String,
   textMiddle: String? = null,
-  value: Float,
+  value: Float?,
   color: Color,
 ) {
   Column(modifier = modifier) {
@@ -452,11 +432,14 @@ class DayAxisValueFormatter(private val chart: BarLineChartBase<*>) : ValueForma
           fontFamily = FontFamily.Monospace,
         )
       }
+      Spacer(modifier = Modifier.weight(1f))
       Text(
-        text = "${(value * 100).toInt()}%",
+        text = value?.let { "${(it * 100).toInt()}%" } ?: " ".repeat(5),
         fontSize = 14.sp,
         textAlign = TextAlign.End,
-        modifier = Modifier.weight(1f),
+        modifier = Modifier
+          .padding(bottom = 2.dp)
+          .shimmer(value == null),
       )
     }
     Box(
@@ -468,7 +451,7 @@ class DayAxisValueFormatter(private val chart: BarLineChartBase<*>) : ValueForma
     ) {
       Box(
         modifier = Modifier
-          .fillMaxWidth(value)
+          .fillMaxWidth(value ?: 0f)
           .height(12.dp)
           .clip(RoundedCornerShape(6.dp))
           .background(color)
@@ -534,12 +517,13 @@ private val COLORS_DARK = listOf(
       }
     }
     Text(
-      text = topText ?: "",
+      text = topText ?: " ".repeat(6),
       fontSize = 16.sp,
       fontWeight = FontWeight.Medium,
       modifier = Modifier
         .padding(top = 38.dp)
-        .align(Alignment.TopCenter),
+        .align(Alignment.TopCenter)
+        .shimmer(topText == null),
     )
     Text(
       text = bottomText ?: "",
@@ -561,10 +545,9 @@ private val COLORS_DARK = listOf(
         .fillMaxWidth()
         .padding(horizontal = 8.dp, vertical = 8.dp)
     ) {
-      GainLossStatsBar(
+      WinLossStatsBar(
         text = "All games",
-        secondaryText = "Wins: 345 Losses: 234",
-        value = -10.1f,
+        stats = WinLossStats(0, 0f, 100, 200, .33f, 0f),
         modifier = Modifier.padding(8.dp)
       )
     }

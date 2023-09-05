@@ -28,12 +28,16 @@ data class UserStats(
     val largeBoard: WinLossStats,
     val blitz: WinLossStats,
     val live: WinLossStats,
+    val asBlack: WinLossStats,
+    val asWhite: WinLossStats,
     val correspondence: WinLossStats,
 ) {
     companion object {
         val EMPTY = UserStats(
             0f, 0L, emptyList(), emptyList(), emptyList(), emptyList(),
             emptyList(), 0, 0, 0, 0L, 0L, null, 0, 0, null, emptyList(),
+            WinLossStats(0, 0f, 0, 0, 0f, 0f),
+            WinLossStats(0, 0f, 0, 0, 0f, 0f),
             WinLossStats(0, 0f, 0, 0, 0f, 0f),
             WinLossStats(0, 0f, 0, 0, 0f, 0f),
             WinLossStats(0, 0f, 0, 0, 0f, 0f),

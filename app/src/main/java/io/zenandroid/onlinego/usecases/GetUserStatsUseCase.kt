@@ -41,21 +41,18 @@ class GetUserStatsUseCase (
                     )
                 }
             }
-            allHistory.sortedBy { -it.ended }
+            val historyWithOverallELO = restService.getPlayerStatsAsync(playerId).history.map { it.toHistoryItem("overall", 0) }
+            val processedList = allHistory.sortedBy { -it.ended }
+                .map {
+                    val overallElo = historyWithOverallELO.find { overall ->
+                        overall.gameId == it.gameId
+                    }?.rating
+                    it.copy(
+                        rating = overallElo ?: it.rating
+                    )
+                }
 
-            // val smallHistory = restService.getPlayerStatsAsync(playerId, "overall", 9 ).history.map { it.toHistoryItem("overall", 9) }
-            // val mediumHistory = restService.getPlayerStatsAsync(playerId, "overall", 13).history.map { it.toHistoryItem("overall", 13) }
-            // val largeHistory = restService.getPlayerStatsAsync(playerId, "overall", 19).history.map { it.toHistoryItem("overall", 19) }
-            // val history = restService.getPlayerStatsAsync(playerId).history.map { it.toHistoryItem("overall", 0) }
-
-            // val allHistory = listOf(smallHistory, mediumHistory, largeHistory)
-            //     .flatten()
-            //     .sortedBy { -it.ended }
-
-            // val missing = history.filterNot { x ->  allHistory.any { it.gameId == x.gameId } }
-            // missing.forEach { println("*** $it") }
-
-            Success(processPlayerStats(allHistory))
+            Success(processPlayerStats(processedList))
         } catch (e: Exception) {
             recordException(e)
             Error(e)
@@ -128,6 +125,10 @@ class GetUserStatsUseCase (
         var liveWon = 0
         var correspondence = 0
         var correspondenceWon = 0
+        var white = 0
+        var whiteWon = 0
+        var black = 0
+        var blackWon = 0
 
         for (game in history) {
             when(game.size) {
@@ -169,7 +170,17 @@ class GetUserStatsUseCase (
                         correspondenceWon++
                     }
                 }
-
+            }
+            if(game.playedBlack) {
+                black++
+                if(game.won) {
+                    blackWon++
+                }
+            } else {
+                white++
+                if(game.won) {
+                    whiteWon++
+                }
             }
             if (game.won) {
                 if (streakCount == 0) {
@@ -224,6 +235,8 @@ class GetUserStatsUseCase (
             largeBoard = statsOf(history.size, largeBoard, largeBoardWon),
             blitz = statsOf(history.size, blitz, blitzWon),
             live = statsOf(history.size, live, liveWon),
+            asWhite = statsOf(history.size, white, whiteWon),
+            asBlack = statsOf(history.size, black, blackWon),
             correspondence = statsOf(history.size, correspondence, correspondenceWon),
         )
     }

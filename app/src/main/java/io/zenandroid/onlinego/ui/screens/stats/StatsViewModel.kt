@@ -52,7 +52,7 @@ class StatsViewModel(
 
   init {
     viewModelScope.launch {
-      when(val result = getUserStatsUseCase.getPlayerStatsWithSizesAsync(playerId)) {
+      when (val result = getUserStatsUseCase.getPlayerStatsWithSizesAsync(playerId)) {
         is Error -> onError(result.throwable)
         is Loading -> {}
         is Success -> fillPlayerStats(result.data)
@@ -66,15 +66,6 @@ class StatsViewModel(
         onError(t)
       }
     }
-    // restService.getPlayerProfile(playerId)
-    //   .subscribeOn(Schedulers.io())
-    //   .observeOn(AndroidSchedulers.mainThread())
-    //   .subscribe(this::fillPlayerDetails, this::onError)
-    //   .addToDisposable(subscriptions)
-
-    // getUserStatsUseCase.getPlayerStats(playerId)
-    //   .subscribe(this::fillPlayerStats, this::onError)
-    //   .addToDisposable(subscriptions)
   }
 
   fun onFilterChanged(filter: Filter) {
@@ -141,6 +132,8 @@ class StatsViewModel(
       largeBoard = stats.largeBoard,
       blitz = stats.blitz,
       live = stats.live,
+      asWhite = stats.asWhite,
+      asBlack = stats.asBlack,
       correspondence = stats.correspondence,
     )
 
@@ -219,8 +212,10 @@ class StatsViewModel(
     val largeBoard: WinLossStats?,
     val blitz: WinLossStats?,
     val live: WinLossStats?,
+    val asWhite: WinLossStats?,
+    val asBlack: WinLossStats?,
     val correspondence: WinLossStats?,
-    ) {
+  ) {
     companion object {
       val Initial = StatsState(
         chartData = emptyList(),
@@ -246,6 +241,8 @@ class StatsViewModel(
         largeBoard = null,
         blitz = null,
         live = null,
+        asWhite = null,
+        asBlack = null,
         correspondence = null,
       )
     }
