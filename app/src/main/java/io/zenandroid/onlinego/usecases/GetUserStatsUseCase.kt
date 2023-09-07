@@ -27,7 +27,7 @@ class GetUserStatsUseCase (
         }
     }
 
-    suspend fun getPlayerStatsWithSizesAsync(playerId: Long): RepoResult<UserStats> {
+    suspend fun getPlayerStatsWithSizesAsync(playerId: Long): Result<UserStats> {
         return try {
             val sizes = listOf(9, 13, 19)
             val speeds = listOf("blitz", "live", "correspondence")
@@ -52,10 +52,10 @@ class GetUserStatsUseCase (
                     )
                 }
 
-            Success(processPlayerStats(processedList))
+            Result.success(processPlayerStats(processedList))
         } catch (e: Exception) {
             recordException(e)
-            Error(e)
+            Result.failure(e)
         }
     }
 

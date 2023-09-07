@@ -24,6 +24,9 @@ import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -113,11 +116,15 @@ class DayAxisValueFormatter(private val chart: BarLineChartBase<*>) : ValueForma
 }
 
 @Composable private fun StatsScreen(state: StatsState, onFilterChanged: (Filter) -> Unit) {
+  var scrollEnabled by remember { mutableStateOf(true) }
   Column(
     modifier = Modifier
       .fillMaxSize()
       .background(MaterialTheme.colors.background)
-      .verticalScroll(rememberScrollState())
+      .verticalScroll(
+        state = rememberScrollState(),
+        enabled = scrollEnabled,
+      )
   ) {
     BoxWithImage(
       imageURL = state.playerDetails?.icon,
@@ -164,11 +171,24 @@ class DayAxisValueFormatter(private val chart: BarLineChartBase<*>) : ValueForma
           modifier = Modifier.weight(1f)
         )
       }
+      Row(modifier = Modifier.padding(top = 4.dp)) {
+        StatsGridCell(
+          name = "current streak",
+          value = state.currentStreak,
+          modifier = Modifier.weight(1f)
+        )
+        StatsGridCell(
+          name = "recent results",
+          value = state.recentResults,
+          modifier = Modifier.weight(1f)
+        )
+      }
     }
     StatsSurface(title = "Rating over time") {
       ChartWrapper(
         chartData = state.chartData,
         filter = state.filter,
+        disableScroll = { scrollEnabled = !it },
         onFilterChanged = onFilterChanged,
       )
     }

@@ -18,9 +18,6 @@ import io.zenandroid.onlinego.ui.screens.stats.StatsViewModel.Filter.ONE_MONTH
 import io.zenandroid.onlinego.ui.screens.stats.StatsViewModel.Filter.ONE_YEAR
 import io.zenandroid.onlinego.ui.screens.stats.StatsViewModel.Filter.THREE_MONTHS
 import io.zenandroid.onlinego.usecases.GetUserStatsUseCase
-import io.zenandroid.onlinego.usecases.RepoResult.Error
-import io.zenandroid.onlinego.usecases.RepoResult.Loading
-import io.zenandroid.onlinego.usecases.RepoResult.Success
 import io.zenandroid.onlinego.utils.addToDisposable
 import io.zenandroid.onlinego.utils.egfToRank
 import io.zenandroid.onlinego.utils.formatRank
@@ -52,11 +49,11 @@ class StatsViewModel(
 
   init {
     viewModelScope.launch {
-      when (val result = getUserStatsUseCase.getPlayerStatsWithSizesAsync(playerId)) {
-        is Error -> onError(result.throwable)
-        is Loading -> {}
-        is Success -> fillPlayerStats(result.data)
-      }
+      val result = getUserStatsUseCase.getPlayerStatsWithSizesAsync(playerId)
+      result.fold(
+        onSuccess = ::fillPlayerStats,
+        onFailure = ::onError
+      )
     }
 
     viewModelScope.launch {
@@ -110,9 +107,17 @@ class StatsViewModel(
     val gamesWonString = String.format("%.1f", gamesWonPercent)
     val gamesLostString = String.format("%.1f", gamesLostPercent)
     val last10Games = stats.last10Games
-    val streak = stats.bestStreak
+    val longestStreak = stats.bestStreak
     val startDate = dateFormat.format(Date(stats.bestStreakStart * 1000))
     val endDate = dateFormat.format(Date(stats.bestStreakEnd * 1000))
+    val currentStreak = if(last10Games.isEmpty()) "-" else {
+      val lastGameWon = last10Games.last().won
+      val count = last10Games.takeLastWhile { it.won == lastGameWon }.size
+      val suffix = if (lastGameWon) "win(s)" else "loss(es)"
+      "$count $suffix"
+    }
+    val recentWins = last10Games.count { it.won }
+    val recentLosses = last10Games.count { !it.won }
 
     state.value = state.value.copy(
       highestRank = highestRank,
@@ -123,7 +128,9 @@ class StatsViewModel(
       gamesWonString = gamesWonString,
       gamesLostString = gamesLostString,
       last10Games = last10Games,
-      streak = streak,
+      longestStreak = longestStreak,
+      currentStreak = currentStreak,
+      recentResults = "$recentWins - $recentLosses",
       startDate = startDate,
       endDate = endDate,
       allGames = stats.allGames,
@@ -197,7 +204,9 @@ class StatsViewModel(
     val gamesWonString: String?,
     val gamesLostString: String?,
     val last10Games: List<HistoryItem>?,
-    val streak: Int?,
+    val longestStreak: Int?,
+    val currentStreak: String?,
+    val recentResults: String?,
     val startDate: String?,
     val endDate: String?,
     val mostFacedOpponent: OGSPlayer?,
@@ -227,7 +236,9 @@ class StatsViewModel(
         gamesWonString = null,
         gamesLostString = null,
         last10Games = null,
-        streak = null,
+        longestStreak = null,
+        currentStreak = null,
+        recentResults = null,
         startDate = null,
         endDate = null,
         mostFacedOpponent = null,
