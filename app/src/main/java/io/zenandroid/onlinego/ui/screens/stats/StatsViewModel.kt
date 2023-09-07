@@ -113,7 +113,7 @@ class StatsViewModel(
     val currentStreak = if(last10Games.isEmpty()) "-" else {
       val lastGameWon = last10Games.last().won
       val count = last10Games.takeLastWhile { it.won == lastGameWon }.size
-      val suffix = if (lastGameWon) "win(s)" else "loss(es)"
+      val suffix = if (lastGameWon) "win${if(count != 1) "s" else ""}" else "loss${if(count != 1) "es" else ""}"
       "$count $suffix"
     }
     val recentWins = last10Games.count { it.won }
