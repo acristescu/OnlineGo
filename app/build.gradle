@@ -87,7 +87,7 @@ android {
 
 dependencies {
     def koin_version = '3.4.3'
-    def play_services_version = '20.6.0'
+    def play_services_version = '20.7.0'
     def accompanist_version = '0.32.0'
     def room_version = '2.5.2'
     def firebase_version = '31.2.0'
@@ -177,7 +177,7 @@ dependencies {
 
     implementation "io.insert-koin:koin-android:$koin_version"
 
-    implementation "com.android.billingclient:billing-ktx:5.2.0"
+    implementation "com.android.billingclient:billing-ktx:5.2.1"
 
     implementation "androidx.room:room-runtime:$room_version"
     implementation "androidx.room:room-rxjava2:$room_version"
