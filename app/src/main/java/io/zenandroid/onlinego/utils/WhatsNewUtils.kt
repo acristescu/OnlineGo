@@ -36,6 +36,8 @@ private val annotatedCurrentText = AnnotatedString.Builder().run {
     append("\n")
     append("· New Settings screen!")
     append("\n")
+    append("· Added ability to delete account. Careful with it, it cannot be undone!")
+    append("\n")
     append("· Lots of bugfixes")
     pop()
 

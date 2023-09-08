@@ -16,53 +16,48 @@ import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import org.koin.core.context.GlobalContext.get
 
 class UserSessionRepository {
-    // Note: Can't use constructor injection here because it will create a dependency loop and
-    // Koin will throw a fit (at runtime)
-    private val socketService: OGSWebSocketService by get().inject()
-    private val restService: OGSRestService by get().inject()
+  // Note: Can't use constructor injection here because it will create a dependency loop and
+  // Koin will throw a fit (at runtime)
+  private val socketService: OGSWebSocketService by get().inject()
+  private val restService: OGSRestService by get().inject()
 
-    var uiConfig: UIConfig? = null
-        private set
+  var uiConfig: UIConfig? = null
+    private set
 
-    val userId: Long?
-        get() = uiConfig?.user?.id
+  val userId: Long?
+    get() = uiConfig?.user?.id
 //        get() = 126739L
 
-    val cookieJar = PersistentCookieJar(SetCookieCache(), SharedPrefsCookiePersistor(OnlineGoApplication.instance))
+  val cookieJar =
+    PersistentCookieJar(SetCookieCache(), SharedPrefsCookiePersistor(OnlineGoApplication.instance))
 
-    init {
-        uiConfig = PersistenceManager.getUIConfig()
-        userId?.toString()?.let(FirebaseCrashlytics.getInstance()::setUserId)
-    }
+  init {
+    uiConfig = PersistenceManager.getUIConfig()
+    userId?.toString()?.let(FirebaseCrashlytics.getInstance()::setUserId)
+  }
 
-    fun storeUIConfig(uiConfig: UIConfig) {
-        this.uiConfig = uiConfig
-        socketService.resendAuth()
-        FirebaseCrashlytics.getInstance().setUserId(uiConfig.user?.id.toString())
-        PersistenceManager.storeUIConfig(uiConfig)
-    }
+  fun storeUIConfig(uiConfig: UIConfig) {
+    this.uiConfig = uiConfig
+    socketService.resendAuth()
+    FirebaseCrashlytics.getInstance().setUserId(uiConfig.user?.id.toString())
+    PersistenceManager.storeUIConfig(uiConfig)
+  }
 
-    fun requiresUIConfigRefresh(): Boolean {
-        if(uiConfig?.user_jwt == null) {
-            return true
-        }
+  fun requiresUIConfigRefresh(): Boolean =
+    uiConfig?.user_jwt == null
 
-        return false
-    }
+  fun isLoggedIn() =
+    (uiConfig != null) &&
+      cookieJar.loadForRequest(BuildConfig.BASE_URL.toHttpUrlOrNull()!!)
+        .any { it.name == "sessionid" }
 
-    fun isLoggedIn() =
-            (uiConfig != null) &&
-                    cookieJar.loadForRequest(BuildConfig.BASE_URL.toHttpUrlOrNull()!!)
-                            .any { it.name == "sessionid" }
+  fun logOut() {
+    FirebaseCrashlytics.getInstance().sendUnsentReports()
+    uiConfig = null
+    (OnlineGoApplication.instance.getSystemService(ACTIVITY_SERVICE) as ActivityManager).clearApplicationUserData()
+  }
 
-    fun logOut() {
-        FirebaseCrashlytics.getInstance().sendUnsentReports()
-        uiConfig = null
-        (OnlineGoApplication.instance.getSystemService(ACTIVITY_SERVICE) as ActivityManager).clearApplicationUserData()
-    }
-
-    suspend fun deleteAccount(password: String) {
-        restService.deleteMyAccount(password)
-    }
-
+  suspend fun deleteAccount(password: String) {
+    restService.deleteMyAccount(password)
+  }
 }

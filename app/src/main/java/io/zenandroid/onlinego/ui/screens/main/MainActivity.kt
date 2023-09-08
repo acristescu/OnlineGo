@@ -59,7 +59,7 @@ class MainActivity : AppCompatActivity(), MainContract.View {
 
     private lateinit var binding: ActivityMainBinding
 
-    private lateinit var requestPermissionLauncher: ActivityResultLauncher<String>
+    private var requestPermissionLauncher: ActivityResultLauncher<String>? = null
 
     private val presenter: MainPresenter by lazy { MainPresenter(this, get(), get(), get(), get()) }
 
@@ -162,6 +162,11 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         }
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        requestPermissionLauncher = null
+    }
+
     override fun askForNotificationsPermission(delayed: Boolean) {
         CoroutineScope(Dispatchers.Main).launch {
             if(delayed) {
@@ -169,7 +174,7 @@ class MainActivity : AppCompatActivity(), MainContract.View {
             }
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 if (ContextCompat.checkSelfPermission(applicationContext, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
-                    requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                    requestPermissionLauncher?.launch(Manifest.permission.POST_NOTIFICATIONS)
                 }
             }
         }
