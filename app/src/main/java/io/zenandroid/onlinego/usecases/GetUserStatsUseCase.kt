@@ -247,8 +247,8 @@ class GetUserStatsUseCase (
             totalRatio = if (total == 0) 0f else matching.toFloat() / total,
             won = winning,
             lost = matching - winning,
-            winRate = winning.toFloat() / matching,
-            lossRate = 1f - (winning.toFloat() / matching)
+            winRate = if(matching == 0) 0f else winning.toFloat() / matching,
+            lossRate = if(matching == 0) 0f else 1f - (winning.toFloat() / matching)
         )
 }
 

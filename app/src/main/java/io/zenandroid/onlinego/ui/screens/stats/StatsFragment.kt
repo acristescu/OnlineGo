@@ -557,7 +557,9 @@ private val COLORS_DARK = listOf(
   }
 }
 
-@Preview @Composable private fun PreviewGainLossBar() {
+@Preview
+@Composable
+private fun PreviewGainLossBar() {
   OnlineGoTheme {
     Surface(
       shape = MaterialTheme.shapes.medium,
@@ -574,7 +576,9 @@ private val COLORS_DARK = listOf(
   }
 }
 
-@Composable @Preview private fun Preview() {
+@Composable
+@Preview
+private fun Preview() {
   OnlineGoTheme {
     StatsScreen(StatsState.Initial.copy(
       chartData = listOf(
