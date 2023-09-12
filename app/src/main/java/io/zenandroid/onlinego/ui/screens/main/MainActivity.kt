@@ -41,7 +41,6 @@ import io.zenandroid.onlinego.ui.screens.newchallenge.NewChallengeBottomSheet
 import io.zenandroid.onlinego.ui.views.BoardView
 import io.zenandroid.onlinego.utils.hide
 import io.zenandroid.onlinego.utils.show
-import io.zenandroid.onlinego.utils.showIf
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -229,15 +228,17 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         Toast.makeText(this, msg, Toast.LENGTH_LONG).show()
     }
 
+    fun onAutomatchSearchClicked(speed: Speed, sizes: List<Size>) {
+        val params = Bundle().apply {
+            putString("SPEED", speed.toString())
+            putString("SIZE", sizes.joinToString { it.toString() })
+        }
+        analytics.logEvent("new_game_search", params)
+        presenter.onStartSearch(sizes, speed)
+    }
+
     fun onAutoMatchSearch() {
-        NewAutomatchChallengeBottomSheet(this) { speed: Speed, sizes: List<Size> ->
-            val params = Bundle().apply {
-                putString("SPEED", speed.toString())
-                putString("SIZE", sizes.joinToString { it.toString() })
-            }
-            analytics.logEvent("new_game_search", params)
-            presenter.onStartSearch(sizes, speed)
-        }.show()
+        NewAutomatchChallengeBottomSheet().show(supportFragmentManager, "BOTTOM_SHEET")
     }
 
     fun onNavigateToSupport() {
