@@ -51,6 +51,7 @@ import io.zenandroid.onlinego.ui.screens.localai.middlewares.OwnershipMiddleware
 import io.zenandroid.onlinego.ui.screens.localai.middlewares.StatePersistenceMiddleware
 import io.zenandroid.onlinego.ui.screens.localai.middlewares.UserMoveMiddleware
 import io.zenandroid.onlinego.ui.screens.mygames.MyGamesViewModel
+import io.zenandroid.onlinego.ui.screens.newchallenge.NewAutomatchChallengeViewModel
 import io.zenandroid.onlinego.ui.screens.newchallenge.selectopponent.searchplayer.SearchMiddleware
 import io.zenandroid.onlinego.ui.screens.newchallenge.selectopponent.searchplayer.SearchPlayerReducer
 import io.zenandroid.onlinego.ui.screens.newchallenge.selectopponent.searchplayer.SearchPlayerState
@@ -171,6 +172,10 @@ private val viewModelsModule = module {
         JosekiExplorerState()
       )
     )
+  }
+
+  viewModel {
+    NewAutomatchChallengeViewModel()
   }
 
   viewModel {
