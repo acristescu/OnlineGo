@@ -8,6 +8,7 @@ import androidx.room.RoomWarnings
 import androidx.room.Transaction
 import androidx.room.Update
 import com.google.firebase.crashlytics.FirebaseCrashlytics
+import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Maybe
 import io.reactivex.Single
@@ -23,9 +24,15 @@ import io.zenandroid.onlinego.data.model.local.HistoricGamesMetadata
 import io.zenandroid.onlinego.data.model.local.InitialState
 import io.zenandroid.onlinego.data.model.local.Message
 import io.zenandroid.onlinego.data.model.local.Player
+import io.zenandroid.onlinego.data.model.local.Puzzle
+import io.zenandroid.onlinego.data.model.local.PuzzleCollection
+import io.zenandroid.onlinego.data.model.local.PuzzleCollectionSolutionMetadata
 import io.zenandroid.onlinego.data.model.local.Score
+import io.zenandroid.onlinego.data.model.local.VisitedPuzzleCollection
 import io.zenandroid.onlinego.data.model.ogs.JosekiPosition
 import io.zenandroid.onlinego.data.model.ogs.Phase
+import io.zenandroid.onlinego.data.model.ogs.PuzzleRating
+import io.zenandroid.onlinego.data.model.ogs.PuzzleSolution
 import kotlinx.coroutines.flow.Flow
 
 private const val MAX_ALLOWED_SQL_PARAMS = 999
@@ -429,4 +436,50 @@ abstract class GameDao {
             updateChatMetadata(ChatMetadata(0, messages.last().chatId))
         }
     }
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    abstract fun insertPuzzleCollections(collections: List<PuzzleCollection>)
+
+    @Query("SELECT * FROM puzzlecollection")
+    abstract fun getAllPuzzleCollections(): Flowable<List<PuzzleCollection>>
+
+    @Query("SELECT count(*) FROM puzzlecollection")
+    abstract fun getPuzzleCollectionCount(): Single<Int>
+
+    @Query("SELECT * FROM puzzlecollection WHERE id = :collectionId")
+    abstract fun getPuzzleCollection(collectionId: Long): Flowable<PuzzleCollection>
+
+    @Query("SELECT * FROM puzzle WHERE puzzle_puzzle_collection = :collectionId")
+    abstract fun getPuzzleCollectionPuzzles(collectionId: Long): Flowable<List<Puzzle>>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    abstract fun insertPuzzles(puzzles: List<Puzzle>)
+
+    @Query("SELECT * FROM puzzle WHERE id = :puzzleId")
+    abstract fun getPuzzle(puzzleId: Long): Flowable<Puzzle>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    abstract fun insertPuzzleRating(rating: PuzzleRating)
+
+    @Query("SELECT * FROM puzzlerating WHERE puzzleId = :puzzleId")
+    abstract fun getPuzzleRating(puzzleId: Long): Flowable<PuzzleRating>
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    abstract fun insertPuzzleSolutions(solutions: List<PuzzleSolution>)
+
+    @Query("SELECT * FROM puzzlesolution WHERE puzzle = :puzzleId")
+    abstract fun getPuzzleSolution(puzzleId: Long): Flowable<List<PuzzleSolution>>
+
+    @Insert
+    abstract fun insertPuzzleCollectionVisit(visit: VisitedPuzzleCollection): Completable
+
+    @Query("SELECT collectionId, max(timestamp) timestamp, sum(count) count FROM visitedpuzzlecollection" +
+            " GROUP BY collectionId" +
+            " ORDER BY max(timestamp) DESC")
+    abstract fun getRecentPuzzleCollections(): Flowable<List<VisitedPuzzleCollection>>
+
+    @Query("SELECT puzzle.puzzle_puzzle_collection collectionId, count(DISTINCT puzzlesolution.puzzle) count FROM puzzlesolution" +
+            " INNER JOIN puzzle ON puzzle.id = puzzlesolution.puzzle" +
+            " GROUP BY puzzle.puzzle_puzzle_collection")
+    abstract fun getPuzzleCollectionSolutions(): Flowable<List<PuzzleCollectionSolutionMetadata>>
 }

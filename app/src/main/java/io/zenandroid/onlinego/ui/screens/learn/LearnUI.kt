@@ -58,7 +58,8 @@ fun Screen(state: LearnState, listener: (LearnAction) -> Unit) {
                 }
             }
             Section(title = "Study") {
-                PrimaryRow(title = "Joseki explorer", R.drawable.ic_go_board) { listener(LearnAction.JosekiExplorerClicked) }
+                PrimaryRow(title = "Joseki explorer", R.drawable.ic_branch) { listener(LearnAction.JosekiExplorerClicked) }
+                PrimaryRow(title = "Puzzles", R.drawable.ic_go_board) { listener(LearnAction.PuzzlesClicked) }
             }
         }
     }
