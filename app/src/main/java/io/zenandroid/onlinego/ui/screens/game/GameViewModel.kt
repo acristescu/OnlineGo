@@ -8,6 +8,9 @@ import androidx.compose.material.icons.rounded.Functions
 import androidx.compose.material.icons.rounded.HighlightOff
 import androidx.compose.material.icons.rounded.NextPlan
 import androidx.compose.material.icons.rounded.OutlinedFlag
+import androidx.compose.material.icons.rounded.Pause
+import androidx.compose.material.icons.rounded.PlayArrow
+import androidx.compose.material.icons.rounded.PlayCircle
 import androidx.compose.material.icons.rounded.SkipNext
 import androidx.compose.material.icons.rounded.SkipPrevious
 import androidx.compose.material.icons.rounded.Stop
@@ -45,6 +48,7 @@ import io.zenandroid.onlinego.data.model.local.Player
 import io.zenandroid.onlinego.data.model.local.Score
 import io.zenandroid.onlinego.data.model.local.UserStats
 import io.zenandroid.onlinego.data.model.local.isPaused
+import io.zenandroid.onlinego.data.model.local.isPlayerPaused
 import io.zenandroid.onlinego.data.model.ogs.Phase
 import io.zenandroid.onlinego.data.model.ogs.VersusStats
 import io.zenandroid.onlinego.data.ogs.GameConnection
@@ -69,9 +73,11 @@ import io.zenandroid.onlinego.ui.screens.game.Button.ExitEstimate
 import io.zenandroid.onlinego.ui.screens.game.Button.Next
 import io.zenandroid.onlinego.ui.screens.game.Button.NextGame
 import io.zenandroid.onlinego.ui.screens.game.Button.Pass
+import io.zenandroid.onlinego.ui.screens.game.Button.Pause
 import io.zenandroid.onlinego.ui.screens.game.Button.Previous
 import io.zenandroid.onlinego.ui.screens.game.Button.RejectStoneRemoval
 import io.zenandroid.onlinego.ui.screens.game.Button.Resign
+import io.zenandroid.onlinego.ui.screens.game.Button.Resume
 import io.zenandroid.onlinego.ui.screens.game.Button.Undo
 import io.zenandroid.onlinego.ui.screens.game.PendingNavigation.NavigateToGame
 import io.zenandroid.onlinego.ui.screens.game.PendingNavigation.OpenURL
@@ -289,6 +295,7 @@ class GameViewModel(
             } ?: game?.moves?.size ?: 0
             val nextButton = Next(analysisShownMoveNumber < maxAnalysisMoveNumber)
             val chatButton = Chat(if(unreadMessagesCount > 0) unreadMessagesCount.toString() else null)
+            val pauseButton = if (game?.pauseControl.isPlayerPaused()) Resume else Pause
 
             val visibleButtons =
                 when {
@@ -297,9 +304,9 @@ class GameViewModel(
                     gameFinished == true -> listOf(chatButton, Estimate(true), Previous, nextButton)
                     analyzeMode -> listOf(ExitAnalysis, Estimate(!isAnalysisDisabled()), Previous, nextButton)
                     pendingMove != null -> emptyList()
-                    isMyTurn && candidateMove == null -> listOf(Analyze, Pass, endGameButton, chatButton, nextGameButton)
+                    isMyTurn && candidateMove == null -> listOf(Analyze, Pass, pauseButton, endGameButton, chatButton, nextGameButton)
                     isMyTurn && candidateMove != null -> listOf(ConfirmMove, DiscardMove)
-                    !isMyTurn && game?.phase == Phase.PLAY -> listOf(Analyze, Undo, endGameButton, chatButton, nextGameButton)
+                    !isMyTurn && game?.phase == Phase.PLAY -> listOf(Analyze, Undo, pauseButton, endGameButton, chatButton, nextGameButton)
                     else -> emptyList()
                 }
 
@@ -801,6 +808,8 @@ class GameViewModel(
                 analyzeMode = true
             }
             Pass -> passDialogShowing = true
+            Pause -> gameConnection.pause()
+            Resume -> gameConnection.resume()
             Resign -> resignDialogShowing = true
             CancelGame -> cancelDialogShowing = true
             is Chat -> {
@@ -992,6 +1001,8 @@ sealed class Button(
     object RejectStoneRemoval : Button(Icons.Rounded.ThumbDown, "Reject")
     object Analyze : Button(Icons.Rounded.Biotech, "Analyze")
     object Pass : Button(Icons.Rounded.Stop, "Pass")
+    object Pause : Button(Icons.Rounded.Pause, "Pause")
+    object Resume : Button(Icons.Rounded.PlayCircle, "Resume")
     object Resign : Button(Icons.Rounded.OutlinedFlag, "Resign")
     object CancelGame : Button(Icons.Rounded.Cancel, "Cancel Game")
     class Chat(bubbleText: String? = null) : Button(bubbleText = bubbleText, icon = Icons.Rounded.Forum, label = "Chat")
