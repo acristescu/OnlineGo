@@ -161,8 +161,6 @@ dependencies {
 
     implementation 'me.zhanghai.android.materialprogressbar:library:1.6.1'
 
-    implementation 'com.github.sephiroth74:NumberSlidingPicker:v1.0.3'
-
     implementation('io.socket:socket.io-client:2.0.1') {
         // excluding org.json which is provided by Android
         exclude group: 'org.json', module: 'json'
@@ -198,6 +196,18 @@ dependencies {
     implementation 'androidx.test.espresso:espresso-idling-resource:3.5.1'
 
     implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0'
+
+    implementation 'com.github.sephiroth74:NumberSlidingPicker:v1.0.3'
+
+    implementation 'com.github.tony19:logback-android:2.0.0'
+    implementation('com.github.toomasr:sgf4j:sgf4j-parser-0.0.6') {
+        // Force to use android logging
+        exclude group: 'org.apache.logging.log4j', module: 'log4j-slf4j-impl'
+        exclude group: 'org.apache.logging.log4j', module: 'log4j-api'
+        exclude group: 'org.apache.logging.log4j', module: 'log4j-core'
+    }
+
+    implementation 'com.vmadalin:easypermissions-ktx:1.0.0'
 
     testImplementation 'com.nhaarman:mockito-kotlin-kt1.1:1.6.0'
     testImplementation 'junit:junit:4.13.2'

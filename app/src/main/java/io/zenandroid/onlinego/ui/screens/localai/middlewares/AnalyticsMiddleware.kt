@@ -19,8 +19,9 @@ class AnalyticsMiddleware: Middleware<AiGameState, AiGameAction> {
     override fun bind(actions: Observable<AiGameAction>, state: Observable<AiGameState>): Observable<AiGameAction> {
         return actions.withLatestFrom(state)
                 .doOnNext { (action, state) ->
+                    Log.d("ai.state", "${action::class.simpleName}: ${action.toString()}")
                     when(action) {
-                        CantRestoreState, ViewReady, is RestoredState, ViewPaused, ShowNewGameDialog, DismissNewGameDialog, PromptUserForMove, is NewPosition, is UserHotTrackedCoordinate, is AIOwnershipResponse,
+                        CantRestoreState, is ViewReady, is RestoredState, ViewPaused, ShowNewGameDialog, DismissNewGameDialog, PromptUserForMove, is NewPosition, is UserHotTrackedCoordinate, is AIOwnershipResponse,
                         HideOwnership -> Unit
                         is NewGame -> {
                             analytics.logEvent("ai_game_new_game", null)

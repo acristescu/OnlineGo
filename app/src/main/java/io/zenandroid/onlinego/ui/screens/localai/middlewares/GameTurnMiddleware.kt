@@ -18,11 +18,14 @@ import io.zenandroid.onlinego.utils.recordException
 class GameTurnMiddleware : Middleware<AiGameState, AiGameAction> {
     override fun bind(actions: Observable<AiGameAction>, state: Observable<AiGameState>): Observable<AiGameAction> =
             Observable.merge(
+                listOf(
                     engineStarted(actions, state),
                     newGame(actions),
                     nextMove(actions, state),
-                    computeScore(actions, state)
-            ).mergeWith( toggleAI(actions, state) )
+                    computeScore(actions, state),
+                    toggleAI(actions, state)
+                )
+            )
 
     private fun engineStarted(actions: Observable<AiGameAction>, state: Observable<AiGameState>) =
             actions.filter { it is EngineStarted || it is RestoredState }
@@ -100,15 +103,15 @@ class GameTurnMiddleware : Middleware<AiGameState, AiGameAction> {
                     }
 
     private fun toggleAI(actions: Observable<AiGameAction>, state: Observable<AiGameState>) =
-        actions.filter { it is ToggleAIBlack || it is ToggleAIWhite }
-            .withLatestFrom(state)
-            .filter{ (sideChanged, state) -> state.engineStarted && state.position != null
-                    && state.position?.nextToMove == when(sideChanged) {
-                ToggleAIBlack -> StoneType.BLACK
-                ToggleAIWhite -> StoneType.WHITE
-                else -> null
-            } }
-            .map { NextPlayerChanged }
+            actions.filter { it is ToggleAIBlack || it is ToggleAIWhite }
+                .withLatestFrom(state)
+                .filter{ (sideChanged, state) -> state.engineStarted && state.position != null
+                    && state.position.nextToMove == when(sideChanged) {
+                        ToggleAIBlack -> StoneType.BLACK
+                        ToggleAIWhite -> StoneType.WHITE
+                        else -> null
+                    } }
+                .map { NextPlayerChanged }
 
     private fun onError(throwable: Throwable) {
         Log.e("GameTurnMiddleware", throwable.message, throwable)

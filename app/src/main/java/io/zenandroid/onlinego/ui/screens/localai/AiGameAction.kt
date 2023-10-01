@@ -6,7 +6,7 @@ import io.zenandroid.onlinego.data.model.katago.KataGoResponse.Response
 import io.zenandroid.onlinego.data.model.katago.MoveInfo
 
 sealed class AiGameAction {
-    object ViewReady: AiGameAction()
+    class ViewReady(val loadPos: Position? = null): AiGameAction()
     object ViewPaused: AiGameAction()
     class RestoredState(val state: AiGameState): AiGameAction()
     object CantRestoreState: AiGameAction()

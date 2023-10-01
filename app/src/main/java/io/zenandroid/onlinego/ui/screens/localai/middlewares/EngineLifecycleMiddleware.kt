@@ -21,7 +21,7 @@ class EngineLifecycleMiddleware : Middleware<AiGameState, AiGameAction> {
     }
 
     private fun startEngineObservable(actions: Observable<AiGameAction>, state: Observable<AiGameState>): Observable<AiGameAction> =
-            actions.ofType(ViewReady.javaClass)
+            actions.filter({ it is ViewReady })
                     .withLatestFrom(state)
                     .filter { (_, state) -> !state.engineStarted }
                     .flatMapSingle { (_, _) ->

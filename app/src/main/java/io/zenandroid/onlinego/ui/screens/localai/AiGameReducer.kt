@@ -52,9 +52,25 @@ class AiGameReducer : Reducer<AiGameState, AiGameAction> {
             ViewPaused, UserPressedBack, UserPressedPass  -> {
                 state
             }
-            ViewReady -> state.copy(
-                    chatText = "Give me a second, I'm getting ready..."
-            )
+            is ViewReady -> state.copy(
+                    chatText = "Give me a second, I'm getting ready...",
+            ).let {
+                Log.d("AiGameReducer", "Game Loaded")
+                action.loadPos?.let { position ->
+                    it.copy(
+                        position = position,
+                        boardSize = when(position.boardWidth) {
+                            position.boardHeight -> position.boardWidth
+                            else -> null //nonsquare
+                        }!!,
+                        handicap = 0, //todo: properly parse
+                        enginePlaysBlack = false,
+                        enginePlaysWhite = false,
+                        chatText = "Game Loaded!",
+                        redoPosStack = emptyList()
+                    )
+                } ?: it
+            }
             is NewPosition -> {
                 val newVariation = if(state.history.lastOrNull() == action.newPos) state.history else state.history + action.newPos
                 state.copy(

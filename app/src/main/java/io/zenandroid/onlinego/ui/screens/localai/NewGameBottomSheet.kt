@@ -13,7 +13,7 @@ private const val HANDICAP = "AI_GAME_HANDICAP"
 private const val AI_BLACK = "AI_GAME_PLAY_BLACK"
 private const val AI_WHITE = "AI_GAME_PLAY_WHITE"
 
-class NewGameBottomSheet(context: Context, private val onOk: (Int, Boolean, Boolean, Int) -> Unit) : BottomSheetDialog(context) {
+class NewGameBottomSheet(context: Context, private val onOk: (Int, Boolean, Boolean, Int) -> Unit, private val onLoad: () -> Unit, private val onSave: () -> Unit) : BottomSheetDialog(context) {
     private val prefs = PreferenceManager.getDefaultSharedPreferences(context)!!
     private lateinit var binding: BottomSheetNewAiGameBinding
 
@@ -37,6 +37,18 @@ class NewGameBottomSheet(context: Context, private val onOk: (Int, Boolean, Bool
             val handicap = binding.handicapSlider.value.toInt()
             saveSettings()
             onOk.invoke(selectedSize, youPlayBlack, youPlayWhite, handicap)
+        }
+
+        binding.loadButton.setOnClickListener {
+            dismiss()
+            saveSettings()
+            onLoad()
+        }
+
+        binding.saveButton.setOnClickListener {
+            dismiss()
+            saveSettings()
+            onSave()
         }
 
         binding.handicapSlider.addOnChangeListener { _, value, _ ->
@@ -94,5 +106,4 @@ class NewGameBottomSheet(context: Context, private val onOk: (Int, Boolean, Bool
                 .putFloat(HANDICAP, binding.handicapSlider.value)
                 .apply()
     }
-
 }

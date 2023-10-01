@@ -44,8 +44,10 @@ class StatePersistenceMiddleware : Middleware<AiGameState, AiGameAction> {
     private fun deserializeObservable(actions: Observable<AiGameAction>, state: Observable<AiGameState>) =
         actions.ofType(ViewReady::class.java)
                 .withLatestFrom(state)
-                .map {
-                    if(prefs.contains(STATE_KEY)) {
+                .map { (_, state) ->
+                    if(state.position != null) {
+                        RestoredState(state)
+                    } else if(prefs.contains(STATE_KEY)) {
                         val json = prefs.getString(STATE_KEY, "")!!
                         val newState = try {
                             stateAdapter.fromJson(json)
