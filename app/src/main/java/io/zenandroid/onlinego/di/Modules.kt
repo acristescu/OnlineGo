@@ -30,6 +30,7 @@ import io.zenandroid.onlinego.data.repositories.TutorialsRepository
 import io.zenandroid.onlinego.data.repositories.UserSessionRepository
 import io.zenandroid.onlinego.mvi.Store
 import io.zenandroid.onlinego.playstore.PlayStoreService
+import io.zenandroid.onlinego.ui.screens.automatch.NewAutomatchChallengeViewModel
 import io.zenandroid.onlinego.ui.screens.face2face.FaceToFaceViewModel
 import io.zenandroid.onlinego.ui.screens.game.GameViewModel
 import io.zenandroid.onlinego.ui.screens.joseki.HotTrackMiddleware
@@ -51,7 +52,7 @@ import io.zenandroid.onlinego.ui.screens.localai.middlewares.OwnershipMiddleware
 import io.zenandroid.onlinego.ui.screens.localai.middlewares.StatePersistenceMiddleware
 import io.zenandroid.onlinego.ui.screens.localai.middlewares.UserMoveMiddleware
 import io.zenandroid.onlinego.ui.screens.mygames.MyGamesViewModel
-import io.zenandroid.onlinego.ui.screens.newchallenge.NewAutomatchChallengeViewModel
+import io.zenandroid.onlinego.ui.screens.newchallenge.NewChallengeViewModel
 import io.zenandroid.onlinego.ui.screens.newchallenge.selectopponent.searchplayer.SearchMiddleware
 import io.zenandroid.onlinego.ui.screens.newchallenge.selectopponent.searchplayer.SearchPlayerReducer
 import io.zenandroid.onlinego.ui.screens.newchallenge.selectopponent.searchplayer.SearchPlayerState
@@ -176,6 +177,10 @@ private val viewModelsModule = module {
 
   viewModel {
     NewAutomatchChallengeViewModel()
+  }
+
+  viewModel {
+    NewChallengeViewModel()
   }
 
   viewModel {

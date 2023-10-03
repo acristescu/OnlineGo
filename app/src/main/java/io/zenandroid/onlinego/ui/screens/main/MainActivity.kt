@@ -31,12 +31,12 @@ import io.zenandroid.onlinego.data.model.ogs.Size
 import io.zenandroid.onlinego.data.model.ogs.Speed
 import io.zenandroid.onlinego.databinding.ActivityMainBinding
 import io.zenandroid.onlinego.notifications.SynchronizeGamesWork
+import io.zenandroid.onlinego.ui.screens.automatch.NewAutomatchChallengeBottomSheet
 import io.zenandroid.onlinego.ui.screens.game.GAME_HEIGHT
 import io.zenandroid.onlinego.ui.screens.game.GAME_ID
 import io.zenandroid.onlinego.ui.screens.game.GAME_WIDTH
 import io.zenandroid.onlinego.ui.screens.login.FacebookLoginCallbackActivity
 import io.zenandroid.onlinego.ui.screens.newchallenge.ChallengeParams
-import io.zenandroid.onlinego.ui.screens.newchallenge.NewAutomatchChallengeBottomSheet
 import io.zenandroid.onlinego.ui.screens.newchallenge.NewChallengeBottomSheet
 import io.zenandroid.onlinego.ui.views.BoardView
 import io.zenandroid.onlinego.utils.hide

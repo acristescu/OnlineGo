@@ -1,11 +1,10 @@
-package io.zenandroid.onlinego.ui.screens.newchallenge
+package io.zenandroid.onlinego.ui.screens.automatch
 
 import android.app.Dialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
@@ -22,6 +21,7 @@ import androidx.compose.material.CheckboxDefaults
 import androidx.compose.material.DropdownMenu
 import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -107,66 +107,67 @@ private fun NewAutomatchChallengeBottomSheetContent(
   onSearchClicked: () -> Unit,
   modifier: Modifier = Modifier
 ) {
-  Column(
-    modifier
-      .background(MaterialTheme.colors.surface)
-      .padding(16.dp)
-  ) {
-    Text(text = "Try your hand at a game against a human opponent of similar rating to you.")
-    Text(
-      text = "Game size",
-      fontWeight = FontWeight.Bold,
-      modifier = Modifier.padding(top = 16.dp)
-    )
-    Row {
-      SizeCheckbox(checked = state.small, text = "9×9", onClick = onSmallCheckChanged)
-      Spacer(modifier = Modifier.weight(1f))
-      SizeCheckbox(checked = state.medium, text = "13×13", onClick = onMediumCheckChanged)
-      Spacer(modifier = Modifier.weight(1f))
-      SizeCheckbox(checked = state.large, text = "19×19", onClick = onLargeCheckChanged)
-    }
-    Text(
-      text = "Time Controls",
-      fontWeight = FontWeight.Bold,
-      modifier = Modifier.padding(top = 16.dp)
-    )
-    Box {
-      var expanded by remember { mutableStateOf(false) }
+  Surface {
+    Column(
+      modifier
+        .padding(16.dp)
+    ) {
+      Text(text = "Try your hand at a game against a human opponent of similar rating to you.")
       Text(
-        text = state.speed.getText()
-          .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.ENGLISH) else it.toString() },
-        color = MaterialTheme.colors.primary,
-        modifier = Modifier
-          .clickable {
-            expanded = true
-          }
-          .padding(top = 4.dp)
-          .fillMaxWidth()
+        text = "Game size",
+        fontWeight = FontWeight.Bold,
+        modifier = Modifier.padding(top = 16.dp)
       )
-      DropdownMenu(
-        expanded = expanded,
-        onDismissRequest = { expanded = false },
-        modifier = Modifier.fillMaxWidth()
-      ) {
-        Speed.entries.forEach {
-          DropdownMenuItem(onClick = {
-            expanded = false
-            onSpeedChanged(it)
-          }) {
-            Text(text = it.getText()
-              .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.ENGLISH) else it.toString() })
+      Row {
+        SizeCheckbox(checked = state.small, text = "9×9", onClick = onSmallCheckChanged)
+        Spacer(modifier = Modifier.weight(1f))
+        SizeCheckbox(checked = state.medium, text = "13×13", onClick = onMediumCheckChanged)
+        Spacer(modifier = Modifier.weight(1f))
+        SizeCheckbox(checked = state.large, text = "19×19", onClick = onLargeCheckChanged)
+      }
+      Text(
+        text = "Time Controls",
+        fontWeight = FontWeight.Bold,
+        modifier = Modifier.padding(top = 16.dp)
+      )
+      Box {
+        var expanded by remember { mutableStateOf(false) }
+        Text(
+          text = state.speed.getText()
+            .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.ENGLISH) else it.toString() },
+          color = MaterialTheme.colors.primary,
+          modifier = Modifier
+            .clickable {
+              expanded = true
+            }
+            .padding(top = 4.dp)
+            .fillMaxWidth()
+        )
+        DropdownMenu(
+          expanded = expanded,
+          onDismissRequest = { expanded = false },
+          modifier = Modifier.fillMaxWidth()
+        ) {
+          Speed.entries.forEach {
+            DropdownMenuItem(onClick = {
+              expanded = false
+              onSpeedChanged(it)
+            }) {
+              Text(text = it.getText()
+                .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.ENGLISH) else it.toString() })
+            }
           }
         }
       }
-    }
-    Button(
-      modifier = Modifier
-        .fillMaxWidth()
-        .padding(top = 16.dp),
-      enabled = state.isAnySizeSelected,
-      onClick = onSearchClicked
-    ) {
-      Text("Search")
+      Button(
+        modifier = Modifier
+          .fillMaxWidth()
+          .padding(top = 16.dp),
+        enabled = state.isAnySizeSelected,
+        onClick = onSearchClicked
+      ) {
+        Text("Search")
+      }
     }
   }
 }

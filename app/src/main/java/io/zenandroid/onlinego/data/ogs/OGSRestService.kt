@@ -99,9 +99,9 @@ class OGSRestService(
 
     fun challengeBot(challengeParams: ChallengeParams): Completable {
         val size = when(challengeParams.size) {
-            "9x9" -> 9
-            "13x13" -> 13
-            "19x19" -> 19
+            "9x9", "9×9" -> 9
+            "13x13", "13×13" -> 13
+            "19x19", "19×19" -> 19
             else -> 19
         }
 

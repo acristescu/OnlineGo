@@ -1,4 +1,4 @@
-package io.zenandroid.onlinego.ui.screens.newchallenge
+package io.zenandroid.onlinego.ui.screens.automatch
 
 import android.preference.PreferenceManager
 import androidx.lifecycle.ViewModel
@@ -13,7 +13,6 @@ class NewAutomatchChallengeViewModel : ViewModel() {
     private const val SEARCH_GAME_LARGE = "SEARCH_GAME_LARGE"
     private const val SEARCH_GAME_SPEED = "SEARCH_GAME_SPEED"
   }
-
 
   private val prefs = PreferenceManager.getDefaultSharedPreferences(OnlineGoApplication.instance)
   val state = MutableStateFlow(
