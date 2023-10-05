@@ -2,6 +2,7 @@ package io.zenandroid.onlinego.ui.screens.main
 
 import android.Manifest
 import android.app.NotificationChannel
+import android.app.NotificationChannelGroup
 import android.app.NotificationManager
 import android.content.ComponentName
 import android.content.Context
@@ -136,9 +137,39 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
+            listOf(
+                    NotificationChannelGroup("correspondence", "Correspondence"),
+                    NotificationChannelGroup("live", "Live"),
+                    NotificationChannelGroup("blitz", "Blitz"),
+            ).map(notificationManager::createNotificationChannelGroup)
+
             notificationManager.createNotificationChannels(
                     listOf(
-                            NotificationChannel("active_games", "Your Turn", NotificationManager.IMPORTANCE_LOW).apply {
+                            NotificationChannel("active_correspondence_games", "Your Turn", NotificationManager.IMPORTANCE_LOW).apply {
+                                setGroup("correspondence")
+                                enableLights(true)
+                                lightColor = Color.WHITE
+                                enableVibration(true)
+                                vibrationPattern = longArrayOf(0, 200, 0, 200)
+
+                            },
+                            NotificationChannel("active_live_games", "Your Turn", NotificationManager.IMPORTANCE_LOW).apply {
+                                setGroup("live")
+                                enableLights(true)
+                                lightColor = Color.WHITE
+                                enableVibration(true)
+                                vibrationPattern = longArrayOf(0, 200, 0, 200)
+
+                            },
+                            NotificationChannel("active_blitz_games", "Your Turn", NotificationManager.IMPORTANCE_LOW).apply {
+                                setGroup("blitz")
+                                enableLights(true)
+                                lightColor = Color.WHITE
+                                enableVibration(true)
+                                vibrationPattern = longArrayOf(0, 200, 0, 200)
+
+                            },
+                            NotificationChannel("active_games", "Your Turn", NotificationManager.IMPORTANCE_NONE).apply {
                                 enableLights(true)
                                 lightColor = Color.WHITE
                                 enableVibration(true)

@@ -16,6 +16,7 @@ import android.view.View
 import android.widget.RemoteViews
 import androidx.core.os.bundleOf
 import androidx.navigation.NavDeepLinkBuilder
+import java.util.Locale
 import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.gamelogic.RulesManager
@@ -163,6 +164,12 @@ class NotificationUtils {
                     Phase.STONE_REMOVAL -> "Stone removal phase"
                     else -> "Requires your attention"
                 }
+                val category = when(it.timeControl?.speed?.uppercase(Locale.ROOT)) {
+                    "correspondence" -> "active_correspondence_games"
+                    "live" -> "active_live_games"
+                    "blitz" -> "active_blitz_games"
+                    else -> "active_games"
+                }
                 val remoteView = RemoteViews(context.packageName, R.layout.notification_board)
 
                 board.boardWidth = it.width
@@ -170,7 +177,7 @@ class NotificationUtils {
                 board.position = RulesManager.replay(it, computeTerritory = false)
                 remoteView.setImageViewBitmap(R.id.notification_bitmap, board.convertToContentBitmap())
                 val notification =
-                        NotificationCompat.Builder(context, "active_games")
+                        NotificationCompat.Builder(context, category)
                                 .setContentTitle(opponent)
                                 .setContentText(message)
                                 .setContentIntent(pendingIntent)
