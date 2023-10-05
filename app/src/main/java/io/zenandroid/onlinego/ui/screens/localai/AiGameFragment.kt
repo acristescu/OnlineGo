@@ -3,7 +3,6 @@ package io.zenandroid.onlinego.ui.screens.localai
 import android.app.Activity.RESULT_OK
 import android.content.Intent
 import android.graphics.Color
-import android.graphics.Point
 import android.Manifest.permission
 import android.net.Uri
 import android.os.Bundle
@@ -21,7 +20,6 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.transition.DrawableCrossFadeFactory
-import com.jakewharton.rxbinding2.view.RxView
 import com.jakewharton.rxbinding3.view.clicks
 import com.toomasr.sgf4j.Sgf
 import com.toomasr.sgf4j.parser.Game
@@ -30,6 +28,7 @@ import com.vmadalin.easypermissions.*
 import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
 import io.zenandroid.onlinego.R
+import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.local.SgfData
 import io.zenandroid.onlinego.data.model.Position
 import io.zenandroid.onlinego.data.model.StoneType
@@ -153,6 +152,7 @@ class AiGameFragment : Fragment(), MviView<AiGameState, AiGameAction> {
             fadeOutRemovedStones = state.showFinalTerritory
             drawAiEstimatedOwnership = state.showAiEstimatedTerritory
             ownership = state.aiAnalysis?.ownership
+            hintBasis = if(state.showHints) state.aiAnalysis?.rootInfo else null
             hints = if(state.showHints) state.aiAnalysis?.moveInfos else null
             state.position?.let {
                 position = it
@@ -262,7 +262,7 @@ class AiGameFragment : Fragment(), MviView<AiGameState, AiGameAction> {
 
         val size = sgf?.getProperty("SZ")?.split(":")?.let { it.plus(it) }?.take(2)
         var pos = Position(size!![0].toInt(), size!![1].toInt())
-        sgf?.getProperty("KM")?.toFloat()?.let { pos.komi = it }
+        sgf?.getProperty("KM")?.toFloat()?.let { pos = pos.copy(komi = it) }
         var handi = sgf?.getProperty("HA")?.toInt()
         var name = sgf?.getProperty("GN") ?: data.getPath()
         var move = sgf?.getRootNode()?.getNextNode()
@@ -274,19 +274,22 @@ class AiGameFragment : Fragment(), MviView<AiGameState, AiGameAction> {
                 else -> null
             }!!
             if (pos.nextToMove != colour) {
-                pos = RulesManager.makeMove(pos, pos.nextToMove, Point(-1, -1))!!
-                pos.nextToMove = pos.nextToMove.opponent
+                pos = RulesManager.makeMove(pos, pos.nextToMove, Cell(-1, -1))!!.let {
+                    it.copy(
+                        nextToMove = it.nextToMove.opponent
+                    )
+                }
             }
             pos = RulesManager.makeMove(pos, colour,
                 if (move.getMoveString().isNullOrBlank()) {
-                    Point(-1, -1)
+                    Cell(-1, -1)
                 } else {
                     move.getCoords().let {
-                        Point(it[0], it[1])
+                        Cell(it[0], it[1])
                     }
                 }
             )!!
-            pos.nextToMove = pos.nextToMove.opponent
+            pos = pos.copy(nextToMove = pos.nextToMove.opponent)
             move = move.getNextNode()
         }
         Log.d("AiGameFragment", "loadPosition(\"${pos}\")")
@@ -309,10 +312,7 @@ class AiGameFragment : Fragment(), MviView<AiGameState, AiGameAction> {
             }
             it.komi?.let { game.addProperty("KM", it.toString()) }
 
-            var positions = listOf(it)
-            while (positions.last()!!.parentPosition != null) {
-                positions = positions.plus(positions.last()!!.parentPosition!!)
-            }
+            val positions = state.history
             Log.d("AiGameFragment", "Serializing ${positions.size} moves")
 
             var cursor = game.getRootNode()

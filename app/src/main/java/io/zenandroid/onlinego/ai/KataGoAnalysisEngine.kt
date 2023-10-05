@@ -15,10 +15,10 @@ import io.zenandroid.onlinego.data.model.katago.Query
 import io.zenandroid.onlinego.data.repositories.SettingsRepository
 import io.zenandroid.onlinego.gamelogic.Util
 import io.zenandroid.onlinego.utils.recordException
+import org.koin.core.context.GlobalContext
 import java.io.*
 import java.util.*
 import java.util.concurrent.atomic.AtomicLong
-import org.koin.core.context.GlobalContext.get
 
 object KataGoAnalysisEngine {
   var started = false

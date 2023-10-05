@@ -62,6 +62,9 @@ class AnalyticsMiddleware: Middleware<AiGameState, AiGameAction> {
                         UserAskedForOwnership -> analytics.logEvent("ai_game_user_asked_territory", null)
                         is UserTriedSuicidalMove -> analytics.logEvent("ai_game_user_tried_suicide", null)
                         is UserTriedKoMove -> analytics.logEvent("ai_game_user_tried_ko", null)
+                        NextPlayerChanged -> analytics.logEvent("ai_game_next_player_changed", null)
+                        ToggleAIBlack -> analytics.logEvent("ai_game_toggled_ai_black", null)
+                        ToggleAIWhite -> analytics.logEvent("ai_game_toggled_ai_white", null)
                     }
                 }
                 .switchMap { Observable.empty<AiGameAction>() }

@@ -19,10 +19,13 @@ import io.zenandroid.onlinego.ui.screens.localai.AiGameAction.GenerateAiMove
 import io.zenandroid.onlinego.ui.screens.localai.AiGameAction.HideOwnership
 import io.zenandroid.onlinego.ui.screens.localai.AiGameAction.NewGame
 import io.zenandroid.onlinego.ui.screens.localai.AiGameAction.NewPosition
+import io.zenandroid.onlinego.ui.screens.localai.AiGameAction.NextPlayerChanged
 import io.zenandroid.onlinego.ui.screens.localai.AiGameAction.PromptUserForMove
 import io.zenandroid.onlinego.ui.screens.localai.AiGameAction.RestoredState
 import io.zenandroid.onlinego.ui.screens.localai.AiGameAction.ScoreComputed
 import io.zenandroid.onlinego.ui.screens.localai.AiGameAction.ShowNewGameDialog
+import io.zenandroid.onlinego.ui.screens.localai.AiGameAction.ToggleAIBlack
+import io.zenandroid.onlinego.ui.screens.localai.AiGameAction.ToggleAIWhite
 import io.zenandroid.onlinego.ui.screens.localai.AiGameAction.UserAskedForHint
 import io.zenandroid.onlinego.ui.screens.localai.AiGameAction.UserAskedForOwnership
 import io.zenandroid.onlinego.ui.screens.localai.AiGameAction.UserHotTrackedCoordinate
@@ -176,7 +179,7 @@ class AiGameReducer : Reducer<AiGameState, AiGameAction> {
                     chatText = "An error occurred communicating with the AI"
             )
             UserPressedPrevious -> {
-                val newPosition = if(aiMovedLast(state) && !aiOnlyGame(state)) state.history.dropLast(2)
+                val newHistory = if(aiMovedLast(state) && !aiOnlyGame(state)) state.history.dropLast(2)
                                   else state.history.dropLast(1)
                 val removedHistory = if(aiMovedLast(state) && !aiOnlyGame(state)) state.history.takeLast(2)
                                      else state.history.takeLast(1)
