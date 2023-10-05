@@ -44,6 +44,11 @@ class NotificationUtils {
             notificationManager.cancelAll()
         }
 
+        fun cancelNotification(id: Int) {
+            val notificationManager = OnlineGoApplication.instance.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.cancel(id)
+        }
+
         private fun supportsNotificationGrouping() =
                 Build.VERSION.SDK_INT >= Build.VERSION_CODES.N
 
@@ -73,6 +78,26 @@ class NotificationUtils {
                     game.phase == Phase.FINISHED -> true
                     else -> false
                 }
+            }
+
+            val gamesToClear = (newGames + gamesThatChanged).filter { game ->
+                when {
+                    lastNotifications.find {
+                        it.notification.gameId == game.id
+                    } == null -> false
+
+                    game.phase == Phase.FINISHED -> false
+                    game.phase == Phase.PLAY && game.playerToMoveId != userId -> true
+                    game.phase == Phase.STONE_REMOVAL -> {
+                        val myRemovedStones = if(userId == game.whitePlayer.id) game.whitePlayer.acceptedStones else game.blackPlayer.acceptedStones
+                        game.removedStones == myRemovedStones
+                    }
+                    else -> false
+                }
+            }
+
+            for (game in gamesToClear) {
+                cancelNotification(game.id.toInt())
             }
 
             if (gamesToNotify.isNotEmpty()) {
@@ -191,6 +216,7 @@ class NotificationUtils {
                                 .setStyle(NotificationCompat.DecoratedCustomViewStyle())
                                 .setCustomBigContentView(remoteView)
                                 .setAutoCancel(true)
+                                .setOnlyAlertOnce(true)
                                 .apply {
                                     if (it.phase == Phase.PLAY)
                                         setChronometerCountDown(true)
