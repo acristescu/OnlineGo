@@ -170,6 +170,7 @@ class NotificationUtils {
                     "blitz" -> "active_blitz_games"
                     else -> "active_games"
                 }
+                val timeLimit = System.currentTimeMillis() + timeLeftForCurrentPlayer(it)
                 val remoteView = RemoteViews(context.packageName, R.layout.notification_board)
 
                 board.boardWidth = it.width
@@ -190,6 +191,14 @@ class NotificationUtils {
                                 .setStyle(NotificationCompat.DecoratedCustomViewStyle())
                                 .setCustomBigContentView(remoteView)
                                 .setAutoCancel(true)
+                                .apply {
+                                    if (it.phase == Phase.PLAY)
+                                        setChronometerCountDown(true)
+                                            .setUsesChronometer(true)
+                                            .setShowWhen(true)
+                                            .setWhen(timeLimit)
+                                            .setOngoing(true)
+                                }
                                 .build()
 
                 val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
