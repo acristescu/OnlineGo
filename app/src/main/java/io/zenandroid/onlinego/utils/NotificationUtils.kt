@@ -184,7 +184,22 @@ class NotificationUtils {
 
                 val opponent = if (userId == it.blackPlayer.id) it.whitePlayer.username else it.blackPlayer.username
                 val message = when(it.phase) {
-                    Phase.FINISHED -> "Game ended"
+                    Phase.FINISHED -> {
+                        val outcome = when {
+                            it.outcome == "Cancellation" -> "Cancelled"
+                            userId == it.blackPlayer.id ->
+                                if (it.blackLost == true) "Lost by ${it.outcome}"
+                                else "Won by ${it.outcome}"
+                            userId == it.whitePlayer.id ->
+                                if (it.whiteLost == true) "Lost by ${it.outcome}"
+                                else "Won by ${it.outcome}"
+                            it.whiteLost == true ->
+                                "Black won by ${it.outcome}"
+                            else ->
+                                "White won by ${it.outcome}"
+                        }
+                        "Game ended - $outcome"
+                    }
                     Phase.PLAY -> "Your turn"
                     Phase.STONE_REMOVAL -> "Stone removal phase"
                     else -> "Requires your attention"
@@ -215,8 +230,6 @@ class NotificationUtils {
                                 .setGroupAlertBehavior(NotificationCompat.GROUP_ALERT_SUMMARY)
                                 .setStyle(NotificationCompat.DecoratedCustomViewStyle())
                                 .setCustomBigContentView(remoteView)
-                                .setAutoCancel(true)
-                                .setOnlyAlertOnce(true)
                                 .apply {
                                     if (it.phase == Phase.PLAY)
                                         setChronometerCountDown(true)
@@ -224,6 +237,8 @@ class NotificationUtils {
                                             .setShowWhen(true)
                                             .setWhen(timeLimit)
                                             .setOngoing(true)
+                                    else
+                                        setAutoCancel(true)
                                 }
                                 .build()
 
