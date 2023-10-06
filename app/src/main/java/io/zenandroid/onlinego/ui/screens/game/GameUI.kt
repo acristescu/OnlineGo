@@ -92,6 +92,7 @@ import io.zenandroid.onlinego.ui.screens.game.UserAction.GameOverDialogNextGame
 import io.zenandroid.onlinego.ui.screens.game.UserAction.GameOverDialogQuickReplay
 import io.zenandroid.onlinego.ui.screens.game.UserAction.KOMoveDialogDismiss
 import io.zenandroid.onlinego.ui.screens.game.UserAction.OpenInBrowser
+import io.zenandroid.onlinego.ui.screens.game.UserAction.OpenVariation
 import io.zenandroid.onlinego.ui.screens.game.UserAction.OpponentUndoRequestAccepted
 import io.zenandroid.onlinego.ui.screens.game.UserAction.OpponentUndoRequestRejected
 import io.zenandroid.onlinego.ui.screens.game.UserAction.PassDialogConfirm
@@ -230,8 +231,10 @@ fun GameScreen(state: GameState,
     if(state.chatDialogShowing) {
         ChatDialog(
             messages = state.messages,
+            game = state.position!!,
             onDialogDismiss = { onUserAction(ChatDialogDismiss) },
-            onSendMessage = { onUserAction(ChatSend(it)) }
+            onSendMessage = { onUserAction(ChatSend(it)) },
+            onVariation = { onUserAction(OpenVariation(it)) }
         )
     }
     if (state.retryMoveDialogShowing) {

@@ -1,7 +1,11 @@
 package io.zenandroid.onlinego.data.model.local
 
+import androidx.room.Embedded
 import androidx.room.Entity
+import androidx.room.Ignore
 import androidx.room.PrimaryKey
+import java.util.Locale
+import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.ogs.Chat
 import io.zenandroid.onlinego.data.model.ogs.ChatChannel
 import io.zenandroid.onlinego.gamelogic.Util
@@ -16,8 +20,10 @@ data class Message (
         val date: Long,
         @PrimaryKey val chatId: String,
         val text: String,
+        val reviewUrl: String? = null,
+        @Embedded(prefix = "variation_") val variation: AnalysisMessage? = null,
         val seen: Boolean = false
-
+// TODO: PolymorphicJsonAdapterFactory
 ) {
     enum class Type {
         MAIN,
@@ -36,24 +42,7 @@ data class Message (
                 ChatChannel.PERSONAL -> Type.PERSONAL
             }
 
-            val text = chat.line.body as? String
-                ?: (chat.line.body as? Map<String, Any>)?.let {
-                    val type = it["type"] as? String
-                    if(type == "analysis") {
-                        val name = it["name"] as? String
-                        val from = (it["from"] as? Double)?.toLong()
-                        val moves = (it["moves"] as? String)?.let {
-                            if (it.matches("\\w+".toRegex())) {
-                                it.lowercase().chunked(2).map {
-                                    val point = Util.getCoordinatesFromSGF(it)
-                                    Util.getGTPCoordinates(point, gameSize!!)
-                                }.joinToString(" ")
-                            } else it
-                        }
-                        "Variation \"${name ?: ""}\" from move ${from ?: "?"}: ${moves}"
-                    } else type?.capitalize()?.let { "${it} (unsupported)" }
-                } ?: "(Unsupported message)"
-            return Message(
+            var message = Message(
                     type = type,
                     gameId = gameId,
                     username = chat.line.username,
@@ -61,8 +50,84 @@ data class Message (
                     moveNumber = chat.line.move_number,
                     date = chat.line.date,
                     chatId = chat.line.chat_id ?: chat.chat_id!!,
-                    text = text
-            )
+                    text = ""
+            ).run {
+                when {
+                    chat.line.body is String? -> {
+                        copy(text = chat.line.body)
+                    }
+                    (chat.line.body as? Map<String, Any>) != null -> {
+                        val content = chat.line.body as Map<String, Any>
+                        when (content["type"] as? String) {
+                            "analysis" -> content.let {
+                                val name = it["name"] as? String
+                                val from = (it["from"] as? Double)?.toInt()
+                                val movestring = (it["moves"] as? String) ?: ""
+                                val moves = movestring.lowercase().run {
+                                    if (matches("\\w+".toRegex())) {
+                                        chunked(2).map {
+                                            Util.getCoordinatesFromSGF(it)
+                                        }
+                                    }
+                                    else null
+                                }
+                                if (moves != null) {
+                                    copy(
+                                        text = "Variation \"${name ?: ""}\": ",
+                                        variation = AnalysisMessage(
+                                            name = name,
+                                            from = from,
+                                            moves = moves,
+                                        ),
+                                    )
+                                }
+                                else {
+                                    copy(
+                                        text = "Variation \"${name ?: ""}\" from move ${from ?: "?"}: ${movestring}",
+                                    )
+                                }
+                            }
+                            "review" -> content.let {
+                                val reviewURL = "https://online-go.com/review/${it["review_id"] as? String}"
+                                copy(
+                                    text = "Review: ",
+                                    reviewUrl = reviewURL,
+                                )
+                            }
+                            "translated" -> content.let {
+                                val bcp46 = Locale.getDefault().getLanguage()
+                                val translated = it[bcp46.lowercase()] as? String
+                                val original = (it["en"] as? String) ?: ""
+                                copy(text = translated ?: original)
+                            }
+                            else -> (content["type"] as? String)?.capitalize()?.let {
+                                copy(text = "${it} (unsupported)")
+                            } ?: copy(text = "(Unsupported message)")
+                        }
+                    }
+                    else -> copy(text = "(Unsupported message)")
+                }
+            }
+
+            return message
         }
+    }
+}
+
+@Entity
+data class AnalysisMessage (
+    var name: String? = null,
+    var from: Int? = null,
+    var moves: List<Cell>? = null,
+    @Ignore var marks: Map<String, String>? = null,
+    @Ignore var pen_marks: List<Any>? = null,
+    @Ignore var branch_move: Long? = null, // deprecated
+) {
+    @Ignore val type: String = "analysis"
+    
+    constructor(name: String?, from: Int?, moves: List<Cell>?) : this() {
+        this.name = name
+        this.from = from
+        this.moves = moves
     }
 }

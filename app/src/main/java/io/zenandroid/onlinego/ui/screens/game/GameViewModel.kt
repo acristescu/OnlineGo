@@ -92,6 +92,7 @@ import io.zenandroid.onlinego.ui.screens.game.UserAction.GameOverDialogNextGame
 import io.zenandroid.onlinego.ui.screens.game.UserAction.GameOverDialogQuickReplay
 import io.zenandroid.onlinego.ui.screens.game.UserAction.KOMoveDialogDismiss
 import io.zenandroid.onlinego.ui.screens.game.UserAction.OpenInBrowser
+import io.zenandroid.onlinego.ui.screens.game.UserAction.OpenVariation
 import io.zenandroid.onlinego.ui.screens.game.UserAction.OpponentUndoRequestAccepted
 import io.zenandroid.onlinego.ui.screens.game.UserAction.OpponentUndoRequestRejected
 import io.zenandroid.onlinego.ui.screens.game.UserAction.PassDialogConfirm
@@ -746,6 +747,12 @@ class GameViewModel(
             ChatDialogDismiss -> chatDialogShowing = false
             KOMoveDialogDismiss -> koMoveDialogShowing = false
             is ChatSend -> gameConnection.sendMessage(action.message, gameState?.moves?.size ?: 0)
+            is OpenVariation -> {
+                chatDialogShowing = false
+                analyzeMode = true
+                currentVariation = action.variation
+                analysisShownMoveNumber = action.variation.rootMoveNo
+            }
             GameInfoClick -> gameInfoDialogShowing = true
             GameInfoDismiss -> gameInfoDialogShowing = false
             GameOverDialogDismiss -> gameOverDialogShowing = false
@@ -1028,6 +1035,7 @@ sealed interface UserAction {
     object ChatDialogDismiss: UserAction
     object KOMoveDialogDismiss: UserAction
     class ChatSend(val message: String): UserAction
+    class OpenVariation(val variation: Variation): UserAction
     object OpenInBrowser: UserAction
     object DownloadSGF: UserAction
     object OpponentUndoRequestAccepted: UserAction
