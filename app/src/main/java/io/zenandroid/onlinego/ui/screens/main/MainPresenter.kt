@@ -1,19 +1,16 @@
 package io.zenandroid.onlinego.ui.screens.main
 
 import android.util.Log
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import io.zenandroid.onlinego.utils.addToDisposable
-import io.zenandroid.onlinego.data.model.local.Game
 import io.zenandroid.onlinego.data.model.ogs.Size
 import io.zenandroid.onlinego.data.model.ogs.Speed
 import io.zenandroid.onlinego.data.ogs.OGSRestService
 import io.zenandroid.onlinego.data.ogs.OGSWebSocketService
-import io.zenandroid.onlinego.ui.screens.newchallenge.ChallengeParams
-import io.zenandroid.onlinego.data.repositories.ActiveGamesRepository
+import io.zenandroid.onlinego.data.model.ogs.ChallengeParams
 import io.zenandroid.onlinego.data.repositories.AutomatchRepository
 import io.zenandroid.onlinego.data.repositories.UserSessionRepository
 import java.util.concurrent.TimeUnit

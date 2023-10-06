@@ -32,8 +32,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import io.zenandroid.onlinego.data.model.ogs.ChallengeParams
 import io.zenandroid.onlinego.ui.screens.main.MainActivity
-import io.zenandroid.onlinego.ui.screens.newchallenge.selectopponent.SelectOpponentDialog
 import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
 import io.zenandroid.onlinego.utils.PreviewBackground
 import io.zenandroid.onlinego.utils.rememberStateWithLifecycle
@@ -63,18 +63,23 @@ class NewChallengeBottomSheet : BottomSheetDialogFragment() {
           NewChallengeBottomSheetContent(
             state = state,
             onEvent = {
-              if (it is NewChallengeViewModel.Event.OpponentClicked) {
-                fragmentManager?.let {
-                  SelectOpponentDialog().apply {
-                    setTargetFragment(this@NewChallengeBottomSheet, 1)
-                    show(it, "SELECT_OPPONENT")
-                  }
-                }
-              } else {
+//              if (it is NewChallengeViewModel.Event.OpponentClicked) {
+//                fragmentManager?.let {
+//                  SelectOpponentDialog().apply {
+//                    setTargetFragment(this@NewChallengeBottomSheet, 1)
+//                    show(it, "SELECT_OPPONENT")
+//                  }
+//                }
+//              } else {
                 viewModel.onEvent(it)
-              }
+//              }
             }
           )
+          if(state.selectOpponentDialogShowing) {
+            SelectOpponentDialog(
+              onDialogDismiss = { viewModel.onEvent(NewChallengeViewModel.Event.SelectOpponentDialogDismissed(it)) }
+            )
+          }
         }
       }
     }

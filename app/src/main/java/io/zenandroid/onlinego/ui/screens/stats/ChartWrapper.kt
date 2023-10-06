@@ -5,13 +5,8 @@ import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.GradientDrawable.Orientation.TOP_BOTTOM
 import android.view.MotionEvent
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.gestures.awaitEachGesture
-import androidx.compose.foundation.gestures.awaitFirstDown
-import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
-import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -28,8 +23,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.PointerEventPass.Final
-import androidx.compose.ui.input.pointer.PointerEventPass.Initial
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
@@ -265,11 +258,11 @@ private fun TimeRangeTabs(
   onFilterChanged: (Filter) -> Unit
 ) {
   TabRow(
-    selectedTabIndex = Filter.values().indexOf(filter),
+    selectedTabIndex = Filter.entries.indexOf(filter),
     backgroundColor = Color.Transparent,
     contentColor = MaterialTheme.colors.primary,
   ) {
-    Filter.values().forEach { range ->
+    Filter.entries.forEach { range ->
       Tab(
         selected = range == filter,
         onClick = { onFilterChanged(range) },

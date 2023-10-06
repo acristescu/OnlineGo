@@ -7,6 +7,7 @@ import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.data.model.local.Player
+import io.zenandroid.onlinego.data.model.ogs.ChallengeParams
 import io.zenandroid.onlinego.data.model.ogs.OGSPlayer
 import io.zenandroid.onlinego.utils.egfToRank
 import io.zenandroid.onlinego.utils.formatRank
@@ -126,7 +127,28 @@ class NewChallengeViewModel : ViewModel() {
         )
       }
 
-      is Event.OpponentClicked -> {}
+      is Event.OpponentClicked -> {
+        state.value = state.value.copy(
+          selectOpponentDialogShowing = true
+        )
+      }
+
+      is Event.SelectOpponentDialogDismissed -> {
+        state.value = state.value.copy(
+          selectOpponentDialogShowing = false,
+          challenge = state.value.challenge.copy(
+            opponent = event.selectedOpponent?.let { OGSPlayer.fromPlayer(it) },
+          ),
+          opponentText = event.selectedOpponent?.let {
+            "${it.username} (${
+              formatRank(
+                egfToRank(it.rating),
+                it.deviation
+              )
+            })"
+          } ?: "[Select Opponent]"
+        )
+      }
     }
   }
 
@@ -140,6 +162,7 @@ class NewChallengeViewModel : ViewModel() {
     data class SpeedSelected(val speed: String) : Event
     data class DisableAnalysisSelected(val disableAnalysis: Boolean) : Event
     data class PrivateSelected(val private: Boolean) : Event
+    data class SelectOpponentDialogDismissed(val selectedOpponent: Player?) : Event
     data object ChallengeClicked : Event
   }
 }
@@ -148,5 +171,6 @@ class NewChallengeViewModel : ViewModel() {
 data class NewChallengeBottomSheetState(
   val challenge: ChallengeParams,
   val done: Boolean = false,
-  val opponentText: String
+  val opponentText: String,
+  val selectOpponentDialogShowing: Boolean = false,
 )

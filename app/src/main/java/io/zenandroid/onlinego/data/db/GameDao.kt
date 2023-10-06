@@ -1,12 +1,29 @@
 package io.zenandroid.onlinego.data.db
 
-import androidx.room.*
+import androidx.room.Dao
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.Query
+import androidx.room.RoomWarnings
+import androidx.room.Transaction
+import androidx.room.Update
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.reactivex.Flowable
 import io.reactivex.Maybe
 import io.reactivex.Single
 import io.zenandroid.onlinego.data.model.Cell
-import io.zenandroid.onlinego.data.model.local.*
+import io.zenandroid.onlinego.data.model.local.Challenge
+import io.zenandroid.onlinego.data.model.local.ChallengeNotification
+import io.zenandroid.onlinego.data.model.local.ChatMetadata
+import io.zenandroid.onlinego.data.model.local.Clock
+import io.zenandroid.onlinego.data.model.local.Game
+import io.zenandroid.onlinego.data.model.local.GameNotification
+import io.zenandroid.onlinego.data.model.local.GameNotificationWithDetails
+import io.zenandroid.onlinego.data.model.local.HistoricGamesMetadata
+import io.zenandroid.onlinego.data.model.local.InitialState
+import io.zenandroid.onlinego.data.model.local.Message
+import io.zenandroid.onlinego.data.model.local.Player
+import io.zenandroid.onlinego.data.model.local.Score
 import io.zenandroid.onlinego.data.model.ogs.JosekiPosition
 import io.zenandroid.onlinego.data.model.ogs.Phase
 import kotlinx.coroutines.flow.Flow
@@ -363,7 +380,7 @@ abstract class GameDao {
             lastMove DESC
         LIMIT 25
     """)
-    abstract fun getRecentOpponents(userId: Long?): Single<List<Player>>
+    abstract suspend fun getRecentOpponents(userId: Long?): List<Player>
 
     @Transaction
     open fun insertJosekiPositionsWithChildren(fullyLoadedPositions: List<JosekiPosition>, children: List<JosekiPosition>) {

@@ -15,11 +15,8 @@ import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.GroupieViewHolder
 import com.xwray.groupie.Section
 import com.xwray.groupie.viewbinding.BindableItem
-import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.schedulers.Schedulers
 import io.zenandroid.onlinego.R
-import io.zenandroid.onlinego.utils.addToDisposable
 import io.zenandroid.onlinego.data.repositories.PlayersRepository
 import io.zenandroid.onlinego.databinding.ItemGameInfoBinding
 import org.koin.android.ext.android.get
@@ -60,12 +57,12 @@ class SelectRecentFragment : Fragment() {
                 (parentFragment as SelectBotFragment.OnOpponentSelected).onOpponentSelected(item.opponent)
             }
         }
-        playersRepository.getRecentOpponents()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .map { it.map(::OpponentItem) }
-                .subscribe ( recentOpponents::update, ::onError)
-                .addToDisposable(compositeDisposable)
+//        playersRepository.getRecentOpponents()
+//                .subscribeOn(Schedulers.io())
+//                .observeOn(AndroidSchedulers.mainThread())
+//                .map { it.map(::OpponentItem) }
+//                .subscribe ( recentOpponents::update, ::onError)
+//                .addToDisposable(compositeDisposable)
     }
 
     private fun onError(e: Throwable) {

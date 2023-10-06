@@ -1,7 +1,6 @@
-package io.zenandroid.onlinego.ui.screens.newchallenge
+package io.zenandroid.onlinego.data.model.ogs
 
 import androidx.annotation.Keep
-import io.zenandroid.onlinego.data.model.ogs.OGSPlayer
 
 @Keep
 data class ChallengeParams(

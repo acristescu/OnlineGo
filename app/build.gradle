@@ -86,7 +86,7 @@ android {
 }
 
 dependencies {
-    def koin_version = '3.4.3'
+    def koin_version = '3.5.0'
     def play_services_version = '20.7.0'
     def accompanist_version = '0.32.0'
     def room_version = '2.5.2'
@@ -176,6 +176,7 @@ dependencies {
     ksp 'com.github.bumptech.glide:compiler:4.11.0'
 
     implementation "io.insert-koin:koin-android:$koin_version"
+    implementation "io.insert-koin:koin-androidx-compose:$koin_version"
 
     implementation "com.android.billingclient:billing-ktx:5.2.1"
 

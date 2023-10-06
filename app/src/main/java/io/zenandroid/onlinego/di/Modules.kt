@@ -53,6 +53,7 @@ import io.zenandroid.onlinego.ui.screens.localai.middlewares.StatePersistenceMid
 import io.zenandroid.onlinego.ui.screens.localai.middlewares.UserMoveMiddleware
 import io.zenandroid.onlinego.ui.screens.mygames.MyGamesViewModel
 import io.zenandroid.onlinego.ui.screens.newchallenge.NewChallengeViewModel
+import io.zenandroid.onlinego.ui.screens.newchallenge.SelectOpponentViewModel
 import io.zenandroid.onlinego.ui.screens.newchallenge.selectopponent.searchplayer.SearchMiddleware
 import io.zenandroid.onlinego.ui.screens.newchallenge.selectopponent.searchplayer.SearchPlayerReducer
 import io.zenandroid.onlinego.ui.screens.newchallenge.selectopponent.searchplayer.SearchPlayerState
@@ -181,6 +182,10 @@ private val viewModelsModule = module {
 
   viewModel {
     NewChallengeViewModel()
+  }
+
+  viewModel {
+    SelectOpponentViewModel(get(), get())
   }
 
   viewModel {
