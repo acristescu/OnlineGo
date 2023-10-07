@@ -3,6 +3,7 @@ package io.zenandroid.onlinego.ui.screens.game.composables
 import android.content.Intent
 import android.net.Uri
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -12,6 +13,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.shape.ZeroCornerSize
 import androidx.compose.foundation.text.appendInlineContent
 import androidx.compose.foundation.text.selection.DisableSelection
 import androidx.compose.foundation.text.selection.SelectionContainer
@@ -19,17 +21,27 @@ import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.text.InlineTextContent
 import androidx.compose.material.*
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Send
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorProducer
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.Placeholder
@@ -40,8 +52,13 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
+import androidx.compose.ui.unit.toSize
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import io.zenandroid.onlinego.data.model.ogs.ChatChannel
 import io.zenandroid.onlinego.data.model.BoardTheme
 import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.Position
@@ -59,8 +76,10 @@ import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
 fun ChatDialog(
     messages: Map<Long, List<ChatMessage>>,
     game: Position,
+    inAnalysisMode: Boolean,
     onDialogDismiss: (() -> Unit),
-    onSendMessage: ((String) -> Unit),
+    onSendMessage: ((String, ChatChannel) -> Unit),
+    onSendVariation: ((String) -> Unit),
     onVariation: ((Variation) -> Unit),
 ) {
     BackHandler { onDialogDismiss() }
@@ -168,7 +187,7 @@ fun ChatDialog(
 
                                 ({
                                     onVariation(Variation(
-                                        rootMoveNo = it.message.variation!!.from ?: 0,
+                                        rootMoveNo = it.message.variation.from ?: 0,
                                         moves = it.message.variation.moves.orEmpty(),
                                     ))
                                 })
@@ -234,17 +253,41 @@ fun ChatDialog(
             }
             Row {
                 var message by rememberSaveable { mutableStateOf("") }
+                var channelIndex by rememberSaveable { mutableStateOf(0) }
                 TextField(
                     value = message,
                     onValueChange = { message = it },
                     colors = TextFieldDefaults.textFieldColors(
                         textColor = MaterialTheme.colors.onSurface
                     ),
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier
+                        .background(
+                            color = MaterialTheme.colors.onSurface.copy(alpha = TextFieldDefaults.BackgroundOpacity),
+                            shape = MaterialTheme.shapes.small.copy(topEnd = ZeroCornerSize, bottomEnd = ZeroCornerSize, bottomStart = ZeroCornerSize)
+                        )
+                        .weight(1f),
                 )
+				ExposedDropDownMenu(
+					values = if (inAnalysisMode)
+                        listOf("Chat", "Malkovich", "Variation")
+                    else
+                        listOf("Chat", "Malkovich"),
+					selectedIndex = channelIndex,
+					onChange = { index -> channelIndex = index },
+					modifier = Modifier
+				) {
+                    Text(
+                        text = "Mode",
+                        modifier = Modifier
+                    )
+				}
                 IconButton(
                     onClick = {
-                        onSendMessage(message)
+                        when (channelIndex) {
+                            0 -> onSendMessage(message, ChatChannel.MAIN)
+                            1 -> onSendMessage(message, ChatChannel.MALKOVICH)
+                            2 -> onSendVariation(message)
+                        }
                         message = ""
                     },
                     enabled = message.isNotBlank()
@@ -253,6 +296,106 @@ fun ChatDialog(
                         painter = rememberVectorPainter(image = Icons.Rounded.Send),
                         tint = MaterialTheme.colors.onSurface,
                         contentDescription = "send",
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ExposedDropDownMenu(
+    values: List<String>,
+    selectedIndex: Int,
+    onChange: (Int) -> Unit,
+    modifier: Modifier = Modifier,
+    backgroundColor: Color = MaterialTheme.colors.onSurface.copy(alpha = TextFieldDefaults.BackgroundOpacity),
+    shape: Shape = MaterialTheme.shapes.small.copy(topStart = ZeroCornerSize, bottomEnd = ZeroCornerSize, bottomStart = ZeroCornerSize),
+    label: @Composable () -> Unit,
+) {
+    var expanded by remember { mutableStateOf(false) }
+    var textfieldSize by remember { mutableStateOf(Size.Zero) }
+
+    val indicatorColor =
+        if (expanded) MaterialTheme.colors.primary.copy(alpha = ContentAlpha.high)
+        else MaterialTheme.colors.onSurface.copy(alpha = TextFieldDefaults.UnfocusedIndicatorLineOpacity)
+    val indicatorWidth = (if (expanded) 2 else 1).dp
+    val labelColor =
+        if (expanded) MaterialTheme.colors.primary.copy(alpha = ContentAlpha.high)
+        else MaterialTheme.colors.onSurface.copy(ContentAlpha.medium)
+    val trailingIconColor = MaterialTheme.colors.onSurface.copy(alpha = TextFieldDefaults.IconOpacity)
+
+    val rotation: Float by animateFloatAsState(if (expanded) 180f else 0f)
+
+    val focusManager = LocalFocusManager.current
+
+    Column(modifier = modifier.width(IntrinsicSize.Min)) {
+		Box(
+			Modifier
+				.drawBehind {
+					val strokeWidth = indicatorWidth.value * density
+					val y = size.height - strokeWidth / 2
+					drawLine(
+						indicatorColor,
+						Offset(0f, y),
+						Offset(size.width, y),
+						strokeWidth
+					)
+				}
+		) {
+            Box(
+                Modifier.height(56.dp) // TODO: responsive
+                    .fillMaxWidth()
+                    .background(color = backgroundColor, shape = shape)
+                    .onGloballyPositioned { textfieldSize = it.size.toSize() }
+                    .clip(shape)
+                    .clickable {
+                        expanded = !expanded
+                        focusManager.clearFocus()
+                    }
+                    .padding(start = 16.dp, end = 12.dp, top = 7.dp, bottom = 10.dp)
+            ) {
+                Column(Modifier.padding(end = 32.dp)) {
+                    ProvideTextStyle(value = MaterialTheme.typography.caption.copy(color = labelColor)) {
+                        label()
+                    }
+                    Text(
+                        text = values[selectedIndex],
+                        modifier = Modifier.padding(top = 1.dp)
+                    )
+                }
+                Icon(
+                    imageVector = Icons.Filled.ArrowDropDown,
+                    contentDescription = "Change",
+                    tint = trailingIconColor,
+                    modifier = Modifier
+                        .align(Alignment.CenterEnd)
+                        .padding(top = 4.dp)
+                        .rotate(rotation)
+                )
+
+            }
+        }
+
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+            modifier = Modifier
+                .widthIn(with(LocalDensity.current) { textfieldSize.width.toDp() })
+        ) {
+            values.forEachIndexed { i, v ->
+                val scope = rememberCoroutineScope()
+                DropdownMenuItem(
+                    onClick = {
+                        onChange(i)
+                        scope.launch {
+                            delay(150)
+                            expanded = false
+                        }
+                    }
+                ) {
+                    Text(
+                        text = v,
                     )
                 }
             }
@@ -277,8 +420,10 @@ fun Preview() {
                     )
                 ),
                 game = Position(9,9),
+                inAnalysisMode = true,
                 onDialogDismiss = {},
-                onSendMessage = {},
+                onSendMessage = { _, _ -> },
+                onSendVariation = {},
                 onVariation = {}
             )
         }
