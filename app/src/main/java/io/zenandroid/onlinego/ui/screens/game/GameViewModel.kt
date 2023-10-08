@@ -112,6 +112,7 @@ import io.zenandroid.onlinego.utils.convertCountryCodeToEmojiFlag
 import io.zenandroid.onlinego.utils.egfToRank
 import io.zenandroid.onlinego.utils.formatMillis
 import io.zenandroid.onlinego.utils.formatRank
+import io.zenandroid.onlinego.utils.timeControlDescription
 import io.zenandroid.onlinego.utils.NotificationUtils
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -338,6 +339,8 @@ class GameViewModel(
                 whiteScore = whiteScore,
                 blackScore = blackScore,
                 timerDetails = timer,
+                timerDescription = game?.timeControl?.let(::timeControlDescription),
+                ranked = game?.ranked == true,
                 lastMoveMarker = nextMoveMarker,
                 bottomText = bottomText,
                 retryMoveDialogShowing = retrySendMoveDialogShowing,
@@ -889,6 +892,8 @@ data class GameState(
     val whiteExtraStatus: String?,
     val blackExtraStatus: String?,
     val timerDetails: TimerDetails?,
+    val timerDescription: String?,
+    val ranked: Boolean,
     val bottomText: String?,
     val retryMoveDialogShowing: Boolean,
     val koMoveDialogShowing: Boolean,
@@ -930,6 +935,8 @@ data class GameState(
             whiteScore = Score(komi = 5.5f, prisoners = 0, territory = 13, total = 18.5f),
             blackScore = Score(prisoners = 2, territory = 5, total = 7f),
             timerDetails = null,
+            timerDescription = null,
+            ranked = false,
             bottomText = null,
             retryMoveDialogShowing = false,
             koMoveDialogShowing = false,
