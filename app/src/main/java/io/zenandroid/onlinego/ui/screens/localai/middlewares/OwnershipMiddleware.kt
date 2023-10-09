@@ -18,7 +18,7 @@ class OwnershipMiddleware : Middleware<AiGameState, AiGameAction> {
                     if(state.showAiEstimatedTerritory) {
                         Single.just(HideOwnership)
                     } else {
-                        KataGoAnalysisEngine.analyzeMoveSequence(
+                        KataGoAnalysisEngine.analyzeMoveSequenceSingle(
                                 sequence = state.history,
                                 maxVisits = 30,
                                 komi = state.position!!.komi,

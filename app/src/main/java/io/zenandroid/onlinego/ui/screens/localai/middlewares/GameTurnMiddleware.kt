@@ -52,7 +52,7 @@ class GameTurnMiddleware : Middleware<AiGameState, AiGameAction> {
                     .withLatestFrom(state)
                     .filter { (_, state) -> state.history.isGameOver() }
                     .flatMap { (_, state) ->
-                        KataGoAnalysisEngine.analyzeMoveSequence(
+                        KataGoAnalysisEngine.analyzeMoveSequenceSingle(
                                 sequence = state.history,
                                 maxVisits = 10,
                                 komi = state.position!!.komi,

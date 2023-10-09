@@ -23,7 +23,7 @@ class AIMoveMiddleware : Middleware<AiGameState, AiGameAction> {
                 .withLatestFrom(state)
                 .filter { (_, state) -> state.engineStarted && !state.stateRestorePending && state.position != null }
                 .flatMapSingle { (_, state) ->
-                    KataGoAnalysisEngine.analyzeMoveSequence(
+                    KataGoAnalysisEngine.analyzeMoveSequenceSingle(
                             sequence = state.history,
                             maxVisits = 20,
                             komi = state.position?.komi ?: 0f,

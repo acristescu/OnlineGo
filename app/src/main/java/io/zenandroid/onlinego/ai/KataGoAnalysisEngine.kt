@@ -5,7 +5,6 @@ import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import io.reactivex.Single
-import io.reactivex.subjects.PublishSubject
 import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.data.model.Position
 import io.zenandroid.onlinego.data.model.StoneType
@@ -17,6 +16,18 @@ import io.zenandroid.onlinego.utils.recordException
 import java.io.*
 import java.util.*
 import java.util.concurrent.atomic.AtomicLong
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onCompletion
+import kotlinx.coroutines.flow.onSubscription
+import kotlinx.coroutines.flow.single
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.rx2.asFlowable
 
 object KataGoAnalysisEngine {
   var started = false
@@ -27,13 +38,11 @@ object KataGoAnalysisEngine {
   private var writer: OutputStreamWriter? = null
   private var reader: BufferedReader? = null
   private var requestIDX: AtomicLong = AtomicLong(0)
-  private val queryAdapter =
-    Moshi.Builder().add(KotlinJsonAdapterFactory()).build().adapter(Query::class.java)
-  private val responseAdapter =
-    Moshi.Builder().add(KotlinJsonAdapterFactory()).build().adapter(Response::class.java)
-  private val errorAdapter =
-    Moshi.Builder().add(KotlinJsonAdapterFactory()).build().adapter(ErrorResponse::class.java)
-  private val responseSubject = PublishSubject.create<KataGoResponse>()
+  private val moshi get() = Moshi.Builder().add(KotlinJsonAdapterFactory()).build()
+  private val queryAdapter = moshi.adapter(Query::class.java)
+  private val responseAdapter = moshi.adapter(Response::class.java)
+  private val errorAdapter = moshi.adapter(ErrorResponse::class.java)
+  private val responseSubject = MutableSharedFlow<KataGoResponse>()
   private val filesDir = OnlineGoApplication.instance.filesDir
   private val netFile = File(filesDir, "katagonet.gz")
   private val cfgFile = File(filesDir, "katago.cfg")
@@ -79,25 +88,27 @@ object KataGoAnalysisEngine {
 
         if (started) {
           Thread {
-            while (true) {
-              val line = reader?.readLine() ?: break
-              if (line.startsWith("{\"error\"") || line.startsWith("{\"warning\":\"WARNING_MESSAGE\"")) {
-                Log.e("KataGoAnalysisEngine", line)
-                recordException(Exception("Katago: $line"))
-                errorAdapter.fromJson(line)?.let {
-                  responseSubject.onNext(it)
-                }
-              } else {
-                Log.d("KataGoAnalysisEngine", line)
-                FirebaseCrashlytics.getInstance().log("KATAGO < $line")
-                responseAdapter.fromJson(line)?.let {
-                  responseSubject.onNext(it)
+            runBlocking {
+              while (true) {
+                val line = reader?.readLine() ?: break
+                if (line.startsWith("{\"error\"") || line.startsWith("{\"warning\":\"WARNING_MESSAGE\"")) {
+                  Log.e("KataGoAnalysisEngine", line)
+                  recordException(Exception("Katago: $line"))
+                  errorAdapter.fromJson(line)?.let {
+                    responseSubject.emit(it)
+                  }
+                } else {
+                  Log.d("KataGoAnalysisEngine", line)
+                  FirebaseCrashlytics.getInstance().log("KATAGO < $line")
+                  responseAdapter.fromJson(line)?.let {
+                    responseSubject.emit(it)
+                  }
                 }
               }
+              Log.d("KataGoAnalysisEngine", "End of input, killing reader thread")
+              FirebaseCrashlytics.getInstance().log("KATAGO < End of input, killing reader thread")
+              started = false
             }
-            Log.d("KataGoAnalysisEngine", "End of input, killing reader thread")
-            FirebaseCrashlytics.getInstance().log("KATAGO < End of input, killing reader thread")
-            started = false
           }.start()
         } else {
           Log.e("KataGoAnalysisEngine", "Could not start KataGo")
@@ -131,26 +142,44 @@ object KataGoAnalysisEngine {
     }.start()
   }
 
-  fun analyzeMoveSequence(
+  @Deprecated("rxjava")
+  fun analyzeMoveSequenceSingle(
     sequence: List<Position>,
     komi: Float? = null,
-    maxVisits: Int? = null,
+    maxVisits: Int? = settingsRepository.maxVisits,
+    rules: String = "japanese",
     includeOwnership: Boolean? = null,
     includeMovesOwnership: Boolean? = null,
     includePolicy: Boolean? = null
   ): Single<Response> {
+    return analyzeMoveSequence(
+      sequence = sequence,
+      komi = komi,
+      maxVisits = maxVisits,
+      rules = rules,
+      includeOwnership = includeOwnership,
+      includeMovesOwnership = includeMovesOwnership,
+      includePolicy = includePolicy,
+    )
+    .filter { !it.isDuringSearch }
+    .asFlowable()
+    .firstOrError()
+  }
+
+  fun analyzeMoveSequence(
+    sequence: List<Position>,
+    komi: Float? = null,
+    maxVisits: Int? = settingsRepository.maxVisits,
+    rules: String = "japanese",
+    includeOwnership: Boolean? = null,
+    includeMovesOwnership: Boolean? = null,
+    includePolicy: Boolean? = null
+  ): Flow<Response> {
 
     val id = generateId()
     return responseSubject
-      .filter { it.id == id }
-      .firstOrError()
-      .map {
-        if (it is ErrorResponse) {
-          throw RuntimeException(it.error)
-        } else {
-          it as Response
-        }
-      }.doOnSubscribe {
+      .asSharedFlow()
+      .onSubscription {
         val initialPosition = mutableSetOf<List<String>>()
         val history = Stack<List<String>>()
         sequence.map { pos ->
@@ -185,7 +214,8 @@ object KataGoAnalysisEngine {
           komi = komi,
           maxVisits = maxVisits,
           moves = history,
-          rules = "japanese"
+          rules = rules,
+          reportDuringSearchEvery = 0.5f
         )
 
         val stringQuery = queryAdapter.toJson(query)
@@ -197,6 +227,18 @@ object KataGoAnalysisEngine {
           flush()
         }
       }
+      .filterNotNull()
+      .filter { it.id == id }
+      //.firstOrError()
+      .map {
+        if (it is ErrorResponse) {
+          throw RuntimeException(it.error)
+        } else {
+          it as Response
+        }
+      }
+    //.onCompletion {
+    //}
   }
 
   private fun generateId() = requestIDX.incrementAndGet().toString()

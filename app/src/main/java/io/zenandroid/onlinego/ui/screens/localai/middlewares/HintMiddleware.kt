@@ -17,7 +17,7 @@ class HintMiddleware : Middleware<AiGameState, AiGameAction> {
                 .withLatestFrom(state)
                 .filter{ (_, state) -> state.engineStarted && state.position != null}
                 .flatMap { (_, state) ->
-                    KataGoAnalysisEngine.analyzeMoveSequence(
+                    KataGoAnalysisEngine.analyzeMoveSequenceSingle(
                             sequence = state.history,
                             maxVisits = 30,
                             komi = state.position?.komi ?: 0f,
