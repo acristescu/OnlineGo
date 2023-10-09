@@ -3,6 +3,11 @@
 /.idea
 .DS_Store
 /build
+.cxx
+CMakeCache.txt
+CMakeFiles
+CMakeLists.txt
+ThirdPartyTlsLibrary
 /app/app.iml
 /app/.externalNativeBuild
 /app/.cxx
