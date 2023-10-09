@@ -141,6 +141,7 @@ dependencies {
     implementation 'io.reactivex.rxjava2:rxkotlin:2.4.0'
     implementation 'com.jakewharton.rxrelay2:rxrelay:2.1.1'
     implementation 'io.reactivex.rxjava2:rxkotlin:2.4.0'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-rx2:1.7.3'
 
     implementation "androidx.work:work-runtime-ktx:$work_manager_version"
     implementation "androidx.work:work-rxjava2:$work_manager_version"
