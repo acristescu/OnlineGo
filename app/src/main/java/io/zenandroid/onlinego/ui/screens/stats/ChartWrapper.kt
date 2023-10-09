@@ -16,6 +16,7 @@ import androidx.compose.material.Tab
 import androidx.compose.material.TabRow
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -54,10 +55,13 @@ import io.zenandroid.onlinego.R.color
 import io.zenandroid.onlinego.R.drawable
 import io.zenandroid.onlinego.ui.screens.stats.StatsViewModel.Filter
 import io.zenandroid.onlinego.ui.screens.stats.StatsViewModel.Filter.ALL
+import io.zenandroid.onlinego.ui.screens.stats.StatsViewModel.Filter.ALL_GAMES
 import io.zenandroid.onlinego.ui.screens.stats.StatsViewModel.Filter.FIVE_YEARS
+import io.zenandroid.onlinego.ui.screens.stats.StatsViewModel.Filter.HUNDRED_GAMES
 import io.zenandroid.onlinego.ui.screens.stats.StatsViewModel.Filter.ONE_MONTH
 import io.zenandroid.onlinego.ui.screens.stats.StatsViewModel.Filter.ONE_YEAR
 import io.zenandroid.onlinego.ui.screens.stats.StatsViewModel.Filter.THREE_MONTHS
+import io.zenandroid.onlinego.ui.screens.stats.StatsViewModel.Filter.TWENTY_GAMES
 import io.zenandroid.onlinego.utils.egfToRank
 import io.zenandroid.onlinego.utils.formatRank
 import java.time.LocalDateTime
@@ -69,6 +73,7 @@ import java.time.format.DateTimeFormatter
 fun ChartWrapper(
   chartData: List<Entry>,
   filter: Filter,
+  collapseTimeByGame: Boolean,
   onFilterChanged: (Filter) -> Unit,
   disableScroll: (Boolean) -> Unit,
   modifier: Modifier = Modifier
@@ -124,6 +129,7 @@ fun ChartWrapper(
 
             ChartValueSelectedListener.chart = this
             ChartValueSelectedListener.onTextChanged = { text = it }
+            ChartValueSelectedListener.byGame = collapseTimeByGame
 
             val onChartValueSelectedListener = ChartValueSelectedListener
             ChartValueSelectedListener.onNothingSelected()
@@ -214,10 +220,12 @@ fun ChartWrapper(
             it.axisRight.axisMinimum = entries.minOf { it.y } * .85f
           }
           it.data = LineData(rankDataSet)
+          ChartValueSelectedListener.byGame = collapseTimeByGame
           if (!ChartValueSelectedListener.isDragging) {
             ChartValueSelectedListener.onNothingSelected()
           }
           it.invalidate()
+          onFilterChanged(filter)
         },
         modifier = Modifier
           .fillMaxWidth()
@@ -236,7 +244,11 @@ fun ChartWrapper(
           }
       )
     }
-    TimeRangeTabs(filter = filter, onFilterChanged = onFilterChanged)
+    TimeRangeTabs(
+      filter = filter,
+      collapseTimeByGame = collapseTimeByGame,
+      onFilterChanged = onFilterChanged
+    )
   }
 }
 
@@ -255,14 +267,25 @@ private fun formatDate(secondsSinceEpoch: Long): String {
 @Composable
 private fun TimeRangeTabs(
   filter: Filter,
+  collapseTimeByGame: Boolean,
   onFilterChanged: (Filter) -> Unit
 ) {
+  val divider = 5
+  val tabs = Filter.entries.run {
+    if (collapseTimeByGame) drop(divider)
+    else take(divider)
+  }
+  val index = (Filter.entries.indexOf(filter) % divider)
+    .coerceAtMost(tabs.size - 1)
+  if (!tabs.contains(filter)) SideEffect {
+    onFilterChanged(tabs[index])
+  }
   TabRow(
-    selectedTabIndex = Filter.entries.indexOf(filter),
+    selectedTabIndex = index,
     backgroundColor = Color.Transparent,
     contentColor = MaterialTheme.colors.primary,
   ) {
-    Filter.entries.forEach { range ->
+    tabs.forEach { range ->
       Tab(
         selected = range == filter,
         onClick = { onFilterChanged(range) },
@@ -281,6 +304,9 @@ private fun Filter.toPrettyName() =
     ONE_YEAR -> "1Y"
     FIVE_YEARS -> "5Y"
     ALL -> "All"
+    TWENTY_GAMES -> "Last 20"
+    HUNDRED_GAMES -> "Last 100"
+    ALL_GAMES -> "All"
   }
 
 private object ChartValueSelectedListener : OnChartValueSelectedListener {
@@ -288,6 +314,7 @@ private object ChartValueSelectedListener : OnChartValueSelectedListener {
   var onTextChanged: (AnnotatedString) -> Unit = {}
   var isDragging = false
     private set
+  var byGame = false
 
   override fun onValueSelected(e: Entry?, h: Highlight?) {
     if (e == null) {
@@ -306,7 +333,8 @@ private object ChartValueSelectedListener : OnChartValueSelectedListener {
               })"
             )
           }
-          append(" on ${formatDate(e.x.toLong())}")
+          if (byGame) append(" at Game ${e.x.toInt() + 1}")
+          else append(" on ${formatDate(e.x.toLong())}")
         }
       )
     }
@@ -326,7 +354,8 @@ private object ChartValueSelectedListener : OnChartValueSelectedListener {
           withStyle(SpanStyle(color = color, fontWeight = FontWeight.Bold)) {
             append("$arrow $delta ELO")
           }
-          append(" since ${formatDate(first.x.toLong())}")
+          if (byGame) append(" since Game ${first.x.toInt() + 1}")
+          else append(" since ${formatDate(first.x.toLong())}")
         }
       )
     }

@@ -9,6 +9,7 @@ private const val BOARD_THEME = "board_theme"
 private const val SHOW_RANKS = "show_ranks"
 private const val SHOW_COORDINATES = "show_coordinates"
 private const val SOUND = "sound"
+private const val GRAPH_BY_GAMES = "graph_by_games"
 
 class SettingsRepository {
     private val prefs = PreferenceManager.getDefaultSharedPreferences(OnlineGoApplication.instance.baseContext)
@@ -44,4 +45,8 @@ class SettingsRepository {
     var sound: Boolean
         get() = prefs.getBoolean(SOUND, true)
         set(value) = prefs.edit().putBoolean(SOUND, value).apply()
+
+    var graphByGames: Boolean
+        get() = prefs.getBoolean(GRAPH_BY_GAMES, false)
+        set(value) = prefs.edit().putBoolean(GRAPH_BY_GAMES, value).apply()
 }
