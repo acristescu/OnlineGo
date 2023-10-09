@@ -229,7 +229,6 @@ object KataGoAnalysisEngine {
       }
       .filterNotNull()
       .filter { it.id == id }
-      //.firstOrError()
       .map {
         if (it is ErrorResponse) {
           throw RuntimeException(it.error)
@@ -237,8 +236,6 @@ object KataGoAnalysisEngine {
           it as Response
         }
       }
-    //.onCompletion {
-    //}
   }
 
   private fun generateId() = requestIDX.incrementAndGet().toString()

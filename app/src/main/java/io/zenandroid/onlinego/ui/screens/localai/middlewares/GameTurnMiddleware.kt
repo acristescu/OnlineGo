@@ -4,9 +4,15 @@ import android.util.Log
 import io.reactivex.Observable
 import io.reactivex.rxkotlin.withLatestFrom
 import io.reactivex.schedulers.Schedulers
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.take
+import kotlinx.coroutines.rx2.asObservable
+import org.koin.core.context.GlobalContext
 import io.zenandroid.onlinego.ai.KataGoAnalysisEngine
 import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.StoneType
+import io.zenandroid.onlinego.data.repositories.SettingsRepository
 import io.zenandroid.onlinego.gamelogic.RulesManager
 import io.zenandroid.onlinego.gamelogic.RulesManager.isGameOver
 import io.zenandroid.onlinego.mvi.Middleware
@@ -16,6 +22,8 @@ import io.zenandroid.onlinego.ui.screens.localai.AiGameState
 import io.zenandroid.onlinego.utils.recordException
 
 class GameTurnMiddleware : Middleware<AiGameState, AiGameAction> {
+    val settingsRepository: SettingsRepository = GlobalContext.get().get()
+
     override fun bind(actions: Observable<AiGameAction>, state: Observable<AiGameState>): Observable<AiGameAction> =
             Observable.merge(
                     engineStarted(actions, state),
@@ -51,13 +59,19 @@ class GameTurnMiddleware : Middleware<AiGameState, AiGameAction> {
             actions.filter { it is NewPosition || it is AIMove }
                     .withLatestFrom(state)
                     .filter { (_, state) -> state.history.isGameOver() }
-                    .flatMap { (_, state) ->
-                        KataGoAnalysisEngine.analyzeMoveSequenceSingle(
+                    .switchMap { (_, state) ->
+                        KataGoAnalysisEngine.analyzeMoveSequence(
                                 sequence = state.history,
-                                maxVisits = 10,
+                              //maxVisits = 10,
                                 komi = state.position!!.komi,
                                 includeOwnership = true
                         )
+                                .let {
+                                    if (!settingsRepository.detailedAnalysis) it
+                                        .filter { !it.isDuringSearch }
+                                        .take(1)
+                                    else it
+                                }
                                 .map {
                                     val blackTerritory = mutableSetOf<Cell>()
                                     val whiteTerritory = mutableSetOf<Cell>()
@@ -93,8 +107,8 @@ class GameTurnMiddleware : Middleware<AiGameState, AiGameAction> {
                                     val aiWon = state.enginePlaysBlack == (blackScore > whiteScore)
                                     ScoreComputed(newPos, whiteScore, blackScore, aiWon, it)
                                 }
+                                .asObservable()
                                 .subscribeOn(Schedulers.io())
-                                .toObservable()
                                 .doOnError(this::onError)
                                 .onErrorResumeNext(Observable.empty())
                     }
