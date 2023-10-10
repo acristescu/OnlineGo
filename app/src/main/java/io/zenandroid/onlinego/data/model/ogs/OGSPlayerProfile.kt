@@ -1,8 +1,8 @@
 package io.zenandroid.onlinego.data.model.ogs
 
+import androidx.compose.runtime.Immutable
 import io.zenandroid.onlinego.data.model.local.Player
 import java.time.Instant
-import javax.annotation.concurrent.Immutable
 
 @Immutable
 data class OGSPlayerProfile (

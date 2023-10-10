@@ -1,7 +1,7 @@
 package io.zenandroid.onlinego.data.model.local
 
+import androidx.compose.runtime.Immutable
 import com.github.mikephil.charting.data.Entry
-import javax.annotation.concurrent.Immutable
 
 @Immutable
 data class UserStats(

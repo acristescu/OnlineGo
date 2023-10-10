@@ -1,5 +1,6 @@
 package io.zenandroid.onlinego.ui.screens.newchallenge
 
+import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.zenandroid.onlinego.data.model.local.Player
@@ -9,7 +10,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import javax.annotation.concurrent.Immutable
 
 class SelectOpponentViewModel(
   botsRepository: BotsRepository,

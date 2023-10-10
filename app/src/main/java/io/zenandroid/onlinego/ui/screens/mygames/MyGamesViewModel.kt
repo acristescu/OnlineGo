@@ -1,6 +1,7 @@
 package io.zenandroid.onlinego.ui.screens.mygames
 
 import android.util.Log
+import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.analytics.FirebaseAnalytics
@@ -55,7 +56,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import org.json.JSONObject
 import java.util.Locale
-import javax.annotation.concurrent.Immutable
 
 class MyGamesViewModel(
     private val userSessionRepository: UserSessionRepository,

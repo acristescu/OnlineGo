@@ -1,6 +1,7 @@
 package io.zenandroid.onlinego.ui.screens.stats
 
 import android.util.Log
+import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.github.mikephil.charting.data.Entry
@@ -27,7 +28,6 @@ import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-import javax.annotation.concurrent.Immutable
 
 /**
  * Created by alex on 05/11/2017.
