@@ -34,6 +34,8 @@ object KataGoAnalysisEngine {
     private set
   var shouldShutDown = false
     private set
+  var version = ""
+    private set
   private var process: Process? = null
   private var writer: OutputStreamWriter? = null
   private var reader: BufferedReader? = null
@@ -74,6 +76,7 @@ object KataGoAnalysisEngine {
           while (true) {
             val line = errorReader.readLine() ?: break
             if (line.startsWith("KataGo v")) {
+              version = line
               continue
             } else if (line == "Started, ready to begin handling requests") {
               requestIDX = AtomicLong(0)
@@ -113,7 +116,7 @@ object KataGoAnalysisEngine {
         } else {
           Log.e("KataGoAnalysisEngine", "Could not start KataGo")
           recordException(Exception("Could not start KataGo $errors"))
-          throw RuntimeException("Could not start KataGo")
+          throw RuntimeException("$errors")
         }
       }
   }
