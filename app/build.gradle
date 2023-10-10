@@ -36,12 +36,16 @@ android {
             minifyEnabled true
             shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            manifestPlaceholders["crashlyticsCollectionEnabled"] = true
+            manifestPlaceholders["analyticsCollectionEnabled"] = true
             firebaseCrashlytics {
                 mappingFileUploadEnabled true
             }
         }
         debug {
             applicationIdSuffix ".debug"
+            manifestPlaceholders["crashlyticsCollectionEnabled"] = false
+            manifestPlaceholders["analyticsCollectionEnabled"] = false
         }
     }
     compileOptions {
