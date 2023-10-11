@@ -22,6 +22,7 @@ import io.zenandroid.onlinego.data.model.ogs.PuzzleRating
 import io.zenandroid.onlinego.data.model.ogs.PuzzleSolution
 import io.zenandroid.onlinego.data.model.local.Puzzle
 import io.zenandroid.onlinego.data.repositories.PuzzleRepository
+import io.zenandroid.onlinego.data.repositories.SettingsRepository
 import io.zenandroid.onlinego.gamelogic.RulesManager
 import io.zenandroid.onlinego.gamelogic.Util
 import io.zenandroid.onlinego.gamelogic.Util.toCoordinateSet
@@ -38,9 +39,13 @@ import java.time.temporal.ChronoUnit.*
 
 class TsumegoViewModel (
     private val puzzleRepository: PuzzleRepository,
+    private val settingsRepository: SettingsRepository,
     private val puzzleId: Long
 ): ViewModel() {
-    private val _state = MutableStateFlow(TsumegoState())
+    private val _state = MutableStateFlow(TsumegoState(
+        boardTheme = settingsRepository.boardTheme,
+        drawCoordinates = settingsRepository.showCoordinates,
+    ))
     val state: StateFlow<TsumegoState> = _state
     private val subscriptions = CompositeDisposable()
     var collectionPuzzles by mutableStateOf(emptyList<Puzzle>())
@@ -256,7 +261,7 @@ class TsumegoViewModel (
         ) }
         puzzleRepository.markPuzzleSolved(_state.value.puzzle?.id!!, record)
             .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread()) // TODO: remove?
+            .observeOn(AndroidSchedulers.mainThread())
             .subscribe({ updateSolutions(listOf(record)) }, this::onError)
             .addToDisposable(subscriptions)
     }

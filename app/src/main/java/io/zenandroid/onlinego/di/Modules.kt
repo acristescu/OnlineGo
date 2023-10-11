@@ -190,7 +190,7 @@ private val viewModelsModule = module {
   }
 
   viewModel { params ->
-    TsumegoViewModel(get(), params.get())
+    TsumegoViewModel(get(), get(), params.get())
   }
 
   viewModel {

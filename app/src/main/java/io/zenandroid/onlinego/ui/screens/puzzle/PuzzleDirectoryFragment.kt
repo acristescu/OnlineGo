@@ -1,11 +1,9 @@
 package io.zenandroid.onlinego.ui.screens.puzzle
 
-import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.activity.OnBackPressedCallback
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
@@ -19,10 +17,8 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import com.google.accompanist.pager.*
-import io.reactivex.subjects.PublishSubject
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.local.PuzzleCollection
-import io.zenandroid.onlinego.data.repositories.SettingsRepository
 import io.zenandroid.onlinego.ui.screens.puzzle.PuzzleDirectoryAction.*
 import io.zenandroid.onlinego.ui.screens.puzzle.PuzzleDirectorySort.*
 import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
@@ -30,7 +26,6 @@ import io.zenandroid.onlinego.utils.PersistenceManager
 import io.zenandroid.onlinego.utils.analyticsReportScreen
 import io.zenandroid.onlinego.utils.rememberStateWithLifecycle
 import org.commonmark.node.*
-import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import java.time.temporal.ChronoUnit.*
 
