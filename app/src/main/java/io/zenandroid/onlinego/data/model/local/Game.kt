@@ -80,6 +80,8 @@ data class Game(
 
     @Embedded(prefix = "pause_")
     val pauseControl: PauseControl? = null,
+
+    var annulled: Boolean? = null,
 ) {
     @Ignore
     @Transient
@@ -219,6 +221,7 @@ data class Game(
                 disableAnalysis = gamedata?.disable_analysis,
                 pausedSince = gamedata?.paused_since,
                 pauseControl = pauseControl,
+                annulled = game.annulled,
             )
         }
 
@@ -259,7 +262,8 @@ data class Game(
                 timeControl = null,
                 disableAnalysis = false,
                 pausedSince = null,
-                pauseControl = null
+                pauseControl = null,
+                annulled = null
             )
     }
 }
