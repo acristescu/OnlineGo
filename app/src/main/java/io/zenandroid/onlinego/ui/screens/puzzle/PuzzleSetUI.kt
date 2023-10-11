@@ -63,7 +63,6 @@ import io.zenandroid.onlinego.data.model.StoneType
 import io.zenandroid.onlinego.data.model.local.Puzzle
 import io.zenandroid.onlinego.data.model.local.PuzzleCollection
 import io.zenandroid.onlinego.data.repositories.SettingsRepository
-import io.zenandroid.onlinego.mvi.MviView
 import io.zenandroid.onlinego.utils.PersistenceManager
 import io.zenandroid.onlinego.utils.convertCountryCodeToEmojiFlag
 import org.commonmark.node.*

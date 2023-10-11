@@ -68,7 +68,6 @@ import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
 import io.zenandroid.onlinego.data.model.StoneType
 import io.zenandroid.onlinego.data.model.local.VisitedPuzzleCollection
 import io.zenandroid.onlinego.data.model.local.PuzzleCollection
-import io.zenandroid.onlinego.mvi.MviView
 import io.zenandroid.onlinego.data.repositories.SettingsRepository
 import io.zenandroid.onlinego.gamelogic.Util.toCoordinateSet
 import io.zenandroid.onlinego.utils.PersistenceManager
@@ -89,7 +88,7 @@ import java.time.temporal.ChronoUnit.*
 
 private const val TAG = "PuzzleDirectoryFragment"
 
-class PuzzleDirectoryFragment : Fragment(), MviView<PuzzleDirectoryState, PuzzleDirectoryAction> {
+class PuzzleDirectoryFragment : Fragment() {
     private val puzzleRepository: io.zenandroid.onlinego.data.repositories.PuzzleRepository = org.koin.core.context.GlobalContext.get().get()
     private val settingsRepository: SettingsRepository by inject()
     private val viewModel: PuzzleDirectoryViewModel by viewModel()
@@ -121,18 +120,6 @@ class PuzzleDirectoryFragment : Fragment(), MviView<PuzzleDirectoryState, Puzzle
                 }
             }
         }
-    }
-
-    override val actions: Observable<PuzzleDirectoryAction>
-        get() =
-            Observable.merge(
-                    listOf(
-                            internalActions
-                    )
-            ).startWith(ViewReady)
-
-    override fun render(state: PuzzleDirectoryState) {
-        currentState = state
     }
 
     private fun navigateToCollectionScreen(collection: PuzzleCollection) {

@@ -65,7 +65,6 @@ import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
 import io.zenandroid.onlinego.data.model.StoneType
 import io.zenandroid.onlinego.data.model.local.Puzzle
 import io.zenandroid.onlinego.data.model.local.PuzzleCollection
-import io.zenandroid.onlinego.mvi.MviView
 import io.zenandroid.onlinego.data.repositories.SettingsRepository
 import io.zenandroid.onlinego.utils.PersistenceManager
 import io.zenandroid.onlinego.utils.analyticsReportScreen
@@ -87,7 +86,7 @@ const val PUZZLE_ID = "PUZZLE_ID"
 
 private const val TAG = "TsumegoFragment"
 
-class TsumegoFragment : Fragment(), MviView<TsumegoState, TsumegoAction> {
+class TsumegoFragment : Fragment() {
     private val settingsRepository: SettingsRepository by inject()
     private val viewModel: TsumegoViewModel by viewModel {
         parametersOf(arguments!!.getLong(PUZZLE_ID))
@@ -128,18 +127,6 @@ class TsumegoFragment : Fragment(), MviView<TsumegoState, TsumegoAction> {
                 }
             }
         }
-    }
-
-    override val actions: Observable<TsumegoAction>
-        get() =
-            Observable.merge(
-                listOf(
-                        internalActions
-                )
-            ).startWith(ViewReady)
-
-    override fun render(state: TsumegoState) {
-        currentState = state
     }
 
     override fun onPause() {

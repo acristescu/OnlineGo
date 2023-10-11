@@ -68,7 +68,6 @@ import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
 import io.zenandroid.onlinego.data.model.StoneType
 import io.zenandroid.onlinego.data.model.local.VisitedPuzzleCollection
 import io.zenandroid.onlinego.data.model.local.PuzzleCollection
-import io.zenandroid.onlinego.mvi.MviView
 import io.zenandroid.onlinego.data.repositories.SettingsRepository
 import io.zenandroid.onlinego.gamelogic.Util.toCoordinateSet
 import io.zenandroid.onlinego.utils.PersistenceManager

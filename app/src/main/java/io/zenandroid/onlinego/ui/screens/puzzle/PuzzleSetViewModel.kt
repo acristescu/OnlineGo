@@ -13,8 +13,7 @@ import io.zenandroid.onlinego.data.model.local.PuzzleCollection
 import io.zenandroid.onlinego.data.model.ogs.PuzzleSolution
 import io.zenandroid.onlinego.data.ogs.OGSRestService
 import io.zenandroid.onlinego.data.repositories.PuzzleRepository
-import io.zenandroid.onlinego.mvi.MviView
-import io.zenandroid.onlinego.mvi.Store
+import io.zenandroid.onlinego.ui.screens.puzzle.PuzzleSetAction.*
 import io.zenandroid.onlinego.utils.addToDisposable
 import io.zenandroid.onlinego.utils.recordException
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -77,6 +76,21 @@ class PuzzleSetViewModel (
                     solutions[puzzleId] = solution.toSet()
                 })
             }
+        }
+    }
+
+    private fun fetchPuzzle(puzzleId: Long) {
+        return puzzleRepository.getPuzzle(puzzleId)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .toObservable()
+            .subscribe(this::setPuzzle, this::onError)
+            .addToDisposable(subscriptions)
+    }
+
+    private fun setPuzzle(puzzle: Puzzle) {
+        _state.update {
+            it.copy(puzzles = (it.puzzles.orEmpty() + puzzle).ifEmpty { null })
         }
     }
 

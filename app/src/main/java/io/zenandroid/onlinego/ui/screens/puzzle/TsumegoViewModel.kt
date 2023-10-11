@@ -25,8 +25,6 @@ import io.zenandroid.onlinego.data.repositories.PuzzleRepository
 import io.zenandroid.onlinego.gamelogic.RulesManager
 import io.zenandroid.onlinego.gamelogic.Util
 import io.zenandroid.onlinego.gamelogic.Util.toCoordinateSet
-import io.zenandroid.onlinego.mvi.MviView
-import io.zenandroid.onlinego.mvi.Store
 import io.zenandroid.onlinego.utils.addToDisposable
 import io.zenandroid.onlinego.utils.recordException
 import kotlinx.coroutines.Job

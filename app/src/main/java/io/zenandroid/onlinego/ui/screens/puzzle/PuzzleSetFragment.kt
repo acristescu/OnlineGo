@@ -61,7 +61,6 @@ import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
 import io.zenandroid.onlinego.data.model.StoneType
 import io.zenandroid.onlinego.data.model.local.Puzzle
 import io.zenandroid.onlinego.data.model.local.PuzzleCollection
-import io.zenandroid.onlinego.mvi.MviView
 import io.zenandroid.onlinego.data.repositories.SettingsRepository
 import io.zenandroid.onlinego.utils.PersistenceManager
 import io.zenandroid.onlinego.utils.convertCountryCodeToEmojiFlag
@@ -87,7 +86,7 @@ private const val TAG = "PuzzleSetFragment"
 @ExperimentalMaterialApi
 @ExperimentalFoundationApi
 @ExperimentalComposeUiApi
-class PuzzleSetFragment : Fragment(), MviView<PuzzleSetState, PuzzleSetAction> {
+class PuzzleSetFragment : Fragment() {
     private val settingsRepository: SettingsRepository by inject()
     private val viewModel: PuzzleSetViewModel by viewModel {
         parametersOf(arguments!!.getLong(COLLECTION_ID))
@@ -121,18 +120,6 @@ class PuzzleSetFragment : Fragment(), MviView<PuzzleSetState, PuzzleSetAction> {
                 }
             }
         }
-    }
-
-    override val actions: Observable<PuzzleSetAction>
-        get() =
-            Observable.merge(
-                    listOf(
-                            internalActions
-                    )
-            ).startWith(ViewReady)
-
-    override fun render(state: PuzzleSetState) {
-        currentState = state
     }
 
     private fun navigateToTsumegoScreen(puzzle: Puzzle) {
