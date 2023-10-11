@@ -11,6 +11,7 @@ import io.zenandroid.onlinego.data.model.local.VisitedPuzzleCollection
 import io.zenandroid.onlinego.data.model.local.PuzzleCollection
 import io.zenandroid.onlinego.data.ogs.OGSRestService
 import io.zenandroid.onlinego.data.repositories.PuzzleRepository
+import io.zenandroid.onlinego.data.repositories.SettingsRepository
 import io.zenandroid.onlinego.utils.addToDisposable
 import io.zenandroid.onlinego.utils.recordException
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -20,8 +21,9 @@ import kotlinx.coroutines.flow.update
 class PuzzleDirectoryViewModel (
     private val puzzleRepository: PuzzleRepository,
     private val restService: OGSRestService,
+    private val settingsRepository: SettingsRepository,
 ): ViewModel() {
-    private val _state = MutableStateFlow(PuzzleDirectoryState())
+    private val _state = MutableStateFlow(PuzzleDirectoryState(boardTheme = settingsRepository.boardTheme))
     val state: StateFlow<PuzzleDirectoryState> = _state
     private val subscriptions = CompositeDisposable()
 

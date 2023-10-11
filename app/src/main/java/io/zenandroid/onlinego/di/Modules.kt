@@ -182,7 +182,7 @@ private val viewModelsModule = module {
   }
 
   viewModel {
-    PuzzleDirectoryViewModel(get(), get())
+    PuzzleDirectoryViewModel(get(), get(), get())
   }
 
   viewModel { params ->
