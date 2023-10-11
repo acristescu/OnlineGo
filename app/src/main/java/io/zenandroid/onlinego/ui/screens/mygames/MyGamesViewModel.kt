@@ -53,6 +53,7 @@ import io.zenandroid.onlinego.utils.recordException
 import io.zenandroid.onlinego.utils.timeLeftForCurrentPlayer
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.json.JSONObject
 import java.util.Locale
@@ -132,7 +133,7 @@ class MyGamesViewModel(
 
         viewModelScope.launch {
             socketService.connectionState.collect { online ->
-                _state.value = _state.value.copy(online = online)
+                _state.update { it.copy(online = online) }
             }
         }
         onNeedMoreOlderGames(null)
@@ -158,11 +159,13 @@ class MyGamesViewModel(
             }
         }
 
-        _state.value = _state.value.copy(
-            myTurnGames = myTurnList.sortedBy { timeLeftForCurrentPlayer(it) },
-            opponentTurnGames = opponentTurnList,
-            headerSubText = determineText(myTurnList, opponentTurnList)
-        )
+        _state.update {
+            it.copy(
+                myTurnGames = myTurnList.sortedBy { timeLeftForCurrentPlayer(it) },
+                opponentTurnGames = opponentTurnList,
+                headerSubText = determineText(myTurnList, opponentTurnList)
+            )
+        }
     }
 
     private fun determineText(myTurnGames: List<Game>, opponentTurnGames: List<Game>): String {
@@ -176,22 +179,28 @@ class MyGamesViewModel(
     }
 
     private fun setRecentGames(games: List<Game>) {
-        _state.value = _state.value.copy(
-            recentGames = games
-        )
+        _state.update {
+            it.copy(
+                recentGames = games
+            )
+        }
     }
 
     private fun setChallenges(challenges: List<Challenge>) {
-        _state.value = _state.value.copy(
-            challenges = challenges
-        )
+        _state.update {
+            it.copy(
+                challenges = challenges
+            )
+        }
     }
 
 
     private fun setAutomatches(automatches: List<OGSAutomatch>) {
-        _state.value = _state.value.copy(
-            automatches = automatches
-        )
+        _state.update {
+            it.copy(
+                automatches = automatches
+            )
+        }
     }
 
 
@@ -212,9 +221,11 @@ class MyGamesViewModel(
                 "Rules" to "${challenge.rules?.capitalize(Locale.UK)}",
             ),
         )
-        _state.value = _state.value.copy(
-            challengeDetailsStatus = status,
-        )
+        _state.update {
+            it.copy(
+                challengeDetailsStatus = status,
+            )
+        }
     }
 
     private fun onChallengeCancelled(challenge: Challenge) {
@@ -251,17 +262,21 @@ class MyGamesViewModel(
             notificationsRepository.acknowledgeNotification(notification)
             val message = if(notification.has("message") && notification["message"].toString() != "null") "Message is:\n\n${notification["message"]}" else ""
             if (notification["name"].toString() == "Bot Match") {
-                _state.value = _state.value.copy(
-                    alertDialogTitle = "Bot rejected challenge",
-                    alertDialogText = "This might happen because the opponent's maintainer has set some conditions on the challenge parameters. $message"
-                )
+                _state.update {
+                    it.copy(
+                        alertDialogTitle = "Bot rejected challenge",
+                        alertDialogText = "This might happen because the opponent's maintainer has set some conditions on the challenge parameters. $message"
+                    )
+                }
                 analytics.logEvent("bot_refused_challenge", null)
                 FirebaseCrashlytics.getInstance().log("Bot refused challenge. $message")
             } else {
-                _state.value = _state.value.copy(
-                    alertDialogTitle = "Opponent rejected challenge",
-                    alertDialogText = "You may try again or otherwise contact the opponent to clarify his/her reasons for the rejection. $message"
-                )
+                _state.update {
+                    it.copy(
+                        alertDialogTitle = "Opponent rejected challenge",
+                        alertDialogText = "You may try again or otherwise contact the opponent to clarify his/her reasons for the rejection. $message"
+                    )
+                }
             }
         }
     }
@@ -273,18 +288,22 @@ class MyGamesViewModel(
                 recordException(Exception(t.response()?.errorBody()?.string(), t))
                 FirebaseCrashlytics.getInstance().sendUnsentReports()
                 userSessionRepository.logOut()
-                _state.value = _state.value.copy(
-                    userIsLoggedOut = true
-                )
+                _state.update {
+                    it.copy(
+                        userIsLoggedOut = true
+                    )
+                }
             } else {
                 recordException(Exception(t.response()?.errorBody()?.string(), t))
             }
         } else {
             if(t is com.squareup.moshi.JsonDataException) {
-                _state.value = _state.value.copy(
-                    alertDialogTitle = "OGS Error",
-                    alertDialogText = "An error occurred white talking to the OGS Server. This usually means the website devs have changed something in the API. Please report this error as the app will probably not work until we adapt to this change."
-                )
+                _state.update {
+                    it.copy(
+                        alertDialogTitle = "OGS Error",
+                        alertDialogText = "An error occurred white talking to the OGS Server. This usually means the website devs have changed something in the API. Please report this error as the app will probably not work until we adapt to this change."
+                    )
+                }
             }
             recordException(t)
         }
@@ -301,7 +320,7 @@ class MyGamesViewModel(
             is AutomatchCancelled -> onAutomatchCancelled(action.automatch)
             is LoadMoreHistoricGames -> onNeedMoreOlderGames(action.game)
             is DismissWhatsNewDialog -> onDismissWhatsNewDialog()
-            ChallengeDialogDismissed -> _state.value = _state.value.copy(challengeDetailsStatus = null)
+            ChallengeDialogDismissed -> _state.update { it.copy(challengeDetailsStatus = null) }
             DismissAlertDialog -> onDismissAlertDialog()
             GameNavigationConsumed -> onGameNavigationConsumed()
             ViewResumed -> onViewResumed()
@@ -312,36 +331,46 @@ class MyGamesViewModel(
 
     private fun onViewResumed() {
         chatRepository.fetchRecentChatMessages()
-        _state.value = _state.value.copy(
-            // Check if board theme had been changed in the settings
-            boardTheme = settingsRepository.boardTheme
-        )
+        _state.update {
+            it.copy(
+                // Check if board theme had been changed in the settings
+                boardTheme = settingsRepository.boardTheme
+            )
+        }
     }
 
     private fun onGameNavigationConsumed() {
-        _state.value = _state.value.copy(
-            gameNavigationPending = null
-        )
+        _state.update {
+            it.copy(
+                gameNavigationPending = null
+            )
+        }
     }
 
     private fun onDismissAlertDialog() {
-        _state.value = _state.value.copy(
-            alertDialogText = null,
-            alertDialogTitle = null
-        )
+        _state.update {
+            it.copy(
+                alertDialogText = null,
+                alertDialogTitle = null
+            )
+        }
     }
 
     private fun onDismissWhatsNewDialog() {
         WhatsNewUtils.textShown()
-        _state.value = _state.value.copy(
-            whatsNewDialogVisible = false
-        )
+        _state.update {
+            it.copy(
+                whatsNewDialogVisible = false
+            )
+        }
     }
 
     private fun onGameStart(game: Game) {
-        _state.value = _state.value.copy(
-            gameNavigationPending = game
-        )
+        _state.update {
+            it.copy(
+                gameNavigationPending = game
+            )
+        }
     }
 
     private fun onNeedMoreOlderGames(lastGame: Game?) {
@@ -350,11 +379,13 @@ class MyGamesViewModel(
             finishedGamesRepository.getHistoricGames(lastGame?.ended)
                 .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
                 .distinctUntilChanged()
-                .doOnNext {
-                    _state.value = _state.value.copy(
-                        loadingHistoricGames = it.loading,
-                        loadedAllHistoricGames = it.loadedLastPage
-                    )
+                .doOnNext { result ->
+                    _state.update {
+                        it.copy(
+                            loadingHistoricGames = result.loading,
+                            loadedAllHistoricGames = result.loadedLastPage
+                        )
+                    }
                 }
                 .map { it.games }
                 .map(this::computePositions)
@@ -366,11 +397,14 @@ class MyGamesViewModel(
         games.onEach { it.position = RulesManager.replay(it, computeTerritory = false) }
 
     private fun onHistoricGames(games: List<Game>) {
-        val existingGames = _state.value.historicGames
-        val newGames = games.filter { candidate -> existingGames.find { candidate.id == it.id } == null }
-        _state.value = _state.value.copy(
-            historicGames = existingGames + newGames
-        )
+        _state.update {
+            val existingGames = it.historicGames
+            val newGames =
+                games.filter { candidate -> existingGames.find { candidate.id == it.id } == null }
+            it.copy(
+                historicGames = existingGames + newGames
+            )
+        }
     }
 
 }
@@ -403,24 +437,24 @@ data class MyGamesState(
 )
 
 
-sealed class Action {
-    object PlayOnline: Action()
-    object CustomGame: Action()
-    object PlayAgainstAI: Action()
-    object FaceToFace: Action()
-    object SupportClicked: Action()
-    object DismissWhatsNewDialog: Action()
-    object DismissAlertDialog: Action()
-    object GameNavigationConsumed: Action()
-    class GameSelected(val game: Game): Action()
-    class ChallengeCancelled(val challenge: Challenge): Action()
-    class ChallengeSeeDetails(val challenge: Challenge): Action()
-    class ChallengeAccepted(val challenge: Challenge): Action()
-    object ChallengeDialogDismissed: Action()
-    class ChallengeDeclined(val challenge: Challenge): Action()
-    class AutomatchCancelled(val automatch: OGSAutomatch): Action()
-    class LoadMoreHistoricGames(val game: Game?): Action()
-    object ViewResumed: Action()
+sealed interface Action {
+    data object PlayOnline: Action
+    data object CustomGame: Action
+    data object PlayAgainstAI: Action
+    data object FaceToFace: Action
+    data object SupportClicked: Action
+    data object DismissWhatsNewDialog: Action
+    data object DismissAlertDialog: Action
+    data object GameNavigationConsumed: Action
+    data class GameSelected(val game: Game): Action
+    data class ChallengeCancelled(val challenge: Challenge): Action
+    data class ChallengeSeeDetails(val challenge: Challenge): Action
+    data class ChallengeAccepted(val challenge: Challenge): Action
+    data object ChallengeDialogDismissed: Action
+    data class ChallengeDeclined(val challenge: Challenge): Action
+    data class AutomatchCancelled(val automatch: OGSAutomatch): Action
+    data class LoadMoreHistoricGames(val game: Game?): Action
+    data object ViewResumed: Action
 }
 
 @Immutable

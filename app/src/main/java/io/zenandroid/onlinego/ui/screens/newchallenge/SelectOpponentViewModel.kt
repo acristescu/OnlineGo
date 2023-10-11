@@ -8,6 +8,7 @@ import io.zenandroid.onlinego.data.repositories.BotsRepository
 import io.zenandroid.onlinego.data.repositories.PlayersRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -15,37 +16,31 @@ class SelectOpponentViewModel(
   botsRepository: BotsRepository,
   private val playersRepository: PlayersRepository
 ) : ViewModel() {
-  val state = MutableStateFlow(SelectOpponentState())
+  val state = MutableStateFlow(SelectOpponentState(
+    bots = botsRepository
+      .bots
+      .sortedBy { it.rating }
+  ))
 
   init {
-    state.value = state.value.copy(
-      bots = botsRepository
-        .bots
-        .sortedBy { it.rating }
-    )
-
     viewModelScope.launch {
       val recentOpponents = playersRepository.getRecentOpponents()
       withContext(Dispatchers.Main) {
-        state.value = state.value.copy(
-          recentOpponents = recentOpponents
-        )
+        state.update {
+          it.copy(recentOpponents = recentOpponents)
+        }
       }
     }
   }
 
   fun onEvent(event: Event) {
     when (event) {
-      is Event.OpponentSelected -> {
-        state.value = state.value.copy(
-
-        )
-      }
+      is Event.OpponentSelected -> {}
 
       is Event.TabSelected -> {
-        state.value = state.value.copy(
-          selectedTab = event.tab
-        )
+        state.update {
+          it.copy(selectedTab = event.tab)
+        }
       }
     }
   }

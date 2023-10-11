@@ -24,6 +24,7 @@ import io.zenandroid.onlinego.utils.egfToRank
 import io.zenandroid.onlinego.utils.formatRank
 import io.zenandroid.onlinego.utils.recordException
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -67,24 +68,26 @@ class StatsViewModel(
 
   fun onFilterChanged(filter: Filter) {
     currentFilter = filter
-    stats?.let {
-      state.value = state.value.copy(
-        chartData = when (filter) {
-          ONE_MONTH -> it.chartData1M
-          THREE_MONTHS -> it.chartData3M
-          ONE_YEAR -> it.chartData1Y
-          FIVE_YEARS -> it.chartData5Y
-          ALL -> it.chartDataAll
-        },
-        filter = filter,
-      )
+    stats?.let { stats ->
+      state.update {
+        it.copy(
+          chartData = when (filter) {
+            ONE_MONTH -> stats.chartData1M
+            THREE_MONTHS -> stats.chartData3M
+            ONE_YEAR -> stats.chartData1Y
+            FIVE_YEARS -> stats.chartData5Y
+            ALL -> stats.chartDataAll
+          },
+          filter = filter,
+        )
+      }
     }
   }
 
   private fun fillPlayerDetails(playerDetails: OGSPlayer) {
-    state.value = state.value.copy(
-      playerDetails = playerDetails
-    )
+    state.update {
+      it.copy(playerDetails = playerDetails)
+    }
   }
 
   private fun fillPlayerStats(stats: UserStats) {
@@ -119,41 +122,45 @@ class StatsViewModel(
     val recentWins = last10Games.count { it.won }
     val recentLosses = last10Games.count { !it.won }
 
-    state.value = state.value.copy(
-      highestRank = highestRank,
-      highestRankDate = highestRankDate,
-      chartData = chartData,
-      lostCount = lostCount,
-      wonCount = wonCount,
-      gamesWonString = gamesWonString,
-      gamesLostString = gamesLostString,
-      last10Games = last10Games,
-      longestStreak = longestStreak,
-      currentStreak = currentStreak,
-      recentResults = "$recentWins - $recentLosses",
-      startDate = startDate,
-      endDate = endDate,
-      allGames = stats.allGames,
-      smallBoard = stats.smallBoard,
-      mediumBoard = stats.mediumBoard,
-      largeBoard = stats.largeBoard,
-      blitz = stats.blitz,
-      live = stats.live,
-      asWhite = stats.asWhite,
-      asBlack = stats.asBlack,
-      correspondence = stats.correspondence,
-    )
+    state.update {
+      it.copy(
+        highestRank = highestRank,
+        highestRankDate = highestRankDate,
+        chartData = chartData,
+        lostCount = lostCount,
+        wonCount = wonCount,
+        gamesWonString = gamesWonString,
+        gamesLostString = gamesLostString,
+        last10Games = last10Games,
+        longestStreak = longestStreak,
+        currentStreak = currentStreak,
+        recentResults = "$recentWins - $recentLosses",
+        startDate = startDate,
+        endDate = endDate,
+        allGames = stats.allGames,
+        smallBoard = stats.smallBoard,
+        mediumBoard = stats.mediumBoard,
+        largeBoard = stats.largeBoard,
+        blitz = stats.blitz,
+        live = stats.live,
+        asWhite = stats.asWhite,
+        asBlack = stats.asBlack,
+        correspondence = stats.correspondence,
+      )
+    }
 
     if (stats.mostFacedId != null) {
       restService.getPlayerProfile(stats.mostFacedId)
         .subscribeOn(Schedulers.io())
         .observeOn(AndroidSchedulers.mainThread())
-        .subscribe({
-          state.value = state.value.copy(
-            mostFacedOpponent = it,
-            mostFacedGameCount = stats.mostFacedGameCount,
-            mostFacedWon = stats.mostFacedWon
-          )
+        .subscribe({ mostFaced ->
+          state.update {
+            it.copy(
+              mostFacedOpponent = mostFaced,
+              mostFacedGameCount = stats.mostFacedGameCount,
+              mostFacedWon = stats.mostFacedWon
+            )
+          }
         }, this::onError)
         .addToDisposable(subscriptions)
     }
@@ -162,12 +169,13 @@ class StatsViewModel(
       restService.getPlayerProfile(winningGame.opponentId)
         .subscribeOn(Schedulers.io())
         .observeOn(AndroidSchedulers.mainThread())
-        .subscribe({
-          state.value = state.value.copy(
-            highestWin = it,
-            winningGame = winningGame
-          )
-          // view.fillHighestWin(it, winningGame)
+        .subscribe({ highestWin ->
+          state.update {
+            it.copy(
+              highestWin = highestWin,
+              winningGame = winningGame
+            )
+          }
         }, this::onError)
         .addToDisposable(subscriptions)
     } ?: run {

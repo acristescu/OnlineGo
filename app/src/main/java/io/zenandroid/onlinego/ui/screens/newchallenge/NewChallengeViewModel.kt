@@ -12,6 +12,7 @@ import io.zenandroid.onlinego.data.model.ogs.OGSPlayer
 import io.zenandroid.onlinego.utils.egfToRank
 import io.zenandroid.onlinego.utils.formatRank
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.update
 
 private const val PARAMS_KEY = "PARAMS"
 
@@ -50,104 +51,106 @@ class NewChallengeViewModel : ViewModel() {
       )
 
   fun onEvent(event: Event) {
-    when (event) {
-      is Event.OpponentSelected -> {
-        val opponent = opponentAdapter.fromJson(event.opponent)
-        state.value = state.value.copy(
-          challenge = state.value.challenge.copy(
-            opponent = opponent?.let { OGSPlayer.fromPlayer(it) }
-          ),
-          opponentText = opponent
-            ?.let { "${it.username} (${formatRank(egfToRank(it.rating), it.deviation)})" }
-            ?: "[Select Opponent]"
-        )
-      }
-
-      is Event.ColorSelected -> {
-        state.value = state.value.copy(
-          challenge = state.value.challenge.copy(
-            color = event.color
+    state.update {
+      when (event) {
+        is Event.OpponentSelected -> {
+          val opponent = opponentAdapter.fromJson(event.opponent)
+          it.copy(
+            challenge = it.challenge.copy(
+              opponent = opponent?.let { OGSPlayer.fromPlayer(it) }
+            ),
+            opponentText = opponent
+              ?.let { "${it.username} (${formatRank(egfToRank(it.rating), it.deviation)})" }
+              ?: "[Select Opponent]"
           )
-        )
-      }
+        }
 
-      is Event.RankedSelected -> {
-        state.value = state.value.copy(
-          challenge = state.value.challenge.copy(
-            ranked = event.ranked
+        is Event.ColorSelected -> {
+          it.copy(
+            challenge = it.challenge.copy(
+              color = event.color
+            )
           )
-        )
-      }
+        }
 
-      is Event.HandicapSelected -> {
-        state.value = state.value.copy(
-          challenge = state.value.challenge.copy(
-            handicap = event.handicap
+        is Event.RankedSelected -> {
+          it.copy(
+            challenge = it.challenge.copy(
+              ranked = event.ranked
+            )
           )
-        )
-      }
+        }
 
-      is Event.SizeSelected -> {
-        state.value = state.value.copy(
-          challenge = state.value.challenge.copy(
-            size = event.size
+        is Event.HandicapSelected -> {
+          it.copy(
+            challenge = it.challenge.copy(
+              handicap = event.handicap
+            )
           )
-        )
-      }
+        }
 
-      is Event.SpeedSelected -> {
-        state.value = state.value.copy(
-          challenge = state.value.challenge.copy(
-            speed = event.speed
+        is Event.SizeSelected -> {
+          it.copy(
+            challenge = it.challenge.copy(
+              size = event.size
+            )
           )
-        )
-      }
+        }
 
-      is Event.DisableAnalysisSelected -> {
-        state.value = state.value.copy(
-          challenge = state.value.challenge.copy(
-            disable_analysis = event.disableAnalysis
+        is Event.SpeedSelected -> {
+          it.copy(
+            challenge = state.value.challenge.copy(
+              speed = event.speed
+            )
           )
-        )
-      }
+        }
 
-      is Event.PrivateSelected -> {
-        state.value = state.value.copy(
-          challenge = state.value.challenge.copy(
-            private = event.private
+        is Event.DisableAnalysisSelected -> {
+          it.copy(
+            challenge = state.value.challenge.copy(
+              disable_analysis = event.disableAnalysis
+            )
           )
-        )
-      }
+        }
 
-      is Event.ChallengeClicked -> {
-        prefs.edit().putString(PARAMS_KEY, challengeParamsAdapter.toJson(state.value.challenge))
-          .apply()
-        state.value = state.value.copy(
-          done = true
-        )
-      }
+        is Event.PrivateSelected -> {
+          it.copy(
+            challenge = state.value.challenge.copy(
+              private = event.private
+            )
+          )
+        }
 
-      is Event.OpponentClicked -> {
-        state.value = state.value.copy(
-          selectOpponentDialogShowing = true
-        )
-      }
+        is Event.ChallengeClicked -> {
+          prefs.edit().putString(PARAMS_KEY, challengeParamsAdapter.toJson(state.value.challenge))
+            .apply()
+          it.copy(
+            done = true
+          )
+        }
 
-      is Event.SelectOpponentDialogDismissed -> {
-        state.value = state.value.copy(
-          selectOpponentDialogShowing = false,
-          challenge = state.value.challenge.copy(
-            opponent = event.selectedOpponent?.let { OGSPlayer.fromPlayer(it) },
-          ),
-          opponentText = event.selectedOpponent?.let {
-            "${it.username} (${
-              formatRank(
-                egfToRank(it.rating),
-                it.deviation
-              )
-            })"
-          } ?: "[Select Opponent]"
-        )
+        is Event.OpponentClicked -> {
+          it.copy(
+            selectOpponentDialogShowing = true
+          )
+        }
+
+        is Event.SelectOpponentDialogDismissed -> {
+          it.copy(
+            selectOpponentDialogShowing = false,
+            challenge = state.value.challenge.copy(
+              opponent = event.selectedOpponent?.let { OGSPlayer.fromPlayer(it) },
+            ),
+            opponentText = event.selectedOpponent?.let {
+              "${it.username} (${
+                formatRank(
+                  egfToRank(it.rating),
+                  it.deviation
+                )
+              })"
+            } ?: "[Select Opponent]"
+          )
+        }
       }
     }
   }

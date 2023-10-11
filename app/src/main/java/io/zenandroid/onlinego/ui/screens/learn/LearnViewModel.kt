@@ -8,6 +8,7 @@ import io.zenandroid.onlinego.data.repositories.TutorialsRepository
 import io.zenandroid.onlinego.utils.addToDisposable
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.update
 
 /**
  * Created by alex on 05/11/2017.
@@ -17,9 +18,11 @@ class LearnViewModel(
 ) : ViewModel() {
     fun onAction(action: LearnAction) {
         when(action) {
-            is LearnAction.TutorialGroupClicked -> _state.value = _state.value.copy(
-                    expandedTutorialGroup = if (_state.value.expandedTutorialGroup == action.group) null else action.group
-            )
+            is LearnAction.TutorialGroupClicked -> _state.update {
+              it.copy(
+                expandedTutorialGroup = if (it.expandedTutorialGroup == action.group) null else action.group
+              )
+            }
             else -> {}
         }
     }
@@ -48,10 +51,12 @@ class LearnViewModel(
                 break
             }
         }
-        _state.value = _state.value.copy(
-                completedTutorialsNames = completedNames,
-                expandedTutorialGroup = expandedTutorialGroup
-        )
+        _state.update {
+          it.copy(
+            completedTutorialsNames = completedNames,
+            expandedTutorialGroup = expandedTutorialGroup
+          )
+        }
     }
 
     override fun onCleared() {

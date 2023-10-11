@@ -18,6 +18,7 @@ import io.zenandroid.onlinego.utils.recordException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import org.json.JSONObject
 import retrofit2.HttpException
 
@@ -43,40 +44,39 @@ class OnboardingViewModel(
     }
 
     fun onAction(action: OnboardingAction) {
-        val state = _state.value
         when(action) {
             OnboardingAction.BackPressed -> {
-                if(state.currentPageIndex != 0) {
-                    goToPage(state.currentPageIndex - 1)
+                if(state.value.currentPageIndex != 0) {
+                    goToPage(state.value.currentPageIndex - 1)
                 } else {
-                    _state.value = state.copy(
-                        finish = true
-                    )
+                    _state.update { it.copy(finish = true) }
                 }
             }
             OnboardingAction.ContinueClicked -> {
-                goToPage(state.currentPageIndex + 1)
+                goToPage(state.value.currentPageIndex + 1)
             }
             is OnboardingAction.AnswerSelected -> {
-                when(state.currentPageIndex) {
-                    3 -> _state.value = state.copy(isExistingAccount = action.answerIndex == 0)
-                    4 -> _state.value = state.copy(loginMethod = Page.LoginMethod.values()[action.answerIndex])
+                when(state.value.currentPageIndex) {
+                    3 -> _state.update { it.copy(isExistingAccount = action.answerIndex == 0) }
+                    4 -> _state.update { it.copy(loginMethod = Page.LoginMethod.entries[action.answerIndex]) }
                 }
-                goToPage(state.currentPageIndex + 1)
+                goToPage(state.value.currentPageIndex + 1)
             }
-            is OnboardingAction.EmailChanged -> _state.value = state.copy(email = action.newEmail, logInButtonEnabled = shouldEnableLogInButton(action.newEmail, state.username, state.password, state.isExistingAccount))
-            is OnboardingAction.PasswordChanged -> _state.value = state.copy(password = action.newPassword, logInButtonEnabled = shouldEnableLogInButton(state.email, state.username, action.newPassword, state.isExistingAccount))
-            is OnboardingAction.UsernameChanged -> _state.value = state.copy(username = action.newUsername, logInButtonEnabled = shouldEnableLogInButton(state.email, action.newUsername, state.password, state.isExistingAccount))
+            is OnboardingAction.EmailChanged -> _state.update { it.copy(email = action.newEmail, logInButtonEnabled = shouldEnableLogInButton(action.newEmail, it.username, it.password, it.isExistingAccount)) }
+            is OnboardingAction.PasswordChanged -> _state.update { it.copy(password = action.newPassword, logInButtonEnabled = shouldEnableLogInButton(it.email, it.username, action.newPassword, it.isExistingAccount)) }
+            is OnboardingAction.UsernameChanged -> _state.update { it.copy(username = action.newUsername, logInButtonEnabled = shouldEnableLogInButton(it.email, action.newUsername, it.password, it.isExistingAccount)) }
             OnboardingAction.LoginPressed -> {
-                onLoginClicked(state)
-                _state.value = state.copy(loginProcessing = true)
+                onLoginClicked(state.value)
+                _state.update { it.copy(loginProcessing = true) }
             }
-            OnboardingAction.DialogDismissed -> _state.value = state.copy(loginErrorDialogText = null)
-            OnboardingAction.SocialPlatformLoginFailed -> _state.value = state.copy(
-                loginMethod = null,
-                currentPageIndex = if(state.currentPageIndex == 0) 0 else state.currentPageIndex - 1,
-                currentPage = if(state.currentPageIndex == 0) pages[0] else pages[state.currentPageIndex - 1],
-            )
+            OnboardingAction.DialogDismissed -> _state.update { it.copy(loginErrorDialogText = null) }
+            OnboardingAction.SocialPlatformLoginFailed -> _state.update {
+                it.copy(
+                    loginMethod = null,
+                    currentPageIndex = if (it.currentPageIndex == 0) 0 else it.currentPageIndex - 1,
+                    currentPage = if (it.currentPageIndex == 0) pages[0] else pages[it.currentPageIndex - 1],
+                )
+            }
         }
     }
 
@@ -85,12 +85,18 @@ class OnboardingViewModel(
 
     private fun goToPage(pageIndex: Int) {
         analytics.logEvent("oboarding_page_$pageIndex", null)
-        val state = _state.value
-        _state.value = state.copy(
-            currentPageIndex = pageIndex,
-            currentPage = pages[pageIndex],
-            logInButtonEnabled = shouldEnableLogInButton(state.email, state.username, state.password, state.isExistingAccount)
-        )
+        _state.update {
+            it.copy(
+                currentPageIndex = pageIndex,
+                currentPage = pages[pageIndex],
+                logInButtonEnabled = shouldEnableLogInButton(
+                    it.email,
+                    it.username,
+                    it.password,
+                    it.isExistingAccount
+                )
+            )
+        }
     }
 
     private fun onLoginClicked(state: OnboardingState) {
@@ -121,16 +127,16 @@ class OnboardingViewModel(
     }
 
     private fun onLoginSuccess() {
-        _state.value = _state.value.copy(loginSuccessful = true)
+        _state.update { it.copy(loginSuccessful = true) }
     }
 
     private fun onPasswordLoginFailure(t: Throwable) {
         Log.e(OnboardingViewModel::class.java.simpleName, t.message, t)
         if( (t as? HttpException)?.code() in arrayOf(401, 403) ) {
-            _state.value = state.value.copy(loginProcessing = false, loginErrorDialogText = "Invalid username or password")
+            _state.update { it.copy(loginProcessing = false, loginErrorDialogText = "Invalid username or password") }
         } else {
             recordException(t)
-            _state.value = state.value.copy(loginProcessing = false, loginErrorDialogText = "Login failed. Debug info: '${t.message}'")
+            _state.update { it.copy(loginProcessing = false, loginErrorDialogText = "Login failed. Debug info: '${t.message}'") }
         }
     }
 
@@ -139,13 +145,13 @@ class OnboardingViewModel(
         if(t is HttpException && t.response()?.errorBody() != null) {
             try {
                 val error = JSONObject(t.response()?.errorBody()!!.string())["error"].toString()
-                _state.value = state.value.copy(loginProcessing = false, loginErrorDialogText = error)
+                _state.update { it.copy(loginProcessing = false, loginErrorDialogText = error) }
             } catch (e: Exception) {
                 Log.e(OnboardingViewModel::class.java.simpleName, "Can't parse error: ${t.response()?.errorBody()?.string()}")
-                _state.value = state.value.copy(loginProcessing = false, loginErrorDialogText = "Error communicating with server. Server reported error code ${t.response()?.code()}. Please try again later")
+                _state.update { it.copy(loginProcessing = false, loginErrorDialogText = "Error communicating with server. Server reported error code ${t.response()?.code()}. Please try again later") }
             }
         } else {
-            _state.value = state.value.copy(loginProcessing = false, loginErrorDialogText = "Create Account failed. Debug info: '${t.message}'")
+            _state.update { it.copy(loginProcessing = false, loginErrorDialogText = "Create Account failed. Debug info: '${t.message}'") }
         }
     }
 

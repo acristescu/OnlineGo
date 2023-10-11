@@ -23,6 +23,7 @@ import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.ThemeClicked
 import io.zenandroid.onlinego.ui.views.BoardView
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class SettingsViewModel(
@@ -42,21 +43,20 @@ class SettingsViewModel(
   )
 
   fun onAction(action: SettingsAction) {
-    val state = state.value
     when (action) {
       CoordinatesClicked -> {
-        settingsRepository.showCoordinates = !state.coordinates
-        this.state.value = state.copy(coordinates = !state.coordinates)
+        settingsRepository.showCoordinates = !state.value.coordinates
+        state.update { it.copy(coordinates = !it.coordinates) }
       }
 
       RanksClicked -> {
-        settingsRepository.showRanks = !state.ranks
-        this.state.value = state.copy(ranks = !state.ranks)
+        settingsRepository.showRanks = !state.value.ranks
+        state.update { it.copy(ranks = !it.ranks) }
       }
 
       SoundsClicked -> {
-        settingsRepository.sound = !state.sounds
-        this.state.value = state.copy(sounds = !state.sounds)
+        settingsRepository.sound = !state.value.sounds
+        state.update { it.copy(sounds = !it.sounds) }
       }
 
       is ThemeClicked -> {
@@ -83,53 +83,63 @@ class SettingsViewModel(
           BoardView.unloadResources()
         }
 
-        this.state.value = state.copy(theme = action.theme)
+        state.update { it.copy(theme = action.theme) }
       }
 
       is BoardThemeClicked -> {
         settingsRepository.boardTheme =
-          BoardTheme.values().find { it.displayName == action.boardDisplayName }!!
-        this.state.value = state.copy(boardTheme = action.boardDisplayName)
+          BoardTheme.entries.find { it.displayName == action.boardDisplayName }!!
+        state.update { it.copy(boardTheme = action.boardDisplayName) }
       }
 
-      is DeleteAccountClicked -> this.state.value = state.copy(
-        passwordDialogVisible = true,
-      )
+      is DeleteAccountClicked -> state.update {
+        it.copy(passwordDialogVisible = true)
+      }
 
-      is DeleteAccountCanceled -> this.state.value = state.copy(
-        passwordDialogVisible = false,
-        modalVisible = false,
-        deleteAccountError = null,
-      )
+      is DeleteAccountCanceled -> state.update {
+        it.copy(
+          passwordDialogVisible = false,
+          modalVisible = false,
+          deleteAccountError = null,
+        )
+      }
 
       is DeleteAccountConfirmed -> {
-        this.state.value = state.copy(
-          passwordDialogVisible = false,
-          modalVisible = true,
-        )
+        state.update {
+          it.copy(
+            passwordDialogVisible = false,
+            modalVisible = true,
+          )
+        }
         viewModelScope.launch {
           try {
             userSessionRepository.deleteAccount(action.password)
-            this@SettingsViewModel.state.value = this@SettingsViewModel.state.value.copy(
-              modalVisible = false,
-              passwordDialogVisible = false,
-              deleteAccountError = "Account deleted. Sorry to see you go! The app will close in 5s."
-            )
+            state.update {
+              it.copy(
+                modalVisible = false,
+                passwordDialogVisible = false,
+                deleteAccountError = "Account deleted. Sorry to see you go! The app will close in 5s."
+              )
+            }
             delay(5000)
             userSessionRepository.logOut()
           } catch (e: Exception) {
-            if(e.message?.contains("403") == true) {
-              this@SettingsViewModel.state.value = this@SettingsViewModel.state.value.copy(
-                passwordDialogVisible = false,
-                modalVisible = false,
-                deleteAccountError = "Wrong password"
-              )
+            if (e.message?.contains("403") == true) {
+              state.update {
+                it.copy(
+                  passwordDialogVisible = false,
+                  modalVisible = false,
+                  deleteAccountError = "Wrong password"
+                )
+              }
             } else {
-              this@SettingsViewModel.state.value = this@SettingsViewModel.state.value.copy(
-                passwordDialogVisible = false,
-                modalVisible = false,
-                deleteAccountError = e.message,
-              )
+              state.update {
+                it.copy(
+                  passwordDialogVisible = false,
+                  modalVisible = false,
+                  deleteAccountError = e.message,
+                )
+              }
             }
           }
         }
@@ -156,16 +166,16 @@ data class SettingsState(
 )
 
 sealed interface SettingsAction {
-  object NotificationsClicked : SettingsAction
-  object SoundsClicked : SettingsAction
-  class ThemeClicked(val theme: String) : SettingsAction
-  class BoardThemeClicked(val boardDisplayName: String) : SettingsAction
-  object CoordinatesClicked : SettingsAction
-  object RanksClicked : SettingsAction
-  object LogoutClicked : SettingsAction
-  object DeleteAccountClicked : SettingsAction
-  object DeleteAccountCanceled : SettingsAction
-  class DeleteAccountConfirmed(val password: String) : SettingsAction
-  object PrivacyClicked : SettingsAction
-  object SupportClicked : SettingsAction
+  data object NotificationsClicked : SettingsAction
+  data object SoundsClicked : SettingsAction
+  data class ThemeClicked(val theme: String) : SettingsAction
+  data class BoardThemeClicked(val boardDisplayName: String) : SettingsAction
+  data object CoordinatesClicked : SettingsAction
+  data object RanksClicked : SettingsAction
+  data object LogoutClicked : SettingsAction
+  data object DeleteAccountClicked : SettingsAction
+  data object DeleteAccountCanceled : SettingsAction
+  data class DeleteAccountConfirmed(val password: String) : SettingsAction
+  data object PrivacyClicked : SettingsAction
+  data object SupportClicked : SettingsAction
 }

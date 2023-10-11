@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.data.model.ogs.Speed
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.update
 
 class NewAutomatchChallengeViewModel : ViewModel() {
   companion object {
@@ -25,22 +26,22 @@ class NewAutomatchChallengeViewModel : ViewModel() {
   )
 
   fun onSmallCheckChanged(checked: Boolean) {
-    state.value = state.value.copy(small = checked)
+    state.update { it.copy(small = checked) }
     prefs.edit().putBoolean(SEARCH_GAME_SMALL, checked).apply()
   }
 
   fun onMediumCheckChanged(checked: Boolean) {
-    state.value = state.value.copy(medium = checked)
+    state.update { it.copy(medium = checked) }
     prefs.edit().putBoolean(SEARCH_GAME_MEDIUM, checked).apply()
   }
 
   fun onLargeCheckChanged(checked: Boolean) {
-    state.value = state.value.copy(large = checked)
+    state.update { it.copy(large = checked) }
     prefs.edit().putBoolean(SEARCH_GAME_LARGE, checked).apply()
   }
 
   fun onSpeedChanged(speed: Speed) {
-    state.value = state.value.copy(speed = speed)
+    state.update { it.copy(speed = speed) }
     prefs.edit().putString(SEARCH_GAME_SPEED, speed.toString()).apply()
   }
 
