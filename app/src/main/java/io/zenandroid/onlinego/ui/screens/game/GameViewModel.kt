@@ -112,6 +112,7 @@ import io.zenandroid.onlinego.utils.convertCountryCodeToEmojiFlag
 import io.zenandroid.onlinego.utils.egfToRank
 import io.zenandroid.onlinego.utils.formatMillis
 import io.zenandroid.onlinego.utils.formatRank
+import io.zenandroid.onlinego.utils.NotificationUtils
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -845,6 +846,8 @@ class GameViewModel(
                 } else {
                     submitMove(move, moveNo, attempt + 1)
                 }
+            } else {
+                NotificationUtils.cancelNotification(gameState?.id!!.toInt())
             }
         }
     }

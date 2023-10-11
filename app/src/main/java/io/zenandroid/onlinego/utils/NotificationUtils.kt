@@ -16,6 +16,7 @@ import android.view.View
 import android.widget.RemoteViews
 import androidx.core.os.bundleOf
 import androidx.navigation.NavDeepLinkBuilder
+import java.util.Locale
 import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.gamelogic.RulesManager
@@ -41,6 +42,11 @@ class NotificationUtils {
         fun cancelNotification() {
             val notificationManager = OnlineGoApplication.instance.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             notificationManager.cancelAll()
+        }
+
+        fun cancelNotification(id: Int) {
+            val notificationManager = OnlineGoApplication.instance.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.cancel(id)
         }
 
         private fun supportsNotificationGrouping() =
@@ -72,6 +78,26 @@ class NotificationUtils {
                     game.phase == Phase.FINISHED -> true
                     else -> false
                 }
+            }
+
+            val gamesToClear = (newGames + gamesThatChanged).filter { game ->
+                when {
+                    lastNotifications.find {
+                        it.notification.gameId == game.id
+                    } == null -> false
+
+                    game.phase == Phase.FINISHED -> false
+                    game.phase == Phase.PLAY && game.playerToMoveId != userId -> true
+                    game.phase == Phase.STONE_REMOVAL -> {
+                        val myRemovedStones = if(userId == game.whitePlayer.id) game.whitePlayer.acceptedStones else game.blackPlayer.acceptedStones
+                        game.removedStones == myRemovedStones
+                    }
+                    else -> false
+                }
+            }
+
+            for (game in gamesToClear) {
+                cancelNotification(game.id.toInt())
             }
 
             if (gamesToNotify.isNotEmpty()) {
@@ -158,11 +184,33 @@ class NotificationUtils {
 
                 val opponent = if (userId == it.blackPlayer.id) it.whitePlayer.username else it.blackPlayer.username
                 val message = when(it.phase) {
-                    Phase.FINISHED -> "Game ended"
+                    Phase.FINISHED -> {
+                        val outcome = when {
+                            it.outcome == "Cancellation" -> "Cancelled"
+                            userId == it.blackPlayer.id ->
+                                if (it.blackLost == true) "Lost by ${it.outcome}"
+                                else "Won by ${it.outcome}"
+                            userId == it.whitePlayer.id ->
+                                if (it.whiteLost == true) "Lost by ${it.outcome}"
+                                else "Won by ${it.outcome}"
+                            it.whiteLost == true ->
+                                "Black won by ${it.outcome}"
+                            else ->
+                                "White won by ${it.outcome}"
+                        }
+                        "Game ended - $outcome"
+                    }
                     Phase.PLAY -> "Your turn"
                     Phase.STONE_REMOVAL -> "Stone removal phase"
                     else -> "Requires your attention"
                 }
+                val category = when(it.timeControl?.speed?.uppercase(Locale.ROOT)) {
+                    "correspondence" -> "active_correspondence_games"
+                    "live" -> "active_live_games"
+                    "blitz" -> "active_blitz_games"
+                    else -> "active_games"
+                }
+                val timeLimit = System.currentTimeMillis() + timeLeftForCurrentPlayer(it)
                 val remoteView = RemoteViews(context.packageName, R.layout.notification_board)
 
                 board.boardWidth = it.width
@@ -170,7 +218,7 @@ class NotificationUtils {
                 board.position = RulesManager.replay(it, computeTerritory = false)
                 remoteView.setImageViewBitmap(R.id.notification_bitmap, board.convertToContentBitmap())
                 val notification =
-                        NotificationCompat.Builder(context, "active_games")
+                        NotificationCompat.Builder(context, category)
                                 .setContentTitle(opponent)
                                 .setContentText(message)
                                 .setContentIntent(pendingIntent)
@@ -182,7 +230,16 @@ class NotificationUtils {
                                 .setGroupAlertBehavior(NotificationCompat.GROUP_ALERT_SUMMARY)
                                 .setStyle(NotificationCompat.DecoratedCustomViewStyle())
                                 .setCustomBigContentView(remoteView)
-                                .setAutoCancel(true)
+                                .apply {
+                                    if (it.phase == Phase.PLAY)
+                                        setChronometerCountDown(true)
+                                            .setUsesChronometer(true)
+                                            .setShowWhen(true)
+                                            .setWhen(timeLimit)
+                                            .setOngoing(true)
+                                    else
+                                        setAutoCancel(true)
+                                }
                                 .build()
 
                 val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
