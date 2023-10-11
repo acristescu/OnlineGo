@@ -1,31 +1,30 @@
 package io.zenandroid.onlinego.ui.screens.puzzle
 
-import android.content.Context
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
-import java.util.concurrent.Executors
 import io.zenandroid.onlinego.data.model.local.Puzzle
 import io.zenandroid.onlinego.data.model.local.PuzzleCollection
 import io.zenandroid.onlinego.data.model.ogs.PuzzleSolution
 import io.zenandroid.onlinego.data.ogs.OGSRestService
 import io.zenandroid.onlinego.data.repositories.PuzzleRepository
-import io.zenandroid.onlinego.ui.screens.puzzle.PuzzleSetAction.*
+import io.zenandroid.onlinego.data.repositories.SettingsRepository
 import io.zenandroid.onlinego.utils.addToDisposable
 import io.zenandroid.onlinego.utils.recordException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
+import java.util.concurrent.Executors
 
 class PuzzleSetViewModel (
     private val puzzleRepository: PuzzleRepository,
     private val restService: OGSRestService,
+    private val settingsRepository: SettingsRepository,
     private val collectionId: Long
 ): ViewModel() {
-    private val _state = MutableStateFlow(PuzzleSetState())
+    private val _state = MutableStateFlow(PuzzleSetState(boardTheme = settingsRepository.boardTheme))
     val state: StateFlow<PuzzleSetState> = _state
     private val subscriptions = CompositeDisposable()
 
