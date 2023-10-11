@@ -210,7 +210,8 @@ class ActiveGamesRepository(
         gameDao.updateClock(
                 id = gameId,
                 playerToMoveId = clock.current_player,
-                clock = Clock.fromOGSClock(clock)
+                clock = Clock.fromOGSClock(clock),
+                pause = clock.pause
         )
     }
 
