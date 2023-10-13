@@ -7,6 +7,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -26,6 +27,7 @@ import io.zenandroid.onlinego.data.repositories.SettingsRepository
 import io.zenandroid.onlinego.gamelogic.RulesManager
 import io.zenandroid.onlinego.gamelogic.Util
 import io.zenandroid.onlinego.gamelogic.Util.toCoordinateSet
+import io.zenandroid.onlinego.ui.screens.puzzle.PuzzleDirectorySort.*
 import io.zenandroid.onlinego.utils.addToDisposable
 import io.zenandroid.onlinego.utils.recordException
 import kotlinx.coroutines.Job
@@ -47,13 +49,16 @@ class TsumegoViewModel (
         drawCoordinates = settingsRepository.showCoordinates,
     ))
     val state: StateFlow<TsumegoState> = _state
-    private val subscriptions = CompositeDisposable()
+    val filterText by mutableStateOf(TextFieldValue())
+    val sortField by mutableStateOf<PuzzleDirectorySort>(RatingSort(false))
+    val resultCollections by mutableStateOf(TextFieldValue())
     var collectionPuzzles by mutableStateOf(emptyList<Puzzle>())
         private set
-
     private var cursor by mutableStateOf(0)
 
     private var moveReplyJob: Job? = null
+
+    private val subscriptions = CompositeDisposable()
 
     init {
         puzzleRepository.getPuzzle(puzzleId)
@@ -221,6 +226,9 @@ class TsumegoViewModel (
                 }
             }
             Log.d("MoveTree", state.value.nodeStack.last()?.branches?.toString() ?: "")
+        }
+        if (_state.value.continueButtonVisible) {
+            markSolved()
         }
     }
 

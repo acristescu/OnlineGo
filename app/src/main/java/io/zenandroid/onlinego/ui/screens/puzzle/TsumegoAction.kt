@@ -4,28 +4,28 @@ import android.graphics.Point
 import io.zenandroid.onlinego.data.model.local.Puzzle
 import io.zenandroid.onlinego.data.model.local.PuzzleCollection
 
-sealed class TsumegoAction {
-    object ViewReady: TsumegoAction()
+sealed interface TsumegoAction {
+    data object ViewReady: TsumegoAction
 
-    class DataLoadingError(
+    data class DataLoadingError(
         val e: Throwable
-    ): TsumegoAction()
+    ): TsumegoAction
 
-    class PuzzleLoaded(val puzzle: Puzzle): TsumegoAction()
-    class LoadPuzzle(val id: Long): TsumegoAction()
-    class WaitPuzzle(val id: Long): TsumegoAction()
-    class ShowCandidateMove(val placement: Point?): TsumegoAction()
-    object Finish: TsumegoAction()
+    data class PuzzleLoaded(val puzzle: Puzzle): TsumegoAction
+    data class LoadPuzzle(val id: Long): TsumegoAction
+    data class WaitPuzzle(val id: Long): TsumegoAction
+    data class ShowCandidateMove(val placement: Point?): TsumegoAction
+    data object Finish: TsumegoAction
 
     // User actions
-    class UserTappedCoordinate(val coordinate: Point): TsumegoAction()
-    class UserHotTrackedCoordinate(val coordinate: Point): TsumegoAction()
-    object UserPressedPrevious: TsumegoAction()
-    object UserPressedBack: TsumegoAction()
-    object UserPressedNext: TsumegoAction()
-    object UserPressedPass: TsumegoAction()
-    data class BoardCellHovered(val point: Point): TsumegoAction()
-    data class BoardCellTapped(val point: Point): TsumegoAction()
-    object RetryPressed: TsumegoAction()
-    object NextPressed: TsumegoAction()
+    data class UserTappedCoordinate(val coordinate: Point): TsumegoAction
+    data class UserHotTrackedCoordinate(val coordinate: Point): TsumegoAction
+    data object UserPressedPrevious: TsumegoAction
+    data object UserPressedBack: TsumegoAction
+    data object UserPressedNext: TsumegoAction
+    data object UserPressedPass: TsumegoAction
+    data class BoardCellHovered(val point: Point): TsumegoAction
+    data class BoardCellTapped(val point: Point): TsumegoAction
+    data object RetryPressed: TsumegoAction
+    data object NextPressed: TsumegoAction
 }

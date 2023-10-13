@@ -8,9 +8,12 @@ import io.reactivex.schedulers.Schedulers
 import io.zenandroid.onlinego.data.model.local.Puzzle
 import io.zenandroid.onlinego.data.model.local.PuzzleCollection
 import io.zenandroid.onlinego.data.model.ogs.PuzzleSolution
+import io.zenandroid.onlinego.data.model.Position
 import io.zenandroid.onlinego.data.ogs.OGSRestService
 import io.zenandroid.onlinego.data.repositories.PuzzleRepository
 import io.zenandroid.onlinego.data.repositories.SettingsRepository
+import io.zenandroid.onlinego.gamelogic.RulesManager
+import io.zenandroid.onlinego.gamelogic.Util.toCoordinateSet
 import io.zenandroid.onlinego.utils.addToDisposable
 import io.zenandroid.onlinego.utils.recordException
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -98,3 +101,16 @@ class PuzzleSetViewModel (
         recordException(t)
     }
 }
+
+val Puzzle.position: Position?
+    get() {
+        this.puzzle.let {
+            return RulesManager.buildPos(
+                moves = emptyList(),
+                boardWidth = it.width,
+                boardHeight = it.height,
+                whiteInitialState = it.initial_state.white.toCoordinateSet(),
+                blackInitialState = it.initial_state.black.toCoordinateSet()
+            )
+        }
+    }

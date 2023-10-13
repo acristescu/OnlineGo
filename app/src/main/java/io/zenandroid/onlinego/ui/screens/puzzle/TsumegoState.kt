@@ -10,6 +10,7 @@ import io.zenandroid.onlinego.data.model.local.PuzzleCollection
 import io.zenandroid.onlinego.data.model.ogs.PuzzleRating
 import io.zenandroid.onlinego.data.model.ogs.PuzzleSolution
 import io.zenandroid.onlinego.data.model.StoneType
+import io.zenandroid.onlinego.ui.screens.puzzle.PuzzleDirectorySort.*
 import java.time.Instant
 
 @Immutable

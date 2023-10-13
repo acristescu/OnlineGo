@@ -25,6 +25,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -35,6 +36,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.local.Puzzle
+import io.zenandroid.onlinego.data.model.Position
 import io.zenandroid.onlinego.gamelogic.RulesManager
 import io.zenandroid.onlinego.gamelogic.Util.toCoordinateSet
 import io.zenandroid.onlinego.ui.composables.Board
@@ -80,6 +82,9 @@ fun PuzzleSetScreen(
       ) {
         items(items = puzzles) {
           val solved = !state.solutions[it.id].isNullOrEmpty()
+          val position = remember(it.puzzle) {
+              it.position!!
+          }
           Surface(
             shape = MaterialTheme.shapes.medium,
             modifier = Modifier
@@ -90,30 +95,21 @@ fun PuzzleSetScreen(
               .clickable { onPuzzle(it) }
               .padding(horizontal = 10.dp, vertical = 10.dp)) {
               Row {
-                it.puzzle.let {
-                  val pos = RulesManager.buildPos(
-                    moves = emptyList(),
-                    boardWidth = it.width,
-                    boardHeight = it.height,
-                    whiteInitialState = it.initial_state.white.toCoordinateSet(),
-                    blackInitialState = it.initial_state.black.toCoordinateSet()
-                  )
-                  Board(
-                    boardWidth = it.width,
-                    boardHeight = it.height,
-                    position = pos,
-                    boardTheme = state.boardTheme,
-                    drawCoordinates = false,
-                    interactive = false,
-                    drawShadow = false,
-                    fadeInLastMove = false,
-                    fadeOutRemovedStones = false,
-                    modifier = Modifier
-                      .weight(1f)
-                      .fillMaxWidth()
-                      .clip(MaterialTheme.shapes.small)
-                  )
-                }
+                Board(
+                  boardWidth = it.puzzle.width,
+                  boardHeight = it.puzzle.height,
+                  position = position,
+                  boardTheme = state.boardTheme,
+                  drawCoordinates = false,
+                  interactive = false,
+                  drawShadow = false,
+                  fadeInLastMove = false,
+                  fadeOutRemovedStones = false,
+                  modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth()
+                    .clip(MaterialTheme.shapes.small)
+                )
               }
               Spacer(modifier = Modifier.height(8.dp))
               Text(

@@ -28,6 +28,8 @@ import io.zenandroid.onlinego.utils.rememberStateWithLifecycle
 import org.commonmark.node.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import java.time.temporal.ChronoUnit.*
+import kotlin.reflect.full.createInstance
+import kotlinx.coroutines.flow.update
 
 private const val TAG = "PuzzleDirectoryFragment"
 
@@ -42,11 +44,17 @@ class PuzzleDirectoryFragment : Fragment() {
             setContent {
                 OnlineGoTheme {
                     val state by rememberStateWithLifecycle(viewModel.state)
+                    val filterText by rememberStateWithLifecycle(viewModel.filterText)
+                    val sortField by rememberStateWithLifecycle(viewModel.sortField)
 
                     PuzzleDirectoryScreen(
                         state = state,
+                        filterText = filterText,
+                        sortField = sortField,
                         onCollection = ::navigateToCollectionScreen,
-                        onBack = { findNavController().navigateUp() }
+                        onBack = { findNavController().navigateUp() },
+                        onSortChanged = { viewModel.sortField.value = it },
+                        onFilterChanged = { viewModel.filterText.value = it },
                     )
                 }
             }

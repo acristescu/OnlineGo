@@ -43,27 +43,22 @@ fun TsumegoScreen(
     onHint: () -> Unit,
     onResetPuzzle: () -> Unit,
     onRate: (Int) -> Unit,
-    onSolved: () -> Unit,
     onPreviousPuzzle: () -> Unit,
     onNextPuzzle: () -> Unit,
     onBack: () -> Unit,
 ) {
-    val solved = state.continueButtonVisible
     Column (
         modifier = Modifier.fillMaxHeight()
     ) {
-        val titleState = remember {
-            val base = "Tsumego"
-            derivedStateOf {
-                state.puzzle?.name?.let {
-                    "${base}: ${it}"
-                } ?: base
-            }
+        val title = "Tsumego".let { base ->
+            state.puzzle?.name?.let {
+                "${base}: ${it}"
+            } ?: base
         }
         TopAppBar(
             title = {
                 Text(
-                    text = titleState.value,
+                    text = title,
                     fontSize = 18.sp,
                     modifier = Modifier.weight(1f)
                 )
@@ -89,10 +84,6 @@ fun TsumegoScreen(
                 shape = MaterialTheme.shapes.medium,
                 modifier = Modifier.fillMaxSize()
             ) {
-              //val listener = { action: TsumegoAction ->
-              //    Toast.makeText(requireContext(), action.toString(), Toast.LENGTH_SHORT).show()
-              //    internalActions.onNext(action)
-              //}
                 Column(modifier = Modifier
                         .padding(horizontal = 10.dp, vertical = 10.dp)) {
                     it.puzzle.let {
@@ -103,13 +94,12 @@ fun TsumegoScreen(
                             boardTheme = state.boardTheme,
                             drawCoordinates = state.drawCoordinates,
                             interactive = state.boardInteractive,
-                            drawShadow = false,
+                            drawShadow = true,
                             fadeInLastMove = false,
                             fadeOutRemovedStones = false,
                             removedStones = state.removedStones?.map { it.toPair() },
                             candidateMove = state.hoveredCell,
                             candidateMoveType = StoneType.BLACK,
-                          //onTapMove = { if (state.boardInteractive) listener(BoardCellHovered(it)) },
                             onTapUp = { if (state.boardInteractive) onMove(it) },
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -236,14 +226,6 @@ fun TsumegoScreen(
                     color = MaterialTheme.colors.onBackground,
                 )
             }
-        }
-    }
-    LaunchedEffect(solved) {
-        snapshotFlow { solved }
-        .distinctUntilChanged()
-        .filter { it }
-        .collect {
-            onSolved()
         }
     }
 }

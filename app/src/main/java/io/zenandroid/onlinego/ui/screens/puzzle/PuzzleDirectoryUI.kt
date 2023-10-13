@@ -42,51 +42,45 @@ import org.commonmark.node.*
 import org.koin.core.context.GlobalContext
 import java.time.Instant.now
 import java.time.temporal.ChronoUnit.*
-import kotlin.reflect.KClass
-import kotlin.reflect.full.createInstance
-import kotlin.reflect.full.safeCast
 
 @Composable
 fun PuzzleDirectoryScreen(
     state: PuzzleDirectoryState,
+    filterText: String,
+    sortField: PuzzleDirectorySort,
     onCollection: (PuzzleCollection) -> Unit,
     onBack: () -> Unit,
+    onSortChanged: (PuzzleDirectorySort) -> Unit,
+    onFilterChanged: (String) -> Unit,
 ) {
     val listState = rememberLazyListState()
-    var filterText by remember { mutableStateOf(TextFieldValue()) }
-    var sortField by remember { mutableStateOf<PuzzleDirectorySort>(RatingSort(false)) }
-    val resultCollections = filterText.text.lowercase().let { query ->
-        state.collections.map { it.value }
-            .filter { it.name.lowercase().contains(query)
-                    || it.owner?.username?.lowercase()?.contains(query) == true }
-            .sortedWith(sortField.compare)
-    }
+
+    TopAppBar(
+        title = {
+            Text(
+                text = "Puzzles",
+                fontSize = 18.sp
+            )
+        },
+        elevation = 1.dp,
+        navigationIcon = {
+            IconButton(onClick = { onBack() }) {
+                Icon(imageVector = Icons.Default.ArrowBack, contentDescription = null)
+            }
+        },
+        backgroundColor = MaterialTheme.colors.surface
+    )
 
     LazyColumn (
         state = listState,
         modifier = Modifier.fillMaxHeight()
     ) {
         stickyHeader {
-            TopAppBar(
-                title = {
-                    Text(
-                        text = "Puzzles",
-                        fontSize = 18.sp
-                    )
-                },
-                elevation = 1.dp,
-                navigationIcon = {
-                    IconButton(onClick = { onBack() }) {
-                        Icon(imageVector = Icons.Default.ArrowBack, contentDescription = null)
-                    }
-                },
-                backgroundColor = MaterialTheme.colors.surface
-            )
             Box(modifier = Modifier.background(MaterialTheme.colors.background)) {
                 Column(modifier = Modifier.padding(all = 16.dp).background(MaterialTheme.colors.surface)) {
                     TextField(
                         value = filterText,
-                        onValueChange = { filterText = it },
+                        onValueChange = { onFilterChanged(it) },
                         placeholder = { Text(text = "Search") },
                         modifier = Modifier.fillMaxWidth(),
                         keyboardOptions = KeyboardOptions(
@@ -105,7 +99,7 @@ fun PuzzleDirectoryScreen(
                                  contentDescription = null)
                         },
                         trailingIcon = {
-                            IconButton(onClick = { filterText = TextFieldValue() }) {
+                            IconButton(onClick = { onFilterChanged("") }) {
                                 Icon(imageVector = Icons.Filled.Cancel,
                                      tint = MaterialTheme.colors.primary,
                                      contentDescription = null)
@@ -115,28 +109,6 @@ fun PuzzleDirectoryScreen(
                     Row(
                         modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
                     ) {
-                        @Composable
-                        fun <T : PuzzleDirectorySort> ratingButton(type: KClass<T>, name: String) {
-                            val sorting = type.safeCast(sortField)
-                            Spacer(modifier = Modifier.weight(1f))
-                            TextButton(onClick = {
-                                sortField = sorting?.reversed ?: type.createInstance()
-                            }) {
-                                Text(
-                                    text = name,
-                                    color = if(sorting == null) MaterialTheme.colors.secondary
-                                            else MaterialTheme.colors.primary,
-                                    fontSize = 12.sp)
-                                Icon(
-                                    imageVector = if(sorting?.asc == false) Icons.Filled.ExpandMore
-                                                  else Icons.Filled.ExpandLess,
-                                    tint = if(sorting == null) MaterialTheme.colors.secondary
-                                           else MaterialTheme.colors.primary,
-                                    modifier = Modifier
-                                       .align(Alignment.CenterVertically),
-                                    contentDescription = null)
-                            }
-                        }
                         Text(
                             text = "Sort:",
                             color = MaterialTheme.colors.onBackground,
@@ -145,22 +117,44 @@ fun PuzzleDirectoryScreen(
                             modifier = Modifier
                                 .align(Alignment.CenterVertically)
                         )
-                        ratingButton(name = "Name", type = NameSort::class)
-                        ratingButton(name = "Rating", type = RatingSort::class)
-                        ratingButton(name = "Count", type = CountSort::class)
-                        ratingButton(name = "Views", type = ViewsSort::class)
-                        ratingButton(name = "Rank", type = RankSort::class)
+                        mapOf(
+                            "Name" to NameSort(!sortField.asc),
+                            "Rating" to RatingSort(!sortField.asc),
+                            "Count" to CountSort(!sortField.asc),
+                            "Views" to ViewsSort(!sortField.asc),
+                            "Rank" to RankSort(!sortField.asc),
+                        ).forEach {
+                            val name = it.key
+                            Spacer(modifier = Modifier.weight(1f))
+                            TextButton(onClick = {
+                                onSortChanged(it.value)
+                            }) {
+                                val currentSort = it.value::class == sortField::class
+                                Text(
+                                    text = name,
+                                    color = if(currentSort) MaterialTheme.colors.secondary
+                                            else MaterialTheme.colors.primary,
+                                    fontSize = 12.sp)
+                                Icon(
+                                    imageVector = if(currentSort && sortField.desc) Icons.Filled.ExpandMore
+                                                  else Icons.Filled.ExpandLess,
+                                    tint = if(currentSort) MaterialTheme.colors.secondary
+                                           else MaterialTheme.colors.primary,
+                                    modifier = Modifier
+                                        .align(Alignment.CenterVertically),
+                                    contentDescription = null)
+                            }
+                        }
                     }
 
-                    if (filterText.text.isEmpty()) {
+                    if (filterText.isEmpty()) {
                         LazyRow(modifier = Modifier.fillMaxWidth()) {
-                            state.recents.map { it.value }.distinctBy { it.collectionId }.chunked(3).ifEmpty { null }?.let { chunk ->
+                            state.recentsPages.ifEmpty { null }?.let { chunk ->
                                 items(items = chunk) {
                                     Column(modifier = Modifier.fillMaxWidth()) {
-                                        (it.filterIsInstance<VisitedPuzzleCollection?>()
-                                              .plus(listOf(null, null))).take(3).forEach {
-                                            val ts = it?.timestamp
-                                            state.collections.get(it?.collectionId)?.let {
+                                        it.forEach {
+                                            val ts = it.timestamp
+                                            state.collections.get(it.collectionId)?.let {
                                                 Surface(
                                                     shape = MaterialTheme.shapes.medium,
                                                     modifier = Modifier
@@ -233,7 +227,7 @@ fun PuzzleDirectoryScreen(
             }
         }
 
-        resultCollections.ifEmpty { null }?.let { collections ->
+        state.collections.map { it.value }.ifEmpty { null }?.let { collections ->
             items(items = collections) {
                 Surface(
                     shape = MaterialTheme.shapes.medium,
@@ -312,7 +306,7 @@ fun PuzzleDirectoryScreen(
                                     }
                                 }
                                 Spacer(modifier = Modifier.weight(1f))
-                                if (it.id in state.recents.values.map { it.collectionId }) {
+                                if (it.id in state.recents) {
                                     Box(modifier = Modifier.width(8.dp)) {
                                         Icon(imageVector = Icons.Filled.Beenhere, contentDescription = null)
                                     }
