@@ -2,9 +2,7 @@ package io.zenandroid.onlinego.ui.screens.puzzle
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.schedulers.Schedulers
+import androidx.lifecycle.viewModelScope
 import io.zenandroid.onlinego.data.model.local.Puzzle
 import io.zenandroid.onlinego.data.model.local.PuzzleCollection
 import io.zenandroid.onlinego.data.model.ogs.PuzzleSolution
@@ -16,9 +14,19 @@ import io.zenandroid.onlinego.gamelogic.RulesManager
 import io.zenandroid.onlinego.gamelogic.Util.toCoordinateSet
 import io.zenandroid.onlinego.utils.addToDisposable
 import io.zenandroid.onlinego.utils.recordException
+import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.newSingleThreadContext
+import kotlinx.coroutines.plus
+import kotlinx.coroutines.rx2.asFlow
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import java.util.concurrent.Executors
 
 class PuzzleSetViewModel (
@@ -29,26 +37,30 @@ class PuzzleSetViewModel (
 ): ViewModel() {
     private val _state = MutableStateFlow(PuzzleSetState(boardTheme = settingsRepository.boardTheme))
     val state: StateFlow<PuzzleSetState> = _state
-    private val subscriptions = CompositeDisposable()
 
     private val workerPool = Executors.newCachedThreadPool()
+    private val workerThread = newSingleThreadContext("PSVM")
 
     init {
         puzzleRepository.getPuzzleCollection(collectionId)
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(this::setCollection, this::onError)
-            .addToDisposable(subscriptions)
+            .toObservable().asFlow()
+            .flowOn(Dispatchers.IO)
+            .onEach { setCollection(it) }
+            .catch { onError(it) }
+            .launchIn(viewModelScope)
+
         puzzleRepository.getPuzzleCollectionContents(collectionId)
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(this::setCollectionPuzzles, this::onError)
-            .addToDisposable(subscriptions)
+            .toObservable().asFlow()
+            .flowOn(Dispatchers.IO)
+            .onEach { setCollectionPuzzles(it) }
+            .catch { onError(it) }
+            .launchIn(viewModelScope)
+
         puzzleRepository.markPuzzleCollectionVisited(collectionId)
-            .subscribeOn(Schedulers.io())
-            .observeOn(Schedulers.single())
-            .subscribe({ }, this::onError)
-            .addToDisposable(subscriptions)
+            .toObservable().asFlow()
+            .flowOn(Dispatchers.IO)
+            .catch { onError(it) }
+            .launchIn(viewModelScope + workerThread)
     }
 
     private fun setCollection(response: PuzzleCollection) {
@@ -63,12 +75,13 @@ class PuzzleSetViewModel (
         }
     }
 
-    fun fetchSolutions(puzzleId: Long) {
-        puzzleRepository.getPuzzleSolution(puzzleId)
-            .subscribeOn(Schedulers.from(workerPool))
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(this::updateSolutions, this::onError)
-            .addToDisposable(subscriptions)
+    fun fetchSolutions(puzzleId: Long): Job {
+        return puzzleRepository.getPuzzleSolution(puzzleId)
+            .toObservable().asFlow()
+            .flowOn(workerPool.asCoroutineDispatcher())
+            .onEach { updateSolutions(it) }
+            .catch { onError(it) }
+            .launchIn(viewModelScope)
     }
 
     private fun updateSolutions(solution: List<PuzzleSolution>? = null) {
@@ -81,13 +94,13 @@ class PuzzleSetViewModel (
         }
     }
 
-    private fun fetchPuzzle(puzzleId: Long) {
+    private fun fetchPuzzle(puzzleId: Long): Job {
         return puzzleRepository.getPuzzle(puzzleId)
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .toObservable()
-            .subscribe(this::setPuzzle, this::onError)
-            .addToDisposable(subscriptions)
+            .toObservable().asFlow()
+            .flowOn(Dispatchers.IO)
+            .onEach { setPuzzle(it) }
+            .catch { onError(it) }
+            .launchIn(viewModelScope)
     }
 
     private fun setPuzzle(puzzle: Puzzle) {

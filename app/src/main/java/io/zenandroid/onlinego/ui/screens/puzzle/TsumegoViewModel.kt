@@ -10,10 +10,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.disposables.Disposable
-import io.reactivex.schedulers.Schedulers
 import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.Mark
 import io.zenandroid.onlinego.data.model.StoneType
@@ -30,12 +26,23 @@ import io.zenandroid.onlinego.gamelogic.Util.toCoordinateSet
 import io.zenandroid.onlinego.ui.screens.puzzle.PuzzleDirectorySort.*
 import io.zenandroid.onlinego.utils.addToDisposable
 import io.zenandroid.onlinego.utils.recordException
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.newSingleThreadContext
+import kotlinx.coroutines.plus
+import kotlinx.coroutines.rx2.asFlow
 import java.time.Instant.now
 import java.time.temporal.ChronoUnit.*
 
@@ -58,14 +65,14 @@ class TsumegoViewModel (
 
     private var moveReplyJob: Job? = null
 
-    private val subscriptions = CompositeDisposable()
-
     init {
         puzzleRepository.getPuzzle(puzzleId)
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(this::setPuzzle, this::onError)
-            .addToDisposable(subscriptions)
+            .toObservable().asFlow()
+            .flowOn(Dispatchers.IO)
+            .onEach { setPuzzle(it) }
+            .catch { onError(it) }
+            .launchIn(viewModelScope)
+
         fetchRating(puzzleId)
     }
 
@@ -100,10 +107,11 @@ class TsumegoViewModel (
         fetchSolutions()
         if(collectionPuzzles.size == 0) {
             puzzleRepository.getPuzzleCollectionContents(puzzle.collection?.id ?: puzzle.puzzle.puzzle_collection.toLong())
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(this::setCollection, this::onError)
-                .addToDisposable(subscriptions)
+                .toObservable().asFlow()
+                .flowOn(Dispatchers.IO)
+                .onEach { setCollection(it) }
+                .catch { onError(it) }
+                .launchIn(viewModelScope)
         }
     }
 
@@ -268,19 +276,21 @@ class TsumegoViewModel (
             solution = it.sgfMoves,
         ) }
         puzzleRepository.markPuzzleSolved(_state.value.puzzle?.id!!, record)
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe({ updateSolutions(listOf(record)) }, this::onError)
-            .addToDisposable(subscriptions)
+            .toObservable().asFlow()
+            .flowOn(Dispatchers.IO)
+            .onEach { updateSolutions(listOf(record)) }
+            .catch { onError(it) }
+            .launchIn(viewModelScope)
     }
 
     private fun fetchSolutions() {
         updateSolutions()
         puzzleRepository.getPuzzleSolution(_state.value.puzzle?.id!!)
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(this::updateSolutions, this::onError)
-            .addToDisposable(subscriptions)
+            .toObservable().asFlow()
+            .flowOn(Dispatchers.IO)
+            .onEach { updateSolutions(it) }
+            .catch { onError(it) }
+            .launchIn(viewModelScope)
     }
 
     private fun updateSolutions(solution: List<PuzzleSolution>? = null) {
@@ -293,18 +303,20 @@ class TsumegoViewModel (
 
     fun rate(value: Int) {
         puzzleRepository.ratePuzzle(_state.value.puzzle?.id!!, value)
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe({ updateRating(value) }, this::onError)
-            .addToDisposable(subscriptions)
+            .toObservable().asFlow()
+            .flowOn(Dispatchers.IO)
+            .onEach { updateRating(value) }
+            .catch { onError(it) }
+            .launchIn(viewModelScope)
     }
 
     private fun fetchRating(id: Long? = null) {
         puzzleRepository.getPuzzleRating(id ?: _state.value.puzzle?.id!!)
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe({ updateRating(it.rating) }, { updateRating(-1) })
-            .addToDisposable(subscriptions)
+            .toObservable().asFlow()
+            .flowOn(Dispatchers.IO)
+            .onEach { updateRating(it.rating) }
+            .catch { updateRating(-1) }
+            .launchIn(viewModelScope)
     }
 
     private fun updateRating(value: Int) {
