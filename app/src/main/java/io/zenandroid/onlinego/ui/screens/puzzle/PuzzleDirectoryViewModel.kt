@@ -26,7 +26,6 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.rx2.asFlow
 import kotlinx.coroutines.Dispatchers
 
 class PuzzleDirectoryViewModel (
@@ -41,7 +40,6 @@ class PuzzleDirectoryViewModel (
 
     init {
         puzzleRepository.getAllPuzzleCollections()
-            .toObservable().asFlow()
             .map {
                 state.value.collections.plus(it.associateBy(PuzzleCollection::id))
             }
@@ -54,7 +52,6 @@ class PuzzleDirectoryViewModel (
             .launchIn(viewModelScope)
 
         puzzleRepository.getRecentPuzzleCollections()
-            .toObservable().asFlow()
             .map {
                 it.associateBy(VisitedPuzzleCollection::collectionId).plus(state.value.recents)
             }
@@ -64,7 +61,6 @@ class PuzzleDirectoryViewModel (
             .launchIn(viewModelScope)
 
         puzzleRepository.getPuzzleCollectionSolutions()
-            .toObservable().asFlow()
             .flowOn(Dispatchers.IO)
             .onEach { setCollectionSolutions(it) }
             .catch { onError(it) }

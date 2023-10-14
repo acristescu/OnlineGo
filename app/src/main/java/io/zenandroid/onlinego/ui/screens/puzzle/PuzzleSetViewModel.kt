@@ -24,7 +24,6 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.newSingleThreadContext
 import kotlinx.coroutines.plus
-import kotlinx.coroutines.rx2.asFlow
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import java.util.concurrent.Executors
@@ -43,21 +42,18 @@ class PuzzleSetViewModel (
 
     init {
         puzzleRepository.getPuzzleCollection(collectionId)
-            .toObservable().asFlow()
             .flowOn(Dispatchers.IO)
             .onEach { setCollection(it) }
             .catch { onError(it) }
             .launchIn(viewModelScope)
 
         puzzleRepository.getPuzzleCollectionContents(collectionId)
-            .toObservable().asFlow()
             .flowOn(Dispatchers.IO)
             .onEach { setCollectionPuzzles(it) }
             .catch { onError(it) }
             .launchIn(viewModelScope)
 
         puzzleRepository.markPuzzleCollectionVisited(collectionId)
-            .toObservable().asFlow()
             .flowOn(Dispatchers.IO)
             .catch { onError(it) }
             .launchIn(viewModelScope + workerThread)
@@ -77,7 +73,6 @@ class PuzzleSetViewModel (
 
     fun fetchSolutions(puzzleId: Long): Job {
         return puzzleRepository.getPuzzleSolution(puzzleId)
-            .toObservable().asFlow()
             .flowOn(workerPool.asCoroutineDispatcher())
             .onEach { updateSolutions(it) }
             .catch { onError(it) }
@@ -96,7 +91,6 @@ class PuzzleSetViewModel (
 
     private fun fetchPuzzle(puzzleId: Long): Job {
         return puzzleRepository.getPuzzle(puzzleId)
-            .toObservable().asFlow()
             .flowOn(Dispatchers.IO)
             .onEach { setPuzzle(it) }
             .catch { onError(it) }

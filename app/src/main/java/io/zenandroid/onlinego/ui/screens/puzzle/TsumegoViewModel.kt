@@ -42,7 +42,6 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.newSingleThreadContext
 import kotlinx.coroutines.plus
-import kotlinx.coroutines.rx2.asFlow
 import java.time.Instant.now
 import java.time.temporal.ChronoUnit.*
 
@@ -67,7 +66,6 @@ class TsumegoViewModel (
 
     init {
         puzzleRepository.getPuzzle(puzzleId)
-            .toObservable().asFlow()
             .flowOn(Dispatchers.IO)
             .onEach { setPuzzle(it) }
             .catch { onError(it) }
@@ -107,7 +105,6 @@ class TsumegoViewModel (
         fetchSolutions()
         if(collectionPuzzles.size == 0) {
             puzzleRepository.getPuzzleCollectionContents(puzzle.collection?.id ?: puzzle.puzzle.puzzle_collection.toLong())
-                .toObservable().asFlow()
                 .flowOn(Dispatchers.IO)
                 .onEach { setCollection(it) }
                 .catch { onError(it) }
@@ -268,15 +265,15 @@ class TsumegoViewModel (
         }
     }
 
-    fun markSolved() {
+    fun markSolved(): Job {
         val record = _state.value.let { PuzzleSolution(
             puzzle = it.puzzle!!.id,
             time_elapsed = it.startTime?.let { MILLIS.between(it, now()) } ?: 0,
             attempts = it.attemptCount,
             solution = it.sgfMoves,
         ) }
-        puzzleRepository.markPuzzleSolved(_state.value.puzzle?.id!!, record)
-            .toObservable().asFlow()
+
+        return puzzleRepository.markPuzzleSolved(_state.value.puzzle?.id!!, record)
             .flowOn(Dispatchers.IO)
             .onEach { updateSolutions(listOf(record)) }
             .catch { onError(it) }
@@ -286,7 +283,6 @@ class TsumegoViewModel (
     private fun fetchSolutions() {
         updateSolutions()
         puzzleRepository.getPuzzleSolution(_state.value.puzzle?.id!!)
-            .toObservable().asFlow()
             .flowOn(Dispatchers.IO)
             .onEach { updateSolutions(it) }
             .catch { onError(it) }
@@ -303,7 +299,6 @@ class TsumegoViewModel (
 
     fun rate(value: Int) {
         puzzleRepository.ratePuzzle(_state.value.puzzle?.id!!, value)
-            .toObservable().asFlow()
             .flowOn(Dispatchers.IO)
             .onEach { updateRating(value) }
             .catch { onError(it) }
@@ -312,7 +307,6 @@ class TsumegoViewModel (
 
     private fun fetchRating(id: Long? = null) {
         puzzleRepository.getPuzzleRating(id ?: _state.value.puzzle?.id!!)
-            .toObservable().asFlow()
             .flowOn(Dispatchers.IO)
             .onEach { updateRating(it.rating) }
             .catch { updateRating(-1) }
