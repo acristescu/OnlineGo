@@ -39,4 +39,5 @@ import io.zenandroid.onlinego.data.model.ogs.PuzzleSolution
 @TypeConverters(DbTypeConverters::class)
 abstract class Database: RoomDatabase() {
     abstract fun gameDao(): GameDao
+    abstract fun puzzleDao(): PuzzleDao
 }

@@ -7,7 +7,7 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.plusAssign
 import io.reactivex.schedulers.Schedulers
 import io.zenandroid.onlinego.OnlineGoApplication
-import io.zenandroid.onlinego.data.db.GameDao
+import io.zenandroid.onlinego.data.db.PuzzleDao
 import io.zenandroid.onlinego.data.model.Position
 import io.zenandroid.onlinego.data.model.local.VisitedPuzzleCollection
 import io.zenandroid.onlinego.data.model.local.Puzzle
@@ -20,11 +20,23 @@ import io.zenandroid.onlinego.utils.addToDisposable
 import io.zenandroid.onlinego.utils.recordException
 import java.time.Instant.now
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.single
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.rx2.asFlow
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 
 class PuzzleRepository(
-        private val restService: OGSRestService,
-        private val dao: GameDao
+    private val restService: OGSRestService,
+    private val dao: PuzzleDao
 ) {
 
     private val refreshCooldownSeconds = 60 * 60 * 24
@@ -35,124 +47,117 @@ class PuzzleRepository(
 
     fun getAllPuzzleCollections(): Flow<List<PuzzleCollection>> {
         val lastRefresh = now().getEpochSecond() - PersistenceManager.puzzleCollectionLastRefresh
-        disposable += dao.getPuzzleCollectionCount().map { it < 1 }
-            .subscribeOn(Schedulers.computation())
-            .subscribe { noCollections ->
-                if(lastRefresh > refreshCooldownSeconds || noCollections) {
-                    disposable += restService.getPuzzleCollections()
-                            .subscribe(this::saveCollectionsToDB, this::onError)
+
+        flow<Int> { dao.getPuzzleCollectionCount() }
+            .flowOn(Dispatchers.IO)
+            .onEach {
+                if (lastRefresh > refreshCooldownSeconds || it < 1) {
+                    restService.getPuzzleCollections()
+                        .toObservable()
+                        .asFlow()
+                        .catch { onError(it) }
+                        .onEach { saveCollectionsToDB(it) }
+                        .single()
+
                     PersistenceManager.puzzleCollectionLastRefresh = now().getEpochSecond()
                 }
             }
+            .launchIn(CoroutineScope(Dispatchers.IO))
 
         return dao.getAllPuzzleCollections()
-                .doOnNext { it.forEach{c -> Log.d("PuzzleRepository", c.toString())} }
+                .onEach { it.forEach { c -> Log.d("PuzzleRepository", c.toString()) } }
                 .distinctUntilChanged()
-                .toObservable()
-                .asFlow()
     }
 
     fun getRecentPuzzleCollections(): Flow<List<VisitedPuzzleCollection>> {
         return dao.getRecentPuzzleCollections()
-                .doOnNext { it.forEach{c -> Log.d("PuzzleRepository", c.toString())} }
+                .onEach { it.forEach{ c -> Log.d("PuzzleRepository", c.toString()) } }
                 .distinctUntilChanged()
-                .toObservable()
-                .asFlow()
     }
 
     fun markPuzzleCollectionVisited(id: Long): Flow<VisitedPuzzleCollection> {
         val visit = VisitedPuzzleCollection(id)
-        return dao.insertPuzzleCollectionVisit(visit).andThen(Single.just(visit))
-                .doOnSuccess { Log.d("PuzzleRepository", it.toString()) }
-                .toObservable()
-                .asFlow()
+
+        return flow {
+                    dao.insertPuzzleCollectionVisit(visit)
+                    emit(visit)
+                }
+                .onEach { Log.d("PuzzleRepository", it.toString()) }
     }
 
     fun getPuzzleCollection(id: Long): Flow<PuzzleCollection> {
         disposable += restService.getPuzzleCollection(id).map(::listOf)
-                .subscribe(this::saveCollectionsToDB, this::onError)
+                .subscribe({ runBlocking { saveCollectionsToDB(it) } }, this::onError)
 
         return dao.getPuzzleCollection(id)
-                .doOnNext { Log.d("PuzzleRepository", it.toString()) }
+                .onEach { Log.d("PuzzleRepository", it.toString()) }
                 .distinctUntilChanged()
-                .toObservable()
-                .asFlow()
     }
 
     fun getPuzzleCollectionContents(id: Long): Flow<List<Puzzle>> {
         disposable += restService.getPuzzleCollectionContents(id)
-                .subscribe(this::savePuzzlesToDB, this::onError)
+                .subscribe({ runBlocking { savePuzzlesToDB(it) } }, this::onError)
 
         return dao.getPuzzleCollectionPuzzles(id)
-                .doOnNext { Log.d("PuzzleRepository", it.toString()) }
+                .onEach { Log.d("PuzzleRepository", it.toString()) }
                 .distinctUntilChanged()
-                .toObservable()
-                .asFlow()
     }
 
     fun getPuzzle(id: Long): Flow<Puzzle> {
         disposable += restService.getPuzzle(id).map(::listOf)
-                .subscribe(this::savePuzzlesToDB, this::onError)
+                .subscribe({ runBlocking { savePuzzlesToDB(it) } }, this::onError)
         disposable += restService.getPuzzleRating(id)
-                .subscribe(this::savePuzzleRatingToDB, this::onError)
+                .subscribe({ runBlocking { savePuzzleRatingToDB(it) } }, this::onError)
         disposable += restService.getPuzzleSolutions(id)
-                .subscribe(this::savePuzzleSolutionsToDB, this::onError)
+                .subscribe({ runBlocking { savePuzzleSolutionsToDB(it) } }, this::onError)
 
         return dao.getPuzzle(id)
-                .doOnNext { Log.d("PuzzleRepository", it.toString()) }
+                .onEach { Log.d("PuzzleRepository", it.toString()) }
                 .distinctUntilChanged()
-                .toObservable()
-                .asFlow()
     }
 
     fun getPuzzleRating(id: Long): Flow<PuzzleRating> {
         disposable += restService.getPuzzleRating(id)
                 .map { it.copy(puzzleId = id) }
-                .subscribe(this::savePuzzleRatingToDB, this::onError)
+                .subscribe({ runBlocking { savePuzzleRatingToDB(it) } }, this::onError)
 
         return dao.getPuzzleRating(id)
-                .onErrorReturnItem(PuzzleRating(
-                    puzzleId = id,
-                    rating = -1,
-                ))
-                .doOnNext { Log.d("PuzzleRepository", it.toString()) }
+                .catch {
+                    emit(PuzzleRating(
+                        puzzleId = id,
+                        rating = -1,
+                    ))
+                }
+                .onEach { Log.d("PuzzleRepository", it.toString()) }
                 .distinctUntilChanged()
-                .toObservable()
-                .asFlow()
     }
 
     fun ratePuzzle(id: Long, rating: Int): Flow<PuzzleRating> =
         restService.ratePuzzle(id, rating)
                 .doOnComplete { Log.d("PuzzleRepository", "rate $id: $rating") }
                 .andThen(Single.just(PuzzleRating(puzzleId = id, rating = rating)))
-                .also {
-                    it.subscribe(this::savePuzzleRatingToDB, this::onError)
-                        .addToDisposable(disposable)
-                }
                 .toObservable()
                 .asFlow()
+                .catch { onError(it) }
+                .onEach { savePuzzleRatingToDB(it) }
 
     fun getPuzzleSolution(id: Long): Flow<List<PuzzleSolution>> {
         disposable += restService.getPuzzleSolutions(id)
-                .subscribe(this::savePuzzleSolutionsToDB, this::onError)
+                .subscribe({ runBlocking { savePuzzleSolutionsToDB(it) } }, this::onError)
 
         return dao.getPuzzleSolution(id)
-                .onErrorReturnItem(emptyList())
-                .doOnNext { Log.d("PuzzleRepository", it.toString()) }
+                .catch { emit(emptyList()) }
+                .onEach { Log.d("PuzzleRepository", it.toString()) }
                 .distinctUntilChanged()
-                .toObservable()
-                .asFlow()
     }
 
     fun getPuzzleCollectionSolutions(): Flow<Map<Long, Int>> {
         return dao.getPuzzleCollectionSolutions()
-                .onErrorReturnItem(emptyList())
-                .doOnNext { Log.d("PuzzleRepository", it.toString()) }
+                .catch { emit(emptyList()) }
+                .onEach { Log.d("PuzzleRepository", it.toString()) }
                 .map { it.sortedBy { it.collectionId } }
                 .distinctUntilChanged()
                 .map { it.associateBy({ it.collectionId }, { it.count }) }
-                .toObservable()
-                .asFlow()
     }
 
     fun markPuzzleSolved(id: Long, record: PuzzleSolution): Flow<PuzzleSolution> =
@@ -160,25 +165,26 @@ class PuzzleRepository(
                 .doOnComplete { Log.d("PuzzleRepository", "solve $id: $record") }
                 .andThen(Single.just(record))
                 .also {
-                    it.map(::listOf).subscribe(this::savePuzzleSolutionsToDB, this::onError)
+                    it.map(::listOf)
+                        .subscribe({ runBlocking { savePuzzleSolutionsToDB(it) } }, this::onError)
                         .addToDisposable(disposable)
                 }
                 .toObservable()
                 .asFlow()
 
-    private fun saveCollectionsToDB(list: List<PuzzleCollection>) {
+    private suspend fun saveCollectionsToDB(list: List<PuzzleCollection>) {
         dao.insertPuzzleCollections(list)
     }
 
-    private fun savePuzzlesToDB(list: List<Puzzle>) {
+    private suspend fun savePuzzlesToDB(list: List<Puzzle>) {
         dao.insertPuzzles(list)
     }
 
-    private fun savePuzzleRatingToDB(item: PuzzleRating) {
+    private suspend fun savePuzzleRatingToDB(item: PuzzleRating) {
         dao.insertPuzzleRating(item)
     }
 
-    private fun savePuzzleSolutionsToDB(list: List<PuzzleSolution>) {
+    private suspend fun savePuzzleSolutionsToDB(list: List<PuzzleSolution>) {
         dao.insertPuzzleSolutions(list)
     }
 
