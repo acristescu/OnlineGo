@@ -62,7 +62,6 @@ android {
             freeCompilerArgs += "-opt-in=androidx.compose.material.ExperimentalMaterialApi"
             freeCompilerArgs += "-opt-in=androidx.compose.foundation.ExperimentalFoundationApi"
             freeCompilerArgs += "-opt-in=androidx.compose.ui.ExperimentalComposeUiApi"
-            freeCompilerArgs += "-opt-in=com.google.accompanist.pager.ExperimentalPagerApi"
             freeCompilerArgs += '-Xjvm-default=all'
         }
     }
@@ -111,7 +110,6 @@ dependencies {
     debugImplementation "androidx.compose.ui:ui-tooling"
 
     implementation "com.google.accompanist:accompanist-placeholder-material:$accompanist_version"
-    implementation "com.google.accompanist:accompanist-pager:$accompanist_version"
     implementation "com.google.accompanist:accompanist-pager-indicators:$accompanist_version"
 
     implementation 'androidx.appcompat:appcompat:1.6.1'

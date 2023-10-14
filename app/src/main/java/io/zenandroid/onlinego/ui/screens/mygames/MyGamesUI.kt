@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.pager.*
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -13,7 +14,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.google.accompanist.pager.*
 import io.zenandroid.onlinego.data.model.BoardTheme
 import io.zenandroid.onlinego.data.model.local.Challenge
 import io.zenandroid.onlinego.data.model.local.Player
@@ -24,7 +24,6 @@ import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
 
 
 @ExperimentalFoundationApi
-@ExperimentalPagerApi
 @ExperimentalComposeUiApi
 @Composable
 fun MyGamesScreen(state: MyGamesState, onAction: (Action) -> Unit) {
@@ -122,7 +121,6 @@ private fun Header(text: String) {
 }
 
 @ExperimentalFoundationApi
-@ExperimentalPagerApi
 @ExperimentalComposeUiApi
 @Preview
 @Composable
