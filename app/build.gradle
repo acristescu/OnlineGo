@@ -63,6 +63,14 @@ android {
             freeCompilerArgs += "-opt-in=androidx.compose.foundation.ExperimentalFoundationApi"
             freeCompilerArgs += "-opt-in=androidx.compose.ui.ExperimentalComposeUiApi"
             freeCompilerArgs += '-Xjvm-default=all'
+            freeCompilerArgs += [
+                "-P",
+                "plugin:androidx.compose.compiler.plugins.kotlin:metricsDestination=" +
+                        project.buildDir.absolutePath + "/compose_metrics",
+                "-P",
+                "plugin:androidx.compose.compiler.plugins.kotlin:reportsDestination="+
+                        project.buildDir.absolutePath + "/compose_metrics",
+            ]
         }
     }
     kotlinOptions {
