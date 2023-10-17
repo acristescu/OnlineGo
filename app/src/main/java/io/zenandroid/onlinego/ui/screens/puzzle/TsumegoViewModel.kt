@@ -1,11 +1,10 @@
 package io.zenandroid.onlinego.ui.screens.puzzle
 
-import android.content.Context
 import android.util.Log
-import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
@@ -13,37 +12,27 @@ import androidx.lifecycle.viewModelScope
 import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.Mark
 import io.zenandroid.onlinego.data.model.StoneType
+import io.zenandroid.onlinego.data.model.local.Puzzle
 import io.zenandroid.onlinego.data.model.ogs.MoveTree
 import io.zenandroid.onlinego.data.model.ogs.PlayCategory
 import io.zenandroid.onlinego.data.model.ogs.PuzzleRating
 import io.zenandroid.onlinego.data.model.ogs.PuzzleSolution
-import io.zenandroid.onlinego.data.model.local.Puzzle
 import io.zenandroid.onlinego.data.repositories.PuzzleRepository
 import io.zenandroid.onlinego.data.repositories.SettingsRepository
 import io.zenandroid.onlinego.gamelogic.RulesManager
 import io.zenandroid.onlinego.gamelogic.Util
 import io.zenandroid.onlinego.gamelogic.Util.toCoordinateSet
-import io.zenandroid.onlinego.ui.screens.puzzle.PuzzleDirectorySort.*
-import io.zenandroid.onlinego.utils.addToDisposable
+import io.zenandroid.onlinego.ui.screens.puzzle.PuzzleDirectorySort.RatingSort
 import io.zenandroid.onlinego.utils.recordException
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.newSingleThreadContext
-import kotlinx.coroutines.plus
 import java.time.Instant.now
-import java.time.temporal.ChronoUnit.*
+import java.time.temporal.ChronoUnit.MILLIS
 
 class TsumegoViewModel (
     private val puzzleRepository: PuzzleRepository,
@@ -60,16 +49,16 @@ class TsumegoViewModel (
     val resultCollections by mutableStateOf(TextFieldValue())
     var collectionPuzzles by mutableStateOf(emptyList<Puzzle>())
         private set
-    private var cursor by mutableStateOf(0)
+    private var cursor by mutableIntStateOf(0)
 
     private var moveReplyJob: Job? = null
 
     init {
-        puzzleRepository.getPuzzle(puzzleId)
-            .flowOn(Dispatchers.IO)
-            .onEach { setPuzzle(it) }
-            .catch { onError(it) }
-            .launchIn(viewModelScope)
+        viewModelScope.launch {
+            puzzleRepository.getPuzzle(puzzleId)
+                .catch { onError(it) }
+                .collect(::setPuzzle)
+        }
 
         fetchRating(puzzleId)
     }
@@ -103,12 +92,12 @@ class TsumegoViewModel (
         }
 
         fetchSolutions()
-        if(collectionPuzzles.size == 0) {
-            puzzleRepository.getPuzzleCollectionContents(puzzle.collection?.id ?: puzzle.puzzle.puzzle_collection.toLong())
-                .flowOn(Dispatchers.IO)
-                .onEach { setCollection(it) }
-                .catch { onError(it) }
-                .launchIn(viewModelScope)
+        if(collectionPuzzles.isEmpty()) {
+            viewModelScope.launch {
+                puzzleRepository.observePuzzleCollectionContents(puzzle.collection?.id ?: puzzle.puzzle.puzzle_collection.toLong())
+                    .catch { onError(it) }
+                    .collect(::setCollection)
+            }
         }
     }
 
@@ -118,19 +107,19 @@ class TsumegoViewModel (
     }
 
     val hasNextPuzzle: Boolean by derivedStateOf {
-        cursor.let { it < collectionPuzzles.size.let { it - 1 } } == true
+        cursor < collectionPuzzles.size - 1
     }
 
     val hasPreviousPuzzle: Boolean by derivedStateOf {
-        cursor.let { it > 0 } == true
+        cursor > 0
     }
 
     fun nextPuzzle() {
         if(!hasNextPuzzle) return
 
-        val index = cursor.let { it + 1 }
+        val index = cursor + 1
         cursor = index
-        val puzzle = collectionPuzzles.get(index)
+        val puzzle = collectionPuzzles[index]
         setPuzzle(puzzle)
         fetchRating()
     }
@@ -144,9 +133,9 @@ class TsumegoViewModel (
     fun previousPuzzle() {
         if(!hasPreviousPuzzle) return
 
-        val index = cursor.let { it - 1 }
+        val index = cursor - 1
         cursor = index
-        val puzzle = collectionPuzzles.get(index)
+        val puzzle = collectionPuzzles[index]
         setPuzzle(puzzle)
         fetchRating()
     }
@@ -265,28 +254,25 @@ class TsumegoViewModel (
         }
     }
 
-    fun markSolved(): Job {
-        val record = _state.value.let { PuzzleSolution(
-            puzzle = it.puzzle!!.id,
-            time_elapsed = it.startTime?.let { MILLIS.between(it, now()) } ?: 0,
-            attempts = it.attemptCount,
-            solution = it.sgfMoves,
-        ) }
+    private fun markSolved() {
+        viewModelScope.launch {
+            val record = _state.value.let { PuzzleSolution(
+                puzzle = it.puzzle!!.id,
+                time_elapsed = it.startTime?.let { MILLIS.between(it, now()) } ?: 0,
+                attempts = it.attemptCount,
+                solution = it.sgfMoves,
+            ) }
 
-        return puzzleRepository.markPuzzleSolved(_state.value.puzzle?.id!!, record)
-            .flowOn(Dispatchers.IO)
-            .onEach { updateSolutions(listOf(record)) }
-            .catch { onError(it) }
-            .launchIn(viewModelScope)
+            puzzleRepository.markPuzzleSolved(_state.value.puzzle?.id!!, record)
+        }
     }
 
     private fun fetchSolutions() {
         updateSolutions()
-        puzzleRepository.getPuzzleSolution(_state.value.puzzle?.id!!)
-            .flowOn(Dispatchers.IO)
-            .onEach { updateSolutions(it) }
-            .catch { onError(it) }
-            .launchIn(viewModelScope)
+        viewModelScope.launch {
+            puzzleRepository.getPuzzleSolution(_state.value.puzzle?.id!!)
+                .collect(::updateSolutions)
+        }
     }
 
     private fun updateSolutions(solution: List<PuzzleSolution>? = null) {
@@ -298,19 +284,19 @@ class TsumegoViewModel (
     }
 
     fun rate(value: Int) {
-        puzzleRepository.ratePuzzle(_state.value.puzzle?.id!!, value)
-            .flowOn(Dispatchers.IO)
-            .onEach { updateRating(value) }
-            .catch { onError(it) }
-            .launchIn(viewModelScope)
+        viewModelScope.launch {
+            puzzleRepository.ratePuzzle(_state.value.puzzle?.id!!, value)
+                .catch { onError(it) }
+                .collect { updateRating(value) }
+        }
     }
 
     private fun fetchRating(id: Long? = null) {
-        puzzleRepository.getPuzzleRating(id ?: _state.value.puzzle?.id!!)
-            .flowOn(Dispatchers.IO)
-            .onEach { updateRating(it.rating) }
-            .catch { updateRating(-1) }
-            .launchIn(viewModelScope)
+        viewModelScope.launch {
+            puzzleRepository.getPuzzleRating(id ?: _state.value.puzzle?.id!!)
+                .catch { updateRating(-1) }
+                .collect { updateRating(it.rating) }
+        }
     }
 
     private fun updateRating(value: Int) {

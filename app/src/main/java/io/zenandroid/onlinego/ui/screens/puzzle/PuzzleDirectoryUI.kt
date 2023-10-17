@@ -1,21 +1,40 @@
 package io.zenandroid.onlinego.ui.screens.puzzle
 
 import android.text.format.DateUtils.getRelativeTimeSpanString
-import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.foundation.*
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.*
+import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Surface
+import androidx.compose.material.Text
+import androidx.compose.material.TextButton
+import androidx.compose.material.TextField
+import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.runtime.*
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Beenhere
+import androidx.compose.material.icons.filled.Cancel
+import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
@@ -23,25 +42,24 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.*
+import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.google.accompanist.pager.*
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.local.PuzzleCollection
-import io.zenandroid.onlinego.data.model.local.VisitedPuzzleCollection
-import io.zenandroid.onlinego.data.repositories.SettingsRepository
 import io.zenandroid.onlinego.gamelogic.RulesManager
 import io.zenandroid.onlinego.gamelogic.Util.toCoordinateSet
 import io.zenandroid.onlinego.ui.composables.Board
 import io.zenandroid.onlinego.ui.composables.RatingBar
-import io.zenandroid.onlinego.ui.screens.puzzle.PuzzleDirectoryAction.*
-import io.zenandroid.onlinego.ui.screens.puzzle.PuzzleDirectorySort.*
+import io.zenandroid.onlinego.ui.screens.puzzle.PuzzleDirectorySort.CountSort
+import io.zenandroid.onlinego.ui.screens.puzzle.PuzzleDirectorySort.NameSort
+import io.zenandroid.onlinego.ui.screens.puzzle.PuzzleDirectorySort.RankSort
+import io.zenandroid.onlinego.ui.screens.puzzle.PuzzleDirectorySort.RatingSort
+import io.zenandroid.onlinego.ui.screens.puzzle.PuzzleDirectorySort.ViewsSort
 import io.zenandroid.onlinego.utils.convertCountryCodeToEmojiFlag
-import org.commonmark.node.*
-import org.koin.core.context.GlobalContext
 import java.time.Instant.now
-import java.time.temporal.ChronoUnit.*
+import java.time.temporal.ChronoUnit.DAYS
 
 @Composable
 fun PuzzleDirectoryScreen(
@@ -235,11 +253,6 @@ fun PuzzleDirectoryScreen(
             }
 
             state.collections.map { it.value }.ifEmpty { null }?.let { collections ->
-                item {
-                    var compositionCount by remember { mutableStateOf(0) }
-                    SideEffect { compositionCount++ }
-                    android.util.Log.d("PDUI", "Composition: $compositionCount")
-                }
                 items(items = collections) {
                     Surface(
                         shape = MaterialTheme.shapes.medium,

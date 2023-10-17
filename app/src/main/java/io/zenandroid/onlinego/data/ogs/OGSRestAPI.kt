@@ -2,10 +2,35 @@ package io.zenandroid.onlinego.data.ogs
 
 import io.reactivex.Completable
 import io.reactivex.Single
-import io.zenandroid.onlinego.data.model.ogs.*
+import io.zenandroid.onlinego.data.model.ogs.Chat
+import io.zenandroid.onlinego.data.model.ogs.CreateAccountRequest
+import io.zenandroid.onlinego.data.model.ogs.Glicko2History
+import io.zenandroid.onlinego.data.model.ogs.JosekiPosition
+import io.zenandroid.onlinego.data.model.ogs.OGSChallenge
+import io.zenandroid.onlinego.data.model.ogs.OGSChallengeRequest
+import io.zenandroid.onlinego.data.model.ogs.OGSGame
+import io.zenandroid.onlinego.data.model.ogs.OGSPlayer
+import io.zenandroid.onlinego.data.model.ogs.OGSPlayerProfile
+import io.zenandroid.onlinego.data.model.ogs.OGSPuzzle
+import io.zenandroid.onlinego.data.model.ogs.OGSPuzzleCollection
+import io.zenandroid.onlinego.data.model.ogs.OmniSearchResponse
+import io.zenandroid.onlinego.data.model.ogs.Overview
+import io.zenandroid.onlinego.data.model.ogs.PagedResult
+import io.zenandroid.onlinego.data.model.ogs.PasswordBody
+import io.zenandroid.onlinego.data.model.ogs.PuzzleRating
+import io.zenandroid.onlinego.data.model.ogs.PuzzleSolution
+import io.zenandroid.onlinego.data.model.ogs.UIConfig
 import okhttp3.ResponseBody
 import retrofit2.Response
-import retrofit2.http.*
+import retrofit2.http.Body
+import retrofit2.http.DELETE
+import retrofit2.http.GET
+import retrofit2.http.HTTP
+import retrofit2.http.Headers
+import retrofit2.http.POST
+import retrofit2.http.PUT
+import retrofit2.http.Path
+import retrofit2.http.Query
 
 /**
  * Created by alex on 02/11/2017.
@@ -100,40 +125,40 @@ interface OGSRestAPI {
     fun getMessages(@Path("last_message_id") lastMessageId: String): Single<List<Chat>>
 
     @GET("api/v1/puzzles/collections?ordering=-rating,-rating_count")
-    fun getPuzzleCollections(
+    suspend fun getPuzzleCollections(
         @Query("page_size") pageSize: Int = 1000,
         @Query("puzzle_count__gt") minimumCount: Int,
         @Query("name__istartswith") namePrefix: String,
-        @Query("page") page: Int = 1): Single<PagedResult<OGSPuzzleCollection>>
+        @Query("page") page: Int = 1): PagedResult<OGSPuzzleCollection>
 
     @GET("api/v1/puzzles/collections/{collection_id}")
-    fun getPuzzleCollection(@Path("collection_id") collectionId: Long): Single<OGSPuzzleCollection>
+    suspend fun getPuzzleCollection(@Path("collection_id") collectionId: Long): OGSPuzzleCollection
 
     @GET("api/v1/puzzles/collections/{collection_id}/puzzles")
-    fun getPuzzleCollectionContents(@Path("collection_id") collectionId: Long): Single<List<OGSPuzzle>>
+    suspend fun getPuzzleCollectionContents(@Path("collection_id") collectionId: Long): List<OGSPuzzle>
 
     @GET("api/v1/puzzles/{puzzle_id}")
-    fun getPuzzle(@Path("puzzle_id") puzzleId: Long): Single<OGSPuzzle>
+    suspend fun getPuzzle(@Path("puzzle_id") puzzleId: Long): OGSPuzzle
 
     @GET("api/v1/puzzles/{puzzle_id}/solutions")
-    fun getPuzzleSolutions(
+    suspend fun getPuzzleSolutions(
         @Path("puzzle_id") puzzleId: Long,
         @Query("player_id") playerId: Long,
         @Query("page_size") pageSize: Int = 1000,
-        @Query("page") page: Int = 1): Single<PagedResult<PuzzleSolution>>
+        @Query("page") page: Int = 1): PagedResult<PuzzleSolution>
 
     @GET("api/v1/puzzles/{puzzle_id}/rate")
-    fun getPuzzleRating(@Path("puzzle_id") puzzleId: Long): Single<PuzzleRating>
+    suspend fun getPuzzleRating(@Path("puzzle_id") puzzleId: Long): PuzzleRating
 
     @POST("api/v1/puzzles/{puzzle_id}/solutions")
-    fun markPuzzleSolved(
+    suspend fun markPuzzleSolved(
         @Path("puzzle_id") puzzleId: Long,
-        @Body request: PuzzleSolution): Completable
+        @Body request: PuzzleSolution)
 
     @PUT("api/v1/puzzles/{puzzle_id}/rate")
-    fun ratePuzzle(
+    suspend fun ratePuzzle(
         @Path("puzzle_id") puzzleId: Long,
-        @Body request: PuzzleRating): Completable
+        @Body request: PuzzleRating)
 
     @HTTP(method = "DELETE", path="api/v1/players/{player_id}", hasBody = true)
     suspend fun deleteAccount(@Path("player_id") playerId: Long, @Body body: PasswordBody)

@@ -190,7 +190,7 @@ private val viewModelsModule = module {
   }
 
   viewModel { params ->
-    PuzzleSetViewModel(get(), get(), get(), params.get())
+    PuzzleSetViewModel(get(), get(), params.get())
   }
 
   viewModel { params ->
