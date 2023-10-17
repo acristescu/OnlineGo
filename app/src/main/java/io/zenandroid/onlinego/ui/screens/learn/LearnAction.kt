@@ -7,4 +7,5 @@ sealed class LearnAction {
     class TutorialClicked(val tutorial: Tutorial): LearnAction()
     class TutorialGroupClicked(val group: TutorialGroup) : LearnAction()
     object JosekiExplorerClicked: LearnAction()
+    object PuzzlesClicked: LearnAction()
 }

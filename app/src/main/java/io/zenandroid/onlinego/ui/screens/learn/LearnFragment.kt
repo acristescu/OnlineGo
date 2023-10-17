@@ -44,6 +44,7 @@ class LearnFragment : Fragment() {
     private fun onAction(action: LearnAction) {
         when(action) {
             LearnAction.JosekiExplorerClicked -> view?.findNavController()?.navigate(R.id.action_learnFragment_to_josekiExplorerFragment)
+            LearnAction.PuzzlesClicked -> view?.findNavController()?.navigate(R.id.action_learnFragment_to_puzzleDirectoryFragment)
             is LearnAction.TutorialClicked -> view?.findNavController()?.navigate(R.id.action_learnFragment_to_tutorialFragment, bundleOf(TUTORIAL_NAME to action.tutorial.name))
             else -> viewModel.onAction(action)
         }

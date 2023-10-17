@@ -1,0 +1,1862 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 19,
+    "identityHash": "663fe997f969a7482d686033eda123dd",
+    "entities": [
+      {
+        "tableName": "Game",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `width` INTEGER NOT NULL, `height` INTEGER NOT NULL, `playerToMoveId` INTEGER, `outcome` TEXT, `whiteLost` INTEGER, `blackLost` INTEGER, `whiteGoesFirst` INTEGER, `moves` TEXT, `removedStones` TEXT, `phase` TEXT, `komi` REAL, `ended` INTEGER, `freeHandicapPlacement` INTEGER, `handicap` INTEGER, `undoRequested` INTEGER, `scoreAGAHandicap` INTEGER, `scoreHandicap` INTEGER, `scorePasses` INTEGER, `scorePrisoners` INTEGER, `scoreStones` INTEGER, `scoreTerritory` INTEGER, `scoreTerritoryInSeki` INTEGER, `name` TEXT, `rules` TEXT, `ranked` INTEGER, `disableAnalysis` INTEGER, `pausedSince` INTEGER, `messagesCount` INTEGER, `initial_state_black` TEXT, `initial_state_white` TEXT, `white_handicap` INTEGER, `white_komi` REAL, `white_prisoners` INTEGER, `white_scoring_positions` TEXT, `white_stones` INTEGER, `white_territory` INTEGER, `white_total` REAL, `black_handicap` INTEGER, `black_komi` REAL, `black_prisoners` INTEGER, `black_scoring_positions` TEXT, `black_stones` INTEGER, `black_territory` INTEGER, `black_total` REAL, `white_id` INTEGER NOT NULL, `white_username` TEXT NOT NULL, `white_rating` REAL, `white_historicRating` REAL, `white_country` TEXT, `white_icon` TEXT, `white_acceptedStones` TEXT, `white_ui_class` TEXT, `white_deviation` REAL, `black_id` INTEGER NOT NULL, `black_username` TEXT NOT NULL, `black_rating` REAL, `black_historicRating` REAL, `black_country` TEXT, `black_icon` TEXT, `black_acceptedStones` TEXT, `black_ui_class` TEXT, `black_deviation` REAL, `lastMove` INTEGER, `expiration` INTEGER, `now` INTEGER, `receivedAt` INTEGER, `whiteTimeSimple` INTEGER, `blackTimeSimple` INTEGER, `newPausedSince` INTEGER, `newPausedState` INTEGER, `startMode` INTEGER, `white_thinking_time` REAL, `white_skip_bonus` INTEGER, `white_block_time` REAL, `white_periods` INTEGER, `white_period_time` REAL, `white_moves_left` INTEGER, `black_thinking_time` REAL, `black_skip_bonus` INTEGER, `black_block_time` REAL, `black_periods` INTEGER, `black_period_time` REAL, `black_moves_left` INTEGER, `initial_state_system` TEXT, `initial_state_pause_on_weekends` INTEGER, `initial_state_time_control` TEXT, `initial_state_initial_time` INTEGER, `initial_state_max_time` INTEGER, `initial_state_time_increment` INTEGER, `initial_state_speed` TEXT, `initial_state_per_move` INTEGER, `initial_state_main_time` INTEGER, `initial_state_periods` INTEGER, `initial_state_period_time` INTEGER, `initial_state_stones_per_period` INTEGER, `initial_state_total_time` INTEGER, `pause_vacationWhite` INTEGER, `pause_vacationBlack` INTEGER, `pause_weekend` INTEGER, `pause_stoneRemoval` INTEGER, `pause_server` INTEGER, `pause_moderator` INTEGER, `pause_pausedByThirdParty` INTEGER, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "width",
+            "columnName": "width",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "height",
+            "columnName": "height",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "playerToMoveId",
+            "columnName": "playerToMoveId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "outcome",
+            "columnName": "outcome",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "whiteLost",
+            "columnName": "whiteLost",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "blackLost",
+            "columnName": "blackLost",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "whiteGoesFirst",
+            "columnName": "whiteGoesFirst",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "moves",
+            "columnName": "moves",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "removedStones",
+            "columnName": "removedStones",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "phase",
+            "columnName": "phase",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "komi",
+            "columnName": "komi",
+            "affinity": "REAL",
+            "notNull": false
+          },
+          {
+            "fieldPath": "ended",
+            "columnName": "ended",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "freeHandicapPlacement",
+            "columnName": "freeHandicapPlacement",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "handicap",
+            "columnName": "handicap",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "undoRequested",
+            "columnName": "undoRequested",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "scoreAGAHandicap",
+            "columnName": "scoreAGAHandicap",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "scoreHandicap",
+            "columnName": "scoreHandicap",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "scorePasses",
+            "columnName": "scorePasses",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "scorePrisoners",
+            "columnName": "scorePrisoners",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "scoreStones",
+            "columnName": "scoreStones",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "scoreTerritory",
+            "columnName": "scoreTerritory",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "scoreTerritoryInSeki",
+            "columnName": "scoreTerritoryInSeki",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "rules",
+            "columnName": "rules",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "ranked",
+            "columnName": "ranked",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "disableAnalysis",
+            "columnName": "disableAnalysis",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "pausedSince",
+            "columnName": "pausedSince",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "messagesCount",
+            "columnName": "messagesCount",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "initialState.black",
+            "columnName": "initial_state_black",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "initialState.white",
+            "columnName": "initial_state_white",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "whiteScore.handicap",
+            "columnName": "white_handicap",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "whiteScore.komi",
+            "columnName": "white_komi",
+            "affinity": "REAL",
+            "notNull": false
+          },
+          {
+            "fieldPath": "whiteScore.prisoners",
+            "columnName": "white_prisoners",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "whiteScore.scoring_positions",
+            "columnName": "white_scoring_positions",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "whiteScore.stones",
+            "columnName": "white_stones",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "whiteScore.territory",
+            "columnName": "white_territory",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "whiteScore.total",
+            "columnName": "white_total",
+            "affinity": "REAL",
+            "notNull": false
+          },
+          {
+            "fieldPath": "blackScore.handicap",
+            "columnName": "black_handicap",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "blackScore.komi",
+            "columnName": "black_komi",
+            "affinity": "REAL",
+            "notNull": false
+          },
+          {
+            "fieldPath": "blackScore.prisoners",
+            "columnName": "black_prisoners",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "blackScore.scoring_positions",
+            "columnName": "black_scoring_positions",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "blackScore.stones",
+            "columnName": "black_stones",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "blackScore.territory",
+            "columnName": "black_territory",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "blackScore.total",
+            "columnName": "black_total",
+            "affinity": "REAL",
+            "notNull": false
+          },
+          {
+            "fieldPath": "whitePlayer.id",
+            "columnName": "white_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "whitePlayer.username",
+            "columnName": "white_username",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "whitePlayer.rating",
+            "columnName": "white_rating",
+            "affinity": "REAL",
+            "notNull": false
+          },
+          {
+            "fieldPath": "whitePlayer.historicRating",
+            "columnName": "white_historicRating",
+            "affinity": "REAL",
+            "notNull": false
+          },
+          {
+            "fieldPath": "whitePlayer.country",
+            "columnName": "white_country",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "whitePlayer.icon",
+            "columnName": "white_icon",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "whitePlayer.acceptedStones",
+            "columnName": "white_acceptedStones",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "whitePlayer.ui_class",
+            "columnName": "white_ui_class",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "whitePlayer.deviation",
+            "columnName": "white_deviation",
+            "affinity": "REAL",
+            "notNull": false
+          },
+          {
+            "fieldPath": "blackPlayer.id",
+            "columnName": "black_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "blackPlayer.username",
+            "columnName": "black_username",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "blackPlayer.rating",
+            "columnName": "black_rating",
+            "affinity": "REAL",
+            "notNull": false
+          },
+          {
+            "fieldPath": "blackPlayer.historicRating",
+            "columnName": "black_historicRating",
+            "affinity": "REAL",
+            "notNull": false
+          },
+          {
+            "fieldPath": "blackPlayer.country",
+            "columnName": "black_country",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "blackPlayer.icon",
+            "columnName": "black_icon",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "blackPlayer.acceptedStones",
+            "columnName": "black_acceptedStones",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "blackPlayer.ui_class",
+            "columnName": "black_ui_class",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "blackPlayer.deviation",
+            "columnName": "black_deviation",
+            "affinity": "REAL",
+            "notNull": false
+          },
+          {
+            "fieldPath": "clock.lastMove",
+            "columnName": "lastMove",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "clock.expiration",
+            "columnName": "expiration",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "clock.now",
+            "columnName": "now",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "clock.receivedAt",
+            "columnName": "receivedAt",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "clock.whiteTimeSimple",
+            "columnName": "whiteTimeSimple",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "clock.blackTimeSimple",
+            "columnName": "blackTimeSimple",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "clock.newPausedSince",
+            "columnName": "newPausedSince",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "clock.newPausedState",
+            "columnName": "newPausedState",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "clock.startMode",
+            "columnName": "startMode",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "clock.whiteTime.thinking_time",
+            "columnName": "white_thinking_time",
+            "affinity": "REAL",
+            "notNull": false
+          },
+          {
+            "fieldPath": "clock.whiteTime.skip_bonus",
+            "columnName": "white_skip_bonus",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "clock.whiteTime.block_time",
+            "columnName": "white_block_time",
+            "affinity": "REAL",
+            "notNull": false
+          },
+          {
+            "fieldPath": "clock.whiteTime.periods",
+            "columnName": "white_periods",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "clock.whiteTime.period_time",
+            "columnName": "white_period_time",
+            "affinity": "REAL",
+            "notNull": false
+          },
+          {
+            "fieldPath": "clock.whiteTime.moves_left",
+            "columnName": "white_moves_left",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "clock.blackTime.thinking_time",
+            "columnName": "black_thinking_time",
+            "affinity": "REAL",
+            "notNull": false
+          },
+          {
+            "fieldPath": "clock.blackTime.skip_bonus",
+            "columnName": "black_skip_bonus",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "clock.blackTime.block_time",
+            "columnName": "black_block_time",
+            "affinity": "REAL",
+            "notNull": false
+          },
+          {
+            "fieldPath": "clock.blackTime.periods",
+            "columnName": "black_periods",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "clock.blackTime.period_time",
+            "columnName": "black_period_time",
+            "affinity": "REAL",
+            "notNull": false
+          },
+          {
+            "fieldPath": "clock.blackTime.moves_left",
+            "columnName": "black_moves_left",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "timeControl.system",
+            "columnName": "initial_state_system",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "timeControl.pause_on_weekends",
+            "columnName": "initial_state_pause_on_weekends",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "timeControl.time_control",
+            "columnName": "initial_state_time_control",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "timeControl.initial_time",
+            "columnName": "initial_state_initial_time",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "timeControl.max_time",
+            "columnName": "initial_state_max_time",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "timeControl.time_increment",
+            "columnName": "initial_state_time_increment",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "timeControl.speed",
+            "columnName": "initial_state_speed",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "timeControl.per_move",
+            "columnName": "initial_state_per_move",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "timeControl.main_time",
+            "columnName": "initial_state_main_time",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "timeControl.periods",
+            "columnName": "initial_state_periods",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "timeControl.period_time",
+            "columnName": "initial_state_period_time",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "timeControl.stones_per_period",
+            "columnName": "initial_state_stones_per_period",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "timeControl.total_time",
+            "columnName": "initial_state_total_time",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "pauseControl.vacationWhite",
+            "columnName": "pause_vacationWhite",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "pauseControl.vacationBlack",
+            "columnName": "pause_vacationBlack",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "pauseControl.weekend",
+            "columnName": "pause_weekend",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "pauseControl.stoneRemoval",
+            "columnName": "pause_stoneRemoval",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "pauseControl.server",
+            "columnName": "pause_server",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "pauseControl.moderator",
+            "columnName": "pause_moderator",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "pauseControl.pausedByThirdParty",
+            "columnName": "pause_pausedByThirdParty",
+            "affinity": "INTEGER",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "Message",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`type` TEXT NOT NULL, `gameId` INTEGER, `username` TEXT NOT NULL, `playerId` INTEGER NOT NULL, `moveNumber` INTEGER, `date` INTEGER NOT NULL, `chatId` TEXT NOT NULL, `text` TEXT NOT NULL, `seen` INTEGER NOT NULL, PRIMARY KEY(`chatId`))",
+        "fields": [
+          {
+            "fieldPath": "type",
+            "columnName": "type",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "gameId",
+            "columnName": "gameId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "username",
+            "columnName": "username",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "playerId",
+            "columnName": "playerId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "moveNumber",
+            "columnName": "moveNumber",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "date",
+            "columnName": "date",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "chatId",
+            "columnName": "chatId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "text",
+            "columnName": "text",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "seen",
+            "columnName": "seen",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "chatId"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "Challenge",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `gameId` INTEGER, `width` INTEGER, `height` INTEGER, `disabledAnalysis` INTEGER, `ranked` INTEGER, `handicap` INTEGER, `rules` TEXT, `speed` TEXT, `challenger_id` INTEGER, `challenger_username` TEXT, `challenger_rating` REAL, `challenger_historicRating` REAL, `challenger_country` TEXT, `challenger_icon` TEXT, `challenger_acceptedStones` TEXT, `challenger_ui_class` TEXT, `challenger_deviation` REAL, `challenged_id` INTEGER, `challenged_username` TEXT, `challenged_rating` REAL, `challenged_historicRating` REAL, `challenged_country` TEXT, `challenged_icon` TEXT, `challenged_acceptedStones` TEXT, `challenged_ui_class` TEXT, `challenged_deviation` REAL, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "gameId",
+            "columnName": "gameId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "width",
+            "columnName": "width",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "height",
+            "columnName": "height",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "disabledAnalysis",
+            "columnName": "disabledAnalysis",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "ranked",
+            "columnName": "ranked",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "handicap",
+            "columnName": "handicap",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "rules",
+            "columnName": "rules",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "speed",
+            "columnName": "speed",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "challenger.id",
+            "columnName": "challenger_id",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "challenger.username",
+            "columnName": "challenger_username",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "challenger.rating",
+            "columnName": "challenger_rating",
+            "affinity": "REAL",
+            "notNull": false
+          },
+          {
+            "fieldPath": "challenger.historicRating",
+            "columnName": "challenger_historicRating",
+            "affinity": "REAL",
+            "notNull": false
+          },
+          {
+            "fieldPath": "challenger.country",
+            "columnName": "challenger_country",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "challenger.icon",
+            "columnName": "challenger_icon",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "challenger.acceptedStones",
+            "columnName": "challenger_acceptedStones",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "challenger.ui_class",
+            "columnName": "challenger_ui_class",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "challenger.deviation",
+            "columnName": "challenger_deviation",
+            "affinity": "REAL",
+            "notNull": false
+          },
+          {
+            "fieldPath": "challenged.id",
+            "columnName": "challenged_id",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "challenged.username",
+            "columnName": "challenged_username",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "challenged.rating",
+            "columnName": "challenged_rating",
+            "affinity": "REAL",
+            "notNull": false
+          },
+          {
+            "fieldPath": "challenged.historicRating",
+            "columnName": "challenged_historicRating",
+            "affinity": "REAL",
+            "notNull": false
+          },
+          {
+            "fieldPath": "challenged.country",
+            "columnName": "challenged_country",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "challenged.icon",
+            "columnName": "challenged_icon",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "challenged.acceptedStones",
+            "columnName": "challenged_acceptedStones",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "challenged.ui_class",
+            "columnName": "challenged_ui_class",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "challenged.deviation",
+            "columnName": "challenged_deviation",
+            "affinity": "REAL",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "GameNotification",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`gameId` INTEGER NOT NULL, `moves` TEXT, `phase` TEXT, PRIMARY KEY(`gameId`))",
+        "fields": [
+          {
+            "fieldPath": "gameId",
+            "columnName": "gameId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "moves",
+            "columnName": "moves",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "phase",
+            "columnName": "phase",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "gameId"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "JosekiPosition",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`description` TEXT, `variation_label` TEXT, `category` TEXT, `joseki_source_id` TEXT, `marks` TEXT, `placement` TEXT, `play` TEXT, `contributor` INTEGER, `node_id` INTEGER, `comment_count` INTEGER, `parent_id` INTEGER, `child_count` INTEGER, `topicId` INTEGER, `db_locked_down` INTEGER, PRIMARY KEY(`node_id`))",
+        "fields": [
+          {
+            "fieldPath": "description",
+            "columnName": "description",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "variation_label",
+            "columnName": "variation_label",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "category",
+            "columnName": "category",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "joseki_source_id",
+            "columnName": "joseki_source_id",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "marks",
+            "columnName": "marks",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "placement",
+            "columnName": "placement",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "play",
+            "columnName": "play",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "contributor",
+            "columnName": "contributor",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "node_id",
+            "columnName": "node_id",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "comment_count",
+            "columnName": "comment_count",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "parent_id",
+            "columnName": "parent_id",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "child_count",
+            "columnName": "child_count",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "topicId",
+            "columnName": "topicId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "db_locked_down",
+            "columnName": "db_locked_down",
+            "affinity": "INTEGER",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "node_id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_JosekiPosition_play",
+            "unique": true,
+            "columnNames": [
+              "play"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_JosekiPosition_play` ON `${TABLE_NAME}` (`play`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "HistoricGamesMetadata",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `oldestGameEnded` INTEGER, `newestGameEnded` INTEGER, `loadedOldestGame` INTEGER, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "oldestGameEnded",
+            "columnName": "oldestGameEnded",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "newestGameEnded",
+            "columnName": "newestGameEnded",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "loadedOldestGame",
+            "columnName": "loadedOldestGame",
+            "affinity": "INTEGER",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "ChatMetadata",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `latestMessageId` TEXT NOT NULL, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "latestMessageId",
+            "columnName": "latestMessageId",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "ChallengeNotification",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "PuzzleCollection",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `name` TEXT NOT NULL, `created` INTEGER, `is_private` INTEGER NOT NULL, `price` TEXT, `rating` REAL NOT NULL, `rating_count` INTEGER NOT NULL, `puzzle_count` INTEGER NOT NULL, `min_rank` INTEGER NOT NULL, `max_rank` INTEGER NOT NULL, `view_count` INTEGER NOT NULL, `solved_count` INTEGER NOT NULL, `attempt_count` INTEGER NOT NULL, `color_transform_enabled` INTEGER, `position_transform_enabled` INTEGER, `owner_id` INTEGER, `owner_username` TEXT, `owner_rating` REAL, `owner_historicRating` REAL, `owner_country` TEXT, `owner_icon` TEXT, `owner_acceptedStones` TEXT, `owner_ui_class` TEXT, `owner_deviation` REAL, `starting_puzzle_id` INTEGER NOT NULL, `starting_puzzle_width` INTEGER NOT NULL, `starting_puzzle_height` INTEGER NOT NULL, `starting_puzzle_initial_state_black` TEXT, `starting_puzzle_initial_state_white` TEXT, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "created",
+            "columnName": "created",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "private",
+            "columnName": "is_private",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "price",
+            "columnName": "price",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "rating",
+            "columnName": "rating",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "rating_count",
+            "columnName": "rating_count",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "puzzle_count",
+            "columnName": "puzzle_count",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "min_rank",
+            "columnName": "min_rank",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "max_rank",
+            "columnName": "max_rank",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "view_count",
+            "columnName": "view_count",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "solved_count",
+            "columnName": "solved_count",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "attempt_count",
+            "columnName": "attempt_count",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "color_transform_enabled",
+            "columnName": "color_transform_enabled",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "position_transform_enabled",
+            "columnName": "position_transform_enabled",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "owner.id",
+            "columnName": "owner_id",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "owner.username",
+            "columnName": "owner_username",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "owner.rating",
+            "columnName": "owner_rating",
+            "affinity": "REAL",
+            "notNull": false
+          },
+          {
+            "fieldPath": "owner.historicRating",
+            "columnName": "owner_historicRating",
+            "affinity": "REAL",
+            "notNull": false
+          },
+          {
+            "fieldPath": "owner.country",
+            "columnName": "owner_country",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "owner.icon",
+            "columnName": "owner_icon",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "owner.acceptedStones",
+            "columnName": "owner_acceptedStones",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "owner.ui_class",
+            "columnName": "owner_ui_class",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "owner.deviation",
+            "columnName": "owner_deviation",
+            "affinity": "REAL",
+            "notNull": false
+          },
+          {
+            "fieldPath": "starting_puzzle.id",
+            "columnName": "starting_puzzle_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "starting_puzzle.width",
+            "columnName": "starting_puzzle_width",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "starting_puzzle.height",
+            "columnName": "starting_puzzle_height",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "starting_puzzle.initial_state.black",
+            "columnName": "starting_puzzle_initial_state_black",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "starting_puzzle.initial_state.white",
+            "columnName": "starting_puzzle_initial_state_white",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "Puzzle",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `order` INTEGER, `name` TEXT NOT NULL, `created` INTEGER, `modified` INTEGER, `private` INTEGER, `width` INTEGER NOT NULL, `height` INTEGER NOT NULL, `type` TEXT, `has_solution` INTEGER, `rating` REAL NOT NULL, `rating_count` INTEGER NOT NULL, `rank` INTEGER NOT NULL, `view_count` INTEGER NOT NULL, `solved_count` INTEGER NOT NULL, `attempt_count` INTEGER NOT NULL, `owner_id` INTEGER, `owner_username` TEXT, `owner_rating` REAL, `owner_historicRating` REAL, `owner_country` TEXT, `owner_icon` TEXT, `owner_acceptedStones` TEXT, `owner_ui_class` TEXT, `owner_deviation` REAL, `puzzle_puzzle_rank` TEXT NOT NULL, `puzzle_name` TEXT NOT NULL, `puzzle_move_tree` TEXT NOT NULL, `puzzle_initial_player` TEXT NOT NULL, `puzzle_height` INTEGER NOT NULL, `puzzle_width` INTEGER NOT NULL, `puzzle_mode` TEXT NOT NULL, `puzzle_puzzle_collection` TEXT NOT NULL, `puzzle_puzzle_type` TEXT NOT NULL, `puzzle_puzzle_description` TEXT NOT NULL, `puzzle_initial_state_black` TEXT, `puzzle_initial_state_white` TEXT, `collection_id` INTEGER, `collection_name` TEXT, `collection_created` INTEGER, `collection_is_private` INTEGER, `collection_price` TEXT, `collection_rating` REAL, `collection_rating_count` INTEGER, `collection_puzzle_count` INTEGER, `collection_min_rank` INTEGER, `collection_max_rank` INTEGER, `collection_view_count` INTEGER, `collection_solved_count` INTEGER, `collection_attempt_count` INTEGER, `collection_color_transform_enabled` INTEGER, `collection_position_transform_enabled` INTEGER, `collection_owner_id` INTEGER, `collection_owner_username` TEXT, `collection_owner_rating` REAL, `collection_owner_historicRating` REAL, `collection_owner_country` TEXT, `collection_owner_icon` TEXT, `collection_owner_acceptedStones` TEXT, `collection_owner_ui_class` TEXT, `collection_owner_deviation` REAL, `collection_starting_puzzle_id` INTEGER, `collection_starting_puzzle_width` INTEGER, `collection_starting_puzzle_height` INTEGER, `collection_starting_puzzle_initial_state_black` TEXT, `collection_starting_puzzle_initial_state_white` TEXT, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "order",
+            "columnName": "order",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "created",
+            "columnName": "created",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "modified",
+            "columnName": "modified",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "private",
+            "columnName": "private",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "width",
+            "columnName": "width",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "height",
+            "columnName": "height",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "type",
+            "columnName": "type",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "has_solution",
+            "columnName": "has_solution",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "rating",
+            "columnName": "rating",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "rating_count",
+            "columnName": "rating_count",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "rank",
+            "columnName": "rank",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "view_count",
+            "columnName": "view_count",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "solved_count",
+            "columnName": "solved_count",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "attempt_count",
+            "columnName": "attempt_count",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "owner.id",
+            "columnName": "owner_id",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "owner.username",
+            "columnName": "owner_username",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "owner.rating",
+            "columnName": "owner_rating",
+            "affinity": "REAL",
+            "notNull": false
+          },
+          {
+            "fieldPath": "owner.historicRating",
+            "columnName": "owner_historicRating",
+            "affinity": "REAL",
+            "notNull": false
+          },
+          {
+            "fieldPath": "owner.country",
+            "columnName": "owner_country",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "owner.icon",
+            "columnName": "owner_icon",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "owner.acceptedStones",
+            "columnName": "owner_acceptedStones",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "owner.ui_class",
+            "columnName": "owner_ui_class",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "owner.deviation",
+            "columnName": "owner_deviation",
+            "affinity": "REAL",
+            "notNull": false
+          },
+          {
+            "fieldPath": "puzzle.puzzle_rank",
+            "columnName": "puzzle_puzzle_rank",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "puzzle.name",
+            "columnName": "puzzle_name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "puzzle.move_tree",
+            "columnName": "puzzle_move_tree",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "puzzle.initial_player",
+            "columnName": "puzzle_initial_player",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "puzzle.height",
+            "columnName": "puzzle_height",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "puzzle.width",
+            "columnName": "puzzle_width",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "puzzle.mode",
+            "columnName": "puzzle_mode",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "puzzle.puzzle_collection",
+            "columnName": "puzzle_puzzle_collection",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "puzzle.puzzle_type",
+            "columnName": "puzzle_puzzle_type",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "puzzle.puzzle_description",
+            "columnName": "puzzle_puzzle_description",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "puzzle.initial_state.black",
+            "columnName": "puzzle_initial_state_black",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "puzzle.initial_state.white",
+            "columnName": "puzzle_initial_state_white",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "collection.id",
+            "columnName": "collection_id",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "collection.name",
+            "columnName": "collection_name",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "collection.created",
+            "columnName": "collection_created",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "collection.private",
+            "columnName": "collection_is_private",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "collection.price",
+            "columnName": "collection_price",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "collection.rating",
+            "columnName": "collection_rating",
+            "affinity": "REAL",
+            "notNull": false
+          },
+          {
+            "fieldPath": "collection.rating_count",
+            "columnName": "collection_rating_count",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "collection.puzzle_count",
+            "columnName": "collection_puzzle_count",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "collection.min_rank",
+            "columnName": "collection_min_rank",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "collection.max_rank",
+            "columnName": "collection_max_rank",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "collection.view_count",
+            "columnName": "collection_view_count",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "collection.solved_count",
+            "columnName": "collection_solved_count",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "collection.attempt_count",
+            "columnName": "collection_attempt_count",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "collection.color_transform_enabled",
+            "columnName": "collection_color_transform_enabled",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "collection.position_transform_enabled",
+            "columnName": "collection_position_transform_enabled",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "collection.owner.id",
+            "columnName": "collection_owner_id",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "collection.owner.username",
+            "columnName": "collection_owner_username",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "collection.owner.rating",
+            "columnName": "collection_owner_rating",
+            "affinity": "REAL",
+            "notNull": false
+          },
+          {
+            "fieldPath": "collection.owner.historicRating",
+            "columnName": "collection_owner_historicRating",
+            "affinity": "REAL",
+            "notNull": false
+          },
+          {
+            "fieldPath": "collection.owner.country",
+            "columnName": "collection_owner_country",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "collection.owner.icon",
+            "columnName": "collection_owner_icon",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "collection.owner.acceptedStones",
+            "columnName": "collection_owner_acceptedStones",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "collection.owner.ui_class",
+            "columnName": "collection_owner_ui_class",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "collection.owner.deviation",
+            "columnName": "collection_owner_deviation",
+            "affinity": "REAL",
+            "notNull": false
+          },
+          {
+            "fieldPath": "collection.starting_puzzle.id",
+            "columnName": "collection_starting_puzzle_id",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "collection.starting_puzzle.width",
+            "columnName": "collection_starting_puzzle_width",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "collection.starting_puzzle.height",
+            "columnName": "collection_starting_puzzle_height",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "collection.starting_puzzle.initial_state.black",
+            "columnName": "collection_starting_puzzle_initial_state_black",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "collection.starting_puzzle.initial_state.white",
+            "columnName": "collection_starting_puzzle_initial_state_white",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "PuzzleRating",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`puzzleId` INTEGER NOT NULL, `rating` INTEGER NOT NULL, PRIMARY KEY(`puzzleId`))",
+        "fields": [
+          {
+            "fieldPath": "puzzleId",
+            "columnName": "puzzleId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "rating",
+            "columnName": "rating",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "puzzleId"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "PuzzleSolution",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER, `puzzle` INTEGER NOT NULL, `player_rank` INTEGER, `player_rating` INTEGER, `time_elapsed` INTEGER, `flipped_horizontally` INTEGER NOT NULL, `flipped_vertically` INTEGER NOT NULL, `transposed` INTEGER NOT NULL, `colors_swapped` INTEGER NOT NULL, `attempts` INTEGER, `solution` TEXT NOT NULL, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "puzzle",
+            "columnName": "puzzle",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "player_rank",
+            "columnName": "player_rank",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "player_rating",
+            "columnName": "player_rating",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "time_elapsed",
+            "columnName": "time_elapsed",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "flipped_horizontally",
+            "columnName": "flipped_horizontally",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "flipped_vertically",
+            "columnName": "flipped_vertically",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "transposed",
+            "columnName": "transposed",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "colors_swapped",
+            "columnName": "colors_swapped",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "attempts",
+            "columnName": "attempts",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "solution",
+            "columnName": "solution",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "VisitedPuzzleCollection",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`collectionId` INTEGER NOT NULL, `timestamp` INTEGER NOT NULL, `count` INTEGER NOT NULL, `_id` INTEGER PRIMARY KEY AUTOINCREMENT)",
+        "fields": [
+          {
+            "fieldPath": "collectionId",
+            "columnName": "collectionId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "timestamp",
+            "columnName": "timestamp",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "count",
+            "columnName": "count",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "_id",
+            "columnName": "_id",
+            "affinity": "INTEGER",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "_id"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      }
+    ],
+    "views": [],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '663fe997f969a7482d686033eda123dd')"
+    ]
+  }
+}

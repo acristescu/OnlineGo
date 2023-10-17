@@ -62,8 +62,15 @@ android {
             freeCompilerArgs += "-opt-in=androidx.compose.material.ExperimentalMaterialApi"
             freeCompilerArgs += "-opt-in=androidx.compose.foundation.ExperimentalFoundationApi"
             freeCompilerArgs += "-opt-in=androidx.compose.ui.ExperimentalComposeUiApi"
-            freeCompilerArgs += "-opt-in=com.google.accompanist.pager.ExperimentalPagerApi"
             freeCompilerArgs += '-Xjvm-default=all'
+            freeCompilerArgs += [
+                "-P",
+                "plugin:androidx.compose.compiler.plugins.kotlin:metricsDestination=" +
+                        project.buildDir.absolutePath + "/compose_metrics",
+                "-P",
+                "plugin:androidx.compose.compiler.plugins.kotlin:reportsDestination="+
+                        project.buildDir.absolutePath + "/compose_metrics",
+            ]
         }
     }
     kotlinOptions {
@@ -111,7 +118,6 @@ dependencies {
     debugImplementation "androidx.compose.ui:ui-tooling"
 
     implementation "com.google.accompanist:accompanist-placeholder-material:$accompanist_version"
-    implementation "com.google.accompanist:accompanist-pager:$accompanist_version"
     implementation "com.google.accompanist:accompanist-pager-indicators:$accompanist_version"
 
     implementation 'androidx.appcompat:appcompat:1.6.1'
@@ -141,6 +147,7 @@ dependencies {
     implementation 'io.reactivex.rxjava2:rxkotlin:2.4.0'
     implementation 'com.jakewharton.rxrelay2:rxrelay:2.1.1'
     implementation 'io.reactivex.rxjava2:rxkotlin:2.4.0'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-rx2:1.7.3'
 
     implementation "androidx.work:work-runtime-ktx:$work_manager_version"
     implementation "androidx.work:work-rxjava2:$work_manager_version"

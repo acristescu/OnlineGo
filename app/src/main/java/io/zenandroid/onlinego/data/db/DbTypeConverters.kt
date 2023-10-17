@@ -1,10 +1,14 @@
 package io.zenandroid.onlinego.data.db
 
 import androidx.room.TypeConverter
+import com.squareup.moshi.Moshi
+import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.local.Message
+import io.zenandroid.onlinego.data.model.ogs.MoveTree
 import io.zenandroid.onlinego.data.model.ogs.Phase
 import io.zenandroid.onlinego.data.model.ogs.PlayCategory
+import java.time.Instant
 
 /**
  * Created by alex on 07/06/2018.
@@ -60,5 +64,26 @@ class DbTypeConverters {
         @TypeConverter
         @JvmStatic
         fun stringToPhase(phase: String?) = phase?.let(Phase::valueOf)
+
+        @TypeConverter
+        @JvmStatic
+        fun instantToLong(instant: Instant?) = instant?.let(Instant::toEpochMilli)
+
+        @TypeConverter
+        @JvmStatic
+        fun longToInstant(instant: Long?) = instant?.let(Instant::ofEpochMilli)
+
+        val moveTreeAdapter = Moshi.Builder()
+            .add(KotlinJsonAdapterFactory())
+            .build()
+            .adapter(MoveTree::class.java)
+
+        @TypeConverter
+        @JvmStatic
+        fun moveTreeToString(moveTree: MoveTree?) = moveTree?.let(moveTreeAdapter::toJson)
+
+        @TypeConverter
+        @JvmStatic
+        fun stringToMoveTree(moveTree: String?) = moveTree?.let(moveTreeAdapter::fromJson)
     }
 }

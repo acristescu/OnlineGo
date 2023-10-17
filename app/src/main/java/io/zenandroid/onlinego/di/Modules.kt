@@ -24,6 +24,7 @@ import io.zenandroid.onlinego.data.repositories.ClockDriftRepository
 import io.zenandroid.onlinego.data.repositories.FinishedGamesRepository
 import io.zenandroid.onlinego.data.repositories.JosekiRepository
 import io.zenandroid.onlinego.data.repositories.PlayersRepository
+import io.zenandroid.onlinego.data.repositories.PuzzleRepository
 import io.zenandroid.onlinego.data.repositories.ServerNotificationsRepository
 import io.zenandroid.onlinego.data.repositories.SettingsRepository
 import io.zenandroid.onlinego.data.repositories.TutorialsRepository
@@ -59,6 +60,9 @@ import io.zenandroid.onlinego.ui.screens.newchallenge.selectopponent.searchplaye
 import io.zenandroid.onlinego.ui.screens.newchallenge.selectopponent.searchplayer.SearchPlayerState
 import io.zenandroid.onlinego.ui.screens.newchallenge.selectopponent.searchplayer.SearchPlayerViewModel
 import io.zenandroid.onlinego.ui.screens.onboarding.OnboardingViewModel
+import io.zenandroid.onlinego.ui.screens.puzzle.PuzzleDirectoryViewModel
+import io.zenandroid.onlinego.ui.screens.puzzle.PuzzleSetViewModel
+import io.zenandroid.onlinego.ui.screens.puzzle.TsumegoViewModel
 import io.zenandroid.onlinego.ui.screens.settings.SettingsViewModel
 import io.zenandroid.onlinego.ui.screens.stats.StatsViewModel
 import io.zenandroid.onlinego.ui.screens.tutorial.TutorialViewModel
@@ -96,6 +100,7 @@ private val repositoriesModule = module {
   single { ChatRepository(get(), get()) }
   single { FinishedGamesRepository(get(), get(), get()) }
   single { JosekiRepository(get(), get()) }
+  single { PuzzleRepository(get(), get()) }
   single { PlayersRepository(get(), get(), get()) }
   single { ServerNotificationsRepository(get()) }
   single { SettingsRepository() }
@@ -142,6 +147,10 @@ private val databaseModule = module {
   single {
     get<Database>().gameDao()
   }
+
+  single {
+    get<Database>().puzzleDao()
+  }
 }
 
 private val useCasesModule = module {
@@ -174,6 +183,18 @@ private val viewModelsModule = module {
         JosekiExplorerState()
       )
     )
+  }
+
+  viewModel {
+    PuzzleDirectoryViewModel(get(), get(), get())
+  }
+
+  viewModel { params ->
+    PuzzleSetViewModel(get(), get(), get(), params.get())
+  }
+
+  viewModel { params ->
+    TsumegoViewModel(get(), get(), params.get())
   }
 
   viewModel {

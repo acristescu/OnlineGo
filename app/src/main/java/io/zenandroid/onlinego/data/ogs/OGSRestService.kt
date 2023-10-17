@@ -2,9 +2,14 @@ package io.zenandroid.onlinego.data.ogs
 
 import android.preference.PreferenceManager
 import com.squareup.moshi.Moshi
+import io.reactivex.BackpressureStrategy
 import io.reactivex.Completable
+import io.reactivex.Flowable
+import io.reactivex.Observable
 import io.reactivex.Single
 import io.zenandroid.onlinego.OnlineGoApplication
+import io.zenandroid.onlinego.data.model.local.Puzzle
+import io.zenandroid.onlinego.data.model.local.PuzzleCollection
 import io.zenandroid.onlinego.data.model.ogs.CreateAccountRequest
 import io.zenandroid.onlinego.data.model.ogs.Glicko2History
 import io.zenandroid.onlinego.data.model.ogs.JosekiPosition
@@ -12,7 +17,12 @@ import io.zenandroid.onlinego.data.model.ogs.OGSChallenge
 import io.zenandroid.onlinego.data.model.ogs.OGSChallengeRequest
 import io.zenandroid.onlinego.data.model.ogs.OGSGame
 import io.zenandroid.onlinego.data.model.ogs.OGSPlayer
+import io.zenandroid.onlinego.data.model.ogs.PagedResult
 import io.zenandroid.onlinego.data.model.ogs.PasswordBody
+import io.zenandroid.onlinego.data.model.ogs.OGSPuzzle
+import io.zenandroid.onlinego.data.model.ogs.OGSPuzzleCollection
+import io.zenandroid.onlinego.data.model.ogs.PuzzleRating
+import io.zenandroid.onlinego.data.model.ogs.PuzzleSolution
 import io.zenandroid.onlinego.data.model.ogs.VersusStats
 import io.zenandroid.onlinego.data.repositories.UserSessionRepository
 import io.zenandroid.onlinego.data.model.ogs.ChallengeParams
@@ -22,6 +32,7 @@ import okhttp3.ResponseBody.Companion.toResponseBody
 import retrofit2.HttpException
 import retrofit2.Response
 import java.util.Date
+import java.util.concurrent.TimeUnit
 
 private const val TAG = "OGSRestService"
 private const val OGS_EBI = "OGS_EBI"
@@ -244,6 +255,76 @@ class OGSRestService(
     suspend fun getPlayerVersusStats(id: Long): VersusStats {
         return restApi.getPlayerFullProfileAsync(id).vs
     }
+
+    fun getPuzzleCollections(minCount: Int? = null, namePrefix: String? = null): Flowable<List<PuzzleCollection>> {
+        var page = 0
+
+        fun fetchPage(): Single<PagedResult<OGSPuzzleCollection>> = restApi.getPuzzleCollections(
+            minimumCount = minCount ?: 0,
+            namePrefix = namePrefix ?: "",
+            page = ++page
+        )
+
+        fun unfold(result: Single<PagedResult<OGSPuzzleCollection>>): Observable<List<OGSPuzzleCollection>> {
+            return result.toObservable().flatMap { pre ->
+                Observable.just(pre.results).let {
+                    if (pre.next == null) {
+                        it
+                    } else {
+                        val wait = Observable.timer(5, TimeUnit.SECONDS).take(1)
+                        it.concatWith(wait.map { emptyList<OGSPuzzleCollection>() }.ignoreElements())
+                            .concatWith(unfold(fetchPage()))
+                    }
+                }
+            }
+        }
+
+        return unfold(fetchPage()).toFlowable(BackpressureStrategy.BUFFER)
+            .map { it.map(PuzzleCollection::fromOGSPuzzleCollection) }
+    }
+
+    fun getPuzzleCollection(id: Long): Single<PuzzleCollection> =
+        restApi.getPuzzleCollection(collectionId = id)
+            .map { PuzzleCollection.fromOGSPuzzleCollection(it) }
+
+    fun getPuzzleCollectionContents(id: Long): Single<List<Puzzle>> =
+        restApi.getPuzzleCollectionContents(collectionId = id)
+            .map { it.map(Puzzle::fromOGSPuzzle) }
+
+    fun getPuzzle(id: Long): Single<Puzzle> =
+        restApi.getPuzzle(puzzleId = id)
+            .map { Puzzle.fromOGSPuzzle(it) }
+
+    fun getPuzzleSolutions(id: Long): Single<List<PuzzleSolution>> {
+        var page = 0
+
+        fun fetchPage(): Single<PagedResult<PuzzleSolution>> = restApi.getPuzzleSolutions(
+            puzzleId = id,
+            playerId = userSessionRepository.userId!!,
+            page = ++page
+        )
+
+        fun unfold(result: Single<PagedResult<PuzzleSolution>>): Single<List<PuzzleSolution>> {
+            return result.flatMap { pre ->
+                if (pre.next == null) {
+                    Single.just(pre.results)
+                } else {
+                    unfold(fetchPage()).map { pre.results.plus(it) }
+                }
+            }
+        }
+
+        return unfold(fetchPage())
+    }
+
+    fun getPuzzleRating(id: Long): Single<PuzzleRating> =
+        restApi.getPuzzleRating(puzzleId = id)
+
+    fun markPuzzleSolved(id: Long, solution: PuzzleSolution): Completable =
+        restApi.markPuzzleSolved(puzzleId = id, request = solution)
+
+    fun ratePuzzle(id: Long, rating: Int): Completable =
+        restApi.ratePuzzle(puzzleId = id, request = PuzzleRating(rating = rating))
 
   suspend fun deleteMyAccount(password: String) {
     return restApi.deleteAccount(

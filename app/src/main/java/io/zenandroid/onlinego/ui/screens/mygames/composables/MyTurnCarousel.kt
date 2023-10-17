@@ -1,9 +1,11 @@
 package io.zenandroid.onlinego.ui.screens.mygames.composables
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.pager.*
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -13,28 +15,28 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
-import com.google.accompanist.pager.*
+import com.google.accompanist.pager.HorizontalPagerIndicator
 import io.zenandroid.onlinego.data.model.BoardTheme
 import io.zenandroid.onlinego.data.model.local.Game
 import io.zenandroid.onlinego.ui.screens.mygames.Action
 import kotlin.math.absoluteValue
 
 
-@ExperimentalPagerApi
+@ExperimentalFoundationApi
 @ExperimentalComposeUiApi
 @Composable
 fun MyTurnCarousel(games: List<Game>, boardTheme: BoardTheme, userId: Long, onAction: (Action) -> Unit) {
     Column {
-        val pagerState = rememberPagerState()
+        val pagerState = rememberPagerState { games.size }
         HorizontalPager(
-            count = games.size,
             state = pagerState,
         ) { page ->
             val game = games[page]
             Box(modifier = Modifier
                 .fillMaxWidth()
                 .graphicsLayer {
-                    val pageOffset = calculateCurrentOffsetForPage(page).absoluteValue
+                    val currentOffsetForPage = (pagerState.currentPage - page) + pagerState.currentPageOffsetFraction
+                    val pageOffset = currentOffsetForPage.absoluteValue
 
                     lerp(
                         start = 0.25f,
@@ -63,6 +65,7 @@ fun MyTurnCarousel(games: List<Game>, boardTheme: BoardTheme, userId: Long, onAc
         }
         HorizontalPagerIndicator(
             pagerState = pagerState,
+            pageCount = pagerState.pageCount,
             activeColor = MaterialTheme.colors.onSurface,
             modifier = Modifier
                 .align(Alignment.CenterHorizontally)

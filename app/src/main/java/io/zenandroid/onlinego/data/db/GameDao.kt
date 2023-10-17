@@ -8,6 +8,7 @@ import androidx.room.RoomWarnings
 import androidx.room.Transaction
 import androidx.room.Update
 import com.google.firebase.crashlytics.FirebaseCrashlytics
+import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Maybe
 import io.reactivex.Single
@@ -23,9 +24,15 @@ import io.zenandroid.onlinego.data.model.local.HistoricGamesMetadata
 import io.zenandroid.onlinego.data.model.local.InitialState
 import io.zenandroid.onlinego.data.model.local.Message
 import io.zenandroid.onlinego.data.model.local.Player
+import io.zenandroid.onlinego.data.model.local.Puzzle
+import io.zenandroid.onlinego.data.model.local.PuzzleCollection
+import io.zenandroid.onlinego.data.model.local.PuzzleCollectionSolutionMetadata
 import io.zenandroid.onlinego.data.model.local.Score
+import io.zenandroid.onlinego.data.model.local.VisitedPuzzleCollection
 import io.zenandroid.onlinego.data.model.ogs.JosekiPosition
 import io.zenandroid.onlinego.data.model.ogs.Phase
+import io.zenandroid.onlinego.data.model.ogs.PuzzleRating
+import io.zenandroid.onlinego.data.model.ogs.PuzzleSolution
 import kotlinx.coroutines.flow.Flow
 
 private const val MAX_ALLOWED_SQL_PARAMS = 999
@@ -429,4 +436,5 @@ abstract class GameDao {
             updateChatMetadata(ChatMetadata(0, messages.last().chatId))
         }
     }
+
 }

@@ -1,8 +1,10 @@
 package io.zenandroid.onlinego.ui.screens.onboarding
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.pager.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -26,11 +28,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.google.accompanist.pager.*
+import com.google.accompanist.pager.HorizontalPagerIndicator
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
 
-@ExperimentalPagerApi
+@ExperimentalFoundationApi
 @Composable
 fun Screen(state: OnboardingState, listener: (OnboardingAction) -> Unit) {
     Surface(modifier = Modifier.fillMaxSize()) {
@@ -240,17 +242,18 @@ private fun ColumnScope.InfoPage(page: Page.OnboardingPage, listener: (Onboardin
     }
 }
 
-@ExperimentalPagerApi
+@ExperimentalFoundationApi
 @Composable
 private fun PageIndicator(modifier: Modifier = Modifier, currentPage: Int, numberOfPages: Int) {
-    val state = rememberPagerState()
-    HorizontalPager(count = numberOfPages, state = state) {} // Dirty hack to set the number of pages since that's no longer supported
+    val state = rememberPagerState { numberOfPages }
+    HorizontalPager(state = state) {} // Dirty hack to set the number of pages since that's no longer supported
 
     LaunchedEffect(currentPage) {
         state.animateScrollToPage(currentPage)
     }
     HorizontalPagerIndicator(
         pagerState = state,
+        pageCount = state.pageCount,
         activeColor = MaterialTheme.colors.onSurface,
         modifier = modifier
             .padding(16.dp)
@@ -258,7 +261,7 @@ private fun PageIndicator(modifier: Modifier = Modifier, currentPage: Int, numbe
     )
 }
 
-@ExperimentalPagerApi
+@ExperimentalFoundationApi
 @Preview
 @Composable
 fun DefaultPreview() {
@@ -267,7 +270,7 @@ fun DefaultPreview() {
     }
 }
 
-@ExperimentalPagerApi
+@ExperimentalFoundationApi
 @Preview
 @Composable
 fun DefaultPreview1() {
@@ -276,7 +279,7 @@ fun DefaultPreview1() {
     }
 }
 
-@ExperimentalPagerApi
+@ExperimentalFoundationApi
 @Preview
 @Composable
 fun DefaultPreview2() {
