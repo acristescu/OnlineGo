@@ -5,11 +5,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.zenandroid.onlinego.data.model.local.PuzzleCollection
 import io.zenandroid.onlinego.data.model.local.VisitedPuzzleCollection
-import io.zenandroid.onlinego.data.ogs.OGSRestService
 import io.zenandroid.onlinego.data.repositories.PuzzleRepository
 import io.zenandroid.onlinego.data.repositories.SettingsRepository
 import io.zenandroid.onlinego.ui.screens.puzzle.PuzzleDirectorySort.RatingSort
 import io.zenandroid.onlinego.utils.recordException
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -25,7 +25,6 @@ import java.util.SortedMap
 
 class PuzzleDirectoryViewModel(
   private val puzzleRepository: PuzzleRepository,
-  private val restService: OGSRestService,
   private val settingsRepository: SettingsRepository,
 ) : ViewModel() {
   private val _state =
@@ -33,10 +32,11 @@ class PuzzleDirectoryViewModel(
   val state: StateFlow<PuzzleDirectoryState> = _state
   var filterText = MutableStateFlow("")
   var sortField = MutableStateFlow<PuzzleDirectorySort>(RatingSort(false))
+  private val errorHandler = CoroutineExceptionHandler { _, throwable -> onError(throwable) }
 
   init {
-    viewModelScope.launch { puzzleRepository.fetchAllPuzzleCollections() }
-    viewModelScope.launch {
+    viewModelScope.launch(errorHandler) { puzzleRepository.fetchAllPuzzleCollections() }
+    viewModelScope.launch(errorHandler) {
       puzzleRepository.observeAllPuzzleCollections()
         .map {
           it.associateBy(PuzzleCollection::id)
@@ -93,7 +93,6 @@ class PuzzleDirectoryViewModel(
           .distinctBy { it.collectionId }
           .sortedByDescending { it.timestamp }
           .chunked(3)
-        //.map { it.plus(listOf(null, null)).take(3) }
       )
     }
   }

@@ -6,7 +6,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.zenandroid.onlinego.data.model.Cell
@@ -22,13 +21,14 @@ import io.zenandroid.onlinego.data.repositories.SettingsRepository
 import io.zenandroid.onlinego.gamelogic.RulesManager
 import io.zenandroid.onlinego.gamelogic.Util
 import io.zenandroid.onlinego.gamelogic.Util.toCoordinateSet
-import io.zenandroid.onlinego.ui.screens.puzzle.PuzzleDirectorySort.RatingSort
 import io.zenandroid.onlinego.utils.recordException
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.Instant.now
@@ -44,18 +44,16 @@ class TsumegoViewModel (
         drawCoordinates = settingsRepository.showCoordinates,
     ))
     val state: StateFlow<TsumegoState> = _state
-    val filterText by mutableStateOf(TextFieldValue())
-    val sortField by mutableStateOf<PuzzleDirectorySort>(RatingSort(false))
-    val resultCollections by mutableStateOf(TextFieldValue())
-    var collectionPuzzles by mutableStateOf(emptyList<Puzzle>())
-        private set
+    private var collectionPuzzles by mutableStateOf(emptyList<Puzzle>())
     private var cursor by mutableIntStateOf(0)
 
     private var moveReplyJob: Job? = null
+    private val errorHandler = CoroutineExceptionHandler { _, throwable -> onError(throwable) }
 
     init {
-        viewModelScope.launch {
-            puzzleRepository.getPuzzle(puzzleId)
+        viewModelScope.launch(errorHandler) { puzzleRepository.fetchPuzzle(puzzleId) }
+        viewModelScope.launch(errorHandler) {
+            puzzleRepository.observePuzzle(puzzleId)
                 .catch { onError(it) }
                 .collect(::setPuzzle)
         }
@@ -93,7 +91,7 @@ class TsumegoViewModel (
 
         fetchSolutions()
         if(collectionPuzzles.isEmpty()) {
-            viewModelScope.launch {
+            viewModelScope.launch(errorHandler) {
                 puzzleRepository.observePuzzleCollectionContents(puzzle.collection?.id ?: puzzle.puzzle.puzzle_collection.toLong())
                     .catch { onError(it) }
                     .collect(::setCollection)
@@ -147,7 +145,7 @@ class TsumegoViewModel (
                 it.x == move.x && it.y == move.y
             } ?: branches.find { it.x == -1 || it.y == -1 }
             branch?.let { node ->
-                moveReplyJob = viewModelScope.launch {
+                moveReplyJob = viewModelScope.launch(errorHandler) {
                     var position = state.value.boardPosition!!
                     position = (RulesManager.makeMove(position, position.nextToMove, move)
                         ?: run {
@@ -219,7 +217,6 @@ class TsumegoViewModel (
                     )
                 }
             }
-            Log.d("MoveTree", state.value.nodeStack.last()?.branches?.toString() ?: "")
         }
         if (_state.value.continueButtonVisible) {
             markSolved()
@@ -255,7 +252,7 @@ class TsumegoViewModel (
     }
 
     private fun markSolved() {
-        viewModelScope.launch {
+        viewModelScope.launch(errorHandler) {
             val record = _state.value.let { PuzzleSolution(
                 puzzle = it.puzzle!!.id,
                 time_elapsed = it.startTime?.let { MILLIS.between(it, now()) } ?: 0,
@@ -268,23 +265,22 @@ class TsumegoViewModel (
     }
 
     private fun fetchSolutions() {
-        updateSolutions()
-        viewModelScope.launch {
-            puzzleRepository.getPuzzleSolution(_state.value.puzzle?.id!!)
+        _state.update { it.copy(solutions = emptyList()) }
+        viewModelScope.launch(errorHandler) { puzzleRepository.fetchPuzzleSolution(_state.value.puzzle?.id!!) }
+        viewModelScope.launch(errorHandler) {
+            puzzleRepository.observePuzzleSolution(_state.value.puzzle?.id!!)
                 .collect(::updateSolutions)
         }
     }
 
-    private fun updateSolutions(solution: List<PuzzleSolution>? = null) {
+    private fun updateSolutions(solution: List<PuzzleSolution>) {
         _state.update {
-            it.copy(
-                solutions = solution?.let { _state.value.solutions.plus(it) } ?: emptyList()
-            )
+            it.copy(solutions = solution)
         }
     }
 
     fun rate(value: Int) {
-        viewModelScope.launch {
+        viewModelScope.launch(errorHandler) {
             puzzleRepository.ratePuzzle(_state.value.puzzle?.id!!, value)
                 .catch { onError(it) }
                 .collect { updateRating(value) }
@@ -292,9 +288,13 @@ class TsumegoViewModel (
     }
 
     private fun fetchRating(id: Long? = null) {
-        viewModelScope.launch {
-            puzzleRepository.getPuzzleRating(id ?: _state.value.puzzle?.id!!)
+        viewModelScope.launch(errorHandler) {
+            puzzleRepository.fetchPuzzleRating(id ?: _state.value.puzzle?.id!!)
+        }
+        viewModelScope.launch(errorHandler) {
+            puzzleRepository.observePuzzleRating(id ?: _state.value.puzzle?.id!!)
                 .catch { updateRating(-1) }
+                .filterNotNull()
                 .collect { updateRating(it.rating) }
         }
     }

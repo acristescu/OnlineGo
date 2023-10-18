@@ -11,13 +11,11 @@ import io.zenandroid.onlinego.data.ogs.OGSRestService
 import io.zenandroid.onlinego.utils.PersistenceManager
 import io.zenandroid.onlinego.utils.recordException
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.time.Instant.now
 
@@ -75,26 +73,30 @@ class PuzzleRepository(
       .distinctUntilChanged()
   }
 
-  suspend fun getPuzzle(id: Long): Flow<Puzzle> {
-    coroutineScope {
-      launch(Dispatchers.IO) {
-        savePuzzlesToDB(listOf(restService.getPuzzle(id)))
-        savePuzzleRatingToDB(restService.getPuzzleRating(id).copy(puzzleId = id))
-        savePuzzleSolutionsToDB(restService.getPuzzleSolutions(id))
-      }
+  suspend fun fetchPuzzle(id: Long) {
+    withContext(Dispatchers.IO) {
+      val puzzle = restService.getPuzzle(id)
+      savePuzzlesToDB(listOf(puzzle))
+      val rating = restService.getPuzzleRating(id)
+      savePuzzleRatingToDB(rating.copy(puzzleId = id))
+      val solutions = restService.getPuzzleSolutions(id)
+      savePuzzleSolutionsToDB(solutions)
     }
+  }
 
+  fun observePuzzle(id: Long): Flow<Puzzle> {
     return dao.getPuzzle(id)
       .distinctUntilChanged()
   }
 
-  suspend fun getPuzzleRating(id: Long): Flow<PuzzleRating> {
-    coroutineScope {
-      launch(Dispatchers.IO) {
-        savePuzzleRatingToDB(restService.getPuzzleRating(id).copy(puzzleId = id))
-      }
+  suspend fun fetchPuzzleRating(id: Long) {
+    withContext(Dispatchers.IO) {
+      val rating = restService.getPuzzleRating(id)
+      savePuzzleRatingToDB(rating.copy(puzzleId = id))
     }
+  }
 
+  suspend fun observePuzzleRating(id: Long): Flow<PuzzleRating> {
     return dao.getPuzzleRating(id)
       .catch {
         emit(
@@ -114,9 +116,14 @@ class PuzzleRepository(
     return flowOf(puzzleRating)
   }
 
-  suspend fun getPuzzleSolution(id: Long): Flow<List<PuzzleSolution>> {
-    savePuzzleSolutionsToDB(restService.getPuzzleSolutions(id))
+  suspend fun fetchPuzzleSolution(id: Long) {
+    withContext(Dispatchers.IO) {
+      val solutions = restService.getPuzzleSolutions(id)
+      savePuzzleSolutionsToDB(solutions)
+    }
+  }
 
+  fun observePuzzleSolution(id: Long): Flow<List<PuzzleSolution>> {
     return dao.getPuzzleSolution(id)
       .catch { emit(emptyList()) }
       .distinctUntilChanged()

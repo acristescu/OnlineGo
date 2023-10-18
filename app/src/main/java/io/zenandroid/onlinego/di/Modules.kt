@@ -72,6 +72,7 @@ import io.zenandroid.onlinego.utils.CustomConverterFactory
 import io.zenandroid.onlinego.utils.NOOPIdlingResource
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.androidx.viewmodel.dsl.viewModelOf
+import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
@@ -133,8 +134,8 @@ private val serverConnectionModule = module {
       .build()
   }
 
-  single { OGSRestService(get(), get(), get(), get()) }
-  single { OGSWebSocketService(get(), get(), get(), get()) }
+  singleOf(::OGSRestService)
+  singleOf(::OGSWebSocketService)
 }
 
 private val databaseModule = module {
@@ -185,10 +186,6 @@ private val viewModelsModule = module {
     )
   }
 
-  viewModel {
-    PuzzleDirectoryViewModel(get(), get(), get())
-  }
-
   viewModel { params ->
     PuzzleSetViewModel(get(), get(), params.get())
   }
@@ -197,17 +194,10 @@ private val viewModelsModule = module {
     TsumegoViewModel(get(), get(), params.get())
   }
 
-  viewModel {
-    NewAutomatchChallengeViewModel()
-  }
-
-  viewModel {
-    NewChallengeViewModel()
-  }
-
-  viewModel {
-    SelectOpponentViewModel(get(), get())
-  }
+  viewModelOf(::PuzzleDirectoryViewModel)
+  viewModelOf(::NewAutomatchChallengeViewModel)
+  viewModelOf(::NewChallengeViewModel)
+  viewModelOf(::SelectOpponentViewModel)
 
   viewModel {
     AiGameViewModel(

@@ -12,6 +12,7 @@ import io.zenandroid.onlinego.data.repositories.SettingsRepository
 import io.zenandroid.onlinego.gamelogic.RulesManager
 import io.zenandroid.onlinego.gamelogic.Util.toCoordinateSet
 import io.zenandroid.onlinego.utils.recordException
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
@@ -26,21 +27,23 @@ class PuzzleSetViewModel(
   private val _state = MutableStateFlow(PuzzleSetState(boardTheme = settingsRepository.boardTheme))
   val state: StateFlow<PuzzleSetState> = _state
 
+  private val errorHandler = CoroutineExceptionHandler { _, throwable -> onError(throwable) }
+
   init {
-    viewModelScope.launch { puzzleRepository.fetchPuzzleCollection(collectionId) }
-    viewModelScope.launch {
+    viewModelScope.launch(errorHandler) { puzzleRepository.fetchPuzzleCollection(collectionId) }
+    viewModelScope.launch(errorHandler) {
       puzzleRepository.observePuzzleCollection(collectionId)
         .catch { onError(it) }
         .collect { setCollection(it) }
     }
 
-    viewModelScope.launch {
+    viewModelScope.launch(errorHandler) {
       puzzleRepository.observePuzzleCollectionContents(collectionId)
         .catch { onError(it) }
         .collect { setCollectionPuzzles(it) }
     }
 
-    viewModelScope.launch {
+    viewModelScope.launch(errorHandler) {
       puzzleRepository.markPuzzleCollectionVisited(collectionId)
     }
   }
@@ -58,8 +61,11 @@ class PuzzleSetViewModel(
   }
 
   fun fetchSolutions(puzzleId: Long) {
-    viewModelScope.launch {
-      puzzleRepository.getPuzzleSolution(puzzleId)
+    viewModelScope.launch(errorHandler) {
+        puzzleRepository.fetchPuzzleSolution(puzzleId)
+    }
+    viewModelScope.launch(errorHandler) {
+      puzzleRepository.observePuzzleSolution(puzzleId)
         .catch { onError(it) }
         .collect { updateSolutions(it) }
     }
