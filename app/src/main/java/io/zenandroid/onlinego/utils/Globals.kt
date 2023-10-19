@@ -1,5 +1,6 @@
 package io.zenandroid.onlinego.utils
 
+import io.zenandroid.onlinego.BuildConfig
 import android.content.Context
 import android.widget.Toast
 import io.zenandroid.onlinego.data.model.local.Clock
@@ -331,6 +332,8 @@ data class TimerDetails (
 )
 
 fun toastException(t: Throwable, long: Boolean = false) {
+    if (!BuildConfig.DEBUG) return
+
     val context: Context = GlobalContext.get().get()
     val length = if (long) Toast.LENGTH_LONG else Toast.LENGTH_SHORT
     Toast.makeText(context, t.toString(), length).show()
