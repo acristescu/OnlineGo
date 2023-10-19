@@ -16,6 +16,7 @@ import java.time.Instant
 @Immutable
 data class TsumegoState (
         val puzzle: Puzzle? = null,
+        val collection: PuzzleCollection? = null,
         val rating: PuzzleRating? = null,
         val solutions: List<PuzzleSolution> = emptyList(),
         val startTime: Instant? = null,

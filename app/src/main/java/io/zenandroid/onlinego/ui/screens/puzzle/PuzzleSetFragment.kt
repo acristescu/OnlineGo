@@ -29,7 +29,7 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.parameter.parametersOf
 import java.time.temporal.ChronoUnit.*
 
-const val COLLECTION_ID = "COLLECTION_ID"
+//const val COLLECTION_ID = "COLLECTION_ID"
 
 private const val TAG = "PuzzleSetFragment"
 

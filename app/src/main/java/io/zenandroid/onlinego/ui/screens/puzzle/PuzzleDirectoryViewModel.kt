@@ -12,6 +12,7 @@ import io.zenandroid.onlinego.ui.screens.puzzle.PuzzleDirectorySort.NameSort
 import io.zenandroid.onlinego.ui.screens.puzzle.PuzzleDirectorySort.RatingSort
 import io.zenandroid.onlinego.ui.screens.puzzle.PuzzleDirectorySort.ViewsSort
 import io.zenandroid.onlinego.utils.recordException
+import io.zenandroid.onlinego.utils.toastException
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -117,6 +118,7 @@ class PuzzleDirectoryViewModel(
 
   private fun onError(t: Throwable) {
     Log.e(this::class.java.canonicalName, t.message, t)
+    toastException(t)
     recordException(t)
   }
 

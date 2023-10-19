@@ -35,7 +35,7 @@ class PuzzleDirectoryFragment : Fragment() {
 
                     PuzzleDirectoryScreen(
                         state = state,
-                        onCollection = ::navigateToCollectionScreen,
+                        onCollection = ::navigateToPuzzleScreen,
                         onBack = { findNavController().navigateUp() },
                         onSortChanged = { viewModel.onSortChanged(it) },
                         onFilterChanged = { viewModel.onFilterChanged(it) },
@@ -46,11 +46,12 @@ class PuzzleDirectoryFragment : Fragment() {
         }
     }
 
-    private fun navigateToCollectionScreen(collection: PuzzleCollection) {
+    private fun navigateToPuzzleScreen(collection: PuzzleCollection) {
         findNavController().navigate(
-            R.id.puzzleSetFragment,
+            R.id.tsumegoFragment,
             bundleOf(
                 COLLECTION_ID to collection.id,
+                PUZZLE_ID to collection.starting_puzzle.id,
             ),
             NavOptions.Builder()
                 .setLaunchSingleTop(true)

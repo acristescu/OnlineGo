@@ -25,13 +25,16 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.parameter.parametersOf
 import java.time.temporal.ChronoUnit.*
 
+const val COLLECTION_ID = "COLLECTION_ID"
 const val PUZZLE_ID = "PUZZLE_ID"
 
 private const val TAG = "TsumegoFragment"
 
 class TsumegoFragment : Fragment() {
     private val viewModel: TsumegoViewModel by viewModel {
-        parametersOf(arguments!!.getLong(PUZZLE_ID))
+        parametersOf(
+            arguments!!.getLong(COLLECTION_ID),
+            arguments!!.getLong(PUZZLE_ID))
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {

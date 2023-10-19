@@ -1,6 +1,7 @@
 package io.zenandroid.onlinego.ui.screens.puzzle
 
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -12,6 +13,7 @@ import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.Mark
 import io.zenandroid.onlinego.data.model.StoneType
 import io.zenandroid.onlinego.data.model.local.Puzzle
+import io.zenandroid.onlinego.data.model.local.PuzzleCollection
 import io.zenandroid.onlinego.data.model.ogs.MoveTree
 import io.zenandroid.onlinego.data.model.ogs.PlayCategory
 import io.zenandroid.onlinego.data.model.ogs.PuzzleRating
@@ -22,43 +24,76 @@ import io.zenandroid.onlinego.gamelogic.RulesManager
 import io.zenandroid.onlinego.gamelogic.Util
 import io.zenandroid.onlinego.gamelogic.Util.toCoordinateSet
 import io.zenandroid.onlinego.utils.recordException
+import io.zenandroid.onlinego.utils.toastException
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.cancellable
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.single
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.Instant.now
 import java.time.temporal.ChronoUnit.MILLIS
 
-class TsumegoViewModel (
+class TsumegoViewModel(
     private val puzzleRepository: PuzzleRepository,
     private val settingsRepository: SettingsRepository,
-    private val puzzleId: Long
+    private val collectionId: Long,
+    private val puzzleId: Long,
 ): ViewModel() {
     private val _state = MutableStateFlow(TsumegoState(
         boardTheme = settingsRepository.boardTheme,
         drawCoordinates = settingsRepository.showCoordinates,
     ))
     val state: StateFlow<TsumegoState> = _state
-    private var collectionPuzzles by mutableStateOf(emptyList<Puzzle>())
+    private var puzzleContents by mutableStateOf(emptyList<Puzzle>())
     private var cursor by mutableIntStateOf(0)
 
     private var moveReplyJob: Job? = null
+    private var ratingsWatchJob: Job? = null
     private val errorHandler = CoroutineExceptionHandler { _, throwable -> onError(throwable) }
 
     init {
         viewModelScope.launch(errorHandler) { puzzleRepository.fetchPuzzle(puzzleId) }
         viewModelScope.launch(errorHandler) {
             puzzleRepository.observePuzzle(puzzleId)
+                .filterNotNull()
                 .catch { onError(it) }
-                .collect(::setPuzzle)
+                .collect {
+                    cursor = puzzleContents.indexOfFirst { it.id == _state.value.puzzle?.id }
+                    setPuzzle(it)
+                }
         }
 
-        fetchRating(puzzleId)
+        viewModelScope.launch(errorHandler) {
+            puzzleRepository.markPuzzleCollectionVisited(collectionId)
+        }
+
+        viewModelScope.launch(errorHandler) { puzzleRepository.fetchPuzzleCollection(collectionId) }
+        viewModelScope.launch(errorHandler) {
+            puzzleRepository.observePuzzleCollection(collectionId)
+                .filterNotNull()
+                .catch { onError(it) }
+                .collect(::setCollection)
+        }
+        viewModelScope.launch(errorHandler) {
+            puzzleRepository.observePuzzleCollectionContents(collectionId)
+                .filterNotNull()
+                .catch { onError(it) }
+                .collect(::setPuzzleCollectionContents)
+        }
+
+        ratingsWatchJob = viewModelScope.launch(errorHandler) {
+            puzzleRepository.observePuzzleRating(puzzleId)
+                .filterNotNull()
+                .cancellable()
+                .catch { updateRating(-1) }
+                .collect { updateRating(it.rating) }
+        }
     }
 
     private fun setPuzzle(puzzle: Puzzle, attempts: Int = 1) {
@@ -90,22 +125,15 @@ class TsumegoViewModel (
         }
 
         fetchSolutions()
-        if(collectionPuzzles.isEmpty()) {
-            viewModelScope.launch(errorHandler) {
-                puzzleRepository.observePuzzleCollectionContents(puzzle.collection?.id ?: puzzle.puzzle.puzzle_collection.toLong())
-                    .catch { onError(it) }
-                    .collect(::setCollection)
-            }
-        }
     }
 
-    private fun setCollection(puzzles: List<Puzzle>) {
-        collectionPuzzles = puzzles
-        cursor = puzzles.indexOfFirst { it.id == _state.value.puzzle?.id }
+    private fun setPuzzleCollectionContents(puzzles: List<Puzzle>) {
+        puzzleContents = puzzles
+        cursor = puzzleContents.indexOfFirst { it.id == _state.value.puzzle?.id }
     }
 
     val hasNextPuzzle: Boolean by derivedStateOf {
-        cursor < collectionPuzzles.size - 1
+        cursor < puzzleContents.size - 1
     }
 
     val hasPreviousPuzzle: Boolean by derivedStateOf {
@@ -117,7 +145,7 @@ class TsumegoViewModel (
 
         val index = cursor + 1
         cursor = index
-        val puzzle = collectionPuzzles[index]
+        val puzzle = puzzleContents[index]
         setPuzzle(puzzle)
         fetchRating()
     }
@@ -133,7 +161,7 @@ class TsumegoViewModel (
 
         val index = cursor - 1
         cursor = index
-        val puzzle = collectionPuzzles[index]
+        val puzzle = puzzleContents[index]
         setPuzzle(puzzle)
         fetchRating()
     }
@@ -251,6 +279,12 @@ class TsumegoViewModel (
         }
     }
 
+    private fun setCollection(collection: PuzzleCollection) {
+        _state.update {
+            it.copy(collection = collection)
+        }
+    }
+
     private fun markSolved() {
         viewModelScope.launch(errorHandler) {
             val record = _state.value.let { PuzzleSolution(
@@ -291,10 +325,12 @@ class TsumegoViewModel (
         viewModelScope.launch(errorHandler) {
             puzzleRepository.fetchPuzzleRating(id ?: _state.value.puzzle?.id!!)
         }
-        viewModelScope.launch(errorHandler) {
+        ratingsWatchJob?.cancel()
+        ratingsWatchJob = viewModelScope.launch(errorHandler) {
             puzzleRepository.observePuzzleRating(id ?: _state.value.puzzle?.id!!)
-                .catch { updateRating(-1) }
                 .filterNotNull()
+                .cancellable()
+                .catch { updateRating(-1) }
                 .collect { updateRating(it.rating) }
         }
     }
@@ -309,6 +345,7 @@ class TsumegoViewModel (
 
     private fun onError(t: Throwable) {
         Log.e(this::class.java.canonicalName, t.message, t)
+        toastException(t)
         recordException(t)
     }
 }

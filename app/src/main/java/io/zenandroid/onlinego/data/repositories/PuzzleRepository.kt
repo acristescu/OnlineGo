@@ -96,7 +96,7 @@ class PuzzleRepository(
     }
   }
 
-  suspend fun observePuzzleRating(id: Long): Flow<PuzzleRating> {
+  fun observePuzzleRating(id: Long): Flow<PuzzleRating> {
     return dao.getPuzzleRating(id)
       .catch {
         emit(
