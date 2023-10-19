@@ -38,6 +38,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.Instant.now
 import java.time.temporal.ChronoUnit.MILLIS
+import org.jsoup.Jsoup
 
 class TsumegoViewModel(
     private val puzzleRepository: PuzzleRepository,
@@ -100,6 +101,7 @@ class TsumegoViewModel(
         _state.update {
             it.copy(
                 puzzle = puzzle,
+                description = parseHtml(puzzle.puzzle.puzzle_description),
                 boardPosition = puzzle.puzzle.let {
                     RulesManager.buildPos(moves = emptyList(),
                         boardWidth = it.width, boardHeight = it.height,
@@ -341,6 +343,11 @@ class TsumegoViewModel(
                 rating = PuzzleRating(rating = value)
             )
         }
+    }
+
+    private fun parseHtml(body: String): String {
+        val document = Jsoup.parseBodyFragment(body)
+        return document.body().text()
     }
 
     private fun onError(t: Throwable) {

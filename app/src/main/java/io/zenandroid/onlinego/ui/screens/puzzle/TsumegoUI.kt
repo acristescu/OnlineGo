@@ -158,7 +158,7 @@ fun TsumegoScreen(
                                 text = state.nodeStack.let { stack ->
                                     stack.lastOrNull()?.text
                                         ?: stack.dropLast(1).lastOrNull()?.text
-                                } ?: it.puzzle_description,
+                                } ?: state.description,
                                 textAlign = TextAlign.Center,
                                 style = MaterialTheme.typography.body2,
                                 fontSize = 16.sp,

@@ -17,6 +17,7 @@ import java.time.Instant
 data class TsumegoState (
         val puzzle: Puzzle? = null,
         val collection: PuzzleCollection? = null,
+        val description: String = "",
         val rating: PuzzleRating? = null,
         val solutions: List<PuzzleSolution> = emptyList(),
         val startTime: Instant? = null,
