@@ -28,6 +28,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -81,6 +82,12 @@ fun PuzzleDirectoryScreen(
           Icon(imageVector = Icons.Default.ArrowBack, contentDescription = null)
         }
       },
+      colors = TopAppBarDefaults.topAppBarColors(
+        containerColor = androidx.compose.material.MaterialTheme.colors.surface,
+        titleContentColor = androidx.compose.material.MaterialTheme.colors.onSurface,
+        actionIconContentColor = androidx.compose.material.MaterialTheme.colors.onSurface,
+        navigationIconContentColor = androidx.compose.material.MaterialTheme.colors.onSurface,
+      ),
     )
 
     LazyColumn(
@@ -96,6 +103,7 @@ fun PuzzleDirectoryScreen(
               Icon(
                 imageVector = Icons.Default.Search,
                 contentDescription = null,
+                tint = androidx.compose.material.MaterialTheme.colors.onSurface,
               )
             }
           },
@@ -146,6 +154,8 @@ fun PuzzleDirectoryScreen(
       ) {
         Surface(
           shape = MaterialTheme.shapes.medium,
+          color = androidx.compose.material.MaterialTheme.colors.surface,
+          contentColor = androidx.compose.material.MaterialTheme.colors.onSurface,
           modifier = Modifier
             .height(150.dp)
             .fillMaxWidth()
