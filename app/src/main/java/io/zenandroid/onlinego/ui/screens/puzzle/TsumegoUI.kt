@@ -3,6 +3,9 @@ package io.zenandroid.onlinego.ui.screens.puzzle
 import androidx.compose.animation.*
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -13,6 +16,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -24,6 +28,7 @@ import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.StoneType
 import io.zenandroid.onlinego.data.model.local.Puzzle
 import io.zenandroid.onlinego.ui.composables.Board
+import io.zenandroid.onlinego.ui.composables.ExposedLazyDropdownMenu
 import io.zenandroid.onlinego.ui.composables.RatingBar
 import io.zenandroid.onlinego.ui.screens.puzzle.TsumegoAction.*
 import kotlinx.coroutines.flow.collect
@@ -55,12 +60,13 @@ fun TsumegoScreen(
     ) {
         TopAppBar(
             title = {
-              //Text(
-              //    text = title,
-              //    fontSize = 18.sp,
-              //    modifier = Modifier.weight(1f)
-              //)
                 var expanded by remember { mutableStateOf(false) }
+				val selectedPuzzleIndex = collection.indexOfFirst {
+					it.id == state.puzzle?.id
+				}.takeUnless { it == -1 }
+                val listState = rememberLazyListState(
+					initialFirstVisibleItemIndex = selectedPuzzleIndex ?: 0
+				)
                 ExposedDropdownMenuBox(
                     expanded = expanded,
                     onExpandedChange = {
@@ -87,20 +93,68 @@ fun TsumegoScreen(
                         textStyle = LocalTextStyle.current.copy(fontSize = 18.sp),
                         modifier = Modifier.weight(1f)
                     )
-                    ExposedDropdownMenu(
+                    LaunchedEffect(expanded) {
+                        if (expanded) {
+                            selectedPuzzleIndex?.let { listState.animateScrollToItem(it) }
+                        }
+                    }
+                    ExposedLazyDropdownMenu(
                         expanded = expanded,
+						items = collection,
                         onDismissRequest = {
                             expanded = false
-                        }
-                    ) {
-                        collection.forEachIndexed { i, puzzle ->
-                            DropdownMenuItem(
-                                onClick = {
-                                    onSelectPuzzle(i)
-                                    expanded = false
-                                }
+                        },
+						scrollState = listState,
+						verticalArrangement = Arrangement.spacedBy(2.dp),
+                    ) { i, puzzle ->
+                        DropdownMenuItem(
+                            onClick = {
+                                onSelectPuzzle(i)
+                                expanded = false
+                            }
+                        ) {
+                            val selected = puzzle.id == state.puzzle?.id
+
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
                             ) {
-                                Text(text = puzzle.name)
+                                if (!(i > 1 && i < 5))
+                                    Image(
+                                        painter = painterResource(R.drawable.ic_go_board),
+                                        contentDescription = "Board",
+                                        contentScale = ContentScale.Fit,
+                                        modifier = Modifier
+                                            .height(64.dp)
+                                            .width(64.dp)
+                                            .padding(end = 10.dp)
+                                            .clip(MaterialTheme.shapes.small),
+                                    )
+                                else
+                                    Board(
+                                        boardWidth = puzzle.puzzle.width,
+                                        boardHeight = puzzle.puzzle.height,
+                                        position = state.boardPosition,
+                                        boardTheme = state.boardTheme,
+                                        drawCoordinates = false,
+                                        interactive = false,
+                                        drawShadow = false,
+                                        fadeInLastMove = false,
+                                        fadeOutRemovedStones = false,
+                                        modifier = Modifier
+                                            .height(64.dp)
+                                            .width(64.dp)
+                                            .padding(end = 10.dp)
+                                            .clip(MaterialTheme.shapes.small)
+                                    )
+                                Text(
+                                    text = puzzle.name,
+                                    fontSize = 18.sp,
+                                    fontWeight = if (selected) FontWeight.Bold
+                                                 else FontWeight.Normal,
+                                    modifier = Modifier
+                                        .align(Alignment.CenterVertically)
+                                )
                             }
                         }
                     }
