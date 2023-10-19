@@ -22,6 +22,7 @@ import com.google.accompanist.pager.*
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.StoneType
+import io.zenandroid.onlinego.data.model.local.Puzzle
 import io.zenandroid.onlinego.ui.composables.Board
 import io.zenandroid.onlinego.ui.composables.RatingBar
 import io.zenandroid.onlinego.ui.screens.puzzle.TsumegoAction.*
@@ -39,29 +40,71 @@ fun TsumegoScreen(
     state: TsumegoState,
     hasPreviousPuzzle: Boolean,
     hasNextPuzzle: Boolean,
+    collection: List<Puzzle>,
     onMove: (Cell) -> Unit,
     onHint: () -> Unit,
     onResetPuzzle: () -> Unit,
     onRate: (Int) -> Unit,
     onPreviousPuzzle: () -> Unit,
+    onSelectPuzzle: (Int) -> Unit,
     onNextPuzzle: () -> Unit,
     onBack: () -> Unit,
 ) {
     Column (
         modifier = Modifier.fillMaxHeight()
     ) {
-        val title = "Tsumego".let { base ->
-            state.puzzle?.name?.let {
-                "${base}: ${it}"
-            } ?: base
-        }
         TopAppBar(
             title = {
-                Text(
-                    text = title,
-                    fontSize = 18.sp,
+              //Text(
+              //    text = title,
+              //    fontSize = 18.sp,
+              //    modifier = Modifier.weight(1f)
+              //)
+                var expanded by remember { mutableStateOf(false) }
+                ExposedDropdownMenuBox(
+                    expanded = expanded,
+                    onExpandedChange = {
+                        expanded = !expanded
+                    },
                     modifier = Modifier.weight(1f)
-                )
+                ) {
+                    TextField(
+                        readOnly = true,
+                        value = "Tsumego".let { base ->
+                            state.puzzle?.name?.let {
+                                "${base}: ${it}"
+                            } ?: base
+                        },
+                        onValueChange = { },
+                        trailingIcon = {
+                            ExposedDropdownMenuDefaults.TrailingIcon(
+                                expanded = expanded
+                            )
+                        },
+                        colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(
+                            textColor = MaterialTheme.colors.onSurface,
+                        ),
+                        textStyle = LocalTextStyle.current.copy(fontSize = 18.sp),
+                        modifier = Modifier.weight(1f)
+                    )
+                    ExposedDropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = {
+                            expanded = false
+                        }
+                    ) {
+                        collection.forEachIndexed { i, puzzle ->
+                            DropdownMenuItem(
+                                onClick = {
+                                    onSelectPuzzle(i)
+                                    expanded = false
+                                }
+                            ) {
+                                Text(text = puzzle.name)
+                            }
+                        }
+                    }
+                }
                 if(state.solutions.size > 0) {
                     Image(painter = painterResource(R.drawable.ic_check_circle),
                         modifier = Modifier

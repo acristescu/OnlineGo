@@ -50,11 +50,13 @@ class TsumegoFragment : Fragment() {
                         state = state,
                         hasPreviousPuzzle = viewModel.hasPreviousPuzzle,
                         hasNextPuzzle = viewModel.hasNextPuzzle,
+                        collection = viewModel.puzzleContents,
                         onMove = { viewModel.makeMove(it) },
                         onHint = { viewModel.addBoardHints() },
                         onResetPuzzle = { viewModel.resetPuzzle() },
                         onRate = { viewModel.rate(it) },
                         onPreviousPuzzle = { viewModel.previousPuzzle() },
+                        onSelectPuzzle = { viewModel.selectPuzzle(it) },
                         onNextPuzzle = { viewModel.nextPuzzle() },
                         onBack = { findNavController().navigateUp() },
                     )

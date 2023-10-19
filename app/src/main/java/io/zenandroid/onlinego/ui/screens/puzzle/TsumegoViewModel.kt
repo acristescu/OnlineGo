@@ -51,7 +51,8 @@ class TsumegoViewModel(
         drawCoordinates = settingsRepository.showCoordinates,
     ))
     val state: StateFlow<TsumegoState> = _state
-    private var puzzleContents by mutableStateOf(emptyList<Puzzle>())
+    var puzzleContents by mutableStateOf(emptyList<Puzzle>())
+        private set
     private var cursor by mutableIntStateOf(0)
 
     private var moveReplyJob: Job? = null
@@ -156,6 +157,15 @@ class TsumegoViewModel(
         val puzzle = _state.value.puzzle!!
         val attempts = _state.value.attemptCount + 1
         setPuzzle(puzzle, attempts)
+    }
+
+    fun selectPuzzle(index: Int) {
+        if(index < 0 || index >= puzzleContents.size) return
+
+        cursor = index
+        val puzzle = puzzleContents[index]
+        setPuzzle(puzzle)
+        fetchRating()
     }
 
     fun previousPuzzle() {
