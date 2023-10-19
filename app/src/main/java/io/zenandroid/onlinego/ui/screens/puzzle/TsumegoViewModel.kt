@@ -24,7 +24,6 @@ import io.zenandroid.onlinego.gamelogic.RulesManager
 import io.zenandroid.onlinego.gamelogic.Util
 import io.zenandroid.onlinego.gamelogic.Util.toCoordinateSet
 import io.zenandroid.onlinego.utils.recordException
-import io.zenandroid.onlinego.utils.toastException
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -362,7 +361,6 @@ class TsumegoViewModel(
 
     private fun onError(t: Throwable) {
         Log.e(this::class.java.canonicalName, t.message, t)
-        toastException(t)
         recordException(t)
     }
 }
