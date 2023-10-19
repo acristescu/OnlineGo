@@ -7,7 +7,10 @@ import io.zenandroid.onlinego.data.model.local.PuzzleCollection
 import io.zenandroid.onlinego.data.model.local.VisitedPuzzleCollection
 import io.zenandroid.onlinego.data.repositories.PuzzleRepository
 import io.zenandroid.onlinego.data.repositories.SettingsRepository
+import io.zenandroid.onlinego.ui.screens.puzzle.PuzzleDirectorySort.CountSort
+import io.zenandroid.onlinego.ui.screens.puzzle.PuzzleDirectorySort.NameSort
 import io.zenandroid.onlinego.ui.screens.puzzle.PuzzleDirectorySort.RatingSort
+import io.zenandroid.onlinego.ui.screens.puzzle.PuzzleDirectorySort.ViewsSort
 import io.zenandroid.onlinego.utils.recordException
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
@@ -21,29 +24,39 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.util.SortedMap
 
 class PuzzleDirectoryViewModel(
   private val puzzleRepository: PuzzleRepository,
   private val settingsRepository: SettingsRepository,
 ) : ViewModel() {
-  private val _state =
-    MutableStateFlow(PuzzleDirectoryState(boardTheme = settingsRepository.boardTheme))
+  private val _state = MutableStateFlow(
+    PuzzleDirectoryState(
+      boardTheme = settingsRepository.boardTheme,
+      availableSorts = listOf(
+        RatingSort(false),
+        ViewsSort(false),
+        NameSort(false),
+        CountSort(false),
+      ),
+      currentSort = RatingSort(false),
+    )
+  )
   val state: StateFlow<PuzzleDirectoryState> = _state
-  var filterText = MutableStateFlow("")
-  var sortField = MutableStateFlow<PuzzleDirectorySort>(RatingSort(false))
+  private val filterText = MutableStateFlow("")
+  private val sortField = MutableStateFlow<PuzzleDirectorySort>(RatingSort(false))
+  private val alreadyOpened = MutableStateFlow(false)
   private val errorHandler = CoroutineExceptionHandler { _, throwable -> onError(throwable) }
 
   init {
     viewModelScope.launch(errorHandler) { puzzleRepository.fetchAllPuzzleCollections() }
     viewModelScope.launch(errorHandler) {
-      puzzleRepository.observeAllPuzzleCollections()
-        .map {
-          it.associateBy(PuzzleCollection::id)
-        }
-        .let {
-          combine(it, filterText.map { it.lowercase() }, sortField, ::filterCollections)
-        }
+      combine(
+        puzzleRepository.observeAllPuzzleCollections(),
+        filterText.map { it.lowercase() },
+        sortField,
+        alreadyOpened,
+        ::filterCollections
+      )
         .catch { onError(it) }
         .collect { setCollections(it) }
     }
@@ -65,21 +78,20 @@ class PuzzleDirectoryViewModel(
   }
 
   private fun filterCollections(
-    collections: Map<Long, PuzzleCollection>,
-    filter: String, sort: PuzzleDirectorySort
-  ): SortedMap<Long, PuzzleCollection> {
+    collections: List<PuzzleCollection>,
+    filter: String, sort: PuzzleDirectorySort,
+    alreadyOpened: Boolean,
+  ): List<PuzzleCollection> {
     return collections
       .filter {
-        it.value.name.lowercase().contains(filter)
-            || it.value.owner?.username?.lowercase()?.contains(filter) == true
+        (it.name.lowercase().contains(filter) || it.owner?.username?.lowercase()
+          ?.contains(filter) == true) &&
+            (!alreadyOpened || state.value.recents.containsKey(it.id))
       }
-      .let {
-        val compare = sort.comparator::compare
-        it.toSortedMap { a, b -> compare(it[a], it[b]) }
-      }
+      .sortedWith(sort.comparator)
   }
 
-  private fun setCollections(collections: SortedMap<Long, PuzzleCollection>) {
+  private fun setCollections(collections: List<PuzzleCollection>) {
     _state.update {
       it.copy(collections = collections)
     }
@@ -106,5 +118,26 @@ class PuzzleDirectoryViewModel(
   private fun onError(t: Throwable) {
     Log.e(this::class.java.canonicalName, t.message, t)
     recordException(t)
+  }
+
+  fun onToggleOnlyOpened() {
+    alreadyOpened.value = !alreadyOpened.value
+    _state.update {
+      it.copy(onlyOpenend = !it.onlyOpenend)
+    }
+  }
+
+  fun onSortChanged(sort: PuzzleDirectorySort) {
+    sortField.value = sort
+    _state.update {
+      it.copy(currentSort = sort)
+    }
+  }
+
+  fun onFilterChanged(filter: String) {
+    filterText.value = filter
+    _state.update {
+      it.copy(filterString = filter)
+    }
   }
 }
