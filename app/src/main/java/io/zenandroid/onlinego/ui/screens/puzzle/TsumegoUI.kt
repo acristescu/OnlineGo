@@ -49,6 +49,7 @@ fun TsumegoScreen(
     hasNextPuzzle: Boolean,
     collection: List<Puzzle>,
     positions: Map<Long, Position>,
+    ratings: Map<Long, Float?>,
     renderCollectionPuzzle: (Int) -> Unit,
     onMove: (Cell) -> Unit,
     onHint: () -> Unit,
@@ -113,6 +114,7 @@ fun TsumegoScreen(
 						verticalArrangement = Arrangement.spacedBy(2.dp),
                     ) { i, puzzle ->
                         val position = positions[puzzle.id]
+                        val rating = ratings[puzzle.id]
                         LaunchedEffect(position) {
                             if (position == null) {
                                 renderCollectionPuzzle(i)
@@ -173,14 +175,27 @@ fun TsumegoScreen(
                                             .clip(MaterialTheme.shapes.small)
                                     )
 
-                                Text(
-                                    text = puzzle.name,
-                                    fontSize = 18.sp,
-                                    fontWeight = if (selected) FontWeight.Bold
-                                                 else FontWeight.Normal,
+                                Column(
                                     modifier = Modifier
-                                        .align(Alignment.CenterVertically)
-                                )
+                                        .fillMaxHeight()
+                                ) {
+                                    Text(
+                                        text = puzzle.name,
+                                        fontSize = 18.sp,
+                                        fontWeight = if (selected) FontWeight.Bold
+                                                     else FontWeight.Normal,
+                                        maxLines = 1,
+                                        modifier = Modifier
+                                            .padding(top = 10.dp),
+                                    )
+                                    rating?.let {
+                                        RatingBar(
+                                            rating = it,
+                                            modifier = Modifier
+                                                .height(16.dp)
+                                        )
+                                    } ?: Spacer(modifier = Modifier.height(16.dp))
+                                }
                             }
                         }
                     }

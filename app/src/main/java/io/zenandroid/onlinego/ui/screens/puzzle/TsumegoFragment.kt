@@ -52,6 +52,7 @@ class TsumegoFragment : Fragment() {
                         hasNextPuzzle = viewModel.hasNextPuzzle,
                         collection = viewModel.collectionContents,
                         positions = viewModel.collectionPositions,
+                        ratings = viewModel.collectionRatings,
                         renderCollectionPuzzle = viewModel::renderCollectionPuzzle,
                         onMove = { viewModel.makeMove(it) },
                         onHint = { viewModel.addBoardHints() },

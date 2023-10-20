@@ -33,7 +33,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.cancellable
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.single
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -56,6 +58,8 @@ class TsumegoViewModel(
     var collectionContents by mutableStateOf(emptyList<Puzzle>())
         private set
     var collectionPositions by mutableStateOf(emptyMap<Long, Position>())
+        private set
+    var collectionRatings by mutableStateOf(emptyMap<Long, Float?>())
         private set
     private var cursor by mutableIntStateOf(0)
 
@@ -141,19 +145,42 @@ class TsumegoViewModel(
 
     fun renderCollectionPuzzle(index: Int) {
         val puzzle = collectionContents[index]
-        viewModelScope.launch {
-            val position = puzzle.puzzle.let {
-                RulesManager.buildPos(
-                    moves = emptyList(),
-                    boardWidth = it.width,
-                    boardHeight = it.height,
-                    whiteInitialState = it.initial_state.white.toCoordinateSet(),
-                    blackInitialState = it.initial_state.black.toCoordinateSet()
-                )
-            } ?: return@launch
-            withContext(Dispatchers.Main) {
-                collectionPositions = collectionPositions.toMutableMap().apply {
-                    put(puzzle.id, position)
+
+        viewModelScope.launch(errorHandler) {
+            withContext(Dispatchers.IO) {
+                val position = puzzle.puzzle.let {
+                    RulesManager.buildPos(
+                        moves = emptyList(),
+                        boardWidth = it.width,
+                        boardHeight = it.height,
+                        whiteInitialState = it.initial_state.white.toCoordinateSet(),
+                        blackInitialState = it.initial_state.black.toCoordinateSet()
+                    )
+                } ?: return@withContext
+
+                withContext(Dispatchers.Main) {
+                    collectionPositions = collectionPositions.toMutableMap().apply {
+                        put(puzzle.id, position)
+                    }
+                }
+            }
+        }
+
+        viewModelScope.launch(errorHandler) {
+            val ratingFlow = puzzleRepository.observePuzzleRating(puzzle.id)
+                .filterNotNull()
+                .map { it.rating.toFloat() }
+                .catch { emit(0f) }
+
+            val solutionsFlow = puzzleRepository.observePuzzleSolutions(puzzle.id)
+                .catch { emit(emptyList()) }
+
+            combine(ratingFlow, solutionsFlow) { rating, solutions ->
+                if (solutions.isEmpty()) null
+                else rating
+            }.collect {
+                collectionRatings = collectionRatings.toMutableMap().apply {
+                    put(puzzle.id, it)
                 }
             }
         }
@@ -336,9 +363,9 @@ class TsumegoViewModel(
 
     private fun fetchSolutions() {
         _state.update { it.copy(solutions = emptyList()) }
-        viewModelScope.launch(errorHandler) { puzzleRepository.fetchPuzzleSolution(_state.value.puzzle?.id!!) }
+        viewModelScope.launch(errorHandler) { puzzleRepository.fetchPuzzleSolutions(_state.value.puzzle?.id!!) }
         viewModelScope.launch(errorHandler) {
-            puzzleRepository.observePuzzleSolution(_state.value.puzzle?.id!!)
+            puzzleRepository.observePuzzleSolutions(_state.value.puzzle?.id!!)
                 .collect(::updateSolutions)
         }
     }

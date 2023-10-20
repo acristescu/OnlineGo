@@ -62,10 +62,10 @@ class PuzzleSetViewModel(
 
   fun fetchSolutions(puzzleId: Long) {
     viewModelScope.launch(errorHandler) {
-        puzzleRepository.fetchPuzzleSolution(puzzleId)
+        puzzleRepository.fetchPuzzleSolutions(puzzleId)
     }
     viewModelScope.launch(errorHandler) {
-      puzzleRepository.observePuzzleSolution(puzzleId)
+      puzzleRepository.observePuzzleSolutions(puzzleId)
         .catch { onError(it) }
         .collect { updateSolutions(it) }
     }

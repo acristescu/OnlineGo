@@ -116,14 +116,14 @@ class PuzzleRepository(
     return flowOf(puzzleRating)
   }
 
-  suspend fun fetchPuzzleSolution(id: Long) {
+  suspend fun fetchPuzzleSolutions(id: Long) {
     withContext(Dispatchers.IO) {
       val solutions = restService.getPuzzleSolutions(id)
       savePuzzleSolutionsToDB(solutions)
     }
   }
 
-  fun observePuzzleSolution(id: Long): Flow<List<PuzzleSolution>> {
+  fun observePuzzleSolutions(id: Long): Flow<List<PuzzleSolution>> {
     return dao.getPuzzleSolution(id)
       .catch { emit(emptyList()) }
       .distinctUntilChanged()
