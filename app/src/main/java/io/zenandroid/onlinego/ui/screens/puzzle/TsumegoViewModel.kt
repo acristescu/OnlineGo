@@ -11,6 +11,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.Mark
+import io.zenandroid.onlinego.data.model.Position
 import io.zenandroid.onlinego.data.model.StoneType
 import io.zenandroid.onlinego.data.model.local.Puzzle
 import io.zenandroid.onlinego.data.model.local.PuzzleCollection
@@ -25,6 +26,7 @@ import io.zenandroid.onlinego.gamelogic.Util
 import io.zenandroid.onlinego.gamelogic.Util.toCoordinateSet
 import io.zenandroid.onlinego.utils.recordException
 import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -35,6 +37,7 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.single
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.time.Instant.now
 import java.time.temporal.ChronoUnit.MILLIS
 import org.jsoup.Jsoup
@@ -50,7 +53,9 @@ class TsumegoViewModel(
         drawCoordinates = settingsRepository.showCoordinates,
     ))
     val state: StateFlow<TsumegoState> = _state
-    var puzzleContents by mutableStateOf(emptyList<Puzzle>())
+    var collectionContents by mutableStateOf(emptyList<Puzzle>())
+        private set
+    var collectionPositions by mutableStateOf(emptyMap<Long, Position>())
         private set
     private var cursor by mutableIntStateOf(0)
 
@@ -65,7 +70,7 @@ class TsumegoViewModel(
                 .filterNotNull()
                 .catch { onError(it) }
                 .collect {
-                    cursor = puzzleContents.indexOfFirst { it.id == _state.value.puzzle?.id }
+                    cursor = collectionContents.indexOfFirst { it.id == _state.value.puzzle?.id }
                     setPuzzle(it)
                 }
         }
@@ -130,12 +135,32 @@ class TsumegoViewModel(
     }
 
     private fun setPuzzleCollectionContents(puzzles: List<Puzzle>) {
-        puzzleContents = puzzles
-        cursor = puzzleContents.indexOfFirst { it.id == _state.value.puzzle?.id }
+        collectionContents = puzzles
+        cursor = collectionContents.indexOfFirst { it.id == _state.value.puzzle?.id }
+    }
+
+    fun renderCollectionPuzzle(index: Int) {
+        val puzzle = collectionContents[index]
+        viewModelScope.launch {
+            val position = puzzle.puzzle.let {
+                RulesManager.buildPos(
+                    moves = emptyList(),
+                    boardWidth = it.width,
+                    boardHeight = it.height,
+                    whiteInitialState = it.initial_state.white.toCoordinateSet(),
+                    blackInitialState = it.initial_state.black.toCoordinateSet()
+                )
+            } ?: return@launch
+            withContext(Dispatchers.Main) {
+                collectionPositions = collectionPositions.toMutableMap().apply {
+                    put(puzzle.id, position)
+                }
+            }
+        }
     }
 
     val hasNextPuzzle: Boolean by derivedStateOf {
-        cursor < puzzleContents.size - 1
+        cursor < collectionContents.size - 1
     }
 
     val hasPreviousPuzzle: Boolean by derivedStateOf {
@@ -147,7 +172,7 @@ class TsumegoViewModel(
 
         val index = cursor + 1
         cursor = index
-        val puzzle = puzzleContents[index]
+        val puzzle = collectionContents[index]
         setPuzzle(puzzle)
         fetchRating()
     }
@@ -159,10 +184,10 @@ class TsumegoViewModel(
     }
 
     fun selectPuzzle(index: Int) {
-        if(index < 0 || index >= puzzleContents.size) return
+        if(index < 0 || index >= collectionContents.size) return
 
         cursor = index
-        val puzzle = puzzleContents[index]
+        val puzzle = collectionContents[index]
         setPuzzle(puzzle)
         fetchRating()
     }
@@ -172,7 +197,7 @@ class TsumegoViewModel(
 
         val index = cursor - 1
         cursor = index
-        val puzzle = puzzleContents[index]
+        val puzzle = collectionContents[index]
         setPuzzle(puzzle)
         fetchRating()
     }

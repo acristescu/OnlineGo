@@ -1,6 +1,7 @@
 package io.zenandroid.onlinego.ui.screens.puzzle
 
 import androidx.compose.animation.*
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -25,6 +26,7 @@ import androidx.compose.ui.unit.sp
 import com.google.accompanist.pager.*
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.Cell
+import io.zenandroid.onlinego.data.model.Position
 import io.zenandroid.onlinego.data.model.StoneType
 import io.zenandroid.onlinego.data.model.local.Puzzle
 import io.zenandroid.onlinego.ui.composables.Board
@@ -46,6 +48,8 @@ fun TsumegoScreen(
     hasPreviousPuzzle: Boolean,
     hasNextPuzzle: Boolean,
     collection: List<Puzzle>,
+    positions: Map<Long, Position>,
+    renderCollectionPuzzle: (Int) -> Unit,
     onMove: (Cell) -> Unit,
     onHint: () -> Unit,
     onResetPuzzle: () -> Unit,
@@ -98,6 +102,7 @@ fun TsumegoScreen(
                             selectedPuzzleIndex?.let { listState.animateScrollToItem(it) }
                         }
                     }
+                    val infiniteTransition = rememberInfiniteTransition()
                     ExposedLazyDropdownMenu(
                         expanded = expanded,
 						items = collection,
@@ -107,6 +112,13 @@ fun TsumegoScreen(
 						scrollState = listState,
 						verticalArrangement = Arrangement.spacedBy(2.dp),
                     ) { i, puzzle ->
+                        val position = positions[puzzle.id]
+                        LaunchedEffect(position) {
+                            if (position == null) {
+                                renderCollectionPuzzle(i)
+                            }
+                        }
+
                         DropdownMenuItem(
                             onClick = {
                                 onSelectPuzzle(i)
@@ -119,22 +131,35 @@ fun TsumegoScreen(
                                 modifier = Modifier
                                     .fillMaxWidth()
                             ) {
-                                if (!(i > 1 && i < 5))
-                                    Image(
+                                val tint by infiniteTransition.animateColor(
+                                    initialValue = LocalContentColor.current.copy(
+                                        alpha = 0.1f),
+                                    targetValue = LocalContentColor.current.copy(
+                                        alpha = 0.5f),
+                                    animationSpec = infiniteRepeatable(
+                                        animation = tween(
+                                            durationMillis = 1000,
+                                            easing = LinearEasing,
+                                        ),
+                                        repeatMode = RepeatMode.Reverse
+                                    )
+                                )
+                                if (position == null)
+                                    Icon(
                                         painter = painterResource(R.drawable.ic_go_board),
                                         contentDescription = "Board",
-                                        contentScale = ContentScale.Fit,
+                                        tint = tint,
                                         modifier = Modifier
                                             .height(64.dp)
                                             .width(64.dp)
-                                            .padding(end = 10.dp)
+                                            .padding(end = 20.dp)
                                             .clip(MaterialTheme.shapes.small),
                                     )
                                 else
                                     Board(
                                         boardWidth = puzzle.puzzle.width,
                                         boardHeight = puzzle.puzzle.height,
-                                        position = state.boardPosition,
+                                        position = position,
                                         boardTheme = state.boardTheme,
                                         drawCoordinates = false,
                                         interactive = false,
@@ -147,6 +172,7 @@ fun TsumegoScreen(
                                             .padding(end = 10.dp)
                                             .clip(MaterialTheme.shapes.small)
                                     )
+
                                 Text(
                                     text = puzzle.name,
                                     fontSize = 18.sp,
