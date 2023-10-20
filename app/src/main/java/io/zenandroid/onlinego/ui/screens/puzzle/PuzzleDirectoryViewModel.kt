@@ -115,6 +115,11 @@ class PuzzleDirectoryViewModel(
     }
   }
 
+  suspend fun getFirstUnsolvedForCollection(collection: PuzzleCollection): Long {
+    return puzzleRepository.getPuzzleCollectionFirstUnsolved(collection.id)
+        ?: collection.starting_puzzle.id
+  }
+
   private fun onError(t: Throwable) {
     Log.e(this::class.java.canonicalName, t.message, t)
     recordException(t)

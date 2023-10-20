@@ -137,6 +137,10 @@ class PuzzleRepository(
       .map { it.associateBy({ it.collectionId }, { it.count }) }
   }
 
+  suspend fun getPuzzleCollectionFirstUnsolved(id: Long): Long? {
+    return dao.getPuzzleCollectionFirstUnsolved(id)
+  }
+
   suspend fun markPuzzleSolved(id: Long, record: PuzzleSolution) {
     restService.markPuzzleSolved(id, record)
     savePuzzleSolutionsToDB(listOf(record))

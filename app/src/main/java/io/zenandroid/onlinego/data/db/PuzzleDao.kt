@@ -61,4 +61,12 @@ abstract class PuzzleDao {
             " GROUP BY puzzle.puzzle_puzzle_collection")
     abstract fun getPuzzleCollectionSolutions(): Flow<List<PuzzleCollectionSolutionMetadata>>
 
+    @Query("SELECT puzzle.id FROM puzzle" +
+            " LEFT JOIN puzzlesolution ON puzzlesolution.puzzle = puzzle.id" +
+            " WHERE puzzle_puzzle_collection = :collectionId" +
+            " GROUP BY puzzlesolution.puzzle" +
+            " HAVING COUNT(puzzlesolution.id) == 0" +
+            " LIMIT 1")
+    abstract suspend fun getPuzzleCollectionFirstUnsolved(collectionId: Long): Long?
+
 }
