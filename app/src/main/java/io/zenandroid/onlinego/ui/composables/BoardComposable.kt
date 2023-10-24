@@ -28,6 +28,7 @@ import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.data.model.BoardTheme
 import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.Position
@@ -35,6 +36,7 @@ import io.zenandroid.onlinego.data.model.StoneType
 import io.zenandroid.onlinego.data.model.ogs.PlayCategory
 import io.zenandroid.onlinego.data.repositories.SettingsRepository
 import io.zenandroid.onlinego.gamelogic.RulesManager.isPass
+import io.zenandroid.onlinego.utils.recordException
 import org.koin.core.context.GlobalContext
 import kotlin.math.ceil
 import kotlin.math.roundToInt
@@ -68,6 +70,12 @@ fun Board(
 
         // Board background image, it is either a jpg or a svg
         val backgroundImage: ImageBitmap? = boardTheme.backgroundImage?.let {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                boardTheme.backgroundImage.run {
+                    Exception("blep: $this, ${OnlineGoApplication.instance.getDrawable(this)}")
+                        .let(::recordException)
+                }
+            }
             ImageBitmap.imageResource(id = boardTheme.backgroundImage)
         }
         val backgroundColor: Color? = boardTheme.backgroundColor?.let {

@@ -19,7 +19,7 @@ class HintMiddleware : Middleware<AiGameState, AiGameAction> {
                 .flatMap { (_, state) ->
                     KataGoAnalysisEngine.analyzeMoveSequence(
                             sequence = state.history,
-                            maxVisits = 30,
+                            //maxVisits = 30,
                             komi = state.position?.komi ?: 0f,
                             includeOwnership = false
                     )

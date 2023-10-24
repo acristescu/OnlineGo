@@ -1,6 +1,7 @@
 package io.zenandroid.onlinego.ui.screens.localai.middlewares
 
 import android.os.Bundle
+import android.util.Log
 import androidx.core.os.bundleOf
 import io.reactivex.Observable
 import io.reactivex.rxkotlin.withLatestFrom
@@ -18,8 +19,9 @@ class AnalyticsMiddleware: Middleware<AiGameState, AiGameAction> {
     override fun bind(actions: Observable<AiGameAction>, state: Observable<AiGameState>): Observable<AiGameAction> {
         return actions.withLatestFrom(state)
                 .doOnNext { (action, state) ->
+                    Log.d("ai.state", "${action::class.simpleName}: ${action.toString()}")
                     when(action) {
-                        CantRestoreState, ViewReady, is RestoredState, ViewPaused, ShowNewGameDialog, DismissNewGameDialog, PromptUserForMove, is NewPosition, is UserHotTrackedCoordinate, is AIOwnershipResponse,
+                        CantRestoreState, is ViewReady, is RestoredState, ViewPaused, ShowNewGameDialog, DismissNewGameDialog, PromptUserForMove, is NewPosition, is UserHotTrackedCoordinate, is AIOwnershipResponse,
                         HideOwnership -> Unit
                         is NewGame -> {
                             analytics.logEvent("ai_game_new_game", null)
@@ -35,7 +37,7 @@ class AnalyticsMiddleware: Middleware<AiGameState, AiGameAction> {
                         is AIMove -> analytics.logEvent("katago_move", null)
                         is AIHint -> analytics.logEvent("katago_hint", null)
 
-                        is ScoreComputed -> if(action.aiWon) {
+                        is ScoreComputed -> if(action.whiteWon) {
                             analytics.logEvent("katago_won", Bundle().apply {
                                 OnlineGoApplication.instance.get< UserSessionRepository>().uiConfig?.user?.ranking?.let {
                                     putInt("RANKING", it)
@@ -60,6 +62,9 @@ class AnalyticsMiddleware: Middleware<AiGameState, AiGameAction> {
                         UserAskedForOwnership -> analytics.logEvent("ai_game_user_asked_territory", null)
                         is UserTriedSuicidalMove -> analytics.logEvent("ai_game_user_tried_suicide", null)
                         is UserTriedKoMove -> analytics.logEvent("ai_game_user_tried_ko", null)
+                        NextPlayerChanged -> analytics.logEvent("ai_game_next_player_changed", null)
+                        ToggleAIBlack -> analytics.logEvent("ai_game_toggled_ai_black", null)
+                        ToggleAIWhite -> analytics.logEvent("ai_game_toggled_ai_white", null)
                     }
                 }
                 .switchMap { Observable.empty<AiGameAction>() }

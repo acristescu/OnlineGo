@@ -9,10 +9,11 @@ import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.databinding.BottomSheetNewAiGameBinding
 
 private const val SIZE = "AI_GAME_SIZE"
-private const val COLOR = "AI_GAME_COLOR"
 private const val HANDICAP = "AI_GAME_HANDICAP"
+private const val AI_BLACK = "AI_GAME_PLAY_BLACK"
+private const val AI_WHITE = "AI_GAME_PLAY_WHITE"
 
-class NewGameBottomSheet(context: Context, private val onOk: (Int, Boolean, Int) -> Unit) : BottomSheetDialog(context) {
+class NewGameBottomSheet(context: Context, private val onOk: (Int, Boolean, Boolean, Int) -> Unit, private val onLoad: () -> Unit, private val onSave: () -> Unit) : BottomSheetDialog(context) {
     private val prefs = PreferenceManager.getDefaultSharedPreferences(context)!!
     private lateinit var binding: BottomSheetNewAiGameBinding
 
@@ -32,9 +33,22 @@ class NewGameBottomSheet(context: Context, private val onOk: (Int, Boolean, Int)
                 else -> 19
             }
             val youPlayBlack = binding.blackButton.isChecked
+            val youPlayWhite = binding.whiteButton.isChecked
             val handicap = binding.handicapSlider.value.toInt()
             saveSettings()
-            onOk.invoke(selectedSize, youPlayBlack, handicap)
+            onOk.invoke(selectedSize, youPlayBlack, youPlayWhite, handicap)
+        }
+
+        binding.loadButton.setOnClickListener {
+            dismiss()
+            saveSettings()
+            onLoad()
+        }
+
+        binding.saveButton.setOnClickListener {
+            dismiss()
+            saveSettings()
+            onSave()
         }
 
         binding.handicapSlider.addOnChangeListener { _, value, _ ->
@@ -68,12 +82,12 @@ class NewGameBottomSheet(context: Context, private val onOk: (Int, Boolean, Int)
         }
         binding.sizeToggleGroup.check(checkedSizeButtonId)
 
-        val checkedColorButtonId = when(prefs.getInt(COLOR, 0)) {
-            0 -> R.id.blackButton
-            1 -> R.id.whiteButton
-            else -> -1
+        if(prefs.getBoolean(AI_WHITE, false)) {
+            binding.colorToggleGroup.check(R.id.whiteButton)
         }
-        binding.colorToggleGroup.check(checkedColorButtonId)
+        if(prefs.getBoolean(AI_BLACK, false)) {
+            binding.colorToggleGroup.check(R.id.blackButton)
+        }
 
         binding.handicapSlider.value = prefs.getFloat(HANDICAP, 0f)
         setLabel(binding.handicapSlider.value)
@@ -87,9 +101,9 @@ class NewGameBottomSheet(context: Context, private val onOk: (Int, Boolean, Int)
         }
         prefs.edit()
                 .putInt(SIZE, selectedSize)
-                .putInt(COLOR, if (binding.blackButton.isChecked) 0 else 1)
+                .putBoolean(AI_BLACK, binding.blackButton.isChecked)
+                .putBoolean(AI_WHITE, binding.whiteButton.isChecked)
                 .putFloat(HANDICAP, binding.handicapSlider.value)
                 .apply()
     }
-
 }

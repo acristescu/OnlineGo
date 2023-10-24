@@ -76,8 +76,8 @@
         android:id="@+id/colorToggleGroup"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:singleSelection="true"
-        app:selectionRequired="true"
+        app:singleSelection="false"
+        app:selectionRequired="false"
         app:checkedButton="@id/blackButton"
         >
         <com.google.android.material.button.MaterialButton
@@ -132,15 +132,46 @@
         android:layout_marginTop="4dp"
         app:tickColor="#00000000"
         />
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/playButton"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="New game"
-        android:layout_gravity="center"
+        android:orientation="horizontal"
         android:layout_marginTop="20dp"
-        android:textColor="#FFFFFF"
-        android:textStyle="bold"
-        />
+        >
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/playButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="New game"
+            android:layout_gravity="center"
+            android:layout_marginEnd="6dp"
+            android:textColor="#FFFFFF"
+            android:textStyle="bold"
+            />
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/loadButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Load SGF"
+            android:layout_gravity="center"
+            android:layout_marginStart="6dp"
+            android:layout_marginEnd="6dp"
+            android:textColor="#FFFFFF"
+            android:textStyle="bold"
+            />
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/saveButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Save SGF"
+            android:layout_gravity="center"
+            android:layout_marginStart="6dp"
+            android:textColor="#FFFFFF"
+            android:textStyle="bold"
+            />
+    </LinearLayout>
 
 </LinearLayout>

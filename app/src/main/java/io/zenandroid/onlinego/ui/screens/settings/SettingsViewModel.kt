@@ -13,7 +13,9 @@ import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.CoordinatesClic
 import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.DeleteAccountCanceled
 import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.DeleteAccountClicked
 import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.DeleteAccountConfirmed
+import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.DetailedAnalysisClicked
 import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.LogoutClicked
+import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.MaxVisitsChanged
 import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.NotificationsClicked
 import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.PrivacyClicked
 import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.RanksClicked
@@ -37,6 +39,8 @@ class SettingsViewModel(
       sounds = settingsRepository.sound,
       ranks = settingsRepository.showRanks,
       coordinates = settingsRepository.showCoordinates,
+      maxVisits = settingsRepository.maxVisits.toDouble(),
+      detailedAnalysis = settingsRepository.detailedAnalysis,
       username = userSessionRepository.uiConfig?.user?.username ?: "",
       avatarURL = userSessionRepository.uiConfig?.user?.icon,
     )
@@ -52,6 +56,16 @@ class SettingsViewModel(
       RanksClicked -> {
         settingsRepository.showRanks = !state.value.ranks
         state.update { it.copy(ranks = !it.ranks) }
+      }
+
+      is MaxVisitsChanged -> {
+        settingsRepository.maxVisits = action.value.toInt()
+        state.update { it.copy(maxVisits = action.value) }
+      }
+
+      DetailedAnalysisClicked -> {
+        settingsRepository.detailedAnalysis = !settingsRepository.detailedAnalysis
+        state.update { it.copy(detailedAnalysis = !it.detailedAnalysis) }
       }
 
       SoundsClicked -> {
@@ -158,6 +172,8 @@ data class SettingsState(
   val sounds: Boolean = true,
   val ranks: Boolean = true,
   val coordinates: Boolean = true,
+  val maxVisits: Double = 30.0,
+  val detailedAnalysis: Boolean = false,
   val username: String = "",
   val avatarURL: String? = null,
   val passwordDialogVisible: Boolean = false,
@@ -171,6 +187,8 @@ sealed interface SettingsAction {
   data class ThemeClicked(val theme: String) : SettingsAction
   data class BoardThemeClicked(val boardDisplayName: String) : SettingsAction
   data object CoordinatesClicked : SettingsAction
+  data class MaxVisitsChanged(val value: Double) : SettingsAction
+  data object DetailedAnalysisClicked : SettingsAction
   data object RanksClicked : SettingsAction
   data object LogoutClicked : SettingsAction
   data object DeleteAccountClicked : SettingsAction

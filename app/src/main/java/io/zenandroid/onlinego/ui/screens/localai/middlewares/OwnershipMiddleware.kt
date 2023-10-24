@@ -20,7 +20,7 @@ class OwnershipMiddleware : Middleware<AiGameState, AiGameAction> {
                     } else {
                         KataGoAnalysisEngine.analyzeMoveSequence(
                                 sequence = state.history,
-                                maxVisits = 30,
+                                //maxVisits = 30,
                                 komi = state.position!!.komi,
                                 includeOwnership = true
                         ).map {

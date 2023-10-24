@@ -30,7 +30,7 @@
         app:cardBackgroundColor="#FFFFFF"
         app:cardCornerRadius="15dp"
         app:cardElevation="2dp"
-        app:layout_constraintBottom_toTopOf="@id/nameLabelLeft"
+        app:layout_constraintBottom_toTopOf="@id/nameButtonLeft"
         app:layout_constraintDimensionRatio="h,1:1"
         app:layout_constraintHeight_max="80dp"
         app:layout_constraintLeft_toLeftOf="parent"
@@ -97,8 +97,8 @@
         android:layout_marginRight="8dp"
         />
 
-    <TextView
-        android:id="@+id/nameLabelLeft"
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/nameButtonLeft"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="KataGO"
@@ -107,7 +107,13 @@
         app:layout_constraintBottom_toTopOf="@id/board_container"
         app:layout_constraintLeft_toLeftOf="@id/iconContainerLeft"
         app:layout_constraintRight_toLeftOf="@id/colorIndicatorLeft"
-        app:layout_constraintTop_toBottomOf="@id/iconContainerLeft" />
+        app:layout_constraintTop_toBottomOf="@id/iconContainerLeft"
+        style="@style/AIChatButton"
+        android:textColor="@color/colorTextSecondary"
+        android:paddingLeft="0dp"
+        android:paddingRight="0dp"
+        android:layout_marginRight="8dp"
+        />
 
     <ImageView
         android:id="@+id/colorIndicatorLeft"
@@ -118,13 +124,13 @@
         android:backgroundTint="@android:color/black"
         android:padding="1dp"
         android:src="@drawable/ic_check_circle"
-        app:layout_constraintBottom_toBottomOf="@id/nameLabelLeft"
-        app:layout_constraintLeft_toRightOf="@id/nameLabelLeft"
+        app:layout_constraintBottom_toBottomOf="@id/nameButtonLeft"
+        app:layout_constraintLeft_toRightOf="@id/nameButtonLeft"
         app:layout_constraintRight_toRightOf="@id/iconContainerLeft"
-        app:layout_constraintTop_toTopOf="@id/nameLabelLeft" />
+        app:layout_constraintTop_toTopOf="@id/nameButtonLeft" />
 
-    <TextView
-        android:id="@+id/nameLabelRight"
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/nameButtonRight"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:ellipsize="end"
@@ -136,7 +142,13 @@
         app:layout_constraintBottom_toTopOf="@id/board_container"
         app:layout_constraintLeft_toRightOf="@id/colorIndicatorRight"
         app:layout_constraintRight_toRightOf="@id/iconContainerRight"
-        app:layout_constraintTop_toBottomOf="@id/iconContainerRight" />
+        app:layout_constraintTop_toBottomOf="@id/iconContainerRight"
+        style="@style/AIChatButton"
+        android:textColor="@color/colorTextSecondary"
+        android:paddingLeft="0dp"
+        android:paddingRight="0dp"
+        android:layout_marginRight="8dp"
+        />
 
     <ImageView
         android:id="@+id/colorIndicatorRight"
@@ -147,10 +159,10 @@
         android:backgroundTint="@android:color/black"
         android:padding="1dp"
         android:src="@drawable/ic_check_circle"
-        app:layout_constraintBottom_toBottomOf="@id/nameLabelRight"
+        app:layout_constraintBottom_toBottomOf="@id/nameButtonRight"
         app:layout_constraintLeft_toLeftOf="@id/iconContainerRight"
-        app:layout_constraintRight_toLeftOf="@id/nameLabelRight"
-        app:layout_constraintTop_toTopOf="@id/nameLabelRight"
+        app:layout_constraintRight_toLeftOf="@id/nameButtonRight"
+        app:layout_constraintTop_toTopOf="@id/nameButtonRight"
         app:tint="@android:color/black" />
 
 
@@ -183,10 +195,10 @@
         android:layout_height="wrap_content"
         android:text="Prisoners"
         android:textSize="12sp"
-        app:layout_constraintBottom_toTopOf="@id/nameLabelLeft"
+        app:layout_constraintBottom_toTopOf="@id/nameButtonLeft"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="@id/nameLabelLeft" />
+        app:layout_constraintTop_toTopOf="@id/nameButtonLeft" />
 
     <TextView
         android:id="@+id/komiLabel"
@@ -249,7 +261,7 @@
         app:cardPreventCornerOverlap="false"
         app:layout_constraintBottom_toTopOf="@id/winrateLabel"
         app:layout_constraintDimensionRatio="1:1"
-        app:layout_constraintTop_toBottomOf="@id/nameLabelLeft"
+        app:layout_constraintTop_toBottomOf="@id/nameButtonLeft"
         >
 
         <io.zenandroid.onlinego.ui.views.BoardView
@@ -322,7 +334,7 @@
                 android:foreground="?android:attr/selectableItemBackground"
                 android:paddingTop="10dp"
                 android:paddingBottom="10dp"
-                app:srcCompat="@drawable/ic_board"
+                app:srcCompat="@drawable/ic_menu_hamburger"
                 app:tint="@color/disable_black" />
 
             <androidx.appcompat.widget.AppCompatImageView
