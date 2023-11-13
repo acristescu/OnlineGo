@@ -81,7 +81,7 @@ data class Game(
     @Embedded(prefix = "pause_")
     val pauseControl: PauseControl? = null,
 
-    var annulled: Boolean? = null,
+    val annulled: Boolean? = null,
 ) {
     @Ignore
     @Transient

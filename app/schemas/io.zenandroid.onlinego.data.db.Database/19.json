@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 19,
-    "identityHash": "663fe997f969a7482d686033eda123dd",
+    "identityHash": "fdb1c03341f02a5ecdcc7e357c5ed5cb",
     "entities": [
       {
         "tableName": "Game",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `width` INTEGER NOT NULL, `height` INTEGER NOT NULL, `playerToMoveId` INTEGER, `outcome` TEXT, `whiteLost` INTEGER, `blackLost` INTEGER, `whiteGoesFirst` INTEGER, `moves` TEXT, `removedStones` TEXT, `phase` TEXT, `komi` REAL, `ended` INTEGER, `freeHandicapPlacement` INTEGER, `handicap` INTEGER, `undoRequested` INTEGER, `scoreAGAHandicap` INTEGER, `scoreHandicap` INTEGER, `scorePasses` INTEGER, `scorePrisoners` INTEGER, `scoreStones` INTEGER, `scoreTerritory` INTEGER, `scoreTerritoryInSeki` INTEGER, `name` TEXT, `rules` TEXT, `ranked` INTEGER, `disableAnalysis` INTEGER, `pausedSince` INTEGER, `messagesCount` INTEGER, `initial_state_black` TEXT, `initial_state_white` TEXT, `white_handicap` INTEGER, `white_komi` REAL, `white_prisoners` INTEGER, `white_scoring_positions` TEXT, `white_stones` INTEGER, `white_territory` INTEGER, `white_total` REAL, `black_handicap` INTEGER, `black_komi` REAL, `black_prisoners` INTEGER, `black_scoring_positions` TEXT, `black_stones` INTEGER, `black_territory` INTEGER, `black_total` REAL, `white_id` INTEGER NOT NULL, `white_username` TEXT NOT NULL, `white_rating` REAL, `white_historicRating` REAL, `white_country` TEXT, `white_icon` TEXT, `white_acceptedStones` TEXT, `white_ui_class` TEXT, `white_deviation` REAL, `black_id` INTEGER NOT NULL, `black_username` TEXT NOT NULL, `black_rating` REAL, `black_historicRating` REAL, `black_country` TEXT, `black_icon` TEXT, `black_acceptedStones` TEXT, `black_ui_class` TEXT, `black_deviation` REAL, `lastMove` INTEGER, `expiration` INTEGER, `now` INTEGER, `receivedAt` INTEGER, `whiteTimeSimple` INTEGER, `blackTimeSimple` INTEGER, `newPausedSince` INTEGER, `newPausedState` INTEGER, `startMode` INTEGER, `white_thinking_time` REAL, `white_skip_bonus` INTEGER, `white_block_time` REAL, `white_periods` INTEGER, `white_period_time` REAL, `white_moves_left` INTEGER, `black_thinking_time` REAL, `black_skip_bonus` INTEGER, `black_block_time` REAL, `black_periods` INTEGER, `black_period_time` REAL, `black_moves_left` INTEGER, `initial_state_system` TEXT, `initial_state_pause_on_weekends` INTEGER, `initial_state_time_control` TEXT, `initial_state_initial_time` INTEGER, `initial_state_max_time` INTEGER, `initial_state_time_increment` INTEGER, `initial_state_speed` TEXT, `initial_state_per_move` INTEGER, `initial_state_main_time` INTEGER, `initial_state_periods` INTEGER, `initial_state_period_time` INTEGER, `initial_state_stones_per_period` INTEGER, `initial_state_total_time` INTEGER, `pause_vacationWhite` INTEGER, `pause_vacationBlack` INTEGER, `pause_weekend` INTEGER, `pause_stoneRemoval` INTEGER, `pause_server` INTEGER, `pause_moderator` INTEGER, `pause_pausedByThirdParty` INTEGER, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `width` INTEGER NOT NULL, `height` INTEGER NOT NULL, `playerToMoveId` INTEGER, `outcome` TEXT, `whiteLost` INTEGER, `blackLost` INTEGER, `whiteGoesFirst` INTEGER, `moves` TEXT, `removedStones` TEXT, `phase` TEXT, `komi` REAL, `ended` INTEGER, `freeHandicapPlacement` INTEGER, `handicap` INTEGER, `undoRequested` INTEGER, `scoreAGAHandicap` INTEGER, `scoreHandicap` INTEGER, `scorePasses` INTEGER, `scorePrisoners` INTEGER, `scoreStones` INTEGER, `scoreTerritory` INTEGER, `scoreTerritoryInSeki` INTEGER, `name` TEXT, `rules` TEXT, `ranked` INTEGER, `disableAnalysis` INTEGER, `pausedSince` INTEGER, `messagesCount` INTEGER, `annulled` INTEGER, `initial_state_black` TEXT, `initial_state_white` TEXT, `white_handicap` INTEGER, `white_komi` REAL, `white_prisoners` INTEGER, `white_scoring_positions` TEXT, `white_stones` INTEGER, `white_territory` INTEGER, `white_total` REAL, `black_handicap` INTEGER, `black_komi` REAL, `black_prisoners` INTEGER, `black_scoring_positions` TEXT, `black_stones` INTEGER, `black_territory` INTEGER, `black_total` REAL, `white_id` INTEGER NOT NULL, `white_username` TEXT NOT NULL, `white_rating` REAL, `white_historicRating` REAL, `white_country` TEXT, `white_icon` TEXT, `white_acceptedStones` TEXT, `white_ui_class` TEXT, `white_deviation` REAL, `black_id` INTEGER NOT NULL, `black_username` TEXT NOT NULL, `black_rating` REAL, `black_historicRating` REAL, `black_country` TEXT, `black_icon` TEXT, `black_acceptedStones` TEXT, `black_ui_class` TEXT, `black_deviation` REAL, `lastMove` INTEGER, `expiration` INTEGER, `now` INTEGER, `receivedAt` INTEGER, `whiteTimeSimple` INTEGER, `blackTimeSimple` INTEGER, `newPausedSince` INTEGER, `newPausedState` INTEGER, `startMode` INTEGER, `white_thinking_time` REAL, `white_skip_bonus` INTEGER, `white_block_time` REAL, `white_periods` INTEGER, `white_period_time` REAL, `white_moves_left` INTEGER, `black_thinking_time` REAL, `black_skip_bonus` INTEGER, `black_block_time` REAL, `black_periods` INTEGER, `black_period_time` REAL, `black_moves_left` INTEGER, `initial_state_system` TEXT, `initial_state_pause_on_weekends` INTEGER, `initial_state_time_control` TEXT, `initial_state_initial_time` INTEGER, `initial_state_max_time` INTEGER, `initial_state_time_increment` INTEGER, `initial_state_speed` TEXT, `initial_state_per_move` INTEGER, `initial_state_main_time` INTEGER, `initial_state_periods` INTEGER, `initial_state_period_time` INTEGER, `initial_state_stones_per_period` INTEGER, `initial_state_total_time` INTEGER, `pause_vacationWhite` INTEGER, `pause_vacationBlack` INTEGER, `pause_weekend` INTEGER, `pause_stoneRemoval` INTEGER, `pause_server` INTEGER, `pause_moderator` INTEGER, `pause_pausedByThirdParty` INTEGER, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -179,6 +179,12 @@
           {
             "fieldPath": "messagesCount",
             "columnName": "messagesCount",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "annulled",
+            "columnName": "annulled",
             "affinity": "INTEGER",
             "notNull": false
           },
@@ -1856,7 +1862,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '663fe997f969a7482d686033eda123dd')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'fdb1c03341f02a5ecdcc7e357c5ed5cb')"
     ]
   }
 }
