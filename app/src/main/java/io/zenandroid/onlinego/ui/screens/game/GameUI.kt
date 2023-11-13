@@ -441,6 +441,12 @@ private fun GameInfoDialog(state: GameState, onUserAction: (UserAction) -> Unit)
                 .padding(16.dp)
         ) {
             Spacer(modifier = Modifier.height(100.dp))
+            Text(
+                text = if (state.ranked) "Ranked" else "Unranked",
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.h3,
+                color = MaterialTheme.colors.onSurface,
+            )
             Text(text = buildAnnotatedString {
                 pushStyle(SpanStyle(fontWeight = Bold))
                 append(state.blackPlayer?.name ?: "?")
@@ -464,6 +470,23 @@ private fun GameInfoDialog(state: GameState, onUserAction: (UserAction) -> Unit)
             ScoreRow(state.blackScore.stones?.toString(), state.whiteScore.stones?.toString(), "stones")
             ScoreRow(state.blackScore.territory?.toString(), state.whiteScore.territory?.toString(), "territory")
             ScoreRow(state.blackScore.total?.toInt()?.toString(), state.whiteScore.total?.toString(), "total")
+            Text(
+                text = "Time",
+                style = MaterialTheme.typography.h3,
+                color = MaterialTheme.colors.onSurface,
+                modifier = Modifier.padding(top = 14.dp, bottom = 8.dp)
+            )
+            Row {
+                Text(
+                    text = state.timerDescription ?: "",
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.caption,
+                    color = MaterialTheme.colors.onSurface,
+                    modifier = Modifier
+                        .width(0.dp)
+                        .weight(1f),
+                )
+            }
         }
         Board(
             boardWidth = state.gameWidth,

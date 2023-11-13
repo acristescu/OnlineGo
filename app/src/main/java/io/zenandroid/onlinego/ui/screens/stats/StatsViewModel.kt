@@ -13,11 +13,15 @@ import io.zenandroid.onlinego.data.model.local.UserStats
 import io.zenandroid.onlinego.data.model.local.WinLossStats
 import io.zenandroid.onlinego.data.model.ogs.OGSPlayer
 import io.zenandroid.onlinego.data.ogs.OGSRestService
+import io.zenandroid.onlinego.data.repositories.SettingsRepository
 import io.zenandroid.onlinego.ui.screens.stats.StatsViewModel.Filter.ALL
+import io.zenandroid.onlinego.ui.screens.stats.StatsViewModel.Filter.ALL_GAMES
 import io.zenandroid.onlinego.ui.screens.stats.StatsViewModel.Filter.FIVE_YEARS
+import io.zenandroid.onlinego.ui.screens.stats.StatsViewModel.Filter.HUNDRED_GAMES
 import io.zenandroid.onlinego.ui.screens.stats.StatsViewModel.Filter.ONE_MONTH
 import io.zenandroid.onlinego.ui.screens.stats.StatsViewModel.Filter.ONE_YEAR
 import io.zenandroid.onlinego.ui.screens.stats.StatsViewModel.Filter.THREE_MONTHS
+import io.zenandroid.onlinego.ui.screens.stats.StatsViewModel.Filter.TWENTY_GAMES
 import io.zenandroid.onlinego.usecases.GetUserStatsUseCase
 import io.zenandroid.onlinego.utils.addToDisposable
 import io.zenandroid.onlinego.utils.egfToRank
@@ -36,6 +40,7 @@ import java.util.Locale
 class StatsViewModel(
   private val restService: OGSRestService,
   private val getUserStatsUseCase: GetUserStatsUseCase,
+  private val settingsRepository: SettingsRepository,
   private val playerId: Long
 ) : ViewModel() {
 
@@ -66,6 +71,15 @@ class StatsViewModel(
     }
   }
 
+  fun onGraphChanged() {
+    stats?.let {
+      settingsRepository.graphByGames = !settingsRepository.graphByGames
+      state.value = state.value.copy(
+        collapseTimeByGame = settingsRepository.graphByGames,
+      )
+    }
+  }
+
   fun onFilterChanged(filter: Filter) {
     currentFilter = filter
     stats?.let { stats ->
@@ -77,6 +91,9 @@ class StatsViewModel(
             ONE_YEAR -> stats.chartData1Y
             FIVE_YEARS -> stats.chartData5Y
             ALL -> stats.chartDataAll
+            TWENTY_GAMES -> stats.chartData20G
+            HUNDRED_GAMES -> stats.chartData100G
+            ALL_GAMES -> stats.chartDataAllG
           },
           filter = filter,
         )
@@ -101,6 +118,9 @@ class StatsViewModel(
       ONE_YEAR -> stats.chartData1Y
       FIVE_YEARS -> stats.chartData5Y
       ALL -> stats.chartDataAll
+      TWENTY_GAMES -> stats.chartData20G
+      HUNDRED_GAMES -> stats.chartData100G
+      ALL_GAMES -> stats.chartDataAllG
     }
     val lostCount = stats.lostCount
     val wonCount = stats.wonCount
@@ -137,6 +157,7 @@ class StatsViewModel(
         recentResults = "$recentWins - $recentLosses",
         startDate = startDate,
         endDate = endDate,
+        collapseTimeByGame = settingsRepository.graphByGames,
         allGames = stats.allGames,
         smallBoard = stats.smallBoard,
         mediumBoard = stats.mediumBoard,
@@ -198,7 +219,10 @@ class StatsViewModel(
     THREE_MONTHS,
     ONE_YEAR,
     FIVE_YEARS,
-    ALL
+    ALL,
+    TWENTY_GAMES,
+    HUNDRED_GAMES,
+    ALL_GAMES
   }
 
   @Immutable
@@ -222,6 +246,7 @@ class StatsViewModel(
     val mostFacedWon: Int?,
     val highestWin: OGSPlayer?,
     val winningGame: HistoryItem?,
+    val collapseTimeByGame: Boolean?,
     val filter: Filter = ONE_MONTH,
     val allGames: WinLossStats?,
     val smallBoard: WinLossStats?,
@@ -254,6 +279,7 @@ class StatsViewModel(
         mostFacedWon = null,
         highestWin = null,
         winningGame = null,
+        collapseTimeByGame = null,
         allGames = null,
         smallBoard = null,
         mediumBoard = null,

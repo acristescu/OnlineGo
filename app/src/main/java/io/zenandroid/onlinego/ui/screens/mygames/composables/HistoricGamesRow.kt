@@ -91,6 +91,9 @@ fun HistoricGameLazyRow(
                             "Black won"
                         else ->
                             "White won"
+                    }.let {
+                        if (game.annulled != true) it
+                        else it + " - Annulled"
                     }
                     Text(
                         text = outcome,

@@ -12,6 +12,7 @@ import io.zenandroid.onlinego.usecases.RepoResult.Success
 import io.zenandroid.onlinego.utils.recordException
 import java.time.LocalDateTime
 import java.time.ZoneOffset
+import kotlin.math.min
 
 class GetUserStatsUseCase (
     private val restService: OGSRestService,
@@ -68,7 +69,7 @@ class GetUserStatsUseCase (
         }
     }
 
-    private fun generateChartData(duration: Long?, groupCount: Int, rawData: List<HistoryItem>): List<Entry> {
+    private fun generateChartDataByDuration(duration: Long?, groupCount: Int, rawData: List<HistoryItem>): List<Entry> {
         if(rawData.isEmpty()) {
             return emptyList()
         }
@@ -87,6 +88,17 @@ class GetUserStatsUseCase (
         }.filter { it.y != 0f }
     }
 
+    private fun generateChartDataByGame(gameCount: Int?, rawData: List<HistoryItem>): List<Entry> {
+        if(rawData.isEmpty()) {
+            return emptyList()
+        }
+        val gameCount = gameCount?.coerceAtMost(rawData.size) ?: rawData.size
+        val dataIndex = rawData.size - gameCount
+        return (dataIndex until rawData.size).map { x ->
+            Entry(x.toFloat(), rawData[x].rating)
+        }.filter { it.y != 0f }
+    }
+
     private val month = 60 * 60 * 24 * 30L
     private val year = 60 * 60 * 24 * 356L
 
@@ -98,11 +110,14 @@ class GetUserStatsUseCase (
             highestRatingTimestamp = it.ended
         }
         val rawData = history.sortedBy { it.ended }
-        val chartAll = generateChartData(null, 75, rawData)
-        val chart1M = generateChartData(month, 30, rawData)
-        val chart3M = generateChartData(3 * month, 60, rawData)
-        val chart1Y = generateChartData(year, 75, rawData)
-        val chart5Y = generateChartData(5 * year, 75, rawData)
+        val chartAll = generateChartDataByDuration(null, 75, rawData)
+        val chart1M = generateChartDataByDuration(month, 30, rawData)
+        val chart3M = generateChartDataByDuration(3 * month, 60, rawData)
+        val chart1Y = generateChartDataByDuration(year, 75, rawData)
+        val chart5Y = generateChartDataByDuration(5 * year, 75, rawData)
+        val chart20G = generateChartDataByGame(20, rawData)
+        val chart100G = generateChartDataByGame(100, rawData)
+        val chartAllG = generateChartDataByGame(null, rawData)
         
         val wonCount = history.count { it.won }
         val lostCount = history.size - wonCount
@@ -219,6 +234,9 @@ class GetUserStatsUseCase (
             chartData1Y = chart1Y,
             chartData5Y = chart5Y,
             chartDataAll = chartAll,
+            chartData20G = chart20G,
+            chartData100G = chart100G,
+            chartDataAllG = chartAllG,
             wonCount = wonCount,
             lostCount = lostCount,
             bestStreak = bestStreak,

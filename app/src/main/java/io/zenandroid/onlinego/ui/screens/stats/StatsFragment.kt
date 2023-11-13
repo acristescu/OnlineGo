@@ -21,6 +21,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
+import androidx.compose.material.Switch
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -81,7 +82,7 @@ class StatsFragment : Fragment() {
       OnlineGoTheme {
         val state by rememberStateWithLifecycle(viewModel.state)
 
-        StatsScreen(state, viewModel::onFilterChanged)
+        StatsScreen(state, viewModel::onFilterChanged, viewModel::onGraphChanged)
       }
     }
   }
@@ -115,7 +116,7 @@ class DayAxisValueFormatter(private val chart: BarLineChartBase<*>) : ValueForma
   }
 }
 
-@Composable private fun StatsScreen(state: StatsState, onFilterChanged: (Filter) -> Unit) {
+@Composable private fun StatsScreen(state: StatsState, onFilterChanged: (Filter) -> Unit, onGraphChanged: () -> Unit) {
   var scrollEnabled by remember { mutableStateOf(true) }
   Column(
     modifier = Modifier
@@ -184,10 +185,21 @@ class DayAxisValueFormatter(private val chart: BarLineChartBase<*>) : ValueForma
         )
       }
     }
-    StatsSurface(title = "Rating over time") {
+    StatsSurface(
+      title = "Rating over ${if (state.collapseTimeByGame == true) "games" else "time"}",
+      key = {
+        Switch(
+          checked = state.collapseTimeByGame == true,
+          onCheckedChange = { onGraphChanged() },
+          modifier = Modifier
+              .padding(end = 10.dp)
+        )
+      }
+    ) {
       ChartWrapper(
         chartData = state.chartData,
         filter = state.filter,
+        collapseTimeByGame = state.collapseTimeByGame == true,
         disableScroll = { scrollEnabled = !it },
         onFilterChanged = onFilterChanged,
       )
@@ -483,16 +495,21 @@ private fun WinLossStatsBar(
 @Composable private fun StatsSurface(
   title: String,
   modifier: Modifier = Modifier,
+  key: @Composable () -> Unit = {},
   content: @Composable () -> Unit,
 ) {
   Column {
-    Text(
-      text = title,
-      fontSize = 14.sp,
-      fontWeight = FontWeight.Bold,
-      color = MaterialTheme.colors.onBackground,
-      modifier = modifier.padding(start = 8.dp, top = 16.dp)
-    )
+    Row {
+      Text(
+        text = title,
+        fontSize = 14.sp,
+        fontWeight = FontWeight.Bold,
+        color = MaterialTheme.colors.onBackground,
+        modifier = modifier.padding(start = 8.dp, top = 16.dp)
+            .weight(1f)
+      )
+      key()
+    }
     Surface(
       shape = MaterialTheme.shapes.medium,
       modifier = Modifier
@@ -587,6 +604,6 @@ private fun Preview() {
         Entry(3f, 16f),
         Entry(4f, 12f),
       )
-    ), onFilterChanged = { })
+    ), onFilterChanged = { }, onGraphChanged = { })
   }
 }
