@@ -58,6 +58,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import io.zenandroid.onlinego.data.model.ogs.ChatChannel
 import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.Position
 import io.zenandroid.onlinego.data.model.StoneType
@@ -92,6 +93,7 @@ import io.zenandroid.onlinego.ui.screens.game.UserAction.GameOverDialogNextGame
 import io.zenandroid.onlinego.ui.screens.game.UserAction.GameOverDialogQuickReplay
 import io.zenandroid.onlinego.ui.screens.game.UserAction.KOMoveDialogDismiss
 import io.zenandroid.onlinego.ui.screens.game.UserAction.OpenInBrowser
+import io.zenandroid.onlinego.ui.screens.game.UserAction.OpenVariation
 import io.zenandroid.onlinego.ui.screens.game.UserAction.OpponentUndoRequestAccepted
 import io.zenandroid.onlinego.ui.screens.game.UserAction.OpponentUndoRequestRejected
 import io.zenandroid.onlinego.ui.screens.game.UserAction.PassDialogConfirm
@@ -103,6 +105,7 @@ import io.zenandroid.onlinego.ui.screens.game.UserAction.RetryDialogDismiss
 import io.zenandroid.onlinego.ui.screens.game.UserAction.RetryDialogRetry
 import io.zenandroid.onlinego.ui.screens.game.UserAction.UserUndoDialogConfirm
 import io.zenandroid.onlinego.ui.screens.game.UserAction.UserUndoDialogDismiss
+import io.zenandroid.onlinego.ui.screens.game.UserAction.VariationSend
 import io.zenandroid.onlinego.ui.screens.game.UserAction.WhitePlayerClicked
 import io.zenandroid.onlinego.ui.screens.game.composables.ChatDialog
 import io.zenandroid.onlinego.ui.screens.game.composables.PlayerCard
@@ -111,6 +114,7 @@ import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
 
 @Composable
 fun GameScreen(state: GameState,
+               analysisMode: Boolean,
                onUserAction: ((UserAction) -> Unit),
                onBack: (() -> Unit),
 ) {
@@ -230,8 +234,12 @@ fun GameScreen(state: GameState,
     if(state.chatDialogShowing) {
         ChatDialog(
             messages = state.messages,
+            game = state.position!!,
+            inAnalysisMode = analysisMode,
+            onVariation = { onUserAction(OpenVariation(it)) },
             onDialogDismiss = { onUserAction(ChatDialogDismiss) },
-            onSendMessage = { onUserAction(ChatSend(it)) }
+            onSendMessage = { m, c -> onUserAction(ChatSend(m, c)) },
+            onSendVariation = { onUserAction(VariationSend(it)) },
         )
     }
     if (state.retryMoveDialogShowing) {
@@ -762,7 +770,7 @@ fun Preview() {
                 blackStartTimer = null,
                 timeLeft = 1000,
             ),
-        ), {}, {},
+        ), false, {}, {},
         )
     }
 }
@@ -805,7 +813,7 @@ fun Preview1() {
                 blackStartTimer = null,
                 timeLeft = 1000,
                 ),
-        ), {}, {},
+        ), false, {}, {},
         )
     }
 }
@@ -849,6 +857,7 @@ fun Preview2() {
                 ),
             bottomText = "Submitting move",
         ),
+            false,
             {}, {},
         )
     }
@@ -893,6 +902,7 @@ fun Preview3() {
             bottomText = "Submitting move",
             retryMoveDialogShowing = true,
         ),
+            false,
             {}, {},
         )
     }
@@ -939,6 +949,7 @@ fun Preview4() {
             showPlayers = false,
             showAnalysisPanel = true,
         ),
+            false,
             {}, {},
         )
     }
@@ -995,6 +1006,7 @@ fun Preview5() {
                 }
             ),
         ),
+            false,
             {}, {},
         )
     }
