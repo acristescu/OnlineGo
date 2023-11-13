@@ -183,6 +183,9 @@ class OGSRestService(
         }
     }
 
+    fun acceptOpenChallenge(id: Long): Completable =
+            restApi.acceptOpenChallenge(id)
+
     fun acceptChallenge(id: Long): Completable =
             restApi.acceptChallenge(id)
 
