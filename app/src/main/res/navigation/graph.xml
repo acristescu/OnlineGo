@@ -74,10 +74,6 @@
         android:name="io.zenandroid.onlinego.ui.screens.puzzle.PuzzleDirectoryFragment"
         android:label="PuzzleDirectoryFragment" />
     <fragment
-        android:id="@+id/puzzleSetFragment"
-        android:name="io.zenandroid.onlinego.ui.screens.puzzle.PuzzleSetFragment"
-        android:label="PuzzleSetFragment" />
-    <fragment
         android:id="@+id/tsumegoFragment"
         android:name="io.zenandroid.onlinego.ui.screens.puzzle.TsumegoFragment"
         android:label="TsumegoFragment" />

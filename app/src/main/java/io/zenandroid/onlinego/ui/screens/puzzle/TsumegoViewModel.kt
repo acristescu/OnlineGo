@@ -1,6 +1,7 @@
 package io.zenandroid.onlinego.ui.screens.puzzle
 
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -10,8 +11,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.Mark
+import io.zenandroid.onlinego.data.model.Position
 import io.zenandroid.onlinego.data.model.StoneType
 import io.zenandroid.onlinego.data.model.local.Puzzle
+import io.zenandroid.onlinego.data.model.local.PuzzleCollection
 import io.zenandroid.onlinego.data.model.ogs.MoveTree
 import io.zenandroid.onlinego.data.model.ogs.PlayCategory
 import io.zenandroid.onlinego.data.model.ogs.PuzzleRating
@@ -23,48 +26,91 @@ import io.zenandroid.onlinego.gamelogic.Util
 import io.zenandroid.onlinego.gamelogic.Util.toCoordinateSet
 import io.zenandroid.onlinego.utils.recordException
 import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.cancellable
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.single
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.time.Instant.now
 import java.time.temporal.ChronoUnit.MILLIS
+import org.jsoup.Jsoup
 
-class TsumegoViewModel (
+class TsumegoViewModel(
     private val puzzleRepository: PuzzleRepository,
     private val settingsRepository: SettingsRepository,
-    private val puzzleId: Long
+    private val collectionId: Long,
+    private val puzzleId: Long,
 ): ViewModel() {
     private val _state = MutableStateFlow(TsumegoState(
         boardTheme = settingsRepository.boardTheme,
         drawCoordinates = settingsRepository.showCoordinates,
     ))
     val state: StateFlow<TsumegoState> = _state
-    private var collectionPuzzles by mutableStateOf(emptyList<Puzzle>())
+    var collectionContents by mutableStateOf(emptyList<Puzzle>())
+        private set
+    var collectionPositions by mutableStateOf(emptyMap<Long, Position>())
+        private set
+    var collectionRatings by mutableStateOf(emptyMap<Long, Float?>())
+        private set
     private var cursor by mutableIntStateOf(0)
 
     private var moveReplyJob: Job? = null
+    private var ratingsWatchJob: Job? = null
     private val errorHandler = CoroutineExceptionHandler { _, throwable -> onError(throwable) }
 
     init {
         viewModelScope.launch(errorHandler) { puzzleRepository.fetchPuzzle(puzzleId) }
         viewModelScope.launch(errorHandler) {
             puzzleRepository.observePuzzle(puzzleId)
+                .filterNotNull()
                 .catch { onError(it) }
-                .collect(::setPuzzle)
+                .collect {
+                    cursor = collectionContents.indexOfFirst { it.id == _state.value.puzzle?.id }
+                    setPuzzle(it)
+                }
         }
 
-        fetchRating(puzzleId)
+        viewModelScope.launch(errorHandler) {
+            puzzleRepository.markPuzzleCollectionVisited(collectionId)
+        }
+
+        viewModelScope.launch(errorHandler) { puzzleRepository.fetchPuzzleCollection(collectionId) }
+        viewModelScope.launch(errorHandler) {
+            puzzleRepository.observePuzzleCollection(collectionId)
+                .filterNotNull()
+                .catch { onError(it) }
+                .collect(::setCollection)
+        }
+        viewModelScope.launch(errorHandler) {
+            puzzleRepository.observePuzzleCollectionContents(collectionId)
+                .filterNotNull()
+                .catch { onError(it) }
+                .collect(::setPuzzleCollectionContents)
+        }
+
+        ratingsWatchJob = viewModelScope.launch(errorHandler) {
+            puzzleRepository.observePuzzleRating(puzzleId)
+                .filterNotNull()
+                .cancellable()
+                .catch { updateRating(-1) }
+                .collect { updateRating(it.rating) }
+        }
     }
 
     private fun setPuzzle(puzzle: Puzzle, attempts: Int = 1) {
         _state.update {
             it.copy(
                 puzzle = puzzle,
+                description = parseHtml(puzzle.puzzle.puzzle_description),
                 boardPosition = puzzle.puzzle.let {
                     RulesManager.buildPos(moves = emptyList(),
                         boardWidth = it.width, boardHeight = it.height,
@@ -90,22 +136,58 @@ class TsumegoViewModel (
         }
 
         fetchSolutions()
-        if(collectionPuzzles.isEmpty()) {
-            viewModelScope.launch(errorHandler) {
-                puzzleRepository.observePuzzleCollectionContents(puzzle.collection?.id ?: puzzle.puzzle.puzzle_collection.toLong())
-                    .catch { onError(it) }
-                    .collect(::setCollection)
+    }
+
+    private fun setPuzzleCollectionContents(puzzles: List<Puzzle>) {
+        collectionContents = puzzles
+        cursor = collectionContents.indexOfFirst { it.id == _state.value.puzzle?.id }
+    }
+
+    fun renderCollectionPuzzle(index: Int) {
+        val puzzle = collectionContents[index]
+
+        viewModelScope.launch(errorHandler) {
+            withContext(Dispatchers.IO) {
+                val position = puzzle.puzzle.let {
+                    RulesManager.buildPos(
+                        moves = emptyList(),
+                        boardWidth = it.width,
+                        boardHeight = it.height,
+                        whiteInitialState = it.initial_state.white.toCoordinateSet(),
+                        blackInitialState = it.initial_state.black.toCoordinateSet()
+                    )
+                } ?: return@withContext
+
+                withContext(Dispatchers.Main) {
+                    collectionPositions = collectionPositions.toMutableMap().apply {
+                        put(puzzle.id, position)
+                    }
+                }
+            }
+        }
+
+        viewModelScope.launch(errorHandler) {
+            val ratingFlow = puzzleRepository.observePuzzleRating(puzzle.id)
+                .filterNotNull()
+                .map { it.rating.toFloat() }
+                .catch { emit(0f) }
+
+            val solutionsFlow = puzzleRepository.observePuzzleSolutions(puzzle.id)
+                .catch { emit(emptyList()) }
+
+            combine(ratingFlow, solutionsFlow) { rating, solutions ->
+                if (solutions.isEmpty()) null
+                else rating
+            }.collect {
+                collectionRatings = collectionRatings.toMutableMap().apply {
+                    put(puzzle.id, it)
+                }
             }
         }
     }
 
-    private fun setCollection(puzzles: List<Puzzle>) {
-        collectionPuzzles = puzzles
-        cursor = puzzles.indexOfFirst { it.id == _state.value.puzzle?.id }
-    }
-
     val hasNextPuzzle: Boolean by derivedStateOf {
-        cursor < collectionPuzzles.size - 1
+        cursor < collectionContents.size - 1
     }
 
     val hasPreviousPuzzle: Boolean by derivedStateOf {
@@ -117,7 +199,7 @@ class TsumegoViewModel (
 
         val index = cursor + 1
         cursor = index
-        val puzzle = collectionPuzzles[index]
+        val puzzle = collectionContents[index]
         setPuzzle(puzzle)
         fetchRating()
     }
@@ -128,12 +210,21 @@ class TsumegoViewModel (
         setPuzzle(puzzle, attempts)
     }
 
+    fun selectPuzzle(index: Int) {
+        if(index < 0 || index >= collectionContents.size) return
+
+        cursor = index
+        val puzzle = collectionContents[index]
+        setPuzzle(puzzle)
+        fetchRating()
+    }
+
     fun previousPuzzle() {
         if(!hasPreviousPuzzle) return
 
         val index = cursor - 1
         cursor = index
-        val puzzle = collectionPuzzles[index]
+        val puzzle = collectionContents[index]
         setPuzzle(puzzle)
         fetchRating()
     }
@@ -251,6 +342,12 @@ class TsumegoViewModel (
         }
     }
 
+    private fun setCollection(collection: PuzzleCollection) {
+        _state.update {
+            it.copy(collection = collection)
+        }
+    }
+
     private fun markSolved() {
         viewModelScope.launch(errorHandler) {
             val record = _state.value.let { PuzzleSolution(
@@ -266,9 +363,9 @@ class TsumegoViewModel (
 
     private fun fetchSolutions() {
         _state.update { it.copy(solutions = emptyList()) }
-        viewModelScope.launch(errorHandler) { puzzleRepository.fetchPuzzleSolution(_state.value.puzzle?.id!!) }
+        viewModelScope.launch(errorHandler) { puzzleRepository.fetchPuzzleSolutions(_state.value.puzzle?.id!!) }
         viewModelScope.launch(errorHandler) {
-            puzzleRepository.observePuzzleSolution(_state.value.puzzle?.id!!)
+            puzzleRepository.observePuzzleSolutions(_state.value.puzzle?.id!!)
                 .collect(::updateSolutions)
         }
     }
@@ -291,10 +388,12 @@ class TsumegoViewModel (
         viewModelScope.launch(errorHandler) {
             puzzleRepository.fetchPuzzleRating(id ?: _state.value.puzzle?.id!!)
         }
-        viewModelScope.launch(errorHandler) {
+        ratingsWatchJob?.cancel()
+        ratingsWatchJob = viewModelScope.launch(errorHandler) {
             puzzleRepository.observePuzzleRating(id ?: _state.value.puzzle?.id!!)
-                .catch { updateRating(-1) }
                 .filterNotNull()
+                .cancellable()
+                .catch { updateRating(-1) }
                 .collect { updateRating(it.rating) }
         }
     }
@@ -305,6 +404,11 @@ class TsumegoViewModel (
                 rating = PuzzleRating(rating = value)
             )
         }
+    }
+
+    private fun parseHtml(body: String): String {
+        val document = Jsoup.parseBodyFragment(body)
+        return document.body().text()
     }
 
     private fun onError(t: Throwable) {

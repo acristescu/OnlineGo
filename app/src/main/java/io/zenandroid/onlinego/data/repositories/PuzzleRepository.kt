@@ -96,7 +96,7 @@ class PuzzleRepository(
     }
   }
 
-  suspend fun observePuzzleRating(id: Long): Flow<PuzzleRating> {
+  fun observePuzzleRating(id: Long): Flow<PuzzleRating> {
     return dao.getPuzzleRating(id)
       .catch {
         emit(
@@ -116,14 +116,14 @@ class PuzzleRepository(
     return flowOf(puzzleRating)
   }
 
-  suspend fun fetchPuzzleSolution(id: Long) {
+  suspend fun fetchPuzzleSolutions(id: Long) {
     withContext(Dispatchers.IO) {
       val solutions = restService.getPuzzleSolutions(id)
       savePuzzleSolutionsToDB(solutions)
     }
   }
 
-  fun observePuzzleSolution(id: Long): Flow<List<PuzzleSolution>> {
+  fun observePuzzleSolutions(id: Long): Flow<List<PuzzleSolution>> {
     return dao.getPuzzleSolution(id)
       .catch { emit(emptyList()) }
       .distinctUntilChanged()
@@ -135,6 +135,10 @@ class PuzzleRepository(
       .map { it.sortedBy { it.collectionId } }
       .distinctUntilChanged()
       .map { it.associateBy({ it.collectionId }, { it.count }) }
+  }
+
+  suspend fun getPuzzleCollectionFirstUnsolved(id: Long): Long? {
+    return dao.getPuzzleCollectionFirstUnsolved(id)
   }
 
   suspend fun markPuzzleSolved(id: Long, record: PuzzleSolution) {

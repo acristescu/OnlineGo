@@ -9,6 +9,7 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy.DisposeOnLifecycleDestroyed
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import io.zenandroid.onlinego.R
@@ -17,6 +18,9 @@ import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
 import io.zenandroid.onlinego.utils.PersistenceManager
 import io.zenandroid.onlinego.utils.analyticsReportScreen
 import io.zenandroid.onlinego.utils.rememberStateWithLifecycle
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 private const val TAG = "PuzzleDirectoryFragment"
@@ -35,7 +39,7 @@ class PuzzleDirectoryFragment : Fragment() {
 
                     PuzzleDirectoryScreen(
                         state = state,
-                        onCollection = ::navigateToCollectionScreen,
+                        onCollection = ::navigateToPuzzleScreen,
                         onBack = { findNavController().navigateUp() },
                         onSortChanged = { viewModel.onSortChanged(it) },
                         onFilterChanged = { viewModel.onFilterChanged(it) },
@@ -46,16 +50,23 @@ class PuzzleDirectoryFragment : Fragment() {
         }
     }
 
-    private fun navigateToCollectionScreen(collection: PuzzleCollection) {
-        findNavController().navigate(
-            R.id.puzzleSetFragment,
-            bundleOf(
-                COLLECTION_ID to collection.id,
-            ),
-            NavOptions.Builder()
-                .setLaunchSingleTop(true)
-                .build()
-        )
+    private fun navigateToPuzzleScreen(collection: PuzzleCollection) {
+        lifecycleScope.launch(context = Dispatchers.IO) {
+            val puzzle_id = viewModel.getFirstUnsolvedForCollection(collection)
+
+            withContext(Dispatchers.Main) {
+                findNavController().navigate(
+                    R.id.tsumegoFragment,
+                    bundleOf(
+                        COLLECTION_ID to collection.id,
+                        PUZZLE_ID to puzzle_id,
+                    ),
+                    NavOptions.Builder()
+                        .setLaunchSingleTop(true)
+                        .build()
+                )
+            }
+        }
     }
 
     override fun onResume() {

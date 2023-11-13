@@ -1,8 +1,12 @@
 package io.zenandroid.onlinego.ui.screens.puzzle
 
 import androidx.compose.animation.*
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -13,6 +17,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -21,8 +26,11 @@ import androidx.compose.ui.unit.sp
 import com.google.accompanist.pager.*
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.Cell
+import io.zenandroid.onlinego.data.model.Position
 import io.zenandroid.onlinego.data.model.StoneType
+import io.zenandroid.onlinego.data.model.local.Puzzle
 import io.zenandroid.onlinego.ui.composables.Board
+import io.zenandroid.onlinego.ui.composables.ExposedLazyDropdownMenu
 import io.zenandroid.onlinego.ui.composables.RatingBar
 import io.zenandroid.onlinego.ui.screens.puzzle.TsumegoAction.*
 import kotlinx.coroutines.flow.collect
@@ -39,29 +47,159 @@ fun TsumegoScreen(
     state: TsumegoState,
     hasPreviousPuzzle: Boolean,
     hasNextPuzzle: Boolean,
+    collection: List<Puzzle>,
+    positions: Map<Long, Position>,
+    ratings: Map<Long, Float?>,
+    renderCollectionPuzzle: (Int) -> Unit,
     onMove: (Cell) -> Unit,
     onHint: () -> Unit,
     onResetPuzzle: () -> Unit,
     onRate: (Int) -> Unit,
     onPreviousPuzzle: () -> Unit,
+    onSelectPuzzle: (Int) -> Unit,
     onNextPuzzle: () -> Unit,
     onBack: () -> Unit,
 ) {
     Column (
         modifier = Modifier.fillMaxHeight()
     ) {
-        val title = "Tsumego".let { base ->
-            state.puzzle?.name?.let {
-                "${base}: ${it}"
-            } ?: base
-        }
         TopAppBar(
             title = {
-                Text(
-                    text = title,
-                    fontSize = 18.sp,
+                var expanded by remember { mutableStateOf(false) }
+				val selectedPuzzleIndex = collection.indexOfFirst {
+					it.id == state.puzzle?.id
+				}.takeUnless { it == -1 }
+                val listState = rememberLazyListState(
+					initialFirstVisibleItemIndex = selectedPuzzleIndex ?: 0
+				)
+                ExposedDropdownMenuBox(
+                    expanded = expanded,
+                    onExpandedChange = {
+                        expanded = !expanded
+                    },
                     modifier = Modifier.weight(1f)
-                )
+                ) {
+                    TextField(
+                        readOnly = true,
+                        value = "Tsumego".let { base ->
+                            state.puzzle?.name?.let {
+                                "${base}: ${it}"
+                            } ?: base
+                        },
+                        onValueChange = { },
+                        trailingIcon = {
+                            ExposedDropdownMenuDefaults.TrailingIcon(
+                                expanded = expanded
+                            )
+                        },
+                        colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(
+                            textColor = MaterialTheme.colors.onSurface,
+                        ),
+                        textStyle = LocalTextStyle.current.copy(fontSize = 18.sp),
+                        modifier = Modifier.weight(1f)
+                    )
+                    LaunchedEffect(expanded) {
+                        if (expanded) {
+                            selectedPuzzleIndex?.let { listState.animateScrollToItem(it) }
+                        }
+                    }
+                    val infiniteTransition = rememberInfiniteTransition()
+                    ExposedLazyDropdownMenu(
+                        expanded = expanded,
+						items = collection,
+                        onDismissRequest = {
+                            expanded = false
+                        },
+						scrollState = listState,
+						verticalArrangement = Arrangement.spacedBy(2.dp),
+                    ) { i, puzzle ->
+                        val position = positions[puzzle.id]
+                        val rating = ratings[puzzle.id]
+                        LaunchedEffect(position) {
+                            if (position == null) {
+                                renderCollectionPuzzle(i)
+                            }
+                        }
+
+                        DropdownMenuItem(
+                            onClick = {
+                                onSelectPuzzle(i)
+                                expanded = false
+                            }
+                        ) {
+                            val selected = puzzle.id == state.puzzle?.id
+
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                            ) {
+                                val tint by infiniteTransition.animateColor(
+                                    initialValue = LocalContentColor.current.copy(
+                                        alpha = 0.1f),
+                                    targetValue = LocalContentColor.current.copy(
+                                        alpha = 0.5f),
+                                    animationSpec = infiniteRepeatable(
+                                        animation = tween(
+                                            durationMillis = 1000,
+                                            easing = LinearEasing,
+                                        ),
+                                        repeatMode = RepeatMode.Reverse
+                                    )
+                                )
+                                if (position == null)
+                                    Icon(
+                                        painter = painterResource(R.drawable.ic_go_board),
+                                        contentDescription = "Board",
+                                        tint = tint,
+                                        modifier = Modifier
+                                            .height(64.dp)
+                                            .width(64.dp)
+                                            .padding(end = 20.dp)
+                                            .clip(MaterialTheme.shapes.small),
+                                    )
+                                else
+                                    Board(
+                                        boardWidth = puzzle.puzzle.width,
+                                        boardHeight = puzzle.puzzle.height,
+                                        position = position,
+                                        boardTheme = state.boardTheme,
+                                        drawCoordinates = false,
+                                        interactive = false,
+                                        drawShadow = false,
+                                        fadeInLastMove = false,
+                                        fadeOutRemovedStones = false,
+                                        modifier = Modifier
+                                            .height(64.dp)
+                                            .width(64.dp)
+                                            .padding(end = 10.dp)
+                                            .clip(MaterialTheme.shapes.small)
+                                    )
+
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxHeight()
+                                ) {
+                                    Text(
+                                        text = puzzle.name,
+                                        fontSize = 18.sp,
+                                        fontWeight = if (selected) FontWeight.Bold
+                                                     else FontWeight.Normal,
+                                        maxLines = 1,
+                                        modifier = Modifier
+                                            .padding(top = 10.dp),
+                                    )
+                                    rating?.let {
+                                        RatingBar(
+                                            rating = it,
+                                            modifier = Modifier
+                                                .height(16.dp)
+                                        )
+                                    } ?: Spacer(modifier = Modifier.height(16.dp))
+                                }
+                            }
+                        }
+                    }
+                }
                 if(state.solutions.size > 0) {
                     Image(painter = painterResource(R.drawable.ic_check_circle),
                         modifier = Modifier
@@ -158,7 +296,7 @@ fun TsumegoScreen(
                                 text = state.nodeStack.let { stack ->
                                     stack.lastOrNull()?.text
                                         ?: stack.dropLast(1).lastOrNull()?.text
-                                } ?: it.puzzle_description,
+                                } ?: state.description,
                                 textAlign = TextAlign.Center,
                                 style = MaterialTheme.typography.body2,
                                 fontSize = 16.sp,
