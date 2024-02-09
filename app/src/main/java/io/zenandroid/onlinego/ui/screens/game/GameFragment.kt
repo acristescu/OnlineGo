@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.ComposeView
 import androidx.core.os.bundleOf
@@ -95,5 +96,13 @@ class GameFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         analyticsReportScreen("Game")
+    }
+    override fun onStart() {
+        super.onStart()
+        getActivity()?.getWindow()?.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+    }
+    override fun onStop() {
+        super.onStop()
+        getActivity()?.getWindow()?.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
     }
 }
