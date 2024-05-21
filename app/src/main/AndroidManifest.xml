@@ -16,7 +16,6 @@
         android:theme="@style/AppTheme"
         android:name=".OnlineGoApplication"
         android:networkSecurityConfig="@xml/network_security_config"
-        android:extractNativeLibs="true"
         android:maxAspectRatio="10.0"
         >
         <meta-data android:name="android.max_aspect" android:value="10.0"/>

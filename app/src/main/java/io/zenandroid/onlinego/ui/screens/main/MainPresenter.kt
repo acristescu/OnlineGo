@@ -27,10 +27,14 @@ class MainPresenter (
 ) : MainContract.Presenter {
 
     private val subscriptions = CompositeDisposable()
+    private var hasAskedForPermissionsAlready = false
 
     override fun subscribe() {
         if(userSessionRepository.isLoggedIn()) {
-            view.askForNotificationsPermission(false)
+            if(!hasAskedForPermissionsAlready) {
+                hasAskedForPermissionsAlready = true
+                view.askForNotificationsPermission(false)
+            }
             socketService.ensureSocketConnected()
             socketService.resendAuth()
         } else {

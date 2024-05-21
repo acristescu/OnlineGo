@@ -10,20 +10,16 @@ apply plugin: 'com.google.devtools.ksp'
 
 android {
     compileSdk 34
-    ndkVersion "21.0.6113669"
+    ndkVersion "25.1.8937393"
     defaultConfig {
         applicationId "io.zenandroid.onlinego"
         minSdkVersion 21
-        //noinspection EditedTargetSdkVersion
         targetSdkVersion 34
         versionCode 42
         versionName "alpha_b${versionCode}"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
         multiDexEnabled true
-
-        buildConfigField "String", "CLIENT_ID", '"' + System.getenv("ONLINE_GO_CLIENT_ID") + '"'
-        buildConfigField "String", "CLIENT_SECRET", '"' + System.getenv("ONLINE_GO_CLIENT_SECRET") + '"'
         buildConfigField "String", "BASE_URL", "\"https://online-go.com\""
     }
     ksp {
@@ -84,6 +80,10 @@ android {
     }
     namespace 'io.zenandroid.onlinego'
     packagingOptions {
+
+        jniLibs {
+            useLegacyPackaging true
+        }
         resources.excludes.add("META-INF/*")
     }
 }
