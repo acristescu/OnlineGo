@@ -119,7 +119,7 @@ object RulesManager {
         )
     }
 
-    fun replay(moves: List<Cell>, width: Int, height: Int, handicap: Int, freeHandicapPlacement: Boolean = false): Position? {
+    fun replay(moves: List<Cell>, width: Int, height: Int, handicap: Int, freeHandicapPlacement: Boolean = false, nextToMove: StoneType): Position? {
         val blackStones = mutableSetOf<Cell>()
         if(handicap > 0 && !freeHandicapPlacement) {
             if(width != height || handicaps[width] == null || handicap > 9) {
@@ -139,6 +139,7 @@ object RulesManager {
             handicap = handicap,
             freeHandicapPlacement = freeHandicapPlacement,
             blackInitialState = blackStones,
+            nextToMove = nextToMove,
         )
     }
 

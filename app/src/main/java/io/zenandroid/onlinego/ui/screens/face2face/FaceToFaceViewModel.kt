@@ -278,6 +278,7 @@ class FaceToFaceViewModel(
 
   private fun historyPosition(index: Int) =
     RulesManager.replay(
+      nextToMove = if(currentGameParameters.handicap > 0) WHITE else BLACK,
       moves = history.subList(0, index + 1),
       width = currentGameParameters.size.width,
       height = currentGameParameters.size.height,
