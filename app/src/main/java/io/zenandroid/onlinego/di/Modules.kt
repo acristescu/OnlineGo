@@ -60,8 +60,8 @@ import io.zenandroid.onlinego.ui.screens.newchallenge.selectopponent.searchplaye
 import io.zenandroid.onlinego.ui.screens.newchallenge.selectopponent.searchplayer.SearchPlayerState
 import io.zenandroid.onlinego.ui.screens.newchallenge.selectopponent.searchplayer.SearchPlayerViewModel
 import io.zenandroid.onlinego.ui.screens.onboarding.OnboardingViewModel
-import io.zenandroid.onlinego.ui.screens.puzzle.PuzzleDirectoryViewModel
-import io.zenandroid.onlinego.ui.screens.puzzle.TsumegoViewModel
+import io.zenandroid.onlinego.ui.screens.puzzle.directory.PuzzleDirectoryViewModel
+import io.zenandroid.onlinego.ui.screens.puzzle.tsumego.TsumegoViewModel
 import io.zenandroid.onlinego.ui.screens.settings.SettingsViewModel
 import io.zenandroid.onlinego.ui.screens.stats.StatsViewModel
 import io.zenandroid.onlinego.ui.screens.tutorial.TutorialViewModel

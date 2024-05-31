@@ -1,8 +1,7 @@
-package io.zenandroid.onlinego.ui.screens.puzzle
+package io.zenandroid.onlinego.ui.screens.puzzle.tsumego
 
 import android.graphics.Point
 import io.zenandroid.onlinego.data.model.local.Puzzle
-import io.zenandroid.onlinego.data.model.local.PuzzleCollection
 
 sealed interface TsumegoAction {
     data object ViewReady: TsumegoAction

@@ -4,6 +4,8 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.darkColors
 import androidx.compose.material.lightColors
+import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 
 private val LightColorPalette = lightColors(
@@ -52,6 +54,44 @@ fun OnlineGoTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composab
             colors = colors,
             typography = typography,
             shapes = shapes,
+            content = content
+    )
+}
+
+private val LightColorPaletteM3 = lightColorScheme(
+    primary = salmon,
+    secondary = brownMedium,
+    background = background,
+    onSurface = brown,
+    onBackground = brown.copy(alpha = 0.8f),
+    onPrimary = lightOnPrimary,
+    onSecondary = lightOnPrimary,
+)
+
+private val DarkColorPaletteM3 = darkColorScheme(
+    primary = nightBlue,
+    secondary = salmon,
+    surface = nightSurface,
+    onSurface = nightOnSurface,
+    background = nightBackground,
+    onBackground = nightOnBackground,
+    onPrimary = nightOnPrimary,
+    onSecondary = nightOnPrimary,
+)
+
+
+@Composable
+fun OnlineGoThemeM3(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable () -> Unit) {
+    val colors = if (darkTheme) {
+        DarkColorPaletteM3
+    } else {
+        LightColorPaletteM3
+    }
+
+    androidx.compose.material3.MaterialTheme(
+            colorScheme = colors,
+            typography = typographyM3,
+            shapes = shapesM3,
             content = content
     )
 }

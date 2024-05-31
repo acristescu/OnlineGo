@@ -71,11 +71,11 @@
         android:label="JosekiExplorerFragment" />
     <fragment
         android:id="@+id/puzzleDirectoryFragment"
-        android:name="io.zenandroid.onlinego.ui.screens.puzzle.PuzzleDirectoryFragment"
+        android:name="io.zenandroid.onlinego.ui.screens.puzzle.directory.PuzzleDirectoryFragment"
         android:label="PuzzleDirectoryFragment" />
     <fragment
         android:id="@+id/tsumegoFragment"
-        android:name="io.zenandroid.onlinego.ui.screens.puzzle.TsumegoFragment"
+        android:name="io.zenandroid.onlinego.ui.screens.puzzle.tsumego.TsumegoFragment"
         android:label="TsumegoFragment" />
     <fragment
         android:id="@+id/gameFragment"

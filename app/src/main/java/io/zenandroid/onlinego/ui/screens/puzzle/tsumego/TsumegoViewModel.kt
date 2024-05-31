@@ -1,7 +1,6 @@
-package io.zenandroid.onlinego.ui.screens.puzzle
+package io.zenandroid.onlinego.ui.screens.puzzle.tsumego
 
 import android.util.Log
-import android.widget.Toast
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -36,7 +35,6 @@ import kotlinx.coroutines.flow.cancellable
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.single
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -373,14 +371,6 @@ class TsumegoViewModel(
     private fun updateSolutions(solution: List<PuzzleSolution>) {
         _state.update {
             it.copy(solutions = solution)
-        }
-    }
-
-    fun rate(value: Int) {
-        viewModelScope.launch(errorHandler) {
-            puzzleRepository.ratePuzzle(_state.value.puzzle?.id!!, value)
-                .catch { onError(it) }
-                .collect { updateRating(value) }
         }
     }
 

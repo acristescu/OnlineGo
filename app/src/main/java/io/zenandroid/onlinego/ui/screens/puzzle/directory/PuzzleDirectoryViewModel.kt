@@ -1,4 +1,4 @@
-package io.zenandroid.onlinego.ui.screens.puzzle
+package io.zenandroid.onlinego.ui.screens.puzzle.directory
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
@@ -7,10 +7,10 @@ import io.zenandroid.onlinego.data.model.local.PuzzleCollection
 import io.zenandroid.onlinego.data.model.local.VisitedPuzzleCollection
 import io.zenandroid.onlinego.data.repositories.PuzzleRepository
 import io.zenandroid.onlinego.data.repositories.SettingsRepository
-import io.zenandroid.onlinego.ui.screens.puzzle.PuzzleDirectorySort.CountSort
-import io.zenandroid.onlinego.ui.screens.puzzle.PuzzleDirectorySort.NameSort
-import io.zenandroid.onlinego.ui.screens.puzzle.PuzzleDirectorySort.RatingSort
-import io.zenandroid.onlinego.ui.screens.puzzle.PuzzleDirectorySort.ViewsSort
+import io.zenandroid.onlinego.ui.screens.puzzle.directory.PuzzleDirectorySort.CountSort
+import io.zenandroid.onlinego.ui.screens.puzzle.directory.PuzzleDirectorySort.NameSort
+import io.zenandroid.onlinego.ui.screens.puzzle.directory.PuzzleDirectorySort.RatingSort
+import io.zenandroid.onlinego.ui.screens.puzzle.directory.PuzzleDirectorySort.ViewsSort
 import io.zenandroid.onlinego.utils.recordException
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
@@ -38,12 +38,12 @@ class PuzzleDirectoryViewModel(
         NameSort(false),
         CountSort(false),
       ),
-      currentSort = RatingSort(false),
+      currentSort = ViewsSort(false),
     )
   )
   val state: StateFlow<PuzzleDirectoryState> = _state
   private val filterText = MutableStateFlow("")
-  private val sortField = MutableStateFlow<PuzzleDirectorySort>(RatingSort(false))
+  private val sortField = MutableStateFlow<PuzzleDirectorySort>(ViewsSort(false))
   private val alreadyOpened = MutableStateFlow(false)
   private val errorHandler = CoroutineExceptionHandler { _, throwable -> onError(throwable) }
 
@@ -78,9 +78,10 @@ class PuzzleDirectoryViewModel(
   }
 
   private fun filterCollections(
-    collections: List<PuzzleCollection>,
-    filter: String, sort: PuzzleDirectorySort,
-    alreadyOpened: Boolean,
+      collections: List<PuzzleCollection>,
+      filter: String,
+      sort: PuzzleDirectorySort,
+      alreadyOpened: Boolean,
   ): List<PuzzleCollection> {
     return collections
       .filter {

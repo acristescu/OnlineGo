@@ -1,4 +1,4 @@
-package io.zenandroid.onlinego.ui.screens.puzzle
+package io.zenandroid.onlinego.ui.screens.puzzle.directory
 
 import androidx.compose.runtime.Immutable
 import io.zenandroid.onlinego.data.model.BoardTheme

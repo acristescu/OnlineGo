@@ -46,6 +46,10 @@ fun SearchTextField(
     keyboardActions = keyboardActions,
     maxLines = 1,
     singleLine = true,
+//    colors = TextFieldDefaults.colors(
+//      focusedContainerColor = MaterialTheme.colors.surface,
+//      focusedTextColor = MaterialTheme.colors.onSurface
+//    ),
     modifier = modifier,
   )
 }

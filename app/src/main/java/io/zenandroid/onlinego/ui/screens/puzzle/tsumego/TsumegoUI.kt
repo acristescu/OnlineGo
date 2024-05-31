@@ -1,44 +1,38 @@
-package io.zenandroid.onlinego.ui.screens.puzzle
+package io.zenandroid.onlinego.ui.screens.puzzle.tsumego
 
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.google.accompanist.pager.*
 import io.zenandroid.onlinego.R
+import io.zenandroid.onlinego.data.model.BoardTheme
 import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.Position
 import io.zenandroid.onlinego.data.model.StoneType
+import io.zenandroid.onlinego.data.model.local.InitialState
 import io.zenandroid.onlinego.data.model.local.Puzzle
+import io.zenandroid.onlinego.data.model.ogs.MoveTree
+import io.zenandroid.onlinego.data.model.ogs.OGSPuzzle
+import io.zenandroid.onlinego.data.model.ogs.PuzzleSolution
 import io.zenandroid.onlinego.ui.composables.Board
 import io.zenandroid.onlinego.ui.composables.ExposedLazyDropdownMenu
 import io.zenandroid.onlinego.ui.composables.RatingBar
-import io.zenandroid.onlinego.ui.screens.puzzle.TsumegoAction.*
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.filter
-import org.commonmark.node.*
-import org.koin.core.context.GlobalContext
-import java.time.temporal.ChronoUnit.*
 
 private const val TAG = "TsumegoUI"
 
@@ -54,24 +48,23 @@ fun TsumegoScreen(
     onMove: (Cell) -> Unit,
     onHint: () -> Unit,
     onResetPuzzle: () -> Unit,
-    onRate: (Int) -> Unit,
     onPreviousPuzzle: () -> Unit,
     onSelectPuzzle: (Int) -> Unit,
     onNextPuzzle: () -> Unit,
     onBack: () -> Unit,
 ) {
-    Column (
+    Column(
         modifier = Modifier.fillMaxHeight()
     ) {
         TopAppBar(
             title = {
                 var expanded by remember { mutableStateOf(false) }
-				val selectedPuzzleIndex = collection.indexOfFirst {
-					it.id == state.puzzle?.id
-				}.takeUnless { it == -1 }
+                val selectedPuzzleIndex = collection.indexOfFirst {
+                    it.id == state.puzzle?.id
+                }.takeUnless { it == -1 }
                 val listState = rememberLazyListState(
-					initialFirstVisibleItemIndex = selectedPuzzleIndex ?: 0
-				)
+                    initialFirstVisibleItemIndex = selectedPuzzleIndex ?: 0
+                )
                 ExposedDropdownMenuBox(
                     expanded = expanded,
                     onExpandedChange = {
@@ -83,7 +76,7 @@ fun TsumegoScreen(
                         readOnly = true,
                         value = "Tsumego".let { base ->
                             state.puzzle?.name?.let {
-                                "${base}: ${it}"
+                                "$base: $it"
                             } ?: base
                         },
                         onValueChange = { },
@@ -106,12 +99,12 @@ fun TsumegoScreen(
                     val infiniteTransition = rememberInfiniteTransition()
                     ExposedLazyDropdownMenu(
                         expanded = expanded,
-						items = collection,
+                        items = collection,
                         onDismissRequest = {
                             expanded = false
                         },
-						scrollState = listState,
-						verticalArrangement = Arrangement.spacedBy(2.dp),
+                        scrollState = listState,
+                        verticalArrangement = Arrangement.spacedBy(2.dp),
                     ) { i, puzzle ->
                         val position = positions[puzzle.id]
                         val rating = ratings[puzzle.id]
@@ -135,16 +128,19 @@ fun TsumegoScreen(
                             ) {
                                 val tint by infiniteTransition.animateColor(
                                     initialValue = LocalContentColor.current.copy(
-                                        alpha = 0.1f),
+                                        alpha = 0.1f
+                                    ),
                                     targetValue = LocalContentColor.current.copy(
-                                        alpha = 0.5f),
+                                        alpha = 0.5f
+                                    ),
                                     animationSpec = infiniteRepeatable(
                                         animation = tween(
                                             durationMillis = 1000,
                                             easing = LinearEasing,
                                         ),
                                         repeatMode = RepeatMode.Reverse
-                                    )
+                                    ),
+                                    label = "animateColor"
                                 )
                                 if (position == null)
                                     Icon(
@@ -183,7 +179,7 @@ fun TsumegoScreen(
                                         text = puzzle.name,
                                         fontSize = 18.sp,
                                         fontWeight = if (selected) FontWeight.Bold
-                                                     else FontWeight.Normal,
+                                        else FontWeight.Normal,
                                         maxLines = 1,
                                         modifier = Modifier
                                             .padding(top = 10.dp),
@@ -200,10 +196,11 @@ fun TsumegoScreen(
                         }
                     }
                 }
-                if(state.solutions.size > 0) {
-                    Image(painter = painterResource(R.drawable.ic_check_circle),
+                if (state.solutions.isNotEmpty()) {
+                    Image(
+                        painter = painterResource(R.drawable.ic_check_circle),
                         modifier = Modifier
-                            .padding(start = 18.dp),
+                            .padding(horizontal = 8.dp),
                         contentDescription = "Solved"
                     )
                 }
@@ -211,7 +208,7 @@ fun TsumegoScreen(
             elevation = 1.dp,
             navigationIcon = {
                 IconButton(onClick = { onBack() }) {
-                    Icon(imageVector = Icons.Default.ArrowBack, contentDescription = null)
+                    Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
                 }
             },
             backgroundColor = MaterialTheme.colors.surface
@@ -222,8 +219,10 @@ fun TsumegoScreen(
                 shape = MaterialTheme.shapes.medium,
                 modifier = Modifier.fillMaxSize()
             ) {
-                Column(modifier = Modifier
-                        .padding(horizontal = 10.dp, vertical = 10.dp)) {
+                Column(
+                    modifier = Modifier
+                        .padding(horizontal = 10.dp, vertical = 10.dp)
+                ) {
                     it.puzzle.let {
                         Board(
                             boardWidth = it.width,
@@ -247,51 +246,75 @@ fun TsumegoScreen(
                         )
                         Row {
                             Row(modifier = Modifier.weight(1f)) {
-                                if(hasPreviousPuzzle) {
-                                    Image(painter = painterResource(R.drawable.ic_navigate_previous),
+                                if (hasPreviousPuzzle) {
+                                    TextButton(
+                                        onClick = { onPreviousPuzzle() },
                                         modifier = Modifier
                                             .align(Alignment.CenterVertically)
-                                            .padding(start = 18.dp),
-                                        contentDescription = null
-                                    )
-                                    TextButton(onClick = { onPreviousPuzzle() },
+                                            .padding(all = 4.dp)
+                                            .weight(1f)
+                                    ) {
+                                        Image(
+                                            painter = painterResource(R.drawable.ic_navigate_previous),
                                             modifier = Modifier
-                                                .align(Alignment.CenterVertically)
-                                                .padding(all = 4.dp)) {
-                                        Text("PREVIOUS", color = MaterialTheme.colors.secondary, fontWeight = FontWeight.Bold)
+                                                .align(Alignment.CenterVertically),
+                                            contentDescription = null
+                                        )
+                                        Text(
+                                            "PREVIOUS",
+                                            color = MaterialTheme.colors.secondary,
+                                            fontWeight = FontWeight.Bold,
+                                            modifier = Modifier.padding(start = 8.dp)
+                                        )
                                     }
-                                    Spacer(modifier = Modifier.weight(1f))
                                 }
                             }
 
-                            TextButton(onClick = { onHint() },
-                                    modifier = Modifier
-                                        .align(Alignment.CenterVertically)
-                                        .padding(all = 4.dp)) {
-                                Text("HINT", color = state.nodeStack.lastOrNull()?.let { MaterialTheme.colors.secondary } ?: MaterialTheme.colors.onBackground, fontWeight = FontWeight.Bold)
+                            TextButton(
+                                onClick = { onHint() },
+                                modifier = Modifier
+                                    .align(Alignment.CenterVertically)
+                                    .padding(all = 4.dp)
+                            ) {
+                                Text(
+                                    "HINT",
+                                    color = state.nodeStack.lastOrNull()
+                                        ?.let { MaterialTheme.colors.secondary }
+                                        ?: MaterialTheme.colors.onBackground,
+                                    fontWeight = FontWeight.Bold)
                             }
 
                             Row(modifier = Modifier.weight(1f)) {
-                                if(hasNextPuzzle) {
-                                    Spacer(modifier = Modifier.weight(1f))
-                                    TextButton(onClick = { onNextPuzzle() },
-                                            modifier = Modifier
-                                                .align(Alignment.CenterVertically)
-                                                .padding(all = 4.dp)) {
-                                        Text("NEXT", color = MaterialTheme.colors.secondary, fontWeight = FontWeight.Bold)
-                                    }
-                                    Image(painter = painterResource(R.drawable.ic_navigate_next),
+                                if (hasNextPuzzle) {
+                                    TextButton(
+                                        onClick = { onNextPuzzle() },
                                         modifier = Modifier
                                             .align(Alignment.CenterVertically)
-                                            .padding(start = 18.dp),
-                                        contentDescription = null
-                                    )
+                                            .padding(all = 4.dp)
+                                            .weight(1f)
+                                    ) {
+                                        Text(
+                                            "NEXT",
+                                            color = MaterialTheme.colors.secondary,
+                                            fontWeight = FontWeight.Bold
+                                        )
+                                        Image(
+                                            painter = painterResource(R.drawable.ic_navigate_next),
+                                            modifier = Modifier
+                                                .align(Alignment.CenterVertically)
+                                                .padding(start = 8.dp),
+                                            contentDescription = null
+                                        )
+                                    }
                                 }
                             }
                         }
-                        var boxState = rememberScrollState()
-                        Box(modifier = Modifier.verticalScroll(state = boxState)
-                                .weight(1f)) {
+                        val boxState = rememberScrollState()
+                        Box(
+                            modifier = Modifier
+                                .verticalScroll(state = boxState)
+                                .weight(1f)
+                        ) {
                             Text(
                                 text = state.nodeStack.let { stack ->
                                     stack.lastOrNull()?.text
@@ -306,47 +329,48 @@ fun TsumegoScreen(
                         }
 
                         Column {
-                            Row(horizontalArrangement = Arrangement.SpaceAround,
+                            Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(horizontal = 12.dp, vertical = 16.dp)) {
+                                    .padding(horizontal = 12.dp, vertical = 16.dp)
+                            ) {
                                 if (state.retryButtonVisible) {
                                     OutlinedButton(
-                                            onClick = { onResetPuzzle() },
-                                            modifier = Modifier.weight(1f)) {
-                                        Icon(imageVector = Icons.Filled.Refresh,
+                                        onClick = { onResetPuzzle() },
+                                        modifier = Modifier.weight(1f)
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Filled.Refresh,
                                             tint = MaterialTheme.colors.onSurface,
                                             modifier = Modifier.size(16.dp),
-                                            contentDescription = null)
-                                        Text(text = "RETRY",
+                                            contentDescription = null
+                                        )
+                                        Text(
+                                            text = "RETRY",
                                             color = MaterialTheme.colors.onSurface,
-                                            modifier = Modifier.padding(start = 8.dp))
+                                            modifier = Modifier.padding(start = 8.dp)
+                                        )
                                     }
                                 }
+                                if(state.retryButtonVisible && state.continueButtonVisible) {
+                                    Spacer(modifier = Modifier.width(16.dp))
+                                }
                                 if (state.continueButtonVisible) {
-                                    if(hasNextPuzzle) {
-                                        Button(onClick = { onNextPuzzle() },
-                                            modifier = Modifier.weight(1f)) {
+                                    if (hasNextPuzzle) {
+                                        Button(
+                                            onClick = { onNextPuzzle() },
+                                            modifier = Modifier.weight(1f)
+                                        ) {
                                             Text(text = "CONTINUE")
                                         }
                                     } else {
-                                        Button(onClick = { onBack() },
-                                            modifier = Modifier.weight(1f)) {
+                                        Button(
+                                            onClick = { onBack() },
+                                            modifier = Modifier.weight(1f)
+                                        ) {
                                             Text(text = "DONE")
                                         }
                                     }
-                                }
-                            }
-                            if (state.continueButtonVisible || (state.rating?.rating ?: 0) > 0) {
-                                Row(modifier = Modifier.height(32.dp)
-                                            .align(Alignment.CenterHorizontally)
-                                        ) {
-                                    RatingBar(
-                                        rating = state.rating?.rating?.toFloat() ?: 0f,
-                                        onTap = { onRate(it) },
-                                        modifier = Modifier
-                                            .align(Alignment.CenterVertically)
-                                    )
                                 }
                             }
                         }
@@ -356,7 +380,8 @@ fun TsumegoScreen(
         } ?: run {
             Box(
                 contentAlignment = Alignment.Center,
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier
+                    .fillMaxSize()
                     .padding(horizontal = 8.dp, vertical = 4.dp),
             ) {
                 Text(
@@ -366,4 +391,87 @@ fun TsumegoScreen(
             }
         }
     }
+}
+
+@Composable
+@Preview
+fun TsumegoScreenPreview() {
+    TsumegoScreen(
+        state = TsumegoState(
+            puzzle = Puzzle(
+                id = 1,
+                name = "Test",
+                puzzle = OGSPuzzle.PuzzleData(
+                    puzzle_rank = "",
+                    name = "",
+                    move_tree = MoveTree(),
+                    initial_player = "",
+                    height = 9,
+                    width = 9,
+                    mode = "",
+                    puzzle_collection = "",
+                    puzzle_type = "",
+                    initial_state = InitialState(),
+                    puzzle_description = "Lorem ipsum dolor sit amet consectetur adipiscing elit. ",
+                ),
+                order = 1,
+                owner = null,
+                created = null,
+                modified = null,
+                private = false,
+                width = 9,
+                height = 9,
+                type = null,
+                has_solution = false,
+                rating = 0f,
+                rating_count = 0,
+                rank = 0,
+                collection = null,
+                view_count = 0,
+                solved_count = 0,
+                attempt_count = 0,
+            ),
+            boardPosition = Position(
+                boardWidth = 9,
+                boardHeight = 9,
+                whiteStones = setOf(
+                    Cell(1, 1),
+                    Cell(3, 3),
+                    Cell(5, 5),
+                    Cell(7, 7),
+                ),
+                blackStones = setOf(
+                    Cell(0, 0),
+                    Cell(2, 2),
+                    Cell(4, 4),
+                    Cell(6, 6),
+                    Cell(8, 8),
+                ),
+            ),
+            boardTheme = BoardTheme.WOOD,
+            drawCoordinates = true,
+            boardInteractive = true,
+            removedStones = null,
+            hoveredCell = null,
+            nodeStack = ArrayDeque(),
+            description = "Test description",
+            retryButtonVisible = true,
+            continueButtonVisible = true,
+            rating = null,
+            solutions = listOf(PuzzleSolution(1, 1, null, 1, 1, 1, true, true)),
+        ),
+        hasPreviousPuzzle = true,
+        hasNextPuzzle = true,
+        collection = emptyList(),
+        positions = emptyMap(),
+        ratings = emptyMap(),
+        renderCollectionPuzzle = {},
+        onMove = {},
+        onHint = {},
+        onResetPuzzle = {},
+        onPreviousPuzzle = {},
+        onSelectPuzzle = {},
+        onNextPuzzle = {},
+        onBack = {},
+    )
 }
