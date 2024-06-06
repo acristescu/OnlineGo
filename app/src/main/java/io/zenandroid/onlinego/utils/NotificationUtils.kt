@@ -172,39 +172,43 @@ class NotificationUtils {
             games.forEach {
                 context.resources.getDimensionPixelSize(android.R.dimen.notification_large_icon_width)
                 val pendingIntent = NavDeepLinkBuilder(context)
-                        .setComponentName(MainActivity::class.java)
-                        .setGraph(R.navigation.graph)
-                        .setDestination(R.id.gameFragment)
-                        .setArguments(bundleOf(
-                                GAME_ID to it.id,
-                                GAME_WIDTH to it.width,
-                                GAME_HEIGHT to it.height
-                        ))
-                        .createPendingIntent()
+                    .setComponentName(MainActivity::class.java)
+                    .setGraph(R.navigation.graph)
+                    .setDestination(R.id.gameFragment)
+                    .setArguments(bundleOf(
+                        GAME_ID to it.id,
+                        GAME_WIDTH to it.width,
+                        GAME_HEIGHT to it.height
+                    ))
+                    .createPendingIntent()
 
                 val opponent = if (userId == it.blackPlayer.id) it.whitePlayer.username else it.blackPlayer.username
-                val message = when(it.phase) {
+                val message = when (it.phase) {
                     Phase.FINISHED -> {
                         val outcome = when {
                             it.outcome == "Cancellation" -> "Cancelled"
                             userId == it.blackPlayer.id ->
                                 if (it.blackLost == true) "Lost by ${it.outcome}"
                                 else "Won by ${it.outcome}"
+
                             userId == it.whitePlayer.id ->
                                 if (it.whiteLost == true) "Lost by ${it.outcome}"
                                 else "Won by ${it.outcome}"
+
                             it.whiteLost == true ->
                                 "Black won by ${it.outcome}"
+
                             else ->
                                 "White won by ${it.outcome}"
                         }
                         "Game ended - $outcome"
                     }
+
                     Phase.PLAY -> "Your turn"
                     Phase.STONE_REMOVAL -> "Stone removal phase"
-                    else -> "Requires your attention"
+                    else -> "${it.phase} Requires your attention"
                 }
-                val category = when(it.timeControl?.speed?.uppercase(Locale.ROOT)) {
+                val category = when (it.timeControl?.speed?.lowercase(Locale.ROOT)) {
                     "correspondence" -> "active_correspondence_games"
                     "live" -> "active_live_games"
                     "blitz" -> "active_blitz_games"
@@ -218,29 +222,30 @@ class NotificationUtils {
                 board.position = RulesManager.replay(it, computeTerritory = false)
                 remoteView.setImageViewBitmap(R.id.notification_bitmap, board.convertToContentBitmap())
                 val notification =
-                        NotificationCompat.Builder(context, category)
-                                .setContentTitle(opponent)
-                                .setContentText(message)
-                                .setContentIntent(pendingIntent)
-                                .setVibrate(arrayOf(0L, 200L, 0L, 200L).toLongArray())
-                                .setLargeIcon(board.convertToIconBitmap())
-                                .setSmallIcon(R.drawable.ic_notification_go_board)
-                                .setColor(ResourcesCompat.getColor(context.resources, R.color.colorTextSecondary, null))
-                                .setGroup("GAME_NOTIFICATIONS")
-                                .setGroupAlertBehavior(NotificationCompat.GROUP_ALERT_SUMMARY)
-                                .setStyle(NotificationCompat.DecoratedCustomViewStyle())
-                                .setCustomBigContentView(remoteView)
-                                .apply {
-                                    if (it.phase == Phase.PLAY)
-                                        setChronometerCountDown(true)
-                                            .setUsesChronometer(true)
-                                            .setShowWhen(true)
-                                            .setWhen(timeLimit)
-                                            .setOngoing(true)
-                                    else
-                                        setAutoCancel(true)
-                                }
-                                .build()
+                    NotificationCompat.Builder(context, category)
+                        .setContentTitle(opponent)
+                        .setContentText(message)
+                        .setContentIntent(pendingIntent)
+                        .setVibrate(arrayOf(0L, 200L, 0L, 200L).toLongArray())
+                        .setLargeIcon(board.convertToIconBitmap())
+                        .setSmallIcon(R.drawable.ic_notification_go_board)
+                        .setColor(ResourcesCompat.getColor(context.resources, R.color.colorTextSecondary, null))
+                        .setGroup("GAME_NOTIFICATIONS")
+                        .setGroupAlertBehavior(NotificationCompat.GROUP_ALERT_SUMMARY)
+                        .setStyle(NotificationCompat.DecoratedCustomViewStyle())
+                        .setCustomBigContentView(remoteView)
+                        .apply {
+                            if (it.phase == Phase.PLAY && it.timeControl?.speed != "correspondence" && Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                                setChronometerCountDown(true)
+                                    .setUsesChronometer(true)
+                                    .setShowWhen(true)
+                                    .setWhen(timeLimit)
+                                    .setOngoing(true)
+                            } else {
+                                setAutoCancel(true)
+                            }
+                        }
+                        .build()
 
                 val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
                 notificationManager.notify(it.id.toInt(), notification)

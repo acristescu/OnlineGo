@@ -32,6 +32,8 @@ private val annotatedCurrentText = AnnotatedString.Builder().run {
     pop()
 
     pushStyle(SpanStyle(fontWeight = FontWeight.Normal))
+    append("· Hot fix for some notification issues that were introduced in the previous version.")
+    append("\n")
     append("· Puzzles screen (thanks to bqv for the contribution)")
     append("\n")
     append("· More notifications controls. You can now disable notifications for live games for example.")

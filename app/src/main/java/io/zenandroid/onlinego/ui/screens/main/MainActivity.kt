@@ -138,56 +138,61 @@ class MainActivity : AppCompatActivity(), MainContract.View {
             val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
             listOf(
-                    NotificationChannelGroup("correspondence", "Correspondence"),
-                    NotificationChannelGroup("live", "Live"),
-                    NotificationChannelGroup("blitz", "Blitz"),
-            ).map(notificationManager::createNotificationChannelGroup)
+                NotificationChannelGroup("correspondence", "Correspondence"),
+                NotificationChannelGroup("live", "Live"),
+                NotificationChannelGroup("blitz", "Blitz"),
+            )
+                .map { it.id }
+                .map(notificationManager::deleteNotificationChannelGroup)
+
+            notificationManager.createNotificationChannelGroup(
+                NotificationChannelGroup("your_turn", "Your Turn")
+            )
 
             notificationManager.createNotificationChannels(
-                    listOf(
-                            NotificationChannel("active_correspondence_games", "Your Turn", NotificationManager.IMPORTANCE_LOW).apply {
-                                setGroup("correspondence")
-                                enableLights(true)
-                                lightColor = Color.WHITE
-                                enableVibration(true)
-                                vibrationPattern = longArrayOf(0, 200, 0, 200)
+                listOf(
+                    NotificationChannel("active_correspondence_games", "Correspondence Games", NotificationManager.IMPORTANCE_LOW).apply {
+                        group = "your_turn"
+                        enableLights(true)
+                        lightColor = Color.WHITE
+                        enableVibration(true)
+                        vibrationPattern = longArrayOf(0, 200, 0, 200)
 
-                            },
-                            NotificationChannel("active_live_games", "Your Turn", NotificationManager.IMPORTANCE_LOW).apply {
-                                setGroup("live")
-                                enableLights(true)
-                                lightColor = Color.WHITE
-                                enableVibration(true)
-                                vibrationPattern = longArrayOf(0, 200, 0, 200)
+                    },
+                    NotificationChannel("active_live_games", "Live Games", NotificationManager.IMPORTANCE_LOW).apply {
+                        group = "your_turn"
+                        enableLights(true)
+                        lightColor = Color.WHITE
+                        enableVibration(true)
+                        vibrationPattern = longArrayOf(0, 200, 0, 200)
 
-                            },
-                            NotificationChannel("active_blitz_games", "Your Turn", NotificationManager.IMPORTANCE_LOW).apply {
-                                setGroup("blitz")
-                                enableLights(true)
-                                lightColor = Color.WHITE
-                                enableVibration(true)
-                                vibrationPattern = longArrayOf(0, 200, 0, 200)
+                    },
+                    NotificationChannel("active_blitz_games", "Blitz Games", NotificationManager.IMPORTANCE_LOW).apply {
+                        group = "your_turn"
+                        enableLights(true)
+                        lightColor = Color.WHITE
+                        enableVibration(true)
+                        vibrationPattern = longArrayOf(0, 200, 0, 200)
 
-                            },
-                            NotificationChannel("active_games", "Your Turn", NotificationManager.IMPORTANCE_NONE).apply {
-                                enableLights(true)
-                                lightColor = Color.WHITE
-                                enableVibration(true)
-                                vibrationPattern = longArrayOf(0, 200, 0, 200)
+                    },
+                    NotificationChannel("active_games", "Your Turn", NotificationManager.IMPORTANCE_LOW).apply {
+                        enableLights(true)
+                        lightColor = Color.WHITE
+                        enableVibration(true)
+                        vibrationPattern = longArrayOf(0, 200, 0, 200)
+                    },
+                    NotificationChannel("challenges", "Challenges", NotificationManager.IMPORTANCE_LOW).apply {
+                        enableLights(true)
+                        lightColor = Color.WHITE
+                        enableVibration(true)
+                        vibrationPattern = longArrayOf(0, 200, 0, 200)
 
-                            },
-                            NotificationChannel("challenges", "Challenges", NotificationManager.IMPORTANCE_LOW).apply {
-                                enableLights(true)
-                                lightColor = Color.WHITE
-                                enableVibration(true)
-                                vibrationPattern = longArrayOf(0, 200, 0, 200)
-
-                            },
-                            NotificationChannel("logout", "Logout", NotificationManager.IMPORTANCE_LOW).apply {
-                                enableLights(false)
-                                enableVibration(false)
-                            }
-                    )
+                    },
+                    NotificationChannel("logout", "Logout", NotificationManager.IMPORTANCE_LOW).apply {
+                        enableLights(false)
+                        enableVibration(false)
+                    }
+                )
             )
         }
     }
