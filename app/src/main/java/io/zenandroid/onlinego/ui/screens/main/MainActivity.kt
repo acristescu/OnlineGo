@@ -143,7 +143,13 @@ class MainActivity : AppCompatActivity(), MainContract.View {
                 NotificationChannelGroup("blitz", "Blitz"),
             )
                 .map { it.id }
-                .map(notificationManager::deleteNotificationChannelGroup)
+                .map {
+                    try {
+                        notificationManager.deleteNotificationChannelGroup(it)
+                    } catch (_: Exception) {
+                        // a bug in Oreo where deleting a non-existant notification channel group throws an NPE
+                    }
+                }
 
             notificationManager.createNotificationChannelGroup(
                 NotificationChannelGroup("your_turn", "Your Turn")

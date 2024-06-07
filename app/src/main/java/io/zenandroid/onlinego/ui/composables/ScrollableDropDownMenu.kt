@@ -583,7 +583,11 @@ private class PopupLayout(
         params.x = popupPosition.x
         params.y = popupPosition.y
 
-        windowManager.updateViewLayout(this, params)
+        try {
+            windowManager.updateViewLayout(this, params)
+        } catch (_: Exception) {
+            // Ignore the exception if the view is not attached to the window.
+        }
     }
 
     /**
