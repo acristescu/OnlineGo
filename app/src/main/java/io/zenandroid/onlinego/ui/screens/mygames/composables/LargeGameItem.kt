@@ -93,8 +93,16 @@ fun LargeGameItem(game: Game, boardTheme: BoardTheme, userId: Long, onAction: (A
                             fontSize = 12.sp,
                         )
                         if (game.pauseControl.isPaused()) {
+                            val paused = when {
+                                game.pauseControl?.vacationWhite == true -> "vacation (white)"
+                                game.pauseControl?.vacationBlack == true -> "vacation (black)"
+                                game.pauseControl?.weekend == true -> "weekend"
+                                game.pauseControl?.stoneRemoval == true -> "scoring"
+                                game.pauseControl?.server == true -> "paused (server)"
+                                else -> "paused"
+                            }
                             Text(
-                                text = "  ·  paused",
+                                text = "  ·  $paused",
                                 style = TextStyle.Default.copy(
                                     fontSize = 12.sp,
                                 ),
