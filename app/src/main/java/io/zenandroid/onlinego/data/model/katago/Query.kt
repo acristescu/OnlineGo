@@ -21,5 +21,6 @@ data class Query (
         val avoidMoves: List<List<String>>? = null,
         val allowMoves: List<List<String>>? = null,
         val overrideSettings: String? = null,
-        val priority: Int? = null
+        val reportDuringSearchEvery: Float? = null,
+        val priority: Int? = null,
 )
