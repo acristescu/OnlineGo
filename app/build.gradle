@@ -198,6 +198,8 @@ dependencies {
 
     implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0'
 
+    implementation 'com.github.sephiroth74:NumberSlidingPicker:v1.0.3'
+
     testImplementation 'com.nhaarman:mockito-kotlin-kt1.1:1.6.0'
     testImplementation 'junit:junit:4.13.2'
     testImplementation "io.insert-koin:koin-test-junit4:$koin_version"
