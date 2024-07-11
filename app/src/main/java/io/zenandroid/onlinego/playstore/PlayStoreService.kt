@@ -6,7 +6,6 @@ import android.util.Log
 import com.android.billingclient.api.*
 import com.android.billingclient.api.BillingClient.BillingResponseCode
 import com.android.billingclient.api.BillingClient.ProductType
-import com.android.billingclient.api.BillingFlowParams.ProrationMode.IMMEDIATE_WITHOUT_PRORATION
 import com.android.billingclient.api.BillingFlowParams.SubscriptionUpdateParams
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.reactivex.Completable
@@ -130,7 +129,7 @@ class PlayStoreService(
                                 if(oldProductPurchase != null) {
                                     setSubscriptionUpdateParams(SubscriptionUpdateParams.newBuilder()
                                         .setOldPurchaseToken(oldProductPurchase.purchaseToken)
-                                        .setReplaceProrationMode(IMMEDIATE_WITHOUT_PRORATION)
+                                        .setSubscriptionReplacementMode(SubscriptionUpdateParams.ReplacementMode.CHARGE_FULL_PRICE)
                                         .build()
                                     )
                                 }

@@ -182,7 +182,7 @@ dependencies {
     implementation "io.insert-koin:koin-android:$koin_version"
     implementation "io.insert-koin:koin-androidx-compose:$koin_version"
 
-    implementation "com.android.billingclient:billing-ktx:5.2.1"
+    implementation "com.android.billingclient:billing-ktx:7.0.0"
 
     implementation "androidx.room:room-runtime:$room_version"
     implementation "androidx.room:room-rxjava2:$room_version"
