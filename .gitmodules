@@ -1,0 +1,3 @@
+[submodule "katago"]
+	path = engine/katago/src
+	url = https://github.com/lightvector/KataGo
