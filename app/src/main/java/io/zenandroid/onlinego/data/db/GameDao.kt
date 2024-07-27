@@ -23,6 +23,7 @@ import io.zenandroid.onlinego.data.model.local.GameNotificationWithDetails
 import io.zenandroid.onlinego.data.model.local.HistoricGamesMetadata
 import io.zenandroid.onlinego.data.model.local.InitialState
 import io.zenandroid.onlinego.data.model.local.Message
+import io.zenandroid.onlinego.data.model.local.PauseControl
 import io.zenandroid.onlinego.data.model.local.Player
 import io.zenandroid.onlinego.data.model.local.Puzzle
 import io.zenandroid.onlinego.data.model.local.PuzzleCollection
@@ -31,8 +32,7 @@ import io.zenandroid.onlinego.data.model.local.Score
 import io.zenandroid.onlinego.data.model.local.VisitedPuzzleCollection
 import io.zenandroid.onlinego.data.model.ogs.JosekiPosition
 import io.zenandroid.onlinego.data.model.ogs.Phase
-import io.zenandroid.onlinego.data.model.ogs.PuzzleRating
-import io.zenandroid.onlinego.data.model.ogs.PuzzleSolution
+import io.zenandroid.onlinego.data.ogs.Pause
 import kotlinx.coroutines.flow.Flow
 
 private const val MAX_ALLOWED_SQL_PARAMS = 999
@@ -230,12 +230,15 @@ abstract class GameDao {
     open fun updateClock(
             id: Long,
             playerToMoveId: Long?,
-            clock: Clock?) {
+            clock: Clock?,
+            pause: Pause?) {
         getGame(id).blockingGet().let {
             update(it.copy(
                 undoRequested = if(it.playerToMoveId != playerToMoveId) null else it.undoRequested,
                 playerToMoveId = playerToMoveId,
                 clock = clock,
+                pauseControl = (it.pauseControl ?: PauseControl())
+                    .copy(pausedByThirdParty = pause?.paused),
                 pausedSince = when(clock?.newPausedState) {
                     true -> clock.newPausedSince
                     false -> null
