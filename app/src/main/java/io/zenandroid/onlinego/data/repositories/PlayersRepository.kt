@@ -16,7 +16,7 @@ class PlayersRepository(
       .getRecentOpponents(userSessionRepository.userId)
       .distinctBy { it.id }
 
-  fun searchPlayers(query: String): Single<List<Player>> {
-    return restService.searchPlayers(query).map { it.map(Player.Companion::fromOGSPlayer) }
+  suspend fun searchPlayers(query: String): List<Player> {
+    return restService.searchPlayers(query).map (Player.Companion::fromOGSPlayer)
   }
 }

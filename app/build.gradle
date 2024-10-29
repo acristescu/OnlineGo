@@ -90,12 +90,12 @@ android {
 
 dependencies {
     def koin_version = '3.5.0'
-    def play_services_version = '21.1.1'
+    def play_services_version = '21.2.0'
     def accompanist_version = '0.34.0'
     def room_version = '2.5.2'
     def firebase_version = '33.0.0'
     def compose_version = "1.6.7"
-    def work_manager_version = "2.9.0"
+    def work_manager_version = "2.9.1"
 //    def composeBom = platform('androidx.compose:compose-bom:2023.01.00')
 
     implementation fileTree(dir: 'libs', include: ['*.jar'])
@@ -112,7 +112,7 @@ dependencies {
     implementation "com.google.accompanist:accompanist-placeholder-material:$accompanist_version"
     implementation "com.google.accompanist:accompanist-pager-indicators:$accompanist_version"
 
-    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'androidx.appcompat:appcompat:1.7.0'
 
     implementation platform("com.google.firebase:firebase-bom:$firebase_version")
     // retrofit
@@ -122,17 +122,17 @@ dependencies {
 
     implementation "com.google.android.gms:play-services-auth:$play_services_version"
     implementation "org.jetbrains.kotlinx:kotlinx-collections-immutable:0.3.7"
-    implementation "androidx.compose.material3:material3:1.2.1"
+    implementation "androidx.compose.material3:material3:1.3.0"
 
     implementation "io.coil-kt:coil-compose:2.4.0"
     implementation 'com.squareup.okhttp3:logging-interceptor:4.11.0'
     implementation 'com.github.franmontiel:PersistentCookieJar:v1.0.1'
 
-    implementation 'com.squareup.moshi:moshi-kotlin:1.15.0'
+    implementation 'com.squareup.moshi:moshi-kotlin:1.15.1'
     implementation 'com.squareup.moshi:moshi-adapters:1.15.0'
 
-    implementation "androidx.navigation:navigation-fragment-ktx:2.7.7"
-    implementation "androidx.navigation:navigation-ui-ktx:2.7.7"
+    implementation "androidx.navigation:navigation-fragment-ktx:2.8.3"
+    implementation "androidx.navigation:navigation-ui-ktx:2.8.3"
     implementation "androidx.core:core-ktx:1.13.1"
 
     implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
@@ -157,7 +157,7 @@ dependencies {
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     implementation 'androidx.cardview:cardview:1.0.0'
     implementation 'androidx.legacy:legacy-preference-v14:1.0.0'
-    implementation "androidx.activity:activity-compose:1.9.0"
+    implementation "androidx.activity:activity-compose:1.9.3"
 
     implementation 'me.zhanghai.android.materialprogressbar:library:1.6.1'
 
@@ -176,32 +176,32 @@ dependencies {
     implementation 'org.jsoup:jsoup:1.16.1'
 
     implementation 'com.github.bumptech.glide:glide:4.12.0'
-    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.0'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.6'
     ksp 'com.github.bumptech.glide:compiler:4.12.0'
 
     implementation "io.insert-koin:koin-android:$koin_version"
     implementation "io.insert-koin:koin-androidx-compose:$koin_version"
 
-    implementation "com.android.billingclient:billing-ktx:7.0.0"
+    implementation "com.android.billingclient:billing-ktx:7.1.1"
 
     implementation "androidx.room:room-runtime:$room_version"
     implementation "androidx.room:room-rxjava2:$room_version"
     implementation "androidx.room:room-ktx:$room_version"
 
-    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.4'
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.2'
 
     implementation 'com.github.cpiz:BubbleView:1.0.3'
 
     ksp "androidx.room:room-compiler:$room_version"
 
-    implementation 'androidx.test.espresso:espresso-idling-resource:3.5.1'
+    implementation 'androidx.test.espresso:espresso-idling-resource:3.6.1'
 
     implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0'
 
     testImplementation 'com.nhaarman:mockito-kotlin-kt1.1:1.6.0'
     testImplementation 'junit:junit:4.13.2'
     testImplementation "io.insert-koin:koin-test-junit4:$koin_version"
-    testImplementation "org.mockito:mockito-inline:4.8.0"
+    testImplementation "org.mockito:mockito-inline:5.2.0"
     testImplementation "androidx.arch.core:core-testing:2.2.0"
     testImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3'
     testImplementation 'app.cash.turbine:turbine:1.0.0'

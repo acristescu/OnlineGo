@@ -63,16 +63,7 @@ class NewChallengeBottomSheet : BottomSheetDialogFragment() {
           NewChallengeBottomSheetContent(
             state = state,
             onEvent = {
-//              if (it is NewChallengeViewModel.Event.OpponentClicked) {
-//                fragmentManager?.let {
-//                  SelectOpponentDialog().apply {
-//                    setTargetFragment(this@NewChallengeBottomSheet, 1)
-//                    show(it, "SELECT_OPPONENT")
-//                  }
-//                }
-//              } else {
                 viewModel.onEvent(it)
-//              }
             }
           )
           if(state.selectOpponentDialogShowing) {

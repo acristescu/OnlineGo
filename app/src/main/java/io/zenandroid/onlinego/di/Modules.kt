@@ -55,10 +55,6 @@ import io.zenandroid.onlinego.ui.screens.localai.middlewares.UserMoveMiddleware
 import io.zenandroid.onlinego.ui.screens.mygames.MyGamesViewModel
 import io.zenandroid.onlinego.ui.screens.newchallenge.NewChallengeViewModel
 import io.zenandroid.onlinego.ui.screens.newchallenge.SelectOpponentViewModel
-import io.zenandroid.onlinego.ui.screens.newchallenge.selectopponent.searchplayer.SearchMiddleware
-import io.zenandroid.onlinego.ui.screens.newchallenge.selectopponent.searchplayer.SearchPlayerReducer
-import io.zenandroid.onlinego.ui.screens.newchallenge.selectopponent.searchplayer.SearchPlayerState
-import io.zenandroid.onlinego.ui.screens.newchallenge.selectopponent.searchplayer.SearchPlayerViewModel
 import io.zenandroid.onlinego.ui.screens.onboarding.OnboardingViewModel
 import io.zenandroid.onlinego.ui.screens.puzzle.directory.PuzzleDirectoryViewModel
 import io.zenandroid.onlinego.ui.screens.puzzle.tsumego.TsumegoViewModel
@@ -160,16 +156,6 @@ private val useCasesModule = module {
 }
 
 private val viewModelsModule = module {
-  viewModel {
-    SearchPlayerViewModel(
-      Store(
-        SearchPlayerReducer(),
-        listOf(SearchMiddleware(get())),
-        SearchPlayerState()
-      )
-    )
-  }
-
   viewModel {
     JosekiExplorerViewModel(
       Store(

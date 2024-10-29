@@ -7,6 +7,8 @@ import io.zenandroid.onlinego.data.model.local.Player
 import io.zenandroid.onlinego.data.repositories.BotsRepository
 import io.zenandroid.onlinego.data.repositories.PlayersRepository
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -21,6 +23,8 @@ class SelectOpponentViewModel(
       .bots
       .sortedBy { it.rating }
   ))
+
+  private var currentSearch: Job? = null
 
   init {
     viewModelScope.launch {
@@ -42,6 +46,20 @@ class SelectOpponentViewModel(
           it.copy(selectedTab = event.tab)
         }
       }
+
+      is Event.SearchTermChanged -> {
+        state.update {
+          it.copy(searchTerm = event.query)
+        }
+        currentSearch?.cancel()
+        currentSearch = viewModelScope.launch {
+          delay(100)
+          val searchResults = playersRepository.searchPlayers(event.query)
+          state.update {
+            it.copy(searchResults = searchResults )
+          }
+        }
+      }
     }
   }
 }
@@ -51,6 +69,8 @@ data class SelectOpponentState(
   val selectedTab: Tab = Tab.BOT,
   val bots: List<Player> = emptyList(),
   val recentOpponents: List<Player> = emptyList(),
+  val searchTerm: String = "",
+  val searchResults: List<Player> = emptyList(),
 )
 
 enum class Tab {
@@ -62,4 +82,5 @@ enum class Tab {
 sealed interface Event {
   data class TabSelected(val tab: Tab) : Event
   data class OpponentSelected(val opponent: Player) : Event
+  data class SearchTermChanged(val query: String) : Event
 }

@@ -102,7 +102,7 @@ interface OGSRestAPI {
     fun challengePlayer(@Path("id") id: Long, @Body request: OGSChallengeRequest): Completable
 
     @GET("/api/v1/ui/omniSearch")
-    fun omniSearch(@Query("q") q: String): Single<OmniSearchResponse>
+    suspend fun omniSearch(@Query("q") q: String): OmniSearchResponse
 
     @Headers("x-godojo-auth-token: foofer")
     @GET("/oje/positions?mode=0")

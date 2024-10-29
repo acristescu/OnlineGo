@@ -229,8 +229,9 @@ class OGSRestService(
                 restApi.fetchPlayerFinishedAfterGames(userSessionRepository.userId!!, 10, afterDate.microsToISODateTime(), 1)
             }.map { it.results }
 
-    fun searchPlayers(query: String): Single<List<OGSPlayer>> =
-            restApi.omniSearch(query).map { it.players }
+    suspend fun searchPlayers(query: String): List<OGSPlayer> =
+      restApi.omniSearch(query).players
+
 
     fun getJosekiPositions(id: Long?): Single<List<JosekiPosition>> =
             restApi.getJosekiPositions(id?.toString() ?: "root")

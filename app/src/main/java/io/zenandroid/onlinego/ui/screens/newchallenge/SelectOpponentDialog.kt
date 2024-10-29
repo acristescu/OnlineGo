@@ -45,6 +45,7 @@ import coil.request.ImageRequest
 import com.google.accompanist.pager.pagerTabIndicatorOffset
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.local.Player
+import io.zenandroid.onlinego.ui.composables.SearchTextField
 import io.zenandroid.onlinego.utils.PreviewBackground
 import io.zenandroid.onlinego.utils.egfToRank
 import io.zenandroid.onlinego.utils.formatRank
@@ -158,7 +159,11 @@ private fun SelectOpponentDialogContent(
               state = state,
               onOpponentSelected = { onEvent(Event.OpponentSelected(it)) }
             )
-            2 -> Search()
+            2 -> Search(
+              state = state,
+              onOpponentSelected = { onEvent(Event.OpponentSelected(it)) },
+              onSearchTermChanged = { onEvent(Event.SearchTermChanged(it)) },
+            )
           }
         }
       }
@@ -266,14 +271,31 @@ private fun RecentList(state: SelectOpponentState, onOpponentSelected: (Player) 
 }
 
 @Composable
-private fun Search() {
+private fun Search(state: SelectOpponentState, onOpponentSelected: (Player) -> Unit, onSearchTermChanged: (String) -> Unit) {
   Column(
     horizontalAlignment = Alignment.CenterHorizontally,
     modifier = Modifier
       .fillMaxSize()
-      .padding(top = 16.dp)
+      .padding(16.dp)
   ) {
-    Text(text = "Search")
+    SearchTextField(
+      value = state.searchTerm,
+      onValueChange = onSearchTermChanged,
+      hint = "Search by username",
+      modifier = Modifier
+        .fillMaxWidth()
+        .padding(horizontal = 16.dp)
+    )
+    LazyColumn {
+      items(items = state.searchResults) {
+        OpponentItem(
+          opponent = it,
+          modifier = Modifier
+            .clickable { onOpponentSelected(it) }
+            .padding(vertical = 8.dp)
+        )
+      }
+    }
   }
 }
 
