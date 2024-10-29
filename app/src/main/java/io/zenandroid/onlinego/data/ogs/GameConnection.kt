@@ -10,6 +10,7 @@ import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.local.Message
 import io.zenandroid.onlinego.data.model.local.Score
 import io.zenandroid.onlinego.data.model.local.Time
+import io.zenandroid.onlinego.data.model.ogs.AnalysisMessage
 import io.zenandroid.onlinego.data.model.ogs.Chat
 import io.zenandroid.onlinego.data.model.ogs.GameData
 import io.zenandroid.onlinego.data.model.ogs.OGSPlayer
@@ -18,6 +19,7 @@ import io.zenandroid.onlinego.data.repositories.ChatRepository
 import io.zenandroid.onlinego.gamelogic.Util
 import io.zenandroid.onlinego.gamelogic.Util.getCurrentUserId
 import io.zenandroid.onlinego.utils.addToDisposable
+import io.zenandroid.onlinego.utils.json
 import io.zenandroid.onlinego.utils.recordException
 import org.koin.core.context.GlobalContext.get
 import java.io.Closeable
@@ -65,13 +67,17 @@ class GameConnection(
     val undoAccepted: Observable<Int> = undoAcceptedSubject.hide()
 
     var gameAuth: String? = null
+    var gameSize: Int? = null
 
     private val subscriptions = CompositeDisposable()
 
     init {
         gameDataObservable
                 .retryOnError("gamedata")
-                .doOnNext{ gameAuth = it.auth }
+                .doOnNext{
+                    gameAuth = it.auth
+                    gameSize = it.height
+                }
                 .subscribe(gameDataSubject::onNext)
                 .addToDisposable(subscriptions)
 
@@ -97,7 +103,7 @@ class GameConnection(
         chatObservable
                 .retryOnError("chat")
                 .subscribe {
-                    chatRepository.addMessage(Message.fromOGSMessage(it, gameId))
+                    chatRepository.addMessage(Message.fromOGSMessage(it, gameId, gameSize))
                 }
                 .addToDisposable(subscriptions)
 
@@ -208,12 +214,33 @@ class GameConnection(
         }
     }
 
-    fun sendMessage(message: String, moveNumber: Int) {
+    fun sendMessage(message: String, moveNumber: Int, type: String = "main") {
         socketService.emit("game/chat") {
             "body" - message
             "game_id" - gameId
             "move_number" - moveNumber
-            "type" - "main"
+            "type" - type
+        }
+    }
+
+    fun sendAnalysisMessage(message: AnalysisMessage, moveNumber: Int, type: String = "main") {
+        val message_moves = message.moves
+            ?.joinToString(separator = "") {
+                Util.getSGFCoordinates(it)
+            }
+        socketService.emit("game/chat") {
+            "body" - json {
+                "type" - message.type
+                "name" - message.name
+                "from" - message.from
+                "moves" - message_moves
+                "marks" - message.marks
+                "pen_marks" - message.pen_marks
+                "branch_move" - message.branch_move
+            }
+            "game_id" - gameId
+            "move_number" - moveNumber
+            "type" - type
         }
     }
 
