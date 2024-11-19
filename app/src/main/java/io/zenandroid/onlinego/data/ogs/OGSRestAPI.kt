@@ -86,6 +86,9 @@ interface OGSRestAPI {
             @Query("ended__gt") ended: String,
             @Query("page") page: Int = 1): Single<PagedResult<OGSGame>>
 
+    @POST("/api/v1/challenges/{challenge_id}/accept")
+    fun acceptOpenChallenge(@Path("challenge_id") id: Long): Completable
+
     @GET("/api/v1/me/challenges?page_size=100")
     fun fetchChallenges(): Single<PagedResult<OGSChallenge>>
 
