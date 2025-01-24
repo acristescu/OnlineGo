@@ -32,7 +32,7 @@ private val annotatedCurrentText = AnnotatedString.Builder().run {
     pop()
 
     pushStyle(SpanStyle(fontWeight = FontWeight.Normal))
-    append("· Fixed a bug with searching players by username.")
+    append("· Updated the 'Play online' to match the new OGS website design\n")
     append("\n")
     pop()
 

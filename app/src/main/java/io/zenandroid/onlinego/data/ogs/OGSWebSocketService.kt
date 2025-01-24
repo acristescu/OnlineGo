@@ -306,33 +306,35 @@ class OGSWebSocketService(
                 , BackpressureStrategy.BUFFER)
     }
 
-    fun startAutomatch(sizes: List<Size>, speed: Speed) : String {
+    fun startAutomatch(sizes: List<Size>, speeds: List<Speed>) : String {
         val uuid = UUID.randomUUID().toString()
 
         emit("automatch/find_match"){
             "uuid" - uuid
             "size_speed_options" - createJsonArray {
-                sizes.forEach { size ->
-                    put(json {
-                        "size" - size.getText()
-                        "speed" - speed.getText()
-                    })
+                speeds.forEach { speed ->
+                    sizes.forEach { size ->
+                        put(json {
+                            "size" - size.getText()
+                            "speed" - speed.getText()
+                            "system" - "byoyomi"
+                        })
+                        put(json {
+                            "size" - size.getText()
+                            "speed" - speed.getText()
+                            "system" - "fischer"
+                        })
+                    }
                 }
             }
             "lower_rank_diff" - 6
             "upper_rank_diff" - 6
             "rules" - json {
-                "condition" - "no-preference"
+                "condition" - "required"
                 "value" - "japanese"
             }
-            "time_control" - json {
-                "condition" - "no-preference"
-                "value" - json {
-                    "system" - "byoyomi"
-                }
-            }
             "handicap" - json {
-                "condition" - "no-preference"
+                "condition" - "preferred"
                 "value" - "enabled"
             }
         }

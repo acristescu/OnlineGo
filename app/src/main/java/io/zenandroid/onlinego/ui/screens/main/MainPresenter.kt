@@ -54,11 +54,11 @@ class MainPresenter (
         socketService.disconnect()
     }
 
-    override fun onStartSearch(sizes: List<Size>, speed: Speed) {
-        if(speed in arrayOf(Speed.NORMAL, Speed.BLITZ) && automatchRepository.automatches.find { it.liveOrBlitz } != null) {
-            view.showError("Can only search for one live or blitz game at a time.")
+    override fun onStartSearch(sizes: List<Size>, speeds: List<Speed>) {
+        if((speeds.contains(Speed.LIVE) || speeds.contains(Speed.RAPID) || speeds.contains(Speed.BLITZ)) && automatchRepository.automatches.find { it.liveOrBlitzOrRapid } != null) {
+            view.showError("Can only search for one live, rapid or blitz game at a time.")
         } else {
-            socketService.startAutomatch(sizes, speed)
+            socketService.startAutomatch(sizes, speeds)
         }
     }
 

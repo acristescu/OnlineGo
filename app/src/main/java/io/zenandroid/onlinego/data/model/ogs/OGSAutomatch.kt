@@ -5,8 +5,8 @@ data class OGSAutomatch(
         val game_id: Long?,
         val size_speed_options: List<SizeSpeedOption>?
 ) {
-    val liveOrBlitz: Boolean
-        get() = size_speed_options?.find { it.speed == "blitz" || it.speed == "live" } != null
+    val liveOrBlitzOrRapid: Boolean
+        get() = size_speed_options?.find { it.speed == "blitz" || it.speed == "live" || it.speed == "rapid" } != null
 }
 
 data class SizeSpeedOption(
@@ -24,10 +24,11 @@ enum class Size {
     }
 }
 enum class Speed {
-    BLITZ, NORMAL, LONG;
+    BLITZ, RAPID, LIVE, LONG;
     fun getText() = when(this) {
         BLITZ -> "blitz"
-        NORMAL -> "live"
+        RAPID -> "rapid"
+        LIVE -> "live"
         LONG -> "correspondence"
     }
 }

@@ -73,7 +73,7 @@ class AutomatchRepository(
 
     override fun onSocketDisconnected() {
         automatches = automatches.builder().apply {
-            removeAll { it.liveOrBlitz }
+            removeAll { it.liveOrBlitzOrRapid }
         }.build()
         automatchesSubject.onNext(automatches)
         subscriptions.clear()

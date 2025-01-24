@@ -31,6 +31,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -75,7 +76,7 @@ class NewAutomatchChallengeBottomSheet : BottomSheetDialogFragment() {
             onSmallCheckChanged = { viewModel.onSmallCheckChanged(it) },
             onMediumCheckChanged = { viewModel.onMediumCheckChanged(it) },
             onLargeCheckChanged = { viewModel.onLargeCheckChanged(it) },
-            onSpeedChanged = { viewModel.onSpeedChanged(it) },
+            onSpeedChanged = viewModel::onSpeedChanged,
             onSearchClicked = {
               dismiss()
               val selectedSizes = mutableListOf<Size>()
@@ -88,7 +89,7 @@ class NewAutomatchChallengeBottomSheet : BottomSheetDialogFragment() {
               if (state.large) {
                 selectedSizes.add(Size.LARGE)
               }
-              (activity as? MainActivity)?.onAutomatchSearchClicked(state.speed, selectedSizes)
+              (activity as? MainActivity)?.onAutomatchSearchClicked(state.speeds, selectedSizes)
             }
           )
         }
@@ -103,7 +104,7 @@ private fun NewAutomatchChallengeBottomSheetContent(
   onSmallCheckChanged: (Boolean) -> Unit,
   onMediumCheckChanged: (Boolean) -> Unit,
   onLargeCheckChanged: (Boolean) -> Unit,
-  onSpeedChanged: (Speed) -> Unit,
+  onSpeedChanged: (Speed, Boolean) -> Unit,
   onSearchClicked: () -> Unit,
   modifier: Modifier = Modifier
 ) {
@@ -112,6 +113,11 @@ private fun NewAutomatchChallengeBottomSheetContent(
       modifier
         .padding(16.dp)
     ) {
+      Text(
+        text = "Auto-match",
+        fontWeight = FontWeight.Bold,
+        modifier = Modifier.padding(vertical = 4.dp)
+      )
       Text(text = "Try your hand at a game against a human opponent of similar rating to you.")
       Text(
         text = "Game size",
@@ -130,40 +136,33 @@ private fun NewAutomatchChallengeBottomSheetContent(
         fontWeight = FontWeight.Bold,
         modifier = Modifier.padding(top = 16.dp)
       )
-      Box {
-        var expanded by remember { mutableStateOf(false) }
-        Text(
-          text = state.speed.getText()
-            .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.ENGLISH) else it.toString() },
-          color = MaterialTheme.colors.primary,
-          modifier = Modifier
-            .clickable {
-              expanded = true
-            }
-            .padding(top = 4.dp)
-            .fillMaxWidth()
-        )
-        DropdownMenu(
-          expanded = expanded,
-          onDismissRequest = { expanded = false },
-          modifier = Modifier.fillMaxWidth()
-        ) {
-          Speed.entries.forEach {
-            DropdownMenuItem(onClick = {
-              expanded = false
-              onSpeedChanged(it)
-            }) {
-              Text(text = it.getText()
-                .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.ENGLISH) else it.toString() })
-            }
-          }
-        }
+      Row {
+        SizeCheckbox(checked = state.speeds.contains(Speed.BLITZ), text = "Blitz", onClick = {onSpeedChanged(Speed.BLITZ, it)})
+        Spacer(modifier = Modifier.weight(1f))
+        SizeCheckbox(checked = state.speeds.contains(Speed.RAPID), text = "Rapid", onClick = {onSpeedChanged(Speed.RAPID, it)})
+        Spacer(modifier = Modifier.weight(1f))
+        SizeCheckbox(checked = state.speeds.contains(Speed.LIVE), text = "Live", onClick = {onSpeedChanged(Speed.LIVE, it)})
       }
+      Text(
+        text = "or",
+        fontStyle = FontStyle.Italic,
+        modifier = Modifier
+          .padding(top = 4.dp)
+          .align(Alignment.CenterHorizontally)
+      )
+      Row {
+        SizeCheckbox(checked = state.speeds.contains(Speed.LONG), text = "Correspondence", onClick = {onSpeedChanged(Speed.LONG, it)})
+      }
+      Text(
+        text = "Expected duration: ${state.duration}",
+        fontStyle = FontStyle.Italic,
+        modifier = Modifier.padding(top = 16.dp).align(Alignment.CenterHorizontally)
+      )
       Button(
         modifier = Modifier
           .fillMaxWidth()
           .padding(top = 16.dp),
-        enabled = state.isAnySizeSelected,
+        enabled = state.isAnySizeSelected && state.speeds.isNotEmpty(),
         onClick = onSearchClicked
       ) {
         Text("Search")
@@ -197,6 +196,6 @@ private fun RowScope.SizeCheckbox(checked: Boolean, text: String, onClick: (Bool
 private fun NewAutomatchChallengeBottomSheetPreview() {
   OnlineGoTheme {
     Box(modifier = Modifier.fillMaxSize())
-    NewAutomatchChallengeBottomSheetContent(AutomatchState(), {}, {}, {}, {}, {})
+    NewAutomatchChallengeBottomSheetContent(AutomatchState(), {}, {}, {}, {_,_ -> }, {})
   }
 }

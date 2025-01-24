@@ -270,13 +270,13 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         Toast.makeText(this, msg, Toast.LENGTH_LONG).show()
     }
 
-    fun onAutomatchSearchClicked(speed: Speed, sizes: List<Size>) {
+    fun onAutomatchSearchClicked(speeds: List<Speed>, sizes: List<Size>) {
         val params = Bundle().apply {
-            putString("SPEED", speed.toString())
+            putString("SPEED", speeds.joinToString { it.toString() })
             putString("SIZE", sizes.joinToString { it.toString() })
         }
         analytics.logEvent("new_game_search", params)
-        presenter.onStartSearch(sizes, speed)
+        presenter.onStartSearch(sizes, speeds)
     }
 
     fun onAutoMatchSearch() {
