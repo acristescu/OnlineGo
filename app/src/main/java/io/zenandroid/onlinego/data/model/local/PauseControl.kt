@@ -20,3 +20,10 @@ fun PauseControl?.isPaused() =
                 || this.moderator == true
                 || this.pausedByThirdParty == true
     } ?: false
+
+fun PauseControl?.isPlayerPaused() =
+    when {
+        this?.moderator == true -> true
+        this?.pausedByThirdParty == true -> true
+        else -> false
+    }
