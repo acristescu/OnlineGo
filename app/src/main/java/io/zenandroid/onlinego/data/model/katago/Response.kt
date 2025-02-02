@@ -12,6 +12,7 @@ sealed interface KataGoResponse {
 
   data class Response(
     override val id: String,
+    val isDuringSearch: Boolean = false,
     val turnNumber: Int,
     val moveInfos: List<MoveInfo>,
     val rootInfo: RootInfo,
