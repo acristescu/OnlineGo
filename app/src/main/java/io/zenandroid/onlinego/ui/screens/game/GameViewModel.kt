@@ -17,6 +17,7 @@ import androidx.compose.material.icons.rounded.Undo
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -45,6 +46,8 @@ import io.zenandroid.onlinego.data.model.local.Player
 import io.zenandroid.onlinego.data.model.local.Score
 import io.zenandroid.onlinego.data.model.local.UserStats
 import io.zenandroid.onlinego.data.model.local.isPaused
+import io.zenandroid.onlinego.data.model.ogs.AnalysisMessage
+import io.zenandroid.onlinego.data.model.ogs.ChatChannel
 import io.zenandroid.onlinego.data.model.ogs.Phase
 import io.zenandroid.onlinego.data.model.ogs.VersusStats
 import io.zenandroid.onlinego.data.ogs.GameConnection
@@ -92,6 +95,7 @@ import io.zenandroid.onlinego.ui.screens.game.UserAction.GameOverDialogNextGame
 import io.zenandroid.onlinego.ui.screens.game.UserAction.GameOverDialogQuickReplay
 import io.zenandroid.onlinego.ui.screens.game.UserAction.KOMoveDialogDismiss
 import io.zenandroid.onlinego.ui.screens.game.UserAction.OpenInBrowser
+import io.zenandroid.onlinego.ui.screens.game.UserAction.OpenVariation
 import io.zenandroid.onlinego.ui.screens.game.UserAction.OpponentUndoRequestAccepted
 import io.zenandroid.onlinego.ui.screens.game.UserAction.OpponentUndoRequestRejected
 import io.zenandroid.onlinego.ui.screens.game.UserAction.PassDialogConfirm
@@ -103,6 +107,7 @@ import io.zenandroid.onlinego.ui.screens.game.UserAction.RetryDialogDismiss
 import io.zenandroid.onlinego.ui.screens.game.UserAction.RetryDialogRetry
 import io.zenandroid.onlinego.ui.screens.game.UserAction.UserUndoDialogConfirm
 import io.zenandroid.onlinego.ui.screens.game.UserAction.UserUndoDialogDismiss
+import io.zenandroid.onlinego.ui.screens.game.UserAction.VariationSend
 import io.zenandroid.onlinego.ui.screens.game.UserAction.WhitePlayerClicked
 import io.zenandroid.onlinego.usecases.GetUserStatsUseCase
 import io.zenandroid.onlinego.usecases.RepoResult
@@ -156,7 +161,8 @@ class GameViewModel(
     private var pendingMove by mutableStateOf<PendingMove?>(null)
     private var retrySendMoveDialogShowing by mutableStateOf(false)
     private var koMoveDialogShowing by mutableStateOf(false)
-    private var analyzeMode by mutableStateOf(false)
+    var analyzeMode by mutableStateOf(false)
+        private set
     private var estimateMode by mutableStateOf(false)
     private var analysisShownMoveNumber by mutableStateOf(0)
     private var passDialogShowing by mutableStateOf(false)
@@ -296,7 +302,7 @@ class GameViewModel(
                     estimateMode -> listOf(ExitEstimate)
                     game?.phase == Phase.STONE_REMOVAL -> listOf(AcceptStoneRemoval, RejectStoneRemoval)
                     gameFinished == true -> listOf(chatButton, Estimate(true), Previous, nextButton)
-                    analyzeMode -> listOf(ExitAnalysis, Estimate(!isAnalysisDisabled()), Previous, nextButton)
+                    analyzeMode -> listOf(ExitAnalysis, Estimate(!isAnalysisDisabled()), chatButton, Previous, nextButton)
                     pendingMove != null -> emptyList()
                     isMyTurn && candidateMove == null -> listOf(Analyze, Pass, endGameButton, chatButton, nextGameButton)
                     isMyTurn && candidateMove != null -> listOf(ConfirmMove, DiscardMove)
@@ -748,7 +754,25 @@ class GameViewModel(
             CancelDialogDismiss -> cancelDialogShowing = false
             ChatDialogDismiss -> chatDialogShowing = false
             KOMoveDialogDismiss -> koMoveDialogShowing = false
-            is ChatSend -> gameConnection.sendMessage(action.message, gameState?.moves?.size ?: 0)
+            is ChatSend -> gameConnection.sendMessage(action.message, gameState?.moves?.size ?: 0, when (action.channel) {
+                ChatChannel.MAIN -> "main"
+                ChatChannel.MALKOVICH -> "malkovich"
+                ChatChannel.SPECTATOR -> "spectator"
+                ChatChannel.PERSONAL -> "personal"
+            })
+            is VariationSend -> {
+                gameConnection.sendAnalysisMessage(AnalysisMessage(
+                    name = action.title,
+                    from = currentVariation!!.rootMoveNo,
+                    moves = currentVariation!!.moves,
+                ), gameState?.moves?.size ?: 0, "main")
+            }
+            is OpenVariation -> {
+                chatDialogShowing = false
+                analyzeMode = true
+                currentVariation = action.variation
+                analysisShownMoveNumber = action.variation.rootMoveNo
+            }
             GameInfoClick -> gameInfoDialogShowing = true
             GameInfoDismiss -> gameInfoDialogShowing = false
             GameOverDialogDismiss -> gameOverDialogShowing = false
@@ -1034,7 +1058,9 @@ sealed interface UserAction {
     object PlayerDetailsDialogDismissed: UserAction
     object ChatDialogDismiss: UserAction
     object KOMoveDialogDismiss: UserAction
-    class ChatSend(val message: String): UserAction
+    class ChatSend(val message: String, val channel: ChatChannel): UserAction
+    class VariationSend(val title: String): UserAction
+    class OpenVariation(val variation: Variation): UserAction
     object OpenInBrowser: UserAction
     object DownloadSGF: UserAction
     object OpponentUndoRequestAccepted: UserAction
