@@ -9,12 +9,12 @@ apply plugin: 'app.cash.molecule'
 apply plugin: 'com.google.devtools.ksp'
 
 android {
-    compileSdk 34
+    compileSdk 35
     ndkVersion "25.1.8937393"
     defaultConfig {
         applicationId "io.zenandroid.onlinego"
         minSdkVersion 21
-        targetSdkVersion 34
+        targetSdkVersion 35
         versionCode 42
         versionName "alpha_b${versionCode}"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -46,8 +46,8 @@ android {
     }
     compileOptions {
         coreLibraryDesugaringEnabled true
-        sourceCompatibility JavaVersion.VERSION_17
-        targetCompatibility JavaVersion.VERSION_17
+        sourceCompatibility JavaVersion.VERSION_20
+        targetCompatibility JavaVersion.VERSION_20
     }
     testOptions {
         unitTests.returnDefaultValues = true
@@ -62,7 +62,7 @@ android {
         }
     }
     kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_17
+        jvmTarget = JavaVersion.VERSION_20
     }
     buildFeatures {
         compose true

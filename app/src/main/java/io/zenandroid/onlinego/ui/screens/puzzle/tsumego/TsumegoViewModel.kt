@@ -41,6 +41,7 @@ import kotlinx.coroutines.withContext
 import java.time.Instant.now
 import java.time.temporal.ChronoUnit.MILLIS
 import org.jsoup.Jsoup
+import java.util.Stack
 
 class TsumegoViewModel(
     private val puzzleRepository: PuzzleRepository,
@@ -129,7 +130,7 @@ class TsumegoViewModel(
                 sgfMoves = "",
                 continueButtonVisible = false,
                 retryButtonVisible = false,
-                nodeStack = ArrayDeque(listOf(puzzle.puzzle.move_tree))
+                nodeStack = Stack<MoveTree?>().apply { push(puzzle.puzzle.move_tree) },
             )
         }
 
@@ -244,12 +245,12 @@ class TsumegoViewModel(
                             return@launch
                         }).copy(nextToMove = position.nextToMove.opponent)
                     val nodeStack = _state.value.nodeStack
-                    nodeStack.addLast(node)
+                    nodeStack.push(node)
                     var moveString = _state.value.sgfMoves
                     moveString += Util.getSGFCoordinates(move)
                     node.branches?.randomOrNull()?.let { moveTree ->
                         val reply = Cell(moveTree.x, moveTree.y)
-                        nodeStack.addLast(moveTree)
+                        nodeStack.push(moveTree)
                         _state.update {
                             it.copy(
                                 boardPosition = position.let { pos ->
@@ -296,7 +297,7 @@ class TsumegoViewModel(
                         return@launch
                     }).copy(nextToMove = position.nextToMove.opponent)
                 val nodeStack = _state.value.nodeStack
-                nodeStack.addLast(null)
+                nodeStack.push(null)
                 _state.update {
                     it.copy(
                         boardPosition = position,

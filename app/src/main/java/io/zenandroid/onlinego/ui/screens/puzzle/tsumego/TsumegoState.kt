@@ -11,6 +11,7 @@ import io.zenandroid.onlinego.data.model.ogs.PuzzleRating
 import io.zenandroid.onlinego.data.model.ogs.PuzzleSolution
 import io.zenandroid.onlinego.data.model.StoneType
 import java.time.Instant
+import java.util.Stack
 
 @Immutable
 data class TsumegoState (
@@ -27,7 +28,7 @@ data class TsumegoState (
         val previousButtonEnabled: Boolean = false,
         val nextButtonEnabled: Boolean = false,
         val passButtonEnabled: Boolean = false,
-        val nodeStack: ArrayDeque<MoveTree?> = ArrayDeque(),
+        val nodeStack: Stack<MoveTree?> = Stack(),
         val removedStones: Map<Cell, StoneType>? = null,
         val hoveredCell: Cell? = null,
         val boardInteractive: Boolean = true,

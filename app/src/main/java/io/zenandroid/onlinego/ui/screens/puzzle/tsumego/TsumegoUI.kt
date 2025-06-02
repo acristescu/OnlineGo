@@ -33,6 +33,7 @@ import io.zenandroid.onlinego.data.model.ogs.PuzzleSolution
 import io.zenandroid.onlinego.ui.composables.Board
 import io.zenandroid.onlinego.ui.composables.ExposedLazyDropdownMenu
 import io.zenandroid.onlinego.ui.composables.RatingBar
+import java.util.Stack
 
 private const val TAG = "TsumegoUI"
 
@@ -453,7 +454,7 @@ fun TsumegoScreenPreview() {
             boardInteractive = true,
             removedStones = null,
             hoveredCell = null,
-            nodeStack = ArrayDeque(),
+            nodeStack = Stack(),
             description = "Test description",
             retryButtonVisible = true,
             continueButtonVisible = true,

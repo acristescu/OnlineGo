@@ -1,12 +1,18 @@
 package io.zenandroid.onlinego.ui.theme
 
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBars
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.darkColors
 import androidx.compose.material.lightColors
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 
 private val LightColorPalette = lightColors(
     primary = salmon,
@@ -51,12 +57,14 @@ fun OnlineGoTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composab
     }
 
     MaterialTheme(
-            colors = colors,
-            typography = typography,
-            shapes = shapes,
-            content = content
-    )
-}
+        colors = colors,
+        typography = typography,
+        shapes = shapes
+    ) {
+        Box(modifier = Modifier.padding(WindowInsets.systemBars.asPaddingValues())) {
+            content()
+        }
+    }}
 
 private val LightColorPaletteM3 = lightColorScheme(
     primary = salmon,
