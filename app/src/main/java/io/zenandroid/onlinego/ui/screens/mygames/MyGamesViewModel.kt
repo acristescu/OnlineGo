@@ -16,6 +16,7 @@ import io.zenandroid.onlinego.data.model.local.Challenge
 import io.zenandroid.onlinego.data.model.local.Game
 import io.zenandroid.onlinego.data.model.ogs.OGSAutomatch
 import io.zenandroid.onlinego.data.model.ogs.Phase
+import io.zenandroid.onlinego.data.model.ogs.Warning
 import io.zenandroid.onlinego.data.ogs.OGSRestService
 import io.zenandroid.onlinego.data.ogs.OGSWebSocketService
 import io.zenandroid.onlinego.data.repositories.ActiveGamesRepository
@@ -28,23 +29,7 @@ import io.zenandroid.onlinego.data.repositories.SettingsRepository
 import io.zenandroid.onlinego.data.repositories.TutorialsRepository
 import io.zenandroid.onlinego.data.repositories.UserSessionRepository
 import io.zenandroid.onlinego.gamelogic.RulesManager
-import io.zenandroid.onlinego.ui.screens.mygames.Action.AutomatchCancelled
-import io.zenandroid.onlinego.ui.screens.mygames.Action.ChallengeAccepted
-import io.zenandroid.onlinego.ui.screens.mygames.Action.ChallengeCancelled
-import io.zenandroid.onlinego.ui.screens.mygames.Action.ChallengeDeclined
-import io.zenandroid.onlinego.ui.screens.mygames.Action.ChallengeDialogDismissed
-import io.zenandroid.onlinego.ui.screens.mygames.Action.ChallengeSeeDetails
-import io.zenandroid.onlinego.ui.screens.mygames.Action.CustomGame
-import io.zenandroid.onlinego.ui.screens.mygames.Action.DismissAlertDialog
-import io.zenandroid.onlinego.ui.screens.mygames.Action.DismissWhatsNewDialog
-import io.zenandroid.onlinego.ui.screens.mygames.Action.FaceToFace
-import io.zenandroid.onlinego.ui.screens.mygames.Action.GameNavigationConsumed
-import io.zenandroid.onlinego.ui.screens.mygames.Action.GameSelected
-import io.zenandroid.onlinego.ui.screens.mygames.Action.LoadMoreHistoricGames
-import io.zenandroid.onlinego.ui.screens.mygames.Action.PlayAgainstAI
-import io.zenandroid.onlinego.ui.screens.mygames.Action.PlayOnline
-import io.zenandroid.onlinego.ui.screens.mygames.Action.SupportClicked
-import io.zenandroid.onlinego.ui.screens.mygames.Action.ViewResumed
+import io.zenandroid.onlinego.ui.screens.mygames.Action.*
 import io.zenandroid.onlinego.utils.WhatsNewUtils
 import io.zenandroid.onlinego.utils.addToDisposable
 import io.zenandroid.onlinego.utils.egfToRank
@@ -90,6 +75,19 @@ class MyGamesViewModel(
     }
 
     init {
+        viewModelScope.launch {
+            try {
+                val warning = restService.checkForWarnings()
+                if(warning.id != null) {
+                    _state.update {
+                        it.copy(warning = warning)
+                    }
+                }
+            } catch (throwable: Throwable) {
+                onError(throwable)
+            }
+        }
+
         activeGamesRepository.monitorActiveGames()
             .subscribeOn(Schedulers.io())
             .map(this::computePositions)
@@ -324,8 +322,24 @@ class MyGamesViewModel(
             DismissAlertDialog -> onDismissAlertDialog()
             GameNavigationConsumed -> onGameNavigationConsumed()
             ViewResumed -> onViewResumed()
+            WarningAcknowledged -> onWarningAcknowledged()
 
             CustomGame, is GameSelected, PlayAgainstAI, FaceToFace, PlayOnline, SupportClicked -> {} // intentionally left blank
+        }
+    }
+
+    private fun onWarningAcknowledged() {
+        _state.update {
+            it.warning?.let {
+                viewModelScope.launch {
+                    try {
+                        restService.acknowledgeWarning(it)
+                    } catch (throwable: Throwable) {
+                        onError(throwable)
+                    }
+                }
+            }
+            it.copy(warning = null)
         }
     }
 
@@ -434,6 +448,7 @@ data class MyGamesState(
     val boardTheme: BoardTheme,
     val online: Boolean = true,
     val challengeDetailsStatus: ChallengeDialogStatus? = null,
+    val warning: Warning? = null
 )
 
 
@@ -455,6 +470,7 @@ sealed interface Action {
     data class AutomatchCancelled(val automatch: OGSAutomatch): Action
     data class LoadMoreHistoricGames(val game: Game?): Action
     data object ViewResumed: Action
+    data object WarningAcknowledged: Action
 }
 
 @Immutable

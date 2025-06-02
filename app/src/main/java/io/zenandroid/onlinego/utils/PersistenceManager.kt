@@ -21,13 +21,13 @@ object PersistenceManager {
     private val moshi = Moshi.Builder().add(KotlinJsonAdapterFactory()).build()
 
     fun storeUIConfig(uiConfig: UIConfig) {
-        prefs.edit()
-            .putString(UICONFIG_KEY, moshi.adapter(UIConfig::class.java).toJson(uiConfig))
-            .apply()
+        prefs.edit {
+          putString(UICONFIG_KEY, moshi.adapter(UIConfig::class.java).toJson(uiConfig))
+        }
     }
 
     fun deleteUIConfig() {
-        prefs.edit().remove(UICONFIG_KEY).apply()
+        prefs.edit { remove(UICONFIG_KEY) }
     }
 
     fun getUIConfig(): UIConfig? =

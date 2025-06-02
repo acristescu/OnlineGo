@@ -10,6 +10,9 @@ import androidx.compose.material.Text
 import androidx.compose.material.TextButton
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy.DisposeOnLifecycleDestroyed
 import androidx.core.os.bundleOf
@@ -28,6 +31,7 @@ import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
 import io.zenandroid.onlinego.utils.WhatsNewUtils
 import io.zenandroid.onlinego.utils.analyticsReportScreen
 import io.zenandroid.onlinego.utils.rememberStateWithLifecycle
+import kotlinx.coroutines.delay
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 /**
@@ -35,130 +39,171 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
  */
 class MyGamesFragment : Fragment() {
 
-    private val viewModel: MyGamesViewModel by viewModel()
-    private var analytics = OnlineGoApplication.instance.analytics
+  private val viewModel: MyGamesViewModel by viewModel()
+  private var analytics = OnlineGoApplication.instance.analytics
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View =
-        ComposeView(requireContext()).apply {
-            setViewCompositionStrategy(
-                DisposeOnLifecycleDestroyed(viewLifecycleOwner)
+  override fun onCreateView(
+    inflater: LayoutInflater,
+    container: ViewGroup?,
+    savedInstanceState: Bundle?
+  ): View =
+    ComposeView(requireContext()).apply {
+      setViewCompositionStrategy(
+        DisposeOnLifecycleDestroyed(viewLifecycleOwner)
+      )
+      setContent {
+        OnlineGoTheme {
+          val state by rememberStateWithLifecycle(viewModel.state)
+
+          MyGamesScreen(state, ::onAction)
+
+          if (state.alertDialogText != null) {
+            AlertDialog(
+              title = { state.alertDialogTitle?.let { Text(it) } },
+              text = { state.alertDialogText?.let { Text(it) } },
+              confirmButton = {
+                Button(onClick = { onAction(Action.DismissAlertDialog) }) {
+                  Text("OK")
+                }
+              },
+              onDismissRequest = { onAction(Action.DismissAlertDialog) }
             )
-            setContent {
-                OnlineGoTheme {
-                    val state by rememberStateWithLifecycle(viewModel.state)
-
-                    MyGamesScreen(state, ::onAction)
-
-                    if(state.alertDialogText != null) {
-                        AlertDialog(
-                            title = { state.alertDialogTitle?.let { Text(it) } },
-                            text = { state.alertDialogText?.let { Text(it) } },
-                            confirmButton = {
-                                Button(onClick = { onAction(Action.DismissAlertDialog) }) {
-                                    Text("OK")
-                                }
-                            },
-                            onDismissRequest = { onAction(Action.DismissAlertDialog) }
-                        )
-                    }
-                    if(state.gameNavigationPending != null) {
-                        LaunchedEffect(state.gameNavigationPending) {
-                            navigateToGameScreen(state.gameNavigationPending!!)
-                            viewModel.onAction(Action.GameNavigationConsumed)
-                        }
-                    }
-                    if(state.whatsNewDialogVisible) {
-                        AlertDialog(
-                            onDismissRequest = { onAction(Action.DismissWhatsNewDialog) },
-                            dismissButton = {
-                                TextButton(onClick = { onAction(Action.DismissWhatsNewDialog) }) {
-                                    Text("OK")
-                                }
-                            },
-                            confirmButton = {
-                                TextButton(onClick = { onAction(Action.SupportClicked) }) {
-                                    Text("SUPPORT")
-                                }
-                            },
-                            text = { Text(WhatsNewUtils.whatsNewTextAnnotated) }
-                        )
-                    }
-                    state.challengeDetailsStatus?.let {
-                        ChallengeDetailsDialog(
-                            onChallengeAccepted = { onAction(Action.ChallengeAccepted(it))},
-                            onChallengeDeclined = { onAction(Action.ChallengeDeclined(it))},
-                            onDialogDismissed = { onAction(Action.ChallengeDialogDismissed) },
-                            status = it,
-                        )
-                    }
+          }
+          if (state.gameNavigationPending != null) {
+            LaunchedEffect(state.gameNavigationPending) {
+              navigateToGameScreen(state.gameNavigationPending!!)
+              viewModel.onAction(Action.GameNavigationConsumed)
+            }
+          }
+          if (state.whatsNewDialogVisible) {
+            AlertDialog(
+              onDismissRequest = { onAction(Action.DismissWhatsNewDialog) },
+              dismissButton = {
+                TextButton(onClick = { onAction(Action.DismissWhatsNewDialog) }) {
+                  Text("OK")
                 }
-            }
-        }
-
-    private fun onAction(action: Action) {
-        when(action) {
-            Action.CustomGame -> {
-                analytics.logEvent("friend_item_clicked", null)
-                (activity as MainActivity).onCustomGameSearch()
-            }
-            Action.PlayAgainstAI -> {
-                analytics.logEvent("localai_item_clicked", null)
-                view?.findNavController()?.apply {
-                    if(currentDestination?.id == R.id.myGames) {
-                        navigate(R.id.action_myGamesFragment_to_aiGameFragment)
-                    }
+              },
+              confirmButton = {
+                TextButton(onClick = { onAction(Action.SupportClicked) }) {
+                  Text("SUPPORT")
                 }
+              },
+              text = { Text(WhatsNewUtils.whatsNewTextAnnotated) }
+            )
+          }
+          state.challengeDetailsStatus?.let {
+            ChallengeDetailsDialog(
+              onChallengeAccepted = { onAction(Action.ChallengeAccepted(it)) },
+              onChallengeDeclined = { onAction(Action.ChallengeDeclined(it)) },
+              onDialogDismissed = { onAction(Action.ChallengeDialogDismissed) },
+              status = it,
+            )
+          }
+          state.warning?.let {
+            var secondsLeft by remember { mutableIntStateOf(if(it.severity == "acknowledgement") 0 else 5) }
+            val buttonEnabled = secondsLeft == 0
+            LaunchedEffect(Unit) {
+              while(secondsLeft > 0) {
+                delay(1000)
+                secondsLeft--
+              }
+              secondsLeft = 0
             }
-            Action.FaceToFace -> {
-                analytics.logEvent("face2face_item_clicked", null)
-                view?.findNavController()?.apply {
-                    if(currentDestination?.id == R.id.myGames) {
-                        navigate(R.id.action_myGamesFragment_to_faceToFaceFragment)
-                    }
-                }
-            }
-            Action.PlayOnline -> {
-                analytics.logEvent("automatch_item_clicked", null)
-                (activity as MainActivity).onAutoMatchSearch()
-            }
-            Action.SupportClicked -> {
-                analytics.logEvent("support_whats_new_clicked", null)
-                (activity as MainActivity).onNavigateToSupport()
-            }
-            is GameSelected -> {
-                val game = action.game
-                analytics.logEvent("clicked_game", Bundle().apply {
-                    putLong("GAME_ID", game.id)
-                    putBoolean("ACTIVE_GAME", game.ended == null)
-                })
-                navigateToGameScreen(game)
-            }
-            else -> viewModel.onAction(action)
-        }
-    }
-
-    private fun navigateToGameScreen(game: Game) {
-        view?.findNavController()?.apply {
-            //
-            // Note: the following check is needed to avoid crashing
-            // on spamming navigation events
-            //
-            if(currentDestination?.id == R.id.myGames) {
-                navigate(
-                    R.id.action_myGamesFragment_to_gameFragment,
-                    bundleOf(
-                        GAME_ID to game.id,
-                        GAME_WIDTH to game.width,
-                        GAME_HEIGHT to game.height,
-                    ),
+            AlertDialog(
+              onDismissRequest = { },
+              title = { Text("OGS Moderator ${it.severity}") },
+              text = {
+                Text(
+                  if (it.text.isNullOrEmpty()) it.message_id ?: "Empty message" else it.text
                 )
-            }
+              },
+              confirmButton = {
+                Button(
+                  onClick = { onAction(Action.WarningAcknowledged) },
+                  enabled = buttonEnabled
+                ) {
+                  Text(
+                    if (buttonEnabled) "Acknowledge"
+                    else "Acknowledge (${secondsLeft}s)"
+                  )
+                }
+              }
+            )
+          }
         }
+      }
     }
 
-    override fun onResume() {
-        super.onResume()
-        viewModel.onAction(Action.ViewResumed)
-        analyticsReportScreen("My Games")
+  private fun onAction(action: Action) {
+    when (action) {
+      Action.CustomGame -> {
+        analytics.logEvent("friend_item_clicked", null)
+        (activity as MainActivity).onCustomGameSearch()
+      }
+
+      Action.PlayAgainstAI -> {
+        analytics.logEvent("localai_item_clicked", null)
+        view?.findNavController()?.apply {
+          if (currentDestination?.id == R.id.myGames) {
+            navigate(R.id.action_myGamesFragment_to_aiGameFragment)
+          }
+        }
+      }
+
+      Action.FaceToFace -> {
+        analytics.logEvent("face2face_item_clicked", null)
+        view?.findNavController()?.apply {
+          if (currentDestination?.id == R.id.myGames) {
+            navigate(R.id.action_myGamesFragment_to_faceToFaceFragment)
+          }
+        }
+      }
+
+      Action.PlayOnline -> {
+        analytics.logEvent("automatch_item_clicked", null)
+        (activity as MainActivity).onAutoMatchSearch()
+      }
+
+      Action.SupportClicked -> {
+        analytics.logEvent("support_whats_new_clicked", null)
+        (activity as MainActivity).onNavigateToSupport()
+      }
+
+      is GameSelected -> {
+        val game = action.game
+        analytics.logEvent("clicked_game", Bundle().apply {
+          putLong("GAME_ID", game.id)
+          putBoolean("ACTIVE_GAME", game.ended == null)
+        })
+        navigateToGameScreen(game)
+      }
+
+      else -> viewModel.onAction(action)
     }
+  }
+
+  private fun navigateToGameScreen(game: Game) {
+    view?.findNavController()?.apply {
+      //
+      // Note: the following check is needed to avoid crashing
+      // on spamming navigation events
+      //
+      if (currentDestination?.id == R.id.myGames) {
+        navigate(
+          R.id.action_myGamesFragment_to_gameFragment,
+          bundleOf(
+            GAME_ID to game.id,
+            GAME_WIDTH to game.width,
+            GAME_HEIGHT to game.height,
+          ),
+        )
+      }
+    }
+  }
+
+  override fun onResume() {
+    super.onResume()
+    viewModel.onAction(Action.ViewResumed)
+    analyticsReportScreen("My Games")
+  }
 }
