@@ -76,6 +76,7 @@ class PuzzleDirectoryFragment : Fragment() {
     analyticsReportScreen("PuzzleDirectory")
   }
 
+  @Deprecated("Deprecated in Java")
   override fun onActivityCreated(savedInstanceState: Bundle?) {
     super.onActivityCreated(savedInstanceState)
     PersistenceManager.visitedPuzzleDirectory = true

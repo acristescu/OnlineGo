@@ -14,6 +14,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
@@ -86,6 +87,7 @@ class PuzzleRepository(
 
   fun observePuzzle(id: Long): Flow<Puzzle> {
     return dao.getPuzzle(id)
+      .filterNotNull()
       .distinctUntilChanged()
   }
 

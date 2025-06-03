@@ -34,7 +34,7 @@ abstract class PuzzleDao {
     abstract suspend fun insertPuzzles(puzzles: List<Puzzle>)
 
     @Query("SELECT * FROM puzzle WHERE id = :puzzleId")
-    abstract fun getPuzzle(puzzleId: Long): Flow<Puzzle>
+    abstract fun getPuzzle(puzzleId: Long): Flow<Puzzle?>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     abstract suspend fun insertPuzzleRating(rating: PuzzleRating)

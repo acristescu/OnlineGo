@@ -1,18 +1,13 @@
 package io.zenandroid.onlinego.data.model.ogs
 
+import androidx.compose.runtime.Immutable
 import androidx.room.Entity
 import androidx.room.Ignore
 import androidx.room.PrimaryKey
 
 @Entity
+@Immutable
 data class PuzzleRating (
-    @PrimaryKey var puzzleId: Long = -1,
-
-    @Ignore var error: String? = null,
-    var rating: Int = 0
-) {
-    constructor(puzzleId: Long, rating: Int) : this() {
-        this.puzzleId = puzzleId
-        this.rating = rating
-    }
-}
+    @PrimaryKey val puzzleId: Long = -1,
+    val rating: Int = 0
+)

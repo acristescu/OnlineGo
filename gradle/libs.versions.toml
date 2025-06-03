@@ -1,7 +1,8 @@
 [versions]
 # Kotlin & Android
-kotlin = "1.9.0"
+kotlin = "2.1.21"
 androidGradlePlugin = "8.10.1"
+composeCompiler = "1.5.4"
 compileSdk = "35"
 minSdk = "21"
 targetSdk = "35"
@@ -9,9 +10,9 @@ ndkVersion = "25.1.8937393"
 
 # Main dependencies
 koin = "3.5.0"
-playServices = "21.2.0"
+playServices = "21.3.0"
 accompanist = "0.34.0"
-room = "2.5.2"
+room = "2.7.0-rc03"
 firebase = "33.0.0"
 compose = "1.6.7"
 workManager = "2.9.1"
@@ -66,7 +67,7 @@ coroutinesTest = "1.7.3"
 turbine = "1.0.0"
 
 # Build tools & Plugins
-ksp = "1.9.10-1.0.13"
+ksp = "2.1.21-2.0.1"
 googleServices = "4.4.2"
 crashlytics = "3.0.2"
 molecule = "1.2.0"
@@ -185,6 +186,7 @@ espresso-core = { group = "androidx.test.espresso", name = "espresso-core", vers
 [plugins]
 android-application = { id = "com.android.application", version.ref = "androidGradlePlugin" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 google-services = { id = "com.google.gms.google-services", version.ref = "googleServices" }
 firebase-crashlytics = { id = "com.google.firebase.crashlytics", version.ref = "crashlytics" }
 koin = { id = "koin", version.ref = "koin" }

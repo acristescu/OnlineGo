@@ -134,6 +134,7 @@ class JosekiExplorerFragment : Fragment(), MviView<JosekiExplorerState, JosekiEx
         requireActivity().onBackPressedDispatcher.addCallback(this, onBackPressedCallback)
     }
 
+    @Deprecated("Deprecated in Java")
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         PersistenceManager.visitedJosekiExplorer = true

@@ -123,7 +123,7 @@ class OGSRestService(
       else -> "automatic"
     }
 
-    val timeControl = when (challengeParams.speed.toLowerCase()) {
+    val timeControl = when (challengeParams.speed.lowercase()) {
       "correspondence" -> TimeControl(
         system = "byoyomi",
         time_control = "byoyomi",

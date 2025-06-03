@@ -33,6 +33,7 @@ import io.zenandroid.onlinego.utils.addToDisposable
 import io.zenandroid.onlinego.utils.recordException
 import io.zenandroid.onlinego.utils.timeLeftForCurrentPlayer
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.onEach
 import java.io.IOException
 import java.security.InvalidParameterException
@@ -307,10 +308,11 @@ class ActiveGamesRepository(
     }
 
     fun monitorGameFlow(id: Long): Flow<Game> {
-        refreshGameData(id)
+      refreshGameData(id)
 
-        return gameDao.monitorGameFlow(id)
-            .onEach(this::connectToGame)
+      return gameDao.monitorGameFlow(id)
+        .filterNotNull()
+        .onEach(this::connectToGame)
     }
 
     private fun retryIOException(it: Flowable<Throwable>) =

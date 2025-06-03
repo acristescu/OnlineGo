@@ -459,7 +459,7 @@ fun TsumegoScreenPreview() {
             retryButtonVisible = true,
             continueButtonVisible = true,
             rating = null,
-            solutions = listOf(PuzzleSolution(1, 1, null, 1, 1, 1, true, true)),
+            solutions = listOf(PuzzleSolution(1, 1, 1, 1, 1, true, true)),
         ),
         hasPreviousPuzzle = true,
         hasNextPuzzle = true,
