@@ -69,6 +69,7 @@ class GameFragment : Fragment() {
                 OnlineGoTheme {
                     GameScreen(
                         state = state,
+                        analysisMode = viewModel.analyzeMode,
                         onBack = ::onBackPressed,
                         onUserAction = viewModel::onUserAction
                     )

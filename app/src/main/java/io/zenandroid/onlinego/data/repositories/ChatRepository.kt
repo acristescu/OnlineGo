@@ -59,7 +59,10 @@ class ChatRepository(
 
     fun fetchRecentChatMessages() {
         restApi.getMessages(lastRESTFetchedChatId)
-            .map { it.map { Message.fromOGSMessage(it, it.game_id) } }
+            .map { it.map {
+                val game_size = it.game_id?.let(gameDao::getGameMaybe)?.blockingGet()?.height
+                Message.fromOGSMessage(it, it.game_id, game_size)
+            } }
             .subscribe(
                 gameDao::insertMessagesFromRest,
                 { onError(it, "fetchRecentChatMessages") }
