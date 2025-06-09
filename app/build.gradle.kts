@@ -105,6 +105,10 @@ android {
 dependencies {
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
 
+    // Compose BOM - manages all Compose library versions
+    implementation(platform(libs.compose.bom))
+    androidTestImplementation(platform(libs.compose.bom))
+
     // Compose
     implementation(libs.bundles.compose)
     debugImplementation(libs.compose.ui.tooling)

@@ -60,6 +60,7 @@ import io.zenandroid.onlinego.ui.screens.puzzle.directory.PuzzleDirectoryViewMod
 import io.zenandroid.onlinego.ui.screens.puzzle.tsumego.TsumegoViewModel
 import io.zenandroid.onlinego.ui.screens.settings.SettingsViewModel
 import io.zenandroid.onlinego.ui.screens.stats.StatsViewModel
+import io.zenandroid.onlinego.ui.screens.supporter.SupporterViewModel
 import io.zenandroid.onlinego.ui.screens.tutorial.TutorialViewModel
 import io.zenandroid.onlinego.usecases.GetUserStatsUseCase
 import io.zenandroid.onlinego.utils.CountingIdlingResource
@@ -203,6 +204,7 @@ private val viewModelsModule = module {
   viewModelOf(::LearnViewModel)
   viewModelOf(::TutorialViewModel)
   viewModelOf(::OnboardingViewModel)
+  viewModelOf(::SupporterViewModel)
 
   viewModel {
     MyGamesViewModel(
