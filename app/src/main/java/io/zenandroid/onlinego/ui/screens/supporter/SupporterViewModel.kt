@@ -18,6 +18,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
+import kotlin.math.roundToInt
 
 class SupporterViewModel(
     private val playStore: PlayStoreService
@@ -88,20 +89,30 @@ class SupporterViewModel(
                 val currentPurchaseDetails = purchase?.run {
                     prods.firstOrNull { purchase.products.contains(it.productId) }
                 }
-                val supporterLabelText = currentPurchaseDetails?.let {
-                    "Your current contribution is <b>${it.subscriptionOfferDetails?.firstOrNull()?.pricingPhases?.pricingPhaseList?.firstOrNull()?.formattedPrice}</b>"
-                }
                 val selectedTier = if(currentPurchaseDetails != null) {
                     prods.indexOf(currentPurchaseDetails)
                 } else {
                     prods.size / 2
                 }
 
-                val subscribeTitleText = if(isSupporter) {
+                val newState = SupporterState(
+                    loading = false,
+                    supporter = isSupporter,
+                    numberOfTiers = prods.size,
+                    selectedTier = selectedTier,
+                    sliderValue = selectedTier.toFloat(),
+                    products = prods,
+                    currentPurchaseDetails = currentPurchaseDetails,
+                    subscribeButtonText = if (isSupporter) "Update amount" else "Become a supporter",
+                    subscribeButtonEnabled = if (!isSupporter) true else selectedTier != prods.indexOf(currentPurchaseDetails),
+                    purchase = purchase
+                )
+
+                val subscribeTitleText = if (isSupporter) {
                     buildSpannedString {
                         bold { append("Thank you for your support!\n\n") }
                         append("Your current contribution is ")
-                        bold { append(currentPurchaseDetails?.subscriptionOfferDetails?.firstOrNull()?.pricingPhases?.pricingPhaseList?.firstOrNull()?.formattedPrice) }
+                        bold { append(newState.currentContributionAmount) }
                     }
                 } else {
                     buildSpannedString {
@@ -109,37 +120,21 @@ class SupporterViewModel(
                     }
                 }
 
-                val subscribeButtonText = if(isSupporter) "Update amount" else "Become a supporter"
-
-                val subscribeButtonEnabled =
-                    if (!isSupporter) true
-                    else selectedTier != prods.indexOf(currentPurchaseDetails)
-
-                _state.value = _state.value.copy(
-                    loading = false,
-                    supporter = isSupporter,
-                    currentPurchaseDetails = currentPurchaseDetails,
-                    products = prods,
-                    numberOfTiers = prods.size,
-                    selectedTier = selectedTier,
-                    supporterLabelText = supporterLabelText,
-                    subscribeTitleText = subscribeTitleText,
-                    subscribeButtonText = subscribeButtonText,
-                    subscribeButtonEnabled = subscribeButtonEnabled,
-                    purchase = purchase
-                )
+                _state.value = newState.copy(subscribeTitleText = subscribeTitleText)
             }
         }
     }
 
     fun onUserDragSlider(value: Float) {
         val currentState = _state.value
+        val newSelectedTier = value.roundToInt().coerceIn(0, (currentState.numberOfTiers ?: 1) - 1)
         val subscribeButtonEnabled =
             if (currentState.currentPurchaseDetails == null) true
-            else value.toInt() != currentState.products?.indexOf(currentState.currentPurchaseDetails!!)
+            else newSelectedTier != currentState.products?.indexOf(currentState.currentPurchaseDetails!!)
 
         _state.value = currentState.copy(
-            selectedTier = value.toInt(),
+            selectedTier = newSelectedTier,
+            sliderValue = value,
             subscribeButtonEnabled = subscribeButtonEnabled
         )
     }
@@ -164,14 +159,23 @@ data class SupporterState(
     val supporter: Boolean = false,
     val numberOfTiers: Int? = null,
     val selectedTier: Int? = null,
+    val sliderValue: Float? = null,
     val products: List<ProductDetails>? = null,
     val currentPurchaseDetails: ProductDetails? = null,
-    val supporterLabelText: String? = null,
     val subscribeTitleText: CharSequence? = null,
     val subscribeButtonText: String? = null,
     val subscribeButtonEnabled: Boolean = false,
     val purchase: Purchase? = null
-)
+) {
+    val currentContributionAmount: String
+        get() = currentPurchaseDetails?.subscriptionOfferDetails?.firstOrNull()?.pricingPhases?.pricingPhaseList?.firstOrNull()?.formattedPrice ?: ""
+    
+    val selectedTierAmount: String
+        get() = products?.getOrNull(selectedTier ?: 0)?.subscriptionOfferDetails?.firstOrNull()?.pricingPhases?.pricingPhaseList?.firstOrNull()?.formattedPrice ?: ""
+    
+    val displaySliderValue: Float
+        get() = sliderValue ?: selectedTier?.toFloat() ?: 0f
+}
 
 sealed class SupporterEvent {
     data class ShowError(val throwable: Throwable) : SupporterEvent()

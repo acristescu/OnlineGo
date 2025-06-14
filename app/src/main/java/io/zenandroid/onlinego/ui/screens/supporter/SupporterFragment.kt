@@ -1,5 +1,6 @@
 package io.zenandroid.onlinego.ui.screens.supporter
 
+import android.R.attr.enabled
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -17,22 +18,22 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.Button
+import androidx.compose.material.Card
+import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
+import androidx.compose.material.LinearProgressIndicator
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Slider
+import androidx.compose.material.Text
+import androidx.compose.material.TextButton
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Android
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.LinearProgressIndicator
-import androidx.compose.material3.Slider
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -56,6 +57,8 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.google.firebase.analytics.FirebaseAnalytics
 import io.zenandroid.onlinego.R
+import io.zenandroid.onlinego.R.drawable
+import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.SupportClicked
 import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
 import io.zenandroid.onlinego.utils.analyticsReportScreen
 import io.zenandroid.onlinego.utils.recordException
@@ -334,10 +337,8 @@ fun SupporterBottomBar(
 ) {
   Card(
     modifier = Modifier.fillMaxWidth(),
-    colors = CardDefaults.cardColors(
-      containerColor = MaterialTheme.colors.surface
-    ),
-    elevation = CardDefaults.cardElevation(defaultElevation = 16.dp)
+    backgroundColor = MaterialTheme.colors.surface,
+    elevation = 32.dp
   ) {
     if (state.loading) {
       Box(
@@ -366,13 +367,9 @@ fun SupporterBottomBar(
                 }
                 append("Your current contribution is ")
                 withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                  append(
-                    state.currentPurchaseDetails?.subscriptionOfferDetails?.firstOrNull()?.pricingPhases?.pricingPhaseList?.firstOrNull()?.formattedPrice
-                      ?: ""
-                  )
+                  append(state.currentContributionAmount)
                 }
               }
-
               else -> {
                 withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
                   append("Select your monthly contribution")
@@ -383,47 +380,50 @@ fun SupporterBottomBar(
           textAlign = TextAlign.Center,
           modifier = Modifier.fillMaxWidth()
         )
-
+        
         Spacer(modifier = Modifier.height(16.dp))
-
-        // Amount slider
+        
         if (state.numberOfTiers != null && state.selectedTier != null && state.products != null) {
-          Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
-          ) {
-            Slider(
-              value = state.selectedTier.toFloat(),
-              onValueChange = onSliderChange,
-              valueRange = 0f..(state.numberOfTiers - 1).toFloat(),
-              steps = state.numberOfTiers - 2,
-              modifier = Modifier.weight(1f)
-            )
-
-            Spacer(modifier = Modifier.width(16.dp))
-
-            Text(
-              text = state.products.getOrNull(state.selectedTier)?.subscriptionOfferDetails?.firstOrNull()?.pricingPhases?.pricingPhaseList?.firstOrNull()?.formattedPrice
-                ?: "",
-            )
-          }
+          Slider(
+            value = state.displaySliderValue,
+            onValueChange = onSliderChange,
+            valueRange = 0f..(state.numberOfTiers - 1).toFloat(),
+            steps = state.numberOfTiers - 2,
+            modifier = Modifier.fillMaxWidth(1f)
+          )
+          
+          Spacer(modifier = Modifier.width(16.dp))
+          
+          Text(
+            text = state.selectedTierAmount,
+          )
         }
-
+        
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Subscribe button
         Button(
           onClick = onSubscribeClick,
           enabled = state.subscribeButtonEnabled,
-          modifier = Modifier.fillMaxWidth()
+          shape = RoundedCornerShape(14.dp),
+          modifier = Modifier
+            .height(36.dp)
+            .fillMaxWidth()
         ) {
-          Text(text = state.subscribeButtonText ?: "Become a Supporter")
+          Icon(
+            imageVector = ImageVector.vectorResource(drawable.ic_star),
+            contentDescription = "Become a supporter",
+            modifier = Modifier.padding(end = 12.dp, start = 8.dp)
+          )
+          Text(
+            text = state.subscribeButtonText ?: "Become a Supporter",
+            modifier = Modifier.padding(end = 8.dp),
+            fontWeight = FontWeight.Medium,
+          )
         }
 
-        // Cancel button (only for supporters)
         if (state.supporter) {
           Spacer(modifier = Modifier.height(8.dp))
-
+          
           TextButton(
             onClick = onCancelSubscriptionClick,
             modifier = Modifier.align(Alignment.CenterHorizontally)
@@ -448,10 +448,9 @@ fun SupporterScreenPreview() {
         loading = false,
         supporter = true,
         currentPurchaseDetails = null,
-        products = listOf(),
+        products = null,
         numberOfTiers = 5,
         selectedTier = 2,
-        supporterLabelText = "Your current contribution is $5.99",
         subscribeTitleText = "Thank you for your support!",
         subscribeButtonText = "Update amount",
         subscribeButtonEnabled = true
@@ -473,12 +472,35 @@ fun SupportReasonPreviewLoading() {
         loading = true,
         supporter = true,
         currentPurchaseDetails = null,
-        products = listOf(),
+        products = null,
         numberOfTiers = 5,
         selectedTier = 2,
-        supporterLabelText = "Your current contribution is $5.99",
         subscribeTitleText = "Thank you for your support!",
         subscribeButtonText = "Update amount",
+        subscribeButtonEnabled = true
+      ),
+      onBackClick = {},
+      onSubscribeClick = {},
+      onCancelSubscriptionClick = {},
+      onSliderChange = {}
+    )
+  }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun SupportReasonPreviewNonSupporter() {
+  OnlineGoTheme {
+    SupporterScreen(
+      state = SupporterState(
+        loading = false,
+        supporter = false,
+        currentPurchaseDetails = null,
+        products = null,
+        numberOfTiers = 5,
+        selectedTier = 2,
+        subscribeTitleText = "Select your monthly contribution",
+        subscribeButtonText = "Become a supporter",
         subscribeButtonEnabled = true
       ),
       onBackClick = {},
