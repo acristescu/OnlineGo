@@ -34,12 +34,8 @@ import io.zenandroid.onlinego.playstore.PlayStoreService
 import io.zenandroid.onlinego.ui.screens.automatch.NewAutomatchChallengeViewModel
 import io.zenandroid.onlinego.ui.screens.face2face.FaceToFaceViewModel
 import io.zenandroid.onlinego.ui.screens.game.GameViewModel
-import io.zenandroid.onlinego.ui.screens.joseki.HotTrackMiddleware
-import io.zenandroid.onlinego.ui.screens.joseki.JosekiExplorerReducer
 import io.zenandroid.onlinego.ui.screens.joseki.JosekiExplorerState
 import io.zenandroid.onlinego.ui.screens.joseki.JosekiExplorerViewModel
-import io.zenandroid.onlinego.ui.screens.joseki.LoadPositionMiddleware
-import io.zenandroid.onlinego.ui.screens.joseki.TriggerLoadingMiddleware
 import io.zenandroid.onlinego.ui.screens.learn.LearnViewModel
 import io.zenandroid.onlinego.ui.screens.localai.AiGameReducer
 import io.zenandroid.onlinego.ui.screens.localai.AiGameState
@@ -157,21 +153,6 @@ private val useCasesModule = module {
 }
 
 private val viewModelsModule = module {
-  viewModel {
-    JosekiExplorerViewModel(
-      Store(
-        JosekiExplorerReducer(),
-        listOf(
-          LoadPositionMiddleware(get()),
-          HotTrackMiddleware(),
-          TriggerLoadingMiddleware(),
-          io.zenandroid.onlinego.ui.screens.joseki.AnalyticsMiddleware()
-        ),
-        JosekiExplorerState()
-      )
-    )
-  }
-
   viewModel { params ->
     TsumegoViewModel(get(), get(), params.get(), params.get())
   }
@@ -180,6 +161,7 @@ private val viewModelsModule = module {
   viewModelOf(::NewAutomatchChallengeViewModel)
   viewModelOf(::NewChallengeViewModel)
   viewModelOf(::SelectOpponentViewModel)
+  viewModelOf(::JosekiExplorerViewModel)
 
   viewModel {
     AiGameViewModel(
