@@ -10,77 +10,87 @@ import android.view.View.VISIBLE
 import android.view.ViewGroup
 import androidx.core.view.doOnLayout
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.transition.DrawableCrossFadeFactory
-import com.jakewharton.rxbinding3.view.clicks
-import io.reactivex.Observable
-import io.reactivex.subjects.PublishSubject
+import io.reactivex.disposables.CompositeDisposable
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.repositories.SettingsRepository
 import io.zenandroid.onlinego.data.repositories.UserSessionRepository
 import io.zenandroid.onlinego.databinding.FragmentAigameBinding
-import io.zenandroid.onlinego.mvi.MviView
-import io.zenandroid.onlinego.ui.screens.localai.AiGameAction.DismissNewGameDialog
-import io.zenandroid.onlinego.ui.screens.localai.AiGameAction.NewGame
-import io.zenandroid.onlinego.ui.screens.localai.AiGameAction.ShowNewGameDialog
-import io.zenandroid.onlinego.ui.screens.localai.AiGameAction.UserAskedForHint
-import io.zenandroid.onlinego.ui.screens.localai.AiGameAction.UserAskedForOwnership
-import io.zenandroid.onlinego.ui.screens.localai.AiGameAction.UserPressedNext
-import io.zenandroid.onlinego.ui.screens.localai.AiGameAction.UserPressedPass
-import io.zenandroid.onlinego.ui.screens.localai.AiGameAction.UserPressedPrevious
-import io.zenandroid.onlinego.ui.screens.localai.AiGameAction.ViewPaused
-import io.zenandroid.onlinego.ui.screens.localai.AiGameAction.ViewReady
 import io.zenandroid.onlinego.utils.analyticsReportScreen
 import io.zenandroid.onlinego.utils.processGravatarURL
 import io.zenandroid.onlinego.utils.showIf
+import kotlinx.coroutines.launch
 import org.koin.android.ext.android.get
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import kotlin.math.abs
 
-class AiGameFragment : Fragment(), MviView<AiGameState, AiGameAction> {
+class AiGameFragment : Fragment() {
     private val viewModel: AiGameViewModel by viewModel()
     private val settingsRepository: SettingsRepository by inject()
     private var bottomSheet: NewGameBottomSheet? = null
     private lateinit var binding: FragmentAigameBinding
-
-    private val internalActions = PublishSubject.create<AiGameAction>()
-
-    override val actions: Observable<AiGameAction>
-        get() =             Observable.merge(
-                listOf(
-                        internalActions,
-                        binding.board.tapUpObservable()
-                                .map<AiGameAction>(AiGameAction::UserTappedCoordinate),
-                        binding.board.tapMoveObservable()
-                                .map<AiGameAction>(AiGameAction::UserHotTrackedCoordinate),
-                        binding.previousButton.clicks()
-                                .map<AiGameAction> { UserPressedPrevious },
-                        binding.nextButton.clicks()
-                                .map<AiGameAction> { UserPressedNext },
-                        binding.passButton.clicks()
-                                .map<AiGameAction> { UserPressedPass },
-                        binding.newGameButton.clicks()
-                                .map<AiGameAction> { ShowNewGameDialog },
-                        binding.hintButton.clicks()
-                                .map<AiGameAction> { UserAskedForHint },
-                        binding.ownershipButton.clicks()
-                                .map<AiGameAction> { UserAskedForOwnership }
-                )
-        ).startWith(ViewReady)
+    private val disposables = CompositeDisposable()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         binding = FragmentAigameBinding.inflate(inflater, container, false)
         return binding.root
     }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        setupClickListeners()
+        setupBoardListeners()
+        observeState()
+    }
+
+    private fun setupClickListeners() {
+        binding.previousButton.setOnClickListener { viewModel.onUserPressedPrevious() }
+        binding.nextButton.setOnClickListener { viewModel.onUserPressedNext() }
+        binding.passButton.setOnClickListener { viewModel.onUserPressedPass() }
+        binding.newGameButton.setOnClickListener { viewModel.onShowNewGameDialog() }
+        binding.hintButton.setOnClickListener { viewModel.onUserAskedForHint() }
+        binding.ownershipButton.setOnClickListener { viewModel.onUserAskedForOwnership() }
+    }
+    
+    private fun setupBoardListeners() {
+        disposables.add(
+            binding.board.tapUpObservable().subscribe { coordinate ->
+                viewModel.onUserTappedCoordinate(coordinate)
+            }
+        )
+        disposables.add(
+            binding.board.tapMoveObservable().subscribe { coordinate ->
+                viewModel.onUserHotTrackedCoordinate(coordinate)
+            }
+        )
+    }
+
+    private fun observeState() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.state.collect { state ->
+                    render(state)
+                }
+            }
+        }
+    }
+
     override fun onPause() {
-        internalActions.onNext(ViewPaused)
-        viewModel.unbind()
+        viewModel.onViewPaused()
         super.onPause()
+    }
+
+    override fun onDestroyView() {
+        disposables.clear()
+        super.onDestroyView()
     }
 
     override fun onResume() {
@@ -89,7 +99,6 @@ class AiGameFragment : Fragment(), MviView<AiGameState, AiGameAction> {
         binding.board.apply {
             drawCoordinates = settingsRepository.showCoordinates
         }
-
 
         view?.doOnLayout {
             binding.iconContainerLeft.radius = binding.iconContainerLeft.width / 2f
@@ -103,11 +112,9 @@ class AiGameFragment : Fragment(), MviView<AiGameState, AiGameAction> {
                         .into(binding.iconViewRight)
             }
         }
-
-        viewModel.bind(this)
     }
 
-    override fun render(state: AiGameState) {
+    private fun render(state: AiGameState) {
         Log.v("AiGame", "rendering state=$state")
         binding.progressBar.showIf(!state.engineStarted)
         binding.board.apply {
@@ -132,10 +139,10 @@ class AiGameFragment : Fragment(), MviView<AiGameState, AiGameAction> {
         binding.ownershipButton.showIf(state.ownershipButtonVisible)
         if(state.newGameDialogShown && bottomSheet?.isShowing != true) {
             bottomSheet = NewGameBottomSheet(requireContext()) { size, youPlayBlack, handicap ->
-                internalActions.onNext(NewGame(size, youPlayBlack, handicap))
+                viewModel.onNewGame(size, youPlayBlack, handicap)
             }.apply {
                 setOnCancelListener {
-                    internalActions.onNext(DismissNewGameDialog)
+                    viewModel.onDismissNewGameDialog()
                 }
                 show()
             }

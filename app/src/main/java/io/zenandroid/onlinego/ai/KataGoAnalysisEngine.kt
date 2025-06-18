@@ -40,7 +40,7 @@ object KataGoAnalysisEngine {
 
   @Throws(IOException::class)
   @Synchronized
-  fun startEngine() {
+  fun start() {
     shouldShutDown = false
     if (started) {
       return
@@ -108,7 +108,7 @@ object KataGoAnalysisEngine {
   }
 
   @Synchronized
-  fun stopEngine() {
+  fun stop() {
     shouldShutDown = true
     if (!started) {
       return

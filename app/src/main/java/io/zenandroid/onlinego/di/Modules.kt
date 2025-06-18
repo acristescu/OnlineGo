@@ -29,25 +29,13 @@ import io.zenandroid.onlinego.data.repositories.ServerNotificationsRepository
 import io.zenandroid.onlinego.data.repositories.SettingsRepository
 import io.zenandroid.onlinego.data.repositories.TutorialsRepository
 import io.zenandroid.onlinego.data.repositories.UserSessionRepository
-import io.zenandroid.onlinego.mvi.Store
 import io.zenandroid.onlinego.playstore.PlayStoreService
 import io.zenandroid.onlinego.ui.screens.automatch.NewAutomatchChallengeViewModel
 import io.zenandroid.onlinego.ui.screens.face2face.FaceToFaceViewModel
 import io.zenandroid.onlinego.ui.screens.game.GameViewModel
-import io.zenandroid.onlinego.ui.screens.joseki.JosekiExplorerState
 import io.zenandroid.onlinego.ui.screens.joseki.JosekiExplorerViewModel
 import io.zenandroid.onlinego.ui.screens.learn.LearnViewModel
-import io.zenandroid.onlinego.ui.screens.localai.AiGameReducer
-import io.zenandroid.onlinego.ui.screens.localai.AiGameState
 import io.zenandroid.onlinego.ui.screens.localai.AiGameViewModel
-import io.zenandroid.onlinego.ui.screens.localai.middlewares.AIMoveMiddleware
-import io.zenandroid.onlinego.ui.screens.localai.middlewares.AnalyticsMiddleware
-import io.zenandroid.onlinego.ui.screens.localai.middlewares.EngineLifecycleMiddleware
-import io.zenandroid.onlinego.ui.screens.localai.middlewares.GameTurnMiddleware
-import io.zenandroid.onlinego.ui.screens.localai.middlewares.HintMiddleware
-import io.zenandroid.onlinego.ui.screens.localai.middlewares.OwnershipMiddleware
-import io.zenandroid.onlinego.ui.screens.localai.middlewares.StatePersistenceMiddleware
-import io.zenandroid.onlinego.ui.screens.localai.middlewares.UserMoveMiddleware
 import io.zenandroid.onlinego.ui.screens.mygames.MyGamesViewModel
 import io.zenandroid.onlinego.ui.screens.newchallenge.NewChallengeViewModel
 import io.zenandroid.onlinego.ui.screens.newchallenge.SelectOpponentViewModel
@@ -162,26 +150,7 @@ private val viewModelsModule = module {
   viewModelOf(::NewChallengeViewModel)
   viewModelOf(::SelectOpponentViewModel)
   viewModelOf(::JosekiExplorerViewModel)
-
-  viewModel {
-    AiGameViewModel(
-      Store(
-        AiGameReducer(),
-        listOf(
-          EngineLifecycleMiddleware(),
-          AIMoveMiddleware(),
-          GameTurnMiddleware(),
-          UserMoveMiddleware(),
-          StatePersistenceMiddleware(),
-          HintMiddleware(),
-          OwnershipMiddleware(),
-          AnalyticsMiddleware()
-        ),
-        AiGameState()
-      )
-    )
-  }
-
+  viewModelOf(::AiGameViewModel)
   viewModelOf(::StatsViewModel)
   viewModelOf(::LearnViewModel)
   viewModelOf(::TutorialViewModel)
