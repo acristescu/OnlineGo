@@ -205,6 +205,12 @@ class AiGameViewModel(
 
     if (newPosition != null) {
       updatePosition(newPosition)
+    } else {
+      _state.update {
+        it.copy(
+          candidateMove = null
+        )
+      }
     }
   }
 
@@ -457,7 +463,7 @@ class AiGameViewModel(
                     newVariation.isGameOver() && it.aiWon == null ->
                       "Game ended because of two passes. Hang on, I'm computing the final score."
 
-                    else -> it.chatText
+                    else -> "Your turn"
                   }
                 )
               }
