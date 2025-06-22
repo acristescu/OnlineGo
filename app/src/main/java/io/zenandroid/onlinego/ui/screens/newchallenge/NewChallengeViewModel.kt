@@ -151,6 +151,12 @@ class NewChallengeViewModel : ViewModel() {
             } ?: "[Select Opponent]"
           )
         }
+
+        is Event.Reset -> {
+          it.copy(
+            done = false
+          )
+        }
       }
     }
   }
@@ -167,6 +173,7 @@ class NewChallengeViewModel : ViewModel() {
     data class PrivateSelected(val private: Boolean) : Event
     data class SelectOpponentDialogDismissed(val selectedOpponent: Player?) : Event
     data object ChallengeClicked : Event
+    data object Reset: Event
   }
 }
 

@@ -3,9 +3,9 @@ package io.zenandroid.onlinego.ui.screens.mygames.composables
 import android.content.res.Configuration
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -38,8 +38,7 @@ fun LargeGameItem(game: Game, boardTheme: BoardTheme, userId: Long, onAction: (A
             else -> null
         }
 
-    Surface(
-        shape = MaterialTheme.shapes.large,
+    SenteCard(
         modifier = modifier
             .padding(horizontal = 24.dp)
     ) {

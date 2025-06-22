@@ -20,12 +20,11 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
-import androidx.compose.material.Tab
-import androidx.compose.material.TabRow
-import androidx.compose.material.TabRowDefaults
-import androidx.compose.material.Text
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRow
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -40,9 +39,10 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
-import com.google.accompanist.pager.pagerTabIndicatorOffset
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.local.Player
 import io.zenandroid.onlinego.ui.composables.SearchTextField
@@ -62,17 +62,22 @@ fun SelectOpponentDialog(
 
   val state by rememberStateWithLifecycle(stateFlow = viewModel.state)
 
-  SelectOpponentDialogContent(
-    state = state,
-    onEvent = { event ->
-      if (event is Event.OpponentSelected) {
-        onDialogDismiss(event.opponent)
-      } else {
-        viewModel.onEvent(event)
-      }
-    },
-    onDialogDismiss = { onDialogDismiss(null) },
-  )
+  Dialog(
+    onDismissRequest = { onDialogDismiss(null) },
+    properties = DialogProperties(usePlatformDefaultWidth = false)
+  ) {
+    SelectOpponentDialogContent(
+      state = state,
+      onEvent = { event ->
+        if (event is Event.OpponentSelected) {
+          onDialogDismiss(event.opponent)
+        } else {
+          viewModel.onEvent(event)
+        }
+      },
+      onDialogDismiss = { onDialogDismiss(null) },
+    )
+  }
 
   BackHandler { onDialogDismiss(null) }
 }
@@ -84,27 +89,29 @@ private fun SelectOpponentDialogContent(
   onEvent: (Event) -> Unit,
   onDialogDismiss: () -> Unit
 ) {
-  Box(modifier = Modifier
-    .fillMaxSize()
-    .background(Color(0x88000000))
-    .clickable(
-      interactionSource = remember { MutableInteractionSource() },
-      indication = null
-    ) { onDialogDismiss() }
-  ) {
-    Surface(modifier = Modifier
+  Box(
+    modifier = Modifier
+      .fillMaxSize()
+      .background(Color(0x88000000))
       .clickable(
         interactionSource = remember { MutableInteractionSource() },
         indication = null
-      ) { }
-      .fillMaxWidth()
-      .fillMaxHeight()
-      .align(Alignment.Center)
-      .shadow(4.dp)
-      .background(
-        color = MaterialTheme.colors.surface,
-        shape = RoundedCornerShape(10.dp)
-      )
+      ) { onDialogDismiss() }
+  ) {
+    Surface(
+      modifier = Modifier
+        .clickable(
+          interactionSource = remember { MutableInteractionSource() },
+          indication = null
+        ) { }
+        .fillMaxWidth(.9f)
+        .fillMaxHeight(.9f)
+        .align(Alignment.Center)
+        .shadow(4.dp)
+        .background(
+          color = MaterialTheme.colorScheme.surface,
+          shape = RoundedCornerShape(10.dp)
+        )
     ) {
       Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -115,37 +122,29 @@ private fun SelectOpponentDialogContent(
         }
         TabRow(
           selectedTabIndex = Tab.entries.indexOf(state.selectedTab),
-          backgroundColor = Color.Transparent,
-          contentColor = MaterialTheme.colors.primary,
-          indicator = {
-            TabRowDefaults.Indicator(
-              Modifier.pagerTabIndicatorOffset(
-                pagerState = pagerState,
-                tabPositions = it
-              )
-            )
-          },
+          containerColor = Color.Transparent,
+          contentColor = MaterialTheme.colorScheme.primary,
         ) {
           Tab(
             selected = state.selectedTab == Tab.BOT,
             onClick = { onEvent(Event.TabSelected(Tab.BOT)) },
             text = { Text(text = "Bot") },
-            selectedContentColor = MaterialTheme.colors.primary,
-            unselectedContentColor = MaterialTheme.colors.onSurface.copy(alpha = 0.6f),
+            selectedContentColor = MaterialTheme.colorScheme.primary,
+            unselectedContentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
           )
           Tab(
             selected = state.selectedTab == Tab.RECENT,
             onClick = { onEvent(Event.TabSelected(Tab.RECENT)) },
             text = { Text(text = "Recent") },
-            selectedContentColor = MaterialTheme.colors.primary,
-            unselectedContentColor = MaterialTheme.colors.onSurface.copy(alpha = 0.6f),
+            selectedContentColor = MaterialTheme.colorScheme.primary,
+            unselectedContentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
           )
           Tab(
             selected = state.selectedTab == Tab.SEARCH,
             onClick = { onEvent(Event.TabSelected(Tab.SEARCH)) },
             text = { Text(text = "Search") },
-            selectedContentColor = MaterialTheme.colors.primary,
-            unselectedContentColor = MaterialTheme.colors.onSurface.copy(alpha = 0.6f),
+            selectedContentColor = MaterialTheme.colorScheme.primary,
+            unselectedContentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
           )
         }
         HorizontalPager(state = pagerState) { page ->
@@ -159,6 +158,7 @@ private fun SelectOpponentDialogContent(
               state = state,
               onOpponentSelected = { onEvent(Event.OpponentSelected(it)) }
             )
+
             2 -> Search(
               state = state,
               onOpponentSelected = { onEvent(Event.OpponentSelected(it)) },
@@ -181,12 +181,12 @@ private fun BotList(state: SelectOpponentState, onOpponentSelected: (Player) -> 
   ) {
     Text(
       text = "Online Bots",
-      style = MaterialTheme.typography.h6,
+      style = MaterialTheme.typography.headlineMedium,
       modifier = Modifier.padding(bottom = 16.dp),
     )
     Text(
       text = "Online bots are AI programs run and maintained by members of the community at their expense. Playing against them requires an active internet connection.",
-      style = MaterialTheme.typography.body1,
+      style = MaterialTheme.typography.bodyMedium,
       modifier = Modifier.padding(bottom = 16.dp),
     )
     LazyColumn {
@@ -232,7 +232,7 @@ private fun OpponentItem(opponent: Player, modifier: Modifier = Modifier) {
       Text(
         text = formatRank(egfToRank(opponent.rating), opponent.deviation),
         fontSize = 12.sp,
-        color = MaterialTheme.colors.onSurface.copy(alpha = 0.6f),
+        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
       )
     }
   }
@@ -248,12 +248,12 @@ private fun RecentList(state: SelectOpponentState, onOpponentSelected: (Player) 
   ) {
     Text(
       text = "Recent opponents",
-      style = MaterialTheme.typography.h6,
+      style = MaterialTheme.typography.headlineMedium,
       modifier = Modifier.padding(bottom = 16.dp),
     )
     Text(
       text = "This is a selection of opponents (both bots and actual players) you've played against recently.",
-      style = MaterialTheme.typography.body1,
+      style = MaterialTheme.typography.bodyMedium,
       modifier = Modifier.padding(bottom = 16.dp),
     )
     LazyColumn {
@@ -271,7 +271,11 @@ private fun RecentList(state: SelectOpponentState, onOpponentSelected: (Player) 
 }
 
 @Composable
-private fun Search(state: SelectOpponentState, onOpponentSelected: (Player) -> Unit, onSearchTermChanged: (String) -> Unit) {
+private fun Search(
+  state: SelectOpponentState,
+  onOpponentSelected: (Player) -> Unit,
+  onSearchTermChanged: (String) -> Unit
+) {
   Column(
     horizontalAlignment = Alignment.CenterHorizontally,
     modifier = Modifier

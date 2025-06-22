@@ -6,7 +6,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.*
-import androidx.compose.material.MaterialTheme
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.Center
@@ -66,7 +66,7 @@ fun MyTurnCarousel(games: List<Game>, boardTheme: BoardTheme, userId: Long, onAc
         HorizontalPagerIndicator(
             pagerState = pagerState,
             pageCount = pagerState.pageCount,
-            activeColor = MaterialTheme.colors.onSurface,
+            activeColor = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier
                 .align(Alignment.CenterHorizontally)
                 .padding(16.dp)

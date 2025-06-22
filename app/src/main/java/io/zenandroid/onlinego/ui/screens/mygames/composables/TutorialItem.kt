@@ -3,8 +3,9 @@ package io.zenandroid.onlinego.ui.screens.mygames.composables
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -17,7 +18,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import io.zenandroid.onlinego.ui.theme.salmon
 
 @Composable
 fun TutorialItem(percentage: Int, tutorial: String) {
@@ -25,13 +25,13 @@ fun TutorialItem(percentage: Int, tutorial: String) {
         Text(
             text = "$percentage %",
             fontWeight = FontWeight.Black,
-            color = salmon,
+            color = MaterialTheme.colorScheme.primary,
             modifier = Modifier
                 .align(Alignment.CenterVertically)
                 .padding(24.dp)
         )
         Surface(
-            color = salmon,
+            color = MaterialTheme.colorScheme.primary,
             shape = RoundedCornerShape(topStart = 20.dp, bottomStart = 20.dp),
             modifier = Modifier
                 .fillMaxWidth()

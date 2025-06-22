@@ -62,22 +62,6 @@ class MainPresenter (
         }
     }
 
-    override fun onNewBotChallenge(challengeParams: ChallengeParams) {
-        restService.challengeBot(challengeParams)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({}, this::onError)
-                .addToDisposable(subscriptions)
-    }
-
-    override fun onNewFriendChallenge(challengeParams: ChallengeParams) {
-        restService.challengeBot(challengeParams)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({}, this::onError)
-                .addToDisposable(subscriptions)
-    }
-
     private fun onError(t: Throwable) {
         Log.e(MainActivity.TAG, t.message, t)
         view.showError(t.message)

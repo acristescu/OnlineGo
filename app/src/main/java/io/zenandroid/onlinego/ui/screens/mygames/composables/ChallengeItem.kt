@@ -7,10 +7,12 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
-import androidx.compose.material.TextButton
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -25,8 +27,7 @@ import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
 
 @Composable
 fun ChallengeItem(challenge: Challenge, userId: Long, onAction: (Action) -> Unit) {
-    Surface(
-        shape = MaterialTheme.shapes.medium,
+    SenteCard (
         modifier = Modifier
             .height(90.dp)
             .fillMaxWidth()

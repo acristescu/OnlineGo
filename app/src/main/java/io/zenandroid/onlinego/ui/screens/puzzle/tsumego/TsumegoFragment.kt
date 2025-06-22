@@ -8,7 +8,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy.DisposeOnLifecycleDestroyed
 import androidx.fragment.app.Fragment
-import androidx.navigation.fragment.findNavController
 import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
 import io.zenandroid.onlinego.utils.analyticsReportScreen
 import io.zenandroid.onlinego.utils.rememberStateWithLifecycle
@@ -51,7 +50,7 @@ class TsumegoFragment : Fragment() {
                         onPreviousPuzzle = { viewModel.previousPuzzle() },
                         onSelectPuzzle = { viewModel.selectPuzzle(it) },
                         onNextPuzzle = { viewModel.nextPuzzle() },
-                        onBack = { findNavController().navigateUp() },
+                        onBack = { /*findNavController().navigateUp()*/ },
                     )
                 }
             }

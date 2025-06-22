@@ -55,7 +55,7 @@ class MyGamesFragment : Fragment() {
         OnlineGoTheme {
           val state by rememberStateWithLifecycle(viewModel.state)
 
-          MyGamesScreen(state, ::onAction)
+          MyGamesContent(state, ::onAction, {})
 
           if (state.alertDialogText != null) {
             AlertDialog(

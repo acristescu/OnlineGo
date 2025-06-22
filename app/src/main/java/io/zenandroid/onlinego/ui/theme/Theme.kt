@@ -1,18 +1,16 @@
 package io.zenandroid.onlinego.ui.theme
 
+import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.asPaddingValues
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.systemBars
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.darkColors
 import androidx.compose.material.lightColors
 import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.dynamicDarkColorScheme
+import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 
 private val LightColorPalette = lightColors(
     primary = salmon,
@@ -49,22 +47,39 @@ private val DarkColorPalette = darkColors(
 )
 
 @Composable
-fun OnlineGoTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable () -> Unit) {
-    val colors = if (darkTheme) {
-        DarkColorPalette
+fun OnlineGoTheme(darkTheme: Boolean = isSystemInDarkTheme(), m3: Boolean = false, content: @Composable () -> Unit) {
+    if (m3) {
+        val context = LocalContext.current
+        val colorScheme = when {
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
+                if (darkTheme) dynamicDarkColorScheme(context)
+                else dynamicLightColorScheme(context)
+            }
+            darkTheme -> darkColorScheme()
+            else -> lightColorScheme()
+        }
+        androidx.compose.material3.MaterialTheme(
+            colorScheme = colorScheme,
+            typography = typographyM3,
+            shapes = shapesM3,
+            content = content
+        )
     } else {
-        LightColorPalette
-    }
+        val colors = if (darkTheme) {
+            DarkColorPalette
+        } else {
+            LightColorPalette
+        }
 
-    MaterialTheme(
-        colors = colors,
-        typography = typography,
-        shapes = shapes
-    ) {
-        Box(modifier = Modifier.padding(WindowInsets.systemBars.asPaddingValues())) {
+        MaterialTheme(
+            colors = colors,
+            typography = typography,
+            shapes = shapes
+        ) {
             content()
         }
-    }}
+    }
+}
 
 private val LightColorPaletteM3 = lightColorScheme(
     primary = salmon,

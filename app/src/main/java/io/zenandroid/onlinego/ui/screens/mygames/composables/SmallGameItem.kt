@@ -2,9 +2,10 @@ package io.zenandroid.onlinego.ui.screens.mygames.composables
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -27,8 +28,7 @@ import io.zenandroid.onlinego.utils.calculateTimer
 @ExperimentalComposeUiApi
 @Composable
 fun SmallGameItem(game: Game, boardTheme: BoardTheme, userId: Long, onAction: (Action) -> Unit) {
-    Surface(
-        shape = MaterialTheme.shapes.medium,
+    SenteCard(
         modifier = Modifier
             .height(110.dp)
             .fillMaxWidth()
@@ -40,7 +40,7 @@ fun SmallGameItem(game: Game, boardTheme: BoardTheme, userId: Long, onAction: (A
                 game.whitePlayer.id -> game.blackPlayer
                 else -> null
             }
-        Row(modifier = Modifier.clickable { onAction(Action.GameSelected(game)) }) {
+        Row(modifier = Modifier.fillMaxWidth().clickable { onAction(Action.GameSelected(game)) }) {
             Board(
                 boardWidth = game.width,
                 boardHeight = game.height,
@@ -60,7 +60,7 @@ fun SmallGameItem(game: Game, boardTheme: BoardTheme, userId: Long, onAction: (A
                 Row (modifier = Modifier.padding(top = 8.dp)) {
                     Text(
                         text = opponent?.username ?: "Unknown",
-                        color = MaterialTheme.colors.onSurface,
+                        color = MaterialTheme.colorScheme.onSurface,
                         style = TextStyle.Default.copy(
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Bold
@@ -76,7 +76,7 @@ fun SmallGameItem(game: Game, boardTheme: BoardTheme, userId: Long, onAction: (A
                     Row(modifier = Modifier.padding(top = 4.dp)) {
                         Text(
                             text = calculateTimer(game),
-                            color = MaterialTheme.colors.onSurface,
+                            color = MaterialTheme.colorScheme.onSurface,
                             style = TextStyle.Default.copy(
                                 fontSize = 12.sp,
                             ),
@@ -84,7 +84,7 @@ fun SmallGameItem(game: Game, boardTheme: BoardTheme, userId: Long, onAction: (A
                         if (game.pauseControl.isPaused()) {
                             Text(
                                 text = "  ·  paused",
-                                color = MaterialTheme.colors.onSurface,
+                                color = MaterialTheme.colorScheme.onSurface,
                                 style = TextStyle.Default.copy(
                                     fontSize = 12.sp,
                                 ),
@@ -107,7 +107,7 @@ fun SmallGameItem(game: Game, boardTheme: BoardTheme, userId: Long, onAction: (A
                     }
                     Text(
                         text = outcome,
-                        color = MaterialTheme.colors.onSurface,
+                        color = MaterialTheme.colorScheme.onSurface,
                         fontSize = 12.sp,
                     )
                 }

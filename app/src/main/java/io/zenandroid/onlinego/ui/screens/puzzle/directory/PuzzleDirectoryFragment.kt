@@ -11,13 +11,12 @@ import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavOptions
-import androidx.navigation.fragment.findNavController
+import androidx.navigation.Navigation.findNavController
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.local.PuzzleCollection
 import io.zenandroid.onlinego.ui.screens.puzzle.tsumego.COLLECTION_ID
 import io.zenandroid.onlinego.ui.screens.puzzle.tsumego.PUZZLE_ID
 import io.zenandroid.onlinego.ui.theme.OnlineGoThemeM3
-import io.zenandroid.onlinego.utils.PersistenceManager
 import io.zenandroid.onlinego.utils.analyticsReportScreen
 import io.zenandroid.onlinego.utils.rememberStateWithLifecycle
 import kotlinx.coroutines.Dispatchers
@@ -42,7 +41,7 @@ class PuzzleDirectoryFragment : Fragment() {
           PuzzleDirectoryScreen(
               state = state,
               onCollection = ::navigateToPuzzleScreen,
-              onBack = { findNavController().navigateUp() },
+              onBack = { /*findNavController().navigateUp()*/ },
               onSortChanged = { viewModel.onSortChanged(it) },
               onFilterChanged = { viewModel.onFilterChanged(it) },
               onToggleOnlyOpened = { viewModel.onToggleOnlyOpened() },
@@ -53,22 +52,22 @@ class PuzzleDirectoryFragment : Fragment() {
   }
 
   private fun navigateToPuzzleScreen(collection: PuzzleCollection) {
-    lifecycleScope.launch(context = Dispatchers.IO) {
-      val puzzle_id = viewModel.getFirstUnsolvedForCollection(collection)
-
-      withContext(Dispatchers.Main) {
-        findNavController().navigate(
-            R.id.tsumegoFragment,
-            bundleOf(
-                COLLECTION_ID to collection.id,
-                PUZZLE_ID to puzzle_id,
-            ),
-            NavOptions.Builder()
-                .setLaunchSingleTop(true)
-                .build()
-        )
-      }
-    }
+//    lifecycleScope.launch(context = Dispatchers.IO) {
+//      val puzzle_id = viewModel.getFirstUnsolvedForCollection(collection)
+//
+//      withContext(Dispatchers.Main) {
+//        findNavController().navigate(
+//            R.id.tsumegoFragment,
+//            bundleOf(
+//                COLLECTION_ID to collection.id,
+//                PUZZLE_ID to puzzle_id,
+//            ),
+//            NavOptions.Builder()
+//                .setLaunchSingleTop(true)
+//                .build()
+//        )
+//      }
+//    }
   }
 
   override fun onResume() {

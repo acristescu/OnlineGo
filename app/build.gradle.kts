@@ -123,8 +123,6 @@ dependencies {
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.lifecycle.extensions)
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
-    implementation(libs.androidx.navigation.fragment.ktx)
-    implementation(libs.androidx.navigation.ui.ktx)
 
     // Firebase
     implementation(platform(libs.firebase.bom))
@@ -161,6 +159,8 @@ dependencies {
     implementation(libs.coil.compose)
     implementation(libs.glide)
     ksp(libs.glide.compiler)
+
+    implementation(libs.navigation.compose)
 
     // UI & Material Design
     implementation(libs.material)

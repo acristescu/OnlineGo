@@ -20,7 +20,5 @@ interface MainContract {
         fun subscribe()
         fun unsubscribe()
         fun onStartSearch(sizes: List<Size>, speed: List<Speed>)
-        fun onNewBotChallenge(challengeParams: ChallengeParams)
-        fun onNewFriendChallenge(challengeParams: ChallengeParams)
     }
 }

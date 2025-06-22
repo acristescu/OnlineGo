@@ -17,7 +17,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.Fragment
-import androidx.navigation.fragment.findNavController
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.Scopes
@@ -85,7 +84,7 @@ class OnboardingFragment : Fragment() {
                         requireActivity().finish()
                     }
                     state.loginSuccessful -> {
-                        findNavController().navigate(R.id.onboarding_to_mygames)
+//                        findNavController().navigate(R.id.onboarding_to_mygames)
                         (requireActivity() as MainActivity).askForNotificationsPermission(true)
                     }
 //                    state.loginMethod == LoginMethod.FACEBOOK -> doFacebookFlow()

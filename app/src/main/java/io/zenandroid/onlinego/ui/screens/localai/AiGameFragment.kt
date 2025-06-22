@@ -8,7 +8,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.Fragment
-import androidx.navigation.fragment.findNavController
 import io.zenandroid.onlinego.data.repositories.SettingsRepository
 import io.zenandroid.onlinego.data.repositories.UserSessionRepository
 import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
@@ -47,7 +46,7 @@ class AiGameFragment : Fragment() {
             onUserAskedForOwnership = viewModel::onUserAskedForOwnership,
             onNewGame = viewModel::onNewGame,
             onDismissNewGameDialog = viewModel::onDismissNewGameDialog,
-            onNavigateBack = { findNavController().popBackStack() }
+            onNavigateBack = { /*findNavController().popBackStack()*/ }
           )
         }
       }

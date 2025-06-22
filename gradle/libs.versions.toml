@@ -5,6 +5,7 @@ androidGradlePlugin = "8.10.1"
 composeCompiler = "1.5.4"
 compileSdk = "35"
 minSdk = "21"
+navigationCompose = "2.9.0"
 targetSdk = "35"
 ndkVersion = "25.1.8937393"
 
@@ -85,8 +86,6 @@ androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "androidx-activity" }
 androidx-lifecycle-extensions = { group = "androidx.lifecycle", name = "lifecycle-extensions", version = "2.2.0" }
 androidx-lifecycle-viewmodel-ktx = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-ktx", version.ref = "androidx-lifecycle" }
-androidx-navigation-fragment-ktx = { group = "androidx.navigation", name = "navigation-fragment-ktx", version.ref = "androidx-navigation" }
-androidx-navigation-ui-ktx = { group = "androidx.navigation", name = "navigation-ui-ktx", version.ref = "androidx-navigation" }
 
 # Compose (versions managed by BOM)
 compose-material = { group = "androidx.compose.material", name = "material" }
@@ -115,6 +114,7 @@ firebase-crashlytics = { group = "com.google.firebase", name = "firebase-crashly
 firebase-messaging = { group = "com.google.firebase", name = "firebase-messaging" }
 
 # Google Play Services
+navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
 play-services-auth = { group = "com.google.android.gms", name = "play-services-auth", version.ref = "playServices" }
 
 # Networking

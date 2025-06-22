@@ -14,6 +14,7 @@ import io.reactivex.schedulers.Schedulers
 import io.zenandroid.onlinego.data.model.BoardTheme
 import io.zenandroid.onlinego.data.model.local.Challenge
 import io.zenandroid.onlinego.data.model.local.Game
+import io.zenandroid.onlinego.data.model.ogs.ChallengeParams
 import io.zenandroid.onlinego.data.model.ogs.OGSAutomatch
 import io.zenandroid.onlinego.data.model.ogs.Phase
 import io.zenandroid.onlinego.data.model.ogs.Warning
@@ -323,9 +324,18 @@ class MyGamesViewModel(
             GameNavigationConsumed -> onGameNavigationConsumed()
             ViewResumed -> onViewResumed()
             WarningAcknowledged -> onWarningAcknowledged()
+            is NewChallengeSearchClicked -> onNewChallengeSearchClicked(action.challenge)
 
             CustomGame, is GameSelected, PlayAgainstAI, FaceToFace, PlayOnline, SupportClicked -> {} // intentionally left blank
         }
+    }
+
+    private fun onNewChallengeSearchClicked(challengeParams: ChallengeParams) {
+        restService.challengeBot(challengeParams)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({}, this::onError)
+            .addToDisposable(subscriptions)
     }
 
     private fun onWarningAcknowledged() {
@@ -471,6 +481,7 @@ sealed interface Action {
     data class LoadMoreHistoricGames(val game: Game?): Action
     data object ViewResumed: Action
     data object WarningAcknowledged: Action
+    data class NewChallengeSearchClicked(val challenge: ChallengeParams) : Action
 }
 
 @Immutable

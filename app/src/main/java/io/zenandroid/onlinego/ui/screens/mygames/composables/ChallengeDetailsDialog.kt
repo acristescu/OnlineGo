@@ -17,9 +17,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
-import androidx.compose.material.TextButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -69,7 +69,7 @@ fun ChallengeDetailsDialog(
                 .align(Alignment.Center)
                 .shadow(4.dp)
                 .background(
-                    color = MaterialTheme.colors.surface,
+                    color = MaterialTheme.colorScheme.surface,
                     shape = RoundedCornerShape(10.dp)
                 )
                 .padding(16.dp)
@@ -77,22 +77,22 @@ fun ChallengeDetailsDialog(
             Spacer(modifier = Modifier.height(100.dp))
             Text(
                 text = status.name ?: "",
-                style = MaterialTheme.typography.h1,
-                color = MaterialTheme.colors.onSurface,
+                style = MaterialTheme.typography.headlineLarge,
+                color = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.padding(top = 14.dp, bottom = 8.dp)
             )
 
             Text(
                 text = status.rank,
-                color = MaterialTheme.colors.onSurface,
-                style = MaterialTheme.typography.body2,
+                color = MaterialTheme.colorScheme.onSurface,
+                style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.padding(bottom = 16.dp)
             )
 
             Text(
                 text = "You received a challenge!",
-                color = MaterialTheme.colors.onSurface,
-                style = MaterialTheme.typography.body2,
+                color = MaterialTheme.colorScheme.onSurface,
+                style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.padding(vertical = 16.dp)
             )
 
@@ -104,7 +104,7 @@ fun ChallengeDetailsDialog(
                 horizontalArrangement = Arrangement.SpaceEvenly,
                 modifier = Modifier.fillMaxWidth(),
             ) {
-                TextButton(onClick = { onChallengeAccepted(status.challenge) }) {
+                TextButton (onClick = { onChallengeAccepted(status.challenge) }) {
                     Text("Accept")
                 }
                 TextButton(onClick = { onChallengeDeclined(status.challenge) }) {
@@ -126,7 +126,7 @@ fun ChallengeDetailsDialog(
                 .align(Alignment.TopCenter)
                 .padding(top = 29.dp)
                 .clip(RoundedCornerShape(10.dp))
-                .background(MaterialTheme.colors.surface)
+                .background(MaterialTheme.colorScheme.surface)
                 .padding(4.dp)
                 .size(124.dp)
                 .clip(RoundedCornerShape(8.dp))
@@ -143,14 +143,14 @@ private fun StatsRow(title: String, value: String) {
     Row {
         Text(
             text = title,
-            color = MaterialTheme.colors.onSurface,
-            style = MaterialTheme.typography.body2,
+            color = MaterialTheme.colorScheme.onSurface,
+            style = MaterialTheme.typography.bodyMedium,
             modifier = Modifier.weight(1f)
         )
         Text(
             text = value,
-            color = MaterialTheme.colors.onSurface,
-            style = MaterialTheme.typography.body2,
+            color = MaterialTheme.colorScheme.onSurface,
+            style = MaterialTheme.typography.bodyMedium,
         )
     }
 }

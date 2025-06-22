@@ -10,20 +10,16 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CloudOff
-import androidx.compose.material.icons.filled.OfflineBolt
-import androidx.compose.material.icons.filled.OfflinePin
-import androidx.compose.material.icons.filled.OfflineShare
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.graphics.ColorFilter.Companion
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
@@ -55,9 +51,9 @@ fun HomeScreenHeader(
             ),
             contentDescription = "Icon",
             modifier = Modifier
-                .size(56.dp)
+                .size(64.dp)
 //                .border(color = Color.Black, width = 1.dp, shape = CircleShape)
-                .clip(CircleShape)
+                .clip(RoundedCornerShape(4.dp))
         )
 
         Column(modifier = Modifier.padding(start = 30.dp)) {
@@ -65,14 +61,14 @@ fun HomeScreenHeader(
                 text = mainText,
                 fontWeight = FontWeight.Bold,
                 fontSize = 16.sp,
-                color = MaterialTheme.colors.onSurface,
+                color = MaterialTheme.colorScheme.onSurface,
             )
             subText?.let {
                 Text(
                     text = it,
                     fontSize = 12.sp,
                     modifier = Modifier.padding(top = 6.dp),
-                    color = MaterialTheme.colors.onSurface,
+                    color = MaterialTheme.colorScheme.onSurface,
                 )
             }
         }
@@ -86,7 +82,7 @@ fun HomeScreenHeader(
             Image(
                 imageVector = Icons.Default.CloudOff,
                 contentDescription = "Offline",
-                colorFilter = ColorFilter.tint(MaterialTheme.colors.onSurface),
+                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface),
                 modifier = Modifier.size(24.dp),
             )
         }
