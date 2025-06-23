@@ -15,6 +15,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.core.content.edit
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.cash.molecule.AndroidUiDispatcher
@@ -22,13 +23,10 @@ import app.cash.molecule.RecompositionMode.ContextClock
 import app.cash.molecule.launchMolecule
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.crashlytics.FirebaseCrashlytics
-import io.zenandroid.onlinego.data.model.BoardTheme
-import io.zenandroid.onlinego.data.model.BoardTheme.WOOD
 import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.Position
 import io.zenandroid.onlinego.data.model.StoneType.BLACK
 import io.zenandroid.onlinego.data.model.StoneType.WHITE
-import io.zenandroid.onlinego.data.repositories.SettingsRepository
 import io.zenandroid.onlinego.gamelogic.RulesManager
 import io.zenandroid.onlinego.gamelogic.Util
 import io.zenandroid.onlinego.gamelogic.Util.toGTP
@@ -48,6 +46,7 @@ import io.zenandroid.onlinego.ui.screens.face2face.Button.Previous
 import io.zenandroid.onlinego.ui.screens.face2face.EstimateStatus.Idle
 import io.zenandroid.onlinego.ui.screens.face2face.EstimateStatus.Success
 import io.zenandroid.onlinego.ui.screens.face2face.EstimateStatus.Working
+import io.zenandroid.onlinego.utils.analyticsReportScreen
 import io.zenandroid.onlinego.utils.recordException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -61,7 +60,6 @@ private const val BOARD_SIZE_KEY = "FACE_TO_FACE_BOARD_SIZE_KEY"
 private const val HANDICAP_KEY = "FACE_TO_FACE_HANDICAP_KEY"
 
 class FaceToFaceViewModel(
-  private val settingsRepository: SettingsRepository,
   private val prefs: SharedPreferences,
   private val analytics: FirebaseAnalytics,
   private val crashlytics: FirebaseCrashlytics,
@@ -85,6 +83,7 @@ class FaceToFaceViewModel(
 
   init {
     analytics.logEvent("face_to_face_opened", null)
+    analyticsReportScreen("FaceToFace")
     viewModelScope.launch {
       loadSavedData()
     }
@@ -114,8 +113,10 @@ class FaceToFaceViewModel(
       else -> currentPosition
     }
 
-    val previousButtonEnabled = !loading && history.isNotEmpty() && (historyIndex == null || historyIndex >= 0)
-    val nextButtonEnabled = !loading && history.isNotEmpty() && historyIndex != null && historyIndex < history.size
+    val previousButtonEnabled =
+      !loading && history.isNotEmpty() && (historyIndex == null || historyIndex >= 0)
+    val nextButtonEnabled =
+      !loading && history.isNotEmpty() && historyIndex != null && historyIndex < history.size
 
     val (buttons, bottomText) = when {
       estimateStatus is Working -> emptyList<Button>() to "Estimating"
@@ -139,8 +140,6 @@ class FaceToFaceViewModel(
       history = history,
       boardInteractive = !loading && estimateStatus is Idle,
       candidateMove = candidateMove,
-      boardTheme = settingsRepository.boardTheme,
-      showCoordinates = settingsRepository.showCoordinates,
       drawTerritory = estimateStatus is Success,
       fadeOutRemovedStones = estimateStatus is Success,
       showLastMove = estimateStatus !is Success,
@@ -155,7 +154,7 @@ class FaceToFaceViewModel(
   }
 
   private suspend fun loadSavedData() {
-    if(prefs.contains(HISTORY_KEY) && prefs.contains(BOARD_SIZE_KEY) && prefs.contains(HANDICAP_KEY)) {
+    if (prefs.contains(HISTORY_KEY) && prefs.contains(BOARD_SIZE_KEY) && prefs.contains(HANDICAP_KEY)) {
       analytics.logEvent("face_to_face_loading", null)
       var historyString: String
       var sizeString: String
@@ -172,7 +171,7 @@ class FaceToFaceViewModel(
           val parts = it.split(",")
           Cell(parts[0].toInt(), parts[1].toInt())
         }
-      val size = BoardSize.values().first { it.prettyName == sizeString }
+      val size = BoardSize.entries.first { it.prettyName == sizeString }
       currentGameParameters = GameParameters(size, handicap)
       newGameParameters = currentGameParameters
     }
@@ -188,11 +187,11 @@ class FaceToFaceViewModel(
   }
 
   override fun onCleared() {
-    prefs.edit()
-      .putString(HISTORY_KEY, history.joinToString(separator = " ") { "${it.x},${it.y}" })
-      .putString(BOARD_SIZE_KEY, currentGameParameters.size.toString())
-      .putInt(HANDICAP_KEY, currentGameParameters.handicap)
-      .apply()
+    prefs.edit {
+      putString(HISTORY_KEY, history.joinToString(separator = " ") { "${it.x},${it.y}" })
+        .putString(BOARD_SIZE_KEY, currentGameParameters.size.toString())
+        .putInt(HANDICAP_KEY, currentGameParameters.handicap)
+    }
     super.onCleared()
   }
 
@@ -209,7 +208,7 @@ class FaceToFaceViewModel(
   }
 
   private fun onButtonPressed(button: Button) {
-    when(button) {
+    when (button) {
       is Estimate -> doEstimation()
       is GameSettings -> newGameDialogShowing = true
       is Next -> onNextPressed()
@@ -227,7 +226,7 @@ class FaceToFaceViewModel(
         val index = historyIndex ?: history.lastIndex
         val finished =
           index > currentGameParameters.size.width &&
-            estimate.dame.size < currentGameParameters.size.width
+              estimate.dame.size < currentGameParameters.size.width
         estimateStatus = Success(estimate, finished)
       }
     }
@@ -236,7 +235,7 @@ class FaceToFaceViewModel(
   private fun onPreviousPressed() {
     crashlytics.log("FaceToFaceViewModel onPreviousPressed")
     val newIndex = historyIndex?.minus(1) ?: (history.lastIndex - 1)
-    if(newIndex < -1) {
+    if (newIndex < -1) {
       //
       // Note: this can happen with repeating buttons: the button
       // could fire twice in the space between two frames
@@ -252,7 +251,7 @@ class FaceToFaceViewModel(
   private fun onNextPressed() {
     crashlytics.log("FaceToFaceViewModel onNextPressed")
     val newIndex = historyIndex?.plus(1) ?: history.lastIndex
-    if(newIndex > history.lastIndex) {
+    if (newIndex > history.lastIndex) {
       //
       // Note: this can happen with repeating buttons: the button
       // could fire twice in the space between two frames
@@ -261,7 +260,7 @@ class FaceToFaceViewModel(
       return
     }
     val newPos = historyPosition(newIndex)
-    historyIndex = if(newIndex < history.lastIndex) newIndex else null
+    historyIndex = if (newIndex < history.lastIndex) newIndex else null
     currentPosition = newPos
   }
 
@@ -278,7 +277,7 @@ class FaceToFaceViewModel(
 
   private fun historyPosition(index: Int) =
     RulesManager.replay(
-      nextToMove = if(currentGameParameters.handicap > 0) WHITE else BLACK,
+      nextToMove = if (currentGameParameters.handicap > 0) WHITE else BLACK,
       moves = history.subList(0, index + 1),
       width = currentGameParameters.size.width,
       height = currentGameParameters.size.height,
@@ -293,7 +292,7 @@ class FaceToFaceViewModel(
         boardWidth = currentGameParameters.size.width,
         boardHeight = currentGameParameters.size.height,
         handicap = currentGameParameters.handicap,
-        )
+      )
     }
 
   private fun onPassPressed() {
@@ -301,7 +300,14 @@ class FaceToFaceViewModel(
   }
 
   private fun onCellTapUp(cell: Cell) {
-    crashlytics.log("onCellTapUp ${Util.getGTPCoordinates(cell, currentGameParameters.size.height)}")
+    crashlytics.log(
+      "onCellTapUp ${
+        Util.getGTPCoordinates(
+          cell,
+          currentGameParameters.size.height
+        )
+      }"
+    )
     val pos = currentPosition
     val newPosition = RulesManager.makeMove(pos, pos.nextToMove, cell)
     if (newPosition != null) {
@@ -336,8 +342,6 @@ data class FaceToFaceState(
   val history: List<Cell>,
   val candidateMove: Cell?,
   val boardInteractive: Boolean,
-  val boardTheme: BoardTheme,
-  val showCoordinates: Boolean,
   val drawTerritory: Boolean,
   val fadeOutRemovedStones: Boolean,
   val showLastMove: Boolean,
@@ -356,8 +360,6 @@ data class FaceToFaceState(
       history = emptyList(),
       boardInteractive = false,
       candidateMove = null,
-      boardTheme = WOOD,
-      showCoordinates = true,
       drawTerritory = false,
       fadeOutRemovedStones = false,
       showLastMove = true,
@@ -402,8 +404,16 @@ sealed class Button(
 ) : BottomBarButton {
   object GameSettings : Button(Icons.Rounded.AddCircle, "New Game")
   object Estimate : Button(Icons.Rounded.Functions, "Estimate Score")
-  class Previous(enabled: Boolean = true) : Button(repeatable = true, enabled = enabled, icon = Icons.Rounded.SkipPrevious, label = "Previous")
-  class Next(enabled: Boolean = true) : Button(repeatable = true, enabled = enabled, icon = Icons.Rounded.SkipNext, label = "Next")
+  class Previous(enabled: Boolean = true) : Button(
+    repeatable = true,
+    enabled = enabled,
+    icon = Icons.Rounded.SkipPrevious,
+    label = "Previous"
+  )
+
+  class Next(enabled: Boolean = true) :
+    Button(repeatable = true, enabled = enabled, icon = Icons.Rounded.SkipNext, label = "Next")
+
   object CloseEstimate : Button(Icons.Rounded.HighlightOff, "Return")
   object Pass : Button(Icons.Rounded.Stop, "Pass")
 }
@@ -412,14 +422,14 @@ sealed interface Action {
   class BoardCellDragged(val cell: Cell) : Action
   class BoardCellTapUp(val cell: Cell) : Action
   class BottomButtonPressed(val button: Button) : Action
-  object KOMoveDialogDismiss: Action
-  object NewGameDialogDismiss: Action
-  class NewGameParametersChanged(val params: GameParameters): Action
-  object StartNewGame: Action
+  object KOMoveDialogDismiss : Action
+  object NewGameDialogDismiss : Action
+  class NewGameParametersChanged(val params: GameParameters) : Action
+  object StartNewGame : Action
 }
 
 sealed interface EstimateStatus {
-  object Idle: EstimateStatus
-  object Working: EstimateStatus
-  data class Success(val result: Position, val gameIsOver: Boolean): EstimateStatus
+  object Idle : EstimateStatus
+  object Working : EstimateStatus
+  data class Success(val result: Position, val gameIsOver: Boolean) : EstimateStatus
 }

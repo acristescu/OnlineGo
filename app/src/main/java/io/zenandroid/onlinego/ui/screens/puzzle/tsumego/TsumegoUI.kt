@@ -21,7 +21,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.zenandroid.onlinego.R
-import io.zenandroid.onlinego.data.model.BoardTheme
 import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.Position
 import io.zenandroid.onlinego.data.model.StoneType
@@ -159,7 +158,6 @@ fun TsumegoScreen(
                                         boardWidth = puzzle.puzzle.width,
                                         boardHeight = puzzle.puzzle.height,
                                         position = position,
-                                        boardTheme = state.boardTheme,
                                         drawCoordinates = false,
                                         interactive = false,
                                         drawShadow = false,
@@ -229,8 +227,6 @@ fun TsumegoScreen(
                             boardWidth = it.width,
                             boardHeight = it.height,
                             position = state.boardPosition,
-                            boardTheme = state.boardTheme,
-                            drawCoordinates = state.drawCoordinates,
                             interactive = state.boardInteractive,
                             drawShadow = true,
                             fadeInLastMove = false,
@@ -449,8 +445,6 @@ fun TsumegoScreenPreview() {
                     Cell(8, 8),
                 ),
             ),
-            boardTheme = BoardTheme.WOOD,
-            drawCoordinates = true,
             boardInteractive = true,
             removedStones = null,
             hoveredCell = null,

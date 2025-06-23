@@ -1,7 +1,14 @@
 package io.zenandroid.onlinego.ui.screens.game
 
+import android.app.Activity
+import android.content.Intent
 import android.content.res.Configuration.ORIENTATION_PORTRAIT
+import android.media.MediaPlayer
+import android.net.Uri
+import android.os.Bundle
+import android.view.WindowManager
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.LocalActivity
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -40,6 +47,10 @@ import androidx.compose.material.icons.rounded.ThumbDown
 import androidx.compose.material.icons.rounded.ThumbUp
 import androidx.compose.material.icons.rounded.Undo
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
@@ -51,6 +62,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight.Companion.Bold
@@ -58,9 +70,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import io.zenandroid.onlinego.OnlineGoApplication
+import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.Position
 import io.zenandroid.onlinego.data.model.StoneType
+import io.zenandroid.onlinego.data.model.local.Game
 import io.zenandroid.onlinego.ui.composables.Board
 import io.zenandroid.onlinego.ui.composables.BottomBar
 import io.zenandroid.onlinego.ui.composables.MoreMenuItem
@@ -108,894 +123,1033 @@ import io.zenandroid.onlinego.ui.screens.game.composables.ChatDialog
 import io.zenandroid.onlinego.ui.screens.game.composables.PlayerCard
 import io.zenandroid.onlinego.ui.screens.game.composables.PlayerDetailsDialog
 import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
+import io.zenandroid.onlinego.utils.rememberStateWithLifecycle
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
-fun GameScreen(state: GameState,
-               onUserAction: ((UserAction) -> Unit),
-               onBack: (() -> Unit),
+fun GameScreen(
+  viewModel: GameViewModel = koinViewModel(),
+  onNavigateBack: () -> Unit,
+  onNavigateToGameScreen: (Game) -> Unit,
 ) {
-    Column(Modifier.background(MaterialTheme.colors.surface)) {
-        if(LocalConfiguration.current.orientation == ORIENTATION_PORTRAIT) {
-            Header(
-                title = state.title,
-                opponentRequestedUndo = state.opponentRequestedUndo,
-                onBack = onBack,
-                onUserAction = onUserAction
+  val stoneSoundMediaPlayer = remember {
+    MediaPlayer.create(OnlineGoApplication.instance, R.raw.stone)
+  }.also {
+    DisposableEffect(Unit) {
+      onDispose {
+        it.release()
+      }
+    }
+  }
+
+  val activity = LocalActivity.current
+
+  DisposableEffect(activity) {
+    activity?.window?.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+
+    onDispose {
+      activity?.window?.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+    }
+  }
+  LaunchedEffect(Unit) {
+    viewModel.events.collect { event ->
+      when (event) {
+        Event.PlayStoneSound -> stoneSoundMediaPlayer.start()
+        null -> {}
+      }
+    }
+  }
+
+
+  viewModel.pendingNavigation?.let { nav ->
+    when (nav) {
+      is PendingNavigation.NavigateToGame -> onNavigateToGameScreen(nav.game)
+      is PendingNavigation.OpenURL -> LocalContext.current.startActivity(
+        Intent(
+          Intent.ACTION_VIEW,
+          Uri.parse(nav.url)
+        ), Bundle()
+      )
+    }
+  }
+
+  val state by rememberStateWithLifecycle(viewModel.state)
+
+  OnlineGoTheme {
+    GameContent(
+      state = state,
+      onBack = onNavigateBack,
+      onUserAction = viewModel::onUserAction
+    )
+  }
+
+}
+
+@Composable
+fun GameContent(
+  state: GameState,
+  onUserAction: ((UserAction) -> Unit),
+  onBack: (() -> Unit),
+) {
+  Column(Modifier.background(MaterialTheme.colors.surface)) {
+    if (LocalConfiguration.current.orientation == ORIENTATION_PORTRAIT) {
+      Header(
+        title = state.title,
+        opponentRequestedUndo = state.opponentRequestedUndo,
+        onBack = onBack,
+        onUserAction = onUserAction
+      )
+      if (state.showAnalysisPanel) {
+        Spacer(modifier = Modifier.weight(1f)) // Placeholder
+      }
+      if (state.showPlayers) {
+        BlackPlayerCard(
+          state, onUserAction,
+          modifier = Modifier
+              .weight(.5f)
+              .fillMaxWidth()
+        )
+      }
+      ExtraStatusField(
+        text = state.blackExtraStatus,
+        modifier = Modifier
+            .background(Color(0xFF867484))
+            .fillMaxWidth()
+            .padding(4.dp)
+            .align(Alignment.CenterHorizontally),
+      )
+      Board(
+        state = state,
+        onUserAction = onUserAction,
+        modifier = Modifier
+            .heightIn(0.dp, (LocalConfiguration.current.screenHeightDp * .6).dp)
+            .align(CenterHorizontally)
+      )
+      ExtraStatusField(
+        text = state.whiteExtraStatus,
+        modifier = Modifier
+            .background(Color(0xFF867484))
+            .fillMaxWidth()
+            .padding(4.dp)
+            .align(Alignment.CenterHorizontally),
+      )
+      if (state.showPlayers) {
+        WhitePlayerCard(
+          state, onUserAction,
+          modifier = Modifier
+              .weight(.5f)
+              .fillMaxWidth()
+        )
+      }
+      BottomBar(
+        buttons = state.buttons,
+        bottomText = state.bottomText,
+        onButtonPressed = { onUserAction(BottomButtonPressed(it as Button)) },
+      )
+    } else {
+      Row {
+        Column(
+          Modifier
+              .width(0.dp)
+              .weight(1f)
+        ) {
+          Header(
+            title = state.title,
+            opponentRequestedUndo = state.opponentRequestedUndo,
+            onBack = onBack,
+            onUserAction = onUserAction
+          )
+          ExtraStatusField(
+            text = state.blackExtraStatus,
+            modifier = Modifier
+                .background(Color(0xFF867484))
+                .fillMaxWidth()
+                .padding(4.dp)
+                .align(Alignment.CenterHorizontally),
+          )
+          if (state.showPlayers) {
+            BlackPlayerCard(
+              state, onUserAction,
+              modifier = Modifier
+                  .weight(.5f)
+                  .fillMaxWidth()
             )
-            if (state.showAnalysisPanel) {
-                Spacer(modifier = Modifier.weight(1f)) // Placeholder
-            }
-            if (state.showPlayers) {
-                BlackPlayerCard(
-                    state, onUserAction,
-                    modifier = Modifier
-                        .weight(.5f)
-                        .fillMaxWidth()
-                )
-            }
-            ExtraStatusField(
-                text = state.blackExtraStatus,
-                modifier = Modifier
-                    .background(Color(0xFF867484))
-                    .fillMaxWidth()
-                    .padding(4.dp)
-                    .align(Alignment.CenterHorizontally),
+            WhitePlayerCard(
+              state, onUserAction,
+              modifier = Modifier
+                  .weight(.5f)
+                  .fillMaxWidth()
             )
-            Board(
-                state = state,
-                onUserAction = onUserAction,
-                modifier = Modifier
-                    .heightIn(0.dp, (LocalConfiguration.current.screenHeightDp * .6).dp)
-                    .align(CenterHorizontally)
-            )
-            ExtraStatusField(
-                text = state.whiteExtraStatus,
-                modifier = Modifier
-                    .background(Color(0xFF867484))
-                    .fillMaxWidth()
-                    .padding(4.dp)
-                    .align(Alignment.CenterHorizontally),
-            )
-            if (state.showPlayers) {
-                WhitePlayerCard(
-                    state, onUserAction,
-                    modifier = Modifier
-                        .weight(.5f)
-                        .fillMaxWidth()
-                )
-            }
-            BottomBar(
-                buttons = state.buttons,
-                bottomText = state.bottomText,
-                onButtonPressed = { onUserAction(BottomButtonPressed(it as Button)) },
-            )
-        } else {
-            Row {
-                Column(
-                    Modifier
-                        .width(0.dp)
-                        .weight(1f)) {
-                    Header(
-                        title = state.title,
-                        opponentRequestedUndo = state.opponentRequestedUndo,
-                        onBack = onBack,
-                        onUserAction = onUserAction
-                    )
-                    ExtraStatusField(
-                        text = state.blackExtraStatus,
-                        modifier = Modifier
-                            .background(Color(0xFF867484))
-                            .fillMaxWidth()
-                            .padding(4.dp)
-                            .align(Alignment.CenterHorizontally),
-                    )
-                    if (state.showPlayers) {
-                        BlackPlayerCard(
-                            state, onUserAction,
-                            modifier = Modifier
-                                .weight(.5f)
-                                .fillMaxWidth()
-                        )
-                        WhitePlayerCard(
-                            state, onUserAction,
-                            modifier = Modifier
-                                .weight(.5f)
-                                .fillMaxWidth()
-                        )
-                    }
-                    ExtraStatusField(
-                        text = state.whiteExtraStatus,
-                        modifier = Modifier
-                            .background(Color(0xFF867484))
-                            .fillMaxWidth()
-                            .padding(4.dp)
-                            .align(Alignment.CenterHorizontally),
-                    )
-                    BottomBar(
-                        buttons = state.buttons,
-                        bottomText = state.bottomText,
-                        onButtonPressed = { onUserAction(BottomButtonPressed(it as Button)) },
-                    )
-                }
-                Board(
-                    state = state,
-                    onUserAction = onUserAction,
-                    modifier = Modifier
-                        .widthIn(0.dp, (LocalConfiguration.current.screenWidthDp * .6).dp)
-                        .align(CenterVertically)
-                )
-            }
+          }
+          ExtraStatusField(
+            text = state.whiteExtraStatus,
+            modifier = Modifier
+                .background(Color(0xFF867484))
+                .fillMaxWidth()
+                .padding(4.dp)
+                .align(Alignment.CenterHorizontally),
+          )
+          BottomBar(
+            buttons = state.buttons,
+            bottomText = state.bottomText,
+            onButtonPressed = { onUserAction(BottomButtonPressed(it as Button)) },
+          )
         }
-    }
-    if(state.chatDialogShowing) {
-        ChatDialog(
-            messages = state.messages,
-            onDialogDismiss = { onUserAction(ChatDialogDismiss) },
-            onSendMessage = { onUserAction(ChatSend(it)) }
+        Board(
+          state = state,
+          onUserAction = onUserAction,
+          modifier = Modifier
+              .widthIn(0.dp, (LocalConfiguration.current.screenWidthDp * .6).dp)
+              .align(CenterVertically)
         )
+      }
     }
-    if (state.retryMoveDialogShowing) {
-        RetryMoveDialog(onUserAction)
-    }
-    AnimatedVisibility (state.gameInfoDialogShowing, enter = fadeIn(), exit = fadeOut()) {
-        GameInfoDialog(state, onUserAction)
-    }
-    if(state.koMoveDialogShowing) {
-        AlertDialog(
-            onDismissRequest = { onUserAction(KOMoveDialogDismiss) },
-            confirmButton = {
-                TextButton(onClick = { onUserAction(KOMoveDialogDismiss) }) {
-                    Text("OK")
-                }
-            },
-            text = { Text("That move would repeat the board position. That's called a KO, and it is not allowed. Try to make another move first, preferably a threat that the opponent can't ignore.") },
-            title = { Text("Illegal KO move") },
-        )
-    }
-    if(state.opponentRequestedUndoDialogShowing) {
-        AlertDialog(
-            onDismissRequest = { onUserAction(OpponentUndoRequestRejected) },
-            dismissButton = {
-                TextButton(onClick = { onUserAction(OpponentUndoRequestRejected) }) {
-                    Text("IGNORE")
-                }
-            },
-            confirmButton = {
-                TextButton(onClick = { onUserAction(OpponentUndoRequestAccepted) }) {
-                    Text("UNDO MOVE")
-                }
-            },
-            text = { Text("Your opponent would like to undo their last move. Do you accept?") },
-            title = { Text("Opponent asked to undo") },
-        )
-    }
-    if(state.requestUndoDialogShowing) {
-        AlertDialog(
-            onDismissRequest = { onUserAction(UserUndoDialogDismiss) },
-            dismissButton = {
-                TextButton(onClick = { onUserAction(UserUndoDialogDismiss) }) {
-                    Text("CANCEL")
-                }
-            },
-            confirmButton = {
-                TextButton(onClick = { onUserAction(UserUndoDialogConfirm) }) {
-                    Text("REQUEST UNDO")
-                }
-            },
-            text = { Text("If you made the last move by mistake, you can ask your opponent if they allow you to undo it.") },
-            title = { Text("Request Undo?") },
-        )
-    }
-    if(state.passDialogShowing) {
-        AlertDialog(
-            onDismissRequest = { onUserAction(PassDialogDismiss) },
-            dismissButton = {
-                TextButton(onClick = { onUserAction(PassDialogDismiss) }) {
-                    Text("CANCEL")
-                }
-            },
-            confirmButton = {
-                TextButton(onClick = { onUserAction(PassDialogConfirm) }) {
-                    Text("PASS")
-                }
-            },
-            text = { Text("Are you sure you want to pass? You should only do this if you think the game is over and there are no more moves to be made. If your opponent passes too, the game proceeds to the scoring phase.") },
-            title = { Text("Please confirm") },
-        )
-    }
-    if(state.resignDialogShowing) {
-        AlertDialog(
-            onDismissRequest = { onUserAction(ResignDialogDismiss) },
-            dismissButton = {
-                TextButton(onClick = { onUserAction(ResignDialogDismiss) }) {
-                    Text("CANCEL")
-                }
-            },
-            confirmButton = {
-                TextButton(onClick = { onUserAction(ResignDialogConfirm) }) {
-                    Text("RESIGN")
-                }
-            },
-            text = { Text("Are you sure you want to resign?") },
-            title = { Text("Please confirm") },
-        )
-    }
-    if(state.cancelDialogShowing) {
-        AlertDialog(
-            onDismissRequest = { onUserAction(CancelDialogDismiss) },
-            dismissButton = {
-                TextButton(onClick = { onUserAction(CancelDialogDismiss) }) {
-                    Text("DON'T CANCEL GAME")
-                }
-            },
-            confirmButton = {
-                TextButton(onClick = { onUserAction(CancelDialogConfirm) }) {
-                    Text("CANCEL GAME")
-                }
-            },
-            text = { Text("Are you sure you want to cancel the game?") },
-            title = { Text("Please confirm") },
-        )
-    }
-    state.gameOverDialogShowing?.let { dialog ->
-        GameOverDialog(onUserAction, dialog)
-    }
-    state.playerDetailsDialogShowing?.let {
-        PlayerDetailsDialog( { onUserAction(PlayerDetailsDialogDismissed) }, it, state.playerStats, state.versusStats, state.versusStatsHidden)
-    }
+  }
+  if (state.chatDialogShowing) {
+    ChatDialog(
+      messages = state.messages,
+      onDialogDismiss = { onUserAction(ChatDialogDismiss) },
+      onSendMessage = { onUserAction(ChatSend(it)) }
+    )
+  }
+  if (state.retryMoveDialogShowing) {
+    RetryMoveDialog(onUserAction)
+  }
+  AnimatedVisibility(state.gameInfoDialogShowing, enter = fadeIn(), exit = fadeOut()) {
+    GameInfoDialog(state, onUserAction)
+  }
+  if (state.koMoveDialogShowing) {
+    AlertDialog(
+      onDismissRequest = { onUserAction(KOMoveDialogDismiss) },
+      confirmButton = {
+        TextButton(onClick = { onUserAction(KOMoveDialogDismiss) }) {
+          Text("OK")
+        }
+      },
+      text = { Text("That move would repeat the board position. That's called a KO, and it is not allowed. Try to make another move first, preferably a threat that the opponent can't ignore.") },
+      title = { Text("Illegal KO move") },
+    )
+  }
+  if (state.opponentRequestedUndoDialogShowing) {
+    AlertDialog(
+      onDismissRequest = { onUserAction(OpponentUndoRequestRejected) },
+      dismissButton = {
+        TextButton(onClick = { onUserAction(OpponentUndoRequestRejected) }) {
+          Text("IGNORE")
+        }
+      },
+      confirmButton = {
+        TextButton(onClick = { onUserAction(OpponentUndoRequestAccepted) }) {
+          Text("UNDO MOVE")
+        }
+      },
+      text = { Text("Your opponent would like to undo their last move. Do you accept?") },
+      title = { Text("Opponent asked to undo") },
+    )
+  }
+  if (state.requestUndoDialogShowing) {
+    AlertDialog(
+      onDismissRequest = { onUserAction(UserUndoDialogDismiss) },
+      dismissButton = {
+        TextButton(onClick = { onUserAction(UserUndoDialogDismiss) }) {
+          Text("CANCEL")
+        }
+      },
+      confirmButton = {
+        TextButton(onClick = { onUserAction(UserUndoDialogConfirm) }) {
+          Text("REQUEST UNDO")
+        }
+      },
+      text = { Text("If you made the last move by mistake, you can ask your opponent if they allow you to undo it.") },
+      title = { Text("Request Undo?") },
+    )
+  }
+  if (state.passDialogShowing) {
+    AlertDialog(
+      onDismissRequest = { onUserAction(PassDialogDismiss) },
+      dismissButton = {
+        TextButton(onClick = { onUserAction(PassDialogDismiss) }) {
+          Text("CANCEL")
+        }
+      },
+      confirmButton = {
+        TextButton(onClick = { onUserAction(PassDialogConfirm) }) {
+          Text("PASS")
+        }
+      },
+      text = { Text("Are you sure you want to pass? You should only do this if you think the game is over and there are no more moves to be made. If your opponent passes too, the game proceeds to the scoring phase.") },
+      title = { Text("Please confirm") },
+    )
+  }
+  if (state.resignDialogShowing) {
+    AlertDialog(
+      onDismissRequest = { onUserAction(ResignDialogDismiss) },
+      dismissButton = {
+        TextButton(onClick = { onUserAction(ResignDialogDismiss) }) {
+          Text("CANCEL")
+        }
+      },
+      confirmButton = {
+        TextButton(onClick = { onUserAction(ResignDialogConfirm) }) {
+          Text("RESIGN")
+        }
+      },
+      text = { Text("Are you sure you want to resign?") },
+      title = { Text("Please confirm") },
+    )
+  }
+  if (state.cancelDialogShowing) {
+    AlertDialog(
+      onDismissRequest = { onUserAction(CancelDialogDismiss) },
+      dismissButton = {
+        TextButton(onClick = { onUserAction(CancelDialogDismiss) }) {
+          Text("DON'T CANCEL GAME")
+        }
+      },
+      confirmButton = {
+        TextButton(onClick = { onUserAction(CancelDialogConfirm) }) {
+          Text("CANCEL GAME")
+        }
+      },
+      text = { Text("Are you sure you want to cancel the game?") },
+      title = { Text("Please confirm") },
+    )
+  }
+  state.gameOverDialogShowing?.let { dialog ->
+    GameOverDialog(onUserAction, dialog)
+  }
+  state.playerDetailsDialogShowing?.let {
+    PlayerDetailsDialog(
+      { onUserAction(PlayerDetailsDialogDismissed) },
+      it,
+      state.playerStats,
+      state.versusStats,
+      state.versusStatsHidden
+    )
+  }
 }
 
 @Composable
-private fun BlackPlayerCard(state: GameState, onUserAction: ((UserAction) -> Unit), modifier: Modifier = Modifier) {
-    PlayerCard(
-        player = state.blackPlayer,
-        timerMain = state.timerDetails?.blackFirstLine ?: "",
-        timerExtra = state.timerDetails?.blackSecondLine ?: "",
-        timerPercent = state.timerDetails?.blackPercentage ?: 0,
-        timerFaded = state.timerDetails?.blackFaded ?: true,
-        timerShown = state.showTimers,
-        onUserClicked = { onUserAction(BlackPlayerClicked) },
-        onGameDetailsClicked = { onUserAction(GameInfoClick) },
-        modifier = modifier
-    )
+private fun BlackPlayerCard(
+  state: GameState,
+  onUserAction: ((UserAction) -> Unit),
+  modifier: Modifier = Modifier
+) {
+  PlayerCard(
+    player = state.blackPlayer,
+    timerMain = state.timerDetails?.blackFirstLine ?: "",
+    timerExtra = state.timerDetails?.blackSecondLine ?: "",
+    timerPercent = state.timerDetails?.blackPercentage ?: 0,
+    timerFaded = state.timerDetails?.blackFaded ?: true,
+    timerShown = state.showTimers,
+    onUserClicked = { onUserAction(BlackPlayerClicked) },
+    onGameDetailsClicked = { onUserAction(GameInfoClick) },
+    modifier = modifier
+  )
 }
 
 @Composable
-private fun WhitePlayerCard(state: GameState, onUserAction: ((UserAction) -> Unit), modifier: Modifier = Modifier) {
-    PlayerCard(
-        player = state.whitePlayer,
-        timerMain = state.timerDetails?.whiteFirstLine ?: "",
-        timerExtra = state.timerDetails?.whiteSecondLine ?: "",
-        timerPercent = state.timerDetails?.whitePercentage ?: 0,
-        timerFaded = state.timerDetails?.whiteFaded ?: true,
-        timerShown = state.showTimers,
-        onUserClicked = { onUserAction(WhitePlayerClicked) },
-        onGameDetailsClicked = { onUserAction(GameInfoClick) },
-        modifier = modifier
-    )
+private fun WhitePlayerCard(
+  state: GameState,
+  onUserAction: ((UserAction) -> Unit),
+  modifier: Modifier = Modifier
+) {
+  PlayerCard(
+    player = state.whitePlayer,
+    timerMain = state.timerDetails?.whiteFirstLine ?: "",
+    timerExtra = state.timerDetails?.whiteSecondLine ?: "",
+    timerPercent = state.timerDetails?.whitePercentage ?: 0,
+    timerFaded = state.timerDetails?.whiteFaded ?: true,
+    timerShown = state.showTimers,
+    onUserClicked = { onUserAction(WhitePlayerClicked) },
+    onGameDetailsClicked = { onUserAction(GameInfoClick) },
+    modifier = modifier
+  )
 }
 
 @Composable
-private fun Board(state: GameState, onUserAction: ((UserAction) -> Unit), modifier: Modifier = Modifier) {
-    Board(
-        boardWidth = state.gameWidth,
-        boardHeight = state.gameHeight,
-        position = state.position,
-        interactive = state.boardInteractive,
-        boardTheme = state.boardTheme,
-        drawCoordinates = state.showCoordinates,
-        drawTerritory = state.drawTerritory,
-        drawLastMove = state.showLastMove,
-        lastMoveMarker = state.lastMoveMarker,
-        fadeOutRemovedStones = state.fadeOutRemovedStones,
-        candidateMove = state.candidateMove,
-        candidateMoveType = state.position?.nextToMove,
-        onTapMove = { onUserAction(BoardCellDragged(it)) },
-        onTapUp = { onUserAction(BoardCellTapUp(it)) },
-        modifier = modifier
-            .shadow(1.dp, MaterialTheme.shapes.medium)
-            .clip(MaterialTheme.shapes.medium)
-    )
+private fun Board(
+  state: GameState,
+  onUserAction: ((UserAction) -> Unit),
+  modifier: Modifier = Modifier
+) {
+  Board(
+    boardWidth = state.gameWidth,
+    boardHeight = state.gameHeight,
+    position = state.position,
+    interactive = state.boardInteractive,
+    drawTerritory = state.drawTerritory,
+    drawLastMove = state.showLastMove,
+    lastMoveMarker = state.lastMoveMarker,
+    fadeOutRemovedStones = state.fadeOutRemovedStones,
+    candidateMove = state.candidateMove,
+    candidateMoveType = state.position?.nextToMove,
+    onTapMove = { onUserAction(BoardCellDragged(it)) },
+    onTapUp = { onUserAction(BoardCellTapUp(it)) },
+    modifier = modifier
+        .shadow(1.dp, MaterialTheme.shapes.medium)
+        .clip(MaterialTheme.shapes.medium)
+  )
 }
 
 @Composable
 fun ColumnScope.ExtraStatusField(text: String?, modifier: Modifier = Modifier) {
-    AnimatedVisibility(visible = text != null) {
-        Text(
-            text = text ?: "",
-            style = MaterialTheme.typography.h3,
-            color = Color.White,
-            textAlign = TextAlign.Center,
-            modifier = modifier
-        )
-    }
+  AnimatedVisibility(visible = text != null) {
+    Text(
+      text = text ?: "",
+      style = MaterialTheme.typography.h3,
+      color = Color.White,
+      textAlign = TextAlign.Center,
+      modifier = modifier
+    )
+  }
 }
 
 @Composable
 private fun GameInfoDialog(state: GameState, onUserAction: (UserAction) -> Unit) {
-    BackHandler { onUserAction(GameInfoDismiss) }
-    Box(modifier = Modifier
+  BackHandler { onUserAction(GameInfoDismiss) }
+  Box(
+    modifier = Modifier
         .fillMaxSize()
         .background(Color(0x88000000))
         .clickable(
             interactionSource = remember { MutableInteractionSource() },
             indication = null
         ) { onUserAction(GameInfoDismiss) }
+  ) {
+    Column(
+      horizontalAlignment = Alignment.CenterHorizontally,
+      modifier = Modifier
+          .padding(vertical = 80.dp)
+          .clickable(
+              interactionSource = remember { MutableInteractionSource() },
+              indication = null
+          ) { }
+          .fillMaxWidth(.9f)
+          .fillMaxHeight()
+          .align(Alignment.Center)
+          .shadow(4.dp)
+          .background(
+              color = MaterialTheme.colors.surface,
+              shape = RoundedCornerShape(10.dp)
+          )
+          .padding(16.dp)
     ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
-                .padding(vertical = 80.dp)
-                .clickable(
-                    interactionSource = remember { MutableInteractionSource() },
-                    indication = null
-                ) { }
-                .fillMaxWidth(.9f)
-                .fillMaxHeight()
-                .align(Alignment.Center)
-                .shadow(4.dp)
-                .background(
-                    color = MaterialTheme.colors.surface,
-                    shape = RoundedCornerShape(10.dp)
-                )
-                .padding(16.dp)
-        ) {
-            Spacer(modifier = Modifier.height(100.dp))
-            Text(
-                text = if (state.ranked) "Ranked" else "Unranked",
-                textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.h3,
-                color = MaterialTheme.colors.onSurface,
-            )
-            Text(text = buildAnnotatedString {
-                pushStyle(SpanStyle(fontWeight = Bold))
-                append(state.blackPlayer?.name ?: "?")
-                pop()
-                append("      vs      ")
-                pushStyle(SpanStyle(fontWeight = Bold))
-                append(state.whitePlayer?.name ?: "?")
-                pop()
-            },
-                color = MaterialTheme.colors.onSurface,
-            )
-            Text(
-                text = "Score",
-                style = MaterialTheme.typography.h3,
-                color = MaterialTheme.colors.onSurface,
-                modifier = Modifier.padding(top = 14.dp, bottom = 8.dp)
-            )
-            ScoreRow(state.blackScore.komi?.toString(), state.whiteScore.komi?.toString(), "komi")
-            ScoreRow(state.blackScore.handicap?.toString(), state.whiteScore.handicap?.toString(), "handicap")
-            ScoreRow(state.blackScore.prisoners?.toString(), state.whiteScore.prisoners?.toString(), "prisoners")
-            ScoreRow(state.blackScore.stones?.toString(), state.whiteScore.stones?.toString(), "stones")
-            ScoreRow(state.blackScore.territory?.toString(), state.whiteScore.territory?.toString(), "territory")
-            ScoreRow(state.blackScore.total?.toInt()?.toString(), state.whiteScore.total?.toString(), "total")
-            Text(
-                text = "Time",
-                style = MaterialTheme.typography.h3,
-                color = MaterialTheme.colors.onSurface,
-                modifier = Modifier.padding(top = 14.dp, bottom = 8.dp)
-            )
-            Row {
-                Text(
-                    text = state.timerDescription ?: "",
-                    textAlign = TextAlign.Center,
-                    style = MaterialTheme.typography.caption,
-                    color = MaterialTheme.colors.onSurface,
-                    modifier = Modifier
-                        .width(0.dp)
-                        .weight(1f),
-                )
-            }
-        }
-        Board(
-            boardWidth = state.gameWidth,
-            boardHeight = state.gameHeight,
-            position = state.position,
-            interactive = false,
-            drawTerritory = false,
-            drawLastMove = false,
-            boardTheme = state.boardTheme,
-            drawCoordinates = false,
-            fadeOutRemovedStones = false,
-            modifier = Modifier
-                .align(Alignment.TopCenter)
-                .padding(top = 29.dp)
-                .clip(RoundedCornerShape(10.dp))
-                .background(MaterialTheme.colors.surface)
-                .padding(4.dp)
-                .size(124.dp)
-                .clip(RoundedCornerShape(8.dp))
-                .clickable(
-                    interactionSource = remember { MutableInteractionSource() },
-                    indication = null
-                ) { }
+      Spacer(modifier = Modifier.height(100.dp))
+      Text(
+        text = if (state.ranked) "Ranked" else "Unranked",
+        textAlign = TextAlign.Center,
+        style = MaterialTheme.typography.h3,
+        color = MaterialTheme.colors.onSurface,
+      )
+      Text(
+        text = buildAnnotatedString {
+          pushStyle(SpanStyle(fontWeight = Bold))
+          append(state.blackPlayer?.name ?: "?")
+          pop()
+          append("      vs      ")
+          pushStyle(SpanStyle(fontWeight = Bold))
+          append(state.whitePlayer?.name ?: "?")
+          pop()
+        },
+        color = MaterialTheme.colors.onSurface,
+      )
+      Text(
+        text = "Score",
+        style = MaterialTheme.typography.h3,
+        color = MaterialTheme.colors.onSurface,
+        modifier = Modifier.padding(top = 14.dp, bottom = 8.dp)
+      )
+      ScoreRow(state.blackScore.komi?.toString(), state.whiteScore.komi?.toString(), "komi")
+      ScoreRow(
+        state.blackScore.handicap?.toString(),
+        state.whiteScore.handicap?.toString(),
+        "handicap"
+      )
+      ScoreRow(
+        state.blackScore.prisoners?.toString(),
+        state.whiteScore.prisoners?.toString(),
+        "prisoners"
+      )
+      ScoreRow(state.blackScore.stones?.toString(), state.whiteScore.stones?.toString(), "stones")
+      ScoreRow(
+        state.blackScore.territory?.toString(),
+        state.whiteScore.territory?.toString(),
+        "territory"
+      )
+      ScoreRow(
+        state.blackScore.total?.toInt()?.toString(),
+        state.whiteScore.total?.toString(),
+        "total"
+      )
+      Text(
+        text = "Time",
+        style = MaterialTheme.typography.h3,
+        color = MaterialTheme.colors.onSurface,
+        modifier = Modifier.padding(top = 14.dp, bottom = 8.dp)
+      )
+      Row {
+        Text(
+          text = state.timerDescription ?: "",
+          textAlign = TextAlign.Center,
+          style = MaterialTheme.typography.caption,
+          color = MaterialTheme.colors.onSurface,
+          modifier = Modifier
+              .width(0.dp)
+              .weight(1f),
         )
+      }
     }
+    Board(
+      boardWidth = state.gameWidth,
+      boardHeight = state.gameHeight,
+      position = state.position,
+      interactive = false,
+      drawTerritory = false,
+      drawLastMove = false,
+      drawCoordinates = false,
+      fadeOutRemovedStones = false,
+      modifier = Modifier
+          .align(Alignment.TopCenter)
+          .padding(top = 29.dp)
+          .clip(RoundedCornerShape(10.dp))
+          .background(MaterialTheme.colors.surface)
+          .padding(4.dp)
+          .size(124.dp)
+          .clip(RoundedCornerShape(8.dp))
+          .clickable(
+              interactionSource = remember { MutableInteractionSource() },
+              indication = null
+          ) { }
+    )
+  }
 }
 
 @Composable
 private fun ScoreRow(whiteScore: String?, blackScore: String?, title: String) {
-    if (whiteScore != null || blackScore != null) {
-        Row {
-            Text(
-                text = whiteScore ?: "",
-                textAlign = TextAlign.Center,
-                color = MaterialTheme.colors.onSurface,
-                modifier = Modifier
-                    .width(0.dp)
-                    .weight(1f),
-            )
-            Text(
-                text = title,
-                textAlign = TextAlign.Center,
-                color = MaterialTheme.colors.onSurface,
-                modifier = Modifier
-                    .width(0.dp)
-                    .weight(1f),
-            )
-            Text(
-                text = blackScore ?: "",
-                textAlign = TextAlign.Center,
-                color = MaterialTheme.colors.onSurface,
-                modifier = Modifier
-                    .width(0.dp)
-                    .weight(1f),
-            )
-        }
+  if (whiteScore != null || blackScore != null) {
+    Row {
+      Text(
+        text = whiteScore ?: "",
+        textAlign = TextAlign.Center,
+        color = MaterialTheme.colors.onSurface,
+        modifier = Modifier
+            .width(0.dp)
+            .weight(1f),
+      )
+      Text(
+        text = title,
+        textAlign = TextAlign.Center,
+        color = MaterialTheme.colors.onSurface,
+        modifier = Modifier
+            .width(0.dp)
+            .weight(1f),
+      )
+      Text(
+        text = blackScore ?: "",
+        textAlign = TextAlign.Center,
+        color = MaterialTheme.colors.onSurface,
+        modifier = Modifier
+            .width(0.dp)
+            .weight(1f),
+      )
     }
+  }
 }
 
 @Preview(showBackground = true)
 @Composable
 fun GameInfoPreview() {
-    OnlineGoTheme {
-        GameInfoDialog(GameState.DEFAULT, {} )
-    }
+  OnlineGoTheme {
+    GameInfoDialog(GameState.DEFAULT, {})
+  }
 }
 
 @Composable
 private fun GameOverDialog(
-    onUserAction: (UserAction) -> Unit,
-    dialog: GameOverDialogDetails
+  onUserAction: (UserAction) -> Unit,
+  dialog: GameOverDialogDetails
 ) {
-    Dialog(onDismissRequest = { onUserAction(GameOverDialogDismiss) }) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
-                .shadow(4.dp)
-                .background(
-                    color = MaterialTheme.colors.surface,
-                    shape = RoundedCornerShape(10.dp)
-                )
-                .padding(16.dp)
-        ) {
-            val text = when {
-                dialog.gameCancelled -> "GAME WAS CANCELLED"
-                dialog.playerWon -> "CONGRATULATIONS\nYOU WON"
-                else -> "YOU LOST"
-            }
-            val icon = when {
-                dialog.gameCancelled -> Icons.Rounded.Cancel
-                dialog.playerWon -> Icons.Rounded.ThumbUp
-                else -> Icons.Rounded.ThumbDown
-            }
-            Text(
-                text = text,
-                style = MaterialTheme.typography.h2,
-                color = MaterialTheme.colors.onSurface,
-                textAlign = TextAlign.Center,
-            )
-            Image(
-                painter = rememberVectorPainter(image = icon),
-                contentDescription = "",
-                colorFilter = ColorFilter.tint(MaterialTheme.colors.onSurface),
-                modifier = Modifier
-                    .padding(vertical = 24.dp)
-                    .size(128.dp)
-            )
-            Text(
-                text = dialog.detailsText,
-                style = MaterialTheme.typography.body1,
-                textAlign = TextAlign.Center,
-                color = MaterialTheme.colors.onSurface,
-            )
-            Spacer(modifier = Modifier.height(28.dp))
-            TextButton(
-                colors = ButtonDefaults.textButtonColors(
-                    backgroundColor = MaterialTheme.colors.primaryVariant,
-                    contentColor = MaterialTheme.colors.onSurface
-                ),
-                elevation = ButtonDefaults.elevation(
-                    defaultElevation = 8.dp,
-                    pressedElevation = 4.dp,
-                ),
-                onClick = { onUserAction(GameOverDialogAnalyze) },
-            ) {
-                Text(
-                    text = "VIEW BOARD",
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
-            TextButton(
-                colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colors.onSurface),
-                onClick = { onUserAction(GameOverDialogNextGame) },
-            ) {
-                Text(
-                    text = "NEXT GAME",
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
-            TextButton(
-                colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colors.onSurface),
-                onClick = { onUserAction(GameOverDialogQuickReplay) },
-            ) {
-                Text(
-                    text = "QUICK REPLAY",
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
-        }
+  Dialog(onDismissRequest = { onUserAction(GameOverDialogDismiss) }) {
+    Column(
+      horizontalAlignment = Alignment.CenterHorizontally,
+      modifier = Modifier
+          .shadow(4.dp)
+          .background(
+              color = MaterialTheme.colors.surface,
+              shape = RoundedCornerShape(10.dp)
+          )
+          .padding(16.dp)
+    ) {
+      val text = when {
+        dialog.gameCancelled -> "GAME WAS CANCELLED"
+        dialog.playerWon -> "CONGRATULATIONS\nYOU WON"
+        else -> "YOU LOST"
+      }
+      val icon = when {
+        dialog.gameCancelled -> Icons.Rounded.Cancel
+        dialog.playerWon -> Icons.Rounded.ThumbUp
+        else -> Icons.Rounded.ThumbDown
+      }
+      Text(
+        text = text,
+        style = MaterialTheme.typography.h2,
+        color = MaterialTheme.colors.onSurface,
+        textAlign = TextAlign.Center,
+      )
+      Image(
+        painter = rememberVectorPainter(image = icon),
+        contentDescription = "",
+        colorFilter = ColorFilter.tint(MaterialTheme.colors.onSurface),
+        modifier = Modifier
+            .padding(vertical = 24.dp)
+            .size(128.dp)
+      )
+      Text(
+        text = dialog.detailsText,
+        style = MaterialTheme.typography.body1,
+        textAlign = TextAlign.Center,
+        color = MaterialTheme.colors.onSurface,
+      )
+      Spacer(modifier = Modifier.height(28.dp))
+      TextButton(
+        colors = ButtonDefaults.textButtonColors(
+          backgroundColor = MaterialTheme.colors.primaryVariant,
+          contentColor = MaterialTheme.colors.onSurface
+        ),
+        elevation = ButtonDefaults.elevation(
+          defaultElevation = 8.dp,
+          pressedElevation = 4.dp,
+        ),
+        onClick = { onUserAction(GameOverDialogAnalyze) },
+      ) {
+        Text(
+          text = "VIEW BOARD",
+          textAlign = TextAlign.Center,
+          modifier = Modifier.fillMaxWidth()
+        )
+      }
+      TextButton(
+        colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colors.onSurface),
+        onClick = { onUserAction(GameOverDialogNextGame) },
+      ) {
+        Text(
+          text = "NEXT GAME",
+          textAlign = TextAlign.Center,
+          modifier = Modifier.fillMaxWidth()
+        )
+      }
+      TextButton(
+        colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colors.onSurface),
+        onClick = { onUserAction(GameOverDialogQuickReplay) },
+      ) {
+        Text(
+          text = "QUICK REPLAY",
+          textAlign = TextAlign.Center,
+          modifier = Modifier.fillMaxWidth()
+        )
+      }
     }
+  }
 }
 
 @Composable
 private fun RetryMoveDialog(onUserAction: (UserAction) -> Unit) {
-    Dialog(onDismissRequest = { onUserAction(RetryDialogDismiss) }) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
-                .shadow(4.dp)
-                .background(
-                    color = MaterialTheme.colors.surface,
-                    shape = RoundedCornerShape(10.dp)
-                )
-                .padding(16.dp)
-        ) {
-            Text(
-                text = "CONNECTION PROBLEMS",
-                style = MaterialTheme.typography.h6,
-                color = MaterialTheme.colors.onSurface,
-            )
-            Text(
-                text = "The server is not responding. Please check your internet connection.",
-                style = MaterialTheme.typography.body1,
-                textAlign = TextAlign.Center,
-                color = MaterialTheme.colors.onSurface,
-                modifier = Modifier.padding(vertical = 36.dp)
-            )
-            TextButton(
-                colors = ButtonDefaults.textButtonColors(
-                    backgroundColor = MaterialTheme.colors.primaryVariant,
-                    contentColor = MaterialTheme.colors.onSurface
-                ),
-                elevation = ButtonDefaults.elevation(
-                    defaultElevation = 8.dp,
-                    pressedElevation = 4.dp,
-                ),
-                onClick = { onUserAction(RetryDialogRetry) },
-            ) {
-                Text(
-                    text = "TRY AGAIN",
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
-            TextButton(
-                colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colors.onSurface),
-                onClick = { onUserAction(RetryDialogDismiss) },
-            ) {
-                Text(
-                    text = "CANCEL",
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
-        }
+  Dialog(onDismissRequest = { onUserAction(RetryDialogDismiss) }) {
+    Column(
+      horizontalAlignment = Alignment.CenterHorizontally,
+      modifier = Modifier
+          .shadow(4.dp)
+          .background(
+              color = MaterialTheme.colors.surface,
+              shape = RoundedCornerShape(10.dp)
+          )
+          .padding(16.dp)
+    ) {
+      Text(
+        text = "CONNECTION PROBLEMS",
+        style = MaterialTheme.typography.h6,
+        color = MaterialTheme.colors.onSurface,
+      )
+      Text(
+        text = "The server is not responding. Please check your internet connection.",
+        style = MaterialTheme.typography.body1,
+        textAlign = TextAlign.Center,
+        color = MaterialTheme.colors.onSurface,
+        modifier = Modifier.padding(vertical = 36.dp)
+      )
+      TextButton(
+        colors = ButtonDefaults.textButtonColors(
+          backgroundColor = MaterialTheme.colors.primaryVariant,
+          contentColor = MaterialTheme.colors.onSurface
+        ),
+        elevation = ButtonDefaults.elevation(
+          defaultElevation = 8.dp,
+          pressedElevation = 4.dp,
+        ),
+        onClick = { onUserAction(RetryDialogRetry) },
+      ) {
+        Text(
+          text = "TRY AGAIN",
+          textAlign = TextAlign.Center,
+          modifier = Modifier.fillMaxWidth()
+        )
+      }
+      TextButton(
+        colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colors.onSurface),
+        onClick = { onUserAction(RetryDialogDismiss) },
+      ) {
+        Text(
+          text = "CANCEL",
+          textAlign = TextAlign.Center,
+          modifier = Modifier.fillMaxWidth()
+        )
+      }
     }
+  }
 }
 
 @Composable
 private fun Header(
-    title: String,
-    opponentRequestedUndo: Boolean,
-    onBack: () -> Unit,
-    onUserAction: (UserAction) -> Unit
+  title: String,
+  opponentRequestedUndo: Boolean,
+  onBack: () -> Unit,
+  onUserAction: (UserAction) -> Unit
 ) {
-    val items = remember(opponentRequestedUndo) {
-        val items = mutableListOf(
-            MoreMenuItem("Open in browser", Rounded.OpenInBrowser) { onUserAction(OpenInBrowser) },
-            MoreMenuItem("Download as SGF", Icons.Rounded.Download) { onUserAction(OpenInBrowser) },
-        )
-        if(opponentRequestedUndo) {
-            items.add(MoreMenuItem("Accept Undo", Icons.Rounded.Undo) { onUserAction(OpponentUndoRequestAccepted) } )
-        }
-        items
-    }
-    TitleBar(
-        title = title,
-        titleIcon = Outlined.Info,
-        onTitleClicked = { onUserAction(GameInfoClick) },
-        onBack = onBack,
-        moreMenuItems = items,
+  val items = remember(opponentRequestedUndo) {
+    val items = mutableListOf(
+      MoreMenuItem("Open in browser", Rounded.OpenInBrowser) { onUserAction(OpenInBrowser) },
+      MoreMenuItem("Download as SGF", Icons.Rounded.Download) { onUserAction(OpenInBrowser) },
     )
+    if (opponentRequestedUndo) {
+      items.add(MoreMenuItem("Accept Undo", Icons.Rounded.Undo) {
+        onUserAction(
+          OpponentUndoRequestAccepted
+        )
+      })
+    }
+    items
+  }
+  TitleBar(
+    title = title,
+    titleIcon = Outlined.Info,
+    onTitleClicked = { onUserAction(GameInfoClick) },
+    onBack = onBack,
+    moreMenuItems = items,
+  )
 }
 
 @Preview(showBackground = true)
 @Composable
 fun Preview() {
-    OnlineGoTheme {
-        GameScreen(state = GameState.DEFAULT.copy(
-            position = Position(19, 19, whiteStones = setOf(Cell(3, 3)), blackStones = setOf(Cell(15, 15))),
-            loading = false,
-            buttons = listOf(Analyze, Pass, Resign, Chat(), NextGame()),
-            title = "Move 132 · Chinese · Black",
-            whitePlayer = PlayerData(
-                name = "MrAlex-test",
-                details = "+5.5 points",
-                rank = "13k",
-                flagCode = "\uD83C\uDDEC\uD83C\uDDE7",
-                iconURL = "https://secure.gravatar.com/avatar/d740835c39d6dd7c60977b244ac821db?s=64&d=retro",
-                color = StoneType.WHITE,
-            ),
-            blackPlayer = PlayerData(
-                name = "MrAlex",
-                details = "",
-                rank = "9k",
-                flagCode = "\uD83C\uDDEC\uD83C\uDDE7",
-                iconURL = "https://secure.gravatar.com/avatar/d740835c39d6dd7c60977b244ac821db?s=64&d=retro",
-                color = StoneType.BLACK,
-            ),
-            timerDetails = TimerDetails(
-                whiteFirstLine = "04:26",
-                whiteSecondLine = "+ 3 × 01:00",
-                whitePercentage = 80,
-                whiteFaded = true,
-                blackFirstLine = "04:26",
-                blackSecondLine = "+ 3 × 01:00",
-                blackPercentage = 15,
-                blackFaded = false,
-                whiteStartTimer = null,
-                blackStartTimer = null,
-                timeLeft = 1000,
-            ),
-        ), {}, {},
-        )
-    }
+  OnlineGoTheme {
+    GameContent(
+      state = GameState.DEFAULT.copy(
+        position = Position(
+          19,
+          19,
+          whiteStones = setOf(Cell(3, 3)),
+          blackStones = setOf(Cell(15, 15))
+        ),
+        loading = false,
+        buttons = listOf(Analyze, Pass, Resign, Chat(), NextGame()),
+        title = "Move 132 · Chinese · Black",
+        whitePlayer = PlayerData(
+          name = "MrAlex-test",
+          details = "+5.5 points",
+          rank = "13k",
+          flagCode = "\uD83C\uDDEC\uD83C\uDDE7",
+          iconURL = "https://secure.gravatar.com/avatar/d740835c39d6dd7c60977b244ac821db?s=64&d=retro",
+          color = StoneType.WHITE,
+        ),
+        blackPlayer = PlayerData(
+          name = "MrAlex",
+          details = "",
+          rank = "9k",
+          flagCode = "\uD83C\uDDEC\uD83C\uDDE7",
+          iconURL = "https://secure.gravatar.com/avatar/d740835c39d6dd7c60977b244ac821db?s=64&d=retro",
+          color = StoneType.BLACK,
+        ),
+        timerDetails = TimerDetails(
+          whiteFirstLine = "04:26",
+          whiteSecondLine = "+ 3 × 01:00",
+          whitePercentage = 80,
+          whiteFaded = true,
+          blackFirstLine = "04:26",
+          blackSecondLine = "+ 3 × 01:00",
+          blackPercentage = 15,
+          blackFaded = false,
+          whiteStartTimer = null,
+          blackStartTimer = null,
+          timeLeft = 1000,
+        ),
+      ),
+      {}, {},
+    )
+  }
 }
 
 @Preview(showBackground = true)
 @Composable
 fun Preview1() {
-    OnlineGoTheme {
-        GameScreen(state = GameState.DEFAULT.copy(
-            position = Position(19, 19, whiteStones = setOf(Cell(3, 3)), blackStones = setOf(Cell(15, 15))),
-            loading = false,
-            buttons = listOf(ConfirmMove, DiscardMove),
-            title = "Move 132 · Chinese · Black",
-            whitePlayer = PlayerData(
-                name = "MrAlex-test",
-                details = "+5.5 points",
-                rank = "13k",
-                flagCode = "\uD83C\uDDEC\uD83C\uDDE7",
-                iconURL = "https://secure.gravatar.com/avatar/d740835c39d6dd7c60977b244ac821db?s=64&d=retro",
-                color = StoneType.WHITE,
-            ),
-            blackPlayer = PlayerData(
-                name = "MrAlex",
-                details = "",
-                rank = "9k",
-                flagCode = "\uD83C\uDDEC\uD83C\uDDE7",
-                iconURL = "https://secure.gravatar.com/avatar/d740835c39d6dd7c60977b244ac821db?s=64&d=retro",
-                color = StoneType.BLACK,
-            ),
-            timerDetails = TimerDetails(
-                whiteFirstLine = "04:26",
-                whiteSecondLine = "+ 3 × 01:00",
-                whitePercentage = 80,
-                whiteFaded = true,
-                blackFirstLine = "04:26",
-                blackSecondLine = "+ 3 × 01:00",
-                blackPercentage = 15,
-                blackFaded = false,
-                whiteStartTimer = null,
-                blackStartTimer = null,
-                timeLeft = 1000,
-                ),
-        ), {}, {},
-        )
-    }
+  OnlineGoTheme {
+    GameContent(
+      state = GameState.DEFAULT.copy(
+        position = Position(
+          19,
+          19,
+          whiteStones = setOf(Cell(3, 3)),
+          blackStones = setOf(Cell(15, 15))
+        ),
+        loading = false,
+        buttons = listOf(ConfirmMove, DiscardMove),
+        title = "Move 132 · Chinese · Black",
+        whitePlayer = PlayerData(
+          name = "MrAlex-test",
+          details = "+5.5 points",
+          rank = "13k",
+          flagCode = "\uD83C\uDDEC\uD83C\uDDE7",
+          iconURL = "https://secure.gravatar.com/avatar/d740835c39d6dd7c60977b244ac821db?s=64&d=retro",
+          color = StoneType.WHITE,
+        ),
+        blackPlayer = PlayerData(
+          name = "MrAlex",
+          details = "",
+          rank = "9k",
+          flagCode = "\uD83C\uDDEC\uD83C\uDDE7",
+          iconURL = "https://secure.gravatar.com/avatar/d740835c39d6dd7c60977b244ac821db?s=64&d=retro",
+          color = StoneType.BLACK,
+        ),
+        timerDetails = TimerDetails(
+          whiteFirstLine = "04:26",
+          whiteSecondLine = "+ 3 × 01:00",
+          whitePercentage = 80,
+          whiteFaded = true,
+          blackFirstLine = "04:26",
+          blackSecondLine = "+ 3 × 01:00",
+          blackPercentage = 15,
+          blackFaded = false,
+          whiteStartTimer = null,
+          blackStartTimer = null,
+          timeLeft = 1000,
+        ),
+      ),
+      {}, {},
+    )
+  }
 }
 
 @Preview(showBackground = true)
 @Composable
 fun Preview2() {
-    OnlineGoTheme {
-        GameScreen(state = GameState.DEFAULT.copy(
-            position = Position(19, 19, whiteStones = setOf(Cell(3, 3)), blackStones = setOf(Cell(15, 15))),
-            loading = false,
-            title = "Move 132 · Chinese · Black",
-            whitePlayer = PlayerData(
-                name = "MrAlex-test",
-                details = "+5.5 points",
-                rank = "13k",
-                flagCode = "\uD83C\uDDEC\uD83C\uDDE7",
-                iconURL = "https://secure.gravatar.com/avatar/d740835c39d6dd7c60977b244ac821db?s=64&d=retro",
-                color = StoneType.WHITE,
-            ),
-            blackPlayer = PlayerData(
-                name = "MrAlex",
-                details = "",
-                rank = "9k",
-                flagCode = "\uD83C\uDDEC\uD83C\uDDE7",
-                iconURL = "https://secure.gravatar.com/avatar/d740835c39d6dd7c60977b244ac821db?s=64&d=retro",
-                color = StoneType.BLACK,
-            ),
-            timerDetails = TimerDetails(
-                whiteFirstLine = "04:26",
-                whiteSecondLine = "+ 3 × 01:00",
-                whitePercentage = 80,
-                whiteFaded = true,
-                blackFirstLine = "04:26",
-                blackSecondLine = "+ 3 × 01:00",
-                blackPercentage = 15,
-                blackFaded = false,
-                whiteStartTimer = null,
-                blackStartTimer = null,
-                timeLeft = 1000,
-                ),
-            bottomText = "Submitting move",
+  OnlineGoTheme {
+    GameContent(
+      state = GameState.DEFAULT.copy(
+        position = Position(
+          19,
+          19,
+          whiteStones = setOf(Cell(3, 3)),
+          blackStones = setOf(Cell(15, 15))
         ),
-            {}, {},
-        )
-    }
+        loading = false,
+        title = "Move 132 · Chinese · Black",
+        whitePlayer = PlayerData(
+          name = "MrAlex-test",
+          details = "+5.5 points",
+          rank = "13k",
+          flagCode = "\uD83C\uDDEC\uD83C\uDDE7",
+          iconURL = "https://secure.gravatar.com/avatar/d740835c39d6dd7c60977b244ac821db?s=64&d=retro",
+          color = StoneType.WHITE,
+        ),
+        blackPlayer = PlayerData(
+          name = "MrAlex",
+          details = "",
+          rank = "9k",
+          flagCode = "\uD83C\uDDEC\uD83C\uDDE7",
+          iconURL = "https://secure.gravatar.com/avatar/d740835c39d6dd7c60977b244ac821db?s=64&d=retro",
+          color = StoneType.BLACK,
+        ),
+        timerDetails = TimerDetails(
+          whiteFirstLine = "04:26",
+          whiteSecondLine = "+ 3 × 01:00",
+          whitePercentage = 80,
+          whiteFaded = true,
+          blackFirstLine = "04:26",
+          blackSecondLine = "+ 3 × 01:00",
+          blackPercentage = 15,
+          blackFaded = false,
+          whiteStartTimer = null,
+          blackStartTimer = null,
+          timeLeft = 1000,
+        ),
+        bottomText = "Submitting move",
+      ),
+      {}, {},
+    )
+  }
 }
+
 @Preview(showBackground = true)
 @Composable
 fun Preview3() {
-    OnlineGoTheme {
-        GameScreen(state = GameState.DEFAULT.copy(
-            position = Position(19, 19, whiteStones = setOf(Cell(3, 3)), blackStones = setOf(Cell(15, 15))),
-            loading = false,
-            title = "Move 132 · Chinese · Black",
-            whitePlayer = PlayerData(
-                name = "MrAlex-test",
-                details = "+5.5 points",
-                rank = "13k",
-                flagCode = "\uD83C\uDDEC\uD83C\uDDE7",
-                iconURL = "https://secure.gravatar.com/avatar/d740835c39d6dd7c60977b244ac821db?s=64&d=retro",
-                color = StoneType.WHITE,
-            ),
-            blackPlayer = PlayerData(
-                name = "MrAlex",
-                details = "",
-                rank = "9k",
-                flagCode = "\uD83C\uDDEC\uD83C\uDDE7",
-                iconURL = "https://secure.gravatar.com/avatar/d740835c39d6dd7c60977b244ac821db?s=64&d=retro",
-                color = StoneType.BLACK,
-            ),
-            timerDetails = TimerDetails(
-                whiteFirstLine = "04:26",
-                whiteSecondLine = "+ 3 × 01:00",
-                whitePercentage = 80,
-                whiteFaded = true,
-                blackFirstLine = "04:26",
-                blackSecondLine = "+ 3 × 01:00",
-                blackPercentage = 15,
-                blackFaded = false,
-                whiteStartTimer = null,
-                blackStartTimer = null,
-                timeLeft = 1000,
-                ),
-            bottomText = "Submitting move",
-            retryMoveDialogShowing = true,
+  OnlineGoTheme {
+    GameContent(
+      state = GameState.DEFAULT.copy(
+        position = Position(
+          19,
+          19,
+          whiteStones = setOf(Cell(3, 3)),
+          blackStones = setOf(Cell(15, 15))
         ),
-            {}, {},
-        )
-    }
+        loading = false,
+        title = "Move 132 · Chinese · Black",
+        whitePlayer = PlayerData(
+          name = "MrAlex-test",
+          details = "+5.5 points",
+          rank = "13k",
+          flagCode = "\uD83C\uDDEC\uD83C\uDDE7",
+          iconURL = "https://secure.gravatar.com/avatar/d740835c39d6dd7c60977b244ac821db?s=64&d=retro",
+          color = StoneType.WHITE,
+        ),
+        blackPlayer = PlayerData(
+          name = "MrAlex",
+          details = "",
+          rank = "9k",
+          flagCode = "\uD83C\uDDEC\uD83C\uDDE7",
+          iconURL = "https://secure.gravatar.com/avatar/d740835c39d6dd7c60977b244ac821db?s=64&d=retro",
+          color = StoneType.BLACK,
+        ),
+        timerDetails = TimerDetails(
+          whiteFirstLine = "04:26",
+          whiteSecondLine = "+ 3 × 01:00",
+          whitePercentage = 80,
+          whiteFaded = true,
+          blackFirstLine = "04:26",
+          blackSecondLine = "+ 3 × 01:00",
+          blackPercentage = 15,
+          blackFaded = false,
+          whiteStartTimer = null,
+          blackStartTimer = null,
+          timeLeft = 1000,
+        ),
+        bottomText = "Submitting move",
+        retryMoveDialogShowing = true,
+      ),
+      {}, {},
+    )
+  }
 }
 
 @Preview(showBackground = true)
 @Composable
 fun Preview4() {
-    OnlineGoTheme {
-        GameScreen(state = GameState.DEFAULT.copy(
-            position = Position(19, 19, whiteStones = setOf(Cell(3, 3)), blackStones = setOf(Cell(15, 15))),
-            loading = false,
-            buttons = listOf(ExitAnalysis, Estimate(), Previous, Next()),
-            title = "Move 132 · Chinese · Black",
-            whitePlayer = PlayerData(
-                name = "MrAlex-test",
-                details = "+5.5 points",
-                rank = "13k",
-                flagCode = "\uD83C\uDDEC\uD83C\uDDE7",
-                iconURL = "https://secure.gravatar.com/avatar/d740835c39d6dd7c60977b244ac821db?s=64&d=retro",
-                color = StoneType.WHITE,
-            ),
-            blackPlayer = PlayerData(
-                name = "MrAlex",
-                details = "",
-                rank = "9k",
-                flagCode = "\uD83C\uDDEC\uD83C\uDDE7",
-                iconURL = "https://secure.gravatar.com/avatar/d740835c39d6dd7c60977b244ac821db?s=64&d=retro",
-                color = StoneType.BLACK,
-            ),
-            timerDetails = TimerDetails(
-                whiteFirstLine = "04:26",
-                whiteSecondLine = "+ 3 × 01:00",
-                whitePercentage = 80,
-                whiteFaded = true,
-                blackFirstLine = "04:26",
-                blackSecondLine = "+ 3 × 01:00",
-                blackPercentage = 15,
-                blackFaded = false,
-                whiteStartTimer = null,
-                blackStartTimer = null,
-                timeLeft = 1000,
-                ),
-            showPlayers = false,
-            showAnalysisPanel = true,
+  OnlineGoTheme {
+    GameContent(
+      state = GameState.DEFAULT.copy(
+        position = Position(
+          19,
+          19,
+          whiteStones = setOf(Cell(3, 3)),
+          blackStones = setOf(Cell(15, 15))
         ),
-            {}, {},
-        )
-    }
+        loading = false,
+        buttons = listOf(ExitAnalysis, Estimate(), Previous, Next()),
+        title = "Move 132 · Chinese · Black",
+        whitePlayer = PlayerData(
+          name = "MrAlex-test",
+          details = "+5.5 points",
+          rank = "13k",
+          flagCode = "\uD83C\uDDEC\uD83C\uDDE7",
+          iconURL = "https://secure.gravatar.com/avatar/d740835c39d6dd7c60977b244ac821db?s=64&d=retro",
+          color = StoneType.WHITE,
+        ),
+        blackPlayer = PlayerData(
+          name = "MrAlex",
+          details = "",
+          rank = "9k",
+          flagCode = "\uD83C\uDDEC\uD83C\uDDE7",
+          iconURL = "https://secure.gravatar.com/avatar/d740835c39d6dd7c60977b244ac821db?s=64&d=retro",
+          color = StoneType.BLACK,
+        ),
+        timerDetails = TimerDetails(
+          whiteFirstLine = "04:26",
+          whiteSecondLine = "+ 3 × 01:00",
+          whitePercentage = 80,
+          whiteFaded = true,
+          blackFirstLine = "04:26",
+          blackSecondLine = "+ 3 × 01:00",
+          blackPercentage = 15,
+          blackFaded = false,
+          whiteStartTimer = null,
+          blackStartTimer = null,
+          timeLeft = 1000,
+        ),
+        showPlayers = false,
+        showAnalysisPanel = true,
+      ),
+      {}, {},
+    )
+  }
 }
 
 @Preview(showBackground = true)
 @Composable
 fun Preview5() {
-    OnlineGoTheme {
-        GameScreen(state = GameState.DEFAULT.copy(
-            position = Position(19, 19, whiteStones = setOf(Cell(3, 3)), blackStones = setOf(Cell(15, 15))),
-            loading = false,
-            buttons = listOf(ExitAnalysis, Estimate(), Previous, Next()),
-            title = "Move 132 · Chinese · Black",
-            whitePlayer = PlayerData(
-                name = "MrAlex-test",
-                details = "+5.5 points",
-                rank = "13k",
-                flagCode = "\uD83C\uDDEC\uD83C\uDDE7",
-                iconURL = "https://secure.gravatar.com/avatar/d740835c39d6dd7c60977b244ac821db?s=64&d=retro",
-                color = StoneType.WHITE,
-            ),
-            blackPlayer = PlayerData(
-                name = "MrAlex",
-                details = "",
-                rank = "9k",
-                flagCode = "\uD83C\uDDEC\uD83C\uDDE7",
-                iconURL = "https://secure.gravatar.com/avatar/d740835c39d6dd7c60977b244ac821db?s=64&d=retro",
-                color = StoneType.BLACK,
-            ),
-            timerDetails = TimerDetails(
-                whiteFirstLine = "04:26",
-                whiteSecondLine = "+ 3 × 01:00",
-                whitePercentage = 80,
-                whiteFaded = true,
-                blackFirstLine = "04:26",
-                blackSecondLine = "+ 3 × 01:00",
-                blackPercentage = 15,
-                blackFaded = false,
-                whiteStartTimer = null,
-                blackStartTimer = null,
-                timeLeft = 1000,
-                ),
-            showPlayers = false,
-            showAnalysisPanel = true,
-            gameOverDialogShowing = GameOverDialogDetails(
-                gameCancelled = false,
-                playerWon = false,
-                detailsText = buildAnnotatedString {
-                    pushStyle(SpanStyle(fontWeight = Bold))
-                    append("MrAlex")
-                    pop()
-                    append(" resigned on move 132")
-                }
-            ),
+  OnlineGoTheme {
+    GameContent(
+      state = GameState.DEFAULT.copy(
+        position = Position(
+          19,
+          19,
+          whiteStones = setOf(Cell(3, 3)),
+          blackStones = setOf(Cell(15, 15))
         ),
-            {}, {},
-        )
-    }
+        loading = false,
+        buttons = listOf(ExitAnalysis, Estimate(), Previous, Next()),
+        title = "Move 132 · Chinese · Black",
+        whitePlayer = PlayerData(
+          name = "MrAlex-test",
+          details = "+5.5 points",
+          rank = "13k",
+          flagCode = "\uD83C\uDDEC\uD83C\uDDE7",
+          iconURL = "https://secure.gravatar.com/avatar/d740835c39d6dd7c60977b244ac821db?s=64&d=retro",
+          color = StoneType.WHITE,
+        ),
+        blackPlayer = PlayerData(
+          name = "MrAlex",
+          details = "",
+          rank = "9k",
+          flagCode = "\uD83C\uDDEC\uD83C\uDDE7",
+          iconURL = "https://secure.gravatar.com/avatar/d740835c39d6dd7c60977b244ac821db?s=64&d=retro",
+          color = StoneType.BLACK,
+        ),
+        timerDetails = TimerDetails(
+          whiteFirstLine = "04:26",
+          whiteSecondLine = "+ 3 × 01:00",
+          whitePercentage = 80,
+          whiteFaded = true,
+          blackFirstLine = "04:26",
+          blackSecondLine = "+ 3 × 01:00",
+          blackPercentage = 15,
+          blackFaded = false,
+          whiteStartTimer = null,
+          blackStartTimer = null,
+          timeLeft = 1000,
+        ),
+        showPlayers = false,
+        showAnalysisPanel = true,
+        gameOverDialogShowing = GameOverDialogDetails(
+          gameCancelled = false,
+          playerWon = false,
+          detailsText = buildAnnotatedString {
+            pushStyle(SpanStyle(fontWeight = Bold))
+            append("MrAlex")
+            pop()
+            append(" resigned on move 132")
+          }
+        ),
+      ),
+      {}, {},
+    )
+  }
 }

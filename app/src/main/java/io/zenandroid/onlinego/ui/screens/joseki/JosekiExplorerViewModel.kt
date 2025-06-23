@@ -12,6 +12,7 @@ import io.zenandroid.onlinego.data.model.Position
 import io.zenandroid.onlinego.data.model.ogs.JosekiPosition
 import io.zenandroid.onlinego.data.repositories.JosekiRepository
 import io.zenandroid.onlinego.gamelogic.RulesManager.coordinateToCell
+import io.zenandroid.onlinego.utils.analyticsReportScreen
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -32,6 +33,7 @@ class JosekiExplorerViewModel(
 
     init {
         loadPosition(null)
+        analyticsReportScreen("Joseki Explorer")
     }
 
     override fun onCleared() {
@@ -86,11 +88,6 @@ class JosekiExplorerViewModel(
                 passButtonEnabled = position.next_moves?.find { it.placement == "pass" } != null
             )
         }
-    }
-
-    fun onPressedBack() {
-        analytics.logEvent("joseki_back", null)
-        onPressedPrevious()
     }
 
     fun onPressedNext() {

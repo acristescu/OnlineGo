@@ -16,7 +16,6 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
 import com.google.accompanist.pager.HorizontalPagerIndicator
-import io.zenandroid.onlinego.data.model.BoardTheme
 import io.zenandroid.onlinego.data.model.local.Game
 import io.zenandroid.onlinego.ui.screens.mygames.Action
 import kotlin.math.absoluteValue
@@ -25,7 +24,7 @@ import kotlin.math.absoluteValue
 @ExperimentalFoundationApi
 @ExperimentalComposeUiApi
 @Composable
-fun MyTurnCarousel(games: List<Game>, boardTheme: BoardTheme, userId: Long, onAction: (Action) -> Unit) {
+fun MyTurnCarousel(games: List<Game>, userId: Long, onAction: (Action) -> Unit) {
     Column {
         val pagerState = rememberPagerState { games.size }
         HorizontalPager(
@@ -56,7 +55,6 @@ fun MyTurnCarousel(games: List<Game>, boardTheme: BoardTheme, userId: Long, onAc
             ) {
                 LargeGameItem(
                     game = game,
-                    boardTheme = boardTheme,
                     userId = userId,
                     onAction = onAction,
                     modifier = Modifier.align(Center)

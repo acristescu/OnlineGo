@@ -21,9 +21,6 @@ import androidx.navigation.findNavController
 import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.local.Game
-import io.zenandroid.onlinego.ui.screens.game.GAME_HEIGHT
-import io.zenandroid.onlinego.ui.screens.game.GAME_ID
-import io.zenandroid.onlinego.ui.screens.game.GAME_WIDTH
 import io.zenandroid.onlinego.ui.screens.main.MainActivity
 import io.zenandroid.onlinego.ui.screens.mygames.Action.GameSelected
 import io.zenandroid.onlinego.ui.screens.mygames.composables.ChallengeDetailsDialog
@@ -55,7 +52,7 @@ class MyGamesFragment : Fragment() {
         OnlineGoTheme {
           val state by rememberStateWithLifecycle(viewModel.state)
 
-          MyGamesContent(state, ::onAction, {})
+          MyGamesContent(state, ::onAction, {}, {})
 
           if (state.alertDialogText != null) {
             AlertDialog(
@@ -71,7 +68,7 @@ class MyGamesFragment : Fragment() {
           }
           if (state.gameNavigationPending != null) {
             LaunchedEffect(state.gameNavigationPending) {
-              navigateToGameScreen(state.gameNavigationPending!!)
+//              navigateToGameScreen(state.gameNavigationPending!!)
               viewModel.onAction(Action.GameNavigationConsumed)
             }
           }
@@ -136,28 +133,28 @@ class MyGamesFragment : Fragment() {
 
   private fun onAction(action: Action) {
     when (action) {
-      Action.CustomGame -> {
-        analytics.logEvent("friend_item_clicked", null)
-        (activity as MainActivity).onCustomGameSearch()
-      }
-
-      Action.PlayAgainstAI -> {
-        analytics.logEvent("localai_item_clicked", null)
-        view?.findNavController()?.apply {
-          if (currentDestination?.id == R.id.myGames) {
-            navigate(R.id.action_myGamesFragment_to_aiGameFragment)
-          }
-        }
-      }
-
-      Action.FaceToFace -> {
-        analytics.logEvent("face2face_item_clicked", null)
-        view?.findNavController()?.apply {
-          if (currentDestination?.id == R.id.myGames) {
-            navigate(R.id.action_myGamesFragment_to_faceToFaceFragment)
-          }
-        }
-      }
+//      Action.CustomGame -> {
+//        analytics.logEvent("friend_item_clicked", null)
+//        (activity as MainActivity).onCustomGameSearch()
+//      }
+//
+//      Action.PlayAgainstAI -> {
+//        analytics.logEvent("localai_item_clicked", null)
+//        view?.findNavController()?.apply {
+//          if (currentDestination?.id == R.id.myGames) {
+//            navigate(R.id.action_myGamesFragment_to_aiGameFragment)
+//          }
+//        }
+//      }
+//
+//      Action.FaceToFace -> {
+//        analytics.logEvent("face2face_item_clicked", null)
+//        view?.findNavController()?.apply {
+//          if (currentDestination?.id == R.id.myGames) {
+//            navigate(R.id.action_myGamesFragment_to_faceToFaceFragment)
+//          }
+//        }
+//      }
 
       Action.PlayOnline -> {
         analytics.logEvent("automatch_item_clicked", null)
@@ -169,37 +166,37 @@ class MyGamesFragment : Fragment() {
         (activity as MainActivity).onNavigateToSupport()
       }
 
-      is GameSelected -> {
-        val game = action.game
-        analytics.logEvent("clicked_game", Bundle().apply {
-          putLong("GAME_ID", game.id)
-          putBoolean("ACTIVE_GAME", game.ended == null)
-        })
-        navigateToGameScreen(game)
-      }
+//      is GameSelected -> {
+//        val game = action.game
+//        analytics.logEvent("clicked_game", Bundle().apply {
+//          putLong("GAME_ID", game.id)
+//          putBoolean("ACTIVE_GAME", game.ended == null)
+//        })
+//        navigateToGameScreen(game)
+//      }
 
       else -> viewModel.onAction(action)
     }
   }
 
-  private fun navigateToGameScreen(game: Game) {
-    view?.findNavController()?.apply {
-      //
-      // Note: the following check is needed to avoid crashing
-      // on spamming navigation events
-      //
-      if (currentDestination?.id == R.id.myGames) {
-        navigate(
-          R.id.action_myGamesFragment_to_gameFragment,
-          bundleOf(
-            GAME_ID to game.id,
-            GAME_WIDTH to game.width,
-            GAME_HEIGHT to game.height,
-          ),
-        )
-      }
-    }
-  }
+//  private fun navigateToGameScreen(game: Game) {
+//    view?.findNavController()?.apply {
+//      //
+//      // Note: the following check is needed to avoid crashing
+//      // on spamming navigation events
+//      //
+//      if (currentDestination?.id == R.id.myGames) {
+//        navigate(
+//          R.id.action_myGamesFragment_to_gameFragment,
+//          bundleOf(
+//            GAME_ID to game.id,
+//            GAME_WIDTH to game.width,
+//            GAME_HEIGHT to game.height,
+//          ),
+//        )
+//      }
+//    }
+//  }
 
   override fun onResume() {
     super.onResume()

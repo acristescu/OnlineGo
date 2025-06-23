@@ -142,7 +142,7 @@ private val useCasesModule = module {
 
 private val viewModelsModule = module {
   viewModel { params ->
-    TsumegoViewModel(get(), get(), params.get(), params.get())
+    TsumegoViewModel(get(), params.get(), params.get())
   }
 
   viewModelOf(::PuzzleDirectoryViewModel)
@@ -178,7 +178,6 @@ private val viewModelsModule = module {
 
   viewModel {
     FaceToFaceViewModel(
-      get(),
       PreferenceManager.getDefaultSharedPreferences(OnlineGoApplication.instance.baseContext),
       OnlineGoApplication.instance.analytics,
       FirebaseCrashlytics.getInstance()

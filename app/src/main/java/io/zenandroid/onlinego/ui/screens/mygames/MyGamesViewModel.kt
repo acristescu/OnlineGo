@@ -11,7 +11,6 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
-import io.zenandroid.onlinego.data.model.BoardTheme
 import io.zenandroid.onlinego.data.model.local.Challenge
 import io.zenandroid.onlinego.data.model.local.Game
 import io.zenandroid.onlinego.data.model.ogs.ChallengeParams
@@ -63,7 +62,6 @@ class MyGamesViewModel(
         whatsNewDialogVisible = WhatsNewUtils.shouldDisplayDialog,
         headerMainText = "Hi ${userSessionRepository.uiConfig?.user?.username},",
         userImageURL = userSessionRepository.uiConfig?.user?.icon,
-        boardTheme = settingsRepository.boardTheme,
     ))
     val state: StateFlow<MyGamesState> = _state
     private val subscriptions = CompositeDisposable()
@@ -325,8 +323,26 @@ class MyGamesViewModel(
             ViewResumed -> onViewResumed()
             WarningAcknowledged -> onWarningAcknowledged()
             is NewChallengeSearchClicked -> onNewChallengeSearchClicked(action.challenge)
+            is GameSelected -> {
+                analytics.logEvent("game_selected", null)
+                val game = action.game
+                if(game.id == 0L) {
+                    _state.update {
+                        it.copy(
+                            alertDialogTitle = "Error",
+                            alertDialogText = "This game is not available."
+                        )
+                    }
+                } else {
+                    _state.update {
+                        it.copy(
+                            gameNavigationPending = game
+                        )
+                    }
+                }
+            }
 
-            CustomGame, is GameSelected, PlayAgainstAI, FaceToFace, PlayOnline, SupportClicked -> {} // intentionally left blank
+            PlayOnline, SupportClicked -> {} // intentionally left blank
         }
     }
 
@@ -355,12 +371,6 @@ class MyGamesViewModel(
 
     private fun onViewResumed() {
         chatRepository.fetchRecentChatMessages()
-        _state.update {
-            it.copy(
-                // Check if board theme had been changed in the settings
-                boardTheme = settingsRepository.boardTheme
-            )
-        }
     }
 
     private fun onGameNavigationConsumed() {
@@ -455,7 +465,6 @@ data class MyGamesState(
     val tutorialPercentage: Int? = 100,
     val tutorialVisible: Boolean = false,
     val tutorialTitle: String? = null,
-    val boardTheme: BoardTheme,
     val online: Boolean = true,
     val challengeDetailsStatus: ChallengeDialogStatus? = null,
     val warning: Warning? = null
@@ -464,9 +473,6 @@ data class MyGamesState(
 
 sealed interface Action {
     data object PlayOnline: Action
-    data object CustomGame: Action
-    data object PlayAgainstAI: Action
-    data object FaceToFace: Action
     data object SupportClicked: Action
     data object DismissWhatsNewDialog: Action
     data object DismissAlertDialog: Action

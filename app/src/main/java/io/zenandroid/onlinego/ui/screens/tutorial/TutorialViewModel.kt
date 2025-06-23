@@ -1,5 +1,6 @@
 package io.zenandroid.onlinego.ui.screens.tutorial
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.zenandroid.onlinego.data.model.Cell
@@ -14,11 +15,7 @@ import io.zenandroid.onlinego.data.repositories.TutorialsRepository
 import io.zenandroid.onlinego.gamelogic.RulesManager
 import io.zenandroid.onlinego.gamelogic.Util
 import io.zenandroid.onlinego.gamelogic.Util.decodeSGF
-import io.zenandroid.onlinego.ui.screens.tutorial.TutorialAction.HandledByViewModel
-import io.zenandroid.onlinego.ui.screens.tutorial.TutorialAction.HandledByViewModel.BoardCellHovered
-import io.zenandroid.onlinego.ui.screens.tutorial.TutorialAction.HandledByViewModel.BoardCellTapped
-import io.zenandroid.onlinego.ui.screens.tutorial.TutorialAction.HandledByViewModel.NextPressed
-import io.zenandroid.onlinego.ui.screens.tutorial.TutorialAction.HandledByViewModel.RetryPressed
+import io.zenandroid.onlinego.ui.screens.tutorial.TutorialAction.*
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -27,20 +24,21 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class TutorialViewModel(
-  private val tutorialsRepository: TutorialsRepository
+  private val tutorialsRepository: TutorialsRepository,
+  saveStateHandle: SavedStateHandle
 ) : ViewModel() {
   private val _state = MutableStateFlow(initialState())
 
   val state: StateFlow<TutorialState> = _state
   var moveReplyJob: Job? = null
 
+  init {
+    loadTutorial(saveStateHandle["tutorialName"] ?: error("No tutorial name provided"))
+  }
+
   private fun initialState() = TutorialState()
 
   fun loadTutorial(tutorialName: String) {
-    if (_state.value.tutorial != null) {
-      // probably just recreating the view, the ViewModel is unimpressed
-      return
-    }
     val tutorial = tutorialsRepository.loadTutorial(tutorialName)!!
     val step = tutorial.steps[0]
     loadStep(tutorial, step)
@@ -77,7 +75,7 @@ class TutorialViewModel(
     }
   }
 
-  fun acceptAction(action: HandledByViewModel) {
+  fun onAction(action: TutorialAction) {
     when (action) {
       is BoardCellHovered -> _state.update {
         it.copy(

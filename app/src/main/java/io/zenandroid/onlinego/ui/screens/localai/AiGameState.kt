@@ -33,4 +33,5 @@ data class AiGameState(
         val stateRestorePending: Boolean = true,
         val aiAnalysis: Response? = null,
         val aiQuickEstimation: MoveInfo? = null,
+        val userIcon: String? = null,
 )

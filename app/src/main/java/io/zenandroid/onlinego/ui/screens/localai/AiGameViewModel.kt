@@ -14,10 +14,13 @@ import io.zenandroid.onlinego.ai.KataGoAnalysisEngine
 import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.Position
 import io.zenandroid.onlinego.data.model.StoneType
+import io.zenandroid.onlinego.data.repositories.SettingsRepository
+import io.zenandroid.onlinego.data.repositories.UserSessionRepository
 import io.zenandroid.onlinego.gamelogic.RulesManager
 import io.zenandroid.onlinego.gamelogic.RulesManager.isGameOver
 import io.zenandroid.onlinego.gamelogic.Util
 import io.zenandroid.onlinego.gamelogic.Util.toGTP
+import io.zenandroid.onlinego.utils.analyticsReportScreen
 import io.zenandroid.onlinego.utils.moshiadapters.HashMapOfCellToStoneTypeMoshiAdapter
 import io.zenandroid.onlinego.utils.moshiadapters.ResponseBriefMoshiAdapter
 import io.zenandroid.onlinego.utils.recordException
@@ -33,9 +36,13 @@ import kotlin.math.abs
 private const val STATE_KEY = "AIGAME_STATE_KEY"
 
 class AiGameViewModel(
+  private val settingsRepository: SettingsRepository,
+  private val userSessionRepository: UserSessionRepository,
 ) : ViewModel() {
 
-  private val _state = MutableStateFlow(AiGameState())
+  private val _state = MutableStateFlow(AiGameState(
+    userIcon = userSessionRepository.uiConfig?.user?.icon,
+  ))
   val state: StateFlow<AiGameState> = _state.asStateFlow()
   val disposables: CompositeDisposable = CompositeDisposable()
 
@@ -50,6 +57,7 @@ class AiGameViewModel(
     .adapter(AiGameState::class.java)
 
   init {
+    analyticsReportScreen("AiGame")
     startEngine()
     restoreState()
   }
@@ -130,7 +138,8 @@ class AiGameViewModel(
             _state.update { state ->
               it.copy(
                 engineStarted = it.engineStarted,
-                stateRestorePending = false
+                stateRestorePending = false,
+                userIcon = userSessionRepository.uiConfig?.user?.icon,
               )
             }
           }

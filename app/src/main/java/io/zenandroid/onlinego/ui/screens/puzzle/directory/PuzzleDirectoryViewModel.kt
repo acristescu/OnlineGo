@@ -31,7 +31,6 @@ class PuzzleDirectoryViewModel(
 ) : ViewModel() {
   private val _state = MutableStateFlow(
     PuzzleDirectoryState(
-      boardTheme = settingsRepository.boardTheme,
       availableSorts = listOf(
         RatingSort(false),
         ViewsSort(false),

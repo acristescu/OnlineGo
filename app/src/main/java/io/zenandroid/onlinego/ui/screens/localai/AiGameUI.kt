@@ -37,7 +37,9 @@ import androidx.compose.material.icons.automirrored.filled.NavigateNext
 import androidx.compose.material.icons.filled.Casino
 import androidx.compose.material.icons.rounded.Stop
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
@@ -59,10 +61,12 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import io.zenandroid.onlinego.R
-import io.zenandroid.onlinego.data.model.BoardTheme
 import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.Position
 import io.zenandroid.onlinego.data.model.StoneType
@@ -73,6 +77,7 @@ import io.zenandroid.onlinego.ui.composables.BottomBar
 import io.zenandroid.onlinego.ui.composables.BottomBarButton
 import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
 import io.zenandroid.onlinego.utils.processGravatarURL
+import org.koin.androidx.compose.koinViewModel
 import kotlin.math.abs
 
 sealed class AiGameBottomBarButton(
@@ -116,13 +121,50 @@ sealed class AiGameBottomBarButton(
   )
 }
 
+@Composable
+fun AiGameScreen(
+  viewModel: AiGameViewModel = koinViewModel(),
+  onNavigateBack: () -> Unit,
+) {
+  val lifecycle = LocalLifecycleOwner.current.lifecycle
+
+  DisposableEffect(lifecycle) {
+    val observer = LifecycleEventObserver { _, event ->
+      if (event == Lifecycle.Event.ON_PAUSE) {
+        viewModel.onViewPaused()
+      }
+    }
+
+    lifecycle.addObserver(observer)
+    onDispose {
+      lifecycle.removeObserver(observer)
+    }
+  }
+
+  val state by viewModel.state.collectAsState()
+
+  AiGameUI(
+    state = state,
+    userIcon = state.userIcon,
+    onUserTappedCoordinate = viewModel::onUserTappedCoordinate,
+    onUserHotTrackedCoordinate = viewModel::onUserHotTrackedCoordinate,
+    onUserPressedPass = viewModel::onUserPressedPass,
+    onUserPressedPrevious = viewModel::onUserPressedPrevious,
+    onUserPressedNext = viewModel::onUserPressedNext,
+    onShowNewGameDialog = viewModel::onShowNewGameDialog,
+    onUserAskedForHint = viewModel::onUserAskedForHint,
+    onUserAskedForOwnership = viewModel::onUserAskedForOwnership,
+    onNewGame = viewModel::onNewGame,
+    onDismissNewGameDialog = viewModel::onDismissNewGameDialog,
+    onNavigateBack = onNavigateBack
+  )
+}
+
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterialApi::class)
 @Composable
-fun AiGameUI(
+private fun AiGameUI(
   state: AiGameState,
   userIcon: String?,
-  boardTheme: BoardTheme,
-  showCoordinates: Boolean,
   onUserTappedCoordinate: (Cell) -> Unit,
   onUserHotTrackedCoordinate: (Cell) -> Unit,
   onUserPressedPass: () -> Unit,
@@ -392,8 +434,6 @@ fun AiGameUI(
           ownership = state.aiAnalysis?.ownership,
           candidateMove = state.candidateMove,
           candidateMoveType = if (state.enginePlaysBlack) StoneType.WHITE else StoneType.BLACK,
-          boardTheme = boardTheme,
-          drawCoordinates = showCoordinates,
           interactive = state.boardIsInteractive,
           drawTerritory = state.showFinalTerritory,
           fadeOutRemovedStones = state.showFinalTerritory,
@@ -626,8 +666,6 @@ private fun AiGameUIPreview() {
         aiQuickEstimation = null
       ),
       userIcon = null,
-      boardTheme = BoardTheme.WOOD,
-      showCoordinates = true,
       onUserTappedCoordinate = {},
       onUserHotTrackedCoordinate = {},
       onUserPressedPass = {},
@@ -682,8 +720,6 @@ private fun AiGameUIPreviewNewGame() {
         aiQuickEstimation = null
       ),
       userIcon = null,
-      boardTheme = BoardTheme.WOOD,
-      showCoordinates = true,
       onUserTappedCoordinate = {},
       onUserHotTrackedCoordinate = {},
       onUserPressedPass = {},

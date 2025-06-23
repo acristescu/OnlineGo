@@ -4,7 +4,6 @@ import android.content.res.Configuration
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -17,7 +16,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import io.zenandroid.onlinego.data.model.BoardTheme
 import io.zenandroid.onlinego.data.model.StoneType
 import io.zenandroid.onlinego.data.model.local.Game
 import io.zenandroid.onlinego.data.model.local.isPaused
@@ -30,7 +28,7 @@ import io.zenandroid.onlinego.utils.calculateTimer
 
 @ExperimentalComposeUiApi
 @Composable
-fun LargeGameItem(game: Game, boardTheme: BoardTheme, userId: Long, onAction: (Action) -> Unit, modifier: Modifier = Modifier) {
+fun LargeGameItem(game: Game, userId: Long, onAction: (Action) -> Unit, modifier: Modifier = Modifier) {
     val opponent =
         when (userId) {
             game.blackPlayer.id -> game.whitePlayer
@@ -54,7 +52,6 @@ fun LargeGameItem(game: Game, boardTheme: BoardTheme, userId: Long, onAction: (A
                 boardWidth = game.width,
                 boardHeight = game.height,
                 position = game.position,
-                boardTheme = boardTheme,
                 drawCoordinates = false,
                 interactive = false,
                 fadeInLastMove = false,
@@ -122,7 +119,6 @@ private fun Preview() {
     OnlineGoTheme {
         LargeGameItem(
             game = Game.sampleData(),
-            boardTheme = BoardTheme.WOOD,
             userId = 100L,
             onAction = {}
         )

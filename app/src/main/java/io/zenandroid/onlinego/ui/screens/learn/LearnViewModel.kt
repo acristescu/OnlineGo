@@ -6,6 +6,7 @@ import io.reactivex.disposables.CompositeDisposable
 import io.zenandroid.onlinego.data.model.local.TutorialGroup
 import io.zenandroid.onlinego.data.repositories.TutorialsRepository
 import io.zenandroid.onlinego.utils.addToDisposable
+import io.zenandroid.onlinego.utils.analyticsReportScreen
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
@@ -31,6 +32,10 @@ class LearnViewModel(
     private val _state = MutableStateFlow(initialState())
 
     val state: StateFlow<LearnState> = _state
+
+    init {
+      analyticsReportScreen("Learn")
+    }
 
     private fun initialState(): LearnState {
         tutorialsRepository.completedTutorialsNames

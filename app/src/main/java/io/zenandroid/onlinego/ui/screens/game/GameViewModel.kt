@@ -28,13 +28,13 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.cash.molecule.AndroidUiDispatcher
 import app.cash.molecule.RecompositionMode.ContextClock
 import app.cash.molecule.launchMolecule
 import io.zenandroid.onlinego.BuildConfig
-import io.zenandroid.onlinego.data.model.BoardTheme
 import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.Mark
 import io.zenandroid.onlinego.data.model.Position
@@ -114,6 +114,7 @@ import io.zenandroid.onlinego.utils.formatMillis
 import io.zenandroid.onlinego.utils.formatRank
 import io.zenandroid.onlinego.utils.timeControlDescription
 import io.zenandroid.onlinego.utils.NotificationUtils
+import io.zenandroid.onlinego.utils.analyticsReportScreen
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -138,6 +139,7 @@ class GameViewModel(
     private val chatRepository: ChatRepository,
     private val settingsRepository: SettingsRepository,
     private val getUserStatsUseCase: GetUserStatsUseCase,
+    savedStateHandle: SavedStateHandle
 ): ViewModel() {
 
     // Need to add a MonotonicFrameClock
@@ -183,7 +185,16 @@ class GameViewModel(
     private val _events = MutableSharedFlow<Event?>()
     val events = _events.asSharedFlow()
 
+    init {
+      initialize(
+          gameId = savedStateHandle["gameId"] ?: error("Missing argument: gameId"),
+          gameWidth = savedStateHandle["gameWidth"] ?: 19,
+          gameHeight = savedStateHandle["gameHeight"] ?: 19
+      )
+    }
+
     fun initialize(gameId: Long, gameWidth: Int, gameHeight: Int) {
+        analyticsReportScreen("Game")
         val gameFlow = activeGamesRepository.monitorGameFlow(gameId).distinctUntilChanged()
         currentGamePosition = mutableStateOf(Position(gameWidth, gameHeight))
 
@@ -327,8 +338,6 @@ class GameViewModel(
                 gameWidth = gameWidth,
                 gameHeight = gameHeight,
                 candidateMove = candidateMove,
-                boardTheme = settingsRepository.boardTheme,
-                showCoordinates = settingsRepository.showCoordinates,
                 boardInteractive = boardInteractive,
                 drawTerritory = game?.phase == Phase.STONE_REMOVAL || (gameFinished == true && analysisShownMoveNumber == game?.moves?.size) || (estimateMode && estimatePosition != null),
                 fadeOutRemovedStones = game?.phase == Phase.STONE_REMOVAL || (gameFinished == true && analysisShownMoveNumber == game?.moves?.size) || (estimateMode && estimatePosition != null),
@@ -877,8 +886,6 @@ data class GameState(
     val gameHeight: Int,
     val candidateMove: Cell?,
     val boardInteractive: Boolean,
-    val boardTheme: BoardTheme,
-    val showCoordinates: Boolean,
     val drawTerritory: Boolean,
     val fadeOutRemovedStones: Boolean,
     val showLastMove: Boolean,
@@ -923,8 +930,6 @@ data class GameState(
             gameHeight = 19,
             candidateMove = null,
             boardInteractive = false,
-            boardTheme = BoardTheme.WOOD,
-            showCoordinates = true,
             drawTerritory = false,
             fadeOutRemovedStones = false,
             showLastMove = true,

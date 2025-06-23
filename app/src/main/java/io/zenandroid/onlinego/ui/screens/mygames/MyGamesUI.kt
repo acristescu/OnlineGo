@@ -28,7 +28,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import io.zenandroid.onlinego.data.model.BoardTheme
 import io.zenandroid.onlinego.data.model.local.Challenge
 import io.zenandroid.onlinego.data.model.local.Game
 import io.zenandroid.onlinego.data.model.local.Player
@@ -54,11 +53,12 @@ import org.koin.androidx.compose.koinViewModel
 fun MyGamesScreen(
   onNavigateToGame: (Game) -> Unit,
   onNavigateToAIGame: () -> Unit,
+  onNavigateToFaceToFace: () -> Unit,
 ) {
   val viewModel: MyGamesViewModel = koinViewModel()
   val state by rememberStateWithLifecycle(viewModel.state)
 
-  MyGamesContent(state, viewModel::onAction, onNavigateToAIGame)
+  MyGamesContent(state, viewModel::onAction, onNavigateToAIGame, onNavigateToFaceToFace)
 
   if (state.alertDialogText != null) {
     AlertDialog(
@@ -137,23 +137,6 @@ fun MyGamesScreen(
 
 //private fun onAction(action: Action) {
 //  when (action) {
-//    Action.PlayAgainstAI -> {
-//      analytics.logEvent("localai_item_clicked", null)
-//      view?.findNavController()?.apply {
-//        if (currentDestination?.id == R.id.myGames) {
-//          navigate(R.id.action_myGamesFragment_to_aiGameFragment)
-//        }
-//      }
-//    }
-//
-//    Action.FaceToFace -> {
-//      analytics.logEvent("face2face_item_clicked", null)
-//      view?.findNavController()?.apply {
-//        if (currentDestination?.id == R.id.myGames) {
-//          navigate(R.id.action_myGamesFragment_to_faceToFaceFragment)
-//        }
-//      }
-//    }
 //
 //    Action.PlayOnline -> {
 //      analytics.logEvent("automatch_item_clicked", null)
@@ -185,6 +168,7 @@ fun MyGamesContent(
   state: MyGamesState,
   onAction: (Action) -> Unit,
   onNavigateToAIGame: () -> Unit,
+  onNavigateToFaceToFace: () -> Unit,
 ) {
   var newChallengeBottomSheetVisible by remember { mutableStateOf(false) }
   val listState = rememberLazyListState()
@@ -219,11 +203,11 @@ fun MyGamesContent(
           Header("Your turn")
         }
         items(items = state.myTurnGames) {
-          SmallGameItem(game = it, boardTheme = state.boardTheme, state.userId, onAction = onAction)
+          SmallGameItem(game = it, state.userId, onAction = onAction)
         }
       } else {
         item {
-          MyTurnCarousel(state.myTurnGames, boardTheme = state.boardTheme, state.userId, onAction)
+          MyTurnCarousel(state.myTurnGames, state.userId, onAction)
         }
       }
     }
@@ -243,7 +227,7 @@ fun MyGamesContent(
         modifier = Modifier.padding(top = 10.dp),
         onCustomGame = { newChallengeBottomSheetVisible = true },
         onPlayAgainstAI = onNavigateToAIGame,
-        onFaceToFace = { },
+        onFaceToFace = onNavigateToFaceToFace,
         onPlayOnline = { },
       )
     }
@@ -254,7 +238,7 @@ fun MyGamesContent(
       }
     }
     items(items = state.opponentTurnGames) {
-      SmallGameItem(it, boardTheme = state.boardTheme, state.userId, onAction)
+      SmallGameItem(it, state.userId, onAction)
     }
 
     if (state.recentGames.isNotEmpty()) {
@@ -263,7 +247,7 @@ fun MyGamesContent(
       }
     }
     items(items = state.recentGames) {
-      SmallGameItem(game = it, boardTheme = state.boardTheme, state.userId, onAction = onAction)
+      SmallGameItem(game = it, state.userId, onAction = onAction)
     }
 
     if (state.historicGames.isNotEmpty()) {
@@ -273,7 +257,6 @@ fun MyGamesContent(
       item {
         HistoricGameLazyRow(
           state.historicGames,
-          boardTheme = state.boardTheme,
           state.userId,
           state.loadedAllHistoricGames,
           onAction
@@ -397,8 +380,8 @@ private fun Preview() {
               speed = "correspondence",
             ),
           ),
-          boardTheme = BoardTheme.WOOD,
         ),
+        {},
         {},
         {},
       )

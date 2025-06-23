@@ -1,7 +1,6 @@
 package io.zenandroid.onlinego.ui.screens.puzzle.tsumego
 
-import androidx.compose.runtime.Immutable;
-import io.zenandroid.onlinego.data.model.BoardTheme
+import androidx.compose.runtime.Immutable
 import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.Position
 import io.zenandroid.onlinego.data.model.ogs.MoveTree
@@ -32,8 +31,6 @@ data class TsumegoState (
         val removedStones: Map<Cell, StoneType>? = null,
         val hoveredCell: Cell? = null,
         val boardInteractive: Boolean = true,
-        val boardTheme: BoardTheme,
-        val drawCoordinates: Boolean,
         val retryButtonVisible: Boolean = false,
         val continueButtonVisible: Boolean = false
 )

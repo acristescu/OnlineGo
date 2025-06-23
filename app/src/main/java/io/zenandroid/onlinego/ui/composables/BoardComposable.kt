@@ -49,6 +49,8 @@ import io.zenandroid.onlinego.data.model.katago.MoveInfo
 import io.zenandroid.onlinego.data.model.ogs.PlayCategory
 import io.zenandroid.onlinego.gamelogic.RulesManager.isPass
 import io.zenandroid.onlinego.gamelogic.Util
+import io.zenandroid.onlinego.ui.theme.LocalBoardTheme
+import io.zenandroid.onlinego.ui.theme.LocalShowCoordinates
 import kotlin.math.abs
 import kotlin.math.ceil
 import kotlin.math.roundToInt
@@ -63,8 +65,8 @@ fun Board(
   position: Position?,
   candidateMove: Cell? = null,
   candidateMoveType: StoneType? = null,
-  boardTheme: BoardTheme,
-  drawCoordinates: Boolean = true,
+  boardTheme: BoardTheme = LocalBoardTheme.current,
+  drawCoordinates: Boolean = LocalShowCoordinates.current,
   hints: List<MoveInfo>? = null,
   ownership: List<Float>? = null,
   interactive: Boolean = true,

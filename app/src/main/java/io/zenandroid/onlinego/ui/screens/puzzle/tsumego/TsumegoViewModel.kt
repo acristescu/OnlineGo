@@ -45,14 +45,10 @@ import java.util.Stack
 
 class TsumegoViewModel(
     private val puzzleRepository: PuzzleRepository,
-    private val settingsRepository: SettingsRepository,
     private val collectionId: Long,
     private val puzzleId: Long,
 ): ViewModel() {
-    private val _state = MutableStateFlow(TsumegoState(
-        boardTheme = settingsRepository.boardTheme,
-        drawCoordinates = settingsRepository.showCoordinates,
-    ))
+    private val _state = MutableStateFlow(TsumegoState())
     val state: StateFlow<TsumegoState> = _state
     var collectionContents by mutableStateOf(emptyList<Puzzle>())
         private set

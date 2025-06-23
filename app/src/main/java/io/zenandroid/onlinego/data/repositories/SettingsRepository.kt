@@ -1,5 +1,6 @@
 package io.zenandroid.onlinego.data.repositories
 
+import androidx.core.content.edit
 import androidx.preference.PreferenceManager
 import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.data.model.BoardTheme
@@ -12,41 +13,42 @@ private const val SOUND = "sound"
 private const val GRAPH_BY_GAMES = "graph_by_games"
 
 class SettingsRepository {
-    private val prefs = PreferenceManager.getDefaultSharedPreferences(OnlineGoApplication.instance.baseContext)
+  private val prefs =
+    PreferenceManager.getDefaultSharedPreferences(OnlineGoApplication.instance.baseContext)
 
-    var appTheme: String?
-        get() = prefs.getString(APP_THEME, "System default")
-        set(value) = prefs.edit().putString(APP_THEME, value).apply()
+  var appTheme: String?
+    get() = prefs.getString(APP_THEME, "System default")
+    set(value) = prefs.edit { putString(APP_THEME, value) }
 
-    var boardTheme: BoardTheme
-        get() = getBoardThemeFromPref()
-        set(value) = prefs.edit().putString(BOARD_THEME, value.name).apply()
+  var boardTheme: BoardTheme
+    get() = getBoardThemeFromPref()
+    set(value) = prefs.edit { putString(BOARD_THEME, value.name) }
 
-    private fun getBoardThemeFromPref(): BoardTheme {
-        val themeFromPref: String? = prefs.getString(BOARD_THEME, BoardTheme.WOOD.name)
-        if (themeFromPref != null) {
-            return try {
-                BoardTheme.valueOf(themeFromPref)
-            } catch (e: IllegalArgumentException) {
-                BoardTheme.WOOD
-            }
-        }
-        return BoardTheme.WOOD
+  private fun getBoardThemeFromPref(): BoardTheme {
+    val themeFromPref: String? = prefs.getString(BOARD_THEME, BoardTheme.WOOD.name)
+    if (themeFromPref != null) {
+      return try {
+        BoardTheme.valueOf(themeFromPref)
+      } catch (e: IllegalArgumentException) {
+        BoardTheme.WOOD
+      }
     }
+    return BoardTheme.WOOD
+  }
 
-    var showRanks: Boolean
-        get() = prefs.getBoolean(SHOW_RANKS, true)
-        set(value) = prefs.edit().putBoolean(SHOW_RANKS, value).apply()
+  var showRanks: Boolean
+    get() = prefs.getBoolean(SHOW_RANKS, true)
+    set(value) = prefs.edit { putBoolean(SHOW_RANKS, value) }
 
-    var showCoordinates: Boolean
-        get() = prefs.getBoolean(SHOW_COORDINATES, false)
-        set(value) = prefs.edit().putBoolean(SHOW_COORDINATES, value).apply()
+  var showCoordinates: Boolean
+    get() = prefs.getBoolean(SHOW_COORDINATES, false)
+    set(value) = prefs.edit { putBoolean(SHOW_COORDINATES, value) }
 
-    var sound: Boolean
-        get() = prefs.getBoolean(SOUND, true)
-        set(value) = prefs.edit().putBoolean(SOUND, value).apply()
+  var sound: Boolean
+    get() = prefs.getBoolean(SOUND, true)
+    set(value) = prefs.edit { putBoolean(SOUND, value) }
 
-    var graphByGames: Boolean
-        get() = prefs.getBoolean(GRAPH_BY_GAMES, false)
-        set(value) = prefs.edit().putBoolean(GRAPH_BY_GAMES, value).apply()
+  var graphByGames: Boolean
+    get() = prefs.getBoolean(GRAPH_BY_GAMES, false)
+    set(value) = prefs.edit { putBoolean(GRAPH_BY_GAMES, value) }
 }

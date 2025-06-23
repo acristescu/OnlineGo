@@ -2,8 +2,6 @@ package io.zenandroid.onlinego.ui.screens.mygames.composables
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -15,7 +13,6 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import io.zenandroid.onlinego.data.model.BoardTheme
 import io.zenandroid.onlinego.data.model.StoneType
 import io.zenandroid.onlinego.data.model.local.Game
 import io.zenandroid.onlinego.data.model.local.isPaused
@@ -27,7 +24,7 @@ import io.zenandroid.onlinego.utils.calculateTimer
 
 @ExperimentalComposeUiApi
 @Composable
-fun SmallGameItem(game: Game, boardTheme: BoardTheme, userId: Long, onAction: (Action) -> Unit) {
+fun SmallGameItem(game: Game, userId: Long, onAction: (Action) -> Unit) {
     SenteCard(
         modifier = Modifier
             .height(110.dp)
@@ -45,7 +42,6 @@ fun SmallGameItem(game: Game, boardTheme: BoardTheme, userId: Long, onAction: (A
                 boardWidth = game.width,
                 boardHeight = game.height,
                 position = game.position,
-                boardTheme = boardTheme,
                 drawCoordinates = false,
                 interactive = false,
                 drawShadow = false,

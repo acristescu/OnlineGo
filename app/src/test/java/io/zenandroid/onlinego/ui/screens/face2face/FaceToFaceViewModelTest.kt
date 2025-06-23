@@ -8,11 +8,8 @@ import app.cash.turbine.test
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.nhaarman.mockito_kotlin.mock
-import com.nhaarman.mockito_kotlin.whenever
-import io.zenandroid.onlinego.data.model.BoardTheme
 import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.StoneType
-import io.zenandroid.onlinego.data.repositories.SettingsRepository
 import io.zenandroid.onlinego.di.allKoinModules
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -39,11 +36,6 @@ class FaceToFaceViewModelTest {
   @get:Rule
   val instantExecutorRule = InstantTaskExecutorRule()
 
-  private val settingsRepository: SettingsRepository = mock {
-    whenever(it.boardTheme).thenReturn(BoardTheme.WOOD)
-    whenever(it.showCoordinates).thenReturn(true)
-  }
-
   private val prefs: SharedPreferences = mock {}
   private val analytics: FirebaseAnalytics = mock {}
   private val crashlytics: FirebaseCrashlytics = mock {}
@@ -54,7 +46,6 @@ class FaceToFaceViewModelTest {
   fun setUp() {
     Dispatchers.setMain(StandardTestDispatcher())
     viewModel = FaceToFaceViewModel(
-      settingsRepository = settingsRepository,
       analytics = analytics,
       crashlytics = crashlytics,
       prefs = prefs,

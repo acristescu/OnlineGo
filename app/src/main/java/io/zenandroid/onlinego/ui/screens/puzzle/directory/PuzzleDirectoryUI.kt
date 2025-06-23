@@ -149,7 +149,7 @@ fun PuzzleDirectoryScreen(
                 val pos = remember {
                   RulesManager.buildPos(moves = emptyList(), boardWidth = it.width, boardHeight = it.height, whiteInitialState = it.initial_state.white.toCoordinateSet(), blackInitialState = it.initial_state.black.toCoordinateSet())
                 }
-                Board(boardWidth = it.width, boardHeight = it.height, position = pos, boardTheme = state.boardTheme, drawCoordinates = false, interactive = false, drawShadow = false, fadeInLastMove = false, fadeOutRemovedStones = false, modifier = Modifier
+                Board(boardWidth = it.width, boardHeight = it.height, position = pos, drawCoordinates = false, interactive = false, drawShadow = false, fadeInLastMove = false, fadeOutRemovedStones = false, modifier = Modifier
                     .weight(1f)
                     .clip(MaterialTheme.shapes.small))
               }

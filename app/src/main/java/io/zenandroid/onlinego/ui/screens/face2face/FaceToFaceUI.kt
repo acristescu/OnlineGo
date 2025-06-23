@@ -28,6 +28,7 @@ import androidx.compose.material.TextButton
 import androidx.compose.material.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -65,21 +66,112 @@ import io.zenandroid.onlinego.ui.screens.face2face.Button.GameSettings
 import io.zenandroid.onlinego.ui.screens.face2face.Button.Next
 import io.zenandroid.onlinego.ui.screens.face2face.Button.Previous
 import io.zenandroid.onlinego.ui.screens.game.ExtraStatusField
+import io.zenandroid.onlinego.ui.screens.localai.AiGameViewModel
 import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
+import org.koin.androidx.compose.koinViewModel
 import java.lang.Float.max
+import androidx.compose.runtime.getValue
 
 @Composable
 fun FaceToFaceScreen(
-  state : FaceToFaceState,
+  viewModel: FaceToFaceViewModel = koinViewModel(),
+  onNavigateBack: () -> Unit,
+) {
+  val state by viewModel.state.collectAsState()
+
+  FaceToFaceContent(state, viewModel::onAction, onNavigateBack)
+}
+
+@Composable
+private fun FaceToFaceContent(
+  state: FaceToFaceState,
   onUserAction: (Action) -> Unit,
   onBackPressed: () -> Unit,
 ) {
-  OnlineGoTheme {
-    if (LocalConfiguration.current.orientation == Configuration.ORIENTATION_PORTRAIT) {
+  if (LocalConfiguration.current.orientation == Configuration.ORIENTATION_PORTRAIT) {
+    Column(
+      Modifier
+        .background(MaterialTheme.colors.surface)
+        .fillMaxSize()
+    ) {
+      TitleBar(
+        title = state.title,
+        titleIcon = null,
+        onTitleClicked = null,
+        onBack = onBackPressed,
+        moreMenuItems = emptyList(),
+      )
+
+      Row(
+        horizontalArrangement = Arrangement.SpaceBetween,
+        modifier = Modifier
+          .padding(horizontal = 16.dp)
+          .padding(top = 16.dp, bottom = 16.dp)
+          .fillMaxWidth()
+      ) {
+        Column {
+          UserImage(BLACK)
+          Text(
+            text = "Player 1",
+            textAlign = TextAlign.Center,
+            color = MaterialTheme.colors.onSurface,
+            style = MaterialTheme.typography.h3,
+            modifier = Modifier.width(84.dp)
+          )
+        }
+        state.position?.let { ScoreSheet(it) } ?: Spacer(modifier = Modifier.weight(1f))
+        Column {
+          UserImage(WHITE, Modifier.padding(start = 4.dp))
+          Text(
+            text = "Player 2",
+            textAlign = TextAlign.Center,
+            color = MaterialTheme.colors.onSurface,
+            style = MaterialTheme.typography.h3,
+            modifier = Modifier.width(84.dp)
+          )
+        }
+      }
+      Board(
+        boardWidth = state.position?.boardWidth ?: 19,
+        boardHeight = state.position?.boardHeight ?: 19,
+        position = state.position,
+        interactive = state.boardInteractive,
+        drawTerritory = state.drawTerritory,
+        drawLastMove = state.showLastMove,
+        fadeOutRemovedStones = state.fadeOutRemovedStones,
+        candidateMove = state.candidateMove,
+        candidateMoveType = state.position?.nextToMove,
+        onTapMove = { onUserAction(BoardCellDragged(it)) },
+        onTapUp = { onUserAction(BoardCellTapUp(it)) },
+        modifier = Modifier
+          .shadow(1.dp, MaterialTheme.shapes.medium)
+          .clip(MaterialTheme.shapes.medium)
+      )
+      ExtraStatusField(
+        text = state.extraStatus,
+        modifier = Modifier
+          .background(Color(0xFF867484))
+          .fillMaxWidth()
+          .padding(4.dp)
+          .align(Alignment.CenterHorizontally),
+      )
+      Spacer(modifier = Modifier.weight(1f))
+      BottomBar(
+        buttons = state.buttons,
+        bottomText = state.bottomText,
+        onButtonPressed = { onUserAction(BottomButtonPressed(it as Button)) }
+      )
+    }
+  } else {
+    Row(
+      Modifier
+        .background(MaterialTheme.colors.surface)
+        .fillMaxSize()
+    ) {
       Column(
         Modifier
-          .background(MaterialTheme.colors.surface)
-          .fillMaxSize()
+          .width(0.dp)
+          .weight(1f)
       ) {
         TitleBar(
           title = state.title,
@@ -118,32 +210,6 @@ fun FaceToFaceScreen(
             )
           }
         }
-        Board(
-          boardWidth = state.position?.boardWidth ?: 19,
-          boardHeight = state.position?.boardHeight ?: 19,
-          position = state.position,
-          interactive = state.boardInteractive,
-          boardTheme = state.boardTheme,
-          drawCoordinates = state.showCoordinates,
-          drawTerritory = state.drawTerritory,
-          drawLastMove = state.showLastMove,
-          fadeOutRemovedStones = state.fadeOutRemovedStones,
-          candidateMove = state.candidateMove,
-          candidateMoveType = state.position?.nextToMove,
-          onTapMove = { onUserAction(BoardCellDragged(it)) },
-          onTapUp = { onUserAction(BoardCellTapUp(it)) },
-          modifier = Modifier
-            .shadow(1.dp, MaterialTheme.shapes.medium)
-            .clip(MaterialTheme.shapes.medium)
-        )
-        ExtraStatusField(
-          text = state.extraStatus,
-          modifier = Modifier
-            .background(Color(0xFF867484))
-            .fillMaxWidth()
-            .padding(4.dp)
-            .align(Alignment.CenterHorizontally),
-        )
         Spacer(modifier = Modifier.weight(1f))
         BottomBar(
           buttons = state.buttons,
@@ -151,97 +217,40 @@ fun FaceToFaceScreen(
           onButtonPressed = { onUserAction(BottomButtonPressed(it as Button)) }
         )
       }
-    } else {
-      Row(
-        Modifier
-          .background(MaterialTheme.colors.surface)
-          .fillMaxSize()
-      ) {
-        Column(
-          Modifier.width(0.dp)
-            .weight(1f)
-        ) {
-          TitleBar(
-            title = state.title,
-            titleIcon = null,
-            onTitleClicked = null,
-            onBack = onBackPressed,
-            moreMenuItems = emptyList(),
-          )
-
-          Row(
-            horizontalArrangement = Arrangement.SpaceBetween,
-            modifier = Modifier
-              .padding(horizontal = 16.dp)
-              .padding(top = 16.dp, bottom = 16.dp)
-              .fillMaxWidth()
-          ) {
-            Column {
-              UserImage(BLACK)
-              Text(
-                text = "Player 1",
-                textAlign = TextAlign.Center,
-                color = MaterialTheme.colors.onSurface,
-                style = MaterialTheme.typography.h3,
-                modifier = Modifier.width(84.dp)
-              )
-            }
-            state.position?.let { ScoreSheet(it) } ?: Spacer(modifier = Modifier.weight(1f))
-            Column {
-              UserImage(WHITE, Modifier.padding(start = 4.dp))
-              Text(
-                text = "Player 2",
-                textAlign = TextAlign.Center,
-                color = MaterialTheme.colors.onSurface,
-                style = MaterialTheme.typography.h3,
-                modifier = Modifier.width(84.dp)
-              )
-            }
-          }
-          Spacer(modifier = Modifier.weight(1f))
-          BottomBar(
-            buttons = state.buttons,
-            bottomText = state.bottomText,
-            onButtonPressed = { onUserAction(BottomButtonPressed(it as Button)) }
-          )
-        }
-        Board(
-          boardWidth = state.position?.boardWidth ?: 19,
-          boardHeight = state.position?.boardHeight ?: 19,
-          position = state.position,
-          interactive = state.boardInteractive,
-          boardTheme = state.boardTheme,
-          drawCoordinates = state.showCoordinates,
-          drawTerritory = state.drawTerritory,
-          drawLastMove = state.showLastMove,
-          fadeOutRemovedStones = state.fadeOutRemovedStones,
-          candidateMove = state.candidateMove,
-          candidateMoveType = state.position?.nextToMove,
-          onTapMove = { onUserAction(BoardCellDragged(it)) },
-          onTapUp = { onUserAction(BoardCellTapUp(it)) },
-          modifier = Modifier
-            .shadow(1.dp, MaterialTheme.shapes.medium)
-            .clip(MaterialTheme.shapes.medium)
-        )
-      }
-    }
-
-    if (state.koMoveDialogShowing) {
-      AlertDialog(
-        onDismissRequest = { onUserAction(KOMoveDialogDismiss) },
-        confirmButton = {
-          TextButton(onClick = { onUserAction(KOMoveDialogDismiss) }) {
-            Text("OK")
-          }
-        },
-        text = { Text("That move would repeat the board position. That's called a KO, and it is not allowed. Try to make another move first, preferably a threat that the opponent can't ignore.") },
-        title = { Text("Illegal KO move") },
+      Board(
+        boardWidth = state.position?.boardWidth ?: 19,
+        boardHeight = state.position?.boardHeight ?: 19,
+        position = state.position,
+        interactive = state.boardInteractive,
+        drawTerritory = state.drawTerritory,
+        drawLastMove = state.showLastMove,
+        fadeOutRemovedStones = state.fadeOutRemovedStones,
+        candidateMove = state.candidateMove,
+        candidateMoveType = state.position?.nextToMove,
+        onTapMove = { onUserAction(BoardCellDragged(it)) },
+        onTapUp = { onUserAction(BoardCellTapUp(it)) },
+        modifier = Modifier
+          .shadow(1.dp, MaterialTheme.shapes.medium)
+          .clip(MaterialTheme.shapes.medium)
       )
     }
+  }
 
-    if (state.newGameDialogShowing) {
-      NewGameDialog(onUserAction, state.newGameParameters)
-    }
+  if (state.koMoveDialogShowing) {
+    AlertDialog(
+      onDismissRequest = { onUserAction(KOMoveDialogDismiss) },
+      confirmButton = {
+        TextButton(onClick = { onUserAction(KOMoveDialogDismiss) }) {
+          Text("OK")
+        }
+      },
+      text = { Text("That move would repeat the board position. That's called a KO, and it is not allowed. Try to make another move first, preferably a threat that the opponent can't ignore.") },
+      title = { Text("Illegal KO move") },
+    )
+  }
+
+  if (state.newGameDialogShowing) {
+    NewGameDialog(onUserAction, state.newGameParameters)
   }
 }
 
@@ -255,7 +264,8 @@ private fun ScoreSheet(pos: Position, modifier: Modifier = Modifier) {
       pos.blackDeadStones.isNotEmpty() || pos.whiteDeadStones.isNotEmpty()
     val hasTerritory =
       pos.blackTerritory.isNotEmpty() || pos.whiteTerritory.isNotEmpty()
-    val whiteScore = (pos.komi ?: 0f) + pos.whiteTerritory.size + pos.whiteCaptureCount + pos.blackDeadStones.size
+    val whiteScore =
+      (pos.komi ?: 0f) + pos.whiteTerritory.size + pos.whiteCaptureCount + pos.blackDeadStones.size
     val blackScore = pos.blackTerritory.size + pos.blackCaptureCount + pos.whiteDeadStones.size
 
     val maxWhite = max(whiteScore, pos.whiteCaptureCount.toFloat())
@@ -270,38 +280,38 @@ private fun ScoreSheet(pos: Position, modifier: Modifier = Modifier) {
       Text(
         text = "0".padStart(padding + 2, ' '),
       )
-      Text(text = pos.blackCaptureCount.toString(),)
+      Text(text = pos.blackCaptureCount.toString())
       if (hasDeadStones) {
-        Text(text = pos.whiteDeadStones.size.toString(),)
+        Text(text = pos.whiteDeadStones.size.toString())
       }
       if (hasTerritory) {
-        Text(text = pos.blackTerritory.size.toString(),)
-        Text(text = blackScore.toString(),)
+        Text(text = pos.blackTerritory.size.toString())
+        Text(text = blackScore.toString())
       }
     }
     Column(
       horizontalAlignment = Alignment.CenterHorizontally,
       modifier = Modifier.padding(horizontal = 8.dp)
     ) {
-      Text(text = "komi",)
-      Text(text = "captures",)
+      Text(text = "komi")
+      Text(text = "captures")
       if (hasDeadStones) {
-        Text(text = "dead",)
+        Text(text = "dead")
       }
       if (hasTerritory) {
-        Text(text = "territory",)
-        Text(text = "total",)
+        Text(text = "territory")
+        Text(text = "total")
       }
     }
     Column {
-      Text(text = (pos.komi ?: 0f).toString().padStart(padding + 2, ' '),)
-      Text(text = pos.whiteCaptureCount.toString().padStart(padding, ' '),)
+      Text(text = (pos.komi ?: 0f).toString().padStart(padding + 2, ' '))
+      Text(text = pos.whiteCaptureCount.toString().padStart(padding, ' '))
       if (hasDeadStones) {
-        Text(text = pos.blackDeadStones.size.toString().padStart(padding, ' '),)
+        Text(text = pos.blackDeadStones.size.toString().padStart(padding, ' '))
       }
       if (hasTerritory) {
-        Text(text = pos.whiteTerritory.size.toString().padStart(padding, ' '),)
-        Text(text = whiteScore.toString().padStart(padding, ' '),)
+        Text(text = pos.whiteTerritory.size.toString().padStart(padding, ' '))
+        Text(text = whiteScore.toString().padStart(padding, ' '))
       }
     }
   }
@@ -309,9 +319,10 @@ private fun ScoreSheet(pos: Position, modifier: Modifier = Modifier) {
 
 @Composable
 private fun NewGameDialog(onUserAction: (Action) -> Unit, newGameParameters: GameParameters) {
-  Box(modifier = Modifier
-    .fillMaxSize()
-    .background(Color(0x88000000))
+  Box(
+    modifier = Modifier
+      .fillMaxSize()
+      .background(Color(0x88000000))
   )
   Dialog(onDismissRequest = { onUserAction(NewGameDialogDismiss) }) {
     Column(
@@ -331,7 +342,7 @@ private fun NewGameDialog(onUserAction: (Action) -> Unit, newGameParameters: Gam
           .padding(bottom = 16.dp),
         color = MaterialTheme.colors.onSurface,
         style = MaterialTheme.typography.h1,
-        )
+      )
       SettingsRow(
         label = "Size",
         options = BoardSize.values().toList(),
@@ -361,7 +372,12 @@ private fun NewGameDialog(onUserAction: (Action) -> Unit, newGameParameters: Gam
 }
 
 @Composable
-private fun <T>SettingsRow(label: String, options: List<T>, selected: T, onSelectionChanged: (T) -> Unit) {
+private fun <T> SettingsRow(
+  label: String,
+  options: List<T>,
+  selected: T,
+  onSelectionChanged: (T) -> Unit
+) {
   Row {
     Text(
       text = label,
@@ -417,9 +433,10 @@ private fun UserImage(
   color: StoneType,
   modifier: Modifier = Modifier
 ) {
-  Box(modifier = modifier
-    .size(84.dp)
-    .aspectRatio(1f, true)
+  Box(
+    modifier = modifier
+      .size(84.dp)
+      .aspectRatio(1f, true)
   ) {
     val shape = RoundedCornerShape(14.dp)
     Image(
@@ -432,9 +449,10 @@ private fun UserImage(
         .shadow(2.dp, shape)
         .clip(shape)
     )
-    Box(modifier = Modifier
-      .align(Alignment.BottomEnd)
-      .padding(end = 4.dp)
+    Box(
+      modifier = Modifier
+        .align(Alignment.BottomEnd)
+        .padding(end = 4.dp)
     ) {
       val shield =
         if (color == BLACK) drawable.black_shield else drawable.white_shield
@@ -449,9 +467,9 @@ private fun UserImage(
 @Preview
 @Composable
 fun Preview() {
-  FaceToFaceScreen(
+  FaceToFaceContent(
     state = FaceToFaceState.INITIAL.copy(
-      buttons = listOf(GameSettings, Estimate, Previous(false), Next(false) )
+      buttons = listOf(GameSettings, Estimate, Previous(false), Next(false))
     ),
     onUserAction = {},
     onBackPressed = {},
@@ -461,10 +479,10 @@ fun Preview() {
 @Preview
 @Composable
 fun PreviewKODialog() {
-  FaceToFaceScreen(
+  FaceToFaceContent(
     state = FaceToFaceState.INITIAL.copy(
       koMoveDialogShowing = true,
-      buttons = listOf(GameSettings, Estimate, Previous(false), Next(false) )
+      buttons = listOf(GameSettings, Estimate, Previous(false), Next(false))
     ),
     onUserAction = {},
     onBackPressed = {},
@@ -474,10 +492,10 @@ fun PreviewKODialog() {
 @Preview
 @Composable
 fun PreviewNewGameDialog() {
-  FaceToFaceScreen(
+  FaceToFaceContent(
     state = FaceToFaceState.INITIAL.copy(
       newGameDialogShowing = true,
-      buttons = listOf(GameSettings, Estimate, Previous(false), Next(false) )
+      buttons = listOf(GameSettings, Estimate, Previous(false), Next(false))
     ),
     onUserAction = {},
     onBackPressed = {},

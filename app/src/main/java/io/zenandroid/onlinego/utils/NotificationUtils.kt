@@ -14,7 +14,6 @@ import androidx.core.app.NotificationCompat
 import androidx.core.content.res.ResourcesCompat
 import android.view.View
 import android.widget.RemoteViews
-import androidx.core.os.bundleOf
 import androidx.navigation.NavDeepLinkBuilder
 import java.util.Locale
 import io.zenandroid.onlinego.OnlineGoApplication
@@ -25,9 +24,6 @@ import io.zenandroid.onlinego.data.model.local.ChallengeNotification
 import io.zenandroid.onlinego.data.model.local.Game
 import io.zenandroid.onlinego.data.model.local.GameNotificationWithDetails
 import io.zenandroid.onlinego.data.model.ogs.Phase
-import io.zenandroid.onlinego.ui.screens.game.GAME_HEIGHT
-import io.zenandroid.onlinego.ui.screens.game.GAME_ID
-import io.zenandroid.onlinego.ui.screens.game.GAME_WIDTH
 import io.zenandroid.onlinego.ui.screens.main.MainActivity
 import io.zenandroid.onlinego.ui.views.BoardView
 
@@ -171,15 +167,16 @@ class NotificationUtils {
             }
             games.forEach {
                 context.resources.getDimensionPixelSize(android.R.dimen.notification_large_icon_width)
+                //TODO: FIXME!!!
                 val pendingIntent = NavDeepLinkBuilder(context)
                     .setComponentName(MainActivity::class.java)
-                    .setGraph(R.navigation.graph)
-                    .setDestination(R.id.gameFragment)
-                    .setArguments(bundleOf(
-                        GAME_ID to it.id,
-                        GAME_WIDTH to it.width,
-                        GAME_HEIGHT to it.height
-                    ))
+//                    .setGraph(R.navigation.graph)
+//                    .setDestination(R.id.gameFragment)
+//                    .setArguments(bundleOf(
+//                        GAME_ID to it.id,
+//                        GAME_WIDTH to it.width,
+//                        GAME_HEIGHT to it.height
+//                    ))
                     .createPendingIntent()
 
                 val opponent = if (userId == it.blackPlayer.id) it.whitePlayer.username else it.blackPlayer.username
