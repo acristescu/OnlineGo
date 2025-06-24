@@ -11,6 +11,7 @@ import io.zenandroid.onlinego.ui.screens.puzzle.directory.PuzzleDirectorySort.Co
 import io.zenandroid.onlinego.ui.screens.puzzle.directory.PuzzleDirectorySort.NameSort
 import io.zenandroid.onlinego.ui.screens.puzzle.directory.PuzzleDirectorySort.RatingSort
 import io.zenandroid.onlinego.ui.screens.puzzle.directory.PuzzleDirectorySort.ViewsSort
+import io.zenandroid.onlinego.utils.analyticsReportScreen
 import io.zenandroid.onlinego.utils.recordException
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
@@ -27,7 +28,6 @@ import kotlinx.coroutines.launch
 
 class PuzzleDirectoryViewModel(
   private val puzzleRepository: PuzzleRepository,
-  private val settingsRepository: SettingsRepository,
 ) : ViewModel() {
   private val _state = MutableStateFlow(
     PuzzleDirectoryState(
@@ -47,6 +47,7 @@ class PuzzleDirectoryViewModel(
   private val errorHandler = CoroutineExceptionHandler { _, throwable -> onError(throwable) }
 
   init {
+    analyticsReportScreen("PuzzleDirectory")
     viewModelScope.launch(errorHandler) { puzzleRepository.fetchAllPuzzleCollections() }
     viewModelScope.launch(errorHandler) {
       combine(
@@ -115,9 +116,19 @@ class PuzzleDirectoryViewModel(
     }
   }
 
-  suspend fun getFirstUnsolvedForCollection(collection: PuzzleCollection): Long {
-    return puzzleRepository.getPuzzleCollectionFirstUnsolved(collection.id)
-        ?: collection.starting_puzzle.id
+  fun onPuzzleCollectionClick(collection: PuzzleCollection) {
+    viewModelScope.launch(Dispatchers.IO) {
+      try {
+        val puzzleId = puzzleRepository.getPuzzleCollectionFirstUnsolved(collection.id) ?: collection.starting_puzzle.id
+        _state.update { it.copy(navigateToPuzzle = collection.id to puzzleId) }
+      } catch (e: Exception) {
+        onError(e)
+      }
+    }
+  }
+
+  fun onPuzzleNavigated() {
+    _state.update { it.copy(navigateToPuzzle = null) }
   }
 
   private fun onError(t: Throwable) {

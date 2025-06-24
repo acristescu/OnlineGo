@@ -29,6 +29,10 @@ import io.zenandroid.onlinego.ui.screens.joseki.JosekiExplorerScreen
 import io.zenandroid.onlinego.ui.screens.learn.LearnScreen
 import io.zenandroid.onlinego.ui.screens.localai.AiGameScreen
 import io.zenandroid.onlinego.ui.screens.mygames.MyGamesScreen
+import io.zenandroid.onlinego.ui.screens.puzzle.directory.PuzzleDirectoryScreen
+import io.zenandroid.onlinego.ui.screens.puzzle.tsumego.TsumegoScreen
+import io.zenandroid.onlinego.ui.screens.settings.SettingsScreen
+import io.zenandroid.onlinego.ui.screens.stats.StatsScreen
 import io.zenandroid.onlinego.ui.screens.tutorial.TutorialScreen
 import io.zenandroid.onlinego.ui.theme.LocalBoardTheme
 import io.zenandroid.onlinego.ui.theme.LocalShowCoordinates
@@ -47,7 +51,7 @@ fun OnlineGoApp(isLoggedIn: Boolean) {
   val settingsRepository: SettingsRepository = koinInject()
 
   val showBottomBar = currentDestination in listOf("myGames", "learn", "stats", "settings")
-  val m3Destinations = listOf("myGames", "learn")
+  val m3Destinations = listOf("myGames", "learn", "stats", "settings", "puzzleDirectory")
 
   // TODO: make the settings reactive flows
   CompositionLocalProvider(
@@ -92,24 +96,21 @@ fun OnlineGoApp(isLoggedIn: Boolean) {
             arguments = listOf(
               navArgument("gameId") { type = NavType.LongType },
               navArgument("gameWidth") { type = NavType.IntType },
-              navArgument("gameHeight") { type = NavType.IntType }
-            )
+              navArgument("gameHeight") { type = NavType.IntType })
           ) { backStackEntry ->
             GameScreen(
               onNavigateBack = { navController.popBackStack() },
               onNavigateToGameScreen = { game ->
                 navController.popBackStack()
                 navController.navigate("game/${game.id}/${game.width}/${game.height}")
-              }
-            )
+              })
           }
 
           composable("learn") {
             LearnScreen(
               onJosekiExplorer = { navController.navigate("josekiExplorer") },
               onPuzzles = { navController.navigate("puzzleDirectory") },
-              onTutorial = { tutorial -> navController.navigate("tutorial/${tutorial.name}") }
-            )
+              onTutorial = { tutorial -> navController.navigate("tutorial/${tutorial.name}") })
           }
 
           composable(
@@ -117,12 +118,57 @@ fun OnlineGoApp(isLoggedIn: Boolean) {
             arguments = listOf(navArgument("tutorialName") { type = NavType.StringType })
           ) { backStackEntry ->
             TutorialScreen(
-              onNavigateBack = { navController.popBackStack() }
-            )
+              onNavigateBack = { navController.popBackStack() })
           }
 
           composable("josekiExplorer") {
             JosekiExplorerScreen(
+              onNavigateBack = { navController.popBackStack() })
+          }
+
+          composable("settings") {
+            SettingsScreen(
+              onNavigateToLogin = {
+                navController.navigate(
+                  "onboarding",
+                  navOptions = androidx.navigation.NavOptions.Builder()
+                    .setPopUpTo("myGames", inclusive = true).build()
+                )
+              },
+              onNavigateToSupport = {
+                navController.navigate("supporter")
+              },
+            )
+          }
+
+          composable(
+            "otherPlayerStats?playerId={playerId}",
+            arguments = listOf(navArgument("playerId") { type = NavType.StringType })
+          ) { backStackEntry ->
+            StatsScreen()
+          }
+
+          composable("stats") {
+            StatsScreen()
+          }
+
+          composable("puzzleDirectory") {
+            PuzzleDirectoryScreen(
+              onNavigateBack = { navController.popBackStack() },
+              onNavigateToPuzzle = { collectionId, puzzleId ->
+                navController.navigate("tsumego/$collectionId/$puzzleId")
+              }
+            )
+          }
+
+          composable(
+            "tsumego/{collectionId}/{puzzleId}",
+            arguments = listOf(
+              navArgument("collectionId") { type = NavType.LongType },
+              navArgument("puzzleId") { type = NavType.LongType }
+            )
+          ) { backStackEntry ->
+            TsumegoScreen(
               onNavigateBack = { navController.popBackStack() }
             )
           }

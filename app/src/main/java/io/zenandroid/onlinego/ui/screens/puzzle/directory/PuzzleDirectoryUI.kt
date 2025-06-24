@@ -53,30 +53,54 @@ import io.zenandroid.onlinego.ui.composables.RatingBar
 import io.zenandroid.onlinego.ui.composables.SearchTextField
 import io.zenandroid.onlinego.ui.composables.SortChip
 import io.zenandroid.onlinego.utils.convertCountryCodeToEmojiFlag
+import io.zenandroid.onlinego.utils.rememberStateWithLifecycle
+import org.koin.androidx.compose.koinViewModel
 
+@Composable
+fun PuzzleDirectoryScreen(
+  viewModel: PuzzleDirectoryViewModel = koinViewModel(),
+  onNavigateBack: () -> Unit,
+  onNavigateToPuzzle: (Long, Long) -> Unit,
+) {
+  val state by rememberStateWithLifecycle(viewModel.state)
+
+  state.navigateToPuzzle?.let {
+    onNavigateToPuzzle(it.first, it.second)
+    viewModel.onPuzzleNavigated()
+  }
+
+  PuzzleDirectoryContent(
+    state = state,
+    onCollection = viewModel::onPuzzleCollectionClick,
+    onBack = onNavigateBack,
+    onSortChanged = viewModel::onSortChanged,
+    onFilterChanged = viewModel::onFilterChanged,
+    onToggleOnlyOpened = viewModel::onToggleOnlyOpened,
+  )
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PuzzleDirectoryScreen(
-    state: PuzzleDirectoryState,
-    onCollection: (PuzzleCollection) -> Unit,
-    onBack: () -> Unit,
-    onSortChanged: (PuzzleDirectorySort) -> Unit,
-    onFilterChanged: (String) -> Unit,
-    onToggleOnlyOpened: () -> Unit,
+private fun PuzzleDirectoryContent(
+  state: PuzzleDirectoryState,
+  onCollection: (PuzzleCollection) -> Unit,
+  onBack: () -> Unit,
+  onSortChanged: (PuzzleDirectorySort) -> Unit,
+  onFilterChanged: (String) -> Unit,
+  onToggleOnlyOpened: () -> Unit,
 ) {
   val listState = rememberLazyListState()
 
   Column {
     TopAppBar(
-        title = {
-          Text(text = "Puzzles", fontSize = 18.sp)
-        },
-        navigationIcon = {
-          IconButton(onClick = { onBack() }) {
-            Icon(imageVector = Icons.AutoMirrored.Default.ArrowBack, contentDescription = null)
-          }
-        },
+      title = {
+        Text(text = "Puzzles", fontSize = 18.sp)
+      },
+      navigationIcon = {
+        IconButton(onClick = { onBack() }) {
+          Icon(imageVector = Icons.AutoMirrored.Default.ArrowBack, contentDescription = null)
+        }
+      },
     )
 
     LazyColumn(state = listState, modifier = Modifier.fillMaxHeight()) {
@@ -84,97 +108,134 @@ fun PuzzleDirectoryScreen(
         var filterExpanded by remember { mutableStateOf(false) }
 
         FilterSortPanel(
-            filterIcon = {
-              IconButton(onClick = { filterExpanded = true }) {
-                Icon(
-                    imageVector = Icons.Default.Search,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSurface,
-                )
-              }
-            },
-            filterTextField = {
-              Surface {
-                SearchTextField(
-                    value = state.filterString ?: "",
-                    onValueChange = { onFilterChanged(it) },
-                    hint = "Search",
-                    modifier = Modifier
-                        .padding(horizontal = 8.dp)
-                        .fillMaxWidth(),
-                    onCleared = {
-                      onFilterChanged("")
-                      filterExpanded = false
-                    },
-                )
-              }
-            },
-            filterExpanded = filterExpanded,
-            modifier = Modifier.padding(vertical = 8.dp),
+          filterIcon = {
+            IconButton(onClick = { filterExpanded = true }) {
+              Icon(
+                imageVector = Icons.Default.Search,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurface,
+              )
+            }
+          },
+          filterTextField = {
+            Surface {
+              SearchTextField(
+                value = state.filterString ?: "",
+                onValueChange = { onFilterChanged(it) },
+                hint = "Search",
+                modifier = Modifier
+                  .padding(horizontal = 8.dp)
+                  .fillMaxWidth(),
+                onCleared = {
+                  onFilterChanged("")
+                  filterExpanded = false
+                },
+              )
+            }
+          },
+          filterExpanded = filterExpanded,
+          modifier = Modifier.padding(vertical = 8.dp),
         ) {
           FilterChip(
-              selected = state.onlyOpenend,
-              leadingIcon = {
-                AnimatedVisibility(visible = state.onlyOpenend) {
-                  Icon(
-                      imageVector = Icons.Default.Done,
-                      contentDescription = null,
-                  )
-                }
-              },
-              onClick = onToggleOnlyOpened,
-              label = {
-                Text(text = "Recently opened")
-              },
+            selected = state.onlyOpenend,
+            leadingIcon = {
+              AnimatedVisibility(visible = state.onlyOpenend) {
+                Icon(
+                  imageVector = Icons.Default.Done,
+                  contentDescription = null,
+                )
+              }
+            },
+            onClick = onToggleOnlyOpened,
+            label = {
+              Text(text = "Recently opened")
+            },
           )
 
           Spacer(modifier = Modifier.weight(1f))
 
           SortChip(
-              sortOptions = state.availableSorts,
-              currentSortOption = state.currentSort,
-              onSortSelected = { onSortChanged(it as PuzzleDirectorySort) },
+            sortOptions = state.availableSorts,
+            currentSortOption = state.currentSort,
+            onSortSelected = { onSortChanged(it as PuzzleDirectorySort) },
           )
         }
       }
 
       items(items = state.collections, key = { it.id }) {
-        Surface(shape = MaterialTheme.shapes.medium, modifier = Modifier
+        Surface(
+          shape = MaterialTheme.shapes.medium, modifier = Modifier
             .height(150.dp)
             .fillMaxWidth()
-            .padding(horizontal = 8.dp, vertical = 4.dp)) {
+            .padding(horizontal = 8.dp, vertical = 4.dp)
+        ) {
           Row(modifier = Modifier.clickable { onCollection(it) }) {
             Column(modifier = Modifier.padding(horizontal = 10.dp, vertical = 10.dp)) {
               it.starting_puzzle.let {
                 val pos = remember {
-                  RulesManager.buildPos(moves = emptyList(), boardWidth = it.width, boardHeight = it.height, whiteInitialState = it.initial_state.white.toCoordinateSet(), blackInitialState = it.initial_state.black.toCoordinateSet())
+                  RulesManager.buildPos(
+                    moves = emptyList(),
+                    boardWidth = it.width,
+                    boardHeight = it.height,
+                    whiteInitialState = it.initial_state.white.toCoordinateSet(),
+                    blackInitialState = it.initial_state.black.toCoordinateSet()
+                  )
                 }
-                Board(boardWidth = it.width, boardHeight = it.height, position = pos, drawCoordinates = false, interactive = false, drawShadow = false, fadeInLastMove = false, fadeOutRemovedStones = false, modifier = Modifier
+                Board(
+                  boardWidth = it.width,
+                  boardHeight = it.height,
+                  position = pos,
+                  drawCoordinates = false,
+                  interactive = false,
+                  drawShadow = false,
+                  fadeInLastMove = false,
+                  fadeOutRemovedStones = false,
+                  modifier = Modifier
                     .weight(1f)
-                    .clip(MaterialTheme.shapes.small))
+                    .clip(MaterialTheme.shapes.small)
+                )
               }
               Spacer(modifier = Modifier.height(10.dp))
-              Row(modifier = Modifier
+              Row(
+                modifier = Modifier
                   .height(16.dp)
-                  .align(Alignment.CenterHorizontally)) {
+                  .align(Alignment.CenterHorizontally)
+              ) {
                 RatingBar(rating = it.rating, modifier = Modifier.align(Alignment.CenterVertically))
                 Spacer(modifier = Modifier.width(2.dp))
                 val ratingCount = when {
                   it.rating_count < 1000 -> "${it.rating_count}"
                   else -> "${it.rating_count / 1000}k"
                 }
-                Text(text = "($ratingCount)", color = MaterialTheme.colorScheme.onBackground, fontSize = 12.sp, modifier = Modifier.align(Alignment.CenterVertically))
+                Text(
+                  text = "($ratingCount)",
+                  color = MaterialTheme.colorScheme.onBackground,
+                  fontSize = 12.sp,
+                  modifier = Modifier.align(Alignment.CenterVertically)
+                )
               }
             }
-            Column(modifier = Modifier
+            Column(
+              modifier = Modifier
                 .weight(1f)
-                .padding(bottom = 8.dp, end = 4.dp)) {
+                .padding(bottom = 8.dp, end = 4.dp)
+            ) {
               Row {
                 Column(modifier = Modifier.padding(top = 8.dp, end = 8.dp)) {
-                  Text(text = it.name, style = TextStyle.Default.copy(fontSize = 16.sp, fontWeight = FontWeight.Bold))
+                  Text(
+                    text = it.name,
+                    style = TextStyle.Default.copy(fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                  )
                   it.owner?.let {
                     val flag = convertCountryCodeToEmojiFlag(it.country)
-                    Text(text = "by ${it.username} $flag", maxLines = 1, style = TextStyle.Default.copy(fontSize = 12.sp, fontWeight = FontWeight.Light))
+                    Text(
+                      text = "by ${it.username} $flag",
+                      maxLines = 1,
+                      style = TextStyle.Default.copy(
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Light
+                      )
+                    )
                   }
                 }
                 Spacer(modifier = Modifier.weight(1f))
@@ -186,14 +247,19 @@ fun PuzzleDirectoryScreen(
               }
               Spacer(modifier = Modifier.weight(1f))
               Row(
-                  horizontalArrangement = Arrangement.SpaceBetween,
-                  modifier = Modifier
-                      .padding(top = 8.dp, end = 8.dp)
-                      .fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier
+                  .padding(top = 8.dp, end = 8.dp)
+                  .fillMaxWidth(),
               ) {
                 Column(modifier = Modifier) {
                   Text(text = "Count", fontSize = 13.sp, fontWeight = FontWeight.Bold)
-                  Text(text = "${it.puzzle_count} puzzle(s)", maxLines = 1, fontSize = 11.sp, fontWeight = FontWeight.Medium)
+                  Text(
+                    text = "${it.puzzle_count} puzzle(s)",
+                    maxLines = 1,
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.Medium
+                  )
                 }
                 Column(modifier = Modifier) {
                   fun rankToString(rank: Int) = when {
@@ -201,22 +267,29 @@ fun PuzzleDirectoryScreen(
                     else -> "${rank - 29}d"
                   }
                   Text(text = "Rank", fontSize = 13.sp, fontWeight = FontWeight.Bold)
-                  Text(text = if (it.min_rank == it.max_rank) {
-                    rankToString(it.min_rank)
-                  } else {
-                    "${rankToString(it.min_rank)} to ${rankToString(it.max_rank)}"
-                  }, maxLines = 1, fontSize = 11.sp, fontWeight = FontWeight.Medium)
+                  Text(
+                    text = if (it.min_rank == it.max_rank) {
+                      rankToString(it.min_rank)
+                    } else {
+                      "${rankToString(it.min_rank)} to ${rankToString(it.max_rank)}"
+                    }, maxLines = 1, fontSize = 11.sp, fontWeight = FontWeight.Medium
+                  )
                 }
                 Column(modifier = Modifier) {
                   val solutions = state.solutions[it.id] ?: 0
                   val percentage = (solutions * 100f) / it.puzzle_count
                   Text(text = "Solved", fontSize = 13.sp, fontWeight = FontWeight.Bold)
                   Row {
-                    Text(text = "$solutions (${
-                      "%.1f".format(percentage)
-                    }%)", maxLines = 1, fontSize = 11.sp, fontWeight = FontWeight.Medium)
+                    Text(
+                      text = "$solutions (${
+                        "%.1f".format(percentage)
+                      }%)", maxLines = 1, fontSize = 11.sp, fontWeight = FontWeight.Medium
+                    )
                     if (percentage >= 100f) {
-                      Image(painter = painterResource(R.drawable.ic_check_circle), contentDescription = "Completed")
+                      Image(
+                        painter = painterResource(R.drawable.ic_check_circle),
+                        contentDescription = "Completed"
+                      )
                     }
                   }
                 }
@@ -240,12 +313,12 @@ fun PuzzleDirectoryScreen(
                   else -> (it.attempt_count / 1_000_000).toString() + "M"
                 }
                 Text(
-                    text = "$viewCount views, solved $solvedCount times of $attemptCount ($solveRate %)",
-                    maxLines = 1,
-                    fontSize = 11.sp,
-                    fontStyle = FontStyle.Italic,
-                    fontWeight = FontWeight.Light,
-                    color = MaterialTheme.colorScheme.onBackground,
+                  text = "$viewCount views, solved $solvedCount times of $attemptCount ($solveRate %)",
+                  maxLines = 1,
+                  fontSize = 11.sp,
+                  fontStyle = FontStyle.Italic,
+                  fontWeight = FontWeight.Light,
+                  color = MaterialTheme.colorScheme.onBackground,
                 )
               }
             }
@@ -255,14 +328,14 @@ fun PuzzleDirectoryScreen(
       if (state.collections.isEmpty()) {
         item("placeholder") {
           Box(
-              contentAlignment = Alignment.Center,
-              modifier = Modifier
-                  .fillParentMaxSize()
-                  .padding(horizontal = 8.dp, vertical = 4.dp),
+            contentAlignment = Alignment.Center,
+            modifier = Modifier
+              .fillParentMaxSize()
+              .padding(horizontal = 8.dp, vertical = 4.dp),
           ) {
             Text(
-                text = "Loading...",
-                color = MaterialTheme.colorScheme.onBackground,
+              text = "Loading...",
+              color = MaterialTheme.colorScheme.onBackground,
             )
           }
         }

@@ -2,6 +2,7 @@ package io.zenandroid.onlinego.ui.screens.stats
 
 import android.util.Log
 import androidx.compose.runtime.Immutable
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.github.mikephil.charting.data.Entry
@@ -14,6 +15,7 @@ import io.zenandroid.onlinego.data.model.local.WinLossStats
 import io.zenandroid.onlinego.data.model.ogs.OGSPlayer
 import io.zenandroid.onlinego.data.ogs.OGSRestService
 import io.zenandroid.onlinego.data.repositories.SettingsRepository
+import io.zenandroid.onlinego.gamelogic.Util
 import io.zenandroid.onlinego.ui.screens.stats.StatsViewModel.Filter.ALL
 import io.zenandroid.onlinego.ui.screens.stats.StatsViewModel.Filter.ALL_GAMES
 import io.zenandroid.onlinego.ui.screens.stats.StatsViewModel.Filter.FIVE_YEARS
@@ -24,6 +26,7 @@ import io.zenandroid.onlinego.ui.screens.stats.StatsViewModel.Filter.THREE_MONTH
 import io.zenandroid.onlinego.ui.screens.stats.StatsViewModel.Filter.TWENTY_GAMES
 import io.zenandroid.onlinego.usecases.GetUserStatsUseCase
 import io.zenandroid.onlinego.utils.addToDisposable
+import io.zenandroid.onlinego.utils.analyticsReportScreen
 import io.zenandroid.onlinego.utils.egfToRank
 import io.zenandroid.onlinego.utils.formatRank
 import io.zenandroid.onlinego.utils.recordException
@@ -41,7 +44,7 @@ class StatsViewModel(
   private val restService: OGSRestService,
   private val getUserStatsUseCase: GetUserStatsUseCase,
   private val settingsRepository: SettingsRepository,
-  private val playerId: Long
+  private val savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
 
   private val subscriptions = CompositeDisposable()
@@ -54,6 +57,8 @@ class StatsViewModel(
   )
 
   init {
+    val playerId = savedStateHandle.get<String>("playerId")?.toLong() ?: Util.getCurrentUserId()!!
+    analyticsReportScreen("Stats")
     viewModelScope.launch {
       val result = getUserStatsUseCase.getPlayerStatsWithSizesAsync(playerId)
       result.fold(

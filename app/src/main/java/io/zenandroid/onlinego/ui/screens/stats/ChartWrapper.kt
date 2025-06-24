@@ -11,10 +11,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.ContentAlpha
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Tab
-import androidx.compose.material.TabRow
-import androidx.compose.material.Text
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRow
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
@@ -37,6 +37,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.res.ResourcesCompat
+import com.github.mikephil.charting.charts.BarLineChartBase
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.components.AxisBase
 import com.github.mikephil.charting.components.XAxis.XAxisPosition.BOTTOM
@@ -64,9 +65,12 @@ import io.zenandroid.onlinego.ui.screens.stats.StatsViewModel.Filter.THREE_MONTH
 import io.zenandroid.onlinego.ui.screens.stats.StatsViewModel.Filter.TWENTY_GAMES
 import io.zenandroid.onlinego.utils.egfToRank
 import io.zenandroid.onlinego.utils.formatRank
+import java.text.SimpleDateFormat
 import java.time.LocalDateTime
 import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
+import java.util.Date
+import java.util.Locale
 
 @SuppressLint("ClickableViewAccessibility")
 @Composable
@@ -282,16 +286,16 @@ private fun TimeRangeTabs(
   }
   TabRow(
     selectedTabIndex = index,
-    backgroundColor = Color.Transparent,
-    contentColor = MaterialTheme.colors.primary,
+    contentColor = MaterialTheme.colorScheme.primary,
+    containerColor = Color.Transparent,
   ) {
     tabs.forEach { range ->
-      Tab(
+      Tab (
         selected = range == filter,
         onClick = { onFilterChanged(range) },
         text = { Text(text = range.toPrettyName()) },
-        selectedContentColor = MaterialTheme.colors.primary,
-        unselectedContentColor = MaterialTheme.colors.onSurface.copy(alpha = 0.6f),
+        selectedContentColor = MaterialTheme.colorScheme.primary,
+        unselectedContentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
       )
     }
   }
@@ -358,6 +362,29 @@ private object ChartValueSelectedListener : OnChartValueSelectedListener {
           else append(" since ${formatDate(first.x.toLong())}")
         }
       )
+    }
+  }
+}
+
+class DayAxisValueFormatter(private val chart: BarLineChartBase<*>) : ValueFormatter() {
+
+  private val yearFormatter = SimpleDateFormat("yyyy", Locale.US)
+  private val monthFormatter = SimpleDateFormat("MMM''yy", Locale.US)
+  private val dayFormatter = SimpleDateFormat("dd MMM", Locale.US)
+
+  override fun getFormattedValue(secondsSinceEpoch: Float): String? {
+    return when {
+      chart.visibleXRange > 189_216_000 -> { // 6 years
+        yearFormatter.format(Date(secondsSinceEpoch.toLong() * 1000)).toString()
+      }
+
+      chart.visibleXRange > 15_780_000 -> { // 6 months
+        monthFormatter.format(Date(secondsSinceEpoch.toLong() * 1000)).toString()
+      }
+
+      else -> {
+        dayFormatter.format(Date(secondsSinceEpoch.toLong() * 1000)).toString()
+      }
     }
   }
 }

@@ -101,20 +101,3 @@ private val DarkColorPaletteM3 = darkColorScheme(
     onPrimary = nightOnPrimary,
     onSecondary = nightOnPrimary,
 )
-
-
-@Composable
-fun OnlineGoThemeM3(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable () -> Unit) {
-    val colors = if (darkTheme) {
-        DarkColorPaletteM3
-    } else {
-        LightColorPaletteM3
-    }
-
-    androidx.compose.material3.MaterialTheme(
-            colorScheme = colors,
-            typography = typographyM3,
-            shapes = shapesM3,
-            content = content
-    )
-}

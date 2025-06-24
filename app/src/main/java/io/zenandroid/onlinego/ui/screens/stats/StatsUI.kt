@@ -1,9 +1,5 @@
 package io.zenandroid.onlinego.ui.screens.stats
 
-import android.annotation.SuppressLint
-import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.ViewGroup
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -19,10 +15,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
-import androidx.compose.material.Switch
-import androidx.compose.material.Text
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Switch
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -34,7 +29,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -42,86 +36,40 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.fragment.app.Fragment
-import com.github.mikephil.charting.charts.BarLineChartBase
-import com.github.mikephil.charting.data.*
-import com.github.mikephil.charting.formatter.ValueFormatter
-import com.github.mikephil.charting.listener.ChartTouchListener.*
+import com.github.mikephil.charting.data.Entry
 import io.zenandroid.onlinego.data.model.local.WinLossStats
-import io.zenandroid.onlinego.gamelogic.Util
 import io.zenandroid.onlinego.ui.screens.game.composables.BoxWithImage
 import io.zenandroid.onlinego.ui.screens.game.composables.shimmer
+import io.zenandroid.onlinego.ui.screens.mygames.composables.SenteCard
 import io.zenandroid.onlinego.ui.screens.stats.StatsViewModel.Filter
 import io.zenandroid.onlinego.ui.screens.stats.StatsViewModel.StatsState
 import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
-import io.zenandroid.onlinego.utils.analyticsReportScreen
 import io.zenandroid.onlinego.utils.egfToRank
 import io.zenandroid.onlinego.utils.formatRank
 import io.zenandroid.onlinego.utils.rememberStateWithLifecycle
-import org.koin.androidx.viewmodel.ext.android.viewModel
-import org.koin.core.parameter.parametersOf
-import java.text.SimpleDateFormat
-import java.util.*
+import org.koin.androidx.compose.koinViewModel
 import kotlin.math.abs
 
-const val PLAYER_ID = "PLAYER_ID"
+@Composable
+fun StatsScreen(
+  viewModel: StatsViewModel = koinViewModel()
+) {
+  val state by rememberStateWithLifecycle(viewModel.state)
 
-@SuppressLint("SetTextI18n")
-class StatsFragment : Fragment() {
-
-  private val viewModel: StatsViewModel by viewModel {
-    parametersOf(
-      arguments?.getLong(PLAYER_ID) ?: Util.getCurrentUserId()!!
-    )
-  }
-
-  override fun onCreateView(
-    inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
-  ) = ComposeView(requireContext()).apply {
-    setContent {
-      OnlineGoTheme {
-        val state by rememberStateWithLifecycle(viewModel.state)
-
-        StatsScreen(state, viewModel::onFilterChanged, viewModel::onGraphChanged)
-      }
-    }
-  }
-
-  override fun onResume() {
-    super.onResume()
-    analyticsReportScreen("Stats")
-  }
+  StatsContent(state, viewModel::onFilterChanged, viewModel::onGraphChanged)
 }
 
-class DayAxisValueFormatter(private val chart: BarLineChartBase<*>) : ValueFormatter() {
-
-  private val yearFormatter = SimpleDateFormat("yyyy", Locale.US)
-  private val monthFormatter = SimpleDateFormat("MMM''yy", Locale.US)
-  private val dayFormatter = SimpleDateFormat("dd MMM", Locale.US)
-
-  override fun getFormattedValue(secondsSinceEpoch: Float): String? {
-    return when {
-      chart.visibleXRange > 189_216_000 -> { // 6 years
-        yearFormatter.format(Date(secondsSinceEpoch.toLong() * 1000)).toString()
-      }
-
-      chart.visibleXRange > 15_780_000 -> { // 6 months
-        monthFormatter.format(Date(secondsSinceEpoch.toLong() * 1000)).toString()
-      }
-
-      else -> {
-        dayFormatter.format(Date(secondsSinceEpoch.toLong() * 1000)).toString()
-      }
-    }
-  }
-}
-
-@Composable private fun StatsScreen(state: StatsState, onFilterChanged: (Filter) -> Unit, onGraphChanged: () -> Unit) {
+@Composable
+private fun StatsContent(
+  state: StatsState,
+  onFilterChanged: (Filter) -> Unit,
+  onGraphChanged: () -> Unit
+) {
   var scrollEnabled by remember { mutableStateOf(true) }
   Column(
     modifier = Modifier
       .fillMaxSize()
-      .background(MaterialTheme.colors.background)
+      .background(MaterialTheme.colorScheme.background)
       .verticalScroll(
         state = rememberScrollState(),
         enabled = scrollEnabled,
@@ -137,8 +85,8 @@ class DayAxisValueFormatter(private val chart: BarLineChartBase<*>) : ValueForma
       Spacer(modifier = Modifier.height(15.dp))
       Text(
         text = state.playerDetails?.username ?: "              ",
-        style = MaterialTheme.typography.h1,
-        color = MaterialTheme.colors.onSurface,
+        style = MaterialTheme.typography.headlineLarge,
+        color = MaterialTheme.colorScheme.onSurface,
         modifier = Modifier
           .padding(top = 14.dp, bottom = 8.dp)
           .shimmer(state.playerDetails?.username == null)
@@ -153,8 +101,8 @@ class DayAxisValueFormatter(private val chart: BarLineChartBase<*>) : ValueForma
 
       Text(
         text = "$rank · ELO $rating",
-        color = MaterialTheme.colors.onSurface,
-        style = MaterialTheme.typography.body2,
+        color = MaterialTheme.colorScheme.onSurface,
+        style = MaterialTheme.typography.bodyMedium,
         modifier = Modifier
           .padding(bottom = 16.dp)
           .shimmer(state.playerDetails?.ratings?.overall?.rating == null)
@@ -192,7 +140,7 @@ class DayAxisValueFormatter(private val chart: BarLineChartBase<*>) : ValueForma
           checked = state.collapseTimeByGame == true,
           onCheckedChange = { onGraphChanged() },
           modifier = Modifier
-              .padding(end = 10.dp)
+            .padding(end = 10.dp)
         )
       }
     ) {
@@ -409,7 +357,7 @@ private fun WinLossStatsBar(
         textAlign = TextAlign.End,
         fontWeight = FontWeight.SemiBold,
         fontSize = 16.sp,
-        color = MaterialTheme.colors.onSurface,
+        color = MaterialTheme.colorScheme.onSurface,
         modifier = Modifier
           .align(Alignment.CenterVertically)
           .shimmer(stats == null),
@@ -420,7 +368,7 @@ private fun WinLossStatsBar(
         .fillMaxWidth()
         .height(12.dp)
         .clip(RoundedCornerShape(6.dp))
-        .background(MaterialTheme.colors.onSurface.copy(alpha = 0.15f))
+        .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.15f))
     ) {
       Row {
         val normalized = (abs(value) / 20f).coerceIn(0.05f, 1f)
@@ -445,7 +393,8 @@ private fun WinLossStatsBar(
   }
 }
 
-@Composable private fun StatsBar(
+@Composable
+private fun StatsBar(
   modifier: Modifier = Modifier,
   text: String,
   textMiddle: String? = null,
@@ -492,7 +441,8 @@ private fun WinLossStatsBar(
   }
 }
 
-@Composable private fun StatsSurface(
+@Composable
+private fun StatsSurface(
   title: String,
   modifier: Modifier = Modifier,
   key: @Composable () -> Unit = {},
@@ -504,14 +454,14 @@ private fun WinLossStatsBar(
         text = title,
         fontSize = 14.sp,
         fontWeight = FontWeight.Bold,
-        color = MaterialTheme.colors.onBackground,
-        modifier = modifier.padding(start = 8.dp, top = 16.dp)
-            .weight(1f)
+        color = MaterialTheme.colorScheme.onBackground,
+        modifier = modifier
+          .padding(start = 8.dp, top = 16.dp)
+          .weight(1f)
       )
       key()
     }
-    Surface(
-      shape = MaterialTheme.shapes.medium,
+    SenteCard(
       modifier = Modifier
         .fillMaxWidth()
         .padding(start = 8.dp, end = 8.dp, top = 8.dp)
@@ -528,7 +478,8 @@ private val COLORS_DARK = listOf(
   Color(0xFFC63A38), Color(0xFF06B9A2), Color(0xFFFFCC00)
 )
 
-@Composable private fun StatsChart(
+@Composable
+private fun StatsChart(
   modifier: Modifier = Modifier,
   values: List<Float>,
   topText: String? = null,
@@ -578,8 +529,7 @@ private val COLORS_DARK = listOf(
 @Composable
 private fun PreviewGainLossBar() {
   OnlineGoTheme {
-    Surface(
-      shape = MaterialTheme.shapes.medium,
+    SenteCard(
       modifier = Modifier
         .fillMaxWidth()
         .padding(horizontal = 8.dp, vertical = 8.dp)
@@ -597,7 +547,8 @@ private fun PreviewGainLossBar() {
 @Preview
 private fun Preview() {
   OnlineGoTheme {
-    StatsScreen(StatsState.Initial.copy(
+    StatsContent(
+      StatsState.Initial.copy(
       chartData = listOf(
         Entry(1f, 1f),
         Entry(2f, 5f),

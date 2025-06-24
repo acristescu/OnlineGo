@@ -14,4 +14,5 @@ data class PuzzleDirectoryState (
     val onlyOpenend: Boolean = false,
     val availableSorts: List<PuzzleDirectorySort> = emptyList(),
     val currentSort: PuzzleDirectorySort = PuzzleDirectorySort.RatingSort(false),
+    val navigateToPuzzle: Pair<Long, Long>? = null,
 )

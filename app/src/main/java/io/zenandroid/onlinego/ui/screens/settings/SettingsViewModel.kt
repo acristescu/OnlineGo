@@ -1,10 +1,13 @@
 package io.zenandroid.onlinego.ui.screens.settings
 
+import android.content.Context
 import android.os.Build
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.zenandroid.onlinego.data.model.BoardTheme
 import io.zenandroid.onlinego.data.repositories.SettingsRepository
 import io.zenandroid.onlinego.data.repositories.UserSessionRepository
@@ -86,6 +89,8 @@ class SettingsViewModel(
         state.update { it.copy(theme = action.theme) }
       }
 
+      is SettingsAction.Logout -> doLogout(action.context)
+
       is BoardThemeClicked -> {
         settingsRepository.boardTheme =
           BoardTheme.entries.find { it.displayName == action.boardDisplayName }!!
@@ -149,6 +154,14 @@ class SettingsViewModel(
     }
   }
 
+  private fun doLogout(context: Context?) {
+    context?.let { FirebaseAnalytics.getInstance(it).logEvent("logout_clicked", null) }
+    FirebaseCrashlytics.getInstance().sendUnsentReports()
+    userSessionRepository.logOut()
+    state.update {
+      it.copy(isLoggedOut = true)
+    }
+  }
 }
 
 @Immutable
@@ -163,6 +176,7 @@ data class SettingsState(
   val passwordDialogVisible: Boolean = false,
   val modalVisible: Boolean = false,
   val deleteAccountError: String? = null,
+  val isLoggedOut: Boolean = false,
 )
 
 sealed interface SettingsAction {
@@ -178,4 +192,14 @@ sealed interface SettingsAction {
   data class DeleteAccountConfirmed(val password: String) : SettingsAction
   data object PrivacyClicked : SettingsAction
   data object SupportClicked : SettingsAction
+  data class Logout(val context: Context?) : SettingsAction
 }
+
+@Immutable
+data class DialogData(
+  val title: String,
+  val message: String,
+  val positiveButton: String,
+  val negativeButton: String,
+  val onPositive: () -> Unit,
+)

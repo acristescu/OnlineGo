@@ -121,7 +121,7 @@ private val serverConnectionModule = module {
 private val databaseModule = module {
   single {
     Room.databaseBuilder(get(), Database::class.java, "database.db")
-      .fallbackToDestructiveMigration()
+      .fallbackToDestructiveMigration(dropAllTables = true)
       .build()
   }
 
@@ -141,10 +141,7 @@ private val useCasesModule = module {
 }
 
 private val viewModelsModule = module {
-  viewModel { params ->
-    TsumegoViewModel(get(), params.get(), params.get())
-  }
-
+  viewModelOf(::TsumegoViewModel)
   viewModelOf(::PuzzleDirectoryViewModel)
   viewModelOf(::NewAutomatchChallengeViewModel)
   viewModelOf(::NewChallengeViewModel)
@@ -156,6 +153,7 @@ private val viewModelsModule = module {
   viewModelOf(::TutorialViewModel)
   viewModelOf(::OnboardingViewModel)
   viewModelOf(::SupporterViewModel)
+  viewModelOf(::GameViewModel)
 
   viewModel {
     MyGamesViewModel(
@@ -174,7 +172,6 @@ private val viewModelsModule = module {
     )
   }
 
-  viewModelOf(::GameViewModel)
 
   viewModel {
     FaceToFaceViewModel(
