@@ -21,8 +21,6 @@ android {
         versionCode = 42
         versionName = "alpha_b${versionCode}"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        vectorDrawables.useSupportLibrary = true
-        multiDexEnabled = true
         buildConfigField("String", "BASE_URL", "\"https://online-go.com\"")
     }
     
@@ -119,7 +117,6 @@ dependencies {
 
     // Android Core
     implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.appcompat)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.lifecycle.extensions)
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
@@ -157,15 +154,11 @@ dependencies {
 
     // Image Loading
     implementation(libs.coil.compose)
-    implementation(libs.glide)
-    ksp(libs.glide.compiler)
 
     implementation(libs.navigation.compose)
 
     // UI & Material Design
     implementation(libs.material)
-    implementation(libs.constraintlayout)
-    implementation(libs.cardview)
     implementation(libs.legacy.preference.v14)
     implementation(libs.material.progress.bar)
 
@@ -180,14 +173,6 @@ dependencies {
         // excluding org.json which is provided by Android
         exclude(group = "org.json", module = "json")
     }
-
-    // Development & Debugging
-    implementation(libs.stetho)
-    implementation(libs.stetho.okhttp3)
-
-    // UI Libraries
-    implementation(libs.groupie)
-    implementation(libs.groupie.viewbinding)
 
     // Core Library Desugaring
     coreLibraryDesugaring(libs.desugar.jdk.libs)

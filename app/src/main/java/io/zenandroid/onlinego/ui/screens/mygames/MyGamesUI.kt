@@ -16,6 +16,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -28,11 +29,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import io.zenandroid.onlinego.data.model.local.Challenge
 import io.zenandroid.onlinego.data.model.local.Game
 import io.zenandroid.onlinego.data.model.local.Player
 import io.zenandroid.onlinego.data.model.ogs.OGSAutomatch
 import io.zenandroid.onlinego.data.model.ogs.SizeSpeedOption
+import io.zenandroid.onlinego.ui.screens.automatch.NewAutomatchChallengeBottomSheet
 import io.zenandroid.onlinego.ui.screens.mygames.composables.AutomatchItem
 import io.zenandroid.onlinego.ui.screens.mygames.composables.ChallengeDetailsDialog
 import io.zenandroid.onlinego.ui.screens.mygames.composables.ChallengeItem
@@ -54,9 +59,26 @@ fun MyGamesScreen(
   onNavigateToGame: (Game) -> Unit,
   onNavigateToAIGame: () -> Unit,
   onNavigateToFaceToFace: () -> Unit,
+  onNavigateToSupporter: () -> Unit,
 ) {
   val viewModel: MyGamesViewModel = koinViewModel()
   val state by rememberStateWithLifecycle(viewModel.state)
+
+  val lifecycleOwner = LocalLifecycleOwner.current
+
+  DisposableEffect(lifecycleOwner) {
+    val observer = LifecycleEventObserver { _, event ->
+      if (event == Lifecycle.Event.ON_RESUME) {
+        viewModel.onAction(Action.ViewResumed)
+      }
+    }
+
+    lifecycleOwner.lifecycle.addObserver(observer)
+
+    onDispose {
+      lifecycleOwner.lifecycle.removeObserver(observer)
+    }
+  }
 
   MyGamesContent(state, viewModel::onAction, onNavigateToAIGame, onNavigateToFaceToFace)
 
@@ -87,7 +109,7 @@ fun MyGamesScreen(
         }
       },
       confirmButton = {
-        TextButton(onClick = { viewModel.onAction(Action.SupportClicked) }) {
+        TextButton(onClick = onNavigateToSupporter) {
           Text("SUPPORT")
         }
       },
@@ -135,32 +157,6 @@ fun MyGamesScreen(
   }
 }
 
-//private fun onAction(action: Action) {
-//  when (action) {
-//
-//    Action.PlayOnline -> {
-//      analytics.logEvent("automatch_item_clicked", null)
-//      (activity as MainActivity).onAutoMatchSearch()
-//    }
-//
-//    Action.SupportClicked -> {
-//      analytics.logEvent("support_whats_new_clicked", null)
-//      (activity as MainActivity).onNavigateToSupport()
-//    }
-//
-//    is GameSelected -> {
-//      val game = action.game
-//      analytics.logEvent("clicked_game", Bundle().apply {
-//        putLong("GAME_ID", game.id)
-//        putBoolean("ACTIVE_GAME", game.ended == null)
-//      })
-//      navigateToGameScreen(game)
-//    }
-//
-//    else -> viewModel.onAction(action)
-//  }
-//}
-
 @ExperimentalFoundationApi
 @ExperimentalComposeUiApi
 @Composable
@@ -171,6 +167,7 @@ fun MyGamesContent(
   onNavigateToFaceToFace: () -> Unit,
 ) {
   var newChallengeBottomSheetVisible by remember { mutableStateOf(false) }
+  var newAutomatchChallengeBottomSheetVisible by remember { mutableStateOf(false) }
   val listState = rememberLazyListState()
   LazyColumn(
     state = listState,
@@ -228,7 +225,7 @@ fun MyGamesContent(
         onCustomGame = { newChallengeBottomSheetVisible = true },
         onPlayAgainstAI = onNavigateToAIGame,
         onFaceToFace = onNavigateToFaceToFace,
-        onPlayOnline = { },
+        onPlayOnline = { newAutomatchChallengeBottomSheetVisible = true },
       )
     }
 
@@ -273,6 +270,15 @@ fun MyGamesContent(
       onNewChallengeSearchClicked = {
         onAction(Action.NewChallengeSearchClicked(it))
         newChallengeBottomSheetVisible = false
+      }
+    )
+  }
+  if(newAutomatchChallengeBottomSheetVisible) {
+    NewAutomatchChallengeBottomSheet(
+      onDismiss = { newAutomatchChallengeBottomSheetVisible = false },
+      onAutomatchSearchClicked = { speeds, sizes ->
+        onAction(Action.NewAutomatchSearch(speeds, sizes))
+        newAutomatchChallengeBottomSheetVisible = false
       }
     )
   }

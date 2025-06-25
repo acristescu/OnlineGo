@@ -40,10 +40,7 @@ import org.koin.android.ext.android.get
 class MainActivity : ComponentActivity(), MainContract.View {
     companion object {
         var isInForeground = false
-        val TAG = MainActivity::class.java.simpleName
     }
-
-    private val analytics = OnlineGoApplication.instance.analytics
 
     private val userSessionRepository: UserSessionRepository = get()
 
@@ -58,46 +55,9 @@ class MainActivity : ComponentActivity(), MainContract.View {
             OnlineGoApp(isLoggedIn = userSessionRepository.isLoggedIn())
         }
 
-//        binding = ActivityMainBinding.inflate(layoutInflater)
-//        setContentView(binding.root)
-
 //        Handler(Looper.getMainLooper()).post {
 //            ViewCompat.getWindowInsetsController(binding.root)?.isAppearanceLightStatusBars =
 //                resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_NO
-//        }
-
-//        val navHostFragment = supportFragmentManager.findFragmentById(R.id.fragment_container) as NavHostFragment
-//        binding.bottomNavigation.setupWithNavController(navHostFragment.navController)
-//        navHostFragment.navController.addOnDestinationChangedListener { _, destination, arguments ->
-//            binding.apply {
-//                bottomNavigation.apply {
-//                    val shouldBeVisible =
-//                        destination.id in arrayOf(
-//                        R.id.myGames,
-//                        R.id.learn,
-//                        R.id.settings
-//                    ) || (destination.id == R.id.stats && arguments?.isEmpty != false)
-//                    if(shouldBeVisible) {
-//                        animate().alpha(1f).setUpdateListener {
-//                            if (it.animatedFraction == 1f) {
-//                                show()
-//                            }
-//                        }
-//                        .setDuration(150)
-//                        .start()
-//                    } else {
-//                        animate().alpha(0f)
-//                            .setUpdateListener {
-//                                if (it.animatedFraction == 1f) {
-//                                    hide()
-//                                }
-//                            }
-//                            .setDuration(70)
-//                            .start()
-//                    }
-//                    setOnNavigationItemReselectedListener { }
-//                }
-//            }
 //        }
 
         requestPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) {}
@@ -220,58 +180,10 @@ class MainActivity : ComponentActivity(), MainContract.View {
 //        }
     }
 
-    override fun showMyGames() {
-//        findNavController(R.id.fragment_container).apply {
-//            if(currentDestination?.id != R.id.myGames) {
-//                navigate(R.id.myGames)
-//            }
-//        }
-    }
-
     override fun onPause() {
         super.onPause()
 
         presenter.unsubscribe()
         isInForeground = false
-    }
-
-    override fun navigateToGameScreen(game: Game) {
-//        findNavController(R.id.fragment_container)
-//                .navigate(
-//                        R.id.gameFragment,
-//                        bundleOf(
-//                            GAME_ID to game.id,
-//                            GAME_WIDTH to game.width,
-//                            GAME_HEIGHT to game.height,
-//                        ),
-//                        NavOptions.Builder()
-//                                .setLaunchSingleTop(true)
-//                                .build()
-//                )
-    }
-
-    override fun showError(msg: String?) {
-        Toast.makeText(this, msg, Toast.LENGTH_LONG).show()
-    }
-
-    fun onAutomatchSearchClicked(speeds: List<Speed>, sizes: List<Size>) {
-        val params = Bundle().apply {
-            putString("SPEED", speeds.joinToString { it.toString() })
-            putString("SIZE", sizes.joinToString { it.toString() })
-        }
-        analytics.logEvent("new_game_search", params)
-        presenter.onStartSearch(sizes, speeds)
-    }
-
-    fun onAutoMatchSearch() {
-//        NewAutomatchChallengeBottomSheet().show(supportFragmentManager, "BOTTOM_SHEET")
-    }
-
-    fun onNavigateToSupport() {
-//        findNavController(R.id.fragment_container).navigate(R.id.supporterFragment)
-    }
-
-    fun onCustomGameSearch() {
-//        NewChallengeBottomSheet().show(supportFragmentManager, "BOTTOM_SHEET")
     }
 }

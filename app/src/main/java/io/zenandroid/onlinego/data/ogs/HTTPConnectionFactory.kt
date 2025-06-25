@@ -1,7 +1,6 @@
 package io.zenandroid.onlinego.data.ogs
 
 import android.os.Build
-import com.facebook.stetho.okhttp3.StethoInterceptor
 import com.google.android.gms.common.util.IOUtils
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.zenandroid.onlinego.BuildConfig
@@ -30,7 +29,6 @@ class HTTPConnectionFactory(
             .run { if(isEmulator()) dns(EmulatorDnsSelector()) else this }
             .followRedirects(false)
             .cookieJar(userSessionRepository.cookieJar)
-            .addStethoInterceptor()
             .addNetworkInterceptor { chain ->
                 var request = chain.request()
                 val csrftoken = userSessionRepository.cookieJar.loadForRequest(request.url).firstOrNull { it.name == "csrftoken" }?.value
@@ -93,11 +91,6 @@ class HTTPConnectionFactory(
                 || Build.PRODUCT.contains("emulator")
                 || Build.PRODUCT.contains("simulator"))
     }
-
-    private fun OkHttpClient.Builder.addStethoInterceptor() =
-            if(BuildConfig.DEBUG) {
-                addNetworkInterceptor(StethoInterceptor())
-            } else this
 
     private fun peekBody(response: okhttp3.Response) = try {
         val bodyBytes = response.peekBody(1024 * 1024).bytes()

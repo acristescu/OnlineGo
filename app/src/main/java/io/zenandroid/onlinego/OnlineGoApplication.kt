@@ -4,7 +4,6 @@ import android.app.Application
 import android.os.Build
 import android.util.Log
 import androidx.appcompat.app.AppCompatDelegate
-import com.facebook.stetho.Stetho
 import com.google.firebase.analytics.FirebaseAnalytics
 import io.reactivex.exceptions.UndeliverableException
 import io.reactivex.plugins.RxJavaPlugins
@@ -31,10 +30,6 @@ class OnlineGoApplication : Application() {
     override fun onCreate() {
         super.onCreate()
         instance = this
-
-        if(BuildConfig.DEBUG) {
-            Stetho.initializeWithDefaults(this)
-        }
 
         startKoin {
             androidContext(this@OnlineGoApplication)

@@ -53,17 +53,4 @@ class MainPresenter (
         subscriptions.clear()
         socketService.disconnect()
     }
-
-    override fun onStartSearch(sizes: List<Size>, speeds: List<Speed>) {
-        if((speeds.contains(Speed.LIVE) || speeds.contains(Speed.RAPID) || speeds.contains(Speed.BLITZ)) && automatchRepository.automatches.find { it.liveOrBlitzOrRapid } != null) {
-            view.showError("Can only search for one live, rapid or blitz game at a time.")
-        } else {
-            socketService.startAutomatch(sizes, speeds)
-        }
-    }
-
-    private fun onError(t: Throwable) {
-        Log.e(MainActivity.TAG, t.message, t)
-        view.showError(t.message)
-    }
 }

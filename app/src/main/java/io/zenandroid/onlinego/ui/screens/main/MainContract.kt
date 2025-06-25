@@ -10,15 +10,11 @@ import io.zenandroid.onlinego.data.model.ogs.ChallengeParams
  */
 interface MainContract {
     interface View {
-        fun showError(msg: String?)
-        fun navigateToGameScreen(game: Game)
         fun showLogin()
-        fun showMyGames()
         fun askForNotificationsPermission(delayed: Boolean)
     }
     interface Presenter {
         fun subscribe()
         fun unsubscribe()
-        fun onStartSearch(sizes: List<Size>, speed: List<Speed>)
     }
 }

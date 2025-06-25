@@ -2,11 +2,11 @@ package io.zenandroid.onlinego.ui.screens.main
 
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.Text
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import androidx.navigation.NavController
+import androidx.navigation.NavOptions.Builder
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -29,10 +30,12 @@ import io.zenandroid.onlinego.ui.screens.joseki.JosekiExplorerScreen
 import io.zenandroid.onlinego.ui.screens.learn.LearnScreen
 import io.zenandroid.onlinego.ui.screens.localai.AiGameScreen
 import io.zenandroid.onlinego.ui.screens.mygames.MyGamesScreen
+import io.zenandroid.onlinego.ui.screens.onboarding.OnboardingScreen
 import io.zenandroid.onlinego.ui.screens.puzzle.directory.PuzzleDirectoryScreen
 import io.zenandroid.onlinego.ui.screens.puzzle.tsumego.TsumegoScreen
 import io.zenandroid.onlinego.ui.screens.settings.SettingsScreen
 import io.zenandroid.onlinego.ui.screens.stats.StatsScreen
+import io.zenandroid.onlinego.ui.screens.supporter.SupporterScreen
 import io.zenandroid.onlinego.ui.screens.tutorial.TutorialScreen
 import io.zenandroid.onlinego.ui.theme.LocalBoardTheme
 import io.zenandroid.onlinego.ui.theme.LocalShowCoordinates
@@ -51,7 +54,8 @@ fun OnlineGoApp(isLoggedIn: Boolean) {
   val settingsRepository: SettingsRepository = koinInject()
 
   val showBottomBar = currentDestination in listOf("myGames", "learn", "stats", "settings")
-  val m3Destinations = listOf("myGames", "learn", "stats", "settings", "puzzleDirectory")
+  val m3Destinations =
+    listOf("myGames", "learn", "stats", "settings", "puzzleDirectory", "supporter", "onboarding")
 
   // TODO: make the settings reactive flows
   CompositionLocalProvider(
@@ -76,18 +80,19 @@ fun OnlineGoApp(isLoggedIn: Boolean) {
               onNavigateToGame = { navController.navigate("game/${it.id}/${it.width}/${it.height}") },
               onNavigateToAIGame = { navController.navigate("aiGame") },
               onNavigateToFaceToFace = { navController.navigate("faceToFace") },
+              onNavigateToSupporter = { navController.navigate("supporter") },
             )
           }
 
           composable("aiGame") {
             AiGameScreen(
-              onNavigateBack = { navController.popBackStack() },
+              onNavigateBack = navController::popBackStack,
             )
           }
 
           composable("faceToFace") {
             FaceToFaceScreen(
-              onNavigateBack = { navController.popBackStack() },
+              onNavigateBack = navController::popBackStack,
             )
           }
 
@@ -99,7 +104,7 @@ fun OnlineGoApp(isLoggedIn: Boolean) {
               navArgument("gameHeight") { type = NavType.IntType })
           ) { backStackEntry ->
             GameScreen(
-              onNavigateBack = { navController.popBackStack() },
+              onNavigateBack = navController::popBackStack,
               onNavigateToGameScreen = { game ->
                 navController.popBackStack()
                 navController.navigate("game/${game.id}/${game.width}/${game.height}")
@@ -118,12 +123,14 @@ fun OnlineGoApp(isLoggedIn: Boolean) {
             arguments = listOf(navArgument("tutorialName") { type = NavType.StringType })
           ) { backStackEntry ->
             TutorialScreen(
-              onNavigateBack = { navController.popBackStack() })
+              onNavigateBack = navController::popBackStack
+            )
           }
 
           composable("josekiExplorer") {
             JosekiExplorerScreen(
-              onNavigateBack = { navController.popBackStack() })
+              onNavigateBack = navController::popBackStack
+            )
           }
 
           composable("settings") {
@@ -131,7 +138,7 @@ fun OnlineGoApp(isLoggedIn: Boolean) {
               onNavigateToLogin = {
                 navController.navigate(
                   "onboarding",
-                  navOptions = androidx.navigation.NavOptions.Builder()
+                  navOptions = Builder()
                     .setPopUpTo("myGames", inclusive = true).build()
                 )
               },
@@ -154,7 +161,7 @@ fun OnlineGoApp(isLoggedIn: Boolean) {
 
           composable("puzzleDirectory") {
             PuzzleDirectoryScreen(
-              onNavigateBack = { navController.popBackStack() },
+              onNavigateBack = navController::popBackStack,
               onNavigateToPuzzle = { collectionId, puzzleId ->
                 navController.navigate("tsumego/$collectionId/$puzzleId")
               }
@@ -169,7 +176,24 @@ fun OnlineGoApp(isLoggedIn: Boolean) {
             )
           ) { backStackEntry ->
             TsumegoScreen(
-              onNavigateBack = { navController.popBackStack() }
+              onNavigateBack = navController::popBackStack
+            )
+          }
+
+          composable("supporter") {
+            SupporterScreen(
+              onNavigateBack = navController::popBackStack,
+            )
+          }
+
+          composable("onboarding") {
+            OnboardingScreen(
+              onNavigateToMyGames = {
+                navController.navigate(
+                  "myGames",
+                  navOptions = Builder().setPopUpTo("onboarding", inclusive = true).build()
+                )
+              }
             )
           }
         }

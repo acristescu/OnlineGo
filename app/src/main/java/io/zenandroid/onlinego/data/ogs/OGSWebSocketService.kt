@@ -28,7 +28,6 @@ import io.zenandroid.onlinego.data.repositories.SocketConnectedRepository
 import io.zenandroid.onlinego.data.repositories.UserSessionRepository
 import io.zenandroid.onlinego.utils.AndroidLoggingHandler
 import io.zenandroid.onlinego.utils.JsonObjectScope
-import io.zenandroid.onlinego.utils.StethoWebSocketsFactory
 import io.zenandroid.onlinego.utils.createJsonArray
 import io.zenandroid.onlinego.utils.json
 import io.zenandroid.onlinego.utils.recordException
@@ -71,9 +70,6 @@ class OGSWebSocketService(
             reconnection = true
             reconnectionDelay = 750
             reconnectionDelayMax = 10000
-            if(BuildConfig.DEBUG) {
-                webSocketFactory = StethoWebSocketsFactory(httpClient)
-            }
         })
 
         socket.on(Socket.EVENT_CONNECT) {

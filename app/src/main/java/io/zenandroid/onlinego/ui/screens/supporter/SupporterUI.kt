@@ -1,5 +1,9 @@
 package io.zenandroid.onlinego.ui.screens.supporter
 
+import android.content.Intent
+import android.widget.Toast
+import androidx.activity.compose.LocalActivity
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,26 +17,33 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.Button
-import androidx.compose.material.Card
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.LinearProgressIndicator
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Slider
-import androidx.compose.material.Text
-import androidx.compose.material.TextButton
-import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Android
+import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardColors
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Slider
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -42,14 +53,84 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.google.common.io.Files.append
+import androidx.core.net.toUri
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import com.google.firebase.analytics.FirebaseAnalytics
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.R.drawable
 import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
+import io.zenandroid.onlinego.utils.recordException
+import org.koin.androidx.compose.koinViewModel
+
+@Composable
+fun SupporterScreen(
+  viewModel: SupporterViewModel = koinViewModel(),
+  onNavigateBack: () -> Unit,
+) {
+  val state by viewModel.state.collectAsState()
+
+  val lifecycleOwner = LocalLifecycleOwner.current
+
+  DisposableEffect(lifecycleOwner) {
+    val observer = LifecycleEventObserver { _, event ->
+      if (event == Lifecycle.Event.ON_RESUME) {
+        viewModel.onResume()
+      }
+    }
+
+    lifecycleOwner.lifecycle.addObserver(observer)
+
+    onDispose {
+      lifecycleOwner.lifecycle.removeObserver(observer)
+    }
+  }
+  val context = LocalContext.current
+  LaunchedEffect(Unit) {
+    viewModel.events.collect { event ->
+      when (event) {
+        is SupporterEvent.ShowError -> Toast.makeText(
+          context,
+          event.throwable.message,
+          Toast.LENGTH_LONG
+        ).show()
+      }
+    }
+  }
+
+  val activity = LocalActivity.current
+  SupporterContent(
+    state = state,
+    onBackClick = onNavigateBack,
+    onSubscribeClick = {
+      activity?.let {
+        viewModel.onSubscribeClick(activity)
+        FirebaseAnalytics.getInstance(activity)
+          .logEvent("start_subscription_flow", null)
+      } ?: run {
+        recordException(Throwable("Activity is null, cannot start subscription flow"))
+      }
+    },
+    onCancelSubscriptionClick = {
+      activity?.let {
+        it.startActivity(Intent(Intent.ACTION_VIEW).apply {
+          data =
+            "https://play.google.com/store/account/subscriptions?package=io.zenandroid.onlinego".toUri()
+        })
+        FirebaseAnalytics.getInstance(it).logEvent("cancel_subscription", null)
+      } ?: run {
+        recordException(Throwable("Activity is null, cannot cancel subscription"))
+      }
+    },
+    onSliderChange = viewModel::onUserDragSlider
+  )
+
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SupporterScreen(
+private fun SupporterContent(
   state: SupporterState,
   onBackClick: () -> Unit,
   onSubscribeClick: () -> Unit,
@@ -63,7 +144,7 @@ fun SupporterScreen(
           text = "Become a supporter",
           fontSize = 16.sp,
           fontWeight = FontWeight.Medium,
-          color = MaterialTheme.colors.onSurface
+          color = MaterialTheme.colorScheme.onSurface
         )
       },
       navigationIcon = {
@@ -71,17 +152,15 @@ fun SupporterScreen(
           Icon(
             Icons.AutoMirrored.Filled.ArrowBack,
             contentDescription = "Back",
-            tint = MaterialTheme.colors.onSurface
+            tint = MaterialTheme.colorScheme.onSurface
           )
         }
       },
-      elevation = 0.dp,
-      backgroundColor = MaterialTheme.colors.surface
     )
 
     Column(
       modifier = Modifier
-        .background(MaterialTheme.colors.surface)
+        .background(MaterialTheme.colorScheme.surface)
         .weight(1f)
         .verticalScroll(rememberScrollState())
         .padding(horizontal = 20.dp, vertical = 24.dp),
@@ -89,7 +168,7 @@ fun SupporterScreen(
       Text(
         text = "Support the Android app",
         fontWeight = FontWeight.Bold,
-        color = MaterialTheme.colors.onSurface,
+        color = MaterialTheme.colorScheme.onSurface,
         fontSize = 18.sp,
         modifier = Modifier.fillMaxWidth()
       )
@@ -98,7 +177,7 @@ fun SupporterScreen(
 
       Text(
         text = "The project was started back in 2015 as a hobby. While excellent browser-based services existed, there were no similar quality mobile apps. The goal was to create a free and open source (FOSS), professionally made Android app that allows GO players to interact and discover this amazing game.\n\nWe are not associated with OGS, although they graciously allowed us to use their online services for free.\n\nWe rely on support from people like you to make it possible. If you enjoy using the app, please consider supporting us with a monthly contribution and becoming a Supporter!",
-        color = MaterialTheme.colors.onSurface,
+        color = MaterialTheme.colorScheme.onSurface,
         fontSize = 16.sp,
       )
 
@@ -187,7 +266,7 @@ fun SupportReason(
         .padding(start = 12.dp, end = 20.dp, top = 24.dp)
         .size(24.dp)
         .align(Alignment.CenterVertically),
-      tint = MaterialTheme.colors.onSurface
+      tint = MaterialTheme.colorScheme.onSurface
     )
 
     Column(modifier = Modifier.weight(1f)) {
@@ -195,7 +274,7 @@ fun SupportReason(
         text = title,
         fontSize = 14.sp,
         fontWeight = FontWeight.Medium,
-        color = MaterialTheme.colors.onSurface,
+        color = MaterialTheme.colorScheme.onSurface,
       )
 
       Spacer(modifier = Modifier.height(8.dp))
@@ -205,7 +284,7 @@ fun SupportReason(
         fontSize = 12.sp,
         lineHeight = 12.sp * 1.3f,
         modifier = Modifier.alpha(0.7f),
-        color = MaterialTheme.colors.onSurface,
+        color = MaterialTheme.colorScheme.onSurface,
       )
     }
   }
@@ -222,7 +301,7 @@ fun FAQItem(
     Text(
       text = question,
       fontSize = 14.sp,
-      color = MaterialTheme.colors.onSurface,
+      color = MaterialTheme.colorScheme.onSurface,
       fontWeight = FontWeight.Medium
     )
 
@@ -232,7 +311,7 @@ fun FAQItem(
       text = answer,
       fontSize = 12.sp,
       lineHeight = 12.sp * 1.3f,
-      color = MaterialTheme.colors.onSurface,
+      color = MaterialTheme.colorScheme.onSurface,
       modifier = Modifier.alpha(0.7f),
     )
 
@@ -249,8 +328,11 @@ fun SupporterBottomBar(
 ) {
   Card(
     modifier = Modifier.fillMaxWidth(),
-    backgroundColor = MaterialTheme.colors.surface,
-    elevation = 32.dp
+    colors = CardDefaults.elevatedCardColors(),
+    elevation = CardDefaults.cardElevation(
+      defaultElevation = 16.dp,
+    ),
+    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.2f))
   ) {
     if (state.loading) {
       Box(
@@ -260,7 +342,7 @@ fun SupporterBottomBar(
         contentAlignment = Alignment.Center
       ) {
         LinearProgressIndicator(
-          color = MaterialTheme.colors.primary
+          color = MaterialTheme.colorScheme.primary
         )
       }
     } else {
@@ -282,6 +364,7 @@ fun SupporterBottomBar(
                   append(state.currentContributionAmount)
                 }
               }
+
               else -> {
                 withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
                   append("Select your monthly contribution")
@@ -342,7 +425,7 @@ fun SupporterBottomBar(
           ) {
             Text(
               text = "Cancel subscription",
-              color = MaterialTheme.colors.primary
+              color = MaterialTheme.colorScheme.primary
             )
           }
         }
@@ -355,7 +438,7 @@ fun SupporterBottomBar(
 @Composable
 fun SupporterScreenPreview() {
   OnlineGoTheme {
-    SupporterScreen(
+    SupporterContent(
       state = SupporterState(
         loading = false,
         supporter = true,
@@ -379,7 +462,7 @@ fun SupporterScreenPreview() {
 @Composable
 fun SupportReasonPreviewLoading() {
   OnlineGoTheme {
-    SupporterScreen(
+    SupporterContent(
       state = SupporterState(
         loading = true,
         supporter = true,
@@ -403,7 +486,7 @@ fun SupportReasonPreviewLoading() {
 @Composable
 fun SupportReasonPreviewNonSupporter() {
   OnlineGoTheme {
-    SupporterScreen(
+    SupporterContent(
       state = SupporterState(
         loading = false,
         supporter = false,

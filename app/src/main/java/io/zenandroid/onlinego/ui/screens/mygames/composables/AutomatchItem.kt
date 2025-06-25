@@ -4,10 +4,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -24,46 +20,49 @@ import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
 
 @Composable
 fun AutomatchItem(automatch: OGSAutomatch, onAction: (Action) -> Unit) {
-    SenteCard (
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 24.dp, vertical = 16.dp)
+  SenteCard(
+    modifier = Modifier
+      .padding(horizontal = 24.dp, vertical = 16.dp)
+  ) {
+    Column(
+      modifier = Modifier
+        .padding(horizontal = 16.dp)
+        .fillMaxWidth()
     ) {
-        Column (modifier = Modifier.padding(horizontal = 16.dp)){
-            Text(
-                text = "Searching for a game",
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier
-                    .align(Alignment.CenterHorizontally)
-                    .padding(top = 16.dp)
-            )
-            Spacer(modifier = Modifier.weight(1f))
-            TextButton(
-                onClick = { onAction(Action.AutomatchCancelled(automatch)) },
-                modifier = Modifier
-                    .align(Alignment.CenterHorizontally)
-                    .padding(vertical = 8.dp)
-            ) {
-                Text("Cancel")
-            }
-        }
+      Text(
+        text = "Searching for a game",
+        fontSize = 14.sp,
+        fontWeight = FontWeight.Bold,
+        modifier = Modifier
+          .align(Alignment.CenterHorizontally)
+          .padding(top = 16.dp)
+      )
+      Spacer(modifier = Modifier.weight(1f))
+      TextButton(
+        onClick = { onAction(Action.AutomatchCancelled(automatch)) },
+        modifier = Modifier
+          .align(Alignment.CenterHorizontally)
+          .padding(vertical = 8.dp)
+      ) {
+        Text("Cancel")
+      }
     }
+  }
 }
 
 @Preview
 @Composable
 private fun Preview() {
-    OnlineGoTheme {
-        AutomatchItem(
-            automatch = OGSAutomatch(
-                uuid = "aaa",
-                game_id = null,
-                size_speed_options = listOf(
-                    SizeSpeedOption("9x9", "blitz"),
-                )
-            ),
-            onAction = {}
+  OnlineGoTheme {
+    AutomatchItem(
+      automatch = OGSAutomatch(
+        uuid = "aaa",
+        game_id = null,
+        size_speed_options = listOf(
+          SizeSpeedOption("9x9", "blitz"),
         )
-    }
+      ),
+      onAction = {}
+    )
+  }
 }

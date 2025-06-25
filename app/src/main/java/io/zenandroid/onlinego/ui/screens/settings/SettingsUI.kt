@@ -36,6 +36,8 @@ import androidx.compose.material.icons.rounded.Palette
 import androidx.compose.material.icons.rounded._123
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ButtonElevation
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -283,6 +285,10 @@ private fun SettingsContent(state: SettingsState, onAction: (SettingsAction) -> 
     Button(
       onClick = { onAction(SupportClicked) },
       shape = RoundedCornerShape(14.dp),
+      elevation = ButtonDefaults.elevatedButtonElevation(
+        defaultElevation = 4.dp,
+        pressedElevation = 0.dp,
+      ),
       modifier = Modifier
         .padding(top = 24.dp)
         .height(36.dp)
