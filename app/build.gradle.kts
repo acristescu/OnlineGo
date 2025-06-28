@@ -112,6 +112,9 @@ dependencies {
     debugImplementation(libs.compose.ui.tooling)
     implementation(libs.compose.material3)
 
+    // Datastore
+    implementation(libs.androidx.datastore.preferences)
+
     // Accompanist
     implementation(libs.bundles.accompanist)
 

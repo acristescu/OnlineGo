@@ -37,7 +37,6 @@ import androidx.compose.material.icons.rounded._123
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.ButtonElevation
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -49,6 +48,7 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
@@ -97,7 +97,6 @@ import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.SupportClicked
 import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.ThemeClicked
 import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
 import io.zenandroid.onlinego.utils.processGravatarURL
-import io.zenandroid.onlinego.utils.rememberStateWithLifecycle
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -106,7 +105,8 @@ fun SettingsScreen(
   onNavigateToLogin: () -> Unit,
   onNavigateToSupport: () -> Unit,
 ) {
-  val state by rememberStateWithLifecycle(viewModel.state)
+  val state by viewModel.state.collectAsState()
+  val userSettings by viewModel.userSettings.collectAsState()
 
   var dialogData by remember { mutableStateOf<DialogData?>(null) }
 
@@ -114,6 +114,7 @@ fun SettingsScreen(
 
   SettingsContent(
     state = state,
+    userSettings = userSettings,
     onAction = {
       when (it) {
         is NotificationsClicked -> navigateToNotifications(activity)
@@ -242,7 +243,11 @@ fun SettingsScreen(
 }
 
 @Composable
-private fun SettingsContent(state: SettingsState, onAction: (SettingsAction) -> Unit) {
+private fun SettingsContent(
+  state: SettingsState,
+  userSettings: UserSettings,
+  onAction: (SettingsAction) -> Unit
+) {
   Column(
     horizontalAlignment = Alignment.CenterHorizontally,
     modifier = Modifier
@@ -316,7 +321,7 @@ private fun SettingsContent(state: SettingsState, onAction: (SettingsAction) -> 
           title = "Stone Sounds",
           icon = Icons.AutoMirrored.Filled.VolumeUp,
           checkbox = true,
-          checked = state.sounds,
+          checked = userSettings.soundEnabled,
           onClick = { onAction(SoundsClicked) })
       }
     }
@@ -327,7 +332,7 @@ private fun SettingsContent(state: SettingsState, onAction: (SettingsAction) -> 
           icon = Rounded.DarkMode,
           checkbox = false,
           checked = true,
-          value = state.theme,
+          value = userSettings.theme,
           possibleValues = listOf(
             "System Default", "Light", "Dark"
           ),
@@ -337,7 +342,7 @@ private fun SettingsContent(state: SettingsState, onAction: (SettingsAction) -> 
           icon = Rounded.Palette,
           checkbox = false,
           checked = true,
-          value = state.boardTheme,
+          value = userSettings.boardTheme.displayName,
           possibleValues = BoardTheme.entries,
           onValueClick = { onAction(BoardThemeClicked(it)) })
       }
@@ -348,13 +353,13 @@ private fun SettingsContent(state: SettingsState, onAction: (SettingsAction) -> 
           title = "Show Coordinates",
           icon = Rounded._123,
           checkbox = true,
-          checked = state.coordinates,
+          checked = userSettings.showCoordinates,
           onClick = { onAction(CoordinatesClicked) })
         SettingsRow(
           title = "Show Player Ranks",
           icon = Rounded.MilitaryTech,
           checkbox = true,
-          checked = state.ranks,
+          checked = userSettings.showRanks,
           onClick = { onAction(RanksClicked) })
       }
     }
@@ -538,7 +543,15 @@ private fun SettingsScreenPreview() {
       SettingsContent(
         SettingsState().copy(
           username = "Username",
-        ), {})
+        ),
+        UserSettings(
+          theme = "System Default",
+          boardTheme = BoardTheme.WOOD,
+          soundEnabled = true,
+          showRanks = true,
+          showCoordinates = true
+        ),
+        {})
     }
   }
 }

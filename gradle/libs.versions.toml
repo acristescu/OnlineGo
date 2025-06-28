@@ -1,5 +1,6 @@
 [versions]
 # Kotlin & Android
+datastorePreferences = "1.1.7"
 kotlin = "2.1.21"
 androidGradlePlugin = "8.10.1"
 composeCompiler = "1.5.4"
@@ -10,15 +11,15 @@ targetSdk = "35"
 ndkVersion = "25.1.8937393"
 
 # Compose BOM
-composeBom = "2025.06.00"
+composeBom = "2025.06.01"
 
 # Main dependencies
 koin = "3.5.0"
 playServices = "21.3.0"
 accompanist = "0.34.0"
-room = "2.7.1"
-firebase = "33.15.0"
-workManager = "2.10.1"
+room = "2.7.2"
+firebase = "33.16.0"
+workManager = "2.10.2"
 androidx-core = "1.16.0"
 androidx-activity = "1.10.1"
 androidx-lifecycle = "2.9.1"
@@ -44,7 +45,7 @@ markwon = "4.3.1"
 jsoup = "1.16.1"
 socketio = "2.1.0"
 billing = "7.1.1"
-desugar = "2.1.2"
+desugar = "2.1.5"
 espresso = "3.6.1"
 immutableCollections = "0.3.7"
 materialProgressBar = "1.6.1"
@@ -66,13 +67,14 @@ turbine = "1.0.0"
 
 # Build tools & Plugins
 ksp = "2.1.21-2.0.1"
-googleServices = "4.4.2"
+googleServices = "4.4.3"
 crashlytics = "3.0.4"
 molecule = "1.2.0"
 cmake = "3.10.2"
 
 [libraries]
 # Compose BOM
+androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastorePreferences" }
 compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
 
 # Android Core

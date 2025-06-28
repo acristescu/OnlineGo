@@ -1,54 +1,107 @@
 package io.zenandroid.onlinego.data.repositories
 
-import androidx.core.content.edit
-import androidx.preference.PreferenceManager
-import io.zenandroid.onlinego.OnlineGoApplication
+import android.content.Context
+import androidx.datastore.preferences.SharedPreferencesMigration
+import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.preferencesDataStore
 import io.zenandroid.onlinego.data.model.BoardTheme
+import io.zenandroid.onlinego.ui.screens.settings.UserSettings
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 
-private const val APP_THEME = "app_theme"
-private const val BOARD_THEME = "board_theme"
-private const val SHOW_RANKS = "show_ranks"
-private const val SHOW_COORDINATES = "show_coordinates"
-private const val SOUND = "sound"
-private const val GRAPH_BY_GAMES = "graph_by_games"
+val Context.settingsDataStore by preferencesDataStore(
+  name = "settings",
+  produceMigrations = { context ->
+    listOf(
+      SharedPreferencesMigration(
+        context = context,
+        sharedPreferencesName = "io.zenandroid.onlinego_preferences"
+      )
+    )
+  }
+)
 
-class SettingsRepository {
-  private val prefs =
-    PreferenceManager.getDefaultSharedPreferences(OnlineGoApplication.instance.baseContext)
+class SettingsRepository(private val context: Context) {
 
-  var appTheme: String?
-    get() = prefs.getString(APP_THEME, "System default")
-    set(value) = prefs.edit { putString(APP_THEME, value) }
+  private val dataStore = context.settingsDataStore
+  var cachedUserSettings: UserSettings = UserSettings()
+    private set
 
-  var boardTheme: BoardTheme
-    get() = getBoardThemeFromPref()
-    set(value) = prefs.edit { putString(BOARD_THEME, value.name) }
-
-  private fun getBoardThemeFromPref(): BoardTheme {
-    val themeFromPref: String? = prefs.getString(BOARD_THEME, BoardTheme.WOOD.name)
-    if (themeFromPref != null) {
-      return try {
-        BoardTheme.valueOf(themeFromPref)
-      } catch (e: IllegalArgumentException) {
-        BoardTheme.WOOD
-      }
-    }
-    return BoardTheme.WOOD
+  companion object {
+    private val APP_THEME = stringPreferencesKey("app_theme")
+    private val BOARD_THEME = stringPreferencesKey("board_theme")
+    private val SHOW_RANKS = booleanPreferencesKey("show_ranks")
+    private val SHOW_COORDINATES = booleanPreferencesKey("show_coordinates")
+    private val SOUND = booleanPreferencesKey("sound")
+    private val GRAPH_BY_GAMES = booleanPreferencesKey("graph_by_games")
   }
 
-  var showRanks: Boolean
-    get() = prefs.getBoolean(SHOW_RANKS, true)
-    set(value) = prefs.edit { putBoolean(SHOW_RANKS, value) }
+  init {
+    CoroutineScope(Dispatchers.IO).launch {
+      val prefs = dataStore.data.first()
 
-  var showCoordinates: Boolean
-    get() = prefs.getBoolean(SHOW_COORDINATES, false)
-    set(value) = prefs.edit { putBoolean(SHOW_COORDINATES, value) }
+      cachedUserSettings = UserSettings(
+        theme = prefs[APP_THEME] ?: "System default",
+        boardTheme = BoardTheme.entries.find {
+          it.name == (prefs[BOARD_THEME] ?: BoardTheme.WOOD.name)
+        }
+          ?: BoardTheme.WOOD,
+        showRanks = prefs[SHOW_RANKS] ?: true,
+        showCoordinates = prefs[SHOW_COORDINATES] ?: false,
+        soundEnabled = prefs[SOUND] ?: true,
+        graphByGames = prefs[GRAPH_BY_GAMES] ?: false
+      )
+    }
+  }
 
-  var sound: Boolean
-    get() = prefs.getBoolean(SOUND, true)
-    set(value) = prefs.edit { putBoolean(SOUND, value) }
+  val appThemeFlow: Flow<String> = dataStore.data
+    .map { prefs -> prefs[APP_THEME] ?: "System default" }
 
-  var graphByGames: Boolean
-    get() = prefs.getBoolean(GRAPH_BY_GAMES, false)
-    set(value) = prefs.edit { putBoolean(GRAPH_BY_GAMES, value) }
+  suspend fun setAppTheme(value: String) {
+    dataStore.edit { it[APP_THEME] = value }
+  }
+
+  val boardThemeFlow: Flow<BoardTheme> = dataStore.data
+    .map { prefs ->
+      val raw = prefs[BOARD_THEME] ?: BoardTheme.WOOD.name
+      BoardTheme.entries.find { it.name == raw } ?: BoardTheme.WOOD
+    }
+
+  suspend fun setBoardTheme(theme: BoardTheme) {
+    dataStore.edit { it[BOARD_THEME] = theme.name }
+  }
+
+  val showRanksFlow: Flow<Boolean> = dataStore.data
+    .map { prefs -> prefs[SHOW_RANKS] ?: true }
+
+  suspend fun setShowRanks(value: Boolean) {
+    dataStore.edit { it[SHOW_RANKS] = value }
+  }
+
+  val showCoordinatesFlow: Flow<Boolean> = dataStore.data
+    .map { prefs -> prefs[SHOW_COORDINATES] ?: false }
+
+  suspend fun setShowCoordinates(value: Boolean) {
+    dataStore.edit { it[SHOW_COORDINATES] = value }
+  }
+
+  val soundFlow: Flow<Boolean> = dataStore.data
+    .map { prefs -> prefs[SOUND] ?: true }
+
+  suspend fun setSound(value: Boolean) {
+    dataStore.edit { it[SOUND] = value }
+  }
+
+  val graphByGamesFlow: Flow<Boolean> = dataStore.data
+    .map { prefs -> prefs[GRAPH_BY_GAMES] ?: false }
+
+  suspend fun setGraphByGames(value: Boolean) {
+    dataStore.edit { it[GRAPH_BY_GAMES] = value }
+  }
 }

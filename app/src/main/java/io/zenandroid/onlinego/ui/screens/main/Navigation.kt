@@ -8,9 +8,7 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
@@ -23,7 +21,6 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import io.zenandroid.onlinego.R
-import io.zenandroid.onlinego.data.repositories.SettingsRepository
 import io.zenandroid.onlinego.ui.screens.face2face.FaceToFaceScreen
 import io.zenandroid.onlinego.ui.screens.game.GameScreen
 import io.zenandroid.onlinego.ui.screens.joseki.JosekiExplorerScreen
@@ -37,165 +34,158 @@ import io.zenandroid.onlinego.ui.screens.settings.SettingsScreen
 import io.zenandroid.onlinego.ui.screens.stats.StatsScreen
 import io.zenandroid.onlinego.ui.screens.supporter.SupporterScreen
 import io.zenandroid.onlinego.ui.screens.tutorial.TutorialScreen
-import io.zenandroid.onlinego.ui.theme.LocalBoardTheme
-import io.zenandroid.onlinego.ui.theme.LocalShowCoordinates
 import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
-import org.koin.compose.koinInject
 
 
 @Composable
-fun OnlineGoApp(isLoggedIn: Boolean) {
+fun OnlineGoApp(isLoggedIn: Boolean, darkTheme: Boolean) {
   val navController = rememberNavController()
 
   val startDestination = if (isLoggedIn) "myGames" else "onboarding"
 
   val navBackStackEntry by navController.currentBackStackEntryAsState()
   val currentDestination = navBackStackEntry?.destination?.route
-  val settingsRepository: SettingsRepository = koinInject()
 
   val showBottomBar = currentDestination in listOf("myGames", "learn", "stats", "settings")
   val m3Destinations =
     listOf("myGames", "learn", "stats", "settings", "puzzleDirectory", "supporter", "onboarding")
 
-  // TODO: make the settings reactive flows
-  CompositionLocalProvider(
-    LocalBoardTheme provides remember { settingsRepository.boardTheme },
-    LocalShowCoordinates provides remember { settingsRepository.showCoordinates },
+  OnlineGoTheme(
+    m3 = m3Destinations.contains(currentDestination),
+    darkTheme = darkTheme,
   ) {
-    OnlineGoTheme(m3 = m3Destinations.contains(currentDestination)) {
-      Scaffold(bottomBar = {
-        if (showBottomBar) {
-          BottomNavigationBar(navController)
+    Scaffold(bottomBar = {
+      if (showBottomBar) {
+        BottomNavigationBar(navController)
+      }
+    }) { innerPadding ->
+      NavHost(
+        navController = navController,
+        startDestination = startDestination,
+        modifier = Modifier
+          .padding(innerPadding)
+          .consumeWindowInsets(innerPadding)
+      ) {
+        composable("myGames") {
+          MyGamesScreen(
+            onNavigateToGame = { navController.navigate("game/${it.id}/${it.width}/${it.height}") },
+            onNavigateToAIGame = { navController.navigate("aiGame") },
+            onNavigateToFaceToFace = { navController.navigate("faceToFace") },
+            onNavigateToSupporter = { navController.navigate("supporter") },
+          )
         }
-      }) { innerPadding ->
-        NavHost(
-          navController = navController,
-          startDestination = startDestination,
-          modifier = Modifier
-            .padding(innerPadding)
-            .consumeWindowInsets(innerPadding)
-        ) {
-          composable("myGames") {
-            MyGamesScreen(
-              onNavigateToGame = { navController.navigate("game/${it.id}/${it.width}/${it.height}") },
-              onNavigateToAIGame = { navController.navigate("aiGame") },
-              onNavigateToFaceToFace = { navController.navigate("faceToFace") },
-              onNavigateToSupporter = { navController.navigate("supporter") },
-            )
-          }
 
-          composable("aiGame") {
-            AiGameScreen(
-              onNavigateBack = navController::popBackStack,
-            )
-          }
+        composable("aiGame") {
+          AiGameScreen(
+            onNavigateBack = navController::popBackStack,
+          )
+        }
 
-          composable("faceToFace") {
-            FaceToFaceScreen(
-              onNavigateBack = navController::popBackStack,
-            )
-          }
+        composable("faceToFace") {
+          FaceToFaceScreen(
+            onNavigateBack = navController::popBackStack,
+          )
+        }
 
-          composable(
-            "game/{gameId}/{gameWidth}/{gameHeight}",
-            arguments = listOf(
-              navArgument("gameId") { type = NavType.LongType },
-              navArgument("gameWidth") { type = NavType.IntType },
-              navArgument("gameHeight") { type = NavType.IntType })
-          ) { backStackEntry ->
-            GameScreen(
-              onNavigateBack = navController::popBackStack,
-              onNavigateToGameScreen = { game ->
-                navController.popBackStack()
-                navController.navigate("game/${game.id}/${game.width}/${game.height}")
-              })
-          }
+        composable(
+          "game/{gameId}/{gameWidth}/{gameHeight}",
+          arguments = listOf(
+            navArgument("gameId") { type = NavType.LongType },
+            navArgument("gameWidth") { type = NavType.IntType },
+            navArgument("gameHeight") { type = NavType.IntType })
+        ) { backStackEntry ->
+          GameScreen(
+            onNavigateBack = navController::popBackStack,
+            onNavigateToGameScreen = { game ->
+              navController.popBackStack()
+              navController.navigate("game/${game.id}/${game.width}/${game.height}")
+            })
+        }
 
-          composable("learn") {
-            LearnScreen(
-              onJosekiExplorer = { navController.navigate("josekiExplorer") },
-              onPuzzles = { navController.navigate("puzzleDirectory") },
-              onTutorial = { tutorial -> navController.navigate("tutorial/${tutorial.name}") })
-          }
+        composable("learn") {
+          LearnScreen(
+            onJosekiExplorer = { navController.navigate("josekiExplorer") },
+            onPuzzles = { navController.navigate("puzzleDirectory") },
+            onTutorial = { tutorial -> navController.navigate("tutorial/${tutorial.name}") })
+        }
 
-          composable(
-            "tutorial/{tutorialName}",
-            arguments = listOf(navArgument("tutorialName") { type = NavType.StringType })
-          ) { backStackEntry ->
-            TutorialScreen(
-              onNavigateBack = navController::popBackStack
-            )
-          }
+        composable(
+          "tutorial/{tutorialName}",
+          arguments = listOf(navArgument("tutorialName") { type = NavType.StringType })
+        ) { backStackEntry ->
+          TutorialScreen(
+            onNavigateBack = navController::popBackStack
+          )
+        }
 
-          composable("josekiExplorer") {
-            JosekiExplorerScreen(
-              onNavigateBack = navController::popBackStack
-            )
-          }
+        composable("josekiExplorer") {
+          JosekiExplorerScreen(
+            onNavigateBack = navController::popBackStack
+          )
+        }
 
-          composable("settings") {
-            SettingsScreen(
-              onNavigateToLogin = {
-                navController.navigate(
-                  "onboarding",
-                  navOptions = Builder()
-                    .setPopUpTo("myGames", inclusive = true).build()
-                )
-              },
-              onNavigateToSupport = {
-                navController.navigate("supporter")
-              },
-            )
-          }
+        composable("settings") {
+          SettingsScreen(
+            onNavigateToLogin = {
+              navController.navigate(
+                "onboarding",
+                navOptions = Builder()
+                  .setPopUpTo("myGames", inclusive = true).build()
+              )
+            },
+            onNavigateToSupport = {
+              navController.navigate("supporter")
+            },
+          )
+        }
 
-          composable(
-            "otherPlayerStats?playerId={playerId}",
-            arguments = listOf(navArgument("playerId") { type = NavType.StringType })
-          ) { backStackEntry ->
-            StatsScreen()
-          }
+        composable(
+          "otherPlayerStats?playerId={playerId}",
+          arguments = listOf(navArgument("playerId") { type = NavType.StringType })
+        ) { backStackEntry ->
+          StatsScreen()
+        }
 
-          composable("stats") {
-            StatsScreen()
-          }
+        composable("stats") {
+          StatsScreen()
+        }
 
-          composable("puzzleDirectory") {
-            PuzzleDirectoryScreen(
-              onNavigateBack = navController::popBackStack,
-              onNavigateToPuzzle = { collectionId, puzzleId ->
-                navController.navigate("tsumego/$collectionId/$puzzleId")
-              }
-            )
-          }
+        composable("puzzleDirectory") {
+          PuzzleDirectoryScreen(
+            onNavigateBack = navController::popBackStack,
+            onNavigateToPuzzle = { collectionId, puzzleId ->
+              navController.navigate("tsumego/$collectionId/$puzzleId")
+            }
+          )
+        }
 
-          composable(
-            "tsumego/{collectionId}/{puzzleId}",
-            arguments = listOf(
-              navArgument("collectionId") { type = NavType.LongType },
-              navArgument("puzzleId") { type = NavType.LongType }
-            )
-          ) { backStackEntry ->
-            TsumegoScreen(
-              onNavigateBack = navController::popBackStack
-            )
-          }
+        composable(
+          "tsumego/{collectionId}/{puzzleId}",
+          arguments = listOf(
+            navArgument("collectionId") { type = NavType.LongType },
+            navArgument("puzzleId") { type = NavType.LongType }
+          )
+        ) { backStackEntry ->
+          TsumegoScreen(
+            onNavigateBack = navController::popBackStack
+          )
+        }
 
-          composable("supporter") {
-            SupporterScreen(
-              onNavigateBack = navController::popBackStack,
-            )
-          }
+        composable("supporter") {
+          SupporterScreen(
+            onNavigateBack = navController::popBackStack,
+          )
+        }
 
-          composable("onboarding") {
-            OnboardingScreen(
-              onNavigateToMyGames = {
-                navController.navigate(
-                  "myGames",
-                  navOptions = Builder().setPopUpTo("onboarding", inclusive = true).build()
-                )
-              }
-            )
-          }
+        composable("onboarding") {
+          OnboardingScreen(
+            onNavigateToMyGames = {
+              navController.navigate(
+                "myGames",
+                navOptions = Builder().setPopUpTo("onboarding", inclusive = true).build()
+              )
+            }
+          )
         }
       }
     }

@@ -7,183 +7,307 @@ import android.app.NotificationManager
 import android.content.ComponentName
 import android.content.Context
 import android.content.pm.PackageManager
+import android.content.res.Configuration
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.core.content.ContextCompat
-import androidx.core.content.ContextCompat.getSystemService
-import com.google.android.gms.common.wrappers.Wrappers.packageManager
-import io.zenandroid.onlinego.OnlineGoApplication
-import io.zenandroid.onlinego.data.model.local.Game
-import io.zenandroid.onlinego.data.model.ogs.Size
-import io.zenandroid.onlinego.data.model.ogs.Speed
+import androidx.core.util.Consumer
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import io.zenandroid.onlinego.data.model.BoardTheme
+import io.zenandroid.onlinego.data.repositories.UserSessionRepository
 import io.zenandroid.onlinego.notifications.SynchronizeGamesWork
 import io.zenandroid.onlinego.ui.screens.login.FacebookLoginCallbackActivity
-import io.zenandroid.onlinego.data.model.ogs.ChallengeParams
-import io.zenandroid.onlinego.data.repositories.UserSessionRepository
+import io.zenandroid.onlinego.ui.theme.LocalThemeSettings
 import io.zenandroid.onlinego.ui.views.BoardView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.conflate
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.get
 
 
-class MainActivity : ComponentActivity(), MainContract.View {
-    companion object {
-        var isInForeground = false
-    }
+class MainActivity : ComponentActivity() {
+  companion object {
+    var isInForeground = false
+  }
 
-    private val userSessionRepository: UserSessionRepository = get()
+  private val userSessionRepository: UserSessionRepository = get()
 
-    private var requestPermissionLauncher: ActivityResultLauncher<String>? = null
+  private var requestPermissionLauncher: ActivityResultLauncher<String>? = null
 
-    private val presenter: MainPresenter by lazy { MainPresenter(this, get(), get(), get(), get()) }
+  private val viewModel: MainActivityViewModel = get()
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContent {
-            OnlineGoApp(isLoggedIn = userSessionRepository.isLoggedIn())
+  override fun onCreate(savedInstanceState: Bundle?) {
+    super.onCreate(savedInstanceState)
+    enableEdgeToEdge()
+
+    var themeSettings by mutableStateOf(
+      ThemeSettings(
+        isDarkTheme = resources.configuration.isSystemInDarkTheme,
+        boardTheme = BoardTheme.WOOD,
+        dynamicColors = true,
+        showCoordinates = true
+      )
+    )
+
+    lifecycleScope.launch {
+      lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+        combine(
+          isSystemInDarkTheme(),
+          viewModel.state,
+        ) { systemDark, state ->
+          if (state.shouldAskForPermission) {
+            askForNotificationsPermission(delayed = true)
+            viewModel.onPermissionAsked()
+          }
+          ThemeSettings(
+            isDarkTheme = when (state.appTheme) {
+              "System Default" -> systemDark
+              "Light" -> false
+              "Dark" -> true
+              else -> systemDark
+            },
+            boardTheme = state.boardTheme ?: BoardTheme.WOOD,
+            dynamicColors = true,
+            showCoordinates = state.showCoordinates,
+          )
         }
-
-//        Handler(Looper.getMainLooper()).post {
-//            ViewCompat.getWindowInsetsController(binding.root)?.isAppearanceLightStatusBars =
-//                resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_NO
-//        }
-
-        requestPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) {}
-        createNotificationChannel()
-        scheduleNotificationJob()
-
-        packageManager.setComponentEnabledSetting(
-            ComponentName(this, FacebookLoginCallbackActivity::class.java),
-            PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
-            PackageManager.DONT_KILL_APP
+          .onEach { themeSettings = it }
+          .map { it.isDarkTheme }
+          .distinctUntilChanged()
+          .collect { darkTheme ->
+            // Turn off the decor fitting system windows, which allows us to handle insets,
+            // including IME animations, and go edge-to-edge.
+            // This is the same parameters as the default enableEdgeToEdge call, but we manually
+            // resolve whether or not to show dark theme using uiState, since it can be different
+            // than the configuration's dark theme value based on the user preference.
+            enableEdgeToEdge(
+              statusBarStyle = SystemBarStyle.auto(
+                lightScrim = Color.TRANSPARENT,
+                darkScrim = Color.TRANSPARENT,
+              ) { darkTheme },
+              navigationBarStyle = SystemBarStyle.auto(
+                lightScrim = lightScrim,
+                darkScrim = darkScrim,
+              ) { darkTheme },
+            )
+          }
+      }
+    }
+    setContent {
+      CompositionLocalProvider(
+        LocalThemeSettings provides themeSettings,
+      ) {
+        OnlineGoApp(
+          darkTheme = themeSettings.isDarkTheme,
+          isLoggedIn = userSessionRepository.isLoggedIn()
         )
-
-        BoardView.preloadResources(resources)
+      }
     }
 
-    private fun scheduleNotificationJob() {
-        SynchronizeGamesWork.schedule()
-    }
+    requestPermissionLauncher =
+      registerForActivityResult(ActivityResultContracts.RequestPermission()) {}
+    createNotificationChannel()
+    scheduleNotificationJob()
 
-    private fun createNotificationChannel() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+    packageManager.setComponentEnabledSetting(
+      ComponentName(this, FacebookLoginCallbackActivity::class.java),
+      PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
+      PackageManager.DONT_KILL_APP
+    )
 
-            listOf(
-                NotificationChannelGroup("correspondence", "Correspondence"),
-                NotificationChannelGroup("live", "Live"),
-                NotificationChannelGroup("blitz", "Blitz"),
-            )
-                .map { it.id }
-                .map {
-                    try {
-                        notificationManager.deleteNotificationChannelGroup(it)
-                    } catch (_: Exception) {
-                        // a bug in Oreo where deleting a non-existant notification channel group throws an NPE
-                    }
-                }
+    BoardView.preloadResources(resources)
+  }
 
-            notificationManager.createNotificationChannelGroup(
-                NotificationChannelGroup("your_turn", "Your Turn")
-            )
+  private fun scheduleNotificationJob() {
+    SynchronizeGamesWork.schedule()
+  }
 
-            notificationManager.createNotificationChannels(
-                listOf(
-                    NotificationChannel("active_correspondence_games", "Correspondence Games", NotificationManager.IMPORTANCE_LOW).apply {
-                        group = "your_turn"
-                        enableLights(true)
-                        lightColor = Color.WHITE
-                        enableVibration(true)
-                        vibrationPattern = longArrayOf(0, 200, 0, 200)
+  private fun createNotificationChannel() {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+      val notificationManager =
+        getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
-                    },
-                    NotificationChannel("active_live_games", "Live Games", NotificationManager.IMPORTANCE_LOW).apply {
-                        group = "your_turn"
-                        enableLights(true)
-                        lightColor = Color.WHITE
-                        enableVibration(true)
-                        vibrationPattern = longArrayOf(0, 200, 0, 200)
-
-                    },
-                    NotificationChannel("active_blitz_games", "Blitz Games", NotificationManager.IMPORTANCE_LOW).apply {
-                        group = "your_turn"
-                        enableLights(true)
-                        lightColor = Color.WHITE
-                        enableVibration(true)
-                        vibrationPattern = longArrayOf(0, 200, 0, 200)
-
-                    },
-                    NotificationChannel("active_games", "Your Turn", NotificationManager.IMPORTANCE_LOW).apply {
-                        enableLights(true)
-                        lightColor = Color.WHITE
-                        enableVibration(true)
-                        vibrationPattern = longArrayOf(0, 200, 0, 200)
-                    },
-                    NotificationChannel("challenges", "Challenges", NotificationManager.IMPORTANCE_LOW).apply {
-                        enableLights(true)
-                        lightColor = Color.WHITE
-                        enableVibration(true)
-                        vibrationPattern = longArrayOf(0, 200, 0, 200)
-
-                    },
-                    NotificationChannel("logout", "Logout", NotificationManager.IMPORTANCE_LOW).apply {
-                        enableLights(false)
-                        enableVibration(false)
-                    }
-                )
-            )
+      listOf(
+        NotificationChannelGroup("correspondence", "Correspondence"),
+        NotificationChannelGroup("live", "Live"),
+        NotificationChannelGroup("blitz", "Blitz"),
+      )
+        .map { it.id }
+        .map {
+          try {
+            notificationManager.deleteNotificationChannelGroup(it)
+          } catch (_: Exception) {
+            // a bug in Oreo where deleting a non-existant notification channel group throws an NPE
+          }
         }
-    }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        requestPermissionLauncher = null
-    }
+      notificationManager.createNotificationChannelGroup(
+        NotificationChannelGroup("your_turn", "Your Turn")
+      )
 
-    override fun askForNotificationsPermission(delayed: Boolean) {
-        CoroutineScope(Dispatchers.Main).launch {
-            if(delayed) {
-                delay(5000)
-            }
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                if (ContextCompat.checkSelfPermission(applicationContext, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
-                    requestPermissionLauncher?.launch(Manifest.permission.POST_NOTIFICATIONS)
-                }
-            }
+      notificationManager.createNotificationChannels(
+        listOf(
+          NotificationChannel(
+            "active_correspondence_games",
+            "Correspondence Games",
+            NotificationManager.IMPORTANCE_LOW
+          ).apply {
+            group = "your_turn"
+            enableLights(true)
+            lightColor = Color.WHITE
+            enableVibration(true)
+            vibrationPattern = longArrayOf(0, 200, 0, 200)
+
+          },
+          NotificationChannel(
+            "active_live_games",
+            "Live Games",
+            NotificationManager.IMPORTANCE_LOW
+          ).apply {
+            group = "your_turn"
+            enableLights(true)
+            lightColor = Color.WHITE
+            enableVibration(true)
+            vibrationPattern = longArrayOf(0, 200, 0, 200)
+
+          },
+          NotificationChannel(
+            "active_blitz_games",
+            "Blitz Games",
+            NotificationManager.IMPORTANCE_LOW
+          ).apply {
+            group = "your_turn"
+            enableLights(true)
+            lightColor = Color.WHITE
+            enableVibration(true)
+            vibrationPattern = longArrayOf(0, 200, 0, 200)
+
+          },
+          NotificationChannel(
+            "active_games",
+            "Your Turn",
+            NotificationManager.IMPORTANCE_LOW
+          ).apply {
+            enableLights(true)
+            lightColor = Color.WHITE
+            enableVibration(true)
+            vibrationPattern = longArrayOf(0, 200, 0, 200)
+          },
+          NotificationChannel(
+            "challenges",
+            "Challenges",
+            NotificationManager.IMPORTANCE_LOW
+          ).apply {
+            enableLights(true)
+            lightColor = Color.WHITE
+            enableVibration(true)
+            vibrationPattern = longArrayOf(0, 200, 0, 200)
+
+          },
+          NotificationChannel("logout", "Logout", NotificationManager.IMPORTANCE_LOW).apply {
+            enableLights(false)
+            enableVibration(false)
+          }
+        )
+      )
+    }
+  }
+
+  override fun onDestroy() {
+    super.onDestroy()
+    requestPermissionLauncher = null
+  }
+
+  fun askForNotificationsPermission(delayed: Boolean) {
+    CoroutineScope(Dispatchers.Main).launch {
+      if (delayed) {
+        delay(5000)
+      }
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        if (ContextCompat.checkSelfPermission(
+            applicationContext,
+            Manifest.permission.POST_NOTIFICATIONS
+          ) != PackageManager.PERMISSION_GRANTED
+        ) {
+          requestPermissionLauncher?.launch(Manifest.permission.POST_NOTIFICATIONS)
         }
+      }
     }
+  }
 
-    override fun onResume() {
-        presenter.subscribe()
+  override fun onResume() {
+    viewModel.onResume()
+    isInForeground = true
+    super.onResume()
+  }
 
-        isInForeground = true
-        super.onResume()
-    }
-
-    override fun showLogin() {
-//        findNavController(R.id.fragment_container).apply {
-//            if(currentDestination?.id != R.id.onboardingFragment) {
-//                navigate(R.id.onboardingFragment)
-//            }
-//        }
-    }
-
-    override fun onPause() {
-        super.onPause()
-
-        presenter.unsubscribe()
-        isInForeground = false
-    }
+  override fun onPause() {
+    super.onPause()
+    viewModel.onPause()
+    isInForeground = false
+  }
 }
+
+/**
+ * Convenience wrapper for dark mode checking
+ */
+val Configuration.isSystemInDarkTheme
+  get() = (uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
+
+/**
+ * Registers listener for configuration changes to retrieve whether system is in dark theme or not.
+ * Immediately upon subscribing, it sends the current value and then registers listener for changes.
+ */
+fun ComponentActivity.isSystemInDarkTheme() = callbackFlow {
+  channel.trySend(resources.configuration.isSystemInDarkTheme)
+
+  val listener = Consumer<Configuration> {
+    channel.trySend(it.isSystemInDarkTheme)
+  }
+
+  addOnConfigurationChangedListener(listener)
+
+  awaitClose { removeOnConfigurationChangedListener(listener) }
+}
+  .distinctUntilChanged()
+  .conflate()
+
+data class ThemeSettings(
+  val isDarkTheme: Boolean,
+  val boardTheme: BoardTheme,
+  val dynamicColors: Boolean,
+  val showCoordinates: Boolean,
+)
+
+/**
+ * The default light scrim, as defined by androidx and the platform:
+ * https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:activity/activity/src/main/java/androidx/activity/EdgeToEdge.kt;l=35-38;drc=27e7d52e8604a080133e8b842db10c89b4482598
+ */
+private val lightScrim = Color.argb(0xe6, 0xFF, 0xFF, 0xFF)
+
+/**
+ * The default dark scrim, as defined by androidx and the platform:
+ * https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:activity/activity/src/main/java/androidx/activity/EdgeToEdge.kt;l=40-44;drc=27e7d52e8604a080133e8b842db10c89b4482598
+ */
+private val darkScrim = Color.argb(0x80, 0x1b, 0x1b, 0x1b)

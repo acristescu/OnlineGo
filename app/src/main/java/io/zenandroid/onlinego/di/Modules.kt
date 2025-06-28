@@ -36,6 +36,7 @@ import io.zenandroid.onlinego.ui.screens.game.GameViewModel
 import io.zenandroid.onlinego.ui.screens.joseki.JosekiExplorerViewModel
 import io.zenandroid.onlinego.ui.screens.learn.LearnViewModel
 import io.zenandroid.onlinego.ui.screens.localai.AiGameViewModel
+import io.zenandroid.onlinego.ui.screens.main.MainActivityViewModel
 import io.zenandroid.onlinego.ui.screens.mygames.MyGamesViewModel
 import io.zenandroid.onlinego.ui.screens.newchallenge.NewChallengeViewModel
 import io.zenandroid.onlinego.ui.screens.newchallenge.SelectOpponentViewModel
@@ -50,6 +51,7 @@ import io.zenandroid.onlinego.usecases.GetUserStatsUseCase
 import io.zenandroid.onlinego.utils.CountingIdlingResource
 import io.zenandroid.onlinego.utils.CustomConverterFactory
 import io.zenandroid.onlinego.utils.NOOPIdlingResource
+import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.androidx.viewmodel.dsl.viewModelOf
 import org.koin.core.module.dsl.singleOf
@@ -84,7 +86,7 @@ private val repositoriesModule = module {
   single { PuzzleRepository(get(), get()) }
   single { PlayersRepository(get(), get(), get()) }
   single { ServerNotificationsRepository(get()) }
-  single { SettingsRepository() }
+  single { SettingsRepository(androidContext()) }
   single { UserSessionRepository() }
   single { ClockDriftRepository(get()) }
   single { TutorialsRepository() }
@@ -154,6 +156,7 @@ private val viewModelsModule = module {
   viewModelOf(::OnboardingViewModel)
   viewModelOf(::SupporterViewModel)
   viewModelOf(::GameViewModel)
+  viewModelOf(::MainActivityViewModel)
 
   viewModel {
     MyGamesViewModel(

@@ -1,8 +1,6 @@
 package io.zenandroid.onlinego.ui.screens.settings
 
 import android.content.Context
-import android.os.Build
-import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -26,6 +24,10 @@ import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.ThemeClicked
 import io.zenandroid.onlinego.ui.views.BoardView
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -33,13 +35,29 @@ class SettingsViewModel(
   private val settingsRepository: SettingsRepository,
   private val userSessionRepository: UserSessionRepository,
 ) : ViewModel() {
-  val state = MutableStateFlow(
+
+  val userSettings: StateFlow<UserSettings> = combine(
+    settingsRepository.appThemeFlow,
+    settingsRepository.boardThemeFlow,
+    settingsRepository.showRanksFlow,
+    settingsRepository.showCoordinatesFlow,
+    settingsRepository.soundFlow,
+  ) { appTheme, boardTheme, showRanks, showCoordinates, sound ->
+    UserSettings(
+      theme = appTheme,
+      boardTheme = boardTheme,
+      showRanks = showRanks,
+      showCoordinates = showCoordinates,
+      soundEnabled = sound
+    )
+  }.stateIn(
+    viewModelScope,
+    SharingStarted.WhileSubscribed(5_000),
+    settingsRepository.cachedUserSettings
+  )
+
+  val state: MutableStateFlow<SettingsState> = MutableStateFlow(
     SettingsState(
-      theme = settingsRepository.appTheme ?: "System Default",
-      boardTheme = settingsRepository.boardTheme.displayName,
-      sounds = settingsRepository.sound,
-      ranks = settingsRepository.showRanks,
-      coordinates = settingsRepository.showCoordinates,
       username = userSessionRepository.uiConfig?.user?.username ?: "",
       avatarURL = userSessionRepository.uiConfig?.user?.icon,
     )
@@ -48,53 +66,38 @@ class SettingsViewModel(
   fun onAction(action: SettingsAction) {
     when (action) {
       CoordinatesClicked -> {
-        settingsRepository.showCoordinates = !state.value.coordinates
-        state.update { it.copy(coordinates = !it.coordinates) }
+        viewModelScope.launch {
+          settingsRepository.setShowCoordinates(!userSettings.value.showCoordinates)
+        }
       }
 
       RanksClicked -> {
-        settingsRepository.showRanks = !state.value.ranks
-        state.update { it.copy(ranks = !it.ranks) }
+        viewModelScope.launch {
+          settingsRepository.setShowRanks(!userSettings.value.showRanks)
+        }
       }
 
       SoundsClicked -> {
-        settingsRepository.sound = !state.value.sounds
-        state.update { it.copy(sounds = !it.sounds) }
+        viewModelScope.launch {
+          settingsRepository.setSound(!userSettings.value.soundEnabled)
+        }
       }
 
       is ThemeClicked -> {
-        settingsRepository.appTheme = action.theme
         viewModelScope.launch {
-          delay(100)
-          when (action.theme) {
-            "Light" -> {
-              AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-            }
-
-            "Dark" -> {
-              AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-            }
-
-            else -> {
-              if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
-              } else {
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_AUTO_BATTERY)
-              }
-            }
-          }
+          settingsRepository.setAppTheme(action.theme)
           BoardView.unloadResources()
         }
-
-        state.update { it.copy(theme = action.theme) }
       }
 
       is SettingsAction.Logout -> doLogout(action.context)
 
       is BoardThemeClicked -> {
-        settingsRepository.boardTheme =
-          BoardTheme.entries.find { it.displayName == action.boardDisplayName }!!
-        state.update { it.copy(boardTheme = action.boardDisplayName) }
+        viewModelScope.launch {
+          settingsRepository.setBoardTheme(
+            BoardTheme.entries.find { it.displayName == action.boardDisplayName }!!
+          )
+        }
       }
 
       is DeleteAccountClicked -> state.update {
@@ -166,11 +169,6 @@ class SettingsViewModel(
 
 @Immutable
 data class SettingsState(
-  val theme: String = "Default",
-  val boardTheme: String = "Default",
-  val sounds: Boolean = true,
-  val ranks: Boolean = true,
-  val coordinates: Boolean = true,
   val username: String = "",
   val avatarURL: String? = null,
   val passwordDialogVisible: Boolean = false,
@@ -202,4 +200,14 @@ data class DialogData(
   val positiveButton: String,
   val negativeButton: String,
   val onPositive: () -> Unit,
+)
+
+@Immutable
+data class UserSettings(
+  val theme: String = "Default",
+  val boardTheme: BoardTheme = BoardTheme.WOOD,
+  val showRanks: Boolean = true,
+  val showCoordinates: Boolean = false,
+  val soundEnabled: Boolean = true,
+  val graphByGames: Boolean = false,
 )

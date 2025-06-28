@@ -2,6 +2,7 @@ package io.zenandroid.onlinego.ui.screens.mygames
 
 import android.util.Log
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.collectAsState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.analytics.FirebaseAnalytics
@@ -53,7 +54,9 @@ import io.zenandroid.onlinego.utils.formatRank
 import io.zenandroid.onlinego.utils.recordException
 import io.zenandroid.onlinego.utils.timeLeftForCurrentPlayer
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.json.JSONObject
@@ -84,6 +87,7 @@ class MyGamesViewModel(
   val state: StateFlow<MyGamesState> = _state
   private val subscriptions = CompositeDisposable()
   private var loadOlderGamesSubscription: Disposable? = null
+  private var showRanks = false
 
   override fun onCleared() {
     subscriptions.clear()
@@ -102,6 +106,12 @@ class MyGamesViewModel(
         }
       } catch (throwable: Throwable) {
         onError(throwable)
+      }
+    }
+
+    viewModelScope.launch {
+      settingsRepository.showRanksFlow.collect {
+        showRanks = it
       }
     }
 
@@ -231,7 +241,7 @@ class MyGamesViewModel(
       challenge = challenge,
       imageURL = challenge.challenger?.icon,
       name = challenge.challenger?.username,
-      rank = if (settingsRepository.showRanks) "$rank ($rating)" else "",
+      rank = if (showRanks) "$rank ($rating)" else "",
       details = listOf(
         "Board Size" to "${challenge.width}x${challenge.height}",
         "Speed" to "${challenge.speed?.capitalize(Locale.UK)}",

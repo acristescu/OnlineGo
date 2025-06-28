@@ -49,8 +49,7 @@ import io.zenandroid.onlinego.data.model.katago.MoveInfo
 import io.zenandroid.onlinego.data.model.ogs.PlayCategory
 import io.zenandroid.onlinego.gamelogic.RulesManager.isPass
 import io.zenandroid.onlinego.gamelogic.Util
-import io.zenandroid.onlinego.ui.theme.LocalBoardTheme
-import io.zenandroid.onlinego.ui.theme.LocalShowCoordinates
+import io.zenandroid.onlinego.ui.theme.LocalThemeSettings
 import kotlin.math.abs
 import kotlin.math.ceil
 import kotlin.math.roundToInt
@@ -65,8 +64,8 @@ fun Board(
   position: Position?,
   candidateMove: Cell? = null,
   candidateMoveType: StoneType? = null,
-  boardTheme: BoardTheme = LocalBoardTheme.current,
-  drawCoordinates: Boolean = LocalShowCoordinates.current,
+  boardTheme: BoardTheme = LocalThemeSettings.current.boardTheme,
+  drawCoordinates: Boolean = LocalThemeSettings.current.showCoordinates,
   hints: List<MoveInfo>? = null,
   ownership: List<Float>? = null,
   interactive: Boolean = true,
@@ -84,9 +83,9 @@ fun Board(
 
     val drawMarks = true
 
-    // Board background image, it is either a jpg or a svg
-    val backgroundImage: ImageBitmap? = boardTheme.backgroundImage?.let {
-      ImageBitmap.imageResource(id = boardTheme.backgroundImage)
+    val background = if (LocalThemeSettings.current.isDarkTheme) boardTheme.backgroundImageDarkMode else boardTheme.backgroundImage
+    val backgroundImage: ImageBitmap? = background?.let {
+      ImageBitmap.imageResource(id = it)
     }
     val backgroundColor: Color? = boardTheme.backgroundColor?.let {
       colorResource(boardTheme.backgroundColor)
@@ -331,7 +330,11 @@ private fun DrawScope.drawBackground(backgroundImage: ImageBitmap?, backgroundCo
   }
 }
 
-private fun DrawScope.drawAiEstimatedOwnership(pos: Position, ownership: List<Float>, measurements: Measurements) {
+private fun DrawScope.drawAiEstimatedOwnership(
+  pos: Position,
+  ownership: List<Float>,
+  measurements: Measurements
+) {
   for (i in 0 until pos.boardWidth) {
     for (j in 0 until pos.boardHeight) {
       val center = getCellCenter(i, j, measurements)

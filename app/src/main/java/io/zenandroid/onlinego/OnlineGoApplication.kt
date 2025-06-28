@@ -59,27 +59,5 @@ class OnlineGoApplication : Application() {
             }
             Log.w("OnlineGoApplication", "Undeliverable exception received, not sure what to do", e)
         }
-
-        val settingsRepository: SettingsRepository = GlobalContext.get().get()
-        when (settingsRepository.appTheme) {
-            "Light" -> {
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-            }
-            "Dark" -> {
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-            }
-            else -> {
-                val defaultNightMode = AppCompatDelegate.getDefaultNightMode()
-                if (defaultNightMode == AppCompatDelegate.MODE_NIGHT_UNSPECIFIED) {
-                    //special case handling the "unspecified" night mode, the one we get e.g. in
-                    //case of battery saving, which doesn't trigger any night mode decision at startup.
-                    if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
-                        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
-                    } else {
-                        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_AUTO_BATTERY)
-                    }
-                }
-            }
-        }
     }
 }

@@ -31,6 +31,8 @@ import io.zenandroid.onlinego.utils.egfToRank
 import io.zenandroid.onlinego.utils.formatRank
 import io.zenandroid.onlinego.utils.recordException
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -51,9 +53,16 @@ class StatsViewModel(
   private var stats: UserStats? = null
   private var currentFilter = ONE_MONTH
   private val dateFormat = SimpleDateFormat("MMM d, yyyy", Locale.US)
+  private val graphByGames = settingsRepository.graphByGamesFlow.stateIn(
+    scope = viewModelScope,
+    initialValue = settingsRepository.cachedUserSettings.graphByGames,
+    started = SharingStarted.WhileSubscribed(5_000)
+  )
 
   val state: MutableStateFlow<StatsState> = MutableStateFlow(
-    StatsState.Initial
+    StatsState.Initial.copy(
+      collapseTimeByGame = graphByGames.value,
+    )
   )
 
   init {
@@ -65,6 +74,15 @@ class StatsViewModel(
         onSuccess = ::fillPlayerStats,
         onFailure = ::onError
       )
+    }
+    viewModelScope.launch {
+      graphByGames.collect {
+        state.update {
+          it.copy(
+            collapseTimeByGame = it.collapseTimeByGame
+          )
+        }
+      }
     }
 
     viewModelScope.launch {
@@ -78,10 +96,14 @@ class StatsViewModel(
 
   fun onGraphChanged() {
     stats?.let {
-      settingsRepository.graphByGames = !settingsRepository.graphByGames
-      state.value = state.value.copy(
-        collapseTimeByGame = settingsRepository.graphByGames,
-      )
+      viewModelScope.launch {
+        settingsRepository.setGraphByGames(!graphByGames.value)
+      }
+      state.update {
+        it.copy(
+          collapseTimeByGame = it.collapseTimeByGame?.not()
+        )
+      }
     }
   }
 
@@ -138,10 +160,11 @@ class StatsViewModel(
     val longestStreak = stats.bestStreak
     val startDate = dateFormat.format(Date(stats.bestStreakStart * 1000))
     val endDate = dateFormat.format(Date(stats.bestStreakEnd * 1000))
-    val currentStreak = if(last10Games.isEmpty()) "-" else {
+    val currentStreak = if (last10Games.isEmpty()) "-" else {
       val lastGameWon = last10Games.last().won
       val count = last10Games.takeLastWhile { it.won == lastGameWon }.size
-      val suffix = if (lastGameWon) "win${if(count != 1) "s" else ""}" else "loss${if(count != 1) "es" else ""}"
+      val suffix =
+        if (lastGameWon) "win${if (count != 1) "s" else ""}" else "loss${if (count != 1) "es" else ""}"
       "$count $suffix"
     }
     val recentWins = last10Games.count { it.won }
@@ -162,7 +185,7 @@ class StatsViewModel(
         recentResults = "$recentWins - $recentLosses",
         startDate = startDate,
         endDate = endDate,
-        collapseTimeByGame = settingsRepository.graphByGames,
+        collapseTimeByGame = graphByGames.value,
         allGames = stats.allGames,
         smallBoard = stats.smallBoard,
         mediumBoard = stats.mediumBoard,

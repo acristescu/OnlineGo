@@ -2,6 +2,13 @@ package io.zenandroid.onlinego.ui.theme
 
 import androidx.compose.runtime.staticCompositionLocalOf
 import io.zenandroid.onlinego.data.model.BoardTheme
+import io.zenandroid.onlinego.ui.screens.main.ThemeSettings
 
-val LocalBoardTheme = staticCompositionLocalOf { BoardTheme.WOOD }
-val LocalShowCoordinates = staticCompositionLocalOf { true }
+val LocalThemeSettings = staticCompositionLocalOf {
+  ThemeSettings(
+    isDarkTheme = false,
+    boardTheme = BoardTheme.WOOD,
+    dynamicColors = true,
+    showCoordinates = true,
+  )
+}

@@ -5,12 +5,10 @@ import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.GradientDrawable.Orientation.TOP_BOTTOM
 import android.view.MotionEvent
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.ContentAlpha
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
@@ -63,6 +61,7 @@ import io.zenandroid.onlinego.ui.screens.stats.StatsViewModel.Filter.ONE_MONTH
 import io.zenandroid.onlinego.ui.screens.stats.StatsViewModel.Filter.ONE_YEAR
 import io.zenandroid.onlinego.ui.screens.stats.StatsViewModel.Filter.THREE_MONTHS
 import io.zenandroid.onlinego.ui.screens.stats.StatsViewModel.Filter.TWENTY_GAMES
+import io.zenandroid.onlinego.ui.theme.LocalThemeSettings
 import io.zenandroid.onlinego.utils.egfToRank
 import io.zenandroid.onlinego.utils.formatRank
 import java.text.SimpleDateFormat
@@ -94,7 +93,7 @@ fun ChartWrapper(
         modifier = Modifier
           .fillMaxWidth()
           .height(200.dp)
-          .alpha(alpha = if (isSystemInDarkTheme()) ContentAlpha.medium else 0.15f),
+          .alpha(alpha = if (LocalThemeSettings.current.isDarkTheme) 0.6f else 0.15f),
         painter = painterResource(id = drawable.chart_placeholder),
         contentScale = ContentScale.FillBounds,
         contentDescription = null

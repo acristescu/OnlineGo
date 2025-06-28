@@ -12,6 +12,7 @@ import io.zenandroid.onlinego.R
 enum class BoardTheme(
     val displayName: String,
     val backgroundImage: Int?,
+    val backgroundImageDarkMode: Int?,
     val backgroundColor: Int?,
     val gridPreview: Int,
     val whiteStone: Int,
@@ -21,6 +22,7 @@ enum class BoardTheme(
     WOOD(
         "Light wood",
         R.drawable.wood,
+        R.drawable.wood_medium,
         null,
         R.mipmap.bg_preview_wood,
         R.drawable.ic_stone_white_svg,
@@ -29,6 +31,7 @@ enum class BoardTheme(
     ),
     WOOD_DARK(
         "Dark wood",
+        R.drawable.wood_dark,
         R.drawable.wood_dark,
         null,
         R.mipmap.bg_preview_dark_wood,
@@ -39,6 +42,7 @@ enum class BoardTheme(
     CYAN(
         "Cyan",
         null,
+        null,
         R.color.bg_cyan,
         R.mipmap.bg_preview_cyan,
         R.drawable.ic_stone_white_svg,
@@ -47,6 +51,7 @@ enum class BoardTheme(
     ),
     DARK_BLUE(
         "Dark blue",
+        null,
         null,
         R.color.bg_dark_blue,
         R.mipmap.bg_preview_dark_blue,
@@ -57,6 +62,7 @@ enum class BoardTheme(
     BOOK(
         "Book",
         null,
+        null,
         R.color.bg_book,
         R.mipmap.bg_preview_book,
         R.drawable.ic_stone_white_svg,
@@ -65,6 +71,7 @@ enum class BoardTheme(
     ),
     NOCTURNE(
         "Nocturne",
+        null,
         null,
         R.color.bg_nocturne,
         R.mipmap.bg_preview_nocturne,

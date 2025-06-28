@@ -217,9 +217,11 @@ class GameViewModel(
         state = moleculeScope.launchMolecule(mode = ContextClock) {
             val game by gameFlow.collectAsState(initial = null)
             val messages by messagesFlow.collectAsState(emptyMap())
+            val soundEnabled by settingsRepository.soundFlow.collectAsState(false)
+            val showRanks by settingsRepository.showRanksFlow.collectAsState(false)
 
             LaunchedEffect(game?.moves) {
-                if(!loading && !game?.moves.isNullOrEmpty() && settingsRepository.sound) {
+                if(!loading && !game?.moves.isNullOrEmpty() && soundEnabled) {
                     _events.emit(Event.PlayStoneSound)
                 }
             }
@@ -343,8 +345,8 @@ class GameViewModel(
                 fadeOutRemovedStones = game?.phase == Phase.STONE_REMOVAL || (gameFinished == true && analysisShownMoveNumber == game?.moves?.size) || (estimateMode && estimatePosition != null),
                 buttons = visibleButtons,
                 title = if (loading) "Loading..." else "Move ${game?.moves?.size} · ${game?.rules?.capitalize()} · ${if (whiteToMove) "White" else "Black"}",
-                whitePlayer = game?.whitePlayer?.data(StoneType.WHITE, whiteScore.total ?: 0f),
-                blackPlayer = game?.blackPlayer?.data(StoneType.BLACK, blackScore.total ?: 0f),
+                whitePlayer = game?.whitePlayer?.data(StoneType.WHITE, whiteScore.total ?: 0f, showRanks),
+                blackPlayer = game?.blackPlayer?.data(StoneType.BLACK, blackScore.total ?: 0f, showRanks),
                 whiteScore = whiteScore,
                 blackScore = blackScore,
                 timerDetails = timer,
@@ -654,11 +656,11 @@ class GameViewModel(
         }
     }
 
-    private fun Player.data(color: StoneType, score: Float): PlayerData {
+    private fun Player.data(color: StoneType, score: Float, showRanks: Boolean): PlayerData {
         return PlayerData(
             name = username,
             details = if(score != 0f) "${if(score > 0) "+ " else ""}$score points" else "",
-            rank = if(settingsRepository.showRanks) formatRank(egfToRank(rating), deviation) else "",
+            rank = if(showRanks) formatRank(egfToRank(rating), deviation) else "",
             flagCode = convertCountryCodeToEmojiFlag(country),
             iconURL = icon,
             color = color,
