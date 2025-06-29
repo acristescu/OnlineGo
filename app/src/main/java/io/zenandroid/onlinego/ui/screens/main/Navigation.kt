@@ -48,7 +48,7 @@ fun OnlineGoApp(isLoggedIn: Boolean, darkTheme: Boolean) {
 
   val showBottomBar = currentDestination in listOf("myGames", "learn", "stats", "settings")
   val m3Destinations =
-    listOf("myGames", "learn", "stats", "settings", "puzzleDirectory", "supporter", "onboarding")
+    listOf("myGames", "learn", "stats", "settings", "puzzleDirectory", "supporter", "onboarding", "faceToFace", "aiGame")
 
   OnlineGoTheme(
     m3 = m3Destinations.contains(currentDestination),

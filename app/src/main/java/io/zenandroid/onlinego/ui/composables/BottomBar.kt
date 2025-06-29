@@ -22,9 +22,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.Icon
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
@@ -32,6 +32,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -55,7 +56,7 @@ fun BottomBar(
               .fillMaxSize()
               .alpha(if (it.enabled) 1f else .4f)
               .background(
-                if (it.highlighted) MaterialTheme.colors.primaryVariant else MaterialTheme.colors.surface
+                if (it.highlighted) MaterialTheme.colorScheme.surfaceTint else MaterialTheme.colorScheme.surface
               )
               .clickable(enabled = it.enabled) {
                 if (!it.repeatable) onButtonPressed(it)
@@ -71,12 +72,14 @@ fun BottomBar(
               it.icon,
               null,
               modifier = Modifier.size(24.dp),
-              tint = MaterialTheme.colors.onSurface,
+              tint = MaterialTheme.colorScheme.onSurface,
             )
             Text(
               text = it.label,
-              style = MaterialTheme.typography.h5,
-              color = MaterialTheme.colors.onSurface,
+              fontFamily = FontFamily.Default,
+              fontWeight = FontWeight.Bold,
+              fontSize = 8.sp,
+              color = MaterialTheme.colorScheme.onSurface,
             )
           }
           androidx.compose.animation.AnimatedVisibility(
@@ -92,10 +95,10 @@ fun BottomBar(
                 fontSize = 9.sp,
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center,
-                color = MaterialTheme.colors.surface,
+                color = MaterialTheme.colorScheme.surface,
                 modifier = Modifier
                   .padding(start = 19.dp, top = 5.dp)
-                  .background(MaterialTheme.colors.primary, CircleShape)
+                  .background(MaterialTheme.colorScheme.primary, CircleShape)
                   .size(16.dp)
                   .wrapContentHeight(),
 
@@ -109,13 +112,13 @@ fun BottomBar(
       Spacer(modifier = Modifier.weight(.5f))
       Text(
         text = text,
-        style = MaterialTheme.typography.h2,
-        color = MaterialTheme.colors.onSurface,
+        style = MaterialTheme.typography.titleMedium,
+        color = MaterialTheme.colorScheme.onSurface,
         modifier = Modifier.align(Alignment.CenterVertically)
       )
       DotsFlashing(
         dotSize = 4.dp,
-        color = MaterialTheme.colors.onBackground,
+        color = MaterialTheme.colorScheme.onBackground,
         modifier = Modifier
           .align(Alignment.CenterVertically)
           .padding(top = 10.dp, start = 4.dp)

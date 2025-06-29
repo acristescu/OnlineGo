@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package io.zenandroid.onlinego.ui.screens.face2face
 
 import android.content.res.Configuration
@@ -15,17 +17,18 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.AlertDialog
-import androidx.compose.material.Button
-import androidx.compose.material.DropdownMenuItem
-import androidx.compose.material.ExposedDropdownMenuBox
-import androidx.compose.material.ExposedDropdownMenuDefaults
-import androidx.compose.material.LocalContentColor
-import androidx.compose.material.LocalTextStyle
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
-import androidx.compose.material.TextButton
-import androidx.compose.material.TextField
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.LocalTextStyle
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.collectAsState
@@ -66,11 +69,8 @@ import io.zenandroid.onlinego.ui.screens.face2face.Button.GameSettings
 import io.zenandroid.onlinego.ui.screens.face2face.Button.Next
 import io.zenandroid.onlinego.ui.screens.face2face.Button.Previous
 import io.zenandroid.onlinego.ui.screens.game.ExtraStatusField
-import io.zenandroid.onlinego.ui.screens.localai.AiGameViewModel
-import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
 import org.koin.androidx.compose.koinViewModel
 import java.lang.Float.max
-import androidx.compose.runtime.getValue
 
 @Composable
 fun FaceToFaceScreen(
@@ -91,7 +91,7 @@ private fun FaceToFaceContent(
   if (LocalConfiguration.current.orientation == Configuration.ORIENTATION_PORTRAIT) {
     Column(
       Modifier
-        .background(MaterialTheme.colors.surface)
+        .background(MaterialTheme.colorScheme.surface)
         .fillMaxSize()
     ) {
       TitleBar(
@@ -114,8 +114,8 @@ private fun FaceToFaceContent(
           Text(
             text = "Player 1",
             textAlign = TextAlign.Center,
-            color = MaterialTheme.colors.onSurface,
-            style = MaterialTheme.typography.h3,
+            color = MaterialTheme.colorScheme.onSurface,
+            style = MaterialTheme.typography.titleMedium,
             modifier = Modifier.width(84.dp)
           )
         }
@@ -125,8 +125,8 @@ private fun FaceToFaceContent(
           Text(
             text = "Player 2",
             textAlign = TextAlign.Center,
-            color = MaterialTheme.colors.onSurface,
-            style = MaterialTheme.typography.h3,
+            color = MaterialTheme.colorScheme.onSurface,
+            style = MaterialTheme.typography.titleMedium,
             modifier = Modifier.width(84.dp)
           )
         }
@@ -165,7 +165,7 @@ private fun FaceToFaceContent(
   } else {
     Row(
       Modifier
-        .background(MaterialTheme.colors.surface)
+        .background(MaterialTheme.colorScheme.surface)
         .fillMaxSize()
     ) {
       Column(
@@ -193,8 +193,8 @@ private fun FaceToFaceContent(
             Text(
               text = "Player 1",
               textAlign = TextAlign.Center,
-              color = MaterialTheme.colors.onSurface,
-              style = MaterialTheme.typography.h3,
+              color = MaterialTheme.colorScheme.onSurface,
+              style = MaterialTheme.typography.headlineMedium,
               modifier = Modifier.width(84.dp)
             )
           }
@@ -204,8 +204,8 @@ private fun FaceToFaceContent(
             Text(
               text = "Player 2",
               textAlign = TextAlign.Center,
-              color = MaterialTheme.colors.onSurface,
-              style = MaterialTheme.typography.h3,
+              color = MaterialTheme.colorScheme.onSurface,
+              style = MaterialTheme.typography.headlineMedium,
               modifier = Modifier.width(84.dp)
             )
           }
@@ -255,10 +255,10 @@ private fun FaceToFaceContent(
 }
 
 @Composable
-private fun ScoreSheet(pos: Position, modifier: Modifier = Modifier) {
+private fun ScoreSheet(pos: Position) {
   CompositionLocalProvider(
-    LocalContentColor provides MaterialTheme.colors.onSurface,
-    LocalTextStyle provides MaterialTheme.typography.body2.copy(fontFamily = FontFamily.Monospace),
+    LocalContentColor provides MaterialTheme.colorScheme.onSurface,
+    LocalTextStyle provides MaterialTheme.typography.bodyMedium.copy(fontFamily = FontFamily.Monospace),
   ) {
     val hasDeadStones =
       pos.blackDeadStones.isNotEmpty() || pos.whiteDeadStones.isNotEmpty()
@@ -329,7 +329,7 @@ private fun NewGameDialog(onUserAction: (Action) -> Unit, newGameParameters: Gam
       horizontalAlignment = Alignment.CenterHorizontally,
       modifier = Modifier
         .background(
-          color = MaterialTheme.colors.surface,
+          color = MaterialTheme.colorScheme.surface,
           shape = RoundedCornerShape(10.dp)
         )
         .fillMaxWidth()
@@ -340,12 +340,12 @@ private fun NewGameDialog(onUserAction: (Action) -> Unit, newGameParameters: Gam
         modifier = Modifier
           .align(Alignment.CenterHorizontally)
           .padding(bottom = 16.dp),
-        color = MaterialTheme.colors.onSurface,
-        style = MaterialTheme.typography.h1,
+        color = MaterialTheme.colorScheme.onSurface,
+        style = MaterialTheme.typography.headlineLarge,
       )
       SettingsRow(
         label = "Size",
-        options = BoardSize.values().toList(),
+        options = BoardSize.entries,
         selected = newGameParameters.size,
         onSelectionChanged = {
           onUserAction(Action.NewGameParametersChanged(newGameParameters.copy(size = it)))
@@ -382,16 +382,14 @@ private fun <T> SettingsRow(
     Text(
       text = label,
       modifier = Modifier.align(CenterVertically),
-      color = MaterialTheme.colors.onSurface,
-      style = MaterialTheme.typography.body2,
+      color = MaterialTheme.colorScheme.onSurface,
+      style = MaterialTheme.typography.bodyMedium,
     )
     Spacer(modifier = Modifier.weight(1f))
     var expanded by remember { mutableStateOf(false) }
     ExposedDropdownMenuBox(
       expanded = expanded,
-      onExpandedChange = {
-        expanded = !expanded
-      },
+      onExpandedChange = { expanded = it },
       modifier = Modifier.width(130.dp)
     ) {
       TextField(
@@ -399,29 +397,27 @@ private fun <T> SettingsRow(
         value = selected.toString(),
         onValueChange = { },
         trailingIcon = {
-          ExposedDropdownMenuDefaults.TrailingIcon(
-            expanded = expanded
-          )
+          ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
         },
         colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(
-          textColor = MaterialTheme.colors.onSurface,
-        )
+          focusedTextColor = MaterialTheme.colorScheme.onSurface,
+        ),
+        modifier = Modifier.menuAnchor()
       )
       ExposedDropdownMenu(
         expanded = expanded,
-        onDismissRequest = {
-          expanded = false
-        }
+        onDismissRequest = { expanded = false }
       ) {
         options.forEach { selectionOption ->
           DropdownMenuItem(
             onClick = {
               onSelectionChanged(selectionOption)
               expanded = false
+            },
+            text = {
+              Text(text = selectionOption.toString())
             }
-          ) {
-            Text(text = selectionOption.toString())
-          }
+          )
         }
       }
     }
