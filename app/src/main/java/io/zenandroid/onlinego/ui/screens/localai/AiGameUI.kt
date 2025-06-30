@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package io.zenandroid.onlinego.ui.screens.localai
 
 import androidx.compose.foundation.Image
@@ -17,25 +19,28 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.AlertDialog
-import androidx.compose.material.Card
-import androidx.compose.material.ChipDefaults
 import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.FilterChip
-import androidx.compose.material.Icon
-import androidx.compose.material.LinearProgressIndicator
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.OutlinedButton
-import androidx.compose.material.Slider
-import androidx.compose.material.Text
-import androidx.compose.material.TextButton
-import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.NavigateBefore
 import androidx.compose.material.icons.automirrored.filled.NavigateNext
 import androidx.compose.material.icons.filled.Casino
 import androidx.compose.material.icons.rounded.Stop
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Slider
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -51,6 +56,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
@@ -187,28 +193,26 @@ private fun AiGameUI(
   Column(
     modifier = Modifier
       .fillMaxSize()
-      .background(MaterialTheme.colors.surface)
+      .background(MaterialTheme.colorScheme.surface)
   ) {
     TopAppBar(
       title = {
-        androidx.compose.material.Text(
+        Text(
           text = "Local AI Game",
           fontSize = 16.sp,
           fontWeight = FontWeight.Medium,
-          color = MaterialTheme.colors.onSurface
+          color = MaterialTheme.colorScheme.onSurface
         )
       },
       navigationIcon = {
-        androidx.compose.material.IconButton(onClick = onNavigateBack) {
+        IconButton(onClick = onNavigateBack) {
           Icon(
             Icons.AutoMirrored.Filled.ArrowBack,
             contentDescription = "Back",
-            tint = MaterialTheme.colors.onSurface
+            tint = MaterialTheme.colorScheme.onSurface
           )
         }
       },
-      elevation = 1.dp,
-      backgroundColor = MaterialTheme.colors.surface
     )
     // Progress bar
     if (!state.engineStarted) {
@@ -237,14 +241,16 @@ private fun AiGameUI(
           modifier = Modifier
             .size(80.dp),
           shape = CircleShape,
-          backgroundColor = MaterialTheme.colors.background,
-          elevation = 2.dp
+          colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.background
+          ),
         ) {
           Image(
             painter = painterResource(R.drawable.ic_ai),
             contentDescription = "AI",
             modifier = Modifier.fillMaxSize(),
-            contentScale = ContentScale.Crop
+            contentScale = ContentScale.Crop,
+            colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface)
           )
         }
 
@@ -268,8 +274,9 @@ private fun AiGameUI(
           Card(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(6.dp),
-            backgroundColor = colorResource(R.color.colorOffWhite),
-            elevation = 1.dp
+            colors = CardDefaults.cardColors(
+              containerColor = MaterialTheme.colorScheme.background
+            ),
           ) {
             Text(
               text = text,
@@ -326,8 +333,10 @@ private fun AiGameUI(
         Card(
           modifier = Modifier.size(80.dp),
           shape = RoundedCornerShape(4.dp),
-          backgroundColor = MaterialTheme.colors.surface,
-          elevation = 2.dp
+          colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+          ),
+          elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
         ) {
           if (userIcon != null) {
             AsyncImage(
@@ -356,7 +365,9 @@ private fun AiGameUI(
           fontWeight = FontWeight.Bold,
           maxLines = 1,
           overflow = TextOverflow.Ellipsis,
-          modifier = Modifier.widthIn(max = 80.dp).padding(top = 4.dp)
+          modifier = Modifier
+            .widthIn(max = 80.dp)
+            .padding(top = 4.dp)
         )
       }
     }
@@ -414,33 +425,29 @@ private fun AiGameUI(
     }
 
     Spacer(modifier = Modifier.weight(1f))
-    // Board
     Card(
       modifier = Modifier
         .fillMaxWidth()
         .aspectRatio(1f)
         .padding(4.dp),
       shape = RoundedCornerShape(4.dp),
-      elevation = 2.dp,
-      backgroundColor = colorResource(R.color.colorTextBackground)
+      elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
     ) {
-      state.position?.let { position ->
-        Board(
-          modifier = Modifier.fillMaxSize(),
-          boardWidth = state.boardSize,
-          boardHeight = state.boardSize,
-          position = position,
-          hints = if (state.showHints) state.aiAnalysis?.moveInfos else null,
-          ownership = state.aiAnalysis?.ownership,
-          candidateMove = state.candidateMove,
-          candidateMoveType = if (state.enginePlaysBlack) StoneType.WHITE else StoneType.BLACK,
-          interactive = state.boardIsInteractive,
-          drawTerritory = state.showFinalTerritory,
-          fadeOutRemovedStones = state.showFinalTerritory,
-          onTapMove = onUserHotTrackedCoordinate,
-          onTapUp = onUserTappedCoordinate
-        )
-      }
+      Board(
+        modifier = Modifier.fillMaxSize(),
+        boardWidth = state.boardSize,
+        boardHeight = state.boardSize,
+        position = state.position,
+        hints = if (state.showHints) state.aiAnalysis?.moveInfos else null,
+        ownership = state.aiAnalysis?.ownership,
+        candidateMove = state.candidateMove,
+        candidateMoveType = if (state.enginePlaysBlack) StoneType.WHITE else StoneType.BLACK,
+        interactive = state.boardIsInteractive,
+        drawTerritory = state.showFinalTerritory,
+        fadeOutRemovedStones = state.showFinalTerritory,
+        onTapMove = onUserHotTrackedCoordinate,
+        onTapUp = onUserTappedCoordinate
+      )
     }
 
     Spacer(modifier = Modifier.weight(1f))
@@ -471,13 +478,13 @@ private fun AiGameUI(
           modifier = Modifier.padding(top = 4.dp),
         )
         LinearProgressIndicator(
-          progress = winrateAsPercentage / 100f,
+          progress = { winrateAsPercentage / 100f },
           modifier = Modifier
             .fillMaxWidth()
             .padding(top = 4.dp)
             .clip(RoundedCornerShape(3.dp)),
           color = Color.LightGray,
-          backgroundColor = Color.Black
+          trackColor = Color.Black,
         )
       }
     }
@@ -551,14 +558,15 @@ private fun NewGameDialog(
           listOf(9, 13, 19).forEach { size ->
             FilterChip(
               selected = selectedSize == size,
-              colors = ChipDefaults.outlinedFilterChipColors(
-                selectedContentColor = MaterialTheme.colors.onSurface,
-                selectedBackgroundColor = MaterialTheme.colors.primary.copy(alpha = 0.4f)
+              colors = FilterChipDefaults.elevatedFilterChipColors(
+                selectedLabelColor = MaterialTheme.colorScheme.onSurface,
+                selectedContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.4f)
               ),
-              onClick = { selectedSize = size }
-            ) {
-              Text("${size}x${size}")
-            }
+              onClick = { selectedSize = size },
+              label = {
+                Text("${size}x${size}")
+              }
+            )
           }
         }
 
@@ -569,24 +577,26 @@ private fun NewGameDialog(
         ) {
           FilterChip(
             selected = youPlayBlack,
-            colors = ChipDefaults.outlinedFilterChipColors(
-              selectedContentColor = MaterialTheme.colors.onSurface,
-              selectedBackgroundColor = MaterialTheme.colors.primary.copy(alpha = 0.4f)
+            colors = FilterChipDefaults.elevatedFilterChipColors(
+              selectedLabelColor = MaterialTheme.colorScheme.onSurface,
+              selectedContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.4f)
             ),
-            onClick = { youPlayBlack = true }
-          ) {
-            Text("Black")
-          }
+            onClick = { youPlayBlack = true },
+            label = {
+              Text("Black")
+            }
+          )
           FilterChip(
             selected = !youPlayBlack,
-            colors = ChipDefaults.outlinedFilterChipColors(
-              selectedContentColor = MaterialTheme.colors.onSurface,
-              selectedBackgroundColor = MaterialTheme.colors.primary.copy(alpha = 0.4f)
+            colors = FilterChipDefaults.elevatedFilterChipColors(
+              selectedLabelColor = MaterialTheme.colorScheme.onSurface,
+              selectedContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.4f)
             ),
-            onClick = { youPlayBlack = false }
-          ) {
-            Text("White")
-          }
+            onClick = { youPlayBlack = false },
+            label = {
+              Text("White")
+            }
+          )
         }
 
         Row(
@@ -600,7 +610,7 @@ private fun NewGameDialog(
           Text(
             text = getHandicapDescription(handicap.toInt()),
             fontSize = 12.sp,
-            color = MaterialTheme.colors.onSurface.copy(alpha = 0.7f)
+            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
           )
         }
         Slider(

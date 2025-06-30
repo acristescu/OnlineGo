@@ -52,6 +52,7 @@ import io.zenandroid.onlinego.ui.composables.FilterSortPanel
 import io.zenandroid.onlinego.ui.composables.RatingBar
 import io.zenandroid.onlinego.ui.composables.SearchTextField
 import io.zenandroid.onlinego.ui.composables.SortChip
+import io.zenandroid.onlinego.ui.screens.mygames.composables.SenteCard
 import io.zenandroid.onlinego.utils.convertCountryCodeToEmojiFlag
 import io.zenandroid.onlinego.utils.rememberStateWithLifecycle
 import org.koin.androidx.compose.koinViewModel
@@ -163,8 +164,8 @@ private fun PuzzleDirectoryContent(
       }
 
       items(items = state.collections, key = { it.id }) {
-        Surface(
-          shape = MaterialTheme.shapes.medium, modifier = Modifier
+        SenteCard (
+          modifier = Modifier
             .height(150.dp)
             .fillMaxWidth()
             .padding(horizontal = 8.dp, vertical = 4.dp)

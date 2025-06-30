@@ -47,8 +47,8 @@ fun SearchTextField(
     maxLines = 1,
     singleLine = true,
 //    colors = TextFieldDefaults.colors(
-//      focusedContainerColor = MaterialTheme.colors.surface,
-//      focusedTextColor = MaterialTheme.colors.onSurface
+//      focusedContainerColor = MaterialTheme.colorScheme.surface,
+//      focusedTextColor = MaterialTheme.colorScheme.onSurface
 //    ),
     modifier = modifier,
   )

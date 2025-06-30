@@ -31,14 +31,15 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.AlertDialog
-import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
-import androidx.compose.material.TextButton
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.Icons.Outlined
 import androidx.compose.material.icons.Icons.Rounded
+import androidx.compose.material.icons.automirrored.rounded.Undo
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.rounded.Cancel
 import androidx.compose.material.icons.rounded.Download
@@ -125,6 +126,7 @@ import io.zenandroid.onlinego.ui.screens.game.composables.PlayerDetailsDialog
 import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
 import io.zenandroid.onlinego.utils.rememberStateWithLifecycle
 import org.koin.androidx.compose.koinViewModel
+import androidx.core.net.toUri
 
 @Composable
 fun GameScreen(
@@ -167,7 +169,7 @@ fun GameScreen(
       is PendingNavigation.OpenURL -> LocalContext.current.startActivity(
         Intent(
           Intent.ACTION_VIEW,
-          Uri.parse(nav.url)
+          nav.url.toUri()
         ), Bundle()
       )
     }
@@ -191,7 +193,7 @@ fun GameContent(
   onUserAction: ((UserAction) -> Unit),
   onBack: (() -> Unit),
 ) {
-  Column(Modifier.background(MaterialTheme.colors.surface)) {
+  Column(Modifier.background(MaterialTheme.colorScheme.surface)) {
     if (LocalConfiguration.current.orientation == ORIENTATION_PORTRAIT) {
       Header(
         title = state.title,
@@ -497,7 +499,7 @@ fun ColumnScope.ExtraStatusField(text: String?, modifier: Modifier = Modifier) {
   AnimatedVisibility(visible = text != null) {
     Text(
       text = text ?: "",
-      style = MaterialTheme.typography.h3,
+      style = MaterialTheme.typography.titleMedium,
       color = Color.White,
       textAlign = TextAlign.Center,
       modifier = modifier
@@ -530,7 +532,7 @@ private fun GameInfoDialog(state: GameState, onUserAction: (UserAction) -> Unit)
           .align(Alignment.Center)
           .shadow(4.dp)
           .background(
-              color = MaterialTheme.colors.surface,
+              color = MaterialTheme.colorScheme.surface,
               shape = RoundedCornerShape(10.dp)
           )
           .padding(16.dp)
@@ -539,8 +541,8 @@ private fun GameInfoDialog(state: GameState, onUserAction: (UserAction) -> Unit)
       Text(
         text = if (state.ranked) "Ranked" else "Unranked",
         textAlign = TextAlign.Center,
-        style = MaterialTheme.typography.h3,
-        color = MaterialTheme.colors.onSurface,
+        style = MaterialTheme.typography.titleMedium,
+        color = MaterialTheme.colorScheme.onSurface,
       )
       Text(
         text = buildAnnotatedString {
@@ -552,12 +554,12 @@ private fun GameInfoDialog(state: GameState, onUserAction: (UserAction) -> Unit)
           append(state.whitePlayer?.name ?: "?")
           pop()
         },
-        color = MaterialTheme.colors.onSurface,
+        color = MaterialTheme.colorScheme.onSurface,
       )
       Text(
         text = "Score",
-        style = MaterialTheme.typography.h3,
-        color = MaterialTheme.colors.onSurface,
+        style = MaterialTheme.typography.titleSmall,
+        color = MaterialTheme.colorScheme.onSurface,
         modifier = Modifier.padding(top = 14.dp, bottom = 8.dp)
       )
       ScoreRow(state.blackScore.komi?.toString(), state.whiteScore.komi?.toString(), "komi")
@@ -584,16 +586,16 @@ private fun GameInfoDialog(state: GameState, onUserAction: (UserAction) -> Unit)
       )
       Text(
         text = "Time",
-        style = MaterialTheme.typography.h3,
-        color = MaterialTheme.colors.onSurface,
+        style = MaterialTheme.typography.titleMedium,
+        color = MaterialTheme.colorScheme.onSurface,
         modifier = Modifier.padding(top = 14.dp, bottom = 8.dp)
       )
       Row {
         Text(
           text = state.timerDescription ?: "",
           textAlign = TextAlign.Center,
-          style = MaterialTheme.typography.caption,
-          color = MaterialTheme.colors.onSurface,
+          style = MaterialTheme.typography.bodySmall,
+          color = MaterialTheme.colorScheme.onSurface,
           modifier = Modifier
               .width(0.dp)
               .weight(1f),
@@ -613,7 +615,7 @@ private fun GameInfoDialog(state: GameState, onUserAction: (UserAction) -> Unit)
           .align(Alignment.TopCenter)
           .padding(top = 29.dp)
           .clip(RoundedCornerShape(10.dp))
-          .background(MaterialTheme.colors.surface)
+          .background(MaterialTheme.colorScheme.surface)
           .padding(4.dp)
           .size(124.dp)
           .clip(RoundedCornerShape(8.dp))
@@ -632,7 +634,7 @@ private fun ScoreRow(whiteScore: String?, blackScore: String?, title: String) {
       Text(
         text = whiteScore ?: "",
         textAlign = TextAlign.Center,
-        color = MaterialTheme.colors.onSurface,
+        color = MaterialTheme.colorScheme.onSurface,
         modifier = Modifier
             .width(0.dp)
             .weight(1f),
@@ -640,7 +642,7 @@ private fun ScoreRow(whiteScore: String?, blackScore: String?, title: String) {
       Text(
         text = title,
         textAlign = TextAlign.Center,
-        color = MaterialTheme.colors.onSurface,
+        color = MaterialTheme.colorScheme.onSurface,
         modifier = Modifier
             .width(0.dp)
             .weight(1f),
@@ -648,7 +650,7 @@ private fun ScoreRow(whiteScore: String?, blackScore: String?, title: String) {
       Text(
         text = blackScore ?: "",
         textAlign = TextAlign.Center,
-        color = MaterialTheme.colors.onSurface,
+        color = MaterialTheme.colorScheme.onSurface,
         modifier = Modifier
             .width(0.dp)
             .weight(1f),
@@ -676,7 +678,7 @@ private fun GameOverDialog(
       modifier = Modifier
           .shadow(4.dp)
           .background(
-              color = MaterialTheme.colors.surface,
+              color = MaterialTheme.colorScheme.surface,
               shape = RoundedCornerShape(10.dp)
           )
           .padding(16.dp)
@@ -693,31 +695,31 @@ private fun GameOverDialog(
       }
       Text(
         text = text,
-        style = MaterialTheme.typography.h2,
-        color = MaterialTheme.colors.onSurface,
+        style = MaterialTheme.typography.titleMedium,
+        color = MaterialTheme.colorScheme.onSurface,
         textAlign = TextAlign.Center,
       )
       Image(
         painter = rememberVectorPainter(image = icon),
         contentDescription = "",
-        colorFilter = ColorFilter.tint(MaterialTheme.colors.onSurface),
+        colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface),
         modifier = Modifier
             .padding(vertical = 24.dp)
             .size(128.dp)
       )
       Text(
         text = dialog.detailsText,
-        style = MaterialTheme.typography.body1,
+        style = MaterialTheme.typography.bodySmall,
         textAlign = TextAlign.Center,
-        color = MaterialTheme.colors.onSurface,
+        color = MaterialTheme.colorScheme.onSurface,
       )
       Spacer(modifier = Modifier.height(28.dp))
       TextButton(
         colors = ButtonDefaults.textButtonColors(
-          backgroundColor = MaterialTheme.colors.primaryVariant,
-          contentColor = MaterialTheme.colors.onSurface
+          containerColor = MaterialTheme.colorScheme.surfaceVariant,
+          contentColor = MaterialTheme.colorScheme.onSurface
         ),
-        elevation = ButtonDefaults.elevation(
+        elevation = ButtonDefaults.buttonElevation(
           defaultElevation = 8.dp,
           pressedElevation = 4.dp,
         ),
@@ -730,7 +732,7 @@ private fun GameOverDialog(
         )
       }
       TextButton(
-        colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colors.onSurface),
+        colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.onSurface),
         onClick = { onUserAction(GameOverDialogNextGame) },
       ) {
         Text(
@@ -740,7 +742,7 @@ private fun GameOverDialog(
         )
       }
       TextButton(
-        colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colors.onSurface),
+        colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.onSurface),
         onClick = { onUserAction(GameOverDialogQuickReplay) },
       ) {
         Text(
@@ -761,29 +763,29 @@ private fun RetryMoveDialog(onUserAction: (UserAction) -> Unit) {
       modifier = Modifier
           .shadow(4.dp)
           .background(
-              color = MaterialTheme.colors.surface,
+              color = MaterialTheme.colorScheme.surface,
               shape = RoundedCornerShape(10.dp)
           )
           .padding(16.dp)
     ) {
       Text(
         text = "CONNECTION PROBLEMS",
-        style = MaterialTheme.typography.h6,
-        color = MaterialTheme.colors.onSurface,
+        style = MaterialTheme.typography.titleMedium,
+        color = MaterialTheme.colorScheme.onSurface,
       )
       Text(
         text = "The server is not responding. Please check your internet connection.",
-        style = MaterialTheme.typography.body1,
+        style = MaterialTheme.typography.bodyMedium,
         textAlign = TextAlign.Center,
-        color = MaterialTheme.colors.onSurface,
+        color = MaterialTheme.colorScheme.onSurface,
         modifier = Modifier.padding(vertical = 36.dp)
       )
       TextButton(
         colors = ButtonDefaults.textButtonColors(
-          backgroundColor = MaterialTheme.colors.primaryVariant,
-          contentColor = MaterialTheme.colors.onSurface
+          containerColor = MaterialTheme.colorScheme.surfaceVariant,
+          contentColor = MaterialTheme.colorScheme.onSurface
         ),
-        elevation = ButtonDefaults.elevation(
+        elevation = ButtonDefaults.buttonElevation(
           defaultElevation = 8.dp,
           pressedElevation = 4.dp,
         ),
@@ -796,7 +798,7 @@ private fun RetryMoveDialog(onUserAction: (UserAction) -> Unit) {
         )
       }
       TextButton(
-        colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colors.onSurface),
+        colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.onSurface),
         onClick = { onUserAction(RetryDialogDismiss) },
       ) {
         Text(
@@ -822,7 +824,7 @@ private fun Header(
       MoreMenuItem("Download as SGF", Icons.Rounded.Download) { onUserAction(OpenInBrowser) },
     )
     if (opponentRequestedUndo) {
-      items.add(MoreMenuItem("Accept Undo", Icons.Rounded.Undo) {
+      items.add(MoreMenuItem("Accept Undo", Icons.AutoMirrored.Rounded.Undo) {
         onUserAction(
           OpponentUndoRequestAccepted
         )

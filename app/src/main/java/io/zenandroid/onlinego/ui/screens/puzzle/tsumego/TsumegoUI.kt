@@ -1,5 +1,8 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package io.zenandroid.onlinego.ui.screens.puzzle.tsumego
 
+import android.R.attr.navigationIcon
 import androidx.compose.animation.animateColor
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
@@ -22,24 +25,26 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.Button
-import androidx.compose.material.DropdownMenuItem
-import androidx.compose.material.ExposedDropdownMenuBox
-import androidx.compose.material.ExposedDropdownMenuDefaults
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.LocalContentColor
-import androidx.compose.material.LocalTextStyle
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.OutlinedButton
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
-import androidx.compose.material.TextButton
-import androidx.compose.material.TextField
-import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material3.Button
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.LocalTextStyle
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MenuAnchorType
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -98,6 +103,7 @@ fun TsumegoScreen(
 
 }
 
+@ExperimentalMaterial3Api
 @Composable
 private fun TsumegoContent(
   state: TsumegoState,
@@ -129,9 +135,7 @@ private fun TsumegoContent(
         )
         ExposedDropdownMenuBox(
           expanded = expanded,
-          onExpandedChange = {
-            expanded = !expanded
-          },
+          onExpandedChange = { expanded = it },
           modifier = Modifier.weight(1f)
         ) {
           TextField(
@@ -143,15 +147,11 @@ private fun TsumegoContent(
             },
             onValueChange = { },
             trailingIcon = {
-              ExposedDropdownMenuDefaults.TrailingIcon(
-                expanded = expanded
-              )
+              ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
             },
-            colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(
-              textColor = MaterialTheme.colors.onSurface,
-            ),
+            colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
             textStyle = LocalTextStyle.current.copy(fontSize = 18.sp),
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryEditable, true)
           )
           LaunchedEffect(expanded) {
             if (expanded) {
@@ -159,7 +159,7 @@ private fun TsumegoContent(
             }
           }
           val infiniteTransition = rememberInfiniteTransition()
-          ExposedLazyDropdownMenu(
+          ExposedLazyDropdownMenu<Puzzle>(
             expanded = expanded,
             items = collection,
             onDismissRequest = {
@@ -180,99 +180,99 @@ private fun TsumegoContent(
               onClick = {
                 onSelectPuzzle(i)
                 expanded = false
-              }
-            ) {
-              val selected = puzzle.id == state.puzzle?.id
+              },
+              text =
+                {
+                  val selected = puzzle.id == state.puzzle?.id
 
-              Row(
-                modifier = Modifier
-                  .fillMaxWidth()
-              ) {
-                val tint by infiniteTransition.animateColor(
-                  initialValue = LocalContentColor.current.copy(
-                    alpha = 0.1f
-                  ),
-                  targetValue = LocalContentColor.current.copy(
-                    alpha = 0.5f
-                  ),
-                  animationSpec = infiniteRepeatable(
-                    animation = tween(
-                      durationMillis = 1000,
-                      easing = LinearEasing,
-                    ),
-                    repeatMode = RepeatMode.Reverse
-                  ),
-                  label = "animateColor"
-                )
-                if (position == null)
-                  Icon(
-                    painter = painterResource(R.drawable.ic_go_board),
-                    contentDescription = "Board",
-                    tint = tint,
+                  Row(
                     modifier = Modifier
-                        .height(64.dp)
-                        .width(64.dp)
-                        .padding(end = 20.dp)
-                        .clip(MaterialTheme.shapes.small),
-                  )
-                else
-                  Board(
-                    boardWidth = puzzle.puzzle.width,
-                    boardHeight = puzzle.puzzle.height,
-                    position = position,
-                    drawCoordinates = false,
-                    interactive = false,
-                    drawShadow = false,
-                    fadeInLastMove = false,
-                    fadeOutRemovedStones = false,
-                    modifier = Modifier
-                        .height(64.dp)
-                        .width(64.dp)
-                        .padding(end = 10.dp)
-                        .clip(MaterialTheme.shapes.small)
-                  )
-
-                Column(
-                  modifier = Modifier
-                    .fillMaxHeight()
-                ) {
-                  Text(
-                    text = puzzle.name,
-                    fontSize = 18.sp,
-                    fontWeight = if (selected) FontWeight.Bold
-                    else FontWeight.Normal,
-                    maxLines = 1,
-                    modifier = Modifier
-                      .padding(top = 10.dp),
-                  )
-                  rating?.let {
-                    RatingBar(
-                      rating = it,
-                      modifier = Modifier
-                        .height(16.dp)
+                      .fillMaxWidth()
+                  ) {
+                    val tint by infiniteTransition.animateColor(
+                      initialValue = LocalContentColor.current.copy(
+                        alpha = 0.1f
+                      ),
+                      targetValue = LocalContentColor.current.copy(
+                        alpha = 0.5f
+                      ),
+                      animationSpec = infiniteRepeatable(
+                        animation = tween(
+                          durationMillis = 1000,
+                          easing = LinearEasing,
+                        ),
+                        repeatMode = RepeatMode.Reverse
+                      ),
+                      label = "animateColor"
                     )
-                  } ?: Spacer(modifier = Modifier.height(16.dp))
+                    if (position == null)
+                      Icon(
+                        painter = painterResource(R.drawable.ic_go_board),
+                        contentDescription = "Board",
+                        tint = tint,
+                        modifier = Modifier
+                          .height(64.dp)
+                          .width(64.dp)
+                          .padding(end = 20.dp)
+                          .clip(MaterialTheme.shapes.small),
+                      )
+                    else
+                      Board(
+                        boardWidth = puzzle.puzzle.width,
+                        boardHeight = puzzle.puzzle.height,
+                        position = position,
+                        drawCoordinates = false,
+                        interactive = false,
+                        drawShadow = false,
+                        fadeInLastMove = false,
+                        fadeOutRemovedStones = false,
+                        modifier = Modifier
+                          .height(64.dp)
+                          .width(64.dp)
+                          .padding(end = 10.dp)
+                          .clip(MaterialTheme.shapes.small)
+                      )
+
+                    Column(
+                      modifier = Modifier
+                        .fillMaxHeight()
+                    ) {
+                      Text(
+                        text = puzzle.name,
+                        fontSize = 18.sp,
+                        fontWeight = if (selected) FontWeight.Bold
+                        else FontWeight.Normal,
+                        maxLines = 1,
+                        modifier = Modifier
+                          .padding(top = 10.dp),
+                      )
+                      rating?.let {
+                        RatingBar(
+                          rating = it,
+                          modifier = Modifier
+                            .height(16.dp)
+                        )
+                      } ?: Spacer(modifier = Modifier.height(16.dp))
+                    }
+                  }
                 }
-              }
-            }
+            )
+          }
+          if (state.solutions.isNotEmpty()) {
+            Image(
+              painter = painterResource(R.drawable.ic_check_circle),
+              modifier = Modifier
+                .padding(horizontal = 8.dp),
+              contentDescription = "Solved"
+            )
           }
         }
-        if (state.solutions.isNotEmpty()) {
-          Image(
-            painter = painterResource(R.drawable.ic_check_circle),
-            modifier = Modifier
-              .padding(horizontal = 8.dp),
-            contentDescription = "Solved"
-          )
-        }
       },
-      elevation = 1.dp,
       navigationIcon = {
         IconButton(onClick = { onBack() }) {
           Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
         }
       },
-      backgroundColor = MaterialTheme.colors.surface
     )
 
     state.puzzle?.let {
@@ -298,10 +298,10 @@ private fun TsumegoContent(
               candidateMoveType = StoneType.BLACK,
               onTapUp = { if (state.boardInteractive) onMove(it) },
               modifier = Modifier
-                  .fillMaxWidth()
-                  .padding(12.dp)
-                  .shadow(6.dp, MaterialTheme.shapes.large)
-                  .clip(MaterialTheme.shapes.small)
+                .fillMaxWidth()
+                .padding(12.dp)
+                .shadow(6.dp, MaterialTheme.shapes.large)
+                .clip(MaterialTheme.shapes.small)
             )
             Row {
               Row(modifier = Modifier.weight(1f)) {
@@ -309,9 +309,9 @@ private fun TsumegoContent(
                   TextButton(
                     onClick = { onPreviousPuzzle() },
                     modifier = Modifier
-                        .align(Alignment.CenterVertically)
-                        .padding(all = 4.dp)
-                        .weight(1f)
+                      .align(Alignment.CenterVertically)
+                      .padding(all = 4.dp)
+                      .weight(1f)
                   ) {
                     Image(
                       painter = painterResource(R.drawable.ic_navigate_previous),
@@ -321,7 +321,7 @@ private fun TsumegoContent(
                     )
                     Text(
                       "PREVIOUS",
-                      color = MaterialTheme.colors.secondary,
+                      color = MaterialTheme.colorScheme.secondary,
                       fontWeight = FontWeight.Bold,
                       modifier = Modifier.padding(start = 8.dp)
                     )
@@ -332,14 +332,14 @@ private fun TsumegoContent(
               TextButton(
                 onClick = { onHint() },
                 modifier = Modifier
-                    .align(Alignment.CenterVertically)
-                    .padding(all = 4.dp)
+                  .align(Alignment.CenterVertically)
+                  .padding(all = 4.dp)
               ) {
                 Text(
                   "HINT",
                   color = state.nodeStack.lastOrNull()
-                    ?.let { MaterialTheme.colors.secondary }
-                    ?: MaterialTheme.colors.onBackground,
+                    ?.let { MaterialTheme.colorScheme.secondary }
+                    ?: MaterialTheme.colorScheme.onBackground,
                   fontWeight = FontWeight.Bold)
               }
 
@@ -348,20 +348,20 @@ private fun TsumegoContent(
                   TextButton(
                     onClick = { onNextPuzzle() },
                     modifier = Modifier
-                        .align(Alignment.CenterVertically)
-                        .padding(all = 4.dp)
-                        .weight(1f)
+                      .align(Alignment.CenterVertically)
+                      .padding(all = 4.dp)
+                      .weight(1f)
                   ) {
                     Text(
                       "NEXT",
-                      color = MaterialTheme.colors.secondary,
+                      color = MaterialTheme.colorScheme.secondary,
                       fontWeight = FontWeight.Bold
                     )
                     Image(
                       painter = painterResource(R.drawable.ic_navigate_next),
                       modifier = Modifier
-                          .align(Alignment.CenterVertically)
-                          .padding(start = 8.dp),
+                        .align(Alignment.CenterVertically)
+                        .padding(start = 8.dp),
                       contentDescription = null
                     )
                   }
@@ -371,8 +371,8 @@ private fun TsumegoContent(
             val boxState = rememberScrollState()
             Box(
               modifier = Modifier
-                  .verticalScroll(state = boxState)
-                  .weight(1f)
+                .verticalScroll(state = boxState)
+                .weight(1f)
             ) {
               Text(
                 text = state.nodeStack.let { stack ->
@@ -380,9 +380,9 @@ private fun TsumegoContent(
                     ?: stack.dropLast(1).lastOrNull()?.text
                 } ?: state.description,
                 textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.body2,
+                style = MaterialTheme.typography.bodyMedium,
                 fontSize = 16.sp,
-                color = MaterialTheme.colors.onSurface,
+                color = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.fillMaxWidth()
               )
             }
@@ -390,8 +390,8 @@ private fun TsumegoContent(
             Column {
               Row(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 12.dp, vertical = 16.dp)
+                  .fillMaxWidth()
+                  .padding(horizontal = 12.dp, vertical = 16.dp)
               ) {
                 if (state.retryButtonVisible) {
                   OutlinedButton(
@@ -400,13 +400,13 @@ private fun TsumegoContent(
                   ) {
                     Icon(
                       imageVector = Icons.Filled.Refresh,
-                      tint = MaterialTheme.colors.onSurface,
+                      tint = MaterialTheme.colorScheme.onSurface,
                       modifier = Modifier.size(16.dp),
                       contentDescription = null
                     )
                     Text(
                       text = "RETRY",
-                      color = MaterialTheme.colors.onSurface,
+                      color = MaterialTheme.colorScheme.onSurface,
                       modifier = Modifier.padding(start = 8.dp)
                     )
                   }
@@ -440,12 +440,12 @@ private fun TsumegoContent(
       Box(
         contentAlignment = Alignment.Center,
         modifier = Modifier
-            .fillMaxSize()
-            .padding(horizontal = 8.dp, vertical = 4.dp),
+          .fillMaxSize()
+          .padding(horizontal = 8.dp, vertical = 4.dp),
       ) {
         Text(
           text = "Loading...",
-          color = MaterialTheme.colors.onBackground,
+          color = MaterialTheme.colorScheme.onBackground,
         )
       }
     }

@@ -4,48 +4,41 @@ import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.provider.Browser
-import android.system.Os.stat
 import android.util.Log
 import android.view.View
 import android.widget.TextView
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.LinearProgressIndicator
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
-import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.rounded.Pause
 import androidx.compose.material.icons.rounded.SkipNext
 import androidx.compose.material.icons.rounded.SkipPrevious
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -60,6 +53,9 @@ import io.noties.markwon.movement.MovementMethodPlugin
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.ui.composables.Board
+import io.zenandroid.onlinego.ui.composables.BottomBar
+import io.zenandroid.onlinego.ui.composables.BottomBarButton
+import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
 import io.zenandroid.onlinego.utils.recordException
 import org.commonmark.node.AbstractVisitor
 import org.commonmark.node.Link
@@ -76,7 +72,7 @@ fun JosekiExplorerScreen(
 ) {
   val state by viewModel.state.collectAsState()
 
-  BackHandler (enabled = state.previousButtonEnabled){
+  BackHandler(enabled = state.previousButtonEnabled) {
     viewModel.onPressedPrevious()
   }
   val configuration = LocalConfiguration.current
@@ -116,7 +112,7 @@ private fun PortraitLayout(
   onLoadPosition: (Long?) -> Unit,
   onNavigateBack: () -> Unit,
 ) {
-  Column(modifier = Modifier.background(MaterialTheme.colors.surface)) {
+  Column(modifier = Modifier.background(MaterialTheme.colorScheme.surface)) {
     AppTopBar(onNavigateBack)
     LoadingIndicator(state.loading)
     DescriptionView(
@@ -130,10 +126,19 @@ private fun PortraitLayout(
     )
     BoardComponent(state, onTappedCoordinate, onHotTrackedCoordinate)
     BottomBar(
-      state = state,
-      onPressedPass = onPressedPass,
-      onPressedPrevious = onPressedPrevious,
-      onPressedNext = onPressedNext
+      listOf(
+        Button.Tenuki(state.passButtonEnabled),
+        Button.Previous(state.previousButtonEnabled),
+        Button.Next(state.nextButtonEnabled)
+      ),
+      bottomText = null,
+      onButtonPressed = {
+        when (it) {
+          is Button.Tenuki -> onPressedPass()
+          is Button.Previous -> onPressedPrevious()
+          is Button.Next -> onPressedNext()
+        }
+      },
     )
   }
 }
@@ -148,8 +153,8 @@ private fun LandscapeLayout(
   onPressedNext: () -> Unit,
   onLoadPosition: (Long?) -> Unit,
   onNavigateBack: () -> Unit,
-  ) {
-  Row(modifier = Modifier.background(MaterialTheme.colors.surface)) {
+) {
+  Row(modifier = Modifier.background(MaterialTheme.colorScheme.surface)) {
     // Left side with controls
     Column(
       modifier = Modifier
@@ -168,10 +173,19 @@ private fun LandscapeLayout(
           .fillMaxWidth()
       )
       BottomBar(
-        state = state,
-        onPressedPass = onPressedPass,
-        onPressedPrevious = onPressedPrevious,
-        onPressedNext = onPressedNext
+        listOf(
+          Button.Tenuki(state.passButtonEnabled),
+          Button.Previous(state.previousButtonEnabled),
+          Button.Next(state.nextButtonEnabled)
+        ),
+        bottomText = null,
+        onButtonPressed = {
+          when (it) {
+            is Button.Tenuki -> onPressedPass()
+            is Button.Previous -> onPressedPrevious()
+            is Button.Next -> onPressedNext()
+          }
+        },
       )
     }
 
@@ -179,6 +193,7 @@ private fun LandscapeLayout(
   }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun AppTopBar(onNavigateBack: () -> Unit) {
   TopAppBar(
@@ -187,7 +202,7 @@ private fun AppTopBar(onNavigateBack: () -> Unit) {
         text = "Joseki Explorer",
         fontSize = 16.sp,
         fontWeight = FontWeight.Medium,
-        color = MaterialTheme.colors.onSurface
+        color = MaterialTheme.colorScheme.onSurface
       )
     },
     navigationIcon = {
@@ -195,12 +210,10 @@ private fun AppTopBar(onNavigateBack: () -> Unit) {
         Icon(
           Icons.AutoMirrored.Filled.ArrowBack,
           contentDescription = "Back",
-          tint = MaterialTheme.colors.onSurface
+          tint = MaterialTheme.colorScheme.onSurface
         )
       }
     },
-    elevation = 1.dp,
-    backgroundColor = MaterialTheme.colors.surface
   )
 }
 
@@ -211,8 +224,8 @@ private fun LoadingIndicator(loading: Boolean) {
       modifier = Modifier
         .fillMaxWidth()
         .height(1.dp),
-      color = MaterialTheme.colors.primary,
-      backgroundColor = MaterialTheme.colors.onSurface.copy(alpha = 0.1f)
+      color = MaterialTheme.colorScheme.primary,
+      trackColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f)
     )
   }
 }
@@ -245,8 +258,8 @@ private fun DescriptionView(
   loadPosition: (Long?) -> Unit,
   modifier: Modifier = Modifier
 ) {
-  val textColor = MaterialTheme.colors.onSurface.toArgb()
-  val backgroundColor = MaterialTheme.colors.surface.toArgb()
+  val textColor = MaterialTheme.colorScheme.onSurface.toArgb()
+  val backgroundColor = MaterialTheme.colorScheme.surface.toArgb()
 
   val context = LocalContext.current
   val markwon = remember(context, nodeId) { buildMarkwon(context, nodeId, loadPosition) }
@@ -281,72 +294,6 @@ private fun DescriptionView(
     },
     modifier = modifier
   )
-}
-
-@Composable
-private fun BottomBar(
-  state: JosekiExplorerState,
-  onPressedPass: () -> Unit,
-  onPressedPrevious: () -> Unit,
-  onPressedNext: () -> Unit,
-) {
-  Row(modifier = Modifier.height(56.dp)) {
-    BottomBarButton(
-      icon = Icons.Rounded.Pause,
-      label = "Tenuki",
-      enabled = state.passButtonEnabled,
-      onButtonPressed = onPressedPass,
-    )
-    BottomBarButton(
-      icon = Icons.Rounded.SkipPrevious,
-      label = "Previous",
-      enabled = state.previousButtonEnabled,
-      onButtonPressed = onPressedPrevious,
-    )
-    BottomBarButton(
-      icon = Icons.Rounded.SkipNext,
-      label = "Next",
-      enabled = state.nextButtonEnabled,
-      onButtonPressed = onPressedNext,
-    )
-  }
-}
-
-@Composable
-private fun RowScope.BottomBarButton(
-  icon: ImageVector,
-  label: String,
-  enabled: Boolean,
-  onButtonPressed: () -> Unit,
-) {
-  Box(
-    modifier = Modifier
-      .fillMaxHeight()
-      .weight(1f)
-  ) {
-    Column(
-      modifier = Modifier
-        .fillMaxSize()
-        .alpha(if (enabled) 1f else .4f)
-        .clickable(enabled = enabled) {
-          onButtonPressed()
-        },
-      horizontalAlignment = Alignment.CenterHorizontally,
-      verticalArrangement = Arrangement.Center,
-    ) {
-      Icon(
-        icon,
-        null,
-        modifier = Modifier.size(24.dp),
-        tint = MaterialTheme.colors.onSurface,
-      )
-      Text(
-        text = label,
-        style = MaterialTheme.typography.h5,
-        color = MaterialTheme.colors.onSurface,
-      )
-    }
-  }
 }
 
 private fun buildMarkwon(context: Context, nodeId: Long?, loadPosition: (Long?) -> Unit): Markwon {
@@ -422,4 +369,61 @@ private fun buildMarkwon(context: Context, nodeId: Long?, loadPosition: (Long?) 
       }
     })
     .build()
+}
+
+sealed class Button(
+  override val icon: ImageVector,
+  override val label: String,
+  override val repeatable: Boolean = false,
+  override val enabled: Boolean = true,
+  override val bubbleText: String? = null,
+  override val highlighted: Boolean = false,
+) : BottomBarButton {
+  class Tenuki(enabled: Boolean) : Button(
+    icon = Icons.Rounded.Pause,
+    label = "Tenuki",
+    enabled = enabled,
+    bubbleText = "Tenuki"
+  )
+
+  class Previous(enabled: Boolean) : Button(
+    icon = Icons.Rounded.SkipPrevious,
+    label = "Previous",
+    enabled = enabled,
+    bubbleText = "Previous"
+  )
+
+  class Next(enabled: Boolean) : Button(
+    icon = Icons.Rounded.SkipNext,
+    label = "Next",
+    enabled = enabled,
+    bubbleText = "Next"
+  )
+}
+
+@Preview
+@Composable
+private fun Preview() {
+  OnlineGoTheme {
+    PortraitLayout(
+      state = JosekiExplorerState(
+        loading = false,
+        description = "This is a test description with a [link](https://example.com) and a Position:1234.",
+        error = null,
+        lastRequestedNodeId = 1234L,
+        boardPosition = null, // Replace with actual position if needed
+        candidateMove = null,
+        passButtonEnabled = true,
+        previousButtonEnabled = true,
+        nextButtonEnabled = true
+      ),
+      onTappedCoordinate = {},
+      onHotTrackedCoordinate = {},
+      onPressedPass = {},
+      onPressedPrevious = {},
+      onPressedNext = {},
+      onLoadPosition = {},
+      onNavigateBack = {}
+    )
+  }
 }

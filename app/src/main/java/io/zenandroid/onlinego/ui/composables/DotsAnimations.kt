@@ -3,8 +3,8 @@ import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -19,7 +19,7 @@ import androidx.compose.ui.unit.dp
 // https://gist.github.com/EugeneTheDev/a27664cb7e7899f964348b05883cbccd
 
 @Composable
-fun DotsPulsing(dotSize: Dp = 24.dp, delayUnit: Int = 300, color: Color = MaterialTheme.colors.primary, modifier: Modifier = Modifier) {
+fun DotsPulsing(dotSize: Dp = 24.dp, delayUnit: Int = 300, color: Color = MaterialTheme.colorScheme.primary, modifier: Modifier = Modifier) {
 
     @Composable
     fun Dot(
@@ -70,7 +70,7 @@ fun DotsPulsing(dotSize: Dp = 24.dp, delayUnit: Int = 300, color: Color = Materi
 }
 
 @Composable
-fun DotsElastic(dotSize: Dp = 24.dp, delayUnit: Int = 300, color: Color = MaterialTheme.colors.primary, modifier: Modifier = Modifier) {
+fun DotsElastic(dotSize: Dp = 24.dp, delayUnit: Int = 300, color: Color = MaterialTheme.colorScheme.primary, modifier: Modifier = Modifier) {
     val minScale = 0.6f
 
     @Composable
@@ -122,7 +122,7 @@ fun DotsElastic(dotSize: Dp = 24.dp, delayUnit: Int = 300, color: Color = Materi
 }
 
 @Composable
-fun DotsFlashing(dotSize: Dp = 24.dp, delayUnit: Int = 300, color: Color = MaterialTheme.colors.primary, modifier: Modifier = Modifier) {
+fun DotsFlashing(dotSize: Dp = 24.dp, delayUnit: Int = 300, color: Color = MaterialTheme.colorScheme.primary, modifier: Modifier = Modifier) {
     val minAlpha = 0.1f
 
     @Composable
@@ -174,7 +174,7 @@ fun DotsFlashing(dotSize: Dp = 24.dp, delayUnit: Int = 300, color: Color = Mater
 }
 
 @Composable
-fun DotsTyping(dotSize: Dp = 24.dp, delayUnit: Int = 300, color: Color = MaterialTheme.colors.primary, modifier: Modifier = Modifier) {
+fun DotsTyping(dotSize: Dp = 24.dp, delayUnit: Int = 300, color: Color = MaterialTheme.colorScheme.primary, modifier: Modifier = Modifier) {
     val maxOffset = 10f
 
     @Composable
@@ -226,7 +226,7 @@ fun DotsTyping(dotSize: Dp = 24.dp, delayUnit: Int = 300, color: Color = Materia
 }
 
 @Composable
-fun DotsCollision(dotSize: Dp = 24.dp, delayUnit: Int = 300, color: Color = MaterialTheme.colors.primary, modifier: Modifier = Modifier) {
+fun DotsCollision(dotSize: Dp = 24.dp, delayUnit: Int = 300, color: Color = MaterialTheme.colorScheme.primary, modifier: Modifier = Modifier) {
     val maxOffset = 30f
     val delayUnit = 500 // it's better to use longer delay for this animation
 
@@ -294,7 +294,7 @@ fun DotsPreview() = MaterialTheme {
 
         Text(
             text = "Dots pulsing",
-            style = MaterialTheme.typography.h5
+            style = MaterialTheme.typography.titleSmall
         )
         DotsPulsing()
 
@@ -302,7 +302,7 @@ fun DotsPreview() = MaterialTheme {
 
         Text(
             text = "Dots elastic",
-            style = MaterialTheme.typography.h5
+            style = MaterialTheme.typography.titleSmall
         )
         DotsElastic()
 
@@ -310,7 +310,7 @@ fun DotsPreview() = MaterialTheme {
 
         Text(
             text = "Dots flashing",
-            style = MaterialTheme.typography.h5
+            style = MaterialTheme.typography.titleSmall
         )
         DotsFlashing()
 
@@ -318,7 +318,7 @@ fun DotsPreview() = MaterialTheme {
 
         Text(
             text = "Dots typing",
-            style = MaterialTheme.typography.h5
+            style = MaterialTheme.typography.titleSmall
         )
         DotsTyping()
 
@@ -326,7 +326,7 @@ fun DotsPreview() = MaterialTheme {
 
         Text(
             text = "Dots collision",
-            style = MaterialTheme.typography.h5
+            style = MaterialTheme.typography.titleSmall
         )
         DotsCollision()
     }

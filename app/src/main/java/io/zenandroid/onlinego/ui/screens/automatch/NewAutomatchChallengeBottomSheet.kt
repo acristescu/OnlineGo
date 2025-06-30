@@ -19,6 +19,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -42,9 +43,12 @@ fun NewAutomatchChallengeBottomSheet(
   onAutomatchSearchClicked: (List<Speed>, List<Size>) -> Unit
 ) {
   val state by viewModel.state.collectAsState()
+  val sheetState = rememberModalBottomSheetState(true)
 
-  ModalBottomSheet(onDismissRequest = onDismiss) {
-
+  ModalBottomSheet(
+    sheetState = sheetState,
+    onDismissRequest = onDismiss,
+  ) {
     NewAutomatchChallengeBottomSheetContent(
       state = state,
       onSmallCheckChanged = { viewModel.onSmallCheckChanged(it) },
@@ -64,8 +68,7 @@ fun NewAutomatchChallengeBottomSheet(
           selectedSizes.add(Size.LARGE)
         }
         onAutomatchSearchClicked(state.speeds, selectedSizes)
-      }
-    )
+      })
   }
 
 
@@ -85,8 +88,7 @@ private fun NewAutomatchChallengeBottomSheetContent(
     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLowest),
   ) {
     Column(
-      modifier
-        .padding(16.dp)
+      modifier.padding(16.dp)
     ) {
       Text(
         text = "Auto-match",
@@ -95,9 +97,7 @@ private fun NewAutomatchChallengeBottomSheetContent(
       )
       Text(text = "Try your hand at a game against a human opponent of similar rating to you.")
       Text(
-        text = "Game size",
-        fontWeight = FontWeight.Bold,
-        modifier = Modifier.padding(top = 16.dp)
+        text = "Game size", fontWeight = FontWeight.Bold, modifier = Modifier.padding(top = 16.dp)
       )
       Row {
         SizeCheckbox(checked = state.small, text = "9×9", onClick = onSmallCheckChanged)
@@ -163,21 +163,16 @@ private fun NewAutomatchChallengeBottomSheetContent(
 @Composable
 private fun RowScope.SizeCheckbox(checked: Boolean, text: String, onClick: (Boolean) -> Unit) {
   Checkbox(
-    checked = checked,
-    colors = CheckboxDefaults.colors(
+    checked = checked, colors = CheckboxDefaults.colors(
       checkedColor = MaterialTheme.colorScheme.primary
-    ),
-    onCheckedChange = onClick
+    ), onCheckedChange = onClick
   )
   Text(
-    text = text,
-    modifier = Modifier
+    text = text, modifier = Modifier
       .align(Alignment.CenterVertically)
       .clickable(
-        interactionSource = remember { MutableInteractionSource() },
-        indication = null
-      ) { onClick(!checked) }
-  )
+        interactionSource = remember { MutableInteractionSource() }, indication = null
+      ) { onClick(!checked) })
 }
 
 @Preview(showBackground = true)

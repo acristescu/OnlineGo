@@ -47,11 +47,9 @@ fun OnlineGoApp(isLoggedIn: Boolean, darkTheme: Boolean) {
   val currentDestination = navBackStackEntry?.destination?.route
 
   val showBottomBar = currentDestination in listOf("myGames", "learn", "stats", "settings")
-  val m3Destinations =
-    listOf("myGames", "learn", "stats", "settings", "puzzleDirectory", "supporter", "onboarding", "faceToFace", "aiGame")
 
   OnlineGoTheme(
-    m3 = m3Destinations.contains(currentDestination),
+    m3 = true,
     darkTheme = darkTheme,
   ) {
     Scaffold(bottomBar = {

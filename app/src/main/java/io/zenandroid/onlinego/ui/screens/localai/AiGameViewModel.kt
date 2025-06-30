@@ -36,7 +36,6 @@ import kotlin.math.abs
 private const val STATE_KEY = "AIGAME_STATE_KEY"
 
 class AiGameViewModel(
-  private val settingsRepository: SettingsRepository,
   private val userSessionRepository: UserSessionRepository,
 ) : ViewModel() {
 

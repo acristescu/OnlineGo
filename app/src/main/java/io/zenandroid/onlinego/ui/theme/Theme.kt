@@ -2,7 +2,7 @@ package io.zenandroid.onlinego.ui.theme
 
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.material.MaterialTheme
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material.darkColors
 import androidx.compose.material.lightColors
 import androidx.compose.material3.darkColorScheme
@@ -58,7 +58,7 @@ fun OnlineGoTheme(darkTheme: Boolean = isSystemInDarkTheme(), m3: Boolean = fals
             darkTheme -> darkColorScheme()
             else -> lightColorScheme()
         }
-        androidx.compose.material3.MaterialTheme(
+        MaterialTheme(
             colorScheme = colorScheme,
             typography = typographyM3,
             shapes = shapesM3,
@@ -71,7 +71,7 @@ fun OnlineGoTheme(darkTheme: Boolean = isSystemInDarkTheme(), m3: Boolean = fals
             LightColorPalette
         }
 
-        MaterialTheme(
+        androidx.compose.material.MaterialTheme(
             colors = colors,
             typography = typography,
             shapes = shapes

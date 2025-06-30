@@ -16,7 +16,6 @@ fun SenteCard(
 ) {
   Card(
     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLowest),
-//    elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
     border = BorderStroke(0.1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)),
     modifier = modifier,
     content = content,

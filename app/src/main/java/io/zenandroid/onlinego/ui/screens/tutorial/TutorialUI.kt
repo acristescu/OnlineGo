@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package io.zenandroid.onlinego.ui.screens.tutorial
 
 import android.content.res.Configuration
@@ -21,18 +23,19 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.Button
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.OutlinedButton
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
-import androidx.compose.material.TextButton
-import androidx.compose.material.TopAppBar
+import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -79,17 +82,15 @@ fun TutorialContent(
   listener: (TutorialAction) -> Unit,
   onNavigateBack: () -> Unit
 ) {
-  Column(modifier = Modifier.background(MaterialTheme.colors.surface)) {
+  Column(modifier = Modifier.background(MaterialTheme.colorScheme.surface)) {
     // App bar
     TopAppBar(
       title = { Text(text = state.tutorial?.name ?: "") },
-      elevation = 1.dp,
       navigationIcon = {
         IconButton(onClick = onNavigateBack) {
           Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
         }
       },
-      backgroundColor = MaterialTheme.colors.surface
     )
 
     state.step?.let {
@@ -152,9 +153,9 @@ private fun Description(modifier: Modifier = Modifier, state: TutorialState) {
     Text(
       text = state.text ?: "",
       textAlign = TextAlign.Center,
-      style = MaterialTheme.typography.body2,
+      style = MaterialTheme.typography.bodyMedium,
       fontSize = 18.sp,
-      color = MaterialTheme.colors.onSurface,
+      color = MaterialTheme.colorScheme.onSurface,
       modifier = Modifier.fillMaxWidth()
     )
   }
@@ -177,13 +178,13 @@ private fun ButtonBar(state: TutorialState, listener: (TutorialAction) -> Unit) 
         ) {
           Icon(
             imageVector = Icons.Filled.Refresh,
-            tint = MaterialTheme.colors.onSurface,
+            tint = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.size(16.dp),
             contentDescription = null
           )
           Text(
             text = "RETRY",
-            color = MaterialTheme.colors.onSurface,
+            color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.padding(start = 8.dp)
           )
         }
@@ -200,7 +201,7 @@ private fun ButtonBar(state: TutorialState, listener: (TutorialAction) -> Unit) 
       button = "NEXT",
       icon = R.drawable.ic_check_circle,
       modifier = Modifier.align(Alignment.Center),
-      tint = MaterialTheme.colors.secondary,
+      tint = MaterialTheme.colorScheme.secondary,
       listener = { listener.invoke(NextPressed) }
     )
 
@@ -210,7 +211,7 @@ private fun ButtonBar(state: TutorialState, listener: (TutorialAction) -> Unit) 
       button = "RETRY",
       icon = R.drawable.ic_x_circle,
       modifier = Modifier.align(Alignment.Center),
-      tint = MaterialTheme.colors.secondary,
+      tint = MaterialTheme.colorScheme.secondary,
       listener = { listener.invoke(RetryPressed) }
     )
   }
@@ -234,7 +235,7 @@ private fun Snackbar(
     modifier = modifier,
   ) {
     Surface(
-      elevation = 4.dp,
+      shadowElevation = 4.dp,
       border = BorderStroke(width = .5.dp, Color.LightGray),
       shape = MaterialTheme.shapes.medium,
       modifier = Modifier

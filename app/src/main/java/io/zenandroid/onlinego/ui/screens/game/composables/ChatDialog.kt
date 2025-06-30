@@ -10,7 +10,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.*
+import androidx.compose.material3.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Send
 import androidx.compose.runtime.*
@@ -55,7 +55,7 @@ fun ChatDialog(
                 .align(Alignment.Center)
                 .shadow(4.dp)
                 .background(
-                    color = MaterialTheme.colors.surface,
+                    color = MaterialTheme.colorScheme.surface,
                     shape = RoundedCornerShape(10.dp)
                 )
                 .padding(16.dp)
@@ -74,8 +74,8 @@ fun ChatDialog(
                     stickyHeader {
                         Text(
                             text = "Move $moveNo",
-                            style = MaterialTheme.typography.h5,
-                            color = MaterialTheme.colors.onBackground,
+                            style = MaterialTheme.typography.titleSmall,
+                            color = MaterialTheme.colorScheme.onBackground,
                             modifier = Modifier
                                 .fillMaxWidth(1f)
                                 .padding(bottom = 8.dp),
@@ -92,12 +92,12 @@ fun ChatDialog(
                             ) {
                                 Text(
                                     text = it.message.text,
-                                    color = MaterialTheme.colors.onSurface,
-                                    style = MaterialTheme.typography.body2,
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    style = MaterialTheme.typography.bodyMedium,
                                     modifier = Modifier
                                         .border(
                                             width = 1.dp,
-                                            color = MaterialTheme.colors.onSurface,
+                                            color = MaterialTheme.colorScheme.onSurface,
                                             shape = RoundedCornerShape(24.dp, 0.dp, 24.dp, 24.dp)
                                         )
                                         .padding(horizontal = 16.dp, vertical = 10.dp)
@@ -111,11 +111,11 @@ fun ChatDialog(
                             ) {
                                 Text(
                                     text = it.message.text,
-                                    color = MaterialTheme.colors.surface,
-                                    style = MaterialTheme.typography.body2,
+                                    color = MaterialTheme.colorScheme.surface,
+                                    style = MaterialTheme.typography.bodyMedium,
                                     modifier = Modifier
                                         .background(
-                                            color = MaterialTheme.colors.onSurface,
+                                            color = MaterialTheme.colorScheme.onSurface,
                                             shape = RoundedCornerShape(0.dp, 24.dp, 24.dp, 24.dp)
                                         )
                                         .padding(horizontal = 16.dp, vertical = 10.dp)
@@ -130,9 +130,6 @@ fun ChatDialog(
                 TextField(
                     value = message,
                     onValueChange = { message = it },
-                    colors = TextFieldDefaults.textFieldColors(
-                        textColor = MaterialTheme.colors.onSurface
-                    ),
                     modifier = Modifier.weight(1f),
                 )
                 IconButton(
@@ -144,7 +141,7 @@ fun ChatDialog(
                 ) {
                     Icon(
                         painter = rememberVectorPainter(image = Icons.Rounded.Send),
-                        tint = MaterialTheme.colors.onSurface,
+                        tint = MaterialTheme.colorScheme.onSurface,
                         contentDescription = "send",
                     )
                 }
