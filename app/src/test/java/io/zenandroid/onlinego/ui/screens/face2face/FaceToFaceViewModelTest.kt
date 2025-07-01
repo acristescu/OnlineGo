@@ -7,7 +7,6 @@ import app.cash.molecule.moleculeFlow
 import app.cash.turbine.test
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.crashlytics.FirebaseCrashlytics
-import com.nhaarman.mockito_kotlin.mock
 import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.StoneType
 import io.zenandroid.onlinego.di.allKoinModules
@@ -24,6 +23,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.koin.core.logger.Level
 import org.koin.test.KoinTestRule
+import org.mockito.kotlin.mock
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class FaceToFaceViewModelTest {
@@ -36,9 +36,9 @@ class FaceToFaceViewModelTest {
   @get:Rule
   val instantExecutorRule = InstantTaskExecutorRule()
 
-  private val prefs: SharedPreferences = mock {}
-  private val analytics: FirebaseAnalytics = mock {}
-  private val crashlytics: FirebaseCrashlytics = mock {}
+  private val prefs: SharedPreferences = mock()
+  private val analytics: FirebaseAnalytics = mock()
+  private val crashlytics: FirebaseCrashlytics = mock()
 
   private lateinit var viewModel: FaceToFaceViewModel
 

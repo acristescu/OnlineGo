@@ -57,7 +57,7 @@ persistentCookieJar = "v1.0.1"
 # Testing
 junit = "4.13.2"
 mockito = "5.2.0"
-mockitoKotlin = "1.6.0"
+mockitoKotlin = "5.4.0"
 androidxTest = "1.2.1"
 androidxTestRunner = "1.6.2"
 androidxTestRules = "1.6.1"
@@ -163,7 +163,7 @@ espresso-idling-resource = { group = "androidx.test.espresso", name = "espresso-
 
 # Testing
 junit = { group = "junit", name = "junit", version.ref = "junit" }
-mockito-kotlin = { group = "com.nhaarman", name = "mockito-kotlin-kt1.1", version.ref = "mockitoKotlin" }
+mockito-kotlin = { group = "org.mockito.kotlin", name = "mockito-kotlin", version.ref = "mockitoKotlin" }
 mockito-inline = { group = "org.mockito", name = "mockito-inline", version.ref = "mockito" }
 koin-test-junit4 = { group = "io.insert-koin", name = "koin-test-junit4", version.ref = "koin" }
 arch-core-testing = { group = "androidx.arch.core", name = "core-testing", version.ref = "archCoreTesting" }

@@ -83,7 +83,6 @@ class FaceToFaceViewModel(
 
   init {
     analytics.logEvent("face_to_face_opened", null)
-    analyticsReportScreen("FaceToFace")
     viewModelScope.launch {
       loadSavedData()
     }
