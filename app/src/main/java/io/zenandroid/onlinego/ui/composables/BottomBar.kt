@@ -48,15 +48,17 @@ fun BottomBar(
   Row(modifier = Modifier.height(56.dp)) {
     buttons.forEach {
       key(it.javaClass) {
-        Box(modifier = Modifier
-          .fillMaxHeight()
-          .weight(1f)) {
+        Box(
+          modifier = Modifier
+            .fillMaxHeight()
+            .weight(1f)
+        ) {
           Column(
             modifier = Modifier
               .fillMaxSize()
               .alpha(if (it.enabled) 1f else .4f)
               .background(
-                if (it.highlighted) MaterialTheme.colorScheme.surfaceTint else MaterialTheme.colorScheme.surface
+                if (it.highlighted) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceContainerLowest
               )
               .clickable(enabled = it.enabled) {
                 if (!it.repeatable) onButtonPressed(it)
@@ -84,7 +86,7 @@ fun BottomBar(
           }
           androidx.compose.animation.AnimatedVisibility(
             visible = it.bubbleText != null,
-            enter = fadeIn(TweenSpec( 500)) + scaleIn(SpringSpec(Spring.DampingRatioHighBouncy)),
+            enter = fadeIn(TweenSpec(500)) + scaleIn(SpringSpec(Spring.DampingRatioHighBouncy)),
             exit = fadeOut() + shrinkOut(),
             modifier = Modifier
               .align(Alignment.TopCenter)

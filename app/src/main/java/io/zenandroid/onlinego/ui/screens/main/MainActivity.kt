@@ -32,7 +32,6 @@ import io.zenandroid.onlinego.data.repositories.UserSessionRepository
 import io.zenandroid.onlinego.notifications.SynchronizeGamesWork
 import io.zenandroid.onlinego.ui.screens.login.FacebookLoginCallbackActivity
 import io.zenandroid.onlinego.ui.theme.LocalThemeSettings
-import io.zenandroid.onlinego.ui.views.BoardView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
@@ -142,8 +141,6 @@ class MainActivity : ComponentActivity() {
       PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
       PackageManager.DONT_KILL_APP
     )
-
-    BoardView.preloadResources(resources)
   }
 
   private fun scheduleNotificationJob() {

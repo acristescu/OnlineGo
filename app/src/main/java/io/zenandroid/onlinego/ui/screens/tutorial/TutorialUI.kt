@@ -23,7 +23,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -32,10 +36,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -53,6 +53,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.StoneType
+import io.zenandroid.onlinego.data.model.local.Node
+import io.zenandroid.onlinego.data.model.local.TutorialStep
 import io.zenandroid.onlinego.ui.composables.Board
 import io.zenandroid.onlinego.ui.screens.tutorial.TutorialAction.BoardCellHovered
 import io.zenandroid.onlinego.ui.screens.tutorial.TutorialAction.BoardCellTapped
@@ -152,9 +154,9 @@ private fun Description(modifier: Modifier = Modifier, state: TutorialState) {
   Column(modifier = modifier.verticalScroll(rememberScrollState())) {
     Text(
       text = state.text ?: "",
-      textAlign = TextAlign.Center,
-      style = MaterialTheme.typography.bodyMedium,
+      style = MaterialTheme.typography.bodySmall,
       fontSize = 18.sp,
+      lineHeight = 21.sp,
       color = MaterialTheme.colorScheme.onSurface,
       modifier = Modifier.fillMaxWidth()
     )
@@ -275,6 +277,17 @@ private fun Snackbar(
 @Composable
 private fun Preview() {
   OnlineGoTheme {
-    TutorialContent(TutorialState(), {}, {})
+    TutorialContent(
+      TutorialState(
+        step = TutorialStep.Interactive(
+          name = "Test Step",
+          size = 9,
+          init = "B[dd]W[ee]",
+          text = "This is a test step for the tutorial.",
+          branches = listOf(
+            Node(move = "dd", reply = "ee", message = "Good move!", success = true)
+          ),
+        ),
+      ), {}, {})
   }
 }

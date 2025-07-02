@@ -164,14 +164,12 @@ dependencies {
     // UI & Material Design
     implementation(libs.material)
     implementation(libs.legacy.preference.v14)
-    implementation(libs.material.progress.bar)
 
     // Utility Libraries
     implementation(libs.immutable.collections)
     implementation(libs.markwon)
     implementation(libs.jsoup)
     implementation(libs.billing.ktx)
-    implementation(libs.bubble.view)
     implementation(libs.mp.android.chart)
     implementation(libs.socket.io.client) {
         // excluding org.json which is provided by Android

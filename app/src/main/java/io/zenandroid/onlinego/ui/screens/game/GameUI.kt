@@ -1,10 +1,8 @@
 package io.zenandroid.onlinego.ui.screens.game
 
-import android.app.Activity
 import android.content.Intent
 import android.content.res.Configuration.ORIENTATION_PORTRAIT
 import android.media.MediaPlayer
-import android.net.Uri
 import android.os.Bundle
 import android.view.WindowManager
 import androidx.activity.compose.BackHandler
@@ -46,11 +44,9 @@ import androidx.compose.material.icons.rounded.Download
 import androidx.compose.material.icons.rounded.OpenInBrowser
 import androidx.compose.material.icons.rounded.ThumbDown
 import androidx.compose.material.icons.rounded.ThumbUp
-import androidx.compose.material.icons.rounded.Undo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -177,13 +173,11 @@ fun GameScreen(
 
   val state by rememberStateWithLifecycle(viewModel.state)
 
-  OnlineGoTheme {
-    GameContent(
-      state = state,
-      onBack = onNavigateBack,
-      onUserAction = viewModel::onUserAction
-    )
-  }
+  GameContent(
+    state = state,
+    onBack = onNavigateBack,
+    onUserAction = viewModel::onUserAction
+  )
 
 }
 
@@ -193,7 +187,7 @@ fun GameContent(
   onUserAction: ((UserAction) -> Unit),
   onBack: (() -> Unit),
 ) {
-  Column(Modifier.background(MaterialTheme.colorScheme.surface)) {
+  Column(Modifier.background(MaterialTheme.colorScheme.surfaceContainerLowest)) {
     if (LocalConfiguration.current.orientation == ORIENTATION_PORTRAIT) {
       Header(
         title = state.title,
@@ -329,7 +323,7 @@ fun GameContent(
         }
       },
       text = { Text("That move would repeat the board position. That's called a KO, and it is not allowed. Try to make another move first, preferably a threat that the opponent can't ignore.") },
-      title = { Text("Illegal KO move") },
+      title = { Text("Illegal KO move", style = MaterialTheme.typography.titleLarge) },
     )
   }
   if (state.opponentRequestedUndoDialogShowing) {
@@ -346,7 +340,7 @@ fun GameContent(
         }
       },
       text = { Text("Your opponent would like to undo their last move. Do you accept?") },
-      title = { Text("Opponent asked to undo") },
+      title = { Text("Opponent asked to undo", style = MaterialTheme.typography.titleLarge) },
     )
   }
   if (state.requestUndoDialogShowing) {
@@ -363,7 +357,7 @@ fun GameContent(
         }
       },
       text = { Text("If you made the last move by mistake, you can ask your opponent if they allow you to undo it.") },
-      title = { Text("Request Undo?") },
+      title = { Text("Request Undo?", style = MaterialTheme.typography.titleLarge) },
     )
   }
   if (state.passDialogShowing) {
@@ -380,7 +374,7 @@ fun GameContent(
         }
       },
       text = { Text("Are you sure you want to pass? You should only do this if you think the game is over and there are no more moves to be made. If your opponent passes too, the game proceeds to the scoring phase.") },
-      title = { Text("Please confirm") },
+      title = { Text("Please confirm", style = MaterialTheme.typography.titleLarge) },
     )
   }
   if (state.resignDialogShowing) {
@@ -397,7 +391,7 @@ fun GameContent(
         }
       },
       text = { Text("Are you sure you want to resign?") },
-      title = { Text("Please confirm") },
+      title = { Text("Please confirm", style = MaterialTheme.typography.titleLarge) },
     )
   }
   if (state.cancelDialogShowing) {
@@ -414,7 +408,7 @@ fun GameContent(
         }
       },
       text = { Text("Are you sure you want to cancel the game?") },
-      title = { Text("Please confirm") },
+      title = { Text("Please confirm", style = MaterialTheme.typography.titleLarge) },
     )
   }
   state.gameOverDialogShowing?.let { dialog ->
@@ -897,6 +891,7 @@ fun Preview1() {
   OnlineGoTheme {
     GameContent(
       state = GameState.DEFAULT.copy(
+        requestUndoDialogShowing = false,
         position = Position(
           19,
           19,

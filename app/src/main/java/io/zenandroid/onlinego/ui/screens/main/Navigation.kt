@@ -1,8 +1,13 @@
 package io.zenandroid.onlinego.ui.screens.main
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.consumeWindowInsets
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
@@ -12,6 +17,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.NavOptions.Builder
 import androidx.navigation.NavType
@@ -20,6 +26,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import androidx.navigation.navDeepLink
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.ui.screens.face2face.FaceToFaceScreen
 import io.zenandroid.onlinego.ui.screens.game.GameScreen
@@ -85,12 +92,19 @@ fun OnlineGoApp(isLoggedIn: Boolean, darkTheme: Boolean) {
           )
         }
 
+        // adb shell am start -a android.intent.action.VIEW -d "sente://game/76828314/9/9"
         composable(
-          "game/{gameId}/{gameWidth}/{gameHeight}",
+          route = "game/{gameId}/{gameWidth}/{gameHeight}",
+          deepLinks = listOf(
+            navDeepLink {
+              uriPattern = "sente://game/{gameId}/{gameWidth}/{gameHeight}"
+            }
+          ),
           arguments = listOf(
             navArgument("gameId") { type = NavType.LongType },
             navArgument("gameWidth") { type = NavType.IntType },
-            navArgument("gameHeight") { type = NavType.IntType })
+            navArgument("gameHeight") { type = NavType.IntType },
+          ),
         ) { backStackEntry ->
           GameScreen(
             onNavigateBack = navController::popBackStack,
@@ -204,22 +218,31 @@ private fun BottomNavigationBar(navController: NavController) {
   val navBackStackEntry by navController.currentBackStackEntryAsState()
   val currentRoute = navBackStackEntry?.destination?.route
 
-  NavigationBar {
-    items.forEach { item ->
-      NavigationBarItem(
-        selected = currentRoute == item.route,
-        onClick = {
-          if (currentRoute != item.route) {
-            navController.navigate(item.route) {
-              popUpTo("myGames") { saveState = true }
-              launchSingleTop = true
-              restoreState = true
+  Card(
+    modifier = Modifier.fillMaxWidth(),
+    colors = CardDefaults.elevatedCardColors(),
+    elevation = CardDefaults.cardElevation(
+      defaultElevation = 16.dp,
+    ),
+    border = BorderStroke(0.1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.3f))
+  ) {
+    NavigationBar {
+      items.forEach { item ->
+        NavigationBarItem(
+          selected = currentRoute == item.route,
+          onClick = {
+            if (currentRoute != item.route) {
+              navController.navigate(item.route) {
+                popUpTo("myGames") { saveState = true }
+                launchSingleTop = true
+                restoreState = true
+              }
             }
-          }
-        },
-        icon = { Icon(item.icon, contentDescription = item.label) },
-        label = { Text(item.label) },
-      )
+          },
+          icon = { Icon(item.icon, contentDescription = item.label) },
+          label = { Text(item.label) },
+        )
+      }
     }
   }
 }

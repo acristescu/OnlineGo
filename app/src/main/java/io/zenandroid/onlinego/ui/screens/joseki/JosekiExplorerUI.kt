@@ -383,21 +383,18 @@ sealed class Button(
     icon = Icons.Rounded.Pause,
     label = "Tenuki",
     enabled = enabled,
-    bubbleText = "Tenuki"
   )
 
   class Previous(enabled: Boolean) : Button(
     icon = Icons.Rounded.SkipPrevious,
     label = "Previous",
     enabled = enabled,
-    bubbleText = "Previous"
   )
 
   class Next(enabled: Boolean) : Button(
     icon = Icons.Rounded.SkipNext,
     label = "Next",
     enabled = enabled,
-    bubbleText = "Next"
   )
 }
 

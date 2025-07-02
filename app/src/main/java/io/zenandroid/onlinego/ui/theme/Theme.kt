@@ -47,7 +47,7 @@ private val DarkColorPalette = darkColors(
 )
 
 @Composable
-fun OnlineGoTheme(darkTheme: Boolean = isSystemInDarkTheme(), m3: Boolean = false, content: @Composable () -> Unit) {
+fun OnlineGoTheme(darkTheme: Boolean = isSystemInDarkTheme(), m3: Boolean = true, content: @Composable () -> Unit) {
     if (m3) {
         val context = LocalContext.current
         val colorScheme = when {

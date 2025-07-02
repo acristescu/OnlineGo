@@ -2,7 +2,6 @@ package io.zenandroid.onlinego.ui.screens.learn
 
 import androidx.annotation.DrawableRes
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -10,6 +9,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.CheckBox
+import androidx.compose.material.icons.rounded.CheckBoxOutlineBlank
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -28,7 +30,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.local.Tutorial
-import io.zenandroid.onlinego.data.repositories.TutorialsRepository
+import io.zenandroid.onlinego.data.model.local.TutorialGroup
+import io.zenandroid.onlinego.data.model.local.TutorialIcon
 import io.zenandroid.onlinego.ui.screens.mygames.composables.SenteCard
 import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
 import org.koin.androidx.compose.koinViewModel
@@ -153,17 +156,9 @@ fun SecondaryRow(tutorial: Tutorial, completed: Boolean, onClick: () -> Unit) {
       .padding(start = 72.dp, top = 8.dp, bottom = 8.dp)
   ) {
     if (completed) {
-      Image(
-        painter = painterResource(R.drawable.ic_checked_square), modifier = Modifier.align(
-          Alignment.CenterVertically
-        ), contentDescription = null
-      )
+      Icon(Icons.Rounded.CheckBox, contentDescription = "Done")
     } else {
-      Image(
-        painter = painterResource(R.drawable.ic_unchecked_square), modifier = Modifier.align(
-          Alignment.CenterVertically
-        ), contentDescription = null
-      )
+      Icon(Icons.Rounded.CheckBoxOutlineBlank, contentDescription = "Done")
     }
     Text(
       tutorial.name, style = MaterialTheme.typography.bodyMedium, modifier = Modifier
@@ -177,7 +172,38 @@ fun SecondaryRow(tutorial: Tutorial, completed: Boolean, onClick: () -> Unit) {
 @Composable
 fun DefaultPreview() {
   OnlineGoTheme {
-    LearnContent(LearnState(TutorialsRepository().getTutorialGroups()), {})
+    LearnContent(
+      LearnState(
+        tutorialGroups = listOf(
+          TutorialGroup(
+            name = "Beginner",
+            icon = TutorialIcon.BEGINNER,
+            tutorials = listOf(
+              Tutorial(name = "Introduction to Go", steps = emptyList()),
+              Tutorial(name = "Basic Rules", steps = emptyList())
+            )
+          ),
+          TutorialGroup(
+            name = "Intermediate",
+            icon = TutorialIcon.INTERMEDIATE,
+            tutorials = listOf(
+              Tutorial(name = "Tactics", steps = emptyList()),
+              Tutorial(name = "Common Mistakes", steps = emptyList())
+            )
+          ),
+        ),
+        expandedTutorialGroup = TutorialGroup(
+          name = "Beginner",
+          icon = TutorialIcon.BEGINNER,
+          tutorials = listOf(
+            Tutorial(name = "Introduction to Go", steps = emptyList()),
+            Tutorial(name = "Basic Rules", steps = emptyList())
+          )
+        ),
+        completedTutorialsNames = setOf("Introduction to Go")
+      ),
+      {}
+    )
   }
 }
 

@@ -22,7 +22,6 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Android
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
-import androidx.compose.material3.CardColors
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -33,6 +32,7 @@ import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -156,11 +156,14 @@ private fun SupporterContent(
           )
         }
       },
+      colors = TopAppBarDefaults.topAppBarColors(
+        containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
+      ),
     )
 
     Column(
       modifier = Modifier
-        .background(MaterialTheme.colorScheme.surface)
+        .background(MaterialTheme.colorScheme.surfaceContainerLowest)
         .weight(1f)
         .verticalScroll(rememberScrollState())
         .padding(horizontal = 20.dp, vertical = 24.dp),

@@ -14,7 +14,6 @@ import androidx.core.app.NotificationCompat
 import androidx.core.content.res.ResourcesCompat
 import android.view.View
 import android.widget.RemoteViews
-import androidx.navigation.NavDeepLinkBuilder
 import java.util.Locale
 import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.R
@@ -26,6 +25,8 @@ import io.zenandroid.onlinego.data.model.local.GameNotificationWithDetails
 import io.zenandroid.onlinego.data.model.ogs.Phase
 import io.zenandroid.onlinego.ui.screens.main.MainActivity
 import io.zenandroid.onlinego.ui.views.BoardView
+import androidx.core.net.toUri
+import androidx.core.graphics.createBitmap
 
 /**
  * Created by alex on 07/03/2018.
@@ -140,7 +141,7 @@ class NotificationUtils {
             val heightSpec = View.MeasureSpec.makeMeasureSpec((256 * context.resources.displayMetrics.density).toInt(), View.MeasureSpec.AT_MOST)
             measure(widthSpec, heightSpec)
             layout(0, 0, measuredWidth, measuredHeight)
-            val r = Bitmap.createBitmap(measuredHeight, measuredHeight, Bitmap.Config.ARGB_8888)
+            val r = createBitmap(measuredHeight, measuredHeight)
             r.eraseColor(Color.TRANSPARENT)
             val canvas = Canvas(r)
 //            canvas.translate(measuredHeight/2f, 0f)
@@ -153,7 +154,7 @@ class NotificationUtils {
             val height = context.resources.getDimensionPixelSize(android.R.dimen.notification_large_icon_height)
             measure(width, height)
             layout(0, 0, measuredWidth, measuredHeight)
-            val r = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+            val r = createBitmap(width, height)
             r.eraseColor(Color.TRANSPARENT)
             val canvas = Canvas(r)
             canvas.translate((width - measuredWidth)/2f, (height - measuredHeight)/2f)
@@ -167,17 +168,18 @@ class NotificationUtils {
             }
             games.forEach {
                 context.resources.getDimensionPixelSize(android.R.dimen.notification_large_icon_width)
-                //TODO: FIXME!!!
-                val pendingIntent = NavDeepLinkBuilder(context)
-                    .setComponentName(MainActivity::class.java)
-//                    .setGraph(R.navigation.graph)
-//                    .setDestination(R.id.gameFragment)
-//                    .setArguments(bundleOf(
-//                        GAME_ID to it.id,
-//                        GAME_WIDTH to it.width,
-//                        GAME_HEIGHT to it.height
-//                    ))
-                    .createPendingIntent()
+
+                val uri = "sente://game/${it.id}/${it.width}/${it.height}".toUri()
+                val intent = Intent(Intent.ACTION_VIEW, uri, context, MainActivity::class.java).apply {
+                    flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+                }
+
+                val pendingIntent = PendingIntent.getActivity(
+                    context,
+                    0,
+                    intent,
+                    FLAG_UPDATE_CURRENT or FLAG_IMMUTABLE
+                )
 
                 val opponent = if (userId == it.blackPlayer.id) it.whitePlayer.username else it.blackPlayer.username
                 val message = when (it.phase) {
