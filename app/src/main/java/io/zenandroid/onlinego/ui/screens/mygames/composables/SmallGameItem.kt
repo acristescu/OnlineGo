@@ -32,9 +32,9 @@ import io.zenandroid.onlinego.utils.calculateTimer
 fun SmallGameItem(game: Game, userId: Long, onAction: (Action) -> Unit) {
   SenteCard(
     modifier = Modifier
-        .height(110.dp)
-        .fillMaxWidth()
-        .padding(horizontal = 8.dp, vertical = 4.dp)
+      .height(110.dp)
+      .fillMaxWidth()
+      .padding(horizontal = 8.dp, vertical = 4.dp)
   ) {
     val opponent =
       when (userId) {
@@ -42,7 +42,8 @@ fun SmallGameItem(game: Game, userId: Long, onAction: (Action) -> Unit) {
         game.whitePlayer.id -> game.blackPlayer
         else -> null
       }
-    Row(modifier = Modifier
+    Row(
+      modifier = Modifier
         .fillMaxWidth()
         .clickable { onAction(Action.GameSelected(game)) }) {
       Board(
@@ -55,14 +56,15 @@ fun SmallGameItem(game: Game, userId: Long, onAction: (Action) -> Unit) {
         fadeInLastMove = false,
         fadeOutRemovedStones = false,
         modifier = Modifier
-            .align(Alignment.CenterVertically)
-            .padding(horizontal = 10.dp, vertical = 10.dp)
-            .clip(MaterialTheme.shapes.small)
+          .align(Alignment.CenterVertically)
+          .padding(horizontal = 10.dp, vertical = 10.dp)
+          .clip(MaterialTheme.shapes.small)
       )
       Column {
         Row(modifier = Modifier.padding(top = 8.dp)) {
           Text(
-            text = opponent?.username ?: "Unknown",
+            text = opponent?.username?.substring(0..20.coerceAtMost(opponent.username.length - 1))
+              ?: "Unknown",
             color = MaterialTheme.colorScheme.onSurface,
             style = TextStyle.Default.copy(
               fontSize = 14.sp,

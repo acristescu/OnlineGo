@@ -91,7 +91,7 @@ private fun FaceToFaceContent(
   if (LocalConfiguration.current.orientation == Configuration.ORIENTATION_PORTRAIT) {
     Column(
       Modifier
-        .background(MaterialTheme.colorScheme.surface)
+        .background(MaterialTheme.colorScheme.surfaceContainerLowest)
         .fillMaxSize()
     ) {
       TitleBar(
@@ -165,7 +165,7 @@ private fun FaceToFaceContent(
   } else {
     Row(
       Modifier
-        .background(MaterialTheme.colorScheme.surface)
+        .background(MaterialTheme.colorScheme.surfaceContainerLowest)
         .fillMaxSize()
     ) {
       Column(

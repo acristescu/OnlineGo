@@ -125,8 +125,9 @@ fun PlayerCard(
           .fillMaxHeight(1f)
       ) {
         Text(
-          text = player.name + "  " + player.flagCode,
-          style = MaterialTheme.typography.titleSmall,
+          text = player.truncatedName + "  " + player.flagCode,
+          fontWeight = FontWeight.Bold,
+          fontSize = 20.sp,
           color = MaterialTheme.colorScheme.onSurface,
           modifier = Modifier.clickable { onUserClicked() }
         )
@@ -193,12 +194,14 @@ private fun Timer(
     }
     Text(
       text = timerMain,
-      style = MaterialTheme.typography.titleSmall,
+      fontWeight = FontWeight.Bold,
+      fontSize = 16.sp,
       color = MaterialTheme.colorScheme.onSurface.copy(alpha = alpha),
     )
     Text(
       text = timerExtra,
-      style = MaterialTheme.typography.titleSmall,
+      fontWeight = FontWeight.Bold,
+      fontSize = 8.sp,
       color = MaterialTheme.colorScheme.onSurface.copy(alpha = alpha),
     )
   }

@@ -990,7 +990,10 @@ data class PlayerData(
     val flagCode: String,
     val iconURL: String?,
     val color: StoneType,
-)
+) {
+    val truncatedName: String
+        get() = if(name.length > 20) name.substring(0, 20) + "…" else name
+}
 
 sealed class Button(
     override val icon: ImageVector,

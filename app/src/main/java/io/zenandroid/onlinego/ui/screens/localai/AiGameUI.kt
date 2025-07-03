@@ -41,6 +41,7 @@ import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -193,9 +194,12 @@ private fun AiGameUI(
   Column(
     modifier = Modifier
       .fillMaxSize()
-      .background(MaterialTheme.colorScheme.surface)
+      .background(MaterialTheme.colorScheme.surfaceContainerLowest)
   ) {
     TopAppBar(
+      colors = TopAppBarDefaults.topAppBarColors(
+        containerColor = MaterialTheme.colorScheme.surfaceContainerLowest
+      ),
       title = {
         Text(
           text = "Local AI Game",
