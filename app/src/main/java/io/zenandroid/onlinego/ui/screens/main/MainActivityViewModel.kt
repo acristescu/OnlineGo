@@ -28,7 +28,9 @@ class MainActivityViewModel(
 
   private val subscriptions = CompositeDisposable()
   private var hasAskedForPermissionsAlready = false
-  private val _state = MutableStateFlow(MainActivityState())
+  private val _state = MutableStateFlow(MainActivityState(
+    isLoggedIn = userSessionRepository.isLoggedIn()
+  ))
   val state: StateFlow<MainActivityState> = _state.asStateFlow()
 
   init {
@@ -43,7 +45,7 @@ class MainActivityViewModel(
         .collect { (boardTheme, appTheme, showCoordinates) ->
           _state.update {
             it.copy(
-              isLoading = false,
+              hasLoadedTheme = true,
               appTheme = appTheme,
               boardTheme = boardTheme,
               showCoordinates = showCoordinates,
@@ -67,6 +69,7 @@ class MainActivityViewModel(
     _state.update {
       it.copy(
         shouldAskForPermission = shouldAskForPermission,
+        isLoggedIn = userSessionRepository.isLoggedIn(),
       )
     }
 
@@ -91,13 +94,25 @@ class MainActivityViewModel(
     subscriptions.clear()
     socketService.disconnect()
   }
+
+  fun onMyGamesLoaded() {
+    _state.update {
+      it.copy(
+        myGamesLoaded = true,
+      )
+    }
+  }
 }
 
 data class MainActivityState(
-  val isLoading: Boolean = true,
+  val myGamesLoaded: Boolean = false,
+  val hasLoadedTheme: Boolean = true,
   val isLoggedIn: Boolean? = null,
   val shouldAskForPermission: Boolean = false,
   val appTheme: String? = null,
   val boardTheme: BoardTheme? = null,
   val showCoordinates: Boolean = false,
-)
+) {
+  val isLoaded: Boolean
+    get() = hasLoadedTheme && (isLoggedIn == false || (isLoggedIn == true && myGamesLoaded))
+}

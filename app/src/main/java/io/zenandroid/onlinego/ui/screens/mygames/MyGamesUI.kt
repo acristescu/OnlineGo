@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
@@ -18,6 +19,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -56,6 +58,7 @@ import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun MyGamesScreen(
+  onScreenReady: () -> Unit,
   onNavigateToGame: (Game) -> Unit,
   onNavigateToAIGame: () -> Unit,
   onNavigateToFaceToFace: () -> Unit,
@@ -63,6 +66,18 @@ fun MyGamesScreen(
 ) {
   val viewModel: MyGamesViewModel = koinViewModel()
   val state by rememberStateWithLifecycle(viewModel.state)
+
+  val screenReady by remember {
+    derivedStateOf {
+      state.hasReceivedChallenges && state.hasReceivedAutomatches && state.hasReceivedActiveGames && state.hasReceivedRecentGames && state.hasReceivedHistoricGames
+    }
+  }
+
+  LaunchedEffect(screenReady) {
+    if(screenReady) {
+      onScreenReady()
+    }
+  }
 
   val lifecycleOwner = LocalLifecycleOwner.current
 

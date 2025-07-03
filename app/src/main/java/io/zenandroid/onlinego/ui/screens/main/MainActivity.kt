@@ -117,7 +117,7 @@ class MainActivity : ComponentActivity() {
     }
 
     splashScreen.setKeepOnScreenCondition {
-      viewModel.state.value.isLoading
+      !viewModel.state.value.isLoaded
     }
 
     setContent {
@@ -125,6 +125,7 @@ class MainActivity : ComponentActivity() {
         LocalThemeSettings provides themeSettings,
       ) {
         OnlineGoApp(
+          onAppReady = { viewModel.onMyGamesLoaded() },
           darkTheme = themeSettings.isDarkTheme,
           isLoggedIn = userSessionRepository.isLoggedIn()
         )

@@ -2,7 +2,6 @@ package io.zenandroid.onlinego.ui.screens.mygames
 
 import android.util.Log
 import androidx.compose.runtime.Immutable
-import androidx.compose.runtime.collectAsState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.analytics.FirebaseAnalytics
@@ -54,9 +53,7 @@ import io.zenandroid.onlinego.utils.formatRank
 import io.zenandroid.onlinego.utils.recordException
 import io.zenandroid.onlinego.utils.timeLeftForCurrentPlayer
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.json.JSONObject
@@ -119,29 +116,29 @@ class MyGamesViewModel(
       .subscribeOn(Schedulers.io())
       .map(this::computePositions)
       .subscribeOn(Schedulers.computation())
-      .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
+      .observeOn(AndroidSchedulers.mainThread())
       .subscribe(this::setGames, this::onError)
       .addToDisposable(subscriptions)
     activeGamesRepository.refreshActiveGames()
       .subscribeOn(Schedulers.io())
-      .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
+      .observeOn(AndroidSchedulers.mainThread())
       .subscribe({}, this::onError)
       .addToDisposable(subscriptions)
     finishedGamesRepository.getRecentlyFinishedGames()
       .subscribeOn(Schedulers.io())
       .map(this::computePositions)
       .subscribeOn(Schedulers.computation())
-      .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
+      .observeOn(AndroidSchedulers.mainThread())
       .subscribe(this::setRecentGames, this::onError)
       .addToDisposable(subscriptions)
     challengesRepository.monitorChallenges()
       .subscribeOn(Schedulers.io())
-      .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
+      .observeOn(AndroidSchedulers.mainThread())
       .subscribe(this::setChallenges, this::onError)
       .addToDisposable(subscriptions)
     automatchRepository.automatchObservable
       .subscribeOn(Schedulers.io())
-      .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
+      .observeOn(AndroidSchedulers.mainThread())
       .subscribe(this::setAutomatches, this::onError)
       .addToDisposable(subscriptions)
     automatchRepository.gameStartObservable
@@ -149,12 +146,12 @@ class MyGamesViewModel(
         it.game_id?.let { activeGamesRepository.getGameSingle(it).toMaybe() } ?: Maybe.empty()
       }
       .subscribeOn(Schedulers.io())
-      .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
+      .observeOn(AndroidSchedulers.mainThread())
       .subscribe(this::onGameStart, this::onError)
       .addToDisposable(subscriptions)
     notificationsRepository.notificationsObservable()
       .subscribeOn(Schedulers.io())
-      .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
+      .observeOn(AndroidSchedulers.mainThread())
       .subscribe(this::onNotification, this::onError)
       .addToDisposable(subscriptions)
 
@@ -192,7 +189,8 @@ class MyGamesViewModel(
       it.copy(
         myTurnGames = myTurnList.sortedBy { timeLeftForCurrentPlayer(it) },
         opponentTurnGames = opponentTurnList,
-        headerSubText = determineText(myTurnList, opponentTurnList)
+        headerSubText = determineText(myTurnList, opponentTurnList),
+        hasReceivedActiveGames = true,
       )
     }
   }
@@ -210,7 +208,8 @@ class MyGamesViewModel(
   private fun setRecentGames(games: List<Game>) {
     _state.update {
       it.copy(
-        recentGames = games
+        recentGames = games,
+        hasReceivedRecentGames = true,
       )
     }
   }
@@ -218,7 +217,8 @@ class MyGamesViewModel(
   private fun setChallenges(challenges: List<Challenge>) {
     _state.update {
       it.copy(
-        challenges = challenges
+        challenges = challenges,
+        hasReceivedChallenges = true,
       )
     }
   }
@@ -227,7 +227,8 @@ class MyGamesViewModel(
   private fun setAutomatches(automatches: List<OGSAutomatch>) {
     _state.update {
       it.copy(
-        automatches = automatches
+        automatches = automatches,
+        hasReceivedAutomatches = true,
       )
     }
   }
@@ -261,7 +262,7 @@ class MyGamesViewModel(
   private fun onChallengeCancelled(challenge: Challenge) {
     analytics.logEvent("challenge_cancelled", null)
     restService.declineChallenge(challenge.id)
-      .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
+      .observeOn(AndroidSchedulers.mainThread())
       .subscribe({}, this::onError)
       .addToDisposable(subscriptions)
   }
@@ -269,7 +270,7 @@ class MyGamesViewModel(
   private fun onChallengeAccepted(challenge: Challenge) {
     analytics.logEvent("challenge_accepted", null)
     restService.acceptChallenge(challenge.id)
-      .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
+      .observeOn(AndroidSchedulers.mainThread())
       .subscribe({}, this::onError)
       .addToDisposable(subscriptions)
   }
@@ -277,7 +278,7 @@ class MyGamesViewModel(
   private fun onChallengeDeclined(challenge: Challenge) {
     analytics.logEvent("challenge_declined", null)
     restService.declineChallenge(challenge.id)
-      .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
+      .observeOn(AndroidSchedulers.mainThread())
       .subscribe({}, this::onError)
       .addToDisposable(subscriptions)
   }
@@ -460,7 +461,7 @@ class MyGamesViewModel(
     loadOlderGamesSubscription?.dispose()
     loadOlderGamesSubscription =
       finishedGamesRepository.getHistoricGames(lastGame?.ended)
-        .observeOn(AndroidSchedulers.mainThread()) // TODO: remove me!!!
+        .observeOn(AndroidSchedulers.mainThread())
         .distinctUntilChanged()
         .doOnNext { result ->
           _state.update {
@@ -485,7 +486,8 @@ class MyGamesViewModel(
       val newGames =
         games.filter { candidate -> existingGames.find { candidate.id == it.id } == null }
       it.copy(
-        historicGames = existingGames + newGames
+        historicGames = existingGames + newGames,
+        hasReceivedHistoricGames = true,
       )
     }
   }
@@ -516,7 +518,12 @@ data class MyGamesState(
   val tutorialTitle: String? = null,
   val online: Boolean = true,
   val challengeDetailsStatus: ChallengeDialogStatus? = null,
-  val warning: Warning? = null
+  val warning: Warning? = null,
+  val hasReceivedActiveGames: Boolean = false,
+  val hasReceivedRecentGames: Boolean = false,
+  val hasReceivedChallenges: Boolean = false,
+  val hasReceivedAutomatches: Boolean = false,
+  val hasReceivedHistoricGames: Boolean = false,
 )
 
 

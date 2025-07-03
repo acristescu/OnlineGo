@@ -6,7 +6,7 @@ androidGradlePlugin = "8.10.1"
 composeCompiler = "1.5.4"
 compileSdk = "35"
 minSdk = "21"
-navigationCompose = "2.9.0"
+navigationCompose = "2.9.1"
 targetSdk = "35"
 ndkVersion = "25.1.8937393"
 

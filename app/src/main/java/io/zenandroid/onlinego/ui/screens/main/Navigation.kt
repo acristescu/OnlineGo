@@ -1,5 +1,13 @@
 package io.zenandroid.onlinego.ui.screens.main
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -45,7 +53,11 @@ import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
 
 
 @Composable
-fun OnlineGoApp(isLoggedIn: Boolean, darkTheme: Boolean) {
+fun OnlineGoApp(
+  isLoggedIn: Boolean,
+  darkTheme: Boolean,
+  onAppReady: () -> Unit,
+) {
   val navController = rememberNavController()
 
   val startDestination = if (isLoggedIn) "myGames" else "onboarding"
@@ -60,19 +72,28 @@ fun OnlineGoApp(isLoggedIn: Boolean, darkTheme: Boolean) {
     darkTheme = darkTheme,
   ) {
     Scaffold(bottomBar = {
-      if (showBottomBar) {
+      AnimatedVisibility(
+        showBottomBar,
+        enter = slideInVertically(initialOffsetY = { it }) + fadeIn() + expandVertically(),
+        exit = ExitTransition.None,
+      ) {
         BottomNavigationBar(navController)
       }
     }) { innerPadding ->
       NavHost(
         navController = navController,
         startDestination = startDestination,
+        enterTransition = { slideInHorizontally(initialOffsetX = { it }) + fadeIn() },
+        exitTransition = { slideOutHorizontally(targetOffsetX = { -it }) + fadeOut() },
+        popEnterTransition = { slideInHorizontally(initialOffsetX = { -it }) + fadeIn() },
+        popExitTransition = { slideOutHorizontally(targetOffsetX = { it }) + fadeOut() },
         modifier = Modifier
           .padding(innerPadding)
           .consumeWindowInsets(innerPadding)
       ) {
         composable("myGames") {
           MyGamesScreen(
+            onScreenReady = onAppReady,
             onNavigateToGame = { navController.navigate("game/${it.id}/${it.width}/${it.height}") },
             onNavigateToAIGame = { navController.navigate("aiGame") },
             onNavigateToFaceToFace = { navController.navigate("faceToFace") },
