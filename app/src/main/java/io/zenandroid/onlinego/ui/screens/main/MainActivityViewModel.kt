@@ -27,10 +27,11 @@ class MainActivityViewModel(
 ) : ViewModel() {
 
   private val subscriptions = CompositeDisposable()
-  private var hasAskedForPermissionsAlready = false
-  private val _state = MutableStateFlow(MainActivityState(
-    isLoggedIn = userSessionRepository.isLoggedIn()
-  ))
+  private val _state = MutableStateFlow(
+    MainActivityState(
+      isLoggedIn = userSessionRepository.isLoggedIn()
+    )
+  )
   val state: StateFlow<MainActivityState> = _state.asStateFlow()
 
   init {
@@ -56,19 +57,13 @@ class MainActivityViewModel(
   }
 
   fun onResume() {
-    var shouldAskForPermission = false
     if (userSessionRepository.isLoggedIn()) {
-      if (!hasAskedForPermissionsAlready) {
-        hasAskedForPermissionsAlready = true
-        shouldAskForPermission = true
-      }
       socketService.ensureSocketConnected()
       socketService.resendAuth()
     }
 
     _state.update {
       it.copy(
-        shouldAskForPermission = shouldAskForPermission,
         isLoggedIn = userSessionRepository.isLoggedIn(),
       )
     }
@@ -79,15 +74,6 @@ class MainActivityViewModel(
       }
     }.addToDisposable(subscriptions)
 
-  }
-
-  fun onPermissionAsked() {
-    hasAskedForPermissionsAlready = true
-    _state.update {
-      it.copy(
-        shouldAskForPermission = false,
-      )
-    }
   }
 
   fun onPause() {
@@ -108,7 +94,6 @@ data class MainActivityState(
   val myGamesLoaded: Boolean = false,
   val hasLoadedTheme: Boolean = true,
   val isLoggedIn: Boolean? = null,
-  val shouldAskForPermission: Boolean = false,
   val appTheme: String? = null,
   val boardTheme: BoardTheme? = null,
   val showCoordinates: Boolean = false,

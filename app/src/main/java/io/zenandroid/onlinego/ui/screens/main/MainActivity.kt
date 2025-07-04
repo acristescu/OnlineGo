@@ -1,6 +1,5 @@
 package io.zenandroid.onlinego.ui.screens.main
 
-import android.Manifest
 import android.app.NotificationChannel
 import android.app.NotificationChannelGroup
 import android.app.NotificationManager
@@ -15,13 +14,10 @@ import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.util.Consumer
 import androidx.lifecycle.Lifecycle
@@ -32,10 +28,7 @@ import io.zenandroid.onlinego.data.repositories.UserSessionRepository
 import io.zenandroid.onlinego.notifications.SynchronizeGamesWork
 import io.zenandroid.onlinego.ui.screens.login.FacebookLoginCallbackActivity
 import io.zenandroid.onlinego.ui.theme.LocalThemeSettings
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.conflate
@@ -52,8 +45,6 @@ class MainActivity : ComponentActivity() {
   }
 
   private val userSessionRepository: UserSessionRepository = get()
-
-  private var requestPermissionLauncher: ActivityResultLauncher<String>? = null
 
   private val viewModel: MainActivityViewModel = get()
 
@@ -77,10 +68,6 @@ class MainActivity : ComponentActivity() {
           isSystemInDarkTheme(),
           viewModel.state,
         ) { systemDark, state ->
-          if (state.shouldAskForPermission) {
-            askForNotificationsPermission(delayed = true)
-            viewModel.onPermissionAsked()
-          }
           ThemeSettings(
             isDarkTheme = when (state.appTheme) {
               "System Default" -> systemDark
@@ -132,8 +119,6 @@ class MainActivity : ComponentActivity() {
       }
     }
 
-    requestPermissionLauncher =
-      registerForActivityResult(ActivityResultContracts.RequestPermission()) {}
     createNotificationChannel()
     scheduleNotificationJob()
 
@@ -236,28 +221,6 @@ class MainActivity : ComponentActivity() {
           }
         )
       )
-    }
-  }
-
-  override fun onDestroy() {
-    super.onDestroy()
-    requestPermissionLauncher = null
-  }
-
-  fun askForNotificationsPermission(delayed: Boolean) {
-    CoroutineScope(Dispatchers.Main).launch {
-      if (delayed) {
-        delay(5000)
-      }
-      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-        if (ContextCompat.checkSelfPermission(
-            applicationContext,
-            Manifest.permission.POST_NOTIFICATIONS
-          ) != PackageManager.PERMISSION_GRANTED
-        ) {
-          requestPermissionLauncher?.launch(Manifest.permission.POST_NOTIFICATIONS)
-        }
-      }
     }
   }
 
