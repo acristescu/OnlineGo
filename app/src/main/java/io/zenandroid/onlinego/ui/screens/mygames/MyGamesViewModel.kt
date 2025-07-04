@@ -11,6 +11,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
+import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.data.model.local.Challenge
 import io.zenandroid.onlinego.data.model.local.Game
 import io.zenandroid.onlinego.data.model.ogs.ChallengeParams
@@ -31,6 +32,7 @@ import io.zenandroid.onlinego.data.repositories.SettingsRepository
 import io.zenandroid.onlinego.data.repositories.TutorialsRepository
 import io.zenandroid.onlinego.data.repositories.UserSessionRepository
 import io.zenandroid.onlinego.gamelogic.RulesManager
+import io.zenandroid.onlinego.ui.screens.main.OnlineGoApp
 import io.zenandroid.onlinego.ui.screens.mygames.Action.AutomatchCancelled
 import io.zenandroid.onlinego.ui.screens.mygames.Action.ChallengeAccepted
 import io.zenandroid.onlinego.ui.screens.mygames.Action.ChallengeCancelled
@@ -76,7 +78,7 @@ class MyGamesViewModel(
   private val _state = MutableStateFlow(
     MyGamesState(
       userId = userSessionRepository.userId ?: 0,
-      whatsNewDialogVisible = WhatsNewUtils.shouldDisplayDialog,
+      whatsNewDialogVisible = false,
       headerMainText = "Hi ${userSessionRepository.uiConfig?.user?.username},",
       userImageURL = userSessionRepository.uiConfig?.user?.icon,
     )
@@ -110,6 +112,16 @@ class MyGamesViewModel(
       settingsRepository.showRanksFlow.collect {
         showRanks = it
       }
+    }
+
+    viewModelScope.launch {
+      val shouldDisplay = WhatsNewUtils.shouldDisplayDialog(OnlineGoApplication.instance)
+      _state.update {
+        it.copy(
+          whatsNewDialogVisible = shouldDisplay,
+        )
+      }
+      WhatsNewUtils.textShown(OnlineGoApplication.instance)
     }
 
     activeGamesRepository.monitorActiveGames()
@@ -441,7 +453,6 @@ class MyGamesViewModel(
   }
 
   private fun onDismissWhatsNewDialog() {
-    WhatsNewUtils.textShown()
     _state.update {
       it.copy(
         whatsNewDialogVisible = false

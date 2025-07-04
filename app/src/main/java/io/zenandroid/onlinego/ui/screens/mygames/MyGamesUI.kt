@@ -67,6 +67,7 @@ fun MyGamesScreen(
   val viewModel: MyGamesViewModel = koinViewModel()
   val state by rememberStateWithLifecycle(viewModel.state)
 
+  // We want to hold off dismissing the splash screen until we have all the data we need to display
   val screenReady by remember {
     derivedStateOf {
       state.hasReceivedChallenges && state.hasReceivedAutomatches && state.hasReceivedActiveGames && state.hasReceivedRecentGames && state.hasReceivedHistoricGames

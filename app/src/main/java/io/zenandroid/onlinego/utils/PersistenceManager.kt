@@ -8,7 +8,6 @@ import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.data.model.ogs.UIConfig
 
 private const val UICONFIG_KEY = "UICONFIG_KEY"
-private const val WHATS_NEW = "WHATS_NEW"
 private const val PUZZLE_REFRESH = "PUZZLE_DIRECTORY_REFRESH"
 
 /**
@@ -28,14 +27,6 @@ object PersistenceManager {
   fun getUIConfig(): UIConfig? =
     prefs.getString(UICONFIG_KEY, null)?.let {
       return moshi.adapter(UIConfig::class.java).fromJson(it)
-    }
-
-  var previousWhatsNewTextHashed: String? = prefs.getString(WHATS_NEW, null)
-    set(value) {
-      if (field != value) {
-        prefs.edit { putString(WHATS_NEW, value) }
-      }
-      field = value
     }
 
   var puzzleCollectionLastRefresh: Long = prefs.getLong(PUZZLE_REFRESH, 0)

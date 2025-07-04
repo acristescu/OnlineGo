@@ -49,7 +49,10 @@ fun NewChallengeBottomSheet(
     }
   }
 
-  ModalBottomSheet(onDismissRequest = onDismiss) {
+  ModalBottomSheet(
+    onDismissRequest = onDismiss,
+    containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
+  ) {
     NewChallengeBottomSheetContent(
       state = state,
       onEvent = {

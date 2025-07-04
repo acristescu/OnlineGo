@@ -48,6 +48,7 @@ fun NewAutomatchChallengeBottomSheet(
   ModalBottomSheet(
     sheetState = sheetState,
     onDismissRequest = onDismiss,
+    containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
   ) {
     NewAutomatchChallengeBottomSheetContent(
       state = state,

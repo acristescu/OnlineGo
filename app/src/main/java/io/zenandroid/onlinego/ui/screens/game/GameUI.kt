@@ -1,5 +1,6 @@
 package io.zenandroid.onlinego.ui.screens.game
 
+import android.R.attr.onClick
 import android.content.Intent
 import android.content.res.Configuration.ORIENTATION_PORTRAIT
 import android.media.MediaPlayer
@@ -44,6 +45,10 @@ import androidx.compose.material.icons.rounded.Download
 import androidx.compose.material.icons.rounded.OpenInBrowser
 import androidx.compose.material.icons.rounded.ThumbDown
 import androidx.compose.material.icons.rounded.ThumbUp
+import androidx.compose.material3.Button
+import androidx.compose.material3.ElevatedButton
+import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -708,15 +713,7 @@ private fun GameOverDialog(
         color = MaterialTheme.colorScheme.onSurface,
       )
       Spacer(modifier = Modifier.height(28.dp))
-      TextButton(
-        colors = ButtonDefaults.textButtonColors(
-          containerColor = MaterialTheme.colorScheme.surfaceVariant,
-          contentColor = MaterialTheme.colorScheme.onSurface
-        ),
-        elevation = ButtonDefaults.buttonElevation(
-          defaultElevation = 8.dp,
-          pressedElevation = 4.dp,
-        ),
+      FilledTonalButton (
         onClick = { onUserAction(GameOverDialogAnalyze) },
       ) {
         Text(
@@ -725,8 +722,10 @@ private fun GameOverDialog(
           modifier = Modifier.fillMaxWidth()
         )
       }
-      TextButton(
-        colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.onSurface),
+      TextButton (
+        colors = ButtonDefaults.textButtonColors(
+          contentColor = MaterialTheme.colorScheme.onSurface,
+        ),
         onClick = { onUserAction(GameOverDialogNextGame) },
       ) {
         Text(
@@ -735,8 +734,10 @@ private fun GameOverDialog(
           modifier = Modifier.fillMaxWidth()
         )
       }
-      TextButton(
-        colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.onSurface),
+      TextButton (
+        colors = ButtonDefaults.textButtonColors(
+          contentColor = MaterialTheme.colorScheme.onSurface,
+        ),
         onClick = { onUserAction(GameOverDialogQuickReplay) },
       ) {
         Text(
