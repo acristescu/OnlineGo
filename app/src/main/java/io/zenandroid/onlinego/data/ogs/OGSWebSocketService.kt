@@ -33,7 +33,6 @@ import io.zenandroid.onlinego.utils.json
 import io.zenandroid.onlinego.utils.recordException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import okhttp3.OkHttpClient
 import org.json.JSONObject
 import org.koin.core.context.GlobalContext.get
 import java.util.Locale
@@ -44,7 +43,6 @@ import java.util.logging.Logger
 private const val TAG = "OGSWebSocketService"
 
 class OGSWebSocketService(
-        private val httpClient: OkHttpClient,
         private val moshi: Moshi,
         private val restService: OGSRestService,
         private val userSessionRepository: UserSessionRepository

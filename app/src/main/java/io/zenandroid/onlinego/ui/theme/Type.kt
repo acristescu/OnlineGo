@@ -88,6 +88,11 @@ val typographyM3 = androidx.compose.material3.Typography(
         fontWeight = FontWeight.Bold,
         fontSize = 14.sp
     ),
+    headlineLarge = TextStyle(
+        fontFamily = FontFamily.Default,
+        fontWeight = FontWeight.Bold,
+        fontSize = 26.sp
+    ),
     headlineMedium = TextStyle(
         fontFamily = FontFamily.Default,
         fontWeight = FontWeight.Bold,

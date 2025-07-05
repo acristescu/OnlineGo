@@ -51,7 +51,6 @@ import io.zenandroid.onlinego.usecases.GetUserStatsUseCase
 import io.zenandroid.onlinego.utils.CountingIdlingResource
 import io.zenandroid.onlinego.utils.CustomConverterFactory
 import io.zenandroid.onlinego.utils.NOOPIdlingResource
-import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.androidx.viewmodel.dsl.viewModelOf
 import org.koin.core.module.dsl.singleOf
@@ -76,25 +75,25 @@ private val repositoriesModule = module {
     )
   }
 
-  single { ActiveGamesRepository(get(), get(), get(), get()) }
-  single { AutomatchRepository(get()) }
-  single { BotsRepository(get()) }
-  single { ChallengesRepository(get(), get(), get()) }
-  single { ChatRepository(get(), get()) }
-  single { FinishedGamesRepository(get(), get(), get()) }
-  single { JosekiRepository(get(), get()) }
-  single { PuzzleRepository(get(), get()) }
-  single { PlayersRepository(get(), get(), get()) }
-  single { ServerNotificationsRepository(get()) }
-  single { SettingsRepository(androidContext()) }
-  single { UserSessionRepository() }
-  single { ClockDriftRepository(get()) }
-  single { TutorialsRepository() }
+  singleOf(::ActiveGamesRepository)
+  singleOf(::AutomatchRepository)
+  singleOf(::BotsRepository)
+  singleOf(::ChallengesRepository)
+  singleOf(::ChatRepository)
+  singleOf(::FinishedGamesRepository)
+  singleOf(::JosekiRepository)
+  singleOf(::PuzzleRepository)
+  singleOf(::PlayersRepository)
+  singleOf(::ServerNotificationsRepository)
+  singleOf(::SettingsRepository)
+  singleOf(::UserSessionRepository)
+  singleOf(::ClockDriftRepository)
+  singleOf(::TutorialsRepository)
 }
 
 private val serverConnectionModule = module {
 
-  single { HTTPConnectionFactory(get()) }
+  singleOf(::HTTPConnectionFactory)
   single { get<HTTPConnectionFactory>().buildConnection() }
 
   single {
@@ -137,9 +136,7 @@ private val databaseModule = module {
 }
 
 private val useCasesModule = module {
-  single {
-    GetUserStatsUseCase(get())
-  }
+  singleOf(::GetUserStatsUseCase)
 }
 
 private val viewModelsModule = module {
@@ -175,7 +172,6 @@ private val viewModelsModule = module {
     )
   }
 
-
   viewModel {
     FaceToFaceViewModel(
       PreferenceManager.getDefaultSharedPreferences(OnlineGoApplication.instance.baseContext),
@@ -192,7 +188,7 @@ private val espressoModule = module {
 }
 
 private val playStoreModule = module {
-  single { PlayStoreService(get()) }
+  singleOf(::PlayStoreService)
 }
 
 val allKoinModules = listOf(
