@@ -32,7 +32,6 @@ import io.zenandroid.onlinego.data.repositories.SettingsRepository
 import io.zenandroid.onlinego.data.repositories.TutorialsRepository
 import io.zenandroid.onlinego.data.repositories.UserSessionRepository
 import io.zenandroid.onlinego.gamelogic.RulesManager
-import io.zenandroid.onlinego.ui.screens.main.OnlineGoApp
 import io.zenandroid.onlinego.ui.screens.mygames.Action.AutomatchCancelled
 import io.zenandroid.onlinego.ui.screens.mygames.Action.ChallengeAccepted
 import io.zenandroid.onlinego.ui.screens.mygames.Action.ChallengeCancelled
@@ -180,10 +179,10 @@ class MyGamesViewModel(
     val opponentTurnList = mutableListOf<Game>()
     for (game in games) {
       val myTurn = when (game.phase) {
-        Phase.PLAY -> game.playerToMoveId == userSessionRepository.userId
+        Phase.PLAY -> game.playerToMoveId == _state.value.userId
         Phase.STONE_REMOVAL -> {
           val myRemovedStones =
-            if (userSessionRepository.userId == game.whitePlayer.id) game.whitePlayer.acceptedStones else game.blackPlayer.acceptedStones
+            if (_state.value.userId == game.whitePlayer.id) game.whitePlayer.acceptedStones else game.blackPlayer.acceptedStones
           game.removedStones != myRemovedStones
         }
 

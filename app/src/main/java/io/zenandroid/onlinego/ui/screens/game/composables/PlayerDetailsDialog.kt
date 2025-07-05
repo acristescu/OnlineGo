@@ -27,7 +27,6 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.composed
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -37,9 +36,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
-import com.google.accompanist.placeholder.PlaceholderHighlight
-import com.google.accompanist.placeholder.placeholder
-import com.google.accompanist.placeholder.shimmer
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.local.HistoryItem
 import io.zenandroid.onlinego.data.model.local.Player
@@ -53,6 +49,7 @@ import io.zenandroid.onlinego.utils.egfToRank
 import io.zenandroid.onlinego.utils.formatRank
 import io.zenandroid.onlinego.utils.getPercentile
 import io.zenandroid.onlinego.utils.processGravatarURL
+import io.zenandroid.onlinego.utils.shimmer
 import kotlin.math.roundToInt
 
 @Composable
@@ -238,17 +235,6 @@ fun PlayerDetailsDialog(
       loading = stats !is Success,
     )
   }
-}
-
-fun Modifier.shimmer(visible: Boolean): Modifier = composed {
-  placeholder(
-    visible = visible,
-    shape = RoundedCornerShape(4.dp),
-    highlight = PlaceholderHighlight.shimmer(
-      highlightColor = MaterialTheme.colorScheme.surfaceContainerLowest.copy(alpha = .9f),
-    ),
-    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.1f),
-  )
 }
 
 @Composable

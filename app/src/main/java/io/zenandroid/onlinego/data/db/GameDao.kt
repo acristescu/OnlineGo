@@ -46,7 +46,6 @@ abstract class GameDao {
     @Query("SELECT id FROM game WHERE phase <> 'FINISHED' AND (white_id = :userId OR black_id = :userId)")
     abstract fun getActiveGameIds(userId: Long?) : List<Long>
 
-    @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
     @Query("""
         SELECT *
         FROM game 
@@ -66,7 +65,6 @@ abstract class GameDao {
     """)
     abstract fun monitorActiveGamesWithNewMessagesCount(userId: Long?) : Flowable<List<Game>>
 
-    @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
     @Query("""
         SELECT * 
         FROM game 

@@ -92,7 +92,6 @@ compose-ui-util = { group = "androidx.compose.ui", name = "ui-util" }
 compose-material3 = { group = "androidx.compose.material3", name = "material3" }
 
 # Accompanist
-accompanist-placeholder-material = { group = "com.google.accompanist", name = "accompanist-placeholder-material", version.ref = "accompanist" }
 accompanist-pager-indicators = { group = "com.google.accompanist", name = "accompanist-pager-indicators", version.ref = "accompanist" }
 
 # Material Design & UI
@@ -191,7 +190,6 @@ compose = [
 ]
 
 accompanist = [
-    "accompanist-placeholder-material",
     "accompanist-pager-indicators"
 ]
 

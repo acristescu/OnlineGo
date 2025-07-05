@@ -309,13 +309,15 @@ class OGSRestService(
 
     val list = mutableListOf<PuzzleSolution>()
     do {
+      if(list.isNotEmpty()) {
+        delay(1000)
+      }
       val result = restApi.getPuzzleSolutions(
         puzzleId = id,
         playerId = userSessionRepository.userId!!,
         page = ++page
       )
       list.addAll(result.results)
-      delay(1000)
     } while (result.next != null)
     return list
   }

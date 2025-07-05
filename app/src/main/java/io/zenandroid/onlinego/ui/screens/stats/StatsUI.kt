@@ -39,7 +39,6 @@ import androidx.compose.ui.unit.sp
 import com.github.mikephil.charting.data.Entry
 import io.zenandroid.onlinego.data.model.local.WinLossStats
 import io.zenandroid.onlinego.ui.screens.game.composables.BoxWithImage
-import io.zenandroid.onlinego.ui.screens.game.composables.shimmer
 import io.zenandroid.onlinego.ui.screens.mygames.composables.SenteCard
 import io.zenandroid.onlinego.ui.screens.stats.StatsViewModel.Filter
 import io.zenandroid.onlinego.ui.screens.stats.StatsViewModel.StatsState
@@ -47,6 +46,7 @@ import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
 import io.zenandroid.onlinego.utils.egfToRank
 import io.zenandroid.onlinego.utils.formatRank
 import io.zenandroid.onlinego.utils.rememberStateWithLifecycle
+import io.zenandroid.onlinego.utils.shimmer
 import org.koin.androidx.compose.koinViewModel
 import kotlin.math.abs
 
