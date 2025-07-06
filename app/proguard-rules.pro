@@ -18,8 +18,6 @@
 
 -keep class io.zenandroid.onlinego.data.** { *; }
 -keep class io.zenandroid.onlinego.ui.screens.localai.AiGameState { *; }
--keep class io.zenandroid.onlinego.ui.screens.localai.AiGameAction { *; }
--keep class io.zenandroid.onlinego.ui.screens.localai.AiGameAction$* { *; }
 -keepattributes SourceFile,LineNumberTable        # Keep file names and line numbers.
 -keep public class * extends java.lang.Exception  # Optional: Keep custom exceptions.
 -dontwarn org.bouncycastle.jsse.BCSSLSocket
