@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlin.coroutines.cancellation.CancellationException
 
 class SelectOpponentViewModel(
   botsRepository: BotsRepository,
@@ -29,10 +30,8 @@ class SelectOpponentViewModel(
   init {
     viewModelScope.launch {
       val recentOpponents = playersRepository.getRecentOpponents()
-      withContext(Dispatchers.Main) {
-        state.update {
-          it.copy(recentOpponents = recentOpponents)
-        }
+      state.update {
+        it.copy(recentOpponents = recentOpponents)
       }
     }
   }
@@ -53,10 +52,18 @@ class SelectOpponentViewModel(
         }
         currentSearch?.cancel()
         currentSearch = viewModelScope.launch {
-          delay(100)
-          val searchResults = playersRepository.searchPlayers(event.query)
-          state.update {
-            it.copy(searchResults = searchResults )
+          try {
+            delay(100)
+            val searchResults = playersRepository.searchPlayers(event.query)
+            state.update {
+              it.copy(searchResults = searchResults)
+            }
+          } catch(e: CancellationException) {
+            throw e
+          } catch (e: Exception) {
+            state.update {
+              it.copy(error = e.message ?: "Unknown error" )
+            }
           }
         }
       }
@@ -71,6 +78,7 @@ data class SelectOpponentState(
   val recentOpponents: List<Player> = emptyList(),
   val searchTerm: String = "",
   val searchResults: List<Player> = emptyList(),
+  val error: String? = null
 )
 
 enum class Tab {

@@ -32,6 +32,7 @@ import okhttp3.ResponseBody.Companion.toResponseBody
 import retrofit2.HttpException
 import retrofit2.Response
 import java.util.Date
+import androidx.core.content.edit
 
 private const val TAG = "OGSRestService"
 private const val OGS_EBI = "OGS_EBI"
@@ -49,7 +50,7 @@ class OGSRestService(
     } else {
       val newEbi =
         "${Math.random().toString().split(".")[1]}.0.0.0.0.xxx.xxx.${Date().timezoneOffset + 13}"
-      prefs.edit().putString(OGS_EBI, newEbi).apply()
+      prefs.edit { putString(OGS_EBI, newEbi) }
       newEbi
     }
   }
