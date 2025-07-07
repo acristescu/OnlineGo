@@ -72,14 +72,16 @@ class OGSWebSocketService(
 
         socket.on(Socket.EVENT_CONNECT) {
             if(BuildConfig.DEBUG) Logger.getLogger(TAG).warning("socket connect id=${socket.id()}")
+            FirebaseCrashlytics.getInstance().log("Websocket connected")
             onSockedConnected()
+            FirebaseCrashlytics.getInstance().log("Websocket connected - called all onSocketConnected() methods")
         }.on(Socket.EVENT_DISCONNECT) {
             if(BuildConfig.DEBUG) Logger.getLogger(TAG).warning("socket disconnect id=${socket.id()}")
+            FirebaseCrashlytics.getInstance().log("Websocket disconnected")
             onSocketDisconnected()
         }.on(Socket.EVENT_CONNECT_ERROR) {
             if(BuildConfig.DEBUG) Logger.getLogger(TAG).warning("socket connect error id=${socket.id()}")
-        }.on(Socket.EVENT_CONNECT_ERROR) {
-            if(BuildConfig.DEBUG) Logger.getLogger(TAG).severe("socket connect error id=${socket.id()}")
+            FirebaseCrashlytics.getInstance().log("Websocket connect error")
         }
 
         if(BuildConfig.DEBUG) {

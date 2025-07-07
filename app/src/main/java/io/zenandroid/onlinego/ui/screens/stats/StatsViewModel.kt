@@ -30,6 +30,7 @@ import io.zenandroid.onlinego.utils.analyticsReportScreen
 import io.zenandroid.onlinego.utils.egfToRank
 import io.zenandroid.onlinego.utils.formatRank
 import io.zenandroid.onlinego.utils.recordException
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
@@ -68,7 +69,7 @@ class StatsViewModel(
   init {
     val playerId = savedStateHandle.get<String>("playerId")?.toLong() ?: Util.getCurrentUserId()!!
     analyticsReportScreen("Stats")
-    viewModelScope.launch {
+    viewModelScope.launch(Dispatchers.IO) {
       val result = getUserStatsUseCase.getPlayerStatsWithSizesAsync(playerId)
       result.fold(
         onSuccess = ::fillPlayerStats,
@@ -85,7 +86,7 @@ class StatsViewModel(
       }
     }
 
-    viewModelScope.launch {
+    viewModelScope.launch(Dispatchers.IO) {
       try {
         fillPlayerDetails(restService.getPlayerProfileAsync(playerId))
       } catch (t: Throwable) {
