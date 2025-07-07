@@ -61,7 +61,7 @@ class ActiveGamesRepository(
             FirebaseCrashlytics.getInstance().log("ActiveGameRepository: New game found from active_game notification ${game.id}")
             restService.fetchGame(game.id)
                     .subscribeOn(Schedulers.io())
-                    .observeOn(Schedulers.single())
+                    .observeOn(Schedulers.io())
                     .map(Game.Companion::fromOGSGame)
                     .retryWhen(this::retryIOException)
                     .subscribe({
@@ -83,7 +83,7 @@ class ActiveGamesRepository(
     override fun onSocketConnected() {
         refreshActiveGames()
                 .subscribeOn(Schedulers.io())
-                .observeOn(Schedulers.single())
+                .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({}, { onError(it, "refreshActiveGames") })
                 .addToDisposable(subscriptions)
         socketService.connectToActiveGames()
@@ -123,7 +123,7 @@ class ActiveGamesRepository(
         gameConnection.addToDisposable(subscriptions)
         gameConnection.gameData
                 .subscribeOn(Schedulers.io())
-                .observeOn(Schedulers.single())
+                .observeOn(Schedulers.io())
                 .subscribe (
                         { onGameData(game.id, it) },
                         { onError(it, "gameData") }
@@ -131,7 +131,7 @@ class ActiveGamesRepository(
                 .addToDisposable(subscriptions)
         gameConnection.moves
                 .subscribeOn(Schedulers.io())
-                .observeOn(Schedulers.single())
+                .observeOn(Schedulers.io())
                 .subscribe (
                         { onGameMove(game.id, it) },
                         { onError(it, "moves") }
@@ -139,7 +139,7 @@ class ActiveGamesRepository(
                 .addToDisposable(subscriptions)
         gameConnection.clock
                 .subscribeOn(Schedulers.io())
-                .observeOn(Schedulers.single())
+                .observeOn(Schedulers.io())
                 .subscribe (
                         { onGameClock(game.id, it) },
                         { onError(it, "clock") }
@@ -147,7 +147,7 @@ class ActiveGamesRepository(
                 .addToDisposable(subscriptions)
         gameConnection.phase
                 .subscribeOn(Schedulers.io())
-                .observeOn(Schedulers.single())
+                .observeOn(Schedulers.io())
                 .subscribe (
                         { onGamePhase(game.id, it) },
                         { onError(it, "phase") }
@@ -155,7 +155,7 @@ class ActiveGamesRepository(
                 .addToDisposable(subscriptions)
         gameConnection.removedStones
                 .subscribeOn(Schedulers.io())
-                .observeOn(Schedulers.single())
+                .observeOn(Schedulers.io())
                 .subscribe (
                         { onGameRemovedStones(game.id, it) },
                         { onError(it, "removedStones") }
@@ -163,7 +163,7 @@ class ActiveGamesRepository(
                 .addToDisposable(subscriptions)
         gameConnection.undoRequested
                 .subscribeOn(Schedulers.io())
-                .observeOn(Schedulers.single())
+                .observeOn(Schedulers.io())
                 .subscribe (
                         { onUndoRequested(game.id, it) },
                         { onError(it, "undoRequested") }
@@ -171,7 +171,7 @@ class ActiveGamesRepository(
                 .addToDisposable(subscriptions)
         gameConnection.removedStonesAccepted
                 .subscribeOn(Schedulers.io())
-                .observeOn(Schedulers.single())
+                .observeOn(Schedulers.io())
                 .subscribe (
                         { onRemovedStonesAccepted(game.id, it) },
                         { onError(it, "removedStonesAccepted") }
@@ -179,7 +179,7 @@ class ActiveGamesRepository(
                 .addToDisposable(subscriptions)
         gameConnection.undoAccepted
                 .subscribeOn(Schedulers.io())
-                .observeOn(Schedulers.single())
+                .observeOn(Schedulers.io())
                 .subscribe (
                         { onUndoAccepted(game.id, it) },
                         { onError(it, "undoRequested") }
