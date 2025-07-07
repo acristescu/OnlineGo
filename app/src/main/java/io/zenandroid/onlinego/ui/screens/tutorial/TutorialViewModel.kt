@@ -15,7 +15,10 @@ import io.zenandroid.onlinego.data.repositories.TutorialsRepository
 import io.zenandroid.onlinego.gamelogic.RulesManager
 import io.zenandroid.onlinego.gamelogic.Util
 import io.zenandroid.onlinego.gamelogic.Util.decodeSGF
-import io.zenandroid.onlinego.ui.screens.tutorial.TutorialAction.*
+import io.zenandroid.onlinego.ui.screens.tutorial.TutorialAction.BoardCellHovered
+import io.zenandroid.onlinego.ui.screens.tutorial.TutorialAction.BoardCellTapped
+import io.zenandroid.onlinego.ui.screens.tutorial.TutorialAction.NextPressed
+import io.zenandroid.onlinego.ui.screens.tutorial.TutorialAction.RetryPressed
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -39,28 +42,32 @@ class TutorialViewModel(
   private fun initialState() = TutorialState()
 
   fun loadTutorial(tutorialName: String) {
-    val tutorial = tutorialsRepository.loadTutorial(tutorialName)!!
-    val step = tutorial.steps[0]
-    loadStep(tutorial, step)
+    viewModelScope.launch {
+      val tutorial = tutorialsRepository.loadTutorial(tutorialName)!!
+      val step = tutorial.steps[0]
+      loadStep(tutorial, step)
+    }
   }
 
   private fun loadStep(tutorial: Tutorial, step: TutorialStep) {
     when (step) {
       is Interactive -> {
-        _state.update {
-          it.copy(
-            tutorialGroups = tutorialsRepository.getTutorialGroups(),
-            tutorial = tutorial,
-            step = step,
-            position = decodeSGF(step.size, step.size, step.init, null, null),
-            removedStones = null,
-            text = step.text,
-            node = null,
-            page = null,
-            retryButtonVisible = true,
-            nextButtonVisible = false,
-            boardInteractive = step.branches.isNotEmpty()
-          )
+        viewModelScope.launch {
+          _state.update {
+            it.copy(
+              tutorialGroups = tutorialsRepository.getTutorialGroups(),
+              tutorial = tutorial,
+              step = step,
+              position = decodeSGF(step.size, step.size, step.init, null, null),
+              removedStones = null,
+              text = step.text,
+              node = null,
+              page = null,
+              retryButtonVisible = true,
+              nextButtonVisible = false,
+              boardInteractive = step.branches.isNotEmpty()
+            )
+          }
         }
       }
 
@@ -142,21 +149,23 @@ class TutorialViewModel(
   }
 
   private fun loadPage(tutorial: Tutorial?, step: Lesson, page: Page) {
-    val pos = decodeSGF(step.size, step.size, page.position, page.areas, page.marks)
-    _state.update {
-      it.copy(
-        tutorialGroups = tutorialsRepository.getTutorialGroups(),
-        tutorial = tutorial,
-        step = step,
-        page = page,
-        text = page.text,
-        position = pos,
-        removedStones = null,
-        node = null,
-        retryButtonVisible = false,
-        nextButtonVisible = true,
-        boardInteractive = false
-      )
+    viewModelScope.launch {
+      val pos = decodeSGF(step.size, step.size, page.position, page.areas, page.marks)
+      _state.update {
+        it.copy(
+          tutorialGroups = tutorialsRepository.getTutorialGroups(),
+          tutorial = tutorial,
+          step = step,
+          page = page,
+          text = page.text,
+          position = pos,
+          removedStones = null,
+          node = null,
+          retryButtonVisible = false,
+          nextButtonVisible = true,
+          boardInteractive = false
+        )
+      }
     }
   }
 
