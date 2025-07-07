@@ -14,7 +14,6 @@ import io.zenandroid.onlinego.ai.KataGoAnalysisEngine
 import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.Position
 import io.zenandroid.onlinego.data.model.StoneType
-import io.zenandroid.onlinego.data.repositories.SettingsRepository
 import io.zenandroid.onlinego.data.repositories.UserSessionRepository
 import io.zenandroid.onlinego.gamelogic.RulesManager
 import io.zenandroid.onlinego.gamelogic.RulesManager.isGameOver
@@ -39,9 +38,11 @@ class AiGameViewModel(
   private val userSessionRepository: UserSessionRepository,
 ) : ViewModel() {
 
-  private val _state = MutableStateFlow(AiGameState(
-    userIcon = userSessionRepository.uiConfig?.user?.icon,
-  ))
+  private val _state = MutableStateFlow(
+    AiGameState(
+      userIcon = userSessionRepository.uiConfig?.user?.icon,
+    )
+  )
   val state: StateFlow<AiGameState> = _state.asStateFlow()
   val disposables: CompositeDisposable = CompositeDisposable()
 
@@ -198,7 +199,10 @@ class AiGameViewModel(
         redoPosStack = emptyList(),
         candidateMove = null,
         history = emptyList(),
-        position = newPosition
+        position = newPosition,
+        aiAnalysis = null,
+        aiQuickEstimation = null,
+        stateRestorePending = false,
       )
     }
     updatePosition(newPosition)

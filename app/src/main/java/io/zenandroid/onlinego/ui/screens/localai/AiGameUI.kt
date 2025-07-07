@@ -443,14 +443,14 @@ private fun AiGameUI(
         boardHeight = state.boardSize,
         position = state.position,
         hints = if (state.showHints) state.aiAnalysis?.moveInfos else null,
-        ownership = state.aiAnalysis?.ownership,
+        ownership = if(state.showAiEstimatedTerritory) state.aiAnalysis?.ownership else null,
         candidateMove = state.candidateMove,
         candidateMoveType = if (state.enginePlaysBlack) StoneType.WHITE else StoneType.BLACK,
         interactive = state.boardIsInteractive,
         drawTerritory = state.showFinalTerritory,
         fadeOutRemovedStones = state.showFinalTerritory,
         onTapMove = onUserHotTrackedCoordinate,
-        onTapUp = onUserTappedCoordinate
+        onTapUp = onUserTappedCoordinate,
       )
     }
 
