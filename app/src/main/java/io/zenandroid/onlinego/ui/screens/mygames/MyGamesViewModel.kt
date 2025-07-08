@@ -76,10 +76,9 @@ class MyGamesViewModel(
 ) : ViewModel() {
   private val _state = MutableStateFlow(
     MyGamesState(
-      userId = userSessionRepository.userId ?: 0,
+      userId = 0,
       whatsNewDialogVisible = false,
-      headerMainText = "Hi ${userSessionRepository.uiConfig?.user?.username},",
-      userImageURL = userSessionRepository.uiConfig?.user?.icon,
+      headerMainText = "Hi ,",
     )
   )
   val state: StateFlow<MyGamesState> = _state
@@ -94,18 +93,76 @@ class MyGamesViewModel(
   }
 
   init {
-    viewModelScope.launch {
-      try {
-        val warning = restService.checkForWarnings()
-        if (warning.id != null) {
-          _state.update {
-            it.copy(warning = warning)
+    userSessionRepository.userIdObservable
+      .subscribeOn(Schedulers.io())
+      .observeOn(AndroidSchedulers.mainThread())
+      .subscribe { userId ->
+        _state.update {
+          it.copy(
+            userId = userId,
+            headerMainText = "Hi ${userSessionRepository.uiConfig?.user?.username},",
+            userImageURL = userSessionRepository.uiConfig?.user?.icon,
+          )
+        }
+
+        viewModelScope.launch {
+          try {
+            val warning = restService.checkForWarnings()
+            if (warning.id != null) {
+              _state.update {
+                it.copy(warning = warning)
+              }
+            }
+          } catch (throwable: Throwable) {
+            onError(throwable)
           }
         }
-      } catch (throwable: Throwable) {
-        onError(throwable)
-      }
-    }
+
+        activeGamesRepository.monitorActiveGames()
+          .subscribeOn(Schedulers.io())
+          .map(this::computePositions)
+          .subscribeOn(Schedulers.computation())
+          .observeOn(AndroidSchedulers.mainThread())
+          .subscribe(this::setGames, this::onError)
+          .addToDisposable(subscriptions)
+        activeGamesRepository.refreshActiveGames()
+          .subscribeOn(Schedulers.io())
+          .observeOn(AndroidSchedulers.mainThread())
+          .subscribe({}, this::onError)
+          .addToDisposable(subscriptions)
+        finishedGamesRepository.getRecentlyFinishedGames()
+          .subscribeOn(Schedulers.io())
+          .map(this::computePositions)
+          .subscribeOn(Schedulers.computation())
+          .observeOn(AndroidSchedulers.mainThread())
+          .subscribe(this::setRecentGames, this::onError)
+          .addToDisposable(subscriptions)
+        challengesRepository.monitorChallenges()
+          .subscribeOn(Schedulers.io())
+          .observeOn(AndroidSchedulers.mainThread())
+          .subscribe(this::setChallenges, this::onError)
+          .addToDisposable(subscriptions)
+        automatchRepository.automatchObservable
+          .subscribeOn(Schedulers.io())
+          .observeOn(AndroidSchedulers.mainThread())
+          .subscribe(this::setAutomatches, this::onError)
+          .addToDisposable(subscriptions)
+        automatchRepository.gameStartObservable
+          .flatMapMaybe {
+            it.game_id?.let { activeGamesRepository.getGameSingle(it).toMaybe() } ?: Maybe.empty()
+          }
+          .subscribeOn(Schedulers.io())
+          .observeOn(AndroidSchedulers.mainThread())
+          .subscribe(this::onGameStart, this::onError)
+          .addToDisposable(subscriptions)
+        notificationsRepository.notificationsObservable()
+          .subscribeOn(Schedulers.io())
+          .observeOn(AndroidSchedulers.mainThread())
+          .subscribe(this::onNotification, this::onError)
+          .addToDisposable(subscriptions)
+
+        onNeedMoreOlderGames(null)
+      }.addToDisposable(subscriptions)
 
     viewModelScope.launch {
       settingsRepository.showRanksFlow.collect {
@@ -123,55 +180,11 @@ class MyGamesViewModel(
       WhatsNewUtils.textShown(OnlineGoApplication.instance)
     }
 
-    activeGamesRepository.monitorActiveGames()
-      .subscribeOn(Schedulers.io())
-      .map(this::computePositions)
-      .subscribeOn(Schedulers.computation())
-      .observeOn(AndroidSchedulers.mainThread())
-      .subscribe(this::setGames, this::onError)
-      .addToDisposable(subscriptions)
-    activeGamesRepository.refreshActiveGames()
-      .subscribeOn(Schedulers.io())
-      .observeOn(AndroidSchedulers.mainThread())
-      .subscribe({}, this::onError)
-      .addToDisposable(subscriptions)
-    finishedGamesRepository.getRecentlyFinishedGames()
-      .subscribeOn(Schedulers.io())
-      .map(this::computePositions)
-      .subscribeOn(Schedulers.computation())
-      .observeOn(AndroidSchedulers.mainThread())
-      .subscribe(this::setRecentGames, this::onError)
-      .addToDisposable(subscriptions)
-    challengesRepository.monitorChallenges()
-      .subscribeOn(Schedulers.io())
-      .observeOn(AndroidSchedulers.mainThread())
-      .subscribe(this::setChallenges, this::onError)
-      .addToDisposable(subscriptions)
-    automatchRepository.automatchObservable
-      .subscribeOn(Schedulers.io())
-      .observeOn(AndroidSchedulers.mainThread())
-      .subscribe(this::setAutomatches, this::onError)
-      .addToDisposable(subscriptions)
-    automatchRepository.gameStartObservable
-      .flatMapMaybe {
-        it.game_id?.let { activeGamesRepository.getGameSingle(it).toMaybe() } ?: Maybe.empty()
-      }
-      .subscribeOn(Schedulers.io())
-      .observeOn(AndroidSchedulers.mainThread())
-      .subscribe(this::onGameStart, this::onError)
-      .addToDisposable(subscriptions)
-    notificationsRepository.notificationsObservable()
-      .subscribeOn(Schedulers.io())
-      .observeOn(AndroidSchedulers.mainThread())
-      .subscribe(this::onNotification, this::onError)
-      .addToDisposable(subscriptions)
-
     viewModelScope.launch {
       socketService.connectionState.collect { online ->
         _state.update { it.copy(online = online) }
       }
     }
-    onNeedMoreOlderGames(null)
   }
 
   private fun setGames(games: List<Game>) {
