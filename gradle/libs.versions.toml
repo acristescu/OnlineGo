@@ -67,7 +67,7 @@ turbine = "1.0.0"
 ksp = "2.1.21-2.0.1"
 googleServices = "4.4.3"
 crashlytics = "3.0.4"
-molecule = "1.2.0"
+molecule = "2.1.0"
 cmake = "3.10.2"
 
 [libraries]
@@ -90,6 +90,9 @@ compose-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
 compose-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
 compose-ui-util = { group = "androidx.compose.ui", name = "ui-util" }
 compose-material3 = { group = "androidx.compose.material3", name = "material3" }
+
+# Molecule
+molecule-runtime = { group = "app.cash.molecule", name = "molecule-runtime", version.ref = "molecule" }
 
 # Accompanist
 accompanist-pager-indicators = { group = "com.google.accompanist", name = "accompanist-pager-indicators", version.ref = "accompanist" }
@@ -177,7 +180,6 @@ kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "ko
 google-services = { id = "com.google.gms.google-services", version.ref = "googleServices" }
 firebase-crashlytics = { id = "com.google.firebase.crashlytics", version.ref = "crashlytics" }
 koin = { id = "koin", version.ref = "koin" }
-molecule = { id = "app.cash.molecule", version.ref = "molecule" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 
 [bundles]

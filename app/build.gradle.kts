@@ -6,7 +6,6 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.google.services)
     alias(libs.plugins.firebase.crashlytics)
-    alias(libs.plugins.molecule)
     alias(libs.plugins.ksp)
 }
 
@@ -111,6 +110,9 @@ dependencies {
     implementation(libs.bundles.compose)
     debugImplementation(libs.compose.ui.tooling)
     implementation(libs.compose.material3)
+
+    // Molecule
+    implementation(libs.molecule.runtime)
 
     // Datastore
     implementation(libs.androidx.datastore.preferences)
