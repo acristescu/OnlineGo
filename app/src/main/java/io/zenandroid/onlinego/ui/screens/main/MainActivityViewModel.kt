@@ -6,6 +6,7 @@ import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
 import io.zenandroid.onlinego.data.model.BoardTheme
 import io.zenandroid.onlinego.data.ogs.OGSWebSocketService
+import io.zenandroid.onlinego.data.repositories.LoginStatus
 import io.zenandroid.onlinego.data.repositories.SettingsRepository
 import io.zenandroid.onlinego.data.repositories.UserSessionRepository
 import io.zenandroid.onlinego.utils.addToDisposable
@@ -29,9 +30,7 @@ class MainActivityViewModel(
 
   private val subscriptions = CompositeDisposable()
   private val _state = MutableStateFlow(
-    MainActivityState(
-      isLoggedIn = userSessionRepository.isLoggedIn()
-    )
+    MainActivityState()
   )
   val state: StateFlow<MainActivityState> = _state.asStateFlow()
 
@@ -58,16 +57,18 @@ class MainActivityViewModel(
   }
 
   fun onResume() {
-    if (userSessionRepository.isLoggedIn()) {
-      socketService.ensureSocketConnected()
-      socketService.resendAuth()
-    }
+    userSessionRepository.loggedInObservable.subscribe { loggedIn ->
+      if (loggedIn == LoginStatus.LOGGED_IN) {
+        socketService.ensureSocketConnected()
+        socketService.resendAuth()
+      }
 
-    _state.update {
-      it.copy(
-        isLoggedIn = userSessionRepository.isLoggedIn(),
-      )
-    }
+      _state.update {
+        it.copy(
+          isLoggedIn = loggedIn == LoginStatus.LOGGED_IN,
+        )
+      }
+    }.addToDisposable(subscriptions)
 
     Observable.interval(10, TimeUnit.SECONDS).subscribe {
       if (userSessionRepository.isLoggedIn()) {

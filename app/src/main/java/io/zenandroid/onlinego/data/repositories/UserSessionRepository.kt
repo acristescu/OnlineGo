@@ -28,6 +28,9 @@ class UserSessionRepository {
   private val userIdSubject = BehaviorSubject.create<Long>()
   val userIdObservable: Observable<Long> = userIdSubject.hide().distinctUntilChanged()
 
+  private val loggedInSubject = BehaviorSubject.create<LoginStatus>()
+  val loggedInObservable: Observable<LoginStatus> = loggedInSubject.hide().distinctUntilChanged()
+
   var uiConfig: UIConfig? = null
     private set
 
@@ -45,6 +48,7 @@ class UserSessionRepository {
       userId?.let {
         userIdSubject.onNext(it)
       }
+      loggedInSubject.onNext(if(isLoggedIn()) LoginStatus.LOGGED_IN else LoginStatus.LOGGED_OUT)
     }
   }
 
@@ -56,6 +60,7 @@ class UserSessionRepository {
     userId?.let {
       userIdSubject.onNext(it)
     }
+    loggedInSubject.onNext(if(isLoggedIn()) LoginStatus.LOGGED_IN else LoginStatus.LOGGED_OUT)
   }
 
   fun requiresUIConfigRefresh(): Boolean =
@@ -69,10 +74,16 @@ class UserSessionRepository {
   fun logOut() {
     FirebaseCrashlytics.getInstance().sendUnsentReports()
     uiConfig = null
+    loggedInSubject.onNext(if(isLoggedIn()) LoginStatus.LOGGED_IN else LoginStatus.LOGGED_OUT)
     (OnlineGoApplication.instance.getSystemService(ACTIVITY_SERVICE) as ActivityManager).clearApplicationUserData()
   }
 
   suspend fun deleteAccount(password: String) {
     restService.deleteMyAccount(password)
   }
+}
+
+enum class LoginStatus {
+  LOGGED_IN,
+  LOGGED_OUT,
 }

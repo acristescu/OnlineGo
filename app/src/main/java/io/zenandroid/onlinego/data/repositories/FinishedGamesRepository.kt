@@ -51,8 +51,7 @@ class FinishedGamesRepository(
   fun getRecentlyFinishedGames(): Flowable<List<Game>> {
     fetchRecentlyFinishedGames()
     return userSessionRepository.userIdObservable.toFlowable(BackpressureStrategy.LATEST).flatMap {
-      gameDao
-        .monitorRecentGames(it)
+      gameDao.monitorRecentGames(it)
     }
   }
 
