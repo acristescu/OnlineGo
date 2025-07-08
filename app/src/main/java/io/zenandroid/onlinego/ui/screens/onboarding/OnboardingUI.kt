@@ -43,6 +43,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -131,13 +132,15 @@ fun OnboardingScreen(
     }
 
     state.loginMethod == LoginMethod.GOOGLE -> {
-      FirebaseCrashlytics.getInstance().setCustomKey("LOGIN_METHOD", "GOOGLE")
-      val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-        .requestServerAuthCode("870935345166-6j2s6i9adl64ms3ta4k9n4flkqjhs229.apps.googleusercontent.com")
-        .requestScopes(Scope(Scopes.OPEN_ID), Scope(Scopes.EMAIL), Scope(Scopes.PROFILE))
-        .build()
-      activity?.let {
-        googleFlow.launch(GoogleSignIn.getClient(activity, gso).signInIntent)
+      SideEffect {
+        FirebaseCrashlytics.getInstance().setCustomKey("LOGIN_METHOD", "GOOGLE")
+        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+          .requestServerAuthCode("870935345166-6j2s6i9adl64ms3ta4k9n4flkqjhs229.apps.googleusercontent.com")
+          .requestScopes(Scope(Scopes.OPEN_ID), Scope(Scopes.EMAIL), Scope(Scopes.PROFILE))
+          .build()
+        activity?.let {
+          googleFlow.launch(GoogleSignIn.getClient(activity, gso).signInIntent)
+        }
       }
     }
 
