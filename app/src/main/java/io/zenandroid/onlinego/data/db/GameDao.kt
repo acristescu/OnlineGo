@@ -284,7 +284,7 @@ abstract class GameDao {
     abstract fun monitorGame(id: Long): Flowable<Game>
 
     @Query("SELECT * FROM game WHERE id = :id")
-    abstract fun monitorGameFlow(id: Long): Flow<Game?>
+    abstract fun monitorGameFlow(id: Long): Flow<Game>
 
     @Query("SELECT * FROM game WHERE id = :id")
     abstract fun getGame(id: Long): Single<Game>
@@ -356,7 +356,7 @@ abstract class GameDao {
         insertAllGameNotifications(list)
     }
 
-    @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
+    @SuppressWarnings(RoomWarnings.Companion.QUERY_MISMATCH)
     @Query("""
         SELECT DISTINCT id, username, icon, rating, country FROM (
             SELECT 

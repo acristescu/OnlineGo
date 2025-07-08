@@ -10,7 +10,6 @@ import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Observable
 import io.reactivex.Single
-import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.BehaviorSubject
@@ -33,7 +32,6 @@ import io.zenandroid.onlinego.utils.addToDisposable
 import io.zenandroid.onlinego.utils.recordException
 import io.zenandroid.onlinego.utils.timeLeftForCurrentPlayer
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.onEach
 import java.io.IOException
 import java.security.InvalidParameterException
@@ -83,7 +81,7 @@ class ActiveGamesRepository(
     override fun onSocketConnected() {
         refreshActiveGames()
                 .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
+                .observeOn(Schedulers.io())
                 .subscribe({}, { onError(it, "refreshActiveGames") })
                 .addToDisposable(subscriptions)
         socketService.connectToActiveGames()
@@ -93,7 +91,7 @@ class ActiveGamesRepository(
         gameDao
             .monitorActiveGamesWithNewMessagesCount(userSessionRepository.userId)
             .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
+            .observeOn(Schedulers.io())
             .subscribe(this::setActiveGames) { onError(it, "monitorActiveGamesWithNewMessagesCount") }
             .addToDisposable(subscriptions)
     }
@@ -311,7 +309,6 @@ class ActiveGamesRepository(
       refreshGameData(id)
 
       return gameDao.monitorGameFlow(id)
-        .filterNotNull()
         .onEach(this::connectToGame)
     }
 

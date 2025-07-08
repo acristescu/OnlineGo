@@ -4,7 +4,6 @@ import android.util.Log
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.reactivex.Flowable
 import io.reactivex.Observable
-import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import io.zenandroid.onlinego.data.db.GameDao
