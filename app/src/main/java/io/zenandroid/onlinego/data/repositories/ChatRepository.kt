@@ -62,9 +62,10 @@ class ChatRepository(
   }
 
   fun fetchRecentChatMessages() {
-    userSessionRepository.userIdObservable.firstOrError().flatMap {
-      restApi.getMessages(lastRESTFetchedChatId)
-    }
+    userSessionRepository.loggedInObservable.filter { it == LoginStatus.LOGGED_IN }.firstOrError()
+      .flatMap {
+        restApi.getMessages(lastRESTFetchedChatId)
+      }
       .map { it.map { Message.fromOGSMessage(it, it.game_id) } }
       .subscribe(
         gameDao::insertMessagesFromRest,

@@ -207,7 +207,7 @@ class OGSRestService(
       .doOnSuccess { it.json = it.gamedata }
 
   fun fetchActiveGames(): Single<List<OGSGame>> =
-    userSessionRepository.userIdObservable.firstOrError().flatMap {
+    userSessionRepository.loggedInObservable.singleOrError().flatMap {
       restApi.fetchOverview()
         .map { it.active_games }
         .map {
@@ -228,11 +228,11 @@ class OGSRestService(
 
   fun fetchHistoricGamesBefore(beforeDate: Long?): Single<List<OGSGame>> =
     if (beforeDate == null) {
-      userSessionRepository.userIdObservable.first(0L).flatMap {
+      userSessionRepository.userIdObservable.firstOrError().flatMap {
         restApi.fetchPlayerFinishedGames(it)
       }
     } else {
-      userSessionRepository.userIdObservable.first(0L).flatMap {
+      userSessionRepository.userIdObservable.firstOrError().flatMap {
         restApi.fetchPlayerFinishedBeforeGames(
           it,
           10,
@@ -244,11 +244,11 @@ class OGSRestService(
 
   fun fetchHistoricGamesAfter(afterDate: Long?): Single<List<OGSGame>> =
     if (afterDate == null) {
-      userSessionRepository.userIdObservable.first(0L).flatMap {
+      userSessionRepository.userIdObservable.firstOrError().flatMap {
         restApi.fetchPlayerFinishedGames(it)
       }
     } else {
-      userSessionRepository.userIdObservable.first(0L).flatMap {
+      userSessionRepository.userIdObservable.firstOrError().flatMap {
         restApi.fetchPlayerFinishedAfterGames(
           it,
           10,
@@ -344,7 +344,7 @@ class OGSRestService(
 
   suspend fun deleteMyAccount(password: String) {
     return restApi.deleteAccount(
-      userSessionRepository.userIdObservable.blockingFirst(),
+      userSessionRepository.userIdObservable.blockingFirst(), //TODO: fixme
       PasswordBody(password)
     )
   }

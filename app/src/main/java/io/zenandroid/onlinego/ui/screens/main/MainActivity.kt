@@ -123,7 +123,7 @@ class MainActivity : ComponentActivity() {
         OnlineGoApp(
           onAppReady = { viewModel.onScreenReady() },
           darkTheme = themeSettings.isDarkTheme,
-          isLoggedIn = userSessionRepository.isLoggedIn()
+          isLoggedIn = viewModel.state.value.isLoggedIn == true,
         )
       }
     }

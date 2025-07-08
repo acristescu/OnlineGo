@@ -15,6 +15,7 @@ import io.zenandroid.onlinego.data.model.local.WinLossStats
 import io.zenandroid.onlinego.data.model.ogs.OGSPlayer
 import io.zenandroid.onlinego.data.ogs.OGSRestService
 import io.zenandroid.onlinego.data.repositories.SettingsRepository
+import io.zenandroid.onlinego.data.repositories.UserSessionRepository
 import io.zenandroid.onlinego.gamelogic.Util
 import io.zenandroid.onlinego.ui.screens.stats.StatsViewModel.Filter.ALL
 import io.zenandroid.onlinego.ui.screens.stats.StatsViewModel.Filter.ALL_GAMES
@@ -48,6 +49,7 @@ class StatsViewModel(
   private val getUserStatsUseCase: GetUserStatsUseCase,
   private val settingsRepository: SettingsRepository,
   private val savedStateHandle: SavedStateHandle,
+  private val userSessionRepository: UserSessionRepository,
 ) : ViewModel() {
 
   private val subscriptions = CompositeDisposable()
@@ -68,14 +70,17 @@ class StatsViewModel(
 
   init {
     analyticsReportScreen("Stats")
-    viewModelScope.launch(Dispatchers.IO) {
-      val playerId = savedStateHandle.get<String>("playerId")?.toLong() ?: Util.getCurrentUserId()!!
-      val result = getUserStatsUseCase.getPlayerStatsWithSizesAsync(playerId)
-      result.fold(
-        onSuccess = ::fillPlayerStats,
-        onFailure = ::onError
-      )
-    }
+    userSessionRepository.userIdObservable.firstOrError().subscribe { userId ->
+      viewModelScope.launch(Dispatchers.IO) {
+        val playerId = savedStateHandle.get<String>("playerId")?.toLong() ?: userId
+        val result = getUserStatsUseCase.getPlayerStatsWithSizesAsync(playerId)
+        result.fold(
+          onSuccess = ::fillPlayerStats,
+          onFailure = ::onError
+        )
+      }
+    }.addToDisposable(subscriptions)
+
     viewModelScope.launch {
       graphByGames.collect {
         state.update {
