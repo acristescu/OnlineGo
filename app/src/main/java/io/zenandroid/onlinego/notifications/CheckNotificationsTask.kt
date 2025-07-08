@@ -72,7 +72,7 @@ class CheckNotificationsTask(val context: Context, val supressWhenInForeground: 
                         Log.v(TAG, "Got ${it.first.size} games")
                         if (!(supressWhenInForeground && MainActivity.isInForeground)) {
                             Log.v(TAG, "Updating game notification")
-                            NotificationUtils.notifyGames(context, it.first, it.second, userSessionRepository.userId!!)
+                            NotificationUtils.notifyGames(context, it.first, it.second, userSessionRepository.userIdObservable.blockingFirst()) //TODO: fixme
                         }
 
                         val newNotifications = it.first.map { GameNotification(it.id, it.moves, it.phase) }
@@ -92,7 +92,7 @@ class CheckNotificationsTask(val context: Context, val supressWhenInForeground: 
                         Log.v(TAG, "Updating challenges notification")
                         if (!(supressWhenInForeground && MainActivity.isInForeground)) {
                             Log.v(TAG, "Updating challenges notification")
-                            NotificationUtils.notifyChallenges(context, it.first, it.second, userSessionRepository.userId!!)
+                            NotificationUtils.notifyChallenges(context, it.first, it.second, userSessionRepository.userIdObservable.blockingFirst()) //TODO: fixme
                             gameDao.replaceChallengeNotifications(it.first.map { ChallengeNotification(it.id) })
                         }
                     }.ignoreElement()

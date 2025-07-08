@@ -60,7 +60,8 @@ fun OnlineGoApp(
 ) {
   val navController = rememberNavController()
 
-  val startDestination = if (isLoggedIn) "myGames" else "onboarding"
+//  val startDestination = if (isLoggedIn) "myGames" else "onboarding"
+  val startDestination = "myGames"
 
   val navBackStackEntry by navController.currentBackStackEntryAsState()
   val currentDestination = navBackStackEntry?.destination?.route

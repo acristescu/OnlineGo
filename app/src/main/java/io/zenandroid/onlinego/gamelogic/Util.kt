@@ -157,7 +157,7 @@ object Util {
     }
 
     fun getCurrentUserId() =
-        userSessionRepository.userId
+        userSessionRepository.userIdObservable.blockingFirst() // TODO: fixme, this is blocking
 
     fun getRemovedStones(oldPos: Position, newPos: Position): List<Pair<Cell, StoneType>> =
         (newPos.whiteStones - oldPos.whiteStones).map { it to StoneType.WHITE } +

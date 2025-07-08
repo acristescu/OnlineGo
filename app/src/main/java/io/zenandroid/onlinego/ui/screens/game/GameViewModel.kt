@@ -151,7 +151,7 @@ class GameViewModel(
   private lateinit var currentGamePosition: MutableState<Position>
   private var estimatePosition by mutableStateOf<Position?>(null)
   private var analysisPosition by mutableStateOf<Position?>(null)
-  private val userId = userSessionRepository.userId
+  private val userId = userSessionRepository.userIdObservable.blockingFirst() //TODO: Fixme
   private var candidateMove by mutableStateOf<Cell?>(null)
   private lateinit var gameConnection: GameConnection
   private var gameState by mutableStateOf<Game?>(null)

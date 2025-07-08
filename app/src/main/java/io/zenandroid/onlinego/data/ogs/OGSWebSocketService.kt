@@ -163,11 +163,11 @@ class OGSWebSocketService(
         emit("game/connect"){
             "chat" - includeChat
             "game_id" - id
-            "player_id" - userSessionRepository.userId
+            "player_id" - userSessionRepository.userIdObservable.blockingFirst() //TODO: fixme
         }
         if(includeChat) {
             emit("chat/connect") {
-                "player_id" - userSessionRepository.userId
+                "player_id" - userSessionRepository.userIdObservable.blockingFirst() //TODO: fixme
                 "username" - userSessionRepository.uiConfig?.user?.username
                 "auth" - userSessionRepository.uiConfig?.chat_auth
             }
@@ -227,7 +227,7 @@ class OGSWebSocketService(
                     .map { JSONObject(it.toString()) }
                     .doOnSubscribe {
                         emit("notification/connect") {
-                            "player_id" - userSessionRepository.userId
+                            "player_id" - userSessionRepository.userIdObservable.blockingFirst() //TODO: fixme
                             "auth" - userSessionRepository.uiConfig?.notification_auth
                         }
                     }.doOnCancel {
@@ -369,7 +369,7 @@ class OGSWebSocketService(
 
     fun deleteNotification(notificationId: String) {
         emit("notification/delete") {
-            "player_id" - userSessionRepository.userId
+            "player_id" - userSessionRepository.userIdObservable.blockingFirst() //TODO: fixme
             "auth" - userSessionRepository.uiConfig?.notification_auth
             "notification_id" - notificationId
         }
@@ -417,7 +417,7 @@ class OGSWebSocketService(
 
     fun resendAuth() {
         val obj = JSONObject().apply {
-            put("player_id", userSessionRepository.userId)
+            put("player_id", userSessionRepository.userIdObservable.blockingFirst()) //TODO: fixme
             put("username", userSessionRepository.uiConfig?.user?.username)
             put("auth", userSessionRepository.uiConfig?.chat_auth)
         }

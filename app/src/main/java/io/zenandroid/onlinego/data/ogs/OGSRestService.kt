@@ -207,45 +207,55 @@ class OGSRestService(
       .doOnSuccess { it.json = it.gamedata }
 
   fun fetchActiveGames(): Single<List<OGSGame>> =
-    restApi.fetchOverview()
-      .map { it.active_games }
-      .map {
-        for (game in it) {
-          game.json?.clock?.current_player?.let {
-            game.player_to_move = it
+    userSessionRepository.userIdObservable.firstOrError().flatMap {
+      restApi.fetchOverview()
+        .map { it.active_games }
+        .map {
+          for (game in it) {
+            game.json?.clock?.current_player?.let {
+              game.player_to_move = it
+            }
+            game.json?.handicap?.let {
+              game.handicap = it
+            }
           }
-          game.json?.handicap?.let {
-            game.handicap = it
-          }
+          it
         }
-        it
-      }
+    }
 
   fun fetchChallenges(): Single<List<OGSChallenge>> =
     restApi.fetchChallenges().map { it.results }
 
   fun fetchHistoricGamesBefore(beforeDate: Long?): Single<List<OGSGame>> =
     if (beforeDate == null) {
-      restApi.fetchPlayerFinishedGames(userSessionRepository.userId!!)
+      userSessionRepository.userIdObservable.first(0L).flatMap {
+        restApi.fetchPlayerFinishedGames(it)
+      }
     } else {
-      restApi.fetchPlayerFinishedBeforeGames(
-        userSessionRepository.userId!!,
-        10,
-        beforeDate.microsToISODateTime(),
-        1
-      )
+      userSessionRepository.userIdObservable.first(0L).flatMap {
+        restApi.fetchPlayerFinishedBeforeGames(
+          it,
+          10,
+          beforeDate.microsToISODateTime(),
+          1
+        )
+      }
     }.map { it.results }
 
   fun fetchHistoricGamesAfter(afterDate: Long?): Single<List<OGSGame>> =
     if (afterDate == null) {
-      restApi.fetchPlayerFinishedGames(userSessionRepository.userId!!)
+      userSessionRepository.userIdObservable.first(0L).flatMap {
+        restApi.fetchPlayerFinishedGames(it)
+      }
     } else {
-      restApi.fetchPlayerFinishedAfterGames(
-        userSessionRepository.userId!!,
-        10,
-        afterDate.microsToISODateTime(),
-        1
-      )
+      userSessionRepository.userIdObservable.first(0L).flatMap {
+        restApi.fetchPlayerFinishedAfterGames(
+          it,
+          10,
+          afterDate.microsToISODateTime(),
+          1
+        )
+      }
     }.map { it.results }
 
   suspend fun searchPlayers(query: String): List<OGSPlayer> =
@@ -315,7 +325,7 @@ class OGSRestService(
       }
       val result = restApi.getPuzzleSolutions(
         puzzleId = id,
-        playerId = userSessionRepository.userId!!,
+        playerId = userSessionRepository.userIdObservable.blockingFirst(), //TODO: fixme
         page = ++page
       )
       list.addAll(result.results)
@@ -334,7 +344,7 @@ class OGSRestService(
 
   suspend fun deleteMyAccount(password: String) {
     return restApi.deleteAccount(
-      userSessionRepository.userId!!,
+      userSessionRepository.userIdObservable.blockingFirst(),
       PasswordBody(password)
     )
   }

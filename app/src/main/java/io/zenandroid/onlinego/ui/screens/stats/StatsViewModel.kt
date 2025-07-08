@@ -67,9 +67,9 @@ class StatsViewModel(
   )
 
   init {
-    val playerId = savedStateHandle.get<String>("playerId")?.toLong() ?: Util.getCurrentUserId()!!
     analyticsReportScreen("Stats")
     viewModelScope.launch(Dispatchers.IO) {
+      val playerId = savedStateHandle.get<String>("playerId")?.toLong() ?: Util.getCurrentUserId()!!
       val result = getUserStatsUseCase.getPlayerStatsWithSizesAsync(playerId)
       result.fold(
         onSuccess = ::fillPlayerStats,
@@ -88,6 +88,7 @@ class StatsViewModel(
 
     viewModelScope.launch(Dispatchers.IO) {
       try {
+        val playerId = savedStateHandle.get<String>("playerId")?.toLong() ?: Util.getCurrentUserId()!!
         fillPlayerDetails(restService.getPlayerProfileAsync(playerId))
       } catch (t: Throwable) {
         onError(t)

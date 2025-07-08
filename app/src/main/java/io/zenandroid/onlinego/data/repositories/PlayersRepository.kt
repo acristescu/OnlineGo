@@ -1,6 +1,5 @@
 package io.zenandroid.onlinego.data.repositories
 
-import io.reactivex.Single
 import io.zenandroid.onlinego.data.db.GameDao
 import io.zenandroid.onlinego.data.model.local.Player
 import io.zenandroid.onlinego.data.ogs.OGSRestService
@@ -13,10 +12,10 @@ class PlayersRepository(
 
   suspend fun getRecentOpponents() =
     dao
-      .getRecentOpponents(userSessionRepository.userId)
+      .getRecentOpponents(userSessionRepository.userIdObservable.blockingFirst()) //TODO: fixme
       .distinctBy { it.id }
 
   suspend fun searchPlayers(query: String): List<Player> {
-    return restService.searchPlayers(query).map (Player.Companion::fromOGSPlayer)
+    return restService.searchPlayers(query).map(Player.Companion::fromOGSPlayer)
   }
 }
