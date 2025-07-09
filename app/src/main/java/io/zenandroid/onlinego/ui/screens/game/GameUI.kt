@@ -1,6 +1,5 @@
 package io.zenandroid.onlinego.ui.screens.game
 
-import android.R.attr.onClick
 import android.content.Intent
 import android.content.res.Configuration.ORIENTATION_PORTRAIT
 import android.media.MediaPlayer
@@ -30,11 +29,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.Icons.Outlined
 import androidx.compose.material.icons.Icons.Rounded
@@ -45,10 +39,12 @@ import androidx.compose.material.icons.rounded.Download
 import androidx.compose.material.icons.rounded.OpenInBrowser
 import androidx.compose.material.icons.rounded.ThumbDown
 import androidx.compose.material.icons.rounded.ThumbUp
-import androidx.compose.material3.Button
-import androidx.compose.material3.ElevatedButton
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.FilledTonalButton
-import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -64,7 +60,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight.Companion.Bold
@@ -72,6 +67,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import androidx.core.net.toUri
 import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.Cell
@@ -93,6 +89,8 @@ import io.zenandroid.onlinego.ui.screens.game.Button.NextGame
 import io.zenandroid.onlinego.ui.screens.game.Button.Pass
 import io.zenandroid.onlinego.ui.screens.game.Button.Previous
 import io.zenandroid.onlinego.ui.screens.game.Button.Resign
+import io.zenandroid.onlinego.ui.screens.game.Event.NavigateToGame
+import io.zenandroid.onlinego.ui.screens.game.Event.OpenURL
 import io.zenandroid.onlinego.ui.screens.game.UserAction.BlackPlayerClicked
 import io.zenandroid.onlinego.ui.screens.game.UserAction.BoardCellDragged
 import io.zenandroid.onlinego.ui.screens.game.UserAction.BoardCellTapUp
@@ -101,6 +99,7 @@ import io.zenandroid.onlinego.ui.screens.game.UserAction.CancelDialogConfirm
 import io.zenandroid.onlinego.ui.screens.game.UserAction.CancelDialogDismiss
 import io.zenandroid.onlinego.ui.screens.game.UserAction.ChatDialogDismiss
 import io.zenandroid.onlinego.ui.screens.game.UserAction.ChatSend
+import io.zenandroid.onlinego.ui.screens.game.UserAction.DownloadSGF
 import io.zenandroid.onlinego.ui.screens.game.UserAction.GameInfoClick
 import io.zenandroid.onlinego.ui.screens.game.UserAction.GameInfoDismiss
 import io.zenandroid.onlinego.ui.screens.game.UserAction.GameOverDialogAnalyze
@@ -127,7 +126,6 @@ import io.zenandroid.onlinego.ui.screens.game.composables.PlayerDetailsDialog
 import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
 import io.zenandroid.onlinego.utils.rememberStateWithLifecycle
 import org.koin.androidx.compose.koinViewModel
-import androidx.core.net.toUri
 
 @Composable
 fun GameScreen(
@@ -158,21 +156,13 @@ fun GameScreen(
     viewModel.events.collect { event ->
       when (event) {
         Event.PlayStoneSound -> stoneSoundMediaPlayer.start()
+        is NavigateToGame -> onNavigateToGameScreen(event.game)
+        is OpenURL -> activity?.startActivity(
+          Intent(Intent.ACTION_VIEW, event.url.toUri()), Bundle()
+        )
+
         null -> {}
       }
-    }
-  }
-
-
-  viewModel.pendingNavigation?.let { nav ->
-    when (nav) {
-      is PendingNavigation.NavigateToGame -> onNavigateToGameScreen(nav.game)
-      is PendingNavigation.OpenURL -> LocalContext.current.startActivity(
-        Intent(
-          Intent.ACTION_VIEW,
-          nav.url.toUri()
-        ), Bundle()
-      )
     }
   }
 
@@ -207,39 +197,39 @@ fun GameContent(
         BlackPlayerCard(
           state, onUserAction,
           modifier = Modifier
-              .weight(.5f)
-              .fillMaxWidth()
+            .weight(.5f)
+            .fillMaxWidth()
         )
       }
       ExtraStatusField(
         text = state.blackExtraStatus,
         modifier = Modifier
-            .background(Color(0xFF867484))
-            .fillMaxWidth()
-            .padding(4.dp)
-            .align(Alignment.CenterHorizontally),
+          .background(Color(0xFF867484))
+          .fillMaxWidth()
+          .padding(4.dp)
+          .align(Alignment.CenterHorizontally),
       )
       Board(
         state = state,
         onUserAction = onUserAction,
         modifier = Modifier
-            .heightIn(0.dp, (LocalConfiguration.current.screenHeightDp * .6).dp)
-            .align(CenterHorizontally)
+          .heightIn(0.dp, (LocalConfiguration.current.screenHeightDp * .6).dp)
+          .align(CenterHorizontally)
       )
       ExtraStatusField(
         text = state.whiteExtraStatus,
         modifier = Modifier
-            .background(Color(0xFF867484))
-            .fillMaxWidth()
-            .padding(4.dp)
-            .align(Alignment.CenterHorizontally),
+          .background(Color(0xFF867484))
+          .fillMaxWidth()
+          .padding(4.dp)
+          .align(Alignment.CenterHorizontally),
       )
       if (state.showPlayers) {
         WhitePlayerCard(
           state, onUserAction,
           modifier = Modifier
-              .weight(.5f)
-              .fillMaxWidth()
+            .weight(.5f)
+            .fillMaxWidth()
         )
       }
       BottomBar(
@@ -251,8 +241,8 @@ fun GameContent(
       Row {
         Column(
           Modifier
-              .width(0.dp)
-              .weight(1f)
+            .width(0.dp)
+            .weight(1f)
         ) {
           Header(
             title = state.title,
@@ -263,32 +253,32 @@ fun GameContent(
           ExtraStatusField(
             text = state.blackExtraStatus,
             modifier = Modifier
-                .background(Color(0xFF867484))
-                .fillMaxWidth()
-                .padding(4.dp)
-                .align(Alignment.CenterHorizontally),
+              .background(Color(0xFF867484))
+              .fillMaxWidth()
+              .padding(4.dp)
+              .align(Alignment.CenterHorizontally),
           )
           if (state.showPlayers) {
             BlackPlayerCard(
               state, onUserAction,
               modifier = Modifier
-                  .weight(.5f)
-                  .fillMaxWidth()
+                .weight(.5f)
+                .fillMaxWidth()
             )
             WhitePlayerCard(
               state, onUserAction,
               modifier = Modifier
-                  .weight(.5f)
-                  .fillMaxWidth()
+                .weight(.5f)
+                .fillMaxWidth()
             )
           }
           ExtraStatusField(
             text = state.whiteExtraStatus,
             modifier = Modifier
-                .background(Color(0xFF867484))
-                .fillMaxWidth()
-                .padding(4.dp)
-                .align(Alignment.CenterHorizontally),
+              .background(Color(0xFF867484))
+              .fillMaxWidth()
+              .padding(4.dp)
+              .align(Alignment.CenterHorizontally),
           )
           BottomBar(
             buttons = state.buttons,
@@ -300,8 +290,8 @@ fun GameContent(
           state = state,
           onUserAction = onUserAction,
           modifier = Modifier
-              .widthIn(0.dp, (LocalConfiguration.current.screenWidthDp * .6).dp)
-              .align(CenterVertically)
+            .widthIn(0.dp, (LocalConfiguration.current.screenWidthDp * .6).dp)
+            .align(CenterVertically)
         )
       }
     }
@@ -488,8 +478,8 @@ private fun Board(
     onTapMove = { onUserAction(BoardCellDragged(it)) },
     onTapUp = { onUserAction(BoardCellTapUp(it)) },
     modifier = modifier
-        .shadow(1.dp, MaterialTheme.shapes.medium)
-        .clip(MaterialTheme.shapes.medium)
+      .shadow(1.dp, MaterialTheme.shapes.medium)
+      .clip(MaterialTheme.shapes.medium)
   )
 }
 
@@ -511,30 +501,30 @@ private fun GameInfoDialog(state: GameState, onUserAction: (UserAction) -> Unit)
   BackHandler { onUserAction(GameInfoDismiss) }
   Box(
     modifier = Modifier
-        .fillMaxSize()
-        .background(Color(0x88000000))
-        .clickable(
-            interactionSource = remember { MutableInteractionSource() },
-            indication = null
-        ) { onUserAction(GameInfoDismiss) }
+      .fillMaxSize()
+      .background(Color(0x88000000))
+      .clickable(
+        interactionSource = remember { MutableInteractionSource() },
+        indication = null
+      ) { onUserAction(GameInfoDismiss) }
   ) {
     Column(
       horizontalAlignment = Alignment.CenterHorizontally,
       modifier = Modifier
-          .padding(vertical = 80.dp)
-          .clickable(
-              interactionSource = remember { MutableInteractionSource() },
-              indication = null
-          ) { }
-          .fillMaxWidth(.9f)
-          .fillMaxHeight()
-          .align(Alignment.Center)
-          .shadow(4.dp)
-          .background(
-              color = MaterialTheme.colorScheme.surface,
-              shape = RoundedCornerShape(10.dp)
-          )
-          .padding(16.dp)
+        .padding(vertical = 80.dp)
+        .clickable(
+          interactionSource = remember { MutableInteractionSource() },
+          indication = null
+        ) { }
+        .fillMaxWidth(.9f)
+        .fillMaxHeight()
+        .align(Alignment.Center)
+        .shadow(4.dp)
+        .background(
+          color = MaterialTheme.colorScheme.surface,
+          shape = RoundedCornerShape(10.dp)
+        )
+        .padding(16.dp)
     ) {
       Spacer(modifier = Modifier.height(100.dp))
       Text(
@@ -596,8 +586,8 @@ private fun GameInfoDialog(state: GameState, onUserAction: (UserAction) -> Unit)
           style = MaterialTheme.typography.bodySmall,
           color = MaterialTheme.colorScheme.onSurface,
           modifier = Modifier
-              .width(0.dp)
-              .weight(1f),
+            .width(0.dp)
+            .weight(1f),
         )
       }
     }
@@ -611,17 +601,17 @@ private fun GameInfoDialog(state: GameState, onUserAction: (UserAction) -> Unit)
       drawCoordinates = false,
       fadeOutRemovedStones = false,
       modifier = Modifier
-          .align(Alignment.TopCenter)
-          .padding(top = 29.dp)
-          .clip(RoundedCornerShape(10.dp))
-          .background(MaterialTheme.colorScheme.surface)
-          .padding(4.dp)
-          .size(124.dp)
-          .clip(RoundedCornerShape(8.dp))
-          .clickable(
-              interactionSource = remember { MutableInteractionSource() },
-              indication = null
-          ) { }
+        .align(Alignment.TopCenter)
+        .padding(top = 29.dp)
+        .clip(RoundedCornerShape(10.dp))
+        .background(MaterialTheme.colorScheme.surface)
+        .padding(4.dp)
+        .size(124.dp)
+        .clip(RoundedCornerShape(8.dp))
+        .clickable(
+          interactionSource = remember { MutableInteractionSource() },
+          indication = null
+        ) { }
     )
   }
 }
@@ -635,24 +625,24 @@ private fun ScoreRow(whiteScore: String?, blackScore: String?, title: String) {
         textAlign = TextAlign.Center,
         color = MaterialTheme.colorScheme.onSurface,
         modifier = Modifier
-            .width(0.dp)
-            .weight(1f),
+          .width(0.dp)
+          .weight(1f),
       )
       Text(
         text = title,
         textAlign = TextAlign.Center,
         color = MaterialTheme.colorScheme.onSurface,
         modifier = Modifier
-            .width(0.dp)
-            .weight(1f),
+          .width(0.dp)
+          .weight(1f),
       )
       Text(
         text = blackScore ?: "",
         textAlign = TextAlign.Center,
         color = MaterialTheme.colorScheme.onSurface,
         modifier = Modifier
-            .width(0.dp)
-            .weight(1f),
+          .width(0.dp)
+          .weight(1f),
       )
     }
   }
@@ -675,12 +665,12 @@ private fun GameOverDialog(
     Column(
       horizontalAlignment = Alignment.CenterHorizontally,
       modifier = Modifier
-          .shadow(4.dp)
-          .background(
-              color = MaterialTheme.colorScheme.surface,
-              shape = RoundedCornerShape(10.dp)
-          )
-          .padding(16.dp)
+        .shadow(4.dp)
+        .background(
+          color = MaterialTheme.colorScheme.surface,
+          shape = RoundedCornerShape(10.dp)
+        )
+        .padding(16.dp)
     ) {
       val text = when {
         dialog.gameCancelled -> "GAME WAS CANCELLED"
@@ -703,8 +693,8 @@ private fun GameOverDialog(
         contentDescription = "",
         colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface),
         modifier = Modifier
-            .padding(vertical = 24.dp)
-            .size(128.dp)
+          .padding(vertical = 24.dp)
+          .size(128.dp)
       )
       Text(
         text = dialog.detailsText,
@@ -713,7 +703,7 @@ private fun GameOverDialog(
         color = MaterialTheme.colorScheme.onSurface,
       )
       Spacer(modifier = Modifier.height(28.dp))
-      FilledTonalButton (
+      FilledTonalButton(
         onClick = { onUserAction(GameOverDialogAnalyze) },
       ) {
         Text(
@@ -722,7 +712,7 @@ private fun GameOverDialog(
           modifier = Modifier.fillMaxWidth()
         )
       }
-      TextButton (
+      TextButton(
         colors = ButtonDefaults.textButtonColors(
           contentColor = MaterialTheme.colorScheme.onSurface,
         ),
@@ -734,7 +724,7 @@ private fun GameOverDialog(
           modifier = Modifier.fillMaxWidth()
         )
       }
-      TextButton (
+      TextButton(
         colors = ButtonDefaults.textButtonColors(
           contentColor = MaterialTheme.colorScheme.onSurface,
         ),
@@ -756,12 +746,12 @@ private fun RetryMoveDialog(onUserAction: (UserAction) -> Unit) {
     Column(
       horizontalAlignment = Alignment.CenterHorizontally,
       modifier = Modifier
-          .shadow(4.dp)
-          .background(
-              color = MaterialTheme.colorScheme.surface,
-              shape = RoundedCornerShape(10.dp)
-          )
-          .padding(16.dp)
+        .shadow(4.dp)
+        .background(
+          color = MaterialTheme.colorScheme.surface,
+          shape = RoundedCornerShape(10.dp)
+        )
+        .padding(16.dp)
     ) {
       Text(
         text = "CONNECTION PROBLEMS",
@@ -816,7 +806,7 @@ private fun Header(
   val items = remember(opponentRequestedUndo) {
     val items = mutableListOf(
       MoreMenuItem("Open in browser", Rounded.OpenInBrowser) { onUserAction(OpenInBrowser) },
-      MoreMenuItem("Download as SGF", Icons.Rounded.Download) { onUserAction(OpenInBrowser) },
+      MoreMenuItem("Download as SGF", Rounded.Download) { onUserAction(DownloadSGF) },
     )
     if (opponentRequestedUndo) {
       items.add(MoreMenuItem("Accept Undo", Icons.AutoMirrored.Rounded.Undo) {
