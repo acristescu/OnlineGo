@@ -58,7 +58,8 @@ class OGSWebSocketService(
 
     private val loggingAck = Ack {
         if(BuildConfig.DEBUG) {
-            Log.i(TAG, "ack: $it")
+            val debugItem = if(it is Array<*>) it[0] else it
+            Log.i(TAG, "ack: $debugItem")
         }
     }
 
