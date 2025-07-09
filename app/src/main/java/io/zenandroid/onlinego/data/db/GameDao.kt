@@ -8,10 +8,8 @@ import androidx.room.RoomWarnings
 import androidx.room.Transaction
 import androidx.room.Update
 import com.google.firebase.crashlytics.FirebaseCrashlytics
-import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Maybe
-import io.reactivex.Single
 import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.local.Challenge
 import io.zenandroid.onlinego.data.model.local.ChallengeNotification
@@ -24,15 +22,9 @@ import io.zenandroid.onlinego.data.model.local.HistoricGamesMetadata
 import io.zenandroid.onlinego.data.model.local.InitialState
 import io.zenandroid.onlinego.data.model.local.Message
 import io.zenandroid.onlinego.data.model.local.Player
-import io.zenandroid.onlinego.data.model.local.Puzzle
-import io.zenandroid.onlinego.data.model.local.PuzzleCollection
-import io.zenandroid.onlinego.data.model.local.PuzzleCollectionSolutionMetadata
 import io.zenandroid.onlinego.data.model.local.Score
-import io.zenandroid.onlinego.data.model.local.VisitedPuzzleCollection
 import io.zenandroid.onlinego.data.model.ogs.JosekiPosition
 import io.zenandroid.onlinego.data.model.ogs.Phase
-import io.zenandroid.onlinego.data.model.ogs.PuzzleRating
-import io.zenandroid.onlinego.data.model.ogs.PuzzleSolution
 import kotlinx.coroutines.flow.Flow
 
 private const val MAX_ALLOWED_SQL_PARAMS = 999
@@ -182,16 +174,14 @@ abstract class GameDao {
         //
         // Careful, moveNumber is 1-based not 0-based. Pascal FTW!!!
         //
-        getGame(gameId).blockingGet().let { game ->
-            game.moves?.let {
-                val mutable = it.toMutableList()
-                while(mutable.size < moveNumber) {
-                    mutable.add(Cell(-1, -1))
-                }
-                mutable[moveNumber - 1] = move
-                updateMovesInternal(gameId, mutable)
+        val game = getGame(gameId)
+        game.moves?.let {
+            val mutable = it.toMutableList()
+            while (mutable.size < moveNumber) {
+                mutable.add(Cell(-1, -1))
             }
-
+            mutable[moveNumber - 1] = move
+            updateMovesInternal(gameId, mutable)
         }
     }
 
@@ -216,12 +206,14 @@ abstract class GameDao {
 
     @Transaction
     open fun updateUndoAccepted(id: Long, moveNo: Int) {
-        getGame(id).blockingGet().let {
-            update(it.copy(
+        val game = getGame(id)
+        update(
+            game.copy(
                 undoRequested = null,
-                moves = if(it.moves?.size == moveNo) it.moves.dropLast(1).toMutableList() else it.moves
-            ))
-        }
+                moves = if (game.moves?.size == moveNo) game.moves.dropLast(1)
+                    .toMutableList() else game.moves
+            )
+        )
     }
 
     @Transaction
@@ -229,18 +221,19 @@ abstract class GameDao {
             id: Long,
             playerToMoveId: Long?,
             clock: Clock?) {
-        getGame(id).blockingGet().let {
-            update(it.copy(
-                undoRequested = if(it.playerToMoveId != playerToMoveId) null else it.undoRequested,
+        val game = getGame(id)
+        update(
+            game.copy(
+                undoRequested = if (game.playerToMoveId != playerToMoveId) null else game.undoRequested,
                 playerToMoveId = playerToMoveId,
                 clock = clock,
-                pausedSince = when(clock?.newPausedState) {
+                pausedSince = when (clock?.newPausedState) {
                     true -> clock.newPausedSince
                     false -> null
-                    else -> it.pausedSince
+                    else -> game.pausedSince
                 }
-            ))
-        }
+            )
+        )
     }
 
     @Transaction
@@ -260,8 +253,9 @@ abstract class GameDao {
             whiteLost: Boolean?,
             ended: Long?, // MICROSECONDS!!!
             undoRequested: Int?) {
-        getGame(id).blockingGet().let {
-            update(it.copy(
+        val game = getGame(id)
+        update(
+            game.copy(
                 outcome = outcome,
                 phase = phase,
                 playerToMoveId = playerToMoveId,
@@ -275,9 +269,9 @@ abstract class GameDao {
                 undoRequested = undoRequested,
                 blackLost = blackLost,
                 whiteLost = whiteLost,
-                ended = ended ?: it.ended
-            ))
-        }
+                ended = ended ?: game.ended
+            )
+        )
     }
 
     @Query("SELECT * FROM game WHERE id = :id")
@@ -287,7 +281,7 @@ abstract class GameDao {
     abstract fun monitorGameFlow(id: Long): Flow<Game>
 
     @Query("SELECT * FROM game WHERE id = :id")
-    abstract fun getGame(id: Long): Single<Game>
+    abstract fun getGame(id: Long): Game
 
     @Query("SELECT * FROM game WHERE id = :id")
     abstract fun getGameMaybe(id: Long): Maybe<Game>
@@ -302,7 +296,7 @@ abstract class GameDao {
     abstract fun getMessagesForGame(gameId: Long): Flow<List<Message>>
 
     @Query("SELECT chatId FROM message")
-    abstract fun getAllMessageIDs(): Single<List<String>>
+    abstract suspend fun getAllMessageIDs(): List<String>
 
     @Query("UPDATE message SET seen = 1 WHERE chatId in (:ids)")
     abstract fun markMessagesAsRead(ids: List<String>)

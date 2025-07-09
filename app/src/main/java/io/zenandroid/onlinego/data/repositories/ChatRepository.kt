@@ -13,12 +13,15 @@ import io.zenandroid.onlinego.data.ogs.OGSRestAPI
 import io.zenandroid.onlinego.gamelogic.Util.getCurrentUserId
 import io.zenandroid.onlinego.utils.addToDisposable
 import io.zenandroid.onlinego.utils.recordException
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
 
 class ChatRepository(
     private val gameDao: GameDao,
     private val restApi: OGSRestAPI,
+    private val applicationScope: CoroutineScope
     ) : SocketConnectedRepository {
 
     private val knownMessageIds = mutableSetOf<String>()
@@ -26,9 +29,10 @@ class ChatRepository(
     private val subscriptions = CompositeDisposable()
 
     init {
-        gameDao.getAllMessageIDs()
-            .subscribeOn(Schedulers.io())
-            .subscribe ( {knownMessageIds.addAll(it) }, {} )
+        applicationScope.launch {
+            val messageIDs = gameDao.getAllMessageIDs()
+            knownMessageIds.addAll(messageIDs)
+        }
     }
 
     override fun onSocketConnected() {

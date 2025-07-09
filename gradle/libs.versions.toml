@@ -37,13 +37,12 @@ coil = "2.4.0"
 rxjava = "2.2.21"
 rxandroid = "2.1.1"
 rxkotlin = "2.4.0"
-rxrelay = "2.1.1"
 rxbinding = "3.1.0"
 
 # Utility libraries
 markwon = "4.3.1"
 jsoup = "1.16.1"
-socketio = "2.1.0"
+socketio = "2.1.2"
 billing = "7.1.1"
 desugar = "2.1.5"
 espresso = "3.6.1"
@@ -126,7 +125,6 @@ moshi-adapters = { group = "com.squareup.moshi", name = "moshi-adapters", versio
 rxjava = { group = "io.reactivex.rxjava2", name = "rxjava", version.ref = "rxjava" }
 rxandroid = { group = "io.reactivex.rxjava2", name = "rxandroid", version.ref = "rxandroid" }
 rxkotlin = { group = "io.reactivex.rxjava2", name = "rxkotlin", version.ref = "rxkotlin" }
-rxrelay = { group = "com.jakewharton.rxrelay2", name = "rxrelay", version.ref = "rxrelay" }
 rxbinding = { group = "com.jakewharton.rxbinding3", name = "rxbinding", version.ref = "rxbinding" }
 
 # Work Manager
@@ -205,7 +203,6 @@ rx = [
     "rxjava",
     "rxandroid",
     "rxkotlin",
-    "rxrelay",
     "rxbinding"
 ]
 

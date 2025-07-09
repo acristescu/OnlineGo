@@ -27,7 +27,10 @@ val Context.settingsDataStore by preferencesDataStore(
   }
 )
 
-class SettingsRepository(private val context: Context) {
+class SettingsRepository(
+  private val context: Context,
+  private val applicationScope: CoroutineScope
+) {
 
   private val dataStore = context.settingsDataStore
   var cachedUserSettings: UserSettings = UserSettings()
@@ -43,7 +46,7 @@ class SettingsRepository(private val context: Context) {
   }
 
   init {
-    CoroutineScope(Dispatchers.IO).launch {
+    applicationScope.launch(Dispatchers.IO) {
       val prefs = dataStore.data.first()
 
       cachedUserSettings = UserSettings(

@@ -25,7 +25,9 @@ import okio.source
 
 private const val COMPLETED_TUTORIALS_KEY = "COMPLETED_TUTORIALS_KEY"
 
-class TutorialsRepository : SocketConnectedRepository {
+class TutorialsRepository(
+  private val appCoroutineScope: CoroutineScope
+) : SocketConnectedRepository {
 
   private val moshiAdapter = Moshi.Builder()
     .add(
@@ -50,7 +52,7 @@ class TutorialsRepository : SocketConnectedRepository {
   val completedTutorialsNames: StateFlow<Set<String>> = _completedTutorialsNames.asStateFlow()
 
   init {
-    CoroutineScope(Dispatchers.IO).launch {
+    appCoroutineScope.launch(Dispatchers.IO) {
       val completed = prefs.getStringSet(COMPLETED_TUTORIALS_KEY, emptySet())!!
       _completedTutorialsNames.value = completed
       if (!this@TutorialsRepository::hardcodedTutorialsData.isInitialized) {

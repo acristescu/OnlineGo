@@ -51,6 +51,7 @@ import io.zenandroid.onlinego.usecases.GetUserStatsUseCase
 import io.zenandroid.onlinego.utils.CountingIdlingResource
 import io.zenandroid.onlinego.utils.CustomConverterFactory
 import io.zenandroid.onlinego.utils.NOOPIdlingResource
+import org.koin.android.ext.koin.androidApplication
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.androidx.viewmodel.dsl.viewModelOf
 import org.koin.core.module.dsl.singleOf
@@ -92,6 +93,8 @@ private val repositoriesModule = module {
 }
 
 private val serverConnectionModule = module {
+
+  single { (androidApplication() as OnlineGoApplication).applicationScope }
 
   singleOf(::HTTPConnectionFactory)
   single { get<HTTPConnectionFactory>().buildConnection() }
