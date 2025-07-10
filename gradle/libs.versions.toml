@@ -1,8 +1,8 @@
 [versions]
 # Kotlin & Android
 datastorePreferences = "1.1.7"
-kotlin = "2.1.21"
-androidGradlePlugin = "8.10.1"
+kotlin = "2.2.0"
+androidGradlePlugin = "8.11.0"
 composeCompiler = "1.5.4"
 compileSdk = "35"
 minSdk = "21"
@@ -14,9 +14,9 @@ ndkVersion = "25.1.8937393"
 composeBom = "2025.06.01"
 
 # Main dependencies
-koin = "3.5.0"
+koin = "4.1.0"
 playServices = "21.3.0"
-accompanist = "0.34.0"
+accompanist = "0.36.0"
 room = "2.7.2"
 firebase = "33.16.0"
 workManager = "2.10.2"
@@ -29,9 +29,9 @@ material = "1.12.0"
 
 # Networking & Serialization
 retrofit = "3.0.0"
-okhttp = "4.11.0"
+okhttp = "5.1.0"
 moshi = "1.15.2"
-coil = "2.4.0"
+coil = "2.7.0"
 
 # Reactive
 rxjava = "2.2.21"
@@ -40,13 +40,13 @@ rxkotlin = "2.4.0"
 rxbinding = "3.1.0"
 
 # Utility libraries
-markwon = "4.3.1"
-jsoup = "1.16.1"
+markwon = "4.6.2"
+jsoup = "1.21.1"
 socketio = "2.1.2"
 billing = "7.1.1"
 desugar = "2.1.5"
 espresso = "3.6.1"
-immutableCollections = "0.3.7"
+immutableCollections = "0.4.0"
 mpChart = "v3.1.0"
 persistentCookieJar = "v1.0.1"
 
@@ -59,11 +59,11 @@ androidxTestRunner = "1.6.2"
 androidxTestRules = "1.6.1"
 espressoCore = "3.6.1"
 archCoreTesting = "2.2.0"
-coroutinesTest = "1.10.1"
-turbine = "1.0.0"
+coroutinesTest = "1.10.2"
+turbine = "1.2.1"
 
 # Build tools & Plugins
-ksp = "2.1.21-2.0.1"
+ksp = "2.2.0-2.0.2"
 googleServices = "4.4.3"
 crashlytics = "3.0.4"
 molecule = "2.1.0"
@@ -177,7 +177,6 @@ kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 google-services = { id = "com.google.gms.google-services", version.ref = "googleServices" }
 firebase-crashlytics = { id = "com.google.firebase.crashlytics", version.ref = "crashlytics" }
-koin = { id = "koin", version.ref = "koin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 
 [bundles]

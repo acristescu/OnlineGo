@@ -51,14 +51,14 @@ import io.zenandroid.onlinego.utils.egfToRank
 import io.zenandroid.onlinego.utils.formatRank
 import io.zenandroid.onlinego.utils.processGravatarURL
 import io.zenandroid.onlinego.utils.rememberStateWithLifecycle
-import org.koin.androidx.compose.getViewModel
+import org.koin.androidx.compose.koinViewModel
 
 @ExperimentalFoundationApi
 @Composable
 fun SelectOpponentDialog(
   onDialogDismiss: (Player?) -> Unit
 ) {
-  val viewModel = getViewModel<SelectOpponentViewModel>()
+  val viewModel = koinViewModel<SelectOpponentViewModel>()
 
   val state by rememberStateWithLifecycle(stateFlow = viewModel.state)
 

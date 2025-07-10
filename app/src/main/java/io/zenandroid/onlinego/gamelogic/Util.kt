@@ -7,7 +7,7 @@ import io.zenandroid.onlinego.data.model.StoneType
 import io.zenandroid.onlinego.data.model.local.Game
 import io.zenandroid.onlinego.data.model.ogs.OGSGame
 import io.zenandroid.onlinego.data.repositories.UserSessionRepository
-import okhttp3.internal.toImmutableList
+import kotlinx.collections.immutable.toImmutableList
 import org.koin.core.context.GlobalContext.get
 import java.util.LinkedList
 import java.util.Locale

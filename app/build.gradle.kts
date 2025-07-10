@@ -56,22 +56,21 @@ android {
     testOptions {
         unitTests.isReturnDefaultValues = true
     }
-    
-    tasks.withType<KotlinCompile>().configureEach {
-        kotlinOptions {
-            freeCompilerArgs += "-opt-in=androidx.compose.animation.ExperimentalAnimationApi"
-            freeCompilerArgs += "-opt-in=androidx.compose.material.ExperimentalMaterialApi"
-            freeCompilerArgs += "-opt-in=androidx.compose.foundation.ExperimentalFoundationApi"
-            freeCompilerArgs += "-opt-in=androidx.compose.ui.ExperimentalComposeUiApi"
-            freeCompilerArgs += "-Xjvm-default=all"
-        }
+
+  tasks.withType<KotlinCompile>().configureEach {
+      compilerOptions { // Use compilerOptions instead of kotlinOptions
+          jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17) // Set jvmTarget here
+          freeCompilerArgs.addAll(
+              "-opt-in=androidx.compose.animation.ExperimentalAnimationApi",
+              "-opt-in=androidx.compose.material.ExperimentalMaterialApi",
+              "-opt-in=androidx.compose.foundation.ExperimentalFoundationApi",
+              "-opt-in=androidx.compose.ui.ExperimentalComposeUiApi",
+              "-Xjvm-default=all"
+          )
+      }
     }
-    
-    kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_17.toString()
-    }
-    
-    buildFeatures {
+
+  buildFeatures {
         compose = true
         viewBinding = true
     }
