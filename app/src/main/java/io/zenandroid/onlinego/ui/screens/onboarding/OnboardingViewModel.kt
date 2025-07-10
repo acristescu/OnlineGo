@@ -2,6 +2,7 @@ package io.zenandroid.onlinego.ui.screens.onboarding
 
 import android.os.Build
 import android.util.Log
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.crashlytics.FirebaseCrashlytics
@@ -27,18 +28,58 @@ import retrofit2.HttpException
 
 class OnboardingViewModel(
   val ogsRestService: OGSRestService,
-  val ogsWebSocketService: OGSWebSocketService
+  val ogsWebSocketService: OGSWebSocketService,
+  savedStateHandle: SavedStateHandle
 ) : ViewModel() {
+
+  private val pages = arrayOf(
+    OnboardingPage(
+      R.drawable.art_onboarding,
+      "The Game of GO",
+      "Go is a strategy board game for two players, in which the aim is to surround more territory than the opponent. The game was invented in China more than 2,500 years ago and is the oldest board game still played today. It is estimated that more than 46 million people know how to play.",
+      "Continue"
+    ),
+    OnboardingPage(
+      R.drawable.ic_board_transparent,
+      "Online GO Android app",
+      "This app started back in 2015 as a personal project by Alexandru Cristescu. It is now open-source, meaning the code is freely available for everybody to browse and modify. The app is and will always be free. Contributions are welcome. Find out how you can help on the project's GitHub page. If coding is not your thing, you can become a supporter by pledging a monthly contribution. Or, you can just enjoy the app for free, the choice is entirely yours!",
+      "Continue"
+    ),
+    OnboardingPage(
+      R.drawable.logo_ogs,
+      "OGS Server",
+      "The OGS Server is one of the most popular websites for playing GO online. The Online GO Android app uses the services provided by OGS in order to enable online play. While not associated with OGS, we do have their permission to use their services. A (free) OGS account is required in order to play. You can create one in the next step if you don't already have it.",
+      "Link OGS account"
+    ),
+    MultipleChoicePage(
+      "Do you already have an OGS (online-go.com) account?",
+      listOf("Yes", "No")
+    ),
+    MultipleChoicePage(
+      "What log in method do you want to use?",
+      listOf("Google Sign-in", "Username and password")
+    ),
+    LoginPage,
+    NotificationPermissionPage(
+      "Stay Updated",
+      "We'd like to send you notifications when it's your turn to play, when games finish, or when you receive messages. You can always change this later in your device settings.",
+      "Allow notifications",
+      "Skip"
+    )
+  ).drop(if (savedStateHandle["initialPageArg"] as String? != null) 4 else 0)
 
   private val analytics = OnlineGoApplication.instance.analytics
   private val subscriptions = CompositeDisposable()
 
-  private val _state = MutableStateFlow(
-    OnboardingState(
-      currentPageIndex = 0,
-      currentPage = pages[0]
+  private val _state =
+    MutableStateFlow(
+      OnboardingState(
+        currentPageIndex = 0,
+        currentPage = pages[0],
+        isExistingAccount = savedStateHandle["initialPageArg"] as String? == "login",
+        totalPages = pages.size,
+      )
     )
-  )
   val state: StateFlow<OnboardingState> = _state.asStateFlow()
 
   override fun onCleared() {
@@ -61,9 +102,9 @@ class OnboardingViewModel(
       }
 
       is OnboardingAction.AnswerSelected -> {
-        when (state.value.currentPageIndex) {
+        when (state.value.currentPageIndex) { // FIXME, this is a mess
           3 -> _state.update { it.copy(isExistingAccount = action.answerIndex == 0) }
-          4 -> _state.update { it.copy(loginMethod = Page.LoginMethod.entries[action.answerIndex]) }
+          4, 0 -> _state.update { it.copy(loginMethod = Page.LoginMethod.entries[action.answerIndex]) }
         }
         goToPage(state.value.currentPageIndex + 1)
       }
@@ -112,6 +153,7 @@ class OnboardingViewModel(
       OnboardingAction.DialogDismissed -> _state.update { it.copy(loginErrorDialogText = null) }
       OnboardingAction.SocialPlatformLoginFailed -> _state.update {
         it.copy(
+          loginProcessing = false,
           loginMethod = null,
           currentPageIndex = if (it.currentPageIndex == 0) 0 else it.currentPageIndex - 1,
           currentPage = if (it.currentPageIndex == 0) pages[0] else pages[it.currentPageIndex - 1],
@@ -246,44 +288,7 @@ class OnboardingViewModel(
       .subscribe(this::onLoginSuccess, this::onPasswordLoginFailure)
       .addToDisposable(subscriptions)
   }
-
 }
-
-private val pages = arrayOf(
-  OnboardingPage(
-    R.drawable.art_onboarding,
-    "The Game of GO",
-    "Go is a strategy board game for two players, in which the aim is to surround more territory than the opponent. The game was invented in China more than 2,500 years ago and is the oldest board game still played today. It is estimated that more than 46 million people know how to play.",
-    "Continue"
-  ),
-  OnboardingPage(
-    R.drawable.ic_board_transparent,
-    "Online GO Android app",
-    "This app started back in 2015 as a personal project by Alexandru Cristescu. It is now open-source, meaning the code is freely available for everybody to browse and modify. The app is and will always be free. Contributions are welcome. Find out how you can help on the project's GitHub page. If coding is not your thing, you can become a supporter by pledging a monthly contribution. Or, you can just enjoy the app for free, the choice is entirely yours!",
-    "Continue"
-  ),
-  OnboardingPage(
-    R.drawable.logo_ogs,
-    "OGS Server",
-    "The OGS Server is one of the most popular websites for playing GO online. The Online GO Android app uses the services provided by OGS in order to enable online play. While not associated with OGS, we do have their permission to use their services. A (free) OGS account is required in order to play. You can create one in the next step if you don't already have it.",
-    "Link OGS account"
-  ),
-  MultipleChoicePage(
-    "Do you already have an OGS (online-go.com) account?",
-    listOf("Yes", "No")
-  ),
-  MultipleChoicePage(
-    "What log in method do you want to use?",
-    listOf("Google Sign-in", "Username and password")
-  ),
-  LoginPage,
-  NotificationPermissionPage(
-    "Stay Updated",
-    "We'd like to send you notifications when it's your turn to play, when games finish, or when you receive messages. You can always change this later in your device settings.",
-    "Allow notifications",
-    "Skip"
-  )
-)
 
 sealed class Page {
   enum class LoginMethod { GOOGLE, PASSWORD }
@@ -313,11 +318,11 @@ sealed class Page {
 
 data class OnboardingState(
   val currentPageIndex: Int = 0,
-  val totalPages: Int = pages.size,
+  val totalPages: Int,
   val finish: Boolean = false,
   val onboardingDone: Boolean = false,
   val requestNotificationPermission: Boolean = false,
-  val currentPage: Page = pages[0],
+  val currentPage: Page,
   val isExistingAccount: Boolean = false,
   val loginMethod: Page.LoginMethod? = null,
   val username: String = "",

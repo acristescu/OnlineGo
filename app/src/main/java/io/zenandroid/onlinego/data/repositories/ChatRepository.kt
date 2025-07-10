@@ -62,7 +62,7 @@ class ChatRepository(
   }
 
   fun fetchRecentChatMessages() {
-    userSessionRepository.loggedInObservable.filter { it == LoginStatus.LOGGED_IN }.firstOrError()
+    userSessionRepository.loggedInObservable.filter { it is LoginStatus.LoggedIn }.firstOrError()
       .flatMap {
         restApi.getMessages(lastRESTFetchedChatId)
       }

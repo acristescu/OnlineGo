@@ -9,6 +9,7 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -51,6 +52,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
@@ -74,6 +76,7 @@ import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.ui.screens.onboarding.OnboardingAction.BackPressed
 import io.zenandroid.onlinego.ui.screens.onboarding.OnboardingAction.SocialPlatformLoginFailed
 import io.zenandroid.onlinego.ui.screens.onboarding.Page.LoginMethod
+import io.zenandroid.onlinego.ui.screens.onboarding.Page.OnboardingPage
 import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
 import io.zenandroid.onlinego.utils.recordException
 import io.zenandroid.onlinego.utils.rememberStateWithLifecycle
@@ -82,7 +85,8 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun OnboardingScreen(
   viewModel: OnboardingViewModel = koinViewModel(),
-  onNavigateToMyGames: () -> Unit = {}
+  onNavigateToMyGames: () -> Unit,
+  onNavigateBack: () -> Unit,
 ) {
   val state by rememberStateWithLifecycle(viewModel.state)
   val activity = LocalActivity.current
@@ -110,6 +114,7 @@ fun OnboardingScreen(
         viewModel.onAction(SocialPlatformLoginFailed)
       }
     } else {
+      viewModel.onAction(SocialPlatformLoginFailed)
       Log.e("OnboardingScreen", "Google sign-in cancelled")
     }
   }
@@ -128,7 +133,7 @@ fun OnboardingScreen(
 
   when {
     state.finish -> {
-      LocalActivity.current?.finish()
+      onNavigateBack()
     }
 
     state.loginMethod == LoginMethod.GOOGLE -> {
@@ -210,11 +215,24 @@ private fun ColumnScope.LoginPage(
       .imePadding()
   ) {
     Spacer(modifier = Modifier.weight(.5f))
-    Image(
-      painter = painterResource(id = R.drawable.art_login_1),
-      contentDescription = null,
+    Surface(
+      border = BorderStroke(0.1.dp, MaterialTheme.colorScheme.primary),
+      shape = MaterialTheme.shapes.large,
+      color = MaterialTheme.colorScheme.primaryContainer,
       modifier = Modifier.fillMaxWidth()
-    )
+    ) {
+      Image(
+        painter = painterResource(id = R.drawable.art_login_1),
+        colorFilter = ColorFilter.tint(
+          MaterialTheme.colorScheme.primaryContainer,
+          blendMode = BlendMode.Hue
+        ),
+        contentDescription = null,
+        modifier = Modifier
+          .fillMaxWidth()
+          .padding(vertical = 32.dp)
+      )
+    }
     Spacer(modifier = Modifier.weight(.5f))
 
     if (!state.isExistingAccount) {
@@ -453,7 +471,17 @@ private fun PageIndicator(modifier: Modifier = Modifier, currentPage: Int, numbe
 @Composable
 fun DefaultPreview() {
   OnlineGoTheme(darkTheme = true) {
-    OnboardingContent(OnboardingState()) { }
+    OnboardingContent(
+      OnboardingState(
+        totalPages = 6,
+        currentPage = OnboardingPage(
+          R.drawable.art_onboarding,
+          "The Game of GO",
+          "Go is a strategy board game for two players, in which the aim is to surround more territory than the opponent. The game was invented in China more than 2,500 years ago and is the oldest board game still played today. It is estimated that more than 46 million people know how to play.",
+          "Continue"
+        ),
+      )
+    ) { }
   }
 }
 
@@ -467,7 +495,8 @@ fun DefaultPreview1() {
         currentPage = Page.MultipleChoicePage(
           "Is there a cow level? Lorem ipsum dolor sit amet",
           listOf("Yes", "NO!!!")
-        )
+        ),
+        totalPages = 6,
       )
     ) { }
   }
@@ -482,7 +511,8 @@ fun DefaultPreview2() {
       OnboardingState(
         currentPage = Page.LoginPage,
         loginMethod = Page.LoginMethod.PASSWORD,
-        isExistingAccount = false
+        isExistingAccount = false,
+        totalPages = 6,
       )
     ) { }
   }
@@ -499,7 +529,8 @@ fun DefaultPreview3() {
           description = "Get notified about your games, messages and more.",
           allowButtonText = "Allow",
           skipButtonText = "Skip"
-        )
+        ),
+        totalPages = 6,
       )
     ) { }
   }

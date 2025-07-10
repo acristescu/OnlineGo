@@ -58,14 +58,14 @@ class MainActivityViewModel(
 
   fun onResume() {
     userSessionRepository.loggedInObservable.subscribe { loggedIn ->
-      if (loggedIn == LoginStatus.LOGGED_IN) {
+      if (loggedIn is LoginStatus.LoggedIn) {
         socketService.ensureSocketConnected()
         socketService.resendAuth()
       }
 
       _state.update {
         it.copy(
-          isLoggedIn = loggedIn == LoginStatus.LOGGED_IN,
+          isLoggedIn = loggedIn is LoginStatus.LoggedIn,
         )
       }
     }.addToDisposable(subscriptions)

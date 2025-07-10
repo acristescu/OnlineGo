@@ -1,6 +1,5 @@
 package io.zenandroid.onlinego.ui.screens.mygames.composables
 
-import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -17,9 +16,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -33,6 +32,8 @@ import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
 @Composable
 fun NewGameButtonsRow(
   modifier: Modifier = Modifier,
+  playOnlineEnabled: Boolean,
+  customGameEnabled: Boolean,
   onPlayOnline: () -> Unit,
   onCustomGame: () -> Unit,
   onPlayAgainstAI: () -> Unit,
@@ -42,28 +43,39 @@ fun NewGameButtonsRow(
     horizontalArrangement = Arrangement.SpaceEvenly,
     modifier = modifier.fillMaxWidth()
   ) {
-    NewGameButton(img = R.drawable.ic_person_filled, text = "Play\nOnline", onPlayOnline)
-    NewGameButton(img = R.drawable.ic_tool, text = "Custom\nGame", onCustomGame)
-    NewGameButton(img = R.drawable.ic_robot, text = "Play\nAgainst AI", onPlayAgainstAI)
-    NewGameButton(img = Icons.Rounded.SportsBar, text = "Face\nto Face", onFaceToFace)
+    NewGameButton(
+      painter = painterResource(R.drawable.ic_person_filled),
+      text = "Play\nOnline",
+      onClick = onPlayOnline,
+      enabled = playOnlineEnabled
+    )
+    NewGameButton(
+      painter = painterResource(R.drawable.ic_tool),
+      text = "Custom\nGame",
+      onClick = onCustomGame,
+      enabled = customGameEnabled
+    )
+    NewGameButton(
+      painter = painterResource(R.drawable.ic_robot),
+      text = "Play\nAgainst AI",
+      onClick = onPlayAgainstAI,
+      enabled = true
+    )
+    NewGameButton(
+      painter = rememberVectorPainter(Icons.Rounded.SportsBar),
+      text = "Face\nto Face",
+      onClick = onFaceToFace,
+      enabled = true
+    )
   }
 }
 
 @Composable
-fun NewGameButton(img: ImageVector, text: String, onClick: () -> Unit) {
-  NewGameButton(rememberVectorPainter(image = img), text, onClick)
-}
-
-@Composable
-fun NewGameButton(@DrawableRes img: Int, text: String, onClick: () -> Unit) {
-  NewGameButton(painterResource(img), text, onClick)
-}
-
-@Composable
-fun NewGameButton(painter: Painter, text: String, onClick: () -> Unit) {
+fun NewGameButton(painter: Painter, text: String, enabled: Boolean, onClick: () -> Unit) {
+  val alpha = if (enabled) 1f else 0.3f
   Column(
     modifier = Modifier
-      .clickable { onClick.invoke() }
+      .clickable(enabled) { onClick.invoke() }
       .padding(vertical = 8.dp)
   ) {
     Image(
@@ -72,7 +84,8 @@ fun NewGameButton(painter: Painter, text: String, onClick: () -> Unit) {
       colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onPrimary),
       modifier = Modifier
         .align(Alignment.CenterHorizontally)
-        .background(color = MaterialTheme.colorScheme.primary, shape = CircleShape)
+        .background(color = MaterialTheme.colorScheme.primary.copy(alpha = alpha), shape = CircleShape)
+        .alpha(alpha)
         .padding(16.dp)
     )
     Text(
@@ -84,14 +97,15 @@ fun NewGameButton(painter: Painter, text: String, onClick: () -> Unit) {
       modifier = Modifier
         .align(Alignment.CenterHorizontally)
         .padding(top = 4.dp)
+        .alpha(alpha)
     )
   }
 }
 
-@Preview
+@Preview(showBackground = true)
 @Composable
 private fun Preview() {
   OnlineGoTheme {
-    NewGameButtonsRow(Modifier, {}, {}, {}, {})
+    NewGameButtonsRow(Modifier, false, false, {}, {}, {}, {},)
   }
 }

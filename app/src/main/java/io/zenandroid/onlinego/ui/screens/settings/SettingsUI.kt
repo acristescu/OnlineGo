@@ -102,7 +102,6 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun SettingsScreen(
   viewModel: SettingsViewModel = koinViewModel(),
-  onNavigateToLogin: () -> Unit,
   onNavigateToSupport: () -> Unit,
 ) {
   val state by viewModel.state.collectAsState()
@@ -138,10 +137,6 @@ fun SettingsScreen(
         else -> viewModel.onAction(it)
       }
     })
-
-  if (state.isLoggedOut) {
-    onNavigateToLogin()
-  }
 
   dialogData?.let { data ->
     AlertDialog(

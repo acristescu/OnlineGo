@@ -78,7 +78,7 @@ fun OnlineGoApp(
         enter = slideInVertically(initialOffsetY = { it }) + fadeIn() + expandVertically(),
         exit = ExitTransition.None,
       ) {
-        BottomNavigationBar(navController)
+        BottomNavigationBar(navController, isLoggedIn)
       }
     }) { innerPadding ->
       NavHost(
@@ -99,6 +99,8 @@ fun OnlineGoApp(
             onNavigateToAIGame = { navController.navigate("aiGame") },
             onNavigateToFaceToFace = { navController.navigate("faceToFace") },
             onNavigateToSupporter = { navController.navigate("supporter") },
+            onNavigateToLogin = { navController.navigate("onboarding?initialPage=login") },
+            onNavigateToSignUp = { navController.navigate("onboarding?initialPage=signUp") },
           )
         }
 
@@ -160,13 +162,6 @@ fun OnlineGoApp(
 
         composable("settings") {
           SettingsScreen(
-            onNavigateToLogin = {
-              navController.navigate(
-                "onboarding",
-                navOptions = Builder()
-                  .setPopUpTo("myGames", inclusive = true).build()
-              )
-            },
             onNavigateToSupport = {
               navController.navigate("supporter")
             },
@@ -211,13 +206,25 @@ fun OnlineGoApp(
           )
         }
 
-        composable("onboarding") {
+        composable(
+          route = "onboarding?initialPage={initialPageArg}",
+          arguments = listOf(
+            navArgument("initialPageArg") {
+              type = NavType.StringType
+              nullable = true
+              defaultValue = null
+            }
+          ),
+        ) { backStackEntry ->
           OnboardingScreen(
             onNavigateToMyGames = {
               navController.navigate(
                 "myGames",
                 navOptions = Builder().setPopUpTo("onboarding", inclusive = true).build()
               )
+            },
+            onNavigateBack = {
+              navController.popBackStack()
             }
           )
         }
@@ -227,11 +234,16 @@ fun OnlineGoApp(
 }
 
 @Composable
-private fun BottomNavigationBar(navController: NavController) {
+private fun BottomNavigationBar(navController: NavController, isLoggedIn: Boolean) {
   val items = listOf(
     BottomNavItem("myGames", "Play", ImageVector.vectorResource(R.drawable.ic_board_filled)),
     BottomNavItem("learn", "Learn", ImageVector.vectorResource(R.drawable.ic_learn)),
-    BottomNavItem("stats", "Stats", ImageVector.vectorResource(R.drawable.ic_diagram)),
+    BottomNavItem(
+      "stats",
+      "Stats",
+      ImageVector.vectorResource(R.drawable.ic_diagram),
+      enabled = isLoggedIn
+    ),
     BottomNavItem(
       "settings", "Settings", ImageVector.vectorResource(R.drawable.ic_settings_filled),
     ),
@@ -251,6 +263,7 @@ private fun BottomNavigationBar(navController: NavController) {
     NavigationBar {
       items.forEach { item ->
         NavigationBarItem(
+          enabled = item.enabled,
           selected = currentRoute == item.route,
           onClick = {
             if (currentRoute != item.route) {
@@ -269,4 +282,9 @@ private fun BottomNavigationBar(navController: NavController) {
   }
 }
 
-data class BottomNavItem(val route: String, val label: String, val icon: ImageVector)
+data class BottomNavItem(
+  val route: String,
+  val label: String,
+  val icon: ImageVector,
+  val enabled: Boolean = true
+)

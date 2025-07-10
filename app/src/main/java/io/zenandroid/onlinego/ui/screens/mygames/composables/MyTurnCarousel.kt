@@ -24,7 +24,7 @@ import kotlin.math.absoluteValue
 @ExperimentalFoundationApi
 @ExperimentalComposeUiApi
 @Composable
-fun MyTurnCarousel(games: List<Game>, userId: Long, onAction: (Action) -> Unit) {
+fun MyTurnCarousel(games: List<Game>, userId: Long?, onAction: (Action) -> Unit) {
     Column {
         val pagerState = rememberPagerState { games.size }
         HorizontalPager(

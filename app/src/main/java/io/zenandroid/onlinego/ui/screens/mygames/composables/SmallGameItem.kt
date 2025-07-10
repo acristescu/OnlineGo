@@ -29,7 +29,7 @@ import io.zenandroid.onlinego.utils.calculateTimer
 
 @ExperimentalComposeUiApi
 @Composable
-fun SmallGameItem(game: Game, userId: Long, onAction: (Action) -> Unit) {
+fun SmallGameItem(game: Game, userId: Long?, onAction: (Action) -> Unit) {
   SenteCard(
     modifier = Modifier
       .height(110.dp)

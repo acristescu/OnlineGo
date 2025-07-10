@@ -29,7 +29,7 @@ import io.zenandroid.onlinego.ui.screens.mygames.Action
 @Composable
 fun HistoricGameLazyRow(
   games: List<Game>,
-  userId: Long,
+  userId: Long?,
   loadedAllHistoricGames: Boolean,
   onAction: (Action) -> Unit
 ) {
