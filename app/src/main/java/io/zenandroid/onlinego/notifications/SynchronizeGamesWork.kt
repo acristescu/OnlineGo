@@ -73,7 +73,7 @@ class SynchronizeGamesWork(val context: Context, params: WorkerParameters) :
   override fun createWork(): Single<Result> {
     FirebaseCrashlytics.getInstance().log("I/$TAG: Started checking for active games")
     return userSessionRepository.loggedInObservable.flatMapSingle { loggedIn ->
-      if (loggedIn == LoginStatus.LOGGED_OUT) {
+      if (loggedIn == LoginStatus.LoggedOut) {
         Log.v(TAG, "Not logged in, giving up")
         return@flatMapSingle Single.just(Result.failure())
       }

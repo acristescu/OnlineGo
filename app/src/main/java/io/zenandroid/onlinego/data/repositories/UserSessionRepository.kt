@@ -14,12 +14,15 @@ import io.zenandroid.onlinego.data.model.ogs.UIConfig
 import io.zenandroid.onlinego.data.ogs.OGSRestService
 import io.zenandroid.onlinego.data.ogs.OGSWebSocketService
 import io.zenandroid.onlinego.utils.PersistenceManager
-import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import org.koin.core.context.GlobalContext.get
 
-class UserSessionRepository {
+class UserSessionRepository(
+  private val appCoroutineScope: CoroutineScope
+) {
   // Note: Can't use constructor injection here because it will create a dependency loop and
   // Koin will throw a fit (at runtime)
   private val socketService: OGSWebSocketService by get().inject()
@@ -42,13 +45,13 @@ class UserSessionRepository {
     PersistentCookieJar(SetCookieCache(), SharedPrefsCookiePersistor(OnlineGoApplication.instance))
 
   init {
-    GlobalScope.launch {
+    appCoroutineScope.launch(Dispatchers.IO) {
       uiConfig = PersistenceManager.getUIConfig()
       userId?.toString()?.let(FirebaseCrashlytics.getInstance()::setUserId)
       userId?.let {
         userIdSubject.onNext(it)
       }
-      loggedInSubject.onNext(if(isLoggedIn()) LoginStatus.LOGGED_IN else LoginStatus.LOGGED_OUT)
+      loggedInSubject.onNext(if (isLoggedIn()) LoginStatus.LoggedIn(userId!!) else LoginStatus.LoggedOut)
     }
   }
 
@@ -60,7 +63,7 @@ class UserSessionRepository {
     userId?.let {
       userIdSubject.onNext(it)
     }
-    loggedInSubject.onNext(if(isLoggedIn()) LoginStatus.LOGGED_IN else LoginStatus.LOGGED_OUT)
+    loggedInSubject.onNext(if (isLoggedIn()) LoginStatus.LoggedIn(userId!!) else LoginStatus.LoggedOut)
   }
 
   fun requiresUIConfigRefresh(): Boolean =
@@ -68,13 +71,13 @@ class UserSessionRepository {
 
   fun isLoggedIn() =
     (uiConfig != null) &&
-      cookieJar.loadForRequest(BuildConfig.BASE_URL.toHttpUrlOrNull()!!)
-        .any { it.name == "sessionid" }
+        cookieJar.loadForRequest(BuildConfig.BASE_URL.toHttpUrlOrNull()!!)
+          .any { it.name == "sessionid" }
 
   fun logOut() {
     FirebaseCrashlytics.getInstance().sendUnsentReports()
     uiConfig = null
-    loggedInSubject.onNext(if(isLoggedIn()) LoginStatus.LOGGED_IN else LoginStatus.LOGGED_OUT)
+    loggedInSubject.onNext(if (isLoggedIn()) LoginStatus.LoggedIn(userId!!) else LoginStatus.LoggedOut)
     (OnlineGoApplication.instance.getSystemService(ACTIVITY_SERVICE) as ActivityManager).clearApplicationUserData()
   }
 
@@ -83,7 +86,7 @@ class UserSessionRepository {
   }
 }
 
-enum class LoginStatus {
-  LOGGED_IN,
-  LOGGED_OUT,
+sealed interface LoginStatus {
+  class LoggedIn(val userId: Long) : LoginStatus
+  object LoggedOut : LoginStatus
 }

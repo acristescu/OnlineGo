@@ -26,7 +26,7 @@ import io.zenandroid.onlinego.ui.screens.mygames.Action
 import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
 
 @Composable
-fun ChallengeItem(challenge: Challenge, userId: Long, onAction: (Action) -> Unit) {
+fun ChallengeItem(challenge: Challenge, userId: Long?, onAction: (Action) -> Unit) {
     SenteCard (
         modifier = Modifier
             .height(90.dp)

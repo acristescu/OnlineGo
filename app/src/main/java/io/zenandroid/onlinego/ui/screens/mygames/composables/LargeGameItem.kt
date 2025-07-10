@@ -28,7 +28,7 @@ import io.zenandroid.onlinego.utils.calculateTimer
 
 @ExperimentalComposeUiApi
 @Composable
-fun LargeGameItem(game: Game, userId: Long, onAction: (Action) -> Unit, modifier: Modifier = Modifier) {
+fun LargeGameItem(game: Game, userId: Long?, onAction: (Action) -> Unit, modifier: Modifier = Modifier) {
     val opponent =
         when (userId) {
             game.blackPlayer.id -> game.whitePlayer

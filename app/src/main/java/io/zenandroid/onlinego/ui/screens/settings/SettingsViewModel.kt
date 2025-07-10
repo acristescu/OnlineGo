@@ -161,9 +161,6 @@ class SettingsViewModel(
     context?.let { FirebaseAnalytics.getInstance(it).logEvent("logout_clicked", null) }
     FirebaseCrashlytics.getInstance().sendUnsentReports()
     userSessionRepository.logOut()
-    state.update {
-      it.copy(isLoggedOut = true)
-    }
   }
 }
 
@@ -174,7 +171,6 @@ data class SettingsState(
   val passwordDialogVisible: Boolean = false,
   val modalVisible: Boolean = false,
   val deleteAccountError: String? = null,
-  val isLoggedOut: Boolean = false,
 )
 
 sealed interface SettingsAction {

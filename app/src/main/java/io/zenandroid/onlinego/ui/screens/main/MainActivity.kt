@@ -16,6 +16,7 @@ import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -45,8 +46,6 @@ class MainActivity : ComponentActivity() {
   companion object {
     var isInForeground = false
   }
-
-  private val userSessionRepository: UserSessionRepository = get()
 
   private val viewModel: MainActivityViewModel by viewModel()
 
@@ -117,13 +116,14 @@ class MainActivity : ComponentActivity() {
     }
 
     setContent {
+      val state by viewModel.state.collectAsState()
       CompositionLocalProvider(
         LocalThemeSettings provides themeSettings,
       ) {
         OnlineGoApp(
           onAppReady = { viewModel.onScreenReady() },
           darkTheme = themeSettings.isDarkTheme,
-          isLoggedIn = viewModel.state.value.isLoggedIn == true,
+          isLoggedIn = state.isLoggedIn == true,
         )
       }
     }

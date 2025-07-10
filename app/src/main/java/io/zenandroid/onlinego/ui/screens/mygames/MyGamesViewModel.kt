@@ -27,6 +27,7 @@ import io.zenandroid.onlinego.data.repositories.AutomatchRepository
 import io.zenandroid.onlinego.data.repositories.ChallengesRepository
 import io.zenandroid.onlinego.data.repositories.ChatRepository
 import io.zenandroid.onlinego.data.repositories.FinishedGamesRepository
+import io.zenandroid.onlinego.data.repositories.LoginStatus
 import io.zenandroid.onlinego.data.repositories.ServerNotificationsRepository
 import io.zenandroid.onlinego.data.repositories.SettingsRepository
 import io.zenandroid.onlinego.data.repositories.TutorialsRepository
@@ -76,9 +77,9 @@ class MyGamesViewModel(
 ) : ViewModel() {
   private val _state = MutableStateFlow(
     MyGamesState(
-      userId = 0,
+      userId = null,
       whatsNewDialogVisible = false,
-      headerMainText = "Hi ,",
+      headerMainText = "",
     )
   )
   val state: StateFlow<MyGamesState> = _state
@@ -93,75 +94,26 @@ class MyGamesViewModel(
   }
 
   init {
-    userSessionRepository.userIdObservable
+    userSessionRepository.loggedInObservable
       .subscribeOn(Schedulers.io())
       .observeOn(AndroidSchedulers.mainThread())
-      .subscribe { userId ->
-        _state.update {
-          it.copy(
-            userId = userId,
-            headerMainText = "Hi ${userSessionRepository.uiConfig?.user?.username},",
-            userImageURL = userSessionRepository.uiConfig?.user?.icon,
-          )
-        }
-
-        viewModelScope.launch {
-          try {
-            val warning = restService.checkForWarnings()
-            if (warning.id != null) {
-              _state.update {
-                it.copy(warning = warning)
-              }
+      .subscribe { loggedInStatus ->
+        when(loggedInStatus) {
+          is LoginStatus.LoggedIn -> onLoggedIn(loggedInStatus.userId)
+          LoginStatus.LoggedOut -> {
+            _state.update {
+              it.copy(
+                userIsLoggedOut = true,
+                userId = null,
+                playOnlineEnabled = false,
+                customGameEnabled = false,
+                loginPromptVisible = true,
+                headerMainText = "Welcome to Sente Online Go!",
+                headerSubText = "Please log in to OGS to play online.",
+              )
             }
-          } catch (throwable: Throwable) {
-            onError(throwable)
           }
         }
-
-        activeGamesRepository.monitorActiveGames()
-          .subscribeOn(Schedulers.io())
-          .map(this::computePositions)
-          .subscribeOn(Schedulers.computation())
-          .observeOn(AndroidSchedulers.mainThread())
-          .subscribe(this::setGames, this::onError)
-          .addToDisposable(subscriptions)
-        activeGamesRepository.refreshActiveGames()
-          .subscribeOn(Schedulers.io())
-          .observeOn(AndroidSchedulers.mainThread())
-          .subscribe({}, this::onError)
-          .addToDisposable(subscriptions)
-        finishedGamesRepository.getRecentlyFinishedGames()
-          .subscribeOn(Schedulers.io())
-          .map(this::computePositions)
-          .subscribeOn(Schedulers.computation())
-          .observeOn(AndroidSchedulers.mainThread())
-          .subscribe(this::setRecentGames, this::onError)
-          .addToDisposable(subscriptions)
-        challengesRepository.monitorChallenges()
-          .subscribeOn(Schedulers.io())
-          .observeOn(AndroidSchedulers.mainThread())
-          .subscribe(this::setChallenges, this::onError)
-          .addToDisposable(subscriptions)
-        automatchRepository.automatchObservable
-          .subscribeOn(Schedulers.io())
-          .observeOn(AndroidSchedulers.mainThread())
-          .subscribe(this::setAutomatches, this::onError)
-          .addToDisposable(subscriptions)
-        automatchRepository.gameStartObservable
-          .flatMapMaybe {
-            it.game_id?.let { activeGamesRepository.getGameSingle(it).toMaybe() } ?: Maybe.empty()
-          }
-          .subscribeOn(Schedulers.io())
-          .observeOn(AndroidSchedulers.mainThread())
-          .subscribe(this::onGameStart, this::onError)
-          .addToDisposable(subscriptions)
-        notificationsRepository.notificationsObservable()
-          .subscribeOn(Schedulers.io())
-          .observeOn(AndroidSchedulers.mainThread())
-          .subscribe(this::onNotification, this::onError)
-          .addToDisposable(subscriptions)
-
-        onNeedMoreOlderGames(null)
       }.addToDisposable(subscriptions)
 
     viewModelScope.launch {
@@ -185,6 +137,74 @@ class MyGamesViewModel(
         _state.update { it.copy(online = online) }
       }
     }
+  }
+
+  private fun onLoggedIn(userId: Long) {
+    _state.update {
+      it.copy(
+        userId = userId,
+        headerMainText = "Hi ${userSessionRepository.uiConfig?.user?.username},",
+        userImageURL = userSessionRepository.uiConfig?.user?.icon,
+      )
+    }
+
+    viewModelScope.launch {
+      try {
+        val warning = restService.checkForWarnings()
+        if (warning.id != null) {
+          _state.update {
+            it.copy(warning = warning)
+          }
+        }
+      } catch (throwable: Throwable) {
+        onError(throwable)
+      }
+    }
+
+    activeGamesRepository.monitorActiveGames()
+      .subscribeOn(Schedulers.io())
+      .map(this::computePositions)
+      .subscribeOn(Schedulers.computation())
+      .observeOn(AndroidSchedulers.mainThread())
+      .subscribe(this::setGames, this::onError)
+      .addToDisposable(subscriptions)
+    activeGamesRepository.refreshActiveGames()
+      .subscribeOn(Schedulers.io())
+      .observeOn(AndroidSchedulers.mainThread())
+      .subscribe({}, this::onError)
+      .addToDisposable(subscriptions)
+    finishedGamesRepository.getRecentlyFinishedGames()
+      .subscribeOn(Schedulers.io())
+      .map(this::computePositions)
+      .subscribeOn(Schedulers.computation())
+      .observeOn(AndroidSchedulers.mainThread())
+      .subscribe(this::setRecentGames, this::onError)
+      .addToDisposable(subscriptions)
+    challengesRepository.monitorChallenges()
+      .subscribeOn(Schedulers.io())
+      .observeOn(AndroidSchedulers.mainThread())
+      .subscribe(this::setChallenges, this::onError)
+      .addToDisposable(subscriptions)
+    automatchRepository.automatchObservable
+      .subscribeOn(Schedulers.io())
+      .observeOn(AndroidSchedulers.mainThread())
+      .subscribe(this::setAutomatches, this::onError)
+      .addToDisposable(subscriptions)
+    automatchRepository.gameStartObservable
+      .flatMapMaybe {
+        it.game_id?.let { activeGamesRepository.getGameSingle(it).toMaybe() } ?: Maybe.empty()
+      }
+      .subscribeOn(Schedulers.io())
+      .observeOn(AndroidSchedulers.mainThread())
+      .subscribe(this::onGameStart, this::onError)
+      .addToDisposable(subscriptions)
+    notificationsRepository.notificationsObservable()
+      .subscribeOn(Schedulers.io())
+      .observeOn(AndroidSchedulers.mainThread())
+      .subscribe(this::onNotification, this::onError)
+      .addToDisposable(subscriptions)
+
+    onNeedMoreOlderGames(null)
   }
 
   private fun setGames(games: List<Game>) {
@@ -527,7 +547,7 @@ data class MyGamesState(
   val historicGames: List<Game> = emptyList(),
   val loadingHistoricGames: Boolean = false,
   val loadedAllHistoricGames: Boolean = false,
-  val userId: Long,
+  val userId: Long?,
   val userIsLoggedOut: Boolean = false,
   val alertDialogTitle: String? = null,
   val alertDialogText: String? = null,
@@ -547,6 +567,9 @@ data class MyGamesState(
   val hasReceivedChallenges: Boolean = false,
   val hasReceivedAutomatches: Boolean = false,
   val hasReceivedHistoricGames: Boolean = false,
+  val playOnlineEnabled: Boolean = true,
+  val customGameEnabled: Boolean = true,
+  val loginPromptVisible: Boolean = false,
 )
 
 
