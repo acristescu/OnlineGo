@@ -81,17 +81,17 @@ class MainActivityViewModel(
     socketService.disconnect()
   }
 
-  fun onMyGamesLoaded() {
+  fun onScreenReady() {
     _state.update {
       it.copy(
-        myGamesLoaded = true,
+        screenDataLoaded = true,
       )
     }
   }
 }
 
 data class MainActivityState(
-  val myGamesLoaded: Boolean = false,
+  val screenDataLoaded: Boolean = false,
   val hasLoadedTheme: Boolean = true,
   val isLoggedIn: Boolean? = null,
   val appTheme: String? = null,
@@ -99,5 +99,5 @@ data class MainActivityState(
   val showCoordinates: Boolean = false,
 ) {
   val isLoaded: Boolean
-    get() = hasLoadedTheme && (isLoggedIn == false || (isLoggedIn == true && myGamesLoaded))
+    get() = hasLoadedTheme && (isLoggedIn == false || (isLoggedIn == true && screenDataLoaded))
 }

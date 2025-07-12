@@ -5,6 +5,7 @@ import android.app.NotificationChannelGroup
 import android.app.NotificationManager
 import android.content.ComponentName
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.graphics.Color
@@ -37,6 +38,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.get
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 
 class MainActivity : ComponentActivity() {
@@ -46,7 +48,7 @@ class MainActivity : ComponentActivity() {
 
   private val userSessionRepository: UserSessionRepository = get()
 
-  private val viewModel: MainActivityViewModel = get()
+  private val viewModel: MainActivityViewModel by viewModel()
 
   override fun onCreate(savedInstanceState: Bundle?) {
     val splashScreen = installSplashScreen()
@@ -61,6 +63,13 @@ class MainActivity : ComponentActivity() {
         showCoordinates = true
       )
     )
+
+    if(intent?.action == Intent.ACTION_VIEW && intent?.data != null) {
+      //
+      // If the app was launched from a link, just dismiss the splash screen immediately
+      //
+      viewModel.onScreenReady()
+    }
 
     lifecycleScope.launch {
       lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -112,7 +121,7 @@ class MainActivity : ComponentActivity() {
         LocalThemeSettings provides themeSettings,
       ) {
         OnlineGoApp(
-          onAppReady = { viewModel.onMyGamesLoaded() },
+          onAppReady = { viewModel.onScreenReady() },
           darkTheme = themeSettings.isDarkTheme,
           isLoggedIn = userSessionRepository.isLoggedIn()
         )

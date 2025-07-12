@@ -2,7 +2,7 @@
 # Kotlin & Android
 datastorePreferences = "1.1.7"
 kotlin = "2.2.0"
-androidGradlePlugin = "8.11.0"
+androidGradlePlugin = "8.11.1"
 composeCompiler = "1.5.4"
 compileSdk = "35"
 minSdk = "21"
