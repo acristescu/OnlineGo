@@ -216,13 +216,36 @@ class AiGameViewModel(
     val newPosition = RulesManager.makeMove(currentState.position, side, coordinate)
 
     if (newPosition != null) {
-      updatePosition(newPosition)
+      val potentialKOPosition = if (currentState.history.size > 1 && !coordinate.isPass) {
+        currentState.history[currentState.history.size - 2]
+      } else null
+      if (potentialKOPosition?.hasTheSameStonesAs(newPosition) == true) {
+        _state.update {
+          it.copy(
+            candidateMove = null,
+            koMoveDialogShowing = true,
+            chatText = "Invalid move, try again"
+          )
+        }
+      } else {
+        updatePosition(newPosition)
+      }
     } else {
       _state.update {
         it.copy(
           candidateMove = null
         )
       }
+    }
+  }
+
+  fun onDismissKoDialog() {
+    _state.update {
+      it.copy(
+        koMoveDialogShowing = false,
+        candidateMove = null,
+        chatText = "Invalid move, try again"
+      )
     }
   }
 

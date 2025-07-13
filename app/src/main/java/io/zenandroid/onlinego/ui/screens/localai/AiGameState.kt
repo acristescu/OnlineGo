@@ -34,4 +34,5 @@ data class AiGameState(
   val aiAnalysis: Response? = null,
   val aiQuickEstimation: MoveInfo? = null,
   val userIcon: String? = null,
+  val koMoveDialogShowing: Boolean = false,
 )

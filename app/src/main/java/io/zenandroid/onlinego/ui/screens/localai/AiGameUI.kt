@@ -163,7 +163,8 @@ fun AiGameScreen(
     onUserAskedForOwnership = viewModel::onUserAskedForOwnership,
     onNewGame = viewModel::onNewGame,
     onDismissNewGameDialog = viewModel::onDismissNewGameDialog,
-    onNavigateBack = onNavigateBack
+    onDismissKoDialog = viewModel::onDismissKoDialog,
+    onNavigateBack = onNavigateBack,
   )
 }
 
@@ -182,7 +183,8 @@ private fun AiGameUI(
   onUserAskedForOwnership: () -> Unit,
   onNewGame: (Int, Boolean, Int) -> Unit,
   onDismissNewGameDialog: () -> Unit,
-  onNavigateBack: () -> Unit
+  onNavigateBack: () -> Unit,
+  onDismissKoDialog: () -> Unit,
 ) {
   var showNewGameDialog by remember { mutableStateOf(false) }
 
@@ -529,6 +531,19 @@ private fun AiGameUI(
         }
       )
     }
+
+    if (state.koMoveDialogShowing) {
+      AlertDialog(
+        onDismissRequest = onDismissKoDialog,
+        confirmButton = {
+          TextButton(onClick = onDismissKoDialog) {
+            Text("OK")
+          }
+        },
+        text = { Text("That move would repeat the board position. That's called a KO, and it is not allowed. Try to make another move first, preferably a threat that the opponent can't ignore.") },
+        title = { Text("Illegal KO move", style = MaterialTheme.typography.titleLarge) },
+      )
+    }
   }
 }
 
@@ -690,6 +705,7 @@ private fun AiGameUIPreview() {
       onUserAskedForOwnership = {},
       onNewGame = { _, _, _ -> },
       onDismissNewGameDialog = {},
+      onDismissKoDialog = {},
       onNavigateBack = {}
     )
   }
@@ -744,6 +760,7 @@ private fun AiGameUIPreviewNewGame() {
       onUserAskedForOwnership = {},
       onNewGame = { _, _, _ -> },
       onDismissNewGameDialog = {},
+      onDismissKoDialog = {},
       onNavigateBack = {}
     )
   }

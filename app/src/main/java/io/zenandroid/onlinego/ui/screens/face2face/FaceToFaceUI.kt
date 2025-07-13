@@ -245,7 +245,7 @@ private fun FaceToFaceContent(
         }
       },
       text = { Text("That move would repeat the board position. That's called a KO, and it is not allowed. Try to make another move first, preferably a threat that the opponent can't ignore.") },
-      title = { Text("Illegal KO move") },
+      title = { Text("Illegal KO move", style = MaterialTheme.typography.titleLarge) },
     )
   }
 
