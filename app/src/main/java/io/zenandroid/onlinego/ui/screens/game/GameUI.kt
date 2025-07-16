@@ -49,7 +49,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Alignment.Companion.CenterVertically
@@ -60,6 +62,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight.Companion.Bold
@@ -68,7 +71,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.core.net.toUri
-import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.Position
@@ -125,6 +127,8 @@ import io.zenandroid.onlinego.ui.screens.game.composables.PlayerCard
 import io.zenandroid.onlinego.ui.screens.game.composables.PlayerDetailsDialog
 import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
 import io.zenandroid.onlinego.utils.rememberStateWithLifecycle
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -133,13 +137,21 @@ fun GameScreen(
   onNavigateBack: () -> Unit,
   onNavigateToGameScreen: (Game) -> Unit,
 ) {
-  val stoneSoundMediaPlayer = remember {
-    MediaPlayer.create(OnlineGoApplication.instance, R.raw.stone)
-  }.also {
-    DisposableEffect(Unit) {
-      onDispose {
-        it.release()
+  var stoneSoundMediaPlayer by remember { mutableStateOf<MediaPlayer?>(null) }
+  val context = LocalContext.current.applicationContext // Use application context
+
+  LaunchedEffect(Unit) {
+    withContext(Dispatchers.IO) {
+      val player = MediaPlayer.create(context, R.raw.stone)
+      withContext(Dispatchers.Main) { // Switch back to main to update state
+        stoneSoundMediaPlayer = player
       }
+    }
+  }
+
+  DisposableEffect(stoneSoundMediaPlayer) {
+    onDispose {
+      stoneSoundMediaPlayer?.release()
     }
   }
 
@@ -155,7 +167,7 @@ fun GameScreen(
   LaunchedEffect(Unit) {
     viewModel.events.collect { event ->
       when (event) {
-        Event.PlayStoneSound -> stoneSoundMediaPlayer.start()
+        Event.PlayStoneSound -> stoneSoundMediaPlayer?.start()
         is NavigateToGame -> onNavigateToGameScreen(event.game)
         is OpenURL -> activity?.startActivity(
           Intent(Intent.ACTION_VIEW, event.url.toUri()), Bundle()
