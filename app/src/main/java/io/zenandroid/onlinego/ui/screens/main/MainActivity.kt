@@ -11,6 +11,7 @@ import android.content.res.Configuration
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
+import android.os.StrictMode
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
@@ -24,11 +25,13 @@ import androidx.core.util.Consumer
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import io.zenandroid.onlinego.BuildConfig
 import io.zenandroid.onlinego.data.model.BoardTheme
 import io.zenandroid.onlinego.data.repositories.UserSessionRepository
 import io.zenandroid.onlinego.notifications.SynchronizeGamesWork
 import io.zenandroid.onlinego.ui.screens.login.FacebookLoginCallbackActivity
 import io.zenandroid.onlinego.ui.theme.LocalThemeSettings
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.combine
@@ -54,6 +57,29 @@ class MainActivity : ComponentActivity() {
     val splashScreen = installSplashScreen()
     super.onCreate(savedInstanceState)
     enableEdgeToEdge()
+    if (BuildConfig.DEBUG) {
+      StrictMode.setThreadPolicy(
+        StrictMode.ThreadPolicy.Builder()
+          .detectCustomSlowCalls() // Detect operations flagged with StrictMode.noteSlowCall
+          .detectDiskReads()
+          .detectDiskWrites()
+          .detectNetwork()
+          // .penaltyDeath() // Makes the app crash when a violation occurs
+          .penaltyLog()     // Logs violations to Logcat
+//          .penaltyDialog()  // Shows a dialog (can be annoying but effective)
+          .penaltyFlashScreen() // Flashes the screen
+          .build()
+      )
+
+      StrictMode.setVmPolicy(
+        StrictMode.VmPolicy.Builder()
+          .detectLeakedSqlLiteObjects()
+          .detectLeakedClosableObjects()
+          .penaltyLog()
+          // .penaltyDeath()
+          .build()
+      )
+    }
 
     var themeSettings by mutableStateOf(
       ThemeSettings(
@@ -128,8 +154,10 @@ class MainActivity : ComponentActivity() {
       }
     }
 
-    createNotificationChannel()
-    scheduleNotificationJob()
+    lifecycleScope.launch(Dispatchers.IO) {
+      createNotificationChannel()
+      scheduleNotificationJob()
+    }
 
     packageManager.setComponentEnabledSetting(
       ComponentName(this, FacebookLoginCallbackActivity::class.java),

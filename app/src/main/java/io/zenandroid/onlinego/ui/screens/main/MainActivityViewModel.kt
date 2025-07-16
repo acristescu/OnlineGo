@@ -9,6 +9,7 @@ import io.zenandroid.onlinego.data.ogs.OGSWebSocketService
 import io.zenandroid.onlinego.data.repositories.SettingsRepository
 import io.zenandroid.onlinego.data.repositories.UserSessionRepository
 import io.zenandroid.onlinego.utils.addToDisposable
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -77,8 +78,10 @@ class MainActivityViewModel(
   }
 
   fun onPause() {
-    subscriptions.clear()
-    socketService.disconnect()
+    viewModelScope.launch(Dispatchers.IO) {
+      subscriptions.clear()
+      socketService.disconnect()
+    }
   }
 
   fun onScreenReady() {
