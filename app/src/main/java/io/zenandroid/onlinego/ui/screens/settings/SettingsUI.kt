@@ -157,7 +157,7 @@ fun SettingsScreen(
         }
       },
       text = { Text(data.message) },
-      title = { Text(data.title) },
+      title = { Text(data.title, style = MaterialTheme.typography.titleLarge) },
     )
   }
 

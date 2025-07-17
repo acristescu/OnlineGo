@@ -308,7 +308,7 @@ private fun ColumnScope.LoginPage(
           Text(text = "OK")
         }
       },
-      title = { Text(text = "Log in failed") },
+      title = { Text(text = "Log in failed", style = MaterialTheme.typography.titleLarge) },
       text = { Text(text = state.loginErrorDialogText) }
     )
   }

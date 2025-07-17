@@ -138,18 +138,18 @@ fun GameScreen(
   onNavigateToGameScreen: (Game) -> Unit,
 ) {
   var stoneSoundMediaPlayer by remember { mutableStateOf<MediaPlayer?>(null) }
-  val context = LocalContext.current.applicationContext // Use application context
+  val context = LocalContext.current.applicationContext
 
   LaunchedEffect(Unit) {
     withContext(Dispatchers.IO) {
       val player = MediaPlayer.create(context, R.raw.stone)
-      withContext(Dispatchers.Main) { // Switch back to main to update state
+      withContext(Dispatchers.Main) {
         stoneSoundMediaPlayer = player
       }
     }
   }
 
-  DisposableEffect(stoneSoundMediaPlayer) {
+  DisposableEffect(Unit) {
     onDispose {
       stoneSoundMediaPlayer?.release()
     }
