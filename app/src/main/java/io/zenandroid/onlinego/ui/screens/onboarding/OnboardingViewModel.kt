@@ -4,6 +4,7 @@ import android.os.Build
 import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -13,6 +14,7 @@ import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.ogs.OGSRestService
 import io.zenandroid.onlinego.data.ogs.OGSWebSocketService
+import io.zenandroid.onlinego.data.repositories.SettingsRepository
 import io.zenandroid.onlinego.ui.screens.onboarding.Page.LoginPage
 import io.zenandroid.onlinego.ui.screens.onboarding.Page.MultipleChoicePage
 import io.zenandroid.onlinego.ui.screens.onboarding.Page.NotificationPermissionPage
@@ -23,12 +25,14 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import org.json.JSONObject
 import retrofit2.HttpException
 
 class OnboardingViewModel(
   val ogsRestService: OGSRestService,
   val ogsWebSocketService: OGSWebSocketService,
+  val settingsRepository: SettingsRepository,
   savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -57,7 +61,7 @@ class OnboardingViewModel(
     ),
     MultipleChoicePage(
       "What log in method do you want to use?",
-      listOf("Google Sign-in", "Username and password")
+      listOf("Google Sign-in", "Username and password", "Stay offline")
     ),
     LoginPage,
     NotificationPermissionPage(
@@ -104,7 +108,17 @@ class OnboardingViewModel(
       is OnboardingAction.AnswerSelected -> {
         when (state.value.currentPageIndex) { // FIXME, this is a mess
           3 -> _state.update { it.copy(isExistingAccount = action.answerIndex == 0) }
-          4, 0 -> _state.update { it.copy(loginMethod = Page.LoginMethod.entries[action.answerIndex]) }
+          4, 0 -> {
+            if (action.answerIndex == 2) {
+              viewModelScope.launch {
+                settingsRepository.setHasCompletedOnboarding(true)
+                _state.update { it.copy(onboardingDone = true) }
+              }
+              return
+            } else {
+              _state.update { it.copy(loginMethod = Page.LoginMethod.entries[action.answerIndex]) }
+            }
+          }
         }
         goToPage(state.value.currentPageIndex + 1)
       }
@@ -164,8 +178,11 @@ class OnboardingViewModel(
         _state.update { it.copy(requestNotificationPermission = true) }
       }
 
-      OnboardingAction.SkipNotificationsClicked -> {
-        _state.update { it.copy(onboardingDone = true) }
+      OnboardingAction.SkipNotificationsClicked, OnboardingAction.PermissionsGranted -> {
+        viewModelScope.launch {
+          settingsRepository.setHasCompletedOnboarding(true)
+          _state.update { it.copy(onboardingDone = true) }
+        }
       }
     }
   }
@@ -201,6 +218,7 @@ class OnboardingViewModel(
     } else {
       ogsRestService.createAccount(state.username.trim(), state.password, state.email.trim())
         .observeOn(AndroidSchedulers.mainThread())
+        .subscribeOn(Schedulers.io())
         .subscribe(this::onCreateAccountSuccess, this::onCreateAccountFailure)
         .addToDisposable(subscriptions)
     }
@@ -210,6 +228,7 @@ class OnboardingViewModel(
     ogsRestService.login(state.username.trim(), state.password)
       .doOnComplete { ogsWebSocketService.ensureSocketConnected() }
       .observeOn(AndroidSchedulers.mainThread())
+      .subscribeOn(Schedulers.io())
       .doOnComplete { analytics.logEvent(FirebaseAnalytics.Event.LOGIN, null) }
       .subscribe(this::onLoginSuccess, this::onPasswordLoginFailure)
       .addToDisposable(subscriptions)
@@ -226,7 +245,10 @@ class OnboardingViewModel(
       goToPage(state.value.currentPageIndex + 1)
     } else {
       // For older Android versions, notifications are allowed by default
-      _state.update { it.copy(onboardingDone = true) }
+      viewModelScope.launch {
+        settingsRepository.setHasCompletedOnboarding(true)
+        _state.update { it.copy(onboardingDone = true) }
+      }
     }
   }
 
@@ -341,6 +363,7 @@ sealed class OnboardingAction {
   object SocialPlatformLoginFailed : OnboardingAction()
   object AllowNotificationsClicked : OnboardingAction()
   object SkipNotificationsClicked : OnboardingAction()
+  object PermissionsGranted : OnboardingAction()
 
   class AnswerSelected(val answerIndex: Int) : OnboardingAction()
   class UsernameChanged(val newUsername: String) : OnboardingAction()

@@ -1,20 +1,23 @@
 package io.zenandroid.onlinego
 
 import android.app.Application
-import android.os.Build
 import android.util.Log
-import androidx.appcompat.app.AppCompatDelegate
 import com.google.firebase.analytics.FirebaseAnalytics
 import io.reactivex.exceptions.UndeliverableException
 import io.reactivex.plugins.RxJavaPlugins
-import io.zenandroid.onlinego.data.repositories.SettingsRepository
+import io.zenandroid.onlinego.data.ogs.OGSRestService
+import io.zenandroid.onlinego.data.ogs.OGSWebSocketService
 import io.zenandroid.onlinego.di.allKoinModules
+import io.zenandroid.onlinego.gamelogic.RulesManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
+import org.koin.android.ext.android.getKoin
 import org.koin.android.ext.koin.androidContext
-import org.koin.core.context.GlobalContext
+import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
+import org.koin.core.logger.Level
 import java.io.IOException
 import java.net.SocketException
 
@@ -36,9 +39,22 @@ class OnlineGoApplication : Application() {
         instance = this
 
         startKoin {
+            androidLogger(if (BuildConfig.DEBUG) Level.ERROR else Level.NONE)
             androidContext(this@OnlineGoApplication)
 
             modules(allKoinModules)
+        }
+        applicationScope.launch(Dispatchers.IO) { // Or a dedicated initialization dispatcher
+            Log.d("AppInit", "Pre-warming network stack on ${Thread.currentThread().name}")
+            try {
+                // Eagerly resolve the dependencies that are slow
+                val ogsRestService = getKoin().get<OGSRestService>()
+                val ogsWebSocketService = getKoin().get<OGSWebSocketService>()
+                Log.d("AppInit", "Network stack pre-warmed")
+            } catch (e: Exception) {
+                Log.e("AppInit", "Error pre-warming Koin dependencies", e)
+            }
+            RulesManager.coordinateToCell("A1")
         }
 
         RxJavaPlugins.setErrorHandler {

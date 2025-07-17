@@ -142,6 +142,10 @@ class MyGamesViewModel(
   private fun onLoggedIn(userId: Long) {
     _state.update {
       it.copy(
+        userIsLoggedOut = false,
+        playOnlineEnabled = true,
+        customGameEnabled = true,
+        loginPromptVisible = false,
         userId = userId,
         headerMainText = "Hi ${userSessionRepository.uiConfig?.user?.username},",
         userImageURL = userSessionRepository.uiConfig?.user?.icon,

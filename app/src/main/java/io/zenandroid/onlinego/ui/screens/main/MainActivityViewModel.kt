@@ -40,16 +40,18 @@ class MainActivityViewModel(
         settingsRepository.boardThemeFlow,
         settingsRepository.appThemeFlow,
         settingsRepository.showCoordinatesFlow,
-      ) { boardTheme, appTheme, showCoordinates ->
-        Triple(boardTheme, appTheme, showCoordinates)
+        settingsRepository.hasCompletedOnboardingFlow,
+      ) { boardTheme, appTheme, showCoordinates, hasCompletedOnboarding ->
+        PersistedSettings(boardTheme, appTheme, showCoordinates, hasCompletedOnboarding)
       }
-        .collect { (boardTheme, appTheme, showCoordinates) ->
+        .collect { settings ->
           _state.update {
             it.copy(
               hasLoadedTheme = true,
-              appTheme = appTheme,
-              boardTheme = boardTheme,
-              showCoordinates = showCoordinates,
+              appTheme = settings.appTheme,
+              boardTheme = settings.boardTheme,
+              showCoordinates = settings.showCoordinates,
+              hasCompletedOnboarding = settings.hasCompletedOnboarding,
             )
           }
         }
@@ -101,7 +103,15 @@ data class MainActivityState(
   val appTheme: String? = null,
   val boardTheme: BoardTheme? = null,
   val showCoordinates: Boolean = false,
+  val hasCompletedOnboarding: Boolean? = null,
 ) {
   val isLoaded: Boolean
-    get() = hasLoadedTheme && (isLoggedIn == false || (isLoggedIn == true && screenDataLoaded))
+    get() = hasLoadedTheme && (hasCompletedOnboarding == false || screenDataLoaded)
 }
+
+private data class PersistedSettings(
+  val boardTheme: BoardTheme,
+  val appTheme: String,
+  val showCoordinates: Boolean,
+  val hasCompletedOnboarding: Boolean,
+)

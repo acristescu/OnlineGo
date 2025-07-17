@@ -143,14 +143,17 @@ class MainActivity : ComponentActivity() {
 
     setContent {
       val state by viewModel.state.collectAsState()
-      CompositionLocalProvider(
-        LocalThemeSettings provides themeSettings,
-      ) {
-        OnlineGoApp(
-          onAppReady = { viewModel.onScreenReady() },
-          darkTheme = themeSettings.isDarkTheme,
-          isLoggedIn = state.isLoggedIn == true,
-        )
+      state.hasCompletedOnboarding?.let { hasCompletedOnboarding ->
+        CompositionLocalProvider(
+          LocalThemeSettings provides themeSettings,
+        ) {
+          OnlineGoApp(
+            onAppReady = { viewModel.onScreenReady() },
+            darkTheme = themeSettings.isDarkTheme,
+            isLoggedIn = state.isLoggedIn == true,
+            hasCompletedOnboarding = hasCompletedOnboarding,
+          )
+        }
       }
     }
 

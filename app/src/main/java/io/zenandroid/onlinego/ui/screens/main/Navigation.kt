@@ -56,12 +56,12 @@ import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
 fun OnlineGoApp(
   isLoggedIn: Boolean,
   darkTheme: Boolean,
+  hasCompletedOnboarding: Boolean,
   onAppReady: () -> Unit,
 ) {
   val navController = rememberNavController()
 
-//  val startDestination = if (isLoggedIn) "myGames" else "onboarding"
-  val startDestination = "myGames"
+  val startDestination = if (hasCompletedOnboarding) "myGames" else "onboarding"
 
   val navBackStackEntry by navController.currentBackStackEntryAsState()
   val currentDestination = navBackStackEntry?.destination?.route
@@ -220,7 +220,10 @@ fun OnlineGoApp(
             onNavigateToMyGames = {
               navController.navigate(
                 "myGames",
-                navOptions = Builder().setPopUpTo("onboarding", inclusive = true).build()
+                navOptions = Builder()
+                  .setPopUpTo("onboarding", inclusive = true)
+                  .setLaunchSingleTop(true)
+                  .build()
               )
             },
             onNavigateBack = {

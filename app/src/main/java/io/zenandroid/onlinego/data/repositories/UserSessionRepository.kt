@@ -57,13 +57,13 @@ class UserSessionRepository(
 
   fun storeUIConfig(uiConfig: UIConfig) {
     this.uiConfig = uiConfig
-    socketService.resendAuth()
     FirebaseCrashlytics.getInstance().setUserId(uiConfig.user?.id.toString())
     PersistenceManager.storeUIConfig(uiConfig)
     userId?.let {
       userIdSubject.onNext(it)
     }
     loggedInSubject.onNext(if (isLoggedIn()) LoginStatus.LoggedIn(userId!!) else LoginStatus.LoggedOut)
+    socketService.resendAuth()
   }
 
   fun requiresUIConfigRefresh(): Boolean =

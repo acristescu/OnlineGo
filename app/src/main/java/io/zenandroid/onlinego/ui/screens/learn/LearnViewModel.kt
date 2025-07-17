@@ -6,6 +6,7 @@ import io.reactivex.disposables.CompositeDisposable
 import io.zenandroid.onlinego.data.model.local.TutorialGroup
 import io.zenandroid.onlinego.data.repositories.TutorialsRepository
 import io.zenandroid.onlinego.utils.analyticsReportScreen
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
@@ -36,7 +37,7 @@ class LearnViewModel(
 
   init {
     analyticsReportScreen("Learn")
-    viewModelScope.launch {
+    viewModelScope.launch(Dispatchers.IO) {
       val tutorialGroups = tutorialsRepository.getTutorialGroups()
       _state.update {
         it.copy(
@@ -44,10 +45,10 @@ class LearnViewModel(
           expandedTutorialGroup = tutorialGroups.firstOrNull()
         )
       }
-    }
-    viewModelScope.launch {
-      tutorialsRepository.completedTutorialsNames.collect {
-        onCompletedTutorialsChanged(it)
+      viewModelScope.launch {
+        tutorialsRepository.completedTutorialsNames.collect {
+          onCompletedTutorialsChanged(it)
+        }
       }
     }
   }

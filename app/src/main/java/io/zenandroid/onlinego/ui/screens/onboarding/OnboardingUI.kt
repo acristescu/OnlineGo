@@ -94,7 +94,7 @@ fun OnboardingScreen(
   val notificationPermissionLauncher = rememberLauncherForActivityResult(
     contract = ActivityResultContracts.RequestPermission()
   ) { isGranted ->
-    onNavigateToMyGames()
+    viewModel.onAction(OnboardingAction.PermissionsGranted)
   }
 
   val googleFlow = rememberLauncherForActivityResult(
@@ -132,10 +132,8 @@ fun OnboardingScreen(
   }
 
   when {
-    state.finish -> {
-      onNavigateBack()
-    }
-
+    state.finish -> onNavigateBack()
+    state.onboardingDone -> onNavigateToMyGames()
     state.loginMethod == LoginMethod.GOOGLE -> {
       SideEffect {
         FirebaseCrashlytics.getInstance().setCustomKey("LOGIN_METHOD", "GOOGLE")

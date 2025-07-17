@@ -29,21 +29,23 @@ class TutorialsRepository(
   private val appCoroutineScope: CoroutineScope
 ) : SocketConnectedRepository {
 
-  private val moshiAdapter = Moshi.Builder()
-    .add(
-      PolymorphicJsonAdapterFactory.of(TutorialStep::class.java, "type")
-        .withSubtype(Interactive::class.java, "Interactive")
-        .withSubtype(Lesson::class.java, "Lesson")
-        .withSubtype(GameExample::class.java, "Game")
-    )
-    .addLast(KotlinJsonAdapterFactory())
-    .build()
-    .adapter<List<TutorialGroup>>(
-      Types.newParameterizedType(
-        List::class.java,
-        TutorialGroup::class.java
+  private val moshiAdapter by lazy {
+    Moshi.Builder()
+      .add(
+        PolymorphicJsonAdapterFactory.of(TutorialStep::class.java, "type")
+          .withSubtype(Interactive::class.java, "Interactive")
+          .withSubtype(Lesson::class.java, "Lesson")
+          .withSubtype(GameExample::class.java, "Game")
       )
-    )
+      .addLast(KotlinJsonAdapterFactory())
+      .build()
+      .adapter<List<TutorialGroup>>(
+        Types.newParameterizedType(
+          List::class.java,
+          TutorialGroup::class.java
+        )
+      )
+  }
 
   private val prefs = PreferenceManager.getDefaultSharedPreferences(OnlineGoApplication.instance)
 

@@ -43,6 +43,8 @@ class SettingsRepository(
     private val SHOW_COORDINATES = booleanPreferencesKey("show_coordinates")
     private val SOUND = booleanPreferencesKey("sound")
     private val GRAPH_BY_GAMES = booleanPreferencesKey("graph_by_games")
+
+    private val HAS_COMPLETED_ONBOARDING = booleanPreferencesKey("has_completed_onboarding")
   }
 
   init {
@@ -106,5 +108,12 @@ class SettingsRepository(
 
   suspend fun setGraphByGames(value: Boolean) {
     dataStore.edit { it[GRAPH_BY_GAMES] = value }
+  }
+
+  val hasCompletedOnboardingFlow: Flow<Boolean> = dataStore.data
+    .map { prefs -> prefs[HAS_COMPLETED_ONBOARDING] ?: false }
+
+  suspend fun setHasCompletedOnboarding(value: Boolean) {
+    dataStore.edit { it[HAS_COMPLETED_ONBOARDING] = value }
   }
 }
