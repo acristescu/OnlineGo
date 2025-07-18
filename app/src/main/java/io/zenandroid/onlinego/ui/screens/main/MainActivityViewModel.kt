@@ -61,6 +61,9 @@ class MainActivityViewModel(
   fun onResume() {
     userSessionRepository.loggedInObservable.subscribe { loggedIn ->
       if (loggedIn is LoginStatus.LoggedIn) {
+        viewModelScope.launch {
+          settingsRepository.setHasCompletedOnboarding(true)
+        }
         socketService.ensureSocketConnected()
         socketService.resendAuth()
       }
