@@ -110,10 +110,7 @@ class OnboardingViewModel(
           3 -> _state.update { it.copy(isExistingAccount = action.answerIndex == 0) }
           4, 0 -> {
             if (action.answerIndex == 2) {
-              viewModelScope.launch {
-                settingsRepository.setHasCompletedOnboarding(true)
-                _state.update { it.copy(onboardingDone = true) }
-              }
+              _state.update { it.copy(showOfflineConfirmationDialog = true) }
               return
             } else {
               _state.update { it.copy(loginMethod = Page.LoginMethod.entries[action.answerIndex]) }
@@ -121,6 +118,24 @@ class OnboardingViewModel(
           }
         }
         goToPage(state.value.currentPageIndex + 1)
+      }
+
+      OnboardingAction.ConfirmStayOffline -> {
+        viewModelScope.launch {
+          settingsRepository.setHasCompletedOnboarding(true)
+          _state.update {
+            it.copy(
+              onboardingDone = true,
+              showOfflineConfirmationDialog = false
+            )
+          }
+        }
+      }
+
+      OnboardingAction.CancelStayOffline -> {
+        _state.update {
+          it.copy(showOfflineConfirmationDialog = false)
+        }
       }
 
       is OnboardingAction.EmailChanged -> _state.update {
@@ -353,6 +368,7 @@ data class OnboardingState(
   val logInButtonEnabled: Boolean = false,
   val loginProcessing: Boolean = false,
   val loginErrorDialogText: String? = null,
+  val showOfflineConfirmationDialog: Boolean = false,
 )
 
 sealed class OnboardingAction {
@@ -364,6 +380,9 @@ sealed class OnboardingAction {
   object AllowNotificationsClicked : OnboardingAction()
   object SkipNotificationsClicked : OnboardingAction()
   object PermissionsGranted : OnboardingAction()
+  object ConfirmStayOffline : OnboardingAction()
+  object CancelStayOffline : OnboardingAction()
+
 
   class AnswerSelected(val answerIndex: Int) : OnboardingAction()
   class UsernameChanged(val newUsername: String) : OnboardingAction()

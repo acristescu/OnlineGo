@@ -18,7 +18,7 @@ android {
         minSdk = libs.versions.minSdk.get().toInt()
         targetSdk = libs.versions.targetSdk.get().toInt()
         versionCode = 42
-        versionName = "alpha_b${versionCode}"
+        versionName = "beta_b${versionCode}"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         buildConfigField("String", "BASE_URL", "\"https://online-go.com\"")
     }
@@ -58,8 +58,8 @@ android {
     }
 
   tasks.withType<KotlinCompile>().configureEach {
-      compilerOptions { // Use compilerOptions instead of kotlinOptions
-          jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17) // Set jvmTarget here
+      compilerOptions {
+          jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
           freeCompilerArgs.addAll(
               "-opt-in=androidx.compose.animation.ExperimentalAnimationApi",
               "-opt-in=androidx.compose.material.ExperimentalMaterialApi",

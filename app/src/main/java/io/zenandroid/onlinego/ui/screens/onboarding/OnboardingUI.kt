@@ -42,6 +42,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
@@ -196,6 +197,13 @@ fun OnboardingContent(state: OnboardingState, listener: (OnboardingAction) -> Un
         )
       }
     }
+
+    if (state.showOfflineConfirmationDialog) {
+      OfflineConfirmationDialog(
+        onConfirm = { listener(OnboardingAction.ConfirmStayOffline) },
+        onDismiss = { listener(OnboardingAction.CancelStayOffline) }
+      )
+    }
   }
 }
 
@@ -318,9 +326,9 @@ private fun ColumnScope.LoginPage(
 
   if (state.loginErrorDialogText != null) {
     AlertDialog(
-      onDismissRequest = { listener.invoke(OnboardingAction.DialogDismissed) },
+      onDismissRequest = { listener(OnboardingAction.DialogDismissed) },
       confirmButton = {
-        Button(onClick = { listener.invoke(OnboardingAction.DialogDismissed) }) {
+        Button(onClick = { listener(OnboardingAction.DialogDismissed) }) {
           Text(text = "OK")
         }
       },
@@ -330,6 +338,27 @@ private fun ColumnScope.LoginPage(
   }
 }
 
+@Composable
+fun OfflineConfirmationDialog(
+  onConfirm: () -> Unit,
+  onDismiss: () -> Unit
+) {
+  AlertDialog(
+    onDismissRequest = onDismiss,
+    title = { Text("Stay Offline?", style = MaterialTheme.typography.titleLarge) },
+    text = { Text("If you choose to stay offline, most of the apps features, such as free online play against other human and online bots will be disabled until you log in or create an account. You can still play against a local AI and do the tutorial. Are you sure?") },
+    confirmButton = {
+      TextButton(onClick = onConfirm) {
+        Text("Yes, Stay Offline")
+      }
+    },
+    dismissButton = {
+      TextButton(onClick = onDismiss) {
+        Text("Cancel")
+      }
+    }
+  )
+}
 @Composable
 private fun ColumnScope.QuestionPage(
   page: Page.MultipleChoicePage,
@@ -344,13 +373,25 @@ private fun ColumnScope.QuestionPage(
   )
   Spacer(modifier = Modifier.weight(.5f))
   for (answer in page.answers) {
-    Button(
-      onClick = { listener.invoke(OnboardingAction.AnswerSelected(page.answers.indexOf(answer))) },
-      modifier = Modifier
-        .fillMaxWidth()
-        .padding(vertical = 8.dp)
-    ) {
-      Text(text = answer, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+    val isThirdButton = page.answers.indexOf(answer) == 2
+    if(!isThirdButton) {
+      Button(
+        onClick = { listener.invoke(OnboardingAction.AnswerSelected(page.answers.indexOf(answer))) },
+        modifier = Modifier
+          .fillMaxWidth()
+          .padding(vertical = 8.dp)
+      ) {
+        Text(text = answer)
+      }
+    } else {
+      TextButton (
+        onClick = { listener.invoke(OnboardingAction.AnswerSelected(page.answers.indexOf(answer))) },
+        modifier = Modifier
+          .fillMaxWidth()
+          .padding(vertical = 8.dp)
+      ) {
+        Text(text = answer)
+      }
     }
   }
   Spacer(modifier = Modifier.weight(2f))
@@ -492,7 +533,7 @@ fun DefaultPreview1() {
       OnboardingState(
         currentPage = Page.MultipleChoicePage(
           "Is there a cow level? Lorem ipsum dolor sit amet",
-          listOf("Yes", "NO!!!")
+          listOf("Yes", "NO!!!", "Cancel")
         ),
         totalPages = 6,
       )
@@ -529,6 +570,24 @@ fun DefaultPreview3() {
           skipButtonText = "Skip"
         ),
         totalPages = 6,
+      )
+    ) { }
+  }
+}
+
+@ExperimentalFoundationApi
+@Preview
+@Composable
+fun DefaultPreview4() {
+  OnlineGoTheme(darkTheme = true) {
+    OnboardingContent(
+      OnboardingState(
+        currentPage = Page.MultipleChoicePage(
+          "Is there a cow level? Lorem ipsum dolor sit amet",
+          listOf("Yes", "NO!!!", "Cancel")
+        ),
+        totalPages = 6,
+        showOfflineConfirmationDialog = true,
       )
     ) { }
   }

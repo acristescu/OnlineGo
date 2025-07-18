@@ -247,7 +247,7 @@ private fun StatsRow(title: String, value: String, loading: Boolean = false) {
     )
     Spacer(modifier = Modifier.weight(1f))
     Text(
-      text = value,
+      text = value.let { if(loading) it.replace(".".toRegex(), " ") else it },
       color = MaterialTheme.colorScheme.onSurface,
       style = MaterialTheme.typography.bodyMedium.copy(fontFamily = FontFamily.Monospace),
       modifier = Modifier.shimmer(loading),

@@ -48,8 +48,8 @@ class OnlineGoApplication : Application() {
             Log.d("AppInit", "Pre-warming network stack on ${Thread.currentThread().name}")
             try {
                 // Eagerly resolve the dependencies that are slow
-                val ogsRestService = getKoin().get<OGSRestService>()
-                val ogsWebSocketService = getKoin().get<OGSWebSocketService>()
+                getKoin().get<OGSRestService>()
+                getKoin().get<OGSWebSocketService>()
                 Log.d("AppInit", "Network stack pre-warmed")
             } catch (e: Exception) {
                 Log.e("AppInit", "Error pre-warming Koin dependencies", e)
