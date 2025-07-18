@@ -6,12 +6,10 @@ import androidx.lifecycle.viewModelScope
 import io.zenandroid.onlinego.data.model.local.PuzzleCollection
 import io.zenandroid.onlinego.data.model.local.VisitedPuzzleCollection
 import io.zenandroid.onlinego.data.repositories.PuzzleRepository
-import io.zenandroid.onlinego.data.repositories.SettingsRepository
 import io.zenandroid.onlinego.ui.screens.puzzle.directory.PuzzleDirectorySort.CountSort
 import io.zenandroid.onlinego.ui.screens.puzzle.directory.PuzzleDirectorySort.NameSort
 import io.zenandroid.onlinego.ui.screens.puzzle.directory.PuzzleDirectorySort.RatingSort
 import io.zenandroid.onlinego.ui.screens.puzzle.directory.PuzzleDirectorySort.ViewsSort
-import io.zenandroid.onlinego.utils.analyticsReportScreen
 import io.zenandroid.onlinego.utils.recordException
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
@@ -47,7 +45,6 @@ class PuzzleDirectoryViewModel(
   private val errorHandler = CoroutineExceptionHandler { _, throwable -> onError(throwable) }
 
   init {
-    analyticsReportScreen("PuzzleDirectory")
     viewModelScope.launch(errorHandler) { puzzleRepository.fetchAllPuzzleCollections() }
     viewModelScope.launch(errorHandler) {
       combine(

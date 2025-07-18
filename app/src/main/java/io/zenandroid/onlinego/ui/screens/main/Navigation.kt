@@ -21,6 +21,7 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -50,6 +51,9 @@ import io.zenandroid.onlinego.ui.screens.stats.StatsScreen
 import io.zenandroid.onlinego.ui.screens.supporter.SupporterScreen
 import io.zenandroid.onlinego.ui.screens.tutorial.TutorialScreen
 import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
+import io.zenandroid.onlinego.utils.analyticsReportScreen
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 
 @Composable
@@ -67,6 +71,14 @@ fun OnlineGoApp(
   val currentDestination = navBackStackEntry?.destination?.route
 
   val showBottomBar = currentDestination in listOf("myGames", "learn", "stats", "settings")
+
+  LaunchedEffect(navBackStackEntry) {
+    withContext(Dispatchers.IO) {
+      navBackStackEntry?.destination?.route?.let { route ->
+        analyticsReportScreen(route)
+      }
+    }
+  }
 
   OnlineGoTheme(
     m3 = true,

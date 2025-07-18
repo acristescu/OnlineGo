@@ -11,7 +11,6 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.zenandroid.onlinego.playstore.PlayStoreService
 import io.zenandroid.onlinego.utils.addToDisposable
-import io.zenandroid.onlinego.utils.analyticsReportScreen
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -36,10 +35,6 @@ class SupporterViewModel(
 
   private val _events = MutableSharedFlow<SupporterEvent>()
   val events: SharedFlow<SupporterEvent> = _events.asSharedFlow()
-
-  init {
-    analyticsReportScreen("Supporter")
-  }
 
   fun onResume() {
     playStore.queryPurchases()

@@ -23,7 +23,6 @@ import io.zenandroid.onlinego.data.repositories.PuzzleRepository
 import io.zenandroid.onlinego.gamelogic.RulesManager
 import io.zenandroid.onlinego.gamelogic.Util
 import io.zenandroid.onlinego.gamelogic.Util.toCoordinateSet
-import io.zenandroid.onlinego.utils.analyticsReportScreen
 import io.zenandroid.onlinego.utils.recordException
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
@@ -67,7 +66,6 @@ class TsumegoViewModel(
       ?: throw IllegalArgumentException("Collection ID is required")
     val puzzleId = savedStateHandle.get<Long>("puzzleId")
       ?: throw IllegalArgumentException("Puzzle ID is required")
-    analyticsReportScreen("Tsumego")
     viewModelScope.launch(errorHandler) { puzzleRepository.fetchPuzzle(puzzleId) }
     viewModelScope.launch(errorHandler) {
       puzzleRepository.observePuzzle(puzzleId)

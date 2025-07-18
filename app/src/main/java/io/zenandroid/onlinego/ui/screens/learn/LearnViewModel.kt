@@ -5,7 +5,6 @@ import androidx.lifecycle.viewModelScope
 import io.reactivex.disposables.CompositeDisposable
 import io.zenandroid.onlinego.data.model.local.TutorialGroup
 import io.zenandroid.onlinego.data.repositories.TutorialsRepository
-import io.zenandroid.onlinego.utils.analyticsReportScreen
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -36,7 +35,6 @@ class LearnViewModel(
   val state: StateFlow<LearnState> = _state
 
   init {
-    analyticsReportScreen("Learn")
     viewModelScope.launch(Dispatchers.IO) {
       val tutorialGroups = tutorialsRepository.getTutorialGroups()
       _state.update {

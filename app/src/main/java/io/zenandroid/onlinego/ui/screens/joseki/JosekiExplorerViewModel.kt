@@ -2,7 +2,6 @@ package io.zenandroid.onlinego.ui.screens.joseki
 
 import android.os.Bundle
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
@@ -12,12 +11,10 @@ import io.zenandroid.onlinego.data.model.Position
 import io.zenandroid.onlinego.data.model.ogs.JosekiPosition
 import io.zenandroid.onlinego.data.repositories.JosekiRepository
 import io.zenandroid.onlinego.gamelogic.RulesManager.coordinateToCell
-import io.zenandroid.onlinego.utils.analyticsReportScreen
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
 
 class JosekiExplorerViewModel(
     private val josekiRepository: JosekiRepository
@@ -33,7 +30,6 @@ class JosekiExplorerViewModel(
 
     init {
         loadPosition(null)
-        analyticsReportScreen("Joseki Explorer")
     }
 
     override fun onCleared() {

@@ -22,7 +22,6 @@ import io.zenandroid.onlinego.gamelogic.RulesManager.isGameOver
 import io.zenandroid.onlinego.gamelogic.Util
 import io.zenandroid.onlinego.gamelogic.Util.toGTP
 import io.zenandroid.onlinego.utils.addToDisposable
-import io.zenandroid.onlinego.utils.analyticsReportScreen
 import io.zenandroid.onlinego.utils.moshiadapters.HashMapOfCellToStoneTypeMoshiAdapter
 import io.zenandroid.onlinego.utils.moshiadapters.ResponseBriefMoshiAdapter
 import io.zenandroid.onlinego.utils.recordException
@@ -60,7 +59,6 @@ class AiGameViewModel(
     .adapter(AiGameState::class.java)
 
   init {
-    analyticsReportScreen("AiGame")
     startEngine()
     restoreState()
   }

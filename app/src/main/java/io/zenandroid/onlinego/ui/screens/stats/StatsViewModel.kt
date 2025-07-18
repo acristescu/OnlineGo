@@ -27,7 +27,6 @@ import io.zenandroid.onlinego.ui.screens.stats.StatsViewModel.Filter.THREE_MONTH
 import io.zenandroid.onlinego.ui.screens.stats.StatsViewModel.Filter.TWENTY_GAMES
 import io.zenandroid.onlinego.usecases.GetUserStatsUseCase
 import io.zenandroid.onlinego.utils.addToDisposable
-import io.zenandroid.onlinego.utils.analyticsReportScreen
 import io.zenandroid.onlinego.utils.egfToRank
 import io.zenandroid.onlinego.utils.formatRank
 import io.zenandroid.onlinego.utils.recordException
@@ -69,7 +68,6 @@ class StatsViewModel(
   )
 
   init {
-    analyticsReportScreen("Stats")
     userSessionRepository.userIdObservable.firstOrError().subscribe { userId ->
       viewModelScope.launch(Dispatchers.IO) {
         val playerId = savedStateHandle.get<String>("playerId")?.toLong() ?: userId

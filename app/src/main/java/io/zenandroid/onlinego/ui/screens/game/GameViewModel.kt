@@ -108,7 +108,6 @@ import io.zenandroid.onlinego.usecases.GetUserStatsUseCase
 import io.zenandroid.onlinego.usecases.RepoResult
 import io.zenandroid.onlinego.usecases.RepoResult.Loading
 import io.zenandroid.onlinego.utils.NotificationUtils
-import io.zenandroid.onlinego.utils.analyticsReportScreen
 import io.zenandroid.onlinego.utils.computeTimeLeft
 import io.zenandroid.onlinego.utils.convertCountryCodeToEmojiFlag
 import io.zenandroid.onlinego.utils.egfToRank
@@ -198,7 +197,6 @@ class GameViewModel(
   }
 
   fun initialize(gameId: Long, gameWidth: Int, gameHeight: Int) {
-    analyticsReportScreen("Game")
     val gameFlow = activeGamesRepository.monitorGameFlow(gameId).distinctUntilChanged()
     currentGamePosition = mutableStateOf(Position(gameWidth, gameHeight))
 
