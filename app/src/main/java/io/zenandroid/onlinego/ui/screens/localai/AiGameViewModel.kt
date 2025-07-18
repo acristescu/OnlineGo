@@ -8,7 +8,9 @@ import androidx.preference.PreferenceManager
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
+import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.schedulers.Schedulers
 import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.ai.KataGoAnalysisEngine
 import io.zenandroid.onlinego.data.model.Cell
@@ -19,6 +21,7 @@ import io.zenandroid.onlinego.gamelogic.RulesManager
 import io.zenandroid.onlinego.gamelogic.RulesManager.isGameOver
 import io.zenandroid.onlinego.gamelogic.Util
 import io.zenandroid.onlinego.gamelogic.Util.toGTP
+import io.zenandroid.onlinego.utils.addToDisposable
 import io.zenandroid.onlinego.utils.analyticsReportScreen
 import io.zenandroid.onlinego.utils.moshiadapters.HashMapOfCellToStoneTypeMoshiAdapter
 import io.zenandroid.onlinego.utils.moshiadapters.ResponseBriefMoshiAdapter
@@ -44,7 +47,7 @@ class AiGameViewModel(
     )
   )
   val state: StateFlow<AiGameState> = _state.asStateFlow()
-  val disposables: CompositeDisposable = CompositeDisposable()
+  val katagoDisposable: CompositeDisposable = CompositeDisposable()
 
   private val prefs =
     PreferenceManager.getDefaultSharedPreferences(OnlineGoApplication.instance.baseContext)
@@ -176,6 +179,7 @@ class AiGameViewModel(
   }
 
   fun onNewGame(size: Int, youPlayBlack: Boolean, handicap: Int) {
+    katagoDisposable.clear() // kill any in-flight Katago request(s) as they are now irrelevant
     val newPosition = RulesManager.initializePosition(size, handicap)
     _state.update {
       it.copy(
@@ -318,7 +322,10 @@ class AiGameViewModel(
           maxVisits = 30,
           komi = currentState.position.komi,
           includeOwnership = false
-        ).subscribe(
+        )
+          .subscribeOn(Schedulers.io())
+          .observeOn(AndroidSchedulers.mainThread())
+          .subscribe(
           { analysis ->
             _state.update {
               it.copy(
@@ -329,7 +336,7 @@ class AiGameViewModel(
             }
           },
           { recordException(it) }
-        )
+        ).addToDisposable(katagoDisposable)
       } catch (e: Exception) {
         recordException(e)
       }
@@ -365,7 +372,10 @@ class AiGameViewModel(
           maxVisits = 30,
           komi = currentState.position.komi,
           includeOwnership = true
-        ).subscribe(
+        )
+          .subscribeOn(Schedulers.io())
+          .observeOn(AndroidSchedulers.mainThread())
+          .subscribe(
           { analysis ->
             _state.update {
               it.copy(
@@ -377,7 +387,7 @@ class AiGameViewModel(
             }
           },
           { recordException(it) }
-        )
+        ).addToDisposable(katagoDisposable)
       } catch (e: Exception) {
         recordException(e)
       }
@@ -433,6 +443,8 @@ class AiGameViewModel(
           it.copy(
             boardIsInteractive = true,
             passButtonEnabled = true,
+            hintButtonVisible = true,
+            ownershipButtonVisible = true,
             previousButtonEnabled = it.history.size > 2,
             nextButtonEnabled = false,
           )
@@ -451,75 +463,80 @@ class AiGameViewModel(
         passButtonEnabled = false,
         previousButtonEnabled = false,
         nextButtonEnabled = false,
+        hintButtonVisible = false,
+        ownershipButtonVisible = false,
         chatText = "I'm thinking..."
       )
     }
 
     try {
-      disposables.add(
-        KataGoAnalysisEngine.analyzeMoveSequence(
-          sequence = currentState.history,
-          maxVisits = 20,
-          komi = currentState.position.komi,
-          includeOwnership = false,
-          includeMovesOwnership = false
-        ).subscribe(
-          { analysis ->
-            val selectedMove = analysis.moveInfos[0]
-            val move =
-              Util.getCoordinatesFromGTP(selectedMove.move, currentState.position.boardHeight)
-            val side = if (currentState.enginePlaysBlack) StoneType.BLACK else StoneType.WHITE
-            val newPosition = RulesManager.makeMove(currentState.position, side, move)
+      KataGoAnalysisEngine.analyzeMoveSequence(
+        sequence = currentState.history,
+        maxVisits = 20,
+        komi = currentState.position.komi,
+        includeOwnership = false,
+        includeMovesOwnership = false
+      )
+        .subscribeOn(Schedulers.io())
+        .observeOn(AndroidSchedulers.mainThread())
+        .subscribe(
+        { analysis ->
+          val selectedMove = analysis.moveInfos[0]
+          val move =
+            Util.getCoordinatesFromGTP(selectedMove.move, currentState.position.boardHeight)
+          val side = if (currentState.enginePlaysBlack) StoneType.BLACK else StoneType.WHITE
+          val newPosition = RulesManager.makeMove(currentState.position, side, move)
 
-            if (newPosition == null) {
-              recordException(Exception("KataGO wants to play move ${selectedMove.move} ($move), but RulesManager rejects it as invalid"))
+          if (newPosition == null) {
+            recordException(Exception("KataGO wants to play move ${selectedMove.move} ($move), but RulesManager rejects it as invalid"))
+          } else {
+            val newVariation = if (currentState.history.lastOrNull() == newPosition) {
+              currentState.history
             } else {
-              val newVariation = if (currentState.history.lastOrNull() == newPosition) {
-                currentState.history
-              } else {
-                currentState.history + newPosition
+              currentState.history + newPosition
+            }
+            _state.update {
+              it.copy(
+                position = newPosition,
+                history = newVariation,
+                nextButtonEnabled = false,
+                aiAnalysis = analysis,
+                aiQuickEstimation = selectedMove,
+                previousButtonEnabled = newVariation.size > 2,
+                showFinalTerritory = newVariation.isGameOver(),
+                chatText = when {
+                  newVariation.isGameOver() && it.aiWon == true ->
+                    "Game ended because of two passes. Final score is black ${it.finalBlackScore?.toInt()} to white ${it.finalWhiteScore}. Looks like I win this time."
+
+                  newVariation.isGameOver() && it.aiWon == false ->
+                    "Game ended because of two passes. Final score is black ${it.finalBlackScore?.toInt()} to white ${it.finalWhiteScore}. Congrats, looks like you got the better of me."
+
+                  newVariation.isGameOver() && it.aiWon == null ->
+                    "Game ended because of two passes. Hang on, I'm computing the final score."
+
+                  else -> "Your turn"
+                }
+              )
+            }
+
+            if (newVariation.isGameOver()) {
+              viewModelScope.launch {
+                computeFinalScore()
               }
+            } else {
               _state.update {
                 it.copy(
-                  position = newPosition,
-                  history = newVariation,
-                  nextButtonEnabled = false,
-                  aiAnalysis = analysis,
-                  aiQuickEstimation = selectedMove,
-                  previousButtonEnabled = newVariation.size > 2,
-                  showFinalTerritory = newVariation.isGameOver(),
-                  chatText = when {
-                    newVariation.isGameOver() && it.aiWon == true ->
-                      "Game ended because of two passes. Final score is black ${it.finalBlackScore?.toInt()} to white ${it.finalWhiteScore}. Looks like I win this time."
-
-                    newVariation.isGameOver() && it.aiWon == false ->
-                      "Game ended because of two passes. Final score is black ${it.finalBlackScore?.toInt()} to white ${it.finalWhiteScore}. Congrats, looks like you got the better of me."
-
-                    newVariation.isGameOver() && it.aiWon == null ->
-                      "Game ended because of two passes. Hang on, I'm computing the final score."
-
-                    else -> "Your turn"
-                  }
+                  boardIsInteractive = true,
+                  passButtonEnabled = true,
+                  hintButtonVisible = true,
+                  ownershipButtonVisible = true
                 )
               }
-
-              if (newVariation.isGameOver()) {
-                viewModelScope.launch {
-                  computeFinalScore()
-                }
-              } else {
-                _state.update {
-                  it.copy(
-                    boardIsInteractive = true,
-                    passButtonEnabled = true
-                  )
-                }
-              }
             }
-          },
-          { recordException(it) }
-        )
-      )
+          }
+        },
+        { recordException(it) }
+      ).addToDisposable(katagoDisposable)
     } catch (e: Exception) {
       recordException(e)
     }
@@ -530,13 +547,15 @@ class AiGameViewModel(
     if (!currentState.engineStarted || currentState.position == null) return
 
     try {
-      disposables.add(
-        KataGoAnalysisEngine.analyzeMoveSequence(
-          sequence = currentState.history,
-          maxVisits = 10,
-          komi = currentState.position.komi,
-          includeOwnership = true
-        ).subscribe(
+      KataGoAnalysisEngine.analyzeMoveSequence(
+        sequence = currentState.history,
+        maxVisits = 10,
+        komi = currentState.position.komi,
+        includeOwnership = true
+      )
+        .subscribeOn(Schedulers.io())
+        .observeOn(AndroidSchedulers.mainThread())
+        .subscribe(
           { analysis ->
 
             val blackTerritory = mutableSetOf<Cell>()
@@ -594,8 +613,7 @@ class AiGameViewModel(
             }
           },
           { recordException(it) }
-        )
-      )
+        ).addToDisposable(katagoDisposable)
     } catch (e: Exception) {
       recordException(e)
     }
@@ -603,7 +621,7 @@ class AiGameViewModel(
 
   override fun onCleared() {
     super.onCleared()
-    disposables.clear()
+    katagoDisposable.clear()
     viewModelScope.launch(Dispatchers.IO) {
       KataGoAnalysisEngine.stop()
     }
