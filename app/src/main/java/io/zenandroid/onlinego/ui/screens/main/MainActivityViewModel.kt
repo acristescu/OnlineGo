@@ -65,6 +65,10 @@ class MainActivityViewModel(
         viewModelScope.launch(Dispatchers.IO) {
           socketService.ensureSocketConnected()
           socketService.resendAuth()
+          while(true) {
+            delay(10000)
+            socketService.ensureSocketConnected()
+          }
         }
       }
 
@@ -74,13 +78,6 @@ class MainActivityViewModel(
         )
       }
     }.addToDisposable(subscriptions)
-
-    viewModelScope.launch(Dispatchers.IO) {
-      while(true) {
-        delay(10000)
-        socketService.ensureSocketConnected()
-      }
-    }
   }
 
   fun onPause() {
