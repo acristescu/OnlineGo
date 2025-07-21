@@ -14,7 +14,9 @@ import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.ogs.OGSRestService
 import io.zenandroid.onlinego.data.ogs.OGSWebSocketService
+import io.zenandroid.onlinego.data.repositories.LoginStatus
 import io.zenandroid.onlinego.data.repositories.SettingsRepository
+import io.zenandroid.onlinego.data.repositories.UserSessionRepository
 import io.zenandroid.onlinego.ui.screens.onboarding.Page.LoginPage
 import io.zenandroid.onlinego.ui.screens.onboarding.Page.MultipleChoicePage
 import io.zenandroid.onlinego.ui.screens.onboarding.Page.NotificationPermissionPage
@@ -33,6 +35,7 @@ class OnboardingViewModel(
   val ogsRestService: OGSRestService,
   val ogsWebSocketService: OGSWebSocketService,
   val settingsRepository: SettingsRepository,
+  val userSessionRepository: UserSessionRepository,
   savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -74,6 +77,26 @@ class OnboardingViewModel(
 
   private val analytics = OnlineGoApplication.instance.analytics
   private val subscriptions = CompositeDisposable()
+
+  init {
+    userSessionRepository.loggedInObservable.firstOrError()
+      .subscribeOn(Schedulers.io())
+      .observeOn(AndroidSchedulers.mainThread())
+      .subscribe(
+      { loggedIn ->
+        if (loggedIn is LoginStatus.LoggedIn) {
+          //
+          // This should only happen during the migration
+          //
+          viewModelScope.launch {
+            settingsRepository.setHasCompletedOnboarding(true)
+            _state.update { it.copy(onboardingDone = true) }
+          }
+        }
+      },
+      { recordException(it) }
+    ).addToDisposable(subscriptions)
+  }
 
   private val _state =
     MutableStateFlow(

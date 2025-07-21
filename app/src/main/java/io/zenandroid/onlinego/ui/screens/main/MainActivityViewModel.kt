@@ -11,6 +11,7 @@ import io.zenandroid.onlinego.data.repositories.SettingsRepository
 import io.zenandroid.onlinego.data.repositories.UserSessionRepository
 import io.zenandroid.onlinego.utils.addToDisposable
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -61,11 +62,10 @@ class MainActivityViewModel(
   fun onResume() {
     userSessionRepository.loggedInObservable.subscribe { loggedIn ->
       if (loggedIn is LoginStatus.LoggedIn) {
-        viewModelScope.launch {
-          settingsRepository.setHasCompletedOnboarding(true)
+        viewModelScope.launch(Dispatchers.IO) {
+          socketService.ensureSocketConnected()
+          socketService.resendAuth()
         }
-        socketService.ensureSocketConnected()
-        socketService.resendAuth()
       }
 
       _state.update {
@@ -75,12 +75,12 @@ class MainActivityViewModel(
       }
     }.addToDisposable(subscriptions)
 
-    Observable.interval(10, TimeUnit.SECONDS).subscribe {
-      if (userSessionRepository.isLoggedIn()) {
+    viewModelScope.launch(Dispatchers.IO) {
+      while(true) {
+        delay(10000)
         socketService.ensureSocketConnected()
       }
-    }.addToDisposable(subscriptions)
-
+    }
   }
 
   fun onPause() {
