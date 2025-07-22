@@ -1,5 +1,6 @@
 package io.zenandroid.onlinego.ui.screens.main
 
+import androidx.activity.compose.LocalActivity
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.expandVertically
@@ -69,6 +70,7 @@ fun OnlineGoApp(
 
   val navBackStackEntry by navController.currentBackStackEntryAsState()
   val currentDestination = navBackStackEntry?.destination?.route
+  val activity = LocalActivity.current
 
   val showBottomBar = currentDestination in listOf("myGames", "learn", "stats", "settings")
 
@@ -239,8 +241,11 @@ fun OnlineGoApp(
               )
             },
             onNavigateBack = {
-              navController.popBackStack()
-            }
+              val success = navController.popBackStack()
+              if (!success) {
+                activity?.finish()
+              }
+            },
           )
         }
       }

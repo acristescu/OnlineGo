@@ -76,7 +76,6 @@ import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.ui.screens.onboarding.OnboardingAction.BackPressed
 import io.zenandroid.onlinego.ui.screens.onboarding.OnboardingAction.SocialPlatformLoginFailed
-import io.zenandroid.onlinego.ui.screens.onboarding.Page.LoginMethod
 import io.zenandroid.onlinego.ui.screens.onboarding.Page.OnboardingPage
 import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
 import io.zenandroid.onlinego.utils.recordException
@@ -135,22 +134,21 @@ fun OnboardingScreen(
   when {
     state.finish -> onNavigateBack()
     state.onboardingDone -> onNavigateToMyGames()
-    state.loginMethod == LoginMethod.GOOGLE -> {
-      SideEffect {
-        FirebaseCrashlytics.getInstance().setCustomKey("LOGIN_METHOD", "GOOGLE")
-        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-          .requestServerAuthCode("870935345166-6j2s6i9adl64ms3ta4k9n4flkqjhs229.apps.googleusercontent.com")
-          .requestScopes(Scope(Scopes.OPEN_ID), Scope(Scopes.EMAIL), Scope(Scopes.PROFILE))
-          .build()
-        activity?.let {
-          googleFlow.launch(GoogleSignIn.getClient(activity, gso).signInIntent)
-        }
-      }
-    }
 
     else -> {
       OnlineGoTheme {
-        OnboardingContent(state, viewModel::onAction)
+        OnboardingContent(state, viewModel::onAction,
+          onGoogleFlow = {
+            FirebaseCrashlytics.getInstance().setCustomKey("LOGIN_METHOD", "GOOGLE")
+            val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+              .requestServerAuthCode("870935345166-6j2s6i9adl64ms3ta4k9n4flkqjhs229.apps.googleusercontent.com")
+              .requestScopes(Scope(Scopes.OPEN_ID), Scope(Scopes.EMAIL), Scope(Scopes.PROFILE))
+              .build()
+            activity?.let {
+              googleFlow.launch(GoogleSignIn.getClient(activity, gso).signInIntent)
+            }
+          }
+        )
       }
     }
   }
@@ -158,7 +156,11 @@ fun OnboardingScreen(
 
 @ExperimentalFoundationApi
 @Composable
-fun OnboardingContent(state: OnboardingState, listener: (OnboardingAction) -> Unit) {
+fun OnboardingContent(
+  state: OnboardingState,
+  listener: (OnboardingAction) -> Unit,
+  onGoogleFlow: () -> Unit,
+) {
   Surface(modifier = Modifier.fillMaxSize()) {
     Column(
       modifier = Modifier
@@ -183,6 +185,9 @@ fun OnboardingContent(state: OnboardingState, listener: (OnboardingAction) -> Un
 
         is Page.LoginPage -> when (state.loginMethod!!) {
           Page.LoginMethod.GOOGLE -> {
+            SideEffect {
+              onGoogleFlow()
+            }
           }
 
           Page.LoginMethod.PASSWORD -> LoginPage(
@@ -519,8 +524,10 @@ fun DefaultPreview() {
           "Go is a strategy board game for two players, in which the aim is to surround more territory than the opponent. The game was invented in China more than 2,500 years ago and is the oldest board game still played today. It is estimated that more than 46 million people know how to play.",
           "Continue"
         ),
-      )
-    ) { }
+      ),
+      {},
+      {},
+    )
   }
 }
 
@@ -536,8 +543,10 @@ fun DefaultPreview1() {
           listOf("Yes", "NO!!!", "Cancel")
         ),
         totalPages = 6,
+      ),
+      {},
+      {},
       )
-    ) { }
   }
 }
 
@@ -552,8 +561,10 @@ fun DefaultPreview2() {
         loginMethod = Page.LoginMethod.PASSWORD,
         isExistingAccount = false,
         totalPages = 6,
+      ),
+      {},
+      {},
       )
-    ) { }
   }
 }
 
@@ -570,8 +581,10 @@ fun DefaultPreview3() {
           skipButtonText = "Skip"
         ),
         totalPages = 6,
+      ),
+      {},
+      {},
       )
-    ) { }
   }
 }
 
@@ -588,7 +601,9 @@ fun DefaultPreview4() {
         ),
         totalPages = 6,
         showOfflineConfirmationDialog = true,
+      ),
+      {},
+      {},
       )
-    ) { }
   }
 }

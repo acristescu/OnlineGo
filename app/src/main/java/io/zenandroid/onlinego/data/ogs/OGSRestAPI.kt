@@ -49,7 +49,7 @@ interface OGSRestAPI {
     ): Single<Response<ResponseBody>>
 
     @POST("api/v0/login")
-    fun login(@Body request: CreateAccountRequest): Single<UIConfig>
+    suspend fun login(@Body request: CreateAccountRequest): UIConfig
 
     @GET("api/v1/ui/config/")
     fun uiConfig(): Single<UIConfig>
@@ -65,7 +65,7 @@ interface OGSRestAPI {
     suspend fun getPlayerFullProfileAsync(@Path("player_id") playerId: Long): OGSPlayerProfile
 
     @POST("api/v0/register")
-    fun createAccount(@Body request: CreateAccountRequest): Single<UIConfig>
+    suspend fun createAccount(@Body request: CreateAccountRequest): UIConfig
 
     @GET("api/v1/players/{player_id}/games/?source=play&ended__isnull=false&annulled=false&ordering=-ended")
     fun fetchPlayerFinishedGames(

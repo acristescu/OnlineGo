@@ -23,6 +23,7 @@ import io.zenandroid.onlinego.ui.screens.onboarding.Page.NotificationPermissionP
 import io.zenandroid.onlinego.ui.screens.onboarding.Page.OnboardingPage
 import io.zenandroid.onlinego.utils.addToDisposable
 import io.zenandroid.onlinego.utils.recordException
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -117,7 +118,9 @@ class OnboardingViewModel(
   fun onAction(action: OnboardingAction) {
     when (action) {
       OnboardingAction.BackPressed -> {
-        if (state.value.currentPageIndex != 0) {
+        if(state.value.currentPage is Page.NotificationPermissionPage) {
+          onAction(OnboardingAction.SkipNotificationsClicked)
+        } else if (state.value.currentPageIndex != 0) {
           goToPage(state.value.currentPageIndex - 1)
         } else {
           _state.update { it.copy(finish = true) }
@@ -254,28 +257,30 @@ class OnboardingViewModel(
     if (state.isExistingAccount) {
       doLogin(state)
     } else {
-      ogsRestService.createAccount(state.username.trim(), state.password, state.email.trim())
-        .observeOn(AndroidSchedulers.mainThread())
-        .subscribeOn(Schedulers.io())
-        .subscribe(this::onCreateAccountSuccess, this::onCreateAccountFailure)
-        .addToDisposable(subscriptions)
+      viewModelScope.launch(Dispatchers.IO) {
+        try {
+          ogsRestService.createAccount(state.username.trim(), state.password, state.email.trim())
+          FirebaseCrashlytics.getInstance().setCustomKey("NEW_ACCOUNT", true)
+          analytics.logEvent(FirebaseAnalytics.Event.SIGN_UP, null)
+          doLogin(_state.value)
+        } catch (t: Throwable) {
+          onCreateAccountFailure(t)
+        }
+      }
     }
   }
 
   private fun doLogin(state: OnboardingState) {
-    ogsRestService.login(state.username.trim(), state.password)
-      .doOnComplete { ogsWebSocketService.ensureSocketConnected() }
-      .observeOn(AndroidSchedulers.mainThread())
-      .subscribeOn(Schedulers.io())
-      .doOnComplete { analytics.logEvent(FirebaseAnalytics.Event.LOGIN, null) }
-      .subscribe(this::onLoginSuccess, this::onPasswordLoginFailure)
-      .addToDisposable(subscriptions)
-  }
-
-  private fun onCreateAccountSuccess() {
-    FirebaseCrashlytics.getInstance().setCustomKey("NEW_ACCOUNT", true)
-    analytics.logEvent(FirebaseAnalytics.Event.SIGN_UP, null)
-    doLogin(_state.value)
+    viewModelScope.launch(Dispatchers.IO) {
+      try {
+        ogsRestService.login(state.username.trim(), state.password)
+        ogsWebSocketService.ensureSocketConnected()
+        analytics.logEvent(FirebaseAnalytics.Event.LOGIN, null)
+        onLoginSuccess()
+      } catch (t: Throwable) {
+        onPasswordLoginFailure(t)
+      }
+    }
   }
 
   private fun onLoginSuccess() {

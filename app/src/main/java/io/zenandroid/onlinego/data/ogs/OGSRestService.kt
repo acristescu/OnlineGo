@@ -40,7 +40,6 @@ private const val OGS_EBI = "OGS_EBI"
 class OGSRestService(
   val moshi: Moshi,
   val restApi: OGSRestAPI,
-  val idlingResource: CountingIdlingResource,
   val userSessionRepository: UserSessionRepository,
 ) {
   private val ebi by lazy {
@@ -59,20 +58,15 @@ class OGSRestService(
     return restApi.uiConfig().doOnSuccess(userSessionRepository::storeUIConfig).ignoreElement()
   }
 
-  fun login(username: String, password: String): Completable {
-    idlingResource.increment()
-    return restApi.login(CreateAccountRequest(username, password, "", ebi))
-      .doOnSuccess {
-        //
-        // Hack alert!!! The server sometimes returns 200 even on wrong password :facepalm:
-        //
-        if (it.csrf_token.isNullOrBlank() || it.redirect != null) {
-          throw HttpException(Response.error<Any>(403, "login failed".toResponseBody()))
-        }
-      }
-      .doOnSuccess(userSessionRepository::storeUIConfig)
-      .ignoreElement()
-      .doAfterTerminate { idlingResource.decrement() }
+  suspend fun login(username: String, password: String) {
+    val uiConfig = restApi.login(CreateAccountRequest(username, password, "", ebi))
+    //
+    // Hack alert!!! The server sometimes returns 200 even on wrong password :facepalm:
+    //
+    if (uiConfig.csrf_token.isNullOrBlank() || uiConfig.redirect != null) {
+      throw HttpException(Response.error<Any>(403, "login failed".toResponseBody()))
+    }
+    userSessionRepository.storeUIConfig(uiConfig)
   }
 
   fun loginWithGoogle(code: String): Completable {
@@ -104,9 +98,8 @@ class OGSRestService(
       .ignoreElement()
   }
 
-  fun createAccount(username: String, password: String, email: String): Completable {
-    return restApi.createAccount(CreateAccountRequest(username, password, email, ebi))
-      .ignoreElement()
+  suspend fun createAccount(username: String, password: String, email: String) {
+    restApi.createAccount(CreateAccountRequest(username, password, email, ebi))
   }
 
   fun challengeBot(challengeParams: ChallengeParams): Completable {
