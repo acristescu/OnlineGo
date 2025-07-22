@@ -33,6 +33,7 @@ import retrofit2.HttpException
 import retrofit2.Response
 import java.util.Date
 import androidx.core.content.edit
+import io.zenandroid.onlinego.data.repositories.LoginStatus
 
 private const val TAG = "OGSRestService"
 private const val OGS_EBI = "OGS_EBI"
@@ -200,21 +201,24 @@ class OGSRestService(
       .doOnSuccess { it.json = it.gamedata }
 
   fun fetchActiveGames(): Single<List<OGSGame>> =
-    userSessionRepository.loggedInObservable.singleOrError().flatMap {
-      restApi.fetchOverview()
-        .map { it.active_games }
-        .map {
-          for (game in it) {
-            game.json?.clock?.current_player?.let {
-              game.player_to_move = it
+    userSessionRepository.loggedInObservable.filter { it is LoginStatus.LoggedIn }
+      .firstElement()
+      .toSingle()
+      .flatMap {
+        restApi.fetchOverview()
+          .map { it.active_games }
+          .map {
+            for (game in it) {
+              game.json?.clock?.current_player?.let {
+                game.player_to_move = it
+              }
+              game.json?.handicap?.let {
+                game.handicap = it
+              }
             }
-            game.json?.handicap?.let {
-              game.handicap = it
-            }
+            it
           }
-          it
-        }
-    }
+      }
 
   fun fetchChallenges(): Single<List<OGSChallenge>> =
     restApi.fetchChallenges().map { it.results }
