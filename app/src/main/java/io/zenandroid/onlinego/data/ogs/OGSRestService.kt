@@ -1,10 +1,8 @@
 package io.zenandroid.onlinego.data.ogs
 
-import android.preference.PreferenceManager
 import com.squareup.moshi.Moshi
 import io.reactivex.Completable
 import io.reactivex.Single
-import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.data.model.local.Puzzle
 import io.zenandroid.onlinego.data.model.local.PuzzleCollection
 import io.zenandroid.onlinego.data.model.ogs.CannedMessages
@@ -21,38 +19,46 @@ import io.zenandroid.onlinego.data.model.ogs.PuzzleRating
 import io.zenandroid.onlinego.data.model.ogs.PuzzleSolution
 import io.zenandroid.onlinego.data.model.ogs.VersusStats
 import io.zenandroid.onlinego.data.model.ogs.Warning
+import io.zenandroid.onlinego.data.repositories.LoginStatus
+import io.zenandroid.onlinego.data.repositories.SettingsRepository
 import io.zenandroid.onlinego.data.repositories.UserSessionRepository
-import io.zenandroid.onlinego.utils.CountingIdlingResource
 import io.zenandroid.onlinego.utils.microsToISODateTime
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 import okhttp3.ResponseBody.Companion.toResponseBody
 import retrofit2.HttpException
 import retrofit2.Response
 import java.util.Date
-import androidx.core.content.edit
-import io.zenandroid.onlinego.data.repositories.LoginStatus
 
 private const val TAG = "OGSRestService"
-private const val OGS_EBI = "OGS_EBI"
 
 class OGSRestService(
   val moshi: Moshi,
   val restApi: OGSRestAPI,
   val userSessionRepository: UserSessionRepository,
+  val settingsRepository: SettingsRepository,
+  private val applicationScope: CoroutineScope,
 ) {
-  private val ebi by lazy {
-    val prefs = PreferenceManager.getDefaultSharedPreferences(OnlineGoApplication.instance)!!
-    if (prefs.contains(OGS_EBI)) {
-      prefs.getString(OGS_EBI, "")!!
-    } else {
-      val newEbi =
-        "${Math.random().toString().split(".")[1]}.0.0.0.0.xxx.xxx.${Date().timezoneOffset + 13}"
-      prefs.edit { putString(OGS_EBI, newEbi) }
-      newEbi
+  private var ebi: String? = null
+
+  init {
+    applicationScope.launch {
+      settingsRepository.ogsEbiFlow.collect {
+        ebi = it
+      }
     }
+  }
+
+  private suspend fun getOrCreateEbi(): String {
+    if (!ebi.isNullOrBlank()) return ebi!!
+    val newEbi = "${Math.random().toString().split(".")[1]}.0.0.0.0.xxx.xxx.${Date().timezoneOffset + 13}"
+    settingsRepository.setOgsEbi(newEbi)
+    ebi = newEbi
+    return newEbi
   }
 
   fun fetchUIConfig(): Completable {
@@ -60,7 +66,8 @@ class OGSRestService(
   }
 
   suspend fun login(username: String, password: String) {
-    val uiConfig = restApi.login(CreateAccountRequest(username, password, "", ebi))
+    val ebiValue = getOrCreateEbi()
+    val uiConfig = restApi.login(CreateAccountRequest(username, password, "", ebiValue))
     //
     // Hack alert!!! The server sometimes returns 200 even on wrong password :facepalm:
     //
@@ -100,7 +107,8 @@ class OGSRestService(
   }
 
   suspend fun createAccount(username: String, password: String, email: String) {
-    restApi.createAccount(CreateAccountRequest(username, password, email, ebi))
+    val ebiValue = getOrCreateEbi()
+    restApi.createAccount(CreateAccountRequest(username, password, email, ebiValue))
   }
 
   fun challengeBot(challengeParams: ChallengeParams): Completable {

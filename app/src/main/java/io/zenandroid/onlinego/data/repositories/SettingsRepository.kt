@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.datastore.preferences.SharedPreferencesMigration
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
@@ -55,6 +56,11 @@ class SettingsRepository(
 
     private val COMPLETED_TUTORIALS_KEY = stringSetPreferencesKey("COMPLETED_TUTORIALS_KEY")
     private val AI_GAME_STATE_KEY = stringPreferencesKey("AIGAME_STATE_KEY")
+    private val OGS_EBI_KEY = stringPreferencesKey("OGS_EBI")
+    private val NEW_CHALLENGE_PARAMS_KEY = stringPreferencesKey("PARAMS")
+    private val FACE_TO_FACE_HISTORY_KEY = stringPreferencesKey("FACE_TO_FACE_HISTORY_KEY")
+    private val FACE_TO_FACE_BOARD_SIZE_KEY = stringPreferencesKey("FACE_TO_FACE_BOARD_SIZE_KEY")
+    private val FACE_TO_FACE_HANDICAP_KEY = intPreferencesKey("FACE_TO_FACE_HANDICAP_KEY")
   }
 
   init {
@@ -175,5 +181,31 @@ class SettingsRepository(
 
   suspend fun setAiGameState(value: String) {
     dataStore.edit { it[AI_GAME_STATE_KEY] = value }
+  }
+
+  val ogsEbiFlow: Flow<String?> = dataStore.data.map { prefs -> prefs[OGS_EBI_KEY] }
+
+  suspend fun setOgsEbi(value: String) {
+    dataStore.edit { it[OGS_EBI_KEY] = value }
+  }
+
+  val newChallengeParamsFlow: Flow<String?> = dataStore.data.map { prefs -> prefs[NEW_CHALLENGE_PARAMS_KEY] }
+
+  suspend fun setNewChallengeParams(value: String) {
+    dataStore.edit { it[NEW_CHALLENGE_PARAMS_KEY] = value }
+  }
+
+  val faceToFaceHistoryFlow: Flow<String?> = dataStore.data.map { prefs -> prefs[FACE_TO_FACE_HISTORY_KEY] }
+  val faceToFaceBoardSizeFlow: Flow<String?> = dataStore.data.map { prefs -> prefs[FACE_TO_FACE_BOARD_SIZE_KEY] }
+  val faceToFaceHandicapFlow: Flow<Int?> = dataStore.data.map { prefs -> prefs[FACE_TO_FACE_HANDICAP_KEY] }
+
+  suspend fun setFaceToFaceHistory(value: String) {
+    dataStore.edit { it[FACE_TO_FACE_HISTORY_KEY] = value }
+  }
+  suspend fun setFaceToFaceBoardSize(value: String) {
+    dataStore.edit { it[FACE_TO_FACE_BOARD_SIZE_KEY] = value }
+  }
+  suspend fun setFaceToFaceHandicap(value: Int) {
+    dataStore.edit { it[FACE_TO_FACE_HANDICAP_KEY] = value }
   }
 }

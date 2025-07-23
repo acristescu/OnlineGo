@@ -23,6 +23,7 @@ import io.zenandroid.onlinego.utils.addToDisposable
 import io.zenandroid.onlinego.utils.moshiadapters.HashMapOfCellToStoneTypeMoshiAdapter
 import io.zenandroid.onlinego.utils.moshiadapters.ResponseBriefMoshiAdapter
 import io.zenandroid.onlinego.utils.recordException
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -32,11 +33,10 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlin.math.abs
 
-private const val STATE_KEY = "AIGAME_STATE_KEY"
-
 class AiGameViewModel(
   private val userSessionRepository: UserSessionRepository,
-  private val settingsRepository: SettingsRepository
+  private val settingsRepository: SettingsRepository,
+  private val applicationCoroutineScope: CoroutineScope,
 ) : ViewModel() {
 
   private val _state = MutableStateFlow(
@@ -622,7 +622,7 @@ class AiGameViewModel(
   override fun onCleared() {
     super.onCleared()
     katagoDisposable.clear()
-    viewModelScope.launch(Dispatchers.IO) {
+    applicationCoroutineScope.launch(Dispatchers.IO) {
       KataGoAnalysisEngine.stop()
     }
   }

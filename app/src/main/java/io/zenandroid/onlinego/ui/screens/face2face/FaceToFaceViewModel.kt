@@ -1,6 +1,5 @@
 package io.zenandroid.onlinego.ui.screens.face2face
 
-import android.content.SharedPreferences
 import androidx.annotation.VisibleForTesting
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.AddCircle
@@ -15,7 +14,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.core.content.edit
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.cash.molecule.AndroidUiDispatcher
@@ -27,6 +25,7 @@ import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.Position
 import io.zenandroid.onlinego.data.model.StoneType.BLACK
 import io.zenandroid.onlinego.data.model.StoneType.WHITE
+import io.zenandroid.onlinego.data.repositories.SettingsRepository
 import io.zenandroid.onlinego.gamelogic.RulesManager
 import io.zenandroid.onlinego.gamelogic.Util
 import io.zenandroid.onlinego.gamelogic.Util.toGTP
@@ -51,17 +50,15 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-private const val HISTORY_KEY = "FACE_TO_FACE_HISTORY_KEY"
-private const val BOARD_SIZE_KEY = "FACE_TO_FACE_BOARD_SIZE_KEY"
-private const val HANDICAP_KEY = "FACE_TO_FACE_HANDICAP_KEY"
-
 class FaceToFaceViewModel(
-  private val prefs: SharedPreferences,
   private val analytics: FirebaseAnalytics,
   private val crashlytics: FirebaseCrashlytics,
+  private val settingsRepository: SettingsRepository,
+  private val applicationScope: CoroutineScope,
   testing: Boolean = false
 ) : ViewModel() {
 
@@ -152,24 +149,19 @@ class FaceToFaceViewModel(
   }
 
   private suspend fun loadSavedData() {
-    if (prefs.contains(HISTORY_KEY) && prefs.contains(BOARD_SIZE_KEY) && prefs.contains(HANDICAP_KEY)) {
-      analytics.logEvent("face_to_face_loading", null)
-      var historyString: String
-      var sizeString: String
-      var handicap: Int
+    val historyString = settingsRepository.faceToFaceHistoryFlow.first() ?: ""
+    val sizeString = settingsRepository.faceToFaceBoardSizeFlow.first() ?: BoardSize.LARGE.prettyName
+    val handicap = settingsRepository.faceToFaceHandicapFlow.first() ?: 0
 
-      withContext(Dispatchers.IO) {
-        historyString = prefs.getString(HISTORY_KEY, "")!!
-        sizeString = prefs.getString(BOARD_SIZE_KEY, "")!!
-        handicap = prefs.getInt(HANDICAP_KEY, 0)
-      }
+    if (historyString.isNotEmpty()) {
+      analytics.logEvent("face_to_face_loading", null)
       history = historyString.split(" ")
         .filter { it.isNotEmpty() }
         .map {
           val parts = it.split(",")
           Cell(parts[0].toInt(), parts[1].toInt())
         }
-      val size = BoardSize.entries.first { it.prettyName == sizeString }
+      val size = BoardSize.entries.firstOrNull { it.prettyName == sizeString } ?: BoardSize.LARGE
       currentGameParameters = GameParameters(size, handicap)
       newGameParameters = currentGameParameters
     }
@@ -185,10 +177,10 @@ class FaceToFaceViewModel(
   }
 
   override fun onCleared() {
-    prefs.edit {
-      putString(HISTORY_KEY, history.joinToString(separator = " ") { "${it.x},${it.y}" })
-        .putString(BOARD_SIZE_KEY, currentGameParameters.size.toString())
-        .putInt(HANDICAP_KEY, currentGameParameters.handicap)
+    applicationScope.launch {
+      settingsRepository.setFaceToFaceHistory(history.joinToString(separator = " ") { "${it.x},${it.y}" })
+      settingsRepository.setFaceToFaceBoardSize(currentGameParameters.size.toString())
+      settingsRepository.setFaceToFaceHandicap(currentGameParameters.handicap)
     }
     super.onCleared()
   }

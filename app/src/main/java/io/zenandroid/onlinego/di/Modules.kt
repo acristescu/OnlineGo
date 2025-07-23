@@ -1,6 +1,5 @@
 package io.zenandroid.onlinego.di
 
-import androidx.preference.PreferenceManager
 import androidx.room.Room
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.squareup.moshi.Moshi
@@ -177,9 +176,10 @@ private val viewModelsModule = module {
 
   viewModel {
     FaceToFaceViewModel(
-      PreferenceManager.getDefaultSharedPreferences(OnlineGoApplication.instance.baseContext),
       OnlineGoApplication.instance.analytics,
-      FirebaseCrashlytics.getInstance()
+      FirebaseCrashlytics.getInstance(),
+      get(),
+      get(),
     )
   }
 
