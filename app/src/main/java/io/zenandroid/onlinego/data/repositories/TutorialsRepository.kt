@@ -1,7 +1,5 @@
 package io.zenandroid.onlinego.data.repositories
 
-import android.preference.PreferenceManager
-import androidx.core.content.edit
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types
 import com.squareup.moshi.adapters.PolymorphicJsonAdapterFactory
@@ -18,15 +16,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import okio.buffer
 import okio.source
 
-private const val COMPLETED_TUTORIALS_KEY = "COMPLETED_TUTORIALS_KEY"
-
 class TutorialsRepository(
-  private val appCoroutineScope: CoroutineScope
+  private val appCoroutineScope: CoroutineScope,
+  private val settingsRepository: SettingsRepository
 ) : SocketConnectedRepository {
 
   private val moshiAdapter by lazy {
@@ -47,16 +43,15 @@ class TutorialsRepository(
       )
   }
 
-  private val prefs = PreferenceManager.getDefaultSharedPreferences(OnlineGoApplication.instance)
-
   private lateinit var hardcodedTutorialsData: List<TutorialGroup>
   private val _completedTutorialsNames = MutableStateFlow<Set<String>>(emptySet())
   val completedTutorialsNames: StateFlow<Set<String>> = _completedTutorialsNames.asStateFlow()
 
   init {
     appCoroutineScope.launch(Dispatchers.IO) {
-      val completed = prefs.getStringSet(COMPLETED_TUTORIALS_KEY, emptySet())!!
-      _completedTutorialsNames.value = completed
+      settingsRepository.completedTutorialsFlow.collect {
+        _completedTutorialsNames.value = it
+      }
       if (!this@TutorialsRepository::hardcodedTutorialsData.isInitialized) {
         hardcodedTutorialsData = readJSONFromResources()
       }
@@ -91,14 +86,11 @@ class TutorialsRepository(
   }
 
   fun markTutorialCompleted(tutorial: Tutorial) {
-    _completedTutorialsNames.update {
-      if (it.contains(tutorial.name)) {
-        return@update it
+    appCoroutineScope.launch(Dispatchers.IO) {
+      val current = _completedTutorialsNames.value
+      if (!current.contains(tutorial.name)) {
+        settingsRepository.setCompletedTutorials(current + tutorial.name)
       }
-      prefs.edit {
-        putStringSet(COMPLETED_TUTORIALS_KEY, it + tutorial.name)
-      }
-      it + tutorial.name
     }
   }
 

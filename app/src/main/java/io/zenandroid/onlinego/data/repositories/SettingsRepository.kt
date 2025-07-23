@@ -5,6 +5,7 @@ import androidx.datastore.preferences.SharedPreferencesMigration
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.core.stringSetPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import io.zenandroid.onlinego.data.model.BoardTheme
 import io.zenandroid.onlinego.data.model.ogs.Speed
@@ -51,6 +52,8 @@ class SettingsRepository(
     private val SEARCH_GAME_MEDIUM = booleanPreferencesKey("SEARCH_GAME_MEDIUM")
     private val SEARCH_GAME_LARGE = booleanPreferencesKey("SEARCH_GAME_LARGE")
     private val SEARCH_GAME_SPEEDS = stringPreferencesKey("SEARCH_GAME_SPEEDS")
+
+    private val COMPLETED_TUTORIALS_KEY = stringSetPreferencesKey("COMPLETED_TUTORIALS_KEY")
   }
 
   init {
@@ -156,5 +159,14 @@ class SettingsRepository(
 
   suspend fun setSearchGameSpeeds(speeds: List<Speed>) {
     dataStore.edit { it[SEARCH_GAME_SPEEDS] = speeds.joinToString { it.toString() } }
+  }
+
+  val completedTutorialsFlow: Flow<Set<String>> = dataStore.data
+    .map { prefs ->
+      prefs[COMPLETED_TUTORIALS_KEY] ?: emptySet()
+    }
+
+  suspend fun setCompletedTutorials(completed: Set<String>) {
+    dataStore.edit { it[COMPLETED_TUTORIALS_KEY] = completed }
   }
 }

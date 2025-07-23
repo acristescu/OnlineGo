@@ -3,8 +3,6 @@ package io.zenandroid.onlinego.ui.screens.automatch
 import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.preference.PreferenceManager
-import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.data.model.ogs.Speed
 import io.zenandroid.onlinego.data.repositories.SettingsRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -42,7 +40,6 @@ class NewAutomatchChallengeViewModel(
     }
   }
 
-  private val prefs = PreferenceManager.getDefaultSharedPreferences(OnlineGoApplication.instance)
   val state: MutableStateFlow<AutomatchState> =
     MutableStateFlow(
       AutomatchState(
