@@ -54,6 +54,7 @@ class SettingsRepository(
     private val SEARCH_GAME_SPEEDS = stringPreferencesKey("SEARCH_GAME_SPEEDS")
 
     private val COMPLETED_TUTORIALS_KEY = stringSetPreferencesKey("COMPLETED_TUTORIALS_KEY")
+    private val AI_GAME_STATE_KEY = stringPreferencesKey("AIGAME_STATE_KEY")
   }
 
   init {
@@ -168,5 +169,11 @@ class SettingsRepository(
 
   suspend fun setCompletedTutorials(completed: Set<String>) {
     dataStore.edit { it[COMPLETED_TUTORIALS_KEY] = completed }
+  }
+
+  val aiGameStateFlow: Flow<String?> = dataStore.data.map { prefs -> prefs[AI_GAME_STATE_KEY] }
+
+  suspend fun setAiGameState(value: String) {
+    dataStore.edit { it[AI_GAME_STATE_KEY] = value }
   }
 }

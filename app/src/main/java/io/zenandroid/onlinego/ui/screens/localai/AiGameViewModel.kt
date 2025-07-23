@@ -1,21 +1,19 @@
 package io.zenandroid.onlinego.ui.screens.localai
 
 import android.util.Log
-import androidx.core.content.edit
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.preference.PreferenceManager
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
-import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.ai.KataGoAnalysisEngine
 import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.Position
 import io.zenandroid.onlinego.data.model.StoneType
+import io.zenandroid.onlinego.data.repositories.SettingsRepository
 import io.zenandroid.onlinego.data.repositories.UserSessionRepository
 import io.zenandroid.onlinego.gamelogic.RulesManager
 import io.zenandroid.onlinego.gamelogic.RulesManager.isGameOver
@@ -38,6 +36,7 @@ private const val STATE_KEY = "AIGAME_STATE_KEY"
 
 class AiGameViewModel(
   private val userSessionRepository: UserSessionRepository,
+  private val settingsRepository: SettingsRepository
 ) : ViewModel() {
 
   private val _state = MutableStateFlow(
@@ -47,9 +46,6 @@ class AiGameViewModel(
   )
   val state: StateFlow<AiGameState> = _state.asStateFlow()
   val katagoDisposable: CompositeDisposable = CompositeDisposable()
-
-  private val prefs =
-    PreferenceManager.getDefaultSharedPreferences(OnlineGoApplication.instance.baseContext)
 
   private val stateAdapter = Moshi.Builder()
     .add(ResponseBriefMoshiAdapter())
@@ -125,41 +121,47 @@ class AiGameViewModel(
 
   private fun restoreState() {
     viewModelScope.launch {
-      if (prefs.contains(STATE_KEY)) {
-        val json = prefs.getString(STATE_KEY, "")!!
-        val newState = try {
-          stateAdapter.fromJson(json)
-        } catch (e: java.lang.Exception) {
-          Log.e("StatePersistenceMiddlew", "Cannot deserialize state", e)
-          recordException(e)
-          null
-        }
-        newState?.let {
-          if (validState(it)) {
-            _state.update { state ->
-              it.copy(
-                engineStarted = it.engineStarted,
-                stateRestorePending = false,
-                userIcon = userSessionRepository.uiConfig?.user?.icon,
-              )
+      settingsRepository.aiGameStateFlow.collect { json ->
+        if (!json.isNullOrBlank()) {
+          val newState = try {
+            stateAdapter.fromJson(json)
+          } catch (e: Exception) {
+            Log.e("StatePersistenceMiddlew", "Cannot deserialize state", e)
+            recordException(e)
+            null
+          }
+          newState?.let {
+            if (validState(it)) {
+              _state.update { state ->
+                it.copy(
+                  engineStarted = it.engineStarted,
+                  stateRestorePending = false,
+                  userIcon = userSessionRepository.uiConfig?.user?.icon,
+                )
+              }
             }
           }
+        } else {
+          _state.update {
+            it.copy(
+              newGameDialogShown = true,
+              stateRestorePending = false
+            )
+          }
         }
-      } else {
-        _state.update {
-          it.copy(
-            newGameDialogShown = true,
-            stateRestorePending = false
-          )
-        }
+        // Only need the first value
+        return@collect
       }
     }
   }
 
   fun onViewPaused() {
     viewModelScope.launch {
-      val json = stateAdapter.toJson(state.value)
-      prefs.edit { putString(STATE_KEY, json) }
+      val json = stateAdapter.toJson(state.value.copy(
+        aiAnalysis = null,
+        aiQuickEstimation = null,
+      ))
+      settingsRepository.setAiGameState(json)
     }
   }
 
