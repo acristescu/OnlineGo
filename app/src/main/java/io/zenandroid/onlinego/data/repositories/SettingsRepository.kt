@@ -7,6 +7,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import io.zenandroid.onlinego.data.model.BoardTheme
+import io.zenandroid.onlinego.data.model.ogs.Speed
 import io.zenandroid.onlinego.ui.screens.settings.UserSettings
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -45,6 +46,11 @@ class SettingsRepository(
     private val GRAPH_BY_GAMES = booleanPreferencesKey("graph_by_games")
 
     private val HAS_COMPLETED_ONBOARDING = booleanPreferencesKey("has_completed_onboarding")
+
+    private val SEARCH_GAME_SMALL = booleanPreferencesKey("SEARCH_GAME_SMALL")
+    private val SEARCH_GAME_MEDIUM = booleanPreferencesKey("SEARCH_GAME_MEDIUM")
+    private val SEARCH_GAME_LARGE = booleanPreferencesKey("SEARCH_GAME_LARGE")
+    private val SEARCH_GAME_SPEEDS = stringPreferencesKey("SEARCH_GAME_SPEEDS")
   }
 
   init {
@@ -115,5 +121,40 @@ class SettingsRepository(
 
   suspend fun setHasCompletedOnboarding(value: Boolean) {
     dataStore.edit { it[HAS_COMPLETED_ONBOARDING] = value }
+  }
+
+  val searchGameSmall: Flow<Boolean> = dataStore.data
+    .map { prefs -> prefs[SEARCH_GAME_SMALL] ?: true }
+
+  val searchGameMedium: Flow<Boolean> = dataStore.data
+    .map { prefs -> prefs[SEARCH_GAME_MEDIUM] ?: false }
+
+  val searchGameLarge: Flow<Boolean> = dataStore.data
+    .map { prefs -> prefs[SEARCH_GAME_LARGE] ?: false }
+
+  val searchGameSpeeds: Flow<List<Speed>> = dataStore.data
+    .map { prefs -> prefs[SEARCH_GAME_SPEEDS] ?: "BLITZ,RAPID,LIVE" }
+    .map { list ->
+      list.split(",")
+        .filter { it.isNotBlank() }
+        .map {
+          Speed.valueOf(it.trim())
+        }
+    }
+
+  suspend fun setSearchGameSmall(value: Boolean) {
+    dataStore.edit { it[SEARCH_GAME_SMALL] = value }
+  }
+
+  suspend fun setSearchGameMedium(value: Boolean) {
+    dataStore.edit { it[SEARCH_GAME_MEDIUM] = value }
+  }
+
+  suspend fun setSearchGameLarge(value: Boolean) {
+    dataStore.edit { it[SEARCH_GAME_LARGE] = value }
+  }
+
+  suspend fun setSearchGameSpeeds(speeds: List<Speed>) {
+    dataStore.edit { it[SEARCH_GAME_SPEEDS] = speeds.joinToString { it.toString() } }
   }
 }
