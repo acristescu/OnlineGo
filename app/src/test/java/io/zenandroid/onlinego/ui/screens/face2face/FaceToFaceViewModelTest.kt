@@ -1,6 +1,5 @@
 package io.zenandroid.onlinego.ui.screens.face2face
 
-import android.content.SharedPreferences
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import app.cash.molecule.RecompositionMode
 import app.cash.molecule.moleculeFlow
@@ -9,10 +8,14 @@ import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.StoneType
+import io.zenandroid.onlinego.data.repositories.SettingsRepository
 import io.zenandroid.onlinego.di.allKoinModules
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
@@ -24,6 +27,7 @@ import org.junit.Test
 import org.koin.core.logger.Level
 import org.koin.test.KoinTestRule
 import org.mockito.kotlin.mock
+import org.mockito.kotlin.whenever
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class FaceToFaceViewModelTest {
@@ -36,19 +40,29 @@ class FaceToFaceViewModelTest {
   @get:Rule
   val instantExecutorRule = InstantTaskExecutorRule()
 
-  private val prefs: SharedPreferences = mock()
   private val analytics: FirebaseAnalytics = mock()
   private val crashlytics: FirebaseCrashlytics = mock()
+  private val settingsRepository: SettingsRepository = mock()
+
+  private lateinit var applicationTestScope: TestScope
 
   private lateinit var viewModel: FaceToFaceViewModel
 
   @Before
   fun setUp() {
-    Dispatchers.setMain(StandardTestDispatcher())
+    val testDispatcher = StandardTestDispatcher()
+    Dispatchers.setMain(testDispatcher)
+    applicationTestScope = TestScope(testDispatcher)
+
+    whenever(settingsRepository.faceToFaceHistoryFlow).thenReturn(flowOf(null))
+    whenever(settingsRepository.faceToFaceBoardSizeFlow).thenReturn(flowOf(null))
+    whenever(settingsRepository.faceToFaceHandicapFlow).thenReturn(flowOf(null))
+
     viewModel = FaceToFaceViewModel(
       analytics = analytics,
       crashlytics = crashlytics,
-      prefs = prefs,
+      settingsRepository = settingsRepository,
+      applicationScope = applicationTestScope,
       testing = true
     )
   }
@@ -56,6 +70,7 @@ class FaceToFaceViewModelTest {
   @After
   fun tearDown() {
     Dispatchers.resetMain()
+    applicationTestScope.cancel()
   }
 
   @Test
