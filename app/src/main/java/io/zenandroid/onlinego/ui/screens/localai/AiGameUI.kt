@@ -2,6 +2,7 @@
 
 package io.zenandroid.onlinego.ui.screens.localai
 
+import android.content.res.Configuration
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -9,7 +10,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -44,7 +44,6 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -56,9 +55,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
@@ -186,17 +187,140 @@ private fun AiGameUI(
   onNavigateBack: () -> Unit,
   onDismissKoDialog: () -> Unit,
 ) {
-  var showNewGameDialog by remember { mutableStateOf(false) }
+  val configuration = LocalConfiguration.current
+  val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
 
-  // Update dialog state based on state
-  LaunchedEffect(state.newGameDialogShown) {
-    showNewGameDialog = state.newGameDialogShown
+  if (isLandscape) {
+    Row(
+      modifier = Modifier
+        .fillMaxSize()
+        .background(MaterialTheme.colorScheme.surfaceContainerLowest)
+    ) {
+      Column(
+        Modifier
+          .width(0.dp)
+          .weight(1f)
+      ) {
+        InfoSection(
+          state = state,
+          userIcon = userIcon,
+          onNavigateBack = onNavigateBack,
+          onUserAskedForHint = onUserAskedForHint,
+          onUserAskedForOwnership = onUserAskedForOwnership,
+        )
+        Spacer(Modifier.weight(0.5f))
+        ScoreLeadAndWinrate(state, Modifier.padding(8.dp))
+        Spacer(Modifier.weight(0.5f))
+        AiGameBottomBar(
+          state = state,
+          onShowNewGameDialog = onShowNewGameDialog,
+          onUserPressedPass = onUserPressedPass,
+          onUserPressedPrevious = onUserPressedPrevious,
+          onUserPressedNext = onUserPressedNext
+        )
+      }
+      BoardSection(
+        state,
+        onUserTappedCoordinate,
+        onUserHotTrackedCoordinate,
+      )
+    }
+  } else {
+    Column(
+      modifier = Modifier
+        .fillMaxSize()
+        .background(MaterialTheme.colorScheme.surfaceContainerLowest)
+    ) {
+      InfoSection(
+        state = state,
+        userIcon = userIcon,
+        onNavigateBack = onNavigateBack,
+        onUserAskedForHint = onUserAskedForHint,
+        onUserAskedForOwnership = onUserAskedForOwnership,
+        modifier = Modifier
+          .fillMaxWidth()
+          .weight(0.5f)
+      )
+      BoardSection(
+        state,
+        onUserTappedCoordinate,
+        onUserHotTrackedCoordinate,
+        Modifier.fillMaxWidth()
+      )
+      ScoreLeadAndWinrate(state, Modifier.weight(0.5f))
+      AiGameBottomBar(
+        state = state,
+        onShowNewGameDialog = onShowNewGameDialog,
+        onUserPressedPass = onUserPressedPass,
+        onUserPressedPrevious = onUserPressedPrevious,
+        onUserPressedNext = onUserPressedNext
+      )
+    }
   }
 
+  if (state.newGameDialogShown) {
+    NewGameDialog(
+      onDismiss = {
+        onDismissNewGameDialog()
+      },
+      onNewGame = { size, youPlayBlack, handicap ->
+        onNewGame(size, youPlayBlack, handicap)
+      }
+    )
+  }
+
+  if (state.koMoveDialogShowing) {
+    AlertDialog(
+      onDismissRequest = onDismissKoDialog,
+      confirmButton = {
+        TextButton(onClick = onDismissKoDialog) {
+          Text("OK")
+        }
+      },
+      text = { Text("That move would repeat the board position. That's called a KO, and it is not allowed. Try to make another move first, preferably a threat that the opponent can't ignore.") },
+      title = { Text("Illegal KO move", style = MaterialTheme.typography.titleLarge) },
+    )
+  }
+}
+
+@Composable
+private fun BoardSection(
+  state: AiGameState,
+  onUserTappedCoordinate: (Cell) -> Unit,
+  onUserHotTrackedCoordinate: (Cell) -> Unit,
+  modifier: Modifier = Modifier
+) {
+  Board(
+    boardWidth = state.boardSize,
+    boardHeight = state.boardSize,
+    position = state.position,
+    hints = if (state.showHints) state.aiAnalysis?.moveInfos else null,
+    ownership = if (state.showAiEstimatedTerritory) state.aiAnalysis?.ownership else null,
+    candidateMove = state.candidateMove,
+    candidateMoveType = if (state.enginePlaysBlack) StoneType.WHITE else StoneType.BLACK,
+    interactive = state.boardIsInteractive,
+    drawTerritory = state.showFinalTerritory,
+    fadeOutRemovedStones = state.showFinalTerritory,
+    onTapMove = onUserHotTrackedCoordinate,
+    onTapUp = onUserTappedCoordinate,
+    modifier = modifier
+      .shadow(1.dp, MaterialTheme.shapes.medium)
+      .clip(MaterialTheme.shapes.medium)
+  )
+}
+
+@Composable
+private fun InfoSection(
+  state: AiGameState,
+  userIcon: String?,
+  onNavigateBack: () -> Unit,
+  onUserAskedForHint: () -> Unit,
+  onUserAskedForOwnership: () -> Unit,
+  modifier: Modifier = Modifier
+) {
   Column(
-    modifier = Modifier
-      .fillMaxSize()
-      .background(MaterialTheme.colorScheme.surfaceContainerLowest)
+    modifier = modifier,
+    verticalArrangement = Arrangement.Top
   ) {
     TopAppBar(
       colors = TopAppBarDefaults.topAppBarColors(
@@ -220,7 +344,6 @@ private fun AiGameUI(
         }
       },
     )
-    // Progress bar
     if (!state.engineStarted) {
       LinearProgressIndicator(
         modifier = Modifier
@@ -229,235 +352,208 @@ private fun AiGameUI(
         color = colorResource(R.color.colorTextBackground)
       )
     }
+    PlayerInfoRow(state, userIcon, onUserAskedForHint, onUserAskedForOwnership)
+    GameStatsRow(state)
+  }
+}
 
-    Spacer(modifier = Modifier.weight(1f))
-    // Top section with player info
-    Row(
-      modifier = Modifier
-        .fillMaxWidth()
-        .padding(horizontal = 24.dp, vertical = 8.dp),
-      horizontalArrangement = Arrangement.SpaceBetween,
-      verticalAlignment = Alignment.Top
+@Composable
+private fun PlayerInfoRow(
+  state: AiGameState,
+  userIcon: String?,
+  onUserAskedForHint: () -> Unit,
+  onUserAskedForOwnership: () -> Unit
+) {
+  Row(
+    modifier = Modifier
+      .fillMaxWidth()
+      .padding(8.dp),
+    horizontalArrangement = Arrangement.SpaceBetween,
+    verticalAlignment = Alignment.Top
+  ) {
+    // Left player (AI)
+    Column(
+      horizontalAlignment = Alignment.CenterHorizontally
     ) {
-      // Left player (AI)
-      Column(
-        horizontalAlignment = Alignment.CenterHorizontally
+      Card(
+        modifier = Modifier.size(64.dp),
+        shape = CircleShape,
+        colors = CardDefaults.cardColors(
+          containerColor = MaterialTheme.colorScheme.background
+        ),
       ) {
+        Image(
+          painter = painterResource(R.drawable.ic_ai),
+          contentDescription = "AI",
+          modifier = Modifier.fillMaxSize(),
+          contentScale = ContentScale.Crop,
+          colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface)
+        )
+      }
+      Text(
+        text = "KataGO " + (if (!state.enginePlaysBlack) "⚪" else "⚫"),
+        fontSize = 14.sp,
+        fontWeight = FontWeight.Bold,
+        modifier = Modifier.padding(top = 2.dp)
+      )
+    }
+    // Chat bubble and action buttons
+    Column(
+      horizontalAlignment = Alignment.CenterHorizontally,
+      modifier = Modifier
+        .weight(1f)
+        .padding(horizontal = 8.dp)
+    ) {
+      state.chatText?.let { text ->
         Card(
-          modifier = Modifier
-            .size(80.dp),
-          shape = CircleShape,
+          modifier = Modifier.fillMaxWidth(),
+          shape = RoundedCornerShape(6.dp),
           colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.background
           ),
         ) {
-          Image(
-            painter = painterResource(R.drawable.ic_ai),
-            contentDescription = "AI",
-            modifier = Modifier.fillMaxSize(),
-            contentScale = ContentScale.Crop,
-            colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface)
+          Text(
+            text = text,
+            modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
+            fontSize = 12.sp,
+            textAlign = TextAlign.Center
           )
         }
-
-        Text(
-          text = "KataGO " + (if (!state.enginePlaysBlack) "⚪" else "⚫"),
-          fontSize = 16.sp,
-          fontWeight = FontWeight.Bold,
-          modifier = Modifier.padding(top = 4.dp)
-        )
       }
-
-      // Chat bubble and action buttons
-      Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier
-          .weight(1f)
-          .padding(horizontal = 20.dp)
+      Row(
+        modifier = Modifier.padding(top = 4.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
       ) {
-        // Chat bubble
-        state.chatText?.let { text ->
-          Card(
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(6.dp),
-            colors = CardDefaults.cardColors(
-              containerColor = MaterialTheme.colorScheme.background
-            ),
+        if (state.ownershipButtonVisible) {
+          OutlinedButton(
+            onClick = onUserAskedForOwnership,
+            modifier = Modifier
+              .width(70.dp)
+              .height(24.dp),
+            contentPadding = PaddingValues(0.dp)
           ) {
             Text(
-              text = text,
-              modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
-              fontSize = 12.sp,
-              textAlign = TextAlign.Center
+              text = "Territory",
+              fontSize = 10.sp,
+              color = colorResource(R.color.colorTextSecondary)
             )
           }
         }
-
-        // Action buttons
-        Row(
-          modifier = Modifier.padding(top = 4.dp),
-          horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-          if (state.ownershipButtonVisible) {
-            OutlinedButton(
-              onClick = onUserAskedForOwnership,
-              modifier = Modifier
-                .width(70.dp)
-                .height(24.dp),
-              contentPadding = PaddingValues(0.dp)
-            ) {
-              Text(
-                text = "Territory",
-                fontSize = 10.sp,
-                color = colorResource(R.color.colorTextSecondary)
-              )
-            }
-          }
-
-          if (state.hintButtonVisible) {
-            OutlinedButton(
-              onClick = onUserAskedForHint,
-              modifier = Modifier
-                .width(50.dp)
-                .height(24.dp),
-              contentPadding = PaddingValues(0.dp)
-            ) {
-              Text(
-                text = "Hint",
-                fontSize = 10.sp,
-                color = colorResource(R.color.colorTextSecondary)
-              )
-            }
+        if (state.hintButtonVisible) {
+          OutlinedButton(
+            onClick = onUserAskedForHint,
+            modifier = Modifier
+              .width(50.dp)
+              .height(24.dp),
+            contentPadding = PaddingValues(0.dp)
+          ) {
+            Text(
+              text = "Hint",
+              fontSize = 10.sp,
+              color = colorResource(R.color.colorTextSecondary)
+            )
           }
         }
       }
-
-      // Right player (User)
-      Column(
-        horizontalAlignment = Alignment.CenterHorizontally
+    }
+    // Right player (User)
+    Column(
+      horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+      Card(
+        modifier = Modifier.size(64.dp),
+        shape = RoundedCornerShape(4.dp),
+        colors = CardDefaults.cardColors(
+          containerColor = MaterialTheme.colorScheme.surface
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
       ) {
-        Card(
-          modifier = Modifier.size(80.dp),
-          shape = RoundedCornerShape(4.dp),
-          colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
-          ),
-          elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-        ) {
-          if (userIcon != null) {
-            AsyncImage(
-              model = ImageRequest.Builder(LocalContext.current)
-                .data(processGravatarURL(userIcon, 80))
-                .crossfade(true)
-                .build(),
-              contentDescription = "Player",
-              modifier = Modifier.fillMaxSize(),
-              contentScale = ContentScale.Crop,
-              placeholder = painterResource(R.drawable.ic_person_outline)
-            )
-          } else {
-            Image(
-              painter = painterResource(R.drawable.ic_person_outline),
-              contentDescription = "Player",
-              modifier = Modifier.fillMaxSize(),
-              contentScale = ContentScale.Crop
-            )
-          }
+        if (userIcon != null) {
+          AsyncImage(
+            model = ImageRequest.Builder(LocalContext.current)
+              .data(processGravatarURL(userIcon, 64))
+              .crossfade(true)
+              .build(),
+            contentDescription = "Player",
+            modifier = Modifier.fillMaxSize(),
+            contentScale = ContentScale.Crop,
+            placeholder = painterResource(R.drawable.ic_person_outline)
+          )
+        } else {
+          Image(
+            painter = painterResource(R.drawable.ic_person_outline),
+            contentDescription = "Player",
+            modifier = Modifier.fillMaxSize(),
+            contentScale = ContentScale.Crop
+          )
         }
-
-        Text(
-          text = (if (state.enginePlaysBlack) "⚪" else "⚫") + " You",
-          fontSize = 16.sp,
-          fontWeight = FontWeight.Bold,
-          maxLines = 1,
-          overflow = TextOverflow.Ellipsis,
-          modifier = Modifier
-            .widthIn(max = 80.dp)
-            .padding(top = 4.dp)
-        )
       }
-    }
-
-    // Game stats
-    Row(
-      modifier = Modifier
-        .fillMaxWidth()
-        .padding(horizontal = 24.dp),
-      horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-      // Left stats
-      Column(horizontalAlignment = Alignment.End) {
-        Text(
-          text = state.position?.let {
-            if (state.enginePlaysBlack) it.blackCaptureCount.toString() else it.whiteCaptureCount.toString()
-          } ?: "",
-          fontSize = 12.sp
-        )
-        Text(
-          text = state.position?.let {
-            if (state.enginePlaysBlack) "" else it.komi.toString()
-          } ?: "",
-          fontSize = 12.sp
-        )
-      }
-
-      // Center labels
-      Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(
-          text = "Prisoners",
-          fontSize = 12.sp
-        )
-        Text(
-          text = "Komi",
-          fontSize = 12.sp
-        )
-      }
-
-      // Right stats
-      Column(horizontalAlignment = Alignment.Start) {
-        Text(
-          text = state.position?.let {
-            if (state.enginePlaysBlack) it.whiteCaptureCount.toString() else it.blackCaptureCount.toString()
-          } ?: "",
-          fontSize = 12.sp
-        )
-        Text(
-          text = state.position?.let {
-            if (state.enginePlaysBlack) it.komi.toString() else ""
-          } ?: "",
-          fontSize = 12.sp
-        )
-      }
-    }
-
-    Spacer(modifier = Modifier.weight(1f))
-    Card(
-      modifier = Modifier
-        .fillMaxWidth()
-        .aspectRatio(1f)
-        .padding(4.dp),
-      shape = RoundedCornerShape(4.dp),
-      elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-    ) {
-      Board(
-        modifier = Modifier.fillMaxSize(),
-        boardWidth = state.boardSize,
-        boardHeight = state.boardSize,
-        position = state.position,
-        hints = if (state.showHints) state.aiAnalysis?.moveInfos else null,
-        ownership = if(state.showAiEstimatedTerritory) state.aiAnalysis?.ownership else null,
-        candidateMove = state.candidateMove,
-        candidateMoveType = if (state.enginePlaysBlack) StoneType.WHITE else StoneType.BLACK,
-        interactive = state.boardIsInteractive,
-        drawTerritory = state.showFinalTerritory,
-        fadeOutRemovedStones = state.showFinalTerritory,
-        onTapMove = onUserHotTrackedCoordinate,
-        onTapUp = onUserTappedCoordinate,
+      Text(
+        text = (if (state.enginePlaysBlack) "⚪" else "⚫") + " You",
+        fontSize = 14.sp,
+        fontWeight = FontWeight.Bold,
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis,
+        modifier = Modifier
+          .widthIn(max = 64.dp)
+          .padding(top = 2.dp)
       )
     }
+  }
+}
 
-    Spacer(modifier = Modifier.weight(1f))
-    // Score lead
+@Composable
+private fun GameStatsRow(state: AiGameState) {
+  Row(
+    modifier = Modifier
+      .fillMaxWidth()
+      .padding(vertical = 4.dp, horizontal = 8.dp),
+    horizontalArrangement = Arrangement.SpaceBetween
+  ) {
+    Column(horizontalAlignment = Alignment.End) {
+      Text(
+        text = state.position?.let {
+          if (state.enginePlaysBlack) it.blackCaptureCount.toString() else it.whiteCaptureCount.toString()
+        } ?: "",
+        fontSize = 12.sp
+      )
+      Text(
+        text = state.position?.let {
+          if (state.enginePlaysBlack) "" else it.komi.toString()
+        } ?: "",
+        fontSize = 12.sp
+      )
+    }
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+      Text(
+        text = "Prisoners",
+        fontSize = 12.sp
+      )
+      Text(
+        text = "Komi",
+        fontSize = 12.sp
+      )
+    }
+    Column(horizontalAlignment = Alignment.Start) {
+      Text(
+        text = state.position?.let {
+          if (state.enginePlaysBlack) it.whiteCaptureCount.toString() else it.blackCaptureCount.toString()
+        } ?: "",
+        fontSize = 12.sp
+      )
+      Text(
+        text = state.position?.let {
+          if (state.enginePlaysBlack) it.komi.toString() else ""
+        } ?: "",
+        fontSize = 12.sp
+      )
+    }
+  }
+}
+
+@Composable
+private fun ScoreLeadAndWinrate(state: AiGameState, modifier: Modifier = Modifier) {
+  Column(modifier) {
     val scoreLead = state.aiAnalysis?.rootInfo?.scoreLead ?: state.aiQuickEstimation?.scoreLead
     scoreLead?.let {
       val leader = if (it > 0) "white" else "black"
@@ -465,18 +561,16 @@ private fun AiGameUI(
       Text(
         text = "Score prediction: $leader leads by $lead",
         fontSize = 12.sp,
-        modifier = Modifier.padding(start = 14.dp, top = 4.dp)
+        modifier = Modifier.padding(top = 4.dp)
       )
     }
-
-    // Winrate
     val winrate = state.aiAnalysis?.rootInfo?.winrate ?: state.aiQuickEstimation?.winrate
     winrate?.let {
       val winrateAsPercentage = (it * 1000).toInt() / 10f
       Column(
         modifier = Modifier
           .fillMaxWidth()
-          .padding(horizontal = 14.dp, vertical = 4.dp)
+          .padding(vertical = 4.dp)
       ) {
         Text(
           text = "White's chance to win: $winrateAsPercentage%",
@@ -494,57 +588,35 @@ private fun AiGameUI(
         )
       }
     }
-
-    Spacer(modifier = Modifier.weight(1f))
-
-    // Control buttons using BottomBar
-    val bottomBarButtons = listOf(
-      AiGameBottomBarButton.NewGame(),
-      AiGameBottomBarButton.Pass(enabled = state.passButtonEnabled),
-      AiGameBottomBarButton.Previous(enabled = state.previousButtonEnabled),
-      AiGameBottomBarButton.Next(enabled = state.nextButtonEnabled)
-    )
-
-    BottomBar(
-      buttons = bottomBarButtons,
-      bottomText = null,
-      onButtonPressed = { button ->
-        when (button) {
-          is AiGameBottomBarButton.NewGame -> onShowNewGameDialog()
-          is AiGameBottomBarButton.Pass -> onUserPressedPass()
-          is AiGameBottomBarButton.Previous -> onUserPressedPrevious()
-          is AiGameBottomBarButton.Next -> onUserPressedNext()
-        }
-      }
-    )
-
-// New Game Dialog
-    if (showNewGameDialog) {
-      NewGameDialog(
-        onDismiss = {
-          showNewGameDialog = false
-          onDismissNewGameDialog()
-        },
-        onNewGame = { size, youPlayBlack, handicap ->
-          showNewGameDialog = false
-          onNewGame(size, youPlayBlack, handicap)
-        }
-      )
-    }
-
-    if (state.koMoveDialogShowing) {
-      AlertDialog(
-        onDismissRequest = onDismissKoDialog,
-        confirmButton = {
-          TextButton(onClick = onDismissKoDialog) {
-            Text("OK")
-          }
-        },
-        text = { Text("That move would repeat the board position. That's called a KO, and it is not allowed. Try to make another move first, preferably a threat that the opponent can't ignore.") },
-        title = { Text("Illegal KO move", style = MaterialTheme.typography.titleLarge) },
-      )
-    }
   }
+}
+
+@Composable
+private fun AiGameBottomBar(
+  state: AiGameState,
+  onShowNewGameDialog: () -> Unit,
+  onUserPressedPass: () -> Unit,
+  onUserPressedPrevious: () -> Unit,
+  onUserPressedNext: () -> Unit
+) {
+  val bottomBarButtons = listOf(
+    AiGameBottomBarButton.NewGame(),
+    AiGameBottomBarButton.Pass(enabled = state.passButtonEnabled),
+    AiGameBottomBarButton.Previous(enabled = state.previousButtonEnabled),
+    AiGameBottomBarButton.Next(enabled = state.nextButtonEnabled)
+  )
+  BottomBar(
+    buttons = bottomBarButtons,
+    bottomText = null,
+    onButtonPressed = { button ->
+      when (button) {
+        is AiGameBottomBarButton.NewGame -> onShowNewGameDialog()
+        is AiGameBottomBarButton.Pass -> onUserPressedPass()
+        is AiGameBottomBarButton.Previous -> onUserPressedPrevious()
+        is AiGameBottomBarButton.Next -> onUserPressedNext()
+      }
+    }
+  )
 }
 
 private fun getHandicapDescription(handicap: Int): String {
@@ -735,6 +807,66 @@ private fun AiGameUIPreviewNewGame() {
         previousButtonEnabled = true,
         nextButtonEnabled = true,
         newGameDialogShown = true,
+        ownershipButtonVisible = true,
+        hintButtonVisible = true,
+        aiAnalysis = Response(
+          id = "aaa",
+          turnNumber = 1,
+          moveInfos = emptyList(),
+          policy = null,
+          rootInfo = RootInfo(
+            winrate = 0.5f,
+            scoreLead = 0.0f,
+          )
+        ),
+        aiQuickEstimation = null
+      ),
+      userIcon = null,
+      onUserTappedCoordinate = {},
+      onUserHotTrackedCoordinate = {},
+      onUserPressedPass = {},
+      onUserPressedPrevious = {},
+      onUserPressedNext = {},
+      onShowNewGameDialog = {},
+      onUserAskedForHint = {},
+      onUserAskedForOwnership = {},
+      onNewGame = { _, _, _ -> },
+      onDismissNewGameDialog = {},
+      onDismissKoDialog = {},
+      onNavigateBack = {}
+    )
+  }
+}
+
+@Composable
+@Preview(
+  name = "Landscape Preview",
+  widthDp = 800,
+  heightDp = 360
+)
+private fun PreviewLandscape() {
+
+  OnlineGoTheme {
+    AiGameUI(
+      state = AiGameState(
+        boardSize = 19,
+        enginePlaysBlack = true,
+        engineStarted = true,
+        chatText = "Hello world!",
+        position = Position(
+          boardWidth = 19,
+          boardHeight = 19,
+          blackCaptureCount = 0,
+          whiteCaptureCount = 0,
+          komi = 6.5f,
+        ),
+        candidateMove = null,
+        boardIsInteractive = true,
+        showFinalTerritory = false,
+        passButtonEnabled = true,
+        previousButtonEnabled = true,
+        nextButtonEnabled = true,
+        newGameDialogShown = false,
         ownershipButtonVisible = true,
         hintButtonVisible = true,
         aiAnalysis = Response(

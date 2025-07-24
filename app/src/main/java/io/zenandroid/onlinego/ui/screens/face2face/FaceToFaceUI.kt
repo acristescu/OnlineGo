@@ -497,3 +497,19 @@ fun PreviewNewGameDialog() {
     onBackPressed = {},
   )
 }
+
+@Preview(
+  device = "spec:parent=pixel_5,orientation=landscape",
+  showBackground = true,
+  showSystemUi = true
+)
+@Composable
+fun PreviewLandscape() {
+  FaceToFaceContent(
+    state = FaceToFaceState.INITIAL.copy(
+      buttons = listOf(GameSettings, Estimate, Previous(false), Next(false))
+    ),
+    onUserAction = {},
+    onBackPressed = {},
+  )
+}
