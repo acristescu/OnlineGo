@@ -508,6 +508,7 @@ class MyGamesViewModel(
     loadOlderGamesSubscription?.dispose()
     loadOlderGamesSubscription =
       finishedGamesRepository.getHistoricGames(lastGame?.ended)
+        .subscribeOn(Schedulers.io())
         .observeOn(AndroidSchedulers.mainThread())
         .distinctUntilChanged()
         .doOnNext { result ->

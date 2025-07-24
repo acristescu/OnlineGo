@@ -6,6 +6,7 @@ import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.exceptions.CompositeException
 import io.reactivex.schedulers.Schedulers
 import io.zenandroid.onlinego.data.db.GameDao
 import io.zenandroid.onlinego.data.model.local.Game
@@ -69,7 +70,7 @@ class FinishedGamesRepository(
 
   fun getHistoricGames(endedBefore: Long?): Flowable<HistoricGamesRepositoryResult> {
     val dbObservable =
-      userSessionRepository.userIdObservable.toFlowable(BackpressureStrategy.LATEST).flatMap {
+      userSessionRepository.userIdObservable.firstElement().toFlowable().flatMap {
         if (endedBefore == null) {
           gameDao.monitorFinishedNotRecentGames(it)
         } else {
@@ -211,8 +212,10 @@ class FinishedGamesRepository(
 
   private fun retryIOException(it: Flowable<Throwable>) =
     it.flatMap {
-      when (it) {
-        is IOException -> Flowable.timer(15, TimeUnit.SECONDS)
+      when {
+        (it is CompositeException && it.exceptions.all { it is IOException }) ||
+            it is IOException -> Flowable.timer(10, TimeUnit.SECONDS)
+
         else -> Flowable.error<Long>(it)
       }
     }

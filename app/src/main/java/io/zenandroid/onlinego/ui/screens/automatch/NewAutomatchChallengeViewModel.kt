@@ -6,7 +6,7 @@ import androidx.lifecycle.viewModelScope
 import io.zenandroid.onlinego.data.model.ogs.Speed
 import io.zenandroid.onlinego.data.repositories.SettingsRepository
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 
 private val durationsSmall = arrayOf(5, 10, 15)
@@ -17,29 +17,6 @@ class NewAutomatchChallengeViewModel(
   private val settingsRepository: SettingsRepository,
 ) : ViewModel() {
 
-  init {
-    viewModelScope.launch {
-      settingsRepository.searchGameSmall.collect { small ->
-        state.update { it.copy(small = small).withDuration() }
-      }
-    }
-    viewModelScope.launch {
-      settingsRepository.searchGameMedium.collect { medium ->
-        state.update { it.copy(medium = medium).withDuration() }
-      }
-    }
-    viewModelScope.launch {
-      settingsRepository.searchGameLarge.collect { large ->
-        state.update { it.copy(large = large).withDuration() }
-      }
-    }
-    viewModelScope.launch {
-      settingsRepository.searchGameSpeeds.collect { speeds ->
-        state.update { it.copy(speeds = speeds).withDuration() }
-      }
-    }
-  }
-
   val state: MutableStateFlow<AutomatchState> =
     MutableStateFlow(
       AutomatchState(
@@ -49,6 +26,27 @@ class NewAutomatchChallengeViewModel(
         speeds = listOf(Speed.LIVE, Speed.RAPID, Speed.BLITZ)
       ).withDuration()
     )
+
+  init {
+    viewModelScope.launch {
+      combine(
+        settingsRepository.searchGameSmall,
+        settingsRepository.searchGameMedium,
+        settingsRepository.searchGameLarge,
+        settingsRepository.searchGameSpeeds,
+      ) {
+        small, medium, large, speeds ->
+        AutomatchState(
+          small = small,
+          medium = medium,
+          large = large,
+          speeds = speeds,
+        ).withDuration()
+      }.collect {
+        state.value = it
+      }
+    }
+  }
 
   fun onSmallCheckChanged(checked: Boolean) {
     viewModelScope.launch {
