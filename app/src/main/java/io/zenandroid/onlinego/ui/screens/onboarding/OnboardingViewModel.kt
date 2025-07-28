@@ -346,6 +346,9 @@ class OnboardingViewModel(
   }
 
   fun onGoogleTokenReceived(token: String) {
+    _state.update {
+      it.copy(loginMethod = Page.LoginMethod.GOOGLE)
+    }
     ogsRestService.loginWithGoogle(token)
       .doOnComplete { ogsWebSocketService.ensureSocketConnected() }
       .observeOn(AndroidSchedulers.mainThread())

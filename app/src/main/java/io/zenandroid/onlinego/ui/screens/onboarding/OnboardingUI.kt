@@ -183,7 +183,7 @@ fun OnboardingContent(
           listener = listener
         )
 
-        is Page.LoginPage -> when (state.loginMethod!!) {
+        is Page.LoginPage -> when (state.loginMethod) {
           Page.LoginMethod.GOOGLE -> {
             SideEffect {
               onGoogleFlow()
@@ -194,6 +194,7 @@ fun OnboardingContent(
             state = state,
             listener = listener
           )
+          else -> {}
         }
 
         is Page.NotificationPermissionPage -> NotificationPermissionPage(
