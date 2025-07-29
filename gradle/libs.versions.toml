@@ -2,7 +2,7 @@
 # Kotlin & Android
 datastorePreferences = "1.1.7"
 kotlin = "2.2.0"
-androidGradlePlugin = "8.11.1"
+androidGradlePlugin = "8.12.0-rc01"
 composeCompiler = "1.5.4"
 compileSdk = "35"
 minSdk = "21"
@@ -67,7 +67,7 @@ ksp = "2.2.0-2.0.2"
 googleServices = "4.4.3"
 crashlytics = "3.0.4"
 molecule = "2.1.0"
-cmake = "3.10.2"
+cmake = "3.31.6"
 
 [libraries]
 # Compose BOM
