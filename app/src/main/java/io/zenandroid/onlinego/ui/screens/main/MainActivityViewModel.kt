@@ -2,7 +2,6 @@ package io.zenandroid.onlinego.ui.screens.main
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
 import io.zenandroid.onlinego.data.model.BoardTheme
 import io.zenandroid.onlinego.data.ogs.OGSWebSocketService
@@ -11,6 +10,7 @@ import io.zenandroid.onlinego.data.repositories.SettingsRepository
 import io.zenandroid.onlinego.data.repositories.UserSessionRepository
 import io.zenandroid.onlinego.utils.addToDisposable
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -18,7 +18,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.util.concurrent.TimeUnit
 
 /**
  * Created by alex on 14/03/2018.
@@ -34,6 +33,7 @@ class MainActivityViewModel(
     MainActivityState()
   )
   val state: StateFlow<MainActivityState> = _state.asStateFlow()
+  private var socketConnectionCheckerJob: Job? = null
 
   init {
     viewModelScope.launch {
@@ -62,14 +62,16 @@ class MainActivityViewModel(
   fun onResume() {
     userSessionRepository.loggedInObservable.subscribe { loggedIn ->
       if (loggedIn is LoginStatus.LoggedIn) {
-        viewModelScope.launch(Dispatchers.IO) {
-          socketService.ensureSocketConnected()
-          socketService.resendAuth()
-          while(true) {
-            delay(10000)
+        socketConnectionCheckerJob?.cancel()
+        socketConnectionCheckerJob =
+          viewModelScope.launch(Dispatchers.IO) {
             socketService.ensureSocketConnected()
+            socketService.resendAuth()
+            while (true) {
+              delay(10000)
+              socketService.ensureSocketConnected()
+            }
           }
-        }
       }
 
       _state.update {
@@ -82,6 +84,8 @@ class MainActivityViewModel(
 
   fun onPause() {
     viewModelScope.launch(Dispatchers.IO) {
+      socketConnectionCheckerJob?.cancel()
+      socketConnectionCheckerJob = null
       subscriptions.clear()
       socketService.disconnect()
     }

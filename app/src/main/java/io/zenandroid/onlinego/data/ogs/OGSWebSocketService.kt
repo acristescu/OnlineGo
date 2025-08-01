@@ -33,396 +33,434 @@ import io.zenandroid.onlinego.utils.json
 import io.zenandroid.onlinego.utils.recordException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.yield
 import org.json.JSONObject
 import org.koin.core.context.GlobalContext.get
 import java.util.Locale
 import java.util.UUID
 import java.util.logging.Level
 import java.util.logging.Logger
+import kotlin.concurrent.thread
 
 private const val TAG = "OGSWebSocketService"
 
 class OGSWebSocketService(
-        private val moshi: Moshi,
-        private val restService: OGSRestService,
-        private val userSessionRepository: UserSessionRepository
+  private val moshi: Moshi,
+  private val restService: OGSRestService,
+  private val userSessionRepository: UserSessionRepository
 ) {
-    private val _connectionState = MutableStateFlow(false)
-    val connectionState = _connectionState.asStateFlow()
+  private val _connectionState = MutableStateFlow(false)
+  val connectionState = _connectionState.asStateFlow()
 
-    private val socket: Socket
-    private var connectedToChallenges = false
+  private val socket: Socket
+  private var connectedToChallenges = false
 
-    // Note: Don't use constructor injection here as it creates a dependency loop
-    private val socketConnectedRepositories: List<SocketConnectedRepository> by get().inject()
+  // Note: Don't use constructor injection here as it creates a dependency loop
+  private val socketConnectedRepositories: List<SocketConnectedRepository> by get().inject()
 
-    private val loggingAck = Ack {
-        if(BuildConfig.DEBUG) {
-            val debugItem = if(it is Array<*>) it[0] else it
-            Log.i(TAG, "ack: $debugItem")
-        }
+  private val loggingAck = Ack {
+    if (BuildConfig.DEBUG) {
+      val debugItem = if (it is Array<*>) it[0] else it
+      Log.i(TAG, "ack: $debugItem")
+    }
+  }
+
+  init {
+    socket = IO.socket(BuildConfig.BASE_URL, IO.Options().apply {
+      transports = arrayOf("websocket")
+      reconnection = true
+      reconnectionDelay = 750
+      reconnectionDelayMax = 10000
+    })
+
+    socket.on(Socket.EVENT_CONNECT) {
+      if (BuildConfig.DEBUG) Logger.getLogger(TAG).warning("socket connect id=${socket.id()}")
+      FirebaseCrashlytics.getInstance().log("Websocket connected")
+      onSockedConnected()
+      FirebaseCrashlytics.getInstance()
+        .log("Websocket connected - called all onSocketConnected() methods")
+    }.on(Socket.EVENT_DISCONNECT) {
+      if (BuildConfig.DEBUG) Logger.getLogger(TAG)
+        .warning("socket disconnect id=${socket.id()}")
+      FirebaseCrashlytics.getInstance().log("Websocket disconnected")
+      onSocketDisconnected()
+    }.on(Socket.EVENT_CONNECT_ERROR) {
+      if (BuildConfig.DEBUG) Logger.getLogger(TAG)
+        .warning("socket connect error id=${socket.id()}")
+      FirebaseCrashlytics.getInstance().log("Websocket connect error")
     }
 
-    init {
-        socket = IO.socket(BuildConfig.BASE_URL, IO.Options().apply {
-            transports = arrayOf("websocket")
-            reconnection = true
-            reconnectionDelay = 750
-            reconnectionDelayMax = 10000
-        })
-
-        socket.on(Socket.EVENT_CONNECT) {
-            if(BuildConfig.DEBUG) Logger.getLogger(TAG).warning("socket connect id=${socket.id()}")
-            FirebaseCrashlytics.getInstance().log("Websocket connected")
-            onSockedConnected()
-            FirebaseCrashlytics.getInstance().log("Websocket connected - called all onSocketConnected() methods")
-        }.on(Socket.EVENT_DISCONNECT) {
-            if(BuildConfig.DEBUG) Logger.getLogger(TAG).warning("socket disconnect id=${socket.id()}")
-            FirebaseCrashlytics.getInstance().log("Websocket disconnected")
-            onSocketDisconnected()
-        }.on(Socket.EVENT_CONNECT_ERROR) {
-            if(BuildConfig.DEBUG) Logger.getLogger(TAG).warning("socket connect error id=${socket.id()}")
-            FirebaseCrashlytics.getInstance().log("Websocket connect error")
-        }
-
-        if(BuildConfig.DEBUG) {
-            AndroidLoggingHandler.reset(AndroidLoggingHandler())
-            Logger.getLogger(Socket::class.java.name).level = Level.FINEST
+    if (BuildConfig.DEBUG) {
+      AndroidLoggingHandler.reset(AndroidLoggingHandler())
+      Logger.getLogger(Socket::class.java.name).level = Level.FINEST
 //            Logger.getLogger(Manager::class.java.name).level = Level.FINEST
 //            Logger.getLogger(io.socket.engineio.client.Socket::class.java.name).level = Level.FINEST
 //            Logger.getLogger(IOParser::class.java.name).level = Level.FINEST
+    }
+
+  }
+
+  fun ensureSocketConnected() {
+    if (userSessionRepository.requiresUIConfigRefresh()) {
+      restService.fetchUIConfig()
+        .subscribeOn(Schedulers.io())
+        .subscribe(
+          {},
+          {
+            FirebaseCrashlytics.getInstance()
+              .log("E/$TAG: Failed to refresh UIConfig $it")
+          })
+    }
+    socket.connect()
+  }
+
+  private val gameConnections = mutableMapOf<Long, GameConnection>()
+  private val connectionsLock = Any()
+
+  fun connectToGame(id: Long, includeChat: Boolean): GameConnection {
+    synchronized(connectionsLock) {
+      val connection = gameConnections[id] ?: GameConnection(
+        id, connectionsLock, includeChat,
+        observeEvent("game/$id/gamedata").parseJSON(),
+        observeEvent("game/$id/move").parseJSON(),
+        observeEvent("game/$id/clock").parseJSON(),
+        observeEvent("game/$id/phase").map { string ->
+          Phase.valueOf(
+            string.toString().uppercase(Locale.ENGLISH).replace(' ', '_')
+          )
+        },
+        observeEvent("game/$id/removed_stones").parseJSON(),
+        observeEvent("game/$id/chat").parseJSON(),
+        observeEvent("game/$id/undo_requested").map { string -> string.toString().toInt() },
+        observeEvent("game/$id/removed_stones_accepted").parseJSON(),
+        observeEvent("game/$id/undo_accepted").map { string -> string.toString().toInt() }
+      ).apply {
+        emitGameConnection(id, includeChat)
+        gameConnections[id] = this
+      }
+      if (includeChat && !connection.includeChat) {
+        enableChatOnConnection(connection)
+      }
+      connection.incrementCounter()
+      return connection
+    }
+  }
+
+  fun enableChatOnConnection(gameId: Long) {
+    gameConnections[gameId]?.let {
+      if (!it.includeChat) {
+        enableChatOnConnection(it)
+      }
+    }
+  }
+
+  private fun enableChatOnConnection(connection: GameConnection) {
+    emitGameDisconnect(connection.gameId)
+    emitGameConnection(connection.gameId, true)
+    connection.includeChat = true
+  }
+
+  private inline fun <reified T> adapter(string: Any): T? {
+    try {
+      return moshi.adapter(T::class.java).fromJson(string.toString())
+    } catch (e: JsonEncodingException) {
+      val up = Exception("Error parsing JSON: $string", e)
+      recordException(up)
+      throw up
+    }
+  }
+
+  private inline fun <reified T> Flowable<Any>.parseJSON() =
+    map { adapter<T>(it)!! }
+
+  private fun emitGameConnection(id: Long, includeChat: Boolean) {
+    emit("game/connect") {
+      "chat" - includeChat
+      "game_id" - id
+      "player_id" - userSessionRepository.userIdObservable.blockingFirst() //TODO: fixme
+    }
+    if (includeChat) {
+      emit("chat/connect") {
+        "player_id" - userSessionRepository.userIdObservable.blockingFirst() //TODO: fixme
+        "username" - userSessionRepository.uiConfig?.user?.username
+        "auth" - userSessionRepository.uiConfig?.chat_auth
+      }
+      emit("chat/join") {
+        "channel" - "game-$id"
+      }
+    }
+  }
+
+  fun connectToActiveGames(): Flowable<OGSGame> {
+    return observeEvent("active_game").parseJSON()
+  }
+
+  fun connectToUIPushes(): Flowable<UIPush> {
+    val returnVal: Flowable<UIPush> = observeEvent("ui-push").parseJSON()
+
+    emit("ui-pushes/subscribe") {
+      "channel" - "undefined"
+    }
+
+    return returnVal
+  }
+
+  fun connectToBots(): Flowable<List<OGSPlayer>> =
+    observeEvent("active-bots")
+      .map { string ->
+        //
+        // HACK alert!!! Oh creators of OGS why do you torment me so and have different names
+        // for the same field in different places!?!?? :)
+        //
+        val fixedString = string.toString().replace("\"icon-url\":", "\"icon\":")
+        val json = JSONObject(fixedString)
+        val retval = mutableListOf<OGSPlayer>()
+        for (key in json.keys()) {
+          adapter<OGSPlayer>(json[key])?.let {
+            retval.add(it)
+          }
+        }
+        return@map retval as List<OGSPlayer>
+      }
+
+  fun listenToNewAutomatchNotifications(): Flowable<OGSAutomatch> =
+    observeEvent("automatch/entry").parseJSON()
+
+  fun listenToCancelAutomatchNotifications(): Flowable<OGSAutomatch> =
+    observeEvent("automatch/cancel").parseJSON()
+
+  fun listenToStartAutomatchNotifications(): Flowable<OGSAutomatch> =
+    observeEvent("automatch/start").parseJSON()
+
+  fun connectToAutomatch() {
+    emit("automatch/list", null)
+  }
+
+  fun connectToServerNotifications(): Flowable<JSONObject> =
+    observeEvent("notification")
+      .map { JSONObject(it.toString()) }
+      .doOnSubscribe {
+        emit("notification/connect") {
+          "player_id" - userSessionRepository.userIdObservable.blockingFirst() //TODO: fixme
+          "auth" - userSessionRepository.uiConfig?.notification_auth
+        }
+      }.doOnCancel {
+        if (socket.connected()) {
+          emit("notification/disconnect", "")
+        }
+      }
+
+  fun connectToChallenges(): Flowable<SeekGraphChallenge> {
+    val listMyData =
+      Types.newParameterizedType(List::class.java, SeekGraphChallenge::class.java)
+    val adapter: JsonAdapter<List<SeekGraphChallenge>> = moshi.adapter(listMyData)
+
+    val returnVal = observeEvent("seekgraph/global")
+      .map { string -> adapter.fromJson(string.toString()) }
+      .flatMapIterable { it -> it }
+      .doOnCancel {
+        connectedToChallenges = false
+        emit("seek_graph/disconnect") {
+          "channel" - "global"
+        }
+      }
+
+    connectedToChallenges = true
+    emit("seek_graph/connect") {
+      "channel" - "global"
+    }
+
+    return returnVal
+  }
+
+  fun listenToNetPongEvents(): Flowable<NetPong> =
+    observeEvent("net/pong").parseJSON()
+
+  fun emit(event: String, params: Any?) {
+    ensureSocketConnected()
+    if (BuildConfig.DEBUG) Log.i(TAG, "==> $event with params $params")
+    socket.emit(event, params, loggingAck)
+  }
+
+  fun emit(event: String, json: JsonObjectScope.() -> Unit) {
+    emit(event, json { json() })
+  }
+
+  private fun observeEvent(event: String): Flowable<Any> {
+    if (BuildConfig.DEBUG) Log.i(TAG, "Listening for event: $event")
+    return Flowable.create({ emitter ->
+      socket.on(event) { params ->
+        if (BuildConfig.DEBUG) Log.i(TAG, "<== $event, ${params[0]}")
+
+        if (params.size != 1) {
+          recordException(
+            Exception(
+              "Unexpected response (${params.size} params) while listening for event $event: parameter list is ${
+                params.joinToString(
+                  "|||"
+                )
+              }"
+            )
+          )
+        } else if (params[0] == event) {
+          recordException(
+            Exception(
+              "Unexpected response (params[0] == event) while listening for event $event: parameter list is ${
+                params.joinToString(
+                  "|||"
+                )
+              }"
+            )
+          )
         }
 
-    }
-    
-    fun ensureSocketConnected() {
-        if(userSessionRepository.requiresUIConfigRefresh()) {
-            restService.fetchUIConfig()
-                    .subscribeOn(Schedulers.io())
-                    .subscribe({}, { FirebaseCrashlytics.getInstance().log("E/$TAG: Failed to refresh UIConfig $it") })
+        if (params[0] != null) {
+          // Sometimes, rarely, the first parameter is the name of the channel repeated (!?!?)
+          val response =
+            if (params[0] == event && params.size > 1) params[1] else params[0]
+          emitter.onNext(response)
+        } else {
+          recordException(Exception("Unexpected null parameter for event $event"))
+          emitter.onNext("")
         }
-        socket.connect()
-    }
+      }
 
-    private val gameConnections = mutableMapOf<Long, GameConnection>()
-    private val connectionsLock = Any()
-
-    fun connectToGame(id: Long, includeChat: Boolean): GameConnection {
-        synchronized(connectionsLock) {
-            val connection = gameConnections[id] ?:
-            GameConnection(id, connectionsLock, includeChat,
-                    observeEvent("game/$id/gamedata").parseJSON(),
-                    observeEvent("game/$id/move").parseJSON(),
-                    observeEvent("game/$id/clock").parseJSON(),
-                    observeEvent("game/$id/phase").map { string -> Phase.valueOf(string.toString().uppercase(Locale.ENGLISH).replace(' ', '_')) },
-                    observeEvent("game/$id/removed_stones").parseJSON(),
-                    observeEvent("game/$id/chat").parseJSON(),
-                    observeEvent("game/$id/undo_requested").map { string -> string.toString().toInt() },
-                    observeEvent("game/$id/removed_stones_accepted").parseJSON(),
-                    observeEvent("game/$id/undo_accepted").map { string -> string.toString().toInt() }
-            ).apply {
-                emitGameConnection(id, includeChat)
-                gameConnections[id] = this
-            }
-            if(includeChat && !connection.includeChat) {
-                enableChatOnConnection(connection)
-            }
-            connection.incrementCounter()
-            return connection
+      emitter.setCancellable {
+        if (BuildConfig.DEBUG) Log.i(TAG, "Unregistering for event: $event")
+        if (socket.connected()) {
+          socket.off(event)
         }
-    }
+      }
+    }, BackpressureStrategy.BUFFER)
+  }
 
-    fun enableChatOnConnection(gameId: Long) {
-        gameConnections[gameId]?.let {
-            if(!it.includeChat) {
-                enableChatOnConnection(it)
-            }
-        }
-    }
+  fun startAutomatch(sizes: List<Size>, speeds: List<Speed>): String {
+    val uuid = UUID.randomUUID().toString()
 
-    private fun enableChatOnConnection(connection: GameConnection) {
-        emitGameDisconnect(connection.gameId)
-        emitGameConnection(connection.gameId, true)
-        connection.includeChat = true
-    }
-
-    private inline fun <reified T> adapter(string: Any): T? {
-        try {
-            return moshi.adapter(T::class.java).fromJson(string.toString())
-        } catch (e: JsonEncodingException) {
-            val up = Exception("Error parsing JSON: $string", e)
-            recordException(up)
-            throw up
-        }
-    }
-
-    private inline fun <reified T> Flowable<Any>.parseJSON() =
-        map { adapter<T>(it)!! }
-
-    private fun emitGameConnection(id: Long, includeChat: Boolean) {
-        emit("game/connect"){
-            "chat" - includeChat
-            "game_id" - id
-            "player_id" - userSessionRepository.userIdObservable.blockingFirst() //TODO: fixme
-        }
-        if(includeChat) {
-            emit("chat/connect") {
-                "player_id" - userSessionRepository.userIdObservable.blockingFirst() //TODO: fixme
-                "username" - userSessionRepository.uiConfig?.user?.username
-                "auth" - userSessionRepository.uiConfig?.chat_auth
-            }
-            emit("chat/join") {
-                "channel" - "game-$id"
-            }
-        }
-    }
-
-    fun connectToActiveGames(): Flowable<OGSGame> {
-        return observeEvent("active_game").parseJSON()
-    }
-
-    fun connectToUIPushes(): Flowable<UIPush> {
-        val returnVal: Flowable<UIPush> = observeEvent("ui-push").parseJSON()
-
-        emit("ui-pushes/subscribe") {
-            "channel" - "undefined"
-        }
-
-        return returnVal
-    }
-
-    fun connectToBots(): Flowable<List<OGSPlayer>> =
-            observeEvent("active-bots")
-                    .map { string ->
-                        //
-                        // HACK alert!!! Oh creators of OGS why do you torment me so and have different names
-                        // for the same field in different places!?!?? :)
-                        //
-                        val fixedString = string.toString().replace("\"icon-url\":", "\"icon\":")
-                        val json = JSONObject(fixedString)
-                        val retval = mutableListOf<OGSPlayer>()
-                        for (key in json.keys()) {
-                            adapter<OGSPlayer>(json[key])?.let {
-                                retval.add(it)
-                            }
-                        }
-                        return@map retval as List<OGSPlayer>
-                    }
-
-    fun listenToNewAutomatchNotifications(): Flowable<OGSAutomatch> =
-            observeEvent("automatch/entry").parseJSON()
-
-    fun listenToCancelAutomatchNotifications(): Flowable<OGSAutomatch> =
-            observeEvent("automatch/cancel").parseJSON()
-
-    fun listenToStartAutomatchNotifications(): Flowable<OGSAutomatch> =
-            observeEvent("automatch/start").parseJSON()
-
-    fun connectToAutomatch() {
-        emit("automatch/list", null)
-    }
-
-    fun connectToServerNotifications(): Flowable<JSONObject> =
-            observeEvent("notification")
-                    .map { JSONObject(it.toString()) }
-                    .doOnSubscribe {
-                        emit("notification/connect") {
-                            "player_id" - userSessionRepository.userIdObservable.blockingFirst() //TODO: fixme
-                            "auth" - userSessionRepository.uiConfig?.notification_auth
-                        }
-                    }.doOnCancel {
-                        if(socket.connected()) {
-                            emit("notification/disconnect", "")
-                        }
-                    }
-
-    fun connectToChallenges(): Flowable<SeekGraphChallenge> {
-        val listMyData = Types.newParameterizedType(List::class.java, SeekGraphChallenge::class.java)
-        val adapter: JsonAdapter<List<SeekGraphChallenge>> = moshi.adapter(listMyData)
-
-        val returnVal = observeEvent("seekgraph/global")
-                .map { string -> adapter.fromJson(string.toString()) }
-                .flatMapIterable { it -> it }
-                .doOnCancel {
-                    connectedToChallenges = false
-                    emit("seek_graph/disconnect") {
-                        "channel" - "global"
-                    }
-                }
-
-        connectedToChallenges = true
-        emit("seek_graph/connect") {
-            "channel" - "global"
-        }
-
-        return returnVal
-    }
-
-    fun listenToNetPongEvents(): Flowable<NetPong> =
-        observeEvent("net/pong").parseJSON()
-
-    fun emit(event: String, params:Any?) {
-        ensureSocketConnected()
-        if(BuildConfig.DEBUG) Log.i(TAG, "==> $event with params $params")
-        socket.emit(event, params, loggingAck)
-    }
-
-    fun emit(event: String, json: JsonObjectScope.() -> Unit) {
-        emit(event, json { json() })
-    }
-
-    private fun observeEvent(event: String): Flowable<Any> {
-        if(BuildConfig.DEBUG) Log.i(TAG, "Listening for event: $event")
-        return Flowable.create({ emitter ->
-            socket.on(event) { params ->
-                if(BuildConfig.DEBUG) Log.i(TAG, "<== $event, ${params[0]}")
-
-                if(params.size != 1) {
-                    recordException(Exception("Unexpected response (${params.size} params) while listening for event $event: parameter list is ${params.joinToString("|||")}"))
-                } else if(params[0] == event) {
-                    recordException(Exception("Unexpected response (params[0] == event) while listening for event $event: parameter list is ${params.joinToString("|||")}"))
-                }
-
-                if(params[0] != null) {
-                    // Sometimes, rarely, the first parameter is the name of the channel repeated (!?!?)
-                    val response = if(params[0] == event && params.size > 1) params[1] else params[0]
-                    emitter.onNext(response)
-                } else {
-                    recordException(Exception("Unexpected null parameter for event $event"))
-                    emitter.onNext("")
-                }
-            }
-
-            emitter.setCancellable {
-                if(BuildConfig.DEBUG) Log.i(TAG, "Unregistering for event: $event")
-                if(socket.connected()) {
-                    socket.off(event)
-                }
-            }
-        }
-                , BackpressureStrategy.BUFFER)
-    }
-
-    fun startAutomatch(sizes: List<Size>, speeds: List<Speed>) : String {
-        val uuid = UUID.randomUUID().toString()
-
-        emit("automatch/find_match"){
-            "uuid" - uuid
-            "size_speed_options" - createJsonArray {
-                speeds.forEach { speed ->
-                    sizes.forEach { size ->
-                        put(json {
-                            "size" - size.getText()
-                            "speed" - speed.getText()
-                            "system" - "byoyomi"
-                        })
-                        put(json {
-                            "size" - size.getText()
-                            "speed" - speed.getText()
-                            "system" - "fischer"
-                        })
-                    }
-                }
-            }
-            "lower_rank_diff" - 6
-            "upper_rank_diff" - 6
-            "rules" - json {
-                "condition" - "required"
-                "value" - "japanese"
-            }
-            "handicap" - json {
-                "condition" - "preferred"
-                "value" - "enabled"
-            }
-        }
-        return uuid
-    }
-
-    fun cancelAutomatch(automatch: OGSAutomatch) {
-        emit("automatch/cancel", automatch.uuid)
-    }
-
-    fun fetchGameList(): Single<GameList> {
-        ensureSocketConnected()
-        return Single.create { emitter ->
-            socket.emit("gamelist/query", json {
-                "list" - "live"
-                "sort_by" - "rank"
-                "from" - 0
-                "limit" - 9
-            }, Ack {
-                args -> emitter.onSuccess(adapter(args[0].toString())!!)
+    emit("automatch/find_match") {
+      "uuid" - uuid
+      "size_speed_options" - createJsonArray {
+        speeds.forEach { speed ->
+          sizes.forEach { size ->
+            put(json {
+              "size" - size.getText()
+              "speed" - speed.getText()
+              "system" - "byoyomi"
             })
+            put(json {
+              "size" - size.getText()
+              "speed" - speed.getText()
+              "system" - "fischer"
+            })
+          }
         }
+      }
+      "lower_rank_diff" - 6
+      "upper_rank_diff" - 6
+      "rules" - json {
+        "condition" - "required"
+        "value" - "japanese"
+      }
+      "handicap" - json {
+        "condition" - "preferred"
+        "value" - "enabled"
+      }
     }
+    return uuid
+  }
 
-    fun disconnect() {
-        //
-        // Note: cleanup gets called twice, once before the disconnection and once after. If we only
-        // call it after, then the messages to the server don't get sent (since the socket is already
-        // closed). If we only call it before, then if the disconnection is caused by outside factors
-        // then there is no cleanup and we end up subscribing twice...
-        //
-        cleanup()
-        socket.disconnect()
+  fun cancelAutomatch(automatch: OGSAutomatch) {
+    emit("automatch/cancel", automatch.uuid)
+  }
+
+  fun fetchGameList(): Single<GameList> {
+    ensureSocketConnected()
+    return Single.create { emitter ->
+      socket.emit("gamelist/query", json {
+        "list" - "live"
+        "sort_by" - "rank"
+        "from" - 0
+        "limit" - 9
+      }, Ack { args ->
+        emitter.onSuccess(adapter(args[0].toString())!!)
+      })
     }
+  }
 
-    fun deleteNotification(notificationId: String) {
-        emit("notification/delete") {
-            "player_id" - userSessionRepository.userIdObservable.blockingFirst() //TODO: fixme
-            "auth" - userSessionRepository.uiConfig?.notification_auth
-            "notification_id" - notificationId
+  suspend fun disconnect() {
+    //
+    // Note: cleanup gets called twice, once before the disconnection and once after. If we only
+    // call it after, then the messages to the server don't get sent (since the socket is already
+    // closed). If we only call it before, then if the disconnection is caused by outside factors
+    // then there is no cleanup and we end up subscribing twice...
+    //
+    cleanup()
+    socket.disconnect()
+  }
+
+  fun deleteNotification(notificationId: String) {
+    emit("notification/delete") {
+      "player_id" - userSessionRepository.userIdObservable.blockingFirst() //TODO: fixme
+      "auth" - userSessionRepository.uiConfig?.notification_auth
+      "notification_id" - notificationId
+    }
+  }
+
+  private fun onSockedConnected() {
+    thread(start = true, name = "socket-connect-thread") {
+      _connectionState.value = true
+      resendAuth()
+      socketConnectedRepositories.forEach { it.onSocketConnected() }
+      synchronized(connectionsLock) {
+        gameConnections.values.forEach {
+          emitGameConnection(it.gameId, it.includeChat)
         }
-    }
-
-    private fun onSockedConnected() {
-        _connectionState.value = true
-        resendAuth()
-        socketConnectedRepositories.forEach { it.onSocketConnected()}
-        synchronized(connectionsLock) {
-            gameConnections.values.forEach {
-                emitGameConnection(it.gameId, it.includeChat)
-            }
+      }
+      if (connectedToChallenges) {
+        emit("seek_graph/connect") {
+          "channel" - "global"
         }
-        if(connectedToChallenges) {
-            emit("seek_graph/connect") {
-                "channel" - "global"
-            }
-        }
+      }
     }
+  }
 
-    private fun cleanup() {
-        socketConnectedRepositories.forEach { it.onSocketDisconnected()}
+  private suspend fun cleanup() {
+    socketConnectedRepositories.forEach {
+      it.onSocketDisconnected()
+      yield()
     }
+  }
 
-    private fun onSocketDisconnected() {
-        _connectionState.value = false
-        cleanup()
+  private fun onSocketDisconnected() {
+    _connectionState.value = false
+    thread(start = true, name = "socket-disconnect-thread") {
+      runBlocking { cleanup() }
     }
+  }
 
-    fun disconnectFromGame(id: Long) {
-        synchronized(connectionsLock) {
-            gameConnections.remove(id)
-            if(socket.connected()) {
-                emitGameDisconnect(id)
-            }
-        }
+  fun disconnectFromGame(id: Long) {
+    synchronized(connectionsLock) {
+      gameConnections.remove(id)
+      if (socket.connected()) {
+        emitGameDisconnect(id)
+      }
     }
+  }
 
-    private fun emitGameDisconnect(id: Long) {
-        emit("game/disconnect") {
-            "game_id" - id
-        }
+  private fun emitGameDisconnect(id: Long) {
+    emit("game/disconnect") {
+      "game_id" - id
     }
+  }
 
-    fun resendAuth() {
-        val obj = JSONObject().apply {
-            put("player_id", userSessionRepository.userIdObservable.blockingFirst()) //TODO: fixme
-            put("username", userSessionRepository.uiConfig?.user?.username)
-            put("auth", userSessionRepository.uiConfig?.chat_auth)
-        }
-        if(BuildConfig.DEBUG) Log.i(TAG, "==> authenticate with params $obj")
-        socket.emit("authenticate", obj, loggingAck)
+  fun resendAuth() {
+    val obj = JSONObject().apply {
+      put("player_id", userSessionRepository.userIdObservable.blockingFirst()) //TODO: fixme
+      put("username", userSessionRepository.uiConfig?.user?.username)
+      put("auth", userSessionRepository.uiConfig?.chat_auth)
     }
-
+    if (BuildConfig.DEBUG) Log.i(TAG, "==> authenticate with params $obj")
+    socket.emit("authenticate", obj, loggingAck)
+  }
 }

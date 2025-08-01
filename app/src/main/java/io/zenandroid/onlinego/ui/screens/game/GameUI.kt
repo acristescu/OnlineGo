@@ -149,9 +149,10 @@ fun GameScreen(
     }
   }
 
-  DisposableEffect(Unit) {
+  val mediaPlayer = stoneSoundMediaPlayer
+  DisposableEffect(mediaPlayer) {
     onDispose {
-      stoneSoundMediaPlayer?.release()
+      mediaPlayer?.release()
     }
   }
 
