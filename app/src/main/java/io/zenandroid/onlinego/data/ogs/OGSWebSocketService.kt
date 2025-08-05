@@ -2,10 +2,8 @@ package io.zenandroid.onlinego.data.ogs
 
 import android.util.Log
 import com.google.firebase.crashlytics.FirebaseCrashlytics
-import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.JsonEncodingException
 import com.squareup.moshi.Moshi
-import com.squareup.moshi.Types
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
 import io.reactivex.Single
@@ -20,7 +18,6 @@ import io.zenandroid.onlinego.data.model.ogs.OGSAutomatch
 import io.zenandroid.onlinego.data.model.ogs.OGSGame
 import io.zenandroid.onlinego.data.model.ogs.OGSPlayer
 import io.zenandroid.onlinego.data.model.ogs.Phase
-import io.zenandroid.onlinego.data.model.ogs.SeekGraphChallenge
 import io.zenandroid.onlinego.data.model.ogs.Size
 import io.zenandroid.onlinego.data.model.ogs.Speed
 import io.zenandroid.onlinego.data.model.ogs.UIPush
@@ -120,6 +117,7 @@ class OGSWebSocketService(
 
   fun connectToGame(id: Long, includeChat: Boolean): GameConnection {
     synchronized(connectionsLock) {
+      FirebaseCrashlytics.getInstance().log("Acquired connection lock in connectToGame")
       val connection = gameConnections[id] ?: GameConnection(
         id, connectionsLock, includeChat,
         observeEvent("game/$id/gamedata").parseJSON(),
@@ -143,15 +141,20 @@ class OGSWebSocketService(
         enableChatOnConnection(connection)
       }
       connection.incrementCounter()
+      FirebaseCrashlytics.getInstance().log("Released connection lock in connectToGame")
       return connection
     }
   }
 
   fun enableChatOnConnection(gameId: Long) {
-    gameConnections[gameId]?.let {
-      if (!it.includeChat) {
-        enableChatOnConnection(it)
+    synchronized(connectionsLock) {
+      FirebaseCrashlytics.getInstance().log("Acquired connection lock in enableChatOnConnection")
+      gameConnections[gameId]?.let {
+        if (!it.includeChat) {
+          enableChatOnConnection(it)
+        }
       }
+      FirebaseCrashlytics.getInstance().log("Released connection lock in enableChatOnConnection")
     }
   }
 
@@ -250,29 +253,6 @@ class OGSWebSocketService(
           emit("notification/disconnect", "")
         }
       }
-
-  fun connectToChallenges(): Flowable<SeekGraphChallenge> {
-    val listMyData =
-      Types.newParameterizedType(List::class.java, SeekGraphChallenge::class.java)
-    val adapter: JsonAdapter<List<SeekGraphChallenge>> = moshi.adapter(listMyData)
-
-    val returnVal = observeEvent("seekgraph/global")
-      .map { string -> adapter.fromJson(string.toString()) }
-      .flatMapIterable { it -> it }
-      .doOnCancel {
-        connectedToChallenges = false
-        emit("seek_graph/disconnect") {
-          "channel" - "global"
-        }
-      }
-
-    connectedToChallenges = true
-    emit("seek_graph/connect") {
-      "channel" - "global"
-    }
-
-    return returnVal
-  }
 
   fun listenToNetPongEvents(): Flowable<NetPong> =
     observeEvent("net/pong").parseJSON()
@@ -413,9 +393,11 @@ class OGSWebSocketService(
       resendAuth()
       socketConnectedRepositories.forEach { it.onSocketConnected() }
       synchronized(connectionsLock) {
+        FirebaseCrashlytics.getInstance().log("Acquired connection lock in onSocketConnected")
         gameConnections.values.forEach {
           emitGameConnection(it.gameId, it.includeChat)
         }
+        FirebaseCrashlytics.getInstance().log("Released connection lock in onSocketConnected")
       }
       if (connectedToChallenges) {
         emit("seek_graph/connect") {
@@ -441,10 +423,12 @@ class OGSWebSocketService(
 
   fun disconnectFromGame(id: Long) {
     synchronized(connectionsLock) {
+      FirebaseCrashlytics.getInstance().log("Acquired connection lock in disconnectFromGame")
       gameConnections.remove(id)
       if (socket.connected()) {
         emitGameDisconnect(id)
       }
+      FirebaseCrashlytics.getInstance().log("Released connection lock in disconnectFromGame")
     }
   }
 

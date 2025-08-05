@@ -9,7 +9,6 @@ import com.squareup.moshi.JsonEncodingException
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Completable
 import io.reactivex.Flowable
-import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
@@ -71,12 +70,6 @@ class ActiveGamesRepository(
     }
   }
 
-  val myMoveCountObservable: Observable<Int>
-    @Synchronized get() = myMoveCountSubject.distinctUntilChanged()
-
-  val myTurnGamesList: List<Game>
-    @Synchronized get() = activeDbGames.values.filter(Util::isMyTurn).toList()
-
   // Game where it is your turn, ordered by remaining time to play
   var myTurnGames by mutableStateOf(emptyList<Game>())
 
@@ -101,12 +94,10 @@ class ActiveGamesRepository(
 
   override fun onSocketDisconnected() {
     subscriptions.clear()
-    gameConnections.clear()
+    synchronized(gameConnections) {
+      gameConnections.clear()
+    }
   }
-
-  @Synchronized
-  private fun isGameActive(id: Long) =
-    activeDbGames.containsKey(id)
 
   private fun connectToGame(baseGame: Game, includeChat: Boolean = true) {
     val game = baseGame.copy()

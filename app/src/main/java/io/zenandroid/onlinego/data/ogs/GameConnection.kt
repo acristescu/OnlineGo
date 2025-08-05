@@ -139,18 +139,22 @@ class GameConnection(
 
     fun incrementCounter() {
         synchronized(connectionLock) {
+          FirebaseCrashlytics.getInstance().log("Acquired connection lock incrementCounter")
             counter++
+          FirebaseCrashlytics.getInstance().log("Released connection lock incrementCounter")
         }
     }
 
     fun decrementCounter() {
         synchronized(connectionLock) {
+          FirebaseCrashlytics.getInstance().log("Acquired connection lock decrementCounter")
             counter--
             if (counter == 0) {
                 subscriptions.clear()
                 socketService.disconnectFromGame(gameId)
                 closed = true
             }
+          FirebaseCrashlytics.getInstance().log("Released connection lock decrementCounter")
         }
     }
 

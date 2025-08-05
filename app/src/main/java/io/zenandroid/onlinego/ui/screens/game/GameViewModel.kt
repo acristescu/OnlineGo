@@ -138,6 +138,7 @@ class GameViewModel(
   private val chatRepository: ChatRepository,
   private val settingsRepository: SettingsRepository,
   private val getUserStatsUseCase: GetUserStatsUseCase,
+  private val appCoroutineScope: CoroutineScope,
   savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -726,7 +727,9 @@ class GameViewModel(
   }
 
   override fun onCleared() {
-    gameConnection.close()
+    appCoroutineScope.launch(Dispatchers.IO) {
+      gameConnection.close()
+    }
     super.onCleared()
   }
 
