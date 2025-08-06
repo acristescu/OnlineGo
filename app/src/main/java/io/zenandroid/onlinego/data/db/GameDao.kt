@@ -284,6 +284,9 @@ abstract class GameDao {
     abstract fun getGame(id: Long): Game
 
     @Query("SELECT * FROM game WHERE id = :id")
+    abstract fun getGameNullable(id: Long): Game?
+
+    @Query("SELECT * FROM game WHERE id = :id")
     abstract fun getGameMaybe(id: Long): Maybe<Game>
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)

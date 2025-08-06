@@ -55,7 +55,7 @@ class ActiveGamesRepository(
   private val subscriptions = CompositeDisposable()
 
   private fun onNotification(game: OGSGame) {
-    if (gameDao.getGameMaybe(game.id).blockingGet() == null) {
+    if (gameDao.getGameNullable(game.id) == null) {
       FirebaseCrashlytics.getInstance()
         .log("ActiveGameRepository: New game found from active_game notification ${game.id}")
       restService.fetchGame(game.id)

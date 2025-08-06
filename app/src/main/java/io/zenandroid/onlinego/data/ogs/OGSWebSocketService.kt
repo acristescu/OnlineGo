@@ -408,10 +408,12 @@ class OGSWebSocketService(
   }
 
   private suspend fun cleanup() {
+    FirebaseCrashlytics.getInstance().log("Socket cleanup started")
     socketConnectedRepositories.forEach {
       it.onSocketDisconnected()
       yield()
     }
+    FirebaseCrashlytics.getInstance().log("Socket clean up done")
   }
 
   private fun onSocketDisconnected() {

@@ -3,6 +3,7 @@ package io.zenandroid.onlinego
 import android.app.Application
 import android.util.Log
 import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.reactivex.exceptions.UndeliverableException
 import io.reactivex.plugins.RxJavaPlugins
 import io.zenandroid.onlinego.data.ogs.OGSRestService
@@ -44,7 +45,7 @@ class OnlineGoApplication : Application() {
 
             modules(allKoinModules)
         }
-        applicationScope.launch(Dispatchers.IO) { // Or a dedicated initialization dispatcher
+        applicationScope.launch(Dispatchers.IO) {
             Log.d("AppInit", "Pre-warming network stack on ${Thread.currentThread().name}")
             try {
                 // Eagerly resolve the dependencies that are slow
@@ -55,6 +56,7 @@ class OnlineGoApplication : Application() {
                 Log.e("AppInit", "Error pre-warming Koin dependencies", e)
             }
             RulesManager.coordinateToCell("A1")
+            FirebaseCrashlytics.getInstance().log("Done pre-warming network stack")
         }
 
         RxJavaPlugins.setErrorHandler {

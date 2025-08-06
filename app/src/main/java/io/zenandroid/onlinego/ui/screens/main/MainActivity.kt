@@ -26,9 +26,9 @@ import androidx.core.util.Consumer
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.zenandroid.onlinego.BuildConfig
 import io.zenandroid.onlinego.data.model.BoardTheme
-import io.zenandroid.onlinego.data.repositories.UserSessionRepository
 import io.zenandroid.onlinego.notifications.SynchronizeGamesWork
 import io.zenandroid.onlinego.ui.screens.login.FacebookLoginCallbackActivity
 import io.zenandroid.onlinego.ui.theme.LocalThemeSettings
@@ -41,7 +41,6 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import org.koin.android.ext.android.get
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 
@@ -79,6 +78,8 @@ class MainActivity : ComponentActivity() {
           .build()
       )
     }
+
+    FirebaseCrashlytics.getInstance().log("MainActivity.onCreate()")
 
     var themeSettings by mutableStateOf(
       ThemeSettings(
@@ -265,12 +266,14 @@ class MainActivity : ComponentActivity() {
   }
 
   override fun onResume() {
+    FirebaseCrashlytics.getInstance().log("MainActivity.onResume()")
     viewModel.onResume()
     isInForeground = true
     super.onResume()
   }
 
   override fun onPause() {
+    FirebaseCrashlytics.getInstance().log("MainActivity.onPause()")
     super.onPause()
     viewModel.onPause()
     isInForeground = false
