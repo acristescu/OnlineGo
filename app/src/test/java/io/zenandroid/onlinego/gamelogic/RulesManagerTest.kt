@@ -7,8 +7,10 @@ import io.zenandroid.onlinego.data.model.ogs.OGSGame
 import io.zenandroid.onlinego.data.ogs.OGSBooleanJsonAdapter
 import io.zenandroid.onlinego.data.ogs.OGSInstantJsonAdapter
 import io.zenandroid.onlinego.di.allKoinModules
+import kotlinx.coroutines.runBlocking
 import org.junit.Assert
 import org.junit.Rule
+import org.junit.Test
 import org.koin.core.logger.Level
 import org.koin.test.KoinTestRule
 import java.time.Instant
@@ -28,11 +30,11 @@ class RulesManagerTest {
         .addLast(KotlinJsonAdapterFactory())
         .build()
 
-//    @Test
+    @Test
     fun fullGameTest() {
         val game = Game.fromOGSGame(moshi.adapter(OGSGame::class.java).fromJson(testGameString)!!)
 
-        val pos = RulesManager.replay(game)
+        val pos = runBlocking { RulesManager.replay(game) }
 
         Assert.assertNotNull(pos)
         Assert.assertEquals(128, pos.whiteStones.size)
