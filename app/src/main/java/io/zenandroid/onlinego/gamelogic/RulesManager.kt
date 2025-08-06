@@ -12,6 +12,7 @@ import io.zenandroid.onlinego.data.model.local.InitialState
 import io.zenandroid.onlinego.data.model.local.Score
 import io.zenandroid.onlinego.gamelogic.Util.toCoordinateSet
 import io.zenandroid.onlinego.ui.screens.game.Variation
+import kotlinx.coroutines.yield
 import java.util.LinkedList
 
 /**
@@ -21,6 +22,10 @@ object RulesManager {
 
   init {
     try {
+      if (Thread.currentThread().name == "main") {
+        FirebaseCrashlytics.getInstance()
+          .recordException(Throwable("System.loadLibrary called on main thread!!!"))
+      }
       System.loadLibrary("estimator")
     } catch (_: UnsatisfiedLinkError) {
       Log.e("libestimator", "Error loading estimator")
@@ -32,6 +37,10 @@ object RulesManager {
   private external fun estimate(w: Int, h: Int, board: IntArray, playerToMove: Int, trials: Int, tolerance: Float): IntArray
 
   fun determineTerritory(pos: Position, scoreStones: Boolean): Position {
+    if (Thread.currentThread().name == "main") {
+      FirebaseCrashlytics.getInstance()
+        .recordException(Throwable("determineTerritory called on main thread!!!"))
+    }
     val inBoard = IntArray(pos.boardWidth * pos.boardHeight)
     pos.blackStones
       .filter { !pos.removedSpots.contains(it) }
@@ -126,7 +135,7 @@ object RulesManager {
     )
   }
 
-  fun replay(
+  suspend fun replay(
     moves: List<Cell>,
     width: Int,
     height: Int,
@@ -157,7 +166,7 @@ object RulesManager {
     )
   }
 
-  fun replay(
+  suspend fun replay(
     game: Game,
     limit: Int = Int.MAX_VALUE,
     computeTerritory: Boolean = false,
@@ -225,7 +234,7 @@ object RulesManager {
       (19 - coordinate.substring(1).toInt())
     )
 
-  fun makeMove(pos: Position, player: StoneType, move: Cell): Position? =
+  suspend fun makeMove(pos: Position, player: StoneType, move: Cell): Position? =
     buildPos(
       moves = listOf(move),
       boardWidth = pos.boardWidth,
@@ -242,7 +251,7 @@ object RulesManager {
       currentMoveIndex = pos.currentMoveIndex,
     )
 
-  fun buildPos(
+  suspend fun buildPos(
     moves: List<Cell>,
     boardWidth: Int,
     boardHeight: Int,
@@ -262,6 +271,11 @@ object RulesManager {
     blackCapturesCount: Int = 0,
     currentMoveIndex: Int = 0,
   ): Position? {
+    if (Thread.currentThread().name == "main") {
+      FirebaseCrashlytics.getInstance()
+        .recordException(Throwable("System.loadLibrary called on main thread!!!"))
+    }
+
     var nextPlayer = nextToMove
     var lastPlayer: StoneType? = null
     val whiteStones: MutableSet<Cell> = whiteInitialState.toMutableSet()
@@ -331,6 +345,7 @@ object RulesManager {
       if (!freeHandicapPlacement || i + currentMoveIndex >= handicap - 1) {
         nextPlayer = nextPlayer.opponent
       }
+      yield()
     }
 
     val isLiveStone: (Cell) -> Boolean =
@@ -391,6 +406,7 @@ object RulesManager {
             }
             alreadyVisited.addAll(visited)
           }
+        yield()
       }
       if (scoreStones) {
         whiteTerritory.addAll(whiteStones - removedCells)

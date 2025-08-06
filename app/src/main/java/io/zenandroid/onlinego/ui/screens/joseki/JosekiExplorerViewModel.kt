@@ -2,6 +2,7 @@ package io.zenandroid.onlinego.ui.screens.joseki
 
 import android.os.Bundle
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
@@ -11,10 +12,12 @@ import io.zenandroid.onlinego.data.model.Position
 import io.zenandroid.onlinego.data.model.ogs.JosekiPosition
 import io.zenandroid.onlinego.data.repositories.JosekiRepository
 import io.zenandroid.onlinego.gamelogic.RulesManager.coordinateToCell
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
 class JosekiExplorerViewModel(
     private val josekiRepository: JosekiRepository
@@ -61,54 +64,62 @@ class JosekiExplorerViewModel(
 
     fun onPressedPrevious() {
         analytics.logEvent("joseki_previous", null)
-        
-        val currentState = _state.value
-        if (currentState.historyStack.isEmpty()) {
-            finishExplorer()
-        } else {
-            val history = currentState.historyStack.dropLast(1)
-            val position = currentState.historyStack.last()
-            val nextPosStack = currentState.nextPosStack + currentState.position!!
-            
+
+        viewModelScope.launch(Dispatchers.Default) {
+            val currentState = _state.value
+            if (currentState.historyStack.isEmpty()) {
+                finishExplorer()
+            } else {
+                val history = currentState.historyStack.dropLast(1)
+                val position = currentState.historyStack.last()
+                val nextPosStack = currentState.nextPosStack + currentState.position!!
+
+                val boardPosition = Position.fromJosekiPosition(position)
+
+                _state.value = currentState.copy(
+                    position = position,
+                    description = descriptionOfPosition(position),
+                    boardPosition = boardPosition,
+                    historyStack = history,
+                    nextPosStack = nextPosStack,
+                    loading = false,
+                    candidateMove = null,
+                    error = null,
+                    previousButtonEnabled = history.isNotEmpty(),
+                    nextButtonEnabled = true,
+                    passButtonEnabled = position.next_moves?.find { it.placement == "pass" } != null
+                )
+            }
+        }
+    }
+
+    fun onPressedNext() {
+        viewModelScope.launch(Dispatchers.Default) {
+            analytics.logEvent("joseki_next", null)
+
+            val currentState = _state.value
+            if (currentState.nextPosStack.isEmpty()) return@launch
+
+            val nextPosStack = currentState.nextPosStack.dropLast(1)
+            val position = currentState.nextPosStack.last()
+            val history = currentState.historyStack + currentState.position!!
+
+            val boardPosition = Position.fromJosekiPosition(position)
+
             _state.value = currentState.copy(
                 position = position,
                 description = descriptionOfPosition(position),
-                boardPosition = Position.fromJosekiPosition(position),
+                boardPosition = boardPosition,
                 historyStack = history,
                 nextPosStack = nextPosStack,
                 loading = false,
                 candidateMove = null,
                 error = null,
-                previousButtonEnabled = history.isNotEmpty(),
-                nextButtonEnabled = true,
+                previousButtonEnabled = true,
+                nextButtonEnabled = nextPosStack.isNotEmpty(),
                 passButtonEnabled = position.next_moves?.find { it.placement == "pass" } != null
             )
         }
-    }
-
-    fun onPressedNext() {
-        analytics.logEvent("joseki_next", null)
-        
-        val currentState = _state.value
-        if (currentState.nextPosStack.isEmpty()) return
-        
-        val nextPosStack = currentState.nextPosStack.dropLast(1)
-        val position = currentState.nextPosStack.last()
-        val history = currentState.historyStack + currentState.position!!
-        
-        _state.value = currentState.copy(
-            position = position,
-            description = descriptionOfPosition(position),
-            boardPosition = Position.fromJosekiPosition(position),
-            historyStack = history,
-            nextPosStack = nextPosStack,
-            loading = false,
-            candidateMove = null,
-            error = null,
-            previousButtonEnabled = true,
-            nextButtonEnabled = nextPosStack.isNotEmpty(),
-            passButtonEnabled = position.next_moves?.find { it.placement == "pass" } != null
-        )
     }
 
     fun onPressedPass() {
@@ -146,28 +157,33 @@ class JosekiExplorerViewModel(
     }
 
     private fun onPositionLoaded(position: JosekiPosition) {
-        val currentState = _state.value
-        
-        if (currentState.lastRequestedNodeId == null || currentState.lastRequestedNodeId == position.node_id) {
-            val history = if (currentState.position != null && currentState.position.node_id != position.node_id) {
-                currentState.historyStack + currentState.position
-            } else {
-                currentState.historyStack
+        viewModelScope.launch(Dispatchers.Default) {
+            val currentState = _state.value
+
+            if (currentState.lastRequestedNodeId == null || currentState.lastRequestedNodeId == position.node_id) {
+                val history =
+                    if (currentState.position != null && currentState.position.node_id != position.node_id) {
+                        currentState.historyStack + currentState.position
+                    } else {
+                        currentState.historyStack
+                    }
+
+                val boardPosition = Position.fromJosekiPosition(position)
+
+                _state.value = currentState.copy(
+                    position = position,
+                    description = descriptionOfPosition(position),
+                    boardPosition = boardPosition,
+                    historyStack = history,
+                    nextPosStack = emptyList(),
+                    loading = false,
+                    candidateMove = null,
+                    error = null,
+                    previousButtonEnabled = history.isNotEmpty(),
+                    nextButtonEnabled = false,
+                    passButtonEnabled = position.next_moves?.find { it.placement == "pass" } != null
+                )
             }
-            
-            _state.value = currentState.copy(
-                position = position,
-                description = descriptionOfPosition(position),
-                boardPosition = Position.fromJosekiPosition(position),
-                historyStack = history,
-                nextPosStack = emptyList(),
-                loading = false,
-                candidateMove = null,
-                error = null,
-                previousButtonEnabled = history.isNotEmpty(),
-                nextButtonEnabled = false,
-                passButtonEnabled = position.next_moves?.find { it.placement == "pass" } != null
-            )
         }
     }
 

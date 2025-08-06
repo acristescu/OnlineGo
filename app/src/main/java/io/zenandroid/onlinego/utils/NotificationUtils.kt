@@ -10,23 +10,24 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
 import android.os.Build
-import androidx.core.app.NotificationCompat
-import androidx.core.content.res.ResourcesCompat
 import android.view.View
 import android.widget.RemoteViews
-import java.util.Locale
+import androidx.core.app.NotificationCompat
+import androidx.core.content.res.ResourcesCompat
+import androidx.core.graphics.createBitmap
+import androidx.core.net.toUri
 import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.R
-import io.zenandroid.onlinego.gamelogic.RulesManager
 import io.zenandroid.onlinego.data.model.local.Challenge
 import io.zenandroid.onlinego.data.model.local.ChallengeNotification
 import io.zenandroid.onlinego.data.model.local.Game
 import io.zenandroid.onlinego.data.model.local.GameNotificationWithDetails
 import io.zenandroid.onlinego.data.model.ogs.Phase
+import io.zenandroid.onlinego.gamelogic.RulesManager
 import io.zenandroid.onlinego.ui.screens.main.MainActivity
 import io.zenandroid.onlinego.ui.views.BoardView
-import androidx.core.net.toUri
-import androidx.core.graphics.createBitmap
+import kotlinx.coroutines.runBlocking
+import java.util.Locale
 
 /**
  * Created by alex on 07/03/2018.
@@ -218,7 +219,9 @@ class NotificationUtils {
 
                 board.boardWidth = it.width
                 board.boardHeight = it.height
-                board.position = RulesManager.replay(it, computeTerritory = false)
+                board.position = runBlocking {
+                    RulesManager.replay(it, computeTerritory = false)
+                }
                 remoteView.setImageViewBitmap(R.id.notification_bitmap, board.convertToContentBitmap())
                 val notification =
                     NotificationCompat.Builder(context, category)

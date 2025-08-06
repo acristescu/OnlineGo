@@ -72,8 +72,10 @@ class TsumegoViewModel(
         .filterNotNull()
         .catch { onError(it) }
         .collect {
-          cursor = collectionContents.indexOfFirst { it.id == _state.value.puzzle?.id }
-          setPuzzle(it)
+          withContext(Dispatchers.Default) {
+            cursor = collectionContents.indexOfFirst { it.id == _state.value.puzzle?.id }
+            setPuzzle(it)
+          }
         }
     }
 
@@ -104,7 +106,7 @@ class TsumegoViewModel(
     }
   }
 
-  private fun setPuzzle(puzzle: Puzzle, attempts: Int = 1) {
+  private suspend fun setPuzzle(puzzle: Puzzle, attempts: Int = 1) {
     _state.update {
       it.copy(
         puzzle = puzzle,
@@ -196,61 +198,92 @@ class TsumegoViewModel(
   fun nextPuzzle() {
     if (!hasNextPuzzle) return
 
-    val index = cursor + 1
-    cursor = index
-    val puzzle = collectionContents[index]
-    setPuzzle(puzzle)
-    fetchRating()
+    viewModelScope.launch(Dispatchers.Default) {
+      val index = cursor + 1
+      cursor = index
+      val puzzle = collectionContents[index]
+      setPuzzle(puzzle)
+      fetchRating()
+    }
   }
 
   fun resetPuzzle() {
-    val puzzle = _state.value.puzzle!!
-    val attempts = _state.value.attemptCount + 1
-    setPuzzle(puzzle, attempts)
+    viewModelScope.launch(Dispatchers.Default) {
+      val puzzle = _state.value.puzzle!!
+      val attempts = _state.value.attemptCount + 1
+      setPuzzle(puzzle, attempts)
+    }
   }
 
   fun selectPuzzle(index: Int) {
     if (index < 0 || index >= collectionContents.size) return
 
-    cursor = index
-    val puzzle = collectionContents[index]
-    setPuzzle(puzzle)
-    fetchRating()
+    viewModelScope.launch(Dispatchers.Default) {
+      cursor = index
+      val puzzle = collectionContents[index]
+      setPuzzle(puzzle)
+      fetchRating()
+    }
   }
 
   fun previousPuzzle() {
     if (!hasPreviousPuzzle) return
 
-    val index = cursor - 1
-    cursor = index
-    val puzzle = collectionContents[index]
-    setPuzzle(puzzle)
-    fetchRating()
+    viewModelScope.launch(Dispatchers.Default) {
+      val index = cursor - 1
+      cursor = index
+      val puzzle = collectionContents[index]
+      setPuzzle(puzzle)
+      fetchRating()
+    }
   }
 
   fun makeMove(move: Cell) {
-    _state.value.nodeStack.let { stack ->
-      val branches = stack.lastOrNull()?.branches ?: emptyList()
-      val branch = branches.find {
-        it.x == move.x && it.y == move.y
-      } ?: branches.find { it.x == -1 || it.y == -1 }
-      branch?.let { node ->
-        moveReplyJob = viewModelScope.launch(errorHandler) {
-          var position = state.value.boardPosition!!
-          position = (RulesManager.makeMove(position, position.nextToMove, move)
-            ?: run {
-              _state.value = state.value.copy(
-                hoveredCell = null
-              )
-              return@launch
-            }).copy(nextToMove = position.nextToMove.opponent)
-          val nodeStack = _state.value.nodeStack
-          nodeStack.push(node)
-          var moveString = _state.value.sgfMoves
-          moveString += Util.getSGFCoordinates(move)
-          node.branches?.randomOrNull()?.let { moveTree ->
-            val reply = Cell(moveTree.x, moveTree.y)
-            nodeStack.push(moveTree)
+    viewModelScope.launch(Dispatchers.Default) {
+      _state.value.nodeStack.let { stack ->
+        val branches = stack.lastOrNull()?.branches ?: emptyList()
+        val branch = branches.find {
+          it.x == move.x && it.y == move.y
+        } ?: branches.find { it.x == -1 || it.y == -1 }
+        branch?.let { node ->
+          moveReplyJob = viewModelScope.launch(errorHandler) {
+            var position = state.value.boardPosition!!
+            position = (RulesManager.makeMove(position, position.nextToMove, move)
+              ?: run {
+                _state.value = state.value.copy(
+                  hoveredCell = null
+                )
+                return@launch
+              }).copy(nextToMove = position.nextToMove.opponent)
+            val nodeStack = _state.value.nodeStack
+            nodeStack.push(node)
+            var moveString = _state.value.sgfMoves
+            moveString += Util.getSGFCoordinates(move)
+            node.branches?.randomOrNull()?.let { moveTree ->
+              val reply = Cell(moveTree.x, moveTree.y)
+              nodeStack.push(moveTree)
+              _state.update {
+                it.copy(
+                  boardPosition = position.let { pos ->
+                    pos.copy(
+                      customMarks = pos.customMarks.plus(
+                        node.marks.orEmpty().map { markData ->
+                          val cell = Cell(x = markData.x, y = markData.y)
+                          Mark(cell, markData.marks.toString(), PlayCategory.LABEL)
+                        })
+                    )
+                  },
+                  nodeStack = nodeStack,
+                  sgfMoves = moveString,
+                  continueButtonVisible = if (moveTree.correct_answer == true) true
+                  else _state.value.continueButtonVisible,
+                )
+              }
+              delay(600)
+              moveString += Util.getSGFCoordinates(reply)
+              position = (RulesManager.makeMove(position, position.nextToMove, reply)
+                ?: throw RuntimeException("Invalid move $moveTree")).copy(nextToMove = position.nextToMove.opponent)
+            }
             _state.update {
               it.copy(
                 boardPosition = position.let { pos ->
@@ -261,55 +294,37 @@ class TsumegoViewModel(
                 },
                 nodeStack = nodeStack,
                 sgfMoves = moveString,
-                continueButtonVisible = if (moveTree.correct_answer == true) true
+                continueButtonVisible = if (node.correct_answer == true) true
                 else _state.value.continueButtonVisible,
+                retryButtonVisible = true,
+                hoveredCell = null,
               )
             }
-            delay(600)
-            moveString += Util.getSGFCoordinates(reply)
-            position = (RulesManager.makeMove(position, position.nextToMove, reply)
-              ?: throw RuntimeException("Invalid move $moveTree")).copy(nextToMove = position.nextToMove.opponent)
           }
+        } ?: run launch@{
+          var position = state.value.boardPosition!!
+          position = (RulesManager.makeMove(position, position.nextToMove, move)
+            ?: run {
+              _state.update {
+                it.copy(hoveredCell = null)
+              }
+              return@launch
+            }).copy(nextToMove = position.nextToMove.opponent)
+          val nodeStack = _state.value.nodeStack
+          nodeStack.push(null)
           _state.update {
             it.copy(
-              boardPosition = position.let { pos ->
-                pos.copy(customMarks = pos.customMarks.plus(node.marks.orEmpty().map { markData ->
-                  val cell = Cell(x = markData.x, y = markData.y)
-                  Mark(cell, markData.marks.toString(), PlayCategory.LABEL)
-                }))
-              },
+              boardPosition = position,
               nodeStack = nodeStack,
-              sgfMoves = moveString,
-              continueButtonVisible = if (node.correct_answer == true) true
-              else _state.value.continueButtonVisible,
               retryButtonVisible = true,
               hoveredCell = null,
             )
           }
         }
-      } ?: run launch@{
-        var position = state.value.boardPosition!!
-        position = (RulesManager.makeMove(position, position.nextToMove, move)
-          ?: run {
-            _state.update {
-              it.copy(hoveredCell = null)
-            }
-            return@launch
-          }).copy(nextToMove = position.nextToMove.opponent)
-        val nodeStack = _state.value.nodeStack
-        nodeStack.push(null)
-        _state.update {
-          it.copy(
-            boardPosition = position,
-            nodeStack = nodeStack,
-            retryButtonVisible = true,
-            hoveredCell = null,
-          )
-        }
       }
-    }
-    if (_state.value.continueButtonVisible) {
-      markSolved()
+      if (_state.value.continueButtonVisible) {
+        markSolved()
+      }
     }
   }
 

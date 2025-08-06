@@ -27,7 +27,6 @@ import io.zenandroid.onlinego.data.model.StoneType.BLACK
 import io.zenandroid.onlinego.data.model.StoneType.WHITE
 import io.zenandroid.onlinego.data.repositories.SettingsRepository
 import io.zenandroid.onlinego.gamelogic.RulesManager
-import io.zenandroid.onlinego.gamelogic.Util
 import io.zenandroid.onlinego.gamelogic.Util.toGTP
 import io.zenandroid.onlinego.ui.composables.BottomBarButton
 import io.zenandroid.onlinego.ui.screens.face2face.Action.BoardCellDragged
@@ -79,7 +78,7 @@ class FaceToFaceViewModel(
 
   init {
     analytics.logEvent("face_to_face_opened", null)
-    viewModelScope.launch {
+    viewModelScope.launch(Dispatchers.IO) {
       loadSavedData()
     }
   }
@@ -150,7 +149,8 @@ class FaceToFaceViewModel(
 
   private suspend fun loadSavedData() {
     val historyString = settingsRepository.faceToFaceHistoryFlow.first() ?: ""
-    val sizeString = settingsRepository.faceToFaceBoardSizeFlow.first() ?: BoardSize.LARGE.prettyName
+    val sizeString =
+      settingsRepository.faceToFaceBoardSizeFlow.first() ?: BoardSize.LARGE.prettyName
     val handicap = settingsRepository.faceToFaceHandicapFlow.first() ?: 0
 
     if (historyString.isNotEmpty()) {
@@ -233,9 +233,11 @@ class FaceToFaceViewModel(
       //
       return
     }
-    val newPos = historyPosition(newIndex)
-    historyIndex = newIndex
-    currentPosition = newPos
+    viewModelScope.launch(Dispatchers.Default) {
+      val newPos = historyPosition(newIndex)
+      historyIndex = newIndex
+      currentPosition = newPos
+    }
   }
 
   private fun onNextPressed() {
@@ -249,9 +251,11 @@ class FaceToFaceViewModel(
       //
       return
     }
-    val newPos = historyPosition(newIndex)
-    historyIndex = if (newIndex < history.lastIndex) newIndex else null
-    currentPosition = newPos
+    viewModelScope.launch(Dispatchers.Default) {
+      val newPos = historyPosition(newIndex)
+      historyIndex = if (newIndex < history.lastIndex) newIndex else null
+      currentPosition = newPos
+    }
   }
 
   private fun onStartNewGame() {
@@ -265,7 +269,7 @@ class FaceToFaceViewModel(
     newGameDialogShowing = false
   }
 
-  private fun historyPosition(index: Int) =
+  private suspend fun historyPosition(index: Int) =
     RulesManager.replay(
       nextToMove = if (currentGameParameters.handicap > 0) WHITE else BLACK,
       moves = history.subList(0, index + 1),
@@ -290,34 +294,28 @@ class FaceToFaceViewModel(
   }
 
   private fun onCellTapUp(cell: Cell) {
-    crashlytics.log(
-      "onCellTapUp ${
-        Util.getGTPCoordinates(
-          cell,
-          currentGameParameters.size.height
-        )
-      }"
-    )
-    val pos = currentPosition
-    val newPosition = RulesManager.makeMove(pos, pos.nextToMove, cell)
-    if (newPosition != null) {
-      val index = historyIndex ?: history.lastIndex
-      val potentialKOPosition = if (index > 0 && !cell.isPass) {
-        historyPosition(index - 1)
-      } else null
-      if (potentialKOPosition?.hasTheSameStonesAs(newPosition) == true) {
-        crashlytics.log("FaceToFaceViewModel KO move detected")
-        koMoveDialogShowing = true
-      } else {
-        currentPosition = newPosition
-        history = history.subList(0, index + 1) + cell
-        historyIndex = null
-        if (index > 0 && cell.isPass && history[index].isPass) {
-          doEstimation()
+    viewModelScope.launch(Dispatchers.Default) {
+      val pos = currentPosition
+      val newPosition = RulesManager.makeMove(pos, pos.nextToMove, cell)
+      if (newPosition != null) {
+        val index = historyIndex ?: history.lastIndex
+        val potentialKOPosition = if (index > 0 && !cell.isPass) {
+          historyPosition(index - 1)
+        } else null
+        if (potentialKOPosition?.hasTheSameStonesAs(newPosition) == true) {
+          crashlytics.log("FaceToFaceViewModel KO move detected")
+          koMoveDialogShowing = true
+        } else {
+          currentPosition = newPosition
+          history = history.subList(0, index + 1) + cell
+          historyIndex = null
+          if (index > 0 && cell.isPass && history[index].isPass) {
+            doEstimation()
+          }
         }
       }
+      candidateMove = null
     }
-    candidateMove = null
   }
 }
 

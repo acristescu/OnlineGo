@@ -103,7 +103,7 @@ object Util {
         )
     }
 
-    fun sgfToPositionList(sgf: String, size: Int): List<Position> {
+    suspend fun sgfToPositionList(sgf: String, size: Int): List<Position> {
         var pos = Position(size, size)
         val retval = mutableListOf<Position>()
         retval.add(pos)

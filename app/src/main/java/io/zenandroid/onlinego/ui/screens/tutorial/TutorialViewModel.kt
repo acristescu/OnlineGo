@@ -19,6 +19,7 @@ import io.zenandroid.onlinego.ui.screens.tutorial.TutorialAction.BoardCellHovere
 import io.zenandroid.onlinego.ui.screens.tutorial.TutorialAction.BoardCellTapped
 import io.zenandroid.onlinego.ui.screens.tutorial.TutorialAction.NextPressed
 import io.zenandroid.onlinego.ui.screens.tutorial.TutorialAction.RetryPressed
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -135,16 +136,18 @@ class TutorialViewModel(
   }
 
   private fun loadGame(tutorial: Tutorial, game: GameExample) {
-    val positions = Util.sgfToPositionList(game.sgf, game.size)
-    _state.update {
-      it.copy(
-        gameExamplePositions = positions,
-        gameExamplePositionIndex = 0,
-        position = positions[0],
-        removedStones = null,
-        text = game.text,
-        step = game
-      )
+    viewModelScope.launch(Dispatchers.Default) {
+      val positions = Util.sgfToPositionList(game.sgf, game.size)
+      _state.update {
+        it.copy(
+          gameExamplePositions = positions,
+          gameExamplePositionIndex = 0,
+          position = positions[0],
+          removedStones = null,
+          text = game.text,
+          step = game
+        )
+      }
     }
   }
 

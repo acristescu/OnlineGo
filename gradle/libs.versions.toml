@@ -38,6 +38,7 @@ rxjava = "2.2.21"
 rxandroid = "2.1.1"
 rxkotlin = "2.4.0"
 rxbinding = "3.1.0"
+kotlinxCoroutinesRx = "1.10.2"
 
 # Utility libraries
 markwon = "4.6.2"
@@ -126,6 +127,7 @@ rxjava = { group = "io.reactivex.rxjava2", name = "rxjava", version.ref = "rxjav
 rxandroid = { group = "io.reactivex.rxjava2", name = "rxandroid", version.ref = "rxandroid" }
 rxkotlin = { group = "io.reactivex.rxjava2", name = "rxkotlin", version.ref = "rxkotlin" }
 rxbinding = { group = "com.jakewharton.rxbinding3", name = "rxbinding", version.ref = "rxbinding" }
+kotlinx-coroutines-rx2 = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-rx2", version.ref = "kotlinxCoroutinesRx" }
 
 # Work Manager
 work-runtime-ktx = { group = "androidx.work", name = "work-runtime-ktx", version.ref = "workManager" }
@@ -202,7 +204,8 @@ rx = [
     "rxjava",
     "rxandroid",
     "rxkotlin",
-    "rxbinding"
+    "rxbinding",
+    "kotlinx-coroutines-rx2"
 ]
 
 room = [

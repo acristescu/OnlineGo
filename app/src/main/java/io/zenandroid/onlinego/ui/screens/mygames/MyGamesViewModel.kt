@@ -54,10 +54,12 @@ import io.zenandroid.onlinego.utils.egfToRank
 import io.zenandroid.onlinego.utils.formatRank
 import io.zenandroid.onlinego.utils.recordException
 import io.zenandroid.onlinego.utils.timeLeftForCurrentPlayer
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.rx2.rxSingle
 import org.json.JSONObject
 import java.util.Locale
 
@@ -167,7 +169,11 @@ class MyGamesViewModel(
 
     activeGamesRepository.monitorActiveGames()
       .subscribeOn(Schedulers.io())
-      .map(this::computePositions)
+      .flatMapSingle { games ->
+        rxSingle(Dispatchers.Default) {
+          computePositions(games)
+        }
+      }
       .subscribeOn(Schedulers.computation())
       .observeOn(AndroidSchedulers.mainThread())
       .subscribe(this::setGames, this::onError)
@@ -180,7 +186,11 @@ class MyGamesViewModel(
       .addToDisposable(subscriptions)
     finishedGamesRepository.getRecentlyFinishedGames()
       .subscribeOn(Schedulers.io())
-      .map(this::computePositions)
+      .flatMapSingle { games ->
+        rxSingle(Dispatchers.Default) {
+          computePositions(games)
+        }
+      }
       .subscribeOn(Schedulers.computation())
       .observeOn(AndroidSchedulers.mainThread())
       .subscribe(this::setRecentGames, this::onError)
@@ -510,7 +520,6 @@ class MyGamesViewModel(
     loadOlderGamesSubscription =
       finishedGamesRepository.getHistoricGames(lastGame?.ended)
         .subscribeOn(Schedulers.io())
-        .observeOn(AndroidSchedulers.mainThread())
         .distinctUntilChanged()
         .doOnNext { result ->
           _state.update {
@@ -521,12 +530,18 @@ class MyGamesViewModel(
           }
         }
         .map { it.games }
-        .map(this::computePositions)
+        .flatMapSingle { games ->
+          rxSingle(Dispatchers.Default) {
+            computePositions(games)
+          }
+        }
+        .subscribeOn(Schedulers.computation())
+        .observeOn(AndroidSchedulers.mainThread())
         .subscribe(this::onHistoricGames, this::onError)
     loadOlderGamesSubscription?.addToDisposable(subscriptions)
   }
 
-  private fun computePositions(games: List<Game>): List<Game> =
+  private suspend fun computePositions(games: List<Game>): List<Game> =
     games.onEach { it.position = RulesManager.replay(it, computeTerritory = false) }
 
   private fun onHistoricGames(games: List<Game>) {

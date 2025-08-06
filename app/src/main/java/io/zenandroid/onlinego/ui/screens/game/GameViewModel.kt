@@ -746,7 +746,7 @@ class GameViewModel(
   private fun onCellTapUp(cell: Cell) {
     when {
       gameState?.phase == Phase.PLAY && !analyzeMode && !estimateMode -> {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.Default) {
           val pos = currentGamePosition.value
           val historySize = gameState?.moves?.size ?: 0
           val newPosition = RulesManager.makeMove(pos, pos.nextToMove, cell)
@@ -762,14 +762,16 @@ class GameViewModel(
       }
 
       gameState?.phase == Phase.STONE_REMOVAL -> {
-        val (removing, delta) = RulesManager.toggleRemoved(currentGamePosition.value, cell)
-        if (delta.isNotEmpty()) {
-          gameConnection.submitRemovedStones(delta, removing)
+        viewModelScope.launch(Dispatchers.Default) {
+          val (removing, delta) = RulesManager.toggleRemoved(currentGamePosition.value, cell)
+          if (delta.isNotEmpty()) {
+            gameConnection.submitRemovedStones(delta, removing)
+          }
         }
       }
 
       analyzeMode && analysisPosition != null && !estimateMode -> {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.Default) {
           analysisPosition?.let { pos ->
             val newPosition = RulesManager.makeMove(pos, pos.nextToMove, cell)
             if (newPosition != null) {

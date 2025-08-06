@@ -28,6 +28,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -89,7 +90,7 @@ class AiGameViewModel(
     }
   }
 
-  private fun validState(state: AiGameState): Boolean {
+  private suspend fun validState(state: AiGameState): Boolean {
     if (state.history.isNotEmpty()) {
       val whiteInitial = state.history[0].whiteStones
       val blackInitial = state.history[0].blackStones
@@ -120,47 +121,47 @@ class AiGameViewModel(
   }
 
   private fun restoreState() {
-    viewModelScope.launch {
-      settingsRepository.aiGameStateFlow.collect { json ->
-        if (!json.isNullOrBlank()) {
-          val newState = try {
-            stateAdapter.fromJson(json)
-          } catch (e: Exception) {
-            Log.e("StatePersistenceMiddlew", "Cannot deserialize state", e)
-            recordException(e)
-            null
-          }
-          newState?.let {
-            if (validState(it)) {
-              _state.update { state ->
-                it.copy(
-                  engineStarted = it.engineStarted,
-                  stateRestorePending = false,
-                  userIcon = userSessionRepository.uiConfig?.user?.icon,
-                )
-              }
+    viewModelScope.launch(Dispatchers.Default) {
+      val json = settingsRepository.aiGameStateFlow.first()
+
+      if (!json.isNullOrBlank()) {
+        val newState = try {
+          stateAdapter.fromJson(json)
+        } catch (e: Exception) {
+          Log.e("StatePersistenceMiddlew", "Cannot deserialize state", e)
+          recordException(e)
+          null
+        }
+        newState?.let { newState ->
+          if (validState(newState)) {
+            _state.update { state ->
+              newState.copy(
+                engineStarted = state.engineStarted,
+                stateRestorePending = false,
+                userIcon = userSessionRepository.uiConfig?.user?.icon,
+              )
             }
           }
-        } else {
-          _state.update {
-            it.copy(
-              newGameDialogShown = true,
-              stateRestorePending = false
-            )
-          }
         }
-        // Only need the first value
-        return@collect
+      } else {
+        _state.update {
+          it.copy(
+            newGameDialogShown = true,
+            stateRestorePending = false
+          )
+        }
       }
     }
   }
 
   fun onViewPaused() {
     viewModelScope.launch {
-      val json = stateAdapter.toJson(state.value.copy(
-        aiAnalysis = null,
-        aiQuickEstimation = null,
-      ))
+      val json = stateAdapter.toJson(
+        state.value.copy(
+          aiAnalysis = null,
+          aiQuickEstimation = null,
+        )
+      )
       settingsRepository.setAiGameState(json)
     }
   }
@@ -215,30 +216,32 @@ class AiGameViewModel(
   fun onUserTappedCoordinate(coordinate: Cell) {
     val currentState = state.value
     if (!currentState.boardIsInteractive || currentState.position == null) return
+    viewModelScope.launch(Dispatchers.Default) {
 
-    val side = if (currentState.enginePlaysBlack) StoneType.WHITE else StoneType.BLACK
-    val newPosition = RulesManager.makeMove(currentState.position, side, coordinate)
+      val side = if (currentState.enginePlaysBlack) StoneType.WHITE else StoneType.BLACK
+      val newPosition = RulesManager.makeMove(currentState.position, side, coordinate)
 
-    if (newPosition != null) {
-      val potentialKOPosition = if (currentState.history.size > 1 && !coordinate.isPass) {
-        currentState.history[currentState.history.size - 2]
-      } else null
-      if (potentialKOPosition?.hasTheSameStonesAs(newPosition) == true) {
-        _state.update {
-          it.copy(
-            candidateMove = null,
-            koMoveDialogShowing = true,
-            chatText = "Invalid move, try again"
-          )
+      if (newPosition != null) {
+        val potentialKOPosition = if (currentState.history.size > 1 && !coordinate.isPass) {
+          currentState.history[currentState.history.size - 2]
+        } else null
+        if (potentialKOPosition?.hasTheSameStonesAs(newPosition) == true) {
+          _state.update {
+            it.copy(
+              candidateMove = null,
+              koMoveDialogShowing = true,
+              chatText = "Invalid move, try again"
+            )
+          }
+        } else {
+          updatePosition(newPosition)
         }
       } else {
-        updatePosition(newPosition)
-      }
-    } else {
-      _state.update {
-        it.copy(
-          candidateMove = null
-        )
+        _state.update {
+          it.copy(
+            candidateMove = null
+          )
+        }
       }
     }
   }
@@ -260,12 +263,14 @@ class AiGameViewModel(
   fun onUserPressedPass() {
     val currentState = state.value
     if (!currentState.boardIsInteractive || currentState.position == null) return
+    viewModelScope.launch(Dispatchers.Default) {
 
-    val side = if (currentState.enginePlaysBlack) StoneType.WHITE else StoneType.BLACK
-    val newPosition = RulesManager.makeMove(currentState.position, side, Cell.PASS)
+      val side = if (currentState.enginePlaysBlack) StoneType.WHITE else StoneType.BLACK
+      val newPosition = RulesManager.makeMove(currentState.position, side, Cell.PASS)
 
-    if (newPosition != null) {
-      updatePosition(newPosition)
+      if (newPosition != null) {
+        updatePosition(newPosition)
+      }
     }
   }
 
@@ -326,17 +331,17 @@ class AiGameViewModel(
           .subscribeOn(Schedulers.io())
           .observeOn(AndroidSchedulers.mainThread())
           .subscribe(
-          { analysis ->
-            _state.update {
-              it.copy(
-                showHints = true,
-                aiAnalysis = analysis,
-                chatText = "Here are a few moves to consider"
-              )
-            }
-          },
-          { recordException(it) }
-        ).addToDisposable(katagoDisposable)
+            { analysis ->
+              _state.update {
+                it.copy(
+                  showHints = true,
+                  aiAnalysis = analysis,
+                  chatText = "Here are a few moves to consider"
+                )
+              }
+            },
+            { recordException(it) }
+          ).addToDisposable(katagoDisposable)
       } catch (e: Exception) {
         recordException(e)
       }
@@ -376,18 +381,18 @@ class AiGameViewModel(
           .subscribeOn(Schedulers.io())
           .observeOn(AndroidSchedulers.mainThread())
           .subscribe(
-          { analysis ->
-            _state.update {
-              it.copy(
-                boardIsInteractive = true,
-                aiAnalysis = analysis,
-                showAiEstimatedTerritory = true,
-                chatText = "Here's what I think the territories look like"
-              )
-            }
-          },
-          { recordException(it) }
-        ).addToDisposable(katagoDisposable)
+            { analysis ->
+              _state.update {
+                it.copy(
+                  boardIsInteractive = true,
+                  aiAnalysis = analysis,
+                  showAiEstimatedTerritory = true,
+                  chatText = "Here's what I think the territories look like"
+                )
+              }
+            },
+            { recordException(it) }
+          ).addToDisposable(katagoDisposable)
       } catch (e: Exception) {
         recordException(e)
       }
@@ -478,65 +483,67 @@ class AiGameViewModel(
         includeMovesOwnership = false
       )
         .subscribeOn(Schedulers.io())
-        .observeOn(AndroidSchedulers.mainThread())
+        .observeOn(Schedulers.computation())
         .subscribe(
-        { analysis ->
-          val selectedMove = analysis.moveInfos[0]
-          val move =
-            Util.getCoordinatesFromGTP(selectedMove.move, currentState.position.boardHeight)
-          val side = if (currentState.enginePlaysBlack) StoneType.BLACK else StoneType.WHITE
-          val newPosition = RulesManager.makeMove(currentState.position, side, move)
+          { analysis ->
+            viewModelScope.launch(Dispatchers.Default) {
+              val selectedMove = analysis.moveInfos[0]
+              val move =
+                Util.getCoordinatesFromGTP(selectedMove.move, currentState.position.boardHeight)
+              val side = if (currentState.enginePlaysBlack) StoneType.BLACK else StoneType.WHITE
+              val newPosition = RulesManager.makeMove(currentState.position, side, move)
 
-          if (newPosition == null) {
-            recordException(Exception("KataGO wants to play move ${selectedMove.move} ($move), but RulesManager rejects it as invalid"))
-          } else {
-            val newVariation = if (currentState.history.lastOrNull() == newPosition) {
-              currentState.history
-            } else {
-              currentState.history + newPosition
-            }
-            _state.update {
-              it.copy(
-                position = newPosition,
-                history = newVariation,
-                nextButtonEnabled = false,
-                aiAnalysis = analysis,
-                aiQuickEstimation = selectedMove,
-                previousButtonEnabled = newVariation.size > 2,
-                showFinalTerritory = newVariation.isGameOver(),
-                chatText = when {
-                  newVariation.isGameOver() && it.aiWon == true ->
-                    "Game ended because of two passes. Final score is black ${it.finalBlackScore?.toInt()} to white ${it.finalWhiteScore}. Looks like I win this time."
-
-                  newVariation.isGameOver() && it.aiWon == false ->
-                    "Game ended because of two passes. Final score is black ${it.finalBlackScore?.toInt()} to white ${it.finalWhiteScore}. Congrats, looks like you got the better of me."
-
-                  newVariation.isGameOver() && it.aiWon == null ->
-                    "Game ended because of two passes. Hang on, I'm computing the final score."
-
-                  else -> "Your turn"
+              if (newPosition == null) {
+                recordException(Exception("KataGO wants to play move ${selectedMove.move} ($move), but RulesManager rejects it as invalid"))
+              } else {
+                val newVariation = if (currentState.history.lastOrNull() == newPosition) {
+                  currentState.history
+                } else {
+                  currentState.history + newPosition
                 }
-              )
-            }
+                _state.update {
+                  it.copy(
+                    position = newPosition,
+                    history = newVariation,
+                    nextButtonEnabled = false,
+                    aiAnalysis = analysis,
+                    aiQuickEstimation = selectedMove,
+                    previousButtonEnabled = newVariation.size > 2,
+                    showFinalTerritory = newVariation.isGameOver(),
+                    chatText = when {
+                      newVariation.isGameOver() && it.aiWon == true ->
+                        "Game ended because of two passes. Final score is black ${it.finalBlackScore?.toInt()} to white ${it.finalWhiteScore}. Looks like I win this time."
 
-            if (newVariation.isGameOver()) {
-              viewModelScope.launch {
-                computeFinalScore()
-              }
-            } else {
-              _state.update {
-                it.copy(
-                  boardIsInteractive = true,
-                  passButtonEnabled = true,
-                  hintButtonVisible = true,
-                  ownershipButtonVisible = true
-                )
+                      newVariation.isGameOver() && it.aiWon == false ->
+                        "Game ended because of two passes. Final score is black ${it.finalBlackScore?.toInt()} to white ${it.finalWhiteScore}. Congrats, looks like you got the better of me."
+
+                      newVariation.isGameOver() && it.aiWon == null ->
+                        "Game ended because of two passes. Hang on, I'm computing the final score."
+
+                      else -> "Your turn"
+                    }
+                  )
+                }
+
+                if (newVariation.isGameOver()) {
+                  viewModelScope.launch {
+                    computeFinalScore()
+                  }
+                } else {
+                  _state.update {
+                    it.copy(
+                      boardIsInteractive = true,
+                      passButtonEnabled = true,
+                      hintButtonVisible = true,
+                      ownershipButtonVisible = true
+                    )
+                  }
+                }
               }
             }
-          }
-        },
-        { recordException(it) }
-      ).addToDisposable(katagoDisposable)
+          },
+          { recordException(it) }
+        ).addToDisposable(katagoDisposable)
     } catch (e: Exception) {
       recordException(e)
     }

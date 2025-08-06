@@ -44,7 +44,7 @@ data class Position(
         get() = removedSpots.subtract(whiteTerritory).subtract(blackTerritory)
 
     companion object {
-        fun fromJosekiPosition(josekiPosition: JosekiPosition): Position {
+        suspend fun fromJosekiPosition(josekiPosition: JosekiPosition): Position {
             val customMarks = josekiPosition.next_moves
                 ?.filter { !it.placement.isNullOrBlank() && it.placement != "pass" && it.placement != "root" }
                 ?.map {

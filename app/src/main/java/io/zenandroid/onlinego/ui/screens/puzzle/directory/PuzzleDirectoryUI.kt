@@ -44,8 +44,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.zenandroid.onlinego.R
+import io.zenandroid.onlinego.data.model.Position
 import io.zenandroid.onlinego.data.model.local.PuzzleCollection
-import io.zenandroid.onlinego.gamelogic.RulesManager
 import io.zenandroid.onlinego.gamelogic.Util.toCoordinateSet
 import io.zenandroid.onlinego.ui.composables.Board
 import io.zenandroid.onlinego.ui.composables.FilterSortPanel
@@ -173,13 +173,12 @@ private fun PuzzleDirectoryContent(
           Row(modifier = Modifier.clickable { onCollection(it) }) {
             Column(modifier = Modifier.padding(horizontal = 10.dp, vertical = 10.dp)) {
               it.starting_puzzle.let {
-                val pos = remember {
-                  RulesManager.buildPos(
-                    moves = emptyList(),
+                val pos = remember(it) {
+                  Position(
                     boardWidth = it.width,
                     boardHeight = it.height,
-                    whiteInitialState = it.initial_state.white.toCoordinateSet(),
-                    blackInitialState = it.initial_state.black.toCoordinateSet()
+                    whiteStones = it.initial_state.white.toCoordinateSet(),
+                    blackStones = it.initial_state.black.toCoordinateSet()
                   )
                 }
                 Board(
