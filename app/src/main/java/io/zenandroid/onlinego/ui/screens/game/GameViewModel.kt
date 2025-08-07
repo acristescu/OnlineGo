@@ -343,9 +343,11 @@ class GameViewModel(
         estimateMode && estimatePosition == null -> "Estimating"
         else -> null
       }
+      val excludeTerritory = shownPosition != currentGamePosition.value
       val score = if (game != null) RulesManager.scorePositionPartial(
         shownPosition,
-        game!!
+        game!!,
+        excludeTerritory
       ) else Score() to Score()
 
       val whiteScore = if (shownPosition == currentGamePosition.value) game?.whiteScore ?: score.first else score.first
@@ -378,8 +380,8 @@ class GameViewModel(
         gameHeight = gameHeight,
         candidateMove = candidateMove,
         boardInteractive = boardInteractive,
-        drawTerritory = game?.phase == Phase.STONE_REMOVAL || (gameFinished == true && analysisShownMoveNumber == game?.moves?.size) || (estimateMode && estimatePosition != null),
-        fadeOutRemovedStones = game?.phase == Phase.STONE_REMOVAL || (gameFinished == true && analysisShownMoveNumber == game?.moves?.size) || (estimateMode && estimatePosition != null),
+        drawTerritory = game?.phase == Phase.STONE_REMOVAL || (gameFinished == true && analysisShownMoveNumber == game?.moves?.size && currentVariation?.moves.isNullOrEmpty()) || (estimateMode && estimatePosition != null),
+        fadeOutRemovedStones = game?.phase == Phase.STONE_REMOVAL || (gameFinished == true && analysisShownMoveNumber == game?.moves?.size && currentVariation?.moves.isNullOrEmpty()) || (estimateMode && estimatePosition != null),
         buttons = visibleButtons,
         title = if (loading) "Loading..." else "Move ${game?.moves?.size} · ${game?.rules?.capitalize()} · ${if (whiteToMove) "White" else "Black"}",
         whitePlayer = game?.whitePlayer?.data(StoneType.WHITE, whiteScore.total ?: 0f, showRanks),

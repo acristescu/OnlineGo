@@ -525,12 +525,17 @@ object RulesManager {
     return removing to group
   }
 
-  fun scorePositionPartial(pos: Position, game: Game): Pair<Score, Score> {
+  fun scorePositionPartial(
+    pos: Position,
+    game: Game,
+    excludeTerritory: Boolean
+  ): Pair<Score, Score> {
     val whiteHandicap =
       if (game.scoreHandicap != true) null else if (game.scoreAGAHandicap == true) pos.handicap - 1 else pos.handicap
     val whitePrisoners =
       if (game.scorePrisoners == true) pos.blackDeadStones.size + pos.whiteCaptureCount else null
-    val whiteTerritory = if (game.scoreTerritory == true) pos.whiteTerritory.size else null
+    val whiteTerritory =
+      if (game.scoreTerritory == true && !excludeTerritory) pos.whiteTerritory.size else null
     val whiteScore = Score(
       handicap = whiteHandicap,
       komi = pos.komi,
@@ -543,7 +548,8 @@ object RulesManager {
     )
     val blackPrisoners =
       if (game.scorePrisoners == true) pos.whiteDeadStones.size + pos.blackCaptureCount else null
-    val blackTerritory = if (game.scoreTerritory == true) pos.blackTerritory.size else null
+    val blackTerritory =
+      if (game.scoreTerritory == true && !excludeTerritory) pos.blackTerritory.size else null
     val blackScore = Score(
       handicap = null,
       komi = null,

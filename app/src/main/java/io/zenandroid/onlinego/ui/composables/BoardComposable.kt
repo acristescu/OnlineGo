@@ -273,11 +273,11 @@ private data class Measurements(
   val stoneRadius: Int,
   val xOffsetForNonSquareBoard: Float,
   val yOffsetForNonSquareBoard: Float,
-  val centers: List<Offset>,
+  val centers: List<List<Offset>>,
 )
 
 private fun getCellCenter(i: Int, j: Int, measurements: Measurements) =
-  measurements.centers[j * measurements.width + i]
+  measurements.centers[i][j]
 
 private fun DrawScope.drawSingleStarPoint(
   i: Int,
@@ -473,40 +473,42 @@ private fun DrawScope.drawDecorations(
 
   if (drawMarks) {
     position.customMarks.forEach {
-      when (it.text) {
-        "#" -> { // last move mark
-          val color =
-            if (position.getStoneAt(it.placement) == StoneType.WHITE) Color.Black else Color.White
-          drawDefaultLastMoveMarker(it.placement, measurements, color)
-        }
-
-        else -> {
-          val center = getCellCenter(it.placement.x, it.placement.y, measurements)
-
-          val color = when (it.category) {
-            PlayCategory.IDEAL -> Color(0xC0D0FFC0)
-            PlayCategory.GOOD -> Color(0xC0F0FF90)
-            PlayCategory.MISTAKE -> Color(0xC0ED7861)
-            PlayCategory.TRICK -> Color(0xC0D384F9)
-            PlayCategory.QUESTION -> Color(0xC079B3E4)
-            PlayCategory.LABEL -> Color(0x70FFFFFF)
-            null -> Color(0x00FFFFFF)
+      if (!it.placement.isPass) {
+        when (it.text) {
+          "#" -> { // last move mark
+            val color =
+              if (position.getStoneAt(it.placement) == StoneType.WHITE) Color.Black else Color.White
+            drawDefaultLastMoveMarker(it.placement, measurements, color)
           }
 
+          else -> {
+            val center = getCellCenter(it.placement.x, it.placement.y, measurements)
 
-          drawCircle(
-            color,
-            measurements.cellSize / 2f - measurements.stoneSpacing,
-            Offset(center.x, center.y)
-          )
-          it.text?.let {
-            drawTextCentred(
-              it,
-              center.x,
-              center.y,
-              paint = measurements.textPaintShadow,
-              textSize = measurements.textSize
+            val color = when (it.category) {
+              PlayCategory.IDEAL -> Color(0xC0D0FFC0)
+              PlayCategory.GOOD -> Color(0xC0F0FF90)
+              PlayCategory.MISTAKE -> Color(0xC0ED7861)
+              PlayCategory.TRICK -> Color(0xC0D384F9)
+              PlayCategory.QUESTION -> Color(0xC079B3E4)
+              PlayCategory.LABEL -> Color(0x70FFFFFF)
+              null -> Color(0x00FFFFFF)
+            }
+
+
+            drawCircle(
+              color,
+              measurements.cellSize / 2f - measurements.stoneSpacing,
+              Offset(center.x, center.y)
             )
+            it.text?.let {
+              drawTextCentred(
+                it,
+                center.x,
+                center.y,
+                paint = measurements.textPaintShadow,
+                textSize = measurements.textSize
+              )
+            }
           }
         }
       }
@@ -760,10 +762,12 @@ private fun doMeasurements(
     setShadowLayer(8.dp.value, 0f, 0f, android.graphics.Color.WHITE)
   }
 
-  val centers = mutableListOf<Offset>()
-  for (j in 0 until width) {
-    for (i in 0 until height) {
-      centers.add(Offset(i * cellSize + halfCell, j * cellSize + halfCell))
+  val centers = mutableListOf<List<Offset>>()
+  for (i in 0 until width) {
+    val row = mutableListOf<Offset>()
+    centers.add(row)
+    for (j in 0 until height) {
+      row.add(Offset(i * cellSize + halfCell, j * cellSize + halfCell))
     }
   }
 
