@@ -762,11 +762,11 @@ private fun doMeasurements(
     setShadowLayer(8.dp.value, 0f, 0f, android.graphics.Color.WHITE)
   }
 
-  val centers = mutableListOf<List<Offset>>()
-  for (i in 0 until width) {
-    val row = mutableListOf<Offset>()
+  val centers = ArrayList<List<Offset>>(boardWidth)
+  for (i in 0 until boardWidth) {
+    val row = ArrayList<Offset>(boardHeight)
     centers.add(row)
-    for (j in 0 until height) {
+    for (j in 0 until boardHeight) {
       row.add(Offset(i * cellSize + halfCell, j * cellSize + halfCell))
     }
   }
