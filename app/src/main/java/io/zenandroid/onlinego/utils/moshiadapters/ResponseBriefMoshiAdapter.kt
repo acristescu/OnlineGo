@@ -4,6 +4,8 @@ import com.squareup.moshi.FromJson
 import com.squareup.moshi.ToJson
 import io.zenandroid.onlinego.data.model.katago.KataGoResponse.Response
 import io.zenandroid.onlinego.data.model.katago.ResponseAbreviatedJSON
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toImmutableList
 
 class ResponseBriefMoshiAdapter {
     @ToJson
@@ -19,10 +21,10 @@ class ResponseBriefMoshiAdapter {
         return Response(
                 id = "",
                 turnNumber = 0,
-                moveInfos = emptyList(),
+          moveInfos = persistentListOf(),
                 rootInfo =  json.rootInfo,
                 policy = null,
-                ownership = json.ownership
+          ownership = json.ownership?.toImmutableList()
         )
     }
 }

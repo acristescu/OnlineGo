@@ -1,5 +1,7 @@
 package io.zenandroid.onlinego.data.model.katago
 
+import androidx.compose.runtime.Immutable
+
 sealed interface KataGoResponse {
   val id: String
 
@@ -10,6 +12,7 @@ sealed interface KataGoResponse {
     val field: String?,
   ) : KataGoResponse
 
+  @Immutable
   data class Response(
     override val id: String,
     val turnNumber: Int,
@@ -20,6 +23,7 @@ sealed interface KataGoResponse {
   ) : KataGoResponse
 }
 
+@Immutable
 data class MoveInfo(
   val move: String,
   val visits: Int,

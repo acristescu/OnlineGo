@@ -2,7 +2,6 @@
 
 package io.zenandroid.onlinego.ui.screens.puzzle.tsumego
 
-import android.R.attr.navigationIcon
 import androidx.compose.animation.animateColor
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
@@ -74,6 +73,7 @@ import io.zenandroid.onlinego.ui.composables.Board
 import io.zenandroid.onlinego.ui.composables.ExposedLazyDropdownMenu
 import io.zenandroid.onlinego.ui.composables.RatingBar
 import io.zenandroid.onlinego.utils.rememberStateWithLifecycle
+import kotlinx.collections.immutable.toImmutableList
 import org.koin.androidx.compose.koinViewModel
 import java.util.Stack
 
@@ -293,7 +293,7 @@ private fun TsumegoContent(
               drawShadow = true,
               fadeInLastMove = false,
               fadeOutRemovedStones = false,
-              removedStones = state.removedStones?.map { it.toPair() },
+              removedStones = state.removedStones?.map { it.toPair() }?.toImmutableList(),
               candidateMove = state.hoveredCell,
               candidateMoveType = StoneType.BLACK,
               onTapUp = { if (state.boardInteractive) onMove(it) },

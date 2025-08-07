@@ -9,6 +9,7 @@ import io.zenandroid.onlinego.data.model.local.Page
 import io.zenandroid.onlinego.data.model.local.Tutorial
 import io.zenandroid.onlinego.data.model.local.TutorialGroup
 import io.zenandroid.onlinego.data.model.local.TutorialStep
+import kotlinx.collections.immutable.ImmutableList
 
 @Immutable
 data class TutorialState(
@@ -19,7 +20,7 @@ data class TutorialState(
   val page: Page? = null,
   val gameExamplePositions: List<Position> = emptyList(),
   val gameExamplePositionIndex: Int = 0,
-  val removedStones: List<Pair<Cell, StoneType>>? = null,
+  val removedStones: ImmutableList<Pair<Cell, StoneType>>? = null,
 
   val position: Position? = null,
   val hoveredCell: Cell? = null,

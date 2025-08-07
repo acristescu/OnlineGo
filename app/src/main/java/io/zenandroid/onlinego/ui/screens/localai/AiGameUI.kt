@@ -85,6 +85,8 @@ import io.zenandroid.onlinego.ui.composables.BottomBar
 import io.zenandroid.onlinego.ui.composables.BottomBarButton
 import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
 import io.zenandroid.onlinego.utils.processGravatarURL
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toImmutableList
 import org.koin.androidx.compose.koinViewModel
 import kotlin.math.abs
 
@@ -294,8 +296,8 @@ private fun BoardSection(
     boardWidth = state.boardSize,
     boardHeight = state.boardSize,
     position = state.position,
-    hints = if (state.showHints) state.aiAnalysis?.moveInfos else null,
-    ownership = if (state.showAiEstimatedTerritory) state.aiAnalysis?.ownership else null,
+    hints = if (state.showHints) state.aiAnalysis?.moveInfos?.toImmutableList() else null,
+    ownership = if (state.showAiEstimatedTerritory) state.aiAnalysis?.ownership?.toImmutableList() else null,
     candidateMove = state.candidateMove,
     candidateMoveType = if (state.enginePlaysBlack) StoneType.WHITE else StoneType.BLACK,
     interactive = state.boardIsInteractive,
@@ -757,7 +759,7 @@ private fun AiGameUIPreview() {
         aiAnalysis = Response(
           id = "aaa",
           turnNumber = 1,
-          moveInfos = emptyList(),
+          moveInfos = persistentListOf(),
           policy = null,
           rootInfo = RootInfo(
             winrate = 0.5f,
@@ -812,7 +814,7 @@ private fun AiGameUIPreviewNewGame() {
         aiAnalysis = Response(
           id = "aaa",
           turnNumber = 1,
-          moveInfos = emptyList(),
+          moveInfos = persistentListOf(),
           policy = null,
           rootInfo = RootInfo(
             winrate = 0.5f,
@@ -872,7 +874,7 @@ private fun PreviewLandscape() {
         aiAnalysis = Response(
           id = "aaa",
           turnNumber = 1,
-          moveInfos = emptyList(),
+          moveInfos = persistentListOf(),
           policy = null,
           rootInfo = RootInfo(
             winrate = 0.5f,

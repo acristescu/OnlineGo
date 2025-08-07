@@ -7,6 +7,7 @@ import io.zenandroid.onlinego.data.model.StoneType
 import io.zenandroid.onlinego.data.model.local.Game
 import io.zenandroid.onlinego.data.model.ogs.OGSGame
 import io.zenandroid.onlinego.data.repositories.UserSessionRepository
+import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 import org.koin.core.context.GlobalContext.get
 import java.util.LinkedList
@@ -159,7 +160,7 @@ object Util {
     fun getCurrentUserId() =
         userSessionRepository.userIdObservable.blockingFirst() // TODO: fixme, this is blocking
 
-    fun getRemovedStones(oldPos: Position, newPos: Position): List<Pair<Cell, StoneType>> =
-        (newPos.whiteStones - oldPos.whiteStones).map { it to StoneType.WHITE } +
-        (newPos.blackStones - oldPos.blackStones).map { it to StoneType.BLACK }
+    fun getRemovedStones(oldPos: Position, newPos: Position): ImmutableList<Pair<Cell, StoneType>> =
+        ((newPos.whiteStones - oldPos.whiteStones).map { it to StoneType.WHITE } +
+            (newPos.blackStones - oldPos.blackStones).map { it to StoneType.BLACK }).toImmutableList()
 }

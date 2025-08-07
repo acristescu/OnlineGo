@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -50,6 +51,7 @@ import io.zenandroid.onlinego.data.model.ogs.PlayCategory
 import io.zenandroid.onlinego.gamelogic.RulesManager.isPass
 import io.zenandroid.onlinego.gamelogic.Util
 import io.zenandroid.onlinego.ui.theme.LocalThemeSettings
+import kotlinx.collections.immutable.ImmutableList
 import kotlin.math.abs
 import kotlin.math.ceil
 import kotlin.math.roundToInt
@@ -66,8 +68,8 @@ fun Board(
   candidateMoveType: StoneType? = null,
   boardTheme: BoardTheme = LocalThemeSettings.current.boardTheme,
   drawCoordinates: Boolean = LocalThemeSettings.current.showCoordinates,
-  hints: List<MoveInfo>? = null,
-  ownership: List<Float>? = null,
+  hints: ImmutableList<MoveInfo>? = null,
+  ownership: ImmutableList<Float>? = null,
   interactive: Boolean = true,
   drawShadow: Boolean = true,
   drawTerritory: Boolean = false,
@@ -75,7 +77,7 @@ fun Board(
   lastMoveMarker: String = "#",
   fadeInLastMove: Boolean = true,
   fadeOutRemovedStones: Boolean = true,
-  removedStones: List<Pair<Cell, StoneType>>? = null,
+  removedStones: ImmutableList<Pair<Cell, StoneType>>? = null,
   onTapMove: ((Cell) -> Unit)? = null,
   onTapUp: ((Cell) -> Unit)? = null
 ) {
@@ -83,7 +85,8 @@ fun Board(
 
     val drawMarks = true
 
-    val background = if (LocalThemeSettings.current.isDarkTheme) boardTheme.backgroundImageDarkMode else boardTheme.backgroundImage
+    val background =
+      if (LocalThemeSettings.current.isDarkTheme) boardTheme.backgroundImageDarkMode else boardTheme.backgroundImage
     val backgroundImage: ImageBitmap? = background?.let {
       ImageBitmap.imageResource(id = it)
     }
@@ -100,7 +103,7 @@ fun Board(
     val width = with(LocalDensity.current) { maxWidth.roundToPx() }
     val height = with(LocalDensity.current) { maxHeight.roundToPx() }
 
-    val measurements = remember(width, height, boardWidth, boardHeight) {
+    val measurements = remember(width, height, boardWidth, boardHeight, drawCoordinates) {
       doMeasurements(
         width,
         height,
@@ -252,6 +255,7 @@ private fun screenToBoardCoordinates(
 private val coordinatesX = arrayOf("A", "B", "C", "D", "E", "F", "G", "H", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z")
 private val coordinatesY = (1..25).map(Int::toString)
 
+@Immutable
 private data class Measurements(
   var width: Int,
   val cellSize: Int,
@@ -263,17 +267,17 @@ private data class Measurements(
   val textSize: Float,
   val coordinatesTextSize: Float,
   val shadowPaint: Paint,
+  val textPaint: android.graphics.Paint,
+  val textPaintShadow: android.graphics.Paint,
   val halfCell: Float,
   val stoneRadius: Int,
   val xOffsetForNonSquareBoard: Float,
   val yOffsetForNonSquareBoard: Float,
+  val centers: List<Offset>,
 )
 
 private fun getCellCenter(i: Int, j: Int, measurements: Measurements) =
-  Offset(
-    i * measurements.cellSize + measurements.halfCell,
-    j * measurements.cellSize + measurements.halfCell
-  )
+  measurements.centers[j * measurements.width + i]
 
 private fun DrawScope.drawSingleStarPoint(
   i: Int,
@@ -291,20 +295,14 @@ private fun DrawScope.drawTextCentred(
   cy: Float,
   textSize: Float,
   @ColorInt color: Int = android.graphics.Color.BLACK,
-  shadow: Boolean = true,
+  paint: android.graphics.Paint,
   ignoreAscentDescent: Boolean = false
 ) {
-  val paint = android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG)
   val textBounds = Rect()
   paint.apply {
-    textAlign = android.graphics.Paint.Align.LEFT
-    isSubpixelText = true
     setTextSize(textSize)
-    getTextBounds(text, 0, text.length, textBounds)
     setColor(color)
-    if (shadow) {
-      setShadowLayer(8.dp.value, 0f, 0f, android.graphics.Color.WHITE)
-    }
+    getTextBounds(text, 0, text.length, textBounds)
   }
 
   drawIntoCanvas {
@@ -365,21 +363,25 @@ private fun DrawScope.drawAiEstimatedOwnership(
 private fun DrawScope.drawHints(
   position: Position,
   hints: List<MoveInfo>,
-  measurements: Measurements
+  measurements: Measurements,
 ) {
-  hints?.let {
-    for ((index, hint) in it.take(5).withIndex()) {
-      val coords = Util.getCoordinatesFromGTP(hint.move, position.boardHeight)
-      val center = getCellCenter(coords.x, coords.y, measurements)
-      drawCircle(
-        Color.Black,
-        measurements.cellSize / 2f - measurements.stoneSpacing,
-        Offset(center.x, center.y),
-        style = Stroke(measurements.decorationsLineWidth),
-      )
+  for ((index, hint) in hints.take(5).withIndex()) {
+    val coords = Util.getCoordinatesFromGTP(hint.move, position.boardHeight)
+    val center = getCellCenter(coords.x, coords.y, measurements)
+    drawCircle(
+      Color.Black,
+      measurements.cellSize / 2f - measurements.stoneSpacing,
+      Offset(center.x, center.y),
+      style = Stroke(measurements.decorationsLineWidth),
+    )
 
-      drawTextCentred((index + 1).toString(), center.x, center.y, measurements.textSize)
-    }
+    drawTextCentred(
+      (index + 1).toString(),
+      center.x,
+      center.y,
+      paint = measurements.textPaintShadow,
+      textSize = measurements.textSize
+    )
   }
 }
 
@@ -431,7 +433,7 @@ private fun DrawScope.drawDecorations(
   drawLastMove: Boolean,
   drawMarks: Boolean,
   lastMoveMarker: String,
-  measurements: Measurements
+  measurements: Measurements,
 ) {
   if (drawLastMove) {
     position.lastMove?.let {
@@ -446,6 +448,7 @@ private fun DrawScope.drawDecorations(
             center.x,
             center.y,
             textSize = measurements.textSize,
+            paint = measurements.textPaintShadow,
             color = color.toArgb()
           )
         }
@@ -458,7 +461,14 @@ private fun DrawScope.drawDecorations(
     val stone = position.getStoneAt(p)
     val color =
       if (stone == null || stone == StoneType.WHITE) android.graphics.Color.BLACK else android.graphics.Color.WHITE
-    drawTextCentred((i + 1).toString(), center.x, center.y, textSize = measurements.textSize, color)
+    drawTextCentred(
+      (i + 1).toString(),
+      center.x,
+      center.y,
+      textSize = measurements.textSize,
+      paint = measurements.textPaintShadow,
+      color = color
+    )
   }
 
   if (drawMarks) {
@@ -490,7 +500,13 @@ private fun DrawScope.drawDecorations(
             Offset(center.x, center.y)
           )
           it.text?.let {
-            drawTextCentred(it, center.x, center.y, textSize = measurements.textSize)
+            drawTextCentred(
+              it,
+              center.x,
+              center.y,
+              paint = measurements.textPaintShadow,
+              textSize = measurements.textSize
+            )
           }
         }
       }
@@ -657,7 +673,7 @@ private fun DrawScope.drawCoordinates(
         getCellCenter(i, 0, measurements).x,
         0f - measurements.border / 2,
         textSize = measurements.coordinatesTextSize,
-        shadow = false,
+        paint = measurements.textPaint,
         ignoreAscentDescent = true,
         color = textColor
       )
@@ -666,7 +682,7 @@ private fun DrawScope.drawCoordinates(
         getCellCenter(i, 0, measurements).x,
         measurements.cellSize * boardHeight + measurements.border / 2,
         textSize = measurements.coordinatesTextSize,
-        shadow = false,
+        paint = measurements.textPaint,
         ignoreAscentDescent = true,
         color = textColor
       )
@@ -677,7 +693,7 @@ private fun DrawScope.drawCoordinates(
         0f - measurements.border / 2,
         getCellCenter(0, boardHeight - i, measurements).y,
         textSize = measurements.coordinatesTextSize,
-        shadow = false,
+        paint = measurements.textPaint,
         color = textColor
       )
       drawTextCentred(
@@ -685,7 +701,7 @@ private fun DrawScope.drawCoordinates(
         measurements.cellSize * boardWidth + measurements.border / 2,
         getCellCenter(0, boardHeight - i, measurements).y,
         textSize = measurements.coordinatesTextSize,
-        shadow = false,
+        paint = measurements.textPaint,
         color = textColor
       )
     }
@@ -732,6 +748,24 @@ private fun doMeasurements(
   }
   val halfCell = cellSize / 2f
   val stoneRadius = (cellSize / 2f - stoneSpacing).toInt()
+  val textPaint =
+    android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG).apply {
+      textAlign = android.graphics.Paint.Align.LEFT
+      isSubpixelText = true
+    }
+
+  val textPaintShadow = android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG).apply {
+    textAlign = android.graphics.Paint.Align.LEFT
+    isSubpixelText = true
+    setShadowLayer(8.dp.value, 0f, 0f, android.graphics.Color.WHITE)
+  }
+
+  val centers = mutableListOf<Offset>()
+  for (j in 0 until width) {
+    for (i in 0 until height) {
+      centers.add(Offset(i * cellSize + halfCell, j * cellSize + halfCell))
+    }
+  }
 
   return Measurements(
     cellSize = cellSize,
@@ -748,5 +782,8 @@ private fun doMeasurements(
     stoneRadius = stoneRadius,
     xOffsetForNonSquareBoard = xOffsetForNonSquareBoard,
     yOffsetForNonSquareBoard = yOffsetForNonSquareBoard,
+    textPaint = textPaint,
+    textPaintShadow = textPaintShadow,
+    centers = centers,
   )
 }
