@@ -14,8 +14,10 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.withContext
 import java.security.MessageDigest
 
 private const val WHATS_NEW = "WHATS_NEW"
@@ -24,15 +26,19 @@ val Context.whatsNewDataStore by preferencesDataStore(name = "whats_new")
 
 object WhatsNewUtils {
   suspend fun shouldDisplayDialog(context: Context): Boolean {
-    val hash = hashString(annotatedCurrentText.text)
-    val stored = context.whatsNewDataStore.data.map { it[WHATS_NEW_KEY] }.first()
-    return stored != null && stored != hash
+    return withContext(Dispatchers.IO) {
+      val hash = hashString(annotatedCurrentText.text)
+      val stored = context.whatsNewDataStore.data.map { it[WHATS_NEW_KEY] }.first()
+      stored != null && stored != hash
+    }
   }
 
   suspend fun textShown(context: Context) {
-    val hash = hashString(annotatedCurrentText.text)
-    context.whatsNewDataStore.edit { prefs ->
-      prefs[WHATS_NEW_KEY] = hash
+    withContext(Dispatchers.IO) {
+      val hash = hashString(annotatedCurrentText.text)
+      context.whatsNewDataStore.edit { prefs ->
+        prefs[WHATS_NEW_KEY] = hash
+      }
     }
   }
 

@@ -59,7 +59,9 @@ import io.zenandroid.onlinego.ui.screens.newchallenge.NewChallengeBottomSheet
 import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
 import io.zenandroid.onlinego.utils.WhatsNewUtils
 import io.zenandroid.onlinego.utils.rememberStateWithLifecycle
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.withContext
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -83,8 +85,10 @@ fun MyGamesScreen(
   }
 
   LaunchedEffect(screenReady) {
-    if (screenReady) {
-      onScreenReady()
+    withContext(Dispatchers.Default) {
+      if (screenReady) {
+        onScreenReady()
+      }
     }
   }
 

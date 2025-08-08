@@ -175,12 +175,11 @@ class MyGamesViewModel(
         }
       }
       .subscribeOn(Schedulers.computation())
-      .observeOn(AndroidSchedulers.mainThread())
+      .observeOn(Schedulers.computation())
       .subscribe(this::setGames, this::onError)
       .addToDisposable(subscriptions)
     activeGamesRepository.refreshActiveGames()
       .subscribeOn(Schedulers.io())
-      .observeOn(Schedulers.io())
       .observeOn(AndroidSchedulers.mainThread())
       .subscribe({}, this::onError)
       .addToDisposable(subscriptions)
