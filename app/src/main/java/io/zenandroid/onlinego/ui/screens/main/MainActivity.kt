@@ -171,7 +171,7 @@ class MainActivity : ComponentActivity() {
   }
 
   private fun scheduleNotificationJob() {
-    SynchronizeGamesWork.schedule()
+    SynchronizeGamesWork.schedule(applicationContext)
   }
 
   private fun createNotificationChannel() {

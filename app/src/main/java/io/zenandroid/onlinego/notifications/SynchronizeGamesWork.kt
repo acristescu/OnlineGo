@@ -28,17 +28,12 @@ class SynchronizeGamesWork(val context: Context, params: WorkerParameters) :
   RxWorker(context, params) {
 
   companion object {
-    fun schedule() {
-      scheduleCharging()
-      scheduleNotCharging()
+    fun schedule(context: Context) {
+      scheduleCharging(context)
+      scheduleNotCharging(context)
     }
 
-    fun unschedule() {
-      WorkManager.getInstance().cancelUniqueWork(NOT_CHARGING_WORK_NAME)
-      WorkManager.getInstance().cancelUniqueWork(CHARGING_WORK_NAME)
-    }
-
-    private fun scheduleNotCharging() {
+    private fun scheduleNotCharging(context: Context) {
       val constraints = Constraints.Builder()
         .setRequiredNetworkType(NetworkType.CONNECTED)
         .build()
@@ -46,11 +41,11 @@ class SynchronizeGamesWork(val context: Context, params: WorkerParameters) :
         .setInitialDelay(NOT_CHARGING_PERIOD_MINUTES, TimeUnit.MINUTES)
         .setConstraints(constraints)
         .build()
-      WorkManager.getInstance()
+      WorkManager.getInstance(context)
         .enqueueUniqueWork(NOT_CHARGING_WORK_NAME, ExistingWorkPolicy.REPLACE, request)
     }
 
-    private fun scheduleCharging() {
+    private fun scheduleCharging(context: Context) {
       val constraints = Constraints.Builder()
         .setRequiredNetworkType(NetworkType.CONNECTED)
         .setRequiresCharging(true)
@@ -59,7 +54,7 @@ class SynchronizeGamesWork(val context: Context, params: WorkerParameters) :
         .setInitialDelay(CHARGING_PERIOD_MINUTES, TimeUnit.MINUTES)
         .setConstraints(constraints)
         .build()
-      WorkManager.getInstance()
+      WorkManager.getInstance(context)
         .enqueueUniqueWork(CHARGING_WORK_NAME, ExistingWorkPolicy.REPLACE, request)
     }
   }
@@ -89,7 +84,7 @@ class SynchronizeGamesWork(val context: Context, params: WorkerParameters) :
     return this.doFinally {
       try {
         FirebaseCrashlytics.getInstance().log("I/$TAG: Enqueue work")
-        schedule()
+        schedule(context)
       } catch (e: Exception) {
         Log.e(TAG, e.message, e)
         recordException(e)
