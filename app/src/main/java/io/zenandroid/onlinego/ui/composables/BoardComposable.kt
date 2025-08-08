@@ -33,13 +33,10 @@ import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.res.imageResource
-import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import io.zenandroid.onlinego.data.model.BoardTheme
@@ -50,6 +47,7 @@ import io.zenandroid.onlinego.data.model.katago.MoveInfo
 import io.zenandroid.onlinego.data.model.ogs.PlayCategory
 import io.zenandroid.onlinego.gamelogic.RulesManager.isPass
 import io.zenandroid.onlinego.gamelogic.Util
+import io.zenandroid.onlinego.ui.theme.LocalPreloadedImages
 import io.zenandroid.onlinego.ui.theme.LocalThemeSettings
 import kotlinx.collections.immutable.ImmutableList
 import kotlin.math.abs
@@ -85,20 +83,14 @@ fun Board(
 
     val drawMarks = true
 
-    val background =
-      if (LocalThemeSettings.current.isDarkTheme) boardTheme.backgroundImageDarkMode else boardTheme.backgroundImage
-    val backgroundImage: ImageBitmap? = background?.let {
-      ImageBitmap.imageResource(id = it)
-    }
+    val preloadedImages = LocalPreloadedImages.current
     val backgroundColor: Color? = boardTheme.backgroundColor?.let {
       colorResource(boardTheme.backgroundColor)
     }
 
     // Stones images
-    val blackStone =
-      rememberVectorPainter(image = ImageVector.vectorResource(id = boardTheme.blackStone))
-    val whiteStone =
-      rememberVectorPainter(image = ImageVector.vectorResource(id = boardTheme.whiteStone))
+    val blackStone = preloadedImages?.blackStone?.let { rememberVectorPainter(it) }
+    val whiteStone = preloadedImages?.whiteStone?.let { rememberVectorPainter(it) }
 
     val width = with(LocalDensity.current) { maxWidth.roundToPx() }
     val height = with(LocalDensity.current) { maxHeight.roundToPx() }
@@ -138,7 +130,6 @@ fun Board(
         stonesToFadeOut = null
       }
     }
-
     Canvas(
       modifier = Modifier.fillMaxSize()
         .run {
@@ -166,7 +157,7 @@ fun Board(
           }
         }
     ) {
-      drawBackground(backgroundImage, backgroundColor)
+      drawBackground(preloadedImages?.background, backgroundColor)
       translate(
         measurements.border + measurements.xOffsetForNonSquareBoard,
         measurements.border + measurements.yOffsetForNonSquareBoard
@@ -533,11 +524,14 @@ private fun DrawScope.drawDefaultLastMoveMarker(
 private fun DrawScope.drawStone(
   p: Cell,
   type: StoneType?,
-  stonePainter: Painter,
+  stonePainter: Painter?,
   alpha: Float = 1f,
   drawShadow: Boolean,
   measurements: Measurements
 ) {
+  if (stonePainter == null) {
+    return
+  }
   val center = getCellCenter(p.x, p.y, measurements)
   drawIntoCanvas {
     if (drawShadow && alpha > .75) {

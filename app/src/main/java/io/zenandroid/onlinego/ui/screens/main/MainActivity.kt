@@ -17,10 +17,15 @@ import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.imageResource
+import androidx.compose.ui.res.vectorResource
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.util.Consumer
 import androidx.lifecycle.Lifecycle
@@ -31,6 +36,7 @@ import io.zenandroid.onlinego.BuildConfig
 import io.zenandroid.onlinego.data.model.BoardTheme
 import io.zenandroid.onlinego.notifications.SynchronizeGamesWork
 import io.zenandroid.onlinego.ui.screens.login.FacebookLoginCallbackActivity
+import io.zenandroid.onlinego.ui.theme.LocalPreloadedImages
 import io.zenandroid.onlinego.ui.theme.LocalThemeSettings
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
@@ -41,6 +47,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 
@@ -58,10 +65,7 @@ class MainActivity : ComponentActivity() {
     if (BuildConfig.DEBUG) {
       StrictMode.setThreadPolicy(
         StrictMode.ThreadPolicy.Builder()
-          .detectCustomSlowCalls() // Detect operations flagged with StrictMode.noteSlowCall
-          .detectDiskReads()
-          .detectDiskWrites()
-          .detectNetwork()
+          .detectAll()
           // .penaltyDeath() // Makes the app crash when a violation occurs
           .penaltyLog()     // Logs violations to Logcat
 //          .penaltyDialog()  // Shows a dialog (can be annoying but effective)
@@ -89,8 +93,9 @@ class MainActivity : ComponentActivity() {
         showCoordinates = true
       )
     )
+    var preloadedImages by mutableStateOf(PreloadedImages(null, null, null))
 
-    if(intent?.action == Intent.ACTION_VIEW && intent?.data != null) {
+    if (intent?.action == Intent.ACTION_VIEW && intent?.data != null) {
       //
       // If the app was launched from a link, just dismiss the splash screen immediately
       //
@@ -144,9 +149,14 @@ class MainActivity : ComponentActivity() {
 
     setContent {
       val state by viewModel.state.collectAsState()
+      LaunchedEffect(themeSettings.isDarkTheme, themeSettings.boardTheme) {
+        preloadedImages = preloadImages(themeSettings)
+      }
+
       state.hasCompletedOnboarding?.let { hasCompletedOnboarding ->
         CompositionLocalProvider(
           LocalThemeSettings provides themeSettings,
+          LocalPreloadedImages provides preloadedImages,
         ) {
           OnlineGoApp(
             onAppReady = { viewModel.onScreenReady() },
@@ -168,6 +178,28 @@ class MainActivity : ComponentActivity() {
       PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
       PackageManager.DONT_KILL_APP
     )
+  }
+
+  private suspend fun preloadImages(themeSettings: ThemeSettings): PreloadedImages {
+    return withContext(Dispatchers.IO) {
+      val background =
+        if (themeSettings.isDarkTheme) themeSettings.boardTheme.backgroundImageDarkMode else themeSettings.boardTheme.backgroundImage
+      return@withContext PreloadedImages(
+        background = background?.let {
+          ImageBitmap.imageResource(resources, id = it)
+        },
+        whiteStone = ImageVector.vectorResource(
+          theme,
+          resources,
+          themeSettings.boardTheme.whiteStone
+        ),
+        blackStone = ImageVector.vectorResource(
+          theme,
+          resources,
+          themeSettings.boardTheme.blackStone
+        )
+      )
+    }
   }
 
   private fun scheduleNotificationJob() {
@@ -309,6 +341,12 @@ data class ThemeSettings(
   val boardTheme: BoardTheme,
   val dynamicColors: Boolean,
   val showCoordinates: Boolean,
+)
+
+data class PreloadedImages(
+  val background: ImageBitmap?,
+  val whiteStone: ImageVector?,
+  val blackStone: ImageVector?,
 )
 
 /**
