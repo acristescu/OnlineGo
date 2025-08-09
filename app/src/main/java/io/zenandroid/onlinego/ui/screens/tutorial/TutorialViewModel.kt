@@ -220,7 +220,7 @@ class TutorialViewModel(
       val branches = state.node?.branches ?: step.branches
       val branch = branches.find { it.move == sgfMove } ?: branches.find { it.move == "zz" }
       branch?.let { node ->
-        moveReplyJob = viewModelScope.launch {
+        moveReplyJob = viewModelScope.launch(Dispatchers.Default) {
           var position = RulesManager.makeMove(state.position!!, StoneType.BLACK, move)
             ?: run {
               _state.update {

@@ -246,7 +246,7 @@ class TsumegoViewModel(
           it.x == move.x && it.y == move.y
         } ?: branches.find { it.x == -1 || it.y == -1 }
         branch?.let { node ->
-          moveReplyJob = viewModelScope.launch(errorHandler) {
+          moveReplyJob = viewModelScope.launch(errorHandler + Dispatchers.Default) {
             var position = state.value.boardPosition!!
             position = (RulesManager.makeMove(position, position.nextToMove, move)
               ?: run {
