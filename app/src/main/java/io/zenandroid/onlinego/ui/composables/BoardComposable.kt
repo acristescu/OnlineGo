@@ -358,21 +358,23 @@ private fun DrawScope.drawHints(
 ) {
   for ((index, hint) in hints.take(5).withIndex()) {
     val coords = Util.getCoordinatesFromGTP(hint.move, position.boardHeight)
-    val center = getCellCenter(coords.x, coords.y, measurements)
-    drawCircle(
-      Color.Black,
-      measurements.cellSize / 2f - measurements.stoneSpacing,
-      Offset(center.x, center.y),
-      style = Stroke(measurements.decorationsLineWidth),
-    )
+    if (!coords.isPass) {
+      val center = getCellCenter(coords.x, coords.y, measurements)
+      drawCircle(
+        Color.Black,
+        measurements.cellSize / 2f - measurements.stoneSpacing,
+        Offset(center.x, center.y),
+        style = Stroke(measurements.decorationsLineWidth),
+      )
 
-    drawTextCentred(
-      (index + 1).toString(),
-      center.x,
-      center.y,
-      paint = measurements.textPaintShadow,
-      textSize = measurements.textSize
-    )
+      drawTextCentred(
+        (index + 1).toString(),
+        center.x,
+        center.y,
+        paint = measurements.textPaintShadow,
+        textSize = measurements.textSize
+      )
+    }
   }
 }
 
