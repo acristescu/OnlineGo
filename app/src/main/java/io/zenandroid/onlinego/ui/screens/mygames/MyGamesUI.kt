@@ -212,7 +212,7 @@ fun MyGamesContent(
       .fillMaxHeight()
       .background(MaterialTheme.colorScheme.surface)
   ) {
-    item {
+    item("HomeScreenHeader") {
       HomeScreenHeader(
         image = state.userImageURL,
         mainText = state.headerMainText,
@@ -221,26 +221,26 @@ fun MyGamesContent(
       )
     }
     if (state.tutorialVisible) {
-      item {
+      item("TutorialItem") {
         TutorialItem(
           percentage = state.tutorialPercentage ?: 0,
           tutorial = state.tutorialTitle ?: ""
         )
       }
     }
-    items(items = state.automatches) {
+    items(items = state.automatches, key = { it.uuid }) {
       AutomatchItem(it, onAction)
     }
     if (state.myTurnGames.isNotEmpty()) {
       if (state.myTurnGames.size > 10) {
-        item {
+        item("Your turn") {
           Header("Your turn")
         }
-        items(items = state.myTurnGames) {
+        items(items = state.myTurnGames, key = { "myturn/${it.id}" }) {
           SmallGameItem(game = it, state.userId, onAction = onAction)
         }
       } else {
-        item {
+        item("MyTurnCarousel") {
           MyTurnCarousel(state.myTurnGames, state.userId, onAction)
         }
       }
@@ -252,11 +252,11 @@ fun MyGamesContent(
       }
     }
 
-    items(items = state.challenges) {
+    items(items = state.challenges, key = { "challenge/${it.id}" }) {
       ChallengeItem(it, state.userId, onAction)
     }
 
-    item {
+    item("NewGameButtons") {
       NewGameButtonsRow(
         playOnlineEnabled = state.playOnlineEnabled,
         customGameEnabled = state.customGameEnabled,
@@ -268,7 +268,7 @@ fun MyGamesContent(
       )
     }
     if (state.loginPromptVisible) {
-      item {
+      item("LoggedOut") {
         LoggedOutItem(
           onNavigateToLogin = onNavigateToLogin,
           onNavigateToSignUp = onNavigateToSignUp
@@ -277,28 +277,28 @@ fun MyGamesContent(
     }
 
     if (state.opponentTurnGames.isNotEmpty()) {
-      item {
+      item("Opponent's turn") {
         Header("Opponent's turn")
       }
     }
-    items(items = state.opponentTurnGames) {
+    items(items = state.opponentTurnGames, key = { "opponent/${it.id}" }) {
       SmallGameItem(it, state.userId, onAction)
     }
 
     if (state.recentGames.isNotEmpty()) {
-      item {
+      item("Recently finished") {
         Header("Recently finished")
       }
     }
-    items(items = state.recentGames) {
+    items(items = state.recentGames, key = { "recent/${it.id}" }) {
       SmallGameItem(game = it, state.userId, onAction = onAction)
     }
 
     if (state.historicGames.isNotEmpty()) {
-      item {
+      item("Older games") {
         Header("Older games")
       }
-      item {
+      item("HistoricGameLazyRow") {
         HistoricGameLazyRow(
           state.historicGames,
           state.userId,
@@ -307,7 +307,7 @@ fun MyGamesContent(
         )
       }
     }
-    item {
+    item("spacer1") {
       Spacer(modifier = Modifier.height(8.dp))
     }
   }
