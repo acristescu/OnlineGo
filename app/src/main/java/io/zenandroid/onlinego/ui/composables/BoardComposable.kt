@@ -39,6 +39,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.zenandroid.onlinego.data.model.BoardTheme
 import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.Position
@@ -531,7 +532,11 @@ private fun DrawScope.drawStone(
   drawShadow: Boolean,
   measurements: Measurements
 ) {
-  if (stonePainter == null) {
+  if (stonePainter == null || p.isPass) {
+    return
+  }
+  if (p.x < 0 || p.y < 0) {
+    FirebaseCrashlytics.getInstance().recordException(Exception("Invalid cell: $p"))
     return
   }
   val center = getCellCenter(p.x, p.y, measurements)

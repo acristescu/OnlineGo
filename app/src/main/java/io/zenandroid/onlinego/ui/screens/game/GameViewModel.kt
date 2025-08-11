@@ -343,7 +343,7 @@ class GameViewModel(
         estimateMode && estimatePosition == null -> "Estimating"
         else -> null
       }
-      val excludeTerritory = shownPosition != currentGamePosition.value
+      val excludeTerritory = shownPosition != currentGamePosition.value && !estimateMode
       val score = if (game != null) RulesManager.scorePositionPartial(
         shownPosition,
         game!!,

@@ -9,6 +9,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.Mark
 import io.zenandroid.onlinego.data.model.Position
@@ -111,22 +112,34 @@ class TsumegoViewModel(
       it.copy(
         puzzle = puzzle,
         description = parseHtml(puzzle.puzzle.puzzle_description),
-        boardPosition = puzzle.puzzle.let {
-          RulesManager.buildPos(
+        boardPosition = puzzle.puzzle.let { puzzle ->
+          val pos = RulesManager.buildPos(
             moves = emptyList(),
-            boardWidth = it.width, boardHeight = it.height,
-            whiteInitialState = it.initial_state.white.toCoordinateSet(),
-            blackInitialState = it.initial_state.black.toCoordinateSet(),
-            marks = it.move_tree.marks.orEmpty().map { markData ->
+            boardWidth = puzzle.width,
+            boardHeight = puzzle.height,
+            whiteInitialState = puzzle.initial_state.white.toCoordinateSet(),
+            blackInitialState = puzzle.initial_state.black.toCoordinateSet(),
+            marks = puzzle.move_tree.marks.orEmpty().map { markData ->
               val cell = Cell(x = markData.x, y = markData.y)
               Mark(cell, markData.marks.toString(), PlayCategory.LABEL)
             }.toSet(),
-            nextToMove = when (puzzle.puzzle.initial_player) {
+            nextToMove = when (puzzle.initial_player) {
               "white" -> StoneType.WHITE
               "black" -> StoneType.BLACK
               else -> StoneType.BLACK
             }
           )
+
+          pos?.let {
+            (pos.whiteStones + pos.blackStones).forEach {
+              if (it.x < -1 || it.y < -1) {
+                FirebaseCrashlytics.getInstance()
+                  .recordException(Throwable("Problem loading puzzle $puzzle"))
+              }
+            }
+          }
+
+          return@let pos
         },
         attemptCount = attempts,
         sgfMoves = "",
