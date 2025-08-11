@@ -309,6 +309,7 @@ class MainActivity : ComponentActivity() {
     super.onPause()
     viewModel.onPause()
     isInForeground = false
+    FirebaseCrashlytics.getInstance().log("MainActivity.onPause() DONE")
   }
 }
 

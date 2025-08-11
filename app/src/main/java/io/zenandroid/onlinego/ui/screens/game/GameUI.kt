@@ -71,6 +71,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.core.net.toUri
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.Position
@@ -139,6 +143,21 @@ fun GameScreen(
 ) {
   var stoneSoundMediaPlayer by remember { mutableStateOf<MediaPlayer?>(null) }
   val context = LocalContext.current.applicationContext
+
+  val lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current
+  DisposableEffect(lifecycleOwner, viewModel) {
+    val observer = LifecycleEventObserver { _, event ->
+      if (event == Lifecycle.Event.ON_PAUSE) {
+        viewModel.onPause()
+      }
+    }
+
+    lifecycleOwner.lifecycle.addObserver(observer)
+
+    onDispose {
+      lifecycleOwner.lifecycle.removeObserver(observer)
+    }
+  }
 
   LaunchedEffect(Unit) {
     withContext(Dispatchers.IO) {

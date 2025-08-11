@@ -116,6 +116,7 @@ import io.zenandroid.onlinego.utils.formatRank
 import io.zenandroid.onlinego.utils.timeControlDescription
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -181,6 +182,8 @@ class GameViewModel(
   private var blackPlayerStats by mutableStateOf<RepoResult<UserStats>>(Loading())
   private var whitePlayerVersusStats by mutableStateOf<RepoResult<VersusStats>>(Loading())
   private var blackPlayerVersusStats by mutableStateOf<RepoResult<VersusStats>>(Loading())
+
+  private var timerJob: Job? = null
 
   lateinit var state: StateFlow<GameState>
   private val _events = MutableSharedFlow<Event?>(
@@ -613,91 +616,93 @@ class GameViewModel(
     }
   }
 
-  private suspend fun timerRefresher() {
-    while (true) {
-      var delayUntilNextUpdate = 1000L
-      gameState?.let { game ->
-        val maxTime = (game.timeControl?.initial_time ?: game.timeControl?.per_move
-        ?: game.timeControl?.main_time ?: game.timeControl?.total_time ?: 1) * 1000
-        game.clock?.let { clock ->
-          val whiteToMove = game.playerToMoveId == game.whitePlayer.id
-          val blackToMove = game.playerToMoveId == game.blackPlayer.id
+  private fun timerRefresher() {
+    timerJob?.cancel()
+    timerJob = viewModelScope.launch(Dispatchers.Default) {
+      while (true) {
+        var delayUntilNextUpdate = 1000L
+        gameState?.let { game ->
+          val maxTime = (game.timeControl?.initial_time ?: game.timeControl?.per_move
+          ?: game.timeControl?.main_time ?: game.timeControl?.total_time ?: 1) * 1000
+          game.clock?.let { clock ->
+            val whiteToMove = game.playerToMoveId == game.whitePlayer.id
+            val blackToMove = game.playerToMoveId == game.blackPlayer.id
 
-          val whiteTimer = computeTimeLeft(
-            clock,
-            clock.whiteTimeSimple,
-            clock.whiteTime,
-            whiteToMove,
-            game.pausedSince,
-            game.timeControl,
-          )
-          val blackTimer = computeTimeLeft(
-            clock,
-            clock.blackTimeSimple,
-            clock.blackTime,
-            blackToMove,
-            game.pausedSince,
-            game.timeControl,
-          )
+            val whiteTimer = computeTimeLeft(
+              clock,
+              clock.whiteTimeSimple,
+              clock.whiteTime,
+              whiteToMove,
+              game.pausedSince,
+              game.timeControl,
+            )
+            val blackTimer = computeTimeLeft(
+              clock,
+              clock.blackTimeSimple,
+              clock.blackTime,
+              blackToMove,
+              game.pausedSince,
+              game.timeControl,
+            )
 
-          var timeLeft: Long? = null
+            var timeLeft: Long? = null
 
-          if (clock.startMode == true) {
-            clock.expiration?.let { expiration ->
-              timeLeft = expiration - clockDriftRepository.serverTime
-              timer =
-                if (whiteToMove)
-                  TimerDetails(
-                    whiteFirstLine = blackTimer.firstLine ?: "", // opposing color is intended!
-                    whiteSecondLine = blackTimer.secondLine ?: "", // opposing color is intended!
-                    whitePercentage = 100,
-                    whiteFaded = true,
-                    blackFirstLine = blackTimer.firstLine ?: "",
-                    blackSecondLine = blackTimer.secondLine ?: "",
-                    blackPercentage = 100,
-                    blackFaded = true,
-                    whiteStartTimer = formatMillis(timeLeft),
-                    blackStartTimer = null,
-                    timeLeft = timeLeft,
-                  )
-                else
+            if (clock.startMode == true) {
+              clock.expiration?.let { expiration ->
+                timeLeft = expiration - clockDriftRepository.serverTime
+                timer =
+                  if (whiteToMove)
+                    TimerDetails(
+                      whiteFirstLine = blackTimer.firstLine ?: "", // opposing color is intended!
+                      whiteSecondLine = blackTimer.secondLine ?: "", // opposing color is intended!
+                      whitePercentage = 100,
+                      whiteFaded = true,
+                      blackFirstLine = blackTimer.firstLine ?: "",
+                      blackSecondLine = blackTimer.secondLine ?: "",
+                      blackPercentage = 100,
+                      blackFaded = true,
+                      whiteStartTimer = formatMillis(timeLeft),
+                      blackStartTimer = null,
+                      timeLeft = timeLeft,
+                    )
+                  else
+                    TimerDetails(
+                      whiteFirstLine = whiteTimer.firstLine ?: "",
+                      whiteSecondLine = whiteTimer.secondLine ?: "",
+                      whitePercentage = 100,
+                      whiteFaded = true,
+                      blackFirstLine = whiteTimer.firstLine ?: "", // opposing color is intended!
+                      blackSecondLine = whiteTimer.secondLine ?: "", // opposing color is intended!
+                      blackPercentage = 100,
+                      blackFaded = true,
+                      whiteStartTimer = null,
+                      blackStartTimer = formatMillis(timeLeft),
+                      timeLeft = timeLeft,
+                    )
+              }
+            } else {
+              if ((game.phase == Phase.PLAY || game.phase == Phase.STONE_REMOVAL)) {
+
+                timeLeft = if (whiteToMove) whiteTimer.timeLeft else blackTimer.timeLeft
+                timer =
                   TimerDetails(
                     whiteFirstLine = whiteTimer.firstLine ?: "",
                     whiteSecondLine = whiteTimer.secondLine ?: "",
-                    whitePercentage = 100,
-                    whiteFaded = true,
-                    blackFirstLine = whiteTimer.firstLine ?: "", // opposing color is intended!
-                    blackSecondLine = whiteTimer.secondLine ?: "", // opposing color is intended!
-                    blackPercentage = 100,
-                    blackFaded = true,
+                    whitePercentage = (whiteTimer.timeLeft / maxTime.toDouble() * 100).toInt(),
+                    whiteFaded = blackToMove,
+                    blackFirstLine = blackTimer.firstLine ?: "",
+                    blackSecondLine = blackTimer.secondLine ?: "",
+                    blackPercentage = (blackTimer.timeLeft / maxTime.toDouble() * 100).toInt(),
+                    blackFaded = whiteToMove,
                     whiteStartTimer = null,
-                    blackStartTimer = formatMillis(timeLeft),
-                    timeLeft = timeLeft,
+                    blackStartTimer = null,
+                    timeLeft = timeLeft!!,
                   )
+              }
             }
-          } else {
-            if ((game.phase == Phase.PLAY || game.phase == Phase.STONE_REMOVAL)) {
-
-              timeLeft = if (whiteToMove) whiteTimer.timeLeft else blackTimer.timeLeft
-              timer =
-                TimerDetails(
-                  whiteFirstLine = whiteTimer.firstLine ?: "",
-                  whiteSecondLine = whiteTimer.secondLine ?: "",
-                  whitePercentage = (whiteTimer.timeLeft / maxTime.toDouble() * 100).toInt(),
-                  whiteFaded = blackToMove,
-                  blackFirstLine = blackTimer.firstLine ?: "",
-                  blackSecondLine = blackTimer.secondLine ?: "",
-                  blackPercentage = (blackTimer.timeLeft / maxTime.toDouble() * 100).toInt(),
-                  blackFaded = whiteToMove,
-                  whiteStartTimer = null,
-                  blackStartTimer = null,
-                  timeLeft = timeLeft!!,
-                )
+            if (game.pauseControl.isPaused()) {
+              return@launch
             }
-          }
-          if (game.pauseControl.isPaused()) {
-            return
-          }
           delayUntilNextUpdate = timeLeft?.let {
             when (it) {
               in 0 until 2_000 -> it % 101
@@ -706,10 +711,11 @@ class GameViewModel(
               else -> it % (12 * 60_000 + 1)
             }
           } ?: 1000
+          }
         }
-      }
 
-      delay(delayUntilNextUpdate.coerceAtLeast(50))
+        delay(delayUntilNextUpdate.coerceAtLeast(50))
+      }
     }
   }
 
@@ -977,6 +983,10 @@ class GameViewModel(
       candidateMove = null
       retrySendMoveDialogShowing = false
     }
+  }
+
+  fun onPause() {
+    timerJob?.cancel()
   }
 }
 
