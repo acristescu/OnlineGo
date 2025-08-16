@@ -48,7 +48,6 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
@@ -76,6 +75,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.core.net.toUri
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import io.zenandroid.onlinego.BuildConfig
@@ -104,8 +104,8 @@ fun SettingsScreen(
   viewModel: SettingsViewModel = koinViewModel(),
   onNavigateToSupport: () -> Unit,
 ) {
-  val state by viewModel.state.collectAsState()
-  val userSettings by viewModel.userSettings.collectAsState()
+  val state by viewModel.state.collectAsStateWithLifecycle()
+  val userSettings by viewModel.userSettings.collectAsStateWithLifecycle()
 
   var dialogData by remember { mutableStateOf<DialogData?>(null) }
 
