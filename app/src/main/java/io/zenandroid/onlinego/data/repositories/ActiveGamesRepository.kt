@@ -1,9 +1,9 @@
 package io.zenandroid.onlinego.data.repositories
 
 import android.util.Log
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
+// import androidx.compose.runtime.getValue // Not needed anymore
+// import androidx.compose.runtime.mutableStateOf // Not needed anymore
+// import androidx.compose.runtime.setValue // Not needed anymore
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.squareup.moshi.JsonEncodingException
 import io.reactivex.BackpressureStrategy
@@ -32,6 +32,9 @@ import io.zenandroid.onlinego.utils.addToDisposable
 import io.zenandroid.onlinego.utils.recordException
 import io.zenandroid.onlinego.utils.timeLeftForCurrentPlayer
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.onEach
 import java.io.IOException
 import java.security.InvalidParameterException
@@ -71,7 +74,8 @@ class ActiveGamesRepository(
   }
 
   // Game where it is your turn, ordered by remaining time to play
-  var myTurnGames by mutableStateOf(emptyList<Game>())
+  private val _myTurnGames = MutableStateFlow<List<Game>>(emptyList())
+  val myTurnGames: StateFlow<List<Game>> = _myTurnGames.asStateFlow()
 
   override fun onSocketConnected() {
     refreshActiveGames()
@@ -246,7 +250,7 @@ class ActiveGamesRepository(
       activeDbGames[it.id] = it
       connectToGame(it, false)
     }
-    myTurnGames =
+    _myTurnGames.value =
       activeDbGames.values.filter(Util::isMyTurn).toList().sortedBy { timeLeftForCurrentPlayer(it) }
     myMoveCountSubject.onNext(activeDbGames.values.count { isMyTurn(it) })
   }

@@ -12,6 +12,8 @@ import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
 import android.os.StrictMode
+import android.util.Log
+import android.view.MotionEvent
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
@@ -144,7 +146,14 @@ class MainActivity : ComponentActivity() {
     }
 
     splashScreen.setKeepOnScreenCondition {
-      !viewModel.state.value.isLoaded
+      val keep = !viewModel.state.value.isLoaded && !hasWindowFocus()
+      if (!keep) {
+        FirebaseCrashlytics.getInstance().log(
+          "Splash dismissed at ${System.currentTimeMillis()}"
+        )
+        Log.d("MainActivity", "Splash dismissed at ${System.currentTimeMillis()}")
+      }
+      keep
     }
 
     setContent {
@@ -310,6 +319,28 @@ class MainActivity : ComponentActivity() {
     viewModel.onPause()
     isInForeground = false
     FirebaseCrashlytics.getInstance().log("MainActivity.onPause() DONE")
+  }
+
+  override fun onWindowFocusChanged(hasFocus: Boolean) {
+    super.onWindowFocusChanged(hasFocus)
+    Log.d("MainActivity", "onWindowFocusChanged: hasFocus=$hasFocus")
+    FirebaseCrashlytics.getInstance().log("MainActivity.onWindowFocusChanged: hasFocus=$hasFocus")
+  }
+
+  private var firstTouchLogged = false
+  override fun dispatchTouchEvent(ev: MotionEvent?): Boolean {
+    if (!firstTouchLogged) {
+      firstTouchLogged = true
+      Log.d(
+        "MainActivity", "First touch event: ${ev?.action} at ${System.currentTimeMillis()} " +
+            " hasWindowFocus=${hasWindowFocus()}"
+      )
+      FirebaseCrashlytics.getInstance().log(
+        "First touch event: ${ev?.action} at ${System.currentTimeMillis()} " +
+            " hasWindowFocus=${hasWindowFocus()}"
+      )
+    }
+    return super.dispatchTouchEvent(ev)
   }
 }
 

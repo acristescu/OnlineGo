@@ -68,7 +68,9 @@ class StatsViewModel(
   )
 
   init {
-    userSessionRepository.userIdObservable.firstOrError().subscribe { userId ->
+    userSessionRepository.userIdObservable.firstOrError()
+      .subscribeOn(Schedulers.io())
+      .subscribe { userId ->
       viewModelScope.launch(Dispatchers.IO) {
         val playerId = savedStateHandle.get<String>("playerId")?.toLong() ?: userId
         val result = getUserStatsUseCase.getPlayerStatsWithSizesAsync(playerId)

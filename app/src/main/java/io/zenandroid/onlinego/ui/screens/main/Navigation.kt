@@ -1,5 +1,6 @@
 package io.zenandroid.onlinego.ui.screens.main
 
+import android.util.Log
 import androidx.activity.compose.LocalActivity
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExitTransition
@@ -37,6 +38,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import androidx.navigation.navDeepLink
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.ui.screens.face2face.FaceToFaceScreen
 import io.zenandroid.onlinego.ui.screens.game.GameScreen
@@ -78,6 +80,10 @@ fun OnlineGoApp(
     withContext(Dispatchers.IO) {
       navBackStackEntry?.destination?.route?.let { route ->
         analyticsReportScreen(route)
+      }
+      if (navBackStackEntry != null && activity?.intent?.data != null) {
+        Log.d("OnlineGoApp", "Deep link: ${activity.intent.data}")
+        FirebaseCrashlytics.getInstance().log("Deep link: ${activity.intent.data}")
       }
     }
   }

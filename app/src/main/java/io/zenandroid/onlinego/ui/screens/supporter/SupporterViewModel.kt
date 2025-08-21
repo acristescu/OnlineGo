@@ -9,6 +9,7 @@ import com.android.billingclient.api.ProductDetails
 import com.android.billingclient.api.Purchase
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.schedulers.Schedulers
 import io.zenandroid.onlinego.playstore.PlayStoreService
 import io.zenandroid.onlinego.utils.addToDisposable
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -38,10 +39,12 @@ class SupporterViewModel(
 
   fun onResume() {
     playStore.queryPurchases()
+      .subscribeOn(Schedulers.trampoline())
       .observeOn(AndroidSchedulers.mainThread())
       .subscribe(this::onPurchasesFetched, this::onError)
       .addToDisposable(disposables)
     playStore.queryAvailableSubscriptions()
+      .subscribeOn(Schedulers.trampoline())
       .observeOn(AndroidSchedulers.mainThread())
       .subscribe(this::onAvailableSubscriptionsFetched, this::onError)
       .addToDisposable(disposables)
@@ -60,6 +63,7 @@ class SupporterViewModel(
     currentState.selectedTier?.let { tierIndex ->
       currentState.products?.get(tierIndex)?.let { product ->
         playStore.launchBillingFlow(activity, product, currentState.purchase)
+          .subscribeOn(Schedulers.trampoline())
           .subscribe({}, this::onError)
           .addToDisposable(disposables)
 

@@ -225,6 +225,7 @@ class GameViewModel(
       val messages by messagesFlow.collectAsState(emptyMap())
       val soundEnabled by settingsRepository.soundFlow.collectAsState(false)
       val showRanks by settingsRepository.showRanksFlow.collectAsState(false)
+      val myTurnGamesList by activeGamesRepository.myTurnGames.collectAsState(emptyList())
 
       LaunchedEffect(game?.moves) {
         if (!loading && !game?.moves.isNullOrEmpty() && soundEnabled) {
@@ -302,7 +303,7 @@ class GameViewModel(
             (currentGamePosition.value.nextToMove == StoneType.WHITE && game?.whitePlayer?.id == userId) ||
             (currentGamePosition.value.nextToMove == StoneType.BLACK && game?.blackPlayer?.id == userId)
 
-      val nextGame = remember(activeGamesRepository.myTurnGames) { getNextGame() }
+      val nextGame = remember(myTurnGamesList, gameState?.id) { getNextGame(myTurnGamesList) }
 
       val nextGameButton = NextGame(nextGame != null)
       val endGameButton = if (game.canBeCancelled()) CancelGame else Resign
@@ -596,12 +597,12 @@ class GameViewModel(
     )
   }
 
-  private fun getNextGame(): Game? {
-    val ourIndex = activeGamesRepository.myTurnGames.indexOfFirst { it.id == gameState?.id }
+  private fun getNextGame(myTurnGamesList: List<Game>): Game? {
+    val ourIndex = myTurnGamesList.indexOfFirst { it.id == gameState?.id }
     return when {
-      ourIndex == -1 -> activeGamesRepository.myTurnGames.firstOrNull()
-      activeGamesRepository.myTurnGames.size == 1 -> null
-      else -> activeGamesRepository.myTurnGames[(ourIndex + 1) % activeGamesRepository.myTurnGames.size]
+      ourIndex == -1 -> myTurnGamesList.firstOrNull()
+      myTurnGamesList.size == 1 -> null
+      else -> myTurnGamesList[(ourIndex + 1) % myTurnGamesList.size]
     }
   }
 
@@ -864,7 +865,11 @@ class GameViewModel(
         analysisShownMoveNumber = gameState?.moves?.size ?: 0
       }
 
-      GameOverDialogNextGame -> getNextGame()?.let { _events.tryEmit(NavigateToGame(it)) }
+      GameOverDialogNextGame -> getNextGame(activeGamesRepository.myTurnGames.value)?.let {
+        _events.tryEmit(
+          NavigateToGame(it)
+        )
+      }
       GameOverDialogQuickReplay -> onGameOverDialogQuickReplay()
       PassDialogConfirm -> {
         passDialogShowing = false
@@ -924,7 +929,11 @@ class GameViewModel(
           .map { it.message }.filter { !it.seen })
       }
 
-      is NextGame -> getNextGame()?.let { _events.tryEmit(NavigateToGame(it)) }
+      is NextGame -> getNextGame(activeGamesRepository.myTurnGames.value)?.let {
+        _events.tryEmit(
+          NavigateToGame(it)
+        )
+      }
       Undo -> userUndoDialogShowing = true
       ExitAnalysis -> {
         analyzeMode = false
