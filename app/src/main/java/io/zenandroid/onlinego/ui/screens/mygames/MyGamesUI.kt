@@ -108,14 +108,16 @@ fun MyGamesScreen(
     }
   }
 
-  MyGamesContent(
-    state,
-    viewModel::onAction,
-    onNavigateToAIGame,
-    onNavigateToFaceToFace,
-    onNavigateToLogin,
-    onNavigateToSignUp
-  )
+  if (screenReady) {
+    MyGamesContent(
+      state,
+      viewModel::onAction,
+      onNavigateToAIGame,
+      onNavigateToFaceToFace,
+      onNavigateToLogin,
+      onNavigateToSignUp
+    )
+  }
 
   if (state.alertDialogText != null) {
     AlertDialog(
