@@ -26,9 +26,11 @@ import io.zenandroid.onlinego.utils.microsToISODateTime
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.rx2.asFlow
 import okhttp3.ResponseBody.Companion.toResponseBody
 import retrofit2.HttpException
 import retrofit2.Response
@@ -55,7 +57,8 @@ class OGSRestService(
 
   private suspend fun getOrCreateEbi(): String {
     if (!ebi.isNullOrBlank()) return ebi!!
-    val newEbi = "${Math.random().toString().split(".")[1]}.0.0.0.0.xxx.xxx.${Date().timezoneOffset + 13}"
+    val newEbi =
+      "${Math.random().toString().split(".")[1]}.0.0.0.0.xxx.xxx.${Date().timezoneOffset + 13}"
     settingsRepository.setOgsEbi(newEbi)
     ebi = newEbi
     return newEbi
@@ -325,12 +328,14 @@ class OGSRestService(
 
     val list = mutableListOf<PuzzleSolution>()
     do {
-      if(list.isNotEmpty()) {
+      if (list.isNotEmpty()) {
         delay(1000)
       }
+      val loggedInStatus = userSessionRepository.loggedInObservable.asFlow().first()
+      val userId = (loggedInStatus as? LoginStatus.LoggedIn)?.userId
       val result = restApi.getPuzzleSolutions(
         puzzleId = id,
-        playerId = userSessionRepository.userIdObservable.blockingFirst(), //TODO: fixme
+        playerId = userId ?: 0,
         page = ++page
       )
       list.addAll(result.results)
@@ -348,15 +353,18 @@ class OGSRestService(
     restApi.ratePuzzle(puzzleId = id, request = rating)
 
   suspend fun deleteMyAccount(password: String) {
-    return restApi.deleteAccount(
-      userSessionRepository.userIdObservable.blockingFirst(), //TODO: fixme
-      PasswordBody(password)
-    )
+    val loggedInStatus = userSessionRepository.loggedInObservable.asFlow().first()
+    if (loggedInStatus is LoginStatus.LoggedIn) {
+      restApi.deleteAccount(
+        loggedInStatus.userId,
+        PasswordBody(password)
+      )
+    }
   }
 
   suspend fun checkForWarnings(): Warning {
     var warning = restApi.getWarning()
-    if(warning.text.isNullOrBlank() && warning.message_id != null) {
+    if (warning.text.isNullOrBlank() && warning.message_id != null) {
       warning = warning.copy(
         text = CannedMessages.convertCannedMessage(warning.message_id!!, warning.interpolation_data)
       )

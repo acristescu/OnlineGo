@@ -1,9 +1,6 @@
 package io.zenandroid.onlinego.data.repositories
 
 import android.util.Log
-// import androidx.compose.runtime.getValue // Not needed anymore
-// import androidx.compose.runtime.mutableStateOf // Not needed anymore
-// import androidx.compose.runtime.setValue // Not needed anymore
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.squareup.moshi.JsonEncodingException
 import io.reactivex.BackpressureStrategy
@@ -26,8 +23,6 @@ import io.zenandroid.onlinego.data.ogs.OGSRestService
 import io.zenandroid.onlinego.data.ogs.OGSWebSocketService
 import io.zenandroid.onlinego.data.ogs.RemovedStones
 import io.zenandroid.onlinego.data.ogs.RemovedStonesAccepted
-import io.zenandroid.onlinego.gamelogic.Util
-import io.zenandroid.onlinego.gamelogic.Util.isMyTurn
 import io.zenandroid.onlinego.utils.addToDisposable
 import io.zenandroid.onlinego.utils.recordException
 import io.zenandroid.onlinego.utils.timeLeftForCurrentPlayer
@@ -250,9 +245,14 @@ class ActiveGamesRepository(
       activeDbGames[it.id] = it
       connectToGame(it, false)
     }
+    val userId =
+      (userSessionRepository.loggedInObservable.blockingFirst() as? LoginStatus.LoggedIn)?.userId
     _myTurnGames.value =
-      activeDbGames.values.filter(Util::isMyTurn).toList().sortedBy { timeLeftForCurrentPlayer(it) }
-    myMoveCountSubject.onNext(activeDbGames.values.count { isMyTurn(it) })
+      activeDbGames.values
+        .filter { it.playerToMoveId != null && it.playerToMoveId == userId }
+        .toList()
+        .sortedBy { timeLeftForCurrentPlayer(it) }
+    myMoveCountSubject.onNext(activeDbGames.values.count { it.playerToMoveId != null && it.playerToMoveId == userId })
   }
 
   fun monitorGame(id: Long): Flowable<Game> {
@@ -333,15 +333,17 @@ class ActiveGamesRepository(
   }
 
   fun refreshActiveGames(): Completable =
-    restService.fetchActiveGames()
-      .map { it.map(Game.Companion::fromOGSGame) }
-      .doOnSuccess(gameDao::insertAllGames)
-      .doOnSuccess { FirebaseCrashlytics.getInstance().log("overview returned ${it.size} games") }
-      .map { it.map(Game::id).toSet() }
-      .map { gameDao.getActiveGameIds(userSessionRepository.userIdObservable.blockingFirst()) - it } //TODO: fixme
-      .doOnSuccess(this::updateGamesThatFinishedSinceLastUpdate)
-      .retryWhen(this::retryIOException)
-      .ignoreElement()
+    userSessionRepository.userIdObservable.switchMapCompletable { userId ->
+      restService.fetchActiveGames()
+        .map { it.map(Game.Companion::fromOGSGame) }
+        .doOnSuccess(gameDao::insertAllGames)
+        .doOnSuccess { FirebaseCrashlytics.getInstance().log("overview returned ${it.size} games") }
+        .map { it.map(Game::id).toSet() }
+        .map { gameDao.getActiveGameIds(userId) - it }
+        .doOnSuccess(this::updateGamesThatFinishedSinceLastUpdate)
+        .retryWhen(this::retryIOException)
+        .ignoreElement()
+    }
 
   private fun updateGamesThatFinishedSinceLastUpdate(gameIds: List<Long>) {
     FirebaseCrashlytics.getInstance()

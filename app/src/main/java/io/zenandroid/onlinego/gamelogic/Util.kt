@@ -4,12 +4,8 @@ import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.Mark
 import io.zenandroid.onlinego.data.model.Position
 import io.zenandroid.onlinego.data.model.StoneType
-import io.zenandroid.onlinego.data.model.local.Game
-import io.zenandroid.onlinego.data.model.ogs.OGSGame
-import io.zenandroid.onlinego.data.repositories.UserSessionRepository
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
-import org.koin.core.context.GlobalContext.get
 import java.util.LinkedList
 import java.util.Locale
 import kotlin.math.max
@@ -20,7 +16,6 @@ import kotlin.math.min
  */
 object Util {
 
-    private val userSessionRepository: UserSessionRepository by get().inject()
     private val coordinatesX = arrayOf("A","B","C","D","E","F","G","H","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z")
     private val coordinatesY = (1..25).map(Int::toString)
 
@@ -139,26 +134,6 @@ object Util {
 
         return list
     }
-
-    fun isMyTurn(game: OGSGame?): Boolean {
-        if (game?.player_to_move != 0L) {
-            return game?.player_to_move == getCurrentUserId()
-        }
-        game.json?.let {
-            return it.clock?.current_player == getCurrentUserId()
-        }
-        return false
-    }
-
-    fun isMyTurn(game: Game?): Boolean {
-        if (game?.playerToMoveId != null) {
-            return game.playerToMoveId == getCurrentUserId()
-        }
-        return false
-    }
-
-    fun getCurrentUserId() =
-        userSessionRepository.userIdObservable.blockingFirst() // TODO: fixme, this is blocking
 
     fun getRemovedStones(oldPos: Position, newPos: Position): ImmutableList<Pair<Cell, StoneType>> =
         ((newPos.whiteStones - oldPos.whiteStones).map { it to StoneType.WHITE } +

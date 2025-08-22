@@ -9,7 +9,6 @@ import io.zenandroid.onlinego.data.db.GameDao
 import io.zenandroid.onlinego.data.model.local.ChatMetadata
 import io.zenandroid.onlinego.data.model.local.Message
 import io.zenandroid.onlinego.data.ogs.OGSRestAPI
-import io.zenandroid.onlinego.gamelogic.Util.getCurrentUserId
 import io.zenandroid.onlinego.utils.addToDisposable
 import io.zenandroid.onlinego.utils.recordException
 import kotlinx.coroutines.CoroutineScope
@@ -52,12 +51,15 @@ class ChatRepository(
   }
 
   fun addMessage(message: Message) {
-    if (!knownMessageIds.contains(message.chatId)) {
-      gameDao.insertMessage(message)
-      if (message.playerId == getCurrentUserId() && message.gameId != null) {
-        gameDao.markGameMessagesAsReadUpTo(message.gameId, message.date)
+    val loggedInStatus = userSessionRepository.loggedInObservable.blockingFirst()
+    if (loggedInStatus is LoginStatus.LoggedIn) {
+      if (!knownMessageIds.contains(message.chatId)) {
+        gameDao.insertMessage(message)
+        if (message.playerId == loggedInStatus.userId && message.gameId != null) {
+          gameDao.markGameMessagesAsReadUpTo(message.gameId, message.date)
+        }
+        knownMessageIds.add(message.chatId)
       }
-      knownMessageIds.add(message.chatId)
     }
   }
 

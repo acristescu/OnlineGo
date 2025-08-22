@@ -16,7 +16,6 @@ import io.zenandroid.onlinego.data.model.ogs.OGSPlayer
 import io.zenandroid.onlinego.data.model.ogs.Phase
 import io.zenandroid.onlinego.data.repositories.ChatRepository
 import io.zenandroid.onlinego.gamelogic.Util
-import io.zenandroid.onlinego.gamelogic.Util.getCurrentUserId
 import io.zenandroid.onlinego.utils.addToDisposable
 import io.zenandroid.onlinego.utils.recordException
 import org.koin.core.context.GlobalContext.get
@@ -27,6 +26,7 @@ private const val TAG = "GameConnection"
  * Created by alex on 06/11/2017.
  */
 class GameConnection(
+  val userId: Long?,
         val gameId: Long,
         private val connectionLock: Any,
         var includeChat: Boolean,
@@ -163,7 +163,7 @@ class GameConnection(
         socketService.emit("game/move") {
             "auth" - gameAuth
             "game_id" - gameId
-            "player_id" - getCurrentUserId()
+          "player_id" - userId
             "move" - encodedMove
         }
     }
@@ -172,7 +172,7 @@ class GameConnection(
         socketService.emit("game/resign") {
             "auth" - gameAuth
             "game_id" - gameId
-            "player_id" - getCurrentUserId()
+          "player_id" - userId
         }
     }
 
@@ -180,7 +180,7 @@ class GameConnection(
         socketService.emit("game/removed_stones/reject") {
             "auth" - gameAuth
             "game_id" - gameId
-            "player_id" - getCurrentUserId()
+          "player_id" - userId
         }
     }
 
@@ -190,7 +190,7 @@ class GameConnection(
         socketService.emit("game/removed_stones/set") {
             "auth" - gameAuth
             "game_id" - gameId
-            "player_id" - getCurrentUserId()
+          "player_id" - userId
             "removed" - removing
             "stones" - sb.toString()
         }
@@ -206,7 +206,7 @@ class GameConnection(
         socketService.emit("game/removed_stones/accept") {
             "auth" - gameAuth
             "game_id" - gameId
-            "player_id" - getCurrentUserId()
+          "player_id" - userId
             "strict_seki_mode" - false
             "stones" - stones
         }
@@ -225,7 +225,7 @@ class GameConnection(
         socketService.emit("game/undo/accept") {
             "game_id" - gameId
             "move_number" - moveNo
-            "player_id" - getCurrentUserId()
+          "player_id" - userId
         }
     }
 
@@ -233,14 +233,14 @@ class GameConnection(
         socketService.emit("game/undo/request") {
             "game_id" - gameId
             "move_number" - moveNo
-            "player_id" - getCurrentUserId()
+          "player_id" - userId
         }
     }
 
     fun abortGame() {
         socketService.emit("game/cancel") {
             "game_id" - gameId
-            "player_id" - getCurrentUserId()
+          "player_id" - userId
         }
     }
 }

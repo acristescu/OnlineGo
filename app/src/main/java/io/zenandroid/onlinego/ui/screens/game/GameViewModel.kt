@@ -122,9 +122,10 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.rx2.asFlow
 import kotlinx.coroutines.withContext
 import kotlin.math.roundToInt
 
@@ -133,7 +134,7 @@ private const val DELAY_BETWEEN_ATTEMPTS = 5000L
 
 class GameViewModel(
   private val activeGamesRepository: ActiveGamesRepository,
-  userSessionRepository: UserSessionRepository,
+  private val userSessionRepository: UserSessionRepository,
   private val clockDriftRepository: ClockDriftRepository,
   private val socketService: OGSWebSocketService,
   private val chatRepository: ChatRepository,
@@ -152,7 +153,6 @@ class GameViewModel(
   private lateinit var currentGamePosition: MutableState<Position>
   private var estimatePosition by mutableStateOf<Position?>(null)
   private var analysisPosition by mutableStateOf<Position?>(null)
-  private val userId = userSessionRepository.userIdObservable.blockingFirst() //TODO: Fixme
   private var candidateMove by mutableStateOf<Cell?>(null)
   private lateinit var gameConnection: GameConnection
   private var gameState by mutableStateOf<Game?>(null)
@@ -207,18 +207,19 @@ class GameViewModel(
     socketService.resendAuth()
     gameConnection = socketService.connectToGame(gameId, true)
 
-    val messagesFlow = chatRepository.monitorGameChat(gameId)
-      .map { messages ->
-        unreadMessagesCount = messages.count { !it.seen }
-        messages.map {
-          ChatMessage(
-            fromUser = it.playerId == userId,
-            message = it,
-          )
-        }.filter { it.fromUser || it.message.type == Message.Type.MAIN || gameFinished == true }
-          .groupBy { it.message.moveNumber ?: 0 }
-      }
-
+    val messagesFlow = combine(
+      chatRepository.monitorGameChat(gameId),
+      userSessionRepository.userIdObservable.asFlow(),
+    ) { messages, userId ->
+      unreadMessagesCount = messages.count { !it.seen }
+      messages.map {
+        ChatMessage(
+          fromUser = it.playerId == userId,
+          message = it,
+        )
+      }.filter { it.fromUser || it.message.type == Message.Type.MAIN || gameFinished == true }
+        .groupBy { it.message.moveNumber ?: 0 }
+    }
 
     state = moleculeScope.launchMolecule(mode = ContextClock) {
       val game by gameFlow.collectAsState(initial = null)
@@ -226,14 +227,15 @@ class GameViewModel(
       val soundEnabled by settingsRepository.soundFlow.collectAsState(false)
       val showRanks by settingsRepository.showRanksFlow.collectAsState(false)
       val myTurnGamesList by activeGamesRepository.myTurnGames.collectAsState(emptyList())
+      val userId by userSessionRepository.userIdObservable.asFlow().collectAsState(null)
 
       LaunchedEffect(game?.moves) {
         if (!loading && !game?.moves.isNullOrEmpty() && soundEnabled) {
           _events.emit(Event.PlayStoneSound)
         }
       }
-      LaunchedEffect(game) {
-        game?.let { onGameChanged(it) }
+      LaunchedEffect(game, userId) {
+        game?.let { onGameChanged(it, userId) }
       }
       if (analyzeMode && game != null) {
         LaunchedEffect(analysisShownMoveNumber) {
@@ -294,7 +296,8 @@ class GameViewModel(
       val opponentRequestedUndo = game?.phase == Phase.PLAY
           && game?.playerToMoveId == userId
           && game?.undoRequested != null
-      val shouldShowUndoRequestedDialog = opponentRequestedUndo && dismissedUndoDialogAtMove != gameState?.moves?.size
+      val shouldShowUndoRequestedDialog =
+        opponentRequestedUndo && dismissedUndoDialogAtMove != gameState?.moves?.size
 
       val shownPosition = getShownPosition()
 
@@ -354,8 +357,10 @@ class GameViewModel(
         excludeTerritory
       ) else Score() to Score()
 
-      val whiteScore = if (shownPosition == currentGamePosition.value) game?.whiteScore ?: score.first else score.first
-      val blackScore = if (shownPosition == currentGamePosition.value) game?.blackScore ?: score.second else score.second
+      val whiteScore = if (shownPosition == currentGamePosition.value) game?.whiteScore
+        ?: score.first else score.first
+      val blackScore = if (shownPosition == currentGamePosition.value) game?.blackScore
+        ?: score.second else score.second
 
       val whiteExtraStatus = calculateExtraStatus(
         game,
@@ -481,7 +486,7 @@ class GameViewModel(
     }
   }
 
-  private suspend fun onGameChanged(game: Game) {
+  private suspend fun onGameChanged(game: Game, userId: Long?) {
     var newPos: Position
     withContext(Dispatchers.Default) {
       newPos =
@@ -505,7 +510,7 @@ class GameViewModel(
       analysisShownMoveNumber = game.moves?.size ?: 0
     }
     candidateMove = null
-    gameOverDetails = calculateGameOverDetails(game)
+    gameOverDetails = calculateGameOverDetails(game, userId)
     gameFinished = game.phase == Phase.FINISHED
     loading = false
     timerRefresher()
@@ -516,7 +521,7 @@ class GameViewModel(
     return (this?.moves?.size ?: 0) < maxMoveNumber
   }
 
-  private fun calculateGameOverDetails(game: Game): GameOverDialogDetails? {
+  private fun calculateGameOverDetails(game: Game, userId: Long?): GameOverDialogDetails? {
     if (game.phase != Phase.FINISHED || game.whiteLost == game.blackLost) {
       return null
     }
@@ -704,14 +709,14 @@ class GameViewModel(
             if (game.pauseControl.isPaused()) {
               return@launch
             }
-          delayUntilNextUpdate = timeLeft?.let {
-            when (it) {
-              in 0 until 2_000 -> it % 101
-              in 2_000 until 3_600_000 -> it % 1_001
-              in 3_600_000 until 24 * 3_600_000 -> it % 60_001
-              else -> it % (12 * 60_000 + 1)
-            }
-          } ?: 1000
+            delayUntilNextUpdate = timeLeft?.let {
+              when (it) {
+                in 0 until 2_000 -> it % 101
+                in 2_000 until 3_600_000 -> it % 1_001
+                in 3_600_000 until 24 * 3_600_000 -> it % 60_001
+                else -> it % (12 * 60_000 + 1)
+              }
+            } ?: 1000
           }
         }
 
@@ -870,6 +875,7 @@ class GameViewModel(
           NavigateToGame(it)
         )
       }
+
       GameOverDialogQuickReplay -> onGameOverDialogQuickReplay()
       PassDialogConfirm -> {
         passDialogShowing = false
@@ -934,6 +940,7 @@ class GameViewModel(
           NavigateToGame(it)
         )
       }
+
       Undo -> userUndoDialogShowing = true
       ExitAnalysis -> {
         analyzeMode = false

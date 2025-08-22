@@ -21,6 +21,7 @@ import io.zenandroid.onlinego.data.model.ogs.Phase
 import io.zenandroid.onlinego.data.model.ogs.Size
 import io.zenandroid.onlinego.data.model.ogs.Speed
 import io.zenandroid.onlinego.data.model.ogs.UIPush
+import io.zenandroid.onlinego.data.repositories.LoginStatus
 import io.zenandroid.onlinego.data.repositories.SocketConnectedRepository
 import io.zenandroid.onlinego.data.repositories.UserSessionRepository
 import io.zenandroid.onlinego.utils.AndroidLoggingHandler
@@ -45,7 +46,7 @@ private const val TAG = "OGSWebSocketService"
 class OGSWebSocketService(
   private val moshi: Moshi,
   private val restService: OGSRestService,
-  private val userSessionRepository: UserSessionRepository
+  private val userSessionRepository: UserSessionRepository,
 ) {
   private val _connectionState = MutableStateFlow(false)
   val connectionState = _connectionState.asStateFlow()
@@ -116,23 +117,32 @@ class OGSWebSocketService(
   private val connectionsLock = Any()
 
   fun connectToGame(id: Long, includeChat: Boolean): GameConnection {
+    val userId =
+      (userSessionRepository.loggedInObservable.blockingFirst() as? LoginStatus.LoggedIn)?.userId
     synchronized(connectionsLock) {
       FirebaseCrashlytics.getInstance().log("Acquired connection lock in connectToGame")
       val connection = gameConnections[id] ?: GameConnection(
-        id, connectionsLock, includeChat,
-        observeEvent("game/$id/gamedata").parseJSON(),
-        observeEvent("game/$id/move").parseJSON(),
-        observeEvent("game/$id/clock").parseJSON(),
-        observeEvent("game/$id/phase").map { string ->
+        userId = userId,
+        gameId = id,
+        connectionLock = connectionsLock,
+        includeChat = includeChat,
+        gameDataObservable = observeEvent("game/$id/gamedata").parseJSON(),
+        movesObservable = observeEvent("game/$id/move").parseJSON(),
+        clockObservable = observeEvent("game/$id/clock").parseJSON(),
+        phaseObservable = observeEvent("game/$id/phase").map { string ->
           Phase.valueOf(
             string.toString().uppercase(Locale.ENGLISH).replace(' ', '_')
           )
         },
-        observeEvent("game/$id/removed_stones").parseJSON(),
-        observeEvent("game/$id/chat").parseJSON(),
-        observeEvent("game/$id/undo_requested").map { string -> string.toString().toInt() },
-        observeEvent("game/$id/removed_stones_accepted").parseJSON(),
-        observeEvent("game/$id/undo_accepted").map { string -> string.toString().toInt() }
+        removedStonesObservable = observeEvent("game/$id/removed_stones").parseJSON(),
+        chatObservable = observeEvent("game/$id/chat").parseJSON(),
+        undoRequestedObservable = observeEvent("game/$id/undo_requested").map { string ->
+          string.toString().toInt()
+        },
+        removedStonesAcceptedObservable = observeEvent("game/$id/removed_stones_accepted").parseJSON(),
+        undoAcceptedObservable = observeEvent("game/$id/undo_accepted").map { string ->
+          string.toString().toInt()
+        }
       ).apply {
         emitGameConnection(id, includeChat)
         gameConnections[id] = this
@@ -178,19 +188,22 @@ class OGSWebSocketService(
     map { adapter<T>(it)!! }
 
   private fun emitGameConnection(id: Long, includeChat: Boolean) {
-    emit("game/connect") {
-      "chat" - includeChat
-      "game_id" - id
-      "player_id" - userSessionRepository.userIdObservable.blockingFirst() //TODO: fixme
-    }
-    if (includeChat) {
-      emit("chat/connect") {
-        "player_id" - userSessionRepository.userIdObservable.blockingFirst() //TODO: fixme
-        "username" - userSessionRepository.uiConfig?.user?.username
-        "auth" - userSessionRepository.uiConfig?.chat_auth
+    val loggedInStatus = userSessionRepository.loggedInObservable.blockingFirst()
+    if (loggedInStatus is LoginStatus.LoggedIn) {
+      emit("game/connect") {
+        "chat" - includeChat
+        "game_id" - id
+        "player_id" - loggedInStatus.userId
       }
-      emit("chat/join") {
-        "channel" - "game-$id"
+      if (includeChat) {
+        emit("chat/connect") {
+          "player_id" - loggedInStatus.userId
+          "username" - userSessionRepository.uiConfig?.user?.username
+          "auth" - userSessionRepository.uiConfig?.chat_auth
+        }
+        emit("chat/join") {
+          "channel" - "game-$id"
+        }
       }
     }
   }
@@ -241,17 +254,20 @@ class OGSWebSocketService(
   }
 
   fun connectToServerNotifications(): Flowable<JSONObject> =
-    observeEvent("notification")
-      .map { JSONObject(it.toString()) }
-      .doOnSubscribe {
-        emit("notification/connect") {
-          "player_id" - userSessionRepository.userIdObservable.blockingFirst() //TODO: fixme
-          "auth" - userSessionRepository.uiConfig?.notification_auth
-        }
-      }.doOnCancel {
-        if (socket.connected()) {
-          emit("notification/disconnect", "")
-        }
+    userSessionRepository.userIdObservable.toFlowable(BackpressureStrategy.BUFFER)
+      .switchMap { userId ->
+        observeEvent("notification")
+          .map { JSONObject(it.toString()) }
+          .doOnSubscribe {
+            emit("notification/connect") {
+              "player_id" - userId
+              "auth" - userSessionRepository.uiConfig?.notification_auth
+            }
+          }.doOnCancel {
+            if (socket.connected()) {
+              emit("notification/disconnect", "")
+            }
+          }
       }
 
   fun listenToNetPongEvents(): Flowable<NetPong> =
@@ -380,10 +396,13 @@ class OGSWebSocketService(
   }
 
   fun deleteNotification(notificationId: String) {
-    emit("notification/delete") {
-      "player_id" - userSessionRepository.userIdObservable.blockingFirst() //TODO: fixme
-      "auth" - userSessionRepository.uiConfig?.notification_auth
-      "notification_id" - notificationId
+    val loggedInStatus = userSessionRepository.loggedInObservable.blockingFirst()
+    if (loggedInStatus is LoginStatus.LoggedIn) {
+      emit("notification/delete") {
+        "player_id" - loggedInStatus.userId
+        "auth" - userSessionRepository.uiConfig?.notification_auth
+        "notification_id" - notificationId
+      }
     }
   }
 
@@ -441,12 +460,15 @@ class OGSWebSocketService(
   }
 
   fun resendAuth() {
-    val obj = JSONObject().apply {
-      put("player_id", userSessionRepository.userIdObservable.blockingFirst()) //TODO: fixme
-      put("username", userSessionRepository.uiConfig?.user?.username)
-      put("auth", userSessionRepository.uiConfig?.chat_auth)
+    val loggedInStatus = userSessionRepository.loggedInObservable.blockingFirst()
+    if (loggedInStatus is LoginStatus.LoggedIn) {
+      val obj = JSONObject().apply {
+        put("player_id", loggedInStatus.userId)
+        put("username", userSessionRepository.uiConfig?.user?.username)
+        put("auth", userSessionRepository.uiConfig?.chat_auth)
+      }
+      if (BuildConfig.DEBUG) Log.i(TAG, "==> authenticate with params $obj")
+      socket.emit("authenticate", obj, loggingAck)
     }
-    if (BuildConfig.DEBUG) Log.i(TAG, "==> authenticate with params $obj")
-    socket.emit("authenticate", obj, loggingAck)
   }
 }

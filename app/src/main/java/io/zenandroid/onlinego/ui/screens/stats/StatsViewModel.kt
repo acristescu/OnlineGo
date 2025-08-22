@@ -16,7 +16,6 @@ import io.zenandroid.onlinego.data.model.ogs.OGSPlayer
 import io.zenandroid.onlinego.data.ogs.OGSRestService
 import io.zenandroid.onlinego.data.repositories.SettingsRepository
 import io.zenandroid.onlinego.data.repositories.UserSessionRepository
-import io.zenandroid.onlinego.gamelogic.Util
 import io.zenandroid.onlinego.ui.screens.stats.StatsViewModel.Filter.ALL
 import io.zenandroid.onlinego.ui.screens.stats.StatsViewModel.Filter.ALL_GAMES
 import io.zenandroid.onlinego.ui.screens.stats.StatsViewModel.Filter.FIVE_YEARS
@@ -33,9 +32,11 @@ import io.zenandroid.onlinego.utils.recordException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.rx2.asFlow
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -93,7 +94,8 @@ class StatsViewModel(
 
     viewModelScope.launch(Dispatchers.IO) {
       try {
-        val playerId = savedStateHandle.get<String>("playerId")?.toLong() ?: Util.getCurrentUserId()!!
+        val playerId = savedStateHandle.get<String>("playerId")?.toLong()
+          ?: userSessionRepository.userIdObservable.asFlow().first()
         fillPlayerDetails(restService.getPlayerProfileAsync(playerId))
       } catch (t: Throwable) {
         onError(t)
