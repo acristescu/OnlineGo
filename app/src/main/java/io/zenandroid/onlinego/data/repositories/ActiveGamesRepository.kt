@@ -26,10 +26,13 @@ import io.zenandroid.onlinego.data.ogs.RemovedStonesAccepted
 import io.zenandroid.onlinego.utils.addToDisposable
 import io.zenandroid.onlinego.utils.recordException
 import io.zenandroid.onlinego.utils.timeLeftForCurrentPlayer
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.onEach
 import java.io.IOException
 import java.security.InvalidParameterException
@@ -85,6 +88,7 @@ class ActiveGamesRepository(
     userSessionRepository.userIdObservable.toFlowable(BackpressureStrategy.LATEST).flatMap {
       gameDao.monitorActiveGamesWithNewMessagesCount(it)
     }
+      .distinctUntilChanged()
       .subscribeOn(Schedulers.io())
       .observeOn(Schedulers.io())
       .subscribe(this::setActiveGames) { onError(it, "monitorActiveGamesWithNewMessagesCount") }
@@ -255,21 +259,6 @@ class ActiveGamesRepository(
     myMoveCountSubject.onNext(activeDbGames.values.count { it.playerToMoveId != null && it.playerToMoveId == userId })
   }
 
-  fun monitorGame(id: Long): Flowable<Game> {
-    // TODO: Maybe check if the data is fresh enough to warrant skipping this call?
-    restService.fetchGame(id)
-      .map(Game.Companion::fromOGSGame)
-      .map(::listOf)
-      .retryWhen(this::retryIOException)
-      .subscribe(
-        gameDao::insertAllGames,
-        { onError(it, "monitorGame") }
-      ).addToDisposable(subscriptions)
-
-    return gameDao.monitorGame(id)
-      .doOnNext(this::connectToGame)
-  }
-
   fun refreshGameData(id: Long) {
     restService.fetchGame(id)
       .map(Game.Companion::fromOGSGame)
@@ -316,6 +305,8 @@ class ActiveGamesRepository(
     refreshGameData(id)
 
     return gameDao.monitorGameFlow(id)
+      .distinctUntilChanged()
+      .flowOn(Dispatchers.IO)
       .onEach(this::connectToGame)
   }
 
