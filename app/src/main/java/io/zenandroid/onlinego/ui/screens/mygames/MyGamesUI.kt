@@ -38,6 +38,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.local.Challenge
 import io.zenandroid.onlinego.data.model.local.Game
@@ -78,17 +79,27 @@ fun MyGamesScreen(
   val state by rememberStateWithLifecycle(viewModel.state)
 
   // We want to hold off dismissing the splash screen until we have all the data we need to display
+  var timerExpired by remember { mutableStateOf(false) }
   val screenReady by remember {
     derivedStateOf {
-      state.userIsLoggedOut || (state.hasReceivedChallenges && state.hasReceivedAutomatches && state.hasReceivedActiveGames && state.hasReceivedRecentGames && state.hasReceivedHistoricGames)
+      timerExpired || state.userIsLoggedOut || (state.hasReceivedChallenges && state.hasReceivedAutomatches && state.hasReceivedActiveGames && state.hasReceivedRecentGames && state.hasReceivedHistoricGames)
     }
   }
+
 
   LaunchedEffect(screenReady) {
     withContext(Dispatchers.Default) {
       if (screenReady) {
         onScreenReady()
       }
+    }
+  }
+
+  LaunchedEffect(screenReady) {
+    if (!screenReady) {
+      delay(2000)
+      timerExpired = true
+      FirebaseCrashlytics.getInstance().log("Splash screen timed out")
     }
   }
 
