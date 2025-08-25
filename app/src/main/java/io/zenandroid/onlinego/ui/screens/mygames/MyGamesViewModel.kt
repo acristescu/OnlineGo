@@ -244,6 +244,10 @@ class MyGamesViewModel(
     }
 
     _state.update {
+      if (!it.hasReceivedActiveGames) {
+        FirebaseCrashlytics.getInstance().log("StartSequence: Received active games")
+        Log.d("MyGamesViewModel", "StartSequence: Received active games")
+      }
       it.copy(
         myTurnGames = myTurnList.sortedBy { timeLeftForCurrentPlayer(it) },
         opponentTurnGames = opponentTurnList,
@@ -265,6 +269,10 @@ class MyGamesViewModel(
 
   private fun setRecentGames(games: List<Game>) {
     _state.update {
+      if (!it.hasReceivedRecentGames) {
+        FirebaseCrashlytics.getInstance().log("StartSequence: Received recent games")
+        Log.d("MyGamesViewModel", "StartSequence: Received recent games")
+      }
       it.copy(
         recentGames = games,
         hasReceivedRecentGames = true,
@@ -274,6 +282,10 @@ class MyGamesViewModel(
 
   private fun setChallenges(challenges: List<Challenge>) {
     _state.update {
+      if (!it.hasReceivedChallenges) {
+        FirebaseCrashlytics.getInstance().log("StartSequence: Received challenges")
+        Log.d("MyGamesViewModel", "StartSequence: Received challenges")
+      }
       it.copy(
         challenges = challenges,
         hasReceivedChallenges = true,
@@ -284,6 +296,10 @@ class MyGamesViewModel(
 
   private fun setAutomatches(automatches: List<OGSAutomatch>) {
     _state.update {
+      if (!it.hasReceivedAutomatches) {
+        FirebaseCrashlytics.getInstance().log("StartSequence: Received automatches")
+        Log.d("MyGamesViewModel", "StartSequence: Received automatches")
+      }
       it.copy(
         automatches = automatches,
         hasReceivedAutomatches = true,
@@ -548,6 +564,10 @@ class MyGamesViewModel(
       val existingGames = it.historicGames
       val newGames =
         games.filter { candidate -> existingGames.find { candidate.id == it.id } == null }
+      if (!it.hasReceivedHistoricGames) {
+        FirebaseCrashlytics.getInstance().log("StartSequence: Received historic games")
+        Log.d("MyGamesViewModel", "StartSequence: Received historic games")
+      }
       it.copy(
         historicGames = existingGames + newGames,
         hasReceivedHistoricGames = true,

@@ -80,6 +80,7 @@ import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.Position
 import io.zenandroid.onlinego.data.model.StoneType
 import io.zenandroid.onlinego.data.model.local.Game
+import io.zenandroid.onlinego.data.model.local.Score
 import io.zenandroid.onlinego.ui.composables.Board
 import io.zenandroid.onlinego.ui.composables.BottomBar
 import io.zenandroid.onlinego.ui.composables.MoreMenuItem
@@ -130,6 +131,7 @@ import io.zenandroid.onlinego.ui.screens.game.composables.ChatDialog
 import io.zenandroid.onlinego.ui.screens.game.composables.PlayerCard
 import io.zenandroid.onlinego.ui.screens.game.composables.PlayerDetailsDialog
 import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
+import io.zenandroid.onlinego.usecases.RepoResult
 import io.zenandroid.onlinego.utils.rememberStateWithLifecycle
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -239,7 +241,7 @@ fun GameContent(
           .background(Color(0xFF867484))
           .fillMaxWidth()
           .padding(4.dp)
-          .align(Alignment.CenterHorizontally),
+          .align(CenterHorizontally),
       )
       Board(
         state = state,
@@ -254,7 +256,7 @@ fun GameContent(
           .background(Color(0xFF867484))
           .fillMaxWidth()
           .padding(4.dp)
-          .align(Alignment.CenterHorizontally),
+          .align(CenterHorizontally),
       )
       if (state.showPlayers) {
         WhitePlayerCard(
@@ -288,7 +290,7 @@ fun GameContent(
               .background(Color(0xFF867484))
               .fillMaxWidth()
               .padding(4.dp)
-              .align(Alignment.CenterHorizontally),
+              .align(CenterHorizontally),
           )
           if (state.showPlayers) {
             BlackPlayerCard(
@@ -310,7 +312,7 @@ fun GameContent(
               .background(Color(0xFF867484))
               .fillMaxWidth()
               .padding(4.dp)
-              .align(Alignment.CenterHorizontally),
+              .align(CenterHorizontally),
           )
           BottomBar(
             buttons = state.buttons,
@@ -541,7 +543,7 @@ private fun GameInfoDialog(state: GameState, onUserAction: (UserAction) -> Unit)
       ) { onUserAction(GameInfoDismiss) }
   ) {
     Column(
-      horizontalAlignment = Alignment.CenterHorizontally,
+      horizontalAlignment = CenterHorizontally,
       modifier = Modifier
         .padding(vertical = 80.dp)
         .clickable(
@@ -695,7 +697,7 @@ private fun GameOverDialog(
 ) {
   Dialog(onDismissRequest = { onUserAction(GameOverDialogDismiss) }) {
     Column(
-      horizontalAlignment = Alignment.CenterHorizontally,
+      horizontalAlignment = CenterHorizontally,
       modifier = Modifier
         .shadow(4.dp)
         .background(
@@ -710,9 +712,9 @@ private fun GameOverDialog(
         else -> "YOU LOST"
       }
       val icon = when {
-        dialog.gameCancelled -> Icons.Rounded.Cancel
-        dialog.playerWon -> Icons.Rounded.ThumbUp
-        else -> Icons.Rounded.ThumbDown
+        dialog.gameCancelled -> Rounded.Cancel
+        dialog.playerWon -> Rounded.ThumbUp
+        else -> Rounded.ThumbDown
       }
       Text(
         text = text,
@@ -776,7 +778,7 @@ private fun GameOverDialog(
 private fun RetryMoveDialog(onUserAction: (UserAction) -> Unit) {
   Dialog(onDismissRequest = { onUserAction(RetryDialogDismiss) }) {
     Column(
-      horizontalAlignment = Alignment.CenterHorizontally,
+      horizontalAlignment = CenterHorizontally,
       modifier = Modifier
         .shadow(4.dp)
         .background(
@@ -860,7 +862,7 @@ private fun Header(
 
 @Preview(showBackground = true)
 @Composable
-fun Preview() {
+private fun Preview() {
   OnlineGoTheme {
     GameContent(
       state = GameState.DEFAULT.copy(
@@ -910,7 +912,7 @@ fun Preview() {
 
 @Preview(showBackground = true)
 @Composable
-fun Preview1() {
+private fun Preview1() {
   OnlineGoTheme {
     GameContent(
       state = GameState.DEFAULT.copy(
@@ -961,7 +963,7 @@ fun Preview1() {
 
 @Preview(showBackground = true)
 @Composable
-fun Preview2() {
+private fun Preview2() {
   OnlineGoTheme {
     GameContent(
       state = GameState.DEFAULT.copy(
@@ -1011,7 +1013,7 @@ fun Preview2() {
 
 @Preview(showBackground = true)
 @Composable
-fun Preview3() {
+private fun Preview3() {
   OnlineGoTheme {
     GameContent(
       state = GameState.DEFAULT.copy(
@@ -1062,7 +1064,7 @@ fun Preview3() {
 
 @Preview(showBackground = true)
 @Composable
-fun Preview4() {
+private fun Preview4() {
   OnlineGoTheme {
     GameContent(
       state = GameState.DEFAULT.copy(
@@ -1114,7 +1116,7 @@ fun Preview4() {
 
 @Preview(showBackground = true)
 @Composable
-fun Preview5() {
+private fun Preview5() {
   OnlineGoTheme {
     GameContent(
       state = GameState.DEFAULT.copy(
@@ -1168,6 +1170,59 @@ fun Preview5() {
             append(" resigned on move 132")
           }
         ),
+      ),
+      {}, {},
+    )
+  }
+}
+
+@Composable
+@Preview
+private fun PreviewLoading() {
+  OnlineGoTheme {
+    GameContent(
+      state = GameState(
+        loading = true,
+        buttons = emptyList(),
+        title = "Move 132 · Chinese · Black",
+        whitePlayer = null,
+        blackPlayer = null,
+        position = null,
+        gameWidth = 19,
+        gameHeight = 19,
+        candidateMove = null,
+        boardInteractive = false,
+        drawTerritory = false,
+        fadeOutRemovedStones = false,
+        showLastMove = false,
+        lastMoveMarker = "#",
+        whiteScore = Score(),
+        blackScore = Score(),
+        whiteExtraStatus = null,
+        blackExtraStatus = null,
+        timerDetails = null,
+        timerDescription = null,
+        ranked = false,
+        bottomText = "Loading",
+        retryMoveDialogShowing = false,
+        koMoveDialogShowing = false,
+        showPlayers = true,
+        showTimers = false,
+        showAnalysisPanel = false,
+        passDialogShowing = false,
+        resignDialogShowing = false,
+        cancelDialogShowing = false,
+        messages = emptyMap(),
+        chatDialogShowing = false,
+        gameOverDialogShowing = null,
+        gameInfoDialogShowing = false,
+        playerDetailsDialogShowing = null,
+        opponentRequestedUndo = false,
+        opponentRequestedUndoDialogShowing = false,
+        requestUndoDialogShowing = false,
+        playerStats = RepoResult.Loading(),
+        versusStats = RepoResult.Loading(),
+        versusStatsHidden = true,
       ),
       {}, {},
     )

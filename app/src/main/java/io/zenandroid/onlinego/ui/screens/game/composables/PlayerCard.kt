@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -40,7 +41,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.rememberAsyncImagePainter
+import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.StoneType
@@ -76,14 +77,12 @@ fun PlayerCard(
         val defaultSize =
           LocalDensity.current.run { IntSize(maxSize.roundToPx(), maxSize.roundToPx()) }
         var size by remember { mutableStateOf(defaultSize) }
-        Image(
-          painter = rememberAsyncImagePainter(
-            model = ImageRequest.Builder(LocalContext.current)
-              .data(processGravatarURL(player.iconURL, LocalDensity.current.run { size.width }))
-              .placeholder(R.mipmap.placeholder)
-              .error(R.mipmap.placeholder)
-              .build()
-          ),
+        AsyncImage(
+          model = ImageRequest.Builder(LocalContext.current)
+            .data(processGravatarURL(player.iconURL, LocalDensity.current.run { size.width }))
+            .placeholder(R.mipmap.placeholder)
+            .error(R.mipmap.placeholder)
+            .build(),
           contentDescription = "Avatar",
           modifier = Modifier
             .sizeIn(maxHeight = maxSize)
@@ -148,6 +147,8 @@ fun PlayerCard(
       }
     }
   }
+    ?: Spacer(modifier)
+
 }
 
 @Composable

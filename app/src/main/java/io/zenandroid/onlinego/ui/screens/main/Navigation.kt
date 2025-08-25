@@ -2,14 +2,9 @@ package io.zenandroid.onlinego.ui.screens.main
 
 import android.util.Log
 import androidx.activity.compose.LocalActivity
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.ExitTransition
-import androidx.compose.animation.expandVertically
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -93,21 +88,17 @@ fun OnlineGoApp(
     darkTheme = darkTheme,
   ) {
     Scaffold(bottomBar = {
-      AnimatedVisibility(
-        showBottomBar,
-        enter = slideInVertically(initialOffsetY = { it }) + fadeIn() + expandVertically(),
-        exit = ExitTransition.None,
-      ) {
+      if (showBottomBar) {
         BottomNavigationBar(navController, isLoggedIn)
       }
     }) { innerPadding ->
       NavHost(
         navController = navController,
         startDestination = startDestination,
-        enterTransition = { slideInHorizontally(initialOffsetX = { it }) + fadeIn() },
-        exitTransition = { slideOutHorizontally(targetOffsetX = { -it }) + fadeOut() },
-        popEnterTransition = { slideInHorizontally(initialOffsetX = { -it }) + fadeIn() },
-        popExitTransition = { slideOutHorizontally(targetOffsetX = { it }) + fadeOut() },
+        enterTransition = { fadeIn(animationSpec = tween(500)) },
+        exitTransition = { fadeOut(animationSpec = tween(500)) },
+        popEnterTransition = { fadeIn(animationSpec = tween(500)) },
+        popExitTransition = { fadeOut(animationSpec = tween(500)) },
         modifier = Modifier
           .padding(innerPadding)
           .consumeWindowInsets(innerPadding)
