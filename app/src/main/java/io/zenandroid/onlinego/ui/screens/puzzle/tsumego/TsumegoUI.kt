@@ -60,6 +60,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.Position
@@ -72,7 +73,6 @@ import io.zenandroid.onlinego.data.model.ogs.PuzzleSolution
 import io.zenandroid.onlinego.ui.composables.Board
 import io.zenandroid.onlinego.ui.composables.ExposedLazyDropdownMenu
 import io.zenandroid.onlinego.ui.composables.RatingBar
-import io.zenandroid.onlinego.utils.rememberStateWithLifecycle
 import kotlinx.collections.immutable.toImmutableList
 import org.koin.androidx.compose.koinViewModel
 import java.util.Stack
@@ -82,7 +82,7 @@ fun TsumegoScreen(
   viewModel: TsumegoViewModel = koinViewModel(),
   onNavigateBack: () -> Unit,
 ) {
-  val state by rememberStateWithLifecycle(viewModel.state)
+  val state by viewModel.state.collectAsStateWithLifecycle()
 
   TsumegoContent(
     state = state,

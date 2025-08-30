@@ -36,6 +36,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.github.mikephil.charting.data.Entry
 import io.zenandroid.onlinego.data.model.local.WinLossStats
 import io.zenandroid.onlinego.ui.screens.game.composables.BoxWithImage
@@ -45,7 +46,6 @@ import io.zenandroid.onlinego.ui.screens.stats.StatsViewModel.StatsState
 import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
 import io.zenandroid.onlinego.utils.egfToRank
 import io.zenandroid.onlinego.utils.formatRank
-import io.zenandroid.onlinego.utils.rememberStateWithLifecycle
 import io.zenandroid.onlinego.utils.shimmer
 import org.koin.androidx.compose.koinViewModel
 import kotlin.math.abs
@@ -54,7 +54,7 @@ import kotlin.math.abs
 fun StatsScreen(
   viewModel: StatsViewModel = koinViewModel()
 ) {
-  val state by rememberStateWithLifecycle(viewModel.state)
+  val state by viewModel.state.collectAsStateWithLifecycle()
 
   StatsContent(state, viewModel::onFilterChanged, viewModel::onGraphChanged)
 }

@@ -38,6 +38,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.local.Challenge
@@ -59,7 +60,6 @@ import io.zenandroid.onlinego.ui.screens.mygames.composables.TutorialItem
 import io.zenandroid.onlinego.ui.screens.newchallenge.NewChallengeBottomSheet
 import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
 import io.zenandroid.onlinego.utils.WhatsNewUtils
-import io.zenandroid.onlinego.utils.rememberStateWithLifecycle
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
@@ -76,7 +76,7 @@ fun MyGamesScreen(
   onNavigateToSignUp: () -> Unit,
 ) {
   val viewModel: MyGamesViewModel = koinViewModel()
-  val state by rememberStateWithLifecycle(viewModel.state)
+  val state by viewModel.state.collectAsStateWithLifecycle()
 
   // We want to hold off dismissing the splash screen until we have all the data we need to display
   var timerExpired by remember { mutableStateOf(false) }

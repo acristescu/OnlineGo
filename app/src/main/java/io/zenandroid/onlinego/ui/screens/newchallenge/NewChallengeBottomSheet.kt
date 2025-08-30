@@ -29,9 +29,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.zenandroid.onlinego.data.model.ogs.ChallengeParams
 import io.zenandroid.onlinego.utils.PreviewBackground
-import io.zenandroid.onlinego.utils.rememberStateWithLifecycle
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -40,7 +40,7 @@ fun NewChallengeBottomSheet(
   onDismiss: () -> Unit,
   onNewChallengeSearchClicked: (ChallengeParams) -> Unit
 ) {
-  val state by rememberStateWithLifecycle(viewModel.state)
+  val state by viewModel.state.collectAsStateWithLifecycle()
 
   if (state.done) {
     SideEffect {

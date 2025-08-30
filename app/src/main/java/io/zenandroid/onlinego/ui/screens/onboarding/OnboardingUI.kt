@@ -66,6 +66,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.accompanist.pager.HorizontalPagerIndicator
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
@@ -79,7 +80,6 @@ import io.zenandroid.onlinego.ui.screens.onboarding.OnboardingAction.SocialPlatf
 import io.zenandroid.onlinego.ui.screens.onboarding.Page.OnboardingPage
 import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
 import io.zenandroid.onlinego.utils.recordException
-import io.zenandroid.onlinego.utils.rememberStateWithLifecycle
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -88,7 +88,7 @@ fun OnboardingScreen(
   onNavigateToMyGames: () -> Unit,
   onNavigateBack: () -> Unit,
 ) {
-  val state by rememberStateWithLifecycle(viewModel.state)
+  val state by viewModel.state.collectAsStateWithLifecycle()
   val activity = LocalActivity.current
 
   val notificationPermissionLauncher = rememberLauncherForActivityResult(

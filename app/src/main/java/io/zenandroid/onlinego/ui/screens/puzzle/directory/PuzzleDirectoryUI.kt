@@ -43,6 +43,7 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.Position
 import io.zenandroid.onlinego.data.model.local.PuzzleCollection
@@ -54,7 +55,6 @@ import io.zenandroid.onlinego.ui.composables.SearchTextField
 import io.zenandroid.onlinego.ui.composables.SortChip
 import io.zenandroid.onlinego.ui.screens.mygames.composables.SenteCard
 import io.zenandroid.onlinego.utils.convertCountryCodeToEmojiFlag
-import io.zenandroid.onlinego.utils.rememberStateWithLifecycle
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -63,7 +63,7 @@ fun PuzzleDirectoryScreen(
   onNavigateBack: () -> Unit,
   onNavigateToPuzzle: (Long, Long) -> Unit,
 ) {
-  val state by rememberStateWithLifecycle(viewModel.state)
+  val state by viewModel.state.collectAsStateWithLifecycle()
 
   state.navigateToPuzzle?.let {
     onNavigateToPuzzle(it.first, it.second)

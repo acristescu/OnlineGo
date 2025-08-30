@@ -41,6 +41,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import io.zenandroid.onlinego.R
@@ -50,7 +51,6 @@ import io.zenandroid.onlinego.utils.PreviewBackground
 import io.zenandroid.onlinego.utils.egfToRank
 import io.zenandroid.onlinego.utils.formatRank
 import io.zenandroid.onlinego.utils.processGravatarURL
-import io.zenandroid.onlinego.utils.rememberStateWithLifecycle
 import org.koin.androidx.compose.koinViewModel
 
 @ExperimentalFoundationApi
@@ -60,7 +60,7 @@ fun SelectOpponentDialog(
 ) {
   val viewModel = koinViewModel<SelectOpponentViewModel>()
 
-  val state by rememberStateWithLifecycle(stateFlow = viewModel.state)
+  val state by viewModel.state.collectAsStateWithLifecycle()
 
   Dialog(
     onDismissRequest = { onDialogDismiss(null) },
