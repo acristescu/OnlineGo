@@ -324,17 +324,21 @@ class ActiveGamesRepository(
   }
 
   fun refreshActiveGames(): Completable =
-    userSessionRepository.userIdObservable.switchMapCompletable { userId ->
-      restService.fetchActiveGames()
-        .map { it.map(Game.Companion::fromOGSGame) }
-        .doOnSuccess(gameDao::insertAllGames)
-        .doOnSuccess { FirebaseCrashlytics.getInstance().log("overview returned ${it.size} games") }
-        .map { it.map(Game::id).toSet() }
-        .map { gameDao.getActiveGameIds(userId) - it }
-        .doOnSuccess(this::updateGamesThatFinishedSinceLastUpdate)
-        .retryWhen(this::retryIOException)
-        .ignoreElement()
-    }
+    userSessionRepository.userIdObservable
+      .firstOrError()
+      .flatMapCompletable { userId ->
+        restService.fetchActiveGames()
+          .map { it.map(Game.Companion::fromOGSGame) }
+          .doOnSuccess(gameDao::insertAllGames)
+          .doOnSuccess {
+            FirebaseCrashlytics.getInstance().log("overview returned ${it.size} games")
+          }
+          .map { it.map(Game::id).toSet() }
+          .map { gameDao.getActiveGameIds(userId) - it }
+          .doOnSuccess(this::updateGamesThatFinishedSinceLastUpdate)
+          .retryWhen(this::retryIOException)
+          .ignoreElement()
+      }
 
   private fun updateGamesThatFinishedSinceLastUpdate(gameIds: List<Long>) {
     FirebaseCrashlytics.getInstance()
