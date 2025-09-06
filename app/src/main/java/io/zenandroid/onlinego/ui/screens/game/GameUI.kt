@@ -202,11 +202,13 @@ fun GameScreen(
 
   val state by viewModel.state.collectAsStateWithLifecycle()
 
-  GameContent(
-    state = state,
-    onBack = onNavigateBack,
-    onUserAction = viewModel::onUserAction
-  )
+  if (!state.loading) {
+    GameContent(
+      state = state,
+      onBack = onNavigateBack,
+      onUserAction = viewModel::onUserAction
+    )
+  }
 
 }
 

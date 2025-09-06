@@ -52,6 +52,7 @@ import io.zenandroid.onlinego.data.ogs.OGSWebSocketService
 import io.zenandroid.onlinego.data.repositories.ActiveGamesRepository
 import io.zenandroid.onlinego.data.repositories.ChatRepository
 import io.zenandroid.onlinego.data.repositories.ClockDriftRepository
+import io.zenandroid.onlinego.data.repositories.LoginStatus
 import io.zenandroid.onlinego.data.repositories.SettingsRepository
 import io.zenandroid.onlinego.data.repositories.UserSessionRepository
 import io.zenandroid.onlinego.gamelogic.RulesManager
@@ -124,6 +125,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.rx2.asFlow
 import kotlinx.coroutines.withContext
@@ -204,17 +206,19 @@ class GameViewModel(
     val gameFlow = activeGamesRepository.monitorGameFlow(gameId).distinctUntilChanged()
     currentGamePosition = mutableStateOf(Position(gameWidth, gameHeight))
 
-    socketService.resendAuth()
-    gameConnection = socketService.connectToGame(gameId, true)
+    viewModelScope.launch(Dispatchers.IO) {
+      socketService.resendAuth()
+      gameConnection = socketService.connectToGame(gameId, true)
+    }
 
     val messagesFlow = combine(
       chatRepository.monitorGameChat(gameId),
-      userSessionRepository.userIdObservable.asFlow(),
-    ) { messages, userId ->
+      userSessionRepository.loggedInObservable.asFlow(),
+    ) { messages, loggedInStatus ->
       unreadMessagesCount = messages.count { !it.seen }
       messages.map {
         ChatMessage(
-          fromUser = it.playerId == userId,
+          fromUser = if (loggedInStatus is LoginStatus.LoggedIn) it.playerId == loggedInStatus.userId else false,
           message = it,
         )
       }.filter { it.fromUser || it.message.type == Message.Type.MAIN || gameFinished == true }
@@ -227,7 +231,9 @@ class GameViewModel(
       val soundEnabled by settingsRepository.soundFlow.collectAsState(false)
       val showRanks by settingsRepository.showRanksFlow.collectAsState(false)
       val myTurnGamesList by activeGamesRepository.myTurnGames.collectAsState(emptyList())
-      val userId by userSessionRepository.userIdObservable.asFlow().collectAsState(null)
+      val userId by userSessionRepository.loggedInObservable.asFlow()
+        .map { if (it is LoginStatus.LoggedIn) it.userId else null }
+        .collectAsState(null)
 
       LaunchedEffect(game?.moves) {
         if (!loading && !game?.moves.isNullOrEmpty() && soundEnabled) {
@@ -308,20 +314,35 @@ class GameViewModel(
 
       val nextGame = remember(myTurnGamesList, gameState?.id) { getNextGame(myTurnGamesList) }
 
-      val nextGameButton = NextGame(nextGame != null)
+      val nextGameButton = remember(nextGame) { NextGame(nextGame != null) }
       val endGameButton = if (game.canBeCancelled()) CancelGame else Resign
       val maxAnalysisMoveNumber = currentVariation?.let {
         it.rootMoveNo + it.moves.size
       } ?: game?.moves?.size ?: 0
-      val nextButton = Next(analysisShownMoveNumber < maxAnalysisMoveNumber)
-      val chatButton = Chat(if (unreadMessagesCount > 0) unreadMessagesCount.toString() else null)
+      val nextButton = remember(analysisShownMoveNumber, maxAnalysisMoveNumber) {
+        Next(analysisShownMoveNumber < maxAnalysisMoveNumber)
+      }
+      val chatButton = remember(unreadMessagesCount) {
+        Chat(if (unreadMessagesCount > 0) unreadMessagesCount.toString() else null)
+      }
 
       val visibleButtons =
         when {
           estimateMode -> listOf(ExitEstimate)
           game?.phase == Phase.STONE_REMOVAL -> listOf(AcceptStoneRemoval, RejectStoneRemoval)
-          gameFinished == true -> listOf(chatButton, Estimate(true), Previous, nextButton)
-          analyzeMode -> listOf(ExitAnalysis, Estimate(!isAnalysisDisabled()), Previous, nextButton)
+          gameFinished == true -> remember {
+            listOf(
+              chatButton,
+              Estimate(true),
+              Previous,
+              nextButton
+            )
+          }
+
+          analyzeMode -> remember(isAnalysisDisabled()) {
+            listOf(ExitAnalysis, Estimate(!isAnalysisDisabled()), Previous, nextButton)
+          }
+
           pendingMove != null -> emptyList()
           isMyTurn && candidateMove == null -> listOf(
             Analyze,
@@ -423,7 +444,7 @@ class GameViewModel(
         requestUndoDialogShowing = userUndoDialogShowing,
         playerStats = if (playerDetailsDialogShowing == game?.whitePlayer) whitePlayerStats else blackPlayerStats,
         versusStats = when (playerDetailsDialogShowing?.id) {
-          userId, null -> Loading()
+          userId, null -> remember { Loading() }
           game?.whitePlayer?.id -> whitePlayerVersusStats
           else -> blackPlayerVersusStats
         },

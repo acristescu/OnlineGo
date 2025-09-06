@@ -34,6 +34,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.onStart
 import java.io.IOException
 import java.security.InvalidParameterException
 import java.util.concurrent.TimeUnit
@@ -85,13 +86,17 @@ class ActiveGamesRepository(
       .subscribeOn(Schedulers.io())
       .subscribe(this::onNotification) { onError(it, "connectToActiveGames") }
       .addToDisposable(subscriptions)
-    userSessionRepository.userIdObservable.toFlowable(BackpressureStrategy.LATEST).flatMap {
-      gameDao.monitorActiveGamesWithNewMessagesCount(it)
-    }
+    userSessionRepository.userIdObservable.toFlowable(BackpressureStrategy.LATEST)
+      .flatMap { userId ->
+        gameDao.monitorActiveGamesWithNewMessagesCount(userId).map { userId to it }
+      }
       .distinctUntilChanged()
       .subscribeOn(Schedulers.io())
       .observeOn(Schedulers.io())
-      .subscribe(this::setActiveGames) { onError(it, "monitorActiveGamesWithNewMessagesCount") }
+      .subscribe(
+        { setActiveGames(it.first, it.second) }) {
+        onError(it, "monitorActiveGamesWithNewMessagesCount")
+      }
       .addToDisposable(subscriptions)
   }
 
@@ -243,14 +248,12 @@ class ActiveGamesRepository(
   }
 
   @Synchronized
-  private fun setActiveGames(games: List<Game>) {
+  private fun setActiveGames(userId: Long, games: List<Game>) {
     activeDbGames.clear()
     games.forEach {
       activeDbGames[it.id] = it
       connectToGame(it, false)
     }
-    val userId =
-      (userSessionRepository.loggedInObservable.blockingFirst() as? LoginStatus.LoggedIn)?.userId
     _myTurnGames.value =
       activeDbGames.values
         .filter { it.playerToMoveId != null && it.playerToMoveId == userId }
@@ -302,11 +305,10 @@ class ActiveGamesRepository(
   }
 
   fun monitorGameFlow(id: Long): Flow<Game> {
-    refreshGameData(id)
-
     return gameDao.monitorGameFlow(id)
       .distinctUntilChanged()
       .onEach(this::connectToGame)
+      .onStart { refreshGameData(id) }
       .flowOn(Dispatchers.IO)
   }
 
