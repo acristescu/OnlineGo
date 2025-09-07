@@ -65,9 +65,11 @@ import io.zenandroid.onlinego.ui.screens.game.Button.Chat
 import io.zenandroid.onlinego.ui.screens.game.Button.ConfirmMove
 import io.zenandroid.onlinego.ui.screens.game.Button.DiscardMove
 import io.zenandroid.onlinego.ui.screens.game.Button.Estimate
+import io.zenandroid.onlinego.ui.screens.game.Button.EstimateDisabled
 import io.zenandroid.onlinego.ui.screens.game.Button.ExitAnalysis
 import io.zenandroid.onlinego.ui.screens.game.Button.ExitEstimate
 import io.zenandroid.onlinego.ui.screens.game.Button.Next
+import io.zenandroid.onlinego.ui.screens.game.Button.NextDisabled
 import io.zenandroid.onlinego.ui.screens.game.Button.NextGame
 import io.zenandroid.onlinego.ui.screens.game.Button.Pass
 import io.zenandroid.onlinego.ui.screens.game.Button.Previous
@@ -315,13 +317,14 @@ class GameViewModel(
       val nextGame = remember(myTurnGamesList, gameState?.id) { getNextGame(myTurnGamesList) }
 
       val nextGameButton = remember(nextGame) { NextGame(nextGame != null) }
-      val endGameButton = if (game.canBeCancelled()) CancelGame else Resign
+      val endGameButton =
+        remember(game.canBeCancelled()) { if (game.canBeCancelled()) CancelGame else Resign }
       val maxAnalysisMoveNumber = currentVariation?.let {
         it.rootMoveNo + it.moves.size
       } ?: game?.moves?.size ?: 0
-      val nextButton = remember(analysisShownMoveNumber, maxAnalysisMoveNumber) {
-        Next(analysisShownMoveNumber < maxAnalysisMoveNumber)
-      }
+      val nextButton =
+        if (analysisShownMoveNumber < maxAnalysisMoveNumber) Next else NextDisabled
+
       val chatButton = remember(unreadMessagesCount) {
         Chat(if (unreadMessagesCount > 0) unreadMessagesCount.toString() else null)
       }
@@ -330,36 +333,49 @@ class GameViewModel(
         when {
           estimateMode -> listOf(ExitEstimate)
           game?.phase == Phase.STONE_REMOVAL -> listOf(AcceptStoneRemoval, RejectStoneRemoval)
-          gameFinished == true -> remember {
+          gameFinished == true -> remember(chatButton, nextButton) {
             listOf(
               chatButton,
-              Estimate(true),
+              Estimate,
               Previous,
               nextButton
             )
           }
 
-          analyzeMode -> remember(isAnalysisDisabled()) {
-            listOf(ExitAnalysis, Estimate(!isAnalysisDisabled()), Previous, nextButton)
+          analyzeMode -> remember(isAnalysisDisabled(), nextButton) {
+            listOf(
+              ExitAnalysis,
+              if (isAnalysisDisabled()) EstimateDisabled else Estimate,
+              Previous,
+              nextButton
+            )
           }
 
           pendingMove != null -> emptyList()
-          isMyTurn && candidateMove == null -> listOf(
-            Analyze,
-            Pass,
-            endGameButton,
-            chatButton,
-            nextGameButton
-          )
+          isMyTurn && candidateMove == null -> remember(endGameButton, chatButton, nextGameButton) {
+            listOf(
+              Analyze,
+              Pass,
+              endGameButton,
+              chatButton,
+              nextGameButton
+            )
+          }
 
           isMyTurn && candidateMove != null -> listOf(ConfirmMove, DiscardMove)
-          !isMyTurn && game?.phase == Phase.PLAY -> listOf(
-            Analyze,
-            Undo,
+          !isMyTurn && game?.phase == Phase.PLAY -> remember(
             endGameButton,
             chatButton,
             nextGameButton
-          )
+          ) {
+            listOf(
+              Analyze,
+              Undo,
+              endGameButton,
+              chatButton,
+              nextGameButton
+            )
+          }
 
           else -> emptyList()
         }
@@ -984,6 +1000,7 @@ class GameViewModel(
 
       AcceptStoneRemoval -> gameConnection.acceptRemovedStones(currentGamePosition.value.removedSpots)
       RejectStoneRemoval -> gameConnection.rejectRemovedStones()
+      EstimateDisabled, NextDisabled -> Unit
     }
   }
 
@@ -1170,13 +1187,20 @@ sealed class Button(
 
   object Undo : Button(Icons.Rounded.Undo, "Undo")
   object ExitAnalysis : Button(Icons.Rounded.HighlightOff, "Exit Analysis")
-  class Estimate(enabled: Boolean = true) :
-    Button(enabled = enabled, icon = Icons.Rounded.Functions, label = "Estimate")
+  object Estimate :
+    Button(enabled = true, icon = Icons.Rounded.Functions, label = "Estimate")
+
+  object EstimateDisabled :
+    Button(enabled = false, icon = Icons.Rounded.Functions, label = "Estimate")
 
   object ExitEstimate : Button(Icons.Rounded.HighlightOff, "Return")
   object Previous : Button(repeatable = true, icon = Icons.Rounded.SkipPrevious, label = "Previous")
-  class Next(enabled: Boolean = true) :
-    Button(repeatable = true, enabled = enabled, icon = Icons.Rounded.SkipNext, label = "Next")
+  object Next :
+    Button(repeatable = true, enabled = true, icon = Icons.Rounded.SkipNext, label = "Next")
+
+  object NextDisabled :
+    Button(repeatable = true, enabled = false, icon = Icons.Rounded.SkipNext, label = "Next")
+
 }
 
 sealed interface UserAction {

@@ -6,6 +6,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.crashlytics.FirebaseCrashlytics
+import io.reactivex.BackpressureStrategy
+import io.reactivex.Flowable
 import io.reactivex.Maybe
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -142,17 +144,6 @@ class MyGamesViewModel(
   }
 
   private fun onLoggedIn(userId: Long) {
-    _state.update {
-      it.copy(
-        userIsLoggedOut = false,
-        playOnlineEnabled = true,
-        customGameEnabled = true,
-        loginPromptVisible = false,
-        userId = userId,
-        headerMainText = "Hi ${userSessionRepository.uiConfig?.user?.username},",
-        userImageURL = userSessionRepository.uiConfig?.user?.icon,
-      )
-    }
 
     viewModelScope.launch {
       try {
@@ -167,42 +158,39 @@ class MyGamesViewModel(
       }
     }
 
-    activeGamesRepository.monitorActiveGames()
-      .subscribeOn(Schedulers.io())
-      .flatMapSingle { games ->
-        rxSingle(Dispatchers.Default) {
-          computePositions(games)
+    Flowable.zip(
+      activeGamesRepository.monitorActiveGames(),
+      finishedGamesRepository.getRecentlyFinishedGames(),
+      challengesRepository.monitorChallenges(),
+      automatchRepository.automatchObservable.toFlowable(BackpressureStrategy.BUFFER),
+    ) { activeGames, recentlyFinishedGames, challenges, automatches ->
+      viewModelScope.launch(Dispatchers.Default) {
+        val activeGames = computePositions(activeGames)
+        val recentlyFinishedGames = computePositions(recentlyFinishedGames)
+        setGames(activeGames)
+        setRecentGames(recentlyFinishedGames)
+        setChallenges(challenges)
+        setAutomatches(automatches)
+        _state.update {
+          it.copy(
+            userIsLoggedOut = false,
+            playOnlineEnabled = true,
+            customGameEnabled = true,
+            loginPromptVisible = false,
+            userId = userId,
+            headerMainText = "Hi ${userSessionRepository.uiConfig?.user?.username},",
+            userImageURL = userSessionRepository.uiConfig?.user?.icon,
+          )
         }
       }
-      .subscribeOn(Schedulers.computation())
-      .observeOn(Schedulers.computation())
-      .subscribe(this::setGames, this::onError)
+    }.subscribeOn(Schedulers.io())
+      .observeOn(AndroidSchedulers.mainThread())
+      .subscribe({}, this::onError)
       .addToDisposable(subscriptions)
     activeGamesRepository.refreshActiveGames()
       .subscribeOn(Schedulers.io())
       .observeOn(AndroidSchedulers.mainThread())
       .subscribe({}, this::onError)
-      .addToDisposable(subscriptions)
-    finishedGamesRepository.getRecentlyFinishedGames()
-      .subscribeOn(Schedulers.io())
-      .flatMapSingle { games ->
-        rxSingle(Dispatchers.Default) {
-          computePositions(games)
-        }
-      }
-      .subscribeOn(Schedulers.computation())
-      .observeOn(AndroidSchedulers.mainThread())
-      .subscribe(this::setRecentGames, this::onError)
-      .addToDisposable(subscriptions)
-    challengesRepository.monitorChallenges()
-      .subscribeOn(Schedulers.io())
-      .observeOn(AndroidSchedulers.mainThread())
-      .subscribe(this::setChallenges, this::onError)
-      .addToDisposable(subscriptions)
-    automatchRepository.automatchObservable
-      .subscribeOn(Schedulers.io())
-      .observeOn(AndroidSchedulers.mainThread())
-      .subscribe(this::setAutomatches, this::onError)
       .addToDisposable(subscriptions)
     automatchRepository.gameStartObservable
       .flatMapMaybe {

@@ -67,6 +67,7 @@ import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun MyGamesScreen(
+  viewModel: MyGamesViewModel = koinViewModel(),
   onScreenReady: () -> Unit,
   onNavigateToGame: (Game) -> Unit,
   onNavigateToAIGame: () -> Unit,
@@ -75,7 +76,6 @@ fun MyGamesScreen(
   onNavigateToLogin: () -> Unit,
   onNavigateToSignUp: () -> Unit,
 ) {
-  val viewModel: MyGamesViewModel = koinViewModel()
   val state by viewModel.state.collectAsStateWithLifecycle()
 
   // We want to hold off dismissing the splash screen until we have all the data we need to display

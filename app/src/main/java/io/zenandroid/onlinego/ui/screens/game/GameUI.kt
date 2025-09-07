@@ -1077,7 +1077,7 @@ private fun Preview4() {
           blackStones = setOf(Cell(15, 15))
         ),
         loading = false,
-        buttons = listOf(ExitAnalysis, Estimate(), Previous, Next()),
+        buttons = listOf(ExitAnalysis, Estimate, Previous, Next),
         title = "Move 132 · Chinese · Black",
         whitePlayer = PlayerData(
           name = "MrAlex-test",
@@ -1129,7 +1129,7 @@ private fun Preview5() {
           blackStones = setOf(Cell(15, 15))
         ),
         loading = false,
-        buttons = listOf(ExitAnalysis, Estimate(), Previous, Next()),
+        buttons = listOf(ExitAnalysis, Estimate, Previous, Next),
         title = "Move 132 · Chinese · Black",
         whitePlayer = PlayerData(
           name = "MrAlex-test",

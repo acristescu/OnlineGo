@@ -50,8 +50,6 @@ import io.zenandroid.onlinego.ui.screens.supporter.SupporterScreen
 import io.zenandroid.onlinego.ui.screens.tutorial.TutorialScreen
 import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
 import io.zenandroid.onlinego.utils.analyticsReportScreen
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 
 
 @Composable
@@ -71,12 +69,10 @@ fun OnlineGoApp(
 
   val showBottomBar = currentDestination in listOf("myGames", "learn", "stats", "settings")
 
-  LaunchedEffect(navBackStackEntry) {
-    withContext(Dispatchers.IO) {
-      navBackStackEntry?.destination?.route?.let { route ->
-        analyticsReportScreen(route)
-      }
-      if (navBackStackEntry != null && activity?.intent?.data != null) {
+  LaunchedEffect(currentDestination) {
+    if (currentDestination != null) {
+      analyticsReportScreen(currentDestination)
+      if (activity?.intent?.data != null) {
         Log.d("OnlineGoApp", "Deep link: ${activity.intent.data}")
         FirebaseCrashlytics.getInstance().log("Deep link: ${activity.intent.data}")
       }
