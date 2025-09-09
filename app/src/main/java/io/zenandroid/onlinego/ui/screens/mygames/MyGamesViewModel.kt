@@ -102,7 +102,7 @@ class MyGamesViewModel(
       .subscribeOn(Schedulers.io())
       .observeOn(AndroidSchedulers.mainThread())
       .subscribe { loggedInStatus ->
-        when(loggedInStatus) {
+        when (loggedInStatus) {
           is LoginStatus.LoggedIn -> onLoggedIn(loggedInStatus.userId)
           LoginStatus.LoggedOut -> {
             _state.update {
@@ -158,31 +158,42 @@ class MyGamesViewModel(
       }
     }
 
-    Flowable.zip(
-      activeGamesRepository.monitorActiveGames(),
-      finishedGamesRepository.getRecentlyFinishedGames(),
+    Flowable.combineLatest(
+      activeGamesRepository.monitorActiveGames()
+        .flatMapSingle { gamesList ->
+          rxSingle(Dispatchers.Default) {
+            computePositions(gamesList)
+          }
+        },
+      finishedGamesRepository.getRecentlyFinishedGames()
+        .flatMapSingle { gamesList ->
+          rxSingle(Dispatchers.Default) {
+            computePositions(gamesList)
+          }
+        },
       challengesRepository.monitorChallenges(),
       automatchRepository.automatchObservable.toFlowable(BackpressureStrategy.BUFFER),
     ) { activeGames, recentlyFinishedGames, challenges, automatches ->
-      viewModelScope.launch(Dispatchers.Default) {
-        val activeGames = computePositions(activeGames)
-        val recentlyFinishedGames = computePositions(recentlyFinishedGames)
-        setGames(activeGames)
-        setRecentGames(recentlyFinishedGames)
-        setChallenges(challenges)
-        setAutomatches(automatches)
-        _state.update {
-          it.copy(
-            userIsLoggedOut = false,
-            playOnlineEnabled = true,
-            customGameEnabled = true,
-            loginPromptVisible = false,
-            userId = userId,
-            headerMainText = "Hi ${userSessionRepository.uiConfig?.user?.username},",
-            userImageURL = userSessionRepository.uiConfig?.user?.icon,
-          )
-        }
+      _state.update {
+        var newState = it.copy(
+          userIsLoggedOut = false,
+          playOnlineEnabled = true,
+          customGameEnabled = true,
+          loginPromptVisible = false,
+          userId = userId,
+          headerMainText = "Hi ${userSessionRepository.uiConfig?.user?.username},",
+          userImageURL = userSessionRepository.uiConfig?.user?.icon,
+          automatches = automatches,
+          hasReceivedAutomatches = true,
+          challenges = challenges,
+          hasReceivedChallenges = true,
+          recentGames = recentlyFinishedGames,
+          hasReceivedRecentGames = true,
+        )
+        newState = setGames(activeGames, newState)
+        newState
       }
+      Unit
     }.subscribeOn(Schedulers.io())
       .observeOn(AndroidSchedulers.mainThread())
       .subscribe({}, this::onError)
@@ -209,15 +220,15 @@ class MyGamesViewModel(
     onNeedMoreOlderGames(null)
   }
 
-  private fun setGames(games: List<Game>) {
+  private fun setGames(games: List<Game>, state: MyGamesState): MyGamesState {
     val myTurnList = mutableListOf<Game>()
     val opponentTurnList = mutableListOf<Game>()
     for (game in games) {
       val myTurn = when (game.phase) {
-        Phase.PLAY -> game.playerToMoveId == _state.value.userId
+        Phase.PLAY -> game.playerToMoveId == state.userId
         Phase.STONE_REMOVAL -> {
           val myRemovedStones =
-            if (_state.value.userId == game.whitePlayer.id) game.whitePlayer.acceptedStones else game.blackPlayer.acceptedStones
+            if (state.userId == game.whitePlayer.id) game.whitePlayer.acceptedStones else game.blackPlayer.acceptedStones
           game.removedStones != myRemovedStones
         }
 
@@ -231,18 +242,16 @@ class MyGamesViewModel(
       }
     }
 
-    _state.update {
-      if (!it.hasReceivedActiveGames) {
-        FirebaseCrashlytics.getInstance().log("StartSequence: Received active games")
-        Log.d("MyGamesViewModel", "StartSequence: Received active games")
-      }
-      it.copy(
-        myTurnGames = myTurnList.sortedBy { timeLeftForCurrentPlayer(it) },
-        opponentTurnGames = opponentTurnList,
-        headerSubText = determineText(myTurnList, opponentTurnList),
-        hasReceivedActiveGames = true,
-      )
+    if (!state.hasReceivedActiveGames) {
+      FirebaseCrashlytics.getInstance().log("StartSequence: Received active games")
+      Log.d("MyGamesViewModel", "StartSequence: Received active games")
     }
+    return state.copy(
+      myTurnGames = myTurnList.sortedBy { timeLeftForCurrentPlayer(it) },
+      opponentTurnGames = opponentTurnList,
+      headerSubText = determineText(myTurnList, opponentTurnList),
+      hasReceivedActiveGames = true,
+    )
   }
 
   private fun determineText(myTurnGames: List<Game>, opponentTurnGames: List<Game>): String {
@@ -254,47 +263,6 @@ class MyGamesViewModel(
     }
     return "You have no active games. How about starting one?"
   }
-
-  private fun setRecentGames(games: List<Game>) {
-    _state.update {
-      if (!it.hasReceivedRecentGames) {
-        FirebaseCrashlytics.getInstance().log("StartSequence: Received recent games")
-        Log.d("MyGamesViewModel", "StartSequence: Received recent games")
-      }
-      it.copy(
-        recentGames = games,
-        hasReceivedRecentGames = true,
-      )
-    }
-  }
-
-  private fun setChallenges(challenges: List<Challenge>) {
-    _state.update {
-      if (!it.hasReceivedChallenges) {
-        FirebaseCrashlytics.getInstance().log("StartSequence: Received challenges")
-        Log.d("MyGamesViewModel", "StartSequence: Received challenges")
-      }
-      it.copy(
-        challenges = challenges,
-        hasReceivedChallenges = true,
-      )
-    }
-  }
-
-
-  private fun setAutomatches(automatches: List<OGSAutomatch>) {
-    _state.update {
-      if (!it.hasReceivedAutomatches) {
-        FirebaseCrashlytics.getInstance().log("StartSequence: Received automatches")
-        Log.d("MyGamesViewModel", "StartSequence: Received automatches")
-      }
-      it.copy(
-        automatches = automatches,
-        hasReceivedAutomatches = true,
-      )
-    }
-  }
-
 
   private fun onChallengeSeeDetails(challenge: Challenge) {
     val rank =
@@ -352,7 +320,6 @@ class MyGamesViewModel(
 
   private fun onNotification(notification: JSONObject) {
     if (notification["type"] == "gameOfferRejected") {
-      notificationsRepository.acknowledgeNotification(notification)
       val message =
         if (notification.has("message") && notification["message"].toString() != "null") "Message is:\n\n${notification["message"]}" else ""
       if (notification["name"].toString() == "Bot Match") {

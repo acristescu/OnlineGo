@@ -9,6 +9,7 @@ import io.zenandroid.onlinego.data.repositories.LoginStatus
 import io.zenandroid.onlinego.data.repositories.SettingsRepository
 import io.zenandroid.onlinego.data.repositories.UserSessionRepository
 import io.zenandroid.onlinego.utils.addToDisposable
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -26,6 +27,7 @@ class MainActivityViewModel(
   private val socketService: OGSWebSocketService,
   private val userSessionRepository: UserSessionRepository,
   private val settingsRepository: SettingsRepository,
+  private val appCoroutineScope: CoroutineScope,
 ) : ViewModel() {
 
   private val subscriptions = CompositeDisposable()
@@ -83,7 +85,7 @@ class MainActivityViewModel(
   }
 
   fun onPause() {
-    viewModelScope.launch(Dispatchers.IO) {
+    appCoroutineScope.launch(Dispatchers.IO) {
       socketConnectionCheckerJob?.cancel()
       socketConnectionCheckerJob = null
       subscriptions.clear()
