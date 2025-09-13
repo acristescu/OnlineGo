@@ -112,7 +112,8 @@ class NotificationUtils {
 
         fun notifyChallenges(context: Context, challenges: List<Challenge>, previousNotifications: List<ChallengeNotification>, userId: Long) {
             val notificationIntent = Intent(context, MainActivity::class.java)
-            notificationIntent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
+            notificationIntent.flags =
+                Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             val pendingIntent = PendingIntent.getActivity(context, 0, notificationIntent, FLAG_UPDATE_CURRENT or FLAG_IMMUTABLE)
 
             challenges
@@ -172,7 +173,7 @@ class NotificationUtils {
 
                 val uri = "sente://game/${it.id}/${it.width}/${it.height}".toUri()
                 val intent = Intent(Intent.ACTION_VIEW, uri, context, MainActivity::class.java).apply {
-                    flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+                    flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                 }
 
                 val pendingIntent = PendingIntent.getActivity(
@@ -257,7 +258,8 @@ class NotificationUtils {
         private fun notifySummary(context: Context, games: List<Game>, userId: Long?) {
             val notificationIntent = context.packageManager.getLaunchIntentForPackage(context.packageName)!!
             notificationIntent.`package` = null
-            notificationIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED
+            notificationIntent.flags =
+                Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             val pendingIntent = PendingIntent.getActivity(context, 0, notificationIntent, FLAG_UPDATE_CURRENT or FLAG_IMMUTABLE)
 
             val notification =

@@ -373,6 +373,7 @@ class MyGamesViewModel(
   }
 
   fun onAction(action: Action) {
+    FirebaseCrashlytics.getInstance().log(action.javaClass.name)
     when (action) {
       is ChallengeAccepted -> onChallengeAccepted(action.challenge)
       is ChallengeSeeDetails -> onChallengeSeeDetails(action.challenge)

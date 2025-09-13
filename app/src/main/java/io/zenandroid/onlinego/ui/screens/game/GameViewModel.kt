@@ -34,6 +34,7 @@ import androidx.lifecycle.viewModelScope
 import app.cash.molecule.AndroidUiDispatcher
 import app.cash.molecule.RecompositionMode.ContextClock
 import app.cash.molecule.launchMolecule
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.zenandroid.onlinego.BuildConfig
 import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.Mark
@@ -186,6 +187,8 @@ class GameViewModel(
   private var blackPlayerStats by mutableStateOf<RepoResult<UserStats>>(Loading())
   private var whitePlayerVersusStats by mutableStateOf<RepoResult<VersusStats>>(Loading())
   private var blackPlayerVersusStats by mutableStateOf<RepoResult<VersusStats>>(Loading())
+
+  private var isInBackground = false
 
   private var timerJob: Job? = null
 
@@ -662,7 +665,7 @@ class GameViewModel(
   private fun timerRefresher() {
     timerJob?.cancel()
     timerJob = viewModelScope.launch(Dispatchers.Default) {
-      while (true) {
+      while (!isInBackground) {
         var delayUntilNextUpdate = 1000L
         gameState?.let { game ->
           val maxTime = (game.timeControl?.initial_time ?: game.timeControl?.per_move
@@ -884,6 +887,7 @@ class GameViewModel(
   }
 
   fun onUserAction(action: UserAction) {
+    FirebaseCrashlytics.getInstance().log(action.javaClass.name)
     when (action) {
       is BoardCellDragged -> onCellTracked(action.cell)
       is BoardCellTapUp -> onCellTapUp(action.cell)
@@ -1040,7 +1044,13 @@ class GameViewModel(
   }
 
   fun onPause() {
+    isInBackground = true
     timerJob?.cancel()
+  }
+
+  fun onResume() {
+    isInBackground = false
+    timerRefresher()
   }
 }
 

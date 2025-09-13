@@ -69,13 +69,16 @@ fun OnlineGoApp(
 
   val showBottomBar = currentDestination in listOf("myGames", "learn", "stats", "settings")
 
+  LaunchedEffect(activity?.intent?.data) {
+    if (activity?.intent?.data != null) {
+      Log.d("OnlineGoApp", "Deep link: ${activity.intent.data}")
+      FirebaseCrashlytics.getInstance().log("Deep link: ${activity.intent.data}")
+    }
+  }
   LaunchedEffect(currentDestination) {
     if (currentDestination != null) {
+      Log.d("OnlineGoApp", "Current destination: $currentDestination")
       analyticsReportScreen(currentDestination)
-      if (activity?.intent?.data != null) {
-        Log.d("OnlineGoApp", "Deep link: ${activity.intent.data}")
-        FirebaseCrashlytics.getInstance().log("Deep link: ${activity.intent.data}")
-      }
     }
   }
 

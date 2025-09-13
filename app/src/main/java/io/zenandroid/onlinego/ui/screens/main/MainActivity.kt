@@ -85,7 +85,7 @@ class MainActivity : ComponentActivity() {
       )
     }
 
-    FirebaseCrashlytics.getInstance().log("MainActivity.onCreate()")
+    FirebaseCrashlytics.getInstance().log("MainActivity.onCreate() intentURL=${intent.data}")
 
     var themeSettings by mutableStateOf(
       ThemeSettings(
@@ -304,6 +304,12 @@ class MainActivity : ComponentActivity() {
         )
       )
     }
+  }
+
+  override fun onNewIntent(intent: Intent) {
+    super.onNewIntent(intent)
+    setIntent(intent)
+    FirebaseCrashlytics.getInstance().log("MainActivity.onNewIntent() intentURL=${intent.data}")
   }
 
   override fun onResume() {

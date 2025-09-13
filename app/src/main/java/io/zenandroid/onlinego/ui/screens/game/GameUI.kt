@@ -152,6 +152,9 @@ fun GameScreen(
       if (event == Lifecycle.Event.ON_PAUSE) {
         viewModel.onPause()
       }
+      if (event == Lifecycle.Event.ON_RESUME) {
+        viewModel.onResume()
+      }
     }
 
     lifecycleOwner.lifecycle.addObserver(observer)

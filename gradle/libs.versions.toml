@@ -1,28 +1,28 @@
 [versions]
 # Kotlin & Android
 datastorePreferences = "1.1.7"
-kotlin = "2.2.0"
-androidGradlePlugin = "8.12.0-rc01"
+kotlin = "2.2.20"
+androidGradlePlugin = "8.12.2"
 composeCompiler = "1.5.4"
 compileSdk = "36"
 minSdk = "21"
-navigationCompose = "2.9.3"
+navigationCompose = "2.9.4"
 targetSdk = "35"
 ndkVersion = "25.1.8937393"
 
 # Compose BOM
-composeBom = "2025.08.01"
+composeBom = "2025.09.00"
 
 # Main dependencies
-koin = "4.1.0"
+koin = "4.1.1"
 playServices = "21.4.0"
 accompanist = "0.36.0"
 room = "2.7.2"
 firebase = "33.16.0"
-workManager = "2.10.3"
+workManager = "2.10.4"
 androidx-core = "1.17.0"
 androidxCoreSplashscreen = "1.0.1"
-androidx-activity = "1.10.1"
+androidx-activity = "1.11.0"
 androidx-lifecycle = "2.9.3"
 material3 = "1.4.0-beta03"
 material = "1.13.0"

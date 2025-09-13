@@ -34,35 +34,39 @@ class CheckNotificationsTask(val context: Context, val supressWhenInForeground: 
   private val activeGamesRepository: ActiveGamesRepository = GlobalContext.get().get()
   private val challengesRepository: ChallengesRepository = GlobalContext.get().get()
 
-  fun doWork() = Completable.mergeArray(
-    notifyGames(), notifyChallenges()
-  ).toSingleDefault(ListenableWorker.Result.success()).onErrorReturn { e ->
-    when {
-      (e as? HttpException)?.code() in arrayOf(401, 403) -> {
-        FirebaseCrashlytics.getInstance()
-          .log("E/$TAG: Unauthorized when checking for notifications")
-        recordException(e)
-        FirebaseCrashlytics.getInstance()
-          .setCustomKey("AUTO_LOGOUT", System.currentTimeMillis())
-        NotificationUtils.notifyLogout(context)
-        userSessionRepository.logOut()
-        return@onErrorReturn ListenableWorker.Result.failure()
-      }
+  fun doWork() = Completable.fromAction {
+    FirebaseCrashlytics.getInstance().log("I/$TAG: Checking for notifications")
+  }.andThen(
+    Completable.mergeArray(
+      notifyGames(), notifyChallenges()
+    ).toSingleDefault(ListenableWorker.Result.success()).onErrorReturn { e ->
+      when {
+        (e as? HttpException)?.code() in arrayOf(401, 403) -> {
+          FirebaseCrashlytics.getInstance()
+            .log("E/$TAG: Unauthorized when checking for notifications")
+          recordException(e)
+          FirebaseCrashlytics.getInstance()
+            .setCustomKey("AUTO_LOGOUT", System.currentTimeMillis())
+          NotificationUtils.notifyLogout(context)
+          userSessionRepository.logOut()
+          return@onErrorReturn ListenableWorker.Result.failure()
+        }
 
-      e is SocketTimeoutException || e is ConnectException || e is UnknownHostException -> {
-        FirebaseCrashlytics.getInstance()
-          .log("E/$TAG: Can't connect when checking for notifications")
-        return@onErrorReturn ListenableWorker.Result.failure()
-      }
+        e is SocketTimeoutException || e is ConnectException || e is UnknownHostException -> {
+          FirebaseCrashlytics.getInstance()
+            .log("E/$TAG: Can't connect when checking for notifications")
+          return@onErrorReturn ListenableWorker.Result.failure()
+        }
 
-      else -> {
-        FirebaseCrashlytics.getInstance()
-          .log("E/$TAG: Error when checking for notifications")
-        recordException(e)
-        return@onErrorReturn ListenableWorker.Result.retry()
+        else -> {
+          FirebaseCrashlytics.getInstance()
+            .log("E/$TAG: Error when checking for notifications")
+          recordException(e)
+          return@onErrorReturn ListenableWorker.Result.retry()
+        }
       }
     }
-  }
+  )
 
   private fun notifyGames(): Completable =
     userSessionRepository.userIdObservable.firstOrError().flatMapCompletable { userId ->
