@@ -21,7 +21,6 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -39,7 +38,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.local.Challenge
 import io.zenandroid.onlinego.data.model.local.Game
@@ -60,9 +58,7 @@ import io.zenandroid.onlinego.ui.screens.mygames.composables.TutorialItem
 import io.zenandroid.onlinego.ui.screens.newchallenge.NewChallengeBottomSheet
 import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
 import io.zenandroid.onlinego.utils.WhatsNewUtils
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.withContext
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -79,29 +75,29 @@ fun MyGamesScreen(
   val state by viewModel.state.collectAsStateWithLifecycle()
 
   // We want to hold off dismissing the splash screen until we have all the data we need to display
-  var timerExpired by remember { mutableStateOf(false) }
-  val screenReady by remember {
-    derivedStateOf {
-      timerExpired || state.userIsLoggedOut || (state.hasReceivedChallenges && state.hasReceivedAutomatches && state.hasReceivedActiveGames && state.hasReceivedRecentGames && state.hasReceivedHistoricGames)
-    }
-  }
+//  var timerExpired by remember { mutableStateOf(false) }
+//  val screenReady by remember {
+//    derivedStateOf {
+//      timerExpired || state.userIsLoggedOut || (state.hasReceivedChallenges && state.hasReceivedAutomatches && state.hasReceivedActiveGames && state.hasReceivedRecentGames && state.hasReceivedHistoricGames)
+//    }
+//  }
 
 
-  LaunchedEffect(screenReady) {
-    withContext(Dispatchers.Default) {
-      if (screenReady) {
-        onScreenReady()
-      }
-    }
-  }
+//  LaunchedEffect(screenReady) {
+//    withContext(Dispatchers.Default) {
+//      if (screenReady) {
+//        onScreenReady()
+//      }
+//    }
+//  }
 
-  LaunchedEffect(screenReady) {
-    if (!screenReady) {
-      delay(2000)
-      timerExpired = true
-      FirebaseCrashlytics.getInstance().log("Splash screen timed out")
-    }
-  }
+//  LaunchedEffect(screenReady) {
+//    if (!screenReady) {
+//      delay(2000)
+//      timerExpired = true
+//      FirebaseCrashlytics.getInstance().log("Splash screen timed out")
+//    }
+//  }
 
   val lifecycleOwner = LocalLifecycleOwner.current
 
@@ -119,7 +115,7 @@ fun MyGamesScreen(
     }
   }
 
-  if (screenReady) {
+//  if (screenReady) {
     MyGamesContent(
       state,
       viewModel::onAction,
@@ -128,7 +124,7 @@ fun MyGamesScreen(
       onNavigateToLogin,
       onNavigateToSignUp
     )
-  }
+//  }
 
   if (state.alertDialogText != null) {
     AlertDialog(
