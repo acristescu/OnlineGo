@@ -27,6 +27,7 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.res.vectorResource
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.util.Consumer
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -60,7 +61,7 @@ class MainActivity : ComponentActivity() {
   private val viewModel: MainActivityViewModel by viewModel()
 
   override fun onCreate(savedInstanceState: Bundle?) {
-//    val splashScreen = installSplashScreen()
+    val splashScreen = installSplashScreen()
     super.onCreate(savedInstanceState)
     enableEdgeToEdge()
     if (BuildConfig.DEBUG) {
