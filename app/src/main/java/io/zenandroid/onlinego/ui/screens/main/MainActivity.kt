@@ -145,16 +145,16 @@ class MainActivity : ComponentActivity() {
       }
     }
 
-//    splashScreen.setKeepOnScreenCondition {
-//      val keep = !viewModel.state.value.isLoaded && !hasWindowFocus()
-//      if (!keep) {
-//        FirebaseCrashlytics.getInstance().log(
-//          "Splash dismissed at ${System.currentTimeMillis()}"
-//        )
-//        Log.d("MainActivity", "Splash dismissed at ${System.currentTimeMillis()}")
-//      }
-//      keep
-//    }
+    splashScreen.setKeepOnScreenCondition {
+      val keep = !viewModel.state.value.isLoaded && !hasWindowFocus()
+      if (!keep) {
+        FirebaseCrashlytics.getInstance().log(
+          "Splash dismissed at ${System.currentTimeMillis()}"
+        )
+        Log.d("MainActivity", "Splash dismissed at ${System.currentTimeMillis()}")
+      }
+      keep
+    }
 
     setContent {
       val state by viewModel.state.collectAsStateWithLifecycle()
