@@ -60,9 +60,7 @@ import io.zenandroid.onlinego.ui.screens.mygames.composables.TutorialItem
 import io.zenandroid.onlinego.ui.screens.newchallenge.NewChallengeBottomSheet
 import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
 import io.zenandroid.onlinego.utils.WhatsNewUtils
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.withContext
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -82,16 +80,15 @@ fun MyGamesScreen(
   var timerExpired by remember { mutableStateOf(false) }
   val screenReady by remember {
     derivedStateOf {
-      timerExpired || state.userIsLoggedOut || (state.hasReceivedChallenges && state.hasReceivedAutomatches && state.hasReceivedActiveGames && state.hasReceivedRecentGames && state.hasReceivedHistoricGames)
+//      timerExpired || state.userIsLoggedOut || (state.hasReceivedChallenges && state.hasReceivedAutomatches && state.hasReceivedActiveGames && state.hasReceivedRecentGames && state.hasReceivedHistoricGames)
+      timerExpired || state.userIsLoggedOut || (state.hasReceivedChallenges && state.hasReceivedAutomatches && state.hasReceivedActiveGames && state.hasReceivedRecentGames)
     }
   }
 
 
   LaunchedEffect(screenReady) {
-    withContext(Dispatchers.Default) {
-      if (screenReady) {
-        onScreenReady()
-      }
+    if (screenReady) {
+      onScreenReady()
     }
   }
 
