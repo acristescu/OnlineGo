@@ -58,6 +58,7 @@ class MainActivity : ComponentActivity() {
     var isInForeground = false
   }
 
+  private var isAppLoaded = false
   private val viewModel: MainActivityViewModel by viewModel()
 
   override fun onCreate(savedInstanceState: Bundle?) {
@@ -110,6 +111,11 @@ class MainActivity : ComponentActivity() {
           isSystemInDarkTheme(),
           viewModel.state,
         ) { systemDark, state ->
+          if (state.isLoaded && !isAppLoaded) {
+            withContext(Dispatchers.Main.immediate) {
+              isAppLoaded = true
+            }
+          }
           ThemeSettings(
             isDarkTheme = when (state.appTheme) {
               "System Default" -> systemDark
@@ -145,16 +151,7 @@ class MainActivity : ComponentActivity() {
       }
     }
 
-    splashScreen.setKeepOnScreenCondition {
-      val keep = !viewModel.state.value.isLoaded && !hasWindowFocus()
-      if (!keep) {
-        FirebaseCrashlytics.getInstance().log(
-          "Splash dismissed at ${System.currentTimeMillis()}"
-        )
-        Log.d("MainActivity", "Splash dismissed at ${System.currentTimeMillis()}")
-      }
-      keep
-    }
+    splashScreen.setKeepOnScreenCondition { !isAppLoaded }
 
     setContent {
       val state by viewModel.state.collectAsStateWithLifecycle()
