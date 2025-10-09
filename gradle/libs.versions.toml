@@ -64,7 +64,7 @@ coroutinesTest = "1.10.2"
 turbine = "1.2.1"
 
 # Build tools & Plugins
-ksp = "2.2.0-2.0.2"
+ksp = "2.2.21-RC-2.0.4"
 googleServices = "4.4.3"
 crashlytics = "3.0.6"
 molecule = "2.1.0"
