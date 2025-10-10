@@ -16,10 +16,6 @@
         <item name="android:windowBackground">@color/colorOffWhite</item>
     </style>
 
-    <style name="Theme.Splash" parent="Theme.SplashScreen">
-        <item name="postSplashScreenTheme">@style/AppTheme</item>
-    </style>
-
     <style name="Theme.AppCompat.Translucent">
         <item name="android:windowNoTitle">true</item>
         <item name="android:windowBackground">@android:color/transparent</item>

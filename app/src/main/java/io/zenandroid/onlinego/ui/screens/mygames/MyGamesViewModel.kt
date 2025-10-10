@@ -242,10 +242,6 @@ class MyGamesViewModel(
       }
     }
 
-    if (!state.hasReceivedActiveGames) {
-      FirebaseCrashlytics.getInstance().log("StartSequence: Received active games")
-      Log.d("MyGamesViewModel", "StartSequence: Received active games")
-    }
     return state.copy(
       myTurnGames = myTurnList.sortedBy { timeLeftForCurrentPlayer(it) },
       opponentTurnGames = opponentTurnList,
@@ -520,10 +516,6 @@ class MyGamesViewModel(
       val existingGames = it.historicGames
       val newGames =
         games.filter { candidate -> existingGames.find { candidate.id == it.id } == null }
-      if (!it.hasReceivedHistoricGames) {
-        FirebaseCrashlytics.getInstance().log("StartSequence: Received historic games")
-        Log.d("MyGamesViewModel", "StartSequence: Received historic games")
-      }
       it.copy(
         historicGames = existingGames + newGames,
         hasReceivedHistoricGames = true,

@@ -27,7 +27,6 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.res.vectorResource
-import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.util.Consumer
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -58,11 +57,9 @@ class MainActivity : ComponentActivity() {
     var isInForeground = false
   }
 
-  private var isAppLoaded = false
   private val viewModel: MainActivityViewModel by viewModel()
 
   override fun onCreate(savedInstanceState: Bundle?) {
-    val splashScreen = installSplashScreen()
     super.onCreate(savedInstanceState)
     enableEdgeToEdge()
     if (BuildConfig.DEBUG) {
@@ -98,24 +95,12 @@ class MainActivity : ComponentActivity() {
     )
     var preloadedImages by mutableStateOf(PreloadedImages(null, null, null))
 
-    if (intent?.action == Intent.ACTION_VIEW && intent?.data != null) {
-      //
-      // If the app was launched from a link, just dismiss the splash screen immediately
-      //
-      viewModel.onScreenReady()
-    }
-
     lifecycleScope.launch {
       lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
         combine(
           isSystemInDarkTheme(),
           viewModel.state,
         ) { systemDark, state ->
-          if (state.isLoaded && !isAppLoaded) {
-            withContext(Dispatchers.Main.immediate) {
-              isAppLoaded = true
-            }
-          }
           ThemeSettings(
             isDarkTheme = when (state.appTheme) {
               "System Default" -> systemDark
@@ -151,8 +136,6 @@ class MainActivity : ComponentActivity() {
       }
     }
 
-    splashScreen.setKeepOnScreenCondition { !isAppLoaded }
-
     setContent {
       val state by viewModel.state.collectAsStateWithLifecycle()
       LaunchedEffect(themeSettings.isDarkTheme, themeSettings.boardTheme) {
@@ -165,7 +148,6 @@ class MainActivity : ComponentActivity() {
           LocalPreloadedImages provides preloadedImages,
         ) {
           OnlineGoApp(
-            onAppReady = { viewModel.onScreenReady() },
             darkTheme = themeSettings.isDarkTheme,
             isLoggedIn = state.isLoggedIn == true,
             hasCompletedOnboarding = hasCompletedOnboarding,

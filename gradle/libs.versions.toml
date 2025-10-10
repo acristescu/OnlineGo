@@ -21,7 +21,6 @@ room = "2.7.2"
 firebase = "33.16.0"
 workManager = "2.10.4"
 androidx-core = "1.17.0"
-androidxCoreSplashscreen = "1.2.0-rc01"
 androidx-activity = "1.11.0"
 androidx-lifecycle = "2.9.3"
 material3 = "1.4.0-beta03"
@@ -80,7 +79,6 @@ androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = 
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "androidx-activity" }
 androidx-lifecycle-extensions = { group = "androidx.lifecycle", name = "lifecycle-extensions", version = "2.2.0" }
 androidx-lifecycle-viewmodel-ktx = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-ktx", version.ref = "androidx-lifecycle" }
-androidx-core-splashscreen = { group = "androidx.core", name = "core-splashscreen", version.ref = "androidxCoreSplashscreen" }
 
 # Compose (versions managed by BOM)
 compose-material = { group = "androidx.compose.material", name = "material" }

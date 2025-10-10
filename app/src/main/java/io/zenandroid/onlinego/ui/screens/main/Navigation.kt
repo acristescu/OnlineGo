@@ -57,7 +57,6 @@ fun OnlineGoApp(
   isLoggedIn: Boolean,
   darkTheme: Boolean,
   hasCompletedOnboarding: Boolean,
-  onAppReady: () -> Unit,
 ) {
   val navController = rememberNavController()
 
@@ -104,7 +103,6 @@ fun OnlineGoApp(
       ) {
         composable("myGames") {
           MyGamesScreen(
-            onScreenReady = onAppReady,
             onNavigateToGame = { navController.navigate("game/${it.id}/${it.width}/${it.height}") },
             onNavigateToAIGame = { navController.navigate("aiGame") },
             onNavigateToFaceToFace = { navController.navigate("faceToFace") },

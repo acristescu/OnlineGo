@@ -92,14 +92,6 @@ class MainActivityViewModel(
       socketService.disconnect()
     }
   }
-
-  fun onScreenReady() {
-    _state.update {
-      it.copy(
-        screenDataLoaded = true,
-      )
-    }
-  }
 }
 
 data class MainActivityState(

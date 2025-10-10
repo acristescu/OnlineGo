@@ -21,7 +21,6 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -39,7 +38,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.local.Challenge
 import io.zenandroid.onlinego.data.model.local.Game
@@ -66,7 +64,6 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun MyGamesScreen(
   viewModel: MyGamesViewModel = koinViewModel(),
-  onScreenReady: () -> Unit,
   onNavigateToGame: (Game) -> Unit,
   onNavigateToAIGame: () -> Unit,
   onNavigateToFaceToFace: () -> Unit,
@@ -75,31 +72,6 @@ fun MyGamesScreen(
   onNavigateToSignUp: () -> Unit,
 ) {
   val state by viewModel.state.collectAsStateWithLifecycle()
-
-  // We want to hold off dismissing the splash screen until we have all the data we need to display
-  var timerExpired by remember { mutableStateOf(false) }
-  val screenReady by remember {
-    derivedStateOf {
-//      timerExpired || state.userIsLoggedOut || (state.hasReceivedChallenges && state.hasReceivedAutomatches && state.hasReceivedActiveGames && state.hasReceivedRecentGames && state.hasReceivedHistoricGames)
-      timerExpired || state.userIsLoggedOut || (state.hasReceivedChallenges && state.hasReceivedAutomatches && state.hasReceivedActiveGames && state.hasReceivedRecentGames)
-    }
-  }
-
-
-  LaunchedEffect(screenReady) {
-    if (screenReady) {
-      onScreenReady()
-    }
-  }
-
-  LaunchedEffect(screenReady) {
-    if (!screenReady) {
-      delay(2000)
-      timerExpired = true
-      FirebaseCrashlytics.getInstance().log("Splash screen timed out")
-    }
-  }
-
   val lifecycleOwner = LocalLifecycleOwner.current
 
   DisposableEffect(lifecycleOwner) {
@@ -116,16 +88,14 @@ fun MyGamesScreen(
     }
   }
 
-  if (screenReady) {
-    MyGamesContent(
-      state,
-      viewModel::onAction,
-      onNavigateToAIGame,
-      onNavigateToFaceToFace,
-      onNavigateToLogin,
-      onNavigateToSignUp
-    )
-  }
+  MyGamesContent(
+    state,
+    viewModel::onAction,
+    onNavigateToAIGame,
+    onNavigateToFaceToFace,
+    onNavigateToLogin,
+    onNavigateToSignUp
+  )
 
   if (state.alertDialogText != null) {
     AlertDialog(
