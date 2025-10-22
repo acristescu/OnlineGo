@@ -8,6 +8,7 @@ import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.data.model.ogs.UIConfig
 
 private const val UICONFIG_KEY = "UICONFIG_KEY"
+private const val UICONFIG_TIMESTAMP_KEY = "UICONFIG_TIMESTAMP_KEY"
 private const val PUZZLE_REFRESH = "PUZZLE_DIRECTORY_REFRESH"
 
 /**
@@ -21,6 +22,7 @@ object PersistenceManager {
   fun storeUIConfig(uiConfig: UIConfig) {
     prefs.edit {
       putString(UICONFIG_KEY, moshi.adapter(UIConfig::class.java).toJson(uiConfig))
+      putLong(UICONFIG_TIMESTAMP_KEY, System.currentTimeMillis())
     }
   }
 
@@ -28,6 +30,8 @@ object PersistenceManager {
     prefs.getString(UICONFIG_KEY, null)?.let {
       return moshi.adapter(UIConfig::class.java).fromJson(it)
     }
+
+  fun getUIConfigTimestamp(): Long = prefs.getLong(UICONFIG_TIMESTAMP_KEY, 0)
 
   var puzzleCollectionLastRefresh: Long = prefs.getLong(PUZZLE_REFRESH, 0)
     set(value) {

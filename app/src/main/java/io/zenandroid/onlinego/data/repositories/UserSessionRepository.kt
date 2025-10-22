@@ -36,6 +36,7 @@ class UserSessionRepository(
 
   var uiConfig: UIConfig? = null
     private set
+  private var uiConfigTimestamp: Long? = null
 
   private val userId: Long?
     get() = uiConfig?.user?.id
@@ -57,6 +58,7 @@ class UserSessionRepository(
 
   fun storeUIConfig(uiConfig: UIConfig) {
     this.uiConfig = uiConfig
+    uiConfigTimestamp = System.currentTimeMillis()
     FirebaseCrashlytics.getInstance().setUserId(uiConfig.user?.id.toString())
     PersistenceManager.storeUIConfig(uiConfig)
     userId?.let {
@@ -66,9 +68,12 @@ class UserSessionRepository(
     socketService.resendAuth()
   }
 
-  fun requiresUIConfigRefresh(): Boolean =
-    uiConfig?.user_jwt == null
-
+  fun requiresUIConfigRefresh(): Boolean {
+    if (uiConfigTimestamp == null) {
+      uiConfigTimestamp = PersistenceManager.getUIConfigTimestamp()
+    }
+    return uiConfig?.user_jwt == null || uiConfigTimestamp!! < System.currentTimeMillis() - 1000 * 60 * 60
+  }
   fun isLoggedIn() =
     (uiConfig != null) &&
         cookieJar.loadForRequest(BuildConfig.BASE_URL.toHttpUrlOrNull()!!)
