@@ -1,5 +1,6 @@
 package io.zenandroid.onlinego.ui.screens.game
 
+import android.app.Activity
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Biotech
 import androidx.compose.material.icons.rounded.Cancel
@@ -112,6 +113,7 @@ import io.zenandroid.onlinego.usecases.GetUserStatsUseCase
 import io.zenandroid.onlinego.usecases.RepoResult
 import io.zenandroid.onlinego.usecases.RepoResult.Loading
 import io.zenandroid.onlinego.utils.NotificationUtils
+import io.zenandroid.onlinego.utils.ReviewPromptManager
 import io.zenandroid.onlinego.utils.computeTimeLeft
 import io.zenandroid.onlinego.utils.convertCountryCodeToEmojiFlag
 import io.zenandroid.onlinego.utils.egfToRank
@@ -146,6 +148,7 @@ class GameViewModel(
   private val settingsRepository: SettingsRepository,
   private val getUserStatsUseCase: GetUserStatsUseCase,
   private val appCoroutineScope: CoroutineScope,
+  private val reviewPromptManager: ReviewPromptManager,
   savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -178,6 +181,7 @@ class GameViewModel(
   private var gameOverDetails by mutableStateOf<GameOverDialogDetails?>(null)
   private var gameOverDialogShowing by mutableStateOf(false)
   private var chatDialogShowing by mutableStateOf(false)
+  private var shouldShowReviewPrompt by mutableStateOf(false)
   private var currentVariation by mutableStateOf<Variation?>(null)
   private var unreadMessagesCount by mutableStateOf(0)
   private var gameInfoDialogShowing by mutableStateOf(false)
@@ -467,7 +471,8 @@ class GameViewModel(
           game?.whitePlayer?.id -> whitePlayerVersusStats
           else -> blackPlayerVersusStats
         },
-        versusStatsHidden = playerDetailsDialogShowing?.id == userId
+        versusStatsHidden = playerDetailsDialogShowing?.id == userId,
+        shouldShowReviewPrompt = shouldShowReviewPrompt
       )
     }
   }
@@ -548,6 +553,12 @@ class GameViewModel(
       }
       gameOverDialogShowing = true
       analysisShownMoveNumber = game.moves?.size ?: 0
+
+      val playerWon = (game.blackLost == true && game.whitePlayer.id == userId) ||
+          (game.whiteLost == true && game.blackPlayer.id == userId)
+      if (playerWon) {
+        shouldShowReviewPrompt = true
+      }
     }
     candidateMove = null
     gameOverDetails = calculateGameOverDetails(game, userId)
@@ -886,6 +897,17 @@ class GameViewModel(
     }
   }
 
+  suspend fun handleReviewPrompt(activity: Activity) {
+    if (shouldShowReviewPrompt) {
+      shouldShowReviewPrompt = false
+      try {
+        reviewPromptManager.requestReview(activity)
+      } catch (e: Exception) {
+        FirebaseCrashlytics.getInstance().recordException(e)
+      }
+    }
+  }
+
   fun onUserAction(action: UserAction) {
     FirebaseCrashlytics.getInstance().log(action.javaClass.name)
     when (action) {
@@ -1097,6 +1119,7 @@ data class GameState(
   val playerStats: RepoResult<UserStats>,
   val versusStats: RepoResult<VersusStats>,
   val versusStatsHidden: Boolean,
+  val shouldShowReviewPrompt: Boolean,
 ) {
   companion object {
     val DEFAULT = GameState(
@@ -1141,6 +1164,7 @@ data class GameState(
       lastMoveMarker = "#",
       versusStats = Loading(),
       versusStatsHidden = false,
+      shouldShowReviewPrompt = false,
     )
   }
 }

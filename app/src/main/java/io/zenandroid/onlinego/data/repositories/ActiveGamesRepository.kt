@@ -290,7 +290,7 @@ class ActiveGamesRepository(
         }
       }.retryWhen {
         it.flatMap {
-          if (it is InvalidParameterException && retryCount < 10) {
+          if (it is InvalidParameterException && retryCount < 20) {
             retryCount++
             Flowable.timer(1, TimeUnit.SECONDS)
           } else {

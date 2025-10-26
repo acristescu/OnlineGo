@@ -205,6 +205,12 @@ fun GameScreen(
 
   val state by viewModel.state.collectAsStateWithLifecycle()
 
+  LaunchedEffect(state.shouldShowReviewPrompt) {
+    if (state.shouldShowReviewPrompt && activity != null) {
+      viewModel.handleReviewPrompt(activity)
+    }
+  }
+
   if (!state.loading) {
     GameContent(
       state = state,
@@ -1228,6 +1234,7 @@ private fun PreviewLoading() {
         playerStats = RepoResult.Loading(),
         versusStats = RepoResult.Loading(),
         versusStatsHidden = true,
+        shouldShowReviewPrompt = false,
       ),
       {}, {},
     )

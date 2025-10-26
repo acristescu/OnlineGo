@@ -24,6 +24,7 @@ import io.zenandroid.onlinego.data.repositories.FinishedGamesRepository
 import io.zenandroid.onlinego.data.repositories.JosekiRepository
 import io.zenandroid.onlinego.data.repositories.PlayersRepository
 import io.zenandroid.onlinego.data.repositories.PuzzleRepository
+import io.zenandroid.onlinego.data.repositories.ReviewPromptRepository
 import io.zenandroid.onlinego.data.repositories.ServerNotificationsRepository
 import io.zenandroid.onlinego.data.repositories.SettingsRepository
 import io.zenandroid.onlinego.data.repositories.TutorialsRepository
@@ -50,6 +51,7 @@ import io.zenandroid.onlinego.usecases.GetUserStatsUseCase
 import io.zenandroid.onlinego.utils.CountingIdlingResource
 import io.zenandroid.onlinego.utils.CustomConverterFactory
 import io.zenandroid.onlinego.utils.NOOPIdlingResource
+import io.zenandroid.onlinego.utils.ReviewPromptManager
 import org.koin.android.ext.koin.androidApplication
 import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModel
@@ -89,6 +91,7 @@ private val repositoriesModule = module {
   singleOf(::UserSessionRepository)
   singleOf(::ClockDriftRepository)
   singleOf(::TutorialsRepository)
+  singleOf(::ReviewPromptRepository)
 }
 
 private val serverConnectionModule = module {
@@ -154,7 +157,20 @@ private val viewModelsModule = module {
   viewModelOf(::TutorialViewModel)
   viewModelOf(::OnboardingViewModel)
   viewModelOf(::SupporterViewModel)
-  viewModelOf(::GameViewModel)
+  viewModel {
+    GameViewModel(
+      get(),
+      get(),
+      get(),
+      get(),
+      get(),
+      get(),
+      get(),
+      get(),
+      get(),
+      get()
+    )
+  }
   viewModelOf(::MainActivityViewModel)
 
   viewModel {
@@ -194,6 +210,16 @@ private val playStoreModule = module {
   singleOf(::PlayStoreService)
 }
 
+private val reviewPromptModule = module {
+  single {
+    ReviewPromptManager(
+      context = get(),
+      reviewPromptRepository = get(),
+      applicationScope = get()
+    )
+  }
+}
+
 val allKoinModules = listOf(
   repositoriesModule,
   serverConnectionModule,
@@ -201,5 +227,6 @@ val allKoinModules = listOf(
   viewModelsModule,
   useCasesModule,
   espressoModule,
-  playStoreModule
+  playStoreModule,
+  reviewPromptModule
 )
