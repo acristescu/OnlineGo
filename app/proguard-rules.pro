@@ -34,3 +34,6 @@
 -keep,allowobfuscation,allowshrinking interface retrofit2.Call
 -keep,allowobfuscation,allowshrinking class retrofit2.Response
 -keep,allowobfuscation,allowshrinking class kotlin.coroutines.Continuation
+# Ignore intended-to-be-optional re2j classes - only needed if using re2j for jsoup regex
+# jsoup safely falls back to JDK regex if re2j not on classpath, but has concrete re2j refs
+-dontwarn com.google.re2j.**
