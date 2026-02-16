@@ -60,6 +60,8 @@ data class Game(
     val freeHandicapPlacement: Boolean?,
     val handicap: Int?,
     val undoRequested: Int?,
+    val undoRequestedBy: Long?,
+    val undoRequestedMoveCount: Int?,
     val scoreAGAHandicap: Boolean?,
     val scoreHandicap: Boolean?,
     val scorePasses: Boolean?,
@@ -207,6 +209,8 @@ data class Game(
                 freeHandicapPlacement = gamedata?.free_handicap_placement,
                 handicap = game.handicap,
                 undoRequested = gamedata?.undo_requested,
+                undoRequestedBy = gamedata?.undo_requested_by,
+                undoRequestedMoveCount = gamedata?.undo_requested_move_count,
                 scoreAGAHandicap = gamedata?.aga_handicap_scoring,
                 scoreHandicap = gamedata?.score_handicap,
                 scorePasses = gamedata?.score_passes,
@@ -249,6 +253,8 @@ data class Game(
                 freeHandicapPlacement = false,
                 handicap = null,
                 undoRequested = null,
+                undoRequestedBy = null,
+                undoRequestedMoveCount = null,
                 scoreAGAHandicap = false,
                 scoreHandicap = false,
                 scorePasses = false,
@@ -263,7 +269,7 @@ data class Game(
                 disableAnalysis = false,
                 pausedSince = null,
                 pauseControl = null,
-                annulled = null
+                annulled = null,
             )
     }
 }

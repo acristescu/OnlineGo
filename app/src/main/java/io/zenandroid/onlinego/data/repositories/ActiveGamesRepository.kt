@@ -23,6 +23,7 @@ import io.zenandroid.onlinego.data.ogs.OGSRestService
 import io.zenandroid.onlinego.data.ogs.OGSWebSocketService
 import io.zenandroid.onlinego.data.ogs.RemovedStones
 import io.zenandroid.onlinego.data.ogs.RemovedStonesAccepted
+import io.zenandroid.onlinego.data.ogs.UndoRequested
 import io.zenandroid.onlinego.utils.addToDisposable
 import io.zenandroid.onlinego.utils.recordException
 import io.zenandroid.onlinego.utils.timeLeftForCurrentPlayer
@@ -181,7 +182,7 @@ class ActiveGamesRepository(
       .subscribeOn(Schedulers.io())
       .observeOn(Schedulers.io())
       .subscribe(
-        { onUndoAccepted(game.id, it) },
+        { onUndoAccepted(game.id, it.move_number, it.undo_move_count) },
         { onError(it, "undoRequested") }
       )
       .addToDisposable(subscriptions)
@@ -199,12 +200,17 @@ class ActiveGamesRepository(
     )
   }
 
-  private fun onUndoRequested(gameId: Long, moveNo: Int) {
-    gameDao.updateUndoRequested(gameId, moveNo)
+  private fun onUndoRequested(gameId: Long, undoRequested: UndoRequested) {
+    gameDao.updateUndoRequested(
+      gameId,
+      undoRequested.move_number,
+      undoRequested.requested_by,
+      undoRequested.undo_move_count
+    )
   }
 
-  private fun onUndoAccepted(gameId: Long, moveNo: Int) {
-    gameDao.updateUndoAccepted(gameId, moveNo)
+  private fun onUndoAccepted(gameId: Long, moveNo: Int, moveCount: Int) {
+    gameDao.updateUndoAccepted(gameId, moveNo, moveCount)
   }
 
   private fun onGamePhase(gameId: Long, newPhase: Phase) {

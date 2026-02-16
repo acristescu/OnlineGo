@@ -136,13 +136,9 @@ class OGSWebSocketService(
         },
         removedStonesObservable = observeEvent("game/$id/removed_stones").parseJSON(),
         chatObservable = observeEvent("game/$id/chat").parseJSON(),
-        undoRequestedObservable = observeEvent("game/$id/undo_requested").map { string ->
-          string.toString().toInt()
-        },
+        undoRequestedObservable = observeEvent("game/$id/undo_requested").parseJSON(),
         removedStonesAcceptedObservable = observeEvent("game/$id/removed_stones_accepted").parseJSON(),
-        undoAcceptedObservable = observeEvent("game/$id/undo_accepted").map { string ->
-          string.toString().toInt()
-        }
+        undoAcceptedObservable = observeEvent("game/$id/undo_accepted").parseJSON()
       ).apply {
         emitGameConnection(id, includeChat)
         gameConnections[id] = this

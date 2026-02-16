@@ -1,34 +1,34 @@
 [versions]
 # Kotlin & Android
-datastorePreferences = "1.1.7"
-kotlin = "2.2.20"
-androidGradlePlugin = "8.13.0"
+datastorePreferences = "1.2.0"
+kotlin = "2.3.10"
+androidGradlePlugin = "8.13.2"
 composeCompiler = "1.5.4"
 compileSdk = "36"
-minSdk = "21"
-navigationCompose = "2.9.4"
-targetSdk = "35"
+minSdk = "23"
+navigationCompose = "2.9.7"
+targetSdk = "36"
 ndkVersion = "25.1.8937393"
 
 # Compose BOM
-composeBom = "2025.09.00"
+composeBom = "2026.02.00"
 
 # Main dependencies
 koin = "4.1.1"
-playServices = "21.4.0"
+playServices = "21.5.0"
 accompanist = "0.36.0"
-room = "2.7.2"
+room = "2.8.4"
 firebase = "33.16.0"
-workManager = "2.10.4"
+workManager = "2.11.1"
 androidx-core = "1.17.0"
-androidx-activity = "1.11.0"
-androidx-lifecycle = "2.9.3"
+androidx-activity = "1.12.4"
+androidx-lifecycle = "2.10.0"
 material3 = "1.4.0-beta03"
 material = "1.13.0"
 
 # Networking & Serialization
 retrofit = "3.0.0"
-okhttp = "5.1.0"
+okhttp = "5.3.2"
 moshi = "1.15.2"
 coil = "2.7.0"
 
@@ -41,11 +41,11 @@ kotlinxCoroutinesRx = "1.10.2"
 
 # Utility libraries
 markwon = "4.6.2"
-jsoup = "1.21.1"
+jsoup = "1.22.1"
 socketio = "2.1.2"
 billing = "7.1.1"
 desugar = "2.1.5"
-espresso = "3.6.1"
+espresso = "3.7.0"
 immutableCollections = "0.4.0"
 mpChart = "v3.1.0"
 persistentCookieJar = "v1.0.1"
@@ -65,9 +65,9 @@ turbine = "1.2.1"
 
 # Build tools & Plugins
 ksp = "2.2.21-RC-2.0.4"
-googleServices = "4.4.3"
+googleServices = "4.4.4"
 crashlytics = "3.0.6"
-molecule = "2.1.0"
+molecule = "2.2.0"
 cmake = "3.31.6"
 
 [libraries]

@@ -201,16 +201,18 @@ abstract class GameDao {
         """)
     abstract fun updateRemovedStonesAccepted(id: Long, white_stones: String?, black_stones: String?)
 
-    @Query("UPDATE game SET undoRequested = :moveNo WHERE id = :id")
-    abstract fun updateUndoRequested(id: Long, moveNo: Int)
+    @Query("UPDATE game SET undoRequested = :moveNo, undoRequestedBy = :requestedBy, undoRequestedMoveCount = :moveCount WHERE id = :id")
+    abstract fun updateUndoRequested(id: Long, moveNo: Int, requestedBy: Long?, moveCount: Int?)
 
     @Transaction
-    open fun updateUndoAccepted(id: Long, moveNo: Int) {
+    open fun updateUndoAccepted(id: Long, moveNo: Int, moveCount: Int) {
         val game = getGame(id)
         update(
             game.copy(
                 undoRequested = null,
-                moves = if (game.moves?.size == moveNo) game.moves.dropLast(1)
+                undoRequestedBy = null,
+                undoRequestedMoveCount = null,
+                moves = if (game.moves?.size == moveNo) game.moves.dropLast(moveCount)
                     .toMutableList() else game.moves
             )
         )

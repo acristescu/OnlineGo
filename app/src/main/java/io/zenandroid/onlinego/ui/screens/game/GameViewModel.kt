@@ -2,19 +2,19 @@ package io.zenandroid.onlinego.ui.screens.game
 
 import android.app.Activity
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.NextPlan
+import androidx.compose.material.icons.automirrored.rounded.Undo
 import androidx.compose.material.icons.rounded.Biotech
 import androidx.compose.material.icons.rounded.Cancel
 import androidx.compose.material.icons.rounded.Forum
 import androidx.compose.material.icons.rounded.Functions
 import androidx.compose.material.icons.rounded.HighlightOff
-import androidx.compose.material.icons.rounded.NextPlan
 import androidx.compose.material.icons.rounded.OutlinedFlag
 import androidx.compose.material.icons.rounded.SkipNext
 import androidx.compose.material.icons.rounded.SkipPrevious
 import androidx.compose.material.icons.rounded.Stop
 import androidx.compose.material.icons.rounded.ThumbDown
 import androidx.compose.material.icons.rounded.ThumbUp
-import androidx.compose.material.icons.rounded.Undo
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
@@ -309,7 +309,7 @@ class GameViewModel(
       //
 
       val opponentRequestedUndo = game?.phase == Phase.PLAY
-          && game?.playerToMoveId == userId
+          && game?.undoRequestedBy != userId
           && game?.undoRequested != null
       val shouldShowUndoRequestedDialog =
         opponentRequestedUndo && dismissedUndoDialogAtMove != gameState?.moves?.size
@@ -407,18 +407,20 @@ class GameViewModel(
         ?: score.second else score.second
 
       val whiteExtraStatus = calculateExtraStatus(
-        game,
-        whiteToMove,
-        game?.whitePlayer?.acceptedStones,
-        game?.whiteLost,
-        timer.whiteStartTimer
+        game = game,
+        playerToMove = whiteToMove,
+        playerAcceptedStones = game?.whitePlayer?.acceptedStones,
+        playerLost = game?.whiteLost,
+        playerStartTimer = timer.whiteStartTimer,
+        undoRequestedByPlayer = game?.whitePlayer?.id == game?.undoRequestedBy,
       )
       val blackExtraStatus = calculateExtraStatus(
-        game,
-        !whiteToMove,
-        game?.blackPlayer?.acceptedStones,
-        game?.blackLost,
-        timer.blackStartTimer
+        game = game,
+        playerToMove = !whiteToMove,
+        playerAcceptedStones = game?.blackPlayer?.acceptedStones,
+        playerLost = game?.blackLost,
+        playerStartTimer = timer.blackStartTimer,
+        undoRequestedByPlayer = game?.blackPlayer?.id == game?.undoRequestedBy,
       )
       val boardInteractive =
         (isMyTurn && pendingMove == null && !analyzeMode && !estimateMode) || game?.phase == Phase.STONE_REMOVAL || (analyzeMode && !estimateMode && !isAnalysisDisabled())
@@ -488,10 +490,11 @@ class GameViewModel(
     playerToMove: Boolean,
     playerAcceptedStones: String?,
     playerLost: Boolean?,
-    playerStartTimer: String?
+    playerStartTimer: String?,
+    undoRequestedByPlayer: Boolean,
   ): String? =
     when {
-      game?.phase == Phase.PLAY && !playerToMove && game.undoRequested != null -> "Requested undo"
+      game?.phase == Phase.PLAY && undoRequestedByPlayer -> "Requested undo"
       game?.phase == Phase.PLAY && !playerToMove && game.moves?.lastOrNull()
         ?.isPass() == true -> "Player passed!"
 
@@ -1215,11 +1218,11 @@ sealed class Button(
   class NextGame(enabled: Boolean = true, bubbleText: String? = null) : Button(
     enabled = enabled,
     bubbleText = bubbleText,
-    icon = Icons.Rounded.NextPlan,
+    icon = Icons.AutoMirrored.Rounded.NextPlan,
     label = "Next Game"
   )
 
-  object Undo : Button(Icons.Rounded.Undo, "Undo")
+  object Undo : Button(Icons.AutoMirrored.Rounded.Undo, "Undo")
   object ExitAnalysis : Button(Icons.Rounded.HighlightOff, "Exit Analysis")
   object Estimate :
     Button(enabled = true, icon = Icons.Rounded.Functions, label = "Estimate")
