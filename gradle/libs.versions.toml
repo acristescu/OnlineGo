@@ -42,7 +42,6 @@ kotlinxCoroutinesRx = "1.10.2"
 # Utility libraries
 markwon = "4.6.2"
 jsoup = "1.22.1"
-socketio = "2.1.2"
 billing = "7.1.1"
 desugar = "2.1.5"
 espresso = "3.7.0"
@@ -146,8 +145,6 @@ koin-androidx-compose = { group = "io.insert-koin", name = "koin-androidx-compos
 # Image Loading
 coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil" }
 
-# UI Libraries
-socket-io-client = { group = "io.socket", name = "socket.io-client", version.ref = "socketio" }
 
 # Utility
 immutable-collections = { group = "org.jetbrains.kotlinx", name = "kotlinx-collections-immutable", version.ref = "immutableCollections" }

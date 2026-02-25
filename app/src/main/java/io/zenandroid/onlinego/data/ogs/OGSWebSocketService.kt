@@ -8,9 +8,6 @@ import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
 import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
-import io.socket.client.Ack
-import io.socket.client.IO
-import io.socket.client.Socket
 import io.zenandroid.onlinego.BuildConfig
 import io.zenandroid.onlinego.data.model.ogs.GameList
 import io.zenandroid.onlinego.data.model.ogs.NetPong
@@ -24,7 +21,6 @@ import io.zenandroid.onlinego.data.model.ogs.UIPush
 import io.zenandroid.onlinego.data.repositories.LoginStatus
 import io.zenandroid.onlinego.data.repositories.SocketConnectedRepository
 import io.zenandroid.onlinego.data.repositories.UserSessionRepository
-import io.zenandroid.onlinego.utils.AndroidLoggingHandler
 import io.zenandroid.onlinego.utils.JsonObjectScope
 import io.zenandroid.onlinego.utils.createJsonArray
 import io.zenandroid.onlinego.utils.json
@@ -33,70 +29,165 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.yield
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.Response
+import okhttp3.WebSocket
+import okhttp3.WebSocketListener
+import org.json.JSONArray
 import org.json.JSONObject
 import org.koin.core.context.GlobalContext.get
 import java.util.Locale
 import java.util.UUID
-import java.util.logging.Level
-import java.util.logging.Logger
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.AtomicInteger
 import kotlin.concurrent.thread
 
 private const val TAG = "OGSWebSocketService"
+
+private const val RECONNECT_DELAY_MIN_MS = 750L
+private const val RECONNECT_DELAY_MAX_MS = 10000L
+private const val NORMAL_CLOSURE_STATUS = 1000
 
 class OGSWebSocketService(
   private val moshi: Moshi,
   private val restService: OGSRestService,
   private val userSessionRepository: UserSessionRepository,
+  private val httpClient: OkHttpClient,
 ) {
   private val _connectionState = MutableStateFlow(false)
   val connectionState = _connectionState.asStateFlow()
 
-  private val socket: Socket
+  private var webSocket: WebSocket? = null
+  private val connected = AtomicBoolean(false)
+  private val intentionalDisconnect = AtomicBoolean(false)
+  private var reconnectDelay = RECONNECT_DELAY_MIN_MS
   private var connectedToChallenges = false
 
   // Note: Don't use constructor injection here as it creates a dependency loop
   private val socketConnectedRepositories: List<SocketConnectedRepository> by get().inject()
 
-  private val loggingAck = Ack {
-    if (BuildConfig.DEBUG) {
-      val debugItem = if (it is Array<*>) it[0] else it
-      Log.i(TAG, "ack: $debugItem")
-    }
+  // Event listeners: event_name -> list of callbacks
+  private val eventListeners = ConcurrentHashMap<String, MutableList<(Any) -> Unit>>()
+
+  // Pending request/response callbacks: id -> callback
+  private val nextRequestId = AtomicInteger(1)
+  private val pendingRequests = ConcurrentHashMap<Int, (data: Any?, error: JSONObject?) -> Unit>()
+
+  private val wsUrl = "wss://wsp.online-go.com/"
+
+  private val wsClient: OkHttpClient by lazy {
+    httpClient.newBuilder()
+      .pingInterval(15, TimeUnit.SECONDS)
+      .build()
   }
 
-  init {
-    socket = IO.socket(BuildConfig.BASE_URL, IO.Options().apply {
-      transports = arrayOf("websocket")
-      reconnection = true
-      reconnectionDelay = 750
-      reconnectionDelayMax = 10000
-    })
-
-    socket.on(Socket.EVENT_CONNECT) {
-      if (BuildConfig.DEBUG) Logger.getLogger(TAG).warning("socket connect id=${socket.id()}")
+  private val webSocketListener = object : WebSocketListener() {
+    override fun onOpen(webSocket: WebSocket, response: Response) {
+      if (BuildConfig.DEBUG) Log.i(TAG, "WebSocket connected")
       FirebaseCrashlytics.getInstance().log("Websocket connected")
+      connected.set(true)
+      reconnectDelay = RECONNECT_DELAY_MIN_MS
       onSockedConnected()
       FirebaseCrashlytics.getInstance()
         .log("Websocket connected - called all onSocketConnected() methods")
-    }.on(Socket.EVENT_DISCONNECT) {
-      if (BuildConfig.DEBUG) Logger.getLogger(TAG)
-        .warning("socket disconnect id=${socket.id()}")
+    }
+
+    override fun onMessage(webSocket: WebSocket, text: String) {
+      if (BuildConfig.DEBUG) Log.v(TAG, "<== raw: $text")
+      try {
+        handleMessage(text)
+      } catch (e: Exception) {
+        recordException(Exception("Error handling WebSocket message: $text", e))
+      }
+    }
+
+    override fun onClosing(webSocket: WebSocket, code: Int, reason: String) {
+      if (BuildConfig.DEBUG) Log.i(TAG, "WebSocket closing: $code $reason")
+      webSocket.close(NORMAL_CLOSURE_STATUS, null)
+    }
+
+    override fun onClosed(webSocket: WebSocket, code: Int, reason: String) {
+      if (BuildConfig.DEBUG) Log.i(TAG, "WebSocket closed: $code $reason")
       FirebaseCrashlytics.getInstance().log("Websocket disconnected")
+      handleDisconnect()
+    }
+
+    override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
+      if (BuildConfig.DEBUG) Log.w(TAG, "WebSocket failure: ${t.message}")
+      FirebaseCrashlytics.getInstance().log("Websocket connect error: ${t.message}")
+      handleDisconnect()
+    }
+  }
+
+  private fun handleMessage(text: String) {
+    val jsonArray = JSONArray(text)
+    val first = jsonArray.get(0)
+
+    if (first is String) {
+      // Server event: [event_name, data]
+      val eventName = first
+      val data = if (jsonArray.length() > 1) jsonArray.get(1) else JSONObject()
+      if (BuildConfig.DEBUG) Log.i(TAG, "<== $eventName")
+      dispatchEvent(eventName, data)
+    } else if (first is Number) {
+      // Response to a client request: [id, data?, error?]
+      val id = first.toInt()
+      val data = if (jsonArray.length() > 1 && !jsonArray.isNull(1)) jsonArray.get(1) else null
+      val error =
+        if (jsonArray.length() > 2 && !jsonArray.isNull(2)) jsonArray.optJSONObject(2) else null
+      if (BuildConfig.DEBUG) Log.i(TAG, "<== response id=$id")
+
+      val callback = pendingRequests.remove(id)
+      if (callback != null) {
+        callback(data, error)
+      } else {
+        if (BuildConfig.DEBUG) Log.w(TAG, "Received response for unknown request id=$id")
+      }
+    }
+  }
+
+  private fun dispatchEvent(event: String, data: Any) {
+    val listeners = eventListeners[event]
+    if (listeners != null) {
+      synchronized(listeners) {
+        listeners.forEach { it(data) }
+      }
+    }
+  }
+
+  private fun handleDisconnect() {
+    val wasConnected = connected.getAndSet(false)
+    if (wasConnected) {
       onSocketDisconnected()
-    }.on(Socket.EVENT_CONNECT_ERROR) {
-      if (BuildConfig.DEBUG) Logger.getLogger(TAG)
-        .warning("socket connect error id=${socket.id()}")
-      FirebaseCrashlytics.getInstance().log("Websocket connect error")
     }
-
-    if (BuildConfig.DEBUG) {
-      AndroidLoggingHandler.reset(AndroidLoggingHandler())
-      Logger.getLogger(Socket::class.java.name).level = Level.FINEST
-//            Logger.getLogger(Manager::class.java.name).level = Level.FINEST
-//            Logger.getLogger(io.socket.engineio.client.Socket::class.java.name).level = Level.FINEST
-//            Logger.getLogger(IOParser::class.java.name).level = Level.FINEST
+    if (!intentionalDisconnect.get()) {
+      scheduleReconnect()
     }
+  }
 
+  private fun scheduleReconnect() {
+    thread(start = true, name = "ws-reconnect-thread") {
+      try {
+        if (BuildConfig.DEBUG) Log.i(TAG, "Reconnecting in ${reconnectDelay}ms...")
+        Thread.sleep(reconnectDelay)
+        reconnectDelay = (reconnectDelay * 2).coerceAtMost(RECONNECT_DELAY_MAX_MS)
+        if (!intentionalDisconnect.get()) {
+          doConnect()
+        }
+      } catch (_: InterruptedException) {
+        // ignore
+      }
+    }
+  }
+
+  private fun doConnect() {
+    val request = Request.Builder()
+      .url(wsUrl)
+      .build()
+    webSocket = wsClient.newWebSocket(request, webSocketListener)
   }
 
   fun ensureSocketConnected() {
@@ -110,7 +201,10 @@ class OGSWebSocketService(
               .log("E/$TAG: Failed to refresh UIConfig $it")
           })
     }
-    socket.connect()
+    if (!connected.get()) {
+      intentionalDisconnect.set(false)
+      doConnect()
+    }
   }
 
   private val gameConnections = mutableMapOf<Long, GameConnection>()
@@ -260,7 +354,7 @@ class OGSWebSocketService(
               "auth" - userSessionRepository.uiConfig?.notification_auth
             }
           }.doOnCancel {
-            if (socket.connected()) {
+            if (connected.get()) {
               emit("notification/disconnect", "")
             }
           }
@@ -272,56 +366,61 @@ class OGSWebSocketService(
   fun emit(event: String, params: Any?) {
     ensureSocketConnected()
     if (BuildConfig.DEBUG) Log.i(TAG, "==> $event with params $params")
-    socket.emit(event, params, loggingAck)
+    val message = JSONArray().apply {
+      put(event)
+      put(params ?: JSONObject.NULL)
+    }
+    webSocket?.send(message.toString())
   }
 
   fun emit(event: String, json: JsonObjectScope.() -> Unit) {
     emit(event, json { json() })
   }
 
+  /**
+   * Sends a command and expects a single response identified by a request id.
+   * Returns the response data via the callback.
+   */
+  private fun emitWithResponse(
+    event: String,
+    params: Any?,
+    callback: (data: Any?, error: JSONObject?) -> Unit
+  ) {
+    ensureSocketConnected()
+    val id = nextRequestId.getAndIncrement()
+    pendingRequests[id] = callback
+    if (BuildConfig.DEBUG) Log.i(TAG, "==> $event with params $params (id=$id)")
+    val message = JSONArray().apply {
+      put(event)
+      put(params ?: JSONObject.NULL)
+      put(id)
+    }
+    webSocket?.send(message.toString())
+  }
+
   private fun observeEvent(event: String): Flowable<Any> {
     if (BuildConfig.DEBUG) Log.i(TAG, "Listening for event: $event")
     return Flowable.create({ emitter ->
-      socket.on(event) { params ->
-        if (BuildConfig.DEBUG) Log.i(TAG, "<== $event, ${params[0]}")
+      val listener: (Any) -> Unit = { data ->
+        if (BuildConfig.DEBUG) Log.i(TAG, "<== $event, $data")
+        emitter.onNext(data)
+      }
 
-        if (params.size != 1) {
-          recordException(
-            Exception(
-              "Unexpected response (${params.size} params) while listening for event $event: parameter list is ${
-                params.joinToString(
-                  "|||"
-                )
-              }"
-            )
-          )
-        } else if (params[0] == event) {
-          recordException(
-            Exception(
-              "Unexpected response (params[0] == event) while listening for event $event: parameter list is ${
-                params.joinToString(
-                  "|||"
-                )
-              }"
-            )
-          )
-        }
-
-        if (params[0] != null) {
-          // Sometimes, rarely, the first parameter is the name of the channel repeated (!?!?)
-          val response =
-            if (params[0] == event && params.size > 1) params[1] else params[0]
-          emitter.onNext(response)
-        } else {
-          recordException(Exception("Unexpected null parameter for event $event"))
-          emitter.onNext("")
-        }
+      val listeners = eventListeners.getOrPut(event) { mutableListOf() }
+      synchronized(listeners) {
+        listeners.add(listener)
       }
 
       emitter.setCancellable {
         if (BuildConfig.DEBUG) Log.i(TAG, "Unregistering for event: $event")
-        if (socket.connected()) {
-          socket.off(event)
+        val list = eventListeners[event]
+        if (list != null) {
+          synchronized(list) {
+            list.remove(listener)
+            if (list.isEmpty()) {
+              eventListeners.remove(event)
+            }
+          }
         }
       }
     }, BackpressureStrategy.BUFFER)
@@ -369,14 +468,25 @@ class OGSWebSocketService(
   fun fetchGameList(): Single<GameList> {
     ensureSocketConnected()
     return Single.create { emitter ->
-      socket.emit("gamelist/query", json {
+      val params = json {
         "list" - "live"
         "sort_by" - "rank"
         "from" - 0
         "limit" - 9
-      }, Ack { args ->
-        emitter.onSuccess(adapter(args[0].toString())!!)
-      })
+      }
+      emitWithResponse("gamelist/query", params) { data, error ->
+        if (error != null) {
+          emitter.onError(Exception("Server error: ${error.optString("message", "unknown")}"))
+        } else if (data != null) {
+          try {
+            emitter.onSuccess(adapter(data.toString())!!)
+          } catch (e: Exception) {
+            emitter.onError(e)
+          }
+        } else {
+          emitter.onError(Exception("No data in gamelist/query response"))
+        }
+      }
     }
   }
 
@@ -388,7 +498,9 @@ class OGSWebSocketService(
     // then there is no cleanup and we end up subscribing twice...
     //
     cleanup()
-    socket.disconnect()
+    intentionalDisconnect.set(true)
+    webSocket?.close(NORMAL_CLOSURE_STATUS, "Client disconnect")
+    webSocket = null
   }
 
   fun deleteNotification(notificationId: String) {
@@ -442,7 +554,7 @@ class OGSWebSocketService(
     synchronized(connectionsLock) {
       FirebaseCrashlytics.getInstance().log("Acquired connection lock in disconnectFromGame")
       gameConnections.remove(id)
-      if (socket.connected()) {
+      if (connected.get()) {
         emitGameDisconnect(id)
       }
       FirebaseCrashlytics.getInstance().log("Released connection lock in disconnectFromGame")
@@ -458,13 +570,11 @@ class OGSWebSocketService(
   fun resendAuth() {
     val loggedInStatus = userSessionRepository.loggedInObservable.blockingFirst()
     if (loggedInStatus is LoginStatus.LoggedIn) {
-      val obj = JSONObject().apply {
-        put("player_id", loggedInStatus.userId)
-        put("username", userSessionRepository.uiConfig?.user?.username)
-        put("auth", userSessionRepository.uiConfig?.chat_auth)
-      }
-      if (BuildConfig.DEBUG) Log.i(TAG, "==> authenticate with params $obj")
-      socket.emit("authenticate", obj, loggingAck)
+      emit("authenticate", json {
+        "player_id" - loggedInStatus.userId
+        "username" - userSessionRepository.uiConfig?.user?.username
+        "auth" - userSessionRepository.uiConfig?.chat_auth
+      })
     }
   }
 }

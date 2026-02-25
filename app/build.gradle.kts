@@ -174,10 +174,6 @@ dependencies {
     implementation(libs.jsoup)
     implementation(libs.billing.ktx)
     implementation(libs.mp.android.chart)
-    implementation(libs.socket.io.client) {
-        // excluding org.json which is provided by Android
-        exclude(group = "org.json", module = "json")
-    }
 
     // Core Library Desugaring
     coreLibraryDesugaring(libs.desugar.jdk.libs)
