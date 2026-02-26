@@ -27,6 +27,7 @@ import io.zenandroid.onlinego.data.repositories.PuzzleRepository
 import io.zenandroid.onlinego.data.repositories.ReviewPromptRepository
 import io.zenandroid.onlinego.data.repositories.ServerNotificationsRepository
 import io.zenandroid.onlinego.data.repositories.SettingsRepository
+import io.zenandroid.onlinego.data.repositories.SocketDebugRepository
 import io.zenandroid.onlinego.data.repositories.TutorialsRepository
 import io.zenandroid.onlinego.data.repositories.UserSessionRepository
 import io.zenandroid.onlinego.playstore.PlayStoreService
@@ -44,6 +45,7 @@ import io.zenandroid.onlinego.ui.screens.onboarding.OnboardingViewModel
 import io.zenandroid.onlinego.ui.screens.puzzle.directory.PuzzleDirectoryViewModel
 import io.zenandroid.onlinego.ui.screens.puzzle.tsumego.TsumegoViewModel
 import io.zenandroid.onlinego.ui.screens.settings.SettingsViewModel
+import io.zenandroid.onlinego.ui.screens.socketdebug.SocketDebugViewModel
 import io.zenandroid.onlinego.ui.screens.stats.StatsViewModel
 import io.zenandroid.onlinego.ui.screens.supporter.SupporterViewModel
 import io.zenandroid.onlinego.ui.screens.tutorial.TutorialViewModel
@@ -92,6 +94,7 @@ private val repositoriesModule = module {
   singleOf(::ClockDriftRepository)
   singleOf(::TutorialsRepository)
   singleOf(::ReviewPromptRepository)
+  singleOf(::SocketDebugRepository)
 }
 
 private val serverConnectionModule = module {
@@ -200,6 +203,7 @@ private val viewModelsModule = module {
   }
 
   viewModelOf(::SettingsViewModel)
+  viewModelOf(::SocketDebugViewModel)
 }
 
 private val espressoModule = module {

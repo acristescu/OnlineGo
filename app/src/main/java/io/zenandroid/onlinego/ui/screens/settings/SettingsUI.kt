@@ -25,6 +25,7 @@ import androidx.compose.material.icons.Icons.Filled
 import androidx.compose.material.icons.Icons.Rounded
 import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material.icons.automirrored.rounded.Logout
+import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Visibility
@@ -103,6 +104,7 @@ import org.koin.androidx.compose.koinViewModel
 fun SettingsScreen(
   viewModel: SettingsViewModel = koinViewModel(),
   onNavigateToSupport: () -> Unit,
+  onNavigateToSocketDebug: () -> Unit = {},
 ) {
   val state by viewModel.state.collectAsStateWithLifecycle()
   val userSettings by viewModel.userSettings.collectAsStateWithLifecycle()
@@ -133,6 +135,7 @@ fun SettingsScreen(
         )
 
         is SupportClicked -> onNavigateToSupport()
+        is SettingsAction.SocketDebugClicked -> onNavigateToSocketDebug()
 
         else -> viewModel.onAction(it)
       }
@@ -382,6 +385,16 @@ private fun SettingsContent(
           checkbox = false,
           checked = true,
           onClick = { onAction(PrivacyClicked) })
+      }
+    }
+    Section(title = "Debug") {
+      Column(modifier = Modifier) {
+        SettingsRow(
+          title = "Socket Debug",
+          icon = Icons.Filled.BugReport,
+          checkbox = false,
+          checked = true,
+          onClick = { onAction(SettingsAction.SocketDebugClicked) })
       }
     }
     Text(

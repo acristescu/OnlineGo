@@ -20,6 +20,7 @@ import io.zenandroid.onlinego.data.model.ogs.Speed
 import io.zenandroid.onlinego.data.model.ogs.UIPush
 import io.zenandroid.onlinego.data.repositories.LoginStatus
 import io.zenandroid.onlinego.data.repositories.SocketConnectedRepository
+import io.zenandroid.onlinego.data.repositories.SocketDebugRepository
 import io.zenandroid.onlinego.data.repositories.UserSessionRepository
 import io.zenandroid.onlinego.utils.JsonObjectScope
 import io.zenandroid.onlinego.utils.createJsonArray
@@ -56,6 +57,7 @@ class OGSWebSocketService(
   private val restService: OGSRestService,
   private val userSessionRepository: UserSessionRepository,
   private val httpClient: OkHttpClient,
+  private val socketDebugRepository: SocketDebugRepository,
 ) {
   private val _connectionState = MutableStateFlow(false)
   val connectionState = _connectionState.asStateFlow()
@@ -88,6 +90,8 @@ class OGSWebSocketService(
     override fun onOpen(webSocket: WebSocket, response: Response) {
       if (BuildConfig.DEBUG) Log.i(TAG, "WebSocket connected")
       FirebaseCrashlytics.getInstance().log("Websocket connected")
+      socketDebugRepository.logState("WS", "Connected (code=${response.code})")
+      socketDebugRepository.updateConnectionState("Connected")
       connected.set(true)
       reconnectDelay = RECONNECT_DELAY_MIN_MS
       onSockedConnected()
@@ -98,26 +102,33 @@ class OGSWebSocketService(
     override fun onMessage(webSocket: WebSocket, text: String) {
       if (BuildConfig.DEBUG) Log.v(TAG, "<== raw: $text")
       try {
+        socketDebugRepository.logReceived("WS", text.take(500))
         handleMessage(text)
       } catch (e: Exception) {
+        socketDebugRepository.logError("WS", "Error handling message: ${e.message}")
         recordException(Exception("Error handling WebSocket message: $text", e))
       }
     }
 
     override fun onClosing(webSocket: WebSocket, code: Int, reason: String) {
       if (BuildConfig.DEBUG) Log.i(TAG, "WebSocket closing: $code $reason")
+      socketDebugRepository.logState("WS", "Closing (code=$code, reason=$reason)")
       webSocket.close(NORMAL_CLOSURE_STATUS, null)
     }
 
     override fun onClosed(webSocket: WebSocket, code: Int, reason: String) {
       if (BuildConfig.DEBUG) Log.i(TAG, "WebSocket closed: $code $reason")
       FirebaseCrashlytics.getInstance().log("Websocket disconnected")
+      socketDebugRepository.logState("WS", "Closed (code=$code, reason=$reason)")
+      socketDebugRepository.updateConnectionState("Disconnected")
       handleDisconnect()
     }
 
     override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
       if (BuildConfig.DEBUG) Log.w(TAG, "WebSocket failure: ${t.message}")
       FirebaseCrashlytics.getInstance().log("Websocket connect error: ${t.message}")
+      socketDebugRepository.logError("WS", "Failure: ${t.message} (response=${response?.code})")
+      socketDebugRepository.updateConnectionState("Disconnected")
       handleDisconnect()
     }
   }
@@ -159,7 +170,12 @@ class OGSWebSocketService(
   }
 
   private fun handleDisconnect() {
+    webSocket = null
     val wasConnected = connected.getAndSet(false)
+    socketDebugRepository.logState(
+      "WS",
+      "handleDisconnect (wasConnected=$wasConnected, intentional=${intentionalDisconnect.get()})"
+    )
     if (wasConnected) {
       onSocketDisconnected()
     }
@@ -169,6 +185,8 @@ class OGSWebSocketService(
   }
 
   private fun scheduleReconnect() {
+    socketDebugRepository.logState("WS", "Scheduling reconnect in ${reconnectDelay}ms")
+    socketDebugRepository.updateConnectionState("Reconnecting (${reconnectDelay}ms)")
     thread(start = true, name = "ws-reconnect-thread") {
       try {
         if (BuildConfig.DEBUG) Log.i(TAG, "Reconnecting in ${reconnectDelay}ms...")
@@ -183,7 +201,11 @@ class OGSWebSocketService(
     }
   }
 
+  @Synchronized
   private fun doConnect() {
+    if (webSocket != null) {
+      return
+    }
     val request = Request.Builder()
       .url(wsUrl)
       .build()
@@ -192,6 +214,7 @@ class OGSWebSocketService(
 
   fun ensureSocketConnected() {
     if (userSessionRepository.requiresUIConfigRefresh()) {
+      socketDebugRepository.logState("WS", "UIConfig refresh required")
       restService.fetchUIConfig()
         .subscribeOn(Schedulers.io())
         .subscribe(
@@ -199,9 +222,15 @@ class OGSWebSocketService(
           {
             FirebaseCrashlytics.getInstance()
               .log("E/$TAG: Failed to refresh UIConfig $it")
+            socketDebugRepository.logError("WS", "UIConfig refresh failed: ${it.message}")
           })
     }
-    if (!connected.get()) {
+    if (webSocket == null) {
+      socketDebugRepository.logState(
+        "WS",
+        "ensureSocketConnected: not connected, connecting... (intentionalDisconnect was ${intentionalDisconnect.get()})"
+      )
+      socketDebugRepository.updateConnectionState("Connecting...")
       intentionalDisconnect.set(false)
       doConnect()
     }
@@ -370,6 +399,7 @@ class OGSWebSocketService(
       put(event)
       put(params ?: JSONObject.NULL)
     }
+    socketDebugRepository.logSent(event, message.toString().take(500))
     webSocket?.send(message.toString())
   }
 
@@ -395,6 +425,7 @@ class OGSWebSocketService(
       put(params ?: JSONObject.NULL)
       put(id)
     }
+    socketDebugRepository.logSent("$event (id=$id)", message.toString().take(500))
     webSocket?.send(message.toString())
   }
 
@@ -497,10 +528,12 @@ class OGSWebSocketService(
     // closed). If we only call it before, then if the disconnection is caused by outside factors
     // then there is no cleanup and we end up subscribing twice...
     //
+    socketDebugRepository.logState("WS", "disconnect() called (intentional)")
     cleanup()
     intentionalDisconnect.set(true)
     webSocket?.close(NORMAL_CLOSURE_STATUS, "Client disconnect")
     webSocket = null
+    socketDebugRepository.updateConnectionState("Disconnected (intentional)")
   }
 
   fun deleteNotification(notificationId: String) {

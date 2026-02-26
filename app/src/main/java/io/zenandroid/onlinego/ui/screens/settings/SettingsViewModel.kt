@@ -153,7 +153,7 @@ class SettingsViewModel(
         }
       }
 
-      PrivacyClicked, SupportClicked, LogoutClicked, NotificationsClicked -> {}
+      PrivacyClicked, SupportClicked, LogoutClicked, NotificationsClicked, SettingsAction.SocketDebugClicked -> {}
     }
   }
 
@@ -186,6 +186,7 @@ sealed interface SettingsAction {
   data class DeleteAccountConfirmed(val password: String) : SettingsAction
   data object PrivacyClicked : SettingsAction
   data object SupportClicked : SettingsAction
+  data object SocketDebugClicked : SettingsAction
   data class Logout(val context: Context?) : SettingsAction
 }
 

@@ -45,6 +45,7 @@ import io.zenandroid.onlinego.ui.screens.onboarding.OnboardingScreen
 import io.zenandroid.onlinego.ui.screens.puzzle.directory.PuzzleDirectoryScreen
 import io.zenandroid.onlinego.ui.screens.puzzle.tsumego.TsumegoScreen
 import io.zenandroid.onlinego.ui.screens.settings.SettingsScreen
+import io.zenandroid.onlinego.ui.screens.socketdebug.SocketDebugScreen
 import io.zenandroid.onlinego.ui.screens.stats.StatsScreen
 import io.zenandroid.onlinego.ui.screens.supporter.SupporterScreen
 import io.zenandroid.onlinego.ui.screens.tutorial.TutorialScreen
@@ -173,6 +174,15 @@ fun OnlineGoApp(
             onNavigateToSupport = {
               navController.navigate("supporter")
             },
+            onNavigateToSocketDebug = {
+              navController.navigate("socketDebug")
+            },
+          )
+        }
+
+        composable("socketDebug") {
+          SocketDebugScreen(
+            onNavigateBack = navController::popBackStack
           )
         }
 
