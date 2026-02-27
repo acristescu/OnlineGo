@@ -2,23 +2,23 @@ package io.zenandroid.onlinego.data.repositories
 
 import android.util.Log
 import com.google.firebase.crashlytics.FirebaseCrashlytics
-import io.reactivex.BackpressureStrategy
-import io.reactivex.Flowable
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.schedulers.Schedulers
 import io.zenandroid.onlinego.data.db.GameDao
 import io.zenandroid.onlinego.data.model.local.Game
 import io.zenandroid.onlinego.data.model.local.HistoricGamesMetadata
 import io.zenandroid.onlinego.data.model.ogs.OGSGame
 import io.zenandroid.onlinego.data.ogs.OGSRestService
-import io.zenandroid.onlinego.utils.addToDisposable
 import io.zenandroid.onlinego.utils.recordException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.rx2.asFlow
 import java.io.IOException
 import kotlin.math.max
 import kotlin.math.min
@@ -34,7 +34,6 @@ class FinishedGamesRepository(
     val loadedLastPage: Boolean
   )
 
-  private val subscriptions = CompositeDisposable()
   private var scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
   private var hasFetchedAllHistoricGames = false
@@ -42,24 +41,28 @@ class FinishedGamesRepository(
   private var newestGameFetchedEndedAt: Long? = null
 
   override fun onSocketConnected() {
-    gameDao.monitorHistoricGameMetadata()
-      .distinctUntilChanged()
-      .subscribeOn(Schedulers.io())
-      .subscribe(this::onMetadata, { onError(it, "monitorHistoricGameMetadata") })
-      .addToDisposable(subscriptions)
+    scope.launch {
+      try {
+        gameDao.monitorHistoricGameMetadata()
+          .distinctUntilChanged()
+          .collect { onMetadata(it) }
+      } catch (e: Exception) {
+        onError(e, "monitorHistoricGameMetadata")
+      }
+    }
   }
 
   override fun onSocketDisconnected() {
-    subscriptions.clear()
     scope.cancel()
     scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
   }
 
-  fun getRecentlyFinishedGames(): Flowable<List<Game>> {
+  fun getRecentlyFinishedGames(): Flow<List<Game>> {
     fetchRecentlyFinishedGames()
-    return userSessionRepository.userIdObservable.toFlowable(BackpressureStrategy.LATEST).flatMap {
-      gameDao.monitorRecentGames(it).distinctUntilChanged()
-    }
+    return userSessionRepository.userIdObservable.asFlow()
+      .flatMapLatest {
+        gameDao.monitorRecentGames(it).distinctUntilChanged()
+      }
   }
 
   private fun onError(t: Throwable, request: String) {
@@ -74,9 +77,9 @@ class FinishedGamesRepository(
     Log.e("FinishedGameRepository", message, t)
   }
 
-  fun getHistoricGames(endedBefore: Long?): Flowable<HistoricGamesRepositoryResult> {
-    val dbObservable =
-      userSessionRepository.userIdObservable.firstElement().toFlowable().flatMap {
+  fun getHistoricGames(endedBefore: Long?): Flow<HistoricGamesRepositoryResult> {
+    val dbFlow = userSessionRepository.userIdObservable.asFlow()
+      .flatMapLatest {
         if (endedBefore == null) {
           gameDao.monitorFinishedNotRecentGames(it)
         } else {
@@ -84,7 +87,7 @@ class FinishedGamesRepository(
         }
       }
 
-    return dbObservable.distinctUntilChanged()
+    return dbFlow.distinctUntilChanged()
       .map {
         if (it.size < 10 && hasFetchedAllHistoricGames) {
           return@map HistoricGamesRepositoryResult(it, loading = false, loadedLastPage = true)

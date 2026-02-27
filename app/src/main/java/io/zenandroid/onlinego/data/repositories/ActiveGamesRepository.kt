@@ -3,11 +3,7 @@ package io.zenandroid.onlinego.data.repositories
 import android.util.Log
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.squareup.moshi.JsonEncodingException
-import io.reactivex.BackpressureStrategy
-import io.reactivex.Flowable
-import io.reactivex.Single
 import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.BehaviorSubject
 import io.zenandroid.onlinego.data.db.GameDao
 import io.zenandroid.onlinego.data.model.Cell
@@ -37,7 +33,9 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
@@ -96,18 +94,18 @@ class ActiveGamesRepository(
         onError(e, "connectToActiveGames")
       }
     }
-    userSessionRepository.userIdObservable.toFlowable(BackpressureStrategy.LATEST)
-      .flatMap { userId ->
-        gameDao.monitorActiveGamesWithNewMessagesCount(userId).map { userId to it }
+    flowScope.launch {
+      try {
+        userSessionRepository.userIdObservable.asFlow()
+          .flatMapLatest { userId ->
+            gameDao.monitorActiveGamesWithNewMessagesCount(userId).map { userId to it }
+          }
+          .distinctUntilChanged()
+          .collect { setActiveGames(it.first, it.second) }
+      } catch (e: Exception) {
+        onError(e, "monitorActiveGamesWithNewMessagesCount")
       }
-      .distinctUntilChanged()
-      .subscribeOn(Schedulers.io())
-      .observeOn(Schedulers.io())
-      .subscribe(
-        { setActiveGames(it.first, it.second) }) {
-        onError(it, "monitorActiveGamesWithNewMessagesCount")
-      }
-      .addToDisposable(subscriptions)
+    }
   }
 
   override fun onSocketDisconnected() {
@@ -342,8 +340,8 @@ class ActiveGamesRepository(
     }
   }
 
-  fun getGameSingle(id: Long): Single<Game> {
-    return gameDao.monitorGame(id).take(1).firstOrError()
+  suspend fun getGameSingle(id: Long): Game {
+    return gameDao.monitorGame(id).first()
   }
 
   suspend fun refreshActiveGames() {
@@ -393,11 +391,12 @@ class ActiveGamesRepository(
     gameDao.updateGames(games)
   }
 
-  fun monitorActiveGames(): Flowable<List<Game>> {
-    return userSessionRepository.userIdObservable.toFlowable(BackpressureStrategy.LATEST).flatMap {
-      gameDao.monitorActiveGamesWithNewMessagesCount(it)
-        .distinctUntilChanged()
-    }
+  fun monitorActiveGames(): Flow<List<Game>> {
+    return userSessionRepository.userIdObservable.asFlow()
+      .flatMapLatest {
+        gameDao.monitorActiveGamesWithNewMessagesCount(it)
+          .distinctUntilChanged()
+      }
   }
 
   private fun onError(t: Throwable, request: String) {
