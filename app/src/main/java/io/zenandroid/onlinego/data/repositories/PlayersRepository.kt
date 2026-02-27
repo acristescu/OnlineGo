@@ -4,8 +4,8 @@ import io.zenandroid.onlinego.data.db.GameDao
 import io.zenandroid.onlinego.data.model.local.Player
 import io.zenandroid.onlinego.data.ogs.OGSRestService
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.rx2.asFlow
 import kotlinx.coroutines.withContext
 
 class PlayersRepository(
@@ -16,7 +16,7 @@ class PlayersRepository(
 
   suspend fun getRecentOpponents() =
     withContext(Dispatchers.IO) {
-      val userId = userSessionRepository.userIdObservable.asFlow().first()
+      val userId = userSessionRepository.userId.filterNotNull().first()
       dao.getRecentOpponents(userId)
         .distinctBy { it.id }
     }

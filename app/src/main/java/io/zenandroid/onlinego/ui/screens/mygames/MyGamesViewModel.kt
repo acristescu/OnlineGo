@@ -99,10 +99,8 @@ class MyGamesViewModel(
   }
 
   init {
-    userSessionRepository.loggedInObservable
-      .subscribeOn(Schedulers.io())
-      .observeOn(AndroidSchedulers.mainThread())
-      .subscribe { loggedInStatus ->
+    viewModelScope.launch {
+      userSessionRepository.loginStatus.collect { loggedInStatus ->
         when (loggedInStatus) {
           is LoginStatus.LoggedIn -> onLoggedIn(loggedInStatus.userId)
           LoginStatus.LoggedOut -> {
@@ -119,7 +117,8 @@ class MyGamesViewModel(
             }
           }
         }
-      }.addToDisposable(subscriptions)
+      }
+    }
 
     viewModelScope.launch {
       settingsRepository.showRanksFlow.collect {

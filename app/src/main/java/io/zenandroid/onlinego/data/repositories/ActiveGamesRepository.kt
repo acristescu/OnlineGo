@@ -32,6 +32,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOn
@@ -39,7 +40,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.rx2.asFlow
 import java.io.IOException
 
 /**
@@ -96,7 +96,8 @@ class ActiveGamesRepository(
     }
     flowScope.launch {
       try {
-        userSessionRepository.userIdObservable.asFlow()
+        userSessionRepository.userId
+          .filterNotNull()
           .flatMapLatest { userId ->
             gameDao.monitorActiveGamesWithNewMessagesCount(userId).map { userId to it }
           }
@@ -345,7 +346,7 @@ class ActiveGamesRepository(
   }
 
   suspend fun refreshActiveGames() {
-    val userId = userSessionRepository.userIdObservable.asFlow().first()
+    val userId = userSessionRepository.userId.filterNotNull().first()
     val games = retryOnIOException { restService.fetchActiveGames() }
     val localGames = games.map(Game.Companion::fromOGSGame)
     gameDao.insertAllGames(localGames)
@@ -392,7 +393,8 @@ class ActiveGamesRepository(
   }
 
   fun monitorActiveGames(): Flow<List<Game>> {
-    return userSessionRepository.userIdObservable.asFlow()
+    return userSessionRepository.userId
+      .filterNotNull()
       .flatMapLatest {
         gameDao.monitorActiveGamesWithNewMessagesCount(it)
           .distinctUntilChanged()

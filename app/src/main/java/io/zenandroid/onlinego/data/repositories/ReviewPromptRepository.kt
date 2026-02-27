@@ -56,7 +56,7 @@ class ReviewPromptRepository(
    * 3. User hasn't already rated the app
    */
   suspend fun shouldPromptForReview(): Boolean {
-    if (userSessionRepository.userIdObservable.blockingFirst() != 89194L) {
+    if (userSessionRepository.userId.replayCache.firstOrNull() != 89194L) {
       return false
     }
     val prefs = dataStore.data.first()

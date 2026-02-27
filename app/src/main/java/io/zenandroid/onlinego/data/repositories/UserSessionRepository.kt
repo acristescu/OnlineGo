@@ -6,8 +6,6 @@ import com.franmontiel.persistentcookiejar.PersistentCookieJar
 import com.franmontiel.persistentcookiejar.cache.SetCookieCache
 import com.franmontiel.persistentcookiejar.persistence.SharedPrefsCookiePersistor
 import com.google.firebase.crashlytics.FirebaseCrashlytics
-import io.reactivex.Observable
-import io.reactivex.subjects.BehaviorSubject
 import io.zenandroid.onlinego.BuildConfig
 import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.data.model.ogs.UIConfig
@@ -16,6 +14,9 @@ import io.zenandroid.onlinego.data.ogs.OGSWebSocketService
 import io.zenandroid.onlinego.utils.PersistenceManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import org.koin.core.context.GlobalContext.get
@@ -28,17 +29,17 @@ class UserSessionRepository(
   private val socketService: OGSWebSocketService by get().inject()
   private val restService: OGSRestService by get().inject()
 
-  private val userIdSubject = BehaviorSubject.create<Long>()
-  val userIdObservable: Observable<Long> = userIdSubject.hide().distinctUntilChanged()
+  private val _userId = MutableSharedFlow<Long?>(replay = 1)
+  val userId: SharedFlow<Long?> = _userId.asSharedFlow()
 
-  private val loggedInSubject = BehaviorSubject.create<LoginStatus>()
-  val loggedInObservable: Observable<LoginStatus> = loggedInSubject.hide().distinctUntilChanged()
+  private val _loginStatus = MutableSharedFlow<LoginStatus>(replay = 1)
+  val loginStatus: SharedFlow<LoginStatus> = _loginStatus.asSharedFlow()
 
   var uiConfig: UIConfig? = null
     private set
   private var uiConfigTimestamp: Long? = null
 
-  private val userId: Long?
+  private val userIdValue: Long?
     get() = uiConfig?.user?.id
 //        get() = 126739L
 
@@ -48,11 +49,11 @@ class UserSessionRepository(
   init {
     appCoroutineScope.launch(Dispatchers.IO) {
       uiConfig = PersistenceManager.getUIConfig()
-      userId?.toString()?.let(FirebaseCrashlytics.getInstance()::setUserId)
-      userId?.let {
-        userIdSubject.onNext(it)
+      userIdValue?.toString()?.let(FirebaseCrashlytics.getInstance()::setUserId)
+      userIdValue?.let {
+        _userId.tryEmit(it)
       }
-      loggedInSubject.onNext(if (isLoggedIn()) LoginStatus.LoggedIn(userId!!) else LoginStatus.LoggedOut)
+      _loginStatus.tryEmit(if (isLoggedIn()) LoginStatus.LoggedIn(userIdValue!!) else LoginStatus.LoggedOut)
     }
   }
 
@@ -61,10 +62,10 @@ class UserSessionRepository(
     uiConfigTimestamp = System.currentTimeMillis()
     FirebaseCrashlytics.getInstance().setUserId(uiConfig.user?.id.toString())
     PersistenceManager.storeUIConfig(uiConfig)
-    userId?.let {
-      userIdSubject.onNext(it)
+    userIdValue?.let {
+      _userId.tryEmit(it)
     }
-    loggedInSubject.onNext(if (isLoggedIn()) LoginStatus.LoggedIn(userId!!) else LoginStatus.LoggedOut)
+    _loginStatus.tryEmit(if (isLoggedIn()) LoginStatus.LoggedIn(userIdValue!!) else LoginStatus.LoggedOut)
     socketService.resendAuth()
   }
 
@@ -82,7 +83,7 @@ class UserSessionRepository(
   fun logOut() {
     FirebaseCrashlytics.getInstance().sendUnsentReports()
     uiConfig = null
-    loggedInSubject.onNext(if (isLoggedIn()) LoginStatus.LoggedIn(userId!!) else LoginStatus.LoggedOut)
+    _loginStatus.tryEmit(LoginStatus.LoggedOut)
     (OnlineGoApplication.instance.getSystemService(ACTIVITY_SERVICE) as ActivityManager).clearApplicationUserData()
   }
 

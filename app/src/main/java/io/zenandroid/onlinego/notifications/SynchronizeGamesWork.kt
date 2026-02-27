@@ -13,7 +13,6 @@ import io.zenandroid.onlinego.data.repositories.LoginStatus
 import io.zenandroid.onlinego.data.repositories.UserSessionRepository
 import io.zenandroid.onlinego.ui.screens.main.MainActivity
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.rx2.asFlow
 import org.koin.core.context.GlobalContext.get
 import java.util.concurrent.TimeUnit
 private const val NOT_CHARGING_PERIOD_MINUTES = 30L
@@ -42,7 +41,7 @@ class SynchronizeGamesWork(val context: Context, params: WorkerParameters) :
   private val userSessionRepository: UserSessionRepository = get().get()
   override suspend fun doWork(): Result {
     FirebaseCrashlytics.getInstance().log("I/$TAG: Started checking for active games")
-    val loggedIn = userSessionRepository.loggedInObservable.asFlow().first()
+    val loggedIn = userSessionRepository.loginStatus.first()
     if (loggedIn == LoginStatus.LoggedOut) {
       Log.v(TAG, "Not logged in, giving up")
       return Result.failure()

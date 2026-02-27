@@ -30,13 +30,13 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.rx2.asFlow
 import kotlinx.coroutines.yield
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -248,8 +248,10 @@ class OGSWebSocketService(
   private val connectionsLock = Any()
 
   fun connectToGame(id: Long, includeChat: Boolean): GameConnection {
-    val userId =
-      (userSessionRepository.loggedInObservable.blockingFirst() as? LoginStatus.LoggedIn)?.userId
+    var userId: Long? = null
+    runBlocking {
+      userId = (userSessionRepository.loginStatus.first() as? LoginStatus.LoggedIn)?.userId
+    }
     synchronized(connectionsLock) {
       FirebaseCrashlytics.getInstance().log("Acquired connection lock in connectToGame")
       val connection = gameConnections[id] ?: GameConnection(
@@ -315,21 +317,23 @@ class OGSWebSocketService(
     map { adapter<T>(it)!! }
 
   private fun emitGameConnection(id: Long, includeChat: Boolean) {
-    val loggedInStatus = userSessionRepository.loggedInObservable.blockingFirst()
-    if (loggedInStatus is LoginStatus.LoggedIn) {
-      emit("game/connect") {
-        "chat" - includeChat
-        "game_id" - id
-        "player_id" - loggedInStatus.userId
-      }
-      if (includeChat) {
-        emit("chat/connect") {
+    runBlocking {
+      val loggedInStatus = userSessionRepository.loginStatus.first()
+      if (loggedInStatus is LoginStatus.LoggedIn) {
+        emit("game/connect") {
+          "chat" - includeChat
+          "game_id" - id
           "player_id" - loggedInStatus.userId
-          "username" - userSessionRepository.uiConfig?.user?.username
-          "auth" - userSessionRepository.uiConfig?.chat_auth
         }
-        emit("chat/join") {
-          "channel" - "game-$id"
+        if (includeChat) {
+          emit("chat/connect") {
+            "player_id" - loggedInStatus.userId
+            "username" - userSessionRepository.uiConfig?.user?.username
+            "auth" - userSessionRepository.uiConfig?.chat_auth
+          }
+          emit("chat/join") {
+            "channel" - "game-$id"
+          }
         }
       }
     }
@@ -381,7 +385,7 @@ class OGSWebSocketService(
 
   @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
   fun connectToServerNotifications(): Flow<JSONObject> =
-    userSessionRepository.userIdObservable.asFlow()
+    userSessionRepository.userId
       .flatMapLatest { userId ->
         observeEvent("notification")
           .map { JSONObject(it.toString()) }
@@ -519,8 +523,8 @@ class OGSWebSocketService(
     socketDebugRepository.updateConnectionState("Disconnected (intentional)")
   }
 
-  fun deleteNotification(notificationId: String) {
-    val loggedInStatus = userSessionRepository.loggedInObservable.blockingFirst()
+  suspend fun deleteNotification(notificationId: String) {
+    val loggedInStatus = userSessionRepository.loginStatus.first()
     if (loggedInStatus is LoginStatus.LoggedIn) {
       emit("notification/delete") {
         "player_id" - loggedInStatus.userId
@@ -584,13 +588,15 @@ class OGSWebSocketService(
   }
 
   fun resendAuth() {
-    val loggedInStatus = userSessionRepository.loggedInObservable.blockingFirst()
-    if (loggedInStatus is LoginStatus.LoggedIn) {
-      emit("authenticate", json {
-        "player_id" - loggedInStatus.userId
-        "username" - userSessionRepository.uiConfig?.user?.username
-        "auth" - userSessionRepository.uiConfig?.chat_auth
-      })
+    runBlocking {
+      val loggedInStatus = userSessionRepository.loginStatus.first()
+      if (loggedInStatus is LoginStatus.LoggedIn) {
+        emit("authenticate", json {
+          "player_id" - loggedInStatus.userId
+          "username" - userSessionRepository.uiConfig?.user?.username
+          "auth" - userSessionRepository.uiConfig?.chat_auth
+        })
+      }
     }
   }
 }

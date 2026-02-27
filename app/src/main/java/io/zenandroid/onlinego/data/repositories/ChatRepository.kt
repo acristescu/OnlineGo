@@ -16,7 +16,6 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.rx2.asFlow
 
 class ChatRepository(
   private val gameDao: GameDao,
@@ -57,8 +56,8 @@ class ChatRepository(
     socketScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
   }
 
-  fun addMessage(message: Message) {
-    val loggedInStatus = userSessionRepository.loggedInObservable.blockingFirst()
+  suspend fun addMessage(message: Message) {
+    val loggedInStatus = userSessionRepository.loginStatus.first()
     if (loggedInStatus is LoginStatus.LoggedIn) {
       if (!knownMessageIds.contains(message.chatId)) {
         gameDao.insertMessage(message)
@@ -73,7 +72,7 @@ class ChatRepository(
   fun fetchRecentChatMessages() {
     applicationScope.launch {
       try {
-        val loggedInStatus = userSessionRepository.loggedInObservable.asFlow()
+        val loggedInStatus = userSessionRepository.loginStatus
           .first { it is LoginStatus.LoggedIn }
         val messages = restApi.getMessages(lastRESTFetchedChatId)
         val localMessages = messages.map { Message.fromOGSMessage(it, it.game_id) }

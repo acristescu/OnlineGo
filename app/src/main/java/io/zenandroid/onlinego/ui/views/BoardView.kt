@@ -4,18 +4,22 @@ import android.animation.ValueAnimator
 import android.content.Context
 import android.content.res.Configuration
 import android.content.res.Resources
-import android.graphics.*
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Paint
+import android.graphics.PointF
+import android.graphics.Rect
 import android.os.Build
-import androidx.core.content.res.ResourcesCompat
 import android.util.AttributeSet
 import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import androidx.compose.ui.unit.dp
+import androidx.core.content.res.ResourcesCompat
 import androidx.core.graphics.ColorUtils
 import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat
-import io.reactivex.Observable
-import io.reactivex.subjects.PublishSubject
 import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.Cell
@@ -25,7 +29,7 @@ import io.zenandroid.onlinego.data.model.StoneType
 import io.zenandroid.onlinego.data.model.katago.MoveInfo
 import io.zenandroid.onlinego.data.model.ogs.PlayCategory
 import io.zenandroid.onlinego.gamelogic.Util
-import java.util.*
+import java.util.Random
 import kotlin.math.abs
 import kotlin.math.ceil
 import kotlin.math.roundToInt
@@ -185,8 +189,8 @@ class BoardView : View {
     private var candidateMove: Cell? = null
     private var candidateType: StoneType? = null
 
-    private val tapUpSubject = PublishSubject.create<Cell>()
-    private val tapMoveSubject = PublishSubject.create<Cell>()
+    //    private val tapUpSubject = PublishSubject.create<Cell>()
+//    private val tapMoveSubject = PublishSubject.create<Cell>()
     private var stonesToFadeIn: Set<Cell> = setOf()
     private var stonesToFadeOutWhite: Set<Cell> = setOf()
     private var stonesToFadeOutBlack: Set<Cell> = setOf()
@@ -260,13 +264,13 @@ class BoardView : View {
         }
         val eventCoords = screenToBoardCoordinates(event.x, event.y)
 
-        tapMoveSubject.onNext(eventCoords)
+//        tapMoveSubject.onNext(eventCoords)
         if(eventCoords != lastHotTrackedPoint) {
             onTapMove?.invoke(eventCoords)
         }
 
         if (event.action == MotionEvent.ACTION_UP) {
-            tapUpSubject.onNext(eventCoords)
+//            tapUpSubject.onNext(eventCoords)
             onTapUp?.invoke(eventCoords)
             lastHotTrackedPoint = null
         }
@@ -690,12 +694,12 @@ class BoardView : View {
         return center
     }
 
-    fun tapUpObservable(): Observable<Cell> = tapUpSubject.hide()
+//    fun tapUpObservable(): Observable<Cell> = tapUpSubject.hide()
 
     private var lastHotTrackedPoint: Cell? = null
-    fun tapMoveObservable(): Observable<Cell> = tapMoveSubject.filter {
-        it != lastHotTrackedPoint
-    }.doOnNext { lastHotTrackedPoint = it }
+//    fun tapMoveObservable(): Observable<Cell> = tapMoveSubject.filter {
+//        it != lastHotTrackedPoint
+//    }.doOnNext { lastHotTrackedPoint = it }
 
     fun showCandidateMove(candidateMove: Cell?, candidate: StoneType?) {
         this.candidateMove = candidateMove

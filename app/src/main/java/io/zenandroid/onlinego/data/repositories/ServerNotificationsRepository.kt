@@ -33,7 +33,7 @@ class ServerNotificationsRepository(
     scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
   }
 
-  private fun onNewNotification(notification: JSONObject) {
+  private suspend fun onNewNotification(notification: JSONObject) {
     if ((notification["type"] as? String) == "delete") {
       (notification["id"] as? String)?.let {
         notificationsHash.remove(it)
@@ -50,7 +50,7 @@ class ServerNotificationsRepository(
   fun notificationsObservable() =
     notificationsSubject.hide().startWith(notificationsHash.values)
 
-  fun acknowledgeNotification(notification: JSONObject) {
+  suspend fun acknowledgeNotification(notification: JSONObject) {
     (notification["id"] as? String)?.let {
       socketService.deleteNotification(it)
     }

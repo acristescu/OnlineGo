@@ -2,13 +2,11 @@ package io.zenandroid.onlinego.ui.screens.main
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import io.reactivex.disposables.CompositeDisposable
 import io.zenandroid.onlinego.data.model.BoardTheme
 import io.zenandroid.onlinego.data.ogs.OGSWebSocketService
 import io.zenandroid.onlinego.data.repositories.LoginStatus
 import io.zenandroid.onlinego.data.repositories.SettingsRepository
 import io.zenandroid.onlinego.data.repositories.UserSessionRepository
-import io.zenandroid.onlinego.utils.addToDisposable
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -30,7 +28,6 @@ class MainActivityViewModel(
   private val appCoroutineScope: CoroutineScope,
 ) : ViewModel() {
 
-  private val subscriptions = CompositeDisposable()
   private val _state = MutableStateFlow(
     MainActivityState()
   )
@@ -61,34 +58,40 @@ class MainActivityViewModel(
     }
   }
 
-  fun onResume() {
-    userSessionRepository.loggedInObservable.subscribe { loggedIn ->
-      if (loggedIn is LoginStatus.LoggedIn) {
-        socketConnectionCheckerJob?.cancel()
-        socketConnectionCheckerJob =
-          viewModelScope.launch(Dispatchers.IO) {
-            socketService.ensureSocketConnected()
-            socketService.resendAuth()
-            while (true) {
-              delay(10000)
-              socketService.ensureSocketConnected()
-            }
-          }
-      }
+  private var loginObserverJob: Job? = null
 
-      _state.update {
-        it.copy(
-          isLoggedIn = loggedIn is LoginStatus.LoggedIn,
-        )
+  fun onResume() {
+    loginObserverJob?.cancel()
+    loginObserverJob = viewModelScope.launch {
+      userSessionRepository.loginStatus.collect { loggedIn ->
+        if (loggedIn is LoginStatus.LoggedIn) {
+          socketConnectionCheckerJob?.cancel()
+          socketConnectionCheckerJob =
+            viewModelScope.launch(Dispatchers.IO) {
+              socketService.ensureSocketConnected()
+              socketService.resendAuth()
+              while (true) {
+                delay(10000)
+                socketService.ensureSocketConnected()
+              }
+            }
+        }
+
+        _state.update {
+          it.copy(
+            isLoggedIn = loggedIn is LoginStatus.LoggedIn,
+          )
+        }
       }
-    }.addToDisposable(subscriptions)
+    }
   }
 
   fun onPause() {
     appCoroutineScope.launch(Dispatchers.IO) {
       socketConnectionCheckerJob?.cancel()
       socketConnectionCheckerJob = null
-      subscriptions.clear()
+      loginObserverJob?.cancel()
+      loginObserverJob = null
       socketService.disconnect()
     }
   }

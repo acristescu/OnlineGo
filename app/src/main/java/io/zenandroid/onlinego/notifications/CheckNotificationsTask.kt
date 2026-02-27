@@ -11,13 +11,13 @@ import io.zenandroid.onlinego.data.repositories.UserSessionRepository
 import io.zenandroid.onlinego.ui.screens.main.MainActivity
 import io.zenandroid.onlinego.utils.NotificationUtils
 import io.zenandroid.onlinego.utils.recordException
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import org.koin.core.context.GlobalContext
 import retrofit2.HttpException
 import java.net.ConnectException
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
-import kotlinx.coroutines.rx2.asFlow as rxAsFlow
 
 private const val TAG = "CheckNotificationsTask"
 class CheckNotificationsTask(val context: Context, val supressWhenInForeground: Boolean = true) {
@@ -59,7 +59,7 @@ class CheckNotificationsTask(val context: Context, val supressWhenInForeground: 
   }
 
   private suspend fun notifyGames() {
-    val userId = userSessionRepository.userIdObservable.rxAsFlow().first()
+    val userId = userSessionRepository.userId.filterNotNull().first()
     activeGamesRepository.refreshActiveGames()
     val activeGames = activeGamesRepository.monitorActiveGames().first()
     val gameNotifications = gameDao.getGameNotifications().first()
@@ -75,7 +75,7 @@ class CheckNotificationsTask(val context: Context, val supressWhenInForeground: 
   }
 
   private suspend fun notifyChallenges() {
-    val userId = userSessionRepository.userIdObservable.rxAsFlow().first()
+    val userId = userSessionRepository.userId.filterNotNull().first()
     challengesRepository.refreshChallenges()
     val challenges = challengesRepository.monitorChallenges().first()
     val challengeNotifications = gameDao.getChallengeNotifications().first()

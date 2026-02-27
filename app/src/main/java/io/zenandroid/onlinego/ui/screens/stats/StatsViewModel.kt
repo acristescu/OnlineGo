@@ -6,8 +6,6 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.github.mikephil.charting.data.Entry
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.schedulers.Schedulers
 import io.zenandroid.onlinego.data.model.local.HistoryItem
 import io.zenandroid.onlinego.data.model.local.UserStats
 import io.zenandroid.onlinego.data.model.local.WinLossStats
@@ -24,18 +22,17 @@ import io.zenandroid.onlinego.ui.screens.stats.StatsViewModel.Filter.ONE_YEAR
 import io.zenandroid.onlinego.ui.screens.stats.StatsViewModel.Filter.THREE_MONTHS
 import io.zenandroid.onlinego.ui.screens.stats.StatsViewModel.Filter.TWENTY_GAMES
 import io.zenandroid.onlinego.usecases.GetUserStatsUseCase
-import io.zenandroid.onlinego.utils.addToDisposable
 import io.zenandroid.onlinego.utils.egfToRank
 import io.zenandroid.onlinego.utils.formatRank
 import io.zenandroid.onlinego.utils.recordException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.rx2.asFlow
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -51,7 +48,6 @@ class StatsViewModel(
   private val userSessionRepository: UserSessionRepository,
 ) : ViewModel() {
 
-  private val subscriptions = CompositeDisposable()
   private var stats: UserStats? = null
   private var currentFilter = ONE_MONTH
   private val dateFormat = SimpleDateFormat("MMM d, yyyy", Locale.US)
@@ -68,18 +64,15 @@ class StatsViewModel(
   )
 
   init {
-    userSessionRepository.userIdObservable.firstOrError()
-      .subscribeOn(Schedulers.io())
-      .subscribe { userId ->
-      viewModelScope.launch(Dispatchers.IO) {
-        val playerId = savedStateHandle.get<String>("playerId")?.toLong() ?: userId
-        val result = getUserStatsUseCase.getPlayerStatsWithSizesAsync(playerId)
-        result.fold(
-          onSuccess = ::fillPlayerStats,
-          onFailure = ::onError
-        )
-      }
-    }.addToDisposable(subscriptions)
+    viewModelScope.launch(Dispatchers.IO) {
+      val userId = userSessionRepository.userId.filterNotNull().first()
+      val playerId = savedStateHandle.get<String>("playerId")?.toLong() ?: userId
+      val result = getUserStatsUseCase.getPlayerStatsWithSizesAsync(playerId)
+      result.fold(
+        onSuccess = ::fillPlayerStats,
+        onFailure = ::onError
+      )
+    }
 
     viewModelScope.launch {
       graphByGames.collect {
@@ -94,7 +87,7 @@ class StatsViewModel(
     viewModelScope.launch(Dispatchers.IO) {
       try {
         val playerId = savedStateHandle.get<String>("playerId")?.toLong()
-          ?: userSessionRepository.userIdObservable.asFlow().first()
+          ?: userSessionRepository.userId.filterNotNull().first()
         fillPlayerDetails(restService.getPlayerProfileAsync(playerId))
       } catch (t: Throwable) {
         onError(t)
@@ -245,11 +238,6 @@ class StatsViewModel(
   private fun onError(t: Throwable) {
     Log.e("StatsPresenter", t.message, t)
     recordException(t)
-  }
-
-  override fun onCleared() {
-    subscriptions.clear()
-    super.onCleared()
   }
 
   enum class Filter {

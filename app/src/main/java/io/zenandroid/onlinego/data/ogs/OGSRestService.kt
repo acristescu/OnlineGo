@@ -24,11 +24,11 @@ import io.zenandroid.onlinego.utils.microsToISODateTime
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.rx2.asFlow
 import okhttp3.ResponseBody.Companion.toResponseBody
 import retrofit2.HttpException
 import retrofit2.Response
@@ -204,7 +204,7 @@ class OGSRestService(
       .also { it.json = it.gamedata }
 
   suspend fun fetchActiveGames(): List<OGSGame> {
-    userSessionRepository.loggedInObservable.asFlow().first { it is LoginStatus.LoggedIn }
+    userSessionRepository.loginStatus.first { it is LoginStatus.LoggedIn }
     val overview = restApi.fetchOverview()
     val games = overview.active_games
     for (game in games) {
@@ -222,7 +222,7 @@ class OGSRestService(
     restApi.fetchChallenges().results
 
   suspend fun fetchHistoricGamesBefore(beforeDate: Long?): List<OGSGame> {
-    val userId = userSessionRepository.userIdObservable.asFlow().first()
+    val userId = userSessionRepository.userId.filterNotNull().first()
     val result = if (beforeDate == null) {
       restApi.fetchPlayerFinishedGames(userId)
     } else {
@@ -232,7 +232,7 @@ class OGSRestService(
   }
 
   suspend fun fetchHistoricGamesAfter(afterDate: Long?): List<OGSGame> {
-    val userId = userSessionRepository.userIdObservable.asFlow().first()
+    val userId = userSessionRepository.userId.filterNotNull().first()
     val result = if (afterDate == null) {
       restApi.fetchPlayerFinishedGames(userId)
     } else {
@@ -306,7 +306,7 @@ class OGSRestService(
       if (list.isNotEmpty()) {
         delay(1000)
       }
-      val loggedInStatus = userSessionRepository.loggedInObservable.asFlow().first()
+      val loggedInStatus = userSessionRepository.loginStatus.first()
       val userId = (loggedInStatus as? LoginStatus.LoggedIn)?.userId
       val result = restApi.getPuzzleSolutions(
         puzzleId = id,
@@ -328,7 +328,7 @@ class OGSRestService(
     restApi.ratePuzzle(puzzleId = id, request = rating)
 
   suspend fun deleteMyAccount(password: String) {
-    val loggedInStatus = userSessionRepository.loggedInObservable.asFlow().first()
+    val loggedInStatus = userSessionRepository.loginStatus.first()
     if (loggedInStatus is LoginStatus.LoggedIn) {
       restApi.deleteAccount(
         loggedInStatus.userId,
