@@ -11,6 +11,12 @@ import io.zenandroid.onlinego.data.ogs.OGSRestService
 import io.zenandroid.onlinego.data.ogs.OGSWebSocketService
 import io.zenandroid.onlinego.utils.addToDisposable
 import io.zenandroid.onlinego.utils.recordException
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.launch
 
 class ChallengesRepository(
         private val restService: OGSRestService,
@@ -19,17 +25,26 @@ class ChallengesRepository(
 ): SocketConnectedRepository {
 
     private val disposables = CompositeDisposable()
+    private var flowScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private val TAG = ChallengesRepository::class.java.simpleName
 
     override fun onSocketConnected() {
         refreshChallenges()
                 .subscribe({}, this::onError)
                 .addToDisposable(disposables)
-        socketService.connectToUIPushes()
-                .filter { it.event == "challenge-list-updated" }
-                .flatMapCompletable { refreshChallenges() }
-                .subscribe({}, this::onError)
-                .addToDisposable(disposables)
+        flowScope.launch {
+            try {
+                socketService.connectToUIPushes()
+                    .filter { it.event == "challenge-list-updated" }
+                    .collect {
+                        refreshChallenges()
+                            .subscribe({}, ::onError)
+                            .addToDisposable(disposables)
+                    }
+            } catch (e: Exception) {
+                onError(e)
+            }
+        }
     }
 
     private fun storeChallenges(challenges: List<OGSChallenge>) {
@@ -53,5 +68,7 @@ class ChallengesRepository(
 
     override fun onSocketDisconnected() {
         disposables.clear()
+        flowScope.cancel()
+        flowScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     }
 }

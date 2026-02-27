@@ -4,8 +4,6 @@ import android.util.Log
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.squareup.moshi.JsonEncodingException
 import com.squareup.moshi.Moshi
-import io.reactivex.BackpressureStrategy
-import io.reactivex.Flowable
 import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
 import io.zenandroid.onlinego.BuildConfig
@@ -26,9 +24,19 @@ import io.zenandroid.onlinego.utils.JsonObjectScope
 import io.zenandroid.onlinego.utils.createJsonArray
 import io.zenandroid.onlinego.utils.json
 import io.zenandroid.onlinego.utils.recordException
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.buffer
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onCompletion
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.rx2.asFlow
 import kotlinx.coroutines.yield
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -249,19 +257,19 @@ class OGSWebSocketService(
         gameId = id,
         connectionLock = connectionsLock,
         includeChat = includeChat,
-        gameDataObservable = observeEvent("game/$id/gamedata").parseJSON(),
-        movesObservable = observeEvent("game/$id/move").parseJSON(),
-        clockObservable = observeEvent("game/$id/clock").parseJSON(),
-        phaseObservable = observeEvent("game/$id/phase").map { string ->
+        gameDataFlow = observeEvent("game/$id/gamedata").parseJSON(),
+        movesFlow = observeEvent("game/$id/move").parseJSON(),
+        clockFlow = observeEvent("game/$id/clock").parseJSON(),
+        phaseFlow = observeEvent("game/$id/phase").map { string ->
           Phase.valueOf(
             string.toString().uppercase(Locale.ENGLISH).replace(' ', '_')
           )
         },
-        removedStonesObservable = observeEvent("game/$id/removed_stones").parseJSON(),
-        chatObservable = observeEvent("game/$id/chat").parseJSON(),
-        undoRequestedObservable = observeEvent("game/$id/undo_requested").parseJSON(),
-        removedStonesAcceptedObservable = observeEvent("game/$id/removed_stones_accepted").parseJSON(),
-        undoAcceptedObservable = observeEvent("game/$id/undo_accepted").parseJSON()
+        removedStonesFlow = observeEvent("game/$id/removed_stones").parseJSON(),
+        chatFlow = observeEvent("game/$id/chat").parseJSON(),
+        undoRequestedFlow = observeEvent("game/$id/undo_requested").parseJSON(),
+        removedStonesAcceptedFlow = observeEvent("game/$id/removed_stones_accepted").parseJSON(),
+        undoAcceptedFlow = observeEvent("game/$id/undo_accepted").parseJSON()
       ).apply {
         emitGameConnection(id, includeChat)
         gameConnections[id] = this
@@ -303,7 +311,7 @@ class OGSWebSocketService(
     }
   }
 
-  private inline fun <reified T> Flowable<Any>.parseJSON() =
+  private inline fun <reified T> Flow<Any>.parseJSON() =
     map { adapter<T>(it)!! }
 
   private fun emitGameConnection(id: Long, includeChat: Boolean) {
@@ -327,21 +335,20 @@ class OGSWebSocketService(
     }
   }
 
-  fun connectToActiveGames(): Flowable<OGSGame> {
+  fun connectToActiveGames(): Flow<OGSGame> {
     return observeEvent("active_game").parseJSON()
   }
 
-  fun connectToUIPushes(): Flowable<UIPush> {
-    val returnVal: Flowable<UIPush> = observeEvent("ui-push").parseJSON()
-
-    emit("ui-pushes/subscribe") {
-      "channel" - "undefined"
-    }
-
-    return returnVal
+  fun connectToUIPushes(): Flow<UIPush> {
+    return observeEvent("ui-push").parseJSON<UIPush>()
+      .onStart {
+        this@OGSWebSocketService.emit("ui-pushes/subscribe") {
+          "channel" - "undefined"
+        }
+      }
   }
 
-  fun connectToBots(): Flowable<List<OGSPlayer>> =
+  fun connectToBots(): Flow<List<OGSPlayer>> =
     observeEvent("active-bots")
       .map { string ->
         //
@@ -359,37 +366,38 @@ class OGSWebSocketService(
         return@map retval as List<OGSPlayer>
       }
 
-  fun listenToNewAutomatchNotifications(): Flowable<OGSAutomatch> =
+  fun listenToNewAutomatchNotifications(): Flow<OGSAutomatch> =
     observeEvent("automatch/entry").parseJSON()
 
-  fun listenToCancelAutomatchNotifications(): Flowable<OGSAutomatch> =
+  fun listenToCancelAutomatchNotifications(): Flow<OGSAutomatch> =
     observeEvent("automatch/cancel").parseJSON()
 
-  fun listenToStartAutomatchNotifications(): Flowable<OGSAutomatch> =
+  fun listenToStartAutomatchNotifications(): Flow<OGSAutomatch> =
     observeEvent("automatch/start").parseJSON()
 
   fun connectToAutomatch() {
     emit("automatch/list", null)
   }
 
-  fun connectToServerNotifications(): Flowable<JSONObject> =
-    userSessionRepository.userIdObservable.toFlowable(BackpressureStrategy.BUFFER)
-      .switchMap { userId ->
+  @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+  fun connectToServerNotifications(): Flow<JSONObject> =
+    userSessionRepository.userIdObservable.asFlow()
+      .flatMapLatest { userId ->
         observeEvent("notification")
           .map { JSONObject(it.toString()) }
-          .doOnSubscribe {
-            emit("notification/connect") {
+          .onStart {
+            this@OGSWebSocketService.emit("notification/connect") {
               "player_id" - userId
               "auth" - userSessionRepository.uiConfig?.notification_auth
             }
-          }.doOnCancel {
+          }.onCompletion {
             if (connected.get()) {
-              emit("notification/disconnect", "")
+              this@OGSWebSocketService.emit("notification/disconnect", "")
             }
           }
       }
 
-  fun listenToNetPongEvents(): Flowable<NetPong> =
+  fun listenToNetPongEvents(): Flow<NetPong> =
     observeEvent("net/pong").parseJSON()
 
   fun emit(event: String, params: Any?) {
@@ -429,12 +437,12 @@ class OGSWebSocketService(
     webSocket?.send(message.toString())
   }
 
-  private fun observeEvent(event: String): Flowable<Any> {
+  private fun observeEvent(event: String): Flow<Any> {
     if (BuildConfig.DEBUG) Log.i(TAG, "Listening for event: $event")
-    return Flowable.create({ emitter ->
+    return callbackFlow {
       val listener: (Any) -> Unit = { data ->
         if (BuildConfig.DEBUG) Log.i(TAG, "<== $event, $data")
-        emitter.onNext(data)
+        trySend(data)
       }
 
       val listeners = eventListeners.getOrPut(event) { mutableListOf() }
@@ -442,7 +450,7 @@ class OGSWebSocketService(
         listeners.add(listener)
       }
 
-      emitter.setCancellable {
+      awaitClose {
         if (BuildConfig.DEBUG) Log.i(TAG, "Unregistering for event: $event")
         val list = eventListeners[event]
         if (list != null) {
@@ -454,7 +462,7 @@ class OGSWebSocketService(
           }
         }
       }
-    }, BackpressureStrategy.BUFFER)
+    }.buffer(Channel.UNLIMITED)
   }
 
   fun startAutomatch(sizes: List<Size>, speeds: List<Speed>): String {

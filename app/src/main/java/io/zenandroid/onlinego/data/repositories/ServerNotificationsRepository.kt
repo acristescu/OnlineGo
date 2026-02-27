@@ -1,28 +1,36 @@
 package io.zenandroid.onlinego.data.repositories
 
-import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.PublishSubject
 import io.zenandroid.onlinego.data.ogs.OGSWebSocketService
-import io.zenandroid.onlinego.utils.addToDisposable
 import io.zenandroid.onlinego.utils.recordException
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 import org.json.JSONObject
 
 class ServerNotificationsRepository(
   private val socketService: OGSWebSocketService
 ) : SocketConnectedRepository {
-  private val subscriptions = CompositeDisposable()
+  private var scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
   private val notificationsHash = hashMapOf<String, JSONObject>()
   private val notificationsSubject = PublishSubject.create<JSONObject>()
 
   override fun onSocketConnected() {
-    socketService.connectToServerNotifications()
-      .subscribe(this::onNewNotification, ::recordException)
-      .addToDisposable(subscriptions)
+    scope.launch {
+      try {
+        socketService.connectToServerNotifications().collect { onNewNotification(it) }
+      } catch (e: Exception) {
+        recordException(e)
+      }
+    }
   }
 
   override fun onSocketDisconnected() {
     notificationsHash.clear()
-    subscriptions.clear()
+    scope.cancel()
+    scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
   }
 
   private fun onNewNotification(notification: JSONObject) {

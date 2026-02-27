@@ -1,26 +1,31 @@
 package io.zenandroid.onlinego.data.repositories
 
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.schedulers.Schedulers
 import io.zenandroid.onlinego.data.model.local.Player
 import io.zenandroid.onlinego.data.model.ogs.OGSPlayer
 import io.zenandroid.onlinego.data.ogs.OGSWebSocketService
-import io.zenandroid.onlinego.utils.addToDisposable
 import io.zenandroid.onlinego.utils.recordException
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 
 class BotsRepository(
         private val socketService: OGSWebSocketService
 ): SocketConnectedRepository {
 
-    private val subscriptions = CompositeDisposable()
+    private var scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     var bots = listOf<Player>()
         private set
 
     override fun onSocketConnected() {
-        socketService.connectToBots()
-                .subscribeOn(Schedulers.io())
-                .subscribe(this::storeBots, :: recordException)
-                .addToDisposable(subscriptions)
+        scope.launch {
+            try {
+                socketService.connectToBots().collect { storeBots(it) }
+            } catch (e: Exception) {
+                recordException(e)
+            }
+        }
     }
 
     private fun storeBots(newBots: List<OGSPlayer>) {
@@ -28,6 +33,7 @@ class BotsRepository(
     }
 
     override fun onSocketDisconnected() {
-        subscriptions.clear()
+        scope.cancel()
+        scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     }
 }

@@ -9,6 +9,12 @@ import io.reactivex.schedulers.Schedulers
 import io.zenandroid.onlinego.data.model.ogs.NetPong
 import io.zenandroid.onlinego.data.ogs.OGSWebSocketService
 import io.zenandroid.onlinego.utils.recordException
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.retry
+import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicLong
 
@@ -16,6 +22,7 @@ class ClockDriftRepository(
         private val socketService: OGSWebSocketService
 ) : SocketConnectedRepository {
     private val subscriptions = CompositeDisposable()
+    private var flowScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private var drift = AtomicLong(0L)
     private var latency = AtomicLong(0L)
 
@@ -26,15 +33,17 @@ class ClockDriftRepository(
         subscriptions += Observable.interval(10, TimeUnit.SECONDS)
                 .subscribeOn(Schedulers.io())
                 .subscribe { doPing() }
-        subscriptions += socketService.listenToNetPongEvents()
-                .subscribeOn(Schedulers.io())
-                .doOnError(this::onError)
-                .retry()
-                .subscribe(this::onPong)
+        flowScope.launch {
+            socketService.listenToNetPongEvents()
+                .retry { onError(it); true }
+                .collect { onPong(it) }
+        }
     }
 
     override fun onSocketDisconnected() {
         subscriptions.clear()
+        flowScope.cancel()
+        flowScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     }
 
     private fun doPing() {

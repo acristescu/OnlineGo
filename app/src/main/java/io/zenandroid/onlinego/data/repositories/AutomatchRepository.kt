@@ -1,22 +1,25 @@
 package io.zenandroid.onlinego.data.repositories
 
 import android.util.Log
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
 import io.zenandroid.onlinego.data.model.ogs.OGSAutomatch
 import io.zenandroid.onlinego.data.ogs.OGSWebSocketService
-import io.zenandroid.onlinego.utils.addToDisposable
 import io.zenandroid.onlinego.utils.recordException
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.plus
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.retry
+import kotlinx.coroutines.launch
 
 class AutomatchRepository(
         private val socketService: OGSWebSocketService
 ) : SocketConnectedRepository {
-    private val subscriptions = CompositeDisposable()
+    private var scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     var automatches = persistentListOf<OGSAutomatch>()
         private set
@@ -29,27 +32,26 @@ class AutomatchRepository(
 
     override fun onSocketConnected() {
         automatches = automatches.clear()
-        socketService.listenToNewAutomatchNotifications()
-                .subscribeOn(Schedulers.io())
-                .doOnError(this::onError)
-                .retry()
-                .subscribe(this::addAutomatch)
-                .addToDisposable(subscriptions)
+        scope.launch {
+            socketService.listenToNewAutomatchNotifications()
+                .retry { onError(it); true }
+                .collect { addAutomatch(it) }
+        }
 
-        socketService.listenToCancelAutomatchNotifications()
-                .subscribeOn(Schedulers.io())
-                .doOnError(this::onError)
-                .retry()
-                .subscribe(this::removeAutomatch)
-                .addToDisposable(subscriptions)
+        scope.launch {
+            socketService.listenToCancelAutomatchNotifications()
+                .retry { onError(it); true }
+                .collect { removeAutomatch(it) }
+        }
 
-        socketService.listenToStartAutomatchNotifications()
-                .subscribeOn(Schedulers.io())
-                .doOnNext(gameStartSubject::onNext)
-                .doOnError(this::onError)
-                .retry()
-                .subscribe(this::removeAutomatch)
-                .addToDisposable(subscriptions)
+        scope.launch {
+            socketService.listenToStartAutomatchNotifications()
+                .retry { onError(it); true }
+                .collect {
+                    gameStartSubject.onNext(it)
+                    removeAutomatch(it)
+                }
+        }
 
         socketService.connectToAutomatch()
     }
@@ -76,7 +78,8 @@ class AutomatchRepository(
             removeAll { it.liveOrBlitzOrRapid }
         }.build()
         automatchesSubject.onNext(automatches)
-        subscriptions.clear()
+        scope.cancel()
+        scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     }
 
 }

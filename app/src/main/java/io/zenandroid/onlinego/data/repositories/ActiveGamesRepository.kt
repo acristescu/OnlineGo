@@ -27,7 +27,10 @@ import io.zenandroid.onlinego.data.ogs.UndoRequested
 import io.zenandroid.onlinego.utils.addToDisposable
 import io.zenandroid.onlinego.utils.recordException
 import io.zenandroid.onlinego.utils.timeLeftForCurrentPlayer
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -36,6 +39,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.launch
 import java.io.IOException
 import java.security.InvalidParameterException
 import java.util.concurrent.TimeUnit
@@ -56,6 +60,7 @@ class ActiveGamesRepository(
   private val myMoveCountSubject = BehaviorSubject.create<Int>()
 
   private val subscriptions = CompositeDisposable()
+  private var flowScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
   private fun onNotification(game: OGSGame) {
     if (gameDao.getGameNullable(game.id) == null) {
@@ -83,10 +88,13 @@ class ActiveGamesRepository(
       .observeOn(Schedulers.io())
       .subscribe({}, { onError(it, "refreshActiveGames") })
       .addToDisposable(subscriptions)
-    socketService.connectToActiveGames()
-      .subscribeOn(Schedulers.io())
-      .subscribe(this::onNotification) { onError(it, "connectToActiveGames") }
-      .addToDisposable(subscriptions)
+    flowScope.launch {
+      try {
+        socketService.connectToActiveGames().collect { onNotification(it) }
+      } catch (e: Exception) {
+        onError(e, "connectToActiveGames")
+      }
+    }
     userSessionRepository.userIdObservable.toFlowable(BackpressureStrategy.LATEST)
       .flatMap { userId ->
         gameDao.monitorActiveGamesWithNewMessagesCount(userId).map { userId to it }
@@ -103,6 +111,8 @@ class ActiveGamesRepository(
 
   override fun onSocketDisconnected() {
     subscriptions.clear()
+    flowScope.cancel()
+    flowScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     synchronized(gameConnections) {
       gameConnections.clear()
     }
@@ -122,70 +132,78 @@ class ActiveGamesRepository(
 
     val gameConnection = socketService.connectToGame(game.id, includeChat)
     gameConnection.addToDisposable(subscriptions)
-    gameConnection.gameData
-      .subscribeOn(Schedulers.io())
-      .observeOn(Schedulers.io())
-      .subscribe(
-        { onGameData(game.id, it) },
-        { onError(it, "gameData") }
-      )
-      .addToDisposable(subscriptions)
-    gameConnection.moves
-      .subscribeOn(Schedulers.io())
-      .observeOn(Schedulers.io())
-      .subscribe(
-        { onGameMove(game.id, it) },
-        { onError(it, "moves") }
-      )
-      .addToDisposable(subscriptions)
-    gameConnection.clock
-      .subscribeOn(Schedulers.io())
-      .observeOn(Schedulers.io())
-      .subscribe(
-        { onGameClock(game.id, it) },
-        { onError(it, "clock") }
-      )
-      .addToDisposable(subscriptions)
-    gameConnection.phase
-      .subscribeOn(Schedulers.io())
-      .observeOn(Schedulers.io())
-      .subscribe(
-        { onGamePhase(game.id, it) },
-        { onError(it, "phase") }
-      )
-      .addToDisposable(subscriptions)
-    gameConnection.removedStones
-      .subscribeOn(Schedulers.io())
-      .observeOn(Schedulers.io())
-      .subscribe(
-        { onGameRemovedStones(game.id, it) },
-        { onError(it, "removedStones") }
-      )
-      .addToDisposable(subscriptions)
-    gameConnection.undoRequested
-      .subscribeOn(Schedulers.io())
-      .observeOn(Schedulers.io())
-      .subscribe(
-        { onUndoRequested(game.id, it) },
-        { onError(it, "undoRequested") }
-      )
-      .addToDisposable(subscriptions)
-    gameConnection.removedStonesAccepted
-      .subscribeOn(Schedulers.io())
-      .observeOn(Schedulers.io())
-      .subscribe(
-        { onRemovedStonesAccepted(game.id, it) },
-        { onError(it, "removedStonesAccepted") }
-      )
-      .addToDisposable(subscriptions)
-    gameConnection.undoAccepted
-      .subscribeOn(Schedulers.io())
-      .observeOn(Schedulers.io())
-      .subscribe(
-        { onUndoAccepted(game.id, it.move_number, it.undo_move_count) },
-        { onError(it, "undoRequested") }
-      )
-      .addToDisposable(subscriptions)
+    flowScope.launch {
+      gameConnection.gameData.collect {
+        try {
+          onGameData(game.id, it)
+        } catch (e: Exception) {
+          onError(e, "gameData")
+        }
+      }
+    }
+    flowScope.launch {
+      gameConnection.moves.collect {
+        try {
+          onGameMove(game.id, it)
+        } catch (e: Exception) {
+          onError(e, "moves")
+        }
+      }
+    }
+    flowScope.launch {
+      gameConnection.clock.collect {
+        try {
+          onGameClock(game.id, it)
+        } catch (e: Exception) {
+          onError(e, "clock")
+        }
+      }
+    }
+    flowScope.launch {
+      gameConnection.phase.collect {
+        try {
+          onGamePhase(game.id, it)
+        } catch (e: Exception) {
+          onError(e, "phase")
+        }
+      }
+    }
+    flowScope.launch {
+      gameConnection.removedStones.collect {
+        try {
+          onGameRemovedStones(game.id, it)
+        } catch (e: Exception) {
+          onError(e, "removedStones")
+        }
+      }
+    }
+    flowScope.launch {
+      gameConnection.undoRequested.collect {
+        try {
+          onUndoRequested(game.id, it)
+        } catch (e: Exception) {
+          onError(e, "undoRequested")
+        }
+      }
+    }
+    flowScope.launch {
+      gameConnection.removedStonesAccepted.collect {
+        try {
+          onRemovedStonesAccepted(game.id, it)
+        } catch (e: Exception) {
+          onError(e, "removedStonesAccepted")
+        }
+      }
+    }
+    flowScope.launch {
+      gameConnection.undoAccepted.collect {
+        try {
+          onUndoAccepted(game.id, it.move_number, it.undo_move_count)
+        } catch (e: Exception) {
+          onError(e, "undoAccepted")
+        }
+      }
+    }
   }
 
   private fun onGameRemovedStones(gameId: Long, stones: RemovedStones) {
