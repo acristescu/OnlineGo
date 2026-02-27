@@ -4,7 +4,6 @@ import androidx.room.Room
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
-import io.reactivex.schedulers.Schedulers
 import io.zenandroid.onlinego.BuildConfig
 import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.data.db.Database
@@ -60,7 +59,6 @@ import org.koin.core.module.dsl.viewModel
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 import retrofit2.Retrofit
-import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.moshi.MoshiConverterFactory
 import java.time.Instant
 
@@ -108,7 +106,6 @@ private val serverConnectionModule = module {
     Retrofit.Builder()
       .baseUrl(BuildConfig.BASE_URL)
       .client(get())
-      .addCallAdapterFactory(RxJava2CallAdapterFactory.createWithScheduler(Schedulers.io()))
       .addConverterFactory(CustomConverterFactory())
       .addConverterFactory(MoshiConverterFactory.create(get()))
       .build()

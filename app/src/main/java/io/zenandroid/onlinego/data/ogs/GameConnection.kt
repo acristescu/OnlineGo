@@ -1,7 +1,6 @@
 package io.zenandroid.onlinego.data.ogs
 
 import com.google.firebase.crashlytics.FirebaseCrashlytics
-import io.reactivex.disposables.Disposable
 import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.local.Message
 import io.zenandroid.onlinego.data.model.local.Score
@@ -45,7 +44,7 @@ class GameConnection(
   undoRequestedFlow: Flow<UndoRequested>,
   removedStonesAcceptedFlow: Flow<RemovedStonesAccepted>,
   undoAcceptedFlow: Flow<UndoAccepted>
-) : Disposable, Closeable {
+) : Closeable {
   private var closed = false
   private var counter = 0
 
@@ -114,14 +113,6 @@ class GameConnection(
 
   override fun close() {
     decrementCounter()
-  }
-
-  override fun isDisposed(): Boolean {
-    return closed
-  }
-
-  override fun dispose() {
-    close()
   }
 
   fun incrementCounter() {

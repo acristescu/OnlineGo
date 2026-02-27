@@ -7,7 +7,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.crashlytics.FirebaseCrashlytics
-import io.reactivex.disposables.CompositeDisposable
 import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.ogs.OGSRestService
@@ -76,7 +75,6 @@ class OnboardingViewModel(
   ).drop(if (savedStateHandle["initialPageArg"] as String? != null) 4 else 0)
 
   private val analytics = OnlineGoApplication.instance.analytics
-  private val subscriptions = CompositeDisposable()
 
   init {
     viewModelScope.launch(Dispatchers.IO) {
@@ -106,10 +104,6 @@ class OnboardingViewModel(
     )
   val state: StateFlow<OnboardingState> = _state.asStateFlow()
 
-  override fun onCleared() {
-    subscriptions.clear()
-    super.onCleared()
-  }
 
   fun onAction(action: OnboardingAction) {
     when (action) {

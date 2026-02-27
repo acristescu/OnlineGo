@@ -6,9 +6,6 @@ import androidx.lifecycle.viewModelScope
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.schedulers.Schedulers
 import io.zenandroid.onlinego.ai.KataGoAnalysisEngine
 import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.Position
@@ -19,7 +16,6 @@ import io.zenandroid.onlinego.gamelogic.RulesManager
 import io.zenandroid.onlinego.gamelogic.RulesManager.isGameOver
 import io.zenandroid.onlinego.gamelogic.Util
 import io.zenandroid.onlinego.gamelogic.Util.toGTP
-import io.zenandroid.onlinego.utils.addToDisposable
 import io.zenandroid.onlinego.utils.moshiadapters.HashMapOfCellToStoneTypeMoshiAdapter
 import io.zenandroid.onlinego.utils.moshiadapters.ResponseBriefMoshiAdapter
 import io.zenandroid.onlinego.utils.recordException
@@ -46,7 +42,7 @@ class AiGameViewModel(
     )
   )
   val state: StateFlow<AiGameState> = _state.asStateFlow()
-  val katagoDisposable: CompositeDisposable = CompositeDisposable()
+  private var katagoJob: kotlinx.coroutines.Job? = null
 
   private val stateAdapter = Moshi.Builder()
     .add(ResponseBriefMoshiAdapter())
@@ -180,7 +176,7 @@ class AiGameViewModel(
   }
 
   fun onNewGame(size: Int, youPlayBlack: Boolean, handicap: Int) {
-    katagoDisposable.clear() // kill any in-flight Katago request(s) as they are now irrelevant
+    katagoJob?.cancel() // kill any in-flight Katago request(s) as they are now irrelevant
     val newPosition = RulesManager.initializePosition(size, handicap)
     _state.update {
       it.copy(
@@ -322,26 +318,21 @@ class AiGameViewModel(
       _state.update { it.copy(chatText = "Hmmm...") }
 
       try {
-        KataGoAnalysisEngine.analyzeMoveSequence(
-          sequence = currentState.history,
-          maxVisits = 30,
-          komi = currentState.position.komi,
-          includeOwnership = false
-        )
-          .subscribeOn(Schedulers.io())
-          .observeOn(AndroidSchedulers.mainThread())
-          .subscribe(
-            { analysis ->
-              _state.update {
-                it.copy(
-                  showHints = true,
-                  aiAnalysis = analysis,
-                  chatText = "Here are a few moves to consider"
-                )
-              }
-            },
-            { recordException(it) }
-          ).addToDisposable(katagoDisposable)
+        val analysis = withContext(Dispatchers.IO) {
+          KataGoAnalysisEngine.analyzeMoveSequence(
+            sequence = currentState.history,
+            maxVisits = 30,
+            komi = currentState.position.komi,
+            includeOwnership = false
+          )
+        }
+        _state.update {
+          it.copy(
+            showHints = true,
+            aiAnalysis = analysis,
+            chatText = "Here are a few moves to consider"
+          )
+        }
       } catch (e: Exception) {
         recordException(e)
       }
@@ -372,27 +363,22 @@ class AiGameViewModel(
       }
 
       try {
-        KataGoAnalysisEngine.analyzeMoveSequence(
-          sequence = currentState.history,
-          maxVisits = 30,
-          komi = currentState.position.komi,
-          includeOwnership = true
-        )
-          .subscribeOn(Schedulers.io())
-          .observeOn(AndroidSchedulers.mainThread())
-          .subscribe(
-            { analysis ->
-              _state.update {
-                it.copy(
-                  boardIsInteractive = true,
-                  aiAnalysis = analysis,
-                  showAiEstimatedTerritory = true,
-                  chatText = "Here's what I think the territories look like"
-                )
-              }
-            },
-            { recordException(it) }
-          ).addToDisposable(katagoDisposable)
+        val analysis = withContext(Dispatchers.IO) {
+          KataGoAnalysisEngine.analyzeMoveSequence(
+            sequence = currentState.history,
+            maxVisits = 30,
+            komi = currentState.position.komi,
+            includeOwnership = true
+          )
+        }
+        _state.update {
+          it.copy(
+            boardIsInteractive = true,
+            aiAnalysis = analysis,
+            showAiEstimatedTerritory = true,
+            chatText = "Here's what I think the territories look like"
+          )
+        }
       } catch (e: Exception) {
         recordException(e)
       }
@@ -437,7 +423,7 @@ class AiGameViewModel(
 
     if (newVariation.isGameOver()) {
       if (currentState.aiWon == null) {
-        computeFinalScore()
+        viewModelScope.launch { computeFinalScore() }
       }
     } else {
       val isBlacksTurn = newPosition.nextToMove != StoneType.WHITE
@@ -474,153 +460,144 @@ class AiGameViewModel(
       )
     }
 
-    try {
-      KataGoAnalysisEngine.analyzeMoveSequence(
-        sequence = currentState.history,
-        maxVisits = 20,
-        komi = currentState.position.komi,
-        includeOwnership = false,
-        includeMovesOwnership = false
-      )
-        .subscribeOn(Schedulers.io())
-        .observeOn(Schedulers.computation())
-        .subscribe(
-          { analysis ->
-            viewModelScope.launch(Dispatchers.Default) {
-              val selectedMove = analysis.moveInfos[0]
-              val move =
-                Util.getCoordinatesFromGTP(selectedMove.move, currentState.position.boardHeight)
-              val side = if (currentState.enginePlaysBlack) StoneType.BLACK else StoneType.WHITE
-              val newPosition = RulesManager.makeMove(currentState.position, side, move)
+    katagoJob?.cancel()
+    katagoJob = viewModelScope.launch {
+      try {
+        val analysis = withContext(Dispatchers.IO) {
+          KataGoAnalysisEngine.analyzeMoveSequence(
+            sequence = currentState.history,
+            maxVisits = 20,
+            komi = currentState.position.komi,
+            includeOwnership = false,
+            includeMovesOwnership = false
+          )
+        }
+        withContext(Dispatchers.Default) {
+          val selectedMove = analysis.moveInfos[0]
+          val move =
+            Util.getCoordinatesFromGTP(selectedMove.move, currentState.position.boardHeight)
+          val side = if (currentState.enginePlaysBlack) StoneType.BLACK else StoneType.WHITE
+          val newPosition = RulesManager.makeMove(currentState.position, side, move)
 
-              if (newPosition == null) {
-                recordException(Exception("KataGO wants to play move ${selectedMove.move} ($move), but RulesManager rejects it as invalid"))
-              } else {
-                val newVariation = if (currentState.history.lastOrNull() == newPosition) {
-                  currentState.history
-                } else {
-                  currentState.history + newPosition
+          if (newPosition == null) {
+            recordException(Exception("KataGO wants to play move ${selectedMove.move} ($move), but RulesManager rejects it as invalid"))
+          } else {
+            val newVariation = if (currentState.history.lastOrNull() == newPosition) {
+              currentState.history
+            } else {
+              currentState.history + newPosition
+            }
+            _state.update {
+              it.copy(
+                position = newPosition,
+                history = newVariation,
+                nextButtonEnabled = false,
+                aiAnalysis = analysis,
+                aiQuickEstimation = selectedMove,
+                previousButtonEnabled = newVariation.size > 2,
+                showFinalTerritory = newVariation.isGameOver(),
+                chatText = when {
+                  newVariation.isGameOver() && it.aiWon == true ->
+                    "Game ended because of two passes. Final score is black ${it.finalBlackScore?.toInt()} to white ${it.finalWhiteScore}. Looks like I win this time."
+
+                  newVariation.isGameOver() && it.aiWon == false ->
+                    "Game ended because of two passes. Final score is black ${it.finalBlackScore?.toInt()} to white ${it.finalWhiteScore}. Congrats, looks like you got the better of me."
+
+                  newVariation.isGameOver() && it.aiWon == null ->
+                    "Game ended because of two passes. Hang on, I'm computing the final score."
+
+                  else -> "Your turn"
                 }
-                _state.update {
-                  it.copy(
-                    position = newPosition,
-                    history = newVariation,
-                    nextButtonEnabled = false,
-                    aiAnalysis = analysis,
-                    aiQuickEstimation = selectedMove,
-                    previousButtonEnabled = newVariation.size > 2,
-                    showFinalTerritory = newVariation.isGameOver(),
-                    chatText = when {
-                      newVariation.isGameOver() && it.aiWon == true ->
-                        "Game ended because of two passes. Final score is black ${it.finalBlackScore?.toInt()} to white ${it.finalWhiteScore}. Looks like I win this time."
+              )
+            }
 
-                      newVariation.isGameOver() && it.aiWon == false ->
-                        "Game ended because of two passes. Final score is black ${it.finalBlackScore?.toInt()} to white ${it.finalWhiteScore}. Congrats, looks like you got the better of me."
-
-                      newVariation.isGameOver() && it.aiWon == null ->
-                        "Game ended because of two passes. Hang on, I'm computing the final score."
-
-                      else -> "Your turn"
-                    }
-                  )
-                }
-
-                if (newVariation.isGameOver()) {
-                  viewModelScope.launch {
-                    computeFinalScore()
-                  }
-                } else {
-                  _state.update {
-                    it.copy(
-                      boardIsInteractive = true,
-                      passButtonEnabled = true,
-                      hintButtonVisible = true,
-                      ownershipButtonVisible = true
-                    )
-                  }
-                }
+            if (newVariation.isGameOver()) {
+              computeFinalScore()
+            } else {
+              _state.update {
+                it.copy(
+                  boardIsInteractive = true,
+                  passButtonEnabled = true,
+                  hintButtonVisible = true,
+                  ownershipButtonVisible = true
+                )
               }
             }
-          },
-          { recordException(it) }
-        ).addToDisposable(katagoDisposable)
-    } catch (e: Exception) {
-      recordException(e)
+          }
+        }
+      } catch (e: Exception) {
+        recordException(e)
+      }
     }
   }
 
-  private fun computeFinalScore() {
+  private suspend fun computeFinalScore() {
     val currentState = state.value
     if (!currentState.engineStarted || currentState.position == null) return
 
     try {
-      KataGoAnalysisEngine.analyzeMoveSequence(
-        sequence = currentState.history,
-        maxVisits = 10,
-        komi = currentState.position.komi,
-        includeOwnership = true
-      )
-        .subscribeOn(Schedulers.io())
-        .observeOn(AndroidSchedulers.mainThread())
-        .subscribe(
-          { analysis ->
+      val analysis = withContext(Dispatchers.IO) {
+        KataGoAnalysisEngine.analyzeMoveSequence(
+          sequence = currentState.history,
+          maxVisits = 10,
+          komi = currentState.position.komi,
+          includeOwnership = true
+        )
+      }
 
-            val blackTerritory = mutableSetOf<Cell>()
-            val whiteTerritory = mutableSetOf<Cell>()
-            val removedSpots = mutableSetOf<Cell>()
+      val blackTerritory = mutableSetOf<Cell>()
+      val whiteTerritory = mutableSetOf<Cell>()
+      val removedSpots = mutableSetOf<Cell>()
 
-            analysis.ownership?.forEachIndexed { index, value ->
-              val y = index / currentState.position.boardWidth
-              val x = index % currentState.position.boardWidth
-              val cell = Cell(x, y)
-              when {
-                value > 0.6 -> whiteTerritory.add(cell)
-                value < -0.6 -> blackTerritory.add(cell)
-                abs(value) <= 0.6 -> removedSpots.add(cell)
-              }
-            }
+      analysis.ownership?.forEachIndexed { index, value ->
+        val y = index / currentState.position.boardWidth
+        val x = index % currentState.position.boardWidth
+        val cell = Cell(x, y)
+        when {
+          value > 0.6 -> whiteTerritory.add(cell)
+          value < -0.6 -> blackTerritory.add(cell)
+          abs(value) <= 0.6 -> removedSpots.add(cell)
+        }
+      }
 
-            val blackScore = blackTerritory.size + currentState.position.blackCaptureCount
-            val whiteScore =
-              whiteTerritory.size + currentState.position.whiteCaptureCount + (currentState.position.komi
-                ?: 0f)
-            val aiWon =
-              if (currentState.enginePlaysBlack) blackScore > whiteScore else whiteScore > blackScore
+      val blackScore = blackTerritory.size + currentState.position.blackCaptureCount
+      val whiteScore =
+        whiteTerritory.size + currentState.position.whiteCaptureCount + (currentState.position.komi
+          ?: 0f)
+      val aiWon =
+        if (currentState.enginePlaysBlack) blackScore > whiteScore else whiteScore > blackScore
 
-            _state.update {
-              it.copy(
-                position = currentState.position.copy(
-                  blackTerritory = blackTerritory,
-                  whiteTerritory = whiteTerritory,
-                  removedSpots = removedSpots,
-                  whiteCaptureCount = currentState.position.whiteCaptureCount,
-                  blackCaptureCount = currentState.position.blackCaptureCount
-                ),
-                history = it.history.dropLast(1) + currentState.position,
-                nextButtonEnabled = false,
-                passButtonEnabled = false,
-                redoPosStack = emptyList(),
-                boardIsInteractive = false,
-                chatText = if (aiWon)
-                  "Game ended because of two passes. Final score is black $blackScore to white $whiteScore. Looks like I win this time."
-                else
-                  "Game ended because of two passes. Final score is black $blackScore to white $whiteScore. Congrats, looks like you got the better of me.",
-                finalWhiteScore = whiteScore,
-                finalBlackScore = blackScore.toFloat(),
-                aiWon = aiWon,
-                previousButtonEnabled = true,
-                showAiEstimatedTerritory = false,
-                showFinalTerritory = true,
-                hintButtonVisible = false,
-                ownershipButtonVisible = false,
-                showHints = false,
-                candidateMove = null,
-                aiAnalysis = analysis
-              )
-            }
-          },
-          { recordException(it) }
-        ).addToDisposable(katagoDisposable)
+      _state.update {
+        it.copy(
+          position = currentState.position.copy(
+            blackTerritory = blackTerritory,
+            whiteTerritory = whiteTerritory,
+            removedSpots = removedSpots,
+            whiteCaptureCount = currentState.position.whiteCaptureCount,
+            blackCaptureCount = currentState.position.blackCaptureCount
+          ),
+          history = it.history.dropLast(1) + currentState.position,
+          nextButtonEnabled = false,
+          passButtonEnabled = false,
+          redoPosStack = emptyList(),
+          boardIsInteractive = false,
+          chatText = if (aiWon)
+            "Game ended because of two passes. Final score is black $blackScore to white $whiteScore. Looks like I win this time."
+          else
+            "Game ended because of two passes. Final score is black $blackScore to white $whiteScore. Congrats, looks like you got the better of me.",
+          finalWhiteScore = whiteScore,
+          finalBlackScore = blackScore.toFloat(),
+          aiWon = aiWon,
+          previousButtonEnabled = true,
+          showAiEstimatedTerritory = false,
+          showFinalTerritory = true,
+          hintButtonVisible = false,
+          ownershipButtonVisible = false,
+          showHints = false,
+          candidateMove = null,
+          aiAnalysis = analysis
+        )
+      }
     } catch (e: Exception) {
       recordException(e)
     }
@@ -628,7 +605,7 @@ class AiGameViewModel(
 
   override fun onCleared() {
     super.onCleared()
-    katagoDisposable.clear()
+    katagoJob?.cancel()
     applicationCoroutineScope.launch(Dispatchers.IO) {
       KataGoAnalysisEngine.stop()
     }

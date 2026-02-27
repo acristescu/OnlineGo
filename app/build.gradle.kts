@@ -146,9 +146,6 @@ dependencies {
     implementation(libs.moshi.kotlin)
     implementation(libs.moshi.adapters)
 
-    // Reactive Programming
-    implementation(libs.bundles.rx)
-
     // Work Manager
     implementation(libs.bundles.work)
 

@@ -1,8 +1,6 @@
 package io.zenandroid.onlinego.data.repositories
 
 import android.util.Log
-import io.reactivex.subjects.BehaviorSubject
-import io.reactivex.subjects.PublishSubject
 import io.zenandroid.onlinego.data.model.ogs.OGSAutomatch
 import io.zenandroid.onlinego.data.ogs.OGSWebSocketService
 import io.zenandroid.onlinego.utils.recordException
@@ -13,6 +11,12 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.retry
 import kotlinx.coroutines.launch
 
@@ -24,11 +28,11 @@ class AutomatchRepository(
     var automatches = persistentListOf<OGSAutomatch>()
         private set
 
-    private val automatchesSubject = BehaviorSubject.createDefault<ImmutableList<OGSAutomatch>>(automatches)
-    private val gameStartSubject = PublishSubject.create<OGSAutomatch>()
+    private val _automatches = MutableStateFlow<ImmutableList<OGSAutomatch>>(automatches)
+    val automatchFlow: StateFlow<ImmutableList<OGSAutomatch>> = _automatches.asStateFlow()
 
-    val automatchObservable = automatchesSubject.hide()
-    val gameStartObservable = gameStartSubject.hide()
+    private val _gameStart = MutableSharedFlow<OGSAutomatch>()
+    val gameStartFlow: SharedFlow<OGSAutomatch> = _gameStart.asSharedFlow()
 
     override fun onSocketConnected() {
         automatches = automatches.clear()
@@ -48,7 +52,7 @@ class AutomatchRepository(
             socketService.listenToStartAutomatchNotifications()
                 .retry { onError(it); true }
                 .collect {
-                    gameStartSubject.onNext(it)
+                    _gameStart.emit(it)
                     removeAutomatch(it)
                 }
         }
@@ -63,13 +67,13 @@ class AutomatchRepository(
 
     private fun removeAutomatch(automatch: OGSAutomatch) {
         automatches = automatches.removeAll { it.uuid == automatch.uuid }
-        automatchesSubject.onNext(automatches)
+        _automatches.value = automatches
     }
 
     private fun addAutomatch(automatch: OGSAutomatch) {
         if(automatches.find { it.uuid == automatch.uuid } == null) {
             automatches += automatch
-            automatchesSubject.onNext(automatches)
+            _automatches.value = automatches
         }
     }
 
@@ -77,7 +81,7 @@ class AutomatchRepository(
         automatches = automatches.builder().apply {
             removeAll { it.liveOrBlitzOrRapid }
         }.build()
-        automatchesSubject.onNext(automatches)
+        _automatches.value = automatches
         scope.cancel()
         scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     }

@@ -3,8 +3,6 @@ package io.zenandroid.onlinego.data.repositories
 import android.util.Log
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.squareup.moshi.JsonEncodingException
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.subjects.BehaviorSubject
 import io.zenandroid.onlinego.data.db.GameDao
 import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.local.Clock
@@ -12,6 +10,7 @@ import io.zenandroid.onlinego.data.model.local.Game
 import io.zenandroid.onlinego.data.model.ogs.GameData
 import io.zenandroid.onlinego.data.model.ogs.OGSGame
 import io.zenandroid.onlinego.data.model.ogs.Phase
+import io.zenandroid.onlinego.data.ogs.GameConnection
 import io.zenandroid.onlinego.data.ogs.Move
 import io.zenandroid.onlinego.data.ogs.OGSClock
 import io.zenandroid.onlinego.data.ogs.OGSRestService
@@ -19,7 +18,6 @@ import io.zenandroid.onlinego.data.ogs.OGSWebSocketService
 import io.zenandroid.onlinego.data.ogs.RemovedStones
 import io.zenandroid.onlinego.data.ogs.RemovedStonesAccepted
 import io.zenandroid.onlinego.data.ogs.UndoRequested
-import io.zenandroid.onlinego.utils.addToDisposable
 import io.zenandroid.onlinego.utils.recordException
 import io.zenandroid.onlinego.utils.timeLeftForCurrentPlayer
 import kotlinx.coroutines.CoroutineScope
@@ -54,10 +52,8 @@ class ActiveGamesRepository(
 
   private val activeDbGames = mutableMapOf<Long, Game>()
   private val gameConnections = mutableSetOf<Long>()
+  private val trackedConnections = mutableListOf<GameConnection>()
 
-  private val myMoveCountSubject = BehaviorSubject.create<Int>()
-
-  private val subscriptions = CompositeDisposable()
   private var flowScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
   private fun onNotification(game: OGSGame) {
@@ -110,7 +106,8 @@ class ActiveGamesRepository(
   }
 
   override fun onSocketDisconnected() {
-    subscriptions.clear()
+    trackedConnections.forEach { it.close() }
+    trackedConnections.clear()
     flowScope.cancel()
     flowScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     synchronized(gameConnections) {
@@ -131,7 +128,7 @@ class ActiveGamesRepository(
     }
 
     val gameConnection = socketService.connectToGame(game.id, includeChat)
-    gameConnection.addToDisposable(subscriptions)
+    trackedConnections.add(gameConnection)
     flowScope.launch {
       gameConnection.gameData.collect {
         try {
@@ -283,7 +280,6 @@ class ActiveGamesRepository(
         .filter { it.playerToMoveId != null && it.playerToMoveId == userId }
         .toList()
         .sortedBy { timeLeftForCurrentPlayer(it) }
-    myMoveCountSubject.onNext(activeDbGames.values.count { it.playerToMoveId != null && it.playerToMoveId == userId })
   }
 
   fun refreshGameData(id: Long) {

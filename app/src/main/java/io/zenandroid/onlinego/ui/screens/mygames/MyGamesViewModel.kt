@@ -6,9 +6,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.crashlytics.FirebaseCrashlytics
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.schedulers.Schedulers
 import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.data.model.local.Challenge
 import io.zenandroid.onlinego.data.model.local.Game
@@ -47,7 +44,6 @@ import io.zenandroid.onlinego.ui.screens.mygames.Action.NewChallengeSearchClicke
 import io.zenandroid.onlinego.ui.screens.mygames.Action.ViewResumed
 import io.zenandroid.onlinego.ui.screens.mygames.Action.WarningAcknowledged
 import io.zenandroid.onlinego.utils.WhatsNewUtils
-import io.zenandroid.onlinego.utils.addToDisposable
 import io.zenandroid.onlinego.utils.egfToRank
 import io.zenandroid.onlinego.utils.formatRank
 import io.zenandroid.onlinego.utils.recordException
@@ -61,7 +57,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.rx2.asFlow
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
 import java.util.Locale
@@ -88,12 +83,10 @@ class MyGamesViewModel(
     )
   )
   val state: StateFlow<MyGamesState> = _state
-  private val subscriptions = CompositeDisposable()
   private var loadOlderGamesJob: kotlinx.coroutines.Job? = null
   private var showRanks = false
 
   override fun onCleared() {
-    subscriptions.clear()
     loadOlderGamesJob?.cancel()
     super.onCleared()
   }
@@ -169,7 +162,7 @@ class MyGamesViewModel(
           ) { activeGames, recentlyFinishedGames -> activeGames to recentlyFinishedGames },
           combine(
             challengesRepository.monitorChallenges(),
-            automatchRepository.automatchObservable.asFlow(),
+            automatchRepository.automatchFlow,
           ) { challenges, automatches -> challenges to automatches },
         ) { (activeGames, recentlyFinishedGames), (challenges, automatches) ->
           _state.update {
@@ -205,7 +198,7 @@ class MyGamesViewModel(
     }
     viewModelScope.launch(Dispatchers.IO) {
       try {
-        automatchRepository.gameStartObservable.asFlow().collect { automatch ->
+        automatchRepository.gameStartFlow.collect { automatch ->
           automatch.game_id?.let { gameId ->
             try {
               val game = activeGamesRepository.getGameSingle(gameId)
@@ -218,11 +211,13 @@ class MyGamesViewModel(
         onError(e)
       }
     }
-    notificationsRepository.notificationsObservable()
-      .subscribeOn(Schedulers.io())
-      .observeOn(AndroidSchedulers.mainThread())
-      .subscribe(this::onNotification, this::onError)
-      .addToDisposable(subscriptions)
+    viewModelScope.launch(Dispatchers.IO) {
+      try {
+        notificationsRepository.notificationsFlow().collect { onNotification(it) }
+      } catch (e: Exception) {
+        onError(e)
+      }
+    }
 
     onNeedMoreOlderGames(null)
   }

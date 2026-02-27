@@ -7,11 +7,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.android.billingclient.api.ProductDetails
 import com.android.billingclient.api.Purchase
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.schedulers.Schedulers
 import io.zenandroid.onlinego.playstore.PlayStoreService
-import io.zenandroid.onlinego.utils.addToDisposable
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -25,7 +22,6 @@ class SupporterViewModel(
   private val playStore: PlayStoreService
 ) : ViewModel() {
 
-  private val disposables = CompositeDisposable()
   private var products: List<ProductDetails>? = null
   private var purchases: List<Purchase>? = null
 
@@ -38,16 +34,20 @@ class SupporterViewModel(
   val events: SharedFlow<SupporterEvent> = _events.asSharedFlow()
 
   fun onResume() {
-    playStore.queryPurchases()
-      .subscribeOn(Schedulers.trampoline())
-      .observeOn(AndroidSchedulers.mainThread())
-      .subscribe(this::onPurchasesFetched, this::onError)
-      .addToDisposable(disposables)
-    playStore.queryAvailableSubscriptions()
-      .subscribeOn(Schedulers.trampoline())
-      .observeOn(AndroidSchedulers.mainThread())
-      .subscribe(this::onAvailableSubscriptionsFetched, this::onError)
-      .addToDisposable(disposables)
+    viewModelScope.launch(Dispatchers.IO) {
+      try {
+        onPurchasesFetched(playStore.queryPurchases())
+      } catch (e: Exception) {
+        onError(e)
+      }
+    }
+    viewModelScope.launch(Dispatchers.IO) {
+      try {
+        onAvailableSubscriptionsFetched(playStore.queryAvailableSubscriptions())
+      } catch (e: Exception) {
+        onError(e)
+      }
+    }
   }
 
   private fun onPurchasesFetched(purchases: List<Purchase>) {
@@ -62,11 +62,13 @@ class SupporterViewModel(
     val currentState = _state.value
     currentState.selectedTier?.let { tierIndex ->
       currentState.products?.get(tierIndex)?.let { product ->
-        playStore.launchBillingFlow(activity, product, currentState.purchase)
-          .subscribeOn(Schedulers.trampoline())
-          .subscribe({}, this::onError)
-          .addToDisposable(disposables)
-
+        viewModelScope.launch {
+          try {
+            playStore.launchBillingFlow(activity, product, currentState.purchase)
+          } catch (e: Exception) {
+            onError(e)
+          }
+        }
         _state.value = currentState.copy(loading = true)
       }
     }
@@ -151,10 +153,6 @@ class SupporterViewModel(
     }
   }
 
-  override fun onCleared() {
-    super.onCleared()
-    disposables.clear()
-  }
 }
 
 data class SupporterState(

@@ -4,18 +4,23 @@ import android.util.Log
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
-import io.reactivex.Single
-import io.reactivex.subjects.PublishSubject
 import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.data.model.Position
 import io.zenandroid.onlinego.data.model.StoneType
 import io.zenandroid.onlinego.data.model.katago.KataGoResponse
-import io.zenandroid.onlinego.data.model.katago.KataGoResponse.*
+import io.zenandroid.onlinego.data.model.katago.KataGoResponse.ErrorResponse
+import io.zenandroid.onlinego.data.model.katago.KataGoResponse.Response
 import io.zenandroid.onlinego.data.model.katago.Query
 import io.zenandroid.onlinego.gamelogic.Util
 import io.zenandroid.onlinego.utils.recordException
-import java.io.*
-import java.util.*
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.first
+import java.io.BufferedReader
+import java.io.File
+import java.io.IOException
+import java.io.InputStreamReader
+import java.io.OutputStreamWriter
+import java.util.Stack
 import java.util.concurrent.atomic.AtomicLong
 
 object KataGoAnalysisEngine {
@@ -33,7 +38,7 @@ object KataGoAnalysisEngine {
     Moshi.Builder().add(KotlinJsonAdapterFactory()).build().adapter(Response::class.java)
   private val errorAdapter =
     Moshi.Builder().add(KotlinJsonAdapterFactory()).build().adapter(ErrorResponse::class.java)
-  private val responseSubject = PublishSubject.create<KataGoResponse>()
+  private val responseFlow = MutableSharedFlow<KataGoResponse>(extraBufferCapacity = 64)
   private val filesDir = OnlineGoApplication.instance.filesDir
   private val netFile = File(filesDir, "katagonet.gz")
   private val cfgFile = File(filesDir, "katago.cfg")
@@ -85,13 +90,13 @@ object KataGoAnalysisEngine {
                 Log.e("KataGoAnalysisEngine", line)
                 recordException(Exception("Katago: $line"))
                 errorAdapter.fromJson(line)?.let {
-                  responseSubject.onNext(it)
+                  responseFlow.tryEmit(it)
                 }
               } else {
                 Log.d("KataGoAnalysisEngine", line)
                 FirebaseCrashlytics.getInstance().log("KATAGO < $line")
                 responseAdapter.fromJson(line)?.let {
-                  responseSubject.onNext(it)
+                  responseFlow.tryEmit(it)
                 }
               }
             }
@@ -131,72 +136,61 @@ object KataGoAnalysisEngine {
     }.start()
   }
 
-  fun analyzeMoveSequence(
+  suspend fun analyzeMoveSequence(
     sequence: List<Position>,
     komi: Float? = null,
     maxVisits: Int? = null,
     includeOwnership: Boolean? = null,
     includeMovesOwnership: Boolean? = null,
     includePolicy: Boolean? = null
-  ): Single<Response> {
-
+  ): Response {
     val id = generateId()
-    return responseSubject
-      .filter { it.id == id }
-      .firstOrError()
-      .map {
-        if (it is ErrorResponse) {
-          throw RuntimeException(it.error)
-        } else {
-          it as Response
-        }
-      }.doOnSubscribe {
-        val initialPosition = mutableSetOf<List<String>>()
-        val history = Stack<List<String>>()
-        sequence.map { pos ->
-          if (pos.lastMove == null) {
-            initialPosition.addAll(pos.whiteStones.map {
-              listOf(
-                "W",
-                Util.getGTPCoordinates(it, pos.boardHeight)
-              )
-            })
-            initialPosition.addAll(pos.blackStones.map {
-              listOf(
-                "B",
-                Util.getGTPCoordinates(it, pos.boardHeight)
-              )
-            })
-          } else {
-            val lastPlayer = if (pos.lastPlayerToMove == StoneType.BLACK) "B" else "W"
-            val lastMove = Util.getGTPCoordinates(pos.lastMove, pos.boardHeight)
-            history.push(listOf(lastPlayer, lastMove))
-          }
-        }
 
-        val query = Query(
-          id = id,
-          boardXSize = sequence.firstOrNull()?.boardWidth ?: 19,
-          boardYSize = sequence.firstOrNull()?.boardHeight ?: 19,
-          includeOwnership = includeOwnership,
-          includeMovesOwnership = includeMovesOwnership,
-          includePolicy = includePolicy,
-          initialStones = initialPosition.toList(),
-          komi = komi,
-          maxVisits = maxVisits,
-          moves = history,
-          rules = "japanese"
-        )
-
-        val stringQuery = queryAdapter.toJson(query)
-
-        Log.d("KataGoAnalysisEngine", stringQuery)
-        FirebaseCrashlytics.getInstance().log("KATAGO> $stringQuery")
-        writer?.apply {
-          write(stringQuery + "\n")
-          flush()
-        }
+    val initialPosition = mutableSetOf<List<String>>()
+    val history = Stack<List<String>>()
+    sequence.map { pos ->
+      if (pos.lastMove == null) {
+        initialPosition.addAll(pos.whiteStones.map {
+          listOf("W", Util.getGTPCoordinates(it, pos.boardHeight))
+        })
+        initialPosition.addAll(pos.blackStones.map {
+          listOf("B", Util.getGTPCoordinates(it, pos.boardHeight))
+        })
+      } else {
+        val lastPlayer = if (pos.lastPlayerToMove == StoneType.BLACK) "B" else "W"
+        val lastMove = Util.getGTPCoordinates(pos.lastMove, pos.boardHeight)
+        history.push(listOf(lastPlayer, lastMove))
       }
+    }
+
+    val query = Query(
+      id = id,
+      boardXSize = sequence.firstOrNull()?.boardWidth ?: 19,
+      boardYSize = sequence.firstOrNull()?.boardHeight ?: 19,
+      includeOwnership = includeOwnership,
+      includeMovesOwnership = includeMovesOwnership,
+      includePolicy = includePolicy,
+      initialStones = initialPosition.toList(),
+      komi = komi,
+      maxVisits = maxVisits,
+      moves = history,
+      rules = "japanese"
+    )
+
+    val stringQuery = queryAdapter.toJson(query)
+
+    Log.d("KataGoAnalysisEngine", stringQuery)
+    FirebaseCrashlytics.getInstance().log("KATAGO> $stringQuery")
+    writer?.apply {
+      write(stringQuery + "\n")
+      flush()
+    }
+
+    val response = responseFlow.first { it.id == id }
+    if (response is ErrorResponse) {
+      throw RuntimeException(response.error)
+    }
+    return response as Response
   }
 
   private fun generateId() = requestIDX.incrementAndGet().toString()

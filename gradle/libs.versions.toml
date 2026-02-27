@@ -32,12 +32,6 @@ okhttp = "5.3.2"
 moshi = "1.15.2"
 coil = "2.7.0"
 
-# Reactive
-rxjava = "2.2.21"
-rxandroid = "2.1.1"
-rxkotlin = "2.4.0"
-rxbinding = "3.1.0"
-kotlinxCoroutinesRx = "1.10.2"
 
 # Utility libraries
 markwon = "4.6.2"
@@ -112,7 +106,6 @@ play-review = { group = "com.google.android.play", name = "review", version.ref 
 
 # Networking
 retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }
-retrofit-adapter-rxjava2 = { group = "com.squareup.retrofit2", name = "adapter-rxjava2", version.ref = "retrofit" }
 retrofit-converter-moshi = { group = "com.squareup.retrofit2", name = "converter-moshi", version.ref = "retrofit" }
 okhttp-logging-interceptor = { group = "com.squareup.okhttp3", name = "logging-interceptor", version.ref = "okhttp" }
 persistent-cookie-jar = { group = "com.github.franmontiel", name = "PersistentCookieJar", version.ref = "persistentCookieJar" }
@@ -122,19 +115,12 @@ moshi-kotlin = { group = "com.squareup.moshi", name = "moshi-kotlin", version.re
 moshi-adapters = { group = "com.squareup.moshi", name = "moshi-adapters", version.ref = "moshi" }
 
 # Reactive Programming
-rxjava = { group = "io.reactivex.rxjava2", name = "rxjava", version.ref = "rxjava" }
-rxandroid = { group = "io.reactivex.rxjava2", name = "rxandroid", version.ref = "rxandroid" }
-rxkotlin = { group = "io.reactivex.rxjava2", name = "rxkotlin", version.ref = "rxkotlin" }
-rxbinding = { group = "com.jakewharton.rxbinding3", name = "rxbinding", version.ref = "rxbinding" }
-kotlinx-coroutines-rx2 = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-rx2", version.ref = "kotlinxCoroutinesRx" }
 
 # Work Manager
 work-runtime-ktx = { group = "androidx.work", name = "work-runtime-ktx", version.ref = "workManager" }
-work-rxjava2 = { group = "androidx.work", name = "work-rxjava2", version.ref = "workManager" }
 
 # Room Database
 room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
-room-rxjava2 = { group = "androidx.room", name = "room-rxjava2", version.ref = "room" }
 room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
 room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
 
@@ -193,27 +179,16 @@ accompanist = [
 
 retrofit = [
     "retrofit",
-    "retrofit-adapter-rxjava2",
     "retrofit-converter-moshi"
-]
-
-rx = [
-    "rxjava",
-    "rxandroid",
-    "rxkotlin",
-    "rxbinding",
-    "kotlinx-coroutines-rx2"
 ]
 
 room = [
     "room-runtime",
-    "room-rxjava2",
     "room-ktx"
 ]
 
 work = [
-    "work-runtime-ktx",
-    "work-rxjava2"
+    "work-runtime-ktx"
 ]
 
 koin = [

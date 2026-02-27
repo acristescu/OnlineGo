@@ -2,7 +2,6 @@ package io.zenandroid.onlinego.ui.screens.learn
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import io.reactivex.disposables.CompositeDisposable
 import io.zenandroid.onlinego.data.model.local.TutorialGroup
 import io.zenandroid.onlinego.data.repositories.TutorialsRepository
 import kotlinx.coroutines.Dispatchers
@@ -29,7 +28,6 @@ class LearnViewModel(
     }
   }
 
-  private val disposables = CompositeDisposable()
   private val _state = MutableStateFlow(LearnState())
 
   val state: StateFlow<LearnState> = _state
@@ -65,9 +63,5 @@ class LearnViewModel(
         expandedTutorialGroup = expandedTutorialGroup
       )
     }
-  }
-
-  override fun onCleared() {
-    disposables.clear()
   }
 }
