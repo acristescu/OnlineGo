@@ -198,11 +198,13 @@ class MyGamesViewModel(
       .observeOn(AndroidSchedulers.mainThread())
       .subscribe({}, this::onError)
       .addToDisposable(subscriptions)
-    activeGamesRepository.refreshActiveGames()
-      .subscribeOn(Schedulers.io())
-      .observeOn(AndroidSchedulers.mainThread())
-      .subscribe({}, this::onError)
-      .addToDisposable(subscriptions)
+    viewModelScope.launch(Dispatchers.IO) {
+      try {
+        activeGamesRepository.refreshActiveGames()
+      } catch (e: Exception) {
+        onError(e)
+      }
+    }
     automatchRepository.gameStartObservable
       .flatMapMaybe {
         it.game_id?.let { activeGamesRepository.getGameSingle(it).toMaybe() } ?: Maybe.empty()
@@ -287,26 +289,35 @@ class MyGamesViewModel(
 
   private fun onChallengeCancelled(challenge: Challenge) {
     analytics.logEvent("challenge_cancelled", null)
-    restService.declineChallenge(challenge.id)
-      .observeOn(AndroidSchedulers.mainThread())
-      .subscribe({}, this::onError)
-      .addToDisposable(subscriptions)
+    viewModelScope.launch(Dispatchers.IO) {
+      try {
+        restService.declineChallenge(challenge.id)
+      } catch (e: Exception) {
+        onError(e)
+      }
+    }
   }
 
   private fun onChallengeAccepted(challenge: Challenge) {
     analytics.logEvent("challenge_accepted", null)
-    restService.acceptChallenge(challenge.id)
-      .observeOn(AndroidSchedulers.mainThread())
-      .subscribe({}, this::onError)
-      .addToDisposable(subscriptions)
+    viewModelScope.launch(Dispatchers.IO) {
+      try {
+        restService.acceptChallenge(challenge.id)
+      } catch (e: Exception) {
+        onError(e)
+      }
+    }
   }
 
   private fun onChallengeDeclined(challenge: Challenge) {
     analytics.logEvent("challenge_declined", null)
-    restService.declineChallenge(challenge.id)
-      .observeOn(AndroidSchedulers.mainThread())
-      .subscribe({}, this::onError)
-      .addToDisposable(subscriptions)
+    viewModelScope.launch(Dispatchers.IO) {
+      try {
+        restService.declineChallenge(challenge.id)
+      } catch (e: Exception) {
+        onError(e)
+      }
+    }
   }
 
   private fun onAutomatchCancelled(automatch: OGSAutomatch) {
@@ -423,11 +434,13 @@ class MyGamesViewModel(
   }
 
   private fun onNewChallengeSearchClicked(challengeParams: ChallengeParams) {
-    restService.challengeBot(challengeParams)
-      .subscribeOn(Schedulers.io())
-      .observeOn(AndroidSchedulers.mainThread())
-      .subscribe({}, this::onError)
-      .addToDisposable(subscriptions)
+    viewModelScope.launch(Dispatchers.IO) {
+      try {
+        restService.challengeBot(challengeParams)
+      } catch (e: Exception) {
+        onError(e)
+      }
+    }
   }
 
   private fun onWarningAcknowledged() {

@@ -13,8 +13,10 @@ import io.zenandroid.onlinego.utils.addToDisposable
 import io.zenandroid.onlinego.utils.recordException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.rx2.asFlow
 
 class ChatRepository(
   private val gameDao: GameDao,
@@ -64,17 +66,17 @@ class ChatRepository(
   }
 
   fun fetchRecentChatMessages() {
-    userSessionRepository.loggedInObservable.filter { it is LoginStatus.LoggedIn }
-      .firstElement()
-      .toSingle()
-      .flatMap {
-        restApi.getMessages(lastRESTFetchedChatId)
+    applicationScope.launch {
+      try {
+        val loggedInStatus = userSessionRepository.loggedInObservable.asFlow()
+          .first { it is LoginStatus.LoggedIn }
+        val messages = restApi.getMessages(lastRESTFetchedChatId)
+        val localMessages = messages.map { Message.fromOGSMessage(it, it.game_id) }
+        gameDao.insertMessagesFromRest(localMessages)
+      } catch (e: Exception) {
+        onError(e, "fetchRecentChatMessages")
       }
-      .map { it.map { Message.fromOGSMessage(it, it.game_id) } }
-      .subscribe(
-        gameDao::insertMessagesFromRest,
-        { onError(it, "fetchRecentChatMessages") }
-      ).addToDisposable(subscriptions)
+    }
   }
 
   fun monitorGameChat(gameId: Long): Flow<List<Message>> =

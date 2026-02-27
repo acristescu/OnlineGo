@@ -4,7 +4,6 @@ import android.util.Log
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.squareup.moshi.JsonEncodingException
 import io.reactivex.BackpressureStrategy
-import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Single
 import io.reactivex.disposables.CompositeDisposable
@@ -31,18 +30,19 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.rx2.asFlow
 import java.io.IOException
-import java.security.InvalidParameterException
-import java.util.concurrent.TimeUnit
 
 /**
  * Created by alex on 08/11/2017.
@@ -66,15 +66,14 @@ class ActiveGamesRepository(
     if (gameDao.getGameNullable(game.id) == null) {
       FirebaseCrashlytics.getInstance()
         .log("ActiveGameRepository: New game found from active_game notification ${game.id}")
-      restService.fetchGame(game.id)
-        .subscribeOn(Schedulers.io())
-        .observeOn(Schedulers.io())
-        .map(Game.Companion::fromOGSGame)
-        .retryWhen(this::retryIOException)
-        .subscribe({
-          gameDao.insertAllGames(listOf(it))
-        }, { onError(it, "onNotification") })
-        .addToDisposable(subscriptions)
+      flowScope.launch {
+        try {
+          val fetchedGame = retryOnIOException { restService.fetchGame(game.id) }
+          gameDao.insertAllGames(listOf(Game.fromOGSGame(fetchedGame)))
+        } catch (e: Exception) {
+          onError(e, "onNotification")
+        }
+      }
     }
   }
 
@@ -83,11 +82,13 @@ class ActiveGamesRepository(
   val myTurnGames: StateFlow<List<Game>> = _myTurnGames.asStateFlow()
 
   override fun onSocketConnected() {
-    refreshActiveGames()
-      .subscribeOn(Schedulers.io())
-      .observeOn(Schedulers.io())
-      .subscribe({}, { onError(it, "refreshActiveGames") })
-      .addToDisposable(subscriptions)
+    flowScope.launch {
+      try {
+        refreshActiveGames()
+      } catch (e: Exception) {
+        onError(e, "refreshActiveGames")
+      }
+    }
     flowScope.launch {
       try {
         socketService.connectToActiveGames().collect { onNotification(it) }
@@ -287,14 +288,14 @@ class ActiveGamesRepository(
   }
 
   fun refreshGameData(id: Long) {
-    restService.fetchGame(id)
-      .map(Game.Companion::fromOGSGame)
-      .map(::listOf)
-      .retryWhen(this::retryIOException)
-      .subscribe(
-        gameDao::insertAllGames,
-        { onError(it, "monitorGame") }
-      ).addToDisposable(subscriptions)
+    flowScope.launch {
+      try {
+        val game = retryOnIOException { restService.fetchGame(id) }
+        gameDao.insertAllGames(listOf(Game.fromOGSGame(game)))
+      } catch (e: Exception) {
+        onError(e, "monitorGame")
+      }
+    }
   }
 
   /**
@@ -302,30 +303,23 @@ class ActiveGamesRepository(
    * elapsed
    */
   fun pollServerForNewRating(id: Long, white: Boolean, historicRating: Double?) {
-    var retryCount = 0
-    restService.fetchGame(id)
-      .map(Game.Companion::fromOGSGame)
-      .retryWhen(this::retryIOException)
-      .flatMap {
-        if ((white && it.whitePlayer.rating != historicRating) || (!white && historicRating != it.blackPlayer.rating)) {
-          Single.just(listOf(it))
-        } else {
-          Single.error(InvalidParameterException())
-        }
-      }.retryWhen {
-        it.flatMap {
-          if (it is InvalidParameterException && retryCount < 20) {
-            retryCount++
-            Flowable.timer(1, TimeUnit.SECONDS)
-          } else {
-            Flowable.error(it)
+    flowScope.launch {
+      try {
+        var retryCount = 0
+        while (retryCount < 20) {
+          val game = retryOnIOException { restService.fetchGame(id) }
+          val localGame = Game.fromOGSGame(game)
+          if ((white && localGame.whitePlayer.rating != historicRating) || (!white && historicRating != localGame.blackPlayer.rating)) {
+            gameDao.insertAllGames(listOf(localGame))
+            return@launch
           }
+          retryCount++
+          delay(1000)
         }
+      } catch (e: Exception) {
+        onError(e, "pollServerForNewRating")
       }
-      .subscribe(
-        gameDao::insertAllGames,
-        { onError(it, "pollServerForNewRating") }
-      ).addToDisposable(subscriptions)
+    }
   }
 
   fun monitorGameFlow(id: Long): Flow<Game> {
@@ -336,37 +330,34 @@ class ActiveGamesRepository(
       .flowOn(Dispatchers.IO)
   }
 
-  private fun retryIOException(it: Flowable<Throwable>) =
-    it.flatMap {
-      when (it) {
-        is JsonEncodingException -> Flowable.error(it)
-        is IOException -> Flowable.timer(15, TimeUnit.SECONDS)
-        else -> Flowable.error(it)
+  private suspend fun <T> retryOnIOException(block: suspend () -> T): T {
+    while (true) {
+      try {
+        return block()
+      } catch (e: JsonEncodingException) {
+        throw e
+      } catch (e: IOException) {
+        delay(15_000)
       }
     }
+  }
 
   fun getGameSingle(id: Long): Single<Game> {
     return gameDao.monitorGame(id).take(1).firstOrError()
   }
 
-  fun refreshActiveGames(): Completable =
-    userSessionRepository.userIdObservable
-      .firstOrError()
-      .flatMapCompletable { userId ->
-        restService.fetchActiveGames()
-          .map { it.map(Game.Companion::fromOGSGame) }
-          .doOnSuccess(gameDao::insertAllGames)
-          .doOnSuccess {
-            FirebaseCrashlytics.getInstance().log("overview returned ${it.size} games")
-          }
-          .map { it.map(Game::id).toSet() }
-          .map { gameDao.getActiveGameIds(userId) - it }
-          .doOnSuccess(this::updateGamesThatFinishedSinceLastUpdate)
-          .retryWhen(this::retryIOException)
-          .ignoreElement()
-      }
+  suspend fun refreshActiveGames() {
+    val userId = userSessionRepository.userIdObservable.asFlow().first()
+    val games = retryOnIOException { restService.fetchActiveGames() }
+    val localGames = games.map(Game.Companion::fromOGSGame)
+    gameDao.insertAllGames(localGames)
+    FirebaseCrashlytics.getInstance().log("overview returned ${localGames.size} games")
+    val activeGameIds = localGames.map(Game::id).toSet()
+    val finishedGameIds = gameDao.getActiveGameIds(userId) - activeGameIds
+    updateGamesThatFinishedSinceLastUpdate(finishedGameIds)
+  }
 
-  private fun updateGamesThatFinishedSinceLastUpdate(gameIds: List<Long>) {
+  private suspend fun updateGamesThatFinishedSinceLastUpdate(gameIds: List<Long>) {
     FirebaseCrashlytics.getInstance()
       .log("Found ${gameIds.size} games that are neither active nor marked as finished")
     val games = mutableListOf<Game>()
@@ -375,7 +366,7 @@ class ActiveGamesRepository(
       while (true) {
         try {
           games += Game.fromOGSGame(
-            restService.fetchGame(it).blockingGet()
+            restService.fetchGame(it)
           )
           break
         } catch (e: Exception) {
@@ -391,7 +382,7 @@ class ActiveGamesRepository(
               setCustomKey("HIT_RATE_LIMITER", true)
               log("Hit rate limiter backing off $backoffMillis milliseconds")
             }
-            Thread.sleep(backoffMillis)
+            delay(backoffMillis)
             backoffMillis *= 2
           } else {
             throw e

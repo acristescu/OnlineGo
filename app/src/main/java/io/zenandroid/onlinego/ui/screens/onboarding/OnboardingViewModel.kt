@@ -29,6 +29,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.json.JSONObject
 import retrofit2.HttpException
 
@@ -349,12 +350,15 @@ class OnboardingViewModel(
     _state.update {
       it.copy(loginMethod = Page.LoginMethod.GOOGLE)
     }
-    ogsRestService.loginWithGoogle(token)
-      .doOnComplete { ogsWebSocketService.ensureSocketConnected() }
-      .observeOn(AndroidSchedulers.mainThread())
-      .subscribeOn(Schedulers.io())
-      .subscribe(this::onLoginSuccess, this::onPasswordLoginFailure)
-      .addToDisposable(subscriptions)
+    viewModelScope.launch(Dispatchers.IO) {
+      try {
+        ogsRestService.loginWithGoogle(token)
+        ogsWebSocketService.ensureSocketConnected()
+        withContext(Dispatchers.Main) { onLoginSuccess() }
+      } catch (e: Exception) {
+        withContext(Dispatchers.Main) { onPasswordLoginFailure(e) }
+      }
+    }
   }
 }
 

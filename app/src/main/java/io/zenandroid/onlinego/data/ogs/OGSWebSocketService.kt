@@ -4,10 +4,7 @@ import android.util.Log
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.squareup.moshi.JsonEncodingException
 import com.squareup.moshi.Moshi
-import io.reactivex.Single
-import io.reactivex.schedulers.Schedulers
 import io.zenandroid.onlinego.BuildConfig
-import io.zenandroid.onlinego.data.model.ogs.GameList
 import io.zenandroid.onlinego.data.model.ogs.NetPong
 import io.zenandroid.onlinego.data.model.ogs.OGSAutomatch
 import io.zenandroid.onlinego.data.model.ogs.OGSGame
@@ -24,6 +21,8 @@ import io.zenandroid.onlinego.utils.JsonObjectScope
 import io.zenandroid.onlinego.utils.createJsonArray
 import io.zenandroid.onlinego.utils.json
 import io.zenandroid.onlinego.utils.recordException
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
@@ -35,6 +34,7 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.rx2.asFlow
 import kotlinx.coroutines.yield
@@ -223,15 +223,15 @@ class OGSWebSocketService(
   fun ensureSocketConnected() {
     if (userSessionRepository.requiresUIConfigRefresh()) {
       socketDebugRepository.logState("WS", "UIConfig refresh required")
-      restService.fetchUIConfig()
-        .subscribeOn(Schedulers.io())
-        .subscribe(
-          {},
-          {
-            FirebaseCrashlytics.getInstance()
-              .log("E/$TAG: Failed to refresh UIConfig $it")
-            socketDebugRepository.logError("WS", "UIConfig refresh failed: ${it.message}")
-          })
+      CoroutineScope(Dispatchers.IO).launch {
+        try {
+          restService.fetchUIConfig()
+        } catch (e: Exception) {
+          FirebaseCrashlytics.getInstance()
+            .log("E/$TAG: Failed to refresh UIConfig $e")
+          socketDebugRepository.logError("WS", "UIConfig refresh failed: ${e.message}")
+        }
+      }
     }
     if (webSocket == null) {
       socketDebugRepository.logState(
@@ -502,31 +502,6 @@ class OGSWebSocketService(
 
   fun cancelAutomatch(automatch: OGSAutomatch) {
     emit("automatch/cancel", automatch.uuid)
-  }
-
-  fun fetchGameList(): Single<GameList> {
-    ensureSocketConnected()
-    return Single.create { emitter ->
-      val params = json {
-        "list" - "live"
-        "sort_by" - "rank"
-        "from" - 0
-        "limit" - 9
-      }
-      emitWithResponse("gamelist/query", params) { data, error ->
-        if (error != null) {
-          emitter.onError(Exception("Server error: ${error.optString("message", "unknown")}"))
-        } else if (data != null) {
-          try {
-            emitter.onSuccess(adapter(data.toString())!!)
-          } catch (e: Exception) {
-            emitter.onError(e)
-          }
-        } else {
-          emitter.onError(Exception("No data in gamelist/query response"))
-        }
-      }
-    }
   }
 
   suspend fun disconnect() {

@@ -3,12 +3,13 @@ package io.zenandroid.onlinego.ui.screens.login
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import io.reactivex.Completable
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.schedulers.Schedulers
+import androidx.lifecycle.lifecycleScope
 import io.zenandroid.onlinego.data.ogs.OGSRestService
 import io.zenandroid.onlinego.data.repositories.UserSessionRepository
 import io.zenandroid.onlinego.ui.screens.main.MainActivity
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.koin.android.ext.android.inject
@@ -32,22 +33,28 @@ class FacebookLoginCallbackActivity : AppCompatActivity() {
                 .url(url.toString())
                 .get()
                 .build()
-            Completable.fromCallable { client.newCall(request).execute() }
-                .andThen(ogsRestService.fetchUIConfig())
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(this::onLoginSuccess, this::onLoginFailed)
+            lifecycleScope.launch {
+                try {
+                    withContext(Dispatchers.IO) {
+                        client.newCall(request).execute()
+                        ogsRestService.fetchUIConfig()
+                    }
+                    onLoginSuccess()
+                } catch (e: Exception) {
+                    onLoginFailed(e)
+                }
+            }
         } else {
             onLoginFailed(Exception("Login failed"))
         }
     }
 
-    fun onLoginSuccess() {
+    private fun onLoginSuccess() {
         startActivity(Intent(this, MainActivity::class.java).apply { addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP) })
         finish()
     }
 
-    fun onLoginFailed(t: Throwable) {
+    private fun onLoginFailed(t: Throwable) {
         startActivity(Intent(this, MainActivity::class.java).apply { addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP) })
         finish()
     }

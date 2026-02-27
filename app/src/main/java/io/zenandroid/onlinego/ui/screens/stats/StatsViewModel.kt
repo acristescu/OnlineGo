@@ -6,7 +6,6 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.github.mikephil.charting.data.Entry
-import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import io.zenandroid.onlinego.data.model.local.HistoryItem
@@ -208,10 +207,9 @@ class StatsViewModel(
     }
 
     if (stats.mostFacedId != null) {
-      restService.getPlayerProfile(stats.mostFacedId)
-        .subscribeOn(Schedulers.io())
-        .observeOn(AndroidSchedulers.mainThread())
-        .subscribe({ mostFaced ->
+      viewModelScope.launch(Dispatchers.IO) {
+        try {
+          val mostFaced = restService.getPlayerProfile(stats.mostFacedId)
           state.update {
             it.copy(
               mostFacedOpponent = mostFaced,
@@ -219,23 +217,26 @@ class StatsViewModel(
               mostFacedWon = stats.mostFacedWon
             )
           }
-        }, this::onError)
-        .addToDisposable(subscriptions)
+        } catch (e: Exception) {
+          onError(e)
+        }
+      }
     }
 
     stats.highestWin?.let { winningGame ->
-      restService.getPlayerProfile(winningGame.opponentId)
-        .subscribeOn(Schedulers.io())
-        .observeOn(AndroidSchedulers.mainThread())
-        .subscribe({ highestWin ->
+      viewModelScope.launch(Dispatchers.IO) {
+        try {
+          val highestWin = restService.getPlayerProfile(winningGame.opponentId)
           state.update {
             it.copy(
               highestWin = highestWin,
               winningGame = winningGame
             )
           }
-        }, this::onError)
-        .addToDisposable(subscriptions)
+        } catch (e: Exception) {
+          onError(e)
+        }
+      }
     } ?: run {
       //TODO
     }

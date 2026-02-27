@@ -2,8 +2,6 @@ package io.zenandroid.onlinego.data.repositories
 
 import android.util.Log
 import io.reactivex.Flowable
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.rxkotlin.plusAssign
 import io.zenandroid.onlinego.data.db.GameDao
 import io.zenandroid.onlinego.data.model.Mark
 import io.zenandroid.onlinego.data.model.ogs.JosekiPosition
@@ -11,20 +9,30 @@ import io.zenandroid.onlinego.data.model.ogs.PlayCategory
 import io.zenandroid.onlinego.data.ogs.OGSRestService
 import io.zenandroid.onlinego.gamelogic.RulesManager
 import io.zenandroid.onlinego.utils.recordException
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 
 class JosekiRepository(
         private val restService: OGSRestService,
         private val dao: GameDao
 ) {
 
-    private val disposable = CompositeDisposable()
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private val customMarkPattern = "<(.):([A-H]|[J-T]\\d{1,2})>".toPattern()
     private val headerWithMissingSpaceRegex = "#(?!\\s|#)".toRegex()
     private val positionLink = "<position: (\\d+)>".toRegex()
 
     fun getJosekiPosition(id: Long?): Flowable<JosekiPosition> {
-        disposable += restService.getJosekiPositions(id)
-                .subscribe(this::savePositionsToDB, this::onError)
+        scope.launch {
+            try {
+                val positions = restService.getJosekiPositions(id)
+                savePositionsToDB(positions)
+            } catch (e: Exception) {
+                onError(e)
+            }
+        }
 
         val dbObservable =
                 if(id == null) dao.getJosekiRootPosition()
