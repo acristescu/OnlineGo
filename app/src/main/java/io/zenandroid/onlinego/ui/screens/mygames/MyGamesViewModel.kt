@@ -87,6 +87,7 @@ class MyGamesViewModel(
   )
   val state: StateFlow<MyGamesState> = _state
   private var loadOlderGamesJob: kotlinx.coroutines.Job? = null
+  private val loggedInJobs = mutableListOf<kotlinx.coroutines.Job>()
   private var showRanks = false
 
   override fun onCleared() {
@@ -140,7 +141,10 @@ class MyGamesViewModel(
   }
 
   private fun onLoggedIn(userId: Long) {
-    viewModelScope.launch {
+    loggedInJobs.forEach { it.cancel() }
+    loggedInJobs.clear()
+
+    loggedInJobs += viewModelScope.launch {
       try {
         val warning = restService.checkForWarnings()
         if (warning.id != null) {
@@ -153,7 +157,7 @@ class MyGamesViewModel(
       }
     }
 
-    viewModelScope.launch(Dispatchers.IO) {
+    loggedInJobs += viewModelScope.launch(Dispatchers.IO) {
       try {
         combine(
           activeGamesRepository.monitorActiveGames()
@@ -187,14 +191,14 @@ class MyGamesViewModel(
         onError(e)
       }
     }
-    viewModelScope.launch(Dispatchers.IO) {
+    loggedInJobs += viewModelScope.launch(Dispatchers.IO) {
       try {
         activeGamesRepository.refreshActiveGames()
       } catch (e: Exception) {
         onError(e)
       }
     }
-    viewModelScope.launch(Dispatchers.IO) {
+    loggedInJobs += viewModelScope.launch(Dispatchers.IO) {
       try {
         automatchRepository.gameStartFlow.collect { automatch ->
           automatch.game_id?.let { gameId ->
@@ -209,7 +213,7 @@ class MyGamesViewModel(
         onError(e)
       }
     }
-    viewModelScope.launch(Dispatchers.IO) {
+    loggedInJobs += viewModelScope.launch(Dispatchers.IO) {
       try {
         notificationsRepository.notificationsFlow().collect { onNotification(it) }
       } catch (e: Exception) {
