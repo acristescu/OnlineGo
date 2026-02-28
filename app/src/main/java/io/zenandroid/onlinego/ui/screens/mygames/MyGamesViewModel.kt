@@ -420,7 +420,7 @@ class MyGamesViewModel(
         analytics.logEvent("new_game_search", null)
         if ((action.speeds.contains(Speed.LIVE) || action.speeds.contains(Speed.RAPID) || action.speeds.contains(
             Speed.BLITZ
-          )) && automatchRepository.automatches.find { it.liveOrBlitzOrRapid } != null
+          )) && automatchRepository.automatchFlow.value.find { it.liveOrBlitzOrRapid } != null
         ) {
           _state.update {
             it.copy(

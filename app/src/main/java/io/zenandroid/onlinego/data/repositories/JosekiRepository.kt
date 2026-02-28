@@ -71,7 +71,7 @@ class JosekiRepository(
                 val label = matcher.group(1)
                 val coordinate = matcher.group(2)!!
                 labels.add(Mark(RulesManager.coordinateToCell(coordinate), label, PlayCategory.LABEL))
-                matcher.appendReplacement(sb, "**\$label**")
+                matcher.appendReplacement(sb, "**$label**")
             }
             originalPos.labels = labels
             matcher.appendTail(sb)

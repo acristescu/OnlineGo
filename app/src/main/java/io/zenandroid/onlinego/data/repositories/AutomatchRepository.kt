@@ -4,7 +4,7 @@ import android.util.Log
 import io.zenandroid.onlinego.data.model.ogs.OGSAutomatch
 import io.zenandroid.onlinego.data.ogs.OGSWebSocketService
 import io.zenandroid.onlinego.utils.recordException
-import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.plus
 import kotlinx.coroutines.CoroutineScope
@@ -18,6 +18,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.retry
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class AutomatchRepository(
@@ -25,17 +26,14 @@ class AutomatchRepository(
 ) : SocketConnectedRepository {
     private var scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
-    var automatches = persistentListOf<OGSAutomatch>()
-        private set
-
-    private val _automatches = MutableStateFlow<ImmutableList<OGSAutomatch>>(automatches)
-    val automatchFlow: StateFlow<ImmutableList<OGSAutomatch>> = _automatches.asStateFlow()
+    private val _automatches = MutableStateFlow<PersistentList<OGSAutomatch>>(persistentListOf())
+    val automatchFlow: StateFlow<PersistentList<OGSAutomatch>> = _automatches.asStateFlow()
 
     private val _gameStart = MutableSharedFlow<OGSAutomatch>()
     val gameStartFlow: SharedFlow<OGSAutomatch> = _gameStart.asSharedFlow()
 
     override fun onSocketConnected() {
-        automatches = automatches.clear()
+        _automatches.value = persistentListOf()
         scope.launch {
             socketService.listenToNewAutomatchNotifications()
                 .retry { onError(it); true }
@@ -66,22 +64,25 @@ class AutomatchRepository(
     }
 
     private fun removeAutomatch(automatch: OGSAutomatch) {
-        automatches = automatches.removeAll { it.uuid == automatch.uuid }
-        _automatches.value = automatches
+        _automatches.update { it.removeAll { it.uuid == automatch.uuid } }
     }
 
     private fun addAutomatch(automatch: OGSAutomatch) {
-        if(automatches.find { it.uuid == automatch.uuid } == null) {
-            automatches += automatch
-            _automatches.value = automatches
+        _automatches.update { current ->
+            if (current.find { it.uuid == automatch.uuid } == null) {
+                current + automatch
+            } else {
+                current
+            }
         }
     }
 
     override fun onSocketDisconnected() {
-        automatches = automatches.builder().apply {
-            removeAll { it.liveOrBlitzOrRapid }
-        }.build()
-        _automatches.value = automatches
+        _automatches.update { current ->
+            current.builder().apply {
+                removeAll { it.liveOrBlitzOrRapid }
+            }.build()
+        }
         scope.cancel()
         scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     }
