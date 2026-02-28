@@ -15,12 +15,13 @@ import com.android.billingclient.api.ProductDetails
 import com.android.billingclient.api.Purchase
 import com.android.billingclient.api.QueryProductDetailsParams
 import com.android.billingclient.api.QueryPurchasesParams
+import com.android.billingclient.api.queryProductDetails
 import com.google.firebase.crashlytics.FirebaseCrashlytics
+import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
-import kotlin.coroutines.suspendCoroutine
 
 class PlayStoreService(
         private val context: Context
@@ -68,7 +69,7 @@ class PlayStoreService(
             // Double-check after acquiring lock (another caller may have connected while we waited)
             if (billingClient.isReady) return
 
-            suspendCoroutine { continuation ->
+            suspendCancellableCoroutine { continuation ->
                 billingClient.startConnection(object : BillingClientStateListener {
                     override fun onBillingSetupFinished(billingResult: BillingResult) {
                         if (billingResult.responseCode == BillingResponseCode.OK) {
@@ -91,23 +92,20 @@ class PlayStoreService(
 
     suspend fun queryAvailableSubscriptions(): List<ProductDetails> {
         connect()
-        return suspendCoroutine { continuation ->
-            val params = QueryProductDetailsParams.newBuilder()
-                .setProductList(possibleSubscriptions)
-
-            billingClient.queryProductDetailsAsync(params.build()) { billingResult, productDetailsList ->
-                if (billingResult.responseCode == BillingResponseCode.OK && !productDetailsList.isNullOrEmpty()) {
-                    continuation.resume(productDetailsList)
-                } else {
-                    continuation.resumeWithException(Exception("${billingResult.responseCode}:${billingResult.debugMessage}"))
-                }
-            }
+        val params = QueryProductDetailsParams.newBuilder()
+            .setProductList(possibleSubscriptions)
+            .build()
+        val result = billingClient.queryProductDetails(params)
+        if (result.billingResult.responseCode == BillingResponseCode.OK && !result.productDetailsList.isNullOrEmpty()) {
+            return result.productDetailsList!!
+        } else {
+            throw Exception("${result.billingResult.responseCode}:${result.billingResult.debugMessage}")
         }
     }
 
     suspend fun queryPurchases(): List<Purchase> {
         connect()
-        return suspendCoroutine { continuation ->
+        return suspendCancellableCoroutine { continuation ->
             billingClient.queryPurchasesAsync(
                 QueryPurchasesParams.newBuilder()
                     .setProductType(ProductType.SUBS)
@@ -116,7 +114,7 @@ class PlayStoreService(
                 if (billingResult.responseCode == BillingResponseCode.OK) {
                     continuation.resume(purchaseList)
                 } else {
-                    continuation.resumeWithException(Exception("${billingResult.responseCode}:"))
+                    continuation.resumeWithException(Exception("${billingResult.responseCode}:${billingResult.debugMessage}"))
                 }
             }
         }
