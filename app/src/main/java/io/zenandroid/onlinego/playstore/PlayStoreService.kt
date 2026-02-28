@@ -24,131 +24,132 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
 class PlayStoreService(
-        private val context: Context
+  private val context: Context
 ) {
-    private val connectionMutex = Mutex()
-    private val possibleSubscriptions = (1..25).map {
-        QueryProductDetailsParams.Product.newBuilder()
-            .setProductId("supporter_$it")
-            .setProductType(ProductType.SUBS)
-            .build()
-    }
+  private val connectionMutex = Mutex()
+  private val possibleSubscriptions = (1..25).map {
+    QueryProductDetailsParams.Product.newBuilder()
+      .setProductId("supporter_$it")
+      .setProductType(ProductType.SUBS)
+      .build()
+  }
 
-    private val billingClient = BillingClient.newBuilder(context)
-            .setListener { billingResult, purchases ->
-                FirebaseCrashlytics.getInstance().log("billingResult: $billingResult purchases: $purchases")
-                Log.v("PlayStoreService", "billingResult: $billingResult purchases: $purchases")
-                if(billingResult.responseCode == BillingResponseCode.OK && purchases != null) {
-                    for(purchase in purchases) {
-                        handlePurchase(purchase)
-                    }
-                }
-            }
-            .enablePendingPurchases()
-            .build()
-
-    private fun handlePurchase(purchase: Purchase) {
-        if (purchase.purchaseState == Purchase.PurchaseState.PURCHASED && !purchase.isAcknowledged) {
-            val acknowledgePurchaseParams = AcknowledgePurchaseParams.newBuilder()
-                    .setPurchaseToken(purchase.purchaseToken).build()
-            billingClient.acknowledgePurchase(acknowledgePurchaseParams) { billingResult ->
-                val billingResponseCode = billingResult.responseCode
-                val billingDebugMessage = billingResult.debugMessage
-
-                Log.v("PlayStoreService","response code: $billingResponseCode")
-                Log.v("PlayStoreService","debugMessage : $billingDebugMessage")
-                FirebaseCrashlytics.getInstance().log("response code: $billingResponseCode debugMessage : $billingDebugMessage")
-            }
+  private val billingClient = BillingClient.newBuilder(context)
+    .setListener { billingResult, purchases ->
+      FirebaseCrashlytics.getInstance().log("billingResult: $billingResult purchases: $purchases")
+      Log.v("PlayStoreService", "billingResult: $billingResult purchases: $purchases")
+      if (billingResult.responseCode == BillingResponseCode.OK && purchases != null) {
+        for (purchase in purchases) {
+          handlePurchase(purchase)
         }
+      }
     }
+    .enablePendingPurchases()
+    .build()
 
-    suspend fun connect() {
-        if (billingClient.isReady) return
+  private fun handlePurchase(purchase: Purchase) {
+    if (purchase.purchaseState == Purchase.PurchaseState.PURCHASED && !purchase.isAcknowledged) {
+      val acknowledgePurchaseParams = AcknowledgePurchaseParams.newBuilder()
+        .setPurchaseToken(purchase.purchaseToken).build()
+      billingClient.acknowledgePurchase(acknowledgePurchaseParams) { billingResult ->
+        val billingResponseCode = billingResult.responseCode
+        val billingDebugMessage = billingResult.debugMessage
 
-        connectionMutex.withLock {
-            // Double-check after acquiring lock (another caller may have connected while we waited)
-            if (billingClient.isReady) return
+        Log.v("PlayStoreService", "response code: $billingResponseCode")
+        Log.v("PlayStoreService", "debugMessage : $billingDebugMessage")
+        FirebaseCrashlytics.getInstance()
+          .log("response code: $billingResponseCode debugMessage : $billingDebugMessage")
+      }
+    }
+  }
 
-            suspendCancellableCoroutine { continuation ->
-                billingClient.startConnection(object : BillingClientStateListener {
-                    override fun onBillingSetupFinished(billingResult: BillingResult) {
-                        if (billingResult.responseCode == BillingResponseCode.OK) {
-                            Log.e("PlayStoreService", "Setup Billing Done")
-                            FirebaseCrashlytics.getInstance().log("Setup Billing Done")
-                            continuation.resume(Unit)
-                        } else {
-                            continuation.resumeWithException(Exception("${billingResult.responseCode}:${billingResult.debugMessage}"))
-                        }
-                    }
+  suspend fun connect() {
+    if (billingClient.isReady) return
 
-                    override fun onBillingServiceDisconnected() {
-                        Log.e("PlayStoreService", "Billing client Disconnected")
-                        FirebaseCrashlytics.getInstance().log("Billing client Disconnected")
-                    }
-                })
+    connectionMutex.withLock {
+      // Double-check after acquiring lock (another caller may have connected while we waited)
+      if (billingClient.isReady) return
+
+      suspendCancellableCoroutine { continuation ->
+        billingClient.startConnection(object : BillingClientStateListener {
+          override fun onBillingSetupFinished(billingResult: BillingResult) {
+            if (billingResult.responseCode == BillingResponseCode.OK) {
+              Log.e("PlayStoreService", "Setup Billing Done")
+              FirebaseCrashlytics.getInstance().log("Setup Billing Done")
+              continuation.resume(Unit)
+            } else {
+              continuation.resumeWithException(Exception("${billingResult.responseCode}:${billingResult.debugMessage}"))
             }
-        }
-    }
+          }
 
-    suspend fun queryAvailableSubscriptions(): List<ProductDetails> {
-        connect()
-        val params = QueryProductDetailsParams.newBuilder()
-            .setProductList(possibleSubscriptions)
-            .build()
-        val result = billingClient.queryProductDetails(params)
-        if (result.billingResult.responseCode == BillingResponseCode.OK && !result.productDetailsList.isNullOrEmpty()) {
-            return result.productDetailsList!!
+          override fun onBillingServiceDisconnected() {
+            Log.e("PlayStoreService", "Billing client Disconnected")
+            FirebaseCrashlytics.getInstance().log("Billing client Disconnected")
+          }
+        })
+      }
+    }
+  }
+
+  suspend fun queryAvailableSubscriptions(): List<ProductDetails> {
+    connect()
+    val params = QueryProductDetailsParams.newBuilder()
+      .setProductList(possibleSubscriptions)
+      .build()
+    val result = billingClient.queryProductDetails(params)
+    if (result.billingResult.responseCode == BillingResponseCode.OK && !result.productDetailsList.isNullOrEmpty()) {
+      return result.productDetailsList!!
+    } else {
+      throw Exception("${result.billingResult.responseCode}:${result.billingResult.debugMessage}")
+    }
+  }
+
+  suspend fun queryPurchases(): List<Purchase> {
+    connect()
+    return suspendCancellableCoroutine { continuation ->
+      billingClient.queryPurchasesAsync(
+        QueryPurchasesParams.newBuilder()
+          .setProductType(ProductType.SUBS)
+          .build()
+      ) { billingResult, purchaseList ->
+        if (billingResult.responseCode == BillingResponseCode.OK) {
+          continuation.resume(purchaseList)
         } else {
-            throw Exception("${result.billingResult.responseCode}:${result.billingResult.debugMessage}")
+          continuation.resumeWithException(Exception("${billingResult.responseCode}:${billingResult.debugMessage}"))
         }
+      }
     }
+  }
 
-    suspend fun queryPurchases(): List<Purchase> {
-        connect()
-        return suspendCancellableCoroutine { continuation ->
-            billingClient.queryPurchasesAsync(
-                QueryPurchasesParams.newBuilder()
-                    .setProductType(ProductType.SUBS)
-                    .build()
-            ) { billingResult, purchaseList ->
-                if (billingResult.responseCode == BillingResponseCode.OK) {
-                    continuation.resume(purchaseList)
-                } else {
-                    continuation.resumeWithException(Exception("${billingResult.responseCode}:${billingResult.debugMessage}"))
-                }
-            }
+  suspend fun launchBillingFlow(
+    activity: Activity,
+    productDetails: ProductDetails,
+    oldProductPurchase: Purchase?
+  ) {
+    connect()
+    val offerToken = productDetails.subscriptionOfferDetails?.get(0)?.offerToken
+      ?: throw Exception("Cannot get offerToken")
+    val productDetailsParamsList =
+      listOf(
+        BillingFlowParams.ProductDetailsParams.newBuilder()
+          .setProductDetails(productDetails)
+          .setOfferToken(offerToken)
+          .build()
+      )
+    val params = BillingFlowParams.newBuilder()
+      .setProductDetailsParamsList(productDetailsParamsList).apply {
+        if (oldProductPurchase != null) {
+          setSubscriptionUpdateParams(
+            SubscriptionUpdateParams.newBuilder()
+              .setOldPurchaseToken(oldProductPurchase.purchaseToken)
+              .setSubscriptionReplacementMode(SubscriptionUpdateParams.ReplacementMode.CHARGE_FULL_PRICE)
+              .build()
+          )
         }
+      }.build()
+    val billingResult = billingClient.launchBillingFlow(activity, params)
+    if (billingResult.responseCode != BillingResponseCode.OK) {
+      throw Exception("${billingResult.responseCode}:${billingResult.debugMessage}")
     }
-
-    suspend fun launchBillingFlow(
-        activity: Activity,
-        productDetails: ProductDetails,
-        oldProductPurchase: Purchase?
-    ) {
-        connect()
-        val offerToken = productDetails.subscriptionOfferDetails?.get(0)?.offerToken
-            ?: throw Exception("Cannot get offerToken")
-        val productDetailsParamsList =
-            listOf(
-                BillingFlowParams.ProductDetailsParams.newBuilder()
-                    .setProductDetails(productDetails)
-                    .setOfferToken(offerToken)
-                    .build()
-            )
-        val params = BillingFlowParams.newBuilder()
-            .setProductDetailsParamsList(productDetailsParamsList).apply {
-                if (oldProductPurchase != null) {
-                    setSubscriptionUpdateParams(
-                        SubscriptionUpdateParams.newBuilder()
-                            .setOldPurchaseToken(oldProductPurchase.purchaseToken)
-                            .setSubscriptionReplacementMode(SubscriptionUpdateParams.ReplacementMode.CHARGE_FULL_PRICE)
-                            .build()
-                    )
-                }
-            }.build()
-        val billingResult = billingClient.launchBillingFlow(activity, params)
-        if (billingResult.responseCode != BillingResponseCode.OK) {
-            throw Exception("${billingResult.responseCode}:${billingResult.debugMessage}")
-        }
-    }
+  }
 }
