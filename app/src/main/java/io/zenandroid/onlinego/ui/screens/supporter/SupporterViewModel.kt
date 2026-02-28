@@ -7,11 +7,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.android.billingclient.api.ProductDetails
 import com.android.billingclient.api.Purchase
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.schedulers.Schedulers
 import io.zenandroid.onlinego.playstore.PlayStoreService
-import io.zenandroid.onlinego.utils.addToDisposable
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -25,10 +22,6 @@ class SupporterViewModel(
   private val playStore: PlayStoreService
 ) : ViewModel() {
 
-  private val disposables = CompositeDisposable()
-  private var products: List<ProductDetails>? = null
-  private var purchases: List<Purchase>? = null
-
   private val _state = MutableStateFlow(
     SupporterState(loading = true)
   )
@@ -38,94 +31,81 @@ class SupporterViewModel(
   val events: SharedFlow<SupporterEvent> = _events.asSharedFlow()
 
   fun onResume() {
-    playStore.queryPurchases()
-      .subscribeOn(Schedulers.trampoline())
-      .observeOn(AndroidSchedulers.mainThread())
-      .subscribe(this::onPurchasesFetched, this::onError)
-      .addToDisposable(disposables)
-    playStore.queryAvailableSubscriptions()
-      .subscribeOn(Schedulers.trampoline())
-      .observeOn(AndroidSchedulers.mainThread())
-      .subscribe(this::onAvailableSubscriptionsFetched, this::onError)
-      .addToDisposable(disposables)
-  }
-
-  private fun onPurchasesFetched(purchases: List<Purchase>) {
-    this.purchases = purchases
-
-    if (this.purchases != null && this.products != null) {
-      buildItemList()
+    viewModelScope.launch(Dispatchers.IO) {
+      try {
+        val purchases = playStore.queryPurchases()
+        val products = playStore.queryAvailableSubscriptions()
+          .filter { it.productId.startsWith("supporter_") }
+          .sortedBy { getBasePrice(it.productId) }
+        buildItemList(products, purchases)
+      } catch (e: Exception) {
+        onError(e)
+      }
     }
   }
+
 
   fun onSubscribeClick(activity: Activity) {
     val currentState = _state.value
     currentState.selectedTier?.let { tierIndex ->
       currentState.products?.get(tierIndex)?.let { product ->
-        playStore.launchBillingFlow(activity, product, currentState.purchase)
-          .subscribeOn(Schedulers.trampoline())
-          .subscribe({}, this::onError)
-          .addToDisposable(disposables)
-
+        viewModelScope.launch {
+          try {
+            playStore.launchBillingFlow(activity, product, currentState.purchase)
+          } catch (e: Exception) {
+            onError(e)
+          }
+        }
         _state.value = currentState.copy(loading = true)
       }
     }
   }
 
-  private fun onAvailableSubscriptionsFetched(products: List<ProductDetails>) {
-    this.products = products
-      .filter { it.productId.startsWith("supporter_") }
-      .sortedBy { getBasePrice(it.productId) }
-    if (this.purchases != null && this.products != null) {
-      buildItemList()
+
+  private fun buildItemList(
+    products: List<ProductDetails>,
+    purchases: List<Purchase>,
+  ) {
+    val purchase =
+      purchases.firstOrNull { it.products[0].startsWith("supporter_") && it.isAutoRenewing }
+    val isSupporter = purchase != null
+    val currentPurchaseDetails = purchase?.run {
+      products.firstOrNull { purchase.products.contains(it.productId) }
     }
-  }
+    val selectedTier = if (currentPurchaseDetails != null) {
+      products.indexOf(currentPurchaseDetails)
+    } else {
+      products.size / 2
+    }
 
-  private fun buildItemList() {
-    purchases?.let { purchases ->
-      products?.let { prods ->
-        val purchase =
-          purchases.firstOrNull { it.products[0].startsWith("supporter_") && it.isAutoRenewing }
-        val isSupporter = purchase != null
-        val currentPurchaseDetails = purchase?.run {
-          prods.firstOrNull { purchase.products.contains(it.productId) }
-        }
-        val selectedTier = if (currentPurchaseDetails != null) {
-          prods.indexOf(currentPurchaseDetails)
-        } else {
-          prods.size / 2
-        }
+    val newState = SupporterState(
+      loading = false,
+      supporter = isSupporter,
+      numberOfTiers = products.size,
+      selectedTier = selectedTier,
+      sliderValue = selectedTier.toFloat(),
+      products = products,
+      currentPurchaseDetails = currentPurchaseDetails,
+      subscribeButtonText = if (isSupporter) "Update amount" else "Become a supporter",
+      subscribeButtonEnabled = if (!isSupporter) true else selectedTier != products.indexOf(
+        currentPurchaseDetails
+      ),
+      purchase = purchase
+    )
 
-        val newState = SupporterState(
-          loading = false,
-          supporter = isSupporter,
-          numberOfTiers = prods.size,
-          selectedTier = selectedTier,
-          sliderValue = selectedTier.toFloat(),
-          products = prods,
-          currentPurchaseDetails = currentPurchaseDetails,
-          subscribeButtonText = if (isSupporter) "Update amount" else "Become a supporter",
-          subscribeButtonEnabled = if (!isSupporter) true else selectedTier != prods.indexOf(
-            currentPurchaseDetails
-          ),
-          purchase = purchase
-        )
-
-        val subscribeTitleText = if (isSupporter) {
-          buildSpannedString {
-            bold { append("Thank you for your support!\n\n") }
-            append("Your current contribution is ")
-            bold { append(newState.currentContributionAmount) }
-          }
-        } else {
-          buildSpannedString {
-            bold { append("Select your monthly contribution") }
-          }
-        }
-
-        _state.value = newState.copy(subscribeTitleText = subscribeTitleText)
+    val subscribeTitleText = if (isSupporter) {
+      buildSpannedString {
+        bold { append("Thank you for your support!\n\n") }
+        append("Your current contribution is ")
+        bold { append(newState.currentContributionAmount) }
+      }
+    } else {
+      buildSpannedString {
+        bold { append("Select your monthly contribution") }
       }
     }
+
+    _state.value = newState.copy(subscribeTitleText = subscribeTitleText)
   }
 
   fun onUserDragSlider(value: Float) {
@@ -151,10 +131,6 @@ class SupporterViewModel(
     }
   }
 
-  override fun onCleared() {
-    super.onCleared()
-    disposables.clear()
-  }
 }
 
 data class SupporterState(

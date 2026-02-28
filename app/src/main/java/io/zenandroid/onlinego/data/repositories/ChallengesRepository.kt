@@ -1,57 +1,66 @@
 package io.zenandroid.onlinego.data.repositories
-
 import android.util.Log
-import io.reactivex.Completable
-import io.reactivex.Flowable
-import io.reactivex.disposables.CompositeDisposable
 import io.zenandroid.onlinego.data.db.GameDao
 import io.zenandroid.onlinego.data.model.local.Challenge
 import io.zenandroid.onlinego.data.model.ogs.OGSChallenge
 import io.zenandroid.onlinego.data.ogs.OGSRestService
 import io.zenandroid.onlinego.data.ogs.OGSWebSocketService
-import io.zenandroid.onlinego.utils.addToDisposable
 import io.zenandroid.onlinego.utils.recordException
-
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.launch
 class ChallengesRepository(
         private val restService: OGSRestService,
         private val socketService: OGSWebSocketService,
         private val dao: GameDao
 ): SocketConnectedRepository {
-
-    private val disposables = CompositeDisposable()
+    private var flowScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private val TAG = ChallengesRepository::class.java.simpleName
-
     override fun onSocketConnected() {
-        refreshChallenges()
-                .subscribe({}, this::onError)
-                .addToDisposable(disposables)
-        socketService.connectToUIPushes()
-                .filter { it.event == "challenge-list-updated" }
-                .flatMapCompletable { refreshChallenges() }
-                .subscribe({}, this::onError)
-                .addToDisposable(disposables)
+        flowScope.launch {
+            try {
+                refreshChallenges()
+            } catch (e: Exception) {
+                onError(e)
+            }
+        }
+        flowScope.launch {
+            try {
+                socketService.connectToUIPushes()
+                    .filter { it.event == "challenge-list-updated" }
+                    .collect {
+                        try {
+                            refreshChallenges()
+                        } catch (e: Exception) {
+                            onError(e)
+                        }
+                    }
+            } catch (e: Exception) {
+                onError(e)
+            }
+        }
     }
-
     private fun storeChallenges(challenges: List<OGSChallenge>) {
-        dao.replaceAllChallenges(challenges.map { Challenge.fromOGSChallenge (it) })
+        dao.replaceAllChallenges(challenges.map { Challenge.fromOGSChallenge(it) })
     }
-
-    fun refreshChallenges() : Completable {
+    suspend fun refreshChallenges() {
         Log.i(TAG, "Fetching challenges")
-        return restService.fetchChallenges()
-                .doOnSuccess(this::storeChallenges)
-                .ignoreElement()
+        val challenges = restService.fetchChallenges()
+        storeChallenges(challenges)
     }
-
-    fun monitorChallenges(): Flowable<List<Challenge>> =
+    fun monitorChallenges(): Flow<List<Challenge>> =
         dao.getChallenges().distinctUntilChanged()
-
     fun onError(throwable: Throwable) {
         Log.e(TAG, throwable.message, throwable)
         recordException(throwable)
     }
-
     override fun onSocketDisconnected() {
-        disposables.clear()
+        flowScope.cancel()
+        flowScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     }
 }

@@ -3,9 +3,6 @@ package io.zenandroid.onlinego.ui.screens.joseki
 import android.os.Bundle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.schedulers.Schedulers
 import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.Position
@@ -22,8 +19,8 @@ import kotlinx.coroutines.launch
 class JosekiExplorerViewModel(
     private val josekiRepository: JosekiRepository
 ) : ViewModel() {
-    
-    private val disposables = CompositeDisposable()
+
+    private var josekiJob: kotlinx.coroutines.Job? = null
     private val analytics = OnlineGoApplication.instance.analytics
     
     private val _state = MutableStateFlow(JosekiExplorerState())
@@ -37,7 +34,7 @@ class JosekiExplorerViewModel(
 
     override fun onCleared() {
         super.onCleared()
-        disposables.clear()
+        josekiJob?.cancel()
     }
 
     fun onTappedCoordinate(coordinate: Cell) {
@@ -144,16 +141,21 @@ class JosekiExplorerViewModel(
             previousButtonEnabled = false
         )
 
-        disposables.clear()
-        val disposable = josekiRepository.getJosekiPosition(id)
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(
-                { position -> onPositionLoaded(position) },
-                { error -> onDataLoadingError(error) }
-            )
-        
-        disposables.add(disposable)
+        josekiJob?.cancel()
+        josekiJob = viewModelScope.launch(Dispatchers.IO) {
+            try {
+                josekiRepository.getJosekiPosition(id)
+                    .collect { position ->
+                        kotlinx.coroutines.withContext(Dispatchers.Main) {
+                            onPositionLoaded(position)
+                        }
+                    }
+            } catch (e: Exception) {
+                kotlinx.coroutines.withContext(Dispatchers.Main) {
+                    onDataLoadingError(e)
+                }
+            }
+        }
     }
 
     private fun onPositionLoaded(position: JosekiPosition) {

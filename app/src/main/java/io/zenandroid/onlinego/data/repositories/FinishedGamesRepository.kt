@@ -2,21 +2,24 @@ package io.zenandroid.onlinego.data.repositories
 
 import android.util.Log
 import com.google.firebase.crashlytics.FirebaseCrashlytics
-import io.reactivex.BackpressureStrategy
-import io.reactivex.Flowable
-import io.reactivex.Observable
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.exceptions.CompositeException
-import io.reactivex.schedulers.Schedulers
 import io.zenandroid.onlinego.data.db.GameDao
 import io.zenandroid.onlinego.data.model.local.Game
 import io.zenandroid.onlinego.data.model.local.HistoricGamesMetadata
 import io.zenandroid.onlinego.data.model.ogs.OGSGame
 import io.zenandroid.onlinego.data.ogs.OGSRestService
-import io.zenandroid.onlinego.utils.addToDisposable
 import io.zenandroid.onlinego.utils.recordException
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 import java.io.IOException
-import java.util.concurrent.TimeUnit
 import kotlin.math.max
 import kotlin.math.min
 
@@ -31,29 +34,36 @@ class FinishedGamesRepository(
     val loadedLastPage: Boolean
   )
 
-  private val subscriptions = CompositeDisposable()
+  private var scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
   private var hasFetchedAllHistoricGames = false
   private var oldestGameFetchedEndedAt: Long? = null
   private var newestGameFetchedEndedAt: Long? = null
 
   override fun onSocketConnected() {
-    gameDao.monitorHistoricGameMetadata()
-      .distinctUntilChanged()
-      .subscribeOn(Schedulers.io())
-      .subscribe(this::onMetadata, { onError(it, "monitorHistoricGameMetadata") })
-      .addToDisposable(subscriptions)
+    scope.launch {
+      try {
+        gameDao.monitorHistoricGameMetadata()
+          .distinctUntilChanged()
+          .collect { onMetadata(it) }
+      } catch (e: Exception) {
+        onError(e, "monitorHistoricGameMetadata")
+      }
+    }
   }
 
   override fun onSocketDisconnected() {
-    subscriptions.clear()
+    scope.cancel()
+    scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
   }
 
-  fun getRecentlyFinishedGames(): Flowable<List<Game>> {
+  fun getRecentlyFinishedGames(): Flow<List<Game>> {
     fetchRecentlyFinishedGames()
-    return userSessionRepository.userIdObservable.toFlowable(BackpressureStrategy.LATEST).flatMap {
-      gameDao.monitorRecentGames(it).distinctUntilChanged()
-    }
+    return userSessionRepository.userId
+      .filterNotNull()
+      .flatMapLatest {
+        gameDao.monitorRecentGames(it).distinctUntilChanged()
+      }
   }
 
   private fun onError(t: Throwable, request: String) {
@@ -68,9 +78,10 @@ class FinishedGamesRepository(
     Log.e("FinishedGameRepository", message, t)
   }
 
-  fun getHistoricGames(endedBefore: Long?): Flowable<HistoricGamesRepositoryResult> {
-    val dbObservable =
-      userSessionRepository.userIdObservable.firstElement().toFlowable().flatMap {
+  fun getHistoricGames(endedBefore: Long?): Flow<HistoricGamesRepositoryResult> {
+    val dbFlow = userSessionRepository.userId
+      .filterNotNull()
+      .flatMapLatest {
         if (endedBefore == null) {
           gameDao.monitorFinishedNotRecentGames(it)
         } else {
@@ -78,7 +89,7 @@ class FinishedGamesRepository(
         }
       }
 
-    return dbObservable.distinctUntilChanged()
+    return dbFlow.distinctUntilChanged()
       .map {
         if (it.size < 10 && hasFetchedAllHistoricGames) {
           return@map HistoricGamesRepositoryResult(it, loading = false, loadedLastPage = true)
@@ -92,20 +103,20 @@ class FinishedGamesRepository(
   }
 
   private fun fetchRecentlyFinishedGames() {
-    restService.fetchHistoricGamesAfter(newestGameFetchedEndedAt)
-      .map { it.map(OGSGame::id) }
-      .map { it - gameDao.getHistoricGamesThatDontNeedUpdating(it).toSet() }
-      .flattenAsObservable { it }
-      .flatMapSingle { restService.fetchGame(it) }
-      .map(Game.Companion::fromOGSGame)
-      .toList()
-      .retryWhen(this::retryIOException)
-      .subscribeOn(Schedulers.io())
-      .observeOn(Schedulers.io())
-      .subscribe(
-        { onHistoricGames(it) },
-        { onError(it, "fetchRecentlyFinishedGames") }
-      ).addToDisposable(subscriptions)
+    scope.launch {
+      try {
+        val ogsGames =
+          retryOnIOException { restService.fetchHistoricGamesAfter(newestGameFetchedEndedAt) }
+        val ids = ogsGames.map(OGSGame::id)
+        val idsToFetch = ids - gameDao.getHistoricGamesThatDontNeedUpdating(ids).toSet()
+        val games = idsToFetch.map { id ->
+          Game.fromOGSGame(retryOnIOException { restService.fetchGame(id) })
+        }
+        onHistoricGames(games)
+      } catch (e: Exception) {
+        onError(e, "fetchRecentlyFinishedGames")
+      }
+    }
   }
 
   private var historicGamesRequestInFlight = false
@@ -120,9 +131,11 @@ class FinishedGamesRepository(
       val shouldThrottle = now - lastHistoricGamesRequestTimestamp < 30_000
       lastHistoricGamesRequestTimestamp = now
 
-      restService.fetchHistoricGamesBefore(oldestGameFetchedEndedAt)
-        .doOnSuccess {
-          if (it.isEmpty()) {
+      scope.launch {
+        try {
+          val ogsGames =
+            retryOnIOException { restService.fetchHistoricGamesBefore(oldestGameFetchedEndedAt) }
+          if (ogsGames.isEmpty()) {
             val newMetadata = HistoricGamesMetadata(
               oldestGameEnded = oldestGameFetchedEndedAt,
               newestGameEnded = newestGameFetchedEndedAt,
@@ -131,32 +144,23 @@ class FinishedGamesRepository(
             gameDao.updateHistoricGameMetadata(newMetadata)
             onMetadata(newMetadata)
           }
-        }
-        .map { it.map(OGSGame::id) }
-        .map { it - gameDao.getHistoricGamesThatDontNeedUpdating(it) }
-        .flattenAsObservable { it }
-        .concatMap { Observable.just(it).delay(if (shouldThrottle) 1L else 0L, TimeUnit.SECONDS) }
-        .flatMapSingle { restService.fetchGame(it) }
-        .map(Game.Companion::fromOGSGame)
-        .toList()
-        .retryWhen(this::retryIOException)
-        .subscribeOn(Schedulers.io())
-        .observeOn(Schedulers.io())
-
-        .subscribe(
-          {
-            synchronized(this@FinishedGamesRepository) {
-              onHistoricGames(it)
-              historicGamesRequestInFlight = false
-            }
-          },
-          {
-            synchronized(this@FinishedGamesRepository) {
-              historicGamesRequestInFlight = false
-            }
-            onError(it, "fetchHistoricGames")
+          val ids = ogsGames.map(OGSGame::id)
+          val idsToFetch = ids - gameDao.getHistoricGamesThatDontNeedUpdating(ids)
+          val games = idsToFetch.map { id ->
+            if (shouldThrottle) delay(1000)
+            Game.fromOGSGame(retryOnIOException { restService.fetchGame(id) })
           }
-        ).addToDisposable(subscriptions)
+          synchronized(this@FinishedGamesRepository) {
+            onHistoricGames(games)
+            historicGamesRequestInFlight = false
+          }
+        } catch (e: Exception) {
+          synchronized(this@FinishedGamesRepository) {
+            historicGamesRequestInFlight = false
+          }
+          onError(e, "fetchHistoricGames")
+        }
+      }
     } else {
       Log.i(
         "FinishedGamesRepository",
@@ -210,14 +214,14 @@ class FinishedGamesRepository(
     newestGameFetchedEndedAt = metadata.newestGameEnded
   }
 
-  private fun retryIOException(it: Flowable<Throwable>) =
-    it.flatMap {
-      when {
-        (it is CompositeException && it.exceptions.all { it is IOException }) ||
-            it is IOException -> Flowable.timer(10, TimeUnit.SECONDS)
-
-        else -> Flowable.error<Long>(it)
+  private suspend fun <T> retryOnIOException(block: suspend () -> T): T {
+    while (true) {
+      try {
+        return block()
+      } catch (e: IOException) {
+        delay(10_000)
       }
     }
+  }
 
 }

@@ -2,20 +2,22 @@ package io.zenandroid.onlinego.data.repositories
 
 import android.util.Log
 import com.google.firebase.crashlytics.FirebaseCrashlytics
-import io.reactivex.Observable
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.rxkotlin.plusAssign
-import io.reactivex.schedulers.Schedulers
 import io.zenandroid.onlinego.data.model.ogs.NetPong
 import io.zenandroid.onlinego.data.ogs.OGSWebSocketService
 import io.zenandroid.onlinego.utils.recordException
-import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.retry
+import kotlinx.coroutines.launch
 import java.util.concurrent.atomic.AtomicLong
 
 class ClockDriftRepository(
         private val socketService: OGSWebSocketService
 ) : SocketConnectedRepository {
-    private val subscriptions = CompositeDisposable()
+    private var scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private var drift = AtomicLong(0L)
     private var latency = AtomicLong(0L)
 
@@ -23,18 +25,22 @@ class ClockDriftRepository(
         get() = System.currentTimeMillis() - drift.get() + latency.get()
 
     override fun onSocketConnected() {
-        subscriptions += Observable.interval(10, TimeUnit.SECONDS)
-                .subscribeOn(Schedulers.io())
-                .subscribe { doPing() }
-        subscriptions += socketService.listenToNetPongEvents()
-                .subscribeOn(Schedulers.io())
-                .doOnError(this::onError)
-                .retry()
-                .subscribe(this::onPong)
+        scope.launch {
+            while (true) {
+                delay(10_000)
+                doPing()
+            }
+        }
+        scope.launch {
+            socketService.listenToNetPongEvents()
+                .retry { onError(it); true }
+                .collect { onPong(it) }
+        }
     }
 
     override fun onSocketDisconnected() {
-        subscriptions.clear()
+        scope.cancel()
+        scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     }
 
     private fun doPing() {

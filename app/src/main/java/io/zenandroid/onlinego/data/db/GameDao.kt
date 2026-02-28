@@ -8,8 +8,6 @@ import androidx.room.RoomWarnings
 import androidx.room.Transaction
 import androidx.room.Update
 import com.google.firebase.crashlytics.FirebaseCrashlytics
-import io.reactivex.Flowable
-import io.reactivex.Maybe
 import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.local.Challenge
 import io.zenandroid.onlinego.data.model.local.ChallengeNotification
@@ -55,7 +53,7 @@ abstract class GameDao {
             phase <> 'FINISHED' 
             AND (white_id = :userId OR black_id = :userId)
     """)
-    abstract fun monitorActiveGamesWithNewMessagesCount(userId: Long?) : Flowable<List<Game>>
+    abstract fun monitorActiveGamesWithNewMessagesCount(userId: Long?): Flow<List<Game>>
 
     @Query("""
         SELECT * 
@@ -77,7 +75,7 @@ abstract class GameDao {
         ORDER BY ended DESC 
         LIMIT 25
         """)
-    abstract fun monitorRecentGames(userId: Long?) : Flowable<List<Game>>
+    abstract fun monitorRecentGames(userId: Long?): Flow<List<Game>>
 
     @Query("""
         SELECT * 
@@ -98,10 +96,10 @@ abstract class GameDao {
         ORDER BY ended DESC 
         LIMIT 10
         """)
-    abstract fun monitorFinishedNotRecentGames(userId: Long?) : Flowable<List<Game>>
+    abstract fun monitorFinishedNotRecentGames(userId: Long?): Flow<List<Game>>
 
     @Query("SELECT * FROM game WHERE phase = 'FINISHED' AND (white_id = :userId OR black_id = :userId) AND ended < :endedBefore ORDER BY ended DESC LIMIT 10")
-    abstract fun monitorFinishedGamesEndedBefore(userId: Long?, endedBefore: Long) : Flowable<List<Game>>
+    abstract fun monitorFinishedGamesEndedBefore(userId: Long?, endedBefore: Long): Flow<List<Game>>
 
     @Query("""
         SELECT id 
@@ -277,10 +275,7 @@ abstract class GameDao {
     }
 
     @Query("SELECT * FROM game WHERE id = :id")
-    abstract fun monitorGame(id: Long): Flowable<Game>
-
-    @Query("SELECT * FROM game WHERE id = :id")
-    abstract fun monitorGameFlow(id: Long): Flow<Game>
+    abstract fun monitorGame(id: Long): Flow<Game>
 
     @Query("SELECT * FROM game WHERE id = :id")
     abstract fun getGame(id: Long): Game
@@ -288,14 +283,8 @@ abstract class GameDao {
     @Query("SELECT * FROM game WHERE id = :id")
     abstract fun getGameNullable(id: Long): Game?
 
-    @Query("SELECT * FROM game WHERE id = :id")
-    abstract fun getGameMaybe(id: Long): Maybe<Game>
-
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     abstract fun insertMessage(message: Message)
-
-    @Query("SELECT * FROM message WHERE gameId = :gameId ORDER BY date ASC")
-    abstract fun getMessagesForGameRxJava(gameId: Long): Flowable<List<Message>>
 
     @Query("SELECT * FROM message WHERE gameId = :gameId ORDER BY date ASC")
     abstract fun getMessagesForGame(gameId: Long): Flow<List<Message>>
@@ -322,7 +311,7 @@ abstract class GameDao {
     }
 
     @Query ("SELECT * FROM challenge")
-    abstract fun getChallenges(): Flowable<List<Challenge>>
+    abstract fun getChallenges(): Flow<List<Challenge>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     abstract fun insertChallengeNotifications(list: List<ChallengeNotification>)
@@ -337,11 +326,11 @@ abstract class GameDao {
     }
 
     @Query ("SELECT * FROM challengeNotification")
-    abstract fun getChallengeNotifications(): Flowable<List<ChallengeNotification>>
+    abstract fun getChallengeNotifications(): Flow<List<ChallengeNotification>>
 
     @Transaction
     @Query ("SELECT * FROM gamenotification")
-    abstract fun getGameNotifications(): Flowable<List<GameNotificationWithDetails>>
+    abstract fun getGameNotifications(): Flow<List<GameNotificationWithDetails>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     abstract fun insertAllGameNotifications(list: List<GameNotification>)
@@ -403,16 +392,16 @@ abstract class GameDao {
     abstract fun deleteOldJosekiPosition(nodeIds: List<Long>, play: List<String>)
 
     @Query("SELECT * FROM josekiposition WHERE play = '.root'")
-    abstract fun getJosekiRootPosition(): Flowable<JosekiPosition>
+    abstract fun getJosekiRootPosition(): Flow<JosekiPosition>
 
     @Query("SELECT * FROM josekiposition WHERE node_id = :posId AND play IS NOT NULL")
-    abstract fun getJosekiPostion(posId: Long): Flowable<JosekiPosition>
+    abstract fun getJosekiPostion(posId: Long): Flow<JosekiPosition>
 
     @Query("SELECT * FROM josekiposition WHERE parent_id = :parentId")
     abstract fun getChildrenPositions(parentId: Long): List<JosekiPosition>
 
     @Query("SELECT * FROM historicgamesmetadata WHERE id = 0")
-    abstract fun monitorHistoricGameMetadata(): Flowable<HistoricGamesMetadata>
+    abstract fun monitorHistoricGameMetadata(): Flow<HistoricGamesMetadata>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     abstract fun updateHistoricGameMetadata(metadata: HistoricGamesMetadata)
@@ -421,7 +410,7 @@ abstract class GameDao {
     abstract fun updateChatMetadata(metadata: ChatMetadata)
 
     @Query("SELECT * FROM ChatMetadata WHERE id = 0")
-    abstract fun monitorChatMetadata(): Flowable<ChatMetadata>
+    abstract fun monitorChatMetadata(): Flow<ChatMetadata>
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     abstract fun insertMessages(messages: List<Message>)

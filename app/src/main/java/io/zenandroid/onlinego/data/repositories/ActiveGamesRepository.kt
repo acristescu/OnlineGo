@@ -3,13 +3,6 @@ package io.zenandroid.onlinego.data.repositories
 import android.util.Log
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.squareup.moshi.JsonEncodingException
-import io.reactivex.BackpressureStrategy
-import io.reactivex.Completable
-import io.reactivex.Flowable
-import io.reactivex.Single
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.schedulers.Schedulers
-import io.reactivex.subjects.BehaviorSubject
 import io.zenandroid.onlinego.data.db.GameDao
 import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.local.Clock
@@ -17,6 +10,7 @@ import io.zenandroid.onlinego.data.model.local.Game
 import io.zenandroid.onlinego.data.model.ogs.GameData
 import io.zenandroid.onlinego.data.model.ogs.OGSGame
 import io.zenandroid.onlinego.data.model.ogs.Phase
+import io.zenandroid.onlinego.data.ogs.GameConnection
 import io.zenandroid.onlinego.data.ogs.Move
 import io.zenandroid.onlinego.data.ogs.OGSClock
 import io.zenandroid.onlinego.data.ogs.OGSRestService
@@ -24,21 +18,27 @@ import io.zenandroid.onlinego.data.ogs.OGSWebSocketService
 import io.zenandroid.onlinego.data.ogs.RemovedStones
 import io.zenandroid.onlinego.data.ogs.RemovedStonesAccepted
 import io.zenandroid.onlinego.data.ogs.UndoRequested
-import io.zenandroid.onlinego.utils.addToDisposable
 import io.zenandroid.onlinego.utils.recordException
 import io.zenandroid.onlinego.utils.timeLeftForCurrentPlayer
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.launch
 import java.io.IOException
-import java.security.InvalidParameterException
-import java.util.concurrent.TimeUnit
 
 /**
  * Created by alex on 08/11/2017.
@@ -52,24 +52,22 @@ class ActiveGamesRepository(
 
   private val activeDbGames = mutableMapOf<Long, Game>()
   private val gameConnections = mutableSetOf<Long>()
+  private val trackedConnections = mutableListOf<GameConnection>()
 
-  private val myMoveCountSubject = BehaviorSubject.create<Int>()
-
-  private val subscriptions = CompositeDisposable()
+  private var flowScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
   private fun onNotification(game: OGSGame) {
     if (gameDao.getGameNullable(game.id) == null) {
       FirebaseCrashlytics.getInstance()
         .log("ActiveGameRepository: New game found from active_game notification ${game.id}")
-      restService.fetchGame(game.id)
-        .subscribeOn(Schedulers.io())
-        .observeOn(Schedulers.io())
-        .map(Game.Companion::fromOGSGame)
-        .retryWhen(this::retryIOException)
-        .subscribe({
-          gameDao.insertAllGames(listOf(it))
-        }, { onError(it, "onNotification") })
-        .addToDisposable(subscriptions)
+      flowScope.launch {
+        try {
+          val fetchedGame = retryOnIOException { restService.fetchGame(game.id) }
+          gameDao.insertAllGames(listOf(Game.fromOGSGame(fetchedGame)))
+        } catch (e: Exception) {
+          onError(e, "onNotification")
+        }
+      }
     }
   }
 
@@ -78,31 +76,42 @@ class ActiveGamesRepository(
   val myTurnGames: StateFlow<List<Game>> = _myTurnGames.asStateFlow()
 
   override fun onSocketConnected() {
-    refreshActiveGames()
-      .subscribeOn(Schedulers.io())
-      .observeOn(Schedulers.io())
-      .subscribe({}, { onError(it, "refreshActiveGames") })
-      .addToDisposable(subscriptions)
-    socketService.connectToActiveGames()
-      .subscribeOn(Schedulers.io())
-      .subscribe(this::onNotification) { onError(it, "connectToActiveGames") }
-      .addToDisposable(subscriptions)
-    userSessionRepository.userIdObservable.toFlowable(BackpressureStrategy.LATEST)
-      .flatMap { userId ->
-        gameDao.monitorActiveGamesWithNewMessagesCount(userId).map { userId to it }
+    flowScope.launch {
+      try {
+        refreshActiveGames()
+      } catch (e: Exception) {
+        onError(e, "refreshActiveGames")
       }
-      .distinctUntilChanged()
-      .subscribeOn(Schedulers.io())
-      .observeOn(Schedulers.io())
-      .subscribe(
-        { setActiveGames(it.first, it.second) }) {
-        onError(it, "monitorActiveGamesWithNewMessagesCount")
+    }
+    flowScope.launch {
+      try {
+        socketService.connectToActiveGames().collect { onNotification(it) }
+      } catch (e: Exception) {
+        onError(e, "connectToActiveGames")
       }
-      .addToDisposable(subscriptions)
+    }
+    flowScope.launch {
+      try {
+        userSessionRepository.userId
+          .filterNotNull()
+          .flatMapLatest { userId ->
+            gameDao.monitorActiveGamesWithNewMessagesCount(userId).map { userId to it }
+          }
+          .distinctUntilChanged()
+          .collect { setActiveGames(it.first, it.second) }
+      } catch (e: Exception) {
+        onError(e, "monitorActiveGamesWithNewMessagesCount")
+      }
+    }
   }
 
   override fun onSocketDisconnected() {
-    subscriptions.clear()
+    synchronized(trackedConnections) {
+      trackedConnections.forEach { it.close() }
+      trackedConnections.clear()
+    }
+    flowScope.cancel()
+    flowScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     synchronized(gameConnections) {
       gameConnections.clear()
     }
@@ -121,71 +130,81 @@ class ActiveGamesRepository(
     }
 
     val gameConnection = socketService.connectToGame(game.id, includeChat)
-    gameConnection.addToDisposable(subscriptions)
-    gameConnection.gameData
-      .subscribeOn(Schedulers.io())
-      .observeOn(Schedulers.io())
-      .subscribe(
-        { onGameData(game.id, it) },
-        { onError(it, "gameData") }
-      )
-      .addToDisposable(subscriptions)
-    gameConnection.moves
-      .subscribeOn(Schedulers.io())
-      .observeOn(Schedulers.io())
-      .subscribe(
-        { onGameMove(game.id, it) },
-        { onError(it, "moves") }
-      )
-      .addToDisposable(subscriptions)
-    gameConnection.clock
-      .subscribeOn(Schedulers.io())
-      .observeOn(Schedulers.io())
-      .subscribe(
-        { onGameClock(game.id, it) },
-        { onError(it, "clock") }
-      )
-      .addToDisposable(subscriptions)
-    gameConnection.phase
-      .subscribeOn(Schedulers.io())
-      .observeOn(Schedulers.io())
-      .subscribe(
-        { onGamePhase(game.id, it) },
-        { onError(it, "phase") }
-      )
-      .addToDisposable(subscriptions)
-    gameConnection.removedStones
-      .subscribeOn(Schedulers.io())
-      .observeOn(Schedulers.io())
-      .subscribe(
-        { onGameRemovedStones(game.id, it) },
-        { onError(it, "removedStones") }
-      )
-      .addToDisposable(subscriptions)
-    gameConnection.undoRequested
-      .subscribeOn(Schedulers.io())
-      .observeOn(Schedulers.io())
-      .subscribe(
-        { onUndoRequested(game.id, it) },
-        { onError(it, "undoRequested") }
-      )
-      .addToDisposable(subscriptions)
-    gameConnection.removedStonesAccepted
-      .subscribeOn(Schedulers.io())
-      .observeOn(Schedulers.io())
-      .subscribe(
-        { onRemovedStonesAccepted(game.id, it) },
-        { onError(it, "removedStonesAccepted") }
-      )
-      .addToDisposable(subscriptions)
-    gameConnection.undoAccepted
-      .subscribeOn(Schedulers.io())
-      .observeOn(Schedulers.io())
-      .subscribe(
-        { onUndoAccepted(game.id, it.move_number, it.undo_move_count) },
-        { onError(it, "undoRequested") }
-      )
-      .addToDisposable(subscriptions)
+    synchronized(trackedConnections) {
+      trackedConnections.add(gameConnection)
+    }
+    flowScope.launch {
+      gameConnection.gameData.collect {
+        try {
+          onGameData(game.id, it)
+        } catch (e: Exception) {
+          onError(e, "gameData")
+        }
+      }
+    }
+    flowScope.launch {
+      gameConnection.moves.collect {
+        try {
+          onGameMove(game.id, it)
+        } catch (e: Exception) {
+          onError(e, "moves")
+        }
+      }
+    }
+    flowScope.launch {
+      gameConnection.clock.collect {
+        try {
+          onGameClock(game.id, it)
+        } catch (e: Exception) {
+          onError(e, "clock")
+        }
+      }
+    }
+    flowScope.launch {
+      gameConnection.phase.collect {
+        try {
+          onGamePhase(game.id, it)
+        } catch (e: Exception) {
+          onError(e, "phase")
+        }
+      }
+    }
+    flowScope.launch {
+      gameConnection.removedStones.collect {
+        try {
+          onGameRemovedStones(game.id, it)
+        } catch (e: Exception) {
+          onError(e, "removedStones")
+        }
+      }
+    }
+    flowScope.launch {
+      gameConnection.undoRequested.collect {
+        try {
+          onUndoRequested(game.id, it)
+        } catch (e: Exception) {
+          onError(e, "undoRequested")
+        }
+      }
+    }
+    flowScope.launch {
+      gameConnection.removedStonesAccepted.collect {
+        try {
+          onRemovedStonesAccepted(game.id, it)
+        } catch (e: Exception) {
+          onError(e, "removedStonesAccepted")
+        }
+      }
+    }
+    flowScope.launch {
+      gameConnection.undoAccepted.collect {
+        try {
+          onUndoAccepted(game.id, it.move_number, it.undo_move_count)
+        } catch (e: Exception) {
+          onError(e, "undoAccepted")
+        }
+      }
+    }
   }
 
   private fun onGameRemovedStones(gameId: Long, stones: RemovedStones) {
@@ -265,18 +284,17 @@ class ActiveGamesRepository(
         .filter { it.playerToMoveId != null && it.playerToMoveId == userId }
         .toList()
         .sortedBy { timeLeftForCurrentPlayer(it) }
-    myMoveCountSubject.onNext(activeDbGames.values.count { it.playerToMoveId != null && it.playerToMoveId == userId })
   }
 
   fun refreshGameData(id: Long) {
-    restService.fetchGame(id)
-      .map(Game.Companion::fromOGSGame)
-      .map(::listOf)
-      .retryWhen(this::retryIOException)
-      .subscribe(
-        gameDao::insertAllGames,
-        { onError(it, "monitorGame") }
-      ).addToDisposable(subscriptions)
+    flowScope.launch {
+      try {
+        val game = retryOnIOException { restService.fetchGame(id) }
+        gameDao.insertAllGames(listOf(Game.fromOGSGame(game)))
+      } catch (e: Exception) {
+        onError(e, "monitorGame")
+      }
+    }
   }
 
   /**
@@ -284,71 +302,61 @@ class ActiveGamesRepository(
    * elapsed
    */
   fun pollServerForNewRating(id: Long, white: Boolean, historicRating: Double?) {
-    var retryCount = 0
-    restService.fetchGame(id)
-      .map(Game.Companion::fromOGSGame)
-      .retryWhen(this::retryIOException)
-      .flatMap {
-        if ((white && it.whitePlayer.rating != historicRating) || (!white && historicRating != it.blackPlayer.rating)) {
-          Single.just(listOf(it))
-        } else {
-          Single.error(InvalidParameterException())
-        }
-      }.retryWhen {
-        it.flatMap {
-          if (it is InvalidParameterException && retryCount < 20) {
-            retryCount++
-            Flowable.timer(1, TimeUnit.SECONDS)
-          } else {
-            Flowable.error(it)
+    flowScope.launch {
+      try {
+        var retryCount = 0
+        while (retryCount < 20) {
+          val game = retryOnIOException { restService.fetchGame(id) }
+          val localGame = Game.fromOGSGame(game)
+          if ((white && localGame.whitePlayer.rating != historicRating) || (!white && historicRating != localGame.blackPlayer.rating)) {
+            gameDao.insertAllGames(listOf(localGame))
+            return@launch
           }
+          retryCount++
+          delay(1000)
         }
+      } catch (e: Exception) {
+        onError(e, "pollServerForNewRating")
       }
-      .subscribe(
-        gameDao::insertAllGames,
-        { onError(it, "pollServerForNewRating") }
-      ).addToDisposable(subscriptions)
+    }
   }
 
-  fun monitorGameFlow(id: Long): Flow<Game> {
-    return gameDao.monitorGameFlow(id)
+  fun monitorGame(id: Long): Flow<Game> {
+    return gameDao.monitorGame(id)
       .distinctUntilChanged()
       .onEach(this::connectToGame)
       .onStart { refreshGameData(id) }
       .flowOn(Dispatchers.IO)
   }
 
-  private fun retryIOException(it: Flowable<Throwable>) =
-    it.flatMap {
-      when (it) {
-        is JsonEncodingException -> Flowable.error(it)
-        is IOException -> Flowable.timer(15, TimeUnit.SECONDS)
-        else -> Flowable.error(it)
+  private suspend fun <T> retryOnIOException(block: suspend () -> T): T {
+    while (true) {
+      try {
+        return block()
+      } catch (e: JsonEncodingException) {
+        throw e
+      } catch (e: IOException) {
+        delay(15_000)
       }
     }
-
-  fun getGameSingle(id: Long): Single<Game> {
-    return gameDao.monitorGame(id).take(1).firstOrError()
   }
 
-  fun refreshActiveGames(): Completable =
-    userSessionRepository.userIdObservable
-      .firstOrError()
-      .flatMapCompletable { userId ->
-        restService.fetchActiveGames()
-          .map { it.map(Game.Companion::fromOGSGame) }
-          .doOnSuccess(gameDao::insertAllGames)
-          .doOnSuccess {
-            FirebaseCrashlytics.getInstance().log("overview returned ${it.size} games")
-          }
-          .map { it.map(Game::id).toSet() }
-          .map { gameDao.getActiveGameIds(userId) - it }
-          .doOnSuccess(this::updateGamesThatFinishedSinceLastUpdate)
-          .retryWhen(this::retryIOException)
-          .ignoreElement()
-      }
+  suspend fun getGameSingle(id: Long): Game {
+    return gameDao.monitorGame(id).first()
+  }
 
-  private fun updateGamesThatFinishedSinceLastUpdate(gameIds: List<Long>) {
+  suspend fun refreshActiveGames() {
+    val userId = userSessionRepository.userId.filterNotNull().first()
+    val games = retryOnIOException { restService.fetchActiveGames() }
+    val localGames = games.map(Game.Companion::fromOGSGame)
+    gameDao.insertAllGames(localGames)
+    FirebaseCrashlytics.getInstance().log("overview returned ${localGames.size} games")
+    val activeGameIds = localGames.map(Game::id).toSet()
+    val finishedGameIds = gameDao.getActiveGameIds(userId) - activeGameIds
+    updateGamesThatFinishedSinceLastUpdate(finishedGameIds)
+  }
+
+  private suspend fun updateGamesThatFinishedSinceLastUpdate(gameIds: List<Long>) {
     FirebaseCrashlytics.getInstance()
       .log("Found ${gameIds.size} games that are neither active nor marked as finished")
     val games = mutableListOf<Game>()
@@ -357,7 +365,7 @@ class ActiveGamesRepository(
       while (true) {
         try {
           games += Game.fromOGSGame(
-            restService.fetchGame(it).blockingGet()
+            restService.fetchGame(it)
           )
           break
         } catch (e: Exception) {
@@ -373,7 +381,7 @@ class ActiveGamesRepository(
               setCustomKey("HIT_RATE_LIMITER", true)
               log("Hit rate limiter backing off $backoffMillis milliseconds")
             }
-            Thread.sleep(backoffMillis)
+            delay(backoffMillis)
             backoffMillis *= 2
           } else {
             throw e
@@ -384,11 +392,13 @@ class ActiveGamesRepository(
     gameDao.updateGames(games)
   }
 
-  fun monitorActiveGames(): Flowable<List<Game>> {
-    return userSessionRepository.userIdObservable.toFlowable(BackpressureStrategy.LATEST).flatMap {
-      gameDao.monitorActiveGamesWithNewMessagesCount(it)
-        .distinctUntilChanged()
-    }
+  fun monitorActiveGames(): Flow<List<Game>> {
+    return userSessionRepository.userId
+      .filterNotNull()
+      .flatMapLatest {
+        gameDao.monitorActiveGamesWithNewMessagesCount(it)
+          .distinctUntilChanged()
+      }
   }
 
   private fun onError(t: Throwable, request: String) {

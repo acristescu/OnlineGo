@@ -6,13 +6,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.crashlytics.FirebaseCrashlytics
-import io.reactivex.BackpressureStrategy
-import io.reactivex.Flowable
-import io.reactivex.Maybe
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.disposables.Disposable
-import io.reactivex.schedulers.Schedulers
 import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.data.model.local.Challenge
 import io.zenandroid.onlinego.data.model.local.Game
@@ -51,17 +44,23 @@ import io.zenandroid.onlinego.ui.screens.mygames.Action.NewChallengeSearchClicke
 import io.zenandroid.onlinego.ui.screens.mygames.Action.ViewResumed
 import io.zenandroid.onlinego.ui.screens.mygames.Action.WarningAcknowledged
 import io.zenandroid.onlinego.utils.WhatsNewUtils
-import io.zenandroid.onlinego.utils.addToDisposable
 import io.zenandroid.onlinego.utils.egfToRank
 import io.zenandroid.onlinego.utils.formatRank
 import io.zenandroid.onlinego.utils.recordException
 import io.zenandroid.onlinego.utils.timeLeftForCurrentPlayer
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.rx2.rxSingle
+import kotlinx.coroutines.withContext
 import org.json.JSONObject
 import java.util.Locale
 
@@ -87,21 +86,18 @@ class MyGamesViewModel(
     )
   )
   val state: StateFlow<MyGamesState> = _state
-  private val subscriptions = CompositeDisposable()
-  private var loadOlderGamesSubscription: Disposable? = null
+  private var loadOlderGamesJob: kotlinx.coroutines.Job? = null
+  private val loggedInJobs = mutableListOf<kotlinx.coroutines.Job>()
   private var showRanks = false
 
   override fun onCleared() {
-    subscriptions.clear()
-    loadOlderGamesSubscription?.dispose()
+    loadOlderGamesJob?.cancel()
     super.onCleared()
   }
 
   init {
-    userSessionRepository.loggedInObservable
-      .subscribeOn(Schedulers.io())
-      .observeOn(AndroidSchedulers.mainThread())
-      .subscribe { loggedInStatus ->
+    viewModelScope.launch {
+      userSessionRepository.loginStatus.collect { loggedInStatus ->
         when (loggedInStatus) {
           is LoginStatus.LoggedIn -> onLoggedIn(loggedInStatus.userId)
           LoginStatus.LoggedOut -> {
@@ -118,7 +114,8 @@ class MyGamesViewModel(
             }
           }
         }
-      }.addToDisposable(subscriptions)
+      }
+    }
 
     viewModelScope.launch {
       settingsRepository.showRanksFlow.collect {
@@ -144,8 +141,10 @@ class MyGamesViewModel(
   }
 
   private fun onLoggedIn(userId: Long) {
+    loggedInJobs.forEach { it.cancel() }
+    loggedInJobs.clear()
 
-    viewModelScope.launch {
+    loggedInJobs += viewModelScope.launch {
       try {
         val warning = restService.checkForWarnings()
         if (warning.id != null) {
@@ -158,64 +157,69 @@ class MyGamesViewModel(
       }
     }
 
-    Flowable.combineLatest(
-      activeGamesRepository.monitorActiveGames()
-        .flatMapSingle { gamesList ->
-          rxSingle(Dispatchers.Default) {
-            computePositions(gamesList)
+    loggedInJobs += viewModelScope.launch(Dispatchers.IO) {
+      try {
+        combine(
+          activeGamesRepository.monitorActiveGames()
+            .map { gamesList -> computePositions(gamesList) },
+          finishedGamesRepository.getRecentlyFinishedGames()
+            .map { gamesList -> computePositions(gamesList) },
+          challengesRepository.monitorChallenges(),
+          automatchRepository.automatchFlow,
+        ) { activeGames, recentlyFinishedGames, challenges, automatches ->
+          _state.update {
+            var newState = it.copy(
+              userIsLoggedOut = false,
+              playOnlineEnabled = true,
+              customGameEnabled = true,
+              loginPromptVisible = false,
+              userId = userId,
+              headerMainText = "Hi ${userSessionRepository.uiConfig?.user?.username},",
+              userImageURL = userSessionRepository.uiConfig?.user?.icon,
+              automatches = automatches,
+              hasReceivedAutomatches = true,
+              challenges = challenges,
+              hasReceivedChallenges = true,
+              recentGames = recentlyFinishedGames,
+              hasReceivedRecentGames = true,
+            )
+            newState = setGames(activeGames, newState)
+            newState
           }
-        },
-      finishedGamesRepository.getRecentlyFinishedGames()
-        .flatMapSingle { gamesList ->
-          rxSingle(Dispatchers.Default) {
-            computePositions(gamesList)
+        }.collect {}
+      } catch (e: Exception) {
+        onError(e)
+      }
+    }
+    loggedInJobs += viewModelScope.launch(Dispatchers.IO) {
+      try {
+        activeGamesRepository.refreshActiveGames()
+      } catch (e: Exception) {
+        onError(e)
+      }
+    }
+    loggedInJobs += viewModelScope.launch(Dispatchers.IO) {
+      try {
+        automatchRepository.gameStartFlow.collect { automatch ->
+          automatch.game_id?.let { gameId ->
+            try {
+              val game = activeGamesRepository.getGameSingle(gameId)
+              withContext(Dispatchers.Main) { onGameStart(game) }
+            } catch (_: Exception) {
+            }
           }
-        },
-      challengesRepository.monitorChallenges(),
-      automatchRepository.automatchObservable.toFlowable(BackpressureStrategy.BUFFER),
-    ) { activeGames, recentlyFinishedGames, challenges, automatches ->
-      _state.update {
-        var newState = it.copy(
-          userIsLoggedOut = false,
-          playOnlineEnabled = true,
-          customGameEnabled = true,
-          loginPromptVisible = false,
-          userId = userId,
-          headerMainText = "Hi ${userSessionRepository.uiConfig?.user?.username},",
-          userImageURL = userSessionRepository.uiConfig?.user?.icon,
-          automatches = automatches,
-          hasReceivedAutomatches = true,
-          challenges = challenges,
-          hasReceivedChallenges = true,
-          recentGames = recentlyFinishedGames,
-          hasReceivedRecentGames = true,
-        )
-        newState = setGames(activeGames, newState)
-        newState
+        }
+      } catch (e: Exception) {
+        onError(e)
       }
-      Unit
-    }.subscribeOn(Schedulers.io())
-      .observeOn(AndroidSchedulers.mainThread())
-      .subscribe({}, this::onError)
-      .addToDisposable(subscriptions)
-    activeGamesRepository.refreshActiveGames()
-      .subscribeOn(Schedulers.io())
-      .observeOn(AndroidSchedulers.mainThread())
-      .subscribe({}, this::onError)
-      .addToDisposable(subscriptions)
-    automatchRepository.gameStartObservable
-      .flatMapMaybe {
-        it.game_id?.let { activeGamesRepository.getGameSingle(it).toMaybe() } ?: Maybe.empty()
+    }
+    loggedInJobs += viewModelScope.launch(Dispatchers.IO) {
+      try {
+        notificationsRepository.notificationsFlow().collect { onNotification(it) }
+      } catch (e: Exception) {
+        onError(e)
       }
-      .subscribeOn(Schedulers.io())
-      .observeOn(AndroidSchedulers.mainThread())
-      .subscribe(this::onGameStart, this::onError)
-      .addToDisposable(subscriptions)
-    notificationsRepository.notificationsObservable()
-      .subscribeOn(Schedulers.io())
-      .observeOn(AndroidSchedulers.mainThread())
-      .subscribe(this::onNotification, this::onError)
-      .addToDisposable(subscriptions)
+    }
 
     onNeedMoreOlderGames(null)
   }
@@ -287,26 +291,35 @@ class MyGamesViewModel(
 
   private fun onChallengeCancelled(challenge: Challenge) {
     analytics.logEvent("challenge_cancelled", null)
-    restService.declineChallenge(challenge.id)
-      .observeOn(AndroidSchedulers.mainThread())
-      .subscribe({}, this::onError)
-      .addToDisposable(subscriptions)
+    viewModelScope.launch(Dispatchers.IO) {
+      try {
+        restService.declineChallenge(challenge.id)
+      } catch (e: Exception) {
+        onError(e)
+      }
+    }
   }
 
   private fun onChallengeAccepted(challenge: Challenge) {
     analytics.logEvent("challenge_accepted", null)
-    restService.acceptChallenge(challenge.id)
-      .observeOn(AndroidSchedulers.mainThread())
-      .subscribe({}, this::onError)
-      .addToDisposable(subscriptions)
+    viewModelScope.launch(Dispatchers.IO) {
+      try {
+        restService.acceptChallenge(challenge.id)
+      } catch (e: Exception) {
+        onError(e)
+      }
+    }
   }
 
   private fun onChallengeDeclined(challenge: Challenge) {
     analytics.logEvent("challenge_declined", null)
-    restService.declineChallenge(challenge.id)
-      .observeOn(AndroidSchedulers.mainThread())
-      .subscribe({}, this::onError)
-      .addToDisposable(subscriptions)
+    viewModelScope.launch(Dispatchers.IO) {
+      try {
+        restService.declineChallenge(challenge.id)
+      } catch (e: Exception) {
+        onError(e)
+      }
+    }
   }
 
   private fun onAutomatchCancelled(automatch: OGSAutomatch) {
@@ -407,7 +420,7 @@ class MyGamesViewModel(
         analytics.logEvent("new_game_search", null)
         if ((action.speeds.contains(Speed.LIVE) || action.speeds.contains(Speed.RAPID) || action.speeds.contains(
             Speed.BLITZ
-          )) && automatchRepository.automatches.find { it.liveOrBlitzOrRapid } != null
+          )) && automatchRepository.automatchFlow.value.find { it.liveOrBlitzOrRapid } != null
         ) {
           _state.update {
             it.copy(
@@ -423,11 +436,13 @@ class MyGamesViewModel(
   }
 
   private fun onNewChallengeSearchClicked(challengeParams: ChallengeParams) {
-    restService.challengeBot(challengeParams)
-      .subscribeOn(Schedulers.io())
-      .observeOn(AndroidSchedulers.mainThread())
-      .subscribe({}, this::onError)
-      .addToDisposable(subscriptions)
+    viewModelScope.launch(Dispatchers.IO) {
+      try {
+        restService.challengeBot(challengeParams)
+      } catch (e: Exception) {
+        onError(e)
+      }
+    }
   }
 
   private fun onWarningAcknowledged() {
@@ -483,33 +498,36 @@ class MyGamesViewModel(
   }
 
   private fun onNeedMoreOlderGames(lastGame: Game?) {
-    loadOlderGamesSubscription?.dispose()
-    loadOlderGamesSubscription =
-      finishedGamesRepository.getHistoricGames(lastGame?.ended)
-        .subscribeOn(Schedulers.io())
-        .distinctUntilChanged()
-        .doOnNext { result ->
-          _state.update {
-            it.copy(
-              loadingHistoricGames = result.loading,
-              loadedAllHistoricGames = result.loadedLastPage
-            )
+    loadOlderGamesJob?.cancel()
+    loadOlderGamesJob = viewModelScope.launch(Dispatchers.IO) {
+      try {
+        finishedGamesRepository.getHistoricGames(lastGame?.ended)
+          .distinctUntilChanged()
+          .onEach { result ->
+            _state.update {
+              it.copy(
+                loadingHistoricGames = result.loading,
+                loadedAllHistoricGames = result.loadedLastPage
+              )
+            }
           }
-        }
-        .map { it.games }
-        .flatMapSingle { games ->
-          rxSingle(Dispatchers.Default) {
-            computePositions(games)
-          }
-        }
-        .subscribeOn(Schedulers.computation())
-        .observeOn(AndroidSchedulers.mainThread())
-        .subscribe(this::onHistoricGames, this::onError)
-    loadOlderGamesSubscription?.addToDisposable(subscriptions)
+          .map { it.games }
+          .map { games -> computePositions(games) }
+          .collect { games -> withContext(Dispatchers.Main) { onHistoricGames(games) } }
+      } catch (e: Exception) {
+        onError(e)
+      }
+    }
   }
 
   private suspend fun computePositions(games: List<Game>): List<Game> =
-    games.onEach { it.position = RulesManager.replay(it, computeTerritory = false) }
+    coroutineScope {
+      games.map { game ->
+        async(Dispatchers.Default) {
+          game.apply { position = RulesManager.replay(this, computeTerritory = false) }
+        }
+      }.awaitAll()
+    }
 
   private fun onHistoricGames(games: List<Game>) {
     _state.update {

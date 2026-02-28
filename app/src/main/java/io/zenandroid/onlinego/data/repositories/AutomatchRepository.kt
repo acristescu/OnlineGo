@@ -1,55 +1,59 @@
 package io.zenandroid.onlinego.data.repositories
 
 import android.util.Log
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.schedulers.Schedulers
-import io.reactivex.subjects.BehaviorSubject
-import io.reactivex.subjects.PublishSubject
 import io.zenandroid.onlinego.data.model.ogs.OGSAutomatch
 import io.zenandroid.onlinego.data.ogs.OGSWebSocketService
-import io.zenandroid.onlinego.utils.addToDisposable
 import io.zenandroid.onlinego.utils.recordException
-import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.plus
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.retry
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
 class AutomatchRepository(
         private val socketService: OGSWebSocketService
 ) : SocketConnectedRepository {
-    private val subscriptions = CompositeDisposable()
+    private var scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
-    var automatches = persistentListOf<OGSAutomatch>()
-        private set
+    private val _automatches = MutableStateFlow<PersistentList<OGSAutomatch>>(persistentListOf())
+    val automatchFlow: StateFlow<PersistentList<OGSAutomatch>> = _automatches.asStateFlow()
 
-    private val automatchesSubject = BehaviorSubject.createDefault<ImmutableList<OGSAutomatch>>(automatches)
-    private val gameStartSubject = PublishSubject.create<OGSAutomatch>()
-
-    val automatchObservable = automatchesSubject.hide()
-    val gameStartObservable = gameStartSubject.hide()
+    private val _gameStart = MutableSharedFlow<OGSAutomatch>()
+    val gameStartFlow: SharedFlow<OGSAutomatch> = _gameStart.asSharedFlow()
 
     override fun onSocketConnected() {
-        automatches = automatches.clear()
-        socketService.listenToNewAutomatchNotifications()
-                .subscribeOn(Schedulers.io())
-                .doOnError(this::onError)
-                .retry()
-                .subscribe(this::addAutomatch)
-                .addToDisposable(subscriptions)
+        _automatches.value = persistentListOf()
+        scope.launch {
+            socketService.listenToNewAutomatchNotifications()
+                .retry { onError(it); true }
+                .collect { addAutomatch(it) }
+        }
 
-        socketService.listenToCancelAutomatchNotifications()
-                .subscribeOn(Schedulers.io())
-                .doOnError(this::onError)
-                .retry()
-                .subscribe(this::removeAutomatch)
-                .addToDisposable(subscriptions)
+        scope.launch {
+            socketService.listenToCancelAutomatchNotifications()
+                .retry { onError(it); true }
+                .collect { removeAutomatch(it) }
+        }
 
-        socketService.listenToStartAutomatchNotifications()
-                .subscribeOn(Schedulers.io())
-                .doOnNext(gameStartSubject::onNext)
-                .doOnError(this::onError)
-                .retry()
-                .subscribe(this::removeAutomatch)
-                .addToDisposable(subscriptions)
+        scope.launch {
+            socketService.listenToStartAutomatchNotifications()
+                .retry { onError(it); true }
+                .collect {
+                    _gameStart.emit(it)
+                    removeAutomatch(it)
+                }
+        }
 
         socketService.connectToAutomatch()
     }
@@ -60,23 +64,27 @@ class AutomatchRepository(
     }
 
     private fun removeAutomatch(automatch: OGSAutomatch) {
-        automatches = automatches.removeAll { it.uuid == automatch.uuid }
-        automatchesSubject.onNext(automatches)
+        _automatches.update { it.removeAll { it.uuid == automatch.uuid } }
     }
 
     private fun addAutomatch(automatch: OGSAutomatch) {
-        if(automatches.find { it.uuid == automatch.uuid } == null) {
-            automatches += automatch
-            automatchesSubject.onNext(automatches)
+        _automatches.update { current ->
+            if (current.find { it.uuid == automatch.uuid } == null) {
+                current + automatch
+            } else {
+                current
+            }
         }
     }
 
     override fun onSocketDisconnected() {
-        automatches = automatches.builder().apply {
-            removeAll { it.liveOrBlitzOrRapid }
-        }.build()
-        automatchesSubject.onNext(automatches)
-        subscriptions.clear()
+        _automatches.update { current ->
+            current.builder().apply {
+                removeAll { it.liveOrBlitzOrRapid }
+            }.build()
+        }
+        scope.cancel()
+        scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     }
 
 }

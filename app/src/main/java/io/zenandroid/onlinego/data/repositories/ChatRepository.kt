@@ -2,17 +2,18 @@ package io.zenandroid.onlinego.data.repositories
 
 import android.util.Log
 import com.google.firebase.crashlytics.FirebaseCrashlytics
-import io.reactivex.Completable
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.schedulers.Schedulers
 import io.zenandroid.onlinego.data.db.GameDao
 import io.zenandroid.onlinego.data.model.local.ChatMetadata
 import io.zenandroid.onlinego.data.model.local.Message
 import io.zenandroid.onlinego.data.ogs.OGSRestAPI
-import io.zenandroid.onlinego.utils.addToDisposable
 import io.zenandroid.onlinego.utils.recordException
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
@@ -25,7 +26,7 @@ class ChatRepository(
 
   private val knownMessageIds = mutableSetOf<String>()
   private var lastRESTFetchedChatId: String = "00000000-0000-0000-0000-000000000000"
-  private val subscriptions = CompositeDisposable()
+  private var socketScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
   init {
     applicationScope.launch {
@@ -35,11 +36,15 @@ class ChatRepository(
   }
 
   override fun onSocketConnected() {
-    gameDao.monitorChatMetadata()
-      .distinctUntilChanged()
-      .subscribeOn(Schedulers.io())
-      .subscribe(this::onMetadata, { onError(it, "monitorHistoricGameMetadata") })
-      .addToDisposable(subscriptions)
+    socketScope.launch {
+      try {
+        gameDao.monitorChatMetadata()
+          .distinctUntilChanged()
+          .collect { onMetadata(it) }
+      } catch (e: Exception) {
+        onError(e, "monitorHistoricGameMetadata")
+      }
+    }
   }
 
   private fun onMetadata(metadata: ChatMetadata) {
@@ -47,11 +52,12 @@ class ChatRepository(
   }
 
   override fun onSocketDisconnected() {
-    subscriptions.clear()
+    socketScope.cancel()
+    socketScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
   }
 
-  fun addMessage(message: Message) {
-    val loggedInStatus = userSessionRepository.loggedInObservable.blockingFirst()
+  suspend fun addMessage(message: Message) {
+    val loggedInStatus = userSessionRepository.loginStatus.first()
     if (loggedInStatus is LoginStatus.LoggedIn) {
       if (!knownMessageIds.contains(message.chatId)) {
         gameDao.insertMessage(message)
@@ -64,17 +70,17 @@ class ChatRepository(
   }
 
   fun fetchRecentChatMessages() {
-    userSessionRepository.loggedInObservable.filter { it is LoginStatus.LoggedIn }
-      .firstElement()
-      .toSingle()
-      .flatMap {
-        restApi.getMessages(lastRESTFetchedChatId)
+    applicationScope.launch {
+      try {
+        val loggedInStatus = userSessionRepository.loginStatus
+          .first { it is LoginStatus.LoggedIn }
+        val messages = restApi.getMessages(lastRESTFetchedChatId)
+        val localMessages = messages.map { Message.fromOGSMessage(it, it.game_id) }
+        gameDao.insertMessagesFromRest(localMessages)
+      } catch (e: Exception) {
+        onError(e, "fetchRecentChatMessages")
       }
-      .map { it.map { Message.fromOGSMessage(it, it.game_id) } }
-      .subscribe(
-        gameDao::insertMessagesFromRest,
-        { onError(it, "fetchRecentChatMessages") }
-      ).addToDisposable(subscriptions)
+    }
   }
 
   fun monitorGameChat(gameId: Long): Flow<List<Message>> =
@@ -82,10 +88,9 @@ class ChatRepository(
       .onEach { it.forEach { knownMessageIds.add(it.chatId) } }
 
   fun markMessagesAsRead(messages: List<Message>) {
-    Completable
-      .create { gameDao.markMessagesAsRead(messages.map { it.chatId }) }
-      .subscribeOn(Schedulers.io())
-      .subscribe()
+    applicationScope.launch(Dispatchers.IO) {
+      gameDao.markMessagesAsRead(messages.map { it.chatId })
+    }
   }
 
   private fun onError(t: Throwable, request: String) {

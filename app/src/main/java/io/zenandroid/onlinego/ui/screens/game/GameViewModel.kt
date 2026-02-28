@@ -132,7 +132,6 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.rx2.asFlow
 import kotlinx.coroutines.withContext
 import kotlin.math.roundToInt
 
@@ -212,7 +211,7 @@ class GameViewModel(
   }
 
   fun initialize(gameId: Long, gameWidth: Int, gameHeight: Int) {
-    val gameFlow = activeGamesRepository.monitorGameFlow(gameId).distinctUntilChanged()
+    val gameFlow = activeGamesRepository.monitorGame(gameId).distinctUntilChanged()
     currentGamePosition = mutableStateOf(Position(gameWidth, gameHeight))
 
     viewModelScope.launch(Dispatchers.IO) {
@@ -222,7 +221,7 @@ class GameViewModel(
 
     val messagesFlow = combine(
       chatRepository.monitorGameChat(gameId),
-      userSessionRepository.loggedInObservable.asFlow(),
+      userSessionRepository.loginStatus,
     ) { messages, loggedInStatus ->
       unreadMessagesCount = messages.count { !it.seen }
       messages.map {
@@ -240,7 +239,7 @@ class GameViewModel(
       val soundEnabled by settingsRepository.soundFlow.collectAsState(false)
       val showRanks by settingsRepository.showRanksFlow.collectAsState(false)
       val myTurnGamesList by activeGamesRepository.myTurnGames.collectAsState(emptyList())
-      val userId by userSessionRepository.loggedInObservable.asFlow()
+      val userId by userSessionRepository.loginStatus
         .map { if (it is LoginStatus.LoggedIn) it.userId else null }
         .collectAsState(null)
 

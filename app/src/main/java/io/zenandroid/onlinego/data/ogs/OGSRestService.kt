@@ -1,8 +1,6 @@
 package io.zenandroid.onlinego.data.ogs
 
 import com.squareup.moshi.Moshi
-import io.reactivex.Completable
-import io.reactivex.Single
 import io.zenandroid.onlinego.data.model.local.Puzzle
 import io.zenandroid.onlinego.data.model.local.PuzzleCollection
 import io.zenandroid.onlinego.data.model.ogs.CannedMessages
@@ -26,11 +24,11 @@ import io.zenandroid.onlinego.utils.microsToISODateTime
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.rx2.asFlow
 import okhttp3.ResponseBody.Companion.toResponseBody
 import retrofit2.HttpException
 import retrofit2.Response
@@ -64,8 +62,9 @@ class OGSRestService(
     return newEbi
   }
 
-  fun fetchUIConfig(): Completable {
-    return restApi.uiConfig().doOnSuccess(userSessionRepository::storeUIConfig).ignoreElement()
+  suspend fun fetchUIConfig() {
+    val config = restApi.uiConfig()
+    userSessionRepository.storeUIConfig(config)
   }
 
   suspend fun login(username: String, password: String) {
@@ -80,33 +79,26 @@ class OGSRestService(
     userSessionRepository.storeUIConfig(uiConfig)
   }
 
-  fun loginWithGoogle(code: String): Completable {
-    return restApi.initiateGoogleAuthFlow()
-      .map {
-        if (it.code() != 302) {
-          throw Exception("got code ${it.code()} instead of 302")
-        }
-        it.headers().forEach {
-          if (it.first == "location") {
-            return@map "&state=([^&]*)&".toRegex().find(it.second)!!.groupValues[1]
-          }
-        }
-        throw Exception("Cannot log in (can't follow redirect)")
-      }
-      .flatMap { state -> restApi.loginWithGoogleAuth(code, state) }
-      .flatMap {
-        if (it.code() != 302) {
-          throw Exception("got code ${it.code()} instead of 302")
-        }
-        it.headers().forEach {
-          if (it.first == "location" && it.second == "/") {
-            return@flatMap restApi.uiConfig()
-          }
-        }
-        throw Exception("Login failed")
-      }
-      .doOnSuccess(userSessionRepository::storeUIConfig)
-      .ignoreElement()
+  suspend fun loginWithGoogle(code: String) {
+    val authResponse = restApi.initiateGoogleAuthFlow()
+    if (authResponse.code() != 302) {
+      throw Exception("got code ${authResponse.code()} instead of 302")
+    }
+    val state = authResponse.headers().firstOrNull { it.first == "location" }
+      ?.let { "&state=([^&]*)&".toRegex().find(it.second)?.groupValues?.get(1) }
+      ?: throw Exception("Cannot log in (can't follow redirect)")
+
+    val loginResponse = restApi.loginWithGoogleAuth(code, state)
+    if (loginResponse.code() != 302) {
+      throw Exception("got code ${loginResponse.code()} instead of 302")
+    }
+    val isRedirectToHome =
+      loginResponse.headers().any { it.first == "location" && it.second == "/" }
+    if (!isRedirectToHome) {
+      throw Exception("Login failed")
+    }
+    val uiConfig = restApi.uiConfig()
+    userSessionRepository.storeUIConfig(uiConfig)
   }
 
   suspend fun createAccount(username: String, password: String, email: String) {
@@ -114,7 +106,7 @@ class OGSRestService(
     restApi.createAccount(CreateAccountRequest(username, password, email, ebiValue))
   }
 
-  fun challengeBot(challengeParams: ChallengeParams): Completable {
+  suspend fun challengeBot(challengeParams: ChallengeParams) {
     val size = when (challengeParams.size) {
       "9x9", "9×9" -> 9
       "13x13", "13×13" -> 13
@@ -186,7 +178,7 @@ class OGSRestService(
         time_control_parameters = timeControl
       )
     )
-    return when {
+    when {
       challengeParams.opponent != null -> {
         restApi.challengePlayer(challengeParams.opponent?.id!!, request)
       }
@@ -197,83 +189,66 @@ class OGSRestService(
     }
   }
 
-  fun acceptChallenge(id: Long): Completable =
+  suspend fun acceptChallenge(id: Long) =
     restApi.acceptChallenge(id)
 
-  fun declineChallenge(id: Long): Completable =
+  suspend fun declineChallenge(id: Long) =
     restApi.declineChallenge(id)
 
-  fun fetchGame(gameId: Long): Single<OGSGame> =
+  suspend fun fetchGame(gameId: Long): OGSGame =
     restApi.fetchGame(gameId)
       //
       // Hack alert! just to keep us on our toes, the same thing is called
       // different things when coming through the REST API and the Socket.IO one...
       //
-      .doOnSuccess { it.json = it.gamedata }
+      .also { it.json = it.gamedata }
 
-  fun fetchActiveGames(): Single<List<OGSGame>> =
-    userSessionRepository.loggedInObservable.filter { it is LoginStatus.LoggedIn }
-      .firstElement()
-      .toSingle()
-      .flatMap {
-        restApi.fetchOverview()
-          .map { it.active_games }
-          .map {
-            for (game in it) {
-              game.json?.clock?.current_player?.let {
-                game.player_to_move = it
-              }
-              game.json?.handicap?.let {
-                game.handicap = it
-              }
-            }
-            it
-          }
+  suspend fun fetchActiveGames(): List<OGSGame> {
+    userSessionRepository.loginStatus.first { it is LoginStatus.LoggedIn }
+    val overview = restApi.fetchOverview()
+    val games = overview.active_games
+    for (game in games) {
+      game.json?.clock?.current_player?.let {
+        game.player_to_move = it
       }
-
-  fun fetchChallenges(): Single<List<OGSChallenge>> =
-    restApi.fetchChallenges().map { it.results }
-
-  fun fetchHistoricGamesBefore(beforeDate: Long?): Single<List<OGSGame>> =
-    if (beforeDate == null) {
-      userSessionRepository.userIdObservable.firstOrError().flatMap {
-        restApi.fetchPlayerFinishedGames(it)
+      game.json?.handicap?.let {
+        game.handicap = it
       }
+    }
+    return games
+  }
+
+  suspend fun fetchChallenges(): List<OGSChallenge> =
+    restApi.fetchChallenges().results
+
+  suspend fun fetchHistoricGamesBefore(beforeDate: Long?): List<OGSGame> {
+    val userId = userSessionRepository.userId.filterNotNull().first()
+    val result = if (beforeDate == null) {
+      restApi.fetchPlayerFinishedGames(userId)
     } else {
-      userSessionRepository.userIdObservable.firstOrError().flatMap {
-        restApi.fetchPlayerFinishedBeforeGames(
-          it,
-          10,
-          beforeDate.microsToISODateTime(),
-          1
-        )
-      }
-    }.map { it.results }
+      restApi.fetchPlayerFinishedBeforeGames(userId, 10, beforeDate.microsToISODateTime(), 1)
+    }
+    return result.results
+  }
 
-  fun fetchHistoricGamesAfter(afterDate: Long?): Single<List<OGSGame>> =
-    if (afterDate == null) {
-      userSessionRepository.userIdObservable.firstOrError().flatMap {
-        restApi.fetchPlayerFinishedGames(it)
-      }
+  suspend fun fetchHistoricGamesAfter(afterDate: Long?): List<OGSGame> {
+    val userId = userSessionRepository.userId.filterNotNull().first()
+    val result = if (afterDate == null) {
+      restApi.fetchPlayerFinishedGames(userId)
     } else {
-      userSessionRepository.userIdObservable.firstOrError().flatMap {
-        restApi.fetchPlayerFinishedAfterGames(
-          it,
-          10,
-          afterDate.microsToISODateTime(),
-          1
-        )
-      }
-    }.map { it.results }
+      restApi.fetchPlayerFinishedAfterGames(userId, 10, afterDate.microsToISODateTime(), 1)
+    }
+    return result.results
+  }
 
   suspend fun searchPlayers(query: String): List<OGSPlayer> =
     restApi.omniSearch(query).players
 
 
-  fun getJosekiPositions(id: Long?): Single<List<JosekiPosition>> =
+  suspend fun getJosekiPositions(id: Long?): List<JosekiPosition> =
     restApi.getJosekiPositions(id?.toString() ?: "root")
 
-  fun getPlayerProfile(id: Long): Single<OGSPlayer> =
+  suspend fun getPlayerProfile(id: Long): OGSPlayer =
     restApi.getPlayerProfile(id)
 
   suspend fun getPlayerProfileAsync(id: Long): OGSPlayer =
@@ -331,7 +306,7 @@ class OGSRestService(
       if (list.isNotEmpty()) {
         delay(1000)
       }
-      val loggedInStatus = userSessionRepository.loggedInObservable.asFlow().first()
+      val loggedInStatus = userSessionRepository.loginStatus.first()
       val userId = (loggedInStatus as? LoginStatus.LoggedIn)?.userId
       val result = restApi.getPuzzleSolutions(
         puzzleId = id,
@@ -353,7 +328,7 @@ class OGSRestService(
     restApi.ratePuzzle(puzzleId = id, request = rating)
 
   suspend fun deleteMyAccount(password: String) {
-    val loggedInStatus = userSessionRepository.loggedInObservable.asFlow().first()
+    val loggedInStatus = userSessionRepository.loginStatus.first()
     if (loggedInStatus is LoginStatus.LoggedIn) {
       restApi.deleteAccount(
         loggedInStatus.userId,

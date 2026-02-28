@@ -1,7 +1,5 @@
 package io.zenandroid.onlinego.data.ogs
 
-import io.reactivex.Completable
-import io.reactivex.Single
 import io.zenandroid.onlinego.data.model.ogs.Chat
 import io.zenandroid.onlinego.data.model.ogs.CreateAccountRequest
 import io.zenandroid.onlinego.data.model.ogs.Glicko2History
@@ -40,26 +38,25 @@ import retrofit2.http.Query
 interface OGSRestAPI {
 
     @GET("login/google-oauth2/")
-    fun initiateGoogleAuthFlow(): Single<Response<ResponseBody>>
+    suspend fun initiateGoogleAuthFlow(): Response<ResponseBody>
 
     @GET("/complete/google-oauth2/?scope=email+profile+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email+openid+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.profile&authuser=0&prompt=none")
-    fun loginWithGoogleAuth(
+    suspend fun loginWithGoogleAuth(
             @Query("code") code: String,
             @Query("state") state: String
-    ): Single<Response<ResponseBody>>
+    ): Response<ResponseBody>
 
     @POST("api/v0/login")
     suspend fun login(@Body request: CreateAccountRequest): UIConfig
 
     @GET("api/v1/ui/config/")
-    fun uiConfig(): Single<UIConfig>
+    suspend fun uiConfig(): UIConfig
 
     @GET("api/v1/games/{game_id}")
-    fun fetchGame(@Path("game_id") game_id: Long): Single<OGSGame>
+    suspend fun fetchGame(@Path("game_id") game_id: Long): OGSGame
 
     @GET("api/v1/ui/overview")
-//    @GET("api/v1/players/126739/full")
-    fun fetchOverview(): Single<Overview>
+    suspend fun fetchOverview(): Overview
 
     @GET("api/v1/players/{player_id}/full")
     suspend fun getPlayerFullProfileAsync(@Path("player_id") playerId: Long): OGSPlayerProfile
@@ -68,50 +65,53 @@ interface OGSRestAPI {
     suspend fun createAccount(@Body request: CreateAccountRequest): UIConfig
 
     @GET("api/v1/players/{player_id}/games/?source=play&ended__isnull=false&annulled=false&ordering=-ended")
-    fun fetchPlayerFinishedGames(
+    suspend fun fetchPlayerFinishedGames(
             @Path("player_id") playerId: Long,
             @Query("page_size") pageSize: Int = 10,
-            @Query("page") page: Int = 1): Single<PagedResult<OGSGame>>
+            @Query("page") page: Int = 1
+    ): PagedResult<OGSGame>
 
     @GET("api/v1/players/{player_id}/games/?source=play&ended__isnull=false&annulled=false&ordering=-ended")
-    fun fetchPlayerFinishedBeforeGames(
+    suspend fun fetchPlayerFinishedBeforeGames(
             @Path("player_id") playerId: Long,
             @Query("page_size") pageSize: Int = 10,
             @Query("ended__lt") ended: String,
-            @Query("page") page: Int = 1): Single<PagedResult<OGSGame>>
+            @Query("page") page: Int = 1
+    ): PagedResult<OGSGame>
 
     // NOTE: This is ordered the other way as all the others!!!
     @GET("api/v1/players/{player_id}/games/?source=play&ended__isnull=false&annulled=false&ordering=ended")
-    fun fetchPlayerFinishedAfterGames(
+    suspend fun fetchPlayerFinishedAfterGames(
             @Path("player_id") playerId: Long,
             @Query("page_size") pageSize: Int = 100,
             @Query("ended__gt") ended: String,
-            @Query("page") page: Int = 1): Single<PagedResult<OGSGame>>
+            @Query("page") page: Int = 1
+    ): PagedResult<OGSGame>
 
     @GET("/api/v1/me/challenges?page_size=100")
-    fun fetchChallenges(): Single<PagedResult<OGSChallenge>>
+    suspend fun fetchChallenges(): PagedResult<OGSChallenge>
 
     @POST("/api/v1/me/challenges/{challenge_id}/accept")
-    fun acceptChallenge(@Path("challenge_id") id: Long): Completable
+    suspend fun acceptChallenge(@Path("challenge_id") id: Long)
 
     @DELETE("/api/v1/me/challenges/{challenge_id}")
-    fun declineChallenge(@Path("challenge_id") id: Long): Completable
+    suspend fun declineChallenge(@Path("challenge_id") id: Long)
 
     @POST("/api/v1/challenges")
-    fun openChallenge(@Body request: OGSChallengeRequest): Completable
+    suspend fun openChallenge(@Body request: OGSChallengeRequest)
 
     @POST("/api/v1/players/{id}/challenge")
-    fun challengePlayer(@Path("id") id: Long, @Body request: OGSChallengeRequest): Completable
+    suspend fun challengePlayer(@Path("id") id: Long, @Body request: OGSChallengeRequest)
 
     @GET("/api/v1/ui/omniSearch")
     suspend fun omniSearch(@Query("q") q: String): OmniSearchResponse
 
     @Headers("x-godojo-auth-token: foofer")
     @GET("/oje/positions?mode=0")
-    fun getJosekiPositions(@Query("id") id: String): Single<List<JosekiPosition>>
+    suspend fun getJosekiPositions(@Query("id") id: String): List<JosekiPosition>
 
     @GET("api/v1/players/{player_id}/")
-    fun getPlayerProfile(@Path("player_id") playerId: Long): Single<OGSPlayer>
+    suspend fun getPlayerProfile(@Path("player_id") playerId: Long): OGSPlayer
 
     @GET("api/v1/players/{player_id}/")
     suspend fun getPlayerProfileAsync(@Path("player_id") playerId: Long): OGSPlayer
@@ -124,7 +124,7 @@ interface OGSRestAPI {
     ): Glicko2History
 
     @GET("termination-api/my/game-chat-history-since/{last_message_id}")
-    fun getMessages(@Path("last_message_id") lastMessageId: String): Single<List<Chat>>
+    suspend fun getMessages(@Path("last_message_id") lastMessageId: String): List<Chat>
 
     @GET("api/v1/puzzles/collections?ordering=-rating,-rating_count")
     suspend fun getPuzzleCollections(

@@ -7,9 +7,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.crashlytics.FirebaseCrashlytics
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.schedulers.Schedulers
 import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.ogs.OGSRestService
@@ -21,14 +18,15 @@ import io.zenandroid.onlinego.ui.screens.onboarding.Page.LoginPage
 import io.zenandroid.onlinego.ui.screens.onboarding.Page.MultipleChoicePage
 import io.zenandroid.onlinego.ui.screens.onboarding.Page.NotificationPermissionPage
 import io.zenandroid.onlinego.ui.screens.onboarding.Page.OnboardingPage
-import io.zenandroid.onlinego.utils.addToDisposable
 import io.zenandroid.onlinego.utils.recordException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.json.JSONObject
 import retrofit2.HttpException
 
@@ -77,26 +75,22 @@ class OnboardingViewModel(
   ).drop(if (savedStateHandle["initialPageArg"] as String? != null) 4 else 0)
 
   private val analytics = OnlineGoApplication.instance.analytics
-  private val subscriptions = CompositeDisposable()
 
   init {
-    userSessionRepository.loggedInObservable.firstOrError()
-      .subscribeOn(Schedulers.io())
-      .observeOn(AndroidSchedulers.mainThread())
-      .subscribe(
-      { loggedIn ->
+    viewModelScope.launch(Dispatchers.IO) {
+      try {
+        val loggedIn = userSessionRepository.loginStatus.first()
         if (loggedIn is LoginStatus.LoggedIn) {
           //
           // This should only happen during the migration
           //
-          viewModelScope.launch {
-            settingsRepository.setHasCompletedOnboarding(true)
-            _state.update { it.copy(onboardingDone = true) }
-          }
+          settingsRepository.setHasCompletedOnboarding(true)
+          _state.update { it.copy(onboardingDone = true) }
         }
-      },
-      { recordException(it) }
-    ).addToDisposable(subscriptions)
+      } catch (e: Exception) {
+        recordException(e)
+      }
+    }
   }
 
   private val _state =
@@ -110,10 +104,6 @@ class OnboardingViewModel(
     )
   val state: StateFlow<OnboardingState> = _state.asStateFlow()
 
-  override fun onCleared() {
-    subscriptions.clear()
-    super.onCleared()
-  }
 
   fun onAction(action: OnboardingAction) {
     when (action) {
@@ -349,12 +339,15 @@ class OnboardingViewModel(
     _state.update {
       it.copy(loginMethod = Page.LoginMethod.GOOGLE)
     }
-    ogsRestService.loginWithGoogle(token)
-      .doOnComplete { ogsWebSocketService.ensureSocketConnected() }
-      .observeOn(AndroidSchedulers.mainThread())
-      .subscribeOn(Schedulers.io())
-      .subscribe(this::onLoginSuccess, this::onPasswordLoginFailure)
-      .addToDisposable(subscriptions)
+    viewModelScope.launch(Dispatchers.IO) {
+      try {
+        ogsRestService.loginWithGoogle(token)
+        ogsWebSocketService.ensureSocketConnected()
+        withContext(Dispatchers.Main) { onLoginSuccess() }
+      } catch (e: Exception) {
+        withContext(Dispatchers.Main) { onPasswordLoginFailure(e) }
+      }
+    }
   }
 }
 

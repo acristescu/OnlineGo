@@ -1,31 +1,41 @@
 package io.zenandroid.onlinego.data.repositories
 
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.subjects.PublishSubject
 import io.zenandroid.onlinego.data.ogs.OGSWebSocketService
-import io.zenandroid.onlinego.utils.addToDisposable
 import io.zenandroid.onlinego.utils.recordException
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.launch
 import org.json.JSONObject
 
 class ServerNotificationsRepository(
   private val socketService: OGSWebSocketService
 ) : SocketConnectedRepository {
-  private val subscriptions = CompositeDisposable()
+  private var scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
   private val notificationsHash = hashMapOf<String, JSONObject>()
-  private val notificationsSubject = PublishSubject.create<JSONObject>()
+  private val _notifications = MutableSharedFlow<JSONObject>()
 
   override fun onSocketConnected() {
-    socketService.connectToServerNotifications()
-      .subscribe(this::onNewNotification, ::recordException)
-      .addToDisposable(subscriptions)
+    scope.launch {
+      try {
+        socketService.connectToServerNotifications().collect { onNewNotification(it) }
+      } catch (e: Exception) {
+        recordException(e)
+      }
+    }
   }
 
   override fun onSocketDisconnected() {
     notificationsHash.clear()
-    subscriptions.clear()
+    scope.cancel()
+    scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
   }
 
-  private fun onNewNotification(notification: JSONObject) {
+  private suspend fun onNewNotification(notification: JSONObject) {
     if ((notification["type"] as? String) == "delete") {
       (notification["id"] as? String)?.let {
         notificationsHash.remove(it)
@@ -33,16 +43,16 @@ class ServerNotificationsRepository(
     } else {
       (notification["id"] as? String)?.let {
         notificationsHash[it] = notification
-        notificationsSubject.onNext(notification)
+        _notifications.emit(notification)
         acknowledgeNotification(notification)
       }
     }
   }
 
-  fun notificationsObservable() =
-    notificationsSubject.hide().startWith(notificationsHash.values)
+  fun notificationsFlow(): Flow<JSONObject> =
+    _notifications.onStart { notificationsHash.values.forEach { emit(it) } }
 
-  fun acknowledgeNotification(notification: JSONObject) {
+  suspend fun acknowledgeNotification(notification: JSONObject) {
     (notification["id"] as? String)?.let {
       socketService.deleteNotification(it)
     }
