@@ -69,7 +69,7 @@ class CheckNotificationsTask(val context: Context, val supressWhenInForeground: 
       NotificationUtils.notifyGames(context, activeGames, gameNotifications, userId)
     }
     val newNotifications = activeGames.map { GameNotification(it.id, it.moves, it.phase) }
-    if (newNotifications != gameNotifications) {
+    if (newNotifications != gameNotifications.map { it.notification }) {
       gameDao.replaceGameNotifications(newNotifications)
     }
   }
