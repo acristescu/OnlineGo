@@ -106,8 +106,10 @@ class ActiveGamesRepository(
   }
 
   override fun onSocketDisconnected() {
-    trackedConnections.forEach { it.close() }
-    trackedConnections.clear()
+    synchronized(trackedConnections) {
+      trackedConnections.forEach { it.close() }
+      trackedConnections.clear()
+    }
     flowScope.cancel()
     flowScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     synchronized(gameConnections) {
@@ -128,7 +130,9 @@ class ActiveGamesRepository(
     }
 
     val gameConnection = socketService.connectToGame(game.id, includeChat)
-    trackedConnections.add(gameConnection)
+    synchronized(trackedConnections) {
+      trackedConnections.add(gameConnection)
+    }
     flowScope.launch {
       gameConnection.gameData.collect {
         try {
@@ -317,8 +321,8 @@ class ActiveGamesRepository(
     }
   }
 
-  fun monitorGameFlow(id: Long): Flow<Game> {
-    return gameDao.monitorGameFlow(id)
+  fun monitorGame(id: Long): Flow<Game> {
+    return gameDao.monitorGame(id)
       .distinctUntilChanged()
       .onEach(this::connectToGame)
       .onStart { refreshGameData(id) }

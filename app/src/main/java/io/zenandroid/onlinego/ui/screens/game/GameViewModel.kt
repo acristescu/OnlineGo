@@ -211,7 +211,7 @@ class GameViewModel(
   }
 
   fun initialize(gameId: Long, gameWidth: Int, gameHeight: Int) {
-    val gameFlow = activeGamesRepository.monitorGameFlow(gameId).distinctUntilChanged()
+    val gameFlow = activeGamesRepository.monitorGame(gameId).distinctUntilChanged()
     currentGamePosition = mutableStateOf(Position(gameWidth, gameHeight))
 
     viewModelScope.launch(Dispatchers.IO) {

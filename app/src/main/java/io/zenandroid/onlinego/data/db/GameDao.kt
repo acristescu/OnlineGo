@@ -278,22 +278,13 @@ abstract class GameDao {
     abstract fun monitorGame(id: Long): Flow<Game>
 
     @Query("SELECT * FROM game WHERE id = :id")
-    abstract fun monitorGameFlow(id: Long): Flow<Game>
-
-    @Query("SELECT * FROM game WHERE id = :id")
     abstract fun getGame(id: Long): Game
 
     @Query("SELECT * FROM game WHERE id = :id")
     abstract fun getGameNullable(id: Long): Game?
 
-    @Query("SELECT * FROM game WHERE id = :id")
-    abstract suspend fun getGameMaybe(id: Long): Game?
-
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     abstract fun insertMessage(message: Message)
-
-    @Query("SELECT * FROM message WHERE gameId = :gameId ORDER BY date ASC")
-    abstract fun getMessagesForGameRxJava(gameId: Long): Flow<List<Message>>
 
     @Query("SELECT * FROM message WHERE gameId = :gameId ORDER BY date ASC")
     abstract fun getMessagesForGame(gameId: Long): Flow<List<Message>>

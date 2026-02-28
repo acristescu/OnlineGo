@@ -49,6 +49,9 @@ import io.zenandroid.onlinego.utils.formatRank
 import io.zenandroid.onlinego.utils.recordException
 import io.zenandroid.onlinego.utils.timeLeftForCurrentPlayer
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
@@ -137,7 +140,6 @@ class MyGamesViewModel(
   }
 
   private fun onLoggedIn(userId: Long) {
-
     viewModelScope.launch {
       try {
         val warning = restService.checkForWarnings()
@@ -154,17 +156,13 @@ class MyGamesViewModel(
     viewModelScope.launch(Dispatchers.IO) {
       try {
         combine(
-          combine(
-            activeGamesRepository.monitorActiveGames()
-              .map { gamesList -> computePositions(gamesList) },
-            finishedGamesRepository.getRecentlyFinishedGames()
-              .map { gamesList -> computePositions(gamesList) },
-          ) { activeGames, recentlyFinishedGames -> activeGames to recentlyFinishedGames },
-          combine(
-            challengesRepository.monitorChallenges(),
-            automatchRepository.automatchFlow,
-          ) { challenges, automatches -> challenges to automatches },
-        ) { (activeGames, recentlyFinishedGames), (challenges, automatches) ->
+          activeGamesRepository.monitorActiveGames()
+            .map { gamesList -> computePositions(gamesList) },
+          finishedGamesRepository.getRecentlyFinishedGames()
+            .map { gamesList -> computePositions(gamesList) },
+          challengesRepository.monitorChallenges(),
+          automatchRepository.automatchFlow,
+        ) { activeGames, recentlyFinishedGames, challenges, automatches ->
           _state.update {
             var newState = it.copy(
               userIsLoggedOut = false,
@@ -519,7 +517,13 @@ class MyGamesViewModel(
   }
 
   private suspend fun computePositions(games: List<Game>): List<Game> =
-    games.onEach { it.position = RulesManager.replay(it, computeTerritory = false) }
+    coroutineScope {
+      games.map { game ->
+        async(Dispatchers.Default) {
+          game.apply { position = RulesManager.replay(this, computeTerritory = false) }
+        }
+      }.awaitAll()
+    }
 
   private fun onHistoricGames(games: List<Game>) {
     _state.update {

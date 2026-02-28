@@ -36,7 +36,7 @@ class FacebookLoginCallbackActivity : AppCompatActivity() {
             lifecycleScope.launch {
                 try {
                     withContext(Dispatchers.IO) {
-                        client.newCall(request).execute()
+                        client.newCall(request).execute().use { }
                         ogsRestService.fetchUIConfig()
                     }
                     onLoginSuccess()
