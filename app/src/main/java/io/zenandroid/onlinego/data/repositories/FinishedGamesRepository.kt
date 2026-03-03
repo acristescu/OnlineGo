@@ -44,6 +44,7 @@ class FinishedGamesRepository(
     scope.launch {
       try {
         gameDao.monitorHistoricGameMetadata()
+          .filterNotNull()
           .distinctUntilChanged()
           .collect { onMetadata(it) }
       } catch (e: Exception) {

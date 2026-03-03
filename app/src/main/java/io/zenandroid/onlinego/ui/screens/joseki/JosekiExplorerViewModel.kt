@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class JosekiExplorerViewModel(
     private val josekiRepository: JosekiRepository
@@ -146,12 +147,12 @@ class JosekiExplorerViewModel(
             try {
                 josekiRepository.getJosekiPosition(id)
                     .collect { position ->
-                        kotlinx.coroutines.withContext(Dispatchers.Main) {
+                        withContext(Dispatchers.Main) {
                             onPositionLoaded(position)
                         }
                     }
             } catch (e: Exception) {
-                kotlinx.coroutines.withContext(Dispatchers.Main) {
+                withContext(Dispatchers.Main) {
                     onDataLoadingError(e)
                 }
             }

@@ -392,16 +392,16 @@ abstract class GameDao {
     abstract fun deleteOldJosekiPosition(nodeIds: List<Long>, play: List<String>)
 
     @Query("SELECT * FROM josekiposition WHERE play = '.root'")
-    abstract fun getJosekiRootPosition(): Flow<JosekiPosition>
+    abstract fun getJosekiRootPosition(): Flow<JosekiPosition?>
 
     @Query("SELECT * FROM josekiposition WHERE node_id = :posId AND play IS NOT NULL")
-    abstract fun getJosekiPostion(posId: Long): Flow<JosekiPosition>
+    abstract fun getJosekiPosition(posId: Long): Flow<JosekiPosition?>
 
     @Query("SELECT * FROM josekiposition WHERE parent_id = :parentId")
     abstract fun getChildrenPositions(parentId: Long): List<JosekiPosition>
 
     @Query("SELECT * FROM historicgamesmetadata WHERE id = 0")
-    abstract fun monitorHistoricGameMetadata(): Flow<HistoricGamesMetadata>
+    abstract fun monitorHistoricGameMetadata(): Flow<HistoricGamesMetadata?>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     abstract fun updateHistoricGameMetadata(metadata: HistoricGamesMetadata)
@@ -410,7 +410,7 @@ abstract class GameDao {
     abstract fun updateChatMetadata(metadata: ChatMetadata)
 
     @Query("SELECT * FROM ChatMetadata WHERE id = 0")
-    abstract fun monitorChatMetadata(): Flow<ChatMetadata>
+    abstract fun monitorChatMetadata(): Flow<ChatMetadata?>
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     abstract fun insertMessages(messages: List<Message>)

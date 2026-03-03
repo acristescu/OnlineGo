@@ -12,6 +12,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -34,9 +35,10 @@ class JosekiRepository(
         }
         val dbFlow =
                 if(id == null) dao.getJosekiRootPosition()
-                else dao.getJosekiPostion(id)
+                else dao.getJosekiPosition(id)
         return dbFlow
-                .map(this::extractLabelsFromDescription)
+            .filterNotNull()
+            .map(this::extractLabelsFromDescription)
             .onEach {
                     it.next_moves = dao.getChildrenPositions(it.node_id ?: 0).map(this::extractLabelsFromDescription)
                 }
