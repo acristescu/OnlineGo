@@ -31,14 +31,7 @@
 -keep,allowobfuscation,allowshrinking class retrofit2.Response
 -keep,allowobfuscation,allowshrinking class kotlin.coroutines.Continuation
 
-# Google Play In-App Review API (review-ktx)
--keep class com.google.android.play.core.review.** { *; }
--keep class com.google.android.play.core.ktx.** { *; }
-
-# GMS annotations required by review-ktx
--keep class com.google.android.gms.common.annotation.** { *; }
--keep class com.google.android.gms.tasks.** { *; }
--keepattributes *Annotation*
+-dontwarn com.google.android.gms.common.annotation.NoNullnessRewrite
 
 # Ignore intended-to-be-optional re2j classes - only needed if using re2j for jsoup regex
 # jsoup safely falls back to JDK regex if re2j not on classpath, but has concrete re2j refs
