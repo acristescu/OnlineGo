@@ -135,7 +135,7 @@ dependencies {
 
     // Google Play Services
     implementation(libs.play.services.auth)
-  implementation(libs.play.review)
+  implementation(libs.play.review.ktx)
 
     // Networking
     implementation(libs.bundles.retrofit)

@@ -3,9 +3,9 @@ package io.zenandroid.onlinego.utils
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
-import com.google.android.play.core.review.ReviewInfo
-import com.google.android.play.core.review.ReviewManager
+import androidx.core.net.toUri
+import com.google.android.play.core.ktx.launchReview
+import com.google.android.play.core.ktx.requestReview
 import com.google.android.play.core.review.ReviewManagerFactory
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.crashlytics.FirebaseCrashlytics
@@ -13,8 +13,6 @@ import io.zenandroid.onlinego.data.repositories.ReviewPromptRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.suspendCancellableCoroutine
-import kotlin.coroutines.resume
 
 /**
  * Manages the review prompt flow following Google's guidelines:
@@ -28,7 +26,7 @@ class ReviewPromptManager(
   private val applicationScope: CoroutineScope
 ) {
 
-  private val reviewManager: ReviewManager = ReviewManagerFactory.create(context)
+  private val reviewManager = ReviewManagerFactory.create(context)
   private val analytics = FirebaseAnalytics.getInstance(context)
 
   /**
@@ -46,63 +44,22 @@ class ReviewPromptManager(
       // Record that we're showing the prompt
       reviewPromptRepository.recordReviewPromptShown()
 
-      // Try to use Google Play In-App Review API first
-      val reviewInfo = requestReviewInfo()
-      if (reviewInfo != null) {
-        launchReviewFlow(activity, reviewInfo)
-      } else {
-        // Fallback to Play Store redirect
-        launchPlayStoreReview(activity)
-      }
+      // Use the ktx suspend extension which properly handles the Task
+      val reviewInfo = reviewManager.requestReview()
+      reviewManager.launchReview(activity, reviewInfo)
+
+      // Note: Google's API does not tell us whether the user actually reviewed.
+      // The flow always "completes successfully" regardless of user action.
+      // We record it as shown; we cannot know if they rated.
+      analytics.logEvent("review_prompt_completed_in_app", null)
+      FirebaseCrashlytics.getInstance().log("In-app review flow completed")
 
     } catch (e: Exception) {
       FirebaseCrashlytics.getInstance().recordException(e)
+      FirebaseCrashlytics.getInstance()
+        .log("In-app review failed: ${e.message}, falling back to Play Store")
       // Fallback to Play Store redirect on any error
       launchPlayStoreReview(activity)
-    }
-  }
-
-  /**
-   * Requests review info from Google Play In-App Review API
-   */
-  private suspend fun requestReviewInfo(): ReviewInfo? =
-    suspendCancellableCoroutine { continuation ->
-      reviewManager.requestReviewFlow().addOnCompleteListener { request ->
-        if (request.isSuccessful) {
-          continuation.resume(request.result, null)
-        } else {
-          FirebaseCrashlytics.getInstance()
-            .log("In-app review request failed: ${request.exception?.message}")
-          continuation.resume(null)
-        }
-      }
-
-      continuation.invokeOnCancellation {
-        // Handle cancellation if needed
-      }
-    }
-
-  /**
-   * Launches the Google Play In-App Review flow
-   */
-  private fun launchReviewFlow(activity: Activity, reviewInfo: ReviewInfo) {
-    reviewManager.launchReviewFlow(activity, reviewInfo).addOnCompleteListener { launch ->
-      if (launch.isSuccessful) {
-        // User completed the review flow
-        applicationScope.launch(Dispatchers.IO) {
-          reviewPromptRepository.recordReviewPromptRated()
-        }
-        analytics.logEvent("review_prompt_completed_in_app", null)
-        FirebaseCrashlytics.getInstance().log("In-app review completed successfully")
-      } else {
-        // User dismissed or there was an error
-        applicationScope.launch(Dispatchers.IO) {
-          reviewPromptRepository.recordReviewPromptDismissed()
-        }
-        analytics.logEvent("review_prompt_dismissed_in_app", null)
-        FirebaseCrashlytics.getInstance()
-          .log("In-app review dismissed or failed: ${launch.exception?.message}")
-      }
     }
   }
 
@@ -112,7 +69,7 @@ class ReviewPromptManager(
   private fun launchPlayStoreReview(activity: Activity) {
     try {
       val intent = Intent(Intent.ACTION_VIEW).apply {
-        data = Uri.parse("https://play.google.com/store/apps/details?id=${activity.packageName}")
+        data = "https://play.google.com/store/apps/details?id=${activity.packageName}".toUri()
         setPackage("com.android.vending") // Try to open in Play Store app
       }
 
@@ -123,7 +80,7 @@ class ReviewPromptManager(
       } else {
         // Fallback to browser
         val browserIntent = Intent(Intent.ACTION_VIEW).apply {
-          data = Uri.parse("https://play.google.com/store/apps/details?id=${activity.packageName}")
+          data = "https://play.google.com/store/apps/details?id=${activity.packageName}".toUri()
         }
         activity.startActivity(browserIntent)
         analytics.logEvent("review_prompt_redirected_to_browser", null)
@@ -158,20 +115,59 @@ class ReviewPromptManager(
   }
 
   /**
-   * Force show review prompt (useful for testing)
+   * Force show review prompt (useful for testing).
+   * Returns a diagnostic result that can be displayed in the UI.
    */
-  suspend fun forceShowReviewPrompt(activity: Activity) {
-    try {
+  suspend fun forceShowReviewPrompt(activity: Activity): ReviewDiagnosticResult {
+    val steps = mutableListOf<String>()
+    return try {
+      steps.add("Starting forced review flow...")
+
+      steps.add("Requesting ReviewInfo from Google Play...")
+      val reviewInfo = reviewManager.requestReview()
+      steps.add("✅ ReviewInfo obtained successfully: $reviewInfo")
+
+      steps.add("Launching review flow...")
+      reviewManager.launchReview(activity, reviewInfo)
+      steps.add("✅ Review flow completed (note: Google does not reveal if user actually reviewed)")
+
       reviewPromptRepository.recordReviewPromptShown()
-      val reviewInfo = requestReviewInfo()
-      if (reviewInfo != null) {
-        launchReviewFlow(activity, reviewInfo)
-      } else {
-        launchPlayStoreReview(activity)
-      }
+      steps.add("✅ Recorded prompt shown")
+
+      ReviewDiagnosticResult(
+        success = true,
+        steps = steps,
+        error = null
+      )
     } catch (e: Exception) {
+      steps.add("❌ Error: ${e.javaClass.simpleName}: ${e.message}")
+      steps.add("Stack trace: ${e.stackTraceToString().take(500)}")
       FirebaseCrashlytics.getInstance().recordException(e)
-      launchPlayStoreReview(activity)
+
+      ReviewDiagnosticResult(
+        success = false,
+        steps = steps,
+        error = e
+      )
+    }
+  }
+}
+
+data class ReviewDiagnosticResult(
+  val success: Boolean,
+  val steps: List<String>,
+  val error: Exception?
+) {
+  fun toDisplayString(): String = buildString {
+    appendLine(if (success) "=== REVIEW FLOW SUCCEEDED ===" else "=== REVIEW FLOW FAILED ===")
+    appendLine()
+    steps.forEachIndexed { index, step ->
+      appendLine("${index + 1}. $step")
+    }
+    if (error != null) {
+      appendLine()
+      appendLine("Error type: ${error.javaClass.name}")
+      appendLine("Error message: ${error.message}")
     }
   }
 }

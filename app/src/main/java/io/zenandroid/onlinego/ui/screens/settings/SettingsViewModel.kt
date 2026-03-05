@@ -153,7 +153,7 @@ class SettingsViewModel(
         }
       }
 
-      PrivacyClicked, SupportClicked, LogoutClicked, NotificationsClicked, SettingsAction.SocketDebugClicked -> {}
+      PrivacyClicked, SupportClicked, LogoutClicked, NotificationsClicked, SettingsAction.SocketDebugClicked, SettingsAction.ReviewPromptClicked -> {}
     }
   }
 
@@ -187,6 +187,7 @@ sealed interface SettingsAction {
   data object PrivacyClicked : SettingsAction
   data object SupportClicked : SettingsAction
   data object SocketDebugClicked : SettingsAction
+  data object ReviewPromptClicked : SettingsAction
   data class Logout(val context: Context?) : SettingsAction
 }
 

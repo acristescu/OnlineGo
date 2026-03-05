@@ -28,6 +28,7 @@ import androidx.compose.material.icons.automirrored.rounded.Logout
 import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.RateReview
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material.icons.rounded.DarkMode
@@ -53,6 +54,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -97,8 +99,12 @@ import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.SoundsClicked
 import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.SupportClicked
 import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.ThemeClicked
 import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
+import io.zenandroid.onlinego.utils.ReviewDiagnosticResult
+import io.zenandroid.onlinego.utils.ReviewPromptManager
 import io.zenandroid.onlinego.utils.processGravatarURL
+import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.koinInject
 
 @Composable
 fun SettingsScreen(
@@ -110,8 +116,11 @@ fun SettingsScreen(
   val userSettings by viewModel.userSettings.collectAsStateWithLifecycle()
 
   var dialogData by remember { mutableStateOf<DialogData?>(null) }
+  var reviewDiagnosticResult by remember { mutableStateOf<ReviewDiagnosticResult?>(null) }
 
   val activity = LocalActivity.current
+  val reviewPromptManager: ReviewPromptManager = koinInject()
+  val coroutineScope = rememberCoroutineScope()
 
   SettingsContent(
     state = state,
@@ -128,7 +137,7 @@ fun SettingsScreen(
 
         is LogoutClicked -> dialogData = DialogData(
           title = "Log out",
-          message = "Are you sure you want to log out? You won't be able to use the app until you log back in.",
+          message = "Are you sure you want to log out?",
           positiveButton = "Log out",
           negativeButton = "Cancel",
           onPositive = { viewModel.onAction(SettingsAction.Logout(activity)) },
@@ -136,6 +145,14 @@ fun SettingsScreen(
 
         is SupportClicked -> onNavigateToSupport()
         is SettingsAction.SocketDebugClicked -> onNavigateToSocketDebug()
+        is SettingsAction.ReviewPromptClicked -> {
+          activity?.let { act ->
+            coroutineScope.launch {
+              val result = reviewPromptManager.forceShowReviewPrompt(act)
+              reviewDiagnosticResult = result
+            }
+          }
+        }
 
         else -> viewModel.onAction(it)
       }
@@ -156,6 +173,31 @@ fun SettingsScreen(
       },
       text = { Text(data.message) },
       title = { Text(data.title, style = MaterialTheme.typography.titleLarge) },
+    )
+  }
+
+  reviewDiagnosticResult?.let { result ->
+    AlertDialog(
+      onDismissRequest = { reviewDiagnosticResult = null },
+      confirmButton = {
+        TextButton(onClick = { reviewDiagnosticResult = null }) {
+          Text("OK")
+        }
+      },
+      text = {
+        Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+          Text(
+            text = result.toDisplayString(),
+            style = MaterialTheme.typography.bodySmall.copy(fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace),
+          )
+        }
+      },
+      title = {
+        Text(
+          text = if (result.success) "Review Flow Diagnostic" else "Review Flow Error",
+          style = MaterialTheme.typography.titleLarge
+        )
+      },
     )
   }
 
@@ -395,6 +437,12 @@ private fun SettingsContent(
           checkbox = false,
           checked = true,
           onClick = { onAction(SettingsAction.SocketDebugClicked) })
+        SettingsRow(
+          title = "Review Prompt",
+          icon = Icons.Filled.RateReview,
+          checkbox = false,
+          checked = true,
+          onClick = { onAction(SettingsAction.ReviewPromptClicked) })
       }
     }
     Text(
