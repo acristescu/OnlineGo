@@ -21,7 +21,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -47,6 +50,8 @@ fun ChallengeDetailsDialog(
     onDialogDismissed: () -> Unit,
     status: ChallengeDialogStatus,
 ) {
+    var lastActionTime by remember { mutableStateOf(0L) }
+
     BackHandler { onDialogDismissed() }
     Box(modifier = Modifier
         .fillMaxSize()
@@ -104,10 +109,22 @@ fun ChallengeDetailsDialog(
                 horizontalArrangement = Arrangement.SpaceEvenly,
                 modifier = Modifier.fillMaxWidth(),
             ) {
-                TextButton (onClick = { onChallengeAccepted(status.challenge) }) {
+                TextButton(onClick = {
+                    val currentTime = System.currentTimeMillis()
+                    if (currentTime - lastActionTime >= 3000) {
+                        lastActionTime = currentTime
+                        onChallengeAccepted(status.challenge)
+                    }
+                }) {
                     Text("Accept")
                 }
-                TextButton(onClick = { onChallengeDeclined(status.challenge) }) {
+                TextButton(onClick = {
+                    val currentTime = System.currentTimeMillis()
+                    if (currentTime - lastActionTime >= 3000) {
+                        lastActionTime = currentTime
+                        onChallengeDeclined(status.challenge)
+                    }
+                }) {
                     Text("Decline")
                 }
             }

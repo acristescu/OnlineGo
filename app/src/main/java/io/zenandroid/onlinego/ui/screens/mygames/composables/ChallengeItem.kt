@@ -7,13 +7,13 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -27,6 +27,8 @@ import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
 
 @Composable
 fun ChallengeItem(challenge: Challenge, userId: Long?, onAction: (Action) -> Unit) {
+    var lastActionTime by remember { mutableStateOf(0L) }
+
     SenteCard (
         modifier = Modifier
             .height(90.dp)
@@ -54,17 +56,41 @@ fun ChallengeItem(challenge: Challenge, userId: Long?, onAction: (Action) -> Uni
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
                 if(challenge.challenger?.id == userId) {
-                    TextButton(onClick = { onAction(Action.ChallengeCancelled(challenge)) }) {
+                    TextButton(
+                        onClick = {
+                            val currentTime = System.currentTimeMillis()
+                            if (currentTime - lastActionTime >= 3000) {
+                                lastActionTime = currentTime
+                                onAction(Action.ChallengeCancelled(challenge))
+                            }
+                        }
+                    ) {
                         Text("Cancel")
                     }
                 } else {
-                    TextButton(onClick = { onAction(Action.ChallengeAccepted(challenge)) }) {
+                    TextButton(
+                        onClick = {
+                            val currentTime = System.currentTimeMillis()
+                            if (currentTime - lastActionTime >= 3000) {
+                                lastActionTime = currentTime
+                                onAction(Action.ChallengeAccepted(challenge))
+                            }
+                        }
+                    ) {
                         Text("Accept")
                     }
                     TextButton(onClick = { onAction(Action.ChallengeSeeDetails(challenge)) }) {
                         Text("See Details")
                     }
-                    TextButton(onClick = { onAction(Action.ChallengeDeclined(challenge)) }) {
+                    TextButton(
+                        onClick = {
+                            val currentTime = System.currentTimeMillis()
+                            if (currentTime - lastActionTime >= 3000) {
+                                lastActionTime = currentTime
+                                onAction(Action.ChallengeDeclined(challenge))
+                            }
+                        }
+                    ) {
                         Text("Decline")
                     }
                 }
