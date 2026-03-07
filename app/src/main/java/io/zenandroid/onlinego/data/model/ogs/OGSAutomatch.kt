@@ -1,7 +1,7 @@
 package io.zenandroid.onlinego.data.model.ogs
 
 data class OGSAutomatch(
-        val uuid: String,
+  val uuid: String?,
         val game_id: Long?,
         val size_speed_options: List<SizeSpeedOption>?
 ) {

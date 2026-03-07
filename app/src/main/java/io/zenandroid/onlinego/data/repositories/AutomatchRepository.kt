@@ -64,10 +64,15 @@ class AutomatchRepository(
     }
 
     private fun removeAutomatch(automatch: OGSAutomatch) {
-        _automatches.update { it.removeAll { it.uuid == automatch.uuid } }
+        if (automatch.uuid == null) {
+            _automatches.update { persistentListOf() }
+        } else {
+            _automatches.update { it.removeAll { it.uuid == automatch.uuid } }
+        }
     }
 
     private fun addAutomatch(automatch: OGSAutomatch) {
+        if (automatch.uuid == null) return
         _automatches.update { current ->
             if (current.find { it.uuid == automatch.uuid } == null) {
                 current + automatch
