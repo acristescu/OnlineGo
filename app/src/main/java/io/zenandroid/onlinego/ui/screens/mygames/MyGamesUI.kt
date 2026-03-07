@@ -208,7 +208,7 @@ fun MyGamesContent(
         )
       }
     }
-    items(items = state.automatches, key = { it.uuid }) {
+    items(items = state.automatches, key = { it.uuid ?: "no_uuid_${it.hashCode()}" }) {
       AutomatchItem(it, onAction)
     }
     if (state.myTurnGames.isNotEmpty()) {
