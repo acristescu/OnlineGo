@@ -63,6 +63,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
 import java.util.Locale
+import kotlin.coroutines.cancellation.CancellationException
 
 class MyGamesViewModel(
   private val userSessionRepository: UserSessionRepository,
@@ -352,6 +353,9 @@ class MyGamesViewModel(
   }
 
   private fun onError(t: Throwable) {
+    if (t is CancellationException) {
+      throw t
+    }
     if (t is retrofit2.HttpException) {
       if (t.code() in arrayOf(401, 403)) {
         FirebaseCrashlytics.getInstance().setCustomKey("AUTO_LOGOUT", System.currentTimeMillis())
@@ -506,7 +510,6 @@ class MyGamesViewModel(
           .onEach { result ->
             _state.update {
               it.copy(
-                loadingHistoricGames = result.loading,
                 loadedAllHistoricGames = result.loadedLastPage
               )
             }
@@ -532,10 +535,13 @@ class MyGamesViewModel(
   private fun onHistoricGames(games: List<Game>) {
     _state.update {
       val existingGames = it.historicGames
-      val newGames =
-        games.filter { candidate -> existingGames.find { candidate.id == it.id } == null }
+      val existingGameIds = existingGames.map { it.id }.toSet()
+      val updatedExistingGames = existingGames.map { existing ->
+        games.find { it.id == existing.id } ?: existing
+      }
+      val newGames = games.filter { candidate -> candidate.id !in existingGameIds }
       it.copy(
-        historicGames = existingGames + newGames,
+        historicGames = updatedExistingGames + newGames,
         hasReceivedHistoricGames = true,
       )
     }
@@ -551,7 +557,6 @@ data class MyGamesState(
   val challenges: List<Challenge> = emptyList(),
   val automatches: List<OGSAutomatch> = emptyList(),
   val historicGames: List<Game> = emptyList(),
-  val loadingHistoricGames: Boolean = false,
   val loadedAllHistoricGames: Boolean = false,
   val userId: Long?,
   val userIsLoggedOut: Boolean = false,

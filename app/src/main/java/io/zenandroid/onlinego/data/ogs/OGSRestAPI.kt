@@ -2,6 +2,7 @@ package io.zenandroid.onlinego.data.ogs
 
 import io.zenandroid.onlinego.data.model.ogs.Chat
 import io.zenandroid.onlinego.data.model.ogs.CreateAccountRequest
+import io.zenandroid.onlinego.data.model.ogs.GameData
 import io.zenandroid.onlinego.data.model.ogs.Glicko2History
 import io.zenandroid.onlinego.data.model.ogs.JosekiPosition
 import io.zenandroid.onlinego.data.model.ogs.OGSChallenge
@@ -54,6 +55,9 @@ interface OGSRestAPI {
 
     @GET("api/v1/games/{game_id}")
     suspend fun fetchGame(@Path("game_id") game_id: Long): OGSGame
+
+    @GET("/termination-api/game/{game_id}")
+    suspend fun fetchTerminationGameData(@Path("game_id") game_id: Long): GameData
 
     @GET("api/v1/ui/overview")
     suspend fun fetchOverview(): Overview

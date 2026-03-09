@@ -57,6 +57,11 @@ class ActiveGamesRepository(
   private var flowScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
   private fun onNotification(game: OGSGame) {
+    if (game.ended != null) {
+      // Note: this is a bug with the backend. When requesting a game that was ended ago
+      // we get a new active_game notification, and we fetch the game twice
+      return
+    }
     if (gameDao.getGameNullable(game.id) == null) {
       FirebaseCrashlytics.getInstance()
         .log("ActiveGameRepository: New game found from active_game notification ${game.id}")

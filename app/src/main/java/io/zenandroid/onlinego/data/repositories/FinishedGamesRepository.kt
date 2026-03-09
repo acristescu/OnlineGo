@@ -106,18 +106,29 @@ class FinishedGamesRepository(
   private fun fetchRecentlyFinishedGames() {
     scope.launch {
       try {
+        val threeDaysAgoMicros = (System.currentTimeMillis() - (3 * 24 * 60 * 60 * 1000L)) * 1000
         val ogsGames =
-          retryOnIOException { restService.fetchHistoricGamesAfter(newestGameFetchedEndedAt) }
-        val ids = ogsGames.map(OGSGame::id)
-        val idsToFetch = ids - gameDao.getHistoricGamesThatDontNeedUpdating(ids).toSet()
-        val games = idsToFetch.map { id ->
-          Game.fromOGSGame(retryOnIOException { restService.fetchGame(id) })
-        }
+          retryOnIOException { restService.fetchHistoricGamesAfter(threeDaysAgoMicros) }
+        val games = processAndFetchGameDetails(ogsGames)
         onHistoricGames(games)
       } catch (e: Exception) {
         onError(e, "fetchRecentlyFinishedGames")
       }
     }
+  }
+
+  private suspend fun processAndFetchGameDetails(ogsGames: List<OGSGame>): List<Game> {
+    val ids = ogsGames.map(OGSGame::id)
+    val idsAlreadyPresent = gameDao.getHistoricGamesThatDontNeedUpdating(ids)
+    return ogsGames.filter { it.id !in idsAlreadyPresent }
+      .map {
+        val gameData = retryOnIOException { restService.fetchTerminationGameData(it.id) }
+        Game.fromOGSGame(
+          it.copy(
+            json = gameData
+          )
+        )
+      }
   }
 
   private var historicGamesRequestInFlight = false
@@ -129,7 +140,6 @@ class FinishedGamesRepository(
       historicGamesRequestInFlight = true
 
       val now = System.currentTimeMillis()
-      val shouldThrottle = now - lastHistoricGamesRequestTimestamp < 30_000
       lastHistoricGamesRequestTimestamp = now
 
       scope.launch {
@@ -145,12 +155,7 @@ class FinishedGamesRepository(
             gameDao.updateHistoricGameMetadata(newMetadata)
             onMetadata(newMetadata)
           }
-          val ids = ogsGames.map(OGSGame::id)
-          val idsToFetch = ids - gameDao.getHistoricGamesThatDontNeedUpdating(ids)
-          val games = idsToFetch.map { id ->
-            if (shouldThrottle) delay(1000)
-            Game.fromOGSGame(retryOnIOException { restService.fetchGame(id) })
-          }
+          val games = processAndFetchGameDetails(ogsGames)
           synchronized(this@FinishedGamesRepository) {
             onHistoricGames(games)
             historicGamesRequestInFlight = false

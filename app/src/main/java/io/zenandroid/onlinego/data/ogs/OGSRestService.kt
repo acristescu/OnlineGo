@@ -203,6 +203,9 @@ class OGSRestService(
       //
       .also { it.json = it.gamedata }
 
+  suspend fun fetchTerminationGameData(gameId: Long) =
+    restApi.fetchTerminationGameData(gameId)
+
   suspend fun fetchActiveGames(): List<OGSGame> {
     userSessionRepository.loginStatus.first { it is LoginStatus.LoggedIn }
     val overview = restApi.fetchOverview()
