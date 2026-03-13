@@ -902,6 +902,7 @@ class GameViewModel(
   suspend fun handleReviewPrompt(activity: Activity) {
     if (shouldShowReviewPrompt) {
       shouldShowReviewPrompt = false
+      delay(1_000)
       try {
         reviewPromptManager.requestReview(activity)
       } catch (e: Exception) {

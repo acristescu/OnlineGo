@@ -34,7 +34,7 @@ class ReviewPromptRepository(
 
     // Configuration constants
     private const val DAYS_BEFORE_FIRST_PROMPT = 1
-    private const val COOLDOWN_DAYS = 1
+    private const val COOLDOWN_DAYS = 7
   }
 
   init {
