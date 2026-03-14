@@ -20,6 +20,7 @@ import io.zenandroid.onlinego.data.ogs.RemovedStonesAccepted
 import io.zenandroid.onlinego.data.ogs.UndoRequested
 import io.zenandroid.onlinego.utils.recordException
 import io.zenandroid.onlinego.utils.timeLeftForCurrentPlayer
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -291,14 +292,15 @@ class ActiveGamesRepository(
         .sortedBy { timeLeftForCurrentPlayer(it) }
   }
 
-  fun refreshGameData(id: Long) {
-    flowScope.launch {
-      try {
-        val game = retryOnIOException { restService.fetchGame(id) }
-        gameDao.insertAllGames(listOf(Game.fromOGSGame(game)))
-      } catch (e: Exception) {
-        onError(e, "monitorGame")
-      }
+  suspend fun refreshGameData(id: Long): Game? {
+    try {
+      val ogsGame = retryOnIOException { restService.fetchGame(id) }
+      val game = Game.fromOGSGame(ogsGame)
+      gameDao.insertAllGames(listOf(game))
+      return game
+    } catch (e: Exception) {
+      onError(e, "refreshGameData")
+      return null
     }
   }
 
@@ -330,7 +332,7 @@ class ActiveGamesRepository(
     return gameDao.monitorGame(id)
       .distinctUntilChanged()
       .onEach(this::connectToGame)
-      .onStart { refreshGameData(id) }
+      .onStart { flowScope.launch { refreshGameData(id) } }
       .flowOn(Dispatchers.IO)
   }
 
@@ -344,10 +346,6 @@ class ActiveGamesRepository(
         delay(15_000)
       }
     }
-  }
-
-  suspend fun getGameSingle(id: Long): Game {
-    return gameDao.monitorGame(id).first()
   }
 
   suspend fun refreshActiveGames() {
@@ -407,6 +405,9 @@ class ActiveGamesRepository(
   }
 
   private fun onError(t: Throwable, request: String) {
+    if (t is CancellationException) {
+      throw t
+    }
     var message = request
     if (t is retrofit2.HttpException) {
       message = "$request: ${t.response()?.errorBody()?.string()}"

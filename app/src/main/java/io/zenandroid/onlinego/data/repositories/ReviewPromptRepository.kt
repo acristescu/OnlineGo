@@ -56,9 +56,9 @@ class ReviewPromptRepository(
    * 3. User hasn't already rated the app
    */
   suspend fun shouldPromptForReview(): Boolean {
-    if (userSessionRepository.userId.replayCache.firstOrNull() != 89194L) {
-      return false
-    }
+//    if (userSessionRepository.userId.replayCache.firstOrNull() != 89194L) {
+//      return false
+//    }
     val prefs = dataStore.data.first()
 
     val firstLaunchTime = prefs[APP_FIRST_LAUNCH_TIME] ?: return false

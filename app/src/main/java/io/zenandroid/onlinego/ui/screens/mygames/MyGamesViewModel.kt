@@ -204,9 +204,12 @@ class MyGamesViewModel(
         automatchRepository.gameStartFlow.collect { automatch ->
           automatch.game_id?.let { gameId ->
             try {
-              val game = activeGamesRepository.getGameSingle(gameId)
-              withContext(Dispatchers.Main) { onGameStart(game) }
-            } catch (_: Exception) {
+              val game = activeGamesRepository.refreshGameData(gameId)
+              game?.let {
+                withContext(Dispatchers.Main) { onGameStart(game) }
+              }
+            } catch (e: Exception) {
+              onError(e)
             }
           }
         }

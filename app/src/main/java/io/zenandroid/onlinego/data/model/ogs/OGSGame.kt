@@ -18,7 +18,7 @@ data class OGSGame (
         var width: Int,
         var height: Int,
         var move_number: Int? = null,
-        var paused: Long? = null,
+        var paused: Boolean? = null,
         var private: Boolean? = null,
         var time_per_move: Int? = null,
         var player_to_move: Long? = null,
