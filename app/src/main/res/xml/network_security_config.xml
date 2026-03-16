@@ -3,6 +3,8 @@
   <base-config cleartextTrafficPermitted="false">
     <trust-anchors>
       <certificates src="system" />
+      <certificates src="@raw/isrgrootx1" />
+      <certificates src="@raw/isrgrootx2" />
       <certificates
           src="user"
           tools:ignore="AcceptsUserCertificates"
