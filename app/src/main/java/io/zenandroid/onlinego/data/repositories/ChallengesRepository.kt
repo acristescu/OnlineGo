@@ -6,6 +6,7 @@ import io.zenandroid.onlinego.data.model.ogs.OGSChallenge
 import io.zenandroid.onlinego.data.ogs.OGSRestService
 import io.zenandroid.onlinego.data.ogs.OGSWebSocketService
 import io.zenandroid.onlinego.utils.recordException
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -56,6 +57,9 @@ class ChallengesRepository(
     fun monitorChallenges(): Flow<List<Challenge>> =
         dao.getChallenges().distinctUntilChanged()
     fun onError(throwable: Throwable) {
+        if (throwable is CancellationException) {
+            throw throwable
+        }
         Log.e(TAG, throwable.message, throwable)
         recordException(throwable)
     }

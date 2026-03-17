@@ -1,4 +1,5 @@
 package io.zenandroid.onlinego.data.repositories
+
 import android.util.Log
 import io.zenandroid.onlinego.data.db.GameDao
 import io.zenandroid.onlinego.data.model.Mark
@@ -16,72 +17,77 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+
 class JosekiRepository(
-        private val restService: OGSRestService,
-        private val dao: GameDao
+  private val restService: OGSRestService,
+  private val dao: GameDao
 ) {
-    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
-    private val customMarkPattern = "<(.):([A-H]|[J-T]\\d{1,2})>".toPattern()
-    private val headerWithMissingSpaceRegex = "#(?!\\s|#)".toRegex()
-    private val positionLink = "<position: (\\d+)>".toRegex()
-    fun getJosekiPosition(id: Long?): Flow<JosekiPosition> {
-        scope.launch {
-            try {
-                val positions = restService.getJosekiPositions(id)
-                savePositionsToDB(positions)
-            } catch (e: Exception) {
-                onError(e)
-            }
-        }
-        val dbFlow =
-                if(id == null) dao.getJosekiRootPosition()
-                else dao.getJosekiPosition(id)
-        return dbFlow
-            .filterNotNull()
-            .map(this::extractLabelsFromDescription)
-            .onEach {
-                    it.next_moves = dao.getChildrenPositions(it.node_id ?: 0).map(this::extractLabelsFromDescription)
-                }
-                .distinctUntilChanged()
+  private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+  private val customMarkPattern = "<(.):([A-H]|[J-T]\\d{1,2})>".toPattern()
+  private val headerWithMissingSpaceRegex = "#(?!\\s|#)".toRegex()
+  private val positionLink = "<position: (\\d+)>".toRegex()
+  fun getJosekiPosition(id: Long?): Flow<JosekiPosition> {
+    scope.launch {
+      try {
+        val positions = restService.getJosekiPositions(id)
+        savePositionsToDB(positions)
+      } catch (e: Exception) {
+        onError(e)
+      }
     }
-    private fun savePositionsToDB(list: List<JosekiPosition>) {
-        val children = mutableListOf<JosekiPosition>()
-        list.forEach { pos ->
-            pos.next_moves?.forEach {
-                it.parent_id = pos.node_id
-            }
-            val isRoot = pos.play == ".root"
-            pos.parent_id = if(isRoot) null else pos.parent?.node_id
-            pos.next_moves?.let {
-                children += pos
-            }
-        }
-        dao.insertJosekiPositionsWithChildren(list, children)
+    val dbFlow =
+      if (id == null) dao.getJosekiRootPosition()
+      else dao.getJosekiPosition(id)
+    return dbFlow
+      .filterNotNull()
+      .map(this::extractLabelsFromDescription)
+      .onEach {
+        it.next_moves =
+          dao.getChildrenPositions(it.node_id ?: 0).map(this::extractLabelsFromDescription)
+      }
+      .distinctUntilChanged()
+  }
+
+  private fun savePositionsToDB(list: List<JosekiPosition>) {
+    val children = mutableListOf<JosekiPosition>()
+    list.forEach { pos ->
+      pos.next_moves?.forEach {
+        it.parent_id = pos.node_id
+      }
+      val isRoot = pos.play == ".root"
+      pos.parent_id = if (isRoot) null else pos.parent?.node_id
+      pos.next_moves?.let {
+        children += pos
+      }
     }
-    private fun onError(error: Throwable) {
-        Log.e("JosekiRepository", error.message, error)
-        recordException(error)
+    dao.insertJosekiPositionsWithChildren(list, children)
+  }
+
+  private fun onError(error: Throwable) {
+    Log.e("JosekiRepository", error.message, error)
+    recordException(error)
+  }
+
+  private fun extractLabelsFromDescription(originalPos: JosekiPosition): JosekiPosition {
+    var newDescription: String? = null
+    originalPos.description?.let {
+      newDescription = it.replace(headerWithMissingSpaceRegex, "# ")
+      val matcher = customMarkPattern.matcher(newDescription!!)
+      val sb = StringBuffer()
+      val labels = mutableListOf<Mark>()
+      while (matcher.find()) {
+        val label = matcher.group(1)
+        val coordinate = matcher.group(2)!!
+        labels.add(Mark(RulesManager.coordinateToCell(coordinate), label, PlayCategory.LABEL))
+        matcher.appendReplacement(sb, "**$label**")
+      }
+      originalPos.labels = labels
+      matcher.appendTail(sb)
+      newDescription = sb.toString().replace(positionLink) { match: MatchResult ->
+        "[Position ${match.groupValues[1]}](${match.groupValues[1]})"
+      }
     }
-    private fun extractLabelsFromDescription(originalPos: JosekiPosition): JosekiPosition {
-        var newDescription: String? = null
-        originalPos.description?.let {
-            newDescription = it.replace(headerWithMissingSpaceRegex, "# ")
-            val matcher = customMarkPattern.matcher(newDescription!!)
-            val sb = StringBuffer()
-            val labels = mutableListOf<Mark>()
-            while(matcher.find()) {
-                val label = matcher.group(1)
-                val coordinate = matcher.group(2)!!
-                labels.add(Mark(RulesManager.coordinateToCell(coordinate), label, PlayCategory.LABEL))
-                matcher.appendReplacement(sb, "**$label**")
-            }
-            originalPos.labels = labels
-            matcher.appendTail(sb)
-            newDescription = sb.toString().replace(positionLink) { match: MatchResult ->
-                "[Position ${match.groupValues[1]}](${match.groupValues[1]})"
-            }
-        }
-        originalPos.description = newDescription
-        return originalPos
-    }
+    originalPos.description = newDescription
+    return originalPos
+  }
 }

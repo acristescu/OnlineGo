@@ -17,6 +17,7 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import kotlin.coroutines.cancellation.CancellationException
 
 class ChatRepository(
   private val gameDao: GameDao,
@@ -96,6 +97,9 @@ class ChatRepository(
   }
 
   private fun onError(t: Throwable, request: String) {
+    if (t is CancellationException) {
+      throw t
+    }
     var message = request
     if (t is retrofit2.HttpException) {
       message = "$request: ${t.response()?.errorBody()?.string()}"

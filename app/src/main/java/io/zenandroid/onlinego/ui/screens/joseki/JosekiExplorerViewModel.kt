@@ -9,6 +9,7 @@ import io.zenandroid.onlinego.data.model.Position
 import io.zenandroid.onlinego.data.model.ogs.JosekiPosition
 import io.zenandroid.onlinego.data.repositories.JosekiRepository
 import io.zenandroid.onlinego.gamelogic.RulesManager.coordinateToCell
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -191,6 +192,9 @@ class JosekiExplorerViewModel(
     }
 
     private fun onDataLoadingError(error: Throwable) {
+        if (error is CancellationException) {
+            throw error
+        }
         analytics.logEvent("joseki_loading_error", Bundle().apply {
             putString("ERROR_DETAILS", error.message)
             putString("ERROR_STATE", _state.value.toString())
