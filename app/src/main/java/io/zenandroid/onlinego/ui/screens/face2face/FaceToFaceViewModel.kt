@@ -1,6 +1,5 @@
 package io.zenandroid.onlinego.ui.screens.face2face
 
-import android.os.Build
 import androidx.annotation.VisibleForTesting
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.AddCircle
@@ -48,6 +47,7 @@ import io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceGameConfig
 import io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceGameSnapshot
 import io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceLanConnectionManager
 import io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceLanHostHandle
+import io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceLanJoinTarget
 import io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFacePeerMessage
 import io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFacePeerRole
 import io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceMoveRejectReason
@@ -58,6 +58,8 @@ import io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceSessionStat
 import io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceTransport
 import io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceTransportType
 import io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceSyncRecoveryAction
+import io.zenandroid.onlinego.ui.screens.face2face.session.buildFaceToFaceLanJoinErrorMessage
+import io.zenandroid.onlinego.ui.screens.face2face.session.parseFaceToFaceLanJoinTarget
 import io.zenandroid.onlinego.ui.screens.face2face.session.resolveOutOfSyncRecovery
 import io.zenandroid.onlinego.utils.recordException
 import kotlinx.coroutines.CoroutineScope
@@ -386,11 +388,10 @@ class FaceToFaceViewModel(
       lanConnectionManager.host(onClosed = ::onPeerConnectionClosed)
     }
     this.hostHandle = hostHandle
-    setupMessage = if (peerSession.moveHistory.isEmpty()) {
-      "Hosting on ${hostHandle.localAddress}:${hostHandle.port}. Join from the other device."
-    } else {
-      "Re-hosting current game on ${hostHandle.localAddress}:${hostHandle.port}. Reconnect from the other device."
-    }
+    setupMessage = hostSetupMessage(
+      host = FaceToFaceLanJoinTarget(hostHandle.localAddress, hostHandle.port),
+      reconnecting = peerSession.moveHistory.isNotEmpty(),
+    )
 
     val transport = withContext(ioDispatcher) {
       hostHandle.awaitTransport()
@@ -425,9 +426,11 @@ class FaceToFaceViewModel(
   }
 
   private suspend fun startWifiJoin(params: GameParameters) {
-    val hostAddress = params.hostAddress.trim()
-    if (hostAddress.isBlank()) {
-      setupMessage = "Enter the host address from the other device."
+    val hostInput = params.hostAddress.trim()
+    val joinTarget = runCatching {
+      parseFaceToFaceLanJoinTarget(hostInput)
+    }.getOrElse {
+      setupMessage = it.message ?: "Enter the host address."
       newGameDialogShowing = true
       return
     }
@@ -448,16 +451,16 @@ class FaceToFaceViewModel(
       remotePlayerName = "Host",
     )
     resetTransientUi()
-    currentGameParameters = params.copy(mode = MatchMode.WIFI_JOIN, hostAddress = hostAddress)
+    currentGameParameters = params.copy(mode = MatchMode.WIFI_JOIN, hostAddress = hostInput)
     newGameParameters = currentGameParameters
-    setupMessage = "Connecting to $hostAddress:${FaceToFaceLanConnectionManager.DEFAULT_PORT}..."
+    setupMessage = "Connecting to ${joinTarget.host}:${joinTarget.port}..."
 
     val transport = try {
       withContext(ioDispatcher) {
-        lanConnectionManager.join(hostAddress, onClosed = ::onPeerConnectionClosed)
+        lanConnectionManager.join(joinTarget.host, port = joinTarget.port, onClosed = ::onPeerConnectionClosed)
       }
     } catch (e: Exception) {
-      handlePeerFailure("Unable to connect to $hostAddress", e, reopenDialog = true)
+      handleJoinConnectionFailure(joinTarget, e)
       return
     }
 
@@ -752,10 +755,14 @@ class FaceToFaceViewModel(
     message: String,
     error: Throwable,
     reopenDialog: Boolean = false,
+    appendErrorDetails: Boolean = true,
   ) {
     crashlytics.log(message)
     recordException(error)
-    setupMessage = "$message: ${error.message ?: "unknown error"}"
+    setupMessage = when {
+      appendErrorDetails && !error.message.isNullOrBlank() -> "$message: ${error.message}"
+      else -> message
+    }
     session = session?.copy(
       connectionState = io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceConnectionState.DISCONNECTED,
       lastError = error.message ?: message,
@@ -813,7 +820,7 @@ class FaceToFaceViewModel(
   }
 
   private fun localDeviceName(): String {
-    return Build.MODEL.takeIf { it.isNotBlank() } ?: "Android device"
+    return android.os.Build.MODEL.takeIf { it.isNotBlank() } ?: "Android device"
   }
 
   private fun GameParameters.toSessionConfig(): FaceToFaceGameConfig {
@@ -832,6 +839,34 @@ class FaceToFaceViewModel(
       this.transport == FaceToFaceTransportType.WIFI_LAN &&
       this.connectionState == io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceConnectionState.DISCONNECTED &&
       this.config == params.toSessionConfig()
+  }
+
+  private fun handleJoinConnectionFailure(
+    target: FaceToFaceLanJoinTarget,
+    error: Throwable,
+  ) {
+    val message = buildFaceToFaceLanJoinErrorMessage(
+      target = target,
+      error = error,
+      emulatorMode = isProbablyAndroidEmulator(),
+    )
+    handlePeerFailure(message, error, reopenDialog = true, appendErrorDetails = false)
+  }
+
+  private fun hostSetupMessage(
+    host: FaceToFaceLanJoinTarget,
+    reconnecting: Boolean,
+  ): String {
+    val baseMessage = if (reconnecting) {
+      "Re-hosting current game on ${host.host}:${host.port}. Reconnect from the other device."
+    } else {
+      "Hosting on ${host.host}:${host.port}. Join from the other device."
+    }
+    return if (isProbablyAndroidEmulator()) {
+      "$baseMessage If the guest is another emulator, join via 10.0.2.2:${host.port}."
+    } else {
+      baseMessage
+    }
   }
 
   companion object {

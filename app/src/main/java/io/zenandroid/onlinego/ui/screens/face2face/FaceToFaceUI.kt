@@ -34,6 +34,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterVertically
@@ -44,11 +45,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import io.zenandroid.onlinego.R.drawable
 import io.zenandroid.onlinego.R.mipmap
 import io.zenandroid.onlinego.data.model.Position
@@ -323,6 +328,22 @@ private fun NewGameDialog(
   newGameParameters: GameParameters,
   setupMessage: String?,
 ) {
+  val emulatorMode = remember { isProbablyAndroidEmulator() }
+  var hostAddressDraft by rememberSaveable(newGameParameters.mode, newGameParameters.hostAddress) {
+    mutableStateOf(newGameParameters.hostAddress)
+  }
+  val joinError = newGameParameters.mode == MatchMode.WIFI_JOIN && setupMessage != null
+  val joinSupportingText = when {
+    joinError -> setupMessage
+    emulatorMode -> "Android Emulator tip: use 10.0.2.2 for the guest address."
+    else -> "Enter the host device's local network address."
+  }
+  val joinPlaceholder = if (emulatorMode) "10.0.2.2" else "192.168.1.42"
+  val connectEnabled = when (newGameParameters.mode) {
+    MatchMode.WIFI_JOIN -> hostAddressDraft.trim().isNotEmpty()
+    else -> true
+  }
+
   Box(
     modifier = Modifier
       .fillMaxSize()
@@ -375,19 +396,45 @@ private fun NewGameDialog(
       }
       if (newGameParameters.mode == MatchMode.WIFI_JOIN) {
         TextField(
-          value = newGameParameters.hostAddress,
+          value = hostAddressDraft,
           onValueChange = {
-            onUserAction(Action.NewGameParametersChanged(newGameParameters.copy(hostAddress = it)))
+            hostAddressDraft = it
           },
           label = { Text("Host address") },
-          placeholder = { Text("192.168.1.42") },
+          placeholder = { Text(joinPlaceholder) },
+          supportingText = {
+            Text(
+              text = joinSupportingText,
+              color = if (joinError) {
+                MaterialTheme.colorScheme.error
+              } else {
+                MaterialTheme.colorScheme.onSurfaceVariant
+              }
+            )
+          },
+          isError = joinError,
+          keyboardOptions = KeyboardOptions(
+            keyboardType = KeyboardType.Uri,
+            imeAction = ImeAction.Done,
+            autoCorrectEnabled = false,
+          ),
+          keyboardActions = KeyboardActions(
+            onDone = {
+              if (connectEnabled) {
+                onUserAction(
+                  Action.NewGameParametersChanged(newGameParameters.copy(hostAddress = hostAddressDraft))
+                )
+                onUserAction(StartNewGame)
+              }
+            }
+          ),
           singleLine = true,
           modifier = Modifier
             .fillMaxWidth()
             .padding(top = 16.dp)
         )
       }
-      if (setupMessage != null) {
+      if (setupMessage != null && newGameParameters.mode != MatchMode.WIFI_JOIN) {
         Text(
           text = setupMessage,
           color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -402,7 +449,15 @@ private fun NewGameDialog(
         modifier = Modifier
           .fillMaxWidth()
           .padding(top = 32.dp),
-        onClick = { onUserAction(StartNewGame) }
+        enabled = connectEnabled,
+        onClick = {
+          if (newGameParameters.mode == MatchMode.WIFI_JOIN) {
+            onUserAction(
+              Action.NewGameParametersChanged(newGameParameters.copy(hostAddress = hostAddressDraft))
+            )
+          }
+          onUserAction(StartNewGame)
+        }
       ) {
         Text(
           text = when (newGameParameters.mode) {
