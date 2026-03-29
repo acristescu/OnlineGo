@@ -57,6 +57,8 @@ import io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceSessionMuta
 import io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceSessionState
 import io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceTransport
 import io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceTransportType
+import io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceSyncRecoveryAction
+import io.zenandroid.onlinego.ui.screens.face2face.session.resolveOutOfSyncRecovery
 import io.zenandroid.onlinego.utils.recordException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineDispatcher
@@ -100,6 +102,8 @@ class FaceToFaceViewModel(
   private var setupMessage by mutableStateOf<String?>(null)
   private var currentGameParameters by mutableStateOf(GameParameters(BoardSize.LARGE, 0))
   private var newGameParameters by mutableStateOf(GameParameters(BoardSize.LARGE, 0))
+  @Volatile
+  private var suppressPeerCloseCallback = false
 
   init {
     analytics.logEvent("face_to_face_opened", null)
@@ -130,6 +134,10 @@ class FaceToFaceViewModel(
         "Face to face · Waiting for guest"
       session?.connectionState == io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceConnectionState.CONNECTING ->
         "Face to face · Connecting"
+      session?.connectionState == io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceConnectionState.SYNCING ->
+        "Face to face · Syncing"
+      session?.connectionState == io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceConnectionState.DISCONNECTED &&
+        session.mode == FaceToFaceSessionMode.PEER_TO_PEER -> "Face to face · Disconnected"
       session?.connectionState == io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceConnectionState.CONNECTED &&
         session.mode == FaceToFaceSessionMode.PEER_TO_PEER &&
         !session.isLocalTurn -> "Face to face · Opponent's turn"
@@ -349,8 +357,13 @@ class FaceToFaceViewModel(
   }
 
   private suspend fun startWifiHost(params: GameParameters) {
+    val reconnectSession = session.takeIf { it.canReconnectPeerSession(params, FaceToFacePeerRole.HOST) }
     closePeerConnection()
-    val peerSession = sessionEngine.createPeerSession(
+    val peerSession = reconnectSession?.copy(
+      connectionState = io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceConnectionState.HOSTING,
+      localPlayerName = localDeviceName(),
+      lastError = null,
+    ) ?: sessionEngine.createPeerSession(
       config = params.toSessionConfig(),
       localRole = FaceToFacePeerRole.HOST,
       transport = FaceToFaceTransportType.WIFI_LAN,
@@ -363,22 +376,36 @@ class FaceToFaceViewModel(
     resetTransientUi()
     currentGameParameters = params.copy(mode = MatchMode.WIFI_HOST, hostAddress = "")
     newGameParameters = currentGameParameters
-    setupMessage = "Preparing local Wi-Fi host..."
+    setupMessage = if (peerSession.moveHistory.isEmpty()) {
+      "Preparing local Wi-Fi host..."
+    } else {
+      "Preparing to resume the Wi-Fi game..."
+    }
 
     val hostHandle = withContext(ioDispatcher) {
       lanConnectionManager.host(onClosed = ::onPeerConnectionClosed)
     }
     this.hostHandle = hostHandle
-    setupMessage = "Hosting on ${hostHandle.localAddress}:${hostHandle.port}. Join from the other device."
+    setupMessage = if (peerSession.moveHistory.isEmpty()) {
+      "Hosting on ${hostHandle.localAddress}:${hostHandle.port}. Join from the other device."
+    } else {
+      "Re-hosting current game on ${hostHandle.localAddress}:${hostHandle.port}. Reconnect from the other device."
+    }
 
     val transport = withContext(ioDispatcher) {
       hostHandle.awaitTransport()
     }
+    this.hostHandle = null
     attachTransport(transport)
     session = session?.copy(
-      connectionState = io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceConnectionState.CONNECTED
+      connectionState = io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceConnectionState.CONNECTED,
+      lastError = null,
     )
-    setupMessage = "Guest connected on ${hostHandle.localAddress}:${hostHandle.port}"
+    setupMessage = if (peerSession.moveHistory.isEmpty()) {
+      "Guest connected on ${hostHandle.localAddress}:${hostHandle.port}"
+    } else {
+      "Guest reconnected on ${hostHandle.localAddress}:${hostHandle.port}"
+    }
 
     val connectedSession = session ?: return
     runCatching {
@@ -405,8 +432,13 @@ class FaceToFaceViewModel(
       return
     }
 
+    val reconnectSession = session.takeIf { it.canReconnectPeerSession(params, FaceToFacePeerRole.GUEST) }
     closePeerConnection()
-    session = sessionEngine.createPeerSession(
+    session = reconnectSession?.copy(
+      connectionState = io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceConnectionState.CONNECTING,
+      localPlayerName = localDeviceName(),
+      lastError = null,
+    ) ?: sessionEngine.createPeerSession(
       config = params.toSessionConfig(),
       localRole = FaceToFacePeerRole.GUEST,
       transport = FaceToFaceTransportType.WIFI_LAN,
@@ -434,7 +466,7 @@ class FaceToFaceViewModel(
     runCatching {
       transport.send(
         FaceToFacePeerMessage.Hello(
-          sessionId = PENDING_SESSION_ID,
+          sessionId = session?.sessionId ?: PENDING_SESSION_ID,
           deviceName = localDeviceName(),
         )
       )
@@ -577,12 +609,35 @@ class FaceToFaceViewModel(
 
           is FaceToFaceSessionMutationResult.Rejected -> if (result.reason == FaceToFaceMoveRejectReason.OUT_OF_SYNC) {
             runCatching {
-              transport?.send(
-                FaceToFacePeerMessage.SyncState(
-                  sessionId = currentSession.sessionId,
-                  snapshot = sessionEngine.toSnapshot(currentSession),
-                )
-              )
+              when (resolveOutOfSyncRecovery(currentSession.moveHistory.size, message.moveNumber)) {
+                FaceToFaceSyncRecoveryAction.REQUEST_REMOTE_STATE -> {
+                  session = currentSession.copy(
+                    connectionState = io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceConnectionState.SYNCING,
+                    lastError = null,
+                  )
+                  setupMessage = "Move mismatch detected. Syncing board..."
+                  transport?.send(
+                    FaceToFacePeerMessage.SyncRequest(
+                      sessionId = currentSession.sessionId,
+                      expectedMoveCount = currentSession.moveHistory.size,
+                    )
+                  )
+                }
+
+                FaceToFaceSyncRecoveryAction.PUSH_LOCAL_STATE -> {
+                  session = currentSession.copy(
+                    connectionState = io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceConnectionState.CONNECTED,
+                    lastError = null,
+                  )
+                  setupMessage = "Peer was out of sync. Sending the current board state."
+                  transport?.send(
+                    FaceToFacePeerMessage.SyncState(
+                      sessionId = currentSession.sessionId,
+                      snapshot = sessionEngine.toSnapshot(currentSession),
+                    )
+                  )
+                }
+              }
             }.onFailure { handlePeerFailure("Unable to sync the board", it) }
           }
         }
@@ -591,6 +646,11 @@ class FaceToFaceViewModel(
       is FaceToFacePeerMessage.SyncRequest -> {
         val currentSession = session ?: return
         if (currentSession.moveHistory.size != message.expectedMoveCount) {
+          session = currentSession.copy(
+            connectionState = io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceConnectionState.CONNECTED,
+            lastError = null,
+          )
+          setupMessage = "Sending the current board state to recover sync."
           runCatching {
             transport?.send(
               FaceToFacePeerMessage.SyncState(
@@ -604,6 +664,11 @@ class FaceToFaceViewModel(
 
       is FaceToFacePeerMessage.SyncState -> {
         val currentSession = session ?: return
+        session = currentSession.copy(
+          connectionState = io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceConnectionState.SYNCING,
+          lastError = null,
+        )
+        setupMessage = "Syncing board..."
         session = sessionEngine.restoreFromSnapshot(
           snapshot = message.snapshot,
           mode = currentSession.mode,
@@ -614,7 +679,11 @@ class FaceToFaceViewModel(
           remotePlayerName = currentSession.remotePlayerName,
         )
         historyIndex = null
-        setupMessage = "Board synced."
+        setupMessage = if (session?.isLocalTurn == true) {
+          "Board synced. Your turn."
+        } else {
+          "Board synced. Opponent's turn."
+        }
       }
 
       is FaceToFacePeerMessage.KeepAlive,
@@ -625,6 +694,7 @@ class FaceToFaceViewModel(
   }
 
   private suspend fun closePeerConnection() {
+    suppressPeerCloseCallback = true
     transportMessagesJob?.cancel()
     transportMessagesJob = null
 
@@ -633,8 +703,12 @@ class FaceToFaceViewModel(
     val transport = transport
     this.transport = null
 
-    runCatching { transport?.close() }
-    runCatching { hostHandle?.close() }
+    try {
+      runCatching { transport?.close() }
+      runCatching { hostHandle?.close() }
+    } finally {
+      suppressPeerCloseCallback = false
+    }
   }
 
   private fun resetTransientUi() {
@@ -689,13 +763,53 @@ class FaceToFaceViewModel(
     if (reopenDialog) {
       newGameDialogShowing = true
     }
+    suppressPeerCloseCallback = true
+    viewModelScope.launch(ioDispatcher) {
+      closePeerConnection()
+    }
   }
 
   private fun onPeerConnectionClosed(error: Throwable?) {
-    if (error == null) return
+    if (suppressPeerCloseCallback) return
     viewModelScope.launch(Dispatchers.Main) {
-      handlePeerFailure("Peer connection closed", error)
+      releasePeerConnectionReferences()
+      handlePeerDisconnect(error)
     }
+  }
+
+  private fun releasePeerConnectionReferences() {
+    transportMessagesJob?.cancel()
+    transportMessagesJob = null
+    transport = null
+    hostHandle = null
+  }
+
+  private fun handlePeerDisconnect(error: Throwable?) {
+    val currentSession = session ?: return
+    if (currentSession.mode != FaceToFaceSessionMode.PEER_TO_PEER) return
+
+    if (error != null) {
+      crashlytics.log("Peer connection closed")
+      recordException(error)
+    }
+
+    val message = when (currentSession.localRole) {
+      FaceToFacePeerRole.HOST -> "Guest disconnected. Start hosting again to resume this game."
+      FaceToFacePeerRole.GUEST -> "Disconnected from host. Reconnect when the host is ready to resume."
+    }
+
+    candidateMove = null
+    estimateStatus = Idle
+    historyIndex = null
+    setupMessage = if (error?.message.isNullOrBlank()) {
+      message
+    } else {
+      "$message ${error.message}"
+    }
+    session = currentSession.copy(
+      connectionState = io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceConnectionState.DISCONNECTED,
+      lastError = error?.message ?: message,
+    )
   }
 
   private fun localDeviceName(): String {
@@ -707,6 +821,17 @@ class FaceToFaceViewModel(
       boardSize = size.width,
       handicap = handicap,
     )
+  }
+
+  private fun FaceToFaceSessionState?.canReconnectPeerSession(
+    params: GameParameters,
+    localRole: FaceToFacePeerRole,
+  ): Boolean {
+    return this?.mode == FaceToFaceSessionMode.PEER_TO_PEER &&
+      this.localRole == localRole &&
+      this.transport == FaceToFaceTransportType.WIFI_LAN &&
+      this.connectionState == io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceConnectionState.DISCONNECTED &&
+      this.config == params.toSessionConfig()
   }
 
   companion object {
