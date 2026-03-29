@@ -1,5 +1,6 @@
 package io.zenandroid.onlinego.ui.screens.face2face
 
+import android.os.Build
 import androidx.annotation.VisibleForTesting
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.AddCircle
@@ -27,7 +28,6 @@ import io.zenandroid.onlinego.data.model.StoneType.BLACK
 import io.zenandroid.onlinego.data.model.StoneType.WHITE
 import io.zenandroid.onlinego.data.repositories.SettingsRepository
 import io.zenandroid.onlinego.gamelogic.RulesManager
-import io.zenandroid.onlinego.gamelogic.Util.toGTP
 import io.zenandroid.onlinego.ui.composables.BottomBarButton
 import io.zenandroid.onlinego.ui.screens.face2face.Action.BoardCellDragged
 import io.zenandroid.onlinego.ui.screens.face2face.Action.BoardCellTapUp
@@ -44,41 +44,66 @@ import io.zenandroid.onlinego.ui.screens.face2face.Button.Previous
 import io.zenandroid.onlinego.ui.screens.face2face.EstimateStatus.Idle
 import io.zenandroid.onlinego.ui.screens.face2face.EstimateStatus.Success
 import io.zenandroid.onlinego.ui.screens.face2face.EstimateStatus.Working
+import io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceGameConfig
+import io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceGameSnapshot
+import io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceLanConnectionManager
+import io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceLanHostHandle
+import io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFacePeerMessage
+import io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFacePeerRole
+import io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceMoveRejectReason
+import io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceSessionMode
+import io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceSessionEngine
+import io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceSessionMutationResult
+import io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceSessionState
+import io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceTransport
+import io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceTransportType
 import io.zenandroid.onlinego.utils.recordException
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.util.UUID
 
 class FaceToFaceViewModel(
   private val analytics: FirebaseAnalytics,
   private val crashlytics: FirebaseCrashlytics,
   private val settingsRepository: SettingsRepository,
+  private val sessionEngine: FaceToFaceSessionEngine,
+  private val lanConnectionManager: FaceToFaceLanConnectionManager,
   private val applicationScope: CoroutineScope,
   testing: Boolean = false
 ) : ViewModel() {
 
   private val moleculeScope =
     if (testing) viewModelScope else CoroutineScope(viewModelScope.coroutineContext + AndroidUiDispatcher.Main)
+  private val workerDispatcher: CoroutineDispatcher =
+    if (testing) Dispatchers.Main else Dispatchers.Default
+  private val ioDispatcher: CoroutineDispatcher =
+    if (testing) Dispatchers.Main else Dispatchers.IO
 
   private var loading by mutableStateOf(true)
-  private var currentPosition by mutableStateOf(Position(19, 19))
+  private var session by mutableStateOf<FaceToFaceSessionState?>(null)
+  private var transport: FaceToFaceTransport? = null
+  private var hostHandle: FaceToFaceLanHostHandle? = null
+  private var transportMessagesJob: Job? = null
   private var candidateMove by mutableStateOf<Cell?>(null)
-  private var history by mutableStateOf<List<Cell>>(emptyList())
   private var historyIndex by mutableStateOf<Int?>(null)
   private var koMoveDialogShowing by mutableStateOf(false)
-  private var gameFinished by mutableStateOf<Boolean?>(null)
   private var estimateStatus by mutableStateOf<EstimateStatus>(Idle)
   private var newGameDialogShowing by mutableStateOf(false)
+  private var setupMessage by mutableStateOf<String?>(null)
   private var currentGameParameters by mutableStateOf(GameParameters(BoardSize.LARGE, 0))
   private var newGameParameters by mutableStateOf(GameParameters(BoardSize.LARGE, 0))
 
   init {
     analytics.logEvent("face_to_face_opened", null)
-    viewModelScope.launch(Dispatchers.IO) {
+    viewModelScope.launch(ioDispatcher) {
       loadSavedData()
     }
   }
@@ -92,37 +117,61 @@ class FaceToFaceViewModel(
   @VisibleForTesting
   @Composable
   fun molecule(): FaceToFaceState {
+    val session = session
+    val history = session?.moveHistory ?: emptyList()
     val historyIndex = historyIndex
+    val activePosition = displayedPosition(session)
+    val peerSessionActive = session?.mode == FaceToFaceSessionMode.PEER_TO_PEER
+    val sessionStatus = sessionStatus(session)
+
     val title = when {
       loading -> "Face to face · Loading"
-      gameFinished == true -> "Face to face · Game Over"
-      currentPosition.nextToMove == WHITE -> "Face to face · White's turn"
-      currentPosition.nextToMove == BLACK -> "Face to face · Black's turn"
+      session?.connectionState == io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceConnectionState.HOSTING ->
+        "Face to face · Waiting for guest"
+      session?.connectionState == io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceConnectionState.CONNECTING ->
+        "Face to face · Connecting"
+      session?.connectionState == io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceConnectionState.CONNECTED &&
+        session.mode == FaceToFaceSessionMode.PEER_TO_PEER &&
+        !session.isLocalTurn -> "Face to face · Opponent's turn"
+      activePosition.nextToMove == WHITE -> "Face to face · White's turn"
+      activePosition.nextToMove == BLACK -> "Face to face · Black's turn"
       else -> "Face to face"
     }
 
     val estimateStatus = estimateStatus
     val position = when {
       estimateStatus is Success -> estimateStatus.result
-      else -> currentPosition
+      else -> activePosition
     }
 
+    val boardInteractive =
+      !loading &&
+        estimateStatus is Idle &&
+        when {
+          session == null -> false
+          session.mode == FaceToFaceSessionMode.HOTSEAT -> true
+          session.connectionState != io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceConnectionState.CONNECTED -> false
+          historyIndex != null -> false
+          else -> session.isLocalTurn
+        }
     val previousButtonEnabled =
-      !loading && history.isNotEmpty() && (historyIndex == null || historyIndex >= 0)
+      !peerSessionActive && !loading && history.isNotEmpty() && (historyIndex == null || historyIndex >= 0)
     val nextButtonEnabled =
-      !loading && history.isNotEmpty() && historyIndex != null && historyIndex < history.size
+      !peerSessionActive && !loading && history.isNotEmpty() && historyIndex != null && historyIndex < history.size
 
     val (buttons, bottomText) = when {
       estimateStatus is Working -> emptyList<Button>() to "Estimating"
       estimateStatus is Success -> listOf(CloseEstimate) to null
+      peerSessionActive -> listOf(GameSettings, Estimate, Pass(boardInteractive)) to null
       else -> listOf(
-        GameSettings, Estimate, Pass, Previous(previousButtonEnabled), Next(nextButtonEnabled)
+        GameSettings, Estimate, Pass(true), Previous(previousButtonEnabled), Next(nextButtonEnabled)
       ) to null
     }
 
     val extraStatus = when {
       estimateStatus is Success && estimateStatus.gameIsOver -> "Game is over!"
       estimateStatus is Success && !estimateStatus.gameIsOver -> "Recommendation: Game is not over!"
+      sessionStatus != null -> sessionStatus
       else -> null
     }
 
@@ -132,7 +181,7 @@ class FaceToFaceViewModel(
       title = title,
       gameFinished = false,
       history = history,
-      boardInteractive = !loading && estimateStatus is Idle,
+      boardInteractive = boardInteractive,
       candidateMove = candidateMove,
       drawTerritory = estimateStatus is Success,
       fadeOutRemovedStones = estimateStatus is Success,
@@ -143,6 +192,9 @@ class FaceToFaceViewModel(
       newGameDialogShowing = newGameDialogShowing,
       currentGameParameters = currentGameParameters,
       newGameParameters = newGameParameters,
+      blackPlayerLabel = blackPlayerLabel(session),
+      whitePlayerLabel = whitePlayerLabel(session),
+      setupMessage = setupMessage,
       extraStatus = extraStatus,
     )
   }
@@ -152,35 +204,54 @@ class FaceToFaceViewModel(
     val sizeString =
       settingsRepository.faceToFaceBoardSizeFlow.first() ?: BoardSize.LARGE.prettyName
     val handicap = settingsRepository.faceToFaceHandicapFlow.first() ?: 0
+    val size = BoardSize.entries.firstOrNull { it.prettyName == sizeString } ?: BoardSize.LARGE
+    val history = historyString.split(" ")
+      .filter { it.isNotEmpty() }
+      .map {
+        val parts = it.split(",")
+        Cell(parts[0].toInt(), parts[1].toInt())
+      }
+    val params = GameParameters(size, handicap, mode = MatchMode.HOTSEAT)
 
-    if (historyString.isNotEmpty()) {
-      analytics.logEvent("face_to_face_loading", null)
-      history = historyString.split(" ")
-        .filter { it.isNotEmpty() }
-        .map {
-          val parts = it.split(",")
-          Cell(parts[0].toInt(), parts[1].toInt())
-        }
-      val size = BoardSize.entries.firstOrNull { it.prettyName == sizeString } ?: BoardSize.LARGE
-      currentGameParameters = GameParameters(size, handicap)
-      newGameParameters = currentGameParameters
-    }
-    currentPosition = try {
-      historyPosition(history.lastIndex)
+    currentGameParameters = params
+    newGameParameters = params
+    setupMessage = null
+
+    session = try {
+      if (history.isNotEmpty()) {
+        analytics.logEvent("face_to_face_loading", null)
+      }
+      val snapshot = FaceToFaceGameSnapshot(
+        sessionId = HOTSEAT_SESSION_ID,
+        config = params.toSessionConfig(),
+        moveHistory = history,
+      )
+      sessionEngine.restoreFromSnapshot(snapshot)
     } catch (e: Exception) {
-      crashlytics.log("FaceToFaceViewModel Cannot load history $history")
+      crashlytics.log("FaceToFaceViewModel Cannot load saved hotseat session")
       recordException(e)
-      historyPosition(0)
+      sessionEngine.createHotseatSession(
+        config = params.toSessionConfig(),
+        sessionId = HOTSEAT_SESSION_ID,
+      )
     }
     loading = false
     analytics.logEvent("face_to_face_loaded", null)
   }
 
   override fun onCleared() {
+    val session = session
     applicationScope.launch {
-      settingsRepository.setFaceToFaceHistory(history.joinToString(separator = " ") { "${it.x},${it.y}" })
-      settingsRepository.setFaceToFaceBoardSize(currentGameParameters.size.toString())
-      settingsRepository.setFaceToFaceHandicap(currentGameParameters.handicap)
+      if (session?.mode == FaceToFaceSessionMode.HOTSEAT) {
+        settingsRepository.setFaceToFaceHistory(
+          session.moveHistory.joinToString(separator = " ") { "${it.x},${it.y}" }
+        )
+        settingsRepository.setFaceToFaceBoardSize(currentGameParameters.size.toString())
+        settingsRepository.setFaceToFaceHandicap(currentGameParameters.handicap)
+      }
+    }
+    viewModelScope.launch(ioDispatcher) {
+      closePeerConnection()
     }
     super.onCleared()
   }
@@ -209,10 +280,12 @@ class FaceToFaceViewModel(
   }
 
   private fun doEstimation() {
+    val position = displayedPosition()
     estimateStatus = Working
-    viewModelScope.launch(Dispatchers.IO) {
-      val estimate = RulesManager.determineTerritory(currentPosition, false)
+    viewModelScope.launch(ioDispatcher) {
+      val estimate = RulesManager.determineTerritory(position, false)
       withContext(Dispatchers.Main) {
+        val history = session?.moveHistory.orEmpty()
         val index = historyIndex ?: history.lastIndex
         val finished =
           index > currentGameParameters.size.width &&
@@ -223,99 +296,422 @@ class FaceToFaceViewModel(
   }
 
   private fun onPreviousPressed() {
+    val history = session?.moveHistory ?: return
     crashlytics.log("FaceToFaceViewModel onPreviousPressed")
     val newIndex = historyIndex?.minus(1) ?: (history.lastIndex - 1)
     if (newIndex < -1) {
-      //
-      // Note: this can happen with repeating buttons: the button
-      // could fire twice in the space between two frames
-      // thus not giving a chance to the button to be disabled
-      //
       return
     }
-    viewModelScope.launch(Dispatchers.Default) {
-      val newPos = historyPosition(newIndex)
-      historyIndex = newIndex
-      currentPosition = newPos
-    }
+    historyIndex = newIndex
   }
 
   private fun onNextPressed() {
+    val history = session?.moveHistory ?: return
     crashlytics.log("FaceToFaceViewModel onNextPressed")
     val newIndex = historyIndex?.plus(1) ?: history.lastIndex
     if (newIndex > history.lastIndex) {
-      //
-      // Note: this can happen with repeating buttons: the button
-      // could fire twice in the space between two frames
-      // thus not giving a chance to the button to be disabled
-      //
       return
     }
-    viewModelScope.launch(Dispatchers.Default) {
-      val newPos = historyPosition(newIndex)
-      historyIndex = if (newIndex < history.lastIndex) newIndex else null
-      currentPosition = newPos
-    }
+    historyIndex = if (newIndex < history.lastIndex) newIndex else null
   }
 
   private fun onStartNewGame() {
     crashlytics.log("FaceToFaceViewModel Starting new game")
-    val params = newGameParameters
-    currentPosition = RulesManager.initializePosition(params.size.height, params.handicap)
-    estimateStatus = Idle
-    history = emptyList()
-    currentGameParameters = params
-    historyIndex = null
-    newGameDialogShowing = false
+    viewModelScope.launch(workerDispatcher) {
+      val params = newGameParameters
+      runCatching {
+        when (params.mode) {
+          MatchMode.HOTSEAT -> startHotseatGame(params)
+          MatchMode.WIFI_HOST -> startWifiHost(params)
+          MatchMode.WIFI_JOIN -> startWifiJoin(params)
+        }
+      }.onFailure {
+        if (params.mode == MatchMode.HOTSEAT) {
+          crashlytics.log("Unable to start hotseat game")
+          recordException(it)
+        } else {
+          handlePeerFailure("Unable to start ${params.mode}", it, reopenDialog = true)
+        }
+      }
+    }
   }
 
-  private suspend fun historyPosition(index: Int) =
-    RulesManager.replay(
-      nextToMove = if (currentGameParameters.handicap > 0) WHITE else BLACK,
-      moves = history.subList(0, index + 1),
-      width = currentGameParameters.size.width,
-      height = currentGameParameters.size.height,
-      handicap = currentGameParameters.handicap
-    ) ?: run {
-      val historyString = history.toGTP(currentGameParameters.size.height)
-      val whiteStones = currentPosition.whiteStones.toGTP(currentGameParameters.size.height)
-      val blackStones = currentPosition.blackStones.toGTP(currentGameParameters.size.height)
-      crashlytics.log("FaceToFaceViewModel Cannot replay history $historyString")
-      recordException(IllegalStateException("Cannot replay history history=$historyString idx=$index historyIndex=$historyIndex currentPos.whiteStones=$whiteStones currentPos.blackStones=$blackStones"))
-      Position(
-        boardWidth = currentGameParameters.size.width,
-        boardHeight = currentGameParameters.size.height,
-        handicap = currentGameParameters.handicap,
-      )
+  private suspend fun startHotseatGame(params: GameParameters) {
+    closePeerConnection()
+    session = sessionEngine.createHotseatSession(
+      config = params.toSessionConfig(),
+      sessionId = HOTSEAT_SESSION_ID,
+    )
+    resetTransientUi()
+    setupMessage = null
+    currentGameParameters = params.copy(mode = MatchMode.HOTSEAT, hostAddress = "")
+    newGameParameters = currentGameParameters
+  }
+
+  private suspend fun startWifiHost(params: GameParameters) {
+    closePeerConnection()
+    val peerSession = sessionEngine.createPeerSession(
+      config = params.toSessionConfig(),
+      localRole = FaceToFacePeerRole.HOST,
+      transport = FaceToFaceTransportType.WIFI_LAN,
+      sessionId = UUID.randomUUID().toString(),
+      connectionState = io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceConnectionState.HOSTING,
+      localPlayerName = localDeviceName(),
+      remotePlayerName = "Guest",
+    )
+    session = peerSession
+    resetTransientUi()
+    currentGameParameters = params.copy(mode = MatchMode.WIFI_HOST, hostAddress = "")
+    newGameParameters = currentGameParameters
+    setupMessage = "Preparing local Wi-Fi host..."
+
+    val hostHandle = withContext(ioDispatcher) {
+      lanConnectionManager.host(onClosed = ::onPeerConnectionClosed)
     }
+    this.hostHandle = hostHandle
+    setupMessage = "Hosting on ${hostHandle.localAddress}:${hostHandle.port}. Join from the other device."
+
+    val transport = withContext(ioDispatcher) {
+      hostHandle.awaitTransport()
+    }
+    attachTransport(transport)
+    session = session?.copy(
+      connectionState = io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceConnectionState.CONNECTED
+    )
+    setupMessage = "Guest connected on ${hostHandle.localAddress}:${hostHandle.port}"
+
+    val connectedSession = session ?: return
+    runCatching {
+      transport.send(
+        FaceToFacePeerMessage.Hello(
+          sessionId = connectedSession.sessionId,
+          deviceName = localDeviceName(),
+        )
+      )
+      transport.send(
+        FaceToFacePeerMessage.StartGame(
+          sessionId = connectedSession.sessionId,
+          snapshot = sessionEngine.toSnapshot(connectedSession),
+        )
+      )
+    }.onFailure { handlePeerFailure("Unable to start Wi-Fi game", it) }
+  }
+
+  private suspend fun startWifiJoin(params: GameParameters) {
+    val hostAddress = params.hostAddress.trim()
+    if (hostAddress.isBlank()) {
+      setupMessage = "Enter the host address from the other device."
+      newGameDialogShowing = true
+      return
+    }
+
+    closePeerConnection()
+    session = sessionEngine.createPeerSession(
+      config = params.toSessionConfig(),
+      localRole = FaceToFacePeerRole.GUEST,
+      transport = FaceToFaceTransportType.WIFI_LAN,
+      sessionId = PENDING_SESSION_ID,
+      connectionState = io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceConnectionState.CONNECTING,
+      localPlayerName = localDeviceName(),
+      remotePlayerName = "Host",
+    )
+    resetTransientUi()
+    currentGameParameters = params.copy(mode = MatchMode.WIFI_JOIN, hostAddress = hostAddress)
+    newGameParameters = currentGameParameters
+    setupMessage = "Connecting to $hostAddress:${FaceToFaceLanConnectionManager.DEFAULT_PORT}..."
+
+    val transport = try {
+      withContext(ioDispatcher) {
+        lanConnectionManager.join(hostAddress, onClosed = ::onPeerConnectionClosed)
+      }
+    } catch (e: Exception) {
+      handlePeerFailure("Unable to connect to $hostAddress", e, reopenDialog = true)
+      return
+    }
+
+    attachTransport(transport)
+    setupMessage = "Connected. Waiting for the host to start the game."
+    runCatching {
+      transport.send(
+        FaceToFacePeerMessage.Hello(
+          sessionId = PENDING_SESSION_ID,
+          deviceName = localDeviceName(),
+        )
+      )
+    }.onFailure { handlePeerFailure("Unable to introduce this device to the host", it, reopenDialog = true) }
+  }
 
   private fun onPassPressed() {
     onCellTapUp(Cell(-1, -1))
   }
 
   private fun onCellTapUp(cell: Cell) {
-    viewModelScope.launch(Dispatchers.Default) {
-      val pos = currentPosition
-      val newPosition = RulesManager.makeMove(pos, pos.nextToMove, cell)
-      if (newPosition != null) {
-        val index = historyIndex ?: history.lastIndex
-        val potentialKOPosition = if (index > 0 && !cell.isPass) {
-          historyPosition(index - 1)
-        } else null
-        if (potentialKOPosition?.hasTheSameStonesAs(newPosition) == true) {
-          crashlytics.log("FaceToFaceViewModel KO move detected")
-          koMoveDialogShowing = true
-        } else {
-          currentPosition = newPosition
-          history = history.subList(0, index + 1) + cell
+    viewModelScope.launch(workerDispatcher) {
+      val session = session ?: return@launch
+      val baseSession = if (session.mode == FaceToFaceSessionMode.HOTSEAT) {
+        rewindSession(session, historyIndex)
+      } else {
+        session
+      }
+      when (val result = sessionEngine.applyLocalMove(baseSession, cell)) {
+        is FaceToFaceSessionMutationResult.Applied -> {
+          this@FaceToFaceViewModel.session = result.state
+          val repeatedPass = cell.isPass && baseSession.moveHistory.lastOrNull()?.isPass == true
           historyIndex = null
-          if (index > 0 && cell.isPass && history[index].isPass) {
+          if (result.state.mode == FaceToFaceSessionMode.PEER_TO_PEER) {
+            val player = baseSession.position.nextToMove
+            runCatching {
+              transport?.send(
+                FaceToFacePeerMessage.Move(
+                  sessionId = result.state.sessionId,
+                  moveNumber = result.state.moveHistory.size,
+                  player = player,
+                  cell = cell,
+                )
+              )
+            }.onFailure { handlePeerFailure("Unable to send move to the other device", it) }
+          }
+          if (repeatedPass) {
             doEstimation()
           }
+        }
+
+        is FaceToFaceSessionMutationResult.Rejected -> if (result.reason == FaceToFaceMoveRejectReason.KO) {
+          crashlytics.log("FaceToFaceViewModel KO move detected")
+          koMoveDialogShowing = true
         }
       }
       candidateMove = null
     }
+  }
+
+  private fun displayedPosition(
+    session: FaceToFaceSessionState? = this.session,
+  ): Position {
+    if (session == null) {
+      return RulesManager.initializePosition(
+        currentGameParameters.size.width,
+        currentGameParameters.handicap,
+      )
+    }
+
+    val historyIndex = historyIndex
+    return when {
+      historyIndex == null -> session.position
+      historyIndex < 0 -> session.initialPosition
+      else -> session.positionHistory.getOrNull(historyIndex) ?: session.position
+    }
+  }
+
+  private suspend fun rewindSession(
+    session: FaceToFaceSessionState,
+    historyIndex: Int?,
+  ): FaceToFaceSessionState {
+    if (historyIndex == null) return session
+    return sessionEngine.rewindToMoveCount(session, historyIndex + 1)
+  }
+
+  private suspend fun attachTransport(transport: FaceToFaceTransport) {
+    this.transport = transport
+    transportMessagesJob?.cancel()
+    transportMessagesJob = viewModelScope.launch {
+      transport.incomingMessages.collect { message ->
+        handleIncomingPeerMessage(message)
+      }
+    }
+  }
+
+  private suspend fun handleIncomingPeerMessage(message: FaceToFacePeerMessage) {
+    when (message) {
+      is FaceToFacePeerMessage.Hello -> {
+        val session = session ?: return
+        if (session.mode != FaceToFaceSessionMode.PEER_TO_PEER) return
+        this.session = session.copy(remotePlayerName = message.deviceName)
+        setupMessage = "Connected to ${message.deviceName}"
+      }
+
+      is FaceToFacePeerMessage.StartGame -> {
+        val localRole = session?.localRole ?: FaceToFacePeerRole.GUEST
+        val restoredSession = sessionEngine.restoreFromSnapshot(
+          snapshot = message.snapshot,
+          mode = FaceToFaceSessionMode.PEER_TO_PEER,
+          localRole = localRole,
+          transport = FaceToFaceTransportType.WIFI_LAN,
+          connectionState = io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceConnectionState.CONNECTED,
+          localPlayerName = localDeviceName(),
+          remotePlayerName = session?.remotePlayerName ?: "Opponent",
+        )
+        session = restoredSession
+        historyIndex = null
+        estimateStatus = Idle
+        currentGameParameters = GameParameters(
+          size = BoardSize.fromWidth(message.snapshot.config.boardSize),
+          handicap = message.snapshot.config.handicap,
+          mode = MatchMode.WIFI_JOIN,
+          hostAddress = currentGameParameters.hostAddress,
+        )
+        newGameParameters = currentGameParameters
+        setupMessage = if (restoredSession.isLocalTurn) {
+          "Connected. Your turn."
+        } else {
+          "Connected. Opponent's turn."
+        }
+      }
+
+      is FaceToFacePeerMessage.Move -> {
+        val currentSession = session ?: return
+        val result = sessionEngine.applyRemoteMove(currentSession, message)
+        when (result) {
+          is FaceToFaceSessionMutationResult.Applied -> {
+            session = result.state
+            historyIndex = null
+            setupMessage = if (result.state.isLocalTurn) {
+              "Your turn."
+            } else {
+              "Opponent's turn."
+            }
+            if (result.state.moveHistory.takeLast(2).all(Cell::isPass)) {
+              doEstimation()
+            }
+          }
+
+          is FaceToFaceSessionMutationResult.Rejected -> if (result.reason == FaceToFaceMoveRejectReason.OUT_OF_SYNC) {
+            runCatching {
+              transport?.send(
+                FaceToFacePeerMessage.SyncState(
+                  sessionId = currentSession.sessionId,
+                  snapshot = sessionEngine.toSnapshot(currentSession),
+                )
+              )
+            }.onFailure { handlePeerFailure("Unable to sync the board", it) }
+          }
+        }
+      }
+
+      is FaceToFacePeerMessage.SyncRequest -> {
+        val currentSession = session ?: return
+        if (currentSession.moveHistory.size != message.expectedMoveCount) {
+          runCatching {
+            transport?.send(
+              FaceToFacePeerMessage.SyncState(
+                sessionId = currentSession.sessionId,
+                snapshot = sessionEngine.toSnapshot(currentSession),
+              )
+            )
+          }.onFailure { handlePeerFailure("Unable to respond to sync request", it) }
+        }
+      }
+
+      is FaceToFacePeerMessage.SyncState -> {
+        val currentSession = session ?: return
+        session = sessionEngine.restoreFromSnapshot(
+          snapshot = message.snapshot,
+          mode = currentSession.mode,
+          localRole = currentSession.localRole,
+          transport = currentSession.transport,
+          connectionState = io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceConnectionState.CONNECTED,
+          localPlayerName = currentSession.localPlayerName,
+          remotePlayerName = currentSession.remotePlayerName,
+        )
+        historyIndex = null
+        setupMessage = "Board synced."
+      }
+
+      is FaceToFacePeerMessage.KeepAlive,
+      is FaceToFacePeerMessage.Resign,
+      is FaceToFacePeerMessage.UndoRequest,
+      is FaceToFacePeerMessage.UndoResponse -> Unit
+    }
+  }
+
+  private suspend fun closePeerConnection() {
+    transportMessagesJob?.cancel()
+    transportMessagesJob = null
+
+    val hostHandle = hostHandle
+    this.hostHandle = null
+    val transport = transport
+    this.transport = null
+
+    runCatching { transport?.close() }
+    runCatching { hostHandle?.close() }
+  }
+
+  private fun resetTransientUi() {
+    estimateStatus = Idle
+    koMoveDialogShowing = false
+    historyIndex = null
+    newGameDialogShowing = false
+  }
+
+  private fun blackPlayerLabel(session: FaceToFaceSessionState?): String {
+    return when (session?.mode) {
+      FaceToFaceSessionMode.PEER_TO_PEER -> "Black"
+      else -> "Player 1"
+    }
+  }
+
+  private fun whitePlayerLabel(session: FaceToFaceSessionState?): String {
+    return when (session?.mode) {
+      FaceToFaceSessionMode.PEER_TO_PEER -> "White"
+      else -> "Player 2"
+    }
+  }
+
+  private fun sessionStatus(session: FaceToFaceSessionState?): String? {
+    if (session?.mode != FaceToFaceSessionMode.PEER_TO_PEER) {
+      return setupMessage
+    }
+
+    return when (session.connectionState) {
+      io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceConnectionState.HOSTING,
+      io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceConnectionState.CONNECTING,
+      io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceConnectionState.CONNECTED,
+      io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceConnectionState.DISCONNECTED,
+      io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceConnectionState.SYNCING -> {
+        setupMessage ?: session.lastError
+      }
+    }
+  }
+
+  private fun handlePeerFailure(
+    message: String,
+    error: Throwable,
+    reopenDialog: Boolean = false,
+  ) {
+    crashlytics.log(message)
+    recordException(error)
+    setupMessage = "$message: ${error.message ?: "unknown error"}"
+    session = session?.copy(
+      connectionState = io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceConnectionState.DISCONNECTED,
+      lastError = error.message ?: message,
+    )
+    if (reopenDialog) {
+      newGameDialogShowing = true
+    }
+  }
+
+  private fun onPeerConnectionClosed(error: Throwable?) {
+    if (error == null) return
+    viewModelScope.launch(Dispatchers.Main) {
+      handlePeerFailure("Peer connection closed", error)
+    }
+  }
+
+  private fun localDeviceName(): String {
+    return Build.MODEL.takeIf { it.isNotBlank() } ?: "Android device"
+  }
+
+  private fun GameParameters.toSessionConfig(): FaceToFaceGameConfig {
+    return FaceToFaceGameConfig(
+      boardSize = size.width,
+      handicap = handicap,
+    )
+  }
+
+  companion object {
+    private const val HOTSEAT_SESSION_ID = "face-to-face-hotseat"
+    private const val PENDING_SESSION_ID = "pending-face-to-face-session"
   }
 }
 
@@ -337,6 +733,9 @@ data class FaceToFaceState(
   val newGameDialogShowing: Boolean,
   val currentGameParameters: GameParameters,
   val newGameParameters: GameParameters,
+  val blackPlayerLabel: String,
+  val whitePlayerLabel: String,
+  val setupMessage: String?,
   val extraStatus: String?,
 ) {
   companion object {
@@ -357,15 +756,28 @@ data class FaceToFaceState(
       newGameDialogShowing = false,
       currentGameParameters = GameParameters(BoardSize.LARGE, 0),
       newGameParameters = GameParameters(BoardSize.LARGE, 0),
+      blackPlayerLabel = "Player 1",
+      whitePlayerLabel = "Player 2",
+      setupMessage = null,
       extraStatus = null,
     )
   }
+}
+
+enum class MatchMode(private val title: String) {
+  HOTSEAT("Same device"),
+  WIFI_HOST("Wi-Fi host"),
+  WIFI_JOIN("Wi-Fi join");
+
+  override fun toString(): String = title
 }
 
 @Immutable
 data class GameParameters(
   val size: BoardSize,
   val handicap: Int,
+  val mode: MatchMode = MatchMode.HOTSEAT,
+  val hostAddress: String = "",
 )
 
 enum class BoardSize(
@@ -379,6 +791,12 @@ enum class BoardSize(
 
   override fun toString(): String {
     return prettyName
+  }
+
+  companion object {
+    fun fromWidth(width: Int): BoardSize {
+      return entries.firstOrNull { it.width == width } ?: LARGE
+    }
   }
 }
 
@@ -403,7 +821,8 @@ sealed class Button(
     Button(repeatable = true, enabled = enabled, icon = Icons.Rounded.SkipNext, label = "Next")
 
   object CloseEstimate : Button(Icons.Rounded.HighlightOff, "Return")
-  object Pass : Button(Icons.Rounded.Stop, "Pass")
+  class Pass(enabled: Boolean = true) :
+    Button(enabled = enabled, icon = Icons.Rounded.Stop, label = "Pass")
 }
 
 sealed interface Action {

@@ -95,6 +95,20 @@ class FaceToFaceSessionEngineTest {
   }
 
   @Test
+  fun `rewind restores earlier move count for branching`() = runTest {
+    val initial = engine.createHotseatSession(FaceToFaceGameConfig(boardSize = 13, handicap = 0))
+    val afterBlack = engine.applyLocalMove(initial, Cell(3, 3)) as FaceToFaceSessionMutationResult.Applied
+    val afterWhite = engine.applyLocalMove(afterBlack.state, Cell(9, 9)) as FaceToFaceSessionMutationResult.Applied
+
+    val rewound = engine.rewindToMoveCount(afterWhite.state, 1)
+
+    assertEquals(listOf(Cell(3, 3)), rewound.moveHistory)
+    assertEquals(setOf(Cell(3, 3)), rewound.position.blackStones)
+    assertTrue(rewound.position.whiteStones.isEmpty())
+    assertEquals(StoneType.WHITE, rewound.position.nextToMove)
+  }
+
+  @Test
   fun `ko attempt is rejected`() = runTest {
     val moves = "E5, D6, E7, E8, E6, F6, F7, D7, G6, F8, F5, F4, G5, H5, E4, H6, G4, H4, F3, D5, E3, D3, D4, C4, C6, E2, C5, F2, C7, C8, D8, D9, D7, B7, B8, B6, C9, B9, E9, F9, G8, H8, G9, H9, H7, J7, J8, J9, J8, J6, A9, B5, B4, A3, A4, B3, A5, A6, A7, A8, A7"
       .split(", ")

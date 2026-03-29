@@ -112,7 +112,7 @@ private fun FaceToFaceContent(
         Column {
           UserImage(BLACK)
           Text(
-            text = "Player 1",
+            text = state.blackPlayerLabel,
             textAlign = TextAlign.Center,
             color = MaterialTheme.colorScheme.onSurface,
             style = MaterialTheme.typography.titleMedium,
@@ -123,7 +123,7 @@ private fun FaceToFaceContent(
         Column {
           UserImage(WHITE, Modifier.padding(start = 4.dp))
           Text(
-            text = "Player 2",
+            text = state.whitePlayerLabel,
             textAlign = TextAlign.Center,
             color = MaterialTheme.colorScheme.onSurface,
             style = MaterialTheme.typography.titleMedium,
@@ -191,7 +191,7 @@ private fun FaceToFaceContent(
           Column {
             UserImage(BLACK)
             Text(
-              text = "Player 1",
+              text = state.blackPlayerLabel,
               textAlign = TextAlign.Center,
               color = MaterialTheme.colorScheme.onSurface,
               style = MaterialTheme.typography.headlineMedium,
@@ -202,7 +202,7 @@ private fun FaceToFaceContent(
           Column {
             UserImage(WHITE, Modifier.padding(start = 4.dp))
             Text(
-              text = "Player 2",
+              text = state.whitePlayerLabel,
               textAlign = TextAlign.Center,
               color = MaterialTheme.colorScheme.onSurface,
               style = MaterialTheme.typography.headlineMedium,
@@ -250,7 +250,7 @@ private fun FaceToFaceContent(
   }
 
   if (state.newGameDialogShowing) {
-    NewGameDialog(onUserAction, state.newGameParameters)
+    NewGameDialog(onUserAction, state.newGameParameters, state.setupMessage)
   }
 }
 
@@ -318,7 +318,11 @@ private fun ScoreSheet(pos: Position) {
 }
 
 @Composable
-private fun NewGameDialog(onUserAction: (Action) -> Unit, newGameParameters: GameParameters) {
+private fun NewGameDialog(
+  onUserAction: (Action) -> Unit,
+  newGameParameters: GameParameters,
+  setupMessage: String?,
+) {
   Box(
     modifier = Modifier
       .fillMaxSize()
@@ -344,28 +348,69 @@ private fun NewGameDialog(onUserAction: (Action) -> Unit, newGameParameters: Gam
         style = MaterialTheme.typography.headlineLarge,
       )
       SettingsRow(
-        label = "Size",
-        options = BoardSize.entries,
-        selected = newGameParameters.size,
+        label = "Mode",
+        options = MatchMode.entries,
+        selected = newGameParameters.mode,
         onSelectionChanged = {
-          onUserAction(Action.NewGameParametersChanged(newGameParameters.copy(size = it)))
+          onUserAction(Action.NewGameParametersChanged(newGameParameters.copy(mode = it)))
         }
       )
-      SettingsRow(
-        label = "Handicap",
-        options = (0..9).toList(),
-        selected = newGameParameters.handicap,
-        onSelectionChanged = {
-          onUserAction(Action.NewGameParametersChanged(newGameParameters.copy(handicap = it)))
-        }
-      )
+      if (newGameParameters.mode != MatchMode.WIFI_JOIN) {
+        SettingsRow(
+          label = "Size",
+          options = BoardSize.entries,
+          selected = newGameParameters.size,
+          onSelectionChanged = {
+            onUserAction(Action.NewGameParametersChanged(newGameParameters.copy(size = it)))
+          }
+        )
+        SettingsRow(
+          label = "Handicap",
+          options = (0..9).toList(),
+          selected = newGameParameters.handicap,
+          onSelectionChanged = {
+            onUserAction(Action.NewGameParametersChanged(newGameParameters.copy(handicap = it)))
+          }
+        )
+      }
+      if (newGameParameters.mode == MatchMode.WIFI_JOIN) {
+        TextField(
+          value = newGameParameters.hostAddress,
+          onValueChange = {
+            onUserAction(Action.NewGameParametersChanged(newGameParameters.copy(hostAddress = it)))
+          },
+          label = { Text("Host address") },
+          placeholder = { Text("192.168.1.42") },
+          singleLine = true,
+          modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 16.dp)
+        )
+      }
+      if (setupMessage != null) {
+        Text(
+          text = setupMessage,
+          color = MaterialTheme.colorScheme.onSurfaceVariant,
+          style = MaterialTheme.typography.bodyMedium,
+          textAlign = TextAlign.Center,
+          modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 16.dp)
+        )
+      }
       Button(
         modifier = Modifier
           .fillMaxWidth()
           .padding(top = 32.dp),
         onClick = { onUserAction(StartNewGame) }
       ) {
-        Text(text = "START NEW GAME")
+        Text(
+          text = when (newGameParameters.mode) {
+            MatchMode.HOTSEAT -> "START NEW GAME"
+            MatchMode.WIFI_HOST -> "START HOSTING"
+            MatchMode.WIFI_JOIN -> "CONNECT"
+          }
+        )
       }
     }
   }

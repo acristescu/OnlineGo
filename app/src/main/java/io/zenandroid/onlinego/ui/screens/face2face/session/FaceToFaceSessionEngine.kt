@@ -44,6 +44,9 @@ data class FaceToFaceSessionState(
 
   val isLocalTurn: Boolean
     get() = localStone == null || position.nextToMove == localStone
+
+  val initialPosition: Position
+    get() = RulesManager.initializePosition(config.boardSize, config.handicap)
 }
 
 enum class FaceToFaceMoveRejectReason {
@@ -147,6 +150,25 @@ class FaceToFaceSessionEngine {
       config = state.config,
       hostPlaysBlack = state.hostPlaysBlack,
       moveHistory = state.moveHistory,
+    )
+  }
+
+  suspend fun rewindToMoveCount(
+    state: FaceToFaceSessionState,
+    moveCount: Int,
+  ): FaceToFaceSessionState {
+    require(moveCount in 0..state.moveHistory.size) {
+      "moveCount=$moveCount outside history range 0..${state.moveHistory.size}"
+    }
+
+    return restoreFromSnapshot(
+      snapshot = toSnapshot(state).copy(moveHistory = state.moveHistory.take(moveCount)),
+      mode = state.mode,
+      localRole = state.localRole,
+      transport = state.transport,
+      connectionState = state.connectionState,
+      localPlayerName = state.localPlayerName,
+      remotePlayerName = state.remotePlayerName,
     )
   }
 
