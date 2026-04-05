@@ -9,12 +9,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.channels.BufferOverflow
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.io.IOException
 import java.net.BindException
 import java.net.Inet4Address
 import java.net.InetSocketAddress
@@ -139,21 +137,18 @@ private class FaceToFaceLanSocketTransport(
 ) : FaceToFaceTransport {
   private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
   private val closed = AtomicBoolean(false)
-  private val incoming = MutableSharedFlow<FaceToFacePeerMessage>(
-    extraBufferCapacity = 32,
-    onBufferOverflow = BufferOverflow.DROP_OLDEST,
-  )
+  private val incoming = Channel<FaceToFacePeerMessage>(capacity = Channel.UNLIMITED)
   private val reader = socket.getInputStream().bufferedReader()
   private val writer = socket.getOutputStream().bufferedWriter()
 
-  override val incomingMessages = incoming.asSharedFlow()
+  override val incomingMessages = incoming.receiveAsFlow()
 
   init {
     scope.launch {
       try {
         while (true) {
           val payload = reader.readLine() ?: break
-          FaceToFacePeerMessageJsonCodec.decode(payload)?.let { incoming.emit(it) }
+          FaceToFacePeerMessageJsonCodec.decode(payload)?.let { incoming.send(it) }
         }
         closeInternal(null)
       } catch (e: Exception) {
@@ -178,6 +173,7 @@ private class FaceToFaceLanSocketTransport(
   private suspend fun closeInternal(cause: Throwable?) {
     if (!closed.compareAndSet(false, true)) return
 
+    incoming.close(cause)
     runCatching { reader.close() }
     runCatching { writer.close() }
     runCatching { socket.close() }
