@@ -8,12 +8,10 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.channels.BufferOverflow
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.io.IOException
 import java.net.Inet4Address
 import java.net.InetSocketAddress
 import java.net.NetworkInterface
@@ -58,20 +56,37 @@ class FaceToFaceLanConnectionManager {
   private fun resolveLocalIpv4Address(): String {
     val interfaces = runCatching { Collections.list(NetworkInterface.getNetworkInterfaces()) }
       .getOrElse { emptyList() }
+    val candidates = mutableListOf<FaceToFaceLanAddressCandidate>()
 
     interfaces.forEach { networkInterface ->
       val usable = runCatching { networkInterface.isUp && !networkInterface.isLoopback }
         .getOrDefault(false)
       if (!usable) return@forEach
 
+      val isVirtual = runCatching { networkInterface.isVirtual }.getOrDefault(false)
+      val isPointToPoint = runCatching { networkInterface.isPointToPoint }.getOrDefault(false)
+      val displayName = runCatching { networkInterface.displayName }.getOrNull()
+
       Collections.list(networkInterface.inetAddresses)
-        .firstOrNull { it is Inet4Address && !it.isLoopbackAddress }
-        ?.hostAddress
-        ?.takeIf { it.isNotBlank() }
-        ?.let { return it }
+        .filterIsInstance<Inet4Address>()
+        .filterNot { it.isLoopbackAddress }
+        .forEach { address ->
+          val hostAddress = address.hostAddress?.trim().orEmpty()
+          if (hostAddress.isBlank()) return@forEach
+
+          candidates += FaceToFaceLanAddressCandidate(
+            interfaceName = networkInterface.name.orEmpty(),
+            displayName = displayName,
+            hostAddress = hostAddress,
+            isSiteLocal = address.isSiteLocalAddress,
+            isLinkLocal = address.isLinkLocalAddress,
+            isVirtual = isVirtual,
+            isPointToPoint = isPointToPoint,
+          )
+        }
     }
 
-    return "127.0.0.1"
+    return selectBestLanHostAddress(candidates)
   }
 
   companion object {
@@ -100,21 +115,18 @@ private class FaceToFaceLanSocketTransport(
 ) : FaceToFaceTransport {
   private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
   private val closed = AtomicBoolean(false)
-  private val incoming = MutableSharedFlow<FaceToFacePeerMessage>(
-    extraBufferCapacity = 32,
-    onBufferOverflow = BufferOverflow.DROP_OLDEST,
-  )
+  private val incoming = Channel<FaceToFacePeerMessage>(capacity = Channel.UNLIMITED)
   private val reader = socket.getInputStream().bufferedReader()
   private val writer = socket.getOutputStream().bufferedWriter()
 
-  override val incomingMessages = incoming.asSharedFlow()
+  override val incomingMessages = incoming.receiveAsFlow()
 
   init {
     scope.launch {
       try {
         while (true) {
           val payload = reader.readLine() ?: break
-          FaceToFacePeerMessageJsonCodec.decode(payload)?.let { incoming.emit(it) }
+          FaceToFacePeerMessageJsonCodec.decode(payload)?.let { incoming.send(it) }
         }
         closeInternal(null)
       } catch (e: Exception) {
@@ -139,12 +151,71 @@ private class FaceToFaceLanSocketTransport(
   private suspend fun closeInternal(cause: Throwable?) {
     if (!closed.compareAndSet(false, true)) return
 
+    incoming.close(cause)
     runCatching { reader.close() }
     runCatching { writer.close() }
     runCatching { socket.close() }
     onClosed(cause)
     scope.cancel()
   }
+}
+
+internal data class FaceToFaceLanAddressCandidate(
+  val interfaceName: String,
+  val displayName: String?,
+  val hostAddress: String,
+  val isSiteLocal: Boolean,
+  val isLinkLocal: Boolean,
+  val isVirtual: Boolean,
+  val isPointToPoint: Boolean,
+)
+
+internal fun selectBestLanHostAddress(
+  candidates: List<FaceToFaceLanAddressCandidate>,
+): String {
+  return candidates
+    .asSequence()
+    .filterNot { it.hostAddress.startsWith("127.") || it.isLinkLocal }
+    .filterNot { it.isClearlyTunnelInterface() }
+    .maxByOrNull { candidate ->
+      var score = 0
+      if (candidate.isSiteLocal) score += 100
+      if (candidate.isLikelyWireless()) score += 40
+      if (candidate.isLikelyEthernet()) score += 30
+      if (!candidate.isVirtual) score += 20
+      if (!candidate.isPointToPoint) score += 10
+      score
+    }
+    ?.hostAddress
+    ?: "127.0.0.1"
+}
+
+private fun FaceToFaceLanAddressCandidate.isClearlyTunnelInterface(): Boolean {
+  val value = "${interfaceName.lowercase()} ${displayName.orEmpty().lowercase()}"
+  return listOf(
+    "tun",
+    "tap",
+    "tailscale",
+    "wg",
+    "wireguard",
+    "docker",
+    "veth",
+    "br-",
+    "virbr",
+    "zt",
+    "ppp",
+    "vpn",
+  ).any(value::contains)
+}
+
+private fun FaceToFaceLanAddressCandidate.isLikelyWireless(): Boolean {
+  val value = "${interfaceName.lowercase()} ${displayName.orEmpty().lowercase()}"
+  return listOf("wlan", "wifi", "wi-fi", "wlp", "ap", "swlan").any(value::contains)
+}
+
+private fun FaceToFaceLanAddressCandidate.isLikelyEthernet(): Boolean {
+  val value = "${interfaceName.lowercase()} ${displayName.orEmpty().lowercase()}"
+  return listOf("eth", "enp", "eno").any(value::contains)
 }
 
 private object FaceToFacePeerMessageJsonCodec {
