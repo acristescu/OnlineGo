@@ -74,6 +74,7 @@ import io.zenandroid.onlinego.ui.screens.face2face.Button.GameSettings
 import io.zenandroid.onlinego.ui.screens.face2face.Button.Next
 import io.zenandroid.onlinego.ui.screens.face2face.Button.Previous
 import io.zenandroid.onlinego.ui.screens.game.ExtraStatusField
+import io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceLanDiscoveredHost
 import org.koin.androidx.compose.koinViewModel
 import java.lang.Float.max
 
@@ -255,7 +256,12 @@ private fun FaceToFaceContent(
   }
 
   if (state.newGameDialogShowing) {
-    NewGameDialog(onUserAction, state.newGameParameters, state.setupMessage)
+    NewGameDialog(
+      onUserAction = onUserAction,
+      newGameParameters = state.newGameParameters,
+      setupMessage = state.setupMessage,
+      discoveredHosts = state.discoveredHosts,
+    )
   }
 }
 
@@ -327,6 +333,7 @@ private fun NewGameDialog(
   onUserAction: (Action) -> Unit,
   newGameParameters: GameParameters,
   setupMessage: String?,
+  discoveredHosts: List<FaceToFaceLanDiscoveredHost>,
 ) {
   val emulatorMode = remember { isProbablyAndroidEmulator() }
   var hostAddressDraft by rememberSaveable(newGameParameters.mode, newGameParameters.hostAddress) {
@@ -433,6 +440,29 @@ private fun NewGameDialog(
             .fillMaxWidth()
             .padding(top = 16.dp)
         )
+        if (discoveredHosts.isNotEmpty()) {
+          Text(
+            text = "Available hosts",
+            color = MaterialTheme.colorScheme.onSurface,
+            style = MaterialTheme.typography.titleSmall,
+            modifier = Modifier
+              .fillMaxWidth()
+              .padding(top = 16.dp)
+          )
+          discoveredHosts.forEach { host ->
+            TextButton(
+              onClick = {
+                hostAddressDraft = host.endpoint
+              },
+              modifier = Modifier.fillMaxWidth()
+            ) {
+              Text(
+                text = "${host.displayName} (${host.endpoint})",
+                modifier = Modifier.fillMaxWidth(),
+              )
+            }
+          }
+        }
       }
       if (setupMessage != null && newGameParameters.mode != MatchMode.WIFI_JOIN) {
         Text(

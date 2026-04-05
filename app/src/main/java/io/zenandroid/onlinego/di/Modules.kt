@@ -34,7 +34,9 @@ import io.zenandroid.onlinego.ui.screens.automatch.NewAutomatchChallengeViewMode
 import io.zenandroid.onlinego.ui.screens.face2face.FaceToFaceEstimator
 import io.zenandroid.onlinego.ui.screens.face2face.FaceToFaceViewModel
 import io.zenandroid.onlinego.ui.screens.face2face.RulesManagerFaceToFaceEstimator
+import io.zenandroid.onlinego.ui.screens.face2face.session.AndroidFaceToFaceLanDiscoveryManager
 import io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceLanConnectionManager
+import io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceLanDiscoveryManager
 import io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFacePeerConnectionManager
 import io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceSessionEngine
 import io.zenandroid.onlinego.ui.screens.game.GameViewModel
@@ -101,6 +103,7 @@ private val repositoriesModule = module {
   singleOf(::FaceToFaceSessionEngine)
   single<FaceToFaceEstimator> { RulesManagerFaceToFaceEstimator() }
   single<FaceToFacePeerConnectionManager> { FaceToFaceLanConnectionManager() }
+  single<FaceToFaceLanDiscoveryManager> { AndroidFaceToFaceLanDiscoveryManager(androidApplication()) }
 }
 
 private val serverConnectionModule = module {
@@ -202,6 +205,7 @@ private val viewModelsModule = module {
     FaceToFaceViewModel(
       OnlineGoApplication.instance.analytics,
       FirebaseCrashlytics.getInstance(),
+      get(),
       get(),
       get(),
       get(),

@@ -19,6 +19,7 @@ import io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceLanConnecti
 import io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceLanHostHandle
 import io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFacePeerConnectionManager
 import io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFacePeerMessage
+import io.zenandroid.onlinego.ui.screens.face2face.session.NoOpFaceToFaceLanDiscoveryManager
 import io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceSessionEngine
 import io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceSessionState
 import io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceTransport
@@ -63,6 +64,7 @@ class FaceToFaceViewModelTest {
   private val sessionEngine = FaceToFaceSessionEngine()
   private val estimator = FakeFaceToFaceEstimator()
   private lateinit var lanConnectionManager: FakeLanConnectionManager
+  private val lanDiscoveryManager = NoOpFaceToFaceLanDiscoveryManager()
 
   private lateinit var applicationTestScope: TestScope
 
@@ -86,6 +88,7 @@ class FaceToFaceViewModelTest {
       sessionEngine = sessionEngine,
       estimator = estimator,
       lanConnectionManager = lanConnectionManager,
+      lanDiscoveryManager = lanDiscoveryManager,
       applicationScope = applicationTestScope,
       testing = true
     )
