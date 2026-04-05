@@ -22,10 +22,23 @@ import java.net.Socket
 import java.util.Collections
 import java.util.concurrent.atomic.AtomicBoolean
 
-class FaceToFaceLanConnectionManager {
+interface FaceToFacePeerConnectionManager {
   suspend fun host(
-    port: Int = DEFAULT_PORT,
+    port: Int = FaceToFaceLanConnectionManager.DEFAULT_PORT,
     onClosed: (Throwable?) -> Unit = {},
+  ): FaceToFaceLanHostHandle
+
+  suspend fun join(
+    hostAddress: String,
+    port: Int = FaceToFaceLanConnectionManager.DEFAULT_PORT,
+    onClosed: (Throwable?) -> Unit = {},
+  ): FaceToFaceTransport
+}
+
+class FaceToFaceLanConnectionManager : FaceToFacePeerConnectionManager {
+  override suspend fun host(
+    port: Int,
+    onClosed: (Throwable?) -> Unit,
   ): FaceToFaceLanHostHandle = withContext(Dispatchers.IO) {
     val serverSocket = ServerSocket(port).apply {
       reuseAddress = true
@@ -45,10 +58,10 @@ class FaceToFaceLanConnectionManager {
     )
   }
 
-  suspend fun join(
+  override suspend fun join(
     hostAddress: String,
-    port: Int = DEFAULT_PORT,
-    onClosed: (Throwable?) -> Unit = {},
+    port: Int,
+    onClosed: (Throwable?) -> Unit,
   ): FaceToFaceTransport = withContext(Dispatchers.IO) {
     val socket = Socket()
     socket.connect(InetSocketAddress(hostAddress, port), CONNECT_TIMEOUT_MS)

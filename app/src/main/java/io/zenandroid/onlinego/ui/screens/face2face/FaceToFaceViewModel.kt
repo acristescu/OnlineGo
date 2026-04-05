@@ -48,6 +48,7 @@ import io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceGameSnapsho
 import io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceLanConnectionManager
 import io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceLanHostHandle
 import io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceLanJoinTarget
+import io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFacePeerConnectionManager
 import io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFacePeerMessage
 import io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFacePeerRole
 import io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceMoveRejectReason
@@ -79,7 +80,8 @@ class FaceToFaceViewModel(
   private val crashlytics: FirebaseCrashlytics,
   private val settingsRepository: SettingsRepository,
   private val sessionEngine: FaceToFaceSessionEngine,
-  private val lanConnectionManager: FaceToFaceLanConnectionManager,
+  private val estimator: FaceToFaceEstimator,
+  private val lanConnectionManager: FaceToFacePeerConnectionManager,
   private val applicationScope: CoroutineScope,
   testing: Boolean = false
 ) : ViewModel() {
@@ -132,17 +134,7 @@ class FaceToFaceViewModel(
 
     val title = when {
       loading -> "Face to face · Loading"
-      session?.connectionState == io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceConnectionState.HOSTING ->
-        "Face to face · Waiting for guest"
-      session?.connectionState == io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceConnectionState.CONNECTING ->
-        "Face to face · Connecting"
-      session?.connectionState == io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceConnectionState.SYNCING ->
-        "Face to face · Syncing"
-      session?.connectionState == io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceConnectionState.DISCONNECTED &&
-        session.mode == FaceToFaceSessionMode.PEER_TO_PEER -> "Face to face · Disconnected"
-      session?.connectionState == io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceConnectionState.CONNECTED &&
-        session.mode == FaceToFaceSessionMode.PEER_TO_PEER &&
-        !session.isLocalTurn -> "Face to face · Opponent's turn"
+      session?.mode == FaceToFaceSessionMode.PEER_TO_PEER -> peerSessionTitle(session)
       activePosition.nextToMove == WHITE -> "Face to face · White's turn"
       activePosition.nextToMove == BLACK -> "Face to face · Black's turn"
       else -> "Face to face"
@@ -239,7 +231,7 @@ class FaceToFaceViewModel(
       sessionEngine.restoreFromSnapshot(snapshot)
     } catch (e: Exception) {
       crashlytics.log("FaceToFaceViewModel Cannot load saved hotseat session")
-      recordException(e)
+      safeRecordException(e)
       sessionEngine.createHotseatSession(
         config = params.toSessionConfig(),
         sessionId = HOTSEAT_SESSION_ID,
@@ -293,7 +285,7 @@ class FaceToFaceViewModel(
     val position = displayedPosition()
     estimateStatus = Working
     viewModelScope.launch(ioDispatcher) {
-      val estimate = RulesManager.determineTerritory(position, false)
+      val estimate = estimator.determineTerritory(position)
       withContext(Dispatchers.Main) {
         val history = session?.moveHistory.orEmpty()
         val index = historyIndex ?: history.lastIndex
@@ -338,7 +330,7 @@ class FaceToFaceViewModel(
       }.onFailure {
         if (params.mode == MatchMode.HOTSEAT) {
           crashlytics.log("Unable to start hotseat game")
-          recordException(it)
+          safeRecordException(it)
         } else {
           handlePeerFailure("Unable to start ${params.mode}", it, reopenDialog = true)
         }
@@ -402,11 +394,7 @@ class FaceToFaceViewModel(
       connectionState = io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceConnectionState.CONNECTED,
       lastError = null,
     )
-    setupMessage = if (peerSession.moveHistory.isEmpty()) {
-      "Guest connected on ${hostHandle.localAddress}:${hostHandle.port}"
-    } else {
-      "Guest reconnected on ${hostHandle.localAddress}:${hostHandle.port}"
-    }
+    setupMessage = null
 
     val connectedSession = session ?: return
     runCatching {
@@ -491,6 +479,9 @@ class FaceToFaceViewModel(
       when (val result = sessionEngine.applyLocalMove(baseSession, cell)) {
         is FaceToFaceSessionMutationResult.Applied -> {
           this@FaceToFaceViewModel.session = result.state
+          if (result.state.mode == FaceToFaceSessionMode.PEER_TO_PEER) {
+            setupMessage = null
+          }
           val repeatedPass = cell.isPass && baseSession.moveHistory.lastOrNull()?.isPass == true
           historyIndex = null
           if (result.state.mode == FaceToFaceSessionMode.PEER_TO_PEER) {
@@ -562,7 +553,6 @@ class FaceToFaceViewModel(
         val session = session ?: return
         if (session.mode != FaceToFaceSessionMode.PEER_TO_PEER) return
         this.session = session.copy(remotePlayerName = message.deviceName)
-        setupMessage = "Connected to ${message.deviceName}"
       }
 
       is FaceToFacePeerMessage.StartGame -> {
@@ -586,11 +576,7 @@ class FaceToFaceViewModel(
           hostAddress = currentGameParameters.hostAddress,
         )
         newGameParameters = currentGameParameters
-        setupMessage = if (restoredSession.isLocalTurn) {
-          "Connected. Your turn."
-        } else {
-          "Connected. Opponent's turn."
-        }
+        setupMessage = null
       }
 
       is FaceToFacePeerMessage.Move -> {
@@ -600,12 +586,8 @@ class FaceToFaceViewModel(
           is FaceToFaceSessionMutationResult.Applied -> {
             session = result.state
             historyIndex = null
-            setupMessage = if (result.state.isLocalTurn) {
-              "Your turn."
-            } else {
-              "Opponent's turn."
-            }
-            if (result.state.moveHistory.takeLast(2).all(Cell::isPass)) {
+            setupMessage = null
+            if (result.state.moveHistory.size >= 2 && result.state.moveHistory.takeLast(2).all(Cell::isPass)) {
               doEstimation()
             }
           }
@@ -614,11 +596,11 @@ class FaceToFaceViewModel(
             runCatching {
               when (resolveOutOfSyncRecovery(currentSession.moveHistory.size, message.moveNumber)) {
                 FaceToFaceSyncRecoveryAction.REQUEST_REMOTE_STATE -> {
+                  setupMessage = "Move mismatch detected. Syncing board..."
                   session = currentSession.copy(
                     connectionState = io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceConnectionState.SYNCING,
                     lastError = null,
                   )
-                  setupMessage = "Move mismatch detected. Syncing board..."
                   transport?.send(
                     FaceToFacePeerMessage.SyncRequest(
                       sessionId = currentSession.sessionId,
@@ -667,11 +649,11 @@ class FaceToFaceViewModel(
 
       is FaceToFacePeerMessage.SyncState -> {
         val currentSession = session ?: return
+        setupMessage = "Syncing board..."
         session = currentSession.copy(
           connectionState = io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceConnectionState.SYNCING,
           lastError = null,
         )
-        setupMessage = "Syncing board..."
         session = sessionEngine.restoreFromSnapshot(
           snapshot = message.snapshot,
           mode = currentSession.mode,
@@ -682,11 +664,7 @@ class FaceToFaceViewModel(
           remotePlayerName = currentSession.remotePlayerName,
         )
         historyIndex = null
-        setupMessage = if (session?.isLocalTurn == true) {
-          "Board synced. Your turn."
-        } else {
-          "Board synced. Opponent's turn."
-        }
+        setupMessage = null
       }
 
       is FaceToFacePeerMessage.KeepAlive,
@@ -735,6 +713,33 @@ class FaceToFaceViewModel(
     }
   }
 
+  private fun peerSessionTitle(session: FaceToFaceSessionState): String {
+    return when (session.connectionState) {
+      io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceConnectionState.HOSTING ->
+        "Face to face · Waiting for guest"
+      io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceConnectionState.CONNECTING ->
+        "Face to face · Connecting"
+      io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceConnectionState.SYNCING ->
+        "Face to face · Syncing"
+      io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceConnectionState.DISCONNECTED ->
+        "Face to face · Disconnected"
+      io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceConnectionState.CONNECTED ->
+        if (session.isLocalTurn) {
+          "Face to face · Your turn"
+        } else {
+          "Face to face · Opponent's turn"
+        }
+    }
+  }
+
+  private fun peerTurnStatus(session: FaceToFaceSessionState): String {
+    return if (session.isLocalTurn) {
+      "Your turn."
+    } else {
+      "Opponent's turn."
+    }
+  }
+
   private fun sessionStatus(session: FaceToFaceSessionState?): String? {
     if (session?.mode != FaceToFaceSessionMode.PEER_TO_PEER) {
       return setupMessage
@@ -743,11 +748,12 @@ class FaceToFaceViewModel(
     return when (session.connectionState) {
       io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceConnectionState.HOSTING,
       io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceConnectionState.CONNECTING,
-      io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceConnectionState.CONNECTED,
       io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceConnectionState.DISCONNECTED,
       io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceConnectionState.SYNCING -> {
         setupMessage ?: session.lastError
       }
+      io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceConnectionState.CONNECTED ->
+        peerTurnStatus(session)
     }
   }
 
@@ -758,7 +764,7 @@ class FaceToFaceViewModel(
     appendErrorDetails: Boolean = true,
   ) {
     crashlytics.log(message)
-    recordException(error)
+    safeRecordException(error)
     setupMessage = when {
       appendErrorDetails && !error.message.isNullOrBlank() -> "$message: ${error.message}"
       else -> message
@@ -797,7 +803,7 @@ class FaceToFaceViewModel(
 
     if (error != null) {
       crashlytics.log("Peer connection closed")
-      recordException(error)
+      safeRecordException(error)
     }
 
     val message = when (currentSession.localRole) {
@@ -820,7 +826,14 @@ class FaceToFaceViewModel(
   }
 
   private fun localDeviceName(): String {
-    return android.os.Build.MODEL.takeIf { it.isNotBlank() } ?: "Android device"
+    return runCatching { android.os.Build.MODEL }
+      .getOrNull()
+      ?.takeIf { it.isNotBlank() }
+      ?: "Android device"
+  }
+
+  private fun safeRecordException(error: Throwable) {
+    runCatching { recordException(error) }
   }
 
   private fun GameParameters.toSessionConfig(): FaceToFaceGameConfig {
