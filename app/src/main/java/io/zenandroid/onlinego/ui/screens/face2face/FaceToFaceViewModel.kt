@@ -46,6 +46,8 @@ import io.zenandroid.onlinego.ui.screens.face2face.EstimateStatus.Working
 import io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceGameConfig
 import io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceGameSnapshot
 import io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceLanConnectionManager
+import io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceLanDiscoveredHost
+import io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceLanDiscoveryManager
 import io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceLanHostHandle
 import io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceLanJoinTarget
 import io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFacePeerMessage
@@ -81,6 +83,7 @@ class FaceToFaceViewModel(
   private val settingsRepository: SettingsRepository,
   private val sessionEngine: FaceToFaceSessionEngine,
   private val lanConnectionManager: FaceToFaceLanConnectionManager,
+  private val lanDiscoveryManager: FaceToFaceLanDiscoveryManager,
   private val applicationScope: CoroutineScope,
   testing: Boolean = false
 ) : ViewModel() {
@@ -97,12 +100,14 @@ class FaceToFaceViewModel(
   private var transport: FaceToFaceTransport? = null
   private var hostHandle: FaceToFaceLanHostHandle? = null
   private var transportMessagesJob: Job? = null
+  private var discoveryJob: Job? = null
   private var candidateMove by mutableStateOf<Cell?>(null)
   private var historyIndex by mutableStateOf<Int?>(null)
   private var koMoveDialogShowing by mutableStateOf(false)
   private var estimateStatus by mutableStateOf<EstimateStatus>(Idle)
   private var newGameDialogShowing by mutableStateOf(false)
   private var setupMessage by mutableStateOf<String?>(null)
+  private var discoveredHosts by mutableStateOf<List<FaceToFaceLanDiscoveredHost>>(emptyList())
   private var currentGameParameters by mutableStateOf(GameParameters(BoardSize.LARGE, 0))
   private var newGameParameters by mutableStateOf(GameParameters(BoardSize.LARGE, 0))
   @Volatile
@@ -206,6 +211,7 @@ class FaceToFaceViewModel(
       blackPlayerLabel = blackPlayerLabel(session),
       whitePlayerLabel = whitePlayerLabel(session),
       setupMessage = setupMessage,
+      discoveredHosts = discoveredHosts,
       extraStatus = extraStatus,
     )
   }
@@ -264,6 +270,7 @@ class FaceToFaceViewModel(
     viewModelScope.launch(ioDispatcher) {
       closePeerConnection()
     }
+    stopJoinDiscovery(clearHosts = true)
     super.onCleared()
   }
 
@@ -273,8 +280,14 @@ class FaceToFaceViewModel(
       is BoardCellTapUp -> onCellTapUp(action.cell)
       KOMoveDialogDismiss -> koMoveDialogShowing = false
       is BottomButtonPressed -> onButtonPressed(action.button)
-      NewGameDialogDismiss -> newGameDialogShowing = false
-      is NewGameParametersChanged -> newGameParameters = action.params
+      NewGameDialogDismiss -> {
+        newGameDialogShowing = false
+        updateJoinDiscovery()
+      }
+      is NewGameParametersChanged -> {
+        newGameParameters = action.params
+        updateJoinDiscovery()
+      }
       Action.StartNewGame -> onStartNewGame()
     }
   }
@@ -282,7 +295,10 @@ class FaceToFaceViewModel(
   private fun onButtonPressed(button: Button) {
     when (button) {
       is Estimate -> doEstimation()
-      is GameSettings -> newGameDialogShowing = true
+      is GameSettings -> {
+        newGameDialogShowing = true
+        updateJoinDiscovery()
+      }
       is Next -> onNextPressed()
       is Previous -> onPreviousPressed()
       is CloseEstimate -> estimateStatus = Idle
@@ -389,14 +405,22 @@ class FaceToFaceViewModel(
       lanConnectionManager.host(onClosed = ::onPeerConnectionClosed)
     }
     this.hostHandle = hostHandle
+    val autodiscoveryAvailable = runCatching {
+      lanDiscoveryManager.startAdvertising(
+        sessionId = peerSession.sessionId,
+        deviceName = localDeviceName(),
+        port = hostHandle.port,
+      )
+    }.isSuccess
     setupMessage = hostSetupMessage(
       host = FaceToFaceLanJoinTarget(hostHandle.localAddress, hostHandle.port),
       reconnecting = peerSession.moveHistory.isNotEmpty(),
-    )
+    ) + if (autodiscoveryAvailable) "" else " Autodiscovery unavailable."
 
     val transport = withContext(ioDispatcher) {
       hostHandle.awaitTransport()
     }
+    runCatching { lanDiscoveryManager.stopAdvertising() }
     this.hostHandle = null
     attachTransport(transport)
     session = session?.copy(
@@ -466,6 +490,7 @@ class FaceToFaceViewModel(
     }
 
     attachTransport(transport)
+    stopJoinDiscovery(clearHosts = false)
     setupMessage = "Connected. Waiting for the host to start the game."
     runCatching {
       transport.send(
@@ -729,6 +754,7 @@ class FaceToFaceViewModel(
     suppressPeerCloseCallback = true
     transportMessagesJob?.cancel()
     transportMessagesJob = null
+    stopJoinDiscovery(clearHosts = true)
 
     val hostHandle = hostHandle
     this.hostHandle = null
@@ -736,6 +762,7 @@ class FaceToFaceViewModel(
     this.transport = null
 
     try {
+      runCatching { lanDiscoveryManager.stopAdvertising() }
       runCatching { transport?.close() }
       runCatching { hostHandle?.close() }
     } finally {
@@ -748,6 +775,7 @@ class FaceToFaceViewModel(
     koMoveDialogShowing = false
     historyIndex = null
     newGameDialogShowing = false
+    stopJoinDiscovery(clearHosts = true)
   }
 
   private fun blackPlayerLabel(session: FaceToFaceSessionState?): String {
@@ -916,6 +944,31 @@ class FaceToFaceViewModel(
     private const val HOTSEAT_SESSION_ID = "face-to-face-hotseat"
     private const val PENDING_SESSION_ID = "pending-face-to-face-session"
   }
+
+  private fun updateJoinDiscovery() {
+    if (newGameDialogShowing && newGameParameters.mode == MatchMode.WIFI_JOIN) {
+      startJoinDiscovery()
+    } else {
+      stopJoinDiscovery(clearHosts = true)
+    }
+  }
+
+  private fun startJoinDiscovery() {
+    if (discoveryJob?.isActive == true) return
+    discoveryJob = viewModelScope.launch {
+      lanDiscoveryManager.discoverHosts().collect { hosts ->
+        discoveredHosts = hosts
+      }
+    }
+  }
+
+  private fun stopJoinDiscovery(clearHosts: Boolean) {
+    discoveryJob?.cancel()
+    discoveryJob = null
+    if (clearHosts) {
+      discoveredHosts = emptyList()
+    }
+  }
 }
 
 @Immutable
@@ -939,6 +992,7 @@ data class FaceToFaceState(
   val blackPlayerLabel: String,
   val whitePlayerLabel: String,
   val setupMessage: String?,
+  val discoveredHosts: List<FaceToFaceLanDiscoveredHost>,
   val extraStatus: String?,
 ) {
   companion object {
@@ -962,6 +1016,7 @@ data class FaceToFaceState(
       blackPlayerLabel = "Player 1",
       whitePlayerLabel = "Player 2",
       setupMessage = null,
+      discoveredHosts = emptyList(),
       extraStatus = null,
     )
   }

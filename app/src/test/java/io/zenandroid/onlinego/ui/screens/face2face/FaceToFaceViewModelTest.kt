@@ -12,6 +12,7 @@ import io.zenandroid.onlinego.data.model.StoneType
 import io.zenandroid.onlinego.data.repositories.SettingsRepository
 import io.zenandroid.onlinego.di.allKoinModules
 import io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceLanConnectionManager
+import io.zenandroid.onlinego.ui.screens.face2face.session.NoOpFaceToFaceLanDiscoveryManager
 import io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceSessionEngine
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -48,6 +49,7 @@ class FaceToFaceViewModelTest {
   private val settingsRepository: SettingsRepository = mock()
   private val sessionEngine = FaceToFaceSessionEngine()
   private val lanConnectionManager = FaceToFaceLanConnectionManager()
+  private val lanDiscoveryManager = NoOpFaceToFaceLanDiscoveryManager()
 
   private lateinit var applicationTestScope: TestScope
 
@@ -69,6 +71,7 @@ class FaceToFaceViewModelTest {
       settingsRepository = settingsRepository,
       sessionEngine = sessionEngine,
       lanConnectionManager = lanConnectionManager,
+      lanDiscoveryManager = lanDiscoveryManager,
       applicationScope = applicationTestScope,
       testing = true
     )
