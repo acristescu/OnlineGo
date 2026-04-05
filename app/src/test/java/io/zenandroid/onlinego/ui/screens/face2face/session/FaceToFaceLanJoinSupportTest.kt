@@ -1,5 +1,6 @@
 package io.zenandroid.onlinego.ui.screens.face2face.session
 
+import java.net.BindException
 import java.net.ConnectException
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -41,5 +42,17 @@ class FaceToFaceLanJoinSupportTest {
 
     assertTrue(message.contains("Couldn't reach 10.0.2.15:45123"))
     assertTrue(message.contains("10.0.2.2"))
+  }
+
+  @Test
+  fun `bind exception gets actionable host retry message`() {
+    val message = buildFaceToFaceLanHostErrorMessage(
+      port = 45123,
+      error = BindException("bind failed: EADDRINUSE (Address already in use)")
+    )
+
+    assertTrue(message.contains("Couldn't start hosting on port 45123"))
+    assertTrue(message.contains("already in use"))
+    assertTrue(message.contains("wait a moment and try again"))
   }
 }

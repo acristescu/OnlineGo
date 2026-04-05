@@ -61,6 +61,7 @@ import io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceTransportTy
 import io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceSyncRecoveryAction
 import io.zenandroid.onlinego.ui.screens.face2face.session.FACE_TO_FACE_PROTOCOL_VERSION
 import io.zenandroid.onlinego.ui.screens.face2face.session.buildFaceToFaceLanJoinErrorMessage
+import io.zenandroid.onlinego.ui.screens.face2face.session.buildFaceToFaceLanHostErrorMessage
 import io.zenandroid.onlinego.ui.screens.face2face.session.parseFaceToFaceLanJoinTarget
 import io.zenandroid.onlinego.ui.screens.face2face.session.resolveOutOfSyncRecovery
 import io.zenandroid.onlinego.utils.recordException
@@ -253,7 +254,7 @@ class FaceToFaceViewModel(
         settingsRepository.setFaceToFaceHandicap(currentGameParameters.handicap)
       }
     }
-    viewModelScope.launch(ioDispatcher) {
+    applicationScope.launch(ioDispatcher) {
       closePeerConnection()
     }
     super.onCleared()
@@ -332,6 +333,8 @@ class FaceToFaceViewModel(
         if (params.mode == MatchMode.HOTSEAT) {
           crashlytics.log("Unable to start hotseat game")
           safeRecordException(it)
+        } else if (params.mode == MatchMode.WIFI_HOST) {
+          handleHostStartFailure(it)
         } else {
           handlePeerFailure("Unable to start ${params.mode}", it, reopenDialog = true)
         }
@@ -901,6 +904,14 @@ class FaceToFaceViewModel(
       target = target,
       error = error,
       emulatorMode = isProbablyAndroidEmulator(),
+    )
+    handlePeerFailure(message, error, reopenDialog = true, appendErrorDetails = false)
+  }
+
+  private fun handleHostStartFailure(error: Throwable) {
+    val message = buildFaceToFaceLanHostErrorMessage(
+      port = FaceToFaceLanConnectionManager.DEFAULT_PORT,
+      error = error,
     )
     handlePeerFailure(message, error, reopenDialog = true, appendErrorDetails = false)
   }

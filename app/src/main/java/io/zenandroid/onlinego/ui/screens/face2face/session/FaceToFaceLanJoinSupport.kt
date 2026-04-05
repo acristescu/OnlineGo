@@ -1,5 +1,6 @@
 package io.zenandroid.onlinego.ui.screens.face2face.session
 
+import java.net.BindException
 import java.net.ConnectException
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
@@ -48,5 +49,18 @@ fun buildFaceToFaceLanJoinErrorMessage(
     is SocketTimeoutException -> "Timed out connecting to ${target.host}:${target.port}. Make sure the host is online and reachable.$emulatorHint"
     is ConnectException -> "Couldn't reach ${target.host}:${target.port}. Make sure the host is running and reachable.$emulatorHint"
     else -> "Couldn't connect to ${target.host}:${target.port}. Try again.$emulatorHint"
+  }
+}
+
+fun buildFaceToFaceLanHostErrorMessage(
+  port: Int,
+  error: Throwable,
+): String {
+  val rootCause = generateSequence(error) { it.cause }.last()
+  return when {
+    rootCause is BindException || rootCause.message?.contains("EADDRINUSE", ignoreCase = true) == true -> {
+      "Couldn't start hosting on port $port because it's already in use. If you just disconnected, wait a moment and try again."
+    }
+    else -> "Couldn't start hosting on port $port. Try again."
   }
 }

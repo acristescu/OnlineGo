@@ -332,6 +332,61 @@ class FaceToFaceViewModelTest {
   }
 
   @Test
+  fun `guest disconnect keeps current board visible while waiting to resume`() = runTest {
+    val transport = FakeTransport()
+    stubJoinTransports(transport)
+
+    moleculeFlow(RecompositionMode.Immediate) {
+      viewModel.molecule()
+    }.test {
+      awaitState { !it.loading }
+
+      startWifiJoin()
+      awaitState { it.title == "Face to face · Connecting" }
+      transport.emitIncoming(
+        startGameMessage(
+          moves = listOf(Cell(3, 3), Cell(15, 15))
+        )
+      )
+      awaitState {
+        it.title == "Face to face · Opponent's turn" &&
+          it.history == listOf(Cell(3, 3), Cell(15, 15))
+      }
+
+      transport.disconnect(null)
+      val disconnected = awaitState {
+        it.title == "Face to face · Disconnected" &&
+          it.history == listOf(Cell(3, 3), Cell(15, 15))
+      }
+      assertEquals("Disconnected from host. Reconnect when the host is ready to resume.", disconnected.extraStatus)
+      assertFalse(disconnected.boardInteractive)
+      cancelAndIgnoreRemainingEvents()
+    }
+  }
+
+  @Test
+  fun `onCleared closes active peer transport`() = runTest {
+    val transport = FakeTransport()
+    stubJoinTransports(transport)
+
+    moleculeFlow(RecompositionMode.Immediate) {
+      viewModel.molecule()
+    }.test {
+      awaitState { !it.loading }
+
+      startWifiJoin()
+      awaitState { it.title == "Face to face · Connecting" }
+      assertEquals(0, transport.closeCalls)
+
+      invokeOnCleared()
+      applicationTestScope.advanceUntilIdle()
+
+      assertEquals(1, transport.closeCalls)
+      cancelAndIgnoreRemainingEvents()
+    }
+  }
+
+  @Test
   fun `guest disconnects on incompatible host hello protocol`() = runTest {
     val transport = FakeTransport()
     stubJoinTransports(transport)
@@ -626,10 +681,18 @@ class FaceToFaceViewModelTest {
     return method.invoke(viewModel) as EstimateStatus
   }
 
+  private fun invokeOnCleared() {
+    val method = FaceToFaceViewModel::class.java.getDeclaredMethod("onCleared")
+    method.isAccessible = true
+    method.invoke(viewModel)
+  }
+
   private inner class FakeTransport : FaceToFaceTransport {
     private val incoming = MutableSharedFlow<FaceToFacePeerMessage>(extraBufferCapacity = 16)
     private var onClosed: ((Throwable?) -> Unit)? = null
     val sentMessages = mutableListOf<FaceToFacePeerMessage>()
+    var closeCalls = 0
+      private set
 
     override val incomingMessages = incoming.asSharedFlow()
 
@@ -638,6 +701,7 @@ class FaceToFaceViewModelTest {
     }
 
     override suspend fun close() {
+      closeCalls += 1
       onClosed?.invoke(null)
     }
 

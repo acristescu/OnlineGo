@@ -8,12 +8,14 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.IOException
+import java.net.BindException
 import java.net.Inet4Address
 import java.net.InetSocketAddress
 import java.net.NetworkInterface
@@ -21,6 +23,9 @@ import java.net.ServerSocket
 import java.net.Socket
 import java.util.Collections
 import java.util.concurrent.atomic.AtomicBoolean
+
+private const val HOST_BIND_RETRY_DELAY_MS = 250L
+private const val HOST_BIND_RETRY_ATTEMPTS = 6
 
 interface FaceToFacePeerConnectionManager {
   suspend fun host(
@@ -40,8 +45,12 @@ class FaceToFaceLanConnectionManager : FaceToFacePeerConnectionManager {
     port: Int,
     onClosed: (Throwable?) -> Unit,
   ): FaceToFaceLanHostHandle = withContext(Dispatchers.IO) {
-    val serverSocket = ServerSocket(port).apply {
-      reuseAddress = true
+    val serverSocket = retryAddressInUse {
+      // Configure SO_REUSEADDR before bind so the host can re-bind quickly after a disconnect.
+      ServerSocket().apply {
+        reuseAddress = true
+        bind(InetSocketAddress(port))
+      }
     }
 
     FaceToFaceLanHostHandle(
@@ -175,6 +184,29 @@ private class FaceToFaceLanSocketTransport(
     onClosed(cause)
     scope.cancel()
   }
+}
+
+internal suspend fun <T> retryAddressInUse(
+  attempts: Int = HOST_BIND_RETRY_ATTEMPTS,
+  delayMs: Long = HOST_BIND_RETRY_DELAY_MS,
+  block: () -> T,
+): T {
+  require(attempts > 0) { "attempts must be greater than 0" }
+
+  repeat(attempts - 1) {
+    try {
+      return block()
+    } catch (error: Throwable) {
+      if (!isAddressInUseError(error)) throw error
+      delay(delayMs)
+    }
+  }
+
+  return block()
+}
+
+internal fun isAddressInUseError(error: Throwable): Boolean {
+  return error is BindException || error.message?.contains("EADDRINUSE", ignoreCase = true) == true
 }
 
 internal data class FaceToFaceLanAddressCandidate(

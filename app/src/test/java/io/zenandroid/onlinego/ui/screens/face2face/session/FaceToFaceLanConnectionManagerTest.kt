@@ -1,8 +1,12 @@
 package io.zenandroid.onlinego.ui.screens.face2face.session
 
+import java.net.BindException
 import org.junit.Assert.assertEquals
 import org.junit.Test
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.runTest
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class FaceToFaceLanConnectionManagerTest {
   @Test
   fun `selects site local wireless address ahead of tunnel and loopback`() {
@@ -39,5 +43,21 @@ class FaceToFaceLanConnectionManagerTest {
     )
 
     assertEquals("192.168.1.42", selected)
+  }
+
+  @Test
+  fun `retries address in use before succeeding`() = runTest {
+    var attempts = 0
+
+    val result = retryAddressInUse(attempts = 3, delayMs = 0) {
+      attempts += 1
+      if (attempts < 3) {
+        throw BindException("bind failed: EADDRINUSE")
+      }
+      "ok"
+    }
+
+    assertEquals("ok", result)
+    assertEquals(3, attempts)
   }
 }
