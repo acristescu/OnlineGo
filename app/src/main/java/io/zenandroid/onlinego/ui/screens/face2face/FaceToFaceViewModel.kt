@@ -59,6 +59,7 @@ import io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceSessionStat
 import io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceTransport
 import io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceTransportType
 import io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceSyncRecoveryAction
+import io.zenandroid.onlinego.ui.screens.face2face.session.FACE_TO_FACE_PROTOCOL_VERSION
 import io.zenandroid.onlinego.ui.screens.face2face.session.buildFaceToFaceLanJoinErrorMessage
 import io.zenandroid.onlinego.ui.screens.face2face.session.parseFaceToFaceLanJoinTarget
 import io.zenandroid.onlinego.ui.screens.face2face.session.resolveOutOfSyncRecovery
@@ -552,19 +553,41 @@ class FaceToFaceViewModel(
       is FaceToFacePeerMessage.Hello -> {
         val session = session ?: return
         if (session.mode != FaceToFaceSessionMode.PEER_TO_PEER) return
+        if (!session.canAcceptHandshakeSession(message.sessionId)) return
+        if (message.protocolVersion != FACE_TO_FACE_PROTOCOL_VERSION) {
+          handlePeerFailure(
+            message = "Incompatible face-to-face version on the other device",
+            error = IllegalStateException("Unsupported protocol version ${message.protocolVersion}"),
+            reopenDialog = true,
+            appendErrorDetails = false,
+          )
+          return
+        }
         this.session = session.copy(remotePlayerName = message.deviceName)
       }
 
       is FaceToFacePeerMessage.StartGame -> {
-        val localRole = session?.localRole ?: FaceToFacePeerRole.GUEST
+        val currentSession = session ?: return
+        if (currentSession.mode != FaceToFaceSessionMode.PEER_TO_PEER) return
+        if (currentSession.localRole != FaceToFacePeerRole.GUEST) return
+        if (!currentSession.canAcceptHandshakeSession(message.sessionId)) return
+        if (message.snapshot.protocolVersion != FACE_TO_FACE_PROTOCOL_VERSION) {
+          handlePeerFailure(
+            message = "Incompatible face-to-face version on the host device",
+            error = IllegalStateException("Unsupported snapshot protocol version ${message.snapshot.protocolVersion}"),
+            reopenDialog = true,
+            appendErrorDetails = false,
+          )
+          return
+        }
         val restoredSession = sessionEngine.restoreFromSnapshot(
           snapshot = message.snapshot,
           mode = FaceToFaceSessionMode.PEER_TO_PEER,
-          localRole = localRole,
+          localRole = currentSession.localRole,
           transport = FaceToFaceTransportType.WIFI_LAN,
           connectionState = io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceConnectionState.CONNECTED,
           localPlayerName = localDeviceName(),
-          remotePlayerName = session?.remotePlayerName ?: "Opponent",
+          remotePlayerName = currentSession.remotePlayerName ?: "Opponent",
         )
         session = restoredSession
         historyIndex = null
@@ -630,6 +653,7 @@ class FaceToFaceViewModel(
 
       is FaceToFacePeerMessage.SyncRequest -> {
         val currentSession = session ?: return
+        if (!currentSession.matchesEstablishedSession(message.sessionId)) return
         if (currentSession.moveHistory.size != message.expectedMoveCount) {
           session = currentSession.copy(
             connectionState = io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceConnectionState.CONNECTED,
@@ -649,6 +673,7 @@ class FaceToFaceViewModel(
 
       is FaceToFacePeerMessage.SyncState -> {
         val currentSession = session ?: return
+        if (!currentSession.matchesEstablishedSession(message.sessionId)) return
         setupMessage = "Syncing board..."
         session = currentSession.copy(
           connectionState = io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceConnectionState.SYNCING,
@@ -852,6 +877,20 @@ class FaceToFaceViewModel(
       this.transport == FaceToFaceTransportType.WIFI_LAN &&
       this.connectionState == io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceConnectionState.DISCONNECTED &&
       this.config == params.toSessionConfig()
+  }
+
+  private fun FaceToFaceSessionState.canAcceptHandshakeSession(
+    incomingSessionId: String,
+  ): Boolean {
+    return sessionId == incomingSessionId ||
+      sessionId == PENDING_SESSION_ID ||
+      incomingSessionId == PENDING_SESSION_ID
+  }
+
+  private fun FaceToFaceSessionState.matchesEstablishedSession(
+    incomingSessionId: String,
+  ): Boolean {
+    return sessionId == incomingSessionId
   }
 
   private fun handleJoinConnectionFailure(

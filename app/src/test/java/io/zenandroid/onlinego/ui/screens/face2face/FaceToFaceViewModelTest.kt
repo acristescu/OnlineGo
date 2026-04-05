@@ -332,6 +332,34 @@ class FaceToFaceViewModelTest {
   }
 
   @Test
+  fun `guest disconnects on incompatible host hello protocol`() = runTest {
+    val transport = FakeTransport()
+    stubJoinTransports(transport)
+
+    moleculeFlow(RecompositionMode.Immediate) {
+      viewModel.molecule()
+    }.test {
+      awaitState { !it.loading }
+
+      startWifiJoin()
+      awaitState { it.title == "Face to face · Connecting" }
+
+      transport.emitIncoming(
+        FaceToFacePeerMessage.Hello(
+          sessionId = SESSION_ID,
+          protocolVersion = 999,
+          deviceName = "Host device",
+        )
+      )
+      val item = awaitState { it.title == "Face to face · Disconnected" }
+      assertEquals("Incompatible face-to-face version on the other device", item.extraStatus)
+      assertTrue(item.newGameDialogShowing)
+      assertFalse(item.boardInteractive)
+      cancelAndIgnoreRemainingEvents()
+    }
+  }
+
+  @Test
   fun `host manual resume reuses prior snapshot`() = runTest {
     val firstTransport = FakeTransport()
     val secondTransport = FakeTransport()
@@ -381,6 +409,38 @@ class FaceToFaceViewModelTest {
       .single()
       .snapshot
     assertEquals(listOf(Cell(3, 3), Cell(15, 15)), replayedSnapshot.moveHistory)
+  }
+
+  @Test
+  fun `guest ignores sync state from different session`() = runTest {
+    val transport = FakeTransport()
+    stubJoinTransports(transport)
+
+    moleculeFlow(RecompositionMode.Immediate) {
+      viewModel.molecule()
+    }.test {
+      awaitState { !it.loading }
+
+      startWifiJoin()
+      awaitState { it.title == "Face to face · Connecting" }
+      transport.emitIncoming(startGameMessage())
+      awaitState { it.title == "Face to face · Opponent's turn" }
+
+      transport.emitIncoming(
+        FaceToFacePeerMessage.SyncState(
+          sessionId = "other-session",
+          snapshot = FaceToFaceGameSnapshot(
+            sessionId = "other-session",
+            config = FaceToFaceGameConfig(boardSize = 19, handicap = 0),
+            moveHistory = listOf(Cell(3, 3), Cell(15, 15)),
+          ),
+        )
+      )
+      applicationTestScope.advanceUntilIdle()
+      assertEquals(emptyList<Cell>(), currentSession().moveHistory)
+      assertEquals(FaceToFaceConnectionState.CONNECTED, currentSession().connectionState)
+      cancelAndIgnoreRemainingEvents()
+    }
   }
 
   @Test
