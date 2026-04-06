@@ -24,6 +24,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 
 private const val HOST_BIND_RETRY_DELAY_MS = 250L
 private const val HOST_BIND_RETRY_ATTEMPTS = 6
+private const val SOCKET_READ_TIMEOUT_MS = 15_000
 
 interface FaceToFacePeerConnectionManager {
   suspend fun host(
@@ -144,6 +145,7 @@ private class FaceToFaceLanSocketTransport(
   override val incomingMessages = incoming.receiveAsFlow()
 
   init {
+    socket.soTimeout = SOCKET_READ_TIMEOUT_MS
     scope.launch {
       try {
         while (true) {

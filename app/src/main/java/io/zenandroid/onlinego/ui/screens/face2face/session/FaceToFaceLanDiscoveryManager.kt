@@ -13,6 +13,7 @@ import kotlin.coroutines.resumeWithException
 
 private const val FACE_TO_FACE_LAN_SERVICE_TYPE = "_onlinego-f2f._tcp."
 private const val FACE_TO_FACE_LAN_SERVICE_PREFIX = "OnlineGo F2F"
+private const val FACE_TO_FACE_LAN_SERVICE_NAME_MAX_LENGTH = 63
 
 data class FaceToFaceLanDiscoveredHost(
   val displayName: String,
@@ -161,8 +162,17 @@ internal fun buildLanServiceName(deviceName: String, sessionId: String): String 
     .trim()
     .takeIf { it.isNotBlank() }
     ?: "Android"
-  val suffix = sessionId.take(6)
-  return "$FACE_TO_FACE_LAN_SERVICE_PREFIX $sanitizedDeviceName $suffix"
+  val suffix = sessionId
+    .replace(Regex("[^A-Za-z0-9]"), "")
+    .take(6)
+    .ifBlank { "session" }
+  val reservedLength = FACE_TO_FACE_LAN_SERVICE_PREFIX.length + suffix.length + 2
+  val maxDeviceNameLength = (FACE_TO_FACE_LAN_SERVICE_NAME_MAX_LENGTH - reservedLength).coerceAtLeast(1)
+  val truncatedDeviceName = sanitizedDeviceName
+    .take(maxDeviceNameLength)
+    .trim()
+    .ifBlank { "Android" }
+  return "$FACE_TO_FACE_LAN_SERVICE_PREFIX $truncatedDeviceName $suffix"
 }
 
 internal fun displayNameFromLanServiceName(serviceName: String): String {

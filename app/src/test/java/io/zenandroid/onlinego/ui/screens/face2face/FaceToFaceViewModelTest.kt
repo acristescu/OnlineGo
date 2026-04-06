@@ -1,6 +1,7 @@
 package io.zenandroid.onlinego.ui.screens.face2face
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import androidx.lifecycle.viewModelScope
 import app.cash.molecule.RecompositionMode
 import app.cash.molecule.moleculeFlow
 import app.cash.turbine.ReceiveTurbine
@@ -16,16 +17,18 @@ import io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceGameConfig
 import io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceGameSnapshot
 import io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceConnectionState
 import io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceLanConnectionManager
+import io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceLanDiscoveredHost
+import io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceLanDiscoveryManager
 import io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceLanHostHandle
 import io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFacePeerConnectionManager
 import io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFacePeerMessage
-import io.zenandroid.onlinego.ui.screens.face2face.session.NoOpFaceToFaceLanDiscoveryManager
 import io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceSessionEngine
 import io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceSessionState
 import io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceTransport
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.asSharedFlow
@@ -64,7 +67,7 @@ class FaceToFaceViewModelTest {
   private val sessionEngine = FaceToFaceSessionEngine()
   private val estimator = FakeFaceToFaceEstimator()
   private lateinit var lanConnectionManager: FakeLanConnectionManager
-  private val lanDiscoveryManager = NoOpFaceToFaceLanDiscoveryManager()
+  private lateinit var lanDiscoveryManager: FakeLanDiscoveryManager
 
   private lateinit var applicationTestScope: TestScope
 
@@ -76,6 +79,7 @@ class FaceToFaceViewModelTest {
     Dispatchers.setMain(testDispatcher)
     applicationTestScope = TestScope(testDispatcher)
     lanConnectionManager = FakeLanConnectionManager()
+    lanDiscoveryManager = FakeLanDiscoveryManager()
 
     whenever(settingsRepository.faceToFaceHistoryFlow).thenReturn(flowOf(null))
     whenever(settingsRepository.faceToFaceBoardSizeFlow).thenReturn(flowOf(null))
@@ -90,12 +94,14 @@ class FaceToFaceViewModelTest {
       lanConnectionManager = lanConnectionManager,
       lanDiscoveryManager = lanDiscoveryManager,
       applicationScope = applicationTestScope,
-      testing = true
+      testing = true,
+      keepAliveIntervalMs = 0,
     )
   }
 
   @After
   fun tearDown() {
+    viewModel.viewModelScope.cancel()
     Dispatchers.resetMain()
     applicationTestScope.cancel()
   }
@@ -418,6 +424,69 @@ class FaceToFaceViewModelTest {
   }
 
   @Test
+  fun `guest disconnects on mismatched host snapshot session id`() = runTest {
+    val transport = FakeTransport()
+    stubJoinTransports(transport)
+
+    moleculeFlow(RecompositionMode.Immediate) {
+      viewModel.molecule()
+    }.test {
+      awaitState { !it.loading }
+
+      startWifiJoin()
+      awaitState { it.title == "Face to face · Connecting" }
+
+      transport.emitIncoming(
+        FaceToFacePeerMessage.StartGame(
+          sessionId = SESSION_ID,
+          snapshot = FaceToFaceGameSnapshot(
+            sessionId = "other-session",
+            config = FaceToFaceGameConfig(boardSize = 19, handicap = 0),
+            moveHistory = emptyList(),
+          ),
+        )
+      )
+      val item = awaitState { it.title == "Face to face · Disconnected" }
+      assertEquals("Received invalid game snapshot from the host device", item.extraStatus)
+      assertTrue(item.newGameDialogShowing)
+      assertTrue(item.history.isEmpty())
+      cancelAndIgnoreRemainingEvents()
+    }
+  }
+
+  @Test
+  fun `guest disconnects on mismatched sync snapshot session id`() = runTest {
+    val transport = FakeTransport()
+    stubJoinTransports(transport)
+
+    moleculeFlow(RecompositionMode.Immediate) {
+      viewModel.molecule()
+    }.test {
+      awaitState { !it.loading }
+
+      startWifiJoin()
+      awaitState { it.title == "Face to face · Connecting" }
+      transport.emitIncoming(startGameMessage())
+      awaitState { it.title == "Face to face · Opponent's turn" }
+
+      transport.emitIncoming(
+        FaceToFacePeerMessage.SyncState(
+          sessionId = SESSION_ID,
+          snapshot = FaceToFaceGameSnapshot(
+            sessionId = "other-session",
+            config = FaceToFaceGameConfig(boardSize = 19, handicap = 0),
+            moveHistory = listOf(Cell(3, 3), Cell(15, 15)),
+          ),
+        )
+      )
+      val item = awaitState { it.title == "Face to face · Disconnected" }
+      assertEquals("Received invalid sync state from the other device", item.extraStatus)
+      assertTrue(item.history.isEmpty())
+      cancelAndIgnoreRemainingEvents()
+    }
+  }
+
+  @Test
   fun `host manual resume reuses prior snapshot`() = runTest {
     val firstTransport = FakeTransport()
     val secondTransport = FakeTransport()
@@ -598,6 +667,38 @@ class FaceToFaceViewModelTest {
     }
   }
 
+  @Test
+  fun `join failure reopens dialog and restarts discovery`() = runTest {
+    moleculeFlow(RecompositionMode.Immediate) {
+      viewModel.molecule()
+    }.test {
+      awaitState { !it.loading }
+
+      viewModel.onAction(Action.BottomButtonPressed(Button.GameSettings))
+      awaitState { it.newGameDialogShowing }
+      viewModel.onAction(
+        Action.NewGameParametersChanged(
+          GameParameters(
+            size = BoardSize.LARGE,
+            handicap = 0,
+            mode = MatchMode.WIFI_JOIN,
+            hostAddress = "192.168.0.10",
+          )
+        )
+      )
+      awaitState { it.newGameDialogShowing }
+      applicationTestScope.advanceUntilIdle()
+      assertEquals(1, lanDiscoveryManager.discoverCalls)
+
+      viewModel.onAction(Action.StartNewGame)
+      val item = awaitState { it.title == "Face to face · Disconnected" && it.newGameDialogShowing }
+      assertTrue(item.newGameDialogShowing)
+      applicationTestScope.advanceUntilIdle()
+      assertEquals(2, lanDiscoveryManager.discoverCalls)
+      cancelAndIgnoreRemainingEvents()
+    }
+  }
+
   private fun stubJoinTransports(vararg transports: FakeTransport) {
     lanConnectionManager.enqueueJoinTransports(*transports)
   }
@@ -756,6 +857,18 @@ class FaceToFaceViewModelTest {
       check(joinTransports.isNotEmpty()) { "No fake join transport left" }
       return joinTransports.removeFirst().also { it.bindOnClosed(onClosed) }
     }
+  }
+
+  private inner class FakeLanDiscoveryManager : FaceToFaceLanDiscoveryManager {
+    private val discoveredHosts = MutableStateFlow<List<FaceToFaceLanDiscoveredHost>>(emptyList())
+    var discoverCalls = 0
+      private set
+
+    override fun discoverHosts() = discoveredHosts.also { discoverCalls += 1 }
+
+    override suspend fun startAdvertising(sessionId: String, deviceName: String, port: Int) = Unit
+
+    override suspend fun stopAdvertising() = Unit
   }
 
   private class FakeFaceToFaceEstimator : FaceToFaceEstimator {

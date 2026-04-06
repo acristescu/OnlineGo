@@ -71,6 +71,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -88,7 +89,8 @@ class FaceToFaceViewModel(
   private val lanConnectionManager: FaceToFacePeerConnectionManager,
   private val lanDiscoveryManager: FaceToFaceLanDiscoveryManager,
   private val applicationScope: CoroutineScope,
-  testing: Boolean = false
+  testing: Boolean = false,
+  private val keepAliveIntervalMs: Long = DEFAULT_KEEP_ALIVE_INTERVAL_MS,
 ) : ViewModel() {
 
   private val moleculeScope =
@@ -103,6 +105,7 @@ class FaceToFaceViewModel(
   private var transport: FaceToFaceTransport? = null
   private var hostHandle: FaceToFaceLanHostHandle? = null
   private var transportMessagesJob: Job? = null
+  private var keepAliveJob: Job? = null
   private var discoveryJob: Job? = null
   private var candidateMove by mutableStateOf<Cell?>(null)
   private var historyIndex by mutableStateOf<Int?>(null)
@@ -569,6 +572,7 @@ class FaceToFaceViewModel(
   private suspend fun attachTransport(transport: FaceToFaceTransport) {
     this.transport = transport
     transportMessagesJob?.cancel()
+    restartKeepAliveLoop()
     transportMessagesJob = viewModelScope.launch {
       transport.incomingMessages.collect { message ->
         handleIncomingPeerMessage(message)
@@ -606,6 +610,17 @@ class FaceToFaceViewModel(
             message = "Incompatible face-to-face version on the host device",
             error = IllegalStateException(
               "Unsupported snapshot protocol version ${message.snapshot.protocolVersion}"
+            ),
+            reopenDialog = true,
+            appendErrorDetails = false,
+          )
+          return
+        }
+        if (message.snapshot.sessionId != message.sessionId) {
+          handlePeerFailure(
+            message = "Received invalid game snapshot from the host device",
+            error = IllegalStateException(
+              "StartGame session mismatch: envelope=${message.sessionId}, snapshot=${message.snapshot.sessionId}"
             ),
             reopenDialog = true,
             appendErrorDetails = false,
@@ -706,6 +721,26 @@ class FaceToFaceViewModel(
       is FaceToFacePeerMessage.SyncState -> {
         val currentSession = session ?: return
         if (!currentSession.matchesEstablishedSession(message.sessionId)) return
+        if (message.snapshot.protocolVersion != FACE_TO_FACE_PROTOCOL_VERSION) {
+          handlePeerFailure(
+            message = "Incompatible face-to-face version in sync state",
+            error = IllegalStateException(
+              "Unsupported sync snapshot protocol version ${message.snapshot.protocolVersion}"
+            ),
+            appendErrorDetails = false,
+          )
+          return
+        }
+        if (message.snapshot.sessionId != message.sessionId) {
+          handlePeerFailure(
+            message = "Received invalid sync state from the other device",
+            error = IllegalStateException(
+              "SyncState session mismatch: envelope=${message.sessionId}, snapshot=${message.snapshot.sessionId}"
+            ),
+            appendErrorDetails = false,
+          )
+          return
+        }
         setupMessage = "Syncing board..."
         session = currentSession.copy(
           connectionState = io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceConnectionState.SYNCING,
@@ -735,6 +770,7 @@ class FaceToFaceViewModel(
     suppressPeerCloseCallback = true
     transportMessagesJob?.cancel()
     transportMessagesJob = null
+    stopKeepAliveLoop()
     stopJoinDiscovery(clearHosts = true)
 
     val hostHandle = hostHandle
@@ -756,6 +792,7 @@ class FaceToFaceViewModel(
     koMoveDialogShowing = false
     historyIndex = null
     newGameDialogShowing = false
+    stopKeepAliveLoop()
     stopJoinDiscovery(clearHosts = true)
   }
 
@@ -839,6 +876,11 @@ class FaceToFaceViewModel(
     suppressPeerCloseCallback = true
     viewModelScope.launch(ioDispatcher) {
       closePeerConnection()
+      if (reopenDialog) {
+        withContext(Dispatchers.Main) {
+          updateJoinDiscovery()
+        }
+      }
     }
   }
 
@@ -853,6 +895,7 @@ class FaceToFaceViewModel(
   private fun releasePeerConnectionReferences() {
     transportMessagesJob?.cancel()
     transportMessagesJob = null
+    stopKeepAliveLoop()
     transport = null
     hostHandle = null
   }
@@ -967,6 +1010,36 @@ class FaceToFaceViewModel(
   companion object {
     private const val HOTSEAT_SESSION_ID = "face-to-face-hotseat"
     private const val PENDING_SESSION_ID = "pending-face-to-face-session"
+    private const val DEFAULT_KEEP_ALIVE_INTERVAL_MS = 5_000L
+  }
+
+  private fun restartKeepAliveLoop() {
+    stopKeepAliveLoop()
+    if (keepAliveIntervalMs <= 0) return
+    val activeTransport = transport ?: return
+    keepAliveJob = viewModelScope.launch(ioDispatcher) {
+      while (true) {
+        delay(keepAliveIntervalMs)
+        val currentSession = session ?: continue
+        if (currentSession.mode != FaceToFaceSessionMode.PEER_TO_PEER) continue
+        val keepAliveMessage = FaceToFacePeerMessage.KeepAlive(
+          sessionId = currentSession.sessionId,
+          moveCount = currentSession.moveHistory.size,
+        )
+        val sendSucceeded = runCatching {
+          activeTransport.send(keepAliveMessage)
+        }.isSuccess
+        if (!sendSucceeded) {
+          runCatching { activeTransport.close() }
+          return@launch
+        }
+      }
+    }
+  }
+
+  private fun stopKeepAliveLoop() {
+    keepAliveJob?.cancel()
+    keepAliveJob = null
   }
 
   private fun updateJoinDiscovery() {

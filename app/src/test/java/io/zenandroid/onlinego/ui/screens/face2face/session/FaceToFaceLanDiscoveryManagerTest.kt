@@ -1,6 +1,7 @@
 package io.zenandroid.onlinego.ui.screens.face2face.session
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class FaceToFaceLanDiscoveryManagerTest {
@@ -25,5 +26,16 @@ class FaceToFaceLanDiscoveryManagerTest {
   @Test
   fun `falls back to host when service name is unexpected`() {
     assertEquals("Host", displayNameFromLanServiceName("OnlineGo F2F"))
+  }
+
+  @Test
+  fun `caps service name length for long device names`() {
+    val serviceName = buildLanServiceName(
+      deviceName = "Pixel 9 Pro XL Developer Preview Build Extra Long Device Name",
+      sessionId = "12345678-abcdef",
+    )
+
+    assertTrue(serviceName.length <= 63)
+    assertEquals("123456", serviceName.takeLast(6))
   }
 }
