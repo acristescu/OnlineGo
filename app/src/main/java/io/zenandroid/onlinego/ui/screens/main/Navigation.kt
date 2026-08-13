@@ -83,7 +83,6 @@ fun OnlineGoApp(
   }
 
   OnlineGoTheme(
-    m3 = true,
     darkTheme = darkTheme,
   ) {
     Scaffold(bottomBar = {

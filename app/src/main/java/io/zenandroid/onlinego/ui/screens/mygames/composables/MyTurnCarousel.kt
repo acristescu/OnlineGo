@@ -5,7 +5,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.pager.*
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -15,8 +16,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
-import com.google.accompanist.pager.HorizontalPagerIndicator
 import io.zenandroid.onlinego.data.model.local.Game
+import io.zenandroid.onlinego.ui.composables.HorizontalPagerIndicator
 import io.zenandroid.onlinego.ui.screens.mygames.Action
 import kotlin.math.absoluteValue
 
@@ -32,26 +33,27 @@ fun MyTurnCarousel(games: List<Game>, userId: Long?, onAction: (Action) -> Unit)
         ) { page ->
             val game = games[page]
             Box(modifier = Modifier
-                .fillMaxWidth()
-                .graphicsLayer {
-                    val currentOffsetForPage = (pagerState.currentPage - page) + pagerState.currentPageOffsetFraction
-                    val pageOffset = currentOffsetForPage.absoluteValue
+              .fillMaxWidth()
+              .graphicsLayer {
+                val currentOffsetForPage =
+                  (pagerState.currentPage - page) + pagerState.currentPageOffsetFraction
+                val pageOffset = currentOffsetForPage.absoluteValue
 
-                    lerp(
-                        start = 0.25f,
-                        stop = 1f,
-                        fraction = 1f - pageOffset.coerceIn(0f, 1f)
-                    ).also { scale ->
-                        scaleX = scale
-                        scaleY = scale
-                    }
-
-                    alpha = lerp(
-                        start = 0.25f,
-                        stop = 1f,
-                        fraction = 1f - pageOffset.coerceIn(0f, 1f)
-                    )
+                lerp(
+                  start = 0.25f,
+                  stop = 1f,
+                  fraction = 1f - pageOffset.coerceIn(0f, 1f)
+                ).also { scale ->
+                  scaleX = scale
+                  scaleY = scale
                 }
+
+                alpha = lerp(
+                  start = 0.25f,
+                  stop = 1f,
+                  fraction = 1f - pageOffset.coerceIn(0f, 1f)
+                )
+              }
             ) {
                 LargeGameItem(
                     game = game,
@@ -66,8 +68,8 @@ fun MyTurnCarousel(games: List<Game>, userId: Long?, onAction: (Action) -> Unit)
             pageCount = pagerState.pageCount,
             activeColor = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier
-                .align(Alignment.CenterHorizontally)
-                .padding(16.dp)
+              .align(Alignment.CenterHorizontally)
+              .padding(16.dp)
         )
     }
 }

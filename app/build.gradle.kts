@@ -117,9 +117,6 @@ dependencies {
   // Datastore
   implementation(libs.androidx.datastore.preferences)
 
-  // Accompanist
-  implementation(libs.bundles.accompanist)
-
   // Android Core
   implementation(libs.androidx.core.ktx)
   implementation(libs.androidx.activity.compose)

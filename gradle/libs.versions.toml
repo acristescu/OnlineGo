@@ -3,7 +3,6 @@
 datastorePreferences = "1.2.1"
 kotlin = "2.3.20"
 androidGradlePlugin = "9.2.1"
-composeCompiler = "1.5.4"
 compileSdk = "36"
 minSdk = "23"
 navigationCompose = "2.9.7"
@@ -16,7 +15,6 @@ composeBom = "2026.03.01"
 # Main dependencies
 koin = "4.2.0"
 playServices = "21.5.1"
-accompanist = "0.36.0"
 room = "2.8.4"
 firebase = "34.11.0"
 workManager = "2.11.2"
@@ -84,9 +82,6 @@ compose-material3 = { group = "androidx.compose.material3", name = "material3" }
 
 # Molecule
 molecule-runtime = { group = "app.cash.molecule", name = "molecule-runtime", version.ref = "molecule" }
-
-# Accompanist
-accompanist-pager-indicators = { group = "com.google.accompanist", name = "accompanist-pager-indicators", version.ref = "accompanist" }
 
 
 # Material Design (provides Theme.Material3.* XML theme attributes)
@@ -170,10 +165,6 @@ compose = [
     "compose-ui",
     "compose-ui-tooling-preview",
     "compose-ui-util"
-]
-
-accompanist = [
-    "accompanist-pager-indicators"
 ]
 
 retrofit = [
