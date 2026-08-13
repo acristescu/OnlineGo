@@ -11,6 +11,7 @@ import com.android.billingclient.api.BillingClientStateListener
 import com.android.billingclient.api.BillingFlowParams
 import com.android.billingclient.api.BillingFlowParams.SubscriptionUpdateParams
 import com.android.billingclient.api.BillingResult
+import com.android.billingclient.api.PendingPurchasesParams
 import com.android.billingclient.api.ProductDetails
 import com.android.billingclient.api.Purchase
 import com.android.billingclient.api.QueryProductDetailsParams
@@ -44,7 +45,11 @@ class PlayStoreService(
         }
       }
     }
-    .enablePendingPurchases()
+    .enablePendingPurchases(
+      PendingPurchasesParams.newBuilder()
+        .enableOneTimeProducts()
+        .build()
+    )
     .build()
 
   private fun handlePurchase(purchase: Purchase) {

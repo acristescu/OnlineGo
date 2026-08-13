@@ -2,7 +2,7 @@
 # Kotlin & Android
 datastorePreferences = "1.2.1"
 kotlin = "2.3.20"
-androidGradlePlugin = "9.0.1"
+androidGradlePlugin = "9.2.1"
 composeCompiler = "1.5.4"
 compileSdk = "36"
 minSdk = "23"
@@ -36,7 +36,7 @@ coil = "2.7.0"
 # Utility libraries
 markwon = "4.6.2"
 jsoup = "1.22.1"
-billing = "7.1.1"
+billing = "9.1.0"
 desugar = "2.1.5"
 espresso = "3.7.0"
 immutableCollections = "0.4.0"
