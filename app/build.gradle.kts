@@ -1,8 +1,5 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.google.services)
     alias(libs.plugins.firebase.crashlytics)
@@ -59,18 +56,6 @@ android {
         unitTests.isReturnDefaultValues = true
     }
 
-  tasks.withType<KotlinCompile>().configureEach {
-      compilerOptions {
-          jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
-          freeCompilerArgs.addAll(
-              "-opt-in=androidx.compose.animation.ExperimentalAnimationApi",
-              "-opt-in=androidx.compose.foundation.ExperimentalFoundationApi",
-              "-opt-in=androidx.compose.ui.ExperimentalComposeUiApi",
-              "-Xjvm-default=all"
-          )
-      }
-    }
-
   buildFeatures {
         compose = true
         viewBinding = true
@@ -97,6 +82,18 @@ android {
         }
         resources.excludes.add("META-INF/*")
     }
+}
+
+kotlin {
+  compilerOptions {
+    jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
+    freeCompilerArgs.addAll(
+      "-opt-in=androidx.compose.animation.ExperimentalAnimationApi",
+      "-opt-in=androidx.compose.foundation.ExperimentalFoundationApi",
+      "-opt-in=androidx.compose.ui.ExperimentalComposeUiApi",
+      "-Xjvm-default=all"
+    )
+  }
 }
 
 dependencies {
