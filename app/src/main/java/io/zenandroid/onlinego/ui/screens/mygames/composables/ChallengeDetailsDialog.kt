@@ -32,6 +32,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
@@ -40,6 +41,7 @@ import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.local.Challenge
 import io.zenandroid.onlinego.data.model.local.Player
 import io.zenandroid.onlinego.ui.screens.mygames.ChallengeDialogStatus
+import io.zenandroid.onlinego.ui.screens.mygames.DetailValue
 import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
 import io.zenandroid.onlinego.utils.processGravatarURL
 
@@ -95,14 +97,20 @@ fun ChallengeDetailsDialog(
             )
 
             Text(
-                text = "You received a challenge!",
+                text = stringResource(R.string.mygames_challenge_received),
                 color = MaterialTheme.colorScheme.onSurface,
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.padding(vertical = 16.dp)
             )
 
-            status.details.forEach { (name, value) ->
-                StatsRow(title = name, value = value)
+            status.details.forEach { (nameResId, value) ->
+                StatsRow(
+                    title = stringResource(nameResId),
+                    value = when (value) {
+                        is DetailValue.Literal -> value.text
+                        is DetailValue.Resource -> stringResource(value.resId)
+                    }
+                )
             }
             Spacer(modifier = Modifier.weight(1f))
             Row(
@@ -116,7 +124,7 @@ fun ChallengeDetailsDialog(
                         onChallengeAccepted(status.challenge)
                     }
                 }) {
-                    Text("Accept")
+                    Text(stringResource(R.string.mygames_accept))
                 }
                 TextButton(onClick = {
                     val currentTime = System.currentTimeMillis()
@@ -125,7 +133,7 @@ fun ChallengeDetailsDialog(
                         onChallengeDeclined(status.challenge)
                     }
                 }) {
-                    Text("Decline")
+                    Text(stringResource(R.string.mygames_decline))
                 }
             }
         }
@@ -138,7 +146,7 @@ fun ChallengeDetailsDialog(
                     .error(R.mipmap.placeholder)
                     .build()
             ),
-            contentDescription = "Avatar",
+            contentDescription = stringResource(R.string.mygames_avatar_content_description),
             modifier = Modifier
                 .align(Alignment.TopCenter)
                 .padding(top = 29.dp)
@@ -231,7 +239,7 @@ fun PreviewPlayerDetailsDialog() {
                     rank = "9k (1410)",
                     name = "Bula",
                     details = listOf(
-                        "Size" to "19x19"
+                        R.string.mygames_detail_board_size to DetailValue.Literal("19x19")
                     )
                 )
             )

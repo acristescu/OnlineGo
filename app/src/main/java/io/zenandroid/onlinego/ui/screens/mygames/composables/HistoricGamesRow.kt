@@ -17,11 +17,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.local.Game
 import io.zenandroid.onlinego.ui.composables.Board
 import io.zenandroid.onlinego.ui.screens.mygames.Action
@@ -70,7 +72,7 @@ fun HistoricGameLazyRow(
             }
 
           Text(
-            text = opponent?.username ?: "Unknown",
+            text = opponent?.username ?: stringResource(R.string.unknown),
             overflow = TextOverflow.Ellipsis,
             maxLines = 1,
             style = TextStyle.Default.copy(
@@ -80,23 +82,23 @@ fun HistoricGameLazyRow(
             modifier = Modifier.padding(horizontal = 15.dp)
           )
           val outcome = when {
-            game.outcome == "Cancellation" -> "Cancelled"
+            game.outcome == "Cancellation" -> stringResource(R.string.mygames_outcome_cancelled)
             userId == game.blackPlayer.id ->
-              if (game.blackLost == true) "Lost"
-              else "Won"
+              if (game.blackLost == true) stringResource(R.string.mygames_outcome_lost)
+              else stringResource(R.string.mygames_outcome_won)
 
             userId == game.whitePlayer.id ->
-              if (game.whiteLost == true) "Lost"
-              else "Won"
+              if (game.whiteLost == true) stringResource(R.string.mygames_outcome_lost)
+              else stringResource(R.string.mygames_outcome_won)
 
             game.whiteLost == true ->
-              "Black won"
+              stringResource(R.string.mygames_outcome_black_won)
 
             else ->
-              "White won"
+              stringResource(R.string.mygames_outcome_white_won)
           }.let {
             if (game.annulled != true) it
-            else it + " - Annulled"
+            else it + " - " + stringResource(R.string.mygames_outcome_annulled)
           }
           Text(
             text = outcome,

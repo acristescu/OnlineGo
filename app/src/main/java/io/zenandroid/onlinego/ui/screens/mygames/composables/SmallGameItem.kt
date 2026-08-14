@@ -14,10 +14,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.StoneType
 import io.zenandroid.onlinego.data.model.local.Game
 import io.zenandroid.onlinego.data.model.local.isPaused
@@ -64,7 +66,7 @@ fun SmallGameItem(game: Game, userId: Long?, onAction: (Action) -> Unit) {
         Row(modifier = Modifier.padding(top = 8.dp)) {
           Text(
             text = opponent?.username?.substring(0..20.coerceAtMost(opponent.username.length - 1))
-              ?: "Unknown",
+              ?: stringResource(R.string.unknown),
             color = MaterialTheme.colorScheme.onSurface,
             style = TextStyle.Default.copy(
               fontSize = 14.sp,
@@ -89,7 +91,7 @@ fun SmallGameItem(game: Game, userId: Long?, onAction: (Action) -> Unit) {
             )
             if (game.pauseControl.isPaused()) {
               Text(
-                text = "  ·  paused",
+                text = "  ·  " + stringResource(R.string.mygames_paused),
                 color = MaterialTheme.colorScheme.onSurface,
                 style = TextStyle.Default.copy(
                   fontSize = 12.sp,
@@ -99,20 +101,26 @@ fun SmallGameItem(game: Game, userId: Long?, onAction: (Action) -> Unit) {
           }
         } else {
           val outcome = when {
-            game.outcome == "Cancellation" -> "Cancelled"
+            game.outcome == "Cancellation" -> stringResource(R.string.mygames_outcome_cancelled)
             userId == game.blackPlayer.id ->
-              if (game.blackLost == true) "Lost by ${game.outcome}"
-              else "Won by ${game.outcome}"
+              if (game.blackLost == true) stringResource(
+                R.string.mygames_outcome_lost_by,
+                game.outcome.orEmpty()
+              )
+              else stringResource(R.string.mygames_outcome_won_by, game.outcome.orEmpty())
 
             userId == game.whitePlayer.id ->
-              if (game.whiteLost == true) "Lost by ${game.outcome}"
-              else "Won by ${game.outcome}"
+              if (game.whiteLost == true) stringResource(
+                R.string.mygames_outcome_lost_by,
+                game.outcome.orEmpty()
+              )
+              else stringResource(R.string.mygames_outcome_won_by, game.outcome.orEmpty())
 
             game.whiteLost == true ->
-              "Black won by ${game.outcome}"
+              stringResource(R.string.mygames_outcome_black_won_by, game.outcome.orEmpty())
 
             else ->
-              "White won by ${game.outcome}"
+              stringResource(R.string.mygames_outcome_white_won_by, game.outcome.orEmpty())
           }
           Text(
             text = outcome,

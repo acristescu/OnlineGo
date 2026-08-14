@@ -16,10 +16,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.local.Challenge
 import io.zenandroid.onlinego.data.model.local.Player
 import io.zenandroid.onlinego.ui.screens.mygames.Action
@@ -37,9 +39,15 @@ fun ChallengeItem(challenge: Challenge, userId: Long?, onAction: (Action) -> Uni
     ) {
         Column(modifier = Modifier.padding(top = 10.dp)) {
             val text = if(challenge.challenger?.id == userId) {
-                "You are challenging ${challenge.challenged?.username}"
+                stringResource(
+                    R.string.mygames_challenge_you_are_challenging,
+                    challenge.challenged?.username ?: ""
+                )
             } else {
-                "${challenge.challenger?.username} is challenging you"
+                stringResource(
+                    R.string.mygames_challenge_is_challenging_you,
+                    challenge.challenger?.username ?: ""
+                )
             }
 
             Text(
@@ -65,7 +73,7 @@ fun ChallengeItem(challenge: Challenge, userId: Long?, onAction: (Action) -> Uni
                             }
                         }
                     ) {
-                        Text("Cancel")
+                        Text(stringResource(R.string.cancel))
                     }
                 } else {
                     TextButton(
@@ -77,10 +85,10 @@ fun ChallengeItem(challenge: Challenge, userId: Long?, onAction: (Action) -> Uni
                             }
                         }
                     ) {
-                        Text("Accept")
+                        Text(stringResource(R.string.mygames_accept))
                     }
                     TextButton(onClick = { onAction(Action.ChallengeSeeDetails(challenge)) }) {
-                        Text("See Details")
+                        Text(stringResource(R.string.mygames_see_details))
                     }
                     TextButton(
                         onClick = {
@@ -91,7 +99,7 @@ fun ChallengeItem(challenge: Challenge, userId: Long?, onAction: (Action) -> Uni
                             }
                         }
                     ) {
-                        Text("Decline")
+                        Text(stringResource(R.string.mygames_decline))
                     }
                 }
             }

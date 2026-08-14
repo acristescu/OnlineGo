@@ -29,6 +29,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -98,13 +99,20 @@ fun MyGamesScreen(
     onNavigateToSignUp
   )
 
-  if (state.alertDialogText != null) {
+  state.alertDialogTextResId?.let { alertDialogTextResId ->
     AlertDialog(
-      title = { state.alertDialogTitle?.let { Text(it) } },
-      text = { state.alertDialogText?.let { Text(it) } },
+      title = { state.alertDialogTitleResId?.let { Text(stringResource(it)) } },
+      text = {
+        val base = stringResource(alertDialogTextResId)
+        val message = state.alertDialogMessage
+        Text(
+          if (!message.isNullOrEmpty()) "$base ${stringResource(R.string.mygames_message_prefix)}\n\n$message"
+          else base
+        )
+      },
       confirmButton = {
         Button(onClick = { viewModel.onAction(Action.DismissAlertDialog) }) {
-          Text("OK")
+          Text(stringResource(R.string.ok))
         }
       },
       onDismissRequest = { viewModel.onAction(Action.DismissAlertDialog) }
@@ -121,12 +129,12 @@ fun MyGamesScreen(
       onDismissRequest = { viewModel.onAction(Action.DismissWhatsNewDialog) },
       dismissButton = {
         TextButton(onClick = { viewModel.onAction(Action.DismissWhatsNewDialog) }) {
-          Text("OK")
+          Text(stringResource(R.string.ok))
         }
       },
       confirmButton = {
         TextButton(onClick = onNavigateToSupporter) {
-          Text("SUPPORT")
+          Text(stringResource(R.string.mygames_support))
         }
       },
       text = { Text(WhatsNewUtils.whatsNewTextAnnotated) }
@@ -152,10 +160,12 @@ fun MyGamesScreen(
     }
     AlertDialog(
       onDismissRequest = { },
-      title = { Text("OGS Moderator ${it.severity}") },
+      title = { Text(stringResource(R.string.mygames_moderator_title, it.severity ?: "")) },
       text = {
         Text(
-          if (it.text.isNullOrEmpty()) it.message_id ?: "Empty message" else it.text
+          if (it.text.isNullOrEmpty()) it.message_id
+            ?: stringResource(R.string.mygames_empty_message)
+          else it.text
         )
       },
       confirmButton = {
@@ -164,8 +174,8 @@ fun MyGamesScreen(
           enabled = buttonEnabled
         ) {
           Text(
-            if (buttonEnabled) "Acknowledge"
-            else "Acknowledge (${secondsLeft}s)"
+            if (buttonEnabled) stringResource(R.string.mygames_acknowledge)
+            else stringResource(R.string.mygames_acknowledge_countdown, secondsLeft)
           )
         }
       }
@@ -196,8 +206,24 @@ fun MyGamesContent(
     item("HomeScreenHeader") {
       HomeScreenHeader(
         image = state.userImageURL,
-        mainText = state.headerMainTextResId?.let { id -> stringResource(id) } ?: state.headerMainText,
-        subText = state.headerSubTextResId?.let { id -> stringResource(id) } ?: state.headerSubText,
+        mainText = state.headerMainTextResId?.let { id ->
+          state.headerMainTextArg?.let { arg -> stringResource(id, arg) } ?: stringResource(id)
+        } ?: "",
+        subText = when {
+          state.headerSubTextResId != null -> stringResource(state.headerSubTextResId)
+          !state.hasReceivedActiveGames -> null
+          state.myTurnGames.isNotEmpty() -> pluralStringResource(
+            R.plurals.mygames_your_turn_count, state.myTurnGames.size, state.myTurnGames.size
+          )
+
+          state.opponentTurnGames.isNotEmpty() -> pluralStringResource(
+            R.plurals.mygames_active_games_count,
+            state.opponentTurnGames.size,
+            state.opponentTurnGames.size
+          )
+
+          else -> stringResource(R.string.mygames_no_active_games)
+        },
         offline = !state.online,
       )
     }
@@ -215,7 +241,7 @@ fun MyGamesContent(
     if (state.myTurnGames.isNotEmpty()) {
       if (state.myTurnGames.size > 10) {
         item("Your turn") {
-          Header("Your turn")
+          Header(stringResource(R.string.mygames_header_your_turn))
         }
         items(items = state.myTurnGames, key = { "myturn/${it.id}" }) {
           SmallGameItem(game = it, state.userId, onAction = onAction)
@@ -229,7 +255,7 @@ fun MyGamesContent(
 
     if (state.challenges.isNotEmpty()) {
       item(key = "Challenges") {
-        Header("Challenges")
+        Header(stringResource(R.string.mygames_header_challenges))
       }
     }
 
@@ -259,7 +285,7 @@ fun MyGamesContent(
 
     if (state.opponentTurnGames.isNotEmpty()) {
       item("Opponent's turn") {
-        Header("Opponent's turn")
+        Header(stringResource(R.string.mygames_header_opponents_turn))
       }
     }
     items(items = state.opponentTurnGames, key = { "opponent/${it.id}" }) {
@@ -268,7 +294,7 @@ fun MyGamesContent(
 
     if (state.recentGames.isNotEmpty()) {
       item("Recently finished") {
-        Header("Recently finished")
+        Header(stringResource(R.string.mygames_header_recently_finished))
       }
     }
     items(items = state.recentGames, key = { "recent/${it.id}" }) {
@@ -277,7 +303,7 @@ fun MyGamesContent(
 
     if (state.historicGames.isNotEmpty()) {
       item("Older games") {
-        Header("Older games")
+        Header(stringResource(R.string.mygames_header_older_games))
       }
       item("HistoricGameLazyRow") {
         HistoricGameLazyRow(
@@ -395,7 +421,8 @@ private fun Preview() {
       MyGamesContent(
         MyGamesState(
           userId = 0L,
-          headerMainText = "Hi MrAlex!",
+          headerMainTextResId = R.string.mygames_greeting,
+          headerMainTextArg = "MrAlex",
           tutorialVisible = true,
           tutorialPercentage = 23,
           tutorialTitle = "Basics > How to capture",
@@ -495,8 +522,8 @@ private fun PreviewLoggedOut() {
       MyGamesContent(
         MyGamesState(
           userId = 0L,
-          headerMainText = "Hi MrAlex!",
-          headerSubText = "You are logged out",
+          headerMainTextResId = R.string.mygames_greeting,
+          headerMainTextArg = "MrAlex",
           online = false,
           loginPromptVisible = true,
           playOnlineEnabled = false,

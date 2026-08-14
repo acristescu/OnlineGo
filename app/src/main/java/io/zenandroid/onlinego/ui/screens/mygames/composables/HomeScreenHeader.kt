@@ -22,6 +22,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -49,7 +50,7 @@ fun HomeScreenHeader(
         .placeholder(R.drawable.ic_person_filled_with_background)
         .error(R.drawable.ic_person_filled_with_background)
         .build(),
-      contentDescription = "Icon",
+      contentDescription = stringResource(R.string.mygames_header_icon_content_description),
       modifier = Modifier
         .size(64.dp)
         .clip(RoundedCornerShape(4.dp))
@@ -80,7 +81,7 @@ fun HomeScreenHeader(
     ) {
       Image(
         imageVector = Icons.Default.CloudOff,
-        contentDescription = "Offline",
+        contentDescription = stringResource(R.string.mygames_offline_content_description),
         colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface),
         modifier = Modifier.size(24.dp),
       )

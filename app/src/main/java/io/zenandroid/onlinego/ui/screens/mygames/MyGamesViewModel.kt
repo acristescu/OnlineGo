@@ -1,6 +1,7 @@
 package io.zenandroid.onlinego.ui.screens.mygames
 
 import android.util.Log
+import androidx.annotation.StringRes
 import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -84,7 +85,6 @@ class MyGamesViewModel(
     MyGamesState(
       userId = null,
       whatsNewDialogVisible = false,
-      headerMainText = "",
     )
   )
   val state: StateFlow<MyGamesState> = _state
@@ -176,7 +176,9 @@ class MyGamesViewModel(
               customGameEnabled = true,
               loginPromptVisible = false,
               userId = userId,
-              headerMainText = "Hi ${userSessionRepository.uiConfig?.user?.username},",
+              headerMainTextResId = R.string.mygames_greeting,
+              headerMainTextArg = userSessionRepository.uiConfig?.user?.username,
+              headerSubTextResId = null,
               userImageURL = userSessionRepository.uiConfig?.user?.icon,
               automatches = automatches,
               hasReceivedAutomatches = true,
@@ -254,19 +256,8 @@ class MyGamesViewModel(
     return state.copy(
       myTurnGames = myTurnList.sortedBy { timeLeftForCurrentPlayer(it) },
       opponentTurnGames = opponentTurnList,
-      headerSubText = determineText(myTurnList, opponentTurnList),
       hasReceivedActiveGames = true,
     )
-  }
-
-  private fun determineText(myTurnGames: List<Game>, opponentTurnGames: List<Game>): String {
-    if (myTurnGames.isNotEmpty()) {
-      return "It's your turn in ${myTurnGames.size} games."
-    }
-    if (opponentTurnGames.isNotEmpty()) {
-      return "You have ${opponentTurnGames.size} active games."
-    }
-    return "You have no active games. How about starting one?"
   }
 
   private fun onChallengeSeeDetails(challenge: Challenge) {
@@ -279,12 +270,13 @@ class MyGamesViewModel(
       name = challenge.challenger?.username,
       rank = if (showRanks) "$rank ($rating)" else "",
       details = listOf(
-        "Board Size" to "${challenge.width}x${challenge.height}",
-        "Speed" to "${challenge.speed?.capitalize(Locale.UK)}",
-        "Ranked" to if (challenge.ranked == true) "Yes" else "No",
-        "Analysis" to if (challenge.disabledAnalysis == true) "Disabled" else "Enabled",
-        "Handicap" to "${challenge.handicap ?: "Auto"}",
-        "Rules" to "${challenge.rules?.capitalize(Locale.UK)}",
+        R.string.mygames_detail_board_size to DetailValue.Literal("${challenge.width}x${challenge.height}"),
+        R.string.mygames_detail_speed to DetailValue.Literal("${challenge.speed?.capitalize(Locale.UK)}"),
+        R.string.mygames_detail_ranked to DetailValue.Resource(if (challenge.ranked == true) R.string.yes else R.string.no),
+        R.string.mygames_detail_analysis to DetailValue.Resource(if (challenge.disabledAnalysis == true) R.string.disabled else R.string.enabled),
+        R.string.handicap to (challenge.handicap?.let { DetailValue.Literal(it.toString()) }
+          ?: DetailValue.Resource(R.string.auto)),
+        R.string.mygames_detail_rules to DetailValue.Literal("${challenge.rules?.capitalize(Locale.UK)}"),
       ),
     )
     _state.update {
@@ -335,12 +327,13 @@ class MyGamesViewModel(
   private fun onNotification(notification: JSONObject) {
     if (notification["type"] == "gameOfferRejected") {
       val message =
-        if (notification.has("message") && notification["message"].toString() != "null") "Message is:\n\n${notification["message"]}" else ""
+        if (notification.has("message") && notification["message"].toString() != "null") notification["message"].toString() else null
       if (notification["name"].toString() == "Bot Match") {
         _state.update {
           it.copy(
-            alertDialogTitle = "Bot rejected challenge",
-            alertDialogText = "This might happen because the opponent's maintainer has set some conditions on the challenge parameters. $message"
+            alertDialogTitleResId = R.string.mygames_alert_bot_rejected_title,
+            alertDialogTextResId = R.string.mygames_alert_bot_rejected_text,
+            alertDialogMessage = message
           )
         }
         analytics.logEvent("bot_refused_challenge", null)
@@ -348,8 +341,9 @@ class MyGamesViewModel(
       } else {
         _state.update {
           it.copy(
-            alertDialogTitle = "Opponent rejected challenge",
-            alertDialogText = "You may try again or otherwise contact the opponent to clarify his/her reasons for the rejection. $message"
+            alertDialogTitleResId = R.string.mygames_alert_opponent_rejected_title,
+            alertDialogTextResId = R.string.mygames_alert_opponent_rejected_text,
+            alertDialogMessage = message
           )
         }
       }
@@ -378,8 +372,8 @@ class MyGamesViewModel(
       if (t is com.squareup.moshi.JsonDataException) {
         _state.update {
           it.copy(
-            alertDialogTitle = "OGS Error",
-            alertDialogText = "An error occurred white talking to the OGS Server. This usually means the website devs have changed something in the API. Please report this error as the app will probably not work until we adapt to this change."
+            alertDialogTitleResId = R.string.mygames_alert_ogs_error_title,
+            alertDialogTextResId = R.string.mygames_alert_ogs_error_text
           )
         }
       }
@@ -411,8 +405,8 @@ class MyGamesViewModel(
         if (game.id == 0L) {
           _state.update {
             it.copy(
-              alertDialogTitle = "Error",
-              alertDialogText = "This game is not available."
+              alertDialogTitleResId = R.string.error,
+              alertDialogTextResId = R.string.mygames_alert_game_unavailable
             )
           }
         } else {
@@ -432,8 +426,8 @@ class MyGamesViewModel(
         ) {
           _state.update {
             it.copy(
-              alertDialogTitle = "Error",
-              alertDialogText = "Can only search for one live, rapid or blitz game at a time."
+              alertDialogTitleResId = R.string.error,
+              alertDialogTextResId = R.string.mygames_alert_one_live_game
             )
           }
         } else {
@@ -483,8 +477,9 @@ class MyGamesViewModel(
   private fun onDismissAlertDialog() {
     _state.update {
       it.copy(
-        alertDialogText = null,
-        alertDialogTitle = null
+        alertDialogTextResId = null,
+        alertDialogTitleResId = null,
+        alertDialogMessage = null
       )
     }
   }
@@ -564,13 +559,15 @@ data class MyGamesState(
   val loadedAllHistoricGames: Boolean = false,
   val userId: Long?,
   val userIsLoggedOut: Boolean = false,
-  val alertDialogTitle: String? = null,
-  val alertDialogText: String? = null,
+  val alertDialogTitleResId: Int? = null,
+  val alertDialogTextResId: Int? = null,
+  val alertDialogMessage: String? = null,
   val gameNavigationPending: Game? = null,
   val whatsNewDialogVisible: Boolean = false,
   val userImageURL: String? = null,
-  val headerMainText: String,
-  val headerSubText: String? = null,
+  val headerMainTextResId: Int? = null,
+  val headerMainTextArg: String? = null,
+  val headerSubTextResId: Int? = null,
   val tutorialPercentage: Int? = 100,
   val tutorialVisible: Boolean = false,
   val tutorialTitle: String? = null,
@@ -585,8 +582,6 @@ data class MyGamesState(
   val playOnlineEnabled: Boolean = true,
   val customGameEnabled: Boolean = true,
   val loginPromptVisible: Boolean = false,
-  val headerMainTextResId: Int? = null,
-  val headerSubTextResId: Int? = null,
 )
 
 
@@ -614,5 +609,15 @@ data class ChallengeDialogStatus(
   val imageURL: String?,
   val name: String?,
   val rank: String,
-  val details: List<Pair<String, String>>
+  val details: List<Pair<Int, DetailValue>>
 )
+
+/**
+ * A challenge detail value, which is either a literal (server-provided data such as a board size)
+ * or a string resource that has to be resolved against the current locale.
+ */
+@Immutable
+sealed interface DetailValue {
+  data class Literal(val text: String) : DetailValue
+  data class Resource(@StringRes val resId: Int) : DetailValue
+}
