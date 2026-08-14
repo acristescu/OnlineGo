@@ -61,6 +61,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -87,15 +88,11 @@ import io.zenandroid.onlinego.utils.processGravatarURL
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import org.koin.androidx.compose.koinViewModel
-import org.koin.core.component.KoinComponent
 import kotlin.math.abs
-import android.content.Context
-import androidx.compose.ui.res.stringResource
-import org.koin.core.component.inject
 
 sealed class AiGameBottomBarButton(
   override val icon: androidx.compose.ui.graphics.vector.ImageVector,
-  val labelResId: Int,
+  override val labelResId: Int,
   override val label: String = "",
   override val repeatable: Boolean = false,
   override val enabled: Boolean = true,
@@ -612,15 +609,8 @@ private fun AiGameBottomBar(
     AiGameBottomBarButton.Previous(enabled = state.previousButtonEnabled),
     AiGameBottomBarButton.Next(enabled = state.nextButtonEnabled)
   )
-  val translatedButtons = bottomBarButtons.map { btn ->
-    val text = stringResource(id = btn.labelResId)
-
-    object : BottomBarButton by btn {
-      override val label: String = text
-    }
-  }
   BottomBar(
-    buttons = translatedButtons,
+    buttons = bottomBarButtons,
     bottomText = null,
     onButtonPressed = { button ->
       when (button) {

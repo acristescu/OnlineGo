@@ -25,7 +25,7 @@
     <string name="white">white</string>
     <string name="black">black</string>
     <string name="score_prediction_leads_by">Score prediction: %1$s leads by %2$s</string>
-    <string name="white_s_chance_to_win">White\'s chance to win: %1$s%</string>
+    <string name="white_s_chance_to_win">White\'s chance to win: %1$s%%</string>
     <string name="new_game">New Game</string>
     <string name="board_size">Board Size</string>
     <string name="you_play">You play</string>

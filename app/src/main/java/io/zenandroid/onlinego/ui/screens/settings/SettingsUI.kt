@@ -124,8 +124,6 @@ fun SettingsScreen(
   val reviewPromptManager: ReviewPromptManager = koinInject()
   val coroutineScope = rememberCoroutineScope()
 
-  val context = androidx.compose.ui.platform.LocalContext.current
-
   SettingsContent(
     state = state,
     userSettings = userSettings,

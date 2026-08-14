@@ -1,5 +1,6 @@
 package io.zenandroid.onlinego.ui.composables
 
+import androidx.annotation.StringRes
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.SpringSpec
 import androidx.compose.animation.core.TweenSpec
@@ -32,6 +33,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -77,7 +79,7 @@ fun BottomBar(
               tint = MaterialTheme.colorScheme.onSurface,
             )
             Text(
-              text = it.label,
+              text = it.labelResId?.let { resId -> stringResource(resId) } ?: it.label,
               fontFamily = FontFamily.Default,
               fontWeight = FontWeight.Bold,
               fontSize = 8.sp,
@@ -133,6 +135,10 @@ fun BottomBar(
 interface BottomBarButton {
   val icon: ImageVector
   val label: String
+
+  /** Optional string resource for [label]. When set, it is resolved and takes precedence. */
+  @get:StringRes
+  val labelResId: Int? get() = null
   val repeatable: Boolean
   val enabled: Boolean
   val bubbleText: String?
