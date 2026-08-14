@@ -306,5 +306,209 @@
     <string name="mygames_alert_game_unavailable">This game is not available.</string>
     <string name="mygames_alert_one_live_game">Can only search for one live, rapid or blitz game at a time.</string>
     <string name="mygames_message_prefix">Message is:</string>
+    <string name="learn_section_tutorials">Tutorials</string>
+    <string name="learn_section_study">Study</string>
+    <string name="learn_title_learn">Learn</string>
+    <string name="learn_study_title_joseki_explorer">Joseki explorer</string>
+    <string name="earn_study_title_puzzles">Puzzles</string>
+    <string name="learn_tutorial_checkbox_done">Done</string>
+    <string name="learn_tutorial_checkboxoutlineblank_done">Done</string>
+    <string name="joseki_explorer_default_description"><![CDATA["## Joseki Explorer
+*Joseki* is an English loanword from Japanese, usually referring to standard sequences of moves played out in a corner that result in a locally even exchange.
+### How to use the Joseki Explorer
+The marked moves below represent interesting continuations to the current position. The colours represent how good the move is considered to be:
+* Green moves are considered optimal
+* Yellow moves are considered OK
+* Red moves are considered mistakes
+* Purple markers are for trick plays
+* Blue for open questions.
+You can tap any of these interesting moves to explore the positions they lead to.
+### Tenuki
+Sometimes the best move is to play somewhere else. This is normally referred to as *tenuki*. If tenuki is considered an interesting option for the current position the pass button in the bottom left is enabled and you can press it to see what positions may arise after the current player tenukis."]]></string>
+    <string name="tutorial_basics_title">Basics</string>
+    <string name="tutorial_basics_thebasics_title">The Basics</string>
+    <string name="tutorial_basics_thebasics_basic1_text"><![CDATA[Please remember the 3 rules below:
+1. Black and White take turns placing "stones" on the board
+2. Stones are placed on the intersection of the lines.
+3. Once a stone is placed it can never be moved, but it may be captured.
 
+Place a stone to continue!]]></string>
+    <string name="tutorial_basics_thebasics_capture1_page1_text"><![CDATA[With one more move, the white stone will be completely surrounded and captured. Stones that can be captured in one move are said to be in "Atari".]]></string>
+    <string name="tutorial_basics_thebasics_capture1_page2_text"><![CDATA[The white stone is now surrounded, so...]]></string>
+    <string name="tutorial_basics_thebasics_capture1_page3_text"><![CDATA["... it's removed from the board"]]></string>
+    <string name="tutorial_basics_thebasics_capture1_page4_text"><![CDATA["If it were white's turn, it could \"escape\" by connecting another stone."]]></string>
+    <string name="tutorial_basics_thebasics_capture2_text">Your turn! Capture the white stone.</string>
+    <string name="tutorial_basics_thebasics_capture3_text">You can capture two stones with a single move this time!</string>
+    <string name="tutorial_basics_thebasics_capture4_text">Even if there are other stones nearby, just do the same.</string>
+
+    <string name="tutorial_basics_capturingstones_title">Capturing stones</string>
+    <string name="tutorial_basics_capturingstones_capture5_text">At the edge of the board, the situation is a little different. Stones on the edge have fewer liberties and are easier to capture.</string>
+    <string name="tutorial_basics_capturingstones_capture5_branches2_text">The white stones are connected.</string>
+    <string name="tutorial_basics_capturingstones_capture6_text">Stones in the corner are even more vulnerable.</string>
+    <string name="tutorial_basics_capturingstones_capture7_text">Two stones are in atari this time. Capture them!</string>
+    <string name="tutorial_basics_capturingstones_capture8_text">This time it takes two moves to capture the white stones. Careful, your first move is important!</string>
+    <string name="tutorial_basics_capturingstones_capture9_text"><![CDATA["It's hard to run away with stones on the edge. Capture the two white stones on the first line!"]]></string>
+    <string name="tutorial_basics_capturingstones_capture10_text">So many stones! Look for the stones that are in Atari, and capture them. If you get it wrong, your stones will be captured instead.</string>
+    <string name="tutorial_basics_doubleatari_title">Double Atari</string>
+    <string name="tutorial_basics_doubleatari_doubleAtari1_text"><![CDATA[In certain positions, black can put two different white groups in Atari at the same time.
+Black will usually capture at least one in this situation!]]></string>
+    <string name="tutorial_basics_doubleatari_doubleAtari2_text"><![CDATA["Here's another one. Where can you make a double Atari?"]]></string>
+    <string name="tutorial_basics_illegalmoves_title">Illegal moves (the suicide rule)</string>
+    <string name="tutorial_basics_illegalmoves_suicide1_page_1_text">You can play almost anywhere on the board with a few exceptions. In the example below, black cannot play at A, as his new stone would already be surrounded.</string>
+    <string name="tutorial_basics_illegalmoves_suicide1_page_2_text"><![CDATA[This is said to be a "suicide" move and is forbidden.]]></string>
+    <string name="tutorial_basics_illegalmoves_suicide1_page_3_text">There is an exception though. If a move at would capture one or more white stones (like B below), the move is allowed.</string>
+    <string name="tutorial_basics_illegalmoves_suicide1_page_4_text">The resulting position looks like this:</string>
+    <string name="tutorial_basics_illegalmoves_suicide2_text"><![CDATA["Your turn to capture some stones again! Hint: At first it may seem it's an illegal move..."]]></string>
+    <string name="tutorial_basics_illegalmoves_suicide3_text">The 4 black stones are in Atari! Capture the white stones before they capture you!</string>
+    <string name="tutorial_basics_illegalmoves_suicide4_text"><![CDATA["Capture the 2 white stones touching the black ones. Here, you can't capture white with one move."]]></string>
+    <string name="tutorial_basics_illegalmoves_suicide5_text">The white stone at D5 is separating your stones. If you capture it, you can connect your stones and make a strong group. This is a very important pattern in GO!</string>
+    <string name="tutorial_intermediate_title">Intermediate</string>
+    <string name="tutorial_intermediate_ladders_title">Ladders</string>
+    <string name="tutorial_intermediate_ladders_ladder1_text">Capture the white stone! If you play the right moves, white cannot escape. Try to make successive Ataris until white has nowhere else to go.</string>
+    <string name="tutorial_intermediate_ladders_ladder1_branches_branch1_message">White tries to escape...</string>
+    <string name="tutorial_intermediate_ladders_ladder1_branches_branch1_1_1_1_1_message">Can you see where this is going?</string>
+    <string name="tutorial_intermediate_ladders_ladder1_branches_branch1_1_1_1_1_1_1_1_1_message">If white tries to resist...</string>
+    <string name="tutorial_intermediate_ladders_ladder1_branches_branch1_1_1_1_1_1_1_2_1_message">If white tries to resist...</string>
+    <string name="tutorial_intermediate_ladders_ladder1_branches_branch1_1_1_1_1_1_1_2_2_message">If white tries to resist...</string>
+    <string name="tutorial_intermediate_ladders_ladder2_text"><![CDATA["Here's another ladder. Now it's your turn to escape. The situation is not hopeless this time though. Your stone at F2 is in the ladder's path. If you can get to it you're safe. Such a stone is called a \"ladder breaker\""]]></string>
+    <string name="tutorial_intermediate_ladders_ladder3_page1_text">Ladders are very important in GO. But you need to think ahead a few moves and not start a ladder fight unless you are sure you can win it! Here\'s what happens to White if they play out the losing ladder in the previous example\.\.\.</string>
+    <string name="tutorial_intermediate_twoeyes_title">Two Eyes</string>
+    <string name="tutorial_intermediate_twoeyes_twoeyes1_text">You are completely surrounded! What\'s the only move that can save you?</string>
+    <string name="tutorial_intermediate_twoeyes_twoeyes2_page1_text">Correct! In this position both A and B are illegal moves for white since they would be suicidal moves without capturing any of your stones. Therefore, your group can never be captured!</string>
+    <string name="tutorial_intermediate_twoeyes_twoeyes3_text"><![CDATA["How about here? How can you ensure your stones won't get captured?"]]></string>
+    <string name="tutorial_intermediate_captureraces_title">Capture races</string>
+    <string name="tutorial_intermediate_captureraces_capturerace1_text">In this puzzle, both the black and the white groups in the top middle are surrounded. As neither has two eyes, both sides can try and capture the other. This situation is called a capture race (semeai) and is usually won by the side with more liberties. In this case, both groups have 3 liberties, so whoever is next to move will win.\n\nCapture the white stones!</string>
+    <string name="tutorial_intermediate_captureraces_capturerace2_text"><![CDATA["Here's another semeai. Win the race and capture white!"]]></string>
+    <string name="tutorial_intermediate_captureraces_capturerace3_text">Save the black stones in the corner!</string>
+    <string name="tutorial_intermediate_snapback_title">Snapback</string>
+    <string name="tutorial_intermediate_snapback_snapback1_text">Now you will discover a technique called a \"snapback\". Capture the 4 white stones!\n\nHint: you must sacrifice a stone first!</string>
+    <string name="tutorial_intermediate_snapback_snapback2_text">As you\'ve discovered, sometimes forcing white to capture one of your stone puts them into atari. Use the same technique here!</string>
+    <string name="tutorial_intermediate_snapback_snapback3_text">Here\'s another snapback situation at the edge.</string>
+    <string name="tutorial_intermediate_ko_title">KO - the \"no repetition\" rule</string>
+    <string name="tutorial_intermediate_ko_ko_page_1_text"><![CDATA["Now we'll look at the last rule that you need to know in order to play GO: the KO rule. The rule states that a move is invalid if it would produce a repetition (e.g. a previous position).
+Let's look at an example. The white stone at E6 is in Atari. So, black can capture it."]]></string>
+    <string name="tutorial_intermediate_ko_ko_page_2_text"><![CDATA["Now the new black stone at F6 is in atari. Without the KO rule, white would be able to capture it, but if they did, the resulting position..."]]></string>
+    <string name="tutorial_intermediate_ko_ko_page_3_text"><![CDATA["... would be the same as the initial one! Here, without the KO rule, Black would capture again..."]]></string>
+    <string name="tutorial_intermediate_ko_ko_page_4_text"><![CDATA["... and the game would be stuck in a loop. In order to avoid this, the KO rule states that white cannot recapture at E6 here, but must play elsewhere first."]]></string>
+    <string name="tutorial_intermediate_ko_ko_page_5_text"><![CDATA["Now if black wants to save the stone in atari she can play at E6...]]></string>
+    <string name="tutorial_intermediate_ko_ko_page_6_text">Black has thus won the ko fight, but note that it\'s white\'s turn again and so white gained two moves for the price of that one stone.</string>
+    <string name="tutorial_intermediate_ko_ko_page_7_text">Those two free moves might sometimes be worth more points than winning the ko fight, so both players will constantly assess if it\'s worth continuing the ko fight or getting the extra moves.</string>
+    <string name="tutorial_intermediate_ko_ko_page_8_text">How can this occur in a real game? Here\'s an example. Both black and white have a 5-stone group in danger at the top. The only way for black to save her group is to play at E8. A KO fight has started!</string>
+    <string name="tutorial_intermediate_ko_ko_page_9_text">White\'s 5 stones at the top are now in Atari, but he can\'t take back at D8 as that would repeat the last position! Thus he plays somewhere Black can\'t ignore, such as E2</string>
+    <string name="tutorial_intermediate_ko_ko_page_10_text">Now Black\'s 8 stones at the bottom left are in danger so Black does the math: would she rather lose 8 stones at the bottom or 5 at the top? Reluctantly, Black chooses to continue the KO fight and save the stones at the bottom with E1</string>
+    <string name="tutorial_intermediate_ko_ko_page_11_text">White now takes back the KO</string>
+    <string name="tutorial_intermediate_ko_ko_page_12_text"><![CDATA["It's black's turn now and she can't take back because of the KO rule. She has one more chance though: a move at B4 threatens the white group at the bottom!"]]></string>
+    <string name="tutorial_intermediate_ko_ko_page_13_text">White\'s turn to choose now. Should he capture the 5 stones at the top with a move at B9 or save the 6 stones at the bottom? He chooses to play at A4\.\.\.</string>
+    <string name="tutorial_intermediate_ko_ko_page_14_text">Black doesn\'t need much encouragement to play at E8 now\.\.\.</string>
+    <string name="tutorial_intermediate_ko_ko_page_15_text">White reluctantly admits that he has no other good threats. He plays elsewhere, such as F4 and admits he lost the KO fight.</string>
+    <string name="tutorial_intermediate_ko_ko_page_16_text">Black will happily claim her prize at the top with G9 now</string>
+    <string name="tutorial_intermediate_ko_ko_page_17_text">Don\'t worry if this seems too complicated right now. As a beginner, just remember that you can\'t recapture a stone back if it repeats the previous position.</string>
+    <string name="tutorial_intermediate_puzzles_title">Puzzles</string>
+    <string name="tutorial_intermediate_puzzles_puzzles1_text">Capture the 3 white stones! This is sometimes called the \"crane\'s nest\"</string>
+    <string name="tutorial_intermediate_puzzles_puzzles2_text"><![CDATA["It's a capture race, can you win it?"]]></string>
+    <string name="tutorial_intermediate_puzzles_corner1_text"><![CDATA["In GO, fights in the corners are very common. Here is a capture race in the corner. Can you come up on top?"]]></string>
+    <string name="tutorial_intermediate_puzzles_corner2_text"><![CDATA["Capture the white stone which is cutting black.
+Be careful from which side you make the Atari!"]]></string>
+    <string name="tutorial_intermediate_puzzles_corner2_branches_branch1_4_4_message">4 black stones are dead</string>
+    <string name="tutorial_intermediate_puzzles_corner2_branches_branch2_3_message">3 black stones are dead</string>
+    <string name="tutorial_intermediate_puzzles_corner2_branches_branch2_5_message">2 black stones are dead</string>
+    <string name="tutorial_intermediate_puzzles_corner2_branches_branch4_message"><![CDATA["Black can't escape"]]></string>
+    <string name="tutorial_intermediate_puzzles_corner2_branches_branch6_message"><![CDATA["Black can't escape"]]></string>
+    <string name="tutorial_intermediate_falseeyes_title">False eyes</string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes1_page1_text"><![CDATA["If you remember the earlier tutorial, a group with two eyes can never be captured. However, sometimes part of the stones that are surrounding an eye are not connected to the main group and can be captured separately. For example, in the position below, D5 appears to be an eye, however the stone at C5 is in Atari and can be captured, leaving the middle group with a single eye.\n\nWe call D5 a \"false eye\"."]]></string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes2_text"><![CDATA["White tried saving his C5 stone by playing at D5. What's the winning move here?"]]></string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes3_text"><![CDATA["If white instead tries fighting back another way, it doesn't matter, you can still capture the middle group!"]]></string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes4_text"><![CDATA["You're on the defensive this time. Survive by making two true eyes!"]]></string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes4_branches_branch2_message">You filled your own eye</string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes4_branches_branch3_message">You filled your own eye</string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes4_branches_branch4_message">F4 is now a false eye</string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes5_text"><![CDATA["Both eyes need fixing this time!"]]></string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes5_branches_branch1_2_message">F5 is now a false eye.</string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes5_branches_branch2_message">C5 is a false eye.</string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes6_text"><![CDATA["Here's a common pattern for a false eye on the edge. Fix it!"]]></string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes6_branches_branch2_message">You filled your own eye</string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes6_branches_branch3_message">D9 is now a false eye</string>
+    <string name="tutorial_intermediate_morepuzzles_title">More Puzzles</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles3_text">Try not to get dizzy.</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles4_text">What should you do first?</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_1_2_message">Black groups are separated</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_2_message">Black groups are separated</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_3_message">Black groups are separated</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_4_message">Black groups are separated</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_5_1_message">Black is isolated</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_5_2_message">Black is isolated</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_5_3_message">Black is isolated</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_5_4_message">Black is isolated</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_5_5_message">Black is isolated</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_6_message">Black is isolated</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles5_text">Beat the symmetry</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles5_branches_branch3_4_message"><![CDATA["Three black stones can't escape."]]></string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles5_branches_branch5_message"><![CDATA["Two black stones can't escape"]]></string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles5_branches_branch6_message"><![CDATA["Two black stones can't escape"]]></string>
+    <string name="tutorial_advanced_title">Advanced</string>
+    <string name="tutorial_advanced_thefirstmoves_name">The first moves</string>
+    <string name="tutorial_advanced_thefirstmoves_firstmoves1_page1_text"><![CDATA["Until now we've focused on capturing pieces. However in the beginning of the game there are no stones on the board. We'll take a look at where to play your first moves in order to increase your chances of winning.
+
+First, let's divide the board into 3 areas. These are the corners:"]]></string>
+    <string name="tutorial_advanced_thefirstmoves_firstmoves1_page2_text"><![CDATA["... these are the sides..."]]></string>
+    <string name="tutorial_advanced_thefirstmoves_firstmoves1_page3_text"><![CDATA["... and this is the middle. Of course these are just names we use for orientation and there are no special rules for any of these."]]></string>
+    <string name="tutorial_advanced_thefirstmoves_firstmoves1_page4_text"><![CDATA["The object of the game is to encircle more territory than your opponent. Since you and your opponent take turns placing stones, you will both get the same amount of stones. Therefore, the winner is the player who uses their stones more efficiently.
+
+Where is it more efficient to encircle territory? In the corners, on the sides, or in the middle?"]]></string>
+    <string name="tutorial_advanced_thefirstmoves_firstmoves1_page5_text"><![CDATA["Each of the groups below encircles exactly 9 spaces so each gains 9 points. However, the one in the corner requires just 6 stones, the one on the side 9 while the one in the middle requires 12!"]]></string>
+    <string name="tutorial_advanced_thefirstmoves_firstmoves1_page6_text"><![CDATA["Therefore wise players will play in the corners first and only once those are occupied will they move to the sides, leaving the middle for last."]]></string>
+    <string name="tutorial_advanced_thefirstmoves_firstmoves2_text"><![CDATA["Here are the first 20 moves of a real game played between two professional players."]]></string>
+    <string name="tutorial_advanced_themiddlegame_name">The middle-game</string>
+    <string name="tutorial_advanced_themiddlegame_middlegame1_text"><![CDATA["Black is blocked in the bottom left corner. The group will be surrounded if you do nothing."]]></string>
+    <string name="tutorial_advanced_themiddlegame_middlegame2_text"><![CDATA["Black is blocking white on the bottom right area. White doesn't yet have 2 eyes.
+Then white played G2.
+
+Look what happens if black answers at F1 ( or G1) before you find the right answer."]]></string>
+    <string name="tutorial_advanced_endgamescoring_name">End-game: Scoring</string>
+    <string name="tutorial_advanced_endgamescoring_endgame1_page1_text"><![CDATA["Here you will learn how to tell when a game is finished and how to count territories using 5x5 boards. Both players made 5 moves, then both passed and thus the game is considered done. All that is left is to count the territory.
+
+Try to count how many intersections did black surround. What about white?
+
+Hint: remember to count all intersections, including sides and corners, but not spots that are occupied by stones."]]></string>
+    <string name="tutorial_advanced_endgamescoring_endgame1_page2_text"><![CDATA["Black has 5 points on the left and white has 10 points on the right.
+
+Thus white wins by 5 points."]]></string>
+    <string name="tutorial_advanced_endgamescoring_endgame1_page3_text"><![CDATA["But why did black not try to continue playing then?
+
+Well, there is no move that black can do that increases their score. For example, if black invades the right side, white can easily defend and the new stone is dead.
+
+White reduced his territory by 1 but got 1 point back because the black stone is dead and counted as a prisoner.
+
+The score here is still 10-5"]]></string>
+    <string name="tutorial_advanced_endgamescoring_endgame1_page4_text"><![CDATA["What if black plays on the left side then?
+
+All they would achieve is that their territory is now smaller, thus they lost a point.
+
+Hence, black has no good moves and should pass. White has more points so he's happy to pass as well.
+
+Thus the game is over and white wins."]]></string>
+    <string name="tutorial_advanced_endgamescoring_endgame1_page5_text"><![CDATA["Here is another finished game situation. Black has 5 points while white has 6.
+
+The two intersections in the middle are neutral territory ('Dame') and do not count for either player's score.
+
+Either player could play there but they would not gain or lose any points."]]></string>
+    <string name="tutorial_advanced_endgamescoring_endgame1_page6_text"><![CDATA["While the territory is by far the biggest part of the score, remember, that there are other bonus points that need to be added.
+
+Any captured stones count 1 point each, as do 'dead' stones still on the board (that have no chance of making 2 eyes).
+
+Also, since black plays first he has an advantage, and to compensate for this white gets a small bonus of points (called 'komi').
+
+The value of komi depends on the size of the board, but it's usually 5.5 or 6.5 points. The 0.5 ensures there are no drawn games.
+
+Luckily, the app does all of these calculations for you :)"]]></string>
+    <string name="tutorial_advanced_cuttingstones_name">Cutting Stones</string>
+    <string name="tutorial_advanced_cuttingstones_cutting1_text"><![CDATA["It looks as if white has the larger territory.
+However, her wall has a weak point. Just "cut" white's wall.
+
+If you succeed white will have a tough time ensuring both groups survive."]]></string>
+    <string name="tutorial_advanced_cuttingstones_cutting1_branches2_message">The white stones are connected.</string>
+    <string name="tutorial_advanced_cuttingstones_cutting2_text"><![CDATA["Black has 30 points while white has 31 points. Thus it looks like white has a 1 point win.
+However, the territory on the lower side is not all white's.
+
+Just cut white's wall."]]></string>
 </resources>
