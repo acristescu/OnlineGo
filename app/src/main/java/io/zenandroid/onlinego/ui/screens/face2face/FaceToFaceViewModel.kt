@@ -14,6 +14,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.cash.molecule.AndroidUiDispatcher
@@ -21,6 +22,7 @@ import app.cash.molecule.RecompositionMode.ContextClock
 import app.cash.molecule.launchMolecule
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.crashlytics.FirebaseCrashlytics
+import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.Position
 import io.zenandroid.onlinego.data.model.StoneType.BLACK
@@ -93,12 +95,12 @@ class FaceToFaceViewModel(
   @Composable
   fun molecule(): FaceToFaceState {
     val historyIndex = historyIndex
-    val title = when {
-      loading -> "Face to face · Loading"
-      gameFinished == true -> "Face to face · Game Over"
-      currentPosition.nextToMove == WHITE -> "Face to face · White's turn"
-      currentPosition.nextToMove == BLACK -> "Face to face · Black's turn"
-      else -> "Face to face"
+    val titleResId = when {
+      loading -> R.string.face_to_face_loading
+      gameFinished == true -> R.string.face_to_face_game_over
+      currentPosition.nextToMove == WHITE -> R.string.face_to_face_white_s_turn
+      currentPosition.nextToMove == BLACK -> R.string.face_to_face_black_s_turn
+      else -> R.string.face_to_face_default
     }
 
     val estimateStatus = estimateStatus
@@ -129,7 +131,7 @@ class FaceToFaceViewModel(
     return FaceToFaceState(
       loading = loading,
       position = position,
-      title = title,
+      titleResId = titleResId,
       gameFinished = false,
       history = history,
       boardInteractive = !loading && estimateStatus is Idle,
@@ -323,7 +325,7 @@ class FaceToFaceViewModel(
 data class FaceToFaceState(
   val position: Position?,
   val loading: Boolean,
-  val title: String,
+  var titleResId: Int,
   val buttons: List<Button>,
   val bottomText: String?,
   val gameFinished: Boolean,
@@ -342,7 +344,7 @@ data class FaceToFaceState(
   companion object {
     val INITIAL = FaceToFaceState(
       loading = true,
-      title = "Face to face · Loading",
+      titleResId = R.string.face_to_face_loading,
       position = Position(19, 19),
       gameFinished = false,
       history = emptyList(),

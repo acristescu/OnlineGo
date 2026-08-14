@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.zenandroid.onlinego.OnlineGoApplication
+import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.local.Challenge
 import io.zenandroid.onlinego.data.model.local.Game
 import io.zenandroid.onlinego.data.model.ogs.ChallengeParams
@@ -109,8 +110,8 @@ class MyGamesViewModel(
                 playOnlineEnabled = false,
                 customGameEnabled = false,
                 loginPromptVisible = true,
-                headerMainText = "Welcome to Sente Online Go!",
-                headerSubText = "Please log in to OGS to play online.",
+                headerMainTextResId = R.string.welcome_to_sente_online_go,
+                headerSubTextResId = R.string.login_to_play_online,
               )
             }
           }
@@ -584,6 +585,8 @@ data class MyGamesState(
   val playOnlineEnabled: Boolean = true,
   val customGameEnabled: Boolean = true,
   val loginPromptVisible: Boolean = false,
+  val headerMainTextResId: Int? = null,
+  val headerSubTextResId: Int? = null,
 )
 
 

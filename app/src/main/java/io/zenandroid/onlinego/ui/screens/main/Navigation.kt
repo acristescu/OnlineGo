@@ -22,6 +22,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -259,16 +260,22 @@ fun OnlineGoApp(
 @Composable
 private fun BottomNavigationBar(navController: NavController, isLoggedIn: Boolean) {
   val items = listOf(
-    BottomNavItem("myGames", "Play", ImageVector.vectorResource(R.drawable.ic_board_filled)),
-    BottomNavItem("learn", "Learn", ImageVector.vectorResource(R.drawable.ic_learn)),
+    BottomNavItem("myGames",
+      stringResource(R.string.bottomnavigation_botton_play),
+      ImageVector.vectorResource(R.drawable.ic_board_filled)),
+    BottomNavItem("learn",
+      stringResource(R.string.bottomnavigation_botton_learn),
+      ImageVector.vectorResource(R.drawable.ic_learn)),
     BottomNavItem(
       "stats",
-      "Stats",
+      stringResource(R.string.bottomnavigation_botton_stats),
       ImageVector.vectorResource(R.drawable.ic_diagram),
       enabled = isLoggedIn
     ),
     BottomNavItem(
-      "settings", "Settings", ImageVector.vectorResource(R.drawable.ic_settings_filled),
+      "settings",
+      stringResource(R.string.bottomnavigation_botton_settings),
+      ImageVector.vectorResource(R.drawable.ic_settings_filled),
     ),
   )
 

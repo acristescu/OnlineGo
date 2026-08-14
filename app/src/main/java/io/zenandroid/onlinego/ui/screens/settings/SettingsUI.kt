@@ -66,6 +66,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -82,6 +83,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import io.zenandroid.onlinego.BuildConfig
+import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.R.drawable
 import io.zenandroid.onlinego.R.mipmap
 import io.zenandroid.onlinego.data.model.BoardTheme
@@ -121,6 +123,8 @@ fun SettingsScreen(
   val activity = LocalActivity.current
   val reviewPromptManager: ReviewPromptManager = koinInject()
   val coroutineScope = rememberCoroutineScope()
+
+  val context = androidx.compose.ui.platform.LocalContext.current
 
   SettingsContent(
     state = state,
@@ -340,45 +344,47 @@ private fun SettingsContent(
     ) {
       Icon(
         imageVector = ImageVector.vectorResource(drawable.ic_star),
-        contentDescription = "Become a supporter",
+        contentDescription = stringResource(R.string.settings_become_a_supporter_description),
         modifier = Modifier.padding(end = 12.dp, start = 8.dp)
       )
       Text(
-        text = "Become a supporter",
+        text = stringResource(R.string.settings_become_a_supporter),
         modifier = Modifier.padding(end = 8.dp),
         fontWeight = FontWeight.Medium,
       )
     }
-    Section(title = "Notifications") {
+    Section(title = stringResource(R.string.settings_section_notifications)) {
       Column(modifier = Modifier) {
         SettingsRow(
-          title = "System notifications",
+          title = stringResource(R.string.settings_system_notifications),
           icon = Filled.Notifications,
           checkbox = false,
           checked = false,
           onClick = { onAction(NotificationsClicked) })
         SettingsRow(
-          title = "Stone Sounds",
+          title = stringResource(R.string.settings_stone_sounds),
           icon = Icons.AutoMirrored.Filled.VolumeUp,
           checkbox = true,
           checked = userSettings.soundEnabled,
           onClick = { onAction(SoundsClicked) })
       }
     }
-    Section(title = "Appearance") {
+    Section(title = stringResource(R.string.settings_section_appearance)) {
       Column(modifier = Modifier) {
         SettingsRow(
-          title = "Theme",
+          title = stringResource(R.string.settings_theme),
           icon = Rounded.DarkMode,
           checkbox = false,
           checked = true,
           value = userSettings.theme,
           possibleValues = listOf(
-            "System Default", "Light", "Dark"
+            stringResource(R.string.settings_theme_system_default),
+            stringResource(R.string.settings_theme_light),
+            stringResource(R.string.settings_theme_dark)
           ),
           onValueClick = { onAction(ThemeClicked(it)) })
         SettingsRow(
-          title = "Board style",
+          title = stringResource(R.string.settings_board_style),
           icon = Rounded.Palette,
           checkbox = false,
           checked = true,
@@ -387,58 +393,58 @@ private fun SettingsContent(
           onValueClick = { onAction(BoardThemeClicked(it)) })
       }
     }
-    Section(title = "Game Settings") {
+    Section(title = stringResource(R.string.settings_section_game_settings)) {
       Column(modifier = Modifier) {
         SettingsRow(
-          title = "Show Coordinates",
+          title = stringResource(R.string.settings_show_coordinates),
           icon = Rounded._123,
           checkbox = true,
           checked = userSettings.showCoordinates,
           onClick = { onAction(CoordinatesClicked) })
         SettingsRow(
-          title = "Show Player Ranks",
+          title = stringResource(R.string.settings_show_player_ranks),
           icon = Rounded.MilitaryTech,
           checkbox = true,
           checked = userSettings.showRanks,
           onClick = { onAction(RanksClicked) })
       }
     }
-    Section(title = "Account") {
+    Section(title = stringResource(R.string.settings_section_account)) {
       Column(modifier = Modifier) {
         SettingsRow(
-          title = "Logout",
+          title = stringResource(R.string.settings_logout),
           icon = Icons.AutoMirrored.Rounded.Logout,
           checkbox = false,
           checked = true,
           onClick = { onAction(LogoutClicked) })
         SettingsRow(
-          title = "Delete account",
+          title = stringResource(R.string.settings_delete_account),
           icon = Rounded.HeartBroken,
           checkbox = false,
           checked = true,
           onClick = { onAction(DeleteAccountClicked) })
       }
     }
-    Section(title = "Legal") {
+    Section(title = stringResource(R.string.settings_section_legal)) {
       Column(modifier = Modifier) {
         SettingsRow(
-          title = "Privacy Policy",
+          title = stringResource(R.string.settings_privacy_policy),
           icon = Filled.Lock,
           checkbox = false,
           checked = true,
           onClick = { onAction(PrivacyClicked) })
       }
     }
-    Section(title = "Debug") {
+    Section(title = stringResource(R.string.settings_section_debug)) {
       Column(modifier = Modifier) {
         SettingsRow(
-          title = "Socket Debug",
+          title = stringResource(R.string.settings_socket_debug),
           icon = Icons.Filled.BugReport,
           checkbox = false,
           checked = true,
           onClick = { onAction(SettingsAction.SocketDebugClicked) })
         SettingsRow(
-          title = "Review Prompt",
+          title = stringResource(R.string.settings_review_prompt),
           icon = Icons.Filled.RateReview,
           checkbox = false,
           checked = true,
@@ -446,7 +452,7 @@ private fun SettingsContent(
       }
     }
     Text(
-      text = "Build no. ${BuildConfig.VERSION_CODE}",
+      text = stringResource(R.string.settings_build_version, BuildConfig.VERSION_CODE),
       fontSize = 12.sp,
       color = MaterialTheme.colorScheme.onSurface,
       modifier = Modifier

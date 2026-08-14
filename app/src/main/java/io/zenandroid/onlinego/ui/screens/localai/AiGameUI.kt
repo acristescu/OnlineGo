@@ -87,21 +87,28 @@ import io.zenandroid.onlinego.utils.processGravatarURL
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import org.koin.androidx.compose.koinViewModel
+import org.koin.core.component.KoinComponent
 import kotlin.math.abs
+import android.content.Context
+import androidx.compose.ui.res.stringResource
+import org.koin.core.component.inject
 
 sealed class AiGameBottomBarButton(
   override val icon: androidx.compose.ui.graphics.vector.ImageVector,
-  override val label: String,
+  val labelResId: Int,
+  override val label: String = "",
   override val repeatable: Boolean = false,
   override val enabled: Boolean = true,
   override val bubbleText: String? = null,
   override val highlighted: Boolean = false
 ) : BottomBarButton {
+
+
   data class NewGame(
     override val enabled: Boolean = true
   ) : AiGameBottomBarButton(
     icon = Icons.Filled.Casino,
-    label = "New",
+    labelResId = R.string.ai_game_new,
     enabled = enabled
   )
 
@@ -109,15 +116,14 @@ sealed class AiGameBottomBarButton(
     override val enabled: Boolean = true
   ) : AiGameBottomBarButton(
     icon = Icons.Rounded.Stop,
-    label = "Pass",
+    labelResId = R.string.ai_game_pass,
     enabled = enabled
   )
-
   data class Previous(
     override val enabled: Boolean = true
   ) : AiGameBottomBarButton(
     icon = Icons.AutoMirrored.Filled.NavigateBefore,
-    label = "Previous",
+    labelResId = R.string.ai_game_previous,
     enabled = enabled
   )
 
@@ -125,7 +131,7 @@ sealed class AiGameBottomBarButton(
     override val enabled: Boolean = true
   ) : AiGameBottomBarButton(
     icon = Icons.AutoMirrored.Filled.NavigateNext,
-    label = "Next",
+    labelResId = R.string.ai_game_next,
     enabled = enabled
   )
 }
@@ -278,8 +284,8 @@ private fun AiGameUI(
           Text("OK")
         }
       },
-      text = { Text("That move would repeat the board position. That's called a KO, and it is not allowed. Try to make another move first, preferably a threat that the opponent can't ignore.") },
-      title = { Text("Illegal KO move", style = MaterialTheme.typography.titleLarge) },
+      text = { Text(stringResource(R.string.ko_explanation)) },
+      title = { Text(stringResource(R.string.illegal_ko_move), style = MaterialTheme.typography.titleLarge) },
     )
   }
 }
@@ -329,7 +335,7 @@ private fun InfoSection(
       ),
       title = {
         Text(
-          text = "Local AI Game",
+          text = stringResource(R.string.local_ai_game),
           fontSize = 16.sp,
           fontWeight = FontWeight.Medium,
           color = MaterialTheme.colorScheme.onSurface
@@ -339,7 +345,7 @@ private fun InfoSection(
         IconButton(onClick = onNavigateBack) {
           Icon(
             Icons.AutoMirrored.Filled.ArrowBack,
-            contentDescription = "Back",
+            contentDescription = stringResource(R.string.back),
             tint = MaterialTheme.colorScheme.onSurface
           )
         }
@@ -392,7 +398,7 @@ private fun PlayerInfoRow(
         )
       }
       Text(
-        text = "KataGO " + (if (!state.enginePlaysBlack) "⚪" else "⚫"),
+        text = stringResource(R.string.katago) + (if (!state.enginePlaysBlack) "⚪" else "⚫"),
         fontSize = 14.sp,
         fontWeight = FontWeight.Bold,
         modifier = Modifier.padding(top = 2.dp)
@@ -434,7 +440,7 @@ private fun PlayerInfoRow(
             contentPadding = PaddingValues(0.dp)
           ) {
             Text(
-              text = "Territory",
+              text = stringResource(R.string.territory),
               fontSize = 10.sp,
               color = colorResource(R.color.colorTextSecondary)
             )
@@ -449,7 +455,7 @@ private fun PlayerInfoRow(
             contentPadding = PaddingValues(0.dp)
           ) {
             Text(
-              text = "Hint",
+              text = stringResource(R.string.hint),
               fontSize = 10.sp,
               color = colorResource(R.color.colorTextSecondary)
             )
@@ -475,7 +481,7 @@ private fun PlayerInfoRow(
               .data(processGravatarURL(userIcon, 64))
               .crossfade(true)
               .build(),
-            contentDescription = "Player",
+            contentDescription = stringResource(R.string.player),
             modifier = Modifier.fillMaxSize(),
             contentScale = ContentScale.Crop,
             placeholder = painterResource(R.drawable.ic_person_outline)
@@ -483,14 +489,14 @@ private fun PlayerInfoRow(
         } else {
           Image(
             painter = painterResource(R.drawable.ic_person_outline),
-            contentDescription = "Player",
+            contentDescription = stringResource(R.string.player),
             modifier = Modifier.fillMaxSize(),
             contentScale = ContentScale.Crop
           )
         }
       }
       Text(
-        text = (if (state.enginePlaysBlack) "⚪" else "⚫") + " You",
+        text = (if (state.enginePlaysBlack) "⚪" else "⚫") + stringResource(R.string.you),
         fontSize = 14.sp,
         fontWeight = FontWeight.Bold,
         maxLines = 1,
@@ -527,11 +533,11 @@ private fun GameStatsRow(state: AiGameState) {
     }
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
       Text(
-        text = "Prisoners",
+        text = stringResource(R.string.prisoners),
         fontSize = 12.sp
       )
       Text(
-        text = "Komi",
+        text = stringResource(R.string.komi),
         fontSize = 12.sp
       )
     }
@@ -557,10 +563,10 @@ private fun ScoreLeadAndWinrate(state: AiGameState, modifier: Modifier = Modifie
   Column(modifier) {
     val scoreLead = state.aiAnalysis?.rootInfo?.scoreLead ?: state.aiQuickEstimation?.scoreLead
     scoreLead?.let {
-      val leader = if (it > 0) "white" else "black"
+      val leader = if (it > 0) stringResource(R.string.white) else stringResource(R.string.black)
       val lead = abs(it * 10).toInt() / 10f
       Text(
-        text = "Score prediction: $leader leads by $lead",
+        text = stringResource(R.string.score_prediction_leads_by, leader, lead),
         fontSize = 12.sp,
         modifier = Modifier.padding(top = 4.dp)
       )
@@ -574,7 +580,7 @@ private fun ScoreLeadAndWinrate(state: AiGameState, modifier: Modifier = Modifie
           .padding(vertical = 4.dp)
       ) {
         Text(
-          text = "White's chance to win: $winrateAsPercentage%",
+          text = stringResource(R.string.white_s_chance_to_win, winrateAsPercentage),
           fontSize = 12.sp,
           modifier = Modifier.padding(top = 4.dp),
         )
@@ -606,8 +612,15 @@ private fun AiGameBottomBar(
     AiGameBottomBarButton.Previous(enabled = state.previousButtonEnabled),
     AiGameBottomBarButton.Next(enabled = state.nextButtonEnabled)
   )
+  val translatedButtons = bottomBarButtons.map { btn ->
+    val text = stringResource(id = btn.labelResId)
+
+    object : BottomBarButton by btn {
+      override val label: String = text
+    }
+  }
   BottomBar(
-    buttons = bottomBarButtons,
+    buttons = translatedButtons,
     bottomText = null,
     onButtonPressed = { button ->
       when (button) {
@@ -639,10 +652,10 @@ private fun NewGameDialog(
 
   AlertDialog(
     onDismissRequest = onDismiss,
-    title = { Text("New Game") },
+    title = { Text(stringResource(R.string.new_game)) },
     text = {
       Column {
-        Text("Board Size")
+        Text(stringResource(R.string.board_size))
         Row(
           horizontalArrangement = Arrangement.spacedBy(8.dp),
           modifier = Modifier.padding(vertical = 8.dp)
@@ -662,7 +675,7 @@ private fun NewGameDialog(
           }
         }
 
-        Text("You play", modifier = Modifier.padding(top = 16.dp))
+        Text(stringResource(R.string.you_play), modifier = Modifier.padding(top = 16.dp))
         Row(
           horizontalArrangement = Arrangement.spacedBy(8.dp),
           modifier = Modifier.padding(vertical = 8.dp)
@@ -675,7 +688,7 @@ private fun NewGameDialog(
             ),
             onClick = { youPlayBlack = true },
             label = {
-              Text("Black")
+              Text(stringResource(R.string.Black))
             }
           )
           FilterChip(
@@ -686,7 +699,7 @@ private fun NewGameDialog(
             ),
             onClick = { youPlayBlack = false },
             label = {
-              Text("White")
+              Text(stringResource(R.string.White))
             }
           )
         }
@@ -698,7 +711,7 @@ private fun NewGameDialog(
           horizontalArrangement = Arrangement.SpaceBetween,
           verticalAlignment = Alignment.CenterVertically
         ) {
-          Text("Handicap")
+          Text(stringResource(R.string.handicap))
           Text(
             text = getHandicapDescription(handicap.toInt()),
             fontSize = 12.sp,
@@ -718,12 +731,12 @@ private fun NewGameDialog(
       TextButton(
         onClick = { onNewGame(selectedSize, youPlayBlack, handicap.toInt()) }
       ) {
-        Text("Start Game")
+        Text(stringResource(R.string.start_game))
       }
     },
     dismissButton = {
       TextButton(onClick = onDismiss) {
-        Text("Cancel")
+        Text(stringResource(R.string.cancel))
       }
     }
   )
@@ -738,7 +751,7 @@ private fun AiGameUIPreview() {
         boardSize = 19,
         enginePlaysBlack = true,
         engineStarted = true,
-        chatText = "Hello world!",
+        chatText = stringResource(R.string.hello_world),
         position = Position(
           boardWidth = 19,
           boardHeight = 19,
@@ -793,7 +806,7 @@ private fun AiGameUIPreviewNewGame() {
         boardSize = 19,
         enginePlaysBlack = true,
         engineStarted = true,
-        chatText = "Hello world!",
+        chatText = stringResource(R.string.hello_world),
         position = Position(
           boardWidth = 19,
           boardHeight = 19,
@@ -853,7 +866,7 @@ private fun PreviewLandscape() {
         boardSize = 19,
         enginePlaysBlack = true,
         engineStarted = true,
-        chatText = "Hello world!",
+        chatText = stringResource(R.string.hello_world),
         position = Position(
           boardWidth = 19,
           boardHeight = 19,

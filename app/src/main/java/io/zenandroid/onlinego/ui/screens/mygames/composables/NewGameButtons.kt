@@ -21,6 +21,7 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -45,25 +46,25 @@ fun NewGameButtonsRow(
   ) {
     NewGameButton(
       painter = painterResource(R.drawable.ic_person_filled),
-      text = "Play\nOnline",
+      text = stringResource(R.string.button_play_online),
       onClick = onPlayOnline,
       enabled = playOnlineEnabled
     )
     NewGameButton(
       painter = painterResource(R.drawable.ic_tool),
-      text = "Custom\nGame",
+      text = stringResource(R.string.button_custom_game),
       onClick = onCustomGame,
       enabled = customGameEnabled
     )
     NewGameButton(
       painter = painterResource(R.drawable.ic_robot),
-      text = "Play\nAgainst AI",
+      text = stringResource(R.string.button_play_against_ai),
       onClick = onPlayAgainstAI,
       enabled = true
     )
     NewGameButton(
       painter = rememberVectorPainter(Icons.Rounded.SportsBar),
-      text = "Face\nto Face",
+      text = stringResource(R.string.button_face_to_face),
       onClick = onFaceToFace,
       enabled = true
     )
@@ -84,7 +85,10 @@ fun NewGameButton(painter: Painter, text: String, enabled: Boolean, onClick: () 
       colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onPrimary),
       modifier = Modifier
         .align(Alignment.CenterHorizontally)
-        .background(color = MaterialTheme.colorScheme.primary.copy(alpha = alpha), shape = CircleShape)
+        .background(
+          color = MaterialTheme.colorScheme.primary.copy(alpha = alpha),
+          shape = CircleShape
+        )
         .alpha(alpha)
         .padding(16.dp)
     )
