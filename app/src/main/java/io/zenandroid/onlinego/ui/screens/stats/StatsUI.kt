@@ -29,6 +29,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -38,6 +40,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.github.mikephil.charting.data.Entry
+import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.local.WinLossStats
 import io.zenandroid.onlinego.ui.screens.game.composables.BoxWithImage
 import io.zenandroid.onlinego.ui.screens.mygames.composables.SenteCard
@@ -100,7 +103,7 @@ private fun StatsContent(
       val rating = state.playerDetails?.ratings?.overall?.rating?.let { "%.0f".format(it) } ?: ""
 
       Text(
-        text = "$rank · ELO $rating",
+        text = stringResource(R.string.stats_rank_elo, rank, rating),
         color = MaterialTheme.colorScheme.onSurface,
         style = MaterialTheme.typography.bodyMedium,
         modifier = Modifier
@@ -110,31 +113,42 @@ private fun StatsContent(
 
       Row {
         StatsGridCell(
-          name = "ranked games",
+          name = stringResource(R.string.stats_ranked_games),
           value = state.allGames?.total?.toString(),
           modifier = Modifier.weight(1f)
         )
         StatsGridCell(
-          name = "win rate",
+          name = stringResource(R.string.stats_win_rate),
           value = state.allGames?.winRate?.let { "${"%.1f".format(it * 100f)}%" },
           modifier = Modifier.weight(1f)
         )
       }
       Row(modifier = Modifier.padding(top = 4.dp)) {
         StatsGridCell(
-          name = "current streak",
-          value = state.currentStreak,
+          name = stringResource(R.string.stats_current_streak),
+          value = state.currentStreakCount?.let { count ->
+            when {
+              count == 0 -> stringResource(R.string.stats_no_streak)
+              state.currentStreakWon == true ->
+                pluralStringResource(R.plurals.stats_streak_wins, count, count)
+
+              else -> pluralStringResource(R.plurals.stats_streak_losses, count, count)
+            }
+          },
           modifier = Modifier.weight(1f)
         )
         StatsGridCell(
-          name = "recent results",
+          name = stringResource(R.string.stats_recent_results),
           value = state.recentResults,
           modifier = Modifier.weight(1f)
         )
       }
     }
     StatsSurface(
-      title = "Rating over ${if (state.collapseTimeByGame == true) "games" else "time"}",
+      title = stringResource(
+        if (state.collapseTimeByGame == true) R.string.stats_rating_over_games
+        else R.string.stats_rating_over_time
+      ),
       key = {
         Switch(
           checked = state.collapseTimeByGame == true,
@@ -152,7 +166,7 @@ private fun StatsContent(
         onFilterChanged = onFilterChanged,
       )
     }
-    StatsSurface(title = "Games played by board size") {
+    StatsSurface(title = stringResource(R.string.stats_games_by_board_size)) {
       Row(modifier = Modifier.padding(18.dp)) {
         StatsChart(
           values = listOf(
@@ -161,7 +175,7 @@ private fun StatsContent(
             state.largeBoard?.total ?: 0
           ).map { it.toFloat() },
           topText = state.allGames?.total?.toString(),
-          bottomText = "Played",
+          bottomText = stringResource(R.string.stats_played),
         )
         Column(
           verticalArrangement = Arrangement.SpaceEvenly,
@@ -170,19 +184,19 @@ private fun StatsContent(
             .height(128.dp)
         ) {
           StatsBar(
-            text = "9×9",
+            text = stringResource(R.string.stats_board_9),
             textMiddle = state.smallBoard?.total?.toString(),
             value = state.smallBoard?.totalRatio,
             color = COLORS[0],
           )
           StatsBar(
-            text = "13×13",
+            text = stringResource(R.string.stats_board_13),
             textMiddle = state.mediumBoard?.total?.toString(),
             value = state.mediumBoard?.totalRatio,
             color = COLORS[1],
           )
           StatsBar(
-            text = "19×19",
+            text = stringResource(R.string.stats_board_19),
             textMiddle = state.largeBoard?.total?.toString(),
             value = state.largeBoard?.totalRatio,
             color = COLORS[2],
@@ -190,7 +204,7 @@ private fun StatsContent(
         }
       }
     }
-    StatsSurface(title = "Games played by time controls") {
+    StatsSurface(title = stringResource(R.string.stats_games_by_time_controls)) {
       Row(modifier = Modifier.padding(18.dp)) {
         StatsChart(
           values = listOf(
@@ -199,7 +213,7 @@ private fun StatsContent(
             state.correspondence?.total ?: 0
           ).map { it.toFloat() },
           topText = state.allGames?.total?.toString(),
-          bottomText = "Played",
+          bottomText = stringResource(R.string.stats_played),
         )
         Column(
           verticalArrangement = Arrangement.SpaceEvenly,
@@ -208,19 +222,19 @@ private fun StatsContent(
             .height(128.dp)
         ) {
           StatsBar(
-            text = "Blitz",
+            text = stringResource(R.string.stats_blitz),
             textMiddle = state.blitz?.total?.toString(),
             value = state.blitz?.totalRatio,
             color = COLORS[0],
           )
           StatsBar(
-            text = "Live",
+            text = stringResource(R.string.stats_live),
             textMiddle = state.live?.total?.toString(),
             value = state.live?.totalRatio,
             color = COLORS[1],
           )
           StatsBar(
-            text = "Corresp.",
+            text = stringResource(R.string.stats_correspondence_short),
             textMiddle = state.correspondence?.total?.toString(),
             value = state.correspondence?.totalRatio,
             color = COLORS[2],
@@ -228,67 +242,67 @@ private fun StatsContent(
         }
       }
     }
-    StatsSurface(title = "Win ratio by Board Size") {
+    StatsSurface(title = stringResource(R.string.stats_win_ratio_by_board_size)) {
       Column(
         modifier = Modifier.padding(16.dp)
       ) {
         WinLossStatsBar(
-          text = "All games",
+          text = stringResource(R.string.stats_all_games),
           stats = state.allGames,
           modifier = Modifier
         )
         WinLossStatsBar(
-          text = "9×9",
+          text = stringResource(R.string.stats_board_9),
           stats = state.smallBoard,
           modifier = Modifier
             .padding(top = 24.dp)
         )
         WinLossStatsBar(
-          text = "13×13",
+          text = stringResource(R.string.stats_board_13),
           stats = state.mediumBoard,
           modifier = Modifier
             .padding(top = 24.dp)
         )
         WinLossStatsBar(
-          text = "19×19",
+          text = stringResource(R.string.stats_board_19),
           stats = state.largeBoard,
           modifier = Modifier
             .padding(top = 24.dp)
         )
       }
     }
-    StatsSurface(title = "Win ratio by Time Controls") {
+    StatsSurface(title = stringResource(R.string.stats_win_ratio_by_time_controls)) {
       Column(
         modifier = Modifier.padding(16.dp)
       ) {
         WinLossStatsBar(
-          text = "Blitz",
+          text = stringResource(R.string.stats_blitz),
           stats = state.blitz,
         )
         WinLossStatsBar(
-          text = "Live",
+          text = stringResource(R.string.stats_live),
           stats = state.live,
           modifier = Modifier
             .padding(top = 24.dp)
         )
         WinLossStatsBar(
-          text = "Correspondence",
+          text = stringResource(R.string.stats_correspondence),
           stats = state.correspondence,
           modifier = Modifier
             .padding(top = 24.dp)
         )
       }
     }
-    StatsSurface(title = "Win ratio by colour") {
+    StatsSurface(title = stringResource(R.string.stats_win_ratio_by_colour)) {
       Column(
         modifier = Modifier.padding(16.dp)
       ) {
         WinLossStatsBar(
-          text = "Black",
+          text = stringResource(R.string.stats_black),
           stats = state.asBlack,
         )
         WinLossStatsBar(
-          text = "White",
+          text = stringResource(R.string.stats_white),
           stats = state.asWhite,
           modifier = Modifier
             .padding(top = 24.dp)
@@ -340,7 +354,9 @@ private fun WinLossStatsBar(
           modifier = Modifier.padding(bottom = 4.dp),
         )
         Text(
-          text = stats?.let { "${stats.won} won · ${stats.lost} lost" } ?: " ".repeat(10),
+          text = stats?.let {
+            stringResource(R.string.stats_won_lost, stats.won, stats.lost)
+          } ?: " ".repeat(10),
           style = TextStyle(
             fontWeight = FontWeight.Normal,
             fontSize = 12.sp,

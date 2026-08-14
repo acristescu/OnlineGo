@@ -161,13 +161,10 @@ class StatsViewModel(
     val longestStreak = stats.bestStreak
     val startDate = dateFormat.format(Date(stats.bestStreakStart * 1000))
     val endDate = dateFormat.format(Date(stats.bestStreakEnd * 1000))
-    val currentStreak = if (last10Games.isEmpty()) "-" else {
-      val lastGameWon = last10Games.last().won
-      val count = last10Games.takeLastWhile { it.won == lastGameWon }.size
-      val suffix =
-        if (lastGameWon) "win${if (count != 1) "s" else ""}" else "loss${if (count != 1) "es" else ""}"
-      "$count $suffix"
-    }
+    val lastGameWon = last10Games.lastOrNull()?.won
+    val currentStreakCount =
+      if (last10Games.isEmpty()) 0
+      else last10Games.takeLastWhile { it.won == lastGameWon }.size
     val recentWins = last10Games.count { it.won }
     val recentLosses = last10Games.count { !it.won }
 
@@ -182,7 +179,8 @@ class StatsViewModel(
         gamesLostString = gamesLostString,
         last10Games = last10Games,
         longestStreak = longestStreak,
-        currentStreak = currentStreak,
+        currentStreakCount = currentStreakCount,
+        currentStreakWon = lastGameWon,
         recentResults = "$recentWins - $recentLosses",
         startDate = startDate,
         endDate = endDate,
@@ -263,7 +261,8 @@ class StatsViewModel(
     val gamesLostString: String?,
     val last10Games: List<HistoryItem>?,
     val longestStreak: Int?,
-    val currentStreak: String?,
+    val currentStreakCount: Int?,
+    val currentStreakWon: Boolean?,
     val recentResults: String?,
     val startDate: String?,
     val endDate: String?,
@@ -296,7 +295,8 @@ class StatsViewModel(
         gamesLostString = null,
         last10Games = null,
         longestStreak = null,
-        currentStreak = null,
+        currentStreakCount = null,
+        currentStreakWon = null,
         recentResults = null,
         startDate = null,
         endDate = null,

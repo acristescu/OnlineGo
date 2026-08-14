@@ -121,5 +121,52 @@
     <string name="supporter_select_contribution">Select your monthly contribution</string>
     <string name="supporter_update_amount">Update amount</string>
     <string name="supporter_cancel_subscription">Cancel subscription</string>
+    <string name="stats_rank_elo">%1$s · ELO %2$s</string>
+    <string name="stats_ranked_games">ranked games</string>
+    <string name="stats_win_rate">win rate</string>
+    <string name="stats_current_streak">current streak</string>
+    <string name="stats_recent_results">recent results</string>
+    <string name="stats_rating_over_games">Rating over games</string>
+    <string name="stats_rating_over_time">Rating over time</string>
+    <string name="stats_games_by_board_size">Games played by board size</string>
+    <string name="stats_games_by_time_controls">Games played by time controls</string>
+    <string name="stats_played">Played</string>
+    <string name="stats_win_ratio_by_board_size">Win ratio by Board Size</string>
+    <string name="stats_win_ratio_by_time_controls">Win ratio by Time Controls</string>
+    <string name="stats_win_ratio_by_colour">Win ratio by colour</string>
+    <string name="stats_board_9">9×9</string>
+    <string name="stats_board_13">13×13</string>
+    <string name="stats_board_19">19×19</string>
+    <string name="stats_blitz">Blitz</string>
+    <string name="stats_live">Live</string>
+    <string name="stats_correspondence_short">Corresp.</string>
+    <string name="stats_correspondence">Correspondence</string>
+    <string name="stats_all_games">All games</string>
+    <string name="stats_black">Black</string>
+    <string name="stats_white">White</string>
+    <string name="stats_won_lost">%1$d won · %2$d lost</string>
+    <string name="stats_no_streak">-</string>
+    <plurals name="stats_streak_wins">
+        <item quantity="one">%d win</item>
+        <item quantity="other">%d wins</item>
+    </plurals>
+    <plurals name="stats_streak_losses">
+        <item quantity="one">%d loss</item>
+        <item quantity="other">%d losses</item>
+    </plurals>
+    <string name="stats_no_ranked_games">No ranked games on record</string>
+    <string name="stats_filter_1m">1M</string>
+    <string name="stats_filter_3m">3M</string>
+    <string name="stats_filter_1y">1Y</string>
+    <string name="stats_filter_5y">5Y</string>
+    <string name="stats_filter_all">All</string>
+    <string name="stats_filter_last_20">Last 20</string>
+    <string name="stats_filter_last_100">Last 100</string>
+    <string name="stats_tooltip_elo_rank">%1$d ELO (%2$s)</string>
+    <string name="stats_tooltip_at_game">at Game %1$d</string>
+    <string name="stats_tooltip_on_date">on %1$s</string>
+    <string name="stats_tooltip_delta_elo">%1$d ELO</string>
+    <string name="stats_tooltip_since_game">since Game %1$d</string>
+    <string name="stats_tooltip_since_date">since %1$s</string>
 
 </resources>

@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.GradientDrawable.Orientation.TOP_BOTTOM
 import android.view.MotionEvent
+import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -26,6 +27,7 @@ import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -176,7 +178,7 @@ fun ChartWrapper(
 
             description.isEnabled = false
             setDrawMarkers(false)
-            setNoDataText("No ranked games on record")
+            setNoDataText(context.getString(R.string.stats_no_ranked_games))
             setNoDataTextColor(
               ResourcesCompat.getColor(
                 resources,
@@ -292,7 +294,7 @@ private fun TimeRangeTabs(
       Tab (
         selected = range == filter,
         onClick = { onFilterChanged(range) },
-        text = { Text(text = range.toPrettyName()) },
+        text = { Text(text = stringResource(range.labelResId())) },
         selectedContentColor = MaterialTheme.colorScheme.primary,
         unselectedContentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
       )
@@ -300,16 +302,17 @@ private fun TimeRangeTabs(
   }
 }
 
-private fun Filter.toPrettyName() =
+@StringRes
+private fun Filter.labelResId() =
   when (this) {
-    ONE_MONTH -> "1M"
-    THREE_MONTHS -> "3M"
-    ONE_YEAR -> "1Y"
-    FIVE_YEARS -> "5Y"
-    ALL -> "All"
-    TWENTY_GAMES -> "Last 20"
-    HUNDRED_GAMES -> "Last 100"
-    ALL_GAMES -> "All"
+    ONE_MONTH -> R.string.stats_filter_1m
+    THREE_MONTHS -> R.string.stats_filter_3m
+    ONE_YEAR -> R.string.stats_filter_1y
+    FIVE_YEARS -> R.string.stats_filter_5y
+    ALL -> R.string.stats_filter_all
+    TWENTY_GAMES -> R.string.stats_filter_last_20
+    HUNDRED_GAMES -> R.string.stats_filter_last_100
+    ALL_GAMES -> R.string.stats_filter_all
   }
 
 private object ChartValueSelectedListener : OnChartValueSelectedListener {
@@ -320,7 +323,8 @@ private object ChartValueSelectedListener : OnChartValueSelectedListener {
   var byGame = false
 
   override fun onValueSelected(e: Entry?, h: Highlight?) {
-    if (e == null) {
+    val context = chart?.context
+    if (e == null || context == null) {
       onNothingSelected()
     } else {
       isDragging = true
@@ -328,16 +332,25 @@ private object ChartValueSelectedListener : OnChartValueSelectedListener {
         buildAnnotatedString {
           withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
             append(
-              "${e.y.toInt()} ELO (${
-                formatRank(
-                  egfToRank(e.y.toDouble()),
-                  longFormat = true
-                )
-              })"
+              context.getString(
+                R.string.stats_tooltip_elo_rank,
+                e.y.toInt(),
+                formatRank(egfToRank(e.y.toDouble()), longFormat = true)
+              )
             )
           }
-          if (byGame) append(" at Game ${e.x.toInt() + 1}")
-          else append(" on ${formatDate(e.x.toLong())}")
+          if (byGame) append(
+            " " + context.getString(
+              R.string.stats_tooltip_at_game,
+              e.x.toInt() + 1
+            )
+          )
+          else append(
+            " " + context.getString(
+              R.string.stats_tooltip_on_date,
+              formatDate(e.x.toLong())
+            )
+          )
         }
       )
     }
@@ -345,6 +358,7 @@ private object ChartValueSelectedListener : OnChartValueSelectedListener {
 
   override fun onNothingSelected() {
     isDragging = false
+    val context = chart?.context ?: return
     if ((chart?.data?.entryCount ?: 0) != 0) {
       val entries = (chart?.data as LineData).dataSets[0]
       val last = entries.getEntryForXValue(entries.xMax, 0f)
@@ -355,10 +369,20 @@ private object ChartValueSelectedListener : OnChartValueSelectedListener {
       onTextChanged(
         buildAnnotatedString {
           withStyle(SpanStyle(color = color, fontWeight = FontWeight.Bold)) {
-            append("$arrow $delta ELO")
+            append("$arrow " + context.getString(R.string.stats_tooltip_delta_elo, delta))
           }
-          if (byGame) append(" since Game ${first.x.toInt() + 1}")
-          else append(" since ${formatDate(first.x.toLong())}")
+          if (byGame) append(
+            " " + context.getString(
+              R.string.stats_tooltip_since_game,
+              first.x.toInt() + 1
+            )
+          )
+          else append(
+            " " + context.getString(
+              R.string.stats_tooltip_since_date,
+              formatDate(first.x.toLong())
+            )
+          )
         }
       )
     }
