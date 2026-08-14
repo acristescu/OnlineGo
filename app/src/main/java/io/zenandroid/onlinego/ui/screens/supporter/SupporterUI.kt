@@ -43,6 +43,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -141,7 +142,7 @@ private fun SupporterContent(
     TopAppBar(
       title = {
         Text(
-          text = "Become a supporter",
+          text = stringResource(R.string.supporter_title),
           fontSize = 16.sp,
           fontWeight = FontWeight.Medium,
           color = MaterialTheme.colorScheme.onSurface
@@ -151,7 +152,7 @@ private fun SupporterContent(
         IconButton(onClick = onBackClick) {
           Icon(
             Icons.AutoMirrored.Filled.ArrowBack,
-            contentDescription = "Back",
+            contentDescription = stringResource(R.string.back),
             tint = MaterialTheme.colorScheme.onSurface
           )
         }
@@ -169,7 +170,7 @@ private fun SupporterContent(
         .padding(horizontal = 20.dp, vertical = 24.dp),
     ) {
       Text(
-        text = "Support the Android app",
+        text = stringResource(R.string.supporter_header),
         fontWeight = FontWeight.Bold,
         color = MaterialTheme.colorScheme.onSurface,
         fontSize = 18.sp,
@@ -179,7 +180,7 @@ private fun SupporterContent(
       Spacer(modifier = Modifier.height(24.dp))
 
       Text(
-        text = "The project was started back in 2015 as a hobby. While excellent browser-based services existed, there were no similar quality mobile apps. The goal was to create a free and open source (FOSS), professionally made Android app that allows GO players to interact and discover this amazing game.\n\nWe are not associated with OGS, although they graciously allowed us to use their online services for free.\n\nWe rely on support from people like you to make it possible. If you enjoy using the app, please consider supporting us with a monthly contribution and becoming a Supporter!",
+        text = stringResource(R.string.supporter_intro),
         color = MaterialTheme.colorScheme.onSurface,
         fontSize = 16.sp,
       )
@@ -188,32 +189,32 @@ private fun SupporterContent(
 
       SupportReason(
         icon = ImageVector.vectorResource(id = R.drawable.ic_branch),
-        title = "Help us develop the app faster",
-        description = "Supporters make it feasible to allocate more time for development of new features such as KataGo AI integration, AI assisted analysis, SGF editor etc."
+        title = stringResource(R.string.supporter_reason_develop_title),
+        description = stringResource(R.string.supporter_reason_develop_description)
       )
 
       SupportReason(
         icon = Icons.Default.Android,
-        title = "Keep the app free",
-        description = "We want the app to be free for everyone. Forever. Free from ads, free to download, free from enforced subscriptions."
+        title = stringResource(R.string.supporter_reason_free_title),
+        description = stringResource(R.string.supporter_reason_free_description)
       )
 
       SupportReason(
         icon = ImageVector.vectorResource(id = R.drawable.ic_github),
-        title = "Support open-source",
-        description = "The app is and always will be open source. This means you can browse its code, contribute fixes and features or study how it works."
+        title = stringResource(R.string.supporter_reason_open_source_title),
+        description = stringResource(R.string.supporter_reason_open_source_description)
       )
 
       SupportReason(
         icon = ImageVector.vectorResource(id = R.drawable.ic_board_transparent),
-        title = "Promote GO",
-        description = "Having a professionally developed Android app allows more people to discover this amazing game."
+        title = stringResource(R.string.supporter_reason_promote_title),
+        description = stringResource(R.string.supporter_reason_promote_description)
       )
 
       Spacer(modifier = Modifier.height(36.dp))
 
       Text(
-        text = "FAQs",
+        text = stringResource(R.string.supporter_faqs),
         color = Color(0xFF9B9B9B),
         fontWeight = FontWeight.Bold
       )
@@ -221,23 +222,23 @@ private fun SupporterContent(
       Spacer(modifier = Modifier.height(16.dp))
 
       FAQItem(
-        question = "What is the money used for?",
-        answer = "The money enables our main developer, who is a professional Android contractor, to take time off between contracts to work on this project. In the future, he could dedicate full-time to improving the app at a much faster pace."
+        question = stringResource(R.string.supporter_faq_money_question),
+        answer = stringResource(R.string.supporter_faq_money_answer)
       )
 
       FAQItem(
-        question = "Are there any supporter-only features?",
-        answer = "No, because we believe that everyone should have access to a professionally made Android app for GO. Support is entirely optional."
+        question = stringResource(R.string.supporter_faq_features_question),
+        answer = stringResource(R.string.supporter_faq_features_answer)
       )
 
       FAQItem(
-        question = "Can I change or cancel my subscription?",
-        answer = "Yes, at any time, either from this page or from the 'Subscriptions' page in Google Play."
+        question = stringResource(R.string.supporter_faq_cancel_question),
+        answer = stringResource(R.string.supporter_faq_cancel_answer)
       )
 
       FAQItem(
-        question = "Are there any other methods of payment?",
-        answer = "Apps distributed through Google Play are required to use Google Pay, as Google charges 15% of the proceeds. We are not allowed to offer any alternative means of payment in-app."
+        question = stringResource(R.string.supporter_faq_payment_question),
+        answer = stringResource(R.string.supporter_faq_payment_answer)
       )
 
       Spacer(modifier = Modifier.height(24.dp))
@@ -355,14 +356,18 @@ fun SupporterBottomBar(
           .padding(16.dp)
       ) {
         // Subscribe title
+        val thankYouTitle = stringResource(R.string.supporter_thank_you_title)
+        val currentContribution = stringResource(R.string.supporter_current_contribution)
+        val selectContribution = stringResource(R.string.supporter_select_contribution)
         Text(
           text = buildAnnotatedString {
             when {
               state.supporter -> {
                 withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                  append("Thank you for your support!\n\n")
+                  append(thankYouTitle)
+                  append("\n\n")
                 }
-                append("Your current contribution is ")
+                append(currentContribution)
                 withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
                   append(state.currentContributionAmount)
                 }
@@ -370,7 +375,7 @@ fun SupporterBottomBar(
 
               else -> {
                 withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                  append("Select your monthly contribution")
+                  append(selectContribution)
                 }
               }
             }
@@ -409,11 +414,12 @@ fun SupporterBottomBar(
         ) {
           Icon(
             imageVector = ImageVector.vectorResource(drawable.ic_star),
-            contentDescription = "Become a supporter",
+            contentDescription = stringResource(R.string.supporter_title),
             modifier = Modifier.padding(end = 12.dp, start = 8.dp)
           )
           Text(
-            text = state.subscribeButtonText ?: "Become a Supporter",
+            text = if (state.supporter) stringResource(R.string.supporter_update_amount)
+            else stringResource(R.string.supporter_title),
             modifier = Modifier.padding(end = 8.dp),
             fontWeight = FontWeight.Medium,
           )
@@ -427,7 +433,7 @@ fun SupporterBottomBar(
             modifier = Modifier.align(Alignment.CenterHorizontally)
           ) {
             Text(
-              text = "Cancel subscription",
+              text = stringResource(R.string.supporter_cancel_subscription),
               color = MaterialTheme.colorScheme.primary
             )
           }
@@ -449,8 +455,6 @@ fun SupporterScreenPreview() {
         products = null,
         numberOfTiers = 5,
         selectedTier = 2,
-        subscribeTitleText = "Thank you for your support!",
-        subscribeButtonText = "Update amount",
         subscribeButtonEnabled = true
       ),
       onBackClick = {},
@@ -473,8 +477,6 @@ fun SupportReasonPreviewLoading() {
         products = null,
         numberOfTiers = 5,
         selectedTier = 2,
-        subscribeTitleText = "Thank you for your support!",
-        subscribeButtonText = "Update amount",
         subscribeButtonEnabled = true
       ),
       onBackClick = {},
@@ -497,8 +499,6 @@ fun SupportReasonPreviewNonSupporter() {
         products = null,
         numberOfTiers = 5,
         selectedTier = 2,
-        subscribeTitleText = "Select your monthly contribution",
-        subscribeButtonText = "Become a supporter",
         subscribeButtonEnabled = true
       ),
       onBackClick = {},

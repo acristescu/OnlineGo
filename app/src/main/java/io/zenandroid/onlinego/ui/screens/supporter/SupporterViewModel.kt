@@ -1,8 +1,6 @@
 package io.zenandroid.onlinego.ui.screens.supporter
 
 import android.app.Activity
-import androidx.core.text.bold
-import androidx.core.text.buildSpannedString
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.android.billingclient.api.ProductDetails
@@ -78,7 +76,7 @@ class SupporterViewModel(
       products.size / 2
     }
 
-    val newState = SupporterState(
+    _state.value = SupporterState(
       loading = false,
       supporter = isSupporter,
       numberOfTiers = products.size,
@@ -86,26 +84,11 @@ class SupporterViewModel(
       sliderValue = selectedTier.toFloat(),
       products = products,
       currentPurchaseDetails = currentPurchaseDetails,
-      subscribeButtonText = if (isSupporter) "Update amount" else "Become a supporter",
       subscribeButtonEnabled = if (!isSupporter) true else selectedTier != products.indexOf(
         currentPurchaseDetails
       ),
       purchase = purchase
     )
-
-    val subscribeTitleText = if (isSupporter) {
-      buildSpannedString {
-        bold { append("Thank you for your support!\n\n") }
-        append("Your current contribution is ")
-        bold { append(newState.currentContributionAmount) }
-      }
-    } else {
-      buildSpannedString {
-        bold { append("Select your monthly contribution") }
-      }
-    }
-
-    _state.value = newState.copy(subscribeTitleText = subscribeTitleText)
   }
 
   fun onUserDragSlider(value: Float) {
@@ -113,7 +96,7 @@ class SupporterViewModel(
     val newSelectedTier = value.roundToInt().coerceIn(0, (currentState.numberOfTiers ?: 1) - 1)
     val subscribeButtonEnabled =
       if (currentState.currentPurchaseDetails == null) true
-      else newSelectedTier != currentState.products?.indexOf(currentState.currentPurchaseDetails!!)
+      else newSelectedTier != currentState.products?.indexOf(currentState.currentPurchaseDetails)
 
     _state.value = currentState.copy(
       selectedTier = newSelectedTier,
@@ -141,8 +124,6 @@ data class SupporterState(
   val sliderValue: Float? = null,
   val products: List<ProductDetails>? = null,
   val currentPurchaseDetails: ProductDetails? = null,
-  val subscribeTitleText: CharSequence? = null,
-  val subscribeButtonText: String? = null,
   val subscribeButtonEnabled: Boolean = false,
   val purchase: Purchase? = null
 ) {

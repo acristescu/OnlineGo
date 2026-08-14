@@ -121,6 +121,7 @@ fun SettingsScreen(
   var reviewDiagnosticResult by remember { mutableStateOf<ReviewDiagnosticResult?>(null) }
 
   val activity = LocalActivity.current
+  val context = LocalContext.current
   val reviewPromptManager: ReviewPromptManager = koinInject()
   val coroutineScope = rememberCoroutineScope()
 
@@ -138,10 +139,10 @@ fun SettingsScreen(
         )
 
         is LogoutClicked -> dialogData = DialogData(
-          title = "Log out",
-          message = "Are you sure you want to log out?",
-          positiveButton = "Log out",
-          negativeButton = "Cancel",
+          title = context.getString(R.string.settings_logout_dialog_title),
+          message = context.getString(R.string.settings_logout_dialog_message),
+          positiveButton = context.getString(R.string.settings_logout_dialog_confirm),
+          negativeButton = context.getString(R.string.cancel),
           onPositive = { viewModel.onAction(SettingsAction.Logout(activity)) },
         )
 
@@ -183,7 +184,7 @@ fun SettingsScreen(
       onDismissRequest = { reviewDiagnosticResult = null },
       confirmButton = {
         TextButton(onClick = { reviewDiagnosticResult = null }) {
-          Text("OK")
+          Text(stringResource(R.string.ok))
         }
       },
       text = {
@@ -196,7 +197,8 @@ fun SettingsScreen(
       },
       title = {
         Text(
-          text = if (result.success) "Review Flow Diagnostic" else "Review Flow Error",
+          text = if (result.success) stringResource(R.string.settings_review_flow_diagnostic_title)
+          else stringResource(R.string.settings_review_flow_error_title),
           style = MaterialTheme.typography.titleLarge
         )
       },
@@ -216,24 +218,24 @@ fun SettingsScreen(
             )
           }
         }) {
-          Text("DELETE ACCOUNT")
+          Text(stringResource(R.string.settings_delete_account_confirm))
         }
       },
       dismissButton = {
         TextButton(onClick = { viewModel.onAction(DeleteAccountCanceled) }) {
-          Text("CANCEL")
+          Text(stringResource(R.string.settings_delete_account_cancel))
         }
       },
       text = {
         Column {
-          Text("Please enter your password to confirm account deletion")
+          Text(stringResource(R.string.settings_delete_account_message))
           Spacer(modifier = Modifier.height(8.dp))
 
           var passwordVisibility by remember { mutableStateOf(false) }
           OutlinedTextField(
             value = password,
             onValueChange = { password = it },
-            label = { Text("Password") },
+            label = { Text(stringResource(R.string.settings_delete_account_password_hint)) },
             visualTransformation = if (!passwordVisibility) PasswordVisualTransformation() else VisualTransformation.None,
             singleLine = true,
             trailingIcon = {
@@ -248,7 +250,7 @@ fun SettingsScreen(
           )
         }
       },
-      title = { Text("Delete Account") },
+      title = { Text(stringResource(R.string.settings_delete_account_dialog_title)) },
     )
   }
 
@@ -274,11 +276,11 @@ fun SettingsScreen(
       onDismissRequest = { viewModel.onAction(DeleteAccountCanceled) },
       confirmButton = {
         TextButton(onClick = { viewModel.onAction(DeleteAccountCanceled) }) {
-          Text("OK")
+          Text(stringResource(R.string.ok))
         }
       },
       text = { Text(it) },
-      title = { Text("Error") },
+      title = { Text(stringResource(R.string.settings_error_dialog_title)) },
     )
   }
 
@@ -310,7 +312,7 @@ private fun SettingsContent(
               state.avatarURL, LocalDensity.current.run { 84.dp.toPx().toInt() })
           ).placeholder(mipmap.placeholder).error(mipmap.placeholder).build()
         ),
-        contentDescription = "Avatar",
+        contentDescription = stringResource(R.string.settings_avatar_content_description),
         modifier = Modifier
           .size(84.dp)
           .fillMaxSize()
@@ -486,7 +488,7 @@ private fun SettingsRow(
       }) {
     Icon(
       imageVector = icon,
-      contentDescription = "Icon",
+      contentDescription = stringResource(R.string.settings_icon_content_description),
       tint = MaterialTheme.colorScheme.primary,
       modifier = Modifier.padding(horizontal = 24.dp)
     )
@@ -526,19 +528,19 @@ private fun SettingsRow(
                         if (it.backgroundImage != null) {
                           Image(
                             painter = painterResource(id = it.backgroundImage),
-                            contentDescription = "Icon",
+                            contentDescription = stringResource(R.string.settings_icon_content_description),
                             modifier = Modifier.size(24.dp)
                           )
                         } else {
                           Image(
                             painter = ColorPainter(colorResource(it.backgroundColor!!)),
-                            contentDescription = "Icon",
+                            contentDescription = stringResource(R.string.settings_icon_content_description),
                             modifier = Modifier.size(24.dp)
                           )
                         }
                         Image(
                           painter = painterResource(id = it.gridPreview),
-                          contentDescription = "Icon",
+                          contentDescription = stringResource(R.string.settings_icon_content_description),
                           modifier = Modifier.size(24.dp)
                         )
                       }
