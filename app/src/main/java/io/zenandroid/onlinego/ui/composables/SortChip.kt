@@ -27,6 +27,7 @@ fun SortChip(
   sortOptions: List<Any>,
   currentSortOption: Any,
   modifier: Modifier = Modifier,
+  label: @Composable (Any) -> String = { it.toString() },
   onSortSelected: (Any) -> Unit,
 ) {
   Box(modifier) {
@@ -37,7 +38,7 @@ fun SortChip(
       onClick = { expanded = true },
       label = {
         Text(
-          text = currentSortOption.toString(),
+          text = label(currentSortOption),
           modifier = Modifier.animateContentSize(),
         )
       },
@@ -64,6 +65,7 @@ fun SortChip(
       SortDropdownMenuContent(
         sortOptions = sortOptions,
         currentSortOption = currentSortOption,
+        label = label,
         onItemClick = {
           onSortSelected(it)
           expanded = false
@@ -79,12 +81,13 @@ private fun SortDropdownMenuContent(
   onItemClick: (Any) -> Unit,
   modifier: Modifier = Modifier,
   currentSortOption: Any? = null,
+  label: @Composable (Any) -> String = { it.toString() },
 ) {
   for (sort in sortOptions) {
     DropdownMenuItem(
       text = {
         Text(
-          text = sort.toString(),
+          text = label(sort),
           fontWeight = if (sort == currentSortOption) FontWeight.Bold else null,
         )
       },

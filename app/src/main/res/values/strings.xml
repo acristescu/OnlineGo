@@ -35,6 +35,8 @@
     <string name="start_game">Start Game</string>
     <string name="cancel">Cancel</string>
     <string name="ok">OK</string>
+    <string name="search">Search</string>
+    <string name="loading">Loading...</string>
     <string name="hello_world">Hello world!</string>
     <string name="landscape_preview">Landscape Preview</string>
     <string name="button_play_online">Play\nOnline</string>
@@ -168,5 +170,35 @@
     <string name="stats_tooltip_delta_elo">%1$d ELO</string>
     <string name="stats_tooltip_since_game">since Game %1$d</string>
     <string name="stats_tooltip_since_date">since %1$s</string>
+    <string name="puzzle_directory_title">Puzzles</string>
+    <string name="puzzle_directory_recently_opened">Recently opened</string>
+    <string name="puzzle_directory_rating_count">(%1$s)</string>
+    <string name="puzzle_directory_by_author">by %1$s %2$s</string>
+    <string name="puzzle_directory_count_label">Count</string>
+    <plurals name="puzzle_directory_puzzle_count">
+        <item quantity="one">%d puzzle</item>
+        <item quantity="other">%d puzzles</item>
+    </plurals>
+    <string name="puzzle_directory_rank_label">Rank</string>
+    <string name="puzzle_directory_rank_range">%1$s to %2$s</string>
+    <string name="puzzle_directory_solved_label">Solved</string>
+    <string name="puzzle_directory_solved_value">%1$d (%2$.1f%%)</string>
+    <string name="puzzle_directory_completed">Completed</string>
+    <string name="puzzle_directory_stats">%1$s views, solved %2$s times of %3$s (%4$s %%)</string>
+    <string name="puzzle_directory_sort_name">A -&gt; Z</string>
+    <string name="puzzle_directory_sort_rating">Rating</string>
+    <string name="puzzle_directory_sort_count">Puzzle count</string>
+    <string name="puzzle_directory_sort_views">Views</string>
+    <string name="puzzle_directory_sort_rank">Rank</string>
+    <string name="tsumego_title">Tsumego</string>
+    <string name="tsumego_title_with_name">Tsumego: %1$s</string>
+    <string name="tsumego_board_content_description">Board</string>
+    <string name="tsumego_solved_content_description">Solved</string>
+    <string name="tsumego_previous">PREVIOUS</string>
+    <string name="tsumego_hint">HINT</string>
+    <string name="tsumego_next">NEXT</string>
+    <string name="tsumego_retry">RETRY</string>
+    <string name="tsumego_continue">CONTINUE</string>
+    <string name="tsumego_done">DONE</string>
 
 </resources>

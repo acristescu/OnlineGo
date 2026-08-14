@@ -55,6 +55,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -140,11 +141,9 @@ private fun TsumegoContent(
         ) {
           TextField(
             readOnly = true,
-            value = "Tsumego".let { base ->
-              state.puzzle?.name?.let {
-                "$base: $it"
-              } ?: base
-            },
+            value = state.puzzle?.name?.let {
+              stringResource(R.string.tsumego_title_with_name, it)
+            } ?: stringResource(R.string.tsumego_title),
             onValueChange = { },
             trailingIcon = {
               ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
@@ -208,7 +207,7 @@ private fun TsumegoContent(
                     if (position == null)
                       Icon(
                         painter = painterResource(R.drawable.ic_go_board),
-                        contentDescription = "Board",
+                        contentDescription = stringResource(R.string.tsumego_board_content_description),
                         tint = tint,
                         modifier = Modifier
                           .height(64.dp)
@@ -263,7 +262,7 @@ private fun TsumegoContent(
               painter = painterResource(R.drawable.ic_check_circle),
               modifier = Modifier
                 .padding(horizontal = 8.dp),
-              contentDescription = "Solved"
+              contentDescription = stringResource(R.string.tsumego_solved_content_description)
             )
           }
         }
@@ -320,7 +319,7 @@ private fun TsumegoContent(
                       contentDescription = null
                     )
                     Text(
-                      "PREVIOUS",
+                      stringResource(R.string.tsumego_previous),
                       color = MaterialTheme.colorScheme.secondary,
                       fontWeight = FontWeight.Bold,
                       modifier = Modifier.padding(start = 8.dp)
@@ -336,7 +335,7 @@ private fun TsumegoContent(
                   .padding(all = 4.dp)
               ) {
                 Text(
-                  "HINT",
+                  stringResource(R.string.tsumego_hint),
                   color = state.nodeStack.lastOrNull()
                     ?.let { MaterialTheme.colorScheme.secondary }
                     ?: MaterialTheme.colorScheme.onBackground,
@@ -353,7 +352,7 @@ private fun TsumegoContent(
                       .weight(1f)
                   ) {
                     Text(
-                      "NEXT",
+                      stringResource(R.string.tsumego_next),
                       color = MaterialTheme.colorScheme.secondary,
                       fontWeight = FontWeight.Bold
                     )
@@ -405,7 +404,7 @@ private fun TsumegoContent(
                       contentDescription = null
                     )
                     Text(
-                      text = "RETRY",
+                      text = stringResource(R.string.tsumego_retry),
                       color = MaterialTheme.colorScheme.onSurface,
                       modifier = Modifier.padding(start = 8.dp)
                     )
@@ -420,14 +419,14 @@ private fun TsumegoContent(
                       onClick = { onNextPuzzle() },
                       modifier = Modifier.weight(1f)
                     ) {
-                      Text(text = "CONTINUE")
+                      Text(text = stringResource(R.string.tsumego_continue))
                     }
                   } else {
                     Button(
                       onClick = { onBack() },
                       modifier = Modifier.weight(1f)
                     ) {
-                      Text(text = "DONE")
+                      Text(text = stringResource(R.string.tsumego_done))
                     }
                   }
                 }
@@ -444,7 +443,7 @@ private fun TsumegoContent(
           .padding(horizontal = 8.dp, vertical = 4.dp),
       ) {
         Text(
-          text = "Loading...",
+          text = stringResource(R.string.loading),
           color = MaterialTheme.colorScheme.onBackground,
         )
       }
