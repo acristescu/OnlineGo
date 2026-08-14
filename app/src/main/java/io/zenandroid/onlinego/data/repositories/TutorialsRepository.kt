@@ -1,5 +1,6 @@
 package io.zenandroid.onlinego.data.repositories
 
+import android.content.Context
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types
 import com.squareup.moshi.adapters.PolymorphicJsonAdapterFactory
@@ -80,9 +81,61 @@ class TutorialsRepository(
   }
 
   private suspend fun readJSONFromResources(): List<TutorialGroup> {
-    OnlineGoApplication.instance.assets.open("tutorials.json").source().buffer().use {
-      return moshiAdapter.fromJson(it)!!
+    var context = OnlineGoApplication.instance;
+    var rawList = context.assets.open("tutorials.json").source().buffer().use {
+      moshiAdapter.fromJson(it)!!
     }
+
+    return rawList.map { group ->
+      group.copy(
+        name = context.getLocalizedString(group.name),
+        tutorials = group.tutorials.map { tutorial ->
+          tutorial.copy(
+            name = context.getLocalizedString(tutorial.name),
+            steps = tutorial.steps.map { step ->
+              translateStep(context, step)
+            }
+          )
+        }
+      )
+    }
+  }
+
+  private fun translateStep(context: Context, step: TutorialStep) : TutorialStep {
+    return when (step) {
+      is TutorialStep.Lesson -> step.copy(
+        name = context.getLocalizedString(step.name),
+        pages = step.pages.map { page ->
+          page.copy(
+            text = context.getLocalizedString(page.text)
+          )
+        }
+      )
+      is TutorialStep.Interactive -> step.copy(
+        name = context.getLocalizedString(step.name),
+        text = context.getLocalizedString(step.text),
+        branches = step.branches.map { branch ->
+          translateNode(context, branch)
+        }
+      )
+      is TutorialStep.GameExample -> step.copy(
+        name = context.getLocalizedString(step.name),
+        text = context.getLocalizedString(step.text)
+      )
+    }
+  }
+
+  private fun translateNode(context: Context, node: io.zenandroid.onlinego.data.model.local.Node) : io.zenandroid.onlinego.data.model.local.Node {
+    return node.copy(
+      move = node.move,
+      reply = node.reply,
+      message = node.message?.let { context.getLocalizedString(it) },
+      success = node.success,
+      failed = node.failed,
+      branches = node.branches?.map { branch ->
+        translateNode(context, branch)
+      }
+    )
   }
 
   fun markTutorialCompleted(tutorial: Tutorial) {
@@ -99,4 +152,9 @@ class TutorialsRepository(
 
   override fun onSocketDisconnected() {
   }
+}
+
+fun Context.getLocalizedString(resourceName: String): String {
+  val resId = resources.getIdentifier(resourceName, "string", packageName)
+  return if (resId != 0) getString(resId) else resourceName
 }
