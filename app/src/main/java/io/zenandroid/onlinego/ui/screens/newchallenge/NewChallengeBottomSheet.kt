@@ -26,10 +26,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.ogs.ChallengeParams
 import io.zenandroid.onlinego.utils.PreviewBackground
 import org.koin.androidx.compose.koinViewModel
@@ -88,26 +90,26 @@ private fun NewChallengeBottomSheetContent(
         Spacer(modifier = Modifier.weight(.3f))
         Column(modifier = Modifier.weight(1f)) {
           NameValuePair(
-            name = "Opponent",
-            value = state.opponentText,
+            name = stringResource(R.string.new_challenge_opponent),
+            value = state.opponentText ?: stringResource(R.string.new_challenge_select_opponent),
             onClick = { onEvent(NewChallengeViewModel.Event.OpponentClicked) }
           )
           NameValuePair(
-            name = "Your color",
+            name = stringResource(R.string.new_challenge_your_color),
             value = state.challenge.color,
             possibleValues = listOf("Auto", "Black", "White"),
             onValueClick = { onEvent(NewChallengeViewModel.Event.ColorSelected(it)) },
             modifier = Modifier.padding(top = 12.dp)
           )
           NameValuePair(
-            name = "Board Size",
+            name = stringResource(R.string.new_challenge_board_size),
             value = state.challenge.size,
             possibleValues = listOf("9×9", "13×13", "19×19"),
             onValueClick = { onEvent(NewChallengeViewModel.Event.SizeSelected(it)) },
             modifier = Modifier.padding(top = 12.dp)
           )
           NameValuePair(
-            name = "Analysis",
+            name = stringResource(R.string.new_challenge_analysis),
             value = if (state.challenge.disable_analysis) "Disabled" else "Enabled",
             possibleValues = listOf("Enabled", "Disabled"),
             onValueClick = { onEvent(NewChallengeViewModel.Event.DisableAnalysisSelected(it == "Disabled")) },
@@ -117,27 +119,27 @@ private fun NewChallengeBottomSheetContent(
         Spacer(modifier = Modifier.weight(.3f))
         Column(modifier = Modifier.weight(1f)) {
           NameValuePair(
-            name = "Handicap",
+            name = stringResource(R.string.handicap),
             value = state.challenge.handicap,
             onValueClick = { onEvent(NewChallengeViewModel.Event.HandicapSelected(it)) },
             possibleValues = listOf("Auto", "0", "1", "2", "3", "4", "5")
           )
           NameValuePair(
-            name = "Speed",
+            name = stringResource(R.string.new_challenge_speed),
             value = state.challenge.speed,
             possibleValues = listOf("Blitz", "Live", "Correspondence"),
             onValueClick = { onEvent(NewChallengeViewModel.Event.SpeedSelected(it)) },
             modifier = Modifier.padding(top = 12.dp)
           )
           NameValuePair(
-            name = "Ranked",
+            name = stringResource(R.string.new_challenge_ranked),
             value = if (state.challenge.ranked) "Yes" else "No",
             possibleValues = listOf("Yes", "No"),
             onValueClick = { onEvent(NewChallengeViewModel.Event.RankedSelected(it == "Yes")) },
             modifier = Modifier.padding(top = 12.dp)
           )
           NameValuePair(
-            name = "Private",
+            name = stringResource(R.string.new_challenge_private),
             value = if (state.challenge.private) "Yes" else "No",
             possibleValues = listOf("Yes", "No"),
             onValueClick = { onEvent(NewChallengeViewModel.Event.PrivateSelected(it == "Yes")) },
@@ -153,7 +155,7 @@ private fun NewChallengeBottomSheetContent(
         enabled = state.challenge.opponent != null,
         onClick = { onEvent(NewChallengeViewModel.Event.ChallengeClicked) }
       ) {
-        Text("Send Challenge")
+        Text(stringResource(R.string.new_challenge_send))
       }
     }
   }
@@ -231,7 +233,7 @@ private fun Preview() {
           disable_analysis = false,
           private = false
         ),
-        opponentText = "[Select opponent]",
+        opponentText = null,
         done = false
       ),
       onEvent = {}

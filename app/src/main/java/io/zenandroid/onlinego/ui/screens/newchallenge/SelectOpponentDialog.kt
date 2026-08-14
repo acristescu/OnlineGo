@@ -36,6 +36,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -128,21 +129,21 @@ private fun SelectOpponentDialogContent(
           Tab(
             selected = state.selectedTab == Tab.BOT,
             onClick = { onEvent(Event.TabSelected(Tab.BOT)) },
-            text = { Text(text = "Bot") },
+            text = { Text(text = stringResource(R.string.select_opponent_tab_bot)) },
             selectedContentColor = MaterialTheme.colorScheme.primary,
             unselectedContentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
           )
           Tab(
             selected = state.selectedTab == Tab.RECENT,
             onClick = { onEvent(Event.TabSelected(Tab.RECENT)) },
-            text = { Text(text = "Recent") },
+            text = { Text(text = stringResource(R.string.select_opponent_tab_recent)) },
             selectedContentColor = MaterialTheme.colorScheme.primary,
             unselectedContentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
           )
           Tab(
             selected = state.selectedTab == Tab.SEARCH,
             onClick = { onEvent(Event.TabSelected(Tab.SEARCH)) },
-            text = { Text(text = "Search") },
+            text = { Text(text = stringResource(R.string.search)) },
             selectedContentColor = MaterialTheme.colorScheme.primary,
             unselectedContentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
           )
@@ -180,12 +181,12 @@ private fun BotList(state: SelectOpponentState, onOpponentSelected: (Player) -> 
       .padding(16.dp)
   ) {
     Text(
-      text = "Online Bots",
+      text = stringResource(R.string.select_opponent_bots_title),
       style = MaterialTheme.typography.headlineMedium,
       modifier = Modifier.padding(bottom = 16.dp),
     )
     Text(
-      text = "Online bots are AI programs run and maintained by members of the community at their expense. Playing against them requires an active internet connection.",
+      text = stringResource(R.string.select_opponent_bots_description),
       style = MaterialTheme.typography.bodyMedium,
       modifier = Modifier.padding(bottom = 16.dp),
     )
@@ -214,7 +215,7 @@ private fun OpponentItem(opponent: Player, modifier: Modifier = Modifier) {
           .error(R.mipmap.placeholder)
           .build()
       ),
-      contentDescription = "Opponent icon",
+      contentDescription = stringResource(R.string.select_opponent_icon_content_description),
       modifier = Modifier
         .size(48.dp)
         .clip(CircleShape)
@@ -247,12 +248,12 @@ private fun RecentList(state: SelectOpponentState, onOpponentSelected: (Player) 
       .padding(16.dp)
   ) {
     Text(
-      text = "Recent opponents",
+      text = stringResource(R.string.select_opponent_recent_title),
       style = MaterialTheme.typography.headlineMedium,
       modifier = Modifier.padding(bottom = 16.dp),
     )
     Text(
-      text = "This is a selection of opponents (both bots and actual players) you've played against recently.",
+      text = stringResource(R.string.select_opponent_recent_description),
       style = MaterialTheme.typography.bodyMedium,
       modifier = Modifier.padding(bottom = 16.dp),
     )
@@ -285,7 +286,7 @@ private fun Search(
     SearchTextField(
       value = state.searchTerm,
       onValueChange = onSearchTermChanged,
-      hint = "Search by username",
+      hint = stringResource(R.string.select_opponent_search_hint),
       modifier = Modifier
         .fillMaxWidth()
         .padding(horizontal = 16.dp)

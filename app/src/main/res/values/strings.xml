@@ -227,5 +227,22 @@
     <string name="onboarding_notifications_description">We\'d like to send you notifications when it\'s your turn to play, when games finish, or when you receive messages. You can always change this later in your device settings.</string>
     <string name="onboarding_notifications_allow">Allow notifications</string>
     <string name="onboarding_notifications_skip">Skip</string>
+    <string name="new_challenge_opponent">Opponent</string>
+    <string name="new_challenge_your_color">Your color</string>
+    <string name="new_challenge_board_size">Board Size</string>
+    <string name="new_challenge_analysis">Analysis</string>
+    <string name="new_challenge_speed">Speed</string>
+    <string name="new_challenge_ranked">Ranked</string>
+    <string name="new_challenge_private">Private</string>
+    <string name="new_challenge_send">Send Challenge</string>
+    <string name="new_challenge_select_opponent">[Select Opponent]</string>
+    <string name="select_opponent_tab_bot">Bot</string>
+    <string name="select_opponent_tab_recent">Recent</string>
+    <string name="select_opponent_bots_title">Online Bots</string>
+    <string name="select_opponent_bots_description">Online bots are AI programs run and maintained by members of the community at their expense. Playing against them requires an active internet connection.</string>
+    <string name="select_opponent_icon_content_description">Opponent icon</string>
+    <string name="select_opponent_recent_title">Recent opponents</string>
+    <string name="select_opponent_recent_description">This is a selection of opponents (both bots and actual players) you\'ve played against recently.</string>
+    <string name="select_opponent_search_hint">Search by username</string>
 
 </resources>

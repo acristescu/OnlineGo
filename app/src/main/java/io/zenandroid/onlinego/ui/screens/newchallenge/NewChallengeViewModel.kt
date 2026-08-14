@@ -36,7 +36,7 @@ class NewChallengeViewModel(
         disable_analysis = false,
         private = false
       ),
-      opponentText = "[Select Opponent]"
+      opponentText = null
     )
   )
 
@@ -64,7 +64,7 @@ class NewChallengeViewModel(
                 it.ratings?.overall?.deviation
               )
             })"
-          } ?: "[Select Opponent]"
+          }
         )
       }
     }
@@ -81,7 +81,6 @@ class NewChallengeViewModel(
             ),
             opponentText = opponent
               ?.let { "${it.username} (${formatRank(egfToRank(it.rating), it.deviation)})" }
-              ?: "[Select Opponent]"
           )
         }
 
@@ -169,7 +168,7 @@ class NewChallengeViewModel(
                   it.deviation
                 )
               })"
-            } ?: "[Select Opponent]"
+            }
           )
         }
 
@@ -202,6 +201,6 @@ class NewChallengeViewModel(
 data class NewChallengeBottomSheetState(
   val challenge: ChallengeParams,
   val done: Boolean = false,
-  val opponentText: String,
+  val opponentText: String? = null,
   val selectOpponentDialogShowing: Boolean = false,
 )
