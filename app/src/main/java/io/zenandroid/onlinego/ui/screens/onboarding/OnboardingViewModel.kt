@@ -2,6 +2,8 @@ package io.zenandroid.onlinego.ui.screens.onboarding
 
 import android.os.Build
 import android.util.Log
+import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -41,36 +43,40 @@ class OnboardingViewModel(
   private val pages = arrayOf(
     OnboardingPage(
       R.drawable.art_onboarding,
-      "The Game of GO",
-      "Go is a strategy board game for two players, in which the aim is to surround more territory than the opponent. The game was invented in China more than 2,500 years ago and is the oldest board game still played today. It is estimated that more than 46 million people know how to play.",
-      "Continue"
+      R.string.onboarding_page_go_title,
+      R.string.onboarding_page_go_description,
+      R.string.onboarding_continue
     ),
     OnboardingPage(
       R.drawable.ic_board_transparent,
-      "Online GO Android app",
-      "This app started back in 2015 as a personal project by Alexandru Cristescu. It is now open-source, meaning the code is freely available for everybody to browse and modify. The app is and will always be free. Contributions are welcome. Find out how you can help on the project's GitHub page. If coding is not your thing, you can become a supporter by pledging a monthly contribution. Or, you can just enjoy the app for free, the choice is entirely yours!",
-      "Continue"
+      R.string.onboarding_page_app_title,
+      R.string.onboarding_page_app_description,
+      R.string.onboarding_continue
     ),
     OnboardingPage(
       R.drawable.logo_ogs,
-      "OGS Server",
-      "The OGS Server is one of the most popular websites for playing GO online. The Online GO Android app uses the services provided by OGS in order to enable online play. While not associated with OGS, we do have their permission to use their services. A (free) OGS account is required in order to play. You can create one in the next step if you don't already have it.",
-      "Link OGS account"
+      R.string.onboarding_page_ogs_title,
+      R.string.onboarding_page_ogs_description,
+      R.string.onboarding_link_account
     ),
     MultipleChoicePage(
-      "Do you already have an OGS (online-go.com) account?",
-      listOf("Yes", "No")
+      R.string.onboarding_question_has_account,
+      listOf(R.string.yes, R.string.no)
     ),
     MultipleChoicePage(
-      "What log in method do you want to use?",
-      listOf("Google Sign-in", "Username and password", "Stay offline")
+      R.string.onboarding_question_login_method,
+      listOf(
+        R.string.onboarding_answer_google,
+        R.string.onboarding_answer_password,
+        R.string.onboarding_answer_offline
+      )
     ),
     LoginPage,
     NotificationPermissionPage(
-      "Stay Updated",
-      "We'd like to send you notifications when it's your turn to play, when games finish, or when you receive messages. You can always change this later in your device settings.",
-      "Allow notifications",
-      "Skip"
+      R.string.onboarding_notifications_title,
+      R.string.onboarding_notifications_description,
+      R.string.onboarding_notifications_allow,
+      R.string.onboarding_notifications_skip
     )
   ).drop(if (savedStateHandle["initialPageArg"] as String? != null) 4 else 0)
 
@@ -355,22 +361,22 @@ sealed class Page {
   enum class LoginMethod { GOOGLE, PASSWORD }
 
   data class OnboardingPage(
-    val art: Int,
-    val title: String,
-    val description: String,
-    val continueButtonText: String,
+    @DrawableRes val art: Int,
+    @StringRes val title: Int,
+    @StringRes val description: Int,
+    @StringRes val continueButtonText: Int,
   ) : Page()
 
   data class MultipleChoicePage(
-    val question: String,
-    val answers: List<String>
+    @StringRes val question: Int,
+    val answers: List<Int>
   ) : Page()
 
   data class NotificationPermissionPage(
-    val title: String,
-    val description: String,
-    val allowButtonText: String,
-    val skipButtonText: String
+    @StringRes val title: Int,
+    @StringRes val description: Int,
+    @StringRes val allowButtonText: Int,
+    @StringRes val skipButtonText: Int
   ) : Page()
 
   object LoginPage : Page()

@@ -37,6 +37,11 @@
     <string name="ok">OK</string>
     <string name="search">Search</string>
     <string name="loading">Loading...</string>
+    <string name="email">Email</string>
+    <string name="username">Username</string>
+    <string name="password">Password</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
     <string name="hello_world">Hello world!</string>
     <string name="landscape_preview">Landscape Preview</string>
     <string name="button_play_online">Play\nOnline</string>
@@ -200,5 +205,27 @@
     <string name="tsumego_retry">RETRY</string>
     <string name="tsumego_continue">CONTINUE</string>
     <string name="tsumego_done">DONE</string>
+    <string name="onboarding_link_account">Link OGS account</string>
+    <string name="onboarding_create_account">Create OGS account</string>
+    <string name="onboarding_login_failed_title">Log in failed</string>
+    <string name="onboarding_stay_offline_title">Stay Offline?</string>
+    <string name="onboarding_stay_offline_message">If you choose to stay offline, most of the apps features, such as free online play against other human and online bots will be disabled until you log in or create an account. You can still play against a local AI and do the tutorial. Are you sure?</string>
+    <string name="onboarding_stay_offline_confirm">Yes, Stay Offline</string>
+    <string name="onboarding_continue">Continue</string>
+    <string name="onboarding_page_go_title">The Game of GO</string>
+    <string name="onboarding_page_go_description">Go is a strategy board game for two players, in which the aim is to surround more territory than the opponent. The game was invented in China more than 2,500 years ago and is the oldest board game still played today. It is estimated that more than 46 million people know how to play.</string>
+    <string name="onboarding_page_app_title">Online GO Android app</string>
+    <string name="onboarding_page_app_description">This app started back in 2015 as a personal project by Alexandru Cristescu. It is now open-source, meaning the code is freely available for everybody to browse and modify. The app is and will always be free. Contributions are welcome. Find out how you can help on the project\'s GitHub page. If coding is not your thing, you can become a supporter by pledging a monthly contribution. Or, you can just enjoy the app for free, the choice is entirely yours!</string>
+    <string name="onboarding_page_ogs_title">OGS Server</string>
+    <string name="onboarding_page_ogs_description">The OGS Server is one of the most popular websites for playing GO online. The Online GO Android app uses the services provided by OGS in order to enable online play. While not associated with OGS, we do have their permission to use their services. A (free) OGS account is required in order to play. You can create one in the next step if you don\'t already have it.</string>
+    <string name="onboarding_question_has_account">Do you already have an OGS (online-go.com) account?</string>
+    <string name="onboarding_question_login_method">What log in method do you want to use?</string>
+    <string name="onboarding_answer_google">Google Sign-in</string>
+    <string name="onboarding_answer_password">Username and password</string>
+    <string name="onboarding_answer_offline">Stay offline</string>
+    <string name="onboarding_notifications_title">Stay Updated</string>
+    <string name="onboarding_notifications_description">We\'d like to send you notifications when it\'s your turn to play, when games finish, or when you receive messages. You can always change this later in your device settings.</string>
+    <string name="onboarding_notifications_allow">Allow notifications</string>
+    <string name="onboarding_notifications_skip">Skip</string>
 
 </resources>

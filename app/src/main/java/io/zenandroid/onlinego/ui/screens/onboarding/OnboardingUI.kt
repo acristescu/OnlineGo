@@ -57,6 +57,7 @@ import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -250,7 +251,7 @@ private fun ColumnScope.LoginPage(
     if (!state.isExistingAccount) {
       OutlinedTextField(
         value = state.email,
-        label = { Text("Email") },
+        label = { Text(stringResource(R.string.email)) },
         enabled = !state.loginProcessing,
         onValueChange = { listener.invoke(OnboardingAction.EmailChanged(it)) },
         singleLine = true,
@@ -268,7 +269,7 @@ private fun ColumnScope.LoginPage(
     }
     OutlinedTextField(
       value = state.username,
-      label = { Text("Username") },
+      label = { Text(stringResource(R.string.username)) },
       enabled = !state.loginProcessing,
       onValueChange = { listener.invoke(OnboardingAction.UsernameChanged(it)) },
       singleLine = true,
@@ -288,7 +289,7 @@ private fun ColumnScope.LoginPage(
 
     OutlinedTextField(
       value = state.password,
-      label = { Text("Password") },
+      label = { Text(stringResource(R.string.password)) },
       enabled = !state.loginProcessing,
       onValueChange = { listener.invoke(OnboardingAction.PasswordChanged(it)) },
       visualTransformation = if (!passwordVisibility) PasswordVisualTransformation() else VisualTransformation.None,
@@ -321,7 +322,8 @@ private fun ColumnScope.LoginPage(
   ) {
     if (!state.loginProcessing) {
       Text(
-        text = if (state.isExistingAccount) "Link OGS account" else "Create OGS account",
+        text = if (state.isExistingAccount) stringResource(R.string.onboarding_link_account)
+        else stringResource(R.string.onboarding_create_account),
         fontSize = 18.sp,
         fontWeight = FontWeight.Bold
       )
@@ -335,10 +337,15 @@ private fun ColumnScope.LoginPage(
       onDismissRequest = { listener(OnboardingAction.DialogDismissed) },
       confirmButton = {
         Button(onClick = { listener(OnboardingAction.DialogDismissed) }) {
-          Text(text = "OK")
+          Text(text = stringResource(R.string.ok))
         }
       },
-      title = { Text(text = "Log in failed", style = MaterialTheme.typography.titleLarge) },
+      title = {
+        Text(
+          text = stringResource(R.string.onboarding_login_failed_title),
+          style = MaterialTheme.typography.titleLarge
+        )
+      },
       text = { Text(text = state.loginErrorDialogText) }
     )
   }
@@ -351,16 +358,21 @@ fun OfflineConfirmationDialog(
 ) {
   AlertDialog(
     onDismissRequest = onDismiss,
-    title = { Text("Stay Offline?", style = MaterialTheme.typography.titleLarge) },
-    text = { Text("If you choose to stay offline, most of the apps features, such as free online play against other human and online bots will be disabled until you log in or create an account. You can still play against a local AI and do the tutorial. Are you sure?") },
+    title = {
+      Text(
+        stringResource(R.string.onboarding_stay_offline_title),
+        style = MaterialTheme.typography.titleLarge
+      )
+    },
+    text = { Text(stringResource(R.string.onboarding_stay_offline_message)) },
     confirmButton = {
       TextButton(onClick = onConfirm) {
-        Text("Yes, Stay Offline")
+        Text(stringResource(R.string.onboarding_stay_offline_confirm))
       }
     },
     dismissButton = {
       TextButton(onClick = onDismiss) {
-        Text("Cancel")
+        Text(stringResource(R.string.cancel))
       }
     }
   )
@@ -372,31 +384,31 @@ private fun ColumnScope.QuestionPage(
 ) {
   Spacer(modifier = Modifier.weight(.5f))
   Text(
-    text = page.question,
+    text = stringResource(page.question),
     style = MaterialTheme.typography.headlineLarge,
     textAlign = TextAlign.Center,
     modifier = Modifier.align(Alignment.CenterHorizontally)
   )
   Spacer(modifier = Modifier.weight(.5f))
-  for (answer in page.answers) {
-    val isThirdButton = page.answers.indexOf(answer) == 2
-    if(!isThirdButton) {
+  page.answers.forEachIndexed { index, answer ->
+    val isThirdButton = index == 2
+    if (!isThirdButton) {
       Button(
-        onClick = { listener.invoke(OnboardingAction.AnswerSelected(page.answers.indexOf(answer))) },
+        onClick = { listener.invoke(OnboardingAction.AnswerSelected(index)) },
         modifier = Modifier
           .fillMaxWidth()
           .padding(vertical = 8.dp)
       ) {
-        Text(text = answer)
+        Text(text = stringResource(answer))
       }
     } else {
-      TextButton (
-        onClick = { listener.invoke(OnboardingAction.AnswerSelected(page.answers.indexOf(answer))) },
+      TextButton(
+        onClick = { listener.invoke(OnboardingAction.AnswerSelected(index)) },
         modifier = Modifier
           .fillMaxWidth()
           .padding(vertical = 8.dp)
       ) {
-        Text(text = answer)
+        Text(text = stringResource(answer))
       }
     }
   }
@@ -421,13 +433,13 @@ private fun ColumnScope.NotificationPermissionPage(
   Spacer(modifier = Modifier.weight(.25f))
 
   Text(
-    text = page.title,
+    text = stringResource(page.title),
     style = MaterialTheme.typography.headlineLarge,
     modifier = Modifier.align(Alignment.CenterHorizontally)
   )
 
   Text(
-    text = page.description,
+    text = stringResource(page.description),
     textAlign = TextAlign.Center,
     style = MaterialTheme.typography.bodyMedium,
     lineHeight = 20.sp,
@@ -444,7 +456,11 @@ private fun ColumnScope.NotificationPermissionPage(
       .fillMaxWidth()
       .padding(vertical = 4.dp)
   ) {
-    Text(text = page.allowButtonText, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+    Text(
+      text = stringResource(page.allowButtonText),
+      fontSize = 18.sp,
+      fontWeight = FontWeight.Bold
+    )
   }
 
   Button(
@@ -453,7 +469,7 @@ private fun ColumnScope.NotificationPermissionPage(
       .fillMaxWidth()
       .padding(vertical = 4.dp)
   ) {
-    Text(text = page.skipButtonText, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+    Text(text = stringResource(page.skipButtonText), fontSize = 18.sp, fontWeight = FontWeight.Bold)
   }
 }
 
@@ -470,12 +486,12 @@ private fun ColumnScope.InfoPage(page: Page.OnboardingPage, listener: (Onboardin
       .fillMaxWidth()
   )
   Text(
-    text = page.title,
+    text = stringResource(page.title),
     style = MaterialTheme.typography.headlineLarge,
     modifier = Modifier.align(Alignment.CenterHorizontally)
   )
   Text(
-    text = page.description,
+    text = stringResource(page.description),
     textAlign = TextAlign.Center,
     style = MaterialTheme.typography.bodyMedium,
     lineHeight = 20.sp,
@@ -488,7 +504,11 @@ private fun ColumnScope.InfoPage(page: Page.OnboardingPage, listener: (Onboardin
     onClick = { listener(OnboardingAction.ContinueClicked) },
     modifier = Modifier.fillMaxWidth()
   ) {
-    Text(text = page.continueButtonText, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+    Text(
+      text = stringResource(page.continueButtonText),
+      fontSize = 18.sp,
+      fontWeight = FontWeight.Bold
+    )
   }
 }
 
@@ -521,9 +541,9 @@ fun DefaultPreview() {
         totalPages = 6,
         currentPage = OnboardingPage(
           R.drawable.art_onboarding,
-          "The Game of GO",
-          "Go is a strategy board game for two players, in which the aim is to surround more territory than the opponent. The game was invented in China more than 2,500 years ago and is the oldest board game still played today. It is estimated that more than 46 million people know how to play.",
-          "Continue"
+          R.string.onboarding_page_go_title,
+          R.string.onboarding_page_go_description,
+          R.string.onboarding_continue
         ),
       ),
       {},
@@ -540,8 +560,12 @@ fun DefaultPreview1() {
     OnboardingContent(
       OnboardingState(
         currentPage = Page.MultipleChoicePage(
-          "Is there a cow level? Lorem ipsum dolor sit amet",
-          listOf("Yes", "NO!!!", "Cancel")
+          R.string.onboarding_question_login_method,
+          listOf(
+            R.string.onboarding_answer_google,
+            R.string.onboarding_answer_password,
+            R.string.onboarding_answer_offline
+          )
         ),
         totalPages = 6,
       ),
@@ -576,10 +600,10 @@ fun DefaultPreview3() {
     OnboardingContent(
       OnboardingState(
         currentPage = Page.NotificationPermissionPage(
-          title = "Enable notifications",
-          description = "Get notified about your games, messages and more.",
-          allowButtonText = "Allow",
-          skipButtonText = "Skip"
+          title = R.string.onboarding_notifications_title,
+          description = R.string.onboarding_notifications_description,
+          allowButtonText = R.string.onboarding_notifications_allow,
+          skipButtonText = R.string.onboarding_notifications_skip
         ),
         totalPages = 6,
       ),
@@ -597,8 +621,12 @@ fun DefaultPreview4() {
     OnboardingContent(
       OnboardingState(
         currentPage = Page.MultipleChoicePage(
-          "Is there a cow level? Lorem ipsum dolor sit amet",
-          listOf("Yes", "NO!!!", "Cancel")
+          R.string.onboarding_question_login_method,
+          listOf(
+            R.string.onboarding_answer_google,
+            R.string.onboarding_answer_password,
+            R.string.onboarding_answer_offline
+          )
         ),
         totalPages = 6,
         showOfflineConfirmationDialog = true,
