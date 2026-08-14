@@ -34,6 +34,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterVertically
@@ -44,11 +45,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import io.zenandroid.onlinego.R.drawable
 import io.zenandroid.onlinego.R.mipmap
 import io.zenandroid.onlinego.data.model.Position
@@ -69,6 +74,7 @@ import io.zenandroid.onlinego.ui.screens.face2face.Button.GameSettings
 import io.zenandroid.onlinego.ui.screens.face2face.Button.Next
 import io.zenandroid.onlinego.ui.screens.face2face.Button.Previous
 import io.zenandroid.onlinego.ui.screens.game.ExtraStatusField
+import io.zenandroid.onlinego.ui.screens.face2face.session.FaceToFaceLanDiscoveredHost
 import org.koin.androidx.compose.koinViewModel
 import java.lang.Float.max
 
@@ -112,7 +118,7 @@ private fun FaceToFaceContent(
         Column {
           UserImage(BLACK)
           Text(
-            text = "Player 1",
+            text = state.blackPlayerLabel,
             textAlign = TextAlign.Center,
             color = MaterialTheme.colorScheme.onSurface,
             style = MaterialTheme.typography.titleMedium,
@@ -123,7 +129,7 @@ private fun FaceToFaceContent(
         Column {
           UserImage(WHITE, Modifier.padding(start = 4.dp))
           Text(
-            text = "Player 2",
+            text = state.whitePlayerLabel,
             textAlign = TextAlign.Center,
             color = MaterialTheme.colorScheme.onSurface,
             style = MaterialTheme.typography.titleMedium,
@@ -191,7 +197,7 @@ private fun FaceToFaceContent(
           Column {
             UserImage(BLACK)
             Text(
-              text = "Player 1",
+              text = state.blackPlayerLabel,
               textAlign = TextAlign.Center,
               color = MaterialTheme.colorScheme.onSurface,
               style = MaterialTheme.typography.headlineMedium,
@@ -202,7 +208,7 @@ private fun FaceToFaceContent(
           Column {
             UserImage(WHITE, Modifier.padding(start = 4.dp))
             Text(
-              text = "Player 2",
+              text = state.whitePlayerLabel,
               textAlign = TextAlign.Center,
               color = MaterialTheme.colorScheme.onSurface,
               style = MaterialTheme.typography.headlineMedium,
@@ -250,7 +256,12 @@ private fun FaceToFaceContent(
   }
 
   if (state.newGameDialogShowing) {
-    NewGameDialog(onUserAction, state.newGameParameters)
+    NewGameDialog(
+      onUserAction = onUserAction,
+      newGameParameters = state.newGameParameters,
+      setupMessage = state.setupMessage,
+      discoveredHosts = state.discoveredHosts,
+    )
   }
 }
 
@@ -318,7 +329,28 @@ private fun ScoreSheet(pos: Position) {
 }
 
 @Composable
-private fun NewGameDialog(onUserAction: (Action) -> Unit, newGameParameters: GameParameters) {
+private fun NewGameDialog(
+  onUserAction: (Action) -> Unit,
+  newGameParameters: GameParameters,
+  setupMessage: String?,
+  discoveredHosts: List<FaceToFaceLanDiscoveredHost>,
+) {
+  val emulatorMode = remember { isProbablyAndroidEmulator() }
+  var hostAddressDraft by rememberSaveable(newGameParameters.mode, newGameParameters.hostAddress) {
+    mutableStateOf(newGameParameters.hostAddress)
+  }
+  val joinError = newGameParameters.mode == MatchMode.WIFI_JOIN && setupMessage != null
+  val joinSupportingText = when {
+    joinError -> setupMessage
+    emulatorMode -> "Android Emulator tip: use 10.0.2.2 for the guest address."
+    else -> "Enter the host device's local network address."
+  }
+  val joinPlaceholder = if (emulatorMode) "10.0.2.2" else "192.168.1.42"
+  val connectEnabled = when (newGameParameters.mode) {
+    MatchMode.WIFI_JOIN -> hostAddressDraft.trim().isNotEmpty()
+    else -> true
+  }
+
   Box(
     modifier = Modifier
       .fillMaxSize()
@@ -344,28 +376,126 @@ private fun NewGameDialog(onUserAction: (Action) -> Unit, newGameParameters: Gam
         style = MaterialTheme.typography.headlineLarge,
       )
       SettingsRow(
-        label = "Size",
-        options = BoardSize.entries,
-        selected = newGameParameters.size,
+        label = "Mode",
+        options = MatchMode.entries,
+        selected = newGameParameters.mode,
         onSelectionChanged = {
-          onUserAction(Action.NewGameParametersChanged(newGameParameters.copy(size = it)))
+          onUserAction(Action.NewGameParametersChanged(newGameParameters.copy(mode = it)))
         }
       )
-      SettingsRow(
-        label = "Handicap",
-        options = (0..9).toList(),
-        selected = newGameParameters.handicap,
-        onSelectionChanged = {
-          onUserAction(Action.NewGameParametersChanged(newGameParameters.copy(handicap = it)))
+      if (newGameParameters.mode != MatchMode.WIFI_JOIN) {
+        SettingsRow(
+          label = "Size",
+          options = BoardSize.entries,
+          selected = newGameParameters.size,
+          onSelectionChanged = {
+            onUserAction(Action.NewGameParametersChanged(newGameParameters.copy(size = it)))
+          }
+        )
+        SettingsRow(
+          label = "Handicap",
+          options = (0..9).toList(),
+          selected = newGameParameters.handicap,
+          onSelectionChanged = {
+            onUserAction(Action.NewGameParametersChanged(newGameParameters.copy(handicap = it)))
+          }
+        )
+      }
+      if (newGameParameters.mode == MatchMode.WIFI_JOIN) {
+        TextField(
+          value = hostAddressDraft,
+          onValueChange = {
+            hostAddressDraft = it
+          },
+          label = { Text("Host address") },
+          placeholder = { Text(joinPlaceholder) },
+          supportingText = {
+            Text(
+              text = joinSupportingText,
+              color = if (joinError) {
+                MaterialTheme.colorScheme.error
+              } else {
+                MaterialTheme.colorScheme.onSurfaceVariant
+              }
+            )
+          },
+          isError = joinError,
+          keyboardOptions = KeyboardOptions(
+            keyboardType = KeyboardType.Uri,
+            imeAction = ImeAction.Done,
+            autoCorrectEnabled = false,
+          ),
+          keyboardActions = KeyboardActions(
+            onDone = {
+              if (connectEnabled) {
+                onUserAction(
+                  Action.NewGameParametersChanged(newGameParameters.copy(hostAddress = hostAddressDraft))
+                )
+                onUserAction(StartNewGame)
+              }
+            }
+          ),
+          singleLine = true,
+          modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 16.dp)
+        )
+        if (discoveredHosts.isNotEmpty()) {
+          Text(
+            text = "Available hosts",
+            color = MaterialTheme.colorScheme.onSurface,
+            style = MaterialTheme.typography.titleSmall,
+            modifier = Modifier
+              .fillMaxWidth()
+              .padding(top = 16.dp)
+          )
+          discoveredHosts.forEach { host ->
+            TextButton(
+              onClick = {
+                hostAddressDraft = host.endpoint
+              },
+              modifier = Modifier.fillMaxWidth()
+            ) {
+              Text(
+                text = "${host.displayName} (${host.endpoint})",
+                modifier = Modifier.fillMaxWidth(),
+              )
+            }
+          }
         }
-      )
+      }
+      if (setupMessage != null && newGameParameters.mode != MatchMode.WIFI_JOIN) {
+        Text(
+          text = setupMessage,
+          color = MaterialTheme.colorScheme.onSurfaceVariant,
+          style = MaterialTheme.typography.bodyMedium,
+          textAlign = TextAlign.Center,
+          modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 16.dp)
+        )
+      }
       Button(
         modifier = Modifier
           .fillMaxWidth()
           .padding(top = 32.dp),
-        onClick = { onUserAction(StartNewGame) }
+        enabled = connectEnabled,
+        onClick = {
+          if (newGameParameters.mode == MatchMode.WIFI_JOIN) {
+            onUserAction(
+              Action.NewGameParametersChanged(newGameParameters.copy(hostAddress = hostAddressDraft))
+            )
+          }
+          onUserAction(StartNewGame)
+        }
       ) {
-        Text(text = "START NEW GAME")
+        Text(
+          text = when (newGameParameters.mode) {
+            MatchMode.HOTSEAT -> "START NEW GAME"
+            MatchMode.WIFI_HOST -> "START HOSTING"
+            MatchMode.WIFI_JOIN -> "CONNECT"
+          }
+        )
       }
     }
   }
