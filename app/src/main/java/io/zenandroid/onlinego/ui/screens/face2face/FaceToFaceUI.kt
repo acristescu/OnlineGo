@@ -50,6 +50,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.R.drawable
 import io.zenandroid.onlinego.R.mipmap
 import io.zenandroid.onlinego.data.model.Position
@@ -113,7 +114,7 @@ private fun FaceToFaceContent(
         Column {
           UserImage(BLACK)
           Text(
-            text = "Player 1",
+            text = stringResource(R.string.face_to_face_player_1),
             textAlign = TextAlign.Center,
             color = MaterialTheme.colorScheme.onSurface,
             style = MaterialTheme.typography.titleMedium,
@@ -124,7 +125,7 @@ private fun FaceToFaceContent(
         Column {
           UserImage(WHITE, Modifier.padding(start = 4.dp))
           Text(
-            text = "Player 2",
+            text = stringResource(R.string.face_to_face_player_2),
             textAlign = TextAlign.Center,
             color = MaterialTheme.colorScheme.onSurface,
             style = MaterialTheme.typography.titleMedium,
@@ -149,7 +150,7 @@ private fun FaceToFaceContent(
           .clip(MaterialTheme.shapes.medium)
       )
       ExtraStatusField(
-        text = state.extraStatus,
+        text = state.extraStatusResId?.let { stringResource(it) },
         modifier = Modifier
           .background(Color(0xFF867484))
           .fillMaxWidth()
@@ -159,7 +160,7 @@ private fun FaceToFaceContent(
       Spacer(modifier = Modifier.weight(1f))
       BottomBar(
         buttons = state.buttons,
-        bottomText = state.bottomText,
+        bottomText = state.bottomTextResId?.let { stringResource(it) },
         onButtonPressed = { onUserAction(BottomButtonPressed(it as Button)) }
       )
     }
@@ -192,7 +193,7 @@ private fun FaceToFaceContent(
           Column {
             UserImage(BLACK)
             Text(
-              text = "Player 1",
+              text = stringResource(R.string.face_to_face_player_1),
               textAlign = TextAlign.Center,
               color = MaterialTheme.colorScheme.onSurface,
               style = MaterialTheme.typography.headlineMedium,
@@ -203,7 +204,7 @@ private fun FaceToFaceContent(
           Column {
             UserImage(WHITE, Modifier.padding(start = 4.dp))
             Text(
-              text = "Player 2",
+              text = stringResource(R.string.face_to_face_player_2),
               textAlign = TextAlign.Center,
               color = MaterialTheme.colorScheme.onSurface,
               style = MaterialTheme.typography.headlineMedium,
@@ -214,7 +215,7 @@ private fun FaceToFaceContent(
         Spacer(modifier = Modifier.weight(1f))
         BottomBar(
           buttons = state.buttons,
-          bottomText = state.bottomText,
+          bottomText = state.bottomTextResId?.let { stringResource(it) },
           onButtonPressed = { onUserAction(BottomButtonPressed(it as Button)) }
         )
       }
@@ -242,11 +243,16 @@ private fun FaceToFaceContent(
       onDismissRequest = { onUserAction(KOMoveDialogDismiss) },
       confirmButton = {
         TextButton(onClick = { onUserAction(KOMoveDialogDismiss) }) {
-          Text("OK")
+          Text(stringResource(R.string.ok))
         }
       },
-      text = { Text("That move would repeat the board position. That's called a KO, and it is not allowed. Try to make another move first, preferably a threat that the opponent can't ignore.") },
-      title = { Text("Illegal KO move", style = MaterialTheme.typography.titleLarge) },
+      text = { Text(stringResource(R.string.face_to_face_ko_dialog_message)) },
+      title = {
+        Text(
+          text = stringResource(R.string.face_to_face_ko_dialog_title),
+          style = MaterialTheme.typography.titleLarge
+        )
+      },
     )
   }
 
@@ -294,14 +300,14 @@ private fun ScoreSheet(pos: Position) {
       horizontalAlignment = Alignment.CenterHorizontally,
       modifier = Modifier.padding(horizontal = 8.dp)
     ) {
-      Text(text = "komi")
-      Text(text = "captures")
+      Text(text = stringResource(R.string.face_to_face_score_komi))
+      Text(text = stringResource(R.string.face_to_face_score_captures))
       if (hasDeadStones) {
-        Text(text = "dead")
+        Text(text = stringResource(R.string.face_to_face_score_dead))
       }
       if (hasTerritory) {
-        Text(text = "territory")
-        Text(text = "total")
+        Text(text = stringResource(R.string.face_to_face_score_territory))
+        Text(text = stringResource(R.string.face_to_face_score_total))
       }
     }
     Column {
@@ -337,7 +343,7 @@ private fun NewGameDialog(onUserAction: (Action) -> Unit, newGameParameters: Gam
         .padding(16.dp)
     ) {
       Text(
-        text = "New Game",
+        text = stringResource(R.string.face_to_face_new_game_title),
         modifier = Modifier
           .align(Alignment.CenterHorizontally)
           .padding(bottom = 16.dp),
@@ -345,7 +351,7 @@ private fun NewGameDialog(onUserAction: (Action) -> Unit, newGameParameters: Gam
         style = MaterialTheme.typography.headlineLarge,
       )
       SettingsRow(
-        label = "Size",
+        label = stringResource(R.string.face_to_face_new_game_size),
         options = BoardSize.entries,
         selected = newGameParameters.size,
         onSelectionChanged = {
@@ -353,7 +359,7 @@ private fun NewGameDialog(onUserAction: (Action) -> Unit, newGameParameters: Gam
         }
       )
       SettingsRow(
-        label = "Handicap",
+        label = stringResource(R.string.handicap),
         options = (0..9).toList(),
         selected = newGameParameters.handicap,
         onSelectionChanged = {
@@ -366,7 +372,7 @@ private fun NewGameDialog(onUserAction: (Action) -> Unit, newGameParameters: Gam
           .padding(top = 32.dp),
         onClick = { onUserAction(StartNewGame) }
       ) {
-        Text(text = "START NEW GAME")
+        Text(text = stringResource(R.string.face_to_face_start_new_game))
       }
     }
   }
@@ -438,7 +444,7 @@ private fun UserImage(
     val shape = RoundedCornerShape(14.dp)
     Image(
       painter = painterResource(id = mipmap.placeholder),
-      contentDescription = "Avatar",
+      contentDescription = stringResource(R.string.face_to_face_avatar_content_description),
       modifier = Modifier
         .size(84.dp)
         .fillMaxSize()

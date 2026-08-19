@@ -1,5 +1,6 @@
 package io.zenandroid.onlinego.ui.screens.face2face
 
+import androidx.annotation.StringRes
 import androidx.annotation.VisibleForTesting
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.AddCircle
@@ -14,7 +15,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.cash.molecule.AndroidUiDispatcher
@@ -114,17 +114,17 @@ class FaceToFaceViewModel(
     val nextButtonEnabled =
       !loading && history.isNotEmpty() && historyIndex != null && historyIndex < history.size
 
-    val (buttons, bottomText) = when {
-      estimateStatus is Working -> emptyList<Button>() to "Estimating"
+    val (buttons, bottomTextResId) = when {
+      estimateStatus is Working -> emptyList<Button>() to R.string.face_to_face_estimating
       estimateStatus is Success -> listOf(CloseEstimate) to null
       else -> listOf(
         GameSettings, Estimate, Pass, Previous(previousButtonEnabled), Next(nextButtonEnabled)
       ) to null
     }
 
-    val extraStatus = when {
-      estimateStatus is Success && estimateStatus.gameIsOver -> "Game is over!"
-      estimateStatus is Success && !estimateStatus.gameIsOver -> "Recommendation: Game is not over!"
+    val extraStatusResId = when {
+      estimateStatus is Success && estimateStatus.gameIsOver -> R.string.face_to_face_game_is_over
+      estimateStatus is Success && !estimateStatus.gameIsOver -> R.string.face_to_face_game_is_not_over
       else -> null
     }
 
@@ -141,11 +141,11 @@ class FaceToFaceViewModel(
       showLastMove = estimateStatus !is Success,
       koMoveDialogShowing = koMoveDialogShowing,
       buttons = buttons,
-      bottomText = bottomText,
+      bottomTextResId = bottomTextResId,
       newGameDialogShowing = newGameDialogShowing,
       currentGameParameters = currentGameParameters,
       newGameParameters = newGameParameters,
-      extraStatus = extraStatus,
+      extraStatusResId = extraStatusResId,
     )
   }
 
@@ -325,9 +325,9 @@ class FaceToFaceViewModel(
 data class FaceToFaceState(
   val position: Position?,
   val loading: Boolean,
-  var titleResId: Int,
+  @StringRes var titleResId: Int,
   val buttons: List<Button>,
-  val bottomText: String?,
+  @StringRes val bottomTextResId: Int?,
   val gameFinished: Boolean,
   val history: List<Cell>,
   val candidateMove: Cell?,
@@ -339,7 +339,7 @@ data class FaceToFaceState(
   val newGameDialogShowing: Boolean,
   val currentGameParameters: GameParameters,
   val newGameParameters: GameParameters,
-  val extraStatus: String?,
+  @StringRes val extraStatusResId: Int?,
 ) {
   companion object {
     val INITIAL = FaceToFaceState(
@@ -355,11 +355,11 @@ data class FaceToFaceState(
       showLastMove = true,
       koMoveDialogShowing = false,
       buttons = emptyList(),
-      bottomText = null,
+      bottomTextResId = null,
       newGameDialogShowing = false,
       currentGameParameters = GameParameters(BoardSize.LARGE, 0),
       newGameParameters = GameParameters(BoardSize.LARGE, 0),
-      extraStatus = null,
+      extraStatusResId = null,
     )
   }
 }
@@ -387,25 +387,47 @@ enum class BoardSize(
 sealed class Button(
   override val icon: ImageVector,
   override val label: String,
+  @StringRes override val labelResId: Int,
   override val repeatable: Boolean = false,
   override val enabled: Boolean = true,
   override val bubbleText: String? = null,
   override val highlighted: Boolean = false,
 ) : BottomBarButton {
-  object GameSettings : Button(Icons.Rounded.AddCircle, "New Game")
-  object Estimate : Button(Icons.Rounded.Functions, "Estimate Score")
+  object GameSettings : Button(
+    Icons.Rounded.AddCircle,
+    "New Game",
+    R.string.face_to_face_button_new_game
+  )
+
+  object Estimate : Button(
+    Icons.Rounded.Functions,
+    "Estimate Score",
+    R.string.face_to_face_button_estimate_score
+  )
+
   class Previous(enabled: Boolean = true) : Button(
     repeatable = true,
     enabled = enabled,
     icon = Icons.Rounded.SkipPrevious,
-    label = "Previous"
+    label = "Previous",
+    labelResId = R.string.face_to_face_button_previous
   )
 
-  class Next(enabled: Boolean = true) :
-    Button(repeatable = true, enabled = enabled, icon = Icons.Rounded.SkipNext, label = "Next")
+  class Next(enabled: Boolean = true) : Button(
+    repeatable = true,
+    enabled = enabled,
+    icon = Icons.Rounded.SkipNext,
+    label = "Next",
+    labelResId = R.string.face_to_face_button_next
+  )
 
-  object CloseEstimate : Button(Icons.Rounded.HighlightOff, "Return")
-  object Pass : Button(Icons.Rounded.Stop, "Pass")
+  object CloseEstimate : Button(
+    Icons.Rounded.HighlightOff,
+    "Return",
+    R.string.face_to_face_button_return
+  )
+
+  object Pass : Button(Icons.Rounded.Stop, "Pass", R.string.face_to_face_button_pass)
 }
 
 sealed interface Action {
