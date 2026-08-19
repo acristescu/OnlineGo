@@ -22,6 +22,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.font.FontWeight.Companion.Bold
 import androidx.compose.ui.tooling.preview.Preview
@@ -62,7 +63,7 @@ private fun LearnContent(state: LearnState, listener: (LearnAction) -> Unit) {
     TopAppBar(
       title = {
         Text(
-          text = "Learn",
+          text = stringResource(R.string.learn_title_learn),
           style = MaterialTheme.typography.headlineLarge.copy(fontWeight = Bold),
           color = MaterialTheme.colorScheme.onSurface
         )
@@ -73,7 +74,7 @@ private fun LearnContent(state: LearnState, listener: (LearnAction) -> Unit) {
         .verticalScroll(rememberScrollState())
         .padding(horizontal = 12.dp)
     ) {
-      Section(title = "Tutorials") {
+      Section(title = stringResource(R.string.learn_section_tutorials)) {
         state.tutorialGroups?.forEach {
           PrimaryRow(
             title = it.name,
@@ -93,13 +94,13 @@ private fun LearnContent(state: LearnState, listener: (LearnAction) -> Unit) {
           }
         }
       }
-      Section(title = "Study") {
+      Section(title = stringResource(R.string.learn_section_study)) {
         PrimaryRow(
-          title = "Joseki explorer",
+          title = stringResource(R.string.learn_study_title_joseki_explorer),
           R.drawable.ic_branch
         ) { listener(LearnAction.JosekiExplorerClicked) }
         PrimaryRow(
-          title = "Puzzles",
+          title = stringResource(R.string.earn_study_title_puzzles),
           R.drawable.ic_go_board
         ) { listener(LearnAction.PuzzlesClicked) }
       }
@@ -156,9 +157,9 @@ fun SecondaryRow(tutorial: Tutorial, completed: Boolean, onClick: () -> Unit) {
       .padding(start = 72.dp, top = 8.dp, bottom = 8.dp)
   ) {
     if (completed) {
-      Icon(Icons.Rounded.CheckBox, contentDescription = "Done")
+      Icon(Icons.Rounded.CheckBox, contentDescription = stringResource(R.string.learn_tutorial_checkbox_done))
     } else {
-      Icon(Icons.Rounded.CheckBoxOutlineBlank, contentDescription = "Done")
+      Icon(Icons.Rounded.CheckBoxOutlineBlank, contentDescription = stringResource(R.string.learn_tutorial_checkboxoutlineblank_done))
     }
     Text(
       tutorial.name, style = MaterialTheme.typography.bodyMedium, modifier = Modifier

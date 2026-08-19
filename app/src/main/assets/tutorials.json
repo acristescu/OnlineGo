@@ -1,16 +1,16 @@
 [
   {
-    "name": "Basics",
+    "name": "tutorial_basics_title",
     "icon": "BEGINNER",
     "tutorials": [
       {
-        "name": "The Basics",
+        "name": "tutorial_basics_thebasics_title",
         "steps": [
           {
             "type": "Interactive",
             "name": "basic1",
             "size": "9",
-            "text": "Please remember the 3 rules below:\n1. Black and White take turns placing \"stones\" on the board\n2. Stones are placed on the intersection of the lines.\n3. Once a stone is placed it can never be moved, but it may be captured.\n\nPlace a stone to continue!",
+            "text": "tutorial_basics_thebasics_basic1_text",
             "init": "",
             "branches": [
               {
@@ -25,19 +25,19 @@
             "size": "9",
             "pages": [
               {
-                "text": "With one more move, the white stone will be completely surrounded and captured. Stones that can be captured in one move are said to be in \"Atari\".",
+                "text": "tutorial_basics_thebasics_capture1_page1_text",
                 "position": "B[fe]B[ed]B[de]W[ee]"
               },
               {
-                "text": "The white stone is now surrounded, so...",
+                "text": "tutorial_basics_thebasics_capture1_page2_text",
                 "position": "B[fe]B[ed]B[de]W[ee]B[ef]"
               },
               {
-                "text": "... it's removed from the board",
+                "text": "tutorial_basics_thebasics_capture1_page3_text",
                 "position": "B[fe]B[ed]B[de]B[ef]"
               },
               {
-                "text": "If it were white's turn, it could \"escape\" by connecting another stone.",
+                "text": "tutorial_basics_thebasics_capture1_page4_text",
                 "position": "B[fe]B[ed]B[de]W[ee]W[ef]"
               }
             ]
@@ -46,7 +46,7 @@
             "type": "Interactive",
             "name": "capture2",
             "size": "9",
-            "text": "Your turn! Capture the white stone.",
+            "text": "tutorial_basics_thebasics_capture2_text",
             "init": "B[de]W[ee]B[ed]B[ef]",
             "branches": [
               {
@@ -64,7 +64,7 @@
             "type": "Interactive",
             "name": "capture3",
             "size": "9",
-            "text": "You can capture two stones with a single move this time!",
+            "text": "tutorial_basics_thebasics_capture3_text",
             "init": "B[cc]B[cd]B[db]W[dc]W[dd]B[de]B[ec]",
             "branches": [
               {
@@ -82,7 +82,7 @@
             "type": "Interactive",
             "name": "capture4",
             "size": "9",
-            "text": "Even if there are other stones nearby, just do the same.",
+            "text": "tutorial_basics_thebasics_capture4_text",
             "init": "W[cd]B[ce]W[dc]B[dd]W[de]B[df]W[ef]W[bd]",
             "branches": [
               {
@@ -104,13 +104,13 @@
         ]
       },
       {
-        "name": "Capturing stones",
+        "name": "tutorial_basics_capturingstones_title",
         "steps": [
           {
             "type": "Interactive",
             "name": "capture5",
             "size": "9",
-            "text": "At the edge of the board, the situation is a little different. Stones on the edge have fewer liberties and are easier to capture.",
+            "text": "tutorial_basics_capturingstones_capture5_text",
             "init": "B[ca]W[da]B[db]W[ea]B[eb]W[gb]W[ga]",
             "branches": [
               {
@@ -120,7 +120,7 @@
               {
                 "move": "zz",
                 "reply": "fa",
-                "message": "The white stones are connected.",
+                "message": "tutorial_basics_capturingstones_capture5_branches2_text",
                 "failed": true
               }
             ]
@@ -129,7 +129,7 @@
             "type": "Interactive",
             "name": "capture6",
             "size": "9",
-            "text": "Stones in the corner are even more vulnerable.",
+            "text": "tutorial_basics_capturingstones_capture6_text",
             "init": "B[ga]B[gb]B[gc]B[ha]W[ia]W[ic]W[hc]W[hd]",
             "branches": [
               {
@@ -147,7 +147,7 @@
             "type": "Interactive",
             "name": "capture7",
             "size": "9",
-            "text": "Two stones are in atari this time. Capture them!",
+            "text": "tutorial_basics_capturingstones_capture7_text",
             "init": "B[cd]B[ce]B[dc]W[dd]W[de]B[df]B[ee]W[ef]W[fd]",
             "branches": [
               {
@@ -165,7 +165,7 @@
             "type": "Interactive",
             "name": "capture8",
             "size": "9",
-            "text": "This time it takes two moves to capture the white stones. Careful, your first move is important!",
+            "text": "tutorial_basics_capturingstones_capture8_text",
             "init": "B[cd]B[ce]B[cf]B[dc]W[dd]W[de]W[df]B[dg]B[ef]W[fd]W[ff]",
             "branches": [
               {
@@ -199,7 +199,7 @@
             "type": "Interactive",
             "name": "capture9",
             "size": "9",
-            "text": "It's hard to run away with stones on the edge. Capture the two white stones on the first line!",
+            "text": "tutorial_basics_capturingstones_capture9_text",
             "init": "W[ad]W[ae]B[af]B[be]W[ca]W[cb]W[cc]W[cd]",
             "branches": [
               {
@@ -250,7 +250,7 @@
             "type": "Interactive",
             "name": "capture10",
             "size": "9",
-            "text": "So many stones! Look for the stones that are in Atari, and capture them. If you get it wrong, your stones will be captured instead.",
+            "text": "tutorial_basics_capturingstones_capture10_text",
             "init": "B[bd]W[be]B[cc]W[cd]B[ce]W[cf]B[db]W[dc]W[dd]B[de]W[eb]W[ec]B[ed]B[ee]W[ef]W[cb]B[fb]B[fc]W[fd]W[fe]B[ff]W[fg]W[fh]B[gd]W[ge]B[gf]B[gg]B[gh]B[hd]W[he]",
             "branches": [
               {
@@ -272,13 +272,13 @@
         ]
       },
       {
-        "name": "Double Atari",
+        "name": "tutorial_basics_doubleatari_title",
         "steps": [
           {
             "type": "Interactive",
             "name": "doubleAtari1",
             "size": "9",
-            "text": "In certain positions, black can put two different white groups in Atari at the same time.\nBlack will usually capture at least one in this situation!",
+            "text": "tutorial_basics_doubleatari_doubleAtari1_text",
             "init": "B[cc]B[cd]B[dc]B[eb]W[be]W[ce]W[dd]W[ec]W[fb]",
             "branches": [
               {
@@ -307,7 +307,7 @@
             "type": "Interactive",
             "name": "doubleAtari2",
             "size": "9",
-            "text": "Here's another one. Where can you make a double Atari?",
+            "text": "tutorial_basics_doubleatari_doubleAtari2_text",
             "init": "B[bd]B[be]B[cc]W[cd]W[ce]B[cf]B[db]W[dc]W[df]B[eb]W[ec]W[ee]B[fc]W[fd]",
             "branches": [
               {
@@ -335,7 +335,7 @@
         ]
       },
       {
-        "name": "Illegal moves (the suicide rule)",
+        "name": "tutorial_basics_illegalmoves_title",
         "steps": [
           {
             "type": "Lesson",
@@ -343,22 +343,22 @@
             "size": "9",
             "pages": [
               {
-                "text": "You can play almost anywhere on the board with a few exceptions. In the example below, black cannot play at A, as his new stone would already be surrounded.",
+                "text": "tutorial_basics_illegalmoves_suicide1_page_1_text",
                 "position": "W[fe]W[ed]W[de]W[ef]",
                 "marks": "A[ee]"
               },
               {
-                "text": "This is said to be a \"suicide\" move and is forbidden.",
+                "text": "tutorial_basics_illegalmoves_suicide1_page_2_text",
                 "position": "W[fe]W[ed]W[de]W[ef]B[ee]",
                 "marks": "x[ee]"
               },
               {
-                "text": "There is an exception though. If a move at would capture one or more white stones (like B below), the move is allowed.",
+                "text": "tutorial_basics_illegalmoves_suicide1_page_3_text",
                 "position": "W[fe]W[ed]W[de]W[ef]B[fd]B[ge]B[ff]B[eg]B[df]",
                 "marks": "B[ee]"
               },
               {
-                "text": "The resulting position looks like this:",
+                "text": "tutorial_basics_illegalmoves_suicide1_page_4_text",
                 "position": "W[de]W[ed]B[fd]B[ge]B[ff]B[eg]B[df]B[ee]",
                 "marks": "#[ee]"
               }
@@ -368,7 +368,7 @@
             "type": "Interactive",
             "name": "suicide2",
             "size": "9",
-            "text": "Your turn to capture some stones again! Hint: At first it may seem it's an illegal move...",
+            "text": "tutorial_basics_illegalmoves_suicide2_text",
             "init": "B[cc]B[cd]B[db]W[dc]W[dd]B[de]W[ea]W[eb]W[ed]B[ee]B[fb]W[fc]B[fd]W[gc]",
             "branches": [
               {
@@ -386,7 +386,7 @@
             "type": "Interactive",
             "name": "suicide3",
             "size": "9",
-            "text": "The 4 black stones are in Atari! Capture the white stones before they capture you!",
+            "text": "tutorial_basics_illegalmoves_suicide3_text",
             "init": "W[ab]B[ac]W[ad]W[cd]W[dd]B[bc]B[cc]B[dc]W[ec]W[ba]W[ca]W[da]W[bb]W[cb]W[db]B[ea]B[eb]",
             "branches": [
               {
@@ -409,7 +409,7 @@
             "type": "Interactive",
             "name": "suicide4",
             "size": "9",
-            "text": "Capture the 2 white stones touching the black ones. Here, you can't capture white with one move.",
+            "text": "tutorial_basics_illegalmoves_suicide4_text",
             "init": "W[dc]W[eb]W[bd]B[ce]W[de]W[ee]B[fd]B[fe]B[df]B[ef]",
             "branches": [
               {
@@ -438,7 +438,7 @@
             "type": "Interactive",
             "name": "suicide5",
             "size": "9",
-            "text": "The white stone at D5 is separating your stones. If you capture it, you can connect your stones and make a strong group. This is a very important pattern in GO!",
+            "text": "tutorial_basics_illegalmoves_suicide5_text",
             "init": "W[bc]B[cd]B[ce]W[cf]W[cg]W[de]B[df]B[ef]W[eg]W[fc]",
             "branches": [
               {
@@ -543,23 +543,23 @@
     ]
   },
   {
-    "name": "Intermediate",
+    "name": "tutorial_intermediate_title",
     "icon": "INTERMEDIATE",
     "tutorials": [
       {
-        "name": "Ladders",
+        "name": "tutorial_intermediate_ladders_title",
         "steps": [
           {
             "type": "Interactive",
             "name": "ladder1",
             "size": "9",
-            "text": "Capture the white stone! If you play the right moves, white cannot escape. Try to make successive Ataris until white has nowhere else to go.",
+            "text": "tutorial_intermediate_ladders_ladder1_text",
             "init": "B[be]B[bf]B[cg]W[cf]",
             "branches": [
               {
                 "move": "df",
                 "reply": "ce",
-                "message": "White tries to escape...",
+                "message": "tutorial_intermediate_ladders_ladder1_branches_branch1_message",
                 "branches": [
                   {
                     "move": "cd",
@@ -576,7 +576,7 @@
                               {
                                 "move": "fd",
                                 "reply": "ec",
-                                "message": "Can you see where this is going?",
+                                "message": "tutorial_intermediate_ladders_ladder1_branches_branch1_1_1_1_1_message",
                                 "branches": [
                                   {
                                     "move": "eb",
@@ -593,7 +593,7 @@
                                               {
                                                 "move": "hb",
                                                 "reply": "ef",
-                                                "message": "If white tries to resist...",
+                                                "message": "tutorial_intermediate_ladders_ladder1_branches_branch1_1_1_1_1_1_1_1_1_message",
                                                 "branches": [
                                                   {
                                                     "move": "ga",
@@ -625,7 +625,7 @@
                                               {
                                                 "move": "ea",
                                                 "reply": "ef",
-                                                "message": "If white tries to resist...",
+                                                "message": "tutorial_intermediate_ladders_ladder1_branches_branch1_1_1_1_1_1_1_2_1_message",
                                                 "branches": [
                                                   {
                                                     "move": "ga",
@@ -646,7 +646,7 @@
                                               {
                                                 "move": "ga",
                                                 "reply": "ef",
-                                                "message": "If white tries to resist...",
+                                                "message": "tutorial_intermediate_ladders_ladder1_branches_branch1_1_1_1_1_1_1_2_2_message",
                                                 "branches": [
                                                   {
                                                     "move": "ea",
@@ -781,7 +781,7 @@
             "type": "Interactive",
             "name": "ladder2",
             "size": "9",
-            "text": "Here's another ladder. Now it's your turn to escape. The situation is not hopeless this time though. Your stone at F2 is in the ladder's path. If you can get to it you're safe. Such a stone is called a \"ladder breaker\"",
+            "text": "tutorial_intermediate_ladders_ladder2_text",
             "init": "B[cd]W[bd]W[be]W[cc]W[dd]B[fh]",
             "branches": [
               {
@@ -856,7 +856,7 @@
             "size": "9",
             "pages": [
               {
-                "text": "Ladders are very important in GO. But you need to think ahead a few moves and not start a ladder fight unless you are sure you can win it! Here's what happens to White if they play out the losing ladder in the previous example...",
+                "text": "tutorial_intermediate_ladders_ladder3_page1_text",
                 "position": "B[cd]W[bd]W[be]W[cc]W[dd]B[fh]B[ce]W[cf]B[de]W[ee]B[df]W[dg]B[ef]W[ff]B[eg]W[eh]B[fg]W[fe]B[cg]"
               }
             ]
@@ -864,13 +864,13 @@
         ]
       },
       {
-        "name": "Two Eyes",
+        "name": "tutorial_intermediate_twoeyes_title",
         "steps": [
           {
             "type": "Interactive",
             "name": "two_eyes1",
             "size": "9",
-            "text": "You are completely surrounded! What's the only move that can save you?",
+            "text": "tutorial_intermediate_twoeyes_twoeyes1_text",
             "init": "W[bc]W[bd]W[be]W[cb]W[db]W[eb]W[fb]W[gb]W[hc]W[hd]W[he]W[cf]W[df]W[ef]W[ff]W[gf]B[cc]B[dc]B[ec]B[fc]B[gc]B[ce]B[de]B[ee]B[fe]B[ge]B[cd]B[gd]",
             "branches": [
               {
@@ -922,7 +922,7 @@
             "size": "9",
             "pages": [
               {
-                "text": "Correct! In this position both A and B are illegal moves for white since they would be suicidal moves without capturing any of your stones. Therefore, your group can never be captured!",
+                "text": "tutorial_intermediate_twoeyes_twoeyes2_page1_text",
                 "position": "W[bc]W[bd]W[be]W[cb]W[db]W[eb]W[fb]W[gb]W[hc]W[hd]W[he]W[cf]W[df]W[ef]W[ff]W[gf]B[cc]B[dc]B[ec]B[fc]B[gc]B[ce]B[de]B[ee]B[fe]B[ge]B[cd]B[gd]B[ed]",
                 "marks": "A[dd]B[fd]"
               }
@@ -932,7 +932,7 @@
             "type": "Interactive",
             "name": "two_eyes3",
             "size": "9",
-            "text": "How about here? How can you ensure your stones won't get captured?",
+            "text": "tutorial_intermediate_twoeyes_twoeyes3_text",
             "init": "W[bd]W[be]W[bf]W[cc]W[cd]B[ce]B[cf]W[cg]W[dc]B[dd]B[df]W[dg]W[eb]W[fb]B[ec]B[fc]B[fd]B[eg]W[eh]B[ff]B[fg]W[fh]W[gc]W[gd]B[ge]B[gf]W[gg]W[hg]W[he]W[hf]",
             "branches": [
               {
@@ -949,13 +949,13 @@
         ]
       },
       {
-        "name": "Capture races",
+        "name": "tutorial_intermediate_captureraces_title",
         "steps": [
           {
             "type": "Interactive",
             "name": "capture_race_1",
             "size": "9",
-            "text": "In this puzzle, both the black and the white groups in the top middle are surrounded. As neither has two eyes, both sides can try and capture the other. This situation is called a capture race (semeai) and is usually won by the side with more liberties. In this case, both groups have 3 liberties, so whoever is next to move will win.\n\nCapture the white stones!",
+            "text": "tutorial_intermediate_captureraces_capturerace1_text",
             "init": "B[ca]B[cb]B[cc]B[dd]B[ed]W[ea]W[eb]W[ec]W[fd]W[gd]B[fa]B[fb]B[fc]W[ha]W[hb]W[hc]",
             "branches": [
               {
@@ -1112,7 +1112,7 @@
             "type": "Interactive",
             "name": "capture_race_2",
             "size": "9",
-            "text": "Here's another semeai. Win the race and capture white!",
+            "text": "tutorial_intermediate_captureraces_capturerace2_text",
             "init": "W[ba]W[bb]W[bc]B[bd]B[be]B[bf]B[ca]B[cb]B[cc]W[cd]W[dd]W[ec]W[eb]",
             "branches": [
               {
@@ -1318,7 +1318,7 @@
             "type": "Interactive",
             "name": "capture_race_3",
             "size": "9",
-            "text": "Save the black stones in the corner!",
+            "text": "tutorial_intermediate_captureraces_capturerace3_text",
             "init": "B[ac]B[bc]B[cc]W[ad]W[bd]W[cd]W[cf]W[cg]B[dd]B[de]W[dc]W[ec]W[fc]W[db]W[ca]",
             "branches": [
               {
@@ -1413,13 +1413,13 @@
         ]
       },
       {
-        "name": "Snapback",
+        "name": "tutorial_intermediate_snapback_title",
         "steps": [
           {
             "type": "Interactive",
             "name": "snapback_1",
             "size": "9",
-            "text": "Now you will discover a technique called a \"snapback\". Capture the 4 white stones!\n\nHint: you must sacrifice a stone first!",
+            "text": "tutorial_intermediate_snapback_snapback1_text",
             "init": "B[cc]B[cd]B[ce]B[cf]B[db]W[dc]W[dd]W[de]W[df]B[dg]W[eb]B[ee]B[ef]W[gc]W[fc]B[fd]",
             "branches": [
               {
@@ -1453,7 +1453,7 @@
             "type": "Interactive",
             "name": "snapback_2",
             "size": "9",
-            "text": "As you've discovered, sometimes forcing white to capture one of your stone puts them into atari. Use the same technique here!",
+            "text": "tutorial_intermediate_snapback_snapback2_text",
             "init": "W[cd]W[dd]W[cg]W[dg]B[de]B[df]B[ec]B[ed]W[ee]W[ef]B[eg]W[fd]B[fg]W[ge]B[gf]",
             "branches": [
               {
@@ -1487,7 +1487,7 @@
             "type": "Interactive",
             "name": "snapback_3",
             "size": "9",
-            "text": "Here's another snapback situation at the edge.",
+            "text": "tutorial_intermediate_snapback_snapback3_text",
             "init": "B[bh]W[ch]B[ci]W[df]W[dg]B[eg]W[eh]W[ei]B[fh]B[fi]",
             "branches": [
               {
@@ -1520,7 +1520,7 @@
         ]
       },
       {
-        "name": "KO - the \"no repetition\" rule",
+        "name": "tutorial_intermediate_ko_title",
         "steps": [
           {
             "type": "Lesson",
@@ -1528,85 +1528,85 @@
             "size": "9",
             "pages": [
               {
-                "text": "Now we'll look at the last rule that you need to know in order to play GO: the KO rule. The rule states that a move is invalid if it would produce a repetition (e.g. a previous position).\n\nLet's look at an example. The white stone at E6 is in Atari. So, black can capture it.",
+                "text": "tutorial_intermediate_ko_ko_page_1_text",
                 "position": "B[dd]B[ec]B[ee]W[ed]W[fc]W[fe]W[gd]"
               },
               {
-                "text": "Now the new black stone at F6 is in atari. Without the KO rule, white would be able to capture it, but if they did, the the resulting position...",
+                "text": "tutorial_intermediate_ko_ko_page_2_text",
                 "position": "B[dd]B[ec]B[ee]W[fc]W[fe]W[gd]B[fd]",
                 "marks": "#[fd]"
               },
               {
-                "text": "... would be the same as the initial one! Here, without the KO rule, Black would capture again...",
+                "text": "tutorial_intermediate_ko_ko_page_3_text",
                 "position": "B[dd]B[ec]B[ee]W[ed]W[fc]W[fe]W[gd]",
                 "marks": "#[ed]"
               },
               {
-                "text": "... and the game would be stuck in a loop. In order to avoid this, the KO rule states that white cannot recapture at E6 here, but must play elsewhere first.",
+                "text": "tutorial_intermediate_ko_ko_page_4_text",
                 "position": "B[dd]B[ec]B[ee]W[fc]W[fe]W[gd]B[fd]",
                 "marks": "#[fd]"
               },
               {
-                "text": "Now if black wants to save the stone in atari she can play at E6...",
+                "text": "tutorial_intermediate_ko_ko_page_5_text",
                 "position": "B[dd]B[ec]B[ee]W[fc]W[fe]W[gd]B[fd]W[gg]",
                 "marks": "#[gg]"
               },
               {
-                "text": "Black has thus won the ko fight, but note that it's white's turn again and so white gained two moves for the price of that one stone.",
+                "text": "tutorial_intermediate_ko_ko_page_6_text",
                 "position": "B[dd]B[ec]B[ee]W[fc]W[fe]W[gd]B[fd]W[gg]B[ed]",
                 "marks": "#[ed]"
               },
               {
-                "text": "Those two free moves might sometimes be worth more points than winning the ko fight, so both players will constantly assess if it's worth continuing the ko fight or getting the extra moves.",
+                "text": "tutorial_intermediate_ko_ko_page_7_text",
                 "position": "B[dd]B[ec]B[ee]W[fc]W[fe]W[gd]B[fd]W[gg]B[ed]W[cg]",
                 "marks": "#[cg]"
               },
               {
-                "text": "How can this occur in a real game? Here's an example. Both black and white have a 5-stone group in danger at the top. The only way for black to save her group is to play at E8. A KO fight has started!",
+                "text": "tutorial_intermediate_ko_ko_page_8_text",
                 "position": "W[bb]W[bc]B[ca]B[cb]B[cc]W[cd]B[da]B[dc]W[dd]W[ea]W[db]W[ec]B[ed]W[fa]W[fb]W[fc]B[fd]B[gb]B[gc]W[be]W[ag]W[ae]W[bg]W[cg]W[dg]W[eg]B[cf]B[df]B[ef]B[ah]B[ai]B[bh]B[bi]B[ch]B[ci]B[dh]B[di]B[fh]B[fi]B[fg]"
               },
               {
-                "text": "White's 5 stones at the top are now in Atari, but he can't take back at D8 as that would repeat the last position! Thus he plays somewhere Black can't ignore, such as E2",
+                "text": "tutorial_intermediate_ko_ko_page_9_text",
                 "position": "W[bb]W[bc]B[ca]B[cb]B[cc]W[cd]B[da]B[dc]W[dd]W[ea]W[ec]B[ed]W[fa]W[fb]W[fc]B[fd]B[gb]B[gc]W[be]W[ag]W[ae]W[bg]W[cg]W[dg]W[eg]B[cf]B[df]B[ef]B[ah]B[ai]B[bh]B[bi]B[ch]B[ci]B[dh]B[di]B[fh]B[fi]B[fg]B[eb]",
                 "marks": "#[eb]"
               },
               {
-                "text": "Now Black's 8 stones at the bottom left are in danger so Black does the math: would she rather lose 8 stones at the bottom or 5 at the top? Reluctantly, Black chooses to continue the KO fight and save the stones at the bottom with E1",
+                "text": "tutorial_intermediate_ko_ko_page_10_text",
                 "position": "W[bb]W[bc]B[ca]B[cb]B[cc]W[cd]B[da]B[dc]W[dd]W[ea]W[ec]B[ed]W[fa]W[fb]W[fc]B[fd]B[gb]B[gc]W[be]W[ag]W[ae]W[bg]W[cg]W[dg]W[eg]B[cf]B[df]B[ef]B[ah]B[ai]B[bh]B[bi]B[ch]B[ci]B[dh]B[di]B[fh]B[fi]B[fg]B[eb]W[eh]",
                 "marks": "#[eh]"
               },
               {
-                "text": "White now takes back the KO",
+                "text": "tutorial_intermediate_ko_ko_page_11_text",
                 "position": "W[bb]W[bc]B[ca]B[cb]B[cc]W[cd]B[da]B[dc]W[dd]W[ea]W[ec]B[ed]W[fa]W[fb]W[fc]B[fd]B[gb]B[gc]W[be]W[ag]W[ae]W[bg]W[cg]W[dg]W[eg]B[cf]B[df]B[ef]B[ah]B[ai]B[bh]B[bi]B[ch]B[ci]B[dh]B[di]B[fh]B[fi]B[fg]B[eb]W[eh]B[ei]",
                 "marks": "#[ei]"
               },
               {
-                "text": "It's black's turn now and she can't take back because of the KO rule. She has one more chance though: a move at B4 threatens the white group at the bottom!",
+                "text": "tutorial_intermediate_ko_ko_page_12_text",
                 "position": "W[bb]W[bc]B[ca]B[cb]B[cc]W[cd]B[da]B[dc]W[dd]W[ea]W[ec]B[ed]W[fa]W[fb]W[fc]B[fd]B[gb]B[gc]W[be]W[ag]W[ae]W[bg]W[cg]W[dg]W[eg]B[cf]B[df]B[ef]B[ah]B[ai]B[bh]B[bi]B[ch]B[ci]B[dh]B[di]B[fh]B[fi]B[fg]W[eh]B[ei]W[db]",
                 "marks": "#[db]"
               },
               {
-                "text": "White's turn to choose now. Should he capture the 5 stones at the top with a move at B9 or save the 6 stones at the bottom? He chooses to play at A4...",
+                "text": "tutorial_intermediate_ko_ko_page_13_text",
                 "position": "W[bb]W[bc]B[ca]B[cb]B[cc]W[cd]B[da]B[dc]W[dd]W[ea]W[ec]B[ed]W[fa]W[fb]W[fc]B[fd]B[gb]B[gc]W[be]W[ag]W[ae]W[bg]W[cg]W[dg]W[eg]B[cf]B[df]B[ef]B[ah]B[ai]B[bh]B[bi]B[ch]B[ci]B[dh]B[di]B[fh]B[fi]B[fg]W[eh]B[ei]W[db]B[bf]",
                 "marks": "#[bf]"
               },
               {
-                "text": "Black doesn't need much encouragement to play at E8 now...",
+                "text": "tutorial_intermediate_ko_ko_page_14_text",
                 "position": "W[bb]W[bc]B[ca]B[cb]B[cc]W[cd]B[da]B[dc]W[dd]W[ea]W[ec]B[ed]W[fa]W[fb]W[fc]B[fd]B[gb]B[gc]W[be]W[ag]W[ae]W[bg]W[cg]W[dg]W[eg]B[cf]B[df]B[ef]B[ah]B[ai]B[bh]B[bi]B[ch]B[ci]B[dh]B[di]B[fh]B[fi]B[fg]W[eh]B[ei]W[db]B[bf]W[af]",
                 "marks": "#[af]"
               },
               {
-                "text": "White reluctantly admits that he has no other good threats. He plays elsewhere, such as F4 and admits he lost the KO fight.",
+                "text": "tutorial_intermediate_ko_ko_page_15_text",
                 "position": "W[bb]W[bc]B[ca]B[cb]B[cc]W[cd]B[da]B[dc]W[dd]W[ea]W[ec]B[ed]W[fa]W[fb]W[fc]B[fd]B[gb]B[gc]W[be]W[ag]W[ae]W[bg]W[cg]W[dg]W[eg]B[cf]B[df]B[ef]B[ah]B[ai]B[bh]B[bi]B[ch]B[ci]B[dh]B[di]B[fh]B[fi]B[fg]W[eh]B[ei]B[bf]W[af]B[eb]",
                 "marks": "#[eb]"
               },
               {
-                "text": "Black will happily claim her prize at the top with G9 now",
+                "text": "tutorial_intermediate_ko_ko_page_16_text",
                 "position": "W[bb]W[bc]B[ca]B[cb]B[cc]W[cd]B[da]B[dc]W[dd]W[ea]W[ec]B[ed]W[fa]W[fb]W[fc]B[fd]B[gb]B[gc]W[be]W[ag]W[ae]W[bg]W[cg]W[dg]W[eg]B[cf]B[df]B[ef]B[ah]B[ai]B[bh]B[bi]B[ch]B[ci]B[dh]B[di]B[fh]B[fi]B[fg]W[eh]B[ei]B[bf]W[af]B[eb]W[ff]",
                 "marks": "#[ff]"
               },
               {
-                "text": "Don't worry if this seems too complicated right now. As a beginner, just remember that you can't recapture a stone back if it repeats the previous position.",
+                "text": "tutorial_intermediate_ko_ko_page_17_text",
                 "position": "W[bb]W[bc]B[ca]B[cb]B[cc]W[cd]B[da]B[dc]W[dd]B[ed]B[fd]B[gb]B[gc]W[be]W[ag]W[ae]W[bg]W[cg]W[dg]W[eg]B[cf]B[df]B[ef]B[ah]B[ai]B[bh]B[bi]B[ch]B[ci]B[dh]B[di]B[fh]B[fi]B[fg]W[eh]B[ei]B[bf]W[af]B[eb]W[ff]B[ga]",
                 "marks": "#[ga]"
               }
@@ -1615,13 +1615,13 @@
         ]
       },
       {
-        "name": "Puzzles",
+        "name": "tutorial_intermediate_puzzles_title",
         "steps": [
           {
             "type": "Interactive",
             "name": "puzzles_1",
             "size": "9",
-            "text": "Capture the 3 white stones! This is sometimes called the \"crane's nest\"",
+            "text": "tutorial_intermediate_puzzles_puzzles1_text",
             "init": "B[ce]B[cf]B[dg]B[eg]B[fg]B[gf]B[ge]W[ed]W[df]W[ef]W[ff]",
             "branches": [
               {
@@ -1781,7 +1781,7 @@
             "type": "Interactive",
             "name": "puzzles_2",
             "size": "9",
-            "text": "It's a capture race, can you win it?",
+            "text": "tutorial_intermediate_puzzles_puzzles2_text",
             "init": "W[bd]W[be]W[bf]W[bg]W[cb]W[cc]B[cd]B[ce]B[cf]B[cg]W[ch]W[db]W[eb]W[fb]W[gb]W[hb]W[ib]W[ic]W[id]W[ie]W[ig]W[dh]W[eh]W[fh]W[gh]W[hh]B[dc]B[ec]B[fc]B[gc]B[hc]B[dg]B[eg]B[fg]B[gg]B[gf]B[hd]B[he]B[hf]W[dd]W[de]W[df]W[ed]W[fd]W[gd]W[ge]W[ef]W[ff]",
             "branches": [
               {
@@ -1891,7 +1891,7 @@
             "type": "Interactive",
             "name": "corner_1",
             "size": "9",
-            "text": "In GO, fights in the corners are very common. Here is a capture race in the corner. Can you come up on top?",
+            "text": "tutorial_intermediate_puzzles_corner1_text",
             "init": "W[bf]W[cf]B[df]B[bg]B[cg]W[dg]B[eg]W[ch]W[dh]B[eh]",
             "branches": [
               {
@@ -2186,7 +2186,7 @@
             "type": "Interactive",
             "name": "corner_2",
             "size": "9",
-            "text": "Capture the white stone which is cutting black.\nBe careful from which side you make the Atari!",
+            "text": "tutorial_intermediate_puzzles_corner2_text",
             "init": "B[fh]B[gh]W[gf]W[gg]W[he]B[hf]B[hg]W[hh]",
             "branches": [
               {
@@ -2267,7 +2267,7 @@
                         "move": "zz",
                         "reply": "if",
                         "failed": true,
-                        "message": "4 black stones are dead"
+                        "message": "tutorial_intermediate_puzzles_corner2_branches_branch1_4_4_message"
                       }
                     ]
                   },
@@ -2323,7 +2323,7 @@
                     "move": "if",
                     "reply": "ie",
                     "failed": true,
-                    "message": "3 black stones are dead"
+                    "message": "tutorial_intermediate_puzzles_corner2_branches_branch2_3_message"
                   },
                   {
                     "move": "ie",
@@ -2345,7 +2345,7 @@
                     "move": "zz",
                     "reply": "if",
                     "failed": true,
-                    "message": "2 black stones are dead"
+                    "message": "tutorial_intermediate_puzzles_corner2_branches_branch2_5_message"
                   }
                 ]
               },
@@ -2369,7 +2369,7 @@
                 "move": "ig",
                 "reply": "ih",
                 "failed": true,
-                "message": "Black can't escape"
+                "message": "tutorial_intermediate_puzzles_corner2_branches_branch4_message"
               },
               {
                 "move": "if",
@@ -2391,14 +2391,14 @@
                 "move": "zz",
                 "reply": "ig",
                 "failed": true,
-                "message": "Black can't escape"
+                "message": "tutorial_intermediate_puzzles_corner2_branches_branch6_message"
               }
             ]
           }
         ]
       },
       {
-        "name": "False eyes",
+        "name": "tutorial_intermediate_falseeyes_title",
         "steps": [
           {
             "type": "Lesson",
@@ -2406,7 +2406,7 @@
             "size": "9",
             "pages": [
               {
-                "text": "If you remember the earlier tutorial, a group with two eyes can never be captured. However, sometimes part of the stones that are surrounding an eye are not connected to the main group and can be captured separately. For example, in the position below, D5 appears to be an eye, however the stone at C5 is in Atari and can be captured, leaving the middle group with a single eye.\n\nWe call D5 a \"false eye\".",
+                "text": "tutorial_intermediate_falseeyes_falseeyes1_page1_text",
                 "position": "B[dc]B[ec]B[fc]B[gc]B[bd]B[be]B[cd]W[ce]B[cf]W[dd]W[ed]W[fd]W[ee]W[df]W[ef]W[ff]W[gf]W[ge]B[dg]B[eg]B[fg]B[gg]B[gd]B[he]B[hf]"
               }
             ]
@@ -2415,7 +2415,7 @@
             "type": "Interactive",
             "name": "false_eyes_2",
             "size": "9",
-            "text": "White tried saving his C5 stone by playing at D5. What's the winning move here?",
+            "text": "tutorial_intermediate_falseeyes_falseeyes2_text",
             "init": "B[dc]B[ec]B[fc]B[gc]B[bd]B[be]B[cd]W[ce]B[cf]W[dd]W[ed]W[fd]W[ee]W[df]W[ef]W[ff]W[gf]W[ge]B[dg]B[eg]B[fg]B[gg]B[gd]B[he]B[hf]W[de]",
             "branches": [
               {
@@ -2432,7 +2432,7 @@
             "type": "Interactive",
             "name": "false_eyes_3",
             "size": "9",
-            "text": "If white instead tries fighting back another way, it doesn't matter, you can still capture the middle group!",
+            "text": "tutorial_intermediate_falseeyes_falseeyes3_text",
             "init": "B[dc]B[ec]B[fc]B[gc]B[bd]B[be]B[cd]W[ce]B[cf]W[dd]W[ed]W[fd]W[ee]W[df]W[ef]W[ff]W[gf]W[ge]B[dg]B[eg]B[fg]B[gg]B[gd]B[he]B[hf]W[cg]",
             "branches": [
               {
@@ -2494,7 +2494,7 @@
             "type": "Interactive",
             "name": "false_eyes_4",
             "size": "9",
-            "text": "You're on the defensive this time. Survive by making two true eyes!",
+            "text": "tutorial_intermediate_falseeyes_falseeyes4_text",
             "init": "W[cd]W[ce]W[cf]W[dc]B[dd]B[de]B[df]W[dg]W[dh]W[ec]B[ed]B[ef]B[eg]W[eh]W[fc]B[fe]B[fg]W[fh]W[gd]W[ge]B[gf]W[hf]W[hg]",
             "branches": [
               {
@@ -2505,19 +2505,19 @@
                 "move": "ee",
                 "reply": "gg",
                 "failed": true,
-                "message": "You filled your own eye"
+                "message": "tutorial_intermediate_falseeyes_falseeyes4_branches_branch2_message"
               },
               {
                 "move": "ff",
                 "reply": "gg",
                 "failed": true,
-                "message": "You filled your own eye"
+                "message": "tutorial_intermediate_falseeyes_falseeyes4_branches_branch3_message"
               },
               {
                 "move": "zz",
                 "reply": "gg",
                 "failed": true,
-                "message": "F4 is now a false eye"
+                "message": "tutorial_intermediate_falseeyes_falseeyes4_branches_branch4_message"
               }
             ]
           },
@@ -2525,7 +2525,7 @@
             "type": "Interactive",
             "name": "false_eyes_5",
             "size": "9",
-            "text": "Both eyes need fixing this time!",
+            "text": "tutorial_intermediate_falseeyes_falseeyes5_text",
             "init": "W[dc]W[ec]W[fc]W[gc]W[bc]W[be]W[cc]B[be]B[cd]B[cf]W[ce]W[cg]W[bd]W[ae]B[dd]B[ed]B[fd]B[ee]B[df]B[ef]B[ff]B[ge]W[dg]W[eg]W[fg]W[hd]W[he]W[hf]W[bg]",
             "branches": [
               {
@@ -2540,7 +2540,7 @@
                     "move": "zz",
                     "reply": "gd",
                     "failed": true,
-                    "message": "F5 is now a false eye."
+                    "message": "tutorial_intermediate_falseeyes_falseeyes5_branches_branch1_2_message"
                   }
                 ]
               },
@@ -2548,7 +2548,7 @@
                 "move": "de",
                 "reply": "bf",
                 "failed": true,
-                "message": "C5 is a false eye."
+                "message": "tutorial_intermediate_falseeyes_falseeyes5_branches_branch2_message"
               },
               {
                 "move": "zz",
@@ -2561,7 +2561,7 @@
             "type": "Interactive",
             "name": "false_eyes_6",
             "size": "9",
-            "text": "Here's a common pattern for a false eye on the edge. Fix it!",
+            "text": "tutorial_intermediate_falseeyes_falseeyes6_text",
             "init": "B[ab]B[bb]B[ca]B[cb]B[db]B[dc]B[ea]B[ec]W[bc]W[be]W[cd]W[dd]W[ed]W[fb]W[fc]W[gd]W[hb]",
             "branches": [
               {
@@ -2572,26 +2572,26 @@
                 "move": "da",
                 "reply": "eb",
                 "failed": true,
-                "message": "You filled your own eye"
+                "message": "tutorial_intermediate_falseeyes_falseeyes6_branches_branch2_message"
               },
               {
                 "move": "zz",
                 "reply": "eb",
                 "failed": true,
-                "message": "D9 is now a false eye"
+                "message": "tutorial_intermediate_falseeyes_falseeyes6_branches_branch3_message"
               }
             ]
           }
         ]
       },
       {
-        "name": "More Puzzles",
+        "name": "tutorial_intermediate_morepuzzles_title",
         "steps": [
           {
             "type": "Interactive",
             "name": "puzzles_3",
             "size": "9",
-            "text": "Try not to get dizzy.",
+            "text": "tutorial_intermediate_morepuzzles_puzzles3_text",
             "init": "W[bb]W[bc]B[bd]W[bf]B[bg]B[cb]B[cc]W[cd]W[cf]B[cg]B[dc]W[dd]W[de]B[df]W[eb]W[ec]B[ed]W[ee]B[ef]W[eg]B[eh]B[fb]B[fd]B[fe]W[ff]W[fg]B[fh]W[gb]B[gc]W[gd]W[ge]W[gg]B[gh]W[hc]B[hd]W[hf]B[hg]",
             "branches": [
               {
@@ -2614,7 +2614,7 @@
             "type": "Interactive",
             "name": "puzzles_4",
             "size": "9",
-            "text": "What should you do first?",
+            "text": "tutorial_intermediate_morepuzzles_puzzles4_text",
             "init": "B[bf]W[bg]W[bh]W[cf]W[df]B[cg]B[dg]B[dh]W[ch]W[di]B[ee]B[ef]W[eg]W[gf]W[cd]",
             "branches": [
               {
@@ -2633,7 +2633,7 @@
                         "move": "af",
                         "reply": "de",
                         "failed": true,
-                        "message": "Black groups are separated"
+                        "message": "tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_1_2_message"
                       },
                       {
                         "move": "zz",
@@ -2646,19 +2646,19 @@
                     "move": "de",
                     "reply": "ce",
                     "failed": true,
-                    "message": "Black groups are separated"
+                    "message": "tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_2_message"
                   },
                   {
                     "move": "be",
                     "reply": "ce",
                     "failed": true,
-                    "message": "Black groups are separated"
+                    "message": "tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_3_message"
                   },
                   {
                     "move": "af",
                     "reply": "be",
                     "failed": true,
-                    "message": "Black groups are separated"
+                    "message": "tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_4_message"
                   },
                   {
                     "move": "ci",
@@ -2668,31 +2668,31 @@
                         "move": "ei",
                         "reply": "fh",
                         "failed": true,
-                        "message": "Black is isolated"
+                        "message": "tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_5_1_message"
                       },
                       {
                         "move": "bi",
                         "reply": "ai",
                         "failed": true,
-                        "message": "Black  is isolated"
+                        "message": "tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_5_2_message"
                       },
                       {
                         "move": "fh",
                         "reply": "gh",
                         "failed": true,
-                        "message": "Black  is isolated"
+                        "message": "tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_5_3_message"
                       },
                       {
                         "move": "gh",
                         "reply": "fh",
                         "failed": true,
-                        "message": "Black is isolated"
+                        "message": "tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_5_4_message"
                       },
                       {
                         "move": "zz",
                         "reply": "bi",
                         "failed": true,
-                        "message": "Black is isolated"
+                        "message": "tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_5_5_message"
                       }
                     ]
                   },
@@ -2700,7 +2700,7 @@
                     "move": "zz",
                     "reply": "be",
                     "failed": true,
-                    "message": "Black is isolated"
+                    "message": "tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_6_message"
                   }
                 ]
               },
@@ -2715,7 +2715,7 @@
             "type": "Interactive",
             "name": "puzzles_5",
             "size": "9",
-            "text": "Beat the symmetry",
+            "text": "tutorial_intermediate_morepuzzles_puzzles5_text",
             "init": "B[ch]B[dg]B[eg]B[fh]B[gh]W[dh]W[eh]W[fg]W[gg]W[hh]",
             "branches": [
               {
@@ -2801,7 +2801,7 @@
                     "move": "zz",
                     "reply": "gi",
                     "failed": true,
-                    "message": "Three black stones can't escape."
+                    "message": "tutorial_intermediate_morepuzzles_puzzles5_branches_branch3_4_message"
                   }
                 ]
               },
@@ -2825,13 +2825,13 @@
                 "move": "hi",
                 "reply": "fi",
                 "failed": true,
-                "message": "Two black stones can't escape"
+                "message": "tutorial_intermediate_morepuzzles_puzzles5_branches_branch5_message"
               },
               {
                 "move": "zz",
                 "reply": "gi",
                 "failed": true,
-                "message": "Two black stones can't escape"
+                "message": "tutorial_intermediate_morepuzzles_puzzles5_branches_branch6_message"
               }
             ]
           }
@@ -2840,11 +2840,11 @@
     ]
   },
   {
-    "name": "Advanced",
+    "name": "tutorial_advanced_title",
     "icon": "ADVANCED",
     "tutorials": [
       {
-        "name": "The first moves",
+        "name": "tutorial_advanced_thefirstmoves_name",
         "steps": [
           {
             "type": "Lesson",
@@ -2852,31 +2852,31 @@
             "size": "19",
             "pages": [
               {
-                "text": "Until now we've focused on capturing pieces. However in the beginning of the game there are no stones on the board. We'll take a look at where to play your first moves in order to increase your chances of winning.\n\nFirst, let's divide the board into 3 areas. These are the corners:",
+                "text": "tutorial_advanced_thefirstmoves_firstmoves1_page1_text",
                 "position": "",
                 "areas": "o[aaee]o[ooss]o[oesa]o[aoes]"
               },
               {
-                "text": "... these are the sides...",
+                "text": "tutorial_advanced_thefirstmoves_firstmoves1_page2_text",
                 "position": "",
                 "areas": "o[afen]o[fane]o[ofsn]o[fons]"
               },
               {
-                "text": "... and this is the middle. Of course these are just names we use for orientation and there are no special rules for any of these.",
+                "text": "tutorial_advanced_thefirstmoves_firstmoves1_page3_text",
                 "position": "",
                 "areas": "o[ffnn]"
               },
               {
-                "text": "The object of the game is to encircle more territory than your opponent. Since you and your opponent take turns placing stones, you will both get the same amount of stones. Therefore, the winner is the player who uses their stones more efficiently.\n\nWhere is it more efficient to encircle territory? In the corners, on the sides, or in the middle?",
+                "text": "tutorial_advanced_thefirstmoves_firstmoves1_page4_text",
                 "position": "B[ad]B[bd]B[cd]B[da]B[db]B[dc]B[pd]B[pe]B[pf]B[qc]B[rc]B[sc]B[qg]B[rg]B[sg]W[dg]W[dh]W[di]W[ef]W[ff]W[gf]W[ej]W[fj]W[gj]W[hg]W[hh]W[hi]"
               },
               {
-                "text": "Each of the groups below encircles exactly 9 spaces so each gains 9 points. However, the one in the corner requires just 6 stones, the one on the side 9 while the one in the middle requires 12!",
+                "text": "tutorial_advanced_thefirstmoves_firstmoves1_page5_text",
                 "position": "B[ad]B[bd]B[cd]B[da]B[db]B[dc]B[pd]B[pe]B[pf]B[qc]B[rc]B[sc]B[qg]B[rg]B[sg]W[dg]W[dh]W[di]W[ef]W[ff]W[gf]W[ej]W[fj]W[gj]W[hg]W[hh]W[hi]",
                 "areas": "o[aacc]o[qdsf]#[eggi]"
               },
               {
-                "text": "Therefore wise players will play in the corners first and only once those are occupied will they move to the sides, leaving the middle for last.",
+                "text": "tutorial_advanced_thefirstmoves_firstmoves1_page6_text",
                 "position": "B[ad]B[bd]B[cd]B[da]B[db]B[dc]B[pd]B[pe]B[pf]B[qc]B[rc]B[sc]B[qg]B[rg]B[sg]W[dg]W[dh]W[di]W[ef]W[ff]W[gf]W[ej]W[fj]W[gj]W[hg]W[hh]W[hi]",
                 "areas": "o[aacc]o[qdsf]#[eggi]"
               }
@@ -2886,19 +2886,19 @@
             "type": "Game",
             "name": "first_moves_2",
             "size": "19",
-            "text": "Here are the first 20 moves of a real game played between two professional players.",
+            "text": "tutorial_advanced_thefirstmoves_firstmoves2_text",
             "sgf": "B[pd]W[dd]B[pp]W[dp]B[cj]W[qj]B[fq]W[cn]B[cg]W[gc]B[dr]W[cq]B[iq]W[qn]B[np]W[qg]B[nc]W[ce]B[ic]"
           }
         ]
       },
       {
-        "name": "The middle-game",
+        "name": "tutorial_advanced_themiddlegame_name",
         "steps": [
           {
             "type": "Interactive",
             "name": "middlegame_1",
             "size": "9",
-            "text": "Black is blocked in the bottom left corner. The group will be surrounded if you do nothing.",
+            "text": "tutorial_advanced_themiddlegame_middlegame1_text",
             "init": "W[be]B[bf]B[bg]B[bh]W[cd]W[cf]B[cg]W[ch]W[df]W[dg]B[gd]B[gg]",
             "branches": [
               {
@@ -2942,7 +2942,7 @@
             "type": "Interactive",
             "name": "middlegame_2",
             "size": "9",
-            "text": "Black is blocking white on the bottom right area. White doesn't yet have 2 eyes.\nThen white played G2.\n\nLook what happens if black answers at F1 ( or G1) before you find the right answer.",
+            "text": "tutorial_advanced_themiddlegame_middlegame2_text",
             "init": "W[bc]B[bd]B[be]W[cd]B[cf]B[cg]B[ch]W[dg]W[dh]B[di]W[ec]B[ee]W[eg]W[fg]B[eh]B[fh]W[gh]W[gc]B[ge]W[hc]B[he]W[hf]",
             "branches": [
               {
@@ -3028,7 +3028,7 @@
         ]
       },
       {
-        "name": "End-game: Scoring",
+        "name": "tutorial_advanced_endgamescoring_name",
         "steps": [
           {
             "type": "Lesson",
@@ -3036,30 +3036,30 @@
             "size": "5",
             "pages": [
               {
-                "text": "Here you will learn how to tell when a game is finished and how to count territories using 5x5 boards. Both players made 5 moves, then both passed and thus the game is considered done. All that is left is to count the territory.\n\nTry to count how many intersections did black surround. What about white?\n\nHint: remember to count all intersections, including sides and corners, but not spots that are occupied by stones.",
+                "text": "tutorial_advanced_endgamescoring_endgame1_page1_text",
                 "position": "B[ba]B[bb]B[bc]B[bd]B[be]W[ca]W[cb]W[cc]W[cd]W[ce]"
               },
               {
-                "text": "Black has 5 points on the left and white has 10 points on the right.\n\nThus white wins by 5 points.",
+                "text": "tutorial_advanced_endgamescoring_endgame1_page2_text",
                 "position": "B[ba]B[bb]B[bc]B[bd]B[be]W[ca]W[cb]W[cc]W[cd]W[ce]",
                 "marks": "1[aa]2[ab]3[ac]4[ad]5[ae]1[da]2[db]3[dc]4[dd]5[de]6[ea]7[eb]8[ec]9[ed]0[ee]"
               },
               {
-                "text": "But why did black not try to continue playing then?\n\nWell, there is no move that black can do that increases their score. For example, if black invades the right side, white can easily defend and the new stone is dead.\n\nWhite reduced his territory by 1 but got 1 point back because the black stone is dead and counted as a prisoner.\n\nThe score here is still 10-5",
+                "text": "tutorial_advanced_endgamescoring_endgame1_page3_text",
                 "position": "B[ba]B[bb]B[bc]B[bd]B[be]W[ca]W[cb]W[cc]W[cd]W[ce]B[dc]W[dd]",
                 "marks": "#[dd]X[dc]"
               },
               {
-                "text": "What if black plays on the left side then?\n\nAll they would achieve is that their territory is now smaller, thus they lost a point.\n\nHence, black has no good moves and should pass. White has more points so he's happy to pass as well.\n\nThus the game is over and white wins.",
+                "text": "tutorial_advanced_endgamescoring_endgame1_page4_text",
                 "position": "B[ba]B[bb]B[bc]B[bd]B[be]W[ca]W[cb]W[cc]W[cd]W[ce]B[ac]",
                 "marks": "1[aa]2[ab]3[ad]4[ae]1[da]2[db]3[dc]4[dd]5[de]6[ea]7[eb]8[ec]9[ed]0[ee]"
               },
               {
-                "text": "Here is another finished game situation. Black has 5 points while white has 6.\n\nThe two intersections in the middle are neutral territory ('Dame') and do not count for either player's score.\n\nEither player could play there but they would not gain or lose any points.",
+                "text": "tutorial_advanced_endgamescoring_endgame1_page5_text",
                 "position": "B[ba]B[bb]B[bc]B[bd]B[be]B[ca]W[da]W[db]W[dc]W[dd]W[cd]W[ce]"
               },
               {
-                "text": "While the territory is by far the biggest part of the score, remember, that there are other bonus points that need to be added.\n\nAny captured stones count 1 point each, as do 'dead' stones still on the board (that have no chance of making 2 eyes).\n\nAlso, since black plays first he has an advantage, and to compensate for this white gets a small bonus of points (called 'komi').\n\nThe value of komi depends on the size of the board, but it's usually 5.5 or 6.5 points. The 0.5 ensures there are no drawn games.\n\nLuckily, the app does all of these calculations for you :)",
+                "text": "tutorial_advanced_endgamescoring_endgame1_page6_text",
                 "position": ""
               }
             ]
@@ -3067,14 +3067,14 @@
         ]
       },
       {
-        "name": "Cutting Stones",
+        "name": "tutorial_advanced_cuttingstones_name",
         "steps": [
           {
             "type": "Interactive",
             "name": "cutting1",
             "size": "9",
             "init": "B[cf]B[cg]B[dc]B[dd]B[de]W[df]W[dg]W[ec]W[ed]W[ee]",
-            "text": "It looks as if white has the larger territory.\nHowever, her wall has a weak point. Just \"cut\" white's wall.\n\nIf you succeed white will have a tough time ensuring both groups survive.",
+            "text": "tutorial_advanced_cuttingstones_cutting1_text",
             "branches": [
               {
                 "move": "ef",
@@ -3095,7 +3095,7 @@
                 "move": "zz",
                 "reply": "ef",
                 "failed": true,
-                "message": "The white stones are connected."
+                "message": "tutorial_advanced_cuttingstones_cutting1_branches2_message"
               }
             ]
           },
@@ -3104,7 +3104,7 @@
             "name": "cutting2",
             "size": "9",
             "init": "B[ad]B[bd]B[ce]B[de]B[ee]B[fe]B[fd]B[gd]B[hd]B[id]W[ae]W[be]W[cf]W[df]W[ef]W[ff]W[gf]W[ge]W[he]W[ie]",
-            "text": "Black has 30 points while white has 31 points. Thus it looks like white has a 1 point win.\nHowever, the territory on the lower side is not all white's.\n\nJust cut white's wall.",
+            "text": "tutorial_advanced_cuttingstones_cutting2_text",
             "branches": [
               {
                 "move": "bf",
