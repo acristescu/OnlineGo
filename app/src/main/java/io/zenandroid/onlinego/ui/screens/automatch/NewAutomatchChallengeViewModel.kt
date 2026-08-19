@@ -88,10 +88,10 @@ class NewAutomatchChallengeViewModel(
 
   private fun AutomatchState.withDuration(): AutomatchState {
     if (speeds.isEmpty() || !isAnySizeSelected) {
-      return copy(duration = "")
+      return copy(duration = AutomatchDuration.Unknown)
     }
     if (speeds.contains(Speed.LONG)) {
-      return copy(duration = "several days")
+      return copy(duration = AutomatchDuration.SeveralDays)
     }
     val durationsMin = when {
       small -> durationsSmall
@@ -119,9 +119,9 @@ class NewAutomatchChallengeViewModel(
     }
     return copy(
       duration = if (minDuration == maxDuration) {
-        "$minDuration minutes"
+        AutomatchDuration.Minutes(minDuration)
       } else {
-        "$minDuration to $maxDuration minutes"
+        AutomatchDuration.MinutesRange(minDuration, maxDuration)
       }
     )
   }
@@ -133,8 +133,16 @@ data class AutomatchState(
   val medium: Boolean = false,
   val large: Boolean = false,
   val speeds: List<Speed> = listOf(Speed.LIVE, Speed.RAPID, Speed.BLITZ),
-  val duration: String = ""
+  val duration: AutomatchDuration = AutomatchDuration.Unknown
 ) {
   val isAnySizeSelected: Boolean
     get() = small || medium || large
+}
+
+@Immutable
+sealed interface AutomatchDuration {
+  data object Unknown : AutomatchDuration
+  data object SeveralDays : AutomatchDuration
+  data class Minutes(val minutes: Int) : AutomatchDuration
+  data class MinutesRange(val minMinutes: Int, val maxMinutes: Int) : AutomatchDuration
 }

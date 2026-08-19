@@ -25,11 +25,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.ogs.Size
 import io.zenandroid.onlinego.data.model.ogs.Speed
 import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
@@ -92,44 +95,58 @@ private fun NewAutomatchChallengeBottomSheetContent(
       modifier.padding(16.dp)
     ) {
       Text(
-        text = "Auto-match",
+        text = stringResource(R.string.automatch_title),
         fontWeight = FontWeight.Bold,
         modifier = Modifier.padding(vertical = 4.dp)
       )
-      Text(text = "Try your hand at a game against a human opponent of similar rating to you.")
+      Text(text = stringResource(R.string.automatch_description))
       Text(
-        text = "Game size", fontWeight = FontWeight.Bold, modifier = Modifier.padding(top = 16.dp)
+        text = stringResource(R.string.automatch_game_size),
+        fontWeight = FontWeight.Bold,
+        modifier = Modifier.padding(top = 16.dp)
       )
       Row {
-        SizeCheckbox(checked = state.small, text = "9×9", onClick = onSmallCheckChanged)
+        SizeCheckbox(
+          checked = state.small,
+          text = stringResource(R.string.automatch_size_9),
+          onClick = onSmallCheckChanged
+        )
         Spacer(modifier = Modifier.weight(1f))
-        SizeCheckbox(checked = state.medium, text = "13×13", onClick = onMediumCheckChanged)
+        SizeCheckbox(
+          checked = state.medium,
+          text = stringResource(R.string.automatch_size_13),
+          onClick = onMediumCheckChanged
+        )
         Spacer(modifier = Modifier.weight(1f))
-        SizeCheckbox(checked = state.large, text = "19×19", onClick = onLargeCheckChanged)
+        SizeCheckbox(
+          checked = state.large,
+          text = stringResource(R.string.automatch_size_19),
+          onClick = onLargeCheckChanged
+        )
       }
       Text(
-        text = "Time Controls",
+        text = stringResource(R.string.automatch_time_controls),
         fontWeight = FontWeight.Bold,
         modifier = Modifier.padding(top = 16.dp)
       )
       Row {
         SizeCheckbox(
           checked = state.speeds.contains(Speed.BLITZ),
-          text = "Blitz",
+          text = stringResource(R.string.automatch_speed_blitz),
           onClick = { onSpeedChanged(Speed.BLITZ, it) })
         Spacer(modifier = Modifier.weight(1f))
         SizeCheckbox(
           checked = state.speeds.contains(Speed.RAPID),
-          text = "Rapid",
+          text = stringResource(R.string.automatch_speed_rapid),
           onClick = { onSpeedChanged(Speed.RAPID, it) })
         Spacer(modifier = Modifier.weight(1f))
         SizeCheckbox(
           checked = state.speeds.contains(Speed.LIVE),
-          text = "Live",
+          text = stringResource(R.string.automatch_speed_live),
           onClick = { onSpeedChanged(Speed.LIVE, it) })
       }
       Text(
-        text = "or",
+        text = stringResource(R.string.automatch_or),
         fontStyle = FontStyle.Italic,
         modifier = Modifier
           .padding(top = 4.dp)
@@ -138,11 +155,11 @@ private fun NewAutomatchChallengeBottomSheetContent(
       Row {
         SizeCheckbox(
           checked = state.speeds.contains(Speed.LONG),
-          text = "Correspondence",
+          text = stringResource(R.string.automatch_speed_correspondence),
           onClick = { onSpeedChanged(Speed.LONG, it) })
       }
       Text(
-        text = "Expected duration: ${state.duration}",
+        text = stringResource(R.string.automatch_expected_duration, state.duration.asText()),
         fontStyle = FontStyle.Italic,
         modifier = Modifier
           .padding(top = 16.dp)
@@ -155,10 +172,23 @@ private fun NewAutomatchChallengeBottomSheetContent(
         enabled = state.isAnySizeSelected && state.speeds.isNotEmpty(),
         onClick = onSearchClicked
       ) {
-        Text("Search")
+        Text(stringResource(R.string.search))
       }
     }
   }
+}
+
+@Composable
+private fun AutomatchDuration.asText(): String = when (this) {
+  AutomatchDuration.Unknown -> ""
+  AutomatchDuration.SeveralDays -> stringResource(R.string.automatch_duration_several_days)
+  is AutomatchDuration.Minutes -> pluralStringResource(
+    R.plurals.automatch_duration_minutes, minutes, minutes
+  )
+
+  is AutomatchDuration.MinutesRange -> stringResource(
+    R.string.automatch_duration_minutes_range, minMinutes, maxMinutes
+  )
 }
 
 @Composable

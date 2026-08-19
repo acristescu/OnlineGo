@@ -249,6 +249,25 @@
     <string name="select_opponent_recent_title">Recent opponents</string>
     <string name="select_opponent_recent_description">This is a selection of opponents (both bots and actual players) you\'ve played against recently.</string>
     <string name="select_opponent_search_hint">Search by username</string>
+    <string name="automatch_title">Auto-match</string>
+    <string name="automatch_description">Try your hand at a game against a human opponent of similar rating to you.</string>
+    <string name="automatch_game_size">Game size</string>
+    <string name="automatch_size_9">9×9</string>
+    <string name="automatch_size_13">13×13</string>
+    <string name="automatch_size_19">19×19</string>
+    <string name="automatch_time_controls">Time Controls</string>
+    <string name="automatch_speed_blitz">Blitz</string>
+    <string name="automatch_speed_rapid">Rapid</string>
+    <string name="automatch_speed_live">Live</string>
+    <string name="automatch_speed_correspondence">Correspondence</string>
+    <string name="automatch_or">or</string>
+    <string name="automatch_expected_duration">Expected duration: %1$s</string>
+    <string name="automatch_duration_several_days">several days</string>
+    <plurals name="automatch_duration_minutes">
+        <item quantity="one">%d minute</item>
+        <item quantity="other">%d minutes</item>
+    </plurals>
+    <string name="automatch_duration_minutes_range">%1$d to %2$d minutes</string>
     <string name="mygames_support">SUPPORT</string>
     <string name="mygames_moderator_title">OGS Moderator %1$s</string>
     <string name="mygames_empty_message">Empty message</string>
