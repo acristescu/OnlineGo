@@ -1,7 +1,6 @@
 package io.zenandroid.onlinego.ui.screens.joseki
 
 import android.os.Bundle
-import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.zenandroid.onlinego.OnlineGoApplication
@@ -224,11 +223,11 @@ class JosekiExplorerViewModel(
         }
     }
 
-    private fun descriptionOfPosition(pos: JosekiPosition?): String? {
+    private fun descriptionOfPosition(pos: JosekiPosition?): JosekiDescription? {
         return if (pos == null || pos.placement == "root") {
-            OnlineGoApplication.instance.getString(io.zenandroid.onlinego.R.string.joseki_explorer_default_description)
+            JosekiDescription.FromResource(R.string.joseki_explorer_default_description)
         } else {
-            pos.description
+            pos.description?.let(JosekiDescription::Markdown)
         }
     }
 }

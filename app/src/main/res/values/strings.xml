@@ -447,6 +447,12 @@
     <string name="earn_study_title_puzzles">Puzzles</string>
     <string name="learn_tutorial_checkbox_done">Done</string>
     <string name="learn_tutorial_checkboxoutlineblank_done">Done</string>
+    <string name="joseki_explorer_title">Joseki Explorer</string>
+    <string name="joseki_explorer_button_tenuki">Tenuki</string>
+    <string name="joseki_explorer_button_previous">Previous</string>
+    <string name="joseki_explorer_button_next">Next</string>
+    <string name="joseki_explorer_link_video">" (video)"</string>
+    <string name="joseki_explorer_link_external">" (external link)"</string>
     <string name="joseki_explorer_default_description"><![CDATA["## Joseki Explorer
 *Joseki* is an English loanword from Japanese, usually referring to standard sequences of moves played out in a corner that result in a locally even exchange.
 ### How to use the Joseki Explorer

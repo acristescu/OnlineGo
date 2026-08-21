@@ -8,6 +8,7 @@ import android.util.Log
 import android.view.View
 import android.widget.TextView
 import androidx.activity.compose.BackHandler
+import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -36,6 +37,7 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -199,7 +201,7 @@ private fun AppTopBar(onNavigateBack: () -> Unit) {
   TopAppBar(
     title = {
       Text(
-        text = "Joseki Explorer",
+        text = stringResource(R.string.joseki_explorer_title),
         fontSize = 16.sp,
         fontWeight = FontWeight.Medium,
         color = MaterialTheme.colorScheme.onSurface
@@ -209,7 +211,7 @@ private fun AppTopBar(onNavigateBack: () -> Unit) {
       IconButton(onClick = onNavigateBack) {
         Icon(
           Icons.AutoMirrored.Filled.ArrowBack,
-          contentDescription = "Back",
+          contentDescription = stringResource(R.string.back),
           tint = MaterialTheme.colorScheme.onSurface
         )
       }
@@ -252,7 +254,7 @@ private fun BoardComponent(
 
 @Composable
 private fun DescriptionView(
-  description: String?,
+  description: JosekiDescription?,
   error: Throwable?,
   nodeId: Long?,
   loadPosition: (Long?) -> Unit,
@@ -260,6 +262,12 @@ private fun DescriptionView(
 ) {
   val textColor = MaterialTheme.colorScheme.onSurface.toArgb()
   val backgroundColor = MaterialTheme.colorScheme.surface.toArgb()
+
+  val markdown = when (description) {
+    is JosekiDescription.Markdown -> description.markdown
+    is JosekiDescription.FromResource -> stringResource(description.resId)
+    null -> null
+  }
 
   val context = LocalContext.current
   val markwon = remember(context, nodeId) { buildMarkwon(context, nodeId, loadPosition) }
@@ -283,8 +291,8 @@ private fun DescriptionView(
           recordException(error)
         }
 
-        description != null -> {
-          markwon.setMarkdown(textView, description)
+        markdown != null -> {
+          markwon.setMarkdown(textView, markdown)
         }
 
         else -> {
@@ -323,11 +331,11 @@ private fun buildMarkwon(context: Context, nodeId: Long?, loadPosition: (Long?) 
               }
 
               uri.host == "youtube.com" || uri.host == "youtu.be" || uri.host == "www.youtube.com" -> {
-                link.appendChild(Text(" (video)"))
+                link.appendChild(Text(context.getString(R.string.joseki_explorer_link_video)))
               }
 
               else -> {
-                link.appendChild(Text(" (external link)"))
+                link.appendChild(Text(context.getString(R.string.joseki_explorer_link_external)))
               }
             }
           }
@@ -373,7 +381,8 @@ private fun buildMarkwon(context: Context, nodeId: Long?, loadPosition: (Long?) 
 
 sealed class Button(
   override val icon: ImageVector,
-  override val label: String,
+  @StringRes override val labelResId: Int,
+  override val label: String = "",
   override val repeatable: Boolean = false,
   override val enabled: Boolean = true,
   override val bubbleText: String? = null,
@@ -381,19 +390,19 @@ sealed class Button(
 ) : BottomBarButton {
   class Tenuki(enabled: Boolean) : Button(
     icon = Icons.Rounded.Pause,
-    label = "Tenuki",
+    labelResId = R.string.joseki_explorer_button_tenuki,
     enabled = enabled,
   )
 
   class Previous(enabled: Boolean) : Button(
     icon = Icons.Rounded.SkipPrevious,
-    label = "Previous",
+    labelResId = R.string.joseki_explorer_button_previous,
     enabled = enabled,
   )
 
   class Next(enabled: Boolean) : Button(
     icon = Icons.Rounded.SkipNext,
-    label = "Next",
+    labelResId = R.string.joseki_explorer_button_next,
     enabled = enabled,
   )
 }
@@ -405,7 +414,9 @@ private fun Preview() {
     PortraitLayout(
       state = JosekiExplorerState(
         loading = false,
-        description = "This is a test description with a [link](https://example.com) and a Position:1234.",
+        description = JosekiDescription.Markdown(
+          "This is a test description with a [link](https://example.com) and a Position:1234."
+        ),
         error = null,
         lastRequestedNodeId = 1234L,
         boardPosition = null, // Replace with actual position if needed
