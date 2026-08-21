@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.view.WindowManager
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.LocalActivity
+import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -63,8 +64,11 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight.Companion.Bold
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -85,7 +89,11 @@ import io.zenandroid.onlinego.data.model.local.Score
 import io.zenandroid.onlinego.ui.composables.Board
 import io.zenandroid.onlinego.ui.composables.BottomBar
 import io.zenandroid.onlinego.ui.composables.MoreMenuItem
+import io.zenandroid.onlinego.ui.composables.TextResource
 import io.zenandroid.onlinego.ui.composables.TitleBar
+import io.zenandroid.onlinego.ui.composables.resolve
+import io.zenandroid.onlinego.ui.composables.resolveOrNull
+import io.zenandroid.onlinego.ui.composables.textResource
 import io.zenandroid.onlinego.ui.screens.game.Button.Analyze
 import io.zenandroid.onlinego.ui.screens.game.Button.Chat
 import io.zenandroid.onlinego.ui.screens.game.Button.ConfirmMove
@@ -230,7 +238,7 @@ fun GameContent(
   Column(Modifier.background(MaterialTheme.colorScheme.surfaceContainerLowest)) {
     if (LocalConfiguration.current.orientation == ORIENTATION_PORTRAIT) {
       Header(
-        title = state.title,
+        title = state.title.resolve(),
         opponentRequestedUndo = state.opponentRequestedUndo,
         onBack = onBack,
         onUserAction = onUserAction
@@ -247,7 +255,7 @@ fun GameContent(
         )
       }
       ExtraStatusField(
-        text = state.blackExtraStatus,
+        text = state.blackExtraStatus.resolveOrNull(),
         modifier = Modifier
           .background(Color(0xFF867484))
           .fillMaxWidth()
@@ -262,7 +270,7 @@ fun GameContent(
           .align(CenterHorizontally)
       )
       ExtraStatusField(
-        text = state.whiteExtraStatus,
+        text = state.whiteExtraStatus.resolveOrNull(),
         modifier = Modifier
           .background(Color(0xFF867484))
           .fillMaxWidth()
@@ -279,7 +287,7 @@ fun GameContent(
       }
       BottomBar(
         buttons = state.buttons,
-        bottomText = state.bottomText,
+        bottomText = state.bottomText.resolveOrNull(),
         onButtonPressed = { onUserAction(BottomButtonPressed(it as Button)) },
       )
     } else {
@@ -290,13 +298,13 @@ fun GameContent(
             .weight(1f)
         ) {
           Header(
-            title = state.title,
+            title = state.title.resolve(),
             opponentRequestedUndo = state.opponentRequestedUndo,
             onBack = onBack,
             onUserAction = onUserAction
           )
           ExtraStatusField(
-            text = state.blackExtraStatus,
+            text = state.blackExtraStatus.resolveOrNull(),
             modifier = Modifier
               .background(Color(0xFF867484))
               .fillMaxWidth()
@@ -318,7 +326,7 @@ fun GameContent(
             )
           }
           ExtraStatusField(
-            text = state.whiteExtraStatus,
+            text = state.whiteExtraStatus.resolveOrNull(),
             modifier = Modifier
               .background(Color(0xFF867484))
               .fillMaxWidth()
@@ -327,7 +335,7 @@ fun GameContent(
           )
           BottomBar(
             buttons = state.buttons,
-            bottomText = state.bottomText,
+            bottomText = state.bottomText.resolveOrNull(),
             onButtonPressed = { onUserAction(BottomButtonPressed(it as Button)) },
           )
         }
@@ -359,11 +367,16 @@ fun GameContent(
       onDismissRequest = { onUserAction(KOMoveDialogDismiss) },
       confirmButton = {
         TextButton(onClick = { onUserAction(KOMoveDialogDismiss) }) {
-          Text("OK")
+          Text(stringResource(R.string.ok))
         }
       },
-      text = { Text("That move would repeat the board position. That's called a KO, and it is not allowed. Try to make another move first, preferably a threat that the opponent can't ignore.") },
-      title = { Text("Illegal KO move", style = MaterialTheme.typography.titleLarge) },
+      text = { Text(stringResource(R.string.ko_explanation)) },
+      title = {
+        Text(
+          text = stringResource(R.string.illegal_ko_move),
+          style = MaterialTheme.typography.titleLarge
+        )
+      },
     )
   }
   if (state.opponentRequestedUndoDialogShowing) {
@@ -371,16 +384,21 @@ fun GameContent(
       onDismissRequest = { onUserAction(OpponentUndoRequestRejected) },
       dismissButton = {
         TextButton(onClick = { onUserAction(OpponentUndoRequestRejected) }) {
-          Text("IGNORE")
+          Text(stringResource(R.string.game_opponent_undo_dialog_ignore))
         }
       },
       confirmButton = {
         TextButton(onClick = { onUserAction(OpponentUndoRequestAccepted) }) {
-          Text("UNDO MOVE")
+          Text(stringResource(R.string.game_opponent_undo_dialog_accept))
         }
       },
-      text = { Text("Your opponent would like to undo their last move. Do you accept?") },
-      title = { Text("Opponent asked to undo", style = MaterialTheme.typography.titleLarge) },
+      text = { Text(stringResource(R.string.game_opponent_undo_dialog_message)) },
+      title = {
+        Text(
+          text = stringResource(R.string.game_opponent_undo_dialog_title),
+          style = MaterialTheme.typography.titleLarge
+        )
+      },
     )
   }
   if (state.requestUndoDialogShowing) {
@@ -388,16 +406,21 @@ fun GameContent(
       onDismissRequest = { onUserAction(UserUndoDialogDismiss) },
       dismissButton = {
         TextButton(onClick = { onUserAction(UserUndoDialogDismiss) }) {
-          Text("CANCEL")
+          Text(stringResource(R.string.game_dialog_cancel))
         }
       },
       confirmButton = {
         TextButton(onClick = { onUserAction(UserUndoDialogConfirm) }) {
-          Text("REQUEST UNDO")
+          Text(stringResource(R.string.game_request_undo_dialog_confirm))
         }
       },
-      text = { Text("If you made the last move by mistake, you can ask your opponent if they allow you to undo it.") },
-      title = { Text("Request Undo?", style = MaterialTheme.typography.titleLarge) },
+      text = { Text(stringResource(R.string.game_request_undo_dialog_message)) },
+      title = {
+        Text(
+          text = stringResource(R.string.game_request_undo_dialog_title),
+          style = MaterialTheme.typography.titleLarge
+        )
+      },
     )
   }
   if (state.passDialogShowing) {
@@ -405,16 +428,21 @@ fun GameContent(
       onDismissRequest = { onUserAction(PassDialogDismiss) },
       dismissButton = {
         TextButton(onClick = { onUserAction(PassDialogDismiss) }) {
-          Text("CANCEL")
+          Text(stringResource(R.string.game_dialog_cancel))
         }
       },
       confirmButton = {
         TextButton(onClick = { onUserAction(PassDialogConfirm) }) {
-          Text("PASS")
+          Text(stringResource(R.string.game_pass_dialog_confirm))
         }
       },
-      text = { Text("Are you sure you want to pass? You should only do this if you think the game is over and there are no more moves to be made. If your opponent passes too, the game proceeds to the scoring phase.") },
-      title = { Text("Please confirm", style = MaterialTheme.typography.titleLarge) },
+      text = { Text(stringResource(R.string.game_pass_dialog_message)) },
+      title = {
+        Text(
+          text = stringResource(R.string.game_confirm_dialog_title),
+          style = MaterialTheme.typography.titleLarge
+        )
+      },
     )
   }
   if (state.resignDialogShowing) {
@@ -422,16 +450,21 @@ fun GameContent(
       onDismissRequest = { onUserAction(ResignDialogDismiss) },
       dismissButton = {
         TextButton(onClick = { onUserAction(ResignDialogDismiss) }) {
-          Text("CANCEL")
+          Text(stringResource(R.string.game_dialog_cancel))
         }
       },
       confirmButton = {
         TextButton(onClick = { onUserAction(ResignDialogConfirm) }) {
-          Text("RESIGN")
+          Text(stringResource(R.string.game_resign_dialog_confirm))
         }
       },
-      text = { Text("Are you sure you want to resign?") },
-      title = { Text("Please confirm", style = MaterialTheme.typography.titleLarge) },
+      text = { Text(stringResource(R.string.game_resign_dialog_message)) },
+      title = {
+        Text(
+          text = stringResource(R.string.game_confirm_dialog_title),
+          style = MaterialTheme.typography.titleLarge
+        )
+      },
     )
   }
   if (state.cancelDialogShowing) {
@@ -439,16 +472,21 @@ fun GameContent(
       onDismissRequest = { onUserAction(CancelDialogDismiss) },
       dismissButton = {
         TextButton(onClick = { onUserAction(CancelDialogDismiss) }) {
-          Text("DON'T CANCEL GAME")
+          Text(stringResource(R.string.game_cancel_dialog_dismiss))
         }
       },
       confirmButton = {
         TextButton(onClick = { onUserAction(CancelDialogConfirm) }) {
-          Text("CANCEL GAME")
+          Text(stringResource(R.string.game_cancel_dialog_confirm))
         }
       },
-      text = { Text("Are you sure you want to cancel the game?") },
-      title = { Text("Please confirm", style = MaterialTheme.typography.titleLarge) },
+      text = { Text(stringResource(R.string.game_cancel_dialog_message)) },
+      title = {
+        Text(
+          text = stringResource(R.string.game_confirm_dialog_title),
+          style = MaterialTheme.typography.titleLarge
+        )
+      },
     )
   }
   state.gameOverDialogShowing?.let { dialog ->
@@ -573,53 +611,63 @@ private fun GameInfoDialog(state: GameState, onUserAction: (UserAction) -> Unit)
     ) {
       Spacer(modifier = Modifier.height(100.dp))
       Text(
-        text = if (state.ranked) "Ranked" else "Unranked",
+        text = stringResource(if (state.ranked) R.string.game_info_ranked else R.string.game_info_unranked),
         textAlign = TextAlign.Center,
         style = MaterialTheme.typography.titleMedium,
         color = MaterialTheme.colorScheme.onSurface,
       )
+      val unknownPlayer = stringResource(R.string.game_info_unknown_player)
+      val versusSeparator = stringResource(R.string.game_info_versus_separator)
       Text(
         text = buildAnnotatedString {
           pushStyle(SpanStyle(fontWeight = Bold))
-          append(state.blackPlayer?.name ?: "?")
+          append(state.blackPlayer?.name ?: unknownPlayer)
           pop()
-          append("      vs      ")
+          append(versusSeparator)
           pushStyle(SpanStyle(fontWeight = Bold))
-          append(state.whitePlayer?.name ?: "?")
+          append(state.whitePlayer?.name ?: unknownPlayer)
           pop()
         },
         color = MaterialTheme.colorScheme.onSurface,
       )
       Text(
-        text = "Score",
+        text = stringResource(R.string.game_info_score),
         style = MaterialTheme.typography.titleSmall,
         color = MaterialTheme.colorScheme.onSurface,
         modifier = Modifier.padding(top = 14.dp, bottom = 8.dp)
       )
-      ScoreRow(state.blackScore.komi?.toString(), state.whiteScore.komi?.toString(), "komi")
+      ScoreRow(
+        state.blackScore.komi?.toString(),
+        state.whiteScore.komi?.toString(),
+        R.string.game_info_score_komi
+      )
       ScoreRow(
         state.blackScore.handicap?.toString(),
         state.whiteScore.handicap?.toString(),
-        "handicap"
+        R.string.game_info_score_handicap
       )
       ScoreRow(
         state.blackScore.prisoners?.toString(),
         state.whiteScore.prisoners?.toString(),
-        "prisoners"
+        R.string.game_info_score_prisoners
       )
-      ScoreRow(state.blackScore.stones?.toString(), state.whiteScore.stones?.toString(), "stones")
+      ScoreRow(
+        state.blackScore.stones?.toString(),
+        state.whiteScore.stones?.toString(),
+        R.string.game_info_score_stones
+      )
       ScoreRow(
         state.blackScore.territory?.toString(),
         state.whiteScore.territory?.toString(),
-        "territory"
+        R.string.game_info_score_territory
       )
       ScoreRow(
         state.blackScore.total?.toInt()?.toString(),
         state.whiteScore.total?.toString(),
-        "total"
+        R.string.game_info_score_total
       )
       Text(
-        text = "Time",
+        text = stringResource(R.string.game_info_time),
         style = MaterialTheme.typography.titleMedium,
         color = MaterialTheme.colorScheme.onSurface,
         modifier = Modifier.padding(top = 14.dp, bottom = 8.dp)
@@ -662,7 +710,7 @@ private fun GameInfoDialog(state: GameState, onUserAction: (UserAction) -> Unit)
 }
 
 @Composable
-private fun ScoreRow(whiteScore: String?, blackScore: String?, title: String) {
+private fun ScoreRow(whiteScore: String?, blackScore: String?, @StringRes title: Int) {
   if (whiteScore != null || blackScore != null) {
     Row {
       Text(
@@ -674,7 +722,7 @@ private fun ScoreRow(whiteScore: String?, blackScore: String?, title: String) {
           .weight(1f),
       )
       Text(
-        text = title,
+        text = stringResource(title),
         textAlign = TextAlign.Center,
         color = MaterialTheme.colorScheme.onSurface,
         modifier = Modifier
@@ -718,9 +766,9 @@ private fun GameOverDialog(
         .padding(16.dp)
     ) {
       val text = when {
-        dialog.gameCancelled -> "GAME WAS CANCELLED"
-        dialog.playerWon -> "CONGRATULATIONS\nYOU WON"
-        else -> "YOU LOST"
+        dialog.gameCancelled -> stringResource(R.string.game_over_cancelled)
+        dialog.playerWon -> stringResource(R.string.game_over_won)
+        else -> stringResource(R.string.game_over_lost)
       }
       val icon = when {
         dialog.gameCancelled -> Rounded.Cancel
@@ -742,7 +790,7 @@ private fun GameOverDialog(
           .size(128.dp)
       )
       Text(
-        text = dialog.detailsText,
+        text = dialog.detailsText(),
         style = MaterialTheme.typography.bodySmall,
         textAlign = TextAlign.Center,
         color = MaterialTheme.colorScheme.onSurface,
@@ -752,7 +800,7 @@ private fun GameOverDialog(
         onClick = { onUserAction(GameOverDialogAnalyze) },
       ) {
         Text(
-          text = "VIEW BOARD",
+          text = stringResource(R.string.game_over_view_board),
           textAlign = TextAlign.Center,
           modifier = Modifier.fillMaxWidth()
         )
@@ -764,7 +812,7 @@ private fun GameOverDialog(
         onClick = { onUserAction(GameOverDialogNextGame) },
       ) {
         Text(
-          text = "NEXT GAME",
+          text = stringResource(R.string.game_over_next_game),
           textAlign = TextAlign.Center,
           modifier = Modifier.fillMaxWidth()
         )
@@ -776,11 +824,73 @@ private fun GameOverDialog(
         onClick = { onUserAction(GameOverDialogQuickReplay) },
       ) {
         Text(
-          text = "QUICK REPLAY",
+          text = stringResource(R.string.game_over_quick_replay),
           textAlign = TextAlign.Center,
           modifier = Modifier.fillMaxWidth()
         )
       }
+    }
+  }
+}
+
+/** The sentence describing how the game ended, followed by the rating change when there is one. */
+@Composable
+private fun GameOverDialogDetails.detailsText(): AnnotatedString {
+  val outcomeText = outcome.text()
+  val ratingText = ratingChange?.text()
+  return if (ratingText == null) outcomeText else outcomeText + AnnotatedString("\n") + ratingText
+}
+
+@Composable
+private fun GameOutcome.text(): AnnotatedString = when (this) {
+  is GameOutcome.Resignation -> emphasisedText(R.string.game_over_resignation, loser, moveNo)
+  is GameOutcome.Points -> emphasisedText(R.string.game_over_points, winner, points)
+  is GameOutcome.Timeout -> emphasisedText(R.string.game_over_timeout, loser)
+  is GameOutcome.Cancellation -> emphasisedText(R.string.game_over_cancellation, loser)
+  is GameOutcome.Disconnection -> emphasisedText(R.string.game_over_disconnection, loser)
+  is GameOutcome.Unknown -> AnnotatedString(
+    stringResource(R.string.game_over_unknown_result, outcome)
+  )
+}
+
+@Composable
+private fun RatingChange.text(): AnnotatedString = when (this) {
+  RatingChange.BeingUpdated -> AnnotatedString(stringResource(R.string.game_over_rating_updating))
+  is RatingChange.NewRating -> {
+    val newRating = emphasisedText(R.string.game_over_rating_now, rank, rating)
+    val change = difference?.let {
+      styledText(R.string.game_over_rating_change, it, SpanStyle(fontStyle = FontStyle.Italic))
+    }
+    if (change == null) newRating else newRating + change
+  }
+}
+
+/** Formats [resId] and renders [emphasised] - which is always its first argument - in bold. */
+@Composable
+private fun emphasisedText(
+  @StringRes resId: Int,
+  emphasised: String,
+  vararg args: Any,
+): AnnotatedString = styledText(resId, emphasised, SpanStyle(fontWeight = Bold), *args)
+
+/**
+ * Formats [resId] with [styled] as its first argument and the remaining [args] after it, applying
+ * [style] to the part of the result that [styled] ended up in. Formatting first and styling after
+ * keeps translations free to move the placeholder around.
+ */
+@Composable
+private fun styledText(
+  @StringRes resId: Int,
+  styled: String,
+  style: SpanStyle,
+  vararg args: Any,
+): AnnotatedString {
+  val text = stringResource(resId, styled, *args)
+  return buildAnnotatedString {
+    append(text)
+    val start = text.indexOf(styled)
+    if (start >= 0) {
+      addStyle(style, start, start + styled.length)
     }
   }
 }
@@ -799,12 +909,12 @@ private fun RetryMoveDialog(onUserAction: (UserAction) -> Unit) {
         .padding(16.dp)
     ) {
       Text(
-        text = "CONNECTION PROBLEMS",
+        text = stringResource(R.string.game_retry_dialog_title),
         style = MaterialTheme.typography.titleMedium,
         color = MaterialTheme.colorScheme.onSurface,
       )
       Text(
-        text = "The server is not responding. Please check your internet connection.",
+        text = stringResource(R.string.game_retry_dialog_message),
         style = MaterialTheme.typography.bodyMedium,
         textAlign = TextAlign.Center,
         color = MaterialTheme.colorScheme.onSurface,
@@ -822,7 +932,7 @@ private fun RetryMoveDialog(onUserAction: (UserAction) -> Unit) {
         onClick = { onUserAction(RetryDialogRetry) },
       ) {
         Text(
-          text = "TRY AGAIN",
+          text = stringResource(R.string.game_retry_dialog_confirm),
           textAlign = TextAlign.Center,
           modifier = Modifier.fillMaxWidth()
         )
@@ -832,7 +942,7 @@ private fun RetryMoveDialog(onUserAction: (UserAction) -> Unit) {
         onClick = { onUserAction(RetryDialogDismiss) },
       ) {
         Text(
-          text = "CANCEL",
+          text = stringResource(R.string.game_dialog_cancel),
           textAlign = TextAlign.Center,
           modifier = Modifier.fillMaxWidth()
         )
@@ -848,13 +958,21 @@ private fun Header(
   onBack: () -> Unit,
   onUserAction: (UserAction) -> Unit
 ) {
-  val items = remember(opponentRequestedUndo) {
+  val openInBrowserLabel = stringResource(R.string.game_menu_open_in_browser)
+  val downloadSGFLabel = stringResource(R.string.game_menu_download_sgf)
+  val acceptUndoLabel = stringResource(R.string.game_menu_accept_undo)
+  val items = remember(
+    opponentRequestedUndo,
+    openInBrowserLabel,
+    downloadSGFLabel,
+    acceptUndoLabel
+  ) {
     val items = mutableListOf(
-      MoreMenuItem("Open in browser", Rounded.OpenInBrowser) { onUserAction(OpenInBrowser) },
-      MoreMenuItem("Download as SGF", Rounded.Download) { onUserAction(DownloadSGF) },
+      MoreMenuItem(openInBrowserLabel, Rounded.OpenInBrowser) { onUserAction(OpenInBrowser) },
+      MoreMenuItem(downloadSGFLabel, Rounded.Download) { onUserAction(DownloadSGF) },
     )
     if (opponentRequestedUndo) {
-      items.add(MoreMenuItem("Accept Undo", Icons.AutoMirrored.Rounded.Undo) {
+      items.add(MoreMenuItem(acceptUndoLabel, Icons.AutoMirrored.Rounded.Undo) {
         onUserAction(
           OpponentUndoRequestAccepted
         )
@@ -885,10 +1003,10 @@ private fun Preview() {
         ),
         loading = false,
         buttons = listOf(Analyze, Pass, Resign, Chat(), NextGame()),
-        title = "Move 132 · Chinese · Black",
+        title = textResource(R.string.game_title_black_to_move, 132, "Chinese"),
         whitePlayer = PlayerData(
           name = "MrAlex-test",
-          details = "+5.5 points",
+          details = textResource(R.string.game_player_points, "+ 5.5"),
           rank = "13k",
           flagCode = "\uD83C\uDDEC\uD83C\uDDE7",
           iconURL = "https://secure.gravatar.com/avatar/d740835c39d6dd7c60977b244ac821db?s=64&d=retro",
@@ -896,7 +1014,7 @@ private fun Preview() {
         ),
         blackPlayer = PlayerData(
           name = "MrAlex",
-          details = "",
+          details = null,
           rank = "9k",
           flagCode = "\uD83C\uDDEC\uD83C\uDDE7",
           iconURL = "https://secure.gravatar.com/avatar/d740835c39d6dd7c60977b244ac821db?s=64&d=retro",
@@ -936,10 +1054,10 @@ private fun Preview1() {
         ),
         loading = false,
         buttons = listOf(ConfirmMove, DiscardMove),
-        title = "Move 132 · Chinese · Black",
+        title = textResource(R.string.game_title_black_to_move, 132, "Chinese"),
         whitePlayer = PlayerData(
           name = "MrAlex-test",
-          details = "+5.5 points",
+          details = textResource(R.string.game_player_points, "+ 5.5"),
           rank = "13k",
           flagCode = "\uD83C\uDDEC\uD83C\uDDE7",
           iconURL = "https://secure.gravatar.com/avatar/d740835c39d6dd7c60977b244ac821db?s=64&d=retro",
@@ -947,7 +1065,7 @@ private fun Preview1() {
         ),
         blackPlayer = PlayerData(
           name = "MrAlex",
-          details = "",
+          details = null,
           rank = "9k",
           flagCode = "\uD83C\uDDEC\uD83C\uDDE7",
           iconURL = "https://secure.gravatar.com/avatar/d740835c39d6dd7c60977b244ac821db?s=64&d=retro",
@@ -985,10 +1103,10 @@ private fun Preview2() {
           blackStones = setOf(Cell(15, 15))
         ),
         loading = false,
-        title = "Move 132 · Chinese · Black",
+        title = textResource(R.string.game_title_black_to_move, 132, "Chinese"),
         whitePlayer = PlayerData(
           name = "MrAlex-test",
-          details = "+5.5 points",
+          details = textResource(R.string.game_player_points, "+ 5.5"),
           rank = "13k",
           flagCode = "\uD83C\uDDEC\uD83C\uDDE7",
           iconURL = "https://secure.gravatar.com/avatar/d740835c39d6dd7c60977b244ac821db?s=64&d=retro",
@@ -996,7 +1114,7 @@ private fun Preview2() {
         ),
         blackPlayer = PlayerData(
           name = "MrAlex",
-          details = "",
+          details = null,
           rank = "9k",
           flagCode = "\uD83C\uDDEC\uD83C\uDDE7",
           iconURL = "https://secure.gravatar.com/avatar/d740835c39d6dd7c60977b244ac821db?s=64&d=retro",
@@ -1015,7 +1133,7 @@ private fun Preview2() {
           blackStartTimer = null,
           timeLeft = 1000,
         ),
-        bottomText = "Submitting move",
+        bottomText = TextResource(R.string.game_submitting_move),
       ),
       {}, {},
     )
@@ -1035,10 +1153,10 @@ private fun Preview3() {
           blackStones = setOf(Cell(15, 15))
         ),
         loading = false,
-        title = "Move 132 · Chinese · Black",
+        title = textResource(R.string.game_title_black_to_move, 132, "Chinese"),
         whitePlayer = PlayerData(
           name = "MrAlex-test",
-          details = "+5.5 points",
+          details = textResource(R.string.game_player_points, "+ 5.5"),
           rank = "13k",
           flagCode = "\uD83C\uDDEC\uD83C\uDDE7",
           iconURL = "https://secure.gravatar.com/avatar/d740835c39d6dd7c60977b244ac821db?s=64&d=retro",
@@ -1046,7 +1164,7 @@ private fun Preview3() {
         ),
         blackPlayer = PlayerData(
           name = "MrAlex",
-          details = "",
+          details = null,
           rank = "9k",
           flagCode = "\uD83C\uDDEC\uD83C\uDDE7",
           iconURL = "https://secure.gravatar.com/avatar/d740835c39d6dd7c60977b244ac821db?s=64&d=retro",
@@ -1065,7 +1183,7 @@ private fun Preview3() {
           blackStartTimer = null,
           timeLeft = 1000,
         ),
-        bottomText = "Submitting move",
+        bottomText = TextResource(R.string.game_submitting_move),
         retryMoveDialogShowing = true,
       ),
       {}, {},
@@ -1087,10 +1205,10 @@ private fun Preview4() {
         ),
         loading = false,
         buttons = listOf(ExitAnalysis, Estimate, Previous, Next),
-        title = "Move 132 · Chinese · Black",
+        title = textResource(R.string.game_title_black_to_move, 132, "Chinese"),
         whitePlayer = PlayerData(
           name = "MrAlex-test",
-          details = "+5.5 points",
+          details = textResource(R.string.game_player_points, "+ 5.5"),
           rank = "13k",
           flagCode = "\uD83C\uDDEC\uD83C\uDDE7",
           iconURL = "https://secure.gravatar.com/avatar/d740835c39d6dd7c60977b244ac821db?s=64&d=retro",
@@ -1098,7 +1216,7 @@ private fun Preview4() {
         ),
         blackPlayer = PlayerData(
           name = "MrAlex",
-          details = "",
+          details = null,
           rank = "9k",
           flagCode = "\uD83C\uDDEC\uD83C\uDDE7",
           iconURL = "https://secure.gravatar.com/avatar/d740835c39d6dd7c60977b244ac821db?s=64&d=retro",
@@ -1139,10 +1257,10 @@ private fun Preview5() {
         ),
         loading = false,
         buttons = listOf(ExitAnalysis, Estimate, Previous, Next),
-        title = "Move 132 · Chinese · Black",
+        title = textResource(R.string.game_title_black_to_move, 132, "Chinese"),
         whitePlayer = PlayerData(
           name = "MrAlex-test",
-          details = "+5.5 points",
+          details = textResource(R.string.game_player_points, "+ 5.5"),
           rank = "13k",
           flagCode = "\uD83C\uDDEC\uD83C\uDDE7",
           iconURL = "https://secure.gravatar.com/avatar/d740835c39d6dd7c60977b244ac821db?s=64&d=retro",
@@ -1150,7 +1268,7 @@ private fun Preview5() {
         ),
         blackPlayer = PlayerData(
           name = "MrAlex",
-          details = "",
+          details = null,
           rank = "9k",
           flagCode = "\uD83C\uDDEC\uD83C\uDDE7",
           iconURL = "https://secure.gravatar.com/avatar/d740835c39d6dd7c60977b244ac821db?s=64&d=retro",
@@ -1174,12 +1292,8 @@ private fun Preview5() {
         gameOverDialogShowing = GameOverDialogDetails(
           gameCancelled = false,
           playerWon = false,
-          detailsText = buildAnnotatedString {
-            pushStyle(SpanStyle(fontWeight = Bold))
-            append("MrAlex")
-            pop()
-            append(" resigned on move 132")
-          }
+          outcome = GameOutcome.Resignation(loser = "MrAlex", moveNo = 132),
+          ratingChange = null,
         ),
       ),
       {}, {},
@@ -1195,7 +1309,7 @@ private fun PreviewLoading() {
       state = GameState(
         loading = true,
         buttons = emptyList(),
-        title = "Move 132 · Chinese · Black",
+        title = textResource(R.string.game_title_black_to_move, 132, "Chinese"),
         whitePlayer = null,
         blackPlayer = null,
         position = null,
@@ -1214,7 +1328,7 @@ private fun PreviewLoading() {
         timerDetails = null,
         timerDescription = null,
         ranked = false,
-        bottomText = "Loading",
+        bottomText = TextResource(R.string.loading),
         retryMoveDialogShowing = false,
         koMoveDialogShowing = false,
         showPlayers = true,

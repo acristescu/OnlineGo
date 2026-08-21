@@ -35,6 +35,7 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
@@ -45,6 +46,7 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.StoneType
+import io.zenandroid.onlinego.ui.composables.resolveOrNull
 import io.zenandroid.onlinego.ui.screens.game.PlayerData
 import io.zenandroid.onlinego.ui.theme.brown
 import io.zenandroid.onlinego.utils.processGravatarURL
@@ -83,7 +85,7 @@ fun PlayerCard(
             .placeholder(R.mipmap.placeholder)
             .error(R.mipmap.placeholder)
             .build(),
-          contentDescription = "Avatar",
+          contentDescription = stringResource(R.string.game_avatar_content_description),
           modifier = Modifier
             .sizeIn(maxHeight = maxSize)
             .fillMaxSize()
@@ -131,7 +133,7 @@ fun PlayerCard(
           modifier = Modifier.clickable { onUserClicked() }
         )
         Text(
-          text = player.details,
+          text = player.details.resolveOrNull() ?: "",
           style = MaterialTheme.typography.titleSmall.copy(fontSize = 10.sp),
           color = MaterialTheme.colorScheme.onSurface,
           modifier = Modifier

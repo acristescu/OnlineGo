@@ -1,6 +1,7 @@
 package io.zenandroid.onlinego.ui.screens.game.composables
 
 import androidx.activity.compose.BackHandler
+import androidx.annotation.StringRes
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -31,6 +32,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -100,7 +102,7 @@ fun BoxWithImage(
           .error(R.mipmap.placeholder)
           .build()
       ),
-      contentDescription = "Avatar",
+      contentDescription = stringResource(R.string.game_avatar_content_description),
       modifier = Modifier
         .align(Alignment.TopCenter)
         .clip(RoundedCornerShape(10.dp))
@@ -149,7 +151,7 @@ fun PlayerDetailsDialog(
     val rating = player.rating?.toInt()?.toString() ?: ""
 
     Text(
-      text = "$rank ($rating)",
+      text = stringResource(R.string.game_player_details_rank_rating, rank, rating),
       color = MaterialTheme.colorScheme.onSurface,
       style = MaterialTheme.typography.bodyMedium,
       modifier = Modifier.padding(bottom = 16.dp)
@@ -160,13 +162,23 @@ fun PlayerDetailsDialog(
       val highestRank =
         formatRank(egfToRank(highestRatingFloat.toDouble()), longFormat = true)
       val highestRating = highestRatingFloat.toInt().toString()
-      StatsRow(title = "Highest rank", value = "$highestRank ($highestRating)")
+      StatsRow(
+        title = R.string.game_player_details_highest_rank,
+        value = stringResource(
+          R.string.game_player_details_rank_rating,
+          highestRank,
+          highestRating
+        )
+      )
     } else {
-      StatsRow(title = "Highest rank", value = "            ", true)
+      StatsRow(title = R.string.game_player_details_highest_rank, value = "            ", true)
     }
 
     player.rating?.let {
-      StatsRow(title = "Percentile", value = getPercentile(it))
+      StatsRow(
+        title = R.string.game_player_details_percentile,
+        value = getPercentile(it).toString()
+      )
     }
 
     if (!versusStatsHidden) {
@@ -178,28 +190,28 @@ fun PlayerDetailsDialog(
         if (total == 0) 0 else (versusData.losses.toFloat() / total * 100).roundToInt()
 
       Text(
-        text = "Played vs you",
+        text = stringResource(R.string.game_player_details_played_vs_you),
         color = MaterialTheme.colorScheme.onSurface,
         style = MaterialTheme.typography.bodyMedium,
         modifier = Modifier
           .padding(vertical = 16.dp)
       )
       StatsRowDualValue(
-        title = "You Won",
+        title = R.string.game_player_details_you_won,
         value1 = versusData.wins,
-        value2 = "${wonRatio}%",
+        value2 = percentage(wonRatio),
         loading = versusStats !is Success,
       )
       StatsRowDualValue(
-        title = "They Won",
+        title = R.string.game_player_details_they_won,
         value1 = versusData.losses,
-        value2 = "${lossRatio}%",
+        value2 = percentage(lossRatio),
         loading = versusStats !is Success,
       )
       StatsRowDualValue(
-        title = "Total",
+        title = R.string.game_player_details_total,
         value1 = versusData.wins + versusData.losses,
-        value2 = if (total == 0) "0%" else "100%",
+        value2 = percentage(if (total == 0) 0 else 100),
         loading = versusStats !is Success,
       )
     }
@@ -207,7 +219,7 @@ fun PlayerDetailsDialog(
     val statsData = if (stats is Success) stats.data else UserStats.EMPTY
     val total = statsData.wonCount + statsData.lostCount
     Text(
-      text = "Ranked Games",
+      text = stringResource(R.string.game_player_details_ranked_games),
       color = MaterialTheme.colorScheme.onSurface,
       style = MaterialTheme.typography.bodyMedium,
       modifier = Modifier.padding(vertical = 16.dp)
@@ -217,31 +229,35 @@ fun PlayerDetailsDialog(
     val lossRatio =
       if (total == 0) 100 else (statsData.lostCount.toFloat() / total * 100).roundToInt()
     StatsRowDualValue(
-      title = "Wins",
+      title = R.string.game_player_details_wins,
       value1 = statsData.wonCount,
-      value2 = "${wonRatio}%",
+      value2 = percentage(wonRatio),
       loading = stats !is Success,
     )
     StatsRowDualValue(
-      title = "Losses",
+      title = R.string.game_player_details_losses,
       value1 = statsData.lostCount,
-      value2 = "${lossRatio}%",
+      value2 = percentage(lossRatio),
       loading = stats !is Success,
     )
     StatsRowDualValue(
-      title = "Total",
+      title = R.string.game_player_details_total,
       value1 = statsData.wonCount + statsData.lostCount,
-      value2 = "100%",
+      value2 = percentage(100),
       loading = stats !is Success,
     )
   }
 }
 
 @Composable
-private fun StatsRow(title: String, value: String, loading: Boolean = false) {
+private fun percentage(value: Int) =
+  stringResource(R.string.game_player_details_percentage, value)
+
+@Composable
+private fun StatsRow(@StringRes title: Int, value: String, loading: Boolean = false) {
   Row(modifier = Modifier.padding(vertical = 1.dp)) {
     Text(
-      text = title,
+      text = stringResource(title),
       color = MaterialTheme.colorScheme.onSurface,
       style = MaterialTheme.typography.bodyMedium,
     )
@@ -256,13 +272,8 @@ private fun StatsRow(title: String, value: String, loading: Boolean = false) {
 }
 
 @Composable
-private fun StatsRow(title: String, value: Int, loading: Boolean = false) {
-  StatsRow(title = title, value = value.toString(), loading)
-}
-
-@Composable
 private fun StatsRowDualValue(
-  title: String,
+  @StringRes title: Int,
   value1: Int,
   value2: String,
   loading: Boolean = false

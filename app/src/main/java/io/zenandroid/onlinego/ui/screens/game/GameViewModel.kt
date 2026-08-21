@@ -1,6 +1,7 @@
 package io.zenandroid.onlinego.ui.screens.game
 
 import android.app.Activity
+import androidx.annotation.StringRes
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.NextPlan
 import androidx.compose.material.icons.automirrored.rounded.Undo
@@ -24,11 +25,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -37,6 +33,7 @@ import app.cash.molecule.RecompositionMode.ContextClock
 import app.cash.molecule.launchMolecule
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.zenandroid.onlinego.BuildConfig
+import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.Mark
 import io.zenandroid.onlinego.data.model.Position
@@ -60,6 +57,8 @@ import io.zenandroid.onlinego.data.repositories.UserSessionRepository
 import io.zenandroid.onlinego.gamelogic.RulesManager
 import io.zenandroid.onlinego.gamelogic.RulesManager.isPass
 import io.zenandroid.onlinego.ui.composables.BottomBarButton
+import io.zenandroid.onlinego.ui.composables.TextResource
+import io.zenandroid.onlinego.ui.composables.textResource
 import io.zenandroid.onlinego.ui.screens.game.Button.AcceptStoneRemoval
 import io.zenandroid.onlinego.ui.screens.game.Button.Analyze
 import io.zenandroid.onlinego.ui.screens.game.Button.CancelGame
@@ -137,6 +136,13 @@ import kotlin.math.roundToInt
 
 private const val MAX_ATTEMPTS = 3
 private const val DELAY_BETWEEN_ATTEMPTS = 5000L
+
+// Outcomes as reported by the OGS server. These are protocol values, not user facing text.
+private const val OUTCOME_RESIGNATION = "Resignation"
+private const val OUTCOME_TIMEOUT = "Timeout"
+private const val OUTCOME_CANCELLATION = "Cancellation"
+private const val OUTCOME_DISCONNECTION = "Disconnection"
+private const val OUTCOME_POINTS_SUFFIX = "points"
 
 class GameViewModel(
   private val activeGamesRepository: ActiveGamesRepository,
@@ -388,9 +394,13 @@ class GameViewModel(
 
       val whiteToMove = game?.playerToMoveId == game?.whitePlayer?.id
       val bottomText = when {
-        pendingMove != null && pendingMove?.attempt == 1 -> "Submitting move"
-        pendingMove != null -> "Submitting move (attempt #${pendingMove?.attempt})"
-        estimateMode && estimatePosition == null -> "Estimating"
+        pendingMove != null && pendingMove?.attempt == 1 -> TextResource(R.string.game_submitting_move)
+        pendingMove != null -> textResource(
+          R.string.game_submitting_move_attempt,
+          pendingMove?.attempt ?: 1
+        )
+
+        estimateMode && estimatePosition == null -> TextResource(R.string.game_estimating)
         else -> null
       }
       val excludeTerritory = shownPosition != currentGamePosition.value && !estimateMode
@@ -437,7 +447,11 @@ class GameViewModel(
         drawTerritory = game?.phase == Phase.STONE_REMOVAL || (gameFinished == true && analysisShownMoveNumber == game?.moves?.size && currentVariation?.moves.isNullOrEmpty()) || (estimateMode && estimatePosition != null),
         fadeOutRemovedStones = game?.phase == Phase.STONE_REMOVAL || (gameFinished == true && analysisShownMoveNumber == game?.moves?.size && currentVariation?.moves.isNullOrEmpty()) || (estimateMode && estimatePosition != null),
         buttons = visibleButtons,
-        title = if (loading) "Loading..." else "Move ${game?.moves?.size} · ${game?.rules?.capitalize()} · ${if (whiteToMove) "White" else "Black"}",
+        title = if (loading) TextResource(R.string.loading) else textResource(
+          if (whiteToMove) R.string.game_title_white_to_move else R.string.game_title_black_to_move,
+          game?.moves?.size ?: 0,
+          game?.rules?.capitalize() ?: "",
+        ),
         whitePlayer = game?.whitePlayer?.data(StoneType.WHITE, whiteScore.total ?: 0f, showRanks),
         blackPlayer = game?.blackPlayer?.data(StoneType.BLACK, blackScore.total ?: 0f, showRanks),
         whiteScore = whiteScore,
@@ -491,17 +505,33 @@ class GameViewModel(
     playerLost: Boolean?,
     playerStartTimer: String?,
     undoRequestedByPlayer: Boolean,
-  ): String? =
+  ): TextResource? =
     when {
-      game?.phase == Phase.PLAY && undoRequestedByPlayer -> "Requested undo"
+      game?.phase == Phase.PLAY && undoRequestedByPlayer -> TextResource(R.string.game_status_requested_undo)
       game?.phase == Phase.PLAY && !playerToMove && game.moves?.lastOrNull()
-        ?.isPass() == true -> "Player passed!"
+        ?.isPass() == true -> TextResource(R.string.game_status_player_passed)
 
-      game?.phase == Phase.STONE_REMOVAL && game.removedStones != null && game.removedStones == playerAcceptedStones -> "Accepted"
-      game?.phase == Phase.FINISHED && playerLost == true && game.outcome == "Resignation" -> "Resigned"
-      game?.phase == Phase.FINISHED && playerLost == true && game.outcome == "Timeout" -> "Timed out"
-      game?.phase == Phase.FINISHED && playerLost == true && game.outcome == "Cancellation" -> "Cancelled the game"
-      playerStartTimer != null -> "$playerStartTimer to make first move"
+      game?.phase == Phase.STONE_REMOVAL && game.removedStones != null && game.removedStones == playerAcceptedStones -> TextResource(
+        R.string.game_status_accepted
+      )
+
+      game?.phase == Phase.FINISHED && playerLost == true && game.outcome == OUTCOME_RESIGNATION -> TextResource(
+        R.string.game_status_resigned
+      )
+
+      game?.phase == Phase.FINISHED && playerLost == true && game.outcome == OUTCOME_TIMEOUT -> TextResource(
+        R.string.game_status_timed_out
+      )
+
+      game?.phase == Phase.FINISHED && playerLost == true && game.outcome == OUTCOME_CANCELLATION -> TextResource(
+        R.string.game_status_cancelled_game
+      )
+
+      playerStartTimer != null -> textResource(
+        R.string.game_status_first_move_timer,
+        playerStartTimer
+      )
+
       else -> null
     }
 
@@ -547,7 +577,7 @@ class GameViewModel(
     gameState = game
     checkPendingMove(game)
     if (game.phase == Phase.FINISHED && gameFinished == false && game.blackLost != game.whiteLost) { // Game just finished
-      if (game.ranked == true && game.outcome != "Cancellation") {
+      if (game.ranked == true && game.outcome != OUTCOME_CANCELLATION) {
         val youPlayWhite = game.whitePlayer.id == userId
         val you = if (youPlayWhite) game.whitePlayer else game.blackPlayer
         val historicRating = you.historicRating ?: you.rating
@@ -584,74 +614,44 @@ class GameViewModel(
     val loser = if (game.blackLost == true) game.blackPlayer else game.whitePlayer
     val you = if (game.whitePlayer.id == userId) game.whitePlayer else game.blackPlayer
 
-    var details = when {
-      game.outcome == "Resignation" -> buildAnnotatedString {
-        pushStyle(SpanStyle(fontWeight = FontWeight.Bold))
-        append(loser.username)
-        pop()
-        append(" resigned on move ${game.moves?.size}")
-      }
+    val outcome = when {
+      game.outcome == OUTCOME_RESIGNATION -> GameOutcome.Resignation(
+        loser.username,
+        game.moves?.size ?: 0
+      )
 
-      game.outcome?.endsWith("points") == true -> buildAnnotatedString {
-        pushStyle(SpanStyle(fontWeight = FontWeight.Bold))
-        append(winner.username)
-        pop()
-        append(" has ${game.outcome.substringBefore(' ')} more points")
-      }
+      game.outcome?.endsWith(OUTCOME_POINTS_SUFFIX) == true -> GameOutcome.Points(
+        winner.username,
+        game.outcome.substringBefore(' ')
+      )
 
-      game.outcome == "Timeout" -> buildAnnotatedString {
-        pushStyle(SpanStyle(fontWeight = FontWeight.Bold))
-        append(loser.username)
-        pop()
-        append(" timed out.")
-      }
-
-      game.outcome == "Cancellation" -> buildAnnotatedString {
-        pushStyle(SpanStyle(fontWeight = FontWeight.Bold))
-        append(loser.username)
-        pop()
-        append(" cancelled the game.")
-      }
-
-      game.outcome == "Disconnection" -> buildAnnotatedString {
-        pushStyle(SpanStyle(fontWeight = FontWeight.Bold))
-        append(loser.username)
-        pop()
-        append(" disconnected.")
-      }
-
-      else -> AnnotatedString("RepoResult unknown (${game.outcome})")
+      game.outcome == OUTCOME_TIMEOUT -> GameOutcome.Timeout(loser.username)
+      game.outcome == OUTCOME_CANCELLATION -> GameOutcome.Cancellation(loser.username)
+      game.outcome == OUTCOME_DISCONNECTION -> GameOutcome.Disconnection(loser.username)
+      else -> GameOutcome.Unknown(game.outcome ?: "")
     }
 
-    if (game.ranked == true && you.rating != null) {
+    val ratingChange = if (game.ranked == true && you.rating != null) {
       val historicRating = you.historicRating ?: you.rating
-      val difference =
-        if (you.rating >= historicRating) "+${you.rating.toInt() - historicRating.toInt()}" else "${you.rating.toInt() - historicRating.toInt()}"
-      if (you.rating == historicRating && game.outcome != "Cancellation") {
-        details += buildAnnotatedString {
-          append("\nYour rating is being updated")
-        }
+      if (you.rating == historicRating && game.outcome != OUTCOME_CANCELLATION) {
+        RatingChange.BeingUpdated
       } else {
-        details += buildAnnotatedString {
-          append("\nYour rating is now ")
-          pushStyle(SpanStyle(fontWeight = FontWeight.Bold))
-          append(formatRank(egfToRank(you.rating), you.deviation))
-          pop()
-          append(" - ${String.format("%.0f", you.rating)} (")
-          if (you.rating != historicRating) {
-            pushStyle(SpanStyle(fontStyle = FontStyle.Italic))
-            append(difference)
-            pop()
-            append(")")
-          }
-        }
+        val difference = you.rating.toInt() - historicRating.toInt()
+        RatingChange.NewRating(
+          rank = formatRank(egfToRank(you.rating), you.deviation),
+          rating = String.format("%.0f", you.rating),
+          difference = if (you.rating != historicRating) {
+            if (you.rating >= historicRating) "+$difference" else "$difference"
+          } else null,
+        )
       }
-    }
+    } else null
 
     return GameOverDialogDetails(
-      gameCancelled = game.outcome == "Cancellation",
+      gameCancelled = game.outcome == OUTCOME_CANCELLATION,
       playerWon = playerWon,
-      detailsText = details
+      outcome = outcome,
+      ratingChange = ratingChange,
     )
   }
 
@@ -781,7 +781,10 @@ class GameViewModel(
   private fun Player.data(color: StoneType, score: Float, showRanks: Boolean): PlayerData {
     return PlayerData(
       name = username,
-      details = if (score != 0f) "${if (score > 0) "+ " else ""}$score points" else "",
+      details = if (score != 0f) textResource(
+        R.string.game_player_points,
+        if (score > 0) "+ $score" else "$score"
+      ) else null,
       rank = if (showRanks) formatRank(egfToRank(rating), deviation) else "",
       flagCode = convertCountryCodeToEmojiFlag(country),
       iconURL = icon,
@@ -1092,17 +1095,17 @@ data class GameState(
   val showLastMove: Boolean,
   val lastMoveMarker: String,
   val buttons: List<Button>,
-  val title: String,
+  val title: TextResource,
   val whiteScore: Score,
   val blackScore: Score,
   val whitePlayer: PlayerData?,
   val blackPlayer: PlayerData?,
-  val whiteExtraStatus: String?,
-  val blackExtraStatus: String?,
+  val whiteExtraStatus: TextResource?,
+  val blackExtraStatus: TextResource?,
   val timerDetails: TimerDetails?,
   val timerDescription: String?,
   val ranked: Boolean,
-  val bottomText: String?,
+  val bottomText: TextResource?,
   val retryMoveDialogShowing: Boolean,
   val koMoveDialogShowing: Boolean,
   val showPlayers: Boolean,
@@ -1136,7 +1139,7 @@ data class GameState(
       fadeOutRemovedStones = false,
       showLastMove = true,
       buttons = emptyList(),
-      title = "Loading...",
+      title = TextResource(R.string.loading),
       whitePlayer = null,
       blackPlayer = null,
       whiteScore = Score(komi = 5.5f, prisoners = 0, territory = 13, total = 18.5f),
@@ -1178,15 +1181,45 @@ data class ChatMessage(
   val message: Message,
 )
 
+@Immutable
 data class GameOverDialogDetails(
   val gameCancelled: Boolean,
   val playerWon: Boolean,
-  val detailsText: AnnotatedString,
+  val outcome: GameOutcome,
+  val ratingChange: RatingChange?,
 )
+
+/**
+ * How the game ended. The UI layer turns this into the (styled) sentence shown in the game over
+ * dialog, so that no user facing text is needed here.
+ */
+@Immutable
+sealed interface GameOutcome {
+  data class Resignation(val loser: String, val moveNo: Int) : GameOutcome
+  data class Points(val winner: String, val points: String) : GameOutcome
+  data class Timeout(val loser: String) : GameOutcome
+  data class Cancellation(val loser: String) : GameOutcome
+  data class Disconnection(val loser: String) : GameOutcome
+  data class Unknown(val outcome: String) : GameOutcome
+}
+
+/** The effect the game had on the user's own rating. */
+@Immutable
+sealed interface RatingChange {
+  /** The server has not published the new rating yet. */
+  object BeingUpdated : RatingChange
+
+  data class NewRating(
+    val rank: String,
+    val rating: String,
+    /** Signed difference to the rating before the game, or `null` if it did not change. */
+    val difference: String?,
+  ) : RatingChange
+}
 
 data class PlayerData(
   val name: String,
-  val details: String,
+  val details: TextResource?,
   val rank: String,
   val flagCode: String,
   val iconURL: String?,
@@ -1198,45 +1231,72 @@ data class PlayerData(
 
 sealed class Button(
   override val icon: ImageVector,
-  override val label: String,
+  @StringRes override val labelResId: Int,
+  override val label: String = "",
   override val repeatable: Boolean = false,
   override val enabled: Boolean = true,
   override val bubbleText: String? = null,
   override val highlighted: Boolean = false,
 ) : BottomBarButton {
-  object ConfirmMove : Button(Icons.Rounded.ThumbUp, "Confirm Move", highlighted = true)
-  object DiscardMove : Button(Icons.Rounded.Cancel, "Discard Move")
-  object AcceptStoneRemoval : Button(Icons.Rounded.ThumbUp, "Accept", highlighted = true)
-  object RejectStoneRemoval : Button(Icons.Rounded.ThumbDown, "Reject")
-  object Analyze : Button(Icons.Rounded.Biotech, "Analyze")
-  object Pass : Button(Icons.Rounded.Stop, "Pass")
-  object Resign : Button(Icons.Rounded.OutlinedFlag, "Resign")
-  object CancelGame : Button(Icons.Rounded.Cancel, "Cancel Game")
-  class Chat(bubbleText: String? = null) :
-    Button(bubbleText = bubbleText, icon = Icons.Rounded.Forum, label = "Chat")
+  object ConfirmMove :
+    Button(Icons.Rounded.ThumbUp, R.string.game_button_confirm_move, highlighted = true)
+
+  object DiscardMove : Button(Icons.Rounded.Cancel, R.string.game_button_discard_move)
+  object AcceptStoneRemoval :
+    Button(Icons.Rounded.ThumbUp, R.string.game_button_accept, highlighted = true)
+
+  object RejectStoneRemoval : Button(Icons.Rounded.ThumbDown, R.string.game_button_reject)
+  object Analyze : Button(Icons.Rounded.Biotech, R.string.game_button_analyze)
+  object Pass : Button(Icons.Rounded.Stop, R.string.game_button_pass)
+  object Resign : Button(Icons.Rounded.OutlinedFlag, R.string.game_button_resign)
+  object CancelGame : Button(Icons.Rounded.Cancel, R.string.game_button_cancel_game)
+  class Chat(bubbleText: String? = null) : Button(
+    bubbleText = bubbleText,
+    icon = Icons.Rounded.Forum,
+    labelResId = R.string.game_button_chat
+  )
 
   class NextGame(enabled: Boolean = true, bubbleText: String? = null) : Button(
     enabled = enabled,
     bubbleText = bubbleText,
     icon = Icons.AutoMirrored.Rounded.NextPlan,
-    label = "Next Game"
+    labelResId = R.string.game_button_next_game
   )
 
-  object Undo : Button(Icons.AutoMirrored.Rounded.Undo, "Undo")
-  object ExitAnalysis : Button(Icons.Rounded.HighlightOff, "Exit Analysis")
-  object Estimate :
-    Button(enabled = true, icon = Icons.Rounded.Functions, label = "Estimate")
+  object Undo : Button(Icons.AutoMirrored.Rounded.Undo, R.string.game_button_undo)
+  object ExitAnalysis : Button(Icons.Rounded.HighlightOff, R.string.game_button_exit_analysis)
+  object Estimate : Button(
+    enabled = true,
+    icon = Icons.Rounded.Functions,
+    labelResId = R.string.game_button_estimate
+  )
 
-  object EstimateDisabled :
-    Button(enabled = false, icon = Icons.Rounded.Functions, label = "Estimate")
+  object EstimateDisabled : Button(
+    enabled = false,
+    icon = Icons.Rounded.Functions,
+    labelResId = R.string.game_button_estimate
+  )
 
-  object ExitEstimate : Button(Icons.Rounded.HighlightOff, "Return")
-  object Previous : Button(repeatable = true, icon = Icons.Rounded.SkipPrevious, label = "Previous")
-  object Next :
-    Button(repeatable = true, enabled = true, icon = Icons.Rounded.SkipNext, label = "Next")
+  object ExitEstimate : Button(Icons.Rounded.HighlightOff, R.string.game_button_return)
+  object Previous : Button(
+    repeatable = true,
+    icon = Icons.Rounded.SkipPrevious,
+    labelResId = R.string.game_button_previous
+  )
 
-  object NextDisabled :
-    Button(repeatable = true, enabled = false, icon = Icons.Rounded.SkipNext, label = "Next")
+  object Next : Button(
+    repeatable = true,
+    enabled = true,
+    icon = Icons.Rounded.SkipNext,
+    labelResId = R.string.game_button_next
+  )
+
+  object NextDisabled : Button(
+    repeatable = true,
+    enabled = false,
+    icon = Icons.Rounded.SkipNext,
+    labelResId = R.string.game_button_next
+  )
 
 }
 
