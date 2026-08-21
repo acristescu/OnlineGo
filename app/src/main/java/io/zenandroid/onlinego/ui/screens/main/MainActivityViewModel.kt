@@ -2,6 +2,7 @@ package io.zenandroid.onlinego.ui.screens.main
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import io.zenandroid.onlinego.data.model.AppTheme
 import io.zenandroid.onlinego.data.model.BoardTheme
 import io.zenandroid.onlinego.data.ogs.OGSWebSocketService
 import io.zenandroid.onlinego.data.repositories.LoginStatus
@@ -101,7 +102,7 @@ data class MainActivityState(
   val screenDataLoaded: Boolean = false,
   val hasLoadedTheme: Boolean = true,
   val isLoggedIn: Boolean? = null,
-  val appTheme: String? = null,
+  val appTheme: AppTheme? = null,
   val boardTheme: BoardTheme? = null,
   val showCoordinates: Boolean = false,
   val hasCompletedOnboarding: Boolean? = null,
@@ -112,7 +113,7 @@ data class MainActivityState(
 
 private data class PersistedSettings(
   val boardTheme: BoardTheme,
-  val appTheme: String,
+  val appTheme: AppTheme,
   val showCoordinates: Boolean,
   val hasCompletedOnboarding: Boolean,
 )

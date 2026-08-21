@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
+import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.ai.KataGoAnalysisEngine
 import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.Position
@@ -16,6 +17,8 @@ import io.zenandroid.onlinego.gamelogic.RulesManager
 import io.zenandroid.onlinego.gamelogic.RulesManager.isGameOver
 import io.zenandroid.onlinego.gamelogic.Util
 import io.zenandroid.onlinego.gamelogic.Util.toGTP
+import io.zenandroid.onlinego.ui.composables.TextResource
+import io.zenandroid.onlinego.ui.composables.textResource
 import io.zenandroid.onlinego.utils.moshiadapters.HashMapOfCellToStoneTypeMoshiAdapter
 import io.zenandroid.onlinego.utils.moshiadapters.ResponseBriefMoshiAdapter
 import io.zenandroid.onlinego.utils.recordException
@@ -65,8 +68,8 @@ class AiGameViewModel(
             it.copy(
               engineStarted = true,
               chatText = when {
-                it.position == null && it.newGameDialogShown -> "Ready!"
-                it.position == null && !it.newGameDialogShown -> "Use the 'New Game' button to start a new game"
+                it.position == null && it.newGameDialogShown -> TextResource(R.string.ai_game_chat_ready)
+                it.position == null && !it.newGameDialogShown -> TextResource(R.string.ai_game_chat_use_new_game_button)
                 else -> it.chatText
               }
             )
@@ -79,7 +82,7 @@ class AiGameViewModel(
             boardIsInteractive = false,
             hintButtonVisible = false,
             ownershipButtonVisible = false,
-            chatText = "Error when starting KataGO: '${e.message}'"
+            chatText = textResource(R.string.ai_game_chat_engine_error, e.message ?: "")
           )
         }
       }
@@ -170,7 +173,7 @@ class AiGameViewModel(
     _state.update {
       it.copy(
         newGameDialogShown = false,
-        chatText = if (it.position == null) "Use the 'New Game' button to start a new game" else it.chatText
+        chatText = if (it.position == null) TextResource(R.string.ai_game_chat_use_new_game_button) else it.chatText
       )
     }
   }
@@ -194,7 +197,7 @@ class AiGameViewModel(
         showAiEstimatedTerritory = false,
         nextButtonEnabled = false,
         passButtonEnabled = false,
-        chatText = "",
+        chatText = null,
         previousButtonEnabled = false,
         boardIsInteractive = false,
         redoPosStack = emptyList(),
@@ -226,7 +229,7 @@ class AiGameViewModel(
             it.copy(
               candidateMove = null,
               koMoveDialogShowing = true,
-              chatText = "Invalid move, try again"
+              chatText = TextResource(R.string.ai_game_chat_invalid_move)
             )
           }
         } else {
@@ -247,7 +250,7 @@ class AiGameViewModel(
       it.copy(
         koMoveDialogShowing = false,
         candidateMove = null,
-        chatText = "Invalid move, try again"
+        chatText = TextResource(R.string.ai_game_chat_invalid_move)
       )
     }
   }
@@ -287,7 +290,7 @@ class AiGameViewModel(
         nextButtonEnabled = true,
         boardIsInteractive = true,
         passButtonEnabled = true,
-        chatText = "Ok, let's try again. Your turn!",
+        chatText = TextResource(R.string.ai_game_chat_lets_try_again),
         aiWon = null,
         finalBlackScore = null,
         finalWhiteScore = null
@@ -315,7 +318,7 @@ class AiGameViewModel(
       val currentState = state.value
       if (!currentState.engineStarted || currentState.position == null) return@launch
 
-      _state.update { it.copy(chatText = "Hmmm...") }
+      _state.update { it.copy(chatText = TextResource(R.string.ai_game_chat_hmmm)) }
 
       try {
         val analysis = withContext(Dispatchers.IO) {
@@ -330,7 +333,7 @@ class AiGameViewModel(
           it.copy(
             showHints = true,
             aiAnalysis = analysis,
-            chatText = "Here are a few moves to consider"
+            chatText = TextResource(R.string.ai_game_chat_moves_to_consider)
           )
         }
       } catch (e: Exception) {
@@ -348,7 +351,7 @@ class AiGameViewModel(
         _state.update {
           it.copy(
             showAiEstimatedTerritory = false,
-            chatText = "Ok, your turn",
+            chatText = TextResource(R.string.ai_game_chat_ok_your_turn),
             boardIsInteractive = true
           )
         }
@@ -358,7 +361,7 @@ class AiGameViewModel(
       _state.update {
         it.copy(
           boardIsInteractive = false,
-          chatText = "Ok, calculating current territory..."
+          chatText = TextResource(R.string.ai_game_chat_calculating_territory)
         )
       }
 
@@ -376,7 +379,7 @@ class AiGameViewModel(
             boardIsInteractive = true,
             aiAnalysis = analysis,
             showAiEstimatedTerritory = true,
-            chatText = "Here's what I think the territories look like"
+            chatText = TextResource(R.string.ai_game_chat_territories)
           )
         }
       } catch (e: Exception) {
@@ -403,13 +406,21 @@ class AiGameViewModel(
         showHints = false,
         chatText = when {
           newVariation.isGameOver() && it.aiWon == true ->
-            "Game ended because of two passes. Final score is black ${it.finalBlackScore?.toInt()} to white ${it.finalWhiteScore}. Looks like I win this time."
+            textResource(
+              R.string.ai_game_chat_game_over_ai_won,
+              it.finalBlackScore?.toInt().toString(),
+              it.finalWhiteScore.toString()
+            )
 
           newVariation.isGameOver() && it.aiWon == false ->
-            "Game ended because of two passes. Final score is black ${it.finalBlackScore?.toInt()} to white ${it.finalWhiteScore}. Congrats, looks like you got the better of me."
+            textResource(
+              R.string.ai_game_chat_game_over_player_won,
+              it.finalBlackScore?.toInt().toString(),
+              it.finalWhiteScore.toString()
+            )
 
           newVariation.isGameOver() && it.aiWon == null ->
-            "Game ended because of two passes. Hang on, I'm computing the final score."
+            TextResource(R.string.ai_game_chat_game_over_computing_score)
 
           else -> it.chatText
         },
@@ -456,7 +467,7 @@ class AiGameViewModel(
         nextButtonEnabled = false,
         hintButtonVisible = false,
         ownershipButtonVisible = false,
-        chatText = "I'm thinking..."
+        chatText = TextResource(R.string.ai_game_chat_im_thinking)
       )
     }
 
@@ -498,15 +509,23 @@ class AiGameViewModel(
                 showFinalTerritory = newVariation.isGameOver(),
                 chatText = when {
                   newVariation.isGameOver() && it.aiWon == true ->
-                    "Game ended because of two passes. Final score is black ${it.finalBlackScore?.toInt()} to white ${it.finalWhiteScore}. Looks like I win this time."
+                    textResource(
+                      R.string.ai_game_chat_game_over_ai_won,
+                      it.finalBlackScore?.toInt().toString(),
+                      it.finalWhiteScore.toString()
+                    )
 
                   newVariation.isGameOver() && it.aiWon == false ->
-                    "Game ended because of two passes. Final score is black ${it.finalBlackScore?.toInt()} to white ${it.finalWhiteScore}. Congrats, looks like you got the better of me."
+                    textResource(
+                      R.string.ai_game_chat_game_over_player_won,
+                      it.finalBlackScore?.toInt().toString(),
+                      it.finalWhiteScore.toString()
+                    )
 
                   newVariation.isGameOver() && it.aiWon == null ->
-                    "Game ended because of two passes. Hang on, I'm computing the final score."
+                    TextResource(R.string.ai_game_chat_game_over_computing_score)
 
-                  else -> "Your turn"
+                  else -> TextResource(R.string.ai_game_chat_your_turn)
                 }
               )
             }
@@ -582,9 +601,17 @@ class AiGameViewModel(
           redoPosStack = emptyList(),
           boardIsInteractive = false,
           chatText = if (aiWon)
-            "Game ended because of two passes. Final score is black $blackScore to white $whiteScore. Looks like I win this time."
+            textResource(
+              R.string.ai_game_chat_game_over_ai_won,
+              blackScore.toString(),
+              whiteScore.toString()
+            )
           else
-            "Game ended because of two passes. Final score is black $blackScore to white $whiteScore. Congrats, looks like you got the better of me.",
+            textResource(
+              R.string.ai_game_chat_game_over_player_won,
+              blackScore.toString(),
+              whiteScore.toString()
+            ),
           finalWhiteScore = whiteScore,
           finalBlackScore = blackScore.toFloat(),
           aiWon = aiWon,

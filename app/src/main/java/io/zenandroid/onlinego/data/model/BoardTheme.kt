@@ -1,5 +1,6 @@
 package io.zenandroid.onlinego.data.model
 
+import androidx.annotation.StringRes
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Color
 import io.zenandroid.onlinego.R
@@ -10,7 +11,7 @@ import io.zenandroid.onlinego.R
  */
 @Immutable
 enum class BoardTheme(
-    val displayName: String,
+  @StringRes val displayNameResId: Int,
     val backgroundImage: Int?,
     val backgroundImageDarkMode: Int?,
     val backgroundColor: Int?,
@@ -20,7 +21,7 @@ enum class BoardTheme(
     val textAndGridColor: Color
 ) {
     WOOD(
-        "Light wood",
+      R.string.settings_board_style_light_wood,
         R.drawable.wood,
         R.drawable.wood_medium,
         null,
@@ -30,7 +31,7 @@ enum class BoardTheme(
         Color.Black
     ),
     WOOD_DARK(
-        "Dark wood",
+      R.string.settings_board_style_dark_wood,
         R.drawable.wood_dark,
         R.drawable.wood_dark,
         null,
@@ -40,7 +41,7 @@ enum class BoardTheme(
         Color.White
     ),
     CYAN(
-        "Cyan",
+      R.string.settings_board_style_cyan,
         null,
         null,
         R.color.bg_cyan,
@@ -50,7 +51,7 @@ enum class BoardTheme(
         Color.DarkGray
     ),
     DARK_BLUE(
-        "Dark blue",
+      R.string.settings_board_style_dark_blue,
         null,
         null,
         R.color.bg_dark_blue,
@@ -60,7 +61,7 @@ enum class BoardTheme(
         Color.Cyan
     ),
     BOOK(
-        "Book",
+      R.string.settings_board_style_book,
         null,
         null,
         R.color.bg_book,
@@ -70,7 +71,7 @@ enum class BoardTheme(
         Color.Gray
     ),
     NOCTURNE(
-        "Nocturne",
+      R.string.settings_board_style_nocturne,
         null,
         null,
         R.color.bg_nocturne,
@@ -79,8 +80,5 @@ enum class BoardTheme(
         R.drawable.ic_stone_black_svg,
         Color.Gray
     );
-
-    override fun toString(): String =
-        displayName
 
 }

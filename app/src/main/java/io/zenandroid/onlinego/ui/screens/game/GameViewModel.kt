@@ -48,6 +48,7 @@ import io.zenandroid.onlinego.data.model.ogs.Phase
 import io.zenandroid.onlinego.data.model.ogs.VersusStats
 import io.zenandroid.onlinego.data.ogs.GameConnection
 import io.zenandroid.onlinego.data.ogs.OGSWebSocketService
+import io.zenandroid.onlinego.data.ogs.TimeControl
 import io.zenandroid.onlinego.data.repositories.ActiveGamesRepository
 import io.zenandroid.onlinego.data.repositories.ChatRepository
 import io.zenandroid.onlinego.data.repositories.ClockDriftRepository
@@ -118,7 +119,6 @@ import io.zenandroid.onlinego.utils.convertCountryCodeToEmojiFlag
 import io.zenandroid.onlinego.utils.egfToRank
 import io.zenandroid.onlinego.utils.formatMillis
 import io.zenandroid.onlinego.utils.formatRank
-import io.zenandroid.onlinego.utils.timeControlDescription
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -457,7 +457,7 @@ class GameViewModel(
         whiteScore = whiteScore,
         blackScore = blackScore,
         timerDetails = timer,
-        timerDescription = game?.timeControl?.let(::timeControlDescription),
+        timeControl = game?.timeControl,
         ranked = game?.ranked == true,
         lastMoveMarker = nextMoveMarker,
         bottomText = bottomText,
@@ -1103,7 +1103,7 @@ data class GameState(
   val whiteExtraStatus: TextResource?,
   val blackExtraStatus: TextResource?,
   val timerDetails: TimerDetails?,
-  val timerDescription: String?,
+  val timeControl: TimeControl?,
   val ranked: Boolean,
   val bottomText: TextResource?,
   val retryMoveDialogShowing: Boolean,
@@ -1145,7 +1145,7 @@ data class GameState(
       whiteScore = Score(komi = 5.5f, prisoners = 0, territory = 13, total = 18.5f),
       blackScore = Score(prisoners = 2, territory = 5, total = 7f),
       timerDetails = null,
-      timerDescription = null,
+      timeControl = null,
       ranked = false,
       bottomText = null,
       retryMoveDialogShowing = false,

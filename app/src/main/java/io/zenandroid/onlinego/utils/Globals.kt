@@ -1,8 +1,11 @@
 package io.zenandroid.onlinego.utils
 
 import android.content.Context
+import android.content.res.Resources
 import android.widget.Toast
+import androidx.annotation.PluralsRes
 import io.zenandroid.onlinego.BuildConfig
+import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.local.Clock
 import io.zenandroid.onlinego.data.model.local.Game
 import io.zenandroid.onlinego.data.model.local.Time
@@ -187,34 +190,61 @@ fun formatMillis(millis: Long): String {
 
 fun plural(number: Long) = if(number != 1L) "s" else ""
 
-fun timeControlDescription(timeControl: TimeControl): String {
+fun timeControlDescription(resources: Resources, timeControl: TimeControl): String {
 
     val system = timeControl.system ?: timeControl.time_control
     var desc = when(system) {
-        "simple" -> "Simple: ${formatSeconds(timeControl.per_move)} per move."
-        "fischer" -> "Fischer: Clock starts with ${formatSeconds(timeControl.initial_time)} and increments by ${formatSeconds(timeControl.time_increment)} per move up to a maximum of ${formatSeconds(timeControl.max_time)}."
-        "byoyomi" -> "Japanese Byo-Yomi: Clock starts with ${formatSeconds(timeControl.main_time)} main time, followed by ${timeControl.periods} periods of ${formatSeconds(timeControl.period_time)} each."
-        "canadian" -> "Canadian Byo-Yomi: Clock starts with ${formatSeconds(timeControl.main_time)} main time, followed by ${formatSeconds(timeControl.period_time)} per ${timeControl.stones_per_period} stones."
-        "absolute" -> "Absolute: ${formatSeconds(timeControl.total_time)} total play time per player."
-        "none" -> "No time limits."
-        else -> "?"
+        "simple" -> resources.getString(
+            R.string.time_control_simple,
+            formatSeconds(resources, timeControl.per_move)
+        )
+
+        "fischer" -> resources.getString(
+            R.string.time_control_fischer,
+            formatSeconds(resources, timeControl.initial_time),
+            formatSeconds(resources, timeControl.time_increment),
+            formatSeconds(resources, timeControl.max_time)
+        )
+
+        "byoyomi" -> {
+            val periods = timeControl.periods ?: 0
+            resources.getQuantityString(
+                R.plurals.time_control_byoyomi,
+                periods,
+                formatSeconds(resources, timeControl.main_time),
+                periods,
+                formatSeconds(resources, timeControl.period_time)
+            )
+        }
+
+        "canadian" -> {
+            val stones = timeControl.stones_per_period ?: 0
+            resources.getQuantityString(
+                R.plurals.time_control_canadian,
+                stones,
+                formatSeconds(resources, timeControl.main_time),
+                formatSeconds(resources, timeControl.period_time),
+                stones
+            )
+        }
+
+        "absolute" -> resources.getString(
+            R.string.time_control_absolute,
+            formatSeconds(resources, timeControl.total_time)
+        )
+
+        "none" -> resources.getString(R.string.time_control_none)
+        else -> resources.getString(R.string.time_control_unknown)
     }
 
     if(timeControl.pause_on_weekends == true) {
-        desc += " Pauses on weekends."
+        desc += resources.getString(R.string.time_control_pauses_on_weekends)
     }
 
     return desc
 }
 
-fun pluralButNotZero(number: Long, suffix: String) =
-    if(number > 0) {
-        " $number $suffix${plural(number)}"
-    } else {
-        ""
-    }
-
-fun formatSeconds(seconds: Int?): String {
+fun formatSeconds(resources: Resources, seconds: Int?): String {
     seconds?.let {
         var s = it.toDouble()
         val weeks = (s / (86400 * 7)).toLong()
@@ -227,14 +257,54 @@ fun formatSeconds(seconds: Int?): String {
         s -= minutes * 60
 
         return when {
-            weeks > 0 -> "$weeks week${plural(weeks)}${pluralButNotZero(days, "day")}"
-            days > 0 -> "$days day${plural(days)}${pluralButNotZero(hours, "hour")}"
-            hours > 0 -> "$hours hour${plural(hours)}${pluralButNotZero(minutes, "minute")}"
-            minutes > 0 -> "$minutes minute${plural(minutes)}${pluralButNotZero(s.toLong(), "seconds")}"
-            else -> "${s.toLong()} second${plural(s.toLong())}"
+            weeks > 0 -> resources.duration(
+                R.plurals.duration_weeks,
+                weeks,
+                R.plurals.duration_days,
+                days
+            )
+
+            days > 0 -> resources.duration(
+                R.plurals.duration_days,
+                days,
+                R.plurals.duration_hours,
+                hours
+            )
+
+            hours > 0 -> resources.duration(
+                R.plurals.duration_hours,
+                hours,
+                R.plurals.duration_minutes,
+                minutes
+            )
+
+            minutes > 0 -> resources.duration(
+                R.plurals.duration_minutes,
+                minutes,
+                R.plurals.duration_seconds,
+                s.toLong()
+            )
+
+            else -> resources.durationUnit(R.plurals.duration_seconds, s.toLong())
         }
     }
-    return "?"
+    return resources.getString(R.string.duration_unknown)
+}
+
+private fun Resources.durationUnit(@PluralsRes unit: Int, value: Long): String =
+    getQuantityString(unit, value.toInt(), value)
+
+/** Formats [value] of [unit], appending [remainderValue] of [remainderUnit] when it is not zero. */
+private fun Resources.duration(
+    @PluralsRes unit: Int,
+    value: Long,
+    @PluralsRes remainderUnit: Int,
+    remainderValue: Long,
+): String {
+    val head = durationUnit(unit, value)
+    return if (remainderValue > 0) {
+        getString(R.string.duration_two_units, head, durationUnit(remainderUnit, remainderValue))
+    } else head
 }
 
 fun Long.microsToISODateTime(): String {

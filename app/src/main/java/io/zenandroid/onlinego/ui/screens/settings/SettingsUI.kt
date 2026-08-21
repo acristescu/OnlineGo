@@ -86,7 +86,9 @@ import io.zenandroid.onlinego.BuildConfig
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.R.drawable
 import io.zenandroid.onlinego.R.mipmap
+import io.zenandroid.onlinego.data.model.AppTheme
 import io.zenandroid.onlinego.data.model.BoardTheme
+import io.zenandroid.onlinego.ui.composables.resolve
 import io.zenandroid.onlinego.ui.screens.mygames.composables.SenteCard
 import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.BoardThemeClicked
 import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.CoordinatesClicked
@@ -279,7 +281,7 @@ fun SettingsScreen(
           Text(stringResource(R.string.ok))
         }
       },
-      text = { Text(it) },
+      text = { Text(it.resolve()) },
       title = { Text(stringResource(R.string.settings_error_dialog_title)) },
     )
   }
@@ -376,21 +378,24 @@ private fun SettingsContent(
           icon = Rounded.DarkMode,
           checkbox = false,
           checked = true,
-          value = userSettings.theme,
-          possibleValues = listOf(
-            stringResource(R.string.settings_theme_system_default),
-            stringResource(R.string.settings_theme_light),
-            stringResource(R.string.settings_theme_dark)
-          ),
-          onValueClick = { onAction(ThemeClicked(it)) })
+          value = stringResource(userSettings.theme.displayNameResId),
+          possibleValues = AppTheme.entries.map { theme ->
+            SettingsOption(label = stringResource(theme.displayNameResId)) {
+              onAction(ThemeClicked(theme))
+            }
+          })
         SettingsRow(
           title = stringResource(R.string.settings_board_style),
           icon = Rounded.Palette,
           checkbox = false,
           checked = true,
-          value = userSettings.boardTheme.displayName,
-          possibleValues = BoardTheme.entries,
-          onValueClick = { onAction(BoardThemeClicked(it)) })
+          value = stringResource(userSettings.boardTheme.displayNameResId),
+          possibleValues = BoardTheme.entries.map { boardTheme ->
+            SettingsOption(
+              label = stringResource(boardTheme.displayNameResId),
+              boardTheme = boardTheme,
+            ) { onAction(BoardThemeClicked(boardTheme)) }
+          })
       }
     }
     Section(title = stringResource(R.string.settings_section_game_settings)) {
@@ -462,6 +467,16 @@ private fun SettingsContent(
   }
 }
 
+/**
+ * One entry of a settings dropdown. The label is already localized and [onSelected] carries the
+ * typed value, so nothing is matched back by display text.
+ */
+private class SettingsOption(
+  val label: String,
+  val boardTheme: BoardTheme? = null,
+  val onSelected: () -> Unit,
+)
+
 @Composable
 private fun SettingsRow(
   title: String,
@@ -469,9 +484,8 @@ private fun SettingsRow(
   checkbox: Boolean = false,
   checked: Boolean = false,
   value: String? = null,
-  possibleValues: List<Any> = emptyList(),
+  possibleValues: List<SettingsOption> = emptyList(),
   onClick: () -> Unit = {},
-  onValueClick: (String) -> Unit = {},
 ) {
   var menuOpen by remember { mutableStateOf(false) }
   Row(
@@ -515,31 +529,31 @@ private fun SettingsRow(
             expanded = menuOpen,
             onDismissRequest = { menuOpen = false },
           ) {
-            possibleValues.forEach {
-              key(it) {
+            possibleValues.forEach { option ->
+              key(option.label) {
                 DropdownMenuItem(
                   onClick = {
                     menuOpen = false
-                    onValueClick(it.toString())
+                    option.onSelected()
                   },
                   leadingIcon = {
-                    if (it is BoardTheme) {
+                    option.boardTheme?.let { boardTheme ->
                       Box(modifier = Modifier.size(24.dp)) {
-                        if (it.backgroundImage != null) {
+                        if (boardTheme.backgroundImage != null) {
                           Image(
-                            painter = painterResource(id = it.backgroundImage),
+                            painter = painterResource(id = boardTheme.backgroundImage),
                             contentDescription = stringResource(R.string.settings_icon_content_description),
                             modifier = Modifier.size(24.dp)
                           )
                         } else {
                           Image(
-                            painter = ColorPainter(colorResource(it.backgroundColor!!)),
+                            painter = ColorPainter(colorResource(boardTheme.backgroundColor!!)),
                             contentDescription = stringResource(R.string.settings_icon_content_description),
                             modifier = Modifier.size(24.dp)
                           )
                         }
                         Image(
-                          painter = painterResource(id = it.gridPreview),
+                          painter = painterResource(id = boardTheme.gridPreview),
                           contentDescription = stringResource(R.string.settings_icon_content_description),
                           modifier = Modifier.size(24.dp)
                         )
@@ -548,7 +562,7 @@ private fun SettingsRow(
                   },
                   text = {
                     Text(
-                      text = it.toString(),
+                      text = option.label,
                       color = MaterialTheme.colorScheme.onSurface,
                       modifier = Modifier.padding(start = 8.dp)
                     )
@@ -607,7 +621,7 @@ private fun SettingsScreenPreview() {
           username = "Username",
         ),
         UserSettings(
-          theme = "System Default",
+          theme = AppTheme.SYSTEM_DEFAULT,
           boardTheme = BoardTheme.WOOD,
           soundEnabled = true,
           showRanks = true,

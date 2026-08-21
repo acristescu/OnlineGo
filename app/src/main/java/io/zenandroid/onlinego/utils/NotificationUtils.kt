@@ -123,8 +123,13 @@ class NotificationUtils {
                         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
                         notificationManager.notify(it.id.toInt(),
                                 NotificationCompat.Builder(context, "challenges")
-                                        .setContentTitle("A new challenge!")
-                                        .setContentText("${it.challenger?.username} has issued a challenge")
+                                    .setContentTitle(context.getString(R.string.notification_challenge_title))
+                                    .setContentText(
+                                        context.getString(
+                                            R.string.notification_challenge_text,
+                                            it.challenger?.username ?: ""
+                                        )
+                                    )
                                         .setContentIntent(pendingIntent)
                                         .setVibrate(arrayOf(0L, 200L, 0L, 200L).toLongArray())
                                         .setSmallIcon(R.drawable.ic_notification_go_board)
@@ -186,28 +191,50 @@ class NotificationUtils {
                 val opponent = if (userId == it.blackPlayer.id) it.whitePlayer.username else it.blackPlayer.username
                 val message = when (it.phase) {
                     Phase.FINISHED -> {
+                        val gameOutcome = it.outcome ?: ""
                         val outcome = when {
-                            it.outcome == "Cancellation" -> "Cancelled"
+                            it.outcome == "Cancellation" -> context.getString(R.string.notification_outcome_cancelled)
                             userId == it.blackPlayer.id ->
-                                if (it.blackLost == true) "Lost by ${it.outcome}"
-                                else "Won by ${it.outcome}"
+                                if (it.blackLost == true) context.getString(
+                                    R.string.notification_outcome_lost_by,
+                                    gameOutcome
+                                )
+                                else context.getString(
+                                    R.string.notification_outcome_won_by,
+                                    gameOutcome
+                                )
 
                             userId == it.whitePlayer.id ->
-                                if (it.whiteLost == true) "Lost by ${it.outcome}"
-                                else "Won by ${it.outcome}"
+                                if (it.whiteLost == true) context.getString(
+                                    R.string.notification_outcome_lost_by,
+                                    gameOutcome
+                                )
+                                else context.getString(
+                                    R.string.notification_outcome_won_by,
+                                    gameOutcome
+                                )
 
                             it.whiteLost == true ->
-                                "Black won by ${it.outcome}"
+                                context.getString(
+                                    R.string.notification_outcome_black_won_by,
+                                    gameOutcome
+                                )
 
                             else ->
-                                "White won by ${it.outcome}"
+                                context.getString(
+                                    R.string.notification_outcome_white_won_by,
+                                    gameOutcome
+                                )
                         }
-                        "Game ended - $outcome"
+                        context.getString(R.string.notification_game_ended, outcome)
                     }
 
-                    Phase.PLAY -> "Your turn"
-                    Phase.STONE_REMOVAL -> "Stone removal phase"
-                    else -> "${it.phase} Requires your attention"
+                    Phase.PLAY -> context.getString(R.string.notification_your_turn)
+                    Phase.STONE_REMOVAL -> context.getString(R.string.notification_stone_removal_phase)
+                    else -> context.getString(
+                        R.string.notification_requires_attention,
+                        it.phase.toString()
+                    )
                 }
                 val category = when (it.timeControl?.speed?.lowercase(Locale.ROOT)) {
                     "correspondence" -> "active_correspondence_games"
@@ -262,28 +289,37 @@ class NotificationUtils {
                 Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             val pendingIntent = PendingIntent.getActivity(context, 0, notificationIntent, FLAG_UPDATE_CURRENT or FLAG_IMMUTABLE)
 
+            val summary = context.resources.getQuantityString(
+                R.plurals.notification_games_require_attention,
+                games.size,
+                games.size
+            )
             val notification =
                     NotificationCompat.Builder(context, "active_games")
-                            .setContentTitle("${games.size} games require your attention")
-                            .setContentText("${games.size} games require your attention")
+                        .setContentTitle(summary)
+                        .setContentText(summary)
                             .setAutoCancel(true)
                             .setContentIntent(pendingIntent)
                             .setSmallIcon(R.drawable.ic_notification_go_board)
                             .setColor(ResourcesCompat.getColor(context.resources, R.color.colorTextSecondary, null))
                             .setGroupSummary(true)
                             .setGroup("GAME_NOTIFICATIONS")
-                            .setInboxStyle(games, userId)
+                        .setInboxStyle(context, games, userId)
                             .build()
 
             val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             notificationManager.notify(NOTIFICATION_ID, notification)
         }
 
-        private fun NotificationCompat.Builder.setInboxStyle(games: List<Game>, userId: Long?): NotificationCompat.Builder {
+        private fun NotificationCompat.Builder.setInboxStyle(
+            context: Context,
+            games: List<Game>,
+            userId: Long?
+        ): NotificationCompat.Builder {
             val inboxStyle = NotificationCompat.InboxStyle()
             games.forEach {
                 val opponent = if (userId == it.blackPlayer.id) it.whitePlayer.username else it.blackPlayer.username
-                inboxStyle.addLine("vs $opponent")
+                inboxStyle.addLine(context.getString(R.string.notification_inbox_versus, opponent))
             }
             setStyle(inboxStyle)
             return this
@@ -296,8 +332,8 @@ class NotificationUtils {
 
             val notification =
                     NotificationCompat.Builder(context, "logout")
-                            .setContentTitle("Please log in again")
-                            .setContentText("You have been logged out of the app. This usually happens because you changed your password. Please log in again to re-enable notifications")
+                        .setContentTitle(context.getString(R.string.notification_logout_title))
+                        .setContentText(context.getString(R.string.notification_logout_text))
                             .setContentIntent(pendingIntent)
                             .setSmallIcon(R.drawable.ic_notification_go_board)
                             .setColor(ResourcesCompat.getColor(context.resources, R.color.colorTextSecondary, null))

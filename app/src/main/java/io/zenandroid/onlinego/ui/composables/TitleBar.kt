@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.Icons.Rounded
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
-import androidx.compose.material.icons.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -27,7 +26,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import io.zenandroid.onlinego.R
 
 @Composable
 fun TitleBar(
@@ -41,7 +42,11 @@ fun TitleBar(
   Row(modifier = modifier) {
     onBack?.let {
       IconButton(onClick = { onBack() }) {
-        Icon(Icons.AutoMirrored.Rounded.ArrowBack, "Back", tint = MaterialTheme.colorScheme.onSurface)
+        Icon(
+          Icons.AutoMirrored.Rounded.ArrowBack,
+          stringResource(R.string.back),
+          tint = MaterialTheme.colorScheme.onSurface
+        )
       }
     }
     Spacer(modifier = Modifier.weight(.5f))
@@ -56,7 +61,7 @@ fun TitleBar(
     titleIcon?.let {
       Icon(
         titleIcon,
-        "Game Info",
+        stringResource(R.string.title_bar_game_info_content_description),
         tint = MaterialTheme.colorScheme.onSurface,
         modifier = Modifier
           .size(18.dp)
@@ -70,7 +75,11 @@ fun TitleBar(
       Box {
         var moreMenuOpen by rememberSaveable { mutableStateOf(false) }
         IconButton(onClick = { moreMenuOpen = true }) {
-          Icon(Rounded.MoreVert, "More", tint = MaterialTheme.colorScheme.onSurface)
+          Icon(
+            Rounded.MoreVert,
+            stringResource(R.string.title_bar_more_content_description),
+            tint = MaterialTheme.colorScheme.onSurface
+          )
         }
         DropdownMenu(
           expanded = moreMenuOpen,

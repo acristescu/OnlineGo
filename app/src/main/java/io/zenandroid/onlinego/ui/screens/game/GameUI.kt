@@ -141,6 +141,7 @@ import io.zenandroid.onlinego.ui.screens.game.composables.PlayerCard
 import io.zenandroid.onlinego.ui.screens.game.composables.PlayerDetailsDialog
 import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
 import io.zenandroid.onlinego.usecases.RepoResult
+import io.zenandroid.onlinego.utils.timeControlDescription
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.koin.androidx.compose.koinViewModel
@@ -609,6 +610,7 @@ private fun GameInfoDialog(state: GameState, onUserAction: (UserAction) -> Unit)
         )
         .padding(16.dp)
     ) {
+      val context = LocalContext.current
       Spacer(modifier = Modifier.height(100.dp))
       Text(
         text = stringResource(if (state.ranked) R.string.game_info_ranked else R.string.game_info_unranked),
@@ -674,7 +676,7 @@ private fun GameInfoDialog(state: GameState, onUserAction: (UserAction) -> Unit)
       )
       Row {
         Text(
-          text = state.timerDescription ?: "",
+          text = state.timeControl?.let { timeControlDescription(context.resources, it) } ?: "",
           textAlign = TextAlign.Center,
           style = MaterialTheme.typography.bodySmall,
           color = MaterialTheme.colorScheme.onSurface,
@@ -1326,7 +1328,7 @@ private fun PreviewLoading() {
         whiteExtraStatus = null,
         blackExtraStatus = null,
         timerDetails = null,
-        timerDescription = null,
+        timeControl = null,
         ranked = false,
         bottomText = TextResource(R.string.loading),
         retryMoveDialogShowing = false,

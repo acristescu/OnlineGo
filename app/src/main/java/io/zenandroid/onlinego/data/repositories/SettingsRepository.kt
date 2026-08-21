@@ -8,6 +8,7 @@ import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import io.zenandroid.onlinego.data.model.AppTheme
 import io.zenandroid.onlinego.data.model.BoardTheme
 import io.zenandroid.onlinego.data.model.ogs.Speed
 import io.zenandroid.onlinego.ui.screens.settings.UserSettings
@@ -68,7 +69,7 @@ class SettingsRepository(
       val prefs = dataStore.data.first()
 
       cachedUserSettings = UserSettings(
-        theme = prefs[APP_THEME] ?: "System default",
+        theme = AppTheme.fromStoredValue(prefs[APP_THEME]),
         boardTheme = BoardTheme.entries.find {
           it.name == (prefs[BOARD_THEME] ?: BoardTheme.WOOD.name)
         }
@@ -81,11 +82,11 @@ class SettingsRepository(
     }
   }
 
-  val appThemeFlow: Flow<String> = dataStore.data
-    .map { prefs -> prefs[APP_THEME] ?: "System default" }
+  val appThemeFlow: Flow<AppTheme> = dataStore.data
+    .map { prefs -> AppTheme.fromStoredValue(prefs[APP_THEME]) }
 
-  suspend fun setAppTheme(value: String) {
-    dataStore.edit { it[APP_THEME] = value }
+  suspend fun setAppTheme(theme: AppTheme) {
+    dataStore.edit { it[APP_THEME] = theme.storedValue }
   }
 
   val boardThemeFlow: Flow<BoardTheme> = dataStore.data

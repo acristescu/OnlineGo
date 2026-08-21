@@ -76,6 +76,7 @@ import com.google.android.gms.common.api.Scope
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.ui.composables.HorizontalPagerIndicator
+import io.zenandroid.onlinego.ui.composables.resolve
 import io.zenandroid.onlinego.ui.screens.onboarding.OnboardingAction.BackPressed
 import io.zenandroid.onlinego.ui.screens.onboarding.OnboardingAction.SocialPlatformLoginFailed
 import io.zenandroid.onlinego.ui.screens.onboarding.Page.OnboardingPage
@@ -110,7 +111,11 @@ fun OnboardingScreen(
       } catch (e: ApiException) {
         Log.w("OnboardingFragment", "signInResult:failed code=" + e.statusCode)
         recordException(e)
-        Toast.makeText(activity, "signInResult:failed code=" + e.statusCode, Toast.LENGTH_LONG)
+        Toast.makeText(
+          activity,
+          activity?.getString(R.string.onboarding_google_signin_failed, e.statusCode),
+          Toast.LENGTH_LONG
+        )
           .show()
         viewModel.onAction(SocialPlatformLoginFailed)
       }
@@ -346,7 +351,7 @@ private fun ColumnScope.LoginPage(
           style = MaterialTheme.typography.titleLarge
         )
       },
-      text = { Text(text = state.loginErrorDialogText) }
+      text = { Text(text = state.loginErrorDialogText.resolve()) }
     )
   }
 }

@@ -26,3 +26,24 @@ fun TextResource.resolve(): String =
 
 @Composable
 fun TextResource?.resolveOrNull(): String? = this?.resolve()
+
+/**
+ * User facing text that is either one of our own string resources or a literal we were handed at
+ * runtime and cannot translate - typically an error message from the server.
+ */
+@Immutable
+sealed interface UiText {
+  data class Literal(val text: String) : UiText
+  data class FromResource(val resource: TextResource) : UiText
+}
+
+fun uiText(@StringRes resId: Int, vararg args: Any): UiText =
+  UiText.FromResource(TextResource(resId, args.toList()))
+
+fun literalText(text: String): UiText = UiText.Literal(text)
+
+@Composable
+fun UiText.resolve(): String = when (this) {
+  is UiText.Literal -> text
+  is UiText.FromResource -> resource.resolve()
+}

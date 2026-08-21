@@ -5,6 +5,7 @@ import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.Position
 import io.zenandroid.onlinego.data.model.katago.KataGoResponse.Response
 import io.zenandroid.onlinego.data.model.katago.MoveInfo
+import io.zenandroid.onlinego.ui.composables.TextResource
 
 @Immutable
 data class AiGameState(
@@ -21,7 +22,7 @@ data class AiGameState(
   val previousButtonEnabled: Boolean = false,
   val redoPosStack: List<Position> = emptyList(),
   val newGameDialogShown: Boolean = false,
-  val chatText: String? = null,
+  val chatText: TextResource? = null,
   val showHints: Boolean = false,
   val showAiEstimatedTerritory: Boolean = false,
   val showFinalTerritory: Boolean = false,

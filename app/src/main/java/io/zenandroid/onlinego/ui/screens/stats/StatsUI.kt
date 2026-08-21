@@ -551,7 +551,7 @@ private fun PreviewGainLossBar() {
         .padding(horizontal = 8.dp, vertical = 8.dp)
     ) {
       WinLossStatsBar(
-        text = "All games",
+        text = stringResource(R.string.stats_all_games),
         stats = WinLossStats(0, 0f, 100, 200, .33f, 0f),
         modifier = Modifier.padding(8.dp)
       )

@@ -16,6 +16,9 @@ import io.zenandroid.onlinego.data.ogs.OGSWebSocketService
 import io.zenandroid.onlinego.data.repositories.LoginStatus
 import io.zenandroid.onlinego.data.repositories.SettingsRepository
 import io.zenandroid.onlinego.data.repositories.UserSessionRepository
+import io.zenandroid.onlinego.ui.composables.UiText
+import io.zenandroid.onlinego.ui.composables.literalText
+import io.zenandroid.onlinego.ui.composables.uiText
 import io.zenandroid.onlinego.ui.screens.onboarding.Page.LoginPage
 import io.zenandroid.onlinego.ui.screens.onboarding.Page.MultipleChoicePage
 import io.zenandroid.onlinego.ui.screens.onboarding.Page.NotificationPermissionPage
@@ -297,7 +300,7 @@ class OnboardingViewModel(
       _state.update {
         it.copy(
           loginProcessing = false,
-          loginErrorDialogText = "Invalid username or password"
+          loginErrorDialogText = uiText(R.string.onboarding_login_invalid_credentials)
         )
       }
     } else {
@@ -305,7 +308,7 @@ class OnboardingViewModel(
       _state.update {
         it.copy(
           loginProcessing = false,
-          loginErrorDialogText = "Login failed. Debug info: '${t.message}'"
+          loginErrorDialogText = uiText(R.string.onboarding_login_failed_debug, t.message ?: "")
         )
       }
     }
@@ -316,7 +319,12 @@ class OnboardingViewModel(
     if (t is HttpException && t.response()?.errorBody() != null) {
       try {
         val error = JSONObject(t.response()?.errorBody()!!.string())["error"].toString()
-        _state.update { it.copy(loginProcessing = false, loginErrorDialogText = error) }
+        _state.update {
+          it.copy(
+            loginProcessing = false,
+            loginErrorDialogText = literalText(error)
+          )
+        }
       } catch (e: Exception) {
         Log.e(
           OnboardingViewModel::class.java.simpleName,
@@ -325,9 +333,10 @@ class OnboardingViewModel(
         _state.update {
           it.copy(
             loginProcessing = false,
-            loginErrorDialogText = "Error communicating with server. Server reported error code ${
-              t.response()?.code()
-            }. Please try again later"
+            loginErrorDialogText = uiText(
+              R.string.onboarding_server_error_code,
+              t.response()?.code().toString()
+            )
           )
         }
       }
@@ -335,7 +344,10 @@ class OnboardingViewModel(
       _state.update {
         it.copy(
           loginProcessing = false,
-          loginErrorDialogText = "Create Account failed. Debug info: '${t.message}'"
+          loginErrorDialogText = uiText(
+            R.string.onboarding_create_account_failed_debug,
+            t.message ?: ""
+          )
         )
       }
     }
@@ -397,7 +409,7 @@ data class OnboardingState(
   val email: String = "",
   val logInButtonEnabled: Boolean = false,
   val loginProcessing: Boolean = false,
-  val loginErrorDialogText: String? = null,
+  val loginErrorDialogText: UiText? = null,
   val showOfflineConfirmationDialog: Boolean = false,
 )
 

@@ -28,6 +28,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
@@ -59,7 +60,7 @@ import io.zenandroid.onlinego.ui.screens.mygames.composables.SmallGameItem
 import io.zenandroid.onlinego.ui.screens.mygames.composables.TutorialItem
 import io.zenandroid.onlinego.ui.screens.newchallenge.NewChallengeBottomSheet
 import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
-import io.zenandroid.onlinego.utils.WhatsNewUtils
+import io.zenandroid.onlinego.utils.whatsNewText
 import kotlinx.coroutines.delay
 import org.koin.androidx.compose.koinViewModel
 
@@ -137,7 +138,7 @@ fun MyGamesScreen(
           Text(stringResource(R.string.mygames_support))
         }
       },
-      text = { Text(WhatsNewUtils.whatsNewTextAnnotated) }
+      text = { Text(whatsNewText(LocalContext.current)) }
     )
   }
   state.challengeDetailsStatus?.let {

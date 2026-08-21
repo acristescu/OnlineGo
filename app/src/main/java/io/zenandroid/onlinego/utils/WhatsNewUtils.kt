@@ -5,6 +5,8 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -13,6 +15,7 @@ import androidx.compose.ui.unit.sp
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
@@ -27,7 +30,7 @@ val Context.whatsNewDataStore by preferencesDataStore(name = "whats_new")
 object WhatsNewUtils {
   suspend fun shouldDisplayDialog(context: Context): Boolean {
     return withContext(Dispatchers.IO) {
-      val hash = hashString(annotatedCurrentText.text)
+      val hash = hashString(whatsNewText(context).text)
       val stored = context.whatsNewDataStore.data.map { it[WHATS_NEW_KEY] }.first()
       stored != null && stored != hash
     }
@@ -35,14 +38,12 @@ object WhatsNewUtils {
 
   suspend fun textShown(context: Context) {
     withContext(Dispatchers.IO) {
-      val hash = hashString(annotatedCurrentText.text)
+      val hash = hashString(whatsNewText(context).text)
       context.whatsNewDataStore.edit { prefs ->
         prefs[WHATS_NEW_KEY] = hash
       }
     }
   }
-
-  val whatsNewTextAnnotated = annotatedCurrentText
 
   private fun hashString(text: String): String {
     return MessageDigest.getInstance("MD5").digest(text.toByteArray(Charsets.UTF_8))
@@ -50,27 +51,22 @@ object WhatsNewUtils {
   }
 }
 
-private val annotatedCurrentText = AnnotatedString.Builder().run {
+fun whatsNewText(context: Context): AnnotatedString = AnnotatedString.Builder().run {
   pushStyle(SpanStyle(fontSize = 20.sp))
-  append("What's new\n\n")
+  append("${context.getString(R.string.whats_new_title)}\n\n")
   pop()
 
   pushStyle(SpanStyle(fontWeight = FontWeight.Normal))
-  append("· New Look and Feel with colors chosen from your Android wallpaper\n")
-  append("· OGS Moderator warnings are now displayed\n")
-  append("· Prepared app for Android 15\n")
-  append("· Reimplemented Face To Face, AI and Joseki screens\n")
-  append("· Faster startup\n")
-  append("· Migrated navigation to compose\n")
+  append(context.getString(R.string.whats_new_changelog))
   pop()
 
   pushStyle(SpanStyle(fontSize = 20.sp))
   append("\n")
-  append("About project\n\n")
+  append("${context.getString(R.string.whats_new_about_title)}\n\n")
   pop()
 
   pushStyle(SpanStyle(fontWeight = FontWeight.Normal))
-  append("This is an open-source project. If you want to contribute, the code is available on Github.")
+  append(context.getString(R.string.whats_new_about_body))
   toAnnotatedString()
 }
 
@@ -81,13 +77,13 @@ fun Preview() {
     AlertDialog(
       onDismissRequest = {},
       dismissButton = {
-        TextButton(onClick = {}) { Text("OK") }
+        TextButton(onClick = {}) { Text(stringResource(R.string.ok)) }
       },
       confirmButton = {
-        TextButton(onClick = { }) { Text("SUPPORT") }
+        TextButton(onClick = { }) { Text(stringResource(R.string.mygames_support)) }
       },
       text = {
-        Text(text = WhatsNewUtils.whatsNewTextAnnotated)
+        Text(text = whatsNewText(LocalContext.current))
       }
     )
   }

@@ -6,9 +6,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.crashlytics.FirebaseCrashlytics
+import io.zenandroid.onlinego.R
+import io.zenandroid.onlinego.data.model.AppTheme
 import io.zenandroid.onlinego.data.model.BoardTheme
 import io.zenandroid.onlinego.data.repositories.SettingsRepository
 import io.zenandroid.onlinego.data.repositories.UserSessionRepository
+import io.zenandroid.onlinego.ui.composables.UiText
+import io.zenandroid.onlinego.ui.composables.literalText
+import io.zenandroid.onlinego.ui.composables.uiText
 import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.BoardThemeClicked
 import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.CoordinatesClicked
 import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.DeleteAccountCanceled
@@ -94,9 +99,7 @@ class SettingsViewModel(
 
       is BoardThemeClicked -> {
         viewModelScope.launch {
-          settingsRepository.setBoardTheme(
-            BoardTheme.entries.find { it.displayName == action.boardDisplayName }!!
-          )
+          settingsRepository.setBoardTheme(action.boardTheme)
         }
       }
 
@@ -126,7 +129,7 @@ class SettingsViewModel(
               it.copy(
                 modalVisible = false,
                 passwordDialogVisible = false,
-                deleteAccountError = "Account deleted. Sorry to see you go! The app will close in 5s."
+                deleteAccountError = uiText(R.string.settings_delete_account_success)
               )
             }
             delay(5000)
@@ -137,7 +140,7 @@ class SettingsViewModel(
                 it.copy(
                   passwordDialogVisible = false,
                   modalVisible = false,
-                  deleteAccountError = "Wrong password"
+                  deleteAccountError = uiText(R.string.settings_delete_account_wrong_password)
                 )
               }
             } else {
@@ -145,7 +148,7 @@ class SettingsViewModel(
                 it.copy(
                   passwordDialogVisible = false,
                   modalVisible = false,
-                  deleteAccountError = e.message,
+                  deleteAccountError = e.message?.let(::literalText),
                 )
               }
             }
@@ -170,14 +173,14 @@ data class SettingsState(
   val avatarURL: String? = null,
   val passwordDialogVisible: Boolean = false,
   val modalVisible: Boolean = false,
-  val deleteAccountError: String? = null,
+  val deleteAccountError: UiText? = null,
 )
 
 sealed interface SettingsAction {
   data object NotificationsClicked : SettingsAction
   data object SoundsClicked : SettingsAction
-  data class ThemeClicked(val theme: String) : SettingsAction
-  data class BoardThemeClicked(val boardDisplayName: String) : SettingsAction
+  data class ThemeClicked(val theme: AppTheme) : SettingsAction
+  data class BoardThemeClicked(val boardTheme: BoardTheme) : SettingsAction
   data object CoordinatesClicked : SettingsAction
   data object RanksClicked : SettingsAction
   data object LogoutClicked : SettingsAction
@@ -202,7 +205,7 @@ data class DialogData(
 
 @Immutable
 data class UserSettings(
-  val theme: String = "Default",
+  val theme: AppTheme = AppTheme.DEFAULT,
   val boardTheme: BoardTheme = BoardTheme.WOOD,
   val showRanks: Boolean = true,
   val showCoordinates: Boolean = false,

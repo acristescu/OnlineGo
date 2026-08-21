@@ -386,8 +386,8 @@ enum class BoardSize(
 
 sealed class Button(
   override val icon: ImageVector,
-  override val label: String,
   @StringRes override val labelResId: Int,
+  override val label: String = "",
   override val repeatable: Boolean = false,
   override val enabled: Boolean = true,
   override val bubbleText: String? = null,
@@ -395,13 +395,11 @@ sealed class Button(
 ) : BottomBarButton {
   object GameSettings : Button(
     Icons.Rounded.AddCircle,
-    "New Game",
     R.string.face_to_face_button_new_game
   )
 
   object Estimate : Button(
     Icons.Rounded.Functions,
-    "Estimate Score",
     R.string.face_to_face_button_estimate_score
   )
 
@@ -409,7 +407,6 @@ sealed class Button(
     repeatable = true,
     enabled = enabled,
     icon = Icons.Rounded.SkipPrevious,
-    label = "Previous",
     labelResId = R.string.face_to_face_button_previous
   )
 
@@ -417,17 +414,15 @@ sealed class Button(
     repeatable = true,
     enabled = enabled,
     icon = Icons.Rounded.SkipNext,
-    label = "Next",
     labelResId = R.string.face_to_face_button_next
   )
 
   object CloseEstimate : Button(
     Icons.Rounded.HighlightOff,
-    "Return",
     R.string.face_to_face_button_return
   )
 
-  object Pass : Button(Icons.Rounded.Stop, "Pass", R.string.face_to_face_button_pass)
+  object Pass : Button(Icons.Rounded.Stop, R.string.face_to_face_button_pass)
 }
 
 sealed interface Action {

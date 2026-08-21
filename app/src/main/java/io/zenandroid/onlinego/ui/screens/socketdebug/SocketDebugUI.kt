@@ -42,11 +42,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.repositories.SocketEvent
 import io.zenandroid.onlinego.data.repositories.SocketEventType
 import org.koin.androidx.compose.koinViewModel
@@ -86,19 +89,25 @@ fun SocketDebugScreen(
       TopAppBar(
         title = {
           Row(verticalAlignment = Alignment.CenterVertically) {
-            Text("Socket Debug")
+            Text(stringResource(R.string.socket_debug_title))
             Spacer(modifier = Modifier.width(12.dp))
             ConnectionBadge(connectionState)
           }
         },
         navigationIcon = {
           IconButton(onClick = onNavigateBack) {
-            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+            Icon(
+              Icons.AutoMirrored.Filled.ArrowBack,
+              contentDescription = stringResource(R.string.back)
+            )
           }
         },
         actions = {
           IconButton(onClick = { viewModel.clear() }) {
-            Icon(Icons.Default.Delete, contentDescription = "Clear log")
+            Icon(
+              Icons.Default.Delete,
+              contentDescription = stringResource(R.string.socket_debug_clear_log_content_description)
+            )
           }
         }
       )
@@ -113,12 +122,15 @@ fun SocketDebugScreen(
       OutlinedTextField(
         value = searchQuery,
         onValueChange = { viewModel.setSearchQuery(it) },
-        placeholder = { Text("Filter events...", fontSize = 13.sp) },
+        placeholder = { Text(stringResource(R.string.socket_debug_filter_hint), fontSize = 13.sp) },
         singleLine = true,
         trailingIcon = {
           if (searchQuery.isNotBlank()) {
             IconButton(onClick = { viewModel.setSearchQuery("") }) {
-              Icon(Icons.Default.Clear, contentDescription = "Clear")
+              Icon(
+                Icons.Default.Clear,
+                contentDescription = stringResource(R.string.socket_debug_clear_content_description)
+              )
             }
           }
         },
@@ -138,14 +150,24 @@ fun SocketDebugScreen(
         FilterChip(
           selected = filter == null,
           onClick = { viewModel.setFilter(null) },
-          label = { Text("All (${events.size})", fontSize = 12.sp) },
+          label = {
+            Text(
+              text = stringResource(R.string.socket_debug_filter_all, events.size),
+              fontSize = 12.sp
+            )
+          },
         )
         SocketEventType.entries.forEach { type ->
           val count = events.count { it.type == type }
           FilterChip(
             selected = filter == type,
             onClick = { viewModel.setFilter(if (filter == type) null else type) },
-            label = { Text("${type.name} ($count)", fontSize = 12.sp) },
+            label = {
+              Text(
+                text = stringResource(R.string.socket_debug_filter_type, type.name, count),
+                fontSize = 12.sp
+              )
+            },
             colors = FilterChipDefaults.filterChipColors(
               selectedContainerColor = type.chipColor().copy(alpha = 0.2f),
             ),
@@ -155,7 +177,11 @@ fun SocketDebugScreen(
 
       // Event count
       Text(
-        text = "${filteredEvents.size} events",
+        text = pluralStringResource(
+          R.plurals.socket_debug_event_count,
+          filteredEvents.size,
+          filteredEvents.size
+        ),
         fontSize = 11.sp,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
         modifier = Modifier.padding(horizontal = 16.dp, vertical = 2.dp),

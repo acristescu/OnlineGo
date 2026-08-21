@@ -34,6 +34,8 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.zenandroid.onlinego.BuildConfig
+import io.zenandroid.onlinego.R
+import io.zenandroid.onlinego.data.model.AppTheme
 import io.zenandroid.onlinego.data.model.BoardTheme
 import io.zenandroid.onlinego.notifications.SynchronizeGamesWork
 import io.zenandroid.onlinego.ui.screens.login.FacebookLoginCallbackActivity
@@ -103,10 +105,9 @@ class MainActivity : ComponentActivity() {
         ) { systemDark, state ->
           ThemeSettings(
             isDarkTheme = when (state.appTheme) {
-              "System Default" -> systemDark
-              "Light" -> false
-              "Dark" -> true
-              else -> systemDark
+              AppTheme.LIGHT -> false
+              AppTheme.DARK -> true
+              AppTheme.SYSTEM_DEFAULT, null -> systemDark
             },
             boardTheme = state.boardTheme ?: BoardTheme.WOOD,
             dynamicColors = true,
@@ -214,14 +215,17 @@ class MainActivity : ComponentActivity() {
         }
 
       notificationManager.createNotificationChannelGroup(
-        NotificationChannelGroup("your_turn", "Your Turn")
+        NotificationChannelGroup(
+          "your_turn",
+          getString(R.string.notification_channel_group_your_turn)
+        )
       )
 
       notificationManager.createNotificationChannels(
         listOf(
           NotificationChannel(
             "active_correspondence_games",
-            "Correspondence Games",
+            getString(R.string.notification_channel_correspondence_games),
             NotificationManager.IMPORTANCE_LOW
           ).apply {
             group = "your_turn"
@@ -233,7 +237,7 @@ class MainActivity : ComponentActivity() {
           },
           NotificationChannel(
             "active_live_games",
-            "Live Games",
+            getString(R.string.notification_channel_live_games),
             NotificationManager.IMPORTANCE_LOW
           ).apply {
             group = "your_turn"
@@ -245,7 +249,7 @@ class MainActivity : ComponentActivity() {
           },
           NotificationChannel(
             "active_blitz_games",
-            "Blitz Games",
+            getString(R.string.notification_channel_blitz_games),
             NotificationManager.IMPORTANCE_LOW
           ).apply {
             group = "your_turn"
@@ -257,7 +261,7 @@ class MainActivity : ComponentActivity() {
           },
           NotificationChannel(
             "active_games",
-            "Your Turn",
+            getString(R.string.notification_channel_your_turn),
             NotificationManager.IMPORTANCE_LOW
           ).apply {
             enableLights(true)
@@ -267,7 +271,7 @@ class MainActivity : ComponentActivity() {
           },
           NotificationChannel(
             "challenges",
-            "Challenges",
+            getString(R.string.notification_channel_challenges),
             NotificationManager.IMPORTANCE_LOW
           ).apply {
             enableLights(true)
@@ -276,7 +280,11 @@ class MainActivity : ComponentActivity() {
             vibrationPattern = longArrayOf(0, 200, 0, 200)
 
           },
-          NotificationChannel("logout", "Logout", NotificationManager.IMPORTANCE_LOW).apply {
+          NotificationChannel(
+            "logout",
+            getString(R.string.notification_channel_logout),
+            NotificationManager.IMPORTANCE_LOW
+          ).apply {
             enableLights(false)
             enableVibration(false)
           }

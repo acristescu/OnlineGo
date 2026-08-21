@@ -83,6 +83,8 @@ import io.zenandroid.onlinego.data.model.katago.RootInfo
 import io.zenandroid.onlinego.ui.composables.Board
 import io.zenandroid.onlinego.ui.composables.BottomBar
 import io.zenandroid.onlinego.ui.composables.BottomBarButton
+import io.zenandroid.onlinego.ui.composables.TextResource
+import io.zenandroid.onlinego.ui.composables.resolve
 import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
 import io.zenandroid.onlinego.utils.processGravatarURL
 import kotlinx.collections.immutable.persistentListOf
@@ -278,7 +280,7 @@ private fun AiGameUI(
       onDismissRequest = onDismissKoDialog,
       confirmButton = {
         TextButton(onClick = onDismissKoDialog) {
-          Text("OK")
+          Text(stringResource(R.string.ok))
         }
       },
       text = { Text(stringResource(R.string.ko_explanation)) },
@@ -388,7 +390,7 @@ private fun PlayerInfoRow(
       ) {
         Image(
           painter = painterResource(R.drawable.ic_ai),
-          contentDescription = "AI",
+          contentDescription = stringResource(R.string.ai_game_avatar_content_description),
           modifier = Modifier.fillMaxSize(),
           contentScale = ContentScale.Crop,
           colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface)
@@ -408,7 +410,7 @@ private fun PlayerInfoRow(
         .weight(1f)
         .padding(horizontal = 8.dp)
     ) {
-      state.chatText?.let { text ->
+      state.chatText?.resolve()?.let { text ->
         Card(
           modifier = Modifier.fillMaxWidth(),
           shape = RoundedCornerShape(6.dp),
@@ -623,10 +625,11 @@ private fun AiGameBottomBar(
   )
 }
 
+@Composable
 private fun getHandicapDescription(handicap: Int): String {
   return when (handicap) {
-    0 -> "none"
-    1 -> "no komi"
+    0 -> stringResource(R.string.ai_game_handicap_none)
+    1 -> stringResource(R.string.ai_game_handicap_no_komi)
     else -> handicap.toString()
   }
 }
@@ -741,7 +744,7 @@ private fun AiGameUIPreview() {
         boardSize = 19,
         enginePlaysBlack = true,
         engineStarted = true,
-        chatText = stringResource(R.string.hello_world),
+        chatText = TextResource(R.string.hello_world),
         position = Position(
           boardWidth = 19,
           boardHeight = 19,
@@ -796,7 +799,7 @@ private fun AiGameUIPreviewNewGame() {
         boardSize = 19,
         enginePlaysBlack = true,
         engineStarted = true,
-        chatText = stringResource(R.string.hello_world),
+        chatText = TextResource(R.string.hello_world),
         position = Position(
           boardWidth = 19,
           boardHeight = 19,
@@ -856,7 +859,7 @@ private fun PreviewLandscape() {
         boardSize = 19,
         enginePlaysBlack = true,
         engineStarted = true,
-        chatText = stringResource(R.string.hello_world),
+        chatText = TextResource(R.string.hello_world),
         position = Position(
           boardWidth = 19,
           boardHeight = 19,

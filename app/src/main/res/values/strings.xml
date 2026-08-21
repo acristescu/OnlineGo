@@ -7,6 +7,24 @@
     <string name="create_account">Create OGS account</string>
     <string name="welcome_to_sente_online_go">Welcome to Sente Online Go!</string>
     <string name="login_to_play_online">Please log in to OGS to play online.</string>
+    <string name="ai_game_chat_ready">Ready!</string>
+    <string name="ai_game_chat_use_new_game_button">Use the \'New Game\' button to start a new game</string>
+    <string name="ai_game_chat_engine_error">Error when starting KataGO: \'%1$s\'</string>
+    <string name="ai_game_chat_invalid_move">Invalid move, try again</string>
+    <string name="ai_game_chat_lets_try_again">Ok, let\'s try again. Your turn!</string>
+    <string name="ai_game_chat_hmmm">Hmmm...</string>
+    <string name="ai_game_chat_moves_to_consider">Here are a few moves to consider</string>
+    <string name="ai_game_chat_ok_your_turn">Ok, your turn</string>
+    <string name="ai_game_chat_calculating_territory">Ok, calculating current territory...</string>
+    <string name="ai_game_chat_territories">Here\'s what I think the territories look like</string>
+    <string name="ai_game_chat_im_thinking">I\'m thinking...</string>
+    <string name="ai_game_chat_your_turn">Your turn</string>
+    <string name="ai_game_chat_game_over_ai_won">Game ended because of two passes. Final score is black %1$s to white %2$s. Looks like I win this time.</string>
+    <string name="ai_game_chat_game_over_player_won">Game ended because of two passes. Final score is black %1$s to white %2$s. Congrats, looks like you got the better of me.</string>
+    <string name="ai_game_chat_game_over_computing_score">Game ended because of two passes. Hang on, I\'m computing the final score.</string>
+    <string name="ai_game_handicap_none">none</string>
+    <string name="ai_game_handicap_no_komi">no komi</string>
+    <string name="ai_game_avatar_content_description">AI</string>
     <string name="ai_game_new">New</string>
     <string name="ai_game_pass">Pass</string>
     <string name="ai_game_previous">Previous</string>
@@ -15,6 +33,9 @@
     <string name="illegal_ko_move">Illegal KO move</string>
     <string name="local_ai_game">Local AI Game</string>
     <string name="back">Back</string>
+    <string name="title_bar_game_info_content_description">Game Info</string>
+    <string name="title_bar_more_content_description">More</string>
+    <string name="search_field_clear_content_description">Clear text</string>
     <string name="katago">"KataGO "</string>
     <string name="territory">Territory</string>
     <string name="hint">Hint</string>
@@ -181,6 +202,92 @@
     <string name="game_player_details_wins">Wins</string>
     <string name="game_player_details_losses">Losses</string>
     <string name="game_player_details_total">Total</string>
+    <plurals name="duration_weeks">
+        <item quantity="one">%d week</item>
+        <item quantity="other">%d weeks</item>
+    </plurals>
+    <plurals name="duration_days">
+        <item quantity="one">%d day</item>
+        <item quantity="other">%d days</item>
+    </plurals>
+    <plurals name="duration_hours">
+        <item quantity="one">%d hour</item>
+        <item quantity="other">%d hours</item>
+    </plurals>
+    <plurals name="duration_minutes">
+        <item quantity="one">%d minute</item>
+        <item quantity="other">%d minutes</item>
+    </plurals>
+    <plurals name="duration_seconds">
+        <item quantity="one">%d second</item>
+        <item quantity="other">%d seconds</item>
+    </plurals>
+    <!-- Joins a coarse and a finer duration, e.g. "2 weeks" and "3 days" -->
+    <string name="duration_two_units">%1$s %2$s</string>
+    <string name="duration_unknown">?</string>
+    <string name="time_control_simple">Simple: %1$s per move.</string>
+    <string name="time_control_fischer">Fischer: Clock starts with %1$s and increments by %2$s per move up to a maximum of %3$s.</string>
+    <plurals name="time_control_byoyomi">
+        <item quantity="one">Japanese Byo-Yomi: Clock starts with %1$s main time, followed by %2$d period of %3$s.</item>
+        <item quantity="other">Japanese Byo-Yomi: Clock starts with %1$s main time, followed by %2$d periods of %3$s each.</item>
+    </plurals>
+    <plurals name="time_control_canadian">
+        <item quantity="one">Canadian Byo-Yomi: Clock starts with %1$s main time, followed by %2$s per %3$d stone.</item>
+        <item quantity="other">Canadian Byo-Yomi: Clock starts with %1$s main time, followed by %2$s per %3$d stones.</item>
+    </plurals>
+    <string name="time_control_absolute">Absolute: %1$s total play time per player.</string>
+    <string name="time_control_none">No time limits.</string>
+    <string name="time_control_unknown">?</string>
+    <string name="time_control_pauses_on_weekends">" Pauses on weekends."</string>
+    <string name="whats_new_title">What\'s new</string>
+    <string name="whats_new_changelog">· New Look and Feel with colors chosen from your Android wallpaper\n· OGS Moderator warnings are now displayed\n· Prepared app for Android 15\n· Reimplemented Face To Face, AI and Joseki screens\n· Faster startup\n· Migrated navigation to compose\n</string>
+    <string name="whats_new_about_title">About project</string>
+    <string name="whats_new_about_body">This is an open-source project. If you want to contribute, the code is available on Github.</string>
+    <string name="settings_delete_account_success">Account deleted. Sorry to see you go! The app will close in 5s.</string>
+    <string name="settings_delete_account_wrong_password">Wrong password</string>
+    <string name="onboarding_login_invalid_credentials">Invalid username or password</string>
+    <string name="onboarding_login_failed_debug">Login failed. Debug info: \'%1$s\'</string>
+    <string name="onboarding_create_account_failed_debug">Create Account failed. Debug info: \'%1$s\'</string>
+    <string name="onboarding_server_error_code">Error communicating with server. Server reported error code %1$s. Please try again later</string>
+    <string name="onboarding_google_signin_failed">signInResult:failed code=%1$d</string>
+    <string name="tutorial_retry">RETRY</string>
+    <string name="tutorial_next">NEXT</string>
+    <string name="tutorial_nice_one">Nice one!</string>
+    <string name="socket_debug_title">Socket Debug</string>
+    <string name="socket_debug_clear_log_content_description">Clear log</string>
+    <string name="socket_debug_clear_content_description">Clear</string>
+    <string name="socket_debug_filter_hint">Filter events...</string>
+    <string name="socket_debug_filter_all">All (%1$d)</string>
+    <string name="socket_debug_filter_type">%1$s (%2$d)</string>
+    <plurals name="socket_debug_event_count">
+        <item quantity="one">%d event</item>
+        <item quantity="other">%d events</item>
+    </plurals>
+    <string name="notification_challenge_title">A new challenge!</string>
+    <string name="notification_challenge_text">%1$s has issued a challenge</string>
+    <string name="notification_game_ended">Game ended - %1$s</string>
+    <string name="notification_outcome_cancelled">Cancelled</string>
+    <string name="notification_outcome_lost_by">Lost by %1$s</string>
+    <string name="notification_outcome_won_by">Won by %1$s</string>
+    <string name="notification_outcome_black_won_by">Black won by %1$s</string>
+    <string name="notification_outcome_white_won_by">White won by %1$s</string>
+    <string name="notification_your_turn">Your turn</string>
+    <string name="notification_stone_removal_phase">Stone removal phase</string>
+    <string name="notification_requires_attention">%1$s Requires your attention</string>
+    <plurals name="notification_games_require_attention">
+        <item quantity="one">%d game requires your attention</item>
+        <item quantity="other">%d games require your attention</item>
+    </plurals>
+    <string name="notification_inbox_versus">vs %1$s</string>
+    <string name="notification_logout_title">Please log in again</string>
+    <string name="notification_logout_text">You have been logged out of the app. This usually happens because you changed your password. Please log in again to re-enable notifications</string>
+    <string name="notification_channel_group_your_turn">Your Turn</string>
+    <string name="notification_channel_correspondence_games">Correspondence Games</string>
+    <string name="notification_channel_live_games">Live Games</string>
+    <string name="notification_channel_blitz_games">Blitz Games</string>
+    <string name="notification_channel_your_turn">Your Turn</string>
+    <string name="notification_channel_challenges">Challenges</string>
+    <string name="notification_channel_logout">Logout</string>
     <string name="settings_become_a_supporter">Become a supporter</string>
     <string name="settings_become_a_supporter_description">Become a supporter</string>
     <string name="settings_section_notifications">Notifications</string>
