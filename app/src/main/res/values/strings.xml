@@ -11,13 +11,13 @@
     <string name="ai_game_chat_use_new_game_button">Use the \'New Game\' button to start a new game</string>
     <string name="ai_game_chat_engine_error">Error when starting KataGO: \'%1$s\'</string>
     <string name="ai_game_chat_invalid_move">Invalid move, try again</string>
-    <string name="ai_game_chat_lets_try_again">Ok, let\'s try again. Your turn!</string>
-    <string name="ai_game_chat_hmmm">Hmmm...</string>
+    <string name="ai_game_chat_lets_try_again">OK, let\'s try again. Your turn!</string>
+    <string name="ai_game_chat_hmmm">Hmmm…</string>
     <string name="ai_game_chat_moves_to_consider">Here are a few moves to consider</string>
-    <string name="ai_game_chat_ok_your_turn">Ok, your turn</string>
-    <string name="ai_game_chat_calculating_territory">Ok, calculating current territory...</string>
+    <string name="ai_game_chat_ok_your_turn">OK, your turn</string>
+    <string name="ai_game_chat_calculating_territory">OK, calculating current territory…</string>
     <string name="ai_game_chat_territories">Here\'s what I think the territories look like</string>
-    <string name="ai_game_chat_im_thinking">I\'m thinking...</string>
+    <string name="ai_game_chat_im_thinking">I\'m thinking…</string>
     <string name="ai_game_chat_your_turn">Your turn</string>
     <string name="ai_game_chat_game_over_ai_won">Game ended because of two passes. Final score is black %1$s to white %2$s. Looks like I win this time.</string>
     <string name="ai_game_chat_game_over_player_won">Game ended because of two passes. Final score is black %1$s to white %2$s. Congrats, looks like you got the better of me.</string>
@@ -57,7 +57,7 @@
     <string name="cancel">Cancel</string>
     <string name="ok">OK</string>
     <string name="search">Search</string>
-    <string name="loading">Loading...</string>
+    <string name="loading">Loading…</string>
     <string name="email">Email</string>
     <string name="username">Username</string>
     <string name="password">Password</string>
@@ -160,7 +160,7 @@
     <string name="game_cancel_dialog_dismiss">DON\'T CANCEL GAME</string>
     <string name="game_info_ranked">Ranked</string>
     <string name="game_info_unranked">Unranked</string>
-    <string name="game_info_unknown_player">?</string>
+    <string name="game_info_unknown_player">\?</string>
     <string name="game_info_versus_separator">"      vs      "</string>
     <string name="game_info_score">Score</string>
     <string name="game_info_time">Time</string>
@@ -224,7 +224,7 @@
     </plurals>
     <!-- Joins a coarse and a finer duration, e.g. "2 weeks" and "3 days" -->
     <string name="duration_two_units">%1$s %2$s</string>
-    <string name="duration_unknown">?</string>
+    <string name="duration_unknown">\?</string>
     <string name="time_control_simple">Simple: %1$s per move.</string>
     <string name="time_control_fischer">Fischer: Clock starts with %1$s and increments by %2$s per move up to a maximum of %3$s.</string>
     <plurals name="time_control_byoyomi">
@@ -237,7 +237,7 @@
     </plurals>
     <string name="time_control_absolute">Absolute: %1$s total play time per player.</string>
     <string name="time_control_none">No time limits.</string>
-    <string name="time_control_unknown">?</string>
+    <string name="time_control_unknown">\?</string>
     <string name="time_control_pauses_on_weekends">" Pauses on weekends."</string>
     <string name="whats_new_title">What\'s new</string>
     <string name="whats_new_changelog">· New Look and Feel with colors chosen from your Android wallpaper\n· OGS Moderator warnings are now displayed\n· Prepared app for Android 15\n· Reimplemented Face To Face, AI and Joseki screens\n· Faster startup\n· Migrated navigation to compose\n</string>
@@ -256,7 +256,7 @@
     <string name="socket_debug_title">Socket Debug</string>
     <string name="socket_debug_clear_log_content_description">Clear log</string>
     <string name="socket_debug_clear_content_description">Clear</string>
-    <string name="socket_debug_filter_hint">Filter events...</string>
+    <string name="socket_debug_filter_hint">Filter events…</string>
     <string name="socket_debug_filter_all">All (%1$d)</string>
     <string name="socket_debug_filter_type">%1$s (%2$d)</string>
     <plurals name="socket_debug_event_count">
@@ -581,8 +581,8 @@ Sometimes the best move is to play somewhere else. This is normally referred to 
 
 Place a stone to continue!]]></string>
     <string name="tutorial_basics_thebasics_capture1_page1_text"><![CDATA[With one more move, the white stone will be completely surrounded and captured. Stones that can be captured in one move are said to be in "Atari".]]></string>
-    <string name="tutorial_basics_thebasics_capture1_page2_text"><![CDATA[The white stone is now surrounded, so...]]></string>
-    <string name="tutorial_basics_thebasics_capture1_page3_text"><![CDATA["... it's removed from the board"]]></string>
+    <string name="tutorial_basics_thebasics_capture1_page2_text"><![CDATA[The white stone is now surrounded, so…]]></string>
+    <string name="tutorial_basics_thebasics_capture1_page3_text"><![CDATA["… it's removed from the board"]]></string>
     <string name="tutorial_basics_thebasics_capture1_page4_text"><![CDATA["If it were white's turn, it could \"escape\" by connecting another stone."]]></string>
     <string name="tutorial_basics_thebasics_capture2_text">Your turn! Capture the white stone.</string>
     <string name="tutorial_basics_thebasics_capture3_text">You can capture two stones with a single move this time!</string>
@@ -605,18 +605,18 @@ Black will usually capture at least one in this situation!]]></string>
     <string name="tutorial_basics_illegalmoves_suicide1_page_2_text"><![CDATA[This is said to be a "suicide" move and is forbidden.]]></string>
     <string name="tutorial_basics_illegalmoves_suicide1_page_3_text">There is an exception though. If a move at would capture one or more white stones (like B below), the move is allowed.</string>
     <string name="tutorial_basics_illegalmoves_suicide1_page_4_text">The resulting position looks like this:</string>
-    <string name="tutorial_basics_illegalmoves_suicide2_text"><![CDATA["Your turn to capture some stones again! Hint: At first it may seem it's an illegal move..."]]></string>
+    <string name="tutorial_basics_illegalmoves_suicide2_text"><![CDATA["Your turn to capture some stones again! Hint: At first it may seem it's an illegal move…"]]></string>
     <string name="tutorial_basics_illegalmoves_suicide3_text">The 4 black stones are in Atari! Capture the white stones before they capture you!</string>
     <string name="tutorial_basics_illegalmoves_suicide4_text"><![CDATA["Capture the 2 white stones touching the black ones. Here, you can't capture white with one move."]]></string>
     <string name="tutorial_basics_illegalmoves_suicide5_text">The white stone at D5 is separating your stones. If you capture it, you can connect your stones and make a strong group. This is a very important pattern in GO!</string>
     <string name="tutorial_intermediate_title">Intermediate</string>
     <string name="tutorial_intermediate_ladders_title">Ladders</string>
     <string name="tutorial_intermediate_ladders_ladder1_text">Capture the white stone! If you play the right moves, white cannot escape. Try to make successive Ataris until white has nowhere else to go.</string>
-    <string name="tutorial_intermediate_ladders_ladder1_branches_branch1_message">White tries to escape...</string>
+    <string name="tutorial_intermediate_ladders_ladder1_branches_branch1_message">White tries to escape…</string>
     <string name="tutorial_intermediate_ladders_ladder1_branches_branch1_1_1_1_1_message">Can you see where this is going?</string>
-    <string name="tutorial_intermediate_ladders_ladder1_branches_branch1_1_1_1_1_1_1_1_1_message">If white tries to resist...</string>
-    <string name="tutorial_intermediate_ladders_ladder1_branches_branch1_1_1_1_1_1_1_2_1_message">If white tries to resist...</string>
-    <string name="tutorial_intermediate_ladders_ladder1_branches_branch1_1_1_1_1_1_1_2_2_message">If white tries to resist...</string>
+    <string name="tutorial_intermediate_ladders_ladder1_branches_branch1_1_1_1_1_1_1_1_1_message">If white tries to resist…</string>
+    <string name="tutorial_intermediate_ladders_ladder1_branches_branch1_1_1_1_1_1_1_2_1_message">If white tries to resist…</string>
+    <string name="tutorial_intermediate_ladders_ladder1_branches_branch1_1_1_1_1_1_1_2_2_message">If white tries to resist…</string>
     <string name="tutorial_intermediate_ladders_ladder2_text"><![CDATA["Here's another ladder. Now it's your turn to escape. The situation is not hopeless this time though. Your stone at F2 is in the ladder's path. If you can get to it you're safe. Such a stone is called a \"ladder breaker\""]]></string>
     <string name="tutorial_intermediate_ladders_ladder3_page1_text">Ladders are very important in GO. But you need to think ahead a few moves and not start a ladder fight unless you are sure you can win it! Here\'s what happens to White if they play out the losing ladder in the previous example\.\.\.</string>
     <string name="tutorial_intermediate_twoeyes_title">Two Eyes</string>
@@ -634,10 +634,10 @@ Black will usually capture at least one in this situation!]]></string>
     <string name="tutorial_intermediate_ko_title">KO - the \"no repetition\" rule</string>
     <string name="tutorial_intermediate_ko_ko_page_1_text"><![CDATA["Now we'll look at the last rule that you need to know in order to play GO: the KO rule. The rule states that a move is invalid if it would produce a repetition (e.g. a previous position).
 Let's look at an example. The white stone at E6 is in Atari. So, black can capture it."]]></string>
-    <string name="tutorial_intermediate_ko_ko_page_2_text"><![CDATA["Now the new black stone at F6 is in atari. Without the KO rule, white would be able to capture it, but if they did, the resulting position..."]]></string>
-    <string name="tutorial_intermediate_ko_ko_page_3_text"><![CDATA["... would be the same as the initial one! Here, without the KO rule, Black would capture again..."]]></string>
-    <string name="tutorial_intermediate_ko_ko_page_4_text"><![CDATA["... and the game would be stuck in a loop. In order to avoid this, the KO rule states that white cannot recapture at E6 here, but must play elsewhere first."]]></string>
-    <string name="tutorial_intermediate_ko_ko_page_5_text"><![CDATA["Now if black wants to save the stone in atari she can play at E6...]]></string>
+    <string name="tutorial_intermediate_ko_ko_page_2_text"><![CDATA["Now the new black stone at F6 is in atari. Without the KO rule, white would be able to capture it, but if they did, the resulting position…"]]></string>
+    <string name="tutorial_intermediate_ko_ko_page_3_text"><![CDATA["… would be the same as the initial one! Here, without the KO rule, Black would capture again…"]]></string>
+    <string name="tutorial_intermediate_ko_ko_page_4_text"><![CDATA["… and the game would be stuck in a loop. In order to avoid this, the KO rule states that white cannot recapture at E6 here, but must play elsewhere first."]]></string>
+    <string name="tutorial_intermediate_ko_ko_page_5_text"><![CDATA["Now if black wants to save the stone in atari she can play at E6…]]></string>
     <string name="tutorial_intermediate_ko_ko_page_6_text">Black has thus won the ko fight, but note that it\'s white\'s turn again and so white gained two moves for the price of that one stone.</string>
     <string name="tutorial_intermediate_ko_ko_page_7_text">Those two free moves might sometimes be worth more points than winning the ko fight, so both players will constantly assess if it\'s worth continuing the ko fight or getting the extra moves.</string>
     <string name="tutorial_intermediate_ko_ko_page_8_text">How can this occur in a real game? Here\'s an example. Both black and white have a 5-stone group in danger at the top. The only way for black to save her group is to play at E8. A KO fight has started!</string>
@@ -697,8 +697,8 @@ Be careful from which side you make the Atari!"]]></string>
     <string name="tutorial_advanced_thefirstmoves_firstmoves1_page1_text"><![CDATA["Until now we've focused on capturing pieces. However in the beginning of the game there are no stones on the board. We'll take a look at where to play your first moves in order to increase your chances of winning.
 
 First, let's divide the board into 3 areas. These are the corners:"]]></string>
-    <string name="tutorial_advanced_thefirstmoves_firstmoves1_page2_text"><![CDATA["... these are the sides..."]]></string>
-    <string name="tutorial_advanced_thefirstmoves_firstmoves1_page3_text"><![CDATA["... and this is the middle. Of course these are just names we use for orientation and there are no special rules for any of these."]]></string>
+    <string name="tutorial_advanced_thefirstmoves_firstmoves1_page2_text"><![CDATA["… these are the sides…"]]></string>
+    <string name="tutorial_advanced_thefirstmoves_firstmoves1_page3_text"><![CDATA["… and this is the middle. Of course these are just names we use for orientation and there are no special rules for any of these."]]></string>
     <string name="tutorial_advanced_thefirstmoves_firstmoves1_page4_text"><![CDATA["The object of the game is to encircle more territory than your opponent. Since you and your opponent take turns placing stones, you will both get the same amount of stones. Therefore, the winner is the player who uses their stones more efficiently.
 
 Where is it more efficient to encircle territory? In the corners, on the sides, or in the middle?"]]></string>
