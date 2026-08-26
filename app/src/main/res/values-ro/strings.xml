@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
     <string name="app_name">Sente - Online GO</string>
     <string name="create_account_prompt">Nu ai cont OGS? Creează unul <b>aici</b>!</string>
     <string name="login_to_ogs">Conectare la OGS</string>
@@ -301,6 +300,7 @@
     <string name="settings_become_a_supporter_description">Devino susținător</string>
     <string name="settings_section_language">Limbă</string>
     <string name="settings_language">Limbă</string>
+    <!-- Language names are shown in the language itself, so they are never translated. -->
     <string name="settings_section_notifications">Notificări</string>
     <string name="settings_system_notifications">Notificări de sistem</string>
     <string name="settings_stone_sounds">Sunetul pietrelor</string>
@@ -604,7 +604,6 @@ Pune o piatră pentru a continua!]]></string>
     <string name="tutorial_basics_thebasics_capture2_text">E rândul tău! Capturează piatra albă.</string>
     <string name="tutorial_basics_thebasics_capture3_text">De data asta poți captura două pietre cu o singură mutare!</string>
     <string name="tutorial_basics_thebasics_capture4_text">Chiar dacă sunt și alte pietre în apropiere, procedează la fel.</string>
-
     <string name="tutorial_basics_capturingstones_title">Capturarea pietrelor</string>
     <string name="tutorial_basics_capturingstones_capture5_text">La marginea tablei, situația este puțin diferită. Pietrele de pe margine au mai puține libertăți și sunt mai ușor de capturat.</string>
     <string name="tutorial_basics_capturingstones_capture5_branches2_text">Pietrele albe sunt conectate.</string>
