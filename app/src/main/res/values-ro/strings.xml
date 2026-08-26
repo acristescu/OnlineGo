@@ -1,0 +1,778 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Sente - Online GO</string>
+    <string name="create_account_prompt">Nu ai cont OGS? Creează unul <b>aici</b>!</string>
+    <string name="login_to_ogs">Conectare la OGS</string>
+    <string name="create_account">Creează cont OGS</string>
+    <string name="welcome_to_sente_online_go">Bine ai venit în Sente Online Go!</string>
+    <string name="login_to_play_online">Conectează-te la OGS pentru a juca online.</string>
+    <string name="ai_game_chat_ready">Gata!</string>
+    <string name="ai_game_chat_use_new_game_button">Folosește butonul „Joc nou” pentru a începe un joc nou</string>
+    <string name="ai_game_chat_engine_error">Eroare la pornirea KataGO: „%1$s”</string>
+    <string name="ai_game_chat_invalid_move">Mutare invalidă, încearcă din nou</string>
+    <string name="ai_game_chat_lets_try_again">OK, hai să încercăm din nou. E rândul tău!</string>
+    <string name="ai_game_chat_hmmm">Hmmm…</string>
+    <string name="ai_game_chat_moves_to_consider">Iată câteva mutări de luat în calcul</string>
+    <string name="ai_game_chat_ok_your_turn">OK, e rândul tău</string>
+    <string name="ai_game_chat_calculating_territory">OK, calculez teritoriul actual…</string>
+    <string name="ai_game_chat_territories">Iată cum cred că arată teritoriile</string>
+    <string name="ai_game_chat_im_thinking">Mă gândesc…</string>
+    <string name="ai_game_chat_your_turn">E rândul tău</string>
+    <string name="ai_game_chat_game_over_ai_won">Jocul s-a încheiat pentru că amândoi am pasat. Scorul final este negru %1$s la alb %2$s. Se pare că am câștigat de data asta.</string>
+    <string name="ai_game_chat_game_over_player_won">Jocul s-a încheiat pentru că amândoi am pasat. Scorul final este negru %1$s la alb %2$s. Felicitări, se pare că m-ai învins.</string>
+    <string name="ai_game_chat_game_over_computing_score">Jocul s-a încheiat pentru că amândoi am pasat. O clipă, calculez scorul final.</string>
+    <string name="ai_game_handicap_none">niciun</string>
+    <string name="ai_game_handicap_no_komi">fără komi</string>
+    <string name="ai_game_avatar_content_description">AI</string>
+    <string name="ai_game_new">Nou</string>
+    <string name="ai_game_pass">Pas</string>
+    <string name="ai_game_previous">Anterior</string>
+    <string name="ai_game_next">Următor</string>
+    <string name="ko_explanation">Această mutare ar repeta poziția de pe tablă. Se numește KO și nu este permisă. Încearcă mai întâi o altă mutare, de preferat o amenințare pe care adversarul nu o poate ignora.</string>
+    <string name="illegal_ko_move">Mutare KO ilegală</string>
+    <string name="local_ai_game">Joc local cu AI</string>
+    <string name="back">Înapoi</string>
+    <string name="title_bar_game_info_content_description">Informații joc</string>
+    <string name="title_bar_more_content_description">Mai multe</string>
+    <string name="search_field_clear_content_description">Șterge textul</string>
+    <string name="katago">"KataGO "</string>
+    <string name="territory">Teritoriu</string>
+    <string name="hint">Indiciu</string>
+    <string name="player">Jucător</string>
+    <string name="you">" Tu"</string>
+    <string name="prisoners">Prizonieri</string>
+    <string name="komi">Komi</string>
+    <string name="white">alb</string>
+    <string name="black">negru</string>
+    <string name="score_prediction_leads_by">Predicție scor: %1$s conduce cu %2$s</string>
+    <string name="white_s_chance_to_win">Șansa albului de a câștiga: %1$s%%</string>
+    <string name="new_game">Joc nou</string>
+    <string name="board_size">Mărimea tablei</string>
+    <string name="you_play">Tu joci</string>
+    <string name="Black">Negru</string>
+    <string name="White">Alb</string>
+    <string name="handicap">Handicap</string>
+    <string name="start_game">Începe jocul</string>
+    <string name="cancel">Anulează</string>
+    <string name="ok">OK</string>
+    <string name="search">Caută</string>
+    <string name="loading">Se încarcă…</string>
+    <string name="email">E-mail</string>
+    <string name="username">Nume utilizator</string>
+    <string name="password">Parolă</string>
+    <string name="yes">Da</string>
+    <string name="no">Nu</string>
+    <string name="unknown">Necunoscut</string>
+    <string name="error">Eroare</string>
+    <string name="enabled">Activat</string>
+    <string name="disabled">Dezactivat</string>
+    <string name="auto">Automat</string>
+    <string name="hello_world">Salut, lume!</string>
+    <string name="landscape_preview">Previzualizare peisaj</string>
+    <string name="button_play_online">Joacă\nOnline</string>
+    <string name="button_custom_game">Joc\nPersonalizat</string>
+    <string name="button_play_against_ai">Joacă\ncu AI</string>
+    <string name="button_face_to_face">Față\nîn Față</string>
+    <string name="bottomnavigation_botton_play">Joacă</string>
+    <string name="bottomnavigation_botton_learn">Învață</string>
+    <string name="bottomnavigation_botton_stats">Statistici</string>
+    <string name="bottomnavigation_botton_settings">Setări</string>
+    <string name="home_welcome_to_sente">Bine ai venit în Sente!</string>
+    <string name="home_app_open_source_message">Această aplicație este o interfață open source, susținută de comunitate, pentru site-ul OGS (online-go.com). Poți explora tutorialele și juca împotriva AI-ului, dar majoritatea funcțiilor necesită un cont OGS gratuit.</string>
+    <string name="home_button_login_ogs">Conectează-te la OGS</string>
+    <string name="home_button_signup_ogs">Înscrie-te pe OGS</string>
+    <string name="face_to_face_loading">Față în față · Se încarcă</string>
+    <string name="face_to_face_game_over">Față în față · Joc încheiat</string>
+    <string name="face_to_face_white_s_turn">Față în față · Rândul albului</string>
+    <string name="face_to_face_black_s_turn">Față în față · Rândul negrului</string>
+    <string name="face_to_face_default">Față în față</string>
+    <string name="face_to_face_player_1">Jucătorul 1</string>
+    <string name="face_to_face_player_2">Jucătorul 2</string>
+    <string name="face_to_face_avatar_content_description">Avatar</string>
+    <string name="face_to_face_estimating">Se estimează</string>
+    <string name="face_to_face_game_is_over">Jocul s-a încheiat!</string>
+    <string name="face_to_face_game_is_not_over">Recomandare: jocul nu s-a încheiat!</string>
+    <string name="face_to_face_ko_dialog_title">Mutare KO ilegală</string>
+    <string name="face_to_face_ko_dialog_message">Această mutare ar repeta poziția de pe tablă. Se numește KO și nu este permisă. Încearcă mai întâi o altă mutare, de preferat o amenințare pe care adversarul nu o poate ignora.</string>
+    <string name="face_to_face_score_komi">komi</string>
+    <string name="face_to_face_score_captures">capturi</string>
+    <string name="face_to_face_score_dead">moarte</string>
+    <string name="face_to_face_score_territory">teritoriu</string>
+    <string name="face_to_face_score_total">total</string>
+    <string name="face_to_face_new_game_title">Joc nou</string>
+    <string name="face_to_face_new_game_size">Mărime</string>
+    <string name="face_to_face_start_new_game">ÎNCEPE UN JOC NOU</string>
+    <string name="face_to_face_button_new_game">Joc nou</string>
+    <string name="face_to_face_button_estimate_score">Estimează scorul</string>
+    <string name="face_to_face_button_previous">Anterior</string>
+    <string name="face_to_face_button_next">Următor</string>
+    <string name="face_to_face_button_return">Revenire</string>
+    <string name="face_to_face_button_pass">Pas</string>
+    <string name="game_title_white_to_move">Mutarea %1$d · %2$s · Alb</string>
+    <string name="game_title_black_to_move">Mutarea %1$d · %2$s · Negru</string>
+    <string name="game_submitting_move">Se trimite mutarea</string>
+    <string name="game_submitting_move_attempt">Se trimite mutarea (încercarea #%1$d)</string>
+    <string name="game_estimating">Se estimează</string>
+    <string name="game_status_requested_undo">A cerut anularea mutării</string>
+    <string name="game_status_player_passed">Jucătorul a pasat!</string>
+    <string name="game_status_accepted">Acceptat</string>
+    <string name="game_status_resigned">A abandonat</string>
+    <string name="game_status_timed_out">Timp expirat</string>
+    <string name="game_status_cancelled_game">A anulat jocul</string>
+    <string name="game_status_first_move_timer">%1$s pentru prima mutare</string>
+    <string name="game_player_points">%1$s puncte</string>
+    <string name="game_avatar_content_description">Avatar</string>
+    <string name="game_button_confirm_move">Confirmă mutarea</string>
+    <string name="game_button_discard_move">Renunță la mutare</string>
+    <string name="game_button_accept">Acceptă</string>
+    <string name="game_button_reject">Respinge</string>
+    <string name="game_button_analyze">Analizează</string>
+    <string name="game_button_pass">Pas</string>
+    <string name="game_button_resign">Abandonează</string>
+    <string name="game_button_cancel_game">Anulează jocul</string>
+    <string name="game_button_chat">Chat</string>
+    <string name="game_button_next_game">Jocul următor</string>
+    <string name="game_button_undo">Anulează mutarea</string>
+    <string name="game_button_exit_analysis">Ieși din analiză</string>
+    <string name="game_button_estimate">Estimează</string>
+    <string name="game_button_return">Revenire</string>
+    <string name="game_button_previous">Anterior</string>
+    <string name="game_button_next">Următor</string>
+    <string name="game_menu_open_in_browser">Deschide în browser</string>
+    <string name="game_menu_download_sgf">Descarcă drept SGF</string>
+    <string name="game_menu_accept_undo">Acceptă anularea mutării</string>
+    <string name="game_confirm_dialog_title">Te rugăm să confirmi</string>
+    <string name="game_dialog_cancel">ANULEAZĂ</string>
+    <string name="game_opponent_undo_dialog_title">Adversarul a cerut anularea mutării</string>
+    <string name="game_opponent_undo_dialog_message">Adversarul tău ar vrea să își anuleze ultima mutare. Accepți?</string>
+    <string name="game_opponent_undo_dialog_ignore">IGNORĂ</string>
+    <string name="game_opponent_undo_dialog_accept">ANULEAZĂ MUTAREA</string>
+    <string name="game_request_undo_dialog_title">Ceri anularea mutării?</string>
+    <string name="game_request_undo_dialog_message">Dacă ai făcut ultima mutare din greșeală, poți întreba adversarul dacă îți permite să o anulezi.</string>
+    <string name="game_request_undo_dialog_confirm">CERE ANULAREA</string>
+    <string name="game_pass_dialog_message">Sigur vrei să pasezi? Ar trebui să faci asta doar dacă crezi că jocul s-a încheiat și nu mai sunt mutări de făcut. Dacă și adversarul pasează, jocul trece în faza de numărare a scorului.</string>
+    <string name="game_pass_dialog_confirm">PASEAZĂ</string>
+    <string name="game_resign_dialog_message">Sigur vrei să abandonezi?</string>
+    <string name="game_resign_dialog_confirm">ABANDONEAZĂ</string>
+    <string name="game_cancel_dialog_message">Sigur vrei să anulezi jocul?</string>
+    <string name="game_cancel_dialog_confirm">ANULEAZĂ JOCUL</string>
+    <string name="game_cancel_dialog_dismiss">NU ANULA JOCUL</string>
+    <string name="game_info_ranked">Oficial</string>
+    <string name="game_info_unranked">Amical</string>
+    <string name="game_info_unknown_player">\?</string>
+    <string name="game_info_versus_separator">"      vs      "</string>
+    <string name="game_info_score">Scor</string>
+    <string name="game_info_time">Timp</string>
+    <string name="game_info_score_komi">komi</string>
+    <string name="game_info_score_handicap">handicap</string>
+    <string name="game_info_score_prisoners">prizonieri</string>
+    <string name="game_info_score_stones">pietre</string>
+    <string name="game_info_score_territory">teritoriu</string>
+    <string name="game_info_score_total">total</string>
+    <string name="game_over_cancelled">JOCUL A FOST ANULAT</string>
+    <string name="game_over_won">FELICITĂRI\nAI CÂȘTIGAT</string>
+    <string name="game_over_lost">AI PIERDUT</string>
+    <string name="game_over_view_board">VEZI TABLA</string>
+    <string name="game_over_next_game">JOCUL URMĂTOR</string>
+    <string name="game_over_quick_replay">REVEDERE RAPIDĂ</string>
+    <string name="game_over_resignation">%1$s a abandonat la mutarea %2$d</string>
+    <string name="game_over_points">%1$s are cu %2$s puncte mai mult</string>
+    <string name="game_over_timeout">%1$s a depășit timpul.</string>
+    <string name="game_over_cancellation">%1$s a anulat jocul.</string>
+    <string name="game_over_disconnection">%1$s s-a deconectat.</string>
+    <string name="game_over_unknown_result">Rezultat necunoscut (%1$s)</string>
+    <string name="game_over_rating_updating">Ratingul tău se actualizează</string>
+    <string name="game_over_rating_now">Ratingul tău este acum %1$s - %2$s</string>
+    <string name="game_over_rating_change">" (%1$s)"</string>
+    <string name="game_retry_dialog_title">PROBLEME DE CONEXIUNE</string>
+    <string name="game_retry_dialog_message">Serverul nu răspunde. Verifică conexiunea la internet.</string>
+    <string name="game_retry_dialog_confirm">ÎNCEARCĂ DIN NOU</string>
+    <string name="game_chat_move_header">Mutarea %1$d</string>
+    <string name="game_chat_type_a_message">Scrie un mesaj…</string>
+    <string name="game_chat_send_content_description">Trimite</string>
+    <string name="game_player_details_rank_rating">%1$s (%2$s)</string>
+    <string name="game_player_details_highest_rank">Cel mai bun rang</string>
+    <string name="game_player_details_percentile">Percentilă</string>
+    <string name="game_player_details_percentage">%1$d%%</string>
+    <string name="game_player_details_played_vs_you">Jucate cu tine</string>
+    <string name="game_player_details_you_won">Ai câștigat</string>
+    <string name="game_player_details_they_won">A câștigat</string>
+    <string name="game_player_details_ranked_games">Jocuri oficiale</string>
+    <string name="game_player_details_wins">Victorii</string>
+    <string name="game_player_details_losses">Înfrângeri</string>
+    <string name="game_player_details_total">Total</string>
+    <plurals name="duration_weeks">
+        <item quantity="one">%d săptămână</item>
+        <item quantity="few">%d săptămâni</item>
+        <item quantity="other">%d de săptămâni</item>
+    </plurals>
+    <plurals name="duration_days">
+        <item quantity="one">%d zi</item>
+        <item quantity="few">%d zile</item>
+        <item quantity="other">%d de zile</item>
+    </plurals>
+    <plurals name="duration_hours">
+        <item quantity="one">%d oră</item>
+        <item quantity="few">%d ore</item>
+        <item quantity="other">%d de ore</item>
+    </plurals>
+    <plurals name="duration_minutes">
+        <item quantity="one">%d minut</item>
+        <item quantity="few">%d minute</item>
+        <item quantity="other">%d de minute</item>
+    </plurals>
+    <plurals name="duration_seconds">
+        <item quantity="one">%d secundă</item>
+        <item quantity="few">%d secunde</item>
+        <item quantity="other">%d de secunde</item>
+    </plurals>
+    <!-- Joins a coarse and a finer duration, e.g. "2 weeks" and "3 days" -->
+    <string name="duration_two_units">%1$s %2$s</string>
+    <string name="duration_unknown">\?</string>
+    <string name="time_control_simple">Simplu: %1$s per mutare.</string>
+    <string name="time_control_fischer">Fischer: ceasul pornește cu %1$s și crește cu %2$s la fiecare mutare, până la maximum %3$s.</string>
+    <plurals name="time_control_byoyomi">
+        <item quantity="one">Byo-Yomi japonez: ceasul pornește cu %1$s timp principal, urmat de %2$d perioadă de %3$s.</item>
+        <item quantity="few">Byo-Yomi japonez: ceasul pornește cu %1$s timp principal, urmat de %2$d perioade de %3$s fiecare.</item>
+        <item quantity="other">Byo-Yomi japonez: ceasul pornește cu %1$s timp principal, urmat de %2$d de perioade de %3$s fiecare.</item>
+    </plurals>
+    <plurals name="time_control_canadian">
+        <item quantity="one">Byo-Yomi canadian: ceasul pornește cu %1$s timp principal, urmat de %2$s pentru %3$d piatră.</item>
+        <item quantity="few">Byo-Yomi canadian: ceasul pornește cu %1$s timp principal, urmat de %2$s pentru %3$d pietre.</item>
+        <item quantity="other">Byo-Yomi canadian: ceasul pornește cu %1$s timp principal, urmat de %2$s pentru %3$d de pietre.</item>
+    </plurals>
+    <string name="time_control_absolute">Absolut: %1$s timp total de joc pentru fiecare jucător.</string>
+    <string name="time_control_none">Fără limită de timp.</string>
+    <string name="time_control_unknown">\?</string>
+    <string name="time_control_pauses_on_weekends">" Se întrerupe în weekend."</string>
+    <string name="whats_new_title">Ce este nou</string>
+    <string name="whats_new_changelog">· Aspect nou, cu culori preluate din imaginea de fundal Android\n· Avertismentele moderatorilor OGS sunt acum afișate\n· Aplicația a fost pregătită pentru Android 15\n· Ecranele Față în Față, AI și Joseki au fost reimplementate\n· Pornire mai rapidă\n· Navigarea a fost migrată pe Compose\n</string>
+    <string name="whats_new_about_title">Despre proiect</string>
+    <string name="whats_new_about_body">Acesta este un proiect open source. Dacă vrei să contribui, codul este disponibil pe Github.</string>
+    <string name="settings_delete_account_success">Cont șters. Ne pare rău că pleci! Aplicația se va închide în 5 s.</string>
+    <string name="settings_delete_account_wrong_password">Parolă greșită</string>
+    <string name="onboarding_login_invalid_credentials">Nume de utilizator sau parolă incorecte</string>
+    <string name="onboarding_login_failed_debug">Conectarea a eșuat. Informații de depanare: „%1$s”</string>
+    <string name="onboarding_create_account_failed_debug">Crearea contului a eșuat. Informații de depanare: „%1$s”</string>
+    <string name="onboarding_server_error_code">Eroare la comunicarea cu serverul. Serverul a raportat codul de eroare %1$s. Încearcă din nou mai târziu</string>
+    <string name="onboarding_google_signin_failed">signInResult:failed code=%1$d</string>
+    <string name="tutorial_retry">REÎNCEARCĂ</string>
+    <string name="tutorial_next">URMĂTOR</string>
+    <string name="tutorial_nice_one">Bravo!</string>
+    <string name="socket_debug_title">Depanare socket</string>
+    <string name="socket_debug_clear_log_content_description">Golește jurnalul</string>
+    <string name="socket_debug_clear_content_description">Golește</string>
+    <string name="socket_debug_filter_hint">Filtrează evenimentele…</string>
+    <string name="socket_debug_filter_all">Toate (%1$d)</string>
+    <string name="socket_debug_filter_type">%1$s (%2$d)</string>
+    <plurals name="socket_debug_event_count">
+        <item quantity="one">%d eveniment</item>
+        <item quantity="few">%d evenimente</item>
+        <item quantity="other">%d de evenimente</item>
+    </plurals>
+    <string name="notification_challenge_title">O nouă provocare!</string>
+    <string name="notification_challenge_text">%1$s te-a provocat</string>
+    <string name="notification_game_ended">Joc încheiat - %1$s</string>
+    <string name="notification_outcome_cancelled">Anulat</string>
+    <string name="notification_outcome_lost_by">Pierdut cu %1$s</string>
+    <string name="notification_outcome_won_by">Câștigat cu %1$s</string>
+    <string name="notification_outcome_black_won_by">Negrul a câștigat cu %1$s</string>
+    <string name="notification_outcome_white_won_by">Albul a câștigat cu %1$s</string>
+    <string name="notification_your_turn">E rândul tău</string>
+    <string name="notification_stone_removal_phase">Faza de eliminare a pietrelor</string>
+    <string name="notification_requires_attention">%1$s Necesită atenția ta</string>
+    <plurals name="notification_games_require_attention">
+        <item quantity="one">%d joc necesită atenția ta</item>
+        <item quantity="few">%d jocuri necesită atenția ta</item>
+        <item quantity="other">%d de jocuri necesită atenția ta</item>
+    </plurals>
+    <string name="notification_inbox_versus">vs %1$s</string>
+    <string name="notification_logout_title">Conectează-te din nou</string>
+    <string name="notification_logout_text">Ai fost deconectat din aplicație. De obicei asta se întâmplă pentru că ți-ai schimbat parola. Conectează-te din nou pentru a reactiva notificările</string>
+    <string name="notification_channel_group_your_turn">Rândul tău</string>
+    <string name="notification_channel_correspondence_games">Jocuri prin corespondență</string>
+    <string name="notification_channel_live_games">Jocuri live</string>
+    <string name="notification_channel_blitz_games">Jocuri blitz</string>
+    <string name="notification_channel_your_turn">Rândul tău</string>
+    <string name="notification_channel_challenges">Provocări</string>
+    <string name="notification_channel_logout">Deconectare</string>
+    <string name="settings_become_a_supporter">Devino susținător</string>
+    <string name="settings_become_a_supporter_description">Devino susținător</string>
+    <string name="settings_section_language">Limbă</string>
+    <string name="settings_language">Limbă</string>
+    <string name="settings_section_notifications">Notificări</string>
+    <string name="settings_system_notifications">Notificări de sistem</string>
+    <string name="settings_stone_sounds">Sunetul pietrelor</string>
+    <string name="settings_section_appearance">Aspect</string>
+    <string name="settings_theme">Temă</string>
+    <string name="settings_board_style">Stilul tablei</string>
+    <string name="settings_section_game_settings">Setări de joc</string>
+    <string name="settings_show_coordinates">Afișează coordonatele</string>
+    <string name="settings_show_player_ranks">Afișează rangurile jucătorilor</string>
+    <string name="settings_section_account">Cont</string>
+    <string name="settings_logout">Deconectare</string>
+    <string name="settings_delete_account">Șterge contul</string>
+    <string name="settings_section_legal">Informații legale</string>
+    <string name="settings_privacy_policy">Politica de confidențialitate</string>
+    <string name="settings_section_debug">Depanare</string>
+    <string name="settings_socket_debug">Depanare socket</string>
+    <string name="settings_review_prompt">Solicitare de recenzie</string>
+    <string name="settings_build_version">Versiunea nr. %1$d</string>
+    <string name="settings_theme_system_default">Implicit din sistem</string>
+    <string name="settings_theme_light">Luminoasă</string>
+    <string name="settings_theme_dark">Întunecată</string>
+    <string name="settings_board_style_light_wood">Lemn deschis</string>
+    <string name="settings_board_style_dark_wood">Lemn închis</string>
+    <string name="settings_board_style_cyan">Turcoaz</string>
+    <string name="settings_board_style_dark_blue">Albastru închis</string>
+    <string name="settings_board_style_book">Carte</string>
+    <string name="settings_board_style_nocturne">Nocturnă</string>
+    <string name="settings_logout_dialog_title">Deconectare</string>
+    <string name="settings_logout_dialog_message">Sigur vrei să te deconectezi?</string>
+    <string name="settings_logout_dialog_confirm">Deconectează-te</string>
+    <string name="settings_delete_account_dialog_title">Șterge contul</string>
+    <string name="settings_delete_account_message">Introdu parola pentru a confirma ștergerea contului</string>
+    <string name="settings_delete_account_password_hint">Parolă</string>
+    <string name="settings_delete_account_confirm">ȘTERGE CONTUL</string>
+    <string name="settings_delete_account_cancel">ANULEAZĂ</string>
+    <string name="settings_error_dialog_title">Eroare</string>
+    <string name="settings_review_flow_diagnostic_title">Diagnostic flux de recenzie</string>
+    <string name="settings_review_flow_error_title">Eroare în fluxul de recenzie</string>
+    <string name="settings_avatar_content_description">Avatar</string>
+    <string name="settings_icon_content_description">Pictogramă</string>
+    <string name="supporter_title">Devino susținător</string>
+    <string name="supporter_header">Susține aplicația de Android</string>
+    <string name="supporter_intro">Proiectul a început în 2015 ca un hobby. Deși existau servicii excelente în browser, nu exista o aplicație mobilă de calitate similară. Scopul a fost să creăm o aplicație de Android gratuită și open source (FOSS), realizată profesionist, care să permită jucătorilor de GO să interacționeze și să descopere acest joc uimitor.\n\nNu suntem afiliați cu OGS, deși ne-au permis cu generozitate să folosim gratuit serviciile lor online.\n\nNe bazăm pe sprijinul unor oameni ca tine pentru a face asta posibil. Dacă îți place aplicația, ia în considerare să ne susții cu o contribuție lunară și să devii Susținător!</string>
+    <string name="supporter_reason_develop_title">Ajută-ne să dezvoltăm aplicația mai repede</string>
+    <string name="supporter_reason_develop_description">Susținătorii fac posibilă alocarea de mai mult timp pentru dezvoltarea de funcții noi, precum integrarea AI-ului KataGo, analiza asistată de AI, editorul SGF etc.</string>
+    <string name="supporter_reason_free_title">Menține aplicația gratuită</string>
+    <string name="supporter_reason_free_description">Vrem ca aplicația să fie gratuită pentru toți. Pentru totdeauna. Fără reclame, gratuită la descărcare, fără abonamente obligatorii.</string>
+    <string name="supporter_reason_open_source_title">Susține open source</string>
+    <string name="supporter_reason_open_source_description">Aplicația este și va rămâne mereu open source. Asta înseamnă că poți răsfoi codul, contribui cu remedieri și funcții noi sau studia cum funcționează.</string>
+    <string name="supporter_reason_promote_title">Promovează GO</string>
+    <string name="supporter_reason_promote_description">O aplicație de Android dezvoltată profesionist permite mai multor oameni să descopere acest joc uimitor.</string>
+    <string name="supporter_faqs">Întrebări frecvente</string>
+    <string name="supporter_faq_money_question">Pentru ce sunt folosiți banii?</string>
+    <string name="supporter_faq_money_answer">Banii permit dezvoltatorului nostru principal, care este contractor Android profesionist, să își ia liber între contracte pentru a lucra la acest proiect. În viitor, s-ar putea dedica exclusiv îmbunătățirii aplicației, într-un ritm mult mai rapid.</string>
+    <string name="supporter_faq_features_question">Există funcții disponibile doar pentru susținători?</string>
+    <string name="supporter_faq_features_answer">Nu, pentru că credem că toată lumea ar trebui să aibă acces la o aplicație de Android pentru GO realizată profesionist. Susținerea este complet opțională.</string>
+    <string name="supporter_faq_cancel_question">Pot să îmi modific sau să îmi anulez abonamentul?</string>
+    <string name="supporter_faq_cancel_answer">Da, oricând, fie din această pagină, fie din pagina „Abonamente” din Google Play.</string>
+    <string name="supporter_faq_payment_question">Există alte metode de plată?</string>
+    <string name="supporter_faq_payment_answer">Aplicațiile distribuite prin Google Play trebuie să folosească Google Pay, iar Google reține 15% din încasări. Nu ne este permis să oferim metode alternative de plată în aplicație.</string>
+    <string name="supporter_thank_you_title">Îți mulțumim pentru susținere!</string>
+    <string name="supporter_current_contribution">"Contribuția ta actuală este "</string>
+    <string name="supporter_select_contribution">Alege contribuția lunară</string>
+    <string name="supporter_update_amount">Actualizează suma</string>
+    <string name="supporter_cancel_subscription">Anulează abonamentul</string>
+    <string name="stats_rank_elo">%1$s · ELO %2$s</string>
+    <string name="stats_ranked_games">jocuri oficiale</string>
+    <string name="stats_win_rate">rată de victorii</string>
+    <string name="stats_current_streak">seria actuală</string>
+    <string name="stats_recent_results">rezultate recente</string>
+    <string name="stats_rating_over_games">Ratingul pe parcursul jocurilor</string>
+    <string name="stats_rating_over_time">Ratingul în timp</string>
+    <string name="stats_games_by_board_size">Jocuri jucate după mărimea tablei</string>
+    <string name="stats_games_by_time_controls">Jocuri jucate după controlul timpului</string>
+    <string name="stats_played">Jucate</string>
+    <string name="stats_win_ratio_by_board_size">Rata de victorii după mărimea tablei</string>
+    <string name="stats_win_ratio_by_time_controls">Rata de victorii după controlul timpului</string>
+    <string name="stats_win_ratio_by_colour">Rata de victorii după culoare</string>
+    <string name="stats_board_9">9×9</string>
+    <string name="stats_board_13">13×13</string>
+    <string name="stats_board_19">19×19</string>
+    <string name="stats_blitz">Blitz</string>
+    <string name="stats_live">Live</string>
+    <string name="stats_correspondence_short">Coresp.</string>
+    <string name="stats_correspondence">Corespondență</string>
+    <string name="stats_all_games">Toate jocurile</string>
+    <string name="stats_black">Negru</string>
+    <string name="stats_white">Alb</string>
+    <string name="stats_won_lost">%1$d câștigate · %2$d pierdute</string>
+    <string name="stats_no_streak">-</string>
+    <plurals name="stats_streak_wins">
+        <item quantity="one">%d victorie</item>
+        <item quantity="few">%d victorii</item>
+        <item quantity="other">%d de victorii</item>
+    </plurals>
+    <plurals name="stats_streak_losses">
+        <item quantity="one">%d înfrângere</item>
+        <item quantity="few">%d înfrângeri</item>
+        <item quantity="other">%d de înfrângeri</item>
+    </plurals>
+    <string name="stats_no_ranked_games">Nu există jocuri oficiale înregistrate</string>
+    <string name="stats_filter_1m">1L</string>
+    <string name="stats_filter_3m">3L</string>
+    <string name="stats_filter_1y">1A</string>
+    <string name="stats_filter_5y">5A</string>
+    <string name="stats_filter_all">Tot</string>
+    <string name="stats_filter_last_20">Ultimele 20</string>
+    <string name="stats_filter_last_100">Ultimele 100</string>
+    <string name="stats_tooltip_elo_rank">%1$d ELO (%2$s)</string>
+    <string name="stats_tooltip_at_game">la jocul %1$d</string>
+    <string name="stats_tooltip_on_date">pe %1$s</string>
+    <string name="stats_tooltip_delta_elo">%1$d ELO</string>
+    <string name="stats_tooltip_since_game">de la jocul %1$d</string>
+    <string name="stats_tooltip_since_date">din %1$s</string>
+    <string name="puzzle_directory_title">Probleme</string>
+    <string name="puzzle_directory_recently_opened">Deschise recent</string>
+    <string name="puzzle_directory_rating_count">(%1$s)</string>
+    <string name="puzzle_directory_by_author">de %1$s %2$s</string>
+    <string name="puzzle_directory_count_label">Număr</string>
+    <plurals name="puzzle_directory_puzzle_count">
+        <item quantity="one">%d problemă</item>
+        <item quantity="few">%d probleme</item>
+        <item quantity="other">%d de probleme</item>
+    </plurals>
+    <string name="puzzle_directory_rank_label">Rang</string>
+    <string name="puzzle_directory_rank_range">%1$s până la %2$s</string>
+    <string name="puzzle_directory_solved_label">Rezolvate</string>
+    <string name="puzzle_directory_solved_value">%1$d (%2$.1f%%)</string>
+    <string name="puzzle_directory_completed">Finalizate</string>
+    <string name="puzzle_directory_stats">%1$s vizualizări, rezolvate %2$s ori din %3$s (%4$s %%)</string>
+    <string name="puzzle_directory_sort_name">A -&gt; Z</string>
+    <string name="puzzle_directory_sort_rating">Rating</string>
+    <string name="puzzle_directory_sort_count">Număr de probleme</string>
+    <string name="puzzle_directory_sort_views">Vizualizări</string>
+    <string name="puzzle_directory_sort_rank">Rang</string>
+    <string name="tsumego_title">Tsumego</string>
+    <string name="tsumego_title_with_name">Tsumego: %1$s</string>
+    <string name="tsumego_board_content_description">Tablă</string>
+    <string name="tsumego_solved_content_description">Rezolvat</string>
+    <string name="tsumego_previous">ANTERIOR</string>
+    <string name="tsumego_hint">INDICIU</string>
+    <string name="tsumego_next">URMĂTOR</string>
+    <string name="tsumego_retry">REÎNCEARCĂ</string>
+    <string name="tsumego_continue">CONTINUĂ</string>
+    <string name="tsumego_done">GATA</string>
+    <string name="onboarding_link_account">Conectează un cont OGS</string>
+    <string name="onboarding_create_account">Creează cont OGS</string>
+    <string name="onboarding_login_failed_title">Conectarea a eșuat</string>
+    <string name="onboarding_stay_offline_title">Rămâi offline?</string>
+    <string name="onboarding_stay_offline_message">Dacă alegi să rămâi offline, majoritatea funcțiilor aplicației, precum jocul online gratuit împotriva altor oameni și a boturilor online, vor fi dezactivate până când te conectezi sau îți creezi un cont. Poți totuși să joci împotriva unui AI local și să parcurgi tutorialul. Ești sigur?</string>
+    <string name="onboarding_stay_offline_confirm">Da, rămân offline</string>
+    <string name="onboarding_continue">Continuă</string>
+    <string name="onboarding_page_go_title">Jocul de GO</string>
+    <string name="onboarding_page_go_description">Go este un joc de strategie pe tablă pentru doi jucători, în care scopul este să înconjori mai mult teritoriu decât adversarul. Jocul a fost inventat în China acum peste 2.500 de ani și este cel mai vechi joc de tablă care se mai joacă și astăzi. Se estimează că peste 46 de milioane de oameni știu să îl joace.</string>
+    <string name="onboarding_page_app_title">Aplicația Online GO pentru Android</string>
+    <string name="onboarding_page_app_description">Această aplicație a început în 2015 ca proiect personal al lui Alexandru Cristescu. Acum este open source, adică codul este disponibil gratuit pentru oricine vrea să îl răsfoiască și să îl modifice. Aplicația este și va rămâne mereu gratuită. Contribuțiile sunt binevenite. Află cum poți ajuta pe pagina de GitHub a proiectului. Dacă programarea nu este pasiunea ta, poți deveni susținător printr-o contribuție lunară. Sau poți pur și simplu să te bucuri de aplicație gratuit, alegerea este numai a ta!</string>
+    <string name="onboarding_page_ogs_title">Serverul OGS</string>
+    <string name="onboarding_page_ogs_description">Serverul OGS este unul dintre cele mai populare site-uri pentru a juca GO online. Aplicația Online GO pentru Android folosește serviciile oferite de OGS pentru a permite jocul online. Deși nu suntem afiliați cu OGS, avem permisiunea lor de a folosi serviciile lor. Pentru a juca este necesar un cont OGS (gratuit). Poți crea unul la pasul următor, dacă nu ai deja.</string>
+    <string name="onboarding_question_has_account">Ai deja un cont OGS (online-go.com)?</string>
+    <string name="onboarding_question_login_method">Ce metodă de conectare vrei să folosești?</string>
+    <string name="onboarding_answer_google">Conectare cu Google</string>
+    <string name="onboarding_answer_password">Nume de utilizator și parolă</string>
+    <string name="onboarding_answer_offline">Rămâi offline</string>
+    <string name="onboarding_notifications_title">Fii la curent</string>
+    <string name="onboarding_notifications_description">Am vrea să îți trimitem notificări când este rândul tău să joci, când se încheie jocurile sau când primești mesaje. Poți schimba oricând asta mai târziu, în setările dispozitivului.</string>
+    <string name="onboarding_notifications_allow">Permite notificările</string>
+    <string name="onboarding_notifications_skip">Omite</string>
+    <string name="new_challenge_opponent">Adversar</string>
+    <string name="new_challenge_your_color">Culoarea ta</string>
+    <string name="new_challenge_board_size">Mărimea tablei</string>
+    <string name="new_challenge_analysis">Analiză</string>
+    <string name="new_challenge_speed">Viteză</string>
+    <string name="new_challenge_ranked">Oficial</string>
+    <string name="new_challenge_private">Privat</string>
+    <string name="new_challenge_send">Trimite provocarea</string>
+    <string name="new_challenge_select_opponent">[Alege adversarul]</string>
+    <string name="select_opponent_tab_bot">Bot</string>
+    <string name="select_opponent_tab_recent">Recente</string>
+    <string name="select_opponent_bots_title">Boturi online</string>
+    <string name="select_opponent_bots_description">Boturile online sunt programe AI rulate și întreținute de membri ai comunității, pe cheltuiala lor. Pentru a juca împotriva lor este nevoie de o conexiune activă la internet.</string>
+    <string name="select_opponent_icon_content_description">Pictograma adversarului</string>
+    <string name="select_opponent_recent_title">Adversari recenți</string>
+    <string name="select_opponent_recent_description">Aceasta este o selecție de adversari (atât boturi, cât și jucători reali) cu care ai jucat recent.</string>
+    <string name="select_opponent_search_hint">Caută după nume de utilizator</string>
+    <string name="automatch_title">Potrivire automată</string>
+    <string name="automatch_description">Încearcă un joc împotriva unui adversar uman cu un rating asemănător cu al tău.</string>
+    <string name="automatch_game_size">Mărimea jocului</string>
+    <string name="automatch_size_9">9×9</string>
+    <string name="automatch_size_13">13×13</string>
+    <string name="automatch_size_19">19×19</string>
+    <string name="automatch_time_controls">Controlul timpului</string>
+    <string name="automatch_speed_blitz">Blitz</string>
+    <string name="automatch_speed_rapid">Rapid</string>
+    <string name="automatch_speed_live">Live</string>
+    <string name="automatch_speed_correspondence">Corespondență</string>
+    <string name="automatch_or">sau</string>
+    <string name="automatch_expected_duration">Durată estimată: %1$s</string>
+    <string name="automatch_duration_several_days">câteva zile</string>
+    <plurals name="automatch_duration_minutes">
+        <item quantity="one">%d minut</item>
+        <item quantity="few">%d minute</item>
+        <item quantity="other">%d de minute</item>
+    </plurals>
+    <string name="automatch_duration_minutes_range">%1$d până la %2$d minute</string>
+    <string name="mygames_support">SUSȚINE</string>
+    <string name="mygames_moderator_title">Moderator OGS %1$s</string>
+    <string name="mygames_empty_message">Mesaj gol</string>
+    <string name="mygames_acknowledge">Am înțeles</string>
+    <string name="mygames_acknowledge_countdown">Am înțeles (%1$ds)</string>
+    <string name="mygames_header_your_turn">E rândul tău</string>
+    <string name="mygames_header_challenges">Provocări</string>
+    <string name="mygames_header_opponents_turn">Rândul adversarului</string>
+    <string name="mygames_header_recently_finished">Încheiate recent</string>
+    <string name="mygames_header_older_games">Jocuri mai vechi</string>
+    <string name="mygames_tutorial_percentage">%1$d %%</string>
+    <string name="mygames_learn_to_play">Învață să joci</string>
+    <string name="mygames_header_icon_content_description">Pictogramă</string>
+    <string name="mygames_offline_content_description">Offline</string>
+    <string name="mygames_avatar_content_description">Avatar</string>
+    <string name="mygames_searching_for_game">Se caută un joc</string>
+    <string name="mygames_challenge_you_are_challenging">Îl provoci pe %1$s</string>
+    <string name="mygames_challenge_is_challenging_you">%1$s te provoacă</string>
+    <string name="mygames_accept">Acceptă</string>
+    <string name="mygames_decline">Refuză</string>
+    <string name="mygames_see_details">Vezi detalii</string>
+    <string name="mygames_challenge_received">Ai primit o provocare!</string>
+    <string name="mygames_paused">în pauză</string>
+    <string name="mygames_outcome_cancelled">Anulat</string>
+    <string name="mygames_outcome_lost">Pierdut</string>
+    <string name="mygames_outcome_won">Câștigat</string>
+    <string name="mygames_outcome_black_won">Negrul a câștigat</string>
+    <string name="mygames_outcome_white_won">Albul a câștigat</string>
+    <string name="mygames_outcome_annulled">Anulat</string>
+    <string name="mygames_outcome_lost_by">Pierdut cu %1$s</string>
+    <string name="mygames_outcome_won_by">Câștigat cu %1$s</string>
+    <string name="mygames_outcome_black_won_by">Negrul a câștigat cu %1$s</string>
+    <string name="mygames_outcome_white_won_by">Albul a câștigat cu %1$s</string>
+    <string name="mygames_greeting">Salut %1$s,</string>
+    <plurals name="mygames_your_turn_count">
+        <item quantity="one">Este rândul tău în %d joc.</item>
+        <item quantity="few">Este rândul tău în %d jocuri.</item>
+        <item quantity="other">Este rândul tău în %d de jocuri.</item>
+    </plurals>
+    <plurals name="mygames_active_games_count">
+        <item quantity="one">Ai %d joc activ.</item>
+        <item quantity="few">Ai %d jocuri active.</item>
+        <item quantity="other">Ai %d de jocuri active.</item>
+    </plurals>
+    <string name="mygames_no_active_games">Nu ai jocuri active. Ce zici de unul nou?</string>
+    <string name="mygames_detail_board_size">Mărimea tablei</string>
+    <string name="mygames_detail_speed">Viteză</string>
+    <string name="mygames_detail_ranked">Oficial</string>
+    <string name="mygames_detail_analysis">Analiză</string>
+    <string name="mygames_detail_rules">Reguli</string>
+    <string name="mygames_alert_bot_rejected_title">Botul a refuzat provocarea</string>
+    <string name="mygames_alert_bot_rejected_text">Asta se poate întâmpla pentru că cel care întreține adversarul a impus anumite condiții asupra parametrilor provocării.</string>
+    <string name="mygames_alert_opponent_rejected_title">Adversarul a refuzat provocarea</string>
+    <string name="mygames_alert_opponent_rejected_text">Poți încerca din nou sau poți contacta adversarul pentru a afla motivele refuzului.</string>
+    <string name="mygames_alert_ogs_error_title">Eroare OGS</string>
+    <string name="mygames_alert_ogs_error_text">A apărut o eroare în timpul comunicării cu serverul OGS. De obicei asta înseamnă că dezvoltatorii site-ului au schimbat ceva în API. Te rugăm să raportezi această eroare, deoarece aplicația probabil nu va funcționa până când nu ne adaptăm la această schimbare.</string>
+    <string name="mygames_alert_game_unavailable">Acest joc nu este disponibil.</string>
+    <string name="mygames_alert_one_live_game">Se poate căuta doar un singur joc live, rapid sau blitz în același timp.</string>
+    <string name="mygames_message_prefix">Mesajul este:</string>
+    <string name="learn_section_tutorials">Tutoriale</string>
+    <string name="learn_section_study">Studiu</string>
+    <string name="learn_title_learn">Învață</string>
+    <string name="learn_study_title_joseki_explorer">Explorator de joseki</string>
+    <string name="earn_study_title_puzzles">Probleme</string>
+    <string name="learn_tutorial_checkbox_done">Finalizat</string>
+    <string name="learn_tutorial_checkboxoutlineblank_done">Finalizat</string>
+    <string name="joseki_explorer_title">Explorator de joseki</string>
+    <string name="joseki_explorer_button_tenuki">Tenuki</string>
+    <string name="joseki_explorer_button_previous">Anterior</string>
+    <string name="joseki_explorer_button_next">Următor</string>
+    <string name="joseki_explorer_link_video">" (video)"</string>
+    <string name="joseki_explorer_link_external">" (link extern)"</string>
+    <string name="joseki_explorer_default_description"><![CDATA["## Explorator de joseki
+*Joseki* este un termen împrumutat din japoneză, care se referă de obicei la secvențe standard de mutări jucate într-un colț și care duc la un schimb echilibrat pe plan local.
+### Cum se folosește Exploratorul de joseki
+Mutările marcate mai jos reprezintă continuări interesante ale poziției actuale. Culorile arată cât de bună este considerată mutarea:
+* Mutările verzi sunt considerate optime
+* Mutările galbene sunt considerate acceptabile
+* Mutările roșii sunt considerate greșeli
+* Marcajele mov sunt pentru capcane
+* Cele albastre pentru întrebări deschise.
+Poți atinge oricare dintre aceste mutări interesante pentru a explora pozițiile la care duc.
+### Tenuki
+Uneori cea mai bună mutare este să joci în altă parte. Acest lucru se numește de obicei *tenuki*. Dacă tenuki este considerat o opțiune interesantă pentru poziția actuală, butonul de pas din stânga jos este activ și îl poți apăsa pentru a vedea ce poziții pot apărea după ce jucătorul curent face tenuki."]]></string>
+    <string name="tutorial_basics_title">Bazele</string>
+    <string name="tutorial_basics_thebasics_title">Bazele jocului</string>
+    <string name="tutorial_basics_thebasics_basic1_text"><![CDATA[Ține minte cele 3 reguli de mai jos:
+1. Negrul și Albul pun pe rând „pietre” pe tablă
+2. Pietrele se pun la intersecția liniilor.
+3. Odată pusă, o piatră nu mai poate fi mutată, dar poate fi capturată.
+
+Pune o piatră pentru a continua!]]></string>
+    <string name="tutorial_basics_thebasics_capture1_page1_text"><![CDATA[Cu încă o mutare, piatra albă va fi complet înconjurată și capturată. Se spune că pietrele care pot fi capturate într-o singură mutare sunt în „Atari”.]]></string>
+    <string name="tutorial_basics_thebasics_capture1_page2_text"><![CDATA[Piatra albă este acum înconjurată, așa că…]]></string>
+    <string name="tutorial_basics_thebasics_capture1_page3_text"><![CDATA["… este scoasă de pe tablă"]]></string>
+    <string name="tutorial_basics_thebasics_capture1_page4_text"><![CDATA["Dacă ar fi fost rândul albului, ar fi putut „scăpa” conectând încă o piatră."]]></string>
+    <string name="tutorial_basics_thebasics_capture2_text">E rândul tău! Capturează piatra albă.</string>
+    <string name="tutorial_basics_thebasics_capture3_text">De data asta poți captura două pietre cu o singură mutare!</string>
+    <string name="tutorial_basics_thebasics_capture4_text">Chiar dacă sunt și alte pietre în apropiere, procedează la fel.</string>
+
+    <string name="tutorial_basics_capturingstones_title">Capturarea pietrelor</string>
+    <string name="tutorial_basics_capturingstones_capture5_text">La marginea tablei, situația este puțin diferită. Pietrele de pe margine au mai puține libertăți și sunt mai ușor de capturat.</string>
+    <string name="tutorial_basics_capturingstones_capture5_branches2_text">Pietrele albe sunt conectate.</string>
+    <string name="tutorial_basics_capturingstones_capture6_text">Pietrele din colț sunt și mai vulnerabile.</string>
+    <string name="tutorial_basics_capturingstones_capture7_text">De data asta două pietre sunt în atari. Capturează-le!</string>
+    <string name="tutorial_basics_capturingstones_capture8_text">De data asta e nevoie de două mutări pentru a captura pietrele albe. Atenție, prima mutare este importantă!</string>
+    <string name="tutorial_basics_capturingstones_capture9_text"><![CDATA["Este greu să fugi cu pietrele de pe margine. Capturează cele două pietre albe de pe prima linie!"]]></string>
+    <string name="tutorial_basics_capturingstones_capture10_text">Câte pietre! Caută pietrele care sunt în Atari și capturează-le. Dacă greșești, pietrele tale vor fi capturate.</string>
+    <string name="tutorial_basics_doubleatari_title">Atari dublu</string>
+    <string name="tutorial_basics_doubleatari_doubleAtari1_text"><![CDATA[În anumite poziții, negrul poate pune două grupuri albe diferite în Atari în același timp.
+În această situație, negrul va captura de obicei cel puțin unul dintre ele!]]></string>
+    <string name="tutorial_basics_doubleatari_doubleAtari2_text"><![CDATA["Iată încă unul. Unde poți face un atari dublu?"]]></string>
+    <string name="tutorial_basics_illegalmoves_title">Mutări ilegale (regula sinuciderii)</string>
+    <string name="tutorial_basics_illegalmoves_suicide1_page_1_text">Poți juca aproape oriunde pe tablă, cu câteva excepții. În exemplul de mai jos, negrul nu poate juca la A, deoarece noua sa piatră ar fi deja înconjurată.</string>
+    <string name="tutorial_basics_illegalmoves_suicide1_page_2_text"><![CDATA[Se spune că aceasta este o mutare „sinucigașă” și este interzisă.]]></string>
+    <string name="tutorial_basics_illegalmoves_suicide1_page_3_text">Există însă o excepție. Dacă o mutare ar captura una sau mai multe pietre albe (ca B mai jos), mutarea este permisă.</string>
+    <string name="tutorial_basics_illegalmoves_suicide1_page_4_text">Poziția rezultată arată astfel:</string>
+    <string name="tutorial_basics_illegalmoves_suicide2_text"><![CDATA["E rândul tău să capturezi din nou câteva pietre! Indiciu: la prima vedere poate părea o mutare ilegală…"]]></string>
+    <string name="tutorial_basics_illegalmoves_suicide3_text">Cele 4 pietre negre sunt în Atari! Capturează pietrele albe înainte să te captureze ele!</string>
+    <string name="tutorial_basics_illegalmoves_suicide4_text"><![CDATA["Capturează cele 2 pietre albe care ating pietrele negre. Aici nu poți captura albul cu o singură mutare."]]></string>
+    <string name="tutorial_basics_illegalmoves_suicide5_text">Piatra albă de la D5 îți separă pietrele. Dacă o capturezi, îți poți conecta pietrele și forma un grup puternic. Este un model foarte important în GO!</string>
+    <string name="tutorial_intermediate_title">Nivel mediu</string>
+    <string name="tutorial_intermediate_ladders_title">Scări</string>
+    <string name="tutorial_intermediate_ladders_ladder1_text">Capturează piatra albă! Dacă joci mutările corecte, albul nu poate scăpa. Încearcă să faci atari-uri succesive până când albul nu mai are unde să se ducă.</string>
+    <string name="tutorial_intermediate_ladders_ladder1_branches_branch1_message">Albul încearcă să scape…</string>
+    <string name="tutorial_intermediate_ladders_ladder1_branches_branch1_1_1_1_1_message">Vezi unde duce asta?</string>
+    <string name="tutorial_intermediate_ladders_ladder1_branches_branch1_1_1_1_1_1_1_1_1_message">Dacă albul încearcă să reziste…</string>
+    <string name="tutorial_intermediate_ladders_ladder1_branches_branch1_1_1_1_1_1_1_2_1_message">Dacă albul încearcă să reziste…</string>
+    <string name="tutorial_intermediate_ladders_ladder1_branches_branch1_1_1_1_1_1_1_2_2_message">Dacă albul încearcă să reziste…</string>
+    <string name="tutorial_intermediate_ladders_ladder2_text"><![CDATA["Iată încă o scară. Acum e rândul tău să scapi. De data asta situația nu este fără speranță. Piatra ta de la F2 se află pe traseul scării. Dacă ajungi la ea, ești în siguranță. O astfel de piatră se numește „rupător de scară”"]]></string>
+    <string name="tutorial_intermediate_ladders_ladder3_page1_text">Scările sunt foarte importante în GO. Dar trebuie să gândești câteva mutări înainte și să nu începi o luptă de scară decât dacă ești sigur că o poți câștiga! Iată ce se întâmplă cu Albul dacă joacă până la capăt scara pierdută din exemplul anterior…</string>
+    <string name="tutorial_intermediate_twoeyes_title">Doi ochi</string>
+    <string name="tutorial_intermediate_twoeyes_twoeyes1_text">Ești complet înconjurat! Care este singura mutare care te poate salva?</string>
+    <string name="tutorial_intermediate_twoeyes_twoeyes2_page1_text">Corect! În această poziție, atât A cât și B sunt mutări ilegale pentru alb, deoarece ar fi mutări sinucigașe fără să captureze vreuna dintre pietrele tale. Prin urmare, grupul tău nu mai poate fi capturat niciodată!</string>
+    <string name="tutorial_intermediate_twoeyes_twoeyes3_text"><![CDATA["Ce zici de aici? Cum poți face în așa fel ca pietrele tale să nu fie capturate?"]]></string>
+    <string name="tutorial_intermediate_captureraces_title">Curse de capturare</string>
+    <string name="tutorial_intermediate_captureraces_capturerace1_text">În această problemă, atât grupul negru cât și cel alb din partea de sus, la mijloc, sunt înconjurate. Deoarece niciunul nu are doi ochi, ambele părți pot încerca să captureze cealaltă. Această situație se numește cursă de capturare (semeai) și este de obicei câștigată de partea cu mai multe libertăți. În cazul acesta, ambele grupuri au 3 libertăți, așa că va câștiga cel care mută primul.\n\nCapturează pietrele albe!</string>
+    <string name="tutorial_intermediate_captureraces_capturerace2_text"><![CDATA["Iată încă un semeai. Câștigă cursa și capturează albul!"]]></string>
+    <string name="tutorial_intermediate_captureraces_capturerace3_text">Salvează pietrele negre din colț!</string>
+    <string name="tutorial_intermediate_snapback_title">Snapback</string>
+    <string name="tutorial_intermediate_snapback_snapback1_text">Acum vei descoperi o tehnică numită „snapback”. Capturează cele 4 pietre albe!\n\nIndiciu: mai întâi trebuie să sacrifici o piatră!</string>
+    <string name="tutorial_intermediate_snapback_snapback2_text">Cum ai descoperit, uneori faptul că îl obligi pe alb să captureze una dintre pietrele tale îl pune în atari. Folosește aceeași tehnică aici!</string>
+    <string name="tutorial_intermediate_snapback_snapback3_text">Iată încă o situație de snapback, la margine.</string>
+    <string name="tutorial_intermediate_ko_title">KO - regula „fără repetiție”</string>
+    <string name="tutorial_intermediate_ko_ko_page_1_text"><![CDATA["Acum vom vedea ultima regulă pe care trebuie să o știi ca să joci GO: regula KO. Regula spune că o mutare este invalidă dacă ar produce o repetiție (adică o poziție anterioară).
+Hai să ne uităm la un exemplu. Piatra albă de la E6 este în Atari. Așadar, negrul o poate captura."]]></string>
+    <string name="tutorial_intermediate_ko_ko_page_2_text"><![CDATA["Acum noua piatră neagră de la F6 este în atari. Fără regula KO, albul ar putea să o captureze, dar dacă ar face-o, poziția rezultată…"]]></string>
+    <string name="tutorial_intermediate_ko_ko_page_3_text"><![CDATA["… ar fi identică cu cea inițială! Aici, fără regula KO, Negrul ar captura din nou…"]]></string>
+    <string name="tutorial_intermediate_ko_ko_page_4_text"><![CDATA["… și jocul ar rămâne blocat într-o buclă. Pentru a evita asta, regula KO spune că albul nu poate recaptura la E6 aici, ci trebuie să joace mai întâi în altă parte."]]></string>
+    <string name="tutorial_intermediate_ko_ko_page_5_text"><![CDATA["Acum, dacă negrul vrea să salveze piatra aflată în atari, poate juca la E6…]]></string>
+    <string name="tutorial_intermediate_ko_ko_page_6_text">Negrul a câștigat astfel lupta de ko, dar observă că este din nou rândul albului, deci albul a câștigat două mutări cu prețul acelei singure pietre.</string>
+    <string name="tutorial_intermediate_ko_ko_page_7_text">Uneori cele două mutări gratuite pot valora mai multe puncte decât câștigarea luptei de ko, așa că ambii jucători vor evalua constant dacă merită să continue lupta de ko sau să obțină mutările suplimentare.</string>
+    <string name="tutorial_intermediate_ko_ko_page_8_text">Cum poate apărea asta într-un joc real? Iată un exemplu. Atât negrul cât și albul au în partea de sus un grup de 5 pietre în pericol. Singura cale prin care negrul își poate salva grupul este să joace la E8. A început o luptă de KO!</string>
+    <string name="tutorial_intermediate_ko_ko_page_9_text">Cele 5 pietre albe de sus sunt acum în Atari, dar albul nu poate recaptura la D8, deoarece asta ar repeta poziția anterioară! Așadar joacă undeva unde Negrul nu poate ignora, de exemplu la E2</string>
+    <string name="tutorial_intermediate_ko_ko_page_10_text">Acum cele 8 pietre negre din stânga jos sunt în pericol, așa că Negrul socotește: ar prefera să piardă 8 pietre jos sau 5 sus? Fără tragere de inimă, Negrul alege să continue lupta de KO și să salveze pietrele de jos cu E1</string>
+    <string name="tutorial_intermediate_ko_ko_page_11_text">Albul recaptură acum KO-ul</string>
+    <string name="tutorial_intermediate_ko_ko_page_12_text"><![CDATA["Acum este rândul negrului și nu poate recaptura din cauza regulii KO. Are însă încă o șansă: o mutare la B4 amenință grupul alb de jos!"]]></string>
+    <string name="tutorial_intermediate_ko_ko_page_13_text">Acum e rândul Albului să aleagă. Să captureze cele 5 pietre de sus cu o mutare la B9 sau să salveze cele 6 pietre de jos? Alege să joace la A4…</string>
+    <string name="tutorial_intermediate_ko_ko_page_14_text">Negrul nu are nevoie de prea multă încurajare ca să joace acum la E8…</string>
+    <string name="tutorial_intermediate_ko_ko_page_15_text">Albul recunoaște fără tragere de inimă că nu mai are alte amenințări bune. Joacă în altă parte, de exemplu la F4, și admite că a pierdut lupta de KO.</string>
+    <string name="tutorial_intermediate_ko_ko_page_16_text">Negrul își va revendica bucuros premiul de sus, cu G9</string>
+    <string name="tutorial_intermediate_ko_ko_page_17_text">Nu-ți face griji dacă asta pare prea complicat acum. Ca începător, ține minte doar că nu poți recaptura o piatră dacă asta repetă poziția anterioară.</string>
+    <string name="tutorial_intermediate_puzzles_title">Probleme</string>
+    <string name="tutorial_intermediate_puzzles_puzzles1_text">Capturează cele 3 pietre albe! Asta se numește uneori „cuibul cocorului”</string>
+    <string name="tutorial_intermediate_puzzles_puzzles2_text"><![CDATA["Este o cursă de capturare, o poți câștiga?"]]></string>
+    <string name="tutorial_intermediate_puzzles_corner1_text"><![CDATA["În GO, luptele din colțuri sunt foarte frecvente. Iată o cursă de capturare în colț. Reușești să ieși învingător?"]]></string>
+    <string name="tutorial_intermediate_puzzles_corner2_text"><![CDATA["Capturează piatra albă care taie negrul.
+Ai grijă din care parte faci Atari!"]]></string>
+    <string name="tutorial_intermediate_puzzles_corner2_branches_branch1_4_4_message">4 pietre negre sunt moarte</string>
+    <string name="tutorial_intermediate_puzzles_corner2_branches_branch2_3_message">3 pietre negre sunt moarte</string>
+    <string name="tutorial_intermediate_puzzles_corner2_branches_branch2_5_message">2 pietre negre sunt moarte</string>
+    <string name="tutorial_intermediate_puzzles_corner2_branches_branch4_message"><![CDATA["Negrul nu poate scăpa"]]></string>
+    <string name="tutorial_intermediate_puzzles_corner2_branches_branch6_message"><![CDATA["Negrul nu poate scăpa"]]></string>
+    <string name="tutorial_intermediate_falseeyes_title">Ochi falși</string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes1_page1_text"><![CDATA["Dacă îți amintești tutorialul anterior, un grup cu doi ochi nu poate fi capturat niciodată. Totuși, uneori o parte din pietrele care înconjoară un ochi nu sunt conectate la grupul principal și pot fi capturate separat. De exemplu, în poziția de mai jos, D5 pare a fi un ochi, însă piatra de la C5 este în Atari și poate fi capturată, lăsând grupul din mijloc cu un singur ochi.\n\nNumim D5 un „ochi fals”."]]></string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes2_text"><![CDATA["Albul a încercat să salveze piatra de la C5 jucând la D5. Care este mutarea câștigătoare aici?"]]></string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes3_text"><![CDATA["Dacă albul încearcă să riposteze altfel, nu are importanță, tot poți captura grupul din mijloc!"]]></string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes4_text"><![CDATA["De data asta ești în defensivă. Supraviețuiește făcând doi ochi adevărați!"]]></string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes4_branches_branch2_message">Ți-ai umplut propriul ochi</string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes4_branches_branch3_message">Ți-ai umplut propriul ochi</string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes4_branches_branch4_message">F4 este acum un ochi fals</string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes5_text"><![CDATA["De data asta trebuie reparați ambii ochi!"]]></string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes5_branches_branch1_2_message">F5 este acum un ochi fals.</string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes5_branches_branch2_message">C5 este un ochi fals.</string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes6_text"><![CDATA["Iată un model frecvent de ochi fals la margine. Repară-l!"]]></string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes6_branches_branch2_message">Ți-ai umplut propriul ochi</string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes6_branches_branch3_message">D9 este acum un ochi fals</string>
+    <string name="tutorial_intermediate_morepuzzles_title">Mai multe probleme</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles3_text">Încearcă să nu amețești.</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles4_text">Ce ar trebui să faci mai întâi?</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_1_2_message">Grupurile negre sunt separate</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_2_message">Grupurile negre sunt separate</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_3_message">Grupurile negre sunt separate</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_4_message">Grupurile negre sunt separate</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_5_1_message">Negrul este izolat</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_5_2_message">Negrul este izolat</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_5_3_message">Negrul este izolat</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_5_4_message">Negrul este izolat</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_5_5_message">Negrul este izolat</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_6_message">Negrul este izolat</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles5_text">Învinge simetria</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles5_branches_branch3_4_message"><![CDATA["Trei pietre negre nu pot scăpa."]]></string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles5_branches_branch5_message"><![CDATA["Două pietre negre nu pot scăpa"]]></string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles5_branches_branch6_message"><![CDATA["Două pietre negre nu pot scăpa"]]></string>
+    <string name="tutorial_advanced_title">Avansat</string>
+    <string name="tutorial_advanced_thefirstmoves_name">Primele mutări</string>
+    <string name="tutorial_advanced_thefirstmoves_firstmoves1_page1_text"><![CDATA["Până acum ne-am concentrat pe capturarea pietrelor. Însă la începutul jocului nu există pietre pe tablă. Vom vedea unde este bine să joci primele mutări pentru a-ți crește șansele de câștig.
+
+Mai întâi, hai să împărțim tabla în 3 zone. Acestea sunt colțurile:"]]></string>
+    <string name="tutorial_advanced_thefirstmoves_firstmoves1_page2_text"><![CDATA["… acestea sunt laturile…"]]></string>
+    <string name="tutorial_advanced_thefirstmoves_firstmoves1_page3_text"><![CDATA["… iar acesta este centrul. Bineînțeles, acestea sunt doar denumiri pe care le folosim pentru orientare și nu există reguli speciale pentru niciuna dintre ele."]]></string>
+    <string name="tutorial_advanced_thefirstmoves_firstmoves1_page4_text"><![CDATA["Scopul jocului este să înconjori mai mult teritoriu decât adversarul. Deoarece tu și adversarul puneți pietre pe rând, veți avea amândoi același număr de pietre. Prin urmare, câștigă jucătorul care își folosește pietrele mai eficient.
+
+Unde este mai eficient să înconjori teritoriu? În colțuri, pe laturi sau în centru?"]]></string>
+    <string name="tutorial_advanced_thefirstmoves_firstmoves1_page5_text"><![CDATA["Fiecare dintre grupurile de mai jos înconjoară exact 9 spații, deci fiecare obține 9 puncte. Însă cel din colț are nevoie de doar 6 pietre, cel de pe latură de 9, iar cel din centru de 12!"]]></string>
+    <string name="tutorial_advanced_thefirstmoves_firstmoves1_page6_text"><![CDATA["Prin urmare, jucătorii înțelepți vor juca mai întâi în colțuri și abia după ce acestea sunt ocupate se vor muta pe laturi, lăsând centrul la final."]]></string>
+    <string name="tutorial_advanced_thefirstmoves_firstmoves2_text"><![CDATA["Iată primele 20 de mutări dintr-un joc real, jucat între doi jucători profesioniști."]]></string>
+    <string name="tutorial_advanced_themiddlegame_name">Mijlocul jocului</string>
+    <string name="tutorial_advanced_themiddlegame_middlegame1_text"><![CDATA["Negrul este blocat în colțul din stânga jos. Grupul va fi înconjurat dacă nu faci nimic."]]></string>
+    <string name="tutorial_advanced_themiddlegame_middlegame2_text"><![CDATA["Negrul îl blochează pe alb în zona din dreapta jos. Albul nu are încă 2 ochi.
+Apoi albul a jucat la G2.
+
+Uită-te ce se întâmplă dacă negrul răspunde la F1 (sau G1), înainte să găsești răspunsul corect."]]></string>
+    <string name="tutorial_advanced_endgamescoring_name">Finalul jocului: numărarea scorului</string>
+    <string name="tutorial_advanced_endgamescoring_endgame1_page1_text"><![CDATA["Aici vei învăța cum să îți dai seama când un joc s-a încheiat și cum se numără teritoriile, folosind table de 5x5. Ambii jucători au făcut 5 mutări, apoi amândoi au pasat, deci jocul este considerat încheiat. Nu mai rămâne decât să numărăm teritoriul.
+
+Încearcă să numeri câte intersecții a înconjurat negrul. Iar albul?
+
+Indiciu: nu uita să numeri toate intersecțiile, inclusiv laturile și colțurile, dar nu punctele ocupate de pietre."]]></string>
+    <string name="tutorial_advanced_endgamescoring_endgame1_page2_text"><![CDATA["Negrul are 5 puncte în stânga, iar albul are 10 puncte în dreapta.
+
+Prin urmare, albul câștigă cu 5 puncte."]]></string>
+    <string name="tutorial_advanced_endgamescoring_endgame1_page3_text"><![CDATA["Dar de ce nu a încercat negrul să continue jocul?
+
+Ei bine, nu există nicio mutare pe care negrul o poate face și care să îi crească scorul. De exemplu, dacă negrul invadează partea dreaptă, albul se poate apăra ușor și noua piatră este moartă.
+
+Albul și-a redus teritoriul cu 1, dar a primit 1 punct înapoi, deoarece piatra neagră este moartă și se numără drept prizonier.
+
+Scorul de aici este tot 10-5"]]></string>
+    <string name="tutorial_advanced_endgamescoring_endgame1_page4_text"><![CDATA["Și dacă negrul joacă în partea stângă?
+
+Tot ce ar obține este că teritoriul său devine mai mic, deci ar pierde un punct.
+
+Prin urmare, negrul nu are mutări bune și ar trebui să paseze. Albul are mai multe puncte, deci pasează bucuros și el.
+
+Astfel jocul se încheie și albul câștigă."]]></string>
+    <string name="tutorial_advanced_endgamescoring_endgame1_page5_text"><![CDATA["Iată o altă situație de joc încheiat. Negrul are 5 puncte, iar albul are 6.
+
+Cele două intersecții din mijloc sunt teritoriu neutru („Dame”) și nu contează în scorul niciunui jucător.
+
+Oricare jucător ar putea juca acolo, dar nu ar câștiga și nu ar pierde puncte."]]></string>
+    <string name="tutorial_advanced_endgamescoring_endgame1_page6_text"><![CDATA["Deși teritoriul reprezintă de departe cea mai mare parte a scorului, ține minte că mai există și alte puncte bonus care trebuie adunate.
+
+Fiecare piatră capturată valorează 1 punct, la fel și pietrele „moarte” rămase pe tablă (cele care nu mai au nicio șansă să facă 2 ochi).
+
+De asemenea, deoarece negrul joacă primul are un avantaj, iar pentru a compensa asta albul primește un mic bonus de puncte (numit „komi”).
+
+Valoarea komi-ului depinde de mărimea tablei, dar de obicei este de 5,5 sau 6,5 puncte. Cei 0,5 asigură că nu există jocuri terminate la egalitate.
+
+Din fericire, aplicația face toate aceste calcule în locul tău :)"]]></string>
+    <string name="tutorial_advanced_cuttingstones_name">Pietre de tăiere</string>
+    <string name="tutorial_advanced_cuttingstones_cutting1_text"><![CDATA["Pare că albul are teritoriul mai mare.
+Însă zidul lui are un punct slab. Nu trebuie decât să „tai” zidul albului.
+
+Dacă reușești, albului îi va fi greu să asigure supraviețuirea ambelor grupuri."]]></string>
+    <string name="tutorial_advanced_cuttingstones_cutting1_branches2_message">Pietrele albe sunt conectate.</string>
+    <string name="tutorial_advanced_cuttingstones_cutting2_text"><![CDATA["Negrul are 30 de puncte, iar albul are 31 de puncte. Deci pare că albul câștigă cu 1 punct.
+Însă teritoriul din partea de jos nu este tot al albului.
+
+Nu trebuie decât să tai zidul albului."]]></string>
+</resources>

@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.zenandroid.onlinego.R
+import io.zenandroid.onlinego.data.model.AppLanguage
 import io.zenandroid.onlinego.data.model.AppTheme
 import io.zenandroid.onlinego.data.model.BoardTheme
 import io.zenandroid.onlinego.data.repositories.SettingsRepository
@@ -156,6 +157,9 @@ class SettingsViewModel(
         }
       }
 
+      // Changing the language needs the Activity (to recreate it), so the UI handles it.
+      is SettingsAction.LanguageClicked -> {}
+
       PrivacyClicked, SupportClicked, LogoutClicked, NotificationsClicked, SettingsAction.SocketDebugClicked, SettingsAction.ReviewPromptClicked -> {}
     }
   }
@@ -178,6 +182,7 @@ data class SettingsState(
 
 sealed interface SettingsAction {
   data object NotificationsClicked : SettingsAction
+  data class LanguageClicked(val language: AppLanguage) : SettingsAction
   data object SoundsClicked : SettingsAction
   data class ThemeClicked(val theme: AppTheme) : SettingsAction
   data class BoardThemeClicked(val boardTheme: BoardTheme) : SettingsAction

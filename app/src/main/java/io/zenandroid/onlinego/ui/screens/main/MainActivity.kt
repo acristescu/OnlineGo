@@ -41,6 +41,7 @@ import io.zenandroid.onlinego.notifications.SynchronizeGamesWork
 import io.zenandroid.onlinego.ui.screens.login.FacebookLoginCallbackActivity
 import io.zenandroid.onlinego.ui.theme.LocalPreloadedImages
 import io.zenandroid.onlinego.ui.theme.LocalThemeSettings
+import io.zenandroid.onlinego.utils.AppLocaleManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.callbackFlow
@@ -60,6 +61,11 @@ class MainActivity : ComponentActivity() {
   }
 
   private val viewModel: MainActivityViewModel by viewModel()
+
+  /** Applies the language the user picked in the settings. See [AppLocaleManager]. */
+  override fun attachBaseContext(newBase: Context) {
+    super.attachBaseContext(AppLocaleManager.wrap(newBase))
+  }
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)

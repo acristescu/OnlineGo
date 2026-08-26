@@ -1,6 +1,7 @@
 package io.zenandroid.onlinego
 
 import android.app.Application
+import android.content.Context
 import android.util.Log
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.crashlytics.FirebaseCrashlytics
@@ -8,6 +9,7 @@ import io.zenandroid.onlinego.data.ogs.OGSRestService
 import io.zenandroid.onlinego.data.ogs.OGSWebSocketService
 import io.zenandroid.onlinego.di.allKoinModules
 import io.zenandroid.onlinego.gamelogic.RulesManager
+import io.zenandroid.onlinego.utils.AppLocaleManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -30,6 +32,14 @@ class OnlineGoApplication : Application() {
 
     val analytics by lazy { FirebaseAnalytics.getInstance(this) }
     val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+
+    /**
+     * Applies the language the user picked in the settings, so that strings pulled from the
+     * application context (notifications, for instance) are localized too.
+     */
+    override fun attachBaseContext(base: Context) {
+        super.attachBaseContext(AppLocaleManager.wrap(base))
+    }
 
     override fun onCreate() {
         super.onCreate()

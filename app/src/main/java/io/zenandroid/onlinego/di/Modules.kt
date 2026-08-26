@@ -49,6 +49,7 @@ import io.zenandroid.onlinego.ui.screens.stats.StatsViewModel
 import io.zenandroid.onlinego.ui.screens.supporter.SupporterViewModel
 import io.zenandroid.onlinego.ui.screens.tutorial.TutorialViewModel
 import io.zenandroid.onlinego.usecases.GetUserStatsUseCase
+import io.zenandroid.onlinego.utils.AppLocaleManager
 import io.zenandroid.onlinego.utils.CountingIdlingResource
 import io.zenandroid.onlinego.utils.CustomConverterFactory
 import io.zenandroid.onlinego.utils.NOOPIdlingResource
@@ -88,6 +89,7 @@ private val repositoriesModule = module {
   singleOf(::PlayersRepository)
   singleOf(::ServerNotificationsRepository)
   singleOf(::SettingsRepository)
+  singleOf(::AppLocaleManager)
   singleOf(::UserSessionRepository)
   singleOf(::ClockDriftRepository)
   singleOf(::TutorialsRepository)

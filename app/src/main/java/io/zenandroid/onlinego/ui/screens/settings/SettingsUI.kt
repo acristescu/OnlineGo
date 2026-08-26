@@ -26,6 +26,7 @@ import androidx.compose.material.icons.Icons.Rounded
 import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material.icons.automirrored.rounded.Logout
 import androidx.compose.material.icons.filled.BugReport
+import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.RateReview
@@ -50,6 +51,7 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
@@ -86,6 +88,7 @@ import io.zenandroid.onlinego.BuildConfig
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.R.drawable
 import io.zenandroid.onlinego.R.mipmap
+import io.zenandroid.onlinego.data.model.AppLanguage
 import io.zenandroid.onlinego.data.model.AppTheme
 import io.zenandroid.onlinego.data.model.BoardTheme
 import io.zenandroid.onlinego.ui.composables.resolve
@@ -95,6 +98,7 @@ import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.CoordinatesClic
 import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.DeleteAccountCanceled
 import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.DeleteAccountClicked
 import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.DeleteAccountConfirmed
+import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.LanguageClicked
 import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.LogoutClicked
 import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.NotificationsClicked
 import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.PrivacyClicked
@@ -103,6 +107,7 @@ import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.SoundsClicked
 import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.SupportClicked
 import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.ThemeClicked
 import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
+import io.zenandroid.onlinego.utils.AppLocaleManager
 import io.zenandroid.onlinego.utils.ReviewDiagnosticResult
 import io.zenandroid.onlinego.utils.ReviewPromptManager
 import io.zenandroid.onlinego.utils.processGravatarURL
@@ -119,6 +124,12 @@ fun SettingsScreen(
   val state by viewModel.state.collectAsStateWithLifecycle()
   val userSettings by viewModel.userSettings.collectAsStateWithLifecycle()
 
+  val appLocaleManager: AppLocaleManager = koinInject()
+  val language by appLocaleManager.language.collectAsStateWithLifecycle()
+
+  // On Android 13+ the language can also be changed from the system settings, so re-read it.
+  LaunchedEffect(Unit) { appLocaleManager.refresh() }
+
   var dialogData by remember { mutableStateOf<DialogData?>(null) }
   var reviewDiagnosticResult by remember { mutableStateOf<ReviewDiagnosticResult?>(null) }
 
@@ -130,9 +141,16 @@ fun SettingsScreen(
   SettingsContent(
     state = state,
     userSettings = userSettings,
+    language = language,
     onAction = {
       when (it) {
         is NotificationsClicked -> navigateToNotifications(activity)
+        is LanguageClicked -> {
+          if (appLocaleManager.setLanguage(it.language)) {
+            activity?.recreate()
+          }
+        }
+
         is PrivacyClicked -> activity?.startActivity(
           Intent(
             Intent.ACTION_VIEW,
@@ -292,6 +310,7 @@ fun SettingsScreen(
 private fun SettingsContent(
   state: SettingsState,
   userSettings: UserSettings,
+  language: AppLanguage,
   onAction: (SettingsAction) -> Unit
 ) {
   Column(
@@ -354,6 +373,22 @@ private fun SettingsContent(
         modifier = Modifier.padding(end = 8.dp),
         fontWeight = FontWeight.Medium,
       )
+    }
+    Section(title = stringResource(R.string.settings_section_language)) {
+      Column(modifier = Modifier) {
+        SettingsRow(
+          title = stringResource(R.string.settings_language),
+          icon = Filled.Language,
+          checkbox = false,
+          checked = true,
+          value = "${language.flagEmoji} ${stringResource(language.displayNameResId)}",
+          possibleValues = AppLanguage.entries.map { entry ->
+            SettingsOption(
+              label = stringResource(entry.displayNameResId),
+              leadingEmoji = entry.flagEmoji,
+            ) { onAction(LanguageClicked(entry)) }
+          })
+      }
     }
     Section(title = stringResource(R.string.settings_section_notifications)) {
       Column(modifier = Modifier) {
@@ -474,6 +509,7 @@ private fun SettingsContent(
 private class SettingsOption(
   val label: String,
   val boardTheme: BoardTheme? = null,
+  val leadingEmoji: String? = null,
   val onSelected: () -> Unit,
 )
 
@@ -537,6 +573,9 @@ private fun SettingsRow(
                     option.onSelected()
                   },
                   leadingIcon = {
+                    option.leadingEmoji?.let { emoji ->
+                      Text(text = emoji, fontSize = 20.sp)
+                    }
                     option.boardTheme?.let { boardTheme ->
                       Box(modifier = Modifier.size(24.dp)) {
                         if (boardTheme.backgroundImage != null) {
@@ -627,6 +666,7 @@ private fun SettingsScreenPreview() {
           showRanks = true,
           showCoordinates = true
         ),
+        AppLanguage.ENGLISH,
         {})
     }
   }

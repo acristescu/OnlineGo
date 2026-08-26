@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  The languages the app ships translations for. Keep in sync with AppLanguage: this is what the
+  system per-app language picker (Android 13+) offers.
+-->
+<locale-config xmlns:android="http://schemas.android.com/apk/res/android">
+    <locale android:name="en" />
+    <locale android:name="ro" />
+</locale-config>
