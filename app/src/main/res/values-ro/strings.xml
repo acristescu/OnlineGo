@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Sente - Online GO</string>
     <string name="create_account_prompt">Nu ai cont OGS? Creează unul <b>aici</b>!</string>
     <string name="login_to_ogs">Conectare la OGS</string>
     <string name="create_account">Creează cont OGS</string>
@@ -11,7 +10,7 @@
     <string name="ai_game_chat_engine_error">Eroare la pornirea KataGO: „%1$s”</string>
     <string name="ai_game_chat_invalid_move">Mutare invalidă, încearcă din nou</string>
     <string name="ai_game_chat_lets_try_again">OK, hai să încercăm din nou. E rândul tău!</string>
-    <string name="ai_game_chat_hmmm">Hmmm…</string>
+    <string name="ai_game_chat_hmmm">Ma gândesc…</string>
     <string name="ai_game_chat_moves_to_consider">Iată câteva mutări de luat în calcul</string>
     <string name="ai_game_chat_ok_your_turn">OK, e rândul tău</string>
     <string name="ai_game_chat_calculating_territory">OK, calculez teritoriul actual…</string>
@@ -23,7 +22,6 @@
     <string name="ai_game_chat_game_over_computing_score">Jocul s-a încheiat pentru că amândoi am pasat. O clipă, calculez scorul final.</string>
     <string name="ai_game_handicap_none">niciun</string>
     <string name="ai_game_handicap_no_komi">fără komi</string>
-    <string name="ai_game_avatar_content_description">AI</string>
     <string name="ai_game_new">Nou</string>
     <string name="ai_game_pass">Pas</string>
     <string name="ai_game_previous">Anterior</string>
@@ -35,13 +33,11 @@
     <string name="title_bar_game_info_content_description">Informații joc</string>
     <string name="title_bar_more_content_description">Mai multe</string>
     <string name="search_field_clear_content_description">Șterge textul</string>
-    <string name="katago">"KataGO "</string>
     <string name="territory">Teritoriu</string>
     <string name="hint">Indiciu</string>
     <string name="player">Jucător</string>
     <string name="you">" Tu"</string>
     <string name="prisoners">Prizonieri</string>
-    <string name="komi">Komi</string>
     <string name="white">alb</string>
     <string name="black">negru</string>
     <string name="score_prediction_leads_by">Predicție scor: %1$s conduce cu %2$s</string>
@@ -51,10 +47,8 @@
     <string name="you_play">Tu joci</string>
     <string name="Black">Negru</string>
     <string name="White">Alb</string>
-    <string name="handicap">Handicap</string>
     <string name="start_game">Începe jocul</string>
     <string name="cancel">Anulează</string>
-    <string name="ok">OK</string>
     <string name="search">Caută</string>
     <string name="loading">Se încarcă…</string>
     <string name="email">E-mail</string>
@@ -88,17 +82,14 @@
     <string name="face_to_face_default">Față în față</string>
     <string name="face_to_face_player_1">Jucătorul 1</string>
     <string name="face_to_face_player_2">Jucătorul 2</string>
-    <string name="face_to_face_avatar_content_description">Avatar</string>
     <string name="face_to_face_estimating">Se estimează</string>
     <string name="face_to_face_game_is_over">Jocul s-a încheiat!</string>
     <string name="face_to_face_game_is_not_over">Recomandare: jocul nu s-a încheiat!</string>
     <string name="face_to_face_ko_dialog_title">Mutare KO ilegală</string>
     <string name="face_to_face_ko_dialog_message">Această mutare ar repeta poziția de pe tablă. Se numește KO și nu este permisă. Încearcă mai întâi o altă mutare, de preferat o amenințare pe care adversarul nu o poate ignora.</string>
-    <string name="face_to_face_score_komi">komi</string>
     <string name="face_to_face_score_captures">capturi</string>
     <string name="face_to_face_score_dead">moarte</string>
     <string name="face_to_face_score_territory">teritoriu</string>
-    <string name="face_to_face_score_total">total</string>
     <string name="face_to_face_new_game_title">Joc nou</string>
     <string name="face_to_face_new_game_size">Mărime</string>
     <string name="face_to_face_start_new_game">ÎNCEPE UN JOC NOU</string>
@@ -121,7 +112,6 @@
     <string name="game_status_cancelled_game">A anulat jocul</string>
     <string name="game_status_first_move_timer">%1$s pentru prima mutare</string>
     <string name="game_player_points">%1$s puncte</string>
-    <string name="game_avatar_content_description">Avatar</string>
     <string name="game_button_confirm_move">Confirmă mutarea</string>
     <string name="game_button_discard_move">Renunță la mutare</string>
     <string name="game_button_accept">Acceptă</string>
@@ -130,7 +120,6 @@
     <string name="game_button_pass">Pas</string>
     <string name="game_button_resign">Abandonează</string>
     <string name="game_button_cancel_game">Anulează jocul</string>
-    <string name="game_button_chat">Chat</string>
     <string name="game_button_next_game">Jocul următor</string>
     <string name="game_button_undo">Anulează mutarea</string>
     <string name="game_button_exit_analysis">Ieși din analiză</string>
@@ -159,16 +148,11 @@
     <string name="game_cancel_dialog_dismiss">NU ANULA JOCUL</string>
     <string name="game_info_ranked">Oficial</string>
     <string name="game_info_unranked">Amical</string>
-    <string name="game_info_unknown_player">\?</string>
-    <string name="game_info_versus_separator">"      vs      "</string>
     <string name="game_info_score">Scor</string>
     <string name="game_info_time">Timp</string>
-    <string name="game_info_score_komi">komi</string>
-    <string name="game_info_score_handicap">handicap</string>
     <string name="game_info_score_prisoners">prizonieri</string>
     <string name="game_info_score_stones">pietre</string>
     <string name="game_info_score_territory">teritoriu</string>
-    <string name="game_info_score_total">total</string>
     <string name="game_over_cancelled">JOCUL A FOST ANULAT</string>
     <string name="game_over_won">FELICITĂRI\nAI CÂȘTIGAT</string>
     <string name="game_over_lost">AI PIERDUT</string>
@@ -183,24 +167,20 @@
     <string name="game_over_unknown_result">Rezultat necunoscut (%1$s)</string>
     <string name="game_over_rating_updating">Ratingul tău se actualizează</string>
     <string name="game_over_rating_now">Ratingul tău este acum %1$s - %2$s</string>
-    <string name="game_over_rating_change">" (%1$s)"</string>
     <string name="game_retry_dialog_title">PROBLEME DE CONEXIUNE</string>
     <string name="game_retry_dialog_message">Serverul nu răspunde. Verifică conexiunea la internet.</string>
     <string name="game_retry_dialog_confirm">ÎNCEARCĂ DIN NOU</string>
     <string name="game_chat_move_header">Mutarea %1$d</string>
     <string name="game_chat_type_a_message">Scrie un mesaj…</string>
     <string name="game_chat_send_content_description">Trimite</string>
-    <string name="game_player_details_rank_rating">%1$s (%2$s)</string>
     <string name="game_player_details_highest_rank">Cel mai bun rang</string>
     <string name="game_player_details_percentile">Percentilă</string>
-    <string name="game_player_details_percentage">%1$d%%</string>
     <string name="game_player_details_played_vs_you">Jucate cu tine</string>
     <string name="game_player_details_you_won">Ai câștigat</string>
     <string name="game_player_details_they_won">A câștigat</string>
     <string name="game_player_details_ranked_games">Jocuri oficiale</string>
     <string name="game_player_details_wins">Victorii</string>
     <string name="game_player_details_losses">Înfrângeri</string>
-    <string name="game_player_details_total">Total</string>
     <plurals name="duration_weeks">
         <item quantity="one">%d săptămână</item>
         <item quantity="few">%d săptămâni</item>
@@ -227,8 +207,6 @@
         <item quantity="other">%d de secunde</item>
     </plurals>
     <!-- Joins a coarse and a finer duration, e.g. "2 weeks" and "3 days" -->
-    <string name="duration_two_units">%1$s %2$s</string>
-    <string name="duration_unknown">\?</string>
     <string name="time_control_simple">Simplu: %1$s per mutare.</string>
     <string name="time_control_fischer">Fischer: ceasul pornește cu %1$s și crește cu %2$s la fiecare mutare, până la maximum %3$s.</string>
     <plurals name="time_control_byoyomi">
@@ -243,7 +221,6 @@
     </plurals>
     <string name="time_control_absolute">Absolut: %1$s timp total de joc pentru fiecare jucător.</string>
     <string name="time_control_none">Fără limită de timp.</string>
-    <string name="time_control_unknown">\?</string>
     <string name="time_control_pauses_on_weekends">" Se întrerupe în weekend."</string>
     <string name="whats_new_title">Ce este nou</string>
     <string name="whats_new_changelog">· Aspect nou, cu culori preluate din imaginea de fundal Android\n· Avertismentele moderatorilor OGS sunt acum afișate\n· Aplicația a fost pregătită pentru Android 15\n· Ecranele Față în Față, AI și Joseki au fost reimplementate\n· Pornire mai rapidă\n· Navigarea a fost migrată pe Compose\n</string>
@@ -255,7 +232,6 @@
     <string name="onboarding_login_failed_debug">Conectarea a eșuat. Informații de depanare: „%1$s”</string>
     <string name="onboarding_create_account_failed_debug">Crearea contului a eșuat. Informații de depanare: „%1$s”</string>
     <string name="onboarding_server_error_code">Eroare la comunicarea cu serverul. Serverul a raportat codul de eroare %1$s. Încearcă din nou mai târziu</string>
-    <string name="onboarding_google_signin_failed">signInResult:failed code=%1$d</string>
     <string name="tutorial_retry">REÎNCEARCĂ</string>
     <string name="tutorial_next">URMĂTOR</string>
     <string name="tutorial_nice_one">Bravo!</string>
@@ -264,7 +240,6 @@
     <string name="socket_debug_clear_content_description">Golește</string>
     <string name="socket_debug_filter_hint">Filtrează evenimentele…</string>
     <string name="socket_debug_filter_all">Toate (%1$d)</string>
-    <string name="socket_debug_filter_type">%1$s (%2$d)</string>
     <plurals name="socket_debug_event_count">
         <item quantity="one">%d eveniment</item>
         <item quantity="few">%d evenimente</item>
@@ -286,7 +261,6 @@
         <item quantity="few">%d jocuri necesită atenția ta</item>
         <item quantity="other">%d de jocuri necesită atenția ta</item>
     </plurals>
-    <string name="notification_inbox_versus">vs %1$s</string>
     <string name="notification_logout_title">Conectează-te din nou</string>
     <string name="notification_logout_text">Ai fost deconectat din aplicație. De obicei asta se întâmplă pentru că ți-ai schimbat parola. Conectează-te din nou pentru a reactiva notificările</string>
     <string name="notification_channel_group_your_turn">Rândul tău</string>
@@ -339,7 +313,6 @@
     <string name="settings_error_dialog_title">Eroare</string>
     <string name="settings_review_flow_diagnostic_title">Diagnostic flux de recenzie</string>
     <string name="settings_review_flow_error_title">Eroare în fluxul de recenzie</string>
-    <string name="settings_avatar_content_description">Avatar</string>
     <string name="settings_icon_content_description">Pictogramă</string>
     <string name="supporter_title">Devino susținător</string>
     <string name="supporter_header">Susține aplicația de Android</string>
@@ -366,7 +339,6 @@
     <string name="supporter_select_contribution">Alege contribuția lunară</string>
     <string name="supporter_update_amount">Actualizează suma</string>
     <string name="supporter_cancel_subscription">Anulează abonamentul</string>
-    <string name="stats_rank_elo">%1$s · ELO %2$s</string>
     <string name="stats_ranked_games">jocuri oficiale</string>
     <string name="stats_win_rate">rată de victorii</string>
     <string name="stats_current_streak">seria actuală</string>
@@ -379,18 +351,12 @@
     <string name="stats_win_ratio_by_board_size">Rata de victorii după mărimea tablei</string>
     <string name="stats_win_ratio_by_time_controls">Rata de victorii după controlul timpului</string>
     <string name="stats_win_ratio_by_colour">Rata de victorii după culoare</string>
-    <string name="stats_board_9">9×9</string>
-    <string name="stats_board_13">13×13</string>
-    <string name="stats_board_19">19×19</string>
-    <string name="stats_blitz">Blitz</string>
-    <string name="stats_live">Live</string>
     <string name="stats_correspondence_short">Coresp.</string>
     <string name="stats_correspondence">Corespondență</string>
     <string name="stats_all_games">Toate jocurile</string>
     <string name="stats_black">Negru</string>
     <string name="stats_white">Alb</string>
     <string name="stats_won_lost">%1$d câștigate · %2$d pierdute</string>
-    <string name="stats_no_streak">-</string>
     <plurals name="stats_streak_wins">
         <item quantity="one">%d victorie</item>
         <item quantity="few">%d victorii</item>
@@ -409,15 +375,12 @@
     <string name="stats_filter_all">Tot</string>
     <string name="stats_filter_last_20">Ultimele 20</string>
     <string name="stats_filter_last_100">Ultimele 100</string>
-    <string name="stats_tooltip_elo_rank">%1$d ELO (%2$s)</string>
     <string name="stats_tooltip_at_game">la jocul %1$d</string>
     <string name="stats_tooltip_on_date">pe %1$s</string>
-    <string name="stats_tooltip_delta_elo">%1$d ELO</string>
     <string name="stats_tooltip_since_game">de la jocul %1$d</string>
     <string name="stats_tooltip_since_date">din %1$s</string>
     <string name="puzzle_directory_title">Probleme</string>
     <string name="puzzle_directory_recently_opened">Deschise recent</string>
-    <string name="puzzle_directory_rating_count">(%1$s)</string>
     <string name="puzzle_directory_by_author">de %1$s %2$s</string>
     <string name="puzzle_directory_count_label">Număr</string>
     <plurals name="puzzle_directory_puzzle_count">
@@ -428,16 +391,11 @@
     <string name="puzzle_directory_rank_label">Rang</string>
     <string name="puzzle_directory_rank_range">%1$s până la %2$s</string>
     <string name="puzzle_directory_solved_label">Rezolvate</string>
-    <string name="puzzle_directory_solved_value">%1$d (%2$.1f%%)</string>
     <string name="puzzle_directory_completed">Finalizate</string>
     <string name="puzzle_directory_stats">%1$s vizualizări, rezolvate %2$s ori din %3$s (%4$s %%)</string>
-    <string name="puzzle_directory_sort_name">A -&gt; Z</string>
-    <string name="puzzle_directory_sort_rating">Rating</string>
     <string name="puzzle_directory_sort_count">Număr de probleme</string>
     <string name="puzzle_directory_sort_views">Vizualizări</string>
     <string name="puzzle_directory_sort_rank">Rang</string>
-    <string name="tsumego_title">Tsumego</string>
-    <string name="tsumego_title_with_name">Tsumego: %1$s</string>
     <string name="tsumego_board_content_description">Tablă</string>
     <string name="tsumego_solved_content_description">Rezolvat</string>
     <string name="tsumego_previous">ANTERIOR</string>
@@ -477,7 +435,6 @@
     <string name="new_challenge_private">Privat</string>
     <string name="new_challenge_send">Trimite provocarea</string>
     <string name="new_challenge_select_opponent">[Alege adversarul]</string>
-    <string name="select_opponent_tab_bot">Bot</string>
     <string name="select_opponent_tab_recent">Recente</string>
     <string name="select_opponent_bots_title">Boturi online</string>
     <string name="select_opponent_bots_description">Boturile online sunt programe AI rulate și întreținute de membri ai comunității, pe cheltuiala lor. Pentru a juca împotriva lor este nevoie de o conexiune activă la internet.</string>
@@ -488,13 +445,7 @@
     <string name="automatch_title">Potrivire automată</string>
     <string name="automatch_description">Încearcă un joc împotriva unui adversar uman cu un rating asemănător cu al tău.</string>
     <string name="automatch_game_size">Mărimea jocului</string>
-    <string name="automatch_size_9">9×9</string>
-    <string name="automatch_size_13">13×13</string>
-    <string name="automatch_size_19">19×19</string>
     <string name="automatch_time_controls">Controlul timpului</string>
-    <string name="automatch_speed_blitz">Blitz</string>
-    <string name="automatch_speed_rapid">Rapid</string>
-    <string name="automatch_speed_live">Live</string>
     <string name="automatch_speed_correspondence">Corespondență</string>
     <string name="automatch_or">sau</string>
     <string name="automatch_expected_duration">Durată estimată: %1$s</string>
@@ -515,11 +466,8 @@
     <string name="mygames_header_opponents_turn">Rândul adversarului</string>
     <string name="mygames_header_recently_finished">Încheiate recent</string>
     <string name="mygames_header_older_games">Jocuri mai vechi</string>
-    <string name="mygames_tutorial_percentage">%1$d %%</string>
     <string name="mygames_learn_to_play">Învață să joci</string>
     <string name="mygames_header_icon_content_description">Pictogramă</string>
-    <string name="mygames_offline_content_description">Offline</string>
-    <string name="mygames_avatar_content_description">Avatar</string>
     <string name="mygames_searching_for_game">Se caută un joc</string>
     <string name="mygames_challenge_you_are_challenging">Îl provoci pe %1$s</string>
     <string name="mygames_challenge_is_challenging_you">%1$s te provoacă</string>
@@ -572,10 +520,8 @@
     <string name="learn_tutorial_checkbox_done">Finalizat</string>
     <string name="learn_tutorial_checkboxoutlineblank_done">Finalizat</string>
     <string name="joseki_explorer_title">Explorator de joseki</string>
-    <string name="joseki_explorer_button_tenuki">Tenuki</string>
     <string name="joseki_explorer_button_previous">Anterior</string>
     <string name="joseki_explorer_button_next">Următor</string>
-    <string name="joseki_explorer_link_video">" (video)"</string>
     <string name="joseki_explorer_link_external">" (link extern)"</string>
     <string name="joseki_explorer_default_description"><![CDATA["## Explorator de joseki
 *Joseki* este un termen împrumutat din japoneză, care se referă de obicei la secvențe standard de mutări jucate într-un colț și care duc la un schimb echilibrat pe plan local.
@@ -643,7 +589,6 @@ Pune o piatră pentru a continua!]]></string>
     <string name="tutorial_intermediate_captureraces_capturerace1_text">În această problemă, atât grupul negru cât și cel alb din partea de sus, la mijloc, sunt înconjurate. Deoarece niciunul nu are doi ochi, ambele părți pot încerca să captureze cealaltă. Această situație se numește cursă de capturare (semeai) și este de obicei câștigată de partea cu mai multe libertăți. În cazul acesta, ambele grupuri au 3 libertăți, așa că va câștiga cel care mută primul.\n\nCapturează pietrele albe!</string>
     <string name="tutorial_intermediate_captureraces_capturerace2_text"><![CDATA["Iată încă un semeai. Câștigă cursa și capturează albul!"]]></string>
     <string name="tutorial_intermediate_captureraces_capturerace3_text">Salvează pietrele negre din colț!</string>
-    <string name="tutorial_intermediate_snapback_title">Snapback</string>
     <string name="tutorial_intermediate_snapback_snapback1_text">Acum vei descoperi o tehnică numită „snapback”. Capturează cele 4 pietre albe!\n\nIndiciu: mai întâi trebuie să sacrifici o piatră!</string>
     <string name="tutorial_intermediate_snapback_snapback2_text">Cum ai descoperit, uneori faptul că îl obligi pe alb să captureze una dintre pietrele tale îl pune în atari. Folosește aceeași tehnică aici!</string>
     <string name="tutorial_intermediate_snapback_snapback3_text">Iată încă o situație de snapback, la margine.</string>
