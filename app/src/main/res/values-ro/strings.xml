@@ -226,7 +226,6 @@
         <item quantity="few">%d secunde</item>
         <item quantity="other">%d de secunde</item>
     </plurals>
-    <!-- Joins a coarse and a finer duration, e.g. "2 weeks" and "3 days" -->
     <string name="duration_two_units">%1$s %2$s</string>
     <string name="duration_unknown">\?</string>
     <string name="time_control_simple">Simplu: %1$s per mutare.</string>
@@ -246,9 +245,6 @@
     <string name="time_control_unknown">\?</string>
     <string name="time_control_pauses_on_weekends">" Se întrerupe în weekend."</string>
     <string name="whats_new_title">Ce este nou</string>
-    <string name="whats_new_changelog">· Aspect nou, cu culori preluate din imaginea de fundal Android\n· Avertismentele moderatorilor OGS sunt acum afișate\n· Aplicația a fost pregătită pentru Android 15\n· Ecranele Față în Față, AI și Joseki au fost reimplementate\n· Pornire mai rapidă\n· Navigarea a fost migrată pe Compose\n</string>
-    <string name="whats_new_about_title">Despre proiect</string>
-    <string name="whats_new_about_body">Acesta este un proiect open source. Dacă vrei să contribui, codul este disponibil pe Github.</string>
     <string name="settings_delete_account_success">Cont șters. Ne pare rău că pleci! Aplicația se va închide în 5 s.</string>
     <string name="settings_delete_account_wrong_password">Parolă greșită</string>
     <string name="onboarding_login_invalid_credentials">Nume de utilizator sau parolă incorecte</string>
@@ -300,7 +296,6 @@
     <string name="settings_become_a_supporter_description">Devino susținător</string>
     <string name="settings_section_language">Limbă</string>
     <string name="settings_language">Limbă</string>
-    <!-- Language names are shown in the language itself, so they are never translated. -->
     <string name="settings_section_notifications">Notificări</string>
     <string name="settings_system_notifications">Notificări de sistem</string>
     <string name="settings_stone_sounds">Sunetul pietrelor</string>
@@ -505,7 +500,6 @@
         <item quantity="other">%d de minute</item>
     </plurals>
     <string name="automatch_duration_minutes_range">%1$d până la %2$d minute</string>
-    <string name="mygames_support">SUSȚINE</string>
     <string name="mygames_moderator_title">Moderator OGS %1$s</string>
     <string name="mygames_empty_message">Mesaj gol</string>
     <string name="mygames_acknowledge">Am înțeles</string>
