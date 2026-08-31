@@ -1,6 +1,6 @@
 # OnlineGo Android App
 
-[![Build Status](https://app.bitrise.io/app/c7dfae3497b9c9c7/status.svg?token=gHevfUWgJNngvsjdaj8mRw&branch=master)](https://app.bitrise.io/app/c7dfae3497b9c9c7)
+[![Build Status](https://app.bitrise.io/app/c7dfae3497b9c9c7/status.svg?token=gHevfUWgJNngvsjdaj8mRw&branch=master)](https://app.bitrise.io/app/c7dfae3497b9c9c7) [![Crowdin](https://badges.crowdin.net/sente/localized.svg)](https://crowdin.com/project/sente)
 
 This app allows you to play the ancient game of GO (baduk, weiki, 围棋,
 바둑, 囲碁) against other players. The backend is provided by the popular
@@ -24,6 +24,13 @@ Over the years the app has evolved from an MVP app written in JAVA to a modern a
 Although this project has been my playground for trying out new technologies you are welcome to contribute. Just pick something that you want to work on (either from the issues or some other feature you'd like to see implemented), check with me that it's not already being worked on, checkout the project, create a branch, work your magic and when done raise a PR for merging back to master (which is protected).
 
 I'm afraid that I don't have much time to offer support for prospective contributors, but if you run into problems please raise an issue and tag me in it, I will try to answer as time allows. You will find it easier if you are familiar with Kotlin, Room, MVVM, Retrofit and general Android development. If not, maybe it's a good way of introducing yourself to these popular technologies.
+
+## Translations
+
+The app is translated on [Crowdin](https://crowdin.com/project/sente). You don't need to be a
+programmer or install anything — just an account and a language you speak. See *
+*[TRANSLATING.md](TRANSLATING.md)** for a short guide, and open an issue if your language isn't
+listed yet.
 
 ## Non-coding contributions
 
