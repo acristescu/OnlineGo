@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
     <string name="app_name">Sente - Online GO</string>
     <string name="create_account_prompt">Nu ai cont OGS? Creează unul <b>aici</b>!</string>
     <string name="login_to_ogs">Conectare la OGS</string>
@@ -227,7 +226,6 @@
         <item quantity="few">%d secunde</item>
         <item quantity="other">%d de secunde</item>
     </plurals>
-    <!-- Joins a coarse and a finer duration, e.g. "2 weeks" and "3 days" -->
     <string name="duration_two_units">%1$s %2$s</string>
     <string name="duration_unknown">\?</string>
     <string name="time_control_simple">Simplu: %1$s per mutare.</string>
@@ -606,7 +604,6 @@ Pune o piatră pentru a continua!]]></string>
     <string name="tutorial_basics_thebasics_capture2_text">E rândul tău! Capturează piatra albă.</string>
     <string name="tutorial_basics_thebasics_capture3_text">De data asta poți captura două pietre cu o singură mutare!</string>
     <string name="tutorial_basics_thebasics_capture4_text">Chiar dacă sunt și alte pietre în apropiere, procedează la fel.</string>
-
     <string name="tutorial_basics_capturingstones_title">Capturarea pietrelor</string>
     <string name="tutorial_basics_capturingstones_capture5_text">La marginea tablei, situația este puțin diferită. Pietrele de pe margine au mai puține libertăți și sunt mai ușor de capturat.</string>
     <string name="tutorial_basics_capturingstones_capture5_branches2_text">Pietrele albe sunt conectate.</string>
