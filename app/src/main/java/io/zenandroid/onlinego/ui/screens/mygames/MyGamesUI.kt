@@ -17,7 +17,6 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -28,7 +27,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
@@ -47,6 +45,7 @@ import io.zenandroid.onlinego.data.model.local.Game
 import io.zenandroid.onlinego.data.model.local.Player
 import io.zenandroid.onlinego.data.model.ogs.OGSAutomatch
 import io.zenandroid.onlinego.data.model.ogs.SizeSpeedOption
+import io.zenandroid.onlinego.ui.composables.WhatsNewBottomSheet
 import io.zenandroid.onlinego.ui.screens.automatch.NewAutomatchChallengeBottomSheet
 import io.zenandroid.onlinego.ui.screens.mygames.composables.AutomatchItem
 import io.zenandroid.onlinego.ui.screens.mygames.composables.ChallengeDetailsDialog
@@ -60,7 +59,6 @@ import io.zenandroid.onlinego.ui.screens.mygames.composables.SmallGameItem
 import io.zenandroid.onlinego.ui.screens.mygames.composables.TutorialItem
 import io.zenandroid.onlinego.ui.screens.newchallenge.NewChallengeBottomSheet
 import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
-import io.zenandroid.onlinego.utils.whatsNewText
 import kotlinx.coroutines.delay
 import org.koin.androidx.compose.koinViewModel
 
@@ -126,19 +124,12 @@ fun MyGamesScreen(
     }
   }
   if (state.whatsNewDialogVisible) {
-    AlertDialog(
-      onDismissRequest = { viewModel.onAction(Action.DismissWhatsNewDialog) },
-      dismissButton = {
-        TextButton(onClick = { viewModel.onAction(Action.DismissWhatsNewDialog) }) {
-          Text(stringResource(R.string.ok))
-        }
+    WhatsNewBottomSheet(
+      onDismiss = { viewModel.onAction(Action.DismissWhatsNewDialog) },
+      onSupportClicked = {
+        viewModel.onAction(Action.DismissWhatsNewDialog)
+        onNavigateToSupporter()
       },
-      confirmButton = {
-        TextButton(onClick = onNavigateToSupporter) {
-          Text(stringResource(R.string.mygames_support))
-        }
-      },
-      text = { Text(whatsNewText(LocalContext.current)) }
     )
   }
   state.challengeDetailsStatus?.let {

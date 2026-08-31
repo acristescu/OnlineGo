@@ -222,7 +222,6 @@
         <item quantity="one">%d second</item>
         <item quantity="other">%d seconds</item>
     </plurals>
-    <!-- Joins a coarse and a finer duration, e.g. "2 weeks" and "3 days" -->
     <string name="duration_two_units">%1$s %2$s</string>
     <string name="duration_unknown">\?</string>
     <string name="time_control_simple">Simple: %1$s per move.</string>
@@ -240,9 +239,12 @@
     <string name="time_control_unknown">\?</string>
     <string name="time_control_pauses_on_weekends">" Pauses on weekends."</string>
     <string name="whats_new_title">What\'s new</string>
-    <string name="whats_new_changelog">· New Look and Feel with colors chosen from your Android wallpaper\n· OGS Moderator warnings are now displayed\n· Prepared app for Android 15\n· Reimplemented Face To Face, AI and Joseki screens\n· Faster startup\n· Migrated navigation to compose\n</string>
-    <string name="whats_new_about_title">About project</string>
-    <string name="whats_new_about_body">This is an open-source project. If you want to contribute, the code is available on Github.</string>
+    <string name="whats_new_got_it">Got it</string>
+    <string name="whats_new_open_source">Sente is open source, built by volunteers.</string>
+    <string name="whats_new_support_project">Support the project</string>
+    <string-array name="whats_new_changelog" translatable="false">
+        <item>New localization system! For now, we\'re supporting only English and Romanian, but click the link below to see how you can help translate the app to other languages.</item>
+    </string-array>
     <string name="settings_delete_account_success">Account deleted. Sorry to see you go! The app will close in 5s.</string>
     <string name="settings_delete_account_wrong_password">Wrong password</string>
     <string name="onboarding_login_invalid_credentials">Invalid username or password</string>
@@ -292,7 +294,6 @@
     <string name="settings_become_a_supporter_description">Become a supporter</string>
     <string name="settings_section_language">Language</string>
     <string name="settings_language">Language</string>
-    <!-- Language names are shown in the language itself, so they are never translated. -->
     <string name="settings_language_english" translatable="false">English</string>
     <string name="settings_language_romanian" translatable="false">Română</string>
     <string name="settings_help_translate">Help translate Sente</string>
@@ -308,6 +309,8 @@
     <string name="settings_section_account">Account</string>
     <string name="settings_logout">Logout</string>
     <string name="settings_delete_account">Delete account</string>
+    <string name="settings_section_about">About</string>
+    <string name="settings_whats_new">What\'s new</string>
     <string name="settings_section_legal">Legal</string>
     <string name="settings_privacy_policy">Privacy Policy</string>
     <string name="settings_section_debug">Debug</string>
@@ -496,7 +499,6 @@
         <item quantity="other">%d minutes</item>
     </plurals>
     <string name="automatch_duration_minutes_range">%1$d to %2$d minutes</string>
-    <string name="mygames_support">SUPPORT</string>
     <string name="mygames_moderator_title">OGS Moderator %1$s</string>
     <string name="mygames_empty_message">Empty message</string>
     <string name="mygames_acknowledge">Acknowledge</string>

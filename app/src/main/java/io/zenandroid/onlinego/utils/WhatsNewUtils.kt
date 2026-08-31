@@ -1,22 +1,10 @@
 package io.zenandroid.onlinego.utils
 
 import android.content.Context
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.sp
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import io.zenandroid.onlinego.R
-import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
@@ -30,7 +18,7 @@ val Context.whatsNewDataStore by preferencesDataStore(name = "whats_new")
 object WhatsNewUtils {
   suspend fun shouldDisplayDialog(context: Context): Boolean {
     return withContext(Dispatchers.IO) {
-      val hash = hashString(whatsNewText(context).text)
+      val hash = currentHash(context)
       val stored = context.whatsNewDataStore.data.map { it[WHATS_NEW_KEY] }.first()
       stored != null && stored != hash
     }
@@ -38,12 +26,21 @@ object WhatsNewUtils {
 
   suspend fun textShown(context: Context) {
     withContext(Dispatchers.IO) {
-      val hash = hashString(whatsNewText(context).text)
+      val hash = currentHash(context)
       context.whatsNewDataStore.edit { prefs ->
         prefs[WHATS_NEW_KEY] = hash
       }
     }
   }
+
+  /**
+   * Hashes the changelog alone, deliberately not the whole sheet text: the surrounding labels are
+   * translated, so hashing them would make the hash change with the app language and the sheet
+   * would pop up again after every language switch. The changelog is translatable="false", so this
+   * hash is the same in every locale and only changes when the release notes actually change.
+   */
+  private fun currentHash(context: Context) =
+    hashString(whatsNewItems(context).joinToString("\n"))
 
   private fun hashString(text: String): String {
     return MessageDigest.getInstance("MD5").digest(text.toByteArray(Charsets.UTF_8))
@@ -51,40 +48,13 @@ object WhatsNewUtils {
   }
 }
 
-fun whatsNewText(context: Context): AnnotatedString = AnnotatedString.Builder().run {
-  pushStyle(SpanStyle(fontSize = 20.sp))
-  append("${context.getString(R.string.whats_new_title)}\n\n")
-  pop()
-
-  pushStyle(SpanStyle(fontWeight = FontWeight.Normal))
-  append(context.getString(R.string.whats_new_changelog))
-  pop()
-
-  pushStyle(SpanStyle(fontSize = 20.sp))
-  append("\n")
-  append("${context.getString(R.string.whats_new_about_title)}\n\n")
-  pop()
-
-  pushStyle(SpanStyle(fontWeight = FontWeight.Normal))
-  append(context.getString(R.string.whats_new_about_body))
-  toAnnotatedString()
-}
-
-@Preview
-@Composable
-fun Preview() {
-  OnlineGoTheme {
-    AlertDialog(
-      onDismissRequest = {},
-      dismissButton = {
-        TextButton(onClick = {}) { Text(stringResource(R.string.ok)) }
-      },
-      confirmButton = {
-        TextButton(onClick = { }) { Text(stringResource(R.string.mygames_support)) }
-      },
-      text = {
-        Text(text = whatsNewText(LocalContext.current))
-      }
-    )
-  }
-}
+/**
+ * The release notes, one entry per bullet, from the `whats_new_changelog` string-array.
+ *
+ * Editing that array is what makes the sheet appear again after an update, so it is the one thing
+ * to remember to update per release. It is `translatable="false"` and stays English on purpose:
+ * release notes churn every version and translating them is not sustainable. Write one item per
+ * bullet without a bullet glyph — the UI draws those.
+ */
+fun whatsNewItems(context: Context): List<String> =
+  context.resources.getStringArray(R.array.whats_new_changelog).toList()

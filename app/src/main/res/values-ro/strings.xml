@@ -247,9 +247,9 @@
     <string name="time_control_unknown">\?</string>
     <string name="time_control_pauses_on_weekends">" Se întrerupe în weekend."</string>
     <string name="whats_new_title">Ce este nou</string>
-    <string name="whats_new_changelog">· Aspect nou, cu culori preluate din imaginea de fundal Android\n· Avertismentele moderatorilor OGS sunt acum afișate\n· Aplicația a fost pregătită pentru Android 15\n· Ecranele Față în Față, AI și Joseki au fost reimplementate\n· Pornire mai rapidă\n· Navigarea a fost migrată pe Compose\n</string>
-    <string name="whats_new_about_title">Despre proiect</string>
-    <string name="whats_new_about_body">Acesta este un proiect open source. Dacă vrei să contribui, codul este disponibil pe Github.</string>
+    <string name="whats_new_got_it">Am înțeles</string>
+    <string name="whats_new_open_source">Sente este open source, construit de voluntari.</string>
+    <string name="whats_new_support_project">Susține proiectul</string>
     <string name="settings_delete_account_success">Cont șters. Ne pare rău că pleci! Aplicația se va închide în 5 s.</string>
     <string name="settings_delete_account_wrong_password">Parolă greșită</string>
     <string name="onboarding_login_invalid_credentials">Nume de utilizator sau parolă incorecte</string>
@@ -301,6 +301,7 @@
     <string name="settings_become_a_supporter_description">Devino susținător</string>
     <string name="settings_section_language">Limbă</string>
     <string name="settings_language">Limbă</string>
+    <string name="settings_help_translate">Ajută la traducerea Sente</string>
     <string name="settings_section_notifications">Notificări</string>
     <string name="settings_system_notifications">Notificări de sistem</string>
     <string name="settings_stone_sounds">Sunetul pietrelor</string>
@@ -313,6 +314,8 @@
     <string name="settings_section_account">Cont</string>
     <string name="settings_logout">Deconectare</string>
     <string name="settings_delete_account">Șterge contul</string>
+    <string name="settings_section_about">Despre</string>
+    <string name="settings_whats_new">Ce este nou</string>
     <string name="settings_section_legal">Informații legale</string>
     <string name="settings_privacy_policy">Politica de confidențialitate</string>
     <string name="settings_section_debug">Depanare</string>
@@ -505,7 +508,6 @@
         <item quantity="other">%d de minute</item>
     </plurals>
     <string name="automatch_duration_minutes_range">%1$d până la %2$d minute</string>
-    <string name="mygames_support">SUSȚINE</string>
     <string name="mygames_moderator_title">Moderator OGS %1$s</string>
     <string name="mygames_empty_message">Mesaj gol</string>
     <string name="mygames_acknowledge">Am înțeles</string>

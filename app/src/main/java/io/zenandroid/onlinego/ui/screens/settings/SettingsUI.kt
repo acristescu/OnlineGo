@@ -33,6 +33,7 @@ import androidx.compose.material.icons.filled.RateReview
 import androidx.compose.material.icons.filled.Translate
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material.icons.rounded.AutoAwesome
 import androidx.compose.material.icons.rounded.DarkMode
 import androidx.compose.material.icons.rounded.HeartBroken
 import androidx.compose.material.icons.rounded.MilitaryTech
@@ -92,6 +93,7 @@ import io.zenandroid.onlinego.R.mipmap
 import io.zenandroid.onlinego.data.model.AppLanguage
 import io.zenandroid.onlinego.data.model.AppTheme
 import io.zenandroid.onlinego.data.model.BoardTheme
+import io.zenandroid.onlinego.ui.composables.WhatsNewBottomSheet
 import io.zenandroid.onlinego.ui.composables.resolve
 import io.zenandroid.onlinego.ui.screens.mygames.composables.SenteCard
 import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.BoardThemeClicked
@@ -112,6 +114,7 @@ import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
 import io.zenandroid.onlinego.utils.AppLocaleManager
 import io.zenandroid.onlinego.utils.ReviewDiagnosticResult
 import io.zenandroid.onlinego.utils.ReviewPromptManager
+import io.zenandroid.onlinego.utils.TRANSLATING_GUIDE_URL
 import io.zenandroid.onlinego.utils.processGravatarURL
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
@@ -134,6 +137,7 @@ fun SettingsScreen(
 
   var dialogData by remember { mutableStateOf<DialogData?>(null) }
   var reviewDiagnosticResult by remember { mutableStateOf<ReviewDiagnosticResult?>(null) }
+  var whatsNewVisible by remember { mutableStateOf(false) }
 
   val activity = LocalActivity.current
   val context = LocalContext.current
@@ -154,11 +158,10 @@ fun SettingsScreen(
         }
 
         is HelpTranslateClicked -> activity?.startActivity(
-          Intent(
-            Intent.ACTION_VIEW,
-            "https://github.com/acristescu/OnlineGo/blob/master/TRANSLATING.md".toUri()
-          )
+          Intent(Intent.ACTION_VIEW, TRANSLATING_GUIDE_URL.toUri())
         )
+
+        is SettingsAction.WhatsNewClicked -> whatsNewVisible = true
 
         is PrivacyClicked -> activity?.startActivity(
           Intent(
@@ -189,6 +192,16 @@ fun SettingsScreen(
         else -> viewModel.onAction(it)
       }
     })
+
+  if (whatsNewVisible) {
+    WhatsNewBottomSheet(
+      onDismiss = { whatsNewVisible = false },
+      onSupportClicked = {
+        whatsNewVisible = false
+        onNavigateToSupport()
+      },
+    )
+  }
 
   dialogData?.let { data ->
     AlertDialog(
@@ -478,6 +491,16 @@ private fun SettingsContent(
           checkbox = false,
           checked = true,
           onClick = { onAction(DeleteAccountClicked) })
+      }
+    }
+    Section(title = stringResource(R.string.settings_section_about)) {
+      Column(modifier = Modifier) {
+        SettingsRow(
+          title = stringResource(R.string.settings_whats_new),
+          icon = Rounded.AutoAwesome,
+          checkbox = false,
+          checked = true,
+          onClick = { onAction(SettingsAction.WhatsNewClicked) })
       }
     }
     Section(title = stringResource(R.string.settings_section_legal)) {
