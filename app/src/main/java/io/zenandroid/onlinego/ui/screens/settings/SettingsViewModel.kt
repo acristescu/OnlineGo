@@ -160,7 +160,7 @@ class SettingsViewModel(
       // Changing the language needs the Activity (to recreate it), so the UI handles it.
       is SettingsAction.LanguageClicked -> {}
 
-      PrivacyClicked, SupportClicked, LogoutClicked, NotificationsClicked, SettingsAction.SocketDebugClicked, SettingsAction.ReviewPromptClicked -> {}
+      PrivacyClicked, SupportClicked, LogoutClicked, NotificationsClicked, SettingsAction.SocketDebugClicked, SettingsAction.ReviewPromptClicked, SettingsAction.HelpTranslateClicked -> {}
     }
   }
 
@@ -192,6 +192,7 @@ sealed interface SettingsAction {
   data object DeleteAccountClicked : SettingsAction
   data object DeleteAccountCanceled : SettingsAction
   data class DeleteAccountConfirmed(val password: String) : SettingsAction
+  data object HelpTranslateClicked : SettingsAction
   data object PrivacyClicked : SettingsAction
   data object SupportClicked : SettingsAction
   data object SocketDebugClicked : SettingsAction

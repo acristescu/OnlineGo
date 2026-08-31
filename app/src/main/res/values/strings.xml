@@ -295,6 +295,7 @@
     <!-- Language names are shown in the language itself, so they are never translated. -->
     <string name="settings_language_english" translatable="false">English</string>
     <string name="settings_language_romanian" translatable="false">Română</string>
+    <string name="settings_help_translate">Help translate Sente</string>
     <string name="settings_section_notifications">Notifications</string>
     <string name="settings_system_notifications">System notifications</string>
     <string name="settings_stone_sounds">Stone Sounds</string>

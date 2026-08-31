@@ -30,6 +30,7 @@ import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.RateReview
+import androidx.compose.material.icons.filled.Translate
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material.icons.rounded.DarkMode
@@ -98,6 +99,7 @@ import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.CoordinatesClic
 import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.DeleteAccountCanceled
 import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.DeleteAccountClicked
 import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.DeleteAccountConfirmed
+import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.HelpTranslateClicked
 import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.LanguageClicked
 import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.LogoutClicked
 import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.NotificationsClicked
@@ -150,6 +152,13 @@ fun SettingsScreen(
             activity?.recreate()
           }
         }
+
+        is HelpTranslateClicked -> activity?.startActivity(
+          Intent(
+            Intent.ACTION_VIEW,
+            "https://github.com/acristescu/OnlineGo/blob/master/TRANSLATING.md".toUri()
+          )
+        )
 
         is PrivacyClicked -> activity?.startActivity(
           Intent(
@@ -388,6 +397,12 @@ private fun SettingsContent(
               leadingEmoji = entry.flagEmoji,
             ) { onAction(LanguageClicked(entry)) }
           })
+        SettingsRow(
+          title = stringResource(R.string.settings_help_translate),
+          icon = Filled.Translate,
+          checkbox = false,
+          checked = true,
+          onClick = { onAction(HelpTranslateClicked) })
       }
     }
     Section(title = stringResource(R.string.settings_section_notifications)) {
