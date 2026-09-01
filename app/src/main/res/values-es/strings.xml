@@ -1,2 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources></resources>
+<resources>
+    <string name="app_name">Sente - Online GO</string>
+    <string name="create_account_prompt">¿Sin cuenta en OGS? ¡Crea una <b>aquí</b>!</string>
+    <string name="login_to_ogs">Iniciar sesión en OGS</string>
+    <string name="create_account">Crear cuenta OGS</string>
+    <string name="welcome_to_sente_online_go">¡Bienvenido a Sente Online Go!</string>
+    <string name="login_to_play_online">Por favor, inicie sesión en OGS para jugar online.</string>
+    <string name="ai_game_chat_ready">¡Listo!</string>
+    <string name="ai_game_chat_use_new_game_button">Use el botón \'Juego nuevo\' para iniciar una partida</string>
+    <string name="ai_game_chat_engine_error">Error al iniciar KataGO \'%1$s\'</string>
+    <string name="ai_game_chat_invalid_move">Movimiento inválido, inténtalo otra vez</string>
+    <string name="ai_game_chat_lets_try_again">Bien, inténtalo otra vez ¡Es tu turno!</string>
+    <string name="ai_game_chat_hmmm">Mmm…</string>
+    <string name="ai_game_chat_moves_to_consider">Aquí hay algunos movimientos a considerar</string>
+    <string name="ai_game_chat_ok_your_turn">Bien, es tu turno</string>
+    <string name="ai_game_chat_calculating_territory">Bien, calculando el territorio actual…</string>
+    <string name="ai_game_chat_territories">Creo que los territorios se ven así</string>
+    <string name="ai_game_chat_im_thinking">Pensando…</string>
+    <string name="ai_game_chat_your_turn">Tu turno</string>
+    <string name="ai_game_chat_game_over_ai_won">La partida terminó por hacer dos pases consecutivos. Puntaje final: Negro %1$s, Blanco: %2$s. Parece que gané.</string>
+    <string name="ai_game_chat_game_over_player_won">La partida terminó por hacer dos pases consecutivos. Puntaje final: Negro %1$s, Blanco: %2$s. Felicitaciones, me ganaste.</string>
+    <string name="ai_game_chat_game_over_computing_score">La partida terminó por hacer dos pases consecutivos. Estoy calculando el puntaje final.</string>
+    <string name="ai_game_handicap_none">sin handicap</string>
+    <string name="ai_game_handicap_no_komi">sin komi</string>
+    <string name="ai_game_avatar_content_description">AI</string>
+    <string name="ai_game_new">Nuevo</string>
+    <string name="ai_game_pass">Pasar</string>
+    <string name="ai_game_previous">Anterior</string>
+    <string name="ai_game_next">Siguiente</string>
+    <string name="ko_explanation">Esa jugada repetiría la posición del tablero. Eso se llama KO, y no está permitido. Intenta hacer antes otro movimiento, preferiblemente una amenaza que el oponente no pueda ignorar.</string>
+    <string name="illegal_ko_move">Movimiento ilegal de KO</string>
+    <string name="local_ai_game">Jugar contra IA local</string>
+    <string name="back">Volver</string>
+    <string name="title_bar_game_info_content_description">Información del juego</string>
+</resources>
