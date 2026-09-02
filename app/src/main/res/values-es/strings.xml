@@ -33,4 +33,26 @@
     <string name="local_ai_game">Jugar contra IA local</string>
     <string name="back">Volver</string>
     <string name="title_bar_game_info_content_description">Información del juego</string>
+    <string name="territory">Territorio</string>
+    <string name="player">Jugador</string>
+    <string name="new_game">Nuevo juego</string>
+    <string name="board_size">Tamaño del tablero</string>
+    <string name="you_play">Tu turno</string>
+    <string name="Black">Negro</string>
+    <string name="White">Blanco</string>
+    <string name="start_game">Empezar</string>
+    <string name="cancel">Cancelar</string>
+    <string name="ok">Ok</string>
+    <string name="search">Buscar</string>
+    <string name="loading">Cargando…</string>
+    <string name="email">Email</string>
+    <string name="username">Nombre de usuario</string>
+    <string name="password">Contraseña</string>
+    <string name="yes">Si</string>
+    <string name="no">No</string>
+    <string name="error">Error</string>
+    <string name="bottomnavigation_botton_play">Jugar</string>
+    <string name="bottomnavigation_botton_learn">Aprender</string>
+    <string name="bottomnavigation_botton_settings">Opciones</string>
+    <string name="home_welcome_to_sente">¡Bienvenido a Sente!</string>
 </resources>
