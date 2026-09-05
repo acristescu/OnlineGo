@@ -1,2 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources></resources>
+<resources>
+    <string name="app_name">Sente - GO en ligne</string>
+    <string name="create_account_prompt">Pas de compte OGS ? Créez-en un <b>ici</b> !</string>
+    <string name="login_to_ogs">Connexion à OGS</string>
+    <string name="create_account">Créer un compte OGS</string>
+    <string name="welcome_to_sente_online_go">Bienvenue sur Sente Online Go !</string>
+    <string name="login_to_play_online">Connectez-vous sur OGS pour jouer en ligne.</string>
+    <string name="ai_game_chat_ready">Prêt !</string>
+    <string name="ai_game_chat_use_new_game_button">Utilisez le bouton \"Nouvelle Partie\" pour commencer une nouvelle partie</string>
+    <string name="ai_game_chat_engine_error">Erreur au démarrage de KataGO : \'%1$s\'</string>
+    <string name="ai_game_chat_invalid_move">Coup invalide, essayez autre chose</string>
+    <string name="ai_game_chat_lets_try_again">Ok, essayons autre chose. À votre tour !</string>
+    <string name="ai_game_chat_hmmm">Hmmm…</string>
+    <string name="ai_game_chat_moves_to_consider">Voici quelques coups à considérer</string>
+    <string name="ai_game_chat_ok_your_turn">Ok, à votre tour</string>
+    <string name="ai_game_chat_calculating_territory">Ok, calcul du territoire courant…</string>
+    <string name="ai_game_chat_territories">Voici comment j\'envisage les territoires</string>
+    <string name="ai_game_chat_im_thinking">Je réfléchis…</string>
+    <string name="ai_game_chat_your_turn">Votre tour</string>
+    <string name="ai_game_chat_game_over_ai_won">La partie est terminée car les deux joueurs ont passé leur tour. Le score final est de %1$s pour noir, contre %2$s pour blanc. On dirait que je gagne ce coup ci.</string>
+    <string name="ai_game_chat_game_over_player_won">La partie est terminée car les deux joueurs ont passé leur tour. Le score final est de %1$s pour noir, contre %2$s pour blanc. Bravo ! Je m\'avoue vaincu.</string>
+    <string name="ai_game_chat_game_over_computing_score">La partie est terminée car les deux joueurs ont passé leur tour. Un moment, je calcule le score final.</string>
+    <string name="ai_game_handicap_none">aucun</string>
+    <string name="ai_game_handicap_no_komi">pas de komi</string>
+    <string name="ai_game_avatar_content_description">IA</string>
+    <string name="ai_game_new">Nouvelle Partie</string>
+    <string name="ai_game_pass">Passer</string>
+    <string name="ai_game_previous">Précédent</string>
+    <string name="ai_game_next">Suivant</string>
+</resources>
