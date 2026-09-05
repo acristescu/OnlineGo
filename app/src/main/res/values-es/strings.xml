@@ -143,5 +143,9 @@
     <string name="game_menu_accept_undo">Aceptar Deshacer</string>
     <string name="game_confirm_dialog_title">Confirme por favor</string>
     <string name="game_dialog_cancel">CANCELAR</string>
+    <string name="game_opponent_undo_dialog_title">Oponente quiere deshacer jugada</string>
+    <string name="game_opponent_undo_dialog_message">A tu oponente le gustaría deshacer la última jugada. ¿Aceptas?</string>
+    <string name="game_opponent_undo_dialog_ignore">IGNORAR</string>
+    <string name="game_opponent_undo_dialog_accept">DESHACER JUGADA</string>
     <string name="game_player_details_percentage">%1$d%%</string>
 </resources>
