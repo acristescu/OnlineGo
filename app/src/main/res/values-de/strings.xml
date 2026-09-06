@@ -174,6 +174,7 @@
     <string name="game_over_lost">DU HAST VERLOREN</string>
     <string name="game_over_view_board">BRETT ANZEIGEN</string>
     <string name="game_over_next_game">NÄCHSTES SPIEL</string>
+    <string name="game_over_quick_replay">Schnelles Replay</string>
     <string name="game_over_resignation">%1$s hat nach Zug %2$d aufgegeben</string>
     <string name="game_over_points">%1$s hat %2$s Punkte mehr</string>
     <string name="game_over_timeout">Zeit von %1$s ist abgelaufen.</string>
@@ -224,6 +225,14 @@
     <string name="duration_unknown">\?</string>
     <string name="time_control_simple">Einfach: %1$s pro Zug.</string>
     <string name="time_control_fischer">Fischer: Die Uhr startet mit %1$s und erhöht sich pro Zug um %2$s bis zu einem Maximum von %3$s.</string>
+    <plurals name="time_control_byoyomi">
+        <item quantity="one">Japanisches Byo-Yomi: Die Uhr startet mit %1$s Hauptzeit, gefolgt von %2&amp;$d Perioden von je %3$s.</item>
+        <item quantity="other">Japanisches Byo-Yomi: Die Uhr startet mit %1$s Hauptzeit, gefolgt von %2$d Perioden von je %3$s.</item>
+    </plurals>
+    <plurals name="time_control_canadian">
+        <item quantity="one">Kanadisches Byo-Yomi: Die Uhr startet mit %1$s Hauptzeit, gefolgt von %2$s pro %3$d Stein. </item>
+        <item quantity="other">Kanadisches Byo-Yomi: Die Uhr startet mit %1$s Hauptzeit, gefolgt von %2$s pro %3$d Steine.</item>
+    </plurals>
     <string name="time_control_absolute">Absolut: %1$s Gesamtspielzeit pro Spieler.</string>
     <string name="time_control_none">Kein Zeitlimit.</string>
     <string name="time_control_unknown">\?</string>
@@ -263,6 +272,10 @@
     <string name="notification_your_turn">Du bist an der Reihe</string>
     <string name="notification_stone_removal_phase">Steine entfernen</string>
     <string name="notification_requires_attention">%1$s Erfordert deine Aufmerksamkeit</string>
+    <plurals name="notification_games_require_attention">
+        <item quantity="one">%d Spiele benötigen deine Aufmerksamkeit</item>
+        <item quantity="other">%d Spiele erfordern deine Aufmerksamkeit</item>
+    </plurals>
     <string name="notification_inbox_versus">gegen %1$s</string>
     <string name="notification_logout_title">Bitte melde dich erneut an</string>
     <string name="notification_logout_text">Du wurdest aus der App abgemeldet. Das passiert normalerweise, wenn du dein Passwort geändert hast. Bitte melde dich erneut an, um die Benachrichtigungen wieder zu aktivieren</string>
@@ -316,6 +329,8 @@
     <string name="settings_delete_account_confirm">BENUTZERKONTO LÖSCHEN</string>
     <string name="settings_delete_account_cancel">ABBRECHEN</string>
     <string name="settings_error_dialog_title">Fehler</string>
+    <string name="settings_review_flow_diagnostic_title">Review Flow Diagnostik</string>
+    <string name="settings_review_flow_error_title">Review Flow Fehler</string>
     <string name="settings_avatar_content_description">Avatar</string>
     <string name="settings_icon_content_description">Symbol</string>
     <string name="supporter_title">Werde Unterstützer</string>
@@ -625,6 +640,38 @@ Setze einen Stein um fortzufahren!]]></string>
     <string name="tutorial_intermediate_ko_ko_page_5_text"><![CDATA[Wenn Schwarz nun den Stein unter Atari retten möchte, ist das mit einem Zug auf E6 möglich …]]></string>
     <string name="tutorial_intermediate_ko_ko_page_6_text">Schwarz hat somit den Kampf um das Ko gewonnen. Aber beachte, dass Weiß nun wieder am Zug ist und so zwei Züge für den Preis von diesem einen Stein erhalten hat.</string>
     <string name="tutorial_intermediate_ko_ko_page_7_text">Diese beiden zusätzlichen Züge können manchmal mehr Punkte wert sein als das Ko zu gewinnen. Deshalb werden beide Seiten durchgehend neu bewerten, ob es sich mehr lohnt, das Ko fortzusetzen oder die zusätzlichen Züge für sich zu verbuchen.</string>
+    <string name="tutorial_intermediate_ko_ko_page_8_text">Wie passiert das in einem echten Spiel? Hier ist ein Bsp: Schwarz und Weiß haben jeweils eine 5-köpfige Gruppe in Gefahr. E8 ist der einzige Weg, um die eigene Gruppe zu retten. Es beginnt ein Ko-Kampf!</string>
+    <string name="tutorial_intermediate_ko_ko_page_9_text">Die 5 Steine von Weiß in der obersten Reihe stehen in Atari, aber er kann mit D8 nicht direkt zurückschlagen, da dies die letzte Position wiederholen würde! Daher spielt er dort, wo Schwarz ihn nicht ignorieren kann, wie E2</string>
+    <string name="tutorial_intermediate_ko_ko_page_10_text">Nun ist unten links die Gruppe von Schwarz in Gefahr, sodass sie abwägen muss: Lieber 8 Steine unten oder 5 oben verlieren? Widerwillig entscheidet sich Schwarz, den Ko-Kampf fortzusetzen und die Steine am unteren Ende mit E1 zu retten</string>
+    <string name="tutorial_intermediate_ko_ko_page_11_text">Nun kann Weiß das Ko schlagen</string>
+    <string name="tutorial_intermediate_ko_ko_page_12_text"><![CDATA["Jetzt ist Schwarz am Zug, kann wegen der Ko-Regel nicht erneut schlagen. Sie hat jedoch eine weitere Chance: Der Zug auf B4 bedroht die weiße Gruppe am unteren Rand!"]]></string>
+    <string name="tutorial_intermediate_ko_ko_page_13_text">Nun muss sich Weiß entscheiden: Soll er die 5 Steine am oberen Rand fangen (mit B9) oder seine 6 Steine unten retten? Er entscheidet sich für A4\.\.\.</string>
+    <string name="tutorial_intermediate_ko_ko_page_14_text">Schwarz braucht nicht viel Ermutigung, um jetzt auf E8 zu spielen\.\.\.</string>
+    <string name="tutorial_intermediate_ko_ko_page_15_text">Weiß gibt widerwillig zu, dass er keine anderen, guten Drohungen hat. Er spielt an woanders, z.B. auf F4, und räumt die Niederlage beim Ko-Kampf ein.</string>
+    <string name="tutorial_intermediate_ko_ko_page_16_text">Schwarz freut sich, mit G9 ihren Profit am oberen Rand zu beanspruchen.</string>
+    <string name="tutorial_intermediate_ko_ko_page_17_text">Mach Dir keine Sorgen, wenn das gerade zu kompliziert klingt. Merke Dir als Anfänger*in, dass Du keinen Stein fangen kannst, wenn sich so die vorherige Stellung wiederholt.</string>
+    <string name="tutorial_intermediate_puzzles_title">Tsumego (Go-Probleme)</string>
+    <string name="tutorial_intermediate_puzzles_puzzles1_text">Fang die 3 weißen Steine! Diese Form wird manchmal \"Kranichnest\" genannt</string>
+    <string name="tutorial_intermediate_puzzles_puzzles2_text"><![CDATA[Ein Wettlauf ums Überleben, kannst Du es gewinnen?]]></string>
+    <string name="tutorial_intermediate_puzzles_corner1_text"><![CDATA["Beim Go sind Kämpfe in der Ecke sehr häufig. Hier ist ein Wettlauf ums Überleben in der Ecke. Wer ist schneller?"]]></string>
+    <string name="tutorial_intermediate_puzzles_corner2_text"><![CDATA["Fang den weißen Schnittstein. Pass auf, von welcher Seite Du Atari gibst!"]]></string>
+    <string name="tutorial_intermediate_puzzles_corner2_branches_branch1_4_4_message">4 schwarze Steine sind tot</string>
+    <string name="tutorial_intermediate_puzzles_corner2_branches_branch2_3_message">3 schwarze Steine sind tot</string>
+    <string name="tutorial_intermediate_puzzles_corner2_branches_branch2_5_message">2 schwarze Steine sind tot</string>
+    <string name="tutorial_intermediate_puzzles_corner2_branches_branch4_message"><![CDATA["Schwarz kann nicht entkommen"]]></string>
+    <string name="tutorial_intermediate_puzzles_corner2_branches_branch6_message"><![CDATA["Schwarz kann nicht entkommen"]]></string>
+    <string name="tutorial_intermediate_falseeyes_title">Falsche Augen</string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes1_page1_text"><![CDATA[Erinnere Dich an das vorherige Tutorial: eine Gruppe mit zwei Augen kann niemals gefangen werden. Manchmal sind jedoch nicht alle Steine, die ein Auge umschließen, miteinander verbunden und können separat gefangen werden. So scheint zum Bsp. D5 in der Position unten ein Auge zu sein. Aber der Stein C5 befindet sich in Atari und kann gefangen werden, wodurch die mittlere Gruppe kein einziges Auge hat. \n\n Wir nennen D5 ein \"falsches Auge"\.]]></string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes2_text"><![CDATA["Durch den Zug auf D5 hat Weiß versucht, den Stein bei C5 zu retten. Mit welchem Zug gewinnst Du?"]]></string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes3_text"><![CDATA["Es spielt keine Rolle, wie Weiß sich wehrt, Du kannst trotzdem die Gruppe in der MItte fangen!"]]></string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes4_text"><![CDATA["Jetzt bist Du in der Defensive. Überlebe, indem Du zwei echte Augen machst!"]]></string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes4_branches_branch2_message">Du hast in den eigenen Augenraum gespielt</string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes4_branches_branch3_message">Du hast in den eigenen Augenraum gespielt</string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes4_branches_branch4_message">F4 ist jetzt ein falsches Auge</string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes5_text"><![CDATA["Jetzt müssen beide Augen in Ordnung gebracht werden!"]]></string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes5_branches_branch1_2_message">F5 ist jetzt ein falsches Auge.</string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes5_branches_branch2_message">C5 ist ein falsches Auge.</string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes6_text"><![CDATA["Hier ist eine häufige Zugfolge bei falschen Augen am Rand. Bring es in Ordnung!"]]></string>
     <string name="tutorial_advanced_title">Fortgeschritten 2</string>
     <string name="tutorial_advanced_thefirstmoves_firstmoves1_page4_text"><![CDATA["Ziel des Spiels ist es, mehr Gebiet zu umschließen als die Gegenseite. Da ihr abwechselnd Steine platziert, haben beide die gleiche Anzahl an Steinen. Es gewinnt deshalb, wer seine Steine effizienter nutzt.
 
