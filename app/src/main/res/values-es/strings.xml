@@ -147,5 +147,14 @@
     <string name="game_opponent_undo_dialog_message">A tu oponente le gustaría deshacer la última jugada. ¿Aceptas?</string>
     <string name="game_opponent_undo_dialog_ignore">IGNORAR</string>
     <string name="game_opponent_undo_dialog_accept">DESHACER JUGADA</string>
+    <string name="game_request_undo_dialog_title">¿Petición de deshacer?</string>
+    <string name="game_request_undo_dialog_message">Si tu último movimiento fue hecho por error, puedes preguntar al oponente si te permite deshacer ese último movimiento.</string>
+    <string name="game_request_undo_dialog_confirm">Petición de anulación</string>
+    <string name="game_pass_dialog_message">¿Seguro quieres pasar? Únicamente debes hacerlo si crees que el juego terminó y no hay más movimientos por hacer. Si tu oponente pasa también, el juego procede a la fase de conteo de puntaje.</string>
+    <string name="game_pass_dialog_confirm">Pasar</string>
+    <string name="game_resign_dialog_message">¿Seguro quieres rendirte? </string>
+    <string name="game_resign_dialog_confirm">Rendirse</string>
+    <string name="game_cancel_dialog_message">¿Estás seguro de cancelar el juego?</string>
+    <string name="game_cancel_dialog_confirm">Cancelar Juego</string>
     <string name="game_player_details_percentage">%1$d%%</string>
 </resources>
