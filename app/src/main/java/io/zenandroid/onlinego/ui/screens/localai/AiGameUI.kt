@@ -670,16 +670,16 @@ private fun NewGameBottomSheet(
     Card(
       colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLowest),
     ) {
-      Column(Modifier.padding(16.dp)) {
+      Column(Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp)) {
         Text(
           text = stringResource(R.string.new_game),
-          style = MaterialTheme.typography.titleLarge,
-          fontWeight = FontWeight.Bold,
+          style = MaterialTheme.typography.headlineLarge,
+          textAlign = TextAlign.Center,
+          modifier = Modifier.fillMaxWidth(),
         )
 
         Text(
           text = stringResource(R.string.board_size),
-          fontWeight = FontWeight.Bold,
           modifier = Modifier.padding(top = 16.dp)
         )
         Row(
@@ -703,7 +703,6 @@ private fun NewGameBottomSheet(
 
         Text(
           text = stringResource(R.string.you_play),
-          fontWeight = FontWeight.Bold,
           modifier = Modifier.padding(top = 16.dp)
         )
         Row(
@@ -741,7 +740,7 @@ private fun NewGameBottomSheet(
           horizontalArrangement = Arrangement.SpaceBetween,
           verticalAlignment = Alignment.CenterVertically
         ) {
-          Text(stringResource(R.string.handicap), fontWeight = FontWeight.Bold)
+          Text(stringResource(R.string.handicap))
           Text(
             text = getHandicapDescription(handicap.toInt()),
             fontSize = 12.sp,
@@ -763,7 +762,7 @@ private fun NewGameBottomSheet(
           horizontalArrangement = Arrangement.SpaceBetween,
           verticalAlignment = Alignment.CenterVertically
         ) {
-          Text(stringResource(R.string.difficulty), fontWeight = FontWeight.Bold)
+          Text(stringResource(R.string.difficulty))
           Text(
             text = difficulty.rank.resolve(),
             fontSize = 12.sp,

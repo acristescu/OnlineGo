@@ -47,7 +47,7 @@ data class AiGameState(
   val boardSize: Int = 19,
   val enginePlaysBlack: Boolean = false,
   val handicap: Int = 0,
-  val difficulty: AiDifficulty = AiDifficulty.KYU_2,
+  val difficulty: AiDifficulty = AiDifficulty.KYU_12,
   val boardIsInteractive: Boolean = false,
   val candidateMove: Cell? = null,
   val passButtonEnabled: Boolean = false,
