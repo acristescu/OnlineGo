@@ -25,6 +25,7 @@ import io.zenandroid.onlinego.utils.moshiadapters.AiDifficultyMoshiAdapter
 import io.zenandroid.onlinego.utils.moshiadapters.HashMapOfCellToStoneTypeMoshiAdapter
 import io.zenandroid.onlinego.utils.moshiadapters.ResponseBriefMoshiAdapter
 import io.zenandroid.onlinego.utils.recordException
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -52,6 +53,9 @@ class AiGameViewModel(
   )
   val state: StateFlow<AiGameState> = _state.asStateFlow()
   private var katagoJob: kotlinx.coroutines.Job? = null
+  private var hintJob: kotlinx.coroutines.Job? = null
+  private var ownershipJob: kotlinx.coroutines.Job? = null
+  private var finalScoreJob: kotlinx.coroutines.Job? = null
 
   private val stateAdapter = Moshi.Builder()
     .add(ResponseBriefMoshiAdapter())
@@ -186,7 +190,11 @@ class AiGameViewModel(
   }
 
   fun onNewGame(size: Int, youPlayBlack: Boolean, handicap: Int, difficulty: AiDifficulty) {
-    katagoJob?.cancel() // kill any in-flight Katago request(s) as they are now irrelevant
+    // kill any in-flight Katago request(s) as they are now irrelevant
+    katagoJob?.cancel()
+    hintJob?.cancel()
+    ownershipJob?.cancel()
+    finalScoreJob?.cancel()
     val newPosition = RulesManager.initializePosition(size, handicap)
     _state.update {
       it.copy(
@@ -322,7 +330,8 @@ class AiGameViewModel(
   }
 
   fun onUserAskedForHint() {
-    viewModelScope.launch {
+    hintJob?.cancel()
+    hintJob = viewModelScope.launch {
       val currentState = state.value
       if (!currentState.engineStarted || currentState.position == null) return@launch
 
@@ -344,6 +353,8 @@ class AiGameViewModel(
             chatText = TextResource(R.string.ai_game_chat_moves_to_consider)
           )
         }
+      } catch (e: CancellationException) {
+        throw e
       } catch (e: Exception) {
         recordException(e)
       }
@@ -351,7 +362,8 @@ class AiGameViewModel(
   }
 
   fun onUserAskedForOwnership() {
-    viewModelScope.launch {
+    ownershipJob?.cancel()
+    ownershipJob = viewModelScope.launch {
       val currentState = state.value
       if (!currentState.engineStarted || currentState.position == null) return@launch
 
@@ -390,6 +402,8 @@ class AiGameViewModel(
             chatText = TextResource(R.string.ai_game_chat_territories)
           )
         }
+      } catch (e: CancellationException) {
+        throw e
       } catch (e: Exception) {
         recordException(e)
       }
@@ -442,7 +456,8 @@ class AiGameViewModel(
 
     if (newVariation.isGameOver()) {
       if (currentState.aiWon == null) {
-        viewModelScope.launch { computeFinalScore() }
+        finalScoreJob?.cancel()
+        finalScoreJob = viewModelScope.launch { computeFinalScore() }
       }
     } else {
       val isBlacksTurn = newPosition.nextToMove != StoneType.WHITE
@@ -562,6 +577,8 @@ class AiGameViewModel(
             }
           }
         }
+      } catch (e: CancellationException) {
+        throw e
       } catch (e: Exception) {
         recordException(e)
       }
@@ -643,6 +660,8 @@ class AiGameViewModel(
           aiAnalysis = analysis
         )
       }
+    } catch (e: CancellationException) {
+      throw e
     } catch (e: Exception) {
       recordException(e)
     }
@@ -651,6 +670,9 @@ class AiGameViewModel(
   override fun onCleared() {
     super.onCleared()
     katagoJob?.cancel()
+    hintJob?.cancel()
+    ownershipJob?.cancel()
+    finalScoreJob?.cancel()
     applicationCoroutineScope.launch(Dispatchers.IO) {
       KataGoAnalysisEngine.stop()
     }
