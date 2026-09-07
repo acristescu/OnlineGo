@@ -3,6 +3,11 @@ package io.zenandroid.onlinego.data.model.local
 import androidx.annotation.DrawableRes
 import io.zenandroid.onlinego.R
 
+/**
+ * [name] is a string resource name (e.g. "tutorial_basics_title"), not display text - it's
+ * resolved at render time (see resolveTutorialText in ui/composables) so it stays locale-invariant
+ * and doubles as this tutorial's stable identity (routing, lookup, completion tracking).
+ */
 data class Tutorial(
   val name: String,
   val steps: List<TutorialStep>

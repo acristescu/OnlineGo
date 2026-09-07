@@ -33,6 +33,7 @@ import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.local.Tutorial
 import io.zenandroid.onlinego.data.model.local.TutorialGroup
 import io.zenandroid.onlinego.data.model.local.TutorialIcon
+import io.zenandroid.onlinego.ui.composables.resolveTutorialText
 import io.zenandroid.onlinego.ui.screens.mygames.composables.SenteCard
 import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
 import org.koin.androidx.compose.koinViewModel
@@ -77,7 +78,7 @@ private fun LearnContent(state: LearnState, listener: (LearnAction) -> Unit) {
       Section(title = stringResource(R.string.learn_section_tutorials)) {
         state.tutorialGroups?.forEach {
           PrimaryRow(
-            title = it.name,
+            title = resolveTutorialText(it.name),
             it.icon.resId
           ) { listener(LearnAction.TutorialGroupClicked(it)) }
           Column(modifier = Modifier.fillMaxWidth()) {
@@ -162,7 +163,9 @@ fun SecondaryRow(tutorial: Tutorial, completed: Boolean, onClick: () -> Unit) {
       Icon(Icons.Rounded.CheckBoxOutlineBlank, contentDescription = stringResource(R.string.learn_tutorial_checkboxoutlineblank_done))
     }
     Text(
-      tutorial.name, style = MaterialTheme.typography.bodyMedium, modifier = Modifier
+      resolveTutorialText(tutorial.name),
+      style = MaterialTheme.typography.bodyMedium,
+      modifier = Modifier
         .padding(start = 24.dp)
         .align(Alignment.CenterVertically)
     )

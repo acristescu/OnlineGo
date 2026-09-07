@@ -56,6 +56,7 @@ import io.zenandroid.onlinego.data.model.StoneType
 import io.zenandroid.onlinego.data.model.local.Node
 import io.zenandroid.onlinego.data.model.local.TutorialStep
 import io.zenandroid.onlinego.ui.composables.Board
+import io.zenandroid.onlinego.ui.composables.resolveTutorialTextOrNull
 import io.zenandroid.onlinego.ui.screens.tutorial.TutorialAction.BoardCellHovered
 import io.zenandroid.onlinego.ui.screens.tutorial.TutorialAction.BoardCellTapped
 import io.zenandroid.onlinego.ui.screens.tutorial.TutorialAction.NextPressed
@@ -87,7 +88,7 @@ fun TutorialContent(
   Column(modifier = Modifier.background(MaterialTheme.colorScheme.surface)) {
     // App bar
     TopAppBar(
-      title = { Text(text = state.tutorial?.name ?: "") },
+      title = { Text(text = resolveTutorialTextOrNull(state.tutorial?.name) ?: "") },
       navigationIcon = {
         IconButton(onClick = onNavigateBack) {
           Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
@@ -153,7 +154,7 @@ private fun Board(state: TutorialState, listener: (TutorialAction) -> Unit) {
 private fun Description(modifier: Modifier = Modifier, state: TutorialState) {
   Column(modifier = modifier.verticalScroll(rememberScrollState())) {
     Text(
-      text = state.text ?: "",
+      text = resolveTutorialTextOrNull(state.text) ?: "",
       style = MaterialTheme.typography.bodySmall,
       fontSize = 18.sp,
       lineHeight = 21.sp,
@@ -209,7 +210,7 @@ private fun ButtonBar(state: TutorialState, listener: (TutorialAction) -> Unit) 
 
     Snackbar(
       visible = state.node?.failed == true,
-      text = state.node?.message ?: "That's not quite right!",
+      text = resolveTutorialTextOrNull(state.node?.message) ?: "That's not quite right!",
       button = "RETRY",
       icon = R.drawable.ic_x_circle,
       modifier = Modifier.align(Alignment.Center),
