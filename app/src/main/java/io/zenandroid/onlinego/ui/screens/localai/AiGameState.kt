@@ -1,13 +1,16 @@
 package io.zenandroid.onlinego.ui.screens.localai
 
-import androidx.annotation.StringRes
 import androidx.compose.runtime.Immutable
-import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.Position
 import io.zenandroid.onlinego.data.model.katago.KataGoResponse.Response
 import io.zenandroid.onlinego.data.model.katago.MoveInfo
 import io.zenandroid.onlinego.ui.composables.TextResource
+
+sealed interface DifficultyRank {
+  data class Kyu(val n: Int) : DifficultyRank
+  data class Dan(val n: Int) : DifficultyRank
+}
 
 /**
  * temperature scales how much weaker-than-best moves get sampled, and localitySigma
@@ -18,38 +21,22 @@ enum class AiDifficulty(
   val maxVisits: Int,
   val temperature: Float,
   val localitySigma: Float?,
-  @StringRes val labelResId: Int,
+  val rank: DifficultyRank,
 ) {
-  BEGINNER(
-    maxVisits = 6,
-    temperature = 1.8f,
-    localitySigma = 5f,
-    labelResId = R.string.ai_game_difficulty_beginner
-  ),
-  EASY(
-    maxVisits = 10,
-    temperature = 1.4f,
-    localitySigma = 7f,
-    labelResId = R.string.ai_game_difficulty_easy
-  ),
-  NORMAL(
-    maxVisits = 16,
-    temperature = 1.0f,
-    localitySigma = 9f,
-    labelResId = R.string.ai_game_difficulty_normal
-  ),
-  HARD(
-    maxVisits = 40,
-    temperature = 0.4f,
-    localitySigma = null,
-    labelResId = R.string.ai_game_difficulty_hard
-  ),
-  STRONGEST(
-    maxVisits = 100,
-    temperature = 0f,
-    localitySigma = null,
-    labelResId = R.string.ai_game_difficulty_strongest
-  ),
+  KYU_20(maxVisits = 3, temperature = 2.5f, localitySigma = 3f, rank = DifficultyRank.Kyu(20)),
+  KYU_18(maxVisits = 4, temperature = 2.2f, localitySigma = 4f, rank = DifficultyRank.Kyu(18)),
+  KYU_16(maxVisits = 6, temperature = 1.8f, localitySigma = 5f, rank = DifficultyRank.Kyu(16)),
+  KYU_14(maxVisits = 7, temperature = 1.7f, localitySigma = 5.5f, rank = DifficultyRank.Kyu(14)),
+  KYU_12(maxVisits = 8, temperature = 1.6f, localitySigma = 6f, rank = DifficultyRank.Kyu(12)),
+  KYU_10(maxVisits = 9, temperature = 1.5f, localitySigma = 6.5f, rank = DifficultyRank.Kyu(10)),
+  KYU_8(maxVisits = 10, temperature = 1.4f, localitySigma = 7f, rank = DifficultyRank.Kyu(8)),
+  KYU_6(maxVisits = 12, temperature = 1.3f, localitySigma = 7.5f, rank = DifficultyRank.Kyu(6)),
+  KYU_4(maxVisits = 14, temperature = 1.15f, localitySigma = 8f, rank = DifficultyRank.Kyu(4)),
+  KYU_2(maxVisits = 16, temperature = 1.0f, localitySigma = 9f, rank = DifficultyRank.Kyu(2)),
+  DAN_1(maxVisits = 26, temperature = 0.7f, localitySigma = null, rank = DifficultyRank.Dan(1)),
+  DAN_3(maxVisits = 40, temperature = 0.4f, localitySigma = null, rank = DifficultyRank.Dan(3)),
+  DAN_4(maxVisits = 65, temperature = 0.2f, localitySigma = null, rank = DifficultyRank.Dan(4)),
+  DAN_5(maxVisits = 100, temperature = 0f, localitySigma = null, rank = DifficultyRank.Dan(5)),
 }
 
 @Immutable
@@ -60,7 +47,7 @@ data class AiGameState(
   val boardSize: Int = 19,
   val enginePlaysBlack: Boolean = false,
   val handicap: Int = 0,
-  val difficulty: AiDifficulty = AiDifficulty.NORMAL,
+  val difficulty: AiDifficulty = AiDifficulty.KYU_2,
   val boardIsInteractive: Boolean = false,
   val candidateMove: Cell? = null,
   val passButtonEnabled: Boolean = false,

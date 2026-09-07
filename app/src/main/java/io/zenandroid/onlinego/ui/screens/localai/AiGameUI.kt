@@ -1,4 +1,4 @@
-@file:OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+@file:OptIn(ExperimentalMaterial3Api::class)
 
 package io.zenandroid.onlinego.ui.screens.localai
 
@@ -7,8 +7,6 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -19,6 +17,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -28,6 +29,7 @@ import androidx.compose.material.icons.automirrored.filled.NavigateNext
 import androidx.compose.material.icons.filled.Casino
 import androidx.compose.material.icons.rounded.Stop
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -37,12 +39,14 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
@@ -267,7 +271,8 @@ private fun AiGameUI(
   }
 
   if (state.newGameDialogShown) {
-    NewGameDialog(
+    NewGameBottomSheet(
+      currentDifficulty = state.difficulty,
       onDismiss = {
         onDismissNewGameDialog()
       },
@@ -336,7 +341,7 @@ private fun InfoSection(
       ),
       title = {
         Text(
-          text = stringResource(R.string.local_ai_game),
+          text = "${stringResource(R.string.local_ai_game)} · ${state.difficulty.rank.resolve()}",
           fontSize = 16.sp,
           fontWeight = FontWeight.Medium,
           color = MaterialTheme.colorScheme.onSurface
@@ -637,21 +642,46 @@ private fun getHandicapDescription(handicap: Int): String {
 }
 
 @Composable
-private fun NewGameDialog(
+private fun DifficultyRank.resolve(): String = when (this) {
+  is DifficultyRank.Kyu -> stringResource(R.string.ai_game_difficulty_kyu, n)
+  is DifficultyRank.Dan -> stringResource(R.string.ai_game_difficulty_dan, n)
+}
+
+@Composable
+private fun NewGameBottomSheet(
+  currentDifficulty: AiDifficulty,
   onDismiss: () -> Unit,
   onNewGame: (size: Int, youPlayBlack: Boolean, handicap: Int, difficulty: AiDifficulty) -> Unit
 ) {
   var selectedSize by remember { mutableIntStateOf(19) }
   var youPlayBlack by remember { mutableStateOf(true) }
   var handicap by remember { mutableFloatStateOf(0f) }
-  var difficulty by remember { mutableStateOf(AiDifficulty.NORMAL) }
+  var difficulty by remember { mutableStateOf(currentDifficulty) }
+  val sheetState = rememberModalBottomSheetState(true)
+  val difficultyListState = rememberLazyListState(
+    initialFirstVisibleItemIndex = (AiDifficulty.entries.indexOf(difficulty) - 2).coerceAtLeast(0)
+  )
 
-  AlertDialog(
+  ModalBottomSheet(
+    sheetState = sheetState,
     onDismissRequest = onDismiss,
-    title = { Text(stringResource(R.string.new_game)) },
-    text = {
-      Column {
-        Text(stringResource(R.string.board_size))
+    containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
+  ) {
+    Card(
+      colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLowest),
+    ) {
+      Column(Modifier.padding(16.dp)) {
+        Text(
+          text = stringResource(R.string.new_game),
+          style = MaterialTheme.typography.titleLarge,
+          fontWeight = FontWeight.Bold,
+        )
+
+        Text(
+          text = stringResource(R.string.board_size),
+          fontWeight = FontWeight.Bold,
+          modifier = Modifier.padding(top = 16.dp)
+        )
         Row(
           horizontalArrangement = Arrangement.spacedBy(8.dp),
           modifier = Modifier.padding(vertical = 8.dp)
@@ -671,7 +701,11 @@ private fun NewGameDialog(
           }
         }
 
-        Text(stringResource(R.string.you_play), modifier = Modifier.padding(top = 16.dp))
+        Text(
+          text = stringResource(R.string.you_play),
+          fontWeight = FontWeight.Bold,
+          modifier = Modifier.padding(top = 16.dp)
+        )
         Row(
           horizontalArrangement = Arrangement.spacedBy(8.dp),
           modifier = Modifier.padding(vertical = 8.dp)
@@ -707,7 +741,7 @@ private fun NewGameDialog(
           horizontalArrangement = Arrangement.SpaceBetween,
           verticalAlignment = Alignment.CenterVertically
         ) {
-          Text(stringResource(R.string.handicap))
+          Text(stringResource(R.string.handicap), fontWeight = FontWeight.Bold)
           Text(
             text = getHandicapDescription(handicap.toInt()),
             fontSize = 12.sp,
@@ -722,13 +756,31 @@ private fun NewGameDialog(
           modifier = Modifier.padding(vertical = 8.dp)
         )
 
-        Text(stringResource(R.string.difficulty), modifier = Modifier.padding(top = 16.dp))
-        FlowRow(
+        Row(
+          modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 16.dp),
+          horizontalArrangement = Arrangement.SpaceBetween,
+          verticalAlignment = Alignment.CenterVertically
+        ) {
+          Text(stringResource(R.string.difficulty), fontWeight = FontWeight.Bold)
+          Text(
+            text = difficulty.rank.resolve(),
+            fontSize = 12.sp,
+            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+          )
+        }
+        Text(
+          text = stringResource(R.string.ai_game_difficulty_scale_hint),
+          fontSize = 12.sp,
+          color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+        )
+        LazyRow(
+          state = difficultyListState,
           horizontalArrangement = Arrangement.spacedBy(8.dp),
-          verticalArrangement = Arrangement.spacedBy(8.dp),
           modifier = Modifier.padding(vertical = 8.dp)
         ) {
-          AiDifficulty.entries.forEach { entry ->
+          items(AiDifficulty.entries) { entry ->
             FilterChip(
               selected = difficulty == entry,
               colors = FilterChipDefaults.elevatedFilterChipColors(
@@ -737,26 +789,23 @@ private fun NewGameDialog(
               ),
               onClick = { difficulty = entry },
               label = {
-                Text(stringResource(entry.labelResId))
+                Text(entry.rank.resolve())
               }
             )
           }
         }
-      }
-    },
-    confirmButton = {
-      TextButton(
-        onClick = { onNewGame(selectedSize, youPlayBlack, handicap.toInt(), difficulty) }
-      ) {
-        Text(stringResource(R.string.start_game))
-      }
-    },
-    dismissButton = {
-      TextButton(onClick = onDismiss) {
-        Text(stringResource(R.string.cancel))
+
+        Button(
+          modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 16.dp),
+          onClick = { onNewGame(selectedSize, youPlayBlack, handicap.toInt(), difficulty) }
+        ) {
+          Text(stringResource(R.string.start_game))
+        }
       }
     }
-  )
+  }
 }
 
 @Composable

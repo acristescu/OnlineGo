@@ -21,6 +21,7 @@ import io.zenandroid.onlinego.gamelogic.Util
 import io.zenandroid.onlinego.gamelogic.Util.toGTP
 import io.zenandroid.onlinego.ui.composables.TextResource
 import io.zenandroid.onlinego.ui.composables.textResource
+import io.zenandroid.onlinego.utils.moshiadapters.AiDifficultyMoshiAdapter
 import io.zenandroid.onlinego.utils.moshiadapters.HashMapOfCellToStoneTypeMoshiAdapter
 import io.zenandroid.onlinego.utils.moshiadapters.ResponseBriefMoshiAdapter
 import io.zenandroid.onlinego.utils.recordException
@@ -55,6 +56,7 @@ class AiGameViewModel(
   private val stateAdapter = Moshi.Builder()
     .add(ResponseBriefMoshiAdapter())
     .add(HashMapOfCellToStoneTypeMoshiAdapter())
+    .add(AiDifficultyMoshiAdapter())
     .add(KotlinJsonAdapterFactory())
     .build()
     .adapter(AiGameState::class.java)
