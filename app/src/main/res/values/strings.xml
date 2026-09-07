@@ -243,7 +243,9 @@
     <string name="whats_new_open_source">Sente is open source, built by volunteers.</string>
     <string name="whats_new_support_project">Support the project</string>
     <string-array name="whats_new_changelog" translatable="false">
-        <item>New localization system! For now, we\'re supporting only English and Romanian, but click the link below to see how you can help translate the app to other languages.</item>
+        <item>✨ New localization system! We currently support English, Romanian, and German. Check out the link below to help us bring Sente to even more languages.</item>
+        <item>🇩🇪 German is now available! A huge thank you to our incredible German-speaking community for translating 85% of the app in record time.</item>
+        <item>🐛 Resolved an issue with tutorial text rendering.</item>
     </string-array>
     <string name="settings_delete_account_success">Account deleted. Sorry to see you go! The app will close in 5s.</string>
     <string name="settings_delete_account_wrong_password">Wrong password</string>
