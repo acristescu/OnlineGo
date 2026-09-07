@@ -1,4 +1,4 @@
-@file:OptIn(ExperimentalMaterial3Api::class)
+@file:OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 
 package io.zenandroid.onlinego.ui.screens.localai
 
@@ -7,6 +7,8 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -188,7 +190,7 @@ private fun AiGameUI(
   onShowNewGameDialog: () -> Unit,
   onUserAskedForHint: () -> Unit,
   onUserAskedForOwnership: () -> Unit,
-  onNewGame: (Int, Boolean, Int) -> Unit,
+  onNewGame: (Int, Boolean, Int, AiDifficulty) -> Unit,
   onDismissNewGameDialog: () -> Unit,
   onNavigateBack: () -> Unit,
   onDismissKoDialog: () -> Unit,
@@ -269,8 +271,8 @@ private fun AiGameUI(
       onDismiss = {
         onDismissNewGameDialog()
       },
-      onNewGame = { size, youPlayBlack, handicap ->
-        onNewGame(size, youPlayBlack, handicap)
+      onNewGame = { size, youPlayBlack, handicap, difficulty ->
+        onNewGame(size, youPlayBlack, handicap, difficulty)
       }
     )
   }
@@ -637,11 +639,12 @@ private fun getHandicapDescription(handicap: Int): String {
 @Composable
 private fun NewGameDialog(
   onDismiss: () -> Unit,
-  onNewGame: (size: Int, youPlayBlack: Boolean, handicap: Int) -> Unit
+  onNewGame: (size: Int, youPlayBlack: Boolean, handicap: Int, difficulty: AiDifficulty) -> Unit
 ) {
   var selectedSize by remember { mutableIntStateOf(19) }
   var youPlayBlack by remember { mutableStateOf(true) }
   var handicap by remember { mutableFloatStateOf(0f) }
+  var difficulty by remember { mutableStateOf(AiDifficulty.NORMAL) }
 
   AlertDialog(
     onDismissRequest = onDismiss,
@@ -718,11 +721,32 @@ private fun NewGameDialog(
           steps = 8,
           modifier = Modifier.padding(vertical = 8.dp)
         )
+
+        Text(stringResource(R.string.difficulty), modifier = Modifier.padding(top = 16.dp))
+        FlowRow(
+          horizontalArrangement = Arrangement.spacedBy(8.dp),
+          verticalArrangement = Arrangement.spacedBy(8.dp),
+          modifier = Modifier.padding(vertical = 8.dp)
+        ) {
+          AiDifficulty.entries.forEach { entry ->
+            FilterChip(
+              selected = difficulty == entry,
+              colors = FilterChipDefaults.elevatedFilterChipColors(
+                selectedLabelColor = MaterialTheme.colorScheme.onSurface,
+                selectedContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.4f)
+              ),
+              onClick = { difficulty = entry },
+              label = {
+                Text(stringResource(entry.labelResId))
+              }
+            )
+          }
+        }
       }
     },
     confirmButton = {
       TextButton(
-        onClick = { onNewGame(selectedSize, youPlayBlack, handicap.toInt()) }
+        onClick = { onNewGame(selectedSize, youPlayBlack, handicap.toInt(), difficulty) }
       ) {
         Text(stringResource(R.string.start_game))
       }
@@ -782,7 +806,7 @@ private fun AiGameUIPreview() {
       onShowNewGameDialog = {},
       onUserAskedForHint = {},
       onUserAskedForOwnership = {},
-      onNewGame = { _, _, _ -> },
+      onNewGame = { _, _, _, _ -> },
       onDismissNewGameDialog = {},
       onDismissKoDialog = {},
       onNavigateBack = {}
@@ -837,7 +861,7 @@ private fun AiGameUIPreviewNewGame() {
       onShowNewGameDialog = {},
       onUserAskedForHint = {},
       onUserAskedForOwnership = {},
-      onNewGame = { _, _, _ -> },
+      onNewGame = { _, _, _, _ -> },
       onDismissNewGameDialog = {},
       onDismissKoDialog = {},
       onNavigateBack = {}
@@ -897,7 +921,7 @@ private fun PreviewLandscape() {
       onShowNewGameDialog = {},
       onUserAskedForHint = {},
       onUserAskedForOwnership = {},
-      onNewGame = { _, _, _ -> },
+      onNewGame = { _, _, _, _ -> },
       onDismissNewGameDialog = {},
       onDismissKoDialog = {},
       onNavigateBack = {}

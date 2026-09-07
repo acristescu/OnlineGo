@@ -1,6 +1,7 @@
 package io.zenandroid.onlinego.ui.screens.localai
 
 import android.util.Log
+import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.crashlytics.FirebaseCrashlytics
@@ -11,6 +12,7 @@ import io.zenandroid.onlinego.ai.KataGoAnalysisEngine
 import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.Position
 import io.zenandroid.onlinego.data.model.StoneType
+import io.zenandroid.onlinego.data.model.katago.MoveInfo
 import io.zenandroid.onlinego.data.repositories.SettingsRepository
 import io.zenandroid.onlinego.data.repositories.UserSessionRepository
 import io.zenandroid.onlinego.gamelogic.RulesManager
@@ -32,6 +34,9 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlin.math.abs
+import kotlin.math.exp
+import kotlin.math.pow
+import kotlin.random.Random
 
 class AiGameViewModel(
   private val userSessionRepository: UserSessionRepository,
@@ -178,13 +183,14 @@ class AiGameViewModel(
     }
   }
 
-  fun onNewGame(size: Int, youPlayBlack: Boolean, handicap: Int) {
+  fun onNewGame(size: Int, youPlayBlack: Boolean, handicap: Int, difficulty: AiDifficulty) {
     katagoJob?.cancel() // kill any in-flight Katago request(s) as they are now irrelevant
     val newPosition = RulesManager.initializePosition(size, handicap)
     _state.update {
       it.copy(
         boardSize = size,
         handicap = handicap,
+        difficulty = difficulty,
         enginePlaysBlack = !youPlayBlack,
         newGameDialogShown = false,
         showHints = false,
@@ -477,14 +483,24 @@ class AiGameViewModel(
         val analysis = withContext(Dispatchers.IO) {
           KataGoAnalysisEngine.analyzeMoveSequence(
             sequence = currentState.history,
-            maxVisits = 20,
+            maxVisits = currentState.difficulty.maxVisits,
             komi = currentState.position.komi,
             includeOwnership = false,
             includeMovesOwnership = false
           )
         }
         withContext(Dispatchers.Default) {
-          val selectedMove = analysis.moveInfos[0]
+          val selectedMove = selectAiMove(
+            moveInfos = analysis.moveInfos,
+            temperature = currentState.difficulty.temperature,
+            boardHeight = currentState.position.boardHeight,
+            lastMove = currentState.position.lastMove,
+            localitySigma = effectiveLocalitySigma(
+              localitySigma = currentState.difficulty.localitySigma,
+              plyNumber = currentState.history.size,
+              boardWidth = currentState.position.boardWidth,
+            ),
+          )
           val move =
             Util.getCoordinatesFromGTP(selectedMove.move, currentState.position.boardHeight)
           val side = if (currentState.enginePlaysBlack) StoneType.BLACK else StoneType.WHITE
@@ -638,3 +654,64 @@ class AiGameViewModel(
     }
   }
 }
+
+/**
+ * Picks a move from KataGo's candidates with probability proportional to
+ * visits^(1/temperature) - the same scheme AlphaZero/KataGo itself uses for move
+ * selection during self-play. A move only accumulates visits if the search considers
+ * it worth reading out, so a lone correct reply to a sharp threat (e.g. an atari) still
+ * gets picked reliably even at high temperature, while flexible positions with several
+ * comparably good moves get genuine variety. temperature == 0 always plays the top move.
+ *
+ * When localitySigma is non-null, candidates are additionally weighted by a Gaussian
+ * falloff on their Chebyshev distance from lastMove, so weaker tiers favor replying near
+ * the action instead of jumping to a distant "textbook" point. lastMove being a pass
+ * exempts every candidate from this weighting, since distance is meaningless there.
+ *
+ * Pass is only ever returned when it's genuinely the top-ranked move (moveInfos[0]);
+ * otherwise it's excluded from the sampling pool entirely, since a randomly-sampled pass
+ * is a much costlier blunder than a slightly-suboptimal board move.
+ */
+@VisibleForTesting
+fun selectAiMove(
+  moveInfos: List<MoveInfo>,
+  temperature: Float,
+  boardHeight: Int,
+  lastMove: Cell?,
+  localitySigma: Float?,
+  random: Random = Random,
+): MoveInfo {
+  val topMove = moveInfos[0]
+  if (temperature <= 0f || topMove.move.equals("pass", ignoreCase = true)) return topMove
+
+  val candidates = moveInfos.filterNot { it.move.equals("pass", ignoreCase = true) }
+  if (candidates.isEmpty()) return topMove
+
+  val weights = candidates.map { info ->
+    val visitWeight = info.visits.toDouble().pow(1.0 / temperature)
+    val localityWeight = if (localitySigma == null || lastMove == null || lastMove.isPass) {
+      1.0
+    } else {
+      val cell = Util.getCoordinatesFromGTP(info.move, boardHeight)
+      val distance = maxOf(abs(cell.x - lastMove.x), abs(cell.y - lastMove.y)).toDouble()
+      exp(-(distance * distance) / (2.0 * localitySigma * localitySigma))
+    }
+    visitWeight * localityWeight
+  }
+  val total = weights.sum()
+  var remaining = random.nextDouble() * total
+  for ((info, weight) in candidates.zip(weights)) {
+    remaining -= weight
+    if (remaining <= 0) return info
+  }
+  return candidates.last()
+}
+
+/**
+ * Suppresses the locality bias during the opening (before boardWidth plies have been
+ * played), since a normal opening deliberately spreads across the whole board rather
+ * than clustering near the previous move.
+ */
+@VisibleForTesting
+fun effectiveLocalitySigma(localitySigma: Float?, plyNumber: Int, boardWidth: Int): Float? =
+  if (plyNumber < boardWidth) null else localitySigma
