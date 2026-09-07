@@ -52,6 +52,9 @@
     <string name="Black">Negro</string>
     <string name="White">Blanco</string>
     <string name="handicap">Handicap</string>
+    <string name="difficulty">Dificultad</string>
+    <string name="ai_game_difficulty_kyu">%1$d kyu</string>
+    <string name="ai_game_difficulty_dan">%1$d dan</string>
     <string name="start_game">Empezar</string>
     <string name="cancel">Cancelar</string>
     <string name="ok">OK</string>
