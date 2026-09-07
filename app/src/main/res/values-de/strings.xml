@@ -32,7 +32,7 @@
     <string name="illegal_ko_move">Unerlaubter Spielzug - KO</string>
     <string name="local_ai_game">Lokales KI-Spiel</string>
     <string name="back">Zurück</string>
-    <string name="title_bar_game_info_content_description">Spiel Informationen</string>
+    <string name="title_bar_game_info_content_description">Spiel-Informationen</string>
     <string name="title_bar_more_content_description">Mehr</string>
     <string name="search_field_clear_content_description">Text löschen</string>
     <string name="katago">"KataGo "</string>
@@ -52,6 +52,10 @@
     <string name="Black">Schwarz</string>
     <string name="White">Weiß</string>
     <string name="handicap">Vorgabe</string>
+    <string name="difficulty">Schwierigkeitsgrad</string>
+    <string name="ai_game_difficulty_scale_hint">Hoher Kyu = einfacher, Dan = schwieriger</string>
+    <string name="ai_game_difficulty_kyu">%1$d Kyu</string>
+    <string name="ai_game_difficulty_dan">%1$d Dan</string>
     <string name="start_game">Spiel Starten</string>
     <string name="cancel">Abbrechen</string>
     <string name="ok">OK</string>
@@ -672,10 +676,60 @@ Setze einen Stein um fortzufahren!]]></string>
     <string name="tutorial_intermediate_falseeyes_falseeyes5_branches_branch1_2_message">F5 ist jetzt ein falsches Auge.</string>
     <string name="tutorial_intermediate_falseeyes_falseeyes5_branches_branch2_message">C5 ist ein falsches Auge.</string>
     <string name="tutorial_intermediate_falseeyes_falseeyes6_text"><![CDATA["Hier ist eine häufige Zugfolge bei falschen Augen am Rand. Bring es in Ordnung!"]]></string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes6_branches_branch2_message">Du hast dein eigenes Auge ausgefüllt</string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes6_branches_branch3_message">D9 ist jetzt ein falsches Auge</string>
+    <string name="tutorial_intermediate_morepuzzles_title">Mehr Puzzles</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles3_text">Nicht schwindlig machen lassen.</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles4_text">Was würdest du zuerst tun?</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_1_2_message">Schwarze Gruppen sind getrennt</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_2_message">Schwarze Gruppen sind getrennt</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_3_message">Schwarze Gruppen sind getrennt</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_4_message">Schwarze Gruppen sind getrennt</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_5_1_message">Schwarz ist isoliert</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_5_2_message">Schwarz ist isoliert</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_5_3_message">Schwarz ist isoliert</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_5_4_message">Schwarz ist isoliert</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_5_5_message">Schwarz ist isoliert</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_6_message">Schwarz ist isoliert</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles5_text">Schlage die Symmetrie</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles5_branches_branch3_4_message"><![CDATA["Drei schwarze Steine können nicht entkommen."]]></string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles5_branches_branch5_message"><![CDATA["Zwei schwarze Steine können nicht entkommen"]]></string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles5_branches_branch6_message"><![CDATA["Zwei schwarze Steine können nicht entkommen"]]></string>
     <string name="tutorial_advanced_title">Fortgeschritten 2</string>
+    <string name="tutorial_advanced_thefirstmoves_name">Erste Züge</string>
+    <string name="tutorial_advanced_thefirstmoves_firstmoves1_page1_text"><![CDATA["Bis jetzt haben wir uns darauf konzentriert, Steine zu fangen. Aber zu Beginn des Spiels gibt es keine Steine auf dem Brett. Wir werden uns nun ansehen, wo du deine ersten Züge spielen solltest, um deine Gewinnchancen zu steigern.
+
+Zuerst teilen wir das Brett in 3 Bereiche. Dies sind die Ecken:"]]></string>
+    <string name="tutorial_advanced_thefirstmoves_firstmoves1_page2_text"><![CDATA["dies sind die Ränder"]]></string>
+    <string name="tutorial_advanced_thefirstmoves_firstmoves1_page3_text"><![CDATA["und das ist die Mitte. Diese Begriffe gibt es nur zur Orientierung und sie sind nicht mit besonderen Regeln verbunden."]]></string>
     <string name="tutorial_advanced_thefirstmoves_firstmoves1_page4_text"><![CDATA["Ziel des Spiels ist es, mehr Gebiet zu umschließen als die Gegenseite. Da ihr abwechselnd Steine platziert, haben beide die gleiche Anzahl an Steinen. Es gewinnt deshalb, wer seine Steine effizienter nutzt.
 
 Wo ist es effizienter, Gebiete zu umschließen? In den Ecken, auf der Seite oder in der Mitte?"]]></string>
+    <string name="tutorial_advanced_thefirstmoves_firstmoves1_page5_text"><![CDATA["Jede der Gruppen unten umringt genau 9 Felder, sodass jede 9 Punkte sichert. Aber, die Gruppe in der Ecke benötigt dafür nur 6 Steine, die am Rand 9 und die in der Mitte 12!"]]></string>
+    <string name="tutorial_advanced_thefirstmoves_firstmoves1_page6_text"><![CDATA["Daher werden kluge Spieler zuerst in den Ecken spielen, erst wenn diese besetzt sind sich den Rändern zuwenden und das Zentrum bis zuletzt offen lassen."]]></string>
+    <string name="tutorial_advanced_thefirstmoves_firstmoves2_text"><![CDATA["Dies sind die ersten 20 Züge eines tatsächlichen Spiels zwischen zwei professionellen Spielern."]]></string>
+    <string name="tutorial_advanced_themiddlegame_name">Die Spielmitte</string>
+    <string name="tutorial_advanced_themiddlegame_middlegame1_text"><![CDATA["Schwarz wurde in der unteren Linken Ecke blockiert. Wenn du nichts unternimmst, wird die Gruppe wird umzingelt."]]></string>
+    <string name="tutorial_advanced_themiddlegame_middlegame2_text"><![CDATA["Schwarz blockiert Weiß rechts unten. Weiß hat noch keine 2 Augen.
+Dann spielt Weiß den Zug G2.
+
+Sieh was passiert, wenn Schwarz bei F1 (oder G1) antwortet, bevor du die richtige Antwort suchst."]]></string>
+    <string name="tutorial_advanced_endgamescoring_name">Spielende: Punktwertung</string>
+    <string name="tutorial_advanced_endgamescoring_endgame1_page1_text"><![CDATA["Hier lernst du, wie man feststellt, ob ein Spiel beendet ist wie man Gebiete auf 5x5-Feldern auszählt. Beide Spieler machten 5 Züge, dann passten beide womit das Spiel als beendet gilt. Es bleibt, die Gebiete zu zählen.
+
+Versuche zu zählen, wie viele Felder Schwarz umzingelt hat. Wie steht es um Weiß?
+
+Hinweis: Denke daran, alle Kreuzungspunkte zu zählen, inklusive Ecken und Rändern, aber nicht Felder die mit Steinen besetzt sind."]]></string>
+    <string name="tutorial_advanced_endgamescoring_endgame1_page2_text"><![CDATA["Schwarz hat 5 Punkte auf der linken Seite und Weiß hat 10 Punkte auf der rechten Seite.
+
+Damit gewinnt Weiß um 5 Punkte."]]></string>
+    <string name="tutorial_advanced_endgamescoring_endgame1_page3_text"><![CDATA["Aber warum hat Schwarz dann nicht weitergespielt?
+
+Nun, es gibt keinen Zug mit dem Schwarz seinen Punktewert erhöhen könnte. Zum Beispiel, wenn schwarz auf der rechten Seite eine Invasion startet, kann weiß diese einfach abwehren und der Stein ist tot.
+
+Weiß reduzierte sein Gebiet um 1 aber erhielt 1 Punkt zurück, da der schwarze Stein tot ist und als Gefangener zählt.
+
+Der Punktestand ist immer noch 10-5"]]></string>
     <string name="tutorial_advanced_endgamescoring_endgame1_page4_text"><![CDATA["Was, wenn Schwarz dann auf der linken Seite spielt?
 
 Das einzige, was Schwarz erreichen würde, wäre eine Verkleinerung des eigenen Gebiets und damit der Verlust eines Punktes.
@@ -683,4 +737,27 @@ Das einzige, was Schwarz erreichen würde, wäre eine Verkleinerung des eigenen 
 Folglich hat Schwarz keinen guten Zug mehr und sollte passen. Weiß hat mehr Punkte und wird deshalb auch gerne bereit sein zu passen.
 
 Damit ist das Spiel zu Ende und Weiß gewinnt."]]></string>
+    <string name="tutorial_advanced_endgamescoring_endgame1_page5_text"><![CDATA["Hier ist eine weitere Endsituation. Schwarz hat 5 Punkte während Weiß 6 hat.
+
+Die zwei Felder in der Mitte sind neutrales Gebiet ('Dame') und zählen für keinen Spieler.
+
+Beide Spieler könnten dort spielen, würden dadurch aber keine Punkte gewinnen oder verlieren."]]></string>
+    <string name="tutorial_advanced_endgamescoring_endgame1_page6_text"><![CDATA["Während Gebiete mit Abstand den größten Teil des Punktestands ausmachen, denke daran, dass es weitere Bonus-Punkte gibt, die zu zählen sind.
+
+Jeder gefangene Stein zählt je 1 Punkt, genauso wie 'tote' Steine auf dem Brett (die keine Chance haben, noch 2 Augen zu bilden)
+
+Außerdem hat Schwarz, weil er den ersten Zug spielt, einen Vorteil und um diesen auszugleichen erhält Weiß einen kleinen Punktebonus (genannt 'Komi').
+
+Die Höhe des Komi hängt von der Größe des Spielbretts ab, aber sie beträgt normalerweise 5.5 oder 6.5 Punkte. Die 0.5 stellen sicher, dass Spiele nicht unentschieden enden.
+
+Zum Glück übernimmt die App all diese Berechnungen für dich :)"]]></string>
+    <string name="tutorial_advanced_cuttingstones_name">Steine Trennen</string>
+    <string name="tutorial_advanced_cuttingstones_cutting1_text"><![CDATA["Es sieht aus, als ob Weiß das größere Gebiet hätte. Aber die weiße Mauer hat eine Schwachstelle. Trenne die weiße Mauer.
+
+Wenn du Erfolg hast, wird Weiß große Schwierigkeiten haben beide Gruppen am Leben zu halten."]]></string>
+    <string name="tutorial_advanced_cuttingstones_cutting1_branches2_message">Die weißen Steine sind verbunden.</string>
+    <string name="tutorial_advanced_cuttingstones_cutting2_text"><![CDATA["Schwarz hat 30 Punkte während Weiß bei 31 Punkten liegt. Somit hat Weiß um 1 Punkt gewonnen.
+Jedoch gehört das Gebiet am unteren Rand nicht vollständig zu Weiß.
+
+Schneide die weiße Mauer."]]></string>
 </resources>
