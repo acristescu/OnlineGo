@@ -53,6 +53,9 @@
     <string name="White">Alb</string>
     <string name="handicap">Handicap</string>
     <string name="difficulty">Dificultate</string>
+    <string name="ai_game_difficulty_scale_hint">Kyu mare = mai ușor, dan mare = mai greu</string>
+    <string name="ai_game_difficulty_kyu">%1$d kyu</string>
+    <string name="ai_game_difficulty_dan">%1$d dan</string>
     <string name="start_game">Începe jocul</string>
     <string name="cancel">Anulează</string>
     <string name="ok">OK</string>
