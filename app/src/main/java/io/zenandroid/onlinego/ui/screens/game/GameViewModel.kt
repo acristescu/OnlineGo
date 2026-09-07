@@ -137,7 +137,6 @@ import kotlin.math.roundToInt
 private const val MAX_ATTEMPTS = 3
 private const val DELAY_BETWEEN_ATTEMPTS = 5000L
 
-// Outcomes as reported by the OGS server. These are protocol values, not user facing text.
 private const val OUTCOME_RESIGNATION = "Resignation"
 private const val OUTCOME_TIMEOUT = "Timeout"
 private const val OUTCOME_CANCELLATION = "Cancellation"

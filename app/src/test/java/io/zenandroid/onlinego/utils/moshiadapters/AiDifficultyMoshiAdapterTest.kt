@@ -16,9 +16,9 @@ class AiDifficultyMoshiAdapterTest {
   }
 
   @Test
-  fun `an unrecognized or renamed name falls back to KYU_2 instead of throwing`() {
+  fun `an unrecognized or renamed name falls back to DAN_5 instead of throwing`() {
     listOf("BEGINNER", "NORMAL", "HARD", "DAN_9", "").forEach { staleName ->
-      assertEquals(AiDifficulty.KYU_2, adapter.fromJson(staleName))
+      assertEquals(AiDifficulty.DAN_5, adapter.fromJson(staleName))
     }
   }
 }
