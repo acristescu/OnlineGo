@@ -296,6 +296,7 @@
     <string name="settings_language">Language</string>
     <string name="settings_language_english" translatable="false">English</string>
     <string name="settings_language_romanian" translatable="false">Română</string>
+    <string name="settings_language_german" translatable="false">Deutsch</string>
     <string name="settings_help_translate">Help translate Sente</string>
     <string name="settings_section_notifications">Notifications</string>
     <string name="settings_system_notifications">System notifications</string>
