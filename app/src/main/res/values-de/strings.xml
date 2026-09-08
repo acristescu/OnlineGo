@@ -191,7 +191,7 @@
     <string name="game_retry_dialog_title">VERBINDUNGSPROBLEM</string>
     <string name="game_retry_dialog_message">Der Server antwortet nicht. Prüfe deine Internetverbindung.</string>
     <string name="game_retry_dialog_confirm">Neuer Versuch</string>
-    <string name="game_chat_move_header">Bewege %1$d</string>
+    <string name="game_chat_move_header">Zug %1$d</string>
     <string name="game_chat_type_a_message">Schreibe eine Nachricht…</string>
     <string name="game_chat_send_content_description">Senden</string>
     <string name="game_player_details_rank_rating">%1$s (%2$s)</string>
