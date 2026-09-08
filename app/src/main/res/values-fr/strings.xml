@@ -28,4 +28,5 @@
     <string name="ai_game_pass">Passer</string>
     <string name="ai_game_previous">Précédent</string>
     <string name="ai_game_next">Suivant</string>
+    <string name="bottomnavigation_botton_settings">Paramètres</string>
 </resources>
