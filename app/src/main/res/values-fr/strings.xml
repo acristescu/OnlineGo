@@ -4,14 +4,14 @@
     <string name="create_account_prompt">Pas de compte OGS ? Créez-en un <b>ici</b> !</string>
     <string name="login_to_ogs">Connexion à OGS</string>
     <string name="create_account">Créer un compte OGS</string>
-    <string name="welcome_to_sente_online_go">Bienvenue sur Sente Online Go !</string>
+    <string name="welcome_to_sente_online_go">Bienvenue sur Sente En Ligne Go !</string>
     <string name="login_to_play_online">Connectez-vous sur OGS pour jouer en ligne.</string>
     <string name="ai_game_chat_ready">Prêt !</string>
     <string name="ai_game_chat_use_new_game_button">Utilisez le bouton \"Nouvelle Partie\" pour commencer une nouvelle partie</string>
     <string name="ai_game_chat_engine_error">Erreur au démarrage de KataGO : \'%1$s\'</string>
     <string name="ai_game_chat_invalid_move">Coup invalide, essayez autre chose</string>
     <string name="ai_game_chat_lets_try_again">Ok, essayons autre chose. À votre tour !</string>
-    <string name="ai_game_chat_hmmm">Hmmm…</string>
+    <string name="ai_game_chat_hmmm">Hmmm …</string>
     <string name="ai_game_chat_moves_to_consider">Voici quelques coups à considérer</string>
     <string name="ai_game_chat_ok_your_turn">Ok, à votre tour</string>
     <string name="ai_game_chat_calculating_territory">Ok, calcul du territoire courant…</string>
