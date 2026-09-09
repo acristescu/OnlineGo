@@ -160,4 +160,26 @@
     <string name="game_cancel_dialog_message">¿Estás seguro de cancelar el juego?</string>
     <string name="game_cancel_dialog_confirm">Cancelar Juego</string>
     <string name="game_player_details_percentage">%1$d%%</string>
+    <string name="learn_title_learn">Capacitación</string>
+    <string name="tutorial_basics_title">Fundamentos</string>
+    <string name="tutorial_basics_thebasics_title">Reglas básicas</string>
+    <string name="tutorial_basics_thebasics_basic1_text"><![CDATA[Recuerda las siguientes 3 reglas:\n
+1. Las piedras Negras y Blancas se colocan por tunos en el tablero.\n
+2. Las piedras se colocan en las intersecciones de las líneas.\n
+3. Una vez que una piedra es colocada no puede moverse, pero si capturada.\n\n
+¡Coloca una piedra para continuar!]]></string>
+    <string name="tutorial_basics_thebasics_capture1_page1_text"><![CDATA[Con un movimiento más, la piedra blanca estará completamente rodeada y será capturada. Las piedras que pueden ser capturadas en una jugada se dice que están en "Atari".]]></string>
+    <string name="tutorial_basics_thebasics_capture1_page2_text"><![CDATA[Ahora, la piedra blanca está rodeada, así que…]]></string>
+    <string name="tutorial_basics_thebasics_capture1_page3_text"><![CDATA[… es removida del tablero]]></string>
+    <string name="tutorial_basics_thebasics_capture1_page4_text"><![CDATA[Si fuera el turno de Blanco, podría \"escapar\" conectando otra piedra.]]></string>
+    <string name="tutorial_basics_thebasics_capture2_text">¡Es tu turno! Captura la piedra blanca.</string>
+    <string name="tutorial_basics_thebasics_capture3_text">¡Puedes capturar dos piedras con una sola jugada esta vez!</string>
+    <string name="tutorial_basics_thebasics_capture4_text">Aunque haya otras piedras cerca, haz lo mismo.</string>
+    <string name="tutorial_basics_capturingstones_title">Capturando piedras</string>
+    <string name="tutorial_basics_capturingstones_capture5_text">En el borde del tablero, la situación es ligeramente diferente. Las piedras del borde tienen menos libertadas y son más fáciles de capturar.</string>
+    <string name="tutorial_basics_capturingstones_capture5_branches2_text">Las piedras blancas fueron conectadas.</string>
+    <string name="tutorial_basics_capturingstones_capture6_text">Las piedras en la esquina son aún más vulnerables.</string>
+    <string name="tutorial_basics_capturingstones_capture7_text">Dos piedras están en Atari al mismo tiempo ¡Captúralas!</string>
+    <string name="tutorial_basics_capturingstones_capture8_text">Esta vez se necesitan dos movimientos para capturar las piedras blancas. ¡Cuidado, tu primer movimiento es importante!</string>
+    <string name="tutorial_basics_capturingstones_capture9_text"><![CDATA[Es difícil \"ganar la carrera\" (semeai) con piedras en el borde. ¡Capture las dos piedras blancas en la primera línea!]]></string>
 </resources>
