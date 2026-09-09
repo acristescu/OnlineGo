@@ -651,7 +651,7 @@ Setze einen Stein um fortzufahren!]]></string>
     <string name="tutorial_intermediate_ko_ko_page_12_text"><![CDATA["Jetzt ist Schwarz am Zug, kann wegen der Ko-Regel nicht erneut schlagen. Sie hat jedoch eine weitere Chance: Der Zug auf B4 bedroht die weiße Gruppe am unteren Rand!"]]></string>
     <string name="tutorial_intermediate_ko_ko_page_13_text">Nun muss sich Weiß entscheiden: Soll er die 5 Steine am oberen Rand fangen (mit B9) oder seine 6 Steine unten retten? Er entscheidet sich für A4\.\.\.</string>
     <string name="tutorial_intermediate_ko_ko_page_14_text">Schwarz braucht nicht viel Ermutigung, um jetzt auf E8 zu spielen\.\.\.</string>
-    <string name="tutorial_intermediate_ko_ko_page_15_text">Weiß gibt widerwillig zu, dass er keine anderen, guten Drohungen hat. Er spielt an woanders, z.B. auf F4, und räumt die Niederlage beim Ko-Kampf ein.</string>
+    <string name="tutorial_intermediate_ko_ko_page_15_text">Weiß gibt widerwillig zu, dass er keine anderen, guten Drohungen hat. Er spielt woanders, z.B. auf F4, und räumt die Niederlage beim Ko-Kampf ein.</string>
     <string name="tutorial_intermediate_ko_ko_page_16_text">Schwarz freut sich, mit G9 ihren Profit am oberen Rand zu beanspruchen.</string>
     <string name="tutorial_intermediate_ko_ko_page_17_text">Mach Dir keine Sorgen, wenn das gerade zu kompliziert klingt. Merke Dir als Anfänger*in, dass Du keinen Stein fangen kannst, wenn sich so die vorherige Stellung wiederholt.</string>
     <string name="tutorial_intermediate_puzzles_title">Tsumego (Go-Probleme)</string>
@@ -667,7 +667,7 @@ Setze einen Stein um fortzufahren!]]></string>
     <string name="tutorial_intermediate_falseeyes_title">Falsche Augen</string>
     <string name="tutorial_intermediate_falseeyes_falseeyes1_page1_text"><![CDATA[Erinnere Dich an das vorherige Tutorial: eine Gruppe mit zwei Augen kann niemals gefangen werden. Manchmal sind jedoch nicht alle Steine, die ein Auge umschließen, miteinander verbunden und können separat gefangen werden. So scheint zum Bsp. D5 in der Position unten ein Auge zu sein. Aber der Stein C5 befindet sich in Atari und kann gefangen werden, wodurch die mittlere Gruppe kein einziges Auge hat. \n\n Wir nennen D5 ein \"falsches Auge"\.]]></string>
     <string name="tutorial_intermediate_falseeyes_falseeyes2_text"><![CDATA["Durch den Zug auf D5 hat Weiß versucht, den Stein bei C5 zu retten. Mit welchem Zug gewinnst Du?"]]></string>
-    <string name="tutorial_intermediate_falseeyes_falseeyes3_text"><![CDATA["Es spielt keine Rolle, wie Weiß sich wehrt, Du kannst trotzdem die Gruppe in der MItte fangen!"]]></string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes3_text"><![CDATA["Es spielt keine Rolle, wie Weiß sich wehrt, Du kannst trotzdem die Gruppe in der Mitte fangen!"]]></string>
     <string name="tutorial_intermediate_falseeyes_falseeyes4_text"><![CDATA["Jetzt bist Du in der Defensive. Überlebe, indem Du zwei echte Augen machst!"]]></string>
     <string name="tutorial_intermediate_falseeyes_falseeyes4_branches_branch2_message">Du hast in den eigenen Augenraum gespielt</string>
     <string name="tutorial_intermediate_falseeyes_falseeyes4_branches_branch3_message">Du hast in den eigenen Augenraum gespielt</string>
