@@ -708,7 +708,7 @@ Wo ist es effizienter, Gebiete zu umschließen? In den Ecken, auf der Seite oder
     <string name="tutorial_advanced_thefirstmoves_firstmoves1_page5_text"><![CDATA["Jede der Gruppen unten umringt genau 9 Felder, sodass jede 9 Punkte sichert. Aber, die Gruppe in der Ecke benötigt dafür nur 6 Steine, die am Rand 9 und die in der Mitte 12!"]]></string>
     <string name="tutorial_advanced_thefirstmoves_firstmoves1_page6_text"><![CDATA["Daher werden kluge Spieler zuerst in den Ecken spielen, erst wenn diese besetzt sind sich den Rändern zuwenden und das Zentrum bis zuletzt offen lassen."]]></string>
     <string name="tutorial_advanced_thefirstmoves_firstmoves2_text"><![CDATA["Dies sind die ersten 20 Züge eines tatsächlichen Spiels zwischen zwei professionellen Spielern."]]></string>
-    <string name="tutorial_advanced_themiddlegame_name">Die Spielmitte</string>
+    <string name="tutorial_advanced_themiddlegame_name">Das Mittelspiel</string>
     <string name="tutorial_advanced_themiddlegame_middlegame1_text"><![CDATA["Schwarz wurde in der unteren Linken Ecke blockiert. Wenn du nichts unternimmst, wird die Gruppe wird umzingelt."]]></string>
     <string name="tutorial_advanced_themiddlegame_middlegame2_text"><![CDATA["Schwarz blockiert Weiß rechts unten. Weiß hat noch keine 2 Augen.
 Dann spielt Weiß den Zug G2.
