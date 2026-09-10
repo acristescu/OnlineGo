@@ -123,4 +123,26 @@
     <string name="game_status_resigned">Abandonnée</string>
     <string name="game_status_timed_out">Temps dépassé</string>
     <string name="game_status_cancelled_game">Partie annulée</string>
+    <string name="game_status_first_move_timer">%1$s pour faire le premier coup</string>
+    <string name="game_player_points">%1$s points</string>
+    <string name="game_avatar_content_description">Avatar</string>
+    <string name="game_button_confirm_move">Confirmer le coup</string>
+    <string name="game_button_discard_move">Annuler le coup</string>
+    <string name="game_button_accept">Accepter</string>
+    <string name="game_button_reject">Rejeter</string>
+    <string name="game_button_analyze">Analyser</string>
+    <string name="game_button_pass">Passer</string>
+    <string name="game_button_resign">Abandonner</string>
+    <string name="game_button_cancel_game">Annuler la partie</string>
+    <string name="game_button_chat">Chat</string>
+    <string name="game_button_next_game">Partie suivante</string>
+    <string name="game_button_undo">Annuler</string>
+    <string name="game_button_exit_analysis">Quitter l\'analyse</string>
+    <string name="game_button_estimate">Estimer</string>
+    <string name="game_button_return">Retour</string>
+    <string name="game_button_previous">Précédent</string>
+    <string name="game_button_next">Suivant</string>
+    <string name="game_menu_open_in_browser">Ouvrir dans le navigateur</string>
+    <string name="game_menu_download_sgf">Télécharger en SGF</string>
+    <string name="game_menu_accept_undo">Accepter l\'annulation</string>
 </resources>
