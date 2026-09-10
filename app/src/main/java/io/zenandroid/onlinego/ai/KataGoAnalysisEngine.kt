@@ -140,6 +140,7 @@ object KataGoAnalysisEngine {
     sequence: List<Position>,
     komi: Float? = null,
     maxVisits: Int? = null,
+    rootPolicyTemperature: Float? = null,
     includeOwnership: Boolean? = null,
     includeMovesOwnership: Boolean? = null,
     includePolicy: Boolean? = null
@@ -173,6 +174,7 @@ object KataGoAnalysisEngine {
       initialStones = initialPosition.toList(),
       komi = komi,
       maxVisits = maxVisits,
+      rootPolicyTemperature = rootPolicyTemperature,
       moves = history,
       rules = "japanese"
     )

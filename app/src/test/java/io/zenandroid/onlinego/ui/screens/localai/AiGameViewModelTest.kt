@@ -11,10 +11,10 @@ class AiGameViewModelTest {
 
   private val boardHeight = 19
 
-  private fun moveInfo(move: String, visits: Int) = MoveInfo(
+  private fun moveInfo(move: String, visits: Int, winrate: Float = 0.5f) = MoveInfo(
     move = move,
     visits = visits,
-    winrate = 0.5f,
+    winrate = winrate,
     scoreStdev = 0f,
     scoreLead = 0f,
     scoreSelfplay = 0f,
@@ -33,12 +33,16 @@ class AiGameViewModelTest {
     random: Random,
     lastMove: Cell? = null,
     localitySigma: Float? = null,
+    aiWinrate: Float = 0f,
+    comebackProbability: Float = 0f,
   ) = selectAiMove(
     moveInfos = moveInfos,
     temperature = temperature,
     boardHeight = boardHeight,
     lastMove = lastMove,
     localitySigma = localitySigma,
+    aiWinrate = aiWinrate,
+    comebackProbability = comebackProbability,
     random = random,
   )
 
@@ -57,15 +61,15 @@ class AiGameViewModelTest {
   }
 
   @Test
-  fun `a dominant move is still picked almost always at high temperature`() {
+  fun `a move with a dominant winrate is still picked almost always at low temperature`() {
     val moveInfos = listOf(
-      moveInfo("saveGroup", visits = 100_000),
-      moveInfo("blunder1", visits = 1),
-      moveInfo("blunder2", visits = 1),
+      moveInfo("saveGroup", visits = 1, winrate = 0.95f),
+      moveInfo("blunder1", visits = 1, winrate = 0.05f),
+      moveInfo("blunder2", visits = 1, winrate = 0.05f),
     )
     val random = Random(42)
 
-    val counts = (1..1000).map { select(moveInfos, temperature = 1.5f, random = random).move }
+    val counts = (1..1000).map { select(moveInfos, temperature = 0.05f, random = random).move }
       .groupingBy { it }
       .eachCount()
 
@@ -74,6 +78,23 @@ class AiGameViewModelTest {
       "Expected the dominant move to be picked almost always, but counts were $counts",
       dominantCount > 990
     )
+  }
+
+  @Test
+  fun `wildly different visit counts with equal winrate still get roughly even sampling`() {
+    val moveInfos = listOf(
+      moveInfo("moveA", visits = 100_000, winrate = 0.5f),
+      moveInfo("moveB", visits = 1, winrate = 0.5f),
+    )
+    val random = Random(19)
+
+    val counts = (1..2000).map { select(moveInfos, temperature = 1f, random = random).move }
+      .groupingBy { it }
+      .eachCount()
+
+    counts.values.forEach { count ->
+      assertTrue("Expected roughly even distribution, but counts were $counts", count in 900..1100)
+    }
   }
 
   @Test
@@ -179,6 +200,98 @@ class AiGameViewModelTest {
   }
 
   @Test
+  fun `comeback override never fires at or below 70 percent aiWinrate`() {
+    // Low temperature makes normal sampling deterministically favor "best", isolating
+    // whether the override incorrectly kicks in.
+    val moveInfos = listOf(
+      moveInfo("best", visits = 100, winrate = 0.68f),
+      moveInfo("worst", visits = 1, winrate = 0.10f),
+    )
+    val random = Random(9)
+
+    repeat(200) {
+      val selected = select(
+        moveInfos,
+        temperature = 0.05f,
+        random = random,
+        aiWinrate = 0.70f,
+        comebackProbability = 1f
+      )
+      assertEquals("best", selected.move)
+    }
+  }
+
+  @Test
+  fun `comeback override never fires when comebackProbability is zero`() {
+    // Low temperature makes normal sampling deterministically favor "best", isolating
+    // whether the override incorrectly kicks in.
+    val moveInfos = listOf(
+      moveInfo("best", visits = 100, winrate = 0.95f),
+      moveInfo("closeToEven", visits = 1, winrate = 0.51f),
+    )
+    val random = Random(11)
+
+    repeat(200) {
+      val selected = select(
+        moveInfos,
+        temperature = 0.05f,
+        random = random,
+        aiWinrate = 0.95f,
+        comebackProbability = 0f
+      )
+      assertEquals("best", selected.move)
+    }
+  }
+
+  @Test
+  fun `comeback override always plays the candidate closest to 50 percent winrate once triggered`() {
+    val moveInfos = listOf(
+      moveInfo("best", visits = 100, winrate = 0.95f),
+      moveInfo("closeToEven", visits = 1, winrate = 0.51f),
+      moveInfo("tooFar", visits = 1, winrate = 0.20f),
+    )
+    val random = Random(13)
+
+    repeat(200) {
+      val selected = select(
+        moveInfos,
+        temperature = 1f,
+        random = random,
+        aiWinrate = 0.95f,
+        comebackProbability = 1f
+      )
+      assertEquals("closeToEven", selected.move)
+    }
+  }
+
+  @Test
+  fun `comeback override fires roughly comebackProbability of the time above the threshold`() {
+    // A very low temperature makes normal sampling pick "best" almost every time it isn't
+    // overridden, so the observed rate of "closeToEven" isolates how often the override fires.
+    val moveInfos = listOf(
+      moveInfo("best", visits = 100, winrate = 0.95f),
+      moveInfo("closeToEven", visits = 1, winrate = 0.51f),
+    )
+    val random = Random(15)
+
+    val counts = (1..3000).map {
+      select(
+        moveInfos,
+        temperature = 0.05f,
+        random = random,
+        aiWinrate = 0.95f,
+        comebackProbability = 0.5f
+      ).move
+    }.groupingBy { it }.eachCount()
+
+    val overrideCount = counts["closeToEven"] ?: 0
+    assertTrue(
+      "Expected the override to fire roughly half the time, but counts were $counts",
+      overrideCount in 1350..1650
+    )
+  }
+
+  @Test
   fun `effectiveLocalitySigma is disabled during the opening and restored afterwards`() {
     assertEquals(null, effectiveLocalitySigma(localitySigma = 5f, plyNumber = 0, boardWidth = 19))
     assertEquals(null, effectiveLocalitySigma(localitySigma = 5f, plyNumber = 18, boardWidth = 19))
@@ -187,6 +300,42 @@ class AiGameViewModelTest {
     assertEquals(
       null,
       effectiveLocalitySigma(localitySigma = null, plyNumber = 40, boardWidth = 19)
+    )
+  }
+
+  @Test
+  fun `orientedWinrate is unchanged when the engine plays white and flipped when it plays black`() {
+    assertEquals(0.73f, orientedWinrate(rawWinrate = 0.73f, engineIsWhite = true), 0.0001f)
+    assertEquals(0.27f, orientedWinrate(rawWinrate = 0.73f, engineIsWhite = false), 0.0001f)
+  }
+
+  @Test
+  fun `logit is zero at 50 percent, symmetric, and unbounded away from the edges`() {
+    assertEquals(0.0, logit(0.5f), 0.0001)
+    assertEquals(-logit(0.9f), logit(0.1f), 0.0001)
+    assertTrue("Expected logit to grow well past 1 near the edges", logit(0.98f) > 3.5)
+    assertTrue("Expected logit to shrink well past -1 near the edges", logit(0.02f) < -3.5)
+  }
+
+  @Test
+  fun `a large winrate gap dominates sampling even at a temperature that used to be too flat`() {
+    // Regression check: under the old raw-winrate exp(winrate/temperature) formula, this
+    // 34-point gap at temperature 1 only produced a ~1.4x weight difference, making the AI
+    // sample close to randomly regardless of how much better one move actually was.
+    val moveInfos = listOf(
+      moveInfo("clearlyBest", visits = 3, winrate = 0.41f),
+      moveInfo("clearlyWorse", visits = 9, winrate = 0.08f),
+    )
+    val random = Random(21)
+
+    val counts = (1..2000).map { select(moveInfos, temperature = 1f, random = random).move }
+      .groupingBy { it }
+      .eachCount()
+
+    val bestCount = counts["clearlyBest"] ?: 0
+    assertTrue(
+      "Expected the clearly-better move to dominate, but counts were $counts",
+      bestCount > 1600
     )
   }
 }

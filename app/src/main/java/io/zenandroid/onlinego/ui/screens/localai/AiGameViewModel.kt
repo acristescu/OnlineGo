@@ -28,6 +28,7 @@ import io.zenandroid.onlinego.utils.recordException
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -37,7 +38,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlin.math.abs
 import kotlin.math.exp
-import kotlin.math.pow
+import kotlin.math.ln
 import kotlin.random.Random
 
 class AiGameViewModel(
@@ -52,10 +53,10 @@ class AiGameViewModel(
     )
   )
   val state: StateFlow<AiGameState> = _state.asStateFlow()
-  private var katagoJob: kotlinx.coroutines.Job? = null
-  private var hintJob: kotlinx.coroutines.Job? = null
-  private var ownershipJob: kotlinx.coroutines.Job? = null
-  private var finalScoreJob: kotlinx.coroutines.Job? = null
+  private var katagoJob: Job? = null
+  private var hintJob: Job? = null
+  private var ownershipJob: Job? = null
+  private var finalScoreJob: Job? = null
 
   private val stateAdapter = Moshi.Builder()
     .add(ResponseBriefMoshiAdapter())
@@ -138,7 +139,7 @@ class AiGameViewModel(
         val newState = try {
           stateAdapter.fromJson(json)
         } catch (e: Exception) {
-          Log.e("StatePersistenceMiddlew", "Cannot deserialize state", e)
+          Log.e("AiGameViewModel", "Cannot deserialize state", e)
           recordException(e)
           null
         }
@@ -501,14 +502,31 @@ class AiGameViewModel(
           KataGoAnalysisEngine.analyzeMoveSequence(
             sequence = currentState.history,
             maxVisits = currentState.difficulty.maxVisits,
+            rootPolicyTemperature = currentState.difficulty.rootPolicyTemperature,
             komi = currentState.position.komi,
             includeOwnership = false,
             includeMovesOwnership = false
           )
         }
+        val engineIsWhite = !currentState.enginePlaysBlack
+        val orientedMoveInfos = analysis.moveInfos.map {
+          it.copy(winrate = orientedWinrate(it.winrate, engineIsWhite))
+        }
+        val aiWinrate = orientedWinrate(analysis.rootInfo.winrate ?: 0.5f, engineIsWhite)
+        Log.d(
+          "AiMoveDebug",
+          "tier=${currentState.difficulty.name} maxVisits=${currentState.difficulty.maxVisits} " +
+              "rootPolicyTemperature=${currentState.difficulty.rootPolicyTemperature} " +
+              "aiWinrate=%.3f ".format(aiWinrate) +
+              "candidates=${orientedMoveInfos.size} " +
+              "moves=${
+                orientedMoveInfos.sortedByDescending { it.visits }
+                  .joinToString { "${it.move}(v=${it.visits},wr=%.3f)".format(it.winrate) }
+              }"
+        )
         withContext(Dispatchers.Default) {
           val selectedMove = selectAiMove(
-            moveInfos = analysis.moveInfos,
+            moveInfos = orientedMoveInfos,
             temperature = currentState.difficulty.temperature,
             boardHeight = currentState.position.boardHeight,
             lastMove = currentState.position.lastMove,
@@ -517,6 +535,12 @@ class AiGameViewModel(
               plyNumber = currentState.history.size,
               boardWidth = currentState.position.boardWidth,
             ),
+            aiWinrate = aiWinrate,
+            comebackProbability = currentState.difficulty.comebackProbability,
+          )
+          Log.d(
+            "AiMoveDebug",
+            "picked=${selectedMove.move}(v=${selectedMove.visits},wr=%.3f)".format(selectedMove.winrate)
           )
           val move =
             Util.getCoordinatesFromGTP(selectedMove.move, currentState.position.boardHeight)
@@ -681,11 +705,17 @@ class AiGameViewModel(
 
 /**
  * Picks a move from KataGo's candidates with probability proportional to
- * visits^(1/temperature) - the same scheme AlphaZero/KataGo itself uses for move
- * selection during self-play. A move only accumulates visits if the search considers
- * it worth reading out, so a lone correct reply to a sharp threat (e.g. an atari) still
- * gets picked reliably even at high temperature, while flexible positions with several
- * comparably good moves get genuine variety. temperature == 0 always plays the top move.
+ * exp(logit(winrate)/temperature) - a Boltzmann distribution over how good each move
+ * actually evaluates to be, in log-odds space. Winrate is used rather than visits because
+ * at low maxVisits almost every candidate ends up with just 1-2 visits each; that tiny a
+ * gap carries essentially no signal about move quality (and can even point the wrong way
+ * vs. winrate), whereas winrate is a meaningful per-move read even off a single playout.
+ * Raw winrate is bounded to [0,1], which compresses badly under exp() - even a huge,
+ * decisive gap (e.g. 0.9 vs 0.1) only ever produces a few-times weight difference at any
+ * realistic temperature, making sampling far flatter than intended. logit(p) =
+ * ln(p/(1-p)) is unbounded, so a genuine quality gap translates into a proportionally
+ * large weight difference instead of being squashed. temperature == 0 always plays the
+ * top move.
  *
  * When localitySigma is non-null, candidates are additionally weighted by a Gaussian
  * falloff on their Chebyshev distance from lastMove, so weaker tiers favor replying near
@@ -695,6 +725,12 @@ class AiGameViewModel(
  * Pass is only ever returned when it's genuinely the top-ranked move (moveInfos[0]);
  * otherwise it's excluded from the sampling pool entirely, since a randomly-sampled pass
  * is a much costlier blunder than a slightly-suboptimal board move.
+ *
+ * Once aiWinrate is above 70%, each call additionally has a comebackProbability chance of
+ * skipping normal sampling entirely and instead playing whichever candidate's winrate is
+ * closest to 50% - a deliberate, blunt "give back the lead" move once the engine has
+ * enough margin to spare. Below that threshold, or when comebackProbability is 0 (every
+ * Dan tier), this has no effect.
  */
 @VisibleForTesting
 fun selectAiMove(
@@ -703,6 +739,8 @@ fun selectAiMove(
   boardHeight: Int,
   lastMove: Cell?,
   localitySigma: Float?,
+  aiWinrate: Float,
+  comebackProbability: Float,
   random: Random = Random,
 ): MoveInfo {
   val topMove = moveInfos[0]
@@ -711,8 +749,12 @@ fun selectAiMove(
   val candidates = moveInfos.filterNot { it.move.equals("pass", ignoreCase = true) }
   if (candidates.isEmpty()) return topMove
 
+  if (aiWinrate > 0.7f && random.nextFloat() < comebackProbability) {
+    return candidates.minByOrNull { abs(it.winrate - 0.5f) } ?: topMove
+  }
+
   val weights = candidates.map { info ->
-    val visitWeight = info.visits.toDouble().pow(1.0 / temperature)
+    val winrateWeight = exp(logit(info.winrate) / temperature.toDouble())
     val localityWeight = if (localitySigma == null || lastMove == null || lastMove.isPass) {
       1.0
     } else {
@@ -720,7 +762,7 @@ fun selectAiMove(
       val distance = maxOf(abs(cell.x - lastMove.x), abs(cell.y - lastMove.y)).toDouble()
       exp(-(distance * distance) / (2.0 * localitySigma * localitySigma))
     }
-    visitWeight * localityWeight
+    winrateWeight * localityWeight
   }
   val total = weights.sum()
   var remaining = random.nextDouble() * total
@@ -739,3 +781,25 @@ fun selectAiMove(
 @VisibleForTesting
 fun effectiveLocalitySigma(localitySigma: Float?, plyNumber: Int, boardWidth: Int): Float? =
   if (plyNumber < boardWidth) null else localitySigma
+
+/**
+ * katago.cfg sets reportAnalysisWinratesAs = WHITE, so every winrate KataGo reports is
+ * always relative to White, regardless of whose turn it is. This converts it to be
+ * relative to the engine itself, which is what every winrate-based decision in this file
+ * assumes it's working with.
+ */
+@VisibleForTesting
+fun orientedWinrate(rawWinrate: Float, engineIsWhite: Boolean): Float =
+  if (engineIsWhite) rawWinrate else 1f - rawWinrate
+
+/**
+ * ln(p/(1-p)) - converts a bounded [0,1] probability into an unbounded log-odds value, so
+ * that a genuine quality gap between two winrates doesn't get squashed the way it would
+ * sampling directly on raw winrate (see [selectAiMove]). Clamped away from the exact 0/1
+ * edges to avoid -Infinity/+Infinity.
+ */
+@VisibleForTesting
+fun logit(probability: Float): Double {
+  val clamped = probability.toDouble().coerceIn(1e-4, 1.0 - 1e-4)
+  return ln(clamped / (1.0 - clamped))
+}
