@@ -53,6 +53,7 @@
     <string name="White">Blanco</string>
     <string name="handicap">Handicap</string>
     <string name="difficulty">Dificultad</string>
+    <string name="ai_game_difficulty_scale_hint">Kyu alto = más fácil, Dan alto = más difícil</string>
     <string name="ai_game_difficulty_kyu">%1$d kyu</string>
     <string name="ai_game_difficulty_dan">%1$d dan</string>
     <string name="start_game">Empezar</string>
@@ -159,6 +160,17 @@
     <string name="game_resign_dialog_confirm">Rendirse</string>
     <string name="game_cancel_dialog_message">¿Estás seguro de cancelar el juego?</string>
     <string name="game_cancel_dialog_confirm">Cancelar Juego</string>
+    <string name="game_cancel_dialog_dismiss">NO CANCELES LA PARTIDA</string>
+    <string name="game_info_time">Tiempo</string>
+    <string name="game_info_score_komi">komi</string>
+    <string name="game_info_score_stones">piedras</string>
+    <string name="game_info_score_territory">territorio</string>
+    <string name="game_info_score_total">total</string>
+    <string name="game_over_won">FELICITACIONES\nHAZ GANADO</string>
+    <string name="game_over_lost">PERDISTE</string>
+    <string name="game_over_view_board">VER TABLERO</string>
+    <string name="game_over_next_game">PROXIMO JUEGO</string>
+    <string name="game_over_quick_replay">REPLAY RÁPIDO</string>
     <string name="game_player_details_percentage">%1$d%%</string>
     <string name="learn_title_learn">Capacitación</string>
     <string name="tutorial_basics_title">Fundamentos</string>
