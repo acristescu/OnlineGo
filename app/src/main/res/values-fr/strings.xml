@@ -82,6 +82,7 @@
     <string name="bottomnavigation_botton_stats">Statistiques</string>
     <string name="bottomnavigation_botton_settings">Paramètres</string>
     <string name="home_welcome_to_sente">Bienvenue sur Sente</string>
+    <string name="home_app_open_source_message">Cette application, aux sources ouvertes et prise en charge par la communauté, est une façade pour le site web OGS (online-go.com). Vous pouvez explorer les tutoriels et jouer contre l\'IA, mais là plupart des fonctionnalités nécessitent un compte OGS gratuit.</string>
     <string name="home_button_login_ogs">Se connecter à OGS</string>
     <string name="home_button_signup_ogs">S\'inscrire à OGS</string>
     <string name="face_to_face_loading">Face à face - Chargement </string>
@@ -96,6 +97,7 @@
     <string name="face_to_face_game_is_over">Fin de la partie !</string>
     <string name="face_to_face_game_is_not_over">Recommandation: La partie n\'est pas terminée !</string>
     <string name="face_to_face_ko_dialog_title">Situation de KO illégale</string>
+    <string name="face_to_face_ko_dialog_message">Ce coup répéterait la position du plateau. C\'est ce qu\'on appelle un KO, et ce n\'est pas autorisé. Essayez d\'abord de jouer un autre coup, de préférence une menace que l\'adversaire ne peut pas ignorer.</string>
     <string name="face_to_face_score_komi">Komi</string>
     <string name="face_to_face_score_captures">Prisonniers </string>
     <string name="face_to_face_score_dead">Mort</string>
@@ -110,4 +112,15 @@
     <string name="face_to_face_button_next">Suivant </string>
     <string name="face_to_face_button_return">Retour</string>
     <string name="face_to_face_button_pass">Passer</string>
+    <string name="game_title_white_to_move">Coup %1$d · %2$s · Blanc</string>
+    <string name="game_title_black_to_move">Coup %1$d · %2$s · Noir</string>
+    <string name="game_submitting_move">Envoi du coup</string>
+    <string name="game_submitting_move_attempt">Envoi du coup (essai #%1$d)</string>
+    <string name="game_estimating">Estimation</string>
+    <string name="game_status_requested_undo">Annulation demandée</string>
+    <string name="game_status_player_passed">Le joueur a passé !</string>
+    <string name="game_status_accepted">Acceptée</string>
+    <string name="game_status_resigned">Abandonnée</string>
+    <string name="game_status_timed_out">Temps dépassé</string>
+    <string name="game_status_cancelled_game">Partie annulée</string>
 </resources>
