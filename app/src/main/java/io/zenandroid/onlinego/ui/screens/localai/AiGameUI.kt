@@ -272,6 +272,9 @@ private fun AiGameUI(
 
   if (state.newGameDialogShown) {
     NewGameBottomSheet(
+      currentBoardSize = state.boardSize,
+      currentYouPlayBlack = !state.enginePlaysBlack,
+      currentHandicap = state.handicap,
       currentDifficulty = state.difficulty,
       onDismiss = {
         onDismissNewGameDialog()
@@ -649,13 +652,16 @@ private fun DifficultyRank.resolve(): String = when (this) {
 
 @Composable
 private fun NewGameBottomSheet(
+  currentBoardSize: Int,
+  currentYouPlayBlack: Boolean,
+  currentHandicap: Int,
   currentDifficulty: AiDifficulty,
   onDismiss: () -> Unit,
   onNewGame: (size: Int, youPlayBlack: Boolean, handicap: Int, difficulty: AiDifficulty) -> Unit
 ) {
-  var selectedSize by remember { mutableIntStateOf(19) }
-  var youPlayBlack by remember { mutableStateOf(true) }
-  var handicap by remember { mutableFloatStateOf(0f) }
+  var selectedSize by remember { mutableIntStateOf(currentBoardSize) }
+  var youPlayBlack by remember { mutableStateOf(currentYouPlayBlack) }
+  var handicap by remember { mutableFloatStateOf(currentHandicap.toFloat()) }
   var difficulty by remember { mutableStateOf(currentDifficulty) }
   val sheetState = rememberModalBottomSheetState(true)
   val difficultyListState = rememberLazyListState(
