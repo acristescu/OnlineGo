@@ -1,2 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources></resources>
+<resources>
+    <string name="app_name">Sente - Online GO</string>
+    <string name="create_account_prompt">Нет аккаунта OGS? Создайте его <b>здесь</b>!</string>
+    <string name="login_to_ogs">Войти в OGS</string>
+    <string name="create_account">Создать аккаунт OGS</string>
+    <string name="welcome_to_sente_online_go">Добро пожаловать в Sente Online Go!</string>
+    <string name="login_to_play_online">Для игры онлайн, пожалуйста, войдите в OGS.</string>
+    <string name="ai_game_chat_ready">Готов!</string>
+    <string name="ai_game_chat_use_new_game_button">Чтобы начать новую игру, нажмите \'Новая игра\'</string>
+    <string name="ai_game_chat_engine_error">Ошибка при запуске KataGO: \'%1$s\'</string>
+    <string name="ai_game_chat_invalid_move">Недопустимый ход, попробуйте снова</string>
+    <string name="ai_game_chat_lets_try_again">Хорошо, давайте попробуем снова. Ваш ход!</string>
+    <string name="ai_game_chat_hmmm">Хмммм…</string>
+    <string name="ai_game_chat_moves_to_consider">Вот несколько вариантов ходов для обдумывания</string>
+    <string name="ai_game_chat_ok_your_turn">Хорошо, ваш ход</string>
+    <string name="ai_game_chat_calculating_territory">Хорошо, подсчитываю текущую территорию…</string>
+    <string name="ai_game_chat_territories">Вот как, по моему мнению, выглядят территории</string>
+    <string name="ai_game_chat_im_thinking">Думаю…</string>
+    <string name="ai_game_chat_your_turn">Ваш ход</string>
+    <string name="ai_game_chat_game_over_ai_won">Игра завершена из-за двух пасов. Финальный счёт: чёрные - %1$s, белые - %2$s. Похоже, на этот раз я выиграл.</string>
+    <string name="ai_game_chat_game_over_player_won">Игра завершена из-за двух пасов. Финальный счёт: чёрные - %1$s, белые - %2$s. Поздравляю, похоже, вы меня переиграли.</string>
+    <string name="ai_game_chat_game_over_computing_score">Игра завершена из-за двух пасов. Подождите, вычисляю финальный счёт.</string>
+    <string name="ai_game_handicap_none">нет</string>
+    <string name="ai_game_handicap_no_komi">без коми</string>
+    <string name="ai_game_avatar_content_description">ИИ</string>
+    <string name="ai_game_new">Новая</string>
+    <string name="ai_game_pass">Пас</string>
+    <string name="ai_game_previous">Назад</string>
+    <string name="ai_game_next">Далее</string>
+    <string name="ko_explanation">Этот ход повторяет позицию на доске. Это называется КО, и такой ход запрещён. Сделайте сначала другой ход, желательно угрозу, которую противник не сможет проигнорировать.</string>
+    <string name="illegal_ko_move">Запрещённый ход КО</string>
+    <string name="local_ai_game">Локальная игра с ИИ</string>
+    <string name="back">Назад</string>
+    <string name="title_bar_game_info_content_description">Информация об игре</string>
+    <string name="title_bar_more_content_description">Ещё</string>
+    <string name="search_field_clear_content_description">Очистить текст</string>
+    <string name="katago">"KataGO "</string>
+    <string name="territory">Территория</string>
+    <string name="hint">Подсказка</string>
+    <string name="player">Игрок</string>
+    <string name="you">" Ты"</string>
+    <string name="prisoners">Пленные</string>
+    <string name="komi">Коми</string>
+    <string name="white">белые</string>
+    <string name="black">чёрные</string>
+    <string name="score_prediction_leads_by">Прогноз счёта: %1$s обыгрывает %2$s</string>
+    <string name="white_s_chance_to_win">Шанс белых на победу: %1$s%%</string>
+    <string name="new_game">Новая игра</string>
+    <string name="board_size">Размер доски</string>
+    <string name="you_play">Вы играете</string>
+    <string name="Black">Чёрные</string>
+</resources>
