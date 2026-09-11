@@ -195,4 +195,21 @@
     <string name="game_chat_type_a_message">Écrivez un message…</string>
     <string name="game_chat_send_content_description">Envoyer</string>
     <string name="game_player_details_rank_rating">%1$s (%2$s)</string>
+    <string name="game_player_details_highest_rank">Grade le plus haut</string>
+    <string name="game_player_details_percentile">Pourcentage</string>
+    <string name="game_player_details_percentage">%1$d%%</string>
+    <string name="game_player_details_played_vs_you">A joué contre vous</string>
+    <string name="game_player_details_you_won">Vous avez gagné</string>
+    <string name="game_player_details_they_won">Ils ont gagné</string>
+    <string name="game_player_details_ranked_games">Partie gradée</string>
+    <string name="game_player_details_wins">Gains</string>
+    <string name="game_player_details_losses">Pertes</string>
+    <string name="game_player_details_total">Total</string>
+    <string name="notification_outcome_lost_by">Perdu de %1$s</string>
+    <string name="notification_outcome_won_by">Gagné de %1$s</string>
+    <string name="notification_outcome_black_won_by">Noir gagne de %1$s</string>
+    <string name="notification_outcome_white_won_by">Blanc gagne de %1$s</string>
+    <string name="notification_your_turn">Votre tour</string>
+    <string name="notification_stone_removal_phase">Phase de retrait des pierres mortes</string>
+    <string name="notification_requires_attention">%1$s Requiert votre attention</string>
 </resources>
