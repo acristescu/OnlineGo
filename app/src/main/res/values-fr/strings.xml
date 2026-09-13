@@ -180,7 +180,7 @@
     <string name="game_over_next_game">Prochaine partie</string>
     <string name="game_over_quick_replay">Revanche rapide</string>
     <string name="game_over_resignation">%1$s a abandonné au coup%2$d</string>
-    <string name="game_over_points">%1$s a %2$s points de plus</string>
+    <string name="game_over_points">%1$s a %2$s de points de plus</string>
     <string name="game_over_timeout">%1$s a dépassé son temps.</string>
     <string name="game_over_cancellation">%1$s a annulé la partie.</string>
     <string name="game_over_disconnection">%1$s s\'est déconnecté.</string>
