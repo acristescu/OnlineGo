@@ -5,7 +5,7 @@
     <string name="login_to_ogs">Bei OGS anmelden</string>
     <string name="create_account">OGS-Benutzerkonto erstellen</string>
     <string name="welcome_to_sente_online_go">Willkommen bei Sente Online Go!</string>
-    <string name="login_to_play_online">Bitte melde dich bei OGS an, um online zu spielen.</string>
+    <string name="login_to_play_online">Bitte melde Dich bei OGS an, um online zu spielen.</string>
     <string name="ai_game_chat_ready">Bereit!</string>
     <string name="ai_game_chat_use_new_game_button">Drücke \'Neues Spiel\' um ein neues Spiel zu starten</string>
     <string name="ai_game_chat_engine_error">Fehler beim Starten von KataGO: \'%1$s\'</string>
@@ -13,7 +13,7 @@
     <string name="ai_game_chat_lets_try_again">OK, versuchen wir es noch einmal. Du bist an der Reihe!</string>
     <string name="ai_game_chat_hmmm">Hmmm…</string>
     <string name="ai_game_chat_moves_to_consider">Hier ein paar mögliche Züge</string>
-    <string name="ai_game_chat_ok_your_turn">OK, du bist an der Reihe</string>
+    <string name="ai_game_chat_ok_your_turn">OK, Du bist an der Reihe</string>
     <string name="ai_game_chat_calculating_territory">OK, berechne aktuelles Gebiet…</string>
     <string name="ai_game_chat_territories">Ich denke, das sind die Gebiete</string>
     <string name="ai_game_chat_im_thinking">Ich denke nach…</string>
@@ -80,7 +80,7 @@
     <string name="bottomnavigation_botton_play">Spielen</string>
     <string name="bottomnavigation_botton_learn">Lernen</string>
     <string name="bottomnavigation_botton_stats">Statistik</string>
-    <string name="bottomnavigation_botton_settings">Einstellungen</string>
+    <string name="bottomnavigation_botton_settings">Optionen</string>
     <string name="home_welcome_to_sente">Willkommen bei Sente!</string>
     <string name="home_app_open_source_message">Diese App ist ein Open-Source-Frontend für die OGS-Website (online-go.com). Du kannst die Tutorials ausprobieren und gegen die KI spielen, aber die meisten Funktionen erfordern ein kostenloses OGS-Benutzerkonto.</string>
     <string name="home_button_login_ogs">Bei OGS einloggen</string>
@@ -301,7 +301,7 @@
     <string name="settings_section_appearance">Erscheinungsbild</string>
     <string name="settings_theme">Farbschema</string>
     <string name="settings_board_style">Brettstil</string>
-    <string name="settings_section_game_settings">Spieleinstellungen</string>
+    <string name="settings_section_game_settings">Spieloptionen</string>
     <string name="settings_show_coordinates">Koordinaten anzeigen</string>
     <string name="settings_show_player_ranks">Spieler-Ränge anzeigen</string>
     <string name="settings_section_account">Benutzerkonto</string>
@@ -676,11 +676,11 @@ Setze einen Stein um fortzufahren!]]></string>
     <string name="tutorial_intermediate_falseeyes_falseeyes5_branches_branch1_2_message">F5 ist jetzt ein falsches Auge.</string>
     <string name="tutorial_intermediate_falseeyes_falseeyes5_branches_branch2_message">C5 ist ein falsches Auge.</string>
     <string name="tutorial_intermediate_falseeyes_falseeyes6_text"><![CDATA["Hier ist eine häufige Zugfolge bei falschen Augen am Rand. Bring es in Ordnung!"]]></string>
-    <string name="tutorial_intermediate_falseeyes_falseeyes6_branches_branch2_message">Du hast dein eigenes Auge ausgefüllt</string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes6_branches_branch2_message">Du hast in den eigenen Augenraum gespielt</string>
     <string name="tutorial_intermediate_falseeyes_falseeyes6_branches_branch3_message">D9 ist jetzt ein falsches Auge</string>
-    <string name="tutorial_intermediate_morepuzzles_title">Mehr Puzzles</string>
-    <string name="tutorial_intermediate_morepuzzles_puzzles3_text">Nicht schwindlig machen lassen.</string>
-    <string name="tutorial_intermediate_morepuzzles_puzzles4_text">Was würdest du zuerst tun?</string>
+    <string name="tutorial_intermediate_morepuzzles_title">Mehr Tsumegos</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles3_text">Verlier nicht den Überblick.</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles4_text">Was machst Du zuerst?</string>
     <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_1_2_message">Schwarze Gruppen sind getrennt</string>
     <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_2_message">Schwarze Gruppen sind getrennt</string>
     <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_3_message">Schwarze Gruppen sind getrennt</string>
