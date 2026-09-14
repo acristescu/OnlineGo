@@ -205,6 +205,18 @@
     <string name="game_player_details_wins">Gains</string>
     <string name="game_player_details_losses">Pertes</string>
     <string name="game_player_details_total">Total</string>
+    <plurals name="duration_weeks">
+        <item quantity="one">%d Semaine</item>
+        <item quantity="other">%d Semaines</item>
+    </plurals>
+    <plurals name="duration_days">
+        <item quantity="one">%d Jour</item>
+        <item quantity="other">%d Jours</item>
+    </plurals>
+    <plurals name="duration_hours">
+        <item quantity="one">%d Heure</item>
+        <item quantity="other">%d Heures</item>
+    </plurals>
     <string name="notification_outcome_lost_by">Perdu de %1$s</string>
     <string name="notification_outcome_won_by">Gagné de %1$s</string>
     <string name="notification_outcome_black_won_by">Noir gagne de %1$s</string>
