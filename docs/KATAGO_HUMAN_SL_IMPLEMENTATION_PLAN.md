@@ -8,7 +8,9 @@ play at a given rank) via the analysis engine's `overrideSettings.humanSLProfile
 
 ## Key decisions
 
-- Bundle `katago_human.net` in the APK (~94.5 MB, like the existing net) - no on-demand download.
+- Bundle `katago_human.net` (~94.5 MB, like the existing net) - no on-demand download. Ships to
+  Play Store as an AAB rather than a flat APK, since the combined nets exceed Play's per-APK
+  upload limit.
 - Replaces the old sampling logic outright, not an additive toggle - no New Game UI changes.
 - Exactly two move-selection strategies (`AiGameViewModel.kt`): `selectHumanMove` (every
   tier but the top) samples `humanPolicy` directly; `selectBestMove` (top tier only) just
