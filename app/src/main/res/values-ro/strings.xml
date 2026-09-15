@@ -21,6 +21,12 @@
     <string name="ai_game_chat_game_over_ai_won">Jocul s-a încheiat pentru că amândoi am pasat. Scorul final este negru %1$s la alb %2$s. Se pare că am câștigat de data asta.</string>
     <string name="ai_game_chat_game_over_player_won">Jocul s-a încheiat pentru că amândoi am pasat. Scorul final este negru %1$s la alb %2$s. Felicitări, se pare că m-ai învins.</string>
     <string name="ai_game_chat_game_over_computing_score">Jocul s-a încheiat pentru că amândoi am pasat. O clipă, calculez scorul final.</string>
+    <string name="ai_game_chat_resign_offer">Cred că am pierdut de data asta…</string>
+    <string name="ai_game_chat_ai_resigned">Mă dau bătut. Felicitări!</string>
+    <string name="ai_resign_offer_title">KataGO vrea să cedeze</string>
+    <string name="ai_resign_offer_message">KataGO consideră că jocul e pierdut si ar vrea să cedeze. Accepți?</string>
+    <string name="ai_resign_offer_accept">Acceptă</string>
+    <string name="ai_resign_offer_decline">Continuă jocul</string>
     <string name="ai_game_handicap_none">niciun</string>
     <string name="ai_game_handicap_no_komi">fără komi</string>
     <string name="ai_game_avatar_content_description">AI</string>
