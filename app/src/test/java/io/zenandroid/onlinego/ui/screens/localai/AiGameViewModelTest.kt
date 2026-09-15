@@ -1,17 +1,22 @@
 package io.zenandroid.onlinego.ui.screens.localai
 
-import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.katago.MoveInfo
+import io.zenandroid.onlinego.data.model.katago.RootInfo
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import kotlin.random.Random
 
 class AiGameViewModelTest {
 
-  private val boardHeight = 19
+  // A tiny 3x3 board keeps the humanPolicy arrays (boardWidth*boardHeight + 1 for pass)
+  // small and their GTP coordinates easy to hand-verify:
+  // index 0="A3" 1="B3" 2="C3" 3="A2" 4="B2" 5="C2" 6="A1" 7="B1" 8="C1" 9=PASS
+  private val boardWidth = 3
+  private val boardHeight = 3
 
-  private fun moveInfo(move: String, visits: Int, winrate: Float = 0.5f) = MoveInfo(
+  private fun moveInfo(move: String, visits: Int = 0, winrate: Float = 0.5f) = MoveInfo(
     move = move,
     visits = visits,
     winrate = winrate,
@@ -28,314 +33,181 @@ class AiGameViewModelTest {
   )
 
   private fun select(
-    moveInfos: List<MoveInfo>,
-    temperature: Float,
+    humanPolicy: List<Float>,
     random: Random,
-    lastMove: Cell? = null,
-    localitySigma: Float? = null,
-    aiWinrate: Float = 0f,
-    comebackProbability: Float = 0f,
-  ) = selectAiMove(
+    moveInfos: List<MoveInfo> = emptyList(),
+    rootInfo: RootInfo = RootInfo(winrate = 0.5f),
+  ) = selectHumanMove(
+    humanPolicy = humanPolicy,
     moveInfos = moveInfos,
-    temperature = temperature,
+    rootInfo = rootInfo,
+    boardWidth = boardWidth,
     boardHeight = boardHeight,
-    lastMove = lastMove,
-    localitySigma = localitySigma,
-    aiWinrate = aiWinrate,
-    comebackProbability = comebackProbability,
     random = random,
   )
 
   @Test
-  fun `temperature zero always plays the top move`() {
+  fun `selectHumanMove only ever picks the single legal point when everything else is illegal`() {
+    // Only index 2 ("C3") is legal; everything else, including pass, is marked -1.
+    val humanPolicy = listOf(-1f, -1f, 0.5f, -1f, -1f, -1f, -1f, -1f, -1f, -1f)
+
+    repeat(20) {
+      val selected = select(humanPolicy, random = Random(it))
+      assertEquals("C3", selected.move)
+    }
+  }
+
+  @Test
+  fun `selectHumanMove samples proportional to policy weight`() {
+    // Two legal points: "C3" (index 2) at 90% weight, "B1" (index 7) at 10%.
+    val humanPolicy = listOf(-1f, -1f, 0.9f, -1f, -1f, -1f, -1f, 0.1f, -1f, -1f)
+    val random = Random(42)
+
+    val counts = (1..2000).map { select(humanPolicy, random = random).move }
+      .groupingBy { it }
+      .eachCount()
+
+    val dominantCount = counts["C3"] ?: 0
+    assertTrue(
+      "Expected the 90% weight move to dominate, but counts were $counts",
+      dominantCount in 1700..1900
+    )
+  }
+
+  @Test
+  fun `selectHumanMove resolves the pass index to a PASS move`() {
+    // Only the trailing (boardWidth*boardHeight) index - pass - is legal.
+    val humanPolicy = listOf(-1f, -1f, -1f, -1f, -1f, -1f, -1f, -1f, -1f, 1f)
+
+    val selected = select(humanPolicy, random = Random(1))
+    assertEquals("PASS", selected.move)
+  }
+
+  @Test
+  fun `selectHumanMove plays pass outright when the real search ranks it top, regardless of humanPolicy weight`() {
+    // humanPolicy heavily favors "C3" (index 2); pass gets no weight at all here, yet the
+    // real search's own top-ranked candidate (moveInfos[0]) already being pass must win.
+    val humanPolicy = listOf(-1f, -1f, 1f, -1f, -1f, -1f, -1f, -1f, -1f, -1f)
     val moveInfos = listOf(
-      moveInfo("D4", visits = 5),
-      moveInfo("Q16", visits = 500),
-      moveInfo("A1", visits = 1),
+      moveInfo("pass", visits = 11, winrate = 0.00002f),
+      moveInfo("C3", visits = 4, winrate = 0.00002f),
     )
 
     repeat(20) {
-      val selected = select(moveInfos, temperature = 0f, random = Random(it))
-      assertEquals("D4", selected.move)
+      val selected = select(humanPolicy, random = Random(it), moveInfos = moveInfos)
+      assertEquals("pass", selected.move)
+      assertEquals(11, selected.visits)
     }
   }
 
   @Test
-  fun `a move with a dominant winrate is still picked almost always at low temperature`() {
-    val moveInfos = listOf(
-      moveInfo("saveGroup", visits = 1, winrate = 0.95f),
-      moveInfo("blunder1", visits = 1, winrate = 0.05f),
-      moveInfo("blunder2", visits = 1, winrate = 0.05f),
-    )
-    val random = Random(42)
+  fun `selectHumanMove reuses a matching moveInfos entry's real stats when the search also explored it`() {
+    val humanPolicy = listOf(-1f, -1f, 1f, -1f, -1f, -1f, -1f, -1f, -1f, -1f)
+    val moveInfos = listOf(moveInfo("C3", visits = 37, winrate = 0.62f))
 
-    val counts = (1..1000).map { select(moveInfos, temperature = 0.05f, random = random).move }
-      .groupingBy { it }
-      .eachCount()
+    val selected = select(humanPolicy, random = Random(1), moveInfos = moveInfos)
 
-    val dominantCount = counts["saveGroup"] ?: 0
-    assertTrue(
-      "Expected the dominant move to be picked almost always, but counts were $counts",
-      dominantCount > 990
-    )
+    assertEquals("C3", selected.move)
+    assertEquals(37, selected.visits)
+    assertEquals(0.62f, selected.winrate, 0.0001f)
   }
 
   @Test
-  fun `wildly different visit counts with equal winrate still get roughly even sampling`() {
-    val moveInfos = listOf(
-      moveInfo("moveA", visits = 100_000, winrate = 0.5f),
-      moveInfo("moveB", visits = 1, winrate = 0.5f),
+  fun `selectHumanMove synthesizes a fallback MoveInfo from rootInfo when the search never explored the sampled point`() {
+    val humanPolicy = listOf(-1f, -1f, 1f, -1f, -1f, -1f, -1f, -1f, -1f, -1f)
+    val rootInfo = RootInfo(
+      winrate = 0.42f,
+      scoreLead = 3.5f,
+      scoreStdev = 1.2f,
+      scoreSelfplay = 2.1f,
+      utility = 0.15f,
     )
-    val random = Random(19)
 
-    val counts = (1..2000).map { select(moveInfos, temperature = 1f, random = random).move }
-      .groupingBy { it }
-      .eachCount()
+    // moveInfos only covers a different point, so "C3" (the sampled one) isn't in there.
+    val selected = select(
+      humanPolicy,
+      random = Random(1),
+      moveInfos = listOf(moveInfo("B1", visits = 5)),
+      rootInfo = rootInfo,
+    )
 
-    counts.values.forEach { count ->
-      assertTrue("Expected roughly even distribution, but counts were $counts", count in 900..1100)
+    assertEquals("C3", selected.move)
+    assertEquals(0, selected.visits)
+    assertEquals(-1, selected.order)
+    assertEquals(0.42f, selected.winrate, 0.0001f)
+    assertEquals(3.5f, selected.scoreLead, 0.0001f)
+    assertEquals(1.2f, selected.scoreStdev, 0.0001f)
+    assertEquals(2.1f, selected.scoreSelfplay, 0.0001f)
+    assertEquals(0.15f, selected.utility, 0.0001f)
+    assertTrue(selected.pv.isEmpty())
+    assertEquals(null, selected.pvVisits)
+  }
+
+  @Test
+  fun `selectHumanMove throws when every point in humanPolicy is illegal`() {
+    val humanPolicy = List(10) { -1f }
+
+    assertThrows(IllegalStateException::class.java) {
+      select(humanPolicy, random = Random(1))
     }
   }
 
   @Test
-  fun `comparable candidates get genuine variety at temperature one`() {
+  fun `selectBestMove always returns the first candidate regardless of the rest of the list`() {
     val moveInfos = listOf(
-      moveInfo("moveA", visits = 100),
-      moveInfo("moveB", visits = 100),
-      moveInfo("moveC", visits = 100),
+      moveInfo("D4", visits = 5, winrate = 0.3f),
+      moveInfo("Q16", visits = 500, winrate = 0.9f),
+      moveInfo("A1", visits = 1, winrate = 0.1f),
     )
-    val random = Random(7)
 
-    val counts = (1..3000).map { select(moveInfos, temperature = 1f, random = random).move }
-      .groupingBy { it }
-      .eachCount()
-
-    // Each move has an equal visit count, so each should be picked roughly a third of the time.
-    counts.values.forEach { count ->
-      assertTrue("Expected roughly even distribution, but counts were $counts", count in 800..1200)
-    }
+    assertEquals("D4", selectBestMove(moveInfos).move)
   }
 
   @Test
-  fun `locality bias strongly favors a move near the last move over an equally-visited distant one`() {
-    // D16 -> Cell(3, 3); D15 is one point away (distance 1); A1 is across the board (distance 15).
+  fun `selectBestMove plays pass outright when it is the first candidate, with no special-casing`() {
     val moveInfos = listOf(
-      moveInfo("D15", visits = 50),
-      moveInfo("A1", visits = 50),
-    )
-    val random = Random(3)
-
-    val counts = (1..1000).map {
-      select(
-        moveInfos,
-        temperature = 1.8f,
-        random = random,
-        lastMove = Cell(3, 3),
-        localitySigma = 3f,
-      ).move
-    }.groupingBy { it }.eachCount()
-
-    val nearCount = counts["D15"] ?: 0
-    assertTrue(
-      "Expected the nearby move to dominate despite equal visits, but counts were $counts",
-      nearCount > 990
-    )
-  }
-
-  @Test
-  fun `null locality sigma leaves the visit-based distribution untouched`() {
-    val moveInfos = listOf(
-      moveInfo("D15", visits = 50),
-      moveInfo("A1", visits = 50),
-    )
-    val random = Random(11)
-
-    val counts = (1..2000).map {
-      select(
-        moveInfos,
-        temperature = 1f,
-        random = random,
-        lastMove = Cell(3, 3),
-        localitySigma = null,
-      ).move
-    }.groupingBy { it }.eachCount()
-
-    // Equal visits and no locality bias should give a roughly even split.
-    counts.values.forEach { count ->
-      assertTrue("Expected roughly even distribution, but counts were $counts", count in 800..1200)
-    }
-  }
-
-  @Test
-  fun `pass is always played when it is the top move`() {
-    // pass is listed first (the top move by KataGo's own ranking) despite fewer visits.
-    val moveInfos = listOf(
-      moveInfo("pass", visits = 10),
+      moveInfo("pass", visits = 1),
       moveInfo("D4", visits = 1000),
     )
 
-    listOf(0f, 0.5f, 1.8f).forEach { temperature ->
-      repeat(20) {
-        val selected = select(moveInfos, temperature = temperature, random = Random(it))
-        assertEquals("pass", selected.move)
-      }
-    }
+    assertEquals("pass", selectBestMove(moveInfos).move)
   }
 
   @Test
-  fun `pass is never played unless it is the top move`() {
-    // D4 is the top move; pass is a lower-ranked alternative with a competitive visit count.
+  fun `orientedWinrateForEngine is unchanged when the engine plays white`() {
+    assertEquals(0.9f, orientedWinrateForEngine(0.9f, enginePlaysBlack = false), 0.0001f)
+  }
+
+  @Test
+  fun `orientedWinrateForEngine is flipped when the engine plays black`() {
+    assertEquals(0.1f, orientedWinrateForEngine(0.9f, enginePlaysBlack = true), 0.0001f)
+  }
+
+  @Test
+  fun `hopelessPassMove returns null when winrate is at or above the threshold, even with pass present`() {
+    val moveInfos = listOf(moveInfo("pass", visits = 1), moveInfo("D4", visits = 2))
+
+    assertEquals(null, hopelessPassMove(engineWinrate = 0.01f, moveInfos))
+    assertEquals(null, hopelessPassMove(engineWinrate = 0.5f, moveInfos))
+  }
+
+  @Test
+  fun `hopelessPassMove returns null when winrate is hopeless but no pass candidate exists`() {
+    val moveInfos = listOf(moveInfo("D4", visits = 2), moveInfo("Q16", visits = 1))
+
+    assertEquals(null, hopelessPassMove(engineWinrate = 0.001f, moveInfos))
+  }
+
+  @Test
+  fun `hopelessPassMove returns the pass candidate when winrate is hopeless, even if pass isn't first`() {
     val moveInfos = listOf(
-      moveInfo("D4", visits = 100),
-      moveInfo("pass", visits = 90),
-      moveInfo("Q16", visits = 5),
+      moveInfo("D4", visits = 2, winrate = 0.0f),
+      moveInfo("Q16", visits = 2, winrate = 0.0f),
+      moveInfo("pass", visits = 1, winrate = 0.0f),
     )
-    val random = Random(5)
 
-    val counts = (1..2000).map { select(moveInfos, temperature = 1.8f, random = random).move }
-      .groupingBy { it }
-      .eachCount()
+    val selected = hopelessPassMove(engineWinrate = 0.001f, moveInfos)
 
-    assertEquals("Expected pass to never be sampled, but counts were $counts", null, counts["pass"])
-  }
-
-  @Test
-  fun `comeback override never fires at or below 70 percent aiWinrate`() {
-    // Low temperature makes normal sampling deterministically favor "best", isolating
-    // whether the override incorrectly kicks in.
-    val moveInfos = listOf(
-      moveInfo("best", visits = 100, winrate = 0.68f),
-      moveInfo("worst", visits = 1, winrate = 0.10f),
-    )
-    val random = Random(9)
-
-    repeat(200) {
-      val selected = select(
-        moveInfos,
-        temperature = 0.05f,
-        random = random,
-        aiWinrate = 0.70f,
-        comebackProbability = 1f
-      )
-      assertEquals("best", selected.move)
-    }
-  }
-
-  @Test
-  fun `comeback override never fires when comebackProbability is zero`() {
-    // Low temperature makes normal sampling deterministically favor "best", isolating
-    // whether the override incorrectly kicks in.
-    val moveInfos = listOf(
-      moveInfo("best", visits = 100, winrate = 0.95f),
-      moveInfo("closeToEven", visits = 1, winrate = 0.51f),
-    )
-    val random = Random(11)
-
-    repeat(200) {
-      val selected = select(
-        moveInfos,
-        temperature = 0.05f,
-        random = random,
-        aiWinrate = 0.95f,
-        comebackProbability = 0f
-      )
-      assertEquals("best", selected.move)
-    }
-  }
-
-  @Test
-  fun `comeback override always plays the candidate closest to 50 percent winrate once triggered`() {
-    val moveInfos = listOf(
-      moveInfo("best", visits = 100, winrate = 0.95f),
-      moveInfo("closeToEven", visits = 1, winrate = 0.51f),
-      moveInfo("tooFar", visits = 1, winrate = 0.20f),
-    )
-    val random = Random(13)
-
-    repeat(200) {
-      val selected = select(
-        moveInfos,
-        temperature = 1f,
-        random = random,
-        aiWinrate = 0.95f,
-        comebackProbability = 1f
-      )
-      assertEquals("closeToEven", selected.move)
-    }
-  }
-
-  @Test
-  fun `comeback override fires roughly comebackProbability of the time above the threshold`() {
-    // A very low temperature makes normal sampling pick "best" almost every time it isn't
-    // overridden, so the observed rate of "closeToEven" isolates how often the override fires.
-    val moveInfos = listOf(
-      moveInfo("best", visits = 100, winrate = 0.95f),
-      moveInfo("closeToEven", visits = 1, winrate = 0.51f),
-    )
-    val random = Random(15)
-
-    val counts = (1..3000).map {
-      select(
-        moveInfos,
-        temperature = 0.05f,
-        random = random,
-        aiWinrate = 0.95f,
-        comebackProbability = 0.5f
-      ).move
-    }.groupingBy { it }.eachCount()
-
-    val overrideCount = counts["closeToEven"] ?: 0
-    assertTrue(
-      "Expected the override to fire roughly half the time, but counts were $counts",
-      overrideCount in 1350..1650
-    )
-  }
-
-  @Test
-  fun `effectiveLocalitySigma is disabled during the opening and restored afterwards`() {
-    assertEquals(null, effectiveLocalitySigma(localitySigma = 5f, plyNumber = 0, boardWidth = 19))
-    assertEquals(null, effectiveLocalitySigma(localitySigma = 5f, plyNumber = 18, boardWidth = 19))
-    assertEquals(5f, effectiveLocalitySigma(localitySigma = 5f, plyNumber = 19, boardWidth = 19))
-    assertEquals(5f, effectiveLocalitySigma(localitySigma = 5f, plyNumber = 40, boardWidth = 19))
-    assertEquals(
-      null,
-      effectiveLocalitySigma(localitySigma = null, plyNumber = 40, boardWidth = 19)
-    )
-  }
-
-  @Test
-  fun `orientedWinrate is unchanged when the engine plays white and flipped when it plays black`() {
-    assertEquals(0.73f, orientedWinrate(rawWinrate = 0.73f, engineIsWhite = true), 0.0001f)
-    assertEquals(0.27f, orientedWinrate(rawWinrate = 0.73f, engineIsWhite = false), 0.0001f)
-  }
-
-  @Test
-  fun `logit is zero at 50 percent, symmetric, and unbounded away from the edges`() {
-    assertEquals(0.0, logit(0.5f), 0.0001)
-    assertEquals(-logit(0.9f), logit(0.1f), 0.0001)
-    assertTrue("Expected logit to grow well past 1 near the edges", logit(0.98f) > 3.5)
-    assertTrue("Expected logit to shrink well past -1 near the edges", logit(0.02f) < -3.5)
-  }
-
-  @Test
-  fun `a large winrate gap dominates sampling even at a temperature that used to be too flat`() {
-    // Regression check: under the old raw-winrate exp(winrate/temperature) formula, this
-    // 34-point gap at temperature 1 only produced a ~1.4x weight difference, making the AI
-    // sample close to randomly regardless of how much better one move actually was.
-    val moveInfos = listOf(
-      moveInfo("clearlyBest", visits = 3, winrate = 0.41f),
-      moveInfo("clearlyWorse", visits = 9, winrate = 0.08f),
-    )
-    val random = Random(21)
-
-    val counts = (1..2000).map { select(moveInfos, temperature = 1f, random = random).move }
-      .groupingBy { it }
-      .eachCount()
-
-    val bestCount = counts["clearlyBest"] ?: 0
-    assertTrue(
-      "Expected the clearly-better move to dominate, but counts were $counts",
-      bestCount > 1600
-    )
+    assertEquals("pass", selected?.move)
   }
 }

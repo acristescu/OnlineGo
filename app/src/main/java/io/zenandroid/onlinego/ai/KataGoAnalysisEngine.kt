@@ -10,6 +10,7 @@ import io.zenandroid.onlinego.data.model.StoneType
 import io.zenandroid.onlinego.data.model.katago.KataGoResponse
 import io.zenandroid.onlinego.data.model.katago.KataGoResponse.ErrorResponse
 import io.zenandroid.onlinego.data.model.katago.KataGoResponse.Response
+import io.zenandroid.onlinego.data.model.katago.OverrideSettings
 import io.zenandroid.onlinego.data.model.katago.Query
 import io.zenandroid.onlinego.gamelogic.Util
 import io.zenandroid.onlinego.utils.recordException
@@ -22,6 +23,7 @@ import java.io.InputStreamReader
 import java.io.OutputStreamWriter
 import java.util.Stack
 import java.util.concurrent.atomic.AtomicLong
+import java.util.zip.ZipFile
 
 object KataGoAnalysisEngine {
   var started = false
@@ -39,8 +41,13 @@ object KataGoAnalysisEngine {
   private val errorAdapter =
     Moshi.Builder().add(KotlinJsonAdapterFactory()).build().adapter(ErrorResponse::class.java)
   private val responseFlow = MutableSharedFlow<KataGoResponse>(extraBufferCapacity = 64)
+
+  // Callers also raise maxVisits to at least this many - KataGo spins up this many search
+  // threads per query regardless of budget, wasting the rest otherwise.
+  val searchThreads = Runtime.getRuntime().availableProcessors()
   private val filesDir = OnlineGoApplication.instance.filesDir
   private val netFile = File(filesDir, "katagonet.gz")
+  private val humanNetFile = File(filesDir, "katagohumannet.gz")
   private val cfgFile = File(filesDir, "katago.cfg")
 
   @Throws(IOException::class)
@@ -55,6 +62,7 @@ object KataGoAnalysisEngine {
       "./libkatago.so",
       "analysis",
       "-model", netFile.absolutePath,
+      "-human-model", humanNetFile.absolutePath,
       "-config", cfgFile.absolutePath
     )
       .apply { environment()["LD_LIBRARY_PATH"] = "." }
@@ -86,18 +94,23 @@ object KataGoAnalysisEngine {
           Thread {
             while (true) {
               val line = reader?.readLine() ?: break
-              if (line.startsWith("{\"error\"") || line.startsWith("{\"warning\":\"WARNING_MESSAGE\"")) {
-                Log.e("KataGoAnalysisEngine", line)
-                recordException(Exception("Katago: $line"))
-                errorAdapter.fromJson(line)?.let {
-                  responseFlow.tryEmit(it)
+              try {
+                if (line.contains("\"error\":") || line.contains("\"warning\":")) {
+                  Log.e("KataGoAnalysisEngine", line)
+                  recordException(Exception("Katago: $line"))
+                  errorAdapter.fromJson(line)?.let {
+                    responseFlow.tryEmit(it)
+                  }
+                } else {
+                  Log.d("KataGoAnalysisEngine", line)
+                  FirebaseCrashlytics.getInstance().log("KATAGO < $line")
+                  responseAdapter.fromJson(line)?.let {
+                    responseFlow.tryEmit(it)
+                  }
                 }
-              } else {
-                Log.d("KataGoAnalysisEngine", line)
-                FirebaseCrashlytics.getInstance().log("KATAGO < $line")
-                responseAdapter.fromJson(line)?.let {
-                  responseFlow.tryEmit(it)
-                }
+              } catch (e: Exception) {
+                Log.e("KataGoAnalysisEngine", "Failed to parse KataGo line: $line", e)
+                recordException(e)
               }
             }
             Log.d("KataGoAnalysisEngine", "End of input, killing reader thread")
@@ -140,10 +153,10 @@ object KataGoAnalysisEngine {
     sequence: List<Position>,
     komi: Float? = null,
     maxVisits: Int? = null,
-    rootPolicyTemperature: Float? = null,
     includeOwnership: Boolean? = null,
     includeMovesOwnership: Boolean? = null,
-    includePolicy: Boolean? = null
+    includePolicy: Boolean? = null,
+    overrideSettings: OverrideSettings? = null
   ): Response {
     val id = generateId()
 
@@ -174,7 +187,7 @@ object KataGoAnalysisEngine {
       initialStones = initialPosition.toList(),
       komi = komi,
       maxVisits = maxVisits,
-      rootPolicyTemperature = rootPolicyTemperature,
+      overrideSettings = overrideSettings,
       moves = history,
       rules = "japanese"
     )
@@ -197,23 +210,41 @@ object KataGoAnalysisEngine {
 
   private fun generateId() = requestIDX.incrementAndGet().toString()
 
-  private const val KATAGO_NET_SIZE = 36948927L
-  private const val KATAGO_CFG_SIZE = 543L
-
   private fun ensureResourcesAreUnpacked() {
-    unpackResource("katago.net", netFile, KATAGO_NET_SIZE)
-    unpackResource("katago.cfg", cfgFile, KATAGO_CFG_SIZE)
+    unpackResource("katago.net", netFile)
+    unpackResource("katago_human.net", humanNetFile)
+    writeConfigWithThreadCount()
   }
 
-  private fun unpackResource(srcName: String, destFile: File, expectedSize: Long) {
+  // Thread pool size is fixed at KataGo process startup, unlike humanSLProfile - it can't
+  // be set via per-query overrideSettings, so the cfg has to be regenerated per engine start.
+  private fun writeConfigWithThreadCount() {
+    val template = OnlineGoApplication.instance.assets.open("katago.cfg")
+      .bufferedReader().use { it.readText() }
+    val configured = template.replace(
+      Regex("""(?m)^numSearchThreadsPerAnalysisThread\s*=.*$"""),
+      "numSearchThreadsPerAnalysisThread = $searchThreads"
+    )
+    cfgFile.writeText(configured)
+  }
+
+  // Reads the real size from the APK's zip central directory - AssetManager.openFd() fails
+  // on AAPT-compressed assets, and this avoids a hardcoded byte count to keep in sync by hand.
+  private fun expectedAssetSize(srcName: String): Long {
+    val apkPath = OnlineGoApplication.instance.applicationInfo.sourceDir
+    ZipFile(apkPath).use { zip ->
+      return zip.getEntry("assets/$srcName")?.size
+        ?: throw IOException("Asset '$srcName' not found in APK at $apkPath")
+    }
+  }
+
+  private fun unpackResource(srcName: String, destFile: File) {
     val assets = OnlineGoApplication.instance.assets
+    val expectedSize = expectedAssetSize(srcName)
     if (!destFile.exists() || destFile.length() != expectedSize) {
       destFile.delete()
-      assets.open(srcName).apply {
-        val out = destFile.outputStream()
-        copyTo(out)
-        out.close()
-        close()
+      assets.open(srcName).use { input ->
+        destFile.outputStream().use { output -> input.copyTo(output) }
       }
     }
   }

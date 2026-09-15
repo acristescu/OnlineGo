@@ -13,141 +13,36 @@ sealed interface DifficultyRank {
 }
 
 /**
- * temperature scales how much weaker-than-best moves get sampled, and localitySigma
- * (null = disabled) biases weaker tiers toward replies near the board's last move; see
- * [AiGameViewModel.selectAiMove]. temperature == 0 always plays the top move.
+ * humanSLProfile picks a KataGo Human SL rank/style ("rank_9k", "rank_3d", ...) to sample
+ * moves from - see [AiGameViewModel.selectHumanMove]. DAN_5 alone leaves it null and just
+ * plays KataGo's own top move instead - see [AiGameViewModel.selectBestMove].
  *
- * rootPolicyTemperature flattens KataGo's own root move priors during search (1.0 =
- * engine default, no change). At the weakest tiers maxVisits is so low that the search
- * barely explores beyond its 1-2 favorite moves, starving moveInfos of real candidates;
- * raising this spreads the search itself across more moves within the same visit budget.
+ * DAN_4 uses rank_4d rather than a higher rank: KataGo's docs note high-dan Human SL
+ * profiles aren't backed by real search, so they mostly change style, not strength.
  *
- * comebackProbability (0 = disabled) is the chance, per move, that once the engine's own
- * winrate is above 70% it skips normal sampling and deliberately plays whichever
- * candidate's winrate is closest to 50% instead - see [AiGameViewModel.selectAiMove]. It
- * has no effect below that threshold, and is 0 for every Dan tier (no artificial mercy
- * there).
+ * maxVisits here is a floor - [AiGameViewModel.generateAiMove] raises it to at least the
+ * device's CPU core count, since KataGo spins up that many search threads per query
+ * regardless of the requested budget.
  */
 enum class AiDifficulty(
   val maxVisits: Int,
-  val temperature: Float,
-  val localitySigma: Float?,
-  val rootPolicyTemperature: Float,
-  val comebackProbability: Float,
+  val humanSLProfile: String?,
   val rank: DifficultyRank,
 ) {
-  KYU_20(
-    maxVisits = 3,
-    temperature = 2.1f,
-    localitySigma = 3f,
-    rootPolicyTemperature = 2.0f,
-    comebackProbability = 0.90f,
-    rank = DifficultyRank.Kyu(20)
-  ),
-  KYU_18(
-    maxVisits = 4,
-    temperature = 1.85f,
-    localitySigma = 4f,
-    rootPolicyTemperature = 1.8f,
-    comebackProbability = 0.80f,
-    rank = DifficultyRank.Kyu(18)
-  ),
-  KYU_16(
-    maxVisits = 6,
-    temperature = 1.6f,
-    localitySigma = 5f,
-    rootPolicyTemperature = 1.6f,
-    comebackProbability = 0.70f,
-    rank = DifficultyRank.Kyu(16)
-  ),
-  KYU_14(
-    maxVisits = 7,
-    temperature = 1.35f,
-    localitySigma = 5.5f,
-    rootPolicyTemperature = 1.5f,
-    comebackProbability = 0.60f,
-    rank = DifficultyRank.Kyu(14)
-  ),
-  KYU_12(
-    maxVisits = 8,
-    temperature = 1.17f,
-    localitySigma = 6f,
-    rootPolicyTemperature = 1.4f,
-    comebackProbability = 0.50f,
-    rank = DifficultyRank.Kyu(12)
-  ),
-  KYU_10(
-    maxVisits = 9,
-    temperature = 1.13f,
-    localitySigma = 6.5f,
-    rootPolicyTemperature = 1.3f,
-    comebackProbability = 0.40f,
-    rank = DifficultyRank.Kyu(10)
-  ),
-  KYU_8(
-    maxVisits = 10,
-    temperature = 1.09f,
-    localitySigma = 7f,
-    rootPolicyTemperature = 1.2f,
-    comebackProbability = 0.30f,
-    rank = DifficultyRank.Kyu(8)
-  ),
-  KYU_6(
-    maxVisits = 12,
-    temperature = 1.07f,
-    localitySigma = 7.5f,
-    rootPolicyTemperature = 1.15f,
-    comebackProbability = 0.20f,
-    rank = DifficultyRank.Kyu(6)
-  ),
-  KYU_4(
-    maxVisits = 14,
-    temperature = 1.05f,
-    localitySigma = 8f,
-    rootPolicyTemperature = 1.1f,
-    comebackProbability = 0.15f,
-    rank = DifficultyRank.Kyu(4)
-  ),
-  KYU_2(
-    maxVisits = 16,
-    temperature = 0.95f,
-    localitySigma = 9f,
-    rootPolicyTemperature = 1.05f,
-    comebackProbability = 0.10f,
-    rank = DifficultyRank.Kyu(2)
-  ),
-  DAN_1(
-    maxVisits = 18,
-    temperature = 0.85f,
-    localitySigma = null,
-    rootPolicyTemperature = 1.0f,
-    comebackProbability = 0f,
-    rank = DifficultyRank.Dan(1)
-  ),
-  DAN_3(
-    maxVisits = 28,
-    temperature = 0.70f,
-    localitySigma = null,
-    rootPolicyTemperature = 1.0f,
-    comebackProbability = 0f,
-    rank = DifficultyRank.Dan(3)
-  ),
-  DAN_4(
-    maxVisits = 40,
-    temperature = 0.55f,
-    localitySigma = null,
-    rootPolicyTemperature = 1.0f,
-    comebackProbability = 0f,
-    rank = DifficultyRank.Dan(4)
-  ),
-  DAN_5(
-    maxVisits = 50,
-    temperature = 0f,
-    localitySigma = null,
-    rootPolicyTemperature = 1.0f,
-    comebackProbability = 0f,
-    rank = DifficultyRank.Dan(5)
-  ),
+  KYU_20(maxVisits = 3, humanSLProfile = "rank_20k", rank = DifficultyRank.Kyu(20)),
+  KYU_18(maxVisits = 3, humanSLProfile = "rank_18k", rank = DifficultyRank.Kyu(18)),
+  KYU_16(maxVisits = 3, humanSLProfile = "rank_16k", rank = DifficultyRank.Kyu(16)),
+  KYU_14(maxVisits = 3, humanSLProfile = "rank_14k", rank = DifficultyRank.Kyu(14)),
+  KYU_12(maxVisits = 3, humanSLProfile = "rank_12k", rank = DifficultyRank.Kyu(12)),
+  KYU_10(maxVisits = 3, humanSLProfile = "rank_10k", rank = DifficultyRank.Kyu(10)),
+  KYU_8(maxVisits = 3, humanSLProfile = "rank_8k", rank = DifficultyRank.Kyu(8)),
+  KYU_6(maxVisits = 3, humanSLProfile = "rank_6k", rank = DifficultyRank.Kyu(6)),
+  KYU_4(maxVisits = 3, humanSLProfile = "rank_4k", rank = DifficultyRank.Kyu(4)),
+  KYU_2(maxVisits = 3, humanSLProfile = "rank_2k", rank = DifficultyRank.Kyu(2)),
+  DAN_1(maxVisits = 3, humanSLProfile = "rank_1d", rank = DifficultyRank.Dan(1)),
+  DAN_3(maxVisits = 3, humanSLProfile = "rank_3d", rank = DifficultyRank.Dan(3)),
+  DAN_4(maxVisits = 3, humanSLProfile = "rank_4d", rank = DifficultyRank.Dan(4)),
+  DAN_5(maxVisits = 40, humanSLProfile = null, rank = DifficultyRank.Dan(5)),
 }
 
 @Immutable
@@ -180,4 +75,7 @@ data class AiGameState(
   val aiQuickEstimation: MoveInfo? = null,
   val userIcon: String? = null,
   val koMoveDialogShowing: Boolean = false,
+  val consecutiveLowWinrateTurns: Int = 0,
+  val aiResignOfferDeclined: Boolean = false,
+  val aiResignOfferShowing: Boolean = false,
 )

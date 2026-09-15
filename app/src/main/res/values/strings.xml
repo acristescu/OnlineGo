@@ -22,6 +22,12 @@
     <string name="ai_game_chat_game_over_ai_won">Game ended because of two passes. Final score is black %1$s to white %2$s. Looks like I win this time.</string>
     <string name="ai_game_chat_game_over_player_won">Game ended because of two passes. Final score is black %1$s to white %2$s. Congrats, looks like you got the better of me.</string>
     <string name="ai_game_chat_game_over_computing_score">Game ended because of two passes. Hang on, I\'m computing the final score.</string>
+    <string name="ai_game_chat_resign_offer">I think I\'ve lost this one…</string>
+    <string name="ai_game_chat_ai_resigned">I resign, you win! Well played.</string>
+    <string name="ai_resign_offer_title">KataGO wants to resign</string>
+    <string name="ai_resign_offer_message">KataGO believes the game is lost and would like to resign. Do you accept?</string>
+    <string name="ai_resign_offer_accept">Accept Resignation</string>
+    <string name="ai_resign_offer_decline">Keep Playing</string>
     <string name="ai_game_handicap_none">none</string>
     <string name="ai_game_handicap_no_komi">no komi</string>
     <string name="ai_game_avatar_content_description">AI</string>

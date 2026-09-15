@@ -12,7 +12,6 @@ data class Query (
         val boardYSize: Int,
         val analyzeTurns: List<Int>? = null,
         val maxVisits: Int? = null,
-        val rootPolicyTemperature: Float? = null,
         val rootFpuReductionMax: Float? = null,
         val includeOwnership: Boolean? = null,
         val includeMovesOwnership: Boolean? = null,
@@ -20,6 +19,12 @@ data class Query (
         val includePVVisits: Boolean? = null,
         val avoidMoves: List<List<String>>? = null,
         val allowMoves: List<List<String>>? = null,
-        val overrideSettings: String? = null,
+        val overrideSettings: OverrideSettings? = null,
         val priority: Int? = null
+)
+
+// humanSLProfile format: "rank_{RANK}" (or "preaz_{RANK}"), RANK spanning 20k-9d - see
+// AiDifficulty.humanSLProfile for how tiers map to it.
+data class OverrideSettings(
+        val humanSLProfile: String? = null,
 )

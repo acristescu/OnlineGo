@@ -177,6 +177,8 @@ fun AiGameScreen(
     onNewGame = viewModel::onNewGame,
     onDismissNewGameDialog = viewModel::onDismissNewGameDialog,
     onDismissKoDialog = viewModel::onDismissKoDialog,
+    onAcceptAiResignOffer = viewModel::onAiResignOfferAccepted,
+    onDeclineAiResignOffer = viewModel::onAiResignOfferDeclined,
     onNavigateBack = onNavigateBack,
   )
 }
@@ -198,6 +200,8 @@ private fun AiGameUI(
   onDismissNewGameDialog: () -> Unit,
   onNavigateBack: () -> Unit,
   onDismissKoDialog: () -> Unit,
+  onAcceptAiResignOffer: () -> Unit,
+  onDeclineAiResignOffer: () -> Unit,
 ) {
   val configuration = LocalConfiguration.current
   val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
@@ -295,6 +299,29 @@ private fun AiGameUI(
       },
       text = { Text(stringResource(R.string.ko_explanation)) },
       title = { Text(stringResource(R.string.illegal_ko_move), style = MaterialTheme.typography.titleLarge) },
+    )
+  }
+
+  if (state.aiResignOfferShowing) {
+    AlertDialog(
+      onDismissRequest = onDeclineAiResignOffer,
+      confirmButton = {
+        TextButton(onClick = onAcceptAiResignOffer) {
+          Text(stringResource(R.string.ai_resign_offer_accept))
+        }
+      },
+      dismissButton = {
+        TextButton(onClick = onDeclineAiResignOffer) {
+          Text(stringResource(R.string.ai_resign_offer_decline))
+        }
+      },
+      text = { Text(stringResource(R.string.ai_resign_offer_message)) },
+      title = {
+        Text(
+          stringResource(R.string.ai_resign_offer_title),
+          style = MaterialTheme.typography.titleLarge
+        )
+      },
     )
   }
 }
@@ -863,6 +890,8 @@ private fun AiGameUIPreview() {
       onNewGame = { _, _, _, _ -> },
       onDismissNewGameDialog = {},
       onDismissKoDialog = {},
+      onAcceptAiResignOffer = {},
+      onDeclineAiResignOffer = {},
       onNavigateBack = {}
     )
   }
@@ -918,6 +947,8 @@ private fun AiGameUIPreviewNewGame() {
       onNewGame = { _, _, _, _ -> },
       onDismissNewGameDialog = {},
       onDismissKoDialog = {},
+      onAcceptAiResignOffer = {},
+      onDeclineAiResignOffer = {},
       onNavigateBack = {}
     )
   }
@@ -978,6 +1009,8 @@ private fun PreviewLandscape() {
       onNewGame = { _, _, _, _ -> },
       onDismissNewGameDialog = {},
       onDismissKoDialog = {},
+      onAcceptAiResignOffer = {},
+      onDeclineAiResignOffer = {},
       onNavigateBack = {}
     )
   }

@@ -12,7 +12,10 @@ import io.zenandroid.onlinego.ai.KataGoAnalysisEngine
 import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.Position
 import io.zenandroid.onlinego.data.model.StoneType
+import io.zenandroid.onlinego.data.model.katago.KataGoResponse.Response
 import io.zenandroid.onlinego.data.model.katago.MoveInfo
+import io.zenandroid.onlinego.data.model.katago.OverrideSettings
+import io.zenandroid.onlinego.data.model.katago.RootInfo
 import io.zenandroid.onlinego.data.repositories.SettingsRepository
 import io.zenandroid.onlinego.data.repositories.UserSessionRepository
 import io.zenandroid.onlinego.gamelogic.RulesManager
@@ -37,8 +40,6 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlin.math.abs
-import kotlin.math.exp
-import kotlin.math.ln
 import kotlin.random.Random
 
 class AiGameViewModel(
@@ -191,7 +192,6 @@ class AiGameViewModel(
   }
 
   fun onNewGame(size: Int, youPlayBlack: Boolean, handicap: Int, difficulty: AiDifficulty) {
-    // kill any in-flight Katago request(s) as they are now irrelevant
     katagoJob?.cancel()
     hintJob?.cancel()
     ownershipJob?.cancel()
@@ -224,6 +224,9 @@ class AiGameViewModel(
         aiAnalysis = null,
         aiQuickEstimation = null,
         stateRestorePending = false,
+        consecutiveLowWinrateTurns = 0,
+        aiResignOfferDeclined = false,
+        aiResignOfferShowing = false,
       )
     }
     updatePosition(newPosition)
@@ -270,6 +273,36 @@ class AiGameViewModel(
         chatText = TextResource(R.string.ai_game_chat_invalid_move)
       )
     }
+  }
+
+  fun onAiResignOfferAccepted() {
+    _state.update {
+      it.copy(
+        aiResignOfferShowing = false,
+        boardIsInteractive = false,
+        passButtonEnabled = false,
+        nextButtonEnabled = false,
+        previousButtonEnabled = true,
+        hintButtonVisible = false,
+        ownershipButtonVisible = false,
+        showHints = false,
+        showAiEstimatedTerritory = false,
+        candidateMove = null,
+        aiWon = false,
+        chatText = TextResource(R.string.ai_game_chat_ai_resigned),
+      )
+    }
+  }
+
+  fun onAiResignOfferDeclined() {
+    _state.update {
+      it.copy(
+        aiResignOfferShowing = false,
+        aiResignOfferDeclined = true,
+        consecutiveLowWinrateTurns = 0,
+      )
+    }
+    generateAiMove()
   }
 
   fun onUserHotTrackedCoordinate(coordinate: Cell) {
@@ -498,113 +531,148 @@ class AiGameViewModel(
     katagoJob?.cancel()
     katagoJob = viewModelScope.launch {
       try {
+        val difficulty = currentState.difficulty
+        // KataGo spins up this many search threads per query regardless of maxVisits; a
+        // lower budget just wastes most of them in a thread-scheduling race for the rest.
+        val effectiveMaxVisits = maxOf(difficulty.maxVisits, KataGoAnalysisEngine.searchThreads)
         val analysis = withContext(Dispatchers.IO) {
           KataGoAnalysisEngine.analyzeMoveSequence(
             sequence = currentState.history,
-            maxVisits = currentState.difficulty.maxVisits,
-            rootPolicyTemperature = currentState.difficulty.rootPolicyTemperature,
+            maxVisits = effectiveMaxVisits,
             komi = currentState.position.komi,
             includeOwnership = false,
-            includeMovesOwnership = false
+            includeMovesOwnership = false,
+            includePolicy = difficulty.humanSLProfile != null,
+            overrideSettings = difficulty.humanSLProfile?.let { OverrideSettings(humanSLProfile = it) },
           )
         }
-        val engineIsWhite = !currentState.enginePlaysBlack
-        val orientedMoveInfos = analysis.moveInfos.map {
-          it.copy(winrate = orientedWinrate(it.winrate, engineIsWhite))
-        }
-        val aiWinrate = orientedWinrate(analysis.rootInfo.winrate ?: 0.5f, engineIsWhite)
         Log.d(
           "AiMoveDebug",
-          "tier=${currentState.difficulty.name} maxVisits=${currentState.difficulty.maxVisits} " +
-              "rootPolicyTemperature=${currentState.difficulty.rootPolicyTemperature} " +
-              "aiWinrate=%.3f ".format(aiWinrate) +
-              "candidates=${orientedMoveInfos.size} " +
+          "tier=${difficulty.name} maxVisits=${effectiveMaxVisits} " +
+              "humanSLProfile=${difficulty.humanSLProfile} " +
+              "candidates=${analysis.moveInfos.size} " +
               "moves=${
-                orientedMoveInfos.sortedByDescending { it.visits }
+                analysis.moveInfos.sortedByDescending { it.visits }
                   .joinToString { "${it.move}(v=${it.visits},wr=%.3f)".format(it.winrate) }
               }"
         )
-        withContext(Dispatchers.Default) {
-          val selectedMove = selectAiMove(
-            moveInfos = orientedMoveInfos,
-            temperature = currentState.difficulty.temperature,
-            boardHeight = currentState.position.boardHeight,
-            lastMove = currentState.position.lastMove,
-            localitySigma = effectiveLocalitySigma(
-              localitySigma = currentState.difficulty.localitySigma,
-              plyNumber = currentState.history.size,
-              boardWidth = currentState.position.boardWidth,
-            ),
-            aiWinrate = aiWinrate,
-            comebackProbability = currentState.difficulty.comebackProbability,
-          )
-          Log.d(
-            "AiMoveDebug",
-            "picked=${selectedMove.move}(v=${selectedMove.visits},wr=%.3f)".format(selectedMove.winrate)
-          )
-          val move =
-            Util.getCoordinatesFromGTP(selectedMove.move, currentState.position.boardHeight)
-          val side = if (currentState.enginePlaysBlack) StoneType.BLACK else StoneType.WHITE
-          val newPosition = RulesManager.makeMove(currentState.position, side, move)
 
-          if (newPosition == null) {
-            recordException(Exception("KataGO wants to play move ${selectedMove.move} ($move), but RulesManager rejects it as invalid"))
-          } else {
-            val newVariation = if (currentState.history.lastOrNull() == newPosition) {
-              currentState.history
-            } else {
-              currentState.history + newPosition
-            }
-            _state.update {
-              it.copy(
-                position = newPosition,
-                history = newVariation,
-                nextButtonEnabled = false,
-                aiAnalysis = analysis,
-                aiQuickEstimation = selectedMove,
-                previousButtonEnabled = newVariation.size > 2,
-                showFinalTerritory = newVariation.isGameOver(),
-                chatText = when {
-                  newVariation.isGameOver() && it.aiWon == true ->
-                    textResource(
-                      R.string.ai_game_chat_game_over_ai_won,
-                      it.finalBlackScore?.toInt().toString(),
-                      it.finalWhiteScore.toString()
-                    )
+        val engineWinrate =
+          orientedWinrateForEngine(analysis.rootInfo.winrate ?: 0.5f, currentState.enginePlaysBlack)
 
-                  newVariation.isGameOver() && it.aiWon == false ->
-                    textResource(
-                      R.string.ai_game_chat_game_over_player_won,
-                      it.finalBlackScore?.toInt().toString(),
-                      it.finalWhiteScore.toString()
-                    )
+        hopelessPassMove(engineWinrate, analysis.moveInfos)?.let { passMove ->
+          withContext(Dispatchers.Default) {
+            applySelectedMove(passMove, analysis, currentState, currentState.position)
+          }
+          return@launch
+        }
 
-                  newVariation.isGameOver() && it.aiWon == null ->
-                    TextResource(R.string.ai_game_chat_game_over_computing_score)
-
-                  else -> TextResource(R.string.ai_game_chat_your_turn)
-                }
-              )
-            }
-
-            if (newVariation.isGameOver()) {
-              computeFinalScore()
-            } else {
+        if (!currentState.aiResignOfferDeclined) {
+          if (engineWinrate < AI_RESIGN_WINRATE_THRESHOLD) {
+            val newCount = currentState.consecutiveLowWinrateTurns + 1
+            if (newCount >= AI_RESIGN_CONSECUTIVE_TURNS) {
               _state.update {
                 it.copy(
-                  boardIsInteractive = true,
-                  passButtonEnabled = true,
-                  hintButtonVisible = true,
-                  ownershipButtonVisible = true
+                  consecutiveLowWinrateTurns = newCount,
+                  aiResignOfferShowing = true,
+                  boardIsInteractive = false,
+                  chatText = TextResource(R.string.ai_game_chat_resign_offer),
                 )
               }
+              return@launch
             }
+            _state.update { it.copy(consecutiveLowWinrateTurns = newCount) }
+          } else {
+            _state.update { it.copy(consecutiveLowWinrateTurns = 0) }
           }
+        }
+
+        withContext(Dispatchers.Default) {
+          val selectedMove = difficulty.humanSLProfile?.let { profile ->
+            selectHumanMove(
+              humanPolicy = analysis.humanPolicy
+                ?: throw IllegalStateException("Tier ${difficulty.name} (humanSLProfile=$profile) got a response with no humanPolicy"),
+              moveInfos = analysis.moveInfos,
+              rootInfo = analysis.rootInfo,
+              boardWidth = currentState.position.boardWidth,
+              boardHeight = currentState.position.boardHeight,
+            )
+          } ?: selectBestMove(analysis.moveInfos)
+          applySelectedMove(selectedMove, analysis, currentState, currentState.position)
         }
       } catch (e: CancellationException) {
         throw e
       } catch (e: Exception) {
         recordException(e)
+      }
+    }
+  }
+
+  private suspend fun applySelectedMove(
+    selectedMove: MoveInfo,
+    analysis: Response,
+    currentState: AiGameState,
+    position: Position,
+  ) {
+    Log.d(
+      "AiMoveDebug",
+      "picked=${selectedMove.move}(v=${selectedMove.visits},wr=%.3f)".format(selectedMove.winrate)
+    )
+    val move = Util.getCoordinatesFromGTP(selectedMove.move, position.boardHeight)
+    val side = if (currentState.enginePlaysBlack) StoneType.BLACK else StoneType.WHITE
+    val newPosition = RulesManager.makeMove(position, side, move)
+
+    if (newPosition == null) {
+      recordException(Exception("KataGO wants to play move ${selectedMove.move} ($move), but RulesManager rejects it as invalid"))
+    } else {
+      val newVariation = if (currentState.history.lastOrNull() == newPosition) {
+        currentState.history
+      } else {
+        currentState.history + newPosition
+      }
+      _state.update {
+        it.copy(
+          position = newPosition,
+          history = newVariation,
+          nextButtonEnabled = false,
+          aiAnalysis = analysis,
+          aiQuickEstimation = selectedMove,
+          previousButtonEnabled = newVariation.size > 2,
+          showFinalTerritory = newVariation.isGameOver(),
+          chatText = when {
+            newVariation.isGameOver() && it.aiWon == true ->
+              textResource(
+                R.string.ai_game_chat_game_over_ai_won,
+                it.finalBlackScore?.toInt().toString(),
+                it.finalWhiteScore.toString()
+              )
+
+            newVariation.isGameOver() && it.aiWon == false ->
+              textResource(
+                R.string.ai_game_chat_game_over_player_won,
+                it.finalBlackScore?.toInt().toString(),
+                it.finalWhiteScore.toString()
+              )
+
+            newVariation.isGameOver() && it.aiWon == null ->
+              TextResource(R.string.ai_game_chat_game_over_computing_score)
+
+            else -> TextResource(R.string.ai_game_chat_your_turn)
+          }
+        )
+      }
+
+      if (newVariation.isGameOver()) {
+        computeFinalScore()
+      } else {
+        _state.update {
+          it.copy(
+            boardIsInteractive = true,
+            passButtonEnabled = true,
+            hintButtonVisible = true,
+            ownershipButtonVisible = true
+          )
+        }
       }
     }
   }
@@ -703,103 +771,91 @@ class AiGameViewModel(
   }
 }
 
+private const val AI_RESIGN_WINRATE_THRESHOLD = 0.05f
+private const val AI_RESIGN_CONSECUTIVE_TURNS = 3
+private const val AI_HOPELESS_PASS_WINRATE_THRESHOLD = 0.01f
+
 /**
- * Picks a move from KataGo's candidates with probability proportional to
- * exp(logit(winrate)/temperature) - a Boltzmann distribution over how good each move
- * actually evaluates to be, in log-odds space. Winrate is used rather than visits because
- * at low maxVisits almost every candidate ends up with just 1-2 visits each; that tiny a
- * gap carries essentially no signal about move quality (and can even point the wrong way
- * vs. winrate), whereas winrate is a meaningful per-move read even off a single playout.
- * Raw winrate is bounded to [0,1], which compresses badly under exp() - even a huge,
- * decisive gap (e.g. 0.9 vs 0.1) only ever produces a few-times weight difference at any
- * realistic temperature, making sampling far flatter than intended. logit(p) =
- * ln(p/(1-p)) is unbounded, so a genuine quality gap translates into a proportionally
- * large weight difference instead of being squashed. temperature == 0 always plays the
- * top move.
- *
- * When localitySigma is non-null, candidates are additionally weighted by a Gaussian
- * falloff on their Chebyshev distance from lastMove, so weaker tiers favor replying near
- * the action instead of jumping to a distant "textbook" point. lastMove being a pass
- * exempts every candidate from this weighting, since distance is meaningless there.
- *
- * Pass is only ever returned when it's genuinely the top-ranked move (moveInfos[0]);
- * otherwise it's excluded from the sampling pool entirely, since a randomly-sampled pass
- * is a much costlier blunder than a slightly-suboptimal board move.
- *
- * Once aiWinrate is above 70%, each call additionally has a comebackProbability chance of
- * skipping normal sampling entirely and instead playing whichever candidate's winrate is
- * closest to 50% - a deliberate, blunt "give back the lead" move once the engine has
- * enough margin to spare. Below that threshold, or when comebackProbability is 0 (every
- * Dan tier), this has no effect.
+ * At this low a visit budget, whether pass ends up as moveInfos[0] is mostly a thread-
+ * scheduling race, not a real signal that some other move is better. Once winrate says
+ * the position is essentially decided, pass is effectively free either way, so it's
+ * enough for pass to be considered a candidate at all - it doesn't need to win that race.
  */
 @VisibleForTesting
-fun selectAiMove(
-  moveInfos: List<MoveInfo>,
-  temperature: Float,
-  boardHeight: Int,
-  lastMove: Cell?,
-  localitySigma: Float?,
-  aiWinrate: Float,
-  comebackProbability: Float,
-  random: Random = Random,
-): MoveInfo {
-  val topMove = moveInfos[0]
-  if (temperature <= 0f || topMove.move.equals("pass", ignoreCase = true)) return topMove
-
-  val candidates = moveInfos.filterNot { it.move.equals("pass", ignoreCase = true) }
-  if (candidates.isEmpty()) return topMove
-
-  if (aiWinrate > 0.7f && random.nextFloat() < comebackProbability) {
-    return candidates.minByOrNull { abs(it.winrate - 0.5f) } ?: topMove
-  }
-
-  val weights = candidates.map { info ->
-    val winrateWeight = exp(logit(info.winrate) / temperature.toDouble())
-    val localityWeight = if (localitySigma == null || lastMove == null || lastMove.isPass) {
-      1.0
-    } else {
-      val cell = Util.getCoordinatesFromGTP(info.move, boardHeight)
-      val distance = maxOf(abs(cell.x - lastMove.x), abs(cell.y - lastMove.y)).toDouble()
-      exp(-(distance * distance) / (2.0 * localitySigma * localitySigma))
-    }
-    winrateWeight * localityWeight
-  }
-  val total = weights.sum()
-  var remaining = random.nextDouble() * total
-  for ((info, weight) in candidates.zip(weights)) {
-    remaining -= weight
-    if (remaining <= 0) return info
-  }
-  return candidates.last()
+fun hopelessPassMove(engineWinrate: Float, moveInfos: List<MoveInfo>): MoveInfo? {
+  if (engineWinrate >= AI_HOPELESS_PASS_WINRATE_THRESHOLD) return null
+  return moveInfos.find { it.move.equals("pass", ignoreCase = true) }
 }
-
-/**
- * Suppresses the locality bias during the opening (before boardWidth plies have been
- * played), since a normal opening deliberately spreads across the whole board rather
- * than clustering near the previous move.
- */
-@VisibleForTesting
-fun effectiveLocalitySigma(localitySigma: Float?, plyNumber: Int, boardWidth: Int): Float? =
-  if (plyNumber < boardWidth) null else localitySigma
 
 /**
  * katago.cfg sets reportAnalysisWinratesAs = WHITE, so every winrate KataGo reports is
- * always relative to White, regardless of whose turn it is. This converts it to be
- * relative to the engine itself, which is what every winrate-based decision in this file
- * assumes it's working with.
+ * always relative to White, regardless of whose turn it is or who the engine is playing.
+ * This orients it to the engine's own side, which the resignation check needs.
  */
 @VisibleForTesting
-fun orientedWinrate(rawWinrate: Float, engineIsWhite: Boolean): Float =
-  if (engineIsWhite) rawWinrate else 1f - rawWinrate
+fun orientedWinrateForEngine(rawWinrate: Float, enginePlaysBlack: Boolean): Float =
+  if (enginePlaysBlack) 1f - rawWinrate else rawWinrate
 
 /**
- * ln(p/(1-p)) - converts a bounded [0,1] probability into an unbounded log-odds value, so
- * that a genuine quality gap between two winrates doesn't get squashed the way it would
- * sampling directly on raw winrate (see [selectAiMove]). Clamped away from the exact 0/1
- * edges to avoid -Infinity/+Infinity.
+ * Samples a move by weighted draw over KataGo's humanPolicy array (illegal points marked
+ * -1, filtered before sampling) - the official Human SL recipe, no temperature needed since
+ * humanPolicy is already a calibrated probability distribution. Row-major flattening,
+ * boardWidth*boardHeight index is pass (same convention as `ownership`).
+ *
+ * Returns a MoveInfo: reuses the real search stats when the sampled point was also
+ * explored, otherwise synthesizes one from rootInfo.
+ *
+ * Exception: if the real search already ranks pass as its top move, play it directly -
+ * once a position is truly decided, humanPolicy alone still only gives pass a modest,
+ * human-like weight and could keep the game going indefinitely.
  */
 @VisibleForTesting
-fun logit(probability: Float): Double {
-  val clamped = probability.toDouble().coerceIn(1e-4, 1.0 - 1e-4)
-  return ln(clamped / (1.0 - clamped))
+fun selectHumanMove(
+  humanPolicy: List<Float>,
+  moveInfos: List<MoveInfo>,
+  rootInfo: RootInfo,
+  boardWidth: Int,
+  boardHeight: Int,
+  random: Random = Random,
+): MoveInfo {
+  moveInfos.firstOrNull()?.takeIf { it.move.equals("pass", ignoreCase = true) }?.let { return it }
+
+  val legal = humanPolicy.withIndex().filter { it.value >= 0f }
+  check(legal.isNotEmpty()) { "humanPolicy had no legal moves" }
+  val total = legal.sumOf { it.value.toDouble() }
+  var remaining = random.nextDouble() * total
+  var chosenIndex = legal.last().index
+  for ((index, weight) in legal) {
+    remaining -= weight
+    if (remaining <= 0.0) {
+      chosenIndex = index
+      break
+    }
+  }
+  val cell = if (chosenIndex == boardWidth * boardHeight) {
+    Cell.PASS
+  } else {
+    Cell(chosenIndex % boardWidth, chosenIndex / boardWidth)
+  }
+  val gtpMove = Util.getGTPCoordinates(cell, boardHeight)
+  return moveInfos.find { it.move.equals(gtpMove, ignoreCase = true) }
+    ?: MoveInfo(
+      move = gtpMove,
+      visits = 0,
+      winrate = rootInfo.winrate ?: 0.5f,
+      scoreStdev = rootInfo.scoreStdev ?: 0f,
+      scoreLead = rootInfo.scoreLead ?: 0f,
+      scoreSelfplay = rootInfo.scoreSelfplay ?: 0f,
+      prior = humanPolicy[chosenIndex],
+      utility = rootInfo.utility ?: 0f,
+      lcb = 0f,
+      utilityLcb = 0f,
+      order = -1,
+      pv = emptyList(),
+      pvVisits = null,
+    )
 }
+
+/** Dan 5 skips Human SL sampling and plays KataGo's own top-ranked candidate outright - relies on KataGo's JSON already ordering moveInfos best-first. */
+@VisibleForTesting
+fun selectBestMove(moveInfos: List<MoveInfo>): MoveInfo = moveInfos[0]

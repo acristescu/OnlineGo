@@ -20,6 +20,9 @@ sealed interface KataGoResponse {
     val rootInfo: RootInfo,
     val policy: List<Float>?,
     val ownership: List<Float>? = null,
+    // Present only when overrideSettings.humanSLProfile + includePolicy are set; same
+    // row-major, pass-index-last layout as `policy`/`ownership`. See selectHumanMove.
+    val humanPolicy: List<Float>? = null,
   ) : KataGoResponse
 }
 
