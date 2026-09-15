@@ -42,6 +42,24 @@ play at a given rank) via the analysis engine's `overrideSettings.humanSLProfile
 - Reader-thread crash fix: KataGo warning responses weren't always recognized, causing an
   uncaught JSON-parse crash; broadened detection and wrapped parsing in try/catch.
 
+## Rebuilding `libkatago.so`
+
+`app/src/main/jniLibs/{arm64-v8a,armeabi-v7a}/libkatago.so` are self-built subprocess
+executables (not KataGo's usual JNI-library form) - needed later, for a newer KataGo
+version or a new ABI. Steps:
+
+1. Clone [`acristescu/PaooGo`](https://github.com/acristescu/PaooGo), branch
+   `251101a_humansl`. It contains `android/src/main/cpp/katago-executable-patch/CMakeLists.txt`
+   and a README section ("Standalone KataGo executable (for OnlineGo)") documenting exactly
+   what to change and why.
+2. Clone `kaorahi/KataGo`, branch `paoo_251025a`, into `cpp/`.
+3. Copy `katago-executable-patch/CMakeLists.txt` over `cpp/CMakeLists.txt`.
+4. In `cpp/main.cpp`'s `handleSubcommand()`, remove the `contribute`, `gtp`, and `selfplay`
+   dispatch branches (see the PaooGo README for the exact diff).
+5. Build with the Android NDK, Eigen (CPU) backend, for each target ABI - produces
+   `libkatago.so` as a real executable (entry point set, no JNI exports).
+6. Copy the resulting binaries into `app/src/main/jniLibs/<abi>/libkatago.so` here.
+
 ## Status
 
 Implemented, tested (unit tests + on-device), shipped.
