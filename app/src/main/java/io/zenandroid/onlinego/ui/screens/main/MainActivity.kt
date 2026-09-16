@@ -127,8 +127,8 @@ class MainActivity : ComponentActivity() {
             // Turn off the decor fitting system windows, which allows us to handle insets,
             // including IME animations, and go edge-to-edge.
             // This is the same parameters as the default enableEdgeToEdge call, but we manually
-            // resolve whether or not to show dark theme using uiState, since it can be different
-            // than the configuration's dark theme value based on the user preference.
+            // resolve whether to show dark theme using uiState, since it can be different
+            // from the configuration's dark theme value based on the user preference.
             enableEdgeToEdge(
               statusBarStyle = SystemBarStyle.auto(
                 lightScrim = Color.TRANSPARENT,

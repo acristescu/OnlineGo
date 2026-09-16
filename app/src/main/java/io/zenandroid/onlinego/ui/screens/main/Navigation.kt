@@ -6,7 +6,6 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Card
@@ -98,9 +97,7 @@ fun OnlineGoApp(
         exitTransition = { fadeOut(animationSpec = tween(500)) },
         popEnterTransition = { fadeIn(animationSpec = tween(500)) },
         popExitTransition = { fadeOut(animationSpec = tween(500)) },
-        modifier = Modifier
-          .padding(innerPadding)
-          .consumeWindowInsets(innerPadding)
+        modifier = Modifier.padding(bottom = innerPadding.calculateBottomPadding())
       ) {
         composable("myGames") {
           MyGamesScreen(
