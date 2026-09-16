@@ -1,2 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources></resources>
+<resources>
+    <string name="app_name">Sente - GO en línia</string>
+    <string name="create_account_prompt">No teniu compte a OGS? Creeu-ne un &lt;br&gt;aquí&lt;br&gt;!</string>
+    <string name="login_to_ogs">Inicieu sessió a OGS</string>
+    <string name="create_account">Creeu un compte a OGS</string>
+    <string name="welcome_to_sente_online_go">Benvingut/da a Sente - GO en línia </string>
+    <string name="login_to_play_online">Si us plau, inicieu sessió a OGS per jugar en línia</string>
+    <string name="ai_game_chat_ready">Preparat/da?</string>
+    <string name="ai_game_chat_use_new_game_button">Utilitzeu el botó \'Nova Partida\' per començar una partida </string>
+    <string name="ai_game_chat_engine_error">Error en iniciar el KataGO \'%1$s\'</string>
+    <string name="ai_game_chat_invalid_move">Moviment no vàlid, torneu-ho a provar</string>
+</resources>
