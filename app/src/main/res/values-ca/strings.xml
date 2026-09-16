@@ -10,4 +10,15 @@
     <string name="ai_game_chat_use_new_game_button">Utilitzeu el botó \'Nova Partida\' per començar una partida </string>
     <string name="ai_game_chat_engine_error">Error en iniciar el KataGO \'%1$s\'</string>
     <string name="ai_game_chat_invalid_move">Moviment no vàlid, torneu-ho a provar</string>
+    <string name="ai_game_chat_lets_try_again">D\'acord, torneu-ho a provar. És el vostre torn!</string>
+    <string name="ai_game_chat_hmmm">Hmmm...</string>
+    <string name="ai_game_chat_moves_to_consider">Aquí teniu unes quantes jugades per considerar</string>
+    <string name="ai_game_chat_ok_your_turn">D\'acord, és el vostre torn</string>
+    <string name="ai_game_chat_calculating_territory">D\'acord, calculant el territori actual...</string>
+    <string name="ai_game_chat_territories">Així és com crec que estan els territoris</string>
+    <string name="ai_game_chat_im_thinking">Estic pensant...</string>
+    <string name="ai_game_chat_your_turn">El vostre torn</string>
+    <string name="ai_game_chat_game_over_ai_won">La partida ha acabat perquè tots dos jugadors hem passat. El resultat final és de %1$s per a les negres i %2$s per a les blanques. Sembla que aquesta vegada he guanyat jo</string>
+    <string name="ai_game_chat_game_over_player_won">La partida ha acabat perquè tots dos jugadors hem passat. El resultat final és de %1$s per a les negres i %2$s per a les blanques. Enhorabona, aquesta vegada m\'heu guanyat</string>
+    <string name="ai_game_chat_game_over_computing_score">La partida ha acabat perquè tots dos jugadors hem passat. Espereu un moment, estic calculant el resultat final.</string>
 </resources>
