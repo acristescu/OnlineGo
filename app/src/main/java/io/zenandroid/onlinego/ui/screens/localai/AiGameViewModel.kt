@@ -567,7 +567,7 @@ class AiGameViewModel(
           return@launch
         }
 
-        if (!currentState.aiResignOfferDeclined) {
+        if (!currentState.aiResignOfferDeclined && currentState.history.size > AI_RESIGN_MIN_MOVE_NUMBER) {
           if (engineWinrate < AI_RESIGN_WINRATE_THRESHOLD) {
             val newCount = currentState.consecutiveLowWinrateTurns + 1
             if (newCount >= AI_RESIGN_CONSECUTIVE_TURNS) {
@@ -656,6 +656,9 @@ class AiGameViewModel(
 
             newVariation.isGameOver() && it.aiWon == null ->
               TextResource(R.string.ai_game_chat_game_over_computing_score)
+
+            selectedMove.move.equals("pass", ignoreCase = true) ->
+              TextResource(R.string.ai_game_chat_ai_passed)
 
             else -> TextResource(R.string.ai_game_chat_your_turn)
           }
@@ -771,8 +774,9 @@ class AiGameViewModel(
   }
 }
 
-private const val AI_RESIGN_WINRATE_THRESHOLD = 0.05f
-private const val AI_RESIGN_CONSECUTIVE_TURNS = 3
+private const val AI_RESIGN_WINRATE_THRESHOLD = 0.02f
+private const val AI_RESIGN_CONSECUTIVE_TURNS = 5
+private const val AI_RESIGN_MIN_MOVE_NUMBER = 20
 private const val AI_HOPELESS_PASS_WINRATE_THRESHOLD = 0.01f
 
 /**

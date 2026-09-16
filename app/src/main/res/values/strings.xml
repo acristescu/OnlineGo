@@ -19,6 +19,7 @@
     <string name="ai_game_chat_territories">Here\'s what I think the territories look like</string>
     <string name="ai_game_chat_im_thinking">I\'m thinking…</string>
     <string name="ai_game_chat_your_turn">Your turn</string>
+    <string name="ai_game_chat_ai_passed">I pass. Your turn!</string>
     <string name="ai_game_chat_game_over_ai_won">Game ended because of two passes. Final score is black %1$s to white %2$s. Looks like I win this time.</string>
     <string name="ai_game_chat_game_over_player_won">Game ended because of two passes. Final score is black %1$s to white %2$s. Congrats, looks like you got the better of me.</string>
     <string name="ai_game_chat_game_over_computing_score">Game ended because of two passes. Hang on, I\'m computing the final score.</string>
