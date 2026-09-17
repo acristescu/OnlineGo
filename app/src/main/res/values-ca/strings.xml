@@ -204,7 +204,9 @@
     <string name="game_player_details_highest_rank">Puntuació més alta</string>
     <string name="game_player_details_percentile">Percentil</string>
     <string name="game_player_details_percentage">%1$d%%</string>
+    <string name="game_player_details_played_vs_you">Ha jugat contra tu</string>
     <string name="game_player_details_you_won">Heu guanyat</string>
+    <string name="game_player_details_they_won">Ell/a ha guanyat</string>
     <string name="game_player_details_ranked_games">Partides puntuables</string>
     <string name="game_player_details_wins">Victòries</string>
     <string name="game_player_details_losses">Derrotes</string>
@@ -217,4 +219,42 @@
         <item quantity="one">%d dia</item>
         <item quantity="other">%d dies</item>
     </plurals>
+    <plurals name="duration_hours">
+        <item quantity="one">%d hora</item>
+        <item quantity="other">%d hores</item>
+    </plurals>
+    <plurals name="duration_minutes">
+        <item quantity="one">%d minut</item>
+        <item quantity="other">%d minuts</item>
+    </plurals>
+    <plurals name="duration_seconds">
+        <item quantity="one">%d segon</item>
+        <item quantity="other">%d segons</item>
+    </plurals>
+    <string name="duration_two_units">%1$s %2$s</string>
+    <string name="duration_unknown">\?</string>
+    <string name="time_control_simple">Simple: %1$s per jugada.</string>
+    <string name="time_control_fischer">Fischer: El rellotge comença amb %1$s i s’incrementa %2$s per jugada, fins a un màxim de %3$s.</string>
+    <plurals name="time_control_byoyomi">
+        <item quantity="one">Byo-yomi japonès: El rellotge comença amb %1$s de temps principal, seguit de %2$d períodes de %3$s cadascun.</item>
+        <item quantity="other">Byo-yomi japonès: El rellotge comença amb %1$s de temps principal, seguit de %2$d períodes de %3$s cadascun.</item>
+    </plurals>
+    <plurals name="time_control_canadian">
+        <item quantity="one">Byo-yomi canadenc: El rellotge comença amb %1$s de temps principal, seguit de %2$s per cada pedra.</item>
+        <item quantity="other">Byo-yomi canadenc: El rellotge comença amb %1$s de temps principal, seguit de %2$s per cada %3$d pedres.</item>
+    </plurals>
+    <string name="time_control_absolute">Absolut: %1$s de temps total per cada jugador.</string>
+    <string name="time_control_none">Sense límit de temps</string>
+    <string name="time_control_unknown">\?</string>
+    <string name="time_control_pauses_on_weekends">"Pausa els caps de setmana."</string>
+    <string name="whats_new_title">Què hi ha de nou?</string>
+    <string name="whats_new_got_it">Entesos</string>
+    <string name="whats_new_open_source">Sente és de codi obert i està desenvolupada per voluntaris.</string>
+    <string name="whats_new_support_project">Doneu suport al projecte</string>
+    <string name="settings_delete_account_success">El compte s\'ha suprimit. És una llàstima que marxeu! L’aplicació es tancarà d’aquí a 5 segons.
+</string>
+    <string name="settings_delete_account_wrong_password">Contrasenya incorrecta
+</string>
+    <string name="onboarding_login_invalid_credentials">**Nom d’usuari o contrasenya incorrectes**
+</string>
 </resources>
