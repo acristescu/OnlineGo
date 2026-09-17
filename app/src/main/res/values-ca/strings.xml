@@ -257,4 +257,31 @@
 </string>
     <string name="onboarding_login_invalid_credentials">**Nom d’usuari o contrasenya incorrectes**
 </string>
+    <string name="onboarding_login_failed_debug">Inici de sessió fallit. Informació de depuració: \'%1$s\'</string>
+    <string name="onboarding_create_account_failed_debug">No s\'ha pogut crear el compte. Informació de depuració: \'%1$s\'</string>
+    <string name="onboarding_server_error_code">Error de comunicació amb el servidor. El servidor ha retornat el codi d’error %1$s. Torneu-ho a provar més tard.
+</string>
+    <string name="tutorial_retry">TORNEU-HO A PROVAR</string>
+    <string name="tutorial_next">SEGÜENT</string>
+    <string name="tutorial_nice_one">Molt bé!</string>
+    <string name="socket_debug_title">Depuració del socket</string>
+    <string name="socket_debug_clear_log_content_description">Esborrar el registre</string>
+    <string name="socket_debug_clear_content_description">Esborrar</string>
+    <string name="socket_debug_filter_hint">Filtra esdeveniments...</string>
+    <string name="socket_debug_filter_all">Tots (%1$d)</string>
+    <string name="socket_debug_filter_type">%1$s (%2$d)</string>
+    <plurals name="socket_debug_event_count">
+        <item quantity="one">%d esdeveniment</item>
+        <item quantity="other">%d esdeveniments</item>
+    </plurals>
+    <string name="notification_challenge_title">Un nou desafiament!</string>
+    <string name="notification_challenge_text">%1$s us ha desafiat</string>
+    <string name="notification_game_ended">Partida finalitzada — %1$s</string>
+    <string name="notification_outcome_cancelled">Cancel·lada</string>
+    <string name="notification_outcome_lost_by">Heu perdut per %1$s</string>
+    <string name="notification_outcome_won_by">Heu guanyat per %1$s</string>
+    <string name="notification_outcome_black_won_by">Les negres han guanyat per %1$s</string>
+    <string name="notification_outcome_white_won_by">Les blanques han guanyat per %1$s</string>
+    <string name="notification_your_turn">És el vostre torn</string>
+    <string name="notification_stone_removal_phase">Fase de retirada de pedres</string>
 </resources>
