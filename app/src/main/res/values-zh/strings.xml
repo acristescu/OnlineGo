@@ -1,2 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources></resources>
+<resources>
+    <string name="create_account_prompt"><b>没有OGS账户？创建一个吧</b>！</string>
+    <string name="login_to_ogs">登录OGS</string>
+    <string name="create_account">注册OGS账户</string>
+    <string name="welcome_to_sente_online_go">欢迎来到Sentence Online Go！</string>
+    <string name="login_to_play_online">请登录OGS进行在线游戏。</string>
+    <string name="ai_game_chat_ready">准备！</string>
+    <string name="ai_game_chat_use_new_game_button">点击新建按钮开始新对局</string>
+    <string name="ai_game_chat_engine_error">启动KataGO时出错：“%1$s”</string>
+    <string name="ai_game_chat_invalid_move">无效操作，请重试</string>
+    <string name="ai_game_chat_lets_try_again">好的，我们再试一次。该你了！</string>
+</resources>
