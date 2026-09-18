@@ -18,6 +18,7 @@
     <string name="ai_game_chat_territories">Iată cum cred că arată teritoriile</string>
     <string name="ai_game_chat_im_thinking">Mă gândesc…</string>
     <string name="ai_game_chat_your_turn">E rândul tău</string>
+    <string name="ai_game_chat_ai_passed">Pas! E rândul tău!</string>
     <string name="ai_game_chat_game_over_ai_won">Jocul s-a încheiat pentru că amândoi am pasat. Scorul final este negru %1$s la alb %2$s. Se pare că am câștigat de data asta.</string>
     <string name="ai_game_chat_game_over_player_won">Jocul s-a încheiat pentru că amândoi am pasat. Scorul final este negru %1$s la alb %2$s. Felicitări, se pare că m-ai învins.</string>
     <string name="ai_game_chat_game_over_computing_score">Jocul s-a încheiat pentru că amândoi am pasat. O clipă, calculez scorul final.</string>
@@ -87,6 +88,8 @@
     <string name="bottomnavigation_botton_learn">Învață</string>
     <string name="bottomnavigation_botton_stats">Statistici</string>
     <string name="bottomnavigation_botton_settings">Setări</string>
+    <string name="stats_login_required_title">Conectează-te ca să vezi statisticile</string>
+    <string name="stats_login_required_message">Statisticile sunt disponibile doar pentru jucătorii conectați la OGS.</string>
     <string name="home_welcome_to_sente">Bine ai venit în Sente!</string>
     <string name="home_app_open_source_message">Această aplicație este o interfață open source, susținută de comunitate, pentru site-ul OGS (online-go.com). Poți explora tutorialele și juca împotriva AI-ului, dar majoritatea funcțiilor necesită un cont OGS gratuit.</string>
     <string name="home_button_login_ogs">Conectează-te la OGS</string>
