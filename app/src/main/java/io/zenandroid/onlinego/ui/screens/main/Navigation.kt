@@ -81,6 +81,11 @@ fun OnlineGoApp(
 
   val showBottomBar = currentDestination in listOf("myGames", "learn", "stats", "settings")
   var showStatsLoginPrompt by remember { mutableStateOf(false) }
+  var bottomBarCollapsed by remember { mutableStateOf(false) }
+
+  LaunchedEffect(currentDestination) {
+    bottomBarCollapsed = false
+  }
 
   LaunchedEffect(activity?.intent?.data) {
     if (activity?.intent?.data != null) {
@@ -116,6 +121,7 @@ fun OnlineGoApp(
               onNavigateToSupporter = { navController.navigate("supporter") },
               onNavigateToLogin = { navController.navigate("onboarding?initialPage=login") },
               onNavigateToSignUp = { navController.navigate("onboarding?initialPage=signUp") },
+              onBottomBarCollapseChanged = { bottomBarCollapsed = it },
             )
           }
 
@@ -157,7 +163,9 @@ fun OnlineGoApp(
             LearnScreen(
               onJosekiExplorer = { navController.navigate("josekiExplorer") },
               onPuzzles = { navController.navigate("puzzleDirectory") },
-              onTutorial = { tutorial -> navController.navigate("tutorial/${tutorial.name}") })
+              onTutorial = { tutorial -> navController.navigate("tutorial/${tutorial.name}") },
+              onBottomBarCollapseChanged = { bottomBarCollapsed = it },
+            )
           }
 
           composable(
@@ -183,6 +191,7 @@ fun OnlineGoApp(
               onNavigateToSocketDebug = {
                 navController.navigate("socketDebug")
               },
+              onBottomBarCollapseChanged = { bottomBarCollapsed = it },
             )
           }
 
@@ -200,7 +209,9 @@ fun OnlineGoApp(
           }
 
           composable("stats") {
-            StatsScreen()
+            StatsScreen(
+              onBottomBarCollapseChanged = { bottomBarCollapsed = it },
+            )
           }
 
           composable("puzzleDirectory") {
@@ -291,6 +302,7 @@ fun OnlineGoApp(
           SenteBottomBar(
             tabs = items,
             selectedIndex = selectedIndex,
+            collapsed = bottomBarCollapsed,
             onTabSelected = {
               val target = items[it]
               if (!target.enabled) {

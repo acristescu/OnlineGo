@@ -48,6 +48,7 @@ import io.zenandroid.onlinego.data.model.ogs.OGSAutomatch
 import io.zenandroid.onlinego.data.model.ogs.SizeSpeedOption
 import io.zenandroid.onlinego.ui.composables.WhatsNewBottomSheet
 import io.zenandroid.onlinego.ui.composables.bottomBarContentPadding
+import io.zenandroid.onlinego.ui.composables.isCollapseTriggered
 import io.zenandroid.onlinego.ui.screens.automatch.NewAutomatchChallengeBottomSheet
 import io.zenandroid.onlinego.ui.screens.mygames.composables.AutomatchItem
 import io.zenandroid.onlinego.ui.screens.mygames.composables.ChallengeDetailsDialog
@@ -73,6 +74,7 @@ fun MyGamesScreen(
   onNavigateToSupporter: () -> Unit,
   onNavigateToLogin: () -> Unit,
   onNavigateToSignUp: () -> Unit,
+  onBottomBarCollapseChanged: (Boolean) -> Unit = {},
 ) {
   val state by viewModel.state.collectAsStateWithLifecycle()
   val lifecycleOwner = LocalLifecycleOwner.current
@@ -97,7 +99,8 @@ fun MyGamesScreen(
     onNavigateToAIGame,
     onNavigateToFaceToFace,
     onNavigateToLogin,
-    onNavigateToSignUp
+    onNavigateToSignUp,
+    onBottomBarCollapseChanged,
   )
 
   state.alertDialogTextResId?.let { alertDialogTextResId ->
@@ -187,10 +190,13 @@ fun MyGamesContent(
   onNavigateToFaceToFace: () -> Unit,
   onNavigateToLogin: () -> Unit,
   onNavigateToSignUp: () -> Unit,
+  onBottomBarCollapseChanged: (Boolean) -> Unit = {},
 ) {
   var newChallengeBottomSheetVisible by remember { mutableStateOf(false) }
   var newAutomatchChallengeBottomSheetVisible by remember { mutableStateOf(false) }
   val listState = rememberLazyListState()
+  val bottomBarCollapsed = listState.isCollapseTriggered()
+  LaunchedEffect(bottomBarCollapsed) { onBottomBarCollapseChanged(bottomBarCollapsed) }
   LazyColumn(
     state = listState,
     contentPadding = PaddingValues(bottom = bottomBarContentPadding()),

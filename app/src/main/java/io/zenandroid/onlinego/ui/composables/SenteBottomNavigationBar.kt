@@ -1,15 +1,21 @@
 package io.zenandroid.onlinego.ui.composables
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -21,10 +27,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.navigationBarsPadding
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -40,17 +44,22 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.ui.screens.main.BottomNavItem
 import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
+import kotlin.math.roundToInt
+
+private const val collapseAnimationDuration = 220
 
 @Composable
 fun SenteBottomBar(
@@ -58,13 +67,24 @@ fun SenteBottomBar(
   selectedIndex: Int,
   onTabSelected: (Int) -> Unit,
   modifier: Modifier = Modifier,
+  collapsed: Boolean = false,
 ) {
+  val horizontalPadding by animateDpAsState(
+    targetValue = if (collapsed) 52.dp else 16.dp,
+    animationSpec = tween(collapseAnimationDuration),
+    label = "horizontalPadding",
+  )
+  val bottomBarHeight by animateDpAsState(
+    targetValue = if (collapsed) 44.dp else 56.dp,
+    animationSpec = tween(collapseAnimationDuration),
+    label = "bottomBarHeight",
+  )
   Box(
     modifier = modifier
       .fillMaxWidth()
       .navigationBarsPadding()
       .padding(
-        horizontal = 16.dp,
+        horizontal = horizontalPadding,
         vertical = 16.dp,
       ),
     contentAlignment = Alignment.Center,
@@ -72,7 +92,7 @@ fun SenteBottomBar(
     Box(
       modifier = Modifier
         .fillMaxWidth()
-        .height(56.dp)
+        .height(bottomBarHeight)
         .clip(MaterialTheme.shapes.extraLarge)
         .background(MaterialTheme.colorScheme.surfaceContainerLowest.copy(alpha = .95f))
         .border(
@@ -81,16 +101,14 @@ fun SenteBottomBar(
           shape = MaterialTheme.shapes.extraLarge
         )
     ) {
-      BoxWithConstraints(
+      Box(
         modifier = Modifier
           .fillMaxSize()
           .padding(4.dp),
       ) {
         val count = tabs.size.coerceAtLeast(1)
-        val slotWidth = maxWidth / count
-        val target = slotWidth * selectedIndex.coerceIn(0, count - 1)
-        val animatedOffset by animateDpAsState(
-          targetValue = target,
+        val animatedIndex by animateFloatAsState(
+          targetValue = selectedIndex.coerceIn(0, count - 1).toFloat(),
           animationSpec = spring(
             dampingRatio = Spring.DampingRatioNoBouncy,
             stiffness = Spring.StiffnessMediumLow,
@@ -100,9 +118,16 @@ fun SenteBottomBar(
 
         Box(
           modifier = Modifier
-            .offset(x = animatedOffset)
-            .width(slotWidth)
             .fillMaxHeight()
+            .layout { measurable, constraints ->
+              val slotWidthPx = constraints.maxWidth / count
+              val placeable = measurable.measure(
+                Constraints.fixed(slotWidthPx, constraints.maxHeight)
+              )
+              layout(constraints.maxWidth, constraints.maxHeight) {
+                placeable.placeRelative(x = (animatedIndex * slotWidthPx).roundToInt(), y = 0)
+              }
+            }
             .clip(MaterialTheme.shapes.extraLarge)
             .background(MaterialTheme.colorScheme.surfaceContainerHigh),
         )
@@ -113,6 +138,7 @@ fun SenteBottomBar(
             BottomBarTabSlot(
               tab = tab,
               selected = selected,
+              collapsed = collapsed,
               onClick = { onTabSelected(index) },
               modifier = Modifier
                 .weight(1f)
@@ -133,6 +159,7 @@ fun bottomBarContentPadding(): Dp =
 private fun BottomBarTabSlot(
   tab: BottomNavItem,
   selected: Boolean,
+  collapsed: Boolean,
   onClick: () -> Unit,
   modifier: Modifier = Modifier,
 ) {
@@ -140,6 +167,11 @@ private fun BottomBarTabSlot(
   val haptics = LocalHapticFeedback.current
   val contentColor =
     if (selected) colors.onSurface else colors.onSurfaceVariant
+  val iconSize by animateDpAsState(
+    targetValue = if (collapsed) 18.dp else 22.dp,
+    animationSpec = tween(collapseAnimationDuration),
+    label = "bottomBarIconSize",
+  )
 
   Column(
     modifier = modifier
@@ -157,17 +189,26 @@ private fun BottomBarTabSlot(
       painter = rememberVectorPainter(tab.icon),
       contentDescription = tab.label,
       tint = contentColor,
-      modifier = Modifier.size(22.dp),
+      modifier = Modifier.size(iconSize),
     )
-    Spacer(modifier = Modifier.height(2.dp))
-    Text(
-      text = tab.label,
-      color = contentColor,
-      fontSize = 11.sp,
-      fontWeight = FontWeight.Medium,
-    )
+    AnimatedVisibility(
+      visible = !collapsed,
+      enter = fadeIn(tween(150)) + expandVertically(tween(150)),
+      exit = fadeOut(tween(150)) + shrinkVertically(tween(150)),
+    ) {
+      Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Spacer(modifier = Modifier.height(2.dp))
+        Text(
+          text = tab.label,
+          color = contentColor,
+          fontSize = 11.sp,
+          fontWeight = FontWeight.Medium,
+        )
+      }
+    }
   }
 }
+
 
 @Preview
 @Composable
@@ -209,6 +250,53 @@ private fun DSBottomBarPreview() {
           selectedIndex = selectedIndex,
           onTabSelected = { selectedIndex = it },
           modifier = Modifier.align(Alignment.BottomCenter),
+        )
+      }
+    }
+  }
+}
+
+@Preview
+@Composable
+private fun DSBottomBarPreviewCollapsed() {
+  OnlineGoTheme {
+    Surface {
+      Box(Modifier.background(MaterialTheme.colorScheme.surface)) {
+        var selectedIndex by remember { mutableIntStateOf(0) }
+
+        Text(
+          text = "blablabla\nblabla\nblablabla",
+          modifier = Modifier
+            .fillMaxSize()
+        )
+        SenteBottomBar(
+          tabs = listOf(
+            BottomNavItem(
+              "myGames",
+              stringResource(R.string.bottomnavigation_botton_play),
+              ImageVector.vectorResource(R.drawable.ic_board_filled)
+            ),
+            BottomNavItem(
+              "learn",
+              stringResource(R.string.bottomnavigation_botton_learn),
+              ImageVector.vectorResource(R.drawable.ic_learn)
+            ),
+            BottomNavItem(
+              "stats",
+              stringResource(R.string.bottomnavigation_botton_stats),
+              ImageVector.vectorResource(R.drawable.ic_diagram),
+              enabled = true,
+            ),
+            BottomNavItem(
+              "settings",
+              stringResource(R.string.bottomnavigation_botton_settings),
+              ImageVector.vectorResource(R.drawable.ic_settings_filled),
+            ),
+          ),
+          selectedIndex = selectedIndex,
+          onTabSelected = { selectedIndex = it },
+          modifier = Modifier.align(Alignment.BottomCenter),
+          collapsed = true,
         )
       }
     }

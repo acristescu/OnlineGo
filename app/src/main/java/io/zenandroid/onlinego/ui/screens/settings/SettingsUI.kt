@@ -96,6 +96,7 @@ import io.zenandroid.onlinego.data.model.AppTheme
 import io.zenandroid.onlinego.data.model.BoardTheme
 import io.zenandroid.onlinego.ui.composables.WhatsNewBottomSheet
 import io.zenandroid.onlinego.ui.composables.bottomBarContentPadding
+import io.zenandroid.onlinego.ui.composables.isCollapseTriggered
 import io.zenandroid.onlinego.ui.composables.resolve
 import io.zenandroid.onlinego.ui.screens.mygames.composables.SenteCard
 import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.BoardThemeClicked
@@ -127,6 +128,7 @@ fun SettingsScreen(
   viewModel: SettingsViewModel = koinViewModel(),
   onNavigateToSupport: () -> Unit,
   onNavigateToSocketDebug: () -> Unit = {},
+  onBottomBarCollapseChanged: (Boolean) -> Unit = {},
 ) {
   val state by viewModel.state.collectAsStateWithLifecycle()
   val userSettings by viewModel.userSettings.collectAsStateWithLifecycle()
@@ -150,6 +152,7 @@ fun SettingsScreen(
     state = state,
     userSettings = userSettings,
     language = language,
+    onBottomBarCollapseChanged = onBottomBarCollapseChanged,
     onAction = {
       when (it) {
         is NotificationsClicked -> navigateToNotifications(activity)
@@ -335,12 +338,16 @@ private fun SettingsContent(
   state: SettingsState,
   userSettings: UserSettings,
   language: AppLanguage,
-  onAction: (SettingsAction) -> Unit
+  onAction: (SettingsAction) -> Unit,
+  onBottomBarCollapseChanged: (Boolean) -> Unit = {},
 ) {
+  val scrollState = rememberScrollState()
+  val bottomBarCollapsed = scrollState.isCollapseTriggered()
+  LaunchedEffect(bottomBarCollapsed) { onBottomBarCollapseChanged(bottomBarCollapsed) }
   Column(
     horizontalAlignment = Alignment.CenterHorizontally,
     modifier = Modifier
-      .verticalScroll(rememberScrollState())
+      .verticalScroll(scrollState)
       .statusBarsPadding()
       .fillMaxSize()
   ) {

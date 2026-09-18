@@ -20,6 +20,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -36,6 +37,7 @@ import io.zenandroid.onlinego.data.model.local.Tutorial
 import io.zenandroid.onlinego.data.model.local.TutorialGroup
 import io.zenandroid.onlinego.data.model.local.TutorialIcon
 import io.zenandroid.onlinego.ui.composables.bottomBarContentPadding
+import io.zenandroid.onlinego.ui.composables.isCollapseTriggered
 import io.zenandroid.onlinego.ui.composables.resolveTutorialText
 import io.zenandroid.onlinego.ui.screens.mygames.composables.SenteCard
 import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
@@ -47,10 +49,11 @@ fun LearnScreen(
   onJosekiExplorer: () -> Unit,
   onPuzzles: () -> Unit,
   onTutorial: (tutorial: Tutorial) -> Unit,
+  onBottomBarCollapseChanged: (Boolean) -> Unit = {},
 ) {
   val state by viewModel.state.collectAsStateWithLifecycle()
 
-  LearnContent(state) { action ->
+  LearnContent(state, onBottomBarCollapseChanged) { action ->
     when (action) {
       LearnAction.JosekiExplorerClicked -> onJosekiExplorer()
       LearnAction.PuzzlesClicked -> onPuzzles()
@@ -62,7 +65,11 @@ fun LearnScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun LearnContent(state: LearnState, listener: (LearnAction) -> Unit) {
+private fun LearnContent(
+  state: LearnState,
+  onBottomBarCollapseChanged: (Boolean) -> Unit = {},
+  listener: (LearnAction) -> Unit,
+) {
   Column {
     TopAppBar(
       title = {
@@ -73,9 +80,12 @@ private fun LearnContent(state: LearnState, listener: (LearnAction) -> Unit) {
         )
       },
     )
+    val scrollState = rememberScrollState()
+    val bottomBarCollapsed = scrollState.isCollapseTriggered()
+    LaunchedEffect(bottomBarCollapsed) { onBottomBarCollapseChanged(bottomBarCollapsed) }
     Column(
       modifier = Modifier
-        .verticalScroll(rememberScrollState())
+        .verticalScroll(scrollState)
         .padding(horizontal = 12.dp)
     ) {
       Section(title = stringResource(R.string.learn_section_tutorials)) {
@@ -210,7 +220,7 @@ fun DefaultPreview() {
         ),
         completedTutorialsNames = setOf("Introduction to Go")
       ),
-      {}
+      listener = {}
     )
   }
 }

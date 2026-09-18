@@ -20,6 +20,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -44,6 +45,7 @@ import com.github.mikephil.charting.data.Entry
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.local.WinLossStats
 import io.zenandroid.onlinego.ui.composables.bottomBarContentPadding
+import io.zenandroid.onlinego.ui.composables.isCollapseTriggered
 import io.zenandroid.onlinego.ui.screens.game.composables.BoxWithImage
 import io.zenandroid.onlinego.ui.screens.mygames.composables.SenteCard
 import io.zenandroid.onlinego.ui.screens.stats.StatsViewModel.Filter
@@ -57,26 +59,36 @@ import kotlin.math.abs
 
 @Composable
 fun StatsScreen(
-  viewModel: StatsViewModel = koinViewModel()
+  viewModel: StatsViewModel = koinViewModel(),
+  onBottomBarCollapseChanged: (Boolean) -> Unit = {},
 ) {
   val state by viewModel.state.collectAsStateWithLifecycle()
 
-  StatsContent(state, viewModel::onFilterChanged, viewModel::onGraphChanged)
+  StatsContent(
+    state,
+    viewModel::onFilterChanged,
+    viewModel::onGraphChanged,
+    onBottomBarCollapseChanged
+  )
 }
 
 @Composable
 private fun StatsContent(
   state: StatsState,
   onFilterChanged: (Filter) -> Unit,
-  onGraphChanged: () -> Unit
+  onGraphChanged: () -> Unit,
+  onBottomBarCollapseChanged: (Boolean) -> Unit = {},
 ) {
   var scrollEnabled by remember { mutableStateOf(true) }
+  val scrollState = rememberScrollState()
+  val bottomBarCollapsed = scrollState.isCollapseTriggered()
+  LaunchedEffect(bottomBarCollapsed) { onBottomBarCollapseChanged(bottomBarCollapsed) }
   Column(
     modifier = Modifier
       .fillMaxSize()
       .background(MaterialTheme.colorScheme.background)
       .verticalScroll(
-        state = rememberScrollState(),
+        state = scrollState,
         enabled = scrollEnabled,
       )
       .statusBarsPadding()
