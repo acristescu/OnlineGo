@@ -194,4 +194,8 @@
     <string name="tutorial_basics_capturingstones_capture7_text">Dos piedras están en Atari al mismo tiempo ¡Captúralas!</string>
     <string name="tutorial_basics_capturingstones_capture8_text">Esta vez se necesitan dos movimientos para capturar las piedras blancas. ¡Cuidado, tu primer movimiento es importante!</string>
     <string name="tutorial_basics_capturingstones_capture9_text"><![CDATA[Es difícil \"ganar la carrera\" (semeai) con piedras en el borde. ¡Capture las dos piedras blancas en la primera línea!]]></string>
+    <string name="tutorial_basics_capturingstones_capture10_text">¡Muchas piedras! Mira las piedras que estén en Atari, y captúralas. Si te equivocas, en su lugar tus piedras serán capturadas.</string>
+    <string name="tutorial_basics_doubleatari_title">Doble Atari</string>
+    <string name="tutorial_basics_doubleatari_doubleAtari1_text"><![CDATA[En algunos casos, el negro puede poner en dos grupos blancos en Atari al mismo tiempo.
+¡El negro capturará al menos uno de los grupos en esta situación!]]></string>
 </resources>

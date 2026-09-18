@@ -21,6 +21,12 @@
     <string name="ai_game_chat_game_over_ai_won">Das Spiel ist zu Ende, weil zweimal gepasst wurde. Das Endergebnis lautet Schwarz %1$s und Weiß %2$s. Sieht so aus, als hab ich gewonnen.</string>
     <string name="ai_game_chat_game_over_player_won">Das Spiel ist zu Ende, weil zweimal gepasst wurde. Das Endergebnis lautet Schwarz %1$s und Weiß %2$s. Glückwunsch, du hast mich geschlagen.</string>
     <string name="ai_game_chat_game_over_computing_score">Das Spiel ist zu Ende, weil zweimal gepasst wurde. Moment, ich berechne das Endergebnis.</string>
+    <string name="ai_game_chat_resign_offer">Ich denke, diese Runde habe ich verloren ...</string>
+    <string name="ai_game_chat_ai_resigned">Ich gebe auf, du hast gewonnen! Gut gespielt.</string>
+    <string name="ai_resign_offer_title">KataGO möchte aufgeben</string>
+    <string name="ai_resign_offer_message">KataGO glaubt das Spiel verloren zu haben und möchte aufgeben. Nimmst du an?</string>
+    <string name="ai_resign_offer_accept">Aufgabe annehmen</string>
+    <string name="ai_resign_offer_decline">Weiterspielen</string>
     <string name="ai_game_handicap_none">ohne</string>
     <string name="ai_game_handicap_no_komi">ohne Komi</string>
     <string name="ai_game_avatar_content_description">KI</string>

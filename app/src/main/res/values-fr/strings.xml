@@ -21,6 +21,9 @@
     <string name="ai_game_chat_game_over_ai_won">La partie est terminée car les deux joueurs ont passé leur tour. Le score final est de %1$s pour noir, contre %2$s pour blanc. On dirait que je gagne ce coup ci.</string>
     <string name="ai_game_chat_game_over_player_won">La partie est terminée car les deux joueurs ont passé leur tour. Le score final est de %1$s pour noir, contre %2$s pour blanc. Bravo ! Je m\'avoue vaincu.</string>
     <string name="ai_game_chat_game_over_computing_score">La partie est terminée car les deux joueurs ont passé leur tour. Un moment, je calcule le score final.</string>
+    <string name="ai_game_chat_resign_offer">Je crois que j\'ai perdu cette fois...</string>
+    <string name="ai_game_chat_ai_resigned">J\'abandonne, tu as gagné ! Bien joué.</string>
+    <string name="ai_resign_offer_title">KataGO souhaite abandonner</string>
     <string name="ai_game_handicap_none">aucun</string>
     <string name="ai_game_handicap_no_komi">pas de komi</string>
     <string name="ai_game_avatar_content_description">IA</string>

@@ -21,6 +21,7 @@
     <string name="ai_game_chat_game_over_ai_won">Игра завершена из-за двух пасов. Финальный счёт: чёрные - %1$s, белые - %2$s. Похоже, на этот раз я выиграл.</string>
     <string name="ai_game_chat_game_over_player_won">Игра завершена из-за двух пасов. Финальный счёт: чёрные - %1$s, белые - %2$s. Поздравляю, похоже, вы меня переиграли.</string>
     <string name="ai_game_chat_game_over_computing_score">Игра завершена из-за двух пасов. Подождите, вычисляю финальный счёт.</string>
+    <string name="ai_game_chat_resign_offer">I think I\'ve lost this one…</string>
     <string name="ai_game_handicap_none">нет</string>
     <string name="ai_game_handicap_no_komi">без коми</string>
     <string name="ai_game_avatar_content_description">ИИ</string>
