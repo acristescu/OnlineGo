@@ -43,6 +43,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.github.mikephil.charting.data.Entry
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.local.WinLossStats
+import io.zenandroid.onlinego.ui.composables.bottomBarContentPadding
 import io.zenandroid.onlinego.ui.screens.game.composables.BoxWithImage
 import io.zenandroid.onlinego.ui.screens.mygames.composables.SenteCard
 import io.zenandroid.onlinego.ui.screens.stats.StatsViewModel.Filter
@@ -311,7 +312,7 @@ private fun StatsContent(
         )
       }
     }
-    Spacer(modifier = Modifier.height(20.dp))
+    Spacer(modifier = Modifier.height(bottomBarContentPadding()))
   }
 }
 

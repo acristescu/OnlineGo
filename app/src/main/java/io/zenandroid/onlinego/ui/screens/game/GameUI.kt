@@ -27,7 +27,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -240,7 +240,7 @@ fun GameContent(
   Column(
     Modifier
       .background(MaterialTheme.colorScheme.surfaceContainerLowest)
-      .statusBarsPadding()
+      .systemBarsPadding()
   ) {
     if (LocalConfiguration.current.orientation == ORIENTATION_PORTRAIT) {
       Header(
@@ -596,6 +596,7 @@ private fun GameInfoDialog(state: GameState, onUserAction: (UserAction) -> Unit)
         interactionSource = remember { MutableInteractionSource() },
         indication = null
       ) { onUserAction(GameInfoDismiss) }
+      .systemBarsPadding()
   ) {
     Column(
       horizontalAlignment = CenterHorizontally,

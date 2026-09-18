@@ -89,6 +89,8 @@
     <string name="bottomnavigation_botton_learn">Learn</string>
     <string name="bottomnavigation_botton_stats">Stats</string>
     <string name="bottomnavigation_botton_settings">Settings</string>
+    <string name="stats_login_required_title">Log in to view stats</string>
+    <string name="stats_login_required_message">Stats are only available if you\'re logged in to OGS.</string>
     <string name="home_welcome_to_sente">Welcome to Sente!</string>
     <string name="home_app_open_source_message">This app is an open source, community supported frontend for the OGS (online-go.com) website. You can explore the tutorials and play against the AI, but most features require a free OGS account.</string>
     <string name="home_button_login_ogs">Log in to OGS</string>

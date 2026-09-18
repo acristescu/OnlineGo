@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
@@ -167,7 +168,11 @@ fun OnboardingContent(
   listener: (OnboardingAction) -> Unit,
   onGoogleFlow: () -> Unit,
 ) {
-  Surface(modifier = Modifier.fillMaxSize()) {
+  Surface(
+    modifier = Modifier
+      .fillMaxSize()
+      .systemBarsPadding()
+  ) {
     Column(
       modifier = Modifier
         .padding(36.dp, 16.dp)

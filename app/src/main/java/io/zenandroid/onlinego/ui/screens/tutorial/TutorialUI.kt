@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -85,7 +86,11 @@ fun TutorialContent(
   listener: (TutorialAction) -> Unit,
   onNavigateBack: () -> Unit
 ) {
-  Column(modifier = Modifier.background(MaterialTheme.colorScheme.surface)) {
+  Column(
+    modifier = Modifier
+      .background(MaterialTheme.colorScheme.surface)
+      .systemBarsPadding()
+  ) {
     // App bar
     TopAppBar(
       title = { Text(text = resolveTutorialTextOrNull(state.tutorial?.name) ?: "") },

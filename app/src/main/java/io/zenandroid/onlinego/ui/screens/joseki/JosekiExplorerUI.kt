@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.rounded.Pause
@@ -114,7 +115,9 @@ private fun PortraitLayout(
   onLoadPosition: (Long?) -> Unit,
   onNavigateBack: () -> Unit,
 ) {
-  Column(modifier = Modifier.background(MaterialTheme.colorScheme.surface)) {
+  Column(modifier = Modifier
+    .background(MaterialTheme.colorScheme.surface)
+    .systemBarsPadding()) {
     AppTopBar(onNavigateBack)
     LoadingIndicator(state.loading)
     DescriptionView(
@@ -156,8 +159,9 @@ private fun LandscapeLayout(
   onLoadPosition: (Long?) -> Unit,
   onNavigateBack: () -> Unit,
 ) {
-  Row(modifier = Modifier.background(MaterialTheme.colorScheme.surface)) {
-    // Left side with controls
+  Row(modifier = Modifier
+    .background(MaterialTheme.colorScheme.surface)
+    .systemBarsPadding()) {
     Column(
       modifier = Modifier
         .weight(1f)

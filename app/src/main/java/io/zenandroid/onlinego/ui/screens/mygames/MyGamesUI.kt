@@ -5,6 +5,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -46,6 +47,7 @@ import io.zenandroid.onlinego.data.model.local.Player
 import io.zenandroid.onlinego.data.model.ogs.OGSAutomatch
 import io.zenandroid.onlinego.data.model.ogs.SizeSpeedOption
 import io.zenandroid.onlinego.ui.composables.WhatsNewBottomSheet
+import io.zenandroid.onlinego.ui.composables.bottomBarContentPadding
 import io.zenandroid.onlinego.ui.screens.automatch.NewAutomatchChallengeBottomSheet
 import io.zenandroid.onlinego.ui.screens.mygames.composables.AutomatchItem
 import io.zenandroid.onlinego.ui.screens.mygames.composables.ChallengeDetailsDialog
@@ -191,6 +193,7 @@ fun MyGamesContent(
   val listState = rememberLazyListState()
   LazyColumn(
     state = listState,
+    contentPadding = PaddingValues(bottom = bottomBarContentPadding()),
     modifier = Modifier
       .fillMaxHeight()
       .background(MaterialTheme.colorScheme.surface)
