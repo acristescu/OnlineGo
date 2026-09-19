@@ -18,12 +18,16 @@
     <string name="ai_game_chat_territories">Voici comment j\'envisage les territoires</string>
     <string name="ai_game_chat_im_thinking">Je réfléchis…</string>
     <string name="ai_game_chat_your_turn">Votre tour</string>
+    <string name="ai_game_chat_ai_passed">Je passe. A vous de jouer!</string>
     <string name="ai_game_chat_game_over_ai_won">La partie est terminée car les deux joueurs ont passé leur tour. Le score final est de %1$s pour noir, contre %2$s pour blanc. On dirait que je gagne ce coup ci.</string>
     <string name="ai_game_chat_game_over_player_won">La partie est terminée car les deux joueurs ont passé leur tour. Le score final est de %1$s pour noir, contre %2$s pour blanc. Bravo ! Je m\'avoue vaincu.</string>
     <string name="ai_game_chat_game_over_computing_score">La partie est terminée car les deux joueurs ont passé leur tour. Un moment, je calcule le score final.</string>
     <string name="ai_game_chat_resign_offer">Je crois que j\'ai perdu cette fois...</string>
     <string name="ai_game_chat_ai_resigned">J\'abandonne, tu as gagné ! Bien joué.</string>
     <string name="ai_resign_offer_title">KataGO souhaite abandonner</string>
+    <string name="ai_resign_offer_message">KataGO estime que la partie est perdue et souhaite abandonner. Acceptez-vous?</string>
+    <string name="ai_resign_offer_accept">Accepter l\'abandon</string>
+    <string name="ai_resign_offer_decline">Continuer à jouer</string>
     <string name="ai_game_handicap_none">aucun</string>
     <string name="ai_game_handicap_no_komi">pas de komi</string>
     <string name="ai_game_avatar_content_description">IA</string>
@@ -84,6 +88,7 @@
     <string name="bottomnavigation_botton_learn">Apprendre</string>
     <string name="bottomnavigation_botton_stats">Statistiques</string>
     <string name="bottomnavigation_botton_settings">Paramètres</string>
+    <string name="stats_login_required_title">Se connecter pour voir les stats</string>
     <string name="home_welcome_to_sente">Bienvenue sur Sente</string>
     <string name="home_app_open_source_message">Cette application, aux sources ouvertes et prise en charge par la communauté, est une façade pour le site web OGS (online-go.com). Vous pouvez explorer les tutoriels et jouer contre l\'IA, mais là plupart des fonctionnalités nécessitent un compte OGS gratuit.</string>
     <string name="home_button_login_ogs">Se connecter à OGS</string>
@@ -220,6 +225,10 @@
         <item quantity="one">%d Heure</item>
         <item quantity="other">%d Heures</item>
     </plurals>
+    <string name="time_control_none">Pas de limite de temps.</string>
+    <string name="whats_new_title">Quoi de neuf</string>
+    <string name="whats_new_got_it">Ok</string>
+    <string name="whats_new_open_source">Sente est open source, développé par des volontaires.</string>
     <string name="notification_outcome_lost_by">Perdu de %1$s</string>
     <string name="notification_outcome_won_by">Gagné de %1$s</string>
     <string name="notification_outcome_black_won_by">Noir gagne de %1$s</string>
