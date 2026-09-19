@@ -487,9 +487,14 @@
     <string name="select_opponent_tab_bot">Bot</string>
     <string name="select_opponent_tab_recent">Recent</string>
     <string name="select_opponent_bots_title">Bots en línia</string>
+    <string name="select_opponent_bots_description">Els bots en línia són programes d\'IA que els membres de la comunitat executen i mantenen al seu propi càrrec. Jugar contra ells requereix una connexió a Internet activa.</string>
     <string name="select_opponent_icon_content_description">Icona de l\'adversari</string>
     <string name="select_opponent_recent_title">Adversaris recents</string>
+    <string name="select_opponent_recent_description">Aquesta és una selecció d\'adversaris (tant bots com jugadors reals) contra els que has jugat recentment.</string>
     <string name="select_opponent_search_hint">Buscar per nom d\'usuari</string>
+    <string name="automatch_title">Emparellament automàtic</string>
+    <string name="automatch_description">Proveu de jugar una partida contra un oponent humà d\'un nivell similar al teu.</string>
+    <string name="automatch_game_size">Mida del tauler</string>
     <string name="automatch_size_9">9×9</string>
     <string name="automatch_size_13">13×13</string>
     <string name="automatch_size_19">19×19</string>
@@ -506,19 +511,29 @@
         <item quantity="other">%d minuts</item>
     </plurals>
     <string name="automatch_duration_minutes_range">%1$d a %2$d minuts</string>
+    <string name="mygames_moderator_title">Moderador OGS %1$s</string>
     <string name="mygames_empty_message">Missatge buit</string>
+    <string name="mygames_acknowledge">Entesos</string>
+    <string name="mygames_acknowledge_countdown">Entesos (%1$ds)</string>
     <string name="mygames_header_your_turn">El vostre torn</string>
     <string name="mygames_header_challenges">Reptes</string>
     <string name="mygames_header_opponents_turn">Torn de l\'adversari</string>
+    <string name="mygames_header_recently_finished">Acabades de finalitzar</string>
+    <string name="mygames_header_older_games">Partides anteriors</string>
     <string name="mygames_tutorial_percentage">%1$d %%</string>
     <string name="mygames_learn_to_play">Aprendre a jugar</string>
     <string name="mygames_header_icon_content_description">Icona</string>
+    <string name="mygames_offline_content_description">Fora de línia</string>
     <string name="mygames_avatar_content_description">Avatar</string>
     <string name="mygames_searching_for_game">Buscant una partida</string>
+    <string name="mygames_challenge_you_are_challenging">Esteu reptant %1$s</string>
+    <string name="mygames_challenge_is_challenging_you">%1$s us repta</string>
     <string name="mygames_accept">Accepto</string>
     <string name="mygames_decline">Denego</string>
     <string name="mygames_see_details">Vegeu els detalls</string>
     <string name="mygames_challenge_received">Heu rebut un repte!</string>
+    <string name="mygames_paused">En pausa</string>
+    <string name="mygames_outcome_cancelled">Cancel·lat</string>
     <string name="mygames_outcome_lost">Perdut</string>
     <string name="mygames_outcome_won">Guanyat</string>
     <string name="mygames_outcome_black_won">Les negres han guanyat</string>
@@ -543,5 +558,61 @@
     <string name="mygames_detail_ranked">Puntuable</string>
     <string name="mygames_detail_analysis">Anàlisi</string>
     <string name="mygames_detail_rules">Regles</string>
+    <string name="mygames_alert_bot_rejected_title">El bot ha refusat el repte</string>
+    <string name="mygames_alert_bot_rejected_text">Això podria passar perquè el mantenidor de l\'oponent ha establert algunes condicions als paràmetres del repte.</string>
     <string name="mygames_alert_opponent_rejected_title">L\'adversari ha refusat el repte</string>
+    <string name="mygames_alert_opponent_rejected_text">Pots tornar-ho a provar o bé contactar amb l\'oponent per aclarir els motius del rebuig.</string>
+    <string name="mygames_alert_ogs_error_title">Error de OGS</string>
+    <string name="mygames_alert_ogs_error_text">S\'ha produït un error en la comunicació amb el servidor d\'OGS. Això normalment vol dir que els desenvolupadors del lloc web han fet algun canvi a l\'API. Si us plau, informeu d\'aquest error, ja que és probable que l\'aplicació no funcioni fins que ens adaptem a aquest canvi.
+</string>
+    <string name="mygames_alert_game_unavailable">Aquesta partida no està disponible.</string>
+    <string name="mygames_alert_one_live_game">Només es pot buscar una partida en viu, ràpida o llampec cada vegada.</string>
+    <string name="mygames_message_prefix">El missatge és:</string>
+    <string name="learn_section_tutorials">Tutorials</string>
+    <string name="learn_section_study">Estudi</string>
+    <string name="learn_title_learn">Aprendre</string>
+    <string name="learn_study_title_joseki_explorer">Explorador de josekis</string>
+    <string name="earn_study_title_puzzles">Problemes</string>
+    <string name="learn_tutorial_checkbox_done">Fet</string>
+    <string name="learn_tutorial_checkboxoutlineblank_done">Fet</string>
+    <string name="joseki_explorer_title">Explorador de josekis</string>
+    <string name="joseki_explorer_button_tenuki">Tenuki</string>
+    <string name="joseki_explorer_button_previous">Anterior</string>
+    <string name="joseki_explorer_button_next">Següent</string>
+    <string name="joseki_explorer_link_video">" (vídeo)"</string>
+    <string name="joseki_explorer_link_external">" (enllaç extern)"</string>
+    <string name="joseki_explorer_default_description"><![CDATA["## Explorador de josekis
+*Joseki* és un préstec lingüístic del japonès, que normalment fa referència a seqüències de moviments estàndard que es juguen en una cantonada i que donen com a resultat un intercanvi localment equilibrat.
+### Com utilitzar l'explorador de josekis
+Els moviments marcats a continuació representen continuacions interessants per a la posició actual. Els colors representen com de bo es considera el moviment:
+* Els moviments verds es consideren òptims
+* Els moviments grocs es consideren correctes
+* Els moviments vermells es consideren erronis
+* Les marques liles són per a paranys
+* Les blaves per a situacions per resoldre
+Pots tocar qualsevol d'aquests moviments interessants per explorar les posicions a les quals condueixen.
+### Tenuki
+De vegades, la millor opció és jugar en un altre lloc. D'això se'n sol dir tenuki. Si fer tenuki és una opció interessant en la posició actual, s'activarà el botó de passar de la part inferior esquerra. Podeu prémer-lo per veure quines posicions es poden donar si el jugador actual fa tenuki."]]></string>
+    <string name="tutorial_basics_title">Conceptes bàsics</string>
+    <string name="tutorial_basics_thebasics_title">Els fonaments</string>
+    <string name="tutorial_basics_thebasics_basic1_text"><![CDATA[Recordeu si us plau les 3 regles següents:
+1.  Les negres i les blanques s'alternen per col·locar "pedres" al tauler
+2. Les pedres es col·loquen a la intersecció de les línies.
+3. Un com col·locada la pedra no es pot moure mai, però pot ser capturada.
+
+Col·loqueu una pedra per continuar!]]></string>
+    <string name="tutorial_basics_thebasics_capture1_page1_text"><![CDATA[Amb una jugada més, la pedra blanca quedarà completament envoltada i capturada. De les pedres que es poden capturar amb una sola jugada es diu que estan en "Atari".]]></string>
+    <string name="tutorial_basics_thebasics_capture1_page2_text"><![CDATA[La pedra blanca ara està envoltada, així que...]]></string>
+    <string name="tutorial_basics_thebasics_capture1_page3_text"><![CDATA["… es retira del tauler"]]></string>
+    <string name="tutorial_basics_thebasics_capture1_page4_text"><![CDATA["Si fos el torn del blanc, podria \"escapar\" connectant una altra pedra."]]></string>
+    <string name="tutorial_basics_thebasics_capture2_text">És el vostre torn! Captureu la pedra blanca.</string>
+    <string name="tutorial_basics_thebasics_capture3_text">Aquesta vegada podeu capturar dues pedres amb una sola jugada!</string>
+    <string name="tutorial_basics_capturingstones_title">Capturant pedres</string>
+    <string name="tutorial_basics_capturingstones_capture5_branches2_text">Les pedres blanques estan connectades</string>
+    <string name="tutorial_basics_doubleatari_title">Doble Atari</string>
+    <string name="tutorial_intermediate_ladders_ladder1_branches_branch1_message">Les blanques intenten escapar...</string>
+    <string name="tutorial_intermediate_ladders_ladder1_branches_branch1_1_1_1_1_message">Podeu veure on duu això?</string>
+    <string name="tutorial_intermediate_ladders_ladder1_branches_branch1_1_1_1_1_1_1_1_1_message">Si les blanques intenten resistir...</string>
+    <string name="tutorial_intermediate_ladders_ladder1_branches_branch1_1_1_1_1_1_1_2_1_message">Si les blanques intenten resistir...</string>
+    <string name="tutorial_intermediate_ladders_ladder1_branches_branch1_1_1_1_1_1_1_2_2_message">Si les blanques intenten resistir...</string>
 </resources>
