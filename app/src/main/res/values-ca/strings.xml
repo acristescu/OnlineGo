@@ -4,7 +4,7 @@
     <string name="create_account_prompt">No teniu compte a OGS? Creeu-ne un <b>aquí</b>!</string>
     <string name="login_to_ogs">Inicieu sessió a OGS</string>
     <string name="create_account">Creeu un compte a OGS</string>
-    <string name="welcome_to_sente_online_go">Benvingut/da a Sente - Go en línia</string>
+    <string name="welcome_to_sente_online_go">Benvingut/da a Sente - Go en línia!</string>
     <string name="login_to_play_online">Si us plau, inicieu sessió a OGS per jugar en línia.</string>
     <string name="ai_game_chat_ready">Preparat/da!</string>
     <string name="ai_game_chat_use_new_game_button">Utilitzeu el botó \'Nova Partida\' per començar una partida</string>
@@ -255,15 +255,12 @@
     <string name="whats_new_open_source">Sente és de codi obert i està desenvolupada per voluntaris.</string>
     <string name="whats_new_support_project">Doneu suport al projecte</string>
     <string name="settings_delete_account_success">El compte s\'ha suprimit. És una llàstima que marxeu! L’aplicació es tancarà d’aquí a 5 segons.</string>
-    <string name="settings_delete_account_wrong_password">Contrasenya incorrecta
-</string>
-    <string name="onboarding_login_invalid_credentials">**Nom d’usuari o contrasenya incorrectes**
-</string>
+    <string name="settings_delete_account_wrong_password">Contrasenya incorrecta</string>
+    <string name="onboarding_login_invalid_credentials">Nom d’usuari o contrasenya incorrectes</string>
     <string name="onboarding_login_failed_debug">Inici de sessió fallit. Informació de depuració: \'%1$s\'</string>
     <string name="onboarding_create_account_failed_debug">No s\'ha pogut crear el compte. Informació de depuració: \'%1$s\'</string>
-    <string name="onboarding_server_error_code">Error de comunicació amb el servidor. El servidor ha retornat el codi d’error %1$s. Torneu-ho a provar més tard.
-</string>
-    <string name="onboarding_google_signin_failed">L\'inici de sessió ha fallat amb el codi %1$d</string>
+    <string name="onboarding_server_error_code">Error de comunicació amb el servidor. El servidor ha retornat el codi d’error %1$s. Torneu-ho a provar més tard</string>
+    <string name="onboarding_google_signin_failed">l\'inici de sessió ha fallat amb el codi %1$d</string>
     <string name="tutorial_retry">TORNEU-HO A PROVAR</string>
     <string name="tutorial_next">SEGÜENT</string>
     <string name="tutorial_nice_one">Molt bé!</string>
@@ -294,7 +291,7 @@
     </plurals>
     <string name="notification_inbox_versus">contra %1$s</string>
     <string name="notification_logout_title">Torneu a iniciar sessió si us plau</string>
-    <string name="notification_logout_text">S\'ha tancat la vostra sessió a l’aplicació. Això sol passar perquè heu canviat la contrasenya. Inicieu sessió de nou per tornar a activar les notificacions.</string>
+    <string name="notification_logout_text">S\'ha tancat la vostra sessió a l’aplicació. Això sol passar perquè heu canviat la contrasenya. Inicieu sessió de nou per tornar a activar les notificacions</string>
     <string name="notification_channel_group_your_turn">El vostre torn</string>
     <string name="notification_channel_correspondence_games">Partides per correspondència</string>
     <string name="notification_channel_live_games">Partides en viu</string>
@@ -364,7 +361,7 @@
     <string name="supporter_faq_money_question">Per a què es fan servir els diners?</string>
     <string name="supporter_faq_money_answer">Els diners permeten que el nostre desenvolupador principal, que és un professional que treballa com a contractista d’Android, pugui prendre’s un temps entre contractes per treballar en aquest projecte. En el futur, podria dedicar-s’hi a temps complet i millorar l’aplicació a un ritme molt més ràpid.</string>
     <string name="supporter_faq_features_question">Hi ha alguna funció exclusiva per als mecenes?</string>
-    <string name="supporter_faq_features_answer">No, perquè creiem que tothom ha de tenir accés a una aplicació Android professional per GO</string>
+    <string name="supporter_faq_features_answer">No, perquè creiem que tothom ha de tenir accés a una aplicació Android professional per GO. El suport és totalment opcional.</string>
     <string name="supporter_faq_cancel_question">Puc canviar o cancel·lar la meva subscripció?</string>
     <string name="supporter_faq_cancel_answer">Sí, en qualsevol moment, o a aquesta pàgina o a la pàgina de subscripcions de Google Play.</string>
     <string name="supporter_faq_payment_question">Hi ha cap altre mètode de pagament?</string>
@@ -397,7 +394,7 @@
     <string name="stats_all_games">Totes les partides</string>
     <string name="stats_black">Negres</string>
     <string name="stats_white">Blanques</string>
-    <string name="stats_won_lost">%1$d ha guanyat· %2$d ha perdut</string>
+    <string name="stats_won_lost">%1$d ha guanyat · %2$d ha perdut</string>
     <string name="stats_no_streak">-</string>
     <plurals name="stats_streak_wins">
         <item quantity="one">%d victòria</item>
@@ -431,7 +428,7 @@
         <item quantity="other">%d problemes</item>
     </plurals>
     <string name="puzzle_directory_rank_label">Classificació</string>
-    <string name="puzzle_directory_rank_range">%1$s a %1$s</string>
+    <string name="puzzle_directory_rank_range">%1$s a %2$s</string>
     <string name="puzzle_directory_solved_label">Resolt</string>
     <string name="puzzle_directory_solved_value">%1$d (%2$.1f%%)</string>
     <string name="puzzle_directory_completed">Completat</string>
@@ -439,7 +436,7 @@
     <string name="puzzle_directory_sort_name">A -&gt; Z</string>
     <string name="puzzle_directory_sort_rating">Nivell</string>
     <string name="puzzle_directory_sort_count">Recompte de problemes</string>
-    <string name="puzzle_directory_sort_views">Visites</string>
+    <string name="puzzle_directory_sort_views">Views</string>
     <string name="puzzle_directory_sort_rank">Classificació</string>
     <string name="tsumego_title">Tsumego</string>
     <string name="tsumego_title_with_name">Tsumego: %1$s</string>
@@ -459,12 +456,12 @@
     <string name="onboarding_stay_offline_confirm">Sí, continuo fora de línia</string>
     <string name="onboarding_continue">Continuar</string>
     <string name="onboarding_page_go_title">El joc del GO</string>
-    <string name="onboarding_page_go_description">El Go és un joc de tauler d\'estratègia per dos jugadors. L\'objectiu és rodejar més territori que l\'adversari. El joc va ser inventat a Xina fa més de 2.500 anys i és el joc de tauler més antic que encara es juga avui en dia. S\'estima que més de 46 milions de persones hi saben jugar. </string>
+    <string name="onboarding_page_go_description">El Go és un joc de tauler d\'estratègia per dos jugadors. L\'objectiu és rodejar més territori que l\'adversari. El joc va ser inventat a Xina fa més de 2.500 anys i és el joc de tauler més antic que encara es juga avui en dia. S\'estima que més de 46 milions de persones hi saben jugar.</string>
     <string name="onboarding_page_app_title">Aplicació Android de GO en línia</string>
     <string name="onboarding_page_app_description">Aquesta aplicació va començar el 2015 com un projecte personal de l\'Alexandru Cristescu. Ara és de codi obert, que vol dir que el codi està a disposició de tothom per consultar-lo i modificar-lo. L\'aplicació és i serà sempre gratuïta. Les contribucions són benvingudes. Descobriu com podeu ajudar a la pàgina de GitHub del projecte. Si programar no és el vostre fort, podeu donar-nos suport fent una aportació mensual. O, simplement, podeu gaudir de l\'aplicació de franc: la decisió és totalment vostra!</string>
     <string name="onboarding_page_ogs_title">Servidor OGS</string>
     <string name="onboarding_page_ogs_description">El servidor OGS és un dels llocs web més populars per jugar al Go en línia. L\'aplicació Online GO per a Android utilitza els serveis d\'OGS per permetre jugar per internet. Tot i que no estem associats amb OGS, tenim el seu permís per utilitzar els seus serveis. Cal un compte (gratuït) d\'OGS per poder jugar. Podeu crear-ne un al pas següent si encara no en teniu cap.</string>
-    <string name="onboarding_question_has_account">Ja teniu un compte a OGS (online-go.com)</string>
+    <string name="onboarding_question_has_account">Ja teniu un compte a OGS (online-go.com)?</string>
     <string name="onboarding_question_login_method">Quin mètode d\'inici de sessió voleu fer servir?</string>
     <string name="onboarding_answer_google">Inici de sessió amb Google</string>
     <string name="onboarding_answer_password">Usuari i contrasenya</string>
@@ -548,7 +545,7 @@
     </plurals>
     <plurals name="mygames_active_games_count">
         <item quantity="one">Teniu %d partida activa.</item>
-        <item quantity="other">Teniu %d partides actives. </item>
+        <item quantity="other">Teniu %d partides actives.</item>
     </plurals>
     <string name="mygames_no_active_games">No teniu cap partida activa. Per què no en comenceu una?</string>
     <string name="mygames_detail_board_size">Mida del tauler</string>
@@ -560,9 +557,8 @@
     <string name="mygames_alert_bot_rejected_text">Això podria passar perquè el mantenidor de l\'oponent ha establert algunes condicions als paràmetres del repte.</string>
     <string name="mygames_alert_opponent_rejected_title">L\'adversari ha refusat el repte</string>
     <string name="mygames_alert_opponent_rejected_text">Pots tornar-ho a provar o bé contactar amb l\'oponent per aclarir els motius del rebuig.</string>
-    <string name="mygames_alert_ogs_error_title">Error de OGS</string>
-    <string name="mygames_alert_ogs_error_text">S\'ha produït un error en la comunicació amb el servidor d\'OGS. Això normalment vol dir que els desenvolupadors del lloc web han fet algun canvi a l\'API. Si us plau, informeu d\'aquest error, ja que és probable que l\'aplicació no funcioni fins que ens adaptem a aquest canvi.
-</string>
+    <string name="mygames_alert_ogs_error_title">Error d\'OGS</string>
+    <string name="mygames_alert_ogs_error_text">S\'ha produït un error en la comunicació amb el servidor d\'OGS. Això normalment vol dir que els desenvolupadors del lloc web han fet algun canvi a l\'API. Si us plau, informeu d\'aquest error, ja que és probable que l\'aplicació no funcioni fins que ens adaptem a aquest canvi.</string>
     <string name="mygames_alert_game_unavailable">Aquesta partida no està disponible.</string>
     <string name="mygames_alert_one_live_game">Només es pot buscar una partida en viu, ràpida o llampec cada vegada.</string>
     <string name="mygames_message_prefix">El missatge és:</string>
@@ -614,7 +610,7 @@ Col·loqueu una pedra per continuar!]]></string>
     <string name="tutorial_basics_capturingstones_capture9_text"><![CDATA["És difícil escapar amb les pedres a la vora. Captureu les dues pedres blanques de la primera línia!"]]></string>
     <string name="tutorial_basics_capturingstones_capture10_text">Massa pedres! Busqueu les pedres que són en Atari i captureu-les. Si us equivoqueu, en comptes d\'això, seran les vostres pedres les que seran capturades.</string>
     <string name="tutorial_basics_doubleatari_title">Doble Atari</string>
-    <string name="tutorial_basics_doubleatari_doubleAtari1_text"><![CDATA[En algunes posicions, les negres poden deixar a l'hora dos grups diferents de pedres blanques en atari. Normalment, les negres en capturaran al menys un!]]></string>
+    <string name="tutorial_basics_doubleatari_doubleAtari1_text"><![CDATA[En algunes posicions, les negres poden deixar a l'hora dos grups diferents de pedres blanques en atari. Les negres normalment en capturaran al menys un!]]></string>
     <string name="tutorial_basics_doubleatari_doubleAtari2_text"><![CDATA["Aquí n'hi ha un altre. On podeu fer un doble Atari?"]]></string>
     <string name="tutorial_basics_illegalmoves_title">Jugades il·legals (la regla del suïcidi)</string>
     <string name="tutorial_basics_illegalmoves_suicide1_page_1_text">Podeu jugar gairebé a qualsevol lloc del tauler, amb algunes excepcions. En l\'exemple següent, les negres no poden jugar a A, ja que la nova pedra ja estaria envoltada.</string>
@@ -723,9 +719,55 @@ Primer, dividim el tauler en 3 àrees. Aquestes són les cantonades."]]></string
     <string name="tutorial_advanced_thefirstmoves_firstmoves2_text"><![CDATA["Aquí teniu les primeres 20 jugades d'una partida real entre dos jugadors professionals."]]></string>
     <string name="tutorial_advanced_themiddlegame_name">El mig-joc</string>
     <string name="tutorial_advanced_themiddlegame_middlegame1_text"><![CDATA["Les negres estan bloquejades a la cantonada inferior esquerra. El grup quedarà envoltat si no feu res."]]></string>
-    <string name="tutorial_advanced_themiddlegame_middlegame2_text"><![CDATA["Les negres estan bloquejant les blanques a la zona inferior dreta. Les blanques encara no tenen dos ulls.
+    <string name="tutorial_advanced_themiddlegame_middlegame2_text"><![CDATA["Les negres estan bloquejant les blanques a la zona inferior dreta. Les blanques encara no tenen 2 ulls.
 Llavors, les blanques han jugat a G2.
 
 Mireu què passa si les negres responen a F1 (o G1) abans que trobeu la resposta correcta."]]></string>
     <string name="tutorial_advanced_endgamescoring_name">\"El final: Puntuació\"</string>
+    <string name="tutorial_advanced_endgamescoring_endgame1_page1_text"><![CDATA["Aquí aprendreu a saber quan s'ha acabat una partida i com comptar els territoris utilitzant taulers de 5x5. Tots dos jugadors han fet 5 jugades, després tots dos han passat i, per tant, la partida es considera acabada. Ja només queda comptar el territori.
+
+Proveu de comptar quantes interseccions han encerclat les negres. I les blanques?
+
+Pista: recordeu de comptar totes les interseccions, inclosos els costats i les cantonades, però no els punts que estan ocupats per pedres."]]></string>
+    <string name="tutorial_advanced_endgamescoring_endgame1_page2_text"><![CDATA["Les negres tenen 5 punts a l'esquerra i les blanques tenen 10 punts a la dreta.
+
+Per tant, les blanques guanyen per 5 punts."]]></string>
+    <string name="tutorial_advanced_endgamescoring_endgame1_page3_text"><![CDATA["Però per què les negres no han intentat continuar jugant, llavors?
+
+Bé, no hi ha cap jugada que les negres puguin fer per augmentar la seva puntuació. Per exemple, si les negres envaeixen el costat dret, les blanques es poden defensar fàcilment i la nova pedra està morta.
+
+Les blanques han reduït el seu territori en 1, però han recuperat 1 punt perquè la pedra negra està morta i compta com a presonera.
+
+La puntuació aquí continua sent de 10 a 5."]]></string>
+    <string name="tutorial_advanced_endgamescoring_endgame1_page4_text"><![CDATA["I llavors, què passa si les negres juguen al costat esquerre?
+
+L'únic que aconseguirien és que el seu territori sigui ara més petit i, per tant, perdrien un punt.
+
+Per tant, les negres no tenen cap jugada bona i haurien de passar. Les blanques tenen més punts, així que també estan d'acord en passar.
+
+Així doncs, la partida s'ha acabat i les blanques guanyen."]]></string>
+    <string name="tutorial_advanced_endgamescoring_endgame1_page5_text"><![CDATA["Aquí teniu una altra posició de partida acabada. Les negres tenen 5 punts, mentre que les blanques en tenen 6.
+
+Les dues interseccions del centre són territori neutral («Dame») i no compten per a la puntuació de cap dels jugadors.
+
+Qualsevol dels jugadors hi podria jugar, però no guanyaria ni perdria cap punt."]]></string>
+    <string name="tutorial_advanced_endgamescoring_endgame1_page6_text"><![CDATA["Tot i que el territori és de bon tros la part més gran de la puntuació, recordeu que cal afegir-hi altres punts de bonificació.
+
+Les pedres capturades valen 1 punt cadascuna, així com les pedres 'mortes' que encara són al tauler (que no tenen cap possibilitat de fer 2 ulls).
+
+A més a més, com que les negres juguen primer tenen un cert avantatge, i per compensar-ho les blanques reben una petita bonificació de punts (anomenada 'komi').
+
+El valor del komi depèn de la mida del tauler, però normalment és de 5,5 o 6,5 punts. L'0,5 garanteix que no hi hagi empats.
+
+Per sort, l'aplicació us fa tots aquests càlculs :)"]]></string>
+    <string name="tutorial_advanced_cuttingstones_name">Les pedres que tallen</string>
+    <string name="tutorial_advanced_cuttingstones_cutting1_text"><![CDATA["Sembla que les blanques tenen el territori més gran. Tot i això, el seu mur té un punt feble. Simplement «talleu» el mur de les blanques.
+
+Si ho aconseguiu, les blanques ho tindran difícil per assegurar que tots dos grups sobrevisquin."]]></string>
+    <string name="tutorial_advanced_cuttingstones_cutting1_branches2_message">Les pedres blanques estan connectades.</string>
+    <string name="tutorial_advanced_cuttingstones_cutting2_text"><![CDATA["Les negres tenen 30 punts, mentre que les blanques en tenen 31. Per tant, sembla que les blanques guanyen d'1 punt.
+
+Tot i això, el territori del costat inferior no és tot de les blanques.
+
+Simplement, talleu el mur de les blanques."]]></string>
 </resources>
