@@ -89,6 +89,7 @@
     <string name="bottomnavigation_botton_stats">Statistiques</string>
     <string name="bottomnavigation_botton_settings">Paramètres</string>
     <string name="stats_login_required_title">Se connecter pour voir les stats</string>
+    <string name="stats_login_required_message">Les statistiques sont disponibles uniquement si vous êtes connecté à OGS.</string>
     <string name="home_welcome_to_sente">Bienvenue sur Sente</string>
     <string name="home_app_open_source_message">Cette application, aux sources ouvertes et prise en charge par la communauté, est une façade pour le site web OGS (online-go.com). Vous pouvez explorer les tutoriels et jouer contre l\'IA, mais là plupart des fonctionnalités nécessitent un compte OGS gratuit.</string>
     <string name="home_button_login_ogs">Se connecter à OGS</string>
@@ -225,10 +226,38 @@
         <item quantity="one">%d Heure</item>
         <item quantity="other">%d Heures</item>
     </plurals>
+    <plurals name="duration_minutes">
+        <item quantity="one">%d minute</item>
+        <item quantity="other">%d minutes</item>
+    </plurals>
+    <plurals name="duration_seconds">
+        <item quantity="one">%d seconde</item>
+        <item quantity="other">%d secondes</item>
+    </plurals>
+    <string name="duration_two_units">%1$s %2$s</string>
+    <string name="duration_unknown">\?</string>
+    <string name="time_control_simple">Simple : %1$s par coup.</string>
+    <string name="time_control_fischer">Fischer : l\'horloge débute avec %1$s et incrémente de %2$s par coup jusqu\'à un maximum de %3$s.</string>
     <string name="time_control_none">Pas de limite de temps.</string>
     <string name="whats_new_title">Quoi de neuf</string>
     <string name="whats_new_got_it">Ok</string>
     <string name="whats_new_open_source">Sente est open source, développé par des volontaires.</string>
+    <string name="whats_new_support_project">Soutenez le projet</string>
+    <string name="settings_delete_account_success">Compte supprimé. L\'application se fermera dans 5 secondes.</string>
+    <string name="settings_delete_account_wrong_password">Mot de passe incorrect</string>
+    <string name="onboarding_login_invalid_credentials">Login ou mot de passe incorrect</string>
+    <string name="onboarding_login_failed_debug">Connexion échouée. Info de débogage : \'%1$s\'</string>
+    <string name="onboarding_create_account_failed_debug">Création de compte échouée. Info de débogage : \'%1$s\'</string>
+    <string name="onboarding_server_error_code">Erreur de communication avec le serveur. Le serveur a retourné le code d\'erreur %1$s. Réessayez plus tard</string>
+    <string name="tutorial_retry">RÉESSAYEZ</string>
+    <string name="tutorial_next">SUIVANT</string>
+    <string name="tutorial_nice_one">Bien joué !</string>
+    <string name="socket_debug_title">Débogage socket</string>
+    <string name="socket_debug_clear_log_content_description">Vider les logs</string>
+    <string name="socket_debug_clear_content_description">Vider</string>
+    <string name="socket_debug_filter_hint">Filtrer les évènements...</string>
+    <string name="notification_challenge_text">%1$s vous lance un défi</string>
+    <string name="notification_outcome_cancelled">Annulé</string>
     <string name="notification_outcome_lost_by">Perdu de %1$s</string>
     <string name="notification_outcome_won_by">Gagné de %1$s</string>
     <string name="notification_outcome_black_won_by">Noir gagne de %1$s</string>
@@ -236,4 +265,7 @@
     <string name="notification_your_turn">Votre tour</string>
     <string name="notification_stone_removal_phase">Phase de retrait des pierres mortes</string>
     <string name="notification_requires_attention">%1$s Requiert votre attention</string>
+    <string name="notification_logout_title">Connectez-vous à nouveau</string>
+    <string name="notification_channel_group_your_turn">Votre tour</string>
+    <string name="notification_channel_your_turn">Votre tour</string>
 </resources>
