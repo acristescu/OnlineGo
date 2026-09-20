@@ -51,6 +51,17 @@
     <string name="komi">贴目</string>
     <string name="white">白方</string>
     <string name="black">黑方</string>
+    <string name="search">搜索</string>
+    <string name="loading">加载中……</string>
+    <string name="email">电子邮件</string>
+    <string name="username">用户名</string>
+    <string name="password">密码</string>
+    <string name="yes">是的</string>
+    <string name="no">不</string>
+    <string name="unknown">未知</string>
+    <string name="error">错误</string>
+    <string name="enabled">已启用</string>
+    <string name="disabled">已禁用</string>
     <string name="button_play_against_ai">AI\n对战</string>
     <string name="button_face_to_face">面棋\n对战</string>
     <string name="bottomnavigation_botton_play">下棋</string>
