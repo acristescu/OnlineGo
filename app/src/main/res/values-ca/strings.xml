@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Sente - GO en línia</string>
-    <string name="create_account_prompt">No teniu compte a OGS? Creeu-ne un <br>aquí</br>!</string>
+    <string name="create_account_prompt">No teniu compte a OGS? Creeu-ne un <b>aquí</b>!</string>
     <string name="login_to_ogs">Inicieu sessió a OGS</string>
     <string name="create_account">Creeu un compte a OGS</string>
-    <string name="welcome_to_sente_online_go">Benvingut/da a Sente - GO en línia</string>
+    <string name="welcome_to_sente_online_go">Benvingut/da a Sente - Go en línia</string>
     <string name="login_to_play_online">Si us plau, inicieu sessió a OGS per jugar en línia.</string>
     <string name="ai_game_chat_ready">Preparat/da!</string>
     <string name="ai_game_chat_use_new_game_button">Utilitzeu el botó \'Nova Partida\' per començar una partida</string>
-    <string name="ai_game_chat_engine_error">Error en iniciar el KataGO \'%1$s\'</string>
+    <string name="ai_game_chat_engine_error">Error en iniciar el KataGO: \'%1$s\'</string>
     <string name="ai_game_chat_invalid_move">Moviment no vàlid, torneu-ho a provar</string>
     <string name="ai_game_chat_lets_try_again">D\'acord, torneu-ho a provar. És el vostre torn!</string>
-    <string name="ai_game_chat_hmmm">Hmmm...</string>
+    <string name="ai_game_chat_hmmm">Hmmm…</string>
     <string name="ai_game_chat_moves_to_consider">Aquí teniu unes quantes jugades per considerar</string>
     <string name="ai_game_chat_ok_your_turn">D\'acord, és el vostre torn</string>
     <string name="ai_game_chat_calculating_territory">D\'acord, calculant el territori actual...</string>
@@ -163,7 +163,7 @@
     <string name="game_request_undo_dialog_title">Sol·liciteu desfer la jugada?</string>
     <string name="game_request_undo_dialog_message">Si la vostra darrera jugada l\'heu feta per error, podeu demanar al vostre adversari si us permet desfer-la.</string>
     <string name="game_request_undo_dialog_confirm">SOL·LICITAR DESFER LA JUGADA</string>
-    <string name="game_pass_dialog_message">Esteu segur que voleu passar?  Només ho hauríeu de fer si creieu que la partida s’ha acabat i no queda cap jugada per fer. Si el vostre adversari també passa, la partida entra en la fase de recompte.</string>
+    <string name="game_pass_dialog_message">Esteu segur que voleu passar? Només ho hauríeu de fer si creieu que la partida s’ha acabat i no queda cap jugada per fer. Si el vostre adversari també passa, la partida entra en la fase de recompte.</string>
     <string name="game_pass_dialog_confirm">PASSAR</string>
     <string name="game_resign_dialog_message">Esteu segur que voleu abandonar?</string>
     <string name="game_resign_dialog_confirm">ABANDONAR</string>
@@ -351,7 +351,7 @@
     <string name="settings_icon_content_description">Icona</string>
     <string name="supporter_title">Doneu suport al projecte</string>
     <string name="supporter_header">Doneu suport a l\'aplicació d\'Android</string>
-    <string name="supporter_intro">El projecte va començar el 2015 com un hobby. Si bé hi havia excel·lents serveis per navegador, no hi havia aplicacions mòbils de la mateixa qualitat. L’objectiu era crear una aplicació d’Android gratuïta i de codi obert (FOSS), desenvolupada de manera professional, que permetés als jugadors de Go interactuar i descobrir aquest joc tan apassionant.\n\nNo tenim cap relació amb OGS, tot i que molt amablement ens han permès utilitzar els seus serveis en línia de manera gratuïta. \n\nPer fer-ho possible, comptem amb el suport de persones com vosaltres. Si us agrada utilitzar l’aplicació, considereu la possibilitat de donar-nos suport amb una aportació mensual i convertir-vos en mecenes!</string>
+    <string name="supporter_intro">El projecte va començar el 2015 com un hobby. Si bé hi havia excel·lents serveis per navegador, no hi havia aplicacions mòbils de la mateixa qualitat. L’objectiu era crear una aplicació per Android gratuïta i de codi obert (FOSS), desenvolupada de manera professional, que permetés als jugadors de Go interactuar i descobrir aquest joc tan apassionant.\n\nNo tenim cap relació amb OGS, tot i que molt amablement ens han permès utilitzar els seus serveis en línia de manera gratuïta. \n\nPer fer-ho possible, comptem amb el suport de persones com vosaltres. Si us agrada utilitzar l’aplicació, considereu la possibilitat de donar-nos suport amb una aportació mensual i convertir-vos en mecenes!</string>
     <string name="supporter_reason_develop_title">Ajudeu-nos a desenvolupar més de pressa l\'aplicació</string>
     <string name="supporter_reason_develop_description">Els mecenes fan possible dedicar més temps al desenvolupament de noves funcions, com ara la integració de la IA KataGo, l’anàlisi assistida per IA, l’editor SGF, etc.</string>
     <string name="supporter_reason_free_title">Mantenir l\'aplicació gratuïta</string>
@@ -420,7 +420,7 @@
     <string name="stats_tooltip_on_date">a %1$s</string>
     <string name="stats_tooltip_delta_elo">%1$d · ELO</string>
     <string name="stats_tooltip_since_game">des de la Partida %1$d</string>
-    <string name="stats_tooltip_since_date">Des de: %1$s</string>
+    <string name="stats_tooltip_since_date">des de: %1$s</string>
     <string name="puzzle_directory_title">Problemes</string>
     <string name="puzzle_directory_recently_opened">Oberts recentment</string>
     <string name="puzzle_directory_rating_count">(%1$s)</string>
@@ -470,7 +470,7 @@
     <string name="onboarding_answer_password">Usuari i contrasenya</string>
     <string name="onboarding_answer_offline">Continuar fora de línia</string>
     <string name="onboarding_notifications_title">Mantingueu-vos al dia</string>
-    <string name="onboarding_notifications_description">Ens agradaria enviar-vos notificacions quan sigui el vostre torn de jugar, quan acabin les partides o quan rebeu missatges. Sempre podeu canviar això més endavant a la configuració del vostre dispositiu</string>
+    <string name="onboarding_notifications_description">Ens agradaria enviar-vos notificacions quan sigui el vostre torn de jugar, quan acabin les partides o quan rebeu missatges. Sempre podeu canviar això més endavant a la configuració del vostre dispositiu.</string>
     <string name="onboarding_notifications_allow">Permetre les notificacions</string>
     <string name="onboarding_notifications_skip">Ometre</string>
     <string name="new_challenge_opponent">Adversari</string>
@@ -597,7 +597,6 @@ De vegades, la millor opció és jugar en un altre lloc. D'això se'n sol dir te
 1.  Les negres i les blanques s'alternen per col·locar "pedres" al tauler
 2. Les pedres es col·loquen a la intersecció de les línies.
 3. Un com col·locada la pedra no es pot moure mai, però pot ser capturada.
-
 Col·loqueu una pedra per continuar!]]></string>
     <string name="tutorial_basics_thebasics_capture1_page1_text"><![CDATA[Amb una jugada més, la pedra blanca quedarà completament envoltada i capturada. De les pedres que es poden capturar amb una sola jugada es diu que estan en "Atari".]]></string>
     <string name="tutorial_basics_thebasics_capture1_page2_text"><![CDATA[La pedra blanca ara està envoltada, així que...]]></string>
@@ -646,37 +645,87 @@ Captureu les pedres blanques!</string>
     <string name="tutorial_intermediate_captureraces_capturerace2_text"><![CDATA["Aquí teniu un altre semeai. Guanyeu la cursa i captureu les blanques!"]]></string>
     <string name="tutorial_intermediate_captureraces_capturerace3_text">Salveu les pedres negres de la cantonada!</string>
     <string name="tutorial_intermediate_snapback_title">Snapback</string>
-    <string name="tutorial_intermediate_snapback_snapback1_text">Ara descobrireu una tècnica anomenada «snapback». Captureu les 4 pedres blanques! Pista: primer heu de sacrificar una pedra!</string>
+    <string name="tutorial_intermediate_snapback_snapback1_text">Ara descobrireu una tècnica anomenada «snapback». Captureu les 4 pedres blanques!\n\nPista: primer heu de sacrificar una pedra!</string>
     <string name="tutorial_intermediate_snapback_snapback2_text">Com heu descobert, de vegades obligar les blanques a capturar una de les vostres pedres les posa en Atari. Feu servir la mateixa tècnica aquí!</string>
     <string name="tutorial_intermediate_snapback_snapback3_text">Aquí teniu una altra situació de snapback a la vora.</string>
     <string name="tutorial_intermediate_ko_title">KO - la regla de la «no repetició»</string>
     <string name="tutorial_intermediate_ko_ko_page_1_text"><![CDATA["Ara veurem l'última regla que heu de saber per jugar al Go: la regla del KO. La regla estableix que una jugada és invàlida si produeix una repetició (és a dir, la posició anterior).
 Mirem un exemple. La pedra blanca d'E6 està en Atari. Per tant, les negres la poden capturar."]]></string>
+    <string name="tutorial_intermediate_ko_ko_page_2_text"><![CDATA["Ara la nova pedra negra d'F6 està en Atari. Sense la regla del KO, les blanques la podrien capturar, però si ho fessin, la posició resultant..."]]></string>
+    <string name="tutorial_intermediate_ko_ko_page_3_text"><![CDATA["… seria la mateixa que la inicial! Aquí, sense la regla del KO, les negres tornarien a capturar…"]]></string>
+    <string name="tutorial_intermediate_ko_ko_page_4_text"><![CDATA["… i la partida quedaria atrapada en un bucle. Per evitar-ho, la regla del KO estableix que aquí les blanques no poden recapturar a E6, sinó que primer han de jugar en un altre lloc."]]></string>
+    <string name="tutorial_intermediate_ko_ko_page_5_text"><![CDATA["Ara, si les negres volen salvar la pedra que és en atari poden jugar a E6...]]></string>
+    <string name="tutorial_intermediate_ko_ko_page_6_text">Així doncs, les negres han guanyat la lluita de ko, però fixeu-vos que torna a ser el torn de les blanques i, per tant, han obtingut dues jugades a canvi d\'aquella única pedra.</string>
+    <string name="tutorial_intermediate_ko_ko_page_7_text">Aquestes dues jugades de franc de vegades poden valdre més punts que guanyar la lluita de ko. Per tant, tots dos jugadors valoraran constantment si val la pena continuar la lluita de ko o obtenir les jugades addicionals.</string>
+    <string name="tutorial_intermediate_ko_ko_page_8_text">Com pot passar això en una partida real? Aquí teniu un exemple. Tant les blanques com les negres tenen a dalt un grup de 5 pedres en perill. L\'única manera que tenen les negres per salvar el seu grup és jugar a E8. Ha començat una lluita de ko!</string>
+    <string name="tutorial_intermediate_ko_ko_page_9_text">Les 5 pedres blanques de la part superior ara estan en Atari, però no poden recapturar a D8 perquè això repetiria la posició anterior! Per tant, juguen en un lloc que les negres no puguin ignorar, com ara E2</string>
+    <string name="tutorial_intermediate_ko_ko_page_10_text">Ara les 8 pedres negres de la part inferior esquerra estan en perill, així que les negres fan números: prefereixen perdre 8 pedres a la part inferior o 5 a la superior? A contracor, les negres decideixen continuar la lluita de ko i salvar les pedres de la part inferior amb E1</string>
+    <string name="tutorial_intermediate_ko_ko_page_11_text">Ara les blanques recapturen la pedra del ko</string>
+    <string name="tutorial_intermediate_ko_ko_page_12_text"><![CDATA["Ara és el torn de les negres i no poden recapturar a causa de la regla del ko. Tot i això, tenen una oportunitat més: una jugada a B4 amenaça el grup blanc de la part inferior!"]]></string>
+    <string name="tutorial_intermediate_ko_ko_page_13_text">Ara és el torn de triar de les blanques. Haurien de capturar les 5 pedres de la part superior amb una jugada a B9 o salvar les 6 pedres de la part inferior? Decideixen jugar a A4.</string>
+    <string name="tutorial_intermediate_ko_ko_page_14_text">Les negres no necessiten que les animin gaire per jugar a E8 ara.</string>
+    <string name="tutorial_intermediate_ko_ko_page_15_text">Les blanques admeten a contracor que no tenen cap altra bona amenaça. Juguen en un altre lloc, com ara F4, i reconeixen que han perdut la lluita de ko.</string>
+    <string name="tutorial_intermediate_ko_ko_page_16_text">Ara les negres reclamaran amb molt de gust el seu premi a la part superior amb G9</string>
+    <string name="tutorial_intermediate_ko_ko_page_17_text">No us preocupeu si tot això us sembla massa complicat ara mateix. Com a principiant, només heu de recordar que no podeu recapturar una pedra si això repeteix la posició anterior.</string>
     <string name="tutorial_intermediate_puzzles_title">Problemes</string>
+    <string name="tutorial_intermediate_puzzles_puzzles1_text">Captureu les 3 pedres blanques! Això de vegades s\'anomena el \"niu de la grua\"</string>
+    <string name="tutorial_intermediate_puzzles_puzzles2_text"><![CDATA["És una cursa de captures, podeu guanyar-la?"]]></string>
+    <string name="tutorial_intermediate_puzzles_corner1_text"><![CDATA["Al Go, les lluites a les cantonades són molt habituals. Aquí teniu una cursa de captures a la cantonada. Podeu sortir-ne guanyant?"]]></string>
+    <string name="tutorial_intermediate_puzzles_corner2_text"><![CDATA["Captureu la pedra blanca que talla les negres. Aneu amb compte des de quin costat feu l'Atari!"]]></string>
     <string name="tutorial_intermediate_puzzles_corner2_branches_branch1_4_4_message">4 pedres negres són mortes</string>
     <string name="tutorial_intermediate_puzzles_corner2_branches_branch2_3_message">3 pedres negres són mortes</string>
     <string name="tutorial_intermediate_puzzles_corner2_branches_branch2_5_message">2 pedres negres són mortes</string>
     <string name="tutorial_intermediate_puzzles_corner2_branches_branch4_message"><![CDATA["Les negres no es poden escapar"]]></string>
     <string name="tutorial_intermediate_puzzles_corner2_branches_branch6_message"><![CDATA["Les negres no es poden escapar"]]></string>
     <string name="tutorial_intermediate_falseeyes_title">Ulls falsos</string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes1_page1_text"><![CDATA["Si recordeu el tutorial anterior, un grup amb dos ulls no es pot capturar mai. Tot i això, de vegades, algunes de les pedres que envolten un ull no estan connectades al grup principal i es poden capturar per separat. Per exemple, a la posició de sota, D5 sembla un ull, però la pedra de C5 està en Atari i es pot capturar, deixant el grup central amb un sol ull.\n\nAnomenem D5 un \"fals ull\"."]]></string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes2_text"><![CDATA["Les blanques han intentat salvar la seva pedra de C5 jugant a D5. Quina és la jugada guanyadora aquí?"]]></string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes3_text"><![CDATA["Si les blanques intenten contraatacar d'una altra manera, no fa res: igualment podeu capturar el grup central!"]]></string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes4_text"><![CDATA["Aquesta vegada esteu a la defensiva. Sobreviviu fent dos ulls de veritat!"]]></string>
     <string name="tutorial_intermediate_falseeyes_falseeyes4_branches_branch2_message">Heu omplert el vostre propi ull</string>
     <string name="tutorial_intermediate_falseeyes_falseeyes4_branches_branch3_message">Heu omplert el vostre propi ull</string>
     <string name="tutorial_intermediate_falseeyes_falseeyes4_branches_branch4_message">F4 és ara un fals ull</string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes5_text"><![CDATA["Aquesta vegada heu d'arreglar tots dos ulls!"]]></string>
     <string name="tutorial_intermediate_falseeyes_falseeyes5_branches_branch1_2_message">F5 és ara un fals ull.</string>
     <string name="tutorial_intermediate_falseeyes_falseeyes5_branches_branch2_message">C5 és un fals ull.</string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes6_text"><![CDATA["Aquí, a la vora, teniu un model habitual de fals ull. Arregleu-ho!"]]></string>
     <string name="tutorial_intermediate_falseeyes_falseeyes6_branches_branch2_message">Heu omplert el vostre propi ull</string>
     <string name="tutorial_intermediate_falseeyes_falseeyes6_branches_branch3_message">D9 és ara un fals ull</string>
     <string name="tutorial_intermediate_morepuzzles_title">Més problemes</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles3_text">Mireu de no marejar-vos.</string>
     <string name="tutorial_intermediate_morepuzzles_puzzles4_text">Què heu de fer primer?</string>
     <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_1_2_message">Els grups negres estan separats</string>
     <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_2_message">Els grups negres estan separats</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_3_message">Els grups de les negres estan separats</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_4_message">Els grups de les negres estan separats</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_5_1_message">Les negres estan aïllades</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_5_2_message">Les negres estan aïllades</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_5_3_message">Les negres estan aïllades</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_5_4_message">Les negres estan aïllades</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_5_5_message">Les negres estan aïllades</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_6_message">Les negres estan aïllades</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles5_text">Trenqueu la simetria</string>
     <string name="tutorial_intermediate_morepuzzles_puzzles5_branches_branch3_4_message"><![CDATA["Tres pedres negres no es poden escapar."]]></string>
-    <string name="tutorial_intermediate_morepuzzles_puzzles5_branches_branch5_message"><![CDATA["Dues pedres negres no es poden escapar."]]></string>
-    <string name="tutorial_intermediate_morepuzzles_puzzles5_branches_branch6_message"><![CDATA["Dues pedres negres no es poden escapar."]]></string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles5_branches_branch5_message"><![CDATA["Dues pedres negres no es poden escapar"]]></string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles5_branches_branch6_message"><![CDATA["Dues pedres negres no es poden escapar"]]></string>
     <string name="tutorial_advanced_title">Avançat</string>
     <string name="tutorial_advanced_thefirstmoves_name">Les primeres jugades</string>
-    <string name="tutorial_advanced_thefirstmoves_firstmoves1_page1_text"><![CDATA["Fins ara ens hem centrat a capturar pedres. No obstant, al principi de la partida no hi ha cap pedra al tauler. Veurem on heu de fer les vostres primeres jugades per tal d'augmentar les vostres probabilitats de guanyar.
+    <string name="tutorial_advanced_thefirstmoves_firstmoves1_page1_text"><![CDATA["Fins ara ens hem centrat a capturar pedres. Tot i això, al principi de la partida no hi ha cap pedra al tauler. Veurem on heu de fer les vostres primeres jugades per tal d'augmentar les vostres probabilitats de guanyar.
 
-Primer, dividim el tauler en 3 àrees. Aquestes són les cantonades." ]]></string>
+Primer, dividim el tauler en 3 àrees. Aquestes són les cantonades."]]></string>
     <string name="tutorial_advanced_thefirstmoves_firstmoves1_page2_text"><![CDATA["… aquests són els costats…"]]></string>
+    <string name="tutorial_advanced_thefirstmoves_firstmoves1_page3_text"><![CDATA["... i aquest és el centre. Per descomptat, només són noms que fem servir per orientar-nos i no hi ha cap regla especial per a cap d'aquests."]]></string>
+    <string name="tutorial_advanced_thefirstmoves_firstmoves1_page4_text"><![CDATA["L'objectiu del joc és encerclar més territori que el vostre adversari. Com que vós i el vostre adversari col·loqueu les pedres per torns, tots dos tindreu el mateix nombre de pedres. Per tant, el guanyador és el jugador que fa servir les seves pedres de manera més eficient.
+
+"On és més eficient encerclar territori? A les cantonades, als costats o al centre?"]]></string>
+    <string name="tutorial_advanced_thefirstmoves_firstmoves1_page5_text"><![CDATA["Cadascun dels grups de sota encercla exactament 9 espais, de manera que cadascun obté 9 punts. Tot i això, el de la cantonada només necessita 6 pedres, el del costat 9, mentre que el del centre en necessita 12!"]]></string>
+    <string name="tutorial_advanced_thefirstmoves_firstmoves1_page6_text"><![CDATA["Per tant, els jugadors savis jugaran primer a les cantonades i, només quan aquestes estiguin ocupades, passaran als costats, deixant el centre per al final."]]></string>
+    <string name="tutorial_advanced_thefirstmoves_firstmoves2_text"><![CDATA["Aquí teniu les primeres 20 jugades d'una partida real entre dos jugadors professionals."]]></string>
+    <string name="tutorial_advanced_themiddlegame_name">El mig-joc</string>
+    <string name="tutorial_advanced_themiddlegame_middlegame1_text"><![CDATA["Les negres estan bloquejades a la cantonada inferior esquerra. El grup quedarà envoltat si no feu res."]]></string>
+    <string name="tutorial_advanced_themiddlegame_middlegame2_text"><![CDATA["Les negres estan bloquejant les blanques a la zona inferior dreta. Les blanques encara no tenen dos ulls.
+Llavors, les blanques han jugat a G2.
+
+Mireu què passa si les negres responen a F1 (o G1) abans que trobeu la resposta correcta."]]></string>
+    <string name="tutorial_advanced_endgamescoring_name">\"El final: Puntuació\"</string>
 </resources>
