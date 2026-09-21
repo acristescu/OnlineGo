@@ -256,9 +256,10 @@
     <string name="whats_new_open_source">Sente is open source, built by volunteers.</string>
     <string name="whats_new_support_project">Support the project</string>
     <string-array name="whats_new_changelog" translatable="false">
-        <item>✨ New localization system! We currently support English, Romanian, and German. Check out the link below to help us bring Sente to even more languages.</item>
+        <item>✨ New localization system! We currently support English, Romanian, Catalan, and German. Check out the link below to help us bring Sente to even more languages.</item>
         <item>🤖 Adjustable AI Difficulty: KataGo plays at a fierce 4–5 Dan by default, but you can now adjust its difficulty so us mere mortals stand a chance!</item>
         <item>🎨 Fresh New Look: Enjoy a modern edge-to-edge UI featuring an intuitive floating collapsible bottom navigation bar.</item>
+        <item>🏴󠁥󠁥󠁳󠁣󠁴󠁿 Sente now speaks Catalan! Moltes gràcies to our volunteer translator Enric.</item>
     </string-array>
     <string name="settings_delete_account_success">Account deleted. Sorry to see you go! The app will close in 5s.</string>
     <string name="settings_delete_account_wrong_password">Wrong password</string>
@@ -312,6 +313,7 @@
     <string name="settings_language_english" translatable="false">English</string>
     <string name="settings_language_romanian" translatable="false">Română</string>
     <string name="settings_language_german" translatable="false">Deutsch</string>
+    <string name="settings_language_catalan" translatable="false">Català</string>
     <string name="settings_help_translate">Help translate Sente</string>
     <string name="settings_section_notifications">Notifications</string>
     <string name="settings_system_notifications">System notifications</string>

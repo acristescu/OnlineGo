@@ -30,7 +30,8 @@ enum class AppLanguage(
 ) {
   ENGLISH("en", "en", "🇬🇧", R.string.settings_language_english),
   ROMANIAN("ro", "ro", "🇷🇴", R.string.settings_language_romanian),
-  GERMAN("de", "de", "🇩🇪", R.string.settings_language_german);
+  GERMAN("de", "de", "🇩🇪", R.string.settings_language_german),
+  CATALAN("ca", "ca", "🏴󠁥󠁳󠁣󠁴󠁿", R.string.settings_language_catalan);
 
   val locale: Locale = Locale.forLanguageTag(localeTag)
 

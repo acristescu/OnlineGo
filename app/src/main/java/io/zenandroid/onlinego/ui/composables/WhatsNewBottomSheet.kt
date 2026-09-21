@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -80,6 +79,7 @@ private fun WhatsNewContent(
   Column(
     modifier = modifier
       .navigationBarsPadding()
+      .verticalScroll(rememberScrollState())
       .padding(horizontal = 24.dp)
       .padding(bottom = 16.dp)
   ) {
@@ -98,13 +98,9 @@ private fun WhatsNewContent(
       )
     }
 
-    // Capped so a long changelog scrolls instead of pushing the buttons off-screen.
     Column(
       verticalArrangement = Arrangement.spacedBy(12.dp),
-      modifier = Modifier
-        .heightIn(max = 300.dp)
-        .verticalScroll(rememberScrollState())
-        .padding(top = 20.dp, bottom = 4.dp)
+      modifier = Modifier.padding(top = 20.dp, bottom = 4.dp)
     ) {
       items.forEach { item ->
         ChangelogItem(item)
