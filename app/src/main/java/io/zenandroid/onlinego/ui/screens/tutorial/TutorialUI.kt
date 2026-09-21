@@ -62,7 +62,7 @@ import io.zenandroid.onlinego.ui.screens.tutorial.TutorialAction.BoardCellHovere
 import io.zenandroid.onlinego.ui.screens.tutorial.TutorialAction.BoardCellTapped
 import io.zenandroid.onlinego.ui.screens.tutorial.TutorialAction.NextPressed
 import io.zenandroid.onlinego.ui.screens.tutorial.TutorialAction.RetryPressed
-import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
+import io.zenandroid.onlinego.ui.theme.OnlineGoPreviewTheme
 import org.koin.androidx.compose.koinViewModel
 
 
@@ -282,7 +282,7 @@ private fun Snackbar(
 @Preview
 @Composable
 private fun Preview() {
-  OnlineGoTheme {
+  OnlineGoPreviewTheme {
     TutorialContent(
       TutorialState(
         step = TutorialStep.Interactive(

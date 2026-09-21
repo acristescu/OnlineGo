@@ -92,7 +92,7 @@ import io.zenandroid.onlinego.ui.composables.BottomBar
 import io.zenandroid.onlinego.ui.composables.BottomBarButton
 import io.zenandroid.onlinego.ui.composables.TextResource
 import io.zenandroid.onlinego.ui.composables.resolve
-import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
+import io.zenandroid.onlinego.ui.theme.OnlineGoPreviewTheme
 import io.zenandroid.onlinego.utils.processGravatarURL
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
@@ -846,7 +846,7 @@ private fun NewGameBottomSheet(
 @Composable
 @Preview
 private fun AiGameUIPreview() {
-  OnlineGoTheme {
+  OnlineGoPreviewTheme {
     AiGameUI(
       state = AiGameState(
         boardSize = 19,
@@ -903,7 +903,7 @@ private fun AiGameUIPreview() {
 @Composable
 @Preview
 private fun AiGameUIPreviewNewGame() {
-  OnlineGoTheme {
+  OnlineGoPreviewTheme {
     AiGameUI(
       state = AiGameState(
         boardSize = 19,
@@ -965,7 +965,7 @@ private fun AiGameUIPreviewNewGame() {
 )
 private fun PreviewLandscape() {
 
-  OnlineGoTheme {
+  OnlineGoPreviewTheme {
     AiGameUI(
       state = AiGameState(
         boardSize = 19,

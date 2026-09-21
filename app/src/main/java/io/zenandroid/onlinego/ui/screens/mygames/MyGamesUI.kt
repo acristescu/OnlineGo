@@ -61,7 +61,7 @@ import io.zenandroid.onlinego.ui.screens.mygames.composables.SenteCard
 import io.zenandroid.onlinego.ui.screens.mygames.composables.SmallGameItem
 import io.zenandroid.onlinego.ui.screens.mygames.composables.TutorialItem
 import io.zenandroid.onlinego.ui.screens.newchallenge.NewChallengeBottomSheet
-import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
+import io.zenandroid.onlinego.ui.theme.OnlineGoPreviewTheme
 import kotlinx.coroutines.delay
 import org.koin.androidx.compose.koinViewModel
 
@@ -417,7 +417,7 @@ private fun Header(text: String) {
 @Preview
 @Composable
 private fun Preview() {
-  OnlineGoTheme(darkTheme = false) {
+  OnlineGoPreviewTheme(darkTheme = false) {
     Box(modifier = Modifier.background(MaterialTheme.colorScheme.background)) {
       MyGamesContent(
         MyGamesState(
@@ -518,7 +518,7 @@ private fun Preview() {
 @Preview
 @Composable
 private fun PreviewLoggedOut() {
-  OnlineGoTheme(darkTheme = false) {
+  OnlineGoPreviewTheme(darkTheme = false) {
     Box(modifier = Modifier.background(MaterialTheme.colorScheme.background)) {
       MyGamesContent(
         MyGamesState(

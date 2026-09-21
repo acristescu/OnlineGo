@@ -58,7 +58,7 @@ import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.ui.composables.Board
 import io.zenandroid.onlinego.ui.composables.BottomBar
 import io.zenandroid.onlinego.ui.composables.BottomBarButton
-import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
+import io.zenandroid.onlinego.ui.theme.OnlineGoPreviewTheme
 import io.zenandroid.onlinego.utils.recordException
 import org.commonmark.node.AbstractVisitor
 import org.commonmark.node.Link
@@ -414,7 +414,7 @@ sealed class Button(
 @Preview
 @Composable
 private fun Preview() {
-  OnlineGoTheme {
+  OnlineGoPreviewTheme {
     PortraitLayout(
       state = JosekiExplorerState(
         loading = false,

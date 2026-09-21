@@ -29,7 +29,7 @@ import io.zenandroid.onlinego.ui.composables.Board
 import io.zenandroid.onlinego.ui.composables.ChatIndicator
 import io.zenandroid.onlinego.ui.composables.PlayerColorIndicator
 import io.zenandroid.onlinego.ui.screens.mygames.Action
-import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
+import io.zenandroid.onlinego.ui.theme.OnlineGoPreviewTheme
 import io.zenandroid.onlinego.utils.calculateTimer
 
 @ExperimentalComposeUiApi
@@ -47,13 +47,13 @@ fun LargeGameItem(game: Game, userId: Long?, onAction: (Action) -> Unit, modifie
             .padding(horizontal = 24.dp)
     ) {
         Column(modifier = Modifier
-            .clickable {
-                onAction(Action.GameSelected(game))
-            }
-            .padding(
-                vertical = 16.dp,
-                horizontal = 24.dp
-            )) {
+          .clickable {
+            onAction(Action.GameSelected(game))
+          }
+          .padding(
+            vertical = 16.dp,
+            horizontal = 24.dp
+          )) {
             Board(
                 boardWidth = game.width,
                 boardHeight = game.height,
@@ -109,8 +109,8 @@ fun LargeGameItem(game: Game, userId: Long?, onAction: (Action) -> Unit, modifie
                     ChatIndicator(
                         chatCount = game.messagesCount,
                         modifier = Modifier
-                            .padding(bottom = 8.dp)
-                            .align(Alignment.CenterVertically)
+                          .padding(bottom = 8.dp)
+                          .align(Alignment.CenterVertically)
                     )
                 }
             }
@@ -122,7 +122,7 @@ fun LargeGameItem(game: Game, userId: Long?, onAction: (Action) -> Unit, modifie
 @Preview
 @Composable
 private fun Preview() {
-    OnlineGoTheme {
+  OnlineGoPreviewTheme {
         LargeGameItem(
             game = Game.sampleData(),
             userId = 100L,

@@ -140,7 +140,7 @@ import io.zenandroid.onlinego.ui.screens.game.UserAction.WhitePlayerClicked
 import io.zenandroid.onlinego.ui.screens.game.composables.ChatDialog
 import io.zenandroid.onlinego.ui.screens.game.composables.PlayerCard
 import io.zenandroid.onlinego.ui.screens.game.composables.PlayerDetailsDialog
-import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
+import io.zenandroid.onlinego.ui.theme.OnlineGoPreviewTheme
 import io.zenandroid.onlinego.usecases.RepoResult
 import io.zenandroid.onlinego.utils.timeControlDescription
 import kotlinx.coroutines.Dispatchers
@@ -752,7 +752,7 @@ private fun ScoreRow(whiteScore: String?, blackScore: String?, @StringRes title:
 @Preview(showBackground = true)
 @Composable
 fun GameInfoPreview() {
-  OnlineGoTheme {
+  OnlineGoPreviewTheme {
     GameInfoDialog(GameState.DEFAULT, {})
   }
 }
@@ -1000,7 +1000,7 @@ private fun Header(
 @Preview(showBackground = true)
 @Composable
 private fun Preview() {
-  OnlineGoTheme {
+  OnlineGoPreviewTheme {
     GameContent(
       state = GameState.DEFAULT.copy(
         position = Position(
@@ -1050,7 +1050,7 @@ private fun Preview() {
 @Preview(showBackground = true)
 @Composable
 private fun Preview1() {
-  OnlineGoTheme {
+  OnlineGoPreviewTheme {
     GameContent(
       state = GameState.DEFAULT.copy(
         requestUndoDialogShowing = false,
@@ -1101,7 +1101,7 @@ private fun Preview1() {
 @Preview(showBackground = true)
 @Composable
 private fun Preview2() {
-  OnlineGoTheme {
+  OnlineGoPreviewTheme {
     GameContent(
       state = GameState.DEFAULT.copy(
         position = Position(
@@ -1151,7 +1151,7 @@ private fun Preview2() {
 @Preview(showBackground = true)
 @Composable
 private fun Preview3() {
-  OnlineGoTheme {
+  OnlineGoPreviewTheme {
     GameContent(
       state = GameState.DEFAULT.copy(
         position = Position(
@@ -1202,7 +1202,7 @@ private fun Preview3() {
 @Preview(showBackground = true)
 @Composable
 private fun Preview4() {
-  OnlineGoTheme {
+  OnlineGoPreviewTheme {
     GameContent(
       state = GameState.DEFAULT.copy(
         position = Position(
@@ -1254,7 +1254,7 @@ private fun Preview4() {
 @Preview(showBackground = true)
 @Composable
 private fun Preview5() {
-  OnlineGoTheme {
+  OnlineGoPreviewTheme {
     GameContent(
       state = GameState.DEFAULT.copy(
         position = Position(
@@ -1312,7 +1312,7 @@ private fun Preview5() {
 @Composable
 @Preview
 private fun PreviewLoading() {
-  OnlineGoTheme {
+  OnlineGoPreviewTheme {
     GameContent(
       state = GameState(
         loading = true,

@@ -72,6 +72,7 @@ import io.zenandroid.onlinego.ui.screens.face2face.Button.GameSettings
 import io.zenandroid.onlinego.ui.screens.face2face.Button.Next
 import io.zenandroid.onlinego.ui.screens.face2face.Button.Previous
 import io.zenandroid.onlinego.ui.screens.game.ExtraStatusField
+import io.zenandroid.onlinego.ui.theme.OnlineGoPreviewTheme
 import org.koin.androidx.compose.koinViewModel
 import java.lang.Float.max
 
@@ -473,39 +474,45 @@ private fun UserImage(
 @Preview
 @Composable
 fun Preview() {
-  FaceToFaceContent(
-    state = FaceToFaceState.INITIAL.copy(
-      buttons = listOf(GameSettings, Estimate, Previous(false), Next(false))
-    ),
-    onUserAction = {},
-    onBackPressed = {},
-  )
+  OnlineGoPreviewTheme {
+    FaceToFaceContent(
+      state = FaceToFaceState.INITIAL.copy(
+        buttons = listOf(GameSettings, Estimate, Previous(false), Next(false))
+      ),
+      onUserAction = {},
+      onBackPressed = {},
+    )
+  }
 }
 
 @Preview
 @Composable
 fun PreviewKODialog() {
-  FaceToFaceContent(
-    state = FaceToFaceState.INITIAL.copy(
-      koMoveDialogShowing = true,
-      buttons = listOf(GameSettings, Estimate, Previous(false), Next(false))
-    ),
-    onUserAction = {},
-    onBackPressed = {},
-  )
+  OnlineGoPreviewTheme {
+    FaceToFaceContent(
+      state = FaceToFaceState.INITIAL.copy(
+        koMoveDialogShowing = true,
+        buttons = listOf(GameSettings, Estimate, Previous(false), Next(false))
+      ),
+      onUserAction = {},
+      onBackPressed = {},
+    )
+  }
 }
 
 @Preview
 @Composable
 fun PreviewNewGameDialog() {
-  FaceToFaceContent(
-    state = FaceToFaceState.INITIAL.copy(
-      newGameDialogShowing = true,
-      buttons = listOf(GameSettings, Estimate, Previous(false), Next(false))
-    ),
-    onUserAction = {},
-    onBackPressed = {},
-  )
+  OnlineGoPreviewTheme {
+    FaceToFaceContent(
+      state = FaceToFaceState.INITIAL.copy(
+        newGameDialogShowing = true,
+        buttons = listOf(GameSettings, Estimate, Previous(false), Next(false))
+      ),
+      onUserAction = {},
+      onBackPressed = {},
+    )
+  }
 }
 
 @Preview(
@@ -515,11 +522,13 @@ fun PreviewNewGameDialog() {
 )
 @Composable
 fun PreviewLandscape() {
-  FaceToFaceContent(
-    state = FaceToFaceState.INITIAL.copy(
-      buttons = listOf(GameSettings, Estimate, Previous(false), Next(false))
-    ),
-    onUserAction = {},
-    onBackPressed = {},
-  )
+  OnlineGoPreviewTheme {
+    FaceToFaceContent(
+      state = FaceToFaceState.INITIAL.copy(
+        buttons = listOf(GameSettings, Estimate, Previous(false), Next(false))
+      ),
+      onUserAction = {},
+      onBackPressed = {},
+    )
+  }
 }
