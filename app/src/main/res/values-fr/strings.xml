@@ -238,6 +238,10 @@
     <string name="duration_unknown">\?</string>
     <string name="time_control_simple">Simple : %1$s par coup.</string>
     <string name="time_control_fischer">Fischer : l\'horloge débute avec %1$s et incrémente de %2$s par coup jusqu\'à un maximum de %3$s.</string>
+    <plurals name="time_control_byoyomi">
+        <item quantity="one">Byo-Yomi: L\'horloge commence avec un temps de %1$s, suivi d\'une période de %3$s.</item>
+        <item quantity="other">Byo-Yomi: L\'horloge commence avec un temps de %1$s, suivi de %2$d périodes de %3$s chacune.</item>
+    </plurals>
     <string name="time_control_none">Pas de limite de temps.</string>
     <string name="whats_new_title">Quoi de neuf</string>
     <string name="whats_new_got_it">Ok</string>
