@@ -272,4 +272,5 @@
     <string name="notification_logout_title">Connectez-vous à nouveau</string>
     <string name="notification_channel_group_your_turn">Votre tour</string>
     <string name="notification_channel_your_turn">Votre tour</string>
+    <string name="settings_show_player_ranks">Afficher les rangs des joueurs</string>
 </resources>
