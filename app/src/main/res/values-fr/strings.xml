@@ -273,4 +273,18 @@
     <string name="notification_channel_group_your_turn">Votre tour</string>
     <string name="notification_channel_your_turn">Votre tour</string>
     <string name="settings_show_player_ranks">Afficher les rangs des joueurs</string>
+    <string name="tutorial_advanced_endgamescoring_endgame1_page5_text"><![CDATA["Voici une autre partie terminée. Noir à 5 points et Blanc 6.
+
+Les deux intersections au centre sont neutres ('Dame') et ne comptent ni pour l'un, ni pour l'autre joueur.
+
+Les joueurs peuvent y jouer mais ne gagneront ni ne perdront de points."]]></string>
+    <string name="tutorial_advanced_endgamescoring_endgame1_page6_text"><![CDATA["Bien que le territoire forme la plus grosse partie des points, rappelle-toi qu'il y a d'autres points bonus à ajouter.
+
+Chaque pierre capturée vaut 1 point, de même que les pierres mortes encore sur le plateau (qui n'ont aucune chance de faire 2 yeux).
+
+De plus, puisque Noir a l'avantage de commencer, on accorde à Blanc une compensation de quelques points (appelée "Komi").
+
+La valeur du komi dépend de la taille du goban, mais elle est généralement de 5,5 ou 6,5 points. Les 0,5 points permettent d'éviter les résultats à égalité.
+
+Heureusement, l'application fait tous ces calculs pour toi :-)"]]></string>
 </resources>
