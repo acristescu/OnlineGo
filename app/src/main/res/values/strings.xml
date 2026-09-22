@@ -10,6 +10,7 @@
     <string name="ai_game_chat_ready">Ready!</string>
     <string name="ai_game_chat_use_new_game_button">Use the \'New Game\' button to start a new game</string>
     <string name="ai_game_chat_engine_error">Error when starting KataGO: \'%1$s\'</string>
+    <string name="ai_game_chat_engine_starting">Starting the AI engine, please wait…</string>
     <string name="ai_game_chat_invalid_move">Invalid move, try again</string>
     <string name="ai_game_chat_lets_try_again">OK, let\'s try again. Your turn!</string>
     <string name="ai_game_chat_hmmm">Hmmm…</string>

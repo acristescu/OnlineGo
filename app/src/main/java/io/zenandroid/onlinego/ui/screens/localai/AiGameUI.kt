@@ -312,6 +312,7 @@ internal fun AiGameUI(
       currentYouPlayBlack = !state.enginePlaysBlack,
       currentHandicap = state.handicap,
       currentDifficulty = state.difficulty,
+      canStartGame = state.isGameReady,
       onDismiss = {
         onDismissNewGameDialog()
       },
@@ -378,7 +379,7 @@ private fun BoardSection(
     ownership = if (state.showAiEstimatedTerritory) state.aiAnalysis?.ownership?.toImmutableList() else null,
     candidateMove = state.candidateMove,
     candidateMoveType = if (state.enginePlaysBlack) StoneType.WHITE else StoneType.BLACK,
-    interactive = state.boardIsInteractive,
+    interactive = state.boardIsInteractive && state.isGameReady,
     drawTerritory = state.showFinalTerritory,
     fadeOutRemovedStones = state.showFinalTerritory,
     onTapMove = onUserHotTrackedCoordinate,
@@ -419,7 +420,7 @@ private fun Header(
           style = MaterialTheme.typography.bodyMedium,
           color = MaterialTheme.colorScheme.onSurfaceVariant
         )
-        if (!state.engineStarted) {
+        if (!state.isGameReady) {
           Spacer(Modifier.width(8.dp))
           CircularProgressIndicator(
             modifier = Modifier.size(12.dp),
@@ -471,6 +472,7 @@ private fun AiPlayerRow(
           if (state.ownershipButtonVisible) {
             OutlinedButton(
               onClick = onUserAskedForOwnership,
+              enabled = state.isGameReady,
               contentPadding = PaddingValues(horizontal = 12.dp, vertical = 2.dp),
               shape = MaterialTheme.shapes.small,
               modifier = Modifier
@@ -484,6 +486,7 @@ private fun AiPlayerRow(
           if (state.hintButtonVisible) {
             OutlinedButton(
               onClick = onUserAskedForHint,
+              enabled = state.isGameReady,
               contentPadding = PaddingValues(horizontal = 12.dp, vertical = 2.dp),
               shape = MaterialTheme.shapes.small,
               modifier = Modifier
@@ -497,7 +500,11 @@ private fun AiPlayerRow(
         }
       }
       AiChatBox(
-        text = state.chatText?.resolve(),
+        text = when {
+          state.engineFailedToStart -> state.chatText?.resolve()
+          !state.isGameReady -> stringResource(R.string.ai_game_chat_engine_starting)
+          else -> state.chatText?.resolve()
+        },
         modifier = Modifier
           .fillMaxWidth()
           .padding(start = 12.dp, end = 12.dp, bottom = 8.dp)
@@ -667,10 +674,10 @@ private fun AiGameBottomBar(
   onUserPressedNext: () -> Unit
 ) {
   val bottomBarButtons = listOf(
-    AiGameBottomBarButton.NewGame(),
-    AiGameBottomBarButton.Pass(enabled = state.passButtonEnabled),
-    AiGameBottomBarButton.Previous(enabled = state.previousButtonEnabled),
-    AiGameBottomBarButton.Next(enabled = state.nextButtonEnabled)
+    AiGameBottomBarButton.NewGame(enabled = state.isGameReady),
+    AiGameBottomBarButton.Pass(enabled = state.passButtonEnabled && state.isGameReady),
+    AiGameBottomBarButton.Previous(enabled = state.previousButtonEnabled && state.isGameReady),
+    AiGameBottomBarButton.Next(enabled = state.nextButtonEnabled && state.isGameReady)
   )
   Card(
     modifier = Modifier
@@ -717,6 +724,7 @@ private fun NewGameBottomSheet(
   currentYouPlayBlack: Boolean,
   currentHandicap: Int,
   currentDifficulty: AiDifficulty,
+  canStartGame: Boolean,
   onDismiss: () -> Unit,
   onNewGame: (size: Int, youPlayBlack: Boolean, handicap: Int, difficulty: AiDifficulty) -> Unit
 ) {
@@ -865,9 +873,21 @@ private fun NewGameBottomSheet(
           modifier = Modifier
             .fillMaxWidth()
             .padding(top = 16.dp),
+          enabled = canStartGame,
           onClick = { onNewGame(selectedSize, youPlayBlack, handicap.toInt(), difficulty) }
         ) {
           Text(stringResource(R.string.start_game))
+        }
+        if (!canStartGame) {
+          Text(
+            text = stringResource(R.string.ai_game_chat_engine_starting),
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+            textAlign = TextAlign.Center,
+            modifier = Modifier
+              .fillMaxWidth()
+              .padding(top = 8.dp)
+          )
         }
       }
     }
@@ -878,6 +898,7 @@ private val previewState = AiGameState(
   boardSize = 19,
   enginePlaysBlack = true,
   engineStarted = true,
+  stateRestorePending = false,
   chatText = textResource(R.string.ai_game_chat_game_over_ai_won, 61.5f, 58f),
   position = Position(
     boardWidth = 19,

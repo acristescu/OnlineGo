@@ -15,6 +15,7 @@ private val screenshotState = AiGameState(
   boardSize = 19,
   enginePlaysBlack = true,
   engineStarted = true,
+  stateRestorePending = false,
   chatText = textResource(R.string.ai_game_chat_game_over_ai_won, 61.5f, 58f),
   position = Position(
     boardWidth = 19,
@@ -78,6 +79,39 @@ fun AiGameUiScreenshotDark() {
   OnlineGoPreviewTheme(darkTheme = true) {
     AiGameUI(
       state = screenshotState,
+      userIcon = null,
+      onUserTappedCoordinate = {},
+      onUserHotTrackedCoordinate = {},
+      onUserPressedPass = {},
+      onUserPressedPrevious = {},
+      onUserPressedNext = {},
+      onShowNewGameDialog = {},
+      onUserAskedForHint = {},
+      onUserAskedForOwnership = {},
+      onNewGame = { _, _, _, _ -> },
+      onDismissNewGameDialog = {},
+      onDismissKoDialog = {},
+      onAcceptAiResignOffer = {},
+      onDeclineAiResignOffer = {},
+      onNavigateBack = {}
+    )
+  }
+}
+
+@PreviewTest
+@Preview(name = "AI game - loading (engine not ready)", showBackground = true)
+@Composable
+fun AiGameUiScreenshotLoading() {
+  OnlineGoPreviewTheme(darkTheme = false) {
+    AiGameUI(
+      state = screenshotState.copy(
+        engineStarted = false,
+        stateRestorePending = false,
+        boardIsInteractive = true,
+        passButtonEnabled = true,
+        previousButtonEnabled = true,
+        nextButtonEnabled = true,
+      ),
       userIcon = null,
       onUserTappedCoordinate = {},
       onUserHotTrackedCoordinate = {},

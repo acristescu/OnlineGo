@@ -78,4 +78,8 @@ data class AiGameState(
   val consecutiveLowWinrateTurns: Int = 0,
   val aiResignOfferDeclined: Boolean = false,
   val aiResignOfferShowing: Boolean = false,
-)
+  val engineFailedToStart: Boolean = false,
+) {
+  val isGameReady: Boolean
+    get() = engineStarted && !stateRestorePending
+}

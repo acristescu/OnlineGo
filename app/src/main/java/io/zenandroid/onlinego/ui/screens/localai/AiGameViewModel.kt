@@ -77,17 +77,9 @@ class AiGameViewModel(
       try {
         withContext(Dispatchers.IO) {
           KataGoAnalysisEngine.start()
-          _state.update {
-            it.copy(
-              engineStarted = true,
-              chatText = when {
-                it.position == null && it.newGameDialogShown -> TextResource(R.string.ai_game_chat_ready)
-                it.position == null && !it.newGameDialogShown -> TextResource(R.string.ai_game_chat_use_new_game_button)
-                else -> it.chatText
-              }
-            )
-          }
+          _state.update { it.copy(engineStarted = true) }
         }
+        onLoadingComplete()
       } catch (e: Exception) {
         recordException(e)
         _state.update {
@@ -95,10 +87,37 @@ class AiGameViewModel(
             boardIsInteractive = false,
             hintButtonVisible = false,
             ownershipButtonVisible = false,
+            engineFailedToStart = true,
             chatText = textResource(R.string.ai_game_chat_engine_error, e.message ?: "")
           )
         }
       }
+    }
+  }
+
+  private fun onLoadingComplete() {
+    val currentState = state.value
+    if (!currentState.isGameReady) return
+
+    val position = currentState.position
+    if (position == null) {
+      _state.update {
+        it.copy(
+          chatText = if (it.newGameDialogShown) TextResource(R.string.ai_game_chat_ready)
+          else TextResource(R.string.ai_game_chat_use_new_game_button)
+        )
+      }
+      return
+    }
+    if (currentState.history.isGameOver()) {
+      if (currentState.aiWon == null) {
+        finalScoreJob?.cancel()
+        finalScoreJob = viewModelScope.launch { computeFinalScore() }
+      }
+      return
+    }
+    if (isEnginesTurn(position, currentState.enginePlaysBlack)) {
+      generateAiMove()
     }
   }
 
@@ -136,24 +155,26 @@ class AiGameViewModel(
     viewModelScope.launch(Dispatchers.Default) {
       val json = settingsRepository.aiGameStateFlow.first()
 
-      if (!json.isNullOrBlank()) {
-        val newState = try {
-          stateAdapter.fromJson(json)
+      val newState = if (!json.isNullOrBlank()) {
+        try {
+          stateAdapter.fromJson(json)?.takeIf { validState(it) }
         } catch (e: Exception) {
           Log.e("AiGameViewModel", "Cannot deserialize state", e)
           recordException(e)
           null
         }
-        newState?.let { newState ->
-          if (validState(newState)) {
-            _state.update { state ->
-              newState.copy(
-                engineStarted = state.engineStarted,
-                stateRestorePending = false,
-                userIcon = userSessionRepository.uiConfig?.user?.icon,
-              )
-            }
-          }
+      } else {
+        null
+      }
+
+      if (newState != null) {
+        _state.update { state ->
+          newState.copy(
+            engineStarted = state.engineStarted,
+            engineFailedToStart = state.engineFailedToStart,
+            stateRestorePending = false,
+            userIcon = userSessionRepository.uiConfig?.user?.icon,
+          )
         }
       } else {
         _state.update {
@@ -163,6 +184,7 @@ class AiGameViewModel(
           )
         }
       }
+      onLoadingComplete()
     }
   }
 
@@ -171,7 +193,6 @@ class AiGameViewModel(
       val json = stateAdapter.toJson(
         state.value.copy(
           aiAnalysis = null,
-          aiQuickEstimation = null,
         )
       )
       settingsRepository.setAiGameState(json)
@@ -179,6 +200,7 @@ class AiGameViewModel(
   }
 
   fun onShowNewGameDialog() {
+    if (!state.value.isGameReady) return
     _state.update { it.copy(newGameDialogShown = true) }
   }
 
@@ -192,6 +214,7 @@ class AiGameViewModel(
   }
 
   fun onNewGame(size: Int, youPlayBlack: Boolean, handicap: Int, difficulty: AiDifficulty) {
+    if (!state.value.isGameReady) return
     katagoJob?.cancel()
     hintJob?.cancel()
     ownershipJob?.cancel()
@@ -234,7 +257,7 @@ class AiGameViewModel(
 
   fun onUserTappedCoordinate(coordinate: Cell) {
     val currentState = state.value
-    if (!currentState.boardIsInteractive || currentState.position == null) return
+    if (!currentState.isGameReady || !currentState.boardIsInteractive || currentState.position == null) return
     viewModelScope.launch(Dispatchers.Default) {
 
       val side = if (currentState.enginePlaysBlack) StoneType.WHITE else StoneType.BLACK
@@ -311,7 +334,7 @@ class AiGameViewModel(
 
   fun onUserPressedPass() {
     val currentState = state.value
-    if (!currentState.boardIsInteractive || currentState.position == null) return
+    if (!currentState.isGameReady || !currentState.boardIsInteractive || currentState.position == null) return
     viewModelScope.launch(Dispatchers.Default) {
 
       val side = if (currentState.enginePlaysBlack) StoneType.WHITE else StoneType.BLACK
@@ -325,6 +348,7 @@ class AiGameViewModel(
 
   fun onUserPressedPrevious() {
     val currentState = state.value
+    if (!currentState.isGameReady) return
     val newHistory = currentState.history.dropLast(2)
     _state.update {
       it.copy(
@@ -350,6 +374,7 @@ class AiGameViewModel(
 
   fun onUserPressedNext() {
     val currentState = state.value
+    if (!currentState.isGameReady) return
     val newHistory = currentState.history + currentState.redoPosStack.takeLast(2)
     _state.update {
       it.copy(
@@ -367,7 +392,7 @@ class AiGameViewModel(
     hintJob?.cancel()
     hintJob = viewModelScope.launch {
       val currentState = state.value
-      if (!currentState.engineStarted || currentState.position == null) return@launch
+      if (!currentState.isGameReady || currentState.position == null) return@launch
 
       _state.update { it.copy(chatText = TextResource(R.string.ai_game_chat_hmmm)) }
 
@@ -399,7 +424,7 @@ class AiGameViewModel(
     ownershipJob?.cancel()
     ownershipJob = viewModelScope.launch {
       val currentState = state.value
-      if (!currentState.engineStarted || currentState.position == null) return@launch
+      if (!currentState.isGameReady || currentState.position == null) return@launch
 
       if (currentState.showAiEstimatedTerritory) {
         _state.update {
@@ -862,3 +887,7 @@ fun selectHumanMove(
 /** Dan 5 skips Human SL sampling and plays KataGo's own top-ranked candidate outright - relies on KataGo's JSON already ordering moveInfos best-first. */
 @VisibleForTesting
 fun selectBestMove(moveInfos: List<MoveInfo>): MoveInfo = moveInfos[0]
+
+@VisibleForTesting
+fun isEnginesTurn(position: Position, enginePlaysBlack: Boolean): Boolean =
+  (position.nextToMove != StoneType.WHITE) == enginePlaysBlack

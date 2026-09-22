@@ -1,8 +1,11 @@
 package io.zenandroid.onlinego.ui.screens.localai
 
+import io.zenandroid.onlinego.data.model.Position
+import io.zenandroid.onlinego.data.model.StoneType
 import io.zenandroid.onlinego.data.model.katago.MoveInfo
 import io.zenandroid.onlinego.data.model.katago.RootInfo
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -209,5 +212,24 @@ class AiGameViewModelTest {
     val selected = hopelessPassMove(engineWinrate = 0.001f, moveInfos)
 
     assertEquals("pass", selected?.move)
+  }
+
+  @Test
+  fun `isGameReady is true only once the engine has started and restore is no longer pending`() {
+    assertFalse(AiGameState(engineStarted = false, stateRestorePending = true).isGameReady)
+    assertFalse(AiGameState(engineStarted = true, stateRestorePending = true).isGameReady)
+    assertFalse(AiGameState(engineStarted = false, stateRestorePending = false).isGameReady)
+    assertTrue(AiGameState(engineStarted = true, stateRestorePending = false).isGameReady)
+  }
+
+  @Test
+  fun `isEnginesTurn matches nextToMove against which color the engine plays`() {
+    val blackToMove = Position(boardWidth = 9, boardHeight = 9, nextToMove = StoneType.BLACK)
+    val whiteToMove = Position(boardWidth = 9, boardHeight = 9, nextToMove = StoneType.WHITE)
+
+    assertTrue(isEnginesTurn(blackToMove, enginePlaysBlack = true))
+    assertFalse(isEnginesTurn(blackToMove, enginePlaysBlack = false))
+    assertTrue(isEnginesTurn(whiteToMove, enginePlaysBlack = false))
+    assertFalse(isEnginesTurn(whiteToMove, enginePlaysBlack = true))
   }
 }
