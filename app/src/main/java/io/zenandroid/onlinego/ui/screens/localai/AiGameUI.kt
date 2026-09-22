@@ -3,13 +3,14 @@
 package io.zenandroid.onlinego.ui.screens.localai
 
 import android.content.res.Configuration
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -17,12 +18,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.NavigateBefore
@@ -33,6 +34,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
@@ -45,8 +47,6 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -61,17 +61,9 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -79,8 +71,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import coil.compose.AsyncImage
-import coil.request.ImageRequest
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.Position
@@ -90,10 +80,13 @@ import io.zenandroid.onlinego.data.model.katago.RootInfo
 import io.zenandroid.onlinego.ui.composables.Board
 import io.zenandroid.onlinego.ui.composables.BottomBar
 import io.zenandroid.onlinego.ui.composables.BottomBarButton
-import io.zenandroid.onlinego.ui.composables.TextResource
 import io.zenandroid.onlinego.ui.composables.resolve
+import io.zenandroid.onlinego.ui.composables.textResource
+import io.zenandroid.onlinego.ui.screens.game.PlayerData
+import io.zenandroid.onlinego.ui.screens.game.composables.PlayerCard
+import io.zenandroid.onlinego.ui.screens.localai.composables.AiChatBox
+import io.zenandroid.onlinego.ui.screens.mygames.composables.SenteCard
 import io.zenandroid.onlinego.ui.theme.OnlineGoPreviewTheme
-import io.zenandroid.onlinego.utils.processGravatarURL
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import org.koin.androidx.compose.koinViewModel
@@ -125,6 +118,7 @@ sealed class AiGameBottomBarButton(
     labelResId = R.string.ai_game_pass,
     enabled = enabled
   )
+
   data class Previous(
     override val enabled: Boolean = true
   ) : AiGameBottomBarButton(
@@ -186,7 +180,7 @@ fun AiGameScreen(
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-private fun AiGameUI(
+internal fun AiGameUI(
   state: AiGameState,
   userIcon: String?,
   onUserTappedCoordinate: (Cell) -> Unit,
@@ -206,12 +200,15 @@ private fun AiGameUI(
 ) {
   val configuration = LocalConfiguration.current
   val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+  var evalVisible by remember { mutableStateOf(true) }
+  val scoreLead = state.aiAnalysis?.rootInfo?.scoreLead ?: state.aiQuickEstimation?.scoreLead
+  val winrate = state.aiAnalysis?.rootInfo?.winrate ?: state.aiQuickEstimation?.winrate
 
   if (isLandscape) {
     Row(
       modifier = Modifier
         .fillMaxSize()
-        .background(MaterialTheme.colorScheme.surfaceContainerLowest)
+        .background(MaterialTheme.colorScheme.surface)
         .systemBarsPadding()
     ) {
       Column(
@@ -219,16 +216,31 @@ private fun AiGameUI(
           .width(0.dp)
           .weight(1f)
       ) {
-        InfoSection(
+        Header(state = state, onNavigateBack = onNavigateBack)
+        AiPlayerRow(
           state = state,
-          userIcon = userIcon,
-          onNavigateBack = onNavigateBack,
           onUserAskedForHint = onUserAskedForHint,
           onUserAskedForOwnership = onUserAskedForOwnership,
+          modifier = Modifier
+            .fillMaxWidth()
+            .weight(2 * ChatBoxWeight)
+            .padding(start = 12.dp, end = 12.dp, top = 8.dp, bottom = 8.dp)
         )
-        Spacer(Modifier.weight(0.5f))
-        ScoreLeadAndWinrate(state, Modifier.padding(8.dp))
-        Spacer(Modifier.weight(0.5f))
+        AnalysisPanel(
+          scoreLead = scoreLead,
+          winrate = winrate,
+          evalVisible = evalVisible,
+          onToggleEvalVisible = { evalVisible = !evalVisible },
+          modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = 8.dp),
+        )
+        UserPlayerRow(
+          state, userIcon, modifier = Modifier
+            .fillMaxWidth()
+            .weight(ChatBoxWeight)
+            .padding(horizontal = 12.dp)
+        )
         AiGameBottomBar(
           state = state,
           onShowNewGameDialog = onShowNewGameDialog,
@@ -238,35 +250,52 @@ private fun AiGameUI(
         )
       }
       BoardSection(
-        state,
-        onUserTappedCoordinate,
-        onUserHotTrackedCoordinate,
+        state = state,
+        onUserTappedCoordinate = onUserTappedCoordinate,
+        onUserHotTrackedCoordinate = onUserHotTrackedCoordinate,
+        modifier = Modifier.fillMaxHeight()
       )
     }
   } else {
     Column(
       modifier = Modifier
         .fillMaxSize()
-        .background(MaterialTheme.colorScheme.surfaceContainerLowest)
+        .background(MaterialTheme.colorScheme.surface)
         .systemBarsPadding()
     ) {
-      InfoSection(
+      Header(state = state, onNavigateBack = onNavigateBack)
+      AiPlayerRow(
         state = state,
-        userIcon = userIcon,
-        onNavigateBack = onNavigateBack,
         onUserAskedForHint = onUserAskedForHint,
         onUserAskedForOwnership = onUserAskedForOwnership,
         modifier = Modifier
           .fillMaxWidth()
-          .weight(0.5f)
+          .weight(2 * ChatBoxWeight)
+          .padding(start = 12.dp, end = 12.dp, top = 8.dp, bottom = 8.dp)
       )
       BoardSection(
-        state,
-        onUserTappedCoordinate,
-        onUserHotTrackedCoordinate,
-        Modifier.fillMaxWidth()
+        state = state,
+        onUserTappedCoordinate = onUserTappedCoordinate,
+        onUserHotTrackedCoordinate = onUserHotTrackedCoordinate,
+        modifier = Modifier
+          .fillMaxWidth()
+          .padding(bottom = 8.dp)
       )
-      ScoreLeadAndWinrate(state, Modifier.weight(0.5f))
+      AnalysisPanel(
+        scoreLead = scoreLead,
+        winrate = winrate,
+        evalVisible = evalVisible,
+        onToggleEvalVisible = { evalVisible = !evalVisible },
+        modifier = Modifier
+          .fillMaxWidth()
+          .padding(bottom = 8.dp),
+      )
+      UserPlayerRow(
+        state, userIcon, modifier = Modifier
+          .fillMaxWidth()
+          .weight(ChatBoxWeight)
+          .padding(horizontal = 12.dp)
+      )
       AiGameBottomBar(
         state = state,
         onShowNewGameDialog = onShowNewGameDialog,
@@ -301,7 +330,12 @@ private fun AiGameUI(
         }
       },
       text = { Text(stringResource(R.string.ko_explanation)) },
-      title = { Text(stringResource(R.string.illegal_ko_move), style = MaterialTheme.typography.titleLarge) },
+      title = {
+        Text(
+          stringResource(R.string.illegal_ko_move),
+          style = MaterialTheme.typography.titleLarge
+        )
+      },
     )
   }
 
@@ -356,286 +390,273 @@ private fun BoardSection(
 }
 
 @Composable
-private fun InfoSection(
+private fun Header(
   state: AiGameState,
-  userIcon: String?,
   onNavigateBack: () -> Unit,
+) {
+  Row(
+    modifier = Modifier
+      .fillMaxWidth()
+      .padding(start = 4.dp, end = 16.dp),
+    verticalAlignment = Alignment.CenterVertically
+  ) {
+    IconButton(onClick = onNavigateBack) {
+      Icon(
+        Icons.AutoMirrored.Filled.ArrowBack,
+        contentDescription = stringResource(R.string.back),
+        tint = MaterialTheme.colorScheme.onSurface
+      )
+    }
+    Column(modifier = Modifier.padding(start = 4.dp)) {
+      Text(
+        text = stringResource(R.string.local_ai_game),
+        style = MaterialTheme.typography.titleLarge,
+        color = MaterialTheme.colorScheme.onSurface
+      )
+      Row(verticalAlignment = Alignment.CenterVertically) {
+        Text(
+          text = state.difficulty.rank.resolve(),
+          style = MaterialTheme.typography.bodyMedium,
+          color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        if (!state.engineStarted) {
+          Spacer(Modifier.width(8.dp))
+          CircularProgressIndicator(
+            modifier = Modifier.size(12.dp),
+            strokeWidth = 1.5.dp,
+            color = MaterialTheme.colorScheme.primary
+          )
+        }
+      }
+    }
+  }
+}
+
+@Composable
+private fun AiPlayerRow(
+  state: AiGameState,
   onUserAskedForHint: () -> Unit,
   onUserAskedForOwnership: () -> Unit,
-  modifier: Modifier = Modifier
+  modifier: Modifier = Modifier,
 ) {
-  Column(
-    modifier = modifier,
-    verticalArrangement = Arrangement.Top
-  ) {
-    TopAppBar(
-      colors = TopAppBarDefaults.topAppBarColors(
-        containerColor = MaterialTheme.colorScheme.surfaceContainerLowest
-      ),
-      title = {
-        Text(
-          text = "${stringResource(R.string.local_ai_game)} · ${state.difficulty.rank.resolve()}",
-          fontSize = 16.sp,
-          fontWeight = FontWeight.Medium,
-          color = MaterialTheme.colorScheme.onSurface
+  SenteCard(modifier = modifier) {
+    Column(
+      modifier = Modifier
+        .fillMaxHeight()
+    ) {
+      Row(
+        modifier = Modifier.padding(vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+      ) {
+        PlayerCard(
+          player = aiPlayerData(state),
+          timerMain = "",
+          timerExtra = "",
+          timerPercent = 0,
+          timerFaded = false,
+          timerShown = false,
+          onUserClicked = {},
+          onGameDetailsClicked = {},
+          localAvatarRes = R.drawable.katago,
+          modifier = Modifier.weight(1f),
         )
-      },
-      navigationIcon = {
-        IconButton(onClick = onNavigateBack) {
-          Icon(
-            Icons.AutoMirrored.Filled.ArrowBack,
-            contentDescription = stringResource(R.string.back),
-            tint = MaterialTheme.colorScheme.onSurface
-          )
+        Column(
+          horizontalAlignment = Alignment.CenterHorizontally,
+          verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterVertically),
+          modifier = Modifier
+            .height(PlayerCardMaxHeight)
+            .width(IntrinsicSize.Max)
+            .padding(end = 16.dp)
+        ) {
+          if (state.ownershipButtonVisible) {
+            OutlinedButton(
+              onClick = onUserAskedForOwnership,
+              contentPadding = PaddingValues(horizontal = 12.dp, vertical = 2.dp),
+              shape = MaterialTheme.shapes.small,
+              modifier = Modifier
+                .fillMaxWidth()
+                .height(0.dp)
+                .weight(1f),
+            ) {
+              Text(stringResource(R.string.territory), style = MaterialTheme.typography.labelMedium)
+            }
+          }
+          if (state.hintButtonVisible) {
+            OutlinedButton(
+              onClick = onUserAskedForHint,
+              contentPadding = PaddingValues(horizontal = 12.dp, vertical = 2.dp),
+              shape = MaterialTheme.shapes.small,
+              modifier = Modifier
+                .fillMaxWidth()
+                .height(0.dp)
+                .weight(1f),
+            ) {
+              Text(stringResource(R.string.hint), style = MaterialTheme.typography.labelMedium)
+            }
+          }
         }
-      },
-    )
-    if (!state.engineStarted) {
-      LinearProgressIndicator(
+      }
+      AiChatBox(
+        text = state.chatText?.resolve(),
         modifier = Modifier
           .fillMaxWidth()
-          .height(1.dp),
-        color = colorResource(R.color.colorTextBackground)
+          .padding(start = 12.dp, end = 12.dp, bottom = 8.dp)
       )
     }
-    PlayerInfoRow(state, userIcon, onUserAskedForHint, onUserAskedForOwnership)
-    GameStatsRow(state)
+  }
+}
+
+private val PlayerCardMaxHeight = 84.dp
+
+@Composable
+private fun UserPlayerRow(state: AiGameState, userIcon: String?, modifier: Modifier = Modifier) {
+  SenteCard(modifier = modifier) {
+    Column(
+      modifier = Modifier
+        .fillMaxHeight()
+    ) {
+      PlayerCard(
+        player = userPlayerData(state, userIcon),
+        timerMain = "",
+        timerExtra = "",
+        timerPercent = 0,
+        timerFaded = false,
+        timerShown = false,
+        onUserClicked = {},
+        onGameDetailsClicked = {},
+        localAvatarRes = R.mipmap.placeholder,
+        modifier = Modifier.padding(vertical = 8.dp),
+      )
+    }
   }
 }
 
 @Composable
-private fun PlayerInfoRow(
-  state: AiGameState,
-  userIcon: String?,
-  onUserAskedForHint: () -> Unit,
-  onUserAskedForOwnership: () -> Unit
-) {
-  Row(
-    modifier = Modifier
-      .fillMaxWidth()
-      .padding(8.dp),
-    horizontalArrangement = Arrangement.SpaceBetween,
-    verticalAlignment = Alignment.Top
-  ) {
-    // Left player (AI)
-    Column(
-      horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-      Card(
-        modifier = Modifier.size(64.dp),
-        shape = CircleShape,
-        colors = CardDefaults.cardColors(
-          containerColor = MaterialTheme.colorScheme.background
-        ),
-      ) {
-        Image(
-          painter = painterResource(R.drawable.ic_ai),
-          contentDescription = stringResource(R.string.ai_game_avatar_content_description),
-          modifier = Modifier.fillMaxSize(),
-          contentScale = ContentScale.Crop,
-          colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface)
-        )
-      }
-      Text(
-        text = stringResource(R.string.katago) + (if (!state.enginePlaysBlack) "⚪" else "⚫"),
-        fontSize = 14.sp,
-        fontWeight = FontWeight.Bold,
-        modifier = Modifier.padding(top = 2.dp)
+private fun aiPlayerData(state: AiGameState): PlayerData {
+  val aiPaysKomi = !state.enginePlaysBlack
+  return PlayerData(
+    name = stringResource(R.string.katago).trim(),
+    details = state.position?.let { position ->
+      val captures =
+        if (state.enginePlaysBlack) position.blackCaptureCount else position.whiteCaptureCount
+      val komi = position.komi
+      if (aiPaysKomi && komi != null) textResource(
+        R.string.ai_game_player_captures_and_komi,
+        captures,
+        komi
       )
-    }
-    // Chat bubble and action buttons
+      else textResource(R.string.ai_game_player_captures_only, captures)
+    },
+    rank = state.difficulty.rank.shortLabel(),
+    flagCode = "",
+    iconURL = null,
+    color = if (state.enginePlaysBlack) StoneType.BLACK else StoneType.WHITE,
+  )
+}
+
+@Composable
+private fun userPlayerData(state: AiGameState, userIcon: String?): PlayerData {
+  val userPaysKomi = state.enginePlaysBlack
+  return PlayerData(
+    name = stringResource(R.string.you).trim(),
+    details = state.position?.let { position ->
+      val captures =
+        if (state.enginePlaysBlack) position.whiteCaptureCount else position.blackCaptureCount
+      val komi = position.komi
+      if (userPaysKomi && komi != null) textResource(
+        R.string.ai_game_player_captures_and_komi,
+        captures,
+        komi
+      )
+      else textResource(R.string.ai_game_player_captures_only, captures)
+    },
+    rank = "",
+    flagCode = "",
+    iconURL = userIcon,
+    color = if (state.enginePlaysBlack) StoneType.WHITE else StoneType.BLACK,
+  )
+}
+
+private fun DifficultyRank.shortLabel(): String = when (this) {
+  is DifficultyRank.Kyu -> "${n}k"
+  is DifficultyRank.Dan -> "${n}d"
+}
+
+@Composable
+private fun AnalysisPanel(
+  scoreLead: Float?,
+  winrate: Float?,
+  evalVisible: Boolean,
+  onToggleEvalVisible: () -> Unit,
+  modifier: Modifier = Modifier,
+) {
+  SenteCard(
+    modifier = modifier
+      .padding(horizontal = 12.dp),
+  ) {
     Column(
-      horizontalAlignment = Alignment.CenterHorizontally,
       modifier = Modifier
-        .weight(1f)
-        .padding(horizontal = 8.dp)
+        .verticalScroll(rememberScrollState())
+        .padding(horizontal = 12.dp, vertical = 12.dp),
+      verticalArrangement = Arrangement.Center,
     ) {
-      state.chatText?.resolve()?.let { text ->
-        Card(
-          modifier = Modifier.fillMaxWidth(),
-          shape = RoundedCornerShape(6.dp),
-          colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.background
-          ),
-        ) {
-          Text(
-            text = text,
-            modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
-            fontSize = 12.sp,
-            textAlign = TextAlign.Center
-          )
-        }
-      }
       Row(
-        modifier = Modifier.padding(top = 4.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
       ) {
-        if (state.ownershipButtonVisible) {
-          OutlinedButton(
-            onClick = onUserAskedForOwnership,
-            modifier = Modifier
-              .width(70.dp)
-              .height(24.dp),
-            contentPadding = PaddingValues(0.dp)
-          ) {
-            Text(
-              text = stringResource(R.string.territory),
-              fontSize = 10.sp,
-              color = colorResource(R.color.colorTextSecondary)
-            )
-          }
-        }
-        if (state.hintButtonVisible) {
-          OutlinedButton(
-            onClick = onUserAskedForHint,
-            modifier = Modifier
-              .width(50.dp)
-              .height(24.dp),
-            contentPadding = PaddingValues(0.dp)
-          ) {
-            Text(
-              text = stringResource(R.string.hint),
-              fontSize = 10.sp,
-              color = colorResource(R.color.colorTextSecondary)
-            )
-          }
-        }
-      }
-    }
-    // Right player (User)
-    Column(
-      horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-      Card(
-        modifier = Modifier.size(64.dp),
-        shape = RoundedCornerShape(4.dp),
-        colors = CardDefaults.cardColors(
-          containerColor = MaterialTheme.colorScheme.surface
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-      ) {
-        if (userIcon != null) {
-          AsyncImage(
-            model = ImageRequest.Builder(LocalContext.current)
-              .data(processGravatarURL(userIcon, 64))
-              .crossfade(true)
-              .build(),
-            contentDescription = stringResource(R.string.player),
-            modifier = Modifier.fillMaxSize(),
-            contentScale = ContentScale.Crop,
-            placeholder = painterResource(R.drawable.ic_person_outline)
+        if (evalVisible && winrate != null) {
+          val whitePercentage = winrate * 100f
+          val blackPercentage = 100f - whitePercentage
+          Text(
+            text = stringResource(
+              R.string.ai_game_eval_winrate_compact,
+              blackPercentage,
+              whitePercentage
+            ),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
           )
         } else {
-          Image(
-            painter = painterResource(R.drawable.ic_person_outline),
-            contentDescription = stringResource(R.string.player),
-            modifier = Modifier.fillMaxSize(),
-            contentScale = ContentScale.Crop
-          )
+          Spacer(Modifier)
+        }
+        Row(
+          horizontalArrangement = Arrangement.spacedBy(8.dp),
+          verticalAlignment = Alignment.CenterVertically,
+        ) {
+          if (evalVisible && scoreLead != null) {
+            val leaderLetter = if (scoreLead > 0) "W" else "B"
+            val magnitude = abs(scoreLead)
+            Text(
+              text = stringResource(
+                R.string.ai_game_eval_score_lead_compact,
+                leaderLetter,
+                magnitude
+              ),
+              style = MaterialTheme.typography.labelMedium,
+              color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+          }
         }
       }
-      Text(
-        text = (if (state.enginePlaysBlack) "⚪" else "⚫") + stringResource(R.string.you),
-        fontSize = 14.sp,
-        fontWeight = FontWeight.Bold,
-        maxLines = 1,
-        overflow = TextOverflow.Ellipsis,
-        modifier = Modifier
-          .widthIn(max = 64.dp)
-          .padding(top = 2.dp)
-      )
-    }
-  }
-}
-
-@Composable
-private fun GameStatsRow(state: AiGameState) {
-  Row(
-    modifier = Modifier
-      .fillMaxWidth()
-      .padding(vertical = 4.dp, horizontal = 8.dp),
-    horizontalArrangement = Arrangement.SpaceBetween
-  ) {
-    Column(horizontalAlignment = Alignment.End) {
-      Text(
-        text = state.position?.let {
-          if (state.enginePlaysBlack) it.blackCaptureCount.toString() else it.whiteCaptureCount.toString()
-        } ?: "",
-        fontSize = 12.sp
-      )
-      Text(
-        text = state.position?.let {
-          if (state.enginePlaysBlack) "" else it.komi.toString()
-        } ?: "",
-        fontSize = 12.sp
-      )
-    }
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-      Text(
-        text = stringResource(R.string.prisoners),
-        fontSize = 12.sp
-      )
-      Text(
-        text = stringResource(R.string.komi),
-        fontSize = 12.sp
-      )
-    }
-    Column(horizontalAlignment = Alignment.Start) {
-      Text(
-        text = state.position?.let {
-          if (state.enginePlaysBlack) it.whiteCaptureCount.toString() else it.blackCaptureCount.toString()
-        } ?: "",
-        fontSize = 12.sp
-      )
-      Text(
-        text = state.position?.let {
-          if (state.enginePlaysBlack) it.komi.toString() else ""
-        } ?: "",
-        fontSize = 12.sp
-      )
-    }
-  }
-}
-
-@Composable
-private fun ScoreLeadAndWinrate(state: AiGameState, modifier: Modifier = Modifier) {
-  Column(modifier) {
-    val scoreLead = state.aiAnalysis?.rootInfo?.scoreLead ?: state.aiQuickEstimation?.scoreLead
-    scoreLead?.let {
-      val leader = if (it > 0) stringResource(R.string.white) else stringResource(R.string.black)
-      val lead = abs(it * 10).toInt() / 10f
-      Text(
-        text = stringResource(R.string.score_prediction_leads_by, leader, lead),
-        fontSize = 12.sp,
-        modifier = Modifier.padding(top = 4.dp)
-      )
-    }
-    val winrate = state.aiAnalysis?.rootInfo?.winrate ?: state.aiQuickEstimation?.winrate
-    winrate?.let {
-      val winrateAsPercentage = (it * 1000).toInt() / 10f
-      Column(
-        modifier = Modifier
-          .fillMaxWidth()
-          .padding(vertical = 4.dp)
-      ) {
-        Text(
-          text = stringResource(R.string.white_s_chance_to_win, winrateAsPercentage),
-          fontSize = 12.sp,
-          modifier = Modifier.padding(top = 4.dp),
-        )
+      if (evalVisible && winrate != null) {
         LinearProgressIndicator(
-          progress = { winrateAsPercentage / 100f },
+          progress = { winrate },
           modifier = Modifier
             .fillMaxWidth()
-            .padding(top = 4.dp)
+            .padding(top = 8.dp)
+            .height(6.dp)
             .clip(RoundedCornerShape(3.dp)),
-          color = Color.LightGray,
-          trackColor = Color.Black,
+          color = MaterialTheme.colorScheme.primary,
+          trackColor = MaterialTheme.colorScheme.surfaceContainerHighest,
         )
       }
     }
   }
 }
+
+private const val ChatBoxWeight = 1f
+
 
 @Composable
 private fun AiGameBottomBar(
@@ -651,18 +672,28 @@ private fun AiGameBottomBar(
     AiGameBottomBarButton.Previous(enabled = state.previousButtonEnabled),
     AiGameBottomBarButton.Next(enabled = state.nextButtonEnabled)
   )
-  BottomBar(
-    buttons = bottomBarButtons,
-    bottomText = null,
-    onButtonPressed = { button ->
-      when (button) {
-        is AiGameBottomBarButton.NewGame -> onShowNewGameDialog()
-        is AiGameBottomBarButton.Pass -> onUserPressedPass()
-        is AiGameBottomBarButton.Previous -> onUserPressedPrevious()
-        is AiGameBottomBarButton.Next -> onUserPressedNext()
+  Card(
+    modifier = Modifier
+      .fillMaxWidth()
+      .padding(8.dp),
+    shape = MaterialTheme.shapes.large,
+    colors = CardDefaults.cardColors(
+      containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+    ),
+  ) {
+    BottomBar(
+      buttons = bottomBarButtons,
+      bottomText = null,
+      onButtonPressed = { button ->
+        when (button) {
+          is AiGameBottomBarButton.NewGame -> onShowNewGameDialog()
+          is AiGameBottomBarButton.Pass -> onUserPressedPass()
+          is AiGameBottomBarButton.Previous -> onUserPressedPrevious()
+          is AiGameBottomBarButton.Next -> onUserPressedNext()
+        }
       }
-    }
-  )
+    )
+  }
 }
 
 @Composable
@@ -843,44 +874,46 @@ private fun NewGameBottomSheet(
   }
 }
 
+private val previewState = AiGameState(
+  boardSize = 19,
+  enginePlaysBlack = true,
+  engineStarted = true,
+  chatText = textResource(R.string.ai_game_chat_game_over_ai_won, 61.5f, 58f),
+  position = Position(
+    boardWidth = 19,
+    boardHeight = 19,
+    blackCaptureCount = 4,
+    whiteCaptureCount = 2,
+    komi = 6.5f,
+  ),
+  candidateMove = null,
+  boardIsInteractive = true,
+  showFinalTerritory = false,
+  passButtonEnabled = true,
+  previousButtonEnabled = true,
+  nextButtonEnabled = true,
+  newGameDialogShown = false,
+  ownershipButtonVisible = true,
+  hintButtonVisible = true,
+  aiAnalysis = Response(
+    id = "aaa",
+    turnNumber = 1,
+    moveInfos = persistentListOf(),
+    policy = null,
+    rootInfo = RootInfo(
+      winrate = 0.5f,
+      scoreLead = 0.0f,
+    )
+  ),
+  aiQuickEstimation = null
+)
+
 @Composable
 @Preview
 private fun AiGameUIPreview() {
   OnlineGoPreviewTheme {
     AiGameUI(
-      state = AiGameState(
-        boardSize = 19,
-        enginePlaysBlack = true,
-        engineStarted = true,
-        chatText = TextResource(R.string.hello_world),
-        position = Position(
-          boardWidth = 19,
-          boardHeight = 19,
-          blackCaptureCount = 0,
-          whiteCaptureCount = 0,
-          komi = 6.5f,
-        ),
-        candidateMove = null,
-        boardIsInteractive = true,
-        showFinalTerritory = false,
-        passButtonEnabled = true,
-        previousButtonEnabled = true,
-        nextButtonEnabled = true,
-        newGameDialogShown = false,
-        ownershipButtonVisible = true,
-        hintButtonVisible = true,
-        aiAnalysis = Response(
-          id = "aaa",
-          turnNumber = 1,
-          moveInfos = persistentListOf(),
-          policy = null,
-          rootInfo = RootInfo(
-            winrate = 0.5f,
-            scoreLead = 0.0f,
-          )
-        ),
-        aiQuickEstimation = null
-      ),
+      state = previewState,
       userIcon = null,
       onUserTappedCoordinate = {},
       onUserHotTrackedCoordinate = {},
@@ -905,39 +938,7 @@ private fun AiGameUIPreview() {
 private fun AiGameUIPreviewNewGame() {
   OnlineGoPreviewTheme {
     AiGameUI(
-      state = AiGameState(
-        boardSize = 19,
-        enginePlaysBlack = true,
-        engineStarted = true,
-        chatText = TextResource(R.string.hello_world),
-        position = Position(
-          boardWidth = 19,
-          boardHeight = 19,
-          blackCaptureCount = 0,
-          whiteCaptureCount = 0,
-          komi = 6.5f,
-        ),
-        candidateMove = null,
-        boardIsInteractive = true,
-        showFinalTerritory = false,
-        passButtonEnabled = true,
-        previousButtonEnabled = true,
-        nextButtonEnabled = true,
-        newGameDialogShown = true,
-        ownershipButtonVisible = true,
-        hintButtonVisible = true,
-        aiAnalysis = Response(
-          id = "aaa",
-          turnNumber = 1,
-          moveInfos = persistentListOf(),
-          policy = null,
-          rootInfo = RootInfo(
-            winrate = 0.5f,
-            scoreLead = 0.0f,
-          )
-        ),
-        aiQuickEstimation = null
-      ),
+      state = previewState.copy(newGameDialogShown = true),
       userIcon = null,
       onUserTappedCoordinate = {},
       onUserHotTrackedCoordinate = {},
@@ -967,39 +968,7 @@ private fun PreviewLandscape() {
 
   OnlineGoPreviewTheme {
     AiGameUI(
-      state = AiGameState(
-        boardSize = 19,
-        enginePlaysBlack = true,
-        engineStarted = true,
-        chatText = TextResource(R.string.hello_world),
-        position = Position(
-          boardWidth = 19,
-          boardHeight = 19,
-          blackCaptureCount = 0,
-          whiteCaptureCount = 0,
-          komi = 6.5f,
-        ),
-        candidateMove = null,
-        boardIsInteractive = true,
-        showFinalTerritory = false,
-        passButtonEnabled = true,
-        previousButtonEnabled = true,
-        nextButtonEnabled = true,
-        newGameDialogShown = false,
-        ownershipButtonVisible = true,
-        hintButtonVisible = true,
-        aiAnalysis = Response(
-          id = "aaa",
-          turnNumber = 1,
-          moveInfos = persistentListOf(),
-          policy = null,
-          rootInfo = RootInfo(
-            winrate = 0.5f,
-            scoreLead = 0.0f,
-          )
-        ),
-        aiQuickEstimation = null
-      ),
+      state = previewState,
       userIcon = null,
       onUserTappedCoordinate = {},
       onUserHotTrackedCoordinate = {},

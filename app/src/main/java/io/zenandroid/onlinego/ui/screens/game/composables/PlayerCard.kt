@@ -62,6 +62,7 @@ fun PlayerCard(
   onUserClicked: () -> Unit,
   onGameDetailsClicked: () -> Unit,
   modifier: Modifier = Modifier,
+  localAvatarRes: Int? = null,
 ) {
   val alpha = if (timerFaded) .6f else 1f
   player?.let {
@@ -79,21 +80,35 @@ fun PlayerCard(
         val defaultSize =
           LocalDensity.current.run { IntSize(maxSize.roundToPx(), maxSize.roundToPx()) }
         var size by remember { mutableStateOf(defaultSize) }
-        AsyncImage(
-          model = ImageRequest.Builder(LocalContext.current)
-            .data(processGravatarURL(player.iconURL, LocalDensity.current.run { size.width }))
-            .placeholder(R.mipmap.placeholder)
-            .error(R.mipmap.placeholder)
-            .build(),
-          contentDescription = stringResource(R.string.game_avatar_content_description),
-          modifier = Modifier
-            .sizeIn(maxHeight = maxSize)
-            .fillMaxSize()
-            .padding(bottom = 4.dp, end = 4.dp)
-            .shadow(2.dp, shape)
-            .clip(shape)
-            .onGloballyPositioned { size = it.size }
-        )
+        if (player.iconURL == null && localAvatarRes != null) {
+          Image(
+            painter = painterResource(localAvatarRes),
+            contentDescription = stringResource(R.string.game_avatar_content_description),
+            modifier = Modifier
+              .sizeIn(maxHeight = maxSize)
+              .fillMaxSize()
+              .padding(bottom = 4.dp, end = 4.dp)
+              .shadow(2.dp, shape)
+              .clip(shape)
+              .onGloballyPositioned { size = it.size }
+          )
+        } else {
+          AsyncImage(
+            model = ImageRequest.Builder(LocalContext.current)
+              .data(processGravatarURL(player.iconURL, LocalDensity.current.run { size.width }))
+              .placeholder(R.mipmap.placeholder)
+              .error(R.mipmap.placeholder)
+              .build(),
+            contentDescription = stringResource(R.string.game_avatar_content_description),
+            modifier = Modifier
+              .sizeIn(maxHeight = maxSize)
+              .fillMaxSize()
+              .padding(bottom = 4.dp, end = 4.dp)
+              .shadow(2.dp, shape)
+              .clip(shape)
+              .onGloballyPositioned { size = it.size }
+          )
+        }
         Box(
           modifier = Modifier
             .align(Alignment.BottomEnd)

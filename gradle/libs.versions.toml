@@ -60,6 +60,7 @@ googleServices = "4.4.4"
 crashlytics = "3.0.6"
 molecule = "2.2.0"
 cmake = "3.31.6"
+screenshot = "0.0.1-alpha16"
 
 [libraries]
 # Compose BOM
@@ -77,6 +78,7 @@ compose-material-icons-extended = { group = "androidx.compose.material", name = 
 compose-ui = { group = "androidx.compose.ui", name = "ui" }
 compose-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
 compose-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
+screenshot-validation-api = { group = "com.android.tools.screenshot", name = "screenshot-validation-api", version.ref = "screenshot" }
 compose-ui-util = { group = "androidx.compose.ui", name = "ui-util" }
 compose-material3 = { group = "androidx.compose.material3", name = "material3" }
 
@@ -158,6 +160,7 @@ kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "ko
 google-services = { id = "com.google.gms.google-services", version.ref = "googleServices" }
 firebase-crashlytics = { id = "com.google.firebase.crashlytics", version.ref = "crashlytics" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+screenshot = { id = "com.android.compose.screenshot", version.ref = "screenshot" }
 
 [bundles]
 compose = [

@@ -25,8 +25,8 @@
     <string name="ai_game_chat_game_over_computing_score">Game ended because of two passes. Hang on, I\'m computing the final score.</string>
     <string name="ai_game_chat_resign_offer">I think I\'ve lost this one…</string>
     <string name="ai_game_chat_ai_resigned">I resign, you win! Well played.</string>
-    <string name="ai_resign_offer_title">KataGO wants to resign</string>
-    <string name="ai_resign_offer_message">KataGO believes the game is lost and would like to resign. Do you accept?</string>
+    <string name="ai_resign_offer_title">I think I\'ve lost this one</string>
+    <string name="ai_resign_offer_message">I\'d like to resign here. Want to accept, or keep playing?</string>
     <string name="ai_resign_offer_accept">Accept Resignation</string>
     <string name="ai_resign_offer_decline">Keep Playing</string>
     <string name="ai_game_handicap_none">none</string>
@@ -50,10 +50,12 @@
     <string name="you">" You"</string>
     <string name="prisoners">Prisoners</string>
     <string name="komi">Komi</string>
-    <string name="white">white</string>
-    <string name="black">black</string>
-    <string name="score_prediction_leads_by">Score prediction: %1$s leads by %2$s</string>
-    <string name="white_s_chance_to_win">White\'s chance to win: %1$s%%</string>
+    <string name="ai_game_player_captures_and_komi">Captures: %1$d · Komi: %2$s</string>
+    <string name="ai_game_player_captures_only">Captures: %1$d</string>
+    <string name="ai_game_eval_winrate_compact">B %1$.1f%% · %2$.1f%% W</string>
+    <string name="ai_game_eval_score_lead_compact">%1$s +%2$.1f pts lead</string>
+    <string name="ai_game_eval_on">Eval On</string>
+    <string name="ai_game_eval_off">Eval Off</string>
     <string name="new_game">New Game</string>
     <string name="board_size">Board Size</string>
     <string name="you_play">You play</string>

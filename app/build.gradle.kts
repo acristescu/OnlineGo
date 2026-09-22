@@ -7,12 +7,15 @@ plugins {
     alias(libs.plugins.google.services)
     alias(libs.plugins.firebase.crashlytics)
     alias(libs.plugins.ksp)
+  alias(libs.plugins.screenshot)
 }
 
 android {
     compileSdk = libs.versions.compileSdk.get().toInt()
     ndkVersion = libs.versions.ndkVersion.get()
-    
+
+  experimentalProperties["android.experimental.enableScreenshotTest"] = true
+
     defaultConfig {
         // We still need this for API 23 and lower. Remove when minsdk = 24
         vectorDrawables.useSupportLibrary = true
@@ -110,6 +113,11 @@ dependencies {
   implementation(libs.bundles.compose)
   debugImplementation(libs.compose.ui.tooling)
   implementation(libs.compose.material3)
+
+  // Compose Preview Screenshot Testing
+  screenshotTestImplementation(platform(libs.compose.bom))
+  screenshotTestImplementation(libs.screenshot.validation.api)
+  screenshotTestImplementation(libs.compose.ui.tooling)
 
   // Molecule
   implementation(libs.molecule.runtime)

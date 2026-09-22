@@ -576,7 +576,6 @@ class AiGameViewModel(
                   consecutiveLowWinrateTurns = newCount,
                   aiResignOfferShowing = true,
                   boardIsInteractive = false,
-                  chatText = TextResource(R.string.ai_game_chat_resign_offer),
                 )
               }
               return@launch
