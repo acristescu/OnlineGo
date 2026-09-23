@@ -47,3 +47,4 @@ If you don't have the technical expertise and/or time to contribute to the proje
  - [Alexandru Cristescu](https://github.com/acristescu) (Original author)
  - [popz73](https://github.com/popz73)
  - [frony](https://github.com/bqv)
+ - [joelruicar](https://github.com/joelruicar) (translation)
