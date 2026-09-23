@@ -1,2 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources></resources>
+<resources>
+    <string name="welcome_to_sente_online_go">Vitajte v Sente Online Go!</string>
+    <string name="ai_game_chat_ready">Pripravený!</string>
+    <string name="ai_game_chat_hmmm">Hmmm…</string>
+</resources>
