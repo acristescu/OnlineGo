@@ -55,8 +55,8 @@
     <string name="ai_game_player_captures_only">Captures: %1$d</string>
     <string name="ai_game_eval_winrate_compact">B %1$.1f%% · %2$.1f%% W</string>
     <string name="ai_game_eval_score_lead_compact">%1$s +%2$.1f pts lead</string>
-    <string name="ai_game_eval_on">Eval On</string>
-    <string name="ai_game_eval_off">Eval Off</string>
+    <string name="ai_game_hide_eval">Hide Eval</string>
+    <string name="ai_game_show_eval">Show Eval</string>
     <string name="new_game">New Game</string>
     <string name="board_size">Board Size</string>
     <string name="you_play">You play</string>

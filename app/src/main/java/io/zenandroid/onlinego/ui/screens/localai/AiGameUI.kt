@@ -35,6 +35,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
@@ -43,7 +44,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -78,14 +79,11 @@ import io.zenandroid.onlinego.data.model.StoneType
 import io.zenandroid.onlinego.data.model.katago.KataGoResponse.Response
 import io.zenandroid.onlinego.data.model.katago.RootInfo
 import io.zenandroid.onlinego.ui.composables.Board
-import io.zenandroid.onlinego.ui.composables.BottomBar
-import io.zenandroid.onlinego.ui.composables.BottomBarButton
 import io.zenandroid.onlinego.ui.composables.resolve
 import io.zenandroid.onlinego.ui.composables.textResource
 import io.zenandroid.onlinego.ui.screens.game.PlayerData
 import io.zenandroid.onlinego.ui.screens.game.composables.PlayerCard
 import io.zenandroid.onlinego.ui.screens.localai.composables.AiChatBox
-import io.zenandroid.onlinego.ui.screens.mygames.composables.SenteCard
 import io.zenandroid.onlinego.ui.theme.OnlineGoPreviewTheme
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
@@ -93,46 +91,41 @@ import org.koin.androidx.compose.koinViewModel
 import kotlin.math.abs
 
 sealed class AiGameBottomBarButton(
-  override val icon: androidx.compose.ui.graphics.vector.ImageVector,
-  override val labelResId: Int,
-  override val label: String = "",
-  override val repeatable: Boolean = false,
-  override val enabled: Boolean = true,
-  override val bubbleText: String? = null,
-  override val highlighted: Boolean = false
-) : BottomBarButton {
-
+  val icon: androidx.compose.ui.graphics.vector.ImageVector,
+  val labelResId: Int,
+  val enabled: Boolean = true,
+) {
 
   data class NewGame(
-    override val enabled: Boolean = true
+    val isEnabled: Boolean = true
   ) : AiGameBottomBarButton(
     icon = Icons.Filled.Casino,
     labelResId = R.string.ai_game_new,
-    enabled = enabled
+    enabled = isEnabled
   )
 
   data class Pass(
-    override val enabled: Boolean = true
+    val isEnabled: Boolean = true
   ) : AiGameBottomBarButton(
     icon = Icons.Rounded.Stop,
     labelResId = R.string.ai_game_pass,
-    enabled = enabled
+    enabled = isEnabled
   )
 
   data class Previous(
-    override val enabled: Boolean = true
+    val isEnabled: Boolean = true
   ) : AiGameBottomBarButton(
     icon = Icons.AutoMirrored.Filled.NavigateBefore,
     labelResId = R.string.ai_game_previous,
-    enabled = enabled
+    enabled = isEnabled
   )
 
   data class Next(
-    override val enabled: Boolean = true
+    val isEnabled: Boolean = true
   ) : AiGameBottomBarButton(
     icon = Icons.AutoMirrored.Filled.NavigateNext,
     labelResId = R.string.ai_game_next,
-    enabled = enabled
+    enabled = isEnabled
   )
 }
 
@@ -197,10 +190,11 @@ internal fun AiGameUI(
   onDismissKoDialog: () -> Unit,
   onAcceptAiResignOffer: () -> Unit,
   onDeclineAiResignOffer: () -> Unit,
+  initialEvalVisible: Boolean = true,
 ) {
   val configuration = LocalConfiguration.current
   val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
-  var evalVisible by remember { mutableStateOf(true) }
+  var evalVisible by remember { mutableStateOf(initialEvalVisible) }
   val scoreLead = state.aiAnalysis?.rootInfo?.scoreLead ?: state.aiQuickEstimation?.scoreLead
   val winrate = state.aiAnalysis?.rootInfo?.winrate ?: state.aiQuickEstimation?.winrate
 
@@ -223,22 +217,26 @@ internal fun AiGameUI(
           onUserAskedForOwnership = onUserAskedForOwnership,
           modifier = Modifier
             .fillMaxWidth()
-            .weight(2 * ChatBoxWeight)
+            .weight(1f)
             .padding(start = 12.dp, end = 12.dp, top = 8.dp, bottom = 8.dp)
         )
-        AnalysisPanel(
-          scoreLead = scoreLead,
-          winrate = winrate,
+        if (evalVisible) {
+          AnalysisPanel(
+            scoreLead = scoreLead,
+            winrate = winrate,
+            modifier = Modifier
+              .fillMaxWidth()
+              .padding(bottom = 8.dp),
+          )
+        }
+        UserPlayerRow(
+          state = state,
+          userIcon = userIcon,
           evalVisible = evalVisible,
           onToggleEvalVisible = { evalVisible = !evalVisible },
           modifier = Modifier
             .fillMaxWidth()
-            .padding(bottom = 8.dp),
-        )
-        UserPlayerRow(
-          state, userIcon, modifier = Modifier
-            .fillMaxWidth()
-            .weight(ChatBoxWeight)
+            .weight(1f)
             .padding(horizontal = 12.dp)
         )
         AiGameBottomBar(
@@ -260,7 +258,7 @@ internal fun AiGameUI(
     Column(
       modifier = Modifier
         .fillMaxSize()
-        .background(MaterialTheme.colorScheme.surface)
+        .background(MaterialTheme.colorScheme.background)
         .systemBarsPadding()
     ) {
       Header(state = state, onNavigateBack = onNavigateBack)
@@ -270,8 +268,7 @@ internal fun AiGameUI(
         onUserAskedForOwnership = onUserAskedForOwnership,
         modifier = Modifier
           .fillMaxWidth()
-          .weight(2 * ChatBoxWeight)
-          .padding(start = 12.dp, end = 12.dp, top = 8.dp, bottom = 8.dp)
+          .weight(1.5f)
       )
       BoardSection(
         state = state,
@@ -279,22 +276,24 @@ internal fun AiGameUI(
         onUserHotTrackedCoordinate = onUserHotTrackedCoordinate,
         modifier = Modifier
           .fillMaxWidth()
-          .padding(bottom = 8.dp)
       )
-      AnalysisPanel(
-        scoreLead = scoreLead,
-        winrate = winrate,
+      if (evalVisible) {
+        AnalysisPanel(
+          scoreLead = scoreLead,
+          winrate = winrate,
+          modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = 8.dp),
+        )
+      }
+      UserPlayerRow(
+        state = state,
+        userIcon = userIcon,
         evalVisible = evalVisible,
         onToggleEvalVisible = { evalVisible = !evalVisible },
         modifier = Modifier
           .fillMaxWidth()
-          .padding(bottom = 8.dp),
-      )
-      UserPlayerRow(
-        state, userIcon, modifier = Modifier
-          .fillMaxWidth()
-          .weight(ChatBoxWeight)
-          .padding(horizontal = 12.dp)
+          .weight(1f)
       )
       AiGameBottomBar(
         state = state,
@@ -385,7 +384,7 @@ private fun BoardSection(
     onTapMove = onUserHotTrackedCoordinate,
     onTapUp = onUserTappedCoordinate,
     modifier = modifier
-      .shadow(1.dp, MaterialTheme.shapes.medium)
+      .shadow(2.dp, MaterialTheme.shapes.medium)
       .clip(MaterialTheme.shapes.medium)
   )
 }
@@ -440,13 +439,17 @@ private fun AiPlayerRow(
   onUserAskedForOwnership: () -> Unit,
   modifier: Modifier = Modifier,
 ) {
-  SenteCard(modifier = modifier) {
+  OutlinedCard(
+    modifier = modifier,
+    border = CardDefaults.outlinedCardBorder(enabled = false),
+    colors = CardDefaults.outlinedCardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLowest)
+  ) {
     Column(
       modifier = Modifier
         .fillMaxHeight()
     ) {
       Row(
-        modifier = Modifier.padding(vertical = 8.dp),
+        modifier = Modifier.padding(top = 12.dp, bottom = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
       ) {
         PlayerCard(
@@ -470,7 +473,7 @@ private fun AiPlayerRow(
             .padding(end = 16.dp)
         ) {
           if (state.ownershipButtonVisible) {
-            OutlinedButton(
+            Button(
               onClick = onUserAskedForOwnership,
               enabled = state.isGameReady,
               contentPadding = PaddingValues(horizontal = 12.dp, vertical = 2.dp),
@@ -484,7 +487,8 @@ private fun AiPlayerRow(
             }
           }
           if (state.hintButtonVisible) {
-            OutlinedButton(
+            Spacer(Modifier.height(4.dp))
+            Button(
               onClick = onUserAskedForHint,
               enabled = state.isGameReady,
               contentPadding = PaddingValues(horizontal = 12.dp, vertical = 2.dp),
@@ -496,6 +500,7 @@ private fun AiPlayerRow(
             ) {
               Text(stringResource(R.string.hint), style = MaterialTheme.typography.labelMedium)
             }
+            Spacer(Modifier.height(4.dp))
           }
         }
       }
@@ -507,7 +512,7 @@ private fun AiPlayerRow(
         },
         modifier = Modifier
           .fillMaxWidth()
-          .padding(start = 12.dp, end = 12.dp, bottom = 8.dp)
+          .padding(start = 12.dp, end = 12.dp, bottom = 12.dp)
       )
     }
   }
@@ -516,11 +521,21 @@ private fun AiPlayerRow(
 private val PlayerCardMaxHeight = 84.dp
 
 @Composable
-private fun UserPlayerRow(state: AiGameState, userIcon: String?, modifier: Modifier = Modifier) {
-  SenteCard(modifier = modifier) {
-    Column(
-      modifier = Modifier
-        .fillMaxHeight()
+private fun UserPlayerRow(
+  state: AiGameState,
+  userIcon: String?,
+  evalVisible: Boolean,
+  onToggleEvalVisible: () -> Unit,
+  modifier: Modifier = Modifier,
+) {
+  OutlinedCard(
+    modifier = modifier,
+    border = CardDefaults.outlinedCardBorder(enabled = false),
+    colors = CardDefaults.outlinedCardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLowest)
+  ) {
+    Row(
+      modifier = Modifier.fillMaxHeight(),
+      verticalAlignment = Alignment.CenterVertically,
     ) {
       PlayerCard(
         player = userPlayerData(state, userIcon),
@@ -532,8 +547,23 @@ private fun UserPlayerRow(state: AiGameState, userIcon: String?, modifier: Modif
         onUserClicked = {},
         onGameDetailsClicked = {},
         localAvatarRes = R.mipmap.placeholder,
-        modifier = Modifier.padding(vertical = 8.dp),
+        modifier = Modifier
+          .weight(1f)
+          .padding(vertical = 12.dp),
       )
+      Button(
+        onClick = onToggleEvalVisible,
+        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 2.dp),
+        shape = MaterialTheme.shapes.small,
+        modifier = Modifier.padding(end = 16.dp),
+      ) {
+        Text(
+          text = stringResource(
+            if (evalVisible) R.string.ai_game_hide_eval else R.string.ai_game_show_eval
+          ),
+          style = MaterialTheme.typography.labelMedium,
+        )
+      }
     }
   }
 }
@@ -593,13 +623,12 @@ private fun DifficultyRank.shortLabel(): String = when (this) {
 private fun AnalysisPanel(
   scoreLead: Float?,
   winrate: Float?,
-  evalVisible: Boolean,
-  onToggleEvalVisible: () -> Unit,
   modifier: Modifier = Modifier,
 ) {
-  SenteCard(
-    modifier = modifier
-      .padding(horizontal = 12.dp),
+  OutlinedCard(
+    modifier = modifier,
+    border = CardDefaults.outlinedCardBorder(enabled = false),
+    colors = CardDefaults.outlinedCardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLowest)
   ) {
     Column(
       modifier = Modifier
@@ -607,13 +636,14 @@ private fun AnalysisPanel(
         .padding(horizontal = 12.dp, vertical = 12.dp),
       verticalArrangement = Arrangement.Center,
     ) {
+      val showEval = winrate != null
       Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
       ) {
-        if (evalVisible && winrate != null) {
-          val whitePercentage = winrate * 100f
+        if (showEval) {
+          val whitePercentage = winrate!! * 100f
           val blackPercentage = 100f - whitePercentage
           Text(
             text = stringResource(
@@ -625,13 +655,17 @@ private fun AnalysisPanel(
             color = MaterialTheme.colorScheme.onSurfaceVariant,
           )
         } else {
-          Spacer(Modifier)
+          Text(
+            text = EvalPlaceholder,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+          )
         }
         Row(
           horizontalArrangement = Arrangement.spacedBy(8.dp),
           verticalAlignment = Alignment.CenterVertically,
         ) {
-          if (evalVisible && scoreLead != null) {
+          if (scoreLead != null) {
             val leaderLetter = if (scoreLead > 0) "W" else "B"
             val magnitude = abs(scoreLead)
             Text(
@@ -646,23 +680,21 @@ private fun AnalysisPanel(
           }
         }
       }
-      if (evalVisible && winrate != null) {
-        LinearProgressIndicator(
-          progress = { winrate },
-          modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = 8.dp)
-            .height(6.dp)
-            .clip(RoundedCornerShape(3.dp)),
-          color = MaterialTheme.colorScheme.primary,
-          trackColor = MaterialTheme.colorScheme.surfaceContainerHighest,
-        )
-      }
+      LinearProgressIndicator(
+        progress = { if (showEval) 1f - winrate!! else 0f },
+        modifier = Modifier
+          .fillMaxWidth()
+          .padding(top = 8.dp)
+          .height(6.dp)
+          .clip(RoundedCornerShape(3.dp)),
+        color = MaterialTheme.colorScheme.primary,
+        trackColor = MaterialTheme.colorScheme.surfaceContainerHighest,
+      )
     }
   }
 }
 
-private const val ChatBoxWeight = 1f
+private const val EvalPlaceholder = "B — · — W"
 
 
 @Composable
@@ -674,32 +706,45 @@ private fun AiGameBottomBar(
   onUserPressedNext: () -> Unit
 ) {
   val bottomBarButtons = listOf(
-    AiGameBottomBarButton.NewGame(enabled = state.isGameReady),
-    AiGameBottomBarButton.Pass(enabled = state.passButtonEnabled && state.isGameReady),
-    AiGameBottomBarButton.Previous(enabled = state.previousButtonEnabled && state.isGameReady),
-    AiGameBottomBarButton.Next(enabled = state.nextButtonEnabled && state.isGameReady)
+    AiGameBottomBarButton.NewGame(isEnabled = state.isGameReady) to onShowNewGameDialog,
+    AiGameBottomBarButton.Pass(isEnabled = state.passButtonEnabled && state.isGameReady) to onUserPressedPass,
+    AiGameBottomBarButton.Previous(isEnabled = state.previousButtonEnabled && state.isGameReady) to onUserPressedPrevious,
+    AiGameBottomBarButton.Next(isEnabled = state.nextButtonEnabled && state.isGameReady) to onUserPressedNext,
   )
-  Card(
+  Row(
     modifier = Modifier
       .fillMaxWidth()
-      .padding(8.dp),
-    shape = MaterialTheme.shapes.large,
-    colors = CardDefaults.cardColors(
-      containerColor = MaterialTheme.colorScheme.surfaceContainerLow
-    ),
+      .padding(start = 8.dp, end = 8.dp, top = 8.dp, bottom = 2.dp),
+    horizontalArrangement = Arrangement.spacedBy(8.dp),
   ) {
-    BottomBar(
-      buttons = bottomBarButtons,
-      bottomText = null,
-      onButtonPressed = { button ->
-        when (button) {
-          is AiGameBottomBarButton.NewGame -> onShowNewGameDialog()
-          is AiGameBottomBarButton.Pass -> onUserPressedPass()
-          is AiGameBottomBarButton.Previous -> onUserPressedPrevious()
-          is AiGameBottomBarButton.Next -> onUserPressedNext()
-        }
-      }
-    )
+    bottomBarButtons.forEach { (button, onClick) ->
+      AiGameBottomBarButtonView(
+        button = button,
+        onClick = onClick,
+        modifier = Modifier.weight(1f),
+      )
+    }
+  }
+}
+
+@Composable
+private fun AiGameBottomBarButtonView(
+  button: AiGameBottomBarButton,
+  onClick: () -> Unit,
+  modifier: Modifier = Modifier,
+) {
+  ElevatedButton(
+    onClick = onClick,
+    enabled = button.enabled,
+    shape = RoundedCornerShape(16.dp),
+    contentPadding = PaddingValues(vertical = 10.dp, horizontal = 2.dp),
+    modifier = modifier,
+  ) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+      Icon(button.icon, contentDescription = null, modifier = Modifier.size(20.dp))
+      Spacer(Modifier.height(4.dp))
+      Text(stringResource(button.labelResId), style = MaterialTheme.typography.labelSmall)
+    }
   }
 }
 
@@ -975,6 +1020,61 @@ private fun AiGameUIPreviewNewGame() {
       onAcceptAiResignOffer = {},
       onDeclineAiResignOffer = {},
       onNavigateBack = {}
+    )
+  }
+}
+
+@Composable
+@Preview
+private fun AiGameUIPreviewNoEvalYet() {
+  OnlineGoPreviewTheme {
+    AiGameUI(
+      state = previewState.copy(
+        aiAnalysis = null,
+        aiQuickEstimation = null,
+        chatText = textResource(R.string.ai_game_chat_your_turn),
+      ),
+      userIcon = null,
+      onUserTappedCoordinate = {},
+      onUserHotTrackedCoordinate = {},
+      onUserPressedPass = {},
+      onUserPressedPrevious = {},
+      onUserPressedNext = {},
+      onShowNewGameDialog = {},
+      onUserAskedForHint = {},
+      onUserAskedForOwnership = {},
+      onNewGame = { _, _, _, _ -> },
+      onDismissNewGameDialog = {},
+      onDismissKoDialog = {},
+      onAcceptAiResignOffer = {},
+      onDeclineAiResignOffer = {},
+      onNavigateBack = {}
+    )
+  }
+}
+
+@Composable
+@Preview
+private fun AiGameUIPreviewEvalHidden() {
+  OnlineGoPreviewTheme {
+    AiGameUI(
+      state = previewState,
+      userIcon = null,
+      onUserTappedCoordinate = {},
+      onUserHotTrackedCoordinate = {},
+      onUserPressedPass = {},
+      onUserPressedPrevious = {},
+      onUserPressedNext = {},
+      onShowNewGameDialog = {},
+      onUserAskedForHint = {},
+      onUserAskedForOwnership = {},
+      onNewGame = { _, _, _, _ -> },
+      onDismissNewGameDialog = {},
+      onDismissKoDialog = {},
+      onAcceptAiResignOffer = {},
+      onDeclineAiResignOffer = {},
+      onNavigateBack = {},
+      initialEvalVisible = false,
     )
   }
 }

@@ -531,6 +531,7 @@ class AiGameViewModel(
             ownershipButtonVisible = true,
             previousButtonEnabled = it.history.size > 2,
             nextButtonEnabled = false,
+            chatText = it.chatText ?: TextResource(R.string.ai_game_chat_your_turn),
           )
         }
       }

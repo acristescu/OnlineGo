@@ -73,6 +73,33 @@ fun AiGameUiScreenshotLight() {
 }
 
 @PreviewTest
+@Preview(name = "AI game - eval hidden", showBackground = true)
+@Composable
+fun AiGameUiScreenshotEvalHidden() {
+  OnlineGoPreviewTheme(darkTheme = false) {
+    AiGameUI(
+      state = screenshotState,
+      userIcon = null,
+      onUserTappedCoordinate = {},
+      onUserHotTrackedCoordinate = {},
+      onUserPressedPass = {},
+      onUserPressedPrevious = {},
+      onUserPressedNext = {},
+      onShowNewGameDialog = {},
+      onUserAskedForHint = {},
+      onUserAskedForOwnership = {},
+      onNewGame = { _, _, _, _ -> },
+      onDismissNewGameDialog = {},
+      onDismissKoDialog = {},
+      onAcceptAiResignOffer = {},
+      onDeclineAiResignOffer = {},
+      onNavigateBack = {},
+      initialEvalVisible = false,
+    )
+  }
+}
+
+@PreviewTest
 @Preview(name = "AI game - dark, long chat bubble", showBackground = true, uiMode = 0x20)
 @Composable
 fun AiGameUiScreenshotDark() {
@@ -138,6 +165,36 @@ fun AiGameUiScreenshotShortMessage() {
   OnlineGoPreviewTheme(darkTheme = false) {
     AiGameUI(
       state = screenshotState.copy(chatText = textResource(R.string.ai_game_chat_ready)),
+      userIcon = null,
+      onUserTappedCoordinate = {},
+      onUserHotTrackedCoordinate = {},
+      onUserPressedPass = {},
+      onUserPressedPrevious = {},
+      onUserPressedNext = {},
+      onShowNewGameDialog = {},
+      onUserAskedForHint = {},
+      onUserAskedForOwnership = {},
+      onNewGame = { _, _, _, _ -> },
+      onDismissNewGameDialog = {},
+      onDismissKoDialog = {},
+      onAcceptAiResignOffer = {},
+      onDeclineAiResignOffer = {},
+      onNavigateBack = {}
+    )
+  }
+}
+
+@PreviewTest
+@Preview(name = "AI game - new game, no eval yet", showBackground = true)
+@Composable
+fun AiGameUiScreenshotNoEvalYet() {
+  OnlineGoPreviewTheme(darkTheme = false) {
+    AiGameUI(
+      state = screenshotState.copy(
+        aiAnalysis = null,
+        aiQuickEstimation = null,
+        chatText = textResource(R.string.ai_game_chat_your_turn),
+      ),
       userIcon = null,
       onUserTappedCoordinate = {},
       onUserHotTrackedCoordinate = {},
