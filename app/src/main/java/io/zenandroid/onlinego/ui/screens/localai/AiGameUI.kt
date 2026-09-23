@@ -21,9 +21,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.NavigateBefore
@@ -62,8 +60,11 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -91,7 +92,7 @@ import org.koin.androidx.compose.koinViewModel
 import kotlin.math.abs
 
 sealed class AiGameBottomBarButton(
-  val icon: androidx.compose.ui.graphics.vector.ImageVector,
+  val icon: ImageVector,
   val labelResId: Int,
   val enabled: Boolean = true,
 ) {
@@ -267,8 +268,9 @@ internal fun AiGameUI(
         onUserAskedForHint = onUserAskedForHint,
         onUserAskedForOwnership = onUserAskedForOwnership,
         modifier = Modifier
+          .padding(top = 2.dp)
           .fillMaxWidth()
-          .weight(1.5f)
+          .weight(1f)
       )
       BoardSection(
         state = state,
@@ -277,15 +279,6 @@ internal fun AiGameUI(
         modifier = Modifier
           .fillMaxWidth()
       )
-      if (evalVisible) {
-        AnalysisPanel(
-          scoreLead = scoreLead,
-          winrate = winrate,
-          modifier = Modifier
-            .fillMaxWidth()
-            .padding(bottom = 8.dp),
-        )
-      }
       UserPlayerRow(
         state = state,
         userIcon = userIcon,
@@ -528,41 +521,55 @@ private fun UserPlayerRow(
   onToggleEvalVisible: () -> Unit,
   modifier: Modifier = Modifier,
 ) {
+  val scoreLead = state.aiAnalysis?.rootInfo?.scoreLead ?: state.aiQuickEstimation?.scoreLead
+  val winrate = state.aiAnalysis?.rootInfo?.winrate ?: state.aiQuickEstimation?.winrate
+
   OutlinedCard(
     modifier = modifier,
     border = CardDefaults.outlinedCardBorder(enabled = false),
     colors = CardDefaults.outlinedCardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLowest)
   ) {
-    Row(
-      modifier = Modifier.fillMaxHeight(),
-      verticalAlignment = Alignment.CenterVertically,
-    ) {
-      PlayerCard(
-        player = userPlayerData(state, userIcon),
-        timerMain = "",
-        timerExtra = "",
-        timerPercent = 0,
-        timerFaded = false,
-        timerShown = false,
-        onUserClicked = {},
-        onGameDetailsClicked = {},
-        localAvatarRes = R.mipmap.placeholder,
-        modifier = Modifier
-          .weight(1f)
-          .padding(vertical = 12.dp),
-      )
-      Button(
-        onClick = onToggleEvalVisible,
-        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 2.dp),
-        shape = MaterialTheme.shapes.small,
-        modifier = Modifier.padding(end = 16.dp),
-      ) {
-        Text(
-          text = stringResource(
-            if (evalVisible) R.string.ai_game_hide_eval else R.string.ai_game_show_eval
-          ),
-          style = MaterialTheme.typography.labelMedium,
+    Column {
+      if (evalVisible) {
+        AnalysisPanel(
+          scoreLead = scoreLead,
+          winrate = winrate,
+          modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = 8.dp),
         )
+      }
+      Row(
+        modifier = Modifier.fillMaxHeight(),
+        verticalAlignment = Alignment.CenterVertically,
+      ) {
+        PlayerCard(
+          player = userPlayerData(state, userIcon),
+          timerMain = "",
+          timerExtra = "",
+          timerPercent = 0,
+          timerFaded = false,
+          timerShown = false,
+          onUserClicked = {},
+          onGameDetailsClicked = {},
+          localAvatarRes = R.mipmap.placeholder,
+          modifier = Modifier
+            .weight(1f)
+            .padding(vertical = 12.dp),
+        )
+        Button(
+          onClick = onToggleEvalVisible,
+          contentPadding = PaddingValues(horizontal = 12.dp, vertical = 2.dp),
+          shape = MaterialTheme.shapes.small,
+          modifier = Modifier.padding(end = 16.dp),
+        ) {
+          Text(
+            text = stringResource(
+              if (evalVisible) R.string.ai_game_hide_eval else R.string.ai_game_show_eval
+            ),
+            style = MaterialTheme.typography.labelMedium,
+          )
+        }
       }
     }
   }
@@ -625,72 +632,65 @@ private fun AnalysisPanel(
   winrate: Float?,
   modifier: Modifier = Modifier,
 ) {
-  OutlinedCard(
-    modifier = modifier,
-    border = CardDefaults.outlinedCardBorder(enabled = false),
-    colors = CardDefaults.outlinedCardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLowest)
+  Column(
+    modifier = modifier
+      .padding(horizontal = 12.dp, vertical = 12.dp),
+    verticalArrangement = Arrangement.Center,
   ) {
-    Column(
-      modifier = Modifier
-        .verticalScroll(rememberScrollState())
-        .padding(horizontal = 12.dp, vertical = 12.dp),
-      verticalArrangement = Arrangement.Center,
+    val showEval = winrate != null
+    Row(
+      modifier = Modifier.fillMaxWidth(),
+      horizontalArrangement = Arrangement.SpaceBetween,
+      verticalAlignment = Alignment.CenterVertically,
     ) {
-      val showEval = winrate != null
+      if (showEval) {
+        val whitePercentage = winrate!! * 100f
+        val blackPercentage = 100f - whitePercentage
+        Text(
+          text = stringResource(
+            R.string.ai_game_eval_winrate_compact,
+            blackPercentage,
+            whitePercentage
+          ),
+          style = MaterialTheme.typography.bodyMedium,
+          color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+      } else {
+        Text(
+          text = EvalPlaceholder,
+          style = MaterialTheme.typography.bodyMedium,
+          color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+      }
       Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalAlignment = Alignment.CenterVertically,
       ) {
-        if (showEval) {
-          val whitePercentage = winrate!! * 100f
-          val blackPercentage = 100f - whitePercentage
+        if (scoreLead != null) {
+          val leaderLetter = if (scoreLead > 0) "W" else "B"
+          val magnitude = abs(scoreLead)
           Text(
             text = stringResource(
-              R.string.ai_game_eval_winrate_compact,
-              blackPercentage,
-              whitePercentage
+              R.string.ai_game_eval_score_lead_compact,
+              leaderLetter,
+              magnitude
             ),
-            style = MaterialTheme.typography.bodyMedium,
+            style = MaterialTheme.typography.labelMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
           )
-        } else {
-          Text(
-            text = EvalPlaceholder,
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-          )
-        }
-        Row(
-          horizontalArrangement = Arrangement.spacedBy(8.dp),
-          verticalAlignment = Alignment.CenterVertically,
-        ) {
-          if (scoreLead != null) {
-            val leaderLetter = if (scoreLead > 0) "W" else "B"
-            val magnitude = abs(scoreLead)
-            Text(
-              text = stringResource(
-                R.string.ai_game_eval_score_lead_compact,
-                leaderLetter,
-                magnitude
-              ),
-              style = MaterialTheme.typography.labelMedium,
-              color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-          }
         }
       }
-      LinearProgressIndicator(
-        progress = { if (showEval) 1f - winrate!! else 0f },
-        modifier = Modifier
-          .fillMaxWidth()
-          .padding(top = 8.dp)
-          .height(6.dp)
-          .clip(RoundedCornerShape(3.dp)),
-        color = MaterialTheme.colorScheme.primary,
-        trackColor = MaterialTheme.colorScheme.surfaceContainerHighest,
-      )
     }
+    LinearProgressIndicator(
+      progress = { if (showEval) 1f - winrate!! else 0f },
+      modifier = Modifier
+        .fillMaxWidth()
+        .padding(top = 8.dp)
+        .height(6.dp)
+        .clip(RoundedCornerShape(3.dp)),
+      color = MaterialTheme.colorScheme.primary,
+      trackColor = MaterialTheme.colorScheme.surfaceContainerHighest,
+    )
   }
 }
 
@@ -714,7 +714,7 @@ private fun AiGameBottomBar(
   Row(
     modifier = Modifier
       .fillMaxWidth()
-      .padding(start = 8.dp, end = 8.dp, top = 8.dp, bottom = 2.dp),
+      .padding(start = 8.dp, end = 8.dp, top = 8.dp),
     horizontalArrangement = Arrangement.spacedBy(8.dp),
   ) {
     bottomBarButtons.forEach { (button, onClick) ->
@@ -737,13 +737,17 @@ private fun AiGameBottomBarButtonView(
     onClick = onClick,
     enabled = button.enabled,
     shape = RoundedCornerShape(16.dp),
-    contentPadding = PaddingValues(vertical = 10.dp, horizontal = 2.dp),
+    contentPadding = PaddingValues(vertical = 4.dp, horizontal = 0.dp),
     modifier = modifier,
   ) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-      Icon(button.icon, contentDescription = null, modifier = Modifier.size(20.dp))
-      Spacer(Modifier.height(4.dp))
-      Text(stringResource(button.labelResId), style = MaterialTheme.typography.labelSmall)
+      Icon(button.icon, contentDescription = null, modifier = Modifier.size(24.dp))
+      Text(
+        text = stringResource(button.labelResId),
+        fontFamily = FontFamily.Default,
+        fontWeight = FontWeight.Bold,
+        fontSize = 10.sp,
+      )
     }
   }
 }
