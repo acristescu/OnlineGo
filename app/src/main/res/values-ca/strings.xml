@@ -608,7 +608,7 @@ Col·loqueu una pedra per continuar!]]></string>
     <string name="tutorial_basics_doubleatari_doubleAtari2_text"><![CDATA["Aquí n'hi ha un altre. On podeu fer un doble Atari?"]]></string>
     <string name="tutorial_basics_illegalmoves_title">Jugades il·legals (la regla del suïcidi)</string>
     <string name="tutorial_basics_illegalmoves_suicide1_page_1_text">Podeu jugar gairebé a qualsevol lloc del tauler, amb algunes excepcions. En l\'exemple següent, les negres no poden jugar a A, ja que la nova pedra ja estaria envoltada.</string>
-    <string name="tutorial_basics_illegalmoves_suicide1_page_2_text"><![CDATA[D'això se'n diu una jugada de «suïcidi» i està prohibida.]]></string>
+    <string name="tutorial_basics_illegalmoves_suicide1_page_2_text"><![CDATA[D\'això se\'n diu una jugada de «suïcidi» i està prohibida.]]></string>
     <string name="tutorial_basics_illegalmoves_suicide1_page_3_text">Tot i això, hi ha una excepció. Si una jugada en aquest punt capturés una o més pedres blanques (com l\'exemple B de sota), la jugada està permesa.</string>
     <string name="tutorial_basics_illegalmoves_suicide1_page_4_text">La posició resultant queda així:</string>
     <string name="tutorial_basics_illegalmoves_suicide2_text"><![CDATA["Us torna a tocar capturar algunes pedres! Pista: d'entrada pot semblar que és una jugada il·legal..."]]></string>
