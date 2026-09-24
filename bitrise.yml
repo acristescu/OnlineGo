@@ -1,16 +1,10 @@
-format_version: '5'
+format_version: '11'
 default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
 project_type: android
-trigger_map:
-  - push_branch: master
-    workflow: primary
-  - push_branch: release
-    workflow: deploy
-  - pull_request_source_branch:
-      regex: "/^(?!.*l10n_master).*/"
-    workflow: primary
 workflows:
   deploy:
+    triggers:
+      - push_branch: release
     description: |
       ## How to get a signed APK
 
@@ -109,6 +103,10 @@ workflows:
       - deploy-to-bitrise-io@2.0: { }
       - cache-push@2.7: { }
   primary:
+    triggers:
+      - push_branch: master
+      - pull_request_source_branch:
+          regex: "/^(?!.*l10n_master).*/"
     steps:
       - activate-ssh-key@4.1:
           run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
