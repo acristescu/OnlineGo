@@ -10,10 +10,12 @@ import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.displayCutoutPadding
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
@@ -67,6 +69,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
@@ -196,14 +199,13 @@ internal fun AiGameUI(
   val configuration = LocalConfiguration.current
   val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
   var evalVisible by remember { mutableStateOf(initialEvalVisible) }
-  val scoreLead = state.aiAnalysis?.rootInfo?.scoreLead ?: state.aiQuickEstimation?.scoreLead
-  val winrate = state.aiAnalysis?.rootInfo?.winrate ?: state.aiQuickEstimation?.winrate
 
   if (isLandscape) {
     Row(
       modifier = Modifier
         .fillMaxSize()
         .background(MaterialTheme.colorScheme.surface)
+        .displayCutoutPadding()
         .systemBarsPadding()
     ) {
       Column(
@@ -212,33 +214,17 @@ internal fun AiGameUI(
           .weight(1f)
       ) {
         Header(state = state, onNavigateBack = onNavigateBack)
-        AiPlayerRow(
+        AiGameLandscapePanel(
           state = state,
+          userIcon = userIcon,
+          evalVisible = evalVisible,
+          onToggleEvalVisible = { evalVisible = !evalVisible },
           onUserAskedForHint = onUserAskedForHint,
           onUserAskedForOwnership = onUserAskedForOwnership,
           modifier = Modifier
             .fillMaxWidth()
             .weight(1f)
-            .padding(start = 12.dp, end = 12.dp, top = 8.dp, bottom = 8.dp)
-        )
-        if (evalVisible) {
-          AnalysisPanel(
-            scoreLead = scoreLead,
-            winrate = winrate,
-            modifier = Modifier
-              .fillMaxWidth()
-              .padding(bottom = 8.dp),
-          )
-        }
-        UserPlayerRow(
-          state = state,
-          userIcon = userIcon,
-          evalVisible = evalVisible,
-          onToggleEvalVisible = { evalVisible = !evalVisible },
-          modifier = Modifier
-            .fillMaxWidth()
-            .weight(1f)
-            .padding(horizontal = 12.dp)
+            .padding(start = 12.dp, end = 12.dp, top = 2.dp, bottom = 2.dp)
         )
         AiGameBottomBar(
           state = state,
@@ -441,62 +427,12 @@ private fun AiPlayerRow(
       modifier = Modifier
         .fillMaxHeight()
     ) {
-      Row(
+      AiPlayerRowContent(
+        state = state,
+        onUserAskedForHint = onUserAskedForHint,
+        onUserAskedForOwnership = onUserAskedForOwnership,
         modifier = Modifier.padding(top = 12.dp, bottom = 4.dp),
-        verticalAlignment = Alignment.CenterVertically,
-      ) {
-        PlayerCard(
-          player = aiPlayerData(state),
-          timerMain = "",
-          timerExtra = "",
-          timerPercent = 0,
-          timerFaded = false,
-          timerShown = false,
-          onUserClicked = {},
-          onGameDetailsClicked = {},
-          localAvatarRes = R.drawable.katago,
-          modifier = Modifier.weight(1f),
-        )
-        Column(
-          horizontalAlignment = Alignment.CenterHorizontally,
-          verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterVertically),
-          modifier = Modifier
-            .height(PlayerCardMaxHeight)
-            .width(IntrinsicSize.Max)
-            .padding(end = 16.dp)
-        ) {
-          if (state.ownershipButtonVisible) {
-            Button(
-              onClick = onUserAskedForOwnership,
-              enabled = state.isGameReady,
-              contentPadding = PaddingValues(horizontal = 12.dp, vertical = 2.dp),
-              shape = MaterialTheme.shapes.small,
-              modifier = Modifier
-                .fillMaxWidth()
-                .height(0.dp)
-                .weight(1f),
-            ) {
-              Text(stringResource(R.string.territory), style = MaterialTheme.typography.labelMedium)
-            }
-          }
-          if (state.hintButtonVisible) {
-            Spacer(Modifier.height(4.dp))
-            Button(
-              onClick = onUserAskedForHint,
-              enabled = state.isGameReady,
-              contentPadding = PaddingValues(horizontal = 12.dp, vertical = 2.dp),
-              shape = MaterialTheme.shapes.small,
-              modifier = Modifier
-                .fillMaxWidth()
-                .height(0.dp)
-                .weight(1f),
-            ) {
-              Text(stringResource(R.string.hint), style = MaterialTheme.typography.labelMedium)
-            }
-            Spacer(Modifier.height(4.dp))
-          }
-        }
-      }
+      )
       AiChatBox(
         text = when {
           state.engineFailedToStart -> state.chatText?.resolve()
@@ -505,13 +441,86 @@ private fun AiPlayerRow(
         },
         modifier = Modifier
           .fillMaxWidth()
+          .weight(1f)
           .padding(start = 12.dp, end = 12.dp, bottom = 12.dp)
       )
     }
   }
 }
 
+@Composable
+private fun AiPlayerRowContent(
+  state: AiGameState,
+  onUserAskedForHint: () -> Unit,
+  onUserAskedForOwnership: () -> Unit,
+  modifier: Modifier = Modifier,
+  avatarSize: Dp = PlayerCardMaxHeight,
+) {
+  Row(
+    modifier = modifier,
+    verticalAlignment = Alignment.CenterVertically,
+  ) {
+    PlayerCard(
+      player = aiPlayerData(state),
+      timerMain = "",
+      timerExtra = "",
+      timerPercent = 0,
+      timerFaded = false,
+      timerShown = false,
+      onUserClicked = {},
+      onGameDetailsClicked = {},
+      localAvatarRes = R.drawable.katago,
+      modifier = Modifier
+        .weight(1f)
+        .heightIn(max = avatarSize),
+    )
+    Column(
+      horizontalAlignment = Alignment.CenterHorizontally,
+      verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterVertically),
+      modifier = Modifier
+        .height(avatarSize)
+        .width(IntrinsicSize.Max)
+        .padding(end = 16.dp)
+    ) {
+      if (state.ownershipButtonVisible) {
+        Button(
+          onClick = onUserAskedForOwnership,
+          enabled = state.isGameReady,
+          contentPadding = PaddingValues(horizontal = 12.dp, vertical = 2.dp),
+          shape = MaterialTheme.shapes.small,
+          modifier = Modifier
+            .fillMaxWidth()
+            .height(0.dp)
+            .weight(1f),
+        ) {
+          Text(stringResource(R.string.territory), style = MaterialTheme.typography.labelMedium)
+        }
+      }
+      if (state.hintButtonVisible) {
+        Spacer(Modifier.height(4.dp))
+        Button(
+          onClick = onUserAskedForHint,
+          enabled = state.isGameReady,
+          contentPadding = PaddingValues(horizontal = 12.dp, vertical = 2.dp),
+          shape = MaterialTheme.shapes.small,
+          modifier = Modifier
+            .fillMaxWidth()
+            .height(0.dp)
+            .weight(1f),
+        ) {
+          Text(stringResource(R.string.hint), style = MaterialTheme.typography.labelMedium)
+        }
+        Spacer(Modifier.height(4.dp))
+      }
+    }
+  }
+}
+
 private val PlayerCardMaxHeight = 84.dp
+
+// Landscape has much less vertical room than portrait; shrinking both avatars down to
+// PlayerCard's own minimum (64.dp) trades avatar size for a usable chat area.
+private val LandscapeAvatarSize = 64.dp
 
 @Composable
 private fun UserPlayerRow(
@@ -529,7 +538,7 @@ private fun UserPlayerRow(
     border = CardDefaults.outlinedCardBorder(enabled = false),
     colors = CardDefaults.outlinedCardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLowest)
   ) {
-    Column {
+    Column(modifier = Modifier.fillMaxHeight()) {
       if (evalVisible) {
         AnalysisPanel(
           scoreLead = scoreLead,
@@ -539,38 +548,116 @@ private fun UserPlayerRow(
             .padding(bottom = 8.dp),
         )
       }
-      Row(
-        modifier = Modifier.fillMaxHeight(),
-        verticalAlignment = Alignment.CenterVertically,
-      ) {
-        PlayerCard(
-          player = userPlayerData(state, userIcon),
-          timerMain = "",
-          timerExtra = "",
-          timerPercent = 0,
-          timerFaded = false,
-          timerShown = false,
-          onUserClicked = {},
-          onGameDetailsClicked = {},
-          localAvatarRes = R.mipmap.placeholder,
+      UserPlayerRowContent(
+        state = state,
+        userIcon = userIcon,
+        evalVisible = evalVisible,
+        onToggleEvalVisible = onToggleEvalVisible,
+        modifier = Modifier.weight(1f),
+      )
+    }
+  }
+}
+
+@Composable
+private fun UserPlayerRowContent(
+  state: AiGameState,
+  userIcon: String?,
+  evalVisible: Boolean,
+  onToggleEvalVisible: () -> Unit,
+  modifier: Modifier = Modifier,
+  avatarSize: Dp = PlayerCardMaxHeight,
+) {
+  Row(
+    modifier = modifier,
+    verticalAlignment = Alignment.CenterVertically,
+  ) {
+    PlayerCard(
+      player = userPlayerData(state, userIcon),
+      timerMain = "",
+      timerExtra = "",
+      timerPercent = 0,
+      timerFaded = false,
+      timerShown = false,
+      onUserClicked = {},
+      onGameDetailsClicked = {},
+      localAvatarRes = R.mipmap.placeholder,
+      modifier = Modifier
+        .weight(1f)
+        // +24dp compensates for the vertical padding below, so avatarSize is the actual
+        // rendered avatar size, matching AiPlayerRowContent's (padding-less) avatar exactly.
+        .heightIn(max = avatarSize + 24.dp)
+        .padding(vertical = 12.dp),
+    )
+    Button(
+      onClick = onToggleEvalVisible,
+      contentPadding = PaddingValues(horizontal = 12.dp, vertical = 2.dp),
+      shape = MaterialTheme.shapes.small,
+      modifier = Modifier.padding(end = 16.dp),
+    ) {
+      Text(
+        text = stringResource(
+          if (evalVisible) R.string.ai_game_hide_eval else R.string.ai_game_show_eval
+        ),
+        style = MaterialTheme.typography.labelMedium,
+      )
+    }
+  }
+}
+
+@Composable
+private fun AiGameLandscapePanel(
+  state: AiGameState,
+  userIcon: String?,
+  evalVisible: Boolean,
+  onToggleEvalVisible: () -> Unit,
+  onUserAskedForHint: () -> Unit,
+  onUserAskedForOwnership: () -> Unit,
+  modifier: Modifier = Modifier,
+) {
+  val scoreLead = state.aiAnalysis?.rootInfo?.scoreLead ?: state.aiQuickEstimation?.scoreLead
+  val winrate = state.aiAnalysis?.rootInfo?.winrate ?: state.aiQuickEstimation?.winrate
+
+  OutlinedCard(
+    modifier = modifier,
+    border = CardDefaults.outlinedCardBorder(enabled = false),
+    colors = CardDefaults.outlinedCardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLowest)
+  ) {
+    Column(modifier = Modifier.fillMaxHeight()) {
+      AiPlayerRowContent(
+        state = state,
+        onUserAskedForHint = onUserAskedForHint,
+        onUserAskedForOwnership = onUserAskedForOwnership,
+        modifier = Modifier.padding(top = 8.dp, bottom = 4.dp),
+        avatarSize = LandscapeAvatarSize,
+      )
+      AiChatBox(
+        text = when {
+          state.engineFailedToStart -> state.chatText?.resolve()
+          !state.isGameReady -> stringResource(R.string.ai_game_chat_engine_starting)
+          else -> state.chatText?.resolve()
+        },
+        modifier = Modifier
+          .fillMaxWidth()
+          .weight(1f)
+          .padding(start = 12.dp, end = 12.dp, bottom = 4.dp)
+      )
+      if (evalVisible) {
+        AnalysisPanel(
+          scoreLead = scoreLead,
+          winrate = winrate,
           modifier = Modifier
-            .weight(1f)
-            .padding(vertical = 12.dp),
+            .fillMaxWidth()
+            .padding(bottom = 4.dp),
         )
-        Button(
-          onClick = onToggleEvalVisible,
-          contentPadding = PaddingValues(horizontal = 12.dp, vertical = 2.dp),
-          shape = MaterialTheme.shapes.small,
-          modifier = Modifier.padding(end = 16.dp),
-        ) {
-          Text(
-            text = stringResource(
-              if (evalVisible) R.string.ai_game_hide_eval else R.string.ai_game_show_eval
-            ),
-            style = MaterialTheme.typography.labelMedium,
-          )
-        }
       }
+      UserPlayerRowContent(
+        state = state,
+        userIcon = userIcon,
+        evalVisible = evalVisible,
+        onToggleEvalVisible = onToggleEvalVisible,
+        avatarSize = LandscapeAvatarSize,
+      )
     }
   }
 }

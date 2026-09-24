@@ -245,7 +245,7 @@ fun AiGameUiScreenshotNoAnalysisButtons() {
 }
 
 @PreviewTest
-@Preview(name = "AI game - landscape", widthDp = 800, heightDp = 360, showBackground = true)
+@Preview(name = "AI game - landscape", widthDp = 800, heightDp = 400, showBackground = true)
 @Composable
 fun AiGameUiScreenshotLandscape() {
   OnlineGoPreviewTheme(darkTheme = false) {
