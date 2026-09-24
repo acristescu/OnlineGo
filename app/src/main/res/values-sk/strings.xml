@@ -8,7 +8,6 @@
     <string name="ai_game_chat_game_over_player_won">Hra skončila dvojitým passom. Výsledne skóre je čierny %1$s bodov a biely %2$s bodov. Gratulujem, vyzerá to, že ste boli lepší než ja.</string>
     <string name="ai_game_next">Ďalší</string>
     <string name="hint">Nápoveda</string>
-    <string name="black">čierny</string>
     <string name="Black">Čierny</string>
     <string name="difficulty">Obtiažnosť</string>
     <string name="ai_game_difficulty_dan">%1$d dan</string>
