@@ -1,6 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="app_name">Sente - Online GO</string>
     <string name="welcome_to_sente_online_go">Vitajte v Sente Online Go!</string>
     <string name="ai_game_chat_ready">Pripravený!</string>
     <string name="ai_game_chat_hmmm">Hmmm…</string>
+    <string name="ai_game_chat_ai_passed">Pass. Váš ťah!</string>
+    <string name="ai_game_chat_game_over_player_won">Hra skončila dvojitým passom. Výsledne skóre je čierny %1$s bodov a biely %2$s bodov. Gratulujem, vyzerá to, že ste boli lepší než ja.</string>
+    <string name="ai_game_next">Ďalší</string>
+    <string name="hint">Nápoveda</string>
+    <string name="black">čierny</string>
+    <string name="Black">Čierny</string>
+    <string name="difficulty">Obtiažnosť</string>
+    <string name="ai_game_difficulty_dan">%1$d dan</string>
+    <string name="home_app_open_source_message">Táto aplikácia je open source, komunitou supportovaný frontend pre OGS (online-go.com) web stránku. Môžete prehliadať tutoriály a hrať proti AI, ale väčšina funkcií vyžaduje bezplatný OGS účet.</string>
+    <string name="face_to_face_ko_dialog_title">Zakázaný KO ťah</string>
+    <string name="face_to_face_new_game_size">Veľkosť</string>
+    <string name="face_to_face_start_new_game">ZAČAŤ NOVÚ HRU</string>
+    <string name="face_to_face_button_new_game">Nová hra</string>
+    <string name="face_to_face_button_estimate_score">Odhadnúť skóre</string>
+    <string name="face_to_face_button_previous">Predošlý</string>
+    <string name="face_to_face_button_next">Ďalší</string>
+    <string name="game_request_undo_dialog_confirm">POŽIADAŤ VRÁTENIE ŤAHU</string>
 </resources>
