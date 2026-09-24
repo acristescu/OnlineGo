@@ -1,48 +1,15 @@
-format_version: '5'
+format_version: '25'
 default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
 project_type: android
-trigger_map:
-  - push_branch: master
-    workflow: primary
-  - push_branch: release
-    workflow: deploy
-  - pull_request_source_branch:
-      regex: "/^(?!.*l10n_master).*/"
-    workflow: primary
 workflows:
   deploy:
+    triggers:
+      push:
+        - branch: "release"
     description: |
       ## How to get a signed APK
+      Deploy to play store
 
-      This workflow contains the **Sign APK** step. To sign your APK all you have to do is to:
-
-      1. Click on **Code Signing** tab
-      1. Find the **ANDROID KEYSTORE FILE** section
-      1. Click or drop your file on the upload file field
-      1. Fill the displayed 3 input fields:
-       1. **Keystore password**
-       1. **Keystore alias**
-       1. **Private key password**
-      1. Click on **[Save metadata]** button
-
-      That's it! From now on, **Sign APK** step will receive your uploaded files.
-
-      ## To run this workflow
-
-      If you want to run this workflow manually:
-
-      1. Open the app's build list page
-      2. Click on **[Start/Schedule a Build]** button
-      3. Select **deploy** in **Workflow** dropdown input
-      4. Click **[Start Build]** button
-
-      Or if you need this workflow to be started by a GIT event:
-
-      1. Click on **Triggers** tab
-      2. Setup your desired event (push/tag/pull) and select **deploy** workflow
-      3. Click on **[Done]** and then **[Save]** buttons
-
-      The next change in your repository that matches any of your trigger map event will start **deploy** workflow.
     steps:
       - activate-ssh-key@4.1:
           run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
@@ -52,8 +19,8 @@ workflows:
       - script@1:
           inputs:
             - content: sdkmanager "cmake;3.31.6"
-      - git-clone@6.2: { }
-      - cache-pull@2.7: { }
+      - git-clone@6.2: {}
+      - cache-pull@2.7: {}
       - file-downloader@1.1:
           inputs:
             - destination: "$BITRISE_SOURCE_DIR/app/google-services.json"
@@ -106,9 +73,14 @@ workflows:
             - track: production
             - app_path: "$BITRISE_SIGNED_AAB_PATH"
             - service_account_json_key_path: "$BITRISEIO_SERVICE_ACCOUNT_JSON_KEY_URL_URL"
-      - deploy-to-bitrise-io@2.0: { }
-      - cache-push@2.7: { }
+      - deploy-to-bitrise-io@2.0: {}
+      - cache-push@2.7: {}
   primary:
+    triggers:
+      push:
+        - branch: "master"
+      pull_request:
+        - source_branch: "/^(?!.*l10n_master).*/"
     steps:
       - activate-ssh-key@4.1:
           run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
@@ -118,8 +90,8 @@ workflows:
       - script@1:
           inputs:
             - content: sdkmanager "cmake;3.10.2.4988404"
-      - git-clone@6.2: { }
-      - cache-pull@2.7: { }
+      - git-clone@6.2: {}
+      - cache-pull@2.7: {}
       - file-downloader@1.1:
           inputs:
             - destination: "$BITRISE_SOURCE_DIR/app/google-services.json"
@@ -132,8 +104,8 @@ workflows:
             - project_location: "$PROJECT_LOCATION"
             - module: "$MODULE"
             - variant: "$TEST_VARIANT"
-      - deploy-to-bitrise-io@2.0: { }
-      - cache-push@2.7: { }
+      - deploy-to-bitrise-io@2.0: {}
+      - cache-push@2.7: {}
 app:
   envs:
     - opts:
