@@ -24,8 +24,6 @@
     <string name="ai_game_chat_game_over_computing_score">La partie est terminée car les deux joueurs ont passé leur tour. Un moment, je calcule le score final.</string>
     <string name="ai_game_chat_resign_offer">Je crois que j\'ai perdu cette fois...</string>
     <string name="ai_game_chat_ai_resigned">J\'abandonne, tu as gagné ! Bien joué.</string>
-    <string name="ai_resign_offer_title">KataGO souhaite abandonner</string>
-    <string name="ai_resign_offer_message">KataGO estime que la partie est perdue et souhaite abandonner. Acceptez-vous?</string>
     <string name="ai_resign_offer_accept">Accepter l\'abandon</string>
     <string name="ai_resign_offer_decline">Continuer à jouer</string>
     <string name="ai_game_handicap_none">aucun</string>
@@ -49,10 +47,6 @@
     <string name="you">"Vous"</string>
     <string name="prisoners">Prisonniers </string>
     <string name="komi">Komi</string>
-    <string name="white">blanc</string>
-    <string name="black">noir</string>
-    <string name="score_prediction_leads_by">Prédiction du score: %1$s gagne de %2$s points</string>
-    <string name="white_s_chance_to_win">Probabilité de victoire des blancs: %1$s%%</string>
     <string name="new_game">Nouvelle partie</string>
     <string name="board_size">Taille du plateau</string>
     <string name="you_play">A vous de jouer</string>
