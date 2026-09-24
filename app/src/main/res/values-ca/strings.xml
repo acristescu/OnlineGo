@@ -584,7 +584,7 @@ De vegades, la millor opció és jugar en un altre lloc. D'això se'n sol dir te
     <string name="tutorial_basics_title">Conceptes bàsics</string>
     <string name="tutorial_basics_thebasics_title">Els fonaments</string>
     <string name="tutorial_basics_thebasics_basic1_text"><![CDATA[Recordeu si us plau les 3 regles següents:
-1.  Les negres i les blanques s'alternen per col·locar "pedres" al tauler
+1.  Les negres i les blanques s\'alternen per col·locar "pedres" al tauler
 2. Les pedres es col·loquen a la intersecció de les línies.
 3. Un com col·locada la pedra no es pot moure mai, però pot ser capturada.
 Col·loqueu una pedra per continuar!]]></string>
@@ -604,11 +604,11 @@ Col·loqueu una pedra per continuar!]]></string>
     <string name="tutorial_basics_capturingstones_capture9_text"><![CDATA["És difícil escapar amb les pedres a la vora. Captureu les dues pedres blanques de la primera línia!"]]></string>
     <string name="tutorial_basics_capturingstones_capture10_text">Massa pedres! Busqueu les pedres que són en Atari i captureu-les. Si us equivoqueu, en comptes d\'això, seran les vostres pedres les que seran capturades.</string>
     <string name="tutorial_basics_doubleatari_title">Doble Atari</string>
-    <string name="tutorial_basics_doubleatari_doubleAtari1_text"><![CDATA[En algunes posicions, les negres poden deixar a l'hora dos grups diferents de pedres blanques en atari. Les negres normalment en capturaran al menys un!]]></string>
+    <string name="tutorial_basics_doubleatari_doubleAtari1_text"><![CDATA[En algunes posicions, les negres poden deixar a l\'hora dos grups diferents de pedres blanques en atari. Les negres normalment en capturaran al menys un!]]></string>
     <string name="tutorial_basics_doubleatari_doubleAtari2_text"><![CDATA["Aquí n'hi ha un altre. On podeu fer un doble Atari?"]]></string>
     <string name="tutorial_basics_illegalmoves_title">Jugades il·legals (la regla del suïcidi)</string>
     <string name="tutorial_basics_illegalmoves_suicide1_page_1_text">Podeu jugar gairebé a qualsevol lloc del tauler, amb algunes excepcions. En l\'exemple següent, les negres no poden jugar a A, ja que la nova pedra ja estaria envoltada.</string>
-    <string name="tutorial_basics_illegalmoves_suicide1_page_2_text"><![CDATA[D'això se'n diu una jugada de «suïcidi» i està prohibida.]]></string>
+    <string name="tutorial_basics_illegalmoves_suicide1_page_2_text"><![CDATA[D\'això se\'n diu una jugada de «suïcidi» i està prohibida.]]></string>
     <string name="tutorial_basics_illegalmoves_suicide1_page_3_text">Tot i això, hi ha una excepció. Si una jugada en aquest punt capturés una o més pedres blanques (com l\'exemple B de sota), la jugada està permesa.</string>
     <string name="tutorial_basics_illegalmoves_suicide1_page_4_text">La posició resultant queda així:</string>
     <string name="tutorial_basics_illegalmoves_suicide2_text"><![CDATA["Us torna a tocar capturar algunes pedres! Pista: d'entrada pot semblar que és una jugada il·legal..."]]></string>
