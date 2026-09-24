@@ -9,6 +9,7 @@
     <string name="ai_game_chat_ready">Gata!</string>
     <string name="ai_game_chat_use_new_game_button">Folosește butonul „Joc nou” pentru a începe un joc nou</string>
     <string name="ai_game_chat_engine_error">Eroare la pornirea KataGO: „%1$s”</string>
+    <string name="ai_game_chat_engine_starting">Pornesc programul AI, te rog așteaptă…</string>
     <string name="ai_game_chat_invalid_move">Mutare invalidă, încearcă din nou</string>
     <string name="ai_game_chat_lets_try_again">OK, hai să încercăm din nou. E rândul tău!</string>
     <string name="ai_game_chat_hmmm">Hmmm…</string>
@@ -24,6 +25,8 @@
     <string name="ai_game_chat_game_over_computing_score">Jocul s-a încheiat pentru că amândoi am pasat. O clipă, calculez scorul final.</string>
     <string name="ai_game_chat_resign_offer">Cred că am pierdut de data asta…</string>
     <string name="ai_game_chat_ai_resigned">Mă dau bătut. Felicitări!</string>
+    <string name="ai_resign_offer_title">Cred că am pierdut de data asta</string>
+    <string name="ai_resign_offer_message">Vreau să cedez. Accepți sau vrei să continuam jocul?</string>
     <string name="ai_resign_offer_accept">Acceptă</string>
     <string name="ai_resign_offer_decline">Continuă jocul</string>
     <string name="ai_game_handicap_none">niciun</string>
@@ -47,6 +50,12 @@
     <string name="you">" Tu"</string>
     <string name="prisoners">Prizonieri</string>
     <string name="komi">Komi</string>
+    <string name="ai_game_player_captures_and_komi">Prizonieri: %1$d · Komi: %2$s</string>
+    <string name="ai_game_player_captures_only">Prizonieri: %1$d</string>
+    <string name="ai_game_eval_winrate_compact">N %1$.1f%% · %2$.1f%% W</string>
+    <string name="ai_game_eval_score_lead_compact">%1$s +%2$.1f pct avantaj</string>
+    <string name="ai_game_hide_eval">Ascunde Eval</string>
+    <string name="ai_game_show_eval">Arată Eval</string>
     <string name="new_game">Joc nou</string>
     <string name="board_size">Mărimea tablei</string>
     <string name="you_play">Tu joci</string>
