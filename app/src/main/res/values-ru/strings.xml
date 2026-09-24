@@ -43,10 +43,6 @@
     <string name="you">" Ты"</string>
     <string name="prisoners">Пленные</string>
     <string name="komi">Коми</string>
-    <string name="white">белые</string>
-    <string name="black">чёрные</string>
-    <string name="score_prediction_leads_by">Прогноз счёта: %1$s обыгрывает %2$s</string>
-    <string name="white_s_chance_to_win">Шанс белых на победу: %1$s%%</string>
     <string name="new_game">Новая игра</string>
     <string name="board_size">Размер доски</string>
     <string name="you_play">Вы играете</string>

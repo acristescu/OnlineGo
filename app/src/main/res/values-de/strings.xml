@@ -23,8 +23,6 @@
     <string name="ai_game_chat_game_over_computing_score">Das Spiel ist zu Ende, weil zweimal gepasst wurde. Moment, ich berechne das Endergebnis.</string>
     <string name="ai_game_chat_resign_offer">Ich denke, diese Runde habe ich verloren ...</string>
     <string name="ai_game_chat_ai_resigned">Ich gebe auf, du hast gewonnen! Gut gespielt.</string>
-    <string name="ai_resign_offer_title">KataGO möchte aufgeben</string>
-    <string name="ai_resign_offer_message">KataGO glaubt das Spiel verloren zu haben und möchte aufgeben. Nimmst du an?</string>
     <string name="ai_resign_offer_accept">Aufgabe annehmen</string>
     <string name="ai_resign_offer_decline">Weiterspielen</string>
     <string name="ai_game_handicap_none">ohne</string>
@@ -48,10 +46,6 @@
     <string name="you">" Du"</string>
     <string name="prisoners">Gefangene</string>
     <string name="komi">Komi</string>
-    <string name="white">Weiß</string>
-    <string name="black">Schwarz</string>
-    <string name="score_prediction_leads_by">Punkte Voraussage: %1$s führt mit %2$s Punkten</string>
-    <string name="white_s_chance_to_win">Weiß Chance zu gewinnen liegt bei: %1$s%%</string>
     <string name="new_game">Neues Spiel</string>
     <string name="board_size">Brettgröße</string>
     <string name="you_play">Du bist am Zug</string>

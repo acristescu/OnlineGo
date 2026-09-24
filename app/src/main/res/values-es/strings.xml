@@ -18,9 +18,14 @@
     <string name="ai_game_chat_territories">Creo que los territorios se ven así</string>
     <string name="ai_game_chat_im_thinking">Pensando…</string>
     <string name="ai_game_chat_your_turn">Tu turno</string>
+    <string name="ai_game_chat_ai_passed">Paso. ¡Es tu turno!</string>
     <string name="ai_game_chat_game_over_ai_won">La partida terminó por hacer dos pases consecutivos. Puntaje final: Negro %1$s, Blanco: %2$s. Parece que gané.</string>
     <string name="ai_game_chat_game_over_player_won">La partida terminó por hacer dos pases consecutivos. Puntaje final: Negro %1$s, Blanco: %2$s. Felicitaciones, me ganaste.</string>
     <string name="ai_game_chat_game_over_computing_score">La partida terminó por hacer dos pases consecutivos. Estoy calculando el puntaje final.</string>
+    <string name="ai_game_chat_resign_offer">Creo que esta vez he perdido...</string>
+    <string name="ai_game_chat_ai_resigned">Me rindo, ¡tú ganas! Bien jugado.</string>
+    <string name="ai_resign_offer_accept">Aceptar Rendición</string>
+    <string name="ai_resign_offer_decline">Continuar Jugando</string>
     <string name="ai_game_handicap_none">ninguno</string>
     <string name="ai_game_handicap_no_komi">sin komi</string>
     <string name="ai_game_avatar_content_description">IA</string>
@@ -42,10 +47,6 @@
     <string name="you">" Tú"</string>
     <string name="prisoners">Prisioneras</string>
     <string name="komi">Komi</string>
-    <string name="white">blanco</string>
-    <string name="black">negro</string>
-    <string name="score_prediction_leads_by">Predicción de puntaje: %1$s lidera por %2$s</string>
-    <string name="white_s_chance_to_win">Probabilidad de ganar de blanco: %1$s%%</string>
     <string name="new_game">Nuevo juego</string>
     <string name="board_size">Tamaño del tablero</string>
     <string name="you_play">Tu turno</string>
@@ -81,6 +82,8 @@
     <string name="bottomnavigation_botton_learn">Aprender</string>
     <string name="bottomnavigation_botton_stats">Estadísticas</string>
     <string name="bottomnavigation_botton_settings">Opciones</string>
+    <string name="stats_login_required_title">Inicia sesión para ver las estadísticas</string>
+    <string name="stats_login_required_message">Las estadísticas solo están disponibles si has iniciado sesión en OGS.</string>
     <string name="home_welcome_to_sente">¡Bienvenido a Sente!</string>
     <string name="home_app_open_source_message">Esta aplicación es una interfaz de código abierto, con soporte de la comunidad, para el sitio web OGS (online-go.com). Puedes explorar los tutoriales y jugar contra la IA, pero la mayoría de las funciones requieren una cuenta gratuita de OGS.</string>
     <string name="home_button_login_ogs">Ingresar en OGS</string>
@@ -161,18 +164,424 @@
     <string name="game_cancel_dialog_message">¿Estás seguro de cancelar el juego?</string>
     <string name="game_cancel_dialog_confirm">Cancelar Juego</string>
     <string name="game_cancel_dialog_dismiss">NO CANCELES LA PARTIDA</string>
+    <string name="game_info_ranked">Con Clasificación</string>
+    <string name="game_info_unranked">Sin Clasificación</string>
+    <string name="game_info_unknown_player">¿\?</string>
+    <string name="game_info_versus_separator">"      contra      "</string>
+    <string name="game_info_score">Puntaje</string>
     <string name="game_info_time">Tiempo</string>
     <string name="game_info_score_komi">komi</string>
+    <string name="game_info_score_handicap">hándicap</string>
+    <string name="game_info_score_prisoners">prisioneros</string>
     <string name="game_info_score_stones">piedras</string>
     <string name="game_info_score_territory">territorio</string>
     <string name="game_info_score_total">total</string>
+    <string name="game_over_cancelled">EL JUEGO HA SIDO CANCELADO</string>
     <string name="game_over_won">FELICITACIONES\nHAZ GANADO</string>
     <string name="game_over_lost">PERDISTE</string>
     <string name="game_over_view_board">VER TABLERO</string>
     <string name="game_over_next_game">PROXIMO JUEGO</string>
     <string name="game_over_quick_replay">REPLAY RÁPIDO</string>
+    <string name="game_over_resignation">%1$s se ha rendido en la jugada %2$d</string>
+    <string name="game_over_points">%1$s tiene %2$s puntos más</string>
+    <string name="game_over_timeout">A %1$s se le agotó el tiempo.</string>
+    <string name="game_over_cancellation">%1$s ha cancelado el juego.</string>
+    <string name="game_over_disconnection">%1$s se ha desconectado.</string>
+    <string name="game_over_unknown_result">Resultado desconocido (%1$s)</string>
+    <string name="game_over_rating_updating">Tu calificación se está actualizando</string>
+    <string name="game_over_rating_now">Tu clasificación ahora es %1$s - %2$s</string>
+    <string name="game_over_rating_change">" (%1$s)"</string>
+    <string name="game_retry_dialog_title">PROBEMS DE CONECCIÓN</string>
+    <string name="game_retry_dialog_message">El servidor no está respondiendo. Por favor, comprueba tu conexión a Internet.</string>
+    <string name="game_retry_dialog_confirm">REINTENTAR</string>
+    <string name="game_chat_move_header">Jugada %1$d</string>
+    <string name="game_chat_type_a_message">Escribe un mensaje…</string>
+    <string name="game_chat_send_content_description">Enviar</string>
+    <string name="game_player_details_rank_rating">%1$s (%2$s)</string>
+    <string name="game_player_details_highest_rank">Clasificación más alta</string>
+    <string name="game_player_details_percentile">Percentil</string>
     <string name="game_player_details_percentage">%1$d%%</string>
+    <string name="game_player_details_played_vs_you">Jugada contra ti</string>
+    <string name="game_player_details_you_won">Has Ganado</string>
+    <string name="game_player_details_they_won">Te han ganado</string>
+    <string name="game_player_details_ranked_games">Partidas Clasificadas</string>
+    <string name="game_player_details_wins">Victorias</string>
+    <string name="game_player_details_losses">Derrotas</string>
+    <string name="game_player_details_total">Total</string>
+    <plurals name="duration_weeks">
+        <item quantity="one">%d semana</item>
+        <item quantity="other">%d semanas</item>
+    </plurals>
+    <plurals name="duration_days">
+        <item quantity="one">%d día</item>
+        <item quantity="other">%d días</item>
+    </plurals>
+    <plurals name="duration_hours">
+        <item quantity="one">%d hora</item>
+        <item quantity="other">%d horas</item>
+    </plurals>
+    <plurals name="duration_minutes">
+        <item quantity="one">%d minuto</item>
+        <item quantity="other">%d minutos</item>
+    </plurals>
+    <plurals name="duration_seconds">
+        <item quantity="one">%d segundo</item>
+        <item quantity="other">%d segundos</item>
+    </plurals>
+    <string name="duration_two_units">%1$s%2$s</string>
+    <string name="duration_unknown">¿\?</string>
+    <string name="time_control_simple">Simple: %1$s por movimiento.</string>
+    <string name="time_control_fischer">Fischer: El reloj comienza con %1$s e incrementa por %2$s por movimiento hasta un máximo de %3$s.</string>
+    <plurals name="time_control_byoyomi">
+        <item quantity="one">Japoneses Byo-Yomi: El reloj comienza con %1$s hora principal, seguido por %2$d período de %3$s.</item>
+        <item quantity="other">Japoneses Byo-Yomi: El reloj comienza con %1$s hora principal, seguido por %2$d períodos de %3$s cada uno.</item>
+    </plurals>
+    <plurals name="time_control_canadian">
+        <item quantity="one">Canadiense Byo-Yomi: El reloj comienza con %1$s vez principal, seguido por %2$s por %3$d piedra.</item>
+        <item quantity="other">Byo-Yomi canadiense: El reloj comienza con %1$s hora principal, seguido por %2$s por %3$d piedras.</item>
+    </plurals>
+    <string name="time_control_absolute">Absoluto: %1$s tiempo total de juego por jugador.</string>
+    <string name="time_control_none">Sin límite de tiempo.</string>
+    <string name="time_control_unknown">\?</string>
+    <string name="time_control_pauses_on_weekends">" Pausas los fines de semana."</string>
+    <string name="whats_new_title">Novedades</string>
+    <string name="whats_new_got_it">Entendido</string>
+    <string name="whats_new_open_source">Sente es de código abierto, construido por voluntarios.</string>
+    <string name="whats_new_support_project">Apoyar el proyecto</string>
+    <string name="settings_delete_account_success">Cuenta eliminada. ¡Sentimos verte marchar! La aplicación se cerrará en 5s.</string>
+    <string name="settings_delete_account_wrong_password">Contraseña incorrecta</string>
+    <string name="onboarding_login_invalid_credentials">Nombre de usuario o contraseña no válida.</string>
+    <string name="onboarding_login_failed_debug">Error al iniciar sesión. Debug info: \'%1$s\'</string>
+    <string name="onboarding_create_account_failed_debug">Error al crear la cuenta. Debug info: \'%1$s\'</string>
+    <string name="onboarding_server_error_code">Error al comunicarse con el servidor. El servidor informó del código de error %1$s. Inténtalo de nuevo más tarde</string>
+    <string name="onboarding_google_signin_failed">signInResult:failed code=%1$d</string>
+    <string name="tutorial_retry">REINTENTAR</string>
+    <string name="tutorial_next">SIGIENTE</string>
+    <string name="tutorial_nice_one">¡Bien hecho!</string>
+    <string name="socket_debug_title">Socket Debug</string>
+    <string name="socket_debug_clear_log_content_description">Limpiar registro</string>
+    <string name="socket_debug_clear_content_description">Limpiar</string>
+    <string name="socket_debug_filter_hint">Filtrar eventos</string>
+    <string name="socket_debug_filter_all">Todas (%1$d)</string>
+    <string name="socket_debug_filter_type">%1$s (%2$d)</string>
+    <plurals name="socket_debug_event_count">
+        <item quantity="one">%d evento</item>
+        <item quantity="other">%d eventos</item>
+    </plurals>
+    <string name="notification_challenge_title">¡Un nuevo desafío!</string>
+    <string name="notification_challenge_text">%1$s ha emitido un desafío</string>
+    <string name="notification_game_ended">Juego finalizado - %1$s</string>
+    <string name="notification_outcome_cancelled">Cancelado</string>
+    <string name="notification_outcome_lost_by">Perdido por %1$s</string>
+    <string name="notification_outcome_won_by">Ganado por %1$s</string>
+    <string name="notification_outcome_black_won_by">Negro ganado por %1$s</string>
+    <string name="notification_outcome_white_won_by">Blanco ganado por %1$s</string>
+    <string name="notification_your_turn">Tu turno</string>
+    <string name="notification_stone_removal_phase">Fase de eliminación de piedra</string>
+    <string name="notification_requires_attention">%1$s requiere tu atención</string>
+    <plurals name="notification_games_require_attention">
+        <item quantity="one">%d requiere tu atención</item>
+        <item quantity="other">%d partidas requieren tu atención</item>
+    </plurals>
+    <string name="notification_inbox_versus">vs %1$s</string>
+    <string name="notification_logout_title">Por favor inicia sesión de nuevo</string>
+    <string name="notification_logout_text">Has cerrado la sesión de la aplicación. Esto suele ocurrir porque cambiaste tu contraseña. Por favor, inicia sesión de nuevo para volver a habilitar las notificaciones</string>
+    <string name="notification_channel_group_your_turn">Tu turno</string>
+    <string name="notification_channel_correspondence_games">Partidas por correspondencia</string>
+    <string name="notification_channel_live_games">Partidas en vivo</string>
+    <string name="notification_channel_blitz_games">Juegos Blitz</string>
+    <string name="notification_channel_your_turn">Tu turno</string>
+    <string name="notification_channel_challenges">Retos</string>
+    <string name="notification_channel_logout">Cerrar sesión</string>
+    <string name="settings_become_a_supporter">Conviértete en patrocinador</string>
+    <string name="settings_become_a_supporter_description">Conviértete en patrocinador</string>
+    <string name="settings_section_language">Idioma</string>
+    <string name="settings_language">Idioma</string>
+    <string name="settings_help_translate">Ayuda a traducir Sente</string>
+    <string name="settings_section_notifications">Notificaciones</string>
+    <string name="settings_system_notifications">Notificaciones del sistema</string>
+    <string name="settings_stone_sounds">Sonidos de piedras</string>
+    <string name="settings_section_appearance">Apariencia</string>
+    <string name="settings_theme">Tema</string>
+    <string name="settings_board_style">Estilo del tablero</string>
+    <string name="settings_section_game_settings">Ajustes del juego</string>
+    <string name="settings_show_coordinates">Mostrar coordenadas</string>
+    <string name="settings_show_player_ranks">Mostrar rango de los jugadores</string>
+    <string name="settings_section_account">Cuenta</string>
+    <string name="settings_logout">Cerrar sesión</string>
+    <string name="settings_delete_account">Eliminar cuenta</string>
+    <string name="settings_section_about">Acerca de</string>
+    <string name="settings_whats_new">Novedades</string>
+    <string name="settings_section_legal">Aspectos legales</string>
+    <string name="settings_privacy_policy">Política de privacidad</string>
+    <string name="settings_section_debug">Depuración</string>
+    <string name="settings_socket_debug">Socket Debug</string>
+    <string name="settings_review_prompt">Aviso de revisión</string>
+    <string name="settings_build_version">Build no. %1$d</string>
+    <string name="settings_theme_system_default">Sistema por defecto</string>
+    <string name="settings_theme_light">Claro</string>
+    <string name="settings_theme_dark">Oscuro</string>
+    <string name="settings_board_style_light_wood">Madera clara</string>
+    <string name="settings_board_style_dark_wood">Madera oscura</string>
+    <string name="settings_board_style_cyan">Cian</string>
+    <string name="settings_board_style_dark_blue">Azul oscuro</string>
+    <string name="settings_board_style_book">Libro</string>
+    <string name="settings_board_style_nocturne">Nocturno</string>
+    <string name="settings_logout_dialog_title">Cerrar sesión</string>
+    <string name="settings_logout_dialog_message">¿Seguro que quieres cerrar la sesión?</string>
+    <string name="settings_logout_dialog_confirm">Cerrar sesión</string>
+    <string name="settings_delete_account_dialog_title">Eliminar cuenta</string>
+    <string name="settings_delete_account_message">Por favor, introduce tu contraseña para confirmar la eliminación de la cuenta</string>
+    <string name="settings_delete_account_password_hint">Contraseña</string>
+    <string name="settings_delete_account_confirm">ELIMINAR CUENTA</string>
+    <string name="settings_delete_account_cancel">CANCELAR</string>
+    <string name="settings_error_dialog_title">Error</string>
+    <string name="settings_review_flow_diagnostic_title">Revisar diagnóstico de flujo</string>
+    <string name="settings_review_flow_error_title">Revisar flujo de error</string>
+    <string name="settings_avatar_content_description">Avatar</string>
+    <string name="settings_icon_content_description">Icono</string>
+    <string name="supporter_title">Conviértete en patrocinador</string>
+    <string name="supporter_header">Soporta la aplicación Android</string>
+    <string name="supporter_intro">El proyecto comenzó en 2015 como una afición. Si bien existían excelentes servicios basados ​​en el navegador, no había aplicaciones móviles de calidad similar. El objetivo era crear una aplicación para Android gratuita y de código abierto (FOSS), desarrollada profesionalmente, que permitiera a los jugadores de Go interactuar y descubrir este maravilloso juego. \n\nNo estamos asociados con OGS, aunque amablemente nos permitieron utilizar sus servicios en línea de forma gratuita. \n\nDependemos del apoyo de personas como tú para hacerlo posible. Si disfrutas usando la aplicación, ¡considera apoyarnos con una contribución mensual y conviértete en colaborador!</string>
+    <string name="supporter_reason_develop_title">Ayúdanos a desarrollar la aplicación más rápido</string>
+    <string name="supporter_reason_develop_description">Los partidarios hacen que sea factible asignar más tiempo para el desarrollo de nuevas características como la integración AI de KataGo, análisis asistido, editor SGF, etc.</string>
+    <string name="supporter_reason_free_title">Mantener la aplicación libre</string>
+    <string name="supporter_reason_free_description">Queremos que la aplicación sea gratuita para todos. Para siempre. Gratis de anuncios, descargas gratuitas y sin suscripciones forzadas.</string>
+    <string name="supporter_reason_open_source_title">Soporte de código abierto</string>
+    <string name="supporter_reason_open_source_description">La aplicación es y siempre será de código abierto. Esto significa que puedes navegar por su código, contribuir con arreglos y características o estudiar cómo funciona.</string>
+    <string name="supporter_reason_promote_title">Promocionar GO</string>
+    <string name="supporter_reason_promote_description">Tener una aplicación Android desarrollada profesionalmente permite a más personas descubrir este increíble juego.</string>
+    <string name="supporter_faqs">Preguntas frecuentes</string>
+    <string name="supporter_faq_money_question">¿Para qué se utiliza el dinero?</string>
+    <string name="supporter_faq_money_answer">El dinero permite a nuestro desarrollador principal, que es un contratista profesional de Android, tomar tiempo libre entre contratos para trabajar en este proyecto. En el futuro, podría dedicar tiempo completo a mejorar la aplicación a un ritmo mucho más rápido.</string>
+    <string name="supporter_faq_features_question">¿Hay alguna característica exclusiva para promotores?</string>
+    <string name="supporter_faq_features_answer">No, porque creemos que todo el mundo debería tener acceso a una aplicación Android para GO realizada profesionalmente. El soporte es totalmente opcional.</string>
+    <string name="supporter_faq_cancel_question">¿Puedo cambiar o cancelar mi suscripción?</string>
+    <string name="supporter_faq_cancel_answer">Sí, en cualquier momento, ya sea desde esta página o desde la página de \"Suscripciones\" de Google Play.</string>
+    <string name="supporter_faq_payment_question">¿Existen otras formas de pago?</string>
+    <string name="supporter_faq_payment_answer">Las aplicaciones distribuidas a través de Google Play están obligadas a utilizar Google Pay, ya que Google cobra el 15% de los ingresos. No se nos permite ofrecer ningún medio alternativo de pago en app.</string>
+    <string name="supporter_thank_you_title">¡Gracias por su apoyo!</string>
+    <string name="supporter_current_contribution">"Tu contribución actual es "</string>
+    <string name="supporter_select_contribution">Seleccione su contribución mensual</string>
+    <string name="supporter_update_amount">Actualizar cantidad</string>
+    <string name="supporter_cancel_subscription">Cancelar suscripción</string>
+    <string name="stats_rank_elo">%1$s · ELO %2$s</string>
+    <string name="stats_ranked_games">partidas Clasificadas</string>
+    <string name="stats_win_rate">tasa de victorias</string>
+    <string name="stats_current_streak">racha actual</string>
+    <string name="stats_recent_results">resultados recientes</string>
+    <string name="stats_rating_over_games">Puntuación sobre partidas</string>
+    <string name="stats_rating_over_time">Clasificación en el tiempo</string>
+    <string name="stats_games_by_board_size">Partidas jugadas por tamaño de tablero</string>
+    <string name="stats_games_by_time_controls">Partidas jugadas por controles de tiempo</string>
+    <string name="stats_played">Jugado</string>
+    <string name="stats_win_ratio_by_board_size">Ratio de victorias por Tamaño de Tablero</string>
+    <string name="stats_win_ratio_by_time_controls">Ratio de victoria por Controles de Tiempo</string>
+    <string name="stats_win_ratio_by_colour">Ratio de victorias por color</string>
+    <string name="stats_board_9">9x9</string>
+    <string name="stats_board_13">13x13</string>
+    <string name="stats_board_19">19x19</string>
+    <string name="stats_blitz">Blitz</string>
+    <string name="stats_live">En directo</string>
+    <string name="stats_correspondence_short">Corresp.</string>
+    <string name="stats_correspondence">Correspondencia</string>
+    <string name="stats_all_games">Todas las partidas</string>
+    <string name="stats_black">Negro</string>
+    <string name="stats_white">Blanco</string>
+    <string name="stats_won_lost">%1$d ganadas · %2$d perdidas</string>
+    <string name="stats_no_streak">-</string>
+    <plurals name="stats_streak_wins">
+        <item quantity="one">%d victoria</item>
+        <item quantity="other">%d victorias</item>
+    </plurals>
+    <plurals name="stats_streak_losses">
+        <item quantity="one">%d derrota</item>
+        <item quantity="other">%d derrotas</item>
+    </plurals>
+    <string name="stats_no_ranked_games">No hay partidas clasificadas en el registro</string>
+    <string name="stats_filter_1m">1M</string>
+    <string name="stats_filter_3m">3M</string>
+    <string name="stats_filter_1y">1Y</string>
+    <string name="stats_filter_5y">5Y</string>
+    <string name="stats_filter_all">Todos</string>
+    <string name="stats_filter_last_20">Últimos 20</string>
+    <string name="stats_filter_last_100">Últimos 100</string>
+    <string name="stats_tooltip_elo_rank">%1$d ELO (%2$s)</string>
+    <string name="stats_tooltip_at_game">en la partida %1$d</string>
+    <string name="stats_tooltip_on_date">en %1$s</string>
+    <string name="stats_tooltip_delta_elo">%1$d ELO</string>
+    <string name="stats_tooltip_since_game">desde la partida %1$d</string>
+    <string name="stats_tooltip_since_date">desde %1$s</string>
+    <string name="puzzle_directory_title">Puzles</string>
+    <string name="puzzle_directory_recently_opened">Abiertos recientemente</string>
+    <string name="puzzle_directory_rating_count">(%1$s)</string>
+    <string name="puzzle_directory_by_author">por %1$s %2$s</string>
+    <string name="puzzle_directory_count_label">Contador</string>
+    <plurals name="puzzle_directory_puzzle_count">
+        <item quantity="one">%d puzle</item>
+        <item quantity="other">%d puzzles</item>
+    </plurals>
+    <string name="puzzle_directory_rank_label">Rango</string>
+    <string name="puzzle_directory_rank_range">%1$s a %2$s</string>
+    <string name="puzzle_directory_solved_label">Resuelto</string>
+    <string name="puzzle_directory_solved_value">%1$d (%2$.1f%%)</string>
+    <string name="puzzle_directory_completed">Completado</string>
+    <string name="puzzle_directory_stats">%1$s vistas, resuelto %2$s veces de %3$s (%4$s %%)</string>
+    <string name="puzzle_directory_sort_name">A -&gt; Z</string>
+    <string name="puzzle_directory_sort_rating">Clasificación</string>
+    <string name="puzzle_directory_sort_count">Recuento de puzzles</string>
+    <string name="puzzle_directory_sort_views">Visitas</string>
+    <string name="puzzle_directory_sort_rank">Rango</string>
+    <string name="tsumego_title">Tsumego</string>
+    <string name="tsumego_title_with_name">Tsumego: %1$s</string>
+    <string name="tsumego_board_content_description">Tablero</string>
+    <string name="tsumego_solved_content_description">Resuelto</string>
+    <string name="tsumego_previous">PREVIO</string>
+    <string name="tsumego_hint">PISTA</string>
+    <string name="tsumego_next">SIGUIENTE</string>
+    <string name="tsumego_retry">REINTENTAR</string>
+    <string name="tsumego_continue">CONTINUAR</string>
+    <string name="tsumego_done">LISTO</string>
+    <string name="onboarding_link_account">Vincular cuenta OGS</string>
+    <string name="onboarding_create_account">Crear cuenta OGS</string>
+    <string name="onboarding_login_failed_title">Error al iniciar sesión</string>
+    <string name="onboarding_stay_offline_title">¿Permanecer sin conexión?</string>
+    <string name="onboarding_stay_offline_message">Si eliges permanecer sin conexión, la mayoría de las características de las aplicaciones, como jugar en línea gratis contra otros robots humanos y en línea se desactivará hasta que inicie sesión o cree una cuenta. Todavía puedes jugar contra una IA local y hacer el tutorial. ¿Estás seguro?</string>
+    <string name="onboarding_stay_offline_confirm">Sí, permanecer sin conexión</string>
+    <string name="onboarding_continue">Continuar</string>
+    <string name="onboarding_page_go_title">El juego de GO</string>
+    <string name="onboarding_page_go_description">Go es un juego de mesa de estrategia para dos jugadores, en el que el objetivo es rodear más territorio que el oponente. El juego fue inventado en China hace más de 2.500 años y es el juego de mesa más antiguo aún jugado hoy en día. Se estima que más de 46 millones de personas saben cómo jugar.</string>
+    <string name="onboarding_page_app_title">Aplicación de GO Android online</string>
+    <string name="onboarding_page_app_description">Esta aplicación comenzó en 2015 como un proyecto personal de Alexandru Cristescu. Ahora es de código abierto, lo que significa que el código está disponible libremente para que todo el mundo pueda navegar y modificar. La aplicación es y siempre será gratuita. Las contribuciones son bienvenidas. Descubre cómo puedes ayudar en la página de GitHub del proyecto. Si la programación no es lo tuyo, puedes convertirte en un patrocinador mediante contribución mensual. O puedes disfrutar de la aplicación gratis, ¡la elección es totalmente tuya!</string>
+    <string name="onboarding_page_ogs_title">Servidor OGS</string>
+    <string name="onboarding_page_ogs_description">El servidor OGS es uno de los sitios web más populares para jugar al Go en línea. La aplicación para Android Online GO utiliza los servicios de OGS para permitir el juego en línea. Aunque no estamos asociados con OGS, contamos con su permiso para utilizar sus servicios. Para jugar, es necesario tener una cuenta gratuita de OGS; si aún no tienes una, podrás crearla en el siguiente paso.</string>
+    <string name="onboarding_question_has_account">¿Tienes ya una cuenta OGS (online-go.com)?</string>
+    <string name="onboarding_question_login_method">¿Qué método de inicio de sesión quieres usar?</string>
+    <string name="onboarding_answer_google">Inicio de sesión en Google</string>
+    <string name="onboarding_answer_password">Nombre de usuario y contraseña</string>
+    <string name="onboarding_answer_offline">Mantente sin conexión</string>
+    <string name="onboarding_notifications_title">Mantente al día</string>
+    <string name="onboarding_notifications_description">Nos gustaría enviarte notificaciones cuando sea tu turno de jugar, cuando terminen los juegos o cuando recibas mensajes. Siempre puedes cambiar esto más tarde en la configuración de tu dispositivo.</string>
+    <string name="onboarding_notifications_allow">Permitir notificaciones</string>
+    <string name="onboarding_notifications_skip">Saltar</string>
+    <string name="new_challenge_opponent">Oponente</string>
+    <string name="new_challenge_your_color">Tu color</string>
+    <string name="new_challenge_board_size">Tamaño del tablero</string>
+    <string name="new_challenge_analysis">Análisis</string>
+    <string name="new_challenge_speed">Velocidad</string>
+    <string name="new_challenge_ranked">Clasificatoria</string>
+    <string name="new_challenge_private">Privado</string>
+    <string name="new_challenge_send">Enviar Desafío</string>
+    <string name="new_challenge_select_opponent">[Seleccionar Oponente]</string>
+    <string name="select_opponent_tab_bot">Bot</string>
+    <string name="select_opponent_tab_recent">Reciente</string>
+    <string name="select_opponent_bots_title">Bots en línea</string>
+    <string name="select_opponent_bots_description">Los bots en línea son programas de IA gestionados y mantenidos por miembros de la comunidad a su cargo. 
+Jugar contra ellos requiere una conexión a internet activa.</string>
+    <string name="select_opponent_icon_content_description">Icono del oponente</string>
+    <string name="select_opponent_recent_title">Oponentes recientes</string>
+    <string name="select_opponent_recent_description">Esta es una selección de oponentes (tanto bots como jugadores reales) contra los que has jugado recientemente.</string>
+    <string name="select_opponent_search_hint">Buscar por nombre de usuario</string>
+    <string name="automatch_title">Emparejamiento automático</string>
+    <string name="automatch_description">Prueba tu mano en un juego contra un oponente humano de clasificación similar a ti.</string>
+    <string name="automatch_game_size">Tamaño del juego</string>
+    <string name="automatch_size_9">9x9</string>
+    <string name="automatch_size_13">13x13</string>
+    <string name="automatch_size_19">19x19</string>
+    <string name="automatch_time_controls">Controles de tiempo</string>
+    <string name="automatch_speed_blitz">Blitz</string>
+    <string name="automatch_speed_rapid">Veloz</string>
+    <string name="automatch_speed_live">En vivo</string>
+    <string name="automatch_speed_correspondence">Correspondencia</string>
+    <string name="automatch_or">o</string>
+    <string name="automatch_expected_duration">Duración esperada: %1$s</string>
+    <string name="automatch_duration_several_days">varios días</string>
+    <plurals name="automatch_duration_minutes">
+        <item quantity="one">%d minuto</item>
+        <item quantity="other">%d minutos</item>
+    </plurals>
+    <string name="automatch_duration_minutes_range">%1$s a %2$d minutos</string>
+    <string name="mygames_moderator_title">Moderator OGS %1$s</string>
+    <string name="mygames_empty_message">Mensaje vacío</string>
+    <string name="mygames_acknowledge">Confirmar</string>
+    <string name="mygames_acknowledge_countdown">Reconocer (%1$ds)</string>
+    <string name="mygames_header_your_turn">Tu turno</string>
+    <string name="mygames_header_challenges">Desafíos</string>
+    <string name="mygames_header_opponents_turn">Turno del oponente</string>
+    <string name="mygames_header_recently_finished">Terminados recientemente</string>
+    <string name="mygames_header_older_games">Partidas antiguas</string>
+    <string name="mygames_tutorial_percentage">%1$d %%</string>
+    <string name="mygames_learn_to_play">Aprende a jugar</string>
+    <string name="mygames_header_icon_content_description">Icono</string>
+    <string name="mygames_offline_content_description">Sin conexión</string>
+    <string name="mygames_avatar_content_description">Avatar</string>
+    <string name="mygames_searching_for_game">Buscando partida</string>
+    <string name="mygames_challenge_you_are_challenging">Estás desafiando %1$s</string>
+    <string name="mygames_challenge_is_challenging_you">%1$s te desafía</string>
+    <string name="mygames_accept">Aceptar</string>
+    <string name="mygames_decline">Rechazar</string>
+    <string name="mygames_see_details">Ver detalles</string>
+    <string name="mygames_challenge_received">¡Has recibido un desafío!</string>
+    <string name="mygames_paused">pausado</string>
+    <string name="mygames_outcome_cancelled">Cancelado</string>
+    <string name="mygames_outcome_lost">Perdidos</string>
+    <string name="mygames_outcome_won">Ganadas</string>
+    <string name="mygames_outcome_black_won">Ganaron las Negras</string>
+    <string name="mygames_outcome_white_won">Ganaron las Blancas</string>
+    <string name="mygames_outcome_annulled">Anulado</string>
+    <string name="mygames_outcome_lost_by">Perdido por %1$s</string>
+    <string name="mygames_outcome_won_by">Ganado por %1$s</string>
+    <string name="mygames_outcome_black_won_by">Negro ganó por %1$s</string>
+    <string name="mygames_outcome_white_won_by">Blanco ganó por %1$s</string>
+    <string name="mygames_greeting">Hi %1$s,</string>
+    <plurals name="mygames_your_turn_count">
+        <item quantity="one">Es tu turno en %d.</item>
+        <item quantity="other">Es tu turno en %d partidas.</item>
+    </plurals>
+    <plurals name="mygames_active_games_count">
+        <item quantity="one">Tienes %d partida activa.</item>
+        <item quantity="other">Tienes %d partidas activas.</item>
+    </plurals>
+    <string name="mygames_no_active_games">No tienes partidas activas. ¿Qué tal si inicias una?</string>
+    <string name="mygames_detail_board_size">Tamaño del tablero</string>
+    <string name="mygames_detail_speed">Velocidad</string>
+    <string name="mygames_detail_ranked">Clasificado</string>
+    <string name="mygames_detail_analysis">Análisis</string>
+    <string name="mygames_detail_rules">Reglas</string>
+    <string name="mygames_alert_bot_rejected_title">Desafío del bot rechazado</string>
+    <string name="mygames_alert_bot_rejected_text">Esto puede suceder porque el mantenedor del oponente ha establecido algunas condiciones en los parámetros del desafío.</string>
+    <string name="mygames_alert_opponent_rejected_title">Desafío del oponente rechazado</string>
+    <string name="mygames_alert_opponent_rejected_text">Puedes intentarlo de nuevo o contactar al oponente para aclarar sus razones por el rechazo.</string>
+    <string name="mygames_alert_ogs_error_title">Error OGS</string>
+    <string name="mygames_alert_ogs_error_text">Se ha producido un error al hablar con el servidor OGS. Esto generalmente significa que los desarrolladores del sitio web han cambiado algo en la API. Por favor, informe de este error, ya que la aplicación probablemente no funcionará hasta que nos adaptemos a este cambio.</string>
+    <string name="mygames_alert_game_unavailable">Este juego no está disponible.</string>
+    <string name="mygames_alert_one_live_game">Sólo puede buscar un juego en vivo, rápido o blitz a la vez.</string>
+    <string name="mygames_message_prefix">El mensaje es:</string>
+    <string name="learn_section_tutorials">Tutoriales</string>
+    <string name="learn_section_study">Estudio</string>
     <string name="learn_title_learn">Capacitación</string>
+    <string name="learn_study_title_joseki_explorer">Explorador Joseki</string>
+    <string name="earn_study_title_puzzles">Puzzles</string>
+    <string name="learn_tutorial_checkbox_done">Hecho</string>
+    <string name="learn_tutorial_checkboxoutlineblank_done">Hecho</string>
+    <string name="joseki_explorer_title">Explorador Joseki</string>
+    <string name="joseki_explorer_button_tenuki">Tenuki</string>
+    <string name="joseki_explorer_button_previous">Previo</string>
+    <string name="joseki_explorer_button_next">Siguiente</string>
+    <string name="joseki_explorer_link_video">" (vídeo)"</string>
+    <string name="joseki_explorer_link_external">" (vínculo externo)"</string>
+    <string name="joseki_explorer_default_description"><![CDATA["## Explorador de Joseki
+*Joseki* es un término tomado del japonés que suele referirse a secuencias estándar de jugadas en una esquina, las cuales resultan en un intercambio equilibrado a nivel local.
+### Cómo utilizar el Explorador de Joseki
+Las jugadas marcadas a continuación representan continuaciones interesantes para la posición actual. Los colores indican la valoración de cada jugada:
+* Las jugadas verdes se consideran óptimas.
+* Las jugadas amarillas se consideran aceptables.
+* Las jugadas rojas se consideran errores.
+* Las marcas moradas señalan jugadas engañosas o trampas.
+* Las azules indican dudas o situaciones abiertas.
+Puedes pulsar cualquiera de estas jugadas interesantes para explorar las posiciones a las que conducen.
+### Tenuki
+A veces, la mejor jugada consiste en jugar en otra parte del tablero. Esta acción se conoce habitualmente como *tenuki*. Si el *tenuki* se considera una opción interesante para la posición actual, se habilitará el botón de «pasar» (situado en la esquina inferior izquierda); al pulsarlo, podrás ver qué posiciones podrían surgir tras realizar un *tenuki*."]]></string>
     <string name="tutorial_basics_title">Fundamentos</string>
     <string name="tutorial_basics_thebasics_title">Reglas básicas</string>
     <string name="tutorial_basics_thebasics_basic1_text"><![CDATA[Recuerda las siguientes 3 reglas:\n
@@ -182,7 +591,7 @@
 ¡Coloca una piedra para continuar!]]></string>
     <string name="tutorial_basics_thebasics_capture1_page1_text"><![CDATA[Con un movimiento más, la piedra blanca estará completamente rodeada y será capturada. Las piedras que pueden ser capturadas en una jugada se dice que están en "Atari".]]></string>
     <string name="tutorial_basics_thebasics_capture1_page2_text"><![CDATA[Ahora, la piedra blanca está rodeada, así que…]]></string>
-    <string name="tutorial_basics_thebasics_capture1_page3_text"><![CDATA[… es removida del tablero]]></string>
+    <string name="tutorial_basics_thebasics_capture1_page3_text"><![CDATA[… es eliminada del tablero]]></string>
     <string name="tutorial_basics_thebasics_capture1_page4_text"><![CDATA[Si fuera el turno de Blanco, podría \"escapar\" conectando otra piedra.]]></string>
     <string name="tutorial_basics_thebasics_capture2_text">¡Es tu turno! Captura la piedra blanca.</string>
     <string name="tutorial_basics_thebasics_capture3_text">¡Puedes capturar dos piedras con una sola jugada esta vez!</string>
@@ -198,4 +607,162 @@
     <string name="tutorial_basics_doubleatari_title">Doble Atari</string>
     <string name="tutorial_basics_doubleatari_doubleAtari1_text"><![CDATA[En algunos casos, el negro puede poner en dos grupos blancos en Atari al mismo tiempo.
 ¡El negro capturará al menos uno de los grupos en esta situación!]]></string>
+    <string name="tutorial_basics_doubleatari_doubleAtari2_text"><![CDATA["Aquí hay otro. ¿Dónde puedes hacer un doble Atari?"]]></string>
+    <string name="tutorial_basics_illegalmoves_title">Movimientos ilegales (la regla del suicidio)</string>
+    <string name="tutorial_basics_illegalmoves_suicide1_page_1_text">Puedes jugar casi en cualquier lugar del tablero con algunas excepciones. En el ejemplo de abajo, el negro no puede jugar en A, ya que su nueva piedra ya estaría rodeada.</string>
+    <string name="tutorial_basics_illegalmoves_suicide1_page_2_text"><![CDATA[Se dice que se trata de un movimiento "suicidio" y está prohibido.]]></string>
+    <string name="tutorial_basics_illegalmoves_suicide1_page_3_text">Sin embargo, hay una excepción. Si un movimiento pudiera capturar una o más piedras blancas (como B abajo), el movimiento está permitido.</string>
+    <string name="tutorial_basics_illegalmoves_suicide1_page_4_text">La posición resultante se ve así:</string>
+    <string name="tutorial_basics_illegalmoves_suicide2_text"><![CDATA["¡Tu turno para capturar algunas piedras de nuevo! Pista: al principio puede parecer un movimiento ilegal…"]]></string>
+    <string name="tutorial_basics_illegalmoves_suicide3_text">¡Las 4 piedras negras están en Atari! ¡Captura las piedras blancas antes de que te capturen!</string>
+    <string name="tutorial_basics_illegalmoves_suicide4_text"><![CDATA["Captura las 2 piedras blancas tocando las negras. Aquí, no puedes capturar blanco con un solo movimiento".]]></string>
+    <string name="tutorial_basics_illegalmoves_suicide5_text">La piedra blanca de D5 separa tus piedras. Si lo capturas, puedes conectar tus piedras y hacer un grupo fuerte. ¡Este patrón es muy importante en GO!</string>
+    <string name="tutorial_intermediate_title">Intermedio</string>
+    <string name="tutorial_intermediate_ladders_title">Escaleras</string>
+    <string name="tutorial_intermediate_ladders_ladder1_text">¡Captura la piedra blanca! Si juegas los movimientos correctos, el blanco no puede escapar. Intenta hacer Ataris sucesivos hasta que el blanco no tenga a ninguna otra parte que ir.</string>
+    <string name="tutorial_intermediate_ladders_ladder1_branches_branch1_message">El blanco intenta escapar…</string>
+    <string name="tutorial_intermediate_ladders_ladder1_branches_branch1_1_1_1_1_message">¿Puedes ver cómo va esto?</string>
+    <string name="tutorial_intermediate_ladders_ladder1_branches_branch1_1_1_1_1_1_1_1_1_message">Si el blanco intenta resistir…</string>
+    <string name="tutorial_intermediate_ladders_ladder1_branches_branch1_1_1_1_1_1_1_2_1_message">Si el blanco intenta resistir…</string>
+    <string name="tutorial_intermediate_ladders_ladder1_branches_branch1_1_1_1_1_1_1_2_2_message">Si el blanco intenta resistir…</string>
+    <string name="tutorial_intermediate_ladders_ladder2_text"><![CDATA["He aquí otra escalera. Ahora es tu turno de escapar. La situación no es esperanzadora esta vez, sin embargo. Tu piedra en F2 está en el camino de la escalera. Si puedes llegar a ella es segura. Esa piedra se llama \"rompe escaleras\""]]></string>
+    <string name="tutorial_intermediate_ladders_ladder3_page1_text">Las escaleras son muy importantes en GO. Sin embargo, tienes que pensar en algunos movimientos a futuro y no empezar una pelea de escaleras a menos que estés seguro de que puedes ganarla! Esto es lo que le sucede a las Blancas si juegan la escalera perdedora en el ejemplo anterior\. .\.</string>
+    <string name="tutorial_intermediate_twoeyes_title">Dos ojos</string>
+    <string name="tutorial_intermediate_twoeyes_twoeyes1_text">¡Estás completamente rodeado! ¿Cuál es el único movimiento que puede salvarte?</string>
+    <string name="tutorial_intermediate_twoeyes_twoeyes2_page1_text">¡Correcto! En esta posición tanto A como B son movimientos ilegales para blanco, ya que serían movimientos suicidas sin capturar ninguna de sus piedras. Por lo tanto, ¡tu grupo nunca puede ser capturado!</string>
+    <string name="tutorial_intermediate_twoeyes_twoeyes3_text"><![CDATA["¿Qué tal aquí? ¿Cómo puedes garantizar que tus piedras no sean capturadas?"]]></string>
+    <string name="tutorial_intermediate_captureraces_title">Capturar carreras</string>
+    <string name="tutorial_intermediate_captureraces_capturerace1_text">En este puzzle, tanto los grupos negros como los blancos de la parte superior están rodeados. Como ninguno de los dos ojos tiene dos ojos, ambas partes pueden intentar capturar la otra. Esta situación se llama una carrera de captura (semeai) y generalmente es ganada por el bando con más libertades. En este caso, ambos grupos tienen 3 libertades, así que quien esté a punto de moverse ganará.\n\n¡Captura las piedras blancas!</string>
+    <string name="tutorial_intermediate_captureraces_capturerace2_text"><![CDATA["Aquí hay otro semeai. ¡Gana la carrera y captura blanco!"]]></string>
+    <string name="tutorial_intermediate_captureraces_capturerace3_text">¡Salva las piedras negras en la esquina!</string>
+    <string name="tutorial_intermediate_snapback_title">Snapback</string>
+    <string name="tutorial_intermediate_snapback_snapback1_text">Ahora descubrirás una técnica llamada \"snapback\". ¡Captura las 4 piedras blancas!\n\nPista: ¡primero debes sacrificar una piedra!</string>
+    <string name="tutorial_intermediate_snapback_snapback2_text">Como has descubierto, a veces obligando al blanco a capturar una de tus piedras las pone en el atari. ¡Usa la misma técnica aquí!</string>
+    <string name="tutorial_intermediate_snapback_snapback3_text">Esta es otra situación de snapback en el borde.</string>
+    <string name="tutorial_intermediate_ko_title">KO - la regla de \"no repetición\"</string>
+    <string name="tutorial_intermediate_ko_ko_page_1_text"><![CDATA["Ahora veremos la última regla que necesitas conocer para poder jugar a GO: la regla de KO. La regla establece que un movimiento es inválido si produce una repetición (e. . una posición anterior).
+Veamos un ejemplo. La piedra blanca de E6 está en Atari. Así que negro puede capturarla."]]></string>
+    <string name="tutorial_intermediate_ko_ko_page_2_text"><![CDATA["Ahora la nueva piedra negra en F6 está en atari. Sin la regla KO, blanco podría capturarla, pero si lo hicieran, la posición resultante…"]]></string>
+    <string name="tutorial_intermediate_ko_ko_page_3_text"><![CDATA[¡… sería la misma que la inicial! Aquí, sin la regla KO, Negro volvería a capturar…"]]></string>
+    <string name="tutorial_intermediate_ko_ko_page_4_text"><![CDATA[… y el juego estaría atascado en un bucle. Para evitar esto, la regla KO establece que los blancos no pueden recapturar aquí en E6, sino que deben jugar en otros lugares."]]></string>
+    <string name="tutorial_intermediate_ko_ko_page_5_text"><![CDATA["Ahora si el negro quiere salvar la piedra en atari puede jugar en E6…]]></string>
+    <string name="tutorial_intermediate_ko_ko_page_6_text">Así que el negro ha ganado la pelea de ko, pero ten en cuenta que es el turno de blanco de nuevo y tan blanco ganó dos movimientos por el precio de esa piedra.</string>
+    <string name="tutorial_intermediate_ko_ko_page_7_text">Esos dos movimientos libres a veces valen más puntos que ganar la pelea de ko, para que ambos jugadores evalúen constantemente si vale la pena continuar la pelea en ko o conseguir los movimientos extra.</string>
+    <string name="tutorial_intermediate_ko_ko_page_8_text">¿Cómo puede ocurrir esto en un juego real? He aquí un ejemplo. Tanto blanco como negro tienen un grupo de 5 piedras en peligro en la parte superior. La única manera de que el negro salve a su grupo es jugar en E8.</string>
+    <string name="tutorial_intermediate_ko_ko_page_9_text">Las 5 piedras de blanco en la parte superior están ahora en Atari, pero no puede volver a la D8, ya que eso repetiría la última posición. Así que juega en algún lugar Negro no puede ignorar, como E2</string>
+    <string name="tutorial_intermediate_ko_ko_page_10_text">Ahora las 8 piedras de Negro en la parte inferior izquierda están en peligro así que Negro calcula: ¿prefiere perder 8 piedras de la parte inferior o 5 en la superior? Reluctantemente, Negro elige continuar la lucha de KO y salvar las piedras en la parte inferior con E1</string>
+    <string name="tutorial_intermediate_ko_ko_page_11_text">Blanco ahora recupera el KO</string>
+    <string name="tutorial_intermediate_ko_ko_page_12_text"><![CDATA["Ahora es el turno de Negro y no puede recuperarse por la regla de la KO. Sin embargo, tiene una oportunidad más: una jugada en B4 amenaza al grupo blanco en la parte inferior".]]></string>
+    <string name="tutorial_intermediate_ko_ko_page_13_text">Ahora es el turno de los blancos para elegir. ¿Debe capturar las 5 piedras en la parte superior con un movimiento en la B9 o salvar las 6 piedras en el fondo? Él elige jugar en la A4\.\.\.</string>
+    <string name="tutorial_intermediate_ko_ko_page_14_text">Negro no necesita mucho aliento para jugar en E8 ahora\.\.\.</string>
+    <string name="tutorial_intermediate_ko_ko_page_15_text">Los blancos reconocen que no tiene otras amenazas, juega en otras partes, como F4 y admite que perdió la pelea de KO.</string>
+    <string name="tutorial_intermediate_ko_ko_page_16_text">Los negros ahora reclamarán felizmente su premio en la cima del G9</string>
+    <string name="tutorial_intermediate_ko_ko_page_17_text">No te preocupes si esto parece demasiado complicado en este momento. Como principiante, recuerda que no puedes recuperar una piedra si repite la posición anterior.</string>
+    <string name="tutorial_intermediate_puzzles_title">Puzzles</string>
+    <string name="tutorial_intermediate_puzzles_puzzles1_text">¡Captura las 3 piedras blancas! Esto a veces se llama el \"nido de grúa\"</string>
+    <string name="tutorial_intermediate_puzzles_puzzles2_text"><![CDATA["Es una carrera de captura, ¿puedes ganarla?"]]></string>
+    <string name="tutorial_intermediate_puzzles_corner1_text"><![CDATA["En GO, las peleas en las esquinas son muy comunes. Aquí está una carrera de captura en la esquina. ¿Puedes llegar arriba?"]]></string>
+    <string name="tutorial_intermediate_puzzles_corner2_text"><![CDATA["Captura la piedra blanca que está cortando negra.
+Ten cuidado desde qué lado haces el Atari"]]></string>
+    <string name="tutorial_intermediate_puzzles_corner2_branches_branch1_4_4_message">4 piedras negras han muerto</string>
+    <string name="tutorial_intermediate_puzzles_corner2_branches_branch2_3_message">3 piedras negras han muerto</string>
+    <string name="tutorial_intermediate_puzzles_corner2_branches_branch2_5_message">2 piedras negras han muerto</string>
+    <string name="tutorial_intermediate_puzzles_corner2_branches_branch4_message"><![CDATA["Negro no puede escapar"]]></string>
+    <string name="tutorial_intermediate_puzzles_corner2_branches_branch6_message"><![CDATA["Negro no puede escapar"]]></string>
+    <string name="tutorial_intermediate_falseeyes_title">Ojos falsos</string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes1_page1_text"><![CDATA["Si recuerdas el tutorial anterior, un grupo con dos ojos nunca se puede capturar. Sin embargo, a veces parte de las piedras que rodean un ojo no están conectadas al grupo principal y pueden capturarse por separado. Por ejemplo, en la posición de abajo, D5 parece ser un ojo, Sin embargo, la piedra en el C5 está en Atari y puede ser capturada, dejando el grupo medio con un solo ojo.\n\nLlamamos a D5 a \"false eye\"."]]></string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes2_text"><![CDATA["Blanco intentó salvar su piedra C5 jugando en la D5. ¿Cuál es la jugada ganadora aquí?"]]></string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes3_text"><![CDATA["Si el blanco intenta luchar de otra manera, no importa, ¡todavía puedes capturar el grupo medio!"]]></string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes4_text"><![CDATA["Estás a la defensiva esta vez. ¡Sobrevive haciendo dos ojos verdaderos!"]]></string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes4_branches_branch2_message">Llenaste tu propio ojo</string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes4_branches_branch3_message">Llenaste tu propio ojo</string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes4_branches_branch4_message">F4 es ahora un ojo falso</string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes5_text"><![CDATA["¡Ambos ojos necesitan arreglarse esta vez!"]]></string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes5_branches_branch1_2_message">F5 es ahora un ojo falso.</string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes5_branches_branch2_message">C5 es un ojo falso.</string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes6_text"><![CDATA["Aquí hay un patrón común para un ojo falso en el borde. ¡Arrégalo!"]]></string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes6_branches_branch2_message">Llenaste tu propio ojo</string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes6_branches_branch3_message">D9 es ahora un ojo falso</string>
+    <string name="tutorial_intermediate_morepuzzles_title">Más puzzles</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles3_text">Trata de no tener mareos.</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles4_text">¿Qué debes hacer primero?</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_1_2_message">Los grupos negros están separados</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_2_message">Los grupos negros están separados</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_3_message">Los grupos negros están separados</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_4_message">Los grupos negros están separados</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_5_1_message">El negro está aislado</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_5_2_message">El negro está aislado</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_5_3_message">El negro está aislado</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_5_4_message">El negro está aislado</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_5_5_message">El negro está aislado</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_6_message">El negro está aislado</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles5_text">Supera la simetría</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles5_branches_branch3_4_message"><![CDATA["Tres piedras negras no pueden escapar".]]></string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles5_branches_branch5_message"><![CDATA["Dos piedras negras no pueden escapar"]]></string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles5_branches_branch6_message"><![CDATA["Dos piedras negras no pueden escapar"]]></string>
+    <string name="tutorial_advanced_title">Avanzado</string>
+    <string name="tutorial_advanced_thefirstmoves_name">Los primeros movimientos</string>
+    <string name="tutorial_advanced_thefirstmoves_firstmoves1_page1_text"><![CDATA["Hasta ahora nos hemos centrado en la captura de piezas, pero al principio del juego no hay piedras en el tablero. Echaremos un vistazo a dónde jugar tus primeros movimientos para aumentar tus posibilidades de ganar.
+
+Primero, dividamos el tablero en 3 áreas. Estas son las esquinas:"]]></string>
+    <string name="tutorial_advanced_thefirstmoves_firstmoves1_page2_text"><![CDATA["… estos son los lados…"]]></string>
+    <string name="tutorial_advanced_thefirstmoves_firstmoves1_page3_text"><![CDATA["… y este es el medio. Por supuesto, estos solo son nombres que usamos para la orientación y no hay reglas especiales para ninguno de estos".]]></string>
+    <string name="tutorial_advanced_thefirstmoves_firstmoves1_page4_text"><![CDATA["El objetivo del juego es cercar más territorio que tu oponente. Como tú y tu oponente os turnáis colocando piedras, ambos obtendréis la misma cantidad de piedras. Por lo tanto, el ganador es el jugador que utiliza sus piedras de forma más eficiente.
+
+¿Dónde es más eficiente rodear el territorio? ¿En las esquinas, en los lados o en el medio?"]]></string>
+    <string name="tutorial_advanced_thefirstmoves_firstmoves1_page5_text"><![CDATA["Cada uno de los grupos debajo rodea exactamente 9 espacios de modo que cada uno gana 9 puntos. Sin embargo, el que se encuentra en la esquina requiere solo 6 piedras, el que se encuentra en el lado 9 mientras que el que se encuentra en el centro requiere 12!"]]></string>
+    <string name="tutorial_advanced_thefirstmoves_firstmoves1_page6_text"><![CDATA["Por lo tanto, los jugadores sabios jugarán en las esquinas primero y, solo]]></string>
+    <string name="tutorial_advanced_thefirstmoves_firstmoves2_text"><![CDATA["Aquí están los primeros 20 movimientos de un juego real jugado entre dos jugadores profesionales".]]></string>
+    <string name="tutorial_advanced_themiddlegame_name">El juego medio</string>
+    <string name="tutorial_advanced_themiddlegame_middlegame1_text"><![CDATA["El negro está bloqueado en la esquina inferior izquierda. El grupo estará rodeado si no haces nada".]]></string>
+    <string name="tutorial_advanced_themiddlegame_middlegame2_text"><![CDATA["El negro está bloqueando al blanco en el área inferior derecha. Blanco aún no tiene 2 ojos. Entonces, Blanco jugó G2.
+
+Mire lo que pasa si el negro responde a F1 (o G1) antes de que encuentres la respuesta correcta."]]></string>
+    <string name="tutorial_advanced_endgamescoring_name">Final del juego: puntuación</string>
+    <string name="tutorial_advanced_endgamescoring_endgame1_page1_text"><![CDATA["Aquí aprenderás a identificar cuándo termina una partida y cómo contar los territorios utilizando tableros de 5x5. Ambos jugadores realizaron 5 movimientos y luego pasaron su turno, por lo que la partida se considera finalizada. Ahora solo queda contar el territorio.
+
+Intenta contar cuántas intersecciones han rodeado las negras. ¿Y las blancas?
+
+Pista: recuerda contar todas las intersecciones, incluidas las de los bordes y las esquinas, pero no puntos ocupados por piedras."]]></string>
+    <string name="tutorial_advanced_endgamescoring_endgame1_page2_text"><![CDATA["El negro tiene 5 puntos a la izquierda y el blanco tiene 10 puntos a la derecha.
+
+Así, gana por 5 puntos."]]></string>
+    <string name="tutorial_advanced_endgamescoring_endgame1_page3_text"><![CDATA["¿Pero por qué el negro no intentó seguir jugando entonces?
+
+Bueno, no hay movimiento que el negro pueda hacer que aumente su puntuación. Por ejemplo, si el negro invade el lado derecho, el blanco puede defender fácilmente y la nueva piedra está muerto.
+
+Blanco redujo su territorio en 1 pero consiguió 1 punto de vuelta porque la piedra negra está muerta y se cuenta como prisionera.
+
+La puntuación aquí es de 10-5"]]></string>
+    <string name="tutorial_advanced_endgamescoring_endgame1_page4_text"><![CDATA["¿Qué pasa si el negro juega en el lado izquierdo entonces?
+
+Todo lo que lograría es que su territorio fuera ahora más pequeño, ya que perdió un punto.
+
+Por lo tanto, el negro no tiene buenos movimientos y debe pasar. Blanco tiene más puntos así que felizmente pasa.
+
+Así que el juego ha terminado y gana blanco."]]></string>
+    <string name="tutorial_advanced_endgamescoring_endgame1_page5_text"><![CDATA["Aquí tenemos otra situación de partida finalizada. Las negras tienen 5 puntos, mientras que las blancas tienen 6.
+
+Las dos intersecciones centrales son territorio neutral (*Dame*) y no cuentan para la puntuación de ninguno de los jugadores.
+
+Cualquiera de los dos jugadores podría jugar ahí, pero no ganaría ni perdería puntos."]]></string>
+    <string name="tutorial_advanced_endgamescoring_endgame1_page6_text"><![CDATA["Aunque el territorio constituye, con diferencia, la mayor parte de la puntuación, recuerda que hay otros puntos de bonificación que deben sumarse.
+
+Cada piedra capturada vale 1 punto, al igual que las piedras «muertas» que permanecen en el tablero (aquellas que ya no tienen posibilidad de formar dos «ojos»).
+
+Además, dado que las negras juegan primero, tienen ventaja; para compensar esto, las blancas reciben una pequeña bonificación de puntos (llamada «komi»).
+
+El valor del komi depende del tamaño del tablero, pero suele ser de 5,5 o 6,5 puntos. Ese medio punto (0,5) garantiza que no haya empates.
+
+Por suerte, la aplicación realiza todos estos cálculos por ti :)"]]></string>
+    <string name="tutorial_advanced_cuttingstones_name">Piedras cortantes</string>
+    <string name="tutorial_advanced_cuttingstones_cutting1_text"><![CDATA["Parece que el blanco tiene un territorio más grande.
+Sin embargo, su muro tiene un punto débil. Basta con "cortar" la pared blanca.
+
+Si tienes éxito en blanco tendrá un tiempo difícil para asegurar que ambos grupos sobreviven."]]></string>
+    <string name="tutorial_advanced_cuttingstones_cutting1_branches2_message">Las piedras blancas se conectaron.</string>
+    <string name="tutorial_advanced_cuttingstones_cutting2_text"><![CDATA["El negro tiene 30 puntos mientras que el blanco tiene 31 puntos, por lo que parece que el blanco tiene 1 punto ganado.
+Sin embargo, el territorio en la parte inferior no es completamente blanco.
+
+Solo falta cortar la pared del blanco."]]></string>
 </resources>
