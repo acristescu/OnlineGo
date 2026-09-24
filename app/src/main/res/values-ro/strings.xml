@@ -24,8 +24,6 @@
     <string name="ai_game_chat_game_over_computing_score">Jocul s-a încheiat pentru că amândoi am pasat. O clipă, calculez scorul final.</string>
     <string name="ai_game_chat_resign_offer">Cred că am pierdut de data asta…</string>
     <string name="ai_game_chat_ai_resigned">Mă dau bătut. Felicitări!</string>
-    <string name="ai_resign_offer_title">KataGO vrea să cedeze</string>
-    <string name="ai_resign_offer_message">KataGO consideră că jocul e pierdut si ar vrea să cedeze. Accepți?</string>
     <string name="ai_resign_offer_accept">Acceptă</string>
     <string name="ai_resign_offer_decline">Continuă jocul</string>
     <string name="ai_game_handicap_none">niciun</string>
@@ -49,10 +47,6 @@
     <string name="you">" Tu"</string>
     <string name="prisoners">Prizonieri</string>
     <string name="komi">Komi</string>
-    <string name="white">alb</string>
-    <string name="black">negru</string>
-    <string name="score_prediction_leads_by">Estimare scor: jucătorul %1$s conduce cu %2$s</string>
-    <string name="white_s_chance_to_win">Șansa albului de a câștiga: %1$s%%</string>
     <string name="new_game">Joc nou</string>
     <string name="board_size">Mărimea tablei</string>
     <string name="you_play">Tu joci</string>
