@@ -29,9 +29,11 @@ enum class AppLanguage(
   @StringRes val displayNameResId: Int,
 ) {
   ENGLISH("en", "en", "🇬🇧", R.string.settings_language_english),
-  ROMANIAN("ro", "ro", "🇷🇴", R.string.settings_language_romanian),
+  CATALAN("ca", "ca", "🏴󠁥󠁳󠁣󠁴󠁿", R.string.settings_language_catalan),
   GERMAN("de", "de", "🇩🇪", R.string.settings_language_german),
-  CATALAN("ca", "ca", "🏴󠁥󠁳󠁣󠁴󠁿", R.string.settings_language_catalan);
+  SPANISH("es", "es", "🇪🇸", R.string.settings_language_spanish),
+  ROMANIAN("ro", "ro", "🇷🇴", R.string.settings_language_romanian),
+  ;
 
   val locale: Locale = Locale.forLanguageTag(localeTag)
 
