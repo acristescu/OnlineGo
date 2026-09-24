@@ -105,8 +105,8 @@ workflows:
   primary:
     triggers:
       - push_branch: master
-      - pull_request_source_branch:
-          regex: "/^(?!.*l10n_master).*/"
+      - pull_request_source_branch: "^(?!.*l10n_master).*"
+        pull_request_target_branch: master
     steps:
       - activate-ssh-key@4.1:
           run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
