@@ -52,7 +52,7 @@
     <string name="komi">Komi</string>
     <string name="ai_game_player_captures_and_komi">Prizonieri: %1$d · Komi: %2$s</string>
     <string name="ai_game_player_captures_only">Prizonieri: %1$d</string>
-    <string name="ai_game_eval_winrate_compact">N %1$.1f%% · %2$.1f%% W</string>
+    <string name="ai_game_eval_winrate_compact">N %1$.1f%% · %2$.1f%% A</string>
     <string name="ai_game_eval_score_lead_compact">%1$s +%2$.1f pct avantaj</string>
     <string name="ai_game_hide_eval">Ascunde Eval</string>
     <string name="ai_game_show_eval">Arată Eval</string>
@@ -111,7 +111,7 @@
     <string name="face_to_face_ko_dialog_title">Mutare KO ilegală</string>
     <string name="face_to_face_ko_dialog_message">Această mutare ar repeta poziția de pe tablă. Se numește KO și nu este permisă. Încearcă mai întâi o altă mutare, de preferat o amenințare pe care adversarul nu o poate ignora.</string>
     <string name="face_to_face_score_komi">komi</string>
-    <string name="face_to_face_score_captures">capturi</string>
+    <string name="face_to_face_score_captures">prizonieri</string>
     <string name="face_to_face_score_dead">moarte</string>
     <string name="face_to_face_score_territory">teritoriu</string>
     <string name="face_to_face_score_total">total</string>
