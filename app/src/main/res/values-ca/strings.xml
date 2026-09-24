@@ -24,8 +24,6 @@
     <string name="ai_game_chat_game_over_computing_score">La partida ha acabat perquè tots dos jugadors hem passat. Espereu un moment, estic calculant el resultat final.</string>
     <string name="ai_game_chat_resign_offer">Crec que aquesta vegada he perdut...</string>
     <string name="ai_game_chat_ai_resigned">Abandono. Heu guanyat! Ben jugat.</string>
-    <string name="ai_resign_offer_title">KataGO vol abandonar</string>
-    <string name="ai_resign_offer_message">KataGO creu que ha perdut la partida i vol abandonar. Ho accepteu?</string>
     <string name="ai_resign_offer_accept">Accepto l\'abandonament</string>
     <string name="ai_resign_offer_decline">Continueu jugant</string>
     <string name="ai_game_handicap_none">cap</string>
@@ -49,10 +47,6 @@
     <string name="you">" Tu"</string>
     <string name="prisoners">Presoners</string>
     <string name="komi">Komi</string>
-    <string name="white">blanc</string>
-    <string name="black">negre</string>
-    <string name="score_prediction_leads_by">Resultat previst: %1$s va per davant per %2$s</string>
-    <string name="white_s_chance_to_win">La probabilitat de victòria de les blanques: %1$s%%</string>
     <string name="new_game">Nova partida</string>
     <string name="board_size">Mida del tauler</string>
     <string name="you_play">El vostre torn</string>
