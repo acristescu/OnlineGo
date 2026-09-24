@@ -18,12 +18,14 @@
     <string name="ai_game_chat_territories">Voici comment j\'envisage les territoires</string>
     <string name="ai_game_chat_im_thinking">Je réfléchis…</string>
     <string name="ai_game_chat_your_turn">Votre tour</string>
-    <string name="ai_game_chat_ai_passed">Je passe. A vous de jouer!</string>
+    <string name="ai_game_chat_ai_passed">Je passe. À vous de jouer !</string>
     <string name="ai_game_chat_game_over_ai_won">La partie est terminée car les deux joueurs ont passé leur tour. Le score final est de %1$s pour noir, contre %2$s pour blanc. On dirait que je gagne ce coup ci.</string>
     <string name="ai_game_chat_game_over_player_won">La partie est terminée car les deux joueurs ont passé leur tour. Le score final est de %1$s pour noir, contre %2$s pour blanc. Bravo ! Je m\'avoue vaincu.</string>
     <string name="ai_game_chat_game_over_computing_score">La partie est terminée car les deux joueurs ont passé leur tour. Un moment, je calcule le score final.</string>
     <string name="ai_game_chat_resign_offer">Je crois que j\'ai perdu cette fois...</string>
     <string name="ai_game_chat_ai_resigned">J\'abandonne, tu as gagné ! Bien joué.</string>
+    <string name="ai_resign_offer_title">Je pense que j\'ai perdu cette partie.</string>
+    <string name="ai_resign_offer_message">J\'aimerais abandonner ici. Voulez-vous accepter ou continuer de jouer ?</string>
     <string name="ai_resign_offer_accept">Accepter l\'abandon</string>
     <string name="ai_resign_offer_decline">Continuer à jouer</string>
     <string name="ai_game_handicap_none">aucun</string>
@@ -34,19 +36,25 @@
     <string name="ai_game_previous">Précédent</string>
     <string name="ai_game_next">Suivant</string>
     <string name="ko_explanation">Ce coup répéterait la position du plateau. C\'est ce qu\'on appelle un KO, et ce n\'est pas autorisé. Essayez d\'abord de jouer un autre coup, de préférence une menace que l\'adversaire ne peut pas ignorer.</string>
-    <string name="illegal_ko_move">Situation de KO illégale </string>
+    <string name="illegal_ko_move">Situation de KO illégale</string>
     <string name="local_ai_game">Jeu local contre AI</string>
     <string name="back">Retour</string>
     <string name="title_bar_game_info_content_description">Info de la partie</string>
     <string name="title_bar_more_content_description">Plus</string>
     <string name="search_field_clear_content_description">Effacer le texte</string>
-    <string name="katago">"KataGO"</string>
-    <string name="territory">Territoire </string>
+    <string name="katago">"KataGO "</string>
+    <string name="territory">Territoire</string>
     <string name="hint">Indice</string>
     <string name="player">Joueur</string>
-    <string name="you">"Vous"</string>
-    <string name="prisoners">Prisonniers </string>
+    <string name="you">" Vous"</string>
+    <string name="prisoners">Prisonniers</string>
     <string name="komi">Komi</string>
+    <string name="ai_game_player_captures_and_komi">Prisonniers : %1$d · Komi : %2$s</string>
+    <string name="ai_game_player_captures_only">Prisonniers : %1$d</string>
+    <string name="ai_game_eval_winrate_compact">N %1$.1f%% · %2$.1f%% B</string>
+    <string name="ai_game_eval_score_lead_compact">%1$s +%2$.1f points d\'avance </string>
+    <string name="ai_game_hide_eval">Cacher l\'évaluation </string>
+    <string name="ai_game_show_eval">Montrer l\'évaluation</string>
     <string name="new_game">Nouvelle partie</string>
     <string name="board_size">Taille du plateau</string>
     <string name="you_play">A vous de jouer</string>
@@ -55,22 +63,22 @@
     <string name="handicap">Handicap</string>
     <string name="difficulty">Difficulté</string>
     <string name="ai_game_difficulty_scale_hint">Kyu élevé= facile, dan = difficile</string>
-    <string name="ai_game_difficulty_kyu">Kyu</string>
+    <string name="ai_game_difficulty_kyu">%1$d kyu</string>
     <string name="ai_game_difficulty_dan">%1$d dan</string>
     <string name="start_game">Débuter la partie</string>
     <string name="cancel">Annuler</string>
     <string name="ok">Ok</string>
-    <string name="search">Chercher </string>
-    <string name="loading">Chargement...</string>
+    <string name="search">Chercher</string>
+    <string name="loading">Chargement…</string>
     <string name="email">Email</string>
     <string name="username">Nom d\'utilisateur</string>
     <string name="password">Mot de passe</string>
     <string name="yes">Oui</string>
     <string name="no">Non</string>
     <string name="unknown">Inconnu</string>
-    <string name="error">Erreur </string>
+    <string name="error">Erreur</string>
     <string name="enabled">Activer</string>
-    <string name="disabled">Désactiver </string>
+    <string name="disabled">Désactiver</string>
     <string name="auto">Auto</string>
     <string name="hello_world">Hello world!</string>
     <string name="landscape_preview">Mode paysage</string>
@@ -84,12 +92,12 @@
     <string name="bottomnavigation_botton_settings">Paramètres</string>
     <string name="stats_login_required_title">Se connecter pour voir les stats</string>
     <string name="stats_login_required_message">Les statistiques sont disponibles uniquement si vous êtes connecté à OGS.</string>
-    <string name="home_welcome_to_sente">Bienvenue sur Sente</string>
+    <string name="home_welcome_to_sente">Bienvenue sur Sente !</string>
     <string name="home_app_open_source_message">Cette application, aux sources ouvertes et prise en charge par la communauté, est une façade pour le site web OGS (online-go.com). Vous pouvez explorer les tutoriels et jouer contre l\'IA, mais là plupart des fonctionnalités nécessitent un compte OGS gratuit.</string>
     <string name="home_button_login_ogs">Se connecter à OGS</string>
     <string name="home_button_signup_ogs">S\'inscrire à OGS</string>
-    <string name="face_to_face_loading">Face à face - Chargement </string>
-    <string name="face_to_face_game_over">Face à face - Game Over</string>
+    <string name="face_to_face_loading">Face à face - Chargement</string>
+    <string name="face_to_face_game_over">Face à face - partie terminée</string>
     <string name="face_to_face_white_s_turn">Face à face - A blanc de jouer</string>
     <string name="face_to_face_black_s_turn">Face à face - A noir de jouer</string>
     <string name="face_to_face_default">Face à face</string>
@@ -236,7 +244,14 @@
         <item quantity="one">Byo-Yomi: L\'horloge commence avec un temps de %1$s, suivi d\'une période de %3$s.</item>
         <item quantity="other">Byo-Yomi: L\'horloge commence avec un temps de %1$s, suivi de %2$d périodes de %3$s chacune.</item>
     </plurals>
+    <plurals name="time_control_canadian">
+        <item quantity="one">Byo-Yomi Canadien : l\'horloge commence avec %1$s de temps principal, suivi de %2$s par %3$d pierre.</item>
+        <item quantity="other">Byo-Yomi Canadien : l\'horloge commence avec %1$s de temps principal, suivi de %2$s par %3$d pierres.</item>
+    </plurals>
+    <string name="time_control_absolute">Absolue : %1$s de temps total par joueur.</string>
     <string name="time_control_none">Pas de limite de temps.</string>
+    <string name="time_control_unknown">\?</string>
+    <string name="time_control_pauses_on_weekends">" Mis en pause le week-end."</string>
     <string name="whats_new_title">Quoi de neuf</string>
     <string name="whats_new_got_it">Ok</string>
     <string name="whats_new_open_source">Sente est open source, développé par des volontaires.</string>
@@ -247,6 +262,7 @@
     <string name="onboarding_login_failed_debug">Connexion échouée. Info de débogage : \'%1$s\'</string>
     <string name="onboarding_create_account_failed_debug">Création de compte échouée. Info de débogage : \'%1$s\'</string>
     <string name="onboarding_server_error_code">Erreur de communication avec le serveur. Le serveur a retourné le code d\'erreur %1$s. Réessayez plus tard</string>
+    <string name="onboarding_google_signin_failed">Erreur de connexion : code erroné = %1$d</string>
     <string name="tutorial_retry">RÉESSAYEZ</string>
     <string name="tutorial_next">SUIVANT</string>
     <string name="tutorial_nice_one">Bien joué !</string>
@@ -254,7 +270,14 @@
     <string name="socket_debug_clear_log_content_description">Vider les logs</string>
     <string name="socket_debug_clear_content_description">Vider</string>
     <string name="socket_debug_filter_hint">Filtrer les évènements...</string>
+    <string name="socket_debug_filter_all">Tout (%1$d)</string>
+    <plurals name="socket_debug_event_count">
+        <item quantity="one">%d événement</item>
+        <item quantity="other">%d événements</item>
+    </plurals>
+    <string name="notification_challenge_title">Un nouveau défi !</string>
     <string name="notification_challenge_text">%1$s vous lance un défi</string>
+    <string name="notification_game_ended">Partie terminée - %1$s</string>
     <string name="notification_outcome_cancelled">Annulé</string>
     <string name="notification_outcome_lost_by">Perdu de %1$s</string>
     <string name="notification_outcome_won_by">Gagné de %1$s</string>
@@ -263,10 +286,72 @@
     <string name="notification_your_turn">Votre tour</string>
     <string name="notification_stone_removal_phase">Phase de retrait des pierres mortes</string>
     <string name="notification_requires_attention">%1$s Requiert votre attention</string>
+    <plurals name="notification_games_require_attention">
+        <item quantity="one">%d partie requière votre attention</item>
+        <item quantity="other">%d parties requièrent votre attention</item>
+    </plurals>
+    <string name="notification_inbox_versus">contre %1$s</string>
     <string name="notification_logout_title">Connectez-vous à nouveau</string>
+    <string name="notification_logout_text">Vous avez été déconnecté de l\'application. Cela se produit généralement lorsque vous changez de mot de passe. Veuillez vous reconnecter pour réactiver les notifications.</string>
     <string name="notification_channel_group_your_turn">Votre tour</string>
+    <string name="notification_channel_correspondence_games">Parties par correspondances</string>
+    <string name="notification_channel_live_games">Parties en direct</string>
+    <string name="notification_channel_blitz_games">Parties rapides</string>
     <string name="notification_channel_your_turn">Votre tour</string>
+    <string name="notification_channel_challenges">Défis</string>
+    <string name="notification_channel_logout">Déconnexion</string>
+    <string name="settings_become_a_supporter">Devenir supporter</string>
+    <string name="settings_become_a_supporter_description">Devenir supporter</string>
+    <string name="settings_section_language">Langue</string>
+    <string name="settings_language">Langue</string>
+    <string name="settings_help_translate">Aider à traduire Sente</string>
+    <string name="settings_section_notifications">Notifications</string>
+    <string name="settings_system_notifications">Notifications système</string>
+    <string name="settings_stone_sounds">Son des pierres</string>
+    <string name="settings_section_appearance">Apparence</string>
+    <string name="settings_theme">Thème</string>
+    <string name="settings_board_style">Style du Goban</string>
+    <string name="settings_section_game_settings">Paramètres de jeu</string>
+    <string name="settings_show_coordinates">Afficher les coordonnées</string>
     <string name="settings_show_player_ranks">Afficher les rangs des joueurs</string>
+    <string name="settings_section_account">Compte</string>
+    <string name="settings_logout">Déconnexion</string>
+    <string name="settings_delete_account">Supprimer le compte</string>
+    <string name="settings_section_about">À propos</string>
+    <string name="settings_whats_new">Nouveautés</string>
+    <string name="settings_section_legal">Mentions légales</string>
+    <string name="settings_privacy_policy">Politique de confidentialité</string>
+    <string name="settings_section_debug">Débogage</string>
+    <string name="settings_build_version">Version nᵒ %1$d</string>
+    <string name="settings_theme_system_default">Paramètre par défaut</string>
+    <string name="settings_theme_light">Clair</string>
+    <string name="settings_theme_dark">Sombre</string>
+    <string name="settings_board_style_light_wood">Bois clair</string>
+    <string name="settings_board_style_dark_wood">Bois foncé</string>
+    <string name="settings_board_style_cyan">Bleu</string>
+    <string name="settings_board_style_dark_blue">Bleu foncé</string>
+    <string name="settings_board_style_nocturne">Nocturne</string>
+    <string name="settings_logout_dialog_title">Déconnexion</string>
+    <string name="settings_logout_dialog_message">Voulez-vous vraiment vous déconnecter ?</string>
+    <string name="settings_logout_dialog_confirm">Déconnexion</string>
+    <string name="settings_delete_account_dialog_title">Supprimer le compte</string>
+    <string name="settings_delete_account_message">Veuillez entrer votre mot de passe pour confirmer la suppression du compte :</string>
+    <string name="settings_delete_account_password_hint">Mot de passe</string>
+    <string name="settings_delete_account_confirm">SUPPRIMER LE COMPTE</string>
+    <string name="settings_delete_account_cancel">ANNULER</string>
+    <string name="settings_error_dialog_title">Erreur </string>
+    <string name="settings_avatar_content_description">Avatar</string>
+    <string name="settings_icon_content_description">Icône</string>
+    <string name="supporter_title">Devenir supporter</string>
+    <string name="supporter_header">Soutenir l\'app Android</string>
+    <string name="supporter_intro">Ce projet a commencé en 2015 comme un passe temps. Alors qu\'il existait d\'excellents services pour les navigateurs, il n\'y avait pas d\'application mobile de qualité comparable. Le but était donc de créer une application Android gratuite et open source (FOSS) de qualité professionnelle pour permettre aux joueurs de Go d\'interagir et de découvrir ce jeu extraordinaire. \n\nNous ne sommes pas associés à OGS, cependant, ils nous permettent gracieusement d\'utiliser leur service en ligne gratuitement.\n\n C\'est grâce au soutien de personnes comme vous que tout cela est possible. Si vous appréciez l\'application, merci d\'envisager de nous soutenir par une contribution mensuelle et devenez un Supporter !</string>
+    <string name="supporter_reason_develop_title">Aidez-nous à développer l\'application plus rapidement</string>
+    <string name="supporter_reason_free_title">Garder l\'application gratuite </string>
+    <string name="supporter_reason_free_description">Nous voulons que l\'application soit gratuite pour tous. Toujours. Sans pub, téléchargement gratuit, sans inscription forcée.</string>
+    <string name="supporter_reason_open_source_title">Support open-source</string>
+    <string name="supporter_faq_features_question">Existe-t-il des fonctionnalités réservées aux Supporters ?</string>
+    <string name="stats_games_by_time_controls">Parties jouées par cadence</string>
+    <string name="stats_board_9">9×9</string>
     <string name="tutorial_advanced_endgamescoring_endgame1_page5_text"><![CDATA["Voici une autre partie terminée. Noir à 5 points et Blanc 6.
 
 Les deux intersections au centre sont neutres ('Dame') et ne comptent ni pour l'un, ni pour l'autre joueur.
@@ -281,4 +366,14 @@ De plus, puisque Noir a l'avantage de commencer, on accorde à Blanc une compens
 La valeur du komi dépend de la taille du goban, mais elle est généralement de 5,5 ou 6,5 points. Les 0,5 points permettent d'éviter les résultats à égalité.
 
 Heureusement, l'application fait tous ces calculs pour toi :-)"]]></string>
+    <string name="tutorial_advanced_cuttingstones_name">Pierres de coupe</string>
+    <string name="tutorial_advanced_cuttingstones_cutting1_text"><![CDATA["Il semblerait que Blanc ait plus de territoire.
+Cependant, son mur a un point faible. "Coupons" ce mur blanc.
+
+Si tu réussis, Blanc aura le plus grand mal à faire vivre ses deux groupes."]]></string>
+    <string name="tutorial_advanced_cuttingstones_cutting1_branches2_message">Les pierres blanches sont connectées.</string>
+    <string name="tutorial_advanced_cuttingstones_cutting2_text"><![CDATA["Noir a 30 points alors que Blanc en a 31. On dirait bien que Blanc gagne d'un point.
+Cependant, le territoire du bord inférieur n'appartient pas entièrement à Blanc.
+
+Coupons le mur blanc."]]></string>
 </resources>
