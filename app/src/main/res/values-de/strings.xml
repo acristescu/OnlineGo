@@ -525,10 +525,6 @@
     <string name="mygames_outcome_black_won">Schwarz hat gewonnen</string>
     <string name="mygames_outcome_white_won">Weiß hat gewonnen</string>
     <string name="mygames_outcome_annulled">Annulliert</string>
-    <string name="mygames_outcome_lost_by">Verloren mit %1$s</string>
-    <string name="mygames_outcome_won_by">Gewonnen mit %1$s</string>
-    <string name="mygames_outcome_black_won_by">Schwarz gewinnt mit %1$s</string>
-    <string name="mygames_outcome_white_won_by">Weiß gewinnt mit %1$s</string>
     <string name="mygames_greeting">Hallo %1$s,</string>
     <plurals name="mygames_your_turn_count">
         <item quantity="one">Du bist in %d Spiel am Zug.</item>
