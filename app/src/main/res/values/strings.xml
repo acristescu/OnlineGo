@@ -550,10 +550,6 @@
     <string name="mygames_outcome_black_won">Black won</string>
     <string name="mygames_outcome_white_won">White won</string>
     <string name="mygames_outcome_annulled">Annulled</string>
-    <string name="mygames_outcome_lost_by">Lost by %1$s</string>
-    <string name="mygames_outcome_won_by">Won by %1$s</string>
-    <string name="mygames_outcome_black_won_by">Black won by %1$s</string>
-    <string name="mygames_outcome_white_won_by">White won by %1$s</string>
     <string name="mygames_outcome_lost_with_reason">Lost %1$s</string>
     <string name="mygames_outcome_won_with_reason">Won %1$s</string>
     <string name="mygames_outcome_black_won_with_reason">Black won %1$s</string>
