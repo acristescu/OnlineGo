@@ -242,8 +242,8 @@
     <string name="time_control_simple">Simple : %1$s par coup.</string>
     <string name="time_control_fischer">Fischer : l\'horloge débute avec %1$s et incrémente de %2$s par coup jusqu\'à un maximum de %3$s.</string>
     <plurals name="time_control_byoyomi">
-        <item quantity="one">Byo-Yomi: L\'horloge commence avec un temps de %1$s, suivi d\'une période de %3$s.</item>
-        <item quantity="other">Byo-Yomi: L\'horloge commence avec un temps de %1$s, suivi de %2$d périodes de %3$s chacune.</item>
+        <item quantity="one">Byo-Yomi japonais : L\'horloge commence avec %1$s de temps principal, suivi de %2$d période de %3$s.</item>
+        <item quantity="other">Byo-Yomi japonais : L\'horloge commence avec %1$s de temps principal, suivi de %2$d périodes de %3$s chacune.</item>
     </plurals>
     <plurals name="time_control_canadian">
         <item quantity="one">Byo-Yomi Canadien : l\'horloge commence avec %1$s de temps principal, suivi de %2$s par %3$d pierre.</item>
@@ -294,7 +294,7 @@
     </plurals>
     <string name="notification_inbox_versus">contre %1$s</string>
     <string name="notification_logout_title">Connectez-vous à nouveau</string>
-    <string name="notification_logout_text">Vous avez été déconnecté de l\'application. Cela se produit généralement lorsque vous changez de mot de passe. Veuillez vous reconnecter pour réactiver les notifications.</string>
+    <string name="notification_logout_text">Vous avez été déconnecté de l\'application. Cela se produit généralement lorsque vous changez de mot de passe. Veuillez vous reconnecter pour réactiver les notifications</string>
     <string name="notification_channel_group_your_turn">Votre tour</string>
     <string name="notification_channel_correspondence_games">Parties par correspondances</string>
     <string name="notification_channel_live_games">Parties en direct</string>
@@ -324,7 +324,7 @@
     <string name="settings_section_legal">Mentions légales</string>
     <string name="settings_privacy_policy">Politique de confidentialité</string>
     <string name="settings_section_debug">Débogage</string>
-    <string name="settings_build_version">Version nᵒ %1$d</string>
+    <string name="settings_build_version">Version no. %1$d</string>
     <string name="settings_theme_system_default">Paramètre par défaut</string>
     <string name="settings_theme_light">Clair</string>
     <string name="settings_theme_dark">Sombre</string>
@@ -338,16 +338,16 @@
     <string name="settings_logout_dialog_message">Voulez-vous vraiment vous déconnecter ?</string>
     <string name="settings_logout_dialog_confirm">Déconnexion</string>
     <string name="settings_delete_account_dialog_title">Supprimer le compte</string>
-    <string name="settings_delete_account_message">Veuillez entrer votre mot de passe pour confirmer la suppression du compte :</string>
+    <string name="settings_delete_account_message">Veuillez entrer votre mot de passe pour confirmer la suppression du compte.</string>
     <string name="settings_delete_account_password_hint">Mot de passe</string>
     <string name="settings_delete_account_confirm">SUPPRIMER LE COMPTE</string>
     <string name="settings_delete_account_cancel">ANNULER</string>
-    <string name="settings_error_dialog_title">Erreur </string>
+    <string name="settings_error_dialog_title">Erreur</string>
     <string name="settings_avatar_content_description">Avatar</string>
     <string name="settings_icon_content_description">Icône</string>
     <string name="supporter_title">Devenir supporter</string>
     <string name="supporter_header">Soutenir l\'app Android</string>
-    <string name="supporter_intro">Ce projet a commencé en 2015 comme un passe temps. Alors qu\'il existait d\'excellents services pour les navigateurs, il n\'y avait pas d\'application mobile de qualité comparable. Le but était donc de créer une application Android gratuite et open source (FOSS) de qualité professionnelle pour permettre aux joueurs de Go d\'interagir et de découvrir ce jeu extraordinaire. \n\nNous ne sommes pas associés à OGS, cependant, ils nous permettent gracieusement d\'utiliser leur service en ligne gratuitement.\n\n C\'est grâce au soutien de personnes comme vous que tout cela est possible. Si vous appréciez l\'application, merci d\'envisager de nous soutenir par une contribution mensuelle et devenez un Supporter !</string>
+    <string name="supporter_intro">Ce projet a commencé en 2015 comme un passe-temps. Alors qu\'il existait d\'excellents services pour les navigateurs, il n\'y avait pas d\'application mobile de qualité comparable. Le but était donc de créer une application Android gratuite et open source (FOSS) de qualité professionnelle pour permettre aux joueurs de Go d\'interagir et de découvrir ce jeu extraordinaire. \n\nNous ne sommes pas associés à OGS, cependant, ils nous permettent gracieusement d\'utiliser leur service en ligne gratuitement.\n\n C\'est grâce au soutien de personnes comme vous que tout cela est possible. Si vous appréciez l\'application, merci d\'envisager de nous soutenir par une contribution mensuelle et devenez un Supporter !</string>
     <string name="supporter_reason_develop_title">Aidez-nous à développer l\'application plus rapidement</string>
     <string name="supporter_reason_develop_description">Les Supporters permettent d\'allouer plus de temps au développement de nouvelles fonctionnalités telles que l\'intégration de KataGo, l\'analyse assistée par IA, l\'éditeur SGF, etc.</string>
     <string name="supporter_reason_free_title">Garder l\'application gratuite </string>
@@ -379,7 +379,7 @@
     <string name="stats_rating_over_time">Classement (période)</string>
     <string name="stats_games_by_board_size">Parties jouées par taille de plateau</string>
     <string name="stats_games_by_time_controls">Parties jouées par cadence</string>
-    <string name="stats_played">parties</string>
+    <string name="stats_played">Jouées</string>
     <string name="stats_win_ratio_by_board_size">Taux de victoire par taille de tableau</string>
     <string name="stats_win_ratio_by_time_controls">Taux de victoire par cadence</string>
     <string name="stats_win_ratio_by_colour">Taux de victoire par couleur</string>
@@ -414,11 +414,11 @@
     <string name="stats_tooltip_on_date">le %1$s</string>
     <string name="stats_tooltip_delta_elo">%1$d ELO</string>
     <string name="stats_tooltip_since_game">depuis la partie %1$d</string>
-    <string name="stats_tooltip_since_date">Depuis le %1$s</string>
+    <string name="stats_tooltip_since_date">depuis le %1$s</string>
     <string name="puzzle_directory_title">Problèmes</string>
     <string name="puzzle_directory_recently_opened">Ouvert récemment</string>
     <string name="puzzle_directory_rating_count">(%1$s)</string>
-    <string name="puzzle_directory_by_author">Par %1$s %2$s</string>
+    <string name="puzzle_directory_by_author">par %1$s %2$s</string>
     <string name="puzzle_directory_count_label">Contenu</string>
     <plurals name="puzzle_directory_puzzle_count">
         <item quantity="one">%d problème</item>
@@ -429,13 +429,55 @@
     <string name="puzzle_directory_solved_label">Résolu</string>
     <string name="puzzle_directory_solved_value">%1$d (%2$.1f%%)</string>
     <string name="puzzle_directory_completed">Terminé</string>
+    <string name="puzzle_directory_stats">%1$s vues, résolu %2$s fois sur %3$s (%4$s %%)</string>
+    <string name="puzzle_directory_sort_name">A -&gt; Z</string>
+    <string name="puzzle_directory_sort_rating">Niveau</string>
+    <string name="puzzle_directory_sort_count">Contenu</string>
+    <string name="puzzle_directory_sort_views">Vues</string>
+    <string name="puzzle_directory_sort_rank">Niveau</string>
     <string name="tsumego_title">Tsumego</string>
+    <string name="tsumego_title_with_name">Tsumego: %1$s</string>
+    <string name="tsumego_board_content_description">Plateau</string>
+    <string name="tsumego_solved_content_description">Résolu</string>
+    <string name="tsumego_previous">PRÉCÉDENT</string>
+    <string name="tsumego_hint">INDICE</string>
+    <string name="tsumego_next">SUIVANT</string>
+    <string name="tsumego_retry">RÉESSAYER</string>
+    <string name="tsumego_continue">CONTINUER</string>
+    <string name="onboarding_link_account">Lier un compte OGS</string>
+    <string name="onboarding_create_account">Créer un compte OGS</string>
+    <string name="onboarding_login_failed_title">Échec de connexion</string>
+    <string name="onboarding_stay_offline_title">Rester hors-ligne ?</string>
+    <string name="onboarding_stay_offline_confirm">Oui, rester hors-ligne</string>
+    <string name="onboarding_continue">Continuer</string>
+    <string name="onboarding_page_go_title">Le jeu de GO</string>
+    <string name="onboarding_page_app_title">Application Android de GO en ligne</string>
+    <string name="onboarding_page_ogs_title">Serveur OGS</string>
+    <string name="onboarding_question_has_account">Avez-vous déjà un compte OGS (online-go.com) ?</string>
+    <string name="onboarding_question_login_method">Quelle méthode de connexion voulez-vous utiliser?</string>
+    <string name="onboarding_answer_google">Connexion avec Google</string>
+    <string name="onboarding_answer_password">Nom d\'utilisateur et mot de passe</string>
+    <string name="onboarding_answer_offline">Rester hors-ligne</string>
+    <string name="onboarding_notifications_title">Rester informé</string>
+    <string name="onboarding_notifications_allow">Autoriser les notifications</string>
+    <string name="onboarding_notifications_skip">Passer</string>
+    <string name="new_challenge_opponent">Adversaire</string>
+    <string name="new_challenge_your_color">Votre couleur</string>
+    <string name="new_challenge_board_size">Taille du plateau</string>
+    <string name="new_challenge_analysis">Analyse</string>
+    <string name="new_challenge_speed">Cadence</string>
+    <string name="new_challenge_ranked">Classé</string>
+    <string name="new_challenge_private">Privée</string>
+    <string name="new_challenge_send">Défier</string>
+    <string name="new_challenge_select_opponent">[Sélectionner un adversaire]</string>
+    <string name="select_opponent_tab_bot">Robot</string>
+    <string name="select_opponent_tab_recent">Récent</string>
     <string name="tutorial_advanced_endgamescoring_endgame1_page5_text"><![CDATA["Voici une autre partie terminée. Noir à 5 points et Blanc 6.
 
 Les deux intersections au centre sont neutres ('Dame') et ne comptent ni pour l'un, ni pour l'autre joueur.
 
 Les joueurs peuvent y jouer mais ne gagneront ni ne perdront de points."]]></string>
-    <string name="tutorial_advanced_endgamescoring_endgame1_page6_text"><![CDATA["Bien que le territoire forme la plus grosse partie des points, rappelle-toi qu'il y a d'autres points bonus à ajouter.
+    <string name="tutorial_advanced_endgamescoring_endgame1_page6_text"><![CDATA["Bien que le territoire forme la plus grosse partie des points, rappelle-toi qu'il y a d'autres points bonus à ajouter."
 
 Chaque pierre capturée vaut 1 point, de même que les pierres mortes encore sur le plateau (qui n'ont aucune chance de faire 2 yeux).
 
@@ -443,14 +485,14 @@ De plus, puisque Noir a l'avantage de commencer, on accorde à Blanc une compens
 
 La valeur du komi dépend de la taille du goban, mais elle est généralement de 5,5 ou 6,5 points. Les 0,5 points permettent d'éviter les résultats à égalité.
 
-Heureusement, l'application fait tous ces calculs pour toi :-)"]]></string>
+Heureusement, l'application fait tous ces calculs pour toi ;-)]]></string>
     <string name="tutorial_advanced_cuttingstones_name">Pierres de coupe</string>
     <string name="tutorial_advanced_cuttingstones_cutting1_text"><![CDATA["Il semblerait que Blanc ait plus de territoire.
 Cependant, son mur a un point faible. "Coupons" ce mur blanc.
 
 Si tu réussis, Blanc aura le plus grand mal à faire vivre ses deux groupes."]]></string>
     <string name="tutorial_advanced_cuttingstones_cutting1_branches2_message">Les pierres blanches sont connectées.</string>
-    <string name="tutorial_advanced_cuttingstones_cutting2_text"><![CDATA["Noir a 30 points alors que Blanc en a 31. On dirait bien que Blanc gagne d'un point.
+    <string name="tutorial_advanced_cuttingstones_cutting2_text"><![CDATA["Noir a 30 points alors que Blanc en a 31. On dirait bien que Blanc gagne d'1 point.
 Cependant, le territoire du bord inférieur n'appartient pas entièrement à Blanc.
 
 Coupons le mur blanc."]]></string>
