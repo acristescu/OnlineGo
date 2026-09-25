@@ -358,6 +358,7 @@
     <string name="supporter_reason_promote_description">Avoir une application Android développée de manière professionnelle permet à plus de gens de découvrir ce jeu incroyable.</string>
     <string name="supporter_faqs">FAQ</string>
     <string name="supporter_faq_money_question">À quoi servent les dons ?</string>
+    <string name="supporter_faq_money_answer">Les donations permettent à notre principal développeur, un sous-traitant Android professionnel, de se réserver du temps entre deux contrats pour travailler sur ce projet. À l\'avenir, il pourrait se consacrer à plein temps à l\'amélioration de l\'application à un rythme bien plus rapide.</string>
     <string name="supporter_faq_features_question">Existe-t-il des fonctionnalités réservées aux Supporters ?</string>
     <string name="supporter_faq_features_answer">Non, parce que nous croyons que tout le monde devrait avoir accès à une application Android professionnelle pour le Go. Le support est entièrement facultatif.</string>
     <string name="supporter_faq_cancel_question">Puis-je modifier ou annuler mon abonnement ?</string>
@@ -388,10 +389,21 @@
     <string name="stats_blitz">Blitz</string>
     <string name="stats_correspondence_short">Corresp.</string>
     <string name="stats_correspondence">Correspondance</string>
+    <string name="stats_all_games">Toutes les parties</string>
     <string name="stats_black">Noir</string>
     <string name="stats_white">Blanc</string>
     <string name="stats_won_lost">%1$d gagné · %2$d perdue</string>
     <string name="stats_no_streak">-</string>
+    <plurals name="stats_streak_wins">
+        <item quantity="one">%d victoire</item>
+        <item quantity="other">%d victoires</item>
+    </plurals>
+    <plurals name="stats_streak_losses">
+        <item quantity="one">%d défaite</item>
+        <item quantity="other">%d défaites</item>
+    </plurals>
+    <string name="stats_no_ranked_games">Aucune partie classée enregistrée</string>
+    <string name="stats_filter_1m">1M</string>
     <string name="stats_filter_3m">3M</string>
     <string name="stats_filter_1y">1A</string>
     <string name="stats_filter_5y">5A</string>
@@ -399,9 +411,21 @@
     <string name="stats_filter_last_20">20 dernières</string>
     <string name="stats_filter_last_100">100 dernières</string>
     <string name="stats_tooltip_elo_rank">%1$d ELO (%2$s)</string>
+    <string name="stats_tooltip_on_date">le %1$s</string>
+    <string name="stats_tooltip_delta_elo">%1$d ELO</string>
+    <string name="stats_tooltip_since_game">depuis la partie %1$d</string>
+    <string name="stats_tooltip_since_date">Depuis le %1$s</string>
     <string name="puzzle_directory_title">Problèmes</string>
+    <string name="puzzle_directory_recently_opened">Ouvert récemment</string>
     <string name="puzzle_directory_rating_count">(%1$s)</string>
     <string name="puzzle_directory_by_author">Par %1$s %2$s</string>
+    <string name="puzzle_directory_count_label">Contenu</string>
+    <plurals name="puzzle_directory_puzzle_count">
+        <item quantity="one">%d problème</item>
+        <item quantity="other">%d problèmes</item>
+    </plurals>
+    <string name="puzzle_directory_rank_label">Niveau</string>
+    <string name="puzzle_directory_rank_range">de %1$s à %2$s</string>
     <string name="puzzle_directory_solved_label">Résolu</string>
     <string name="puzzle_directory_solved_value">%1$d (%2$.1f%%)</string>
     <string name="puzzle_directory_completed">Terminé</string>
