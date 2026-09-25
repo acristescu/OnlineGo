@@ -505,9 +505,9 @@
     <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_5_4_message">Noir est isolé</string>
     <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_5_5_message">Noir est isolé</string>
     <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_6_message">Noir est isolé</string>
-    <string name="tutorial_intermediate_morepuzzles_puzzles5_branches_branch3_4_message"><![CDATA[« Trois pierres noires ne peuvent pas s'échapper. »]]></string>
-    <string name="tutorial_intermediate_morepuzzles_puzzles5_branches_branch5_message"><![CDATA[« Deux pierres noires ne peuvent pas s'échapper. »]]></string>
-    <string name="tutorial_intermediate_morepuzzles_puzzles5_branches_branch6_message"><![CDATA[« Deux pierres noires ne peuvent pas s'échapper. »]]></string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles5_branches_branch3_4_message"><![CDATA["Trois pierres noires ne peuvent pas s'échapper."]]></string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles5_branches_branch5_message"><![CDATA["Deux pierres noires ne peuvent pas s'échapper."]]></string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles5_branches_branch6_message"><![CDATA["Deux pierres noires ne peuvent pas s'échapper."]]></string>
     <string name="tutorial_advanced_title">Avancé</string>
     <string name="tutorial_advanced_thefirstmoves_name">Les premiers coups</string>
     <string name="tutorial_advanced_thefirstmoves_firstmoves1_page1_text"><![CDATA["Jusqu'ici, nous avons cherché à capturer des pierres. Cependant, en début de partie, il n'y a pas de pierre sur le goban. Regardons ensemble où jouer les premiers coups pour augmenter tes chances de victoire.
@@ -522,9 +522,9 @@ Quels territoires sont les plus simples à encercler ? Les coins, les bords, ou 
     <string name="tutorial_advanced_thefirstmoves_firstmoves1_page6_text"><![CDATA["C'est pour cela que les joueurs avertis commencent par les coins pour se tourner seulement après vers les bords, laissant le milieu pour plus tard."]]></string>
     <string name="tutorial_advanced_thefirstmoves_firstmoves2_text"><![CDATA["Voici les 20 premiers coups d'une partie réelle jouée entre deux joueurs professionnels."]]></string>
     <string name="tutorial_advanced_themiddlegame_name">Le milieu de partie</string>
-    <string name="tutorial_advanced_themiddlegame_middlegame1_text"><![CDATA[« Noir est bloqué dans le coin inférieur gauche. Son groupe sera enfermé si vous ne faites rien. »]]></string>
-    <string name="tutorial_advanced_themiddlegame_middlegame2_text"><![CDATA[« Noir bloque Blanc dans la zone inférieure à droite. Les blancs n'ont pas encore 2 yeux.
-Puis Blanc a joué G2.
+    <string name="tutorial_advanced_themiddlegame_middlegame1_text"><![CDATA["Noir est bloqué dans le coin inférieur gauche. Son groupe sera enfermé si vous ne faites rien."]]></string>
+    <string name="tutorial_advanced_themiddlegame_middlegame2_text"><![CDATA["Noir bloque Blanc dans la zone inférieure à droite. Les blancs n'ont pas encore 2 yeux.
+Puis Blanc à joué G2.
 
 Regardez ce qui se passe si Noir répond en F1 (ou G1) avant de trouver la bonne réponse."]]></string>
     <string name="tutorial_advanced_endgamescoring_name">Fin de partie : Comptage</string>
