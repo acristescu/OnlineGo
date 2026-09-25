@@ -27,6 +27,7 @@ import io.zenandroid.onlinego.ui.composables.Board
 import io.zenandroid.onlinego.ui.composables.ChatIndicator
 import io.zenandroid.onlinego.ui.composables.PlayerColorIndicator
 import io.zenandroid.onlinego.ui.screens.mygames.Action
+import io.zenandroid.onlinego.ui.screens.mygames.formatGameOutcome
 import io.zenandroid.onlinego.utils.calculateTimer
 
 @ExperimentalComposeUiApi
@@ -80,7 +81,7 @@ fun SmallGameItem(game: Game, userId: Long?, onAction: (Action) -> Unit) {
             modifier = Modifier.align(Alignment.CenterVertically)
           )
         }
-        if (game.blackLost != true && game.whiteLost != true) {
+        if (game.blackLost != true && game.whiteLost != true && game.outcome.isNullOrEmpty() && game.annulled != true) {
           Row(modifier = Modifier.padding(top = 4.dp)) {
             Text(
               text = calculateTimer(game),
@@ -100,28 +101,7 @@ fun SmallGameItem(game: Game, userId: Long?, onAction: (Action) -> Unit) {
             }
           }
         } else {
-          val outcome = when {
-            game.outcome == "Cancellation" -> stringResource(R.string.mygames_outcome_cancelled)
-            userId == game.blackPlayer.id ->
-              if (game.blackLost == true) stringResource(
-                R.string.mygames_outcome_lost_by,
-                game.outcome.orEmpty()
-              )
-              else stringResource(R.string.mygames_outcome_won_by, game.outcome.orEmpty())
-
-            userId == game.whitePlayer.id ->
-              if (game.whiteLost == true) stringResource(
-                R.string.mygames_outcome_lost_by,
-                game.outcome.orEmpty()
-              )
-              else stringResource(R.string.mygames_outcome_won_by, game.outcome.orEmpty())
-
-            game.whiteLost == true ->
-              stringResource(R.string.mygames_outcome_black_won_by, game.outcome.orEmpty())
-
-            else ->
-              stringResource(R.string.mygames_outcome_white_won_by, game.outcome.orEmpty())
-          }
+          val outcome = formatGameOutcome(game, userId)
           Text(
             text = outcome,
             color = MaterialTheme.colorScheme.onSurface,

@@ -554,6 +554,15 @@
     <string name="mygames_outcome_won_by">Won by %1$s</string>
     <string name="mygames_outcome_black_won_by">Black won by %1$s</string>
     <string name="mygames_outcome_white_won_by">White won by %1$s</string>
+    <string name="mygames_outcome_lost_with_reason">Lost %1$s</string>
+    <string name="mygames_outcome_won_with_reason">Won %1$s</string>
+    <string name="mygames_outcome_black_won_with_reason">Black won %1$s</string>
+    <string name="mygames_outcome_white_won_with_reason">White won %1$s</string>
+    <string name="mygames_outcome_reason_resignation">by resignation</string>
+    <string name="mygames_outcome_reason_points">by %1$s points</string>
+    <string name="mygames_outcome_reason_timeout">by timeout</string>
+    <string name="mygames_outcome_reason_disconnection">by disconnection</string>
+    <string name="mygames_outcome_reason_other">by %1$s</string>
     <string name="mygames_greeting">Hi %1$s,</string>
     <plurals name="mygames_your_turn_count">
         <item quantity="one">It\'s your turn in %d game.</item>

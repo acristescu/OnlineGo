@@ -82,7 +82,7 @@ fun HistoricGameLazyRow(
             modifier = Modifier.padding(horizontal = 15.dp)
           )
           val outcome = when {
-            game.outcome == "Cancellation" -> stringResource(R.string.mygames_outcome_cancelled)
+            game.annulled == true || game.outcome == "Cancellation" -> stringResource(R.string.mygames_outcome_cancelled)
             userId == game.blackPlayer.id ->
               if (game.blackLost == true) stringResource(R.string.mygames_outcome_lost)
               else stringResource(R.string.mygames_outcome_won)
@@ -96,9 +96,6 @@ fun HistoricGameLazyRow(
 
             else ->
               stringResource(R.string.mygames_outcome_white_won)
-          }.let {
-            if (game.annulled != true) it
-            else it + " - " + stringResource(R.string.mygames_outcome_annulled)
           }
           Text(
             text = outcome,
