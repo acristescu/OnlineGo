@@ -25,12 +25,12 @@
     <string name="ai_game_chat_game_over_computing_score">La partie est terminée car les deux joueurs ont passé leur tour. Un moment, je calcule le score final.</string>
     <string name="ai_game_chat_resign_offer">Je crois que j\'ai perdu cette fois...</string>
     <string name="ai_game_chat_ai_resigned">J\'abandonne, tu as gagné ! Bien joué.</string>
-    <string name="ai_resign_offer_title">Je pense que j\'ai perdu cette partie.</string>
+    <string name="ai_resign_offer_title">Je pense que j\'ai perdu cette partie</string>
     <string name="ai_resign_offer_message">J\'aimerais abandonner ici. Voulez-vous accepter ou continuer de jouer ?</string>
     <string name="ai_resign_offer_accept">Accepter l\'abandon</string>
     <string name="ai_resign_offer_decline">Continuer à jouer</string>
     <string name="ai_game_handicap_none">aucun</string>
-    <string name="ai_game_handicap_no_komi">pas de komi</string>
+    <string name="ai_game_handicap_no_komi">sans komi</string>
     <string name="ai_game_avatar_content_description">IA</string>
     <string name="ai_game_new">Nouvelle Partie</string>
     <string name="ai_game_pass">Passer</string>
@@ -53,8 +53,8 @@
     <string name="ai_game_player_captures_and_komi">Prisonniers : %1$d · Komi : %2$s</string>
     <string name="ai_game_player_captures_only">Prisonniers : %1$d</string>
     <string name="ai_game_eval_winrate_compact">N %1$.1f%% · %2$.1f%% B</string>
-    <string name="ai_game_eval_score_lead_compact">%1$s +%2$.1f points d\'avance </string>
-    <string name="ai_game_hide_eval">Cacher l\'évaluation </string>
+    <string name="ai_game_eval_score_lead_compact">%1$s +%2$.1f points d\'avance</string>
+    <string name="ai_game_hide_eval">Cacher l\'évaluation</string>
     <string name="ai_game_show_eval">Montrer l\'évaluation</string>
     <string name="new_game">Nouvelle partie</string>
     <string name="board_size">Taille du plateau</string>
@@ -107,21 +107,21 @@
     <string name="face_to_face_avatar_content_description">Avatar</string>
     <string name="face_to_face_estimating">Estimation en cours</string>
     <string name="face_to_face_game_is_over">Fin de la partie !</string>
-    <string name="face_to_face_game_is_not_over">Recommandation: La partie n\'est pas terminée !</string>
+    <string name="face_to_face_game_is_not_over">Recommandation : la partie n\'est pas terminée !</string>
     <string name="face_to_face_ko_dialog_title">Situation de KO illégale</string>
     <string name="face_to_face_ko_dialog_message">Ce coup répéterait la position du plateau. C\'est ce qu\'on appelle un KO, et ce n\'est pas autorisé. Essayez d\'abord de jouer un autre coup, de préférence une menace que l\'adversaire ne peut pas ignorer.</string>
     <string name="face_to_face_score_komi">Komi</string>
     <string name="face_to_face_score_captures">Prisonniers </string>
     <string name="face_to_face_score_dead">Mort</string>
     <string name="face_to_face_score_territory">territoire</string>
-    <string name="face_to_face_score_total">Territoire </string>
+    <string name="face_to_face_score_total">Territoire</string>
     <string name="face_to_face_new_game_title">Nouvelle partie</string>
     <string name="face_to_face_new_game_size">Taille</string>
     <string name="face_to_face_start_new_game">Démarrer une nouvelle partie</string>
     <string name="face_to_face_button_new_game">Nouvelle partie</string>
     <string name="face_to_face_button_estimate_score">Estimer le score</string>
-    <string name="face_to_face_button_previous">Précédent </string>
-    <string name="face_to_face_button_next">Suivant </string>
+    <string name="face_to_face_button_previous">Précédent</string>
+    <string name="face_to_face_button_next">Suivant</string>
     <string name="face_to_face_button_return">Retour</string>
     <string name="face_to_face_button_pass">Passer</string>
     <string name="game_title_white_to_move">Coup %1$d · %2$s · Blanc</string>
@@ -472,12 +472,68 @@
     <string name="new_challenge_select_opponent">[Sélectionner un adversaire]</string>
     <string name="select_opponent_tab_bot">Robot</string>
     <string name="select_opponent_tab_recent">Récent</string>
+    <string name="mygames_accept">Accepter</string>
+    <string name="mygames_decline">Refuser</string>
+    <string name="mygames_see_details">Voir Détails</string>
+    <string name="mygames_challenge_received">Vous avez reçu un défi !</string>
+    <string name="mygames_paused">en pause</string>
+    <string name="mygames_outcome_cancelled">Annulée</string>
+    <string name="mygames_outcome_lost">Perdue</string>
+    <string name="mygames_outcome_won">Gagnée</string>
+    <string name="mygames_outcome_black_won">Noir gagne</string>
+    <string name="mygames_outcome_white_won">Blanc gagne</string>
+    <string name="mygames_outcome_annulled">Annulée</string>
+    <string name="mygames_detail_board_size">Taille du plateau</string>
+    <string name="mygames_detail_speed">Cadence</string>
+    <string name="mygames_detail_ranked">Classé</string>
+    <string name="mygames_detail_analysis">Analyse</string>
+    <string name="mygames_detail_rules">Règles</string>
+    <string name="mygames_alert_ogs_error_title">Erreur d\'OGS</string>
+    <string name="learn_section_study">Étudier</string>
+    <string name="learn_title_learn">Apprendre</string>
+    <string name="learn_study_title_joseki_explorer">Explorateur de Joseki</string>
+    <string name="earn_study_title_puzzles">Problèmes</string>
+    <string name="tutorial_basics_title">Bases</string>
+    <string name="tutorial_basics_thebasics_title">Les Bases</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_1_2_message">Les groupes noirs sont séparés</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_2_message">Les groupes noirs sont séparés</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_3_message">Les groupes noirs sont séparés</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_4_message">Les groupes noirs sont séparés</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_5_1_message">Noir est isolé</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_5_2_message">Noir est isolé</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_5_3_message">Noir est isolé</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_5_4_message">Noir est isolé</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_5_5_message">Noir est isolé</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_6_message">Noir est isolé</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles5_branches_branch3_4_message"><![CDATA[« Trois pierres noires ne peuvent pas s'échapper. »]]></string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles5_branches_branch5_message"><![CDATA[« Deux pierres noires ne peuvent pas s'échapper. »]]></string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles5_branches_branch6_message"><![CDATA[« Deux pierres noires ne peuvent pas s'échapper. »]]></string>
+    <string name="tutorial_advanced_title">Avancé</string>
+    <string name="tutorial_advanced_thefirstmoves_name">Les premiers coups</string>
+    <string name="tutorial_advanced_thefirstmoves_firstmoves1_page1_text"><![CDATA["Jusqu'ici, nous avons cherché à capturer des pierres. Cependant, en début de partie, il n'y a pas de pierre sur le goban. Regardons ensemble où jouer les premiers coups pour augmenter tes chances de victoire.
+
+D'abord, séparons le goban en 3 zones. Voici les coins :"]]></string>
+    <string name="tutorial_advanced_thefirstmoves_firstmoves1_page2_text"><![CDATA["… les bords…"]]></string>
+    <string name="tutorial_advanced_thefirstmoves_firstmoves1_page3_text"><![CDATA["… et le milieu. Bien sûr, on utilise ces noms pour s'y retrouver, mais aucun n'a de règle spéciale."]]></string>
+    <string name="tutorial_advanced_thefirstmoves_firstmoves1_page4_text"><![CDATA["Le but du jeu est d'encercler plus de territoire que ton adversaire. Puisque vous placez vos pierres l'un après l'autre, vous en utilisez autant. Ainsi, le gagnant est celui qui a utilisé ces pierres le plus efficacement.
+
+Quels territoires sont les plus simples à encercler ? Les coins, les bords, ou le centre ?"]]></string>
+    <string name="tutorial_advanced_thefirstmoves_firstmoves1_page5_text"><![CDATA["Chacun des groupes ci-dessous encercle exactement 9 intersections, donc ils valent tous 9 points. Cependant, celui du coin utilise 6 pierres, celui du bord 9 et celui du centre nécessite 12 pierres !"]]></string>
+    <string name="tutorial_advanced_thefirstmoves_firstmoves1_page6_text"><![CDATA["C'est pour cela que les joueurs avertis commencent par les coins pour se tourner seulement après vers les bords, laissant le milieu pour plus tard."]]></string>
+    <string name="tutorial_advanced_thefirstmoves_firstmoves2_text"><![CDATA["Voici les 20 premiers coups d'une partie réelle jouée entre deux joueurs professionnels."]]></string>
+    <string name="tutorial_advanced_themiddlegame_name">Le milieu de partie</string>
+    <string name="tutorial_advanced_themiddlegame_middlegame1_text"><![CDATA[« Noir est bloqué dans le coin inférieur gauche. Son groupe sera enfermé si vous ne faites rien. »]]></string>
+    <string name="tutorial_advanced_themiddlegame_middlegame2_text"><![CDATA[« Noir bloque Blanc dans la zone inférieure à droite. Les blancs n'ont pas encore 2 yeux.
+Puis Blanc a joué G2.
+
+Regardez ce qui se passe si Noir répond en F1 (ou G1) avant de trouver la bonne réponse."]]></string>
+    <string name="tutorial_advanced_endgamescoring_name">Fin de partie : Comptage</string>
     <string name="tutorial_advanced_endgamescoring_endgame1_page5_text"><![CDATA["Voici une autre partie terminée. Noir à 5 points et Blanc 6.
 
 Les deux intersections au centre sont neutres ('Dame') et ne comptent ni pour l'un, ni pour l'autre joueur.
 
 Les joueurs peuvent y jouer mais ne gagneront ni ne perdront de points."]]></string>
-    <string name="tutorial_advanced_endgamescoring_endgame1_page6_text"><![CDATA["Bien que le territoire forme la plus grosse partie des points, rappelle-toi qu'il y a d'autres points bonus à ajouter."
+    <string name="tutorial_advanced_endgamescoring_endgame1_page6_text"><![CDATA["Bien que le territoire forme la plus grosse partie des points, rappelle-toi qu'il y a d'autres points bonus à ajouter.
 
 Chaque pierre capturée vaut 1 point, de même que les pierres mortes encore sur le plateau (qui n'ont aucune chance de faire 2 yeux).
 
@@ -485,7 +541,7 @@ De plus, puisque Noir a l'avantage de commencer, on accorde à Blanc une compens
 
 La valeur du komi dépend de la taille du goban, mais elle est généralement de 5,5 ou 6,5 points. Les 0,5 points permettent d'éviter les résultats à égalité.
 
-Heureusement, l'application fait tous ces calculs pour toi ;-)]]></string>
+Heureusement, l'application fait tous ces calculs pour toi ;-)"]]></string>
     <string name="tutorial_advanced_cuttingstones_name">Pierres de coupe</string>
     <string name="tutorial_advanced_cuttingstones_cutting1_text"><![CDATA["Il semblerait que Blanc ait plus de territoire.
 Cependant, son mur a un point faible. "Coupons" ce mur blanc.
