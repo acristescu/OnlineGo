@@ -529,10 +529,6 @@ Jugar contra ellos requiere una conexión a internet activa.</string>
     <string name="mygames_outcome_black_won">Ganaron las Negras</string>
     <string name="mygames_outcome_white_won">Ganaron las Blancas</string>
     <string name="mygames_outcome_annulled">Anulado</string>
-    <string name="mygames_outcome_lost_by">Perdido por %1$s</string>
-    <string name="mygames_outcome_won_by">Ganado por %1$s</string>
-    <string name="mygames_outcome_black_won_by">Negro ganó por %1$s</string>
-    <string name="mygames_outcome_white_won_by">Blanco ganó por %1$s</string>
     <string name="mygames_greeting">Hi %1$s,</string>
     <plurals name="mygames_your_turn_count">
         <item quantity="one">Es tu turno en %d.</item>

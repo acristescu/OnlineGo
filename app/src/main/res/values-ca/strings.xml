@@ -528,10 +528,6 @@
     <string name="mygames_outcome_black_won">Les negres han guanyat</string>
     <string name="mygames_outcome_white_won">Les blanques han guanyat</string>
     <string name="mygames_outcome_annulled">Annulat</string>
-    <string name="mygames_outcome_lost_by">Heu perdut per %1$s</string>
-    <string name="mygames_outcome_won_by">Heu guanyat per %1$s</string>
-    <string name="mygames_outcome_black_won_by">Les negres han guanyat per %1$s</string>
-    <string name="mygames_outcome_white_won_by">Les blanques han guanyat per %1$s</string>
     <string name="mygames_greeting">Hola %1$s,</string>
     <plurals name="mygames_your_turn_count">
         <item quantity="one">És el vostre torn en %d partida.</item>
