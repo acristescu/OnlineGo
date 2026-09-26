@@ -9,6 +9,7 @@
     <string name="ai_game_chat_ready">Готов!</string>
     <string name="ai_game_chat_use_new_game_button">Чтобы начать новую игру, нажмите \'Новая игра\'</string>
     <string name="ai_game_chat_engine_error">Ошибка при запуске KataGO: \'%1$s\'</string>
+    <string name="ai_game_chat_engine_starting"></string>
     <string name="ai_game_chat_invalid_move">Недопустимый ход, попробуйте снова</string>
     <string name="ai_game_chat_lets_try_again">Хорошо, давайте попробуем снова. Ваш ход!</string>
     <string name="ai_game_chat_hmmm">Хмммм…</string>
@@ -18,10 +19,16 @@
     <string name="ai_game_chat_territories">Вот как, по моему мнению, выглядят территории</string>
     <string name="ai_game_chat_im_thinking">Думаю…</string>
     <string name="ai_game_chat_your_turn">Ваш ход</string>
+    <string name="ai_game_chat_ai_passed">I pass. Your turn!</string>
     <string name="ai_game_chat_game_over_ai_won">Игра завершена из-за двух пасов. Финальный счёт: чёрные - %1$s, белые - %2$s. Похоже, на этот раз я выиграл.</string>
     <string name="ai_game_chat_game_over_player_won">Игра завершена из-за двух пасов. Финальный счёт: чёрные - %1$s, белые - %2$s. Поздравляю, похоже, вы меня переиграли.</string>
     <string name="ai_game_chat_game_over_computing_score">Игра завершена из-за двух пасов. Подождите, вычисляю финальный счёт.</string>
     <string name="ai_game_chat_resign_offer">I think I\'ve lost this one…</string>
+    <string name="ai_game_chat_ai_resigned"></string>
+    <string name="ai_resign_offer_title"></string>
+    <string name="ai_resign_offer_message"></string>
+    <string name="ai_resign_offer_accept">Принять сдачу</string>
+    <string name="ai_resign_offer_decline">Продолжить игру</string>
     <string name="ai_game_handicap_none">нет</string>
     <string name="ai_game_handicap_no_komi">без коми</string>
     <string name="ai_game_avatar_content_description">ИИ</string>

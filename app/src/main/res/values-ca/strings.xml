@@ -9,6 +9,7 @@
     <string name="ai_game_chat_ready">Preparat/da!</string>
     <string name="ai_game_chat_use_new_game_button">Utilitzeu el botó \'Nova Partida\' per començar una partida</string>
     <string name="ai_game_chat_engine_error">Error en iniciar el KataGO: \'%1$s\'</string>
+    <string name="ai_game_chat_engine_starting">Iniciant el motor d’IA, espereu si us plau...</string>
     <string name="ai_game_chat_invalid_move">Moviment no vàlid, torneu-ho a provar</string>
     <string name="ai_game_chat_lets_try_again">D\'acord, torneu-ho a provar. És el vostre torn!</string>
     <string name="ai_game_chat_hmmm">Hmmm…</string>
@@ -24,6 +25,8 @@
     <string name="ai_game_chat_game_over_computing_score">La partida ha acabat perquè tots dos jugadors hem passat. Espereu un moment, estic calculant el resultat final.</string>
     <string name="ai_game_chat_resign_offer">Crec que aquesta vegada he perdut...</string>
     <string name="ai_game_chat_ai_resigned">Abandono. Heu guanyat! Ben jugat.</string>
+    <string name="ai_resign_offer_title">Em sembla que he perdut aquesta</string>
+    <string name="ai_resign_offer_message">Voldria abandonar. Accepteu o seguim jugant?</string>
     <string name="ai_resign_offer_accept">Accepto l\'abandonament</string>
     <string name="ai_resign_offer_decline">Continueu jugant</string>
     <string name="ai_game_handicap_none">cap</string>
@@ -47,6 +50,12 @@
     <string name="you">" Tu"</string>
     <string name="prisoners">Presoners</string>
     <string name="komi">Komi</string>
+    <string name="ai_game_player_captures_and_komi">Captures: %1$d · Komi: %2$s</string>
+    <string name="ai_game_player_captures_only">Captures: %1$d</string>
+    <string name="ai_game_eval_winrate_compact">N %1$.1f%% · %2$.1f%% B</string>
+    <string name="ai_game_eval_score_lead_compact">%1$s +%2$.1f pts d\'avantatge</string>
+    <string name="ai_game_hide_eval">Amagar l\'avaluació</string>
+    <string name="ai_game_show_eval">Mostrar l\'avaluació</string>
     <string name="new_game">Nova partida</string>
     <string name="board_size">Mida del tauler</string>
     <string name="you_play">El vostre torn</string>
@@ -528,6 +537,15 @@
     <string name="mygames_outcome_black_won">Les negres han guanyat</string>
     <string name="mygames_outcome_white_won">Les blanques han guanyat</string>
     <string name="mygames_outcome_annulled">Annulat</string>
+    <string name="mygames_outcome_lost_with_reason">Perdut %1$s</string>
+    <string name="mygames_outcome_won_with_reason">Guanyat %1$s</string>
+    <string name="mygames_outcome_black_won_with_reason">Les negres han guanyat %1$s</string>
+    <string name="mygames_outcome_white_won_with_reason">Les blanques han guanyat %1$s</string>
+    <string name="mygames_outcome_reason_resignation">per abandonament</string>
+    <string name="mygames_outcome_reason_points">per %1$s punts</string>
+    <string name="mygames_outcome_reason_timeout">per temps</string>
+    <string name="mygames_outcome_reason_disconnection">per desconnexió</string>
+    <string name="mygames_outcome_reason_other">per %1$s</string>
     <string name="mygames_greeting">Hola %1$s,</string>
     <plurals name="mygames_your_turn_count">
         <item quantity="one">És el vostre torn en %d partida.</item>
@@ -703,7 +721,7 @@ Primer, dividim el tauler en 3 àrees. Aquestes són les cantonades."]]></string
     <string name="tutorial_advanced_thefirstmoves_firstmoves1_page3_text"><![CDATA["... i aquest és el centre. Per descomptat, només són noms que fem servir per orientar-nos i no hi ha cap regla especial per a cap d'aquests."]]></string>
     <string name="tutorial_advanced_thefirstmoves_firstmoves1_page4_text"><![CDATA["L'objectiu del joc és encerclar més territori que el vostre adversari. Com que vós i el vostre adversari col·loqueu les pedres per torns, tots dos tindreu el mateix nombre de pedres. Per tant, el guanyador és el jugador que fa servir les seves pedres de manera més eficient.
 
-"On és més eficient encerclar territori? A les cantonades, als costats o al centre?"]]></string>
+On és més eficient encerclar territori? A les cantonades, als costats o al centre?"]]></string>
     <string name="tutorial_advanced_thefirstmoves_firstmoves1_page5_text"><![CDATA["Cadascun dels grups de sota encercla exactament 9 espais, de manera que cadascun obté 9 punts. Tot i això, el de la cantonada només necessita 6 pedres, el del costat 9, mentre que el del centre en necessita 12!"]]></string>
     <string name="tutorial_advanced_thefirstmoves_firstmoves1_page6_text"><![CDATA["Per tant, els jugadors savis jugaran primer a les cantonades i, només quan aquestes estiguin ocupades, passaran als costats, deixant el centre per al final."]]></string>
     <string name="tutorial_advanced_thefirstmoves_firstmoves2_text"><![CDATA["Aquí teniu les primeres 20 jugades d'una partida real entre dos jugadors professionals."]]></string>

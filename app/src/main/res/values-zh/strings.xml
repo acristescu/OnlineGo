@@ -9,6 +9,7 @@
     <string name="ai_game_chat_ready">准备！</string>
     <string name="ai_game_chat_use_new_game_button">点击新建按钮开始新对局</string>
     <string name="ai_game_chat_engine_error">启动KataGO时出错：“%1$s”</string>
+    <string name="ai_game_chat_engine_starting">\"Chinese\"</string>
     <string name="ai_game_chat_invalid_move">无效落子，请重试</string>
     <string name="ai_game_chat_lets_try_again">好的，我们再试一次。该你了！</string>
     <string name="ai_game_chat_hmmm">嗯……</string>
