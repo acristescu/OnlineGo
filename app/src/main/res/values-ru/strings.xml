@@ -54,4 +54,5 @@
     <string name="board_size">Размер доски</string>
     <string name="you_play">Вы играете</string>
     <string name="Black">Чёрные</string>
+    <string name="White">Белые</string>
 </resources>
