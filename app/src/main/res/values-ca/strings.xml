@@ -597,10 +597,10 @@ Pots tocar qualsevol d'aquests moviments interessants per explorar les posicions
 De vegades, la millor opció és jugar en un altre lloc. D'això se'n sol dir tenuki. Si fer tenuki és una opció interessant en la posició actual, s'activarà el botó de passar de la part inferior esquerra. Podeu prémer-lo per veure quines posicions es poden donar si el jugador actual fa tenuki."]]></string>
     <string name="tutorial_basics_title">Conceptes bàsics</string>
     <string name="tutorial_basics_thebasics_title">Els fonaments</string>
-    <string name="tutorial_basics_thebasics_basic1_text"><![CDATA[Recordeu si us plau les 3 regles següents:
-1.  Les negres i les blanques s\'alternen per col·locar "pedres" al tauler
+    <string name="tutorial_basics_thebasics_basic1_text"><![CDATA[Recordeu les 3 regles següents:
+1.  Les negres i les blanques s'alternen per col·locar "pedres" al tauler
 2. Les pedres es col·loquen a la intersecció de les línies.
-3. Un com col·locada la pedra no es pot moure mai, però pot ser capturada.
+3. Un cop col·locada la pedra no es pot moure mai, però pot ser capturada.
 Col·loqueu una pedra per continuar!]]></string>
     <string name="tutorial_basics_thebasics_capture1_page1_text"><![CDATA[Amb una jugada més, la pedra blanca quedarà completament envoltada i capturada. De les pedres que es poden capturar amb una sola jugada es diu que estan en "Atari".]]></string>
     <string name="tutorial_basics_thebasics_capture1_page2_text"><![CDATA[La pedra blanca ara està envoltada, així que...]]></string>
