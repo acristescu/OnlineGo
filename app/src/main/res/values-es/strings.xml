@@ -23,7 +23,6 @@
     <string name="ai_game_chat_game_over_ai_won">La partida terminó por hacer dos pases consecutivos. Puntaje final: Negro %1$s, Blanco: %2$s. Parece que gané.</string>
     <string name="ai_game_chat_game_over_player_won">La partida terminó por hacer dos pases consecutivos. Puntaje final: Negro %1$s, Blanco: %2$s. Felicitaciones, me ganaste.</string>
     <string name="ai_game_chat_game_over_computing_score">La partida terminó por hacer dos pases consecutivos. Estoy calculando el puntaje final.</string>
-    <string name="ai_game_chat_resign_offer">Creo que esta vez he perdido...</string>
     <string name="ai_game_chat_ai_resigned">Me rindo, ¡tú ganas! Bien jugado.</string>
     <string name="ai_resign_offer_title">Creo que he perdido</string>
     <string name="ai_resign_offer_message">Me rindo. ¿Aceptas o sigues jugando?</string>
@@ -540,6 +539,13 @@ Jugar contra ellos requiere una conexión a internet activa.</string>
     <string name="mygames_outcome_annulled">Anulado</string>
     <string name="mygames_outcome_lost_with_reason">Perdió %1$s</string>
     <string name="mygames_outcome_won_with_reason">Ganó %1$s</string>
+    <string name="mygames_outcome_black_won_with_reason">Ganó Negras %1$s</string>
+    <string name="mygames_outcome_white_won_with_reason">Ganó Blancas %1$s</string>
+    <string name="mygames_outcome_reason_resignation">por abandono</string>
+    <string name="mygames_outcome_reason_points">por %1$s puntos</string>
+    <string name="mygames_outcome_reason_timeout">por tiempo finalizado</string>
+    <string name="mygames_outcome_reason_disconnection">por desconexión</string>
+    <string name="mygames_outcome_reason_other">por %1$s</string>
     <string name="mygames_greeting">Hi %1$s,</string>
     <plurals name="mygames_your_turn_count">
         <item quantity="one">Es tu turno en %d.</item>
