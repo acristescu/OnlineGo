@@ -535,7 +535,7 @@
     <string name="mygames_header_icon_content_description">Pictogramă</string>
     <string name="mygames_offline_content_description">Offline</string>
     <string name="mygames_avatar_content_description">Avatar</string>
-    <string name="mygames_searching_for_game">Se caută un joc</string>
+    <string name="mygames_searching_for_game">Se caută un nou adversar</string>
     <string name="mygames_challenge_you_are_challenging">Îl provoci pe %1$s</string>
     <string name="mygames_challenge_is_challenging_you">%1$s te provoacă</string>
     <string name="mygames_accept">Acceptă</string>
