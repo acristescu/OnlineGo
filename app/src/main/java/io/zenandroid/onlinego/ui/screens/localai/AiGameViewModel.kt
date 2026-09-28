@@ -793,6 +793,7 @@ internal fun AiGameState.withoutTransientState() = copy(
   newGameDialogShown = false,
   koMoveDialogShowing = false,
   aiResignOfferShowing = false,
+  candidateMove = null,
 )
 
 private fun gameOverChatText(
