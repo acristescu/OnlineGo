@@ -9,6 +9,7 @@
     <string name="ai_game_chat_ready">¡Listo!</string>
     <string name="ai_game_chat_use_new_game_button">Use el botón \'Juego nuevo\' para iniciar una partida</string>
     <string name="ai_game_chat_engine_error">Error al iniciar KataGO \'%1$s\'</string>
+    <string name="ai_game_chat_engine_starting">Iniciando IA, espere por favor…</string>
     <string name="ai_game_chat_invalid_move">Movimiento inválido, inténtalo otra vez</string>
     <string name="ai_game_chat_lets_try_again">Bien, inténtalo otra vez ¡Es tu turno!</string>
     <string name="ai_game_chat_hmmm">Mmm…</string>
@@ -23,6 +24,8 @@
     <string name="ai_game_chat_game_over_player_won">La partida terminó por hacer dos pases consecutivos. Puntaje final: Negro %1$s, Blanco: %2$s. Felicitaciones, me ganaste.</string>
     <string name="ai_game_chat_game_over_computing_score">La partida terminó por hacer dos pases consecutivos. Estoy calculando el puntaje final.</string>
     <string name="ai_game_chat_ai_resigned">Me rindo, ¡tú ganas! Bien jugado.</string>
+    <string name="ai_resign_offer_title">Creo que he perdido</string>
+    <string name="ai_resign_offer_message">Me rindo. ¿Aceptas o sigues jugando?</string>
     <string name="ai_resign_offer_accept">Aceptar Rendición</string>
     <string name="ai_resign_offer_decline">Continuar Jugando</string>
     <string name="ai_game_handicap_none">ninguno</string>
@@ -46,6 +49,12 @@
     <string name="you">" Tú"</string>
     <string name="prisoners">Prisioneras</string>
     <string name="komi">Komi</string>
+    <string name="ai_game_player_captures_and_komi">Capturas: %1$d · Komi: %2$s</string>
+    <string name="ai_game_player_captures_only">Captures: %1$d</string>
+    <string name="ai_game_eval_winrate_compact">N %1$.1f%% · %2$.1f%% B</string>
+    <string name="ai_game_eval_score_lead_compact">%1$s +%2$.1f ptos de ventaja</string>
+    <string name="ai_game_hide_eval">Ocultar evaluación</string>
+    <string name="ai_game_show_eval">Mostrar evaluación</string>
     <string name="new_game">Nuevo juego</string>
     <string name="board_size">Tamaño del tablero</string>
     <string name="you_play">Tu turno</string>
@@ -528,6 +537,15 @@ Jugar contra ellos requiere una conexión a internet activa.</string>
     <string name="mygames_outcome_black_won">Ganaron las Negras</string>
     <string name="mygames_outcome_white_won">Ganaron las Blancas</string>
     <string name="mygames_outcome_annulled">Anulado</string>
+    <string name="mygames_outcome_lost_with_reason">Perdió %1$s</string>
+    <string name="mygames_outcome_won_with_reason">Ganó %1$s</string>
+    <string name="mygames_outcome_black_won_with_reason">Ganó Negras %1$s</string>
+    <string name="mygames_outcome_white_won_with_reason">Ganó Blancas %1$s</string>
+    <string name="mygames_outcome_reason_resignation">por abandono</string>
+    <string name="mygames_outcome_reason_points">por %1$s puntos</string>
+    <string name="mygames_outcome_reason_timeout">por tiempo finalizado</string>
+    <string name="mygames_outcome_reason_disconnection">por desconexión</string>
+    <string name="mygames_outcome_reason_other">por %1$s</string>
     <string name="mygames_greeting">Hi %1$s,</string>
     <plurals name="mygames_your_turn_count">
         <item quantity="one">Es tu turno en %d.</item>
