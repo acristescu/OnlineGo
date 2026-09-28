@@ -5,6 +5,7 @@ import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.crashlytics.FirebaseCrashlytics
+import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import io.zenandroid.onlinego.R
@@ -59,13 +60,7 @@ class AiGameViewModel(
   private var ownershipJob: Job? = null
   private var finalScoreJob: Job? = null
 
-  private val stateAdapter = Moshi.Builder()
-    .add(ResponseBriefMoshiAdapter())
-    .add(HashMapOfCellToStoneTypeMoshiAdapter())
-    .add(AiDifficultyMoshiAdapter())
-    .add(KotlinJsonAdapterFactory())
-    .build()
-    .adapter(AiGameState::class.java)
+  private val stateAdapter = aiGameStateAdapter()
 
   init {
     startEngine()
@@ -110,14 +105,26 @@ class AiGameViewModel(
       return
     }
     if (currentState.history.isGameOver()) {
-      if (currentState.aiWon == null) {
+      val aiWon = currentState.aiWon
+      if (aiWon == null) {
         finalScoreJob?.cancel()
         finalScoreJob = viewModelScope.launch { computeFinalScore() }
+      } else {
+        _state.update {
+          it.copy(
+            chatText = it.chatText
+              ?: gameOverChatText(aiWon, it.finalBlackScore, it.finalWhiteScore)
+          )
+        }
       }
       return
     }
     if (isEnginesTurn(position, currentState.enginePlaysBlack)) {
       generateAiMove()
+    } else {
+      _state.update {
+        it.copy(chatText = it.chatText ?: TextResource(R.string.ai_game_chat_your_turn))
+      }
     }
   }
 
@@ -169,7 +176,7 @@ class AiGameViewModel(
 
       if (newState != null) {
         _state.update { state ->
-          newState.copy(
+          newState.withoutTransientState().copy(
             engineStarted = state.engineStarted,
             engineFailedToStart = state.engineFailedToStart,
             stateRestorePending = false,
@@ -190,11 +197,7 @@ class AiGameViewModel(
 
   fun onViewPaused() {
     viewModelScope.launch {
-      val json = stateAdapter.toJson(
-        state.value.copy(
-          aiAnalysis = null,
-        )
-      )
+      val json = stateAdapter.toJson(state.value.withoutTransientState())
       settingsRepository.setAiGameState(json)
     }
   }
@@ -486,21 +489,10 @@ class AiGameViewModel(
         boardIsInteractive = false,
         showHints = false,
         chatText = when {
-          newVariation.isGameOver() && it.aiWon == true ->
-            textResource(
-              R.string.ai_game_chat_game_over_ai_won,
-              it.finalBlackScore?.toInt().toString(),
-              it.finalWhiteScore.toString()
-            )
+          newVariation.isGameOver() && it.aiWon != null ->
+            gameOverChatText(it.aiWon, it.finalBlackScore, it.finalWhiteScore)
 
-          newVariation.isGameOver() && it.aiWon == false ->
-            textResource(
-              R.string.ai_game_chat_game_over_player_won,
-              it.finalBlackScore?.toInt().toString(),
-              it.finalWhiteScore.toString()
-            )
-
-          newVariation.isGameOver() && it.aiWon == null ->
+          newVariation.isGameOver() ->
             TextResource(R.string.ai_game_chat_game_over_computing_score)
 
           else -> it.chatText
@@ -665,21 +657,10 @@ class AiGameViewModel(
           previousButtonEnabled = newVariation.size > 2,
           showFinalTerritory = newVariation.isGameOver(),
           chatText = when {
-            newVariation.isGameOver() && it.aiWon == true ->
-              textResource(
-                R.string.ai_game_chat_game_over_ai_won,
-                it.finalBlackScore?.toInt().toString(),
-                it.finalWhiteScore.toString()
-              )
+            newVariation.isGameOver() && it.aiWon != null ->
+              gameOverChatText(it.aiWon, it.finalBlackScore, it.finalWhiteScore)
 
-            newVariation.isGameOver() && it.aiWon == false ->
-              textResource(
-                R.string.ai_game_chat_game_over_player_won,
-                it.finalBlackScore?.toInt().toString(),
-                it.finalWhiteScore.toString()
-              )
-
-            newVariation.isGameOver() && it.aiWon == null ->
+            newVariation.isGameOver() ->
               TextResource(R.string.ai_game_chat_game_over_computing_score)
 
             selectedMove.move.equals("pass", ignoreCase = true) ->
@@ -755,18 +736,7 @@ class AiGameViewModel(
           passButtonEnabled = false,
           redoPosStack = emptyList(),
           boardIsInteractive = false,
-          chatText = if (aiWon)
-            textResource(
-              R.string.ai_game_chat_game_over_ai_won,
-              blackScore.toString(),
-              whiteScore.toString()
-            )
-          else
-            textResource(
-              R.string.ai_game_chat_game_over_player_won,
-              blackScore.toString(),
-              whiteScore.toString()
-            ),
+          chatText = gameOverChatText(aiWon, blackScore.toFloat(), whiteScore),
           finalWhiteScore = whiteScore,
           finalBlackScore = blackScore.toFloat(),
           aiWon = aiWon,
@@ -798,6 +768,42 @@ class AiGameViewModel(
     }
   }
 }
+
+@VisibleForTesting
+fun aiGameStateAdapter(): JsonAdapter<AiGameState> = Moshi.Builder()
+  .add(ResponseBriefMoshiAdapter())
+  .add(HashMapOfCellToStoneTypeMoshiAdapter())
+  .add(AiDifficultyMoshiAdapter())
+  .add(KotlinJsonAdapterFactory())
+  .build()
+  .adapter(AiGameState::class.java)
+
+/**
+ * [TextResource.resId] is a build-time aapt2 id, not a stable identifier - adding or removing any
+ * string reshuffles the ids after it, and the release resource shrinker drops entries no Kotlin
+ * code references - so persisting [AiGameState.chatText] makes it resolve to the wrong string, or
+ * to nothing at all, on the next app version. onLoadingComplete rebuilds it from live state.
+ *
+ * Applied on save *and* on restore, since saves written before this existed are already on disk.
+ */
+internal fun AiGameState.withoutTransientState() = copy(
+  aiAnalysis = null,
+  aiQuickEstimation = null,
+  chatText = null,
+  newGameDialogShown = false,
+  koMoveDialogShowing = false,
+  aiResignOfferShowing = false,
+)
+
+private fun gameOverChatText(
+  aiWon: Boolean,
+  finalBlackScore: Float?,
+  finalWhiteScore: Float?,
+) = textResource(
+  if (aiWon) R.string.ai_game_chat_game_over_ai_won else R.string.ai_game_chat_game_over_player_won,
+  finalBlackScore?.toInt().toString(),
+  finalWhiteScore.toString(),
+)
 
 private const val AI_RESIGN_WINRATE_THRESHOLD = 0.02f
 private const val AI_RESIGN_CONSECUTIVE_TURNS = 5

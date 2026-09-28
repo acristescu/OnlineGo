@@ -22,7 +22,6 @@
     <string name="ai_game_chat_game_over_ai_won">La partida ha acabat perquè tots dos jugadors hem passat. El resultat final és de %1$s per a les negres i %2$s per a les blanques. Sembla que aquesta vegada he guanyat jo.</string>
     <string name="ai_game_chat_game_over_player_won">La partida ha acabat perquè tots dos jugadors hem passat. El resultat final és de %1$s per a les negres i %2$s per a les blanques. Enhorabona, aquesta vegada m\'heu guanyat.</string>
     <string name="ai_game_chat_game_over_computing_score">La partida ha acabat perquè tots dos jugadors hem passat. Espereu un moment, estic calculant el resultat final.</string>
-    <string name="ai_game_chat_resign_offer">Crec que aquesta vegada he perdut...</string>
     <string name="ai_game_chat_ai_resigned">Abandono. Heu guanyat! Ben jugat.</string>
     <string name="ai_resign_offer_accept">Accepto l\'abandonament</string>
     <string name="ai_resign_offer_decline">Continueu jugant</string>

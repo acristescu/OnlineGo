@@ -2,8 +2,10 @@ package io.zenandroid.onlinego.ui.screens.localai
 
 import io.zenandroid.onlinego.data.model.Position
 import io.zenandroid.onlinego.data.model.StoneType
+import io.zenandroid.onlinego.data.model.katago.KataGoResponse.Response
 import io.zenandroid.onlinego.data.model.katago.MoveInfo
 import io.zenandroid.onlinego.data.model.katago.RootInfo
+import io.zenandroid.onlinego.ui.composables.TextResource
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertThrows
@@ -231,5 +233,84 @@ class AiGameViewModelTest {
     assertFalse(isEnginesTurn(blackToMove, enginePlaysBlack = false))
     assertTrue(isEnginesTurn(whiteToMove, enginePlaysBlack = false))
     assertFalse(isEnginesTurn(whiteToMove, enginePlaysBlack = true))
+  }
+
+  private val savedGame = AiGameState(
+    position = Position(boardWidth = 9, boardHeight = 9, nextToMove = StoneType.WHITE),
+    history = listOf(Position(boardWidth = 9, boardHeight = 9)),
+    boardSize = 9,
+    enginePlaysBlack = true,
+    handicap = 2,
+    difficulty = AiDifficulty.DAN_1,
+    redoPosStack = listOf(Position(boardWidth = 9, boardHeight = 9)),
+    finalBlackScore = 61.5f,
+    finalWhiteScore = 58f,
+    aiWon = true,
+    consecutiveLowWinrateTurns = 3,
+    aiResignOfferDeclined = true,
+    chatText = TextResource(1234),
+    aiAnalysis = Response(
+      id = "1",
+      turnNumber = 1,
+      moveInfos = emptyList(),
+      rootInfo = RootInfo(winrate = 0.5f),
+      policy = null,
+    ),
+    aiQuickEstimation = moveInfo("C3"),
+    newGameDialogShown = true,
+    koMoveDialogShowing = true,
+    aiResignOfferShowing = true,
+  )
+
+  @Test
+  fun `withoutTransientState drops everything that must not survive a save and restore`() {
+    val stripped = savedGame.withoutTransientState()
+
+    assertEquals(null, stripped.chatText)
+    assertEquals(null, stripped.aiAnalysis)
+    assertEquals(null, stripped.aiQuickEstimation)
+    assertFalse(stripped.newGameDialogShown)
+    assertFalse(stripped.koMoveDialogShowing)
+    assertFalse(stripped.aiResignOfferShowing)
+  }
+
+  @Test
+  fun `withoutTransientState keeps the durable game data`() {
+    val stripped = savedGame.withoutTransientState()
+
+    assertEquals(savedGame.position, stripped.position)
+    assertEquals(savedGame.history, stripped.history)
+    assertEquals(savedGame.boardSize, stripped.boardSize)
+    assertEquals(savedGame.enginePlaysBlack, stripped.enginePlaysBlack)
+    assertEquals(savedGame.handicap, stripped.handicap)
+    assertEquals(savedGame.difficulty, stripped.difficulty)
+    assertEquals(savedGame.redoPosStack, stripped.redoPosStack)
+    assertEquals(savedGame.finalBlackScore, stripped.finalBlackScore)
+    assertEquals(savedGame.finalWhiteScore, stripped.finalWhiteScore)
+    assertEquals(savedGame.aiWon, stripped.aiWon)
+    assertEquals(savedGame.consecutiveLowWinrateTurns, stripped.consecutiveLowWinrateTurns)
+    assertEquals(savedGame.aiResignOfferDeclined, stripped.aiResignOfferDeclined)
+  }
+
+  @Test
+  fun `no string resource id ever reaches the persisted json`() {
+    val json = aiGameStateAdapter().toJson(savedGame.withoutTransientState())
+
+    assertFalse(json.contains("resId"))
+    assertFalse(json.contains("chatText"))
+  }
+
+  @Test
+  fun `a save written before the fix still restores, minus its stale chat resource id`() {
+    val legacyJson = """
+      {"boardSize":9,"enginePlaysBlack":true,"handicap":2,
+       "chatText":{"resId":2131689517,"args":[]}}
+    """.trimIndent()
+
+    val restored = aiGameStateAdapter().fromJson(legacyJson)!!
+
+    assertEquals(TextResource(2131689517), restored.chatText)
+    assertEquals(null, restored.withoutTransientState().chatText)
+    assertEquals(9, restored.withoutTransientState().boardSize)
   }
 }

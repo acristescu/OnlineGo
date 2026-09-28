@@ -22,7 +22,6 @@
     <string name="ai_game_chat_game_over_ai_won">La partida terminó por hacer dos pases consecutivos. Puntaje final: Negro %1$s, Blanco: %2$s. Parece que gané.</string>
     <string name="ai_game_chat_game_over_player_won">La partida terminó por hacer dos pases consecutivos. Puntaje final: Negro %1$s, Blanco: %2$s. Felicitaciones, me ganaste.</string>
     <string name="ai_game_chat_game_over_computing_score">La partida terminó por hacer dos pases consecutivos. Estoy calculando el puntaje final.</string>
-    <string name="ai_game_chat_resign_offer">Creo que esta vez he perdido...</string>
     <string name="ai_game_chat_ai_resigned">Me rindo, ¡tú ganas! Bien jugado.</string>
     <string name="ai_resign_offer_accept">Aceptar Rendición</string>
     <string name="ai_resign_offer_decline">Continuar Jugando</string>

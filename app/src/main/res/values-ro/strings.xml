@@ -23,7 +23,6 @@
     <string name="ai_game_chat_game_over_ai_won">Jocul s-a încheiat pentru că amândoi am pasat. Scorul final este negru %1$s la alb %2$s. Se pare că am câștigat de data asta.</string>
     <string name="ai_game_chat_game_over_player_won">Jocul s-a încheiat pentru că amândoi am pasat. Scorul final este negru %1$s la alb %2$s. Felicitări, se pare că m-ai învins.</string>
     <string name="ai_game_chat_game_over_computing_score">Jocul s-a încheiat pentru că amândoi am pasat. O clipă, calculez scorul final.</string>
-    <string name="ai_game_chat_resign_offer">Cred că am pierdut de data asta…</string>
     <string name="ai_game_chat_ai_resigned">Mă dau bătut. Felicitări!</string>
     <string name="ai_resign_offer_title">Cred că am pierdut de data asta</string>
     <string name="ai_resign_offer_message">Vreau să cedez. Accepți sau vrei să continuam jocul?</string>

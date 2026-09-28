@@ -22,7 +22,6 @@
     <string name="ai_game_chat_game_over_ai_won">因为超时两次，对局结束。最终比分是黑方%1$s胜白方%2$s。看来这次我赢了。</string>
     <string name="ai_game_chat_game_over_player_won">由于超时两次，对局结束。最终比分是黑方%1$s比白方%2$s。恭喜你，看来你赢了我。</string>
     <string name="ai_game_chat_game_over_computing_score">对局因两次超时而结束。稍等，我正在计算最终得分。</string>
-    <string name="ai_game_chat_resign_offer">我想我弄丢了这个……</string>
     <string name="ai_game_chat_ai_resigned">我认输，你赢了！你做得很好。</string>
     <string name="ai_resign_offer_accept">接受认输</string>
     <string name="ai_resign_offer_decline">继续玩</string>
