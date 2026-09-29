@@ -1,3 +1,10 @@
+@file:UseSerializers(
+        OGSBooleanSerializer::class,
+        AnySerializer::class,
+        LenientIntSerializer::class,
+        LenientLongSerializer::class
+)
+
 package io.zenandroid.onlinego.data.model.ogs
 
 import io.zenandroid.onlinego.data.model.local.InitialState
@@ -5,7 +12,14 @@ import io.zenandroid.onlinego.data.ogs.OGSClock
 import io.zenandroid.onlinego.data.ogs.Players
 import io.zenandroid.onlinego.data.ogs.Scores
 import io.zenandroid.onlinego.data.ogs.TimeControl
+import kotlinx.serialization.Serializable
+import io.zenandroid.onlinego.data.ogs.AnySerializer
+import io.zenandroid.onlinego.data.ogs.OGSBooleanSerializer
+import kotlinx.serialization.UseSerializers
+import io.zenandroid.onlinego.data.ogs.LenientIntSerializer
+import io.zenandroid.onlinego.data.ogs.LenientLongSerializer
 
+@Serializable
 data class GameData (
         var handicap: Int? = null,
         var disable_analysis: Boolean? = null,

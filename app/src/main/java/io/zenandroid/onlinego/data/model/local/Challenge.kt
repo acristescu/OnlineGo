@@ -4,7 +4,11 @@ import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import io.zenandroid.onlinego.data.model.ogs.OGSChallenge
-import org.json.JSONObject
+import io.zenandroid.onlinego.utils.appJson
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.contentOrNull
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 
 @Entity
 data class Challenge(
@@ -27,7 +31,9 @@ data class Challenge(
 ) {
         companion object {
                 fun fromOGSChallenge(ogsChallenge: OGSChallenge): Challenge {
-                        val params = ogsChallenge.game?.time_control_parameters?.let { JSONObject(it) } ?: JSONObject()
+                        val params = ogsChallenge.game?.time_control_parameters
+                                ?.let { appJson.parseToJsonElement(it).jsonObject }
+                                ?: JsonObject(emptyMap())
                         return Challenge(
                                 id = ogsChallenge.id,
                                 challenger = ogsChallenge.challenger?.let { Player.fromOGSPlayer(it) },
@@ -39,7 +45,7 @@ data class Challenge(
                                 ranked = ogsChallenge.game?.ranked,
                                 handicap = ogsChallenge.game?.handicap,
                                 rules = ogsChallenge.game?.rules,
-                                speed = params.optString("speed")
+                                speed = params["speed"]?.jsonPrimitive?.contentOrNull ?: ""
                         )
                 }
         }

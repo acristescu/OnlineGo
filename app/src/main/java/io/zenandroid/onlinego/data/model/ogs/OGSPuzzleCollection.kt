@@ -1,3 +1,10 @@
+@file:UseSerializers(
+    OGSBooleanSerializer::class,
+    OGSInstantSerializer::class,
+    LenientIntSerializer::class,
+    LenientLongSerializer::class
+)
+
 package io.zenandroid.onlinego.data.model.ogs
 
 import androidx.compose.runtime.Immutable;
@@ -7,8 +14,15 @@ import androidx.room.Relation
 import io.zenandroid.onlinego.data.model.local.InitialState
 import io.zenandroid.onlinego.data.model.ogs.OGSPlayer
 import java.time.Instant
+import kotlinx.serialization.Serializable
+import io.zenandroid.onlinego.data.ogs.OGSBooleanSerializer
+import io.zenandroid.onlinego.data.ogs.OGSInstantSerializer
+import kotlinx.serialization.UseSerializers
+import io.zenandroid.onlinego.data.ogs.LenientIntSerializer
+import io.zenandroid.onlinego.data.ogs.LenientLongSerializer
 
 @Immutable
+@Serializable
 data class OGSPuzzleCollection (
     val id: Long = -1,
     val owner: OGSPlayer? = null,
@@ -29,6 +43,7 @@ data class OGSPuzzleCollection (
     val position_transform_enabled: Boolean? = null,
 ) {
     @Immutable
+    @Serializable
     data class StartingPuzzle (
         val id: Long = -1,
         @Embedded(prefix = "initial_state_") val initial_state: InitialState = InitialState(),

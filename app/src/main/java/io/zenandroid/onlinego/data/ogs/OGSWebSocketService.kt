@@ -2,8 +2,6 @@ package io.zenandroid.onlinego.data.ogs
 
 import android.util.Log
 import com.google.firebase.crashlytics.FirebaseCrashlytics
-import com.squareup.moshi.JsonEncodingException
-import com.squareup.moshi.Moshi
 import io.zenandroid.onlinego.BuildConfig
 import io.zenandroid.onlinego.data.model.ogs.NetPong
 import io.zenandroid.onlinego.data.model.ogs.OGSAutomatch
@@ -20,6 +18,7 @@ import io.zenandroid.onlinego.data.repositories.UserSessionRepository
 import io.zenandroid.onlinego.utils.JsonObjectScope
 import io.zenandroid.onlinego.utils.createJsonArray
 import io.zenandroid.onlinego.utils.json
+import io.zenandroid.onlinego.utils.appJson
 import io.zenandroid.onlinego.utils.recordException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -38,20 +37,27 @@ import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.yield
+import kotlinx.serialization.SerializationException
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.buildJsonArray
+import kotlinx.serialization.json.decodeFromJsonElement
+import kotlinx.serialization.json.jsonArray
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
+import kotlinx.serialization.json.longOrNull
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
 import okhttp3.WebSocket
 import okhttp3.WebSocketListener
-import org.json.JSONArray
-import org.json.JSONObject
 import org.koin.core.context.GlobalContext.get
 import java.util.Locale
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
-import java.util.concurrent.atomic.AtomicInteger
 import kotlin.concurrent.thread
 
 private const val TAG = "OGSWebSocketService"
@@ -61,7 +67,6 @@ private const val RECONNECT_DELAY_MAX_MS = 10000L
 private const val NORMAL_CLOSURE_STATUS = 1000
 
 class OGSWebSocketService(
-  private val moshi: Moshi,
   private val restService: OGSRestService,
   private val userSessionRepository: UserSessionRepository,
   private val httpClient: OkHttpClient,
@@ -80,11 +85,7 @@ class OGSWebSocketService(
   private val socketConnectedRepositories: List<SocketConnectedRepository> by get().inject()
 
   // Event listeners: event_name -> list of callbacks
-  private val eventListeners = ConcurrentHashMap<String, MutableList<(Any) -> Unit>>()
-
-  // Pending request/response callbacks: id -> callback
-  private val nextRequestId = AtomicInteger(1)
-  private val pendingRequests = ConcurrentHashMap<Int, (data: Any?, error: JSONObject?) -> Unit>()
+  private val eventListeners = ConcurrentHashMap<String, MutableList<(JsonElement) -> Unit>>()
 
   private val wsUrl = "wss://wsp.online-go.com/"
 
@@ -142,33 +143,23 @@ class OGSWebSocketService(
   }
 
   private fun handleMessage(text: String) {
-    val jsonArray = JSONArray(text)
-    val first = jsonArray.get(0)
+    val jsonArray = appJson.parseToJsonElement(text).jsonArray
+    val first = jsonArray[0].jsonPrimitive
 
-    if (first is String) {
+    if (first.isString) {
       // Server event: [event_name, data]
-      val eventName = first
-      val data = if (jsonArray.length() > 1) jsonArray.get(1) else JSONObject()
+      val eventName = first.content
+      val data = jsonArray.getOrNull(1) ?: JsonObject(emptyMap())
       if (BuildConfig.DEBUG) Log.i(TAG, "<== $eventName")
       dispatchEvent(eventName, data)
-    } else if (first is Number) {
-      // Response to a client request: [id, data?, error?]
-      val id = first.toInt()
-      val data = if (jsonArray.length() > 1 && !jsonArray.isNull(1)) jsonArray.get(1) else null
-      val error =
-        if (jsonArray.length() > 2 && !jsonArray.isNull(2)) jsonArray.optJSONObject(2) else null
-      if (BuildConfig.DEBUG) Log.i(TAG, "<== response id=$id")
-
-      val callback = pendingRequests.remove(id)
-      if (callback != null) {
-        callback(data, error)
-      } else {
-        if (BuildConfig.DEBUG) Log.w(TAG, "Received response for unknown request id=$id")
-      }
+    } else {
+      // Response to a client request: [id, data?, error?]. We never send a request id, so
+      // nothing should arrive here.
+      if (BuildConfig.DEBUG) Log.w(TAG, "Received unexpected response id=${first.longOrNull}")
     }
   }
 
-  private fun dispatchEvent(event: String, data: Any) {
+  private fun dispatchEvent(event: String, data: JsonElement) {
     val listeners = eventListeners[event]
     if (listeners != null) {
       synchronized(listeners) {
@@ -262,9 +253,9 @@ class OGSWebSocketService(
         gameDataFlow = observeEvent("game/$id/gamedata").parseJSON(),
         movesFlow = observeEvent("game/$id/move").parseJSON(),
         clockFlow = observeEvent("game/$id/clock").parseJSON(),
-        phaseFlow = observeEvent("game/$id/phase").map { string ->
+        phaseFlow = observeEvent("game/$id/phase").map { element ->
           Phase.valueOf(
-            string.toString().uppercase(Locale.ENGLISH).replace(' ', '_')
+            element.jsonPrimitive.content.uppercase(Locale.ENGLISH).replace(' ', '_')
           )
         },
         removedStonesFlow = observeEvent("game/$id/removed_stones").parseJSON(),
@@ -303,18 +294,18 @@ class OGSWebSocketService(
     connection.includeChat = true
   }
 
-  private inline fun <reified T> adapter(string: Any): T? {
+  private inline fun <reified T> decode(element: JsonElement): T {
     try {
-      return moshi.adapter(T::class.java).fromJson(string.toString())
-    } catch (e: JsonEncodingException) {
-      val up = Exception("Error parsing JSON: $string", e)
+      return appJson.decodeFromJsonElement<T>(element)
+    } catch (e: SerializationException) {
+      val up = Exception("Error parsing JSON: $element", e)
       recordException(up)
       throw up
     }
   }
 
-  private inline fun <reified T> Flow<Any>.parseJSON() =
-    map { adapter<T>(it)!! }
+  private inline fun <reified T> Flow<JsonElement>.parseJSON() =
+    map { decode<T>(it) }
 
   private fun emitGameConnection(id: Long, includeChat: Boolean) {
     runBlocking {
@@ -354,20 +345,17 @@ class OGSWebSocketService(
 
   fun connectToBots(): Flow<List<OGSPlayer>> =
     observeEvent("active-bots")
-      .map { string ->
+      .map { element ->
         //
         // HACK alert!!! Oh creators of OGS why do you torment me so and have different names
         // for the same field in different places!?!?? :)
         //
-        val fixedString = string.toString().replace("\"icon-url\":", "\"icon\":")
-        val json = JSONObject(fixedString)
-        val retval = mutableListOf<OGSPlayer>()
-        for (key in json.keys()) {
-          adapter<OGSPlayer>(json[key])?.let {
-            retval.add(it)
+        element.jsonObject.values.map { bot ->
+          val renamed = bot.jsonObject.mapKeys { (key, _) ->
+            if (key == "icon-url") "icon" else key
           }
+          decode<OGSPlayer>(JsonObject(renamed))
         }
-        return@map retval as List<OGSPlayer>
       }
 
   fun listenToNewAutomatchNotifications(): Flow<OGSAutomatch> =
@@ -384,11 +372,11 @@ class OGSWebSocketService(
   }
 
   @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
-  fun connectToServerNotifications(): Flow<JSONObject> =
+  fun connectToServerNotifications(): Flow<JsonObject> =
     userSessionRepository.userId
       .flatMapLatest { userId ->
         observeEvent("notification")
-          .map { JSONObject(it.toString()) }
+          .map { it.jsonObject }
           .onStart {
             this@OGSWebSocketService.emit("notification/connect") {
               "player_id" - userId
@@ -407,44 +395,22 @@ class OGSWebSocketService(
   fun emit(event: String, params: Any?) {
     ensureSocketConnected()
     if (BuildConfig.DEBUG) Log.i(TAG, "==> $event with params $params")
-    val message = JSONArray().apply {
-      put(event)
-      put(params ?: JSONObject.NULL)
-    }
-    socketDebugRepository.logSent(event, message.toString().take(500))
-    webSocket?.send(message.toString())
+    val message = buildJsonArray {
+      add(JsonPrimitive(event))
+      add(jsonElementOf(params))
+    }.toString()
+    socketDebugRepository.logSent(event, message.take(500))
+    webSocket?.send(message)
   }
 
   fun emit(event: String, json: JsonObjectScope.() -> Unit) {
     emit(event, json { json() })
   }
 
-  /**
-   * Sends a command and expects a single response identified by a request id.
-   * Returns the response data via the callback.
-   */
-  private fun emitWithResponse(
-    event: String,
-    params: Any?,
-    callback: (data: Any?, error: JSONObject?) -> Unit
-  ) {
-    ensureSocketConnected()
-    val id = nextRequestId.getAndIncrement()
-    pendingRequests[id] = callback
-    if (BuildConfig.DEBUG) Log.i(TAG, "==> $event with params $params (id=$id)")
-    val message = JSONArray().apply {
-      put(event)
-      put(params ?: JSONObject.NULL)
-      put(id)
-    }
-    socketDebugRepository.logSent("$event (id=$id)", message.toString().take(500))
-    webSocket?.send(message.toString())
-  }
-
-  private fun observeEvent(event: String): Flow<Any> {
+  private fun observeEvent(event: String): Flow<JsonElement> {
     if (BuildConfig.DEBUG) Log.i(TAG, "Listening for event: $event")
     return callbackFlow {
-      val listener: (Any) -> Unit = { data ->
+      val listener: (JsonElement) -> Unit = { data ->
         if (BuildConfig.DEBUG) Log.i(TAG, "<== $event, $data")
         trySend(data)
       }

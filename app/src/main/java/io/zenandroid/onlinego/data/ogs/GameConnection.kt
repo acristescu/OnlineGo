@@ -1,3 +1,10 @@
+@file:UseSerializers(
+  OGSBooleanSerializer::class,
+  AnySerializer::class,
+  LenientIntSerializer::class,
+  LenientLongSerializer::class
+)
+
 package io.zenandroid.onlinego.data.ogs
 
 import com.google.firebase.crashlytics.FirebaseCrashlytics
@@ -5,6 +12,8 @@ import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.local.Message
 import io.zenandroid.onlinego.data.model.local.Score
 import io.zenandroid.onlinego.data.model.local.Time
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 import io.zenandroid.onlinego.data.model.ogs.Chat
 import io.zenandroid.onlinego.data.model.ogs.GameData
 import io.zenandroid.onlinego.data.model.ogs.OGSPlayer
@@ -24,6 +33,11 @@ import kotlinx.coroutines.flow.retry
 import kotlinx.coroutines.launch
 import org.koin.core.context.GlobalContext.get
 import java.io.Closeable
+import io.zenandroid.onlinego.data.ogs.AnySerializer
+import io.zenandroid.onlinego.data.ogs.OGSBooleanSerializer
+import kotlinx.serialization.UseSerializers
+import io.zenandroid.onlinego.data.ogs.LenientIntSerializer
+import io.zenandroid.onlinego.data.ogs.LenientLongSerializer
 
 private const val TAG = "GameConnection"
 
@@ -223,11 +237,13 @@ class GameConnection(
   }
 }
 
+@Serializable
 data class Scores(
   var white: Score? = null,
   var black: Score? = null
 )
 
+@Serializable
 data class OGSClock(
   var game_id: Long,
   var current_player: Long,
@@ -243,6 +259,7 @@ data class OGSClock(
   var black_time: Any?,// can be number or Time object
   var white_time: Any?// can be number or Time object
 ) {
+  @Transient
   var receivedAt: Long = 0
   val whiteTimeSimple get() = (white_time as? Number)?.toLong()
   val blackTimeSimple get() = (black_time as? Number)?.toLong()
@@ -253,17 +270,20 @@ data class OGSClock(
 
 }
 
+@Serializable
 data class Pause(
   val pause_control: Any?,
   val paused: Boolean?,
   val paused_since: Long?
 )
 
+@Serializable
 data class Players(
   var white: OGSPlayer? = null,
   var black: OGSPlayer? = null
 )
 
+@Serializable
 data class TimeControl(
   var system: String? = null,
   var pause_on_weekends: Boolean? = null,
@@ -282,6 +302,7 @@ data class TimeControl(
 )
 
 //{game_id: 10528331, move_number: 202, move: [9, 17, 8509]}
+@Serializable
 data class Move(
   val game_id: Long,
   val move_number: Int,
@@ -289,23 +310,27 @@ data class Move(
 )
 
 //{"removed":true,"stones":"cidadfdgdieaeceifafhfighgihfhghhhiifigihii","all_removed":"daeafaecdfhfifdghgigfhghhhihcidieifigihiii"}
+@Serializable
 data class RemovedStones(
   val removed: Any?,
   val stones: String?,
   val all_removed: String?
 )
 
+@Serializable
 data class RemovedStonesAccepted(
   val player_id: Long?,
   val stones: String?,
   val players: Players?
 )
 
+@Serializable
 data class UndoAccepted(
   val move_number: Int,
   val undo_move_count: Int
 )
 
+@Serializable
 data class UndoRequested(
   val move_number: Int,
   val requested_by: Long,

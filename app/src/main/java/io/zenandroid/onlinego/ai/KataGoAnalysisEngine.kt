@@ -2,8 +2,6 @@ package io.zenandroid.onlinego.ai
 
 import android.util.Log
 import com.google.firebase.crashlytics.FirebaseCrashlytics
-import com.squareup.moshi.Moshi
-import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.data.model.Position
 import io.zenandroid.onlinego.data.model.StoneType
@@ -12,6 +10,8 @@ import io.zenandroid.onlinego.data.model.katago.KataGoResponse.ErrorResponse
 import io.zenandroid.onlinego.data.model.katago.KataGoResponse.Response
 import io.zenandroid.onlinego.data.model.katago.OverrideSettings
 import io.zenandroid.onlinego.data.model.katago.Query
+import io.zenandroid.onlinego.utils.appJson
+import kotlinx.serialization.encodeToString
 import io.zenandroid.onlinego.gamelogic.Util
 import io.zenandroid.onlinego.utils.recordException
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -34,12 +34,6 @@ object KataGoAnalysisEngine {
   private var writer: OutputStreamWriter? = null
   private var reader: BufferedReader? = null
   private var requestIDX: AtomicLong = AtomicLong(0)
-  private val queryAdapter =
-    Moshi.Builder().add(KotlinJsonAdapterFactory()).build().adapter(Query::class.java)
-  private val responseAdapter =
-    Moshi.Builder().add(KotlinJsonAdapterFactory()).build().adapter(Response::class.java)
-  private val errorAdapter =
-    Moshi.Builder().add(KotlinJsonAdapterFactory()).build().adapter(ErrorResponse::class.java)
   private val responseFlow = MutableSharedFlow<KataGoResponse>(extraBufferCapacity = 64)
 
   // Callers also raise maxVisits to at least this many - KataGo spins up this many search
@@ -98,15 +92,11 @@ object KataGoAnalysisEngine {
                 if (line.contains("\"error\":") || line.contains("\"warning\":")) {
                   Log.e("KataGoAnalysisEngine", line)
                   recordException(Exception("Katago: $line"))
-                  errorAdapter.fromJson(line)?.let {
-                    responseFlow.tryEmit(it)
-                  }
+                  responseFlow.tryEmit(appJson.decodeFromString<ErrorResponse>(line))
                 } else {
                   Log.d("KataGoAnalysisEngine", line)
                   FirebaseCrashlytics.getInstance().log("KATAGO < $line")
-                  responseAdapter.fromJson(line)?.let {
-                    responseFlow.tryEmit(it)
-                  }
+                  responseFlow.tryEmit(appJson.decodeFromString<Response>(line))
                 }
               } catch (e: Exception) {
                 Log.e("KataGoAnalysisEngine", "Failed to parse KataGo line: $line", e)
@@ -192,7 +182,7 @@ object KataGoAnalysisEngine {
       rules = "japanese"
     )
 
-    val stringQuery = queryAdapter.toJson(query)
+    val stringQuery = appJson.encodeToString(query)
 
     Log.d("KataGoAnalysisEngine", stringQuery)
     FirebaseCrashlytics.getInstance().log("KATAGO> $stringQuery")

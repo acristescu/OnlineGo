@@ -1,3 +1,9 @@
+@file:UseSerializers(
+    OGSBooleanSerializer::class,
+    AnySerializer::class,
+    LenientLongSerializer::class
+)
+
 package io.zenandroid.onlinego.data.model.ogs
 
 import androidx.compose.runtime.Immutable
@@ -6,9 +12,15 @@ import androidx.room.Ignore
 import androidx.room.Index
 import androidx.room.PrimaryKey
 import io.zenandroid.onlinego.data.model.Mark
+import kotlinx.serialization.Serializable
+import io.zenandroid.onlinego.data.ogs.AnySerializer
+import io.zenandroid.onlinego.data.ogs.OGSBooleanSerializer
+import kotlinx.serialization.UseSerializers
+import io.zenandroid.onlinego.data.ogs.LenientLongSerializer
 
 @Entity(indices = [Index(value = ["play"], unique = true)])
 @Immutable
+@Serializable
 data class JosekiPosition(
     var description: String? = null,
     var variation_label: String? = null,
@@ -77,6 +89,7 @@ data class JosekiPosition(
 }
 
 
+@Serializable
 enum class PlayCategory {
     IDEAL, GOOD, MISTAKE, TRICK, QUESTION, LABEL
 }

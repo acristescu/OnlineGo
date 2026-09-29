@@ -10,6 +10,8 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
+import io.zenandroid.onlinego.utils.appJson
+import kotlinx.serialization.encodeToString
 import org.junit.Test
 import kotlin.random.Random
 
@@ -294,7 +296,7 @@ class AiGameViewModelTest {
 
   @Test
   fun `no string resource id ever reaches the persisted json`() {
-    val json = aiGameStateAdapter().toJson(savedGame.withoutTransientState())
+    val json = appJson.encodeToString(savedGame.withoutTransientState())
 
     assertFalse(json.contains("resId"))
     assertFalse(json.contains("chatText"))
@@ -307,9 +309,10 @@ class AiGameViewModelTest {
        "chatText":{"resId":2131689517,"args":[]}}
     """.trimIndent()
 
-    val restored = aiGameStateAdapter().fromJson(legacyJson)!!
+    val restored = appJson.decodeFromString<AiGameState>(legacyJson)
 
-    assertEquals(TextResource(2131689517), restored.chatText)
+    // chatText is @Transient now, so the stale resId is dropped on read rather than on write.
+    assertEquals(null, restored.chatText)
     assertEquals(null, restored.withoutTransientState().chatText)
     assertEquals(9, restored.withoutTransientState().boardSize)
   }

@@ -1,10 +1,17 @@
+@file:UseSerializers(OGSBooleanSerializer::class, LenientIntSerializer::class)
+
 package io.zenandroid.onlinego.data.model.ogs
 
 import io.zenandroid.onlinego.utils.formatRank
+import kotlinx.serialization.Serializable
+import io.zenandroid.onlinego.data.ogs.OGSBooleanSerializer
+import kotlinx.serialization.UseSerializers
+import io.zenandroid.onlinego.data.ogs.LenientIntSerializer
 
 /**
  * Created by alex on 08/12/2017.
  */
+@Serializable
 data class SeekGraphChallenge (
         var challenge_id: Int? = null,
         var delete: Int? = null,

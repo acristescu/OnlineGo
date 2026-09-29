@@ -1,7 +1,14 @@
+@file:UseSerializers(OGSBooleanSerializer::class, LenientIntSerializer::class)
+
 package io.zenandroid.onlinego.data.model.ogs
 
 import io.zenandroid.onlinego.data.ogs.TimeControl
+import kotlinx.serialization.Serializable
+import io.zenandroid.onlinego.data.ogs.OGSBooleanSerializer
+import kotlinx.serialization.UseSerializers
+import io.zenandroid.onlinego.data.ogs.LenientIntSerializer
 
+@Serializable
 data class OGSChallengeRequest (
         val initialized: Boolean,
         val min_ranking: Int = 0,
@@ -10,6 +17,7 @@ data class OGSChallengeRequest (
         val game: Game,
         val aga_ranked: Boolean
 ) {
+        @Serializable
     data class Game(
             val name: String?,
             val rules: String,

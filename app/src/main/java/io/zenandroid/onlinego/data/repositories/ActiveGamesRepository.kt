@@ -2,7 +2,7 @@ package io.zenandroid.onlinego.data.repositories
 
 import android.util.Log
 import com.google.firebase.crashlytics.FirebaseCrashlytics
-import com.squareup.moshi.JsonEncodingException
+import kotlinx.serialization.SerializationException
 import io.zenandroid.onlinego.data.db.GameDao
 import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.local.Clock
@@ -340,7 +340,7 @@ class ActiveGamesRepository(
     while (true) {
       try {
         return block()
-      } catch (e: JsonEncodingException) {
+      } catch (e: SerializationException) {
         throw e
       } catch (e: IOException) {
         delay(15_000)

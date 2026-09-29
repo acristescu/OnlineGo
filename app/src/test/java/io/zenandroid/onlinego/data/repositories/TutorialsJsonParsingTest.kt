@@ -1,14 +1,11 @@
 package io.zenandroid.onlinego.data.repositories
 
-import com.squareup.moshi.Moshi
-import com.squareup.moshi.Types
-import com.squareup.moshi.adapters.PolymorphicJsonAdapterFactory
-import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import io.zenandroid.onlinego.data.model.local.Node
 import io.zenandroid.onlinego.data.model.local.TutorialGroup
 import io.zenandroid.onlinego.data.model.local.TutorialStep
-import okio.buffer
-import okio.source
+import io.zenandroid.onlinego.utils.appJson
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.json.decodeFromStream
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.io.File
@@ -21,18 +18,6 @@ import java.io.File
  */
 class TutorialsJsonParsingTest {
 
-  private val moshiAdapter = Moshi.Builder()
-    .add(
-      PolymorphicJsonAdapterFactory.of(TutorialStep::class.java, "type")
-        .withSubtype(TutorialStep.Interactive::class.java, "Interactive")
-        .withSubtype(TutorialStep.Lesson::class.java, "Lesson")
-        .withSubtype(TutorialStep.GameExample::class.java, "Game")
-    )
-    .addLast(KotlinJsonAdapterFactory())
-    .build()
-    .adapter<List<TutorialGroup>>(
-      Types.newParameterizedType(List::class.java, TutorialGroup::class.java)
-    )
 
   private val declaredStringResourceNames: Set<String> by lazy {
     Regex("""<string\s+name="([^"]+)"""")
@@ -53,10 +38,11 @@ class TutorialsJsonParsingTest {
     node.branches?.forEach { assertNode(it) }
   }
 
+  @OptIn(ExperimentalSerializationApi::class)
   @Test
   fun `every translatable tutorials json field resolves to a real string resource`() {
-    val groups = File("src/main/assets/tutorials.json").source().buffer().use {
-      moshiAdapter.fromJson(it)!!
+    val groups = File("src/main/assets/tutorials.json").inputStream().use {
+      appJson.decodeFromStream<List<TutorialGroup>>(it)
     }
 
     assertTrue("Expected at least one tutorial group", groups.isNotEmpty())

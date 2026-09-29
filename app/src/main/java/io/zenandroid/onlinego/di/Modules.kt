@@ -2,14 +2,10 @@ package io.zenandroid.onlinego.di
 
 import androidx.room.Room
 import com.google.firebase.crashlytics.FirebaseCrashlytics
-import com.squareup.moshi.Moshi
-import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import io.zenandroid.onlinego.BuildConfig
 import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.data.db.Database
 import io.zenandroid.onlinego.data.ogs.HTTPConnectionFactory
-import io.zenandroid.onlinego.data.ogs.OGSBooleanJsonAdapter
-import io.zenandroid.onlinego.data.ogs.OGSInstantJsonAdapter
 import io.zenandroid.onlinego.data.ogs.OGSRestAPI
 import io.zenandroid.onlinego.data.ogs.OGSRestService
 import io.zenandroid.onlinego.data.ogs.OGSWebSocketService
@@ -52,6 +48,7 @@ import io.zenandroid.onlinego.usecases.GetUserStatsUseCase
 import io.zenandroid.onlinego.utils.AppLocaleManager
 import io.zenandroid.onlinego.utils.CountingIdlingResource
 import io.zenandroid.onlinego.utils.CustomConverterFactory
+import io.zenandroid.onlinego.utils.appJson
 import io.zenandroid.onlinego.utils.NOOPIdlingResource
 import io.zenandroid.onlinego.utils.ReviewPromptManager
 import org.koin.android.ext.koin.androidApplication
@@ -60,8 +57,8 @@ import org.koin.core.module.dsl.viewModel
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 import retrofit2.Retrofit
-import retrofit2.converter.moshi.MoshiConverterFactory
-import java.time.Instant
+import okhttp3.MediaType.Companion.toMediaType
+import retrofit2.converter.kotlinx.serialization.asConverterFactory
 
 private val repositoriesModule = module {
   single {
@@ -109,18 +106,12 @@ private val serverConnectionModule = module {
       .baseUrl(BuildConfig.BASE_URL)
       .client(get())
       .addConverterFactory(CustomConverterFactory())
-      .addConverterFactory(MoshiConverterFactory.create(get()))
+      .addConverterFactory(appJson.asConverterFactory("application/json".toMediaType()))
       .build()
       .create(OGSRestAPI::class.java)
   }
 
-  single {
-    Moshi.Builder()
-      .add(java.lang.Boolean::class.java, OGSBooleanJsonAdapter())
-      .add(Instant::class.java, OGSInstantJsonAdapter().nullSafe())
-      .addLast(KotlinJsonAdapterFactory())
-      .build()
-  }
+  single { appJson }
 
   singleOf(::OGSRestService)
   singleOf(::OGSWebSocketService)

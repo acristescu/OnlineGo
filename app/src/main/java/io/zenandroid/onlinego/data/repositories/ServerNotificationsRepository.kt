@@ -10,14 +10,16 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
-import org.json.JSONObject
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.contentOrNull
+import kotlinx.serialization.json.jsonPrimitive
 
 class ServerNotificationsRepository(
   private val socketService: OGSWebSocketService
 ) : SocketConnectedRepository {
   private var scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
-  private val notificationsHash = hashMapOf<String, JSONObject>()
-  private val _notifications = MutableSharedFlow<JSONObject>()
+  private val notificationsHash = hashMapOf<String, JsonObject>()
+  private val _notifications = MutableSharedFlow<JsonObject>()
 
   override fun onSocketConnected() {
     scope.launch {
@@ -35,13 +37,13 @@ class ServerNotificationsRepository(
     scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
   }
 
-  private suspend fun onNewNotification(notification: JSONObject) {
-    if ((notification["type"] as? String) == "delete") {
-      (notification["id"] as? String)?.let {
+  private suspend fun onNewNotification(notification: JsonObject) {
+    if (notification["type"]?.jsonPrimitive?.contentOrNull == "delete") {
+      notification["id"]?.jsonPrimitive?.contentOrNull?.let {
         notificationsHash.remove(it)
       }
     } else {
-      (notification["id"] as? String)?.let {
+      notification["id"]?.jsonPrimitive?.contentOrNull?.let {
         notificationsHash[it] = notification
         _notifications.emit(notification)
         acknowledgeNotification(notification)
@@ -49,11 +51,11 @@ class ServerNotificationsRepository(
     }
   }
 
-  fun notificationsFlow(): Flow<JSONObject> =
+  fun notificationsFlow(): Flow<JsonObject> =
     _notifications.onStart { notificationsHash.values.forEach { emit(it) } }
 
-  suspend fun acknowledgeNotification(notification: JSONObject) {
-    (notification["id"] as? String)?.let {
+  suspend fun acknowledgeNotification(notification: JsonObject) {
+    notification["id"]?.jsonPrimitive?.contentOrNull?.let {
       socketService.deleteNotification(it)
     }
   }

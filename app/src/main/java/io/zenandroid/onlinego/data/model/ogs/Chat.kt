@@ -1,7 +1,15 @@
+@file:UseSerializers(AnySerializer::class, LenientLongSerializer::class)
+
 package io.zenandroid.onlinego.data.model.ogs
 
-import com.squareup.moshi.Json
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.SerialName
+import io.zenandroid.onlinego.data.ogs.AnySerializer
+import kotlinx.serialization.UseSerializers
+import io.zenandroid.onlinego.data.ogs.LenientLongSerializer
 
+
+@Serializable
 data class Chat (
     val channel: ChatChannel,
     val line: ChatLine,
@@ -9,13 +17,19 @@ data class Chat (
     val chat_id: String?
     )
 
+@Serializable
 enum class ChatChannel {
-    @Json(name = "main") MAIN,
-    @Json(name = "malkovich") MALKOVICH,
-    @Json(name = "spectator") SPECTATOR,
-    @Json(name = "personal") PERSONAL,
+  @SerialName("main")
+  MAIN,
+  @SerialName("malkovich")
+  MALKOVICH,
+  @SerialName("spectator")
+  SPECTATOR,
+  @SerialName("personal")
+  PERSONAL,
 }
 
+@Serializable
 data class ChatLine (
         val username: String,
         val ratings: OGSPlayer.Ratings?,

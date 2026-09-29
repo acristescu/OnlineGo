@@ -27,7 +27,7 @@ material = "1.13.0"
 # Networking & Serialization
 retrofit = "3.0.0"
 okhttp = "5.3.2"
-moshi = "1.15.2"
+kotlinxSerialization = "1.9.0"
 coil = "2.7.0"
 
 
@@ -103,13 +103,12 @@ play-review-ktx = { group = "com.google.android.play", name = "review-ktx", vers
 
 # Networking
 retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }
-retrofit-converter-moshi = { group = "com.squareup.retrofit2", name = "converter-moshi", version.ref = "retrofit" }
+retrofit-converter-kotlinx-serialization = { group = "com.squareup.retrofit2", name = "converter-kotlinx-serialization", version.ref = "retrofit" }
 okhttp-logging-interceptor = { group = "com.squareup.okhttp3", name = "logging-interceptor", version.ref = "okhttp" }
 persistent-cookie-jar = { group = "com.github.franmontiel", name = "PersistentCookieJar", version.ref = "persistentCookieJar" }
 
 # Serialization
-moshi-kotlin = { group = "com.squareup.moshi", name = "moshi-kotlin", version.ref = "moshi" }
-moshi-adapters = { group = "com.squareup.moshi", name = "moshi-adapters", version.ref = "moshi" }
+kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinxSerialization" }
 
 # Reactive Programming
 
@@ -160,6 +159,7 @@ kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "ko
 google-services = { id = "com.google.gms.google-services", version.ref = "googleServices" }
 firebase-crashlytics = { id = "com.google.firebase.crashlytics", version.ref = "crashlytics" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 screenshot = { id = "com.android.compose.screenshot", version.ref = "screenshot" }
 
 [bundles]
@@ -172,7 +172,7 @@ compose = [
 
 retrofit = [
     "retrofit",
-    "retrofit-converter-moshi"
+    "retrofit-converter-kotlinx-serialization"
 ]
 
 room = [

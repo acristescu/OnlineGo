@@ -1,10 +1,16 @@
+@file:UseSerializers(LenientIntSerializer::class)
+
 package io.zenandroid.onlinego.data.model.katago
 
 import androidx.compose.runtime.Immutable
+import kotlinx.serialization.Serializable
+import io.zenandroid.onlinego.data.ogs.LenientIntSerializer
+import kotlinx.serialization.UseSerializers
 
 sealed interface KataGoResponse {
   val id: String
 
+  @Serializable
   data class ErrorResponse(
     override val id: String,
     val error: String?,
@@ -13,6 +19,7 @@ sealed interface KataGoResponse {
   ) : KataGoResponse
 
   @Immutable
+  @Serializable
   data class Response(
     override val id: String,
     val turnNumber: Int,
@@ -27,6 +34,7 @@ sealed interface KataGoResponse {
 }
 
 @Immutable
+@Serializable
 data class MoveInfo(
   val move: String,
   val visits: Int,
@@ -44,6 +52,7 @@ data class MoveInfo(
   val ownership: List<Float>? = null
 )
 
+@Serializable
 data class RootInfo(
   val scoreLead: Float? = null,
   val scoreSelfplay: Float? = null,
@@ -53,6 +62,7 @@ data class RootInfo(
   val winrate: Float? = null
 )
 
+@Serializable
 data class ResponseAbreviatedJSON(
   val rootInfo: RootInfo,
   val ownership: List<Float>? = null

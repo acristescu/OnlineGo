@@ -5,9 +5,6 @@ import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.crashlytics.FirebaseCrashlytics
-import com.squareup.moshi.JsonAdapter
-import com.squareup.moshi.Moshi
-import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.ai.KataGoAnalysisEngine
 import io.zenandroid.onlinego.data.model.Cell
@@ -25,10 +22,9 @@ import io.zenandroid.onlinego.gamelogic.Util
 import io.zenandroid.onlinego.gamelogic.Util.toGTP
 import io.zenandroid.onlinego.ui.composables.TextResource
 import io.zenandroid.onlinego.ui.composables.textResource
-import io.zenandroid.onlinego.utils.moshiadapters.AiDifficultyMoshiAdapter
-import io.zenandroid.onlinego.utils.moshiadapters.HashMapOfCellToStoneTypeMoshiAdapter
-import io.zenandroid.onlinego.utils.moshiadapters.ResponseBriefMoshiAdapter
+import io.zenandroid.onlinego.utils.appJson
 import io.zenandroid.onlinego.utils.recordException
+import kotlinx.serialization.encodeToString
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -60,7 +56,6 @@ class AiGameViewModel(
   private var ownershipJob: Job? = null
   private var finalScoreJob: Job? = null
 
-  private val stateAdapter = aiGameStateAdapter()
 
   init {
     startEngine()
@@ -164,7 +159,7 @@ class AiGameViewModel(
 
       val newState = if (!json.isNullOrBlank()) {
         try {
-          stateAdapter.fromJson(json)?.takeIf { validState(it) }
+          appJson.decodeFromString<AiGameState>(json)?.takeIf { validState(it) }
         } catch (e: Exception) {
           Log.e("AiGameViewModel", "Cannot deserialize state", e)
           recordException(e)
@@ -197,7 +192,7 @@ class AiGameViewModel(
 
   fun onViewPaused() {
     viewModelScope.launch {
-      val json = stateAdapter.toJson(state.value.withoutTransientState())
+      val json = appJson.encodeToString(state.value.withoutTransientState())
       settingsRepository.setAiGameState(json)
     }
   }
@@ -769,14 +764,6 @@ class AiGameViewModel(
   }
 }
 
-@VisibleForTesting
-fun aiGameStateAdapter(): JsonAdapter<AiGameState> = Moshi.Builder()
-  .add(ResponseBriefMoshiAdapter())
-  .add(HashMapOfCellToStoneTypeMoshiAdapter())
-  .add(AiDifficultyMoshiAdapter())
-  .add(KotlinJsonAdapterFactory())
-  .build()
-  .adapter(AiGameState::class.java)
 
 /**
  * [TextResource.resId] is a build-time aapt2 id, not a stable identifier - adding or removing any

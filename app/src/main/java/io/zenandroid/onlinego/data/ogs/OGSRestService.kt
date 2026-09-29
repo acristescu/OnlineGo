@@ -1,6 +1,5 @@
 package io.zenandroid.onlinego.data.ogs
 
-import com.squareup.moshi.Moshi
 import io.zenandroid.onlinego.data.model.local.Puzzle
 import io.zenandroid.onlinego.data.model.local.PuzzleCollection
 import io.zenandroid.onlinego.data.model.ogs.CannedMessages
@@ -37,7 +36,6 @@ import java.util.Date
 private const val TAG = "OGSRestService"
 
 class OGSRestService(
-  val moshi: Moshi,
   val restApi: OGSRestAPI,
   val userSessionRepository: UserSessionRepository,
   val settingsRepository: SettingsRepository,

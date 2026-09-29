@@ -32,7 +32,10 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.json.JSONObject
+import io.zenandroid.onlinego.utils.appJson
+import kotlinx.serialization.json.contentOrNull
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 import retrofit2.HttpException
 
 class OnboardingViewModel(
@@ -318,7 +321,8 @@ class OnboardingViewModel(
     Log.e(OnboardingViewModel::class.java.simpleName, t.message, t)
     if (t is HttpException && t.response()?.errorBody() != null) {
       try {
-        val error = JSONObject(t.response()?.errorBody()!!.string())["error"].toString()
+        val error = appJson.parseToJsonElement(t.response()?.errorBody()!!.string())
+          .jsonObject["error"]?.jsonPrimitive?.contentOrNull.toString()
         _state.update {
           it.copy(
             loginProcessing = false,

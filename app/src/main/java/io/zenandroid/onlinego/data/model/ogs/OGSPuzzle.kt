@@ -1,11 +1,25 @@
+@file:UseSerializers(
+    OGSBooleanSerializer::class,
+    OGSInstantSerializer::class,
+    LenientIntSerializer::class,
+    LenientLongSerializer::class
+)
+
 package io.zenandroid.onlinego.data.model.ogs
 
 import androidx.compose.runtime.Immutable;
 import androidx.room.Embedded
 import io.zenandroid.onlinego.data.model.local.InitialState
 import java.time.Instant
+import kotlinx.serialization.Serializable
+import io.zenandroid.onlinego.data.ogs.OGSBooleanSerializer
+import io.zenandroid.onlinego.data.ogs.OGSInstantSerializer
+import kotlinx.serialization.UseSerializers
+import io.zenandroid.onlinego.data.ogs.LenientIntSerializer
+import io.zenandroid.onlinego.data.ogs.LenientLongSerializer
 
 @Immutable
+@Serializable
 data class MoveTree (
     val y: Int = -1,
     val x: Int = -1,
@@ -17,12 +31,14 @@ data class MoveTree (
     val pen_marks: List<PenData>? = null
 ) {
     @Immutable
+    @Serializable
     data class Mark (
         val y: Int,
         val x: Int,
         val marks: MarkData,
     ) {
         @Immutable
+        @Serializable
         data class MarkData (
             val letter: String?,
             val transient_letter: String?,
@@ -57,12 +73,14 @@ data class MoveTree (
     }
 
     @Immutable
+    @Serializable
     data class PenData (
         val color: String?,
         val points: List<Int>?
     )
 }
 
+@Serializable
 data class OGSPuzzle (
     var id: Long = -1,
     var order: Int? = -1,
@@ -84,6 +102,7 @@ data class OGSPuzzle (
     var solved_count: Int = 0,
     var attempt_count: Int = 0,
 ) {
+    @Serializable
     data class PuzzleData (
         var puzzle_rank: String = "",
         var name: String = "",

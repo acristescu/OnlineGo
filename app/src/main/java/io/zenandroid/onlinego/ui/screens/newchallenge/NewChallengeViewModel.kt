@@ -2,9 +2,9 @@ package io.zenandroid.onlinego.ui.screens.newchallenge
 
 import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
-import com.squareup.moshi.Moshi
-import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import io.zenandroid.onlinego.data.model.local.Player
+import io.zenandroid.onlinego.utils.appJson
+import kotlinx.serialization.encodeToString
 import io.zenandroid.onlinego.data.model.ogs.ChallengeParams
 import io.zenandroid.onlinego.data.model.ogs.OGSPlayer
 import io.zenandroid.onlinego.data.repositories.SettingsRepository
@@ -21,9 +21,6 @@ class NewChallengeViewModel(
   private val applicationScope: CoroutineScope,
 ) : ViewModel() {
 
-  private val moshi = Moshi.Builder().add(KotlinJsonAdapterFactory()).build()
-  private val challengeParamsAdapter = moshi.adapter(ChallengeParams::class.java)
-  private val opponentAdapter = moshi.adapter(Player::class.java)
   val state = MutableStateFlow(
     NewChallengeBottomSheetState(
       challenge = ChallengeParams(
@@ -43,7 +40,7 @@ class NewChallengeViewModel(
   init {
     applicationScope.launch {
       val json = settingsRepository.newChallengeParamsFlow.first()
-      val params = json?.let { challengeParamsAdapter.fromJson(it) }
+      val params = json?.let { appJson.decodeFromString<ChallengeParams>(it) }
         ?: ChallengeParams(
           opponent = null,
           color = "Auto",
@@ -74,7 +71,7 @@ class NewChallengeViewModel(
     state.update {
       when (event) {
         is Event.OpponentSelected -> {
-          val opponent = opponentAdapter.fromJson(event.opponent)
+          val opponent = appJson.decodeFromString<Player>(event.opponent)
           it.copy(
             challenge = it.challenge.copy(
               opponent = opponent?.let { OGSPlayer.fromPlayer(it) }
@@ -142,7 +139,7 @@ class NewChallengeViewModel(
 
         is Event.ChallengeClicked -> {
           applicationScope.launch {
-            settingsRepository.setNewChallengeParams(challengeParamsAdapter.toJson(state.value.challenge))
+            settingsRepository.setNewChallengeParams(appJson.encodeToString(state.value.challenge))
           }
           it.copy(
             done = true

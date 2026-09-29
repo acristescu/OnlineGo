@@ -1,11 +1,27 @@
+@file:UseSerializers(
+  OGSBooleanSerializer::class,
+  AnySerializer::class,
+  OGSInstantSerializer::class,
+  LenientIntSerializer::class,
+  LenientLongSerializer::class
+)
+
 package io.zenandroid.onlinego.data.model.ogs
 
 import io.zenandroid.onlinego.data.ogs.Players
 import java.time.Instant
+import kotlinx.serialization.Serializable
+import io.zenandroid.onlinego.data.ogs.AnySerializer
+import io.zenandroid.onlinego.data.ogs.OGSBooleanSerializer
+import io.zenandroid.onlinego.data.ogs.OGSInstantSerializer
+import kotlinx.serialization.UseSerializers
+import io.zenandroid.onlinego.data.ogs.LenientIntSerializer
+import io.zenandroid.onlinego.data.ogs.LenientLongSerializer
 
 /**
  * Created by alex on 04/11/2017.
  */
+@Serializable
 data class OGSGame (
         var white: Any? = null,
         var black: Any? = null,
@@ -53,6 +69,7 @@ data class OGSGame (
 
         internal val gamedata: GameData? = null
 ) {
+  @Serializable
     data class Related (
             var detail: String? = null
     )

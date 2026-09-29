@@ -1,7 +1,7 @@
 package io.zenandroid.onlinego.ui.screens.game_legacy
 
-import com.squareup.moshi.Moshi
 import io.zenandroid.onlinego.data.model.ogs.User
+import io.zenandroid.onlinego.utils.appJson
 import io.zenandroid.onlinego.di.allKoinModules
 import io.zenandroid.onlinego.utils.formatMillis
 import org.junit.Assert.assertEquals
@@ -69,9 +69,8 @@ class GamePresenterTest {
 
     @Test
     fun testBooleanAsIntWorks() {
-        val moshi: Moshi = koinTestRule.koin.get()
-
-        val user = moshi.adapter(User::class.java).fromJson("""
+      val user = appJson.decodeFromString<User>(
+        """
             {
               "anonymous":false,
               "id":1,

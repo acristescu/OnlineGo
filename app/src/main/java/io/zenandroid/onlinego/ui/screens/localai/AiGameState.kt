@@ -1,3 +1,9 @@
+@file:UseSerializers(
+  AiDifficultySerializer::class,
+  ResponseBriefSerializer::class,
+  LenientIntSerializer::class
+)
+
 package io.zenandroid.onlinego.ui.screens.localai
 
 import androidx.compose.runtime.Immutable
@@ -6,6 +12,12 @@ import io.zenandroid.onlinego.data.model.Position
 import io.zenandroid.onlinego.data.model.katago.KataGoResponse.Response
 import io.zenandroid.onlinego.data.model.katago.MoveInfo
 import io.zenandroid.onlinego.ui.composables.TextResource
+import io.zenandroid.onlinego.utils.serializers.AiDifficultySerializer
+import io.zenandroid.onlinego.utils.serializers.ResponseBriefSerializer
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
+import kotlinx.serialization.UseSerializers
+import io.zenandroid.onlinego.data.ogs.LenientIntSerializer
 
 sealed interface DifficultyRank {
   data class Kyu(val n: Int) : DifficultyRank
@@ -46,6 +58,7 @@ enum class AiDifficulty(
 }
 
 @Immutable
+@Serializable
 data class AiGameState(
   val engineStarted: Boolean = false,
   val position: Position? = null,
@@ -61,6 +74,7 @@ data class AiGameState(
   val previousButtonEnabled: Boolean = false,
   val redoPosStack: List<Position> = emptyList(),
   val newGameDialogShown: Boolean = false,
+  @Transient
   val chatText: TextResource? = null,
   val showHints: Boolean = false,
   val showAiEstimatedTerritory: Boolean = false,

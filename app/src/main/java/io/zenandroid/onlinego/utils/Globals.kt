@@ -10,8 +10,10 @@ import io.zenandroid.onlinego.data.model.local.Clock
 import io.zenandroid.onlinego.data.model.local.Game
 import io.zenandroid.onlinego.data.model.local.Time
 import io.zenandroid.onlinego.data.ogs.TimeControl
-import org.json.JSONArray
-import org.json.JSONObject
+import io.zenandroid.onlinego.data.ogs.jsonElementOf
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonObject
 import org.koin.core.context.GlobalContext
 import java.time.Instant
 import java.time.ZoneId
@@ -37,26 +39,30 @@ fun getPercentile(rating: Double): Int {
 /**
  * Created by alex on 14/11/2017.
  */
-fun json(func: JsonObjectScope.() -> Unit): JSONObject {
-    val obj = JSONObject()
-    object: JsonObjectScope{
-        override val json = obj
-    }.func()
-    return obj
-}
+fun json(func: JsonObjectScope.() -> Unit): JsonObject =
+    JsonObjectScope().apply(func).build()
 
-interface JsonObjectScope {
-    val json: JSONObject
+class JsonObjectScope {
+    private val entries = LinkedHashMap<String, JsonElement>()
 
     infix operator fun String.minus(value: Any?) {
-        json.put(this, value)
+        entries[this] = jsonElementOf(value)
     }
+
+    internal fun build() = JsonObject(entries)
 }
 
-fun createJsonArray(func: JSONArray.() -> Unit): JSONArray {
-    val obj = JSONArray()
-    func(obj)
-    return obj
+fun createJsonArray(func: JsonArrayScope.() -> Unit): JsonArray =
+    JsonArrayScope().apply(func).build()
+
+class JsonArrayScope {
+    private val elements = mutableListOf<JsonElement>()
+
+    fun put(value: Any?) {
+        elements += jsonElementOf(value)
+    }
+
+    internal fun build() = JsonArray(elements)
 }
 
 val MIN_RATING = 100.0

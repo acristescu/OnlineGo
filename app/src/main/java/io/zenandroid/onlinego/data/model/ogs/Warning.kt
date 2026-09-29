@@ -1,5 +1,12 @@
+@file:UseSerializers(LenientIntSerializer::class)
+
 package io.zenandroid.onlinego.data.model.ogs
 
+import kotlinx.serialization.Serializable
+import io.zenandroid.onlinego.data.ogs.LenientIntSerializer
+import kotlinx.serialization.UseSerializers
+
+@Serializable
 data class Warning(
     val id: Int?,
     val created: String?,

@@ -7,6 +7,7 @@ plugins {
     alias(libs.plugins.google.services)
     alias(libs.plugins.firebase.crashlytics)
     alias(libs.plugins.ksp)
+  alias(libs.plugins.kotlin.serialization)
   alias(libs.plugins.screenshot)
 }
 
@@ -147,8 +148,7 @@ dependencies {
   implementation(libs.persistent.cookie.jar)
 
   // Serialization
-  implementation(libs.moshi.kotlin)
-  implementation(libs.moshi.adapters)
+  implementation(libs.kotlinx.serialization.json)
 
   // Work Manager
   implementation(libs.bundles.work)

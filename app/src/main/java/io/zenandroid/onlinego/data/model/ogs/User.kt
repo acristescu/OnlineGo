@@ -1,8 +1,23 @@
+@file:UseSerializers(
+  OGSBooleanSerializer::class,
+  AnySerializer::class,
+  LenientIntSerializer::class,
+  LenientLongSerializer::class
+)
+
 package io.zenandroid.onlinego.data.model.ogs
+
+import kotlinx.serialization.Serializable
+import io.zenandroid.onlinego.data.ogs.AnySerializer
+import io.zenandroid.onlinego.data.ogs.OGSBooleanSerializer
+import kotlinx.serialization.UseSerializers
+import io.zenandroid.onlinego.data.ogs.LenientIntSerializer
+import io.zenandroid.onlinego.data.ogs.LenientLongSerializer
 
 /**
  * Created by alex on 03/11/2017.
  */
+@Serializable
 data class User (
 
     var username: String,

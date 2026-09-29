@@ -1,6 +1,14 @@
+@file:UseSerializers(OGSBooleanSerializer::class, LenientIntSerializer::class)
+
 package io.zenandroid.onlinego.data.model.katago
 
+import kotlinx.serialization.Serializable
+import io.zenandroid.onlinego.data.ogs.OGSBooleanSerializer
+import kotlinx.serialization.UseSerializers
+import io.zenandroid.onlinego.data.ogs.LenientIntSerializer
+
 // Note: see https://github.com/lightvector/KataGo/blob/master/docs/Analysis_Engine.md for meanings
+@Serializable
 data class Query (
         val id: String,
         val moves: List<List<String>>,
@@ -25,6 +33,7 @@ data class Query (
 
 // humanSLProfile format: "rank_{RANK}" (or "preaz_{RANK}"), RANK spanning 20k-9d - see
 // AiDifficulty.humanSLProfile for how tiers map to it.
+@Serializable
 data class OverrideSettings(
         val humanSLProfile: String? = null,
 )

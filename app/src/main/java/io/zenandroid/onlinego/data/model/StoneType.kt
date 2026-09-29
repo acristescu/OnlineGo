@@ -1,15 +1,14 @@
-package io.zenandroid.onlinego.data.model;
+package io.zenandroid.onlinego.data.model
 
-import androidx.compose.runtime.Immutable;
+import androidx.compose.runtime.Immutable
+import kotlinx.serialization.Serializable
 
-/**
- * Created by alex on 1/9/2015.
- */
 @Immutable
-public enum StoneType {
-    BLACK, WHITE;
+@Serializable
+enum class StoneType {
+  BLACK,
+  WHITE;
 
-    public StoneType getOpponent() {
-        return this == BLACK ? WHITE : BLACK;
-    }
+  val opponent: StoneType
+    get() = if (this == BLACK) WHITE else BLACK
 }

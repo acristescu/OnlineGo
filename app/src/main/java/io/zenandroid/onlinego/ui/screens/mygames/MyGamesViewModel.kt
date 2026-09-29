@@ -63,7 +63,9 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.json.JSONObject
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.contentOrNull
+import kotlinx.serialization.json.jsonPrimitive
 import java.util.Locale
 import kotlin.coroutines.cancellation.CancellationException
 
@@ -324,11 +326,10 @@ class MyGamesViewModel(
     socketService.cancelAutomatch(automatch)
   }
 
-  private fun onNotification(notification: JSONObject) {
-    if (notification["type"] == "gameOfferRejected") {
-      val message =
-        if (notification.has("message") && notification["message"].toString() != "null") notification["message"].toString() else null
-      if (notification["name"].toString() == "Bot Match") {
+  private fun onNotification(notification: JsonObject) {
+    if (notification["type"]?.jsonPrimitive?.contentOrNull == "gameOfferRejected") {
+      val message = notification["message"]?.jsonPrimitive?.contentOrNull
+      if (notification["name"]?.jsonPrimitive?.contentOrNull == "Bot Match") {
         _state.update {
           it.copy(
             alertDialogTitleResId = R.string.mygames_alert_bot_rejected_title,
@@ -369,7 +370,7 @@ class MyGamesViewModel(
         recordException(Exception(t.response()?.errorBody()?.string(), t))
       }
     } else {
-      if (t is com.squareup.moshi.JsonDataException) {
+      if (t is kotlinx.serialization.SerializationException) {
         _state.update {
           it.copy(
             alertDialogTitleResId = R.string.mygames_alert_ogs_error_title,
