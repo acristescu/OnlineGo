@@ -171,7 +171,6 @@ dependencies {
   // Utility Libraries
   implementation(libs.immutable.collections)
   implementation(libs.markwon)
-  implementation(libs.jsoup)
   implementation(libs.billing.ktx)
   implementation(libs.mp.android.chart)
 

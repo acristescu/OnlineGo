@@ -33,7 +33,6 @@ coil = "2.7.0"
 
 # Utility libraries
 markwon = "4.6.2"
-jsoup = "1.22.1"
 billing = "9.1.0"
 desugar = "2.1.5"
 espresso = "3.7.0"
@@ -131,7 +130,6 @@ coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coi
 # Utility
 immutable-collections = { group = "org.jetbrains.kotlinx", name = "kotlinx-collections-immutable", version.ref = "immutableCollections" }
 markwon = { group = "io.noties.markwon", name = "core", version.ref = "markwon" }
-jsoup = { group = "org.jsoup", name = "jsoup", version.ref = "jsoup" }
 billing-ktx = { group = "com.android.billingclient", name = "billing-ktx", version.ref = "billing" }
 desugar-jdk-libs = { group = "com.android.tools", name = "desugar_jdk_libs", version.ref = "desugar" }
 mp-android-chart = { group = "com.github.PhilJay", name = "MPAndroidChart", version.ref = "mpChart" }

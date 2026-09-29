@@ -7,10 +7,10 @@ the work so that every phase still ships on Android.
 
 This is an assessment, not a commitment. Measured against the repository at commit `3f1d980`.
 
-**Status.** One item has been built: the Moshi to kotlinx.serialization migration, together with
-the `org.json` removal that was entangled with it (4.5, Phase 0). It is on branch
-`kotlinx-serialization-migration`, green on unit tests and both build variants, and **under
-on-device testing - not released**. Everything else here is still a plan.
+**Status.** Two items have been built, both in Phase 0. The Moshi to kotlinx.serialization
+migration, together with the `org.json` removal that was entangled with it (4.5), and the jsoup
+removal (4.6). Both are green on unit tests and both build variants, and **under on-device
+testing - not released**. Everything else here is still a plan.
 
 ---
 
@@ -174,7 +174,7 @@ long-lived migration branch.
 | **Coil 2.7.0**                                                                           | 2.x is Android-only                                                                                                                          | **Coil 3.x** + `coil-network-ktor3`. Six files, mechanical. Note that 7 of the 13 `LocalContext.current` uses in the whole app exist only to build a Coil 2 `ImageRequest` - they disappear for free.                                                                                                                                                                                                                                                                                                                                                                                                                    |
 | **MPAndroidChart v3.1.0**                                                                | Android-only, **and it has leaked out of the UI layer** into `data/model/local/UserStats.kt` and `usecases/GetUserStatsUseCase.kt`           | **Vico 2.x** (has KMP targets) or **KoalaPlot**, or a hand-rolled Compose `Canvas`. Fix the layering violation first - `UserStats` is a domain model and must not depend on a charting library. `ui/screens/stats/ChartWrapper.kt` is a 416-LOC rewrite.                                                                                                                                                                                                                                                                                                                                                                 |
 | **Markwon 4.6.2**                                                                        | renders into an `android.widget.TextView` via `AndroidView`                                                                                  | **`com.mikepenz:multiplatform-markdown-renderer-m3`**. Contained to one screen (`JosekiExplorerUI.kt`, ~90 LOC).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
-| **jsoup 1.22.1**                                                                         | pure JVM - survives Android and Desktop, breaks iOS                                                                                          | **Ksoup** (`com.fleeksoft.ksoup`), or simply delete it: the only usage is a 3-line `parseHtml()` in `TsumegoViewModel` that strips tags from puzzle descriptions.                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| ~~**jsoup 1.22.1**~~ **DONE**                                                            | pure JVM - survives Android and Desktop, breaks iOS                                                                                          | Deleted. It was one 3-line `parseHtml()` in `TsumegoViewModel`; replaced by `AnnotatedString.fromHtml()` from Compose UI, which was already on the classpath. See 4.6.                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
 | **`material-icons-extended`**                                                            | deprecated Android artifact; 109 references in 21 files                                                                                      | Vendor the icons actually used as `ImageVector` declarations (best for binary size), or use `br.com.devsrsouza:compose-icons`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
 | **navigation-compose 2.9.7** (androidx)                                                  | Android artifact                                                                                                                             | `org.jetbrains.androidx.navigation:navigation-compose`. Take the opportunity to convert the 13 string-literal routes in `Navigation.kt` to `@Serializable` type-safe routes - we will already have kotlinx.serialization on the classpath, and the current bottom-bar logic matches routes against a hardcoded `listOf("myGames", "learn", "stats", "settings")`.                                                                                                                                                                                                                                                        |
 | **Firebase Crashlytics / Analytics**                                                     | Google Android SDK                                                                                                                           | Introduce our own `Logger`, `CrashReporter` and `Analytics` interfaces and inject them. Android actual delegates to Firebase; iOS actual to the Firebase iOS SDK (CocoaPods) or GitLive's `firebase-kotlin-sdk`. The bulk of the ~95 call sites are `FirebaseCrashlytics.getInstance().log(...)` used as a logger - route those to **Kermit**, which ships a Crashlytics log writer. A thin wrapper already exists (`utils/Crashlytics.kt`, used in 34 files); the problem is that most files bypass it.                                                                                                                 |
@@ -323,6 +323,44 @@ matching `@file:UseSerializers` annotation was specified but **not built**. With
 guarantee that new fields are covered automatically holds only for fields added to existing
 annotated files, not for a new file.
 
+### 4.6 jsoup - DONE
+
+A 508 KB jar for one function. `TsumegoViewModel.parseHtml()` called
+`Jsoup.parseBodyFragment(body).body().text()` at exactly one site, to flatten a puzzle's
+`puzzle_description` into the plain `Text` under the board. Nothing else in the repo imported it,
+and most OGS descriptions carry no markup at all, so most of the time the parser ran for nothing -
+and when it did fire it discarded the formatting rather than showing it.
+
+Replaced by `AnnotatedString.fromHtml()` (`androidx.compose.ui.text`, already on the classpath at
+ui-text 1.10.6). Bold, italics, lists and links now render instead of being stripped. Links are
+styled primary + underlined via `TextLinkStyles`, because Compose makes `LinkAnnotation` clickable
+automatically and an unstyled link would be an invisible tap target.
+
+The conversion moved from the ViewModel to a single `remember`-cached helper at the render site in
+`TsumegoUI`, which also picks up move-tree node text - rendered by the same `Text`, and never
+parsed at all until now.
+
+Three behavioural changes, none covered by a test:
+
+- **Line structure survives.** jsoup's `.text()` collapsed `<p>` and `<br>` into single spaces, so
+  a multi-paragraph description rendered as one run-on blob. `Html.fromHtml` emits newlines.
+- **Trailing newlines.** `Html.fromHtml` leaves a trailing `\n` after a block element; jsoup never
+  did. Hence the small `trimTrailingWhitespace()` on `AnnotatedString`.
+- **Node text is now parsed**, so a node containing a literal `<` followed by a word can have it
+  swallowed as a tag. Descriptions already carried that risk under jsoup; node text did not.
+
+Also removed: the `-dontwarn com.google.re2j.**` ProGuard rule, which existed only because jsoup
+carries optional refs to re2j. Verified first that jsoup resolved once on `releaseRuntimeClasspath`
+with no transitive pullers and that re2j was not on the classpath at all, then confirmed by a
+green `assembleRelease`.
+
+Measured: dex 8,132,068 -> 7,980,216 bytes, APK 147,836,957 -> 147,365,719. The APK saving is
+larger than the dex saving because jsoup's entity tables ship as jar resources.
+
+**KMP effect.** This trades a JVM-only dependency for an Android-only API, so it is not a straight
+win on paper. What it does buy is position: the blocker left the ViewModel, which is destined for
+`commonMain`, and now sits in the UI layer, where it needs an `expect`/`actual` (or a markdown
+renderer) at CMP time rather than blocking the shared code.
 
 ---
 
@@ -446,6 +484,8 @@ This phase introduces no multiplatform tooling at all and is worth doing on its 
 - ~~`org.json` to kotlinx.serialization~~ - **done**, and wider than scoped here: it had spread to
   five files beyond `OGSWebSocketService`.
 - Build the CI annotation check described at the end of 4.5. Outstanding.
+- ~~jsoup~~ - **done**, see 4.6. One 3-line function, replaced by an API already on the classpath;
+  461 KB off the APK.
 - `java.time` to kotlinx-datetime; drop core library desugaring.
 - Coil 2 to Coil 3; navigation routes to `@Serializable` types.
 - Split `utils/Globals.kt` into pure logic and `Resources`-dependent formatting.

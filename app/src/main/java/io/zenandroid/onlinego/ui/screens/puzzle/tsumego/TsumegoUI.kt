@@ -57,8 +57,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextLinkStyles
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.fromHtml
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -377,11 +382,12 @@ private fun TsumegoContent(
                 .verticalScroll(state = boxState)
                 .weight(1f)
             ) {
+              val html = state.nodeStack.let { stack ->
+                stack.lastOrNull()?.text
+                  ?: stack.dropLast(1).lastOrNull()?.text
+              } ?: state.description
               Text(
-                text = state.nodeStack.let { stack ->
-                  stack.lastOrNull()?.text
-                    ?: stack.dropLast(1).lastOrNull()?.text
-                } ?: state.description,
+                text = rememberHtmlText(html),
                 textAlign = TextAlign.Center,
                 style = MaterialTheme.typography.bodyMedium,
                 fontSize = 16.sp,
@@ -453,6 +459,25 @@ private fun TsumegoContent(
       }
     }
   }
+}
+
+@Composable
+private fun rememberHtmlText(html: String): AnnotatedString {
+  val linkStyles = TextLinkStyles(
+    SpanStyle(
+      color = MaterialTheme.colorScheme.primary,
+      textDecoration = TextDecoration.Underline
+    )
+  )
+  return remember(html, linkStyles) {
+    AnnotatedString.fromHtml(html, linkStyles).trimTrailingWhitespace()
+  }
+}
+
+private fun AnnotatedString.trimTrailingWhitespace(): AnnotatedString {
+  var end = length
+  while (end > 0 && this[end - 1].isWhitespace()) end--
+  return if (end == length) this else subSequence(0, end)
 }
 
 @Composable
