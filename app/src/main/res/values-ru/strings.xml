@@ -138,6 +138,7 @@
     <string name="automatch_size_13">13×13</string>
     <string name="automatch_size_19">19×19</string>
     <string name="automatch_or">или</string>
+    <string name="mygames_header_older_games">Старые игры</string>
     <string name="mygames_tutorial_percentage">%1$d %%</string>
     <string name="mygames_offline_content_description">Офлайн</string>
     <string name="mygames_detail_speed">Скорость</string>
