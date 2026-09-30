@@ -57,16 +57,24 @@ class StatsViewModel(
     started = SharingStarted.WhileSubscribed(5_000)
   )
 
+  private val requestedPlayerId = savedStateHandle.get<String>("playerId")?.toLong()
+
+  /**
+   * Viewing your own stats is a bottom bar tab, so it is entered often and the view model is
+   * rebuilt each time. The session already knows the avatar, so seeding it here means the header
+   * draws on the first frame instead of waiting out [OGSRestService.getPlayerProfileAsync].
+   */
   val state: MutableStateFlow<StatsState> = MutableStateFlow(
     StatsState.Initial.copy(
       collapseTimeByGame = graphByGames.value,
+      avatarURL = if (requestedPlayerId == null) userSessionRepository.uiConfig?.user?.icon else null,
     )
   )
 
   init {
     viewModelScope.launch(Dispatchers.IO) {
       val userId = userSessionRepository.userId.filterNotNull().first()
-      val playerId = savedStateHandle.get<String>("playerId")?.toLong() ?: userId
+      val playerId = requestedPlayerId ?: userId
       val result = getUserStatsUseCase.getPlayerStatsWithSizesAsync(playerId)
       result.fold(
         onSuccess = ::fillPlayerStats,
@@ -86,7 +94,7 @@ class StatsViewModel(
 
     viewModelScope.launch(Dispatchers.IO) {
       try {
-        val playerId = savedStateHandle.get<String>("playerId")?.toLong()
+        val playerId = requestedPlayerId
           ?: userSessionRepository.userId.filterNotNull().first()
         fillPlayerDetails(restService.getPlayerProfileAsync(playerId))
       } catch (t: Throwable) {
@@ -131,7 +139,7 @@ class StatsViewModel(
 
   private fun fillPlayerDetails(playerDetails: OGSPlayer) {
     state.update {
-      it.copy(playerDetails = playerDetails)
+      it.copy(playerDetails = playerDetails, avatarURL = playerDetails.icon ?: it.avatarURL)
     }
   }
 
@@ -253,6 +261,7 @@ class StatsViewModel(
   data class StatsState(
     val chartData: List<Entry>,
     val playerDetails: OGSPlayer?,
+    val avatarURL: String?,
     val highestRank: String?,
     val highestRankDate: String?,
     val lostCount: Int?,
@@ -287,6 +296,7 @@ class StatsViewModel(
       val Initial = StatsState(
         chartData = emptyList(),
         playerDetails = null,
+        avatarURL = null,
         highestRank = null,
         highestRankDate = null,
         lostCount = null,

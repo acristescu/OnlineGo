@@ -85,8 +85,11 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.core.net.toUri
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import coil.compose.rememberAsyncImagePainter
-import coil.request.ImageRequest
+import coil3.compose.AsyncImage
+import coil3.compose.LocalPlatformContext
+import coil3.request.ImageRequest
+import coil3.request.error
+import coil3.request.placeholder
 import io.zenandroid.onlinego.BuildConfig
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.R.drawable
@@ -358,13 +361,11 @@ private fun SettingsContent(
         .aspectRatio(1f, true)
     ) {
       val shape = RoundedCornerShape(14.dp)
-      Image(
-        painter = rememberAsyncImagePainter(
-          model = ImageRequest.Builder(LocalContext.current).data(
-            processGravatarURL(
-              state.avatarURL, LocalDensity.current.run { 84.dp.toPx().toInt() })
-          ).placeholder(mipmap.placeholder).error(mipmap.placeholder).build()
-        ),
+      AsyncImage(
+        model = ImageRequest.Builder(LocalPlatformContext.current).data(
+          processGravatarURL(
+            state.avatarURL, LocalDensity.current.run { 84.dp.toPx().toInt() })
+        ).placeholder(mipmap.placeholder).error(mipmap.placeholder).build(),
         contentDescription = stringResource(R.string.settings_avatar_content_description),
         modifier = Modifier
           .size(84.dp)

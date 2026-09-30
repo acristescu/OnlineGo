@@ -7,10 +7,10 @@ the work so that every phase still ships on Android.
 
 This is an assessment, not a commitment. Measured against the repository at commit `3f1d980`.
 
-**Status.** Two items have been built, both in Phase 0. The Moshi to kotlinx.serialization
-migration, together with the `org.json` removal that was entangled with it (4.5), and the jsoup
-removal (4.6). Both are green on unit tests and both build variants, and **under on-device
-testing - not released**. Everything else here is still a plan.
+**Status.** Three items have been built, all in Phase 0. The Moshi to kotlinx.serialization
+migration, together with the `org.json` removal that was entangled with it (4.5); the jsoup
+removal (4.6); and Coil 2 to Coil 3 (4.7). All are green on unit tests and both build variants,
+and **under on-device testing - not released**. Everything else here is still a plan.
 
 ---
 
@@ -171,7 +171,7 @@ long-lived migration branch.
 | ~~**Moshi 1.15.2, reflective**~~ **DONE**                                                | `KotlinJsonAdapterFactory` needs `kotlin-reflect`; no multiplatform equivalent                                                               | **kotlinx.serialization**. The annotation work is small - 7 `@Json(name=)` become `@SerialName` and the rest matches on field name - but the behavioural defaults differ in ways that fail at runtime, not compile time. **See 4.5.** Custom adapters (`OGSInstantJsonAdapter`, `OGSBooleanJsonAdapter`, `HashMapOfCellToStoneTypeMoshiAdapter`, `AiDifficultyMoshiAdapter`, `ResponseBriefMoshiAdapter`) become `KSerializer`s; the `PolymorphicJsonAdapterFactory` for `TutorialStep` becomes a sealed hierarchy with `@SerialName`. Consolidate the 6 scattered `Moshi.Builder()` instances into one injected `Json`. |
 | ~~**`org.json`**~~ **DONE**                                                              | Android-only (AOSP-bundled)                                                                                                                  | Replaced with kotlinx.serialization `JsonArray` / `JsonElement`, and removed from the five other files that had picked it up (`utils/Globals.kt`'s emit DSL, `ServerNotificationsRepository`, `MyGamesViewModel`, `Challenge`, `OnboardingViewModel`). `grep -rn "org.json" app/src/main` is now empty.                                                                                                                                                                                                                                                                                                                  |
 | **PersistentCookieJar** (`com.github.franmontiel`)                                       | backed by Android SharedPreferences                                                                                                          | Ktor `HttpCookies` plugin with a custom `CookiesStorage` persisted through DataStore. Affects `UserSessionRepository` (`sessionid` detection, CSRF token extraction).                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
-| **Coil 2.7.0**                                                                           | 2.x is Android-only                                                                                                                          | **Coil 3.x** + `coil-network-ktor3`. Six files, mechanical. Note that 7 of the 13 `LocalContext.current` uses in the whole app exist only to build a Coil 2 `ImageRequest` - they disappear for free.                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| ~~**Coil 2.7.0**~~ **DONE**                                                              | 2.x is Android-only                                                                                                                          | Now Coil 3.6.3 + `coil-network-okhttp`. Six files. See 4.7 - it was mechanical, but it forced compileSdk 37 and a Compose bump, and the avatar work alongside it was not mechanical at all.                                                                                                                                                                                                                                                                                                                                                                                                                              |
 | **MPAndroidChart v3.1.0**                                                                | Android-only, **and it has leaked out of the UI layer** into `data/model/local/UserStats.kt` and `usecases/GetUserStatsUseCase.kt`           | **Vico 2.x** (has KMP targets) or **KoalaPlot**, or a hand-rolled Compose `Canvas`. Fix the layering violation first - `UserStats` is a domain model and must not depend on a charting library. `ui/screens/stats/ChartWrapper.kt` is a 416-LOC rewrite.                                                                                                                                                                                                                                                                                                                                                                 |
 | **Markwon 4.6.2**                                                                        | renders into an `android.widget.TextView` via `AndroidView`                                                                                  | **`com.mikepenz:multiplatform-markdown-renderer-m3`**. Contained to one screen (`JosekiExplorerUI.kt`, ~90 LOC).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
 | ~~**jsoup 1.22.1**~~ **DONE**                                                            | pure JVM - survives Android and Desktop, breaks iOS                                                                                          | Deleted. It was one 3-line `parseHtml()` in `TsumegoViewModel`; replaced by `AnnotatedString.fromHtml()` from Compose UI, which was already on the classpath. See 4.6.                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
@@ -362,6 +362,92 @@ win on paper. What it does buy is position: the blocker left the ViewModel, whic
 `commonMain`, and now sits in the UI layer, where it needs an `expect`/`actual` (or a markdown
 renderer) at CMP time rather than blocking the shared code.
 
+### 4.7 Coil 2 to Coil 3 - DONE
+
+Upgraded to 3.6.3 with `coil-network-okhttp`; Coil 3 dropped built-in network support from
+`coil-core`, so without that artifact nothing loads over HTTP at all. Six files, `coil.*` ->
+`coil3.*`. `LocalContext.current` became `coil3.compose.LocalPlatformContext.current`, which is a
+typealias for `Context` on Android and is the form that compiles in `commonMain` later.
+
+Two things the assessment did not anticipate.
+
+**It is not a self-contained upgrade.** Coil 3.5 onwards depends on Compose 1.12.0, which requires
+compileSdk 37. So the version bump dragged `compileSdk` 36 -> 37 and the Compose BOM
+2026.03.01 -> 2026.08.00 (UI 1.10.6 -> 1.12.0) along with it. Coil 3.4.0 was verified as a
+working alternative that needs neither, and delivers the same behaviour, since everything that
+mattered here landed in 3.0 - taking 3.6.3 was a deliberate choice, not a requirement. `targetSdk`
+was deliberately left at 36; compileSdk and targetSdk move independently and there was no reason
+to opt into new runtime behaviour in the same change. No new deprecation warnings appeared.
+
+**`rememberAsyncImagePainter` changed behaviour silently.** Its default size resolver no longer
+waits for the first draw to measure the canvas; it defaults to `Size.ORIGINAL`. Four of the six
+sites used it, and left alone they would have decoded source-resolution bitmaps into 48-124dp
+slots. All four moved to `AsyncImage`, which resolves from layout constraints. Both APIs default
+to `ContentScale.Fit` and `Alignment.Center`, so there was no visual change - but this would have
+been an invisible memory regression, not a compile error.
+
+#### The avatar work, which was the actual point
+
+The upgrade was the occasion; cached avatars being slow was the reason. Measuring the live
+endpoints found the causes were mostly not Coil's:
+
+| host                         | cache headers                              |
+|------------------------------|--------------------------------------------|
+| `secure.gravatar.com`        | `cache-control: max-age=300`, no ETag      |
+| `user-uploads.online-go.com` | none at all; only `ETag` + `Last-Modified` |
+
+A Gravatar avatar goes stale after five minutes, so Coil 2 issued a conditional GET before it
+could draw - a full network round trip for bytes already on disk. **Coil 3 ignores `Cache-Control`
+by default** and always writes to its disk cache, so the upgrade fixed this for free.
+
+The bigger problem was in our own code. `processGravatarURL` computed
+`max(512.0, 2.0.pow(ln(width) / ln(2.0)))` for CDN-hosted avatars. That exponent is an identity -
+`2^(log₂ w)` is `w` - so the expression reduced to `max(512, width)`, which is **always 512** for
+every call site in the app. A missing `ceil` suggests power-of-two bucketing was intended and the
+512 floor then defeated it. The CDN serves 32/64/128/256/512 (verified consistent across four real
+accounts), so the home header was downloading 532 KB and decoding a 512x512 bitmap to draw it at
+64dp. It now rounds up to the smallest size that covers the display, which is never softer and is
+usually an order of magnitude smaller.
+
+The Gravatar branch was deliberately left on `?s=<exact px>`. Consequence: a Gravatar-hosted
+avatar still has one URL per display size, so it is fetched separately for the header, settings,
+the opponent list and the dialogs. Each is now fetched once and served from disk thereafter
+instead of revalidating every five minutes, so it is much better than before, but it does not
+share across screens the way CDN-hosted ones now do.
+
+Also: `crossfade(true)` came off the four sites that had it. Coil skips the crossfade on a memory
+hit but not on a disk hit, so every app restart faded the avatar in over 100 ms. And the user's
+own avatar is now preloaded in the pre-warm block that already exists in
+`OnlineGoApplication.onCreate`, so the home header has it before the screen is reached.
+`HomeScreenHeader` exports the two sizes it uses so the preload produces the same cache key; note
+those two sizes differ from each other (URL at 56dp, drawn at 64dp), which looks accidental and
+was left alone.
+
+No custom `ImageLoader` was added. Coil 3's defaults are already the aggressive-caching ones.
+
+#### Follow-up: the Stats tab
+
+On-device testing surfaced a delay on the Stats screen that looked like slow image loading and
+mostly was not. `StatsState.Initial` carried `playerDetails = null`, and the avatar URL only
+arrived with `restService.getPlayerProfileAsync` - so on a bottom bar tab that rebuilds its view
+model on every visit, the avatar sat on the fallback drawable for a full network round trip before
+the image request even started. By then the image itself was usually already cached. Removing the
+crossfade did not cause this; it removed the fade that had been disguising it.
+
+`StatsState` now carries its own `avatarURL`, seeded synchronously from
+`userSessionRepository.uiConfig?.user?.icon` when no `playerId` argument is present, so viewing
+your own stats draws the avatar on the first frame with no network at all. This mirrors what
+`SettingsViewModel` already does.
+
+Two things left as they are. The 124dp avatar in `BoxWithImage` is the only thing in the app that
+lands on the 512 CDN bucket - everything else converges on 256 - so the first load for any given
+player is structurally a cache miss. `crossfade(true)` was restored on that one composable to
+soften it rather than shrinking the image; the other five sites stay instant with no fade. And the
+*other player* Stats route still waits on its profile call, because there is no cached
+per-player lookup to seed from - `PlayersRepository` exposes only `getRecentOpponents` and
+`searchPlayers`. Passing the URL as a navigation argument from the dialog that already displayed
+it would fix that cheaply if it ever becomes annoying.
+
 ---
 
 ## 5. The native code - two separate problems
@@ -487,7 +573,7 @@ This phase introduces no multiplatform tooling at all and is worth doing on its 
 - ~~jsoup~~ - **done**, see 4.6. One 3-line function, replaced by an API already on the classpath;
   461 KB off the APK.
 - `java.time` to kotlinx-datetime; drop core library desugaring.
-- Coil 2 to Coil 3; navigation routes to `@Serializable` types.
+- ~~Coil 2 to Coil 3~~ - **done**, see 4.7. Navigation routes to `@Serializable` types outstanding.
 - Split `utils/Globals.kt` into pure logic and `Resources`-dependent formatting.
 - Fix layering violations: `RulesManager` imports `ui.screens.game.Variation`;
   `UserStats` depends on MPAndroidChart; `PuzzleDirectoryAction` / `TsumegoAction` carry

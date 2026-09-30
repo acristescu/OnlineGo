@@ -21,18 +21,27 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.AsyncImage
-import coil.request.ImageRequest
+import coil3.compose.AsyncImage
+import coil3.compose.LocalPlatformContext
+import coil3.request.ImageRequest
+import coil3.request.error
+import coil3.request.placeholder
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
 import io.zenandroid.onlinego.utils.processGravatarURL
+
+/**
+ * The width the avatar URL is requested at, and the box it is drawn into. They differ; the
+ * startup preload in `OnlineGoApplication` mirrors both so its cache entry matches this one.
+ */
+internal val HEADER_AVATAR_URL_WIDTH = 56.dp
+internal val HEADER_AVATAR_SIZE = 64.dp
 
 @Composable
 fun HomeScreenHeader(
@@ -46,15 +55,18 @@ fun HomeScreenHeader(
     .padding(20.dp)
     .fillMaxWidth()) {
     AsyncImage(
-      model = ImageRequest.Builder(LocalContext.current)
-        .data(processGravatarURL(image, LocalDensity.current.run { 56.dp.roundToPx() }))
-        .crossfade(true)
+      model = ImageRequest.Builder(LocalPlatformContext.current)
+        .data(
+          processGravatarURL(
+            image,
+            LocalDensity.current.run { HEADER_AVATAR_URL_WIDTH.roundToPx() })
+        )
         .placeholder(R.drawable.ic_person_filled_with_background)
         .error(R.drawable.ic_person_filled_with_background)
         .build(),
       contentDescription = stringResource(R.string.mygames_header_icon_content_description),
       modifier = Modifier
-        .size(64.dp)
+        .size(HEADER_AVATAR_SIZE)
         .clip(RoundedCornerShape(4.dp))
     )
 

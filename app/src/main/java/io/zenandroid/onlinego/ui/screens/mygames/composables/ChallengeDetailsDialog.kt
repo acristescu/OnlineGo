@@ -1,7 +1,6 @@
 package io.zenandroid.onlinego.ui.screens.mygames.composables
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -30,13 +29,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import coil.compose.rememberAsyncImagePainter
-import coil.request.ImageRequest
+import coil3.compose.AsyncImage
+import coil3.compose.LocalPlatformContext
+import coil3.request.ImageRequest
+import coil3.request.error
+import coil3.request.placeholder
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.local.Challenge
 import io.zenandroid.onlinego.data.model.local.Player
@@ -137,15 +138,16 @@ fun ChallengeDetailsDialog(
                 }
             }
         }
-        Image(
-            painter = rememberAsyncImagePainter(
-                model = ImageRequest.Builder(LocalContext.current)
-                    .data(processGravatarURL(status.imageURL, LocalDensity.current.run { 124.dp.roundToPx() }))
-                    .crossfade(true)
-                    .placeholder(R.drawable.ic_person_filled_with_background)
-                    .error(R.mipmap.placeholder)
-                    .build()
-            ),
+        AsyncImage(
+            model = ImageRequest.Builder(LocalPlatformContext.current)
+                .data(
+                    processGravatarURL(
+                        status.imageURL,
+                        LocalDensity.current.run { 124.dp.roundToPx() })
+                )
+                .placeholder(R.drawable.ic_person_filled_with_background)
+                .error(R.mipmap.placeholder)
+                .build(),
             contentDescription = stringResource(R.string.mygames_avatar_content_description),
             modifier = Modifier
                 .align(Alignment.TopCenter)

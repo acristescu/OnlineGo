@@ -3,14 +3,14 @@
 datastorePreferences = "1.2.1"
 kotlin = "2.3.20"
 androidGradlePlugin = "9.2.1"
-compileSdk = "36"
+compileSdk = "37"
 minSdk = "23"
 navigationCompose = "2.9.7"
 targetSdk = "36"
 ndkVersion = "25.1.8937393"
 
 # Compose BOM
-composeBom = "2026.03.01"
+composeBom = "2026.08.00"
 
 # Main dependencies
 koin = "4.2.0"
@@ -28,7 +28,7 @@ material = "1.13.0"
 retrofit = "3.0.0"
 okhttp = "5.3.2"
 kotlinxSerialization = "1.9.0"
-coil = "2.7.0"
+coil = "3.6.3"
 
 
 # Utility libraries
@@ -124,7 +124,8 @@ koin-android = { group = "io.insert-koin", name = "koin-android", version.ref = 
 koin-androidx-compose = { group = "io.insert-koin", name = "koin-androidx-compose", version.ref = "koin" }
 
 # Image Loading
-coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil" }
+coil-compose = { group = "io.coil-kt.coil3", name = "coil-compose", version.ref = "coil" }
+coil-network-okhttp = { group = "io.coil-kt.coil3", name = "coil-network-okhttp", version.ref = "coil" }
 
 
 # Utility

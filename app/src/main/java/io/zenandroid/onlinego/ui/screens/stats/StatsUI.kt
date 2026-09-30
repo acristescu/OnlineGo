@@ -94,7 +94,7 @@ private fun StatsContent(
       .statusBarsPadding()
   ) {
     BoxWithImage(
-      imageURL = state.playerDetails?.icon,
+      imageURL = state.avatarURL,
       contentWidthPct = 1f,
       modifier = Modifier
         .fillMaxWidth()
