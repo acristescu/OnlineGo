@@ -81,6 +81,7 @@
     <string name="disabled">Выключено</string>
     <string name="auto">Авто</string>
     <string name="hello_world">Привет, мир!</string>
+    <string name="landscape_preview">Russian</string>
     <string name="button_play_online">Играть\nОнлайн</string>
     <string name="button_custom_game">Своя\nИгра</string>
     <string name="button_play_against_ai">Играть\nПротив ИИ</string>
@@ -92,6 +93,10 @@
     <string name="stats_login_required_title">Войдите для просмотра статистики</string>
     <string name="stats_login_required_message">Статистика доступна только при входе в аккаунт OGS.</string>
     <string name="home_welcome_to_sente">Добро пожаловать в Sente!</string>
+    <string name="home_app_open_source_message">Это приложение с открытым исходным кодом, поддерживаемое сообществом — клиент для сайта OGS (online-go.com). Вы можете изучать обучающие материалы и играть против ИИ, но для большинства функций требуется бесплатный аккаунт OGS.
+</string>
+    <string name="home_button_login_ogs">Войти в OGS</string>
+    <string name="home_button_signup_ogs">Зарегистрироваться в OGS</string>
     <string name="face_to_face_default">Лицом к лицу</string>
     <string name="face_to_face_player_1">Игрок 1</string>
     <string name="face_to_face_player_2">Игрок 2</string>
