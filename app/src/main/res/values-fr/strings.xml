@@ -471,7 +471,11 @@
     <string name="new_challenge_select_opponent">[Sélectionner un adversaire]</string>
     <string name="select_opponent_tab_bot">Robot</string>
     <string name="select_opponent_tab_recent">Récent</string>
+    <string name="select_opponent_icon_content_description">Image de votre adversaire</string>
+    <string name="select_opponent_recent_title">Adversaires récemment affrontés</string>
+    <string name="select_opponent_recent_description">Voici un choix d\'adversaires (de robots comme de vrais joueurs) contre qui vous avez joué récemment.</string>
     <string name="select_opponent_search_hint">Recherche par nom d\'utilisateur</string>
+    <string name="automatch_title">Match automatique</string>
     <string name="automatch_description">Tentez votre chance dans une partie contre un adversaire humain d\'un niveau similaire au votre.</string>
     <string name="automatch_game_size">Taille du Goban</string>
     <string name="automatch_size_9">9x9</string>
@@ -482,6 +486,8 @@
     <string name="automatch_speed_rapid">Rapide</string>
     <string name="automatch_speed_live">Live</string>
     <string name="automatch_speed_correspondence">Correspondance</string>
+    <string name="automatch_or">ou bien</string>
+    <string name="automatch_expected_duration">Durée estimée : %1$s</string>
     <string name="automatch_duration_several_days">plusieurs jours</string>
     <plurals name="automatch_duration_minutes">
         <item quantity="one">%d minute</item>
@@ -489,10 +495,16 @@
     </plurals>
     <string name="automatch_duration_minutes_range">%1$d à %2$d minutes</string>
     <string name="mygames_moderator_title">Modérateur OGS %1$s</string>
+    <string name="mygames_empty_message">Message sans contenu</string>
     <string name="mygames_header_your_turn">Votre tour</string>
     <string name="mygames_header_challenges">Défis</string>
     <string name="mygames_header_opponents_turn">Tour de l\'adversaire</string>
     <string name="mygames_header_recently_finished">Terminée récemment</string>
+    <string name="mygames_learn_to_play">Apprendre à jouer</string>
+    <string name="mygames_header_icon_content_description">Image</string>
+    <string name="mygames_offline_content_description">Hors connexion</string>
+    <string name="mygames_avatar_content_description">Avatar</string>
+    <string name="mygames_challenge_is_challenging_you">%1$s vous défie</string>
     <string name="mygames_accept">Accepter</string>
     <string name="mygames_decline">Refuser</string>
     <string name="mygames_see_details">Voir Détails</string>
@@ -510,11 +522,17 @@
     <string name="mygames_outcome_reason_disconnection">par déconnexion</string>
     <string name="mygames_outcome_reason_other">par %1$s</string>
     <string name="mygames_greeting">Salut %1$s,</string>
+    <plurals name="mygames_active_games_count">
+        <item quantity="one">Vous avez %d partie en cours.</item>
+        <item quantity="other">Vous avez %d parties en cours.</item>
+    </plurals>
+    <string name="mygames_no_active_games">Vous n\'avez aucune partie en cours. Pourquoi pas en commencer une ?</string>
     <string name="mygames_detail_board_size">Taille du plateau</string>
     <string name="mygames_detail_speed">Cadence</string>
     <string name="mygames_detail_ranked">Classé</string>
     <string name="mygames_detail_analysis">Analyse</string>
     <string name="mygames_detail_rules">Règles</string>
+    <string name="mygames_alert_bot_rejected_title">Le robot n\'a pas refusé votre défi</string>
     <string name="mygames_alert_ogs_error_title">Erreur d\'OGS</string>
     <string name="mygames_alert_game_unavailable">Partie non disponible</string>
     <string name="mygames_alert_one_live_game">On ne peut chercher qu\'une partie live, rapide ou blitz à la fois.</string>
