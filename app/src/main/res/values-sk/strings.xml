@@ -362,4 +362,12 @@
     <string name="settings_delete_account_confirm">ZMAZAŤ ÚČET</string>
     <string name="settings_delete_account_cancel">ZRUŠIŤ</string>
     <string name="settings_error_dialog_title">Chyba</string>
+    <string name="settings_review_flow_diagnostic_title">Review Flow Diagnostika</string>
+    <string name="settings_review_flow_error_title">Review Flow Chyba</string>
+    <string name="settings_avatar_content_description">Avatar</string>
+    <string name="settings_icon_content_description">Ikona</string>
+    <string name="supporter_title">Stať sa podporovateľom</string>
+    <string name="supporter_header">Podporiť Android aplikáciu</string>
+    <string name="supporter_intro">Tento projekt začal ešte v roku 2015 ako hobby. Zatiaľ čo výborné prehliadačovo založené služby existovali, neboli žiadne podobne kvalitné mobilné aplikácie. Cieľom bol vznik bezplatnej a open source (FOSS), profesionálne vytvorenej Android aplikácie, ktorá umožňuje GO hráčom interagovať a objavovať túto úžasnú hru.\nNie sme spojení s OGS, hoci nám láskavo dovolili používať bezplatne ich online služby.\nSpoliehame sa na podporu od ľudí ako ste vy aby sme to umožnili. Ak máte túto aplikáciu radi, prosím zvážte podporu mesačným príspevkom a staňte sa Podporovateľom!</string>
+    <string name="supporter_reason_develop_title">Pomôžte nám vyvíjať aplikáciu rýchlejšie</string>
 </resources>
