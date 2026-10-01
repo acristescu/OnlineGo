@@ -2,6 +2,7 @@ package io.zenandroid.onlinego.data.ogs
 
 import io.zenandroid.onlinego.data.model.local.Puzzle
 import io.zenandroid.onlinego.data.model.local.PuzzleCollection
+import io.zenandroid.onlinego.data.model.ogs.AcknowledgeWarningRequest
 import io.zenandroid.onlinego.data.model.ogs.CannedMessages
 import io.zenandroid.onlinego.data.model.ogs.ChallengeParams
 import io.zenandroid.onlinego.data.model.ogs.CreateAccountRequest
@@ -28,9 +29,6 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import okhttp3.ResponseBody.Companion.toResponseBody
-import retrofit2.HttpException
-import retrofit2.Response
 import java.util.Date
 
 private const val TAG = "OGSRestService"
@@ -72,26 +70,25 @@ class OGSRestService(
     // Hack alert!!! The server sometimes returns 200 even on wrong password :facepalm:
     //
     if (uiConfig.csrf_token.isNullOrBlank() || uiConfig.redirect != null) {
-      throw HttpException(Response.error<Any>(403, "login failed".toResponseBody()))
+      throw OGSApiException(403, "login failed")
     }
     userSessionRepository.storeUIConfig(uiConfig)
   }
 
   suspend fun loginWithGoogle(code: String) {
     val authResponse = restApi.initiateGoogleAuthFlow()
-    if (authResponse.code() != 302) {
-      throw Exception("got code ${authResponse.code()} instead of 302")
+    if (authResponse.status.value != 302) {
+      throw Exception("got code ${authResponse.status.value} instead of 302")
     }
-    val state = authResponse.headers().firstOrNull { it.first == "location" }
-      ?.let { "&state=([^&]*)&".toRegex().find(it.second)?.groupValues?.get(1) }
+    val state = authResponse.headers["location"]
+      ?.let { "&state=([^&]*)&".toRegex().find(it)?.groupValues?.get(1) }
       ?: throw Exception("Cannot log in (can't follow redirect)")
 
     val loginResponse = restApi.loginWithGoogleAuth(code, state)
-    if (loginResponse.code() != 302) {
-      throw Exception("got code ${loginResponse.code()} instead of 302")
+    if (loginResponse.status.value != 302) {
+      throw Exception("got code ${loginResponse.status.value} instead of 302")
     }
-    val isRedirectToHome =
-      loginResponse.headers().any { it.first == "location" && it.second == "/" }
+    val isRedirectToHome = loginResponse.headers["location"] == "/"
     if (!isRedirectToHome) {
       throw Exception("Login failed")
     }
@@ -352,7 +349,7 @@ class OGSRestService(
     if (warning.id != null) {
       restApi.acknowledgeWarning(
         warning.id,
-        "{accept: true}"
+        AcknowledgeWarningRequest()
       )
     }
   }

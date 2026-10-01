@@ -969,8 +969,8 @@ class GameViewModel(
         }
       }
 
-      OpenInBrowser -> _events.tryEmit(OpenURL(BuildConfig.BASE_URL + "/game/${gameState?.id}"))
-      DownloadSGF -> _events.tryEmit(OpenURL(BuildConfig.BASE_URL + "/api/v1/games/${gameState?.id}/sgf"))
+      OpenInBrowser -> _events.tryEmit(OpenURL(BuildConfig.BASE_URL + "game/${gameState?.id}"))
+      DownloadSGF -> _events.tryEmit(OpenURL(BuildConfig.BASE_URL + "api/v1/games/${gameState?.id}/sgf"))
       BlackPlayerClicked -> playerDetailsDialogShowing = gameState?.blackPlayer
       WhitePlayerClicked -> playerDetailsDialogShowing = gameState?.whitePlayer
       PlayerDetailsDialogDismissed -> playerDetailsDialogShowing = null

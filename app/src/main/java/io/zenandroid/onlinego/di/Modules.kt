@@ -2,13 +2,18 @@ package io.zenandroid.onlinego.di
 
 import androidx.room.Room
 import com.google.firebase.crashlytics.FirebaseCrashlytics
+import de.jensklingenberg.ktorfit.Ktorfit
+import io.ktor.client.HttpClient
+import io.ktor.client.engine.okhttp.OkHttp
 import io.zenandroid.onlinego.BuildConfig
 import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.data.db.Database
+import io.zenandroid.onlinego.data.ogs.Glicko2HistoryConverterFactory
 import io.zenandroid.onlinego.data.ogs.HTTPConnectionFactory
-import io.zenandroid.onlinego.data.ogs.OGSRestAPI
 import io.zenandroid.onlinego.data.ogs.OGSRestService
 import io.zenandroid.onlinego.data.ogs.OGSWebSocketService
+import io.zenandroid.onlinego.data.ogs.configureOGSClient
+import io.zenandroid.onlinego.data.ogs.createOGSRestAPI
 import io.zenandroid.onlinego.data.repositories.ActiveGamesRepository
 import io.zenandroid.onlinego.data.repositories.AutomatchRepository
 import io.zenandroid.onlinego.data.repositories.BotsRepository
@@ -47,18 +52,15 @@ import io.zenandroid.onlinego.ui.screens.tutorial.TutorialViewModel
 import io.zenandroid.onlinego.usecases.GetUserStatsUseCase
 import io.zenandroid.onlinego.utils.AppLocaleManager
 import io.zenandroid.onlinego.utils.CountingIdlingResource
-import io.zenandroid.onlinego.utils.CustomConverterFactory
-import io.zenandroid.onlinego.utils.appJson
 import io.zenandroid.onlinego.utils.NOOPIdlingResource
 import io.zenandroid.onlinego.utils.ReviewPromptManager
+import io.zenandroid.onlinego.utils.appJson
+import okhttp3.OkHttpClient
 import org.koin.android.ext.koin.androidApplication
 import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModel
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
-import retrofit2.Retrofit
-import okhttp3.MediaType.Companion.toMediaType
-import retrofit2.converter.kotlinx.serialization.asConverterFactory
 
 private val repositoriesModule = module {
   single {
@@ -101,14 +103,23 @@ private val serverConnectionModule = module {
   singleOf(::HTTPConnectionFactory)
   single { get<HTTPConnectionFactory>().buildConnection() }
 
+
   single {
-    Retrofit.Builder()
+    HttpClient(OkHttp) {
+      configureOGSClient(get())
+      engine {
+        preconfigured = get<OkHttpClient>()
+      }
+    }
+  }
+
+  single {
+    Ktorfit.Builder()
       .baseUrl(BuildConfig.BASE_URL)
-      .client(get())
-      .addConverterFactory(CustomConverterFactory())
-      .addConverterFactory(appJson.asConverterFactory("application/json".toMediaType()))
+      .httpClient(get<HttpClient>())
+      .converterFactories(Glicko2HistoryConverterFactory)
       .build()
-      .create(OGSRestAPI::class.java)
+      .createOGSRestAPI()
   }
 
   single { appJson }

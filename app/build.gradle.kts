@@ -1,106 +1,107 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
-    alias(libs.plugins.kotlin.compose)
-    alias(libs.plugins.google.services)
-    alias(libs.plugins.firebase.crashlytics)
-    alias(libs.plugins.ksp)
+  alias(libs.plugins.android.application)
+  alias(libs.plugins.kotlin.android)
+  alias(libs.plugins.kotlin.compose)
+  alias(libs.plugins.google.services)
+  alias(libs.plugins.firebase.crashlytics)
+  alias(libs.plugins.ksp)
   alias(libs.plugins.kotlin.serialization)
   alias(libs.plugins.screenshot)
+  alias(libs.plugins.ktorfit)
 }
 
 android {
-    compileSdk = libs.versions.compileSdk.get().toInt()
-    ndkVersion = libs.versions.ndkVersion.get()
+  compileSdk = libs.versions.compileSdk.get().toInt()
+  ndkVersion = libs.versions.ndkVersion.get()
 
   experimentalProperties["android.experimental.enableScreenshotTest"] = true
 
-    defaultConfig {
-        // We still need this for API 23 and lower. Remove when minsdk = 24
-        vectorDrawables.useSupportLibrary = true
-        applicationId = "io.zenandroid.onlinego"
-        minSdk = libs.versions.minSdk.get().toInt()
-        targetSdk = libs.versions.targetSdk.get().toInt()
-        versionCode = 42
-        versionName = "beta_b${versionCode}"
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        buildConfigField("String", "BASE_URL", "\"https://online-go.com\"")
-    }
-    
-    ksp {
-        arg("room.schemaLocation", "$projectDir/schemas")
-        arg("room.incremental", "true")
-        arg("room.expandProjection", "true")
-    }
-    
-    buildTypes {
-        release {
-            isMinifyEnabled = true
-            isShrinkResources = true
-            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
-            manifestPlaceholders["crashlyticsCollectionEnabled"] = true
-            manifestPlaceholders["analyticsCollectionEnabled"] = true
-            configure<com.google.firebase.crashlytics.buildtools.gradle.CrashlyticsExtension> {
-                mappingFileUploadEnabled = true
-            }
-        }
-        debug {
-            applicationIdSuffix = ".debug"
-            manifestPlaceholders["crashlyticsCollectionEnabled"] = false
-            manifestPlaceholders["analyticsCollectionEnabled"] = false
-        }
-    }
-    
-    compileOptions {
-        isCoreLibraryDesugaringEnabled = true
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
-    }
-    
-    testOptions {
-        unitTests.isReturnDefaultValues = true
-    }
+  defaultConfig {
+    // We still need this for API 23 and lower. Remove when minsdk = 24
+    vectorDrawables.useSupportLibrary = true
+    applicationId = "io.zenandroid.onlinego"
+    minSdk = libs.versions.minSdk.get().toInt()
+    targetSdk = libs.versions.targetSdk.get().toInt()
+    versionCode = 42
+    versionName = "beta_b${versionCode}"
+    testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    buildConfigField("String", "BASE_URL", "\"https://online-go.com/\"")
+  }
 
-  tasks.withType<KotlinCompile>().configureEach {
-      compilerOptions {
-          jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
-          freeCompilerArgs.addAll(
-              "-opt-in=androidx.compose.animation.ExperimentalAnimationApi",
-              "-opt-in=androidx.compose.foundation.ExperimentalFoundationApi",
-              "-opt-in=androidx.compose.ui.ExperimentalComposeUiApi",
-              "-Xjvm-default=all"
-          )
+  ksp {
+    arg("room.schemaLocation", "$projectDir/schemas")
+    arg("room.incremental", "true")
+    arg("room.expandProjection", "true")
+  }
+
+  buildTypes {
+    release {
+      isMinifyEnabled = true
+      isShrinkResources = true
+      proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+      manifestPlaceholders["crashlyticsCollectionEnabled"] = true
+      manifestPlaceholders["analyticsCollectionEnabled"] = true
+      configure<com.google.firebase.crashlytics.buildtools.gradle.CrashlyticsExtension> {
+        mappingFileUploadEnabled = true
       }
     }
+    debug {
+      applicationIdSuffix = ".debug"
+      manifestPlaceholders["crashlyticsCollectionEnabled"] = false
+      manifestPlaceholders["analyticsCollectionEnabled"] = false
+    }
+  }
+
+  compileOptions {
+    isCoreLibraryDesugaringEnabled = true
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+  }
+
+  testOptions {
+    unitTests.isReturnDefaultValues = true
+  }
+
+  tasks.withType<KotlinCompile>().configureEach {
+    compilerOptions {
+      jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
+      freeCompilerArgs.addAll(
+        "-opt-in=androidx.compose.animation.ExperimentalAnimationApi",
+        "-opt-in=androidx.compose.foundation.ExperimentalFoundationApi",
+        "-opt-in=androidx.compose.ui.ExperimentalComposeUiApi",
+        "-Xjvm-default=all"
+      )
+    }
+  }
 
   buildFeatures {
-        compose = true
-        viewBinding = true
+    compose = true
+    viewBinding = true
     buildConfig = true
+  }
+
+  composeCompiler {
+    reportsDestination = layout.buildDirectory.dir("compose_compiler")
+    stabilityConfigurationFiles.add(rootProject.layout.projectDirectory.file("stability_config.conf"))
+  }
+
+  externalNativeBuild {
+    cmake {
+      path = file("CMakeLists.txt")
+      version = libs.versions.cmake.get()
     }
-    
-    composeCompiler {
-        reportsDestination = layout.buildDirectory.dir("compose_compiler")
-      stabilityConfigurationFiles.add(rootProject.layout.projectDirectory.file("stability_config.conf"))
+  }
+
+  namespace = "io.zenandroid.onlinego"
+
+  packaging {
+    jniLibs {
+      useLegacyPackaging = true
     }
-    
-    externalNativeBuild {
-        cmake {
-            path = file("CMakeLists.txt")
-            version = libs.versions.cmake.get()
-        }
-    }
-    
-    namespace = "io.zenandroid.onlinego"
-    
-    packaging {
-        jniLibs {
-            useLegacyPackaging = true
-        }
-        resources.excludes.add("META-INF/*")
-    }
+    resources.excludes.add("META-INF/*")
+  }
 }
 
 dependencies {
@@ -143,9 +144,12 @@ dependencies {
   implementation(libs.play.review.ktx)
 
   // Networking
-  implementation(libs.bundles.retrofit)
   implementation(libs.okhttp.logging.interceptor)
   implementation(libs.persistent.cookie.jar)
+  implementation(libs.ktorfit.lib)
+  implementation(libs.ktor.client.content.negotiation)
+  implementation(libs.ktor.serialization.kotlinx.json)
+  implementation(libs.ktor.client.okhttp)
 
   // Serialization
   implementation(libs.kotlinx.serialization.json)
@@ -183,6 +187,7 @@ dependencies {
 
   // Unit Testing
   testImplementation(libs.bundles.testing)
+  testImplementation(libs.ktor.client.mock)
 
   // Android Testing
   androidTestImplementation(libs.bundles.android.testing)

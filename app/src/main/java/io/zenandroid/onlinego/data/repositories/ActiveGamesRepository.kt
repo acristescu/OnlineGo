@@ -2,7 +2,6 @@ package io.zenandroid.onlinego.data.repositories
 
 import android.util.Log
 import com.google.firebase.crashlytics.FirebaseCrashlytics
-import kotlinx.serialization.SerializationException
 import io.zenandroid.onlinego.data.db.GameDao
 import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.local.Clock
@@ -18,6 +17,8 @@ import io.zenandroid.onlinego.data.ogs.OGSWebSocketService
 import io.zenandroid.onlinego.data.ogs.RemovedStones
 import io.zenandroid.onlinego.data.ogs.RemovedStonesAccepted
 import io.zenandroid.onlinego.data.ogs.UndoRequested
+import io.zenandroid.onlinego.data.ogs.httpErrorBody
+import io.zenandroid.onlinego.data.ogs.httpStatusCode
 import io.zenandroid.onlinego.utils.recordException
 import io.zenandroid.onlinego.utils.timeLeftForCurrentPlayer
 import kotlinx.coroutines.CancellationException
@@ -39,6 +40,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
+import kotlinx.serialization.SerializationException
 import java.io.IOException
 
 /**
@@ -379,7 +381,7 @@ class ActiveGamesRepository(
           }
 
           // request is throttled
-          if (e is retrofit2.HttpException && e.code() == 429) {
+          if (e.httpStatusCode == 429) {
             FirebaseCrashlytics.getInstance().apply {
               setCustomKey("HIT_RATE_LIMITER", true)
               log("Hit rate limiter backing off $backoffMillis milliseconds")
@@ -409,9 +411,9 @@ class ActiveGamesRepository(
       throw t
     }
     var message = request
-    if (t is retrofit2.HttpException) {
-      message = "$request: ${t.response()?.errorBody()?.string()}"
-      if (t.code() == 429) {
+    t.httpStatusCode?.let { code ->
+      message = "$request: ${t.httpErrorBody}"
+      if (code == 429) {
         FirebaseCrashlytics.getInstance().setCustomKey("HIT_RATE_LIMITER", true)
       }
     }

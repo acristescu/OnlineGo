@@ -7,3 +7,6 @@ data class CreateAccountRequest (val username: String, val password: String, val
 
 @Serializable
 data class PasswordBody (val password: String)
+
+@Serializable
+data class AcknowledgeWarningRequest(val accept: Boolean = true)

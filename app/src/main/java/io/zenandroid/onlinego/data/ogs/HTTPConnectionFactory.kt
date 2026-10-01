@@ -33,7 +33,7 @@ class HTTPConnectionFactory(
                 var request = chain.request()
                 val csrftoken = userSessionRepository.cookieJar.loadForRequest(request.url).firstOrNull { it.name == "csrftoken" }?.value
                 request = request.newBuilder()
-                        .addHeader("referer", BuildConfig.BASE_URL + "/overview")
+                    .addHeader("referer", BuildConfig.BASE_URL + "overview")
                         .apply { csrftoken?.let { addHeader("x-csrftoken",  it) } }
                         .apply {
                             if(request.url.pathSegments.contains("godojo")) {

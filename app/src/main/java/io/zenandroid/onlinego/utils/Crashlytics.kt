@@ -5,8 +5,8 @@ import com.google.android.gms.common.api.ApiException
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.zenandroid.onlinego.OnlineGoApplication
+import io.zenandroid.onlinego.data.ogs.httpStatusCode
 import kotlinx.coroutines.CancellationException
-import retrofit2.HttpException
 import java.net.ConnectException
 import java.net.SocketException
 import java.net.SocketTimeoutException
@@ -34,7 +34,7 @@ private fun Throwable?.isNetworkError() =
     (this is ApiException && this.statusCode == 12501) // Google Auth cancelled
 
 private fun Throwable?.isHttp5XXError() =
-  this is HttpException && this.code() / 100 == 5
+  httpStatusCode?.let { it / 100 == 5 } == true
 
 fun analyticsReportScreen(screenName: String) {
   FirebaseAnalytics.getInstance(OnlineGoApplication.instance).logEvent(

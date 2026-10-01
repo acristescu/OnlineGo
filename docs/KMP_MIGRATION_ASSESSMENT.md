@@ -7,10 +7,11 @@ the work so that every phase still ships on Android.
 
 This is an assessment, not a commitment. Measured against the repository at commit `3f1d980`.
 
-**Status.** Three items have been built, all in Phase 0. The Moshi to kotlinx.serialization
+**Status.** Four items have been built, all in Phase 0. The Moshi to kotlinx.serialization
 migration, together with the `org.json` removal that was entangled with it (4.5); the jsoup
-removal (4.6); and Coil 2 to Coil 3 (4.7). All are green on unit tests and both build variants,
-and **under on-device testing - not released**. Everything else here is still a plan.
+removal (4.6); Coil 2 to Coil 3 (4.7); and Retrofit to Ktorfit (4.8). All are green on unit tests
+and both build variants, and **under on-device testing - not released**. Everything else here is
+still a plan.
 
 ---
 
@@ -166,7 +167,7 @@ long-lived migration branch.
 
 | Current                                                                                  | Why it fails                                                                                                                                 | Recommended replacement                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
 |------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| **Retrofit 3.0.0**                                                                       | JVM/Android only                                                                                                                             | **Ktorfit** over **Ktor 3**. Ktorfit is KSP-based and keeps the annotated-interface style, so `OGSRestAPI.kt` (33 endpoints, all already `suspend`) migrates close to 1:1. Engines: `OkHttp` on Android, `Darwin` on iOS. `CustomConverterFactory` (the hand-rolled TSV parser for the Glicko2 rating history) becomes a Ktorfit converter.                                                                                                                                                                                                                                                                              |
+| ~~**Retrofit 3.0.0**~~ **DONE**                                                          | JVM/Android only                                                                                                                             | **Ktorfit** over **Ktor 3**. Ktorfit is KSP-based and keeps the annotated-interface style, so `OGSRestAPI.kt` (33 endpoints, all already `suspend`) migrates close to 1:1. Engines: `OkHttp` on Android, `Darwin` on iOS. `CustomConverterFactory` (the hand-rolled TSV parser for the Glicko2 rating history) becomes a Ktorfit converter.                                                                                                                                                                                                                                                                              |
 | **OkHttp 5.3.2** (direct use)                                                            | 5.x has KMP artifacts but constrained; our usage is deeply Android-flavoured                                                                 | Keep as the *Android engine* under Ktor. `HTTPConnectionFactory` needs rewriting as Ktor plugins: the referer/CSRF/JWT network interceptor, `followRedirects(false)`, and the `EmulatorDnsSelector` (which is ~18 lines of `android.os.Build` fingerprint checks and becomes Android-only config).                                                                                                                                                                                                                                                                                                                       |
 | ~~**Moshi 1.15.2, reflective**~~ **DONE**                                                | `KotlinJsonAdapterFactory` needs `kotlin-reflect`; no multiplatform equivalent                                                               | **kotlinx.serialization**. The annotation work is small - 7 `@Json(name=)` become `@SerialName` and the rest matches on field name - but the behavioural defaults differ in ways that fail at runtime, not compile time. **See 4.5.** Custom adapters (`OGSInstantJsonAdapter`, `OGSBooleanJsonAdapter`, `HashMapOfCellToStoneTypeMoshiAdapter`, `AiDifficultyMoshiAdapter`, `ResponseBriefMoshiAdapter`) become `KSerializer`s; the `PolymorphicJsonAdapterFactory` for `TutorialStep` becomes a sealed hierarchy with `@SerialName`. Consolidate the 6 scattered `Moshi.Builder()` instances into one injected `Json`. |
 | ~~**`org.json`**~~ **DONE**                                                              | Android-only (AOSP-bundled)                                                                                                                  | Replaced with kotlinx.serialization `JsonArray` / `JsonElement`, and removed from the five other files that had picked it up (`utils/Globals.kt`'s emit DSL, `ServerNotificationsRepository`, `MyGamesViewModel`, `Challenge`, `OnboardingViewModel`). `grep -rn "org.json" app/src/main` is now empty.                                                                                                                                                                                                                                                                                                                  |
@@ -447,6 +448,96 @@ soften it rather than shrinking the image; the other five sites stay instant wit
 per-player lookup to seed from - `PlayersRepository` exposes only `getRecentOpponents` and
 `searchPlayers`. Passing the URL as a navigation argument from the dialog that already displayed
 it would fix that cheaply if it ever becomes annoying.
+
+---
+
+### 4.8 Retrofit to Ktorfit - DONE
+
+33 endpoints moved from Retrofit 3.0.0 to Ktorfit 2.7.5 over Ktor 3.5.0. The annotated-interface
+style survived almost unchanged, as 4.2 predicted - paths, verbs, `@Path`/`@Query`/`@Body` and
+their defaults are identical, and a method-set diff against the Retrofit version of
+`OGSRestAPI` is empty. The interface keeps its name; only its annotations changed.
+What cost the time was everything *around* the interface.
+
+#### What the assessment got wrong
+
+4.2 said `CustomConverterFactory` "becomes a Ktorfit converter", which was right, and implied the
+rest was mechanical, which was not. Five things only showed up by running or reading the libraries:
+
+- **`Ktorfit.Builder.baseUrl` rejects a URL without a trailing `/`** (a raw `endsWith` check, where
+  Retrofit validates the parsed `HttpUrl`). `BASE_URL` gained the slash - which then produced `//`
+  at three `BuildConfig.BASE_URL + "/..."` concatenations, and meant the ten `@GET("/...")` paths
+  had to lose their leading slash, because Ktorfit concatenates where Retrofit resolves.
+- **Ktorfit's `@Body` never sets `Content-Type`.** Ktor's ContentNegotiation refuses to serialize
+  without one, so all eight body-bearing endpoints - login and register included - failed with
+  `Fail to prepare request body for sending ... Content-Type: null`. Retrofit got this free from
+  the converter factory's media type. Fixed with one `defaultRequest { contentType(...) }`.
+- **Ktorfit's KSP processor crashes on `%` in a path.** The Google OAuth endpoint carried a
+  pre-encoded `scope=...%3A%2F%2F...` query string; KotlinPoet reads `%` as a format specifier
+  (`index 3 for '%3A' not in range`). Declaring the constants as `@Query` parameters with decoded
+  defaults produces a byte-identical query string, which a test pins.
+- **Ktor follows redirects at its own layer**, independently of the engine, so OkHttp's
+  `followRedirects(false)` was not enough; the client needs `followRedirects = false` too. Both
+  legs of the Google handshake depend on seeing their `302`.
+- **`expectSuccess = true` raises 3xx as `RedirectResponseException`**, which would have broken
+  those same two methods. They opt out through a defaulted `@ReqBuilder` parameter.
+
+#### Two bugs found in the code being migrated
+
+Neither was caused by the migration; both were found by checking the old behaviour against the
+wire rather than assuming it was correct.
+
+- **The Glicko2 TSV parser dropped the oldest game.** `Reader.readLines()` yields no trailing empty
+  element, but the `.dropLast(2)` was written as though it did ("drop empty line at the end +
+  initial rating"), so it removed the synthetic initial-rating row *and* one real game. The
+  replacement drops that row by its actual marker (`game_id` 0) instead of by position, so the
+  rating chart gains a point. The endpoint also answers `text/plain`, which is why it needs a
+  Ktorfit `Converter.Factory` and cannot go through content negotiation at all.
+- **`acknowledgeWarning` sent the wrong body.** It passed the literal `"{accept: true}"` as a
+  `String`, which kotlinx serialized as a JSON *string* - and whose contents are not valid JSON
+  either. The OGS web client sends `{"accept":true}` as an object
+  (`AccountWarning.tsx:121`, `requests.ts`). Now a `@Serializable` request type. This had been
+  broken on the Retrofit path too.
+
+#### Error handling
+
+`retrofit2.HttpException` reached ten files, including one site that *manufactured* one for the
+"server returns 200 on a bad password" hack. It is replaced by `OGSApiException(code, errorBody)`,
+produced by an `HttpResponseValidator` on the client, plus `Throwable?.httpStatusCode` and
+`Throwable?.httpErrorBody` accessors so call sites name no HTTP library at all. The body has to be
+captured when the exception is built, because Ktor's `bodyAsText()` is `suspend` and every catch
+site here is not. That incidentally fixed a double `ResponseBody.string()` read in
+`OnboardingViewModel`, where the second call always threw `closed` and silently blanked the
+diagnostic.
+
+#### Shape
+
+Client configuration lives in `configureOGSClient(jsonFormat)` (`data/ogs/OGSHttpClient.kt`) rather
+than inline in the Koin module, so the DI module and all four test classes share one definition.
+That is what makes the tests worth having: `GoogleAuthRequestTest` exercises the real
+`expectSuccess`/redirect configuration, so the `@ReqBuilder` opt-out is actually proven rather than
+assumed.
+
+`preconfigured = get<OkHttpClient>()` keeps the existing `OkHttpClient` as the engine, which is a
+deliberate deferral, not the end state. Everything in `HTTPConnectionFactory` except the ~18-line
+`EmulatorDnsSelector` belongs in the engine-agnostic plugin layer (see 4.2, OkHttp and
+PersistentCookieJar rows). It is deferred because the cookie jar has three consumers that have
+nothing to do with Retrofit - `FacebookLoginCallbackActivity`'s own `OkHttpClient`,
+`UserSessionRepository.isLoggedIn()`, and the per-request CSRF lookup - so moving to `HttpCookies`
+means porting those too. Ktor ships no persistent `CookiesStorage`; that is the work item.
+
+#### Verification
+
+76 unit tests green (13 new), debug, release and screenshot variants all build. Release was checked
+beyond "it compiles": `Signature` is kept by AGP's default rules (needed for the generic
+`typeInfo<PagedResult<OGSGame>>` lookups), Ktor's consumer rules are applied, and no Retrofit
+artifact remains on `releaseRuntimeClasspath`. Retrofit's three R8 rules were removed with it.
+
+**What the tests do not cover:** every endpoint now runs on a path that has never reached the live
+server. The suite covers URL shapes, body encoding, error translation and the TSV parse - not the
+OkHttp engine bridge, the cookie jar or CSRF. The eight write endpoints are the ones to exercise
+first on device, since the `Content-Type` defect would have broken all of them and no unit test
+would have caught it without a request going out.
 
 ---
 

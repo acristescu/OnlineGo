@@ -7,6 +7,8 @@ import io.zenandroid.onlinego.data.model.local.Game
 import io.zenandroid.onlinego.data.model.local.HistoricGamesMetadata
 import io.zenandroid.onlinego.data.model.ogs.OGSGame
 import io.zenandroid.onlinego.data.ogs.OGSRestService
+import io.zenandroid.onlinego.data.ogs.httpErrorBody
+import io.zenandroid.onlinego.data.ogs.httpStatusCode
 import io.zenandroid.onlinego.utils.recordException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -69,9 +71,9 @@ class FinishedGamesRepository(
 
   private fun onError(t: Throwable, request: String) {
     var message = request
-    if (t is retrofit2.HttpException) {
-      message = "$request: ${t.response()?.errorBody()?.string()}"
-      if (t.code() == 429) {
+    t.httpStatusCode?.let { code ->
+      message = "$request: ${t.httpErrorBody}"
+      if (code == 429) {
         FirebaseCrashlytics.getInstance().setCustomKey("HIT_RATE_LIMITER", true)
       }
     }

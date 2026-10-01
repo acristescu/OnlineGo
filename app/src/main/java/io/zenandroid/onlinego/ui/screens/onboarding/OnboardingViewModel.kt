@@ -13,6 +13,8 @@ import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.ogs.OGSRestService
 import io.zenandroid.onlinego.data.ogs.OGSWebSocketService
+import io.zenandroid.onlinego.data.ogs.httpErrorBody
+import io.zenandroid.onlinego.data.ogs.httpStatusCode
 import io.zenandroid.onlinego.data.repositories.LoginStatus
 import io.zenandroid.onlinego.data.repositories.SettingsRepository
 import io.zenandroid.onlinego.data.repositories.UserSessionRepository
@@ -23,6 +25,7 @@ import io.zenandroid.onlinego.ui.screens.onboarding.Page.LoginPage
 import io.zenandroid.onlinego.ui.screens.onboarding.Page.MultipleChoicePage
 import io.zenandroid.onlinego.ui.screens.onboarding.Page.NotificationPermissionPage
 import io.zenandroid.onlinego.ui.screens.onboarding.Page.OnboardingPage
+import io.zenandroid.onlinego.utils.appJson
 import io.zenandroid.onlinego.utils.recordException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -32,11 +35,9 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import io.zenandroid.onlinego.utils.appJson
 import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
-import retrofit2.HttpException
 
 class OnboardingViewModel(
   val ogsRestService: OGSRestService,
@@ -299,7 +300,7 @@ class OnboardingViewModel(
 
   private fun onPasswordLoginFailure(t: Throwable) {
     Log.e(OnboardingViewModel::class.java.simpleName, t.message, t)
-    if ((t as? HttpException)?.code() in arrayOf(401, 403)) {
+    if (t.httpStatusCode in arrayOf(401, 403)) {
       _state.update {
         it.copy(
           loginProcessing = false,
@@ -319,9 +320,10 @@ class OnboardingViewModel(
 
   private fun onCreateAccountFailure(t: Throwable) {
     Log.e(OnboardingViewModel::class.java.simpleName, t.message, t)
-    if (t is HttpException && t.response()?.errorBody() != null) {
+    val errorBody = t.httpErrorBody
+    if (errorBody != null) {
       try {
-        val error = appJson.parseToJsonElement(t.response()?.errorBody()!!.string())
+        val error = appJson.parseToJsonElement(errorBody)
           .jsonObject["error"]?.jsonPrimitive?.contentOrNull.toString()
         _state.update {
           it.copy(
@@ -332,14 +334,14 @@ class OnboardingViewModel(
       } catch (e: Exception) {
         Log.e(
           OnboardingViewModel::class.java.simpleName,
-          "Can't parse error: ${t.response()?.errorBody()?.string()}"
+          "Can't parse error: $errorBody"
         )
         _state.update {
           it.copy(
             loginProcessing = false,
             loginErrorDialogText = uiText(
               R.string.onboarding_server_error_code,
-              t.response()?.code().toString()
+              t.httpStatusCode.toString()
             )
           )
         }

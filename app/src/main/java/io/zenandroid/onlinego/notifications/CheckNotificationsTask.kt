@@ -1,10 +1,12 @@
 package io.zenandroid.onlinego.notifications
+
 import android.content.Context
 import android.util.Log
 import androidx.work.ListenableWorker
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.zenandroid.onlinego.data.db.GameDao
 import io.zenandroid.onlinego.data.model.local.GameNotification
+import io.zenandroid.onlinego.data.ogs.httpStatusCode
 import io.zenandroid.onlinego.data.repositories.ActiveGamesRepository
 import io.zenandroid.onlinego.data.repositories.ChallengesRepository
 import io.zenandroid.onlinego.data.repositories.UserSessionRepository
@@ -14,7 +16,6 @@ import io.zenandroid.onlinego.utils.recordException
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import org.koin.core.context.GlobalContext
-import retrofit2.HttpException
 import java.net.ConnectException
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
@@ -33,7 +34,7 @@ class CheckNotificationsTask(val context: Context, val supressWhenInForeground: 
       ListenableWorker.Result.success()
     } catch (e: Exception) {
       when {
-        (e as? HttpException)?.code() in arrayOf(401, 403) -> {
+        e.httpStatusCode in arrayOf(401, 403) -> {
           FirebaseCrashlytics.getInstance()
             .log("E/$TAG: Unauthorized when checking for notifications")
           recordException(e)

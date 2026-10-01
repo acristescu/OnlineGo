@@ -6,13 +6,12 @@
 
 package io.zenandroid.onlinego.data.model.ogs
 
-import kotlinx.serialization.Serializable
-import io.zenandroid.onlinego.data.ogs.OGSBooleanSerializer
-import kotlinx.serialization.UseSerializers
 import io.zenandroid.onlinego.data.ogs.LenientIntSerializer
 import io.zenandroid.onlinego.data.ogs.LenientLongSerializer
+import io.zenandroid.onlinego.data.ogs.OGSBooleanSerializer
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.UseSerializers
 
-@Serializable
 data class Glicko2History(val history: List<Glicko2HistoryItem>)
 
 //ended	game_id	played_black	handicap	rating	deviation	volatility	opponent_id	opponent_rating	opponent_deviation	outcome	extra	annulled	result

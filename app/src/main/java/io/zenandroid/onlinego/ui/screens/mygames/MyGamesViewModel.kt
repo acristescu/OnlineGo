@@ -19,6 +19,8 @@ import io.zenandroid.onlinego.data.model.ogs.Speed
 import io.zenandroid.onlinego.data.model.ogs.Warning
 import io.zenandroid.onlinego.data.ogs.OGSRestService
 import io.zenandroid.onlinego.data.ogs.OGSWebSocketService
+import io.zenandroid.onlinego.data.ogs.httpErrorBody
+import io.zenandroid.onlinego.data.ogs.httpStatusCode
 import io.zenandroid.onlinego.data.repositories.ActiveGamesRepository
 import io.zenandroid.onlinego.data.repositories.AutomatchRepository
 import io.zenandroid.onlinego.data.repositories.ChallengesRepository
@@ -355,10 +357,11 @@ class MyGamesViewModel(
     if (t is CancellationException) {
       throw t
     }
-    if (t is retrofit2.HttpException) {
-      if (t.code() in arrayOf(401, 403)) {
+    val statusCode = t.httpStatusCode
+    if (statusCode != null) {
+      if (statusCode in arrayOf(401, 403)) {
         FirebaseCrashlytics.getInstance().setCustomKey("AUTO_LOGOUT", System.currentTimeMillis())
-        recordException(Exception(t.response()?.errorBody()?.string(), t))
+        recordException(Exception(t.httpErrorBody, t))
         FirebaseCrashlytics.getInstance().sendUnsentReports()
         userSessionRepository.logOut()
         _state.update {
@@ -367,7 +370,7 @@ class MyGamesViewModel(
           )
         }
       } else {
-        recordException(Exception(t.response()?.errorBody()?.string(), t))
+        recordException(Exception(t.httpErrorBody, t))
       }
     } else {
       if (t is kotlinx.serialization.SerializationException) {
