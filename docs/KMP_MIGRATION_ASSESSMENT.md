@@ -7,11 +7,11 @@ the work so that every phase still ships on Android.
 
 This is an assessment, not a commitment. Measured against the repository at commit `3f1d980`.
 
-**Status.** Four items have been built, all in Phase 0. The Moshi to kotlinx.serialization
+**Status.** Five items have been built, all in Phase 0. The Moshi to kotlinx.serialization
 migration, together with the `org.json` removal that was entangled with it (4.5); the jsoup
-removal (4.6); Coil 2 to Coil 3 (4.7); and Retrofit to Ktorfit (4.8). All are green on unit tests
-and both build variants, and **under on-device testing - not released**. Everything else here is
-still a plan.
+removal (4.6); Coil 2 to Coil 3 (4.7); Retrofit to Ktorfit (4.8); and PersistentCookieJar to a
+Ktor-level session cookie store (4.9). All are green on unit tests and both build variants, and
+**under on-device testing - not released**. Everything else here is still a plan.
 
 ---
 
@@ -168,10 +168,10 @@ long-lived migration branch.
 | Current                                                                                  | Why it fails                                                                                                                                 | Recommended replacement                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
 |------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | ~~**Retrofit 3.0.0**~~ **DONE**                                                          | JVM/Android only                                                                                                                             | **Ktorfit** over **Ktor 3**. Ktorfit is KSP-based and keeps the annotated-interface style, so `OGSRestAPI.kt` (33 endpoints, all already `suspend`) migrates close to 1:1. Engines: `OkHttp` on Android, `Darwin` on iOS. `CustomConverterFactory` (the hand-rolled TSV parser for the Glicko2 rating history) becomes a Ktorfit converter.                                                                                                                                                                                                                                                                              |
-| **OkHttp 5.3.2** (direct use)                                                            | 5.x has KMP artifacts but constrained; our usage is deeply Android-flavoured                                                                 | Keep as the *Android engine* under Ktor. `HTTPConnectionFactory` needs rewriting as Ktor plugins: the referer/CSRF/JWT network interceptor, `followRedirects(false)`, and the `EmulatorDnsSelector` (which is ~18 lines of `android.os.Build` fingerprint checks and becomes Android-only config).                                                                                                                                                                                                                                                                                                                       |
+| **OkHttp 5.3.2** (direct use) - **mostly DONE**                                          | 5.x has KMP artifacts but constrained; our usage is deeply Android-flavoured                                                                 | Keep as the *Android engine* under Ktor. The network interceptor is gone (4.9): referer, CSRF and request logging are Ktor plugins, and the JWT branch turned out to be dead code. `HTTPConnectionFactory` is now only `EmulatorDnsSelector` (~18 lines of `android.os.Build` fingerprint checks), `followRedirects(false)` and the debug logging interceptor - all genuinely engine-level and Android-only. What remains is the websocket, which still takes the `OkHttpClient` directly.                                                                                                                               |
 | ~~**Moshi 1.15.2, reflective**~~ **DONE**                                                | `KotlinJsonAdapterFactory` needs `kotlin-reflect`; no multiplatform equivalent                                                               | **kotlinx.serialization**. The annotation work is small - 7 `@Json(name=)` become `@SerialName` and the rest matches on field name - but the behavioural defaults differ in ways that fail at runtime, not compile time. **See 4.5.** Custom adapters (`OGSInstantJsonAdapter`, `OGSBooleanJsonAdapter`, `HashMapOfCellToStoneTypeMoshiAdapter`, `AiDifficultyMoshiAdapter`, `ResponseBriefMoshiAdapter`) become `KSerializer`s; the `PolymorphicJsonAdapterFactory` for `TutorialStep` becomes a sealed hierarchy with `@SerialName`. Consolidate the 6 scattered `Moshi.Builder()` instances into one injected `Json`. |
 | ~~**`org.json`**~~ **DONE**                                                              | Android-only (AOSP-bundled)                                                                                                                  | Replaced with kotlinx.serialization `JsonArray` / `JsonElement`, and removed from the five other files that had picked it up (`utils/Globals.kt`'s emit DSL, `ServerNotificationsRepository`, `MyGamesViewModel`, `Challenge`, `OnboardingViewModel`). `grep -rn "org.json" app/src/main` is now empty.                                                                                                                                                                                                                                                                                                                  |
-| **PersistentCookieJar** (`com.github.franmontiel`)                                       | backed by Android SharedPreferences                                                                                                          | Ktor `HttpCookies` plugin with a custom `CookiesStorage` persisted through DataStore. Affects `UserSessionRepository` (`sessionid` detection, CSRF token extraction).                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| ~~**PersistentCookieJar** (`com.github.franmontiel`)~~ **DONE**                          | backed by Android SharedPreferences                                                                                                          | Replaced by `OGSCookieStore`, a ~55-line `CookiesStorage` behind Ktor's `HttpCookies` plugin. Persistence stayed on SharedPreferences rather than DataStore, behind a `SessionCookiePersistence` seam - see 4.9 for why. Existing sessions are migrated, so no one is signed out by the upgrade.                                                                                                                                                                                                                                                                                                                         |
 | ~~**Coil 2.7.0**~~ **DONE**                                                              | 2.x is Android-only                                                                                                                          | Now Coil 3.6.3 + `coil-network-okhttp`. Six files. See 4.7 - it was mechanical, but it forced compileSdk 37 and a Compose bump, and the avatar work alongside it was not mechanical at all.                                                                                                                                                                                                                                                                                                                                                                                                                              |
 | **MPAndroidChart v3.1.0**                                                                | Android-only, **and it has leaked out of the UI layer** into `data/model/local/UserStats.kt` and `usecases/GetUserStatsUseCase.kt`           | **Vico 2.x** (has KMP targets) or **KoalaPlot**, or a hand-rolled Compose `Canvas`. Fix the layering violation first - `UserStats` is a domain model and must not depend on a charting library. `ui/screens/stats/ChartWrapper.kt` is a 416-LOC rewrite.                                                                                                                                                                                                                                                                                                                                                                 |
 | **Markwon 4.6.2**                                                                        | renders into an `android.widget.TextView` via `AndroidView`                                                                                  | **`com.mikepenz:multiplatform-markdown-renderer-m3`**. Contained to one screen (`JosekiExplorerUI.kt`, ~90 LOC).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
@@ -190,7 +190,7 @@ long-lived migration branch.
 | **Play Billing 9.1.0**                                                                   | Android-only                                                                                                                                 | `expect`/`actual`; iOS StoreKit. Consider **RevenueCat's KMP SDK** / `purchases-kmp` to avoid writing two store integrations. Contained to `playstore/PlayStoreService.kt` + `SupporterViewModel`.                                                                                                                                                                                                                                                                                                                                                                                                                       |
 | **Play In-App Review 2.0.2**                                                             | Android-only                                                                                                                                 | `expect`/`actual`; iOS `SKStoreReviewController`. Contained to `utils/ReviewPromptManager.kt` + `ReviewPromptRepository`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
 | **play-services-auth 21.5.1**                                                            | Android-only                                                                                                                                 | Credential Manager on Android; `GoogleSignIn` SDK or `ASWebAuthenticationSession` on iOS. Low risk - the token exchange itself is already plain REST against OGS.                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
-| **`gms.common.util.IOUtils`** in `HTTPConnectionFactory`                                 | gratuitous Play Services dependency in the networking layer                                                                                  | Delete. It is used only for gzip detection inside a log statement.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| ~~**`gms.common.util.IOUtils`** in `HTTPConnectionFactory`~~ **DONE**                    | gratuitous Play Services dependency in the networking layer                                                                                  | Deleted with the interceptor it lived in (4.9). The gzip handling existed only because the log ran in an OkHttp *network* interceptor, below transparent decompression; at the Ktor layer `bodyAsText()` is already decoded.                                                                                                                                                                                                                                                                                                                                                                                             |
 | **`AppLocaleManager`**                                                                   | `LocaleManager`, `LocaleList`, `Resources.getSystem()`, `attachBaseContext` wrapping, synchronous SharedPreferences                          | `expect`/`actual`. iOS sets `AppleLanguages` in `UserDefaults` and requires a restart.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
 | **Android string / drawable resources**                                                  | `R.*`                                                                                                                                        | **Compose Multiplatform resources** (`composeResources/`). It consumes the *same* `strings.xml` format, so Crowdin only needs a path change in `crowdin.yml`. Preferred over moko-resources, which is effectively in maintenance. See 4.4.                                                                                                                                                                                                                                                                                                                                                                               |
 | **Mockito** (8 test files, 37 tests)                                                     | JVM-only                                                                                                                                     | Leave those tests in `androidUnitTest`. New `commonTest` coverage uses hand-written fakes plus Turbine and `kotlinx-coroutines-test`, both of which are already multiplatform.                                                                                                                                                                                                                                                                                                                                                                                                                                           |
@@ -518,13 +518,10 @@ That is what makes the tests worth having: `GoogleAuthRequestTest` exercises the
 `expectSuccess`/redirect configuration, so the `@ReqBuilder` opt-out is actually proven rather than
 assumed.
 
-`preconfigured = get<OkHttpClient>()` keeps the existing `OkHttpClient` as the engine, which is a
-deliberate deferral, not the end state. Everything in `HTTPConnectionFactory` except the ~18-line
-`EmulatorDnsSelector` belongs in the engine-agnostic plugin layer (see 4.2, OkHttp and
-PersistentCookieJar rows). It is deferred because the cookie jar has three consumers that have
-nothing to do with Retrofit - `FacebookLoginCallbackActivity`'s own `OkHttpClient`,
-`UserSessionRepository.isLoggedIn()`, and the per-request CSRF lookup - so moving to `HttpCookies`
-means porting those too. Ktor ships no persistent `CookiesStorage`; that is the work item.
+`preconfigured = get<OkHttpClient>()` keeps the existing `OkHttpClient` as the engine. That was a
+deliberate deferral at the time, because the cookie jar had three consumers with nothing to do with
+Retrofit. **Resolved in 4.9** - everything in `HTTPConnectionFactory` except the engine-level
+settings has since moved into the Ktor plugin layer.
 
 #### Verification
 
@@ -535,9 +532,135 @@ artifact remains on `releaseRuntimeClasspath`. Retrofit's three R8 rules were re
 
 **What the tests do not cover:** every endpoint now runs on a path that has never reached the live
 server. The suite covers URL shapes, body encoding, error translation and the TSV parse - not the
-OkHttp engine bridge, the cookie jar or CSRF. The eight write endpoints are the ones to exercise
-first on device, since the `Content-Type` defect would have broken all of them and no unit test
-would have caught it without a request going out.
+OkHttp engine bridge. (Cookies and CSRF were uncovered when this was written; 4.9 added tests for
+them.) The eight write endpoints are the ones to exercise first on device, since the `Content-Type`
+defect would have broken all of them and no unit test would have caught it without a request going
+out.
+
+---
+
+### 4.9 PersistentCookieJar to a Ktor cookie store - DONE
+
+`PersistentCookieJar` (`com.github.franmontiel`, last released 2016) was an OkHttp `CookieJar`, so
+it sat below the layer Ktorfit had just taken over, and it dragged three unrelated things down
+there with it: the `x-csrftoken` header, the Crashlytics request log, and
+`UserSessionRepository.isLoggedIn()`. Replaced by `OGSCookieStore`, a `CookiesStorage` behind
+Ktor's `HttpCookies` plugin, plus a one-time import of the old jar's contents.
+
+#### What is actually on the wire
+
+Checked against the live server rather than inferred:
+
+```
+set-cookie: csrftoken=…; expires=…+1y; Max-Age=31449600;  Path=/; SameSite=Lax
+set-cookie: sessionid=…; expires=…+5y; Max-Age=157800000; Path=/; SameSite=Lax; HttpOnly
+```
+
+Two cookies, no `Domain` attribute - so both are *host-only* for `online-go.com`. That answers a
+question the port would otherwise have had to guess at: the websocket at `wss://wsp.online-go.com/`
+shares the `OkHttpClient` but has never received these cookies, and authenticates with
+`chat_auth`/`user_jwt` over the socket instead. Removing the OkHttp cookie jar could not affect it.
+Neither cookie is `Secure`, which is why the legacy persistence keys read `http://online-go.com/|…`
+and not `https://`.
+
+#### What the assessment got wrong
+
+- **"persisted through DataStore"** (4.2). DataStore loads asynchronously, and
+  `UserSessionRepository.isLoggedIn()` is synchronous and runs on the cold-start path.
+  `PersistentCookieJar` read SharedPreferences synchronously in its constructor, so going async
+  would have introduced a cold-start race where a request could fire before the session loaded.
+  The store keeps SharedPreferences, read once into memory at construction, behind a
+  `SessionCookiePersistence` interface - which is both the JVM-test seam (
+  `unitTests.isReturnDefaultValues`
+  makes `SharedPreferences` unusable in unit tests) and the line the KMP port will cut along.
+- **"the cookie jar has three consumers"** (4.8). One of them, `FacebookLoginCallbackActivity`, is
+  dead code: `android:enabled="false"` in the manifest *and* an explicit
+  `setComponentEnabledSetting(…, COMPONENT_ENABLED_STATE_DISABLED, …)` on every
+  `MainActivity.onCreate` (`MainActivity.kt:171`). It was ported onto the shared `HttpClient` to
+  keep it compiling, but nothing exercises it.
+- **The `X-User-Info` / godojo branch in the interceptor never fired.** It tested
+  `request.url.pathSegments.contains("godojo")`; no endpoint in `OGSRestAPI` has that segment - the
+  joseki endpoint is `oje/positions`. Deleted rather than ported.
+
+#### The migration, which is the whole point
+
+Existing users must not be signed out, so the old jar's contents have to be readable *after* its
+library is gone. `SharedPrefsCookiePersistor` wrote, into prefs file `CookiePersistence`, a
+hex-encoded Java serialization stream whose custom `writeObject` emits
+`name, value, expiresAt, domain, path, secure, httpOnly, hostOnly`.
+
+`LegacyCookieImport.kt` reads that back with an `ObjectInputStream` whose `resolveClass` redirects
+the old FQN onto a local shim. Two things had to be exactly right, and only one of them was
+obvious:
+
+- `serialVersionUID` must match the library's `-8594045714036645534L` or `ObjectInputStream` throws
+  `InvalidClassException`.
+- **`resolveClass` alone is not enough.** `ObjectStreamClass.initNonProxy` additionally compares
+  names via `classNamesEqual`, which compares only the *simple* name. The shim therefore has to be
+  called `SerializableCookie` - the package may differ, the class name may not. This failed first
+  and the error names it precisely; worth knowing before writing the next one of these.
+
+The import runs only when the new prefs file is empty, which makes it idempotent, and it writes
+through immediately so it does not re-run on every cold start. Entries that fail to decode are
+skipped rather than thrown.
+
+**The old `CookiePersistence` file is deliberately left in place.** That is the rollback path - a
+user who downgrades finds their session where the old build looks for it. Deleting it, along with
+the shim and the import branch, is a separate contraction step once a release has shipped and
+stuck. Doing both at once would remove the rollback this exists to provide.
+
+#### Shape
+
+`configureOGSClient` now takes the storage, the base URL and a `log: (String) -> Unit`, all
+defaulted so the four existing Ktorfit test classes compile unchanged. `log` is a parameter rather
+than a direct `FirebaseCrashlytics.getInstance()` call because that throws in plain JVM unit tests.
+
+The `x-csrftoken` header is a `createClientPlugin` hook that reads the token back out of
+`HttpCookies` via the public `HttpClient.cookies(url)` extension, rather than taking the store as a
+parameter. One source of truth, no pipeline-ordering question, and the test classes exercise the
+real header path against `AcceptAllCookiesStorage` for free.
+
+Request logging split in two, which lands exactly one line per response: success goes in
+`validateResponse`, errors in the `handleResponseExceptionWithRequest` that was already reading the
+body to build `OGSApiException`. The ordering is not accidental - `HttpCallValidator` reverses its
+validator list and `addDefaultResponseValidation()` registers last (`HttpClient.kt:1399`), so the
+default non-2xx throw runs before our success log.
+
+The store keeps only `csrftoken` and `sessionid`, and only for the OGS host. The host check is a
+trust boundary rather than an optimisation: it is what stops a future absolute-URL endpoint from
+leaking `sessionid` off-site. The host is derived from `BuildConfig.BASE_URL` so it cannot drift.
+
+#### Verification
+
+91 unit tests green (15 new), all four build variants. The migration test decodes a blob produced
+by the real library - captured from it before the dependency was deleted - and asserts the exact
+values and expiry timestamps, with the allowlist, non-persistent and corrupt-entry cases derived
+from that same blob by patching its `TC_STRING` and `TC_BLOCKDATA` fields.
+
+Release was checked past "it compiles", because the shim's `readObject` is only ever invoked
+reflectively and nothing references `serialVersionUID`: both survive R8 in the release dex,
+unrenamed and with the exact `(Ljava/io/ObjectInputStream;)V` signature, under the existing
+`-keep class io.zenandroid.onlinego.data.** { *; }` rule. No `franmontiel` artifact remains on
+`releaseRuntimeClasspath`.
+
+**What the tests do not cover:** the migration itself, end to end on a device. The decoder is
+proven against real bytes, but the SharedPreferences plumbing around it is not - that needs
+installing the build at `73bb1ad`, logging in, then `adb install -r` of the new build *without
+uninstalling*, and confirming the session survives both that and a subsequent force-stop. Also
+uncovered: that the csrf header satisfies Django on a real unsafe request (accept or decline a
+challenge), and Google sign-in end to end.
+
+#### Deliberate behaviour differences
+
+- Only `csrftoken` and `sessionid` are kept; anything else OGS sets is discarded. If OGS ever
+  starts depending on a third cookie, login breaks and the symptom will not point at the cause -
+  `KEPT_COOKIES` is the line to look at.
+- `recordException("Possible cookie jar problem")` is gone. It was instrumentation for a bug in the
+  library that has been deleted.
+- The websocket handshake is no longer logged to Crashlytics - it goes through the OkHttp engine,
+  below the Ktor plugin layer.
+- 302s are no longer logged as errors. The old interceptor logged on `!response.isSuccessful`,
+  which includes redirects.
 
 ---
 
@@ -665,6 +788,9 @@ This phase introduces no multiplatform tooling at all and is worth doing on its 
   461 KB off the APK.
 - `java.time` to kotlinx-datetime; drop core library desugaring.
 - ~~Coil 2 to Coil 3~~ - **done**, see 4.7. Navigation routes to `@Serializable` types outstanding.
+- ~~PersistentCookieJar~~ - **done**, see 4.9. Took the referer/CSRF/logging interceptor and the
+  `gms.common.util.IOUtils` helper with it. A contraction step is still owed: once a release has
+  shipped, delete the legacy `CookiePersistence` prefs file and the import shim.
 - Split `utils/Globals.kt` into pure logic and `Resources`-dependent formatting.
 - Fix layering violations: `RulesManager` imports `ui.screens.game.Variation`;
   `UserStats` depends on MPAndroidChart; `PuzzleDirectoryAction` / `TsumegoAction` carry

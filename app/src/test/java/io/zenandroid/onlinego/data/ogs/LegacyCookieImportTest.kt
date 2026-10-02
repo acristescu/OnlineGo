@@ -1,0 +1,55 @@
+package io.zenandroid.onlinego.data.ogs
+
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
+import org.junit.Test
+
+private const val SESSIONID_BLOB =
+  "aced000573720042636f6d2e6672616e6d6f6e7469656c2e70657273697374656e74636f6f6b69656a61722e70657273697374656e63652e53657269616c697a61626c65436f6f6b696588bbd0f4cf60a162030000787074000973657373696f6e69647400203939766c6b647a3964756b7771766834307233656a763639716f69753178346e7708000001c5b54cc72874000d6f6e6c696e652d676f2e636f6d7400012f770300010178"
+
+private const val CSRFTOKEN_BLOB =
+  "aced000573720042636f6d2e6672616e6d6f6e7469656c2e70657273697374656e74636f6f6b69656a61722e70657273697374656e63652e53657269616c697a61626c65436f6f6b696588bbd0f4cf60a162030000787074000963737266746f6b656e7400206d764f58696750475a30463946306f6d6f356c4c4f4d526c61664a767346506b7708000001a84a3aad3074000d6f6e6c696e652d676f2e636f6d7400012f770300000178"
+
+private const val UNKNOWN_NAME_BLOB =
+  "aced000573720042636f6d2e6672616e6d6f6e7469656c2e70657273697374656e74636f6f6b69656a61722e70657273697374656e63652e53657269616c697a61626c65436f6f6b696588bbd0f4cf60a162030000787074000c6f746865725f636f6f6b69657400203939766c6b647a3964756b7771766834307233656a763639716f69753178346e7708000001c5b54cc72874000d6f6e6c696e652d676f2e636f6d7400012f770300010178"
+
+private const val NON_PERSISTENT_BLOB =
+  "aced000573720042636f6d2e6672616e6d6f6e7469656c2e70657273697374656e74636f6f6b69656a61722e70657273697374656e63652e53657269616c697a61626c65436f6f6b696588bbd0f4cf60a162030000787074000973657373696f6e69647400203939766c6b647a3964756b7771766834307233656a763639716f69753178346e7708ffffffffffffffff74000d6f6e6c696e652d676f2e636f6d7400012f770300010178"
+
+private const val SESSIONID_VALUE = "99vlkdz9dukwqvh40r3ejv69qoiu1x4n"
+private const val CSRFTOKEN_VALUE = "mvOXigPGZ0F9F0omo5lLOMRlafJvsFPk"
+
+class LegacyCookieImportTest {
+
+  @Test
+  fun `decodes the session written by PersistentCookieJar`() {
+    val imported = importLegacyCookies(listOf(SESSIONID_BLOB, CSRFTOKEN_BLOB))
+
+    assertEquals(setOf(SESSION_COOKIE, CSRF_COOKIE), imported.keys)
+    assertEquals(SESSIONID_VALUE, imported[SESSION_COOKIE]?.value)
+    assertEquals(1948661892904L, imported[SESSION_COOKIE]?.expiresAt)
+    assertEquals(CSRFTOKEN_VALUE, imported[CSRF_COOKIE]?.value)
+    assertEquals(1822311492912L, imported[CSRF_COOKIE]?.expiresAt)
+  }
+
+  @Test
+  fun `ignores cookies outside the allowlist`() {
+    assertTrue(importLegacyCookies(listOf(UNKNOWN_NAME_BLOB)).isEmpty())
+  }
+
+  @Test
+  fun `ignores cookies the old jar held without an expiry`() {
+    assertTrue(importLegacyCookies(listOf(NON_PERSISTENT_BLOB)).isEmpty())
+  }
+
+  @Test
+  fun `skips unreadable entries without losing the readable ones`() {
+    val imported = importLegacyCookies(
+      listOf("not hex at all", "", "ab", SESSIONID_BLOB, SESSIONID_BLOB.dropLast(20))
+    )
+
+    assertEquals(SESSIONID_VALUE, imported[SESSION_COOKIE]?.value)
+    assertNull(imported[CSRF_COOKIE])
+  }
+}

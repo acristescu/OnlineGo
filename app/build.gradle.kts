@@ -145,7 +145,6 @@ dependencies {
 
   // Networking
   implementation(libs.okhttp.logging.interceptor)
-  implementation(libs.persistent.cookie.jar)
   implementation(libs.ktorfit.lib)
   implementation(libs.ktor.client.content.negotiation)
   implementation(libs.ktor.serialization.kotlinx.json)

@@ -40,7 +40,6 @@ desugar = "2.1.5"
 espresso = "3.7.0"
 immutableCollections = "0.4.0"
 mpChart = "v3.1.0"
-persistentCookieJar = "v1.0.1"
 playReview = "2.0.2"
 
 # Testing
@@ -104,7 +103,6 @@ play-review-ktx = { group = "com.google.android.play", name = "review-ktx", vers
 
 # Networking
 okhttp-logging-interceptor = { group = "com.squareup.okhttp3", name = "logging-interceptor", version.ref = "okhttp" }
-persistent-cookie-jar = { group = "com.github.franmontiel", name = "PersistentCookieJar", version.ref = "persistentCookieJar" }
 ktorfit-lib = { module = "de.jensklingenberg.ktorfit:ktorfit-lib", version.ref = "ktorfit" }
 ktor-client-content-negotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktorVersion" }
 ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktorVersion" }

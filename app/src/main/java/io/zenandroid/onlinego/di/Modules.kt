@@ -5,13 +5,16 @@ import com.google.firebase.crashlytics.FirebaseCrashlytics
 import de.jensklingenberg.ktorfit.Ktorfit
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.okhttp.OkHttp
+import io.ktor.http.Url
 import io.zenandroid.onlinego.BuildConfig
 import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.data.db.Database
 import io.zenandroid.onlinego.data.ogs.Glicko2HistoryConverterFactory
 import io.zenandroid.onlinego.data.ogs.HTTPConnectionFactory
+import io.zenandroid.onlinego.data.ogs.OGSCookieStore
 import io.zenandroid.onlinego.data.ogs.OGSRestService
 import io.zenandroid.onlinego.data.ogs.OGSWebSocketService
+import io.zenandroid.onlinego.data.ogs.SharedPrefsCookiePersistence
 import io.zenandroid.onlinego.data.ogs.configureOGSClient
 import io.zenandroid.onlinego.data.ogs.createOGSRestAPI
 import io.zenandroid.onlinego.data.repositories.ActiveGamesRepository
@@ -103,10 +106,21 @@ private val serverConnectionModule = module {
   singleOf(::HTTPConnectionFactory)
   single { get<HTTPConnectionFactory>().buildConnection() }
 
+  single {
+    OGSCookieStore(
+      persistence = SharedPrefsCookiePersistence(get()),
+      host = Url(BuildConfig.BASE_URL).host,
+    )
+  }
 
   single {
     HttpClient(OkHttp) {
-      configureOGSClient(get())
+      configureOGSClient(
+        jsonFormat = get(),
+        cookiesStorage = get<OGSCookieStore>(),
+        baseUrl = BuildConfig.BASE_URL,
+        log = FirebaseCrashlytics.getInstance()::log,
+      )
       engine {
         preconfigured = get<OkHttpClient>()
       }
