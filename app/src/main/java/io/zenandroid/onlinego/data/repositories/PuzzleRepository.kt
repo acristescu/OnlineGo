@@ -18,7 +18,7 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
-import java.time.Instant.now
+import kotlin.time.Clock
 
 class PuzzleRepository(
   private val restService: OGSRestService,
@@ -30,13 +30,14 @@ class PuzzleRepository(
   suspend fun fetchAllPuzzleCollections() {
     withContext(Dispatchers.Default) {
       val currentPuzzleCount = dao.getPuzzleCollectionCount()
-      val lastRefresh = now().epochSecond - PersistenceManager.puzzleCollectionLastRefresh
+      val lastRefresh =
+        Clock.System.now().epochSeconds - PersistenceManager.puzzleCollectionLastRefresh
       if(lastRefresh > refreshCooldownSeconds || currentPuzzleCount < 1) {
         restService.getPuzzleCollections()
           .catch { onError(it) }
           .collect { saveCollectionsToDB(it) }
 
-        PersistenceManager.puzzleCollectionLastRefresh = now().epochSecond
+        PersistenceManager.puzzleCollectionLastRefresh = Clock.System.now().epochSeconds
       }
     }
   }

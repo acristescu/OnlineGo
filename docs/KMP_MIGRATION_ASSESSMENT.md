@@ -180,8 +180,8 @@ long-lived migration branch.
 | **navigation-compose 2.9.7** (androidx)                                                  | Android artifact                                                                                                                             | `org.jetbrains.androidx.navigation:navigation-compose`. Take the opportunity to convert the 13 string-literal routes in `Navigation.kt` to `@Serializable` type-safe routes - we will already have kotlinx.serialization on the classpath, and the current bottom-bar logic matches routes against a hardcoded `listOf("myGames", "learn", "stats", "settings")`.                                                                                                                                                                                                                                                        |
 | **Firebase Crashlytics / Analytics** - **logging DONE**                                  | Google Android SDK                                                                                                                           | Logging is done (4.10): every `FirebaseCrashlytics.log(...)` now goes through **Kermit**, and Crashlytics is just one of its writers. What remains is the non-logging surface - `recordException` (10 direct sites that bypass the `utils/Crashlytics.kt` filter), `setCustomKey` (9), `setUserId`, `sendUnsentReports` (3) - plus `FirebaseAnalytics` (9 files). That is the `CrashReporter` / `Analytics` seam; Android actual delegates to Firebase, iOS to the Firebase iOS SDK (CocoaPods) or GitLive's `firebase-kotlin-sdk`.                                                                                      |
 | ~~**`android.util.Log`** (68 sites, 26 files)~~ **DONE**                                 | Android-only                                                                                                                                 | **Kermit** (`co.touchlab:kermit`). Done together with the Crashlytics breadcrumbs - see 4.10. `grep -rn android.util.Log app/src/main` is empty; only `androidTest` still uses it.                                                                                                                                                                                                                                                                                                                                                                                                                                       |
-| **`java.time`** (16 files)                                                               | JVM; currently works on `minSdk 23` only via core library desugaring                                                                         | **kotlinx-datetime**. Lets us drop `coreLibraryDesugaring` and `desugar_jdk_libs` entirely.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
-| **`java.text.SimpleDateFormat`** (3 files)                                               | JVM                                                                                                                                          | kotlinx-datetime `DateTimeFormat`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| ~~**`java.time`** (16 files)~~ **DONE**                                                  | JVM; currently works on `minSdk 23` only via core library desugaring                                                                         | `kotlin.time.Instant` / `Clock` from the stdlib (stable since Kotlin 2.3) for instants, **kotlinx-datetime** 0.8.0 for time zones and formatting. See 4.11. **Desugaring stays**: kotlinx-datetime is backed by `java.time` on the JVM and needs it below API 26. It only affects the Android build, so it does not block KMP; dropping it means `minSdk 26`.                                                                                                                                                                                                                                                            |
+| ~~**`java.text.SimpleDateFormat`** (3 files)~~ **DONE**                                  | JVM                                                                                                                                          | kotlinx-datetime `Format { }` builders, with one exception: the localized chart tooltip date now uses Android's `DateUtils`. See 4.11.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
 | **`java.util.concurrent`** - `ConcurrentHashMap`, `AtomicInteger/Boolean/Long` (5 files) | JVM                                                                                                                                          | `kotlin.concurrent.Atomic*` from the stdlib; `ConcurrentHashMap` in `OGSWebSocketService` becomes a plain map guarded by a `Mutex`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 | **`java.util.UUID` / `Stack` / `LinkedList` / `Locale`**                                 | JVM                                                                                                                                          | `kotlin.uuid.Uuid`, `ArrayDeque`, `expect`/`actual` for locale.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
 | **`BuildConfig`** (`BASE_URL`, `DEBUG`)                                                  | AGP-generated                                                                                                                                | **BuildKonfig**.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
@@ -716,6 +716,51 @@ into no-ops.
 - A few logcat levels were corrected while merging pairs: "Setup Billing Done" was `Log.e`, now
   Info; "Billing client Disconnected" was `Log.e`, now Warn.
 
+### 4.11 `java.time` to kotlin.time + kotlinx-datetime - DONE
+
+The work split along a line that the stdlib now draws for us:
+
+- **Instants** went to `kotlin.time.Instant` and `kotlin.time.Clock`, which are in the standard
+  library and stable since Kotlin 2.3 - no opt-in. That covers the Room entities, the OGS DTOs,
+  the Tsumego timer and the puzzle-refresh check. kotlinx-datetime's own `Instant` is deprecated
+  in favour of these.
+- **Calendar and time-zone work** (formatting for display, the `America/New_York` offset OGS
+  wants) went to kotlinx-datetime 0.8.0.
+
+`OGSInstantSerializer` now parses with `Instant.parse` and formats through `toOGSDateTime()`, which
+`microsToISODateTime` - the `ended_before` / `ended_after` query parameter - also uses. The Room
+converter still stores epoch milliseconds, so no migration. The `ebi` time-zone suffix in
+`OGSRestService` (formerly the deprecated `Date().timezoneOffset`) keeps the same sign convention.
+
+#### Desugaring stays
+
+The plan assumed this would let us delete `coreLibraryDesugaring`. It does not: on the JVM
+kotlinx-datetime is implemented on `java.time`, and its README requires desugaring below API 26.
+This only affects the Android build and blocks nothing in KMP. Removing it means `minSdk 26`.
+
+#### Verification
+
+97 unit tests green (4 new); debug, release, and a minified `assembleRelease`. `OGSDateTimeTest`
+uses `java.time` - still on the JVM test classpath - as an oracle. It asserts that the query
+timestamps and serialized instants are **byte-identical** to what `java.time` produced, across
+zero and non-zero fractions, sub-millisecond values and both sides of a DST change. It also
+asserts that the shapes OGS sends (`Z`, negative and fractional offsets) decode to the same instant.
+
+#### Deliberate behaviour differences
+
+- **Stats chart bug fixed.** `GetUserStatsUseCase` computed "now" as
+  `LocalDateTime.now().toEpochSecond(ZoneOffset.UTC)` - local wall-clock time read as if it were
+  UTC, so "now" was off by the user's UTC offset. That skewed the 1M/3M/1Y/5Y windows and their
+  bucket widths by up to ±14 hours. It now uses `Clock.System.now().epochSeconds`.
+- **The chart tooltip date** ("since 5 Jan 2024") used `DateTimeFormatter.ofPattern("d MMM uuuu")`
+  in the device locale. kotlinx-datetime only ships English month names, so it now uses
+  `DateUtils.formatDateTime`, which also orders the fields per locale - US users now see
+  "Jan 5, 2024". `ChartWrapper` is Android-only and slated for the Vico rewrite anyway.
+- The same tooltip used today's UTC offset for every date, so dates across a DST boundary could be
+  off by an hour. It now uses the offset in effect at that date.
+- Everything else that was hard-coded to `Locale.US` (axis labels, stats dates, the socket debug
+  clock) produces the same strings as before.
+
 ---
 
 ## 5. The native code - two separate problems
@@ -841,7 +886,9 @@ This phase introduces no multiplatform tooling at all and is worth doing on its 
 - Build the CI annotation check described at the end of 4.5. Outstanding.
 - ~~jsoup~~ - **done**, see 4.6. One 3-line function, replaced by an API already on the classpath;
   461 KB off the APK.
-- `java.time` to kotlinx-datetime; drop core library desugaring.
+- ~~`java.time` to kotlinx-datetime~~ - **done**, see 4.11, along with `SimpleDateFormat` and
+  `java.util.Date`. Core library desugaring was **not** dropped - kotlinx-datetime still needs it
+  below API 26. Raising `minSdk` to 26 is the only way to remove it, and that is a product call.
 - ~~Coil 2 to Coil 3~~ - **done**, see 4.7. Navigation routes to `@Serializable` types outstanding.
 - ~~PersistentCookieJar~~ - **done**, see 4.9. Took the referer/CSRF/logging interceptor and the
   `gms.common.util.IOUtils` helper with it. A contraction step is still owed: once a release has

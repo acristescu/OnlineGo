@@ -11,19 +11,16 @@ import io.zenandroid.onlinego.data.model.local.Game
 import io.zenandroid.onlinego.data.model.local.Time
 import io.zenandroid.onlinego.data.ogs.TimeControl
 import io.zenandroid.onlinego.data.ogs.jsonElementOf
+import io.zenandroid.onlinego.data.ogs.toOGSDateTime
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
 import org.koin.core.context.GlobalContext
-import java.time.Instant
-import java.time.ZoneId
-import java.time.format.DateTimeFormatter
-import java.time.temporal.ChronoUnit
-import java.util.Locale
 import java.util.regex.Pattern
 import kotlin.math.ceil
 import kotlin.math.floor
 import kotlin.math.ln
+import kotlin.time.Instant
 
 val PERCENTILES = arrayOf(0, 477, 550, 600, 640, 671, 701, 725, 754, 774, 794, 815, 829, 847, 866, 881, 896, 912, 924, 940, 952, 969, 982, 994, 1007, 1016, 1029, 1043, 1056, 1066, 1080, 1089, 1098, 1113, 1122, 1137, 1147, 1157, 1167, 1182, 1192, 1203, 1213, 1224, 1234, 1245, 1256, 1267, 1278, 1289, 1300, 1311, 1323, 1334, 1346, 1357, 1369, 1381, 1387, 1399, 1411, 1424, 1436, 1448, 1461, 1474, 1486, 1499, 1512, 1525, 1539, 1552, 1565, 1579, 1593, 1607, 1621, 1635, 1649, 1670, 1685, 1699, 1714, 1729, 1752, 1767, 1790, 1805, 1829, 1845, 1869, 1893, 1918, 1943, 1968, 2003, 2038, 2091, 2146, 2241)
 // same value used by the web client in OGS
@@ -319,16 +316,16 @@ private fun Resources.duration(
     } else head
 }
 
-fun Long.microsToISODateTime(): String {
-    val instant = Instant.EPOCH.plus(this, ChronoUnit.MICROS)
-    return DateTimeFormatter.ISO_OFFSET_DATE_TIME
-            .withLocale( Locale.US )
-            .withZone( ZoneId.of("America/New_York") )
-            .format(instant)
-}
+fun Long.microsToISODateTime(): String = Instant.fromEpochSeconds(
+    Math.floorDiv(this, MICROS_PER_SECOND),
+    Math.floorMod(this, MICROS_PER_SECOND) * NANOS_PER_MICRO,
+).toOGSDateTime()
 
-fun Instant.toEpochMicros(): Long
-        = ChronoUnit.MICROS.between(Instant.EPOCH, this)
+fun Instant.toEpochMicros(): Long =
+    epochSeconds * MICROS_PER_SECOND + nanosecondsOfSecond / NANOS_PER_MICRO
+
+private const val MICROS_PER_SECOND = 1_000_000L
+private const val NANOS_PER_MICRO = 1_000
 
 fun computeTimeLeft(
     serverTime: Long,

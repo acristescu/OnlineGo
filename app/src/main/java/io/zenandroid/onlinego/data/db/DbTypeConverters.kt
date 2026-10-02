@@ -7,8 +7,7 @@ import io.zenandroid.onlinego.data.model.ogs.MoveTree
 import io.zenandroid.onlinego.data.model.ogs.Phase
 import io.zenandroid.onlinego.data.model.ogs.PlayCategory
 import io.zenandroid.onlinego.utils.appJson
-import kotlinx.serialization.encodeToString
-import java.time.Instant
+import kotlin.time.Instant
 
 /**
  * Created by alex on 07/06/2018.
@@ -67,11 +66,11 @@ class DbTypeConverters {
 
         @TypeConverter
         @JvmStatic
-        fun instantToLong(instant: Instant?) = instant?.let(Instant::toEpochMilli)
+        fun instantToLong(instant: Instant?) = instant?.toEpochMilliseconds()
 
         @TypeConverter
         @JvmStatic
-        fun longToInstant(instant: Long?) = instant?.let(Instant::ofEpochMilli)
+        fun longToInstant(instant: Long?) = instant?.let(Instant::fromEpochMilliseconds)
 
         @TypeConverter
         @JvmStatic

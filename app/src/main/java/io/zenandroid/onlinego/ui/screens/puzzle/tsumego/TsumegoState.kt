@@ -9,8 +9,8 @@ import io.zenandroid.onlinego.data.model.local.PuzzleCollection
 import io.zenandroid.onlinego.data.model.ogs.MoveTree
 import io.zenandroid.onlinego.data.model.ogs.PuzzleRating
 import io.zenandroid.onlinego.data.model.ogs.PuzzleSolution
-import java.time.Instant
 import java.util.Stack
+import kotlin.time.Instant
 
 @Immutable
 data class TsumegoState(

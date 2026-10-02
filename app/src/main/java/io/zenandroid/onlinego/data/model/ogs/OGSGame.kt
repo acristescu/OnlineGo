@@ -8,15 +8,15 @@
 
 package io.zenandroid.onlinego.data.model.ogs
 
-import io.zenandroid.onlinego.data.ogs.Players
-import java.time.Instant
-import kotlinx.serialization.Serializable
 import io.zenandroid.onlinego.data.ogs.AnySerializer
-import io.zenandroid.onlinego.data.ogs.OGSBooleanSerializer
-import io.zenandroid.onlinego.data.ogs.OGSInstantSerializer
-import kotlinx.serialization.UseSerializers
 import io.zenandroid.onlinego.data.ogs.LenientIntSerializer
 import io.zenandroid.onlinego.data.ogs.LenientLongSerializer
+import io.zenandroid.onlinego.data.ogs.OGSBooleanSerializer
+import io.zenandroid.onlinego.data.ogs.OGSInstantSerializer
+import io.zenandroid.onlinego.data.ogs.Players
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.UseSerializers
+import kotlin.time.Instant
 
 /**
  * Created by alex on 04/11/2017.

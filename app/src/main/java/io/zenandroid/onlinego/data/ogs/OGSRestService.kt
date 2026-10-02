@@ -29,7 +29,9 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import java.util.Date
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.offsetAt
+import kotlin.time.Clock
 
 private const val TAG = "OGSRestService"
 
@@ -52,7 +54,7 @@ class OGSRestService(
   private suspend fun getOrCreateEbi(): String {
     if (!ebi.isNullOrBlank()) return ebi!!
     val newEbi =
-      "${Math.random().toString().split(".")[1]}.0.0.0.0.xxx.xxx.${Date().timezoneOffset + 13}"
+      "${Math.random().toString().split(".")[1]}.0.0.0.0.xxx.xxx.${minutesBehindUtc() + 13}"
     settingsRepository.setOgsEbi(newEbi)
     ebi = newEbi
     return newEbi
@@ -354,3 +356,6 @@ class OGSRestService(
     }
   }
 }
+
+private fun minutesBehindUtc(): Int =
+  -TimeZone.currentSystemDefault().offsetAt(Clock.System.now()).totalSeconds / 60

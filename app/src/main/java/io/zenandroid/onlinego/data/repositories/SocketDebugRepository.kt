@@ -3,15 +3,28 @@ package io.zenandroid.onlinego.data.repositories
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
+import kotlinx.datetime.LocalTime
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.format
+import kotlinx.datetime.format.char
+import kotlinx.datetime.toLocalDateTime
+import kotlin.time.Instant
 
 enum class SocketEventType {
   SENT,
   RECEIVED,
   STATE,
   ERROR,
+}
+
+private val TIME_FORMAT = LocalTime.Format {
+  hour()
+  char(':')
+  minute()
+  char(':')
+  second()
+  char('.')
+  secondFraction(3)
 }
 
 data class SocketEvent(
@@ -21,7 +34,10 @@ data class SocketEvent(
   val message: String,
 ) {
   val formattedTime: String
-    get() = SimpleDateFormat("HH:mm:ss.SSS", Locale.US).format(Date(timestamp))
+    get() = Instant.fromEpochMilliseconds(timestamp)
+      .toLocalDateTime(TimeZone.currentSystemDefault())
+      .time
+      .format(TIME_FORMAT)
 }
 
 class SocketDebugRepository {

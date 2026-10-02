@@ -39,9 +39,8 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.time.Instant.now
-import java.time.temporal.ChronoUnit.MILLIS
 import java.util.Stack
+import kotlin.time.Clock
 
 class TsumegoViewModel(
   private val puzzleRepository: PuzzleRepository,
@@ -380,7 +379,7 @@ class TsumegoViewModel(
       val record = _state.value.let {
         PuzzleSolution(
           puzzle = it.puzzle!!.id,
-          time_elapsed = it.startTime?.let { MILLIS.between(it, now()) } ?: 0,
+          time_elapsed = it.startTime?.let { (Clock.System.now() - it).inWholeMilliseconds } ?: 0,
           attempts = it.attemptCount,
           solution = it.sgfMoves,
         )

@@ -175,6 +175,7 @@ dependencies {
   // Utility Libraries
   implementation(libs.immutable.collections)
   implementation(libs.kermit)
+  implementation(libs.kotlinx.datetime)
   implementation(libs.markwon)
   implementation(libs.billing.ktx)
   implementation(libs.mp.android.chart)

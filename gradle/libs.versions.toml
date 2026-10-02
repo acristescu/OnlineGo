@@ -36,6 +36,7 @@ ktorVersion = "3.5.0"
 # Utility libraries
 markwon = "4.6.2"
 kermit = "2.2.0"
+kotlinxDatetime = "0.8.0"
 billing = "9.1.0"
 desugar = "2.1.5"
 espresso = "3.7.0"
@@ -136,6 +137,7 @@ coil-network-okhttp = { group = "io.coil-kt.coil3", name = "coil-network-okhttp"
 immutable-collections = { group = "org.jetbrains.kotlinx", name = "kotlinx-collections-immutable", version.ref = "immutableCollections" }
 markwon = { group = "io.noties.markwon", name = "core", version.ref = "markwon" }
 kermit = { group = "co.touchlab", name = "kermit", version.ref = "kermit" }
+kotlinx-datetime = { group = "org.jetbrains.kotlinx", name = "kotlinx-datetime", version.ref = "kotlinxDatetime" }
 billing-ktx = { group = "com.android.billingclient", name = "billing-ktx", version.ref = "billing" }
 desugar-jdk-libs = { group = "com.android.tools", name = "desugar_jdk_libs", version.ref = "desugar" }
 mp-android-chart = { group = "com.github.PhilJay", name = "MPAndroidChart", version.ref = "mpChart" }

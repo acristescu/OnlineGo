@@ -1,18 +1,12 @@
 package io.zenandroid.onlinego.data.model.local
 
-import androidx.compose.runtime.Immutable;
-import androidx.room.ColumnInfo
+import androidx.compose.runtime.Immutable
 import androidx.room.Embedded
 import androidx.room.Entity
-import androidx.room.Ignore
 import androidx.room.PrimaryKey
-import io.zenandroid.onlinego.data.model.local.Player
-import io.zenandroid.onlinego.data.model.local.PuzzleCollection
-import io.zenandroid.onlinego.data.model.ogs.OGSPlayer
 import io.zenandroid.onlinego.data.model.ogs.OGSPuzzle
 import io.zenandroid.onlinego.data.model.ogs.OGSPuzzle.PuzzleData
-import io.zenandroid.onlinego.data.model.ogs.OGSPuzzleCollection
-import java.time.Instant
+import kotlin.time.Instant
 
 @Entity
 @Immutable

@@ -33,9 +33,14 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.format
+import kotlinx.datetime.format.MonthNames
+import kotlinx.datetime.format.Padding
+import kotlinx.datetime.format.char
+import kotlinx.datetime.toLocalDateTime
+import kotlin.time.Instant
 
 /**
  * Created by alex on 05/11/2017.
@@ -50,7 +55,6 @@ class StatsViewModel(
 
   private var stats: UserStats? = null
   private var currentFilter = ONE_MONTH
-  private val dateFormat = SimpleDateFormat("MMM d, yyyy", Locale.US)
   private val graphByGames = settingsRepository.graphByGamesFlow.stateIn(
     scope = viewModelScope,
     initialValue = settingsRepository.cachedUserSettings.graphByGames,
@@ -147,7 +151,7 @@ class StatsViewModel(
     this.stats = stats
 
     val highestRank = stats.highestRating?.let { formatRank(egfToRank(it.toDouble())) }
-    val highestRankDate = stats.highestRatingTimestamp?.let { dateFormat.format(Date(it * 1000)) }
+    val highestRankDate = stats.highestRatingTimestamp?.let { formatDate(it) }
     val chartData = when (currentFilter) {
       ONE_MONTH -> stats.chartData1M
       THREE_MONTHS -> stats.chartData3M
@@ -167,8 +171,8 @@ class StatsViewModel(
     val gamesLostString = String.format("%.1f", gamesLostPercent)
     val last10Games = stats.last10Games
     val longestStreak = stats.bestStreak
-    val startDate = dateFormat.format(Date(stats.bestStreakStart * 1000))
-    val endDate = dateFormat.format(Date(stats.bestStreakEnd * 1000))
+    val startDate = formatDate(stats.bestStreakStart)
+    val endDate = formatDate(stats.bestStreakEnd)
     val lastGameWon = last10Games.lastOrNull()?.won
     val currentStreakCount =
       if (last10Games.isEmpty()) 0
@@ -330,4 +334,16 @@ class StatsViewModel(
   }
 }
 
+private val dateFormat = LocalDate.Format {
+  monthName(MonthNames.ENGLISH_ABBREVIATED)
+  char(' ')
+  day(padding = Padding.NONE)
+  chars(", ")
+  year()
+}
 
+private fun formatDate(secondsSinceEpoch: Long): String =
+  Instant.fromEpochSeconds(secondsSinceEpoch)
+    .toLocalDateTime(TimeZone.currentSystemDefault())
+    .date
+    .format(dateFormat)

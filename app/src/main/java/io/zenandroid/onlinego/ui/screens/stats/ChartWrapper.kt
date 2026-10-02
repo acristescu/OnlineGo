@@ -1,8 +1,10 @@
 package io.zenandroid.onlinego.ui.screens.stats
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.GradientDrawable.Orientation.TOP_BOTTOM
+import android.text.format.DateUtils
 import android.view.MotionEvent
 import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
@@ -66,12 +68,13 @@ import io.zenandroid.onlinego.ui.screens.stats.StatsViewModel.Filter.TWENTY_GAME
 import io.zenandroid.onlinego.ui.theme.LocalThemeSettings
 import io.zenandroid.onlinego.utils.egfToRank
 import io.zenandroid.onlinego.utils.formatRank
-import java.text.SimpleDateFormat
-import java.time.LocalDateTime
-import java.time.OffsetDateTime
-import java.time.format.DateTimeFormatter
-import java.util.Date
-import java.util.Locale
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.format
+import kotlinx.datetime.format.MonthNames
+import kotlinx.datetime.format.char
+import kotlinx.datetime.toLocalDateTime
+import kotlin.time.Instant
 
 @SuppressLint("ClickableViewAccessibility")
 @Composable
@@ -257,17 +260,12 @@ fun ChartWrapper(
   }
 }
 
-private val shortFormat = DateTimeFormatter.ofPattern("d MMM uuuu")
-
-private fun formatDate(secondsSinceEpoch: Long): String {
-  return shortFormat.format(
-    LocalDateTime.ofEpochSecond(
-      secondsSinceEpoch,
-      0,
-      OffsetDateTime.now().offset
-    )
+private fun formatDate(context: Context, secondsSinceEpoch: Long): String =
+  DateUtils.formatDateTime(
+    context,
+    secondsSinceEpoch * 1000,
+    DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_SHOW_YEAR or DateUtils.FORMAT_ABBREV_MONTH
   )
-}
 
 @Composable
 private fun TimeRangeTabs(
@@ -348,7 +346,7 @@ private object ChartValueSelectedListener : OnChartValueSelectedListener {
           else append(
             " " + context.getString(
               R.string.stats_tooltip_on_date,
-              formatDate(e.x.toLong())
+              formatDate(context, e.x.toLong())
             )
           )
         }
@@ -380,7 +378,7 @@ private object ChartValueSelectedListener : OnChartValueSelectedListener {
           else append(
             " " + context.getString(
               R.string.stats_tooltip_since_date,
-              formatDate(first.x.toLong())
+              formatDate(context, first.x.toLong())
             )
           )
         }
@@ -391,23 +389,26 @@ private object ChartValueSelectedListener : OnChartValueSelectedListener {
 
 class DayAxisValueFormatter(private val chart: BarLineChartBase<*>) : ValueFormatter() {
 
-  private val yearFormatter = SimpleDateFormat("yyyy", Locale.US)
-  private val monthFormatter = SimpleDateFormat("MMM''yy", Locale.US)
-  private val dayFormatter = SimpleDateFormat("dd MMM", Locale.US)
+  private val yearFormat = LocalDate.Format { year() }
+  private val monthFormat = LocalDate.Format {
+    monthName(MonthNames.ENGLISH_ABBREVIATED)
+    char('\'')
+    yearTwoDigits(baseYear = 2000)
+  }
+  private val dayFormat = LocalDate.Format {
+    day()
+    char(' ')
+    monthName(MonthNames.ENGLISH_ABBREVIATED)
+  }
 
   override fun getFormattedValue(secondsSinceEpoch: Float): String? {
+    val date = Instant.fromEpochSeconds(secondsSinceEpoch.toLong())
+      .toLocalDateTime(TimeZone.currentSystemDefault())
+      .date
     return when {
-      chart.visibleXRange > 189_216_000 -> { // 6 years
-        yearFormatter.format(Date(secondsSinceEpoch.toLong() * 1000)).toString()
-      }
-
-      chart.visibleXRange > 15_780_000 -> { // 6 months
-        monthFormatter.format(Date(secondsSinceEpoch.toLong() * 1000)).toString()
-      }
-
-      else -> {
-        dayFormatter.format(Date(secondsSinceEpoch.toLong() * 1000)).toString()
-      }
+      chart.visibleXRange > 189_216_000 -> date.format(yearFormat) // 6 years
+      chart.visibleXRange > 15_780_000 -> date.format(monthFormat) // 6 months
+      else -> date.format(dayFormat)
     }
   }
 }

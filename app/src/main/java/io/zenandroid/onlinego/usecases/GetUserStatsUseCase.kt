@@ -10,9 +10,7 @@ import io.zenandroid.onlinego.data.ogs.OGSRestService
 import io.zenandroid.onlinego.usecases.RepoResult.Error
 import io.zenandroid.onlinego.usecases.RepoResult.Success
 import io.zenandroid.onlinego.utils.recordException
-import java.time.LocalDateTime
-import java.time.ZoneOffset
-import kotlin.math.min
+import kotlin.time.Clock
 
 class GetUserStatsUseCase (
     private val restService: OGSRestService,
@@ -73,9 +71,9 @@ class GetUserStatsUseCase (
         if(rawData.isEmpty()) {
             return emptyList()
         }
-        val targetDate = duration?.let { LocalDateTime.now().minusSeconds(duration).toEpochSecond(
-            ZoneOffset.UTC) } ?: rawData.first().ended
-        val groupWidth = ( LocalDateTime.now().toEpochSecond(ZoneOffset.UTC) - targetDate ) / groupCount.toFloat()
+        val now = Clock.System.now().epochSeconds
+        val targetDate = duration?.let { now - it } ?: rawData.first().ended
+        val groupWidth = (now - targetDate) / groupCount.toFloat()
         var currentRank = 0f
         var dataIndex = 0
         return (0 until groupCount).map { i ->
