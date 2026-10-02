@@ -2,14 +2,9 @@ format_version: '25'
 default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
 project_type: android
 workflows:
-  deploy:
-    triggers:
-      push:
-        - branch: "release"
+  _setup:
     description: |
-      ## How to get a signed APK
-      Deploy to play store
-
+      Shared prelude for the workflows that produce an APK. Not runnable on its own.
     steps:
       - activate-ssh-key@4.1:
           run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
@@ -37,6 +32,24 @@ workflows:
             - project_location: "$PROJECT_LOCATION"
             - module: "$MODULE"
             - variant: "$TEST_VARIANT"
+  _teardown:
+    description: |
+      Shared epilogue: publish artifacts to Bitrise and refresh the cache.
+    steps:
+      - deploy-to-bitrise-io@2.0: { }
+      - cache-push@2.7: { }
+  deploy:
+    triggers:
+      push:
+        - branch: "release"
+    description: |
+      ## How to get a signed APK
+      Deploy to play store
+    before_run:
+      - _setup
+    after_run:
+      - _teardown
+    steps:
       - android-build@1.0:
           inputs:
             - project_location: "$PROJECT_LOCATION"
@@ -73,39 +86,43 @@ workflows:
             - track: production
             - app_path: "$BITRISE_SIGNED_AAB_PATH"
             - service_account_json_key_path: "$BITRISEIO_SERVICE_ACCOUNT_JSON_KEY_URL_URL"
-      - deploy-to-bitrise-io@2.0: {}
-      - cache-push@2.7: {}
+  signed-apk:
+    description: |
+      ## A release-signed APK, published nowhere
+      Same build and signing key as `deploy`, so Google sign-in and anything else
+      keyed to the release certificate works. Does not build an AAB, does not cut a
+      GitHub release and does not upload to Play.
+
+      No trigger - start it by hand against whatever branch you want to test. The APK
+      lands in the build's Artifacts tab.
+    before_run:
+      - _setup
+    after_run:
+      - _teardown
+    steps:
+      - android-build@1.0:
+          inputs:
+            - project_location: "$PROJECT_LOCATION"
+            - module: "$MODULE"
+            - variant: release
+            - build_type: apk
+      - sign-apk@1.7:
+          inputs:
+            - android_app: "$BITRISE_APK_PATH"
+            - use_apk_signer: 'true'
+            - signer_scheme: v2
   primary:
     triggers:
       push:
         - branch: "master"
       pull_request:
         - source_branch: "/^(?!.*l10n_master).*/"
-    steps:
-      - activate-ssh-key@4.1:
-          run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
-      - set-java-version@1.2.1:
-          inputs:
-            - set_java_version: '17'
-      - script@1:
-          inputs:
-            - content: sdkmanager "cmake;3.10.2.4988404"
-      - git-clone@6.2: {}
-      - cache-pull@2.7: {}
-      - file-downloader@1.1:
-          inputs:
-            - destination: "$BITRISE_SOURCE_DIR/app/google-services.json"
-            - source: "$BITRISEIO_GOOGLE_SERVICES_JSON_URL"
-      - git::https://github.com/viktorbenei/bitrise-step-install-android-ndk-version.git@master:
-          inputs:
-            - android_ndk_version: r19b
-      - android-unit-test@1.0:
-          inputs:
-            - project_location: "$PROJECT_LOCATION"
-            - module: "$MODULE"
-            - variant: "$TEST_VARIANT"
-      - deploy-to-bitrise-io@2.0: {}
-      - cache-push@2.7: {}
+    description: |
+      Tests every push to master and every pull request. Builds nothing.
+    before_run:
+      - _setup
+    after_run:
+      - _teardown
 app:
   envs:
     - opts:
