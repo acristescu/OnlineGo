@@ -9,7 +9,7 @@
     <string name="ai_game_chat_ready">Готов!</string>
     <string name="ai_game_chat_use_new_game_button">Чтобы начать новую игру, нажмите \'Новая игра\'</string>
     <string name="ai_game_chat_engine_error">Ошибка при запуске KataGO: \'%1$s\'</string>
-    <string name="ai_game_chat_engine_starting"></string>
+    <string name="ai_game_chat_engine_starting">Запуск ИИ-движка, пожалуйста, подождите…</string>
     <string name="ai_game_chat_invalid_move">Недопустимый ход, попробуйте снова</string>
     <string name="ai_game_chat_lets_try_again">Хорошо, давайте попробуем снова. Ваш ход!</string>
     <string name="ai_game_chat_hmmm">Хмммм…</string>
@@ -129,6 +129,7 @@
     <string name="game_submitting_move">Отправка хода</string>
     <string name="game_submitting_move_attempt">Отправка хода (попытка №%1$d)</string>
     <string name="game_estimating">Оценка</string>
+    <string name="game_status_requested_undo">Запрошен возврат хода</string>
     <string name="game_status_timed_out">Время вышло</string>
     <string name="game_avatar_content_description">Аватар</string>
     <string name="game_button_pass">Пас</string>
@@ -138,6 +139,7 @@
     <string name="game_opponent_undo_dialog_ignore">ИГНОР</string>
     <string name="game_pass_dialog_confirm">ПАС</string>
     <string name="game_cancel_dialog_confirm">ОТМЕНИТЬ ИГРУ</string>
+    <string name="game_info_unknown_player">\?</string>
     <string name="game_info_score">Счет</string>
     <string name="game_info_time">Время</string>
     <string name="game_info_score_komi">коми</string>
