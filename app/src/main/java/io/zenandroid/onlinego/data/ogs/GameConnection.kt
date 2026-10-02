@@ -7,13 +7,11 @@
 
 package io.zenandroid.onlinego.data.ogs
 
-import com.google.firebase.crashlytics.FirebaseCrashlytics
+import co.touchlab.kermit.Logger
 import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.local.Message
 import io.zenandroid.onlinego.data.model.local.Score
 import io.zenandroid.onlinego.data.model.local.Time
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.Transient
 import io.zenandroid.onlinego.data.model.ogs.Chat
 import io.zenandroid.onlinego.data.model.ogs.GameData
 import io.zenandroid.onlinego.data.model.ogs.OGSPlayer
@@ -31,13 +29,11 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.retry
 import kotlinx.coroutines.launch
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
+import kotlinx.serialization.UseSerializers
 import org.koin.core.context.GlobalContext.get
 import java.io.Closeable
-import io.zenandroid.onlinego.data.ogs.AnySerializer
-import io.zenandroid.onlinego.data.ogs.OGSBooleanSerializer
-import kotlinx.serialization.UseSerializers
-import io.zenandroid.onlinego.data.ogs.LenientIntSerializer
-import io.zenandroid.onlinego.data.ogs.LenientLongSerializer
 
 private const val TAG = "GameConnection"
 
@@ -117,7 +113,7 @@ class GameConnection(
 
   private suspend fun <T> Flow<T>.collectWithRetry(tag: String, action: suspend (T) -> Unit) {
     retry {
-      FirebaseCrashlytics.getInstance().log("E/$TAG: $tag error ${it.message}")
+      Logger.e("$tag error ${it.message}", tag = TAG)
       recordException(it)
       true
     }.collect { value ->
@@ -131,22 +127,22 @@ class GameConnection(
 
   fun incrementCounter() {
     synchronized(connectionLock) {
-      FirebaseCrashlytics.getInstance().log("Acquired connection lock incrementCounter")
+      Logger.i("Acquired connection lock incrementCounter", tag = TAG)
       counter++
-      FirebaseCrashlytics.getInstance().log("Released connection lock incrementCounter")
+      Logger.i("Released connection lock incrementCounter", tag = TAG)
     }
   }
 
   fun decrementCounter() {
     synchronized(connectionLock) {
-      FirebaseCrashlytics.getInstance().log("Acquired connection lock decrementCounter")
+      Logger.i("Acquired connection lock decrementCounter", tag = TAG)
       counter--
       if (counter == 0) {
         scope.cancel()
         socketService.disconnectFromGame(gameId)
         closed = true
       }
-      FirebaseCrashlytics.getInstance().log("Released connection lock decrementCounter")
+      Logger.i("Released connection lock decrementCounter", tag = TAG)
     }
   }
 

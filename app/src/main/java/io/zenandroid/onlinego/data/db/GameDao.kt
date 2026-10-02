@@ -7,7 +7,7 @@ import androidx.room.Query
 import androidx.room.RoomWarnings
 import androidx.room.Transaction
 import androidx.room.Update
-import com.google.firebase.crashlytics.FirebaseCrashlytics
+import co.touchlab.kermit.Logger
 import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.local.Challenge
 import io.zenandroid.onlinego.data.model.local.ChallengeNotification
@@ -132,7 +132,7 @@ abstract class GameDao {
         val newGames = games.filter { candidate ->
             existingGames.find { it.id == candidate.id } == null
         }
-        FirebaseCrashlytics.getInstance().log("Inserting ${newGames.size} games out of ${games.size}")
+      Logger.i("Inserting ${newGames.size} games out of ${games.size}", tag = "GameDao")
         insertAllGamesInternal(newGames)
 
         val updatedGames = mutableListOf<Game>()
@@ -148,7 +148,7 @@ abstract class GameDao {
             }
         }
 
-        FirebaseCrashlytics.getInstance().log("Updating ${existingGames.size} games out of ${games.size}")
+      Logger.i("Updating ${existingGames.size} games out of ${games.size}", tag = "GameDao")
         updateGames(updatedGames)
     }
 

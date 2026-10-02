@@ -1,6 +1,5 @@
 package io.zenandroid.onlinego.ui.screens.puzzle.tsumego
 
-import android.util.Log
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -9,6 +8,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import co.touchlab.kermit.Logger
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.Mark
@@ -428,7 +428,7 @@ class TsumegoViewModel(
   }
 
   private fun onError(t: Throwable) {
-    Log.e(this::class.java.canonicalName, t.message, t)
+    Logger.e(t.message.orEmpty(), t, "TsumegoViewModel")
     recordException(t)
   }
 }

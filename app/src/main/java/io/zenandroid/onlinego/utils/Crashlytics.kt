@@ -1,6 +1,8 @@
 package io.zenandroid.onlinego.utils
 
 import androidx.core.os.bundleOf
+import co.touchlab.kermit.LogWriter
+import co.touchlab.kermit.Severity
 import com.google.android.gms.common.api.ApiException
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.crashlytics.FirebaseCrashlytics
@@ -20,6 +22,17 @@ fun recordException(t: Throwable) {
       t
     }
     FirebaseCrashlytics.getInstance().recordException(reported)
+  }
+}
+
+class CrashlyticsBreadcrumbWriter(
+  private val minSeverity: Severity = Severity.Info,
+) : LogWriter() {
+  override fun isLoggable(tag: String, severity: Severity) = severity >= minSeverity
+
+  override fun log(severity: Severity, message: String, tag: String, throwable: Throwable?) {
+    val suffix = throwable?.let { " $it" }.orEmpty()
+    FirebaseCrashlytics.getInstance().log("${severity.name.first()}/$tag: $message$suffix")
   }
 }
 

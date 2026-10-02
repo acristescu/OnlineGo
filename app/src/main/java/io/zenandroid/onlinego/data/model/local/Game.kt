@@ -5,7 +5,7 @@ import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.Ignore
 import androidx.room.PrimaryKey
-import com.google.firebase.crashlytics.FirebaseCrashlytics
+import co.touchlab.kermit.Logger
 import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.Position
 import io.zenandroid.onlinego.data.model.ogs.GameData
@@ -139,7 +139,10 @@ data class Game(
                 is Double -> gamedata.ranked != 0.0
                 is Boolean -> gamedata.ranked as Boolean
                 else -> {
-                    FirebaseCrashlytics.getInstance().log("gamedata.ranked has unexpected value: ${gamedata.ranked}")
+                    Logger.i(
+                        "gamedata.ranked has unexpected value: ${gamedata.ranked}",
+                        tag = "Game"
+                    )
                     null
                 }
             }

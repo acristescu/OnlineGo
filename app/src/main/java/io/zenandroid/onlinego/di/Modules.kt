@@ -1,7 +1,6 @@
 package io.zenandroid.onlinego.di
 
 import androidx.room.Room
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import de.jensklingenberg.ktorfit.Ktorfit
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.okhttp.OkHttp
@@ -119,7 +118,6 @@ private val serverConnectionModule = module {
         jsonFormat = get(),
         cookiesStorage = get<OGSCookieStore>(),
         baseUrl = BuildConfig.BASE_URL,
-        log = FirebaseCrashlytics.getInstance()::log,
       )
       engine {
         preconfigured = get<OkHttpClient>()
@@ -211,7 +209,6 @@ private val viewModelsModule = module {
   viewModel {
     FaceToFaceViewModel(
       OnlineGoApplication.instance.analytics,
-      FirebaseCrashlytics.getInstance(),
       get(),
       get(),
     )

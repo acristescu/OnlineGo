@@ -1,8 +1,8 @@
 package io.zenandroid.onlinego.notifications
 
 import android.content.Context
-import android.util.Log
 import androidx.work.ListenableWorker
+import co.touchlab.kermit.Logger
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.zenandroid.onlinego.data.db.GameDao
 import io.zenandroid.onlinego.data.model.local.GameNotification
@@ -27,7 +27,7 @@ class CheckNotificationsTask(val context: Context, val supressWhenInForeground: 
   private val activeGamesRepository: ActiveGamesRepository = GlobalContext.get().get()
   private val challengesRepository: ChallengesRepository = GlobalContext.get().get()
   suspend fun doWork(): ListenableWorker.Result {
-    FirebaseCrashlytics.getInstance().log("I/$TAG: Checking for notifications")
+    Logger.i("Checking for notifications", tag = TAG)
     return try {
       notifyGames()
       notifyChallenges()
@@ -35,8 +35,7 @@ class CheckNotificationsTask(val context: Context, val supressWhenInForeground: 
     } catch (e: Exception) {
       when {
         e.httpStatusCode in arrayOf(401, 403) -> {
-          FirebaseCrashlytics.getInstance()
-            .log("E/$TAG: Unauthorized when checking for notifications")
+          Logger.e("Unauthorized when checking for notifications", tag = TAG)
           recordException(e)
           FirebaseCrashlytics.getInstance()
             .setCustomKey("AUTO_LOGOUT", System.currentTimeMillis())
@@ -45,13 +44,11 @@ class CheckNotificationsTask(val context: Context, val supressWhenInForeground: 
           ListenableWorker.Result.failure()
         }
         e is SocketTimeoutException || e is ConnectException || e is UnknownHostException -> {
-          FirebaseCrashlytics.getInstance()
-            .log("E/$TAG: Can't connect when checking for notifications")
+          Logger.e("Can't connect when checking for notifications", tag = TAG)
           ListenableWorker.Result.failure()
         }
         else -> {
-          FirebaseCrashlytics.getInstance()
-            .log("E/$TAG: Error when checking for notifications")
+          Logger.e("Error when checking for notifications", tag = TAG)
           recordException(e)
           ListenableWorker.Result.retry()
         }
@@ -64,9 +61,9 @@ class CheckNotificationsTask(val context: Context, val supressWhenInForeground: 
     activeGamesRepository.refreshActiveGames()
     val activeGames = activeGamesRepository.monitorActiveGames().first()
     val gameNotifications = gameDao.getGameNotifications().first()
-    Log.v(TAG, "Got ${activeGames.size} games")
+    Logger.v(tag = TAG) { "Got ${activeGames.size} games" }
     if (!(supressWhenInForeground && MainActivity.isInForeground)) {
-      Log.v(TAG, "Updating game notification")
+      Logger.v(tag = TAG) { "Updating game notification" }
       NotificationUtils.notifyGames(context, activeGames, gameNotifications, userId)
     }
     val newNotifications = activeGames.map { GameNotification(it.id, it.moves, it.phase) }
@@ -80,9 +77,9 @@ class CheckNotificationsTask(val context: Context, val supressWhenInForeground: 
     challengesRepository.refreshChallenges()
     val challenges = challengesRepository.monitorChallenges().first()
     val challengeNotifications = gameDao.getChallengeNotifications().first()
-    Log.v(TAG, "Updating challenges notification")
+    Logger.v(tag = TAG) { "Updating challenges notification" }
     if (!(supressWhenInForeground && MainActivity.isInForeground)) {
-      Log.v(TAG, "Updating challenges notification")
+      Logger.v(tag = TAG) { "Updating challenges notification" }
       NotificationUtils.notifyChallenges(context, challenges, challengeNotifications, userId)
       gameDao.replaceChallengeNotifications(challenges.map {
         io.zenandroid.onlinego.data.model.local.ChallengeNotification(it.id)

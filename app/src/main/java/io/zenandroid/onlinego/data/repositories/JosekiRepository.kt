@@ -1,6 +1,6 @@
 package io.zenandroid.onlinego.data.repositories
 
-import android.util.Log
+import co.touchlab.kermit.Logger
 import io.zenandroid.onlinego.data.db.GameDao
 import io.zenandroid.onlinego.data.model.Mark
 import io.zenandroid.onlinego.data.model.ogs.JosekiPosition
@@ -64,7 +64,7 @@ class JosekiRepository(
   }
 
   private fun onError(error: Throwable) {
-    Log.e("JosekiRepository", error.message, error)
+    Logger.e(error.message.orEmpty(), error, "JosekiRepository")
     recordException(error)
   }
 

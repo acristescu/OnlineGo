@@ -5,7 +5,6 @@ import app.cash.molecule.RecompositionMode
 import app.cash.molecule.moleculeFlow
 import app.cash.turbine.test
 import com.google.firebase.analytics.FirebaseAnalytics
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.StoneType
 import io.zenandroid.onlinego.data.repositories.SettingsRepository
@@ -41,7 +40,6 @@ class FaceToFaceViewModelTest {
   val instantExecutorRule = InstantTaskExecutorRule()
 
   private val analytics: FirebaseAnalytics = mock()
-  private val crashlytics: FirebaseCrashlytics = mock()
   private val settingsRepository: SettingsRepository = mock()
 
   private lateinit var applicationTestScope: TestScope
@@ -60,7 +58,6 @@ class FaceToFaceViewModelTest {
 
     viewModel = FaceToFaceViewModel(
       analytics = analytics,
-      crashlytics = crashlytics,
       settingsRepository = settingsRepository,
       applicationScope = applicationTestScope,
       testing = true

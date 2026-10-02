@@ -1,6 +1,6 @@
 package io.zenandroid.onlinego.data.repositories
 
-import android.util.Log
+import co.touchlab.kermit.Logger
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.zenandroid.onlinego.data.db.GameDao
 import io.zenandroid.onlinego.data.model.local.Game
@@ -78,7 +78,7 @@ class FinishedGamesRepository(
       }
     }
     recordException(Exception(message, t))
-    Log.e("FinishedGameRepository", message, t)
+    Logger.e(message, t, "FinishedGamesRepository")
   }
 
   fun getHistoricGames(endedBefore: Long?): Flow<HistoricGamesRepositoryResult> {
@@ -170,9 +170,9 @@ class FinishedGamesRepository(
         }
       }
     } else {
-      Log.i(
-        "FinishedGamesRepository",
-        "Skipped fetchHistoricGames because request already in flight"
+      Logger.i(
+        "Skipped fetchHistoricGames because request already in flight",
+        tag = "FinishedGamesRepository"
       )
     }
   }

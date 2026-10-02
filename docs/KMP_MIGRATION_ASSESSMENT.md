@@ -178,8 +178,8 @@ long-lived migration branch.
 | ~~**jsoup 1.22.1**~~ **DONE**                                                            | pure JVM - survives Android and Desktop, breaks iOS                                                                                          | Deleted. It was one 3-line `parseHtml()` in `TsumegoViewModel`; replaced by `AnnotatedString.fromHtml()` from Compose UI, which was already on the classpath. See 4.6.                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
 | **`material-icons-extended`**                                                            | deprecated Android artifact; 109 references in 21 files                                                                                      | Vendor the icons actually used as `ImageVector` declarations (best for binary size), or use `br.com.devsrsouza:compose-icons`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
 | **navigation-compose 2.9.7** (androidx)                                                  | Android artifact                                                                                                                             | `org.jetbrains.androidx.navigation:navigation-compose`. Take the opportunity to convert the 13 string-literal routes in `Navigation.kt` to `@Serializable` type-safe routes - we will already have kotlinx.serialization on the classpath, and the current bottom-bar logic matches routes against a hardcoded `listOf("myGames", "learn", "stats", "settings")`.                                                                                                                                                                                                                                                        |
-| **Firebase Crashlytics / Analytics**                                                     | Google Android SDK                                                                                                                           | Introduce our own `Logger`, `CrashReporter` and `Analytics` interfaces and inject them. Android actual delegates to Firebase; iOS actual to the Firebase iOS SDK (CocoaPods) or GitLive's `firebase-kotlin-sdk`. The bulk of the ~95 call sites are `FirebaseCrashlytics.getInstance().log(...)` used as a logger - route those to **Kermit**, which ships a Crashlytics log writer. A thin wrapper already exists (`utils/Crashlytics.kt`, used in 34 files); the problem is that most files bypass it.                                                                                                                 |
-| **`android.util.Log`** (68 sites, 26 files)                                              | Android-only                                                                                                                                 | **Kermit** (`co.touchlab:kermit`). Same change as above; do them together.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| **Firebase Crashlytics / Analytics** - **logging DONE**                                  | Google Android SDK                                                                                                                           | Logging is done (4.10): every `FirebaseCrashlytics.log(...)` now goes through **Kermit**, and Crashlytics is just one of its writers. What remains is the non-logging surface - `recordException` (10 direct sites that bypass the `utils/Crashlytics.kt` filter), `setCustomKey` (9), `setUserId`, `sendUnsentReports` (3) - plus `FirebaseAnalytics` (9 files). That is the `CrashReporter` / `Analytics` seam; Android actual delegates to Firebase, iOS to the Firebase iOS SDK (CocoaPods) or GitLive's `firebase-kotlin-sdk`.                                                                                      |
+| ~~**`android.util.Log`** (68 sites, 26 files)~~ **DONE**                                 | Android-only                                                                                                                                 | **Kermit** (`co.touchlab:kermit`). Done together with the Crashlytics breadcrumbs - see 4.10. `grep -rn android.util.Log app/src/main` is empty; only `androidTest` still uses it.                                                                                                                                                                                                                                                                                                                                                                                                                                       |
 | **`java.time`** (16 files)                                                               | JVM; currently works on `minSdk 23` only via core library desugaring                                                                         | **kotlinx-datetime**. Lets us drop `coreLibraryDesugaring` and `desugar_jdk_libs` entirely.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 | **`java.text.SimpleDateFormat`** (3 files)                                               | JVM                                                                                                                                          | kotlinx-datetime `DateTimeFormat`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
 | **`java.util.concurrent`** - `ConcurrentHashMap`, `AtomicInteger/Boolean/Long` (5 files) | JVM                                                                                                                                          | `kotlin.concurrent.Atomic*` from the stdlib; `ConcurrentHashMap` in `OGSWebSocketService` becomes a plain map guarded by a `Mutex`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
@@ -662,6 +662,60 @@ challenge), and Google sign-in end to end.
 - 302s are no longer logged as errors. The old interceptor logged on `!response.isSuccessful`,
   which includes redirects.
 
+### 4.10 Logging onto Kermit - DONE
+
+Two logging systems ran side by side and rarely agreed: `android.util.Log` went to logcat only,
+`FirebaseCrashlytics.log` went to Crashlytics breadcrumbs only, and many call sites wrote the same
+event to both, by hand, with an `E/TAG:` prefix to fake a severity. Both are now one `Logger` call
+(Kermit 2.2.0, multiplatform), configured in `OnlineGoApplication.onCreate`:
+
+- `CrashlyticsBreadcrumbWriter` (`utils/Crashlytics.kt`, ~10 lines) - forwards **Info and above**
+  to `FirebaseCrashlytics.log` as `I/Tag: message`. It never calls `recordException`; non-fatals
+  stay explicit at the call site. Installed in every build.
+- `platformLogWriter()` - logcat on Android, `os_log` on iOS when we get there. **Debug builds
+  only.**
+- Release also sets the global minimum severity to Info, and every Verbose/Debug call uses Kermit's
+  lambda overload (`Logger.d(tag = …) { "…" }`), so in release those messages are never even
+  built. That replaced the `if (BuildConfig.DEBUG)` gates in `OGSWebSocketService`, whose
+  debug-only lines became Debug level.
+
+Kermit's own `kermit-crashlytics` was considered and rejected: it pulls in CrashKiOS and, by
+default, records a non-fatal for every `Logger.e` carrying a throwable - a silent jump in reported
+volume. Writing the writer ourselves keeps that decision explicit.
+
+The severity cut-off is what preserves today's split. Every former `FirebaseCrashlytics.log` call
+became `i`/`w`/`e` (the `E/`/`W/`/`I/` prefixes became the level), so every breadcrumb that reached
+Crashlytics still does. Former `Log.v`/`Log.d` calls stayed `v`/`d`, so they still do not. Where a
+site logged the same event to both, the pair became one call at Info or above.
+
+`configureOGSClient` lost its `log: (String) -> Unit` parameter - it was a seam for exactly this,
+and the request log now calls `Logger` directly with tag `HTTP_REQUEST`. `FaceToFaceViewModel`
+lost its injected `FirebaseCrashlytics`, which it only used for `log`.
+
+#### Verification
+
+93 unit tests green; debug and release compile. JVM unit tests need no logging setup: Kermit's
+default writer is logcat, and `unitTests.isReturnDefaultValues = true` already turns those calls
+into no-ops.
+
+#### Deliberate behaviour differences
+
+- **Release builds write nothing to logcat.** Previously every `Log.*` call did. Debugging a
+  release build means reading the Crashlytics breadcrumbs, or flipping the writer list locally.
+- Release no longer pays for building Verbose/Debug strings - notably the `AiMoveDebug` line,
+  which sorted and formatted every candidate move on each AI turn just to log it.
+- `GameViewModel.onUserAction` no longer logs `BoardCellDragged`, which fired on every drag event
+  and flooded the breadcrumb buffer. Discrete actions are still logged.
+- Former logcat-only `Log.e` / `Log.w` / `Log.i` calls now also reach Crashlytics breadcrumbs. The
+  64 KB breadcrumb buffer has a little more competition; the noisy ones (raw websocket frames,
+  ClockDrift, notifications polling) were verbose/debug and stay out.
+- The three websocket connect/close/failure lines used to be DEBUG-only in logcat with a separate,
+  terser Crashlytics breadcrumb. They are now one line each, and the close breadcrumb gains the
+  code and reason. "Received unexpected response" was DEBUG-only and is now a Warn breadcrumb in
+  release; it should never fire, so if it does we want to know.
+- A few logcat levels were corrected while merging pairs: "Setup Billing Done" was `Log.e`, now
+  Info; "Billing client Disconnected" was `Log.e`, now Warn.
+
 ---
 
 ## 5. The native code - two separate problems
@@ -769,9 +823,10 @@ Every phase ends with a shippable Android build.
 
 This phase introduces no multiplatform tooling at all and is worth doing on its own merits.
 
-- Introduce `Logger` / `CrashReporter` / `Analytics` interfaces; migrate the 68 `android.util.Log`
-  sites and ~95 `FirebaseCrashlytics.getInstance()` sites onto them. Note that a *domain model*
-  (`data/model/local/Game.kt:142`) and a *DAO* (`GameDao.kt`) currently log to Crashlytics.
+- ~~Logging~~ - **done**, see 4.10: `android.util.Log` and `FirebaseCrashlytics.log` are both on
+  Kermit, including the domain model (`Game.kt`) and DAO (`GameDao.kt`) sites. Still owed:
+  `CrashReporter` / `Analytics` seams for the remaining 23 non-logging Crashlytics calls and the
+  `FirebaseAnalytics` usage in 9 files.
 - Remove the 11 direct `OnlineGoApplication.instance` reads and the `GlobalContext.get()`
   service-locator sites; make every dependency constructor-injected.
 - ~~Moshi to kotlinx.serialization~~ - **done**, see 4.5. Done as a single cut-over rather than
@@ -802,8 +857,9 @@ This phase introduces no multiplatform tooling at all and is worth doing on its 
   **not** dead despite the orphaned package name - it still covers `formatMillis` and the boolean
   coercion against the real `User` DTO, and was repointed rather than deleted in 4.5. Rename it
   instead.
-- Convert the remaining Java file to Kotlin (`utils/AndroidLoggingHandler.java`; `StoneType.java`
-  was already converted as part of 4.5).
+- ~~Convert the remaining Java file to Kotlin~~ - **done**: `utils/AndroidLoggingHandler.java` was
+  unreferenced, so it was deleted rather than converted (4.10). `StoneType.java` went in 4.5. The
+  project has no Java left.
 
 ### Phase 1 - extract `:shared` (one module, still Android-only)
 

@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import androidx.core.net.toUri
+import co.touchlab.kermit.Logger
 import com.google.android.play.core.ktx.launchReview
 import com.google.android.play.core.ktx.requestReview
 import com.google.android.play.core.review.ReviewManagerFactory
@@ -37,7 +38,7 @@ class ReviewPromptManager(
     try {
       // Check if we should prompt for review
       if (!reviewPromptRepository.shouldPromptForReview()) {
-        FirebaseCrashlytics.getInstance().log("Review prompt conditions not met")
+        Logger.i("Review prompt conditions not met", tag = "ReviewPromptManager")
         return
       }
 
@@ -52,12 +53,14 @@ class ReviewPromptManager(
       // The flow always "completes successfully" regardless of user action.
       // We record it as shown; we cannot know if they rated.
       analytics.logEvent("review_prompt_completed_in_app", null)
-      FirebaseCrashlytics.getInstance().log("In-app review flow completed")
+      Logger.i("In-app review flow completed", tag = "ReviewPromptManager")
 
     } catch (e: Exception) {
       FirebaseCrashlytics.getInstance().recordException(e)
-      FirebaseCrashlytics.getInstance()
-        .log("In-app review failed: ${e.message}, falling back to Play Store")
+      Logger.i(
+        "In-app review failed: ${e.message}, falling back to Play Store",
+        tag = "ReviewPromptManager"
+      )
       // Fallback to Play Store redirect on any error
       launchPlayStoreReview(activity)
     }
@@ -76,7 +79,7 @@ class ReviewPromptManager(
       if (intent.resolveActivity(activity.packageManager) != null) {
         activity.startActivity(intent)
         analytics.logEvent("review_prompt_redirected_to_play_store", null)
-        FirebaseCrashlytics.getInstance().log("Redirected to Play Store for review")
+        Logger.i("Redirected to Play Store for review", tag = "ReviewPromptManager")
       } else {
         // Fallback to browser
         val browserIntent = Intent(Intent.ACTION_VIEW).apply {
@@ -84,7 +87,7 @@ class ReviewPromptManager(
         }
         activity.startActivity(browserIntent)
         analytics.logEvent("review_prompt_redirected_to_browser", null)
-        FirebaseCrashlytics.getInstance().log("Redirected to browser for review")
+        Logger.i("Redirected to browser for review", tag = "ReviewPromptManager")
       }
 
       // Record as dismissed since we can't track completion from Play Store

@@ -1,7 +1,7 @@
 package io.zenandroid.onlinego.gamelogic
 
-import android.util.Log
 import androidx.core.util.lruCache
+import co.touchlab.kermit.Logger
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.Mark
@@ -28,7 +28,7 @@ object RulesManager {
       }
       System.loadLibrary("estimator")
     } catch (_: UnsatisfiedLinkError) {
-      Log.e("libestimator", "Error loading estimator")
+      Logger.e("Error loading estimator", tag = "libestimator")
     }
   }
 
@@ -203,9 +203,7 @@ object RulesManager {
     )
 
     if (pos == null) {
-      Log.e(this.javaClass.simpleName, "Server returned an invalid move!!! gameId=${game.id}")
-      FirebaseCrashlytics.getInstance()
-        .log("E/RulesManager: Server returned an invalid move!!! gameId=${game.id}")
+      Logger.e("Server returned an invalid move!!! gameId=${game.id}", tag = "RulesManager")
       return Position(game.width, game.height)
     }
 

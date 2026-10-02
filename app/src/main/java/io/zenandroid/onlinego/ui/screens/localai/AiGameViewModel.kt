@@ -1,10 +1,9 @@
 package io.zenandroid.onlinego.ui.screens.localai
 
-import android.util.Log
 import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.firebase.crashlytics.FirebaseCrashlytics
+import co.touchlab.kermit.Logger
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.ai.KataGoAnalysisEngine
 import io.zenandroid.onlinego.data.model.Cell
@@ -24,7 +23,6 @@ import io.zenandroid.onlinego.ui.composables.TextResource
 import io.zenandroid.onlinego.ui.composables.textResource
 import io.zenandroid.onlinego.utils.appJson
 import io.zenandroid.onlinego.utils.recordException
-import kotlinx.serialization.encodeToString
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -130,8 +128,10 @@ class AiGameViewModel(
       val moves = mutableListOf<Cell>()
       state.history.drop(1).forEach {
         if (it.lastMove == null || it.boardHeight != state.boardSize) {
-          FirebaseCrashlytics.getInstance()
-            .log("Invalid position in history: lastMove=${it.lastMove} boardHeight=${it.boardHeight} boardSize=${state.boardSize}")
+          Logger.i(
+            "Invalid position in history: lastMove=${it.lastMove} boardHeight=${it.boardHeight} boardSize=${state.boardSize}",
+            tag = "AiGameViewModel"
+          )
           return false
         }
         moves.add(it.lastMove)
@@ -144,8 +144,10 @@ class AiGameViewModel(
           blackInitialState = blackInitial
         )
         if (pos == null) {
-          FirebaseCrashlytics.getInstance()
-            .log("Invalid history: ${moves.toGTP(it.boardHeight)} whiteInitial=$whiteInitial blackInitial=$blackInitial")
+          Logger.i(
+            "Invalid history: ${moves.toGTP(it.boardHeight)} whiteInitial=$whiteInitial blackInitial=$blackInitial",
+            tag = "AiGameViewModel"
+          )
           return false
         }
       }
@@ -161,7 +163,7 @@ class AiGameViewModel(
         try {
           appJson.decodeFromString<AiGameState>(json)?.takeIf { validState(it) }
         } catch (e: Exception) {
-          Log.e("AiGameViewModel", "Cannot deserialize state", e)
+          Logger.e("Cannot deserialize state", e, "AiGameViewModel")
           recordException(e)
           null
         }
@@ -559,8 +561,7 @@ class AiGameViewModel(
             overrideSettings = difficulty.humanSLProfile?.let { OverrideSettings(humanSLProfile = it) },
           )
         }
-        Log.d(
-          "AiMoveDebug",
+        Logger.d(tag = "AiMoveDebug") {
           "tier=${difficulty.name} maxVisits=${effectiveMaxVisits} " +
               "humanSLProfile=${difficulty.humanSLProfile} " +
               "candidates=${analysis.moveInfos.size} " +
@@ -568,7 +569,7 @@ class AiGameViewModel(
                 analysis.moveInfos.sortedByDescending { it.visits }
                   .joinToString { "${it.move}(v=${it.visits},wr=%.3f)".format(it.winrate) }
               }"
-        )
+        }
 
         val engineWinrate =
           orientedWinrateForEngine(analysis.rootInfo.winrate ?: 0.5f, currentState.enginePlaysBlack)
@@ -626,10 +627,9 @@ class AiGameViewModel(
     currentState: AiGameState,
     position: Position,
   ) {
-    Log.d(
-      "AiMoveDebug",
+    Logger.d(tag = "AiMoveDebug") {
       "picked=${selectedMove.move}(v=${selectedMove.visits},wr=%.3f)".format(selectedMove.winrate)
-    )
+    }
     val move = Util.getCoordinatesFromGTP(selectedMove.move, position.boardHeight)
     val side = if (currentState.enginePlaysBlack) StoneType.BLACK else StoneType.WHITE
     val newPosition = RulesManager.makeMove(position, side, move)

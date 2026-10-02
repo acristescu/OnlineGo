@@ -13,13 +13,13 @@ import android.graphics.PointF
 import android.graphics.Rect
 import android.os.Build
 import android.util.AttributeSet
-import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import androidx.compose.ui.unit.dp
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.graphics.ColorUtils
 import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat
+import co.touchlab.kermit.Logger
 import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.Cell
@@ -675,7 +675,7 @@ class BoardView : View {
             val src = Rect(0, 0, it.width, it.height)
             val dest = Rect(0, 0, width, height)
             canvas.drawBitmap(it, src, dest, null)
-        } ?: Log.e("BoardView", "Null background!!!")
+        } ?: Logger.e("Null background!!!", tag = "BoardView")
     }
 
     private fun getCellCenter(i: Int, j: Int): PointF {

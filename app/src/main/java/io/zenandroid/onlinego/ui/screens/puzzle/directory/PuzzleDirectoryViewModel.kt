@@ -1,8 +1,8 @@
 package io.zenandroid.onlinego.ui.screens.puzzle.directory
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import co.touchlab.kermit.Logger
 import io.zenandroid.onlinego.data.model.local.PuzzleCollection
 import io.zenandroid.onlinego.data.model.local.VisitedPuzzleCollection
 import io.zenandroid.onlinego.data.repositories.PuzzleRepository
@@ -129,7 +129,7 @@ class PuzzleDirectoryViewModel(
   }
 
   private fun onError(t: Throwable) {
-    Log.e(this::class.java.canonicalName, t.message, t)
+    Logger.e(t.message.orEmpty(), t, "PuzzleDirectoryViewModel")
     recordException(t)
   }
 

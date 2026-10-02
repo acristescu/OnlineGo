@@ -1,6 +1,6 @@
 package io.zenandroid.onlinego.data.repositories
 
-import android.util.Log
+import co.touchlab.kermit.Logger
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.zenandroid.onlinego.data.db.GameDao
 import io.zenandroid.onlinego.data.model.Cell
@@ -66,8 +66,10 @@ class ActiveGamesRepository(
       return
     }
     if (gameDao.getGameNullable(game.id) == null) {
-      FirebaseCrashlytics.getInstance()
-        .log("ActiveGameRepository: New game found from active_game notification ${game.id}")
+      Logger.i(
+        "New game found from active_game notification ${game.id}",
+        tag = "ActiveGamesRepository"
+      )
       flowScope.launch {
         try {
           val fetchedGame = retryOnIOException { restService.fetchGame(game.id) }
@@ -355,15 +357,17 @@ class ActiveGamesRepository(
     val games = retryOnIOException { restService.fetchActiveGames() }
     val localGames = games.map(Game.Companion::fromOGSGame)
     gameDao.insertAllGames(localGames)
-    FirebaseCrashlytics.getInstance().log("overview returned ${localGames.size} games")
+    Logger.i("overview returned ${localGames.size} games", tag = "ActiveGamesRepository")
     val activeGameIds = localGames.map(Game::id).toSet()
     val finishedGameIds = gameDao.getActiveGameIds(userId) - activeGameIds
     updateGamesThatFinishedSinceLastUpdate(finishedGameIds)
   }
 
   private suspend fun updateGamesThatFinishedSinceLastUpdate(gameIds: List<Long>) {
-    FirebaseCrashlytics.getInstance()
-      .log("Found ${gameIds.size} games that are neither active nor marked as finished")
+    Logger.i(
+      "Found ${gameIds.size} games that are neither active nor marked as finished",
+      tag = "ActiveGamesRepository"
+    )
     val games = mutableListOf<Game>()
     gameIds.forEach {
       var backoffMillis = 10000L
@@ -382,10 +386,11 @@ class ActiveGamesRepository(
 
           // request is throttled
           if (e.httpStatusCode == 429) {
-            FirebaseCrashlytics.getInstance().apply {
-              setCustomKey("HIT_RATE_LIMITER", true)
-              log("Hit rate limiter backing off $backoffMillis milliseconds")
-            }
+            FirebaseCrashlytics.getInstance().setCustomKey("HIT_RATE_LIMITER", true)
+            Logger.i(
+              "Hit rate limiter backing off $backoffMillis milliseconds",
+              tag = "ActiveGamesRepository"
+            )
             delay(backoffMillis)
             backoffMillis *= 2
           } else {
@@ -418,6 +423,6 @@ class ActiveGamesRepository(
       }
     }
     recordException(Exception(message, t))
-    Log.e("ActiveGameRespository", message, t)
+    Logger.e(message, t, "ActiveGamesRepository")
   }
 }

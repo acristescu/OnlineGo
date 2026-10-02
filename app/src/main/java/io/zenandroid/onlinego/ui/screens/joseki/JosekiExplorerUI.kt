@@ -4,7 +4,6 @@ import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.provider.Browser
-import android.util.Log
 import android.view.View
 import android.widget.TextView
 import androidx.activity.compose.BackHandler
@@ -47,7 +46,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.net.toUri
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.google.firebase.crashlytics.FirebaseCrashlytics
+import co.touchlab.kermit.Logger
 import io.noties.markwon.AbstractMarkwonPlugin
 import io.noties.markwon.Markwon
 import io.noties.markwon.MarkwonConfiguration
@@ -291,7 +290,7 @@ private fun DescriptionView(
       when {
         error != null -> {
           textView.text = error.message
-          Log.e(TAG, error.message ?: "Unknown error", error)
+          Logger.e(error.message ?: "Unknown error", error, TAG)
           recordException(error)
         }
 
@@ -352,9 +351,10 @@ private fun buildMarkwon(context: Context, nodeId: Long?, loadPosition: (Long?) 
           if (link.startsWith("Position:")) {
             val posId = link.substring(9).toLongOrNull()
             if (posId == null) {
-              Log.e(TAG, "Can't resolve link $link")
-              FirebaseCrashlytics.getInstance()
-                .log("E/$TAG: Can't resolve link $link for in the description of joseki pos $nodeId")
+              Logger.e(
+                "Can't resolve link $link for in the description of joseki pos $nodeId",
+                tag = TAG
+              )
             } else {
               loadPosition(posId)
             }
@@ -371,9 +371,10 @@ private fun buildMarkwon(context: Context, nodeId: Long?, loadPosition: (Long?) 
               try {
                 context.startActivity(intent)
               } catch (_: ActivityNotFoundException) {
-                Log.e(TAG, "Can't resolve link $link")
-                FirebaseCrashlytics.getInstance()
-                  .log("E/$TAG: Can't resolve link $link for in the description of joseki pos $nodeId")
+                Logger.e(
+                  "Can't resolve link $link for in the description of joseki pos $nodeId",
+                  tag = TAG
+                )
               }
             }
           }

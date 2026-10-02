@@ -3,7 +3,6 @@ package io.zenandroid.onlinego.ui.screens.onboarding
 import android.Manifest
 import android.app.Activity
 import android.os.Build
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.LocalActivity
@@ -69,6 +68,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import co.touchlab.kermit.Logger
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.Scopes
@@ -110,7 +110,7 @@ fun OnboardingScreen(
             viewModel.onGoogleTokenReceived(it)
           }
       } catch (e: ApiException) {
-        Log.w("OnboardingFragment", "signInResult:failed code=" + e.statusCode)
+        Logger.w("signInResult:failed code=" + e.statusCode, tag = "OnboardingFragment")
         recordException(e)
         Toast.makeText(
           activity,
@@ -122,7 +122,7 @@ fun OnboardingScreen(
       }
     } else {
       viewModel.onAction(SocialPlatformLoginFailed)
-      Log.e("OnboardingScreen", "Google sign-in cancelled")
+      Logger.e("Google sign-in cancelled", tag = "OnboardingScreen")
     }
   }
 

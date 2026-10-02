@@ -31,6 +31,7 @@ import androidx.lifecycle.viewModelScope
 import app.cash.molecule.AndroidUiDispatcher
 import app.cash.molecule.RecompositionMode.ContextClock
 import app.cash.molecule.launchMolecule
+import co.touchlab.kermit.Logger
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.zenandroid.onlinego.BuildConfig
 import io.zenandroid.onlinego.R
@@ -914,7 +915,7 @@ class GameViewModel(
   }
 
   fun onUserAction(action: UserAction) {
-    FirebaseCrashlytics.getInstance().log(action.javaClass.name)
+    if (action !is BoardCellDragged) Logger.i(action.javaClass.name, tag = "GameViewModel")
     when (action) {
       is BoardCellDragged -> onCellTracked(action.cell)
       is BoardCellTapUp -> onCellTapUp(action.cell)

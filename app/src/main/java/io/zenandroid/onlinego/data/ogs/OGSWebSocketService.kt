@@ -1,8 +1,6 @@
 package io.zenandroid.onlinego.data.ogs
 
-import android.util.Log
-import com.google.firebase.crashlytics.FirebaseCrashlytics
-import io.zenandroid.onlinego.BuildConfig
+import co.touchlab.kermit.Logger
 import io.zenandroid.onlinego.data.model.ogs.NetPong
 import io.zenandroid.onlinego.data.model.ogs.OGSAutomatch
 import io.zenandroid.onlinego.data.model.ogs.OGSGame
@@ -16,9 +14,9 @@ import io.zenandroid.onlinego.data.repositories.SocketConnectedRepository
 import io.zenandroid.onlinego.data.repositories.SocketDebugRepository
 import io.zenandroid.onlinego.data.repositories.UserSessionRepository
 import io.zenandroid.onlinego.utils.JsonObjectScope
+import io.zenandroid.onlinego.utils.appJson
 import io.zenandroid.onlinego.utils.createJsonArray
 import io.zenandroid.onlinego.utils.json
-import io.zenandroid.onlinego.utils.appJson
 import io.zenandroid.onlinego.utils.recordException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -97,19 +95,17 @@ class OGSWebSocketService(
 
   private val webSocketListener = object : WebSocketListener() {
     override fun onOpen(webSocket: WebSocket, response: Response) {
-      if (BuildConfig.DEBUG) Log.i(TAG, "WebSocket connected")
-      FirebaseCrashlytics.getInstance().log("Websocket connected")
+      Logger.i("WebSocket connected", tag = TAG)
       socketDebugRepository.logState("WS", "Connected (code=${response.code})")
       socketDebugRepository.updateConnectionState("Connected")
       connected.set(true)
       reconnectDelay = RECONNECT_DELAY_MIN_MS
       onSockedConnected()
-      FirebaseCrashlytics.getInstance()
-        .log("Websocket connected - called all onSocketConnected() methods")
+      Logger.i("WebSocket connected - called all onSocketConnected() methods", tag = TAG)
     }
 
     override fun onMessage(webSocket: WebSocket, text: String) {
-      if (BuildConfig.DEBUG) Log.v(TAG, "<== raw: $text")
+      Logger.v(tag = TAG) { "<== raw: $text" }
       try {
         socketDebugRepository.logReceived("WS", text.take(500))
         handleMessage(text)
@@ -120,22 +116,20 @@ class OGSWebSocketService(
     }
 
     override fun onClosing(webSocket: WebSocket, code: Int, reason: String) {
-      if (BuildConfig.DEBUG) Log.i(TAG, "WebSocket closing: $code $reason")
+      Logger.d(tag = TAG) { "WebSocket closing: $code $reason" }
       socketDebugRepository.logState("WS", "Closing (code=$code, reason=$reason)")
       webSocket.close(NORMAL_CLOSURE_STATUS, null)
     }
 
     override fun onClosed(webSocket: WebSocket, code: Int, reason: String) {
-      if (BuildConfig.DEBUG) Log.i(TAG, "WebSocket closed: $code $reason")
-      FirebaseCrashlytics.getInstance().log("Websocket disconnected")
+      Logger.i("WebSocket closed: $code $reason", tag = TAG)
       socketDebugRepository.logState("WS", "Closed (code=$code, reason=$reason)")
       socketDebugRepository.updateConnectionState("Disconnected")
       handleDisconnect()
     }
 
     override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
-      if (BuildConfig.DEBUG) Log.w(TAG, "WebSocket failure: ${t.message}")
-      FirebaseCrashlytics.getInstance().log("Websocket connect error: ${t.message}")
+      Logger.w("WebSocket failure: ${t.message}", tag = TAG)
       socketDebugRepository.logError("WS", "Failure: ${t.message} (response=${response?.code})")
       socketDebugRepository.updateConnectionState("Disconnected")
       handleDisconnect()
@@ -150,12 +144,12 @@ class OGSWebSocketService(
       // Server event: [event_name, data]
       val eventName = first.content
       val data = jsonArray.getOrNull(1) ?: JsonObject(emptyMap())
-      if (BuildConfig.DEBUG) Log.i(TAG, "<== $eventName")
+      Logger.d(tag = TAG) { "<== $eventName" }
       dispatchEvent(eventName, data)
     } else {
       // Response to a client request: [id, data?, error?]. We never send a request id, so
       // nothing should arrive here.
-      if (BuildConfig.DEBUG) Log.w(TAG, "Received unexpected response id=${first.longOrNull}")
+      Logger.w("Received unexpected response id=${first.longOrNull}", tag = TAG)
     }
   }
 
@@ -188,7 +182,7 @@ class OGSWebSocketService(
     socketDebugRepository.updateConnectionState("Reconnecting (${reconnectDelay}ms)")
     thread(start = true, name = "ws-reconnect-thread") {
       try {
-        if (BuildConfig.DEBUG) Log.i(TAG, "Reconnecting in ${reconnectDelay}ms...")
+        Logger.d(tag = TAG) { "Reconnecting in ${reconnectDelay}ms..." }
         Thread.sleep(reconnectDelay)
         reconnectDelay = (reconnectDelay * 2).coerceAtMost(RECONNECT_DELAY_MAX_MS)
         if (!intentionalDisconnect.get()) {
@@ -218,8 +212,7 @@ class OGSWebSocketService(
         try {
           restService.fetchUIConfig()
         } catch (e: Exception) {
-          FirebaseCrashlytics.getInstance()
-            .log("E/$TAG: Failed to refresh UIConfig $e")
+          Logger.e("Failed to refresh UIConfig $e", tag = TAG)
           socketDebugRepository.logError("WS", "UIConfig refresh failed: ${e.message}")
         }
       }
@@ -244,7 +237,7 @@ class OGSWebSocketService(
       userId = (userSessionRepository.loginStatus.first() as? LoginStatus.LoggedIn)?.userId
     }
     synchronized(connectionsLock) {
-      FirebaseCrashlytics.getInstance().log("Acquired connection lock in connectToGame")
+      Logger.i("Acquired connection lock in connectToGame", tag = TAG)
       val connection = gameConnections[id] ?: GameConnection(
         userId = userId,
         gameId = id,
@@ -271,20 +264,20 @@ class OGSWebSocketService(
         enableChatOnConnection(connection)
       }
       connection.incrementCounter()
-      FirebaseCrashlytics.getInstance().log("Released connection lock in connectToGame")
+      Logger.i("Released connection lock in connectToGame", tag = TAG)
       return connection
     }
   }
 
   fun enableChatOnConnection(gameId: Long) {
     synchronized(connectionsLock) {
-      FirebaseCrashlytics.getInstance().log("Acquired connection lock in enableChatOnConnection")
+      Logger.i("Acquired connection lock in enableChatOnConnection", tag = TAG)
       gameConnections[gameId]?.let {
         if (!it.includeChat) {
           enableChatOnConnection(it)
         }
       }
-      FirebaseCrashlytics.getInstance().log("Released connection lock in enableChatOnConnection")
+      Logger.i("Released connection lock in enableChatOnConnection", tag = TAG)
     }
   }
 
@@ -394,7 +387,7 @@ class OGSWebSocketService(
 
   fun emit(event: String, params: Any?) {
     ensureSocketConnected()
-    if (BuildConfig.DEBUG) Log.i(TAG, "==> $event with params $params")
+    Logger.d(tag = TAG) { "==> $event with params $params" }
     val message = buildJsonArray {
       add(JsonPrimitive(event))
       add(jsonElementOf(params))
@@ -408,10 +401,10 @@ class OGSWebSocketService(
   }
 
   private fun observeEvent(event: String): Flow<JsonElement> {
-    if (BuildConfig.DEBUG) Log.i(TAG, "Listening for event: $event")
+    Logger.d(tag = TAG) { "Listening for event: $event" }
     return callbackFlow {
       val listener: (JsonElement) -> Unit = { data ->
-        if (BuildConfig.DEBUG) Log.i(TAG, "<== $event, $data")
+        Logger.d(tag = TAG) { "<== $event, $data" }
         trySend(data)
       }
 
@@ -421,7 +414,7 @@ class OGSWebSocketService(
       }
 
       awaitClose {
-        if (BuildConfig.DEBUG) Log.i(TAG, "Unregistering for event: $event")
+        Logger.d(tag = TAG) { "Unregistering for event: $event" }
         val list = eventListeners[event]
         if (list != null) {
           synchronized(list) {
@@ -506,11 +499,11 @@ class OGSWebSocketService(
       resendAuth()
       socketConnectedRepositories.forEach { it.onSocketConnected() }
       synchronized(connectionsLock) {
-        FirebaseCrashlytics.getInstance().log("Acquired connection lock in onSocketConnected")
+        Logger.i("Acquired connection lock in onSocketConnected", tag = TAG)
         gameConnections.values.forEach {
           emitGameConnection(it.gameId, it.includeChat)
         }
-        FirebaseCrashlytics.getInstance().log("Released connection lock in onSocketConnected")
+        Logger.i("Released connection lock in onSocketConnected", tag = TAG)
       }
       if (connectedToChallenges) {
         emit("seek_graph/connect") {
@@ -521,12 +514,12 @@ class OGSWebSocketService(
   }
 
   private suspend fun cleanup() {
-    FirebaseCrashlytics.getInstance().log("Socket cleanup started")
+    Logger.i("Socket cleanup started", tag = TAG)
     socketConnectedRepositories.forEach {
       it.onSocketDisconnected()
       yield()
     }
-    FirebaseCrashlytics.getInstance().log("Socket clean up done")
+    Logger.i("Socket clean up done", tag = TAG)
   }
 
   private fun onSocketDisconnected() {
@@ -538,12 +531,12 @@ class OGSWebSocketService(
 
   fun disconnectFromGame(id: Long) {
     synchronized(connectionsLock) {
-      FirebaseCrashlytics.getInstance().log("Acquired connection lock in disconnectFromGame")
+      Logger.i("Acquired connection lock in disconnectFromGame", tag = TAG)
       gameConnections.remove(id)
       if (connected.get()) {
         emitGameDisconnect(id)
       }
-      FirebaseCrashlytics.getInstance().log("Released connection lock in disconnectFromGame")
+      Logger.i("Released connection lock in disconnectFromGame", tag = TAG)
     }
   }
 

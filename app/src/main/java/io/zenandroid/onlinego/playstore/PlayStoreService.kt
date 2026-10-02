@@ -2,7 +2,7 @@ package io.zenandroid.onlinego.playstore
 
 import android.app.Activity
 import android.content.Context
-import android.util.Log
+import co.touchlab.kermit.Logger
 import com.android.billingclient.api.AcknowledgePurchaseParams
 import com.android.billingclient.api.BillingClient
 import com.android.billingclient.api.BillingClient.BillingResponseCode
@@ -17,7 +17,6 @@ import com.android.billingclient.api.Purchase
 import com.android.billingclient.api.QueryProductDetailsParams
 import com.android.billingclient.api.QueryPurchasesParams
 import com.android.billingclient.api.queryProductDetails
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -37,8 +36,7 @@ class PlayStoreService(
 
   private val billingClient = BillingClient.newBuilder(context)
     .setListener { billingResult, purchases ->
-      FirebaseCrashlytics.getInstance().log("billingResult: $billingResult purchases: $purchases")
-      Log.v("PlayStoreService", "billingResult: $billingResult purchases: $purchases")
+      Logger.i("billingResult: $billingResult purchases: $purchases", tag = "PlayStoreService")
       if (billingResult.responseCode == BillingResponseCode.OK && purchases != null) {
         for (purchase in purchases) {
           handlePurchase(purchase)
@@ -60,10 +58,10 @@ class PlayStoreService(
         val billingResponseCode = billingResult.responseCode
         val billingDebugMessage = billingResult.debugMessage
 
-        Log.v("PlayStoreService", "response code: $billingResponseCode")
-        Log.v("PlayStoreService", "debugMessage : $billingDebugMessage")
-        FirebaseCrashlytics.getInstance()
-          .log("response code: $billingResponseCode debugMessage : $billingDebugMessage")
+        Logger.i(
+          "response code: $billingResponseCode debugMessage : $billingDebugMessage",
+          tag = "PlayStoreService"
+        )
       }
     }
   }
@@ -79,8 +77,7 @@ class PlayStoreService(
         billingClient.startConnection(object : BillingClientStateListener {
           override fun onBillingSetupFinished(billingResult: BillingResult) {
             if (billingResult.responseCode == BillingResponseCode.OK) {
-              Log.e("PlayStoreService", "Setup Billing Done")
-              FirebaseCrashlytics.getInstance().log("Setup Billing Done")
+              Logger.i("Setup Billing Done", tag = "PlayStoreService")
               continuation.resume(Unit)
             } else {
               continuation.resumeWithException(Exception("${billingResult.responseCode}:${billingResult.debugMessage}"))
@@ -88,8 +85,7 @@ class PlayStoreService(
           }
 
           override fun onBillingServiceDisconnected() {
-            Log.e("PlayStoreService", "Billing client Disconnected")
-            FirebaseCrashlytics.getInstance().log("Billing client Disconnected")
+            Logger.w("Billing client Disconnected", tag = "PlayStoreService")
           }
         })
       }

@@ -1,5 +1,6 @@
 package io.zenandroid.onlinego.data.ogs
 
+import co.touchlab.kermit.Logger
 import io.ktor.client.HttpClientConfig
 import io.ktor.client.plugins.HttpResponseValidator
 import io.ktor.client.plugins.ResponseException
@@ -36,7 +37,6 @@ fun HttpClientConfig<*>.configureOGSClient(
   jsonFormat: Json,
   cookiesStorage: CookiesStorage = AcceptAllCookiesStorage(),
   baseUrl: String = BuildConfig.BASE_URL,
-  log: (String) -> Unit = {},
 ) {
   expectSuccess = true
   followRedirects = false
@@ -58,14 +58,20 @@ fun HttpClientConfig<*>.configureOGSClient(
 
   HttpResponseValidator {
     validateResponse { response ->
-      log("HTTP REQUEST ${response.request.method.value} ${response.request.url} -> ${response.status.value}")
+      Logger.i(
+        "${response.request.method.value} ${response.request.url} -> ${response.status.value}",
+        tag = "HTTP_REQUEST"
+      )
     }
 
     handleResponseExceptionWithRequest { cause, request ->
       val response =
         (cause as? ResponseException)?.response ?: return@handleResponseExceptionWithRequest
       val errorBody = runCatching { response.bodyAsText() }.getOrNull()
-      log("E/HTTP_REQUEST: ${request.method.value} ${request.url} -> ${response.status} $errorBody")
+      Logger.e(
+        "${request.method.value} ${request.url} -> ${response.status} $errorBody",
+        tag = "HTTP_REQUEST"
+      )
       throw OGSApiException(
         code = response.status.value,
         errorBody = errorBody,

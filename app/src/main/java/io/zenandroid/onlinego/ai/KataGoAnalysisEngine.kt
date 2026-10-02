@@ -1,7 +1,6 @@
 package io.zenandroid.onlinego.ai
 
-import android.util.Log
-import com.google.firebase.crashlytics.FirebaseCrashlytics
+import co.touchlab.kermit.Logger
 import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.data.model.Position
 import io.zenandroid.onlinego.data.model.StoneType
@@ -10,9 +9,8 @@ import io.zenandroid.onlinego.data.model.katago.KataGoResponse.ErrorResponse
 import io.zenandroid.onlinego.data.model.katago.KataGoResponse.Response
 import io.zenandroid.onlinego.data.model.katago.OverrideSettings
 import io.zenandroid.onlinego.data.model.katago.Query
-import io.zenandroid.onlinego.utils.appJson
-import kotlinx.serialization.encodeToString
 import io.zenandroid.onlinego.gamelogic.Util
+import io.zenandroid.onlinego.utils.appJson
 import io.zenandroid.onlinego.utils.recordException
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.first
@@ -78,7 +76,7 @@ object KataGoAnalysisEngine {
               started = true
               break
             } else {
-              Log.e("KataGoAnalysisEngine", line)
+              Logger.e(line, tag = "KataGoAnalysisEngine")
               errors.appendLine(line)
             }
           }
@@ -90,25 +88,23 @@ object KataGoAnalysisEngine {
               val line = reader?.readLine() ?: break
               try {
                 if (line.contains("\"error\":") || line.contains("\"warning\":")) {
-                  Log.e("KataGoAnalysisEngine", line)
+                  Logger.e(line, tag = "KataGoAnalysisEngine")
                   recordException(Exception("Katago: $line"))
                   responseFlow.tryEmit(appJson.decodeFromString<ErrorResponse>(line))
                 } else {
-                  Log.d("KataGoAnalysisEngine", line)
-                  FirebaseCrashlytics.getInstance().log("KATAGO < $line")
+                  Logger.i("< $line", tag = "KataGoAnalysisEngine")
                   responseFlow.tryEmit(appJson.decodeFromString<Response>(line))
                 }
               } catch (e: Exception) {
-                Log.e("KataGoAnalysisEngine", "Failed to parse KataGo line: $line", e)
+                Logger.e("Failed to parse KataGo line: $line", e, "KataGoAnalysisEngine")
                 recordException(e)
               }
             }
-            Log.d("KataGoAnalysisEngine", "End of input, killing reader thread")
-            FirebaseCrashlytics.getInstance().log("KATAGO < End of input, killing reader thread")
+            Logger.i("End of input, killing reader thread", tag = "KataGoAnalysisEngine")
             started = false
           }.start()
         } else {
-          Log.e("KataGoAnalysisEngine", "Could not start KataGo")
+          Logger.e("Could not start KataGo", tag = "KataGoAnalysisEngine")
           recordException(Exception("Could not start KataGo $errors"))
           throw RuntimeException("Could not start KataGo")
         }
@@ -184,8 +180,7 @@ object KataGoAnalysisEngine {
 
     val stringQuery = appJson.encodeToString(query)
 
-    Log.d("KataGoAnalysisEngine", stringQuery)
-    FirebaseCrashlytics.getInstance().log("KATAGO> $stringQuery")
+    Logger.i("> $stringQuery", tag = "KataGoAnalysisEngine")
     writer?.apply {
       write(stringQuery + "\n")
       flush()

@@ -2,11 +2,12 @@ package io.zenandroid.onlinego
 
 import android.app.Application
 import android.content.Context
-import android.util.Log
+import co.touchlab.kermit.Logger
+import co.touchlab.kermit.Severity
+import co.touchlab.kermit.platformLogWriter
 import coil3.SingletonImageLoader
 import coil3.request.ImageRequest
 import com.google.firebase.analytics.FirebaseAnalytics
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.zenandroid.onlinego.data.ogs.OGSRestService
 import io.zenandroid.onlinego.data.ogs.OGSWebSocketService
 import io.zenandroid.onlinego.data.repositories.UserSessionRepository
@@ -15,6 +16,7 @@ import io.zenandroid.onlinego.gamelogic.RulesManager
 import io.zenandroid.onlinego.ui.screens.mygames.composables.HEADER_AVATAR_SIZE
 import io.zenandroid.onlinego.ui.screens.mygames.composables.HEADER_AVATAR_URL_WIDTH
 import io.zenandroid.onlinego.utils.AppLocaleManager
+import io.zenandroid.onlinego.utils.CrashlyticsBreadcrumbWriter
 import io.zenandroid.onlinego.utils.processGravatarURL
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -50,6 +52,12 @@ class OnlineGoApplication : Application() {
     override fun onCreate() {
         super.onCreate()
         instance = this
+        if (BuildConfig.DEBUG) {
+            Logger.setLogWriters(platformLogWriter(), CrashlyticsBreadcrumbWriter())
+        } else {
+            Logger.setMinSeverity(Severity.Info)
+            Logger.setLogWriters(CrashlyticsBreadcrumbWriter())
+        }
 
         startKoin {
             androidLogger(if (BuildConfig.DEBUG) Level.ERROR else Level.NONE)
@@ -58,18 +66,18 @@ class OnlineGoApplication : Application() {
             modules(allKoinModules)
         }
         applicationScope.launch(Dispatchers.IO) {
-            Log.d("AppInit", "Pre-warming network stack on ${Thread.currentThread().name}")
+            Logger.d(tag = "AppInit") { "Pre-warming network stack on ${Thread.currentThread().name}" }
             try {
                 // Eagerly resolve the dependencies that are slow
                 getKoin().get<OGSRestService>()
                 getKoin().get<OGSWebSocketService>()
                 preloadOwnAvatar()
-                Log.d("AppInit", "Network stack pre-warmed")
+                Logger.d(tag = "AppInit") { "Network stack pre-warmed" }
             } catch (e: Exception) {
-                Log.e("AppInit", "Error pre-warming Koin dependencies", e)
+                Logger.e("Error pre-warming Koin dependencies", e, "AppInit")
             }
             RulesManager.coordinateToCell("A1")
-            FirebaseCrashlytics.getInstance().log("Done pre-warming network stack")
+            Logger.i("Done pre-warming network stack", tag = "AppInit")
         }
 
     }

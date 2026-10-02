@@ -1,12 +1,12 @@
 package io.zenandroid.onlinego.ui.screens.onboarding
 
 import android.os.Build
-import android.util.Log
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import co.touchlab.kermit.Logger
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.zenandroid.onlinego.OnlineGoApplication
@@ -299,7 +299,7 @@ class OnboardingViewModel(
   }
 
   private fun onPasswordLoginFailure(t: Throwable) {
-    Log.e(OnboardingViewModel::class.java.simpleName, t.message, t)
+    Logger.e(t.message.orEmpty(), t, OnboardingViewModel::class.java.simpleName)
     if (t.httpStatusCode in arrayOf(401, 403)) {
       _state.update {
         it.copy(
@@ -319,7 +319,7 @@ class OnboardingViewModel(
   }
 
   private fun onCreateAccountFailure(t: Throwable) {
-    Log.e(OnboardingViewModel::class.java.simpleName, t.message, t)
+    Logger.e(t.message.orEmpty(), t, OnboardingViewModel::class.java.simpleName)
     val errorBody = t.httpErrorBody
     if (errorBody != null) {
       try {
@@ -332,10 +332,7 @@ class OnboardingViewModel(
           )
         }
       } catch (e: Exception) {
-        Log.e(
-          OnboardingViewModel::class.java.simpleName,
-          "Can't parse error: $errorBody"
-        )
+        Logger.e("Can't parse error: $errorBody", tag = OnboardingViewModel::class.java.simpleName)
         _state.update {
           it.copy(
             loginProcessing = false,

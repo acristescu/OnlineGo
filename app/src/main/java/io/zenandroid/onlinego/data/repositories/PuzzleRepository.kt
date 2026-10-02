@@ -1,6 +1,6 @@
 package io.zenandroid.onlinego.data.repositories
 
-import android.util.Log
+import co.touchlab.kermit.Logger
 import io.zenandroid.onlinego.data.db.PuzzleDao
 import io.zenandroid.onlinego.data.model.local.Puzzle
 import io.zenandroid.onlinego.data.model.local.PuzzleCollection
@@ -165,7 +165,7 @@ class PuzzleRepository(
   }
 
   private fun onError(error: Throwable) {
-    Log.e("PuzzleRepository", error.message, error)
+    Logger.e(error.message.orEmpty(), error, "PuzzleRepository")
     recordException(error)
   }
 }

@@ -1,10 +1,10 @@
 package io.zenandroid.onlinego.ui.screens.mygames
 
-import android.util.Log
 import androidx.annotation.StringRes
 import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import co.touchlab.kermit.Logger
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.zenandroid.onlinego.OnlineGoApplication
@@ -340,7 +340,7 @@ class MyGamesViewModel(
           )
         }
         analytics.logEvent("bot_refused_challenge", null)
-        FirebaseCrashlytics.getInstance().log("Bot refused challenge. $message")
+        Logger.i("Bot refused challenge. $message", tag = "MyGamesViewModel")
       } else {
         _state.update {
           it.copy(
@@ -384,11 +384,11 @@ class MyGamesViewModel(
       recordException(t)
     }
 
-    Log.e("MyGamesViewModel", t.message, t)
+    Logger.e(t.message.orEmpty(), t, "MyGamesViewModel")
   }
 
   fun onAction(action: Action) {
-    FirebaseCrashlytics.getInstance().log(action.javaClass.name)
+    Logger.i(action.javaClass.name, tag = "MyGamesViewModel")
     when (action) {
       is ChallengeAccepted -> onChallengeAccepted(action.challenge)
       is ChallengeSeeDetails -> onChallengeSeeDetails(action.challenge)

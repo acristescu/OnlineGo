@@ -1,6 +1,6 @@
 package io.zenandroid.onlinego.data.repositories
 
-import android.util.Log
+import co.touchlab.kermit.Logger
 import io.zenandroid.onlinego.data.model.ogs.OGSAutomatch
 import io.zenandroid.onlinego.data.ogs.OGSWebSocketService
 import io.zenandroid.onlinego.utils.recordException
@@ -59,7 +59,7 @@ class AutomatchRepository(
     }
 
     private fun onError(t: Throwable) {
-        Log.e("AutomatchRepository", t.message, t)
+        Logger.e(t.message.orEmpty(), t, "AutomatchRepository")
         recordException(t)
     }
 

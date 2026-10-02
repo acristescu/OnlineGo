@@ -1,6 +1,6 @@
 package io.zenandroid.onlinego.data.repositories
 
-import android.util.Log
+import co.touchlab.kermit.Logger
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.zenandroid.onlinego.data.db.GameDao
 import io.zenandroid.onlinego.data.model.local.ChatMetadata
@@ -110,7 +110,7 @@ class ChatRepository(
       }
     }
     recordException(Exception(message, t))
-    Log.e("ChatRepository", message, t)
+    Logger.e(message, t, "ChatRepository")
   }
 
 }

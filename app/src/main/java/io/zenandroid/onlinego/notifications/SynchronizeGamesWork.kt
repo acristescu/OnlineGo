@@ -1,7 +1,6 @@
 package io.zenandroid.onlinego.notifications
 
 import android.content.Context
-import android.util.Log
 import androidx.work.Constraints
 import androidx.work.CoroutineWorker
 import androidx.work.ExistingPeriodicWorkPolicy
@@ -9,7 +8,7 @@ import androidx.work.NetworkType
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
-import com.google.firebase.crashlytics.FirebaseCrashlytics
+import co.touchlab.kermit.Logger
 import io.zenandroid.onlinego.data.repositories.LoginStatus
 import io.zenandroid.onlinego.data.repositories.UserSessionRepository
 import io.zenandroid.onlinego.ui.screens.main.MainActivity
@@ -44,14 +43,14 @@ class SynchronizeGamesWork(val context: Context, params: WorkerParameters) :
   private val task = CheckNotificationsTask(context)
   private val userSessionRepository: UserSessionRepository = get().get()
   override suspend fun doWork(): Result {
-    FirebaseCrashlytics.getInstance().log("I/$TAG: Started checking for active games")
+    Logger.i("Started checking for active games", tag = TAG)
     val loggedIn = userSessionRepository.loginStatus.first()
     if (loggedIn == LoginStatus.LoggedOut) {
-      Log.v(TAG, "Not logged in, giving up")
+      Logger.v(tag = TAG) { "Not logged in, giving up" }
       return Result.failure()
     }
     if (MainActivity.isInForeground) {
-      Log.v(TAG, "App is in foreground, giving up")
+      Logger.v(tag = TAG) { "App is in foreground, giving up" }
       return Result.success()
     }
     return task.doWork()

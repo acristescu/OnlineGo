@@ -1,10 +1,10 @@
 package io.zenandroid.onlinego.ui.screens.stats
 
-import android.util.Log
 import androidx.compose.runtime.Immutable
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import co.touchlab.kermit.Logger
 import com.github.mikephil.charting.data.Entry
 import io.zenandroid.onlinego.data.model.local.HistoryItem
 import io.zenandroid.onlinego.data.model.local.UserStats
@@ -242,7 +242,7 @@ class StatsViewModel(
   }
 
   private fun onError(t: Throwable) {
-    Log.e("StatsPresenter", t.message, t)
+    Logger.e(t.message.orEmpty(), t, "StatsPresenter")
     recordException(t)
   }
 

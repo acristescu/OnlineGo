@@ -12,7 +12,6 @@ import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
 import android.os.StrictMode
-import android.util.Log
 import android.view.MotionEvent
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
@@ -32,7 +31,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import com.google.firebase.crashlytics.FirebaseCrashlytics
+import co.touchlab.kermit.Logger
 import io.zenandroid.onlinego.BuildConfig
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.AppTheme
@@ -91,7 +90,7 @@ class MainActivity : ComponentActivity() {
       )
     }
 
-    FirebaseCrashlytics.getInstance().log("MainActivity.onCreate() intentURL=${intent.data}")
+    Logger.i("onCreate() intentURL=${intent.data}", tag = "MainActivity")
 
     var themeSettings by mutableStateOf(
       ThemeSettings(
@@ -302,41 +301,37 @@ class MainActivity : ComponentActivity() {
   override fun onNewIntent(intent: Intent) {
     super.onNewIntent(intent)
     setIntent(intent)
-    FirebaseCrashlytics.getInstance().log("MainActivity.onNewIntent() intentURL=${intent.data}")
+    Logger.i("onNewIntent() intentURL=${intent.data}", tag = "MainActivity")
   }
 
   override fun onResume() {
-    FirebaseCrashlytics.getInstance().log("MainActivity.onResume()")
+    Logger.i("onResume()", tag = "MainActivity")
     viewModel.onResume()
     isInForeground = true
     super.onResume()
   }
 
   override fun onPause() {
-    FirebaseCrashlytics.getInstance().log("MainActivity.onPause()")
+    Logger.i("onPause()", tag = "MainActivity")
     super.onPause()
     viewModel.onPause()
     isInForeground = false
-    FirebaseCrashlytics.getInstance().log("MainActivity.onPause() DONE")
+    Logger.i("onPause() DONE", tag = "MainActivity")
   }
 
   override fun onWindowFocusChanged(hasFocus: Boolean) {
     super.onWindowFocusChanged(hasFocus)
-    Log.d("MainActivity", "onWindowFocusChanged: hasFocus=$hasFocus")
-    FirebaseCrashlytics.getInstance().log("MainActivity.onWindowFocusChanged: hasFocus=$hasFocus")
+    Logger.i("onWindowFocusChanged: hasFocus=$hasFocus", tag = "MainActivity")
   }
 
   private var firstTouchLogged = false
   override fun dispatchTouchEvent(ev: MotionEvent?): Boolean {
     if (!firstTouchLogged) {
       firstTouchLogged = true
-      Log.d(
-        "MainActivity", "First touch event: ${ev?.action} at ${System.currentTimeMillis()} " +
-            " hasWindowFocus=${hasWindowFocus()}"
-      )
-      FirebaseCrashlytics.getInstance().log(
+      Logger.i(
         "First touch event: ${ev?.action} at ${System.currentTimeMillis()} " +
-            " hasWindowFocus=${hasWindowFocus()}"
+            " hasWindowFocus=${hasWindowFocus()}",
+        tag = "MainActivity"
       )
     }
     return super.dispatchTouchEvent(ev)

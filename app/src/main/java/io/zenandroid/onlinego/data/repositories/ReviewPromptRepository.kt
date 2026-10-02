@@ -5,8 +5,8 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import co.touchlab.kermit.Logger
 import com.google.firebase.analytics.FirebaseAnalytics
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
@@ -100,7 +100,7 @@ class ReviewPromptRepository(
 
     // Analytics event
     analytics.logEvent("review_prompt_shown", null)
-    FirebaseCrashlytics.getInstance().log("Review prompt shown to user")
+    Logger.i("Review prompt shown to user", tag = "ReviewPromptRepository")
   }
 
   /**
@@ -113,7 +113,7 @@ class ReviewPromptRepository(
 
     // Analytics event
     analytics.logEvent("review_prompt_dismissed", null)
-    FirebaseCrashlytics.getInstance().log("Review prompt dismissed by user")
+    Logger.i("Review prompt dismissed by user", tag = "ReviewPromptRepository")
   }
 
   /**
@@ -126,7 +126,7 @@ class ReviewPromptRepository(
 
     // Analytics event
     analytics.logEvent("review_prompt_rated", null)
-    FirebaseCrashlytics.getInstance().log("User rated the app")
+    Logger.i("User rated the app", tag = "ReviewPromptRepository")
   }
 
   /**
@@ -141,7 +141,7 @@ class ReviewPromptRepository(
 
     // Analytics event
     analytics.logEvent("review_prompt_reset", null)
-    FirebaseCrashlytics.getInstance().log("Review prompt state reset")
+    Logger.i("Review prompt state reset", tag = "ReviewPromptRepository")
   }
 
   /**

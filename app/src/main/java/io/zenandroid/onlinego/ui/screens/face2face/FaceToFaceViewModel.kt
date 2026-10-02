@@ -20,8 +20,8 @@ import androidx.lifecycle.viewModelScope
 import app.cash.molecule.AndroidUiDispatcher
 import app.cash.molecule.RecompositionMode.ContextClock
 import app.cash.molecule.launchMolecule
+import co.touchlab.kermit.Logger
 import com.google.firebase.analytics.FirebaseAnalytics
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.Position
@@ -57,7 +57,6 @@ import kotlinx.coroutines.withContext
 
 class FaceToFaceViewModel(
   private val analytics: FirebaseAnalytics,
-  private val crashlytics: FirebaseCrashlytics,
   private val settingsRepository: SettingsRepository,
   private val applicationScope: CoroutineScope,
   testing: Boolean = false
@@ -170,7 +169,7 @@ class FaceToFaceViewModel(
     currentPosition = try {
       historyPosition(history.lastIndex)
     } catch (e: Exception) {
-      crashlytics.log("FaceToFaceViewModel Cannot load history $history")
+      Logger.i("Cannot load history $history", tag = "FaceToFaceViewModel")
       recordException(e)
       historyPosition(0)
     }
@@ -225,7 +224,7 @@ class FaceToFaceViewModel(
   }
 
   private fun onPreviousPressed() {
-    crashlytics.log("FaceToFaceViewModel onPreviousPressed")
+    Logger.i("onPreviousPressed", tag = "FaceToFaceViewModel")
     val newIndex = historyIndex?.minus(1) ?: (history.lastIndex - 1)
     if (newIndex < -1) {
       //
@@ -243,7 +242,7 @@ class FaceToFaceViewModel(
   }
 
   private fun onNextPressed() {
-    crashlytics.log("FaceToFaceViewModel onNextPressed")
+    Logger.i("onNextPressed", tag = "FaceToFaceViewModel")
     val newIndex = historyIndex?.plus(1) ?: history.lastIndex
     if (newIndex > history.lastIndex) {
       //
@@ -261,7 +260,7 @@ class FaceToFaceViewModel(
   }
 
   private fun onStartNewGame() {
-    crashlytics.log("FaceToFaceViewModel Starting new game")
+    Logger.i("Starting new game", tag = "FaceToFaceViewModel")
     val params = newGameParameters
     currentPosition = RulesManager.initializePosition(params.size.height, params.handicap)
     estimateStatus = Idle
@@ -282,7 +281,7 @@ class FaceToFaceViewModel(
       val historyString = history.toGTP(currentGameParameters.size.height)
       val whiteStones = currentPosition.whiteStones.toGTP(currentGameParameters.size.height)
       val blackStones = currentPosition.blackStones.toGTP(currentGameParameters.size.height)
-      crashlytics.log("FaceToFaceViewModel Cannot replay history $historyString")
+      Logger.i("Cannot replay history $historyString", tag = "FaceToFaceViewModel")
       recordException(IllegalStateException("Cannot replay history history=$historyString idx=$index historyIndex=$historyIndex currentPos.whiteStones=$whiteStones currentPos.blackStones=$blackStones"))
       Position(
         boardWidth = currentGameParameters.size.width,
@@ -305,7 +304,7 @@ class FaceToFaceViewModel(
           historyPosition(index - 1)
         } else null
         if (potentialKOPosition?.hasTheSameStonesAs(newPosition) == true) {
-          crashlytics.log("FaceToFaceViewModel KO move detected")
+          Logger.i("KO move detected", tag = "FaceToFaceViewModel")
           koMoveDialogShowing = true
         } else {
           currentPosition = newPosition

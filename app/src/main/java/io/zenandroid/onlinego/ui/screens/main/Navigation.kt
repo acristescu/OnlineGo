@@ -1,6 +1,5 @@
 package io.zenandroid.onlinego.ui.screens.main
 
-import android.util.Log
 import androidx.activity.compose.LocalActivity
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -44,7 +43,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import androidx.navigation.navDeepLink
-import com.google.firebase.crashlytics.FirebaseCrashlytics
+import co.touchlab.kermit.Logger
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.ui.composables.SenteBottomBar
 import io.zenandroid.onlinego.ui.screens.face2face.FaceToFaceScreen
@@ -89,13 +88,12 @@ fun OnlineGoApp(
 
   LaunchedEffect(activity?.intent?.data) {
     if (activity?.intent?.data != null) {
-      Log.d("OnlineGoApp", "Deep link: ${activity.intent.data}")
-      FirebaseCrashlytics.getInstance().log("Deep link: ${activity.intent.data}")
+      Logger.i("Deep link: ${activity.intent.data}", tag = "OnlineGoApp")
     }
   }
   LaunchedEffect(currentDestination) {
     if (currentDestination != null) {
-      Log.d("OnlineGoApp", "Current destination: $currentDestination")
+      Logger.d(tag = "OnlineGoApp") { "Current destination: $currentDestination" }
       analyticsReportScreen(currentDestination)
     }
   }

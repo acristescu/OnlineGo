@@ -1,5 +1,6 @@
 package io.zenandroid.onlinego.data.repositories
-import android.util.Log
+
+import co.touchlab.kermit.Logger
 import io.zenandroid.onlinego.data.db.GameDao
 import io.zenandroid.onlinego.data.model.local.Challenge
 import io.zenandroid.onlinego.data.model.ogs.OGSChallenge
@@ -50,7 +51,7 @@ class ChallengesRepository(
         dao.replaceAllChallenges(challenges.map { Challenge.fromOGSChallenge(it) })
     }
     suspend fun refreshChallenges() {
-        Log.i(TAG, "Fetching challenges")
+        Logger.i("Fetching challenges", tag = TAG)
         val challenges = restService.fetchChallenges()
         storeChallenges(challenges)
     }
@@ -60,7 +61,7 @@ class ChallengesRepository(
         if (throwable is CancellationException) {
             throw throwable
         }
-        Log.e(TAG, throwable.message, throwable)
+        Logger.e(throwable.message.orEmpty(), throwable, TAG)
         recordException(throwable)
     }
     override fun onSocketDisconnected() {

@@ -1,7 +1,6 @@
 package io.zenandroid.onlinego.data.repositories
 
-import android.util.Log
-import com.google.firebase.crashlytics.FirebaseCrashlytics
+import co.touchlab.kermit.Logger
 import io.zenandroid.onlinego.data.model.ogs.NetPong
 import io.zenandroid.onlinego.data.ogs.OGSWebSocketService
 import io.zenandroid.onlinego.utils.recordException
@@ -52,7 +51,7 @@ class ClockDriftRepository(
     }
 
     private fun onError(t: Throwable) {
-        Log.e(this::class.java.canonicalName, t.message, t)
+      Logger.e(t.message.orEmpty(), t, "ClockDriftRepository")
         recordException(t)
     }
 
@@ -64,9 +63,9 @@ class ClockDriftRepository(
             latency = AtomicLong(newLatency)
             drift = AtomicLong(newDrift)
 
-            Log.v(this::class.java.canonicalName, "latency=$latency drift=$drift")
+          Logger.v(tag = "ClockDriftRepository") { "latency=$latency drift=$drift" }
         } else {
-            FirebaseCrashlytics.getInstance().log("W/ClockDriftRepository: Got pong with invalid payload $pong")
+          Logger.w("Got pong with invalid payload $pong", tag = "ClockDriftRepository")
         }
     }
 }
