@@ -188,7 +188,7 @@ internal fun AiGameUI(
   onShowNewGameDialog: () -> Unit,
   onUserAskedForHint: () -> Unit,
   onUserAskedForOwnership: () -> Unit,
-  onNewGame: (Int, Boolean, Int, AiDifficulty) -> Unit,
+  onNewGame: (Int, Boolean, Int, AiDifficulty, AiRules) -> Unit,
   onDismissNewGameDialog: () -> Unit,
   onNavigateBack: () -> Unit,
   onDismissKoDialog: () -> Unit,
@@ -290,12 +290,13 @@ internal fun AiGameUI(
       currentYouPlayBlack = !state.enginePlaysBlack,
       currentHandicap = state.handicap,
       currentDifficulty = state.difficulty,
+      currentRules = state.rules,
       canStartGame = state.isGameReady,
       onDismiss = {
         onDismissNewGameDialog()
       },
-      onNewGame = { size, youPlayBlack, handicap, difficulty ->
-        onNewGame(size, youPlayBlack, handicap, difficulty)
+      onNewGame = { size, youPlayBlack, handicap, difficulty, rules ->
+        onNewGame(size, youPlayBlack, handicap, difficulty, rules)
       }
     )
   }
@@ -855,19 +856,27 @@ private fun DifficultyRank.resolve(): String = when (this) {
 }
 
 @Composable
+private fun AiRules.resolve(): String = when (this) {
+  AiRules.JAPANESE -> stringResource(R.string.ai_game_rules_japanese)
+  AiRules.CHINESE -> stringResource(R.string.ai_game_rules_chinese)
+}
+
+@Composable
 private fun NewGameBottomSheet(
   currentBoardSize: Int,
   currentYouPlayBlack: Boolean,
   currentHandicap: Int,
   currentDifficulty: AiDifficulty,
+  currentRules: AiRules,
   canStartGame: Boolean,
   onDismiss: () -> Unit,
-  onNewGame: (size: Int, youPlayBlack: Boolean, handicap: Int, difficulty: AiDifficulty) -> Unit
+  onNewGame: (size: Int, youPlayBlack: Boolean, handicap: Int, difficulty: AiDifficulty, rules: AiRules) -> Unit
 ) {
   var selectedSize by remember { mutableIntStateOf(currentBoardSize) }
   var youPlayBlack by remember { mutableStateOf(currentYouPlayBlack) }
   var handicap by remember { mutableFloatStateOf(currentHandicap.toFloat()) }
   var difficulty by remember { mutableStateOf(currentDifficulty) }
+  var rules by remember { mutableStateOf(currentRules) }
   val sheetState = rememberModalBottomSheetState(true)
   val difficultyListState = rememberLazyListState(
     initialFirstVisibleItemIndex = (AiDifficulty.entries.indexOf(difficulty) - 2).coerceAtLeast(0)
@@ -966,6 +975,29 @@ private fun NewGameBottomSheet(
           modifier = Modifier.padding(vertical = 8.dp)
         )
 
+        Text(
+          text = stringResource(R.string.ai_game_rules),
+          modifier = Modifier.padding(top = 16.dp)
+        )
+        Row(
+          horizontalArrangement = Arrangement.spacedBy(8.dp),
+          modifier = Modifier.padding(vertical = 8.dp)
+        ) {
+          AiRules.entries.forEach { entry ->
+            FilterChip(
+              selected = rules == entry,
+              colors = FilterChipDefaults.elevatedFilterChipColors(
+                selectedLabelColor = MaterialTheme.colorScheme.onSurface,
+                selectedContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.4f)
+              ),
+              onClick = { rules = entry },
+              label = {
+                Text(entry.resolve())
+              }
+            )
+          }
+        }
+
         Row(
           modifier = Modifier
             .fillMaxWidth()
@@ -1010,7 +1042,7 @@ private fun NewGameBottomSheet(
             .fillMaxWidth()
             .padding(top = 16.dp),
           enabled = canStartGame,
-          onClick = { onNewGame(selectedSize, youPlayBlack, handicap.toInt(), difficulty) }
+          onClick = { onNewGame(selectedSize, youPlayBlack, handicap.toInt(), difficulty, rules) }
         ) {
           Text(stringResource(R.string.start_game))
         }
@@ -1080,7 +1112,7 @@ private fun AiGameUIPreview() {
       onShowNewGameDialog = {},
       onUserAskedForHint = {},
       onUserAskedForOwnership = {},
-      onNewGame = { _, _, _, _ -> },
+      onNewGame = { _, _, _, _, _ -> },
       onDismissNewGameDialog = {},
       onDismissKoDialog = {},
       onAcceptAiResignOffer = {},
@@ -1105,7 +1137,7 @@ private fun AiGameUIPreviewNewGame() {
       onShowNewGameDialog = {},
       onUserAskedForHint = {},
       onUserAskedForOwnership = {},
-      onNewGame = { _, _, _, _ -> },
+      onNewGame = { _, _, _, _, _ -> },
       onDismissNewGameDialog = {},
       onDismissKoDialog = {},
       onAcceptAiResignOffer = {},
@@ -1134,7 +1166,7 @@ private fun AiGameUIPreviewNoEvalYet() {
       onShowNewGameDialog = {},
       onUserAskedForHint = {},
       onUserAskedForOwnership = {},
-      onNewGame = { _, _, _, _ -> },
+      onNewGame = { _, _, _, _, _ -> },
       onDismissNewGameDialog = {},
       onDismissKoDialog = {},
       onAcceptAiResignOffer = {},
@@ -1159,7 +1191,7 @@ private fun AiGameUIPreviewEvalHidden() {
       onShowNewGameDialog = {},
       onUserAskedForHint = {},
       onUserAskedForOwnership = {},
-      onNewGame = { _, _, _, _ -> },
+      onNewGame = { _, _, _, _, _ -> },
       onDismissNewGameDialog = {},
       onDismissKoDialog = {},
       onAcceptAiResignOffer = {},
@@ -1190,7 +1222,7 @@ private fun PreviewLandscape() {
       onShowNewGameDialog = {},
       onUserAskedForHint = {},
       onUserAskedForOwnership = {},
-      onNewGame = { _, _, _, _ -> },
+      onNewGame = { _, _, _, _, _ -> },
       onDismissNewGameDialog = {},
       onDismissKoDialog = {},
       onAcceptAiResignOffer = {},

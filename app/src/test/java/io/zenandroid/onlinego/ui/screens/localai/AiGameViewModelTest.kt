@@ -316,4 +316,82 @@ class AiGameViewModelTest {
     assertEquals(null, restored.withoutTransientState().chatText)
     assertEquals(9, restored.withoutTransientState().boardSize)
   }
+
+  @Test
+  fun `scoreFinishedGame applies Japanese territory scoring with prisoners`() {
+    // 3x3 board: 5 white-owned points, 3 black-owned, 1 dame.
+    val ownership = listOf(1f, 1f, 1f, 1f, 1f, -1f, -1f, -1f, 0f)
+
+    val score = scoreFinishedGame(
+      ownership = ownership,
+      boardWidth = 3,
+      blackCaptureCount = 2,
+      whiteCaptureCount = 4,
+      komi = 6.5f,
+      rules = AiRules.JAPANESE,
+    )
+
+    assertEquals(3, score.blackTerritory.size)
+    assertEquals(5, score.whiteTerritory.size)
+    assertEquals(1, score.removedSpots.size)
+    assertEquals(5f, score.blackScore, 0.0001f)
+    assertEquals(15.5f, score.whiteScore, 0.0001f)
+  }
+
+  @Test
+  fun `scoreFinishedGame applies Chinese area scoring without prisoners`() {
+    val ownership = listOf(1f, 1f, 1f, 1f, 1f, -1f, -1f, -1f, 0f)
+
+    val score = scoreFinishedGame(
+      ownership = ownership,
+      boardWidth = 3,
+      blackCaptureCount = 2,
+      whiteCaptureCount = 4,
+      komi = 7.5f,
+      rules = AiRules.CHINESE,
+    )
+
+    assertEquals(3, score.blackTerritory.size)
+    assertEquals(5, score.whiteTerritory.size)
+    assertEquals(3f, score.blackScore, 0.0001f)
+    assertEquals(12.5f, score.whiteScore, 0.0001f)
+  }
+
+  @Test
+  fun `scoreFinishedGame tolerates a missing ownership map`() {
+    val score = scoreFinishedGame(
+      ownership = null,
+      boardWidth = 3,
+      blackCaptureCount = 2,
+      whiteCaptureCount = 4,
+      komi = 6.5f,
+      rules = AiRules.JAPANESE,
+    )
+
+    assertEquals(2f, score.blackScore, 0.0001f)
+    assertEquals(10.5f, score.whiteScore, 0.0001f)
+  }
+
+  @Test
+  fun `saves written before the rules option restore as Japanese`() {
+    val restored = appJson.decodeFromString<AiGameState>("""{"boardSize":9}""")
+
+    assertEquals(AiRules.JAPANESE, restored.rules)
+  }
+
+  @Test
+  fun `unknown rules values fall back to Japanese instead of failing restore`() {
+    val restored = appJson.decodeFromString<AiGameState>("""{"boardSize":9,"rules":"korean"}""")
+
+    assertEquals(AiRules.JAPANESE, restored.rules)
+  }
+
+  @Test
+  fun `Chinese rules survive a save and restore round-trip`() {
+    val state = AiGameState(rules = AiRules.CHINESE, boardSize = 13)
+
+    val restored = appJson.decodeFromString<AiGameState>(appJson.encodeToString(state))
+
+    assertEquals(AiRules.CHINESE, restored.rules)
+  }
 }

@@ -213,18 +213,19 @@ class AiGameViewModel(
     }
   }
 
-  fun onNewGame(size: Int, youPlayBlack: Boolean, handicap: Int, difficulty: AiDifficulty) {
+  fun onNewGame(size: Int, youPlayBlack: Boolean, handicap: Int, difficulty: AiDifficulty, rules: AiRules) {
     if (!state.value.isGameReady) return
     katagoJob?.cancel()
     hintJob?.cancel()
     ownershipJob?.cancel()
     finalScoreJob?.cancel()
-    val newPosition = RulesManager.initializePosition(size, handicap)
+    val newPosition = RulesManager.initializePosition(size, handicap, chineseRules = rules == AiRules.CHINESE)
     _state.update {
       it.copy(
         boardSize = size,
         handicap = handicap,
         difficulty = difficulty,
+        rules = rules,
         enginePlaysBlack = !youPlayBlack,
         newGameDialogShown = false,
         showHints = false,
@@ -402,6 +403,7 @@ class AiGameViewModel(
             sequence = currentState.history,
             maxVisits = 30,
             komi = currentState.position.komi,
+            rules = currentState.rules.katagoName,
             includeOwnership = false
           )
         }
@@ -450,6 +452,7 @@ class AiGameViewModel(
             sequence = currentState.history,
             maxVisits = 30,
             komi = currentState.position.komi,
+            rules = currentState.rules.katagoName,
             includeOwnership = true
           )
         }
@@ -555,6 +558,7 @@ class AiGameViewModel(
             sequence = currentState.history,
             maxVisits = effectiveMaxVisits,
             komi = currentState.position.komi,
+            rules = currentState.rules.katagoName,
             includeOwnership = false,
             includeMovesOwnership = false,
             includePolicy = difficulty.humanSLProfile != null,
@@ -691,38 +695,28 @@ class AiGameViewModel(
           sequence = currentState.history,
           maxVisits = 10,
           komi = currentState.position.komi,
+          rules = currentState.rules.katagoName,
           includeOwnership = true
         )
       }
 
-      val blackTerritory = mutableSetOf<Cell>()
-      val whiteTerritory = mutableSetOf<Cell>()
-      val removedSpots = mutableSetOf<Cell>()
-
-      analysis.ownership?.forEachIndexed { index, value ->
-        val y = index / currentState.position.boardWidth
-        val x = index % currentState.position.boardWidth
-        val cell = Cell(x, y)
-        when {
-          value > 0.6 -> whiteTerritory.add(cell)
-          value < -0.6 -> blackTerritory.add(cell)
-          abs(value) <= 0.6 -> removedSpots.add(cell)
-        }
-      }
-
-      val blackScore = blackTerritory.size + currentState.position.blackCaptureCount
-      val whiteScore =
-        whiteTerritory.size + currentState.position.whiteCaptureCount + (currentState.position.komi
-          ?: 0f)
+      val score = scoreFinishedGame(
+        ownership = analysis.ownership,
+        boardWidth = currentState.position.boardWidth,
+        blackCaptureCount = currentState.position.blackCaptureCount,
+        whiteCaptureCount = currentState.position.whiteCaptureCount,
+        komi = currentState.position.komi,
+        rules = currentState.rules,
+      )
       val aiWon =
-        if (currentState.enginePlaysBlack) blackScore > whiteScore else whiteScore > blackScore
+        if (currentState.enginePlaysBlack) score.blackScore > score.whiteScore else score.whiteScore > score.blackScore
 
       _state.update {
         it.copy(
           position = currentState.position.copy(
-            blackTerritory = blackTerritory,
-            whiteTerritory = whiteTerritory,
-            removedSpots = removedSpots,
+            blackTerritory = score.blackTerritory,
+            whiteTerritory = score.whiteTerritory,
+            removedSpots = score.removedSpots,
             whiteCaptureCount = currentState.position.whiteCaptureCount,
             blackCaptureCount = currentState.position.blackCaptureCount
           ),
@@ -731,9 +725,9 @@ class AiGameViewModel(
           passButtonEnabled = false,
           redoPosStack = emptyList(),
           boardIsInteractive = false,
-          chatText = gameOverChatText(aiWon, blackScore.toFloat(), whiteScore),
-          finalWhiteScore = whiteScore,
-          finalBlackScore = blackScore.toFloat(),
+          chatText = gameOverChatText(aiWon, score.blackScore, score.whiteScore),
+          finalWhiteScore = score.whiteScore,
+          finalBlackScore = score.blackScore,
           aiWon = aiWon,
           previousButtonEnabled = true,
           showAiEstimatedTerritory = false,
@@ -886,3 +880,56 @@ fun selectBestMove(moveInfos: List<MoveInfo>): MoveInfo = moveInfos[0]
 @VisibleForTesting
 fun isEnginesTurn(position: Position, enginePlaysBlack: Boolean): Boolean =
   (position.nextToMove != StoneType.WHITE) == enginePlaysBlack
+
+data class AiFinalScore(
+  val blackTerritory: Set<Cell>,
+  val whiteTerritory: Set<Cell>,
+  val removedSpots: Set<Cell>,
+  val blackScore: Float,
+  val whiteScore: Float,
+)
+
+/**
+ * Splits KataGo's ownership map into territories and scores the finished game.
+ *
+ * `ownership` holds one value per board point, row-major: above 0.6 means White owns the
+ * point, below -0.6 means Black owns it, anything in between is neutral (dame). The owned
+ * sets include living stones, so they already are area scores: Japanese (territory)
+ * scoring adds prisoners on top, Chinese (area) scoring does not.
+ */
+@VisibleForTesting
+fun scoreFinishedGame(
+  ownership: List<Float>?,
+  boardWidth: Int,
+  blackCaptureCount: Int,
+  whiteCaptureCount: Int,
+  komi: Float?,
+  rules: AiRules,
+): AiFinalScore {
+  val blackTerritory = mutableSetOf<Cell>()
+  val whiteTerritory = mutableSetOf<Cell>()
+  val removedSpots = mutableSetOf<Cell>()
+
+  ownership?.forEachIndexed { index, value ->
+    val y = index / boardWidth
+    val x = index % boardWidth
+    val cell = Cell(x, y)
+    when {
+      value > 0.6 -> whiteTerritory.add(cell)
+      value < -0.6 -> blackTerritory.add(cell)
+      abs(value) <= 0.6 -> removedSpots.add(cell)
+    }
+  }
+
+  val prisonerBonus = rules == AiRules.JAPANESE
+  val blackScore = blackTerritory.size + (if (prisonerBonus) blackCaptureCount else 0)
+  val whiteScore =
+    whiteTerritory.size + (if (prisonerBonus) whiteCaptureCount else 0) + (komi ?: 0f)
+  return AiFinalScore(
+    blackTerritory = blackTerritory,
+    whiteTerritory = whiteTerritory,
+    removedSpots = removedSpots,
+    blackScore = blackScore.toFloat(),
+    whiteScore = whiteScore,
+  )
+}

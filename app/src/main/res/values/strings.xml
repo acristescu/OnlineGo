@@ -63,6 +63,9 @@
     <string name="White">White</string>
     <string name="handicap">Handicap</string>
     <string name="difficulty">Difficulty</string>
+    <string name="ai_game_rules">Rules</string>
+    <string name="ai_game_rules_japanese">Japanese</string>
+    <string name="ai_game_rules_chinese">Chinese</string>
     <string name="ai_game_difficulty_scale_hint">Higher kyu = easier, dan = stronger</string>
     <string name="ai_game_difficulty_kyu">%1$d kyu</string>
     <string name="ai_game_difficulty_dan">%1$d dan</string>

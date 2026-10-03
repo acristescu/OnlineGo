@@ -138,6 +138,7 @@ object KataGoAnalysisEngine {
   suspend fun analyzeMoveSequence(
     sequence: List<Position>,
     komi: Float? = null,
+    rules: String = "japanese",
     maxVisits: Int? = null,
     includeOwnership: Boolean? = null,
     includeMovesOwnership: Boolean? = null,
@@ -175,7 +176,7 @@ object KataGoAnalysisEngine {
       maxVisits = maxVisits,
       overrideSettings = overrideSettings,
       moves = history,
-      rules = "japanese"
+      rules = rules
     )
 
     val stringQuery = appJson.encodeToString(query)
