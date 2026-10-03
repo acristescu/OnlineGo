@@ -132,6 +132,7 @@
     <string name="game_status_requested_undo">Запрошен возврат хода</string>
     <string name="game_status_player_passed">Игрок пасовал!</string>
     <string name="game_status_accepted">Принято</string>
+    <string name="game_status_resigned">Сдался</string>
     <string name="game_status_timed_out">Время вышло</string>
     <string name="game_avatar_content_description">Аватар</string>
     <string name="game_button_pass">Пас</string>
