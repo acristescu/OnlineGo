@@ -110,10 +110,10 @@
     <string name="face_to_face_ko_dialog_title">Situation de KO illégale</string>
     <string name="face_to_face_ko_dialog_message">Ce coup répéterait la position du plateau. C\'est ce qu\'on appelle un KO, et ce n\'est pas autorisé. Essayez d\'abord de jouer un autre coup, de préférence une menace que l\'adversaire ne peut pas ignorer.</string>
     <string name="face_to_face_score_komi">Komi</string>
-    <string name="face_to_face_score_captures">Prisonniers </string>
-    <string name="face_to_face_score_dead">Mort</string>
+    <string name="face_to_face_score_captures">Prisonniers</string>
+    <string name="face_to_face_score_dead">mort</string>
     <string name="face_to_face_score_territory">territoire</string>
-    <string name="face_to_face_score_total">Territoire</string>
+    <string name="face_to_face_score_total">territoire</string>
     <string name="face_to_face_new_game_title">Nouvelle partie</string>
     <string name="face_to_face_new_game_size">Taille</string>
     <string name="face_to_face_start_new_game">Démarrer une nouvelle partie</string>
@@ -323,6 +323,8 @@
     <string name="settings_section_legal">Mentions légales</string>
     <string name="settings_privacy_policy">Politique de confidentialité</string>
     <string name="settings_section_debug">Débogage</string>
+    <string name="settings_socket_debug">Débogage socket</string>
+    <string name="settings_review_prompt">Revoir la requête</string>
     <string name="settings_build_version">Version no. %1$d</string>
     <string name="settings_theme_system_default">Paramètre par défaut</string>
     <string name="settings_theme_light">Clair</string>
@@ -337,11 +339,13 @@
     <string name="settings_logout_dialog_message">Voulez-vous vraiment vous déconnecter ?</string>
     <string name="settings_logout_dialog_confirm">Déconnexion</string>
     <string name="settings_delete_account_dialog_title">Supprimer le compte</string>
-    <string name="settings_delete_account_message">Veuillez entrer votre mot de passe pour confirmer la suppression du compte.</string>
+    <string name="settings_delete_account_message">Veuillez entrer votre mot de passe pour confirmer la suppression du compte</string>
     <string name="settings_delete_account_password_hint">Mot de passe</string>
     <string name="settings_delete_account_confirm">SUPPRIMER LE COMPTE</string>
     <string name="settings_delete_account_cancel">ANNULER</string>
     <string name="settings_error_dialog_title">Erreur</string>
+    <string name="settings_review_flow_diagnostic_title">Revoir le diagnostic de flux</string>
+    <string name="settings_review_flow_error_title">Revoir l\'erreur de flux</string>
     <string name="settings_avatar_content_description">Avatar</string>
     <string name="settings_icon_content_description">Icône</string>
     <string name="supporter_title">Devenir supporter</string>
@@ -349,7 +353,7 @@
     <string name="supporter_intro">Ce projet a commencé en 2015 comme un passe-temps. Alors qu\'il existait d\'excellents services pour les navigateurs, il n\'y avait pas d\'application mobile de qualité comparable. Le but était donc de créer une application Android gratuite et open source (FOSS) de qualité professionnelle pour permettre aux joueurs de Go d\'interagir et de découvrir ce jeu extraordinaire. \n\nNous ne sommes pas associés à OGS, cependant, ils nous permettent gracieusement d\'utiliser leur service en ligne gratuitement.\n\n C\'est grâce au soutien de personnes comme vous que tout cela est possible. Si vous appréciez l\'application, merci d\'envisager de nous soutenir par une contribution mensuelle et devenez un Supporter !</string>
     <string name="supporter_reason_develop_title">Aidez-nous à développer l\'application plus rapidement</string>
     <string name="supporter_reason_develop_description">Les Supporters permettent d\'allouer plus de temps au développement de nouvelles fonctionnalités telles que l\'intégration de KataGo, l\'analyse assistée par IA, l\'éditeur SGF, etc.</string>
-    <string name="supporter_reason_free_title">Garder l\'application gratuite </string>
+    <string name="supporter_reason_free_title">Garder l\'application gratuite</string>
     <string name="supporter_reason_free_description">Nous voulons que l\'application soit gratuite pour tous. Toujours. Sans pub, téléchargement gratuit, sans inscription forcée.</string>
     <string name="supporter_reason_open_source_title">Support open-source</string>
     <string name="supporter_reason_open_source_description">L\'application est et sera toujours open source. Cela signifie que vous pouvez naviguer dans son code, contribuer à des correctifs et des fonctionnalités ou étudier son fonctionnement.</string>
@@ -386,6 +390,7 @@
     <string name="stats_board_13">13×13</string>
     <string name="stats_board_19">19×19</string>
     <string name="stats_blitz">Blitz</string>
+    <string name="stats_live">Live</string>
     <string name="stats_correspondence_short">Corresp.</string>
     <string name="stats_correspondence">Correspondance</string>
     <string name="stats_all_games">Toutes les parties</string>
@@ -447,17 +452,22 @@
     <string name="onboarding_create_account">Créer un compte OGS</string>
     <string name="onboarding_login_failed_title">Échec de connexion</string>
     <string name="onboarding_stay_offline_title">Rester hors-ligne ?</string>
+    <string name="onboarding_stay_offline_message">Si vous choisissez de rester hors ligne, la plupart des fonctionnalités de l\'application, tel que le jeu en ligne gratuit contre d\'autres joueurs ou robots en ligne, seront désactivées jusqu\'à ce que vous vous connectiez ou créiez un compte. Vous pouvez toujours jouer contre une IA locale et faire le tutoriel. Êtes-vous sûr ?</string>
     <string name="onboarding_stay_offline_confirm">Oui, rester hors-ligne</string>
     <string name="onboarding_continue">Continuer</string>
     <string name="onboarding_page_go_title">Le jeu de GO</string>
+    <string name="onboarding_page_go_description">Le Go est un jeu de plateau de stratégie pour deux joueurs dont le but est de circonscrire un territoire plus grand que celui de l\'adversaire. Ce jeu a été inventé en Chine il y a plus de 2500 ans. C\'est le plus vieux jeu de plateau encore joué aujourd\'hui. On estime à plus de 46 millions le nombre de personnes sachant y jouer.</string>
     <string name="onboarding_page_app_title">Application Android de GO en ligne</string>
+    <string name="onboarding_page_app_description">Cette application a commencé en 2015 en tant que projet personnel par Alexandru Cristescu. Il est maintenant open-source, ce qui signifie que le code est librement disponible pour tous ceux qui souhaitent le consulter ou le modifier. L\'application est et sera toujours gratuite. Les contributions sont les bienvenues. Découvrez comment vous pouvez aider sur la page GitHub du projet. Si le codage n\'est pas votre truc, vous pouvez devenir un supporter en souscrivant une contribution mensuelle. Ou, vous pouvez simplement profiter de l\'application gratuitement, le choix est entièrement vôtre !</string>
     <string name="onboarding_page_ogs_title">Serveur OGS</string>
+    <string name="onboarding_page_ogs_description">Le serveur OGS est l\'un des sites Web les plus populaires pour jouer au GO en ligne. L\'application Android de GO en ligne utilise les services fournis par OGS pour permettre le jeu en ligne. Bien que nous ne soyons pas associés à OGS, nous avons leur permission d\'utiliser leurs services. Un compte OGS (gratuit) est requis pour jouer. Vous pouvez en créer un à l\'étape suivante si vous n\'en avez pas déjà un.</string>
     <string name="onboarding_question_has_account">Avez-vous déjà un compte OGS (online-go.com) ?</string>
-    <string name="onboarding_question_login_method">Quelle méthode de connexion voulez-vous utiliser?</string>
+    <string name="onboarding_question_login_method">Quelle méthode de connexion voulez-vous utiliser ?</string>
     <string name="onboarding_answer_google">Connexion avec Google</string>
     <string name="onboarding_answer_password">Nom d\'utilisateur et mot de passe</string>
     <string name="onboarding_answer_offline">Rester hors-ligne</string>
     <string name="onboarding_notifications_title">Rester informé</string>
+    <string name="onboarding_notifications_description">Nous aimerions vous envoyer des notifications quand c\'est à votre tour de jouer, quand les parties sont terminées, ou quand vous recevez des messages. Vous pouvez toujours modifier cela plus tard dans les paramètres de votre appareil.</string>
     <string name="onboarding_notifications_allow">Autoriser les notifications</string>
     <string name="onboarding_notifications_skip">Passer</string>
     <string name="new_challenge_opponent">Adversaire</string>
@@ -471,8 +481,14 @@
     <string name="new_challenge_select_opponent">[Sélectionner un adversaire]</string>
     <string name="select_opponent_tab_bot">Robot</string>
     <string name="select_opponent_tab_recent">Récent</string>
+    <string name="select_opponent_bots_title">Bots en ligne</string>
+    <string name="select_opponent_bots_description">Les robots en ligne sont des programmes AI gérés et maintenus par les membres de la communauté à leurs frais. Jouer contre eux nécessite une connexion internet active.</string>
+    <string name="select_opponent_icon_content_description">Image de votre adversaire</string>
+    <string name="select_opponent_recent_title">Adversaires récemment affrontés</string>
+    <string name="select_opponent_recent_description">Voici un choix d\'adversaires (de robots comme de vrais joueurs) contre qui vous avez joué récemment.</string>
     <string name="select_opponent_search_hint">Recherche par nom d\'utilisateur</string>
-    <string name="automatch_description">Tentez votre chance dans une partie contre un adversaire humain d\'un niveau similaire au votre.</string>
+    <string name="automatch_title">Match automatique</string>
+    <string name="automatch_description">Tentez vôtre chance dans une partie contre un adversaire humain d\'un niveau similaire au vôtre.</string>
     <string name="automatch_game_size">Taille du Goban</string>
     <string name="automatch_size_9">9x9</string>
     <string name="automatch_size_13">13x13</string>
@@ -482,6 +498,8 @@
     <string name="automatch_speed_rapid">Rapide</string>
     <string name="automatch_speed_live">Live</string>
     <string name="automatch_speed_correspondence">Correspondance</string>
+    <string name="automatch_or">ou bien</string>
+    <string name="automatch_expected_duration">Durée estimée : %1$s</string>
     <string name="automatch_duration_several_days">plusieurs jours</string>
     <plurals name="automatch_duration_minutes">
         <item quantity="one">%d minute</item>
@@ -489,10 +507,20 @@
     </plurals>
     <string name="automatch_duration_minutes_range">%1$d à %2$d minutes</string>
     <string name="mygames_moderator_title">Modérateur OGS %1$s</string>
+    <string name="mygames_empty_message">Message sans contenu</string>
+    <string name="mygames_acknowledge">Compris</string>
+    <string name="mygames_acknowledge_countdown">Valider (%1$ds)</string>
     <string name="mygames_header_your_turn">Votre tour</string>
     <string name="mygames_header_challenges">Défis</string>
     <string name="mygames_header_opponents_turn">Tour de l\'adversaire</string>
     <string name="mygames_header_recently_finished">Terminée récemment</string>
+    <string name="mygames_learn_to_play">Apprendre à jouer</string>
+    <string name="mygames_header_icon_content_description">Image</string>
+    <string name="mygames_offline_content_description">Hors connexion</string>
+    <string name="mygames_avatar_content_description">Avatar</string>
+    <string name="mygames_searching_for_game">Recherche d\'une partie</string>
+    <string name="mygames_challenge_you_are_challenging">Vous défiez %1$s</string>
+    <string name="mygames_challenge_is_challenging_you">%1$s vous défie</string>
     <string name="mygames_accept">Accepter</string>
     <string name="mygames_decline">Refuser</string>
     <string name="mygames_see_details">Voir Détails</string>
@@ -510,15 +538,30 @@
     <string name="mygames_outcome_reason_disconnection">par déconnexion</string>
     <string name="mygames_outcome_reason_other">par %1$s</string>
     <string name="mygames_greeting">Salut %1$s,</string>
+    <plurals name="mygames_your_turn_count">
+        <item quantity="one">C\'est votre tour dans %d partie.</item>
+        <item quantity="other">C\'est votre tour dans %d parties.</item>
+    </plurals>
+    <plurals name="mygames_active_games_count">
+        <item quantity="one">Vous avez %d partie en cours.</item>
+        <item quantity="other">Vous avez %d parties en cours.</item>
+    </plurals>
+    <string name="mygames_no_active_games">Vous n\'avez aucune partie en cours. Pourquoi pas en commencer une ?</string>
     <string name="mygames_detail_board_size">Taille du plateau</string>
     <string name="mygames_detail_speed">Cadence</string>
     <string name="mygames_detail_ranked">Classé</string>
     <string name="mygames_detail_analysis">Analyse</string>
     <string name="mygames_detail_rules">Règles</string>
+    <string name="mygames_alert_bot_rejected_title">Le robot n\'a pas refusé votre défi</string>
+    <string name="mygames_alert_bot_rejected_text">Cela peut arriver lorsque le responsable du bot adverse a défini certaines conditions dans les paramètres de défi.</string>
+    <string name="mygames_alert_opponent_rejected_title">Défi rejeté par l\'adversaire</string>
+    <string name="mygames_alert_opponent_rejected_text">Vous pouvez réessayer ou contacter l\'adversaire pour clarifier les raisons de son rejet.</string>
     <string name="mygames_alert_ogs_error_title">Erreur d\'OGS</string>
-    <string name="mygames_alert_game_unavailable">Partie non disponible</string>
+    <string name="mygames_alert_ogs_error_text">Une erreur s\'est produite dans l\'échange avec le serveur OGS. Cela indique souvent un changement dans l\'API de la part des développeurs. Merci de signaler cette erreur car l\'application risque de ne pas fonctionner tant que les modifications nécessaires n\'ont pas été faites.</string>
+    <string name="mygames_alert_game_unavailable">Partie non disponible.</string>
     <string name="mygames_alert_one_live_game">On ne peut chercher qu\'une partie live, rapide ou blitz à la fois.</string>
     <string name="mygames_message_prefix">Message :</string>
+    <string name="learn_section_tutorials">Tutoriels</string>
     <string name="learn_section_study">Étudier</string>
     <string name="learn_title_learn">Apprendre</string>
     <string name="learn_study_title_joseki_explorer">Explorateur de Joseki</string>
@@ -527,8 +570,53 @@
     <string name="joseki_explorer_button_previous">Précédent</string>
     <string name="joseki_explorer_button_next">Suivant</string>
     <string name="joseki_explorer_link_video">" (Vidéo)"</string>
+    <string name="joseki_explorer_default_description"><![CDATA["## Explorateur de Joseki
+*Joseki* est un mot emprunté au Japonais, se rapportant généralement à une séquence de coups joués dans le coin. Le résultat étant un échange localement équilibré.
+### Comment utiliser l'explorateur ?
+Les coups marqués ci-dessous représentent des suites intéressantes de la position actuelle. La couleur donne une indication de la qualité estimée du coup indiqué :
+*Vert : le coup est considéré optimal
+* Jaune : le coup est considéré comme jouable
+* Rouge : le coup est considéré comme une erreur
+* Violet : Ce coup est une ruse
+* Bleu : c'est une question ouverte
+Vous pouvez jouer n'importe lequel de ces coups pour explorer les positions qu'ils amènent.
+### Tenuki
+Parfois, le meilleur coup est de jouer ailleurs. C'est ce que l'on appelle communément *Tenuki*. Si tenuki est une option intéressante dans la position donnée, le bouton Passe en bas à gauche sera actif et vous pourrez l'utiliser pour voir quelle position peut découler après que le joueur ait tenuki]]></string>
     <string name="tutorial_basics_title">Bases</string>
     <string name="tutorial_basics_thebasics_title">Les Bases</string>
+    <string name="tutorial_basics_thebasics_basic1_text"><![CDATA[Retiens ces trois règles :
+1. Noir et Blanc place une "pierre" à tour de rôle sur le plateau.
+2. Les pierres sont posées sur les intersections.
+3. Une pierre jouée ne peut plus être déplacée, mais elle peut être capturée.
+
+Place une pierre pour continuer !]]></string>
+    <string name="tutorial_basics_thebasics_capture1_page1_text"><![CDATA[Encore un coup et les pierres blanches seront totalement encerclées et capturées. Les pierres qui peuvent être capturées en un coup sont dites en "Atari".]]></string>
+    <string name="tutorial_basics_thebasics_capture1_page2_text"><![CDATA[La pierre blanche est maintenant entourée, donc…]]></string>
+    <string name="tutorial_basics_thebasics_capture1_page3_text"><![CDATA["... on la retire du plateau"]]></string>
+    <string name="tutorial_basics_thebasics_capture1_page4_text"><![CDATA["Si c'était le tour de Blanc, il aurait pu \"s'échapper\" en connectant une autre pierre."]]></string>
+    <string name="tutorial_basics_thebasics_capture2_text">C\'est ton tour ! Capture la pierre blanche.</string>
+    <string name="tutorial_basics_thebasics_capture3_text">Tu peux capturer deux pierres d\'un seul coup cette fois !</string>
+    <string name="tutorial_basics_thebasics_capture4_text">Même s\'il y a d\'autres pierres à proximité, joue de la même manière.</string>
+    <string name="tutorial_basics_capturingstones_title">Capturer des pierres</string>
+    <string name="tutorial_basics_capturingstones_capture5_text">Au bord du tableau, la situation est un peu différente. Les pierres au bord ont moins de libertés et sont plus faciles à capturer.</string>
+    <string name="tutorial_basics_capturingstones_capture5_branches2_text">Les pierres blanches sont connectées.</string>
+    <string name="tutorial_basics_capturingstones_capture6_text">Les pierres dans le coin sont encore plus vulnérables.</string>
+    <string name="tutorial_basics_capturingstones_capture7_text">Deux pierres sont en atari cette fois-ci. Capture-les !</string>
+    <string name="tutorial_basics_capturingstones_capture8_text">Cette fois, il faut deux coups pour capturer les pierres blanches. Attention, ton premier coup est important !</string>
+    <string name="tutorial_basics_capturingstones_capture9_text"><![CDATA[« Il est difficile de s'enfuir avec des pierres sur le bord. Capture les deux pierres blanches sur la première ligne !»]]></string>
+    <string name="tutorial_basics_capturingstones_capture10_text">Il y a tellement de pierres ! Cherche les pierres en Atari, et capture-les. Si tu te trompes, ce sont tes pierres qui seront capturées.</string>
+    <string name="tutorial_basics_doubleatari_title">Double Atari</string>
+    <string name="tutorial_basics_doubleatari_doubleAtari1_text"><![CDATA[Dans certaines positions, Noir peut mettre deux groupes blancs en Atari en même temps.
+Les Noirs en captureront généralement au moins un dans cette situation !]]></string>
+    <string name="tutorial_basics_doubleatari_doubleAtari2_text"><![CDATA["Encore un. Où peux-tu faire un double Atari ?"]]></string>
+    <string name="tutorial_basics_illegalmoves_title">Coups illégaux (règle du suicide)</string>
+    <string name="tutorial_basics_illegalmoves_suicide1_page_1_text">Tu peux jouer presque partout sur le plateau à quelques exceptions près. Dans l\'exemple ci-dessous, Noir ne peut pas jouer en A car sa pierre serait déjà entourée.</string>
+    <string name="tutorial_basics_illegalmoves_suicide1_page_2_text"><![CDATA[C'est ce que l'on appelle un coup "suicide" et c'est interdit.]]></string>
+    <string name="tutorial_basics_illegalmoves_suicide1_page_3_text">Il y a toutefois une exception. Si le coup capture une ou plusieurs pierres blanches (comme en B ci-dessous), le coup est autorisé.</string>
+    <string name="tutorial_basics_illegalmoves_suicide1_page_4_text">La position résultante ressemble à ceci :</string>
+    <string name="tutorial_intermediate_title">Intermédiaire</string>
+    <string name="tutorial_intermediate_ladders_title">Escaliers</string>
+    <string name="tutorial_intermediate_twoeyes_title">Deux yeux</string>
     <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_1_2_message">Les groupes noirs sont séparés</string>
     <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_2_message">Les groupes noirs sont séparés</string>
     <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_3_message">Les groupes noirs sont séparés</string>
@@ -540,8 +628,8 @@
     <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_5_5_message">Noir est isolé</string>
     <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_6_message">Noir est isolé</string>
     <string name="tutorial_intermediate_morepuzzles_puzzles5_branches_branch3_4_message"><![CDATA["Trois pierres noires ne peuvent pas s'échapper."]]></string>
-    <string name="tutorial_intermediate_morepuzzles_puzzles5_branches_branch5_message"><![CDATA["Deux pierres noires ne peuvent pas s'échapper."]]></string>
-    <string name="tutorial_intermediate_morepuzzles_puzzles5_branches_branch6_message"><![CDATA["Deux pierres noires ne peuvent pas s'échapper."]]></string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles5_branches_branch5_message"><![CDATA["Deux pierres noires ne peuvent pas s'échapper"]]></string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles5_branches_branch6_message"><![CDATA["Deux pierres noires ne peuvent pas s'échapper"]]></string>
     <string name="tutorial_advanced_title">Avancé</string>
     <string name="tutorial_advanced_thefirstmoves_name">Les premiers coups</string>
     <string name="tutorial_advanced_thefirstmoves_firstmoves1_page1_text"><![CDATA["Jusqu'ici, nous avons cherché à capturer des pierres. Cependant, en début de partie, il n'y a pas de pierre sur le goban. Regardons ensemble où jouer les premiers coups pour augmenter tes chances de victoire.
