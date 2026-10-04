@@ -415,6 +415,7 @@
     <string name="stats_filter_last_20">20 dernières</string>
     <string name="stats_filter_last_100">100 dernières</string>
     <string name="stats_tooltip_elo_rank">%1$d ELO (%2$s)</string>
+    <string name="stats_tooltip_at_game">Partie %1$d</string>
     <string name="stats_tooltip_on_date">le %1$s</string>
     <string name="stats_tooltip_delta_elo">%1$d ELO</string>
     <string name="stats_tooltip_since_game">depuis la partie %1$d</string>
@@ -448,6 +449,7 @@
     <string name="tsumego_next">SUIVANT</string>
     <string name="tsumego_retry">RÉESSAYER</string>
     <string name="tsumego_continue">CONTINUER</string>
+    <string name="tsumego_done">TERMINÉ</string>
     <string name="onboarding_link_account">Lier un compte OGS</string>
     <string name="onboarding_create_account">Créer un compte OGS</string>
     <string name="onboarding_login_failed_title">Échec de connexion</string>
@@ -514,6 +516,8 @@
     <string name="mygames_header_challenges">Défis</string>
     <string name="mygames_header_opponents_turn">Tour de l\'adversaire</string>
     <string name="mygames_header_recently_finished">Terminée récemment</string>
+    <string name="mygames_header_older_games">Anciennes parties</string>
+    <string name="mygames_tutorial_percentage">%1$d %%</string>
     <string name="mygames_learn_to_play">Apprendre à jouer</string>
     <string name="mygames_header_icon_content_description">Image</string>
     <string name="mygames_offline_content_description">Hors connexion</string>
@@ -532,6 +536,10 @@
     <string name="mygames_outcome_black_won">Noir gagne</string>
     <string name="mygames_outcome_white_won">Blanc gagne</string>
     <string name="mygames_outcome_annulled">Annulée</string>
+    <string name="mygames_outcome_lost_with_reason">Perdues %1$s</string>
+    <string name="mygames_outcome_won_with_reason">Gagnées %1$s</string>
+    <string name="mygames_outcome_black_won_with_reason">Noir gagne de %1$s</string>
+    <string name="mygames_outcome_white_won_with_reason">Blanc gagne de %1$s</string>
     <string name="mygames_outcome_reason_resignation">par abandon</string>
     <string name="mygames_outcome_reason_points">de %1$s points</string>
     <string name="mygames_outcome_reason_timeout">au temps</string>
@@ -566,10 +574,14 @@
     <string name="learn_title_learn">Apprendre</string>
     <string name="learn_study_title_joseki_explorer">Explorateur de Joseki</string>
     <string name="earn_study_title_puzzles">Problèmes</string>
+    <string name="learn_tutorial_checkbox_done">Terminé</string>
+    <string name="learn_tutorial_checkboxoutlineblank_done">Terminé</string>
+    <string name="joseki_explorer_title">Explorateur de Joseki</string>
     <string name="joseki_explorer_button_tenuki">Tenuki</string>
     <string name="joseki_explorer_button_previous">Précédent</string>
     <string name="joseki_explorer_button_next">Suivant</string>
     <string name="joseki_explorer_link_video">" (Vidéo)"</string>
+    <string name="joseki_explorer_link_external">" (lien externe)"</string>
     <string name="joseki_explorer_default_description"><![CDATA["## Explorateur de Joseki
 *Joseki* est un mot emprunté au Japonais, se rapportant généralement à une séquence de coups joués dans le coin. Le résultat étant un échange localement équilibré.
 ### Comment utiliser l'explorateur ?
@@ -614,6 +626,10 @@ Les Noirs en captureront généralement au moins un dans cette situation !]]></s
     <string name="tutorial_basics_illegalmoves_suicide1_page_2_text"><![CDATA[C'est ce que l'on appelle un coup "suicide" et c'est interdit.]]></string>
     <string name="tutorial_basics_illegalmoves_suicide1_page_3_text">Il y a toutefois une exception. Si le coup capture une ou plusieurs pierres blanches (comme en B ci-dessous), le coup est autorisé.</string>
     <string name="tutorial_basics_illegalmoves_suicide1_page_4_text">La position résultante ressemble à ceci :</string>
+    <string name="tutorial_basics_illegalmoves_suicide2_text"><![CDATA[À votre tour à nouveau de capturer quelques pierres ! Astuce : A première vue le coup peut sembler illégal…]]></string>
+    <string name="tutorial_basics_illegalmoves_suicide3_text">Les 4 pierres noires sont en Atari ! Capturez blanc avant qu\'il ne vous capture !</string>
+    <string name="tutorial_basics_illegalmoves_suicide4_text"><![CDATA[Capturez les 2 pierres blanches au contact des pierres noires. Ici, vous ne pouvez pas capturez blanc en un seul coup.]]></string>
+    <string name="tutorial_basics_illegalmoves_suicide5_text">La pierre blanche en D5 sépare vos pierres. Si vous la capturez, vous pourrez connecter vos pierres et rendre votre groupe plus fort. Cette forme est très importante !</string>
     <string name="tutorial_intermediate_title">Intermédiaire</string>
     <string name="tutorial_intermediate_ladders_title">Escaliers</string>
     <string name="tutorial_intermediate_twoeyes_title">Deux yeux</string>
