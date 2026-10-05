@@ -10,8 +10,8 @@ import io.zenandroid.onlinego.data.model.katago.KataGoResponse.Response
 import io.zenandroid.onlinego.data.model.katago.OverrideSettings
 import io.zenandroid.onlinego.data.model.katago.Query
 import io.zenandroid.onlinego.gamelogic.Util
+import io.zenandroid.onlinego.utils.CrashReporter
 import io.zenandroid.onlinego.utils.appJson
-import io.zenandroid.onlinego.utils.recordException
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.first
 import java.io.BufferedReader
@@ -88,7 +88,7 @@ class KataGoAnalysisEngine(private val context: Context) {
               try {
                 if (line.contains("\"error\":") || line.contains("\"warning\":")) {
                   Logger.e(line, tag = "KataGoAnalysisEngine")
-                  recordException(Exception("Katago: $line"))
+                  CrashReporter.recordException(Exception("Katago: $line"))
                   responseFlow.tryEmit(appJson.decodeFromString<ErrorResponse>(line))
                 } else {
                   Logger.i("< $line", tag = "KataGoAnalysisEngine")
@@ -96,7 +96,7 @@ class KataGoAnalysisEngine(private val context: Context) {
                 }
               } catch (e: Exception) {
                 Logger.e("Failed to parse KataGo line: $line", e, "KataGoAnalysisEngine")
-                recordException(e)
+                CrashReporter.recordException(e)
               }
             }
             Logger.i("End of input, killing reader thread", tag = "KataGoAnalysisEngine")
@@ -104,7 +104,7 @@ class KataGoAnalysisEngine(private val context: Context) {
           }.start()
         } else {
           Logger.e("Could not start KataGo", tag = "KataGoAnalysisEngine")
-          recordException(Exception("Could not start KataGo $errors"))
+          CrashReporter.recordException(Exception("Could not start KataGo $errors"))
           throw RuntimeException("Could not start KataGo")
         }
       }

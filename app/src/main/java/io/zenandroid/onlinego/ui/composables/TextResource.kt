@@ -5,7 +5,7 @@ import androidx.annotation.StringRes
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.platform.LocalResources
-import io.zenandroid.onlinego.utils.recordException
+import io.zenandroid.onlinego.utils.CrashReporter
 
 /**
  * A user facing text that has not been resolved yet. It allows view models to describe what should
@@ -32,7 +32,7 @@ fun TextResource.resolve(): String {
     if (args.isEmpty()) resources.getString(resId)
     else resources.getString(resId, *args.toTypedArray())
   } catch (e: Resources.NotFoundException) {
-    recordException(e)
+    CrashReporter.recordException(e)
     ""
   }
 }

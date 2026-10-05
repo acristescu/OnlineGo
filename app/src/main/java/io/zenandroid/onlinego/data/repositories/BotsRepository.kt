@@ -3,7 +3,7 @@ package io.zenandroid.onlinego.data.repositories
 import io.zenandroid.onlinego.data.model.local.Player
 import io.zenandroid.onlinego.data.model.ogs.OGSPlayer
 import io.zenandroid.onlinego.data.ogs.OGSWebSocketService
-import io.zenandroid.onlinego.utils.recordException
+import io.zenandroid.onlinego.utils.CrashReporter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -23,7 +23,7 @@ class BotsRepository(
             try {
                 socketService.connectToBots().collect { storeBots(it) }
             } catch (e: Exception) {
-                recordException(e)
+              CrashReporter.recordException(e)
             }
         }
     }

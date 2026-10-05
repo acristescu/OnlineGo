@@ -5,7 +5,6 @@ import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import co.touchlab.kermit.Logger
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.local.Challenge
 import io.zenandroid.onlinego.data.model.local.Game
@@ -46,10 +45,10 @@ import io.zenandroid.onlinego.ui.screens.mygames.Action.NewChallengeSearchClicke
 import io.zenandroid.onlinego.ui.screens.mygames.Action.ViewResumed
 import io.zenandroid.onlinego.ui.screens.mygames.Action.WarningAcknowledged
 import io.zenandroid.onlinego.utils.Analytics
+import io.zenandroid.onlinego.utils.CrashReporter
 import io.zenandroid.onlinego.utils.WhatsNewUtils
 import io.zenandroid.onlinego.utils.egfToRank
 import io.zenandroid.onlinego.utils.formatRank
-import io.zenandroid.onlinego.utils.recordException
 import io.zenandroid.onlinego.utils.timeLeftForCurrentPlayer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -360,9 +359,9 @@ class MyGamesViewModel(
     val statusCode = t.httpStatusCode
     if (statusCode != null) {
       if (statusCode in arrayOf(401, 403)) {
-        FirebaseCrashlytics.getInstance().setCustomKey("AUTO_LOGOUT", System.currentTimeMillis())
-        recordException(Exception(t.httpErrorBody, t))
-        FirebaseCrashlytics.getInstance().sendUnsentReports()
+        CrashReporter.setCustomKey("AUTO_LOGOUT", System.currentTimeMillis())
+        CrashReporter.recordException(Exception(t.httpErrorBody, t))
+        CrashReporter.sendUnsentReports()
         userSessionRepository.logOut()
         _state.update {
           it.copy(
@@ -370,7 +369,7 @@ class MyGamesViewModel(
           )
         }
       } else {
-        recordException(Exception(t.httpErrorBody, t))
+        CrashReporter.recordException(Exception(t.httpErrorBody, t))
       }
     } else {
       if (t is kotlinx.serialization.SerializationException) {
@@ -381,7 +380,7 @@ class MyGamesViewModel(
           )
         }
       }
-      recordException(t)
+      CrashReporter.recordException(t)
     }
 
     Logger.e(t.message.orEmpty(), t, "MyGamesViewModel")

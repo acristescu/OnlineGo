@@ -3,7 +3,6 @@ package io.zenandroid.onlinego.ui.screens.settings
 import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.AppLanguage
 import io.zenandroid.onlinego.data.model.AppTheme
@@ -27,6 +26,7 @@ import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.SupportClicked
 import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.ThemeClicked
 import io.zenandroid.onlinego.ui.views.BoardView
 import io.zenandroid.onlinego.utils.Analytics
+import io.zenandroid.onlinego.utils.CrashReporter
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -168,7 +168,7 @@ class SettingsViewModel(
 
   private fun doLogout() {
     analytics.logEvent("logout_clicked")
-    FirebaseCrashlytics.getInstance().sendUnsentReports()
+    CrashReporter.sendUnsentReports()
     userSessionRepository.logOut()
   }
 }

@@ -8,8 +8,8 @@ import io.zenandroid.onlinego.data.model.local.VisitedPuzzleCollection
 import io.zenandroid.onlinego.data.model.ogs.PuzzleRating
 import io.zenandroid.onlinego.data.model.ogs.PuzzleSolution
 import io.zenandroid.onlinego.data.ogs.OGSRestService
+import io.zenandroid.onlinego.utils.CrashReporter
 import io.zenandroid.onlinego.utils.PersistenceManager
-import io.zenandroid.onlinego.utils.recordException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
@@ -168,6 +168,6 @@ class PuzzleRepository(
 
   private fun onError(error: Throwable) {
     Logger.e(error.message.orEmpty(), error, "PuzzleRepository")
-    recordException(error)
+    CrashReporter.recordException(error)
   }
 }

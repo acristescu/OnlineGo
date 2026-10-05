@@ -8,7 +8,6 @@ import co.touchlab.kermit.Logger
 import com.google.android.play.core.ktx.launchReview
 import com.google.android.play.core.ktx.requestReview
 import com.google.android.play.core.review.ReviewManagerFactory
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.zenandroid.onlinego.data.repositories.ReviewPromptRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -55,7 +54,7 @@ class ReviewPromptManager(
       Logger.i("In-app review flow completed", tag = "ReviewPromptManager")
 
     } catch (e: Exception) {
-      FirebaseCrashlytics.getInstance().recordException(e)
+      CrashReporter.recordException(e)
       Logger.i(
         "In-app review failed: ${e.message}, falling back to Play Store",
         tag = "ReviewPromptManager"
@@ -95,7 +94,7 @@ class ReviewPromptManager(
       }
 
     } catch (e: Exception) {
-      FirebaseCrashlytics.getInstance().recordException(e)
+      CrashReporter.recordException(e)
       analytics.logEvent("review_prompt_fallback_failed")
     }
   }
@@ -144,7 +143,7 @@ class ReviewPromptManager(
     } catch (e: Exception) {
       steps.add("❌ Error: ${e.javaClass.simpleName}: ${e.message}")
       steps.add("Stack trace: ${e.stackTraceToString().take(500)}")
-      FirebaseCrashlytics.getInstance().recordException(e)
+      CrashReporter.recordException(e)
 
       ReviewDiagnosticResult(
         success = false,

@@ -11,15 +11,31 @@ import java.net.SocketException
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
 
-fun recordException(t: Throwable) {
-  if (!t.isNetworkError() && !t.cause.isNetworkError()) {
-    val reported = if(t.isHttp5XXError() || t.cause.isHttp5XXError()) {
-      ServerException(t)
-    } else {
-      t
+object CrashReporter {
+  private val crashlytics get() = FirebaseCrashlytics.getInstance()
+
+  fun recordException(t: Throwable) {
+    if (!t.isNetworkError() && !t.cause.isNetworkError()) {
+      val reported = if (t.isHttp5XXError() || t.cause.isHttp5XXError()) {
+        ServerException(t)
+      } else {
+        t
+      }
+      crashlytics.recordException(reported)
     }
-    FirebaseCrashlytics.getInstance().recordException(reported)
   }
+
+  fun log(message: String) = crashlytics.log(message)
+
+  fun setUserId(id: String) = crashlytics.setUserId(id)
+
+  fun setCustomKey(key: String, value: String) = crashlytics.setCustomKey(key, value)
+
+  fun setCustomKey(key: String, value: Boolean) = crashlytics.setCustomKey(key, value)
+
+  fun setCustomKey(key: String, value: Long) = crashlytics.setCustomKey(key, value)
+
+  fun sendUnsentReports() = crashlytics.sendUnsentReports()
 }
 
 class CrashlyticsBreadcrumbWriter(
@@ -29,7 +45,7 @@ class CrashlyticsBreadcrumbWriter(
 
   override fun log(severity: Severity, message: String, tag: String, throwable: Throwable?) {
     val suffix = throwable?.let { " $it" }.orEmpty()
-    FirebaseCrashlytics.getInstance().log("${severity.name.first()}/$tag: $message$suffix")
+    CrashReporter.log("${severity.name.first()}/$tag: $message$suffix")
   }
 }
 

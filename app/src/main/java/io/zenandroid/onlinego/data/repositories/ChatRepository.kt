@@ -1,14 +1,13 @@
 package io.zenandroid.onlinego.data.repositories
 
 import co.touchlab.kermit.Logger
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.zenandroid.onlinego.data.db.GameDao
 import io.zenandroid.onlinego.data.model.local.ChatMetadata
 import io.zenandroid.onlinego.data.model.local.Message
 import io.zenandroid.onlinego.data.ogs.OGSRestAPI
 import io.zenandroid.onlinego.data.ogs.httpErrorBody
 import io.zenandroid.onlinego.data.ogs.httpStatusCode
-import io.zenandroid.onlinego.utils.recordException
+import io.zenandroid.onlinego.utils.CrashReporter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -106,10 +105,10 @@ class ChatRepository(
     t.httpStatusCode?.let { code ->
       message = "$request: ${t.httpErrorBody}"
       if (code == 429) {
-        FirebaseCrashlytics.getInstance().setCustomKey("HIT_RATE_LIMITER", true)
+        CrashReporter.setCustomKey("HIT_RATE_LIMITER", true)
       }
     }
-    recordException(Exception(message, t))
+    CrashReporter.recordException(Exception(message, t))
     Logger.e(message, t, "ChatRepository")
   }
 

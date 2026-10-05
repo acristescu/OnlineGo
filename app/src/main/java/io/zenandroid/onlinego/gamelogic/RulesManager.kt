@@ -2,7 +2,6 @@ package io.zenandroid.onlinego.gamelogic
 
 import androidx.core.util.lruCache
 import co.touchlab.kermit.Logger
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.Mark
 import io.zenandroid.onlinego.data.model.Position
@@ -12,6 +11,7 @@ import io.zenandroid.onlinego.data.model.local.InitialState
 import io.zenandroid.onlinego.data.model.local.Score
 import io.zenandroid.onlinego.gamelogic.Util.toCoordinateSet
 import io.zenandroid.onlinego.ui.screens.game.Variation
+import io.zenandroid.onlinego.utils.CrashReporter
 import kotlinx.coroutines.yield
 import java.util.LinkedList
 
@@ -23,8 +23,7 @@ object RulesManager {
   init {
     try {
       if (Thread.currentThread().name == "main") {
-        FirebaseCrashlytics.getInstance()
-          .recordException(Throwable("System.loadLibrary called on main thread!!!"))
+        CrashReporter.recordException(Throwable("System.loadLibrary called on main thread!!!"))
       }
       System.loadLibrary("estimator")
     } catch (_: UnsatisfiedLinkError) {
@@ -38,8 +37,7 @@ object RulesManager {
 
   fun determineTerritory(pos: Position, scoreStones: Boolean): Position {
     if (Thread.currentThread().name == "main") {
-      FirebaseCrashlytics.getInstance()
-        .recordException(Throwable("determineTerritory called on main thread!!!"))
+      CrashReporter.recordException(Throwable("determineTerritory called on main thread!!!"))
     }
     val inBoard = IntArray(pos.boardWidth * pos.boardHeight)
     pos.blackStones
@@ -270,8 +268,7 @@ object RulesManager {
     currentMoveIndex: Int = 0,
   ): Position? {
     if (Thread.currentThread().name == "main") {
-      FirebaseCrashlytics.getInstance()
-        .recordException(Throwable("System.loadLibrary called on main thread!!!"))
+      CrashReporter.recordException(Throwable("System.loadLibrary called on main thread!!!"))
     }
 
     var nextPlayer = nextToMove

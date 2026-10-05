@@ -1,7 +1,7 @@
 package io.zenandroid.onlinego.data.repositories
 
 import io.zenandroid.onlinego.data.ogs.OGSWebSocketService
-import io.zenandroid.onlinego.utils.recordException
+import io.zenandroid.onlinego.utils.CrashReporter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -26,7 +26,7 @@ class ServerNotificationsRepository(
       try {
         socketService.connectToServerNotifications().collect { onNewNotification(it) }
       } catch (e: Exception) {
-        recordException(e)
+        CrashReporter.recordException(e)
       }
     }
   }

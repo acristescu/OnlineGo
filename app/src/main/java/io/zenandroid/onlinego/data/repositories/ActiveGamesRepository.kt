@@ -1,7 +1,6 @@
 package io.zenandroid.onlinego.data.repositories
 
 import co.touchlab.kermit.Logger
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.zenandroid.onlinego.data.db.GameDao
 import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.local.Clock
@@ -19,7 +18,7 @@ import io.zenandroid.onlinego.data.ogs.RemovedStonesAccepted
 import io.zenandroid.onlinego.data.ogs.UndoRequested
 import io.zenandroid.onlinego.data.ogs.httpErrorBody
 import io.zenandroid.onlinego.data.ogs.httpStatusCode
-import io.zenandroid.onlinego.utils.recordException
+import io.zenandroid.onlinego.utils.CrashReporter
 import io.zenandroid.onlinego.utils.timeLeftForCurrentPlayer
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
@@ -386,7 +385,7 @@ class ActiveGamesRepository(
 
           // request is throttled
           if (e.httpStatusCode == 429) {
-            FirebaseCrashlytics.getInstance().setCustomKey("HIT_RATE_LIMITER", true)
+            CrashReporter.setCustomKey("HIT_RATE_LIMITER", true)
             Logger.i(
               "Hit rate limiter backing off $backoffMillis milliseconds",
               tag = "ActiveGamesRepository"
@@ -419,10 +418,10 @@ class ActiveGamesRepository(
     t.httpStatusCode?.let { code ->
       message = "$request: ${t.httpErrorBody}"
       if (code == 429) {
-        FirebaseCrashlytics.getInstance().setCustomKey("HIT_RATE_LIMITER", true)
+        CrashReporter.setCustomKey("HIT_RATE_LIMITER", true)
       }
     }
-    recordException(Exception(message, t))
+    CrashReporter.recordException(Exception(message, t))
     Logger.e(message, t, "ActiveGamesRepository")
   }
 }

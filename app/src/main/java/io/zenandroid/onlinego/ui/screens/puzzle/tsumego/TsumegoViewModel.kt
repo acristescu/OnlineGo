@@ -9,7 +9,6 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import co.touchlab.kermit.Logger
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.Mark
 import io.zenandroid.onlinego.data.model.Position
@@ -24,7 +23,7 @@ import io.zenandroid.onlinego.data.repositories.PuzzleRepository
 import io.zenandroid.onlinego.gamelogic.RulesManager
 import io.zenandroid.onlinego.gamelogic.Util
 import io.zenandroid.onlinego.gamelogic.Util.toCoordinateSet
-import io.zenandroid.onlinego.utils.recordException
+import io.zenandroid.onlinego.utils.CrashReporter
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -131,8 +130,7 @@ class TsumegoViewModel(
           pos?.let {
             (pos.whiteStones + pos.blackStones).forEach {
               if (it.x < -1 || it.y < -1) {
-                FirebaseCrashlytics.getInstance()
-                  .recordException(Throwable("Problem loading puzzle $puzzle"))
+                CrashReporter.recordException(Throwable("Problem loading puzzle $puzzle"))
               }
             }
           }
@@ -428,6 +426,6 @@ class TsumegoViewModel(
 
   private fun onError(t: Throwable) {
     Logger.e(t.message.orEmpty(), t, "TsumegoViewModel")
-    recordException(t)
+    CrashReporter.recordException(t)
   }
 }

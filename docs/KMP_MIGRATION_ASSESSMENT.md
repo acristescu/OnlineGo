@@ -9,7 +9,7 @@ is no RxJava, no `Parcelable`, and Koin, Molecule, Room, DataStore, `ViewModel`,
 kotlinx-collections-immutable are already multiplatform. The cost is dominated by resources
 (663 strings x 16 locales) and the local-AI engine, which cannot run on iOS as built today.
 
-**Status.** Nine Phase 0 slices are merged (section 6). None of them has shipped in a release yet,
+**Status.** Ten Phase 0 slices are merged (section 6). None of them has shipped in a release yet,
 and some still need on-device checks (section 1.2). Phases 1-5 have not started.
 
 The original assessment, with the full write-up of each finished slice, is at
@@ -23,9 +23,6 @@ The original assessment, with the full write-up of each finished slice, is at
 
 Worth doing even if the migration stops here.
 
-- [ ] **`CrashReporter` seam.** Logging and analytics are done (6.9). 23 Crashlytics calls
-  remain - `recordException` (10, which bypass the network-error filter in
-  `utils/Crashlytics.kt`), `setCustomKey` (9), `setUserId` (1), `sendUnsentReports` (3).
 - [ ] **Fix layering violations:** `RulesManager` imports `ui.screens.game.Variation`; `UserStats`
   and `GetUserStatsUseCase` depend on MPAndroidChart; `PuzzleDirectoryAction` / `TsumegoAction`
   carry `android.graphics.Point`; `BoardTheme` carries Compose `Color` and `@StringRes`.
@@ -125,7 +122,7 @@ regular contributor appears, or when local AI needs Play Feature Delivery for it
 | `java.time`, `SimpleDateFormat`, `Date`         | `kotlin.time` + kotlinx-datetime                                                                               | **Done** - 6.7                                                 |
 | OkHttp (direct)                                 | Android Ktor engine only                                                                                       | Mostly done; the websocket still takes `OkHttpClient` directly |
 | Firebase Analytics                              | Injected `Analytics`; becomes a common interface, iOS implementation in Swift                                  | **Done** - 6.9                                                 |
-| Firebase Crashlytics (non-log)                  | `CrashReporter` `expect`/`actual`; iOS via Firebase iOS SDK or GitLive                                         | To do - Phase 0                                                |
+| Firebase Crashlytics (non-log)                  | Global `CrashReporter`; `expect`/`actual` in Phase 2, iOS via Firebase iOS SDK or GitLive                      | **Done** - 6.10                                                |
 | `java.util.concurrent`, `UUID`, `Stack`, ...    | stdlib atomics, `Mutex`, `kotlin.uuid`, `ArrayDeque`                                                           | To do - Phase 0                                                |
 | `BuildConfig`                                   | BuildKonfig                                                                                                    | To do - Phase 2                                                |
 | Koin Android artifacts                          | `koin-core` + `koin-compose` + `koin-compose-viewmodel`; drop `androidApplication()`                           | To do - Phase 2                                                |
@@ -327,3 +324,19 @@ Two pre-existing bugs fixed: the Glicko2 TSV parser dropped the oldest game, and
 - `FirebaseAnalytics.Event.SIGN_UP` / `LOGIN` became the literals `"sign_up"` / `"login"`, which are
   the same values. Event names are otherwise unchanged.
 - GitLive was not adopted: the whole surface is one `logEvent`. Revisit it alongside Crashlytics.
+
+### 6.10 Firebase Crashlytics behind `CrashReporter`
+
+- `utils/CrashReporter.kt` holds a global `CrashReporter` object (`recordException`, `log`,
+  `setUserId`, `setCustomKey`, `sendUnsentReports`) and the Kermit breadcrumb writer. It is the only
+  file that imports `FirebaseCrashlytics`. In Phase 2 it becomes `expect object`.
+- **Global, not injected, on purpose.** `RulesManager`, `BoardComposable`'s draw code and
+  `TextResource.resolve()` cannot take constructor parameters, and crash reporting is one per
+  process, like Kermit's `Logger`.
+- **Behaviour change:** the 10 calls that used to go straight to Crashlytics now go through the
+  network-error filter. Cancellation and network errors from those sites are no longer reported, and
+  HTTP 5xx is wrapped in `ServerException`. The `GameUI` and `ReviewPromptManager` catch blocks
+  caught `Exception`, so they used to report `CancellationException`.
+- `RulesManager` stays an `object`: its rules functions are called from `Position`'s companion and
+  top-level helpers. Its only state is the native estimator; pulling that out as a `ScoreEstimator`
+  belongs with the estimator decision (4.1).

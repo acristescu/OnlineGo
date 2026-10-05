@@ -7,7 +7,7 @@ import io.zenandroid.onlinego.data.model.ogs.JosekiPosition
 import io.zenandroid.onlinego.data.model.ogs.PlayCategory
 import io.zenandroid.onlinego.data.ogs.OGSRestService
 import io.zenandroid.onlinego.gamelogic.RulesManager
-import io.zenandroid.onlinego.utils.recordException
+import io.zenandroid.onlinego.utils.CrashReporter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -65,7 +65,7 @@ class JosekiRepository(
 
   private fun onError(error: Throwable) {
     Logger.e(error.message.orEmpty(), error, "JosekiRepository")
-    recordException(error)
+    CrashReporter.recordException(error)
   }
 
   private fun extractLabelsFromDescription(originalPos: JosekiPosition): JosekiPosition {

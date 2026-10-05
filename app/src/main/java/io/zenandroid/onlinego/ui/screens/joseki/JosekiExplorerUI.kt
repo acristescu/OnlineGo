@@ -58,7 +58,7 @@ import io.zenandroid.onlinego.ui.composables.Board
 import io.zenandroid.onlinego.ui.composables.BottomBar
 import io.zenandroid.onlinego.ui.composables.BottomBarButton
 import io.zenandroid.onlinego.ui.theme.OnlineGoPreviewTheme
-import io.zenandroid.onlinego.utils.recordException
+import io.zenandroid.onlinego.utils.CrashReporter
 import org.commonmark.node.AbstractVisitor
 import org.commonmark.node.Link
 import org.commonmark.node.Node
@@ -291,7 +291,7 @@ private fun DescriptionView(
         error != null -> {
           textView.text = error.message
           Logger.e(error.message ?: "Unknown error", error, TAG)
-          recordException(error)
+          CrashReporter.recordException(error)
         }
 
         markdown != null -> {

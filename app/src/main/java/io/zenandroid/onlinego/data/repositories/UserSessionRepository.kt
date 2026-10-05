@@ -3,11 +3,11 @@ package io.zenandroid.onlinego.data.repositories
 import android.app.ActivityManager
 import android.content.Context
 import android.content.Context.ACTIVITY_SERVICE
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.zenandroid.onlinego.data.model.ogs.UIConfig
 import io.zenandroid.onlinego.data.ogs.OGSCookieStore
 import io.zenandroid.onlinego.data.ogs.OGSRestService
 import io.zenandroid.onlinego.data.ogs.OGSWebSocketService
+import io.zenandroid.onlinego.utils.CrashReporter
 import io.zenandroid.onlinego.utils.PersistenceManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -45,7 +45,7 @@ class UserSessionRepository(
   init {
     appCoroutineScope.launch(Dispatchers.IO) {
       uiConfig = persistenceManager.getUIConfig()
-      userIdValue?.toString()?.let(FirebaseCrashlytics.getInstance()::setUserId)
+      userIdValue?.toString()?.let(CrashReporter::setUserId)
       userIdValue?.let {
         _userId.tryEmit(it)
       }
@@ -56,7 +56,7 @@ class UserSessionRepository(
   fun storeUIConfig(uiConfig: UIConfig) {
     this.uiConfig = uiConfig
     uiConfigTimestamp = System.currentTimeMillis()
-    FirebaseCrashlytics.getInstance().setUserId(uiConfig.user?.id.toString())
+    CrashReporter.setUserId(uiConfig.user?.id.toString())
     persistenceManager.storeUIConfig(uiConfig)
     userIdValue?.let {
       _userId.tryEmit(it)
@@ -74,7 +74,7 @@ class UserSessionRepository(
   fun isLoggedIn() = uiConfig != null && cookieStore.sessionId != null
 
   fun logOut() {
-    FirebaseCrashlytics.getInstance().sendUnsentReports()
+    CrashReporter.sendUnsentReports()
     uiConfig = null
     _loginStatus.tryEmit(LoginStatus.LoggedOut)
     (context.getSystemService(ACTIVITY_SERVICE) as ActivityManager).clearApplicationUserData()

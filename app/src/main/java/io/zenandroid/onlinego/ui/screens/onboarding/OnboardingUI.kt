@@ -74,7 +74,6 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.Scopes
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.common.api.Scope
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.ui.composables.HorizontalPagerIndicator
 import io.zenandroid.onlinego.ui.composables.resolve
@@ -82,7 +81,7 @@ import io.zenandroid.onlinego.ui.screens.onboarding.OnboardingAction.BackPressed
 import io.zenandroid.onlinego.ui.screens.onboarding.OnboardingAction.SocialPlatformLoginFailed
 import io.zenandroid.onlinego.ui.screens.onboarding.Page.OnboardingPage
 import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
-import io.zenandroid.onlinego.utils.recordException
+import io.zenandroid.onlinego.utils.CrashReporter
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -111,7 +110,7 @@ fun OnboardingScreen(
           }
       } catch (e: ApiException) {
         Logger.w("signInResult:failed code=" + e.statusCode, tag = "OnboardingFragment")
-        recordException(e)
+        CrashReporter.recordException(e)
         Toast.makeText(
           activity,
           activity?.getString(R.string.onboarding_google_signin_failed, e.statusCode),
@@ -146,7 +145,7 @@ fun OnboardingScreen(
       OnlineGoTheme {
         OnboardingContent(state, viewModel::onAction,
           onGoogleFlow = {
-            FirebaseCrashlytics.getInstance().setCustomKey("LOGIN_METHOD", "GOOGLE")
+            CrashReporter.setCustomKey("LOGIN_METHOD", "GOOGLE")
             val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
               .requestServerAuthCode("870935345166-6j2s6i9adl64ms3ta4k9n4flkqjhs229.apps.googleusercontent.com")
               .requestScopes(Scope(Scopes.OPEN_ID), Scope(Scopes.EMAIL), Scope(Scopes.PROFILE))

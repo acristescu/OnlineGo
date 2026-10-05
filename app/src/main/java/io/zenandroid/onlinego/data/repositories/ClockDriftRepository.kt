@@ -3,7 +3,7 @@ package io.zenandroid.onlinego.data.repositories
 import co.touchlab.kermit.Logger
 import io.zenandroid.onlinego.data.model.ogs.NetPong
 import io.zenandroid.onlinego.data.ogs.OGSWebSocketService
-import io.zenandroid.onlinego.utils.recordException
+import io.zenandroid.onlinego.utils.CrashReporter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -52,7 +52,7 @@ class ClockDriftRepository(
 
     private fun onError(t: Throwable) {
       Logger.e(t.message.orEmpty(), t, "ClockDriftRepository")
-        recordException(t)
+      CrashReporter.recordException(t)
     }
 
     private fun onPong(pong: NetPong) {

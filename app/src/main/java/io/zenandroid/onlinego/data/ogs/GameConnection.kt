@@ -18,7 +18,7 @@ import io.zenandroid.onlinego.data.model.ogs.OGSPlayer
 import io.zenandroid.onlinego.data.model.ogs.Phase
 import io.zenandroid.onlinego.data.repositories.ChatRepository
 import io.zenandroid.onlinego.gamelogic.Util
-import io.zenandroid.onlinego.utils.recordException
+import io.zenandroid.onlinego.utils.CrashReporter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -114,7 +114,7 @@ class GameConnection(
   private suspend fun <T> Flow<T>.collectWithRetry(tag: String, action: suspend (T) -> Unit) {
     retry {
       Logger.e("$tag error ${it.message}", tag = TAG)
-      recordException(it)
+      CrashReporter.recordException(it)
       true
     }.collect { value ->
       action(value)

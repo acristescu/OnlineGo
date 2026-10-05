@@ -81,7 +81,6 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.Position
@@ -143,6 +142,7 @@ import io.zenandroid.onlinego.ui.screens.game.composables.PlayerCard
 import io.zenandroid.onlinego.ui.screens.game.composables.PlayerDetailsDialog
 import io.zenandroid.onlinego.ui.theme.OnlineGoPreviewTheme
 import io.zenandroid.onlinego.usecases.RepoResult
+import io.zenandroid.onlinego.utils.CrashReporter
 import io.zenandroid.onlinego.utils.ReviewPromptManager
 import io.zenandroid.onlinego.utils.timeControlDescription
 import kotlinx.coroutines.Dispatchers
@@ -224,7 +224,7 @@ fun GameScreen(
       try {
         reviewPromptManager.requestReview(activity)
       } catch (e: Exception) {
-        FirebaseCrashlytics.getInstance().recordException(e)
+        CrashReporter.recordException(e)
       }
     }
   }

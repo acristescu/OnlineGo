@@ -46,7 +46,7 @@ import io.zenandroid.onlinego.ui.screens.face2face.EstimateStatus.Idle
 import io.zenandroid.onlinego.ui.screens.face2face.EstimateStatus.Success
 import io.zenandroid.onlinego.ui.screens.face2face.EstimateStatus.Working
 import io.zenandroid.onlinego.utils.Analytics
-import io.zenandroid.onlinego.utils.recordException
+import io.zenandroid.onlinego.utils.CrashReporter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -170,7 +170,7 @@ class FaceToFaceViewModel(
       historyPosition(history.lastIndex)
     } catch (e: Exception) {
       Logger.i("Cannot load history $history", tag = "FaceToFaceViewModel")
-      recordException(e)
+      CrashReporter.recordException(e)
       historyPosition(0)
     }
     loading = false
@@ -282,7 +282,7 @@ class FaceToFaceViewModel(
       val whiteStones = currentPosition.whiteStones.toGTP(currentGameParameters.size.height)
       val blackStones = currentPosition.blackStones.toGTP(currentGameParameters.size.height)
       Logger.i("Cannot replay history $historyString", tag = "FaceToFaceViewModel")
-      recordException(IllegalStateException("Cannot replay history history=$historyString idx=$index historyIndex=$historyIndex currentPos.whiteStones=$whiteStones currentPos.blackStones=$blackStones"))
+      CrashReporter.recordException(IllegalStateException("Cannot replay history history=$historyString idx=$index historyIndex=$historyIndex currentPos.whiteStones=$whiteStones currentPos.blackStones=$blackStones"))
       Position(
         boardWidth = currentGameParameters.size.width,
         boardHeight = currentGameParameters.size.height,

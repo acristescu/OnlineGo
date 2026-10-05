@@ -10,7 +10,7 @@ import io.zenandroid.onlinego.ui.screens.puzzle.directory.PuzzleDirectorySort.Co
 import io.zenandroid.onlinego.ui.screens.puzzle.directory.PuzzleDirectorySort.NameSort
 import io.zenandroid.onlinego.ui.screens.puzzle.directory.PuzzleDirectorySort.RatingSort
 import io.zenandroid.onlinego.ui.screens.puzzle.directory.PuzzleDirectorySort.ViewsSort
-import io.zenandroid.onlinego.utils.recordException
+import io.zenandroid.onlinego.utils.CrashReporter
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -130,7 +130,7 @@ class PuzzleDirectoryViewModel(
 
   private fun onError(t: Throwable) {
     Logger.e(t.message.orEmpty(), t, "PuzzleDirectoryViewModel")
-    recordException(t)
+    CrashReporter.recordException(t)
   }
 
   fun onToggleOnlyOpened() {

@@ -7,7 +7,6 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import co.touchlab.kermit.Logger
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.ogs.OGSRestService
 import io.zenandroid.onlinego.data.ogs.OGSWebSocketService
@@ -24,8 +23,8 @@ import io.zenandroid.onlinego.ui.screens.onboarding.Page.MultipleChoicePage
 import io.zenandroid.onlinego.ui.screens.onboarding.Page.NotificationPermissionPage
 import io.zenandroid.onlinego.ui.screens.onboarding.Page.OnboardingPage
 import io.zenandroid.onlinego.utils.Analytics
+import io.zenandroid.onlinego.utils.CrashReporter
 import io.zenandroid.onlinego.utils.appJson
-import io.zenandroid.onlinego.utils.recordException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -99,7 +98,7 @@ class OnboardingViewModel(
           _state.update { it.copy(onboardingDone = true) }
         }
       } catch (e: Exception) {
-        recordException(e)
+        CrashReporter.recordException(e)
       }
     }
   }
@@ -254,14 +253,14 @@ class OnboardingViewModel(
   }
 
   private fun onLoginClicked(state: OnboardingState) {
-    FirebaseCrashlytics.getInstance().setCustomKey("LOGIN_METHOD", "PASSWORD")
+    CrashReporter.setCustomKey("LOGIN_METHOD", "PASSWORD")
     if (state.isExistingAccount) {
       doLogin(state)
     } else {
       viewModelScope.launch(Dispatchers.IO) {
         try {
           ogsRestService.createAccount(state.username.trim(), state.password, state.email.trim())
-          FirebaseCrashlytics.getInstance().setCustomKey("NEW_ACCOUNT", true)
+          CrashReporter.setCustomKey("NEW_ACCOUNT", true)
           analytics.logEvent("sign_up")
           doLogin(_state.value)
         } catch (t: Throwable) {
@@ -306,7 +305,7 @@ class OnboardingViewModel(
         )
       }
     } else {
-      recordException(t)
+      CrashReporter.recordException(t)
       _state.update {
         it.copy(
           loginProcessing = false,

@@ -64,7 +64,7 @@ import io.zenandroid.onlinego.R.drawable
 import io.zenandroid.onlinego.playstore.PlayStoreService
 import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
 import io.zenandroid.onlinego.utils.Analytics
-import io.zenandroid.onlinego.utils.recordException
+import io.zenandroid.onlinego.utils.CrashReporter
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
 
@@ -121,7 +121,7 @@ fun SupporterScreen(
         viewModel.onSubscribeClick()
         analytics.logEvent("start_subscription_flow")
       } ?: run {
-        recordException(Throwable("Activity is null, cannot start subscription flow"))
+        CrashReporter.recordException(Throwable("Activity is null, cannot start subscription flow"))
       }
     },
     onCancelSubscriptionClick = {
@@ -132,7 +132,7 @@ fun SupporterScreen(
         })
         analytics.logEvent("cancel_subscription")
       } ?: run {
-        recordException(Throwable("Activity is null, cannot cancel subscription"))
+        CrashReporter.recordException(Throwable("Activity is null, cannot cancel subscription"))
       }
     },
     onSliderChange = viewModel::onUserDragSlider

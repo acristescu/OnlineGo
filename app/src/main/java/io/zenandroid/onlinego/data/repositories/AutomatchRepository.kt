@@ -3,7 +3,7 @@ package io.zenandroid.onlinego.data.repositories
 import co.touchlab.kermit.Logger
 import io.zenandroid.onlinego.data.model.ogs.OGSAutomatch
 import io.zenandroid.onlinego.data.ogs.OGSWebSocketService
-import io.zenandroid.onlinego.utils.recordException
+import io.zenandroid.onlinego.utils.CrashReporter
 import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.plus
@@ -60,7 +60,7 @@ class AutomatchRepository(
 
     private fun onError(t: Throwable) {
         Logger.e(t.message.orEmpty(), t, "AutomatchRepository")
-        recordException(t)
+        CrashReporter.recordException(t)
     }
 
     private fun removeAutomatch(automatch: OGSAutomatch) {

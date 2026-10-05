@@ -6,7 +6,7 @@ import io.zenandroid.onlinego.data.model.local.Challenge
 import io.zenandroid.onlinego.data.model.ogs.OGSChallenge
 import io.zenandroid.onlinego.data.ogs.OGSRestService
 import io.zenandroid.onlinego.data.ogs.OGSWebSocketService
-import io.zenandroid.onlinego.utils.recordException
+import io.zenandroid.onlinego.utils.CrashReporter
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -62,7 +62,7 @@ class ChallengesRepository(
             throw throwable
         }
         Logger.e(throwable.message.orEmpty(), throwable, TAG)
-        recordException(throwable)
+      CrashReporter.recordException(throwable)
     }
     override fun onSocketDisconnected() {
         flowScope.cancel()

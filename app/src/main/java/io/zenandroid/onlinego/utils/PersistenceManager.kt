@@ -31,7 +31,7 @@ class PersistenceManager(context: Context) {
       try {
         appJson.decodeFromString<UIConfig>(it)
       } catch (e: SerializationException) {
-        recordException(e)
+        CrashReporter.recordException(e)
         null
       }
     }

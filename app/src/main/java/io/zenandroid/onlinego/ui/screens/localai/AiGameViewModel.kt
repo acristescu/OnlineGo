@@ -21,8 +21,8 @@ import io.zenandroid.onlinego.gamelogic.Util
 import io.zenandroid.onlinego.gamelogic.Util.toGTP
 import io.zenandroid.onlinego.ui.composables.TextResource
 import io.zenandroid.onlinego.ui.composables.textResource
+import io.zenandroid.onlinego.utils.CrashReporter
 import io.zenandroid.onlinego.utils.appJson
-import io.zenandroid.onlinego.utils.recordException
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -70,7 +70,7 @@ class AiGameViewModel(
         }
         onLoadingComplete()
       } catch (e: Exception) {
-        recordException(e)
+        CrashReporter.recordException(e)
         _state.update {
           it.copy(
             boardIsInteractive = false,
@@ -165,7 +165,7 @@ class AiGameViewModel(
           appJson.decodeFromString<AiGameState>(json)?.takeIf { validState(it) }
         } catch (e: Exception) {
           Logger.e("Cannot deserialize state", e, "AiGameViewModel")
-          recordException(e)
+          CrashReporter.recordException(e)
           null
         }
       } else {
@@ -416,7 +416,7 @@ class AiGameViewModel(
       } catch (e: CancellationException) {
         throw e
       } catch (e: Exception) {
-        recordException(e)
+        CrashReporter.recordException(e)
       }
     }
   }
@@ -465,7 +465,7 @@ class AiGameViewModel(
       } catch (e: CancellationException) {
         throw e
       } catch (e: Exception) {
-        recordException(e)
+        CrashReporter.recordException(e)
       }
     }
   }
@@ -617,7 +617,7 @@ class AiGameViewModel(
       } catch (e: CancellationException) {
         throw e
       } catch (e: Exception) {
-        recordException(e)
+        CrashReporter.recordException(e)
       }
     }
   }
@@ -636,7 +636,7 @@ class AiGameViewModel(
     val newPosition = RulesManager.makeMove(position, side, move)
 
     if (newPosition == null) {
-      recordException(Exception("KataGO wants to play move ${selectedMove.move} ($move), but RulesManager rejects it as invalid"))
+      CrashReporter.recordException(Exception("KataGO wants to play move ${selectedMove.move} ($move), but RulesManager rejects it as invalid"))
     } else {
       val newVariation = if (currentState.history.lastOrNull() == newPosition) {
         currentState.history
@@ -749,7 +749,7 @@ class AiGameViewModel(
     } catch (e: CancellationException) {
       throw e
     } catch (e: Exception) {
-      recordException(e)
+      CrashReporter.recordException(e)
     }
   }
 

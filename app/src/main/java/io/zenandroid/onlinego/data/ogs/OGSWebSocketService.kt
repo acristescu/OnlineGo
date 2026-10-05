@@ -13,11 +13,11 @@ import io.zenandroid.onlinego.data.repositories.LoginStatus
 import io.zenandroid.onlinego.data.repositories.SocketConnectedRepository
 import io.zenandroid.onlinego.data.repositories.SocketDebugRepository
 import io.zenandroid.onlinego.data.repositories.UserSessionRepository
+import io.zenandroid.onlinego.utils.CrashReporter
 import io.zenandroid.onlinego.utils.JsonObjectScope
 import io.zenandroid.onlinego.utils.appJson
 import io.zenandroid.onlinego.utils.createJsonArray
 import io.zenandroid.onlinego.utils.json
-import io.zenandroid.onlinego.utils.recordException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
@@ -111,7 +111,7 @@ class OGSWebSocketService(
         handleMessage(text)
       } catch (e: Exception) {
         socketDebugRepository.logError("WS", "Error handling message: ${e.message}")
-        recordException(Exception("Error handling WebSocket message: $text", e))
+        CrashReporter.recordException(Exception("Error handling WebSocket message: $text", e))
       }
     }
 
@@ -292,7 +292,7 @@ class OGSWebSocketService(
       return appJson.decodeFromJsonElement<T>(element)
     } catch (e: SerializationException) {
       val up = Exception("Error parsing JSON: $element", e)
-      recordException(up)
+      CrashReporter.recordException(up)
       throw up
     }
   }

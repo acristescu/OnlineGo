@@ -2,7 +2,6 @@ package io.zenandroid.onlinego.notifications
 
 import androidx.work.ListenableWorker
 import co.touchlab.kermit.Logger
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.zenandroid.onlinego.data.db.GameDao
 import io.zenandroid.onlinego.data.model.local.GameNotification
 import io.zenandroid.onlinego.data.ogs.httpStatusCode
@@ -10,8 +9,8 @@ import io.zenandroid.onlinego.data.repositories.ActiveGamesRepository
 import io.zenandroid.onlinego.data.repositories.ChallengesRepository
 import io.zenandroid.onlinego.data.repositories.UserSessionRepository
 import io.zenandroid.onlinego.ui.screens.main.MainActivity
+import io.zenandroid.onlinego.utils.CrashReporter
 import io.zenandroid.onlinego.utils.NotificationUtils
-import io.zenandroid.onlinego.utils.recordException
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import org.koin.core.context.GlobalContext
@@ -37,9 +36,8 @@ class CheckNotificationsTask(val supressWhenInForeground: Boolean = true) {
       when {
         e.httpStatusCode in arrayOf(401, 403) -> {
           Logger.e("Unauthorized when checking for notifications", tag = TAG)
-          recordException(e)
-          FirebaseCrashlytics.getInstance()
-            .setCustomKey("AUTO_LOGOUT", System.currentTimeMillis())
+          CrashReporter.recordException(e)
+          CrashReporter.setCustomKey("AUTO_LOGOUT", System.currentTimeMillis())
           notificationUtils.notifyLogout()
           userSessionRepository.logOut()
           ListenableWorker.Result.failure()
@@ -50,7 +48,7 @@ class CheckNotificationsTask(val supressWhenInForeground: Boolean = true) {
         }
         else -> {
           Logger.e("Error when checking for notifications", tag = TAG)
-          recordException(e)
+          CrashReporter.recordException(e)
           ListenableWorker.Result.retry()
         }
       }

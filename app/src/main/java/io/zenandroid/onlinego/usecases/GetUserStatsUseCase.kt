@@ -9,7 +9,7 @@ import io.zenandroid.onlinego.data.model.ogs.VersusStats
 import io.zenandroid.onlinego.data.ogs.OGSRestService
 import io.zenandroid.onlinego.usecases.RepoResult.Error
 import io.zenandroid.onlinego.usecases.RepoResult.Success
-import io.zenandroid.onlinego.utils.recordException
+import io.zenandroid.onlinego.utils.CrashReporter
 import kotlin.time.Clock
 
 class GetUserStatsUseCase (
@@ -21,7 +21,7 @@ class GetUserStatsUseCase (
             val history = restService.getPlayerStatsAsync(playerId).history.map { it.toHistoryItem("overall", 0) }
             Success(processPlayerStats(history))
         } catch (e: Exception) {
-            recordException(e)
+          CrashReporter.recordException(e)
             Error(e)
         }
     }
@@ -53,7 +53,7 @@ class GetUserStatsUseCase (
 
             Result.success(processPlayerStats(processedList))
         } catch (e: Exception) {
-            recordException(e)
+          CrashReporter.recordException(e)
             Result.failure(e)
         }
     }
@@ -62,7 +62,7 @@ class GetUserStatsUseCase (
         return try {
             Success(restService.getPlayerVersusStats(playerId))
         } catch (e: Exception) {
-            recordException(e)
+          CrashReporter.recordException(e)
             Error(e)
         }
     }

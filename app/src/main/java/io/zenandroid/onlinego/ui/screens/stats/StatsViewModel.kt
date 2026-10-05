@@ -22,9 +22,9 @@ import io.zenandroid.onlinego.ui.screens.stats.StatsViewModel.Filter.ONE_YEAR
 import io.zenandroid.onlinego.ui.screens.stats.StatsViewModel.Filter.THREE_MONTHS
 import io.zenandroid.onlinego.ui.screens.stats.StatsViewModel.Filter.TWENTY_GAMES
 import io.zenandroid.onlinego.usecases.GetUserStatsUseCase
+import io.zenandroid.onlinego.utils.CrashReporter
 import io.zenandroid.onlinego.utils.egfToRank
 import io.zenandroid.onlinego.utils.formatRank
-import io.zenandroid.onlinego.utils.recordException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -247,7 +247,7 @@ class StatsViewModel(
 
   private fun onError(t: Throwable) {
     Logger.e(t.message.orEmpty(), t, "StatsPresenter")
-    recordException(t)
+    CrashReporter.recordException(t)
   }
 
   enum class Filter {
