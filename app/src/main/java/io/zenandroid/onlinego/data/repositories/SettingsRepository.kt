@@ -10,8 +10,8 @@ import androidx.datastore.preferences.core.stringSetPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import io.zenandroid.onlinego.data.model.AppTheme
 import io.zenandroid.onlinego.data.model.BoardTheme
+import io.zenandroid.onlinego.data.model.UserSettings
 import io.zenandroid.onlinego.data.model.ogs.Speed
-import io.zenandroid.onlinego.ui.screens.settings.UserSettings
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow

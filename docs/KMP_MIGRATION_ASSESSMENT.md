@@ -23,10 +23,10 @@ The original assessment, with the full write-up of each finished slice, is at
 
 Worth doing even if the migration stops here.
 
-- [ ] **Fix layering violations:** `RulesManager` imports `ui.screens.game.Variation`;
-  `PuzzleDirectoryAction` / `TsumegoAction` carry `android.graphics.Point`; `BoardTheme` carries
-  Compose `Color` and `@StringRes`. (The MPAndroidChart leak is fixed: stats data is
-  `Pair<Float, Float>`, and only `ChartWrapper.kt` imports the library.)
+- [ ] **Fix layering violations:** `PuzzleDirectoryAction` / `TsumegoAction` carry
+  `android.graphics.Point`; `BoardTheme` carries Compose `Color` and `@StringRes`. (Fixed: stats
+  data is `Pair<Float, Float>` and only `ChartWrapper.kt` imports MPAndroidChart; `Variation` and
+  `UserSettings` live in `data.model`, so nothing below `ui` imports from it.)
 - [ ] **Split `utils/Globals.kt`** (410 LOC) into pure time/rank arithmetic and a
   `Resources`-dependent formatting layer (`timeControlDescription`, `formatSeconds`).
 - [ ] **Replace the remaining JVM-only APIs:** `ConcurrentHashMap` / `Atomic*` (3 files:

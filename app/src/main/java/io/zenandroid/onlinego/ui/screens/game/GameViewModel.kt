@@ -37,6 +37,7 @@ import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.Mark
 import io.zenandroid.onlinego.data.model.Position
 import io.zenandroid.onlinego.data.model.StoneType
+import io.zenandroid.onlinego.data.model.Variation
 import io.zenandroid.onlinego.data.model.local.Game
 import io.zenandroid.onlinego.data.model.local.Message
 import io.zenandroid.onlinego.data.model.local.Player
@@ -1349,8 +1350,3 @@ sealed interface Event {
   class NavigateToGame(val game: Game) : Event
   class OpenURL(val url: String) : Event
 }
-
-data class Variation(
-  val rootMoveNo: Int,
-  val moves: List<Cell>,
-)

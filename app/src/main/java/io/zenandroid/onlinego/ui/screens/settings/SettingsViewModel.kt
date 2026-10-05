@@ -7,6 +7,7 @@ import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.AppLanguage
 import io.zenandroid.onlinego.data.model.AppTheme
 import io.zenandroid.onlinego.data.model.BoardTheme
+import io.zenandroid.onlinego.data.model.UserSettings
 import io.zenandroid.onlinego.data.repositories.SettingsRepository
 import io.zenandroid.onlinego.data.repositories.UserSessionRepository
 import io.zenandroid.onlinego.ui.composables.UiText
@@ -210,14 +211,4 @@ data class DialogData(
   val positiveButton: String,
   val negativeButton: String,
   val onPositive: () -> Unit,
-)
-
-@Immutable
-data class UserSettings(
-  val theme: AppTheme = AppTheme.DEFAULT,
-  val boardTheme: BoardTheme = BoardTheme.WOOD,
-  val showRanks: Boolean = true,
-  val showCoordinates: Boolean = false,
-  val soundEnabled: Boolean = true,
-  val graphByGames: Boolean = false,
 )
