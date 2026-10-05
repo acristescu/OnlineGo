@@ -9,7 +9,7 @@ is no RxJava, no `Parcelable`, and Koin, Molecule, Room, DataStore, `ViewModel`,
 kotlinx-collections-immutable are already multiplatform. The cost is dominated by resources
 (663 strings x 16 locales) and the local-AI engine, which cannot run on iOS as built today.
 
-**Status.** Ten Phase 0 slices are merged (section 6). None of them has shipped in a release yet,
+**Status.** Eleven Phase 0 slices are merged (section 6). None of them has shipped in a release yet,
 and some still need on-device checks (section 1.2). Phases 1-5 have not started.
 
 The original assessment, with the full write-up of each finished slice, is at
@@ -23,10 +23,6 @@ The original assessment, with the full write-up of each finished slice, is at
 
 Worth doing even if the migration stops here.
 
-- [ ] **Fix layering violations:** `PuzzleDirectoryAction` / `TsumegoAction` carry
-  `android.graphics.Point`; `BoardTheme` carries Compose `Color` and `@StringRes`. (Fixed: stats
-  data is `Pair<Float, Float>` and only `ChartWrapper.kt` imports MPAndroidChart; `Variation` and
-  `UserSettings` live in `data.model`, so nothing below `ui` imports from it.)
 - [ ] **Split `utils/Globals.kt`** (410 LOC) into pure time/rank arithmetic and a
   `Resources`-dependent formatting layer (`timeControlDescription`, `formatSeconds`).
 - [ ] **Replace the remaining JVM-only APIs:** `ConcurrentHashMap` / `Atomic*` (3 files:
@@ -341,3 +337,25 @@ Two pre-existing bugs fixed: the Glicko2 TSV parser dropped the oldest game, and
 - `RulesManager` stays an `object`: its rules functions are called from `Position`'s companion and
   top-level helpers. Its only state is the native estimator; pulling that out as a `ScoreEstimator`
   belongs with the estimator decision (4.1).
+
+### 6.11 Layering
+
+Nothing in `data.model` or `gamelogic` imports `R`, `android.graphics`, Compose UI or anything under
+`ui` any more.
+
+- `Variation` and `UserSettings` moved from ViewModel files into `data.model`.
+- Stats chart data is `Pair<Float, Float>`; only `ChartWrapper.kt` imports MPAndroidChart.
+- `BoardTheme`, `AppTheme`, `AppLanguage` and `TutorialIcon` no longer carry resource ids or Compose
+  `Color`. Their persisted or serialized forms (enum names, `storedValue`) are unchanged.
+  - `BoardTheme`'s eight presentation fields are in `ui/theme/BoardThemeStyle.kt`, reached through
+    `BoardTheme.style`.
+  - The single-field ones are private extension properties next to their only consumer:
+    `displayNameResId` in `SettingsUI.kt`, `TutorialIcon.resId` in `LearnUI.kt`.
+  - All of them are exhaustive `when`s, so a new enum entry does not compile without its resources.
+    Accessing them through an extension property disables smart casts.
+- The unused `PuzzleDirectoryAction` / `TsumegoAction` (which carried `android.graphics.Point`) are
+  deleted.
+- Still Android-bound in `data`, but Phase 3 work rather than layering: `Context` in five
+  repositories, `android.os.Build` in `HTTPConnectionFactory`, and `java.util.Locale` in
+  `AppLanguage`
+  (the JVM-API item in 1.1).

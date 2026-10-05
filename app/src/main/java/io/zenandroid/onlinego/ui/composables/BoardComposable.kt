@@ -49,6 +49,7 @@ import io.zenandroid.onlinego.gamelogic.RulesManager.isPass
 import io.zenandroid.onlinego.gamelogic.Util
 import io.zenandroid.onlinego.ui.theme.LocalPreloadedImages
 import io.zenandroid.onlinego.ui.theme.LocalThemeSettings
+import io.zenandroid.onlinego.ui.theme.style
 import io.zenandroid.onlinego.utils.CrashReporter
 import kotlinx.collections.immutable.ImmutableList
 import kotlin.math.abs
@@ -85,8 +86,8 @@ fun Board(
     val drawMarks = true
 
     val preloadedImages = LocalPreloadedImages.current
-    val backgroundColor: Color? = boardTheme.backgroundColor?.let {
-      colorResource(boardTheme.backgroundColor)
+    val backgroundColor: Color? = boardTheme.style.backgroundColor?.let {
+      colorResource(it)
     }
 
     // Stones images
@@ -164,8 +165,14 @@ fun Board(
         measurements.border + measurements.yOffsetForNonSquareBoard
       ) {
 
-        drawGrid(boardWidth, boardHeight, candidateMove, boardTheme.textAndGridColor, measurements)
-        drawStarPoints(boardWidth, boardHeight, boardTheme.textAndGridColor, measurements)
+        drawGrid(
+          boardWidth,
+          boardHeight,
+          candidateMove,
+          boardTheme.style.textAndGridColor,
+          measurements
+        )
+        drawStarPoints(boardWidth, boardHeight, boardTheme.style.textAndGridColor, measurements)
         drawCoordinates(boardWidth, boardHeight, boardTheme, drawCoordinates, measurements)
 
         for (item in stonesToFadeOut ?: emptyList()) {
@@ -669,7 +676,7 @@ private fun DrawScope.drawCoordinates(
   measurements: Measurements
 ) {
   if (drawCoordinates) {
-    val textColor: Int = boardTheme.textAndGridColor.toArgb()
+    val textColor: Int = boardTheme.style.textAndGridColor.toArgb()
     for (i in 0 until boardWidth) {
       drawTextCentred(
         coordinatesX[i],

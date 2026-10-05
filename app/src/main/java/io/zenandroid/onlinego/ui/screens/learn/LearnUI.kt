@@ -225,3 +225,11 @@ fun DefaultPreview() {
   }
 }
 
+@get:DrawableRes
+private val TutorialIcon.resId: Int
+  get() = when (this) {
+    TutorialIcon.BEGINNER -> R.drawable.ic_tutorial_beginner
+    TutorialIcon.INTERMEDIATE -> R.drawable.ic_tutorial_intermediate
+    TutorialIcon.ADVANCED -> R.drawable.ic_tutorial_advanced
+    TutorialIcon.GENERIC -> R.drawable.ic_learn
+  }

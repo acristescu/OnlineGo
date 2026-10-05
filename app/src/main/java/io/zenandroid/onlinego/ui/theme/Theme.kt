@@ -52,7 +52,7 @@ fun OnlineGoPreviewTheme(
 ) {
   OnlineGoTheme(darkTheme) {
     val backgroundResId =
-      if (darkTheme) boardTheme.backgroundImageDarkMode else boardTheme.backgroundImage
+      if (darkTheme) boardTheme.style.backgroundImageDarkMode else boardTheme.style.backgroundImage
     CompositionLocalProvider(
       LocalThemeSettings provides ThemeSettings(
         isDarkTheme = darkTheme,
@@ -62,8 +62,8 @@ fun OnlineGoPreviewTheme(
       ),
       LocalPreloadedImages provides PreloadedImages(
         background = backgroundResId?.let { ImageBitmap.imageResource(id = it) },
-        whiteStone = ImageVector.vectorResource(id = boardTheme.whiteStone),
-        blackStone = ImageVector.vectorResource(id = boardTheme.blackStone),
+        whiteStone = ImageVector.vectorResource(id = boardTheme.style.whiteStone),
+        blackStone = ImageVector.vectorResource(id = boardTheme.style.blackStone),
       ),
     ) {
       content()

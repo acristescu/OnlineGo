@@ -1,24 +1,21 @@
 package io.zenandroid.onlinego.data.model
 
-import androidx.annotation.StringRes
 import androidx.compose.runtime.Immutable
-import io.zenandroid.onlinego.R
 
 /**
  * The light/dark preference.
  *
  * [storedValue] is what gets persisted and must stay stable across locales and releases - it is
  * deliberately the English text this setting used to be stored as, so existing preferences keep
- * working. Only [displayNameResId] is ever shown to the user.
+ * working. It is never shown to the user; the settings screen maps each entry to a string resource.
  */
 @Immutable
 enum class AppTheme(
   val storedValue: String,
-  @StringRes val displayNameResId: Int,
 ) {
-  SYSTEM_DEFAULT("System Default", R.string.settings_theme_system_default),
-  LIGHT("Light", R.string.settings_theme_light),
-  DARK("Dark", R.string.settings_theme_dark);
+  SYSTEM_DEFAULT("System Default"),
+  LIGHT("Light"),
+  DARK("Dark");
 
   companion object {
     val DEFAULT = SYSTEM_DEFAULT

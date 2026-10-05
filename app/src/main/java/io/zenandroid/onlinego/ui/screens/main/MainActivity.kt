@@ -40,6 +40,7 @@ import io.zenandroid.onlinego.notifications.SynchronizeGamesWork
 import io.zenandroid.onlinego.ui.screens.login.FacebookLoginCallbackActivity
 import io.zenandroid.onlinego.ui.theme.LocalPreloadedImages
 import io.zenandroid.onlinego.ui.theme.LocalThemeSettings
+import io.zenandroid.onlinego.ui.theme.style
 import io.zenandroid.onlinego.utils.AppLocaleManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
@@ -177,7 +178,7 @@ class MainActivity : ComponentActivity() {
   private suspend fun preloadImages(themeSettings: ThemeSettings): PreloadedImages {
     return withContext(Dispatchers.IO) {
       val background =
-        if (themeSettings.isDarkTheme) themeSettings.boardTheme.backgroundImageDarkMode else themeSettings.boardTheme.backgroundImage
+        if (themeSettings.isDarkTheme) themeSettings.boardTheme.style.backgroundImageDarkMode else themeSettings.boardTheme.style.backgroundImage
       return@withContext PreloadedImages(
         background = background?.let {
           ImageBitmap.imageResource(resources, id = it)
@@ -185,12 +186,12 @@ class MainActivity : ComponentActivity() {
         whiteStone = ImageVector.vectorResource(
           theme,
           resources,
-          themeSettings.boardTheme.whiteStone
+          themeSettings.boardTheme.style.whiteStone
         ),
         blackStone = ImageVector.vectorResource(
           theme,
           resources,
-          themeSettings.boardTheme.blackStone
+          themeSettings.boardTheme.style.blackStone
         )
       )
     }

@@ -2,11 +2,9 @@
 
 package io.zenandroid.onlinego.data.model.local
 
-import androidx.annotation.DrawableRes
-import io.zenandroid.onlinego.R
+import io.zenandroid.onlinego.data.ogs.LenientIntSerializer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import io.zenandroid.onlinego.data.ogs.LenientIntSerializer
 import kotlinx.serialization.UseSerializers
 
 /**
@@ -77,9 +75,9 @@ data class Page(
 )
 
 @Serializable
-enum class TutorialIcon(@DrawableRes val resId: Int) {
-  BEGINNER(R.drawable.ic_tutorial_beginner),
-  INTERMEDIATE(R.drawable.ic_tutorial_intermediate),
-  ADVANCED(R.drawable.ic_tutorial_advanced),
-  GENERIC(R.drawable.ic_learn)
+enum class TutorialIcon {
+  BEGINNER,
+  INTERMEDIATE,
+  ADVANCED,
+  GENERIC,
 }

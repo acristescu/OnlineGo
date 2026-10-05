@@ -1,8 +1,6 @@
 package io.zenandroid.onlinego.data.model
 
-import androidx.annotation.StringRes
 import androidx.compose.runtime.Immutable
-import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.AppLanguage.Companion.DEFAULT
 import java.util.Locale
 
@@ -14,25 +12,24 @@ import java.util.Locale
  * Romanian - falling back to [DEFAULT] for languages we do not translate. That resolution is the
  * same rule Android uses to pick a `values-xx` folder, so the two never disagree.
  *
- * [storedValue] is what gets persisted and must stay stable across releases. [displayNameResId]
- * points at the language's own name (its endonym), so "Română" reads the same no matter which
+ * [storedValue] is what gets persisted and must stay stable across releases. The settings screen
+ * shows each language by its own name (its endonym), so "Română" reads the same no matter which
  * language the app is currently displaying.
  *
- * To add a language later: add a `values-xx/strings.xml`, add an entry here, and add the tag to
- * `res/xml/locales_config.xml` so it also shows up in the system per-app language settings.
+ * To add a language later: add a `values-xx/strings.xml`, add an entry here and its display name in the
+ * settings screen, and add the tag to `res/xml/locales_config.xml` so it also shows up in the system per-app language settings.
  */
 @Immutable
 enum class AppLanguage(
   val storedValue: String,
   val localeTag: String,
   val flagEmoji: String,
-  @StringRes val displayNameResId: Int,
 ) {
-  ENGLISH("en", "en", "🇬🇧", R.string.settings_language_english),
-  CATALAN("ca", "ca", "🏴󠁥󠁳󠁣󠁴󠁿", R.string.settings_language_catalan),
-  GERMAN("de", "de", "🇩🇪", R.string.settings_language_german),
-  SPANISH("es", "es", "🇪🇸", R.string.settings_language_spanish),
-  ROMANIAN("ro", "ro", "🇷🇴", R.string.settings_language_romanian),
+  ENGLISH("en", "en", "🇬🇧"),
+  CATALAN("ca", "ca", "🏴󠁥󠁳󠁣󠁴󠁿"),
+  GERMAN("de", "de", "🇩🇪"),
+  SPANISH("es", "es", "🇪🇸"),
+  ROMANIAN("ro", "ro", "🇷🇴"),
   ;
 
   val locale: Locale = Locale.forLanguageTag(localeTag)

@@ -3,6 +3,7 @@ package io.zenandroid.onlinego.ui.screens.settings
 import android.app.Activity
 import android.content.Intent
 import androidx.activity.compose.LocalActivity
+import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -118,6 +119,7 @@ import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.SoundsClicked
 import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.SupportClicked
 import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.ThemeClicked
 import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
+import io.zenandroid.onlinego.ui.theme.style
 import io.zenandroid.onlinego.utils.AppLocaleManager
 import io.zenandroid.onlinego.utils.ReviewDiagnosticResult
 import io.zenandroid.onlinego.utils.ReviewPromptManager
@@ -464,10 +466,10 @@ private fun SettingsContent(
           icon = Rounded.Palette,
           checkbox = false,
           checked = true,
-          value = stringResource(userSettings.boardTheme.displayNameResId),
+          value = stringResource(userSettings.boardTheme.style.displayNameResId),
           possibleValues = BoardTheme.entries.map { boardTheme ->
             SettingsOption(
-              label = stringResource(boardTheme.displayNameResId),
+              label = stringResource(boardTheme.style.displayNameResId),
               boardTheme = boardTheme,
             ) { onAction(BoardThemeClicked(boardTheme)) }
           })
@@ -627,23 +629,23 @@ private fun SettingsRow(
                     option.leadingEmoji?.let { emoji ->
                       Text(text = emoji, fontSize = 20.sp)
                     }
-                    option.boardTheme?.let { boardTheme ->
+                    option.boardTheme?.style?.let { style ->
                       Box(modifier = Modifier.size(24.dp)) {
-                        if (boardTheme.backgroundImage != null) {
+                        if (style.backgroundImage != null) {
                           Image(
-                            painter = painterResource(id = boardTheme.backgroundImage),
+                            painter = painterResource(id = style.backgroundImage),
                             contentDescription = stringResource(R.string.settings_icon_content_description),
                             modifier = Modifier.size(24.dp)
                           )
                         } else {
                           Image(
-                            painter = ColorPainter(colorResource(boardTheme.backgroundColor!!)),
+                            painter = ColorPainter(colorResource(style.backgroundColor!!)),
                             contentDescription = stringResource(R.string.settings_icon_content_description),
                             modifier = Modifier.size(24.dp)
                           )
                         }
                         Image(
-                          painter = painterResource(id = boardTheme.gridPreview),
+                          painter = painterResource(id = style.gridPreview),
                           contentDescription = stringResource(R.string.settings_icon_content_description),
                           modifier = Modifier.size(24.dp)
                         )
@@ -722,3 +724,21 @@ private fun SettingsScreenPreview() {
     }
   }
 }
+
+@get:StringRes
+private val AppTheme.displayNameResId: Int
+  get() = when (this) {
+    AppTheme.SYSTEM_DEFAULT -> R.string.settings_theme_system_default
+    AppTheme.LIGHT -> R.string.settings_theme_light
+    AppTheme.DARK -> R.string.settings_theme_dark
+  }
+
+@get:StringRes
+private val AppLanguage.displayNameResId: Int
+  get() = when (this) {
+    AppLanguage.ENGLISH -> R.string.settings_language_english
+    AppLanguage.CATALAN -> R.string.settings_language_catalan
+    AppLanguage.GERMAN -> R.string.settings_language_german
+    AppLanguage.SPANISH -> R.string.settings_language_spanish
+    AppLanguage.ROMANIAN -> R.string.settings_language_romanian
+  }
