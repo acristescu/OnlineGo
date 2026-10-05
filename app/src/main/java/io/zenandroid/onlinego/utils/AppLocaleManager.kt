@@ -73,12 +73,13 @@ class AppLocaleManager(private val context: Context) {
    */
   @Suppress("DEPRECATION")
   private fun applyToApplicationResources(language: AppLanguage) {
-    Locale.setDefault(language.locale)
+    val locale = language.toLocale()
+    Locale.setDefault(locale)
 
     val resources = context.resources
     val config = Configuration(resources.configuration).apply {
-      setLocale(language.locale)
-      setLayoutDirection(language.locale)
+      setLocale(locale)
+      setLayoutDirection(locale)
     }
     resources.updateConfiguration(config, resources.displayMetrics)
   }
@@ -113,11 +114,11 @@ class AppLocaleManager(private val context: Context) {
     private fun languageFromDevice(): AppLanguage {
       val config = Resources.getSystem().configuration
       if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
-        return AppLanguage.fromLocale(config.locale) ?: AppLanguage.DEFAULT
+        return AppLanguage.fromLocaleTag(config.locale.toLanguageTag()) ?: AppLanguage.DEFAULT
       }
       val locales = config.locales
       for (i in 0 until locales.size()) {
-        AppLanguage.fromLocale(locales[i])?.let { return it }
+        AppLanguage.fromLocaleTag(locales[i].toLanguageTag())?.let { return it }
       }
       return AppLanguage.DEFAULT
     }
@@ -131,7 +132,7 @@ class AppLocaleManager(private val context: Context) {
      */
     fun wrap(base: Context): Context {
       if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) return base
-      val locale = storedLanguage(base)?.locale ?: return base
+      val locale = storedLanguage(base)?.toLocale() ?: return base
 
       Locale.setDefault(locale)
       val config = Configuration(base.resources.configuration).apply {
@@ -140,5 +141,7 @@ class AppLocaleManager(private val context: Context) {
       }
       return base.createConfigurationContext(config)
     }
+
+    private fun AppLanguage.toLocale(): Locale = Locale.forLanguageTag(localeTag)
   }
 }

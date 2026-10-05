@@ -9,7 +9,6 @@ import io.zenandroid.onlinego.data.model.local.PuzzleCollection
 import io.zenandroid.onlinego.data.model.ogs.MoveTree
 import io.zenandroid.onlinego.data.model.ogs.PuzzleRating
 import io.zenandroid.onlinego.data.model.ogs.PuzzleSolution
-import java.util.Stack
 import kotlin.time.Instant
 
 @Immutable
@@ -27,7 +26,7 @@ data class TsumegoState(
   val previousButtonEnabled: Boolean = false,
   val nextButtonEnabled: Boolean = false,
   val passButtonEnabled: Boolean = false,
-  val nodeStack: Stack<MoveTree?> = Stack(),
+  val nodeStack: List<MoveTree?> = emptyList(),
   val removedStones: Map<Cell, StoneType>? = null,
   val hoveredCell: Cell? = null,
   val boardInteractive: Boolean = true,

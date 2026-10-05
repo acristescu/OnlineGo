@@ -18,6 +18,9 @@ import io.zenandroid.onlinego.utils.JsonObjectScope
 import io.zenandroid.onlinego.utils.appJson
 import io.zenandroid.onlinego.utils.createJsonArray
 import io.zenandroid.onlinego.utils.json
+import kotlinx.collections.immutable.PersistentList
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
@@ -51,12 +54,12 @@ import okhttp3.Response
 import okhttp3.WebSocket
 import okhttp3.WebSocketListener
 import org.koin.core.context.GlobalContext.get
-import java.util.Locale
-import java.util.UUID
-import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.TimeUnit
-import java.util.concurrent.atomic.AtomicBoolean
+import kotlin.concurrent.atomics.AtomicBoolean
+import kotlin.concurrent.atomics.AtomicReference
+import kotlin.concurrent.atomics.update
 import kotlin.concurrent.thread
+import kotlin.uuid.Uuid
 
 private const val TAG = "OGSWebSocketService"
 
@@ -82,8 +85,8 @@ class OGSWebSocketService(
   // Note: Don't use constructor injection here as it creates a dependency loop
   private val socketConnectedRepositories: List<SocketConnectedRepository> by get().inject()
 
-  // Event listeners: event_name -> list of callbacks
-  private val eventListeners = ConcurrentHashMap<String, MutableList<(JsonElement) -> Unit>>()
+  private val eventListeners =
+    AtomicReference(persistentMapOf<String, PersistentList<(JsonElement) -> Unit>>())
 
   private val wsUrl = "wss://wsp.online-go.com/"
 
@@ -98,7 +101,7 @@ class OGSWebSocketService(
       Logger.i("WebSocket connected", tag = TAG)
       socketDebugRepository.logState("WS", "Connected (code=${response.code})")
       socketDebugRepository.updateConnectionState("Connected")
-      connected.set(true)
+      connected.store(true)
       reconnectDelay = RECONNECT_DELAY_MIN_MS
       onSockedConnected()
       Logger.i("WebSocket connected - called all onSocketConnected() methods", tag = TAG)
@@ -154,25 +157,20 @@ class OGSWebSocketService(
   }
 
   private fun dispatchEvent(event: String, data: JsonElement) {
-    val listeners = eventListeners[event]
-    if (listeners != null) {
-      synchronized(listeners) {
-        listeners.forEach { it(data) }
-      }
-    }
+    eventListeners.load()[event]?.forEach { it(data) }
   }
 
   private fun handleDisconnect() {
     webSocket = null
-    val wasConnected = connected.getAndSet(false)
+    val wasConnected = connected.exchange(false)
     socketDebugRepository.logState(
       "WS",
-      "handleDisconnect (wasConnected=$wasConnected, intentional=${intentionalDisconnect.get()})"
+      "handleDisconnect (wasConnected=$wasConnected, intentional=${intentionalDisconnect.load()})"
     )
     if (wasConnected) {
       onSocketDisconnected()
     }
-    if (!intentionalDisconnect.get()) {
+    if (!intentionalDisconnect.load()) {
       scheduleReconnect()
     }
   }
@@ -185,7 +183,7 @@ class OGSWebSocketService(
         Logger.d(tag = TAG) { "Reconnecting in ${reconnectDelay}ms..." }
         Thread.sleep(reconnectDelay)
         reconnectDelay = (reconnectDelay * 2).coerceAtMost(RECONNECT_DELAY_MAX_MS)
-        if (!intentionalDisconnect.get()) {
+        if (!intentionalDisconnect.load()) {
           doConnect()
         }
       } catch (_: InterruptedException) {
@@ -220,10 +218,10 @@ class OGSWebSocketService(
     if (webSocket == null) {
       socketDebugRepository.logState(
         "WS",
-        "ensureSocketConnected: not connected, connecting... (intentionalDisconnect was ${intentionalDisconnect.get()})"
+        "ensureSocketConnected: not connected, connecting... (intentionalDisconnect was ${intentionalDisconnect.load()})"
       )
       socketDebugRepository.updateConnectionState("Connecting...")
-      intentionalDisconnect.set(false)
+      intentionalDisconnect.store(false)
       doConnect()
     }
   }
@@ -248,7 +246,7 @@ class OGSWebSocketService(
         clockFlow = observeEvent("game/$id/clock").parseJSON(),
         phaseFlow = observeEvent("game/$id/phase").map { element ->
           Phase.valueOf(
-            element.jsonPrimitive.content.uppercase(Locale.ENGLISH).replace(' ', '_')
+            element.jsonPrimitive.content.uppercase().replace(' ', '_')
           )
         },
         removedStonesFlow = observeEvent("game/$id/removed_stones").parseJSON(),
@@ -376,7 +374,7 @@ class OGSWebSocketService(
               "auth" - userSessionRepository.uiConfig?.notification_auth
             }
           }.onCompletion {
-            if (connected.get()) {
+            if (connected.load()) {
               this@OGSWebSocketService.emit("notification/disconnect", "")
             }
           }
@@ -408,28 +406,20 @@ class OGSWebSocketService(
         trySend(data)
       }
 
-      val listeners = eventListeners.getOrPut(event) { mutableListOf() }
-      synchronized(listeners) {
-        listeners.add(listener)
-      }
+      eventListeners.update { it.put(event, (it[event] ?: persistentListOf()).add(listener)) }
 
       awaitClose {
         Logger.d(tag = TAG) { "Unregistering for event: $event" }
-        val list = eventListeners[event]
-        if (list != null) {
-          synchronized(list) {
-            list.remove(listener)
-            if (list.isEmpty()) {
-              eventListeners.remove(event)
-            }
-          }
+        eventListeners.update { listeners ->
+          val remaining = listeners[event]?.remove(listener) ?: return@update listeners
+          if (remaining.isEmpty()) listeners.remove(event) else listeners.put(event, remaining)
         }
       }
     }.buffer(Channel.UNLIMITED)
   }
 
   fun startAutomatch(sizes: List<Size>, speeds: List<Speed>): String {
-    val uuid = UUID.randomUUID().toString()
+    val uuid = Uuid.random().toString()
 
     emit("automatch/find_match") {
       "uuid" - uuid
@@ -476,7 +466,7 @@ class OGSWebSocketService(
     //
     socketDebugRepository.logState("WS", "disconnect() called (intentional)")
     cleanup()
-    intentionalDisconnect.set(true)
+    intentionalDisconnect.store(true)
     webSocket?.close(NORMAL_CLOSURE_STATUS, "Client disconnect")
     webSocket = null
     socketDebugRepository.updateConnectionState("Disconnected (intentional)")
@@ -533,7 +523,7 @@ class OGSWebSocketService(
     synchronized(connectionsLock) {
       Logger.i("Acquired connection lock in disconnectFromGame", tag = TAG)
       gameConnections.remove(id)
-      if (connected.get()) {
+      if (connected.load()) {
         emitGameDisconnect(id)
       }
       Logger.i("Released connection lock in disconnectFromGame", tag = TAG)

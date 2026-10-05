@@ -448,7 +448,7 @@ class GameViewModel(
         title = if (loading) TextResource(R.string.loading) else textResource(
           if (whiteToMove) R.string.game_title_white_to_move else R.string.game_title_black_to_move,
           game?.moves?.size ?: 0,
-          game?.rules?.capitalize() ?: "",
+          game?.rules?.replaceFirstChar { it.titlecase() } ?: "",
         ),
         whitePlayer = game?.whitePlayer?.data(StoneType.WHITE, whiteScore.total ?: 0f, showRanks),
         blackPlayer = game?.blackPlayer?.data(StoneType.BLACK, blackScore.total ?: 0f, showRanks),

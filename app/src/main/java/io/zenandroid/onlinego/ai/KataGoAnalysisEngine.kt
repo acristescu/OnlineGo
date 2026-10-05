@@ -19,9 +19,9 @@ import java.io.File
 import java.io.IOException
 import java.io.InputStreamReader
 import java.io.OutputStreamWriter
-import java.util.Stack
-import java.util.concurrent.atomic.AtomicLong
 import java.util.zip.ZipFile
+import kotlin.concurrent.atomics.AtomicLong
+import kotlin.concurrent.atomics.incrementAndFetch
 
 class KataGoAnalysisEngine(private val context: Context) {
   var started = false
@@ -31,7 +31,7 @@ class KataGoAnalysisEngine(private val context: Context) {
   private var process: Process? = null
   private var writer: OutputStreamWriter? = null
   private var reader: BufferedReader? = null
-  private var requestIDX: AtomicLong = AtomicLong(0)
+  private val requestIDX = AtomicLong(0)
   private val responseFlow = MutableSharedFlow<KataGoResponse>(extraBufferCapacity = 64)
 
   // Callers also raise maxVisits to at least this many - KataGo spins up this many search
@@ -71,7 +71,7 @@ class KataGoAnalysisEngine(private val context: Context) {
             if (line.startsWith("KataGo v")) {
               continue
             } else if (line == "Started, ready to begin handling requests") {
-              requestIDX = AtomicLong(0)
+              requestIDX.store(0)
               started = true
               break
             } else {
@@ -146,7 +146,7 @@ class KataGoAnalysisEngine(private val context: Context) {
     val id = generateId()
 
     val initialPosition = mutableSetOf<List<String>>()
-    val history = Stack<List<String>>()
+    val history = mutableListOf<List<String>>()
     sequence.map { pos ->
       if (pos.lastMove == null) {
         initialPosition.addAll(pos.whiteStones.map {
@@ -158,7 +158,7 @@ class KataGoAnalysisEngine(private val context: Context) {
       } else {
         val lastPlayer = if (pos.lastPlayerToMove == StoneType.BLACK) "B" else "W"
         val lastMove = Util.getGTPCoordinates(pos.lastMove, pos.boardHeight)
-        history.push(listOf(lastPlayer, lastMove))
+        history.add(listOf(lastPlayer, lastMove))
       }
     }
 
@@ -192,7 +192,7 @@ class KataGoAnalysisEngine(private val context: Context) {
     return response as Response
   }
 
-  private fun generateId() = requestIDX.incrementAndGet().toString()
+  private fun generateId() = requestIDX.incrementAndFetch().toString()
 
   private fun ensureResourcesAreUnpacked() {
     unpackResource("katago.net", netFile)

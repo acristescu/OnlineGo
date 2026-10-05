@@ -9,7 +9,8 @@ is no RxJava, no `Parcelable`, and Koin, Molecule, Room, DataStore, `ViewModel`,
 kotlinx-collections-immutable are already multiplatform. The cost is dominated by resources
 (663 strings x 16 locales) and the local-AI engine, which cannot run on iOS as built today.
 
-**Status.** Twelve Phase 0 slices are merged (section 6). None of them has shipped in a release yet,
+**Status.** Thirteen Phase 0 slices are merged (section 6). None of them has shipped in a release
+yet,
 and some still need on-device checks (section 1.2). Phases 1-5 have not started.
 
 The original assessment, with the full write-up of each finished slice, is at
@@ -28,11 +29,13 @@ Worth doing even if the migration stops here.
   (`"%d day%s"`, `"+ ... / move"`), shown untranslated in the game clocks and game-list timers in
   every locale. `computeTimeLeft` should return numbers and the UI should format them from
   resources. That also removes `String.format`, which is JVM-only.
-- [ ] **Replace the remaining JVM-only APIs:** `ConcurrentHashMap` / `Atomic*` (3 files:
-  `OGSWebSocketService`, `ClockDriftRepository`, `KataGoAnalysisEngine`) to `kotlin.concurrent`
-  atomics and a `Mutex`; `UUID` to `kotlin.uuid.Uuid`; `Stack` /
-  `LinkedList` to `ArrayDeque`; `Locale` behind `expect`/`actual`. Required before the
-  websocket layer can move in Phase 3.
+- [ ] **Replace the JVM threading primitives in `data`** (6.13 did the collections, atomics, `UUID`
+  and `Locale`): `synchronized` / `@Synchronized` in `OGSWebSocketService`, `GameConnection`,
+  `ActiveGamesRepository` and `FinishedGamesRepository`; `thread` / `Thread.sleep` /
+  `runBlocking` in `OGSWebSocketService`; `TimeUnit` in `ReviewPromptRepository`;
+  `System.currentTimeMillis` in six `data` files. The websocket ones go with its Ktor port in
+  Phase 3 - they are tangled with OkHttp's listener threads, and `connectToGame` would have to
+  become `suspend` to take a `Mutex`.
 - [ ] **Build the `@file:UseSerializers` CI check** - every `data/model` file declaring a
   `Boolean` / `Int` / `Long` must carry the matching annotation. Without it, a new DTO file
   silently loses the lenient decoding (6.1).
@@ -123,7 +126,7 @@ regular contributor appears, or when local AI needs Play Feature Delivery for it
 | OkHttp (direct)                                 | Android Ktor engine only                                                                                       | Mostly done; the websocket still takes `OkHttpClient` directly |
 | Firebase Analytics                              | Injected `Analytics`; becomes a common interface, iOS implementation in Swift                                  | **Done** - 6.9                                                 |
 | Firebase Crashlytics (non-log)                  | Global `CrashReporter`; `expect`/`actual` in Phase 2, iOS via Firebase iOS SDK or GitLive                      | **Done** - 6.10                                                |
-| `java.util.concurrent`, `UUID`, `Stack`, ...    | stdlib atomics, `Mutex`, `kotlin.uuid`, `ArrayDeque`                                                           | To do - Phase 0                                                |
+| `java.util.concurrent`, `UUID`, `Stack`, ...    | stdlib atomics, persistent collections, `kotlin.uuid`, `ArrayDeque`                                            | **Done** - 6.13; `synchronized` / threads remain (1.1)         |
 | `BuildConfig`                                   | BuildKonfig                                                                                                    | To do - Phase 2                                                |
 | Koin Android artifacts                          | `koin-core` + `koin-compose` + `koin-compose-viewmodel`; drop `androidApplication()`                           | To do - Phase 2                                                |
 | Molecule `AndroidUiDispatcher` / `ContextClock` | multiplatform frame clock; extract the shared `moleculeScope` base from the two ViewModels                     | To do - Phase 2                                                |
@@ -208,7 +211,7 @@ still built in `Globals.kt` (1.1). Do it against one module so there is one `Res
 ## 6. Done - what to know about each finished slice
 
 Only what is still load-bearing: traps, deliberate behaviour changes, and decisions that look wrong
-but are not. Unit tests stand at 97.
+but are not. Unit tests stand at 106.
 
 ### 6.1 Moshi to kotlinx.serialization (+ `org.json`)
 
@@ -359,9 +362,7 @@ Nothing in `data.model` or `gamelogic` imports `R`, `android.graphics`, Compose 
 - The unused `PuzzleDirectoryAction` / `TsumegoAction` (which carried `android.graphics.Point`) are
   deleted.
 - Still Android-bound in `data`, but Phase 3 work rather than layering: `Context` in five
-  repositories, `android.os.Build` in `HTTPConnectionFactory`, and `java.util.Locale` in
-  `AppLanguage`
-  (the JVM-API item in 1.1).
+  repositories and `android.os.Build` in `HTTPConnectionFactory`.
 
 ### 6.12 `Globals.kt` split
 
@@ -375,3 +376,23 @@ Nothing in `data.model` or `gamelogic` imports `R`, `android.graphics`, Compose 
 - `Pattern` became Kotlin `Regex` (same patterns; `matchEntire` is `matches()`).
   `ProcessGravatarURLTest` pins the gravatar and CDN rewriting and passes against both versions.
   `Math.floorDiv` / `floorMod` / `ceil` became `Long.floorDiv` / `Long.mod` / `kotlin.math.ceil`.
+
+### 6.13 JVM collections, atomics, `UUID` and `Locale`
+
+- Atomics are `kotlin.concurrent.atomics`, still experimental in Kotlin 2.3: the opt-in is
+  module-wide in `app/build.gradle.kts`. `incrementAndFetch` / `update` are extension functions and
+  need their own imports.
+- `OGSWebSocketService.eventListeners` is an `AtomicReference` to a persistent map of persistent
+  lists, updated copy-on-write, instead of a `ConcurrentHashMap` of lists locked one by one.
+  Dispatch now iterates a snapshot without a lock, so a listener removed mid-dispatch can still
+  receive that one event; `trySend` on its closed channel drops it.
+- `ClockDriftRepository` replaced a fresh `AtomicLong` per pong with `@Volatile` longs. Latency and
+  drift were never written as a pair, before or after.
+- `TsumegoState.nodeStack` was a `java.util.Stack` mutated in place inside an immutable state; it is
+  now a `List` and every push builds a new one.
+- `AppLanguage` no longer holds a `Locale`; `fromLocaleTag` compares language subtags as strings
+  (pinned in `AppLanguageTest`), and `AppLocaleManager` builds the `Locale` it needs.
+  `uppercase(Locale.ROOT)` / `capitalize(Locale.UK)` became the locale-invariant stdlib
+  `uppercase()` / `replaceFirstChar { it.titlecase() }`.
+- Left alone: `KataGoAnalysisEngine`'s process plumbing (it cannot run on iOS as is, 4.1) and the
+  `UUID` in `ScrollableDropDownMenu` (Android-only by design, 3.2).

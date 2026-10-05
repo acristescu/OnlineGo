@@ -26,7 +26,6 @@ import io.zenandroid.onlinego.gamelogic.RulesManager
 import io.zenandroid.onlinego.ui.screens.main.MainActivity
 import io.zenandroid.onlinego.ui.views.BoardView
 import kotlinx.coroutines.runBlocking
-import java.util.Locale
 
 private const val NOTIFICATION_ID = 0
 
@@ -261,7 +260,7 @@ class NotificationUtils(private val context: Context) {
                     it.phase.toString()
                 )
             }
-            val category = when (it.timeControl?.speed?.lowercase(Locale.ROOT)) {
+          val category = when (it.timeControl?.speed?.lowercase()) {
                 "correspondence" -> "active_correspondence_games"
                 "live" -> "active_live_games"
                 "blitz" -> "active_blitz_games"

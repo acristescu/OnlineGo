@@ -2,7 +2,6 @@ package io.zenandroid.onlinego.data.model
 
 import androidx.compose.runtime.Immutable
 import io.zenandroid.onlinego.data.model.AppLanguage.Companion.DEFAULT
-import java.util.Locale
 
 /**
  * A language the app ships translations for.
@@ -32,8 +31,6 @@ enum class AppLanguage(
   ROMANIAN("ro", "ro", "🇷🇴"),
   ;
 
-  val locale: Locale = Locale.forLanguageTag(localeTag)
-
   companion object {
     /** Used for any language we do not have translations for. */
     val DEFAULT = ENGLISH
@@ -46,12 +43,11 @@ enum class AppLanguage(
      * Matches on the language subtag only, so regional variants ("en-GB", "ro-MD") still resolve
      * to the right entry. Null when the language is not one we translate.
      */
-    fun fromLocale(locale: Locale?): AppLanguage? {
-      val language = locale?.language?.takeIf { it.isNotEmpty() } ?: return null
-      return entries.find { it.locale.language == language }
+    fun fromLocaleTag(tag: String?): AppLanguage? {
+      val language = tag?.languageSubtag()?.takeIf { it.isNotEmpty() } ?: return null
+      return entries.find { it.localeTag.languageSubtag() == language }
     }
 
-    fun fromLocaleTag(tag: String?): AppLanguage? =
-      fromLocale(tag?.let(Locale::forLanguageTag))
+    private fun String.languageSubtag() = substringBefore('-').lowercase()
   }
 }

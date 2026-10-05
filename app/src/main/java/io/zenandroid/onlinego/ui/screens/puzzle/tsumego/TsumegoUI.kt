@@ -83,7 +83,6 @@ import io.zenandroid.onlinego.ui.composables.RatingBar
 import io.zenandroid.onlinego.ui.theme.OnlineGoPreviewTheme
 import kotlinx.collections.immutable.toImmutableList
 import org.koin.androidx.compose.koinViewModel
-import java.util.Stack
 
 @Composable
 fun TsumegoScreen(
@@ -539,7 +538,7 @@ fun TsumegoScreenPreview() {
         boardInteractive = true,
         removedStones = null,
         hoveredCell = null,
-        nodeStack = Stack(),
+        nodeStack = emptyList(),
         description = "Test description",
         retryButtonVisible = true,
         continueButtonVisible = true,

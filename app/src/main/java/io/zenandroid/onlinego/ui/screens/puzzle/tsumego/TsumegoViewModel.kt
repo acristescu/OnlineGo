@@ -38,7 +38,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.util.Stack
 import kotlin.time.Clock
 
 class TsumegoViewModel(
@@ -141,7 +140,7 @@ class TsumegoViewModel(
         sgfMoves = "",
         continueButtonVisible = false,
         retryButtonVisible = false,
-        nodeStack = Stack<MoveTree?>().apply { push(puzzle.puzzle.move_tree) },
+        nodeStack = listOf(puzzle.puzzle.move_tree),
       )
     }
 
@@ -264,13 +263,12 @@ class TsumegoViewModel(
                 )
                 return@launch
               }).copy(nextToMove = position.nextToMove.opponent)
-            val nodeStack = _state.value.nodeStack
-            nodeStack.push(node)
+            var nodeStack = _state.value.nodeStack + node
             var moveString = _state.value.sgfMoves
             moveString += Util.getSGFCoordinates(move)
             node.branches?.randomOrNull()?.let { moveTree ->
               val reply = Cell(moveTree.x, moveTree.y)
-              nodeStack.push(moveTree)
+              nodeStack = nodeStack + moveTree
               _state.update {
                 it.copy(
                   boardPosition = position.let { pos ->
@@ -319,8 +317,7 @@ class TsumegoViewModel(
               }
               return@launch
             }).copy(nextToMove = position.nextToMove.opponent)
-          val nodeStack = _state.value.nodeStack
-          nodeStack.push(null)
+          val nodeStack = _state.value.nodeStack + null
           _state.update {
             it.copy(
               boardPosition = position,

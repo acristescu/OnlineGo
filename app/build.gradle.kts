@@ -71,6 +71,7 @@ android {
         "-opt-in=androidx.compose.animation.ExperimentalAnimationApi",
         "-opt-in=androidx.compose.foundation.ExperimentalFoundationApi",
         "-opt-in=androidx.compose.ui.ExperimentalComposeUiApi",
+        "-opt-in=kotlin.concurrent.atomics.ExperimentalAtomicApi",
         "-Xjvm-default=all"
       )
     }

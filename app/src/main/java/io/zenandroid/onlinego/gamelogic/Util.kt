@@ -6,8 +6,6 @@ import io.zenandroid.onlinego.data.model.Position
 import io.zenandroid.onlinego.data.model.StoneType
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
-import java.util.LinkedList
-import java.util.Locale
 import kotlin.math.max
 import kotlin.math.min
 
@@ -30,7 +28,7 @@ object Util {
     }
 
     fun getCoordinatesFromGTP(gtp: String, boardHeight: Int): Cell {
-        if(gtp.uppercase(Locale.ROOT) == "PASS") {
+      if (gtp.uppercase() == "PASS") {
             return Cell(-1, -1)
         }
 
@@ -118,7 +116,7 @@ object Util {
         val up = current.topNeighbour
         val down = current.bottomNeighbour
 
-        val list = LinkedList<Cell>()
+      val list = mutableListOf<Cell>()
         if (up.x in 0 until boardWidth && up.y in 0 until boardHeight) {
             list.add(up)
         }

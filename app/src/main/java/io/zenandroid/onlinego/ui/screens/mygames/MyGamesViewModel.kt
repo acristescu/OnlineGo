@@ -66,7 +66,6 @@ import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.jsonPrimitive
-import java.util.Locale
 import kotlin.coroutines.cancellation.CancellationException
 
 class MyGamesViewModel(
@@ -274,12 +273,12 @@ class MyGamesViewModel(
       rank = if (showRanks) "$rank ($rating)" else "",
       details = listOf(
         R.string.mygames_detail_board_size to DetailValue.Literal("${challenge.width}x${challenge.height}"),
-        R.string.mygames_detail_speed to DetailValue.Literal("${challenge.speed?.capitalize(Locale.UK)}"),
+        R.string.mygames_detail_speed to DetailValue.Literal("${challenge.speed?.replaceFirstChar { it.titlecase() }}"),
         R.string.mygames_detail_ranked to DetailValue.Resource(if (challenge.ranked == true) R.string.yes else R.string.no),
         R.string.mygames_detail_analysis to DetailValue.Resource(if (challenge.disabledAnalysis == true) R.string.disabled else R.string.enabled),
         R.string.handicap to (challenge.handicap?.let { DetailValue.Literal(it.toString()) }
           ?: DetailValue.Resource(R.string.auto)),
-        R.string.mygames_detail_rules to DetailValue.Literal("${challenge.rules?.capitalize(Locale.UK)}"),
+        R.string.mygames_detail_rules to DetailValue.Literal("${challenge.rules?.replaceFirstChar { it.titlecase() }}"),
       ),
     )
     _state.update {

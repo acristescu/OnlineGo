@@ -13,7 +13,6 @@ import io.zenandroid.onlinego.data.model.local.Score
 import io.zenandroid.onlinego.gamelogic.Util.toCoordinateSet
 import io.zenandroid.onlinego.utils.CrashReporter
 import kotlinx.coroutines.yield
-import java.util.LinkedList
 
 /**
  * Created by alex on 14/11/2017.
@@ -468,13 +467,13 @@ object RulesManager {
     // it means the group is surrounded and the contents of the visited
     // list is returned.
     //
-    val toVisit = LinkedList<Cell>()
+    val toVisit = ArrayDeque<Cell>()
     val visited = mutableSetOf<Cell>()
 
     toVisit.add(origin)
 
     while (!toVisit.isEmpty()) {
-      val current = toVisit.pop()
+      val current = toVisit.removeFirst()
       visited.add(current)
       val neighbours = Util.getNeighbouringSpace(current, boardWidth, boardHeight)
 

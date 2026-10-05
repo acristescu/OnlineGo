@@ -11,17 +11,19 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.retry
 import kotlinx.coroutines.launch
-import java.util.concurrent.atomic.AtomicLong
+import kotlin.concurrent.Volatile
 
 class ClockDriftRepository(
         private val socketService: OGSWebSocketService
 ) : SocketConnectedRepository {
     private var scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
-    private var drift = AtomicLong(0L)
-    private var latency = AtomicLong(0L)
+    @Volatile
+    private var drift = 0L
+    @Volatile
+    private var latency = 0L
 
     val serverTime: Long
-        get() = System.currentTimeMillis() - drift.get() + latency.get()
+        get() = System.currentTimeMillis() - drift + latency
 
     override fun onSocketConnected() {
         scope.launch {
@@ -45,8 +47,8 @@ class ClockDriftRepository(
     private fun doPing() {
         socketService.emit("net/ping") {
             "client" - System.currentTimeMillis()
-            "drift" - drift.get()
-            "latecy" - latency.get()
+            "drift" - drift
+            "latecy" - latency
         }
     }
 
@@ -60,8 +62,8 @@ class ClockDriftRepository(
             val now = System.currentTimeMillis()
             val newLatency = now - pong.client
             val newDrift = now - newLatency / 2 - pong.server
-            latency = AtomicLong(newLatency)
-            drift = AtomicLong(newDrift)
+            latency = newLatency
+            drift = newDrift
 
           Logger.v(tag = "ClockDriftRepository") { "latency=$latency drift=$drift" }
         } else {
