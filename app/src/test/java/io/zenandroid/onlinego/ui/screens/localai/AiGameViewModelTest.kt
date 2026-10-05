@@ -1,5 +1,6 @@
 package io.zenandroid.onlinego.ui.screens.localai
 
+import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.Position
 import io.zenandroid.onlinego.data.model.StoneType
 import io.zenandroid.onlinego.data.model.katago.KataGoResponse.Response
@@ -406,6 +407,52 @@ class AiGameViewModelTest {
 
     assertEquals(3f, score.blackScore, 0.0001f)
     assertEquals(5.5f, score.whiteScore, 0.0001f)
+  }
+
+  @Test
+  fun `scoreFinishedGame excludes living stones from Japanese territory`() {
+    // 3x3 board: 5 white-owned points, 3 black-owned, 1 dame - but two of the
+    // white-owned points and one black-owned point hold living stones.
+    val ownership = listOf(1f, 1f, 1f, 1f, 1f, -1f, -1f, -1f, 0f)
+
+    val score = scoreFinishedGame(
+      ownership = ownership,
+      boardWidth = 3,
+      blackCaptureCount = 0,
+      whiteCaptureCount = 0,
+      komi = 6.5f,
+      rules = AiRules.JAPANESE,
+      whiteStones = setOf(Cell(0, 0), Cell(1, 0)),
+      blackStones = setOf(Cell(2, 1)),
+    )
+
+    assertEquals(2, score.blackTerritory.size)
+    assertEquals(3, score.whiteTerritory.size)
+    assertTrue(score.whiteTerritory.none { it in setOf(Cell(0, 0), Cell(1, 0)) })
+    assertTrue(Cell(2, 1) !in score.blackTerritory)
+    assertEquals(2f, score.blackScore, 0.0001f)
+    assertEquals(3f + 6.5f, score.whiteScore, 0.0001f)
+  }
+
+  @Test
+  fun `scoreFinishedGame keeps living stones in Chinese area`() {
+    val ownership = listOf(1f, 1f, 1f, 1f, 1f, -1f, -1f, -1f, 0f)
+
+    val score = scoreFinishedGame(
+      ownership = ownership,
+      boardWidth = 3,
+      blackCaptureCount = 0,
+      whiteCaptureCount = 0,
+      komi = 7.5f,
+      rules = AiRules.CHINESE,
+      whiteStones = setOf(Cell(0, 0), Cell(1, 0)),
+      blackStones = setOf(Cell(2, 1)),
+    )
+
+    assertEquals(3, score.blackTerritory.size)
+    assertEquals(5, score.whiteTerritory.size)
+    assertEquals(3f, score.blackScore, 0.0001f)
+    assertEquals(5f + 7.5f, score.whiteScore, 0.0001f)
   }
 
   @Test

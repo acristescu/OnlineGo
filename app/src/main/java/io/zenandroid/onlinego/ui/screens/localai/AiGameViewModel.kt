@@ -708,6 +708,8 @@ class AiGameViewModel(
         komi = currentState.position.komi,
         rules = currentState.rules,
         handicapStones = handicapStonesPlaced(currentState.handicap),
+        whiteStones = currentState.position.whiteStones,
+        blackStones = currentState.position.blackStones,
       )
       val aiWon =
         if (currentState.enginePlaysBlack) score.blackScore > score.whiteScore else score.whiteScore > score.blackScore
@@ -903,9 +905,10 @@ fun handicapStonesPlaced(handicap: Int): Int = if (handicap > 1) handicap else 0
  * Splits KataGo's ownership map into territories and scores the finished game.
  *
  * `ownership` holds one value per board point, row-major: above 0.6 means White owns the
- * point, below -0.6 means Black owns it, anything in between is neutral (dame). The owned
- * sets include living stones, so they already are area scores: Japanese (territory)
- * scoring adds prisoners on top, Chinese (area) scoring does not. Chinese scoring instead
+ * point, below -0.6 means Black owns it, anything in between is neutral (dame). Owned
+ * points include living stones, which is exactly what Chinese (area) scoring wants.
+ * Japanese (territory) scoring counts empty territory plus prisoners only, so living
+ * stones are subtracted from each side's owned points there. Chinese scoring instead
  * compensates White with one point per Black handicap stone (`handicapStones`) - the same
  * `WHB_N` convention KataGo itself applies for `rules = "chinese"`, so the two agree.
  */
@@ -918,9 +921,11 @@ fun scoreFinishedGame(
   komi: Float?,
   rules: AiRules,
   handicapStones: Int = 0,
+  whiteStones: Set<Cell> = emptySet(),
+  blackStones: Set<Cell> = emptySet(),
 ): AiFinalScore {
-  val blackTerritory = mutableSetOf<Cell>()
-  val whiteTerritory = mutableSetOf<Cell>()
+  val blackArea = mutableSetOf<Cell>()
+  val whiteArea = mutableSetOf<Cell>()
   val removedSpots = mutableSetOf<Cell>()
 
   ownership?.forEachIndexed { index, value ->
@@ -928,22 +933,31 @@ fun scoreFinishedGame(
     val x = index % boardWidth
     val cell = Cell(x, y)
     when {
-      value > 0.6 -> whiteTerritory.add(cell)
-      value < -0.6 -> blackTerritory.add(cell)
+      value > 0.6 -> whiteArea.add(cell)
+      value < -0.6 -> blackArea.add(cell)
       abs(value) <= 0.6 -> removedSpots.add(cell)
     }
   }
 
-  val prisonerBonus = rules == AiRules.JAPANESE
-  val handicapBonus = if (rules == AiRules.CHINESE) handicapStones else 0
-  val blackScore = blackTerritory.size + (if (prisonerBonus) blackCaptureCount else 0)
-  val whiteScore =
-    whiteTerritory.size + (if (prisonerBonus) whiteCaptureCount else 0) + handicapBonus + (komi ?: 0f)
-  return AiFinalScore(
-    blackTerritory = blackTerritory,
-    whiteTerritory = whiteTerritory,
-    removedSpots = removedSpots,
-    blackScore = blackScore.toFloat(),
-    whiteScore = whiteScore,
-  )
+  return when (rules) {
+    AiRules.JAPANESE -> {
+      val whiteTerritory = whiteArea - whiteStones
+      val blackTerritory = blackArea - blackStones
+      AiFinalScore(
+        blackTerritory = blackTerritory,
+        whiteTerritory = whiteTerritory,
+        removedSpots = removedSpots,
+        blackScore = (blackTerritory.size + blackCaptureCount).toFloat(),
+        whiteScore = whiteTerritory.size + whiteCaptureCount + (komi ?: 0f),
+      )
+    }
+
+    AiRules.CHINESE -> AiFinalScore(
+      blackTerritory = blackArea,
+      whiteTerritory = whiteArea,
+      removedSpots = removedSpots,
+      blackScore = blackArea.size.toFloat(),
+      whiteScore = whiteArea.size + handicapStones + (komi ?: 0f),
+    )
+  }
 }
