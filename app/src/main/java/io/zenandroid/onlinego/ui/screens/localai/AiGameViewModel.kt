@@ -707,6 +707,7 @@ class AiGameViewModel(
         whiteCaptureCount = currentState.position.whiteCaptureCount,
         komi = currentState.position.komi,
         rules = currentState.rules,
+        handicapStones = handicapStonesPlaced(currentState.handicap),
       )
       val aiWon =
         if (currentState.enginePlaysBlack) score.blackScore > score.whiteScore else score.whiteScore > score.blackScore
@@ -890,12 +891,23 @@ data class AiFinalScore(
 )
 
 /**
+ * How many stones Black started the game with, for White's handicap compensation under
+ * Chinese rules. Reads [AiGameState.handicap] rather than `Position.handicap`, which
+ * [RulesManager.initializePosition] leaves at its default. Handicap 1 means "no komi"
+ * with no stones placed, so only values above 1 count.
+ */
+@VisibleForTesting
+fun handicapStonesPlaced(handicap: Int): Int = if (handicap > 1) handicap else 0
+
+/**
  * Splits KataGo's ownership map into territories and scores the finished game.
  *
  * `ownership` holds one value per board point, row-major: above 0.6 means White owns the
  * point, below -0.6 means Black owns it, anything in between is neutral (dame). The owned
  * sets include living stones, so they already are area scores: Japanese (territory)
- * scoring adds prisoners on top, Chinese (area) scoring does not.
+ * scoring adds prisoners on top, Chinese (area) scoring does not. Chinese scoring instead
+ * compensates White with one point per Black handicap stone (`handicapStones`) - the same
+ * `WHB_N` convention KataGo itself applies for `rules = "chinese"`, so the two agree.
  */
 @VisibleForTesting
 fun scoreFinishedGame(
@@ -905,6 +917,7 @@ fun scoreFinishedGame(
   whiteCaptureCount: Int,
   komi: Float?,
   rules: AiRules,
+  handicapStones: Int = 0,
 ): AiFinalScore {
   val blackTerritory = mutableSetOf<Cell>()
   val whiteTerritory = mutableSetOf<Cell>()
@@ -922,9 +935,10 @@ fun scoreFinishedGame(
   }
 
   val prisonerBonus = rules == AiRules.JAPANESE
+  val handicapBonus = if (rules == AiRules.CHINESE) handicapStones else 0
   val blackScore = blackTerritory.size + (if (prisonerBonus) blackCaptureCount else 0)
   val whiteScore =
-    whiteTerritory.size + (if (prisonerBonus) whiteCaptureCount else 0) + (komi ?: 0f)
+    whiteTerritory.size + (if (prisonerBonus) whiteCaptureCount else 0) + handicapBonus + (komi ?: 0f)
   return AiFinalScore(
     blackTerritory = blackTerritory,
     whiteTerritory = whiteTerritory,

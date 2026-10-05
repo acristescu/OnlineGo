@@ -373,6 +373,51 @@ class AiGameViewModelTest {
   }
 
   @Test
+  fun `scoreFinishedGame compensates White per handicap stone under Chinese rules`() {
+    val ownership = listOf(1f, 1f, 1f, 1f, 1f, -1f, -1f, -1f, 0f)
+
+    val score = scoreFinishedGame(
+      ownership = ownership,
+      boardWidth = 3,
+      blackCaptureCount = 0,
+      whiteCaptureCount = 0,
+      komi = 0.5f,
+      rules = AiRules.CHINESE,
+      handicapStones = 4,
+    )
+
+    assertEquals(3f, score.blackScore, 0.0001f)
+    assertEquals(5f + 4f + 0.5f, score.whiteScore, 0.0001f)
+  }
+
+  @Test
+  fun `scoreFinishedGame ignores handicap stones under Japanese rules`() {
+    val ownership = listOf(1f, 1f, 1f, 1f, 1f, -1f, -1f, -1f, 0f)
+
+    val score = scoreFinishedGame(
+      ownership = ownership,
+      boardWidth = 3,
+      blackCaptureCount = 0,
+      whiteCaptureCount = 0,
+      komi = 0.5f,
+      rules = AiRules.JAPANESE,
+      handicapStones = 4,
+    )
+
+    assertEquals(3f, score.blackScore, 0.0001f)
+    assertEquals(5.5f, score.whiteScore, 0.0001f)
+  }
+
+  @Test
+  fun `handicapStonesPlaced counts placed stones only`() {
+    assertEquals(0, handicapStonesPlaced(0))
+    // Handicap 1 means "no komi" with no stones placed.
+    assertEquals(0, handicapStonesPlaced(1))
+    assertEquals(2, handicapStonesPlaced(2))
+    assertEquals(9, handicapStonesPlaced(9))
+  }
+
+  @Test
   fun `saves written before the rules option restore as Japanese`() {
     val restored = appJson.decodeFromString<AiGameState>("""{"boardSize":9}""")
 
