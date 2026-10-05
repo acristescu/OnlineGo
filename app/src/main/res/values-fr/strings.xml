@@ -661,6 +661,43 @@ Regardons un exemple. La pierre blanche en E6 est en atari. Noir peut donc la ca
     <string name="tutorial_intermediate_ko_ko_page_5_text"><![CDATA[Maintenant, si noir veut sauver sa pierre en atari, il peut jouer en E6...]]></string>
     <string name="tutorial_intermediate_ko_ko_page_6_text">Noir a ainsi gagné le ko, mais c\'est au tour de blanc à nouveau, blanc a donc gagné deux coups en échange de cette pierre.</string>
     <string name="tutorial_intermediate_ko_ko_page_7_text">Ces deux coups gratuits peuvent parfois valoir plus de points que de gagner le Ko, donc les deux joueurs vont constamment évaluer s\'il vaut mieux continuer le Ko ou prendre les coups supplémentaires.</string>
+    <string name="tutorial_intermediate_ko_ko_page_8_text">Comment cela peut-il arriver dans une vraie partie ? Voici un exemple. Noir et Blanc ont chacun un groupe de 5 pierres en danger en haut. Le seul moyen pour Noir de sauver son groupe est de jouer en E8. Un Ko vient de commencer !</string>
+    <string name="tutorial_intermediate_ko_ko_page_9_text">Les 5 pierres blanches en haut sont maintenant à Atari, mais il ne peut pas reprendre en D8 car cela reproduirait la dernière position ! Il joue donc ailleurs un coup que Noir ne peut pas ignorer, comme E2</string>
+    <string name="tutorial_intermediate_ko_ko_page_10_text">Maintenant, les 8 pierres noires en bas à gauche sont en danger. Noire fait ses comptes : préférerait-elle perdre 8 pierres en bas ou 5 en haut ? À contre-cœur, Noire choisit de continuer le Ko et de sauver ses pierres en bas avec E1</string>
+    <string name="tutorial_intermediate_ko_ko_page_11_text">Blanc reprend maintenant le Ko</string>
+    <string name="tutorial_intermediate_ko_ko_page_12_text"><![CDATA["C'est au tour de Noire maintenant et elle ne peut reprendre à cause de la règle de Ko. Il lui reste encore une chance cependant : un coup en B4 menace le groupe blanc du bord inférieur !"]]></string>
+    <string name="tutorial_intermediate_ko_ko_page_13_text">C\'est à Blanc de choisir à présent. Doit-il capturer les 5 pierres en haut avec un coup en B9 ou sauver les 6 pierres du bas ? Il choisit le coup en A4\.\.\.</string>
+    <string name="tutorial_intermediate_ko_ko_page_14_text">Inutile de pousser Noire à jouer E8 maintenant\.\.\.</string>
+    <string name="tutorial_intermediate_ko_ko_page_15_text">Blanc se résigne à admettre qu\'il n\'a plus de bonne menace. Il joue ailleurs, comme en F4 et reconnaît avoir perdu la bataille de Ko.</string>
+    <string name="tutorial_intermediate_ko_ko_page_16_text">Noire est heureuse de réclamer son prix sur le bord supérieur avec G9</string>
+    <string name="tutorial_intermediate_ko_ko_page_17_text">Ne vous inquiétez pas si cela semble trop compliqué pour le moment. En tant que débutant, rappelez-vous surtout que vous ne pouvez pas reprendre une pierre si cela répète la position précédente.</string>
+    <string name="tutorial_intermediate_puzzles_title">Problèmes</string>
+    <string name="tutorial_intermediate_puzzles_puzzles1_text">Capturez les 3 pierres blanches ! On appelle parfois cela le \"nid de la grue\"</string>
+    <string name="tutorial_intermediate_puzzles_puzzles2_text"><![CDATA[« C'est une course aux libertés, pouvez-vous la remporter ?»]]></string>
+    <string name="tutorial_intermediate_puzzles_corner1_text"><![CDATA["Au Go, les combats dans le coin sont très courants. Voici une course aux libertés dans le coin. Pouvez-vous vous en sortir ?"]]></string>
+    <string name="tutorial_intermediate_puzzles_corner2_text"><![CDATA["Capturez les pierres blanches qui coupent les noires. Attention à faire Atari du bon côté !"]]></string>
+    <string name="tutorial_intermediate_puzzles_corner2_branches_branch1_4_4_message">4 pierres noires sont mortes</string>
+    <string name="tutorial_intermediate_puzzles_corner2_branches_branch2_3_message">3 pierres noires sont mortes</string>
+    <string name="tutorial_intermediate_puzzles_corner2_branches_branch2_5_message">2 pierres noires sont mortes</string>
+    <string name="tutorial_intermediate_puzzles_corner2_branches_branch4_message"><![CDATA[« Noir ne peut pas s'échapper»]]></string>
+    <string name="tutorial_intermediate_puzzles_corner2_branches_branch6_message"><![CDATA[« Noir ne peut pas s'échapper»]]></string>
+    <string name="tutorial_intermediate_falseeyes_title">Faux yeux</string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes1_page1_text"><![CDATA["Si vous vous souvenez du tutoriel précédent, un groupe avec deux yeux ne peut pas être capturé. Cependant, il arrive parfois qu'une partie des pierres qui entourent un œil ne sont pas reliées au groupe principal et peuvent être capturées séparément. Par exemple, dans la position ci-dessous, D5 semble être un œil, Cependant la pierre en C5 est en Atari et peut être capturée, laissant le groupe du milieu avec un seul œil.\n\nNous appelons D5 un \"faux œil\".]]></string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes2_text"><![CDATA[« Blanc a essayé de sauver ces pierres en C5 en jouant D5. Quel est le coup gagnant ici ?»]]></string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes3_text"><![CDATA["Si Blanc tente une autre approche, cela ne change rien, vous pouvez toujours capturer le groupe central !"]]></string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes4_text"><![CDATA[« Vous êtes sur la défensive cette fois-ci. Survivez en faisant deux vrais yeux ! »]]></string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes4_branches_branch2_message">Vous avez rempli votre propre œil</string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes4_branches_branch3_message">Vous avez rempli votre propre œil</string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes4_branches_branch4_message">F4 est maintenant un faux œil</string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes5_text"><![CDATA[« Les deux yeux doivent être consolidés cette fois-ci ! »]]></string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes5_branches_branch1_2_message">F5 est maintenant un faux œil.</string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes5_branches_branch2_message">C5 est un faux œil.</string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes6_text"><![CDATA[« Voici une position classique pour un faux œil sur le bord. Réparez-le ! »]]></string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes6_branches_branch2_message">Vous avez rempli votre propre œil</string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes6_branches_branch3_message">D9 est maintenant un faux œil</string>
+    <string name="tutorial_intermediate_morepuzzles_title">Plus de problèmes</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles3_text">Essayez de ne pas être étourdi.</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles4_text">Que faut-il faire en premier ?</string>
     <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_1_2_message">Les groupes noirs sont séparés</string>
     <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_2_message">Les groupes noirs sont séparés</string>
     <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_3_message">Les groupes noirs sont séparés</string>
@@ -671,6 +708,7 @@ Regardons un exemple. La pierre blanche en E6 est en atari. Noir peut donc la ca
     <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_5_4_message">Noir est isolé</string>
     <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_5_5_message">Noir est isolé</string>
     <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_6_message">Noir est isolé</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles5_text">Vaincre la symétrie</string>
     <string name="tutorial_intermediate_morepuzzles_puzzles5_branches_branch3_4_message"><![CDATA["Trois pierres noires ne peuvent pas s'échapper."]]></string>
     <string name="tutorial_intermediate_morepuzzles_puzzles5_branches_branch5_message"><![CDATA["Deux pierres noires ne peuvent pas s'échapper"]]></string>
     <string name="tutorial_intermediate_morepuzzles_puzzles5_branches_branch6_message"><![CDATA["Deux pierres noires ne peuvent pas s'échapper"]]></string>
@@ -694,6 +732,27 @@ Puis Blanc à joué G2.
 
 Regardez ce qui se passe si Noir répond en F1 (ou G1) avant de trouver la bonne réponse."]]></string>
     <string name="tutorial_advanced_endgamescoring_name">Fin de partie : Comptage</string>
+    <string name="tutorial_advanced_endgamescoring_endgame1_page1_text"><![CDATA["Ici, tu apprendras à voir lorsqu'une partie est terminée et comment compter les territoires sur un Goban en 5x5. Chaque joueur a joué 5 coups, puis les deux ont passé. La partie est donc considérée comme terminée. Il ne reste plus qu'à compter les territoires.
+
+Essaie de compter combien d'intersections a entourées Noir. Et pour Blanc ?
+
+Astuce : Rappelez-vous de compter toutes les intersections, y compris les bords et les coins, mais pas celles occupées par des pierres.]]></string>
+    <string name="tutorial_advanced_endgamescoring_endgame1_page2_text"><![CDATA[« Noir a 5 points à gauche et Blanc a 10 points à droite.
+
+Donc Blanc gagne de 5 points. »]]></string>
+    <string name="tutorial_advanced_endgamescoring_endgame1_page3_text"><![CDATA["Mais pourquoi Noir ne continue-t-il pas de jouer dans ce cas ?
+En fait, il ne reste plus de coups que Noir puisse jouer pour accroitre son score. Par exemple, si Noir envahit le bord droit, Blanc défend facilement et cette nouvelle pierre est morte.
+
+Blanc perd 1 point de territoire, mais gagne 1 point grâce à la pierre morte qui compte comme un prisonnier.
+
+Le score reste de 10 à 5"]]></string>
+    <string name="tutorial_advanced_endgamescoring_endgame1_page4_text"><![CDATA["Et si Noir joue sur le bord gauche ?
+
+Tout ce qu'il fera, c'est de réduire son territoire, donc il perd des points.
+
+Ainsi, Noir n'ayant plus de bon coup devait passer. Blanc, qui a plus de points est heureux de passer également.
+
+La partie se termine donc sur une victoire de Blanc."]]></string>
     <string name="tutorial_advanced_endgamescoring_endgame1_page5_text"><![CDATA["Voici une autre partie terminée. Noir à 5 points et Blanc 6.
 
 Les deux intersections au centre sont neutres ('Dame') et ne comptent ni pour l'un, ni pour l'autre joueur.
