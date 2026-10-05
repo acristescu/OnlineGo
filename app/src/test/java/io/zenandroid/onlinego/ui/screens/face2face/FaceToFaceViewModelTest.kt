@@ -9,6 +9,7 @@ import io.zenandroid.onlinego.data.model.StoneType
 import io.zenandroid.onlinego.data.repositories.SettingsRepository
 import io.zenandroid.onlinego.di.allKoinModules
 import io.zenandroid.onlinego.utils.Analytics
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.cancel
@@ -24,25 +25,32 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.koin.core.logger.Level
+import org.koin.dsl.module
 import org.koin.test.KoinTestRule
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class FaceToFaceViewModelTest {
-  @get:Rule
-  val koinTestRule = KoinTestRule.create {
-    printLogger(Level.DEBUG)
-    modules(allKoinModules)
-  }
-
-  @get:Rule
-  val instantExecutorRule = InstantTaskExecutorRule()
-
   private val analytics: Analytics = mock()
   private val settingsRepository: SettingsRepository = mock()
 
   private lateinit var applicationTestScope: TestScope
+
+  @get:Rule
+  val koinTestRule = KoinTestRule.create {
+    printLogger(Level.DEBUG)
+    modules(
+      allKoinModules + module {
+        single { analytics }
+        single { settingsRepository }
+        single<CoroutineScope> { applicationTestScope }
+      }
+    )
+  }
+
+  @get:Rule
+  val instantExecutorRule = InstantTaskExecutorRule()
 
   private lateinit var viewModel: FaceToFaceViewModel
 
@@ -56,12 +64,7 @@ class FaceToFaceViewModelTest {
     whenever(settingsRepository.faceToFaceBoardSizeFlow).thenReturn(flowOf(null))
     whenever(settingsRepository.faceToFaceHandicapFlow).thenReturn(flowOf(null))
 
-    viewModel = FaceToFaceViewModel(
-      analytics = analytics,
-      settingsRepository = settingsRepository,
-      applicationScope = applicationTestScope,
-      testing = true
-    )
+    viewModel = koinTestRule.koin.get()
   }
 
   @After

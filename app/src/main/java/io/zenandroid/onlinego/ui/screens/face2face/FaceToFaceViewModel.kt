@@ -49,7 +49,6 @@ import io.zenandroid.onlinego.utils.Analytics
 import io.zenandroid.onlinego.utils.CrashReporter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -59,11 +58,7 @@ class FaceToFaceViewModel(
   private val analytics: Analytics,
   private val settingsRepository: SettingsRepository,
   private val applicationScope: CoroutineScope,
-  testing: Boolean = false
 ) : ViewModel() {
-
-  private val moleculeScope =
-    if (testing) viewModelScope else CoroutineScope(viewModelScope.coroutineContext + AndroidUiDispatcher.Main)
 
   private var loading by mutableStateOf(true)
   private var currentPosition by mutableStateOf(Position(19, 19))
@@ -84,11 +79,12 @@ class FaceToFaceViewModel(
     }
   }
 
-  val state: StateFlow<FaceToFaceState> =
-    if (testing) MutableStateFlow(FaceToFaceState.INITIAL)
-    else moleculeScope.launchMolecule(mode = ContextClock) {
-      molecule()
-    }
+  val state: StateFlow<FaceToFaceState> by lazy {
+    CoroutineScope(viewModelScope.coroutineContext + AndroidUiDispatcher.Main)
+      .launchMolecule(mode = ContextClock) {
+        molecule()
+      }
+  }
 
   @VisibleForTesting
   @Composable
