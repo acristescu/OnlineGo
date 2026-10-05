@@ -79,7 +79,7 @@ import kotlin.time.Instant
 @SuppressLint("ClickableViewAccessibility")
 @Composable
 fun ChartWrapper(
-  chartData: List<Entry>,
+  chartData: List<Pair<Float, Float>>,
   filter: Filter,
   collapseTimeByGame: Boolean,
   onFilterChanged: (Filter) -> Unit,
@@ -198,7 +198,7 @@ fun ChartWrapper(
           }
         },
         update = {
-          val entries = chartData.sortedWith(EntryXComparator())
+          val entries = chartData.map { Entry(it.first, it.second) }.sortedWith(EntryXComparator())
           val rankDataSet = LineDataSet(entries, "Games").apply {
             setDrawIcons(false)
             lineWidth = 1.3f

@@ -1,6 +1,5 @@
 package io.zenandroid.onlinego.usecases
 
-import com.github.mikephil.charting.data.Entry
 import io.zenandroid.onlinego.data.model.local.HistoryItem
 import io.zenandroid.onlinego.data.model.local.UserStats
 import io.zenandroid.onlinego.data.model.local.WinLossStats
@@ -67,7 +66,11 @@ class GetUserStatsUseCase (
         }
     }
 
-    private fun generateChartDataByDuration(duration: Long?, groupCount: Int, rawData: List<HistoryItem>): List<Entry> {
+    private fun generateChartDataByDuration(
+        duration: Long?,
+        groupCount: Int,
+        rawData: List<HistoryItem>
+    ): List<Pair<Float, Float>> {
         if(rawData.isEmpty()) {
             return emptyList()
         }
@@ -82,19 +85,22 @@ class GetUserStatsUseCase (
                 currentRank = rawData[dataIndex].rating
                 dataIndex++
             }
-            Entry(x, currentRank)
-        }.filter { it.y != 0f }
+            Pair(x, currentRank)
+        }.filter { it.second != 0f }
     }
 
-    private fun generateChartDataByGame(gameCount: Int?, rawData: List<HistoryItem>): List<Entry> {
+    private fun generateChartDataByGame(
+        gameCount: Int?,
+        rawData: List<HistoryItem>
+    ): List<Pair<Float, Float>> {
         if(rawData.isEmpty()) {
             return emptyList()
         }
         val gameCount = gameCount?.coerceAtMost(rawData.size) ?: rawData.size
         val dataIndex = rawData.size - gameCount
         return (dataIndex until rawData.size).map { x ->
-            Entry(x.toFloat(), rawData[x].rating)
-        }.filter { it.y != 0f }
+            Pair(x.toFloat(), rawData[x].rating)
+        }.filter { it.second != 0f }
     }
 
     private val month = 60 * 60 * 24 * 30L

@@ -5,7 +5,6 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import co.touchlab.kermit.Logger
-import com.github.mikephil.charting.data.Entry
 import io.zenandroid.onlinego.data.model.local.HistoryItem
 import io.zenandroid.onlinego.data.model.local.UserStats
 import io.zenandroid.onlinego.data.model.local.WinLossStats
@@ -263,7 +262,7 @@ class StatsViewModel(
 
   @Immutable
   data class StatsState(
-    val chartData: List<Entry>,
+    val chartData: List<Pair<Float, Float>>,
     val playerDetails: OGSPlayer?,
     val avatarURL: String?,
     val highestRank: String?,

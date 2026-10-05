@@ -1,20 +1,19 @@
 package io.zenandroid.onlinego.data.model.local
 
 import androidx.compose.runtime.Immutable
-import com.github.mikephil.charting.data.Entry
 
 @Immutable
 data class UserStats(
     val highestRating: Float?,
     val highestRatingTimestamp: Long?,
-    val chartDataAll: List<Entry>,
-    val chartData1M: List<Entry>,
-    val chartData3M: List<Entry>,
-    val chartData1Y: List<Entry>,
-    val chartData5Y: List<Entry>,
-    val chartData20G: List<Entry>,
-    val chartData100G: List<Entry>,
-    val chartDataAllG: List<Entry>,
+    val chartDataAll: List<Pair<Float, Float>>,
+    val chartData1M: List<Pair<Float, Float>>,
+    val chartData3M: List<Pair<Float, Float>>,
+    val chartData1Y: List<Pair<Float, Float>>,
+    val chartData5Y: List<Pair<Float, Float>>,
+    val chartData20G: List<Pair<Float, Float>>,
+    val chartData100G: List<Pair<Float, Float>>,
+    val chartDataAllG: List<Pair<Float, Float>>,
     val wonCount: Int,
     val lostCount: Int,
     val bestStreak: Int,

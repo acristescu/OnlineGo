@@ -41,7 +41,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.github.mikephil.charting.data.Entry
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.local.WinLossStats
 import io.zenandroid.onlinego.ui.composables.bottomBarContentPadding
@@ -581,10 +580,10 @@ private fun Preview() {
     StatsContent(
       StatsState.Initial.copy(
       chartData = listOf(
-        Entry(1f, 1f),
-        Entry(2f, 5f),
-        Entry(3f, 16f),
-        Entry(4f, 12f),
+        Pair(1f, 1f),
+        Pair(2f, 5f),
+        Pair(3f, 16f),
+        Pair(4f, 12f),
       )
     ), onFilterChanged = { }, onGraphChanged = { })
   }

@@ -23,9 +23,10 @@ The original assessment, with the full write-up of each finished slice, is at
 
 Worth doing even if the migration stops here.
 
-- [ ] **Fix layering violations:** `RulesManager` imports `ui.screens.game.Variation`; `UserStats`
-  and `GetUserStatsUseCase` depend on MPAndroidChart; `PuzzleDirectoryAction` / `TsumegoAction`
-  carry `android.graphics.Point`; `BoardTheme` carries Compose `Color` and `@StringRes`.
+- [ ] **Fix layering violations:** `RulesManager` imports `ui.screens.game.Variation`;
+  `PuzzleDirectoryAction` / `TsumegoAction` carry `android.graphics.Point`; `BoardTheme` carries
+  Compose `Color` and `@StringRes`. (The MPAndroidChart leak is fixed: stats data is
+  `Pair<Float, Float>`, and only `ChartWrapper.kt` imports the library.)
 - [ ] **Split `utils/Globals.kt`** (410 LOC) into pure time/rank arithmetic and a
   `Resources`-dependent formatting layer (`timeControlDescription`, `formatSeconds`).
 - [ ] **Replace the remaining JVM-only APIs:** `ConcurrentHashMap` / `Atomic*` (3 files:
@@ -128,7 +129,7 @@ regular contributor appears, or when local AI needs Play Feature Delivery for it
 | Koin Android artifacts                          | `koin-core` + `koin-compose` + `koin-compose-viewmodel`; drop `androidApplication()`                           | To do - Phase 2                                                |
 | Molecule `AndroidUiDispatcher` / `ContextClock` | multiplatform frame clock; extract the shared `moleculeScope` base from the two ViewModels                     | To do - Phase 2                                                |
 | Room 2.8, DataStore 1.2                         | same libraries, KMP setup                                                                                      | To do - Phase 3                                                |
-| MPAndroidChart                                  | Vico 2.x / KoalaPlot / Compose `Canvas` (`ChartWrapper.kt`, 416 LOC)                                           | To do - Phase 4; fix the layering leak in Phase 0              |
+| MPAndroidChart                                  | Vico 2.x / KoalaPlot / Compose `Canvas` (`ChartWrapper.kt`, 416 LOC)                                           | To do - Phase 4; already confined to `ChartWrapper.kt`         |
 | Markwon                                         | `multiplatform-markdown-renderer-m3` (`JosekiExplorerUI`, ~90 LOC)                                             | To do - Phase 4                                                |
 | `material-icons-extended` (109 refs, 21 files)  | vendored `ImageVector`s                                                                                        | To do - Phase 4                                                |
 | navigation-compose (androidx)                   | `org.jetbrains.androidx.navigation`                                                                            | To do - Phase 4                                                |
