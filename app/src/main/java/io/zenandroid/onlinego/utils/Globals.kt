@@ -1,11 +1,5 @@
 package io.zenandroid.onlinego.utils
 
-import android.content.Context
-import android.content.res.Resources
-import android.widget.Toast
-import androidx.annotation.PluralsRes
-import io.zenandroid.onlinego.BuildConfig
-import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.local.Clock
 import io.zenandroid.onlinego.data.model.local.Game
 import io.zenandroid.onlinego.data.model.local.Time
@@ -15,8 +9,6 @@ import io.zenandroid.onlinego.data.ogs.toOGSDateTime
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
-import org.koin.core.context.GlobalContext
-import java.util.regex.Pattern
 import kotlin.math.ceil
 import kotlin.math.floor
 import kotlin.math.ln
@@ -83,8 +75,8 @@ fun formatRank(rank: Double?, deviation: Double? = 0.0, longFormat: Boolean = fa
     }
 }
 
-private val gravatarRegex = Pattern.compile("(.*gravatar.com/avatar/[0-9a-fA-F]*+).*")
-private val cdnRegex = Pattern.compile("(.*user-uploads.online-go.com.*)-\\d*\\.png")
+private val gravatarRegex = Regex("(.*gravatar.com/avatar/[0-9a-fA-F]*+).*")
+private val cdnRegex = Regex("(.*user-uploads.online-go.com.*)-\\d*\\.png")
 
 /**
  * The OGS CDN renders each upload at a fixed set of widths. Asking for the smallest one that still
@@ -97,14 +89,12 @@ private fun cdnSizeFor(width: Int) = CDN_SIZES.firstOrNull { it >= width } ?: CD
 
 fun processGravatarURL(url: String?, width: Int): String? {
     url?.let {
-        var matcher = gravatarRegex.matcher(url)
-        if(matcher.matches()) {
-            return "${matcher.group(1)}?s=${width}&d=404"
+        gravatarRegex.matchEntire(url)?.let { match ->
+            return "${match.groupValues[1]}?s=${width}&d=404"
         }
 
-      matcher = cdnRegex.matcher(url)
-        if(matcher.matches()) {
-            return "${matcher.group(1)}-${cdnSizeFor(width)}.png"
+        cdnRegex.matchEntire(url)?.let { match ->
+            return "${match.groupValues[1]}-${cdnSizeFor(width)}.png"
         }
     }
     return url
@@ -199,126 +189,9 @@ fun formatMillis(millis: Long): String {
 
 fun plural(number: Long) = if(number != 1L) "s" else ""
 
-fun timeControlDescription(resources: Resources, timeControl: TimeControl): String {
-
-    val system = timeControl.system ?: timeControl.time_control
-    var desc = when(system) {
-        "simple" -> resources.getString(
-            R.string.time_control_simple,
-            formatSeconds(resources, timeControl.per_move)
-        )
-
-        "fischer" -> resources.getString(
-            R.string.time_control_fischer,
-            formatSeconds(resources, timeControl.initial_time),
-            formatSeconds(resources, timeControl.time_increment),
-            formatSeconds(resources, timeControl.max_time)
-        )
-
-        "byoyomi" -> {
-            val periods = timeControl.periods ?: 0
-            resources.getQuantityString(
-                R.plurals.time_control_byoyomi,
-                periods,
-                formatSeconds(resources, timeControl.main_time),
-                periods,
-                formatSeconds(resources, timeControl.period_time)
-            )
-        }
-
-        "canadian" -> {
-            val stones = timeControl.stones_per_period ?: 0
-            resources.getQuantityString(
-                R.plurals.time_control_canadian,
-                stones,
-                formatSeconds(resources, timeControl.main_time),
-                formatSeconds(resources, timeControl.period_time),
-                stones
-            )
-        }
-
-        "absolute" -> resources.getString(
-            R.string.time_control_absolute,
-            formatSeconds(resources, timeControl.total_time)
-        )
-
-        "none" -> resources.getString(R.string.time_control_none)
-        else -> resources.getString(R.string.time_control_unknown)
-    }
-
-    if(timeControl.pause_on_weekends == true) {
-        desc += resources.getString(R.string.time_control_pauses_on_weekends)
-    }
-
-    return desc
-}
-
-fun formatSeconds(resources: Resources, seconds: Int?): String {
-    seconds?.let {
-        var s = it.toDouble()
-        val weeks = (s / (86400 * 7)).toLong()
-        s -= weeks . toInt () * 86400 * 7
-        val days = (s / 86400).toLong()
-        s -= days * 86400
-        val hours = (s / 3600).toLong()
-        s -= hours * 3600
-        val minutes = (s / 60).toLong()
-        s -= minutes * 60
-
-        return when {
-            weeks > 0 -> resources.duration(
-                R.plurals.duration_weeks,
-                weeks,
-                R.plurals.duration_days,
-                days
-            )
-
-            days > 0 -> resources.duration(
-                R.plurals.duration_days,
-                days,
-                R.plurals.duration_hours,
-                hours
-            )
-
-            hours > 0 -> resources.duration(
-                R.plurals.duration_hours,
-                hours,
-                R.plurals.duration_minutes,
-                minutes
-            )
-
-            minutes > 0 -> resources.duration(
-                R.plurals.duration_minutes,
-                minutes,
-                R.plurals.duration_seconds,
-                s.toLong()
-            )
-
-            else -> resources.durationUnit(R.plurals.duration_seconds, s.toLong())
-        }
-    }
-    return resources.getString(R.string.duration_unknown)
-}
-
-private fun Resources.durationUnit(@PluralsRes unit: Int, value: Long): String =
-    getQuantityString(unit, value.toInt(), value)
-
-/** Formats [value] of [unit], appending [remainderValue] of [remainderUnit] when it is not zero. */
-private fun Resources.duration(
-    @PluralsRes unit: Int,
-    value: Long,
-    @PluralsRes remainderUnit: Int,
-    remainderValue: Long,
-): String {
-    val head = durationUnit(unit, value)
-    return if (remainderValue > 0) {
-        getString(R.string.duration_two_units, head, durationUnit(remainderUnit, remainderValue))
-    } else head
-}
-
 fun Long.microsToISODateTime(): String = Instant.fromEpochSeconds(
-    Math.floorDiv(this, MICROS_PER_SECOND),
-    Math.floorMod(this, MICROS_PER_SECOND) * NANOS_PER_MICRO,
+    floorDiv(MICROS_PER_SECOND),
+    mod(MICROS_PER_SECOND) * NANOS_PER_MICRO,
 ).toOGSDateTime()
 
 fun Instant.toEpochMicros(): Long =
@@ -365,7 +238,8 @@ fun computeTimeLeft(
             // Byo Yomi timer
             var periodsLeft = playerTime.periods
             if(timeLeft < 0 || playerTime.thinking_time == 0.0) {
-                val periodOffset = Math.ceil((-timeLeft / 1000.0) / playerTime.period_time!!).coerceAtLeast(0.0)
+                val periodOffset =
+                    ceil((-timeLeft / 1000.0) / playerTime.period_time!!).coerceAtLeast(0.0)
 
                 while(timeLeft < 0) {
                     timeLeft += (playerTime.period_time * 1000).toLong()
@@ -409,11 +283,3 @@ data class TimerDetails (
     var secondLine: String? = null,
     var timeLeft: Long
 )
-
-fun toastException(t: Throwable, long: Boolean = false) {
-    if (!BuildConfig.DEBUG) return
-
-    val context: Context = GlobalContext.get().get()
-    val length = if (long) Toast.LENGTH_LONG else Toast.LENGTH_SHORT
-    Toast.makeText(context, t.toString(), length).show()
-}

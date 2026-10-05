@@ -9,7 +9,7 @@ is no RxJava, no `Parcelable`, and Koin, Molecule, Room, DataStore, `ViewModel`,
 kotlinx-collections-immutable are already multiplatform. The cost is dominated by resources
 (663 strings x 16 locales) and the local-AI engine, which cannot run on iOS as built today.
 
-**Status.** Eleven Phase 0 slices are merged (section 6). None of them has shipped in a release yet,
+**Status.** Twelve Phase 0 slices are merged (section 6). None of them has shipped in a release yet,
 and some still need on-device checks (section 1.2). Phases 1-5 have not started.
 
 The original assessment, with the full write-up of each finished slice, is at
@@ -23,8 +23,11 @@ The original assessment, with the full write-up of each finished slice, is at
 
 Worth doing even if the migration stops here.
 
-- [ ] **Split `utils/Globals.kt`** (410 LOC) into pure time/rank arithmetic and a
-  `Resources`-dependent formatting layer (`timeControlDescription`, `formatSeconds`).
+- [ ] **Localize the clock text in `utils/Globals.kt`.** The file no longer imports anything
+  Android-only (6.12), but `computeTimeLeft` -> `formatMillis` -> `plural` hand-build English
+  (`"%d day%s"`, `"+ ... / move"`), shown untranslated in the game clocks and game-list timers in
+  every locale. `computeTimeLeft` should return numbers and the UI should format them from
+  resources. That also removes `String.format`, which is JVM-only.
 - [ ] **Replace the remaining JVM-only APIs:** `ConcurrentHashMap` / `Atomic*` (3 files:
   `OGSWebSocketService`, `ClockDriftRepository`, `KataGoAnalysisEngine`) to `kotlin.concurrent`
   atomics and a `Mutex`; `UUID` to `kotlin.uuid.Uuid`; `Stack` /
@@ -183,8 +186,9 @@ same
 `strings.xml`, so Crowdin needs only a path change. The seam already exists: `TextResource` and the
 `labelResId` / `DetailValue.Resource` idiom carry ~130 resource ids as `Int` in ViewModel state,
 which become typed `StringResource`s mechanically (`GameViewModel` ~30, `OnboardingViewModel` ~25,
-`AiGameViewModel` ~20, `MyGamesViewModel` ~18, `FaceToFaceViewModel` ~15). The non-mechanical part
-is `Globals.kt` (Phase 0 split). Do it against one module so there is one `Res` class.
+`AiGameViewModel` ~20, `MyGamesViewModel` ~18, `FaceToFaceViewModel` ~15). The non-mechanical parts
+are `ui/screens/game/TimeControlDescription.kt` (`Resources.getQuantityString`) and the clock text
+still built in `Globals.kt` (1.1). Do it against one module so there is one `Res` class.
 
 ---
 
@@ -309,8 +313,7 @@ Two pre-existing bugs fixed: the Glicko2 TSV parser dropped the oldest game, and
   - `CheckNotificationsTask` and `SynchronizeGamesWork` stay in `:app` and cannot take constructor
     parameters without a `WorkerFactory`.
   - `GameConnection` is not built by Koin; `Globals1.kt` holds a top-level `ClockDriftRepository`.
-- `toastException` in `Globals.kt` is Android-only because of `Toast` / `Context` / `BuildConfig`,
-  not because of the locator. It goes with the `Globals.kt` split (1.1).
+- `toastException` in `Globals.kt` had no callers and is deleted (6.12).
 
 ### 6.9 Firebase Analytics behind `Analytics`
 
@@ -359,3 +362,16 @@ Nothing in `data.model` or `gamelogic` imports `R`, `android.graphics`, Compose 
   repositories, `android.os.Build` in `HTTPConnectionFactory`, and `java.util.Locale` in
   `AppLanguage`
   (the JVM-API item in 1.1).
+
+### 6.12 `Globals.kt` split
+
+- `utils/Globals.kt` no longer imports anything Android-only: no `Resources`, `R`, `Toast`,
+  `BuildConfig`, Koin or `java.*`. It still has `String.format`, which goes with the clock-text item
+  (1.1).
+- `timeControlDescription` and its `formatSeconds` / `Resources.duration*` helpers moved to
+  `ui/screens/game/TimeControlDescription.kt`, next to their only caller, `GameUI`. `formatSeconds`
+  is now private.
+- `toastException` had no callers and is deleted.
+- `Pattern` became Kotlin `Regex` (same patterns; `matchEntire` is `matches()`).
+  `ProcessGravatarURLTest` pins the gravatar and CDN rewriting and passes against both versions.
+  `Math.floorDiv` / `floorMod` / `ceil` became `Long.floorDiv` / `Long.mod` / `kotlin.math.ceil`.

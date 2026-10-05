@@ -144,7 +144,6 @@ import io.zenandroid.onlinego.ui.theme.OnlineGoPreviewTheme
 import io.zenandroid.onlinego.usecases.RepoResult
 import io.zenandroid.onlinego.utils.CrashReporter
 import io.zenandroid.onlinego.utils.ReviewPromptManager
-import io.zenandroid.onlinego.utils.timeControlDescription
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.koin.androidx.compose.koinViewModel
