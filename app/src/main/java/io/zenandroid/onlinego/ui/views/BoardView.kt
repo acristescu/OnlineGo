@@ -20,7 +20,6 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.core.graphics.ColorUtils
 import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat
 import co.touchlab.kermit.Logger
-import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.Mark
@@ -373,7 +372,7 @@ class BoardView : View {
     private fun convertVectorIntoBitmap(vector: Int, width: Int): Bitmap {
         val bitmap = Bitmap.createBitmap(width, width, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(bitmap)
-        val vec = VectorDrawableCompat.create(OnlineGoApplication.instance.resources, vector, null)!!
+        val vec = VectorDrawableCompat.create(resources, vector, null)!!
         vec.setBounds(0, 0, canvas.width, canvas.height)
         vec.draw(canvas)
         return bitmap

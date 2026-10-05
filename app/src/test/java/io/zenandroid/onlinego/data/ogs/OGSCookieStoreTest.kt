@@ -20,7 +20,10 @@ private class InMemoryPersistence(initial: Map<String, StoredCookie> = emptyMap(
   var saved: Map<String, StoredCookie> = initial
     private set
 
-  override fun load() = saved
+  var loads = 0
+    private set
+
+  override fun load() = saved.also { loads++ }
 
   override fun save(cookies: Map<String, StoredCookie>) {
     saved = cookies
@@ -32,6 +35,17 @@ class OGSCookieStoreTest {
   private val persistence = InMemoryPersistence()
   private var clock = NOW
   private val store = OGSCookieStore(persistence, HOST) { clock }
+
+  @Test
+  fun `persisted cookies are not read until first use`() = runTest {
+    val persistence =
+      InMemoryPersistence(mapOf(SESSION_COOKIE to StoredCookie("abc", NOW + 60_000L)))
+    val store = OGSCookieStore(persistence, HOST) { clock }
+
+    assertEquals(0, persistence.loads)
+    assertEquals(listOf("abc"), store.get(OGS_URL).map { it.value })
+    assertEquals(1, persistence.loads)
+  }
 
   @Test
   fun `max-age sets the expiry and the cookie is written through to persistence`() = runTest {

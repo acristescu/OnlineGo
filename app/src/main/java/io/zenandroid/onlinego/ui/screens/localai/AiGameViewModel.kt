@@ -41,6 +41,7 @@ class AiGameViewModel(
   private val userSessionRepository: UserSessionRepository,
   private val settingsRepository: SettingsRepository,
   private val applicationCoroutineScope: CoroutineScope,
+  private val kataGoAnalysisEngine: KataGoAnalysisEngine,
 ) : ViewModel() {
 
   private val _state = MutableStateFlow(
@@ -64,7 +65,7 @@ class AiGameViewModel(
     viewModelScope.launch {
       try {
         withContext(Dispatchers.IO) {
-          KataGoAnalysisEngine.start()
+          kataGoAnalysisEngine.start()
           _state.update { it.copy(engineStarted = true) }
         }
         onLoadingComplete()
@@ -398,7 +399,7 @@ class AiGameViewModel(
 
       try {
         val analysis = withContext(Dispatchers.IO) {
-          KataGoAnalysisEngine.analyzeMoveSequence(
+          kataGoAnalysisEngine.analyzeMoveSequence(
             sequence = currentState.history,
             maxVisits = 30,
             komi = currentState.position.komi,
@@ -446,7 +447,7 @@ class AiGameViewModel(
 
       try {
         val analysis = withContext(Dispatchers.IO) {
-          KataGoAnalysisEngine.analyzeMoveSequence(
+          kataGoAnalysisEngine.analyzeMoveSequence(
             sequence = currentState.history,
             maxVisits = 30,
             komi = currentState.position.komi,
@@ -549,9 +550,9 @@ class AiGameViewModel(
         val difficulty = currentState.difficulty
         // KataGo spins up this many search threads per query regardless of maxVisits; a
         // lower budget just wastes most of them in a thread-scheduling race for the rest.
-        val effectiveMaxVisits = maxOf(difficulty.maxVisits, KataGoAnalysisEngine.searchThreads)
+        val effectiveMaxVisits = maxOf(difficulty.maxVisits, kataGoAnalysisEngine.searchThreads)
         val analysis = withContext(Dispatchers.IO) {
-          KataGoAnalysisEngine.analyzeMoveSequence(
+          kataGoAnalysisEngine.analyzeMoveSequence(
             sequence = currentState.history,
             maxVisits = effectiveMaxVisits,
             komi = currentState.position.komi,
@@ -687,7 +688,7 @@ class AiGameViewModel(
 
     try {
       val analysis = withContext(Dispatchers.IO) {
-        KataGoAnalysisEngine.analyzeMoveSequence(
+        kataGoAnalysisEngine.analyzeMoveSequence(
           sequence = currentState.history,
           maxVisits = 10,
           komi = currentState.position.komi,
@@ -759,7 +760,7 @@ class AiGameViewModel(
     ownershipJob?.cancel()
     finalScoreJob?.cancel()
     applicationCoroutineScope.launch(Dispatchers.IO) {
-      KataGoAnalysisEngine.stop()
+      kataGoAnalysisEngine.stop()
     }
   }
 }

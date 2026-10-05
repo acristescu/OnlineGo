@@ -1,6 +1,5 @@
 package io.zenandroid.onlinego.ui.screens.settings
 
-import android.content.Context
 import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -40,6 +39,7 @@ import kotlinx.coroutines.launch
 class SettingsViewModel(
   private val settingsRepository: SettingsRepository,
   private val userSessionRepository: UserSessionRepository,
+  private val analytics: FirebaseAnalytics,
 ) : ViewModel() {
 
   val userSettings: StateFlow<UserSettings> = combine(
@@ -96,7 +96,7 @@ class SettingsViewModel(
         }
       }
 
-      is SettingsAction.Logout -> doLogout(action.context)
+      is SettingsAction.Logout -> doLogout()
 
       is BoardThemeClicked -> {
         viewModelScope.launch {
@@ -166,8 +166,8 @@ class SettingsViewModel(
     }
   }
 
-  private fun doLogout(context: Context?) {
-    context?.let { FirebaseAnalytics.getInstance(it).logEvent("logout_clicked", null) }
+  private fun doLogout() {
+    analytics.logEvent("logout_clicked", null)
     FirebaseCrashlytics.getInstance().sendUnsentReports()
     userSessionRepository.logOut()
   }
@@ -200,7 +200,7 @@ sealed interface SettingsAction {
   data object SupportClicked : SettingsAction
   data object SocketDebugClicked : SettingsAction
   data object ReviewPromptClicked : SettingsAction
-  data class Logout(val context: Context?) : SettingsAction
+  data object Logout : SettingsAction
 }
 
 @Immutable

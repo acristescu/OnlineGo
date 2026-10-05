@@ -9,7 +9,6 @@ import androidx.lifecycle.viewModelScope
 import co.touchlab.kermit.Logger
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.crashlytics.FirebaseCrashlytics
-import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.ogs.OGSRestService
 import io.zenandroid.onlinego.data.ogs.OGSWebSocketService
@@ -44,6 +43,7 @@ class OnboardingViewModel(
   val ogsWebSocketService: OGSWebSocketService,
   val settingsRepository: SettingsRepository,
   val userSessionRepository: UserSessionRepository,
+  private val analytics: FirebaseAnalytics,
   savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -86,8 +86,6 @@ class OnboardingViewModel(
       R.string.onboarding_notifications_skip
     )
   ).drop(if (savedStateHandle["initialPageArg"] as String? != null) 4 else 0)
-
-  private val analytics = OnlineGoApplication.instance.analytics
 
   init {
     viewModelScope.launch(Dispatchers.IO) {

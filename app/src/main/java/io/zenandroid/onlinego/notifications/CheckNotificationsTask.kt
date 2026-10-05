@@ -1,6 +1,5 @@
 package io.zenandroid.onlinego.notifications
 
-import android.content.Context
 import androidx.work.ListenableWorker
 import co.touchlab.kermit.Logger
 import com.google.firebase.crashlytics.FirebaseCrashlytics
@@ -21,11 +20,13 @@ import java.net.SocketTimeoutException
 import java.net.UnknownHostException
 
 private const val TAG = "CheckNotificationsTask"
-class CheckNotificationsTask(val context: Context, val supressWhenInForeground: Boolean = true) {
+
+class CheckNotificationsTask(val supressWhenInForeground: Boolean = true) {
   private val gameDao: GameDao = GlobalContext.get().get()
   private val userSessionRepository: UserSessionRepository = GlobalContext.get().get()
   private val activeGamesRepository: ActiveGamesRepository = GlobalContext.get().get()
   private val challengesRepository: ChallengesRepository = GlobalContext.get().get()
+  private val notificationUtils: NotificationUtils = GlobalContext.get().get()
   suspend fun doWork(): ListenableWorker.Result {
     Logger.i("Checking for notifications", tag = TAG)
     return try {
@@ -39,7 +40,7 @@ class CheckNotificationsTask(val context: Context, val supressWhenInForeground: 
           recordException(e)
           FirebaseCrashlytics.getInstance()
             .setCustomKey("AUTO_LOGOUT", System.currentTimeMillis())
-          NotificationUtils.notifyLogout(context)
+          notificationUtils.notifyLogout()
           userSessionRepository.logOut()
           ListenableWorker.Result.failure()
         }
@@ -64,7 +65,7 @@ class CheckNotificationsTask(val context: Context, val supressWhenInForeground: 
     Logger.v(tag = TAG) { "Got ${activeGames.size} games" }
     if (!(supressWhenInForeground && MainActivity.isInForeground)) {
       Logger.v(tag = TAG) { "Updating game notification" }
-      NotificationUtils.notifyGames(context, activeGames, gameNotifications, userId)
+      notificationUtils.notifyGames(activeGames, gameNotifications, userId)
     }
     val newNotifications = activeGames.map { GameNotification(it.id, it.moves, it.phase) }
     if (newNotifications != gameNotifications.map { it.notification }) {
@@ -80,7 +81,7 @@ class CheckNotificationsTask(val context: Context, val supressWhenInForeground: 
     Logger.v(tag = TAG) { "Updating challenges notification" }
     if (!(supressWhenInForeground && MainActivity.isInForeground)) {
       Logger.v(tag = TAG) { "Updating challenges notification" }
-      NotificationUtils.notifyChallenges(context, challenges, challengeNotifications, userId)
+      notificationUtils.notifyChallenges(challenges, challengeNotifications, userId)
       gameDao.replaceChallengeNotifications(challenges.map {
         io.zenandroid.onlinego.data.model.local.ChallengeNotification(it.id)
       })

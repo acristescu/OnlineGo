@@ -62,9 +62,11 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.firebase.analytics.FirebaseAnalytics
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.R.drawable
+import io.zenandroid.onlinego.playstore.PlayStoreService
 import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
 import io.zenandroid.onlinego.utils.recordException
 import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.koinInject
 
 @Composable
 fun SupporterScreen(
@@ -89,6 +91,8 @@ fun SupporterScreen(
     }
   }
   val context = LocalContext.current
+  val activity = LocalActivity.current
+  val playStore: PlayStoreService = koinInject()
   LaunchedEffect(Unit) {
     viewModel.events.collect { event ->
       when (event) {
@@ -97,17 +101,23 @@ fun SupporterScreen(
           event.throwable.message,
           Toast.LENGTH_LONG
         ).show()
+        is SupporterEvent.LaunchBillingFlow -> activity?.let {
+          try {
+            playStore.launchBillingFlow(it, event.product, event.oldPurchase)
+          } catch (e: Exception) {
+            viewModel.onError(e)
+          }
+        }
       }
     }
   }
 
-  val activity = LocalActivity.current
   SupporterContent(
     state = state,
     onBackClick = onNavigateBack,
     onSubscribeClick = {
       activity?.let {
-        viewModel.onSubscribeClick(activity)
+        viewModel.onSubscribeClick()
         FirebaseAnalytics.getInstance(activity)
           .logEvent("start_subscription_flow", null)
       } ?: run {

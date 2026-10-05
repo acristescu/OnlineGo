@@ -7,7 +7,6 @@ import co.touchlab.kermit.Severity
 import co.touchlab.kermit.platformLogWriter
 import coil3.SingletonImageLoader
 import coil3.request.ImageRequest
-import com.google.firebase.analytics.FirebaseAnalytics
 import io.zenandroid.onlinego.data.ogs.OGSRestService
 import io.zenandroid.onlinego.data.ogs.OGSWebSocketService
 import io.zenandroid.onlinego.data.repositories.UserSessionRepository
@@ -34,11 +33,6 @@ import org.koin.core.logger.Level
  */
 class OnlineGoApplication : Application() {
 
-    companion object {
-        lateinit var instance: OnlineGoApplication
-    }
-
-    val analytics by lazy { FirebaseAnalytics.getInstance(this) }
     val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
     /**
@@ -51,7 +45,6 @@ class OnlineGoApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
-        instance = this
         if (BuildConfig.DEBUG) {
             Logger.setLogWriters(platformLogWriter(), CrashlyticsBreadcrumbWriter())
         } else {

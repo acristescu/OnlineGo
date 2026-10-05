@@ -183,7 +183,7 @@ fun SettingsScreen(
           message = context.getString(R.string.settings_logout_dialog_message),
           positiveButton = context.getString(R.string.settings_logout_dialog_confirm),
           negativeButton = context.getString(R.string.cancel),
-          onPositive = { viewModel.onAction(SettingsAction.Logout(activity)) },
+          onPositive = { viewModel.onAction(SettingsAction.Logout) },
         )
 
         is SupportClicked -> onNavigateToSupport()

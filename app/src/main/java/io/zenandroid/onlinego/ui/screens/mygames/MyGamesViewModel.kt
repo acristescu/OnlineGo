@@ -7,7 +7,6 @@ import androidx.lifecycle.viewModelScope
 import co.touchlab.kermit.Logger
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.crashlytics.FirebaseCrashlytics
-import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.local.Challenge
 import io.zenandroid.onlinego.data.model.local.Game
@@ -83,7 +82,8 @@ class MyGamesViewModel(
   private val analytics: FirebaseAnalytics,
   private val restService: OGSRestService,
   private val socketService: OGSWebSocketService,
-  private val settingsRepository: SettingsRepository
+  private val settingsRepository: SettingsRepository,
+  private val whatsNewUtils: WhatsNewUtils,
 ) : ViewModel() {
   private val _state = MutableStateFlow(
     MyGamesState(
@@ -130,13 +130,13 @@ class MyGamesViewModel(
     }
 
     viewModelScope.launch {
-      val shouldDisplay = WhatsNewUtils.shouldDisplayDialog(OnlineGoApplication.instance)
+      val shouldDisplay = whatsNewUtils.shouldDisplayDialog()
       _state.update {
         it.copy(
           whatsNewDialogVisible = shouldDisplay,
         )
       }
-      WhatsNewUtils.textShown(OnlineGoApplication.instance)
+      whatsNewUtils.textShown()
     }
 
     viewModelScope.launch {

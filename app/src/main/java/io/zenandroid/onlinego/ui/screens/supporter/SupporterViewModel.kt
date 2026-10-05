@@ -1,6 +1,5 @@
 package io.zenandroid.onlinego.ui.screens.supporter
 
-import android.app.Activity
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.android.billingclient.api.ProductDetails
@@ -43,16 +42,12 @@ class SupporterViewModel(
   }
 
 
-  fun onSubscribeClick(activity: Activity) {
+  fun onSubscribeClick() {
     val currentState = _state.value
     currentState.selectedTier?.let { tierIndex ->
       currentState.products?.get(tierIndex)?.let { product ->
         viewModelScope.launch {
-          try {
-            playStore.launchBillingFlow(activity, product, currentState.purchase)
-          } catch (e: Exception) {
-            onError(e)
-          }
+          _events.emit(SupporterEvent.LaunchBillingFlow(product, currentState.purchase))
         }
         _state.value = currentState.copy(loading = true)
       }
@@ -108,7 +103,7 @@ class SupporterViewModel(
   private fun getBasePrice(productId: String) =
     productId.subSequence("supporter_".length, productId.length).toString().toInt()
 
-  private fun onError(t: Throwable) {
+  fun onError(t: Throwable) {
     viewModelScope.launch {
       _events.emit(SupporterEvent.ShowError(t))
     }
@@ -143,4 +138,6 @@ data class SupporterState(
 
 sealed class SupporterEvent {
   data class ShowError(val throwable: Throwable) : SupporterEvent()
+  data class LaunchBillingFlow(val product: ProductDetails, val oldPurchase: Purchase?) :
+    SupporterEvent()
 } 

@@ -40,7 +40,7 @@ class SynchronizeGamesWork(val context: Context, params: WorkerParameters) :
   }
 
   private val TAG = SynchronizeGamesWork::class.java.simpleName
-  private val task = CheckNotificationsTask(context)
+  private val task = CheckNotificationsTask()
   private val userSessionRepository: UserSessionRepository = get().get()
   override suspend fun doWork(): Result {
     Logger.i("Started checking for active games", tag = TAG)

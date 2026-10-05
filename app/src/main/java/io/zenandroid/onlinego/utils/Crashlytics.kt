@@ -1,12 +1,12 @@
 package io.zenandroid.onlinego.utils
 
+import android.content.Context
 import androidx.core.os.bundleOf
 import co.touchlab.kermit.LogWriter
 import co.touchlab.kermit.Severity
 import com.google.android.gms.common.api.ApiException
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.crashlytics.FirebaseCrashlytics
-import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.data.ogs.httpStatusCode
 import kotlinx.coroutines.CancellationException
 import java.net.ConnectException
@@ -49,8 +49,8 @@ private fun Throwable?.isNetworkError() =
 private fun Throwable?.isHttp5XXError() =
   httpStatusCode?.let { it / 100 == 5 } == true
 
-fun analyticsReportScreen(screenName: String) {
-  FirebaseAnalytics.getInstance(OnlineGoApplication.instance).logEvent(
+fun analyticsReportScreen(context: Context, screenName: String) {
+  FirebaseAnalytics.getInstance(context).logEvent(
     FirebaseAnalytics.Event.SCREEN_VIEW,
     bundleOf(FirebaseAnalytics.Param.SCREEN_NAME to screenName)
   )

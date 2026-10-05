@@ -3,7 +3,7 @@ package io.zenandroid.onlinego.ui.screens.joseki
 import android.os.Bundle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import io.zenandroid.onlinego.OnlineGoApplication
+import com.google.firebase.analytics.FirebaseAnalytics
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.Position
@@ -20,11 +20,11 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class JosekiExplorerViewModel(
-    private val josekiRepository: JosekiRepository
+    private val josekiRepository: JosekiRepository,
+    private val analytics: FirebaseAnalytics,
 ) : ViewModel() {
 
     private var josekiJob: kotlinx.coroutines.Job? = null
-    private val analytics = OnlineGoApplication.instance.analytics
     
     private val _state = MutableStateFlow(JosekiExplorerState())
     val state: StateFlow<JosekiExplorerState> = _state.asStateFlow()

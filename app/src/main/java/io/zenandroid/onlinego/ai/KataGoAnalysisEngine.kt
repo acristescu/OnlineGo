@@ -1,7 +1,7 @@
 package io.zenandroid.onlinego.ai
 
+import android.content.Context
 import co.touchlab.kermit.Logger
-import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.data.model.Position
 import io.zenandroid.onlinego.data.model.StoneType
 import io.zenandroid.onlinego.data.model.katago.KataGoResponse
@@ -23,7 +23,7 @@ import java.util.Stack
 import java.util.concurrent.atomic.AtomicLong
 import java.util.zip.ZipFile
 
-object KataGoAnalysisEngine {
+class KataGoAnalysisEngine(private val context: Context) {
   var started = false
     private set
   var shouldShutDown = false
@@ -37,10 +37,9 @@ object KataGoAnalysisEngine {
   // Callers also raise maxVisits to at least this many - KataGo spins up this many search
   // threads per query regardless of budget, wasting the rest otherwise.
   val searchThreads = Runtime.getRuntime().availableProcessors()
-  private val filesDir = OnlineGoApplication.instance.filesDir
-  private val netFile = File(filesDir, "katagonet.gz")
-  private val humanNetFile = File(filesDir, "katagohumannet.gz")
-  private val cfgFile = File(filesDir, "katago.cfg")
+  private val netFile by lazy { File(context.filesDir, "katagonet.gz") }
+  private val humanNetFile by lazy { File(context.filesDir, "katagohumannet.gz") }
+  private val cfgFile by lazy { File(context.filesDir, "katago.cfg") }
 
   @Throws(IOException::class)
   @Synchronized
@@ -58,7 +57,7 @@ object KataGoAnalysisEngine {
       "-config", cfgFile.absolutePath
     )
       .apply { environment()["LD_LIBRARY_PATH"] = "." }
-      .directory(File(OnlineGoApplication.instance.applicationInfo.nativeLibraryDir))
+      .directory(File(context.applicationInfo.nativeLibraryDir))
       .start()
       .apply {
         reader = BufferedReader(InputStreamReader(inputStream))
@@ -119,7 +118,7 @@ object KataGoAnalysisEngine {
     }
     Thread {
       Thread.sleep(2000)
-      synchronized(KataGoAnalysisEngine) {
+      synchronized(this@KataGoAnalysisEngine) {
         if (shouldShutDown && started) {
           try {
             writer?.close()
@@ -204,7 +203,7 @@ object KataGoAnalysisEngine {
   // Thread pool size is fixed at KataGo process startup, unlike humanSLProfile - it can't
   // be set via per-query overrideSettings, so the cfg has to be regenerated per engine start.
   private fun writeConfigWithThreadCount() {
-    val template = OnlineGoApplication.instance.assets.open("katago.cfg")
+    val template = context.assets.open("katago.cfg")
       .bufferedReader().use { it.readText() }
     val configured = template.replace(
       Regex("""(?m)^numSearchThreadsPerAnalysisThread\s*=.*$"""),
@@ -216,7 +215,7 @@ object KataGoAnalysisEngine {
   // Reads the real size from the APK's zip central directory - AssetManager.openFd() fails
   // on AAPT-compressed assets, and this avoids a hardcoded byte count to keep in sync by hand.
   private fun expectedAssetSize(srcName: String): Long {
-    val apkPath = OnlineGoApplication.instance.applicationInfo.sourceDir
+    val apkPath = context.applicationInfo.sourceDir
     ZipFile(apkPath).use { zip ->
       return zip.getEntry("assets/$srcName")?.size
         ?: throw IOException("Asset '$srcName' not found in APK at $apkPath")
@@ -224,7 +223,7 @@ object KataGoAnalysisEngine {
   }
 
   private fun unpackResource(srcName: String, destFile: File) {
-    val assets = OnlineGoApplication.instance.assets
+    val assets = context.assets
     val expectedSize = expectedAssetSize(srcName)
     if (!destFile.exists() || destFile.length() != expectedSize) {
       destFile.delete()

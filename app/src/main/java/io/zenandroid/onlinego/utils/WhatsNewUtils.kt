@@ -15,18 +15,18 @@ private const val WHATS_NEW = "WHATS_NEW"
 private val WHATS_NEW_KEY = stringPreferencesKey(WHATS_NEW)
 val Context.whatsNewDataStore by preferencesDataStore(name = "whats_new")
 
-object WhatsNewUtils {
-  suspend fun shouldDisplayDialog(context: Context): Boolean {
+class WhatsNewUtils(private val context: Context) {
+  suspend fun shouldDisplayDialog(): Boolean {
     return withContext(Dispatchers.IO) {
-      val hash = currentHash(context)
+      val hash = currentHash()
       val stored = context.whatsNewDataStore.data.map { it[WHATS_NEW_KEY] }.first()
       stored != null && stored != hash
     }
   }
 
-  suspend fun textShown(context: Context) {
+  suspend fun textShown() {
     withContext(Dispatchers.IO) {
-      val hash = currentHash(context)
+      val hash = currentHash()
       context.whatsNewDataStore.edit { prefs ->
         prefs[WHATS_NEW_KEY] = hash
       }
@@ -39,7 +39,7 @@ object WhatsNewUtils {
    * would pop up again after every language switch. The changelog is translatable="false", so this
    * hash is the same in every locale and only changes when the release notes actually change.
    */
-  private fun currentHash(context: Context) =
+  private fun currentHash() =
     hashString(whatsNewItems(context).joinToString("\n"))
 
   private fun hashString(text: String): String {

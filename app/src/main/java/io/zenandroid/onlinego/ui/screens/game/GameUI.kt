@@ -81,6 +81,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.Position
@@ -142,10 +143,12 @@ import io.zenandroid.onlinego.ui.screens.game.composables.PlayerCard
 import io.zenandroid.onlinego.ui.screens.game.composables.PlayerDetailsDialog
 import io.zenandroid.onlinego.ui.theme.OnlineGoPreviewTheme
 import io.zenandroid.onlinego.usecases.RepoResult
+import io.zenandroid.onlinego.utils.ReviewPromptManager
 import io.zenandroid.onlinego.utils.timeControlDescription
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.koinInject
 
 @Composable
 fun GameScreen(
@@ -215,9 +218,14 @@ fun GameScreen(
 
   val state by viewModel.state.collectAsStateWithLifecycle()
 
+  val reviewPromptManager: ReviewPromptManager = koinInject()
   LaunchedEffect(state.shouldShowReviewPrompt) {
-    if (state.shouldShowReviewPrompt && activity != null) {
-      viewModel.handleReviewPrompt(activity)
+    if (state.shouldShowReviewPrompt && activity != null && viewModel.consumeReviewPrompt()) {
+      try {
+        reviewPromptManager.requestReview(activity)
+      } catch (e: Exception) {
+        FirebaseCrashlytics.getInstance().recordException(e)
+      }
     }
   }
 

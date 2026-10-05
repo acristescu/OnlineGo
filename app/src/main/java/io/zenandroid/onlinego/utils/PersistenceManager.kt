@@ -2,10 +2,8 @@ package io.zenandroid.onlinego.utils
 
 import android.content.Context
 import androidx.core.content.edit
-import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.data.model.ogs.UIConfig
 import kotlinx.serialization.SerializationException
-import kotlinx.serialization.encodeToString
 
 private const val UICONFIG_KEY = "UICONFIG_KEY"
 private const val UICONFIG_TIMESTAMP_KEY = "UICONFIG_TIMESTAMP_KEY"
@@ -14,9 +12,8 @@ private const val PUZZLE_REFRESH = "PUZZLE_DIRECTORY_REFRESH"
 /**
  * Created by alex on 07/11/2017.
  */
-object PersistenceManager {
-  private val prefs =
-    OnlineGoApplication.instance.getSharedPreferences("login", Context.MODE_PRIVATE)
+class PersistenceManager(context: Context) {
+  private val prefs by lazy { context.getSharedPreferences("login", Context.MODE_PRIVATE) }
 
   fun storeUIConfig(uiConfig: UIConfig) {
     prefs.edit {
@@ -41,11 +38,7 @@ object PersistenceManager {
 
   fun getUIConfigTimestamp(): Long = prefs.getLong(UICONFIG_TIMESTAMP_KEY, 0)
 
-  var puzzleCollectionLastRefresh: Long = prefs.getLong(PUZZLE_REFRESH, 0)
-    set(value) {
-      if (field != value) {
-        prefs.edit { putLong(PUZZLE_REFRESH, value) }
-      }
-      field = value
-    }
+  var puzzleCollectionLastRefresh: Long
+    get() = prefs.getLong(PUZZLE_REFRESH, 0)
+    set(value) = prefs.edit { putLong(PUZZLE_REFRESH, value) }
 }

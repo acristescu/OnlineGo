@@ -32,6 +32,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
@@ -77,6 +78,7 @@ fun OnlineGoApp(
   val navBackStackEntry by navController.currentBackStackEntryAsState()
   val currentDestination = navBackStackEntry?.destination?.route
   val activity = LocalActivity.current
+  val context = LocalContext.current
 
   val showBottomBar = currentDestination in listOf("myGames", "learn", "stats", "settings")
   var showStatsLoginPrompt by remember { mutableStateOf(false) }
@@ -94,7 +96,7 @@ fun OnlineGoApp(
   LaunchedEffect(currentDestination) {
     if (currentDestination != null) {
       Logger.d(tag = "OnlineGoApp") { "Current destination: $currentDestination" }
-      analyticsReportScreen(currentDestination)
+      analyticsReportScreen(context, currentDestination)
     }
   }
 

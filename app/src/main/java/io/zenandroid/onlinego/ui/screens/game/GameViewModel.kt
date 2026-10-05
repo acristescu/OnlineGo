@@ -1,6 +1,5 @@
 package io.zenandroid.onlinego.ui.screens.game
 
-import android.app.Activity
 import androidx.annotation.StringRes
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.NextPlan
@@ -32,7 +31,6 @@ import app.cash.molecule.AndroidUiDispatcher
 import app.cash.molecule.RecompositionMode.ContextClock
 import app.cash.molecule.launchMolecule
 import co.touchlab.kermit.Logger
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.zenandroid.onlinego.BuildConfig
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.Cell
@@ -114,7 +112,6 @@ import io.zenandroid.onlinego.usecases.GetUserStatsUseCase
 import io.zenandroid.onlinego.usecases.RepoResult
 import io.zenandroid.onlinego.usecases.RepoResult.Loading
 import io.zenandroid.onlinego.utils.NotificationUtils
-import io.zenandroid.onlinego.utils.ReviewPromptManager
 import io.zenandroid.onlinego.utils.computeTimeLeft
 import io.zenandroid.onlinego.utils.convertCountryCodeToEmojiFlag
 import io.zenandroid.onlinego.utils.egfToRank
@@ -153,7 +150,7 @@ class GameViewModel(
   private val settingsRepository: SettingsRepository,
   private val getUserStatsUseCase: GetUserStatsUseCase,
   private val appCoroutineScope: CoroutineScope,
-  private val reviewPromptManager: ReviewPromptManager,
+  private val notificationUtils: NotificationUtils,
   savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -902,16 +899,11 @@ class GameViewModel(
     }
   }
 
-  suspend fun handleReviewPrompt(activity: Activity) {
-    if (shouldShowReviewPrompt) {
-      shouldShowReviewPrompt = false
-      delay(1_000)
-      try {
-        reviewPromptManager.requestReview(activity)
-      } catch (e: Exception) {
-        FirebaseCrashlytics.getInstance().recordException(e)
-      }
-    }
+  suspend fun consumeReviewPrompt(): Boolean {
+    if (!shouldShowReviewPrompt) return false
+    shouldShowReviewPrompt = false
+    delay(1_000)
+    return true
   }
 
   fun onUserAction(action: UserAction) {
@@ -1053,7 +1045,7 @@ class GameViewModel(
           submitMove(move, moveNo, attempt + 1)
         }
       } else {
-        NotificationUtils.cancelNotification(gameState?.id!!.toInt())
+        notificationUtils.cancelNotification(gameState?.id!!.toInt())
       }
     }
   }

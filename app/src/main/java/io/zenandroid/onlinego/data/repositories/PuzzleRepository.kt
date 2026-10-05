@@ -22,7 +22,8 @@ import kotlin.time.Clock
 
 class PuzzleRepository(
   private val restService: OGSRestService,
-  private val dao: PuzzleDao
+  private val dao: PuzzleDao,
+  private val persistenceManager: PersistenceManager,
 ) {
 
   private val refreshCooldownSeconds = 60 * 60 * 24
@@ -31,13 +32,13 @@ class PuzzleRepository(
     withContext(Dispatchers.Default) {
       val currentPuzzleCount = dao.getPuzzleCollectionCount()
       val lastRefresh =
-        Clock.System.now().epochSeconds - PersistenceManager.puzzleCollectionLastRefresh
+        Clock.System.now().epochSeconds - persistenceManager.puzzleCollectionLastRefresh
       if(lastRefresh > refreshCooldownSeconds || currentPuzzleCount < 1) {
         restService.getPuzzleCollections()
           .catch { onError(it) }
           .collect { saveCollectionsToDB(it) }
 
-        PersistenceManager.puzzleCollectionLastRefresh = Clock.System.now().epochSeconds
+        persistenceManager.puzzleCollectionLastRefresh = Clock.System.now().epochSeconds
       }
     }
   }

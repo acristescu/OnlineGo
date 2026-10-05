@@ -1,9 +1,9 @@
 package io.zenandroid.onlinego.data.repositories
 
 import android.app.ActivityManager
+import android.content.Context
 import android.content.Context.ACTIVITY_SERVICE
 import com.google.firebase.crashlytics.FirebaseCrashlytics
-import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.data.model.ogs.UIConfig
 import io.zenandroid.onlinego.data.ogs.OGSCookieStore
 import io.zenandroid.onlinego.data.ogs.OGSRestService
@@ -20,6 +20,8 @@ import org.koin.core.context.GlobalContext.get
 class UserSessionRepository(
   private val appCoroutineScope: CoroutineScope,
   private val cookieStore: OGSCookieStore,
+  private val persistenceManager: PersistenceManager,
+  private val context: Context,
 ) {
   // Note: Can't use constructor injection here because it will create a dependency loop and
   // Koin will throw a fit (at runtime)
@@ -42,7 +44,7 @@ class UserSessionRepository(
 
   init {
     appCoroutineScope.launch(Dispatchers.IO) {
-      uiConfig = PersistenceManager.getUIConfig()
+      uiConfig = persistenceManager.getUIConfig()
       userIdValue?.toString()?.let(FirebaseCrashlytics.getInstance()::setUserId)
       userIdValue?.let {
         _userId.tryEmit(it)
@@ -55,7 +57,7 @@ class UserSessionRepository(
     this.uiConfig = uiConfig
     uiConfigTimestamp = System.currentTimeMillis()
     FirebaseCrashlytics.getInstance().setUserId(uiConfig.user?.id.toString())
-    PersistenceManager.storeUIConfig(uiConfig)
+    persistenceManager.storeUIConfig(uiConfig)
     userIdValue?.let {
       _userId.tryEmit(it)
     }
@@ -65,7 +67,7 @@ class UserSessionRepository(
 
   fun requiresUIConfigRefresh(): Boolean {
     if (uiConfigTimestamp == null) {
-      uiConfigTimestamp = PersistenceManager.getUIConfigTimestamp()
+      uiConfigTimestamp = persistenceManager.getUIConfigTimestamp()
     }
     return uiConfig?.user_jwt == null || uiConfigTimestamp!! < System.currentTimeMillis() - 1000 * 60 * 60
   }
@@ -75,7 +77,7 @@ class UserSessionRepository(
     FirebaseCrashlytics.getInstance().sendUnsentReports()
     uiConfig = null
     _loginStatus.tryEmit(LoginStatus.LoggedOut)
-    (OnlineGoApplication.instance.getSystemService(ACTIVITY_SERVICE) as ActivityManager).clearApplicationUserData()
+    (context.getSystemService(ACTIVITY_SERVICE) as ActivityManager).clearApplicationUserData()
   }
 
   suspend fun deleteAccount(password: String) {

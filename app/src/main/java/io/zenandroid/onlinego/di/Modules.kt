@@ -1,12 +1,14 @@
 package io.zenandroid.onlinego.di
 
 import androidx.room.Room
+import com.google.firebase.analytics.FirebaseAnalytics
 import de.jensklingenberg.ktorfit.Ktorfit
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.okhttp.OkHttp
 import io.ktor.http.Url
 import io.zenandroid.onlinego.BuildConfig
 import io.zenandroid.onlinego.OnlineGoApplication
+import io.zenandroid.onlinego.ai.KataGoAnalysisEngine
 import io.zenandroid.onlinego.data.db.Database
 import io.zenandroid.onlinego.data.ogs.Glicko2HistoryConverterFactory
 import io.zenandroid.onlinego.data.ogs.HTTPConnectionFactory
@@ -55,12 +57,14 @@ import io.zenandroid.onlinego.usecases.GetUserStatsUseCase
 import io.zenandroid.onlinego.utils.AppLocaleManager
 import io.zenandroid.onlinego.utils.CountingIdlingResource
 import io.zenandroid.onlinego.utils.NOOPIdlingResource
+import io.zenandroid.onlinego.utils.NotificationUtils
+import io.zenandroid.onlinego.utils.PersistenceManager
 import io.zenandroid.onlinego.utils.ReviewPromptManager
+import io.zenandroid.onlinego.utils.WhatsNewUtils
 import io.zenandroid.onlinego.utils.appJson
 import okhttp3.OkHttpClient
 import org.koin.android.ext.koin.androidApplication
 import org.koin.core.module.dsl.singleOf
-import org.koin.core.module.dsl.viewModel
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 
@@ -96,6 +100,11 @@ private val repositoriesModule = module {
   singleOf(::TutorialsRepository)
   singleOf(::ReviewPromptRepository)
   singleOf(::SocketDebugRepository)
+  singleOf(::PersistenceManager)
+  singleOf(::NotificationUtils)
+  singleOf(::WhatsNewUtils)
+  singleOf(::KataGoAnalysisEngine)
+  single { FirebaseAnalytics.getInstance(get()) }
 }
 
 private val serverConnectionModule = module {
@@ -173,47 +182,10 @@ private val viewModelsModule = module {
   viewModelOf(::TutorialViewModel)
   viewModelOf(::OnboardingViewModel)
   viewModelOf(::SupporterViewModel)
-  viewModel {
-    GameViewModel(
-      get(),
-      get(),
-      get(),
-      get(),
-      get(),
-      get(),
-      get(),
-      get(),
-      get(),
-      get()
-    )
-  }
+  viewModelOf(::GameViewModel)
   viewModelOf(::MainActivityViewModel)
-
-  viewModel {
-    MyGamesViewModel(
-      get(),
-      get(),
-      get(),
-      get(),
-      get(),
-      get(),
-      get(),
-      get(),
-      OnlineGoApplication.instance.analytics,
-      get(),
-      get(),
-      get()
-    )
-  }
-
-  viewModel {
-    FaceToFaceViewModel(
-      OnlineGoApplication.instance.analytics,
-      get(),
-      get(),
-    )
-  }
-
+  viewModelOf(::MyGamesViewModel)
+  viewModelOf(::FaceToFaceViewModel)
   viewModelOf(::SettingsViewModel)
   viewModelOf(::SocketDebugViewModel)
 }
