@@ -54,6 +54,7 @@ import io.zenandroid.onlinego.ui.screens.stats.StatsViewModel
 import io.zenandroid.onlinego.ui.screens.supporter.SupporterViewModel
 import io.zenandroid.onlinego.ui.screens.tutorial.TutorialViewModel
 import io.zenandroid.onlinego.usecases.GetUserStatsUseCase
+import io.zenandroid.onlinego.utils.Analytics
 import io.zenandroid.onlinego.utils.AppLocaleManager
 import io.zenandroid.onlinego.utils.CountingIdlingResource
 import io.zenandroid.onlinego.utils.NOOPIdlingResource
@@ -104,7 +105,7 @@ private val repositoriesModule = module {
   singleOf(::NotificationUtils)
   singleOf(::WhatsNewUtils)
   singleOf(::KataGoAnalysisEngine)
-  single { FirebaseAnalytics.getInstance(get()) }
+  single { Analytics(FirebaseAnalytics.getInstance(get())) }
 }
 
 private val serverConnectionModule = module {
@@ -203,6 +204,7 @@ private val reviewPromptModule = module {
     ReviewPromptManager(
       context = get(),
       reviewPromptRepository = get(),
+      analytics = get(),
       applicationScope = get()
     )
   }

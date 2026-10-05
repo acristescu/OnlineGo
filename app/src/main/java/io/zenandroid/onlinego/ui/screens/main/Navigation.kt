@@ -32,7 +32,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
@@ -62,7 +61,8 @@ import io.zenandroid.onlinego.ui.screens.stats.StatsScreen
 import io.zenandroid.onlinego.ui.screens.supporter.SupporterScreen
 import io.zenandroid.onlinego.ui.screens.tutorial.TutorialScreen
 import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
-import io.zenandroid.onlinego.utils.analyticsReportScreen
+import io.zenandroid.onlinego.utils.Analytics
+import org.koin.compose.koinInject
 
 
 @Composable
@@ -78,7 +78,7 @@ fun OnlineGoApp(
   val navBackStackEntry by navController.currentBackStackEntryAsState()
   val currentDestination = navBackStackEntry?.destination?.route
   val activity = LocalActivity.current
-  val context = LocalContext.current
+  val analytics: Analytics = koinInject()
 
   val showBottomBar = currentDestination in listOf("myGames", "learn", "stats", "settings")
   var showStatsLoginPrompt by remember { mutableStateOf(false) }
@@ -96,7 +96,7 @@ fun OnlineGoApp(
   LaunchedEffect(currentDestination) {
     if (currentDestination != null) {
       Logger.d(tag = "OnlineGoApp") { "Current destination: $currentDestination" }
-      analyticsReportScreen(context, currentDestination)
+      analytics.logScreenView(currentDestination)
     }
   }
 

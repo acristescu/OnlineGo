@@ -8,7 +8,6 @@ import co.touchlab.kermit.Logger
 import com.google.android.play.core.ktx.launchReview
 import com.google.android.play.core.ktx.requestReview
 import com.google.android.play.core.review.ReviewManagerFactory
-import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.zenandroid.onlinego.data.repositories.ReviewPromptRepository
 import kotlinx.coroutines.CoroutineScope
@@ -24,11 +23,11 @@ import kotlinx.coroutines.launch
 class ReviewPromptManager(
   private val context: Context,
   private val reviewPromptRepository: ReviewPromptRepository,
+  private val analytics: Analytics,
   private val applicationScope: CoroutineScope
 ) {
 
   private val reviewManager = ReviewManagerFactory.create(context)
-  private val analytics = FirebaseAnalytics.getInstance(context)
 
   /**
    * Attempts to show the review prompt following Google's best practices.
@@ -52,7 +51,7 @@ class ReviewPromptManager(
       // Note: Google's API does not tell us whether the user actually reviewed.
       // The flow always "completes successfully" regardless of user action.
       // We record it as shown; we cannot know if they rated.
-      analytics.logEvent("review_prompt_completed_in_app", null)
+      analytics.logEvent("review_prompt_completed_in_app")
       Logger.i("In-app review flow completed", tag = "ReviewPromptManager")
 
     } catch (e: Exception) {
@@ -78,7 +77,7 @@ class ReviewPromptManager(
 
       if (intent.resolveActivity(activity.packageManager) != null) {
         activity.startActivity(intent)
-        analytics.logEvent("review_prompt_redirected_to_play_store", null)
+        analytics.logEvent("review_prompt_redirected_to_play_store")
         Logger.i("Redirected to Play Store for review", tag = "ReviewPromptManager")
       } else {
         // Fallback to browser
@@ -86,7 +85,7 @@ class ReviewPromptManager(
           data = "https://play.google.com/store/apps/details?id=${activity.packageName}".toUri()
         }
         activity.startActivity(browserIntent)
-        analytics.logEvent("review_prompt_redirected_to_browser", null)
+        analytics.logEvent("review_prompt_redirected_to_browser")
         Logger.i("Redirected to browser for review", tag = "ReviewPromptManager")
       }
 
@@ -97,7 +96,7 @@ class ReviewPromptManager(
 
     } catch (e: Exception) {
       FirebaseCrashlytics.getInstance().recordException(e)
-      analytics.logEvent("review_prompt_fallback_failed", null)
+      analytics.logEvent("review_prompt_fallback_failed")
     }
   }
 
@@ -106,7 +105,7 @@ class ReviewPromptManager(
    */
   suspend fun markAppAsRated() {
     reviewPromptRepository.recordReviewPromptRated()
-    analytics.logEvent("app_rated_externally", null)
+    analytics.logEvent("app_rated_externally")
   }
 
   /**
@@ -114,7 +113,7 @@ class ReviewPromptManager(
    */
   suspend fun resetReviewState() {
     reviewPromptRepository.resetReviewPromptState()
-    analytics.logEvent("review_state_reset", null)
+    analytics.logEvent("review_state_reset")
   }
 
   /**

@@ -59,11 +59,11 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.google.firebase.analytics.FirebaseAnalytics
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.R.drawable
 import io.zenandroid.onlinego.playstore.PlayStoreService
 import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
+import io.zenandroid.onlinego.utils.Analytics
 import io.zenandroid.onlinego.utils.recordException
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
@@ -93,6 +93,7 @@ fun SupporterScreen(
   val context = LocalContext.current
   val activity = LocalActivity.current
   val playStore: PlayStoreService = koinInject()
+  val analytics: Analytics = koinInject()
   LaunchedEffect(Unit) {
     viewModel.events.collect { event ->
       when (event) {
@@ -118,8 +119,7 @@ fun SupporterScreen(
     onSubscribeClick = {
       activity?.let {
         viewModel.onSubscribeClick()
-        FirebaseAnalytics.getInstance(activity)
-          .logEvent("start_subscription_flow", null)
+        analytics.logEvent("start_subscription_flow")
       } ?: run {
         recordException(Throwable("Activity is null, cannot start subscription flow"))
       }
@@ -130,7 +130,7 @@ fun SupporterScreen(
           data =
             "https://play.google.com/store/account/subscriptions?package=io.zenandroid.onlinego".toUri()
         })
-        FirebaseAnalytics.getInstance(it).logEvent("cancel_subscription", null)
+        analytics.logEvent("cancel_subscription")
       } ?: run {
         recordException(Throwable("Activity is null, cannot cancel subscription"))
       }

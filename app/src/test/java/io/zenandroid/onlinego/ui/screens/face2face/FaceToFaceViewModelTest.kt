@@ -4,11 +4,11 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import app.cash.molecule.RecompositionMode
 import app.cash.molecule.moleculeFlow
 import app.cash.turbine.test
-import com.google.firebase.analytics.FirebaseAnalytics
 import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.StoneType
 import io.zenandroid.onlinego.data.repositories.SettingsRepository
 import io.zenandroid.onlinego.di.allKoinModules
+import io.zenandroid.onlinego.utils.Analytics
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.cancel
@@ -39,7 +39,7 @@ class FaceToFaceViewModelTest {
   @get:Rule
   val instantExecutorRule = InstantTaskExecutorRule()
 
-  private val analytics: FirebaseAnalytics = mock()
+  private val analytics: Analytics = mock()
   private val settingsRepository: SettingsRepository = mock()
 
   private lateinit var applicationTestScope: TestScope

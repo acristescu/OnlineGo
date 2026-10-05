@@ -1,15 +1,14 @@
 package io.zenandroid.onlinego.ui.screens.joseki
 
-import android.os.Bundle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.firebase.analytics.FirebaseAnalytics
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.Position
 import io.zenandroid.onlinego.data.model.ogs.JosekiPosition
 import io.zenandroid.onlinego.data.repositories.JosekiRepository
 import io.zenandroid.onlinego.gamelogic.RulesManager.coordinateToCell
+import io.zenandroid.onlinego.utils.Analytics
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,7 +20,7 @@ import kotlinx.coroutines.withContext
 
 class JosekiExplorerViewModel(
     private val josekiRepository: JosekiRepository,
-    private val analytics: FirebaseAnalytics,
+    private val analytics: Analytics,
 ) : ViewModel() {
 
     private var josekiJob: kotlinx.coroutines.Job? = null
@@ -41,7 +40,7 @@ class JosekiExplorerViewModel(
     }
 
     fun onTappedCoordinate(coordinate: Cell) {
-        analytics.logEvent("joseki_tapped_coordinate", null)
+        analytics.logEvent("joseki_tapped_coordinate")
         
         val currentState = _state.value
         if (currentState.loading) return
@@ -63,7 +62,7 @@ class JosekiExplorerViewModel(
     }
 
     fun onPressedPrevious() {
-        analytics.logEvent("joseki_previous", null)
+        analytics.logEvent("joseki_previous")
 
         viewModelScope.launch(Dispatchers.Default) {
             val currentState = _state.value
@@ -95,7 +94,7 @@ class JosekiExplorerViewModel(
 
     fun onPressedNext() {
         viewModelScope.launch(Dispatchers.Default) {
-            analytics.logEvent("joseki_next", null)
+            analytics.logEvent("joseki_next")
 
             val currentState = _state.value
             if (currentState.nextPosStack.isEmpty()) return@launch
@@ -123,7 +122,7 @@ class JosekiExplorerViewModel(
     }
 
     fun onPressedPass() {
-        analytics.logEvent("joseki_tenuki", null)
+        analytics.logEvent("joseki_tenuki")
         
         val currentState = _state.value
         val passMove = currentState.position?.next_moves?.find { it.placement == "pass" }
@@ -133,7 +132,7 @@ class JosekiExplorerViewModel(
     }
 
     fun loadPosition(id: Long?) {
-        analytics.logEvent("joseki_load_position", null)
+        analytics.logEvent("joseki_load_position")
         
         val currentState = _state.value
         lastRequestedNodeId = id
@@ -196,10 +195,13 @@ class JosekiExplorerViewModel(
         if (error is CancellationException) {
             throw error
         }
-        analytics.logEvent("joseki_loading_error", Bundle().apply {
-            putString("ERROR_DETAILS", error.message)
-            putString("ERROR_STATE", _state.value.toString())
-        })
+        analytics.logEvent(
+            "joseki_loading_error",
+            mapOf(
+                "ERROR_DETAILS" to error.message,
+                "ERROR_STATE" to _state.value.toString(),
+            )
+        )
 
         _state.update { currentState ->
             currentState.copy(
@@ -216,7 +218,7 @@ class JosekiExplorerViewModel(
     }
 
     private fun finishExplorer() {
-        analytics.logEvent("joseki_finish", null)
+        analytics.logEvent("joseki_finish")
 
         _state.update {
             it.copy(shouldFinish = true)

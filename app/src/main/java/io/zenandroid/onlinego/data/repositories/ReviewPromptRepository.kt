@@ -6,7 +6,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import co.touchlab.kermit.Logger
-import com.google.firebase.analytics.FirebaseAnalytics
+import io.zenandroid.onlinego.utils.Analytics
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
@@ -21,10 +21,10 @@ class ReviewPromptRepository(
   private val context: Context,
   private val applicationScope: CoroutineScope,
   private val userSessionRepository: UserSessionRepository,
+  private val analytics: Analytics,
 ) {
 
   private val dataStore = context.reviewPromptDataStore
-  private val analytics = FirebaseAnalytics.getInstance(context)
 
   companion object {
     private val APP_FIRST_LAUNCH_TIME = longPreferencesKey("app_first_launch_time")
@@ -99,7 +99,7 @@ class ReviewPromptRepository(
     }
 
     // Analytics event
-    analytics.logEvent("review_prompt_shown", null)
+    analytics.logEvent("review_prompt_shown")
     Logger.i("Review prompt shown to user", tag = "ReviewPromptRepository")
   }
 
@@ -112,7 +112,7 @@ class ReviewPromptRepository(
     }
 
     // Analytics event
-    analytics.logEvent("review_prompt_dismissed", null)
+    analytics.logEvent("review_prompt_dismissed")
     Logger.i("Review prompt dismissed by user", tag = "ReviewPromptRepository")
   }
 
@@ -125,7 +125,7 @@ class ReviewPromptRepository(
     }
 
     // Analytics event
-    analytics.logEvent("review_prompt_rated", null)
+    analytics.logEvent("review_prompt_rated")
     Logger.i("User rated the app", tag = "ReviewPromptRepository")
   }
 
@@ -140,7 +140,7 @@ class ReviewPromptRepository(
     }
 
     // Analytics event
-    analytics.logEvent("review_prompt_reset", null)
+    analytics.logEvent("review_prompt_reset")
     Logger.i("Review prompt state reset", tag = "ReviewPromptRepository")
   }
 

@@ -5,7 +5,6 @@ import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import co.touchlab.kermit.Logger
-import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.local.Challenge
@@ -46,6 +45,7 @@ import io.zenandroid.onlinego.ui.screens.mygames.Action.NewAutomatchSearch
 import io.zenandroid.onlinego.ui.screens.mygames.Action.NewChallengeSearchClicked
 import io.zenandroid.onlinego.ui.screens.mygames.Action.ViewResumed
 import io.zenandroid.onlinego.ui.screens.mygames.Action.WarningAcknowledged
+import io.zenandroid.onlinego.utils.Analytics
 import io.zenandroid.onlinego.utils.WhatsNewUtils
 import io.zenandroid.onlinego.utils.egfToRank
 import io.zenandroid.onlinego.utils.formatRank
@@ -79,7 +79,7 @@ class MyGamesViewModel(
   private val chatRepository: ChatRepository,
   private val notificationsRepository: ServerNotificationsRepository,
   private val tutorialsRepository: TutorialsRepository,
-  private val analytics: FirebaseAnalytics,
+  private val analytics: Analytics,
   private val restService: OGSRestService,
   private val socketService: OGSWebSocketService,
   private val settingsRepository: SettingsRepository,
@@ -291,7 +291,7 @@ class MyGamesViewModel(
   }
 
   private fun onChallengeCancelled(challenge: Challenge) {
-    analytics.logEvent("challenge_cancelled", null)
+    analytics.logEvent("challenge_cancelled")
     viewModelScope.launch(Dispatchers.IO) {
       try {
         restService.declineChallenge(challenge.id)
@@ -302,7 +302,7 @@ class MyGamesViewModel(
   }
 
   private fun onChallengeAccepted(challenge: Challenge) {
-    analytics.logEvent("challenge_accepted", null)
+    analytics.logEvent("challenge_accepted")
     viewModelScope.launch(Dispatchers.IO) {
       try {
         restService.acceptChallenge(challenge.id)
@@ -313,7 +313,7 @@ class MyGamesViewModel(
   }
 
   private fun onChallengeDeclined(challenge: Challenge) {
-    analytics.logEvent("challenge_declined", null)
+    analytics.logEvent("challenge_declined")
     viewModelScope.launch(Dispatchers.IO) {
       try {
         restService.declineChallenge(challenge.id)
@@ -324,7 +324,7 @@ class MyGamesViewModel(
   }
 
   private fun onAutomatchCancelled(automatch: OGSAutomatch) {
-    analytics.logEvent("new_game_cancelled", null)
+    analytics.logEvent("new_game_cancelled")
     socketService.cancelAutomatch(automatch)
   }
 
@@ -339,7 +339,7 @@ class MyGamesViewModel(
             alertDialogMessage = message
           )
         }
-        analytics.logEvent("bot_refused_challenge", null)
+        analytics.logEvent("bot_refused_challenge")
         Logger.i("Bot refused challenge. $message", tag = "MyGamesViewModel")
       } else {
         _state.update {
@@ -404,7 +404,7 @@ class MyGamesViewModel(
       WarningAcknowledged -> onWarningAcknowledged()
       is NewChallengeSearchClicked -> onNewChallengeSearchClicked(action.challenge)
       is GameSelected -> {
-        analytics.logEvent("game_selected", null)
+        analytics.logEvent("game_selected")
         val game = action.game
         if (game.id == 0L) {
           _state.update {
@@ -423,7 +423,7 @@ class MyGamesViewModel(
       }
 
       is NewAutomatchSearch -> {
-        analytics.logEvent("new_game_search", null)
+        analytics.logEvent("new_game_search")
         if ((action.speeds.contains(Speed.LIVE) || action.speeds.contains(Speed.RAPID) || action.speeds.contains(
             Speed.BLITZ
           )) && automatchRepository.automatchFlow.value.find { it.liveOrBlitzOrRapid } != null

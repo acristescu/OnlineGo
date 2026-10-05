@@ -21,7 +21,6 @@ import app.cash.molecule.AndroidUiDispatcher
 import app.cash.molecule.RecompositionMode.ContextClock
 import app.cash.molecule.launchMolecule
 import co.touchlab.kermit.Logger
-import com.google.firebase.analytics.FirebaseAnalytics
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.Position
@@ -46,6 +45,7 @@ import io.zenandroid.onlinego.ui.screens.face2face.Button.Previous
 import io.zenandroid.onlinego.ui.screens.face2face.EstimateStatus.Idle
 import io.zenandroid.onlinego.ui.screens.face2face.EstimateStatus.Success
 import io.zenandroid.onlinego.ui.screens.face2face.EstimateStatus.Working
+import io.zenandroid.onlinego.utils.Analytics
 import io.zenandroid.onlinego.utils.recordException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -56,7 +56,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class FaceToFaceViewModel(
-  private val analytics: FirebaseAnalytics,
+  private val analytics: Analytics,
   private val settingsRepository: SettingsRepository,
   private val applicationScope: CoroutineScope,
   testing: Boolean = false
@@ -78,7 +78,7 @@ class FaceToFaceViewModel(
   private var newGameParameters by mutableStateOf(GameParameters(BoardSize.LARGE, 0))
 
   init {
-    analytics.logEvent("face_to_face_opened", null)
+    analytics.logEvent("face_to_face_opened")
     viewModelScope.launch(Dispatchers.IO) {
       loadSavedData()
     }
@@ -155,7 +155,7 @@ class FaceToFaceViewModel(
     val handicap = settingsRepository.faceToFaceHandicapFlow.first() ?: 0
 
     if (historyString.isNotEmpty()) {
-      analytics.logEvent("face_to_face_loading", null)
+      analytics.logEvent("face_to_face_loading")
       history = historyString.split(" ")
         .filter { it.isNotEmpty() }
         .map {
@@ -174,7 +174,7 @@ class FaceToFaceViewModel(
       historyPosition(0)
     }
     loading = false
-    analytics.logEvent("face_to_face_loaded", null)
+    analytics.logEvent("face_to_face_loaded")
   }
 
   override fun onCleared() {

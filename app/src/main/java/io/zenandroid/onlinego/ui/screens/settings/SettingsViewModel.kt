@@ -3,7 +3,6 @@ package io.zenandroid.onlinego.ui.screens.settings
 import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.AppLanguage
@@ -27,6 +26,7 @@ import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.SoundsClicked
 import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.SupportClicked
 import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.ThemeClicked
 import io.zenandroid.onlinego.ui.views.BoardView
+import io.zenandroid.onlinego.utils.Analytics
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -39,7 +39,7 @@ import kotlinx.coroutines.launch
 class SettingsViewModel(
   private val settingsRepository: SettingsRepository,
   private val userSessionRepository: UserSessionRepository,
-  private val analytics: FirebaseAnalytics,
+  private val analytics: Analytics,
 ) : ViewModel() {
 
   val userSettings: StateFlow<UserSettings> = combine(
@@ -167,7 +167,7 @@ class SettingsViewModel(
   }
 
   private fun doLogout() {
-    analytics.logEvent("logout_clicked", null)
+    analytics.logEvent("logout_clicked")
     FirebaseCrashlytics.getInstance().sendUnsentReports()
     userSessionRepository.logOut()
   }

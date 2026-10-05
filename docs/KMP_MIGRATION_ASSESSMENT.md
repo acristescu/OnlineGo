@@ -9,7 +9,7 @@ is no RxJava, no `Parcelable`, and Koin, Molecule, Room, DataStore, `ViewModel`,
 kotlinx-collections-immutable are already multiplatform. The cost is dominated by resources
 (663 strings x 16 locales) and the local-AI engine, which cannot run on iOS as built today.
 
-**Status.** Seven Phase 0 slices are merged (section 6). None of them has shipped in a release yet,
+**Status.** Nine Phase 0 slices are merged (section 6). None of them has shipped in a release yet,
 and some still need on-device checks (section 1.2). Phases 1-5 have not started.
 
 The original assessment, with the full write-up of each finished slice, is at
@@ -23,14 +23,9 @@ The original assessment, with the full write-up of each finished slice, is at
 
 Worth doing even if the migration stops here.
 
-- [ ] **`CrashReporter` / `Analytics` seams.** Logging is done; the rest of Firebase is not.
-  23 Crashlytics calls remain - `recordException` (10, which bypass the network-error filter in
-  `utils/Crashlytics.kt`), `setCustomKey` (9), `setUserId` (1), `sendUnsentReports` (3) - plus
-  `FirebaseAnalytics` in 9 files.
-- [ ] **Constructor injection everywhere.** `OnlineGoApplication.instance` is gone. Still left: the
-  `GlobalContext` service-locator sites (`OGSWebSocketService`, `GameConnection`,
-  `UserSessionRepository`, `CheckNotificationsTask`, `SynchronizeGamesWork`, `Globals.kt`,
-  `Globals1.kt`).
+- [ ] **`CrashReporter` seam.** Logging and analytics are done (6.9). 23 Crashlytics calls
+  remain - `recordException` (10, which bypass the network-error filter in
+  `utils/Crashlytics.kt`), `setCustomKey` (9), `setUserId` (1), `sendUnsentReports` (3).
 - [ ] **Fix layering violations:** `RulesManager` imports `ui.screens.game.Variation`; `UserStats`
   and `GetUserStatsUseCase` depend on MPAndroidChart; `PuzzleDirectoryAction` / `TsumegoAction`
   carry `android.graphics.Point`; `BoardTheme` carries Compose `Color` and `@StringRes`.
@@ -129,7 +124,8 @@ regular contributor appears, or when local AI needs Play Feature Delivery for it
 | `android.util.Log`, `FirebaseCrashlytics.log`   | Kermit                                                                                                         | **Done** - 6.6                                                 |
 | `java.time`, `SimpleDateFormat`, `Date`         | `kotlin.time` + kotlinx-datetime                                                                               | **Done** - 6.7                                                 |
 | OkHttp (direct)                                 | Android Ktor engine only                                                                                       | Mostly done; the websocket still takes `OkHttpClient` directly |
-| Firebase Crashlytics (non-log) / Analytics      | `CrashReporter` / `Analytics` `expect`/`actual`; iOS via Firebase iOS SDK or GitLive                           | To do - Phase 0                                                |
+| Firebase Analytics                              | Injected `Analytics`; becomes a common interface, iOS implementation in Swift                                  | **Done** - 6.9                                                 |
+| Firebase Crashlytics (non-log)                  | `CrashReporter` `expect`/`actual`; iOS via Firebase iOS SDK or GitLive                                         | To do - Phase 0                                                |
 | `java.util.concurrent`, `UUID`, `Stack`, ...    | stdlib atomics, `Mutex`, `kotlin.uuid`, `ArrayDeque`                                                           | To do - Phase 0                                                |
 | `BuildConfig`                                   | BuildKonfig                                                                                                    | To do - Phase 2                                                |
 | Koin Android artifacts                          | `koin-core` + `koin-compose` + `koin-compose-viewmodel`; drop `androidApplication()`                           | To do - Phase 2                                                |
@@ -304,3 +300,30 @@ Two pre-existing bugs fixed: the Glicko2 TSV parser dropped the oldest game, and
 - Fixed: the stats chart treated local wall-clock time as UTC, skewing its windows by the user's
   offset. Changed: the chart tooltip date uses `DateUtils` (locale-ordered, e.g. "Jan 5, 2024" in
   the US), because kotlinx-datetime has English month names only.
+
+### 6.8 Constructor injection
+
+- `OnlineGoApplication.instance` is gone; `KataGoAnalysisEngine`, `NotificationUtils`,
+  `PersistenceManager` and `WhatsNewUtils` are Koin singletons instead of objects.
+- **The remaining `GlobalContext` sites are left on purpose.** Koin 4's `GlobalContext`, `get()` and
+  `inject()` are in `koin-core` common code, so none of them blocks KMP:
+  - `OGSWebSocketService` (`List<SocketConnectedRepository>`) and `UserSessionRepository` (socket
+    and
+    REST services) inject lazily to break dependency cycles. Constructor injection would need
+    `Lazy<>`
+    parameters.
+  - `CheckNotificationsTask` and `SynchronizeGamesWork` stay in `:app` and cannot take constructor
+    parameters without a `WorkerFactory`.
+  - `GameConnection` is not built by Koin; `Globals1.kt` holds a top-level `ClockDriftRepository`.
+- `toastException` in `Globals.kt` is Android-only because of `Toast` / `Context` / `BuildConfig`,
+  not because of the locator. It goes with the `Globals.kt` split (1.1).
+
+### 6.9 Firebase Analytics behind `Analytics`
+
+- `utils/Analytics.kt` wraps `FirebaseAnalytics` and is the only file besides `Modules.kt` that
+  imports it. Parameters are a `Map<String, String?>` instead of a `Bundle`.
+- In Phase 2 it becomes a common interface. The iOS implementation can be written in Swift against
+  the Firebase iOS SDK and registered with Koin, so no cinterop is needed.
+- `FirebaseAnalytics.Event.SIGN_UP` / `LOGIN` became the literals `"sign_up"` / `"login"`, which are
+  the same values. Event names are otherwise unchanged.
+- GitLive was not adopted: the whole surface is one `logEvent`. Revisit it alongside Crashlytics.

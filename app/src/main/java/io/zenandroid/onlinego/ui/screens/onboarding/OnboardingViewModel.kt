@@ -7,7 +7,6 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import co.touchlab.kermit.Logger
-import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.ogs.OGSRestService
@@ -24,6 +23,7 @@ import io.zenandroid.onlinego.ui.screens.onboarding.Page.LoginPage
 import io.zenandroid.onlinego.ui.screens.onboarding.Page.MultipleChoicePage
 import io.zenandroid.onlinego.ui.screens.onboarding.Page.NotificationPermissionPage
 import io.zenandroid.onlinego.ui.screens.onboarding.Page.OnboardingPage
+import io.zenandroid.onlinego.utils.Analytics
 import io.zenandroid.onlinego.utils.appJson
 import io.zenandroid.onlinego.utils.recordException
 import kotlinx.coroutines.Dispatchers
@@ -43,7 +43,7 @@ class OnboardingViewModel(
   val ogsWebSocketService: OGSWebSocketService,
   val settingsRepository: SettingsRepository,
   val userSessionRepository: UserSessionRepository,
-  private val analytics: FirebaseAnalytics,
+  private val analytics: Analytics,
   savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -238,7 +238,7 @@ class OnboardingViewModel(
     (isExistingAccount || email.isNotBlank()) && username.isNotBlank() && password.isNotBlank()
 
   private fun goToPage(pageIndex: Int) {
-    analytics.logEvent("oboarding_page_$pageIndex", null)
+    analytics.logEvent("oboarding_page_$pageIndex")
     _state.update {
       it.copy(
         currentPageIndex = pageIndex,
@@ -262,7 +262,7 @@ class OnboardingViewModel(
         try {
           ogsRestService.createAccount(state.username.trim(), state.password, state.email.trim())
           FirebaseCrashlytics.getInstance().setCustomKey("NEW_ACCOUNT", true)
-          analytics.logEvent(FirebaseAnalytics.Event.SIGN_UP, null)
+          analytics.logEvent("sign_up")
           doLogin(_state.value)
         } catch (t: Throwable) {
           onCreateAccountFailure(t)
@@ -276,7 +276,7 @@ class OnboardingViewModel(
       try {
         ogsRestService.login(state.username.trim(), state.password)
         ogsWebSocketService.ensureSocketConnected()
-        analytics.logEvent(FirebaseAnalytics.Event.LOGIN, null)
+        analytics.logEvent("login")
         onLoginSuccess()
       } catch (t: Throwable) {
         onPasswordLoginFailure(t)
