@@ -660,6 +660,7 @@ Regardons un exemple. La pierre blanche en E6 est en atari. Noir peut donc la ca
     <string name="tutorial_intermediate_ko_ko_page_4_text"><![CDATA[... et la partie serait sans fin. Pour éviter cela, la règle du KO stipule que blanc ne peut pas recapturer E6 immédiatement, et doit d'abord jouer ailleurs.]]></string>
     <string name="tutorial_intermediate_ko_ko_page_5_text"><![CDATA[Maintenant, si noir veut sauver sa pierre en atari, il peut jouer en E6...]]></string>
     <string name="tutorial_intermediate_ko_ko_page_6_text">Noir a ainsi gagné le ko, mais c\'est au tour de blanc à nouveau, blanc a donc gagné deux coups en échange de cette pierre.</string>
+    <string name="tutorial_intermediate_ko_ko_page_7_text">Ces deux coups gratuits peuvent parfois valoir plus de points que de gagner le Ko, donc les deux joueurs vont constamment évaluer s\'il vaut mieux continuer le Ko ou prendre les coups supplémentaires.</string>
     <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_1_2_message">Les groupes noirs sont séparés</string>
     <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_2_message">Les groupes noirs sont séparés</string>
     <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_3_message">Les groupes noirs sont séparés</string>
