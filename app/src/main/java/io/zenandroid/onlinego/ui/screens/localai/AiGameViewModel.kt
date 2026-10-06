@@ -717,8 +717,8 @@ class AiGameViewModel(
       _state.update {
         it.copy(
           position = currentState.position.copy(
-            blackTerritory = score.blackTerritory,
-            whiteTerritory = score.whiteTerritory,
+            blackTerritory = score.blackArea,
+            whiteTerritory = score.whiteArea,
             removedSpots = score.removedSpots,
             whiteCaptureCount = currentState.position.whiteCaptureCount,
             blackCaptureCount = currentState.position.blackCaptureCount
@@ -885,8 +885,8 @@ fun isEnginesTurn(position: Position, enginePlaysBlack: Boolean): Boolean =
   (position.nextToMove != StoneType.WHITE) == enginePlaysBlack
 
 data class AiFinalScore(
-  val blackTerritory: Set<Cell>,
-  val whiteTerritory: Set<Cell>,
+  val blackArea: Set<Cell>,
+  val whiteArea: Set<Cell>,
   val removedSpots: Set<Cell>,
   val blackScore: Float,
   val whiteScore: Float,
@@ -907,10 +907,10 @@ fun handicapStonesPlaced(handicap: Int): Int = if (handicap > 1) handicap else 0
  * `ownership` holds one value per board point, row-major: above 0.6 means White owns the
  * point, below -0.6 means Black owns it, anything in between is neutral (dame). Owned
  * points include living stones, which is exactly what Chinese (area) scoring wants.
- * Japanese (territory) scoring counts empty territory plus prisoners only, so living
- * stones are subtracted from each side's owned points there. Chinese scoring instead
- * compensates White with one point per Black handicap stone (`handicapStones`) - the same
- * `WHB_N` convention KataGo itself applies for `rules = "chinese"`, so the two agree.
+ * Japanese (territory) scoring counts empty territory plus prisoners only. Chinese
+ * scoring instead compensates White with one point per Black handicap stone
+ * (`handicapStones`) - the same `WHB_N` convention KataGo itself applies for
+ * `rules = "chinese"`, so the two agree.
  */
 @VisibleForTesting
 fun scoreFinishedGame(
@@ -941,20 +941,22 @@ fun scoreFinishedGame(
 
   return when (rules) {
     AiRules.JAPANESE -> {
-      val whiteTerritory = whiteArea - whiteStones
-      val blackTerritory = blackArea - blackStones
+      val deadBlackStones = blackStones.intersect(whiteArea)
+      val deadWhiteStones = whiteStones.intersect(blackArea)
+      val whiteTerritory = whiteArea - whiteStones - deadBlackStones
+      val blackTerritory = blackArea - blackStones - deadWhiteStones
       AiFinalScore(
-        blackTerritory = blackTerritory,
-        whiteTerritory = whiteTerritory,
+        blackArea = blackArea,
+        whiteArea = whiteArea,
         removedSpots = removedSpots,
-        blackScore = (blackTerritory.size + blackCaptureCount).toFloat(),
-        whiteScore = whiteTerritory.size + whiteCaptureCount + (komi ?: 0f),
+        blackScore = (blackTerritory.size + blackCaptureCount + deadWhiteStones.size).toFloat(),
+        whiteScore = whiteTerritory.size + whiteCaptureCount + deadBlackStones.size + (komi ?: 0f),
       )
     }
 
     AiRules.CHINESE -> AiFinalScore(
-      blackTerritory = blackArea,
-      whiteTerritory = whiteArea,
+      blackArea = blackArea,
+      whiteArea = whiteArea,
       removedSpots = removedSpots,
       blackScore = blackArea.size.toFloat(),
       whiteScore = whiteArea.size + handicapStones + (komi ?: 0f),

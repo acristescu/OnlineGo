@@ -332,8 +332,8 @@ class AiGameViewModelTest {
       rules = AiRules.JAPANESE,
     )
 
-    assertEquals(3, score.blackTerritory.size)
-    assertEquals(5, score.whiteTerritory.size)
+    assertEquals(3, score.blackArea.size)
+    assertEquals(5, score.whiteArea.size)
     assertEquals(1, score.removedSpots.size)
     assertEquals(5f, score.blackScore, 0.0001f)
     assertEquals(15.5f, score.whiteScore, 0.0001f)
@@ -352,8 +352,8 @@ class AiGameViewModelTest {
       rules = AiRules.CHINESE,
     )
 
-    assertEquals(3, score.blackTerritory.size)
-    assertEquals(5, score.whiteTerritory.size)
+    assertEquals(3, score.blackArea.size)
+    assertEquals(5, score.whiteArea.size)
     assertEquals(3f, score.blackScore, 0.0001f)
     assertEquals(12.5f, score.whiteScore, 0.0001f)
   }
@@ -410,9 +410,11 @@ class AiGameViewModelTest {
   }
 
   @Test
-  fun `scoreFinishedGame excludes living stones from Japanese territory`() {
+  fun `scoreFinishedGame excludes living stones from Japanese scores but keeps them for display`() {
     // 3x3 board: 5 white-owned points, 3 black-owned, 1 dame - but two of the
-    // white-owned points and one black-owned point hold living stones.
+    // white-owned points and one black-owned point hold living stones. Scores use
+    // the empty territory; the returned sets keep the full area so the UI can
+    // mark every owned point.
     val ownership = listOf(1f, 1f, 1f, 1f, 1f, -1f, -1f, -1f, 0f)
 
     val score = scoreFinishedGame(
@@ -426,12 +428,36 @@ class AiGameViewModelTest {
       blackStones = setOf(Cell(2, 1)),
     )
 
-    assertEquals(2, score.blackTerritory.size)
-    assertEquals(3, score.whiteTerritory.size)
-    assertTrue(score.whiteTerritory.none { it in setOf(Cell(0, 0), Cell(1, 0)) })
-    assertTrue(Cell(2, 1) !in score.blackTerritory)
+    assertEquals(3, score.blackArea.size)
+    assertEquals(5, score.whiteArea.size)
+    assertTrue(score.whiteArea.containsAll(setOf(Cell(0, 0), Cell(1, 0))))
     assertEquals(2f, score.blackScore, 0.0001f)
     assertEquals(3f + 6.5f, score.whiteScore, 0.0001f)
+  }
+
+  @Test
+  fun `scoreFinishedGame counts dead stones for the killer under Japanese rules`() {
+    // 3x3 board: 5 white-owned points, 3 black-owned, 1 dame. The white stone on
+    // the black-owned point is dead: it stays in Black's area set so the UI can
+    // mark it, but scores as a prisoner rather than territory.
+    val ownership = listOf(1f, 1f, 1f, 1f, 1f, -1f, -1f, -1f, 0f)
+
+    val score = scoreFinishedGame(
+      ownership = ownership,
+      boardWidth = 3,
+      blackCaptureCount = 0,
+      whiteCaptureCount = 0,
+      komi = 6.5f,
+      rules = AiRules.JAPANESE,
+      whiteStones = setOf(Cell(0, 0), Cell(2, 1)),
+      blackStones = setOf(Cell(0, 2)),
+    )
+
+    assertTrue(Cell(2, 1) in score.blackArea)
+    assertEquals(3, score.blackArea.size)
+    assertEquals(5, score.whiteArea.size)
+    assertEquals(2f, score.blackScore, 0.0001f)
+    assertEquals(4f + 6.5f, score.whiteScore, 0.0001f)
   }
 
   @Test
@@ -449,8 +475,8 @@ class AiGameViewModelTest {
       blackStones = setOf(Cell(2, 1)),
     )
 
-    assertEquals(3, score.blackTerritory.size)
-    assertEquals(5, score.whiteTerritory.size)
+    assertEquals(3, score.blackArea.size)
+    assertEquals(5, score.whiteArea.size)
     assertEquals(3f, score.blackScore, 0.0001f)
     assertEquals(5f + 7.5f, score.whiteScore, 0.0001f)
   }
