@@ -1,5 +1,6 @@
 package io.zenandroid.onlinego.ui.screens.localai
 
+import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.Position
 import io.zenandroid.onlinego.data.model.StoneType
 import io.zenandroid.onlinego.data.model.katago.KataGoResponse.Response
@@ -315,5 +316,201 @@ class AiGameViewModelTest {
     assertEquals(null, restored.chatText)
     assertEquals(null, restored.withoutTransientState().chatText)
     assertEquals(9, restored.withoutTransientState().boardSize)
+  }
+
+  @Test
+  fun `scoreFinishedGame applies Japanese territory scoring with prisoners`() {
+    // 3x3 board: 5 white-owned points, 3 black-owned, 1 dame.
+    val ownership = listOf(1f, 1f, 1f, 1f, 1f, -1f, -1f, -1f, 0f)
+
+    val score = scoreFinishedGame(
+      ownership = ownership,
+      boardWidth = 3,
+      blackCaptureCount = 2,
+      whiteCaptureCount = 4,
+      komi = 6.5f,
+      rules = AiRules.JAPANESE,
+    )
+
+    assertEquals(3, score.blackArea.size)
+    assertEquals(5, score.whiteArea.size)
+    assertEquals(1, score.removedSpots.size)
+    assertEquals(5f, score.blackScore, 0.0001f)
+    assertEquals(15.5f, score.whiteScore, 0.0001f)
+  }
+
+  @Test
+  fun `scoreFinishedGame applies Chinese area scoring without prisoners`() {
+    val ownership = listOf(1f, 1f, 1f, 1f, 1f, -1f, -1f, -1f, 0f)
+
+    val score = scoreFinishedGame(
+      ownership = ownership,
+      boardWidth = 3,
+      blackCaptureCount = 2,
+      whiteCaptureCount = 4,
+      komi = 7.5f,
+      rules = AiRules.CHINESE,
+    )
+
+    assertEquals(3, score.blackArea.size)
+    assertEquals(5, score.whiteArea.size)
+    assertEquals(3f, score.blackScore, 0.0001f)
+    assertEquals(12.5f, score.whiteScore, 0.0001f)
+  }
+
+  @Test
+  fun `scoreFinishedGame tolerates a missing ownership map`() {
+    val score = scoreFinishedGame(
+      ownership = null,
+      boardWidth = 3,
+      blackCaptureCount = 2,
+      whiteCaptureCount = 4,
+      komi = 6.5f,
+      rules = AiRules.JAPANESE,
+    )
+
+    assertEquals(2f, score.blackScore, 0.0001f)
+    assertEquals(10.5f, score.whiteScore, 0.0001f)
+  }
+
+  @Test
+  fun `scoreFinishedGame compensates White per handicap stone under Chinese rules`() {
+    val ownership = listOf(1f, 1f, 1f, 1f, 1f, -1f, -1f, -1f, 0f)
+
+    val score = scoreFinishedGame(
+      ownership = ownership,
+      boardWidth = 3,
+      blackCaptureCount = 0,
+      whiteCaptureCount = 0,
+      komi = 0.5f,
+      rules = AiRules.CHINESE,
+      handicapStones = 4,
+    )
+
+    assertEquals(3f, score.blackScore, 0.0001f)
+    assertEquals(5f + 4f + 0.5f, score.whiteScore, 0.0001f)
+  }
+
+  @Test
+  fun `scoreFinishedGame ignores handicap stones under Japanese rules`() {
+    val ownership = listOf(1f, 1f, 1f, 1f, 1f, -1f, -1f, -1f, 0f)
+
+    val score = scoreFinishedGame(
+      ownership = ownership,
+      boardWidth = 3,
+      blackCaptureCount = 0,
+      whiteCaptureCount = 0,
+      komi = 0.5f,
+      rules = AiRules.JAPANESE,
+      handicapStones = 4,
+    )
+
+    assertEquals(3f, score.blackScore, 0.0001f)
+    assertEquals(5.5f, score.whiteScore, 0.0001f)
+  }
+
+  @Test
+  fun `scoreFinishedGame excludes living stones from Japanese scores but keeps them for display`() {
+    // 3x3 board: 5 white-owned points, 3 black-owned, 1 dame - but two of the
+    // white-owned points and one black-owned point hold living stones. Scores use
+    // the empty territory; the returned sets keep the full area so the UI can
+    // mark every owned point.
+    val ownership = listOf(1f, 1f, 1f, 1f, 1f, -1f, -1f, -1f, 0f)
+
+    val score = scoreFinishedGame(
+      ownership = ownership,
+      boardWidth = 3,
+      blackCaptureCount = 0,
+      whiteCaptureCount = 0,
+      komi = 6.5f,
+      rules = AiRules.JAPANESE,
+      whiteStones = setOf(Cell(0, 0), Cell(1, 0)),
+      blackStones = setOf(Cell(2, 1)),
+    )
+
+    assertEquals(3, score.blackArea.size)
+    assertEquals(5, score.whiteArea.size)
+    assertTrue(score.whiteArea.containsAll(setOf(Cell(0, 0), Cell(1, 0))))
+    assertEquals(2f, score.blackScore, 0.0001f)
+    assertEquals(3f + 6.5f, score.whiteScore, 0.0001f)
+  }
+
+  @Test
+  fun `scoreFinishedGame counts dead stones for the killer under Japanese rules`() {
+    // 3x3 board: 5 white-owned points, 3 black-owned, 1 dame. The white stone on
+    // the black-owned point is dead: its point still counts as Black territory
+    // and the stone as a prisoner, so it scores twice. It also stays in Black's
+    // area set so the UI can mark it.
+    val ownership = listOf(1f, 1f, 1f, 1f, 1f, -1f, -1f, -1f, 0f)
+
+    val score = scoreFinishedGame(
+      ownership = ownership,
+      boardWidth = 3,
+      blackCaptureCount = 0,
+      whiteCaptureCount = 0,
+      komi = 6.5f,
+      rules = AiRules.JAPANESE,
+      whiteStones = setOf(Cell(0, 0), Cell(2, 1)),
+      blackStones = setOf(Cell(0, 2)),
+    )
+
+    assertTrue(Cell(2, 1) in score.blackArea)
+    assertEquals(3, score.blackArea.size)
+    assertEquals(5, score.whiteArea.size)
+    assertEquals(3f, score.blackScore, 0.0001f)
+    assertEquals(4f + 6.5f, score.whiteScore, 0.0001f)
+  }
+
+  @Test
+  fun `scoreFinishedGame keeps living stones in Chinese area`() {
+    val ownership = listOf(1f, 1f, 1f, 1f, 1f, -1f, -1f, -1f, 0f)
+
+    val score = scoreFinishedGame(
+      ownership = ownership,
+      boardWidth = 3,
+      blackCaptureCount = 0,
+      whiteCaptureCount = 0,
+      komi = 7.5f,
+      rules = AiRules.CHINESE,
+      whiteStones = setOf(Cell(0, 0), Cell(1, 0)),
+      blackStones = setOf(Cell(2, 1)),
+    )
+
+    assertEquals(3, score.blackArea.size)
+    assertEquals(5, score.whiteArea.size)
+    assertEquals(3f, score.blackScore, 0.0001f)
+    assertEquals(5f + 7.5f, score.whiteScore, 0.0001f)
+  }
+
+  @Test
+  fun `handicapStonesPlaced counts placed stones only`() {
+    assertEquals(0, handicapStonesPlaced(0))
+    // Handicap 1 means "no komi" with no stones placed.
+    assertEquals(0, handicapStonesPlaced(1))
+    assertEquals(2, handicapStonesPlaced(2))
+    assertEquals(9, handicapStonesPlaced(9))
+  }
+
+  @Test
+  fun `saves written before the rules option restore as Japanese`() {
+    val restored = appJson.decodeFromString<AiGameState>("""{"boardSize":9}""")
+
+    assertEquals(AiRules.JAPANESE, restored.rules)
+  }
+
+  @Test
+  fun `unknown rules values fall back to Japanese instead of failing restore`() {
+    val restored = appJson.decodeFromString<AiGameState>("""{"boardSize":9,"rules":"korean"}""")
+
+    assertEquals(AiRules.JAPANESE, restored.rules)
+  }
+
+  @Test
+  fun `Chinese rules survive a save and restore round-trip`() {
+    val state = AiGameState(rules = AiRules.CHINESE, boardSize = 13)
+
+    val restored = appJson.decodeFromString<AiGameState>(appJson.encodeToString(state))
+
+    assertEquals(AiRules.CHINESE, restored.rules)
   }
 }

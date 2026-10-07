@@ -596,7 +596,7 @@ object RulesManager {
     )
   )
 
-  fun initializePosition(boardSize: Int, handicap: Int = 0, komi: Float? = null): Position {
+  fun initializePosition(boardSize: Int, handicap: Int = 0, komi: Float? = null, chineseRules: Boolean = false): Position {
     val blackStones = mutableSetOf<Cell>()
     if (handicap > 1) {
       val handicapStones = handicaps[boardSize]?.get(handicap)
@@ -609,13 +609,18 @@ object RulesManager {
     return Position(
       boardWidth = boardSize,
       boardHeight = boardSize,
-      komi = komi ?: determineKomi(boardSize, handicap),
+      komi = komi ?: determineKomi(boardSize, handicap, chineseRules),
       nextToMove = if (handicap > 1) StoneType.WHITE else StoneType.BLACK,
       blackStones = blackStones,
     )
   }
 
-  private fun determineKomi(boardSize: Int, handicap: Int = 0): Float {
+  private fun determineKomi(boardSize: Int, handicap: Int = 0, chineseRules: Boolean = false): Float {
+    if (chineseRules) {
+      // Standard Chinese komi is 7.5 for even games; handicap games get 0.5, mirroring
+      // the Japanese table below.
+      return if (handicap == 0) 7.5f else 0.5f
+    }
     when (boardSize) {
       19 -> return if (handicap == 0) 6.5f else 0.5f
       13 -> return when (handicap) {

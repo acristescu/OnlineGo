@@ -1,5 +1,6 @@
 @file:UseSerializers(
   AiDifficultySerializer::class,
+  AiRulesSerializer::class,
   ResponseBriefSerializer::class,
   LenientIntSerializer::class
 )
@@ -13,6 +14,7 @@ import io.zenandroid.onlinego.data.model.katago.KataGoResponse.Response
 import io.zenandroid.onlinego.data.model.katago.MoveInfo
 import io.zenandroid.onlinego.ui.composables.TextResource
 import io.zenandroid.onlinego.utils.serializers.AiDifficultySerializer
+import io.zenandroid.onlinego.utils.serializers.AiRulesSerializer
 import io.zenandroid.onlinego.utils.serializers.ResponseBriefSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
@@ -57,6 +59,15 @@ enum class AiDifficulty(
   DAN_5(maxVisits = 40, humanSLProfile = null, rank = DifficultyRank.Dan(5)),
 }
 
+/**
+ * katagoName is the rules string KataGo's analysis engine expects - see
+ * https://github.com/lightvector/KataGo/blob/master/docs/Analysis_Engine.md
+ */
+enum class AiRules(val katagoName: String) {
+  JAPANESE("japanese"),
+  CHINESE("chinese"),
+}
+
 @Immutable
 @Serializable
 data class AiGameState(
@@ -67,6 +78,7 @@ data class AiGameState(
   val enginePlaysBlack: Boolean = false,
   val handicap: Int = 0,
   val difficulty: AiDifficulty = AiDifficulty.KYU_12,
+  val rules: AiRules = AiRules.JAPANESE,
   val boardIsInteractive: Boolean = false,
   val candidateMove: Cell? = null,
   val passButtonEnabled: Boolean = false,

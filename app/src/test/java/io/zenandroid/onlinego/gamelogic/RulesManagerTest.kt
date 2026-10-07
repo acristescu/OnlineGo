@@ -33,4 +33,22 @@ class RulesManagerTest {
         Assert.assertEquals(11, pos.blackCaptureCount)
         Assert.assertEquals(8, pos.whiteCaptureCount)
     }
+
+    @Test
+    fun `initializePosition uses Japanese komi by default`() {
+        Assert.assertEquals(6.5f, RulesManager.initializePosition(19, 0).komi ?: -1f, 0.0001f)
+        Assert.assertEquals(0.5f, RulesManager.initializePosition(19, 2).komi ?: -1f, 0.0001f)
+    }
+
+    @Test
+    fun `initializePosition uses Chinese komi when requested`() {
+        Assert.assertEquals(7.5f, RulesManager.initializePosition(19, 0, chineseRules = true).komi ?: -1f, 0.0001f)
+        Assert.assertEquals(0.5f, RulesManager.initializePosition(19, 2, chineseRules = true).komi ?: -1f, 0.0001f)
+        Assert.assertEquals(7.5f, RulesManager.initializePosition(9, 0, chineseRules = true).komi ?: -1f, 0.0001f)
+    }
+
+    @Test
+    fun `initializePosition still honors an explicit komi override`() {
+        Assert.assertEquals(7.5f, RulesManager.initializePosition(19, 0, komi = 7.5f).komi ?: -1f, 0.0001f)
+    }
 }
