@@ -943,8 +943,11 @@ fun scoreFinishedGame(
     AiRules.JAPANESE -> {
       val deadBlackStones = blackStones.intersect(whiteArea)
       val deadWhiteStones = whiteStones.intersect(blackArea)
-      val whiteTerritory = whiteArea - whiteStones - deadBlackStones
-      val blackTerritory = blackArea - blackStones - deadWhiteStones
+      // Owned points holding own stones are living and excluded, but points under
+      // dead stones stay: each dead stone scores twice, once for its point as
+      // territory and once as a prisoner.
+      val whiteTerritory = whiteArea - whiteStones
+      val blackTerritory = blackArea - blackStones
       AiFinalScore(
         blackArea = blackArea,
         whiteArea = whiteArea,

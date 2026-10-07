@@ -438,8 +438,9 @@ class AiGameViewModelTest {
   @Test
   fun `scoreFinishedGame counts dead stones for the killer under Japanese rules`() {
     // 3x3 board: 5 white-owned points, 3 black-owned, 1 dame. The white stone on
-    // the black-owned point is dead: it stays in Black's area set so the UI can
-    // mark it, but scores as a prisoner rather than territory.
+    // the black-owned point is dead: its point still counts as Black territory
+    // and the stone as a prisoner, so it scores twice. It also stays in Black's
+    // area set so the UI can mark it.
     val ownership = listOf(1f, 1f, 1f, 1f, 1f, -1f, -1f, -1f, 0f)
 
     val score = scoreFinishedGame(
@@ -456,7 +457,7 @@ class AiGameViewModelTest {
     assertTrue(Cell(2, 1) in score.blackArea)
     assertEquals(3, score.blackArea.size)
     assertEquals(5, score.whiteArea.size)
-    assertEquals(2f, score.blackScore, 0.0001f)
+    assertEquals(3f, score.blackScore, 0.0001f)
     assertEquals(4f + 6.5f, score.whiteScore, 0.0001f)
   }
 
