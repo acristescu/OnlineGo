@@ -7,6 +7,7 @@ import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import java.net.Inet4Address
 import java.net.InetAddress
+import java.util.concurrent.TimeUnit
 
 
 private class EmulatorDnsSelector : Dns {
@@ -18,6 +19,7 @@ private class EmulatorDnsSelector : Dns {
 class HTTPConnectionFactory {
     fun buildConnection() =
         OkHttpClient.Builder()
+            .pingInterval(15, TimeUnit.SECONDS)
             .run { if(isEmulator()) dns(EmulatorDnsSelector()) else this }
             .followRedirects(false)
             .run { if(BuildConfig.DEBUG) { addInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY)) } else this }

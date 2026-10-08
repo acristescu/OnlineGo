@@ -1,6 +1,12 @@
 package io.zenandroid.onlinego.data.ogs
 
 import co.touchlab.kermit.Logger
+import io.ktor.client.HttpClient
+import io.ktor.client.plugins.websocket.wss
+import io.ktor.websocket.CloseReason
+import io.ktor.websocket.Frame
+import io.ktor.websocket.close
+import io.ktor.websocket.readText
 import io.zenandroid.onlinego.data.model.ogs.NetPong
 import io.zenandroid.onlinego.data.model.ogs.OGSAutomatch
 import io.zenandroid.onlinego.data.model.ogs.OGSGame
@@ -21,6 +27,7 @@ import io.zenandroid.onlinego.utils.json
 import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.persistentMapOf
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
@@ -48,13 +55,7 @@ import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.longOrNull
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import okhttp3.Response
-import okhttp3.WebSocket
-import okhttp3.WebSocketListener
 import org.koin.core.context.GlobalContext.get
-import java.util.concurrent.TimeUnit
 import kotlin.concurrent.atomics.AtomicBoolean
 import kotlin.concurrent.atomics.AtomicReference
 import kotlin.concurrent.atomics.update
@@ -65,18 +66,17 @@ private const val TAG = "OGSWebSocketService"
 
 private const val RECONNECT_DELAY_MIN_MS = 750L
 private const val RECONNECT_DELAY_MAX_MS = 10000L
-private const val NORMAL_CLOSURE_STATUS = 1000
 
 class OGSWebSocketService(
   private val restService: OGSRestService,
   private val userSessionRepository: UserSessionRepository,
-  private val httpClient: OkHttpClient,
   private val socketDebugRepository: SocketDebugRepository,
+  private val client: HttpClient,
+  private val applicationScope: CoroutineScope,
 ) {
   private val _connectionState = MutableStateFlow(false)
   val connectionState = _connectionState.asStateFlow()
 
-  private var webSocket: WebSocket? = null
   private val connected = AtomicBoolean(false)
   private val intentionalDisconnect = AtomicBoolean(false)
   private var reconnectDelay = RECONNECT_DELAY_MIN_MS
@@ -88,54 +88,66 @@ class OGSWebSocketService(
   private val eventListeners =
     AtomicReference(persistentMapOf<String, PersistentList<(JsonElement) -> Unit>>())
 
-  private val wsUrl = "wss://wsp.online-go.com/"
+  private val wsHost = "wsp.online-go.com"
 
-  private val wsClient: OkHttpClient by lazy {
-    httpClient.newBuilder()
-      .pingInterval(15, TimeUnit.SECONDS)
-      .build()
-  }
+  private val outgoing = AtomicReference<Channel<String>?>(null)
 
-  private val webSocketListener = object : WebSocketListener() {
-    override fun onOpen(webSocket: WebSocket, response: Response) {
-      Logger.i("WebSocket connected", tag = TAG)
-      socketDebugRepository.logState("WS", "Connected (code=${response.code})")
-      socketDebugRepository.updateConnectionState("Connected")
-      connected.store(true)
-      reconnectDelay = RECONNECT_DELAY_MIN_MS
-      onSockedConnected()
-      Logger.i("WebSocket connected - called all onSocketConnected() methods", tag = TAG)
+  private fun connect() {
+    val queue = Channel<String>(Channel.UNLIMITED)
+    if (!outgoing.compareAndSet(expectedValue = null, newValue = queue)) {
+      return
     }
 
-    override fun onMessage(webSocket: WebSocket, text: String) {
-      Logger.v(tag = TAG) { "<== raw: $text" }
+    applicationScope.launch {
       try {
-        socketDebugRepository.logReceived("WS", text.take(500))
-        handleMessage(text)
+        client.wss(host = wsHost, path = "/") {
+          Logger.i("WebSocket connected", tag = TAG)
+          socketDebugRepository.logState("WS", "Connected")
+          socketDebugRepository.updateConnectionState("Connected")
+          connected.store(true)
+          reconnectDelay = RECONNECT_DELAY_MIN_MS
+          onSockedConnected()
+
+          val sender = launch {
+            for (message in queue) {
+              send(Frame.Text(message))
+            }
+            close(CloseReason(CloseReason.Codes.NORMAL, "Client disconnect"))
+          }
+          try {
+            for (frame in incoming) {
+              if (frame is Frame.Text) {
+                onTextMessage(frame.readText())
+              }
+            }
+          } finally {
+            sender.cancel()
+          }
+        }
+        Logger.i("WebSocket closed", tag = TAG)
+        socketDebugRepository.logState("WS", "Closed")
+      } catch (e: CancellationException) {
+        throw e
       } catch (e: Exception) {
-        socketDebugRepository.logError("WS", "Error handling message: ${e.message}")
-        CrashReporter.recordException(Exception("Error handling WebSocket message: $text", e))
+        Logger.w("WebSocket failure: ${e.message}", tag = TAG)
+        socketDebugRepository.logError("WS", "Failure: ${e.message}")
+      } finally {
+        queue.close()
+        outgoing.compareAndSet(expectedValue = queue, newValue = null)
+        socketDebugRepository.updateConnectionState("Disconnected")
+        handleDisconnect()
       }
     }
+  }
 
-    override fun onClosing(webSocket: WebSocket, code: Int, reason: String) {
-      Logger.d(tag = TAG) { "WebSocket closing: $code $reason" }
-      socketDebugRepository.logState("WS", "Closing (code=$code, reason=$reason)")
-      webSocket.close(NORMAL_CLOSURE_STATUS, null)
-    }
-
-    override fun onClosed(webSocket: WebSocket, code: Int, reason: String) {
-      Logger.i("WebSocket closed: $code $reason", tag = TAG)
-      socketDebugRepository.logState("WS", "Closed (code=$code, reason=$reason)")
-      socketDebugRepository.updateConnectionState("Disconnected")
-      handleDisconnect()
-    }
-
-    override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
-      Logger.w("WebSocket failure: ${t.message}", tag = TAG)
-      socketDebugRepository.logError("WS", "Failure: ${t.message} (response=${response?.code})")
-      socketDebugRepository.updateConnectionState("Disconnected")
-      handleDisconnect()
+  private fun onTextMessage(text: String) {
+    Logger.v(tag = TAG) { "<== raw: $text" }
+    try {
+      socketDebugRepository.logReceived("WS", text.take(500))
+      handleMessage(text)
+    } catch (e: Exception) {
+      socketDebugRepository.logError("WS", "Error handling message: ${e.message}")
+      CrashReporter.recordException(Exception("Error handling WebSocket message: $text", e))
     }
   }
 
@@ -161,7 +173,6 @@ class OGSWebSocketService(
   }
 
   private fun handleDisconnect() {
-    webSocket = null
     val wasConnected = connected.exchange(false)
     socketDebugRepository.logState(
       "WS",
@@ -184,23 +195,12 @@ class OGSWebSocketService(
         Thread.sleep(reconnectDelay)
         reconnectDelay = (reconnectDelay * 2).coerceAtMost(RECONNECT_DELAY_MAX_MS)
         if (!intentionalDisconnect.load()) {
-          doConnect()
+          connect()
         }
       } catch (_: InterruptedException) {
         // ignore
       }
     }
-  }
-
-  @Synchronized
-  private fun doConnect() {
-    if (webSocket != null) {
-      return
-    }
-    val request = Request.Builder()
-      .url(wsUrl)
-      .build()
-    webSocket = wsClient.newWebSocket(request, webSocketListener)
   }
 
   fun ensureSocketConnected() {
@@ -215,14 +215,14 @@ class OGSWebSocketService(
         }
       }
     }
-    if (webSocket == null) {
+    if (outgoing.load() == null) {
       socketDebugRepository.logState(
         "WS",
         "ensureSocketConnected: not connected, connecting... (intentionalDisconnect was ${intentionalDisconnect.load()})"
       )
       socketDebugRepository.updateConnectionState("Connecting...")
       intentionalDisconnect.store(false)
-      doConnect()
+      connect()
     }
   }
 
@@ -391,7 +391,7 @@ class OGSWebSocketService(
       add(jsonElementOf(params))
     }.toString()
     socketDebugRepository.logSent(event, message.take(500))
-    webSocket?.send(message)
+    outgoing.load()?.trySend(message)
   }
 
   fun emit(event: String, json: JsonObjectScope.() -> Unit) {
@@ -467,8 +467,7 @@ class OGSWebSocketService(
     socketDebugRepository.logState("WS", "disconnect() called (intentional)")
     cleanup()
     intentionalDisconnect.store(true)
-    webSocket?.close(NORMAL_CLOSURE_STATUS, "Client disconnect")
-    webSocket = null
+    outgoing.load()?.close()
     socketDebugRepository.updateConnectionState("Disconnected (intentional)")
   }
 

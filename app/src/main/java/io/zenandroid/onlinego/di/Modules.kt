@@ -5,6 +5,7 @@ import com.google.firebase.analytics.FirebaseAnalytics
 import de.jensklingenberg.ktorfit.Ktorfit
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.okhttp.OkHttp
+import io.ktor.client.plugins.websocket.WebSockets
 import io.ktor.http.Url
 import io.zenandroid.onlinego.BuildConfig
 import io.zenandroid.onlinego.OnlineGoApplication
@@ -132,6 +133,7 @@ private val serverConnectionModule = module {
       engine {
         preconfigured = get<OkHttpClient>()
       }
+      install(WebSockets)
     }
   }
 
