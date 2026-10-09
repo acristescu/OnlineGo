@@ -3,8 +3,8 @@
 package io.zenandroid.onlinego.data.model.katago
 
 import androidx.compose.runtime.Immutable
-import kotlinx.serialization.Serializable
 import io.zenandroid.onlinego.data.ogs.LenientIntSerializer
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 
 sealed interface KataGoResponse {
@@ -13,9 +13,9 @@ sealed interface KataGoResponse {
   @Serializable
   data class ErrorResponse(
     override val id: String,
-    val error: String?,
-    val warning: String?,
-    val field: String?,
+    val error: String? = null,
+    val warning: String? = null,
+    val field: String? = null,
   ) : KataGoResponse
 
   @Immutable
@@ -25,7 +25,7 @@ sealed interface KataGoResponse {
     val turnNumber: Int,
     val moveInfos: List<MoveInfo>,
     val rootInfo: RootInfo,
-    val policy: List<Float>?,
+    val policy: List<Float>? = null,
     val ownership: List<Float>? = null,
     // Present only when overrideSettings.humanSLProfile + includePolicy are set; same
     // row-major, pass-index-last layout as `policy`/`ownership`. See selectHumanMove.
@@ -48,7 +48,7 @@ data class MoveInfo(
   val utilityLcb: Float,
   val order: Int,
   val pv: List<String>,
-  val pvVisits: Int?,
+  val pvVisits: Int? = null,
   val ownership: List<Float>? = null
 )
 

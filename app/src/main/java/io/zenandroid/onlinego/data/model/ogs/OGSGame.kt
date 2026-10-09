@@ -28,7 +28,7 @@ data class OGSGame (
 
         var id: Long,
 
-        var phase: Phase?,
+        var phase: Phase? = null,
 
         var name: String? = null,
         var width: Int,

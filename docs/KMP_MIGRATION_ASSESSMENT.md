@@ -9,7 +9,8 @@ is no RxJava, no `Parcelable`, and Koin, Molecule, Room, DataStore, `ViewModel`,
 kotlinx-collections-immutable are already multiplatform. The cost is dominated by resources
 (663 strings x 16 locales) and the local-AI engine, which cannot run on iOS as built today.
 
-**Status.** Phase 0 is finished: twenty slices are done (section 6). None has shipped in a release
+**Status.** Phase 0 is finished: twenty-one slices are done (section 6). None has shipped in a
+release
 yet, and several still need on-device checks (section 1.2). Phases 1-5 have not started.
 
 Earlier, longer versions of this document:
@@ -22,8 +23,7 @@ Earlier, longer versions of this document:
 
 ### 1.1 Phase 0 - de-coupling (Android-only, no KMP tooling)
 
-- [ ] *Optional tidy:* add `= null` to the 129 nullable-without-default DTO properties. Behaviour is
-  already covered by the `Json` config.
+Nothing left.
 
 **Owed after a release ships:** delete the legacy `CookiePersistence` prefs file, the
 `SerializableCookie` shim and the import branch (6.5). They are the rollback path until then.
@@ -368,3 +368,11 @@ part of the estimator decision (4.1).
   The old popup let them fall through to the screen underneath; letting them through would make a
   tap on the field close the menu and reopen it. The anchor is now `PrimaryNotEditable` (the field
   is read-only).
+
+### 6.21 Nullable DTO properties default to `null`
+
+Every nullable constructor property of a `@Serializable` class now declares `= null` (61 of them;
+the earlier count of 129 predates later edits). Decoding and encoding are unchanged: with
+`explicitNulls = false` an absent key was already `null` and nulls are still omitted. The flag stays
+as the safety net for a new property added without a default, pinned in `NullableDefaultsTest` by a
+test-local class.

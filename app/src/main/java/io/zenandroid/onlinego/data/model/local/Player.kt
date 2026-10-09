@@ -2,10 +2,9 @@
 
 package io.zenandroid.onlinego.data.model.local
 
-import androidx.room.PrimaryKey
 import io.zenandroid.onlinego.data.model.ogs.OGSPlayer
-import kotlinx.serialization.Serializable
 import io.zenandroid.onlinego.data.ogs.LenientLongSerializer
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 
 /**
@@ -15,13 +14,13 @@ import kotlinx.serialization.UseSerializers
 data class Player(
     val id: Long,
     val username: String,
-    val rating: Double?,
-    val historicRating: Double?,
-    val country: String?,
-    val icon: String?,
-    val acceptedStones: String?,
-    val ui_class: String?,
-    val deviation: Double?,
+    val rating: Double? = null,
+    val historicRating: Double? = null,
+    val country: String? = null,
+    val icon: String? = null,
+    val acceptedStones: String? = null,
+    val ui_class: String? = null,
+    val deviation: Double? = null,
 ) {
     companion object {
         fun fromOGSPlayer(ogsPlayer: OGSPlayer) =

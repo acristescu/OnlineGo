@@ -8,8 +8,7 @@ import kotlinx.serialization.json.Json
  *
  * [Json.ignoreUnknownKeys] - OGS sends fields we do not model.
  * [Json.explicitNulls] - an absent key decodes to null even where the property has no default, and
- * nulls are omitted when encoding. Both match Moshi, and the first is what keeps the ~130
- * nullable-without-default properties working without touching them.
+ * nulls are omitted when encoding. Both match Moshi.
  * [Json.encodeDefaults] - Moshi wrote every non-null field regardless of its default.
  * [Json.isLenient] - Moshi's reader accepted quoted numbers; `tutorials.json` relies on it, and so
  * do older OGS responses.

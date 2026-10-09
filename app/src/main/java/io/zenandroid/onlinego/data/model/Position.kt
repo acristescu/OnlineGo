@@ -5,12 +5,12 @@ package io.zenandroid.onlinego.data.model
 import androidx.compose.runtime.Immutable
 import io.zenandroid.onlinego.data.model.ogs.JosekiPosition
 import io.zenandroid.onlinego.data.model.ogs.PlayCategory
+import io.zenandroid.onlinego.data.ogs.LenientIntSerializer
+import io.zenandroid.onlinego.data.ogs.OGSBooleanSerializer
 import io.zenandroid.onlinego.gamelogic.RulesManager
 import io.zenandroid.onlinego.gamelogic.Util
 import kotlinx.serialization.Serializable
-import io.zenandroid.onlinego.data.ogs.OGSBooleanSerializer
 import kotlinx.serialization.UseSerializers
-import io.zenandroid.onlinego.data.ogs.LenientIntSerializer
 
 @Immutable
 @Serializable
@@ -123,8 +123,8 @@ data class Position(
 @Serializable
 data class Mark(
     val placement: Cell,
-    val text: String?,
-    val category: PlayCategory?
+    val text: String? = null,
+    val category: PlayCategory? = null
 )
 
 @Immutable

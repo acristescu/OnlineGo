@@ -232,8 +232,8 @@ data class OGSClock(
 //    val paused_since: Long?, // NEVER USE THIS as it is set even on unpaused games
   val pause: Pause? = null,
   var start_mode: Boolean = false,
-  var black_time: Any?,// can be number or Time object
-  var white_time: Any?// can be number or Time object
+  var black_time: Any? = null,// can be number or Time object
+  var white_time: Any? = null// can be number or Time object
 ) {
   @Transient
   var receivedAt: Long = 0
@@ -248,9 +248,9 @@ data class OGSClock(
 
 @Serializable
 data class Pause(
-  val pause_control: Any?,
-  val paused: Boolean?,
-  val paused_since: Long?
+  val pause_control: Any? = null,
+  val paused: Boolean? = null,
+  val paused_since: Long? = null
 )
 
 @Serializable
@@ -288,16 +288,16 @@ data class Move(
 //{"removed":true,"stones":"cidadfdgdieaeceifafhfighgihfhghhhiifigihii","all_removed":"daeafaecdfhfifdghgigfhghhhihcidieifigihiii"}
 @Serializable
 data class RemovedStones(
-  val removed: Any?,
-  val stones: String?,
-  val all_removed: String?
+  val removed: Any? = null,
+  val stones: String? = null,
+  val all_removed: String? = null
 )
 
 @Serializable
 data class RemovedStonesAccepted(
-  val player_id: Long?,
-  val stones: String?,
-  val players: Players?
+  val player_id: Long? = null,
+  val stones: String? = null,
+  val players: Players? = null
 )
 
 @Serializable

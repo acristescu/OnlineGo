@@ -2,16 +2,16 @@
 
 package io.zenandroid.onlinego.data.model.ogs
 
-import kotlinx.serialization.Serializable
-import io.zenandroid.onlinego.data.ogs.OGSBooleanSerializer
-import kotlinx.serialization.UseSerializers
 import io.zenandroid.onlinego.data.ogs.LenientLongSerializer
+import io.zenandroid.onlinego.data.ogs.OGSBooleanSerializer
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.UseSerializers
 
 @Serializable
 data class OGSAutomatch(
-  val uuid: String?,
-        val game_id: Long?,
-        val size_speed_options: List<SizeSpeedOption>?
+  val uuid: String? = null,
+  val game_id: Long? = null,
+  val size_speed_options: List<SizeSpeedOption>? = null
 ) {
     val liveOrBlitzOrRapid: Boolean
         get() = size_speed_options?.find { it.speed == "blitz" || it.speed == "live" || it.speed == "rapid" } != null

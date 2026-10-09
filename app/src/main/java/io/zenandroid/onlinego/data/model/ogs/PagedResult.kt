@@ -2,8 +2,8 @@
 
 package io.zenandroid.onlinego.data.model.ogs
 
-import kotlinx.serialization.Serializable
 import io.zenandroid.onlinego.data.ogs.LenientIntSerializer
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 
 /**
@@ -12,7 +12,7 @@ import kotlinx.serialization.UseSerializers
 @Serializable
 data class PagedResult<T>(
         val count: Int,
-        val next: String?,
-        val previous: String?,
+        val next: String? = null,
+        val previous: String? = null,
         val results: List<T>
         )

@@ -2,19 +2,19 @@
 
 package io.zenandroid.onlinego.data.model.ogs
 
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.SerialName
 import io.zenandroid.onlinego.data.ogs.AnySerializer
-import kotlinx.serialization.UseSerializers
 import io.zenandroid.onlinego.data.ogs.LenientLongSerializer
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.UseSerializers
 
 
 @Serializable
 data class Chat (
     val channel: ChatChannel,
     val line: ChatLine,
-    val game_id: Long?,
-    val chat_id: String?
+    val game_id: Long? = null,
+    val chat_id: String? = null
     )
 
 @Serializable
@@ -32,10 +32,10 @@ enum class ChatChannel {
 @Serializable
 data class ChatLine (
         val username: String,
-        val ratings: OGSPlayer.Ratings?,
+        val ratings: OGSPlayer.Ratings? = null,
         val player_id: Long,
-        val move_number: Long?,
+        val move_number: Long? = null,
         val date: Long,
-        val chat_id: String?,
+        val chat_id: String? = null,
         val body: Any
 )

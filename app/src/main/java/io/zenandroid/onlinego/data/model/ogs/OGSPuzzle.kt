@@ -40,11 +40,11 @@ data class MoveTree (
         @Immutable
         @Serializable
         data class MarkData (
-            val letter: String?,
-            val transient_letter: String?,
-            val subscript: String?,
-            val color: String?,
-          //val score: String?, // or bool
+            val letter: String? = null,
+            val transient_letter: String? = null,
+            val subscript: String? = null,
+            val color: String? = null,
+            //val score: String? = null, // or bool
             val triangle: Boolean = false,
             val square: Boolean = false,
             val circle: Boolean = false,
@@ -56,8 +56,8 @@ data class MoveTree (
             val stone_removed: Boolean = false,
             val mark_x: Boolean = false,
             val hint: Boolean = false,
-            val black: Boolean?,
-            val white: Boolean?,
+            val black: Boolean? = null,
+            val white: Boolean? = null,
         ) {
             override fun toString(): String {
                 return letter ?: transient_letter ?: subscript ?: color
@@ -75,8 +75,8 @@ data class MoveTree (
     @Immutable
     @Serializable
     data class PenData (
-        val color: String?,
-        val points: List<Int>?
+        val color: String? = null,
+        val points: List<Int>? = null
     )
 }
 

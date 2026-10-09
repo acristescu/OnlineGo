@@ -2,19 +2,19 @@
 
 package io.zenandroid.onlinego.data.model.ogs
 
-import kotlinx.serialization.Serializable
 import io.zenandroid.onlinego.data.ogs.LenientIntSerializer
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 
 @Serializable
 data class Warning(
-    val id: Int?,
-    val created: String?,
-    val player_id: Int?,
-    val moderator: Int?,
-    val text: String?,
-    val message_id: String?,
-    val severity: String?,
-    val interpolation_data: String?
+    val id: Int? = null,
+    val created: String? = null,
+    val player_id: Int? = null,
+    val moderator: Int? = null,
+    val text: String? = null,
+    val message_id: String? = null,
+    val severity: String? = null,
+    val interpolation_data: String? = null
 )
 

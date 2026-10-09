@@ -1,15 +1,15 @@
 package io.zenandroid.onlinego.data.ogs
 
-import io.zenandroid.onlinego.data.model.ogs.Chat
 import io.zenandroid.onlinego.data.model.ogs.PuzzleSolution
 import io.zenandroid.onlinego.utils.appJson
+import kotlinx.serialization.Serializable
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Test
 
 /**
- * `explicitNulls = false` is what lets the ~130 nullable-without-default properties keep decoding
- * from payloads that omit them, the way Moshi did. Its one subtlety is a nullable property that
+ * `explicitNulls = false` lets a nullable property without a default decode from a payload that
+ * omits it, the way Moshi did. Its one subtlety is a nullable property that
  * carries a *non-null* default - these three are the only ones in the codebase, so pin their
  * behaviour rather than reasoning about it.
  */
@@ -44,13 +44,11 @@ class NullableDefaultsTest {
 
   @Test
   fun `a nullable property without a default still decodes to null when absent`() {
-    val chat = appJson.decodeFromString<Chat>(
-      """{"channel":"main","line":{"username":"a","player_id":1,"date":0,"body":"hi"}}"""
-    )
+    val decoded = appJson.decodeFromString<NoDefault>("""{"id":1}""")
 
-    assertNull(chat.game_id)
-    assertNull(chat.chat_id)
-    assertNull(chat.line.ratings)
-    assertNull(chat.line.move_number)
+    assertNull(decoded.note)
   }
+
+  @Serializable
+  private data class NoDefault(val id: Int, val note: String?)
 }
