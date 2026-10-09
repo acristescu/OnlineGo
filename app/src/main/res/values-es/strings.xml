@@ -770,7 +770,7 @@ El valor del komi depende del tamaño del tablero, pero suele ser de 5,5 o 6,5 p
 Por suerte, la aplicación realiza todos estos cálculos por ti :)"]]></string>
     <string name="tutorial_advanced_cuttingstones_name">Piedras cortantes</string>
     <string name="tutorial_advanced_cuttingstones_cutting1_text"><![CDATA["Parece que el blanco tiene un territorio más grande.
-Sin embargo, su muro tiene un punto débil. Basta con "cortar" la pared blanca.
+Sin embargo, su muro tiene un punto débil. Basta con \"cortar\" la pared blanca.
 
 Si tienes éxito en blanco tendrá un tiempo difícil para asegurar que ambos grupos sobreviven."]]></string>
     <string name="tutorial_advanced_cuttingstones_cutting1_branches2_message">Las piedras blancas se conectaron.</string>

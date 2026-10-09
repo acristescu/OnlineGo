@@ -618,7 +618,7 @@ Place une pierre pour continuer !]]></string>
     <string name="tutorial_basics_capturingstones_capture6_text">Les pierres dans le coin sont encore plus vulnérables.</string>
     <string name="tutorial_basics_capturingstones_capture7_text">Deux pierres sont en atari cette fois-ci. Capture-les !</string>
     <string name="tutorial_basics_capturingstones_capture8_text">Cette fois, il faut deux coups pour capturer les pierres blanches. Attention, ton premier coup est important !</string>
-    <string name="tutorial_basics_capturingstones_capture9_text"><![CDATA[« Il est difficile de s'enfuir avec des pierres sur le bord. Capture les deux pierres blanches sur la première ligne !»]]></string>
+    <string name="tutorial_basics_capturingstones_capture9_text"><![CDATA["Il est difficile de s'enfuir avec des pierres sur le bord. Capture les deux pierres blanches sur la première ligne !"]]></string>
     <string name="tutorial_basics_capturingstones_capture10_text">Il y a tellement de pierres ! Cherche les pierres en Atari, et capture-les. Si tu te trompes, ce sont tes pierres qui seront capturées.</string>
     <string name="tutorial_basics_doubleatari_title">Double Atari</string>
     <string name="tutorial_basics_doubleatari_doubleAtari1_text"><![CDATA[Dans certaines positions, Noir peut mettre deux groupes blancs en Atari en même temps.
@@ -641,12 +641,12 @@ Les Noirs en captureront généralement au moins un dans cette situation !]]></s
     <string name="tutorial_intermediate_ladders_ladder1_branches_branch1_1_1_1_1_1_1_1_1_message">Si blanc tente de résister...</string>
     <string name="tutorial_intermediate_ladders_ladder1_branches_branch1_1_1_1_1_1_1_2_1_message">Si blanc tente de résister...</string>
     <string name="tutorial_intermediate_ladders_ladder1_branches_branch1_1_1_1_1_1_1_2_2_message">Si blanc tente de résister...</string>
-    <string name="tutorial_intermediate_ladders_ladder2_text"><![CDATA[Voici une autre situation d'escalier. C'est à votre tour de vous échapper. La situation n'est pas désespérée cependant, la pierre en F2 est sur le chemin. Si l'escalier la rencontre vous serez sauvé. On l'appelle \"briseur d'escalier\"]]></string>
+    <string name="tutorial_intermediate_ladders_ladder2_text"><![CDATA["Voici une autre situation d'escalier. C'est à votre tour de vous échapper. La situation n'est pas désespérée cependant, la pierre en F2 est sur le chemin. Si l'escalier la rencontre vous serez sauvé. On l'appelle \"briseur d'escalier\""]]></string>
     <string name="tutorial_intermediate_ladders_ladder3_page1_text">Les escaliers sont une forme très importante au GO. Mais il faut les lire entièrement et ne pas les commencer s\'ils ne sont pas bons ! Voici ce qui arrive si blanc joue l\'escalier de l\'exemple précédent alors qu\'il ne l\'a pas\.\.\.</string>
     <string name="tutorial_intermediate_twoeyes_title">Deux yeux</string>
     <string name="tutorial_intermediate_twoeyes_twoeyes1_text">Vous êtes entièrement encerclé ! Quel est le seul coup qui peut vous sauver ?</string>
     <string name="tutorial_intermediate_twoeyes_twoeyes2_page1_text">Bien joué ! Dans cette position A et B sont des coups illégaux pour blanc car ils n\'auraient aucune liberté sans capturer vos pierres. Par conséquent, votre groupe ne peut jamais être capturé !</string>
-    <string name="tutorial_intermediate_twoeyes_twoeyes3_text"><![CDATA[Qu'en est-il ici ? Comment pouvez-vous vous assurer que vos pierres ne seront jamais capturées ?]]></string>
+    <string name="tutorial_intermediate_twoeyes_twoeyes3_text"><![CDATA["Qu'en est-il ici ? Comment pouvez-vous vous assurer que vos pierres ne seront jamais capturées ?"]]></string>
     <string name="tutorial_intermediate_captureraces_title">Course aux libertés</string>
     <string name="tutorial_intermediate_captureraces_capturerace1_text">Dans cet exercice, les groupes noirs et blancs du milieu sont encerclés. Comme aucun des deux n\'a deux yeux, chacun peut essayer de capturer l\'autre. Cette situation est appelée course aux libertés (semeai) et est généralement remportée par celui ayant le plus de libertés. Dans cet exemple, les deux groupes possèdent 3 libertés chacun, le premier à jouer remportera donc la course.\n\nCapturez les pierres blanches !</string>
     <string name="tutorial_intermediate_captureraces_capturerace2_text"><![CDATA[Voici un autre semeai. Gagnez la course et capturez blanc !]]></string>
@@ -656,11 +656,11 @@ Les Noirs en captureront généralement au moins un dans cette situation !]]></s
     <string name="tutorial_intermediate_snapback_snapback2_text">Comme vous l\'avez découvert, parfois forcer votre adversaire à capturer une de vos pierres peut le mettre en atari. Utilisez la même technique ici !</string>
     <string name="tutorial_intermediate_snapback_snapback3_text">Voici une autre situation de prise en retour sur le bord.</string>
     <string name="tutorial_intermediate_ko_title">KO - la règle du « pas de répétition »</string>
-    <string name="tutorial_intermediate_ko_ko_page_1_text"><![CDATA[Nous allons maintenant voir la dernière règle dont vous aurez besoin afin de jouer au GO : la règle du KO. La règle dit qu'un coup est interdit s'il produit une répétition (ex. une position précédente).
-Regardons un exemple. La pierre blanche en E6 est en atari. Noir peut donc la capturer]]></string>
+    <string name="tutorial_intermediate_ko_ko_page_1_text"><![CDATA["Nous allons maintenant voir la dernière règle dont vous aurez besoin afin de jouer au GO : la règle du KO. La règle dit qu'un coup est interdit s'il produit une répétition (ex. une position précédente).
+Regardons un exemple. La pierre blanche en E6 est en atari. Noir peut donc la capturer"]]></string>
     <string name="tutorial_intermediate_ko_ko_page_2_text"><![CDATA[La nouvelle pierre noire en F6 est alors en atari. Sans la règle du KO, blanc pourrait alors la capturer et la position...]]></string>
     <string name="tutorial_intermediate_ko_ko_page_3_text"><![CDATA[... serait à nouveau la même ! Ici, sans la règle du KO, noir capturerait la pierre blanche à nouveau...]]></string>
-    <string name="tutorial_intermediate_ko_ko_page_4_text"><![CDATA[... et la partie serait sans fin. Pour éviter cela, la règle du KO stipule que blanc ne peut pas recapturer E6 immédiatement, et doit d'abord jouer ailleurs.]]></string>
+    <string name="tutorial_intermediate_ko_ko_page_4_text"><![CDATA["... et la partie serait sans fin. Pour éviter cela, la règle du KO stipule que blanc ne peut pas recapturer E6 immédiatement, et doit d'abord jouer ailleurs."]]></string>
     <string name="tutorial_intermediate_ko_ko_page_5_text"><![CDATA[Maintenant, si noir veut sauver sa pierre en atari, il peut jouer en E6...]]></string>
     <string name="tutorial_intermediate_ko_ko_page_6_text">Noir a ainsi gagné le ko, mais c\'est au tour de blanc à nouveau, blanc a donc gagné deux coups en échange de cette pierre.</string>
     <string name="tutorial_intermediate_ko_ko_page_7_text">Ces deux coups gratuits peuvent parfois valoir plus de points que de gagner le Ko, donc les deux joueurs vont constamment évaluer s\'il vaut mieux continuer le Ko ou prendre les coups supplémentaires.</string>
@@ -676,14 +676,14 @@ Regardons un exemple. La pierre blanche en E6 est en atari. Noir peut donc la ca
     <string name="tutorial_intermediate_ko_ko_page_17_text">Ne vous inquiétez pas si cela semble trop compliqué pour le moment. En tant que débutant, rappelez-vous surtout que vous ne pouvez pas reprendre une pierre si cela répète la position précédente.</string>
     <string name="tutorial_intermediate_puzzles_title">Problèmes</string>
     <string name="tutorial_intermediate_puzzles_puzzles1_text">Capturez les 3 pierres blanches ! On appelle parfois cela le \"nid de la grue\"</string>
-    <string name="tutorial_intermediate_puzzles_puzzles2_text"><![CDATA[« C'est une course aux libertés, pouvez-vous la remporter ?»]]></string>
+    <string name="tutorial_intermediate_puzzles_puzzles2_text"><![CDATA["C'est une course aux libertés, pouvez-vous la remporter ?"]]></string>
     <string name="tutorial_intermediate_puzzles_corner1_text"><![CDATA["Au Go, les combats dans le coin sont très courants. Voici une course aux libertés dans le coin. Pouvez-vous vous en sortir ?"]]></string>
     <string name="tutorial_intermediate_puzzles_corner2_text"><![CDATA["Capturez les pierres blanches qui coupent les noires. Attention à faire Atari du bon côté !"]]></string>
     <string name="tutorial_intermediate_puzzles_corner2_branches_branch1_4_4_message">4 pierres noires sont mortes</string>
     <string name="tutorial_intermediate_puzzles_corner2_branches_branch2_3_message">3 pierres noires sont mortes</string>
     <string name="tutorial_intermediate_puzzles_corner2_branches_branch2_5_message">2 pierres noires sont mortes</string>
-    <string name="tutorial_intermediate_puzzles_corner2_branches_branch4_message"><![CDATA[« Noir ne peut pas s'échapper»]]></string>
-    <string name="tutorial_intermediate_puzzles_corner2_branches_branch6_message"><![CDATA[« Noir ne peut pas s'échapper»]]></string>
+    <string name="tutorial_intermediate_puzzles_corner2_branches_branch4_message"><![CDATA["Noir ne peut pas s'échapper"]]></string>
+    <string name="tutorial_intermediate_puzzles_corner2_branches_branch6_message"><![CDATA["Noir ne peut pas s'échapper"]]></string>
     <string name="tutorial_intermediate_falseeyes_title">Faux yeux</string>
     <string name="tutorial_intermediate_falseeyes_falseeyes1_page1_text"><![CDATA["Si vous vous souvenez du tutoriel précédent, un groupe avec deux yeux ne peut pas être capturé. Cependant, il arrive parfois qu'une partie des pierres qui entourent un œil ne sont pas reliées au groupe principal et peuvent être capturées séparément. Par exemple, dans la position ci-dessous, D5 semble être un œil, Cependant la pierre en C5 est en Atari et peut être capturée, laissant le groupe du milieu avec un seul œil.\n\nNous appelons D5 un \"faux œil\".]]></string>
     <string name="tutorial_intermediate_falseeyes_falseeyes2_text"><![CDATA[« Blanc a essayé de sauver ces pierres en C5 en jouant D5. Quel est le coup gagnant ici ?»]]></string>
@@ -772,7 +772,7 @@ La valeur du komi dépend de la taille du goban, mais elle est généralement de
 Heureusement, l'application fait tous ces calculs pour toi ;-)"]]></string>
     <string name="tutorial_advanced_cuttingstones_name">Pierres de coupe</string>
     <string name="tutorial_advanced_cuttingstones_cutting1_text"><![CDATA["Il semblerait que Blanc ait plus de territoire.
-Cependant, son mur a un point faible. "Coupons" ce mur blanc.
+Cependant, son mur a un point faible. \"Coupons\" ce mur blanc.
 
 Si tu réussis, Blanc aura le plus grand mal à faire vivre ses deux groupes."]]></string>
     <string name="tutorial_advanced_cuttingstones_cutting1_branches2_message">Les pierres blanches sont connectées.</string>
