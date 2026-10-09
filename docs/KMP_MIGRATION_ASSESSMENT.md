@@ -9,7 +9,7 @@ is no RxJava, no `Parcelable`, and Koin, Molecule, Room, DataStore, `ViewModel`,
 kotlinx-collections-immutable are already multiplatform. The cost is dominated by resources
 (663 strings x 16 locales) and the local-AI engine, which cannot run on iOS as built today.
 
-**Status.** Fourteen Phase 0 slices are merged (section 6). None of them has shipped in a release
+**Status.** Fifteen Phase 0 slices are merged (section 6). None of them has shipped in a release
 yet,
 and some still need on-device checks (section 1.2). Phases 1-5 have not started.
 
@@ -29,13 +29,8 @@ Worth doing even if the migration stops here.
   (`"%d day%s"`, `"+ ... / move"`), shown untranslated in the game clocks and game-list timers in
   every locale. `computeTimeLeft` should return numbers and the UI should format them from
   resources. That also removes `String.format`, which is JVM-only.
-- [ ] **Replace the JVM threading primitives in `data`** (6.13 did the collections, atomics, `UUID`
-  and `Locale`): `synchronized` / `@Synchronized` in `OGSWebSocketService`, `GameConnection`,
-  `ActiveGamesRepository` and `FinishedGamesRepository`; `thread` / `Thread.sleep` /
-  `runBlocking` in `OGSWebSocketService`; `TimeUnit` in `ReviewPromptRepository`;
-  `System.currentTimeMillis` in six `data` files. The websocket is on Ktor now (6.14), but its
-  reconnect backoff, `onSockedConnected` and `onSocketDisconnected` still run on raw threads, and
-  `connectToGame` would have to become `suspend` to take a `Mutex`.
+- [ ] **Drop `Thread.currentThread()` from `RulesManager`.** Three main-thread checks block moving
+  `logic` to `commonMain` in Phase 2. `data` is free of JVM threading primitives (6.15).
 - [ ] **Build the `@file:UseSerializers` CI check** - every `data/model` file declaring a
   `Boolean` / `Int` / `Long` must carry the matching annotation. Without it, a new DTO file
   silently loses the lenient decoding (6.1).
@@ -71,6 +66,9 @@ Still owed - unit tests cannot reach these:
 - [ ] **The Ktor websocket (6.14):** connect and authenticate, a game reconnecting after airplane
   mode, an idle socket staying up past a minute (pings), and logout sending its `cleanup()`
   messages before the close frame.
+- [ ] **Game connection ref-counting (6.15):** open a game, leave it, reopen it; a game that is
+  also in the active list must keep receiving moves after its screen closes, and chat must turn on
+  when the screen opens.
 
 ### 1.3 Phases 1-5
 
@@ -78,7 +76,7 @@ Still owed - unit tests cannot reach these:
 |--------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------|
 | **1 - extract `:shared`**            | One library module holding `model`, `logic`, `network`, `database`, `data`. `:app` keeps the Activity, notifications, WorkManager, billing, Play services and UI. Surfaces every dependency cycle before KMP can muddy the diagnosis.                                                                                  | a few days                      |
 | **2 - make `:shared` multiplatform** | `androidTarget` + `iosArm64` / `iosSimulatorArm64` / `iosX64`; everything starts in `androidMain`. Move `model` + `logic` (~950 LOC) to `commonMain` and `RulesManagerTest` to `commonTest` (expand it). Decide the score estimator (5.1).                                                                             | 1-2 weeks (+1-2 for estimator)  |
-| **3 - data layer to `commonMain`**   | Room KMP (bundled SQLite driver, `expect`/`actual` DB path), DataStore on okio `Path` for its three stores, Ktor engine per platform, repositories one file at a time. Session persistence is already behind `SessionCookiePersistence`. The websocket layer moves once its threads and `synchronized` are gone (1.1). | 4-6 weeks                       |
+| **3 - data layer to `commonMain`**   | Room KMP (bundled SQLite driver, `expect`/`actual` DB path), DataStore on okio `Path` for its three stores, Ktor engine per platform, repositories one file at a time. Session persistence is already behind `SessionCookiePersistence`. The websocket layer has no JVM threading left (6.15).                         | 4-6 weeks                       |
 | **4 - Compose Multiplatform**        | UI into `:shared/commonMain`. Resources (4.2), icons, chart, markdown, `ScrollableDropDownMenu`, Material You `expect`/`actual`. `BoardComposable` has four Android leaks, all with direct CMP equivalents: `nativeCanvas.drawText`, `MotionEvent` / `pointerInteropFilter`, `android.graphics.Rect`, `colorResource`. | 6-10 weeks (resources dominate) |
 | **5 - iOS app**                      | SwiftUI shell + `ComposeUIViewController`, notifications, background refresh, billing, Google sign-in, App Store plumbing. Bitrise needs a macOS stack.                                                                                                                                                                | 4-8 weeks, excluding local AI   |
 
@@ -117,35 +115,35 @@ regular contributor appears, or when local AI needs Play Feature Delivery for it
 
 ### 3.1 Status
 
-| Dependency                                      | Replacement                                                                                                    | Status                                                                                |
-|-------------------------------------------------|----------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------|
-| Moshi (reflective), `org.json`                  | kotlinx.serialization, one `appJson`                                                                           | **Done** - 6.1                                                                        |
-| jsoup                                           | `AnnotatedString.fromHtml()`                                                                                   | **Done** - 6.2                                                                        |
-| Coil 2                                          | Coil 3 + `coil-network-okhttp`                                                                                 | **Done** - 6.3                                                                        |
-| Retrofit                                        | Ktorfit over Ktor 3                                                                                            | **Done** - 6.4                                                                        |
-| PersistentCookieJar, `gms IOUtils`              | `OGSCookieStore` behind Ktor `HttpCookies`                                                                     | **Done** - 6.5                                                                        |
-| `android.util.Log`, `FirebaseCrashlytics.log`   | Kermit                                                                                                         | **Done** - 6.6                                                                        |
-| `java.time`, `SimpleDateFormat`, `Date`         | `kotlin.time` + kotlinx-datetime                                                                               | **Done** - 6.7                                                                        |
-| OkHttp (direct)                                 | Android Ktor engine only                                                                                       | **Done** - 6.14; only `HTTPConnectionFactory` builds an `OkHttpClient`, as the engine |
-| Firebase Analytics                              | Injected `Analytics`; becomes a common interface, iOS implementation in Swift                                  | **Done** - 6.9                                                                        |
-| Firebase Crashlytics (non-log)                  | Global `CrashReporter`; `expect`/`actual` in Phase 2, iOS via Firebase iOS SDK or GitLive                      | **Done** - 6.10                                                                       |
-| `java.util.concurrent`, `UUID`, `Stack`, ...    | stdlib atomics, persistent collections, `kotlin.uuid`, `ArrayDeque`                                            | **Done** - 6.13; `synchronized` / threads remain (1.1)                                |
-| `BuildConfig`                                   | BuildKonfig                                                                                                    | To do - Phase 2                                                                       |
-| Koin Android artifacts                          | `koin-core` + `koin-compose` + `koin-compose-viewmodel`; drop `androidApplication()`                           | To do - Phase 2                                                                       |
-| Molecule `AndroidUiDispatcher` / `ContextClock` | multiplatform frame clock; extract the shared `moleculeScope` base from the two ViewModels                     | To do - Phase 2                                                                       |
-| Room 2.8, DataStore 1.2                         | same libraries, KMP setup                                                                                      | To do - Phase 3                                                                       |
-| MPAndroidChart                                  | Vico 2.x / KoalaPlot / Compose `Canvas` (`ChartWrapper.kt`, 416 LOC)                                           | To do - Phase 4; already confined to `ChartWrapper.kt`                                |
-| Markwon                                         | `multiplatform-markdown-renderer-m3` (`JosekiExplorerUI`, ~90 LOC)                                             | To do - Phase 4                                                                       |
-| `material-icons-extended` (109 refs, 21 files)  | vendored `ImageVector`s                                                                                        | To do - Phase 4                                                                       |
-| navigation-compose (androidx)                   | `org.jetbrains.androidx.navigation`                                                                            | To do - Phase 4                                                                       |
-| Android resources (`R.*`)                       | Compose Multiplatform resources - see 4.2                                                                      | To do - Phase 4                                                                       |
-| `AppLocaleManager`                              | `expect`/`actual`; iOS writes `AppleLanguages` and needs a restart                                             | To do - Phase 4                                                                       |
-| WorkManager                                     | `expect`/`actual` `BackgroundSync`; iOS `BGAppRefreshTask`                                                     | To do - Phase 5 (see risks)                                                           |
-| `NotificationUtils` (348 LOC)                   | `expect`/`actual`; re-rasterize the board with Compose, deleting `BoardView` (737 LOC) and the last XML layout | To do - Phase 5                                                                       |
-| Play Billing                                    | StoreKit, or RevenueCat `purchases-kmp`                                                                        | To do - Phase 5                                                                       |
-| Play In-App Review                              | `SKStoreReviewController`                                                                                      | To do - Phase 5                                                                       |
-| play-services-auth                              | Credential Manager / iOS Google SDK; the token exchange is already plain REST                                  | To do - Phase 5                                                                       |
-| Mockito, compose screenshot plugin              | stay on the Android target; new `commonTest` uses fakes + Turbine                                              | No change                                                                             |
+| Dependency                                      | Replacement                                                                                                    | Status                                                                |
+|-------------------------------------------------|----------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------|
+| Moshi (reflective), `org.json`                  | kotlinx.serialization, one `appJson`                                                                           | **Done** - 6.1                                                        |
+| jsoup                                           | `AnnotatedString.fromHtml()`                                                                                   | **Done** - 6.2                                                        |
+| Coil 2                                          | Coil 3 + `coil-network-okhttp`                                                                                 | **Done** - 6.3                                                        |
+| Retrofit                                        | Ktorfit over Ktor 3                                                                                            | **Done** - 6.4                                                        |
+| PersistentCookieJar, `gms IOUtils`              | `OGSCookieStore` behind Ktor `HttpCookies`                                                                     | **Done** - 6.5                                                        |
+| `android.util.Log`, `FirebaseCrashlytics.log`   | Kermit                                                                                                         | **Done** - 6.6                                                        |
+| `java.time`, `SimpleDateFormat`, `Date`         | `kotlin.time` + kotlinx-datetime                                                                               | **Done** - 6.7                                                        |
+| OkHttp (direct)                                 | Android Ktor engine only                                                                                       | **Done** - 6.14; OkHttp stays the Android engine, CIO rejected (6.14) |
+| Firebase Analytics                              | Injected `Analytics`; becomes a common interface, iOS implementation in Swift                                  | **Done** - 6.9                                                        |
+| Firebase Crashlytics (non-log)                  | Global `CrashReporter`; `expect`/`actual` in Phase 2, iOS via Firebase iOS SDK or GitLive                      | **Done** - 6.10                                                       |
+| `java.util.concurrent`, `UUID`, `Stack`, ...    | stdlib atomics, persistent collections, `kotlin.uuid`, `ArrayDeque`                                            | **Done** - 6.13, 6.15                                                 |
+| `BuildConfig`                                   | BuildKonfig                                                                                                    | To do - Phase 2                                                       |
+| Koin Android artifacts                          | `koin-core` + `koin-compose` + `koin-compose-viewmodel`; drop `androidApplication()`                           | To do - Phase 2                                                       |
+| Molecule `AndroidUiDispatcher` / `ContextClock` | multiplatform frame clock; extract the shared `moleculeScope` base from the two ViewModels                     | To do - Phase 2                                                       |
+| Room 2.8, DataStore 1.2                         | same libraries, KMP setup                                                                                      | To do - Phase 3                                                       |
+| MPAndroidChart                                  | Vico 2.x / KoalaPlot / Compose `Canvas` (`ChartWrapper.kt`, 416 LOC)                                           | To do - Phase 4; already confined to `ChartWrapper.kt`                |
+| Markwon                                         | `multiplatform-markdown-renderer-m3` (`JosekiExplorerUI`, ~90 LOC)                                             | To do - Phase 4                                                       |
+| `material-icons-extended` (109 refs, 21 files)  | vendored `ImageVector`s                                                                                        | To do - Phase 4                                                       |
+| navigation-compose (androidx)                   | `org.jetbrains.androidx.navigation`                                                                            | To do - Phase 4                                                       |
+| Android resources (`R.*`)                       | Compose Multiplatform resources - see 4.2                                                                      | To do - Phase 4                                                       |
+| `AppLocaleManager`                              | `expect`/`actual`; iOS writes `AppleLanguages` and needs a restart                                             | To do - Phase 4                                                       |
+| WorkManager                                     | `expect`/`actual` `BackgroundSync`; iOS `BGAppRefreshTask`                                                     | To do - Phase 5 (see risks)                                           |
+| `NotificationUtils` (348 LOC)                   | `expect`/`actual`; re-rasterize the board with Compose, deleting `BoardView` (737 LOC) and the last XML layout | To do - Phase 5                                                       |
+| Play Billing                                    | StoreKit, or RevenueCat `purchases-kmp`                                                                        | To do - Phase 5                                                       |
+| Play In-App Review                              | `SKStoreReviewController`                                                                                      | To do - Phase 5                                                       |
+| play-services-auth                              | Credential Manager / iOS Google SDK; the token exchange is already plain REST                                  | To do - Phase 5                                                       |
+| Mockito, compose screenshot plugin              | stay on the Android target; new `commonTest` uses fakes + Turbine                                              | No change                                                             |
 
 ### 3.2 Stays Android-only by design
 
@@ -214,7 +212,7 @@ still built in `Globals.kt` (1.1). Do it against one module so there is one `Res
 ## 6. Done - what to know about each finished slice
 
 Only what is still load-bearing: traps, deliberate behaviour changes, and decisions that look wrong
-but are not. Unit tests stand at 106.
+but are not. Unit tests stand at 121.
 
 ### 6.1 Moshi to kotlinx.serialization (+ `org.json`)
 
@@ -407,8 +405,8 @@ Nothing in `data.model` or `gamelogic` imports `R`, `android.graphics`, Compose 
   headers, and still gets no cookies, since they are host-only (6.5).
 - **The plugin's `pingInterval` is ignored by the OkHttp engine.** The 15 s ping is set on the
   shared `OkHttpClient` in `HTTPConnectionFactory`, so REST HTTP/2 connections are pinged too. A
-  separate client would avoid that but needs its own `configureOGSClient`. Move the ping to the
-  plugin when the engine stops being OkHttp.
+  separate client would avoid that but needs its own `configureOGSClient`. The ping stays on the
+  `OkHttpClient`; the iOS engine (Darwin) sets it through the plugin in Phase 3.
 - Outbound messages go through a `Channel(UNLIMITED)` created per connection and held in
   `outgoing`. `outgoing != null` means connecting or open; `connected` means open. Messages emitted
   during the handshake are queued, as OkHttp did, and nothing carries over to the next connection.
@@ -421,3 +419,38 @@ Nothing in `data.model` or `gamelogic` imports `R`, `android.graphics`, Compose 
   reconnect does, because it resets `intentionalDisconnect`.
 - Still on OkHttp, all engine-side and Android-only: `HTTPConnectionFactory`'s logging interceptor
   and emulator DNS, and Coil's `coil-network-okhttp`, which builds its own client.
+- **CIO was considered and rejected as the Android engine.** The engine is per-platform anyway
+  (OkHttp / Darwin), so CIO removes no KMP work. It is HTTP/1.1 only (no multiplexing for the
+  startup request burst), runs Ktor's own TLS 1.2 stack instead of the platform's, recovers worse
+  from stale pooled connections and network switches, and has no DNS hook for the emulator fix.
+  OkHttp would stay in the APK through Coil regardless. Its one win, the ping in the plugin, is
+  cosmetic.
+
+### 6.15 JVM threading primitives in `data`
+
+- `OGSWebSocketService` and `GameConnection` share a coroutine `Mutex` instead of
+  `synchronized(connectionsLock)`. `connectToGame`, `enableChatOnConnection` and `resendAuth` are
+  `suspend`, and so is `UserSessionRepository.storeUIConfig`. Every `runBlocking` was waiting on
+  `loginStatus.first()`, which can really wait at cold start: the replay-1 flow is emitted on IO
+  after the saved UIConfig is read. Do not swap it for `replayCache`.
+- **Ref-counting lives in the service now.** The old lock was taken twice by the same thread:
+  `decrementCounter` held it and called `disconnectFromGame`, which took it again. A `Mutex` would
+  deadlock there. `GameConnection.close()` calls `release()`, which launches on `applicationScope`
+  and, under the mutex, decrements the count. At zero it cancels the connection's scope, removes it
+  from the map (only if it is still the mapped instance) and sends `game/disconnect`.
+- **`close()` is asynchronous.** Both callers already behaved that way: `GameViewModel.onCleared`
+  launches it, and socket cleanup used to run on its own thread.
+- The reconnect backoff, `onSockedConnected` and `onSocketDisconnected` run on `applicationScope`
+  instead of raw threads; `Thread.sleep` is `delay`.
+- `ActiveGamesRepository` keeps its connected ids and tracked connections in `AtomicReference`s to
+  persistent collections (the 6.13 pattern). `activeDbGames` was only scratch space inside
+  `setActiveGames` and is gone, along with `@Synchronized`.
+- `FinishedGamesRepository`'s in-flight flag is an `AtomicBoolean.compareAndSet`, reset in
+  `finally`. The old lock around `onHistoricGames` never covered `fetchRecentlyFinishedGames`, so
+  nothing lost protection. `lastHistoricGamesRequestTimestamp` was never read and is deleted.
+- `System.currentTimeMillis` became `Clock.System.now().toEpochMilliseconds()`, and `TimeUnit`
+  became `Duration.inWholeDays` (both truncate). `model/local/Clock.kt` spells out
+  `kotlin.time.Clock`
+  because its own class has the same name. `GameConnection` is `AutoCloseable`, not `Closeable`.
+- Left alone: `TimeUnit` in `HTTPConnectionFactory` (OkHttp's own API, Android-only), and
+  `currentTimeMillis` in `utils` (`Globals.kt` goes with the clock-text item in 1.1).

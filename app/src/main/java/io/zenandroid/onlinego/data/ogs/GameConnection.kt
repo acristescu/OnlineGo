@@ -33,7 +33,6 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 import kotlinx.serialization.UseSerializers
 import org.koin.core.context.GlobalContext.get
-import java.io.Closeable
 
 private const val TAG = "GameConnection"
 
@@ -43,7 +42,6 @@ private const val TAG = "GameConnection"
 class GameConnection(
   val userId: Long?,
   val gameId: Long,
-  private val connectionLock: Any,
   var includeChat: Boolean,
   gameDataFlow: Flow<GameData>,
   movesFlow: Flow<Move>,
@@ -54,9 +52,8 @@ class GameConnection(
   undoRequestedFlow: Flow<UndoRequested>,
   removedStonesAcceptedFlow: Flow<RemovedStonesAccepted>,
   undoAcceptedFlow: Flow<UndoAccepted>
-) : Closeable {
-  private var closed = false
-  private var counter = 0
+) : AutoCloseable {
+  internal var refCount = 0
 
   private val socketService: OGSWebSocketService = get().get()
   private val chatRepository: ChatRepository = get().get()
@@ -122,28 +119,11 @@ class GameConnection(
   }
 
   override fun close() {
-    decrementCounter()
+    socketService.release(this)
   }
 
-  fun incrementCounter() {
-    synchronized(connectionLock) {
-      Logger.i("Acquired connection lock incrementCounter", tag = TAG)
-      counter++
-      Logger.i("Released connection lock incrementCounter", tag = TAG)
-    }
-  }
-
-  fun decrementCounter() {
-    synchronized(connectionLock) {
-      Logger.i("Acquired connection lock decrementCounter", tag = TAG)
-      counter--
-      if (counter == 0) {
-        scope.cancel()
-        socketService.disconnectFromGame(gameId)
-        closed = true
-      }
-      Logger.i("Released connection lock decrementCounter", tag = TAG)
-    }
+  internal fun dispose() {
+    scope.cancel()
   }
 
   fun submitMove(move: Cell) {

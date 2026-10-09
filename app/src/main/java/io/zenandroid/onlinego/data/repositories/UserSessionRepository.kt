@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import org.koin.core.context.GlobalContext.get
+import kotlin.time.Clock
 
 class UserSessionRepository(
   private val appCoroutineScope: CoroutineScope,
@@ -53,9 +54,9 @@ class UserSessionRepository(
     }
   }
 
-  fun storeUIConfig(uiConfig: UIConfig) {
+  suspend fun storeUIConfig(uiConfig: UIConfig) {
     this.uiConfig = uiConfig
-    uiConfigTimestamp = System.currentTimeMillis()
+    uiConfigTimestamp = Clock.System.now().toEpochMilliseconds()
     CrashReporter.setUserId(uiConfig.user?.id.toString())
     persistenceManager.storeUIConfig(uiConfig)
     userIdValue?.let {
@@ -69,7 +70,8 @@ class UserSessionRepository(
     if (uiConfigTimestamp == null) {
       uiConfigTimestamp = persistenceManager.getUIConfigTimestamp()
     }
-    return uiConfig?.user_jwt == null || uiConfigTimestamp!! < System.currentTimeMillis() - 1000 * 60 * 60
+    return uiConfig?.user_jwt == null || uiConfigTimestamp!! < Clock.System.now()
+      .toEpochMilliseconds() - 1000 * 60 * 60
   }
   fun isLoggedIn() = uiConfig != null && cookieStore.sessionId != null
 

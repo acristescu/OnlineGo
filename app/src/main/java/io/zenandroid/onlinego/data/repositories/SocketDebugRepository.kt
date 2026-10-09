@@ -8,6 +8,7 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.format
 import kotlinx.datetime.format.char
 import kotlinx.datetime.toLocalDateTime
+import kotlin.time.Clock
 import kotlin.time.Instant
 
 enum class SocketEventType {
@@ -28,7 +29,7 @@ private val TIME_FORMAT = LocalTime.Format {
 }
 
 data class SocketEvent(
-  val timestamp: Long = System.currentTimeMillis(),
+  val timestamp: Long = Clock.System.now().toEpochMilliseconds(),
   val type: SocketEventType,
   val tag: String,
   val message: String,

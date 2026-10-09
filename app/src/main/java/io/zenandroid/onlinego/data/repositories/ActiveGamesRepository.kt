@@ -20,6 +20,8 @@ import io.zenandroid.onlinego.data.ogs.httpErrorBody
 import io.zenandroid.onlinego.data.ogs.httpStatusCode
 import io.zenandroid.onlinego.utils.CrashReporter
 import io.zenandroid.onlinego.utils.timeLeftForCurrentPlayer
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.persistentSetOf
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -41,6 +43,9 @@ import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import kotlinx.serialization.SerializationException
 import java.io.IOException
+import kotlin.concurrent.atomics.AtomicReference
+import kotlin.concurrent.atomics.fetchAndUpdate
+import kotlin.concurrent.atomics.update
 
 /**
  * Created by alex on 08/11/2017.
@@ -52,9 +57,8 @@ class ActiveGamesRepository(
   private val gameDao: GameDao
 ) : SocketConnectedRepository {
 
-  private val activeDbGames = mutableMapOf<Long, Game>()
-  private val gameConnections = mutableSetOf<Long>()
-  private val trackedConnections = mutableListOf<GameConnection>()
+  private val gameConnections = AtomicReference(persistentSetOf<Long>())
+  private val trackedConnections = AtomicReference(persistentListOf<GameConnection>())
 
   private var flowScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
@@ -115,33 +119,23 @@ class ActiveGamesRepository(
   }
 
   override fun onSocketDisconnected() {
-    synchronized(trackedConnections) {
-      trackedConnections.forEach { it.close() }
-      trackedConnections.clear()
-    }
+    trackedConnections.exchange(persistentListOf()).forEach { it.close() }
     flowScope.cancel()
     flowScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
-    synchronized(gameConnections) {
-      gameConnections.clear()
-    }
+    gameConnections.store(persistentSetOf())
   }
 
-  private fun connectToGame(baseGame: Game, includeChat: Boolean = true) {
+  private suspend fun connectToGame(baseGame: Game, includeChat: Boolean = true) {
     val game = baseGame.copy()
-    synchronized(gameConnections) {
-      if (gameConnections.contains(game.id)) {
-        if (includeChat) {
-          socketService.enableChatOnConnection(game.id)
-        }
-        return
+    if (game.id in gameConnections.fetchAndUpdate { it.add(game.id) }) {
+      if (includeChat) {
+        socketService.enableChatOnConnection(game.id)
       }
-      gameConnections.add(game.id)
+      return
     }
 
     val gameConnection = socketService.connectToGame(game.id, includeChat)
-    synchronized(trackedConnections) {
-      trackedConnections.add(gameConnection)
-    }
+    trackedConnections.update { it.add(gameConnection) }
     flowScope.launch {
       gameConnection.gameData.collect {
         try {
@@ -281,17 +275,11 @@ class ActiveGamesRepository(
     )
   }
 
-  @Synchronized
-  private fun setActiveGames(userId: Long, games: List<Game>) {
-    activeDbGames.clear()
-    games.forEach {
-      activeDbGames[it.id] = it
-      connectToGame(it, false)
-    }
+  private suspend fun setActiveGames(userId: Long, games: List<Game>) {
+    games.forEach { connectToGame(it, false) }
     _myTurnGames.value =
-      activeDbGames.values
+      games
         .filter { it.playerToMoveId != null && it.playerToMoveId == userId }
-        .toList()
         .sortedBy { timeLeftForCurrentPlayer(it) }
   }
 

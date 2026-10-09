@@ -32,6 +32,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -43,7 +44,8 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.yield
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.JsonElement
@@ -59,7 +61,6 @@ import org.koin.core.context.GlobalContext.get
 import kotlin.concurrent.atomics.AtomicBoolean
 import kotlin.concurrent.atomics.AtomicReference
 import kotlin.concurrent.atomics.update
-import kotlin.concurrent.thread
 import kotlin.uuid.Uuid
 
 private const val TAG = "OGSWebSocketService"
@@ -189,16 +190,12 @@ class OGSWebSocketService(
   private fun scheduleReconnect() {
     socketDebugRepository.logState("WS", "Scheduling reconnect in ${reconnectDelay}ms")
     socketDebugRepository.updateConnectionState("Reconnecting (${reconnectDelay}ms)")
-    thread(start = true, name = "ws-reconnect-thread") {
-      try {
-        Logger.d(tag = TAG) { "Reconnecting in ${reconnectDelay}ms..." }
-        Thread.sleep(reconnectDelay)
-        reconnectDelay = (reconnectDelay * 2).coerceAtMost(RECONNECT_DELAY_MAX_MS)
-        if (!intentionalDisconnect.load()) {
-          connect()
-        }
-      } catch (_: InterruptedException) {
-        // ignore
+    applicationScope.launch {
+      Logger.d(tag = TAG) { "Reconnecting in ${reconnectDelay}ms..." }
+      delay(reconnectDelay)
+      reconnectDelay = (reconnectDelay * 2).coerceAtMost(RECONNECT_DELAY_MAX_MS)
+      if (!intentionalDisconnect.load()) {
+        connect()
       }
     }
   }
@@ -227,19 +224,15 @@ class OGSWebSocketService(
   }
 
   private val gameConnections = mutableMapOf<Long, GameConnection>()
-  private val connectionsLock = Any()
+  private val connectionsMutex = Mutex()
 
-  fun connectToGame(id: Long, includeChat: Boolean): GameConnection {
-    var userId: Long? = null
-    runBlocking {
-      userId = (userSessionRepository.loginStatus.first() as? LoginStatus.LoggedIn)?.userId
-    }
-    synchronized(connectionsLock) {
+  suspend fun connectToGame(id: Long, includeChat: Boolean): GameConnection {
+    val userId = (userSessionRepository.loginStatus.first() as? LoginStatus.LoggedIn)?.userId
+    return connectionsMutex.withLock {
       Logger.i("Acquired connection lock in connectToGame", tag = TAG)
       val connection = gameConnections[id] ?: GameConnection(
         userId = userId,
         gameId = id,
-        connectionLock = connectionsLock,
         includeChat = includeChat,
         gameDataFlow = observeEvent("game/$id/gamedata").parseJSON(),
         movesFlow = observeEvent("game/$id/move").parseJSON(),
@@ -261,14 +254,33 @@ class OGSWebSocketService(
       if (includeChat && !connection.includeChat) {
         enableChatOnConnection(connection)
       }
-      connection.incrementCounter()
+      connection.refCount++
       Logger.i("Released connection lock in connectToGame", tag = TAG)
-      return connection
+      connection
     }
   }
 
-  fun enableChatOnConnection(gameId: Long) {
-    synchronized(connectionsLock) {
+  fun release(connection: GameConnection) {
+    applicationScope.launch {
+      connectionsMutex.withLock {
+        Logger.i("Acquired connection lock in release", tag = TAG)
+        connection.refCount--
+        if (connection.refCount == 0) {
+          connection.dispose()
+          if (gameConnections[connection.gameId] === connection) {
+            gameConnections.remove(connection.gameId)
+            if (connected.load()) {
+              emitGameDisconnect(connection.gameId)
+            }
+          }
+        }
+        Logger.i("Released connection lock in release", tag = TAG)
+      }
+    }
+  }
+
+  suspend fun enableChatOnConnection(gameId: Long) {
+    connectionsMutex.withLock {
       Logger.i("Acquired connection lock in enableChatOnConnection", tag = TAG)
       gameConnections[gameId]?.let {
         if (!it.includeChat) {
@@ -279,7 +291,7 @@ class OGSWebSocketService(
     }
   }
 
-  private fun enableChatOnConnection(connection: GameConnection) {
+  private suspend fun enableChatOnConnection(connection: GameConnection) {
     emitGameDisconnect(connection.gameId)
     emitGameConnection(connection.gameId, true)
     connection.includeChat = true
@@ -298,24 +310,22 @@ class OGSWebSocketService(
   private inline fun <reified T> Flow<JsonElement>.parseJSON() =
     map { decode<T>(it) }
 
-  private fun emitGameConnection(id: Long, includeChat: Boolean) {
-    runBlocking {
-      val loggedInStatus = userSessionRepository.loginStatus.first()
-      if (loggedInStatus is LoginStatus.LoggedIn) {
-        emit("game/connect") {
-          "chat" - includeChat
-          "game_id" - id
+  private suspend fun emitGameConnection(id: Long, includeChat: Boolean) {
+    val loggedInStatus = userSessionRepository.loginStatus.first()
+    if (loggedInStatus is LoginStatus.LoggedIn) {
+      emit("game/connect") {
+        "chat" - includeChat
+        "game_id" - id
+        "player_id" - loggedInStatus.userId
+      }
+      if (includeChat) {
+        emit("chat/connect") {
           "player_id" - loggedInStatus.userId
+          "username" - userSessionRepository.uiConfig?.user?.username
+          "auth" - userSessionRepository.uiConfig?.chat_auth
         }
-        if (includeChat) {
-          emit("chat/connect") {
-            "player_id" - loggedInStatus.userId
-            "username" - userSessionRepository.uiConfig?.user?.username
-            "auth" - userSessionRepository.uiConfig?.chat_auth
-          }
-          emit("chat/join") {
-            "channel" - "game-$id"
-          }
+        emit("chat/join") {
+          "channel" - "game-$id"
         }
       }
     }
@@ -483,11 +493,11 @@ class OGSWebSocketService(
   }
 
   private fun onSockedConnected() {
-    thread(start = true, name = "socket-connect-thread") {
+    applicationScope.launch {
       _connectionState.value = true
       resendAuth()
       socketConnectedRepositories.forEach { it.onSocketConnected() }
-      synchronized(connectionsLock) {
+      connectionsMutex.withLock {
         Logger.i("Acquired connection lock in onSocketConnected", tag = TAG)
         gameConnections.values.forEach {
           emitGameConnection(it.gameId, it.includeChat)
@@ -513,20 +523,7 @@ class OGSWebSocketService(
 
   private fun onSocketDisconnected() {
     _connectionState.value = false
-    thread(start = true, name = "socket-disconnect-thread") {
-      runBlocking { cleanup() }
-    }
-  }
-
-  fun disconnectFromGame(id: Long) {
-    synchronized(connectionsLock) {
-      Logger.i("Acquired connection lock in disconnectFromGame", tag = TAG)
-      gameConnections.remove(id)
-      if (connected.load()) {
-        emitGameDisconnect(id)
-      }
-      Logger.i("Released connection lock in disconnectFromGame", tag = TAG)
-    }
+    applicationScope.launch { cleanup() }
   }
 
   private fun emitGameDisconnect(id: Long) {
@@ -535,16 +532,14 @@ class OGSWebSocketService(
     }
   }
 
-  fun resendAuth() {
-    runBlocking {
-      val loggedInStatus = userSessionRepository.loginStatus.first()
-      if (loggedInStatus is LoginStatus.LoggedIn) {
-        emit("authenticate", json {
-          "player_id" - loggedInStatus.userId
-          "username" - userSessionRepository.uiConfig?.user?.username
-          "auth" - userSessionRepository.uiConfig?.chat_auth
-        })
-      }
+  suspend fun resendAuth() {
+    val loggedInStatus = userSessionRepository.loginStatus.first()
+    if (loggedInStatus is LoginStatus.LoggedIn) {
+      emit("authenticate", json {
+        "player_id" - loggedInStatus.userId
+        "username" - userSessionRepository.uiConfig?.user?.username
+        "auth" - userSessionRepository.uiConfig?.chat_auth
+      })
     }
   }
 }

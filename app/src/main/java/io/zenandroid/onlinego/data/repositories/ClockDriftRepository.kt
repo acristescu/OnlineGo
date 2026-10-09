@@ -12,6 +12,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.retry
 import kotlinx.coroutines.launch
 import kotlin.concurrent.Volatile
+import kotlin.time.Clock
 
 class ClockDriftRepository(
         private val socketService: OGSWebSocketService
@@ -23,7 +24,7 @@ class ClockDriftRepository(
     private var latency = 0L
 
     val serverTime: Long
-        get() = System.currentTimeMillis() - drift + latency
+        get() = Clock.System.now().toEpochMilliseconds() - drift + latency
 
     override fun onSocketConnected() {
         scope.launch {
@@ -46,7 +47,7 @@ class ClockDriftRepository(
 
     private fun doPing() {
         socketService.emit("net/ping") {
-            "client" - System.currentTimeMillis()
+            "client" - Clock.System.now().toEpochMilliseconds()
             "drift" - drift
             "latecy" - latency
         }
@@ -59,7 +60,7 @@ class ClockDriftRepository(
 
     private fun onPong(pong: NetPong) {
         if(pong.client != null && pong.server != null) {
-            val now = System.currentTimeMillis()
+            val now = Clock.System.now().toEpochMilliseconds()
             val newLatency = now - pong.client
             val newDrift = now - newLatency / 2 - pong.server
             latency = newLatency

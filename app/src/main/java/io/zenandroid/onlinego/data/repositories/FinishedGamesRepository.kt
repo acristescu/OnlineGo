@@ -21,8 +21,10 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import java.io.IOException
+import kotlin.concurrent.atomics.AtomicBoolean
 import kotlin.math.max
 import kotlin.math.min
+import kotlin.time.Clock
 
 class FinishedGamesRepository(
   private val restService: OGSRestService,
@@ -107,7 +109,8 @@ class FinishedGamesRepository(
   private fun fetchRecentlyFinishedGames() {
     scope.launch {
       try {
-        val threeDaysAgoMicros = (System.currentTimeMillis() - (3 * 24 * 60 * 60 * 1000L)) * 1000
+        val threeDaysAgoMicros =
+          (Clock.System.now().toEpochMilliseconds() - (3 * 24 * 60 * 60 * 1000L)) * 1000
         val ogsGames =
           retryOnIOException { restService.fetchHistoricGamesAfter(threeDaysAgoMicros) }
         val games = processAndFetchGameDetails(ogsGames)
@@ -132,17 +135,10 @@ class FinishedGamesRepository(
       }
   }
 
-  private var historicGamesRequestInFlight = false
-  private var lastHistoricGamesRequestTimestamp = -1L
+  private val historicGamesRequestInFlight = AtomicBoolean(false)
 
-  @Synchronized
   private fun fetchMoreHistoricGames() {
-    if (!historicGamesRequestInFlight) {
-      historicGamesRequestInFlight = true
-
-      val now = System.currentTimeMillis()
-      lastHistoricGamesRequestTimestamp = now
-
+    if (historicGamesRequestInFlight.compareAndSet(expectedValue = false, newValue = true)) {
       scope.launch {
         try {
           val ogsGames =
@@ -157,15 +153,11 @@ class FinishedGamesRepository(
             onMetadata(newMetadata)
           }
           val games = processAndFetchGameDetails(ogsGames)
-          synchronized(this@FinishedGamesRepository) {
-            onHistoricGames(games)
-            historicGamesRequestInFlight = false
-          }
+          onHistoricGames(games)
         } catch (e: Exception) {
-          synchronized(this@FinishedGamesRepository) {
-            historicGamesRequestInFlight = false
-          }
           onError(e, "fetchHistoricGames")
+        } finally {
+          historicGamesRequestInFlight.store(false)
         }
       }
     } else {

@@ -11,7 +11,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import java.util.concurrent.TimeUnit
+import kotlin.time.Clock
+import kotlin.time.Duration.Companion.milliseconds
 
 val Context.reviewPromptDataStore by preferencesDataStore(
   name = "review_prompt"
@@ -43,7 +44,7 @@ class ReviewPromptRepository(
       val prefs = dataStore.data.first()
       if (prefs[APP_FIRST_LAUNCH_TIME] == null) {
         dataStore.edit { preferences ->
-          preferences[APP_FIRST_LAUNCH_TIME] = System.currentTimeMillis()
+          preferences[APP_FIRST_LAUNCH_TIME] = Clock.System.now().toEpochMilliseconds()
         }
       }
     }
@@ -71,8 +72,8 @@ class ReviewPromptRepository(
       return false
     }
 
-    val currentTime = System.currentTimeMillis()
-    val daysSinceFirstLaunch = TimeUnit.MILLISECONDS.toDays(currentTime - firstLaunchTime)
+    val currentTime = Clock.System.now().toEpochMilliseconds()
+    val daysSinceFirstLaunch = (currentTime - firstLaunchTime).milliseconds.inWholeDays
 
     // Check if enough days have passed since first launch
     if (daysSinceFirstLaunch < DAYS_BEFORE_FIRST_PROMPT) {
@@ -81,7 +82,7 @@ class ReviewPromptRepository(
 
     // If user dismissed, check cooldown period
     if (isDismissed && lastPromptTime != null) {
-      val daysSinceLastPrompt = TimeUnit.MILLISECONDS.toDays(currentTime - lastPromptTime)
+      val daysSinceLastPrompt = (currentTime - lastPromptTime).milliseconds.inWholeDays
       if (daysSinceLastPrompt < COOLDOWN_DAYS) {
         return false
       }
@@ -95,7 +96,7 @@ class ReviewPromptRepository(
    */
   suspend fun recordReviewPromptShown() {
     dataStore.edit { preferences ->
-      preferences[LAST_REVIEW_PROMPT_TIME] = System.currentTimeMillis()
+      preferences[LAST_REVIEW_PROMPT_TIME] = Clock.System.now().toEpochMilliseconds()
     }
 
     // Analytics event

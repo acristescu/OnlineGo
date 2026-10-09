@@ -30,7 +30,8 @@ data class Clock(
                             lastMove = it.last_move,
                             expiration = it.expiration?.toLong(),
                             now = it.now,
-                            receivedAt = if (it.receivedAt != 0L) it.receivedAt else System.currentTimeMillis(),
+                            receivedAt = if (it.receivedAt != 0L) it.receivedAt else kotlin.time.Clock.System.now()
+                                    .toEpochMilliseconds(),
                             whiteTimeSimple = it.whiteTimeSimple,
                             whiteTime = it.whiteTime,
                             blackTimeSimple = it.blackTimeSimple,
