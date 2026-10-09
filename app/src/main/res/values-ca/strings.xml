@@ -768,9 +768,6 @@ El valor del komi depèn de la mida del tauler, però normalment és de 5,5 o 6,
 
 Per sort, l'aplicació us fa tots aquests càlculs :)"]]></string>
     <string name="tutorial_advanced_cuttingstones_name">Les pedres que tallen</string>
-    <string name="tutorial_advanced_cuttingstones_cutting1_text"><![CDATA["Sembla que les blanques tenen el territori més gran. Tot i això, el seu mur té un punt feble. Simplement «talleu» el mur de les blanques.
-
-Si ho aconseguiu, les blanques ho tindran difícil per assegurar que tots dos grups sobrevisquin."]]></string>
     <string name="tutorial_advanced_cuttingstones_cutting1_branches2_message">Les pedres blanques estan connectades.</string>
     <string name="tutorial_advanced_cuttingstones_cutting2_text"><![CDATA["Les negres tenen 30 punts, mentre que les blanques en tenen 31. Per tant, sembla que les blanques guanyen d'1 punt.
 
