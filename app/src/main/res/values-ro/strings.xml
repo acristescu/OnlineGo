@@ -802,6 +802,10 @@ Valoarea komi-ului depinde de mărimea tablei, dar de obicei este de 5,5 sau 6,5
 
 Din fericire, aplicația face toate aceste calcule în locul tău :)"]]></string>
     <string name="tutorial_advanced_cuttingstones_name">Pietre de tăiere</string>
+    <string name="tutorial_advanced_cuttingstones_cutting1_text"><![CDATA["Pare că albul are teritoriul mai mare.
+Însă zidul lui are un punct slab. Nu trebuie decât să „tai” zidul albului.
+
+Dacă reușești, albului îi va fi greu să asigure supraviețuirea ambelor grupuri."]]></string>
     <string name="tutorial_advanced_cuttingstones_cutting1_branches2_message">Pietrele albe sunt conectate.</string>
     <string name="tutorial_advanced_cuttingstones_cutting2_text"><![CDATA["Negrul are 30 de puncte, iar albul are 31 de puncte. Deci pare că albul câștigă cu 1 punct.
 Însă teritoriul din partea de jos nu este tot al albului.
