@@ -747,9 +747,6 @@ Die Höhe des Komi hängt von der Größe des Spielbretts ab, aber sie beträgt 
 
 Zum Glück übernimmt die App all diese Berechnungen für dich :)"]]></string>
     <string name="tutorial_advanced_cuttingstones_name">Steine Trennen</string>
-    <string name="tutorial_advanced_cuttingstones_cutting1_text"><![CDATA["Es sieht aus, als ob Weiß das größere Gebiet hätte. Aber die weiße Mauer hat eine Schwachstelle. Trenne die weiße Mauer.
-
-Wenn du Erfolg hast, wird Weiß große Schwierigkeiten haben beide Gruppen am Leben zu halten."]]></string>
     <string name="tutorial_advanced_cuttingstones_cutting1_branches2_message">Die weißen Steine sind verbunden.</string>
     <string name="tutorial_advanced_cuttingstones_cutting2_text"><![CDATA["Schwarz hat 30 Punkte während Weiß bei 31 Punkten liegt. Somit hat Weiß um 1 Punkt gewonnen.
 Jedoch gehört das Gebiet am unteren Rand nicht vollständig zu Weiß.
