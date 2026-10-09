@@ -8,5 +8,6 @@
     <locale android:name="de" />
     <locale android:name="ca" />
     <locale android:name="es" />
+    <locale android:name="fr" />
     <locale android:name="nl" />
 </locale-config>

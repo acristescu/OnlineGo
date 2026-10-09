@@ -740,6 +740,7 @@ private val AppLanguage.displayNameResId: Int
     AppLanguage.CATALAN -> R.string.settings_language_catalan
     AppLanguage.GERMAN -> R.string.settings_language_german
     AppLanguage.SPANISH -> R.string.settings_language_spanish
+    AppLanguage.FRENCH -> R.string.settings_language_french
     AppLanguage.DUTCH -> R.string.settings_language_dutch
     AppLanguage.ROMANIAN -> R.string.settings_language_romanian
   }

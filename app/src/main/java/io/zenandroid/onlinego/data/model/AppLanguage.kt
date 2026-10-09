@@ -28,6 +28,7 @@ enum class AppLanguage(
   CATALAN("ca", "ca", "🏴󠁥󠁳󠁣󠁴󠁿"),
   GERMAN("de", "de", "🇩🇪"),
   SPANISH("es", "es", "🇪🇸"),
+  FRENCH("fr", "fr", "🇫🇷"),
   DUTCH("nl", "nl", "🇳🇱"),
   ROMANIAN("ro", "ro", "🇷🇴"),
   ;

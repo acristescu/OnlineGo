@@ -22,7 +22,7 @@ class AppLanguageTest {
 
   @Test
   fun `untranslated or missing languages resolve to null`() {
-    assertNull(AppLanguage.fromLocaleTag("fr-FR"))
+    assertNull(AppLanguage.fromLocaleTag("sv-SE"))
     assertNull(AppLanguage.fromLocaleTag("und"))
     assertNull(AppLanguage.fromLocaleTag(""))
     assertNull(AppLanguage.fromLocaleTag(null))
