@@ -771,6 +771,10 @@ La valeur du komi dépend de la taille du goban, mais elle est généralement de
 
 Heureusement, l'application fait tous ces calculs pour toi ;-)"]]></string>
     <string name="tutorial_advanced_cuttingstones_name">Pierres de coupe</string>
+    <string name="tutorial_advanced_cuttingstones_cutting1_text"><![CDATA["Il semblerait que Blanc ait plus de territoire.
+Cependant, son mur a un point faible. \"Coupons\" ce mur blanc.
+
+Si tu réussis, Blanc aura le plus grand mal à faire vivre ses deux groupes."]]></string>
     <string name="tutorial_advanced_cuttingstones_cutting1_branches2_message">Les pierres blanches sont connectées.</string>
     <string name="tutorial_advanced_cuttingstones_cutting2_text"><![CDATA["Noir a 30 points alors que Blanc en a 31. On dirait bien que Blanc gagne d'1 point.
 Cependant, le territoire du bord inférieur n'appartient pas entièrement à Blanc.
