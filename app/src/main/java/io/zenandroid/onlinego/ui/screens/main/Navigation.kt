@@ -35,13 +35,11 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavOptions.Builder
-import androidx.navigation.NavType
+import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navArgument
 import androidx.navigation.navDeepLink
 import co.touchlab.kermit.Logger
 import io.zenandroid.onlinego.R
@@ -73,14 +71,40 @@ fun OnlineGoApp(
 ) {
   val navController = rememberNavController()
 
-  val startDestination = if (hasCompletedOnboarding) "myGames" else "onboarding"
+  val startDestination: Route = if (hasCompletedOnboarding) Route.MyGames else Route.Onboarding()
 
   val navBackStackEntry by navController.currentBackStackEntryAsState()
-  val currentDestination = navBackStackEntry?.destination?.route
+  val destination = navBackStackEntry?.destination
+  val currentDestination = destination?.route
   val activity = LocalActivity.current
   val analytics: Analytics = koinInject()
 
-  val showBottomBar = currentDestination in listOf("myGames", "learn", "stats", "settings")
+  val bottomNavItems = listOf(
+    BottomNavItem(
+      Route.MyGames,
+      stringResource(R.string.bottomnavigation_botton_play),
+      ImageVector.vectorResource(R.drawable.ic_board_filled)
+    ),
+    BottomNavItem(
+      Route.Learn,
+      stringResource(R.string.bottomnavigation_botton_learn),
+      ImageVector.vectorResource(R.drawable.ic_learn)
+    ),
+    BottomNavItem(
+      Route.Stats,
+      stringResource(R.string.bottomnavigation_botton_stats),
+      ImageVector.vectorResource(R.drawable.ic_diagram),
+      enabled = isLoggedIn
+    ),
+    BottomNavItem(
+      Route.Settings,
+      stringResource(R.string.bottomnavigation_botton_settings),
+      ImageVector.vectorResource(R.drawable.ic_settings_filled),
+    ),
+  )
+  val selectedTabIndex =
+    bottomNavItems.indexOfFirst { destination?.hasRoute(it.route::class) == true }
+  val showBottomBar = selectedTabIndex >= 0
   var showStatsLoginPrompt by remember { mutableStateOf(false) }
   var bottomBarCollapsed by remember { mutableStateOf(false) }
 
@@ -113,153 +137,119 @@ fun OnlineGoApp(
           popEnterTransition = { fadeIn(animationSpec = tween(500)) },
           popExitTransition = { fadeOut(animationSpec = tween(500)) },
         ) {
-          composable("myGames") {
+          composable<Route.MyGames> {
             MyGamesScreen(
-              onNavigateToGame = { navController.navigate("game/${it.id}/${it.width}/${it.height}") },
-              onNavigateToAIGame = { navController.navigate("aiGame") },
-              onNavigateToFaceToFace = { navController.navigate("faceToFace") },
-              onNavigateToSupporter = { navController.navigate("supporter") },
-              onNavigateToLogin = { navController.navigate("onboarding?initialPage=login") },
-              onNavigateToSignUp = { navController.navigate("onboarding?initialPage=signUp") },
+              onNavigateToGame = { navController.navigate(Route.Game(it.id, it.width, it.height)) },
+              onNavigateToAIGame = { navController.navigate(Route.AiGame) },
+              onNavigateToFaceToFace = { navController.navigate(Route.FaceToFace) },
+              onNavigateToSupporter = { navController.navigate(Route.Supporter) },
+              onNavigateToLogin = { navController.navigate(Route.Onboarding(initialPage = "login")) },
+              onNavigateToSignUp = { navController.navigate(Route.Onboarding(initialPage = "signUp")) },
               onBottomBarCollapseChanged = { bottomBarCollapsed = it },
             )
           }
 
-          composable("aiGame") {
+          composable<Route.AiGame> {
             AiGameScreen(
               onNavigateBack = navController::popBackStack,
             )
           }
 
-          composable("faceToFace") {
+          composable<Route.FaceToFace> {
             FaceToFaceScreen(
               onNavigateBack = navController::popBackStack,
             )
           }
 
           // adb shell am start -a android.intent.action.VIEW -d "sente://game/76828314/9/9"
-          composable(
-            route = "game/{gameId}/{gameWidth}/{gameHeight}",
-            deepLinks = listOf(
-              navDeepLink {
-                uriPattern = "sente://game/{gameId}/{gameWidth}/{gameHeight}"
-              }
-            ),
-            arguments = listOf(
-              navArgument("gameId") { type = NavType.LongType },
-              navArgument("gameWidth") { type = NavType.IntType },
-              navArgument("gameHeight") { type = NavType.IntType },
-            ),
-          ) { backStackEntry ->
+          composable<Route.Game>(
+            deepLinks = listOf(navDeepLink<Route.Game>(basePath = "sente://game")),
+          ) {
             GameScreen(
               onNavigateBack = navController::popBackStack,
               onNavigateToGameScreen = { game ->
                 navController.popBackStack()
-                navController.navigate("game/${game.id}/${game.width}/${game.height}")
+                navController.navigate(Route.Game(game.id, game.width, game.height))
               })
           }
 
-          composable("learn") {
+          composable<Route.Learn> {
             LearnScreen(
-              onJosekiExplorer = { navController.navigate("josekiExplorer") },
-              onPuzzles = { navController.navigate("puzzleDirectory") },
-              onTutorial = { tutorial -> navController.navigate("tutorial/${tutorial.name}") },
+              onJosekiExplorer = { navController.navigate(Route.JosekiExplorer) },
+              onPuzzles = { navController.navigate(Route.PuzzleDirectory) },
+              onTutorial = { tutorial -> navController.navigate(Route.Tutorial(tutorial.name)) },
               onBottomBarCollapseChanged = { bottomBarCollapsed = it },
             )
           }
 
-          composable(
-            "tutorial/{tutorialName}",
-            arguments = listOf(navArgument("tutorialName") { type = NavType.StringType })
-          ) { backStackEntry ->
+          composable<Route.Tutorial> {
             TutorialScreen(
               onNavigateBack = navController::popBackStack
             )
           }
 
-          composable("josekiExplorer") {
+          composable<Route.JosekiExplorer> {
             JosekiExplorerScreen(
               onNavigateBack = navController::popBackStack
             )
           }
 
-          composable("settings") {
+          composable<Route.Settings> {
             SettingsScreen(
               onNavigateToSupport = {
-                navController.navigate("supporter")
+                navController.navigate(Route.Supporter)
               },
               onNavigateToSocketDebug = {
-                navController.navigate("socketDebug")
+                navController.navigate(Route.SocketDebug)
               },
               onBottomBarCollapseChanged = { bottomBarCollapsed = it },
             )
           }
 
-          composable("socketDebug") {
+          composable<Route.SocketDebug> {
             SocketDebugScreen(
               onNavigateBack = navController::popBackStack
             )
           }
 
-          composable(
-            "otherPlayerStats?playerId={playerId}",
-            arguments = listOf(navArgument("playerId") { type = NavType.StringType })
-          ) { backStackEntry ->
+          composable<Route.OtherPlayerStats> {
             StatsScreen()
           }
 
-          composable("stats") {
+          composable<Route.Stats> {
             StatsScreen(
               onBottomBarCollapseChanged = { bottomBarCollapsed = it },
             )
           }
 
-          composable("puzzleDirectory") {
+          composable<Route.PuzzleDirectory> {
             PuzzleDirectoryScreen(
               onNavigateBack = navController::popBackStack,
               onNavigateToPuzzle = { collectionId, puzzleId ->
-                navController.navigate("tsumego/$collectionId/$puzzleId")
+                navController.navigate(Route.Tsumego(collectionId, puzzleId))
               }
             )
           }
 
-          composable(
-            "tsumego/{collectionId}/{puzzleId}",
-            arguments = listOf(
-              navArgument("collectionId") { type = NavType.LongType },
-              navArgument("puzzleId") { type = NavType.LongType }
-            )
-          ) { backStackEntry ->
+          composable<Route.Tsumego> {
             TsumegoScreen(
               onNavigateBack = navController::popBackStack
             )
           }
 
-          composable("supporter") {
+          composable<Route.Supporter> {
             SupporterScreen(
               onNavigateBack = navController::popBackStack,
             )
           }
 
-          composable(
-            route = "onboarding?initialPage={initialPageArg}",
-            arguments = listOf(
-              navArgument("initialPageArg") {
-                type = NavType.StringType
-                nullable = true
-                defaultValue = null
-              }
-            ),
-          ) { backStackEntry ->
+          composable<Route.Onboarding> {
             OnboardingScreen(
               onNavigateToMyGames = {
-                navController.navigate(
-                  "myGames",
-                  navOptions = Builder()
-                    .setPopUpTo("onboarding", inclusive = true)
-                    .setLaunchSingleTop(true)
-                    .build()
-                )
+                navController.navigate(Route.MyGames) {
+                  popUpTo<Route.Onboarding> { inclusive = true }
+                  launchSingleTop = true
+                }
               },
               onNavigateBack = {
                 val success = navController.popBackStack()
@@ -271,45 +261,17 @@ fun OnlineGoApp(
           }
         }
         if (showBottomBar) {
-          val items = listOf(
-            BottomNavItem(
-              "myGames",
-              stringResource(R.string.bottomnavigation_botton_play),
-              ImageVector.vectorResource(R.drawable.ic_board_filled)
-            ),
-            BottomNavItem(
-              "learn",
-              stringResource(R.string.bottomnavigation_botton_learn),
-              ImageVector.vectorResource(R.drawable.ic_learn)
-            ),
-            BottomNavItem(
-              "stats",
-              stringResource(R.string.bottomnavigation_botton_stats),
-              ImageVector.vectorResource(R.drawable.ic_diagram),
-              enabled = isLoggedIn
-            ),
-            BottomNavItem(
-              "settings",
-              stringResource(R.string.bottomnavigation_botton_settings),
-              ImageVector.vectorResource(R.drawable.ic_settings_filled),
-            ),
-          )
-
-          val navBackStackEntry by navController.currentBackStackEntryAsState()
-          val currentRoute = navBackStackEntry?.destination?.route
-          val selectedIndex = items.indexOfFirst { it.route == currentRoute }.coerceAtLeast(0)
-
           SenteBottomBar(
-            tabs = items,
-            selectedIndex = selectedIndex,
+            tabs = bottomNavItems,
+            selectedIndex = selectedTabIndex,
             collapsed = bottomBarCollapsed,
             onTabSelected = {
-              val target = items[it]
+              val target = bottomNavItems[it]
               if (!target.enabled) {
                 showStatsLoginPrompt = true
-              } else if (currentRoute != target.route) {
+              } else if (it != selectedTabIndex) {
                 navController.navigate(target.route) {
-                  popUpTo("myGames") { saveState = true }
+                  popUpTo<Route.MyGames> { saveState = true }
                   launchSingleTop = true
                   restoreState = true
                 }
@@ -347,7 +309,7 @@ fun OnlineGoApp(
         StatsLoginRequiredBottomSheet(
           onLogIn = {
             showStatsLoginPrompt = false
-            navController.navigate("onboarding?initialPage=login")
+            navController.navigate(Route.Onboarding(initialPage = "login"))
           },
           onDismiss = { showStatsLoginPrompt = false },
         )
@@ -404,7 +366,7 @@ private fun StatsLoginRequiredBottomSheet(
 
 @Immutable
 data class BottomNavItem(
-  val route: String,
+  val route: Route,
   val label: String,
   val icon: ImageVector,
   val enabled: Boolean = true

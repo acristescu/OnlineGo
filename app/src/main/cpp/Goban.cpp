@@ -1,6 +1,5 @@
 /* vim: set tabstop=4 expandtab */
 #include "Goban.h"
-#include "log.h"
 #include <set>
 
 #  include <stdlib.h>
@@ -73,15 +72,6 @@ Grid Goban::_estimate(Color player_to_move, int num_iterations, float tolerance,
     default_grid_width = width;
     default_grid_height = height;
 
-
-#ifndef EMSCRIPTEN
-    if (debug) {
-        Vec false_eyes = getFalseEyes();
-        if (false_eyes.size) {
-            NOTE << "False eyes: " << false_eyes << endl;
-        }
-    }
-#endif
 
     fillFalseEyes();
 

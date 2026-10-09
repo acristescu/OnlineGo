@@ -84,7 +84,7 @@ class OnboardingViewModel(
       R.string.onboarding_notifications_allow,
       R.string.onboarding_notifications_skip
     )
-  ).drop(if (savedStateHandle["initialPageArg"] as String? != null) 4 else 0)
+  ).drop(if (savedStateHandle["initialPage"] as String? != null) 4 else 0)
 
   init {
     viewModelScope.launch(Dispatchers.IO) {
@@ -108,7 +108,7 @@ class OnboardingViewModel(
       OnboardingState(
         currentPageIndex = 0,
         currentPage = pages[0],
-        isExistingAccount = savedStateHandle["initialPageArg"] as String? == "login",
+        isExistingAccount = savedStateHandle["initialPage"] as String? == "login",
         totalPages = pages.size,
       )
     )

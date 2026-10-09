@@ -16,8 +16,6 @@ import kotlinx.coroutines.flow.first
 import org.koin.core.context.GlobalContext.get
 import java.util.concurrent.TimeUnit
 
-private const val NOT_CHARGING_PERIOD_MINUTES = 30L
-private const val CHARGING_PERIOD_MINUTES = 4L
 private const val NOT_CHARGING_WORK_NAME = "poll_active_games"
 private const val CHARGING_WORK_NAME = "poll_active_games_charging"
 private const val PERIODIC_WORK_NAME = "periodic_work"

@@ -60,7 +60,7 @@ class StatsViewModel(
     started = SharingStarted.WhileSubscribed(5_000)
   )
 
-  private val requestedPlayerId = savedStateHandle.get<String>("playerId")?.toLong()
+  private val requestedPlayerId = savedStateHandle.get<Long>("playerId")
 
   /**
    * Viewing your own stats is a bottom bar tab, so it is entered often and the view model is

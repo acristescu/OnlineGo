@@ -56,6 +56,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.ui.screens.main.BottomNavItem
+import io.zenandroid.onlinego.ui.screens.main.Route
 import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
 import kotlin.math.roundToInt
 
@@ -226,23 +227,23 @@ private fun DSBottomBarPreview() {
         SenteBottomBar(
           tabs = listOf(
             BottomNavItem(
-              "myGames",
+              Route.MyGames,
               stringResource(R.string.bottomnavigation_botton_play),
               ImageVector.vectorResource(R.drawable.ic_board_filled)
             ),
             BottomNavItem(
-              "learn",
+              Route.Learn,
               stringResource(R.string.bottomnavigation_botton_learn),
               ImageVector.vectorResource(R.drawable.ic_learn)
             ),
             BottomNavItem(
-              "stats",
+              Route.Stats,
               stringResource(R.string.bottomnavigation_botton_stats),
               ImageVector.vectorResource(R.drawable.ic_diagram),
               enabled = true,
             ),
             BottomNavItem(
-              "settings",
+              Route.Settings,
               stringResource(R.string.bottomnavigation_botton_settings),
               ImageVector.vectorResource(R.drawable.ic_settings_filled),
             ),
@@ -272,23 +273,23 @@ private fun DSBottomBarPreviewCollapsed() {
         SenteBottomBar(
           tabs = listOf(
             BottomNavItem(
-              "myGames",
+              Route.MyGames,
               stringResource(R.string.bottomnavigation_botton_play),
               ImageVector.vectorResource(R.drawable.ic_board_filled)
             ),
             BottomNavItem(
-              "learn",
+              Route.Learn,
               stringResource(R.string.bottomnavigation_botton_learn),
               ImageVector.vectorResource(R.drawable.ic_learn)
             ),
             BottomNavItem(
-              "stats",
+              Route.Stats,
               stringResource(R.string.bottomnavigation_botton_stats),
               ImageVector.vectorResource(R.drawable.ic_diagram),
               enabled = true,
             ),
             BottomNavItem(
-              "settings",
+              Route.Settings,
               stringResource(R.string.bottomnavigation_botton_settings),
               ImageVector.vectorResource(R.drawable.ic_settings_filled),
             ),

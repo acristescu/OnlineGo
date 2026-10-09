@@ -3,10 +3,8 @@ package io.zenandroid.onlinego.ui.screens.main
 import android.app.NotificationChannel
 import android.app.NotificationChannelGroup
 import android.app.NotificationManager
-import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.graphics.Color
 import android.os.Build
@@ -37,7 +35,6 @@ import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.AppTheme
 import io.zenandroid.onlinego.data.model.BoardTheme
 import io.zenandroid.onlinego.notifications.SynchronizeGamesWork
-import io.zenandroid.onlinego.ui.screens.login.FacebookLoginCallbackActivity
 import io.zenandroid.onlinego.ui.theme.LocalPreloadedImages
 import io.zenandroid.onlinego.ui.theme.LocalThemeSettings
 import io.zenandroid.onlinego.ui.theme.style
@@ -167,12 +164,6 @@ class MainActivity : ComponentActivity() {
       createNotificationChannel()
       scheduleNotificationJob()
     }
-
-    packageManager.setComponentEnabledSetting(
-      ComponentName(this, FacebookLoginCallbackActivity::class.java),
-      PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
-      PackageManager.DONT_KILL_APP
-    )
   }
 
   private suspend fun preloadImages(themeSettings: ThemeSettings): PreloadedImages {

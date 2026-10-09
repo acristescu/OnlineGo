@@ -251,7 +251,7 @@
     <string name="clock_seconds">%1$02ds</string>
     <string name="clock_tenths">%1$.1fs</string>
     <string name="clock_canadian_period">+%1$s / %2$d</string>
-    <string name="clock_byoyomi_periods">%1$d x %2$s</string>
+    <string name="clock_byoyomi_periods">%1$d × %2$s</string>
     <string name="clock_fischer_increment">+ %1$s / move</string>
     <string name="duration_two_units">%1$s %2$s</string>
     <string name="duration_unknown">\?</string>

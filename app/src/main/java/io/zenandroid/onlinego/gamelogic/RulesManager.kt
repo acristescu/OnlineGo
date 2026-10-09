@@ -11,7 +11,6 @@ import io.zenandroid.onlinego.data.model.local.Game
 import io.zenandroid.onlinego.data.model.local.InitialState
 import io.zenandroid.onlinego.data.model.local.Score
 import io.zenandroid.onlinego.gamelogic.Util.toCoordinateSet
-import io.zenandroid.onlinego.utils.CrashReporter
 import kotlinx.coroutines.yield
 
 /**
@@ -21,9 +20,6 @@ object RulesManager {
 
   init {
     try {
-      if (Thread.currentThread().name == "main") {
-        CrashReporter.recordException(Throwable("System.loadLibrary called on main thread!!!"))
-      }
       System.loadLibrary("estimator")
     } catch (_: UnsatisfiedLinkError) {
       Logger.e("Error loading estimator", tag = "libestimator")
@@ -35,9 +31,6 @@ object RulesManager {
   private external fun estimate(w: Int, h: Int, board: IntArray, playerToMove: Int, trials: Int, tolerance: Float): IntArray
 
   fun determineTerritory(pos: Position, scoreStones: Boolean): Position {
-    if (Thread.currentThread().name == "main") {
-      CrashReporter.recordException(Throwable("determineTerritory called on main thread!!!"))
-    }
     val inBoard = IntArray(pos.boardWidth * pos.boardHeight)
     pos.blackStones
       .filter { !pos.removedSpots.contains(it) }
@@ -266,10 +259,6 @@ object RulesManager {
     blackCapturesCount: Int = 0,
     currentMoveIndex: Int = 0,
   ): Position? {
-    if (Thread.currentThread().name == "main") {
-      CrashReporter.recordException(Throwable("System.loadLibrary called on main thread!!!"))
-    }
-
     var nextPlayer = nextToMove
     var lastPlayer: StoneType? = null
     val whiteStones: MutableSet<Cell> = whiteInitialState.toMutableSet()
