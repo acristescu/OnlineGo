@@ -1,2 +1,794 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources></resources>
+<resources>
+    <string name="app_name">Sente - Online GO</string>
+    <string name="create_account_prompt">Geen OGS-account? Maak er <b>hier</b> een aan!</string>
+    <string name="login_to_ogs">Inloggen op OGS</string>
+    <string name="create_account">OGS-account aanmaken</string>
+    <string name="welcome_to_sente_online_go">Welkom bij Sente Online Go!</string>
+    <string name="login_to_play_online">Log in op OGS om online te spelen.</string>
+    <string name="ai_game_chat_ready">Klaar!</string>
+    <string name="ai_game_chat_use_new_game_button">Gebruik de knop \'Nieuwe Partij\' om een nieuwe partij te starten</string>
+    <string name="ai_game_chat_engine_error">Fout bij het starten van KataGO: \'%1$s\'</string>
+    <string name="ai_game_chat_engine_starting">De AI-engine wordt opgestart, een moment geduld…</string>
+    <string name="ai_game_chat_invalid_move">Ongeldige zet, probeer het opnieuw</string>
+    <string name="ai_game_chat_lets_try_again">Oké, nieuwe poging. Jouw beurt!</string>
+    <string name="ai_game_chat_hmmm">Hmmm…</string>
+    <string name="ai_game_chat_moves_to_consider">Hier zijn wat zetten om te overwegen</string>
+    <string name="ai_game_chat_ok_your_turn">Oké, jouw beurt</string>
+    <string name="ai_game_chat_calculating_territory">Oké, het huidige gebied wordt berekend…</string>
+    <string name="ai_game_chat_territories">Dit is hoe ik denk dat de gebieden eruitzien</string>
+    <string name="ai_game_chat_im_thinking">Ik denk na…</string>
+    <string name="ai_game_chat_your_turn">Jouw beurt</string>
+    <string name="ai_game_chat_ai_passed">Ik pas. Jouw beurt!</string>
+    <string name="ai_game_chat_game_over_ai_won">De partij is afgelopen doordat beide spelers hebben gepast. De eindstand is %1$s punten voor zwart en %2$s voor wit. Dit keer heb ik gewonnen.</string>
+    <string name="ai_game_chat_game_over_player_won">De partij is afgelopen doordat beide spelers hebben gepast. De eindstand is %1$s punten voor zwart en %2$s voor wit. Gefeliciteerd, je hebt me verslagen.</string>
+    <string name="ai_game_chat_game_over_computing_score">De partij is afgelopen doordat beide spelers hebben gepast. Even geduld, ik bereken de eindstand.</string>
+    <string name="ai_game_chat_ai_resigned">Ik geef het op, jij wint! Goed gespeeld.</string>
+    <string name="ai_resign_offer_title">Ik denk dat ik deze verloren heb</string>
+    <string name="ai_resign_offer_message">Ik geef op. Vind je dat goed, of wil je verder spelen?</string>
+    <string name="ai_resign_offer_accept">Opgave Aanvaarden</string>
+    <string name="ai_resign_offer_decline">Verder Spelen</string>
+    <string name="ai_game_handicap_none">geen</string>
+    <string name="ai_game_handicap_no_komi">geen komi</string>
+    <string name="ai_game_avatar_content_description">AI</string>
+    <string name="ai_game_new">Nieuw</string>
+    <string name="ai_game_pass">Pas</string>
+    <string name="ai_game_previous">Vorige</string>
+    <string name="ai_game_next">Volgende</string>
+    <string name="ko_explanation">Die zet zou een eerdere positie herhalen. Dat noem je KO, en dat mag niet. Doe eerst een andere zet, het liefst een dreiging die de tegenstander niet kan negeren.</string>
+    <string name="illegal_ko_move">Verboden KO-zet</string>
+    <string name="local_ai_game">Lokale AI-partij</string>
+    <string name="back">Terug</string>
+    <string name="title_bar_game_info_content_description">Partijinfo</string>
+    <string name="title_bar_more_content_description">Meer</string>
+    <string name="search_field_clear_content_description">Tekst wissen</string>
+    <string name="katago">"KataGO "</string>
+    <string name="territory">Gebied</string>
+    <string name="hint">Hint</string>
+    <string name="player">Speler</string>
+    <string name="you">" Jij"</string>
+    <string name="prisoners">Gevangenen</string>
+    <string name="komi">Komi</string>
+    <string name="ai_game_player_captures_and_komi">Geslagen: %1$d · Komi: %2$s</string>
+    <string name="ai_game_player_captures_only">Geslagen: %1$d</string>
+    <string name="ai_game_eval_winrate_compact">Z %1$.1f%% · %2$.1f%% W</string>
+    <string name="ai_game_eval_score_lead_compact">%1$s +%2$.1f voorsprong</string>
+    <string name="ai_game_hide_eval">Verberg Evaluatie</string>
+    <string name="ai_game_show_eval">Toon Evaluatie</string>
+    <string name="new_game">Nieuwe Partij</string>
+    <string name="board_size">Bordgrootte</string>
+    <string name="you_play">Jij speelt met</string>
+    <string name="Black">Zwart</string>
+    <string name="White">Wit</string>
+    <string name="handicap">Voorgift</string>
+    <string name="difficulty">Moeilijkheidsgraad</string>
+    <string name="ai_game_rules">Regels</string>
+    <string name="ai_game_rules_japanese">Japans</string>
+    <string name="ai_game_rules_chinese">Chinees</string>
+    <string name="ai_game_difficulty_scale_hint">Hogere kyu = zwakker, dan = sterker</string>
+    <string name="ai_game_difficulty_kyu">%1$d kyu</string>
+    <string name="ai_game_difficulty_dan">%1$d dan</string>
+    <string name="start_game">Partij Beginnen</string>
+    <string name="cancel">Annuleren</string>
+    <string name="ok">Oké</string>
+    <string name="search">Zoeken</string>
+    <string name="loading">Laden…</string>
+    <string name="email">E-mail</string>
+    <string name="username">Gebruikersnaam</string>
+    <string name="password">Wachtwoord</string>
+    <string name="yes">Ja</string>
+    <string name="no">Nee</string>
+    <string name="unknown">Onbekend</string>
+    <string name="error">Fout</string>
+    <string name="enabled">Aan</string>
+    <string name="disabled">Uit</string>
+    <string name="auto">Automatisch</string>
+    <string name="hello_world">Hallo wereld!</string>
+    <string name="landscape_preview">Landschapsvoorbeeld</string>
+    <string name="button_play_online">Online\nSpelen</string>
+    <string name="button_custom_game">Aangepaste\nPartij</string>
+    <string name="button_play_against_ai">Speel\nTegen AI</string>
+    <string name="button_face_to_face">In Persoon</string>
+    <string name="bottomnavigation_botton_play">Spelen</string>
+    <string name="bottomnavigation_botton_learn">Leren</string>
+    <string name="bottomnavigation_botton_stats">Statistiek</string>
+    <string name="bottomnavigation_botton_settings">Instellingen</string>
+    <string name="stats_login_required_title">Log in om statistieken te zien</string>
+    <string name="stats_login_required_message">Statistieken zijn beschikbaar als je inlogt met OGS.</string>
+    <string name="home_welcome_to_sente">Welkom bij Sente!</string>
+    <string name="home_app_open_source_message">Deze app is een door de community gesteunde opensourcefrontend voor de website OGS (online-go.com). Je kan de lessen proberen of tegen AI oefenen, maar voor de meeste andere functies heb je een gratis OGS-account nodig.</string>
+    <string name="home_button_login_ogs">Inloggen op OGS</string>
+    <string name="home_button_signup_ogs">Een account aanmaken op OGS</string>
+    <string name="face_to_face_loading">In persoon · Laden</string>
+    <string name="face_to_face_game_over">In persoon · Partij beëindigd</string>
+    <string name="face_to_face_white_s_turn">In persoon · Wits beurt</string>
+    <string name="face_to_face_black_s_turn">In persoon · Zwarts beurt</string>
+    <string name="face_to_face_default">In persoon</string>
+    <string name="face_to_face_player_1">Speler 1</string>
+    <string name="face_to_face_player_2">Speler 2</string>
+    <string name="face_to_face_avatar_content_description">Avatar</string>
+    <string name="face_to_face_estimating">Inschatten</string>
+    <string name="face_to_face_game_is_over">Partij beëindigd!</string>
+    <string name="face_to_face_game_is_not_over">Advies: de partij is nog niet voorbij!</string>
+    <string name="face_to_face_ko_dialog_title">Verboden KO-zet</string>
+    <string name="face_to_face_ko_dialog_message">Die zet zou een eerdere positie herhalen. Dat noem je KO, en dat mag niet. Doe eerst een andere zet, het liefst een dreiging die de tegenstander niet kan negeren.</string>
+    <string name="face_to_face_score_komi">komi</string>
+    <string name="face_to_face_score_captures">geslagen</string>
+    <string name="face_to_face_score_dead">dood</string>
+    <string name="face_to_face_score_territory">gebied</string>
+    <string name="face_to_face_score_total">totaal</string>
+    <string name="face_to_face_new_game_title">Nieuwe Partij</string>
+    <string name="face_to_face_new_game_size">Grootte</string>
+    <string name="face_to_face_start_new_game">NIEUWE PARTIJ BEGINNEN</string>
+    <string name="face_to_face_button_new_game">Nieuwe Partij</string>
+    <string name="face_to_face_button_estimate_score">Stand Inschatten</string>
+    <string name="face_to_face_button_previous">Vorige</string>
+    <string name="face_to_face_button_next">Volgende</string>
+    <string name="face_to_face_button_return">Terug</string>
+    <string name="face_to_face_button_pass">Passen</string>
+    <string name="game_title_white_to_move">Zet %1$d · %2$s · Wit</string>
+    <string name="game_title_black_to_move">Zet %1$d · %2$s · Zwart</string>
+    <string name="game_submitting_move">Zet wordt opgestuurd</string>
+    <string name="game_submitting_move_attempt">Zet wordt opgestuurd (poging #%1$d)</string>
+    <string name="game_estimating">Inschatten</string>
+    <string name="game_status_requested_undo">Terugname aangevraagd</string>
+    <string name="game_status_player_passed">Speler heeft gepast!</string>
+    <string name="game_status_accepted">Geaccepteerd</string>
+    <string name="game_status_resigned">Opgegeven</string>
+    <string name="game_status_timed_out">Tijd verlopen</string>
+    <string name="game_status_cancelled_game">Partij afgezegd</string>
+    <string name="game_status_first_move_timer">%1$s om de eerste zet te doen</string>
+    <string name="game_player_points">%1$s punten</string>
+    <string name="game_avatar_content_description">Avatar</string>
+    <string name="game_button_confirm_move">Zet Bevestigen</string>
+    <string name="game_button_discard_move">Zet Wissen</string>
+    <string name="game_button_accept">Aanvaarden</string>
+    <string name="game_button_reject">Afwijzen</string>
+    <string name="game_button_analyze">Analyseren</string>
+    <string name="game_button_pass">Passen</string>
+    <string name="game_button_resign">Opgeven</string>
+    <string name="game_button_cancel_game">Partij Afzeggen</string>
+    <string name="game_button_chat">Chat</string>
+    <string name="game_button_next_game">Volgende Partij</string>
+    <string name="game_button_undo">Terugnemen</string>
+    <string name="game_button_exit_analysis">Analyse Stoppen</string>
+    <string name="game_button_estimate">Inschatten</string>
+    <string name="game_button_return">Terug</string>
+    <string name="game_button_previous">Vorige</string>
+    <string name="game_button_next">Volgende</string>
+    <string name="game_menu_open_in_browser">Openen in de browser</string>
+    <string name="game_menu_download_sgf">Downloaden als SGF</string>
+    <string name="game_menu_accept_undo">Terugname Aanvaarden</string>
+    <string name="game_confirm_dialog_title">Graag bevestigen</string>
+    <string name="game_dialog_cancel">AFZEGGEN</string>
+    <string name="game_opponent_undo_dialog_title">Tegenstander vroeg om terugname</string>
+    <string name="game_opponent_undo_dialog_message">Je tegenstander wil zijn laatste zet terugnemen. Aanvaard je dat?</string>
+    <string name="game_opponent_undo_dialog_ignore">NEGEREN</string>
+    <string name="game_opponent_undo_dialog_accept">ZET TERUGNEMEN</string>
+    <string name="game_request_undo_dialog_title">Om terugname vragen?</string>
+    <string name="game_request_undo_dialog_message">Als je laatste zet per ongeluk deed, kan je vragen of je tegenstander een terugname aanvaardt.</string>
+    <string name="game_request_undo_dialog_confirm">OM TERUGNAME VRAGEN</string>
+    <string name="game_pass_dialog_message">Weet je zeker dat je wilt passen? Doe dit alleen als je denkt dat de partij voorbij is en er geen nuttige zetten meer zijn. Als je tegenstander ook past, dan gaan we de eindstand bepalen.</string>
+    <string name="game_pass_dialog_confirm">PASSEN</string>
+    <string name="game_resign_dialog_message">Weet je zeker dat je wilt opgeven?</string>
+    <string name="game_resign_dialog_confirm">OPGEVEN</string>
+    <string name="game_cancel_dialog_message">Weet je zeker dat je de partij wilt afzeggen?</string>
+    <string name="game_cancel_dialog_confirm">PARTIJ AFZEGGEN</string>
+    <string name="game_cancel_dialog_dismiss">PARTIJ NIET AFZEGGEN</string>
+    <string name="game_info_ranked">Met rating</string>
+    <string name="game_info_unranked">Zonder rating</string>
+    <string name="game_info_unknown_player">\?</string>
+    <string name="game_info_versus_separator">"      vs.      "</string>
+    <string name="game_info_score">Stand</string>
+    <string name="game_info_time">Tijd</string>
+    <string name="game_info_score_komi">komi</string>
+    <string name="game_info_score_handicap">voorgift</string>
+    <string name="game_info_score_prisoners">gevangenen</string>
+    <string name="game_info_score_stones">stenen</string>
+    <string name="game_info_score_territory">gebied</string>
+    <string name="game_info_score_total">totaal</string>
+    <string name="game_over_cancelled">PARTIJ AFGEZEGD</string>
+    <string name="game_over_won">GEFELICITEERD\nJE HEBT GEWONNEN</string>
+    <string name="game_over_lost">JE HEBT VERLOREN</string>
+    <string name="game_over_view_board">BORD TONEN</string>
+    <string name="game_over_next_game">VOLGENDE PARTIJ</string>
+    <string name="game_over_quick_replay">DIRECTE REVANCHE</string>
+    <string name="game_over_resignation">%1$s gaf op in zet %2$d</string>
+    <string name="game_over_points">%1$s heeft %2$s punten meer</string>
+    <string name="game_over_timeout">%1$s verloor op tijd.</string>
+    <string name="game_over_cancellation">%1$s heeft de partij afgezegd.</string>
+    <string name="game_over_disconnection">%1$s verloor de verbinding.</string>
+    <string name="game_over_unknown_result">Onbekende uitslag (%1$s)</string>
+    <string name="game_over_rating_updating">Je rating wordt bijgewerkt</string>
+    <string name="game_over_rating_now">Je rating is nu %1$s - %2$s</string>
+    <string name="game_over_rating_change">" (%1$s)"</string>
+    <string name="game_retry_dialog_title">VERBINDINGSPROBLEMEN</string>
+    <string name="game_retry_dialog_message">De server reageert niet. Controleer je internetverbinding.</string>
+    <string name="game_retry_dialog_confirm">OPNIEUW PROBEREN</string>
+    <string name="game_chat_move_header">Zet %1$d</string>
+    <string name="game_chat_type_a_message">Typ een bericht…</string>
+    <string name="game_chat_send_content_description">Verzenden</string>
+    <string name="game_player_details_rank_rating">%1$s (%2$s)</string>
+    <string name="game_player_details_highest_rank">Hoogste rating</string>
+    <string name="game_player_details_percentile">Percentiel</string>
+    <string name="game_player_details_percentage">%1$d%%</string>
+    <string name="game_player_details_played_vs_you">Gespeeld tegen jou</string>
+    <string name="game_player_details_you_won">Jij Won</string>
+    <string name="game_player_details_they_won">De Ander Won</string>
+    <string name="game_player_details_ranked_games">Partijen Met Rating</string>
+    <string name="game_player_details_wins">Gewonnen</string>
+    <string name="game_player_details_losses">Verloren</string>
+    <string name="game_player_details_total">Totaal</string>
+    <plurals name="duration_weeks">
+        <item quantity="one">%d week</item>
+        <item quantity="other">%d weken</item>
+    </plurals>
+    <plurals name="duration_days">
+        <item quantity="one">%d dag</item>
+        <item quantity="other">%d dagen</item>
+    </plurals>
+    <plurals name="duration_hours">
+        <item quantity="one">%d uur</item>
+        <item quantity="other">%d uur</item>
+    </plurals>
+    <plurals name="duration_minutes">
+        <item quantity="one">%d minuut</item>
+        <item quantity="other">%d minuten</item>
+    </plurals>
+    <plurals name="duration_seconds">
+        <item quantity="one">%d seconde</item>
+        <item quantity="other">%d seconden</item>
+    </plurals>
+    <plurals name="clock_days">
+        <item quantity="one">%d dag</item>
+        <item quantity="other">%d dagen</item>
+    </plurals>
+    <string name="clock_days_hours">%1$dd %2$du</string>
+    <string name="clock_hours">%1$du</string>
+    <string name="clock_hours_minutes">%1$du%2$02d</string>
+    <string name="clock_minutes_seconds">%1$d : %2$02d</string>
+    <string name="clock_seconds">%1$02ds</string>
+    <string name="clock_tenths">%1$.1fs</string>
+    <string name="clock_canadian_period">+%1$s / %2$d</string>
+    <string name="clock_byoyomi_periods">%1$d × %2$s</string>
+    <string name="clock_fischer_increment">+ %1$s / zet</string>
+    <string name="duration_two_units">%1$s %2$s</string>
+    <string name="duration_unknown">\?</string>
+    <string name="time_control_simple">Eenvoudig: %1$s per zet.</string>
+    <string name="time_control_fischer">Fischer: De klok begint met %1$s en er komt per zet %2$s bij tot maximaal %3$s.</string>
+    <plurals name="time_control_byoyomi">
+        <item quantity="one">Japanse Byo-Yomi: De klok begint met %1$s basistijd, gevolgd door %2$d periode van %3$s.</item>
+        <item quantity="other">Japanse Byo-Yomi: De klok begint met %1$s basistijd, gevolgd door %2$d periodes van %3$s.</item>
+    </plurals>
+    <plurals name="time_control_canadian">
+        <item quantity="one">Canadese Byo-Yomi: De klok begint met %1$s basistijd, gevolgd door %2$s per %3$d steen.</item>
+        <item quantity="other">Canadese Byo-Yomi: De klok begint met %1$s basistijd, gevolgd door %2$s per %3$d stenen.</item>
+    </plurals>
+    <string name="time_control_absolute">Absoluut: %1$s totale speeltijd per speler.</string>
+    <string name="time_control_none">Geen tijdslimiet.</string>
+    <string name="time_control_unknown">\?</string>
+    <string name="time_control_pauses_on_weekends">" Gepauzeerd tijdens het weekend."</string>
+    <string name="whats_new_title">Nieuwigheden</string>
+    <string name="whats_new_got_it">Ik snap het</string>
+    <string name="whats_new_open_source">Sente is opensource, gebouwd door vrijwilligers.</string>
+    <string name="whats_new_support_project">Ondersteun het project</string>
+    <string name="settings_delete_account_success">Account opgezegd. Jammer dat je weggaat! De app sluit na 5 seconden.</string>
+    <string name="settings_delete_account_wrong_password">Verkeerd wachtwoord</string>
+    <string name="onboarding_login_invalid_credentials">Verkeerde gebruikersnaam of wachtwoord</string>
+    <string name="onboarding_login_failed_debug">Inloggen mislukt. Debug info: \'%1$s\'</string>
+    <string name="onboarding_create_account_failed_debug">Account aanmaken mislukt. Debug info: \'%1$s\'</string>
+    <string name="onboarding_server_error_code">Fout met de servercommunicatie. De server gaf foutcode %1$s. Probeer het later opnieuw</string>
+    <string name="onboarding_google_signin_failed">signInResult:failed code=%1$d</string>
+    <string name="tutorial_retry">OPNIEUW PROBEREN</string>
+    <string name="tutorial_next">VOLGENDE</string>
+    <string name="tutorial_nice_one">Mooie zet!</string>
+    <string name="socket_debug_title">Socket Debug</string>
+    <string name="socket_debug_clear_log_content_description">Logboek wissen</string>
+    <string name="socket_debug_clear_content_description">Wissen</string>
+    <string name="socket_debug_filter_hint">Gebeurtenissen filteren…</string>
+    <string name="socket_debug_filter_all">Alles (%1$d)</string>
+    <string name="socket_debug_filter_type">%1$s (%2$d)</string>
+    <plurals name="socket_debug_event_count">
+        <item quantity="one">%d gebeurtenis</item>
+        <item quantity="other">%d gebeurtenissen</item>
+    </plurals>
+    <string name="notification_challenge_title">Een nieuwe uitdaging!</string>
+    <string name="notification_challenge_text">%1$s heeft je uitgedaagd</string>
+    <string name="notification_game_ended">Partij voorbij - %1$s</string>
+    <string name="notification_outcome_cancelled">Afgezegd</string>
+    <string name="notification_outcome_lost_by">Verloren met %1$s punten</string>
+    <string name="notification_outcome_won_by">Gewonnen met %1$s punten</string>
+    <string name="notification_outcome_black_won_by">Zwart heeft gewonnen met %1$s punten</string>
+    <string name="notification_outcome_white_won_by">Wit heeft gewonnen met %1$s punten</string>
+    <string name="notification_your_turn">Jouw beurt</string>
+    <string name="notification_stone_removal_phase">Dode stenen verwijderen</string>
+    <string name="notification_requires_attention">%1$s heeft je aandacht nodig</string>
+    <plurals name="notification_games_require_attention">
+        <item quantity="one">%d partij heeft je aandacht nodig</item>
+        <item quantity="other">%d partijen hebben je aandacht nodig</item>
+    </plurals>
+    <string name="notification_inbox_versus">vs. %1$s</string>
+    <string name="notification_logout_title">Log opnieuw in</string>
+    <string name="notification_logout_text">Je bent niet meer ingelogd. Dit gebeurt meestal nadat je wachtwoord gewijzigd is. Log opnieuw in om weer meldingen te ontvangen</string>
+    <string name="notification_channel_group_your_turn">Jouw Beurt</string>
+    <string name="notification_channel_correspondence_games">Correspondentiepartijen</string>
+    <string name="notification_channel_live_games">Live Partijen</string>
+    <string name="notification_channel_blitz_games">Blitzpartijen</string>
+    <string name="notification_channel_your_turn">Jouw Beurt</string>
+    <string name="notification_channel_challenges">Uitdagingen</string>
+    <string name="notification_channel_logout">Uitloggen</string>
+    <string name="settings_become_a_supporter">Supporter worden</string>
+    <string name="settings_become_a_supporter_description">Supporter worden</string>
+    <string name="settings_section_language">Taal</string>
+    <string name="settings_language">Taal</string>
+    <string name="settings_help_translate">Help met het vertalen van Sente</string>
+    <string name="settings_section_notifications">Meldingen</string>
+    <string name="settings_system_notifications">Systeemmeldingen</string>
+    <string name="settings_stone_sounds">Steengeluiden</string>
+    <string name="settings_section_appearance">Weergave</string>
+    <string name="settings_theme">Thema</string>
+    <string name="settings_board_style">Bordstijl</string>
+    <string name="settings_section_game_settings">Partijinstellingen</string>
+    <string name="settings_show_coordinates">Toon Coördinaten</string>
+    <string name="settings_show_player_ranks">Toon Speler Ratings</string>
+    <string name="settings_section_account">Account</string>
+    <string name="settings_logout">Uitloggen</string>
+    <string name="settings_delete_account">Account opzeggen</string>
+    <string name="settings_section_about">Over</string>
+    <string name="settings_whats_new">Nieuwigheden</string>
+    <string name="settings_section_legal">Juridisch</string>
+    <string name="settings_privacy_policy">Privacybeleid</string>
+    <string name="settings_section_debug">Foutopsporing</string>
+    <string name="settings_socket_debug">Socket Debug</string>
+    <string name="settings_review_prompt">Beoordeelelverzoek</string>
+    <string name="settings_build_version">Build nr. %1$d</string>
+    <string name="settings_theme_system_default">Systeemstandaard</string>
+    <string name="settings_theme_light">Licht</string>
+    <string name="settings_theme_dark">Donker</string>
+    <string name="settings_board_style_light_wood">Licht hout</string>
+    <string name="settings_board_style_dark_wood">Donker hout</string>
+    <string name="settings_board_style_cyan">Cyaan</string>
+    <string name="settings_board_style_dark_blue">Donkerblauw</string>
+    <string name="settings_board_style_book">Boek</string>
+    <string name="settings_board_style_nocturne">Nachtelijk</string>
+    <string name="settings_logout_dialog_title">Uitloggen</string>
+    <string name="settings_logout_dialog_message">Weet je zeker dat je uit wilt loggen?</string>
+    <string name="settings_logout_dialog_confirm">Uitloggen</string>
+    <string name="settings_delete_account_dialog_title">Account Opzeggen</string>
+    <string name="settings_delete_account_message">Bevestig met je wachtwoord de opzegging van je account</string>
+    <string name="settings_delete_account_password_hint">Wachtwoord</string>
+    <string name="settings_delete_account_confirm">ACCOUNT OPZEGGEN</string>
+    <string name="settings_delete_account_cancel">ANNULEREN</string>
+    <string name="settings_error_dialog_title">Fout</string>
+    <string name="settings_review_flow_diagnostic_title">Beoordelingsflow Diagnose</string>
+    <string name="settings_review_flow_error_title">Beoordelingsflow Fout</string>
+    <string name="settings_avatar_content_description">Avatar</string>
+    <string name="settings_icon_content_description">Icoon</string>
+    <string name="supporter_title">Supporter worden</string>
+    <string name="supporter_header">Ondersteun de Android-app</string>
+    <string name="supporter_intro">Dit project is in 2015 ontstaan als hobby. Ondanks het geweldige aanbod van websites bestond er nog geen mobiele app van dezelfde kwaliteit. Het doel was om een vrije en opensource (FOSS) professionele Android-app te maken die GO spelers in staat stelt om dit fantastische spel te ontdekken.\n\nWij zijn niet geassocieerd met OGS, hoewel ze wel zo vriendelijk zijn om hun servers gratis beschikbaar te stellen voor ons.\n\nWe zijn afhankelijk van donaties van mensen zoals jij. Als je tevreden bent over deze app, overweeg dan alsjeblieft om ons te ondersteunen met een maandelijkse gift en word een Supporter!</string>
+    <string name="supporter_reason_develop_title">Help ons om de app sneller te ontwikkelen</string>
+    <string name="supporter_reason_develop_description">Supporters maken het mogelijk om meer tijd te steken in het ontwikkelen van nieuwe functionaliteit zoals KataGO-integratie, door AI ondersteunde analyse, een SGF-bewerker etc.</string>
+    <string name="supporter_reason_free_title">Hou deze app gratis</string>
+    <string name="supporter_reason_free_description">We willen deze app gratis aanbieden aan iedereen. Voor altijd. Zonder advertenties, gratis te downloaden, vrij van verplichte abonnementen.</string>
+    <string name="supporter_reason_open_source_title">Steun een opensourceproject</string>
+    <string name="supporter_reason_open_source_description">Deze app is opensource en zal dat altijd blijven. Dit betekent dat je de broncode kan inzien, bijdragen aan verbeteringen en bestuderen hoe het werkt.</string>
+    <string name="supporter_reason_promote_title">GO Promoten</string>
+    <string name="supporter_reason_promote_description">Met een professioneel ontwikkelde Android-app wordt het voor meer mensen makkelijker om dit fantastische spel te ontdekken.</string>
+    <string name="supporter_faqs">Veelgestelde vragen</string>
+    <string name="supporter_faq_money_question">Waar wordt het geld voor gebruikt?</string>
+    <string name="supporter_faq_money_answer">Het geld stelt onze ontwikkelaar, een zzp\'er die Android-apps bouwt, in staat om vrij te nemen tussen opdrachten door om aan dit project te werken. In de toekomst zou hij full-time kunnen werken in een veel hoger tempo.</string>
+    <string name="supporter_faq_features_question">Zijn er functionaliteiten speciaal voor Supporters?</string>
+    <string name="supporter_faq_features_answer">Nee, want wij geloven dat iedereen toegang moet hebben tot een professionele Android-app voor GO. Bijdragen zijn geheel vrijwillig.</string>
+    <string name="supporter_faq_cancel_question">Kan ik mijn abonnement wijzigen of opzeggen?</string>
+    <string name="supporter_faq_cancel_answer">Ja, te allen tijde, zowel via deze pagina als via de pagina \'Abonnementen\' in Google Play.</string>
+    <string name="supporter_faq_payment_question">Zijn er meer betaalmogelijkheden?</string>
+    <string name="supporter_faq_payment_answer">Apps die via Google Play worden verspreid zijn verplicht om Google Pay te gebruiken, zodat Google 15% van de opbrengsten kan innen. Het is ons niet toegestaan om een alternatief betaalmiddel in de app te vermelden.</string>
+    <string name="supporter_thank_you_title">Bedankt voor je bijdrage!</string>
+    <string name="supporter_current_contribution">"Je huidige bijdrage is "</string>
+    <string name="supporter_select_contribution">Kies je maandelijkse bijdrage</string>
+    <string name="supporter_update_amount">Bedrag aanpassen</string>
+    <string name="supporter_cancel_subscription">Abonnement opzeggen</string>
+    <string name="stats_rank_elo">%1$s · ELO %2$s</string>
+    <string name="stats_ranked_games">partijen met rating</string>
+    <string name="stats_win_rate">winstpercentage</string>
+    <string name="stats_current_streak">huidige reeks</string>
+    <string name="stats_recent_results">recente uitslagen</string>
+    <string name="stats_rating_over_games">Ratingverloop per partij</string>
+    <string name="stats_rating_over_time">Ratingverloop door de tijd</string>
+    <string name="stats_games_by_board_size">Gespeelde partijen per bordgrootte</string>
+    <string name="stats_games_by_time_controls">Gespeelde partijen per tijdsinstelling</string>
+    <string name="stats_played">Gespeeld</string>
+    <string name="stats_win_ratio_by_board_size">Winstpercentage per Bordgrootte</string>
+    <string name="stats_win_ratio_by_time_controls">Winstpercentage per Tijdsinstelling</string>
+    <string name="stats_win_ratio_by_colour">Winstpercentage per kleur</string>
+    <string name="stats_board_9">9×9</string>
+    <string name="stats_board_13">13×13</string>
+    <string name="stats_board_19">19×19</string>
+    <string name="stats_blitz">Blitz</string>
+    <string name="stats_live">Live</string>
+    <string name="stats_correspondence_short">Corresp.</string>
+    <string name="stats_correspondence">Correspondentie</string>
+    <string name="stats_all_games">Alle partijen</string>
+    <string name="stats_black">Zwart</string>
+    <string name="stats_white">Wit</string>
+    <string name="stats_won_lost">%1$d gewonnen · %2$d verloren</string>
+    <string name="stats_no_streak">-</string>
+    <plurals name="stats_streak_wins">
+        <item quantity="one">%d gewonnen</item>
+        <item quantity="other">%d gewonnen</item>
+    </plurals>
+    <plurals name="stats_streak_losses">
+        <item quantity="one">%d verloren</item>
+        <item quantity="other">%d verloren</item>
+    </plurals>
+    <string name="stats_no_ranked_games">Geen partijen met rating</string>
+    <string name="stats_filter_1m">1M</string>
+    <string name="stats_filter_3m">3M</string>
+    <string name="stats_filter_1y">1J</string>
+    <string name="stats_filter_5y">5J</string>
+    <string name="stats_filter_all">Alles</string>
+    <string name="stats_filter_last_20">Laatste 20</string>
+    <string name="stats_filter_last_100">Laatste 100</string>
+    <string name="stats_tooltip_elo_rank">%1$d ELO (%2$s)</string>
+    <string name="stats_tooltip_at_game">bij Partij %1$d</string>
+    <string name="stats_tooltip_on_date">op %1$s</string>
+    <string name="stats_tooltip_delta_elo">%1$d ELO</string>
+    <string name="stats_tooltip_since_game">vanaf Partij %1$d</string>
+    <string name="stats_tooltip_since_date">vanaf %1$s</string>
+    <string name="puzzle_directory_title">Puzzels</string>
+    <string name="puzzle_directory_recently_opened">Recent geopend</string>
+    <string name="puzzle_directory_rating_count">(%1$s)</string>
+    <string name="puzzle_directory_by_author">door %1$s %2$s</string>
+    <string name="puzzle_directory_count_label">Aantal</string>
+    <plurals name="puzzle_directory_puzzle_count">
+        <item quantity="one">%d puzzel</item>
+        <item quantity="other">%d puzzels</item>
+    </plurals>
+    <string name="puzzle_directory_rank_label">Niveau</string>
+    <string name="puzzle_directory_rank_range">%1$s tot %2$s</string>
+    <string name="puzzle_directory_solved_label">Opgelost</string>
+    <string name="puzzle_directory_solved_value">%1$d (%2$.1f%%)</string>
+    <string name="puzzle_directory_completed">Voltooid</string>
+    <string name="puzzle_directory_stats">%1$s weergaven, %2$s keer opgelost van %3$s keer (%4$s %%)</string>
+    <string name="puzzle_directory_sort_name">A -&gt; Z</string>
+    <string name="puzzle_directory_sort_rating">Beoordeling</string>
+    <string name="puzzle_directory_sort_count">Aantal puzzels</string>
+    <string name="puzzle_directory_sort_views">Weergaven</string>
+    <string name="puzzle_directory_sort_rank">Niveau</string>
+    <string name="tsumego_title">Tsumego</string>
+    <string name="tsumego_title_with_name">Tsumego: %1$s</string>
+    <string name="tsumego_board_content_description">Bord</string>
+    <string name="tsumego_solved_content_description">Opgelost</string>
+    <string name="tsumego_previous">VORIGE</string>
+    <string name="tsumego_hint">HINT</string>
+    <string name="tsumego_next">VOLGENDE</string>
+    <string name="tsumego_retry">OPNIEUW PROBEREN</string>
+    <string name="tsumego_continue">DOORGAAN</string>
+    <string name="tsumego_done">KLAAR</string>
+    <string name="onboarding_link_account">Verbind je OGS-account</string>
+    <string name="onboarding_create_account">Maak een OGS account aan</string>
+    <string name="onboarding_login_failed_title">Inloggen mislukt</string>
+    <string name="onboarding_stay_offline_title">Offline blijven?</string>
+    <string name="onboarding_stay_offline_message">Als je ervoor kiest om offline te blijven zullen de meeste functionaliteiten, zoals gratis online partijen tegen mensen en bots, niet mogelijk zijn totdat je inlogt of een account aanmaakt. Je kan wel spelen tegen een lokale AI of de lessen volgen. Weet je het zeker?</string>
+    <string name="onboarding_stay_offline_confirm">Ja, offline blijven</string>
+    <string name="onboarding_continue">Doorgaan</string>
+    <string name="onboarding_page_go_title">Het Spel GO</string>
+    <string name="onboarding_page_go_description">Go is een strategisch bordspel voor twee spelers, waarin het doel is om meer gebied te omsingelen dan je tegenstander. Het spel werd meer dan 2500 jaar geleden uitgevonden in China en is het oudste bordspel dat nog steeds gespeeld wordt. Naar schatting weten meer dan 46 miljoen mensen hoe je het moet spelen.</string>
+    <string name="onboarding_page_app_title">Online GO Android-app</string>
+    <string name="onboarding_page_app_description">Deze app begon al in 2015 als een persoonlijk project van Alexandru Cristescu. Het is nu opensource, wat betekent dat de code openbaar is en door iedereen aan te passen. De app is gratis en zal dat altijd blijven. Bijdragen zijn welkom. Lees over hoe je kan helpen op de GitHub-pagina van dit project. Als programmeren niet je ding is, kan je een Supporter worden met een maandelijkse gift. Of maak gewoon gratis gebruik van de app, de keuze is aan jou!</string>
+    <string name="onboarding_page_ogs_title">OGS-Server</string>
+    <string name="onboarding_page_ogs_description">De OGS-Server is een van de meest populaire websites om GO online te spelen. De Online GO Android-app gebruikt de diensten van OGS om online te kunnen spelen. Hoewel we niet geassocieerd zijn met OGS, hebben we toestemming om die diensten te gebruiken. Een (gratis) OGS-account is nodig om te kunnen spelen. Je kan er een aanmaken in de volgende stap als je er nog geen hebt.</string>
+    <string name="onboarding_question_has_account">Heb je al een OGS-account? (online-go.com)</string>
+    <string name="onboarding_question_login_method">Welke methode wil je gebruiken om in te loggen?</string>
+    <string name="onboarding_answer_google">Inloggen met Google</string>
+    <string name="onboarding_answer_password">Gebruikersnaam en wachtwoord</string>
+    <string name="onboarding_answer_offline">Offline blijven</string>
+    <string name="onboarding_notifications_title">Op De Hoogte Blijven</string>
+    <string name="onboarding_notifications_description">We sturen je graag een melding als het jouw beurt is, er een partij voorbij is, of als je chatberichten ontvangt. Je kan dit altijd nog aanpassen in de apparaatinstellingen.</string>
+    <string name="onboarding_notifications_allow">Sta meldingen toe</string>
+    <string name="onboarding_notifications_skip">Overslaan</string>
+    <string name="new_challenge_opponent">Tegenstander</string>
+    <string name="new_challenge_your_color">Jouw kleur</string>
+    <string name="new_challenge_board_size">Bordgrootte</string>
+    <string name="new_challenge_analysis">Analyse</string>
+    <string name="new_challenge_speed">Snelheid</string>
+    <string name="new_challenge_ranked">Met rating</string>
+    <string name="new_challenge_private">Privé</string>
+    <string name="new_challenge_send">Uitdagen</string>
+    <string name="new_challenge_select_opponent">[Kies een Tegenstander]</string>
+    <string name="select_opponent_tab_bot">Bot</string>
+    <string name="select_opponent_tab_recent">Recent</string>
+    <string name="select_opponent_bots_title">Online Bots</string>
+    <string name="select_opponent_bots_description">Online Bots zijn AI-programma\'s die worden uitgevoerd en onderhouden door communityleden op hun kosten. Om ertegen te spelen moet je verbonden zijn met het internet.</string>
+    <string name="select_opponent_icon_content_description">Icoon tegenstander</string>
+    <string name="select_opponent_recent_title">Recente tegenstanders</string>
+    <string name="select_opponent_recent_description">Dit is een greep uit tegenstanders (zowel bots als mensen) waartegen je recentelijk hebt gespeeld.</string>
+    <string name="select_opponent_search_hint">Zoek op gebruikersnaam</string>
+    <string name="automatch_title">Auto-match</string>
+    <string name="automatch_description">Waag een partij tegen een menselijke tegenstander met een vergelijkbare rating.</string>
+    <string name="automatch_game_size">Bordgrootte</string>
+    <string name="automatch_size_9">9×9</string>
+    <string name="automatch_size_13">13×13</string>
+    <string name="automatch_size_19">19×19</string>
+    <string name="automatch_time_controls">Tijdsinstelling</string>
+    <string name="automatch_speed_blitz">Blitz</string>
+    <string name="automatch_speed_rapid">Snel</string>
+    <string name="automatch_speed_live">Live</string>
+    <string name="automatch_speed_correspondence">Correspondentie</string>
+    <string name="automatch_or">of</string>
+    <string name="automatch_expected_duration">Verwachte speeltijd: %1$s</string>
+    <string name="automatch_duration_several_days">enkele dagen</string>
+    <plurals name="automatch_duration_minutes">
+        <item quantity="one">%d minuut</item>
+        <item quantity="other">%d minuten</item>
+    </plurals>
+    <string name="automatch_duration_minutes_range">%1$d tot %2$d minuten</string>
+    <string name="mygames_moderator_title">OGS-Moderator %1$s</string>
+    <string name="mygames_empty_message">Leeg bericht</string>
+    <string name="mygames_acknowledge">Bevestigen</string>
+    <string name="mygames_acknowledge_countdown">Bevestigen (%1$ds)</string>
+    <string name="mygames_header_your_turn">Jouw beurt</string>
+    <string name="mygames_header_challenges">Uitdagingen</string>
+    <string name="mygames_header_opponents_turn">Tegenstander aan de beurt</string>
+    <string name="mygames_header_recently_finished">Onlangs afgerond</string>
+    <string name="mygames_header_older_games">Eerdere partijen</string>
+    <string name="mygames_tutorial_percentage">%1$d %%</string>
+    <string name="mygames_learn_to_play">Leer GO spelen</string>
+    <string name="mygames_header_icon_content_description">Icoon</string>
+    <string name="mygames_offline_content_description">Offline</string>
+    <string name="mygames_avatar_content_description">Avatar</string>
+    <string name="mygames_searching_for_game">Er wordt een partij gezocht</string>
+    <string name="mygames_challenge_you_are_challenging">Je daagt %1$s uit</string>
+    <string name="mygames_challenge_is_challenging_you">%1$s daagt je uit</string>
+    <string name="mygames_accept">Aanvaarden</string>
+    <string name="mygames_decline">Afwijzen</string>
+    <string name="mygames_see_details">Details Bekijken</string>
+    <string name="mygames_challenge_received">Je bent uitgedaagd!</string>
+    <string name="mygames_paused">gepauzeerd</string>
+    <string name="mygames_outcome_cancelled">Afgezegd</string>
+    <string name="mygames_outcome_lost">Verloren</string>
+    <string name="mygames_outcome_won">Gewonnen</string>
+    <string name="mygames_outcome_black_won">Zwart wint</string>
+    <string name="mygames_outcome_white_won">Wit wint</string>
+    <string name="mygames_outcome_annulled">Ongeldig verklaard</string>
+    <string name="mygames_outcome_lost_with_reason">Verloren %1$s</string>
+    <string name="mygames_outcome_won_with_reason">Gewonnen %1$s</string>
+    <string name="mygames_outcome_black_won_with_reason">Zwart heeft gewonnen %1$s</string>
+    <string name="mygames_outcome_white_won_with_reason">Wit heeft gewonnen %1$s</string>
+    <string name="mygames_outcome_reason_resignation">door opgave</string>
+    <string name="mygames_outcome_reason_points">met %1$s punten</string>
+    <string name="mygames_outcome_reason_timeout">op tijd</string>
+    <string name="mygames_outcome_reason_disconnection">door een verbroken verbinding</string>
+    <string name="mygames_outcome_reason_other">door %1$s</string>
+    <string name="mygames_greeting">Hoi %1$s,</string>
+    <plurals name="mygames_your_turn_count">
+        <item quantity="one">Het is jouw beurt in %d partij.</item>
+        <item quantity="other">Het is jouw beurt in %d partijen.</item>
+    </plurals>
+    <plurals name="mygames_active_games_count">
+        <item quantity="one">Je hebt %d actieve partij.</item>
+        <item quantity="other">Je hebt %d actieve partijen.</item>
+    </plurals>
+    <string name="mygames_no_active_games">Je hebt geen actieve partijen. Wil je er eentje beginnen?</string>
+    <string name="mygames_detail_board_size">Bordgrootte</string>
+    <string name="mygames_detail_speed">Snelheid</string>
+    <string name="mygames_detail_ranked">Met rating</string>
+    <string name="mygames_detail_analysis">Analyse</string>
+    <string name="mygames_detail_rules">Regels</string>
+    <string name="mygames_alert_bot_rejected_title">Uitdaging afgewezen door bot</string>
+    <string name="mygames_alert_bot_rejected_text">Dit kan liggen aan bepaalde voorwaarden die de beheerder van deze tegenstander stelt aan de instellingen van de uitdaging.</string>
+    <string name="mygames_alert_opponent_rejected_title">Uitdaging afgewezen door tegenstander</string>
+    <string name="mygames_alert_opponent_rejected_text">Je mag het opnieuw proberen of de tegenstander om een reden vragen voor de afwijzing.</string>
+    <string name="mygames_alert_ogs_error_title">Fout met OGS</string>
+    <string name="mygames_alert_ogs_error_text">Een fout trad op tijdens de communicatie met de OGS-Server. Dit ligt meestal aan een aanpassing van de API door de devs. Stel ons alsjeblieft op de hoogte, want de app zal waarschijnlijk niet werken totdat we ons aanpassen op deze verandering.</string>
+    <string name="mygames_alert_game_unavailable">Deze partij is niet beschikbaar.</string>
+    <string name="mygames_alert_one_live_game">Je mag maar één live, snelle of blitzpartij tegelijk zoeken.</string>
+    <string name="mygames_message_prefix">Het bericht:</string>
+    <string name="learn_section_tutorials">Lessen</string>
+    <string name="learn_section_study">Studie</string>
+    <string name="learn_title_learn">Leren</string>
+    <string name="learn_study_title_joseki_explorer">Josekiverkenner</string>
+    <string name="earn_study_title_puzzles">Puzzels</string>
+    <string name="learn_tutorial_checkbox_done">Klaar</string>
+    <string name="learn_tutorial_checkboxoutlineblank_done">Klaar</string>
+    <string name="joseki_explorer_title">Josekiverkenner</string>
+    <string name="joseki_explorer_button_tenuki">Tenuki</string>
+    <string name="joseki_explorer_button_previous">Vorige</string>
+    <string name="joseki_explorer_button_next">Volgende</string>
+    <string name="joseki_explorer_link_video">" (video)"</string>
+    <string name="joseki_explorer_link_external">" (externe link)"</string>
+    <string name="joseki_explorer_default_description"><![CDATA["## Josekiverkenner
+*Joseki* is een Japans leenwoord, dat normaal gesproken slaat op standaard zettenreeksen in een hoek van het bord die een lokaal gelijkwaardige positie opleveren.
+### Hoe gebruik je de Josekiverkenner
+De markeringen hieronder tonen interessante vervolgzetten vanuit de huidige positie. De kleuren geven aan hoe goed een zet wordt beschouwd:
+* Groene zetten zijn de beste
+* Gele zetten zijn prima
+* Rode zetten zijn slecht
+* Paarse zetten zijn trucs
+* Blauwe voor open vragen
+Je kan elk van deze interessante zetten aantikken om te ontdekken waar het naartoe gaat.
+### Tenuki
+Soms is de beste reactie om elders op het bord te spelen. Dit noem je *tenuki*. Als voor een positie tenuki een interessante optie is wordt de pasknop linksonderin beschikbaar en kan je die aantikken om te ontdekken wat er kan gebeuren als de huidige speler tenuki speelt."]]></string>
+    <string name="tutorial_basics_title">Basis</string>
+    <string name="tutorial_basics_thebasics_title">De Basis</string>
+    <string name="tutorial_basics_thebasics_basic1_text"><![CDATA[Onthoud de volgende drie regels:
+1. Zwart en Wit plaatsen om de beurt een "steen" op het bord.
+2. Stenen plaats je waar de lijnen elkaar kruisen.
+3. Een geplaatste steen mag niet verplaatst worden, maar kan wel geslagen worden.
+
+Plaats een steen om te beginnen!]]></string>
+    <string name="tutorial_basics_thebasics_capture1_page1_text"><![CDATA[Met nog maar één zet is de witte steen compleet omsingeld en wordt deze geslagen. Stenen die binnen één zet geslagen kunnen worden zijn in "Atari".]]></string>
+    <string name="tutorial_basics_thebasics_capture1_page2_text"><![CDATA[De witte steen is nu omsingeld, dus…]]></string>
+    <string name="tutorial_basics_thebasics_capture1_page3_text"><![CDATA["… hij wordt van het bord genomen"]]></string>
+    <string name="tutorial_basics_thebasics_capture1_page4_text"><![CDATA["Als wit aan zet was, zou het kunnen \"vluchten\" door nog een steen aan te sluiten."]]></string>
+    <string name="tutorial_basics_thebasics_capture2_text">Jouw beurt! Sla de witte steen.</string>
+    <string name="tutorial_basics_thebasics_capture3_text">Dit keer kan je twee stenen tegelijk slaan!</string>
+    <string name="tutorial_basics_thebasics_capture4_text">Ook als er andere stenen in de buurt liggen, doe je gewoon hetzelfde.</string>
+    <string name="tutorial_basics_capturingstones_title">Stenen slaan</string>
+    <string name="tutorial_basics_capturingstones_capture5_text">Aan de rand van het bord werkt het iets anders. Stenen die aan de rand liggen hebben minder vrijheden en zijn makkelijker te slaan.</string>
+    <string name="tutorial_basics_capturingstones_capture5_branches2_text">De witte stenen zijn verbonden.</string>
+    <string name="tutorial_basics_capturingstones_capture6_text">Stenen in de hoek zijn nog kwetsbaarder.</string>
+    <string name="tutorial_basics_capturingstones_capture7_text">Nu liggen twee stenen in atari. Sla ze!</string>
+    <string name="tutorial_basics_capturingstones_capture8_text">Dit keer moet je twee zetten doen om de witte stenen te slaan. Voorzichtig, je eerste zet is belangrijk!</string>
+    <string name="tutorial_basics_capturingstones_capture9_text"><![CDATA["Aan de rand is het lastig om te vluchten. Sla de twee witte stenen op de eerste rij!"]]></string>
+    <string name="tutorial_basics_capturingstones_capture10_text">Wat veel stenen! Zoek de stenen die in Atari liggen, en sla deze. Als je dit fout doet, worden jouw stenen geslagen.</string>
+    <string name="tutorial_basics_doubleatari_title">Dubbele Atari</string>
+    <string name="tutorial_basics_doubleatari_doubleAtari1_text"><![CDATA[In bepaalde posities kan zwart twee verschillende witte groepen tegelijk in Atari zetten. Zwart kan dan meestal minstens één van die groepen slaan!]]></string>
+    <string name="tutorial_basics_doubleatari_doubleAtari2_text"><![CDATA["Hier is er nog één. Waar kan zwart een dubbele Atari veroorzaken?"]]></string>
+    <string name="tutorial_basics_illegalmoves_title">Verboden zetten (het zelfmoordverbod)</string>
+    <string name="tutorial_basics_illegalmoves_suicide1_page_1_text">Je mag overal op het bord spelen, met een paar uitzonderingen. In het voorbeeld hieronder mag zwart geen steen op A zetten, want dan zou deze steen direct omsingeld zijn.</string>
+    <string name="tutorial_basics_illegalmoves_suicide1_page_2_text"><![CDATA[Dit noem je "zelfmoord" en dat is verboden.]]></string>
+    <string name="tutorial_basics_illegalmoves_suicide1_page_3_text">Er is wel een uitzondering. Als een zet één of meerdere witte stenen zou slaan (zoals op B) dan is die zet wel toegestaan.</string>
+    <string name="tutorial_basics_illegalmoves_suicide1_page_4_text">Dit is dan het gevolg:</string>
+    <string name="tutorial_basics_illegalmoves_suicide2_text"><![CDATA["Jouw beurt om weer wat stenen te slaan! Hint: het lijkt op het eerste gezicht misschien een verboden zet…"]]></string>
+    <string name="tutorial_basics_illegalmoves_suicide3_text">De vier zwarte stenen liggen in Atari! Sla de witte stenen voordat ze jou slaan!</string>
+    <string name="tutorial_basics_illegalmoves_suicide4_text"><![CDATA["Sla de twee witte stenen die tegen de zwarte aanliggen. Nu kan je wit niet met één zet slaan."]]></string>
+    <string name="tutorial_basics_illegalmoves_suicide5_text">De witte steen op D5 scheidt jouw stenen. Als je de steen slaat dan kan je jouw stenen verbinden om een sterke groep te maken. Dit is een erg belangrijk patroon in GO!</string>
+    <string name="tutorial_intermediate_title">Halfgevorderd</string>
+    <string name="tutorial_intermediate_ladders_title">Trappen</string>
+    <string name="tutorial_intermediate_ladders_ladder1_text">Sla de witte steen! Als je de juiste zetten doet kan wit niet ontsnappen. Probeer opeenvolgende Atari\'s te maken totdat wit nergens meer heen kan.</string>
+    <string name="tutorial_intermediate_ladders_ladder1_branches_branch1_message">Wit probeert te vluchten…</string>
+    <string name="tutorial_intermediate_ladders_ladder1_branches_branch1_1_1_1_1_message">Zie je al waar dit naartoe gaat?</string>
+    <string name="tutorial_intermediate_ladders_ladder1_branches_branch1_1_1_1_1_1_1_1_1_message">Als wit probeert tegen te werken…</string>
+    <string name="tutorial_intermediate_ladders_ladder1_branches_branch1_1_1_1_1_1_1_2_1_message">Als wit probeert tegen te werken…</string>
+    <string name="tutorial_intermediate_ladders_ladder1_branches_branch1_1_1_1_1_1_1_2_2_message">Als wit probeert tegen te werken…</string>
+    <string name="tutorial_intermediate_ladders_ladder2_text"><![CDATA["Hier is nog zo'n trap. En nu is het jouw beurt om te ontsnappen. De situatie is dit keer niet hopeloos. Jouw steen op F2 ligt in de weg van de trap. Als je daarnaartoe kunt komen ben je veilig. Zo'n steen noem je een \"trappenbreker\""]]></string>
+    <string name="tutorial_intermediate_ladders_ladder3_page1_text">Trappen zijn erg belangrijk bij GO. Maar je moet meerdere zetten vooruitdenken en geen trappenstrijd beginnen tenzij je zeker weet dat je kan winnen! Dit is wat er gebeurt als Wit de verliezende trap uit het vorige voorbeeld uitspeelt\.\.\.</string>
+    <string name="tutorial_intermediate_twoeyes_title">Twee Ogen</string>
+    <string name="tutorial_intermediate_twoeyes_twoeyes1_text">Je bent volledig omsingeld! Welke zet is je enige redding?</string>
+    <string name="tutorial_intermediate_twoeyes_twoeyes2_page1_text">Juist! In deze positie zijn zowel A als B verboden voor wit omdat het zelfmoordzetten zijn die geen stenen van jou slaan. Daarom kan jouw groep nooit geslagen worden!</string>
+    <string name="tutorial_intermediate_twoeyes_twoeyes3_text"><![CDATA["En nu? Hoe kan je er nu voor zorgen dat je stenen niet geslagen worden?"]]></string>
+    <string name="tutorial_intermediate_captureraces_title">Vrijhedenstrijd</string>
+    <string name="tutorial_intermediate_captureraces_capturerace1_text">In deze puzzel zijn zowel de zwarte als witte groepen in het midden bovenaan omsingeld. Omdat geen van beiden twee ogen heeft kunnen ze elkaars groep proberen te slaan. Dit noem je een vrijhedenstrijd (semeai) want meestal wint degene met meer vrijheden. In dit geval hebben beide groepen drie vrijheden, dus degene die aan de beurt is wint.\n\nSla de witte stenen!</string>
+    <string name="tutorial_intermediate_captureraces_capturerace2_text"><![CDATA["Hier heb je nog zo'n semeai. Win de strijd en sla de witte stenen!"]]></string>
+    <string name="tutorial_intermediate_captureraces_capturerace3_text">Red de zwarte stenen in de hoek!</string>
+    <string name="tutorial_intermediate_snapback_title">Terugslag</string>
+    <string name="tutorial_intermediate_snapback_snapback1_text">Je gaat nu de techniek leren die \"terugslag\" wordt genoemd. Sla de vier witte stenen!\n\nHint: je zal eerst een steen moeten opofferen!</string>
+    <string name="tutorial_intermediate_snapback_snapback2_text">Zoals je ziet kan je soms door wit te dwingen een steen van jou te slaan atari veroorzaken. Gebruik hier dezelfde techniek!</string>
+    <string name="tutorial_intermediate_snapback_snapback3_text">Hier heb je nog zo\'n terugslag aan de rand van het bord.</string>
+    <string name="tutorial_intermediate_ko_title">KO - de regel van \"geen herhalingen\"</string>
+    <string name="tutorial_intermediate_ko_ko_page_1_text"><![CDATA["Nu gaan we kijken naar de laatste regel die je moet kennen om GO te kunnen spelen: de KO regel. Deze regel verbiedt zetten die een eerdere positie herhalen.
+Laten we een voorbeeld bekijken. De witte steen op E6 ligt in Atari. Dus zwart kan hem slaan."]]></string>
+    <string name="tutorial_intermediate_ko_ko_page_2_text"><![CDATA["Nu ligt de zwarte steen op F6 in Atari. Zonder de KO-regel zou wit mogen slaan, maar als wit dat doet…"]]></string>
+    <string name="tutorial_intermediate_ko_ko_page_3_text"><![CDATA["… bereiken we dezelfde positie als hiervoor! En zonder KO-regel, zal zwart natuurlijk wéér slaan…"]]></string>
+    <string name="tutorial_intermediate_ko_ko_page_4_text"><![CDATA["… en zitten we in een oneindige lus. Om dit te voorkomen verbiedt de KO-regel de terugslag op E6, en zal wit eerst elders moeten spelen."]]></string>
+    <string name="tutorial_intermediate_ko_ko_page_5_text"><![CDATA["Nu kan zwart de steen in Atari redden als zij E6 speelt…]]></string>
+    <string name="tutorial_intermediate_ko_ko_page_6_text">Zwart heeft deze KO-strijd dus gewonnen, maar merk wel op dat wit weer aan zet is. Wit heeft dus twee zetten gekregen voor de prijs van die ene steen.</string>
+    <string name="tutorial_intermediate_ko_ko_page_7_text">Die twee gratis zetten kunnen soms meer punten waard zijn dan het winnen van de KO-strijd. Daarom zullen beide spelers steeds bepalen of het waardevol is om de KO-strijd voort te zetten of voor de extra zetten te gaan.</string>
+    <string name="tutorial_intermediate_ko_ko_page_8_text">Hoe kan dit in een echte partij gebeuren? Hier heb je een voorbeeld. Zowel zwart als wit hebben bovenaan een kwetsbare groep van vijf stenen. De enig manier voor zwart om haar groep te redden is met een zet op E8. Een KO-strijd is ontstaan!</string>
+    <string name="tutorial_intermediate_ko_ko_page_9_text">De vijf stenen van wit liggen nu in Atari, maar hij kan niet terugslaan op D8 omdat dat de vorige positie zou herhalen! Daarom speelt wit een zet elders die Zwart niet kan negeren, zoals E2</string>
+    <string name="tutorial_intermediate_ko_ko_page_10_text">Nu zijn de acht zwarte stenen linksonderin in gevaar, dus zwart rekent uit: verliest ze liever acht stenen onderin of de vijf bovenaan? Met tegenzin kiest zwart om de KO-strijd voort te zetten om de stenen onderin te redden met E1</string>
+    <string name="tutorial_intermediate_ko_ko_page_11_text">Wit neemt nu de KO terug</string>
+    <string name="tutorial_intermediate_ko_ko_page_12_text"><![CDATA["Nu is zwart aan zet, maar ze mag niet terugslaan vanwege de KO-regel. Ze heeft nog wel een kans: een zet op B4 bedreigt de witte groep onderaan!"]]></string>
+    <string name="tutorial_intermediate_ko_ko_page_13_text">Nu is het aan wit om te kiezen. Slaat hij de vijf stenen bovenin met B9 of beschermt hij de zes stenen onderin? Hij kiest voor A4\.\.\.</string>
+    <string name="tutorial_intermediate_ko_ko_page_14_text">Zwart hoeft er nu niet lang over na te denken om E8 te spelen\.\.\.</string>
+    <string name="tutorial_intermediate_ko_ko_page_15_text">Met tegenzin ziet wit dat hij geen goede dreigingen meer heeft. Hij speelt elders, zoals F4 en verliest de KO-strijd.</string>
+    <string name="tutorial_intermediate_ko_ko_page_16_text">Zwart int nu haar prijs bovenin door G9 te spelen</string>
+    <string name="tutorial_intermediate_ko_ko_page_17_text">Maak je geen zorgen als dit er ingewikkeld uitziet. Als beginner is het genoeg om te onthouden dat je niet direct terug mag slaan als je daarmee de vorige positie herhaalt.</string>
+    <string name="tutorial_intermediate_puzzles_title">Puzzels</string>
+    <string name="tutorial_intermediate_puzzles_puzzles1_text">Sla de drie witte stenen! Dit noem je ook wel een \"kraanvogelnest\"</string>
+    <string name="tutorial_intermediate_puzzles_puzzles2_text"><![CDATA["Hier zie je een vrijhedenstrijd, lukt het jou om te winnen?"]]></string>
+    <string name="tutorial_intermediate_puzzles_corner1_text"><![CDATA["Bij GO komt een strijd in de hoek vaak voor. Hier zie je een vrijhedenstrijd in een hoek. Lukt het jou om er sterker uit te komen?"]]></string>
+    <string name="tutorial_intermediate_puzzles_corner2_text"><![CDATA["Sla de witte steen die de zwarte stenen scheidt. Maar denk goed na vanaf welke kant je de Atari maakt!"]]></string>
+    <string name="tutorial_intermediate_puzzles_corner2_branches_branch1_4_4_message">Vier zwarte stenen zijn dood</string>
+    <string name="tutorial_intermediate_puzzles_corner2_branches_branch2_3_message">Drie zwarte stenen zijn dood</string>
+    <string name="tutorial_intermediate_puzzles_corner2_branches_branch2_5_message">Twee zwarte stenen zijn dood</string>
+    <string name="tutorial_intermediate_puzzles_corner2_branches_branch4_message"><![CDATA["Zwart kan niet ontsnappen"]]></string>
+    <string name="tutorial_intermediate_puzzles_corner2_branches_branch6_message"><![CDATA["Zwart kan niet ontsnappen"]]></string>
+    <string name="tutorial_intermediate_falseeyes_title">Nepogen</string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes1_page1_text"><![CDATA["Zoals je je misschien kan herinneren kan een groep met twee ogen nooit meer geslagen worden. Maar soms is een gedeelte van de stenen om een oog niet verbonden aan de rest van de groep en kunnen deze apart worden geslagen. Een voorbeeld zie je hieronder; D5 lijkt een oog te zijn, maar de steen op C5 ligt in Atari en kan geslagen worden waardoor er nog maar één oog overblijft.\n\nD5 is hier een \"nepoog\"."]]></string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes2_text"><![CDATA["Wit probeert zijn steen op C5 te redden met D5. Met welke zet versla je hem nu?"]]></string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes3_text"><![CDATA["Als wit op een andere manier probeert aan te vallen maakt dat niet uit. Je kan nog steeds de middelste groep slaan!"]]></string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes4_text"><![CDATA["Dit keer moet jij verdedigen. Overleef door twee echte ogen te maken!"]]></string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes4_branches_branch2_message">Je hebt je eigen oog opgevuld</string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes4_branches_branch3_message">Je hebt je eigen oog opgevuld</string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes4_branches_branch4_message">F4 is nu een nepoog</string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes5_text"><![CDATA["Beide ogen hebben nu aandacht nodig!"]]></string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes5_branches_branch1_2_message">F5 is nu een nepoog.</string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes5_branches_branch2_message">C5 is een nepoog.</string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes6_text"><![CDATA["Dit is een veelvoorkomende situatie voor een nepoog aan de rand. Corrigeer het!"]]></string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes6_branches_branch2_message">Je hebt je eigen oog opgevuld</string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes6_branches_branch3_message">D9 is nu een nepoog</string>
+    <string name="tutorial_intermediate_morepuzzles_title">Meer Puzzels</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles3_text">Voorkom dat je duizelig wordt.</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles4_text">Wat moet je eerst doen?</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_1_2_message">Zwarte groepen zijn gescheiden</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_2_message">Zwarte groepen zijn gescheiden</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_3_message">Zwarte groepen zijn gescheiden</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_4_message">Zwarte groepen zijn gescheiden</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_5_1_message">Zwart is afgezonderd</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_5_2_message">Zwart is afgezonderd</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_5_3_message">Zwart is afgezonderd</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_5_4_message">Zwart is afgezonderd</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_5_5_message">Zwart is afgezonderd</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_6_message">Zwart is afgezonderd</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles5_text">Versla de symmetrie</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles5_branches_branch3_4_message"><![CDATA["Drie zwarte stenen kunnen niet ontsnappen."]]></string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles5_branches_branch5_message"><![CDATA["Twee zwarte stenen kunnen niet ontsnappen"]]></string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles5_branches_branch6_message"><![CDATA["Twee zwarte stenen kunnen niet ontsnappen"]]></string>
+    <string name="tutorial_advanced_title">Gevorderd</string>
+    <string name="tutorial_advanced_thefirstmoves_name">De openingszetten</string>
+    <string name="tutorial_advanced_thefirstmoves_firstmoves1_page1_text"><![CDATA["Tot nu toe ging het vooral over het slaan van stenen. Maar aan het begin liggen er geen stenen op het bord. We gaan nu kijken naar openingszetten om je winstkans te vergroten.
+
+We onderscheiden drie gebieden op het bord. Dit zijn de hoeken:"]]></string>
+    <string name="tutorial_advanced_thefirstmoves_firstmoves1_page2_text"><![CDATA["… dit zijn de randen…"]]></string>
+    <string name="tutorial_advanced_thefirstmoves_firstmoves1_page3_text"><![CDATA["… en dit is het centrum. Dit zijn natuurlijk gewoon labels ter oriëntatie, er bestaan geen speciale regels voor."]]></string>
+    <string name="tutorial_advanced_thefirstmoves_firstmoves1_page4_text"><![CDATA["Het doel van het spel is om meer gebied te omsingelen dan je tegenstander. Omdat je om de beurt een steen neerlegt heb je allebei hetzelfde aantal stenen. De winnaar is dus degene die deze stenen zo effectief mogelijk inzet.
+
+Waar kan je het efficiënts gebied omsingelen: in de hoeken, aan de randen, of in het centrum?"]]></string>
+    <string name="tutorial_advanced_thefirstmoves_firstmoves1_page5_text"><![CDATA["Elke groep hieronder omsingelt precies negen kruispunten en levert dus negen punten op. Maar de groep in de hoek heeft maar zes stenen nodig, die aan de rand negen terwijl de groep in het midden er wel twaalf nodig heeft!"]]></string>
+    <string name="tutorial_advanced_thefirstmoves_firstmoves1_page6_text"><![CDATA["Goede spelers zullen daarom eerst in de hoeken spelen en pas zodra die bezet zijn verder gaan met de randen, en het centrum voor het laatst bewaren."]]></string>
+    <string name="tutorial_advanced_thefirstmoves_firstmoves2_text"><![CDATA["Hier zie je de eerste twintig zetten van een echte partij tussen twee professionele spelers."]]></string>
+    <string name="tutorial_advanced_themiddlegame_name">Het middenspel</string>
+    <string name="tutorial_advanced_themiddlegame_middlegame1_text"><![CDATA["Zwart ligt geblokkeerd linksonderin. De groep zal omsingeld worden als je er niets tegen doet."]]></string>
+    <string name="tutorial_advanced_themiddlegame_middlegame2_text"><![CDATA["Zwart blokkeert wit rechtsonderin. Wit heeft nog geen twee ogen. Toen speelde wit G2.
+
+Kijk eens wat er gebeurt als zwart reageert met F1 (of G1) voordat je het juiste antwoord vindt."]]></string>
+    <string name="tutorial_advanced_endgamescoring_name">Het eindspel: Puntentelling</string>
+    <string name="tutorial_advanced_endgamescoring_endgame1_page1_text"><![CDATA["Nu gaan we leren hoe je doorhebt wanneer een partij voorbij is en hoe je de eindstand bepaalt op een 5×5 bord. Beide spelers hebben vijf zetten gedaan, daarna hebben ze beiden gepast en is de partij dus voorbij. Nu hoeven we alleen nog de grootte van de gebieden te tellen.
+
+Tel hoeveel punten zwart heeft omsingeld. En doe hetzelfde voor wit.
+
+Hint: alle lege kruispunten tellen mee, ook die aan de rand of in de hoek. Maar kruispunten waar een steen op ligt dus niet."]]></string>
+    <string name="tutorial_advanced_endgamescoring_endgame1_page2_text"><![CDATA["Zwart heeft vijf punten aan de linkerkant en wit heeft er tien rechts.
+
+Dus wint wit met vijf punten."]]></string>
+    <string name="tutorial_advanced_endgamescoring_endgame1_page3_text"><![CDATA["Maar waarom speelde zwart dan niet gewoon verder?
+
+Nou kijk, er is geen enkele zet voor zwart die haar meer punten oplevert. Als zwart bijvoorbeeld de rechterzijde binnenvalt kan wit gemakkelijk verdedigen en is de nieuwe steen dood.
+
+Wit heeft dan zijn gebied met één punt verkleind, maar kreeg ook een punt vanwege zwarts dode steen die meegeteld wordt als gevangene.
+
+De eindstand is hier nog steeds 10-5"]]></string>
+    <string name="tutorial_advanced_endgamescoring_endgame1_page4_text"><![CDATA["Maar wat als zwart gewoon links speelt?
+
+Alles wat dat oplevert, is dat haar eigen gebied nu kleiner is. Dit kost zwart een punt.
+
+Zwart heeft dus geen enkele goede zet en past dus. Wit heeft al meer punten dus vindt het niet erg om ook te passen.
+
+De partij is dus voorbij en wit wint."]]></string>
+    <string name="tutorial_advanced_endgamescoring_endgame1_page5_text"><![CDATA["Hier zie je nog een partij die voorbij is. Zwart heeft vijf punten, en wit heeft er zes.
+
+De twee kruispunten in het centrum zijn neutraal gebied ('Dame') en tellen niet mee voor de punten.
+
+Elk van de spelers kan daar wel een zet doen, maar dit heeft geen effect op de eindstand."]]></string>
+    <string name="tutorial_advanced_endgamescoring_endgame1_page6_text"><![CDATA["Gebied levert verreweg de meeste punten op, onthoud wel dat er ook andere bonuspunten opgeteld dienen te worden.
+
+Elke geslagen steen levert ook een punt op, net als 'dode' stenen die nog op het bord liggen (groepen die geen kans meer maken op twee ogen).
+
+Daarnaast krijgt wit nog een compensatie omdat zwart begint. Deze bonus noem je 'komi'.
+
+De hoogte van de komi hangt af van de bordgrootte, maar is meestal 5,5 of 6,5 punten. Die halve punt voorkomt gelijkspel.
+
+Gelukkig doet de app al deze berekeningen voor je :)"]]></string>
+    <string name="tutorial_advanced_cuttingstones_name">Doorsnijden</string>
+    <string name="tutorial_advanced_cuttingstones_cutting1_text"><![CDATA["Het lijkt nu net of wit het grootste gebied heeft. Zijn muur heeft echter een zwakke plek, waar je gewoon kan "doorsnijden".
+
+Als je dat lukt moet wit erg zijn best doen om beide groepen nog te redden."]]></string>
+    <string name="tutorial_advanced_cuttingstones_cutting1_branches2_message">De witte stenen zijn verbonden.</string>
+    <string name="tutorial_advanced_cuttingstones_cutting2_text"><![CDATA["Zwart heeft 30 punten, en wit heeft er 31. Wit lijkt dus te winnen met één punt.
+Het gebied onderin is echter niet helemaal voor wit.
+
+Snij gewoon de witte muur door."]]></string>
+</resources>
