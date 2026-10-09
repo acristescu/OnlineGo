@@ -74,7 +74,7 @@ class FaceToFaceViewModel(
 
   init {
     analytics.logEvent("face_to_face_opened")
-    viewModelScope.launch(Dispatchers.IO) {
+    viewModelScope.launch {
       loadSavedData()
     }
   }
@@ -145,10 +145,13 @@ class FaceToFaceViewModel(
   }
 
   private suspend fun loadSavedData() {
-    val historyString = settingsRepository.faceToFaceHistoryFlow.first() ?: ""
-    val sizeString =
-      settingsRepository.faceToFaceBoardSizeFlow.first() ?: BoardSize.LARGE.prettyName
-    val handicap = settingsRepository.faceToFaceHandicapFlow.first() ?: 0
+    val (historyString, sizeString, handicap) = withContext(Dispatchers.IO) {
+      Triple(
+        settingsRepository.faceToFaceHistoryFlow.first() ?: "",
+        settingsRepository.faceToFaceBoardSizeFlow.first() ?: BoardSize.LARGE.prettyName,
+        settingsRepository.faceToFaceHandicapFlow.first() ?: 0,
+      )
+    }
 
     if (historyString.isNotEmpty()) {
       analytics.logEvent("face_to_face_loading")
@@ -162,12 +165,14 @@ class FaceToFaceViewModel(
       currentGameParameters = GameParameters(size, handicap)
       newGameParameters = currentGameParameters
     }
-    currentPosition = try {
-      historyPosition(history.lastIndex)
-    } catch (e: Exception) {
-      Logger.i("Cannot load history $history", tag = "FaceToFaceViewModel")
-      CrashReporter.recordException(e)
-      historyPosition(0)
+    currentPosition = withContext(Dispatchers.Default) {
+      try {
+        historyPosition(history.lastIndex)
+      } catch (e: Exception) {
+        Logger.i("Cannot load history $history", tag = "FaceToFaceViewModel")
+        CrashReporter.recordException(e)
+        historyPosition(0)
+      }
     }
     loading = false
     analytics.logEvent("face_to_face_loaded")
@@ -232,8 +237,10 @@ class FaceToFaceViewModel(
     }
     viewModelScope.launch(Dispatchers.Default) {
       val newPos = historyPosition(newIndex)
-      historyIndex = newIndex
-      currentPosition = newPos
+      withContext(Dispatchers.Main) {
+        historyIndex = newIndex
+        currentPosition = newPos
+      }
     }
   }
 
@@ -250,8 +257,10 @@ class FaceToFaceViewModel(
     }
     viewModelScope.launch(Dispatchers.Default) {
       val newPos = historyPosition(newIndex)
-      historyIndex = if (newIndex < history.lastIndex) newIndex else null
-      currentPosition = newPos
+      withContext(Dispatchers.Main) {
+        historyIndex = if (newIndex < history.lastIndex) newIndex else null
+        currentPosition = newPos
+      }
     }
   }
 
@@ -294,24 +303,26 @@ class FaceToFaceViewModel(
     viewModelScope.launch(Dispatchers.Default) {
       val pos = currentPosition
       val newPosition = RulesManager.makeMove(pos, pos.nextToMove, cell)
-      if (newPosition != null) {
-        val index = historyIndex ?: history.lastIndex
-        val potentialKOPosition = if (index > 0 && !cell.isPass) {
-          historyPosition(index - 1)
-        } else null
-        if (potentialKOPosition?.hasTheSameStonesAs(newPosition) == true) {
-          Logger.i("KO move detected", tag = "FaceToFaceViewModel")
-          koMoveDialogShowing = true
-        } else {
-          currentPosition = newPosition
-          history = history.subList(0, index + 1) + cell
-          historyIndex = null
-          if (index > 0 && cell.isPass && history[index].isPass) {
-            doEstimation()
+      val index = historyIndex ?: history.lastIndex
+      val potentialKOPosition = if (newPosition != null && index > 0 && !cell.isPass) {
+        historyPosition(index - 1)
+      } else null
+      withContext(Dispatchers.Main) {
+        if (newPosition != null) {
+          if (potentialKOPosition?.hasTheSameStonesAs(newPosition) == true) {
+            Logger.i("KO move detected", tag = "FaceToFaceViewModel")
+            koMoveDialogShowing = true
+          } else {
+            currentPosition = newPosition
+            history = history.subList(0, index + 1) + cell
+            historyIndex = null
+            if (index > 0 && cell.isPass && history[index].isPass) {
+              doEstimation()
+            }
           }
         }
+        candidateMove = null
       }
-      candidateMove = null
     }
   }
 }

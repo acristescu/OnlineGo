@@ -3,6 +3,7 @@ package io.zenandroid.onlinego.ui.screens.face2face
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import app.cash.molecule.RecompositionMode
 import app.cash.molecule.moleculeFlow
+import app.cash.turbine.ReceiveTurbine
 import app.cash.turbine.test
 import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.StoneType
@@ -79,52 +80,39 @@ class FaceToFaceViewModelTest {
       moleculeFlow(RecompositionMode.Immediate) {
         viewModel.molecule()
       }.test {
-        skipItems(1)
+        awaitState { !it.loading }
 
         viewModel.onAction(Action.BoardCellTapUp(Cell(3, 3)))
-
-        skipItems(1)
-        var item = awaitItem()
+        var item = awaitState { it.history.size == 1 }
         Assert.assertEquals(1, item.position?.blackStones?.size)
         Assert.assertEquals(0, item.position?.whiteStones?.size)
-        Assert.assertEquals(1, item.history.size)
         Assert.assertEquals(StoneType.WHITE, item.position?.nextToMove)
         Assert.assertEquals(6.5f, item.position?.komi)
 
         viewModel.onAction(Action.BoardCellTapUp(Cell(3, 2)))
-
-        skipItems(1)
-        item = awaitItem()
+        item = awaitState { it.history.size == 2 }
         Assert.assertEquals(1, item.position?.blackStones?.size)
         Assert.assertEquals(1, item.position?.whiteStones?.size)
-        Assert.assertEquals(2, item.history.size)
         Assert.assertEquals(StoneType.BLACK, item.position?.nextToMove)
 
         viewModel.onAction(Action.BoardCellTapUp(Cell(2, 2)))
-
-        skipItems(1)
-        item = awaitItem()
+        item = awaitState { it.history.size == 3 }
         Assert.assertEquals(2, item.position?.blackStones?.size)
         Assert.assertEquals(1, item.position?.whiteStones?.size)
-        Assert.assertEquals(3, item.history.size)
         Assert.assertEquals(StoneType.WHITE, item.position?.nextToMove)
 
-        viewModel.onAction(Action.BoardCellTapUp(Cell(2, 3)))
-        skipItems(2)
-        viewModel.onAction(Action.BoardCellTapUp(Cell(4, 2)))
-        skipItems(2)
-        viewModel.onAction(Action.BoardCellTapUp(Cell(3, 4)))
-        skipItems(2)
-        viewModel.onAction(Action.BoardCellTapUp(Cell(3, 1))) // capture move
-        skipItems(2)
-        viewModel.onAction(Action.BoardCellTapUp(Cell(4, 3)))
-        skipItems(2)
-        viewModel.onAction(Action.BoardCellTapUp(Cell(5, 2)))
-        skipItems(2)
-        viewModel.onAction(Action.BoardCellTapUp(Cell(3, 2))) // capture move
-
-        skipItems(1)
-        item = awaitItem()
+        listOf(
+          Cell(2, 3),
+          Cell(4, 2),
+          Cell(3, 4),
+          Cell(3, 1), // capture move
+          Cell(4, 3),
+          Cell(5, 2),
+          Cell(3, 2), // capture move
+        ).forEachIndexed { index, cell ->
+          viewModel.onAction(Action.BoardCellTapUp(cell))
+          item = awaitState { it.history.size == 4 + index }
+        }
         Assert.assertEquals(4, item.position?.blackStones?.size)
         Assert.assertEquals(4, item.position?.whiteStones?.size)
         Assert.assertEquals(1, item.position?.whiteCaptureCount)
@@ -133,17 +121,17 @@ class FaceToFaceViewModelTest {
         Assert.assertEquals(StoneType.BLACK, item.position?.nextToMove)
 
         viewModel.onAction(Action.BoardCellTapUp(Cell(3, 3))) // KO attempt
-        item = awaitItem()
+        item = awaitState { it.koMoveDialogShowing || it.history.size == 11 }
+        Assert.assertEquals(true, item.koMoveDialogShowing)
         Assert.assertEquals(4, item.position?.blackStones?.size)
         Assert.assertEquals(4, item.position?.whiteStones?.size)
         Assert.assertEquals(1, item.position?.whiteCaptureCount)
         Assert.assertEquals(1, item.position?.blackCaptureCount)
         Assert.assertEquals(10, item.history.size)
         Assert.assertEquals(StoneType.BLACK, item.position?.nextToMove)
-        Assert.assertEquals(true, item.koMoveDialogShowing)
 
         viewModel.onAction(Action.KOMoveDialogDismiss)
-        item = awaitItem()
+        item = awaitState { !it.koMoveDialogShowing }
         Assert.assertEquals(false, item.koMoveDialogShowing)
 
         cancel()
@@ -162,23 +150,31 @@ class FaceToFaceViewModelTest {
       moleculeFlow(RecompositionMode.Immediate) {
         viewModel.molecule()
       }.test {
-        skipItems(1)
+        awaitState { !it.loading }
 
-        viewModel.onAction(Action.NewGameParametersChanged(GameParameters(BoardSize.SMALL, 0)))
-        skipItems(1)
+        val parameters = GameParameters(BoardSize.SMALL, 0)
+        viewModel.onAction(Action.NewGameParametersChanged(parameters))
         viewModel.onAction(Action.StartNewGame)
-        var item = awaitItem()
-        skipItems(1)
-        moves.dropLast(1).forEach { cell ->
+        awaitState { it.currentGameParameters == parameters && it.position?.boardWidth == 9 }
+
+        moves.dropLast(1).forEachIndexed { index, cell ->
           viewModel.onAction(Action.BoardCellTapUp(cell))
-          skipItems(2)
+          awaitState { it.history.size == index + 1 }
         }
         viewModel.onAction(Action.BoardCellTapUp(moves.last()))
-        item = awaitItem()
-        Assert.assertEquals(item.koMoveDialogShowing, true)
-        Assert.assertEquals(item.history, moves.dropLast(1))
+        val item = awaitState { it.koMoveDialogShowing || it.history.size == moves.size }
+        Assert.assertEquals(true, item.koMoveDialogShowing)
+        Assert.assertEquals(moves.dropLast(1), item.history)
         cancel()
       }
     }
+  }
+
+  private suspend fun ReceiveTurbine<FaceToFaceState>.awaitState(
+    predicate: (FaceToFaceState) -> Boolean,
+  ): FaceToFaceState {
+    var item = awaitItem()
+    while (!predicate(item)) item = awaitItem()
+    return item
   }
 }
