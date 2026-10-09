@@ -244,6 +244,19 @@
         <item quantity="few">%d secunde</item>
         <item quantity="other">%d de secunde</item>
     </plurals>
+    <plurals name="clock_days">
+        <item quantity="one">%d zi</item>
+        <item quantity="few">%d zile</item>
+        <item quantity="other">%d zile</item>
+    </plurals>
+    <string name="clock_days_hours">%1$dz %2$do</string>
+    <string name="clock_hours">%1$do</string>
+    <string name="clock_hours_minutes">%1$do %2$02dm</string>
+    <string name="clock_minutes_seconds">%1$d : %2$02d</string>
+    <string name="clock_seconds">%1$02ds</string>
+    <string name="clock_tenths">%1$.1fs</string>
+    <string name="clock_canadian_period">+%1$s / %2$d</string>
+    <string name="clock_fischer_increment">+ %1$s / mutare</string>
     <string name="duration_two_units">%1$s %2$s</string>
     <string name="duration_unknown">\?</string>
     <string name="time_control_simple">Simplu: %1$s per mutare.</string>
