@@ -29,7 +29,7 @@
     <string name="ai_resign_offer_accept">Accepter l\'abandon</string>
     <string name="ai_resign_offer_decline">Continuer à jouer</string>
     <string name="ai_game_handicap_none">aucun</string>
-    <string name="ai_game_handicap_no_komi">sans komi</string>
+    <string name="ai_game_handicap_no_komi">pas de komi</string>
     <string name="ai_game_avatar_content_description">IA</string>
     <string name="ai_game_new">Nouvelle Partie</string>
     <string name="ai_game_pass">Passer</string>
@@ -62,6 +62,9 @@
     <string name="White">Blanc</string>
     <string name="handicap">Handicap</string>
     <string name="difficulty">Difficulté</string>
+    <string name="ai_game_rules">Règles</string>
+    <string name="ai_game_rules_japanese">Japonais</string>
+    <string name="ai_game_rules_chinese">Chinois</string>
     <string name="ai_game_difficulty_scale_hint">Kyu élevé= facile, dan = difficile</string>
     <string name="ai_game_difficulty_kyu">%1$d kyu</string>
     <string name="ai_game_difficulty_dan">%1$d dan</string>
