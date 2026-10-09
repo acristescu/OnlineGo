@@ -9,9 +9,8 @@ is no RxJava, no `Parcelable`, and Koin, Molecule, Room, DataStore, `ViewModel`,
 kotlinx-collections-immutable are already multiplatform. The cost is dominated by resources
 (663 strings x 16 locales) and the local-AI engine, which cannot run on iOS as built today.
 
-**Status.** Phase 0 is finished apart from one re-test: nineteen slices are done (section 6). None
-has shipped in a release yet, and several still need on-device checks (section 1.2). Phases 1-5
-have not started.
+**Status.** Phase 0 is finished: twenty slices are done (section 6). None has shipped in a release
+yet, and several still need on-device checks (section 1.2). Phases 1-5 have not started.
 
 Earlier, longer versions of this document:
 `git show d529259:docs/KMP_MIGRATION_ASSESSMENT.md` (original assessment) and
@@ -23,9 +22,6 @@ Earlier, longer versions of this document:
 
 ### 1.1 Phase 0 - de-coupling (Android-only, no KMP tooling)
 
-- [ ] **Re-test Material3's `ExposedDropdownMenu`.** If its `LazyColumn` performance problem is
-  fixed, `ui/composables/ScrollableDropDownMenu.kt` (671 LOC, raw `PopupWindow`, cannot be
-  ported) can be deleted instead of rewritten.
 - [ ] *Optional tidy:* add `= null` to the 129 nullable-without-default DTO properties. Behaviour is
   already covered by the `Json` config.
 
@@ -48,6 +44,9 @@ Still owed - unit tests cannot reach these:
   idle socket staying up past a minute, and logout sending `cleanup()` before the close frame.
 - [ ] **Game connection ref-counting** (6.15): open, leave and reopen a game; a game in the active
   list keeps receiving moves after its screen closes; chat turns on when the screen opens.
+- [ ] **Tsumego puzzle picker** (6.20): it opens scrolled to the current puzzle, thumbnails render
+  as rows scroll in, tapping a row selects it, and tapping outside, tapping the field again or
+  pressing back closes it without reopening.
 - [ ] **Type-safe navigation on a release (R8) build** (6.19): every tab, a game, a tutorial, a
   puzzle, onboarding via login and sign-up, and the deep link
   `adb shell am start -a android.intent.action.VIEW -d "sente://game/76828314/9/9"`. Check the
@@ -57,13 +56,13 @@ Still owed - unit tests cannot reach these:
 
 ### 1.3 Phases 1-5
 
-| Phase                                | Work                                                                                                                                                                                                                                                           | Estimate                        |
-|--------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------|
-| **1 - extract `:shared`**            | One library module holding `model`, `logic`, `network`, `database`, `data`. `:app` keeps the Activity, notifications, WorkManager, billing, Play services and UI. Surfaces every dependency cycle before KMP can muddy the diagnosis.                          | a few days                      |
-| **2 - make `:shared` multiplatform** | `androidTarget` + iOS targets; everything starts in `androidMain`. Move `model` + `logic` (~950 LOC) to `commonMain`, `RulesManagerTest` to `commonTest`. `RulesManager` still holds `androidx.core.util.lruCache` and the JNI estimator (4.1).                | 1-2 weeks (+1-2 for estimator)  |
-| **3 - data layer to `commonMain`**   | Room KMP (bundled SQLite driver, `expect`/`actual` DB path), DataStore on okio `Path`, Ktor engine per platform, repositories one file at a time. Session persistence is behind `SessionCookiePersistence`; the websocket has no JVM threading left.           | 4-6 weeks                       |
-| **4 - Compose Multiplatform**        | UI into `:shared/commonMain`. Resources (4.2), icons, chart, markdown, `ScrollableDropDownMenu`, Material You. `BoardComposable` has four Android leaks with direct CMP equivalents: `nativeCanvas.drawText`, `pointerInteropFilter`, `Rect`, `colorResource`. | 6-10 weeks (resources dominate) |
-| **5 - iOS app**                      | SwiftUI shell + `ComposeUIViewController`, notifications, background refresh, billing, Google sign-in, App Store plumbing. Bitrise needs a macOS stack.                                                                                                        | 4-8 weeks, excluding local AI   |
+| Phase                                | Work                                                                                                                                                                                                                                                 | Estimate                        |
+|--------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------|
+| **1 - extract `:shared`**            | One library module holding `model`, `logic`, `network`, `database`, `data`. `:app` keeps the Activity, notifications, WorkManager, billing, Play services and UI. Surfaces every dependency cycle before KMP can muddy the diagnosis.                | a few days                      |
+| **2 - make `:shared` multiplatform** | `androidTarget` + iOS targets; everything starts in `androidMain`. Move `model` + `logic` (~950 LOC) to `commonMain`, `RulesManagerTest` to `commonTest`. `RulesManager` still holds `androidx.core.util.lruCache` and the JNI estimator (4.1).      | 1-2 weeks (+1-2 for estimator)  |
+| **3 - data layer to `commonMain`**   | Room KMP (bundled SQLite driver, `expect`/`actual` DB path), DataStore on okio `Path`, Ktor engine per platform, repositories one file at a time. Session persistence is behind `SessionCookiePersistence`; the websocket has no JVM threading left. | 4-6 weeks                       |
+| **4 - Compose Multiplatform**        | UI into `:shared/commonMain`. Resources (4.2), icons, chart, markdown, Material You. `BoardComposable` has four Android leaks with direct CMP equivalents: `nativeCanvas.drawText`, `pointerInteropFilter`, `Rect`, `colorResource`.                 | 6-10 weeks (resources dominate) |
+| **5 - iOS app**                      | SwiftUI shell + `ComposeUIViewController`, notifications, background refresh, billing, Google sign-in, App Store plumbing. Bitrise needs a macOS stack.                                                                                              | 4-8 weeks, excluding local AI   |
 
 Estimates are order-of-magnitude, single developer. The one data point so far: the serialization
 slice came in on time only because the golden-JSON corpus was dropped, which moved verification
@@ -119,8 +118,7 @@ appears, or local AI needs Play Feature Delivery for its 265 MB of assets.
 
 **Stays Android-only by design:** `MainActivity` (edge-to-edge, deep links, `isInForeground`),
 Material You dynamic color (`expect`/`actual`), the window theme in `styles.xml` (the only reason
-the Material Components dependency exists), and `ScrollableDropDownMenu` unless Material3 makes it
-redundant.
+the Material Components dependency exists).
 
 ---
 
@@ -357,3 +355,16 @@ part of the estimator decision (4.1).
 - The bottom-bar tab list is the single source for both visibility and selection.
 - R8 keeps the route serializers (checked in `mapping.txt`), but a release build has not run on a
   device yet (1.2).
+
+### 6.20 `ScrollableDropDownMenu` on the standard `Popup`
+
+- The puzzle picker (`TsumegoUI`) keeps its own menu because it must be lazy: each row calls
+  `renderCollectionPuzzle` when it scrolls into view. Material3 1.4's `ExposedDropdownMenu` still
+  lays out a scrolling `Column`, so it would render every puzzle in the collection on open.
+- The ~370 LOC copy of Compose's Android popup window (`WindowManager`, `MotionEvent`, internal
+  Compose resource ids, `UUID`) is replaced by `Popup` with the existing position provider. The
+  file has no Android imports and is ready for `commonMain`.
+- `PopupProperties(focusable = true)`: outside taps, including on the field, only close the menu.
+  The old popup let them fall through to the screen underneath; letting them through would make a
+  tap on the field close the menu and reopen it. The anchor is now `PrimaryNotEditable` (the field
+  is read-only).

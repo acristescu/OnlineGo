@@ -142,128 +142,130 @@ private fun TsumegoContent(
         val listState = rememberLazyListState(
           initialFirstVisibleItemIndex = selectedPuzzleIndex ?: 0
         )
-        ExposedDropdownMenuBox(
-          expanded = expanded,
-          onExpandedChange = { expanded = it },
-          modifier = Modifier.weight(1f)
-        ) {
-          TextField(
-            readOnly = true,
-            value = state.puzzle?.name?.let {
-              stringResource(R.string.tsumego_title_with_name, it)
-            } ?: stringResource(R.string.tsumego_title),
-            onValueChange = { },
-            trailingIcon = {
-              ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
-            },
-            colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
-            textStyle = LocalTextStyle.current.copy(fontSize = 18.sp),
-            modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryEditable, true)
-          )
-          LaunchedEffect(expanded) {
-            if (expanded) {
-              selectedPuzzleIndex?.let { listState.animateScrollToItem(it) }
-            }
-          }
-          val infiniteTransition = rememberInfiniteTransition()
-          ExposedLazyDropdownMenu<Puzzle>(
+        Row(verticalAlignment = Alignment.CenterVertically) {
+          ExposedDropdownMenuBox(
             expanded = expanded,
-            items = collection,
-            onDismissRequest = {
-              expanded = false
-            },
-            scrollState = listState,
-            verticalArrangement = Arrangement.spacedBy(2.dp),
-          ) { i, puzzle ->
-            val position = positions[puzzle.id]
-            val rating = ratings[puzzle.id]
-            LaunchedEffect(position) {
-              if (position == null) {
-                renderCollectionPuzzle(i)
+            onExpandedChange = { expanded = it },
+            modifier = Modifier.weight(1f)
+          ) {
+            TextField(
+              readOnly = true,
+              value = state.puzzle?.name?.let {
+                stringResource(R.string.tsumego_title_with_name, it)
+              } ?: stringResource(R.string.tsumego_title),
+              onValueChange = { },
+              trailingIcon = {
+                ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
+              },
+              colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
+              textStyle = LocalTextStyle.current.copy(fontSize = 18.sp),
+              modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable, true)
+            )
+            LaunchedEffect(expanded) {
+              if (expanded) {
+                selectedPuzzleIndex?.let { listState.animateScrollToItem(it) }
               }
             }
-
-            DropdownMenuItem(
-              onClick = {
-                onSelectPuzzle(i)
+            val infiniteTransition = rememberInfiniteTransition()
+            ExposedLazyDropdownMenu<Puzzle>(
+              expanded = expanded,
+              items = collection,
+              onDismissRequest = {
                 expanded = false
               },
-              text =
-                {
-                  val selected = puzzle.id == state.puzzle?.id
+              scrollState = listState,
+              verticalArrangement = Arrangement.spacedBy(2.dp),
+            ) { i, puzzle ->
+              val position = positions[puzzle.id]
+              val rating = ratings[puzzle.id]
+              LaunchedEffect(position) {
+                if (position == null) {
+                  renderCollectionPuzzle(i)
+                }
+              }
 
-                  Row(
-                    modifier = Modifier
-                      .fillMaxWidth()
-                  ) {
-                    val tint by infiniteTransition.animateColor(
-                      initialValue = LocalContentColor.current.copy(
-                        alpha = 0.1f
-                      ),
-                      targetValue = LocalContentColor.current.copy(
-                        alpha = 0.5f
-                      ),
-                      animationSpec = infiniteRepeatable(
-                        animation = tween(
-                          durationMillis = 1000,
-                          easing = LinearEasing,
-                        ),
-                        repeatMode = RepeatMode.Reverse
-                      ),
-                      label = "animateColor"
-                    )
-                    if (position == null)
-                      Icon(
-                        painter = painterResource(R.drawable.ic_go_board),
-                        contentDescription = stringResource(R.string.tsumego_board_content_description),
-                        tint = tint,
-                        modifier = Modifier
-                          .height(64.dp)
-                          .width(64.dp)
-                          .padding(end = 20.dp)
-                          .clip(MaterialTheme.shapes.small),
-                      )
-                    else
-                      Board(
-                        boardWidth = puzzle.puzzle.width,
-                        boardHeight = puzzle.puzzle.height,
-                        position = position,
-                        drawCoordinates = false,
-                        interactive = false,
-                        drawShadow = false,
-                        fadeInLastMove = false,
-                        fadeOutRemovedStones = false,
-                        modifier = Modifier
-                          .height(64.dp)
-                          .width(64.dp)
-                          .padding(end = 10.dp)
-                          .clip(MaterialTheme.shapes.small)
-                      )
+              DropdownMenuItem(
+                onClick = {
+                  onSelectPuzzle(i)
+                  expanded = false
+                },
+                text =
+                  {
+                    val selected = puzzle.id == state.puzzle?.id
 
-                    Column(
+                    Row(
                       modifier = Modifier
-                        .fillMaxHeight()
+                        .fillMaxWidth()
                     ) {
-                      Text(
-                        text = puzzle.name,
-                        fontSize = 18.sp,
-                        fontWeight = if (selected) FontWeight.Bold
-                        else FontWeight.Normal,
-                        maxLines = 1,
-                        modifier = Modifier
-                          .padding(top = 10.dp),
+                      val tint by infiniteTransition.animateColor(
+                        initialValue = LocalContentColor.current.copy(
+                          alpha = 0.1f
+                        ),
+                        targetValue = LocalContentColor.current.copy(
+                          alpha = 0.5f
+                        ),
+                        animationSpec = infiniteRepeatable(
+                          animation = tween(
+                            durationMillis = 1000,
+                            easing = LinearEasing,
+                          ),
+                          repeatMode = RepeatMode.Reverse
+                        ),
+                        label = "animateColor"
                       )
-                      rating?.let {
-                        RatingBar(
-                          rating = it,
+                      if (position == null)
+                        Icon(
+                          painter = painterResource(R.drawable.ic_go_board),
+                          contentDescription = stringResource(R.string.tsumego_board_content_description),
+                          tint = tint,
                           modifier = Modifier
-                            .height(16.dp)
+                            .height(64.dp)
+                            .width(64.dp)
+                            .padding(end = 20.dp)
+                            .clip(MaterialTheme.shapes.small),
                         )
-                      } ?: Spacer(modifier = Modifier.height(16.dp))
+                      else
+                        Board(
+                          boardWidth = puzzle.puzzle.width,
+                          boardHeight = puzzle.puzzle.height,
+                          position = position,
+                          drawCoordinates = false,
+                          interactive = false,
+                          drawShadow = false,
+                          fadeInLastMove = false,
+                          fadeOutRemovedStones = false,
+                          modifier = Modifier
+                            .height(64.dp)
+                            .width(64.dp)
+                            .padding(end = 10.dp)
+                            .clip(MaterialTheme.shapes.small)
+                        )
+
+                      Column(
+                        modifier = Modifier
+                          .fillMaxHeight()
+                      ) {
+                        Text(
+                          text = puzzle.name,
+                          fontSize = 18.sp,
+                          fontWeight = if (selected) FontWeight.Bold
+                          else FontWeight.Normal,
+                          maxLines = 1,
+                          modifier = Modifier
+                            .padding(top = 10.dp),
+                        )
+                        rating?.let {
+                          RatingBar(
+                            rating = it,
+                            modifier = Modifier
+                              .height(16.dp)
+                          )
+                        } ?: Spacer(modifier = Modifier.height(16.dp))
+                      }
                     }
                   }
-                }
-            )
+              )
+            }
           }
           if (state.solutions.isNotEmpty()) {
             Image(
