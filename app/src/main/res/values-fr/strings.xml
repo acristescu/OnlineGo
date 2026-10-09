@@ -626,7 +626,7 @@ Les Noirs en captureront généralement au moins un dans cette situation !]]></s
     <string name="tutorial_basics_doubleatari_doubleAtari2_text"><![CDATA["Encore un. Où peux-tu faire un double Atari ?"]]></string>
     <string name="tutorial_basics_illegalmoves_title">Coups illégaux (règle du suicide)</string>
     <string name="tutorial_basics_illegalmoves_suicide1_page_1_text">Tu peux jouer presque partout sur le plateau à quelques exceptions près. Dans l\'exemple ci-dessous, Noir ne peut pas jouer en A car sa pierre serait déjà entourée.</string>
-    <string name="tutorial_basics_illegalmoves_suicide1_page_2_text"><![CDATA[C'est ce que l'on appelle un coup "suicide" et c'est interdit.]]></string>
+    <string name="tutorial_basics_illegalmoves_suicide1_page_2_text"><![CDATA["C'est ce que l'on appelle un coup \"suicide\" et c'est interdit."]]></string>
     <string name="tutorial_basics_illegalmoves_suicide1_page_3_text">Il y a toutefois une exception. Si le coup capture une ou plusieurs pierres blanches (comme en B ci-dessous), le coup est autorisé.</string>
     <string name="tutorial_basics_illegalmoves_suicide1_page_4_text">La position résultante ressemble à ceci :</string>
     <string name="tutorial_basics_illegalmoves_suicide2_text"><![CDATA[À votre tour à nouveau de capturer quelques pierres ! Astuce : A première vue le coup peut sembler illégal…]]></string>
