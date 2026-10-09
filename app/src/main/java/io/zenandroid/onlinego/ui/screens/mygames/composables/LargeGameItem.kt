@@ -28,9 +28,10 @@ import io.zenandroid.onlinego.data.model.local.isPaused
 import io.zenandroid.onlinego.ui.composables.Board
 import io.zenandroid.onlinego.ui.composables.ChatIndicator
 import io.zenandroid.onlinego.ui.composables.PlayerColorIndicator
+import io.zenandroid.onlinego.ui.composables.clockText
 import io.zenandroid.onlinego.ui.screens.mygames.Action
 import io.zenandroid.onlinego.ui.theme.OnlineGoPreviewTheme
-import io.zenandroid.onlinego.utils.calculateTimer
+import io.zenandroid.onlinego.utils.currentClockMillis
 
 @ExperimentalComposeUiApi
 @Composable
@@ -91,7 +92,7 @@ fun LargeGameItem(game: Game, userId: Long?, onAction: (Action) -> Unit, modifie
                     }
                     Row {
                         Text(
-                            text = calculateTimer(game),
+                          text = currentClockMillis(game)?.let { clockText(it) } ?: "",
                             fontSize = 12.sp,
                         )
                         if (game.pauseControl.isPaused()) {

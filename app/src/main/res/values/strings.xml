@@ -240,6 +240,19 @@
         <item quantity="one">%d second</item>
         <item quantity="other">%d seconds</item>
     </plurals>
+    <plurals name="clock_days">
+        <item quantity="one">%d day</item>
+        <item quantity="other">%d days</item>
+    </plurals>
+    <string name="clock_days_hours">%1$dd %2$dh</string>
+    <string name="clock_hours">%1$dh</string>
+    <string name="clock_hours_minutes">%1$dh %2$02dm</string>
+    <string name="clock_minutes_seconds">%1$d : %2$02d</string>
+    <string name="clock_seconds">%1$02ds</string>
+    <string name="clock_tenths">%1$.1fs</string>
+    <string name="clock_canadian_period">+%1$s / %2$d</string>
+    <string name="clock_byoyomi_periods">%1$d x %2$s</string>
+    <string name="clock_fischer_increment">+ %1$s / move</string>
     <string name="duration_two_units">%1$s %2$s</string>
     <string name="duration_unknown">\?</string>
     <string name="time_control_simple">Simple: %1$s per move.</string>

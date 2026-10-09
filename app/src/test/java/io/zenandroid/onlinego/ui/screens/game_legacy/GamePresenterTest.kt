@@ -1,9 +1,10 @@
 package io.zenandroid.onlinego.ui.screens.game_legacy
 
 import io.zenandroid.onlinego.data.model.ogs.User
-import io.zenandroid.onlinego.utils.appJson
 import io.zenandroid.onlinego.di.allKoinModules
-import io.zenandroid.onlinego.utils.formatMillis
+import io.zenandroid.onlinego.utils.ClockFace
+import io.zenandroid.onlinego.utils.appJson
+import io.zenandroid.onlinego.utils.clockFace
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -21,7 +22,7 @@ class GamePresenterTest {
         modules(allKoinModules)
     }
     @Test
-    fun whenFormatMillisIsCalled_thenCorrectValueIsReturned() {
+    fun whenClockFaceIsCalled_thenCorrectValueIsReturned() {
         val MILLIS = 1L
         val SECONDS = 1000 * MILLIS
         val MINUTES = 60 * SECONDS
@@ -29,42 +30,72 @@ class GamePresenterTest {
         val DAYS = 24 * HOURS
         val WEEKS = 7 * DAYS
 
-        assertEquals("0.0s", formatMillis(49 * MILLIS))
-        assertEquals("0.1s", formatMillis(51 * MILLIS))
-        assertEquals("0.1s", formatMillis(120 * MILLIS))
-        assertEquals("0.9s", formatMillis(949 * MILLIS))
-        assertEquals("1.0s", formatMillis(951 * MILLIS))
-        assertEquals("1.0s", formatMillis(1 * SECONDS))
-        assertEquals("1.5s", formatMillis(1 * SECONDS + 499 * MILLIS))
-        assertEquals("1.5s", formatMillis(1 * SECONDS + 501 * MILLIS))
-        assertEquals("9.9s", formatMillis(9 * SECONDS + 949 * MILLIS))
-        assertEquals("10.0s", formatMillis(9 * SECONDS + 951 * MILLIS))
-        assertEquals("10.0s", formatMillis(10 * SECONDS))
-        assertEquals("11s", formatMillis(10 * SECONDS + 499 * MILLIS))
-        assertEquals("11s", formatMillis(10 * SECONDS + 501 * MILLIS))
-        assertEquals("1 : 00", formatMillis(59 * SECONDS + 499 * MILLIS))
-        assertEquals("1 : 00", formatMillis(59 * SECONDS + 501 * MILLIS))
-        assertEquals("1 : 00", formatMillis(1 * MINUTES + 0 * SECONDS))
-        assertEquals("1 : 01", formatMillis(1 * MINUTES + 0 * SECONDS + 501 * MILLIS))
-        assertEquals("2 : 00", formatMillis(1 * MINUTES + 59 * SECONDS + 499 * MILLIS))
-        assertEquals("2 : 00", formatMillis(1 * MINUTES + 59 * SECONDS + 501 * MILLIS))
-        assertEquals("2 : 00", formatMillis(2 * MINUTES + 0 * SECONDS + 0 * MILLIS))
-        assertEquals("10 : 00", formatMillis(10 * MINUTES + 0 * SECONDS + 0 * MILLIS))
-        assertEquals("59 : 00", formatMillis(59 * MINUTES + 0 * SECONDS + 0 * MILLIS))
-        assertEquals("1h 00m", formatMillis(59 * MINUTES + 59 * SECONDS + 999 * MILLIS))
-        assertEquals("1h 00m", formatMillis(1 * HOURS + 0 * MINUTES))
-        assertEquals("1h 59m", formatMillis(1 * HOURS + 59 * MINUTES + 59 * SECONDS))
-        assertEquals("2h 00m", formatMillis(2 * HOURS + 0 * MINUTES))
-        assertEquals("23h 59m", formatMillis(23 * HOURS + 59 * MINUTES + 59 * SECONDS))
-        assertEquals("24h", formatMillis(1 * DAYS))
-        assertEquals("47h", formatMillis(1 * DAYS + 23 * HOURS + 59 * MINUTES))
-        assertEquals("48h", formatMillis(2 * DAYS))
-        assertEquals("3 days", formatMillis(3 * DAYS))
-        assertEquals("6d 23h", formatMillis(6 * DAYS + 23 * HOURS + 59 * MINUTES))
-        assertEquals("7 days", formatMillis(1 * WEEKS + 10 * HOURS))
-        assertEquals("7 days", formatMillis(1 * WEEKS))
-        assertEquals("13 days", formatMillis(1 * WEEKS + 6 * DAYS + 23 * HOURS))
-        assertEquals("14 days", formatMillis(2 * WEEKS))
+        assertEquals(ClockFace.Tenths(0), clockFace(-5 * SECONDS))
+        assertEquals(ClockFace.Tenths(0), clockFace(0))
+        assertEquals(ClockFace.Tenths(0), clockFace(49 * MILLIS))
+        assertEquals(ClockFace.Tenths(1), clockFace(51 * MILLIS))
+        assertEquals(ClockFace.Tenths(1), clockFace(120 * MILLIS))
+        assertEquals(ClockFace.Tenths(9), clockFace(949 * MILLIS))
+        assertEquals(ClockFace.Tenths(10), clockFace(951 * MILLIS))
+        assertEquals(ClockFace.Tenths(10), clockFace(1 * SECONDS))
+        assertEquals(ClockFace.Tenths(15), clockFace(1 * SECONDS + 499 * MILLIS))
+        assertEquals(ClockFace.Tenths(15), clockFace(1 * SECONDS + 501 * MILLIS))
+        assertEquals(ClockFace.Tenths(99), clockFace(9 * SECONDS + 949 * MILLIS))
+        assertEquals(ClockFace.Tenths(100), clockFace(9 * SECONDS + 951 * MILLIS))
+        assertEquals(ClockFace.Tenths(100), clockFace(10 * SECONDS))
+        assertEquals(ClockFace.Seconds(11), clockFace(10 * SECONDS + 499 * MILLIS))
+        assertEquals(ClockFace.Seconds(11), clockFace(10 * SECONDS + 501 * MILLIS))
+        assertEquals(ClockFace.MinutesSeconds(1, 0), clockFace(59 * SECONDS + 499 * MILLIS))
+        assertEquals(ClockFace.MinutesSeconds(1, 0), clockFace(59 * SECONDS + 501 * MILLIS))
+        assertEquals(ClockFace.MinutesSeconds(1, 0), clockFace(1 * MINUTES + 0 * SECONDS))
+        assertEquals(
+            ClockFace.MinutesSeconds(1, 1),
+            clockFace(1 * MINUTES + 0 * SECONDS + 501 * MILLIS)
+        )
+        assertEquals(
+            ClockFace.MinutesSeconds(2, 0),
+            clockFace(1 * MINUTES + 59 * SECONDS + 499 * MILLIS)
+        )
+        assertEquals(
+            ClockFace.MinutesSeconds(2, 0),
+            clockFace(1 * MINUTES + 59 * SECONDS + 501 * MILLIS)
+        )
+        assertEquals(
+            ClockFace.MinutesSeconds(2, 0),
+            clockFace(2 * MINUTES + 0 * SECONDS + 0 * MILLIS)
+        )
+        assertEquals(
+            ClockFace.MinutesSeconds(10, 0),
+            clockFace(10 * MINUTES + 0 * SECONDS + 0 * MILLIS)
+        )
+        assertEquals(
+            ClockFace.MinutesSeconds(59, 0),
+            clockFace(59 * MINUTES + 0 * SECONDS + 0 * MILLIS)
+        )
+        assertEquals(
+            ClockFace.HoursMinutes(1, 0),
+            clockFace(59 * MINUTES + 59 * SECONDS + 999 * MILLIS)
+        )
+        assertEquals(ClockFace.HoursMinutes(1, 0), clockFace(1 * HOURS + 0 * MINUTES))
+        assertEquals(
+            ClockFace.HoursMinutes(1, 59),
+            clockFace(1 * HOURS + 59 * MINUTES + 59 * SECONDS)
+        )
+        assertEquals(ClockFace.HoursMinutes(2, 0), clockFace(2 * HOURS + 0 * MINUTES))
+        assertEquals(
+            ClockFace.HoursMinutes(23, 59),
+            clockFace(23 * HOURS + 59 * MINUTES + 59 * SECONDS)
+        )
+        assertEquals(ClockFace.Hours(24), clockFace(1 * DAYS))
+        assertEquals(ClockFace.Hours(47), clockFace(1 * DAYS + 23 * HOURS + 59 * MINUTES))
+        assertEquals(ClockFace.Hours(48), clockFace(2 * DAYS))
+        assertEquals(ClockFace.Days(3), clockFace(3 * DAYS))
+        assertEquals(ClockFace.DaysHours(6, 23), clockFace(6 * DAYS + 23 * HOURS + 59 * MINUTES))
+        assertEquals(ClockFace.Days(7), clockFace(1 * WEEKS + 10 * HOURS))
+        assertEquals(ClockFace.Days(7), clockFace(1 * WEEKS))
+        assertEquals(ClockFace.Days(13), clockFace(1 * WEEKS + 6 * DAYS + 23 * HOURS))
+        assertEquals(ClockFace.Days(14), clockFace(2 * WEEKS))
+        assertEquals(ClockFace.Unlimited, clockFace(Long.MAX_VALUE))
     }
 
     @Test

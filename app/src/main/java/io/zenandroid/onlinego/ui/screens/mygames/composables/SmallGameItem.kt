@@ -26,9 +26,10 @@ import io.zenandroid.onlinego.data.model.local.isPaused
 import io.zenandroid.onlinego.ui.composables.Board
 import io.zenandroid.onlinego.ui.composables.ChatIndicator
 import io.zenandroid.onlinego.ui.composables.PlayerColorIndicator
+import io.zenandroid.onlinego.ui.composables.clockText
 import io.zenandroid.onlinego.ui.screens.mygames.Action
 import io.zenandroid.onlinego.ui.screens.mygames.formatGameOutcome
-import io.zenandroid.onlinego.utils.calculateTimer
+import io.zenandroid.onlinego.utils.currentClockMillis
 
 @ExperimentalComposeUiApi
 @Composable
@@ -84,7 +85,7 @@ fun SmallGameItem(game: Game, userId: Long?, onAction: (Action) -> Unit) {
         if (game.blackLost != true && game.whiteLost != true && game.outcome.isNullOrEmpty() && game.annulled != true) {
           Row(modifier = Modifier.padding(top = 4.dp)) {
             Text(
-              text = calculateTimer(game),
+              text = currentClockMillis(game)?.let { clockText(it) } ?: "",
               color = MaterialTheme.colorScheme.onSurface,
               style = TextStyle.Default.copy(
                 fontSize = 12.sp,

@@ -92,6 +92,8 @@ import io.zenandroid.onlinego.ui.composables.BottomBar
 import io.zenandroid.onlinego.ui.composables.MoreMenuItem
 import io.zenandroid.onlinego.ui.composables.TextResource
 import io.zenandroid.onlinego.ui.composables.TitleBar
+import io.zenandroid.onlinego.ui.composables.clockPeriodText
+import io.zenandroid.onlinego.ui.composables.clockText
 import io.zenandroid.onlinego.ui.composables.resolve
 import io.zenandroid.onlinego.ui.composables.resolveOrNull
 import io.zenandroid.onlinego.ui.composables.textResource
@@ -142,7 +144,9 @@ import io.zenandroid.onlinego.ui.screens.game.composables.PlayerCard
 import io.zenandroid.onlinego.ui.screens.game.composables.PlayerDetailsDialog
 import io.zenandroid.onlinego.ui.theme.OnlineGoPreviewTheme
 import io.zenandroid.onlinego.usecases.RepoResult
+import io.zenandroid.onlinego.utils.ClockPeriod
 import io.zenandroid.onlinego.utils.CrashReporter
+import io.zenandroid.onlinego.utils.PlayerClock
 import io.zenandroid.onlinego.utils.ReviewPromptManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -268,7 +272,7 @@ fun GameContent(
         )
       }
       ExtraStatusField(
-        text = state.blackExtraStatus.resolveOrNull(),
+        text = extraStatusText(state.blackExtraStatus, state.timerDetails?.blackStartTimer),
         modifier = Modifier
           .background(Color(0xFF867484))
           .fillMaxWidth()
@@ -283,7 +287,7 @@ fun GameContent(
           .align(CenterHorizontally)
       )
       ExtraStatusField(
-        text = state.whiteExtraStatus.resolveOrNull(),
+        text = extraStatusText(state.whiteExtraStatus, state.timerDetails?.whiteStartTimer),
         modifier = Modifier
           .background(Color(0xFF867484))
           .fillMaxWidth()
@@ -317,7 +321,7 @@ fun GameContent(
             onUserAction = onUserAction
           )
           ExtraStatusField(
-            text = state.blackExtraStatus.resolveOrNull(),
+            text = extraStatusText(state.blackExtraStatus, state.timerDetails?.blackStartTimer),
             modifier = Modifier
               .background(Color(0xFF867484))
               .fillMaxWidth()
@@ -339,7 +343,7 @@ fun GameContent(
             )
           }
           ExtraStatusField(
-            text = state.whiteExtraStatus.resolveOrNull(),
+            text = extraStatusText(state.whiteExtraStatus, state.timerDetails?.whiteStartTimer),
             modifier = Modifier
               .background(Color(0xFF867484))
               .fillMaxWidth()
@@ -517,6 +521,11 @@ fun GameContent(
 }
 
 @Composable
+private fun extraStatusText(status: TextResource?, startTimer: Long?): String? =
+  status.resolveOrNull()
+    ?: startTimer?.let { stringResource(R.string.game_status_first_move_timer, clockText(it)) }
+
+@Composable
 private fun BlackPlayerCard(
   state: GameState,
   onUserAction: ((UserAction) -> Unit),
@@ -524,8 +533,8 @@ private fun BlackPlayerCard(
 ) {
   PlayerCard(
     player = state.blackPlayer,
-    timerMain = state.timerDetails?.blackFirstLine ?: "",
-    timerExtra = state.timerDetails?.blackSecondLine ?: "",
+    timerMain = state.timerDetails?.blackClock?.let { clockText(it.timeLeft) } ?: "",
+    timerExtra = state.timerDetails?.blackClock?.period?.let { clockPeriodText(it) } ?: "",
     timerPercent = state.timerDetails?.blackPercentage ?: 0,
     timerFaded = state.timerDetails?.blackFaded ?: true,
     timerShown = state.showTimers,
@@ -543,8 +552,8 @@ private fun WhitePlayerCard(
 ) {
   PlayerCard(
     player = state.whitePlayer,
-    timerMain = state.timerDetails?.whiteFirstLine ?: "",
-    timerExtra = state.timerDetails?.whiteSecondLine ?: "",
+    timerMain = state.timerDetails?.whiteClock?.let { clockText(it.timeLeft) } ?: "",
+    timerExtra = state.timerDetails?.whiteClock?.period?.let { clockPeriodText(it) } ?: "",
     timerPercent = state.timerDetails?.whitePercentage ?: 0,
     timerFaded = state.timerDetails?.whiteFaded ?: true,
     timerShown = state.showTimers,
@@ -1036,12 +1045,10 @@ private fun Preview() {
           color = StoneType.BLACK,
         ),
         timerDetails = TimerDetails(
-          whiteFirstLine = "04:26",
-          whiteSecondLine = "+ 3 × 01:00",
+          whiteClock = PlayerClock(266_000, ClockPeriod.ByoYomi(3, 60_000)),
           whitePercentage = 80,
           whiteFaded = true,
-          blackFirstLine = "04:26",
-          blackSecondLine = "+ 3 × 01:00",
+          blackClock = PlayerClock(266_000, ClockPeriod.ByoYomi(3, 60_000)),
           blackPercentage = 15,
           blackFaded = false,
           whiteStartTimer = null,
@@ -1087,12 +1094,10 @@ private fun Preview1() {
           color = StoneType.BLACK,
         ),
         timerDetails = TimerDetails(
-          whiteFirstLine = "04:26",
-          whiteSecondLine = "+ 3 × 01:00",
+          whiteClock = PlayerClock(266_000, ClockPeriod.ByoYomi(3, 60_000)),
           whitePercentage = 80,
           whiteFaded = true,
-          blackFirstLine = "04:26",
-          blackSecondLine = "+ 3 × 01:00",
+          blackClock = PlayerClock(266_000, ClockPeriod.ByoYomi(3, 60_000)),
           blackPercentage = 15,
           blackFaded = false,
           whiteStartTimer = null,
@@ -1136,12 +1141,10 @@ private fun Preview2() {
           color = StoneType.BLACK,
         ),
         timerDetails = TimerDetails(
-          whiteFirstLine = "04:26",
-          whiteSecondLine = "+ 3 × 01:00",
+          whiteClock = PlayerClock(266_000, ClockPeriod.ByoYomi(3, 60_000)),
           whitePercentage = 80,
           whiteFaded = true,
-          blackFirstLine = "04:26",
-          blackSecondLine = "+ 3 × 01:00",
+          blackClock = PlayerClock(266_000, ClockPeriod.ByoYomi(3, 60_000)),
           blackPercentage = 15,
           blackFaded = false,
           whiteStartTimer = null,
@@ -1186,12 +1189,10 @@ private fun Preview3() {
           color = StoneType.BLACK,
         ),
         timerDetails = TimerDetails(
-          whiteFirstLine = "04:26",
-          whiteSecondLine = "+ 3 × 01:00",
+          whiteClock = PlayerClock(266_000, ClockPeriod.ByoYomi(3, 60_000)),
           whitePercentage = 80,
           whiteFaded = true,
-          blackFirstLine = "04:26",
-          blackSecondLine = "+ 3 × 01:00",
+          blackClock = PlayerClock(266_000, ClockPeriod.ByoYomi(3, 60_000)),
           blackPercentage = 15,
           blackFaded = false,
           whiteStartTimer = null,
@@ -1238,12 +1239,10 @@ private fun Preview4() {
           color = StoneType.BLACK,
         ),
         timerDetails = TimerDetails(
-          whiteFirstLine = "04:26",
-          whiteSecondLine = "+ 3 × 01:00",
+          whiteClock = PlayerClock(266_000, ClockPeriod.ByoYomi(3, 60_000)),
           whitePercentage = 80,
           whiteFaded = true,
-          blackFirstLine = "04:26",
-          blackSecondLine = "+ 3 × 01:00",
+          blackClock = PlayerClock(266_000, ClockPeriod.ByoYomi(3, 60_000)),
           blackPercentage = 15,
           blackFaded = false,
           whiteStartTimer = null,
@@ -1290,12 +1289,10 @@ private fun Preview5() {
           color = StoneType.BLACK,
         ),
         timerDetails = TimerDetails(
-          whiteFirstLine = "04:26",
-          whiteSecondLine = "+ 3 × 01:00",
+          whiteClock = PlayerClock(266_000, ClockPeriod.ByoYomi(3, 60_000)),
           whitePercentage = 80,
           whiteFaded = true,
-          blackFirstLine = "04:26",
-          blackSecondLine = "+ 3 × 01:00",
+          blackClock = PlayerClock(266_000, ClockPeriod.ByoYomi(3, 60_000)),
           blackPercentage = 15,
           blackFaded = false,
           whiteStartTimer = null,

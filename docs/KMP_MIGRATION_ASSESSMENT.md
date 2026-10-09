@@ -24,11 +24,6 @@ The original assessment, with the full write-up of each finished slice, is at
 
 Worth doing even if the migration stops here.
 
-- [ ] **Localize the clock text in `utils/Globals.kt`.** The file no longer imports anything
-  Android-only (6.12), but `computeTimeLeft` -> `formatMillis` -> `plural` hand-build English
-  (`"%d day%s"`, `"+ ... / move"`), shown untranslated in the game clocks and game-list timers in
-  every locale. `computeTimeLeft` should return numbers and the UI should format them from
-  resources. That also removes `String.format`, which is JVM-only.
 - [ ] **Drop `Thread.currentThread()` from `RulesManager`.** Three main-thread checks block moving
   `logic` to `commonMain` in Phase 2. `data` is free of JVM threading primitives (6.15).
 - [ ] **Build the `@file:UseSerializers` CI check** - every `data/model` file declaring a

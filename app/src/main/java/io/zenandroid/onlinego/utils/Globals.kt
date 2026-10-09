@@ -150,22 +150,33 @@ fun timeLeftForCurrentPlayer(game: Game): Long {
 }
 
 
-fun calculateTimer(game: Game): String {
+fun currentClockMillis(game: Game): Long? {
     val currentPlayer = when (game.playerToMoveId) {
         game.blackPlayer.id -> game.blackPlayer
         game.whitePlayer.id -> game.whitePlayer
         else -> null
     }
-    val timerDetails = game.clock?.let {
+    return game.clock?.let {
         if (currentPlayer?.id == game.blackPlayer.id)
             computeTimeLeft(it, it.blackTimeSimple, it.blackTime, true, game.pausedSince)
         else
             computeTimeLeft(it, it.whiteTimeSimple, it.whiteTime, true, game.pausedSince)
-    }
-    return timerDetails?.firstLine ?: ""
+    }?.timeLeft
 }
 
-fun formatMillis(millis: Long): String {
+sealed interface ClockFace {
+    data object Unlimited : ClockFace
+    data class Days(val days: Long) : ClockFace
+    data class DaysHours(val days: Long, val hours: Long) : ClockFace
+    data class Hours(val hours: Long) : ClockFace
+    data class HoursMinutes(val hours: Long, val minutes: Long) : ClockFace
+    data class MinutesSeconds(val minutes: Long, val seconds: Long) : ClockFace
+    data class Seconds(val seconds: Long) : ClockFace
+    data class Tenths(val tenths: Long) : ClockFace
+}
+
+fun clockFace(millis: Long): ClockFace {
+    if (millis == Long.MAX_VALUE) return ClockFace.Unlimited
     var seconds = ceil((millis - 1) / 1000.0).toLong()
     val days = seconds / 86_400
     seconds -= days * 86_400
@@ -175,19 +186,16 @@ fun formatMillis(millis: Long): String {
     seconds -= minutes * 60
 
     return when {
-        days >= 7 -> "%d days".format(days)
-        days >= 2 && hours > 0 -> "%dd %dh".format(days, hours)
-        days > 2 -> "%d day%s".format(days, plural(days))
-        days > 0 -> "%dh".format(days * 24 + hours)
-        hours > 0 -> "%dh %02dm".format(hours, minutes)
-        minutes > 0 -> "%d : %02d".format(minutes, seconds)
-        seconds > 10 -> "%02ds".format(seconds)
-        millis > 0 -> "%.1fs".format(millis / 1000f)
-        else -> "0.0"
+        days >= 7 -> ClockFace.Days(days)
+        days >= 2 && hours > 0 -> ClockFace.DaysHours(days, hours)
+        days > 2 -> ClockFace.Days(days)
+        days > 0 -> ClockFace.Hours(days * 24 + hours)
+        hours > 0 -> ClockFace.HoursMinutes(hours, minutes)
+        minutes > 0 -> ClockFace.MinutesSeconds(minutes, seconds)
+        seconds > 10 -> ClockFace.Seconds(seconds)
+        else -> ClockFace.Tenths((millis.coerceAtLeast(0) + 50) / 100)
     }
 }
-
-fun plural(number: Long) = if(number != 1L) "s" else ""
 
 fun Long.microsToISODateTime(): String = Instant.fromEpochSeconds(
     floorDiv(MICROS_PER_SECOND),
@@ -208,11 +216,11 @@ fun computeTimeLeft(
     currentPlayer: Boolean,
     pausedSince: Long?,
     timeControl: TimeControl? = null,
-): TimerDetails {
+): PlayerClock {
     val now = serverTime.coerceAtMost(pausedSince ?: Long.MAX_VALUE)
     val baseTime = clock.lastMove.coerceAtMost(pausedSince ?: Long.MAX_VALUE)
     var timeLeft = 0L
-    var secondLine: String? = null
+    var period: ClockPeriod? = null
 
     if(playerTimeSimple != null) {
         // Simple timer
@@ -232,7 +240,10 @@ fun computeTimeLeft(
             if(timeLeft < 0 || playerTime.thinking_time == 0.0) {
                 timeLeft = baseTime + ((playerTime.thinking_time + playerTime.block_time!!) * 1000).toLong() - if(currentPlayer) now else baseTime
             }
-            secondLine = "+${formatMillis((playerTime.block_time!! * 1000).toLong())} / ${playerTime.moves_left}"
+            period = ClockPeriod.Canadian(
+                (playerTime.block_time!! * 1000).toLong(),
+                playerTime.moves_left
+            )
         } else if(playerTime.periods != null) {
 
             // Byo Yomi timer
@@ -253,33 +264,26 @@ fun computeTimeLeft(
             if(!currentPlayer && timeLeft == 0L) {
                 timeLeft = (playerTime.period_time!! * 1000).toLong()
             }
-            secondLine = "$periodsLeft x ${formatMillis((playerTime.period_time!! * 1000).toLong())}"
+            period = ClockPeriod.ByoYomi(periodsLeft, (playerTime.period_time!! * 1000).toLong())
         } else if(timeControl?.time_control == "fischer"){
-            secondLine = "+ ${formatMillis(timeControl.time_increment!! * 1000L)} / move"
+            period = ClockPeriod.Fischer(timeControl.time_increment!! * 1000L)
         } else {
             //absolute timer
         }
     } else {
-        // No timer
-        return TimerDetails(
-            expired = false,
-            firstLine = "∞",
-            secondLine = null,
-            timeLeft = Long.MAX_VALUE
-        )
+        return PlayerClock(timeLeft = Long.MAX_VALUE)
     }
 
-    return TimerDetails(
-        expired = timeLeft <= 0,
-        firstLine = formatMillis(timeLeft),
-        secondLine = secondLine,
-        timeLeft = timeLeft
-    )
+    return PlayerClock(timeLeft = timeLeft, period = period)
 }
 
-data class TimerDetails (
-    var expired: Boolean,
-    var firstLine: String? = null,
-    var secondLine: String? = null,
-    var timeLeft: Long
+data class PlayerClock(
+    val timeLeft: Long,
+    val period: ClockPeriod? = null,
 )
+
+sealed interface ClockPeriod {
+    data class Canadian(val blockMillis: Long, val movesLeft: Long) : ClockPeriod
+    data class ByoYomi(val periodsLeft: Long, val periodMillis: Long) : ClockPeriod
+    data class Fischer(val incrementMillis: Long) : ClockPeriod
+}
