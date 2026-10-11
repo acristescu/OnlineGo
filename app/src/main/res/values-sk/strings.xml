@@ -62,6 +62,9 @@
     <string name="White">Biely</string>
     <string name="handicap">Hendikep</string>
     <string name="difficulty">Obtiažnosť</string>
+    <string name="ai_game_rules">Pravidlá</string>
+    <string name="ai_game_rules_japanese">Japonské</string>
+    <string name="ai_game_rules_chinese">Čínske</string>
     <string name="ai_game_difficulty_scale_hint">Vyššie kyu = ľahší, dan = silnejší</string>
     <string name="ai_game_difficulty_kyu">%1$d kyu</string>
     <string name="ai_game_difficulty_dan">%1$d dan</string>
@@ -246,6 +249,21 @@
         <item quantity="many">%d sekúnd</item>
         <item quantity="other">%d sekúnd</item>
     </plurals>
+    <plurals name="clock_days">
+        <item quantity="one">%d deň</item>
+        <item quantity="few">%d dní</item>
+        <item quantity="many">%d dní</item>
+        <item quantity="other">%d dní</item>
+    </plurals>
+    <string name="clock_days_hours">%1$dd %2$dh</string>
+    <string name="clock_hours">%1$dh</string>
+    <string name="clock_hours_minutes">%1$dh %2$02dm</string>
+    <string name="clock_minutes_seconds">%1$d : %2$02d</string>
+    <string name="clock_seconds">%1$02ds</string>
+    <string name="clock_tenths">%1$.1fs</string>
+    <string name="clock_canadian_period">+%1$s / %2$d</string>
+    <string name="clock_byoyomi_periods">%1$d × %2$s</string>
+    <string name="clock_fischer_increment">+ %1$s / ťah</string>
     <string name="duration_two_units">%1$s %2$s</string>
     <string name="duration_unknown">\?</string>
     <string name="time_control_simple">Jednoduché: %1$s na ťah.</string>
