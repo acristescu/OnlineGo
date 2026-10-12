@@ -642,4 +642,39 @@ Označené ťahy nižšie predstavujú zaujímavé pokračovanie aktuálnej poz�
 Môžete ťuknúť na tieto zaujímave ťahy na prehliadanie pozícii ku ktorým vedú.
 ### Tenuki
 Niekedy je najlepším ťahom hrať niekde inde. To sa bežne označuje ako *tenuki*. Ak je tenuki považované za zaujímavú možnosť pre aktuálnu pozíciu, tlačidlo pass v ľavom dolnom rohu sa aktivuje a môžete ho stlačiť, aby ste videli aké pozície môžu vzniknúť potom čo aktuálny hráč zahrá tenuki."]]></string>
+    <string name="tutorial_basics_title">Základné</string>
+    <string name="tutorial_basics_thebasics_title">Základy</string>
+    <string name="tutorial_basics_thebasics_basic1_text"><![CDATA[Zapamätajte si tieto 3 pravidlá:
+1. Čierny a biely sa striedajú v ukladaní "kameňov" na dosku.
+2. Kamene sú ukladané na priesečníky čiar.
+3. Keď je kameň položený, už sa nesmie nikdy posunúť, ale môže byť zajatý.
+
+Položte kameň pre pokračovanie!]]></string>
+    <string name="tutorial_basics_thebasics_capture1_page1_text"><![CDATA[Ďalším ťahom bude biely kameň úplne obkľúčený a zajatý. Kamene ktoré môžu byť zajaté sú v "Atari".]]></string>
+    <string name="tutorial_basics_thebasics_capture1_page2_text"><![CDATA[Biely kameň je teraz obkľúčený, takže…]]></string>
+    <string name="tutorial_basics_thebasics_capture1_page3_text"><![CDATA["… je odobratý z dosky"]]></string>
+    <string name="tutorial_basics_thebasics_capture1_page4_text"><![CDATA["Ak by to bol bieleho ťah, mohol by \"utiecť\" pridaním ďalšieho kameňa."]]></string>
+    <string name="tutorial_basics_thebasics_capture2_text">Váš ťah! Zajmite biely kameň.</string>
+    <string name="tutorial_basics_thebasics_capture3_text">Môžete tentokrát zajať dva kamene jedným ťahom!</string>
+    <string name="tutorial_basics_thebasics_capture4_text">Aj keď sú neďaleko ďalšie kamene, spravte to isté.</string>
+    <string name="tutorial_basics_capturingstones_title">Chytanie kameňov</string>
+    <string name="tutorial_basics_capturingstones_capture5_text">Na okraji dosky je situácia trochu odlišná. Kamene na okraji majú menej slobôd a je ľahšie ich chytiť.</string>
+    <string name="tutorial_basics_capturingstones_capture5_branches2_text">Biele kamene sú spojené.</string>
+    <string name="tutorial_basics_capturingstones_capture6_text">Kamene v rohu sú ešte viac zraniteľné.</string>
+    <string name="tutorial_basics_capturingstones_capture7_text">Tentokrát sú v atari dva kamene. Chyťte ich!</string>
+    <string name="tutorial_basics_capturingstones_capture8_text">Tentokrát treba zahrať až dva ťahy, aby boli zajaté biele kamene. Opatrne, prvý ťah je dôležitý!</string>
+    <string name="tutorial_basics_capturingstones_capture9_text"><![CDATA["Je náročné utiecť s kameňmi na okraji. Chyťte dva biele kamene na prvej linke!"]]></string>
+    <string name="tutorial_basics_capturingstones_capture10_text">Veľmi veľa kameňov! Hľadajte kamene ktoré sú v atari a zajmite ich. Ak sa pomýlite, budú zajaté vaše kamene.</string>
+    <string name="tutorial_basics_doubleatari_title">Dvojité Atari</string>
+    <string name="tutorial_basics_doubleatari_doubleAtari1_text"><![CDATA[V určitých pozíciach čierny dokáže dať do atari dve skupiny naraz. Čierny zvyčajne zajme aspoň jednu v tejto situácii!]]></string>
+    <string name="tutorial_basics_doubleatari_doubleAtari2_text"><![CDATA["Tu je ďalšia. Kde dokážete vytvoriť dvojité atari?"]]></string>
+    <string name="tutorial_basics_illegalmoves_title">Zakázané ťahy (pravidlo samovraždy)</string>
+    <string name="tutorial_basics_illegalmoves_suicide1_page_1_text">Viete zahrať takmer kamkoľvek na doske s pár výnimkami. Na príklade nižšie, čierny nemôže zahrať na A, pretože by jeho kameň už bol obkľúčený.</string>
+    <string name="tutorial_basics_illegalmoves_suicide1_page_2_text"><![CDATA[Tomu sa hovorí "samovražda" a je zakázaná.]]></string>
+    <string name="tutorial_basics_illegalmoves_suicide1_page_3_text">Avšak je tu výnimka. Ak by ťah zajal jeden alebo viac kameňov (ako B nižšie), ťah je dovolený.</string>
+    <string name="tutorial_basics_illegalmoves_suicide1_page_4_text">Výsledná pozícia vyzerá takto:</string>
+    <string name="tutorial_basics_illegalmoves_suicide2_text"><![CDATA["Teraz je znova rad na vás zajať nejaké kamene! Nápoveda: Zo začiatku to môže vyzerať ako zakázaný ťah…"]]></string>
+    <string name="tutorial_basics_illegalmoves_suicide3_text">4 čierne kamene sú v atari! Zajmite biele kamene pred tým, ako zajmú vás!</string>
+    <string name="tutorial_basics_illegalmoves_suicide4_text"><![CDATA["Zajmite 2 biele kamene dotýkajúce sa čiernych. Tu sa nedajú zajať jedným ťahom."]]></string>
+    <string name="tutorial_basics_illegalmoves_suicide5_text">Biely kameň na D5 delí vaše kamene. Ak ho zajmete, Vaše kamene budú spojenou a silnou skupinou. Toto je veľmi dôležitý vzor v GO!</string>
 </resources>
