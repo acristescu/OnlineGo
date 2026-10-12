@@ -30,6 +30,10 @@ android {
     buildConfigField("String", "BASE_URL", "\"https://online-go.com/\"")
   }
 
+  androidResources {
+    localeFilters += listOf("en", "ca", "de", "es", "fr", "nl", "ro")
+  }
+
   ksp {
     arg("room.schemaLocation", "$projectDir/schemas")
     arg("room.incremental", "true")
