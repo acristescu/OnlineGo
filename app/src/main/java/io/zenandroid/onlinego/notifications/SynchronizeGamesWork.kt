@@ -24,15 +24,21 @@ class SynchronizeGamesWork(val context: Context, params: WorkerParameters) :
   CoroutineWorker(context, params) {
   companion object {
     fun schedule(context: Context) {
-      WorkManager.getInstance(context).cancelUniqueWork(NOT_CHARGING_WORK_NAME)
-      WorkManager.getInstance(context).cancelUniqueWork(CHARGING_WORK_NAME)
+      val workManager = try {
+        WorkManager.getInstance(context)
+      } catch (e: NoSuchMethodError) {
+        Logger.e("WorkManager unavailable on this device", e, "SynchronizeGamesWork")
+        return
+      }
+      workManager.cancelUniqueWork(NOT_CHARGING_WORK_NAME)
+      workManager.cancelUniqueWork(CHARGING_WORK_NAME)
       val constraints = Constraints.Builder()
         .setRequiredNetworkType(NetworkType.CONNECTED)
         .build()
       val request = PeriodicWorkRequestBuilder<SynchronizeGamesWork>(15, TimeUnit.MINUTES)
         .setConstraints(constraints)
         .build()
-      WorkManager.getInstance(context)
+      workManager
         .enqueueUniquePeriodicWork(PERIODIC_WORK_NAME, ExistingPeriodicWorkPolicy.UPDATE, request)
     }
   }

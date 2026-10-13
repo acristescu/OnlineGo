@@ -2,6 +2,7 @@ package io.zenandroid.onlinego
 
 import android.app.Application
 import android.content.Context
+import androidx.work.Configuration
 import co.touchlab.kermit.Logger
 import co.touchlab.kermit.Severity
 import co.touchlab.kermit.platformLogWriter
@@ -31,9 +32,12 @@ import org.koin.core.logger.Level
 /**
  * Created by alex on 04/11/2017.
  */
-class OnlineGoApplication : Application() {
+class OnlineGoApplication : Application(), Configuration.Provider {
 
     val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+
+  override val workManagerConfiguration: Configuration
+    get() = Configuration.Builder().build()
 
     /**
      * Applies the language the user picked in the settings, so that strings pulled from the
