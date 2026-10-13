@@ -86,7 +86,7 @@
     <string name="hello_world">Hola, món!</string>
     <string name="landscape_preview">Previsualització horitzontal</string>
     <string name="button_play_online">Jugar\nen\nlínia</string>
-    <string name="button_custom_game">Partida\npersonalitzada</string>
+    <string name="button_custom_game">Partida\na mida</string>
     <string name="button_play_against_ai">Jugar\ncontra\nla\nIA</string>
     <string name="button_face_to_face">Cara\na\ncara</string>
     <string name="bottomnavigation_botton_play">Jugar</string>
