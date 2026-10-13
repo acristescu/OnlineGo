@@ -547,8 +547,8 @@
     <string name="automatch_duration_several_days">niekoľko dní</string>
     <plurals name="automatch_duration_minutes">
         <item quantity="one">%d minúta</item>
-        <item quantity="few">%d minút</item>
-        <item quantity="many">%d minút</item>
+        <item quantity="few">%d minúty</item>
+        <item quantity="many">%d minúty</item>
         <item quantity="other">%d minút</item>
     </plurals>
     <string name="automatch_duration_minutes_range">%1$d až %2$d minút</string>
@@ -571,7 +571,7 @@
     <string name="mygames_challenge_is_challenging_you">%1$s vás vyzýva</string>
     <string name="mygames_accept">Prijať</string>
     <string name="mygames_decline">Odmietnuť</string>
-    <string name="mygames_see_details">Pozdieť podrobnosti</string>
+    <string name="mygames_see_details">Pozrieť podrobnosti</string>
     <string name="mygames_challenge_received">Dostali ste výzvu!</string>
     <string name="mygames_paused">prerušené</string>
     <string name="mygames_outcome_cancelled">Zrušené</string>
@@ -600,7 +600,7 @@
         <item quantity="one">Máte %d aktívnu hru.</item>
         <item quantity="few">Máte %d aktívne hry.</item>
         <item quantity="many">Máte %d aktívne hry.</item>
-        <item quantity="other">Máte %d aktívne hry.</item>
+        <item quantity="other">Máte %d aktívnych hier.</item>
     </plurals>
     <string name="mygames_no_active_games">Nemáte žiadnu aktívnu hru. Čo tak nejakú založiť?</string>
     <string name="mygames_detail_board_size">Veľkosť dosky</string>
@@ -665,7 +665,7 @@ Položte kameň pre pokračovanie!]]></string>
     <string name="tutorial_basics_capturingstones_capture8_text">Tentokrát treba zahrať až dva ťahy, aby boli zajaté biele kamene. Opatrne, prvý ťah je dôležitý!</string>
     <string name="tutorial_basics_capturingstones_capture9_text"><![CDATA["Je náročné utiecť s kameňmi na okraji. Chyťte dva biele kamene na prvej linke!"]]></string>
     <string name="tutorial_basics_capturingstones_capture10_text">Veľmi veľa kameňov! Hľadajte kamene ktoré sú v atari a zajmite ich. Ak sa pomýlite, budú zajaté vaše kamene.</string>
-    <string name="tutorial_basics_doubleatari_title">Dvojité Atari</string>
+    <string name="tutorial_basics_doubleatari_title">Dvojité atari</string>
     <string name="tutorial_basics_doubleatari_doubleAtari1_text"><![CDATA[V určitých pozíciach čierny dokáže dať do atari dve skupiny naraz. Čierny zvyčajne zajme aspoň jednu v tejto situácii!]]></string>
     <string name="tutorial_basics_doubleatari_doubleAtari2_text"><![CDATA["Tu je ďalšia. Kde dokážete vytvoriť dvojité atari?"]]></string>
     <string name="tutorial_basics_illegalmoves_title">Zakázané ťahy (pravidlo samovraždy)</string>
@@ -677,4 +677,18 @@ Položte kameň pre pokračovanie!]]></string>
     <string name="tutorial_basics_illegalmoves_suicide3_text">4 čierne kamene sú v atari! Zajmite biele kamene pred tým, ako zajmú vás!</string>
     <string name="tutorial_basics_illegalmoves_suicide4_text"><![CDATA["Zajmite 2 biele kamene dotýkajúce sa čiernych. Tu sa nedajú zajať jedným ťahom."]]></string>
     <string name="tutorial_basics_illegalmoves_suicide5_text">Biely kameň na D5 delí vaše kamene. Ak ho zajmete, Vaše kamene budú spojenou a silnou skupinou. Toto je veľmi dôležitý vzor v GO!</string>
+    <string name="tutorial_intermediate_title">Mierne pokročilé</string>
+    <string name="tutorial_intermediate_ladders_title">Schody</string>
+    <string name="tutorial_intermediate_ladders_ladder1_text">Chyťte biely kameň! Ak hráte správne ťahy, biely nemá šancu ujsť. Skúste zahrať po sebe idúce atari, kým biely nebude mať kam ísť. </string>
+    <string name="tutorial_intermediate_ladders_ladder1_branches_branch1_message">Biely sa pokúša utiecť…</string>
+    <string name="tutorial_intermediate_ladders_ladder1_branches_branch1_1_1_1_1_message">Vidíte k čomu to vedie?</string>
+    <string name="tutorial_intermediate_ladders_ladder1_branches_branch1_1_1_1_1_1_1_1_1_message">Ak sa biely pokúsi brániť…</string>
+    <string name="tutorial_intermediate_ladders_ladder1_branches_branch1_1_1_1_1_1_1_2_1_message">Ak sa biely pokúsi brániť…</string>
+    <string name="tutorial_intermediate_ladders_ladder1_branches_branch1_1_1_1_1_1_1_2_2_message">Ak sa biely pokúsi brániť…</string>
+    <string name="tutorial_intermediate_ladders_ladder2_text"><![CDATA["Tu sú ďalšie schody. Teraz je útek na vás. Hoci tentokrát nie je situácia beznádejná. Váš kameň na F2 je v ceste schodov. Ak sa k nemu dokážete dostať, ste v bezpečí. Tento kameň sa volá \"ničiteľ schodov\""]]></string>
+    <string name="tutorial_intermediate_ladders_ladder3_page1_text">Schody sú v GO veľmi dôležité. Ale musíte myslieť zopár ťahov dopredu a nezačínať schodové súboje pokiaľ si nie ste istí, že ich vyhráte! Tu je zobrazené čo sa stane bielemu ak hrá nevyhrateľné schody z predchádzajúceho príkladu\.\.\.</string>
+    <string name="tutorial_intermediate_twoeyes_title">Dve oči</string>
+    <string name="tutorial_intermediate_twoeyes_twoeyes1_text">Ste v úplnom obkľúčení. Ktorý ťah je jediný, ktorý vás dokáže zachrániť?</string>
+    <string name="tutorial_intermediate_twoeyes_twoeyes2_page1_text">Správne\" V tejto pozícii rovnako A aj B sú zakázané ťahy pre bieleho, pretože by to boli samovražedné ťahy bez zajatia vašich kameňov. Z toho dôvodu nikdy nevedia byť zajaté!</string>
+    <string name="tutorial_intermediate_twoeyes_twoeyes3_text"><![CDATA["A čo tu? Ako dokážete dosiahnuť, aby vaše kamene neboli zajaté?]]></string>
 </resources>
