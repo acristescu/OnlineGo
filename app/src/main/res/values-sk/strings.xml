@@ -728,4 +728,96 @@ Položte kameň pre pokračovanie!]]></string>
     <string name="tutorial_intermediate_puzzles_corner2_branches_branch4_message"><![CDATA["Čierny nedokáže ujsť"]]></string>
     <string name="tutorial_intermediate_puzzles_corner2_branches_branch6_message"><![CDATA["Čierny nedokáže ujsť"]]></string>
     <string name="tutorial_intermediate_falseeyes_title">Falošné oči</string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes1_page1_text"><![CDATA[Ak si pamätáte skorší tutoriál, skupina s dvoma očami nikdy nemôže byť zajatá. Avšak niekedy časť kameňov ktoré obkľučujú oko nie sú spojené s hlavnou skupinou a môžu byť zajaté zvlášť. Napríklad v pozícii nižšie D5 vyzerá ako oko, ale kameň na C5 je v atari a môže byť zajatý, čo zanechá prostrednú skupinu bez jediného oka.\n\nD5 nazývame \"falošné oko\"."]]></string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes2_text"><![CDATA["Biely sa pokúsil zachrániť jeho kameň na C5 položením kameňa na D5. Čo je v tomto prípade výherným ťahom?"]]></string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes3_text"><![CDATA["Ak sa biely naopak rozhodne bojovať, nezáleží na tom, stále viete zajať prostrednú skupinu!"]]></string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes4_text"><![CDATA["Tentokrát sa bránite. Prežite vytvorením dvoch skutočných očí!"]]></string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes4_branches_branch2_message">Zaplnili ste si svoje vlastné oko</string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes4_branches_branch3_message">Zaplnili ste si svoje vlastné oko</string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes4_branches_branch4_message">F4 je teraz falošné oko</string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes5_text"><![CDATA["Obidve oči tentokrát potrebujú opraviť!"]]></string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes5_branches_branch1_2_message">F5 je teraz falošné oko.</string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes5_branches_branch2_message">C5 je falošné oko.</string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes6_text"><![CDATA["Tu je častý príklad pre falošné oko na okraji. Opravte ho!"]]></string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes6_branches_branch2_message">Zaplnili ste si svoje vlastné oko</string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes6_branches_branch3_message">D9 je teraz falošné oko</string>
+    <string name="tutorial_intermediate_morepuzzles_title">Viac problémov</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles3_text">Pozor aby sa vám nezatočila hlava.</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles4_text">Čo by ste mali spraviť najskôr?</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_1_2_message">Čierne skupiny sú rozdelené</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_2_message">Čierne skupiny sú rozdelené</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_3_message">Čierne skupiny sú rozdelené</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_4_message">Čierne skupiny sú rozdelené</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_5_1_message">Čierny je izolovaný</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_5_2_message">Čierny je izolovaný</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_5_3_message">Čierny je izolovaný</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_5_4_message">Čierny je izolovaný</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_5_5_message">Čierny je izolovaný</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_6_message">Čierny je izolovaný</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles5_text">Narušte symetriu</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles5_branches_branch3_4_message"><![CDATA["Tri čierne kamene nemôžu ujsť."]]></string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles5_branches_branch5_message"><![CDATA["Dva čierne kamene nemôžu ujsť"]]></string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles5_branches_branch6_message"><![CDATA["Dva čierne kamene nemôžu ujsť"]]></string>
+    <string name="tutorial_advanced_title">Pokročilé</string>
+    <string name="tutorial_advanced_thefirstmoves_name">Prvé ťahy</string>
+    <string name="tutorial_advanced_thefirstmoves_firstmoves1_page1_text"><![CDATA["Doposiaľ sme sa zameriavali na chytanie kameňov.Avšak na začiatku hry nie sú žiadne kamene na doske. Pozrieme sa na to, kam hrať prvé ťahy na zvýšenie vašich šancí na výhru.
+
+Najskôr si dosku rozdeľme na 3 časti. Tieto sú rohy:"]]></string>
+    <string name="tutorial_advanced_thefirstmoves_firstmoves1_page2_text"><![CDATA["… tieto sú strany…"]]></string>
+    <string name="tutorial_advanced_thefirstmoves_firstmoves1_page3_text"><![CDATA["… a toto je stred. Samozrejme toto sú len mená, ktoré používame pre orientáciu a nie sú pre ne žiadne špeciálne pravidlá."]]></string>
+    <string name="tutorial_advanced_thefirstmoves_firstmoves1_page4_text"><![CDATA["Cieľom hry je ohraničiť viac územia ako váš súper. Keďže vy aj váš súper sa striedate v ukladaní kameňov, obaja budete mať rovnaké množstvo kameňov. Z toho dôvodu vyhráva hráč ktorý použije svoje kamene efektívnejšie.
+
+Kde je viac efektívne ohraničovať územie? V rohoch, na stranách, alebo v strede?"]]></string>
+    <string name="tutorial_advanced_thefirstmoves_firstmoves1_page5_text"><![CDATA["Každá zo skupín nižšie ohraničuje presne 9 voľných priesečníkov, takže každý získa 9 bodov. Avšak skupina v rohu vyžaduje len 6 kameňov, skupina na strane 9, zatiaľ čo skupina v strede vyžaduje 12!"]]></string>
+    <string name="tutorial_advanced_thefirstmoves_firstmoves1_page6_text"><![CDATA["Z toho dôvodu chytrí hráči hrajú najskôr v rohoch a až keď sú obsadené, presunú sa na strany, nechávajúc stred na koniec."]]></string>
+    <string name="tutorial_advanced_thefirstmoves_firstmoves2_text"><![CDATA["Tu je prvých 20 ťahov zo skutočnej hry medzi dvoma profesionálnymi hráčmi."]]></string>
+    <string name="tutorial_advanced_themiddlegame_name">Stredná hra</string>
+    <string name="tutorial_advanced_themiddlegame_middlegame1_text"><![CDATA["Čierny je blokovaný v ľavom dolnom rohu. Skupina bude obkúčená ak nič nespravíte."]]></string>
+    <string name="tutorial_advanced_themiddlegame_middlegame2_text"><![CDATA["Čierny blokuje bieleho v spodnej časti. Biely zatiaľ nemá 2 oči. Nato biely zahrá G2.
+
+Pozrite čo sa stane ak biely odpovie na F1 (alebo G1) predtým ako nájde správnu možnosť."]]></string>
+    <string name="tutorial_advanced_endgamescoring_name">Koncovka: Počítanie</string>
+    <string name="tutorial_advanced_endgamescoring_endgame1_page1_text"><![CDATA["Tu sa naučíte ako určiť, že je hra dokončená a ako počítať územia za použitia 5x5 dosiek. Obaja hráči spravili 5 ťahov, potom dali pass teda hra je považovaná za dokončenú. Ostáva iba spočítať územie.
+
+Skúste spočítať koľko priesečníkov čierny obkľúčil. A čo biely?
+
+Nápoveda: nezabudnite spočítať všetky priesečníky, vrátane strán a rohov, ale nie miesta, ktoré sú obsadené kameňmi."]]></string>
+    <string name="tutorial_advanced_endgamescoring_endgame1_page2_text"><![CDATA["Čierny má 5 bodov vľavo a biely má 10 bodov vpravo. Teda biely vyhráva o 5 bodov."]]></string>
+    <string name="tutorial_advanced_endgamescoring_endgame1_page3_text"><![CDATA["Ale prečo čierny neskúsil pokračovať v hre?
+
+Nuž, nezostal tu žiaden ťah, ktorý by vedel čierny zahrať, aby zvýšil svoje skóre. Pre príklad, ak čierny zaútočí na pravú stranu, biely sa ľahko ochráni a nový kameň bude mŕtvy.
+
+Biely zredukoval svoje územie o 1, ale získal jeden bod späť, pretože čierny kameň je mŕtvy a počíta sa ako zajatec.
+
+Skóre tu zostáva stále 10-5."]]></string>
+    <string name="tutorial_advanced_endgamescoring_endgame1_page4_text"><![CDATA["Čo ak čierny hrá naopak na ľavú stranu?
+
+Jediné čo získa bude, že jeho územie je teraz menšie, čiže stratil bod.
+
+A preto čierny nemá dobré ťahy a mal by dať pass. Biely má viac bodov, takže je šťastný a tiež dáva pass.
+
+Teda hra sa skončila a biely vyhráva."]]></string>
+    <string name="tutorial_advanced_endgamescoring_endgame1_page5_text"><![CDATA["V tejto situácii je ďalšia dokončená hra. Čierny má 5 bodov, zatiaľ čo biely má 6.
+
+Dva priesečníky v strede sú neutrálne teritórium ('Dame') a nepočítajú sa k skóre ľubovoľného z hráčov.
+
+Ľubovoľný hráč by tu mohol zahrať, ale nezíska a ani nestratí žiadne body."
+]]></string>
+    <string name="tutorial_advanced_endgamescoring_endgame1_page6_text"><![CDATA["Zatiaľ čo územie je najväčšou časťou skórovania, pamätajte, že sú tu aj iné bonusové body, ktoré musia byť pridané.
+
+Akýkoľvek zajatý kameň sa ráta za 1 bod, rovnako ako 'mŕtve' kamene ktoré sú stále na doske (ktoré nemajú šancu vytvoriť 2 oči).
+
+Taktiež, keďže čierny hrá prvý, má výhodu a pre kompenzáciu ha to híska biely malý bodový bonus (nazývany 'komi').
+
+Hodnota komi záleží od veľkosti dosky, ale zvyčajne je 5,5, alebo 6,5 boda. O,5 boda zaisľuje, že v hrách nebude žiadna remíza.
+
+Našťastie, aplikácia spraví všetky tieto kalkulácie za vás :)"]]></string>
+    <string name="tutorial_advanced_cuttingstones_name">Strihanie kameňov</string>
+    <string name="tutorial_advanced_cuttingstones_cutting1_text"><![CDATA["Vyzerá to akoby biely mal väčšie územie. Avšak jeho stena má slabinu. Jednoducho \"strihnite\" bieleho stenu.
+
+Ak uspejete, biely bude mať čo robiť aby zabezpečil život obom skupinám."]]></string>
+    <string name="tutorial_advanced_cuttingstones_cutting1_branches2_message">Biele kamene sú spojené.</string>
+    <string name="tutorial_advanced_cuttingstones_cutting2_text"><![CDATA["Čierne kamene majú 30 bodov, zatiaľ čo biele majú 31 bodov. Teda to vyzerá, že biely vyhral o 1 bod. Avšak územie na spodnej strane nie je všetko bieleho.
+
+Jednoducho prestrihnite bieleho stenu."]]></string>
 </resources>
