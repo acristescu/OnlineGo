@@ -157,8 +157,8 @@ fun PlayerDetailsDialog(
       modifier = Modifier.padding(bottom = 16.dp)
     )
 
-    if (stats is Success && stats.data.highestRating != null) {
-      val highestRatingFloat = stats.data.highestRating
+    val highestRatingFloat = (stats as? Success)?.data?.highestRating
+    if (highestRatingFloat != null) {
       val highestRank =
         formatRank(egfToRank(highestRatingFloat.toDouble()), longFormat = true)
       val highestRating = highestRatingFloat.toInt().toString()

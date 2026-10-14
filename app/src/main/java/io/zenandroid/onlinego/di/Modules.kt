@@ -7,7 +7,6 @@ import io.ktor.client.HttpClient
 import io.ktor.client.engine.okhttp.OkHttp
 import io.ktor.client.plugins.websocket.WebSockets
 import io.ktor.http.Url
-import io.zenandroid.onlinego.BuildConfig
 import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.ai.KataGoAnalysisEngine
 import io.zenandroid.onlinego.data.db.Database
@@ -16,6 +15,7 @@ import io.zenandroid.onlinego.data.ogs.HTTPConnectionFactory
 import io.zenandroid.onlinego.data.ogs.OGSCookieStore
 import io.zenandroid.onlinego.data.ogs.OGSRestService
 import io.zenandroid.onlinego.data.ogs.OGSWebSocketService
+import io.zenandroid.onlinego.data.ogs.OGS_BASE_URL
 import io.zenandroid.onlinego.data.ogs.SharedPrefsCookiePersistence
 import io.zenandroid.onlinego.data.ogs.configureOGSClient
 import io.zenandroid.onlinego.data.ogs.createOGSRestAPI
@@ -119,7 +119,7 @@ private val serverConnectionModule = module {
   single {
     OGSCookieStore(
       persistence = SharedPrefsCookiePersistence(get()),
-      host = Url(BuildConfig.BASE_URL).host,
+      host = Url(OGS_BASE_URL).host,
     )
   }
 
@@ -128,7 +128,7 @@ private val serverConnectionModule = module {
       configureOGSClient(
         jsonFormat = get(),
         cookiesStorage = get<OGSCookieStore>(),
-        baseUrl = BuildConfig.BASE_URL,
+        baseUrl = OGS_BASE_URL,
       )
       engine {
         preconfigured = get<OkHttpClient>()
@@ -139,7 +139,7 @@ private val serverConnectionModule = module {
 
   single {
     Ktorfit.Builder()
-      .baseUrl(BuildConfig.BASE_URL)
+      .baseUrl(OGS_BASE_URL)
       .httpClient(get<HttpClient>())
       .converterFactories(Glicko2HistoryConverterFactory)
       .build()

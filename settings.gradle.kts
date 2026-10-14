@@ -16,4 +16,5 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "OnlineGo"
-include(":app") 
+include(":app")
+include(":shared") 

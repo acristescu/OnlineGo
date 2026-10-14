@@ -128,14 +128,15 @@ class AiGameViewModel(
       val blackInitial = state.history[0].blackStones
       val moves = mutableListOf<Cell>()
       state.history.drop(1).forEach {
-        if (it.lastMove == null || it.boardHeight != state.boardSize) {
+        val lastMove = it.lastMove
+        if (lastMove == null || it.boardHeight != state.boardSize) {
           Logger.i(
-            "Invalid position in history: lastMove=${it.lastMove} boardHeight=${it.boardHeight} boardSize=${state.boardSize}",
+            "Invalid position in history: lastMove=$lastMove boardHeight=${it.boardHeight} boardSize=${state.boardSize}",
             tag = "AiGameViewModel"
           )
           return false
         }
-        moves.add(it.lastMove)
+        moves.add(lastMove)
         val pos = RulesManager.buildPos(
           moves,
           state.boardSize,

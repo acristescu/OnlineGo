@@ -6,10 +6,8 @@ plugins {
   alias(libs.plugins.kotlin.compose)
   alias(libs.plugins.google.services)
   alias(libs.plugins.firebase.crashlytics)
-  alias(libs.plugins.ksp)
   alias(libs.plugins.kotlin.serialization)
   alias(libs.plugins.screenshot)
-  alias(libs.plugins.ktorfit)
 }
 
 android {
@@ -27,17 +25,10 @@ android {
     versionCode = 42
     versionName = "beta_b${versionCode}"
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-    buildConfigField("String", "BASE_URL", "\"https://online-go.com/\"")
   }
 
   androidResources {
     localeFilters += listOf("en", "ca", "de", "es", "fr", "nl", "ro")
-  }
-
-  ksp {
-    arg("room.schemaLocation", "$projectDir/schemas")
-    arg("room.incremental", "true")
-    arg("room.expandProjection", "true")
   }
 
   buildTypes {
@@ -91,13 +82,6 @@ android {
     stabilityConfigurationFiles.add(rootProject.layout.projectDirectory.file("stability_config.conf"))
   }
 
-  externalNativeBuild {
-    cmake {
-      path = file("CMakeLists.txt")
-      version = libs.versions.cmake.get()
-    }
-  }
-
   namespace = "io.zenandroid.onlinego"
 
   packaging {
@@ -109,6 +93,8 @@ android {
 }
 
 dependencies {
+  implementation(project(":shared"))
+
   // Compose BOM - manages all Compose library versions
   implementation(platform(libs.compose.bom))
   androidTestImplementation(platform(libs.compose.bom))
@@ -146,7 +132,6 @@ dependencies {
   implementation(libs.play.review.ktx)
 
   // Networking
-  implementation(libs.okhttp.logging.interceptor)
   implementation(libs.ktorfit.lib)
   implementation(libs.ktor.client.content.negotiation)
   implementation(libs.ktor.serialization.kotlinx.json)
@@ -157,10 +142,6 @@ dependencies {
 
   // Work Manager
   implementation(libs.bundles.work)
-
-  // Room Database
-  implementation(libs.bundles.room)
-  ksp(libs.room.compiler)
 
   // Dependency Injection
   implementation(libs.bundles.koin)

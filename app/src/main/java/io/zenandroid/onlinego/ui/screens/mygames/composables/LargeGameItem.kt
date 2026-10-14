@@ -105,10 +105,11 @@ fun LargeGameItem(game: Game, userId: Long?, onAction: (Action) -> Unit, modifie
                         }
                     }
                 }
-                if(game.messagesCount != null && game.messagesCount != 0) {
+              val messagesCount = game.messagesCount
+              if (messagesCount != null && messagesCount != 0) {
                     Spacer(modifier = Modifier.weight(1f))
                     ChatIndicator(
-                        chatCount = game.messagesCount,
+                      chatCount = messagesCount,
                         modifier = Modifier
                           .padding(bottom = 8.dp)
                           .align(Alignment.CenterVertically)

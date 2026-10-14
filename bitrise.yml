@@ -32,6 +32,11 @@ workflows:
             - project_location: "$PROJECT_LOCATION"
             - module: "$MODULE"
             - variant: "$TEST_VARIANT"
+      - android-unit-test@1.0:
+          inputs:
+            - project_location: "$PROJECT_LOCATION"
+            - module: shared
+            - variant: "$TEST_VARIANT"
   _teardown:
     description: |
       Shared epilogue: publish artifacts to Bitrise and refresh the cache.

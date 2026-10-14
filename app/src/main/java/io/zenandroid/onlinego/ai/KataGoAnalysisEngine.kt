@@ -149,7 +149,8 @@ class KataGoAnalysisEngine(private val context: Context) {
     val initialPosition = mutableSetOf<List<String>>()
     val history = mutableListOf<List<String>>()
     sequence.map { pos ->
-      if (pos.lastMove == null) {
+      val lastMove = pos.lastMove
+      if (lastMove == null) {
         initialPosition.addAll(pos.whiteStones.map {
           listOf("W", Util.getGTPCoordinates(it, pos.boardHeight))
         })
@@ -158,8 +159,7 @@ class KataGoAnalysisEngine(private val context: Context) {
         })
       } else {
         val lastPlayer = if (pos.lastPlayerToMove == StoneType.BLACK) "B" else "W"
-        val lastMove = Util.getGTPCoordinates(pos.lastMove, pos.boardHeight)
-        history.add(listOf(lastPlayer, lastMove))
+        history.add(listOf(lastPlayer, Util.getGTPCoordinates(lastMove, pos.boardHeight)))
       }
     }
 

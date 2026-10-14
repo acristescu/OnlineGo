@@ -160,9 +160,9 @@ fun MyGamesScreen(
       title = { Text(stringResource(R.string.mygames_moderator_title, it.severity ?: "")) },
       text = {
         Text(
-          if (it.text.isNullOrEmpty()) it.message_id
+          it.text?.takeIf { text -> text.isNotEmpty() }
+            ?: it.message_id
             ?: stringResource(R.string.mygames_empty_message)
-          else it.text
         )
       },
       confirmButton = {

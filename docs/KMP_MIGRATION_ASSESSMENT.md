@@ -9,9 +9,9 @@ is no RxJava, no `Parcelable`, and Koin, Molecule, Room, DataStore, `ViewModel`,
 kotlinx-collections-immutable are already multiplatform. The cost is dominated by resources
 (663 strings x 16 locales) and the local-AI engine, which cannot run on iOS as built today.
 
-**Status.** Phase 0 is finished: twenty-one slices are done (section 6). None has shipped in a
-release
-yet, and several still need on-device checks (section 1.2). Phases 1-5 have not started.
+**Status.** Phases 0 and 1 are finished: twenty-two slices are done (section 6). None has shipped
+in a release yet, and several still need on-device checks (section 1.2). Phases 2-5 have not
+started.
 
 Earlier, longer versions of this document:
 `git show d529259:docs/KMP_MIGRATION_ASSESSMENT.md` (original assessment) and
@@ -53,12 +53,14 @@ Still owed - unit tests cannot reach these:
   `screen_view` names in Firebase DebugView.
 - [ ] **Clock text** (6.16): simple, byo-yomi, Canadian and Fischer clocks and the game-list
   timers, in English and in a locale with a decimal comma (e.g. `de`).
+- [ ] **`:shared` extraction** (6.22): a score estimate in a finished game (`libestimator.so` now
+  comes from the library), a tutorial opens (`tutorials.json` stays in the app), the Tsumego tab
+  loads (Room in the library), and a debug install over the previous build keeps the session.
 
-### 1.3 Phases 1-5
+### 1.3 Phases 2-5
 
 | Phase                                | Work                                                                                                                                                                                                                                                 | Estimate                        |
 |--------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------|
-| **1 - extract `:shared`**            | One library module holding `model`, `logic`, `network`, `database`, `data`. `:app` keeps the Activity, notifications, WorkManager, billing, Play services and UI. Surfaces every dependency cycle before KMP can muddy the diagnosis.                | a few days                      |
 | **2 - make `:shared` multiplatform** | `androidTarget` + iOS targets; everything starts in `androidMain`. Move `model` + `logic` (~950 LOC) to `commonMain`, `RulesManagerTest` to `commonTest`. `RulesManager` still holds `androidx.core.util.lruCache` and the JNI estimator (4.1).      | 1-2 weeks (+1-2 for estimator)  |
 | **3 - data layer to `commonMain`**   | Room KMP (bundled SQLite driver, `expect`/`actual` DB path), DataStore on okio `Path`, Ktor engine per platform, repositories one file at a time. Session persistence is behind `SessionCookiePersistence`; the websocket has no JVM threading left. | 4-6 weeks                       |
 | **4 - Compose Multiplatform**        | UI into `:shared/commonMain`. Resources (4.2), icons, chart, markdown, Material You. `BoardComposable` has four Android leaks with direct CMP equivalents: `nativeCanvas.drawText`, `pointerInteropFilter`, `Rect`, `colorResource`.                 | 6-10 weeks (resources dominate) |
@@ -87,7 +89,8 @@ A nine-module `:core:*` split is the default advice and wrong here: no `build-lo
 hand-kept build files on a brand-new toolchain), one `Res` class per module fragments the
 resources work, `model` + `logic` is 950 LOC, and nearly every commit has one author. Revisit when
 clean-build time becomes a real problem (record a baseline first), a second regular contributor
-appears, or local AI needs Play Feature Delivery for its 265 MB of assets.
+appears, or local AI needs Play Feature Delivery for its 265 MB of assets. Baseline after Phase 1:
+`./gradlew --rerun-tasks --no-build-cache :app:assembleDebug` takes ~26 s (M4 Pro, warm daemon).
 
 ---
 
@@ -99,7 +102,7 @@ appears, or local AI needs Play Feature Delivery for its 265 MB of assets.
 
 | Dependency                                      | Replacement                                                                                                    | When                |
 |-------------------------------------------------|----------------------------------------------------------------------------------------------------------------|---------------------|
-| `BuildConfig`                                   | BuildKonfig                                                                                                    | Phase 2             |
+| `BuildConfig.DEBUG` in `HTTPConnectionFactory`  | stays in `androidMain` with OkHttp; `BASE_URL` is already the constant `OGS_BASE_URL` (6.22)                   | Phase 2             |
 | Koin Android artifacts                          | `koin-core` + `koin-compose` + `koin-compose-viewmodel`; drop `androidApplication()`                           | Phase 2             |
 | Molecule `AndroidUiDispatcher` / `ContextClock` | multiplatform frame clock; extract the shared `moleculeScope` base from the two ViewModels                     | Phase 2             |
 | Room 2.8, DataStore 1.2                         | same libraries, KMP setup                                                                                      | Phase 3             |
@@ -181,7 +184,7 @@ one module so there is one `Res` class.
 ## 6. Done - what is still load-bearing
 
 Only traps, deliberate behaviour changes, and decisions that look wrong but are not. Unit tests
-stand at 121.
+stand at 121: 75 in `:shared`, 46 in `:app`.
 
 ### 6.1 Moshi to kotlinx.serialization
 
@@ -376,3 +379,27 @@ the earlier count of 129 predates later edits). Decoding and encoding are unchan
 `explicitNulls = false` an absent key was already `null` and nulls are still omitted. The flag stays
 as the safety net for a new property added without a default, pinned in `NullableDefaultsTest` by a
 test-local class.
+
+### 6.22 `:shared` extracted
+
+- An Android library at `shared/` holds `data/**`, `gamelogic/**`, `usecases/**` and the six
+  `utils` files they need (`Globals`, `Globals1`, `AppJson`, `PersistenceManager`,
+  `CrashReporter`, `Analytics`), plus the estimator's C++, `CMakeLists.txt` and the Room
+  schemas. Packages are unchanged, so JNI symbol names, serial names and the
+  `-keep class io.zenandroid.onlinego.data.**` rule still match. No dependency cycle surfaced.
+- **`:shared` applies the Compose compiler plugin** though it has no composables. Without it the
+  model classes compile as external and unstable: six more unstable parameters in the app's
+  compose report (`Challenge`, `Player`, `Tutorial`, ...). Strong skipping hides this from the
+  skippable count, so compare `unstable` parameters in `app_release-composables.txt`, not
+  skippable totals. `stability_config.conf`'s `data.*` matches the `data` package only.
+- **Firebase Analytics and Crashlytics are dependencies of `:shared`** for now; Phase 2 does 6.9
+  and 6.10. `ApiException` arrives transitively.
+- `BASE_URL` was a build field for a fixed value; it is now `const val OGS_BASE_URL` in
+  `OGSHttpClient.kt`. `HTTPConnectionFactory` reads `io.zenandroid.onlinego.shared.BuildConfig`.
+- `tutorials.json` stays in the app's assets: its keys are app string resources, and
+  `TutorialsJsonParsingTest` stays with it.
+- Kotlin does not smart-cast a property declared in another module; nine app sites now read the
+  model property once instead of null-checking it and reading it again.
+- CI: Bitrise runs a second `android-unit-test` step with `module: shared`; without it the 75
+  moved tests would silently stop running. The release APK matched the pre-move build apart from
+  dex size (-116 bytes).

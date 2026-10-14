@@ -31,7 +31,6 @@ import app.cash.molecule.AndroidUiDispatcher
 import app.cash.molecule.RecompositionMode.ContextClock
 import app.cash.molecule.launchMolecule
 import co.touchlab.kermit.Logger
-import io.zenandroid.onlinego.BuildConfig
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.Mark
@@ -48,6 +47,7 @@ import io.zenandroid.onlinego.data.model.ogs.Phase
 import io.zenandroid.onlinego.data.model.ogs.VersusStats
 import io.zenandroid.onlinego.data.ogs.GameConnection
 import io.zenandroid.onlinego.data.ogs.OGSWebSocketService
+import io.zenandroid.onlinego.data.ogs.OGS_BASE_URL
 import io.zenandroid.onlinego.data.ogs.TimeControl
 import io.zenandroid.onlinego.data.repositories.ActiveGamesRepository
 import io.zenandroid.onlinego.data.repositories.ChatRepository
@@ -604,34 +604,36 @@ class GameViewModel(
     val loser = if (game.blackLost == true) game.blackPlayer else game.whitePlayer
     val you = if (game.whitePlayer.id == userId) game.whitePlayer else game.blackPlayer
 
+    val gameOutcome = game.outcome
     val outcome = when {
-      game.outcome == OUTCOME_RESIGNATION -> GameOutcome.Resignation(
+      gameOutcome == OUTCOME_RESIGNATION -> GameOutcome.Resignation(
         loser.username,
         game.moves?.size ?: 0
       )
 
-      game.outcome?.endsWith(OUTCOME_POINTS_SUFFIX) == true -> GameOutcome.Points(
+      gameOutcome?.endsWith(OUTCOME_POINTS_SUFFIX) == true -> GameOutcome.Points(
         winner.username,
-        game.outcome.substringBefore(' ')
+        gameOutcome.substringBefore(' ')
       )
 
-      game.outcome == OUTCOME_TIMEOUT -> GameOutcome.Timeout(loser.username)
-      game.outcome == OUTCOME_CANCELLATION -> GameOutcome.Cancellation(loser.username)
-      game.outcome == OUTCOME_DISCONNECTION -> GameOutcome.Disconnection(loser.username)
-      else -> GameOutcome.Unknown(game.outcome ?: "")
+      gameOutcome == OUTCOME_TIMEOUT -> GameOutcome.Timeout(loser.username)
+      gameOutcome == OUTCOME_CANCELLATION -> GameOutcome.Cancellation(loser.username)
+      gameOutcome == OUTCOME_DISCONNECTION -> GameOutcome.Disconnection(loser.username)
+      else -> GameOutcome.Unknown(gameOutcome ?: "")
     }
 
-    val ratingChange = if (game.ranked == true && you.rating != null) {
-      val historicRating = you.historicRating ?: you.rating
-      if (you.rating == historicRating && game.outcome != OUTCOME_CANCELLATION) {
+    val yourRating = you.rating
+    val ratingChange = if (game.ranked == true && yourRating != null) {
+      val historicRating = you.historicRating ?: yourRating
+      if (yourRating == historicRating && gameOutcome != OUTCOME_CANCELLATION) {
         RatingChange.BeingUpdated
       } else {
-        val difference = you.rating.toInt() - historicRating.toInt()
+        val difference = yourRating.toInt() - historicRating.toInt()
         RatingChange.NewRating(
-          rank = formatRank(egfToRank(you.rating), you.deviation),
-          rating = String.format("%.0f", you.rating),
-          difference = if (you.rating != historicRating) {
-            if (you.rating >= historicRating) "+$difference" else "$difference"
+          rank = formatRank(egfToRank(yourRating), you.deviation),
+          rating = String.format("%.0f", yourRating),
+          difference = if (yourRating != historicRating) {
+            if (yourRating >= historicRating) "+$difference" else "$difference"
           } else null,
         )
       }
@@ -949,8 +951,8 @@ class GameViewModel(
         }
       }
 
-      OpenInBrowser -> _events.tryEmit(OpenURL(BuildConfig.BASE_URL + "game/${gameState?.id}"))
-      DownloadSGF -> _events.tryEmit(OpenURL(BuildConfig.BASE_URL + "api/v1/games/${gameState?.id}/sgf"))
+      OpenInBrowser -> _events.tryEmit(OpenURL(OGS_BASE_URL + "game/${gameState?.id}"))
+      DownloadSGF -> _events.tryEmit(OpenURL(OGS_BASE_URL + "api/v1/games/${gameState?.id}/sgf"))
       BlackPlayerClicked -> playerDetailsDialogShowing = gameState?.blackPlayer
       WhitePlayerClicked -> playerDetailsDialogShowing = gameState?.whitePlayer
       PlayerDetailsDialogDismissed -> playerDetailsDialogShowing = null

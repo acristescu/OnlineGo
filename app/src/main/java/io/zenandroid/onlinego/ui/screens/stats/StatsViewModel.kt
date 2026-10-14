@@ -208,10 +208,11 @@ class StatsViewModel(
       )
     }
 
-    if (stats.mostFacedId != null) {
+    val mostFacedId = stats.mostFacedId
+    if (mostFacedId != null) {
       viewModelScope.launch(Dispatchers.IO) {
         try {
-          val mostFaced = restService.getPlayerProfile(stats.mostFacedId)
+          val mostFaced = restService.getPlayerProfile(mostFacedId)
           state.update {
             it.copy(
               mostFacedOpponent = mostFaced,

@@ -6,6 +6,9 @@
 /app/app.iml
 /app/.externalNativeBuild
 /app/.cxx
+/shared/.externalNativeBuild
+/shared/.cxx
+/shared/build
 app/google-services.json
 app/src/release/google-services.json
 OnlineGo.iml
