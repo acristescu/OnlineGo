@@ -338,6 +338,7 @@
     <string name="settings_language_catalan" translatable="false">Català</string>
     <string name="settings_language_dutch" translatable="false">Nederlands</string>
     <string name="settings_language_french" translatable="false">Français</string>
+    <string name="settings_language_slovak" translatable="false">Slovenčina</string>
     <string name="settings_help_translate">Help translate Sente</string>
     <string name="settings_section_notifications">Notifications</string>
     <string name="settings_system_notifications">System notifications</string>
