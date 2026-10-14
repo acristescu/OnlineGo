@@ -10,12 +10,12 @@
     <string name="ai_game_chat_use_new_game_button">Použite tlačidlo \'Nová hra\' pre štart novej hry</string>
     <string name="ai_game_chat_engine_error">Chyba pri štarte KataGO \'%1$s\'</string>
     <string name="ai_game_chat_engine_starting">Zapína sa AI engine, prosím čakajte…</string>
-    <string name="ai_game_chat_invalid_move">Nedovolený ťah, skúste znova</string>
-    <string name="ai_game_chat_lets_try_again">OK, skúsme to znova. Váš ťah!</string>
+    <string name="ai_game_chat_invalid_move">Nedovolený ťah, skúste to znova</string>
+    <string name="ai_game_chat_lets_try_again">Dobre, skúsme to znova. Váš ťah!</string>
     <string name="ai_game_chat_hmmm">Hmmm…</string>
     <string name="ai_game_chat_moves_to_consider">Tu je zopár ťahov na zváženie</string>
-    <string name="ai_game_chat_ok_your_turn">OK, Váš ťah</string>
-    <string name="ai_game_chat_calculating_territory">OK, počítam aktuálne územie…</string>
+    <string name="ai_game_chat_ok_your_turn">Dobre, váš ťah</string>
+    <string name="ai_game_chat_calculating_territory">Dobre, počítam aktuálne územie…</string>
     <string name="ai_game_chat_territories">Myslím si, že územia vyzerajú takto</string>
     <string name="ai_game_chat_im_thinking">Rozmýšľam…</string>
     <string name="ai_game_chat_your_turn">Váš ťah</string>
@@ -62,6 +62,9 @@
     <string name="White">Biely</string>
     <string name="handicap">Hendikep</string>
     <string name="difficulty">Obtiažnosť</string>
+    <string name="ai_game_rules">Pravidlá</string>
+    <string name="ai_game_rules_japanese">Japonské</string>
+    <string name="ai_game_rules_chinese">Čínske</string>
     <string name="ai_game_difficulty_scale_hint">Vyššie kyu = ľahší, dan = silnejší</string>
     <string name="ai_game_difficulty_kyu">%1$d kyu</string>
     <string name="ai_game_difficulty_dan">%1$d dan</string>
@@ -151,8 +154,8 @@
     <string name="game_button_exit_analysis">Ukončiť analýzu</string>
     <string name="game_button_estimate">Odhadnúť</string>
     <string name="game_button_return">Vrátiť</string>
-    <string name="game_button_previous">Predošlá</string>
-    <string name="game_button_next">Ďalšia</string>
+    <string name="game_button_previous">Predošlý</string>
+    <string name="game_button_next">Ďalší</string>
     <string name="game_menu_open_in_browser">Otvoriť v prehliadači</string>
     <string name="game_menu_download_sgf">Uložiť ako SGF</string>
     <string name="game_menu_accept_undo">Prijať vrátenie ťahu</string>
@@ -163,9 +166,9 @@
     <string name="game_opponent_undo_dialog_ignore">IGNOROVAŤ</string>
     <string name="game_opponent_undo_dialog_accept">VRÁTIŤ ŤAH</string>
     <string name="game_request_undo_dialog_title">Požiadať o vrátenie ťahu?</string>
-    <string name="game_request_undo_dialog_message">Ak ste posledný ťah zahrali omylom, môžete požiadať súpera či Vám dovolí ťah vrátiť.</string>
+    <string name="game_request_undo_dialog_message">Ak ste posledný ťah zahrali omylom, môžete sa opýtať súpera či vám dovolí ťah vrátiť.</string>
     <string name="game_request_undo_dialog_confirm">POŽIADAŤ VRÁTENIE ŤAHU</string>
-    <string name="game_pass_dialog_message">Ste si istí, že chcete dať pass? Mali by ste to robiť iba ak si myslíte, že hra je ukončená a nie sú v nej už žiadne ťahy, ktoré by sa dali spraviť. Ak Váš súper dá tiež pass, hra pokračuje do fázy počítania.</string>
+    <string name="game_pass_dialog_message">Ste si istí, že chcete dať pass? Mali by ste to robiť iba ak si myslíte, že hra je ukončená a nie sú v nej už žiadne ťahy, ktoré by sa dali zahrať. Ak váš súper dá tiež pass, hra pokračuje do fázy počítania.</string>
     <string name="game_pass_dialog_confirm">PASS</string>
     <string name="game_resign_dialog_message">Ste si istí, že sa chcete vzdať?</string>
     <string name="game_resign_dialog_confirm">VZDAŤ SA</string>
@@ -189,7 +192,7 @@
     <string name="game_over_lost">PREHRALI STE</string>
     <string name="game_over_view_board">ZOBRAZIŤ DOSKU</string>
     <string name="game_over_next_game">ĎALŠIA HRA</string>
-    <string name="game_over_quick_replay">RÝCHLE PREHRATIE</string>
+    <string name="game_over_quick_replay">RÝCHLE ZOPAKOVANIE</string>
     <string name="game_over_resignation">%1$s sa vzdal na ťahu %2$d</string>
     <string name="game_over_points">%1$s má o %2$s bodov viac</string>
     <string name="game_over_timeout">%1$s prehral na timeout.</string>
@@ -218,41 +221,56 @@
     <string name="game_player_details_total">Spolu</string>
     <plurals name="duration_weeks">
         <item quantity="one">%d týždeň</item>
-        <item quantity="few">%d týždňov</item>
-        <item quantity="many">%d týždňov</item>
+        <item quantity="few">%d týždne</item>
+        <item quantity="many">%d týždňa</item>
         <item quantity="other">%d týždňov</item>
     </plurals>
     <plurals name="duration_days">
         <item quantity="one">%d deň</item>
-        <item quantity="few">%d dní</item>
-        <item quantity="many">%d dní</item>
+        <item quantity="few">%d dni</item>
+        <item quantity="many">%d dňa</item>
         <item quantity="other">%d dní</item>
     </plurals>
     <plurals name="duration_hours">
         <item quantity="one">%d hodina</item>
-        <item quantity="few">%d hodín</item>
-        <item quantity="many">%d hodín</item>
+        <item quantity="few">%d hodiny</item>
+        <item quantity="many">%d hodiny</item>
         <item quantity="other">%d hodín</item>
     </plurals>
     <plurals name="duration_minutes">
         <item quantity="one">%d minúta</item>
-        <item quantity="few">%d minút</item>
-        <item quantity="many">%d minút</item>
+        <item quantity="few">%d minúty</item>
+        <item quantity="many">%d minúty</item>
         <item quantity="other">%d minút</item>
     </plurals>
     <plurals name="duration_seconds">
         <item quantity="one">%d sekunda</item>
-        <item quantity="few">%d sekúnd</item>
-        <item quantity="many">%d sekúnd</item>
+        <item quantity="few">%d sekundy</item>
+        <item quantity="many">%d sekundy</item>
         <item quantity="other">%d sekúnd</item>
     </plurals>
+    <plurals name="clock_days">
+        <item quantity="one">%d deň</item>
+        <item quantity="few">%d dni</item>
+        <item quantity="many">%d dňa</item>
+        <item quantity="other">%d dní</item>
+    </plurals>
+    <string name="clock_days_hours">%1$dd %2$dh</string>
+    <string name="clock_hours">%1$dh</string>
+    <string name="clock_hours_minutes">%1$dh %2$02dm</string>
+    <string name="clock_minutes_seconds">%1$d : %2$02d</string>
+    <string name="clock_seconds">%1$02ds</string>
+    <string name="clock_tenths">%1$.1fs</string>
+    <string name="clock_canadian_period">+%1$s / %2$d</string>
+    <string name="clock_byoyomi_periods">%1$d × %2$s</string>
+    <string name="clock_fischer_increment">+ %1$s / ťah</string>
     <string name="duration_two_units">%1$s %2$s</string>
     <string name="duration_unknown">\?</string>
     <string name="time_control_simple">Jednoduché: %1$s na ťah.</string>
     <string name="time_control_fischer">Fischer: Hodiny začínajú s %1$s a čas sa navyšuje o %2$s za každý ťah, maximálne do %3$s.</string>
     <plurals name="time_control_byoyomi">
         <item quantity="one">Japonské Byo-Yomi: Hodiny začínajú s hlavným časom %1$s, nasleduje %2$d perióda trvajúca %3$s.</item>
-        <item quantity="few">Japonské Byo-Yomi: Hodiny začínajú s hlavným časom %1$s, nasleduje %2$d periód, každá po %3$s.</item>
+        <item quantity="few">Japonské Byo-Yomi: Hodiny začínajú s hlavným časom %1$s, nasleduje %2$d periódy, každá po %3$s.</item>
         <item quantity="many">Japonské Byo-Yomi: Hodiny začínajú s hlavným časom %1$s, nasleduje %2$d periód, každá po %3$s.</item>
         <item quantity="other">Japonské Byo-Yomi: Hodiny začínajú s hlavným časom %1$s, nasleduje %2$d periód, každá po %3$s.</item>
     </plurals>
@@ -288,9 +306,9 @@
     <string name="socket_debug_filter_type">%1$s (%2$d)</string>
     <plurals name="socket_debug_event_count">
         <item quantity="one">%d udalosť</item>
-        <item quantity="few">%d udalosti</item>
-        <item quantity="many">%d udalosti</item>
-        <item quantity="other">%d udalosti</item>
+        <item quantity="few">%d udalostí</item>
+        <item quantity="many">%d udalostí</item>
+        <item quantity="other">%d udalostí</item>
     </plurals>
     <string name="notification_challenge_title">Nová výzva!</string>
     <string name="notification_challenge_text">%1$s vytvoril výzvu</string>
@@ -302,10 +320,10 @@
     <string name="notification_outcome_white_won_by">Biely vyhral o %1$s</string>
     <string name="notification_your_turn">Váš ťah</string>
     <string name="notification_stone_removal_phase">Fáza odstraňovania kameňov</string>
-    <string name="notification_requires_attention">%1$s Vyžaduje Vašu pozornosť</string>
+    <string name="notification_requires_attention">%1$s Vyžaduje vašu pozornosť</string>
     <plurals name="notification_games_require_attention">
-        <item quantity="one">%d hra vyžaduje Vašu pozornosť</item>
-        <item quantity="few">%d hier vyžaduje vašu pozornosť</item>
+        <item quantity="one">%d hra vyžaduje vašu pozornosť</item>
+        <item quantity="few">%d hry vyžadujú vašu pozornosť</item>
         <item quantity="many">%d hier vyžaduje vašu pozornosť</item>
         <item quantity="other">%d hier vyžaduje vašu pozornosť</item>
     </plurals>
@@ -368,6 +386,438 @@
     <string name="settings_icon_content_description">Ikona</string>
     <string name="supporter_title">Stať sa podporovateľom</string>
     <string name="supporter_header">Podporiť Android aplikáciu</string>
-    <string name="supporter_intro">Tento projekt začal ešte v roku 2015 ako hobby. Zatiaľ čo výborné prehliadačovo založené služby existovali, neboli žiadne podobne kvalitné mobilné aplikácie. Cieľom bol vznik bezplatnej a open source (FOSS), profesionálne vytvorenej Android aplikácie, ktorá umožňuje GO hráčom interagovať a objavovať túto úžasnú hru.\nNie sme spojení s OGS, hoci nám láskavo dovolili používať bezplatne ich online služby.\nSpoliehame sa na podporu od ľudí ako ste vy aby sme to umožnili. Ak máte túto aplikáciu radi, prosím zvážte podporu mesačným príspevkom a staňte sa Podporovateľom!</string>
+    <string name="supporter_intro">Tento projekt začal ešte v roku 2015 ako hobby. Zatiaľ čo výborné prehliadačovo založené služby existovali, neboli žiadne podobne kvalitné mobilné aplikácie. Cieľom bol vznik bezplatnej a open source (FOSS), profesionálne vytvorenej Android aplikácie, ktorá umožňuje GO hráčom interagovať a objavovať túto úžasnú hru.\n\nNie sme spojení s OGS, hoci nám láskavo dovolili používať bezplatne ich online služby.\n\nSpoliehame sa na podporu od ľudí ako ste vy aby sme to umožnili. Ak máte túto aplikáciu radi, prosím zvážte podporu mesačným príspevkom a staňte sa Podporovateľom!</string>
     <string name="supporter_reason_develop_title">Pomôžte nám vyvíjať aplikáciu rýchlejšie</string>
+    <string name="supporter_reason_develop_description">Podporovatelia umožňujú alokovať viac času na vývoj nových funkcií ako sú integrácia KataGo AI, AI asistovaná analýza, SGF editor atď.</string>
+    <string name="supporter_reason_free_title">Zachovať aplikáciu bezplatnú</string>
+    <string name="supporter_reason_free_description">Chceme aby aplikácia bola bezplatná pre všetkých. Navždy. Bez reklám, zdarma na stiahnutie, bez nútenej subskripcie.</string>
+    <string name="supporter_reason_open_source_title">Podporiť open-source</string>
+    <string name="supporter_reason_open_source_description">Aplikácia je a vždy bude open source. To znamená, že môžete prehľadávať jej kód, zlepšovať ju a jej funkcie alebo študovať ako funguje.</string>
+    <string name="supporter_reason_promote_title">Propagovať GO</string>
+    <string name="supporter_reason_promote_description">Mať profesionálne vyvíjanú Android aplikáciu umožňuje viacerým ľuďom objavovať túto úžasnú hru</string>
+    <string name="supporter_faqs">Často kladené otázky</string>
+    <string name="supporter_faq_money_question">Na čo sú peniaze použité?</string>
+    <string name="supporter_faq_money_answer">Peniaze umožňujú nášmu hlavnému vývojárovi, ktorý je profesionálnym Android kontraktorom nájsť si voľný čas medzi kontraktmi, aby pracoval na tomto projekte. V budúcnosti by mohol venovať všetok čas zlepšovaniu aplikácie omnoho vyšším tempom.</string>
+    <string name="supporter_faq_features_question">Máme nejaké výhody iba pre podporovateľov?</string>
+    <string name="supporter_faq_features_answer">Nie, lebo veríme, že každý by mal mať prístup k profesionálne vytvorenej Android aplikácii na GO. Podpora je úplne dobrovoľná.</string>
+    <string name="supporter_faq_cancel_question">Môžem zmeniť, alebo zrušiť moju subskripciu?</string>
+    <string name="supporter_faq_cancel_answer">Áno, kedykoľvek, buď z tejto stránky, alebo zo stránky \'Odbery\' v Google Play.</string>
+    <string name="supporter_faq_payment_question">Existujú iné platobné metódy?</string>
+    <string name="supporter_faq_payment_answer">Aplikácie distribuované cez Google Play sú povinné použiť Goodle Pay, nakoľko si Google účtuje 15% z platieb. Nesmieme ponúkať akékoľvek alternatívne spôsoby platby v aplikácii. </string>
+    <string name="supporter_thank_you_title">Ďakujeme za vašu podporu!</string>
+    <string name="supporter_current_contribution">"Váš aktuálny príspevok je "</string>
+    <string name="supporter_select_contribution">Vyberte váš mesačný príspevok</string>
+    <string name="supporter_update_amount">Aktualizovať čiastku</string>
+    <string name="supporter_cancel_subscription">Zrušiť subskripciu</string>
+    <string name="stats_rank_elo">%1$s · ELO %2$s</string>
+    <string name="stats_ranked_games">hodnotené hry</string>
+    <string name="stats_win_rate">pomer výhier</string>
+    <string name="stats_current_streak">aktuálna séria</string>
+    <string name="stats_recent_results">nedávne výsledky</string>
+    <string name="stats_rating_over_games">Rating v priebehu hier</string>
+    <string name="stats_rating_over_time">Rating v priebehu času</string>
+    <string name="stats_games_by_board_size">Hry hrané podľa veľkosti dosky</string>
+    <string name="stats_games_by_time_controls">Hry hrané podľa nastavenia času</string>
+    <string name="stats_played">Odohraných</string>
+    <string name="stats_win_ratio_by_board_size">Pomer výhier podľa Veľkosti Dosky</string>
+    <string name="stats_win_ratio_by_time_controls">Pomer výhier podľa Nastavenia Času</string>
+    <string name="stats_win_ratio_by_colour">Pomer výhier podľa farby</string>
+    <string name="stats_board_9">9×9</string>
+    <string name="stats_board_13">13×13</string>
+    <string name="stats_board_19">19×19</string>
+    <string name="stats_blitz">Blesková</string>
+    <string name="stats_live">Živá</string>
+    <string name="stats_correspondence_short">Korešp.</string>
+    <string name="stats_correspondence">Korešpondenčná</string>
+    <string name="stats_all_games">Všetky hry</string>
+    <string name="stats_black">Čierny</string>
+    <string name="stats_white">Biely</string>
+    <string name="stats_won_lost">%1$d výhier · %2$d prehier</string>
+    <string name="stats_no_streak">-</string>
+    <plurals name="stats_streak_wins">
+        <item quantity="one">%d výhra</item>
+        <item quantity="few">%d výhry</item>
+        <item quantity="many">%d výhry</item>
+        <item quantity="other">%d výhier</item>
+    </plurals>
+    <plurals name="stats_streak_losses">
+        <item quantity="one">%d prehra</item>
+        <item quantity="few">%d prehry</item>
+        <item quantity="many">%d prehry</item>
+        <item quantity="other">%d prehier</item>
+    </plurals>
+    <string name="stats_no_ranked_games">Žiadne hodnotené hry v záznamoch</string>
+    <string name="stats_filter_1m">1M</string>
+    <string name="stats_filter_3m">3M</string>
+    <string name="stats_filter_1y">1R</string>
+    <string name="stats_filter_5y">5R</string>
+    <string name="stats_filter_all">Všetky</string>
+    <string name="stats_filter_last_20">Posledných 20</string>
+    <string name="stats_filter_last_100">Posledných 100</string>
+    <string name="stats_tooltip_elo_rank">%1$d ELO (%2$s)</string>
+    <string name="stats_tooltip_at_game">v hre %1$d</string>
+    <string name="stats_tooltip_on_date">na %1$s</string>
+    <string name="stats_tooltip_delta_elo">%1$d ELO</string>
+    <string name="stats_tooltip_since_game">od hry %1$d</string>
+    <string name="stats_tooltip_since_date">od %1$s</string>
+    <string name="puzzle_directory_title">Problémy</string>
+    <string name="puzzle_directory_recently_opened">Nedávno otvorené</string>
+    <string name="puzzle_directory_rating_count">(%1$s)</string>
+    <string name="puzzle_directory_by_author">od %1$s %2$s</string>
+    <string name="puzzle_directory_count_label">Počet</string>
+    <plurals name="puzzle_directory_puzzle_count">
+        <item quantity="one">%d problém</item>
+        <item quantity="few">%d problémy</item>
+        <item quantity="many">%d problému</item>
+        <item quantity="other">%d problémov</item>
+    </plurals>
+    <string name="puzzle_directory_rank_label">Rank</string>
+    <string name="puzzle_directory_rank_range">%1$s až %2$s</string>
+    <string name="puzzle_directory_solved_label">Vyriešené</string>
+    <string name="puzzle_directory_solved_value">%1$d (%2$.1f%%)</string>
+    <string name="puzzle_directory_completed">Dokončené</string>
+    <string name="puzzle_directory_stats">%1$s zobrazení, vyriešené %2$s krát z %3$s (%4$s%%)</string>
+    <string name="puzzle_directory_sort_name">A -&gt; Z</string>
+    <string name="puzzle_directory_sort_rating">Rating</string>
+    <string name="puzzle_directory_sort_count">Počet problémov</string>
+    <string name="puzzle_directory_sort_views">Zobrazenia</string>
+    <string name="puzzle_directory_sort_rank">Rank</string>
+    <string name="tsumego_title">Tsumego</string>
+    <string name="tsumego_title_with_name">Tsumego: %1$s</string>
+    <string name="tsumego_board_content_description">Doska</string>
+    <string name="tsumego_solved_content_description">Vyriešené</string>
+    <string name="tsumego_previous">PREDOŠLÁ</string>
+    <string name="tsumego_hint">NÁPOVEDA</string>
+    <string name="tsumego_next">NÁSLEDUJÚCA</string>
+    <string name="tsumego_retry">SKÚSIŤ ZNOVA</string>
+    <string name="tsumego_continue">POKRAČOVAŤ</string>
+    <string name="tsumego_done">DOKONČENÉ</string>
+    <string name="onboarding_link_account">Prepojiť OGS účet</string>
+    <string name="onboarding_create_account">Vytvoriť OGS účet</string>
+    <string name="onboarding_login_failed_title">Prihlásenie zlyhalo</string>
+    <string name="onboarding_stay_offline_title">Zostať offline?</string>
+    <string name="onboarding_stay_offline_message">Ak sa rozhodnete zostať offline, väčšina funkcií aplikácie, ako napríklad bezplatné hranie online proti ostatným ľuďom a online botom bude vypnuté, kým sa neprihlásite alebo si nevytvoríte účet. Stále viete hrať proti lokálnej AI a prejsť si tutoriál. Ste si istí?</string>
+    <string name="onboarding_stay_offline_confirm">Áno, Zostať Offline</string>
+    <string name="onboarding_continue">Pokračovať</string>
+    <string name="onboarding_page_go_title">Hra GO</string>
+    <string name="onboarding_page_go_description">Go je strategická dosková hra pre dvoch hráčov, v ktorej je cieľom obkľúčiť viac územia ako súper. Hra vznikla v Číne pred viac ako 2 500 rokmi a je najstaršou doskovou hrou, ktorá sa dodnes stále hrá. Odhaduje sa, že viac než 46 miliónov ľudí vie ako ju hrať.</string>
+    <string name="onboarding_page_app_title">Online GO Android aplikácia</string>
+    <string name="onboarding_page_app_description">Táto aplikácia začala ešte v roku 2015 ako osobný projekt od Alexandru Cristescu. Teraz je open-source, čo znamená, že kód je voľne dostupný pre všetkých na prehliadanie a upravovanie. Aplikácia je a vždy bude bezplatná. Príspevky sú vítané. Zistite ako môžete pomôcť na projektovej GitHub stránke. Ak kódovanie nie je nič pre vás, môžete sa stať podporovateľom prihlásením sa k mesačnému príspevku. Alebo si môžete len užívať aplikáciu zadarmo, voľba je iba Vaša!</string>
+    <string name="onboarding_page_ogs_title">OGS Server</string>
+    <string name="onboarding_page_ogs_description">OGS Server je jedna z najpopulárnejších webstránok na hranie GO online. Online GO Android aplikácia používa služby poskytované od OGS aby umožnilo hranie online. Aj keď nie sme spojení s OGS, máme dovolené používať ich služby. Na hranie je potrebný (bezplatný) OGS účet. Môžete si ho vytvoriť v následujúcom kroku, ak ho ešte nemáte.</string>
+    <string name="onboarding_question_has_account">Máte už OGS (online-go.com) účet?</string>
+    <string name="onboarding_question_login_method">Akú prihlasovaciu metódu chcete použiť?</string>
+    <string name="onboarding_answer_google">Google prihlásenie</string>
+    <string name="onboarding_answer_password">Užívateľské meno a heslo</string>
+    <string name="onboarding_answer_offline">Zostať offline</string>
+    <string name="onboarding_notifications_title">Zostaňte informovaní</string>
+    <string name="onboarding_notifications_description">Radi by sme vám zasielali notifikácie, keď budete na ťahu, keď sa hra skončí, alebo keď dostanete správu. Toto môžete stále neskôr zmeniť v nastaveniach vášho zariadenia.</string>
+    <string name="onboarding_notifications_allow">Povoliť notifikácie</string>
+    <string name="onboarding_notifications_skip">Preskočiť</string>
+    <string name="new_challenge_opponent">Súper</string>
+    <string name="new_challenge_your_color">Vaše farba</string>
+    <string name="new_challenge_board_size">Veľkosť dosky</string>
+    <string name="new_challenge_analysis">Rozbor</string>
+    <string name="new_challenge_speed">Rýchlosť</string>
+    <string name="new_challenge_ranked">Hodnotená</string>
+    <string name="new_challenge_private">Súkromná</string>
+    <string name="new_challenge_send">Odoslať výzvu</string>
+    <string name="new_challenge_select_opponent">[Vyberať súpera]</string>
+    <string name="select_opponent_tab_bot">Bot</string>
+    <string name="select_opponent_tab_recent">Nedávni</string>
+    <string name="select_opponent_bots_title">Online boti</string>
+    <string name="select_opponent_bots_description">Online boti sú AI programy bežiace a spravované členmi komunity na ich náklady. Hranie proti ním vyžaduje aktívne internetové pripojenie.</string>
+    <string name="select_opponent_icon_content_description">Ikona súpera</string>
+    <string name="select_opponent_recent_title">Nedávni súperi</string>
+    <string name="select_opponent_recent_description">Toto je zoznam súperov (botov aj skutočných hráčov) proti ktorým ste hrali nedávno.</string>
+    <string name="select_opponent_search_hint">Hľadať podľa užívateľského mena</string>
+    <string name="automatch_title">Automatické párovanie</string>
+    <string name="automatch_description">Vyskúšajte si hru proti ľudskému súperovi, podobne silnému ako ste vy.</string>
+    <string name="automatch_game_size">Veľkosť hry</string>
+    <string name="automatch_size_9">9×9</string>
+    <string name="automatch_size_13">13×13</string>
+    <string name="automatch_size_19">19×19</string>
+    <string name="automatch_time_controls">Časové nastavenie</string>
+    <string name="automatch_speed_blitz">Blesková</string>
+    <string name="automatch_speed_rapid">Rapid</string>
+    <string name="automatch_speed_live">Živá</string>
+    <string name="automatch_speed_correspondence">Korešpondenčná</string>
+    <string name="automatch_or">alebo</string>
+    <string name="automatch_expected_duration">Predpokladaná dĺžka: %1$s</string>
+    <string name="automatch_duration_several_days">niekoľko dní</string>
+    <plurals name="automatch_duration_minutes">
+        <item quantity="one">%d minúta</item>
+        <item quantity="few">%d minúty</item>
+        <item quantity="many">%d minúty</item>
+        <item quantity="other">%d minút</item>
+    </plurals>
+    <string name="automatch_duration_minutes_range">%1$d až %2$d minút</string>
+    <string name="mygames_moderator_title">OGS Moderátor %1$s</string>
+    <string name="mygames_empty_message">Prázdna správa</string>
+    <string name="mygames_acknowledge">Potvrdiť</string>
+    <string name="mygames_acknowledge_countdown">Potvrdiť (%1$ds)</string>
+    <string name="mygames_header_your_turn">Váš ťah</string>
+    <string name="mygames_header_challenges">Výzvy</string>
+    <string name="mygames_header_opponents_turn">Súperov ťah</string>
+    <string name="mygames_header_recently_finished">Nedávno dokončené</string>
+    <string name="mygames_header_older_games">Staršie hry</string>
+    <string name="mygames_tutorial_percentage">%1$d %%</string>
+    <string name="mygames_learn_to_play">Naučte sa hrať</string>
+    <string name="mygames_header_icon_content_description">Ikona</string>
+    <string name="mygames_offline_content_description">Offline</string>
+    <string name="mygames_avatar_content_description">Avatar</string>
+    <string name="mygames_searching_for_game">Hľadá sa hra</string>
+    <string name="mygames_challenge_you_are_challenging">Vyzývate %1$s</string>
+    <string name="mygames_challenge_is_challenging_you">%1$s vás vyzýva</string>
+    <string name="mygames_accept">Prijať</string>
+    <string name="mygames_decline">Odmietnuť</string>
+    <string name="mygames_see_details">Pozrieť podrobnosti</string>
+    <string name="mygames_challenge_received">Dostali ste výzvu!</string>
+    <string name="mygames_paused">prerušené</string>
+    <string name="mygames_outcome_cancelled">Zrušené</string>
+    <string name="mygames_outcome_lost">Prehrané</string>
+    <string name="mygames_outcome_won">Vyhrané</string>
+    <string name="mygames_outcome_black_won">Čierny vyhral</string>
+    <string name="mygames_outcome_white_won">Biely vyhral</string>
+    <string name="mygames_outcome_annulled">Anulované</string>
+    <string name="mygames_outcome_lost_with_reason">Prehra %1$s</string>
+    <string name="mygames_outcome_won_with_reason">Výhra %1$s</string>
+    <string name="mygames_outcome_black_won_with_reason">Čierny vyhral %1$s</string>
+    <string name="mygames_outcome_white_won_with_reason">Biely vyhral %1$s</string>
+    <string name="mygames_outcome_reason_resignation">rezignáciou</string>
+    <string name="mygames_outcome_reason_points">o %1$s bodov</string>
+    <string name="mygames_outcome_reason_timeout">vypršaním času</string>
+    <string name="mygames_outcome_reason_disconnection">odpojením</string>
+    <string name="mygames_outcome_reason_other">o %1$s</string>
+    <string name="mygames_greeting">Ahoj %1$s,</string>
+    <plurals name="mygames_your_turn_count">
+        <item quantity="one">Ste na ťahu v %d hre.</item>
+        <item quantity="few">Ste na ťahu v %d hrách.</item>
+        <item quantity="many">Ste na ťahu v %d hrách.</item>
+        <item quantity="other">Ste na ťahu v %d hrách.</item>
+    </plurals>
+    <plurals name="mygames_active_games_count">
+        <item quantity="one">Máte %d aktívnu hru.</item>
+        <item quantity="few">Máte %d aktívne hry.</item>
+        <item quantity="many">Máte %d aktívne hry.</item>
+        <item quantity="other">Máte %d aktívnych hier.</item>
+    </plurals>
+    <string name="mygames_no_active_games">Nemáte žiadnu aktívnu hru. Čo tak nejakú založiť?</string>
+    <string name="mygames_detail_board_size">Veľkosť dosky</string>
+    <string name="mygames_detail_speed">Rýchlosť</string>
+    <string name="mygames_detail_ranked">Hodnotená</string>
+    <string name="mygames_detail_analysis">Rozbor</string>
+    <string name="mygames_detail_rules">Pravidlá</string>
+    <string name="mygames_alert_bot_rejected_title">Bot odmietol výzvu</string>
+    <string name="mygames_alert_bot_rejected_text">Toto sa môže stať, pretože správca súpera nastavil nejaké podmienky pre parametre výzvy.</string>
+    <string name="mygames_alert_opponent_rejected_title">Súper odmietol výzvu</string>
+    <string name="mygames_alert_opponent_rejected_text">Môžete to skúsiť znova, alebo prípadne kontaktovať súpera/ku aby vyjasnil/a jeho/jej dôvody pre odmietnutie.</string>
+    <string name="mygames_alert_ogs_error_title">OGS chyba</string>
+    <string name="mygames_alert_ogs_error_text">Nastala chyba pri komunikácii s OGS serverom. Toto zvyčajne znamená, že vývojári webstránky niečo zmenili v API. Prosím nahláste túto chybu, keďže aplikácia pravdepodobne nebude fungovať, kým sa prispôsobime tejto zmene.</string>
+    <string name="mygames_alert_game_unavailable">Táto hra nie je k dispozícii.</string>
+    <string name="mygames_alert_one_live_game">Môžete naraz vyhľadávať iba jednu živú, rapid alebo bleskovú hru.</string>
+    <string name="mygames_message_prefix">Správa je:</string>
+    <string name="learn_section_tutorials">Tutoriály</string>
+    <string name="learn_section_study">Študovať</string>
+    <string name="learn_title_learn">Učiť sa</string>
+    <string name="learn_study_title_joseki_explorer">Joseki prehliadač</string>
+    <string name="earn_study_title_puzzles">Problémy</string>
+    <string name="learn_tutorial_checkbox_done">Dokončené</string>
+    <string name="learn_tutorial_checkboxoutlineblank_done">Dokončené</string>
+    <string name="joseki_explorer_title">Joseki prehliadač</string>
+    <string name="joseki_explorer_button_tenuki">Tenuki</string>
+    <string name="joseki_explorer_button_previous">Predošlý</string>
+    <string name="joseki_explorer_button_next">Ďalší</string>
+    <string name="joseki_explorer_link_video">" (video)"</string>
+    <string name="joseki_explorer_link_external">" (externý odkaz)"</string>
+    <string name="joseki_explorer_default_description"><![CDATA["## Joseki prehliadač
+*Joseki* je prevzaté slovo z japončiny, zvyčajne odkazuje na štandardnú sekvenciu ťahov zahratých v rohu, ktoré majú za výsledok rovnocennú výmenu.
+### Ako používať Joseki prehliadač
+Označené ťahy nižšie predstavujú zaujímavé pokračovanie aktuálnej pozície. Farby reprezentujú za ako dobrý je ťah považovaný:
+* Zelené ťahy sú považované za optimálne
+* Žlté ťahy sú považované za OK
+* Červené ťahy sú považované za chybu
+* Fialové ťahy sú pre nachytanie
+* Modré ťahy sú pre otvorené otázky.
+Môžete ťuknúť na tieto zaujímave ťahy na prehliadanie pozícii ku ktorým vedú.
+### Tenuki
+Niekedy je najlepším ťahom hrať niekde inde. To sa bežne označuje ako *tenuki*. Ak je tenuki považované za zaujímavú možnosť pre aktuálnu pozíciu, tlačidlo pass v ľavom dolnom rohu sa aktivuje a môžete ho stlačiť, aby ste videli aké pozície môžu vzniknúť potom čo aktuálny hráč zahrá tenuki."]]></string>
+    <string name="tutorial_basics_title">Základné</string>
+    <string name="tutorial_basics_thebasics_title">Základy</string>
+    <string name="tutorial_basics_thebasics_basic1_text"><![CDATA[Zapamätajte si tieto 3 pravidlá:
+1. Čierny a biely sa striedajú v ukladaní "kameňov" na dosku.
+2. Kamene sú ukladané na priesečníky čiar.
+3. Keď je kameň položený, už sa nesmie nikdy posunúť, ale môže byť zajatý.
+
+Položte kameň pre pokračovanie!]]></string>
+    <string name="tutorial_basics_thebasics_capture1_page1_text"><![CDATA[Ďalším ťahom bude biely kameň úplne obkľúčený a zajatý. Kamene ktoré môžu byť zajaté sú v "Atari".]]></string>
+    <string name="tutorial_basics_thebasics_capture1_page2_text"><![CDATA[Biely kameň je teraz obkľúčený, takže…]]></string>
+    <string name="tutorial_basics_thebasics_capture1_page3_text"><![CDATA["… je odobratý z dosky"]]></string>
+    <string name="tutorial_basics_thebasics_capture1_page4_text"><![CDATA["Ak by to bol bieleho ťah, mohol by \"utiecť\" pridaním ďalšieho kameňa."]]></string>
+    <string name="tutorial_basics_thebasics_capture2_text">Váš ťah! Zajmite biely kameň.</string>
+    <string name="tutorial_basics_thebasics_capture3_text">Môžete tentokrát zajať dva kamene jedným ťahom!</string>
+    <string name="tutorial_basics_thebasics_capture4_text">Aj keď sú neďaleko ďalšie kamene, spravte to isté.</string>
+    <string name="tutorial_basics_capturingstones_title">Chytanie kameňov</string>
+    <string name="tutorial_basics_capturingstones_capture5_text">Na okraji dosky je situácia trochu odlišná. Kamene na okraji majú menej slobôd a je ľahšie ich chytiť.</string>
+    <string name="tutorial_basics_capturingstones_capture5_branches2_text">Biele kamene sú spojené.</string>
+    <string name="tutorial_basics_capturingstones_capture6_text">Kamene v rohu sú ešte viac zraniteľné.</string>
+    <string name="tutorial_basics_capturingstones_capture7_text">Tentokrát sú v atari dva kamene. Chyťte ich!</string>
+    <string name="tutorial_basics_capturingstones_capture8_text">Tentokrát treba zahrať až dva ťahy, aby boli zajaté biele kamene. Opatrne, prvý ťah je dôležitý!</string>
+    <string name="tutorial_basics_capturingstones_capture9_text"><![CDATA["Je náročné utiecť s kameňmi na okraji. Chyťte dva biele kamene na prvej linke!"]]></string>
+    <string name="tutorial_basics_capturingstones_capture10_text">Veľmi veľa kameňov! Hľadajte kamene ktoré sú v atari a zajmite ich. Ak sa pomýlite, budú zajaté vaše kamene.</string>
+    <string name="tutorial_basics_doubleatari_title">Dvojité atari</string>
+    <string name="tutorial_basics_doubleatari_doubleAtari1_text"><![CDATA[V určitých pozíciach čierny dokáže dať do atari dve skupiny naraz. Čierny zvyčajne zajme aspoň jednu v tejto situácii!]]></string>
+    <string name="tutorial_basics_doubleatari_doubleAtari2_text"><![CDATA["Tu je ďalšia. Kde dokážete vytvoriť dvojité atari?"]]></string>
+    <string name="tutorial_basics_illegalmoves_title">Zakázané ťahy (pravidlo samovraždy)</string>
+    <string name="tutorial_basics_illegalmoves_suicide1_page_1_text">Viete zahrať takmer kamkoľvek na doske s pár výnimkami. Na príklade nižšie, čierny nemôže zahrať na A, pretože by jeho kameň už bol obkľúčený.</string>
+    <string name="tutorial_basics_illegalmoves_suicide1_page_2_text"><![CDATA[Tomu sa hovorí "samovražda" a je zakázaná.]]></string>
+    <string name="tutorial_basics_illegalmoves_suicide1_page_3_text">Avšak je tu výnimka. Ak by ťah zajal jeden alebo viac kameňov (ako B nižšie), ťah je dovolený.</string>
+    <string name="tutorial_basics_illegalmoves_suicide1_page_4_text">Výsledná pozícia vyzerá takto:</string>
+    <string name="tutorial_basics_illegalmoves_suicide2_text"><![CDATA["Teraz je znova rad na vás zajať nejaké kamene! Nápoveda: Zo začiatku to môže vyzerať ako zakázaný ťah…"]]></string>
+    <string name="tutorial_basics_illegalmoves_suicide3_text">4 čierne kamene sú v atari! Zajmite biele kamene pred tým, ako zajmú vás!</string>
+    <string name="tutorial_basics_illegalmoves_suicide4_text"><![CDATA["Zajmite 2 biele kamene dotýkajúce sa čiernych. Tu sa nedajú zajať jedným ťahom."]]></string>
+    <string name="tutorial_basics_illegalmoves_suicide5_text">Biely kameň na D5 delí vaše kamene. Ak ho zajmete, Vaše kamene budú spojenou a silnou skupinou. Toto je veľmi dôležitý vzor v GO!</string>
+    <string name="tutorial_intermediate_title">Mierne pokročilé</string>
+    <string name="tutorial_intermediate_ladders_title">Schody</string>
+    <string name="tutorial_intermediate_ladders_ladder1_text">Chyťte biely kameň! Ak hráte správne ťahy, biely nemá šancu ujsť. Skúste zahrať po sebe idúce atari, kým biely nebude mať kam ísť. </string>
+    <string name="tutorial_intermediate_ladders_ladder1_branches_branch1_message">Biely sa pokúša utiecť…</string>
+    <string name="tutorial_intermediate_ladders_ladder1_branches_branch1_1_1_1_1_message">Vidíte k čomu to vedie?</string>
+    <string name="tutorial_intermediate_ladders_ladder1_branches_branch1_1_1_1_1_1_1_1_1_message">Ak sa biely pokúsi brániť…</string>
+    <string name="tutorial_intermediate_ladders_ladder1_branches_branch1_1_1_1_1_1_1_2_1_message">Ak sa biely pokúsi brániť…</string>
+    <string name="tutorial_intermediate_ladders_ladder1_branches_branch1_1_1_1_1_1_1_2_2_message">Ak sa biely pokúsi brániť…</string>
+    <string name="tutorial_intermediate_ladders_ladder2_text"><![CDATA["Tu sú ďalšie schody. Teraz je útek na vás. Hoci tentokrát nie je situácia beznádejná. Váš kameň na F2 je v ceste schodov. Ak sa k nemu dokážete dostať, ste v bezpečí. Tento kameň sa volá \"ničiteľ schodov\""]]></string>
+    <string name="tutorial_intermediate_ladders_ladder3_page1_text">Schody sú v GO veľmi dôležité. Ale musíte myslieť zopár ťahov dopredu a nezačínať schodové súboje pokiaľ si nie ste istí, že ich vyhráte! Tu je zobrazené čo sa stane bielemu ak hrá nevyhrateľné schody z predchádzajúceho príkladu\.\.\.</string>
+    <string name="tutorial_intermediate_twoeyes_title">Dve oči</string>
+    <string name="tutorial_intermediate_twoeyes_twoeyes1_text">Ste v úplnom obkľúčení. Ktorý ťah je jediný, ktorý vás dokáže zachrániť?</string>
+    <string name="tutorial_intermediate_twoeyes_twoeyes2_page1_text">Správne\" V tejto pozícii rovnako A aj B sú zakázané ťahy pre bieleho, pretože by to boli samovražedné ťahy bez zajatia vašich kameňov. Z toho dôvodu nikdy nevedia byť zajaté!</string>
+    <string name="tutorial_intermediate_twoeyes_twoeyes3_text"><![CDATA["A čo tu? Ako dokážete dosiahnuť, aby vaše kamene neboli zajaté?]]></string>
+    <string name="tutorial_intermediate_captureraces_title">Boj o slobody / doberanie</string>
+    <string name="tutorial_intermediate_captureraces_capturerace1_text">V tomto probléme ako čierna, tak aj biela skupina v strede je obkľúčená. Nakoľko ani jedna z nich nemá dve oči, obaja hráči môžu skúsiť zajať toho druhého. Táto situácia sa nazýva boj o slobody (semeai) a zvyčajne ju vyhráva ten, kto má viac slobôd. V tomto prípade obaja majú 3 slobody, čiže ktokoľvek je na ťahu, ten vyhrá.\nChyťte biele kamene!</string>
+    <string name="tutorial_intermediate_captureraces_capturerace2_text"><![CDATA["Tu je ďalšie semeai. Vyhrajte doberanie a zajmite bieleho!"]]></string>
+    <string name="tutorial_intermediate_captureraces_capturerace3_text">Zachráňte čierne kamene v rohu!</string>
+    <string name="tutorial_intermediate_snapback_title">Spätné branie</string>
+    <string name="tutorial_intermediate_snapback_snapback1_text">Teraz objavíte techniku \"spätné branie\". Zajmite 4 biele kamene!\n\nNápoveda: musíte najprv obetovať kameň!</string>
+    <string name="tutorial_intermediate_snapback_snapback2_text">Ako ste zistili, niekedy donútiť súpera zajať jeden váš kameň ho dostane do atari. Použite rovnakú techniku tu!</string>
+    <string name="tutorial_intermediate_snapback_snapback3_text">Tu je ďalšia situácia so spätným braním na kraji dosky.</string>
+    <string name="tutorial_intermediate_ko_title">KO - pravidlo zákazu opakovania</string>
+    <string name="tutorial_intermediate_ko_ko_page_1_text"><![CDATA["Teraz sa pozrieme na posledné pravidlo ktoré potrebujete vedieť k hraniu GO - pravidlo KO. Pravidlo vraví, že ťah je neplatný, ak spôsobuje repetíciu (napr. predošlú pozíciu). Pozrime sa na príklad. Biely kameň na E6 je v atari. Čiže čierny ho môže zajať."]]></string>
+    <string name="tutorial_intermediate_ko_ko_page_2_text"><![CDATA[Teraz čierny kameň na F6 je v atari. Bez KO pravidla by ho biely mohol zajať, ale ak to spraví, výsledná pozícia…"]]></string>
+    <string name="tutorial_intermediate_ko_ko_page_3_text"><![CDATA["… by bola rovnaká ako počiatočná" Tuto, bez KO pravidla, čierny by zobral znova…"]]></string>
+    <string name="tutorial_intermediate_ko_ko_page_4_text"><![CDATA["… a hra by sa zasekla v slučke. Aby sme sa tomuto vyhli, pravidlo KO hovorí, že biely nesmie znovu zajať ťahom na E6, ale musí najskôr hrať niekam inde."]]></string>
+    <string name="tutorial_intermediate_ko_ko_page_5_text"><![CDATA["Teraz ak čierny chce zachrániť kameň v atari, môže hrať na E6…]]></string>
+    <string name="tutorial_intermediate_ko_ko_page_6_text">Čierny teda vyhral KO súboj, ale všimnite si, že je teraz na ťahu znova biely, čiže biely získal dva ťahy za cenu jedného kameňa.</string>
+    <string name="tutorial_intermediate_ko_ko_page_7_text">Tieto dva ťahy zdarma môžu byť hodné viac bodov, než výhra  KO súboja, takže obaja hráči budú neustále posudzovať, či sa oplatí v KO súboji pokračovať, alebo radšej získajú extra ťahy.</string>
+    <string name="tutorial_intermediate_ko_ko_page_8_text">Ako toto môže nastať v skutočnej hre? Tu je príklad. Aj čierny a aj biely majú skupinu z piatich kameňov na vrchu v ohrození. Jediná cesta pre čierneho ako zachrániť svoju skupinu je hrať na E8. KO súboj sa začal!</string>
+    <string name="tutorial_intermediate_ko_ko_page_9_text">5 kameňov bieleho na vrchu je teraz v atari, ale nemôže hneď zobrať ťahom na D8, nakoľko by to opakovalo poslednú pozíciu. Zahrá teda niekam, kde to čierny nemôže ignorovať, napríklad na E2.</string>
+    <string name="tutorial_intermediate_ko_ko_page_10_text">Teraz je 8 čiernych kameňov vľavo dole v nebezpečí, takže čierny si to spočíta: stratím radšej 8 spodných kameňov, alebo 5 na vrchu? Neochotne sa čierny rozhodne pokračovať v KO súboji a zachrániť kamene dole pomocou E1.</string>
+    <string name="tutorial_intermediate_ko_ko_page_11_text">Biely teraz berie späť KO.</string>
+    <string name="tutorial_intermediate_ko_ko_page_12_text"><![CDATA["Teraz je na ťahu čierny a nemôže brať spúť, z dôvodu pravidla KO. Má však jednu ďalšiu šancu: ťah na B4 ohrozuje bielu skupinu dole!"]]></string>
+    <string name="tutorial_intermediate_ko_ko_page_13_text">Biely sa teraz musí rozhodnúť. Mal by zajať 5 kameňov na vrchu ťahom na B9, alebo zachrániť 6 kameňov dole? Rozhoduje sa hrať na A4\.\.\.</string>
+    <string name="tutorial_intermediate_ko_ko_page_14_text">Čierny nepotrebuje veľa odvahy aby teraz hral na E8\.\.\.</string>
+    <string name="tutorial_intermediate_ko_ko_page_15_text">Biely neochotne uzná, že nemá žiadne ďalšie dobré hrozby. Hrá inde, ako napríklad na F4 a uznáva, ze prehral KO súboj.</string>
+    <string name="tutorial_intermediate_ko_ko_page_16_text">Čierny si teraz rád vezme svoju výhru ťahom na G9.</string>
+    <string name="tutorial_intermediate_ko_ko_page_17_text">Netrápte sa ak to teraz vyzeralo príliš komplikovane. Ako začiatočník si len zapamätajte, že nemôžete vziať späť kameň, ak by to opakovalo predošlú pozíciu.</string>
+    <string name="tutorial_intermediate_puzzles_title">Problémy</string>
+    <string name="tutorial_intermediate_puzzles_puzzles1_text">Zajmite 3 biele kamene\" Toto je niekedy nazývané \"žeriavie hniezdo\".</string>
+    <string name="tutorial_intermediate_puzzles_puzzles2_text"><![CDATA["Toto je boj o slobody, dokážete ho vyhrať?"]]></string>
+    <string name="tutorial_intermediate_puzzles_corner1_text"><![CDATA["V GO sú súboje v rohoch veľmi bežné. Tu je boj o slobody v rohu. Dokážete sa zachrániť?"]]></string>
+    <string name="tutorial_intermediate_puzzles_corner2_text"><![CDATA["Zajmite biely kameň strihajúci čierneho. Dajte pozor z ktorej strane zahráte atari!"]]></string>
+    <string name="tutorial_intermediate_puzzles_corner2_branches_branch1_4_4_message">4 čierne kamene sú mŕtve</string>
+    <string name="tutorial_intermediate_puzzles_corner2_branches_branch2_3_message">3 čierne kamene sú mŕtve</string>
+    <string name="tutorial_intermediate_puzzles_corner2_branches_branch2_5_message">2 čierne kamene sú mŕtve</string>
+    <string name="tutorial_intermediate_puzzles_corner2_branches_branch4_message"><![CDATA["Čierny nedokáže ujsť"]]></string>
+    <string name="tutorial_intermediate_puzzles_corner2_branches_branch6_message"><![CDATA["Čierny nedokáže ujsť"]]></string>
+    <string name="tutorial_intermediate_falseeyes_title">Falošné oči</string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes1_page1_text"><![CDATA[Ak si pamätáte skorší tutoriál, skupina s dvoma očami nikdy nemôže byť zajatá. Avšak niekedy časť kameňov ktoré obkľučujú oko nie sú spojené s hlavnou skupinou a môžu byť zajaté zvlášť. Napríklad v pozícii nižšie D5 vyzerá ako oko, ale kameň na C5 je v atari a môže byť zajatý, čo zanechá prostrednú skupinu bez jediného oka.\n\nD5 nazývame \"falošné oko\"."]]></string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes2_text"><![CDATA["Biely sa pokúsil zachrániť jeho kameň na C5 položením kameňa na D5. Čo je v tomto prípade výherným ťahom?"]]></string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes3_text"><![CDATA["Ak sa biely naopak rozhodne bojovať, nezáleží na tom, stále viete zajať prostrednú skupinu!"]]></string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes4_text"><![CDATA["Tentokrát sa bránite. Prežite vytvorením dvoch skutočných očí!"]]></string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes4_branches_branch2_message">Zaplnili ste si svoje vlastné oko</string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes4_branches_branch3_message">Zaplnili ste si svoje vlastné oko</string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes4_branches_branch4_message">F4 je teraz falošné oko</string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes5_text"><![CDATA["Obidve oči tentokrát potrebujú opraviť!"]]></string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes5_branches_branch1_2_message">F5 je teraz falošné oko.</string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes5_branches_branch2_message">C5 je falošné oko.</string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes6_text"><![CDATA["Tu je častý príklad pre falošné oko na okraji. Opravte ho!"]]></string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes6_branches_branch2_message">Zaplnili ste si svoje vlastné oko</string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes6_branches_branch3_message">D9 je teraz falošné oko</string>
+    <string name="tutorial_intermediate_morepuzzles_title">Viac problémov</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles3_text">Pozor aby sa vám nezatočila hlava.</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles4_text">Čo by ste mali spraviť najskôr?</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_1_2_message">Čierne skupiny sú rozdelené</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_2_message">Čierne skupiny sú rozdelené</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_3_message">Čierne skupiny sú rozdelené</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_4_message">Čierne skupiny sú rozdelené</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_5_1_message">Čierny je izolovaný</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_5_2_message">Čierny je izolovaný</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_5_3_message">Čierny je izolovaný</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_5_4_message">Čierny je izolovaný</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_5_5_message">Čierny je izolovaný</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_6_message">Čierny je izolovaný</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles5_text">Narušte symetriu</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles5_branches_branch3_4_message"><![CDATA["Tri čierne kamene nemôžu ujsť."]]></string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles5_branches_branch5_message"><![CDATA["Dva čierne kamene nemôžu ujsť"]]></string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles5_branches_branch6_message"><![CDATA["Dva čierne kamene nemôžu ujsť"]]></string>
+    <string name="tutorial_advanced_title">Pokročilé</string>
+    <string name="tutorial_advanced_thefirstmoves_name">Prvé ťahy</string>
+    <string name="tutorial_advanced_thefirstmoves_firstmoves1_page1_text"><![CDATA["Doposiaľ sme sa zameriavali na chytanie kameňov.Avšak na začiatku hry nie sú žiadne kamene na doske. Pozrieme sa na to, kam hrať prvé ťahy na zvýšenie vašich šancí na výhru.
+
+Najskôr si dosku rozdeľme na 3 časti. Tieto sú rohy:"]]></string>
+    <string name="tutorial_advanced_thefirstmoves_firstmoves1_page2_text"><![CDATA["… tieto sú strany…"]]></string>
+    <string name="tutorial_advanced_thefirstmoves_firstmoves1_page3_text"><![CDATA["… a toto je stred. Samozrejme toto sú len mená, ktoré používame pre orientáciu a nie sú pre ne žiadne špeciálne pravidlá."]]></string>
+    <string name="tutorial_advanced_thefirstmoves_firstmoves1_page4_text"><![CDATA["Cieľom hry je ohraničiť viac územia ako váš súper. Keďže vy aj váš súper sa striedate v ukladaní kameňov, obaja budete mať rovnaké množstvo kameňov. Z toho dôvodu vyhráva hráč ktorý použije svoje kamene efektívnejšie.
+
+Kde je viac efektívne ohraničovať územie? V rohoch, na stranách, alebo v strede?"]]></string>
+    <string name="tutorial_advanced_thefirstmoves_firstmoves1_page5_text"><![CDATA["Každá zo skupín nižšie ohraničuje presne 9 voľných priesečníkov, takže každý získa 9 bodov. Avšak skupina v rohu vyžaduje len 6 kameňov, skupina na strane 9, zatiaľ čo skupina v strede vyžaduje 12!"]]></string>
+    <string name="tutorial_advanced_thefirstmoves_firstmoves1_page6_text"><![CDATA["Z toho dôvodu chytrí hráči hrajú najskôr v rohoch a až keď sú obsadené, presunú sa na strany, nechávajúc stred na koniec."]]></string>
+    <string name="tutorial_advanced_thefirstmoves_firstmoves2_text"><![CDATA["Tu je prvých 20 ťahov zo skutočnej hry medzi dvoma profesionálnymi hráčmi."]]></string>
+    <string name="tutorial_advanced_themiddlegame_name">Stredná hra</string>
+    <string name="tutorial_advanced_themiddlegame_middlegame1_text"><![CDATA["Čierny je blokovaný v ľavom dolnom rohu. Skupina bude obkúčená ak nič nespravíte."]]></string>
+    <string name="tutorial_advanced_themiddlegame_middlegame2_text"><![CDATA["Čierny blokuje bieleho v spodnej časti. Biely zatiaľ nemá 2 oči. Nato biely zahrá G2.
+
+Pozrite čo sa stane ak biely odpovie na F1 (alebo G1) predtým ako nájde správnu možnosť."]]></string>
+    <string name="tutorial_advanced_endgamescoring_name">Koncovka: Počítanie</string>
+    <string name="tutorial_advanced_endgamescoring_endgame1_page1_text"><![CDATA["Tu sa naučíte ako určiť, že je hra dokončená a ako počítať územia za použitia 5x5 dosiek. Obaja hráči spravili 5 ťahov, potom dali pass teda hra je považovaná za dokončenú. Ostáva iba spočítať územie.
+
+Skúste spočítať koľko priesečníkov čierny obkľúčil. A čo biely?
+
+Nápoveda: nezabudnite spočítať všetky priesečníky, vrátane strán a rohov, ale nie miesta, ktoré sú obsadené kameňmi."]]></string>
+    <string name="tutorial_advanced_endgamescoring_endgame1_page2_text"><![CDATA["Čierny má 5 bodov vľavo a biely má 10 bodov vpravo. Teda biely vyhráva o 5 bodov."]]></string>
+    <string name="tutorial_advanced_endgamescoring_endgame1_page3_text"><![CDATA["Ale prečo čierny neskúsil pokračovať v hre?
+
+Nuž, nezostal tu žiaden ťah, ktorý by vedel čierny zahrať, aby zvýšil svoje skóre. Pre príklad, ak čierny zaútočí na pravú stranu, biely sa ľahko ochráni a nový kameň bude mŕtvy.
+
+Biely zredukoval svoje územie o 1, ale získal jeden bod späť, pretože čierny kameň je mŕtvy a počíta sa ako zajatec.
+
+Skóre tu zostáva stále 10-5."]]></string>
+    <string name="tutorial_advanced_endgamescoring_endgame1_page4_text"><![CDATA["Čo ak čierny hrá naopak na ľavú stranu?
+
+Jediné čo získa bude, že jeho územie je teraz menšie, čiže stratil bod.
+
+A preto čierny nemá dobré ťahy a mal by dať pass. Biely má viac bodov, takže je šťastný a tiež dáva pass.
+
+Teda hra sa skončila a biely vyhráva."]]></string>
+    <string name="tutorial_advanced_endgamescoring_endgame1_page5_text"><![CDATA["V tejto situácii je ďalšia dokončená hra. Čierny má 5 bodov, zatiaľ čo biely má 6.
+
+Dva priesečníky v strede sú neutrálne teritórium ('Dame') a nepočítajú sa k skóre ľubovoľného z hráčov.
+
+Ľubovoľný hráč by tu mohol zahrať, ale nezíska a ani nestratí žiadne body."
+]]></string>
+    <string name="tutorial_advanced_endgamescoring_endgame1_page6_text"><![CDATA["Zatiaľ čo územie je najväčšou časťou skórovania, pamätajte, že sú tu aj iné bonusové body, ktoré musia byť pridané.
+
+Akýkoľvek zajatý kameň sa ráta za 1 bod, rovnako ako 'mŕtve' kamene ktoré sú stále na doske (ktoré nemajú šancu vytvoriť 2 oči).
+
+Taktiež, keďže čierny hrá prvý, má výhodu a pre kompenzáciu ha to híska biely malý bodový bonus (nazývany 'komi').
+
+Hodnota komi záleží od veľkosti dosky, ale zvyčajne je 5,5, alebo 6,5 boda. O,5 boda zaisľuje, že v hrách nebude žiadna remíza.
+
+Našťastie, aplikácia spraví všetky tieto kalkulácie za vás :)"]]></string>
+    <string name="tutorial_advanced_cuttingstones_name">Strihanie kameňov</string>
+    <string name="tutorial_advanced_cuttingstones_cutting1_text"><![CDATA["Vyzerá to akoby biely mal väčšie územie. Avšak jeho stena má slabinu. Jednoducho \"strihnite\" bieleho stenu.
+
+Ak uspejete, biely bude mať čo robiť aby zabezpečil život obom skupinám."]]></string>
+    <string name="tutorial_advanced_cuttingstones_cutting1_branches2_message">Biele kamene sú spojené.</string>
+    <string name="tutorial_advanced_cuttingstones_cutting2_text"><![CDATA["Čierne kamene majú 30 bodov, zatiaľ čo biele majú 31 bodov. Teda to vyzerá, že biely vyhral o 1 bod. Avšak územie na spodnej strane nie je všetko bieleho.
+
+Jednoducho prestrihnite bieleho stenu."]]></string>
 </resources>

@@ -62,6 +62,9 @@
     <string name="White">Blanc</string>
     <string name="handicap">Avantatge</string>
     <string name="difficulty">Dificultat</string>
+    <string name="ai_game_rules">Regles</string>
+    <string name="ai_game_rules_japanese">Japonès</string>
+    <string name="ai_game_rules_chinese">Xinès</string>
     <string name="ai_game_difficulty_scale_hint">Com més alt és el kyu, menys fort és el jugador; com més alt és el dan, més fort</string>
     <string name="ai_game_difficulty_kyu">%1$d kyu</string>
     <string name="ai_game_difficulty_dan">%1$d dan</string>
@@ -83,7 +86,7 @@
     <string name="hello_world">Hola, món!</string>
     <string name="landscape_preview">Previsualització horitzontal</string>
     <string name="button_play_online">Jugar\nen\nlínia</string>
-    <string name="button_custom_game">Partida\npersonalitzada</string>
+    <string name="button_custom_game">Partida\na mida</string>
     <string name="button_play_against_ai">Jugar\ncontra\nla\nIA</string>
     <string name="button_face_to_face">Cara\na\ncara</string>
     <string name="bottomnavigation_botton_play">Jugar</string>
@@ -236,6 +239,19 @@
         <item quantity="one">%d segon</item>
         <item quantity="other">%d segons</item>
     </plurals>
+    <plurals name="clock_days">
+        <item quantity="one">%d dia</item>
+        <item quantity="other">%d dies</item>
+    </plurals>
+    <string name="clock_days_hours">%1$dd %2$dh</string>
+    <string name="clock_hours">%1$dh</string>
+    <string name="clock_hours_minutes">%1$dh %2$02dm</string>
+    <string name="clock_minutes_seconds">%1$d : %2$02d</string>
+    <string name="clock_seconds">%1$02ds</string>
+    <string name="clock_tenths">%1$.1fs</string>
+    <string name="clock_canadian_period">+%1$s / %2$d</string>
+    <string name="clock_byoyomi_periods">%1$d × %2$s</string>
+    <string name="clock_fischer_increment">+ %1$s / jugada</string>
     <string name="duration_two_units">%1$s %2$s</string>
     <string name="duration_unknown">\?</string>
     <string name="time_control_simple">Simple: %1$s per jugada.</string>
