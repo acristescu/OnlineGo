@@ -28,6 +28,7 @@ import io.zenandroid.onlinego.data.model.StoneType.BLACK
 import io.zenandroid.onlinego.data.model.StoneType.WHITE
 import io.zenandroid.onlinego.data.repositories.SettingsRepository
 import io.zenandroid.onlinego.gamelogic.RulesManager
+import io.zenandroid.onlinego.gamelogic.ScoreEstimator
 import io.zenandroid.onlinego.gamelogic.Util.toGTP
 import io.zenandroid.onlinego.ui.composables.BottomBarButton
 import io.zenandroid.onlinego.ui.screens.face2face.Action.BoardCellDragged
@@ -234,7 +235,7 @@ class FaceToFaceViewModel(
   private fun doEstimation() {
     estimateStatus = Working
     viewModelScope.launch(Dispatchers.IO) {
-      val estimate = RulesManager.determineTerritory(currentPosition, false)
+      val estimate = ScoreEstimator.determineTerritory(currentPosition, false)
       withContext(Dispatchers.Main) {
         val index = historyIndex ?: history.lastIndex
         val finished =

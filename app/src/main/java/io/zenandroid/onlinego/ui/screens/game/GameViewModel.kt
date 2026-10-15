@@ -57,6 +57,7 @@ import io.zenandroid.onlinego.data.repositories.SettingsRepository
 import io.zenandroid.onlinego.data.repositories.UserSessionRepository
 import io.zenandroid.onlinego.gamelogic.RulesManager
 import io.zenandroid.onlinego.gamelogic.RulesManager.isPass
+import io.zenandroid.onlinego.gamelogic.ScoreEstimator
 import io.zenandroid.onlinego.ui.composables.BottomBarButton
 import io.zenandroid.onlinego.ui.composables.TextResource
 import io.zenandroid.onlinego.ui.composables.textResource
@@ -267,7 +268,7 @@ class GameViewModel(
               val basePosition =
                 if (analyzeMode && analysisPosition != null) analysisPosition!! else currentGamePosition.value
               estimatePosition =
-                RulesManager.determineTerritory(basePosition, it.scoreStones == true)
+                ScoreEstimator.determineTerritory(basePosition, it.scoreStones == true)
             }
           }
         }

@@ -10,7 +10,7 @@
 
 extern "C"
 JNIEXPORT jintArray JNICALL
-Java_io_zenandroid_onlinego_gamelogic_RulesManager_estimate(JNIEnv *env, jobject instance, jint width,
+Java_io_zenandroid_onlinego_gamelogic_ScoreEstimator_estimate(JNIEnv *env, jobject instance, jint width,
                                                             jint height, jintArray inBoard,
                                                             jint player_to_move, jint trials,
                                                             jfloat tolerance) {

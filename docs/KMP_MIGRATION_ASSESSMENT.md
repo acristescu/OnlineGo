@@ -9,8 +9,8 @@ is no RxJava, no `Parcelable`, and Koin, Molecule, Room, DataStore, `ViewModel`,
 kotlinx-collections-immutable are already multiplatform. The cost is dominated by resources
 (663 strings x 16 locales) and the local-AI engine, which cannot run on iOS as built today.
 
-**Status.** Phases 0 and 1 are finished: twenty-two slices are done (section 6). None has shipped
-in a release yet, and several still need on-device checks (section 1.2). Phases 2-5 have not
+**Status.** Phases 0-2 are finished: twenty-four slices are done (section 6). None has shipped
+in a release yet, and several still need on-device checks (section 1.2). Phases 3-5 have not
 started.
 
 Earlier, longer versions of this document:
@@ -53,18 +53,22 @@ Still owed - unit tests cannot reach these:
   `screen_view` names in Firebase DebugView.
 - [ ] **Clock text** (6.16): simple, byo-yomi, Canadian and Fischer clocks and the game-list
   timers, in English and in a locale with a decimal comma (e.g. `de`).
-- [ ] **`:shared` extraction** (6.22): a score estimate in a finished game (`libestimator.so` now
-  comes from the library), a tutorial opens (`tutorials.json` stays in the app), the Tsumego tab
-  loads (Room in the library), and a debug install over the previous build keeps the session.
+- [ ] **`:shared` extraction** (6.22): a tutorial opens (`tutorials.json` stays in the app), the
+  Tsumego tab loads (Room in the library), and a debug install over the previous build keeps the
+  session.
+- [ ] **Score estimator after the JNI rename** (6.24): an estimate in a finished game and in
+  face-to-face shows territory. A wrong symbol fails silently (6.24), so look at the board, not
+  for a crash.
 
-### 1.3 Phases 2-5
+### 1.3 Phases 3-5
 
 | Phase                                | Work                                                                                                                                                                                                                                                 | Estimate                        |
 |--------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------|
-| **2 - make `:shared` multiplatform** | `androidTarget` + iOS targets; everything starts in `androidMain`. Move `model` + `logic` (~950 LOC) to `commonMain`, `RulesManagerTest` to `commonTest`. `RulesManager` still holds `androidx.core.util.lruCache` and the JNI estimator (4.1).      | 1-2 weeks (+1-2 for estimator)  |
-| **3 - data layer to `commonMain`**   | Room KMP (bundled SQLite driver, `expect`/`actual` DB path), DataStore on okio `Path`, Ktor engine per platform, repositories one file at a time. Session persistence is behind `SessionCookiePersistence`; the websocket has no JVM threading left. | 4-6 weeks                       |
-| **4 - Compose Multiplatform**        | UI into `:shared/commonMain`. Resources (4.2), icons, chart, markdown, Material You. `BoardComposable` has four Android leaks with direct CMP equivalents: `nativeCanvas.drawText`, `pointerInteropFilter`, `Rect`, `colorResource`.                 | 6-10 weeks (resources dominate) |
+| **3 - data layer to `commonMain`**   | Room KMP (bundled SQLite driver, `expect`/`actual` DB path), DataStore on okio `Path`, Ktor engine per platform, repositories one file at a time. Session persistence is behind `SessionCookiePersistence`; the websocket has no JVM threading left. `Dispatchers.IO` (33 uses), `Analytics` (6.9) and `CrashReporter` (6.10) go with the repositories that use them. | 4-6 weeks                       |
+| **4 - Compose Multiplatform**        | UI into `:shared/commonMain`; Koin and Molecule multiplatform artifacts with it. Resources (4.2), icons, chart, markdown, Material You. `BoardComposable` has four Android leaks with direct CMP equivalents: `nativeCanvas.drawText`, `pointerInteropFilter`, `Rect`, `colorResource`.                 | 6-10 weeks (resources dominate) |
 | **5 - iOS app**                      | SwiftUI shell + `ComposeUIViewController`, notifications, background refresh, billing, Google sign-in, App Store plumbing. Bitrise needs a macOS stack.                                                                                              | 4-8 weeks, excluding local AI   |
+
+iOS has no score estimator until the 4.1 decision; `ScoreEstimator` is Android-only (6.24).
 
 Estimates are order-of-magnitude, single developer. The one data point so far: the serialization
 slice came in on time only because the golden-JSON corpus was dropped, which moved verification
@@ -98,13 +102,14 @@ appears, or local AI needs Play Feature Delivery for its 265 MB of assets. Basel
 
 **Done (section 6):** Moshi and `org.json`, jsoup, Coil 2, Retrofit, PersistentCookieJar,
 `android.util.Log`, `java.time`, direct OkHttp use, Firebase Analytics and Crashlytics call sites,
-`java.util.concurrent` / `UUID` / `Stack`, string navigation routes.
+`java.util.concurrent` / `UUID` / `Stack`, string navigation routes, `BuildConfig.DEBUG` in
+`HTTPConnectionFactory` (6.23).
 
 | Dependency                                      | Replacement                                                                                                    | When                |
 |-------------------------------------------------|----------------------------------------------------------------------------------------------------------------|---------------------|
-| `BuildConfig.DEBUG` in `HTTPConnectionFactory`  | stays in `androidMain` with OkHttp; `BASE_URL` is already the constant `OGS_BASE_URL` (6.22)                   | Phase 2             |
-| Koin Android artifacts                          | `koin-core` + `koin-compose` + `koin-compose-viewmodel`; drop `androidApplication()`                           | Phase 2             |
-| Molecule `AndroidUiDispatcher` / `ContextClock` | multiplatform frame clock; extract the shared `moleculeScope` base from the two ViewModels                     | Phase 2             |
+| Firebase Analytics / Crashlytics in `:shared`   | common `Analytics` interface, `expect object CrashReporter` (6.9, 6.10)                                         | Phase 3             |
+| Koin Android artifacts                          | `koin-core` + `koin-compose` + `koin-compose-viewmodel`; drop `androidApplication()`                           | Phase 4             |
+| Molecule `AndroidUiDispatcher` / `ContextClock` | multiplatform frame clock; extract the shared `moleculeScope` base from the two ViewModels                     | Phase 4             |
 | Room 2.8, DataStore 1.2                         | same libraries, KMP setup                                                                                      | Phase 3             |
 | MPAndroidChart                                  | Vico 2.x / KoalaPlot / Compose `Canvas`; confined to `ChartWrapper.kt` (416 LOC)                               | Phase 4             |
 | Markwon                                         | `multiplatform-markdown-renderer-m3` (`JosekiExplorerUI`, ~90 LOC)                                             | Phase 4             |
@@ -131,11 +136,12 @@ the Material Components dependency exists).
 
 These are separate problems.
 
-**Score estimator (`libestimator.so`).** The JNI surface is one function, `RulesManager.estimate()`,
-a clean `expect`/`actual` boundary. Options: cross-compile for iOS with `cinterop`; **port
-`Goban.cpp` (~1,000 LOC) to Kotlin - recommended**, since it removes the NDK and all 1,840 LOC of
-C++ and makes estimation testable in `commonTest` (benchmark first); or use OGS's server-side
-estimate on iOS, at the cost of a round-trip on a latency-sensitive action.
+**Score estimator (`libestimator.so`).** The JNI surface is one function,
+`ScoreEstimator.estimate()` in `androidMain`, behind `ScoreEstimator.determineTerritory()` (6.24).
+Options: cross-compile for iOS with `cinterop`; **port `Goban.cpp` (~1,000 LOC) to Kotlin -
+recommended**, since it removes the NDK and all 1,840 LOC of C++ and makes estimation testable in
+`commonTest` (benchmark first); or use OGS's server-side estimate on iOS, at the cost of a
+round-trip on a latency-sensitive action.
 
 **KataGo - the one hard blocker.** It runs as a child process (`ProcessBuilder` over stdin/stdout
 JSON), and iOS forbids `fork`/`exec`. It must be relinked as a static library and driven
@@ -184,7 +190,8 @@ one module so there is one `Res` class.
 ## 6. Done - what is still load-bearing
 
 Only traps, deliberate behaviour changes, and decisions that look wrong but are not. Unit tests
-stand at 121: 75 in `:shared`, 46 in `:app`.
+stand at 122: 75 in `:shared` (40 of them in `commonTest`, which also run on the iOS simulator),
+47 in `:app`.
 
 ### 6.1 Moshi to kotlinx.serialization
 
@@ -254,12 +261,13 @@ not block KMP (Koin's global API is common code): lazy injection to break cycles
 
 `utils/Analytics.kt` is the only importer besides `Modules.kt`; parameters are a
 `Map<String, String?>`. In Phase 2 it becomes a common interface with a Swift implementation
-registered in Koin. Event names are unchanged.
+registered in Koin, in Phase 3 with `ReviewPromptRepository`, its only `:shared` user. Event names
+are unchanged.
 
 ### 6.10 Firebase Crashlytics behind `CrashReporter`
 
 - A global `CrashReporter` object in `utils/CrashReporter.kt`, the only `FirebaseCrashlytics`
-  importer; `expect object` in Phase 2. Global on purpose: `BoardComposable`'s draw code and
+  importer; `expect object` in Phase 3, when the repositories that call it move. Global on purpose: `BoardComposable`'s draw code and
   `TextResource.resolve()` cannot take constructor parameters.
 - **Behaviour change:** all reports go through the network-error filter, so cancellation and
   network errors are no longer reported and HTTP 5xx is wrapped in `ServerException`.
@@ -327,9 +335,8 @@ unchanged. Still Android-bound in `data` (Phase 3 work): `Context` in five repos
 
 ### 6.17 `RulesManager` thread checks
 
-The three `Thread.currentThread()` checks only reported to Crashlytics and are deleted. What keeps
-`RulesManager` out of `commonMain` now is `androidx.core.util.lruCache` and the JNI estimator, both
-part of the estimator decision (4.1).
+The three `Thread.currentThread()` checks only reported to Crashlytics and are deleted.
+`RulesManager` is in `commonMain` since 6.24.
 
 ### 6.18 Dead weight
 
@@ -382,24 +389,63 @@ test-local class.
 
 ### 6.22 `:shared` extracted
 
-- An Android library at `shared/` holds `data/**`, `gamelogic/**`, `usecases/**` and the six
-  `utils` files they need (`Globals`, `Globals1`, `AppJson`, `PersistenceManager`,
-  `CrashReporter`, `Analytics`), plus the estimator's C++, `CMakeLists.txt` and the Room
-  schemas. Packages are unchanged, so JNI symbol names, serial names and the
+- A library at `shared/` holds `data/**`, `gamelogic/**`, `usecases/**` and the six `utils` files
+  they need (`Globals`, `Globals1`, `AppJson`, `PersistenceManager`, `CrashReporter`,
+  `Analytics`), plus the Room schemas. The estimator's C++ moved back to `:app` in 6.23. Packages are unchanged, so JNI symbol names, serial names and the
   `-keep class io.zenandroid.onlinego.data.**` rule still match. No dependency cycle surfaced.
 - **`:shared` applies the Compose compiler plugin** though it has no composables. Without it the
   model classes compile as external and unstable: six more unstable parameters in the app's
   compose report (`Challenge`, `Player`, `Tutorial`, ...). Strong skipping hides this from the
   skippable count, so compare `unstable` parameters in `app_release-composables.txt`, not
   skippable totals. `stability_config.conf`'s `data.*` matches the `data` package only.
-- **Firebase Analytics and Crashlytics are dependencies of `:shared`** for now; Phase 2 does 6.9
-  and 6.10. `ApiException` arrives transitively.
+- **Firebase Analytics and Crashlytics are dependencies of `:shared`** (`androidMain`) until
+  Phase 3 does 6.9 and 6.10. `ApiException` arrives transitively.
 - `BASE_URL` was a build field for a fixed value; it is now `const val OGS_BASE_URL` in
-  `OGSHttpClient.kt`. `HTTPConnectionFactory` reads `io.zenandroid.onlinego.shared.BuildConfig`.
+  `OGSHttpClient.kt`.
 - `tutorials.json` stays in the app's assets: its keys are app string resources, and
   `TutorialsJsonParsingTest` stays with it.
 - Kotlin does not smart-cast a property declared in another module; nine app sites now read the
   model property once instead of null-checking it and reading it again.
-- CI: Bitrise runs a second `android-unit-test` step with `module: shared`; without it the 75
-  moved tests would silently stop running. The release APK matched the pre-move build apart from
-  dex size (-116 bytes).
+- CI: Bitrise runs the `:shared` tests in their own step (6.23); without it the 75 moved tests
+  would silently stop running. The release APK matched the pre-move build apart from dex size
+  (-116 bytes).
+
+### 6.23 `:shared` on the KMP plugin
+
+- `com.android.kotlin.multiplatform.library`, not `com.android.library` + KMP: that combination is
+  deprecated in AGP 9 and removed in AGP 10. Targets: Android, `iosArm64`, `iosSimulatorArm64`.
+- **The plugin has no `externalNativeBuild` and no `BuildConfig`.** `CMakeLists.txt` and
+  `src/main/cpp` live in `:app`; JNI symbols follow the Kotlin class, not the module, so
+  `System.loadLibrary` in `:shared` finds the `.so` in the APK. `HTTPConnectionFactory` takes
+  `logBodies`, which `Modules.kt` sets from the app's `BuildConfig.DEBUG`.
+- Source sets: `androidMain`, `androidHostTest`, `commonMain`, `commonTest`. Host tests also run
+  `commonTest`. The task is `:shared:testAndroidHostTest`; Bitrise runs it as a `script` step,
+  since `android-unit-test` looks for `testDebugUnitTest`.
+- `kotlin.native.ignoreDisabledTargets=true`: the Linux Bitrise stack cannot build Apple targets
+  and skips them.
+- No core library desugaring in the library: the app's L8 desugars everything it packages, and host
+  tests run on a JDK with `java.time`.
+- The release APK's `.so` files and the compose stability report (246 composables, 6 unstable
+  parameters, both from a full recompile) matched the pre-move build. Incremental builds write
+  partial compose reports - compare only after `compileReleaseKotlin --rerun`.
+
+### 6.24 Model and logic in `commonMain`
+
+- `data/model/**`, `gamelogic/**`, the serializers (`AnySerializer`, `LenientNumberSerializers`,
+  `OGSBooleanSerializer`, `OGSInstantSerializer`, `JsonValues`), `AppJson` and `Globals` compile
+  for Android and iOS. Packages are unchanged.
+- `GameConnection.kt`'s DTOs (`OGSClock`, `TimeControl`, `Players`, ...) are in
+  `GameConnectionModels.kt`, same package; the connection class stays in `androidMain`.
+  `currentClockMillis` moved to `Globals1.kt`, next to the drift-aware `computeTimeLeft` it calls.
+- **`@Transient` without an import is `kotlin.jvm.Transient`**, which kotlinx.serialization ignores:
+  `JosekiPosition.labels` was always decoded. Two no-op annotations were deleted rather than
+  "fixed" to `kotlinx.serialization.Transient`, which would have changed decoding.
+- **`ScoreEstimator`** (`androidMain`) holds `loadLibrary`, `external fun estimate` and
+  `determineTerritory`; the C++ symbol is `Java_..._gamelogic_ScoreEstimator_estimate`. **Renaming
+  or moving the class breaks scoring silently**: `UnsatisfiedLinkError` is caught and only logged.
+  R8 keeps the name through the default native-method rule (checked with `dexdump`).
+- `RulesManager`'s position cache is `androidx.collection.LruCache`. The old
+  `androidx.core.util.lruCache` was an `android.util.LruCache` stub in host tests, so tests now
+  exercise a real cache.
+- Kotlin/Native rejects commas in backtick test names; six were reworded.
+- `ChallengeParams` lost `@Keep`; `-keep class io.zenandroid.onlinego.data.**` covers it.
