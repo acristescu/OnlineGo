@@ -155,34 +155,55 @@ class FaceToFaceViewModel(
 
     if (historyString.isNotEmpty()) {
       analytics.logEvent("face_to_face_loading")
-      history = historyString.split(" ")
+      val savedHistory = historyString.split(" ")
         .filter { it.isNotEmpty() }
         .map {
           val parts = it.split(",")
           Cell(parts[0].toInt(), parts[1].toInt())
         }
       val size = BoardSize.entries.firstOrNull { it.prettyName == sizeString } ?: BoardSize.LARGE
+      val fitsBoard = savedHistory.all {
+        it == PASS || (it.x in 0 until size.width && it.y in 0 until size.height)
+      }
+      if (fitsBoard) {
+        history = savedHistory
+      } else {
+        Logger.i(
+          "Discarding history that does not fit $size: $savedHistory",
+          tag = "FaceToFaceViewModel"
+        )
+      }
       currentGameParameters = GameParameters(size, handicap)
       newGameParameters = currentGameParameters
     }
-    currentPosition = withContext(Dispatchers.Default) {
+    val savedPosition = withContext(Dispatchers.Default) {
       try {
         historyPosition(history.lastIndex)
       } catch (e: Exception) {
         Logger.i("Cannot load history $history", tag = "FaceToFaceViewModel")
         CrashReporter.recordException(e)
-        historyPosition(0)
+        null
       }
     }
+    if (savedPosition == null) {
+      history = emptyList()
+    }
+    currentPosition = savedPosition
+      ?: RulesManager.initializePosition(
+        currentGameParameters.size.height,
+        currentGameParameters.handicap
+      )
     loading = false
     analytics.logEvent("face_to_face_loaded")
   }
 
   override fun onCleared() {
     applicationScope.launch {
-      settingsRepository.setFaceToFaceHistory(history.joinToString(separator = " ") { "${it.x},${it.y}" })
-      settingsRepository.setFaceToFaceBoardSize(currentGameParameters.size.toString())
-      settingsRepository.setFaceToFaceHandicap(currentGameParameters.handicap)
+      settingsRepository.setFaceToFaceGame(
+        history = history.joinToString(separator = " ") { "${it.x},${it.y}" },
+        boardSize = currentGameParameters.size.toString(),
+        handicap = currentGameParameters.handicap,
+      )
     }
     super.onCleared()
   }
@@ -296,7 +317,7 @@ class FaceToFaceViewModel(
     }
 
   private fun onPassPressed() {
-    onCellTapUp(Cell(-1, -1))
+    onCellTapUp(PASS)
   }
 
   private fun onCellTapUp(cell: Cell) {
@@ -375,6 +396,8 @@ data class GameParameters(
   val size: BoardSize,
   val handicap: Int,
 )
+
+private val PASS = Cell(-1, -1)
 
 enum class BoardSize(
   val width: Int,

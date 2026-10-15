@@ -200,13 +200,11 @@ class SettingsRepository(
   val faceToFaceBoardSizeFlow: Flow<String?> = dataStore.data.map { prefs -> prefs[FACE_TO_FACE_BOARD_SIZE_KEY] }
   val faceToFaceHandicapFlow: Flow<Int?> = dataStore.data.map { prefs -> prefs[FACE_TO_FACE_HANDICAP_KEY] }
 
-  suspend fun setFaceToFaceHistory(value: String) {
-    dataStore.edit { it[FACE_TO_FACE_HISTORY_KEY] = value }
-  }
-  suspend fun setFaceToFaceBoardSize(value: String) {
-    dataStore.edit { it[FACE_TO_FACE_BOARD_SIZE_KEY] = value }
-  }
-  suspend fun setFaceToFaceHandicap(value: Int) {
-    dataStore.edit { it[FACE_TO_FACE_HANDICAP_KEY] = value }
+  suspend fun setFaceToFaceGame(history: String, boardSize: String, handicap: Int) {
+    dataStore.edit {
+      it[FACE_TO_FACE_HISTORY_KEY] = history
+      it[FACE_TO_FACE_BOARD_SIZE_KEY] = boardSize
+      it[FACE_TO_FACE_HANDICAP_KEY] = handicap
+    }
   }
 }

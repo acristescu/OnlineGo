@@ -170,6 +170,26 @@ class FaceToFaceViewModelTest {
     }
   }
 
+  @Test
+  fun `saved history that does not fit the saved board size starts a fresh game`() {
+    whenever(settingsRepository.faceToFaceHistoryFlow).thenReturn(flowOf("7,10 5,10 10,12"))
+    whenever(settingsRepository.faceToFaceBoardSizeFlow).thenReturn(flowOf(BoardSize.SMALL.prettyName))
+    whenever(settingsRepository.faceToFaceHandicapFlow).thenReturn(flowOf(0))
+    val viewModel = koinTestRule.koin.get<FaceToFaceViewModel>()
+
+    runTest {
+      moleculeFlow(RecompositionMode.Immediate) {
+        viewModel.molecule()
+      }.test {
+        val item = awaitState { !it.loading }
+        Assert.assertEquals(emptyList<Cell>(), item.history)
+        Assert.assertEquals(9, item.position?.boardWidth)
+        Assert.assertEquals(0, item.position?.blackStones?.size)
+        cancel()
+      }
+    }
+  }
+
   private suspend fun ReceiveTurbine<FaceToFaceState>.awaitState(
     predicate: (FaceToFaceState) -> Boolean,
   ): FaceToFaceState {
