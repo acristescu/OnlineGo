@@ -1,8 +1,8 @@
 package io.zenandroid.onlinego.data.model.ogs
 
 import io.zenandroid.onlinego.utils.appJson
-import kotlin.test.assertEquals
 import kotlin.test.Test
+import kotlin.test.assertEquals
 
 class UserDecodingTest {
 
@@ -53,8 +53,8 @@ class UserDecodingTest {
         """.trimIndent()
     )
 
-    assertEquals(false, user?.is_moderator)
-    assertEquals(true, user?.supporter)
-    assertEquals(true, user?.pro)
+    assertEquals(false, user.is_moderator)
+    assertEquals(true, user.supporter)
+    assertEquals(true, user.pro)
   }
 }

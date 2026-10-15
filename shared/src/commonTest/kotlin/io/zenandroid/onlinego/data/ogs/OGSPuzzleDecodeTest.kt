@@ -2,10 +2,10 @@ package io.zenandroid.onlinego.data.ogs
 
 import io.zenandroid.onlinego.data.model.ogs.OGSPuzzle
 import io.zenandroid.onlinego.utils.appJson
+import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
-import kotlin.test.Test
 
 /**
  * A real `GET /api/v1/puzzles/{id}` body, kept verbatim. It is the payload that broke the puzzle
@@ -33,10 +33,10 @@ class OGSPuzzleDecodeTest {
     val tree = appJson.decodeFromString<OGSPuzzle>(body).puzzle.move_tree
 
     assertNotNull(tree)
-    assertEquals("Black to kill.", tree!!.text)
+    assertEquals("Black to kill.", tree.text)
     assertEquals(3, tree.branches!!.size)
-    assertTrue(tree.branches!!.first().correct_answer == true)
-    assertTrue(tree.branches!![1].branches!!.first().wrong_answer == true)
+    assertTrue(tree.branches.first().correct_answer == true)
+    assertTrue(tree.branches[1].branches!!.first().wrong_answer == true)
   }
 
   @Test
@@ -44,7 +44,7 @@ class OGSPuzzleDecodeTest {
     val collection = appJson.decodeFromString<OGSPuzzle>(body).collection
 
     assertNotNull(collection)
-    assertEquals(242L, collection!!.id)
+    assertEquals(242L, collection.id)
     assertEquals(107, collection.puzzle_count)
   }
 }
