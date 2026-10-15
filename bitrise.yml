@@ -35,7 +35,15 @@ workflows:
       - script@1:
           title: Shared unit tests
           inputs:
-            - content: ./gradlew :shared:testAndroidHostTest
+            - content: |-
+                #!/usr/bin/env bash
+                ./gradlew :shared:testAndroidHostTest
+                status=$?
+                results="$BITRISE_TEST_RESULT_DIR/shared-androidHostTest"
+                mkdir -p "$results"
+                cp shared/build/test-results/testAndroidHostTest/*.xml "$results"/
+                echo '{"test-name":"shared"}' > "$results/test-info.json"
+                exit $status
   _teardown:
     description: |
       Shared epilogue: publish artifacts to Bitrise and refresh the cache.
