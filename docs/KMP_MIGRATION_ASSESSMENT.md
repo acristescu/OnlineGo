@@ -32,8 +32,9 @@ Nothing left.
 
 ### 1.2 On-device checks owed for finished work
 
-Verified on device: the session survives an in-place upgrade, password login, Google sign-in, and
-declining a challenge (an unsafe request, so CSRF works).
+Verified on device: the session survives an in-place upgrade, password login, Google sign-in,
+declining a challenge (an unsafe request, so CSRF works), and the score estimate after the JNI
+rename (6.24).
 
 Still owed - unit tests cannot reach these:
 
@@ -56,9 +57,6 @@ Still owed - unit tests cannot reach these:
 - [ ] **`:shared` extraction** (6.22): a tutorial opens (`tutorials.json` stays in the app), the
   Tsumego tab loads (Room in the library), and a debug install over the previous build keeps the
   session.
-- [ ] **Score estimator after the JNI rename** (6.24): an estimate in a finished game and in
-  face-to-face shows territory. A wrong symbol fails silently (6.24), so look at the board, not
-  for a crash.
 
 ### 1.3 Phases 3-5
 
