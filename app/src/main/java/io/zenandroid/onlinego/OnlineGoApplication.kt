@@ -2,6 +2,7 @@ package io.zenandroid.onlinego
 
 import android.app.Application
 import android.content.Context
+import android.os.Build
 import androidx.work.Configuration
 import co.touchlab.kermit.Logger
 import co.touchlab.kermit.Severity
@@ -49,6 +50,7 @@ class OnlineGoApplication : Application(), Configuration.Provider {
 
     override fun onCreate() {
         super.onCreate()
+      useAndroidSecureRandomForKtor()
         if (BuildConfig.DEBUG) {
             Logger.setLogWriters(platformLogWriter(), CrashlyticsBreadcrumbWriter())
         } else {
@@ -78,6 +80,12 @@ class OnlineGoApplication : Application(), Configuration.Provider {
         }
 
     }
+
+  private fun useAndroidSecureRandomForKtor() {
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+      System.setProperty("io.ktor.random.secure.random.provider", "SHA1PRNG")
+    }
+  }
 
     /**
      * Warms the image caches so the home screen header renders the avatar on its first frame
