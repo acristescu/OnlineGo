@@ -329,7 +329,7 @@
     </plurals>
     <string name="notification_inbox_versus">proti %1$s</string>
     <string name="notification_logout_title">Prosím prihláste sa znova</string>
-    <string name="notification_logout_text">Boli ste odhlásení z aplikácie. To sa zvyčajne stáva, lebo ste si zmenili heslo. Prosím, prihláste sa znova aby ste vedeli znovu spustiť notifikácie,</string>
+    <string name="notification_logout_text">Boli ste odhlásení z aplikácie. To sa zvyčajne stáva, lebo ste si zmenili heslo. Prosím, prihláste sa znova aby ste vedeli znovu spustiť notifikácie.</string>
     <string name="notification_channel_group_your_turn">Váš ťah</string>
     <string name="notification_channel_correspondence_games">Korešpondenčné Hry</string>
     <string name="notification_channel_live_games">Živé hry</string>
@@ -354,7 +354,7 @@
     <string name="settings_section_account">Účet</string>
     <string name="settings_logout">Odhlásiť</string>
     <string name="settings_delete_account">Zmazať účet</string>
-    <string name="settings_section_about">O nás</string>
+    <string name="settings_section_about">O aplikácii</string>
     <string name="settings_whats_new">Čo je nové</string>
     <string name="settings_section_legal">Právne informácie</string>
     <string name="settings_privacy_policy">Ochrana súkromia</string>
@@ -807,7 +807,7 @@ Dva priesečníky v strede sú neutrálne teritórium ('Dame') a nepočítajú s
 
 Akýkoľvek zajatý kameň sa ráta za 1 bod, rovnako ako 'mŕtve' kamene ktoré sú stále na doske (ktoré nemajú šancu vytvoriť 2 oči).
 
-Taktiež, keďže čierny hrá prvý, má výhodu a pre kompenzáciu ha to získa biely malý bodový bonus (nazývany 'komi').
+Taktiež, keďže čierny hrá prvý, má výhodu a pre kompenzáciu to získa biely malý bodový bonus (nazývaný 'komi').
 
 Hodnota komi záleží od veľkosti dosky, ale zvyčajne je 5,5, alebo 6,5 boda. 0,5 boda zaisťuje, že v hrách nebude žiadna remíza.
 
