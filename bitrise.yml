@@ -32,11 +32,10 @@ workflows:
             - project_location: "$PROJECT_LOCATION"
             - module: "$MODULE"
             - variant: "$TEST_VARIANT"
-      - android-unit-test@1.0:
+      - script@1:
+          title: Shared unit tests
           inputs:
-            - project_location: "$PROJECT_LOCATION"
-            - module: shared
-            - variant: "$TEST_VARIANT"
+            - content: ./gradlew :shared:testAndroidHostTest
   _teardown:
     description: |
       Shared epilogue: publish artifacts to Bitrise and refresh the cache.

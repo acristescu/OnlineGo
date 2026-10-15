@@ -84,6 +84,13 @@ android {
 
   namespace = "io.zenandroid.onlinego"
 
+  externalNativeBuild {
+    cmake {
+      path = file("CMakeLists.txt")
+      version = libs.versions.cmake.get()
+    }
+  }
+
   packaging {
     jniLibs {
       useLegacyPackaging = true

@@ -1,7 +1,6 @@
 package io.zenandroid.onlinego.data.ogs
 
 import android.os.Build
-import io.zenandroid.onlinego.shared.BuildConfig
 import okhttp3.Dns
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -16,13 +15,13 @@ private class EmulatorDnsSelector : Dns {
     }
 }
 
-class HTTPConnectionFactory {
+class HTTPConnectionFactory(private val logBodies: Boolean) {
     fun buildConnection() =
         OkHttpClient.Builder()
             .pingInterval(15, TimeUnit.SECONDS)
             .run { if(isEmulator()) dns(EmulatorDnsSelector()) else this }
             .followRedirects(false)
-            .run { if(BuildConfig.DEBUG) { addInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY)) } else this }
+            .run { if(logBodies) { addInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY)) } else this }
             .build()
 
     private fun isEmulator(): Boolean {
