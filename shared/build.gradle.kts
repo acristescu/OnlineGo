@@ -52,11 +52,11 @@ kotlin {
       api(libs.ktor.serialization.kotlinx.json)
 
       api(libs.androidx.datastore.preferences)
+
+      api(libs.koin.core)
     }
 
     androidMain.dependencies {
-      api(libs.koin.core)
-
       api(libs.okhttp.logging.interceptor)
 
       implementation(libs.androidx.core.ktx)

@@ -1,8 +1,5 @@
 package io.zenandroid.onlinego.data.repositories
 
-import android.app.ActivityManager
-import android.content.Context
-import android.content.Context.ACTIVITY_SERVICE
 import io.zenandroid.onlinego.data.model.ogs.UIConfig
 import io.zenandroid.onlinego.data.ogs.OGSCookieStore
 import io.zenandroid.onlinego.data.ogs.OGSRestService
@@ -11,23 +8,24 @@ import io.zenandroid.onlinego.utils.CrashReporter
 import io.zenandroid.onlinego.utils.PersistenceManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
-import org.koin.core.context.GlobalContext.get
+import org.koin.mp.KoinPlatform.getKoin
 import kotlin.time.Clock
 
 class UserSessionRepository(
   private val appCoroutineScope: CoroutineScope,
   private val cookieStore: OGSCookieStore,
   private val persistenceManager: PersistenceManager,
-  private val context: Context,
+  private val clearAppData: () -> Unit,
 ) {
   // Note: Can't use constructor injection here because it will create a dependency loop and
   // Koin will throw a fit (at runtime)
-  private val socketService: OGSWebSocketService by get().inject()
-  private val restService: OGSRestService by get().inject()
+  private val socketService: OGSWebSocketService by getKoin().inject()
+  private val restService: OGSRestService by getKoin().inject()
 
   private val _userId = MutableSharedFlow<Long?>(replay = 1)
   val userId: SharedFlow<Long?> = _userId.asSharedFlow()
@@ -79,7 +77,7 @@ class UserSessionRepository(
     CrashReporter.sendUnsentReports()
     uiConfig = null
     _loginStatus.tryEmit(LoginStatus.LoggedOut)
-    (context.getSystemService(ACTIVITY_SERVICE) as ActivityManager).clearApplicationUserData()
+    clearAppData()
   }
 
   suspend fun deleteAccount(password: String) {

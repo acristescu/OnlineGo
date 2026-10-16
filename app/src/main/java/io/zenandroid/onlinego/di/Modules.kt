@@ -1,5 +1,7 @@
 package io.zenandroid.onlinego.di
 
+import android.app.ActivityManager
+import androidx.core.content.getSystemService
 import androidx.room.Room
 import com.google.firebase.analytics.FirebaseAnalytics
 import de.jensklingenberg.ktorfit.Ktorfit
@@ -103,7 +105,16 @@ private val repositoriesModule = module {
   singleOf(::ServerNotificationsRepository)
   single { SettingsRepository(androidContext().settingsDataStore, get()) }
   singleOf(::AppLocaleManager)
-  singleOf(::UserSessionRepository)
+  single {
+    UserSessionRepository(
+      appCoroutineScope = get(),
+      cookieStore = get(),
+      persistenceManager = get(),
+      clearAppData = {
+        androidContext().getSystemService<ActivityManager>()?.clearApplicationUserData()
+      },
+    )
+  }
   singleOf(::ClockDriftRepository)
   singleOf(::TutorialsRepository)
   single { ReviewPromptRepository(androidContext().reviewPromptDataStore, get(), get()) }

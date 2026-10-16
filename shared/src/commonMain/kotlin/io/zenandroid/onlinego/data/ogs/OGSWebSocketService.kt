@@ -30,6 +30,7 @@ import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.delay
@@ -57,7 +58,7 @@ import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.longOrNull
-import org.koin.core.context.GlobalContext.get
+import org.koin.mp.KoinPlatform.getKoin
 import kotlin.concurrent.atomics.AtomicBoolean
 import kotlin.concurrent.atomics.AtomicReference
 import kotlin.concurrent.atomics.update
@@ -84,7 +85,7 @@ class OGSWebSocketService(
   private var connectedToChallenges = false
 
   // Note: Don't use constructor injection here as it creates a dependency loop
-  private val socketConnectedRepositories: List<SocketConnectedRepository> by get().inject()
+  private val socketConnectedRepositories: List<SocketConnectedRepository> by getKoin().inject()
 
   private val eventListeners =
     AtomicReference(persistentMapOf<String, PersistentList<(JsonElement) -> Unit>>())

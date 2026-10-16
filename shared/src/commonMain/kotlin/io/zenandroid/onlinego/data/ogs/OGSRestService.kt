@@ -31,6 +31,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.offsetAt
+import kotlin.random.Random
 import kotlin.time.Clock
 
 private const val TAG = "OGSRestService"
@@ -54,7 +55,7 @@ class OGSRestService(
   private suspend fun getOrCreateEbi(): String {
     if (!ebi.isNullOrBlank()) return ebi!!
     val newEbi =
-      "${Math.random().toString().split(".")[1]}.0.0.0.0.xxx.xxx.${minutesBehindUtc() + 13}"
+      "${Random.nextDouble().toString().split(".")[1]}.0.0.0.0.xxx.xxx.${minutesBehindUtc() + 13}"
     settingsRepository.setOgsEbi(newEbi)
     ebi = newEbi
     return newEbi

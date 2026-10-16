@@ -12,7 +12,7 @@ kotlinx-collections-immutable are already multiplatform. The cost is dominated b
 **Status.** Phases 0-2 are finished: twenty-four slices are done (section 6). None has shipped
 in a release yet, and several still need on-device checks (section 1.2). Phase 3 has started with
 the Room database (6.25), the score estimator on iOS (6.26), `CrashReporter` (6.10), the HTTP
-client (6.27) and storage (6.28); phases 4-5 have not started.
+client (6.27), storage (6.28) and the session cluster (6.29); phases 4-5 have not started.
 
 Earlier, longer versions of this document:
 `git show d529259:docs/KMP_MIGRATION_ASSESSMENT.md` (original assessment) and
@@ -35,8 +35,8 @@ Nothing left.
 
 Verified on device: the session survives an in-place upgrade, password login, Google sign-in,
 declining a challenge (an unsafe request, so CSRF works), the score estimate after both JNI
-renames (6.24, 6.26), Room in `commonMain` installed over the existing app (6.25), and tutorials
-opening with `tutorials.json` still in the app (6.22).
+renames (6.24, 6.26), Room in `commonMain` installed over the existing app (6.25), tutorials
+opening with `tutorials.json` still in the app (6.22), and storage in `commonMain` (6.28).
 
 Still owed - unit tests cannot reach these:
 
@@ -54,18 +54,17 @@ Still owed - unit tests cannot reach these:
   puzzle, onboarding via login and sign-up, and the deep link
   `adb shell am start -a android.intent.action.VIEW -d "sente://game/76828314/9/9"`. Check the
   `screen_view` names in Firebase DebugView.
-- [ ] **Storage in `commonMain`** (6.28): install over the previous build; the app theme, board
-  theme and other settings, the onboarding flag and the session all survive.
+- [ ] **Logout** (6.29): it wipes the app data and the app restarts logged out.
 - [ ] **Clock text** (6.16): simple, byo-yomi, Canadian and Fischer clocks and the game-list
   timers, in English and in a locale with a decimal comma (e.g. `de`).
 
 ### 1.3 Phases 3-5
 
-| Phase                              | Work                                                                                                                                                                                                                                                                                                                                                                          | Estimate                        |
-|------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------|
-| **3 - data layer to `commonMain`** | Room, the HTTP client and storage are done (6.25, 6.27, 6.28); the iOS database builder, DataStore paths, `KeyValueStore`, cookie persistence and Ktor engine come with the iOS Koin graph. Next: the session cluster (6.27), then the remaining repositories. The websocket has no JVM threading left. `Dispatchers.IO` (33 uses) needs only `import kotlinx.coroutines.IO`. | 4-6 weeks                       |
-| **4 - Compose Multiplatform**      | UI into `:shared/commonMain`; Koin and Molecule multiplatform artifacts with it. Resources (4.2), icons, chart, markdown, Material You. `BoardComposable` has four Android leaks with direct CMP equivalents: `nativeCanvas.drawText`, `pointerInteropFilter`, `Rect`, `colorResource`.                                                                                       | 6-10 weeks (resources dominate) |
-| **5 - iOS app**                    | SwiftUI shell + `ComposeUIViewController`, notifications, background refresh, billing, Google sign-in, App Store plumbing. Bitrise needs a macOS stack.                                                                                                                                                                                                                       | 4-8 weeks, excluding local AI   |
+| Phase                              | Work                                                                                                                                                                                                                                                                                                                                                                                                   | Estimate                        |
+|------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------|
+| **3 - data layer to `commonMain`** | Room, the HTTP client, storage and the session cluster are done (6.25, 6.27-6.29); the iOS database builder, DataStore paths, `KeyValueStore`, cookie persistence and Ktor engine come with the iOS Koin graph. Next: the remaining repositories, `GetUserStatsUseCase` and `Globals1`. The websocket has no JVM threading left. `Dispatchers.IO` (33 uses) needs only `import kotlinx.coroutines.IO`. | 4-6 weeks                       |
+| **4 - Compose Multiplatform**      | UI into `:shared/commonMain`; Koin and Molecule multiplatform artifacts with it. Resources (4.2), icons, chart, markdown, Material You. `BoardComposable` has four Android leaks with direct CMP equivalents: `nativeCanvas.drawText`, `pointerInteropFilter`, `Rect`, `colorResource`.                                                                                                                | 6-10 weeks (resources dominate) |
+| **5 - iOS app**                    | SwiftUI shell + `ComposeUIViewController`, notifications, background refresh, billing, Google sign-in, App Store plumbing. Bitrise needs a macOS stack.                                                                                                                                                                                                                                                | 4-8 weeks, excluding local AI   |
 
 Estimates are order-of-magnitude, single developer. The one data point so far: the serialization
 slice came in on time only because the golden-JSON corpus was dropped, which moved verification
@@ -246,10 +245,11 @@ lambda overload, so release never builds those strings.
 
 ### 6.8 Constructor injection
 
-`OnlineGoApplication.instance` is gone. The remaining `GlobalContext` sites are deliberate and do
-not block KMP (Koin's global API is common code): lazy injection to break cycles in
-`OGSWebSocketService` and `UserSessionRepository`, the two workers (no `WorkerFactory`),
-`GameConnection`, and `Globals1.kt`'s `ClockDriftRepository`.
+`OnlineGoApplication.instance` is gone. The remaining global lookups are deliberate: lazy
+injection to break cycles in `OGSWebSocketService` and `UserSessionRepository`, the two workers
+(no `WorkerFactory`), `GameConnection`, and `Globals1.kt`'s `ClockDriftRepository`.
+**`GlobalContext` is JVM-only**; common code uses `KoinPlatform.getKoin()`, the same context on
+Android (6.29).
 
 ### 6.9 Firebase Analytics behind `Analytics`
 
@@ -506,7 +506,8 @@ test-local class.
   ping), `SharedPrefsCookiePersistence` and `LegacyCookieImport`. There is no iOS engine yet; the
   Darwin engine comes with the iOS Koin graph, and with it the Darwin cases of
   `isPlatformNetworkError()` (6.10).
-- **The services wait for the session cluster.** `OGSRestService` needs `UserSessionRepository`
+- **The services waited for the session cluster** (done in 6.29). `OGSRestService` needs
+  `UserSessionRepository`
   and `SettingsRepository`, `OGSWebSocketService` needs `UserSessionRepository` and
   `SocketDebugRepository`, and `GameConnection` needs `ChatRepository`. `UserSessionRepository` in
   turn needs `PersistenceManager` (SharedPreferences) and `ActivityManager`, so storage has to move
@@ -534,3 +535,15 @@ test-local class.
   commented-out debug check.
 - **iOS has no `KeyValueStore` or `SessionCookiePersistence` yet;** both are `NSUserDefaults` work
   for the iOS Koin graph.
+
+### 6.29 Session cluster in `commonMain`
+
+- `UserSessionRepository`, `OGSRestService`, `OGSWebSocketService`, `GameConnection`,
+  `ChatRepository`, `SocketDebugRepository` and `SocketConnectedRepository` moved together: they
+  form one dependency cycle. `koin-core` is a `commonMain` dependency.
+- **`UserSessionRepository` takes `clearAppData: () -> Unit` instead of a `Context`.** `Modules.kt`
+  passes `ActivityManager.clearApplicationUserData()`, which wipes everything and kills the
+  process; iOS has no equivalent and must clear its own stores.
+- `GlobalContext.get()` became `KoinPlatform.getKoin()` in the three lazy lookups (6.8).
+- The `ebi` device id uses `Random.nextDouble()` instead of `Math.random()`; on the JVM the string
+  has the same `0.xxx` shape it takes the digits from.
