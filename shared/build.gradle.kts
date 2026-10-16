@@ -7,6 +7,7 @@ plugins {
   alias(libs.plugins.kotlin.serialization)
   alias(libs.plugins.ksp)
   alias(libs.plugins.ktorfit)
+  alias(libs.plugins.room)
 }
 
 kotlin {
@@ -52,7 +53,6 @@ kotlin {
       api(libs.ktor.serialization.kotlinx.json)
       api(libs.okhttp.logging.interceptor)
 
-      api(libs.room.ktx)
       api(libs.androidx.datastore.preferences)
 
       implementation(libs.androidx.core.ktx)
@@ -60,6 +60,10 @@ kotlin {
       implementation(project.dependencies.platform(libs.firebase.bom))
       implementation(libs.firebase.analytics)
       implementation(libs.firebase.crashlytics)
+    }
+
+    iosMain.dependencies {
+      implementation(libs.sqlite.bundled)
     }
 
     commonTest.dependencies {
@@ -77,10 +81,15 @@ kotlin {
 
 dependencies {
   add("kspAndroid", libs.room.compiler)
+  add("kspIosArm64", libs.room.compiler)
+  add("kspIosSimulatorArm64", libs.room.compiler)
+}
+
+room {
+  schemaDirectory("$projectDir/schemas")
 }
 
 ksp {
-  arg("room.schemaLocation", "$projectDir/schemas")
   arg("room.incremental", "true")
   arg("room.expandProjection", "true")
 }

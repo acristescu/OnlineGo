@@ -10,8 +10,8 @@ kotlinx-collections-immutable are already multiplatform. The cost is dominated b
 (663 strings x 16 locales) and the local-AI engine, which cannot run on iOS as built today.
 
 **Status.** Phases 0-2 are finished: twenty-four slices are done (section 6). None has shipped
-in a release yet, and several still need on-device checks (section 1.2). Phases 3-5 have not
-started.
+in a release yet, and several still need on-device checks (section 1.2). Phase 3 has started with
+the Room database (6.25); phases 4-5 have not started.
 
 Earlier, longer versions of this document:
 `git show d529259:docs/KMP_MIGRATION_ASSESSMENT.md` (original assessment) and
@@ -54,17 +54,20 @@ Still owed - unit tests cannot reach these:
   `screen_view` names in Firebase DebugView.
 - [ ] **Clock text** (6.16): simple, byo-yomi, Canadian and Fischer clocks and the game-list
   timers, in English and in a locale with a decimal comma (e.g. `de`).
+- [ ] **Room in `commonMain`** (6.25): install over the current release build; active games,
+  a game receiving moves and clock ticks, finished-games paging, Tsumego, the Joseki explorer and
+  chat all keep their cached data, and the turn notification still fires.
 - [ ] **`:shared` extraction** (6.22): a tutorial opens (`tutorials.json` stays in the app), the
   Tsumego tab loads (Room in the library), and a debug install over the previous build keeps the
   session.
 
 ### 1.3 Phases 3-5
 
-| Phase                                | Work                                                                                                                                                                                                                                                 | Estimate                        |
-|--------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------|
-| **3 - data layer to `commonMain`**   | Room KMP (bundled SQLite driver, `expect`/`actual` DB path), DataStore on okio `Path`, Ktor engine per platform, repositories one file at a time. Session persistence is behind `SessionCookiePersistence`; the websocket has no JVM threading left. `Dispatchers.IO` (33 uses), `Analytics` (6.9) and `CrashReporter` (6.10) go with the repositories that use them. | 4-6 weeks                       |
-| **4 - Compose Multiplatform**        | UI into `:shared/commonMain`; Koin and Molecule multiplatform artifacts with it. Resources (4.2), icons, chart, markdown, Material You. `BoardComposable` has four Android leaks with direct CMP equivalents: `nativeCanvas.drawText`, `pointerInteropFilter`, `Rect`, `colorResource`.                 | 6-10 weeks (resources dominate) |
-| **5 - iOS app**                      | SwiftUI shell + `ComposeUIViewController`, notifications, background refresh, billing, Google sign-in, App Store plumbing. Bitrise needs a macOS stack.                                                                                              | 4-8 weeks, excluding local AI   |
+| Phase                              | Work                                                                                                                                                                                                                                                                                                                                                                                          | Estimate                        |
+|------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------|
+| **3 - data layer to `commonMain`** | Room is done (6.25); the iOS database builder and path come with the iOS Koin graph. DataStore on okio `Path`, Ktor engine per platform, repositories one file at a time. Session persistence is behind `SessionCookiePersistence`; the websocket has no JVM threading left. `Dispatchers.IO` (33 uses), `Analytics` (6.9) and `CrashReporter` (6.10) go with the repositories that use them. | 4-6 weeks                       |
+| **4 - Compose Multiplatform**      | UI into `:shared/commonMain`; Koin and Molecule multiplatform artifacts with it. Resources (4.2), icons, chart, markdown, Material You. `BoardComposable` has four Android leaks with direct CMP equivalents: `nativeCanvas.drawText`, `pointerInteropFilter`, `Rect`, `colorResource`.                                                                                                       | 6-10 weeks (resources dominate) |
+| **5 - iOS app**                    | SwiftUI shell + `ComposeUIViewController`, notifications, background refresh, billing, Google sign-in, App Store plumbing. Bitrise needs a macOS stack.                                                                                                                                                                                                                                       | 4-8 weeks, excluding local AI   |
 
 iOS has no score estimator until the 4.1 decision; `ScoreEstimator` is Android-only (6.24).
 
@@ -105,10 +108,10 @@ appears, or local AI needs Play Feature Delivery for its 265 MB of assets. Basel
 
 | Dependency                                      | Replacement                                                                                                    | When                |
 |-------------------------------------------------|----------------------------------------------------------------------------------------------------------------|---------------------|
-| Firebase Analytics / Crashlytics in `:shared`   | common `Analytics` interface, `expect object CrashReporter` (6.9, 6.10)                                         | Phase 3             |
+| Firebase Analytics / Crashlytics in `:shared`   | common `Analytics` interface, `expect object CrashReporter` (6.9, 6.10)                                        | Phase 3             |
 | Koin Android artifacts                          | `koin-core` + `koin-compose` + `koin-compose-viewmodel`; drop `androidApplication()`                           | Phase 4             |
 | Molecule `AndroidUiDispatcher` / `ContextClock` | multiplatform frame clock; extract the shared `moleculeScope` base from the two ViewModels                     | Phase 4             |
-| Room 2.8, DataStore 1.2                         | same libraries, KMP setup                                                                                      | Phase 3             |
+| DataStore 1.2                                   | same library, KMP setup (Room done, 6.25)                                                                      | Phase 3             |
 | MPAndroidChart                                  | Vico 2.x / KoalaPlot / Compose `Canvas`; confined to `ChartWrapper.kt` (416 LOC)                               | Phase 4             |
 | Markwon                                         | `multiplatform-markdown-renderer-m3` (`JosekiExplorerUI`, ~90 LOC)                                             | Phase 4             |
 | `material-icons-extended` (109 refs, 21 files)  | vendored `ImageVector`s                                                                                        | Phase 4             |
@@ -188,8 +191,8 @@ one module so there is one `Res` class.
 ## 6. Done - what is still load-bearing
 
 Only traps, deliberate behaviour changes, and decisions that look wrong but are not. Unit tests
-stand at 122: 75 in `:shared` (40 of them in `commonTest`, which also run on the iOS simulator),
-47 in `:app`.
+stand at 124: 75 in `:shared` host tests (40 of them in `commonTest`, which also run on the iOS
+simulator), 2 in `:shared` `iosTest` (simulator only), 47 in `:app`.
 
 ### 6.1 Moshi to kotlinx.serialization
 
@@ -447,3 +450,26 @@ test-local class.
   exercise a real cache.
 - Kotlin/Native rejects commas in backtick test names; six were reworded.
 - `ChallengeParams` lost `@Keep`; `-keep class io.zenandroid.onlinego.data.**` covers it.
+
+### 6.25 Room database in `commonMain`
+
+- `Database`, `GameDao`, `PuzzleDao` and `DbTypeConverters` are in `commonMain`, same package.
+  Version 20 and the schema are unchanged: `schemas/.../20.json` came out byte-identical, so the
+  identity hash matches and an older APK still opens the file.
+- **Android keeps the framework SQLite** (no `setDriver`); `Modules.kt` builds the database as
+  before, `fallbackToDestructiveMigration` included. iOS gets `BundledSQLiteDriver` (`iosMain`
+  only). No iOS builder or database path yet - that comes with the iOS Koin graph.
+- Every DAO function is `suspend` or returns `Flow`, the `@Transaction` bodies included; native
+  targets reject blocking DAOs. Callers were already in coroutines, so only `suspend` spread to
+  private handlers in four repositories. DAO calls now hop to Room's executor.
+- **`Database` in `Database.kt` resolves to the `androidx.room.Database` import**, not the class:
+  the `expect object DatabaseConstructor` spells the class out in full. Otherwise KSP fails with
+  "must implement a single interface of type RoomDatabaseConstructor".
+- A suspend function reference does not fit `flatMap`; `insertAllGames` uses a lambda.
+- `DbTypeConverters` is a plain class with member converters (no companion, no `@JvmStatic`).
+  `@Suppress(RoomWarnings.QUERY_MISMATCH)` is honoured like `@SuppressWarnings` was.
+- The Room Gradle plugin owns `schemas/`; KSP runs for Android and both iOS targets. `room-ktx`
+  (empty since Room 2.7) and the unused `room` bundle are gone.
+- `iosTest/.../DatabaseTest.kt` is the first DAO test: transactions, the `insertAllGames` merge
+  and the `MoveTree` converter, on an in-memory bundled database. The Linux Bitrise stack skips it
+  (6.23). The merge keeps only players, moves and undo: the incoming clock and phase win.

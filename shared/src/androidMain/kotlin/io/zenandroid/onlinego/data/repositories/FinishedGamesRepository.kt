@@ -168,7 +168,7 @@ class FinishedGamesRepository(
     }
   }
 
-  private fun onHistoricGames(games: List<Game>) {
+  private suspend fun onHistoricGames(games: List<Game>) {
     val oldestGame = games.minByOrNull { it.ended ?: Long.MAX_VALUE }
     val newOldestDate = when {
       oldestGameFetchedEndedAt == null -> {

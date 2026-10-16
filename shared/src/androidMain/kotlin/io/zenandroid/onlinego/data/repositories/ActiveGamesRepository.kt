@@ -62,7 +62,7 @@ class ActiveGamesRepository(
 
   private var flowScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
-  private fun onNotification(game: OGSGame) {
+  private suspend fun onNotification(game: OGSGame) {
     if (game.ended != null) {
       // Note: this is a bug with the backend. When requesting a game that was ended ago
       // we get a new active_game notification, and we fetch the game twice
@@ -210,11 +210,11 @@ class ActiveGamesRepository(
     }
   }
 
-  private fun onGameRemovedStones(gameId: Long, stones: RemovedStones) {
+  private suspend fun onGameRemovedStones(gameId: Long, stones: RemovedStones) {
     gameDao.updateRemovedStones(gameId, stones.all_removed ?: "")
   }
 
-  private fun onRemovedStonesAccepted(gameId: Long, accepted: RemovedStonesAccepted) {
+  private suspend fun onRemovedStonesAccepted(gameId: Long, accepted: RemovedStonesAccepted) {
     gameDao.updateRemovedStonesAccepted(
       gameId,
       accepted.players?.white?.accepted_stones,
@@ -222,7 +222,7 @@ class ActiveGamesRepository(
     )
   }
 
-  private fun onUndoRequested(gameId: Long, undoRequested: UndoRequested) {
+  private suspend fun onUndoRequested(gameId: Long, undoRequested: UndoRequested) {
     gameDao.updateUndoRequested(
       gameId,
       undoRequested.move_number,
@@ -231,15 +231,15 @@ class ActiveGamesRepository(
     )
   }
 
-  private fun onUndoAccepted(gameId: Long, moveNo: Int, moveCount: Int) {
+  private suspend fun onUndoAccepted(gameId: Long, moveNo: Int, moveCount: Int) {
     gameDao.updateUndoAccepted(gameId, moveNo, moveCount)
   }
 
-  private fun onGamePhase(gameId: Long, newPhase: Phase) {
+  private suspend fun onGamePhase(gameId: Long, newPhase: Phase) {
     gameDao.updatePhase(gameId, newPhase)
   }
 
-  private fun onGameClock(gameId: Long, clock: OGSClock) {
+  private suspend fun onGameClock(gameId: Long, clock: OGSClock) {
     gameDao.updateClock(
       id = gameId,
       playerToMoveId = clock.current_player,
@@ -247,7 +247,7 @@ class ActiveGamesRepository(
     )
   }
 
-  private fun onGameData(gameId: Long, gameData: GameData) {
+  private suspend fun onGameData(gameId: Long, gameData: GameData) {
     gameDao.updateGameData(
       id = gameId,
       outcome = gameData.outcome,
@@ -267,7 +267,7 @@ class ActiveGamesRepository(
     )
   }
 
-  private fun onGameMove(gameId: Long, move: Move) {
+  private suspend fun onGameMove(gameId: Long, move: Move) {
     gameDao.addMoveToGame(
       gameId,
       move.move_number,

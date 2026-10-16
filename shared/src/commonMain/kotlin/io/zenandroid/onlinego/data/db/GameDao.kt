@@ -34,7 +34,7 @@ private const val MAX_ALLOWED_SQL_PARAMS = 999
 abstract class GameDao {
 
     @Query("SELECT id FROM game WHERE phase <> 'FINISHED' AND (white_id = :userId OR black_id = :userId)")
-    abstract fun getActiveGameIds(userId: Long?) : List<Long>
+    abstract suspend fun getActiveGameIds(userId: Long?): List<Long>
 
     @Query("""
         SELECT *
@@ -113,13 +113,13 @@ abstract class GameDao {
             AND whiteLost IS NOT NULL
             AND ended IS NOT NULL
             """)
-    abstract fun getHistoricGamesThatDontNeedUpdating(ids: List<Long>) : List<Long>
+    abstract suspend fun getHistoricGamesThatDontNeedUpdating(ids: List<Long>): List<Long>
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    abstract fun insertAllGamesInternal(games: List<Game>)
+    abstract suspend fun insertAllGamesInternal(games: List<Game>)
 
     @Update
-    abstract fun updateGames(games: List<Game>)
+    abstract suspend fun updateGames(games: List<Game>)
 
     //
     // All of this complication is needed because sometimes the backend responds with
@@ -127,8 +127,9 @@ abstract class GameDao {
     // e.g. icon missing when getting stuff through the /overview call
     //
     @Transaction
-    open fun insertAllGames(games: List<Game>) {
-        val existingGames = games.map(Game::id).chunked(MAX_ALLOWED_SQL_PARAMS).flatMap(::getGameList)
+    open suspend fun insertAllGames(games: List<Game>) {
+        val existingGames =
+            games.map(Game::id).chunked(MAX_ALLOWED_SQL_PARAMS).flatMap { getGameList(it) }
         val newGames = games.filter { candidate ->
             existingGames.find { it.id == candidate.id } == null
         }
@@ -153,22 +154,22 @@ abstract class GameDao {
     }
 
     @Transaction
-    open fun insertHistoricGames(games: List<Game>, metadata: HistoricGamesMetadata) {
+    open suspend fun insertHistoricGames(games: List<Game>, metadata: HistoricGamesMetadata) {
         insertAllGames(games)
         updateHistoricGameMetadata(metadata)
     }
 
     @Query("SELECT * FROM game WHERE id in (:ids)")
-    abstract fun getGameList(ids: List<Long>): List<Game>
+    abstract suspend fun getGameList(ids: List<Long>): List<Game>
 
     @Update
-    abstract fun update(game: Game)
+    abstract suspend fun update(game: Game)
 
     @Query("UPDATE game SET moves = :moves WHERE id = :id")
-    abstract fun updateMovesInternal(id: Long, moves: List<Cell>)
+    abstract suspend fun updateMovesInternal(id: Long, moves: List<Cell>)
 
     @Transaction
-    open fun addMoveToGame(gameId: Long, moveNumber: Int, move: Cell) {
+    open suspend fun addMoveToGame(gameId: Long, moveNumber: Int, move: Cell) {
         //
         // Careful, moveNumber is 1-based not 0-based. Pascal FTW!!!
         //
@@ -185,10 +186,10 @@ abstract class GameDao {
 
 
     @Query("UPDATE game SET phase = :phase WHERE id = :id")
-    abstract fun updatePhase(id: Long, phase: Phase)
+    abstract suspend fun updatePhase(id: Long, phase: Phase)
 
     @Query("UPDATE game SET removedStones = :stones WHERE id = :id")
-    abstract fun updateRemovedStones(id: Long, stones: String?)
+    abstract suspend fun updateRemovedStones(id: Long, stones: String?)
 
     @Query("""
         UPDATE game 
@@ -197,13 +198,22 @@ abstract class GameDao {
             black_acceptedstones= :black_stones 
         WHERE id = :id
         """)
-    abstract fun updateRemovedStonesAccepted(id: Long, white_stones: String?, black_stones: String?)
+    abstract suspend fun updateRemovedStonesAccepted(
+        id: Long,
+        white_stones: String?,
+        black_stones: String?
+    )
 
     @Query("UPDATE game SET undoRequested = :moveNo, undoRequestedBy = :requestedBy, undoRequestedMoveCount = :moveCount WHERE id = :id")
-    abstract fun updateUndoRequested(id: Long, moveNo: Int, requestedBy: Long?, moveCount: Int?)
+    abstract suspend fun updateUndoRequested(
+        id: Long,
+        moveNo: Int,
+        requestedBy: Long?,
+        moveCount: Int?
+    )
 
     @Transaction
-    open fun updateUndoAccepted(id: Long, moveNo: Int, moveCount: Int) {
+    open suspend fun updateUndoAccepted(id: Long, moveNo: Int, moveCount: Int) {
         val game = getGame(id)
         update(
             game.copy(
@@ -217,7 +227,7 @@ abstract class GameDao {
     }
 
     @Transaction
-    open fun updateClock(
+    open suspend fun updateClock(
             id: Long,
             playerToMoveId: Long?,
             clock: Clock?) {
@@ -237,7 +247,7 @@ abstract class GameDao {
     }
 
     @Transaction
-    open fun updateGameData(
+    open suspend fun updateGameData(
             id: Long,
             outcome: String?,
             phase: Phase,
@@ -278,13 +288,13 @@ abstract class GameDao {
     abstract fun monitorGame(id: Long): Flow<Game>
 
     @Query("SELECT * FROM game WHERE id = :id")
-    abstract fun getGame(id: Long): Game
+    abstract suspend fun getGame(id: Long): Game
 
     @Query("SELECT * FROM game WHERE id = :id")
-    abstract fun getGameNullable(id: Long): Game?
+    abstract suspend fun getGameNullable(id: Long): Game?
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    abstract fun insertMessage(message: Message)
+    abstract suspend fun insertMessage(message: Message)
 
     @Query("SELECT * FROM message WHERE gameId = :gameId ORDER BY date ASC")
     abstract fun getMessagesForGame(gameId: Long): Flow<List<Message>>
@@ -293,19 +303,19 @@ abstract class GameDao {
     abstract suspend fun getAllMessageIDs(): List<String>
 
     @Query("UPDATE message SET seen = 1 WHERE chatId in (:ids)")
-    abstract fun markMessagesAsRead(ids: List<String>)
+    abstract suspend fun markMessagesAsRead(ids: List<String>)
 
     @Query("UPDATE message SET seen = 1 WHERE gameId = :gameId AND date <= :date")
-    abstract fun markGameMessagesAsReadUpTo(gameId: Long, date: Long)
+    abstract suspend fun markGameMessagesAsReadUpTo(gameId: Long, date: Long)
 
     @Query("DELETE FROM challenge")
-    abstract fun deleteAllChallenges()
+    abstract suspend fun deleteAllChallenges()
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    abstract fun insertAllChallenges(list: List<Challenge>)
+    abstract suspend fun insertAllChallenges(list: List<Challenge>)
 
     @Transaction
-    open fun replaceAllChallenges(list: List<Challenge>) {
+    open suspend fun replaceAllChallenges(list: List<Challenge>) {
         deleteAllChallenges()
         insertAllChallenges(list)
     }
@@ -314,13 +324,13 @@ abstract class GameDao {
     abstract fun getChallenges(): Flow<List<Challenge>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    abstract fun insertChallengeNotifications(list: List<ChallengeNotification>)
+    abstract suspend fun insertChallengeNotifications(list: List<ChallengeNotification>)
 
     @Query("DELETE FROM challengeNotification")
-    abstract fun deleteChallengeNotifications()
+    abstract suspend fun deleteChallengeNotifications()
 
     @Transaction
-    open fun replaceChallengeNotifications(list: List<ChallengeNotification>) {
+    open suspend fun replaceChallengeNotifications(list: List<ChallengeNotification>) {
         deleteChallengeNotifications()
         insertChallengeNotifications(list)
     }
@@ -333,18 +343,18 @@ abstract class GameDao {
     abstract fun getGameNotifications(): Flow<List<GameNotificationWithDetails>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    abstract fun insertAllGameNotifications(list: List<GameNotification>)
+    abstract suspend fun insertAllGameNotifications(list: List<GameNotification>)
 
     @Query("DELETE FROM gamenotification")
-    abstract fun deleteGameNotifications()
+    abstract suspend fun deleteGameNotifications()
 
     @Transaction
-    open fun replaceGameNotifications(list: List<GameNotification>) {
+    open suspend fun replaceGameNotifications(list: List<GameNotification>) {
         deleteGameNotifications()
         insertAllGameNotifications(list)
     }
 
-    @SuppressWarnings(RoomWarnings.Companion.QUERY_MISMATCH)
+    @Suppress(RoomWarnings.QUERY_MISMATCH)
     @Query("""
         SELECT DISTINCT id, username, icon, rating, country FROM (
             SELECT 
@@ -376,20 +386,23 @@ abstract class GameDao {
     abstract suspend fun getRecentOpponents(userId: Long?): List<Player>
 
     @Transaction
-    open fun insertJosekiPositionsWithChildren(fullyLoadedPositions: List<JosekiPosition>, children: List<JosekiPosition>) {
+    open suspend fun insertJosekiPositionsWithChildren(
+        fullyLoadedPositions: List<JosekiPosition>,
+        children: List<JosekiPosition>
+    ) {
         insertJosekiPositionsReplacingDuplicates(fullyLoadedPositions)
         deleteOldJosekiPosition(children.map { it.node_id!! }, children.map { it.play!! })
         insertJosekiPositionsIgnoringDuplicates(children)
     }
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    abstract fun insertJosekiPositionsReplacingDuplicates(positions: List<JosekiPosition>)
+    abstract suspend fun insertJosekiPositionsReplacingDuplicates(positions: List<JosekiPosition>)
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    abstract fun insertJosekiPositionsIgnoringDuplicates(positions: List<JosekiPosition>)
+    abstract suspend fun insertJosekiPositionsIgnoringDuplicates(positions: List<JosekiPosition>)
 
     @Query("DELETE FROM josekiposition WHERE node_id NOT IN (:nodeIds) AND play IN (:play)")
-    abstract fun deleteOldJosekiPosition(nodeIds: List<Long>, play: List<String>)
+    abstract suspend fun deleteOldJosekiPosition(nodeIds: List<Long>, play: List<String>)
 
     @Query("SELECT * FROM josekiposition WHERE play = '.root'")
     abstract fun getJosekiRootPosition(): Flow<JosekiPosition?>
@@ -398,25 +411,25 @@ abstract class GameDao {
     abstract fun getJosekiPosition(posId: Long): Flow<JosekiPosition?>
 
     @Query("SELECT * FROM josekiposition WHERE parent_id = :parentId")
-    abstract fun getChildrenPositions(parentId: Long): List<JosekiPosition>
+    abstract suspend fun getChildrenPositions(parentId: Long): List<JosekiPosition>
 
     @Query("SELECT * FROM historicgamesmetadata WHERE id = 0")
     abstract fun monitorHistoricGameMetadata(): Flow<HistoricGamesMetadata?>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    abstract fun updateHistoricGameMetadata(metadata: HistoricGamesMetadata)
+    abstract suspend fun updateHistoricGameMetadata(metadata: HistoricGamesMetadata)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    abstract fun updateChatMetadata(metadata: ChatMetadata)
+    abstract suspend fun updateChatMetadata(metadata: ChatMetadata)
 
     @Query("SELECT * FROM ChatMetadata WHERE id = 0")
     abstract fun monitorChatMetadata(): Flow<ChatMetadata?>
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    abstract fun insertMessages(messages: List<Message>)
+    abstract suspend fun insertMessages(messages: List<Message>)
 
     @Transaction
-    open fun insertMessagesFromRest(messages: List<Message>) {
+    open suspend fun insertMessagesFromRest(messages: List<Message>) {
         if(messages.isNotEmpty()) {
             insertMessages(messages)
             updateChatMetadata(ChatMetadata(0, messages.last().chatId))

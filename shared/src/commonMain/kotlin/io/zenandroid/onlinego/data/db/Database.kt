@@ -1,8 +1,10 @@
 package io.zenandroid.onlinego.data.db
 
 import androidx.room.AutoMigration
+import androidx.room.ConstructedBy
 import androidx.room.Database
 import androidx.room.RoomDatabase
+import androidx.room.RoomDatabaseConstructor
 import androidx.room.TypeConverters
 import io.zenandroid.onlinego.data.model.local.Challenge
 import io.zenandroid.onlinego.data.model.local.ChallengeNotification
@@ -47,7 +49,14 @@ import io.zenandroid.onlinego.data.model.ogs.PuzzleSolution
         ]
 )
 @TypeConverters(DbTypeConverters::class)
+@ConstructedBy(DatabaseConstructor::class)
 abstract class Database: RoomDatabase() {
     abstract fun gameDao(): GameDao
     abstract fun puzzleDao(): PuzzleDao
+}
+
+@Suppress("KotlinNoActualForExpect")
+expect object DatabaseConstructor :
+  RoomDatabaseConstructor<io.zenandroid.onlinego.data.db.Database> {
+  override fun initialize(): io.zenandroid.onlinego.data.db.Database
 }

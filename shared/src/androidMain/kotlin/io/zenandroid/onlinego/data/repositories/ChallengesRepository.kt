@@ -47,7 +47,7 @@ class ChallengesRepository(
             }
         }
     }
-    private fun storeChallenges(challenges: List<OGSChallenge>) {
+    private suspend fun storeChallenges(challenges: List<OGSChallenge>) {
         dao.replaceAllChallenges(challenges.map { Challenge.fromOGSChallenge(it) })
     }
     suspend fun refreshChallenges() {

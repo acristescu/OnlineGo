@@ -48,7 +48,7 @@ class JosekiRepository(
       .distinctUntilChanged()
   }
 
-  private fun savePositionsToDB(list: List<JosekiPosition>) {
+  private suspend fun savePositionsToDB(list: List<JosekiPosition>) {
     val children = mutableListOf<JosekiPosition>()
     list.forEach { pos ->
       pos.next_moves?.forEach {
