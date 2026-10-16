@@ -11,7 +11,8 @@ kotlinx-collections-immutable are already multiplatform. The cost is dominated b
 
 **Status.** Phases 0-2 are finished: twenty-four slices are done (section 6). None has shipped
 in a release yet, and several still need on-device checks (section 1.2). Phase 3 has started with
-the Room database (6.25) and the score estimator on iOS (6.26); phases 4-5 have not started.
+the Room database (6.25), the score estimator on iOS (6.26) and `CrashReporter` (6.10); phases
+4-5 have not started.
 
 Earlier, longer versions of this document:
 `git show d529259:docs/KMP_MIGRATION_ASSESSMENT.md` (original assessment) and
@@ -58,11 +59,11 @@ Still owed - unit tests cannot reach these:
 
 ### 1.3 Phases 3-5
 
-| Phase                              | Work                                                                                                                                                                                                                                                                                                                                                                                          | Estimate                        |
-|------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------|
-| **3 - data layer to `commonMain`** | Room is done (6.25); the iOS database builder and path come with the iOS Koin graph. DataStore on okio `Path`, Ktor engine per platform, repositories one file at a time. Session persistence is behind `SessionCookiePersistence`; the websocket has no JVM threading left. `Dispatchers.IO` (33 uses), `Analytics` (6.9) and `CrashReporter` (6.10) go with the repositories that use them. | 4-6 weeks                       |
-| **4 - Compose Multiplatform**      | UI into `:shared/commonMain`; Koin and Molecule multiplatform artifacts with it. Resources (4.2), icons, chart, markdown, Material You. `BoardComposable` has four Android leaks with direct CMP equivalents: `nativeCanvas.drawText`, `pointerInteropFilter`, `Rect`, `colorResource`.                                                                                                       | 6-10 weeks (resources dominate) |
-| **5 - iOS app**                    | SwiftUI shell + `ComposeUIViewController`, notifications, background refresh, billing, Google sign-in, App Store plumbing. Bitrise needs a macOS stack.                                                                                                                                                                                                                                       | 4-8 weeks, excluding local AI   |
+| Phase                              | Work                                                                                                                                                                                                                                                                                                                                                                                                     | Estimate                        |
+|------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------|
+| **3 - data layer to `commonMain`** | Room is done (6.25); the iOS database builder and path come with the iOS Koin graph. DataStore on okio `Path`, Ktor engine per platform, repositories one file at a time. Session persistence is behind `SessionCookiePersistence`; the websocket has no JVM threading left. `Dispatchers.IO` (33 uses) needs only `import kotlinx.coroutines.IO`; `Analytics` (6.9) goes with `ReviewPromptRepository`. | 4-6 weeks                       |
+| **4 - Compose Multiplatform**      | UI into `:shared/commonMain`; Koin and Molecule multiplatform artifacts with it. Resources (4.2), icons, chart, markdown, Material You. `BoardComposable` has four Android leaks with direct CMP equivalents: `nativeCanvas.drawText`, `pointerInteropFilter`, `Rect`, `colorResource`.                                                                                                                  | 6-10 weeks (resources dominate) |
+| **5 - iOS app**                    | SwiftUI shell + `ComposeUIViewController`, notifications, background refresh, billing, Google sign-in, App Store plumbing. Bitrise needs a macOS stack.                                                                                                                                                                                                                                                  | 4-8 weeks, excluding local AI   |
 
 Estimates are order-of-magnitude, single developer. The one data point so far: the serialization
 slice came in on time only because the golden-JSON corpus was dropped, which moved verification
@@ -101,7 +102,7 @@ appears, or local AI needs Play Feature Delivery for its 265 MB of assets. Basel
 
 | Dependency                                      | Replacement                                                                                                    | When                |
 |-------------------------------------------------|----------------------------------------------------------------------------------------------------------------|---------------------|
-| Firebase Analytics / Crashlytics in `:shared`   | common `Analytics` interface, `expect object CrashReporter` (6.9, 6.10)                                        | Phase 3             |
+| Firebase Analytics in `:shared`                 | common `Analytics` interface (6.9); Crashlytics is behind `expect object CrashReporter` (6.10)                 | Phase 3             |
 | Koin Android artifacts                          | `koin-core` + `koin-compose` + `koin-compose-viewmodel`; drop `androidApplication()`                           | Phase 4             |
 | Molecule `AndroidUiDispatcher` / `ContextClock` | multiplatform frame clock; extract the shared `moleculeScope` base from the two ViewModels                     | Phase 4             |
 | DataStore 1.2                                   | same library, KMP setup (Room done, 6.25)                                                                      | Phase 3             |
@@ -182,7 +183,7 @@ one module so there is one `Res` class.
 ## 6. Done - what is still load-bearing
 
 Only traps, deliberate behaviour changes, and decisions that look wrong but are not. Unit tests
-stand at 126: 75 in `:shared` host tests (40 of them in `commonTest`, which also run on the iOS
+stand at 137: 86 in `:shared` host tests (46 of them in `commonTest`, which also run on the iOS
 simulator), 4 in `:shared` `iosTest` (simulator only), 47 in `:app`.
 
 ### 6.1 Moshi to kotlinx.serialization
@@ -258,11 +259,18 @@ are unchanged.
 
 ### 6.10 Firebase Crashlytics behind `CrashReporter`
 
-- A global `CrashReporter` object in `utils/CrashReporter.kt`, the only `FirebaseCrashlytics`
-  importer; `expect object` in Phase 3, when the repositories that call it move. Global on purpose: `BoardComposable`'s draw code and
-  `TextResource.resolve()` cannot take constructor parameters.
+- `expect object CrashReporter` in `commonMain` `utils/CrashReporter.kt`; the Android `actual`
+  (`CrashReporter.android.kt`) is the only `FirebaseCrashlytics` importer. Global on purpose:
+  `BoardComposable`'s draw code and `TextResource.resolve()` cannot take constructor parameters.
 - **Behaviour change:** all reports go through the network-error filter, so cancellation and
   network errors are no longer reported and HTTP 5xx is wrapped in `ServerException`.
+- The filter is the common `reportableException()`, pinned by `ReportableExceptionTest`; only
+  `isPlatformNetworkError()` is per platform (`java.net` and the cancelled Google sign-in on
+  Android, `AndroidNetworkErrorTest`). `OGSApiException` moved to `commonMain` with it.
+- **The iOS `actual` is a placeholder:** it logs reportable exceptions through Kermit and drops
+  breadcrumbs, user id and keys. Its `isPlatformNetworkError()` is `false`, which is right only
+  while iOS has no networking: the network layer must add the Darwin engine's and Ktor's
+  exceptions, or every dropped connection becomes a report once iOS Crashlytics arrives.
 
 ### 6.11 Layering
 
