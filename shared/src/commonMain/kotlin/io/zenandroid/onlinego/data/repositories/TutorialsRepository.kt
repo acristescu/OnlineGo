@@ -1,22 +1,20 @@
 package io.zenandroid.onlinego.data.repositories
 
-import android.content.Context
 import io.zenandroid.onlinego.data.model.local.Tutorial
 import io.zenandroid.onlinego.data.model.local.TutorialGroup
 import io.zenandroid.onlinego.utils.appJson
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import kotlinx.serialization.ExperimentalSerializationApi
-import kotlinx.serialization.json.decodeFromStream
 
 class TutorialsRepository(
   private val appCoroutineScope: CoroutineScope,
   private val settingsRepository: SettingsRepository,
-  private val context: Context,
+  private val loadTutorialsJson: () -> String,
 ) : SocketConnectedRepository {
 
   private lateinit var hardcodedTutorialsData: List<TutorialGroup>
@@ -57,11 +55,8 @@ class TutorialsRepository(
     return hardcodedTutorialsData
   }
 
-  @OptIn(ExperimentalSerializationApi::class)
-  private suspend fun readJSONFromResources(): List<TutorialGroup> =
-    context.assets.open("tutorials.json").use {
-      appJson.decodeFromStream<List<TutorialGroup>>(it)
-    }
+  private fun readJSONFromResources(): List<TutorialGroup> =
+    appJson.decodeFromString<List<TutorialGroup>>(loadTutorialsJson())
 
   fun markTutorialCompleted(tutorial: Tutorial) {
     appCoroutineScope.launch(Dispatchers.IO) {

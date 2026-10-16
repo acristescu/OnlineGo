@@ -12,7 +12,9 @@ kotlinx-collections-immutable are already multiplatform. The cost is dominated b
 **Status.** Phases 0-2 are finished: twenty-four slices are done (section 6). None has shipped
 in a release yet, and several still need on-device checks (section 1.2). Phase 3 has started with
 the Room database (6.25), the score estimator on iOS (6.26), `CrashReporter` (6.10), the HTTP
-client (6.27), storage (6.28) and the session cluster (6.29); phases 4-5 have not started.
+client (6.27), storage (6.28), the session cluster (6.29) and the remaining repositories (6.30), so
+all of
+`data`, `gamelogic` and `usecases` is common code; phases 4-5 have not started.
 
 Earlier, longer versions of this document:
 `git show d529259:docs/KMP_MIGRATION_ASSESSMENT.md` (original assessment) and
@@ -55,16 +57,18 @@ Still owed - unit tests cannot reach these:
   `adb shell am start -a android.intent.action.VIEW -d "sente://game/76828314/9/9"`. Check the
   `screen_view` names in Firebase DebugView.
 - [ ] **Logout** (6.29): it wipes the app data and the app restarts logged out.
+- [ ] **Tutorials and Joseki after 6.30**: a tutorial opens (new JSON loader), and a Joseki
+  position with labels shows them bold in its description and on the board.
 - [ ] **Clock text** (6.16): simple, byo-yomi, Canadian and Fischer clocks and the game-list
   timers, in English and in a locale with a decimal comma (e.g. `de`).
 
 ### 1.3 Phases 3-5
 
-| Phase                              | Work                                                                                                                                                                                                                                                                                                                                                                                                   | Estimate                        |
-|------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------|
-| **3 - data layer to `commonMain`** | Room, the HTTP client, storage and the session cluster are done (6.25, 6.27-6.29); the iOS database builder, DataStore paths, `KeyValueStore`, cookie persistence and Ktor engine come with the iOS Koin graph. Next: the remaining repositories, `GetUserStatsUseCase` and `Globals1`. The websocket has no JVM threading left. `Dispatchers.IO` (33 uses) needs only `import kotlinx.coroutines.IO`. | 4-6 weeks                       |
-| **4 - Compose Multiplatform**      | UI into `:shared/commonMain`; Koin and Molecule multiplatform artifacts with it. Resources (4.2), icons, chart, markdown, Material You. `BoardComposable` has four Android leaks with direct CMP equivalents: `nativeCanvas.drawText`, `pointerInteropFilter`, `Rect`, `colorResource`.                                                                                                                | 6-10 weeks (resources dominate) |
-| **5 - iOS app**                    | SwiftUI shell + `ComposeUIViewController`, notifications, background refresh, billing, Google sign-in, App Store plumbing. Bitrise needs a macOS stack.                                                                                                                                                                                                                                                | 4-8 weeks, excluding local AI   |
+| Phase                              | Work                                                                                                                                                                                                                                                                                                            | Estimate                        |
+|------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------|
+| **3 - data layer to `commonMain`** | The code is done (6.25, 6.27-6.30); `androidMain` holds only platform implementations. Left: the iOS Koin graph - database builder, DataStore paths, `KeyValueStore` and `SessionCookiePersistence` on `NSUserDefaults`, the Darwin engine and its network errors (6.10), `clearAppData`, the tutorials loader. | 4-6 weeks                       |
+| **4 - Compose Multiplatform**      | UI into `:shared/commonMain`; Koin and Molecule multiplatform artifacts with it. Resources (4.2), icons, chart, markdown, Material You. `BoardComposable` has four Android leaks with direct CMP equivalents: `nativeCanvas.drawText`, `pointerInteropFilter`, `Rect`, `colorResource`.                         | 6-10 weeks (resources dominate) |
+| **5 - iOS app**                    | SwiftUI shell + `ComposeUIViewController`, notifications, background refresh, billing, Google sign-in, App Store plumbing. Bitrise needs a macOS stack.                                                                                                                                                         | 4-8 weeks, excluding local AI   |
 
 Estimates are order-of-magnitude, single developer. The one data point so far: the serialization
 slice came in on time only because the golden-JSON corpus was dropped, which moved verification
@@ -183,7 +187,7 @@ one module so there is one `Res` class.
 ## 6. Done - what is still load-bearing
 
 Only traps, deliberate behaviour changes, and decisions that look wrong but are not. Unit tests
-stand at 145: 94 in `:shared` host tests (79 of them in `commonTest`, which also run on the iOS
+stand at 150: 99 in `:shared` host tests (84 of them in `commonTest`, which also run on the iOS
 simulator), 4 in `:shared` `iosTest` (simulator only), 47 in `:app`.
 
 ### 6.1 Moshi to kotlinx.serialization
@@ -279,8 +283,8 @@ Nothing in `data.model` or `gamelogic` imports `R`, `android.graphics`, Compose 
 `BoardTheme`, `AppTheme`, `AppLanguage` and `TutorialIcon` carry no resource ids; their
 presentation lives in exhaustive `when`s next to the UI (`BoardThemeStyle.kt`, `SettingsUI.kt`,
 `LearnUI.kt`), so a new enum entry does not compile without its resources. Persisted forms are
-unchanged. Still Android-bound in `data` (Phase 3 work): `Context` in `UserSessionRepository` and
-`TutorialsRepository`, `android.os.Build` in `HTTPConnectionFactory`.
+unchanged. Still Android-bound in `data`: `android.os.Build` in `HTTPConnectionFactory`, which is
+platform code by design.
 
 ### 6.12 `Globals.kt` split
 
@@ -547,3 +551,22 @@ test-local class.
 - `GlobalContext.get()` became `KoinPlatform.getKoin()` in the three lazy lookups (6.8).
 - The `ebi` device id uses `Random.nextDouble()` instead of `Math.random()`; on the JVM the string
   has the same `0.xxx` shape it takes the digits from.
+
+### 6.30 Remaining repositories in `commonMain`
+
+- The other ten repositories, `GetUserStatsUseCase` and `Globals1` moved; `androidMain` now holds
+  only `HTTPConnectionFactory`, the cookie persistence and legacy import, the DataStore delegates,
+  `SharedPreferencesKeyValueStore`, `FirebaseAppAnalytics`, the Crashlytics `CrashReporter` and
+  `NativeEstimator`.
+- `retryOnIOException` catches `kotlinx.io.IOException`, a typealias of `java.io.IOException` on
+  the JVM, so it retries the same OkHttp failures.
+- **`TutorialsRepository` takes `loadTutorialsJson: () -> String`**; `Modules.kt` reads
+  `tutorials.json` from the app's assets and the repository decodes it with `decodeFromString`.
+  Phase 4 can swap the lambda for a Compose resource read.
+- **Joseki label extraction** (`extractLabelsFromDescription`) is a top-level `internal` function
+  on `Regex.replace` instead of `java.util.regex`'s `appendReplacement`, pinned by
+  `JosekiLabelsTest`. A `$` or `\` label is now inserted literally instead of being read as a
+  group reference.
+- **Known bug, unchanged:** `<(.):([A-H]|[J-T]\d{1,2})>` groups as "one letter A-H, or J-T with
+  digits", so marks in columns A-H (`<A:D4>`) never match and stay as raw text. The intended
+  pattern is `[A-HJ-T]\d{1,2}`; fixing it changes what the Joseki explorer shows.

@@ -10,6 +10,7 @@ import io.zenandroid.onlinego.gamelogic.RulesManager
 import io.zenandroid.onlinego.utils.CrashReporter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -23,9 +24,6 @@ class JosekiRepository(
   private val dao: GameDao
 ) {
   private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
-  private val customMarkPattern = "<(.):([A-H]|[J-T]\\d{1,2})>".toPattern()
-  private val headerWithMissingSpaceRegex = "#(?!\\s|#)".toRegex()
-  private val positionLink = "<position: (\\d+)>".toRegex()
   fun getJosekiPosition(id: Long?): Flow<JosekiPosition> {
     scope.launch {
       try {
@@ -40,10 +38,10 @@ class JosekiRepository(
       else dao.getJosekiPosition(id)
     return dbFlow
       .filterNotNull()
-      .map(this::extractLabelsFromDescription)
+      .map(::extractLabelsFromDescription)
       .onEach {
         it.next_moves =
-          dao.getChildrenPositions(it.node_id ?: 0).map(this::extractLabelsFromDescription)
+          dao.getChildrenPositions(it.node_id ?: 0).map(::extractLabelsFromDescription)
       }
       .distinctUntilChanged()
   }
@@ -67,27 +65,26 @@ class JosekiRepository(
     Logger.e(error.message.orEmpty(), error, "JosekiRepository")
     CrashReporter.recordException(error)
   }
+}
 
-  private fun extractLabelsFromDescription(originalPos: JosekiPosition): JosekiPosition {
-    var newDescription: String? = null
-    originalPos.description?.let {
-      newDescription = it.replace(headerWithMissingSpaceRegex, "# ")
-      val matcher = customMarkPattern.matcher(newDescription!!)
-      val sb = StringBuffer()
-      val labels = mutableListOf<Mark>()
-      while (matcher.find()) {
-        val label = matcher.group(1)
-        val coordinate = matcher.group(2)!!
+private val customMarkRegex = "<(.):([A-H]|[J-T]\\d{1,2})>".toRegex()
+private val headerWithMissingSpaceRegex = "#(?!\\s|#)".toRegex()
+private val positionLink = "<position: (\\d+)>".toRegex()
+
+internal fun extractLabelsFromDescription(originalPos: JosekiPosition): JosekiPosition {
+  originalPos.description = originalPos.description?.let { description ->
+    val labels = mutableListOf<Mark>()
+    val withLabels = description
+      .replace(headerWithMissingSpaceRegex, "# ")
+      .replace(customMarkRegex) { match ->
+        val (label, coordinate) = match.destructured
         labels.add(Mark(RulesManager.coordinateToCell(coordinate), label, PlayCategory.LABEL))
-        matcher.appendReplacement(sb, "**$label**")
+        "**$label**"
       }
-      originalPos.labels = labels
-      matcher.appendTail(sb)
-      newDescription = sb.toString().replace(positionLink) { match: MatchResult ->
-        "[Position ${match.groupValues[1]}](${match.groupValues[1]})"
-      }
+    originalPos.labels = labels
+    withLabels.replace(positionLink) { match ->
+      "[Position ${match.groupValues[1]}](${match.groupValues[1]})"
     }
-    originalPos.description = newDescription
-    return originalPos
   }
+  return originalPos
 }

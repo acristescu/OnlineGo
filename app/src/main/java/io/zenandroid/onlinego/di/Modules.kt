@@ -116,7 +116,15 @@ private val repositoriesModule = module {
     )
   }
   singleOf(::ClockDriftRepository)
-  singleOf(::TutorialsRepository)
+  single {
+    TutorialsRepository(
+      appCoroutineScope = get(),
+      settingsRepository = get(),
+      loadTutorialsJson = {
+        androidContext().assets.open("tutorials.json").bufferedReader().use { it.readText() }
+      },
+    )
+  }
   single { ReviewPromptRepository(androidContext().reviewPromptDataStore, get(), get()) }
   singleOf(::SocketDebugRepository)
   single { PersistenceManager(SharedPreferencesKeyValueStore(androidContext(), "login")) }

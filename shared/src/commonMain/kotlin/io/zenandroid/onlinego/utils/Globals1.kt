@@ -5,9 +5,9 @@ import io.zenandroid.onlinego.data.model.local.Game
 import io.zenandroid.onlinego.data.model.local.Time
 import io.zenandroid.onlinego.data.ogs.TimeControl
 import io.zenandroid.onlinego.data.repositories.ClockDriftRepository
-import org.koin.core.context.GlobalContext
+import org.koin.mp.KoinPlatform.getKoin
 
-private val clockDriftRepository: ClockDriftRepository by GlobalContext.get().inject()
+private val clockDriftRepository: ClockDriftRepository by getKoin().inject()
 
 fun computeTimeLeft(
     clock: Clock,

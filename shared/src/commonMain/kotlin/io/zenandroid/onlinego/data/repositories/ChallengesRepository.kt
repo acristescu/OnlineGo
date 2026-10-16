@@ -10,6 +10,7 @@ import io.zenandroid.onlinego.utils.CrashReporter
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
@@ -22,7 +23,7 @@ class ChallengesRepository(
         private val dao: GameDao
 ): SocketConnectedRepository {
     private var flowScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
-    private val TAG = ChallengesRepository::class.java.simpleName
+    private val TAG = "ChallengesRepository"
     override fun onSocketConnected() {
         flowScope.launch {
             try {

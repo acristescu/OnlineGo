@@ -11,6 +11,7 @@ import io.zenandroid.onlinego.data.ogs.httpStatusCode
 import io.zenandroid.onlinego.utils.CrashReporter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
@@ -20,7 +21,7 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import java.io.IOException
+import kotlinx.io.IOException
 import kotlin.concurrent.atomics.AtomicBoolean
 import kotlin.math.max
 import kotlin.math.min
