@@ -1,0 +1,4 @@
+headers = estimator.h
+package = io.zenandroid.onlinego.gamelogic.cinterop
+staticLibraries = libestimator.a
+linkerOpts = -lc++

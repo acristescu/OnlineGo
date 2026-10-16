@@ -1,4 +1,5 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 
 plugins {
   alias(libs.plugins.kotlin.multiplatform)
@@ -26,8 +27,10 @@ kotlin {
     }
   }
 
-  iosArm64()
-  iosSimulatorArm64()
+  listOf(
+    iosArm64() to EstimatorTarget("iphoneos", "arm64-apple-ios15.0"),
+    iosSimulatorArm64() to EstimatorTarget("iphonesimulator", "arm64-apple-ios15.0-simulator"),
+  ).forEach { (target, estimatorTarget) -> target.estimatorInterop(estimatorTarget) }
 
   sourceSets {
     all {
@@ -76,6 +79,62 @@ kotlin {
       implementation(libs.ktor.client.mock)
       implementation(libs.ktor.client.okhttp)
     }
+  }
+}
+
+data class EstimatorTarget(val sdk: String, val triple: String)
+
+abstract class CompileEstimator @Inject constructor(private val exec: ExecOperations) :
+  DefaultTask() {
+  @get:InputDirectory
+  @get:PathSensitive(PathSensitivity.RELATIVE)
+  abstract val sources: DirectoryProperty
+
+  @get:Input
+  abstract val sdk: Property<String>
+
+  @get:Input
+  abstract val triple: Property<String>
+
+  @get:OutputDirectory
+  abstract val outputDir: DirectoryProperty
+
+  @TaskAction
+  fun compile() {
+    val objectFile = outputDir.file("estimator.o").get().asFile
+    exec.exec {
+      commandLine(
+        "xcrun", "--sdk", sdk.get(), "clang++", "-std=c++11", "-O3", "-DNDEBUG",
+        "-target", triple.get(),
+        "-c", sources.file("estimator.cpp").get().asFile.path,
+        "-o", objectFile.path,
+      )
+    }
+    exec.exec {
+      commandLine(
+        "xcrun", "--sdk", sdk.get(), "libtool", "-static",
+        "-o", outputDir.file("libestimator.a").get().asFile.path,
+        objectFile.path,
+      )
+    }
+  }
+}
+
+fun KotlinNativeTarget.estimatorInterop(estimatorTarget: EstimatorTarget) {
+  val estimatorSources = layout.projectDirectory.dir("src/nativeInterop/cpp")
+  val libraryDir = layout.buildDirectory.dir("estimator/$targetName")
+  val compileEstimator =
+    tasks.register<CompileEstimator>("compileEstimator${targetName.replaceFirstChar { it.uppercase() }}") {
+      sources.set(estimatorSources)
+      sdk.set(estimatorTarget.sdk)
+      triple.set(estimatorTarget.triple)
+      outputDir.set(libraryDir)
+    }
+  compilations.getByName("main").cinterops.create("estimator") {
+    definitionFile.set(layout.projectDirectory.file("src/nativeInterop/cinterop/estimator.def"))
+    includeDirs(estimatorSources)
+    extraOpts("-libraryPath", libraryDir.get().asFile.path)
+    tasks.named(interopProcessingTaskName) { dependsOn(compileEstimator) }
   }
 }
 

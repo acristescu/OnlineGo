@@ -11,7 +11,7 @@ kotlinx-collections-immutable are already multiplatform. The cost is dominated b
 
 **Status.** Phases 0-2 are finished: twenty-four slices are done (section 6). None has shipped
 in a release yet, and several still need on-device checks (section 1.2). Phase 3 has started with
-the Room database (6.25); phases 4-5 have not started.
+the Room database (6.25) and the score estimator on iOS (6.26); phases 4-5 have not started.
 
 Earlier, longer versions of this document:
 `git show d529259:docs/KMP_MIGRATION_ASSESSMENT.md` (original assessment) and
@@ -33,8 +33,9 @@ Nothing left.
 ### 1.2 On-device checks owed for finished work
 
 Verified on device: the session survives an in-place upgrade, password login, Google sign-in,
-declining a challenge (an unsafe request, so CSRF works), and the score estimate after the JNI
-rename (6.24).
+declining a challenge (an unsafe request, so CSRF works), the score estimate after both JNI
+renames (6.24, 6.26), Room in `commonMain` installed over the existing app (6.25), and tutorials
+opening with `tutorials.json` still in the app (6.22).
 
 Still owed - unit tests cannot reach these:
 
@@ -54,12 +55,6 @@ Still owed - unit tests cannot reach these:
   `screen_view` names in Firebase DebugView.
 - [ ] **Clock text** (6.16): simple, byo-yomi, Canadian and Fischer clocks and the game-list
   timers, in English and in a locale with a decimal comma (e.g. `de`).
-- [ ] **Room in `commonMain`** (6.25): install over the current release build; active games,
-  a game receiving moves and clock ticks, finished-games paging, Tsumego, the Joseki explorer and
-  chat all keep their cached data, and the turn notification still fires.
-- [ ] **`:shared` extraction** (6.22): a tutorial opens (`tutorials.json` stays in the app), the
-  Tsumego tab loads (Room in the library), and a debug install over the previous build keeps the
-  session.
 
 ### 1.3 Phases 3-5
 
@@ -68,8 +63,6 @@ Still owed - unit tests cannot reach these:
 | **3 - data layer to `commonMain`** | Room is done (6.25); the iOS database builder and path come with the iOS Koin graph. DataStore on okio `Path`, Ktor engine per platform, repositories one file at a time. Session persistence is behind `SessionCookiePersistence`; the websocket has no JVM threading left. `Dispatchers.IO` (33 uses), `Analytics` (6.9) and `CrashReporter` (6.10) go with the repositories that use them. | 4-6 weeks                       |
 | **4 - Compose Multiplatform**      | UI into `:shared/commonMain`; Koin and Molecule multiplatform artifacts with it. Resources (4.2), icons, chart, markdown, Material You. `BoardComposable` has four Android leaks with direct CMP equivalents: `nativeCanvas.drawText`, `pointerInteropFilter`, `Rect`, `colorResource`.                                                                                                       | 6-10 weeks (resources dominate) |
 | **5 - iOS app**                    | SwiftUI shell + `ComposeUIViewController`, notifications, background refresh, billing, Google sign-in, App Store plumbing. Bitrise needs a macOS stack.                                                                                                                                                                                                                                       | 4-8 weeks, excluding local AI   |
-
-iOS has no score estimator until the 4.1 decision; `ScoreEstimator` is Android-only (6.24).
 
 Estimates are order-of-magnitude, single developer. The one data point so far: the serialization
 slice came in on time only because the golden-JSON corpus was dropped, which moved verification
@@ -137,12 +130,10 @@ the Material Components dependency exists).
 
 These are separate problems.
 
-**Score estimator (`libestimator.so`).** The JNI surface is one function,
-`ScoreEstimator.estimate()` in `androidMain`, behind `ScoreEstimator.determineTerritory()` (6.24).
-Options: cross-compile for iOS with `cinterop`; **port `Goban.cpp` (~1,000 LOC) to Kotlin -
-recommended**, since it removes the NDK and all 1,840 LOC of C++ and makes estimation testable in
-`commonTest` (benchmark first); or use OGS's server-side estimate on iOS, at the cost of a
-round-trip on a latency-sensitive action.
+**Score estimator - decided: stays C++, on iOS through `cinterop`** (6.26). A Kotlin port would
+drop the NDK and make estimation testable in `commonTest`, but it is Monte Carlo (2,000 random
+playouts per estimate), so parity needs a seeded bit-exact harness and Kotlin/Native speed is
+unmeasured. Revisit only if the NDK becomes the cost.
 
 **KataGo - the one hard blocker.** It runs as a child process (`ProcessBuilder` over stdin/stdout
 JSON), and iOS forbids `fork`/`exec`. It must be relinked as a static library and driven
@@ -191,8 +182,8 @@ one module so there is one `Res` class.
 ## 6. Done - what is still load-bearing
 
 Only traps, deliberate behaviour changes, and decisions that look wrong but are not. Unit tests
-stand at 124: 75 in `:shared` host tests (40 of them in `commonTest`, which also run on the iOS
-simulator), 2 in `:shared` `iosTest` (simulator only), 47 in `:app`.
+stand at 126: 75 in `:shared` host tests (40 of them in `commonTest`, which also run on the iOS
+simulator), 4 in `:shared` `iosTest` (simulator only), 47 in `:app`.
 
 ### 6.1 Moshi to kotlinx.serialization
 
@@ -392,7 +383,8 @@ test-local class.
 
 - A library at `shared/` holds `data/**`, `gamelogic/**`, `usecases/**` and the six `utils` files
   they need (`Globals`, `Globals1`, `AppJson`, `PersistenceManager`, `CrashReporter`,
-  `Analytics`), plus the Room schemas. The estimator's C++ moved back to `:app` in 6.23. Packages are unchanged, so JNI symbol names, serial names and the
+  `Analytics`), plus the Room schemas. The estimator's C++ moved to `:app` in 6.23 and back in 6.26.
+  Packages are unchanged, so JNI symbol names, serial names and the
   `-keep class io.zenandroid.onlinego.data.**` rule still match. No dependency cycle surfaced.
 - **`:shared` applies the Compose compiler plugin** though it has no composables. Without it the
   model classes compile as external and unstable: six more unstable parameters in the app's
@@ -415,8 +407,8 @@ test-local class.
 
 - `com.android.kotlin.multiplatform.library`, not `com.android.library` + KMP: that combination is
   deprecated in AGP 9 and removed in AGP 10. Targets: Android, `iosArm64`, `iosSimulatorArm64`.
-- **The plugin has no `externalNativeBuild` and no `BuildConfig`.** `CMakeLists.txt` and
-  `src/main/cpp` live in `:app`; JNI symbols follow the Kotlin class, not the module, so
+- **The plugin has no `externalNativeBuild` and no `BuildConfig`.** `CMakeLists.txt` and the JNI
+  glue live in `:app`; JNI symbols follow the Kotlin class, not the module, so
   `System.loadLibrary` in `:shared` finds the `.so` in the APK. `HTTPConnectionFactory` takes
   `logBodies`, which `Modules.kt` sets from the app's `BuildConfig.DEBUG`.
 - Source sets: `androidMain`, `androidHostTest`, `commonMain`, `commonTest`. Host tests also run
@@ -441,10 +433,9 @@ test-local class.
 - **`@Transient` without an import is `kotlin.jvm.Transient`**, which kotlinx.serialization ignores:
   `JosekiPosition.labels` was always decoded. Two no-op annotations were deleted rather than
   "fixed" to `kotlinx.serialization.Transient`, which would have changed decoding.
-- **`ScoreEstimator`** (`androidMain`) holds `loadLibrary`, `external fun estimate` and
-  `determineTerritory`; the C++ symbol is `Java_..._gamelogic_ScoreEstimator_estimate`. **Renaming
-  or moving the class breaks scoring silently**: `UnsatisfiedLinkError` is caught and only logged.
-  R8 keeps the name through the default native-method rule (checked with `dexdump`).
+- **Renaming or moving the JNI class breaks scoring silently**: `UnsatisfiedLinkError` is caught
+  and only logged. R8 keeps the name through the default native-method rule (checked with
+  `dexdump`). The class is `NativeEstimator` since 6.26.
 - `RulesManager`'s position cache is `androidx.collection.LruCache`. The old
   `androidx.core.util.lruCache` was an `android.util.LruCache` stub in host tests, so tests now
   exercise a real cache.
@@ -473,3 +464,23 @@ test-local class.
 - `iosTest/.../DatabaseTest.kt` is the first DAO test: transactions, the `insertAllGames` merge
   and the `MoveTree` converter, on an in-memory bundled database. The Linux Bitrise stack skips it
   (6.23). The merge keeps only players, moves and undo: the incoming clock and phase win.
+
+### 6.26 Score estimator on iOS
+
+- The C++ is in `shared/src/nativeInterop/cpp`, one copy for both platforms. It matches upstream
+  `online-go/score-estimator` master (`87c8f91`) apart from the 6.18 debug-block deletion; later
+  upstream commits are a version bump and Python bindings.
+- `estimator.cpp` is the C entry point, `estimator_estimate`, in place on the board array like
+  upstream's `jsbindings.cc`. It owns the `EMSCRIPTEN` and `USE_THREADS` defines. Android's CMake
+  builds it with `app/src/main/cpp/jnibindings.cpp`, now a thin JNI wrapper.
+- `ScoreEstimator.determineTerritory()` is in `commonMain` and calls
+  `internal expect object NativeEstimator`. The Android `actual` keeps `loadLibrary` and the
+  `external fun`; **the JNI symbol is now `Java_..._gamelogic_NativeEstimator_estimate`**. The
+  iOS `actual` pins the array and calls the cinterop binding.
+- `CompileEstimator` in `shared/build.gradle.kts` runs `xcrun clang++` and `libtool` per iOS
+  target (deployment target 15.0, Kotlin/Native's minimum); `estimator.def` embeds the
+  `libestimator.a` in the cinterop klib and links `-lc++`. Only the iOS cinterop tasks depend on
+  it, so the Linux stack never runs `xcrun`.
+- `iosTest/.../ScoreEstimatorTest.kt` runs the real C++ on 9x9 and 19x19 on `Dispatchers.Default`,
+  whose 512 KB iOS stacks are the tightest the estimator's stack-allocated grids will see. It
+  cannot live in `commonTest`: host tests run on a JVM without the `.so`.

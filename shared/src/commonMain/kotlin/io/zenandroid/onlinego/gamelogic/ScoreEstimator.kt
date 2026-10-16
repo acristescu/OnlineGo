@@ -1,21 +1,10 @@
 package io.zenandroid.onlinego.gamelogic
 
-import co.touchlab.kermit.Logger
 import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.Position
 import io.zenandroid.onlinego.data.model.StoneType
 
 object ScoreEstimator {
-
-  init {
-    try {
-      System.loadLibrary("estimator")
-    } catch (_: UnsatisfiedLinkError) {
-      Logger.e("Error loading estimator", tag = "libestimator")
-    }
-  }
-
-  private external fun estimate(w: Int, h: Int, board: IntArray, playerToMove: Int, trials: Int, tolerance: Float): IntArray
 
   fun determineTerritory(pos: Position, scoreStones: Boolean): Position {
     val inBoard = IntArray(pos.boardWidth * pos.boardHeight)
@@ -29,7 +18,7 @@ object ScoreEstimator {
       .forEach {
         inBoard[it.x * pos.boardHeight + it.y] = -1
       }
-    val outBoard = estimate(
+    val outBoard = NativeEstimator.estimate(
       pos.boardHeight, // Note: There is a bug in the estimator somewhere, width and height should be in the different order!!!
       pos.boardWidth, // Note: There is a bug in the estimator somewhere, width and height should be in the different order!!!
       inBoard,
