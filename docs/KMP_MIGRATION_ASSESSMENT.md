@@ -11,8 +11,8 @@ kotlinx-collections-immutable are already multiplatform. The cost is dominated b
 
 **Status.** Phases 0-2 are finished: twenty-four slices are done (section 6). None has shipped
 in a release yet, and several still need on-device checks (section 1.2). Phase 3 has started with
-the Room database (6.25), the score estimator on iOS (6.26) and `CrashReporter` (6.10); phases
-4-5 have not started.
+the Room database (6.25), the score estimator on iOS (6.26), `CrashReporter` (6.10) and the HTTP
+client (6.27); phases 4-5 have not started.
 
 Earlier, longer versions of this document:
 `git show d529259:docs/KMP_MIGRATION_ASSESSMENT.md` (original assessment) and
@@ -59,11 +59,11 @@ Still owed - unit tests cannot reach these:
 
 ### 1.3 Phases 3-5
 
-| Phase                              | Work                                                                                                                                                                                                                                                                                                                                                                                                     | Estimate                        |
-|------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------|
-| **3 - data layer to `commonMain`** | Room is done (6.25); the iOS database builder and path come with the iOS Koin graph. DataStore on okio `Path`, Ktor engine per platform, repositories one file at a time. Session persistence is behind `SessionCookiePersistence`; the websocket has no JVM threading left. `Dispatchers.IO` (33 uses) needs only `import kotlinx.coroutines.IO`; `Analytics` (6.9) goes with `ReviewPromptRepository`. | 4-6 weeks                       |
-| **4 - Compose Multiplatform**      | UI into `:shared/commonMain`; Koin and Molecule multiplatform artifacts with it. Resources (4.2), icons, chart, markdown, Material You. `BoardComposable` has four Android leaks with direct CMP equivalents: `nativeCanvas.drawText`, `pointerInteropFilter`, `Rect`, `colorResource`.                                                                                                                  | 6-10 weeks (resources dominate) |
-| **5 - iOS app**                    | SwiftUI shell + `ComposeUIViewController`, notifications, background refresh, billing, Google sign-in, App Store plumbing. Bitrise needs a macOS stack.                                                                                                                                                                                                                                                  | 4-8 weeks, excluding local AI   |
+| Phase                              | Work                                                                                                                                                                                                                                                                                                                                                                                                                                    | Estimate                        |
+|------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------|
+| **3 - data layer to `commonMain`** | Room is done (6.25); the iOS database builder and path come with the iOS Koin graph. DataStore on okio `Path`, Ktor engine per platform, then the session cluster (6.27) and the remaining repositories. Session persistence is behind `SessionCookiePersistence`; the websocket has no JVM threading left. `Dispatchers.IO` (33 uses) needs only `import kotlinx.coroutines.IO`; `Analytics` (6.9) goes with `ReviewPromptRepository`. | 4-6 weeks                       |
+| **4 - Compose Multiplatform**      | UI into `:shared/commonMain`; Koin and Molecule multiplatform artifacts with it. Resources (4.2), icons, chart, markdown, Material You. `BoardComposable` has four Android leaks with direct CMP equivalents: `nativeCanvas.drawText`, `pointerInteropFilter`, `Rect`, `colorResource`.                                                                                                                                                 | 6-10 weeks (resources dominate) |
+| **5 - iOS app**                    | SwiftUI shell + `ComposeUIViewController`, notifications, background refresh, billing, Google sign-in, App Store plumbing. Bitrise needs a macOS stack.                                                                                                                                                                                                                                                                                 | 4-8 weeks, excluding local AI   |
 
 Estimates are order-of-magnitude, single developer. The one data point so far: the serialization
 slice came in on time only because the golden-JSON corpus was dropped, which moved verification
@@ -171,7 +171,7 @@ one module so there is one `Res` class.
 
 | Risk                         | Notes                                                                                                                                                                                      |
 |------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| **Toolchain currency**       | Kotlin 2.3.20 / AGP 9.2.1 are very new. Verify KMP plugin, CMP, Room KMP, Ktorfit and the configuration cache together before Phase 2.                                                     |
+| **Toolchain currency**       | Kotlin 2.3.20 / AGP 9.2.1 are very new. KMP plugin, Room KMP and Ktorfit work together for iOS with the configuration cache on (6.23, 6.25, 6.27); CMP is still unverified.                |
 | **Room on a live schema**    | v20, 4 auto-migrations, 13 converters, and `fallbackToDestructiveMigration` silently wipes caches on a bad migration. `MoveTree` blobs written by Moshi are now read by kotlinx (6.1).     |
 | **Localization regression**  | 663 strings x 16 locales moved wholesale; needs a mechanical diff, not eyeballing.                                                                                                         |
 | **iOS background behaviour** | `BGAppRefreshTask` has no interval guarantee, so turn notifications will be worse than Android's 15-minute poll without server push (APNs), which OGS would have to support. No FCM today. |
@@ -183,7 +183,7 @@ one module so there is one `Res` class.
 ## 6. Done - what is still load-bearing
 
 Only traps, deliberate behaviour changes, and decisions that look wrong but are not. Unit tests
-stand at 137: 86 in `:shared` host tests (46 of them in `commonTest`, which also run on the iOS
+stand at 137: 86 in `:shared` host tests (71 of them in `commonTest`, which also run on the iOS
 simulator), 4 in `:shared` `iosTest` (simulator only), 47 in `:app`.
 
 ### 6.1 Moshi to kotlinx.serialization
@@ -492,3 +492,25 @@ test-local class.
 - `iosTest/.../ScoreEstimatorTest.kt` runs the real C++ on 9x9 and 19x19 on `Dispatchers.Default`,
   whose 512 KB iOS stacks are the tightest the estimator's stack-allocated grids will see. It
   cannot live in `commonTest`: host tests run on a JVM without the `.so`.
+
+### 6.27 HTTP client in `commonMain`
+
+- `OGSHttpClient` (`configureOGSClient`), `OGSRestAPI`, `Glicko2HistoryConverter` and
+  `OGSCookieStore` are in `commonMain`, same package; Ktorfit and the Ktor serialization artifacts
+  are `commonMain` dependencies. Ktorfit generates `_OGSRestAPIImpl` once, into
+  `metadata/commonMain`, and every target compiles it.
+- `OGSCookieStore` reads the clock through `kotlin.time.Clock` and uses
+  `kotlin.concurrent.Volatile`.
+- **Still in `androidMain`:** `HTTPConnectionFactory` (OkHttp, the emulator DNS hook, the 15 s
+  ping), `SharedPrefsCookiePersistence` and `LegacyCookieImport`. There is no iOS engine yet; the
+  Darwin engine comes with the iOS Koin graph, and with it the Darwin cases of
+  `isPlatformNetworkError()` (6.10).
+- **The services wait for the session cluster.** `OGSRestService` needs `UserSessionRepository`
+  and `SettingsRepository`, `OGSWebSocketService` needs `UserSessionRepository` and
+  `SocketDebugRepository`, and `GameConnection` needs `ChatRepository`. `UserSessionRepository` in
+  turn needs `PersistenceManager` (SharedPreferences) and `ActivityManager`, so storage has to move
+  first.
+- Six tests moved to `commonTest` with `ktor-client-mock`, so Google sign-in, the CSRF header,
+  cookie capture and the error mapping now also run on the iOS simulator. `OGSEngineBridgeTest`
+  (OkHttp), `LegacyCookieImportTest` and `OGSDateTimeTest` (`java.time` oracle) stay host-only. Two
+  test names lost a comma for Kotlin/Native.

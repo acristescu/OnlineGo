@@ -46,14 +46,15 @@ kotlin {
       api(libs.kermit)
       api(libs.room.runtime)
       implementation(libs.androidx.collection)
+
+      api(libs.ktorfit.lib)
+      api(libs.ktor.client.content.negotiation)
+      api(libs.ktor.serialization.kotlinx.json)
     }
 
     androidMain.dependencies {
       api(libs.koin.core)
 
-      api(libs.ktorfit.lib)
-      api(libs.ktor.client.content.negotiation)
-      api(libs.ktor.serialization.kotlinx.json)
       api(libs.okhttp.logging.interceptor)
 
       api(libs.androidx.datastore.preferences)
@@ -72,11 +73,11 @@ kotlin {
     commonTest.dependencies {
       implementation(libs.kotlin.test)
       implementation(libs.coroutines.test)
+      implementation(libs.ktor.client.mock)
     }
 
     getByName("androidHostTest").dependencies {
       implementation(libs.junit)
-      implementation(libs.ktor.client.mock)
       implementation(libs.ktor.client.okhttp)
     }
   }

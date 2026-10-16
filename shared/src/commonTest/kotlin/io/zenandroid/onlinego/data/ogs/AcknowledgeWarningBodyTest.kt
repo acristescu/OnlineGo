@@ -14,8 +14,8 @@ import io.ktor.http.headersOf
 import io.zenandroid.onlinego.data.model.ogs.AcknowledgeWarningRequest
 import io.zenandroid.onlinego.utils.appJson
 import kotlinx.coroutines.test.runTest
-import org.junit.Assert.assertEquals
-import org.junit.Test
+import kotlin.test.Test
+import kotlin.test.assertEquals
 
 class AcknowledgeWarningBodyTest {
 
@@ -28,7 +28,7 @@ class AcknowledgeWarningBodyTest {
   }
 
   @Test
-  fun `goes on the wire as a json object, not a json string`() = runTest {
+  fun `goes on the wire as a json object and not a json string`() = runTest {
     lateinit var sent: HttpRequestData
     val engine = MockEngine { request ->
       sent = request

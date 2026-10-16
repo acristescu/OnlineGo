@@ -4,10 +4,10 @@ import io.ktor.http.Cookie
 import io.ktor.http.Url
 import io.ktor.util.date.GMTDate
 import kotlinx.coroutines.test.runTest
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNull
-import org.junit.Assert.assertTrue
-import org.junit.Test
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertNull
+import kotlin.test.assertTrue
 
 private const val HOST = "online-go.com"
 private val OGS_URL = Url("https://online-go.com/api/v1/ui/config/")

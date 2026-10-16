@@ -8,10 +8,10 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.headersOf
 import io.zenandroid.onlinego.utils.appJson
 import kotlinx.coroutines.test.runTest
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNull
-import org.junit.Assert.assertTrue
-import org.junit.Test
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertNull
+import kotlin.test.assertTrue
 
 class OGSApiExceptionTest {
 
@@ -48,7 +48,7 @@ class OGSApiExceptionTest {
       client.get("https://online-go.com/api/v1/me/warning")
     }.exceptionOrNull()
 
-    assertTrue("expected OGSApiException but got $thrown", thrown is OGSApiException)
+    assertTrue(thrown is OGSApiException, "expected OGSApiException but got $thrown")
     assertEquals(401, thrown.httpStatusCode)
     assertEquals("""{"error":"nope"}""", thrown.httpErrorBody)
   }

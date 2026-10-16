@@ -5,10 +5,13 @@ import io.ktor.http.Cookie
 import io.ktor.http.CookieEncoding
 import io.ktor.http.Url
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
+import kotlin.concurrent.Volatile
+import kotlin.time.Clock
 
 internal const val CSRF_COOKIE = "csrftoken"
 internal const val SESSION_COOKIE = "sessionid"
@@ -26,7 +29,7 @@ interface SessionCookiePersistence {
 class OGSCookieStore(
   private val persistence: SessionCookiePersistence,
   private val host: String,
-  private val now: () -> Long = System::currentTimeMillis,
+  private val now: () -> Long = { Clock.System.now().toEpochMilliseconds() },
 ) : CookiesStorage {
 
   private val mutex = Mutex()

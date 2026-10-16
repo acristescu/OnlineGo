@@ -10,8 +10,8 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.headersOf
 import io.zenandroid.onlinego.utils.appJson
 import kotlinx.coroutines.test.runTest
-import org.junit.Assert.assertEquals
-import org.junit.Test
+import kotlin.test.Test
+import kotlin.test.assertEquals
 
 private const val BASE_URL = "https://online-go.com/"
 

@@ -1,8 +1,8 @@
 package io.zenandroid.onlinego.data.ogs
 
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
-import org.junit.Test
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 private const val HEADER =
   "ended\tgame_id\tplayed_black\thandicap\trating\tdeviation\tvolatility\topponent_id\t" +
@@ -23,7 +23,7 @@ private val BODY = "$HEADER\n$NEWEST\n$OLDEST\n$INITIAL_RATING\n"
 class Glicko2HistoryConverterTest {
 
   @Test
-  fun `keeps every real game, including the oldest`() {
+  fun `keeps every real game including the oldest`() {
     val history = parseGlicko2History(BODY).history
 
     assertEquals(2, history.size)
