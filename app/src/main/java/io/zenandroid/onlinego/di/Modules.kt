@@ -36,6 +36,8 @@ import io.zenandroid.onlinego.data.repositories.SettingsRepository
 import io.zenandroid.onlinego.data.repositories.SocketDebugRepository
 import io.zenandroid.onlinego.data.repositories.TutorialsRepository
 import io.zenandroid.onlinego.data.repositories.UserSessionRepository
+import io.zenandroid.onlinego.data.repositories.reviewPromptDataStore
+import io.zenandroid.onlinego.data.repositories.settingsDataStore
 import io.zenandroid.onlinego.playstore.PlayStoreService
 import io.zenandroid.onlinego.ui.screens.automatch.NewAutomatchChallengeViewModel
 import io.zenandroid.onlinego.ui.screens.face2face.FaceToFaceViewModel
@@ -59,14 +61,17 @@ import io.zenandroid.onlinego.usecases.GetUserStatsUseCase
 import io.zenandroid.onlinego.utils.Analytics
 import io.zenandroid.onlinego.utils.AppLocaleManager
 import io.zenandroid.onlinego.utils.CountingIdlingResource
+import io.zenandroid.onlinego.utils.FirebaseAppAnalytics
 import io.zenandroid.onlinego.utils.NOOPIdlingResource
 import io.zenandroid.onlinego.utils.NotificationUtils
 import io.zenandroid.onlinego.utils.PersistenceManager
 import io.zenandroid.onlinego.utils.ReviewPromptManager
+import io.zenandroid.onlinego.utils.SharedPreferencesKeyValueStore
 import io.zenandroid.onlinego.utils.WhatsNewUtils
 import io.zenandroid.onlinego.utils.appJson
 import okhttp3.OkHttpClient
 import org.koin.android.ext.koin.androidApplication
+import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
@@ -96,18 +101,18 @@ private val repositoriesModule = module {
   singleOf(::PuzzleRepository)
   singleOf(::PlayersRepository)
   singleOf(::ServerNotificationsRepository)
-  singleOf(::SettingsRepository)
+  single { SettingsRepository(androidContext().settingsDataStore, get()) }
   singleOf(::AppLocaleManager)
   singleOf(::UserSessionRepository)
   singleOf(::ClockDriftRepository)
   singleOf(::TutorialsRepository)
-  singleOf(::ReviewPromptRepository)
+  single { ReviewPromptRepository(androidContext().reviewPromptDataStore, get(), get()) }
   singleOf(::SocketDebugRepository)
-  singleOf(::PersistenceManager)
+  single { PersistenceManager(SharedPreferencesKeyValueStore(androidContext(), "login")) }
   singleOf(::NotificationUtils)
   singleOf(::WhatsNewUtils)
   singleOf(::KataGoAnalysisEngine)
-  single { Analytics(FirebaseAnalytics.getInstance(get())) }
+  single<Analytics> { FirebaseAppAnalytics(FirebaseAnalytics.getInstance(get())) }
 }
 
 private val serverConnectionModule = module {

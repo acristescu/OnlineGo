@@ -1,31 +1,25 @@
 package io.zenandroid.onlinego.data.repositories
 
-import android.content.Context
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.longPreferencesKey
-import androidx.datastore.preferences.preferencesDataStore
 import co.touchlab.kermit.Logger
 import io.zenandroid.onlinego.utils.Analytics
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.milliseconds
 
-val Context.reviewPromptDataStore by preferencesDataStore(
-  name = "review_prompt"
-)
-
 class ReviewPromptRepository(
-  private val context: Context,
+  private val dataStore: DataStore<Preferences>,
   private val applicationScope: CoroutineScope,
-  private val userSessionRepository: UserSessionRepository,
   private val analytics: Analytics,
 ) {
-
-  private val dataStore = context.reviewPromptDataStore
 
   companion object {
     private val APP_FIRST_LAUNCH_TIME = longPreferencesKey("app_first_launch_time")
@@ -57,9 +51,6 @@ class ReviewPromptRepository(
    * 3. User hasn't already rated the app
    */
   suspend fun shouldPromptForReview(): Boolean {
-//    if (userSessionRepository.userId.replayCache.firstOrNull() != 89194L) {
-//      return false
-//    }
     val prefs = dataStore.data.first()
 
     val firstLaunchTime = prefs[APP_FIRST_LAUNCH_TIME] ?: return false

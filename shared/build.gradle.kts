@@ -50,14 +50,14 @@ kotlin {
       api(libs.ktorfit.lib)
       api(libs.ktor.client.content.negotiation)
       api(libs.ktor.serialization.kotlinx.json)
+
+      api(libs.androidx.datastore.preferences)
     }
 
     androidMain.dependencies {
       api(libs.koin.core)
 
       api(libs.okhttp.logging.interceptor)
-
-      api(libs.androidx.datastore.preferences)
 
       implementation(libs.androidx.core.ktx)
 

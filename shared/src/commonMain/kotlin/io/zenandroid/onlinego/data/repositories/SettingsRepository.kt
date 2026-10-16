@@ -1,42 +1,29 @@
 package io.zenandroid.onlinego.data.repositories
 
-import android.content.Context
-import androidx.datastore.preferences.SharedPreferencesMigration
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
-import androidx.datastore.preferences.preferencesDataStore
 import io.zenandroid.onlinego.data.model.AppTheme
 import io.zenandroid.onlinego.data.model.BoardTheme
 import io.zenandroid.onlinego.data.model.UserSettings
 import io.zenandroid.onlinego.data.model.ogs.Speed
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
-val Context.settingsDataStore by preferencesDataStore(
-  name = "settings",
-  produceMigrations = { context ->
-    listOf(
-      SharedPreferencesMigration(
-        context = context,
-        sharedPreferencesName = "io.zenandroid.onlinego_preferences"
-      )
-    )
-  }
-)
-
 class SettingsRepository(
-  private val context: Context,
+  private val dataStore: DataStore<Preferences>,
   private val applicationScope: CoroutineScope
 ) {
 
-  private val dataStore = context.settingsDataStore
   var cachedUserSettings: UserSettings = UserSettings()
     private set
 
