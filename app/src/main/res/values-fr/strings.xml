@@ -589,11 +589,11 @@
 *Joseki* est un mot emprunté au Japonais, se rapportant généralement à une séquence de coups joués dans le coin. Le résultat étant un échange localement équilibré.
 ### Comment utiliser l'explorateur ?
 Les coups marqués ci-dessous représentent des suites intéressantes de la position actuelle. La couleur donne une indication de la qualité estimée du coup indiqué :
-*Vert : le coup est considéré optimal
+* Vert : le coup est considéré optimal
 * Jaune : le coup est considéré comme jouable
 * Rouge : le coup est considéré comme une erreur
 * Violet : Ce coup est une ruse
-* Bleu : c'est une question ouverte
+* Bleu : c'est une question ouverte.
 Vous pouvez jouer n'importe lequel de ces coups pour explorer les positions qu'ils amènent.
 ### Tenuki
 Parfois, le meilleur coup est de jouer ailleurs. C'est ce que l'on appelle communément *Tenuki*. Si tenuki est une option intéressante dans la position donnée, le bouton Passe en bas à gauche sera actif et vous pourrez l'utiliser pour voir quelle position peut découler après que le joueur ait tenuki]]></string>
@@ -692,7 +692,7 @@ Regardons un exemple. La pierre blanche en E6 est en atari. Noir peut donc la ca
     <string name="tutorial_intermediate_falseeyes_falseeyes4_branches_branch2_message">Vous avez rempli votre propre œil</string>
     <string name="tutorial_intermediate_falseeyes_falseeyes4_branches_branch3_message">Vous avez rempli votre propre œil</string>
     <string name="tutorial_intermediate_falseeyes_falseeyes4_branches_branch4_message">F4 est maintenant un faux œil</string>
-    <string name="tutorial_intermediate_falseeyes_falseeyes5_text"><![CDATA[« Les deux yeux doivent être consolidés cette fois-ci ! »]]></string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes5_text"><![CDATA[« Les deux yeux doivent être consolidés ici ! »]]></string>
     <string name="tutorial_intermediate_falseeyes_falseeyes5_branches_branch1_2_message">F5 est maintenant un faux œil.</string>
     <string name="tutorial_intermediate_falseeyes_falseeyes5_branches_branch2_message">C5 est un faux œil.</string>
     <string name="tutorial_intermediate_falseeyes_falseeyes6_text"><![CDATA[« Voici une position classique pour un faux œil sur le bord. Réparez-le ! »]]></string>
@@ -721,7 +721,7 @@ Regardons un exemple. La pierre blanche en E6 est en atari. Noir peut donc la ca
 
 D'abord, séparons le goban en 3 zones. Voici les coins :"]]></string>
     <string name="tutorial_advanced_thefirstmoves_firstmoves1_page2_text"><![CDATA["… les bords…"]]></string>
-    <string name="tutorial_advanced_thefirstmoves_firstmoves1_page3_text"><![CDATA["… et le milieu. Bien sûr, on utilise ces noms pour s'y retrouver, mais aucun n'a de règle spéciale."]]></string>
+    <string name="tutorial_advanced_thefirstmoves_firstmoves1_page3_text"><![CDATA["… et le milieu. Bien sûr, on utilise ces noms pour s'y retrouver, mais aucun n'a de règle spécifique."]]></string>
     <string name="tutorial_advanced_thefirstmoves_firstmoves1_page4_text"><![CDATA["Le but du jeu est d'encercler plus de territoire que ton adversaire. Puisque vous placez vos pierres l'un après l'autre, vous en utilisez autant. Ainsi, le gagnant est celui qui a utilisé ces pierres le plus efficacement.
 
 Quels territoires sont les plus simples à encercler ? Les coins, les bords, ou le centre ?"]]></string>
