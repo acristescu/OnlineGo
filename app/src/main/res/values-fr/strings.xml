@@ -57,7 +57,7 @@
     <string name="ai_game_show_eval">Montrer l\'évaluation</string>
     <string name="new_game">Nouvelle partie</string>
     <string name="board_size">Taille du plateau</string>
-    <string name="you_play">A vous de jouer</string>
+    <string name="you_play">Ta couleur</string>
     <string name="Black">Noir</string>
     <string name="White">Blanc</string>
     <string name="handicap">Handicap</string>
@@ -87,7 +87,7 @@
     <string name="landscape_preview">Mode paysage</string>
     <string name="button_play_online">Jouer\nEn ligne</string>
     <string name="button_custom_game">Partie\npersonnalisée</string>
-    <string name="button_play_against_ai">Jouer\ncontre IA</string>
+    <string name="button_play_against_ai">Jouer\ncontre l\'IA</string>
     <string name="button_face_to_face">Face\nà face</string>
     <string name="bottomnavigation_botton_play">Jouer</string>
     <string name="bottomnavigation_botton_learn">Apprendre</string>
@@ -557,7 +557,7 @@
         <item quantity="one">Vous avez %d partie en cours.</item>
         <item quantity="other">Vous avez %d parties en cours.</item>
     </plurals>
-    <string name="mygames_no_active_games">Vous n\'avez aucune partie en cours. Pourquoi pas en commencer une ?</string>
+    <string name="mygames_no_active_games">Vous n\'avez aucune partie en cours. Pourquoi ne pas en commencer une ?</string>
     <string name="mygames_detail_board_size">Taille du plateau</string>
     <string name="mygames_detail_speed">Cadence</string>
     <string name="mygames_detail_ranked">Classé</string>
@@ -634,7 +634,7 @@ Les Noirs en captureront généralement au moins un dans cette situation !]]></s
     <string name="tutorial_basics_illegalmoves_suicide4_text"><![CDATA[Capturez les 2 pierres blanches au contact des pierres noires. Ici, vous ne pouvez pas capturez blanc en un seul coup.]]></string>
     <string name="tutorial_basics_illegalmoves_suicide5_text">La pierre blanche en D5 sépare vos pierres. Si vous la capturez, vous pourrez connecter vos pierres et rendre votre groupe plus fort. Cette forme est très importante !</string>
     <string name="tutorial_intermediate_title">Intermédiaire</string>
-    <string name="tutorial_intermediate_ladders_title">Escaliers</string>
+    <string name="tutorial_intermediate_ladders_title">L\'escalier</string>
     <string name="tutorial_intermediate_ladders_ladder1_text">Capturez la pierre blanche ! Si vous jouez les bons coups, blanc ne peut pas s\'échapper. Essayez de mettre blanc en Atari à chaque coup, jusqu\'à ce qu\'il n\'ait nulle part où aller.</string>
     <string name="tutorial_intermediate_ladders_ladder1_branches_branch1_message">Blanc tente de s\'échapper...</string>
     <string name="tutorial_intermediate_ladders_ladder1_branches_branch1_1_1_1_1_message">Pouvez-vous voir où cela mène ?</string>
