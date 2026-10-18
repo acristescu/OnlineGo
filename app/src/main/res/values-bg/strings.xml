@@ -2,4 +2,18 @@
 <resources>
     <string name="app_name">Сенте - Онлайн Го</string>
     <string name="create_account_prompt">Нямаш OGS акаунт? Създай <b>тук</b>!</string>
+    <string name="login_to_ogs">Вписване в OGS</string>
+    <string name="create_account">Създай OGS акаунт</string>
+    <string name="welcome_to_sente_online_go">Добре дошли в Сенте Онлайн Го</string>
+    <string name="login_to_play_online">Моля впишете се в OGS за да играете онлайн.</string>
+    <string name="ai_game_chat_ready">Готово!</string>
+    <string name="ai_game_chat_use_new_game_button">Използвайте бутонът \"Нова Игра\" за да започнете нова игра</string>
+    <string name="ai_game_chat_engine_error">Грешка при стартиране на KataGo: \'%1$s\'</string>
+    <string name="ai_game_chat_engine_starting">Стартиране на ИИ, моля изчакайте...</string>
+    <string name="ai_game_chat_invalid_move">Невалиден ход, моля опитайте пак</string>
+    <string name="ai_game_chat_lets_try_again">Ок, нека опитаме пак. Ваш ред е!</string>
+    <string name="ai_game_chat_hmmm">Хммм...</string>
+    <string name="ai_game_chat_moves_to_consider">Ето няколко хода за размисъл</string>
+    <string name="ai_game_chat_ok_your_turn">Ок, ваш ред е</string>
+    <string name="ai_game_chat_calculating_territory">Ок, изчисляване на сегашната територия...</string>
 </resources>
