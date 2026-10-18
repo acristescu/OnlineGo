@@ -1,2 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources></resources>
+<resources>
+    <string name="app_name">Sente - غو عبر الإنترنت</string>
+    <string name="create_account_prompt">ليس لديك حساب على OGS؟ أنشئ حسابًا من <b>هنا</b>!
+</string>
+    <string name="login_to_ogs">تسجيل الدخول إلى OGS</string>
+    <string name="create_account">إنشاء حساب OGS</string>
+    <string name="welcome_to_sente_online_go">مرحبًا بك في تطبيق Sente Online Go!</string>
+    <string name="login_to_play_online">يرجى تسجيل الدخول إلى OGS للعب عبر الإنترنت.</string>
+    <string name="ai_game_chat_ready">جاهز!</string>
+    <string name="ai_game_chat_use_new_game_button">استخدم زر «لعبة جديدة» لبدء مباراة جديدة.</string>
+    <string name="ai_game_chat_engine_error">حدث خطأ أثناء تشغيل KataGO: \'%1$s\'</string>
+    <string name="ai_game_chat_engine_starting">جارٍ تشغيل محرّك الذكاء الاصطناعي، يُرجى الانتظار…</string>
+    <string name="ai_game_chat_invalid_move">Invalid move, try again</string>
+    <string name="ai_game_chat_lets_try_again">حركة غير صالحة، حاول مرة أخرى.</string>
+    <string name="ai_game_chat_hmmm">هممم…</string>
+    <string name="ai_game_chat_moves_to_consider">إليك بعض الحركات التي يمكنك التفكير فيها.</string>
+    <string name="ai_game_chat_ok_your_turn">حسنًا، دورك الآن.</string>
+    <string name="ai_game_chat_calculating_territory">حسنًا، جارٍ حساب المساحة المسيطر عليها حاليًا…</string>
+    <string name="ai_game_chat_territories">إليك تقديري للمناطق التي يسيطر عليها كل لاعب.</string>
+    <string name="ai_game_chat_im_thinking">أنا أفكّر…</string>
+    <string name="ai_game_chat_your_turn">دورك الآن.</string>
+    <string name="ai_game_chat_ai_passed">أمرّر دوري. دورك الآن!</string>
+    <string name="ai_game_chat_game_over_ai_won">انتهت المباراة بعد تمرير اللاعبين دوريهما مرتين متتاليتين. النتيجة النهائية: الأسود %1$s مقابل الأبيض %2$s. يبدو أنني فزت هذه المرة.</string>
+    <string name="ai_game_chat_game_over_player_won">انتهت المباراة بعد تمرير اللاعبين دوريهما مرتين متتاليتين. النتيجة النهائية: الأسود %1$s مقابل الأبيض %2$s. تهانينا، يبدو أنك تفوّقت عليّ هذه المرة!</string>
+    <string name="ai_game_chat_game_over_computing_score">انتهت المباراة بعد تمرير اللاعبين دوريهما مرتين متتاليتين. انتظر قليلًا، جارٍ حساب النتيجة النهائية.</string>
+    <string name="ai_game_chat_ai_resigned">أستسلم، لقد فزت! أحسنت اللعب.</string>
+    <string name="ai_resign_offer_title">أعتقد أنني خسرت هذه المباراة.</string>
+    <string name="ai_resign_offer_message">أرغب في الاستسلام الآن. هل تقبل استسلامي أم نواصل اللعب؟</string>
+    <string name="ai_resign_offer_accept">قَبُول الاستسلام</string>
+    <string name="ai_resign_offer_decline">متابعة اللعب</string>
+    <string name="ai_game_previous">السابق</string>
+    <string name="ai_game_next">التالي</string>
+    <string name="ko_explanation">ستؤدي هذه الحركة إلى تكرار وضعية الأحجار على الرقعة. يُسمّى ذلك «كَو» (Ko)، وهو غير مسموح به. جرّب القيام بحركة أخرى أولًا، ويفضّل أن تكون تهديدًا لا يستطيع الخصم تجاهله.</string>
+    <string name="illegal_ko_move">حركة كَو غير قانونية</string>
+    <string name="local_ai_game">لُعْبَة محلية ضد الحاسوب</string>
+    <string name="home_app_open_source_message">هذا التطبيق واجهة مفتوحة المصدر، يطوّرها المجتمع لدعم موقع OGS (online-go.com). يمكنك استكشاف الدروس التعليمية واللعب ضد الذكاء الاصطناعي، لكن معظم الميزات تتطلب حسابًا مجانيًا على OGS.</string>
+    <string name="home_button_login_ogs">تسجيل الدخول إلى OGS</string>
+    <string name="home_button_signup_ogs">إنشاء حساب على OGS</string>
+    <string name="face_to_face_loading">مواجهة مباشرة · جارٍ التحميل</string>
+    <string name="face_to_face_game_over">مواجهة مباشرة · انتهت اللعبة</string>
+    <string name="face_to_face_white_s_turn">مواجهة مباشرة · دور الأبيض</string>
+    <string name="face_to_face_black_s_turn">مواجهة مباشرة · دور الأسود</string>
+    <string name="face_to_face_default">مواجهة مباشرة</string>
+    <string name="face_to_face_player_1"> اللاعب 1</string>
+    <string name="face_to_face_player_2"> اللاعب 2</string>
+    <string name="face_to_face_estimating">جارٍ التقدير…</string>
+    <string name="face_to_face_game_is_over">انتهت اللعبة!</string>
+</resources>
