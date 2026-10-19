@@ -31,6 +31,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.graphics.nativePaint
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
@@ -746,7 +747,7 @@ private fun doMeasurements(
   val textSize = cellSize.toFloat() * .65f
   val coordinatesTextSize = cellSize.toFloat() * .4f
   val shadowPaint = Paint().apply {
-    asFrameworkPaint().run {
+    nativePaint.run {
       color = if (Build.VERSION.SDK_INT >= 28) 0x01000000 else 0x22000000
       setShadowLayer(
         cellSize / 11f,

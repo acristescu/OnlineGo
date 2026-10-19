@@ -9,15 +9,15 @@ is no RxJava, no `Parcelable`, and Koin, Molecule, Room, DataStore, `ViewModel`,
 kotlinx-collections-immutable are already multiplatform. The cost is dominated by resources
 (663 strings x 16 locales) and the local-AI engine, which cannot run on iOS as built today.
 
-**Status.** Phases 0-3 are finished: thirty-four slices are done (section 6). Phases 0-2 have
+**Status.** Phases 0-3 are finished: thirty-five slices are done (section 6). Phases 0-2 have
 shipped in a release; Phase 3 has not, and several slices still need on-device checks (section 1.2).
 Phase 3 moved the Room
 database (6.25), the score estimator (6.26), `CrashReporter` (6.10), the HTTP client (6.27),
 storage (6.28), the session cluster (6.29) and the remaining repositories (6.30) to common code,
 wired by a shared Koin module (6.31) and an iOS platform module (6.32). Only the bindings Swift
 supplies are left, and they come with the iOS app. Phase 4 has started: the toolchain is set for
-Compose Multiplatform 1.12.2 (6.33) and the first composable is common code (6.34); phase 5 has
-not started.
+Compose Multiplatform (6.33), now on 1.13.0-alpha02 (6.35), and the first composable is common code
+(6.34); phase 5 has not started.
 
 Earlier, longer versions of this document:
 `git show d529259:docs/KMP_MIGRATION_ASSESSMENT.md` (original assessment) and
@@ -36,7 +36,9 @@ the import branch (6.5). Users update late, and anyone coming straight from a pr
 logged out without them. Delete them only once the Play Console shows pre-6.5 installs are
 negligible.
 
-**Product call:** raising `minSdk` to 26 is the only way to drop core library desugaring (6.7).
+**Product call:** raising `minSdk` to 26 is the only way to drop core library desugaring (6.7). It
+is
+24 since 6.35.
 
 ### 1.2 On-device checks owed for finished work
 
@@ -178,14 +180,14 @@ one module so there is one `Res` class.
 
 ## 5. Risks
 
-| Risk                         | Notes                                                                                                                                                                                               |
-|------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| **Toolchain currency**       | Kotlin 2.4.21 / AGP 9.3.3 / Gradle 9.7.1, inside the supported matrix (6.33). KMP plugin, Room KMP, Ktorfit and the CMP 1.12.2 plugin work together for iOS with the configuration cache on (6.34). |
-| **Room on a live schema**    | v20, 4 auto-migrations, 13 converters, and `fallbackToDestructiveMigration` silently wipes caches on a bad migration. `MoveTree` blobs written by Moshi are now read by kotlinx (6.1).              |
-| **Localization regression**  | 663 strings x 16 locales moved wholesale; needs a mechanical diff, not eyeballing.                                                                                                                  |
-| **iOS background behaviour** | `BGAppRefreshTask` has no interval guarantee, so turn notifications will be worse than Android's 15-minute poll without server push (APNs), which OGS would have to support. No FCM today.          |
-| **KataGo memory on iOS**     | A new class of risk that does not exist on Android, where the engine has its own process.                                                                                                           |
-| **Bandwidth**                | A multi-month refactor on a personal project. Phases 0-1 are the hedge: they pay off on their own.                                                                                                  |
+| Risk                         | Notes                                                                                                                                                                                                        |
+|------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **Toolchain currency**       | Kotlin 2.4.21 / AGP 9.3.3 / Gradle 9.7.1, inside the supported matrix (6.33). **CMP 1.13.0-alpha02 puts the whole Android app on Jetpack Compose 1.13.0-alpha03** (6.35); move to 1.13 stable when it ships. |
+| **Room on a live schema**    | v20, 4 auto-migrations, 13 converters, and `fallbackToDestructiveMigration` silently wipes caches on a bad migration. `MoveTree` blobs written by Moshi are now read by kotlinx (6.1).                       |
+| **Localization regression**  | 663 strings x 16 locales moved wholesale; needs a mechanical diff, not eyeballing.                                                                                                                           |
+| **iOS background behaviour** | `BGAppRefreshTask` has no interval guarantee, so turn notifications will be worse than Android's 15-minute poll without server push (APNs), which OGS would have to support. No FCM today.                   |
+| **KataGo memory on iOS**     | A new class of risk that does not exist on Android, where the engine has its own process.                                                                                                                    |
+| **Bandwidth**                | A multi-month refactor on a personal project. Phases 0-1 are the hedge: they pay off on their own.                                                                                                           |
 
 ---
 
@@ -642,7 +644,8 @@ test-local class.
   infers its compiler plugin from the Kotlin version and needed no change.
 - **Compose BOM 2026.09.00** (Compose 1.12.1, was 1.12.0): the version CMP 1.12.2 is built on, so
   Android keeps one Compose version when CMP arrives.
-- **Target: Compose Multiplatform 1.12.2**, the latest stable. 1.13 is alpha and raises
+- **Target: Compose Multiplatform 1.12.2** (moved to 1.13.0-alpha02 in 6.35), the latest stable.
+  1.13 is alpha and raises
   `compileSdk` to 37.1 and `minSdk` to 24. CMP's runtime 1.12.2 needs only stdlib 2.2.20, and its
   Android artifacts resolve to androidx Compose 1.12.1.
 - **Material3 is the trap:** CMP 1.12 ships `org.jetbrains.compose.material3` 1.12.0-alpha03, based
@@ -683,3 +686,24 @@ test-local class.
 - `iosTest/.../ExposedLazyDropdownMenuTest` renders the menu with `runComposeUiTest` on the
   simulator: the first row shows, row 999 of 1,000 is never composed. It is the first Compose UI
   test, and it proves material3 1.9.0 runs, not just links, against CMP 1.12.2 on iOS.
+
+### 6.35 Compose Multiplatform 1.13 alpha
+
+- **Why an alpha:** CMP 1.12.x resources have an Android ANR (`stringResource` blocks the main
+  thread on `Dispatchers.Default`, CMP-6615), a main-thread deadlock between blocking and suspend
+  reads, and a crash on plural rules for locales missing from its CLDR table. All three are fixed
+  only in 1.13.0-alpha01, and Android screens are about to read strings through CMP.
+- **The cost:** CMP 1.13.0-alpha02 is built on Jetpack Compose 1.13.0-alpha03, so every
+  `androidx.compose` artifact in the app resolves to that alpha. The Compose BOM stays at
+  2026.09.00; the atomic-group constraints pull the BOM-managed artifacts up with it. androidx
+  material3 stays 1.4.0 because `org.jetbrains.compose.material3` stays pinned at 1.9.0; the only
+  other change is `navigationevent` 1.0.0 to 1.1.0.
+- CMP 1.13 requires **`compileSdk` 37.1** (
+  `compileSdk { version = release(37) { minorApiLevel = 1 } }`
+  in both modules, values from the catalog) and **`minSdk` 24**, which drops Android 6.0.
+  `vectorDrawables.useSupportLibrary` went with it, as its comment asked.
+- Compose 1.13 makes `Paint.asFrameworkPaint()` an error; `BoardComposable`'s shadow paint uses
+  `Paint.nativePaint`.
+- Checked: compose report rows identical (app and `:shared`, 6 unstable parameters), no new
+  deprecation warnings, release build with R8, all tests on Android and the iOS simulator. The
+  release APK is 156 KB smaller.

@@ -11,14 +11,16 @@ plugins {
 }
 
 android {
-  compileSdk = libs.versions.compileSdk.get().toInt()
+  compileSdk {
+    version = release(libs.versions.compileSdk.get().toInt()) {
+      minorApiLevel = libs.versions.compileSdkMinor.get().toInt()
+    }
+  }
   ndkVersion = libs.versions.ndkVersion.get()
 
   experimentalProperties["android.experimental.enableScreenshotTest"] = true
 
   defaultConfig {
-    // We still need this for API 23 and lower. Remove when minsdk = 24
-    vectorDrawables.useSupportLibrary = true
     applicationId = "io.zenandroid.onlinego"
     minSdk = libs.versions.minSdk.get().toInt()
     targetSdk = libs.versions.targetSdk.get().toInt()

@@ -4,14 +4,15 @@ datastorePreferences = "1.2.1"
 kotlin = "2.4.21"
 androidGradlePlugin = "9.3.3"
 compileSdk = "37"
-minSdk = "23"
+compileSdkMinor = "1"
+minSdk = "24"
 navigationCompose = "2.9.7"
 targetSdk = "36"
 ndkVersion = "25.1.8937393"
 
 # Compose BOM
 composeBom = "2026.09.00"
-composeMultiplatform = "1.12.2"
+composeMultiplatform = "1.13.0-alpha02"
 composeMultiplatformMaterial3 = "1.9.0"
 
 # Main dependencies
