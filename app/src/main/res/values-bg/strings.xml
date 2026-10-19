@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Сенте - Онлайн Го</string>
-    <string name="create_account_prompt">Нямаш OGS акаунт? Създай <b>тук</b>!</string>
-    <string name="login_to_ogs">Вписване в OGS</string>
-    <string name="create_account">Създай OGS акаунт</string>
     <string name="welcome_to_sente_online_go">Добре дошли в Сенте Онлайн Го</string>
     <string name="login_to_play_online">Моля впишете се в OGS за да играете онлайн.</string>
     <string name="ai_game_chat_ready">Готово!</string>

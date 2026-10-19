@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Sente - GO en línia</string>
-    <string name="create_account_prompt">No teniu compte a OGS? Creeu-ne un <b>aquí</b>!</string>
-    <string name="login_to_ogs">Inicieu sessió a OGS</string>
-    <string name="create_account">Creeu un compte a OGS</string>
     <string name="welcome_to_sente_online_go">Benvingut/da a Sente - Go en línia!</string>
     <string name="login_to_play_online">Si us plau, inicieu sessió a OGS per jugar en línia.</string>
     <string name="ai_game_chat_ready">Preparat/da!</string>
@@ -30,7 +27,6 @@
     <string name="ai_resign_offer_decline">Continueu jugant</string>
     <string name="ai_game_handicap_none">cap</string>
     <string name="ai_game_handicap_no_komi">sense komi</string>
-    <string name="ai_game_avatar_content_description">IA</string>
     <string name="ai_game_new">Nou</string>
     <string name="ai_game_pass">Passo</string>
     <string name="ai_game_previous">Anterior</string>
@@ -42,17 +38,17 @@
     <string name="title_bar_game_info_content_description">Informació de la partida</string>
     <string name="title_bar_more_content_description">Més</string>
     <string name="search_field_clear_content_description">Esborrar el text</string>
-    <string name="katago">"KataGO "</string>
+    <string name="katago">KataGO</string>
     <string name="territory">Territori</string>
     <string name="hint">Pista</string>
     <string name="player">Jugador</string>
-    <string name="you">" Tu"</string>
+    <string name="you">Tu</string>
     <string name="prisoners">Presoners</string>
     <string name="komi">Komi</string>
     <string name="ai_game_player_captures_and_komi">Captures: %1$d · Komi: %2$s</string>
     <string name="ai_game_player_captures_only">Captures: %1$d</string>
-    <string name="ai_game_eval_winrate_compact">N %1$.1f%% · %2$.1f%% B</string>
-    <string name="ai_game_eval_score_lead_compact">%1$s +%2$.1f pts d\'avantatge</string>
+    <string name="ai_game_eval_winrate_compact">N %1$s%% · %2$s%% B</string>
+    <string name="ai_game_eval_score_lead_compact">%1$s +%2$s pts d\'avantatge</string>
     <string name="ai_game_hide_eval">Amagar l\'avaluació</string>
     <string name="ai_game_show_eval">Mostrar l\'avaluació</string>
     <string name="new_game">Nova partida</string>
@@ -83,8 +79,6 @@
     <string name="enabled">Activat</string>
     <string name="disabled">Desactivat</string>
     <string name="auto">Automàtic</string>
-    <string name="hello_world">Hola, món!</string>
-    <string name="landscape_preview">Previsualització horitzontal</string>
     <string name="button_play_online">Jugar\nen\nlínia</string>
     <string name="button_custom_game">Partida\na mida</string>
     <string name="button_play_against_ai">Jugar\ncontra\nla\nIA</string>
@@ -177,8 +171,7 @@
     <string name="game_cancel_dialog_dismiss">NO CANCEL·LAR LA PARTIDA</string>
     <string name="game_info_ranked">Puntuable</string>
     <string name="game_info_unranked">No puntuable</string>
-    <string name="game_info_unknown_player">\?</string>
-    <string name="game_info_versus_separator">"      contra      "</string>
+    <string name="game_info_versus_separator">contra</string>
     <string name="game_info_score">Resultat</string>
     <string name="game_info_time">Temps</string>
     <string name="game_info_score_komi">komi</string>
@@ -201,7 +194,7 @@
     <string name="game_over_unknown_result">Resultat desconegut (%1$s)</string>
     <string name="game_over_rating_updating">La vostra puntuació s\'està actualitzant</string>
     <string name="game_over_rating_now">La vostra puntuació ara és %1$s - %2$s</string>
-    <string name="game_over_rating_change">" (%1$s)"</string>
+    <string name="game_over_rating_change">(%1$s)</string>
     <string name="game_retry_dialog_title">PROBLEMES DE CONNEXIÓ</string>
     <string name="game_retry_dialog_message">El servidor no respon. Si us plau, comproveu la vostra connexió a internet.</string>
     <string name="game_retry_dialog_confirm">PROVA-HO UNA ALTRA VEGADA</string>
@@ -220,40 +213,39 @@
     <string name="game_player_details_losses">Derrotes</string>
     <string name="game_player_details_total">Total</string>
     <plurals name="duration_weeks">
-        <item quantity="one">%d setmana</item>
-        <item quantity="other">%d setmanes</item>
+        <item quantity="one">%1$d setmana</item>
+        <item quantity="other">%1$d setmanes</item>
     </plurals>
     <plurals name="duration_days">
-        <item quantity="one">%d dia</item>
-        <item quantity="other">%d dies</item>
+        <item quantity="one">%1$d dia</item>
+        <item quantity="other">%1$d dies</item>
     </plurals>
     <plurals name="duration_hours">
-        <item quantity="one">%d hora</item>
-        <item quantity="other">%d hores</item>
+        <item quantity="one">%1$d hora</item>
+        <item quantity="other">%1$d hores</item>
     </plurals>
     <plurals name="duration_minutes">
-        <item quantity="one">%d minut</item>
-        <item quantity="other">%d minuts</item>
+        <item quantity="one">%1$d minut</item>
+        <item quantity="other">%1$d minuts</item>
     </plurals>
     <plurals name="duration_seconds">
-        <item quantity="one">%d segon</item>
-        <item quantity="other">%d segons</item>
+        <item quantity="one">%1$d segon</item>
+        <item quantity="other">%1$d segons</item>
     </plurals>
     <plurals name="clock_days">
-        <item quantity="one">%d dia</item>
-        <item quantity="other">%d dies</item>
+        <item quantity="one">%1$d dia</item>
+        <item quantity="other">%1$d dies</item>
     </plurals>
     <string name="clock_days_hours">%1$dd %2$dh</string>
     <string name="clock_hours">%1$dh</string>
-    <string name="clock_hours_minutes">%1$dh %2$02dm</string>
-    <string name="clock_minutes_seconds">%1$d : %2$02d</string>
-    <string name="clock_seconds">%1$02ds</string>
-    <string name="clock_tenths">%1$.1fs</string>
+    <string name="clock_hours_minutes">%1$dh %2$sm</string>
+    <string name="clock_minutes_seconds">%1$d : %2$s</string>
+    <string name="clock_seconds">%1$ss</string>
+    <string name="clock_tenths">%1$ss</string>
     <string name="clock_canadian_period">+%1$s / %2$d</string>
     <string name="clock_byoyomi_periods">%1$d × %2$s</string>
     <string name="clock_fischer_increment">+ %1$s / jugada</string>
     <string name="duration_two_units">%1$s %2$s</string>
-    <string name="duration_unknown">\?</string>
     <string name="time_control_simple">Simple: %1$s per jugada.</string>
     <string name="time_control_fischer">Fischer: El rellotge comença amb %1$s i s’incrementa %2$s per jugada, fins a un màxim de %3$s.</string>
     <plurals name="time_control_byoyomi">
@@ -266,8 +258,7 @@
     </plurals>
     <string name="time_control_absolute">Absolut: %1$s de temps total per cada jugador.</string>
     <string name="time_control_none">Sense límit de temps.</string>
-    <string name="time_control_unknown">\?</string>
-    <string name="time_control_pauses_on_weekends">" Pausa els caps de setmana."</string>
+    <string name="time_control_pauses_on_weekends">Pausa els caps de setmana.</string>
     <string name="whats_new_title">Què hi ha de nou</string>
     <string name="whats_new_got_it">Entesos</string>
     <string name="whats_new_open_source">Sente és de codi obert i està desenvolupada per voluntaris.</string>
@@ -289,8 +280,8 @@
     <string name="socket_debug_filter_all">Tots (%1$d)</string>
     <string name="socket_debug_filter_type">%1$s (%2$d)</string>
     <plurals name="socket_debug_event_count">
-        <item quantity="one">%d esdeveniment</item>
-        <item quantity="other">%d esdeveniments</item>
+        <item quantity="one">%1$d esdeveniment</item>
+        <item quantity="other">%1$d esdeveniments</item>
     </plurals>
     <string name="notification_challenge_title">Un nou desafiament!</string>
     <string name="notification_challenge_text">%1$s us ha desafiat</string>
@@ -304,8 +295,8 @@
     <string name="notification_stone_removal_phase">Fase de retirada de pedres</string>
     <string name="notification_requires_attention">%1$s Necessita la vostra atenció</string>
     <plurals name="notification_games_require_attention">
-        <item quantity="one">%d partida necessita la vostra atenció</item>
-        <item quantity="other">%d partides necessiten la vostra atenció</item>
+        <item quantity="one">%1$d partida necessita la vostra atenció</item>
+        <item quantity="other">%1$d partides necessiten la vostra atenció</item>
     </plurals>
     <string name="notification_inbox_versus">contra %1$s</string>
     <string name="notification_logout_title">Torneu a iniciar sessió si us plau</string>
@@ -385,7 +376,7 @@
     <string name="supporter_faq_payment_question">Hi ha cap altre mètode de pagament?</string>
     <string name="supporter_faq_payment_answer">Les aplicacions distribuïdes a través de Google Play han d’utilitzar Google Pay, ja que Google cobra un 15 % dels ingressos. No se’ns permet oferir cap altre mitjà de pagament dins de l’aplicació.</string>
     <string name="supporter_thank_you_title">Gràcies pel vostre suport!</string>
-    <string name="supporter_current_contribution">"La vostra contribució actual es "</string>
+    <string name="supporter_current_contribution">La vostra contribució actual es</string>
     <string name="supporter_select_contribution">Seleccioneu la vostra contribució mensual</string>
     <string name="supporter_update_amount">Actualitzar la quantitat</string>
     <string name="supporter_cancel_subscription">Cancel·lar la subscripció</string>
@@ -415,12 +406,12 @@
     <string name="stats_won_lost">%1$d ha guanyat · %2$d ha perdut</string>
     <string name="stats_no_streak">-</string>
     <plurals name="stats_streak_wins">
-        <item quantity="one">%d victòria</item>
-        <item quantity="other">%d victòries</item>
+        <item quantity="one">%1$d victòria</item>
+        <item quantity="other">%1$d victòries</item>
     </plurals>
     <plurals name="stats_streak_losses">
-        <item quantity="one">%d derrota</item>
-        <item quantity="other">%d derrotes</item>
+        <item quantity="one">%1$d derrota</item>
+        <item quantity="other">%1$d derrotes</item>
     </plurals>
     <string name="stats_no_ranked_games">No s\'ha registrat cap partida puntuable</string>
     <string name="stats_filter_1m">1M</string>
@@ -442,13 +433,13 @@
     <string name="puzzle_directory_by_author">per %1$s %2$s</string>
     <string name="puzzle_directory_count_label">Recompte</string>
     <plurals name="puzzle_directory_puzzle_count">
-        <item quantity="one">%d problema</item>
-        <item quantity="other">%d problemes</item>
+        <item quantity="one">%1$d problema</item>
+        <item quantity="other">%1$d problemes</item>
     </plurals>
     <string name="puzzle_directory_rank_label">Classificació</string>
     <string name="puzzle_directory_rank_range">%1$s a %2$s</string>
     <string name="puzzle_directory_solved_label">Resolt</string>
-    <string name="puzzle_directory_solved_value">%1$d (%2$.1f%%)</string>
+    <string name="puzzle_directory_solved_value">%1$d (%2$s%%)</string>
     <string name="puzzle_directory_completed">Completat</string>
     <string name="puzzle_directory_stats">%1$s visualitzacions, resolt %2$s vegades de %3$s (%4$s %%)</string>
     <string name="puzzle_directory_sort_name">A -&gt; Z</string>
@@ -520,8 +511,8 @@
     <string name="automatch_expected_duration">Duració esperada: %1$s</string>
     <string name="automatch_duration_several_days">uns quants dies</string>
     <plurals name="automatch_duration_minutes">
-        <item quantity="one">%d minut</item>
-        <item quantity="other">%d minuts</item>
+        <item quantity="one">%1$d minut</item>
+        <item quantity="other">%1$d minuts</item>
     </plurals>
     <string name="automatch_duration_minutes_range">%1$d a %2$d minuts</string>
     <string name="mygames_moderator_title">Moderador OGS %1$s</string>
@@ -551,7 +542,6 @@
     <string name="mygames_outcome_won">Guanyat</string>
     <string name="mygames_outcome_black_won">Les negres han guanyat</string>
     <string name="mygames_outcome_white_won">Les blanques han guanyat</string>
-    <string name="mygames_outcome_annulled">Annulat</string>
     <string name="mygames_outcome_lost_with_reason">Perdut %1$s</string>
     <string name="mygames_outcome_won_with_reason">Guanyat %1$s</string>
     <string name="mygames_outcome_black_won_with_reason">Les negres han guanyat %1$s</string>
@@ -563,12 +553,12 @@
     <string name="mygames_outcome_reason_other">per %1$s</string>
     <string name="mygames_greeting">Hola %1$s,</string>
     <plurals name="mygames_your_turn_count">
-        <item quantity="one">És el vostre torn en %d partida.</item>
-        <item quantity="other">És el vostre torn en %d partides.</item>
+        <item quantity="one">És el vostre torn en %1$d partida.</item>
+        <item quantity="other">És el vostre torn en %1$d partides.</item>
     </plurals>
     <plurals name="mygames_active_games_count">
-        <item quantity="one">Teniu %d partida activa.</item>
-        <item quantity="other">Teniu %d partides actives.</item>
+        <item quantity="one">Teniu %1$d partida activa.</item>
+        <item quantity="other">Teniu %1$d partides actives.</item>
     </plurals>
     <string name="mygames_no_active_games">No teniu cap partida activa. Per què no en comenceu una?</string>
     <string name="mygames_detail_board_size">Mida del tauler</string>
@@ -596,8 +586,8 @@
     <string name="joseki_explorer_button_tenuki">Tenuki</string>
     <string name="joseki_explorer_button_previous">Anterior</string>
     <string name="joseki_explorer_button_next">Següent</string>
-    <string name="joseki_explorer_link_video">" (vídeo)"</string>
-    <string name="joseki_explorer_link_external">" (enllaç extern)"</string>
+    <string name="joseki_explorer_link_video">(vídeo)</string>
+    <string name="joseki_explorer_link_external">(enllaç extern)</string>
     <string name="joseki_explorer_default_description">## Explorador de josekis\n*Joseki* és un préstec lingüístic del japonès, que normalment fa referència a seqüències de moviments estàndard que es juguen en una cantonada i que donen com a resultat un intercanvi localment equilibrat.\n### Com utilitzar l\'explorador de josekis\nEls moviments marcats a continuació representen continuacions interessants per a la posició actual. Els colors representen com de bo es considera el moviment:\n* Els moviments verds es consideren òptims\n* Els moviments grocs es consideren correctes\n* Els moviments vermells es consideren erronis\n* Les marques liles són per a paranys\n* Les blaves per a situacions per resoldre\nPots tocar qualsevol d\'aquests moviments interessants per explorar les posicions a les quals condueixen.\n### Tenuki\nDe vegades, la millor opció és jugar en un altre lloc. D\'això se\'n sol dir tenuki. Si fer tenuki és una opció interessant en la posició actual, s\'activarà el botó de passar de la part inferior esquerra. Podeu prémer-lo per veure quines posicions es poden donar si el jugador actual fa tenuki.</string>
     <string name="tutorial_basics_title">Conceptes bàsics</string>
     <string name="tutorial_basics_thebasics_title">Els fonaments</string>

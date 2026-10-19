@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Sente - Online GO</string>
-    <string name="create_account_prompt">Nu ai cont OGS? Creează unul <b>aici</b>!</string>
-    <string name="login_to_ogs">Conectare la OGS</string>
-    <string name="create_account">Creează cont OGS</string>
     <string name="welcome_to_sente_online_go">Bine ai venit în Sente Online Go!</string>
     <string name="login_to_play_online">Conectează-te la OGS pentru a juca online.</string>
     <string name="ai_game_chat_ready">Gata!</string>
@@ -30,7 +27,6 @@
     <string name="ai_resign_offer_decline">Continuă jocul</string>
     <string name="ai_game_handicap_none">niciun</string>
     <string name="ai_game_handicap_no_komi">fără komi</string>
-    <string name="ai_game_avatar_content_description">AI</string>
     <string name="ai_game_new">Nou</string>
     <string name="ai_game_pass">Pas</string>
     <string name="ai_game_previous">Anterior</string>
@@ -42,17 +38,17 @@
     <string name="title_bar_game_info_content_description">Informații joc</string>
     <string name="title_bar_more_content_description">Mai multe</string>
     <string name="search_field_clear_content_description">Șterge textul</string>
-    <string name="katago">"KataGO "</string>
+    <string name="katago">KataGO</string>
     <string name="territory">Teritoriu</string>
     <string name="hint">Indiciu</string>
     <string name="player">Jucător</string>
-    <string name="you">" Tu"</string>
+    <string name="you">Tu</string>
     <string name="prisoners">Prizonieri</string>
     <string name="komi">Komi</string>
     <string name="ai_game_player_captures_and_komi">Prizonieri: %1$d · Komi: %2$s</string>
     <string name="ai_game_player_captures_only">Prizonieri: %1$d</string>
-    <string name="ai_game_eval_winrate_compact">N %1$.1f%% · %2$.1f%% A</string>
-    <string name="ai_game_eval_score_lead_compact">%1$s +%2$.1f pct avantaj</string>
+    <string name="ai_game_eval_winrate_compact">N %1$s%% · %2$s%% A</string>
+    <string name="ai_game_eval_score_lead_compact">%1$s +%2$s pct avantaj</string>
     <string name="ai_game_hide_eval">Ascunde Eval</string>
     <string name="ai_game_show_eval">Arată Eval</string>
     <string name="new_game">Joc nou</string>
@@ -83,8 +79,6 @@
     <string name="enabled">Activat</string>
     <string name="disabled">Dezactivat</string>
     <string name="auto">Automat</string>
-    <string name="hello_world">Salut, lume!</string>
-    <string name="landscape_preview">Previzualizare peisaj</string>
     <string name="button_play_online">Joacă\nOnline</string>
     <string name="button_custom_game">Joc\nPersonalizat</string>
     <string name="button_play_against_ai">Joacă\ncu AI</string>
@@ -177,8 +171,7 @@
     <string name="game_cancel_dialog_dismiss">NU ANULA JOCUL</string>
     <string name="game_info_ranked">Oficial</string>
     <string name="game_info_unranked">Amical</string>
-    <string name="game_info_unknown_player">\?</string>
-    <string name="game_info_versus_separator">"      vs      "</string>
+    <string name="game_info_versus_separator">vs</string>
     <string name="game_info_score">Scor</string>
     <string name="game_info_time">Timp</string>
     <string name="game_info_score_komi">komi</string>
@@ -201,7 +194,7 @@
     <string name="game_over_unknown_result">Rezultat necunoscut (%1$s)</string>
     <string name="game_over_rating_updating">Ratingul tău se actualizează</string>
     <string name="game_over_rating_now">Ratingul tău este acum %1$s - %2$s</string>
-    <string name="game_over_rating_change">" (%1$s)"</string>
+    <string name="game_over_rating_change">(%1$s)</string>
     <string name="game_retry_dialog_title">PROBLEME DE CONEXIUNE</string>
     <string name="game_retry_dialog_message">Serverul nu răspunde. Verifică conexiunea la internet.</string>
     <string name="game_retry_dialog_confirm">ÎNCEARCĂ DIN NOU</string>
@@ -220,46 +213,45 @@
     <string name="game_player_details_losses">Înfrângeri</string>
     <string name="game_player_details_total">Total</string>
     <plurals name="duration_weeks">
-        <item quantity="one">%d săptămână</item>
-        <item quantity="few">%d săptămâni</item>
-        <item quantity="other">%d de săptămâni</item>
+        <item quantity="one">%1$d săptămână</item>
+        <item quantity="few">%1$d săptămâni</item>
+        <item quantity="other">%1$d de săptămâni</item>
     </plurals>
     <plurals name="duration_days">
-        <item quantity="one">%d zi</item>
-        <item quantity="few">%d zile</item>
-        <item quantity="other">%d de zile</item>
+        <item quantity="one">%1$d zi</item>
+        <item quantity="few">%1$d zile</item>
+        <item quantity="other">%1$d de zile</item>
     </plurals>
     <plurals name="duration_hours">
-        <item quantity="one">%d oră</item>
-        <item quantity="few">%d ore</item>
-        <item quantity="other">%d de ore</item>
+        <item quantity="one">%1$d oră</item>
+        <item quantity="few">%1$d ore</item>
+        <item quantity="other">%1$d de ore</item>
     </plurals>
     <plurals name="duration_minutes">
-        <item quantity="one">%d minut</item>
-        <item quantity="few">%d minute</item>
-        <item quantity="other">%d de minute</item>
+        <item quantity="one">%1$d minut</item>
+        <item quantity="few">%1$d minute</item>
+        <item quantity="other">%1$d de minute</item>
     </plurals>
     <plurals name="duration_seconds">
-        <item quantity="one">%d secundă</item>
-        <item quantity="few">%d secunde</item>
-        <item quantity="other">%d de secunde</item>
+        <item quantity="one">%1$d secundă</item>
+        <item quantity="few">%1$d secunde</item>
+        <item quantity="other">%1$d de secunde</item>
     </plurals>
     <plurals name="clock_days">
-        <item quantity="one">%d zi</item>
-        <item quantity="few">%d zile</item>
-        <item quantity="other">%d zile</item>
+        <item quantity="one">%1$d zi</item>
+        <item quantity="few">%1$d zile</item>
+        <item quantity="other">%1$d zile</item>
     </plurals>
     <string name="clock_days_hours">%1$dz %2$do</string>
     <string name="clock_hours">%1$do</string>
-    <string name="clock_hours_minutes">%1$do %2$02dm</string>
-    <string name="clock_minutes_seconds">%1$d : %2$02d</string>
-    <string name="clock_seconds">%1$02ds</string>
-    <string name="clock_tenths">%1$.1fs</string>
+    <string name="clock_hours_minutes">%1$do %2$sm</string>
+    <string name="clock_minutes_seconds">%1$d : %2$s</string>
+    <string name="clock_seconds">%1$ss</string>
+    <string name="clock_tenths">%1$ss</string>
     <string name="clock_canadian_period">+%1$s / %2$d</string>
     <string name="clock_byoyomi_periods">%1$d × %2$s</string>
     <string name="clock_fischer_increment">+ %1$s / mutare</string>
     <string name="duration_two_units">%1$s %2$s</string>
-    <string name="duration_unknown">\?</string>
     <string name="time_control_simple">Simplu: %1$s per mutare.</string>
     <string name="time_control_fischer">Fischer: ceasul pornește cu %1$s și crește cu %2$s la fiecare mutare, până la maximum %3$s.</string>
     <plurals name="time_control_byoyomi">
@@ -274,8 +266,7 @@
     </plurals>
     <string name="time_control_absolute">Absolut: %1$s timp total de joc pentru fiecare jucător.</string>
     <string name="time_control_none">Fără limită de timp.</string>
-    <string name="time_control_unknown">\?</string>
-    <string name="time_control_pauses_on_weekends">" Se întrerupe în weekend."</string>
+    <string name="time_control_pauses_on_weekends">Se întrerupe în weekend.</string>
     <string name="whats_new_title">Ce este nou</string>
     <string name="whats_new_got_it">Am înțeles</string>
     <string name="whats_new_open_source">Sente este open source, construit de voluntari.</string>
@@ -297,9 +288,9 @@
     <string name="socket_debug_filter_all">Toate (%1$d)</string>
     <string name="socket_debug_filter_type">%1$s (%2$d)</string>
     <plurals name="socket_debug_event_count">
-        <item quantity="one">%d eveniment</item>
-        <item quantity="few">%d evenimente</item>
-        <item quantity="other">%d de evenimente</item>
+        <item quantity="one">%1$d eveniment</item>
+        <item quantity="few">%1$d evenimente</item>
+        <item quantity="other">%1$d de evenimente</item>
     </plurals>
     <string name="notification_challenge_title">O nouă provocare!</string>
     <string name="notification_challenge_text">%1$s te-a provocat</string>
@@ -313,9 +304,9 @@
     <string name="notification_stone_removal_phase">Faza de eliminare a pietrelor</string>
     <string name="notification_requires_attention">%1$s Necesită atenția ta</string>
     <plurals name="notification_games_require_attention">
-        <item quantity="one">%d joc necesită atenția ta</item>
-        <item quantity="few">%d jocuri necesită atenția ta</item>
-        <item quantity="other">%d de jocuri necesită atenția ta</item>
+        <item quantity="one">%1$d joc necesită atenția ta</item>
+        <item quantity="few">%1$d jocuri necesită atenția ta</item>
+        <item quantity="other">%1$d de jocuri necesită atenția ta</item>
     </plurals>
     <string name="notification_inbox_versus">vs %1$s</string>
     <string name="notification_logout_title">Conectează-te din nou</string>
@@ -395,7 +386,7 @@
     <string name="supporter_faq_payment_question">Există alte metode de plată?</string>
     <string name="supporter_faq_payment_answer">Aplicațiile distribuite prin Google Play trebuie să folosească Google Pay, iar Google reține 15% din încasări. Nu ne este permis să oferim metode alternative de plată în aplicație.</string>
     <string name="supporter_thank_you_title">Îți mulțumim pentru susținere!</string>
-    <string name="supporter_current_contribution">"Contribuția ta actuală este "</string>
+    <string name="supporter_current_contribution">Contribuția ta actuală este</string>
     <string name="supporter_select_contribution">Alege contribuția lunară</string>
     <string name="supporter_update_amount">Actualizează suma</string>
     <string name="supporter_cancel_subscription">Anulează abonamentul</string>
@@ -425,14 +416,14 @@
     <string name="stats_won_lost">%1$d câștigate · %2$d pierdute</string>
     <string name="stats_no_streak">-</string>
     <plurals name="stats_streak_wins">
-        <item quantity="one">%d victorie</item>
-        <item quantity="few">%d victorii</item>
-        <item quantity="other">%d de victorii</item>
+        <item quantity="one">%1$d victorie</item>
+        <item quantity="few">%1$d victorii</item>
+        <item quantity="other">%1$d de victorii</item>
     </plurals>
     <plurals name="stats_streak_losses">
-        <item quantity="one">%d înfrângere</item>
-        <item quantity="few">%d înfrângeri</item>
-        <item quantity="other">%d de înfrângeri</item>
+        <item quantity="one">%1$d înfrângere</item>
+        <item quantity="few">%1$d înfrângeri</item>
+        <item quantity="other">%1$d de înfrângeri</item>
     </plurals>
     <string name="stats_no_ranked_games">Nu există jocuri oficiale înregistrate</string>
     <string name="stats_filter_1m">1L</string>
@@ -454,14 +445,14 @@
     <string name="puzzle_directory_by_author">de %1$s %2$s</string>
     <string name="puzzle_directory_count_label">Număr</string>
     <plurals name="puzzle_directory_puzzle_count">
-        <item quantity="one">%d problemă</item>
-        <item quantity="few">%d probleme</item>
-        <item quantity="other">%d de probleme</item>
+        <item quantity="one">%1$d problemă</item>
+        <item quantity="few">%1$d probleme</item>
+        <item quantity="other">%1$d de probleme</item>
     </plurals>
     <string name="puzzle_directory_rank_label">Rang</string>
     <string name="puzzle_directory_rank_range">%1$s până la %2$s</string>
     <string name="puzzle_directory_solved_label">Rezolvate</string>
-    <string name="puzzle_directory_solved_value">%1$d (%2$.1f%%)</string>
+    <string name="puzzle_directory_solved_value">%1$d (%2$s%%)</string>
     <string name="puzzle_directory_completed">Finalizate</string>
     <string name="puzzle_directory_stats">%1$s vizualizări, rezolvate %2$s ori din %3$s (%4$s %%)</string>
     <string name="puzzle_directory_sort_name">A -&gt; Z</string>
@@ -533,9 +524,9 @@
     <string name="automatch_expected_duration">Durată estimată: %1$s</string>
     <string name="automatch_duration_several_days">câteva zile</string>
     <plurals name="automatch_duration_minutes">
-        <item quantity="one">%d minut</item>
-        <item quantity="few">%d minute</item>
-        <item quantity="other">%d de minute</item>
+        <item quantity="one">%1$d minut</item>
+        <item quantity="few">%1$d minute</item>
+        <item quantity="other">%1$d de minute</item>
     </plurals>
     <string name="automatch_duration_minutes_range">%1$d până la %2$d minute</string>
     <string name="mygames_moderator_title">Moderator OGS %1$s</string>
@@ -565,7 +556,6 @@
     <string name="mygames_outcome_won">Câștigat</string>
     <string name="mygames_outcome_black_won">Negrul a câștigat</string>
     <string name="mygames_outcome_white_won">Albul a câștigat</string>
-    <string name="mygames_outcome_annulled">Anulat</string>
     <string name="mygames_outcome_lost_with_reason">Pierdut %1$s</string>
     <string name="mygames_outcome_won_with_reason">Câștigat %1$s</string>
     <string name="mygames_outcome_black_won_with_reason">Negrul a câștigat %1$s</string>
@@ -577,14 +567,14 @@
     <string name="mygames_outcome_reason_other">prin %1$s</string>
     <string name="mygames_greeting">Salut %1$s,</string>
     <plurals name="mygames_your_turn_count">
-        <item quantity="one">Este rândul tău în %d joc.</item>
-        <item quantity="few">Este rândul tău în %d jocuri.</item>
-        <item quantity="other">Este rândul tău în %d de jocuri.</item>
+        <item quantity="one">Este rândul tău în %1$d joc.</item>
+        <item quantity="few">Este rândul tău în %1$d jocuri.</item>
+        <item quantity="other">Este rândul tău în %1$d de jocuri.</item>
     </plurals>
     <plurals name="mygames_active_games_count">
-        <item quantity="one">Ai %d joc activ.</item>
-        <item quantity="few">Ai %d jocuri active.</item>
-        <item quantity="other">Ai %d de jocuri active.</item>
+        <item quantity="one">Ai %1$d joc activ.</item>
+        <item quantity="few">Ai %1$d jocuri active.</item>
+        <item quantity="other">Ai %1$d de jocuri active.</item>
     </plurals>
     <string name="mygames_no_active_games">Nu ai jocuri active. Ce zici de unul nou?</string>
     <string name="mygames_detail_board_size">Mărimea tablei</string>
@@ -612,8 +602,8 @@
     <string name="joseki_explorer_button_tenuki">Tenuki</string>
     <string name="joseki_explorer_button_previous">Anterior</string>
     <string name="joseki_explorer_button_next">Următor</string>
-    <string name="joseki_explorer_link_video">" (video)"</string>
-    <string name="joseki_explorer_link_external">" (link extern)"</string>
+    <string name="joseki_explorer_link_video">(video)</string>
+    <string name="joseki_explorer_link_external">(link extern)</string>
     <string name="joseki_explorer_default_description">## Explorator de joseki\n*Joseki* este un termen împrumutat din japoneză, care se referă de obicei la secvențe standard de mutări jucate într-un colț și care duc la un schimb echilibrat pe plan local.\n### Cum se folosește Exploratorul de joseki\nMutările marcate mai jos reprezintă continuări interesante ale poziției actuale. Culorile arată cât de bună este considerată mutarea:\n* Mutările verzi sunt considerate optime\n* Mutările galbene sunt considerate acceptabile\n* Mutările roșii sunt considerate greșeli\n* Marcajele mov sunt pentru capcane\n* Cele albastre pentru întrebări deschise.\nPoți atinge oricare dintre aceste mutări interesante pentru a explora pozițiile la care duc.\n### Tenuki\nUneori cea mai bună mutare este să joci în altă parte. Acest lucru se numește de obicei *tenuki*. Dacă tenuki este considerat o opțiune interesantă pentru poziția actuală, butonul de pas din stânga jos este activ și îl poți apăsa pentru a vedea ce poziții pot apărea după ce jucătorul curent face tenuki.</string>
     <string name="tutorial_basics_title">Bazele</string>
     <string name="tutorial_basics_thebasics_title">Bazele jocului</string>

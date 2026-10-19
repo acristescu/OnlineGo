@@ -53,14 +53,14 @@ the app's code automatically.
 
 ## Things worth knowing
 
-### Placeholders like `%1$s` and `%d`
+### Placeholders like `%1$s` and `%1$d`
 
 Some strings contain placeholders — the app fills these in with real values when it runs:
 
 | English                         | What it means                                       |
 |---------------------------------|-----------------------------------------------------|
 | `White's chance to win: %1$s%%` | `%1$s` becomes a number, `%%` is a literal `%` sign |
-| `%d week`                       | `%d` becomes a number, e.g. "3 weeks"               |
+| `%1$d week`                     | `%1$d` becomes a number, e.g. "3 weeks"             |
 
 **Keep every placeholder exactly as it is** — same spelling, same number. You *can* move it around
 to wherever it belongs in your language's word order. Crowdin will warn you if you accidentally drop
@@ -71,17 +71,12 @@ one.
 
 ### Apostrophes, quotes and line breaks
 
-Android needs three characters written with a backslash in front. The English text shows them the
-same way, and Crowdin keeps them correct if you start from the "copy source" button:
+Type apostrophes (`'`) and quotes (`"`) normally. Crowdin adds the backslashes Android needs when
+it exports your translation, so don't type `\'` or `\"` yourself.
 
-| Character    | Write it as | Example                                        |
-|--------------|-------------|------------------------------------------------|
-| apostrophe   | `\'`        | `Here\'s what I think`                         |
-| double quote | `\"`        | `said to be in \"Atari\"`                      |
-| line break   | `\n`        | `Rule one\nRule two` (`\n\n` for a blank line) |
-
-Write the whole translation on one line, using `\n` wherever a new line should start, and don't put
-quotes around the whole text.
+Line breaks are different: the English text shows them as a highlighted `\n` (`\n\n` for a blank
+line). Type `\n` where a new line should start instead of pressing Enter, and don't put quotes
+around the whole text.
 
 ### Plurals
 

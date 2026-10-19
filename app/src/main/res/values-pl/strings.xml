@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Sente - Online GO</string>
-    <string name="create_account_prompt">Nie masz konta OGS? Załóż konto <b>tutaj</b>!</string>
-    <string name="login_to_ogs">Zaloguj się do OGS</string>
-    <string name="create_account">Załóż konto OGS</string>
     <string name="welcome_to_sente_online_go">Witaj w Sente Online!</string>
     <string name="login_to_play_online">Zaloguj się do OGS, aby grać online.</string>
     <string name="ai_game_chat_use_new_game_button">Wybierz \"Nowa Gra\" by rozpocząć nową grę</string>
@@ -23,7 +20,7 @@
     <string name="territory">Terytorium</string>
     <string name="hint">Podpowiedź</string>
     <string name="player">Gracz</string>
-    <string name="you">" Ty"</string>
+    <string name="you">Ty</string>
     <string name="prisoners">Jeńcy</string>
     <string name="komi">Komi</string>
     <string name="new_game">Nowa Gra</string>
@@ -40,7 +37,6 @@
     <string name="yes">Tak</string>
     <string name="no">Nie</string>
     <string name="error">Błąd</string>
-    <string name="hello_world">Witaj, świecie!</string>
     <string name="bottomnavigation_botton_stats">Statystyki</string>
     <string name="bottomnavigation_botton_settings">Ustawienia</string>
     <string name="home_welcome_to_sente">Witaj w Sente!</string>

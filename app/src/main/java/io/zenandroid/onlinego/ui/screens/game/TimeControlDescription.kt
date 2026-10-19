@@ -49,11 +49,11 @@ fun timeControlDescription(resources: Resources, timeControl: TimeControl): Stri
     )
 
     "none" -> resources.getString(R.string.time_control_none)
-    else -> resources.getString(R.string.time_control_unknown)
+    else -> "?"
   }
 
   if (timeControl.pause_on_weekends == true) {
-    desc += resources.getString(R.string.time_control_pauses_on_weekends)
+    desc += " " + resources.getString(R.string.time_control_pauses_on_weekends)
   }
 
   return desc
@@ -103,7 +103,7 @@ private fun formatSeconds(resources: Resources, seconds: Int?): String {
       else -> resources.durationUnit(R.plurals.duration_seconds, s.toLong())
     }
   }
-  return resources.getString(R.string.duration_unknown)
+  return "?"
 }
 
 private fun Resources.durationUnit(@PluralsRes unit: Int, value: Long): String =

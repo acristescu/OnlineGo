@@ -334,11 +334,11 @@ private fun buildMarkwon(context: Context, nodeId: Long?, loadPosition: (Long?) 
               }
 
               uri.host == "youtube.com" || uri.host == "youtu.be" || uri.host == "www.youtube.com" -> {
-                link.appendChild(Text(context.getString(R.string.joseki_explorer_link_video)))
+                link.appendChild(Text(" " + context.getString(R.string.joseki_explorer_link_video)))
               }
 
               else -> {
-                link.appendChild(Text(context.getString(R.string.joseki_explorer_link_external)))
+                link.appendChild(Text(" " + context.getString(R.string.joseki_explorer_link_external)))
               }
             }
           }

@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">先手 - オンライン囲碁　</string>
-    <string name="create_account_prompt">OGSアカウントをお持ちでない方は<b>こちら</b>で登録！</string>
-    <string name="login_to_ogs">OGSアカウントにログイン</string>
-    <string name="create_account">OGSアカウント登録</string>
+    <string name="app_name">先手 - オンライン囲碁</string>
     <string name="welcome_to_sente_online_go">先手オンライン囲碁へようこそ！</string>
     <string name="login_to_play_online">オンライン対局をするにはOGSにログインをしてください。</string>
     <string name="ai_game_chat_ready">よろしくお願いします！</string>

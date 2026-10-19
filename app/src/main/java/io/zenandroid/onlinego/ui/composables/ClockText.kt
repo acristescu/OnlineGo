@@ -17,18 +17,20 @@ fun clockText(millis: Long): String = when (val face = clockFace(millis)) {
   is ClockFace.HoursMinutes -> stringResource(
     R.string.clock_hours_minutes,
     face.hours,
-    face.minutes
+    face.minutes.twoDigits()
   )
 
   is ClockFace.MinutesSeconds -> stringResource(
     R.string.clock_minutes_seconds,
     face.minutes,
-    face.seconds
+    face.seconds.twoDigits()
   )
 
-  is ClockFace.Seconds -> stringResource(R.string.clock_seconds, face.seconds)
-  is ClockFace.Tenths -> stringResource(R.string.clock_tenths, face.tenths / 10.0)
+  is ClockFace.Seconds -> stringResource(R.string.clock_seconds, face.seconds.twoDigits())
+  is ClockFace.Tenths -> stringResource(R.string.clock_tenths, formatOneDecimal(face.tenths / 10.0))
 }
+
+private fun Long.twoDigits(): String = toString().padStart(2, '0')
 
 @Composable
 fun clockPeriodText(period: ClockPeriod): String = when (period) {

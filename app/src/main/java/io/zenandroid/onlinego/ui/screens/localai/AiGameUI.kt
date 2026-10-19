@@ -83,6 +83,7 @@ import io.zenandroid.onlinego.data.model.StoneType
 import io.zenandroid.onlinego.data.model.katago.KataGoResponse.Response
 import io.zenandroid.onlinego.data.model.katago.RootInfo
 import io.zenandroid.onlinego.ui.composables.Board
+import io.zenandroid.onlinego.ui.composables.formatOneDecimal
 import io.zenandroid.onlinego.ui.composables.resolve
 import io.zenandroid.onlinego.ui.composables.textResource
 import io.zenandroid.onlinego.ui.screens.game.PlayerData
@@ -667,7 +668,7 @@ private fun AiGameLandscapePanel(
 private fun aiPlayerData(state: AiGameState): PlayerData {
   val aiPaysKomi = !state.enginePlaysBlack
   return PlayerData(
-    name = stringResource(R.string.katago).trim(),
+    name = stringResource(R.string.katago),
     details = state.position?.let { position ->
       val captures =
         if (state.enginePlaysBlack) position.blackCaptureCount else position.whiteCaptureCount
@@ -690,7 +691,7 @@ private fun aiPlayerData(state: AiGameState): PlayerData {
 private fun userPlayerData(state: AiGameState, userIcon: String?): PlayerData {
   val userPaysKomi = state.enginePlaysBlack
   return PlayerData(
-    name = stringResource(R.string.you).trim(),
+    name = stringResource(R.string.you),
     details = state.position?.let { position ->
       val captures =
         if (state.enginePlaysBlack) position.whiteCaptureCount else position.blackCaptureCount
@@ -737,8 +738,8 @@ private fun AnalysisPanel(
         Text(
           text = stringResource(
             R.string.ai_game_eval_winrate_compact,
-            blackPercentage,
-            whitePercentage
+            formatOneDecimal(blackPercentage.toDouble()),
+            formatOneDecimal(whitePercentage.toDouble())
           ),
           style = MaterialTheme.typography.bodyMedium,
           color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -761,7 +762,7 @@ private fun AnalysisPanel(
             text = stringResource(
               R.string.ai_game_eval_score_lead_compact,
               leaderLetter,
-              magnitude
+              formatOneDecimal(magnitude.toDouble())
             ),
             style = MaterialTheme.typography.labelMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,

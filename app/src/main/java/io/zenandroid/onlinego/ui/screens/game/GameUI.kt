@@ -640,16 +640,15 @@ private fun GameInfoDialog(state: GameState, onUserAction: (UserAction) -> Unit)
         style = MaterialTheme.typography.titleMedium,
         color = MaterialTheme.colorScheme.onSurface,
       )
-      val unknownPlayer = stringResource(R.string.game_info_unknown_player)
       val versusSeparator = stringResource(R.string.game_info_versus_separator)
       Text(
         text = buildAnnotatedString {
           pushStyle(SpanStyle(fontWeight = Bold))
-          append(state.blackPlayer?.name ?: unknownPlayer)
+          append(state.blackPlayer?.name ?: "?")
           pop()
-          append(versusSeparator)
+          append("      $versusSeparator      ")
           pushStyle(SpanStyle(fontWeight = Bold))
-          append(state.whitePlayer?.name ?: unknownPlayer)
+          append(state.whitePlayer?.name ?: "?")
           pop()
         },
         color = MaterialTheme.colorScheme.onSurface,
@@ -885,7 +884,7 @@ private fun RatingChange.text(): AnnotatedString = when (this) {
     val change = difference?.let {
       styledText(R.string.game_over_rating_change, it, SpanStyle(fontStyle = FontStyle.Italic))
     }
-    if (change == null) newRating else newRating + change
+    if (change == null) newRating else newRating + AnnotatedString(" ") + change
   }
 }
 

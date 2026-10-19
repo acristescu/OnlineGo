@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Sente - غو عبر الإنترنت</string>
-    <string name="create_account_prompt">ليس لديك حساب على OGS؟ أنشئ حسابًا من <b>هنا</b>!</string>
-    <string name="login_to_ogs">تسجيل الدخول إلى OGS</string>
-    <string name="create_account">إنشاء حساب OGS</string>
     <string name="welcome_to_sente_online_go">مرحبًا بك في تطبيق Sente Online Go!</string>
     <string name="login_to_play_online">يرجى تسجيل الدخول إلى OGS للعب عبر الإنترنت.</string>
     <string name="ai_game_chat_ready">جاهز!</string>
@@ -37,11 +34,11 @@
     <string name="back">رجوع</string>
     <string name="title_bar_game_info_content_description">معلومات اللعبة</string>
     <string name="title_bar_more_content_description">المزيد</string>
-    <string name="katago">"KataGO "</string>
+    <string name="katago">KataGO</string>
     <string name="territory">المساحة</string>
     <string name="hint">تلميح</string>
     <string name="player">لاعب</string>
-    <string name="you">" أنت"</string>
+    <string name="you">أنت</string>
     <string name="prisoners">الأحجار المأسورة</string>
     <string name="komi">كومي</string>
     <string name="board_size">حجم الرقعة</string>

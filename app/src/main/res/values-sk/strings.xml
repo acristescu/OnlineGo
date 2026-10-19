@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Sente - Online GO</string>
-    <string name="create_account_prompt">Nemáte OGS účet? Vytvorte <b>tu</b>!</string>
-    <string name="login_to_ogs">Prihlásenie do OGS</string>
-    <string name="create_account">Vytvoriť OGS účet</string>
     <string name="welcome_to_sente_online_go">Vitajte v Sente Online Go!</string>
     <string name="login_to_play_online">Pre hranie online sa prosím prihláste do OGS.</string>
     <string name="ai_game_chat_ready">Pripravený!</string>
@@ -30,7 +27,6 @@
     <string name="ai_resign_offer_decline">Hrať ďalej</string>
     <string name="ai_game_handicap_none">žiadny</string>
     <string name="ai_game_handicap_no_komi">bez komi</string>
-    <string name="ai_game_avatar_content_description">AI</string>
     <string name="ai_game_new">Nová</string>
     <string name="ai_game_pass">Pass</string>
     <string name="ai_game_previous">Predošlý</string>
@@ -42,17 +38,17 @@
     <string name="title_bar_game_info_content_description">Herné info</string>
     <string name="title_bar_more_content_description">Viac</string>
     <string name="search_field_clear_content_description">Zmazať text</string>
-    <string name="katago">"KataGO "</string>
+    <string name="katago">KataGO</string>
     <string name="territory">Územie</string>
     <string name="hint">Nápoveda</string>
     <string name="player">Hráč</string>
-    <string name="you">" Vy"</string>
+    <string name="you">Vy</string>
     <string name="prisoners">Zajatci</string>
     <string name="komi">Komi</string>
     <string name="ai_game_player_captures_and_komi">Zajatci: %1$d · Komi: %2$s</string>
     <string name="ai_game_player_captures_only">Zajatci: %1$d</string>
-    <string name="ai_game_eval_winrate_compact">Č %1$.1f%% · %2$.1f%% B</string>
-    <string name="ai_game_eval_score_lead_compact">%1$s vedie +%2$.1f bodov</string>
+    <string name="ai_game_eval_winrate_compact">Č %1$s%% · %2$s%% B</string>
+    <string name="ai_game_eval_score_lead_compact">%1$s vedie +%2$s bodov</string>
     <string name="ai_game_hide_eval">Skryť rozbor</string>
     <string name="ai_game_show_eval">Zobraziť rozbor</string>
     <string name="new_game">Nová hra</string>
@@ -83,8 +79,6 @@
     <string name="enabled">Zapnuté</string>
     <string name="disabled">Vypnuté</string>
     <string name="auto">Automatické</string>
-    <string name="hello_world">Ahoj svet!</string>
-    <string name="landscape_preview">Ukážka na šírku</string>
     <string name="button_play_online">Hrať\nOnline</string>
     <string name="button_custom_game">Vlastná\nhra</string>
     <string name="button_play_against_ai">Hrať\nproti AI</string>
@@ -177,8 +171,7 @@
     <string name="game_cancel_dialog_dismiss">NEZRUŠIŤ HRU</string>
     <string name="game_info_ranked">Hodnotená</string>
     <string name="game_info_unranked">Nehodnotená</string>
-    <string name="game_info_unknown_player">\?</string>
-    <string name="game_info_versus_separator">"      proti      "</string>
+    <string name="game_info_versus_separator">proti</string>
     <string name="game_info_score">Skóre</string>
     <string name="game_info_time">Čas</string>
     <string name="game_info_score_komi">komi</string>
@@ -201,7 +194,7 @@
     <string name="game_over_unknown_result">Výsledok neznámy (%1$s)</string>
     <string name="game_over_rating_updating">Váš rating sa zmenil</string>
     <string name="game_over_rating_now">Váš rating je teraz %1$s - %2$s</string>
-    <string name="game_over_rating_change">" (%1$s)"</string>
+    <string name="game_over_rating_change">(%1$s)</string>
     <string name="game_retry_dialog_title">PROBLÉMY S PRIPOJENÍM</string>
     <string name="game_retry_dialog_message">Server neodpovedá. Skontrolujte prosím pripojenie k internetu.</string>
     <string name="game_retry_dialog_confirm">SKÚSIŤ ZNOVA</string>
@@ -220,52 +213,51 @@
     <string name="game_player_details_losses">Prehry</string>
     <string name="game_player_details_total">Spolu</string>
     <plurals name="duration_weeks">
-        <item quantity="one">%d týždeň</item>
-        <item quantity="few">%d týždne</item>
-        <item quantity="many">%d týždňa</item>
-        <item quantity="other">%d týždňov</item>
+        <item quantity="one">%1$d týždeň</item>
+        <item quantity="few">%1$d týždne</item>
+        <item quantity="many">%1$d týždňa</item>
+        <item quantity="other">%1$d týždňov</item>
     </plurals>
     <plurals name="duration_days">
-        <item quantity="one">%d deň</item>
-        <item quantity="few">%d dni</item>
-        <item quantity="many">%d dňa</item>
-        <item quantity="other">%d dní</item>
+        <item quantity="one">%1$d deň</item>
+        <item quantity="few">%1$d dni</item>
+        <item quantity="many">%1$d dňa</item>
+        <item quantity="other">%1$d dní</item>
     </plurals>
     <plurals name="duration_hours">
-        <item quantity="one">%d hodina</item>
-        <item quantity="few">%d hodiny</item>
-        <item quantity="many">%d hodiny</item>
-        <item quantity="other">%d hodín</item>
+        <item quantity="one">%1$d hodina</item>
+        <item quantity="few">%1$d hodiny</item>
+        <item quantity="many">%1$d hodiny</item>
+        <item quantity="other">%1$d hodín</item>
     </plurals>
     <plurals name="duration_minutes">
-        <item quantity="one">%d minúta</item>
-        <item quantity="few">%d minúty</item>
-        <item quantity="many">%d minúty</item>
-        <item quantity="other">%d minút</item>
+        <item quantity="one">%1$d minúta</item>
+        <item quantity="few">%1$d minúty</item>
+        <item quantity="many">%1$d minúty</item>
+        <item quantity="other">%1$d minút</item>
     </plurals>
     <plurals name="duration_seconds">
-        <item quantity="one">%d sekunda</item>
-        <item quantity="few">%d sekundy</item>
-        <item quantity="many">%d sekundy</item>
-        <item quantity="other">%d sekúnd</item>
+        <item quantity="one">%1$d sekunda</item>
+        <item quantity="few">%1$d sekundy</item>
+        <item quantity="many">%1$d sekundy</item>
+        <item quantity="other">%1$d sekúnd</item>
     </plurals>
     <plurals name="clock_days">
-        <item quantity="one">%d deň</item>
-        <item quantity="few">%d dni</item>
-        <item quantity="many">%d dňa</item>
-        <item quantity="other">%d dní</item>
+        <item quantity="one">%1$d deň</item>
+        <item quantity="few">%1$d dni</item>
+        <item quantity="many">%1$d dňa</item>
+        <item quantity="other">%1$d dní</item>
     </plurals>
     <string name="clock_days_hours">%1$dd %2$dh</string>
     <string name="clock_hours">%1$dh</string>
-    <string name="clock_hours_minutes">%1$dh %2$02dm</string>
-    <string name="clock_minutes_seconds">%1$d : %2$02d</string>
-    <string name="clock_seconds">%1$02ds</string>
-    <string name="clock_tenths">%1$.1fs</string>
+    <string name="clock_hours_minutes">%1$dh %2$sm</string>
+    <string name="clock_minutes_seconds">%1$d : %2$s</string>
+    <string name="clock_seconds">%1$ss</string>
+    <string name="clock_tenths">%1$ss</string>
     <string name="clock_canadian_period">+%1$s / %2$d</string>
     <string name="clock_byoyomi_periods">%1$d × %2$s</string>
     <string name="clock_fischer_increment">+ %1$s / ťah</string>
     <string name="duration_two_units">%1$s %2$s</string>
-    <string name="duration_unknown">\?</string>
     <string name="time_control_simple">Jednoduché: %1$s na ťah.</string>
     <string name="time_control_fischer">Fischer: Hodiny začínajú s %1$s a čas sa navyšuje o %2$s za každý ťah, maximálne do %3$s.</string>
     <plurals name="time_control_byoyomi">
@@ -282,8 +274,7 @@
     </plurals>
     <string name="time_control_absolute">Rýchla smrť: %1$s celkového času na hráča.</string>
     <string name="time_control_none">Bez časového limitu.</string>
-    <string name="time_control_unknown">\?</string>
-    <string name="time_control_pauses_on_weekends">" Pauza cez víkend."</string>
+    <string name="time_control_pauses_on_weekends">Pauza cez víkend.</string>
     <string name="whats_new_title">Čo je nové</string>
     <string name="whats_new_got_it">Rozumiem</string>
     <string name="whats_new_open_source">Sente je open source, vytvorené dobrovoľníkmi.</string>
@@ -305,10 +296,10 @@
     <string name="socket_debug_filter_all">Všetky (%1$d)</string>
     <string name="socket_debug_filter_type">%1$s (%2$d)</string>
     <plurals name="socket_debug_event_count">
-        <item quantity="one">%d udalosť</item>
-        <item quantity="few">%d udalostí</item>
-        <item quantity="many">%d udalostí</item>
-        <item quantity="other">%d udalostí</item>
+        <item quantity="one">%1$d udalosť</item>
+        <item quantity="few">%1$d udalostí</item>
+        <item quantity="many">%1$d udalostí</item>
+        <item quantity="other">%1$d udalostí</item>
     </plurals>
     <string name="notification_challenge_title">Nová výzva!</string>
     <string name="notification_challenge_text">%1$s vytvoril výzvu</string>
@@ -322,10 +313,10 @@
     <string name="notification_stone_removal_phase">Fáza odstraňovania kameňov</string>
     <string name="notification_requires_attention">%1$s Vyžaduje vašu pozornosť</string>
     <plurals name="notification_games_require_attention">
-        <item quantity="one">%d hra vyžaduje vašu pozornosť</item>
-        <item quantity="few">%d hry vyžadujú vašu pozornosť</item>
-        <item quantity="many">%d hier vyžaduje vašu pozornosť</item>
-        <item quantity="other">%d hier vyžaduje vašu pozornosť</item>
+        <item quantity="one">%1$d hra vyžaduje vašu pozornosť</item>
+        <item quantity="few">%1$d hry vyžadujú vašu pozornosť</item>
+        <item quantity="many">%1$d hier vyžaduje vašu pozornosť</item>
+        <item quantity="other">%1$d hier vyžaduje vašu pozornosť</item>
     </plurals>
     <string name="notification_inbox_versus">proti %1$s</string>
     <string name="notification_logout_title">Prosím prihláste sa znova</string>
@@ -405,7 +396,7 @@
     <string name="supporter_faq_payment_question">Existujú iné platobné metódy?</string>
     <string name="supporter_faq_payment_answer">Aplikácie distribuované cez Google Play sú povinné použiť Google Pay, nakoľko si Google účtuje 15% z platieb. Nesmieme ponúkať akékoľvek alternatívne spôsoby platby v aplikácii.</string>
     <string name="supporter_thank_you_title">Ďakujeme za vašu podporu!</string>
-    <string name="supporter_current_contribution">"Váš aktuálny príspevok je "</string>
+    <string name="supporter_current_contribution">Váš aktuálny príspevok je</string>
     <string name="supporter_select_contribution">Vyberte váš mesačný príspevok</string>
     <string name="supporter_update_amount">Aktualizovať čiastku</string>
     <string name="supporter_cancel_subscription">Zrušiť subskripciu</string>
@@ -435,16 +426,16 @@
     <string name="stats_won_lost">%1$d výhier · %2$d prehier</string>
     <string name="stats_no_streak">-</string>
     <plurals name="stats_streak_wins">
-        <item quantity="one">%d výhra</item>
-        <item quantity="few">%d výhry</item>
-        <item quantity="many">%d výhry</item>
-        <item quantity="other">%d výhier</item>
+        <item quantity="one">%1$d výhra</item>
+        <item quantity="few">%1$d výhry</item>
+        <item quantity="many">%1$d výhry</item>
+        <item quantity="other">%1$d výhier</item>
     </plurals>
     <plurals name="stats_streak_losses">
-        <item quantity="one">%d prehra</item>
-        <item quantity="few">%d prehry</item>
-        <item quantity="many">%d prehry</item>
-        <item quantity="other">%d prehier</item>
+        <item quantity="one">%1$d prehra</item>
+        <item quantity="few">%1$d prehry</item>
+        <item quantity="many">%1$d prehry</item>
+        <item quantity="other">%1$d prehier</item>
     </plurals>
     <string name="stats_no_ranked_games">Žiadne hodnotené hry v záznamoch</string>
     <string name="stats_filter_1m">1M</string>
@@ -466,15 +457,15 @@
     <string name="puzzle_directory_by_author">od %1$s %2$s</string>
     <string name="puzzle_directory_count_label">Počet</string>
     <plurals name="puzzle_directory_puzzle_count">
-        <item quantity="one">%d problém</item>
-        <item quantity="few">%d problémy</item>
-        <item quantity="many">%d problému</item>
-        <item quantity="other">%d problémov</item>
+        <item quantity="one">%1$d problém</item>
+        <item quantity="few">%1$d problémy</item>
+        <item quantity="many">%1$d problému</item>
+        <item quantity="other">%1$d problémov</item>
     </plurals>
     <string name="puzzle_directory_rank_label">Rank</string>
     <string name="puzzle_directory_rank_range">%1$s až %2$s</string>
     <string name="puzzle_directory_solved_label">Vyriešené</string>
-    <string name="puzzle_directory_solved_value">%1$d (%2$.1f%%)</string>
+    <string name="puzzle_directory_solved_value">%1$d (%2$s%%)</string>
     <string name="puzzle_directory_completed">Dokončené</string>
     <string name="puzzle_directory_stats">%1$s zobrazení, vyriešené %2$s krát z %3$s (%4$s%%)</string>
     <string name="puzzle_directory_sort_name">A -&gt; Z</string>
@@ -546,10 +537,10 @@
     <string name="automatch_expected_duration">Predpokladaná dĺžka: %1$s</string>
     <string name="automatch_duration_several_days">niekoľko dní</string>
     <plurals name="automatch_duration_minutes">
-        <item quantity="one">%d minúta</item>
-        <item quantity="few">%d minúty</item>
-        <item quantity="many">%d minúty</item>
-        <item quantity="other">%d minút</item>
+        <item quantity="one">%1$d minúta</item>
+        <item quantity="few">%1$d minúty</item>
+        <item quantity="many">%1$d minúty</item>
+        <item quantity="other">%1$d minút</item>
     </plurals>
     <string name="automatch_duration_minutes_range">%1$d až %2$d minút</string>
     <string name="mygames_moderator_title">OGS Moderátor %1$s</string>
@@ -579,7 +570,6 @@
     <string name="mygames_outcome_won">Vyhrané</string>
     <string name="mygames_outcome_black_won">Čierny vyhral</string>
     <string name="mygames_outcome_white_won">Biely vyhral</string>
-    <string name="mygames_outcome_annulled">Anulované</string>
     <string name="mygames_outcome_lost_with_reason">Prehra %1$s</string>
     <string name="mygames_outcome_won_with_reason">Výhra %1$s</string>
     <string name="mygames_outcome_black_won_with_reason">Čierny vyhral %1$s</string>
@@ -591,16 +581,16 @@
     <string name="mygames_outcome_reason_other">o %1$s</string>
     <string name="mygames_greeting">Ahoj %1$s,</string>
     <plurals name="mygames_your_turn_count">
-        <item quantity="one">Ste na ťahu v %d hre.</item>
-        <item quantity="few">Ste na ťahu v %d hrách.</item>
-        <item quantity="many">Ste na ťahu v %d hrách.</item>
-        <item quantity="other">Ste na ťahu v %d hrách.</item>
+        <item quantity="one">Ste na ťahu v %1$d hre.</item>
+        <item quantity="few">Ste na ťahu v %1$d hrách.</item>
+        <item quantity="many">Ste na ťahu v %1$d hrách.</item>
+        <item quantity="other">Ste na ťahu v %1$d hrách.</item>
     </plurals>
     <plurals name="mygames_active_games_count">
-        <item quantity="one">Máte %d aktívnu hru.</item>
-        <item quantity="few">Máte %d aktívne hry.</item>
-        <item quantity="many">Máte %d aktívne hry.</item>
-        <item quantity="other">Máte %d aktívnych hier.</item>
+        <item quantity="one">Máte %1$d aktívnu hru.</item>
+        <item quantity="few">Máte %1$d aktívne hry.</item>
+        <item quantity="many">Máte %1$d aktívne hry.</item>
+        <item quantity="other">Máte %1$d aktívnych hier.</item>
     </plurals>
     <string name="mygames_no_active_games">Nemáte žiadnu aktívnu hru. Čo tak nejakú založiť?</string>
     <string name="mygames_detail_board_size">Veľkosť dosky</string>
@@ -628,8 +618,8 @@
     <string name="joseki_explorer_button_tenuki">Tenuki</string>
     <string name="joseki_explorer_button_previous">Predošlý</string>
     <string name="joseki_explorer_button_next">Ďalší</string>
-    <string name="joseki_explorer_link_video">" (video)"</string>
-    <string name="joseki_explorer_link_external">" (externý odkaz)"</string>
+    <string name="joseki_explorer_link_video">(video)</string>
+    <string name="joseki_explorer_link_external">(externý odkaz)</string>
     <string name="joseki_explorer_default_description">## Joseki prehliadač\n*Joseki* je prevzaté slovo z japončiny, zvyčajne odkazuje na štandardnú sekvenciu ťahov zahratých v rohu, ktoré majú za výsledok rovnocennú výmenu.\n### Ako používať Joseki prehliadač\nOznačené ťahy nižšie predstavujú zaujímavé pokračovanie aktuálnej pozície. Farby reprezentujú za ako dobrý je ťah považovaný:\n* Zelené ťahy sú považované za optimálne\n* Žlté ťahy sú považované za OK\n* Červené ťahy sú považované za chybu\n* Fialové ťahy sú pre nachytanie\n* Modré ťahy sú pre otvorené otázky.\nMôžete ťuknúť na tieto zaujímave ťahy na prehliadanie pozícii ku ktorým vedú.\n### Tenuki\nNiekedy je najlepším ťahom hrať niekde inde. To sa bežne označuje ako *tenuki*. Ak je tenuki považované za zaujímavú možnosť pre aktuálnu pozíciu, tlačidlo pass v ľavom dolnom rohu sa aktivuje a môžete ho stlačiť, aby ste videli aké pozície môžu vzniknúť potom čo aktuálny hráč zahrá tenuki.</string>
     <string name="tutorial_basics_title">Základné</string>
     <string name="tutorial_basics_thebasics_title">Základy</string>
@@ -663,14 +653,14 @@
     <string name="tutorial_basics_illegalmoves_suicide5_text">Biely kameň na D5 delí vaše kamene. Ak ho zajmete, Vaše kamene budú spojenou a silnou skupinou. Toto je veľmi dôležitý vzor v GO!</string>
     <string name="tutorial_intermediate_title">Mierne pokročilé</string>
     <string name="tutorial_intermediate_ladders_title">Schody</string>
-    <string name="tutorial_intermediate_ladders_ladder1_text">Chyťte biely kameň! Ak hráte správne ťahy, biely nemá šancu ujsť. Skúste zahrať po sebe idúce atari, kým biely nebude mať kam ísť. </string>
+    <string name="tutorial_intermediate_ladders_ladder1_text">Chyťte biely kameň! Ak hráte správne ťahy, biely nemá šancu ujsť. Skúste zahrať po sebe idúce atari, kým biely nebude mať kam ísť.</string>
     <string name="tutorial_intermediate_ladders_ladder1_branches_branch1_message">Biely sa pokúša utiecť…</string>
     <string name="tutorial_intermediate_ladders_ladder1_branches_branch1_1_1_1_1_message">Vidíte k čomu to vedie?</string>
     <string name="tutorial_intermediate_ladders_ladder1_branches_branch1_1_1_1_1_1_1_1_1_message">Ak sa biely pokúsi brániť…</string>
     <string name="tutorial_intermediate_ladders_ladder1_branches_branch1_1_1_1_1_1_1_2_1_message">Ak sa biely pokúsi brániť…</string>
     <string name="tutorial_intermediate_ladders_ladder1_branches_branch1_1_1_1_1_1_1_2_2_message">Ak sa biely pokúsi brániť…</string>
     <string name="tutorial_intermediate_ladders_ladder2_text">Tu sú ďalšie schody. Teraz je útek na vás. Hoci tentokrát nie je situácia beznádejná. Váš kameň na F2 je v ceste schodov. Ak sa k nemu dokážete dostať, ste v bezpečí. Tento kameň sa volá \"ničiteľ schodov\"</string>
-    <string name="tutorial_intermediate_ladders_ladder3_page1_text">Schody sú v GO veľmi dôležité. Ale musíte myslieť zopár ťahov dopredu a nezačínať schodové súboje pokiaľ si nie ste istí, že ich vyhráte! Tu je zobrazené čo sa stane bielemu ak hrá nevyhrateľné schody z predchádzajúceho príkladu\.\.\.</string>
+    <string name="tutorial_intermediate_ladders_ladder3_page1_text">Schody sú v GO veľmi dôležité. Ale musíte myslieť zopár ťahov dopredu a nezačínať schodové súboje pokiaľ si nie ste istí, že ich vyhráte! Tu je zobrazené čo sa stane bielemu ak hrá nevyhrateľné schody z predchádzajúceho príkladu...</string>
     <string name="tutorial_intermediate_twoeyes_title">Dve oči</string>
     <string name="tutorial_intermediate_twoeyes_twoeyes1_text">Ste v úplnom obkľúčení. Ktorý ťah je jediný, ktorý vás dokáže zachrániť?</string>
     <string name="tutorial_intermediate_twoeyes_twoeyes2_page1_text">Správne! V tejto pozícii rovnako A aj B sú zakázané ťahy pre bieleho, pretože by to boli samovražedné ťahy bez zajatia vašich kameňov. Z toho dôvodu nikdy nevedia byť zajaté!</string>
@@ -690,14 +680,14 @@
     <string name="tutorial_intermediate_ko_ko_page_4_text">… a hra by sa zasekla v slučke. Aby sme sa tomuto vyhli, pravidlo KO hovorí, že biely nesmie znovu zajať ťahom na E6, ale musí najskôr hrať niekam inde.</string>
     <string name="tutorial_intermediate_ko_ko_page_5_text">Teraz ak čierny chce zachrániť kameň v atari, môže hrať na E6…</string>
     <string name="tutorial_intermediate_ko_ko_page_6_text">Čierny teda vyhral KO súboj, ale všimnite si, že je teraz na ťahu znova biely, čiže biely získal dva ťahy za cenu jedného kameňa.</string>
-    <string name="tutorial_intermediate_ko_ko_page_7_text">Tieto dva ťahy zdarma môžu byť hodné viac bodov, než výhra  KO súboja, takže obaja hráči budú neustále posudzovať, či sa oplatí v KO súboji pokračovať, alebo radšej získajú extra ťahy.</string>
+    <string name="tutorial_intermediate_ko_ko_page_7_text">Tieto dva ťahy zdarma môžu byť hodné viac bodov, než výhra KO súboja, takže obaja hráči budú neustále posudzovať, či sa oplatí v KO súboji pokračovať, alebo radšej získajú extra ťahy.</string>
     <string name="tutorial_intermediate_ko_ko_page_8_text">Ako toto môže nastať v skutočnej hre? Tu je príklad. Aj čierny a aj biely majú skupinu z piatich kameňov na vrchu v ohrození. Jediná cesta pre čierneho ako zachrániť svoju skupinu je hrať na E8. KO súboj sa začal!</string>
     <string name="tutorial_intermediate_ko_ko_page_9_text">5 kameňov bieleho na vrchu je teraz v atari, ale nemôže hneď zobrať ťahom na D8, nakoľko by to opakovalo poslednú pozíciu. Zahrá teda niekam, kde to čierny nemôže ignorovať, napríklad na E2.</string>
     <string name="tutorial_intermediate_ko_ko_page_10_text">Teraz je 8 čiernych kameňov vľavo dole v nebezpečí, takže čierny si to spočíta: stratím radšej 8 spodných kameňov, alebo 5 na vrchu? Neochotne sa čierny rozhodne pokračovať v KO súboji a zachrániť kamene dole pomocou E1.</string>
     <string name="tutorial_intermediate_ko_ko_page_11_text">Biely teraz berie späť KO.</string>
     <string name="tutorial_intermediate_ko_ko_page_12_text">Teraz je na ťahu čierny a nemôže brať späť, z dôvodu pravidla KO. Má však jednu ďalšiu šancu: ťah na B4 ohrozuje bielu skupinu dole!</string>
-    <string name="tutorial_intermediate_ko_ko_page_13_text">Biely sa teraz musí rozhodnúť. Mal by zajať 5 kameňov na vrchu ťahom na B9, alebo zachrániť 6 kameňov dole? Rozhoduje sa hrať na A4\.\.\.</string>
-    <string name="tutorial_intermediate_ko_ko_page_14_text">Čierny nepotrebuje veľa odvahy aby teraz hral na E8\.\.\.</string>
+    <string name="tutorial_intermediate_ko_ko_page_13_text">Biely sa teraz musí rozhodnúť. Mal by zajať 5 kameňov na vrchu ťahom na B9, alebo zachrániť 6 kameňov dole? Rozhoduje sa hrať na A4...</string>
+    <string name="tutorial_intermediate_ko_ko_page_14_text">Čierny nepotrebuje veľa odvahy aby teraz hral na E8...</string>
     <string name="tutorial_intermediate_ko_ko_page_15_text">Biely neochotne uzná, že nemá žiadne ďalšie dobré hrozby. Hrá inde, ako napríklad na F4 a uznáva, ze prehral KO súboj.</string>
     <string name="tutorial_intermediate_ko_ko_page_16_text">Čierny si teraz rád vezme svoju výhru ťahom na G9.</string>
     <string name="tutorial_intermediate_ko_ko_page_17_text">Netrápte sa ak to teraz vyzeralo príliš komplikovane. Ako začiatočník si len zapamätajte, že nemôžete vziať späť kameň, ak by to opakovalo predošlú pozíciu.</string>

@@ -56,6 +56,7 @@ import io.zenandroid.onlinego.ui.composables.FilterSortPanel
 import io.zenandroid.onlinego.ui.composables.RatingBar
 import io.zenandroid.onlinego.ui.composables.SearchTextField
 import io.zenandroid.onlinego.ui.composables.SortChip
+import io.zenandroid.onlinego.ui.composables.formatOneDecimal
 import io.zenandroid.onlinego.ui.screens.mygames.composables.SenteCard
 import io.zenandroid.onlinego.utils.convertCountryCodeToEmojiFlag
 import org.koin.androidx.compose.koinViewModel
@@ -308,7 +309,7 @@ private fun PuzzleDirectoryContent(
                       text = stringResource(
                         R.string.puzzle_directory_solved_value,
                         solutions,
-                        percentage
+                        formatOneDecimal(percentage.toDouble())
                       ), maxLines = 1, fontSize = 11.sp, fontWeight = FontWeight.Medium
                     )
                     if (percentage >= 100f) {

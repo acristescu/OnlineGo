@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Sente围棋</string>
-    <string name="create_account_prompt"><b>没有OGS账户？创建一个吧</b>！</string>
-    <string name="login_to_ogs">登录OGS</string>
-    <string name="create_account">注册OGS账户</string>
     <string name="welcome_to_sente_online_go">欢迎来到Sentence Online Go！</string>
     <string name="login_to_play_online">请登录OGS进行在线下棋。</string>
     <string name="ai_game_chat_ready">准备！</string>
@@ -30,7 +27,6 @@
     <string name="ai_resign_offer_decline">继续玩</string>
     <string name="ai_game_handicap_none">无</string>
     <string name="ai_game_handicap_no_komi">不贴目</string>
-    <string name="ai_game_avatar_content_description">AI</string>
     <string name="ai_game_new">新建</string>
     <string name="ai_game_pass">停一手</string>
     <string name="ai_game_previous">上一手</string>
@@ -42,11 +38,11 @@
     <string name="title_bar_game_info_content_description">对局信息</string>
     <string name="title_bar_more_content_description">更多</string>
     <string name="search_field_clear_content_description">清空</string>
-    <string name="katago">"卡塔狗 "</string>
+    <string name="katago">卡塔狗</string>
     <string name="territory">实地</string>
     <string name="hint">提示</string>
     <string name="player">玩家</string>
-    <string name="you">" 你"</string>
+    <string name="you">你</string>
     <string name="prisoners">提子</string>
     <string name="komi">贴目</string>
     <string name="new_game">新建对局</string>
@@ -74,8 +70,6 @@
     <string name="enabled">已启用</string>
     <string name="disabled">已禁用</string>
     <string name="auto">自动</string>
-    <string name="hello_world">你好，世界！</string>
-    <string name="landscape_preview">横屏预览</string>
     <string name="button_play_online">在线\n对局</string>
     <string name="button_custom_game">自定义\n对局</string>
     <string name="button_play_against_ai">AI\n对局</string>

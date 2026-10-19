@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Sente - Online GO</string>
-    <string name="create_account_prompt">Geen OGS-account? Maak er <b>hier</b> een aan!</string>
-    <string name="login_to_ogs">Inloggen op OGS</string>
-    <string name="create_account">OGS-account aanmaken</string>
     <string name="welcome_to_sente_online_go">Welkom bij Sente Online Go!</string>
     <string name="login_to_play_online">Log in op OGS om online te spelen.</string>
     <string name="ai_game_chat_ready">Klaar!</string>
@@ -30,7 +27,6 @@
     <string name="ai_resign_offer_decline">Verder Spelen</string>
     <string name="ai_game_handicap_none">geen</string>
     <string name="ai_game_handicap_no_komi">geen komi</string>
-    <string name="ai_game_avatar_content_description">AI</string>
     <string name="ai_game_new">Nieuw</string>
     <string name="ai_game_pass">Pas</string>
     <string name="ai_game_previous">Vorige</string>
@@ -42,17 +38,17 @@
     <string name="title_bar_game_info_content_description">Partijinfo</string>
     <string name="title_bar_more_content_description">Meer</string>
     <string name="search_field_clear_content_description">Tekst wissen</string>
-    <string name="katago">"KataGO "</string>
+    <string name="katago">KataGO</string>
     <string name="territory">Gebied</string>
     <string name="hint">Hint</string>
     <string name="player">Speler</string>
-    <string name="you">" Jij"</string>
+    <string name="you">Jij</string>
     <string name="prisoners">Gevangenen</string>
     <string name="komi">Komi</string>
     <string name="ai_game_player_captures_and_komi">Geslagen: %1$d · Komi: %2$s</string>
     <string name="ai_game_player_captures_only">Geslagen: %1$d</string>
-    <string name="ai_game_eval_winrate_compact">Z %1$.1f%% · %2$.1f%% W</string>
-    <string name="ai_game_eval_score_lead_compact">%1$s +%2$.1f voorsprong</string>
+    <string name="ai_game_eval_winrate_compact">Z %1$s%% · %2$s%% W</string>
+    <string name="ai_game_eval_score_lead_compact">%1$s +%2$s voorsprong</string>
     <string name="ai_game_hide_eval">Verberg Evaluatie</string>
     <string name="ai_game_show_eval">Toon Evaluatie</string>
     <string name="new_game">Nieuwe Partij</string>
@@ -83,8 +79,6 @@
     <string name="enabled">Aan</string>
     <string name="disabled">Uit</string>
     <string name="auto">Automatisch</string>
-    <string name="hello_world">Hallo wereld!</string>
-    <string name="landscape_preview">Landschapsvoorbeeld</string>
     <string name="button_play_online">Online\nSpelen</string>
     <string name="button_custom_game">Aangepaste\nPartij</string>
     <string name="button_play_against_ai">Speel\nTegen AI</string>
@@ -177,8 +171,7 @@
     <string name="game_cancel_dialog_dismiss">PARTIJ NIET AFZEGGEN</string>
     <string name="game_info_ranked">Met rating</string>
     <string name="game_info_unranked">Zonder rating</string>
-    <string name="game_info_unknown_player">\?</string>
-    <string name="game_info_versus_separator">"      vs.      "</string>
+    <string name="game_info_versus_separator">vs.</string>
     <string name="game_info_score">Stand</string>
     <string name="game_info_time">Tijd</string>
     <string name="game_info_score_komi">komi</string>
@@ -201,7 +194,7 @@
     <string name="game_over_unknown_result">Onbekende uitslag (%1$s)</string>
     <string name="game_over_rating_updating">Je rating wordt bijgewerkt</string>
     <string name="game_over_rating_now">Je rating is nu %1$s - %2$s</string>
-    <string name="game_over_rating_change">" (%1$s)"</string>
+    <string name="game_over_rating_change">(%1$s)</string>
     <string name="game_retry_dialog_title">VERBINDINGSPROBLEMEN</string>
     <string name="game_retry_dialog_message">De server reageert niet. Controleer je internetverbinding.</string>
     <string name="game_retry_dialog_confirm">OPNIEUW PROBEREN</string>
@@ -220,40 +213,39 @@
     <string name="game_player_details_losses">Verloren</string>
     <string name="game_player_details_total">Totaal</string>
     <plurals name="duration_weeks">
-        <item quantity="one">%d week</item>
-        <item quantity="other">%d weken</item>
+        <item quantity="one">%1$d week</item>
+        <item quantity="other">%1$d weken</item>
     </plurals>
     <plurals name="duration_days">
-        <item quantity="one">%d dag</item>
-        <item quantity="other">%d dagen</item>
+        <item quantity="one">%1$d dag</item>
+        <item quantity="other">%1$d dagen</item>
     </plurals>
     <plurals name="duration_hours">
-        <item quantity="one">%d uur</item>
-        <item quantity="other">%d uur</item>
+        <item quantity="one">%1$d uur</item>
+        <item quantity="other">%1$d uur</item>
     </plurals>
     <plurals name="duration_minutes">
-        <item quantity="one">%d minuut</item>
-        <item quantity="other">%d minuten</item>
+        <item quantity="one">%1$d minuut</item>
+        <item quantity="other">%1$d minuten</item>
     </plurals>
     <plurals name="duration_seconds">
-        <item quantity="one">%d seconde</item>
-        <item quantity="other">%d seconden</item>
+        <item quantity="one">%1$d seconde</item>
+        <item quantity="other">%1$d seconden</item>
     </plurals>
     <plurals name="clock_days">
-        <item quantity="one">%d dag</item>
-        <item quantity="other">%d dagen</item>
+        <item quantity="one">%1$d dag</item>
+        <item quantity="other">%1$d dagen</item>
     </plurals>
     <string name="clock_days_hours">%1$dd %2$du</string>
     <string name="clock_hours">%1$du</string>
-    <string name="clock_hours_minutes">%1$du%2$02d</string>
-    <string name="clock_minutes_seconds">%1$d : %2$02d</string>
-    <string name="clock_seconds">%1$02ds</string>
-    <string name="clock_tenths">%1$.1fs</string>
+    <string name="clock_hours_minutes">%1$du%2$s</string>
+    <string name="clock_minutes_seconds">%1$d : %2$s</string>
+    <string name="clock_seconds">%1$ss</string>
+    <string name="clock_tenths">%1$ss</string>
     <string name="clock_canadian_period">+%1$s / %2$d</string>
     <string name="clock_byoyomi_periods">%1$d × %2$s</string>
     <string name="clock_fischer_increment">+ %1$s / zet</string>
     <string name="duration_two_units">%1$s %2$s</string>
-    <string name="duration_unknown">\?</string>
     <string name="time_control_simple">Eenvoudig: %1$s per zet.</string>
     <string name="time_control_fischer">Fischer: De klok begint met %1$s en er komt per zet %2$s bij tot maximaal %3$s.</string>
     <plurals name="time_control_byoyomi">
@@ -266,8 +258,7 @@
     </plurals>
     <string name="time_control_absolute">Absoluut: %1$s totale speeltijd per speler.</string>
     <string name="time_control_none">Geen tijdslimiet.</string>
-    <string name="time_control_unknown">\?</string>
-    <string name="time_control_pauses_on_weekends">" Gepauzeerd tijdens het weekend."</string>
+    <string name="time_control_pauses_on_weekends">Gepauzeerd tijdens het weekend.</string>
     <string name="whats_new_title">Nieuwigheden</string>
     <string name="whats_new_got_it">Ik snap het</string>
     <string name="whats_new_open_source">Sente is opensource, gebouwd door vrijwilligers.</string>
@@ -289,8 +280,8 @@
     <string name="socket_debug_filter_all">Alles (%1$d)</string>
     <string name="socket_debug_filter_type">%1$s (%2$d)</string>
     <plurals name="socket_debug_event_count">
-        <item quantity="one">%d gebeurtenis</item>
-        <item quantity="other">%d gebeurtenissen</item>
+        <item quantity="one">%1$d gebeurtenis</item>
+        <item quantity="other">%1$d gebeurtenissen</item>
     </plurals>
     <string name="notification_challenge_title">Een nieuwe uitdaging!</string>
     <string name="notification_challenge_text">%1$s heeft je uitgedaagd</string>
@@ -304,8 +295,8 @@
     <string name="notification_stone_removal_phase">Dode stenen verwijderen</string>
     <string name="notification_requires_attention">%1$s heeft je aandacht nodig</string>
     <plurals name="notification_games_require_attention">
-        <item quantity="one">%d partij heeft je aandacht nodig</item>
-        <item quantity="other">%d partijen hebben je aandacht nodig</item>
+        <item quantity="one">%1$d partij heeft je aandacht nodig</item>
+        <item quantity="other">%1$d partijen hebben je aandacht nodig</item>
     </plurals>
     <string name="notification_inbox_versus">vs. %1$s</string>
     <string name="notification_logout_title">Log opnieuw in</string>
@@ -385,7 +376,7 @@
     <string name="supporter_faq_payment_question">Zijn er meer betaalmogelijkheden?</string>
     <string name="supporter_faq_payment_answer">Apps die via Google Play worden verspreid zijn verplicht om Google Pay te gebruiken, zodat Google 15% van de opbrengsten kan innen. Het is ons niet toegestaan om een alternatief betaalmiddel in de app te vermelden.</string>
     <string name="supporter_thank_you_title">Bedankt voor je bijdrage!</string>
-    <string name="supporter_current_contribution">"Je huidige bijdrage is "</string>
+    <string name="supporter_current_contribution">Je huidige bijdrage is</string>
     <string name="supporter_select_contribution">Kies je maandelijkse bijdrage</string>
     <string name="supporter_update_amount">Bedrag aanpassen</string>
     <string name="supporter_cancel_subscription">Abonnement opzeggen</string>
@@ -415,12 +406,12 @@
     <string name="stats_won_lost">%1$d gewonnen · %2$d verloren</string>
     <string name="stats_no_streak">-</string>
     <plurals name="stats_streak_wins">
-        <item quantity="one">%d gewonnen</item>
-        <item quantity="other">%d gewonnen</item>
+        <item quantity="one">%1$d gewonnen</item>
+        <item quantity="other">%1$d gewonnen</item>
     </plurals>
     <plurals name="stats_streak_losses">
-        <item quantity="one">%d verloren</item>
-        <item quantity="other">%d verloren</item>
+        <item quantity="one">%1$d verloren</item>
+        <item quantity="other">%1$d verloren</item>
     </plurals>
     <string name="stats_no_ranked_games">Geen partijen met rating</string>
     <string name="stats_filter_1m">1M</string>
@@ -442,13 +433,13 @@
     <string name="puzzle_directory_by_author">door %1$s %2$s</string>
     <string name="puzzle_directory_count_label">Aantal</string>
     <plurals name="puzzle_directory_puzzle_count">
-        <item quantity="one">%d puzzel</item>
-        <item quantity="other">%d puzzels</item>
+        <item quantity="one">%1$d puzzel</item>
+        <item quantity="other">%1$d puzzels</item>
     </plurals>
     <string name="puzzle_directory_rank_label">Niveau</string>
     <string name="puzzle_directory_rank_range">%1$s tot %2$s</string>
     <string name="puzzle_directory_solved_label">Opgelost</string>
-    <string name="puzzle_directory_solved_value">%1$d (%2$.1f%%)</string>
+    <string name="puzzle_directory_solved_value">%1$d (%2$s%%)</string>
     <string name="puzzle_directory_completed">Voltooid</string>
     <string name="puzzle_directory_stats">%1$s weergaven, %2$s keer opgelost van %3$s keer (%4$s %%)</string>
     <string name="puzzle_directory_sort_name">A -&gt; Z</string>
@@ -520,8 +511,8 @@
     <string name="automatch_expected_duration">Verwachte speeltijd: %1$s</string>
     <string name="automatch_duration_several_days">enkele dagen</string>
     <plurals name="automatch_duration_minutes">
-        <item quantity="one">%d minuut</item>
-        <item quantity="other">%d minuten</item>
+        <item quantity="one">%1$d minuut</item>
+        <item quantity="other">%1$d minuten</item>
     </plurals>
     <string name="automatch_duration_minutes_range">%1$d tot %2$d minuten</string>
     <string name="mygames_moderator_title">OGS-Moderator %1$s</string>
@@ -551,7 +542,6 @@
     <string name="mygames_outcome_won">Gewonnen</string>
     <string name="mygames_outcome_black_won">Zwart wint</string>
     <string name="mygames_outcome_white_won">Wit wint</string>
-    <string name="mygames_outcome_annulled">Ongeldig verklaard</string>
     <string name="mygames_outcome_lost_with_reason">Verloren %1$s</string>
     <string name="mygames_outcome_won_with_reason">Gewonnen %1$s</string>
     <string name="mygames_outcome_black_won_with_reason">Zwart heeft gewonnen %1$s</string>
@@ -563,12 +553,12 @@
     <string name="mygames_outcome_reason_other">door %1$s</string>
     <string name="mygames_greeting">Hoi %1$s,</string>
     <plurals name="mygames_your_turn_count">
-        <item quantity="one">Het is jouw beurt in %d partij.</item>
-        <item quantity="other">Het is jouw beurt in %d partijen.</item>
+        <item quantity="one">Het is jouw beurt in %1$d partij.</item>
+        <item quantity="other">Het is jouw beurt in %1$d partijen.</item>
     </plurals>
     <plurals name="mygames_active_games_count">
-        <item quantity="one">Je hebt %d actieve partij.</item>
-        <item quantity="other">Je hebt %d actieve partijen.</item>
+        <item quantity="one">Je hebt %1$d actieve partij.</item>
+        <item quantity="other">Je hebt %1$d actieve partijen.</item>
     </plurals>
     <string name="mygames_no_active_games">Je hebt geen actieve partijen. Wil je er eentje beginnen?</string>
     <string name="mygames_detail_board_size">Bordgrootte</string>
@@ -596,8 +586,8 @@
     <string name="joseki_explorer_button_tenuki">Tenuki</string>
     <string name="joseki_explorer_button_previous">Vorige</string>
     <string name="joseki_explorer_button_next">Volgende</string>
-    <string name="joseki_explorer_link_video">" (video)"</string>
-    <string name="joseki_explorer_link_external">" (externe link)"</string>
+    <string name="joseki_explorer_link_video">(video)</string>
+    <string name="joseki_explorer_link_external">(externe link)</string>
     <string name="joseki_explorer_default_description">## Josekiverkenner\n*Joseki* is een Japans leenwoord, dat normaal gesproken slaat op standaard zettenreeksen in een hoek van het bord die een lokaal gelijkwaardige positie opleveren.\n### Hoe gebruik je de Josekiverkenner\nDe markeringen hieronder tonen interessante vervolgzetten vanuit de huidige positie. De kleuren geven aan hoe goed een zet wordt beschouwd:\n* Groene zetten zijn de beste\n* Gele zetten zijn prima\n* Rode zetten zijn slecht\n* Paarse zetten zijn trucs\n* Blauwe voor open vragen\nJe kan elk van deze interessante zetten aantikken om te ontdekken waar het naartoe gaat.\n### Tenuki\nSoms is de beste reactie om elders op het bord te spelen. Dit noem je *tenuki*. Als voor een positie tenuki een interessante optie is wordt de pasknop linksonderin beschikbaar en kan je die aantikken om te ontdekken wat er kan gebeuren als de huidige speler tenuki speelt.</string>
     <string name="tutorial_basics_title">Basis</string>
     <string name="tutorial_basics_thebasics_title">De Basis</string>
@@ -638,7 +628,7 @@
     <string name="tutorial_intermediate_ladders_ladder1_branches_branch1_1_1_1_1_1_1_2_1_message">Als wit probeert tegen te werken…</string>
     <string name="tutorial_intermediate_ladders_ladder1_branches_branch1_1_1_1_1_1_1_2_2_message">Als wit probeert tegen te werken…</string>
     <string name="tutorial_intermediate_ladders_ladder2_text">Hier is nog zo\'n trap. En nu is het jouw beurt om te ontsnappen. De situatie is dit keer niet hopeloos. Jouw steen op F2 ligt in de weg van de trap. Als je daarnaartoe kunt komen ben je veilig. Zo\'n steen noem je een \"trappenbreker\"</string>
-    <string name="tutorial_intermediate_ladders_ladder3_page1_text">Trappen zijn erg belangrijk bij GO. Maar je moet meerdere zetten vooruitdenken en geen trappenstrijd beginnen tenzij je zeker weet dat je kan winnen! Dit is wat er gebeurt als Wit de verliezende trap uit het vorige voorbeeld uitspeelt\.\.\.</string>
+    <string name="tutorial_intermediate_ladders_ladder3_page1_text">Trappen zijn erg belangrijk bij GO. Maar je moet meerdere zetten vooruitdenken en geen trappenstrijd beginnen tenzij je zeker weet dat je kan winnen! Dit is wat er gebeurt als Wit de verliezende trap uit het vorige voorbeeld uitspeelt...</string>
     <string name="tutorial_intermediate_twoeyes_title">Twee Ogen</string>
     <string name="tutorial_intermediate_twoeyes_twoeyes1_text">Je bent volledig omsingeld! Welke zet is je enige redding?</string>
     <string name="tutorial_intermediate_twoeyes_twoeyes2_page1_text">Juist! In deze positie zijn zowel A als B verboden voor wit omdat het zelfmoordzetten zijn die geen stenen van jou slaan. Daarom kan jouw groep nooit geslagen worden!</string>
@@ -664,8 +654,8 @@
     <string name="tutorial_intermediate_ko_ko_page_10_text">Nu zijn de acht zwarte stenen linksonderin in gevaar, dus zwart rekent uit: verliest ze liever acht stenen onderin of de vijf bovenaan? Met tegenzin kiest zwart om de KO-strijd voort te zetten om de stenen onderin te redden met E1</string>
     <string name="tutorial_intermediate_ko_ko_page_11_text">Wit neemt nu de KO terug</string>
     <string name="tutorial_intermediate_ko_ko_page_12_text">Nu is zwart aan zet, maar ze mag niet terugslaan vanwege de KO-regel. Ze heeft nog wel een kans: een zet op B4 bedreigt de witte groep onderaan!</string>
-    <string name="tutorial_intermediate_ko_ko_page_13_text">Nu is het aan wit om te kiezen. Slaat hij de vijf stenen bovenin met B9 of beschermt hij de zes stenen onderin? Hij kiest voor A4\.\.\.</string>
-    <string name="tutorial_intermediate_ko_ko_page_14_text">Zwart hoeft er nu niet lang over na te denken om E8 te spelen\.\.\.</string>
+    <string name="tutorial_intermediate_ko_ko_page_13_text">Nu is het aan wit om te kiezen. Slaat hij de vijf stenen bovenin met B9 of beschermt hij de zes stenen onderin? Hij kiest voor A4...</string>
+    <string name="tutorial_intermediate_ko_ko_page_14_text">Zwart hoeft er nu niet lang over na te denken om E8 te spelen...</string>
     <string name="tutorial_intermediate_ko_ko_page_15_text">Met tegenzin ziet wit dat hij geen goede dreigingen meer heeft. Hij speelt elders, zoals F4 en verliest de KO-strijd.</string>
     <string name="tutorial_intermediate_ko_ko_page_16_text">Zwart int nu haar prijs bovenin door G9 te spelen</string>
     <string name="tutorial_intermediate_ko_ko_page_17_text">Maak je geen zorgen als dit er ingewikkeld uitziet. Als beginner is het genoeg om te onthouden dat je niet direct terug mag slaan als je daarmee de vorige positie herhaalt.</string>

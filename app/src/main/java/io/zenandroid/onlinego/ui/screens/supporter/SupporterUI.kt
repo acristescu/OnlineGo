@@ -379,6 +379,7 @@ fun SupporterBottomBar(
                   append("\n\n")
                 }
                 append(currentContribution)
+                append(" ")
                 withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
                   append(state.currentContributionAmount)
                 }

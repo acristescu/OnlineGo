@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Sente - GO en ligne</string>
-    <string name="create_account_prompt">Pas de compte OGS ? Créez-en un <b>ici</b> !</string>
-    <string name="login_to_ogs">Connexion à OGS</string>
-    <string name="create_account">Créer un compte OGS</string>
     <string name="welcome_to_sente_online_go">Bienvenue sur Sente En Ligne Go !</string>
     <string name="login_to_play_online">Connectez-vous sur OGS pour jouer en ligne.</string>
     <string name="ai_game_chat_ready">Prêt !</string>
@@ -30,7 +27,6 @@
     <string name="ai_resign_offer_decline">Continuer à jouer</string>
     <string name="ai_game_handicap_none">aucun</string>
     <string name="ai_game_handicap_no_komi">pas de komi</string>
-    <string name="ai_game_avatar_content_description">IA</string>
     <string name="ai_game_new">Nouvelle Partie</string>
     <string name="ai_game_pass">Passer</string>
     <string name="ai_game_previous">Précédent</string>
@@ -42,17 +38,17 @@
     <string name="title_bar_game_info_content_description">Info de la partie</string>
     <string name="title_bar_more_content_description">Plus</string>
     <string name="search_field_clear_content_description">Effacer le texte</string>
-    <string name="katago">"KataGO "</string>
+    <string name="katago">KataGO</string>
     <string name="territory">Territoire</string>
     <string name="hint">Indice</string>
     <string name="player">Joueur</string>
-    <string name="you">" Vous"</string>
+    <string name="you">Vous</string>
     <string name="prisoners">Prisonniers</string>
     <string name="komi">Komi</string>
     <string name="ai_game_player_captures_and_komi">Prisonniers : %1$d · Komi : %2$s</string>
     <string name="ai_game_player_captures_only">Prisonniers : %1$d</string>
-    <string name="ai_game_eval_winrate_compact">N %1$.1f%% · %2$.1f%% B</string>
-    <string name="ai_game_eval_score_lead_compact">%1$s +%2$.1f points d\'avance</string>
+    <string name="ai_game_eval_winrate_compact">N %1$s%% · %2$s%% B</string>
+    <string name="ai_game_eval_score_lead_compact">%1$s +%2$s points d\'avance</string>
     <string name="ai_game_hide_eval">Cacher l\'évaluation</string>
     <string name="ai_game_show_eval">Montrer l\'évaluation</string>
     <string name="new_game">Nouvelle partie</string>
@@ -83,8 +79,6 @@
     <string name="enabled">Activé</string>
     <string name="disabled">Désactivé</string>
     <string name="auto">Auto</string>
-    <string name="hello_world">Hello world!</string>
-    <string name="landscape_preview">Mode paysage</string>
     <string name="button_play_online">Jouer\nEn ligne</string>
     <string name="button_custom_game">Partie\npersonnalisée</string>
     <string name="button_play_against_ai">Jouer\ncontre l\'IA</string>
@@ -177,8 +171,7 @@
     <string name="game_cancel_dialog_dismiss">Ne pas annuler la partie</string>
     <string name="game_info_ranked">Gradé</string>
     <string name="game_info_unranked">Dégradé</string>
-    <string name="game_info_unknown_player">\?</string>
-    <string name="game_info_versus_separator">"      vs      "</string>
+    <string name="game_info_versus_separator">vs</string>
     <string name="game_info_score">Résultat</string>
     <string name="game_info_time">Temps</string>
     <string name="game_info_score_komi">komi</string>
@@ -201,7 +194,7 @@
     <string name="game_over_unknown_result">Résultat inconnu (%1$s)</string>
     <string name="game_over_rating_updating">Votre classement se met à jour</string>
     <string name="game_over_rating_now">Votre classement est maintenant %1$s - %2$s</string>
-    <string name="game_over_rating_change">" (%1$s)"</string>
+    <string name="game_over_rating_change">(%1$s)</string>
     <string name="game_retry_dialog_title">Problèmes de connexion</string>
     <string name="game_retry_dialog_message">Le serveur ne répond pas. Vérifiez votre connexion.</string>
     <string name="game_retry_dialog_confirm">REESSAYER</string>
@@ -220,27 +213,26 @@
     <string name="game_player_details_losses">Pertes</string>
     <string name="game_player_details_total">Total</string>
     <plurals name="duration_weeks">
-        <item quantity="one">%d Semaine</item>
-        <item quantity="other">%d Semaines</item>
+        <item quantity="one">%1$d Semaine</item>
+        <item quantity="other">%1$d Semaines</item>
     </plurals>
     <plurals name="duration_days">
-        <item quantity="one">%d Jour</item>
-        <item quantity="other">%d Jours</item>
+        <item quantity="one">%1$d Jour</item>
+        <item quantity="other">%1$d Jours</item>
     </plurals>
     <plurals name="duration_hours">
-        <item quantity="one">%d Heure</item>
-        <item quantity="other">%d Heures</item>
+        <item quantity="one">%1$d Heure</item>
+        <item quantity="other">%1$d Heures</item>
     </plurals>
     <plurals name="duration_minutes">
-        <item quantity="one">%d minute</item>
-        <item quantity="other">%d minutes</item>
+        <item quantity="one">%1$d minute</item>
+        <item quantity="other">%1$d minutes</item>
     </plurals>
     <plurals name="duration_seconds">
-        <item quantity="one">%d seconde</item>
-        <item quantity="other">%d secondes</item>
+        <item quantity="one">%1$d seconde</item>
+        <item quantity="other">%1$d secondes</item>
     </plurals>
     <string name="duration_two_units">%1$s %2$s</string>
-    <string name="duration_unknown">\?</string>
     <string name="time_control_simple">Simple : %1$s par coup.</string>
     <string name="time_control_fischer">Fischer : l\'horloge débute avec %1$s et incrémente de %2$s par coup jusqu\'à un maximum de %3$s.</string>
     <plurals name="time_control_byoyomi">
@@ -253,8 +245,7 @@
     </plurals>
     <string name="time_control_absolute">Absolue : %1$s de temps total par joueur.</string>
     <string name="time_control_none">Pas de limite de temps.</string>
-    <string name="time_control_unknown">\?</string>
-    <string name="time_control_pauses_on_weekends">" Mis en pause le week-end."</string>
+    <string name="time_control_pauses_on_weekends">Mis en pause le week-end.</string>
     <string name="whats_new_title">Quoi de neuf</string>
     <string name="whats_new_got_it">Ok</string>
     <string name="whats_new_open_source">Sente est open source, développé par des volontaires.</string>
@@ -276,8 +267,8 @@
     <string name="socket_debug_filter_all">Tout (%1$d)</string>
     <string name="socket_debug_filter_type">%1$s(%2$d)</string>
     <plurals name="socket_debug_event_count">
-        <item quantity="one">%d événement</item>
-        <item quantity="other">%d événements</item>
+        <item quantity="one">%1$d événement</item>
+        <item quantity="other">%1$d événements</item>
     </plurals>
     <string name="notification_challenge_title">Un nouveau défi !</string>
     <string name="notification_challenge_text">%1$s vous lance un défi</string>
@@ -291,8 +282,8 @@
     <string name="notification_stone_removal_phase">Phase de retrait des pierres mortes</string>
     <string name="notification_requires_attention">%1$s Requiert votre attention</string>
     <plurals name="notification_games_require_attention">
-        <item quantity="one">%d partie requière votre attention</item>
-        <item quantity="other">%d parties requièrent votre attention</item>
+        <item quantity="one">%1$d partie requière votre attention</item>
+        <item quantity="other">%1$d parties requièrent votre attention</item>
     </plurals>
     <string name="notification_inbox_versus">contre %1$s</string>
     <string name="notification_logout_title">Connectez-vous à nouveau</string>
@@ -372,7 +363,7 @@
     <string name="supporter_faq_payment_question">Y a-t-il d\'autres méthodes de paiement ?</string>
     <string name="supporter_faq_payment_answer">Les applications distribuées via Google Play doivent utiliser Google Pay, car Google prélève 15 % de la somme. Nous ne sommes pas autorisés à proposer des moyens de paiement alternatifs dans l\'appli.</string>
     <string name="supporter_thank_you_title">Merci de votre soutien !</string>
-    <string name="supporter_current_contribution">"Votre contribution actuelle est de "</string>
+    <string name="supporter_current_contribution">Votre contribution actuelle est de</string>
     <string name="supporter_select_contribution">Choisissez votre contribution mensuelle</string>
     <string name="supporter_update_amount">Mettre à jour le montant</string>
     <string name="supporter_cancel_subscription">Annuler l\'abonnement</string>
@@ -402,12 +393,12 @@
     <string name="stats_won_lost">%1$d gagné · %2$d perdue</string>
     <string name="stats_no_streak">-</string>
     <plurals name="stats_streak_wins">
-        <item quantity="one">%d victoire</item>
-        <item quantity="other">%d victoires</item>
+        <item quantity="one">%1$d victoire</item>
+        <item quantity="other">%1$d victoires</item>
     </plurals>
     <plurals name="stats_streak_losses">
-        <item quantity="one">%d défaite</item>
-        <item quantity="other">%d défaites</item>
+        <item quantity="one">%1$d défaite</item>
+        <item quantity="other">%1$d défaites</item>
     </plurals>
     <string name="stats_no_ranked_games">Aucune partie classée enregistrée</string>
     <string name="stats_filter_1m">1M</string>
@@ -429,13 +420,13 @@
     <string name="puzzle_directory_by_author">par %1$s %2$s</string>
     <string name="puzzle_directory_count_label">Contenu</string>
     <plurals name="puzzle_directory_puzzle_count">
-        <item quantity="one">%d problème</item>
-        <item quantity="other">%d problèmes</item>
+        <item quantity="one">%1$d problème</item>
+        <item quantity="other">%1$d problèmes</item>
     </plurals>
     <string name="puzzle_directory_rank_label">Niveau</string>
     <string name="puzzle_directory_rank_range">de %1$s à %2$s</string>
     <string name="puzzle_directory_solved_label">Résolu</string>
-    <string name="puzzle_directory_solved_value">%1$d (%2$.1f%%)</string>
+    <string name="puzzle_directory_solved_value">%1$d (%2$s%%)</string>
     <string name="puzzle_directory_completed">Terminé</string>
     <string name="puzzle_directory_stats">%1$s vues, résolu %2$s fois sur %3$s (%4$s %%)</string>
     <string name="puzzle_directory_sort_name">A -&gt; Z</string>
@@ -507,8 +498,8 @@
     <string name="automatch_expected_duration">Durée estimée : %1$s</string>
     <string name="automatch_duration_several_days">plusieurs jours</string>
     <plurals name="automatch_duration_minutes">
-        <item quantity="one">%d minute</item>
-        <item quantity="other">%d minutes</item>
+        <item quantity="one">%1$d minute</item>
+        <item quantity="other">%1$d minutes</item>
     </plurals>
     <string name="automatch_duration_minutes_range">%1$d à %2$d minutes</string>
     <string name="mygames_moderator_title">Modérateur OGS %1$s</string>
@@ -538,7 +529,6 @@
     <string name="mygames_outcome_won">Gagnée</string>
     <string name="mygames_outcome_black_won">Noir gagne</string>
     <string name="mygames_outcome_white_won">Blanc gagne</string>
-    <string name="mygames_outcome_annulled">Annulée</string>
     <string name="mygames_outcome_lost_with_reason">Perdues %1$s</string>
     <string name="mygames_outcome_won_with_reason">Gagnées %1$s</string>
     <string name="mygames_outcome_black_won_with_reason">Noir gagne de %1$s</string>
@@ -550,12 +540,12 @@
     <string name="mygames_outcome_reason_other">par %1$s</string>
     <string name="mygames_greeting">Salut %1$s,</string>
     <plurals name="mygames_your_turn_count">
-        <item quantity="one">C\'est votre tour dans %d partie.</item>
-        <item quantity="other">C\'est votre tour dans %d parties.</item>
+        <item quantity="one">C\'est votre tour dans %1$d partie.</item>
+        <item quantity="other">C\'est votre tour dans %1$d parties.</item>
     </plurals>
     <plurals name="mygames_active_games_count">
-        <item quantity="one">Vous avez %d partie en cours.</item>
-        <item quantity="other">Vous avez %d parties en cours.</item>
+        <item quantity="one">Vous avez %1$d partie en cours.</item>
+        <item quantity="other">Vous avez %1$d parties en cours.</item>
     </plurals>
     <string name="mygames_no_active_games">Vous n\'avez aucune partie en cours. Pourquoi ne pas en commencer une ?</string>
     <string name="mygames_detail_board_size">Taille du plateau</string>
@@ -583,8 +573,8 @@
     <string name="joseki_explorer_button_tenuki">Tenuki</string>
     <string name="joseki_explorer_button_previous">Précédent</string>
     <string name="joseki_explorer_button_next">Suivant</string>
-    <string name="joseki_explorer_link_video">" (Vidéo)"</string>
-    <string name="joseki_explorer_link_external">" (lien externe)"</string>
+    <string name="joseki_explorer_link_video">(Vidéo)</string>
+    <string name="joseki_explorer_link_external">(lien externe)</string>
     <string name="joseki_explorer_default_description">## Explorateur de Joseki\n*Joseki* est un mot emprunté au Japonais, se rapportant généralement à une séquence de coups joués dans le coin. Le résultat étant un échange localement équilibré.\n### Comment utiliser l\'explorateur ?\nLes coups marqués ci-dessous représentent des suites intéressantes de la position actuelle. La couleur donne une indication de la qualité estimée du coup indiqué :\n* Vert : le coup est considéré optimal\n* Jaune : le coup est considéré comme jouable\n* Rouge : le coup est considéré comme une erreur\n* Violet : Ce coup est une ruse\n* Bleu : c\'est une question ouverte.\nVous pouvez jouer n\'importe lequel de ces coups pour explorer les positions qu\'ils amènent.\n### Tenuki\nParfois, le meilleur coup est de jouer ailleurs. C\'est ce que l\'on appelle communément *Tenuki*. Si tenuki est une option intéressante dans la position donnée, le bouton Passe en bas à gauche sera actif et vous pourrez l\'utiliser pour voir quelle position peut découler après que le joueur ait tenuki</string>
     <string name="tutorial_basics_title">Bases</string>
     <string name="tutorial_basics_thebasics_title">Les Bases</string>
@@ -625,7 +615,7 @@
     <string name="tutorial_intermediate_ladders_ladder1_branches_branch1_1_1_1_1_1_1_2_1_message">Si blanc tente de résister...</string>
     <string name="tutorial_intermediate_ladders_ladder1_branches_branch1_1_1_1_1_1_1_2_2_message">Si blanc tente de résister...</string>
     <string name="tutorial_intermediate_ladders_ladder2_text">Voici une autre situation d\'escalier. C\'est à votre tour de vous échapper. La situation n\'est pas désespérée cependant, la pierre en F2 est sur le chemin. Si l\'escalier la rencontre vous serez sauvé. On l\'appelle \"briseur d\'escalier\"</string>
-    <string name="tutorial_intermediate_ladders_ladder3_page1_text">Les escaliers sont une forme très importante au GO. Mais il faut les lire entièrement et ne pas les commencer s\'ils ne sont pas bons ! Voici ce qui arrive si blanc joue l\'escalier de l\'exemple précédent alors qu\'il ne l\'a pas\.\.\.</string>
+    <string name="tutorial_intermediate_ladders_ladder3_page1_text">Les escaliers sont une forme très importante au GO. Mais il faut les lire entièrement et ne pas les commencer s\'ils ne sont pas bons ! Voici ce qui arrive si blanc joue l\'escalier de l\'exemple précédent alors qu\'il ne l\'a pas...</string>
     <string name="tutorial_intermediate_twoeyes_title">Deux yeux</string>
     <string name="tutorial_intermediate_twoeyes_twoeyes1_text">Vous êtes entièrement encerclé ! Quel est le seul coup qui peut vous sauver ?</string>
     <string name="tutorial_intermediate_twoeyes_twoeyes2_page1_text">Bien joué ! Dans cette position A et B sont des coups illégaux pour blanc car ils n\'auraient aucune liberté sans capturer vos pierres. Par conséquent, votre groupe ne peut jamais être capturé !</string>
@@ -651,8 +641,8 @@
     <string name="tutorial_intermediate_ko_ko_page_10_text">Maintenant, les 8 pierres noires en bas à gauche sont en danger. Noire fait ses comptes : préférerait-elle perdre 8 pierres en bas ou 5 en haut ? À contre-cœur, Noire choisit de continuer le Ko et de sauver ses pierres en bas avec E1</string>
     <string name="tutorial_intermediate_ko_ko_page_11_text">Blanc reprend maintenant le Ko</string>
     <string name="tutorial_intermediate_ko_ko_page_12_text">C\'est au tour de Noire maintenant et elle ne peut reprendre à cause de la règle de Ko. Il lui reste encore une chance cependant : un coup en B4 menace le groupe blanc du bord inférieur !</string>
-    <string name="tutorial_intermediate_ko_ko_page_13_text">C\'est à Blanc de choisir à présent. Doit-il capturer les 5 pierres en haut avec un coup en B9 ou sauver les 6 pierres du bas ? Il choisit le coup en A4\.\.\.</string>
-    <string name="tutorial_intermediate_ko_ko_page_14_text">Inutile de pousser Noire à jouer E8 maintenant\.\.\.</string>
+    <string name="tutorial_intermediate_ko_ko_page_13_text">C\'est à Blanc de choisir à présent. Doit-il capturer les 5 pierres en haut avec un coup en B9 ou sauver les 6 pierres du bas ? Il choisit le coup en A4...</string>
+    <string name="tutorial_intermediate_ko_ko_page_14_text">Inutile de pousser Noire à jouer E8 maintenant...</string>
     <string name="tutorial_intermediate_ko_ko_page_15_text">Blanc se résigne à admettre qu\'il n\'a plus de bonne menace. Il joue ailleurs, comme en F4 et reconnaît avoir perdu la bataille de Ko.</string>
     <string name="tutorial_intermediate_ko_ko_page_16_text">Noire est heureuse de réclamer son prix sur le bord supérieur avec G9</string>
     <string name="tutorial_intermediate_ko_ko_page_17_text">Ne vous inquiétez pas si cela semble trop compliqué pour le moment. En tant que débutant, rappelez-vous surtout que vous ne pouvez pas reprendre une pierre si cela répète la position précédente.</string>
