@@ -598,29 +598,14 @@
     <string name="joseki_explorer_button_next">Següent</string>
     <string name="joseki_explorer_link_video">" (vídeo)"</string>
     <string name="joseki_explorer_link_external">" (enllaç extern)"</string>
-    <string name="joseki_explorer_default_description">\"## Explorador de josekis
-*Joseki* és un préstec lingüístic del japonès, que normalment fa referència a seqüències de moviments estàndard que es juguen en una cantonada i que donen com a resultat un intercanvi localment equilibrat.
-### Com utilitzar l\'explorador de josekis
-Els moviments marcats a continuació representen continuacions interessants per a la posició actual. Els colors representen com de bo es considera el moviment:
-* Els moviments verds es consideren òptims
-* Els moviments grocs es consideren correctes
-* Els moviments vermells es consideren erronis
-* Les marques liles són per a paranys
-* Les blaves per a situacions per resoldre
-Pots tocar qualsevol d\'aquests moviments interessants per explorar les posicions a les quals condueixen.
-### Tenuki
-De vegades, la millor opció és jugar en un altre lloc. D\'això se\'n sol dir tenuki. Si fer tenuki és una opció interessant en la posició actual, s\'activarà el botó de passar de la part inferior esquerra. Podeu prémer-lo per veure quines posicions es poden donar si el jugador actual fa tenuki.\"</string>
+    <string name="joseki_explorer_default_description">## Explorador de josekis\n*Joseki* és un préstec lingüístic del japonès, que normalment fa referència a seqüències de moviments estàndard que es juguen en una cantonada i que donen com a resultat un intercanvi localment equilibrat.\n### Com utilitzar l\'explorador de josekis\nEls moviments marcats a continuació representen continuacions interessants per a la posició actual. Els colors representen com de bo es considera el moviment:\n* Els moviments verds es consideren òptims\n* Els moviments grocs es consideren correctes\n* Els moviments vermells es consideren erronis\n* Les marques liles són per a paranys\n* Les blaves per a situacions per resoldre\nPots tocar qualsevol d\'aquests moviments interessants per explorar les posicions a les quals condueixen.\n### Tenuki\nDe vegades, la millor opció és jugar en un altre lloc. D\'això se\'n sol dir tenuki. Si fer tenuki és una opció interessant en la posició actual, s\'activarà el botó de passar de la part inferior esquerra. Podeu prémer-lo per veure quines posicions es poden donar si el jugador actual fa tenuki.</string>
     <string name="tutorial_basics_title">Conceptes bàsics</string>
     <string name="tutorial_basics_thebasics_title">Els fonaments</string>
-    <string name="tutorial_basics_thebasics_basic1_text">\"Recordeu les 3 regles següents:
-1. Les negres i les blanques s\'alternen per col·locar \"pedres\" al tauler
-2. Les pedres es col·loquen a la intersecció de les línies.
-3. Un cop col·locada la pedra no es pot moure mai, però pot ser capturada.
-Col·loqueu una pedra per continuar!</string>
+    <string name="tutorial_basics_thebasics_basic1_text">Recordeu les 3 regles següents:\n1. Les negres i les blanques s\'alternen per col·locar \"pedres\" al tauler\n2. Les pedres es col·loquen a la intersecció de les línies.\n3. Un cop col·locada la pedra no es pot moure mai, però pot ser capturada.\nCol·loqueu una pedra per continuar!</string>
     <string name="tutorial_basics_thebasics_capture1_page1_text">Amb una jugada més, la pedra blanca quedarà completament envoltada i capturada. De les pedres que es poden capturar amb una sola jugada es diu que estan en \"Atari\".</string>
     <string name="tutorial_basics_thebasics_capture1_page2_text">La pedra blanca ara està envoltada, així que...</string>
-    <string name="tutorial_basics_thebasics_capture1_page3_text">\"… es retira del tauler\"</string>
-    <string name="tutorial_basics_thebasics_capture1_page4_text">\"Si fos el torn del blanc, es podria \"escapar\" connectant una altra pedra.\"</string>
+    <string name="tutorial_basics_thebasics_capture1_page3_text">… es retira del tauler</string>
+    <string name="tutorial_basics_thebasics_capture1_page4_text">Si fos el torn del blanc, es podria \"escapar\" connectant una altra pedra.</string>
     <string name="tutorial_basics_thebasics_capture2_text">És el vostre torn! Captureu la pedra blanca.</string>
     <string name="tutorial_basics_thebasics_capture3_text">Aquesta vegada podeu capturar dues pedres amb una sola jugada!</string>
     <string name="tutorial_basics_thebasics_capture4_text">Encara que hi hagi altres pedres a prop, feu el mateix.</string>
@@ -630,19 +615,19 @@ Col·loqueu una pedra per continuar!</string>
     <string name="tutorial_basics_capturingstones_capture6_text">Les pedres de la cantonada són encara més vulnerables.</string>
     <string name="tutorial_basics_capturingstones_capture7_text">Aquesta vegada hi ha dues pedres en atari. Captureu-les!</string>
     <string name="tutorial_basics_capturingstones_capture8_text">Aquesta vegada calen dues jugades per capturar les pedres blanques. Aneu amb compte, la primera jugada és important!</string>
-    <string name="tutorial_basics_capturingstones_capture9_text">\"És difícil escapar amb les pedres a la vora. Captureu les dues pedres blanques de la primera línia!\"</string>
+    <string name="tutorial_basics_capturingstones_capture9_text">És difícil escapar amb les pedres a la vora. Captureu les dues pedres blanques de la primera línia!</string>
     <string name="tutorial_basics_capturingstones_capture10_text">Massa pedres! Busqueu les pedres que són en Atari i captureu-les. Si us equivoqueu, en comptes d\'això, seran les vostres pedres les que seran capturades.</string>
     <string name="tutorial_basics_doubleatari_title">Doble Atari</string>
     <string name="tutorial_basics_doubleatari_doubleAtari1_text">En algunes posicions, les negres poden deixar a l\'hora dos grups diferents de pedres blanques en atari. Les negres normalment en capturaran al menys un!</string>
-    <string name="tutorial_basics_doubleatari_doubleAtari2_text">\"Aquí n\'hi ha un altre. On podeu fer un doble Atari?\"</string>
+    <string name="tutorial_basics_doubleatari_doubleAtari2_text">Aquí n\'hi ha un altre. On podeu fer un doble Atari?</string>
     <string name="tutorial_basics_illegalmoves_title">Jugades il·legals (la regla del suïcidi)</string>
     <string name="tutorial_basics_illegalmoves_suicide1_page_1_text">Podeu jugar gairebé a qualsevol lloc del tauler, amb algunes excepcions. En l\'exemple següent, les negres no poden jugar a A, ja que la nova pedra ja estaria envoltada.</string>
     <string name="tutorial_basics_illegalmoves_suicide1_page_2_text">D\'això se\'n diu una jugada de «suïcidi» i està prohibida.</string>
     <string name="tutorial_basics_illegalmoves_suicide1_page_3_text">Tot i això, hi ha una excepció. Si una jugada en aquest punt capturés una o més pedres blanques (com l\'exemple B de sota), la jugada està permesa.</string>
     <string name="tutorial_basics_illegalmoves_suicide1_page_4_text">La posició resultant queda així:</string>
-    <string name="tutorial_basics_illegalmoves_suicide2_text">\"Us torna a tocar capturar algunes pedres! Pista: d\'entrada pot semblar que és una jugada il·legal...\"</string>
+    <string name="tutorial_basics_illegalmoves_suicide2_text">Us torna a tocar capturar algunes pedres! Pista: d\'entrada pot semblar que és una jugada il·legal...</string>
     <string name="tutorial_basics_illegalmoves_suicide3_text">Les 4 pedres negres estan en Atari! Captureu les pedres blanques abans que us capturin les vostres!</string>
-    <string name="tutorial_basics_illegalmoves_suicide4_text">\"Captureu les 2 pedres blanques que toquen les negres. Aquí no les podeu capturar amb una sola jugada.\"</string>
+    <string name="tutorial_basics_illegalmoves_suicide4_text">Captureu les 2 pedres blanques que toquen les negres. Aquí no les podeu capturar amb una sola jugada.</string>
     <string name="tutorial_basics_illegalmoves_suicide5_text">La pedra blanca de D5 separa les vostres pedres. Si la captureu, podreu connectar les vostres pedres i formar un grup fort. Aquest és un patró molt important al GO!</string>
     <string name="tutorial_intermediate_title">Intermedi</string>
     <string name="tutorial_intermediate_ladders_title">Escales</string>
@@ -652,35 +637,34 @@ Col·loqueu una pedra per continuar!</string>
     <string name="tutorial_intermediate_ladders_ladder1_branches_branch1_1_1_1_1_1_1_1_1_message">Si les blanques intenten resistir...</string>
     <string name="tutorial_intermediate_ladders_ladder1_branches_branch1_1_1_1_1_1_1_2_1_message">Si les blanques intenten resistir...</string>
     <string name="tutorial_intermediate_ladders_ladder1_branches_branch1_1_1_1_1_1_1_2_2_message">Si les blanques intenten resistir...</string>
-    <string name="tutorial_intermediate_ladders_ladder2_text">\"Aquí teniu una altra escala. Ara us toca escapar. Aquesta vegada, però, la situació no és desesperada. La vostra pedra de F2 es troba al camí de l\'escala. Si hi podeu arribar, estareu salvats. D\'una pedra com aquesta se\'n diu \"trencaescales\"\"</string>
+    <string name="tutorial_intermediate_ladders_ladder2_text">Aquí teniu una altra escala. Ara us toca escapar. Aquesta vegada, però, la situació no és desesperada. La vostra pedra de F2 es troba al camí de l\'escala. Si hi podeu arribar, estareu salvats. D\'una pedra com aquesta se\'n diu \"trencaescales\"</string>
     <string name="tutorial_intermediate_ladders_ladder3_page1_text">Les escales són molt importants al Go. Però heu de pensar unes quantes jugades per endavant i no començar una lluita d\'escala si no esteu segurs de poder-la guanyar! Això és el que els passa a les blanques si juguen fins al final l\'escala perdedora de l\'exemple anterior.</string>
     <string name="tutorial_intermediate_twoeyes_title">Dos ulls</string>
     <string name="tutorial_intermediate_twoeyes_twoeyes1_text">Esteu completament envoltat! Quina és l\'única jugada que us pot salvar?</string>
     <string name="tutorial_intermediate_twoeyes_twoeyes2_page1_text">Correcte! En aquesta posició, tant A com B són jugades il·legals per a les blanques, ja que serien jugades de suïcidi sense capturar cap de les vostres pedres. Per tant, el vostre grup no podrà ser capturat mai!</string>
-    <string name="tutorial_intermediate_twoeyes_twoeyes3_text">\"I aquí? Com podeu assegurar que les vostres pedres no seran capturades?\"</string>
+    <string name="tutorial_intermediate_twoeyes_twoeyes3_text">I aquí? Com podeu assegurar que les vostres pedres no seran capturades?</string>
     <string name="tutorial_intermediate_captureraces_title">Curses de captures</string>
     <string name="tutorial_intermediate_captureraces_capturerace1_text">En aquest problema, tant el grup de les negres com el de les blanques de la part superior central estan envoltats. Com que cap dels dos té dos ulls, tots dos bàndols poden intentar capturar l\'altre. D\'aquesta situació se\'n diu cursa de captures (semeai) i normalment la guanya el bàndol amb més llibertats. En aquest cas, tots dos grups tenen 3 llibertats, de manera que guanyarà qui hagi de fer la següent jugada.\n\n
 Captureu les pedres blanques!</string>
-    <string name="tutorial_intermediate_captureraces_capturerace2_text">\"Aquí teniu un altre semeai. Guanyeu la cursa i captureu les blanques!\"</string>
+    <string name="tutorial_intermediate_captureraces_capturerace2_text">Aquí teniu un altre semeai. Guanyeu la cursa i captureu les blanques!</string>
     <string name="tutorial_intermediate_captureraces_capturerace3_text">Salveu les pedres negres de la cantonada!</string>
     <string name="tutorial_intermediate_snapback_title">Snapback</string>
     <string name="tutorial_intermediate_snapback_snapback1_text">Ara descobrireu una tècnica anomenada «snapback». Captureu les 4 pedres blanques!\n\nPista: primer heu de sacrificar una pedra!</string>
     <string name="tutorial_intermediate_snapback_snapback2_text">Com heu descobert, de vegades obligar les blanques a capturar una de les vostres pedres les posa en Atari. Feu servir la mateixa tècnica aquí!</string>
     <string name="tutorial_intermediate_snapback_snapback3_text">Aquí teniu una altra situació de snapback a la vora.</string>
     <string name="tutorial_intermediate_ko_title">KO - la regla de la «no repetició»</string>
-    <string name="tutorial_intermediate_ko_ko_page_1_text">\"Ara veurem l\'última regla que heu de saber per jugar al Go: la regla del KO. La regla estableix que una jugada és invàlida si produeix una repetició (és a dir, la posició anterior).
-Mirem un exemple. La pedra blanca d\'E6 està en Atari. Per tant, les negres la poden capturar.\"</string>
-    <string name="tutorial_intermediate_ko_ko_page_2_text">\"Ara la nova pedra negra d\'F6 està en Atari. Sense la regla del KO, les blanques la podrien capturar, però si ho fessin, la posició resultant...\"</string>
-    <string name="tutorial_intermediate_ko_ko_page_3_text">\"… seria la mateixa que la inicial! Aquí, sense la regla del KO, les negres tornarien a capturar…\"</string>
-    <string name="tutorial_intermediate_ko_ko_page_4_text">\"… i la partida quedaria atrapada en un bucle. Per evitar-ho, la regla del KO estableix que aquí les blanques no poden recapturar a E6, sinó que primer han de jugar en un altre lloc.\"</string>
-    <string name="tutorial_intermediate_ko_ko_page_5_text">\"Ara, si les negres volen salvar la pedra que és en atari poden jugar a E6...</string>
+    <string name="tutorial_intermediate_ko_ko_page_1_text">Ara veurem l\'última regla que heu de saber per jugar al Go: la regla del KO. La regla estableix que una jugada és invàlida si produeix una repetició (és a dir, la posició anterior).\nMirem un exemple. La pedra blanca d\'E6 està en Atari. Per tant, les negres la poden capturar.</string>
+    <string name="tutorial_intermediate_ko_ko_page_2_text">Ara la nova pedra negra d\'F6 està en Atari. Sense la regla del KO, les blanques la podrien capturar, però si ho fessin, la posició resultant...</string>
+    <string name="tutorial_intermediate_ko_ko_page_3_text">… seria la mateixa que la inicial! Aquí, sense la regla del KO, les negres tornarien a capturar…</string>
+    <string name="tutorial_intermediate_ko_ko_page_4_text">… i la partida quedaria atrapada en un bucle. Per evitar-ho, la regla del KO estableix que aquí les blanques no poden recapturar a E6, sinó que primer han de jugar en un altre lloc.</string>
+    <string name="tutorial_intermediate_ko_ko_page_5_text">Ara, si les negres volen salvar la pedra que és en atari poden jugar a E6...</string>
     <string name="tutorial_intermediate_ko_ko_page_6_text">Així doncs, les negres han guanyat la lluita de ko, però fixeu-vos que torna a ser el torn de les blanques i, per tant, han obtingut dues jugades a canvi d\'aquella única pedra.</string>
     <string name="tutorial_intermediate_ko_ko_page_7_text">Aquestes dues jugades de franc de vegades poden valdre més punts que guanyar la lluita de ko. Per tant, tots dos jugadors valoraran constantment si val la pena continuar la lluita de ko o obtenir les jugades addicionals.</string>
     <string name="tutorial_intermediate_ko_ko_page_8_text">Com pot passar això en una partida real? Aquí teniu un exemple. Tant les blanques com les negres tenen a dalt un grup de 5 pedres en perill. L\'única manera que tenen les negres per salvar el seu grup és jugar a E8. Ha començat una lluita de ko!</string>
     <string name="tutorial_intermediate_ko_ko_page_9_text">Les 5 pedres blanques de la part superior ara estan en Atari, però no poden recapturar a D8 perquè això repetiria la posició anterior! Per tant, juguen en un lloc que les negres no puguin ignorar, com ara E2</string>
     <string name="tutorial_intermediate_ko_ko_page_10_text">Ara les 8 pedres negres de la part inferior esquerra estan en perill, així que les negres fan números: prefereixen perdre 8 pedres a la part inferior o 5 a la superior? A contracor, les negres decideixen continuar la lluita de ko i salvar les pedres de la part inferior amb E1</string>
     <string name="tutorial_intermediate_ko_ko_page_11_text">Ara les blanques recapturen la pedra del ko</string>
-    <string name="tutorial_intermediate_ko_ko_page_12_text">\"Ara és el torn de les negres i no poden recapturar a causa de la regla del ko. Tot i això, tenen una oportunitat més: una jugada a B4 amenaça el grup blanc de la part inferior!\"</string>
+    <string name="tutorial_intermediate_ko_ko_page_12_text">Ara és el torn de les negres i no poden recapturar a causa de la regla del ko. Tot i això, tenen una oportunitat més: una jugada a B4 amenaça el grup blanc de la part inferior!</string>
     <string name="tutorial_intermediate_ko_ko_page_13_text">Ara és el torn de triar de les blanques. Haurien de capturar les 5 pedres de la part superior amb una jugada a B9 o salvar les 6 pedres de la part inferior? Decideixen jugar a A4.</string>
     <string name="tutorial_intermediate_ko_ko_page_14_text">Les negres no necessiten que les animin gaire per jugar a E8 ara.</string>
     <string name="tutorial_intermediate_ko_ko_page_15_text">Les blanques admeten a contracor que no tenen cap altra bona amenaça. Juguen en un altre lloc, com ara F4, i reconeixen que han perdut la lluita de ko.</string>
@@ -688,26 +672,26 @@ Mirem un exemple. La pedra blanca d\'E6 està en Atari. Per tant, les negres la 
     <string name="tutorial_intermediate_ko_ko_page_17_text">No us preocupeu si tot això us sembla massa complicat ara mateix. Com a principiant, només heu de recordar que no podeu recapturar una pedra si això repeteix la posició anterior.</string>
     <string name="tutorial_intermediate_puzzles_title">Problemes</string>
     <string name="tutorial_intermediate_puzzles_puzzles1_text">Captureu les 3 pedres blanques! Això de vegades s\'anomena el \"niu de la grua\"</string>
-    <string name="tutorial_intermediate_puzzles_puzzles2_text">\"És una cursa de captures, podeu guanyar-la?\"</string>
-    <string name="tutorial_intermediate_puzzles_corner1_text">\"Al Go, les lluites a les cantonades són molt habituals. Aquí teniu una cursa de captures a la cantonada. Podeu sortir-ne guanyant?\"</string>
-    <string name="tutorial_intermediate_puzzles_corner2_text">\"Captureu la pedra blanca que talla les negres. Aneu amb compte des de quin costat feu l\'Atari!\"</string>
+    <string name="tutorial_intermediate_puzzles_puzzles2_text">És una cursa de captures, podeu guanyar-la?</string>
+    <string name="tutorial_intermediate_puzzles_corner1_text">Al Go, les lluites a les cantonades són molt habituals. Aquí teniu una cursa de captures a la cantonada. Podeu sortir-ne guanyant?</string>
+    <string name="tutorial_intermediate_puzzles_corner2_text">Captureu la pedra blanca que talla les negres. Aneu amb compte des de quin costat feu l\'Atari!</string>
     <string name="tutorial_intermediate_puzzles_corner2_branches_branch1_4_4_message">4 pedres negres són mortes</string>
     <string name="tutorial_intermediate_puzzles_corner2_branches_branch2_3_message">3 pedres negres són mortes</string>
     <string name="tutorial_intermediate_puzzles_corner2_branches_branch2_5_message">2 pedres negres són mortes</string>
-    <string name="tutorial_intermediate_puzzles_corner2_branches_branch4_message">\"Les negres no es poden escapar\"</string>
-    <string name="tutorial_intermediate_puzzles_corner2_branches_branch6_message">\"Les negres no es poden escapar\"</string>
+    <string name="tutorial_intermediate_puzzles_corner2_branches_branch4_message">Les negres no es poden escapar</string>
+    <string name="tutorial_intermediate_puzzles_corner2_branches_branch6_message">Les negres no es poden escapar</string>
     <string name="tutorial_intermediate_falseeyes_title">Ulls falsos</string>
-    <string name="tutorial_intermediate_falseeyes_falseeyes1_page1_text">\"Si recordeu el tutorial anterior, un grup amb dos ulls no es pot capturar mai. Tot i això, de vegades, algunes de les pedres que envolten un ull no estan connectades al grup principal i es poden capturar per separat. Per exemple, a la posició de sota, D5 sembla un ull, però la pedra de C5 està en Atari i es pot capturar, deixant el grup central amb un sol ull.\n\nAnomenem D5 un \"fals ull\".\"</string>
-    <string name="tutorial_intermediate_falseeyes_falseeyes2_text">\"Les blanques han intentat salvar la seva pedra de C5 jugant a D5. Quina és la jugada guanyadora aquí?\"</string>
-    <string name="tutorial_intermediate_falseeyes_falseeyes3_text">\"Si les blanques intenten contraatacar d\'una altra manera, no fa res: igualment podeu capturar el grup central!\"</string>
-    <string name="tutorial_intermediate_falseeyes_falseeyes4_text">\"Aquesta vegada esteu a la defensiva. Sobreviviu fent dos ulls de veritat!\"</string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes1_page1_text">Si recordeu el tutorial anterior, un grup amb dos ulls no es pot capturar mai. Tot i això, de vegades, algunes de les pedres que envolten un ull no estan connectades al grup principal i es poden capturar per separat. Per exemple, a la posició de sota, D5 sembla un ull, però la pedra de C5 està en Atari i es pot capturar, deixant el grup central amb un sol ull.\n\nAnomenem D5 un \"fals ull\".</string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes2_text">Les blanques han intentat salvar la seva pedra de C5 jugant a D5. Quina és la jugada guanyadora aquí?</string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes3_text">Si les blanques intenten contraatacar d\'una altra manera, no fa res: igualment podeu capturar el grup central!</string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes4_text">Aquesta vegada esteu a la defensiva. Sobreviviu fent dos ulls de veritat!</string>
     <string name="tutorial_intermediate_falseeyes_falseeyes4_branches_branch2_message">Heu omplert el vostre propi ull</string>
     <string name="tutorial_intermediate_falseeyes_falseeyes4_branches_branch3_message">Heu omplert el vostre propi ull</string>
     <string name="tutorial_intermediate_falseeyes_falseeyes4_branches_branch4_message">F4 és ara un fals ull</string>
-    <string name="tutorial_intermediate_falseeyes_falseeyes5_text">\"Aquesta vegada heu d\'arreglar tots dos ulls!\"</string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes5_text">Aquesta vegada heu d\'arreglar tots dos ulls!</string>
     <string name="tutorial_intermediate_falseeyes_falseeyes5_branches_branch1_2_message">F5 és ara un fals ull.</string>
     <string name="tutorial_intermediate_falseeyes_falseeyes5_branches_branch2_message">C5 és un fals ull.</string>
-    <string name="tutorial_intermediate_falseeyes_falseeyes6_text">\"Aquí, a la vora, teniu un model habitual de fals ull. Arregleu-ho!\"</string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes6_text">Aquí, a la vora, teniu un model habitual de fals ull. Arregleu-ho!</string>
     <string name="tutorial_intermediate_falseeyes_falseeyes6_branches_branch2_message">Heu omplert el vostre propi ull</string>
     <string name="tutorial_intermediate_falseeyes_falseeyes6_branches_branch3_message">D9 és ara un fals ull</string>
     <string name="tutorial_intermediate_morepuzzles_title">Més problemes</string>
@@ -724,73 +708,30 @@ Mirem un exemple. La pedra blanca d\'E6 està en Atari. Per tant, les negres la 
     <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_5_5_message">Les negres estan aïllades</string>
     <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_6_message">Les negres estan aïllades</string>
     <string name="tutorial_intermediate_morepuzzles_puzzles5_text">Trenqueu la simetria</string>
-    <string name="tutorial_intermediate_morepuzzles_puzzles5_branches_branch3_4_message">\"Tres pedres negres no es poden escapar.\"</string>
-    <string name="tutorial_intermediate_morepuzzles_puzzles5_branches_branch5_message">\"Dues pedres negres no es poden escapar\"</string>
-    <string name="tutorial_intermediate_morepuzzles_puzzles5_branches_branch6_message">\"Dues pedres negres no es poden escapar\"</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles5_branches_branch3_4_message">Tres pedres negres no es poden escapar.</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles5_branches_branch5_message">Dues pedres negres no es poden escapar</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles5_branches_branch6_message">Dues pedres negres no es poden escapar</string>
     <string name="tutorial_advanced_title">Avançat</string>
     <string name="tutorial_advanced_thefirstmoves_name">Les primeres jugades</string>
-    <string name="tutorial_advanced_thefirstmoves_firstmoves1_page1_text">\"Fins ara ens hem centrat a capturar pedres. Tot i això, al principi de la partida no hi ha cap pedra al tauler. Veurem on heu de fer les vostres primeres jugades per tal d\'augmentar les vostres probabilitats de guanyar.
-
-Primer, dividim el tauler en 3 àrees. Aquestes són les cantonades.\"</string>
-    <string name="tutorial_advanced_thefirstmoves_firstmoves1_page2_text">\"… aquests són els costats…\"</string>
-    <string name="tutorial_advanced_thefirstmoves_firstmoves1_page3_text">\"... i aquest és el centre. Per descomptat, només són noms que fem servir per orientar-nos i no hi ha cap regla especial per a cap d\'aquests.\"</string>
-    <string name="tutorial_advanced_thefirstmoves_firstmoves1_page4_text">\"L\'objectiu del joc és encerclar més territori que el vostre adversari. Com que vós i el vostre adversari col·loqueu les pedres per torns, tots dos tindreu el mateix nombre de pedres. Per tant, el guanyador és el jugador que fa servir les seves pedres de manera més eficient.
-
-On és més eficient encerclar territori? A les cantonades, als costats o al centre?\"</string>
-    <string name="tutorial_advanced_thefirstmoves_firstmoves1_page5_text">\"Cadascun dels grups de sota encercla exactament 9 espais, de manera que cadascun obté 9 punts. Tot i això, el de la cantonada només necessita 6 pedres, el del costat 9, mentre que el del centre en necessita 12!\"</string>
-    <string name="tutorial_advanced_thefirstmoves_firstmoves1_page6_text">\"Per tant, els jugadors savis jugaran primer a les cantonades i, només quan aquestes estiguin ocupades, passaran als costats, deixant el centre per al final.\"</string>
-    <string name="tutorial_advanced_thefirstmoves_firstmoves2_text">\"Aquí teniu les primeres 20 jugades d\'una partida real entre dos jugadors professionals.\"</string>
+    <string name="tutorial_advanced_thefirstmoves_firstmoves1_page1_text">Fins ara ens hem centrat a capturar pedres. Tot i això, al principi de la partida no hi ha cap pedra al tauler. Veurem on heu de fer les vostres primeres jugades per tal d\'augmentar les vostres probabilitats de guanyar.\n\nPrimer, dividim el tauler en 3 àrees. Aquestes són les cantonades.</string>
+    <string name="tutorial_advanced_thefirstmoves_firstmoves1_page2_text">… aquests són els costats…</string>
+    <string name="tutorial_advanced_thefirstmoves_firstmoves1_page3_text">... i aquest és el centre. Per descomptat, només són noms que fem servir per orientar-nos i no hi ha cap regla especial per a cap d\'aquests.</string>
+    <string name="tutorial_advanced_thefirstmoves_firstmoves1_page4_text">L\'objectiu del joc és encerclar més territori que el vostre adversari. Com que vós i el vostre adversari col·loqueu les pedres per torns, tots dos tindreu el mateix nombre de pedres. Per tant, el guanyador és el jugador que fa servir les seves pedres de manera més eficient.\n\nOn és més eficient encerclar territori? A les cantonades, als costats o al centre?</string>
+    <string name="tutorial_advanced_thefirstmoves_firstmoves1_page5_text">Cadascun dels grups de sota encercla exactament 9 espais, de manera que cadascun obté 9 punts. Tot i això, el de la cantonada només necessita 6 pedres, el del costat 9, mentre que el del centre en necessita 12!</string>
+    <string name="tutorial_advanced_thefirstmoves_firstmoves1_page6_text">Per tant, els jugadors savis jugaran primer a les cantonades i, només quan aquestes estiguin ocupades, passaran als costats, deixant el centre per al final.</string>
+    <string name="tutorial_advanced_thefirstmoves_firstmoves2_text">Aquí teniu les primeres 20 jugades d\'una partida real entre dos jugadors professionals.</string>
     <string name="tutorial_advanced_themiddlegame_name">El mig-joc</string>
-    <string name="tutorial_advanced_themiddlegame_middlegame1_text">\"Les negres estan bloquejades a la cantonada inferior esquerra. El grup quedarà envoltat si no feu res.\"</string>
-    <string name="tutorial_advanced_themiddlegame_middlegame2_text">\"Les negres estan bloquejant les blanques a la zona inferior dreta. Les blanques encara no tenen 2 ulls.
-Llavors, les blanques han jugat a G2.
-
-Mireu què passa si les negres responen a F1 (o G1) abans que trobeu la resposta correcta.\"</string>
+    <string name="tutorial_advanced_themiddlegame_middlegame1_text">Les negres estan bloquejades a la cantonada inferior esquerra. El grup quedarà envoltat si no feu res.</string>
+    <string name="tutorial_advanced_themiddlegame_middlegame2_text">Les negres estan bloquejant les blanques a la zona inferior dreta. Les blanques encara no tenen 2 ulls.\nLlavors, les blanques han jugat a G2.\n\nMireu què passa si les negres responen a F1 (o G1) abans que trobeu la resposta correcta.</string>
     <string name="tutorial_advanced_endgamescoring_name">\"El final: Puntuació\"</string>
-    <string name="tutorial_advanced_endgamescoring_endgame1_page1_text">\"Aquí aprendreu a saber quan s\'ha acabat una partida i com comptar els territoris utilitzant taulers de 5x5. Tots dos jugadors han fet 5 jugades, després tots dos han passat i, per tant, la partida es considera acabada. Ja només queda comptar el territori.
-
-Proveu de comptar quantes interseccions han encerclat les negres. I les blanques?
-
-Pista: recordeu de comptar totes les interseccions, inclosos els costats i les cantonades, però no els punts que estan ocupats per pedres.\"</string>
-    <string name="tutorial_advanced_endgamescoring_endgame1_page2_text">\"Les negres tenen 5 punts a l\'esquerra i les blanques tenen 10 punts a la dreta.
-
-Per tant, les blanques guanyen per 5 punts.\"</string>
-    <string name="tutorial_advanced_endgamescoring_endgame1_page3_text">\"Però per què les negres no han intentat continuar jugant, llavors?
-
-Bé, no hi ha cap jugada que les negres puguin fer per augmentar la seva puntuació. Per exemple, si les negres envaeixen el costat dret, les blanques es poden defensar fàcilment i la nova pedra està morta.
-
-Les blanques han reduït el seu territori en 1, però han recuperat 1 punt perquè la pedra negra està morta i compta com a presonera.
-
-La puntuació aquí continua sent de 10 a 5.\"</string>
-    <string name="tutorial_advanced_endgamescoring_endgame1_page4_text">\"I llavors, què passa si les negres juguen al costat esquerre?
-
-L\'únic que aconseguirien és que el seu territori sigui ara més petit i, per tant, perdrien un punt.
-
-Per tant, les negres no tenen cap jugada bona i haurien de passar. Les blanques tenen més punts, així que també estan d\'acord en passar.
-
-Així doncs, la partida s\'ha acabat i les blanques guanyen.\"</string>
-    <string name="tutorial_advanced_endgamescoring_endgame1_page5_text">\"Aquí teniu una altra posició de partida acabada. Les negres tenen 5 punts, mentre que les blanques en tenen 6.
-
-Les dues interseccions del centre són territori neutral («Dame») i no compten per a la puntuació de cap dels jugadors.
-
-Qualsevol dels jugadors hi podria jugar, però no guanyaria ni perdria cap punt.\"</string>
-    <string name="tutorial_advanced_endgamescoring_endgame1_page6_text">\"Tot i que el territori és de bon tros la part més gran de la puntuació, recordeu que cal afegir-hi altres punts de bonificació.
-
-Les pedres capturades valen 1 punt cadascuna, així com les pedres \'mortes\' que encara són al tauler (que no tenen cap possibilitat de fer 2 ulls).
-
-A més a més, com que les negres juguen primer tenen un cert avantatge, i per compensar-ho les blanques reben una petita bonificació de punts (anomenada \'komi\').
-
-El valor del komi depèn de la mida del tauler, però normalment és de 5,5 o 6,5 punts. L\'0,5 garanteix que no hi hagi empats.
-
-Per sort, l\'aplicació us fa tots aquests càlculs :)\"</string>
+    <string name="tutorial_advanced_endgamescoring_endgame1_page1_text">Aquí aprendreu a saber quan s\'ha acabat una partida i com comptar els territoris utilitzant taulers de 5x5. Tots dos jugadors han fet 5 jugades, després tots dos han passat i, per tant, la partida es considera acabada. Ja només queda comptar el territori.\n\nProveu de comptar quantes interseccions han encerclat les negres. I les blanques?\n\nPista: recordeu de comptar totes les interseccions, inclosos els costats i les cantonades, però no els punts que estan ocupats per pedres.</string>
+    <string name="tutorial_advanced_endgamescoring_endgame1_page2_text">Les negres tenen 5 punts a l\'esquerra i les blanques tenen 10 punts a la dreta.\n\nPer tant, les blanques guanyen per 5 punts.</string>
+    <string name="tutorial_advanced_endgamescoring_endgame1_page3_text">Però per què les negres no han intentat continuar jugant, llavors?\n\nBé, no hi ha cap jugada que les negres puguin fer per augmentar la seva puntuació. Per exemple, si les negres envaeixen el costat dret, les blanques es poden defensar fàcilment i la nova pedra està morta.\n\nLes blanques han reduït el seu territori en 1, però han recuperat 1 punt perquè la pedra negra està morta i compta com a presonera.\n\nLa puntuació aquí continua sent de 10 a 5.</string>
+    <string name="tutorial_advanced_endgamescoring_endgame1_page4_text">I llavors, què passa si les negres juguen al costat esquerre?\n\nL\'únic que aconseguirien és que el seu territori sigui ara més petit i, per tant, perdrien un punt.\n\nPer tant, les negres no tenen cap jugada bona i haurien de passar. Les blanques tenen més punts, així que també estan d\'acord en passar.\n\nAixí doncs, la partida s\'ha acabat i les blanques guanyen.</string>
+    <string name="tutorial_advanced_endgamescoring_endgame1_page5_text">Aquí teniu una altra posició de partida acabada. Les negres tenen 5 punts, mentre que les blanques en tenen 6.\n\nLes dues interseccions del centre són territori neutral («Dame») i no compten per a la puntuació de cap dels jugadors.\n\nQualsevol dels jugadors hi podria jugar, però no guanyaria ni perdria cap punt.</string>
+    <string name="tutorial_advanced_endgamescoring_endgame1_page6_text">Tot i que el territori és de bon tros la part més gran de la puntuació, recordeu que cal afegir-hi altres punts de bonificació.\n\nLes pedres capturades valen 1 punt cadascuna, així com les pedres \'mortes\' que encara són al tauler (que no tenen cap possibilitat de fer 2 ulls).\n\nA més a més, com que les negres juguen primer tenen un cert avantatge, i per compensar-ho les blanques reben una petita bonificació de punts (anomenada \'komi\').\n\nEl valor del komi depèn de la mida del tauler, però normalment és de 5,5 o 6,5 punts. L\'0,5 garanteix que no hi hagi empats.\n\nPer sort, l\'aplicació us fa tots aquests càlculs :)</string>
     <string name="tutorial_advanced_cuttingstones_name">Les pedres que tallen</string>
-    <string name="tutorial_advanced_cuttingstones_cutting1_text">\"Sembla que les blanques tenen el territori més gran. Tot i això, el seu mur té un punt feble. Simplement «talleu» el mur de les blanques.
-
-Si ho aconseguiu, les blanques ho tindran difícil per assegurar que tots dos grups sobrevisquin.\"</string>
+    <string name="tutorial_advanced_cuttingstones_cutting1_text">Sembla que les blanques tenen el territori més gran. Tot i això, el seu mur té un punt feble. Simplement «talleu» el mur de les blanques.\n\nSi ho aconseguiu, les blanques ho tindran difícil per assegurar que tots dos grups sobrevisquin.</string>
     <string name="tutorial_advanced_cuttingstones_cutting1_branches2_message">Les pedres blanques estan connectades.</string>
-    <string name="tutorial_advanced_cuttingstones_cutting2_text">\"Les negres tenen 30 punts, mentre que les blanques en tenen 31. Per tant, sembla que les blanques guanyen d\'1 punt.
-
-Tot i això, el territori del costat inferior no és tot de les blanques.
-
-Simplement, talleu el mur de les blanques.\"</string>
+    <string name="tutorial_advanced_cuttingstones_cutting2_text">Les negres tenen 30 punts, mentre que les blanques en tenen 31. Per tant, sembla que les blanques guanyen d\'1 punt.\n\nTot i això, el territori del costat inferior no és tot de les blanques.\n\nSimplement, talleu el mur de les blanques.</string>
 </resources>
