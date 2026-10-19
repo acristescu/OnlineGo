@@ -20,7 +20,7 @@ class UserSessionRepository(
   private val appCoroutineScope: CoroutineScope,
   private val cookieStore: OGSCookieStore,
   private val persistenceManager: PersistenceManager,
-  private val clearAppData: () -> Unit,
+  private val appDataEraser: AppDataEraser,
 ) {
   // Note: Can't use constructor injection here because it will create a dependency loop and
   // Koin will throw a fit (at runtime)
@@ -77,12 +77,16 @@ class UserSessionRepository(
     CrashReporter.sendUnsentReports()
     uiConfig = null
     _loginStatus.tryEmit(LoginStatus.LoggedOut)
-    clearAppData()
+    appDataEraser.clearAppData()
   }
 
   suspend fun deleteAccount(password: String) {
     restService.deleteMyAccount(password)
   }
+}
+
+fun interface AppDataEraser {
+  fun clearAppData()
 }
 
 sealed interface LoginStatus {

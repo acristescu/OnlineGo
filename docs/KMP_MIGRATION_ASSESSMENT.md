@@ -13,8 +13,8 @@ kotlinx-collections-immutable are already multiplatform. The cost is dominated b
 in a release yet, and several still need on-device checks (section 1.2). Phase 3 has started with
 the Room database (6.25), the score estimator on iOS (6.26), `CrashReporter` (6.10), the HTTP
 client (6.27), storage (6.28), the session cluster (6.29) and the remaining repositories (6.30), so
-all of
-`data`, `gamelogic` and `usecases` is common code; phases 4-5 have not started.
+all of `data`, `gamelogic` and `usecases` is common code, wired by a shared Koin module (6.31);
+phases 4-5 have not started.
 
 Earlier, longer versions of this document:
 `git show d529259:docs/KMP_MIGRATION_ASSESSMENT.md` (original assessment) and
@@ -56,6 +56,8 @@ Still owed - unit tests cannot reach these:
   puzzle, onboarding via login and sign-up, and the deep link
   `adb shell am start -a android.intent.action.VIEW -d "sente://game/76828314/9/9"`. Check the
   `screen_view` names in Firebase DebugView.
+- [ ] **Koin graph after 6.31**: a cold start, login, a game and a tutorial; the HTTP log shows
+  bodies on debug only.
 - [ ] **Logout** (6.29): it wipes the app data and the app restarts logged out.
 - [ ] **Tutorials and Joseki after 6.30**: a tutorial opens (new JSON loader), and a Joseki
   position with labels shows them bold in its description and on the board.
@@ -64,11 +66,11 @@ Still owed - unit tests cannot reach these:
 
 ### 1.3 Phases 3-5
 
-| Phase                              | Work                                                                                                                                                                                                                                                                                                            | Estimate                        |
-|------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------|
-| **3 - data layer to `commonMain`** | The code is done (6.25, 6.27-6.30); `androidMain` holds only platform implementations. Left: the iOS Koin graph - database builder, DataStore paths, `KeyValueStore` and `SessionCookiePersistence` on `NSUserDefaults`, the Darwin engine and its network errors (6.10), `clearAppData`, the tutorials loader. | 4-6 weeks                       |
-| **4 - Compose Multiplatform**      | UI into `:shared/commonMain`; Koin and Molecule multiplatform artifacts with it. Resources (4.2), icons, chart, markdown, Material You. `BoardComposable` has four Android leaks with direct CMP equivalents: `nativeCanvas.drawText`, `pointerInteropFilter`, `Rect`, `colorResource`.                         | 6-10 weeks (resources dominate) |
-| **5 - iOS app**                    | SwiftUI shell + `ComposeUIViewController`, notifications, background refresh, billing, Google sign-in, App Store plumbing. Bitrise needs a macOS stack.                                                                                                                                                         | 4-8 weeks, excluding local AI   |
+| Phase                              | Work                                                                                                                                                                                                                                                                                                                                          | Estimate                        |
+|------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------|
+| **3 - data layer to `commonMain`** | The code is done (6.25, 6.27-6.30); `androidMain` holds only platform implementations. Left: `iosPlatformModule` (6.31) - database builder, DataStore paths, `KeyValueStore` and `SessionCookiePersistence` on `NSUserDefaults`, the Darwin engine and its network errors (6.10); `AppDataEraser` and `TutorialsSource` wait for the iOS app. | 4-6 weeks                       |
+| **4 - Compose Multiplatform**      | UI into `:shared/commonMain`; Koin and Molecule multiplatform artifacts with it. Resources (4.2), icons, chart, markdown, Material You. `BoardComposable` has four Android leaks with direct CMP equivalents: `nativeCanvas.drawText`, `pointerInteropFilter`, `Rect`, `colorResource`.                                                       | 6-10 weeks (resources dominate) |
+| **5 - iOS app**                    | SwiftUI shell + `ComposeUIViewController`, notifications, background refresh, billing, Google sign-in, App Store plumbing. Bitrise needs a macOS stack.                                                                                                                                                                                       | 4-8 weeks, excluding local AI   |
 
 Estimates are order-of-magnitude, single developer. The one data point so far: the serialization
 slice came in on time only because the golden-JSON corpus was dropped, which moved verification
@@ -88,6 +90,12 @@ iosApp/    Xcode project - SwiftUI shell, BGTaskScheduler, StoreKit, UNUserNotif
 
 Layering inside `:shared` lives in package names; `commonMain` / `androidMain` / `iosMain` do the
 job a module split would, since the compiler rejects `android.*` in `commonMain`.
+
+The Koin graph follows the same three layers (6.31): `sharedModule` in `commonMain` defines
+everything platform-independent, `androidPlatformModule` / `iosPlatformModule` implement the
+platform contract, and each app is the composition root - it calls `startKoin` and adds app-only
+bindings. On iOS the root is a Kotlin `initKoin()` in `iosMain` that Swift calls, since Swift
+cannot write Koin modules.
 
 A nine-module `:core:*` split is the default advice and wrong here: no `build-logic` (nine
 hand-kept build files on a brand-new toolchain), one `Res` class per module fragments the
@@ -187,8 +195,8 @@ one module so there is one `Res` class.
 ## 6. Done - what is still load-bearing
 
 Only traps, deliberate behaviour changes, and decisions that look wrong but are not. Unit tests
-stand at 150: 99 in `:shared` host tests (84 of them in `commonTest`, which also run on the iOS
-simulator), 4 in `:shared` `iosTest` (simulator only), 47 in `:app`.
+stand at 151: 99 in `:shared` host tests (84 of them in `commonTest`, which also run on the iOS
+simulator), 5 in `:shared` `iosTest` (simulator only), 47 in `:app`.
 
 ### 6.1 Moshi to kotlinx.serialization
 
@@ -258,7 +266,7 @@ Android (6.29).
 ### 6.9 Firebase Analytics behind `Analytics`
 
 `Analytics` is a common interface (`commonMain` `utils/Analytics.kt`); `FirebaseAppAnalytics` in
-`androidMain` is the only Firebase Analytics importer besides `Modules.kt`, which binds it as
+`androidMain` is the only Firebase Analytics importer; `androidPlatformModule` binds it as
 `single<Analytics>`. Parameters are a `Map<String, String?>`; event names are unchanged. iOS
 registers a Swift implementation with the iOS Koin graph.
 
@@ -423,7 +431,7 @@ test-local class.
 - **The plugin has no `externalNativeBuild` and no `BuildConfig`.** `CMakeLists.txt` and the JNI
   glue live in `:app`; JNI symbols follow the Kotlin class, not the module, so
   `System.loadLibrary` in `:shared` finds the `.so` in the APK. `HTTPConnectionFactory` takes
-  `logBodies`, which `Modules.kt` sets from the app's `BuildConfig.DEBUG`.
+  `logBodies`, which the app passes to `androidPlatformModule` from its `BuildConfig.DEBUG`.
 - Source sets: `androidMain`, `androidHostTest`, `commonMain`, `commonTest`. Host tests also run
   `commonTest`. The task is `:shared:testAndroidHostTest`; Bitrise runs it as a `script` step,
   since `android-unit-test` looks for `testDebugUnitTest`.
@@ -460,8 +468,9 @@ test-local class.
 - `Database`, `GameDao`, `PuzzleDao` and `DbTypeConverters` are in `commonMain`, same package.
   Version 20 and the schema are unchanged: `schemas/.../20.json` came out byte-identical, so the
   identity hash matches and an older APK still opens the file.
-- **Android keeps the framework SQLite** (no `setDriver`); `Modules.kt` builds the database as
-  before, `fallbackToDestructiveMigration` included. iOS gets `BundledSQLiteDriver` (`iosMain`
+- **Android keeps the framework SQLite** (no `setDriver`); `androidPlatformModule` supplies the
+  builder and `sharedModule` adds `fallbackToDestructiveMigration` and builds it. iOS gets
+  `BundledSQLiteDriver` (`iosMain`
   only). No iOS builder or database path yet - that comes with the iOS Koin graph.
 - Every DAO function is `suspend` or returns `Flow`, the `@Transaction` bodies included; native
   targets reject blocking DAOs. Callers were already in coroutines, so only `suspend` spread to
@@ -531,7 +540,8 @@ test-local class.
   okio temp file.
 - **`PersistenceManager` stays synchronous and on the same SharedPreferences file.** It is in
   `commonMain` over a four-method `KeyValueStore`; `SharedPreferencesKeyValueStore` opens `login`,
-  named in `Modules.kt`. A move to DataStore would have needed a migration that drops the old keys,
+  named in `androidPlatformModule`. A move to DataStore would have needed a migration that drops the
+  old keys,
   taking the downgrade path and, if it failed, the session with it. `PersistenceManagerTest` pins
   the key names. The UIConfig and its timestamp are now two writes instead of one edit; a crash
   between them only forces a UIConfig refresh.
@@ -545,9 +555,9 @@ test-local class.
 - `UserSessionRepository`, `OGSRestService`, `OGSWebSocketService`, `GameConnection`,
   `ChatRepository`, `SocketDebugRepository` and `SocketConnectedRepository` moved together: they
   form one dependency cycle. `koin-core` is a `commonMain` dependency.
-- **`UserSessionRepository` takes `clearAppData: () -> Unit` instead of a `Context`.** `Modules.kt`
-  passes `ActivityManager.clearApplicationUserData()`, which wipes everything and kills the
-  process; iOS has no equivalent and must clear its own stores.
+- **`UserSessionRepository` takes an `AppDataEraser` instead of a `Context`** (a lambda until
+  6.31). The Android one calls `ActivityManager.clearApplicationUserData()`, which wipes everything
+  and kills the process; iOS has no equivalent and must clear its own stores.
 - `GlobalContext.get()` became `KoinPlatform.getKoin()` in the three lazy lookups (6.8).
 - The `ebi` device id uses `Random.nextDouble()` instead of `Math.random()`; on the JVM the string
   has the same `0.xxx` shape it takes the digits from.
@@ -560,9 +570,9 @@ test-local class.
   `NativeEstimator`.
 - `retryOnIOException` catches `kotlinx.io.IOException`, a typealias of `java.io.IOException` on
   the JVM, so it retries the same OkHttp failures.
-- **`TutorialsRepository` takes `loadTutorialsJson: () -> String`**; `Modules.kt` reads
-  `tutorials.json` from the app's assets and the repository decodes it with `decodeFromString`.
-  Phase 4 can swap the lambda for a Compose resource read.
+- **`TutorialsRepository` takes a `TutorialsSource`** (a lambda until 6.31); the app's one reads
+  `tutorials.json` from its assets and the repository decodes it with `decodeFromString`. Phase 4
+  can swap it for a Compose resource read.
 - **Joseki label extraction** (`extractLabelsFromDescription`) is a top-level `internal` function
   on `Regex.replace` instead of `java.util.regex`'s `appendReplacement`, pinned by
   `JosekiLabelsTest`. A `$` or `\` label is now inserted literally instead of being read as a
@@ -570,3 +580,25 @@ test-local class.
 - **Known bug, unchanged:** `<(.):([A-H]|[J-T]\d{1,2})>` groups as "one letter A-H, or J-T with
   digits", so marks in columns A-H (`<A:D4>`) never match and stay as raw text. The intended
   pattern is `[A-HJ-T]\d{1,2}`; fixing it changes what the Joseki explorer shows.
+
+### 6.31 Koin modules follow the layers
+
+- **`sharedModule`** (`commonMain` `di/SharedModule.kt`): `appJson`, the cookie store, the
+  `HttpClient` (`HttpClient(engine)` plus `configureOGSClient` and `WebSockets`), Ktorfit, both
+  services, the database and DAOs, every repository, `PersistenceManager` and the use case.
+- **The platform contract** is what `sharedModule` gets but does not define: an `HttpClientEngine`,
+  `SessionCookiePersistence`, `KeyValueStore`, the two `DataStore`s under `SETTINGS_DATA_STORE` and
+  `REVIEW_PROMPT_DATA_STORE`, a `RoomDatabase.Builder<Database>`, `Analytics`, `AppDataEraser`,
+  `TutorialsSource` and the application `CoroutineScope`. `iosTest/.../SharedModuleTest` starts
+  Koin with stubs for exactly that list and resolves every definition, so a definition added
+  without its platform binding fails there (checked by removing one).
+- **`androidPlatformModule(logHttpBodies)`** (`androidMain`): OkHttp through
+  `HTTPConnectionFactory`,
+  the SharedPreferences stores, the DataStore delegates, the Room builder, Firebase Analytics and
+  the `ActivityManager` eraser. It uses `get<Context>()`, so `:shared` needs no `koin-android`.
+- **`:app`'s `Modules.kt` is the composition root**: the application scope, `TutorialsSource`
+  (its asset), `AppLocaleManager`, notifications, `WhatsNewUtils`, KataGo, ViewModels, Play Store,
+  Espresso and the review prompt. `:app` no longer depends on Ktor or Ktorfit directly.
+- `AppDataEraser` and `TutorialsSource` are `fun interface`s because Koin cannot tell `() -> Unit`
+  bindings apart; the lambdas of 6.29 and 6.30 only worked because `Modules.kt` built those
+  repositories by hand.

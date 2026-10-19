@@ -14,7 +14,7 @@ import kotlinx.coroutines.launch
 class TutorialsRepository(
   private val appCoroutineScope: CoroutineScope,
   private val settingsRepository: SettingsRepository,
-  private val loadTutorialsJson: () -> String,
+  private val tutorialsSource: TutorialsSource,
 ) : SocketConnectedRepository {
 
   private lateinit var hardcodedTutorialsData: List<TutorialGroup>
@@ -56,7 +56,7 @@ class TutorialsRepository(
   }
 
   private fun readJSONFromResources(): List<TutorialGroup> =
-    appJson.decodeFromString<List<TutorialGroup>>(loadTutorialsJson())
+    appJson.decodeFromString<List<TutorialGroup>>(tutorialsSource.readJson())
 
   fun markTutorialCompleted(tutorial: Tutorial) {
     appCoroutineScope.launch(Dispatchers.IO) {
@@ -72,4 +72,8 @@ class TutorialsRepository(
 
   override fun onSocketDisconnected() {
   }
+}
+
+fun interface TutorialsSource {
+  fun readJson(): String
 }

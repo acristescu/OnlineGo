@@ -138,12 +138,6 @@ dependencies {
   implementation(libs.play.services.auth)
   implementation(libs.play.review.ktx)
 
-  // Networking
-  implementation(libs.ktorfit.lib)
-  implementation(libs.ktor.client.content.negotiation)
-  implementation(libs.ktor.serialization.kotlinx.json)
-  implementation(libs.ktor.client.okhttp)
-
   // Serialization
   implementation(libs.kotlinx.serialization.json)
 
@@ -178,7 +172,6 @@ dependencies {
 
   // Unit Testing
   testImplementation(libs.bundles.testing)
-  testImplementation(libs.ktor.client.mock)
 
   // Android Testing
   androidTestImplementation(libs.bundles.android.testing)

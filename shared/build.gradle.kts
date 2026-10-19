@@ -58,6 +58,7 @@ kotlin {
 
     androidMain.dependencies {
       api(libs.okhttp.logging.interceptor)
+      implementation(libs.ktor.client.okhttp)
 
       implementation(libs.androidx.core.ktx)
 
