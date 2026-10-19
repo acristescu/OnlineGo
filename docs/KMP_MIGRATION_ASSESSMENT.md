@@ -9,12 +9,14 @@ is no RxJava, no `Parcelable`, and Koin, Molecule, Room, DataStore, `ViewModel`,
 kotlinx-collections-immutable are already multiplatform. The cost is dominated by resources
 (663 strings x 16 locales) and the local-AI engine, which cannot run on iOS as built today.
 
-**Status.** Phases 0-3 are finished: thirty-two slices are done (section 6). None has shipped
-in a release yet, and several still need on-device checks (section 1.2). Phase 3 moved the Room
+**Status.** Phases 0-3 are finished: thirty-three slices are done (section 6). Phases 0-2 have
+shipped in a release; Phase 3 has not, and several slices still need on-device checks (section 1.2).
+Phase 3 moved the Room
 database (6.25), the score estimator (6.26), `CrashReporter` (6.10), the HTTP client (6.27),
 storage (6.28), the session cluster (6.29) and the remaining repositories (6.30) to common code,
 wired by a shared Koin module (6.31) and an iOS platform module (6.32). Only the bindings Swift
-supplies are left, and they come with the iOS app; phases 4-5 have not started.
+supplies are left, and they come with the iOS app. The toolchain is set for Compose
+Multiplatform 1.12.2 (6.33); phases 4-5 have not started.
 
 Earlier, longer versions of this document:
 `git show d529259:docs/KMP_MIGRATION_ASSESSMENT.md` (original assessment) and
@@ -28,8 +30,10 @@ Earlier, longer versions of this document:
 
 Nothing left.
 
-**Owed after a release ships:** delete the legacy `CookiePersistence` prefs file, the
-`SerializableCookie` shim and the import branch (6.5). They are the rollback path until then.
+**Kept long-term:** the legacy `CookiePersistence` prefs file, the `SerializableCookie` shim and
+the import branch (6.5). Users update late, and anyone coming straight from a pre-6.5 version is
+logged out without them. Delete them only once the Play Console shows pre-6.5 installs are
+negligible.
 
 **Product call:** raising `minSdk` to 26 is the only way to drop core library desugaring (6.7).
 
@@ -174,14 +178,14 @@ one module so there is one `Res` class.
 
 ## 5. Risks
 
-| Risk                         | Notes                                                                                                                                                                                      |
-|------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| **Toolchain currency**       | Kotlin 2.3.20 / AGP 9.2.1 are very new. KMP plugin, Room KMP and Ktorfit work together for iOS with the configuration cache on (6.23, 6.25, 6.27); CMP is still unverified.                |
-| **Room on a live schema**    | v20, 4 auto-migrations, 13 converters, and `fallbackToDestructiveMigration` silently wipes caches on a bad migration. `MoveTree` blobs written by Moshi are now read by kotlinx (6.1).     |
-| **Localization regression**  | 663 strings x 16 locales moved wholesale; needs a mechanical diff, not eyeballing.                                                                                                         |
-| **iOS background behaviour** | `BGAppRefreshTask` has no interval guarantee, so turn notifications will be worse than Android's 15-minute poll without server push (APNs), which OGS would have to support. No FCM today. |
-| **KataGo memory on iOS**     | A new class of risk that does not exist on Android, where the engine has its own process.                                                                                                  |
-| **Bandwidth**                | A multi-month refactor on a personal project. Phases 0-1 are the hedge: they pay off on their own.                                                                                         |
+| Risk                         | Notes                                                                                                                                                                                                             |
+|------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **Toolchain currency**       | Kotlin 2.4.21 / AGP 9.2.1 / Gradle 9.4.1, inside the supported matrix (6.33). KMP plugin, Room KMP and Ktorfit work together for iOS with the configuration cache on; CMP is chosen (1.12.2) but not yet applied. |
+| **Room on a live schema**    | v20, 4 auto-migrations, 13 converters, and `fallbackToDestructiveMigration` silently wipes caches on a bad migration. `MoveTree` blobs written by Moshi are now read by kotlinx (6.1).                            |
+| **Localization regression**  | 663 strings x 16 locales moved wholesale; needs a mechanical diff, not eyeballing.                                                                                                                                |
+| **iOS background behaviour** | `BGAppRefreshTask` has no interval guarantee, so turn notifications will be worse than Android's 15-minute poll without server push (APNs), which OGS would have to support. No FCM today.                        |
+| **KataGo memory on iOS**     | A new class of risk that does not exist on Android, where the engine has its own process.                                                                                                                         |
+| **Bandwidth**                | A multi-month refactor on a personal project. Phases 0-1 are the hedge: they pay off on their own.                                                                                                                |
 
 ---
 
@@ -231,8 +235,8 @@ Google OAuth constants are `@Query` defaults; both OkHttp and Ktor have `followR
 - **Only `csrftoken` and `sessionid`, only for the OGS host** - a trust boundary. If OGS needs a
   third cookie, login breaks with no obvious cause: look at `KEPT_COOKIES`.
 - The legacy import decodes a Java-serialized blob: the shim must keep `serialVersionUID` and the
-  simple class name `SerializableCookie`. The old file is the downgrade path; contraction is owed
-  (1.1).
+  simple class name `SerializableCookie`. The old file is also the downgrade path; it stays until
+  pre-6.5 installs are gone (1.1).
 
 ### 6.6 Logging to Kermit
 
@@ -624,3 +628,27 @@ test-local class.
   URLs.
 - An iOS `AppDataEraser` must clear the database, both DataStores and both defaults suites itself
   (6.29).
+
+### 6.33 Toolchain for Compose Multiplatform
+
+- **Kotlin 2.4.21** (was 2.3.20). Kotlin 2.3.20-2.3.21 supports AGP only up to 9.0.0, so AGP 9.2.1
+  was outside the supported matrix; 2.4.20-2.4.21 covers AGP 8.5.2-9.3.1 and Gradle up to 9.7.0.
+  AGP stays 9.2.1 and Gradle 9.4.1: **AGP 9.4 is outside the 2.4.21 range.** It is tested against
+  Xcode 26.4; the local Xcode 27.0 builds and runs the simulator tests.
+- **KSP 2.3.12** (was 2.3.6). KSP2 versions are no longer tied to the Kotlin version. Ktorfit 2.7.5
+  infers its compiler plugin from the Kotlin version and needed no change.
+- **Compose BOM 2026.09.00** (Compose 1.12.1, was 1.12.0): the version CMP 1.12.2 is built on, so
+  Android keeps one Compose version when CMP arrives.
+- **Target: Compose Multiplatform 1.12.2**, the latest stable. 1.13 is alpha and raises
+  `compileSdk` to 37.1 and `minSdk` to 24. CMP's runtime 1.12.2 needs only stdlib 2.2.20, and its
+  Android artifacts resolve to androidx Compose 1.12.1.
+- **Material3 is the trap:** CMP 1.12 ships `org.jetbrains.compose.material3` 1.12.0-alpha03, based
+  on Jetpack 1.5.0-alpha22. The stable choice is 1.9.0, which maps to Jetpack material3 1.4.0 -
+  what the app ships today.
+- The other CMP 1.12.2 libraries: Lifecycle 2.11.0, `org.jetbrains.androidx.navigation` 2.10.0-rc01
+  (latest stable 2.9.2; the app uses androidx 2.9.7), resources 1.12.2. Koin 4.2.2's
+  `koin-compose-viewmodel` needs Lifecycle 2.9.6+.
+  `org.jetbrains.compose.material:material-icons-extended`
+  stops at 1.7.3, so vendored `ImageVector`s (section 3) stand.
+- Checked: the release compose report is byte-identical (241 composables, 6 unstable parameters),
+  R8 keeps the 15 route serializers, and all tests pass on Android and the iOS simulator.
