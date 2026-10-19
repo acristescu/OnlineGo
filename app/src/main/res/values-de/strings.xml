@@ -626,7 +626,7 @@
     <string name="tutorial_intermediate_ko_ko_page_9_text">Die 5 Steine von Weiß in der obersten Reihe stehen in Atari, aber er kann mit D8 nicht direkt zurückschlagen, da dies die letzte Position wiederholen würde! Daher spielt er dort, wo Schwarz ihn nicht ignorieren kann, wie E2</string>
     <string name="tutorial_intermediate_ko_ko_page_10_text">Nun ist unten links die Gruppe von Schwarz in Gefahr, sodass sie abwägen muss: Lieber 8 Steine unten oder 5 oben verlieren? Widerwillig entscheidet sich Schwarz, den Ko-Kampf fortzusetzen und die Steine am unteren Ende mit E1 zu retten</string>
     <string name="tutorial_intermediate_ko_ko_page_11_text">Nun kann Weiß das Ko schlagen</string>
-    <string name="tutorial_intermediate_ko_ko_page_12_text">\"Jetzt ist Schwarz am Zug, kann wegen der Ko-Regel nicht erneut schlagen. Sie hat jedoch eine weitere Chance: Der Zug auf B4 bedroht die weiße Gruppe am unteren Rand!\"</string>
+    <string name="tutorial_intermediate_ko_ko_page_12_text">Jetzt ist Schwarz am Zug, kann wegen der Ko-Regel nicht erneut schlagen. Sie hat jedoch eine weitere Chance: Der Zug auf B4 bedroht die weiße Gruppe am unteren Rand!</string>
     <string name="tutorial_intermediate_ko_ko_page_13_text">Nun muss sich Weiß entscheiden: Soll er die 5 Steine am oberen Rand fangen (mit B9) oder seine 6 Steine unten retten? Er entscheidet sich für A4\.\.\.</string>
     <string name="tutorial_intermediate_ko_ko_page_14_text">Schwarz braucht nicht viel Ermutigung, um jetzt auf E8 zu spielen\.\.\.</string>
     <string name="tutorial_intermediate_ko_ko_page_15_text">Weiß gibt widerwillig zu, dass er keine anderen, guten Drohungen hat. Er spielt woanders, z.B. auf F4, und räumt die Niederlage beim Ko-Kampf ein.</string>
