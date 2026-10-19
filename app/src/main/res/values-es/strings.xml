@@ -38,11 +38,11 @@
     <string name="title_bar_game_info_content_description">Información del juego</string>
     <string name="title_bar_more_content_description">Más</string>
     <string name="search_field_clear_content_description">Limpiar texto</string>
-    <string name="katago">KataGO </string>
+    <string name="katago">KataGO</string>
     <string name="territory">Territorio</string>
     <string name="hint">Pista</string>
     <string name="player">Jugador</string>
-    <string name="you"> Tú</string>
+    <string name="you">Tú</string>
     <string name="prisoners">Prisioneras</string>
     <string name="komi">Komi</string>
     <string name="ai_game_player_captures_and_komi">Capturas: %1$d · Komi: %2$s</string>
