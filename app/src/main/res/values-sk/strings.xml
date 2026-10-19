@@ -630,30 +630,14 @@
     <string name="joseki_explorer_button_next">Ďalší</string>
     <string name="joseki_explorer_link_video">" (video)"</string>
     <string name="joseki_explorer_link_external">" (externý odkaz)"</string>
-    <string name="joseki_explorer_default_description">\"## Joseki prehliadač
-*Joseki* je prevzaté slovo z japončiny, zvyčajne odkazuje na štandardnú sekvenciu ťahov zahratých v rohu, ktoré majú za výsledok rovnocennú výmenu.
-### Ako používať Joseki prehliadač
-Označené ťahy nižšie predstavujú zaujímavé pokračovanie aktuálnej pozície. Farby reprezentujú za ako dobrý je ťah považovaný:
-* Zelené ťahy sú považované za optimálne
-* Žlté ťahy sú považované za OK
-* Červené ťahy sú považované za chybu
-* Fialové ťahy sú pre nachytanie
-* Modré ťahy sú pre otvorené otázky.
-Môžete ťuknúť na tieto zaujímave ťahy na prehliadanie pozícii ku ktorým vedú.
-### Tenuki
-Niekedy je najlepším ťahom hrať niekde inde. To sa bežne označuje ako *tenuki*. Ak je tenuki považované za zaujímavú možnosť pre aktuálnu pozíciu, tlačidlo pass v ľavom dolnom rohu sa aktivuje a môžete ho stlačiť, aby ste videli aké pozície môžu vzniknúť potom čo aktuálny hráč zahrá tenuki.\"</string>
+    <string name="joseki_explorer_default_description">## Joseki prehliadač\n*Joseki* je prevzaté slovo z japončiny, zvyčajne odkazuje na štandardnú sekvenciu ťahov zahratých v rohu, ktoré majú za výsledok rovnocennú výmenu.\n### Ako používať Joseki prehliadač\nOznačené ťahy nižšie predstavujú zaujímavé pokračovanie aktuálnej pozície. Farby reprezentujú za ako dobrý je ťah považovaný:\n* Zelené ťahy sú považované za optimálne\n* Žlté ťahy sú považované za OK\n* Červené ťahy sú považované za chybu\n* Fialové ťahy sú pre nachytanie\n* Modré ťahy sú pre otvorené otázky.\nMôžete ťuknúť na tieto zaujímave ťahy na prehliadanie pozícii ku ktorým vedú.\n### Tenuki\nNiekedy je najlepším ťahom hrať niekde inde. To sa bežne označuje ako *tenuki*. Ak je tenuki považované za zaujímavú možnosť pre aktuálnu pozíciu, tlačidlo pass v ľavom dolnom rohu sa aktivuje a môžete ho stlačiť, aby ste videli aké pozície môžu vzniknúť potom čo aktuálny hráč zahrá tenuki.</string>
     <string name="tutorial_basics_title">Základné</string>
     <string name="tutorial_basics_thebasics_title">Základy</string>
-    <string name="tutorial_basics_thebasics_basic1_text">Zapamätajte si tieto 3 pravidlá:
-1. Čierny a biely sa striedajú v ukladaní \"kameňov\" na dosku.
-2. Kamene sú ukladané na priesečníky čiar.
-3. Keď je kameň položený, už sa nesmie nikdy posunúť, ale môže byť zajatý.
-
-Položte kameň pre pokračovanie!</string>
+    <string name="tutorial_basics_thebasics_basic1_text">Zapamätajte si tieto 3 pravidlá:\n1. Čierny a biely sa striedajú v ukladaní \"kameňov\" na dosku.\n2. Kamene sú ukladané na priesečníky čiar.\n3. Keď je kameň položený, už sa nesmie nikdy posunúť, ale môže byť zajatý.\n\nPoložte kameň pre pokračovanie!</string>
     <string name="tutorial_basics_thebasics_capture1_page1_text">Ďalším ťahom bude biely kameň úplne obkľúčený a zajatý. Kamene ktoré môžu byť zajaté sú v \"Atari\".</string>
     <string name="tutorial_basics_thebasics_capture1_page2_text">Biely kameň je teraz obkľúčený, takže…</string>
-    <string name="tutorial_basics_thebasics_capture1_page3_text">\"… je odobratý z dosky\"</string>
-    <string name="tutorial_basics_thebasics_capture1_page4_text">\"Ak by to bol bieleho ťah, mohol by \"utiecť\" pridaním ďalšieho kameňa.\"</string>
+    <string name="tutorial_basics_thebasics_capture1_page3_text">… je odobratý z dosky</string>
+    <string name="tutorial_basics_thebasics_capture1_page4_text">Ak by to bol bieleho ťah, mohol by \"utiecť\" pridaním ďalšieho kameňa.</string>
     <string name="tutorial_basics_thebasics_capture2_text">Váš ťah! Zajmite biely kameň.</string>
     <string name="tutorial_basics_thebasics_capture3_text">Môžete tentokrát zajať dva kamene jedným ťahom!</string>
     <string name="tutorial_basics_thebasics_capture4_text">Aj keď sú neďaleko ďalšie kamene, spravte to isté.</string>
@@ -663,19 +647,19 @@ Položte kameň pre pokračovanie!</string>
     <string name="tutorial_basics_capturingstones_capture6_text">Kamene v rohu sú ešte viac zraniteľné.</string>
     <string name="tutorial_basics_capturingstones_capture7_text">Tentokrát sú v atari dva kamene. Chyťte ich!</string>
     <string name="tutorial_basics_capturingstones_capture8_text">Tentokrát treba zahrať až dva ťahy, aby boli zajaté biele kamene. Opatrne, prvý ťah je dôležitý!</string>
-    <string name="tutorial_basics_capturingstones_capture9_text">\"Je náročné utiecť s kameňmi na okraji. Chyťte dva biele kamene na prvej linke!\"</string>
+    <string name="tutorial_basics_capturingstones_capture9_text">Je náročné utiecť s kameňmi na okraji. Chyťte dva biele kamene na prvej linke!</string>
     <string name="tutorial_basics_capturingstones_capture10_text">Veľmi veľa kameňov! Hľadajte kamene ktoré sú v atari a zajmite ich. Ak sa pomýlite, budú zajaté vaše kamene.</string>
     <string name="tutorial_basics_doubleatari_title">Dvojité atari</string>
     <string name="tutorial_basics_doubleatari_doubleAtari1_text">V určitých pozíciach čierny dokáže dať do atari dve skupiny naraz. Čierny zvyčajne zajme aspoň jednu v tejto situácii!</string>
-    <string name="tutorial_basics_doubleatari_doubleAtari2_text">\"Tu je ďalšia. Kde dokážete vytvoriť dvojité atari?\"</string>
+    <string name="tutorial_basics_doubleatari_doubleAtari2_text">Tu je ďalšia. Kde dokážete vytvoriť dvojité atari?</string>
     <string name="tutorial_basics_illegalmoves_title">Zakázané ťahy (pravidlo samovraždy)</string>
     <string name="tutorial_basics_illegalmoves_suicide1_page_1_text">Viete zahrať takmer kamkoľvek na doske s pár výnimkami. Na príklade nižšie, čierny nemôže zahrať na A, pretože by jeho kameň už bol obkľúčený.</string>
     <string name="tutorial_basics_illegalmoves_suicide1_page_2_text">Tomu sa hovorí \"samovražda\" a je zakázaná.</string>
     <string name="tutorial_basics_illegalmoves_suicide1_page_3_text">Avšak je tu výnimka. Ak by ťah zajal jeden alebo viac kameňov (ako B nižšie), ťah je dovolený.</string>
     <string name="tutorial_basics_illegalmoves_suicide1_page_4_text">Výsledná pozícia vyzerá takto:</string>
-    <string name="tutorial_basics_illegalmoves_suicide2_text">\"Teraz je znova rad na vás zajať nejaké kamene! Nápoveda: Zo začiatku to môže vyzerať ako zakázaný ťah…\"</string>
+    <string name="tutorial_basics_illegalmoves_suicide2_text">Teraz je znova rad na vás zajať nejaké kamene! Nápoveda: Zo začiatku to môže vyzerať ako zakázaný ťah…</string>
     <string name="tutorial_basics_illegalmoves_suicide3_text">4 čierne kamene sú v atari! Zajmite biele kamene pred tým, ako zajmú vás!</string>
-    <string name="tutorial_basics_illegalmoves_suicide4_text">\"Zajmite 2 biele kamene dotýkajúce sa čiernych. Tu sa nedajú zajať jedným ťahom.\"</string>
+    <string name="tutorial_basics_illegalmoves_suicide4_text">Zajmite 2 biele kamene dotýkajúce sa čiernych. Tu sa nedajú zajať jedným ťahom.</string>
     <string name="tutorial_basics_illegalmoves_suicide5_text">Biely kameň na D5 delí vaše kamene. Ak ho zajmete, Vaše kamene budú spojenou a silnou skupinou. Toto je veľmi dôležitý vzor v GO!</string>
     <string name="tutorial_intermediate_title">Mierne pokročilé</string>
     <string name="tutorial_intermediate_ladders_title">Schody</string>
@@ -685,33 +669,33 @@ Položte kameň pre pokračovanie!</string>
     <string name="tutorial_intermediate_ladders_ladder1_branches_branch1_1_1_1_1_1_1_1_1_message">Ak sa biely pokúsi brániť…</string>
     <string name="tutorial_intermediate_ladders_ladder1_branches_branch1_1_1_1_1_1_1_2_1_message">Ak sa biely pokúsi brániť…</string>
     <string name="tutorial_intermediate_ladders_ladder1_branches_branch1_1_1_1_1_1_1_2_2_message">Ak sa biely pokúsi brániť…</string>
-    <string name="tutorial_intermediate_ladders_ladder2_text">\"Tu sú ďalšie schody. Teraz je útek na vás. Hoci tentokrát nie je situácia beznádejná. Váš kameň na F2 je v ceste schodov. Ak sa k nemu dokážete dostať, ste v bezpečí. Tento kameň sa volá \"ničiteľ schodov\"\"</string>
+    <string name="tutorial_intermediate_ladders_ladder2_text">Tu sú ďalšie schody. Teraz je útek na vás. Hoci tentokrát nie je situácia beznádejná. Váš kameň na F2 je v ceste schodov. Ak sa k nemu dokážete dostať, ste v bezpečí. Tento kameň sa volá \"ničiteľ schodov\"</string>
     <string name="tutorial_intermediate_ladders_ladder3_page1_text">Schody sú v GO veľmi dôležité. Ale musíte myslieť zopár ťahov dopredu a nezačínať schodové súboje pokiaľ si nie ste istí, že ich vyhráte! Tu je zobrazené čo sa stane bielemu ak hrá nevyhrateľné schody z predchádzajúceho príkladu\.\.\.</string>
     <string name="tutorial_intermediate_twoeyes_title">Dve oči</string>
     <string name="tutorial_intermediate_twoeyes_twoeyes1_text">Ste v úplnom obkľúčení. Ktorý ťah je jediný, ktorý vás dokáže zachrániť?</string>
     <string name="tutorial_intermediate_twoeyes_twoeyes2_page1_text">Správne! V tejto pozícii rovnako A aj B sú zakázané ťahy pre bieleho, pretože by to boli samovražedné ťahy bez zajatia vašich kameňov. Z toho dôvodu nikdy nevedia byť zajaté!</string>
-    <string name="tutorial_intermediate_twoeyes_twoeyes3_text">\"A čo tu? Ako dokážete dosiahnuť, aby vaše kamene neboli zajaté?</string>
+    <string name="tutorial_intermediate_twoeyes_twoeyes3_text">A čo tu? Ako dokážete dosiahnuť, aby vaše kamene neboli zajaté?</string>
     <string name="tutorial_intermediate_captureraces_title">Boj o slobody / doberanie</string>
     <string name="tutorial_intermediate_captureraces_capturerace1_text">V tomto probléme ako čierna, tak aj biela skupina v strede je obkľúčená. Nakoľko ani jedna z nich nemá dve oči, obaja hráči môžu skúsiť zajať toho druhého. Táto situácia sa nazýva boj o slobody (semeai) a zvyčajne ju vyhráva ten, kto má viac slobôd. V tomto prípade obaja majú 3 slobody, čiže ktokoľvek je na ťahu, ten vyhrá.\nChyťte biele kamene!</string>
-    <string name="tutorial_intermediate_captureraces_capturerace2_text">\"Tu je ďalšie semeai. Vyhrajte doberanie a zajmite bieleho!\"</string>
+    <string name="tutorial_intermediate_captureraces_capturerace2_text">Tu je ďalšie semeai. Vyhrajte doberanie a zajmite bieleho!</string>
     <string name="tutorial_intermediate_captureraces_capturerace3_text">Zachráňte čierne kamene v rohu!</string>
     <string name="tutorial_intermediate_snapback_title">Spätné branie</string>
     <string name="tutorial_intermediate_snapback_snapback1_text">Teraz objavíte techniku \"spätné branie\". Zajmite 4 biele kamene!\n\nNápoveda: musíte najprv obetovať kameň!</string>
     <string name="tutorial_intermediate_snapback_snapback2_text">Ako ste zistili, niekedy donútiť súpera zajať jeden váš kameň ho dostane do atari. Použite rovnakú techniku tu!</string>
     <string name="tutorial_intermediate_snapback_snapback3_text">Tu je ďalšia situácia so spätným braním na kraji dosky.</string>
     <string name="tutorial_intermediate_ko_title">KO - pravidlo zákazu opakovania</string>
-    <string name="tutorial_intermediate_ko_ko_page_1_text">\"Teraz sa pozrieme na posledné pravidlo ktoré potrebujete vedieť k hraniu GO - pravidlo KO. Pravidlo vraví, že ťah je neplatný, ak spôsobuje repetíciu (napr. predošlú pozíciu). Pozrime sa na príklad. Biely kameň na E6 je v atari. Čiže čierny ho môže zajať.\"</string>
-    <string name="tutorial_intermediate_ko_ko_page_2_text">Teraz čierny kameň na F6 je v atari. Bez KO pravidla by ho biely mohol zajať, ale ak to spraví, výsledná pozícia…\"</string>
-    <string name="tutorial_intermediate_ko_ko_page_3_text">\"… by bola rovnaká ako počiatočná! Tuto, bez KO pravidla, čierny by zobral znova…\"</string>
-    <string name="tutorial_intermediate_ko_ko_page_4_text">\"… a hra by sa zasekla v slučke. Aby sme sa tomuto vyhli, pravidlo KO hovorí, že biely nesmie znovu zajať ťahom na E6, ale musí najskôr hrať niekam inde.\"</string>
-    <string name="tutorial_intermediate_ko_ko_page_5_text">\"Teraz ak čierny chce zachrániť kameň v atari, môže hrať na E6…</string>
+    <string name="tutorial_intermediate_ko_ko_page_1_text">Teraz sa pozrieme na posledné pravidlo ktoré potrebujete vedieť k hraniu GO - pravidlo KO. Pravidlo vraví, že ťah je neplatný, ak spôsobuje repetíciu (napr. predošlú pozíciu). Pozrime sa na príklad. Biely kameň na E6 je v atari. Čiže čierny ho môže zajať.</string>
+    <string name="tutorial_intermediate_ko_ko_page_2_text">Teraz čierny kameň na F6 je v atari. Bez KO pravidla by ho biely mohol zajať, ale ak to spraví, výsledná pozícia…</string>
+    <string name="tutorial_intermediate_ko_ko_page_3_text">… by bola rovnaká ako počiatočná! Tuto, bez KO pravidla, čierny by zobral znova…</string>
+    <string name="tutorial_intermediate_ko_ko_page_4_text">… a hra by sa zasekla v slučke. Aby sme sa tomuto vyhli, pravidlo KO hovorí, že biely nesmie znovu zajať ťahom na E6, ale musí najskôr hrať niekam inde.</string>
+    <string name="tutorial_intermediate_ko_ko_page_5_text">Teraz ak čierny chce zachrániť kameň v atari, môže hrať na E6…</string>
     <string name="tutorial_intermediate_ko_ko_page_6_text">Čierny teda vyhral KO súboj, ale všimnite si, že je teraz na ťahu znova biely, čiže biely získal dva ťahy za cenu jedného kameňa.</string>
     <string name="tutorial_intermediate_ko_ko_page_7_text">Tieto dva ťahy zdarma môžu byť hodné viac bodov, než výhra  KO súboja, takže obaja hráči budú neustále posudzovať, či sa oplatí v KO súboji pokračovať, alebo radšej získajú extra ťahy.</string>
     <string name="tutorial_intermediate_ko_ko_page_8_text">Ako toto môže nastať v skutočnej hre? Tu je príklad. Aj čierny a aj biely majú skupinu z piatich kameňov na vrchu v ohrození. Jediná cesta pre čierneho ako zachrániť svoju skupinu je hrať na E8. KO súboj sa začal!</string>
     <string name="tutorial_intermediate_ko_ko_page_9_text">5 kameňov bieleho na vrchu je teraz v atari, ale nemôže hneď zobrať ťahom na D8, nakoľko by to opakovalo poslednú pozíciu. Zahrá teda niekam, kde to čierny nemôže ignorovať, napríklad na E2.</string>
     <string name="tutorial_intermediate_ko_ko_page_10_text">Teraz je 8 čiernych kameňov vľavo dole v nebezpečí, takže čierny si to spočíta: stratím radšej 8 spodných kameňov, alebo 5 na vrchu? Neochotne sa čierny rozhodne pokračovať v KO súboji a zachrániť kamene dole pomocou E1.</string>
     <string name="tutorial_intermediate_ko_ko_page_11_text">Biely teraz berie späť KO.</string>
-    <string name="tutorial_intermediate_ko_ko_page_12_text">\"Teraz je na ťahu čierny a nemôže brať späť, z dôvodu pravidla KO. Má však jednu ďalšiu šancu: ťah na B4 ohrozuje bielu skupinu dole!\"</string>
+    <string name="tutorial_intermediate_ko_ko_page_12_text">Teraz je na ťahu čierny a nemôže brať späť, z dôvodu pravidla KO. Má však jednu ďalšiu šancu: ťah na B4 ohrozuje bielu skupinu dole!</string>
     <string name="tutorial_intermediate_ko_ko_page_13_text">Biely sa teraz musí rozhodnúť. Mal by zajať 5 kameňov na vrchu ťahom na B9, alebo zachrániť 6 kameňov dole? Rozhoduje sa hrať na A4\.\.\.</string>
     <string name="tutorial_intermediate_ko_ko_page_14_text">Čierny nepotrebuje veľa odvahy aby teraz hral na E8\.\.\.</string>
     <string name="tutorial_intermediate_ko_ko_page_15_text">Biely neochotne uzná, že nemá žiadne ďalšie dobré hrozby. Hrá inde, ako napríklad na F4 a uznáva, ze prehral KO súboj.</string>
@@ -719,26 +703,26 @@ Položte kameň pre pokračovanie!</string>
     <string name="tutorial_intermediate_ko_ko_page_17_text">Netrápte sa ak to teraz vyzeralo príliš komplikovane. Ako začiatočník si len zapamätajte, že nemôžete vziať späť kameň, ak by to opakovalo predošlú pozíciu.</string>
     <string name="tutorial_intermediate_puzzles_title">Problémy</string>
     <string name="tutorial_intermediate_puzzles_puzzles1_text">Zajmite 3 biele kamene! Toto je niekedy nazývané \"žeriavie hniezdo\".</string>
-    <string name="tutorial_intermediate_puzzles_puzzles2_text">\"Toto je boj o slobody, dokážete ho vyhrať?\"</string>
-    <string name="tutorial_intermediate_puzzles_corner1_text">\"V GO sú súboje v rohoch veľmi bežné. Tu je boj o slobody v rohu. Dokážete sa zachrániť?\"</string>
-    <string name="tutorial_intermediate_puzzles_corner2_text">\"Zajmite biely kameň strihajúci čierneho. Dajte pozor z ktorej strane zahráte atari!\"</string>
+    <string name="tutorial_intermediate_puzzles_puzzles2_text">Toto je boj o slobody, dokážete ho vyhrať?</string>
+    <string name="tutorial_intermediate_puzzles_corner1_text">V GO sú súboje v rohoch veľmi bežné. Tu je boj o slobody v rohu. Dokážete sa zachrániť?</string>
+    <string name="tutorial_intermediate_puzzles_corner2_text">Zajmite biely kameň strihajúci čierneho. Dajte pozor z ktorej strane zahráte atari!</string>
     <string name="tutorial_intermediate_puzzles_corner2_branches_branch1_4_4_message">4 čierne kamene sú mŕtve</string>
     <string name="tutorial_intermediate_puzzles_corner2_branches_branch2_3_message">3 čierne kamene sú mŕtve</string>
     <string name="tutorial_intermediate_puzzles_corner2_branches_branch2_5_message">2 čierne kamene sú mŕtve</string>
-    <string name="tutorial_intermediate_puzzles_corner2_branches_branch4_message">\"Čierny nedokáže ujsť\"</string>
-    <string name="tutorial_intermediate_puzzles_corner2_branches_branch6_message">\"Čierny nedokáže ujsť\"</string>
+    <string name="tutorial_intermediate_puzzles_corner2_branches_branch4_message">Čierny nedokáže ujsť</string>
+    <string name="tutorial_intermediate_puzzles_corner2_branches_branch6_message">Čierny nedokáže ujsť</string>
     <string name="tutorial_intermediate_falseeyes_title">Falošné oči</string>
-    <string name="tutorial_intermediate_falseeyes_falseeyes1_page1_text">Ak si pamätáte skorší tutoriál, skupina s dvoma očami nikdy nemôže byť zajatá. Avšak niekedy časť kameňov ktoré obkľučujú oko nie sú spojené s hlavnou skupinou a môžu byť zajaté zvlášť. Napríklad v pozícii nižšie D5 vyzerá ako oko, ale kameň na C5 je v atari a môže byť zajatý, čo zanechá prostrednú skupinu bez jediného oka.\n\nD5 nazývame \"falošné oko\".\"</string>
-    <string name="tutorial_intermediate_falseeyes_falseeyes2_text">\"Biely sa pokúsil zachrániť jeho kameň na C5 položením kameňa na D5. Čo je v tomto prípade výherným ťahom?\"</string>
-    <string name="tutorial_intermediate_falseeyes_falseeyes3_text">\"Ak sa biely naopak rozhodne bojovať, nezáleží na tom, stále viete zajať prostrednú skupinu!\"</string>
-    <string name="tutorial_intermediate_falseeyes_falseeyes4_text">\"Tentokrát sa bránite. Prežite vytvorením dvoch skutočných očí!\"</string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes1_page1_text">Ak si pamätáte skorší tutoriál, skupina s dvoma očami nikdy nemôže byť zajatá. Avšak niekedy časť kameňov ktoré obkľučujú oko nie sú spojené s hlavnou skupinou a môžu byť zajaté zvlášť. Napríklad v pozícii nižšie D5 vyzerá ako oko, ale kameň na C5 je v atari a môže byť zajatý, čo zanechá prostrednú skupinu bez jediného oka.\n\nD5 nazývame \"falošné oko\".</string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes2_text">Biely sa pokúsil zachrániť jeho kameň na C5 položením kameňa na D5. Čo je v tomto prípade výherným ťahom?</string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes3_text">Ak sa biely naopak rozhodne bojovať, nezáleží na tom, stále viete zajať prostrednú skupinu!</string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes4_text">Tentokrát sa bránite. Prežite vytvorením dvoch skutočných očí!</string>
     <string name="tutorial_intermediate_falseeyes_falseeyes4_branches_branch2_message">Zaplnili ste si svoje vlastné oko</string>
     <string name="tutorial_intermediate_falseeyes_falseeyes4_branches_branch3_message">Zaplnili ste si svoje vlastné oko</string>
     <string name="tutorial_intermediate_falseeyes_falseeyes4_branches_branch4_message">F4 je teraz falošné oko</string>
-    <string name="tutorial_intermediate_falseeyes_falseeyes5_text">\"Obidve oči tentokrát potrebujú opraviť!\"</string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes5_text">Obidve oči tentokrát potrebujú opraviť!</string>
     <string name="tutorial_intermediate_falseeyes_falseeyes5_branches_branch1_2_message">F5 je teraz falošné oko.</string>
     <string name="tutorial_intermediate_falseeyes_falseeyes5_branches_branch2_message">C5 je falošné oko.</string>
-    <string name="tutorial_intermediate_falseeyes_falseeyes6_text">\"Tu je častý príklad pre falošné oko na okraji. Opravte ho!\"</string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes6_text">Tu je častý príklad pre falošné oko na okraji. Opravte ho!</string>
     <string name="tutorial_intermediate_falseeyes_falseeyes6_branches_branch2_message">Zaplnili ste si svoje vlastné oko</string>
     <string name="tutorial_intermediate_falseeyes_falseeyes6_branches_branch3_message">D9 je teraz falošné oko</string>
     <string name="tutorial_intermediate_morepuzzles_title">Viac problémov</string>
@@ -755,69 +739,30 @@ Položte kameň pre pokračovanie!</string>
     <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_5_5_message">Čierny je izolovaný</string>
     <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_6_message">Čierny je izolovaný</string>
     <string name="tutorial_intermediate_morepuzzles_puzzles5_text">Narušte symetriu</string>
-    <string name="tutorial_intermediate_morepuzzles_puzzles5_branches_branch3_4_message">\"Tri čierne kamene nemôžu ujsť.\"</string>
-    <string name="tutorial_intermediate_morepuzzles_puzzles5_branches_branch5_message">\"Dva čierne kamene nemôžu ujsť\"</string>
-    <string name="tutorial_intermediate_morepuzzles_puzzles5_branches_branch6_message">\"Dva čierne kamene nemôžu ujsť\"</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles5_branches_branch3_4_message">Tri čierne kamene nemôžu ujsť.</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles5_branches_branch5_message">Dva čierne kamene nemôžu ujsť</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles5_branches_branch6_message">Dva čierne kamene nemôžu ujsť</string>
     <string name="tutorial_advanced_title">Pokročilé</string>
     <string name="tutorial_advanced_thefirstmoves_name">Prvé ťahy</string>
-    <string name="tutorial_advanced_thefirstmoves_firstmoves1_page1_text">\"Doposiaľ sme sa zameriavali na chytanie kameňov.Avšak na začiatku hry nie sú žiadne kamene na doske. Pozrieme sa na to, kam hrať prvé ťahy na zvýšenie vašich šancí na výhru.
-
-Najskôr si dosku rozdeľme na 3 časti. Tieto sú rohy:\"</string>
-    <string name="tutorial_advanced_thefirstmoves_firstmoves1_page2_text">\"… tieto sú strany…\"</string>
-    <string name="tutorial_advanced_thefirstmoves_firstmoves1_page3_text">\"… a toto je stred. Samozrejme toto sú len mená, ktoré používame pre orientáciu a nie sú pre ne žiadne špeciálne pravidlá.\"</string>
-    <string name="tutorial_advanced_thefirstmoves_firstmoves1_page4_text">\"Cieľom hry je ohraničiť viac územia ako váš súper. Keďže vy aj váš súper sa striedate v ukladaní kameňov, obaja budete mať rovnaké množstvo kameňov. Z toho dôvodu vyhráva hráč ktorý použije svoje kamene efektívnejšie.
-
-Kde je viac efektívne ohraničovať územie? V rohoch, na stranách, alebo v strede?\"</string>
-    <string name="tutorial_advanced_thefirstmoves_firstmoves1_page5_text">\"Každá zo skupín nižšie ohraničuje presne 9 voľných priesečníkov, takže každý získa 9 bodov. Avšak skupina v rohu vyžaduje len 6 kameňov, skupina na strane 9, zatiaľ čo skupina v strede vyžaduje 12!\"</string>
-    <string name="tutorial_advanced_thefirstmoves_firstmoves1_page6_text">\"Z toho dôvodu chytrí hráči hrajú najskôr v rohoch a až keď sú obsadené, presunú sa na strany, nechávajúc stred na koniec.\"</string>
-    <string name="tutorial_advanced_thefirstmoves_firstmoves2_text">\"Tu je prvých 20 ťahov zo skutočnej hry medzi dvoma profesionálnymi hráčmi.\"</string>
+    <string name="tutorial_advanced_thefirstmoves_firstmoves1_page1_text">Doposiaľ sme sa zameriavali na chytanie kameňov.Avšak na začiatku hry nie sú žiadne kamene na doske. Pozrieme sa na to, kam hrať prvé ťahy na zvýšenie vašich šancí na výhru.\n\nNajskôr si dosku rozdeľme na 3 časti. Tieto sú rohy:</string>
+    <string name="tutorial_advanced_thefirstmoves_firstmoves1_page2_text">… tieto sú strany…</string>
+    <string name="tutorial_advanced_thefirstmoves_firstmoves1_page3_text">… a toto je stred. Samozrejme toto sú len mená, ktoré používame pre orientáciu a nie sú pre ne žiadne špeciálne pravidlá.</string>
+    <string name="tutorial_advanced_thefirstmoves_firstmoves1_page4_text">Cieľom hry je ohraničiť viac územia ako váš súper. Keďže vy aj váš súper sa striedate v ukladaní kameňov, obaja budete mať rovnaké množstvo kameňov. Z toho dôvodu vyhráva hráč ktorý použije svoje kamene efektívnejšie.\n\nKde je viac efektívne ohraničovať územie? V rohoch, na stranách, alebo v strede?</string>
+    <string name="tutorial_advanced_thefirstmoves_firstmoves1_page5_text">Každá zo skupín nižšie ohraničuje presne 9 voľných priesečníkov, takže každý získa 9 bodov. Avšak skupina v rohu vyžaduje len 6 kameňov, skupina na strane 9, zatiaľ čo skupina v strede vyžaduje 12!</string>
+    <string name="tutorial_advanced_thefirstmoves_firstmoves1_page6_text">Z toho dôvodu chytrí hráči hrajú najskôr v rohoch a až keď sú obsadené, presunú sa na strany, nechávajúc stred na koniec.</string>
+    <string name="tutorial_advanced_thefirstmoves_firstmoves2_text">Tu je prvých 20 ťahov zo skutočnej hry medzi dvoma profesionálnymi hráčmi.</string>
     <string name="tutorial_advanced_themiddlegame_name">Stredná hra</string>
-    <string name="tutorial_advanced_themiddlegame_middlegame1_text">\"Čierny je blokovaný v ľavom dolnom rohu. Skupina bude obkľúčená ak nič nespravíte.\"</string>
-    <string name="tutorial_advanced_themiddlegame_middlegame2_text">\"Čierny blokuje bieleho v spodnej časti. Biely zatiaľ nemá 2 oči. Nato biely zahrá G2.
-
-Pozrite čo sa stane ak biely odpovie na F1 (alebo G1) predtým ako nájde správnu možnosť.\"</string>
+    <string name="tutorial_advanced_themiddlegame_middlegame1_text">Čierny je blokovaný v ľavom dolnom rohu. Skupina bude obkľúčená ak nič nespravíte.</string>
+    <string name="tutorial_advanced_themiddlegame_middlegame2_text">Čierny blokuje bieleho v spodnej časti. Biely zatiaľ nemá 2 oči. Nato biely zahrá G2.\n\nPozrite čo sa stane ak biely odpovie na F1 (alebo G1) predtým ako nájde správnu možnosť.</string>
     <string name="tutorial_advanced_endgamescoring_name">Koncovka: Počítanie</string>
-    <string name="tutorial_advanced_endgamescoring_endgame1_page1_text">\"Tu sa naučíte ako určiť, že je hra dokončená a ako počítať územia za použitia 5x5 dosiek. Obaja hráči spravili 5 ťahov, potom dali pass teda hra je považovaná za dokončenú. Ostáva iba spočítať územie.
-
-Skúste spočítať koľko priesečníkov čierny obkľúčil. A čo biely?
-
-Nápoveda: nezabudnite spočítať všetky priesečníky, vrátane strán a rohov, ale nie miesta, ktoré sú obsadené kameňmi.\"</string>
-    <string name="tutorial_advanced_endgamescoring_endgame1_page2_text">\"Čierny má 5 bodov vľavo a biely má 10 bodov vpravo. Teda biely vyhráva o 5 bodov.\"</string>
-    <string name="tutorial_advanced_endgamescoring_endgame1_page3_text">\"Ale prečo čierny neskúsil pokračovať v hre?
-
-Nuž, nezostal tu žiaden ťah, ktorý by vedel čierny zahrať, aby zvýšil svoje skóre. Pre príklad, ak čierny zaútočí na pravú stranu, biely sa ľahko ochráni a nový kameň bude mŕtvy.
-
-Biely zredukoval svoje územie o 1, ale získal jeden bod späť, pretože čierny kameň je mŕtvy a počíta sa ako zajatec.
-
-Skóre tu zostáva stále 10-5.\"</string>
-    <string name="tutorial_advanced_endgamescoring_endgame1_page4_text">\"Čo ak čierny hrá naopak na ľavú stranu?
-
-Jediné čo získa bude, že jeho územie je teraz menšie, čiže stratil bod.
-
-A preto čierny nemá dobré ťahy a mal by dať pass. Biely má viac bodov, takže je šťastný a tiež dáva pass.
-
-Teda hra sa skončila a biely vyhráva.\"</string>
-    <string name="tutorial_advanced_endgamescoring_endgame1_page5_text">\"V tejto situácii je ďalšia dokončená hra. Čierny má 5 bodov, zatiaľ čo biely má 6.
-
-Dva priesečníky v strede sú neutrálne teritórium (\'Dame\') a nepočítajú sa k skóre ľubovoľného z hráčov.
-
-Ľubovoľný hráč by tu mohol zahrať, ale nezíska a ani nestratí žiadne body.\"
-</string>
-    <string name="tutorial_advanced_endgamescoring_endgame1_page6_text">\"Zatiaľ čo územie je najväčšou časťou skórovania, pamätajte, že sú tu aj iné bonusové body, ktoré musia byť pridané.
-
-Akýkoľvek zajatý kameň sa ráta za 1 bod, rovnako ako \'mŕtve\' kamene ktoré sú stále na doske (ktoré nemajú šancu vytvoriť 2 oči).
-
-Taktiež, keďže čierny hrá prvý, má výhodu a pre kompenzáciu to získa biely malý bodový bonus (nazývaný \'komi\').
-
-Hodnota komi záleží od veľkosti dosky, ale zvyčajne je 5,5, alebo 6,5 boda. 0,5 boda zaisťuje, že v hrách nebude žiadna remíza.
-
-Našťastie, aplikácia spraví všetky tieto kalkulácie za vás :)\"</string>
+    <string name="tutorial_advanced_endgamescoring_endgame1_page1_text">Tu sa naučíte ako určiť, že je hra dokončená a ako počítať územia za použitia 5x5 dosiek. Obaja hráči spravili 5 ťahov, potom dali pass teda hra je považovaná za dokončenú. Ostáva iba spočítať územie.\n\nSkúste spočítať koľko priesečníkov čierny obkľúčil. A čo biely?\n\nNápoveda: nezabudnite spočítať všetky priesečníky, vrátane strán a rohov, ale nie miesta, ktoré sú obsadené kameňmi.</string>
+    <string name="tutorial_advanced_endgamescoring_endgame1_page2_text">Čierny má 5 bodov vľavo a biely má 10 bodov vpravo. Teda biely vyhráva o 5 bodov.</string>
+    <string name="tutorial_advanced_endgamescoring_endgame1_page3_text">Ale prečo čierny neskúsil pokračovať v hre?\n\nNuž, nezostal tu žiaden ťah, ktorý by vedel čierny zahrať, aby zvýšil svoje skóre. Pre príklad, ak čierny zaútočí na pravú stranu, biely sa ľahko ochráni a nový kameň bude mŕtvy.\n\nBiely zredukoval svoje územie o 1, ale získal jeden bod späť, pretože čierny kameň je mŕtvy a počíta sa ako zajatec.\n\nSkóre tu zostáva stále 10-5.</string>
+    <string name="tutorial_advanced_endgamescoring_endgame1_page4_text">Čo ak čierny hrá naopak na ľavú stranu?\n\nJediné čo získa bude, že jeho územie je teraz menšie, čiže stratil bod.\n\nA preto čierny nemá dobré ťahy a mal by dať pass. Biely má viac bodov, takže je šťastný a tiež dáva pass.\n\nTeda hra sa skončila a biely vyhráva.</string>
+    <string name="tutorial_advanced_endgamescoring_endgame1_page5_text">V tejto situácii je ďalšia dokončená hra. Čierny má 5 bodov, zatiaľ čo biely má 6.\n\nDva priesečníky v strede sú neutrálne teritórium (\'Dame\') a nepočítajú sa k skóre ľubovoľného z hráčov.\n\nĽubovoľný hráč by tu mohol zahrať, ale nezíska a ani nestratí žiadne body.</string>
+    <string name="tutorial_advanced_endgamescoring_endgame1_page6_text">Zatiaľ čo územie je najväčšou časťou skórovania, pamätajte, že sú tu aj iné bonusové body, ktoré musia byť pridané.\n\nAkýkoľvek zajatý kameň sa ráta za 1 bod, rovnako ako \'mŕtve\' kamene ktoré sú stále na doske (ktoré nemajú šancu vytvoriť 2 oči).\n\nTaktiež, keďže čierny hrá prvý, má výhodu a pre kompenzáciu to získa biely malý bodový bonus (nazývaný \'komi\').\n\nHodnota komi záleží od veľkosti dosky, ale zvyčajne je 5,5, alebo 6,5 boda. 0,5 boda zaisťuje, že v hrách nebude žiadna remíza.\n\nNašťastie, aplikácia spraví všetky tieto kalkulácie za vás :)</string>
     <string name="tutorial_advanced_cuttingstones_name">Strihanie kameňov</string>
-    <string name="tutorial_advanced_cuttingstones_cutting1_text">\"Vyzerá to akoby biely mal väčšie územie. Avšak jeho stena má slabinu. Jednoducho \"strihnite\" bieleho stenu.
-
-Ak uspejete, biely bude mať čo robiť aby zabezpečil život obom skupinám.\"</string>
+    <string name="tutorial_advanced_cuttingstones_cutting1_text">Vyzerá to akoby biely mal väčšie územie. Avšak jeho stena má slabinu. Jednoducho \"strihnite\" bieleho stenu.\n\nAk uspejete, biely bude mať čo robiť aby zabezpečil život obom skupinám.</string>
     <string name="tutorial_advanced_cuttingstones_cutting1_branches2_message">Biele kamene sú spojené.</string>
-    <string name="tutorial_advanced_cuttingstones_cutting2_text">\"Čierne kamene majú 30 bodov, zatiaľ čo biele majú 31 bodov. Teda to vyzerá, že biely vyhral o 1 bod. Avšak územie na spodnej strane nie je všetko bieleho.
-
-Jednoducho prestrihnite bieleho stenu.\"</string>
+    <string name="tutorial_advanced_cuttingstones_cutting2_text">Čierne kamene majú 30 bodov, zatiaľ čo biele majú 31 bodov. Teda to vyzerá, že biely vyhral o 1 bod. Avšak územie na spodnej strane nie je všetko bieleho.\n\nJednoducho prestrihnite bieleho stenu.</string>
 </resources>
