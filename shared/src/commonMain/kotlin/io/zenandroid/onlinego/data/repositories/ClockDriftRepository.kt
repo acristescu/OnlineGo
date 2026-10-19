@@ -50,7 +50,7 @@ class ClockDriftRepository(
         socketService.emit("net/ping") {
             "client" - Clock.System.now().toEpochMilliseconds()
             "drift" - drift
-            "latecy" - latency
+            "latency" - latency
         }
     }
 
