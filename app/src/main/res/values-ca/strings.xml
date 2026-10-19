@@ -42,7 +42,7 @@
     <string name="territory">Territori</string>
     <string name="hint">Pista</string>
     <string name="player">Jugador</string>
-    <string name="you"> Tu</string>
+    <string name="you">Tu</string>
     <string name="prisoners">Presoners</string>
     <string name="komi">Komi</string>
     <string name="ai_game_player_captures_and_komi">Captures: %1$d · Komi: %2$s</string>
@@ -258,7 +258,7 @@
     </plurals>
     <string name="time_control_absolute">Absolut: %1$s de temps total per cada jugador.</string>
     <string name="time_control_none">Sense límit de temps.</string>
-    <string name="time_control_pauses_on_weekends"> Pausa els caps de setmana.</string>
+    <string name="time_control_pauses_on_weekends">Pausa els caps de setmana.</string>
     <string name="whats_new_title">Què hi ha de nou</string>
     <string name="whats_new_got_it">Entesos</string>
     <string name="whats_new_open_source">Sente és de codi obert i està desenvolupada per voluntaris.</string>
