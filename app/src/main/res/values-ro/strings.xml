@@ -614,14 +614,30 @@
     <string name="joseki_explorer_button_next">Următor</string>
     <string name="joseki_explorer_link_video">" (video)"</string>
     <string name="joseki_explorer_link_external">" (link extern)"</string>
-    <string name="joseki_explorer_default_description">## Explorator de joseki\n*Joseki* este un termen împrumutat din japoneză, care se referă de obicei la secvențe standard de mutări jucate într-un colț și care duc la un schimb echilibrat pe plan local.\n### Cum se folosește Exploratorul de joseki\nMutările marcate mai jos reprezintă continuări interesante ale poziției actuale. Culorile arată cât de bună este considerată mutarea:\n* Mutările verzi sunt considerate optime\n* Mutările galbene sunt considerate acceptabile\n* Mutările roșii sunt considerate greșeli\n* Marcajele mov sunt pentru capcane\n* Cele albastre pentru întrebări deschise.\nPoți atinge oricare dintre aceste mutări interesante pentru a explora pozițiile la care duc.\n### Tenuki\nUneori cea mai bună mutare este să joci în altă parte. Acest lucru se numește de obicei *tenuki*. Dacă tenuki este considerat o opțiune interesantă pentru poziția actuală, butonul de pas din stânga jos este activ și îl poți apăsa pentru a vedea ce poziții pot apărea după ce jucătorul curent face tenuki.</string>
+    <string name="joseki_explorer_default_description">\"## Explorator de joseki
+*Joseki* este un termen împrumutat din japoneză, care se referă de obicei la secvențe standard de mutări jucate într-un colț și care duc la un schimb echilibrat pe plan local.
+### Cum se folosește Exploratorul de joseki
+Mutările marcate mai jos reprezintă continuări interesante ale poziției actuale. Culorile arată cât de bună este considerată mutarea:
+* Mutările verzi sunt considerate optime
+* Mutările galbene sunt considerate acceptabile
+* Mutările roșii sunt considerate greșeli
+* Marcajele mov sunt pentru capcane
+* Cele albastre pentru întrebări deschise.
+Poți atinge oricare dintre aceste mutări interesante pentru a explora pozițiile la care duc.
+### Tenuki
+Uneori cea mai bună mutare este să joci în altă parte. Acest lucru se numește de obicei *tenuki*. Dacă tenuki este considerat o opțiune interesantă pentru poziția actuală, butonul de pas din stânga jos este activ și îl poți apăsa pentru a vedea ce poziții pot apărea după ce jucătorul curent face tenuki.\"</string>
     <string name="tutorial_basics_title">Bazele</string>
     <string name="tutorial_basics_thebasics_title">Bazele jocului</string>
-    <string name="tutorial_basics_thebasics_basic1_text">Ține minte cele 3 reguli de mai jos:\n1. Negrul și Albul pun pe rând „pietre” pe tablă\n2. Pietrele se pun la intersecția liniilor.\n3. Odată pusă, o piatră nu mai poate fi mutată, dar poate fi capturată.\n\nPune o piatră pentru a continua!</string>
+    <string name="tutorial_basics_thebasics_basic1_text">Ține minte cele 3 reguli de mai jos:
+1. Negrul și Albul pun pe rând „pietre” pe tablă
+2. Pietrele se pun la intersecția liniilor.
+3. Odată pusă, o piatră nu mai poate fi mutată, dar poate fi capturată.
+
+Pune o piatră pentru a continua!</string>
     <string name="tutorial_basics_thebasics_capture1_page1_text">Cu încă o mutare, piatra albă va fi complet înconjurată și capturată. Se spune că pietrele care pot fi capturate într-o singură mutare sunt în „Atari”.</string>
     <string name="tutorial_basics_thebasics_capture1_page2_text">Piatra albă este acum înconjurată, așa că…</string>
-    <string name="tutorial_basics_thebasics_capture1_page3_text">… este scoasă de pe tablă</string>
-    <string name="tutorial_basics_thebasics_capture1_page4_text">Dacă ar fi fost rândul albului, ar fi putut „scăpa” conectând încă o piatră.</string>
+    <string name="tutorial_basics_thebasics_capture1_page3_text">\"… este scoasă de pe tablă\"</string>
+    <string name="tutorial_basics_thebasics_capture1_page4_text">\"Dacă ar fi fost rândul albului, ar fi putut „scăpa” conectând încă o piatră.\"</string>
     <string name="tutorial_basics_thebasics_capture2_text">E rândul tău! Capturează piatra albă.</string>
     <string name="tutorial_basics_thebasics_capture3_text">De data asta poți captura două pietre cu o singură mutare!</string>
     <string name="tutorial_basics_thebasics_capture4_text">Chiar dacă sunt și alte pietre în apropiere, procedează la fel.</string>
@@ -631,19 +647,20 @@
     <string name="tutorial_basics_capturingstones_capture6_text">Pietrele din colț sunt și mai vulnerabile.</string>
     <string name="tutorial_basics_capturingstones_capture7_text">De data asta două pietre sunt în atari. Capturează-le!</string>
     <string name="tutorial_basics_capturingstones_capture8_text">De data asta e nevoie de două mutări pentru a captura pietrele albe. Atenție, prima mutare este importantă!</string>
-    <string name="tutorial_basics_capturingstones_capture9_text">Este greu să fugi cu pietrele de pe margine. Capturează cele două pietre albe de pe prima linie!</string>
+    <string name="tutorial_basics_capturingstones_capture9_text">\"Este greu să fugi cu pietrele de pe margine. Capturează cele două pietre albe de pe prima linie!\"</string>
     <string name="tutorial_basics_capturingstones_capture10_text">Câte pietre! Caută pietrele care sunt în Atari și capturează-le. Dacă greșești, pietrele tale vor fi capturate.</string>
     <string name="tutorial_basics_doubleatari_title">Atari dublu</string>
-    <string name="tutorial_basics_doubleatari_doubleAtari1_text">În anumite poziții, negrul poate pune două grupuri albe diferite în Atari în același timp.\nÎn această situație, negrul va captura de obicei cel puțin unul dintre ele!</string>
-    <string name="tutorial_basics_doubleatari_doubleAtari2_text">Iată încă unul. Unde poți face un atari dublu?</string>
+    <string name="tutorial_basics_doubleatari_doubleAtari1_text">În anumite poziții, negrul poate pune două grupuri albe diferite în Atari în același timp.
+În această situație, negrul va captura de obicei cel puțin unul dintre ele!</string>
+    <string name="tutorial_basics_doubleatari_doubleAtari2_text">\"Iată încă unul. Unde poți face un atari dublu?\"</string>
     <string name="tutorial_basics_illegalmoves_title">Mutări ilegale (regula sinuciderii)</string>
     <string name="tutorial_basics_illegalmoves_suicide1_page_1_text">Poți juca aproape oriunde pe tablă, cu câteva excepții. În exemplul de mai jos, negrul nu poate juca la A, deoarece noua sa piatră ar fi deja înconjurată.</string>
     <string name="tutorial_basics_illegalmoves_suicide1_page_2_text">Se spune că aceasta este o mutare „sinucigașă” și este interzisă.</string>
     <string name="tutorial_basics_illegalmoves_suicide1_page_3_text">Există însă o excepție. Dacă o mutare ar captura una sau mai multe pietre albe (ca B mai jos), mutarea este permisă.</string>
     <string name="tutorial_basics_illegalmoves_suicide1_page_4_text">Poziția rezultată arată astfel:</string>
-    <string name="tutorial_basics_illegalmoves_suicide2_text">E rândul tău să capturezi din nou câteva pietre! Indiciu: la prima vedere poate părea o mutare ilegală…</string>
+    <string name="tutorial_basics_illegalmoves_suicide2_text">\"E rândul tău să capturezi din nou câteva pietre! Indiciu: la prima vedere poate părea o mutare ilegală…\"</string>
     <string name="tutorial_basics_illegalmoves_suicide3_text">Cele 4 pietre negre sunt în Atari! Capturează pietrele albe înainte să te captureze ele!</string>
-    <string name="tutorial_basics_illegalmoves_suicide4_text">Capturează cele 2 pietre albe care ating pietrele negre. Aici nu poți captura albul cu o singură mutare.</string>
+    <string name="tutorial_basics_illegalmoves_suicide4_text">\"Capturează cele 2 pietre albe care ating pietrele negre. Aici nu poți captura albul cu o singură mutare.\"</string>
     <string name="tutorial_basics_illegalmoves_suicide5_text">Piatra albă de la D5 îți separă pietrele. Dacă o capturezi, îți poți conecta pietrele și forma un grup puternic. Este un model foarte important în GO!</string>
     <string name="tutorial_intermediate_title">Nivel mediu</string>
     <string name="tutorial_intermediate_ladders_title">Scări</string>
@@ -653,33 +670,34 @@
     <string name="tutorial_intermediate_ladders_ladder1_branches_branch1_1_1_1_1_1_1_1_1_message">Dacă albul încearcă să reziste…</string>
     <string name="tutorial_intermediate_ladders_ladder1_branches_branch1_1_1_1_1_1_1_2_1_message">Dacă albul încearcă să reziste…</string>
     <string name="tutorial_intermediate_ladders_ladder1_branches_branch1_1_1_1_1_1_1_2_2_message">Dacă albul încearcă să reziste…</string>
-    <string name="tutorial_intermediate_ladders_ladder2_text">Iată încă o scară. Acum e rândul tău să scapi. De data asta situația nu este fără speranță. Piatra ta de la F2 se află pe traseul scării. Dacă ajungi la ea, ești în siguranță. O astfel de piatră se numește „rupător de scară”</string>
+    <string name="tutorial_intermediate_ladders_ladder2_text">\"Iată încă o scară. Acum e rândul tău să scapi. De data asta situația nu este fără speranță. Piatra ta de la F2 se află pe traseul scării. Dacă ajungi la ea, ești în siguranță. O astfel de piatră se numește „rupător de scară”\"</string>
     <string name="tutorial_intermediate_ladders_ladder3_page1_text">Scările sunt foarte importante în GO. Dar trebuie să gândești câteva mutări înainte și să nu începi o luptă de scară decât dacă ești sigur că o poți câștiga! Iată ce se întâmplă cu Albul dacă joacă până la capăt scara pierdută din exemplul anterior…</string>
     <string name="tutorial_intermediate_twoeyes_title">Doi ochi</string>
     <string name="tutorial_intermediate_twoeyes_twoeyes1_text">Ești complet înconjurat! Care este singura mutare care te poate salva?</string>
     <string name="tutorial_intermediate_twoeyes_twoeyes2_page1_text">Corect! În această poziție, atât A cât și B sunt mutări ilegale pentru alb, deoarece ar fi mutări sinucigașe fără să captureze vreuna dintre pietrele tale. Prin urmare, grupul tău nu mai poate fi capturat niciodată!</string>
-    <string name="tutorial_intermediate_twoeyes_twoeyes3_text">Ce zici de aici? Cum poți face în așa fel ca pietrele tale să nu fie capturate?</string>
+    <string name="tutorial_intermediate_twoeyes_twoeyes3_text">\"Ce zici de aici? Cum poți face în așa fel ca pietrele tale să nu fie capturate?\"</string>
     <string name="tutorial_intermediate_captureraces_title">Curse de capturare</string>
     <string name="tutorial_intermediate_captureraces_capturerace1_text">În această problemă, atât grupul negru cât și cel alb din partea de sus, la mijloc, sunt înconjurate. Deoarece niciunul nu are doi ochi, ambele părți pot încerca să captureze cealaltă. Această situație se numește cursă de capturare (semeai) și este de obicei câștigată de partea cu mai multe libertăți. În cazul acesta, ambele grupuri au 3 libertăți, așa că va câștiga cel care mută primul.\n\nCapturează pietrele albe!</string>
-    <string name="tutorial_intermediate_captureraces_capturerace2_text">Iată încă un semeai. Câștigă cursa și capturează albul!</string>
+    <string name="tutorial_intermediate_captureraces_capturerace2_text">\"Iată încă un semeai. Câștigă cursa și capturează albul!\"</string>
     <string name="tutorial_intermediate_captureraces_capturerace3_text">Salvează pietrele negre din colț!</string>
     <string name="tutorial_intermediate_snapback_title">Snapback</string>
     <string name="tutorial_intermediate_snapback_snapback1_text">Acum vei descoperi o tehnică numită „snapback”. Capturează cele 4 pietre albe!\n\nIndiciu: mai întâi trebuie să sacrifici o piatră!</string>
     <string name="tutorial_intermediate_snapback_snapback2_text">Cum ai descoperit, uneori faptul că îl obligi pe alb să captureze una dintre pietrele tale îl pune în atari. Folosește aceeași tehnică aici!</string>
     <string name="tutorial_intermediate_snapback_snapback3_text">Iată încă o situație de snapback, la margine.</string>
     <string name="tutorial_intermediate_ko_title">KO - regula „fără repetiție”</string>
-    <string name="tutorial_intermediate_ko_ko_page_1_text">Acum vom vedea ultima regulă pe care trebuie să o știi ca să joci GO: regula KO. Regula spune că o mutare este invalidă dacă ar produce o repetiție (adică o poziție anterioară).\nHai să ne uităm la un exemplu. Piatra albă de la E6 este în Atari. Așadar, negrul o poate captura.</string>
-    <string name="tutorial_intermediate_ko_ko_page_2_text">Acum noua piatră neagră de la F6 este în atari. Fără regula KO, albul ar putea să o captureze, dar dacă ar face-o, poziția rezultată…</string>
-    <string name="tutorial_intermediate_ko_ko_page_3_text">… ar fi identică cu cea inițială! Aici, fără regula KO, Negrul ar captura din nou…</string>
-    <string name="tutorial_intermediate_ko_ko_page_4_text">… și jocul ar rămâne blocat într-o buclă. Pentru a evita asta, regula KO spune că albul nu poate recaptura la E6 aici, ci trebuie să joace mai întâi în altă parte.</string>
-    <string name="tutorial_intermediate_ko_ko_page_5_text">Acum, dacă negrul vrea să salveze piatra aflată în atari, poate juca la E6…</string>
+    <string name="tutorial_intermediate_ko_ko_page_1_text">\"Acum vom vedea ultima regulă pe care trebuie să o știi ca să joci GO: regula KO. Regula spune că o mutare este invalidă dacă ar produce o repetiție (adică o poziție anterioară).
+Hai să ne uităm la un exemplu. Piatra albă de la E6 este în Atari. Așadar, negrul o poate captura.\"</string>
+    <string name="tutorial_intermediate_ko_ko_page_2_text">\"Acum noua piatră neagră de la F6 este în atari. Fără regula KO, albul ar putea să o captureze, dar dacă ar face-o, poziția rezultată…\"</string>
+    <string name="tutorial_intermediate_ko_ko_page_3_text">\"… ar fi identică cu cea inițială! Aici, fără regula KO, Negrul ar captura din nou…\"</string>
+    <string name="tutorial_intermediate_ko_ko_page_4_text">\"… și jocul ar rămâne blocat într-o buclă. Pentru a evita asta, regula KO spune că albul nu poate recaptura la E6 aici, ci trebuie să joace mai întâi în altă parte.\"</string>
+    <string name="tutorial_intermediate_ko_ko_page_5_text">\"Acum, dacă negrul vrea să salveze piatra aflată în atari, poate juca la E6…</string>
     <string name="tutorial_intermediate_ko_ko_page_6_text">Negrul a câștigat astfel lupta de ko, dar observă că este din nou rândul albului, deci albul a câștigat două mutări cu prețul acelei singure pietre.</string>
     <string name="tutorial_intermediate_ko_ko_page_7_text">Uneori cele două mutări gratuite pot valora mai multe puncte decât câștigarea luptei de ko, așa că ambii jucători vor evalua constant dacă merită să continue lupta de ko sau să obțină mutările suplimentare.</string>
     <string name="tutorial_intermediate_ko_ko_page_8_text">Cum poate apărea asta într-un joc real? Iată un exemplu. Atât negrul cât și albul au în partea de sus un grup de 5 pietre în pericol. Singura cale prin care negrul își poate salva grupul este să joace la E8. A început o luptă de KO!</string>
     <string name="tutorial_intermediate_ko_ko_page_9_text">Cele 5 pietre albe de sus sunt acum în Atari, dar albul nu poate recaptura la D8, deoarece asta ar repeta poziția anterioară! Așadar joacă undeva unde Negrul nu poate ignora, de exemplu la E2</string>
     <string name="tutorial_intermediate_ko_ko_page_10_text">Acum cele 8 pietre negre din stânga jos sunt în pericol, așa că Negrul socotește: ar prefera să piardă 8 pietre jos sau 5 sus? Fără tragere de inimă, Negrul alege să continue lupta de KO și să salveze pietrele de jos cu E1</string>
     <string name="tutorial_intermediate_ko_ko_page_11_text">Albul recaptură acum KO-ul</string>
-    <string name="tutorial_intermediate_ko_ko_page_12_text">Acum este rândul negrului și nu poate recaptura din cauza regulii KO. Are însă încă o șansă: o mutare la B4 amenință grupul alb de jos!</string>
+    <string name="tutorial_intermediate_ko_ko_page_12_text">\"Acum este rândul negrului și nu poate recaptura din cauza regulii KO. Are însă încă o șansă: o mutare la B4 amenință grupul alb de jos!\"</string>
     <string name="tutorial_intermediate_ko_ko_page_13_text">Acum e rândul Albului să aleagă. Să captureze cele 5 pietre de sus cu o mutare la B9 sau să salveze cele 6 pietre de jos? Alege să joace la A4…</string>
     <string name="tutorial_intermediate_ko_ko_page_14_text">Negrul nu are nevoie de prea multă încurajare ca să joace acum la E8…</string>
     <string name="tutorial_intermediate_ko_ko_page_15_text">Albul recunoaște fără tragere de inimă că nu mai are alte amenințări bune. Joacă în altă parte, de exemplu la F4, și admite că a pierdut lupta de KO.</string>
@@ -687,26 +705,27 @@
     <string name="tutorial_intermediate_ko_ko_page_17_text">Nu-ți face griji dacă asta pare prea complicat acum. Ca începător, ține minte doar că nu poți recaptura o piatră dacă asta repetă poziția anterioară.</string>
     <string name="tutorial_intermediate_puzzles_title">Probleme</string>
     <string name="tutorial_intermediate_puzzles_puzzles1_text">Capturează cele 3 pietre albe! Asta se numește uneori „cuibul cocorului”</string>
-    <string name="tutorial_intermediate_puzzles_puzzles2_text">Este o cursă de capturare, o poți câștiga?</string>
-    <string name="tutorial_intermediate_puzzles_corner1_text">În GO, luptele din colțuri sunt foarte frecvente. Iată o cursă de capturare în colț. Reușești să ieși învingător?</string>
-    <string name="tutorial_intermediate_puzzles_corner2_text">Capturează piatra albă care taie negrul.\nAi grijă din care parte faci Atari!</string>
+    <string name="tutorial_intermediate_puzzles_puzzles2_text">\"Este o cursă de capturare, o poți câștiga?\"</string>
+    <string name="tutorial_intermediate_puzzles_corner1_text">\"În GO, luptele din colțuri sunt foarte frecvente. Iată o cursă de capturare în colț. Reușești să ieși învingător?\"</string>
+    <string name="tutorial_intermediate_puzzles_corner2_text">\"Capturează piatra albă care taie negrul.
+Ai grijă din care parte faci Atari!\"</string>
     <string name="tutorial_intermediate_puzzles_corner2_branches_branch1_4_4_message">4 pietre negre sunt moarte</string>
     <string name="tutorial_intermediate_puzzles_corner2_branches_branch2_3_message">3 pietre negre sunt moarte</string>
     <string name="tutorial_intermediate_puzzles_corner2_branches_branch2_5_message">2 pietre negre sunt moarte</string>
-    <string name="tutorial_intermediate_puzzles_corner2_branches_branch4_message">Negrul nu poate scăpa</string>
-    <string name="tutorial_intermediate_puzzles_corner2_branches_branch6_message">Negrul nu poate scăpa</string>
+    <string name="tutorial_intermediate_puzzles_corner2_branches_branch4_message">\"Negrul nu poate scăpa\"</string>
+    <string name="tutorial_intermediate_puzzles_corner2_branches_branch6_message">\"Negrul nu poate scăpa\"</string>
     <string name="tutorial_intermediate_falseeyes_title">Ochi falși</string>
-    <string name="tutorial_intermediate_falseeyes_falseeyes1_page1_text">Dacă îți amintești tutorialul anterior, un grup cu doi ochi nu poate fi capturat niciodată. Totuși, uneori o parte din pietrele care înconjoară un ochi nu sunt conectate la grupul principal și pot fi capturate separat. De exemplu, în poziția de mai jos, D5 pare a fi un ochi, însă piatra de la C5 este în Atari și poate fi capturată, lăsând grupul din mijloc cu un singur ochi.\n\nNumim D5 un „ochi fals”.</string>
-    <string name="tutorial_intermediate_falseeyes_falseeyes2_text">Albul a încercat să salveze piatra de la C5 jucând la D5. Care este mutarea câștigătoare aici?</string>
-    <string name="tutorial_intermediate_falseeyes_falseeyes3_text">Dacă albul încearcă să riposteze altfel, nu are importanță, tot poți captura grupul din mijloc!</string>
-    <string name="tutorial_intermediate_falseeyes_falseeyes4_text">De data asta ești în defensivă. Supraviețuiește făcând doi ochi adevărați!</string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes1_page1_text">\"Dacă îți amintești tutorialul anterior, un grup cu doi ochi nu poate fi capturat niciodată. Totuși, uneori o parte din pietrele care înconjoară un ochi nu sunt conectate la grupul principal și pot fi capturate separat. De exemplu, în poziția de mai jos, D5 pare a fi un ochi, însă piatra de la C5 este în Atari și poate fi capturată, lăsând grupul din mijloc cu un singur ochi.\n\nNumim D5 un „ochi fals”.\"</string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes2_text">\"Albul a încercat să salveze piatra de la C5 jucând la D5. Care este mutarea câștigătoare aici?\"</string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes3_text">\"Dacă albul încearcă să riposteze altfel, nu are importanță, tot poți captura grupul din mijloc!\"</string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes4_text">\"De data asta ești în defensivă. Supraviețuiește făcând doi ochi adevărați!\"</string>
     <string name="tutorial_intermediate_falseeyes_falseeyes4_branches_branch2_message">Ți-ai umplut propriul ochi</string>
     <string name="tutorial_intermediate_falseeyes_falseeyes4_branches_branch3_message">Ți-ai umplut propriul ochi</string>
     <string name="tutorial_intermediate_falseeyes_falseeyes4_branches_branch4_message">F4 este acum un ochi fals</string>
-    <string name="tutorial_intermediate_falseeyes_falseeyes5_text">De data asta trebuie reparați ambii ochi!</string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes5_text">\"De data asta trebuie reparați ambii ochi!\"</string>
     <string name="tutorial_intermediate_falseeyes_falseeyes5_branches_branch1_2_message">F5 este acum un ochi fals.</string>
     <string name="tutorial_intermediate_falseeyes_falseeyes5_branches_branch2_message">C5 este un ochi fals.</string>
-    <string name="tutorial_intermediate_falseeyes_falseeyes6_text">Iată un model frecvent de ochi fals la margine. Repară-l!</string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes6_text">\"Iată un model frecvent de ochi fals la margine. Repară-l!\"</string>
     <string name="tutorial_intermediate_falseeyes_falseeyes6_branches_branch2_message">Ți-ai umplut propriul ochi</string>
     <string name="tutorial_intermediate_falseeyes_falseeyes6_branches_branch3_message">D9 este acum un ochi fals</string>
     <string name="tutorial_intermediate_morepuzzles_title">Mai multe probleme</string>
@@ -723,30 +742,73 @@
     <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_5_5_message">Negrul este izolat</string>
     <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_6_message">Negrul este izolat</string>
     <string name="tutorial_intermediate_morepuzzles_puzzles5_text">Învinge simetria</string>
-    <string name="tutorial_intermediate_morepuzzles_puzzles5_branches_branch3_4_message">Trei pietre negre nu pot scăpa.</string>
-    <string name="tutorial_intermediate_morepuzzles_puzzles5_branches_branch5_message">Două pietre negre nu pot scăpa</string>
-    <string name="tutorial_intermediate_morepuzzles_puzzles5_branches_branch6_message">Două pietre negre nu pot scăpa</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles5_branches_branch3_4_message">\"Trei pietre negre nu pot scăpa.\"</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles5_branches_branch5_message">\"Două pietre negre nu pot scăpa\"</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles5_branches_branch6_message">\"Două pietre negre nu pot scăpa\"</string>
     <string name="tutorial_advanced_title">Avansat</string>
     <string name="tutorial_advanced_thefirstmoves_name">Primele mutări</string>
-    <string name="tutorial_advanced_thefirstmoves_firstmoves1_page1_text">Până acum ne-am concentrat pe capturarea pietrelor. Însă la începutul jocului nu există pietre pe tablă. Vom vedea unde este bine să joci primele mutări pentru a-ți crește șansele de câștig.\n\nMai întâi, hai să împărțim tabla în 3 zone. Acestea sunt colțurile:</string>
-    <string name="tutorial_advanced_thefirstmoves_firstmoves1_page2_text">… acestea sunt laturile…</string>
-    <string name="tutorial_advanced_thefirstmoves_firstmoves1_page3_text">… iar acesta este centrul. Bineînțeles, acestea sunt doar denumiri pe care le folosim pentru orientare și nu există reguli speciale pentru niciuna dintre ele.</string>
-    <string name="tutorial_advanced_thefirstmoves_firstmoves1_page4_text">Scopul jocului este să înconjori mai mult teritoriu decât adversarul. Deoarece tu și adversarul puneți pietre pe rând, veți avea amândoi același număr de pietre. Prin urmare, câștigă jucătorul care își folosește pietrele mai eficient.\n\nUnde este mai eficient să înconjori teritoriu? În colțuri, pe laturi sau în centru?</string>
-    <string name="tutorial_advanced_thefirstmoves_firstmoves1_page5_text">Fiecare dintre grupurile de mai jos înconjoară exact 9 spații, deci fiecare obține 9 puncte. Însă cel din colț are nevoie de doar 6 pietre, cel de pe latură de 9, iar cel din centru de 12!</string>
-    <string name="tutorial_advanced_thefirstmoves_firstmoves1_page6_text">Prin urmare, jucătorii înțelepți vor juca mai întâi în colțuri și abia după ce acestea sunt ocupate se vor muta pe laturi, lăsând centrul la final.</string>
-    <string name="tutorial_advanced_thefirstmoves_firstmoves2_text">Iată primele 20 de mutări dintr-un joc real, jucat între doi jucători profesioniști.</string>
+    <string name="tutorial_advanced_thefirstmoves_firstmoves1_page1_text">\"Până acum ne-am concentrat pe capturarea pietrelor. Însă la începutul jocului nu există pietre pe tablă. Vom vedea unde este bine să joci primele mutări pentru a-ți crește șansele de câștig.
+
+Mai întâi, hai să împărțim tabla în 3 zone. Acestea sunt colțurile:\"</string>
+    <string name="tutorial_advanced_thefirstmoves_firstmoves1_page2_text">\"… acestea sunt laturile…\"</string>
+    <string name="tutorial_advanced_thefirstmoves_firstmoves1_page3_text">\"… iar acesta este centrul. Bineînțeles, acestea sunt doar denumiri pe care le folosim pentru orientare și nu există reguli speciale pentru niciuna dintre ele.\"</string>
+    <string name="tutorial_advanced_thefirstmoves_firstmoves1_page4_text">\"Scopul jocului este să înconjori mai mult teritoriu decât adversarul. Deoarece tu și adversarul puneți pietre pe rând, veți avea amândoi același număr de pietre. Prin urmare, câștigă jucătorul care își folosește pietrele mai eficient.
+
+Unde este mai eficient să înconjori teritoriu? În colțuri, pe laturi sau în centru?\"</string>
+    <string name="tutorial_advanced_thefirstmoves_firstmoves1_page5_text">\"Fiecare dintre grupurile de mai jos înconjoară exact 9 spații, deci fiecare obține 9 puncte. Însă cel din colț are nevoie de doar 6 pietre, cel de pe latură de 9, iar cel din centru de 12!\"</string>
+    <string name="tutorial_advanced_thefirstmoves_firstmoves1_page6_text">\"Prin urmare, jucătorii înțelepți vor juca mai întâi în colțuri și abia după ce acestea sunt ocupate se vor muta pe laturi, lăsând centrul la final.\"</string>
+    <string name="tutorial_advanced_thefirstmoves_firstmoves2_text">\"Iată primele 20 de mutări dintr-un joc real, jucat între doi jucători profesioniști.\"</string>
     <string name="tutorial_advanced_themiddlegame_name">Mijlocul jocului</string>
-    <string name="tutorial_advanced_themiddlegame_middlegame1_text">Negrul este blocat în colțul din stânga jos. Grupul va fi înconjurat dacă nu faci nimic.</string>
-    <string name="tutorial_advanced_themiddlegame_middlegame2_text">Negrul îl blochează pe alb în zona din dreapta jos. Albul nu are încă 2 ochi.\nApoi albul a jucat la G2.\n\nUită-te ce se întâmplă dacă negrul răspunde la F1 (sau G1), înainte să găsești răspunsul corect.</string>
+    <string name="tutorial_advanced_themiddlegame_middlegame1_text">\"Negrul este blocat în colțul din stânga jos. Grupul va fi înconjurat dacă nu faci nimic.\"</string>
+    <string name="tutorial_advanced_themiddlegame_middlegame2_text">\"Negrul îl blochează pe alb în zona din dreapta jos. Albul nu are încă 2 ochi.
+Apoi albul a jucat la G2.
+
+Uită-te ce se întâmplă dacă negrul răspunde la F1 (sau G1), înainte să găsești răspunsul corect.\"</string>
     <string name="tutorial_advanced_endgamescoring_name">Finalul jocului: numărarea scorului</string>
-    <string name="tutorial_advanced_endgamescoring_endgame1_page1_text">Aici vei învăța cum să îți dai seama când un joc s-a încheiat și cum se numără teritoriile, folosind table de 5x5. Ambii jucători au făcut 5 mutări, apoi amândoi au pasat, deci jocul este considerat încheiat. Nu mai rămâne decât să numărăm teritoriul.\n\nÎncearcă să numeri câte intersecții a înconjurat negrul. Iar albul?\n\nIndiciu: nu uita să numeri toate intersecțiile, inclusiv laturile și colțurile, dar nu punctele ocupate de pietre.</string>
-    <string name="tutorial_advanced_endgamescoring_endgame1_page2_text">Negrul are 5 puncte în stânga, iar albul are 10 puncte în dreapta.\n\nPrin urmare, albul câștigă cu 5 puncte.</string>
-    <string name="tutorial_advanced_endgamescoring_endgame1_page3_text">Dar de ce nu a încercat negrul să continue jocul?\n\nEi bine, nu există nicio mutare pe care negrul o poate face și care să îi crească scorul. De exemplu, dacă negrul invadează partea dreaptă, albul se poate apăra ușor și noua piatră este moartă.\n\nAlbul și-a redus teritoriul cu 1, dar a primit 1 punct înapoi, deoarece piatra neagră este moartă și se numără drept prizonier.\n\nScorul de aici este tot 10-5</string>
-    <string name="tutorial_advanced_endgamescoring_endgame1_page4_text">Și dacă negrul joacă în partea stângă?\n\nTot ce ar obține este că teritoriul său devine mai mic, deci ar pierde un punct.\n\nPrin urmare, negrul nu are mutări bune și ar trebui să paseze. Albul are mai multe puncte, deci pasează bucuros și el.\n\nAstfel jocul se încheie și albul câștigă.</string>
-    <string name="tutorial_advanced_endgamescoring_endgame1_page5_text">Iată o altă situație de joc încheiat. Negrul are 5 puncte, iar albul are 6.\n\nCele două intersecții din mijloc sunt teritoriu neutru („Dame”) și nu contează în scorul niciunui jucător.\n\nOricare jucător ar putea juca acolo, dar nu ar câștiga și nu ar pierde puncte.</string>
-    <string name="tutorial_advanced_endgamescoring_endgame1_page6_text">Deși teritoriul reprezintă de departe cea mai mare parte a scorului, ține minte că mai există și alte puncte bonus care trebuie adunate.\n\nFiecare piatră capturată valorează 1 punct, la fel și pietrele „moarte” rămase pe tablă (cele care nu mai au nicio șansă să facă 2 ochi).\n\nDe asemenea, deoarece negrul joacă primul are un avantaj, iar pentru a compensa asta albul primește un mic bonus de puncte (numit „komi”).\n\nValoarea komi-ului depinde de mărimea tablei, dar de obicei este de 5,5 sau 6,5 puncte. Cei 0,5 asigură că nu există jocuri terminate la egalitate.\n\nDin fericire, aplicația face toate aceste calcule în locul tău :)</string>
+    <string name="tutorial_advanced_endgamescoring_endgame1_page1_text">\"Aici vei învăța cum să îți dai seama când un joc s-a încheiat și cum se numără teritoriile, folosind table de 5x5. Ambii jucători au făcut 5 mutări, apoi amândoi au pasat, deci jocul este considerat încheiat. Nu mai rămâne decât să numărăm teritoriul.
+
+Încearcă să numeri câte intersecții a înconjurat negrul. Iar albul?
+
+Indiciu: nu uita să numeri toate intersecțiile, inclusiv laturile și colțurile, dar nu punctele ocupate de pietre.\"</string>
+    <string name="tutorial_advanced_endgamescoring_endgame1_page2_text">\"Negrul are 5 puncte în stânga, iar albul are 10 puncte în dreapta.
+
+Prin urmare, albul câștigă cu 5 puncte.\"</string>
+    <string name="tutorial_advanced_endgamescoring_endgame1_page3_text">\"Dar de ce nu a încercat negrul să continue jocul?
+
+Ei bine, nu există nicio mutare pe care negrul o poate face și care să îi crească scorul. De exemplu, dacă negrul invadează partea dreaptă, albul se poate apăra ușor și noua piatră este moartă.
+
+Albul și-a redus teritoriul cu 1, dar a primit 1 punct înapoi, deoarece piatra neagră este moartă și se numără drept prizonier.
+
+Scorul de aici este tot 10-5\"</string>
+    <string name="tutorial_advanced_endgamescoring_endgame1_page4_text">\"Și dacă negrul joacă în partea stângă?
+
+Tot ce ar obține este că teritoriul său devine mai mic, deci ar pierde un punct.
+
+Prin urmare, negrul nu are mutări bune și ar trebui să paseze. Albul are mai multe puncte, deci pasează bucuros și el.
+
+Astfel jocul se încheie și albul câștigă.\"</string>
+    <string name="tutorial_advanced_endgamescoring_endgame1_page5_text">\"Iată o altă situație de joc încheiat. Negrul are 5 puncte, iar albul are 6.
+
+Cele două intersecții din mijloc sunt teritoriu neutru („Dame”) și nu contează în scorul niciunui jucător.
+
+Oricare jucător ar putea juca acolo, dar nu ar câștiga și nu ar pierde puncte.\"</string>
+    <string name="tutorial_advanced_endgamescoring_endgame1_page6_text">\"Deși teritoriul reprezintă de departe cea mai mare parte a scorului, ține minte că mai există și alte puncte bonus care trebuie adunate.
+
+Fiecare piatră capturată valorează 1 punct, la fel și pietrele „moarte” rămase pe tablă (cele care nu mai au nicio șansă să facă 2 ochi).
+
+De asemenea, deoarece negrul joacă primul are un avantaj, iar pentru a compensa asta albul primește un mic bonus de puncte (numit „komi”).
+
+Valoarea komi-ului depinde de mărimea tablei, dar de obicei este de 5,5 sau 6,5 puncte. Cei 0,5 asigură că nu există jocuri terminate la egalitate.
+
+Din fericire, aplicația face toate aceste calcule în locul tău :)\"</string>
     <string name="tutorial_advanced_cuttingstones_name">Pietre de tăiere</string>
-    <string name="tutorial_advanced_cuttingstones_cutting1_text">Pare că albul are teritoriul mai mare.\nÎnsă zidul lui are un punct slab. Nu trebuie decât să „tai” zidul albului.\n\nDacă reușești, albului îi va fi greu să asigure supraviețuirea ambelor grupuri.</string>
+    <string name="tutorial_advanced_cuttingstones_cutting1_text">\"Pare că albul are teritoriul mai mare.
+Însă zidul lui are un punct slab. Nu trebuie decât să „tai” zidul albului.
+
+Dacă reușești, albului îi va fi greu să asigure supraviețuirea ambelor grupuri.\"</string>
     <string name="tutorial_advanced_cuttingstones_cutting1_branches2_message">Pietrele albe sunt conectate.</string>
-    <string name="tutorial_advanced_cuttingstones_cutting2_text">Negrul are 30 de puncte, iar albul are 31 de puncte. Deci pare că albul câștigă cu 1 punct.\nÎnsă teritoriul din partea de jos nu este tot al albului.\n\nNu trebuie decât să tai zidul albului.</string>
+    <string name="tutorial_advanced_cuttingstones_cutting2_text">\"Negrul are 30 de puncte, iar albul are 31 de puncte. Deci pare că albul câștigă cu 1 punct.
+Însă teritoriul din partea de jos nu este tot al albului.
+
+Nu trebuie decât să tai zidul albului.\"</string>
 </resources>
