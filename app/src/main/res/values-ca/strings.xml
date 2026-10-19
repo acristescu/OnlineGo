@@ -38,7 +38,7 @@
     <string name="title_bar_game_info_content_description">Informació de la partida</string>
     <string name="title_bar_more_content_description">Més</string>
     <string name="search_field_clear_content_description">Esborrar el text</string>
-    <string name="katago">KataGO </string>
+    <string name="katago">KataGO</string>
     <string name="territory">Territori</string>
     <string name="hint">Pista</string>
     <string name="player">Jugador</string>
