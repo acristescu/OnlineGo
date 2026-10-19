@@ -38,11 +38,11 @@
     <string name="title_bar_game_info_content_description">Herné info</string>
     <string name="title_bar_more_content_description">Viac</string>
     <string name="search_field_clear_content_description">Zmazať text</string>
-    <string name="katago">KataGO </string>
+    <string name="katago">KataGO</string>
     <string name="territory">Územie</string>
     <string name="hint">Nápoveda</string>
     <string name="player">Hráč</string>
-    <string name="you"> Vy</string>
+    <string name="you">Vy</string>
     <string name="prisoners">Zajatci</string>
     <string name="komi">Komi</string>
     <string name="ai_game_player_captures_and_komi">Zajatci: %1$d · Komi: %2$s</string>
