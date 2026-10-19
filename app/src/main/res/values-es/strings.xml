@@ -599,25 +599,10 @@ Jugar contra ellos requiere una conexión a internet activa.</string>
     <string name="joseki_explorer_button_next">Siguiente</string>
     <string name="joseki_explorer_link_video">" (vídeo)"</string>
     <string name="joseki_explorer_link_external">" (vínculo externo)"</string>
-    <string name="joseki_explorer_default_description">\"## Explorador de Joseki
-*Joseki* es un término tomado del japonés que suele referirse a secuencias estándar de jugadas en una esquina, las cuales resultan en un intercambio equilibrado a nivel local.
-### Cómo utilizar el Explorador de Joseki
-Las jugadas marcadas a continuación representan continuaciones interesantes para la posición actual. Los colores indican la valoración de cada jugada:
-* Las jugadas verdes se consideran óptimas.
-* Las jugadas amarillas se consideran aceptables.
-* Las jugadas rojas se consideran errores.
-* Las marcas moradas señalan jugadas engañosas o trampas.
-* Las azules indican dudas o situaciones abiertas.
-Puedes pulsar cualquiera de estas jugadas interesantes para explorar las posiciones a las que conducen.
-### Tenuki
-A veces, la mejor jugada consiste en jugar en otra parte del tablero. Esta acción se conoce habitualmente como *tenuki*. Si el *tenuki* se considera una opción interesante para la posición actual, se habilitará el botón de «pasar» (situado en la esquina inferior izquierda); al pulsarlo, podrás ver qué posiciones podrían surgir tras realizar un *tenuki*.\"</string>
+    <string name="joseki_explorer_default_description">## Explorador de Joseki\n*Joseki* es un término tomado del japonés que suele referirse a secuencias estándar de jugadas en una esquina, las cuales resultan en un intercambio equilibrado a nivel local.\n### Cómo utilizar el Explorador de Joseki\nLas jugadas marcadas a continuación representan continuaciones interesantes para la posición actual. Los colores indican la valoración de cada jugada:\n* Las jugadas verdes se consideran óptimas.\n* Las jugadas amarillas se consideran aceptables.\n* Las jugadas rojas se consideran errores.\n* Las marcas moradas señalan jugadas engañosas o trampas.\n* Las azules indican dudas o situaciones abiertas.\nPuedes pulsar cualquiera de estas jugadas interesantes para explorar las posiciones a las que conducen.\n### Tenuki\nA veces, la mejor jugada consiste en jugar en otra parte del tablero. Esta acción se conoce habitualmente como *tenuki*. Si el *tenuki* se considera una opción interesante para la posición actual, se habilitará el botón de «pasar» (situado en la esquina inferior izquierda); al pulsarlo, podrás ver qué posiciones podrían surgir tras realizar un *tenuki*.</string>
     <string name="tutorial_basics_title">Fundamentos</string>
     <string name="tutorial_basics_thebasics_title">Reglas básicas</string>
-    <string name="tutorial_basics_thebasics_basic1_text">Recuerda las siguientes 3 reglas:\n
-1. Las piedras Negras y Blancas se colocan por tunos en el tablero.\n
-2. Las piedras se colocan en las intersecciones de las líneas.\n
-3. Una vez que una piedra es colocada no puede moverse, pero si capturada.\n\n
-¡Coloca una piedra para continuar!</string>
+    <string name="tutorial_basics_thebasics_basic1_text">Recuerda las siguientes 3 reglas:\n\n1. Las piedras Negras y Blancas se colocan por tunos en el tablero.\n\n2. Las piedras se colocan en las intersecciones de las líneas.\n\n3. Una vez que una piedra es colocada no puede moverse, pero si capturada.\n\n\n¡Coloca una piedra para continuar!</string>
     <string name="tutorial_basics_thebasics_capture1_page1_text">Con un movimiento más, la piedra blanca estará completamente rodeada y será capturada. Las piedras que pueden ser capturadas en una jugada se dice que están en \"Atari\".</string>
     <string name="tutorial_basics_thebasics_capture1_page2_text">Ahora, la piedra blanca está rodeada, así que…</string>
     <string name="tutorial_basics_thebasics_capture1_page3_text">… es eliminada del tablero</string>
@@ -634,17 +619,16 @@ A veces, la mejor jugada consiste en jugar en otra parte del tablero. Esta acci�
     <string name="tutorial_basics_capturingstones_capture9_text">Es difícil \"ganar la carrera\" (semeai) con piedras en el borde. ¡Capture las dos piedras blancas en la primera línea!</string>
     <string name="tutorial_basics_capturingstones_capture10_text">¡Muchas piedras! Mira las piedras que estén en Atari, y captúralas. Si te equivocas, en su lugar tus piedras serán capturadas.</string>
     <string name="tutorial_basics_doubleatari_title">Doble Atari</string>
-    <string name="tutorial_basics_doubleatari_doubleAtari1_text">En algunos casos, el negro puede poner en dos grupos blancos en Atari al mismo tiempo.
-¡El negro capturará al menos uno de los grupos en esta situación!</string>
-    <string name="tutorial_basics_doubleatari_doubleAtari2_text">\"Aquí hay otro. ¿Dónde puedes hacer un doble Atari?\"</string>
+    <string name="tutorial_basics_doubleatari_doubleAtari1_text">En algunos casos, el negro puede poner en dos grupos blancos en Atari al mismo tiempo.\n¡El negro capturará al menos uno de los grupos en esta situación!</string>
+    <string name="tutorial_basics_doubleatari_doubleAtari2_text">Aquí hay otro. ¿Dónde puedes hacer un doble Atari?</string>
     <string name="tutorial_basics_illegalmoves_title">Movimientos ilegales (la regla del suicidio)</string>
     <string name="tutorial_basics_illegalmoves_suicide1_page_1_text">Puedes jugar casi en cualquier lugar del tablero con algunas excepciones. En el ejemplo de abajo, el negro no puede jugar en A, ya que su nueva piedra ya estaría rodeada.</string>
     <string name="tutorial_basics_illegalmoves_suicide1_page_2_text">Se dice que se trata de un movimiento \"suicidio\" y está prohibido.</string>
     <string name="tutorial_basics_illegalmoves_suicide1_page_3_text">Sin embargo, hay una excepción. Si un movimiento pudiera capturar una o más piedras blancas (como B abajo), el movimiento está permitido.</string>
     <string name="tutorial_basics_illegalmoves_suicide1_page_4_text">La posición resultante se ve así:</string>
-    <string name="tutorial_basics_illegalmoves_suicide2_text">\"¡Tu turno para capturar algunas piedras de nuevo! Pista: al principio puede parecer un movimiento ilegal…\"</string>
+    <string name="tutorial_basics_illegalmoves_suicide2_text">¡Tu turno para capturar algunas piedras de nuevo! Pista: al principio puede parecer un movimiento ilegal…</string>
     <string name="tutorial_basics_illegalmoves_suicide3_text">¡Las 4 piedras negras están en Atari! ¡Captura las piedras blancas antes de que te capturen!</string>
-    <string name="tutorial_basics_illegalmoves_suicide4_text">\"Captura las 2 piedras blancas tocando las negras. Aquí, no puedes capturar blanco con un solo movimiento\".</string>
+    <string name="tutorial_basics_illegalmoves_suicide4_text">Captura las 2 piedras blancas tocando las negras. Aquí, no puedes capturar blanco con un solo movimiento.</string>
     <string name="tutorial_basics_illegalmoves_suicide5_text">La piedra blanca de D5 separa tus piedras. Si lo capturas, puedes conectar tus piedras y hacer un grupo fuerte. ¡Este patrón es muy importante en GO!</string>
     <string name="tutorial_intermediate_title">Intermedio</string>
     <string name="tutorial_intermediate_ladders_title">Escaleras</string>
@@ -654,34 +638,33 @@ A veces, la mejor jugada consiste en jugar en otra parte del tablero. Esta acci�
     <string name="tutorial_intermediate_ladders_ladder1_branches_branch1_1_1_1_1_1_1_1_1_message">Si el blanco intenta resistir…</string>
     <string name="tutorial_intermediate_ladders_ladder1_branches_branch1_1_1_1_1_1_1_2_1_message">Si el blanco intenta resistir…</string>
     <string name="tutorial_intermediate_ladders_ladder1_branches_branch1_1_1_1_1_1_1_2_2_message">Si el blanco intenta resistir…</string>
-    <string name="tutorial_intermediate_ladders_ladder2_text">\"He aquí otra escalera. Ahora es tu turno de escapar. La situación no es esperanzadora esta vez, sin embargo. Tu piedra en F2 está en el camino de la escalera. Si puedes llegar a ella es segura. Esa piedra se llama \"rompe escaleras\"\"</string>
+    <string name="tutorial_intermediate_ladders_ladder2_text">He aquí otra escalera. Ahora es tu turno de escapar. La situación no es esperanzadora esta vez, sin embargo. Tu piedra en F2 está en el camino de la escalera. Si puedes llegar a ella es segura. Esa piedra se llama \"rompe escaleras\"</string>
     <string name="tutorial_intermediate_ladders_ladder3_page1_text">Las escaleras son muy importantes en GO. Sin embargo, tienes que pensar en algunos movimientos a futuro y no empezar una pelea de escaleras a menos que estés seguro de que puedes ganarla! Esto es lo que le sucede a las Blancas si juegan la escalera perdedora en el ejemplo anterior\. .\.</string>
     <string name="tutorial_intermediate_twoeyes_title">Dos ojos</string>
     <string name="tutorial_intermediate_twoeyes_twoeyes1_text">¡Estás completamente rodeado! ¿Cuál es el único movimiento que puede salvarte?</string>
     <string name="tutorial_intermediate_twoeyes_twoeyes2_page1_text">¡Correcto! En esta posición tanto A como B son movimientos ilegales para blanco, ya que serían movimientos suicidas sin capturar ninguna de sus piedras. Por lo tanto, ¡tu grupo nunca puede ser capturado!</string>
-    <string name="tutorial_intermediate_twoeyes_twoeyes3_text">\"¿Qué tal aquí? ¿Cómo puedes garantizar que tus piedras no sean capturadas?\"</string>
+    <string name="tutorial_intermediate_twoeyes_twoeyes3_text">¿Qué tal aquí? ¿Cómo puedes garantizar que tus piedras no sean capturadas?</string>
     <string name="tutorial_intermediate_captureraces_title">Capturar carreras</string>
     <string name="tutorial_intermediate_captureraces_capturerace1_text">En este puzzle, tanto los grupos negros como los blancos de la parte superior están rodeados. Como ninguno de los dos ojos tiene dos ojos, ambas partes pueden intentar capturar la otra. Esta situación se llama una carrera de captura (semeai) y generalmente es ganada por el bando con más libertades. En este caso, ambos grupos tienen 3 libertades, así que quien esté a punto de moverse ganará.\n\n¡Captura las piedras blancas!</string>
-    <string name="tutorial_intermediate_captureraces_capturerace2_text">\"Aquí hay otro semeai. ¡Gana la carrera y captura blanco!\"</string>
+    <string name="tutorial_intermediate_captureraces_capturerace2_text">Aquí hay otro semeai. ¡Gana la carrera y captura blanco!</string>
     <string name="tutorial_intermediate_captureraces_capturerace3_text">¡Salva las piedras negras en la esquina!</string>
     <string name="tutorial_intermediate_snapback_title">Snapback</string>
     <string name="tutorial_intermediate_snapback_snapback1_text">Ahora descubrirás una técnica llamada \"snapback\". ¡Captura las 4 piedras blancas!\n\nPista: ¡primero debes sacrificar una piedra!</string>
     <string name="tutorial_intermediate_snapback_snapback2_text">Como has descubierto, a veces obligando al blanco a capturar una de tus piedras las pone en el atari. ¡Usa la misma técnica aquí!</string>
     <string name="tutorial_intermediate_snapback_snapback3_text">Esta es otra situación de snapback en el borde.</string>
     <string name="tutorial_intermediate_ko_title">KO - la regla de \"no repetición\"</string>
-    <string name="tutorial_intermediate_ko_ko_page_1_text">\"Ahora veremos la última regla que necesitas conocer para poder jugar a GO: la regla de KO. La regla establece que un movimiento es inválido si produce una repetición (e. . una posición anterior).
-Veamos un ejemplo. La piedra blanca de E6 está en Atari. Así que negro puede capturarla.\"</string>
-    <string name="tutorial_intermediate_ko_ko_page_2_text">\"Ahora la nueva piedra negra en F6 está en atari. Sin la regla KO, blanco podría capturarla, pero si lo hicieran, la posición resultante…\"</string>
-    <string name="tutorial_intermediate_ko_ko_page_3_text">¡… sería la misma que la inicial! Aquí, sin la regla KO, Negro volvería a capturar…\"</string>
-    <string name="tutorial_intermediate_ko_ko_page_4_text">… y el juego estaría atascado en un bucle. Para evitar esto, la regla KO establece que los blancos no pueden recapturar aquí en E6, sino que deben jugar en otros lugares.\"</string>
-    <string name="tutorial_intermediate_ko_ko_page_5_text">\"Ahora si el negro quiere salvar la piedra en atari puede jugar en E6…</string>
+    <string name="tutorial_intermediate_ko_ko_page_1_text">Ahora veremos la última regla que necesitas conocer para poder jugar a GO: la regla de KO. La regla establece que un movimiento es inválido si produce una repetición (e. . una posición anterior).\nVeamos un ejemplo. La piedra blanca de E6 está en Atari. Así que negro puede capturarla.</string>
+    <string name="tutorial_intermediate_ko_ko_page_2_text">Ahora la nueva piedra negra en F6 está en atari. Sin la regla KO, blanco podría capturarla, pero si lo hicieran, la posición resultante…</string>
+    <string name="tutorial_intermediate_ko_ko_page_3_text">¡… sería la misma que la inicial! Aquí, sin la regla KO, Negro volvería a capturar…</string>
+    <string name="tutorial_intermediate_ko_ko_page_4_text">… y el juego estaría atascado en un bucle. Para evitar esto, la regla KO establece que los blancos no pueden recapturar aquí en E6, sino que deben jugar en otros lugares.</string>
+    <string name="tutorial_intermediate_ko_ko_page_5_text">Ahora si el negro quiere salvar la piedra en atari puede jugar en E6…</string>
     <string name="tutorial_intermediate_ko_ko_page_6_text">Así que el negro ha ganado la pelea de ko, pero ten en cuenta que es el turno de blanco de nuevo y tan blanco ganó dos movimientos por el precio de esa piedra.</string>
     <string name="tutorial_intermediate_ko_ko_page_7_text">Esos dos movimientos libres a veces valen más puntos que ganar la pelea de ko, para que ambos jugadores evalúen constantemente si vale la pena continuar la pelea en ko o conseguir los movimientos extra.</string>
     <string name="tutorial_intermediate_ko_ko_page_8_text">¿Cómo puede ocurrir esto en un juego real? He aquí un ejemplo. Tanto blanco como negro tienen un grupo de 5 piedras en peligro en la parte superior. La única manera de que el negro salve a su grupo es jugar en E8.</string>
     <string name="tutorial_intermediate_ko_ko_page_9_text">Las 5 piedras de blanco en la parte superior están ahora en Atari, pero no puede volver a la D8, ya que eso repetiría la última posición. Así que juega en algún lugar Negro no puede ignorar, como E2</string>
     <string name="tutorial_intermediate_ko_ko_page_10_text">Ahora las 8 piedras de Negro en la parte inferior izquierda están en peligro así que Negro calcula: ¿prefiere perder 8 piedras de la parte inferior o 5 en la superior? Reluctantemente, Negro elige continuar la lucha de KO y salvar las piedras en la parte inferior con E1</string>
     <string name="tutorial_intermediate_ko_ko_page_11_text">Blanco ahora recupera el KO</string>
-    <string name="tutorial_intermediate_ko_ko_page_12_text">\"Ahora es el turno de Negro y no puede recuperarse por la regla de la KO. Sin embargo, tiene una oportunidad más: una jugada en B4 amenaza al grupo blanco en la parte inferior\".</string>
+    <string name="tutorial_intermediate_ko_ko_page_12_text">Ahora es el turno de Negro y no puede recuperarse por la regla de la KO. Sin embargo, tiene una oportunidad más: una jugada en B4 amenaza al grupo blanco en la parte inferior.</string>
     <string name="tutorial_intermediate_ko_ko_page_13_text">Ahora es el turno de los blancos para elegir. ¿Debe capturar las 5 piedras en la parte superior con un movimiento en la B9 o salvar las 6 piedras en el fondo? Él elige jugar en la A4\.\.\.</string>
     <string name="tutorial_intermediate_ko_ko_page_14_text">Negro no necesita mucho aliento para jugar en E8 ahora\.\.\.</string>
     <string name="tutorial_intermediate_ko_ko_page_15_text">Los blancos reconocen que no tiene otras amenazas, juega en otras partes, como F4 y admite que perdió la pelea de KO.</string>
@@ -689,27 +672,26 @@ Veamos un ejemplo. La piedra blanca de E6 está en Atari. Así que negro puede c
     <string name="tutorial_intermediate_ko_ko_page_17_text">No te preocupes si esto parece demasiado complicado en este momento. Como principiante, recuerda que no puedes recuperar una piedra si repite la posición anterior.</string>
     <string name="tutorial_intermediate_puzzles_title">Puzzles</string>
     <string name="tutorial_intermediate_puzzles_puzzles1_text">¡Captura las 3 piedras blancas! Esto a veces se llama el \"nido de grúa\"</string>
-    <string name="tutorial_intermediate_puzzles_puzzles2_text">\"Es una carrera de captura, ¿puedes ganarla?\"</string>
-    <string name="tutorial_intermediate_puzzles_corner1_text">\"En GO, las peleas en las esquinas son muy comunes. Aquí está una carrera de captura en la esquina. ¿Puedes llegar arriba?\"</string>
-    <string name="tutorial_intermediate_puzzles_corner2_text">\"Captura la piedra blanca que está cortando negra.
-Ten cuidado desde qué lado haces el Atari\"</string>
+    <string name="tutorial_intermediate_puzzles_puzzles2_text">Es una carrera de captura, ¿puedes ganarla?</string>
+    <string name="tutorial_intermediate_puzzles_corner1_text">En GO, las peleas en las esquinas son muy comunes. Aquí está una carrera de captura en la esquina. ¿Puedes llegar arriba?</string>
+    <string name="tutorial_intermediate_puzzles_corner2_text">Captura la piedra blanca que está cortando negra.\nTen cuidado desde qué lado haces el Atari</string>
     <string name="tutorial_intermediate_puzzles_corner2_branches_branch1_4_4_message">4 piedras negras han muerto</string>
     <string name="tutorial_intermediate_puzzles_corner2_branches_branch2_3_message">3 piedras negras han muerto</string>
     <string name="tutorial_intermediate_puzzles_corner2_branches_branch2_5_message">2 piedras negras han muerto</string>
-    <string name="tutorial_intermediate_puzzles_corner2_branches_branch4_message">\"Negro no puede escapar\"</string>
-    <string name="tutorial_intermediate_puzzles_corner2_branches_branch6_message">\"Negro no puede escapar\"</string>
+    <string name="tutorial_intermediate_puzzles_corner2_branches_branch4_message">Negro no puede escapar</string>
+    <string name="tutorial_intermediate_puzzles_corner2_branches_branch6_message">Negro no puede escapar</string>
     <string name="tutorial_intermediate_falseeyes_title">Ojos falsos</string>
-    <string name="tutorial_intermediate_falseeyes_falseeyes1_page1_text">\"Si recuerdas el tutorial anterior, un grupo con dos ojos nunca se puede capturar. Sin embargo, a veces parte de las piedras que rodean un ojo no están conectadas al grupo principal y pueden capturarse por separado. Por ejemplo, en la posición de abajo, D5 parece ser un ojo, Sin embargo, la piedra en el C5 está en Atari y puede ser capturada, dejando el grupo medio con un solo ojo.\n\nLlamamos a D5 a \"false eye\".\"</string>
-    <string name="tutorial_intermediate_falseeyes_falseeyes2_text">\"Blanco intentó salvar su piedra C5 jugando en la D5. ¿Cuál es la jugada ganadora aquí?\"</string>
-    <string name="tutorial_intermediate_falseeyes_falseeyes3_text">\"Si el blanco intenta luchar de otra manera, no importa, ¡todavía puedes capturar el grupo medio!\"</string>
-    <string name="tutorial_intermediate_falseeyes_falseeyes4_text">\"Estás a la defensiva esta vez. ¡Sobrevive haciendo dos ojos verdaderos!\"</string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes1_page1_text">Si recuerdas el tutorial anterior, un grupo con dos ojos nunca se puede capturar. Sin embargo, a veces parte de las piedras que rodean un ojo no están conectadas al grupo principal y pueden capturarse por separado. Por ejemplo, en la posición de abajo, D5 parece ser un ojo, Sin embargo, la piedra en el C5 está en Atari y puede ser capturada, dejando el grupo medio con un solo ojo.\n\nLlamamos a D5 a \"false eye\".</string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes2_text">Blanco intentó salvar su piedra C5 jugando en la D5. ¿Cuál es la jugada ganadora aquí?</string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes3_text">Si el blanco intenta luchar de otra manera, no importa, ¡todavía puedes capturar el grupo medio!</string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes4_text">Estás a la defensiva esta vez. ¡Sobrevive haciendo dos ojos verdaderos!</string>
     <string name="tutorial_intermediate_falseeyes_falseeyes4_branches_branch2_message">Llenaste tu propio ojo</string>
     <string name="tutorial_intermediate_falseeyes_falseeyes4_branches_branch3_message">Llenaste tu propio ojo</string>
     <string name="tutorial_intermediate_falseeyes_falseeyes4_branches_branch4_message">F4 es ahora un ojo falso</string>
-    <string name="tutorial_intermediate_falseeyes_falseeyes5_text">\"¡Ambos ojos necesitan arreglarse esta vez!\"</string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes5_text">¡Ambos ojos necesitan arreglarse esta vez!</string>
     <string name="tutorial_intermediate_falseeyes_falseeyes5_branches_branch1_2_message">F5 es ahora un ojo falso.</string>
     <string name="tutorial_intermediate_falseeyes_falseeyes5_branches_branch2_message">C5 es un ojo falso.</string>
-    <string name="tutorial_intermediate_falseeyes_falseeyes6_text">\"Aquí hay un patrón común para un ojo falso en el borde. ¡Arrégalo!\"</string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes6_text">Aquí hay un patrón común para un ojo falso en el borde. ¡Arrégalo!</string>
     <string name="tutorial_intermediate_falseeyes_falseeyes6_branches_branch2_message">Llenaste tu propio ojo</string>
     <string name="tutorial_intermediate_falseeyes_falseeyes6_branches_branch3_message">D9 es ahora un ojo falso</string>
     <string name="tutorial_intermediate_morepuzzles_title">Más puzzles</string>
@@ -726,72 +708,30 @@ Ten cuidado desde qué lado haces el Atari\"</string>
     <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_5_5_message">El negro está aislado</string>
     <string name="tutorial_intermediate_morepuzzles_puzzles4_branches_branch1_6_message">El negro está aislado</string>
     <string name="tutorial_intermediate_morepuzzles_puzzles5_text">Supera la simetría</string>
-    <string name="tutorial_intermediate_morepuzzles_puzzles5_branches_branch3_4_message">\"Tres piedras negras no pueden escapar\".</string>
-    <string name="tutorial_intermediate_morepuzzles_puzzles5_branches_branch5_message">\"Dos piedras negras no pueden escapar\"</string>
-    <string name="tutorial_intermediate_morepuzzles_puzzles5_branches_branch6_message">\"Dos piedras negras no pueden escapar\"</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles5_branches_branch3_4_message">Tres piedras negras no pueden escapar.</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles5_branches_branch5_message">Dos piedras negras no pueden escapar</string>
+    <string name="tutorial_intermediate_morepuzzles_puzzles5_branches_branch6_message">Dos piedras negras no pueden escapar</string>
     <string name="tutorial_advanced_title">Avanzado</string>
     <string name="tutorial_advanced_thefirstmoves_name">Los primeros movimientos</string>
-    <string name="tutorial_advanced_thefirstmoves_firstmoves1_page1_text">\"Hasta ahora nos hemos centrado en la captura de piezas, pero al principio del juego no hay piedras en el tablero. Echaremos un vistazo a dónde jugar tus primeros movimientos para aumentar tus posibilidades de ganar.
-
-Primero, dividamos el tablero en 3 áreas. Estas son las esquinas:\"</string>
-    <string name="tutorial_advanced_thefirstmoves_firstmoves1_page2_text">\"… estos son los lados…\"</string>
-    <string name="tutorial_advanced_thefirstmoves_firstmoves1_page3_text">\"… y este es el medio. Por supuesto, estos solo son nombres que usamos para la orientación y no hay reglas especiales para ninguno de estos\".</string>
-    <string name="tutorial_advanced_thefirstmoves_firstmoves1_page4_text">\"El objetivo del juego es cercar más territorio que tu oponente. Como tú y tu oponente os turnáis colocando piedras, ambos obtendréis la misma cantidad de piedras. Por lo tanto, el ganador es el jugador que utiliza sus piedras de forma más eficiente.
-
-¿Dónde es más eficiente rodear el territorio? ¿En las esquinas, en los lados o en el medio?\"</string>
-    <string name="tutorial_advanced_thefirstmoves_firstmoves1_page5_text">\"Cada uno de los grupos debajo rodea exactamente 9 espacios de modo que cada uno gana 9 puntos. Sin embargo, el que se encuentra en la esquina requiere solo 6 piedras, el que se encuentra en el lado 9 mientras que el que se encuentra en el centro requiere 12!\"</string>
-    <string name="tutorial_advanced_thefirstmoves_firstmoves1_page6_text">\"Por lo tanto, los jugadores sabios jugarán en las esquinas primero y, solo</string>
-    <string name="tutorial_advanced_thefirstmoves_firstmoves2_text">\"Aquí están los primeros 20 movimientos de un juego real jugado entre dos jugadores profesionales\".</string>
+    <string name="tutorial_advanced_thefirstmoves_firstmoves1_page1_text">Hasta ahora nos hemos centrado en la captura de piezas, pero al principio del juego no hay piedras en el tablero. Echaremos un vistazo a dónde jugar tus primeros movimientos para aumentar tus posibilidades de ganar.\n\nPrimero, dividamos el tablero en 3 áreas. Estas son las esquinas:</string>
+    <string name="tutorial_advanced_thefirstmoves_firstmoves1_page2_text">… estos son los lados…</string>
+    <string name="tutorial_advanced_thefirstmoves_firstmoves1_page3_text">… y este es el medio. Por supuesto, estos solo son nombres que usamos para la orientación y no hay reglas especiales para ninguno de estos.</string>
+    <string name="tutorial_advanced_thefirstmoves_firstmoves1_page4_text">El objetivo del juego es cercar más territorio que tu oponente. Como tú y tu oponente os turnáis colocando piedras, ambos obtendréis la misma cantidad de piedras. Por lo tanto, el ganador es el jugador que utiliza sus piedras de forma más eficiente.\n\n¿Dónde es más eficiente rodear el territorio? ¿En las esquinas, en los lados o en el medio?</string>
+    <string name="tutorial_advanced_thefirstmoves_firstmoves1_page5_text">Cada uno de los grupos debajo rodea exactamente 9 espacios de modo que cada uno gana 9 puntos. Sin embargo, el que se encuentra en la esquina requiere solo 6 piedras, el que se encuentra en el lado 9 mientras que el que se encuentra en el centro requiere 12!</string>
+    <string name="tutorial_advanced_thefirstmoves_firstmoves1_page6_text">Por lo tanto, los jugadores sabios jugarán en las esquinas primero y, solo</string>
+    <string name="tutorial_advanced_thefirstmoves_firstmoves2_text">Aquí están los primeros 20 movimientos de un juego real jugado entre dos jugadores profesionales.</string>
     <string name="tutorial_advanced_themiddlegame_name">El juego medio</string>
-    <string name="tutorial_advanced_themiddlegame_middlegame1_text">\"El negro está bloqueado en la esquina inferior izquierda. El grupo estará rodeado si no haces nada\".</string>
-    <string name="tutorial_advanced_themiddlegame_middlegame2_text">\"El negro está bloqueando al blanco en el área inferior derecha. Blanco aún no tiene 2 ojos. Entonces, Blanco jugó G2.
-
-Mire lo que pasa si el negro responde a F1 (o G1) antes de que encuentres la respuesta correcta.\"</string>
+    <string name="tutorial_advanced_themiddlegame_middlegame1_text">El negro está bloqueado en la esquina inferior izquierda. El grupo estará rodeado si no haces nada.</string>
+    <string name="tutorial_advanced_themiddlegame_middlegame2_text">El negro está bloqueando al blanco en el área inferior derecha. Blanco aún no tiene 2 ojos. Entonces, Blanco jugó G2.\n\nMire lo que pasa si el negro responde a F1 (o G1) antes de que encuentres la respuesta correcta.</string>
     <string name="tutorial_advanced_endgamescoring_name">Final del juego: puntuación</string>
-    <string name="tutorial_advanced_endgamescoring_endgame1_page1_text">\"Aquí aprenderás a identificar cuándo termina una partida y cómo contar los territorios utilizando tableros de 5x5. Ambos jugadores realizaron 5 movimientos y luego pasaron su turno, por lo que la partida se considera finalizada. Ahora solo queda contar el territorio.
-
-Intenta contar cuántas intersecciones han rodeado las negras. ¿Y las blancas?
-
-Pista: recuerda contar todas las intersecciones, incluidas las de los bordes y las esquinas, pero no puntos ocupados por piedras.\"</string>
-    <string name="tutorial_advanced_endgamescoring_endgame1_page2_text">\"El negro tiene 5 puntos a la izquierda y el blanco tiene 10 puntos a la derecha.
-
-Así, gana por 5 puntos.\"</string>
-    <string name="tutorial_advanced_endgamescoring_endgame1_page3_text">\"¿Pero por qué el negro no intentó seguir jugando entonces?
-
-Bueno, no hay movimiento que el negro pueda hacer que aumente su puntuación. Por ejemplo, si el negro invade el lado derecho, el blanco puede defender fácilmente y la nueva piedra está muerto.
-
-Blanco redujo su territorio en 1 pero consiguió 1 punto de vuelta porque la piedra negra está muerta y se cuenta como prisionera.
-
-La puntuación aquí es de 10-5\"</string>
-    <string name="tutorial_advanced_endgamescoring_endgame1_page4_text">\"¿Qué pasa si el negro juega en el lado izquierdo entonces?
-
-Todo lo que lograría es que su territorio fuera ahora más pequeño, ya que perdió un punto.
-
-Por lo tanto, el negro no tiene buenos movimientos y debe pasar. Blanco tiene más puntos así que felizmente pasa.
-
-Así que el juego ha terminado y gana blanco.\"</string>
-    <string name="tutorial_advanced_endgamescoring_endgame1_page5_text">\"Aquí tenemos otra situación de partida finalizada. Las negras tienen 5 puntos, mientras que las blancas tienen 6.
-
-Las dos intersecciones centrales son territorio neutral (*Dame*) y no cuentan para la puntuación de ninguno de los jugadores.
-
-Cualquiera de los dos jugadores podría jugar ahí, pero no ganaría ni perdería puntos.\"</string>
-    <string name="tutorial_advanced_endgamescoring_endgame1_page6_text">\"Aunque el territorio constituye, con diferencia, la mayor parte de la puntuación, recuerda que hay otros puntos de bonificación que deben sumarse.
-
-Cada piedra capturada vale 1 punto, al igual que las piedras «muertas» que permanecen en el tablero (aquellas que ya no tienen posibilidad de formar dos «ojos»).
-
-Además, dado que las negras juegan primero, tienen ventaja; para compensar esto, las blancas reciben una pequeña bonificación de puntos (llamada «komi»).
-
-El valor del komi depende del tamaño del tablero, pero suele ser de 5,5 o 6,5 puntos. Ese medio punto (0,5) garantiza que no haya empates.
-
-Por suerte, la aplicación realiza todos estos cálculos por ti :)\"</string>
+    <string name="tutorial_advanced_endgamescoring_endgame1_page1_text">Aquí aprenderás a identificar cuándo termina una partida y cómo contar los territorios utilizando tableros de 5x5. Ambos jugadores realizaron 5 movimientos y luego pasaron su turno, por lo que la partida se considera finalizada. Ahora solo queda contar el territorio.\n\nIntenta contar cuántas intersecciones han rodeado las negras. ¿Y las blancas?\n\nPista: recuerda contar todas las intersecciones, incluidas las de los bordes y las esquinas, pero no puntos ocupados por piedras.</string>
+    <string name="tutorial_advanced_endgamescoring_endgame1_page2_text">El negro tiene 5 puntos a la izquierda y el blanco tiene 10 puntos a la derecha.\n\nAsí, gana por 5 puntos.</string>
+    <string name="tutorial_advanced_endgamescoring_endgame1_page3_text">¿Pero por qué el negro no intentó seguir jugando entonces?\n\nBueno, no hay movimiento que el negro pueda hacer que aumente su puntuación. Por ejemplo, si el negro invade el lado derecho, el blanco puede defender fácilmente y la nueva piedra está muerto.\n\nBlanco redujo su territorio en 1 pero consiguió 1 punto de vuelta porque la piedra negra está muerta y se cuenta como prisionera.\n\nLa puntuación aquí es de 10-5</string>
+    <string name="tutorial_advanced_endgamescoring_endgame1_page4_text">¿Qué pasa si el negro juega en el lado izquierdo entonces?\n\nTodo lo que lograría es que su territorio fuera ahora más pequeño, ya que perdió un punto.\n\nPor lo tanto, el negro no tiene buenos movimientos y debe pasar. Blanco tiene más puntos así que felizmente pasa.\n\nAsí que el juego ha terminado y gana blanco.</string>
+    <string name="tutorial_advanced_endgamescoring_endgame1_page5_text">Aquí tenemos otra situación de partida finalizada. Las negras tienen 5 puntos, mientras que las blancas tienen 6.\n\nLas dos intersecciones centrales son territorio neutral (*Dame*) y no cuentan para la puntuación de ninguno de los jugadores.\n\nCualquiera de los dos jugadores podría jugar ahí, pero no ganaría ni perdería puntos.</string>
+    <string name="tutorial_advanced_endgamescoring_endgame1_page6_text">Aunque el territorio constituye, con diferencia, la mayor parte de la puntuación, recuerda que hay otros puntos de bonificación que deben sumarse.\n\nCada piedra capturada vale 1 punto, al igual que las piedras «muertas» que permanecen en el tablero (aquellas que ya no tienen posibilidad de formar dos «ojos»).\n\nAdemás, dado que las negras juegan primero, tienen ventaja; para compensar esto, las blancas reciben una pequeña bonificación de puntos (llamada «komi»).\n\nEl valor del komi depende del tamaño del tablero, pero suele ser de 5,5 o 6,5 puntos. Ese medio punto (0,5) garantiza que no haya empates.\n\nPor suerte, la aplicación realiza todos estos cálculos por ti :)</string>
     <string name="tutorial_advanced_cuttingstones_name">Piedras cortantes</string>
-    <string name="tutorial_advanced_cuttingstones_cutting1_text">\"Parece que el blanco tiene un territorio más grande.
-Sin embargo, su muro tiene un punto débil. Basta con \"cortar\" la pared blanca.
-
-Si tienes éxito en blanco tendrá un tiempo difícil para asegurar que ambos grupos sobreviven.\"</string>
+    <string name="tutorial_advanced_cuttingstones_cutting1_text">Parece que el blanco tiene un territorio más grande.\nSin embargo, su muro tiene un punto débil. Basta con \"cortar\" la pared blanca.\n\nSi tienes éxito en blanco tendrá un tiempo difícil para asegurar que ambos grupos sobreviven.</string>
     <string name="tutorial_advanced_cuttingstones_cutting1_branches2_message">Las piedras blancas se conectaron.</string>
-    <string name="tutorial_advanced_cuttingstones_cutting2_text">\"El negro tiene 30 puntos mientras que el blanco tiene 31 puntos, por lo que parece que el blanco tiene 1 punto ganado.
-Sin embargo, el territorio en la parte inferior no es completamente blanco.
-
-Solo falta cortar la pared del blanco.\"</string>
+    <string name="tutorial_advanced_cuttingstones_cutting2_text">El negro tiene 30 puntos mientras que el blanco tiene 31 puntos, por lo que parece que el blanco tiene 1 punto ganado.\nSin embargo, el territorio en la parte inferior no es completamente blanco.\n\nSolo falta cortar la pared del blanco.</string>
 </resources>
