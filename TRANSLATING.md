@@ -69,11 +69,19 @@ one.
 ✅ `Șansa albului de a câștiga: %1$s%%`
 ❌ `Șansa albului de a câștiga: %1 s%` (placeholder was broken)
 
-### Apostrophes
+### Apostrophes, quotes and line breaks
 
-You'll notice English strings write apostrophes as `\'` — for example `Here\'s what I think`. That
-backslash is required by Android. If your translation contains an apostrophe, write it the same way:
-`\'`. Crowdin usually keeps this correct if you use the "copy source" button as a starting point.
+Android needs three characters written with a backslash in front. The English text shows them the
+same way, and Crowdin keeps them correct if you start from the "copy source" button:
+
+| Character    | Write it as | Example                                        |
+|--------------|-------------|------------------------------------------------|
+| apostrophe   | `\'`        | `Here\'s what I think`                         |
+| double quote | `\"`        | `said to be in \"Atari\"`                      |
+| line break   | `\n`        | `Rule one\nRule two` (`\n\n` for a blank line) |
+
+Write the whole translation on one line, using `\n` wherever a new line should start, and don't put
+quotes around the whole text.
 
 ### Plurals
 
