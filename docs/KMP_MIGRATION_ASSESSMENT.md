@@ -9,12 +9,12 @@ is no RxJava, no `Parcelable`, and Koin, Molecule, Room, DataStore, `ViewModel`,
 kotlinx-collections-immutable are already multiplatform. The cost is dominated by resources
 (663 strings x 16 locales) and the local-AI engine, which cannot run on iOS as built today.
 
-**Status.** Phases 0-2 are finished: twenty-four slices are done (section 6). None has shipped
-in a release yet, and several still need on-device checks (section 1.2). Phase 3 has started with
-the Room database (6.25), the score estimator on iOS (6.26), `CrashReporter` (6.10), the HTTP
-client (6.27), storage (6.28), the session cluster (6.29) and the remaining repositories (6.30), so
-all of `data`, `gamelogic` and `usecases` is common code, wired by a shared Koin module (6.31);
-phases 4-5 have not started.
+**Status.** Phases 0-3 are finished: thirty-two slices are done (section 6). None has shipped
+in a release yet, and several still need on-device checks (section 1.2). Phase 3 moved the Room
+database (6.25), the score estimator (6.26), `CrashReporter` (6.10), the HTTP client (6.27),
+storage (6.28), the session cluster (6.29) and the remaining repositories (6.30) to common code,
+wired by a shared Koin module (6.31) and an iOS platform module (6.32). Only the bindings Swift
+supplies are left, and they come with the iOS app; phases 4-5 have not started.
 
 Earlier, longer versions of this document:
 `git show d529259:docs/KMP_MIGRATION_ASSESSMENT.md` (original assessment) and
@@ -38,39 +38,32 @@ Nothing left.
 Verified on device: the session survives an in-place upgrade, password login, Google sign-in,
 declining a challenge (an unsafe request, so CSRF works), the score estimate after both JNI
 renames (6.24, 6.26), Room in `commonMain` installed over the existing app (6.25), tutorials
-opening with `tutorials.json` still in the app (6.22), and storage in `commonMain` (6.28).
+opening with `tutorials.json` still in the app (6.22), storage in `commonMain` (6.28), the Koin
+graph after 6.31, logout (6.29), tutorials and Joseki after 6.30, type-safe navigation on a
+release (R8) build (6.19), and an idle websocket staying up past a minute after 6.32.
 
 Still owed - unit tests cannot reach these:
 
 - [ ] **The other seven body-bearing endpoints** (6.4): `createAccount`, `openChallenge`,
   `challengePlayer`, `markPuzzleSolved`, `ratePuzzle`, `acknowledgeWarning`, `deleteAccount`.
 - [ ] **Crashlytics breadcrumbs** arrive as `I/Tag: message`, and release logcat is silent (6.6).
-- [ ] **The Ktor websocket** (6.14): connect and authenticate, reconnect after airplane mode, an
-  idle socket staying up past a minute, and logout sending `cleanup()` before the close frame.
+- [ ] **The Ktor websocket** (6.14): connect and authenticate, reconnect after airplane mode, and
+  logout sending `cleanup()` before the close frame.
 - [ ] **Game connection ref-counting** (6.15): open, leave and reopen a game; a game in the active
   list keeps receiving moves after its screen closes; chat turns on when the screen opens.
 - [ ] **Tsumego puzzle picker** (6.20): it opens scrolled to the current puzzle, thumbnails render
   as rows scroll in, tapping a row selects it, and tapping outside, tapping the field again or
   pressing back closes it without reopening.
-- [ ] **Type-safe navigation on a release (R8) build** (6.19): every tab, a game, a tutorial, a
-  puzzle, onboarding via login and sign-up, and the deep link
-  `adb shell am start -a android.intent.action.VIEW -d "sente://game/76828314/9/9"`. Check the
-  `screen_view` names in Firebase DebugView.
-- [ ] **Koin graph after 6.31**: a cold start, login, a game and a tutorial; the HTTP log shows
-  bodies on debug only.
-- [ ] **Logout** (6.29): it wipes the app data and the app restarts logged out.
-- [ ] **Tutorials and Joseki after 6.30**: a tutorial opens (new JSON loader), and a Joseki
-  position with labels shows them bold in its description and on the board.
 - [ ] **Clock text** (6.16): simple, byo-yomi, Canadian and Fischer clocks and the game-list
   timers, in English and in a locale with a decimal comma (e.g. `de`).
 
 ### 1.3 Phases 3-5
 
-| Phase                              | Work                                                                                                                                                                                                                                                                                                                                          | Estimate                        |
-|------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------|
-| **3 - data layer to `commonMain`** | The code is done (6.25, 6.27-6.30); `androidMain` holds only platform implementations. Left: `iosPlatformModule` (6.31) - database builder, DataStore paths, `KeyValueStore` and `SessionCookiePersistence` on `NSUserDefaults`, the Darwin engine and its network errors (6.10); `AppDataEraser` and `TutorialsSource` wait for the iOS app. | 4-6 weeks                       |
-| **4 - Compose Multiplatform**      | UI into `:shared/commonMain`; Koin and Molecule multiplatform artifacts with it. Resources (4.2), icons, chart, markdown, Material You. `BoardComposable` has four Android leaks with direct CMP equivalents: `nativeCanvas.drawText`, `pointerInteropFilter`, `Rect`, `colorResource`.                                                       | 6-10 weeks (resources dominate) |
-| **5 - iOS app**                    | SwiftUI shell + `ComposeUIViewController`, notifications, background refresh, billing, Google sign-in, App Store plumbing. Bitrise needs a macOS stack.                                                                                                                                                                                       | 4-8 weeks, excluding local AI   |
+| Phase                              | Work                                                                                                                                                                                                                                                                                    | Estimate                        |
+|------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------|
+| **3 - data layer to `commonMain`** | Done (6.25, 6.27-6.32). Left for the iOS app: the Swift `Analytics`, `AppDataEraser` and `TutorialsSource` passed to `initKoin()`, and a real iOS `CrashReporter`.                                                                                                                      | done                            |
+| **4 - Compose Multiplatform**      | UI into `:shared/commonMain`; Koin and Molecule multiplatform artifacts with it. Resources (4.2), icons, chart, markdown, Material You. `BoardComposable` has four Android leaks with direct CMP equivalents: `nativeCanvas.drawText`, `pointerInteropFilter`, `Rect`, `colorResource`. | 6-10 weeks (resources dominate) |
+| **5 - iOS app**                    | SwiftUI shell + `ComposeUIViewController`, notifications, background refresh, billing, Google sign-in, App Store plumbing. Bitrise needs a macOS stack.                                                                                                                                 | 4-8 weeks, excluding local AI   |
 
 Estimates are order-of-magnitude, single developer. The one data point so far: the serialization
 slice came in on time only because the golden-JSON corpus was dropped, which moved verification
@@ -195,8 +188,8 @@ one module so there is one `Res` class.
 ## 6. Done - what is still load-bearing
 
 Only traps, deliberate behaviour changes, and decisions that look wrong but are not. Unit tests
-stand at 151: 99 in `:shared` host tests (84 of them in `commonTest`, which also run on the iOS
-simulator), 5 in `:shared` `iosTest` (simulator only), 47 in `:app`.
+stand at 160: 99 in `:shared` host tests (84 of them in `commonTest`, which also run on the iOS
+simulator), 14 in `:shared` `iosTest` (simulator only), 47 in `:app`.
 
 ### 6.1 Moshi to kotlinx.serialization
 
@@ -280,10 +273,9 @@ registers a Swift implementation with the iOS Koin graph.
 - The filter is the common `reportableException()`, pinned by `ReportableExceptionTest`; only
   `isPlatformNetworkError()` is per platform (`java.net` and the cancelled Google sign-in on
   Android, `AndroidNetworkErrorTest`). `OGSApiException` moved to `commonMain` with it.
-- **The iOS `actual` is a placeholder:** it logs reportable exceptions through Kermit and drops
-  breadcrumbs, user id and keys. Its `isPlatformNetworkError()` is `false`, which is right only
-  while iOS has no networking: the network layer must add the Darwin engine's and Ktor's
-  exceptions, or every dropped connection becomes a report once iOS Crashlytics arrives.
+- **The iOS `actual` is still a placeholder for reporting:** it logs reportable exceptions through
+  Kermit and drops breadcrumbs, user id and keys. Its `isPlatformNetworkError()` covers the Darwin
+  engine's and Ktor's errors since 6.32.
 
 ### 6.11 Layering
 
@@ -313,7 +305,8 @@ platform code by design.
 
 - Shares the REST `HttpClient` with the `WebSockets` plugin; no cookies reach it (host-only, 6.5).
 - **The plugin's `pingInterval` is ignored by the OkHttp engine.** The 15 s ping is on the shared
-  `OkHttpClient`, so REST HTTP/2 connections are pinged too. Darwin sets it through the plugin.
+  `OkHttpClient`, so REST HTTP/2 connections are pinged too. Darwin takes it from the plugin
+  (`pingIntervalMillis` in `sharedModule`, 6.32).
 - Outbound messages go through a per-connection `Channel(UNLIMITED)`; messages emitted during the
   handshake are queued. **`disconnect()` closes the queue rather than cancelling**, so `cleanup()`
   messages drain before the close frame.
@@ -470,8 +463,7 @@ test-local class.
   identity hash matches and an older APK still opens the file.
 - **Android keeps the framework SQLite** (no `setDriver`); `androidPlatformModule` supplies the
   builder and `sharedModule` adds `fallbackToDestructiveMigration` and builds it. iOS gets
-  `BundledSQLiteDriver` (`iosMain`
-  only). No iOS builder or database path yet - that comes with the iOS Koin graph.
+  `BundledSQLiteDriver` (`iosMain` only); its builder and path are in `iosPlatformModule` (6.32).
 - Every DAO function is `suspend` or returns `Flow`, the `@Transaction` bodies included; native
   targets reject blocking DAOs. Callers were already in coroutines, so only `suspend` spread to
   private handlers in four repositories. DAO calls now hop to Room's executor.
@@ -516,9 +508,8 @@ test-local class.
 - `OGSCookieStore` reads the clock through `kotlin.time.Clock` and uses
   `kotlin.concurrent.Volatile`.
 - **Still in `androidMain`:** `HTTPConnectionFactory` (OkHttp, the emulator DNS hook, the 15 s
-  ping), `SharedPrefsCookiePersistence` and `LegacyCookieImport`. There is no iOS engine yet; the
-  Darwin engine comes with the iOS Koin graph, and with it the Darwin cases of
-  `isPlatformNetworkError()` (6.10).
+  ping), `SharedPrefsCookiePersistence` and `LegacyCookieImport`. The Darwin engine and its
+  cases of `isPlatformNetworkError()` (6.10) came in 6.32.
 - **The services waited for the session cluster** (done in 6.29). `OGSRestService` needs
   `UserSessionRepository`
   and `SettingsRepository`, `OGSWebSocketService` needs `UserSessionRepository` and
@@ -547,8 +538,7 @@ test-local class.
   between them only forces a UIConfig refresh.
 - `ReviewPromptRepository` lost its unused `UserSessionRepository` parameter, referenced only in a
   commented-out debug check.
-- **iOS has no `KeyValueStore` or `SessionCookiePersistence` yet;** both are `NSUserDefaults` work
-  for the iOS Koin graph.
+- The iOS `KeyValueStore` and `SessionCookiePersistence` are on `NSUserDefaults` (6.32).
 
 ### 6.29 Session cluster in `commonMain`
 
@@ -602,3 +592,35 @@ test-local class.
 - `AppDataEraser` and `TutorialsSource` are `fun interface`s because Koin cannot tell `() -> Unit`
   bindings apart; the lambdas of 6.29 and 6.30 only worked because `Modules.kt` built those
   repositories by hand.
+
+### 6.32 iOS platform module
+
+- `iosPlatformModule` (`iosMain` `di/IosPlatformModule.kt`) implements the 6.31 contract: the
+  Darwin engine, the `NSUserDefaults` stores, and both DataStores and the database in Application
+  Support (`settings.preferences_pb`, `review_prompt.preferences_pb`, `database.db`) on
+  `BundledSQLiteDriver`.
+- **`initKoin(analytics, appDataEraser, tutorialsSource)`** (`di/InitKoin.kt`) is the iOS
+  composition root and adds the application scope. Swift implements the three Kotlin interfaces;
+  until the iOS app exists, only `IosPlatformModuleTest` calls it.
+- `KeyValueStore` is `UserDefaultsKeyValueStore` over the suite `login`, like Android's prefs file.
+  **`getLong` reads `objectForKey`**: `integerForKey` returns 0 for a missing key, not the default.
+- `SessionCookiePersistence` is `KeyValueCookiePersistence` over the suite `ogs_session`: the whole
+  cookie map as one JSON string, so a save replaces the set in one write. Like SharedPreferences,
+  `NSUserDefaults` is sandbox-private but unencrypted and backed up; Keychain would be the
+  hardening.
+- **Redirects:** NSURLSession follows redirects on its own, but Ktor's `KtorNSURLSessionDelegate`
+  refuses them, so `followRedirects = false` holds and the Google handshake still sees the 3xx.
+- **Websocket ping:** the Darwin session is wrapped by the `WebSockets` plugin, whose pinger is off
+  by default. `sharedModule` sets `pingIntervalMillis = 15_000`; OkHttp ignores it in favour of its
+  engine's 15 s (6.14).
+- `isPlatformNetworkError()` on iOS: Ktor's socket and connect timeouts, and
+  `DarwinHttpRequestException` with a connectivity `NSURLErrorDomain` code or, from the websocket
+  path, a POSIX connection error (`IosNetworkErrorTest`).
+- **Kotlin/Native's standalone simulator test run fails every TLS handshake** (`-1202` for any
+  host), so real-network checks need a booted simulator: an init script that sets `device` and
+  `standalone = false` on `iosSimulatorArm64Test`. Checked that way with a throwaway test: a REST
+  GET decodes, a 301 surfaces as `OGSApiException`, and the websocket answers `net/ping` after 70 s
+  idle. The shared `HttpClient` has no base URL - Ktorfit supplies it - so raw calls need absolute
+  URLs.
+- An iOS `AppDataEraser` must clear the database, both DataStores and both defaults suites itself
+  (6.29).

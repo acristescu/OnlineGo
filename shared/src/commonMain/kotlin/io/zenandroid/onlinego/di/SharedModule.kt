@@ -58,7 +58,9 @@ val sharedModule = module {
         cookiesStorage = get<OGSCookieStore>(),
         baseUrl = OGS_BASE_URL,
       )
-      install(WebSockets)
+      install(WebSockets) {
+        pingIntervalMillis = 15_000
+      }
     }
   }
 

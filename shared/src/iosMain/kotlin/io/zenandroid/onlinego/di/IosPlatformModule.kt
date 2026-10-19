@@ -1,0 +1,51 @@
+package io.zenandroid.onlinego.di
+
+import androidx.datastore.preferences.core.PreferenceDataStoreFactory
+import androidx.room.Room
+import androidx.sqlite.driver.bundled.BundledSQLiteDriver
+import io.ktor.client.engine.HttpClientEngine
+import io.ktor.client.engine.darwin.Darwin
+import io.zenandroid.onlinego.data.db.Database
+import io.zenandroid.onlinego.data.ogs.KeyValueCookiePersistence
+import io.zenandroid.onlinego.data.ogs.SessionCookiePersistence
+import io.zenandroid.onlinego.utils.KeyValueStore
+import io.zenandroid.onlinego.utils.UserDefaultsKeyValueStore
+import kotlinx.cinterop.ExperimentalForeignApi
+import kotlinx.coroutines.CoroutineScope
+import okio.Path.Companion.toPath
+import org.koin.dsl.module
+import platform.Foundation.NSApplicationSupportDirectory
+import platform.Foundation.NSFileManager
+import platform.Foundation.NSUserDomainMask
+
+val iosPlatformModule = module {
+  single<HttpClientEngine> { Darwin.create() }
+
+  single<SessionCookiePersistence> {
+    KeyValueCookiePersistence(UserDefaultsKeyValueStore("ogs_session"))
+  }
+  single<KeyValueStore> { UserDefaultsKeyValueStore("login") }
+  single(SETTINGS_DATA_STORE) { preferencesDataStore("settings", get()) }
+  single(REVIEW_PROMPT_DATA_STORE) { preferencesDataStore("review_prompt", get()) }
+  single {
+    Room.databaseBuilder<Database>(name = applicationSupportPath("database.db"))
+      .setDriver(BundledSQLiteDriver())
+  }
+}
+
+private fun preferencesDataStore(name: String, scope: CoroutineScope) =
+  PreferenceDataStoreFactory.createWithPath(scope = scope) {
+    applicationSupportPath("$name.preferences_pb").toPath()
+  }
+
+@OptIn(ExperimentalForeignApi::class)
+private fun applicationSupportPath(fileName: String): String {
+  val directory = NSFileManager.defaultManager.URLForDirectory(
+    directory = NSApplicationSupportDirectory,
+    inDomain = NSUserDomainMask,
+    appropriateForURL = null,
+    create = true,
+    error = null,
+  )
+  return "${requireNotNull(directory?.path)}/$fileName"
+}

@@ -69,6 +69,7 @@ kotlin {
 
     iosMain.dependencies {
       implementation(libs.sqlite.bundled)
+      implementation(libs.ktor.client.darwin)
     }
 
     commonTest.dependencies {
