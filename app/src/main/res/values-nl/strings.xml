@@ -730,9 +730,7 @@
     <string name="tutorial_advanced_endgamescoring_endgame1_page5_text">Hier zie je nog een partij die voorbij is. Zwart heeft vijf punten, en wit heeft er zes.\n\nDe twee kruispunten in het centrum zijn neutraal gebied (\'Dame\') en tellen niet mee voor de punten.\n\nElk van de spelers kan daar wel een zet doen, maar dit heeft geen effect op de eindstand.</string>
     <string name="tutorial_advanced_endgamescoring_endgame1_page6_text">Gebied levert verreweg de meeste punten op, onthoud wel dat er ook andere bonuspunten opgeteld dienen te worden.\n\nElke geslagen steen levert ook een punt op, net als \'dode\' stenen die nog op het bord liggen (groepen die geen kans meer maken op twee ogen).\n\nDaarnaast krijgt wit nog een compensatie omdat zwart begint. Deze bonus noem je \'komi\'.\n\nDe hoogte van de komi hangt af van de bordgrootte, maar is meestal 5,5 of 6,5 punten. Die halve punt voorkomt gelijkspel.\n\nGelukkig doet de app al deze berekeningen voor je :)</string>
     <string name="tutorial_advanced_cuttingstones_name">Doorsnijden</string>
-    <string name="tutorial_advanced_cuttingstones_cutting1_text">\"Het lijkt nu net of wit het grootste gebied heeft. Zijn muur heeft echter een zwakke plek, waar je gewoon kan \"doorsnijden\".
-
-Als je dat lukt moet wit erg zijn best doen om beide groepen nog te redden.\"</string>
+    <string name="tutorial_advanced_cuttingstones_cutting1_text">Het lijkt nu net of wit het grootste gebied heeft.\nZijn muur heeft echter een zwakke plek, waar je gewoon kan \"doorsnijden\".\n\nAls je dat lukt moet wit erg zijn best doen om beide groepen nog te redden.</string>
     <string name="tutorial_advanced_cuttingstones_cutting1_branches2_message">De witte stenen zijn verbonden.</string>
     <string name="tutorial_advanced_cuttingstones_cutting2_text">Zwart heeft 30 punten, en wit heeft er 31. Wit lijkt dus te winnen met één punt.\nHet gebied onderin is echter niet helemaal voor wit.\n\nSnij gewoon de witte muur door.</string>
 </resources>
