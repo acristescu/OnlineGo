@@ -180,7 +180,7 @@ one module so there is one `Res` class.
 
 | Risk                         | Notes                                                                                                                                                                                                             |
 |------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| **Toolchain currency**       | Kotlin 2.4.21 / AGP 9.2.1 / Gradle 9.4.1, inside the supported matrix (6.33). KMP plugin, Room KMP and Ktorfit work together for iOS with the configuration cache on; CMP is chosen (1.12.2) but not yet applied. |
+| **Toolchain currency**       | Kotlin 2.4.21 / AGP 9.3.3 / Gradle 9.7.1, inside the supported matrix (6.33). KMP plugin, Room KMP and Ktorfit work together for iOS with the configuration cache on; CMP is chosen (1.12.2) but not yet applied. |
 | **Room on a live schema**    | v20, 4 auto-migrations, 13 converters, and `fallbackToDestructiveMigration` silently wipes caches on a bad migration. `MoveTree` blobs written by Moshi are now read by kotlinx (6.1).                            |
 | **Localization regression**  | 663 strings x 16 locales moved wholesale; needs a mechanical diff, not eyeballing.                                                                                                                                |
 | **iOS background behaviour** | `BGAppRefreshTask` has no interval guarantee, so turn notifications will be worse than Android's 15-minute poll without server push (APNs), which OGS would have to support. No FCM today.                        |
@@ -633,8 +633,11 @@ test-local class.
 
 - **Kotlin 2.4.21** (was 2.3.20). Kotlin 2.3.20-2.3.21 supports AGP only up to 9.0.0, so AGP 9.2.1
   was outside the supported matrix; 2.4.20-2.4.21 covers AGP 8.5.2-9.3.1 and Gradle up to 9.7.0.
-  AGP stays 9.2.1 and Gradle 9.4.1: **AGP 9.4 is outside the 2.4.21 range.** It is tested against
-  Xcode 26.4; the local Xcode 27.0 builds and runs the simulator tests.
+  It is tested against Xcode 26.4; the local Xcode 27.0 builds and runs the simulator tests.
+- **AGP 9.3.3, Gradle 9.7.1** (were 9.2.1 and 9.4.1): the newest of each inside the 2.4.21 range
+  (patch releases past the listed 9.3.1 and 9.7.0). **AGP 9.3 refuses Gradle below 9.5**, and
+  **AGP 9.4 is outside the 2.4.21 range.** AGP 9.3 warns that six `android.*` options in
+  `gradle.properties` are deprecated; they go before AGP 10.
 - **KSP 2.3.12** (was 2.3.6). KSP2 versions are no longer tied to the Kotlin version. Ktorfit 2.7.5
   infers its compiler plugin from the Kotlin version and needed no change.
 - **Compose BOM 2026.09.00** (Compose 1.12.1, was 1.12.0): the version CMP 1.12.2 is built on, so
@@ -650,5 +653,12 @@ test-local class.
   `koin-compose-viewmodel` needs Lifecycle 2.9.6+.
   `org.jetbrains.compose.material:material-icons-extended`
   stops at 1.7.3, so vendored `ImageVector`s (section 3) stand.
+- Libraries that pair with Kotlin 2.4 and CMP 1.12.2: kotlinx.serialization 1.11.0, Ktor 3.5.2,
+  Koin 4.2.2, Room 2.8.5, androidx Lifecycle 2.11.0, coroutines-test 1.11.0 (core already resolved
+  to 1.11.0). **sqlite-bundled stays 2.6.2**, the version Room 2.8.5 declares. Left for their own
+  slices: navigation (with the switch to the multiplatform artifact), kotlinx-collections-immutable
+  0.5, and the Android-only Firebase BOM 35, OkHttp 5.5, core-ktx 1.19 and WorkManager 2.12.
 - Checked: the release compose report is byte-identical (241 composables, 6 unstable parameters),
-  R8 keeps the 15 route serializers, and all tests pass on Android and the iOS simulator.
+  R8 keeps the serializers of all five route classes (the `data object` routes have none), and all
+  tests pass on Android and the iOS simulator. On a booted simulator, a Ktorfit call decodes, a 301
+  surfaces as `OGSApiException`, and the websocket answers `net/ping` after 70 s idle.
