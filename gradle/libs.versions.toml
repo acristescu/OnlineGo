@@ -11,6 +11,8 @@ ndkVersion = "25.1.8937393"
 
 # Compose BOM
 composeBom = "2026.09.00"
+composeMultiplatform = "1.12.2"
+composeMultiplatformMaterial3 = "1.9.0"
 
 # Main dependencies
 koin = "4.2.2"
@@ -86,7 +88,11 @@ compose-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling
 screenshot-validation-api = { group = "com.android.tools.screenshot", name = "screenshot-validation-api", version.ref = "screenshot" }
 compose-ui-util = { group = "androidx.compose.ui", name = "ui-util" }
 compose-material3 = { group = "androidx.compose.material3", name = "material3" }
-compose-runtime = { group = "androidx.compose.runtime", name = "runtime" }
+cmp-runtime = { module = "org.jetbrains.compose.runtime:runtime", version.ref = "composeMultiplatform" }
+cmp-ui = { module = "org.jetbrains.compose.ui:ui", version.ref = "composeMultiplatform" }
+cmp-foundation = { module = "org.jetbrains.compose.foundation:foundation", version.ref = "composeMultiplatform" }
+cmp-material3 = { module = "org.jetbrains.compose.material3:material3", version.ref = "composeMultiplatformMaterial3" }
+cmp-ui-test = { module = "org.jetbrains.compose.ui:ui-test", version.ref = "composeMultiplatform" }
 
 # Molecule
 molecule-runtime = { group = "app.cash.molecule", name = "molecule-runtime", version.ref = "molecule" }
@@ -171,6 +177,7 @@ android-kotlin-multiplatform-library = { id = "com.android.kotlin.multiplatform.
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+compose-multiplatform = { id = "org.jetbrains.compose", version.ref = "composeMultiplatform" }
 google-services = { id = "com.google.gms.google-services", version.ref = "googleServices" }
 firebase-crashlytics = { id = "com.google.firebase.crashlytics", version.ref = "crashlytics" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }

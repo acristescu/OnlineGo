@@ -5,6 +5,7 @@ plugins {
   alias(libs.plugins.kotlin.multiplatform)
   alias(libs.plugins.android.kotlin.multiplatform.library)
   alias(libs.plugins.kotlin.compose)
+  alias(libs.plugins.compose.multiplatform)
   alias(libs.plugins.kotlin.serialization)
   alias(libs.plugins.ksp)
   alias(libs.plugins.ktorfit)
@@ -38,8 +39,10 @@ kotlin {
     }
 
     commonMain.dependencies {
-      api(project.dependencies.platform(libs.compose.bom))
-      api(libs.compose.runtime)
+      api(libs.cmp.runtime)
+      api(libs.cmp.ui)
+      api(libs.cmp.foundation)
+      api(libs.cmp.material3)
       api(libs.kotlinx.serialization.json)
       api(libs.immutable.collections)
       api(libs.kotlinx.datetime)
@@ -70,6 +73,10 @@ kotlin {
     iosMain.dependencies {
       implementation(libs.sqlite.bundled)
       implementation(libs.ktor.client.darwin)
+    }
+
+    iosTest.dependencies {
+      implementation(libs.cmp.ui.test)
     }
 
     commonTest.dependencies {

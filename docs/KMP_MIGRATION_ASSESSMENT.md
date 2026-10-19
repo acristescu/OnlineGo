@@ -9,14 +9,15 @@ is no RxJava, no `Parcelable`, and Koin, Molecule, Room, DataStore, `ViewModel`,
 kotlinx-collections-immutable are already multiplatform. The cost is dominated by resources
 (663 strings x 16 locales) and the local-AI engine, which cannot run on iOS as built today.
 
-**Status.** Phases 0-3 are finished: thirty-three slices are done (section 6). Phases 0-2 have
+**Status.** Phases 0-3 are finished: thirty-four slices are done (section 6). Phases 0-2 have
 shipped in a release; Phase 3 has not, and several slices still need on-device checks (section 1.2).
 Phase 3 moved the Room
 database (6.25), the score estimator (6.26), `CrashReporter` (6.10), the HTTP client (6.27),
 storage (6.28), the session cluster (6.29) and the remaining repositories (6.30) to common code,
 wired by a shared Koin module (6.31) and an iOS platform module (6.32). Only the bindings Swift
-supplies are left, and they come with the iOS app. The toolchain is set for Compose
-Multiplatform 1.12.2 (6.33); phases 4-5 have not started.
+supplies are left, and they come with the iOS app. Phase 4 has started: the toolchain is set for
+Compose Multiplatform 1.12.2 (6.33) and the first composable is common code (6.34); phase 5 has
+not started.
 
 Earlier, longer versions of this document:
 `git show d529259:docs/KMP_MIGRATION_ASSESSMENT.md` (original assessment) and
@@ -44,7 +45,9 @@ declining a challenge (an unsafe request, so CSRF works), the score estimate aft
 renames (6.24, 6.26), Room in `commonMain` installed over the existing app (6.25), tutorials
 opening with `tutorials.json` still in the app (6.22), storage in `commonMain` (6.28), the Koin
 graph after 6.31, logout (6.29), tutorials and Joseki after 6.30, type-safe navigation on a
-release (R8) build (6.19), and an idle websocket staying up past a minute after 6.32.
+release (R8) build (6.19), an idle websocket staying up past a minute after 6.32, and the Tsumego
+puzzle picker from `commonMain` (6.20, 6.34): scrolled to the current puzzle, lazy thumbnails,
+tap to select, and closing without reopening.
 
 Still owed - unit tests cannot reach these:
 
@@ -55,9 +58,6 @@ Still owed - unit tests cannot reach these:
   logout sending `cleanup()` before the close frame.
 - [ ] **Game connection ref-counting** (6.15): open, leave and reopen a game; a game in the active
   list keeps receiving moves after its screen closes; chat turns on when the screen opens.
-- [ ] **Tsumego puzzle picker** (6.20): it opens scrolled to the current puzzle, thumbnails render
-  as rows scroll in, tapping a row selects it, and tapping outside, tapping the field again or
-  pressing back closes it without reopening.
 - [ ] **Clock text** (6.16): simple, byo-yomi, Canadian and Fischer clocks and the game-list
   timers, in English and in a locale with a decimal comma (e.g. `de`).
 
@@ -178,22 +178,22 @@ one module so there is one `Res` class.
 
 ## 5. Risks
 
-| Risk                         | Notes                                                                                                                                                                                                             |
-|------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| **Toolchain currency**       | Kotlin 2.4.21 / AGP 9.3.3 / Gradle 9.7.1, inside the supported matrix (6.33). KMP plugin, Room KMP and Ktorfit work together for iOS with the configuration cache on; CMP is chosen (1.12.2) but not yet applied. |
-| **Room on a live schema**    | v20, 4 auto-migrations, 13 converters, and `fallbackToDestructiveMigration` silently wipes caches on a bad migration. `MoveTree` blobs written by Moshi are now read by kotlinx (6.1).                            |
-| **Localization regression**  | 663 strings x 16 locales moved wholesale; needs a mechanical diff, not eyeballing.                                                                                                                                |
-| **iOS background behaviour** | `BGAppRefreshTask` has no interval guarantee, so turn notifications will be worse than Android's 15-minute poll without server push (APNs), which OGS would have to support. No FCM today.                        |
-| **KataGo memory on iOS**     | A new class of risk that does not exist on Android, where the engine has its own process.                                                                                                                         |
-| **Bandwidth**                | A multi-month refactor on a personal project. Phases 0-1 are the hedge: they pay off on their own.                                                                                                                |
+| Risk                         | Notes                                                                                                                                                                                               |
+|------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **Toolchain currency**       | Kotlin 2.4.21 / AGP 9.3.3 / Gradle 9.7.1, inside the supported matrix (6.33). KMP plugin, Room KMP, Ktorfit and the CMP 1.12.2 plugin work together for iOS with the configuration cache on (6.34). |
+| **Room on a live schema**    | v20, 4 auto-migrations, 13 converters, and `fallbackToDestructiveMigration` silently wipes caches on a bad migration. `MoveTree` blobs written by Moshi are now read by kotlinx (6.1).              |
+| **Localization regression**  | 663 strings x 16 locales moved wholesale; needs a mechanical diff, not eyeballing.                                                                                                                  |
+| **iOS background behaviour** | `BGAppRefreshTask` has no interval guarantee, so turn notifications will be worse than Android's 15-minute poll without server push (APNs), which OGS would have to support. No FCM today.          |
+| **KataGo memory on iOS**     | A new class of risk that does not exist on Android, where the engine has its own process.                                                                                                           |
+| **Bandwidth**                | A multi-month refactor on a personal project. Phases 0-1 are the hedge: they pay off on their own.                                                                                                  |
 
 ---
 
 ## 6. Done - what is still load-bearing
 
 Only traps, deliberate behaviour changes, and decisions that look wrong but are not. Unit tests
-stand at 160: 99 in `:shared` host tests (84 of them in `commonTest`, which also run on the iOS
-simulator), 14 in `:shared` `iosTest` (simulator only), 47 in `:app`.
+stand at 161: 99 in `:shared` host tests (84 of them in `commonTest`, which also run on the iOS
+simulator), 15 in `:shared` `iosTest` (simulator only), 47 in `:app`.
 
 ### 6.1 Moshi to kotlinx.serialization
 
@@ -662,3 +662,24 @@ test-local class.
   R8 keeps the serializers of all five route classes (the `data object` routes have none), and all
   tests pass on Android and the iOS simulator. On a booted simulator, a Ktorfit call decodes, a 301
   surfaces as `OGSApiException`, and the websocket answers `net/ping` after 70 s idle.
+
+### 6.34 Compose Multiplatform in `:shared`
+
+- `:shared` applies the `org.jetbrains.compose` 1.12.2 plugin and exposes CMP `runtime`, `ui`,
+  `foundation` and `material3` as `api` dependencies, replacing the androidx Compose BOM and
+  `runtime` in `commonMain`. Coordinates are written out in the catalog (`cmp-*`), not taken from
+  the plugin's `compose.*` accessors.
+- **Material3 is pinned to 1.9.0** (`composeMultiplatformMaterial3`), apart from the CMP version
+  (6.33). On Android every `androidx.compose` artifact and material3 1.4.0 resolve exactly as
+  before; only the `org.jetbrains.compose` wrapper modules, already pulled in transitively, moved
+  from 1.12.0 to 1.12.2.
+- `ExposedLazyDropdownMenu` (`ui/composables/ScrollableDropDownMenu.kt`) is the first composable in
+  `commonMain`, same package, so `TsumegoUI` is unchanged. It carries its `updateTransition`
+  deprecation warning with it.
+- **The compose report now spans two modules.** `:shared` writes none by default; pass an init
+  script that sets `composeCompiler.reportsDestination` for both, and compare the app and `:shared`
+  rows together. They matched the app's report before the move (246 rows, 6 unstable parameters,
+  none in `:shared`). The release APK came out the same size to the byte.
+- `iosTest/.../ExposedLazyDropdownMenuTest` renders the menu with `runComposeUiTest` on the
+  simulator: the first row shows, row 999 of 1,000 is never composed. It is the first Compose UI
+  test, and it proves material3 1.9.0 runs, not just links, against CMP 1.12.2 on iOS.
