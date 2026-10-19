@@ -609,7 +609,7 @@
     <string name="tutorial_basics_doubleatari_doubleAtari2_text">Encore un. Où peux-tu faire un double Atari ?</string>
     <string name="tutorial_basics_illegalmoves_title">Coups illégaux (règle du suicide)</string>
     <string name="tutorial_basics_illegalmoves_suicide1_page_1_text">Tu peux jouer presque partout sur le plateau à quelques exceptions près. Dans l\'exemple ci-dessous, Noir ne peut pas jouer en A car sa pierre serait déjà entourée.</string>
-    <string name="tutorial_basics_illegalmoves_suicide1_page_2_text">\"C\'est ce que l\'on appelle un coup \"suicide\" et c\'est interdit.\"</string>
+    <string name="tutorial_basics_illegalmoves_suicide1_page_2_text">C\'est ce que l\'on appelle un coup \"suicide\" et c\'est interdit.</string>
     <string name="tutorial_basics_illegalmoves_suicide1_page_3_text">Il y a toutefois une exception. Si le coup capture une ou plusieurs pierres blanches (comme en B ci-dessous), le coup est autorisé.</string>
     <string name="tutorial_basics_illegalmoves_suicide1_page_4_text">La position résultante ressemble à ceci :</string>
     <string name="tutorial_basics_illegalmoves_suicide2_text">À votre tour à nouveau de capturer quelques pierres ! Astuce : A première vue le coup peut sembler illégal…</string>
@@ -629,7 +629,7 @@
     <string name="tutorial_intermediate_twoeyes_title">Deux yeux</string>
     <string name="tutorial_intermediate_twoeyes_twoeyes1_text">Vous êtes entièrement encerclé ! Quel est le seul coup qui peut vous sauver ?</string>
     <string name="tutorial_intermediate_twoeyes_twoeyes2_page1_text">Bien joué ! Dans cette position A et B sont des coups illégaux pour blanc car ils n\'auraient aucune liberté sans capturer vos pierres. Par conséquent, votre groupe ne peut jamais être capturé !</string>
-    <string name="tutorial_intermediate_twoeyes_twoeyes3_text">\"Qu\'en est-il ici ? Comment pouvez-vous vous assurer que vos pierres ne seront jamais capturées ?\"</string>
+    <string name="tutorial_intermediate_twoeyes_twoeyes3_text">Qu\'en est-il ici ? Comment pouvez-vous vous assurer que vos pierres ne seront jamais capturées ?</string>
     <string name="tutorial_intermediate_captureraces_title">Course aux libertés</string>
     <string name="tutorial_intermediate_captureraces_capturerace1_text">Dans cet exercice, les groupes noirs et blancs du milieu sont encerclés. Comme aucun des deux n\'a deux yeux, chacun peut essayer de capturer l\'autre. Cette situation est appelée course aux libertés (semeai) et est généralement remportée par celui ayant le plus de libertés. Dans cet exemple, les deux groupes possèdent 3 libertés chacun, le premier à jouer remportera donc la course.\n\nCapturez les pierres blanches !</string>
     <string name="tutorial_intermediate_captureraces_capturerace2_text">Voici un autre semeai. Gagnez la course et capturez blanc !</string>
@@ -642,7 +642,7 @@
     <string name="tutorial_intermediate_ko_ko_page_1_text">Nous allons maintenant voir la dernière règle dont vous aurez besoin afin de jouer au GO : la règle du KO. La règle dit qu\'un coup est interdit s\'il produit une répétition (ex. une position précédente).\nRegardons un exemple. La pierre blanche en E6 est en atari. Noir peut donc la capturer</string>
     <string name="tutorial_intermediate_ko_ko_page_2_text">La nouvelle pierre noire en F6 est alors en atari. Sans la règle du KO, blanc pourrait alors la capturer et la position...</string>
     <string name="tutorial_intermediate_ko_ko_page_3_text">... serait à nouveau la même ! Ici, sans la règle du KO, noir capturerait la pierre blanche à nouveau...</string>
-    <string name="tutorial_intermediate_ko_ko_page_4_text">\"... et la partie serait sans fin. Pour éviter cela, la règle du KO stipule que blanc ne peut pas recapturer E6 immédiatement, et doit d\'abord jouer ailleurs.\"</string>
+    <string name="tutorial_intermediate_ko_ko_page_4_text">... et la partie serait sans fin. Pour éviter cela, la règle du KO stipule que blanc ne peut pas recapturer E6 immédiatement, et doit d\'abord jouer ailleurs.</string>
     <string name="tutorial_intermediate_ko_ko_page_5_text">Maintenant, si noir veut sauver sa pierre en atari, il peut jouer en E6...</string>
     <string name="tutorial_intermediate_ko_ko_page_6_text">Noir a ainsi gagné le ko, mais c\'est au tour de blanc à nouveau, blanc a donc gagné deux coups en échange de cette pierre.</string>
     <string name="tutorial_intermediate_ko_ko_page_7_text">Ces deux coups gratuits peuvent parfois valoir plus de points que de gagner le Ko, donc les deux joueurs vont constamment évaluer s\'il vaut mieux continuer le Ko ou prendre les coups supplémentaires.</string>
