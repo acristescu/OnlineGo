@@ -7,7 +7,6 @@
     <string name="ai_game_chat_engine_starting">Inicjowanie AI, proszę poczekać...</string>
     <string name="ai_game_chat_invalid_move">Nieprawidłowy ruch, spróbuj ponownie</string>
     <string name="ai_game_chat_lets_try_again">Ok, spróbuj jeszcze raz. Twój ruch!</string>
-    <string name="ai_game_chat_hmmm">Hmmm…</string>
     <string name="ai_game_chat_moves_to_consider">Oto kilka ruchów do rozważenia</string>
     <string name="ai_game_chat_ok_your_turn">Ok, Twój ruch</string>
     <string name="ai_game_chat_calculating_territory">Ok, obliczanie aktualnego terytorium...</string>
@@ -21,13 +20,11 @@
     <string name="player">Gracz</string>
     <string name="you">Ty</string>
     <string name="prisoners">Jeńcy</string>
-    <string name="komi">Komi</string>
     <string name="new_game">Nowa Gra</string>
     <string name="board_size">Rozmiar</string>
     <string name="Black">Czarne</string>
     <string name="handicap">Handikap</string>
     <string name="cancel">Anuluj</string>
-    <string name="ok">OK</string>
     <string name="search">Szukaj</string>
     <string name="loading">Wczytywanie…</string>
     <string name="email">E-mail</string>
@@ -54,7 +51,6 @@
     <string name="face_to_face_game_is_not_over">Wskazówka: Gra jeszcze nie jest zakończona!</string>
     <string name="face_to_face_ko_dialog_title">Niedozwolony ruch KO</string>
     <string name="face_to_face_ko_dialog_message">Ten ruch spowodowałby powtórzenie się takiej samej pozycji na planszy. Nazywa się to KO i jest niedozwolone. Spróbuj najpierw innego ruchu, najlepiej takiego, którego przeciwnik nie może zignorować.</string>
-    <string name="face_to_face_score_komi">komi</string>
     <string name="face_to_face_score_captures">jeńców</string>
     <string name="face_to_face_score_dead">martwy/-a</string>
     <string name="face_to_face_score_territory">terytorium</string>
