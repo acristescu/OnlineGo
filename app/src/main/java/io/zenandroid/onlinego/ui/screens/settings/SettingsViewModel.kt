@@ -27,7 +27,6 @@ import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.RanksClicked
 import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.SoundsClicked
 import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.SupportClicked
 import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.ThemeClicked
-import io.zenandroid.onlinego.ui.views.BoardView
 import io.zenandroid.onlinego.utils.Analytics
 import io.zenandroid.onlinego.utils.CrashReporter
 import kotlinx.coroutines.delay
@@ -95,7 +94,6 @@ class SettingsViewModel(
       is ThemeClicked -> {
         viewModelScope.launch {
           settingsRepository.setAppTheme(action.theme)
-          BoardView.unloadResources()
         }
       }
 

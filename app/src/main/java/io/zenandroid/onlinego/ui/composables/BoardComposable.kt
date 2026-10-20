@@ -1,9 +1,12 @@
 package io.zenandroid.onlinego.ui.composables
 
+import android.content.Context
+import android.graphics.Bitmap
 import android.graphics.Rect
 import android.os.Build
 import android.view.MotionEvent
 import androidx.annotation.ColorInt
+import androidx.annotation.DrawableRes
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
@@ -22,9 +25,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.Paint
+import androidx.compose.ui.graphics.asAndroidBitmap
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.drawscope.CanvasDrawScope
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -32,14 +39,21 @@ import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.nativePaint
+import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.imageResource
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
+import androidx.core.content.res.ResourcesCompat
+import androidx.core.graphics.drawable.toBitmap
 import io.zenandroid.onlinego.data.model.BoardTheme
 import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.Position
@@ -160,75 +174,183 @@ fun Board(
           }
         }
     ) {
-      drawBackground(preloadedImages?.background, backgroundColor)
-      translate(
-        measurements.border + measurements.xOffsetForNonSquareBoard,
-        measurements.border + measurements.yOffsetForNonSquareBoard
-      ) {
+      drawBoard(
+        boardWidth = boardWidth,
+        boardHeight = boardHeight,
+        position = position,
+        measurements = measurements,
+        boardTheme = boardTheme,
+        backgroundImage = preloadedImages?.background,
+        backgroundColor = backgroundColor,
+        whiteStone = whiteStone,
+        blackStone = blackStone,
+        drawCoordinates = drawCoordinates,
+        drawShadow = drawShadow,
+        drawTerritory = drawTerritory,
+        drawLastMove = drawLastMove,
+        drawMarks = drawMarks,
+        lastMoveMarker = lastMoveMarker,
+        fadeOutRemovedStones = fadeOutRemovedStones,
+        stoneToFadeIn = if (fadeInLastMove) stoneToFadeIn else null,
+        fadeInAlpha = fadeInAlpha.value,
+        stonesToFadeOut = stonesToFadeOut,
+        fadeOutAlpha = fadeOutAlpha.value,
+        ownership = ownership,
+        hints = hints,
+        candidateMove = candidateMove,
+        candidateMoveType = candidateMoveType,
+      )
+    }
+  }
+}
 
-        drawGrid(
-          boardWidth,
-          boardHeight,
-          candidateMove,
-          boardTheme.style.textAndGridColor,
-          measurements
+fun renderBoard(
+  context: Context,
+  boardWidth: Int,
+  boardHeight: Int,
+  position: Position?,
+  boardTheme: BoardTheme,
+  isDarkTheme: Boolean,
+  sizePx: Int,
+): Bitmap {
+  val style = boardTheme.style
+  val measurements =
+    doMeasurements(sizePx, sizePx, boardWidth, boardHeight, drawCoordinates = false)
+  val backgroundImageRes = if (isDarkTheme) style.backgroundImageDarkMode else style.backgroundImage
+  val stoneSize = (measurements.stoneRadius * 2).coerceAtLeast(1)
+  fun stonePainter(@DrawableRes id: Int) = BitmapPainter(
+    ResourcesCompat.getDrawable(context.resources, id, context.theme)!!
+      .toBitmap(stoneSize, stoneSize)
+      .asImageBitmap()
+  )
+
+  val bitmap = ImageBitmap(sizePx, sizePx)
+  CanvasDrawScope().draw(
+    density = Density(context),
+    layoutDirection = LayoutDirection.Ltr,
+    canvas = Canvas(bitmap),
+    size = Size(sizePx.toFloat(), sizePx.toFloat()),
+  ) {
+    drawBoard(
+      boardWidth = boardWidth,
+      boardHeight = boardHeight,
+      position = position,
+      measurements = measurements,
+      boardTheme = boardTheme,
+      backgroundImage = backgroundImageRes?.let {
+        ImageBitmap.imageResource(
+          context.resources,
+          it
         )
-        drawStarPoints(boardWidth, boardHeight, boardTheme.style.textAndGridColor, measurements)
-        drawCoordinates(boardWidth, boardHeight, boardTheme, drawCoordinates, measurements)
+      },
+      backgroundColor = style.backgroundColor?.let { Color(ContextCompat.getColor(context, it)) },
+      whiteStone = stonePainter(style.whiteStone),
+      blackStone = stonePainter(style.blackStone),
+      drawCoordinates = false,
+      drawShadow = true,
+      drawTerritory = false,
+      drawLastMove = true,
+      drawMarks = true,
+      lastMoveMarker = "#",
+      fadeOutRemovedStones = false,
+    )
+  }
+  return bitmap.asAndroidBitmap()
+}
 
-        for (item in stonesToFadeOut ?: emptyList()) {
-          drawStone(
-            item.first,
-            item.second,
-            if (item.second == StoneType.WHITE) whiteStone else blackStone,
-            fadeOutAlpha.value,
-            true,
-            measurements
-          )
+private fun DrawScope.drawBoard(
+  boardWidth: Int,
+  boardHeight: Int,
+  position: Position?,
+  measurements: Measurements,
+  boardTheme: BoardTheme,
+  backgroundImage: ImageBitmap?,
+  backgroundColor: Color?,
+  whiteStone: Painter?,
+  blackStone: Painter?,
+  drawCoordinates: Boolean,
+  drawShadow: Boolean,
+  drawTerritory: Boolean,
+  drawLastMove: Boolean,
+  drawMarks: Boolean,
+  lastMoveMarker: String,
+  fadeOutRemovedStones: Boolean,
+  stoneToFadeIn: Cell? = null,
+  fadeInAlpha: Float = 1f,
+  stonesToFadeOut: List<Pair<Cell, StoneType>>? = null,
+  fadeOutAlpha: Float = 1f,
+  ownership: ImmutableList<Float>? = null,
+  hints: ImmutableList<MoveInfo>? = null,
+  candidateMove: Cell? = null,
+  candidateMoveType: StoneType? = null,
+) {
+  drawBackground(backgroundImage, backgroundColor)
+  translate(
+    measurements.border + measurements.xOffsetForNonSquareBoard,
+    measurements.border + measurements.yOffsetForNonSquareBoard
+  ) {
+
+    drawGrid(
+      boardWidth,
+      boardHeight,
+      candidateMove,
+      boardTheme.style.textAndGridColor,
+      measurements
+    )
+    drawStarPoints(boardWidth, boardHeight, boardTheme.style.textAndGridColor, measurements)
+    drawCoordinates(boardWidth, boardHeight, boardTheme, drawCoordinates, measurements)
+
+    for (item in stonesToFadeOut ?: emptyList()) {
+      drawStone(
+        item.first,
+        item.second,
+        if (item.second == StoneType.WHITE) whiteStone else blackStone,
+        fadeOutAlpha,
+        true,
+        measurements
+      )
+    }
+    position?.let {
+      for (p in position.whiteStones) {
+        val alpha = when {
+          p == stoneToFadeIn -> fadeInAlpha
+          fadeOutRemovedStones && it.removedSpots.contains(p) -> .4f
+          else -> 1f
         }
-        position?.let {
-          for (p in position.whiteStones) {
-            val alpha = when {
-              fadeInLastMove && p == stoneToFadeIn -> fadeInAlpha.value
-              fadeOutRemovedStones && it.removedSpots.contains(p) -> .4f
-              else -> 1f
-            }
-            drawStone(p, StoneType.WHITE, whiteStone, alpha, drawShadow, measurements)
-          }
-          for (p in position.blackStones) {
-            val alpha = when {
-              fadeInLastMove && p == stoneToFadeIn -> fadeInAlpha.value
-              fadeOutRemovedStones && it.removedSpots.contains(p) -> .4f
-              else -> 1f
-            }
-            drawStone(p, StoneType.BLACK, blackStone, alpha, drawShadow, measurements)
-          }
-
-          drawDecorations(it, drawLastMove, drawMarks, lastMoveMarker, measurements)
-
-          if (drawTerritory) {
-            drawTerritory(it, measurements)
-          }
-
-          ownership?.let { ownership ->
-            drawAiEstimatedOwnership(it, ownership, measurements)
-          }
-
-          hints?.let { hints ->
-            drawHints(it, hints, measurements)
-          }
-        }
-        candidateMove?.let {
-          drawStone(
-            it,
-            candidateMoveType,
-            if (candidateMoveType == StoneType.WHITE) whiteStone else blackStone,
-            .4f,
-            false,
-            measurements
-          )
-        }
+        drawStone(p, StoneType.WHITE, whiteStone, alpha, drawShadow, measurements)
       }
+      for (p in position.blackStones) {
+        val alpha = when {
+          p == stoneToFadeIn -> fadeInAlpha
+          fadeOutRemovedStones && it.removedSpots.contains(p) -> .4f
+          else -> 1f
+        }
+        drawStone(p, StoneType.BLACK, blackStone, alpha, drawShadow, measurements)
+      }
+
+      drawDecorations(it, drawLastMove, drawMarks, lastMoveMarker, measurements)
+
+      if (drawTerritory) {
+        drawTerritory(it, measurements)
+      }
+
+      ownership?.let { ownership ->
+        drawAiEstimatedOwnership(it, ownership, measurements)
+      }
+
+      hints?.let { hints ->
+        drawHints(it, hints, measurements)
+      }
+    }
+    candidateMove?.let {
+      drawStone(
+        it,
+        candidateMoveType,
+        if (candidateMoveType == StoneType.WHITE) whiteStone else blackStone,
+        .4f,
+        false,
+        measurements
+      )
     }
   }
 }

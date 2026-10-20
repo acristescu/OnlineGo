@@ -6,15 +6,12 @@ import android.app.PendingIntent.FLAG_IMMUTABLE
 import android.app.PendingIntent.FLAG_UPDATE_CURRENT
 import android.content.Context
 import android.content.Intent
-import android.graphics.Bitmap
-import android.graphics.Canvas
-import android.graphics.Color
+import android.content.res.Configuration
 import android.os.Build
-import android.view.View
 import android.widget.RemoteViews
 import androidx.core.app.NotificationCompat
 import androidx.core.content.res.ResourcesCompat
-import androidx.core.graphics.createBitmap
+import androidx.core.graphics.scale
 import androidx.core.net.toUri
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.local.Challenge
@@ -22,6 +19,7 @@ import io.zenandroid.onlinego.data.model.local.ChallengeNotification
 import io.zenandroid.onlinego.data.model.local.Game
 import io.zenandroid.onlinego.data.model.local.GameNotificationWithDetails
 import io.zenandroid.onlinego.data.model.ogs.Phase
+import io.zenandroid.onlinego.data.repositories.SettingsRepository
 import io.zenandroid.onlinego.gamelogic.RulesManager
 import io.zenandroid.onlinego.resources.Res
 import io.zenandroid.onlinego.resources.notification_challenge_text
@@ -39,9 +37,9 @@ import io.zenandroid.onlinego.resources.notification_outcome_won_by
 import io.zenandroid.onlinego.resources.notification_requires_attention
 import io.zenandroid.onlinego.resources.notification_stone_removal_phase
 import io.zenandroid.onlinego.resources.notification_your_turn
+import io.zenandroid.onlinego.ui.composables.renderBoard
 import io.zenandroid.onlinego.ui.screens.main.MainActivity
-import io.zenandroid.onlinego.ui.views.BoardView
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.flow.first
 import org.jetbrains.compose.resources.getPluralString
 import org.jetbrains.compose.resources.getString
 
@@ -50,7 +48,10 @@ private const val NOTIFICATION_ID = 0
 /**
  * Created by alex on 07/03/2018.
  */
-class NotificationUtils(private val context: Context) {
+class NotificationUtils(
+    private val context: Context,
+    private val settingsRepository: SettingsRepository,
+) {
     fun cancelNotification(id: Int) {
         val notificationManager =
             context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
@@ -178,45 +179,17 @@ class NotificationUtils(private val context: Context) {
             }
     }
 
-    private fun View.convertToContentBitmap(): Bitmap {
-        val screenWidth = context.resources.displayMetrics.widthPixels
-        val widthSpec = View.MeasureSpec.makeMeasureSpec(screenWidth, View.MeasureSpec.AT_MOST)
-        val heightSpec = View.MeasureSpec.makeMeasureSpec(
-            (256 * context.resources.displayMetrics.density).toInt(),
-            View.MeasureSpec.AT_MOST
-        )
-        measure(widthSpec, heightSpec)
-        layout(0, 0, measuredWidth, measuredHeight)
-        val r = createBitmap(measuredHeight, measuredHeight)
-        r.eraseColor(Color.TRANSPARENT)
-        val canvas = Canvas(r)
-//            canvas.translate(measuredHeight/2f, 0f)
-        draw(canvas)
-        return r
-    }
-
-    private fun View.convertToIconBitmap(): Bitmap {
-        val width =
-            context.resources.getDimensionPixelSize(android.R.dimen.notification_large_icon_width)
-        val height =
-            context.resources.getDimensionPixelSize(android.R.dimen.notification_large_icon_height)
-        measure(width, height)
-        layout(0, 0, measuredWidth, measuredHeight)
-        val r = createBitmap(width, height)
-        r.eraseColor(Color.TRANSPARENT)
-        val canvas = Canvas(r)
-        canvas.translate((width - measuredWidth) / 2f, (height - measuredHeight) / 2f)
-        draw(canvas)
-        return r
-    }
-
     private suspend fun notifyIndividual(games: List<Game>, userId: Long?) {
-        val board = BoardView(context).apply {
-            animationEnabled = false
-        }
+        val boardTheme = settingsRepository.boardThemeFlow.first()
+        val isDarkTheme =
+            context.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES
+        val displayMetrics = context.resources.displayMetrics
+        val boardSize = minOf(displayMetrics.widthPixels, (256 * displayMetrics.density).toInt())
+        val iconSize = minOf(
+            context.resources.getDimensionPixelSize(android.R.dimen.notification_large_icon_width),
+            context.resources.getDimensionPixelSize(android.R.dimen.notification_large_icon_height),
+        )
         games.forEach {
-            context.resources.getDimensionPixelSize(android.R.dimen.notification_large_icon_width)
-
             val uri = "sente://game/${it.id}/${it.width}/${it.height}".toUri()
             val intent = Intent(Intent.ACTION_VIEW, uri, context, MainActivity::class.java).apply {
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
@@ -287,19 +260,23 @@ class NotificationUtils(private val context: Context) {
             val timeLimit = System.currentTimeMillis() + timeLeftForCurrentPlayer(it)
             val remoteView = RemoteViews(context.packageName, R.layout.notification_board)
 
-            board.boardWidth = it.width
-            board.boardHeight = it.height
-            board.position = runBlocking {
-                RulesManager.replay(it, computeTerritory = false)
-            }
-            remoteView.setImageViewBitmap(R.id.notification_bitmap, board.convertToContentBitmap())
+            val boardBitmap = renderBoard(
+                context = context,
+                boardWidth = it.width,
+                boardHeight = it.height,
+                position = RulesManager.replay(it, computeTerritory = false),
+                boardTheme = boardTheme,
+                isDarkTheme = isDarkTheme,
+                sizePx = boardSize,
+            )
+            remoteView.setImageViewBitmap(R.id.notification_bitmap, boardBitmap)
             val notification =
                 NotificationCompat.Builder(context, category)
                     .setContentTitle(opponent)
                     .setContentText(message)
                     .setContentIntent(pendingIntent)
                     .setVibrate(arrayOf(0L, 200L, 0L, 200L).toLongArray())
-                    .setLargeIcon(board.convertToIconBitmap())
+                    .setLargeIcon(boardBitmap.scale(iconSize, iconSize))
                     .setSmallIcon(R.drawable.ic_notification_go_board)
                     .setColor(
                         ResourcesCompat.getColor(
