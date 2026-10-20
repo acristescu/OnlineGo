@@ -37,13 +37,11 @@
     <string name="title_bar_game_info_content_description">Info de la partie</string>
     <string name="title_bar_more_content_description">Plus</string>
     <string name="search_field_clear_content_description">Effacer le texte</string>
-    <string name="katago">KataGO</string>
     <string name="territory">Territoire</string>
     <string name="hint">Indice</string>
     <string name="player">Joueur</string>
     <string name="you">Vous</string>
     <string name="prisoners">Prisonniers</string>
-    <string name="komi">Komi</string>
     <string name="ai_game_player_captures_and_komi">Prisonniers : %1$d · Komi : %2$s</string>
     <string name="ai_game_player_captures_only">Prisonniers : %1$d</string>
     <string name="ai_game_eval_winrate_compact">N %1$s% · %2$s% B</string>
@@ -55,20 +53,16 @@
     <string name="you_play">Ta couleur</string>
     <string name="Black">Noir</string>
     <string name="White">Blanc</string>
-    <string name="handicap">Handicap</string>
     <string name="difficulty">Difficulté</string>
     <string name="ai_game_rules">Règles</string>
     <string name="ai_game_rules_japanese">Japonais</string>
     <string name="ai_game_rules_chinese">Chinois</string>
     <string name="ai_game_difficulty_scale_hint">Kyu élevé= facile, dan = difficile</string>
-    <string name="ai_game_difficulty_kyu">%1$d kyu</string>
-    <string name="ai_game_difficulty_dan">%1$d dan</string>
     <string name="start_game">Débuter la partie</string>
     <string name="cancel">Annuler</string>
     <string name="ok">Ok</string>
     <string name="search">Chercher</string>
     <string name="loading">Chargement…</string>
-    <string name="email">Email</string>
     <string name="username">Nom d'utilisateur</string>
     <string name="password">Mot de passe</string>
     <string name="yes">Oui</string>
@@ -77,7 +71,6 @@
     <string name="error">Erreur</string>
     <string name="enabled">Activé</string>
     <string name="disabled">Désactivé</string>
-    <string name="auto">Auto</string>
     <string name="button_play_online">Jouer\nEn ligne</string>
     <string name="button_custom_game">Partie\npersonnalisée</string>
     <string name="button_play_against_ai">Jouer\ncontre l'IA</string>
@@ -99,7 +92,6 @@
     <string name="face_to_face_default">Face à face</string>
     <string name="face_to_face_player_1">Joueur 1</string>
     <string name="face_to_face_player_2">Joueur 2</string>
-    <string name="face_to_face_avatar_content_description">Avatar</string>
     <string name="face_to_face_estimating">Estimation en cours</string>
     <string name="face_to_face_game_is_over">Fin de la partie !</string>
     <string name="face_to_face_game_is_not_over">Recommandation : la partie n'est pas terminée !</string>
@@ -131,8 +123,6 @@
     <string name="game_status_timed_out">Temps dépassé</string>
     <string name="game_status_cancelled_game">Partie annulée</string>
     <string name="game_status_first_move_timer">%1$s pour faire le premier coup</string>
-    <string name="game_player_points">%1$s points</string>
-    <string name="game_avatar_content_description">Avatar</string>
     <string name="game_button_confirm_move">Confirmer le coup</string>
     <string name="game_button_discard_move">Annuler le coup</string>
     <string name="game_button_accept">Accepter</string>
@@ -141,7 +131,6 @@
     <string name="game_button_pass">Passer</string>
     <string name="game_button_resign">Abandonner</string>
     <string name="game_button_cancel_game">Annuler la partie</string>
-    <string name="game_button_chat">Chat</string>
     <string name="game_button_next_game">Partie suivante</string>
     <string name="game_button_undo">Annuler</string>
     <string name="game_button_exit_analysis">Quitter l'analyse</string>
@@ -170,15 +159,11 @@
     <string name="game_cancel_dialog_dismiss">Ne pas annuler la partie</string>
     <string name="game_info_ranked">Gradé</string>
     <string name="game_info_unranked">Dégradé</string>
-    <string name="game_info_versus_separator">vs</string>
     <string name="game_info_score">Résultat</string>
     <string name="game_info_time">Temps</string>
-    <string name="game_info_score_komi">komi</string>
-    <string name="game_info_score_handicap">handicap</string>
     <string name="game_info_score_prisoners">prisonniers</string>
     <string name="game_info_score_stones">pierres</string>
     <string name="game_info_score_territory">territoire</string>
-    <string name="game_info_score_total">total</string>
     <string name="game_over_cancelled">La partie a été annulée</string>
     <string name="game_over_won">Félicitations\nVous avez gagné</string>
     <string name="game_over_lost">Vous avez perdu</string>
@@ -193,24 +178,20 @@
     <string name="game_over_unknown_result">Résultat inconnu (%1$s)</string>
     <string name="game_over_rating_updating">Votre classement se met à jour</string>
     <string name="game_over_rating_now">Votre classement est maintenant %1$s - %2$s</string>
-    <string name="game_over_rating_change">(%1$s)</string>
     <string name="game_retry_dialog_title">Problèmes de connexion</string>
     <string name="game_retry_dialog_message">Le serveur ne répond pas. Vérifiez votre connexion.</string>
     <string name="game_retry_dialog_confirm">REESSAYER</string>
     <string name="game_chat_move_header">Coup %1$d</string>
     <string name="game_chat_type_a_message">Écrivez un message…</string>
     <string name="game_chat_send_content_description">Envoyer</string>
-    <string name="game_player_details_rank_rating">%1$s (%2$s)</string>
     <string name="game_player_details_highest_rank">Grade le plus haut</string>
     <string name="game_player_details_percentile">Pourcentage</string>
-    <string name="game_player_details_percentage">%1$d%</string>
     <string name="game_player_details_played_vs_you">A joué contre vous</string>
     <string name="game_player_details_you_won">Vous avez gagné</string>
     <string name="game_player_details_they_won">Ils ont gagné</string>
     <string name="game_player_details_ranked_games">Partie gradée</string>
     <string name="game_player_details_wins">Gains</string>
     <string name="game_player_details_losses">Pertes</string>
-    <string name="game_player_details_total">Total</string>
     <plurals name="duration_weeks">
         <item quantity="one">%1$d Semaine</item>
         <item quantity="other">%1$d Semaines</item>
@@ -223,15 +204,10 @@
         <item quantity="one">%1$d Heure</item>
         <item quantity="other">%1$d Heures</item>
     </plurals>
-    <plurals name="duration_minutes">
-        <item quantity="one">%1$d minute</item>
-        <item quantity="other">%1$d minutes</item>
-    </plurals>
     <plurals name="duration_seconds">
         <item quantity="one">%1$d seconde</item>
         <item quantity="other">%1$d secondes</item>
     </plurals>
-    <string name="duration_two_units">%1$s %2$s</string>
     <string name="time_control_simple">Simple : %1$s par coup.</string>
     <string name="time_control_fischer">Fischer : l'horloge débute avec %1$s et incrémente de %2$s par coup jusqu'à un maximum de %3$s.</string>
     <plurals name="time_control_byoyomi">
@@ -299,7 +275,6 @@
     <string name="settings_section_language">Langue</string>
     <string name="settings_language">Langue</string>
     <string name="settings_help_translate">Aider à traduire Sente</string>
-    <string name="settings_section_notifications">Notifications</string>
     <string name="settings_system_notifications">Notifications système</string>
     <string name="settings_stone_sounds">Son des pierres</string>
     <string name="settings_section_appearance">Apparence</string>
@@ -327,7 +302,6 @@
     <string name="settings_board_style_cyan">Bleu</string>
     <string name="settings_board_style_dark_blue">Bleu foncé</string>
     <string name="settings_board_style_book">Livre</string>
-    <string name="settings_board_style_nocturne">Nocturne</string>
     <string name="settings_logout_dialog_title">Déconnexion</string>
     <string name="settings_logout_dialog_message">Voulez-vous vraiment vous déconnecter ?</string>
     <string name="settings_logout_dialog_confirm">Déconnexion</string>
@@ -339,7 +313,6 @@
     <string name="settings_error_dialog_title">Erreur</string>
     <string name="settings_review_flow_diagnostic_title">Revoir le diagnostic de flux</string>
     <string name="settings_review_flow_error_title">Revoir l'erreur de flux</string>
-    <string name="settings_avatar_content_description">Avatar</string>
     <string name="settings_icon_content_description">Icône</string>
     <string name="supporter_title">Devenir supporter</string>
     <string name="supporter_header">Soutenir l'app Android</string>
@@ -348,7 +321,6 @@
     <string name="supporter_reason_develop_description">Les Supporters permettent d'allouer plus de temps au développement de nouvelles fonctionnalités telles que l'intégration de KataGo, l'analyse assistée par IA, l'éditeur SGF, etc.</string>
     <string name="supporter_reason_free_title">Garder l'application gratuite</string>
     <string name="supporter_reason_free_description">Nous voulons que l'application soit gratuite pour tous. Toujours. Sans pub, téléchargement gratuit, sans inscription forcée.</string>
-    <string name="supporter_reason_open_source_title">Support open-source</string>
     <string name="supporter_reason_open_source_description">L'application est et sera toujours open source. Cela signifie que vous pouvez naviguer dans son code, contribuer à des correctifs et des fonctionnalités ou étudier son fonctionnement.</string>
     <string name="supporter_reason_promote_title">Faire connaitre le Go</string>
     <string name="supporter_reason_promote_description">Avoir une application Android développée de manière professionnelle permet à plus de gens de découvrir ce jeu incroyable.</string>
@@ -366,7 +338,6 @@
     <string name="supporter_select_contribution">Choisissez votre contribution mensuelle</string>
     <string name="supporter_update_amount">Mettre à jour le montant</string>
     <string name="supporter_cancel_subscription">Annuler l'abonnement</string>
-    <string name="stats_rank_elo">%1$s · ELO %2$s</string>
     <string name="stats_ranked_games">Parties classées</string>
     <string name="stats_win_rate">Taux de victoire</string>
     <string name="stats_current_streak">Série actuelle</string>
@@ -379,18 +350,11 @@
     <string name="stats_win_ratio_by_board_size">Taux de victoire par taille de tableau</string>
     <string name="stats_win_ratio_by_time_controls">Taux de victoire par cadence</string>
     <string name="stats_win_ratio_by_colour">Taux de victoire par couleur</string>
-    <string name="stats_board_9">9×9</string>
-    <string name="stats_board_13">13×13</string>
-    <string name="stats_board_19">19×19</string>
-    <string name="stats_blitz">Blitz</string>
-    <string name="stats_live">Live</string>
-    <string name="stats_correspondence_short">Corresp.</string>
     <string name="stats_correspondence">Correspondance</string>
     <string name="stats_all_games">Toutes les parties</string>
     <string name="stats_black">Noir</string>
     <string name="stats_white">Blanc</string>
     <string name="stats_won_lost">%1$d gagné · %2$d perdue</string>
-    <string name="stats_no_streak">-</string>
     <plurals name="stats_streak_wins">
         <item quantity="one">%1$d victoire</item>
         <item quantity="other">%1$d victoires</item>
@@ -400,22 +364,17 @@
         <item quantity="other">%1$d défaites</item>
     </plurals>
     <string name="stats_no_ranked_games">Aucune partie classée enregistrée</string>
-    <string name="stats_filter_1m">1M</string>
-    <string name="stats_filter_3m">3M</string>
     <string name="stats_filter_1y">1A</string>
     <string name="stats_filter_5y">5A</string>
     <string name="stats_filter_all">Toutes</string>
     <string name="stats_filter_last_20">20 dernières</string>
     <string name="stats_filter_last_100">100 dernières</string>
-    <string name="stats_tooltip_elo_rank">%1$d ELO (%2$s)</string>
     <string name="stats_tooltip_at_game">Partie %1$d</string>
     <string name="stats_tooltip_on_date">le %1$s</string>
-    <string name="stats_tooltip_delta_elo">%1$d ELO</string>
     <string name="stats_tooltip_since_game">depuis la partie %1$d</string>
     <string name="stats_tooltip_since_date">depuis le %1$s</string>
     <string name="puzzle_directory_title">Problèmes</string>
     <string name="puzzle_directory_recently_opened">Ouvert récemment</string>
-    <string name="puzzle_directory_rating_count">(%1$s)</string>
     <string name="puzzle_directory_by_author">par %1$s %2$s</string>
     <string name="puzzle_directory_count_label">Contenu</string>
     <plurals name="puzzle_directory_puzzle_count">
@@ -425,16 +384,12 @@
     <string name="puzzle_directory_rank_label">Niveau</string>
     <string name="puzzle_directory_rank_range">de %1$s à %2$s</string>
     <string name="puzzle_directory_solved_label">Résolu</string>
-    <string name="puzzle_directory_solved_value">%1$d (%2$s%)</string>
     <string name="puzzle_directory_completed">Terminé</string>
     <string name="puzzle_directory_stats">%1$s vues, résolu %2$s fois sur %3$s (%4$s %)</string>
-    <string name="puzzle_directory_sort_name">A -&gt; Z</string>
     <string name="puzzle_directory_sort_rating">Niveau</string>
     <string name="puzzle_directory_sort_count">Contenu</string>
     <string name="puzzle_directory_sort_views">Vues</string>
     <string name="puzzle_directory_sort_rank">Niveau</string>
-    <string name="tsumego_title">Tsumego</string>
-    <string name="tsumego_title_with_name">Tsumego: %1$s</string>
     <string name="tsumego_board_content_description">Plateau</string>
     <string name="tsumego_solved_content_description">Résolu</string>
     <string name="tsumego_previous">PRÉCÉDENT</string>
@@ -489,17 +444,11 @@
     <string name="automatch_size_13">13x13</string>
     <string name="automatch_size_19">19x19</string>
     <string name="automatch_time_controls">Cadence</string>
-    <string name="automatch_speed_blitz">Blitz</string>
     <string name="automatch_speed_rapid">Rapide</string>
-    <string name="automatch_speed_live">Live</string>
     <string name="automatch_speed_correspondence">Correspondance</string>
     <string name="automatch_or">ou bien</string>
     <string name="automatch_expected_duration">Durée estimée : %1$s</string>
     <string name="automatch_duration_several_days">plusieurs jours</string>
-    <plurals name="automatch_duration_minutes">
-        <item quantity="one">%1$d minute</item>
-        <item quantity="other">%1$d minutes</item>
-    </plurals>
     <string name="automatch_duration_minutes_range">%1$d à %2$d minutes</string>
     <string name="mygames_moderator_title">Modérateur OGS %1$s</string>
     <string name="mygames_empty_message">Message sans contenu</string>
@@ -510,11 +459,9 @@
     <string name="mygames_header_opponents_turn">Tour de l'adversaire</string>
     <string name="mygames_header_recently_finished">Terminée récemment</string>
     <string name="mygames_header_older_games">Anciennes parties</string>
-    <string name="mygames_tutorial_percentage">%1$d %</string>
     <string name="mygames_learn_to_play">Apprendre à jouer</string>
     <string name="mygames_header_icon_content_description">Image</string>
     <string name="mygames_offline_content_description">Hors connexion</string>
-    <string name="mygames_avatar_content_description">Avatar</string>
     <string name="mygames_searching_for_game">Recherche d'une partie</string>
     <string name="mygames_challenge_you_are_challenging">Vous défiez %1$s</string>
     <string name="mygames_challenge_is_challenging_you">%1$s vous défie</string>
@@ -569,7 +516,6 @@
     <string name="learn_tutorial_checkbox_done">Terminé</string>
     <string name="learn_tutorial_checkboxoutlineblank_done">Terminé</string>
     <string name="joseki_explorer_title">Explorateur de Joseki</string>
-    <string name="joseki_explorer_button_tenuki">Tenuki</string>
     <string name="joseki_explorer_button_previous">Précédent</string>
     <string name="joseki_explorer_button_next">Suivant</string>
     <string name="joseki_explorer_link_video">(Vidéo)</string>
@@ -593,7 +539,6 @@
     <string name="tutorial_basics_capturingstones_capture8_text">Cette fois, il faut deux coups pour capturer les pierres blanches. Attention, ton premier coup est important !</string>
     <string name="tutorial_basics_capturingstones_capture9_text">Il est difficile de s'enfuir avec des pierres sur le bord. Capture les deux pierres blanches sur la première ligne !</string>
     <string name="tutorial_basics_capturingstones_capture10_text">Il y a tellement de pierres ! Cherche les pierres en Atari, et capture-les. Si tu te trompes, ce sont tes pierres qui seront capturées.</string>
-    <string name="tutorial_basics_doubleatari_title">Double Atari</string>
     <string name="tutorial_basics_doubleatari_doubleAtari1_text">Dans certaines positions, Noir peut mettre deux groupes blancs en Atari en même temps.\nLes Noirs en captureront généralement au moins un dans cette situation !</string>
     <string name="tutorial_basics_doubleatari_doubleAtari2_text">Encore un. Où peux-tu faire un double Atari ?</string>
     <string name="tutorial_basics_illegalmoves_title">Coups illégaux (règle du suicide)</string>
