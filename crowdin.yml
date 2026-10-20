@@ -4,3 +4,8 @@ files:
     translate_attributes: 0
     content_segmentation: 0
     update_option: update_as_unapproved
+  - source: /crowdin-test/cmp-test.xml
+    translation: /crowdin-test/values-%two_letters_code%/cmp-test.xml
+    translate_attributes: 0
+    content_segmentation: 0
+    update_option: update_as_unapproved

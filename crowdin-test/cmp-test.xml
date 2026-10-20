@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="cmp_test_apostrophe">It's your turn</string>
+    <string name="cmp_test_quotes">Just "cut" the wall</string>
+    <string name="cmp_test_percent">Win rate: %1$s%</string>
+    <string name="cmp_test_newline">First line\nSecond line</string>
+    <string name="cmp_test_question">?</string>
+    <string name="cmp_test_at">@home</string>
+    <string name="cmp_test_ampersand">Tom &amp; Jerry</string>
+    <plurals name="cmp_test_plural">
+        <item quantity="one">%1$d game</item>
+        <item quantity="other">%1$d games</item>
+    </plurals>
+    <string-array name="cmp_test_array">
+        <item>Don't panic</item>
+        <item>Say "hi"</item>
+    </string-array>
+</resources>
