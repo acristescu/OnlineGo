@@ -1,2 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources></resources>
+<resources>
+    <string name="cmp_test_apostrophe">E rândul tău!</string>
+    <string name="cmp_test_quotes">Doar "taie" zidul</string>
+    <string name="cmp_test_percent">Rata de castig: %1$s%</string>
+    <string name="cmp_test_newline">Prima linie\nA doua linie</string>
+    <string name="cmp_test_question">?</string>
+    <string name="cmp_test_at">@acasa</string>
+    <string name="cmp_test_ampersand">Tom &amp; Jerry</string>
+    <plurals name="cmp_test_plural">
+        <item quantity="one">%1$d joc</item>
+        <item quantity="few">%1$s jocuri</item>
+        <item quantity="other">%1$s de jocuri</item>
+    </plurals>
+    <string-array name="cmp_test_array">
+        <item>Fara apostrof? '</item>
+        <item>Spune "buna"</item>
+    </string-array>
+</resources>
