@@ -4,10 +4,8 @@ files:
     translate_attributes: 0
     content_segmentation: 0
     update_option: update_as_unapproved
-    export_languages: [ ca, de, es, fr, nl, pt, ro, sk ]
   - source: /app/src/main/res/values/app_name.xml
     translation: /app/src/main/res/values-%two_letters_code%/app_name.xml
     translate_attributes: 0
     content_segmentation: 0
     update_option: update_as_unapproved
-    export_languages: [ ca, de, es, fr, nl, pt, ro, sk ]

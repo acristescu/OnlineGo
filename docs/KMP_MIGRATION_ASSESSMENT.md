@@ -730,16 +730,20 @@ test-local class.
   move. A Custom Post-Export Processor rewrites `\'`, `\"`, `%%` and a leading `\@`/`\?` in every
   exported `strings.xml`; tested through the integration before the switch. **If the processor
   stops running, the next Crowdin PR brings Android escapes that CMP shows literally.**
-  `export_languages` limits exports to the shipped languages, because Android's `localeFilters`
-  does not filter CMP assets and CMP picks the language from the device locale.
+  Every Crowdin language is synced. Android's `localeFilters` does not filter CMP assets and CMP
+  picks the language from the device locale, so a phone set to a partially translated language
+  (ru, zh, pl, ...) sees it with English for the missing strings - accepted, unlike before.
 - `app_name` is a separate Android `app_name.xml` and Crowdin file (the manifest launcher label).
 - **Android call sites:** `R.string` -> `Res.string` with one import per accessor (CMP accessors
   are extension properties). `Int` string ids became `StringResource`; it is stable in the compose
   report. `TimeControlDescription` and the stats chart tooltip are formatted in composition;
   notifications, notification channels and What's new use the suspend `getString` /
   `getPluralString` / `getStringArray`; tutorial names resolve through `Res.allStringResources`.
-- **Portuguese is enabled** (`AppLanguage.PORTUGUESE`, `locales_config.xml`, `localeFilters`,
-  `export_languages`), credited in What's new.
+- **Portuguese is enabled** (`AppLanguage.PORTUGUESE`, `locales_config.xml`, `localeFilters`),
+  credited in What's new.
+- **`dest:` in `crowdin.yml` does not work with the GitHub integration:** it deleted the Crowdin
+  file instead of keeping it. The file now lives at its real path; translations were re-imported
+  from the repo, so approvals have to be redone.
 - CMP resources render in screenshot tests and previews with AGP 9.3; no extra setup was needed.
 - `iosTest/.../StringResourcesTest` reads apostrophes, quotes, `\n`, a single `%`, plurals, the
   What's new array and a tutorial key by name on the simulator.
