@@ -15,7 +15,6 @@
     <string name="ai_game_chat_territories">Вот как, по моему мнению, выглядят территории</string>
     <string name="ai_game_chat_im_thinking">Думаю…</string>
     <string name="ai_game_chat_your_turn">Ваш ход</string>
-    <string name="ai_game_chat_ai_passed">I pass. Your turn!</string>
     <string name="ai_game_chat_game_over_ai_won">Игра завершена из-за двух пасов. Финальный счёт: чёрные - %1$s, белые - %2$s. Похоже, на этот раз я выиграл.</string>
     <string name="ai_game_chat_game_over_player_won">Игра завершена из-за двух пасов. Финальный счёт: чёрные - %1$s, белые - %2$s. Поздравляю, похоже, вы меня переиграли.</string>
     <string name="ai_game_chat_game_over_computing_score">Игра завершена из-за двух пасов. Подождите, вычисляю финальный счёт.</string>
@@ -37,7 +36,6 @@
     <string name="title_bar_game_info_content_description">Информация об игре</string>
     <string name="title_bar_more_content_description">Ещё</string>
     <string name="search_field_clear_content_description">Очистить текст</string>
-    <string name="katago">KataGO</string>
     <string name="territory">Территория</string>
     <string name="hint">Подсказка</string>
     <string name="player">Игрок</string>
@@ -50,10 +48,8 @@
     <string name="ai_game_eval_score_lead_compact">%1$s +%2$s очк.</string>
     <string name="ai_game_hide_eval">Скрыть оценку</string>
     <string name="ai_game_show_eval">Показать оценку</string>
-    <string name="new_game">New Game</string>
     <string name="board_size">Размер доски</string>
     <string name="you_play">Вы играете</string>
-    <string name="Black">Black</string>
     <string name="White">Белые</string>
     <string name="handicap">Фора</string>
     <string name="difficulty">Сложность</string>
@@ -62,7 +58,6 @@
     <string name="ai_game_difficulty_dan">%1$d дан</string>
     <string name="start_game">Начать игру</string>
     <string name="cancel">Отмена</string>
-    <string name="ok">OK</string>
     <string name="search">Поиск</string>
     <string name="loading">Загрузка…</string>
     <string name="email">Эл. Почта</string>
@@ -139,10 +134,7 @@
     <string name="game_info_score_komi">коми</string>
     <string name="game_info_score_handicap">фора</string>
     <string name="game_info_score_territory">территория</string>
-    <string name="game_player_details_rank_rating">%1$s (%2$s)</string>
-    <string name="game_player_details_percentage">%1$d%</string>
     <string name="game_player_details_wins">Победы</string>
-    <string name="duration_two_units">%1$s %2$s</string>
     <string name="notification_logout_text">Вы вышли из учётной записи. Обычно это происходит из-за смены пароля. Пожалуйста, войдите снова, чтобы включить уведомления</string>
     <string name="settings_become_a_supporter">Поддержать проект</string>
     <string name="settings_become_a_supporter_description">Поддержать проект</string>
@@ -150,7 +142,6 @@
     <string name="settings_language">Язык</string>
     <string name="settings_help_translate">Помогите перевести Sente</string>
     <string name="settings_section_notifications">Уведомления</string>
-    <string name="settings_system_notifications">System notifications</string>
     <string name="settings_section_appearance">Оформление</string>
     <string name="settings_theme">Тема</string>
     <string name="settings_section_game_settings">Настройки игры</string>
@@ -186,12 +177,8 @@
     <string name="new_challenge_ranked">Рейтинг</string>
     <string name="select_opponent_tab_bot">Бот</string>
     <string name="select_opponent_bots_title">Онлайн боты</string>
-    <string name="automatch_size_9">9×9</string>
-    <string name="automatch_size_13">13×13</string>
-    <string name="automatch_size_19">19×19</string>
     <string name="automatch_or">или</string>
     <string name="mygames_header_older_games">Старые игры</string>
-    <string name="mygames_tutorial_percentage">%1$d %</string>
     <string name="mygames_offline_content_description">Офлайн</string>
     <string name="mygames_detail_speed">Скорость</string>
     <string name="mygames_detail_ranked">Рейтинг</string>
