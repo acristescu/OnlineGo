@@ -8,7 +8,6 @@
     <string name="ai_game_chat_engine_starting">Zapína sa AI engine, prosím čakajte…</string>
     <string name="ai_game_chat_invalid_move">Nedovolený ťah, skúste to znova</string>
     <string name="ai_game_chat_lets_try_again">Dobre, skúsme to znova. Váš ťah!</string>
-    <string name="ai_game_chat_hmmm">Hmmm…</string>
     <string name="ai_game_chat_moves_to_consider">Tu je zopár ťahov na zváženie</string>
     <string name="ai_game_chat_ok_your_turn">Dobre, váš ťah</string>
     <string name="ai_game_chat_calculating_territory">Dobre, počítam aktuálne územie…</string>
@@ -27,7 +26,6 @@
     <string name="ai_game_handicap_none">žiadny</string>
     <string name="ai_game_handicap_no_komi">bez komi</string>
     <string name="ai_game_new">Nová</string>
-    <string name="ai_game_pass">Pass</string>
     <string name="ai_game_previous">Predošlý</string>
     <string name="ai_game_next">Ďalší</string>
     <string name="ko_explanation">Tento ťah by opakoval pozíciu na doske. To sa volá KO a nie je to dovolené. Skúste zahrať iný ťah, ideálne hrozbu, ktorú súper nemôže ignorovať.</string>
@@ -37,13 +35,11 @@
     <string name="title_bar_game_info_content_description">Herné info</string>
     <string name="title_bar_more_content_description">Viac</string>
     <string name="search_field_clear_content_description">Zmazať text</string>
-    <string name="katago">KataGO</string>
     <string name="territory">Územie</string>
     <string name="hint">Nápoveda</string>
     <string name="player">Hráč</string>
     <string name="you">Vy</string>
     <string name="prisoners">Zajatci</string>
-    <string name="komi">Komi</string>
     <string name="ai_game_player_captures_and_komi">Zajatci: %1$d · Komi: %2$s</string>
     <string name="ai_game_player_captures_only">Zajatci: %1$d</string>
     <string name="ai_game_eval_winrate_compact">Č %1$s% · %2$s% B</string>
@@ -61,14 +57,10 @@
     <string name="ai_game_rules_japanese">Japonské</string>
     <string name="ai_game_rules_chinese">Čínske</string>
     <string name="ai_game_difficulty_scale_hint">Vyššie kyu = ľahší, dan = silnejší</string>
-    <string name="ai_game_difficulty_kyu">%1$d kyu</string>
-    <string name="ai_game_difficulty_dan">%1$d dan</string>
     <string name="start_game">Začať hru</string>
     <string name="cancel">Zrušiť</string>
-    <string name="ok">OK</string>
     <string name="search">Hľadať</string>
     <string name="loading">Načítavanie…</string>
-    <string name="email">Email</string>
     <string name="username">Používateľské meno</string>
     <string name="password">Heslo</string>
     <string name="yes">Áno</string>
@@ -99,13 +91,11 @@
     <string name="face_to_face_default">Tvárou v tvár</string>
     <string name="face_to_face_player_1">Hráč 1</string>
     <string name="face_to_face_player_2">Hráč 2</string>
-    <string name="face_to_face_avatar_content_description">Avatar</string>
     <string name="face_to_face_estimating">Odhadovanie</string>
     <string name="face_to_face_game_is_over">Hra skončila!</string>
     <string name="face_to_face_game_is_not_over">Odporúčanie: Hra sa neskončila!</string>
     <string name="face_to_face_ko_dialog_title">Zakázaný KO ťah</string>
     <string name="face_to_face_ko_dialog_message">Tento ťah by opakoval pozíciu na doske. To sa volá KO a nie je to dovolené. Skúste zahrať iný ťah, ideálne hrozbu, ktorú súper nemôže ignorovať.</string>
-    <string name="face_to_face_score_komi">komi</string>
     <string name="face_to_face_score_captures">zajatci</string>
     <string name="face_to_face_score_dead">mŕtve</string>
     <string name="face_to_face_score_territory">územie</string>
@@ -118,7 +108,6 @@
     <string name="face_to_face_button_previous">Predošlý</string>
     <string name="face_to_face_button_next">Ďalší</string>
     <string name="face_to_face_button_return">Vrátiť</string>
-    <string name="face_to_face_button_pass">Pass</string>
     <string name="game_title_white_to_move">Ťah %1$d · %2$s · Biely</string>
     <string name="game_title_black_to_move">Ťah %1$d · %2$s · Čierny</string>
     <string name="game_submitting_move">Odosielanie ťahu</string>
@@ -132,16 +121,13 @@
     <string name="game_status_cancelled_game">Hra zrušená</string>
     <string name="game_status_first_move_timer">%1$s zahrá prvý ťah</string>
     <string name="game_player_points">%1$s bodov</string>
-    <string name="game_avatar_content_description">Avatar</string>
     <string name="game_button_confirm_move">Potvrdiť ťah</string>
     <string name="game_button_discard_move">Zrušiť ťah</string>
     <string name="game_button_accept">Prijať</string>
     <string name="game_button_reject">Odmietnuť</string>
     <string name="game_button_analyze">Analyzovať</string>
-    <string name="game_button_pass">Pass</string>
     <string name="game_button_resign">Vzdať sa</string>
     <string name="game_button_cancel_game">Zrušiť hru</string>
-    <string name="game_button_chat">Chat</string>
     <string name="game_button_next_game">Ďalšia hra</string>
     <string name="game_button_undo">Vrátiť ťah</string>
     <string name="game_button_exit_analysis">Ukončiť analýzu</string>
@@ -162,7 +148,6 @@
     <string name="game_request_undo_dialog_message">Ak ste posledný ťah zahrali omylom, môžete sa opýtať súpera či vám dovolí ťah vrátiť.</string>
     <string name="game_request_undo_dialog_confirm">POŽIADAŤ VRÁTENIE ŤAHU</string>
     <string name="game_pass_dialog_message">Ste si istí, že chcete dať pass? Mali by ste to robiť iba ak si myslíte, že hra je ukončená a nie sú v nej už žiadne ťahy, ktoré by sa dali zahrať. Ak váš súper dá tiež pass, hra pokračuje do fázy počítania.</string>
-    <string name="game_pass_dialog_confirm">PASS</string>
     <string name="game_resign_dialog_message">Ste si istí, že sa chcete vzdať?</string>
     <string name="game_resign_dialog_confirm">VZDAŤ SA</string>
     <string name="game_cancel_dialog_message">Ste si istí, že chcete zrušiť hru?</string>
@@ -173,7 +158,6 @@
     <string name="game_info_versus_separator">proti</string>
     <string name="game_info_score">Skóre</string>
     <string name="game_info_time">Čas</string>
-    <string name="game_info_score_komi">komi</string>
     <string name="game_info_score_handicap">hendikep</string>
     <string name="game_info_score_prisoners">zajatci</string>
     <string name="game_info_score_stones">kamene</string>
@@ -193,17 +177,14 @@
     <string name="game_over_unknown_result">Výsledok neznámy (%1$s)</string>
     <string name="game_over_rating_updating">Váš rating sa zmenil</string>
     <string name="game_over_rating_now">Váš rating je teraz %1$s - %2$s</string>
-    <string name="game_over_rating_change">(%1$s)</string>
     <string name="game_retry_dialog_title">PROBLÉMY S PRIPOJENÍM</string>
     <string name="game_retry_dialog_message">Server neodpovedá. Skontrolujte prosím pripojenie k internetu.</string>
     <string name="game_retry_dialog_confirm">SKÚSIŤ ZNOVA</string>
     <string name="game_chat_move_header">Ťah %1$d</string>
     <string name="game_chat_type_a_message">Napísať správu…</string>
     <string name="game_chat_send_content_description">Odoslať</string>
-    <string name="game_player_details_rank_rating">%1$s (%2$s)</string>
     <string name="game_player_details_highest_rank">Najvyšší rank</string>
     <string name="game_player_details_percentile">Percentil</string>
-    <string name="game_player_details_percentage">%1$d%</string>
     <string name="game_player_details_played_vs_you">Hral proti Vám</string>
     <string name="game_player_details_you_won">Vyhrali ste</string>
     <string name="game_player_details_they_won">Oni vyhrali</string>
@@ -247,16 +228,7 @@
         <item quantity="many">%1$d dňa</item>
         <item quantity="other">%1$d dní</item>
     </plurals>
-    <string name="clock_days_hours">%1$dd %2$dh</string>
-    <string name="clock_hours">%1$dh</string>
-    <string name="clock_hours_minutes">%1$dh %2$sm</string>
-    <string name="clock_minutes_seconds">%1$d : %2$s</string>
-    <string name="clock_seconds">%1$ss</string>
-    <string name="clock_tenths">%1$ss</string>
-    <string name="clock_canadian_period">+%1$s / %2$d</string>
-    <string name="clock_byoyomi_periods">%1$d × %2$s</string>
     <string name="clock_fischer_increment">+ %1$s / ťah</string>
-    <string name="duration_two_units">%1$s %2$s</string>
     <string name="time_control_simple">Jednoduché: %1$s na ťah.</string>
     <string name="time_control_fischer">Fischer: Hodiny začínajú s %1$s a čas sa navyšuje o %2$s za každý ťah, maximálne do %3$s.</string>
     <plurals name="time_control_byoyomi">
@@ -288,12 +260,10 @@
     <string name="tutorial_retry">SKÚSIŤ ZNOVA</string>
     <string name="tutorial_next">ĎALŠÍ</string>
     <string name="tutorial_nice_one">Výborne!</string>
-    <string name="socket_debug_title">Socket Debug</string>
     <string name="socket_debug_clear_log_content_description">Zmazať log</string>
     <string name="socket_debug_clear_content_description">Zmazať</string>
     <string name="socket_debug_filter_hint">Filtrovať udalosti…</string>
     <string name="socket_debug_filter_all">Všetky (%1$d)</string>
-    <string name="socket_debug_filter_type">%1$s (%2$d)</string>
     <plurals name="socket_debug_event_count">
         <item quantity="one">%1$d udalosť</item>
         <item quantity="few">%1$d udalostí</item>
@@ -348,8 +318,6 @@
     <string name="settings_whats_new">Čo je nové</string>
     <string name="settings_section_legal">Právne informácie</string>
     <string name="settings_privacy_policy">Ochrana súkromia</string>
-    <string name="settings_section_debug">Debug</string>
-    <string name="settings_socket_debug">Socket Debug</string>
     <string name="settings_review_prompt">Skontrolovať prompt</string>
     <string name="settings_build_version">Build číslo %1$d</string>
     <string name="settings_theme_system_default">Podľa systému</string>
@@ -372,7 +340,6 @@
     <string name="settings_error_dialog_title">Chyba</string>
     <string name="settings_review_flow_diagnostic_title">Review Flow Diagnostika</string>
     <string name="settings_review_flow_error_title">Review Flow Chyba</string>
-    <string name="settings_avatar_content_description">Avatar</string>
     <string name="settings_icon_content_description">Ikona</string>
     <string name="supporter_title">Stať sa podporovateľom</string>
     <string name="supporter_header">Podporiť Android aplikáciu</string>
@@ -399,7 +366,6 @@
     <string name="supporter_select_contribution">Vyberte váš mesačný príspevok</string>
     <string name="supporter_update_amount">Aktualizovať čiastku</string>
     <string name="supporter_cancel_subscription">Zrušiť subskripciu</string>
-    <string name="stats_rank_elo">%1$s · ELO %2$s</string>
     <string name="stats_ranked_games">hodnotené hry</string>
     <string name="stats_win_rate">pomer výhier</string>
     <string name="stats_current_streak">aktuálna séria</string>
@@ -412,9 +378,6 @@
     <string name="stats_win_ratio_by_board_size">Pomer výhier podľa Veľkosti Dosky</string>
     <string name="stats_win_ratio_by_time_controls">Pomer výhier podľa Nastavenia Času</string>
     <string name="stats_win_ratio_by_colour">Pomer výhier podľa farby</string>
-    <string name="stats_board_9">9×9</string>
-    <string name="stats_board_13">13×13</string>
-    <string name="stats_board_19">19×19</string>
     <string name="stats_blitz">Blesková</string>
     <string name="stats_live">Živá</string>
     <string name="stats_correspondence_short">Korešp.</string>
@@ -423,7 +386,6 @@
     <string name="stats_black">Čierny</string>
     <string name="stats_white">Biely</string>
     <string name="stats_won_lost">%1$d výhier · %2$d prehier</string>
-    <string name="stats_no_streak">-</string>
     <plurals name="stats_streak_wins">
         <item quantity="one">%1$d výhra</item>
         <item quantity="few">%1$d výhry</item>
@@ -437,22 +399,17 @@
         <item quantity="other">%1$d prehier</item>
     </plurals>
     <string name="stats_no_ranked_games">Žiadne hodnotené hry v záznamoch</string>
-    <string name="stats_filter_1m">1M</string>
-    <string name="stats_filter_3m">3M</string>
     <string name="stats_filter_1y">1R</string>
     <string name="stats_filter_5y">5R</string>
     <string name="stats_filter_all">Všetky</string>
     <string name="stats_filter_last_20">Posledných 20</string>
     <string name="stats_filter_last_100">Posledných 100</string>
-    <string name="stats_tooltip_elo_rank">%1$d ELO (%2$s)</string>
     <string name="stats_tooltip_at_game">v hre %1$d</string>
     <string name="stats_tooltip_on_date">na %1$s</string>
-    <string name="stats_tooltip_delta_elo">%1$d ELO</string>
     <string name="stats_tooltip_since_game">od hry %1$d</string>
     <string name="stats_tooltip_since_date">od %1$s</string>
     <string name="puzzle_directory_title">Problémy</string>
     <string name="puzzle_directory_recently_opened">Nedávno otvorené</string>
-    <string name="puzzle_directory_rating_count">(%1$s)</string>
     <string name="puzzle_directory_by_author">od %1$s %2$s</string>
     <string name="puzzle_directory_count_label">Počet</string>
     <plurals name="puzzle_directory_puzzle_count">
@@ -461,19 +418,12 @@
         <item quantity="many">%1$d problému</item>
         <item quantity="other">%1$d problémov</item>
     </plurals>
-    <string name="puzzle_directory_rank_label">Rank</string>
     <string name="puzzle_directory_rank_range">%1$s až %2$s</string>
     <string name="puzzle_directory_solved_label">Vyriešené</string>
-    <string name="puzzle_directory_solved_value">%1$d (%2$s%)</string>
     <string name="puzzle_directory_completed">Dokončené</string>
     <string name="puzzle_directory_stats">%1$s zobrazení, vyriešené %2$s krát z %3$s (%4$s%)</string>
-    <string name="puzzle_directory_sort_name">A -&gt; Z</string>
-    <string name="puzzle_directory_sort_rating">Rating</string>
     <string name="puzzle_directory_sort_count">Počet problémov</string>
     <string name="puzzle_directory_sort_views">Zobrazenia</string>
-    <string name="puzzle_directory_sort_rank">Rank</string>
-    <string name="tsumego_title">Tsumego</string>
-    <string name="tsumego_title_with_name">Tsumego: %1$s</string>
     <string name="tsumego_board_content_description">Doska</string>
     <string name="tsumego_solved_content_description">Vyriešené</string>
     <string name="tsumego_previous">PREDOŠLÁ</string>
@@ -493,7 +443,6 @@
     <string name="onboarding_page_go_description">Go je strategická dosková hra pre dvoch hráčov, v ktorej je cieľom obkľúčiť viac územia ako súper. Hra vznikla v Číne pred viac ako 2 500 rokmi a je najstaršou doskovou hrou, ktorá sa dodnes stále hrá. Odhaduje sa, že viac než 46 miliónov ľudí vie ako ju hrať.</string>
     <string name="onboarding_page_app_title">Online GO Android aplikácia</string>
     <string name="onboarding_page_app_description">Táto aplikácia začala ešte v roku 2015 ako osobný projekt od Alexandru Cristescu. Teraz je open-source, čo znamená, že kód je voľne dostupný pre všetkých na prehliadanie a upravovanie. Aplikácia je a vždy bude bezplatná. Príspevky sú vítané. Zistite ako môžete pomôcť na projektovej GitHub stránke. Ak kódovanie nie je nič pre vás, môžete sa stať podporovateľom prihlásením sa k mesačnému príspevku. Alebo si môžete len užívať aplikáciu zadarmo, voľba je iba Vaša!</string>
-    <string name="onboarding_page_ogs_title">OGS Server</string>
     <string name="onboarding_page_ogs_description">OGS Server je jedna z najpopulárnejších webstránok na hranie GO online. Online GO Android aplikácia používa služby poskytované od OGS aby umožnilo hranie online. Aj keď nie sme spojení s OGS, máme dovolené používať ich služby. Na hranie je potrebný (bezplatný) OGS účet. Môžete si ho vytvoriť v následujúcom kroku, ak ho ešte nemáte.</string>
     <string name="onboarding_question_has_account">Máte už OGS (online-go.com) účet?</string>
     <string name="onboarding_question_login_method">Akú prihlasovaciu metódu chcete použiť?</string>
@@ -513,7 +462,6 @@
     <string name="new_challenge_private">Súkromná</string>
     <string name="new_challenge_send">Odoslať výzvu</string>
     <string name="new_challenge_select_opponent">[Vybrať súpera]</string>
-    <string name="select_opponent_tab_bot">Bot</string>
     <string name="select_opponent_tab_recent">Nedávni</string>
     <string name="select_opponent_bots_title">Online boti</string>
     <string name="select_opponent_bots_description">Online boti sú AI programy bežiace a spravované členmi komunity na ich náklady. Hranie proti ním vyžaduje aktívne internetové pripojenie.</string>
@@ -524,12 +472,8 @@
     <string name="automatch_title">Automatické párovanie</string>
     <string name="automatch_description">Vyskúšajte si hru proti ľudskému súperovi, podobne silnému ako ste vy.</string>
     <string name="automatch_game_size">Veľkosť hry</string>
-    <string name="automatch_size_9">9×9</string>
-    <string name="automatch_size_13">13×13</string>
-    <string name="automatch_size_19">19×19</string>
     <string name="automatch_time_controls">Časové nastavenie</string>
     <string name="automatch_speed_blitz">Blesková</string>
-    <string name="automatch_speed_rapid">Rapid</string>
     <string name="automatch_speed_live">Živá</string>
     <string name="automatch_speed_correspondence">Korešpondenčná</string>
     <string name="automatch_or">alebo</string>
@@ -551,11 +495,8 @@
     <string name="mygames_header_opponents_turn">Súperov ťah</string>
     <string name="mygames_header_recently_finished">Nedávno dokončené</string>
     <string name="mygames_header_older_games">Staršie hry</string>
-    <string name="mygames_tutorial_percentage">%1$d %</string>
     <string name="mygames_learn_to_play">Naučte sa hrať</string>
     <string name="mygames_header_icon_content_description">Ikona</string>
-    <string name="mygames_offline_content_description">Offline</string>
-    <string name="mygames_avatar_content_description">Avatar</string>
     <string name="mygames_searching_for_game">Hľadá sa hra</string>
     <string name="mygames_challenge_you_are_challenging">Vyzývate %1$s</string>
     <string name="mygames_challenge_is_challenging_you">%1$s vás vyzýva</string>
@@ -614,10 +555,8 @@
     <string name="learn_tutorial_checkbox_done">Dokončené</string>
     <string name="learn_tutorial_checkboxoutlineblank_done">Dokončené</string>
     <string name="joseki_explorer_title">Joseki prehliadač</string>
-    <string name="joseki_explorer_button_tenuki">Tenuki</string>
     <string name="joseki_explorer_button_previous">Predošlý</string>
     <string name="joseki_explorer_button_next">Ďalší</string>
-    <string name="joseki_explorer_link_video">(video)</string>
     <string name="joseki_explorer_link_external">(externý odkaz)</string>
     <string name="joseki_explorer_default_description">## Joseki prehliadač\n*Joseki* je prevzaté slovo z japončiny, zvyčajne odkazuje na štandardnú sekvenciu ťahov zahratých v rohu, ktoré majú za výsledok rovnocennú výmenu.\n### Ako používať Joseki prehliadač\nOznačené ťahy nižšie predstavujú zaujímavé pokračovanie aktuálnej pozície. Farby reprezentujú za ako dobrý je ťah považovaný:\n* Zelené ťahy sú považované za optimálne\n* Žlté ťahy sú považované za OK\n* Červené ťahy sú považované za chybu\n* Fialové ťahy sú pre nachytanie\n* Modré ťahy sú pre otvorené otázky.\nMôžete ťuknúť na tieto zaujímave ťahy na prehliadanie pozícii ku ktorým vedú.\n### Tenuki\nNiekedy je najlepším ťahom hrať niekde inde. To sa bežne označuje ako *tenuki*. Ak je tenuki považované za zaujímavú možnosť pre aktuálnu pozíciu, tlačidlo pass v ľavom dolnom rohu sa aktivuje a môžete ho stlačiť, aby ste videli aké pozície môžu vzniknúť potom čo aktuálny hráč zahrá tenuki.</string>
     <string name="tutorial_basics_title">Základné</string>
