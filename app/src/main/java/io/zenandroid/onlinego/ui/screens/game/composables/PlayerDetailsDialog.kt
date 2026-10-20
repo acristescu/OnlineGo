@@ -29,6 +29,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import coil3.compose.AsyncImage
+import coil3.compose.LocalPlatformContext
+import coil3.request.ImageRequest
+import coil3.request.crossfade
+import io.zenandroid.onlinego.data.model.local.HistoryItem
+import io.zenandroid.onlinego.data.model.local.Player
+import io.zenandroid.onlinego.data.model.local.UserStats
+import io.zenandroid.onlinego.data.model.local.WinLossStats
+import io.zenandroid.onlinego.data.model.ogs.VersusStats
 import io.zenandroid.onlinego.resources.Res
 import io.zenandroid.onlinego.resources.game_avatar_content_description
 import io.zenandroid.onlinego.resources.game_player_details_highest_rank
@@ -42,23 +54,8 @@ import io.zenandroid.onlinego.resources.game_player_details_they_won
 import io.zenandroid.onlinego.resources.game_player_details_total
 import io.zenandroid.onlinego.resources.game_player_details_wins
 import io.zenandroid.onlinego.resources.game_player_details_you_won
-import org.jetbrains.compose.resources.StringResource
-import org.jetbrains.compose.resources.stringResource
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import coil3.compose.AsyncImage
-import coil3.compose.LocalPlatformContext
-import coil3.request.ImageRequest
-import coil3.request.crossfade
-import coil3.request.error
-import coil3.request.placeholder
-import io.zenandroid.onlinego.R
-import io.zenandroid.onlinego.data.model.local.HistoryItem
-import io.zenandroid.onlinego.data.model.local.Player
-import io.zenandroid.onlinego.data.model.local.UserStats
-import io.zenandroid.onlinego.data.model.local.WinLossStats
-import io.zenandroid.onlinego.data.model.ogs.VersusStats
+import io.zenandroid.onlinego.resources.ic_person_filled_with_background
+import io.zenandroid.onlinego.resources.placeholder
 import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
 import io.zenandroid.onlinego.usecases.RepoResult
 import io.zenandroid.onlinego.usecases.RepoResult.Success
@@ -67,6 +64,9 @@ import io.zenandroid.onlinego.utils.formatRank
 import io.zenandroid.onlinego.utils.getPercentile
 import io.zenandroid.onlinego.utils.processGravatarURL
 import io.zenandroid.onlinego.utils.shimmer
+import org.jetbrains.compose.resources.StringResource
+import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 import kotlin.math.roundToInt
 
 @Composable
@@ -112,9 +112,9 @@ fun BoxWithImage(
       model = ImageRequest.Builder(LocalPlatformContext.current)
         .data(processGravatarURL(imageURL, LocalDensity.current.run { 124.dp.roundToPx() }))
         .crossfade(true)
-        .placeholder(R.drawable.ic_person_filled_with_background)
-        .error(R.mipmap.placeholder)
         .build(),
+      placeholder = painterResource(Res.drawable.ic_person_filled_with_background),
+      error = painterResource(Res.drawable.placeholder),
       contentDescription = stringResource(Res.string.game_avatar_content_description),
       modifier = Modifier
         .align(Alignment.TopCenter)

@@ -28,12 +28,26 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import io.zenandroid.onlinego.data.model.local.Challenge
+import io.zenandroid.onlinego.data.model.local.Game
+import io.zenandroid.onlinego.data.model.local.Player
+import io.zenandroid.onlinego.data.model.ogs.OGSAutomatch
+import io.zenandroid.onlinego.data.model.ogs.SizeSpeedOption
 import io.zenandroid.onlinego.resources.Res
 import io.zenandroid.onlinego.resources.home_app_open_source_message
 import io.zenandroid.onlinego.resources.home_button_login_ogs
 import io.zenandroid.onlinego.resources.home_button_signup_ogs
 import io.zenandroid.onlinego.resources.home_welcome_to_sente
+import io.zenandroid.onlinego.resources.logo_ogs
 import io.zenandroid.onlinego.resources.mygames_acknowledge
 import io.zenandroid.onlinego.resources.mygames_acknowledge_countdown
 import io.zenandroid.onlinego.resources.mygames_active_games_count
@@ -49,23 +63,6 @@ import io.zenandroid.onlinego.resources.mygames_moderator_title
 import io.zenandroid.onlinego.resources.mygames_no_active_games
 import io.zenandroid.onlinego.resources.mygames_your_turn_count
 import io.zenandroid.onlinego.resources.ok
-import org.jetbrains.compose.resources.pluralStringResource
-import org.jetbrains.compose.resources.stringResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
-import androidx.lifecycle.compose.LocalLifecycleOwner
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import io.zenandroid.onlinego.R
-import io.zenandroid.onlinego.data.model.local.Challenge
-import io.zenandroid.onlinego.data.model.local.Game
-import io.zenandroid.onlinego.data.model.local.Player
-import io.zenandroid.onlinego.data.model.ogs.OGSAutomatch
-import io.zenandroid.onlinego.data.model.ogs.SizeSpeedOption
 import io.zenandroid.onlinego.ui.composables.WhatsNewBottomSheet
 import io.zenandroid.onlinego.ui.composables.bottomBarContentPadding
 import io.zenandroid.onlinego.ui.composables.isCollapseTriggered
@@ -83,6 +80,9 @@ import io.zenandroid.onlinego.ui.screens.mygames.composables.TutorialItem
 import io.zenandroid.onlinego.ui.screens.newchallenge.NewChallengeBottomSheet
 import io.zenandroid.onlinego.ui.theme.OnlineGoPreviewTheme
 import kotlinx.coroutines.delay
+import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.pluralStringResource
+import org.jetbrains.compose.resources.stringResource
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -371,7 +371,7 @@ fun LoggedOutItem(
   ) {
     Column {
       Image(
-        painter = painterResource(id = R.drawable.logo_ogs),
+        painter = painterResource(Res.drawable.logo_ogs),
         contentDescription = null,
         modifier = Modifier
           .fillMaxWidth()

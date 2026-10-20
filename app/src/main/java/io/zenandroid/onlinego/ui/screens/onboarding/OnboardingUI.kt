@@ -57,8 +57,25 @@ import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import co.touchlab.kermit.Logger
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.android.gms.common.Scopes
+import com.google.android.gms.common.api.ApiException
+import com.google.android.gms.common.api.Scope
 import io.zenandroid.onlinego.resources.Res
+import io.zenandroid.onlinego.resources.art_login_1
+import io.zenandroid.onlinego.resources.art_onboarding
 import io.zenandroid.onlinego.resources.cancel
 import io.zenandroid.onlinego.resources.email
 import io.zenandroid.onlinego.resources.ok
@@ -82,26 +99,6 @@ import io.zenandroid.onlinego.resources.onboarding_stay_offline_message
 import io.zenandroid.onlinego.resources.onboarding_stay_offline_title
 import io.zenandroid.onlinego.resources.password
 import io.zenandroid.onlinego.resources.username
-import kotlinx.coroutines.launch
-import org.jetbrains.compose.resources.getString
-import org.jetbrains.compose.resources.stringResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import co.touchlab.kermit.Logger
-import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions
-import com.google.android.gms.common.Scopes
-import com.google.android.gms.common.api.ApiException
-import com.google.android.gms.common.api.Scope
-import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.ui.composables.HorizontalPagerIndicator
 import io.zenandroid.onlinego.ui.composables.resolve
 import io.zenandroid.onlinego.ui.screens.onboarding.OnboardingAction.BackPressed
@@ -109,6 +106,10 @@ import io.zenandroid.onlinego.ui.screens.onboarding.OnboardingAction.SocialPlatf
 import io.zenandroid.onlinego.ui.screens.onboarding.Page.OnboardingPage
 import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
 import io.zenandroid.onlinego.utils.CrashReporter
+import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.getString
+import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -273,7 +274,7 @@ private fun ColumnScope.LoginPage(
       modifier = Modifier.fillMaxWidth()
     ) {
       Image(
-        painter = painterResource(id = R.drawable.art_login_1),
+        painter = painterResource(Res.drawable.art_login_1),
         colorFilter = ColorFilter.tint(
           MaterialTheme.colorScheme.primaryContainer,
           blendMode = BlendMode.Hue
@@ -515,7 +516,7 @@ private fun ColumnScope.NotificationPermissionPage(
 @Composable
 private fun ColumnScope.InfoPage(page: Page.OnboardingPage, listener: (OnboardingAction) -> Unit) {
   Image(
-    painter = painterResource(id = page.art),
+    painter = painterResource(page.art),
     contentDescription = null,
     modifier = Modifier
       .padding(vertical = 70.dp)
@@ -578,7 +579,7 @@ fun DefaultPreview() {
       OnboardingState(
         totalPages = 6,
         currentPage = OnboardingPage(
-          R.drawable.art_onboarding,
+          Res.drawable.art_onboarding,
           Res.string.onboarding_page_go_title,
           Res.string.onboarding_page_go_description,
           Res.string.onboarding_continue

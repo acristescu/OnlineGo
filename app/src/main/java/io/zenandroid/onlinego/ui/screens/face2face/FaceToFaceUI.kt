@@ -43,8 +43,18 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import io.zenandroid.onlinego.data.model.Position
+import io.zenandroid.onlinego.data.model.StoneType
+import io.zenandroid.onlinego.data.model.StoneType.BLACK
+import io.zenandroid.onlinego.data.model.StoneType.WHITE
 import io.zenandroid.onlinego.resources.Res
+import io.zenandroid.onlinego.resources.black_shield
 import io.zenandroid.onlinego.resources.face_to_face_avatar_content_description
 import io.zenandroid.onlinego.resources.face_to_face_ko_dialog_message
 import io.zenandroid.onlinego.resources.face_to_face_ko_dialog_title
@@ -60,19 +70,8 @@ import io.zenandroid.onlinego.resources.face_to_face_score_total
 import io.zenandroid.onlinego.resources.face_to_face_start_new_game
 import io.zenandroid.onlinego.resources.handicap
 import io.zenandroid.onlinego.resources.ok
-import org.jetbrains.compose.resources.stringResource
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import io.zenandroid.onlinego.R.drawable
-import io.zenandroid.onlinego.R.mipmap
-import io.zenandroid.onlinego.data.model.Position
-import io.zenandroid.onlinego.data.model.StoneType
-import io.zenandroid.onlinego.data.model.StoneType.BLACK
-import io.zenandroid.onlinego.data.model.StoneType.WHITE
+import io.zenandroid.onlinego.resources.placeholder
+import io.zenandroid.onlinego.resources.white_shield
 import io.zenandroid.onlinego.ui.composables.Board
 import io.zenandroid.onlinego.ui.composables.BottomBar
 import io.zenandroid.onlinego.ui.composables.TitleBar
@@ -88,6 +87,8 @@ import io.zenandroid.onlinego.ui.screens.face2face.Button.Next
 import io.zenandroid.onlinego.ui.screens.face2face.Button.Previous
 import io.zenandroid.onlinego.ui.screens.game.ExtraStatusField
 import io.zenandroid.onlinego.ui.theme.OnlineGoPreviewTheme
+import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 import org.koin.androidx.compose.koinViewModel
 import java.lang.Float.max
 
@@ -462,7 +463,7 @@ private fun UserImage(
   ) {
     val shape = RoundedCornerShape(14.dp)
     Image(
-      painter = painterResource(id = mipmap.placeholder),
+      painter = painterResource(Res.drawable.placeholder),
       contentDescription = stringResource(Res.string.face_to_face_avatar_content_description),
       modifier = Modifier
         .size(84.dp)
@@ -477,9 +478,9 @@ private fun UserImage(
         .padding(end = 4.dp)
     ) {
       val shield =
-        if (color == BLACK) drawable.black_shield else drawable.white_shield
+        if (color == BLACK) Res.drawable.black_shield else Res.drawable.white_shield
       Image(
-        painter = painterResource(id = shield),
+        painter = painterResource(shield),
         contentDescription = null,
       )
     }

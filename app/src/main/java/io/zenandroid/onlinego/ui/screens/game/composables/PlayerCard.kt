@@ -28,10 +28,6 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.res.painterResource
-import io.zenandroid.onlinego.resources.Res
-import io.zenandroid.onlinego.resources.game_avatar_content_description
-import org.jetbrains.compose.resources.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
@@ -40,14 +36,19 @@ import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import coil3.compose.LocalPlatformContext
 import coil3.request.ImageRequest
-import coil3.request.error
-import coil3.request.placeholder
-import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.StoneType
+import io.zenandroid.onlinego.resources.Res
+import io.zenandroid.onlinego.resources.black_shield
+import io.zenandroid.onlinego.resources.game_avatar_content_description
+import io.zenandroid.onlinego.resources.placeholder
+import io.zenandroid.onlinego.resources.white_shield
 import io.zenandroid.onlinego.ui.composables.resolveOrNull
 import io.zenandroid.onlinego.ui.screens.game.PlayerData
 import io.zenandroid.onlinego.ui.theme.brown
 import io.zenandroid.onlinego.utils.processGravatarURL
+import org.jetbrains.compose.resources.DrawableResource
+import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun PlayerCard(
@@ -60,7 +61,7 @@ fun PlayerCard(
   onUserClicked: () -> Unit,
   onGameDetailsClicked: () -> Unit,
   modifier: Modifier = Modifier,
-  localAvatarRes: Int? = null,
+  localAvatarRes: DrawableResource? = null,
 ) {
   val alpha = if (timerFaded) .6f else 1f
   player?.let {
@@ -94,9 +95,9 @@ fun PlayerCard(
                   player.iconURL,
                   LocalDensity.current.run { maxSize.roundToPx() })
               )
-              .placeholder(R.mipmap.placeholder)
-              .error(R.mipmap.placeholder)
               .build(),
+            placeholder = painterResource(Res.drawable.placeholder),
+            error = painterResource(Res.drawable.placeholder),
             contentDescription = stringResource(Res.string.game_avatar_content_description),
             modifier = Modifier
               .sizeIn(maxHeight = maxSize)
@@ -112,9 +113,9 @@ fun PlayerCard(
             .padding(end = 4.dp)
         ) {
           val shield =
-            if (player.color == StoneType.BLACK) R.drawable.black_shield else R.drawable.white_shield
+            if (player.color == StoneType.BLACK) Res.drawable.black_shield else Res.drawable.white_shield
           Image(
-            painter = painterResource(id = shield),
+            painter = painterResource(shield),
             contentDescription = null,
           )
           Text(

@@ -64,6 +64,22 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import io.zenandroid.onlinego.data.model.Cell
+import io.zenandroid.onlinego.data.model.Position
+import io.zenandroid.onlinego.data.model.StoneType
+import io.zenandroid.onlinego.data.model.katago.KataGoResponse.Response
+import io.zenandroid.onlinego.data.model.katago.RootInfo
 import io.zenandroid.onlinego.resources.Black
 import io.zenandroid.onlinego.resources.Res
 import io.zenandroid.onlinego.resources.White
@@ -103,29 +119,11 @@ import io.zenandroid.onlinego.resources.ko_explanation
 import io.zenandroid.onlinego.resources.local_ai_game
 import io.zenandroid.onlinego.resources.new_game
 import io.zenandroid.onlinego.resources.ok
+import io.zenandroid.onlinego.resources.placeholder
 import io.zenandroid.onlinego.resources.start_game
 import io.zenandroid.onlinego.resources.territory
 import io.zenandroid.onlinego.resources.you
 import io.zenandroid.onlinego.resources.you_play
-import org.jetbrains.compose.resources.StringResource
-import org.jetbrains.compose.resources.stringResource
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
-import androidx.lifecycle.compose.LocalLifecycleOwner
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import io.zenandroid.onlinego.R
-import io.zenandroid.onlinego.data.model.Cell
-import io.zenandroid.onlinego.data.model.Position
-import io.zenandroid.onlinego.data.model.StoneType
-import io.zenandroid.onlinego.data.model.katago.KataGoResponse.Response
-import io.zenandroid.onlinego.data.model.katago.RootInfo
 import io.zenandroid.onlinego.ui.composables.Board
 import io.zenandroid.onlinego.ui.composables.formatOneDecimal
 import io.zenandroid.onlinego.ui.composables.resolve
@@ -136,6 +134,8 @@ import io.zenandroid.onlinego.ui.screens.localai.composables.AiChatBox
 import io.zenandroid.onlinego.ui.theme.OnlineGoPreviewTheme
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
+import org.jetbrains.compose.resources.StringResource
+import org.jetbrains.compose.resources.stringResource
 import org.koin.androidx.compose.koinViewModel
 import kotlin.math.abs
 
@@ -515,7 +515,7 @@ private fun AiPlayerRowContent(
       timerShown = false,
       onUserClicked = {},
       onGameDetailsClicked = {},
-      localAvatarRes = R.drawable.katago,
+      localAvatarRes = Res.drawable.katago,
       modifier = Modifier
         .weight(1f)
         .heightIn(max = avatarSize),
@@ -627,7 +627,7 @@ private fun UserPlayerRowContent(
       timerShown = false,
       onUserClicked = {},
       onGameDetailsClicked = {},
-      localAvatarRes = R.mipmap.placeholder,
+      localAvatarRes = Res.drawable.placeholder,
       modifier = Modifier
         .weight(1f)
         // +24dp compensates for the vertical padding below, so avatarSize is the actual

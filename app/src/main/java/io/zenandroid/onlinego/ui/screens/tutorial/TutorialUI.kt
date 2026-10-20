@@ -3,7 +3,6 @@
 package io.zenandroid.onlinego.ui.screens.tutorial
 
 import android.content.res.Configuration
-import androidx.annotation.DrawableRes
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.fadeIn
@@ -45,21 +44,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.res.painterResource
-import io.zenandroid.onlinego.resources.Res
-import io.zenandroid.onlinego.resources.tutorial_next
-import io.zenandroid.onlinego.resources.tutorial_nice_one
-import io.zenandroid.onlinego.resources.tutorial_retry
-import org.jetbrains.compose.resources.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.StoneType
 import io.zenandroid.onlinego.data.model.local.Node
 import io.zenandroid.onlinego.data.model.local.TutorialStep
+import io.zenandroid.onlinego.resources.Res
+import io.zenandroid.onlinego.resources.ic_check_circle
+import io.zenandroid.onlinego.resources.ic_x_circle
+import io.zenandroid.onlinego.resources.tutorial_next
+import io.zenandroid.onlinego.resources.tutorial_nice_one
+import io.zenandroid.onlinego.resources.tutorial_retry
 import io.zenandroid.onlinego.ui.composables.Board
 import io.zenandroid.onlinego.ui.composables.resolveTutorialTextOrNull
 import io.zenandroid.onlinego.ui.screens.tutorial.TutorialAction.BoardCellHovered
@@ -67,6 +65,9 @@ import io.zenandroid.onlinego.ui.screens.tutorial.TutorialAction.BoardCellTapped
 import io.zenandroid.onlinego.ui.screens.tutorial.TutorialAction.NextPressed
 import io.zenandroid.onlinego.ui.screens.tutorial.TutorialAction.RetryPressed
 import io.zenandroid.onlinego.ui.theme.OnlineGoPreviewTheme
+import org.jetbrains.compose.resources.DrawableResource
+import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 import org.koin.androidx.compose.koinViewModel
 
 
@@ -211,7 +212,7 @@ private fun ButtonBar(state: TutorialState, listener: (TutorialAction) -> Unit) 
       visible = state.node?.success == true,
       text = stringResource(Res.string.tutorial_nice_one),
       button = "NEXT",
-      icon = R.drawable.ic_check_circle,
+      icon = Res.drawable.ic_check_circle,
       modifier = Modifier.align(Alignment.Center),
       tint = MaterialTheme.colorScheme.secondary,
       listener = { listener.invoke(NextPressed) }
@@ -221,7 +222,7 @@ private fun ButtonBar(state: TutorialState, listener: (TutorialAction) -> Unit) 
       visible = state.node?.failed == true,
       text = resolveTutorialTextOrNull(state.node?.message) ?: "That's not quite right!",
       button = "RETRY",
-      icon = R.drawable.ic_x_circle,
+      icon = Res.drawable.ic_x_circle,
       modifier = Modifier.align(Alignment.Center),
       tint = MaterialTheme.colorScheme.secondary,
       listener = { listener.invoke(RetryPressed) }
@@ -235,7 +236,7 @@ private fun Snackbar(
   visible: Boolean,
   text: String,
   button: String,
-  @DrawableRes icon: Int,
+  icon: DrawableResource,
   tint: Color,
   modifier: Modifier = Modifier,
   listener: () -> Unit

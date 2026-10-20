@@ -28,23 +28,6 @@ import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
-import io.zenandroid.onlinego.resources.Res
-import io.zenandroid.onlinego.resources.stats_filter_1m
-import io.zenandroid.onlinego.resources.stats_filter_1y
-import io.zenandroid.onlinego.resources.stats_filter_3m
-import io.zenandroid.onlinego.resources.stats_filter_5y
-import io.zenandroid.onlinego.resources.stats_filter_all
-import io.zenandroid.onlinego.resources.stats_filter_last_100
-import io.zenandroid.onlinego.resources.stats_filter_last_20
-import io.zenandroid.onlinego.resources.stats_no_ranked_games
-import io.zenandroid.onlinego.resources.stats_tooltip_at_game
-import io.zenandroid.onlinego.resources.stats_tooltip_delta_elo
-import io.zenandroid.onlinego.resources.stats_tooltip_elo_rank
-import io.zenandroid.onlinego.resources.stats_tooltip_on_date
-import io.zenandroid.onlinego.resources.stats_tooltip_since_date
-import io.zenandroid.onlinego.resources.stats_tooltip_since_game
-import org.jetbrains.compose.resources.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -70,7 +53,22 @@ import com.github.mikephil.charting.listener.OnChartValueSelectedListener
 import com.github.mikephil.charting.utils.EntryXComparator
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.R.color
-import io.zenandroid.onlinego.R.drawable
+import io.zenandroid.onlinego.resources.Res
+import io.zenandroid.onlinego.resources.chart_placeholder
+import io.zenandroid.onlinego.resources.stats_filter_1m
+import io.zenandroid.onlinego.resources.stats_filter_1y
+import io.zenandroid.onlinego.resources.stats_filter_3m
+import io.zenandroid.onlinego.resources.stats_filter_5y
+import io.zenandroid.onlinego.resources.stats_filter_all
+import io.zenandroid.onlinego.resources.stats_filter_last_100
+import io.zenandroid.onlinego.resources.stats_filter_last_20
+import io.zenandroid.onlinego.resources.stats_no_ranked_games
+import io.zenandroid.onlinego.resources.stats_tooltip_at_game
+import io.zenandroid.onlinego.resources.stats_tooltip_delta_elo
+import io.zenandroid.onlinego.resources.stats_tooltip_elo_rank
+import io.zenandroid.onlinego.resources.stats_tooltip_on_date
+import io.zenandroid.onlinego.resources.stats_tooltip_since_date
+import io.zenandroid.onlinego.resources.stats_tooltip_since_game
 import io.zenandroid.onlinego.ui.screens.stats.StatsViewModel.Filter
 import io.zenandroid.onlinego.ui.screens.stats.StatsViewModel.Filter.ALL
 import io.zenandroid.onlinego.ui.screens.stats.StatsViewModel.Filter.ALL_GAMES
@@ -89,6 +87,8 @@ import kotlinx.datetime.format
 import kotlinx.datetime.format.MonthNames
 import kotlinx.datetime.format.char
 import kotlinx.datetime.toLocalDateTime
+import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 import kotlin.time.Instant
 
 @SuppressLint("ClickableViewAccessibility")
@@ -115,7 +115,7 @@ fun ChartWrapper(
           .fillMaxWidth()
           .height(200.dp)
           .alpha(alpha = if (LocalThemeSettings.current.isDarkTheme) 0.6f else 0.15f),
-        painter = painterResource(id = drawable.chart_placeholder),
+        painter = painterResource(Res.drawable.chart_placeholder),
         contentScale = ContentScale.FillBounds,
         contentDescription = null
       )

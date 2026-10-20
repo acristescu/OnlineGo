@@ -32,17 +32,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.vector.ImageVector
-import io.zenandroid.onlinego.resources.Res
-import io.zenandroid.onlinego.resources.bottomnavigation_botton_learn
-import io.zenandroid.onlinego.resources.bottomnavigation_botton_play
-import io.zenandroid.onlinego.resources.bottomnavigation_botton_settings
-import io.zenandroid.onlinego.resources.bottomnavigation_botton_stats
-import io.zenandroid.onlinego.resources.cancel
-import io.zenandroid.onlinego.resources.home_button_login_ogs
-import io.zenandroid.onlinego.resources.stats_login_required_message
-import io.zenandroid.onlinego.resources.stats_login_required_title
-import org.jetbrains.compose.resources.stringResource
-import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.compose.NavHost
@@ -51,7 +40,19 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navDeepLink
 import co.touchlab.kermit.Logger
-import io.zenandroid.onlinego.R
+import io.zenandroid.onlinego.resources.Res
+import io.zenandroid.onlinego.resources.bottomnavigation_botton_learn
+import io.zenandroid.onlinego.resources.bottomnavigation_botton_play
+import io.zenandroid.onlinego.resources.bottomnavigation_botton_settings
+import io.zenandroid.onlinego.resources.bottomnavigation_botton_stats
+import io.zenandroid.onlinego.resources.cancel
+import io.zenandroid.onlinego.resources.home_button_login_ogs
+import io.zenandroid.onlinego.resources.ic_board_filled
+import io.zenandroid.onlinego.resources.ic_diagram
+import io.zenandroid.onlinego.resources.ic_learn
+import io.zenandroid.onlinego.resources.ic_settings_filled
+import io.zenandroid.onlinego.resources.stats_login_required_message
+import io.zenandroid.onlinego.resources.stats_login_required_title
 import io.zenandroid.onlinego.ui.composables.SenteBottomBar
 import io.zenandroid.onlinego.ui.screens.face2face.FaceToFaceScreen
 import io.zenandroid.onlinego.ui.screens.game.GameScreen
@@ -69,6 +70,8 @@ import io.zenandroid.onlinego.ui.screens.supporter.SupporterScreen
 import io.zenandroid.onlinego.ui.screens.tutorial.TutorialScreen
 import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
 import io.zenandroid.onlinego.utils.Analytics
+import org.jetbrains.compose.resources.stringResource
+import org.jetbrains.compose.resources.vectorResource
 import org.koin.compose.koinInject
 
 
@@ -92,23 +95,23 @@ fun OnlineGoApp(
     BottomNavItem(
       Route.MyGames,
       stringResource(Res.string.bottomnavigation_botton_play),
-      ImageVector.vectorResource(R.drawable.ic_board_filled)
+      vectorResource(Res.drawable.ic_board_filled)
     ),
     BottomNavItem(
       Route.Learn,
       stringResource(Res.string.bottomnavigation_botton_learn),
-      ImageVector.vectorResource(R.drawable.ic_learn)
+      vectorResource(Res.drawable.ic_learn)
     ),
     BottomNavItem(
       Route.Stats,
       stringResource(Res.string.bottomnavigation_botton_stats),
-      ImageVector.vectorResource(R.drawable.ic_diagram),
+      vectorResource(Res.drawable.ic_diagram),
       enabled = isLoggedIn
     ),
     BottomNavItem(
       Route.Settings,
       stringResource(Res.string.bottomnavigation_botton_settings),
-      ImageVector.vectorResource(R.drawable.ic_settings_filled),
+      vectorResource(Res.drawable.ic_settings_filled),
     ),
   )
   val selectedTabIndex =

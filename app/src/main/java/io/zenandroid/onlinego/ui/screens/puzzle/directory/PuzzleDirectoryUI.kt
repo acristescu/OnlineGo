@@ -38,8 +38,17 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import io.zenandroid.onlinego.data.model.Position
+import io.zenandroid.onlinego.data.model.local.PuzzleCollection
+import io.zenandroid.onlinego.gamelogic.Util.toCoordinateSet
 import io.zenandroid.onlinego.resources.Res
+import io.zenandroid.onlinego.resources.ic_check_circle
 import io.zenandroid.onlinego.resources.loading
 import io.zenandroid.onlinego.resources.puzzle_directory_by_author
 import io.zenandroid.onlinego.resources.puzzle_directory_completed
@@ -54,18 +63,6 @@ import io.zenandroid.onlinego.resources.puzzle_directory_solved_value
 import io.zenandroid.onlinego.resources.puzzle_directory_stats
 import io.zenandroid.onlinego.resources.puzzle_directory_title
 import io.zenandroid.onlinego.resources.search
-import org.jetbrains.compose.resources.pluralStringResource
-import org.jetbrains.compose.resources.stringResource
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import io.zenandroid.onlinego.R
-import io.zenandroid.onlinego.data.model.Position
-import io.zenandroid.onlinego.data.model.local.PuzzleCollection
-import io.zenandroid.onlinego.gamelogic.Util.toCoordinateSet
 import io.zenandroid.onlinego.ui.composables.Board
 import io.zenandroid.onlinego.ui.composables.FilterSortPanel
 import io.zenandroid.onlinego.ui.composables.RatingBar
@@ -74,6 +71,9 @@ import io.zenandroid.onlinego.ui.composables.SortChip
 import io.zenandroid.onlinego.ui.composables.formatOneDecimal
 import io.zenandroid.onlinego.ui.screens.mygames.composables.SenteCard
 import io.zenandroid.onlinego.utils.convertCountryCodeToEmojiFlag
+import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.pluralStringResource
+import org.jetbrains.compose.resources.stringResource
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -333,7 +333,7 @@ private fun PuzzleDirectoryContent(
                     )
                     if (percentage >= 100f) {
                       Image(
-                        painter = painterResource(R.drawable.ic_check_circle),
+                        painter = painterResource(Res.drawable.ic_check_circle),
                         contentDescription = stringResource(Res.string.puzzle_directory_completed)
                       )
                     }

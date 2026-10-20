@@ -44,8 +44,26 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.core.net.toUri
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import io.zenandroid.onlinego.playstore.PlayStoreService
 import io.zenandroid.onlinego.resources.Res
 import io.zenandroid.onlinego.resources.back
+import io.zenandroid.onlinego.resources.ic_board_transparent
+import io.zenandroid.onlinego.resources.ic_branch
+import io.zenandroid.onlinego.resources.ic_github
+import io.zenandroid.onlinego.resources.ic_star
 import io.zenandroid.onlinego.resources.supporter_cancel_subscription
 import io.zenandroid.onlinego.resources.supporter_current_contribution
 import io.zenandroid.onlinego.resources.supporter_faq_cancel_answer
@@ -71,27 +89,11 @@ import io.zenandroid.onlinego.resources.supporter_select_contribution
 import io.zenandroid.onlinego.resources.supporter_thank_you_title
 import io.zenandroid.onlinego.resources.supporter_title
 import io.zenandroid.onlinego.resources.supporter_update_amount
-import org.jetbrains.compose.resources.stringResource
-import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.core.net.toUri
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
-import androidx.lifecycle.compose.LocalLifecycleOwner
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import io.zenandroid.onlinego.R
-import io.zenandroid.onlinego.R.drawable
-import io.zenandroid.onlinego.playstore.PlayStoreService
 import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
 import io.zenandroid.onlinego.utils.Analytics
 import io.zenandroid.onlinego.utils.CrashReporter
+import org.jetbrains.compose.resources.stringResource
+import org.jetbrains.compose.resources.vectorResource
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
 
@@ -226,7 +228,7 @@ private fun SupporterContent(
       Spacer(modifier = Modifier.height(48.dp))
 
       SupportReason(
-        icon = ImageVector.vectorResource(id = R.drawable.ic_branch),
+        icon = vectorResource(Res.drawable.ic_branch),
         title = stringResource(Res.string.supporter_reason_develop_title),
         description = stringResource(Res.string.supporter_reason_develop_description)
       )
@@ -238,13 +240,13 @@ private fun SupporterContent(
       )
 
       SupportReason(
-        icon = ImageVector.vectorResource(id = R.drawable.ic_github),
+        icon = vectorResource(Res.drawable.ic_github),
         title = stringResource(Res.string.supporter_reason_open_source_title),
         description = stringResource(Res.string.supporter_reason_open_source_description)
       )
 
       SupportReason(
-        icon = ImageVector.vectorResource(id = R.drawable.ic_board_transparent),
+        icon = vectorResource(Res.drawable.ic_board_transparent),
         title = stringResource(Res.string.supporter_reason_promote_title),
         description = stringResource(Res.string.supporter_reason_promote_description)
       )
@@ -452,7 +454,7 @@ fun SupporterBottomBar(
             .fillMaxWidth()
         ) {
           Icon(
-            imageVector = ImageVector.vectorResource(drawable.ic_star),
+            imageVector = vectorResource(Res.drawable.ic_star),
             contentDescription = stringResource(Res.string.supporter_title),
             modifier = Modifier.padding(end = 12.dp, start = 8.dp)
           )

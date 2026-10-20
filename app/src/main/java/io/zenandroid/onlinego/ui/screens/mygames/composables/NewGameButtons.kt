@@ -20,20 +20,22 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
-import androidx.compose.ui.res.painterResource
-import io.zenandroid.onlinego.resources.Res
-import io.zenandroid.onlinego.resources.button_custom_game
-import io.zenandroid.onlinego.resources.button_face_to_face
-import io.zenandroid.onlinego.resources.button_play_against_ai
-import io.zenandroid.onlinego.resources.button_play_online
-import org.jetbrains.compose.resources.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import io.zenandroid.onlinego.R
+import io.zenandroid.onlinego.resources.Res
+import io.zenandroid.onlinego.resources.button_custom_game
+import io.zenandroid.onlinego.resources.button_face_to_face
+import io.zenandroid.onlinego.resources.button_play_against_ai
+import io.zenandroid.onlinego.resources.button_play_online
+import io.zenandroid.onlinego.resources.ic_person_filled
+import io.zenandroid.onlinego.resources.ic_robot
+import io.zenandroid.onlinego.resources.ic_tool
 import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
+import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun NewGameButtonsRow(
@@ -50,19 +52,19 @@ fun NewGameButtonsRow(
     modifier = modifier.fillMaxWidth()
   ) {
     NewGameButton(
-      painter = painterResource(R.drawable.ic_person_filled),
+      painter = painterResource(Res.drawable.ic_person_filled),
       text = stringResource(Res.string.button_play_online),
       onClick = onPlayOnline,
       enabled = playOnlineEnabled
     )
     NewGameButton(
-      painter = painterResource(R.drawable.ic_tool),
+      painter = painterResource(Res.drawable.ic_tool),
       text = stringResource(Res.string.button_custom_game),
       onClick = onCustomGame,
       enabled = customGameEnabled
     )
     NewGameButton(
-      painter = painterResource(R.drawable.ic_robot),
+      painter = painterResource(Res.drawable.ic_robot),
       text = stringResource(Res.string.button_play_against_ai),
       onClick = onPlayAgainstAI,
       enabled = true

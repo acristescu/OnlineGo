@@ -34,17 +34,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
-import io.zenandroid.onlinego.resources.Res
-import io.zenandroid.onlinego.resources.search
-import io.zenandroid.onlinego.resources.select_opponent_bots_description
-import io.zenandroid.onlinego.resources.select_opponent_bots_title
-import io.zenandroid.onlinego.resources.select_opponent_icon_content_description
-import io.zenandroid.onlinego.resources.select_opponent_recent_description
-import io.zenandroid.onlinego.resources.select_opponent_recent_title
-import io.zenandroid.onlinego.resources.select_opponent_search_hint
-import io.zenandroid.onlinego.resources.select_opponent_tab_bot
-import io.zenandroid.onlinego.resources.select_opponent_tab_recent
-import org.jetbrains.compose.resources.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -54,15 +43,26 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import coil3.compose.LocalPlatformContext
 import coil3.request.ImageRequest
-import coil3.request.error
-import coil3.request.placeholder
-import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.local.Player
+import io.zenandroid.onlinego.resources.Res
+import io.zenandroid.onlinego.resources.ic_person_filled_with_background
+import io.zenandroid.onlinego.resources.placeholder
+import io.zenandroid.onlinego.resources.search
+import io.zenandroid.onlinego.resources.select_opponent_bots_description
+import io.zenandroid.onlinego.resources.select_opponent_bots_title
+import io.zenandroid.onlinego.resources.select_opponent_icon_content_description
+import io.zenandroid.onlinego.resources.select_opponent_recent_description
+import io.zenandroid.onlinego.resources.select_opponent_recent_title
+import io.zenandroid.onlinego.resources.select_opponent_search_hint
+import io.zenandroid.onlinego.resources.select_opponent_tab_bot
+import io.zenandroid.onlinego.resources.select_opponent_tab_recent
 import io.zenandroid.onlinego.ui.composables.SearchTextField
 import io.zenandroid.onlinego.utils.PreviewBackground
 import io.zenandroid.onlinego.utils.egfToRank
 import io.zenandroid.onlinego.utils.formatRank
 import io.zenandroid.onlinego.utils.processGravatarURL
+import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 import org.koin.androidx.compose.koinViewModel
 
 @ExperimentalFoundationApi
@@ -220,9 +220,9 @@ private fun OpponentItem(opponent: Player, modifier: Modifier = Modifier) {
     AsyncImage(
       model = ImageRequest.Builder(LocalPlatformContext.current)
         .data(processGravatarURL(opponent.icon, LocalDensity.current.run { 48.dp.roundToPx() }))
-        .placeholder(R.drawable.ic_person_filled_with_background)
-        .error(R.mipmap.placeholder)
         .build(),
+      placeholder = painterResource(Res.drawable.ic_person_filled_with_background),
+      error = painterResource(Res.drawable.placeholder),
       contentDescription = stringResource(Res.string.select_opponent_icon_content_description),
       modifier = Modifier
         .size(48.dp)

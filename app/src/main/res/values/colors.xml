@@ -4,9 +4,6 @@
     <color name="colorActionableText">@color/colorAccent</color>
     <color name="colorTextSecondary">#757575</color>
 
-    <color name="buttonEnabled">#000000</color>
-    <color name="buttonDisabled">#66000000</color>
-
     <color name="colorSecondary">#79b3e4</color>
     <color name="colorSecondaryVariant">#e4f0fa</color>
     <color name="colorPrimary">#ed7861</color>

@@ -30,27 +30,27 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
-import io.zenandroid.onlinego.resources.Res
-import io.zenandroid.onlinego.resources.mygames_accept
-import io.zenandroid.onlinego.resources.mygames_avatar_content_description
-import io.zenandroid.onlinego.resources.mygames_challenge_received
-import io.zenandroid.onlinego.resources.mygames_decline
-import io.zenandroid.onlinego.resources.mygames_detail_board_size
-import org.jetbrains.compose.resources.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import coil3.compose.LocalPlatformContext
 import coil3.request.ImageRequest
-import coil3.request.error
-import coil3.request.placeholder
-import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.local.Challenge
 import io.zenandroid.onlinego.data.model.local.Player
+import io.zenandroid.onlinego.resources.Res
+import io.zenandroid.onlinego.resources.ic_person_filled_with_background
+import io.zenandroid.onlinego.resources.mygames_accept
+import io.zenandroid.onlinego.resources.mygames_avatar_content_description
+import io.zenandroid.onlinego.resources.mygames_challenge_received
+import io.zenandroid.onlinego.resources.mygames_decline
+import io.zenandroid.onlinego.resources.mygames_detail_board_size
+import io.zenandroid.onlinego.resources.placeholder
 import io.zenandroid.onlinego.ui.screens.mygames.ChallengeDialogStatus
 import io.zenandroid.onlinego.ui.screens.mygames.DetailValue
 import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
 import io.zenandroid.onlinego.utils.processGravatarURL
+import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun ChallengeDetailsDialog(
@@ -151,9 +151,9 @@ fun ChallengeDetailsDialog(
                         status.imageURL,
                         LocalDensity.current.run { 124.dp.roundToPx() })
                 )
-                .placeholder(R.drawable.ic_person_filled_with_background)
-                .error(R.mipmap.placeholder)
                 .build(),
+          placeholder = painterResource(Res.drawable.ic_person_filled_with_background),
+          error = painterResource(Res.drawable.placeholder),
           contentDescription = stringResource(Res.string.mygames_avatar_content_description),
             modifier = Modifier
               .align(Alignment.TopCenter)

@@ -1,6 +1,5 @@
 package io.zenandroid.onlinego.ui.screens.learn
 
-import androidx.annotation.DrawableRes
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -24,31 +23,37 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
-import io.zenandroid.onlinego.resources.Res
-import io.zenandroid.onlinego.resources.earn_study_title_puzzles
-import io.zenandroid.onlinego.resources.learn_section_study
-import io.zenandroid.onlinego.resources.learn_section_tutorials
-import io.zenandroid.onlinego.resources.learn_study_title_joseki_explorer
-import io.zenandroid.onlinego.resources.learn_title_learn
-import io.zenandroid.onlinego.resources.learn_tutorial_checkbox_done
-import io.zenandroid.onlinego.resources.learn_tutorial_checkboxoutlineblank_done
-import org.jetbrains.compose.resources.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.font.FontWeight.Companion.Bold
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.local.Tutorial
 import io.zenandroid.onlinego.data.model.local.TutorialGroup
 import io.zenandroid.onlinego.data.model.local.TutorialIcon
+import io.zenandroid.onlinego.resources.Res
+import io.zenandroid.onlinego.resources.earn_study_title_puzzles
+import io.zenandroid.onlinego.resources.ic_branch
+import io.zenandroid.onlinego.resources.ic_go_board
+import io.zenandroid.onlinego.resources.ic_learn
+import io.zenandroid.onlinego.resources.ic_tutorial_advanced
+import io.zenandroid.onlinego.resources.ic_tutorial_beginner
+import io.zenandroid.onlinego.resources.ic_tutorial_intermediate
+import io.zenandroid.onlinego.resources.learn_section_study
+import io.zenandroid.onlinego.resources.learn_section_tutorials
+import io.zenandroid.onlinego.resources.learn_study_title_joseki_explorer
+import io.zenandroid.onlinego.resources.learn_title_learn
+import io.zenandroid.onlinego.resources.learn_tutorial_checkbox_done
+import io.zenandroid.onlinego.resources.learn_tutorial_checkboxoutlineblank_done
 import io.zenandroid.onlinego.ui.composables.bottomBarContentPadding
 import io.zenandroid.onlinego.ui.composables.isCollapseTriggered
 import io.zenandroid.onlinego.ui.composables.resolveTutorialText
 import io.zenandroid.onlinego.ui.screens.mygames.composables.SenteCard
 import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
+import org.jetbrains.compose.resources.DrawableResource
+import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -100,7 +105,7 @@ private fun LearnContent(
         state.tutorialGroups?.forEach {
           PrimaryRow(
             title = resolveTutorialText(it.name),
-            it.icon.resId
+            it.icon.drawable
           ) { listener(LearnAction.TutorialGroupClicked(it)) }
           Column(modifier = Modifier.fillMaxWidth()) {
             AnimatedVisibility(visible = state.expandedTutorialGroup == it) {
@@ -119,11 +124,11 @@ private fun LearnContent(
       Section(title = stringResource(Res.string.learn_section_study)) {
         PrimaryRow(
           title = stringResource(Res.string.learn_study_title_joseki_explorer),
-          R.drawable.ic_branch
+          Res.drawable.ic_branch
         ) { listener(LearnAction.JosekiExplorerClicked) }
         PrimaryRow(
           title = stringResource(Res.string.earn_study_title_puzzles),
-          R.drawable.ic_go_board
+          Res.drawable.ic_go_board
         ) { listener(LearnAction.PuzzlesClicked) }
       }
       Spacer(modifier = Modifier.height(bottomBarContentPadding()))
@@ -155,7 +160,7 @@ private fun SectionHeader(text: String) {
 }
 
 @Composable
-fun PrimaryRow(title: String, @DrawableRes icon: Int, onClick: () -> Unit) {
+fun PrimaryRow(title: String, icon: DrawableResource, onClick: () -> Unit) {
   Row(
     modifier = Modifier
       .clickable(onClick = onClick)
@@ -239,11 +244,10 @@ fun DefaultPreview() {
   }
 }
 
-@get:DrawableRes
-private val TutorialIcon.resId: Int
+private val TutorialIcon.drawable: DrawableResource
   get() = when (this) {
-    TutorialIcon.BEGINNER -> R.drawable.ic_tutorial_beginner
-    TutorialIcon.INTERMEDIATE -> R.drawable.ic_tutorial_intermediate
-    TutorialIcon.ADVANCED -> R.drawable.ic_tutorial_advanced
-    TutorialIcon.GENERIC -> R.drawable.ic_learn
+    TutorialIcon.BEGINNER -> Res.drawable.ic_tutorial_beginner
+    TutorialIcon.INTERMEDIATE -> Res.drawable.ic_tutorial_intermediate
+    TutorialIcon.ADVANCED -> Res.drawable.ic_tutorial_advanced
+    TutorialIcon.GENERIC -> Res.drawable.ic_learn
   }

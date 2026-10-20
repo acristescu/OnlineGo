@@ -71,9 +71,31 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
+import androidx.core.net.toUri
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil3.compose.AsyncImage
+import coil3.compose.LocalPlatformContext
+import coil3.request.ImageRequest
+import io.zenandroid.onlinego.BuildConfig
+import io.zenandroid.onlinego.data.model.AppLanguage
+import io.zenandroid.onlinego.data.model.AppTheme
+import io.zenandroid.onlinego.data.model.BoardTheme
+import io.zenandroid.onlinego.data.model.UserSettings
 import io.zenandroid.onlinego.resources.Res
 import io.zenandroid.onlinego.resources.cancel
+import io.zenandroid.onlinego.resources.ic_star
 import io.zenandroid.onlinego.resources.ok
+import io.zenandroid.onlinego.resources.placeholder
 import io.zenandroid.onlinego.resources.settings_avatar_content_description
 import io.zenandroid.onlinego.resources.settings_become_a_supporter
 import io.zenandroid.onlinego.resources.settings_become_a_supporter_description
@@ -124,33 +146,6 @@ import io.zenandroid.onlinego.resources.settings_theme_dark
 import io.zenandroid.onlinego.resources.settings_theme_light
 import io.zenandroid.onlinego.resources.settings_theme_system_default
 import io.zenandroid.onlinego.resources.settings_whats_new
-import org.jetbrains.compose.resources.StringResource
-import org.jetbrains.compose.resources.stringResource
-import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
-import androidx.core.net.toUri
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import coil3.compose.AsyncImage
-import coil3.compose.LocalPlatformContext
-import coil3.request.ImageRequest
-import coil3.request.error
-import coil3.request.placeholder
-import io.zenandroid.onlinego.BuildConfig
-import io.zenandroid.onlinego.R.drawable
-import io.zenandroid.onlinego.R.mipmap
-import io.zenandroid.onlinego.data.model.AppLanguage
-import io.zenandroid.onlinego.data.model.AppTheme
-import io.zenandroid.onlinego.data.model.BoardTheme
-import io.zenandroid.onlinego.data.model.UserSettings
 import io.zenandroid.onlinego.ui.composables.WhatsNewBottomSheet
 import io.zenandroid.onlinego.ui.composables.bottomBarContentPadding
 import io.zenandroid.onlinego.ui.composables.isCollapseTriggered
@@ -178,6 +173,10 @@ import io.zenandroid.onlinego.utils.ReviewPromptManager
 import io.zenandroid.onlinego.utils.TRANSLATING_GUIDE_URL
 import io.zenandroid.onlinego.utils.processGravatarURL
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.StringResource
+import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
+import org.jetbrains.compose.resources.vectorResource
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
 
@@ -424,7 +423,9 @@ private fun SettingsContent(
         model = ImageRequest.Builder(LocalPlatformContext.current).data(
           processGravatarURL(
             state.avatarURL, LocalDensity.current.run { 84.dp.toPx().toInt() })
-        ).placeholder(mipmap.placeholder).error(mipmap.placeholder).build(),
+        ).build(),
+        placeholder = painterResource(Res.drawable.placeholder),
+        error = painterResource(Res.drawable.placeholder),
         contentDescription = stringResource(Res.string.settings_avatar_content_description),
         modifier = Modifier
           .size(84.dp)
@@ -456,7 +457,7 @@ private fun SettingsContent(
         .height(36.dp)
     ) {
       Icon(
-        imageVector = ImageVector.vectorResource(drawable.ic_star),
+        imageVector = vectorResource(Res.drawable.ic_star),
         contentDescription = stringResource(Res.string.settings_become_a_supporter_description),
         modifier = Modifier.padding(end = 12.dp, start = 8.dp)
       )

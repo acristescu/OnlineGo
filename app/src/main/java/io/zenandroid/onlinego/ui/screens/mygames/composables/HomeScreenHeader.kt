@@ -22,10 +22,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalDensity
-import io.zenandroid.onlinego.resources.Res
-import io.zenandroid.onlinego.resources.mygames_header_icon_content_description
-import io.zenandroid.onlinego.resources.mygames_offline_content_description
-import org.jetbrains.compose.resources.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -33,11 +29,14 @@ import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import coil3.compose.LocalPlatformContext
 import coil3.request.ImageRequest
-import coil3.request.error
-import coil3.request.placeholder
-import io.zenandroid.onlinego.R
+import io.zenandroid.onlinego.resources.Res
+import io.zenandroid.onlinego.resources.ic_person_filled_with_background
+import io.zenandroid.onlinego.resources.mygames_header_icon_content_description
+import io.zenandroid.onlinego.resources.mygames_offline_content_description
 import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
 import io.zenandroid.onlinego.utils.processGravatarURL
+import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 
 /**
  * The width the avatar URL is requested at, and the box it is drawn into. They differ; the
@@ -64,9 +63,9 @@ fun HomeScreenHeader(
             image,
             LocalDensity.current.run { HEADER_AVATAR_URL_WIDTH.roundToPx() })
         )
-        .placeholder(R.drawable.ic_person_filled_with_background)
-        .error(R.drawable.ic_person_filled_with_background)
         .build(),
+      placeholder = painterResource(Res.drawable.ic_person_filled_with_background),
+      error = painterResource(Res.drawable.ic_person_filled_with_background),
       contentDescription = stringResource(Res.string.mygames_header_icon_content_description),
       modifier = Modifier
         .size(HEADER_AVATAR_SIZE)

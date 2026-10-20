@@ -41,28 +41,30 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalHapticFeedback
-import io.zenandroid.onlinego.resources.Res
-import io.zenandroid.onlinego.resources.bottomnavigation_botton_learn
-import io.zenandroid.onlinego.resources.bottomnavigation_botton_play
-import io.zenandroid.onlinego.resources.bottomnavigation_botton_settings
-import io.zenandroid.onlinego.resources.bottomnavigation_botton_stats
-import org.jetbrains.compose.resources.stringResource
-import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import io.zenandroid.onlinego.R
+import io.zenandroid.onlinego.resources.Res
+import io.zenandroid.onlinego.resources.bottomnavigation_botton_learn
+import io.zenandroid.onlinego.resources.bottomnavigation_botton_play
+import io.zenandroid.onlinego.resources.bottomnavigation_botton_settings
+import io.zenandroid.onlinego.resources.bottomnavigation_botton_stats
+import io.zenandroid.onlinego.resources.ic_board_filled
+import io.zenandroid.onlinego.resources.ic_diagram
+import io.zenandroid.onlinego.resources.ic_learn
+import io.zenandroid.onlinego.resources.ic_settings_filled
 import io.zenandroid.onlinego.ui.screens.main.BottomNavItem
 import io.zenandroid.onlinego.ui.screens.main.Route
 import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
+import org.jetbrains.compose.resources.stringResource
+import org.jetbrains.compose.resources.vectorResource
 import kotlin.math.roundToInt
 
 private const val collapseAnimationDuration = 220
@@ -234,23 +236,23 @@ private fun DSBottomBarPreview() {
             BottomNavItem(
               Route.MyGames,
               stringResource(Res.string.bottomnavigation_botton_play),
-              ImageVector.vectorResource(R.drawable.ic_board_filled)
+              vectorResource(Res.drawable.ic_board_filled)
             ),
             BottomNavItem(
               Route.Learn,
               stringResource(Res.string.bottomnavigation_botton_learn),
-              ImageVector.vectorResource(R.drawable.ic_learn)
+              vectorResource(Res.drawable.ic_learn)
             ),
             BottomNavItem(
               Route.Stats,
               stringResource(Res.string.bottomnavigation_botton_stats),
-              ImageVector.vectorResource(R.drawable.ic_diagram),
+              vectorResource(Res.drawable.ic_diagram),
               enabled = true,
             ),
             BottomNavItem(
               Route.Settings,
               stringResource(Res.string.bottomnavigation_botton_settings),
-              ImageVector.vectorResource(R.drawable.ic_settings_filled),
+              vectorResource(Res.drawable.ic_settings_filled),
             ),
           ),
           selectedIndex = selectedIndex,
@@ -280,23 +282,23 @@ private fun DSBottomBarPreviewCollapsed() {
             BottomNavItem(
               Route.MyGames,
               stringResource(Res.string.bottomnavigation_botton_play),
-              ImageVector.vectorResource(R.drawable.ic_board_filled)
+              vectorResource(Res.drawable.ic_board_filled)
             ),
             BottomNavItem(
               Route.Learn,
               stringResource(Res.string.bottomnavigation_botton_learn),
-              ImageVector.vectorResource(R.drawable.ic_learn)
+              vectorResource(Res.drawable.ic_learn)
             ),
             BottomNavItem(
               Route.Stats,
               stringResource(Res.string.bottomnavigation_botton_stats),
-              ImageVector.vectorResource(R.drawable.ic_diagram),
+              vectorResource(Res.drawable.ic_diagram),
               enabled = true,
             ),
             BottomNavItem(
               Route.Settings,
               stringResource(Res.string.bottomnavigation_botton_settings),
-              ImageVector.vectorResource(R.drawable.ic_settings_filled),
+              vectorResource(Res.drawable.ic_settings_filled),
             ),
           ),
           selectedIndex = selectedIndex,

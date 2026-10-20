@@ -55,20 +55,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.res.painterResource
-import io.zenandroid.onlinego.resources.Res
-import io.zenandroid.onlinego.resources.loading
-import io.zenandroid.onlinego.resources.tsumego_board_content_description
-import io.zenandroid.onlinego.resources.tsumego_continue
-import io.zenandroid.onlinego.resources.tsumego_done
-import io.zenandroid.onlinego.resources.tsumego_hint
-import io.zenandroid.onlinego.resources.tsumego_next
-import io.zenandroid.onlinego.resources.tsumego_previous
-import io.zenandroid.onlinego.resources.tsumego_retry
-import io.zenandroid.onlinego.resources.tsumego_solved_content_description
-import io.zenandroid.onlinego.resources.tsumego_title
-import io.zenandroid.onlinego.resources.tsumego_title_with_name
-import org.jetbrains.compose.resources.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextLinkStyles
@@ -80,7 +66,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.Position
 import io.zenandroid.onlinego.data.model.StoneType
@@ -89,11 +74,29 @@ import io.zenandroid.onlinego.data.model.local.Puzzle
 import io.zenandroid.onlinego.data.model.ogs.MoveTree
 import io.zenandroid.onlinego.data.model.ogs.OGSPuzzle
 import io.zenandroid.onlinego.data.model.ogs.PuzzleSolution
+import io.zenandroid.onlinego.resources.Res
+import io.zenandroid.onlinego.resources.ic_check_circle
+import io.zenandroid.onlinego.resources.ic_go_board
+import io.zenandroid.onlinego.resources.ic_navigate_next
+import io.zenandroid.onlinego.resources.ic_navigate_previous
+import io.zenandroid.onlinego.resources.loading
+import io.zenandroid.onlinego.resources.tsumego_board_content_description
+import io.zenandroid.onlinego.resources.tsumego_continue
+import io.zenandroid.onlinego.resources.tsumego_done
+import io.zenandroid.onlinego.resources.tsumego_hint
+import io.zenandroid.onlinego.resources.tsumego_next
+import io.zenandroid.onlinego.resources.tsumego_previous
+import io.zenandroid.onlinego.resources.tsumego_retry
+import io.zenandroid.onlinego.resources.tsumego_solved_content_description
+import io.zenandroid.onlinego.resources.tsumego_title
+import io.zenandroid.onlinego.resources.tsumego_title_with_name
 import io.zenandroid.onlinego.ui.composables.Board
 import io.zenandroid.onlinego.ui.composables.ExposedLazyDropdownMenu
 import io.zenandroid.onlinego.ui.composables.RatingBar
 import io.zenandroid.onlinego.ui.theme.OnlineGoPreviewTheme
 import kotlinx.collections.immutable.toImmutableList
+import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -227,7 +230,7 @@ private fun TsumegoContent(
                       )
                       if (position == null)
                         Icon(
-                          painter = painterResource(R.drawable.ic_go_board),
+                          painter = painterResource(Res.drawable.ic_go_board),
                           contentDescription = stringResource(Res.string.tsumego_board_content_description),
                           tint = tint,
                           modifier = Modifier
@@ -281,7 +284,7 @@ private fun TsumegoContent(
           }
           if (state.solutions.isNotEmpty()) {
             Image(
-              painter = painterResource(R.drawable.ic_check_circle),
+              painter = painterResource(Res.drawable.ic_check_circle),
               modifier = Modifier
                 .padding(horizontal = 8.dp),
               contentDescription = stringResource(Res.string.tsumego_solved_content_description)
@@ -334,8 +337,9 @@ private fun TsumegoContent(
                       .padding(all = 4.dp)
                       .weight(1f)
                   ) {
-                    Image(
-                      painter = painterResource(R.drawable.ic_navigate_previous),
+                    Icon(
+                      painter = painterResource(Res.drawable.ic_navigate_previous),
+                      tint = MaterialTheme.colorScheme.secondary,
                       modifier = Modifier
                         .align(Alignment.CenterVertically),
                       contentDescription = null
@@ -378,8 +382,9 @@ private fun TsumegoContent(
                       color = MaterialTheme.colorScheme.secondary,
                       fontWeight = FontWeight.Bold
                     )
-                    Image(
-                      painter = painterResource(R.drawable.ic_navigate_next),
+                    Icon(
+                      painter = painterResource(Res.drawable.ic_navigate_next),
+                      tint = MaterialTheme.colorScheme.secondary,
                       modifier = Modifier
                         .align(Alignment.CenterVertically)
                         .padding(start = 8.dp),

@@ -1,12 +1,10 @@
 package io.zenandroid.onlinego.ui.screens.onboarding
 
 import android.os.Build
-import androidx.annotation.DrawableRes
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import co.touchlab.kermit.Logger
-import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.ogs.OGSRestService
 import io.zenandroid.onlinego.data.ogs.OGSWebSocketService
 import io.zenandroid.onlinego.data.ogs.httpErrorBody
@@ -15,6 +13,9 @@ import io.zenandroid.onlinego.data.repositories.LoginStatus
 import io.zenandroid.onlinego.data.repositories.SettingsRepository
 import io.zenandroid.onlinego.data.repositories.UserSessionRepository
 import io.zenandroid.onlinego.resources.Res
+import io.zenandroid.onlinego.resources.art_onboarding
+import io.zenandroid.onlinego.resources.ic_board_transparent
+import io.zenandroid.onlinego.resources.logo_ogs
 import io.zenandroid.onlinego.resources.no
 import io.zenandroid.onlinego.resources.onboarding_answer_google
 import io.zenandroid.onlinego.resources.onboarding_answer_offline
@@ -59,6 +60,7 @@ import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
+import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.StringResource
 
 class OnboardingViewModel(
@@ -72,19 +74,19 @@ class OnboardingViewModel(
 
   private val pages = arrayOf(
     OnboardingPage(
-      R.drawable.art_onboarding,
+      Res.drawable.art_onboarding,
       Res.string.onboarding_page_go_title,
       Res.string.onboarding_page_go_description,
       Res.string.onboarding_continue
     ),
     OnboardingPage(
-      R.drawable.ic_board_transparent,
+      Res.drawable.ic_board_transparent,
       Res.string.onboarding_page_app_title,
       Res.string.onboarding_page_app_description,
       Res.string.onboarding_continue
     ),
     OnboardingPage(
-      R.drawable.logo_ogs,
+      Res.drawable.logo_ogs,
       Res.string.onboarding_page_ogs_title,
       Res.string.onboarding_page_ogs_description,
       Res.string.onboarding_link_account
@@ -397,7 +399,7 @@ sealed class Page {
   enum class LoginMethod { GOOGLE, PASSWORD }
 
   data class OnboardingPage(
-    @DrawableRes val art: Int,
+    val art: DrawableResource,
     val title: StringResource,
     val description: StringResource,
     val continueButtonText: StringResource,
