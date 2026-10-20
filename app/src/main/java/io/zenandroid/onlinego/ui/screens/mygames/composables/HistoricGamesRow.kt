@@ -17,13 +17,19 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.res.stringResource
+import io.zenandroid.onlinego.resources.Res
+import io.zenandroid.onlinego.resources.mygames_outcome_black_won
+import io.zenandroid.onlinego.resources.mygames_outcome_cancelled
+import io.zenandroid.onlinego.resources.mygames_outcome_lost
+import io.zenandroid.onlinego.resources.mygames_outcome_white_won
+import io.zenandroid.onlinego.resources.mygames_outcome_won
+import io.zenandroid.onlinego.resources.unknown
+import org.jetbrains.compose.resources.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.local.Game
 import io.zenandroid.onlinego.ui.composables.Board
 import io.zenandroid.onlinego.ui.screens.mygames.Action
@@ -72,7 +78,7 @@ fun HistoricGameLazyRow(
             }
 
           Text(
-            text = opponent?.username ?: stringResource(R.string.unknown),
+            text = opponent?.username ?: stringResource(Res.string.unknown),
             overflow = TextOverflow.Ellipsis,
             maxLines = 1,
             style = TextStyle.Default.copy(
@@ -82,20 +88,20 @@ fun HistoricGameLazyRow(
             modifier = Modifier.padding(horizontal = 15.dp)
           )
           val outcome = when {
-            game.annulled == true || game.outcome == "Cancellation" -> stringResource(R.string.mygames_outcome_cancelled)
+            game.annulled == true || game.outcome == "Cancellation" -> stringResource(Res.string.mygames_outcome_cancelled)
             userId == game.blackPlayer.id ->
-              if (game.blackLost == true) stringResource(R.string.mygames_outcome_lost)
-              else stringResource(R.string.mygames_outcome_won)
+              if (game.blackLost == true) stringResource(Res.string.mygames_outcome_lost)
+              else stringResource(Res.string.mygames_outcome_won)
 
             userId == game.whitePlayer.id ->
-              if (game.whiteLost == true) stringResource(R.string.mygames_outcome_lost)
-              else stringResource(R.string.mygames_outcome_won)
+              if (game.whiteLost == true) stringResource(Res.string.mygames_outcome_lost)
+              else stringResource(Res.string.mygames_outcome_won)
 
             game.whiteLost == true ->
-              stringResource(R.string.mygames_outcome_black_won)
+              stringResource(Res.string.mygames_outcome_black_won)
 
             else ->
-              stringResource(R.string.mygames_outcome_white_won)
+              stringResource(Res.string.mygames_outcome_white_won)
           }
           Text(
             text = outcome,

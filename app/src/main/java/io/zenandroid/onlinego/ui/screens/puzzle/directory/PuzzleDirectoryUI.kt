@@ -39,8 +39,23 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.pluralStringResource
-import androidx.compose.ui.res.stringResource
+import io.zenandroid.onlinego.resources.Res
+import io.zenandroid.onlinego.resources.loading
+import io.zenandroid.onlinego.resources.puzzle_directory_by_author
+import io.zenandroid.onlinego.resources.puzzle_directory_completed
+import io.zenandroid.onlinego.resources.puzzle_directory_count_label
+import io.zenandroid.onlinego.resources.puzzle_directory_puzzle_count
+import io.zenandroid.onlinego.resources.puzzle_directory_rank_label
+import io.zenandroid.onlinego.resources.puzzle_directory_rank_range
+import io.zenandroid.onlinego.resources.puzzle_directory_rating_count
+import io.zenandroid.onlinego.resources.puzzle_directory_recently_opened
+import io.zenandroid.onlinego.resources.puzzle_directory_solved_label
+import io.zenandroid.onlinego.resources.puzzle_directory_solved_value
+import io.zenandroid.onlinego.resources.puzzle_directory_stats
+import io.zenandroid.onlinego.resources.puzzle_directory_title
+import io.zenandroid.onlinego.resources.search
+import org.jetbrains.compose.resources.pluralStringResource
+import org.jetbrains.compose.resources.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -99,7 +114,7 @@ private fun PuzzleDirectoryContent(
   Column(modifier = Modifier.systemBarsPadding()) {
     TopAppBar(
       title = {
-        Text(text = stringResource(R.string.puzzle_directory_title), fontSize = 18.sp)
+        Text(text = stringResource(Res.string.puzzle_directory_title), fontSize = 18.sp)
       },
       navigationIcon = {
         IconButton(onClick = { onBack() }) {
@@ -127,7 +142,7 @@ private fun PuzzleDirectoryContent(
               SearchTextField(
                 value = state.filterString ?: "",
                 onValueChange = { onFilterChanged(it) },
-                hint = stringResource(R.string.search),
+                hint = stringResource(Res.string.search),
                 modifier = Modifier
                   .padding(horizontal = 8.dp)
                   .fillMaxWidth(),
@@ -153,7 +168,7 @@ private fun PuzzleDirectoryContent(
             },
             onClick = onToggleOnlyOpened,
             label = {
-              Text(text = stringResource(R.string.puzzle_directory_recently_opened))
+              Text(text = stringResource(Res.string.puzzle_directory_recently_opened))
             },
           )
 
@@ -213,7 +228,7 @@ private fun PuzzleDirectoryContent(
                   else -> "${it.rating_count / 1000}k"
                 }
                 Text(
-                  text = stringResource(R.string.puzzle_directory_rating_count, ratingCount),
+                  text = stringResource(Res.string.puzzle_directory_rating_count, ratingCount),
                   color = MaterialTheme.colorScheme.onBackground,
                   fontSize = 12.sp,
                   modifier = Modifier.align(Alignment.CenterVertically)
@@ -234,7 +249,11 @@ private fun PuzzleDirectoryContent(
                   it.owner?.let {
                     val flag = convertCountryCodeToEmojiFlag(it.country)
                     Text(
-                      text = stringResource(R.string.puzzle_directory_by_author, it.username, flag),
+                      text = stringResource(
+                        Res.string.puzzle_directory_by_author,
+                        it.username,
+                        flag
+                      ),
                       maxLines = 1,
                       style = TextStyle.Default.copy(
                         fontSize = 12.sp,
@@ -259,13 +278,13 @@ private fun PuzzleDirectoryContent(
               ) {
                 Column(modifier = Modifier) {
                   Text(
-                    text = stringResource(R.string.puzzle_directory_count_label),
+                    text = stringResource(Res.string.puzzle_directory_count_label),
                     fontSize = 13.sp,
                     fontWeight = FontWeight.Bold
                   )
                   Text(
                     text = pluralStringResource(
-                      R.plurals.puzzle_directory_puzzle_count,
+                      Res.plurals.puzzle_directory_puzzle_count,
                       it.puzzle_count,
                       it.puzzle_count
                     ),
@@ -280,7 +299,7 @@ private fun PuzzleDirectoryContent(
                     else -> "${rank - 29}d"
                   }
                   Text(
-                    text = stringResource(R.string.puzzle_directory_rank_label),
+                    text = stringResource(Res.string.puzzle_directory_rank_label),
                     fontSize = 13.sp,
                     fontWeight = FontWeight.Bold
                   )
@@ -289,7 +308,7 @@ private fun PuzzleDirectoryContent(
                       rankToString(it.min_rank)
                     } else {
                       stringResource(
-                        R.string.puzzle_directory_rank_range,
+                        Res.string.puzzle_directory_rank_range,
                         rankToString(it.min_rank),
                         rankToString(it.max_rank)
                       )
@@ -300,14 +319,14 @@ private fun PuzzleDirectoryContent(
                   val solutions = state.solutions[it.id] ?: 0
                   val percentage = (solutions * 100f) / it.puzzle_count
                   Text(
-                    text = stringResource(R.string.puzzle_directory_solved_label),
+                    text = stringResource(Res.string.puzzle_directory_solved_label),
                     fontSize = 13.sp,
                     fontWeight = FontWeight.Bold
                   )
                   Row {
                     Text(
                       text = stringResource(
-                        R.string.puzzle_directory_solved_value,
+                        Res.string.puzzle_directory_solved_value,
                         solutions,
                         formatOneDecimal(percentage.toDouble())
                       ), maxLines = 1, fontSize = 11.sp, fontWeight = FontWeight.Medium
@@ -315,7 +334,7 @@ private fun PuzzleDirectoryContent(
                     if (percentage >= 100f) {
                       Image(
                         painter = painterResource(R.drawable.ic_check_circle),
-                        contentDescription = stringResource(R.string.puzzle_directory_completed)
+                        contentDescription = stringResource(Res.string.puzzle_directory_completed)
                       )
                     }
                   }
@@ -341,7 +360,7 @@ private fun PuzzleDirectoryContent(
                 }
                 Text(
                   text = stringResource(
-                    R.string.puzzle_directory_stats,
+                    Res.string.puzzle_directory_stats,
                     viewCount,
                     solvedCount,
                     attemptCount,
@@ -367,7 +386,7 @@ private fun PuzzleDirectoryContent(
               .padding(horizontal = 8.dp, vertical = 4.dp),
           ) {
             Text(
-              text = stringResource(R.string.loading),
+              text = stringResource(Res.string.loading),
               color = MaterialTheme.colorScheme.onBackground,
             )
           }

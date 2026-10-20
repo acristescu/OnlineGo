@@ -29,8 +29,28 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.pluralStringResource
-import androidx.compose.ui.res.stringResource
+import io.zenandroid.onlinego.resources.Res
+import io.zenandroid.onlinego.resources.home_app_open_source_message
+import io.zenandroid.onlinego.resources.home_button_login_ogs
+import io.zenandroid.onlinego.resources.home_button_signup_ogs
+import io.zenandroid.onlinego.resources.home_welcome_to_sente
+import io.zenandroid.onlinego.resources.mygames_acknowledge
+import io.zenandroid.onlinego.resources.mygames_acknowledge_countdown
+import io.zenandroid.onlinego.resources.mygames_active_games_count
+import io.zenandroid.onlinego.resources.mygames_empty_message
+import io.zenandroid.onlinego.resources.mygames_greeting
+import io.zenandroid.onlinego.resources.mygames_header_challenges
+import io.zenandroid.onlinego.resources.mygames_header_older_games
+import io.zenandroid.onlinego.resources.mygames_header_opponents_turn
+import io.zenandroid.onlinego.resources.mygames_header_recently_finished
+import io.zenandroid.onlinego.resources.mygames_header_your_turn
+import io.zenandroid.onlinego.resources.mygames_message_prefix
+import io.zenandroid.onlinego.resources.mygames_moderator_title
+import io.zenandroid.onlinego.resources.mygames_no_active_games
+import io.zenandroid.onlinego.resources.mygames_your_turn_count
+import io.zenandroid.onlinego.resources.ok
+import org.jetbrains.compose.resources.pluralStringResource
+import org.jetbrains.compose.resources.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -110,13 +130,13 @@ fun MyGamesScreen(
         val base = stringResource(alertDialogTextResId)
         val message = state.alertDialogMessage
         Text(
-          if (!message.isNullOrEmpty()) "$base ${stringResource(R.string.mygames_message_prefix)}\n\n$message"
+          if (!message.isNullOrEmpty()) "$base ${stringResource(Res.string.mygames_message_prefix)}\n\n$message"
           else base
         )
       },
       confirmButton = {
         Button(onClick = { viewModel.onAction(Action.DismissAlertDialog) }) {
-          Text(stringResource(R.string.ok))
+          Text(stringResource(Res.string.ok))
         }
       },
       onDismissRequest = { viewModel.onAction(Action.DismissAlertDialog) }
@@ -157,12 +177,12 @@ fun MyGamesScreen(
     }
     AlertDialog(
       onDismissRequest = { },
-      title = { Text(stringResource(R.string.mygames_moderator_title, it.severity ?: "")) },
+      title = { Text(stringResource(Res.string.mygames_moderator_title, it.severity ?: "")) },
       text = {
         Text(
           it.text?.takeIf { text -> text.isNotEmpty() }
             ?: it.message_id
-            ?: stringResource(R.string.mygames_empty_message)
+            ?: stringResource(Res.string.mygames_empty_message)
         )
       },
       confirmButton = {
@@ -171,8 +191,8 @@ fun MyGamesScreen(
           enabled = buttonEnabled
         ) {
           Text(
-            if (buttonEnabled) stringResource(R.string.mygames_acknowledge)
-            else stringResource(R.string.mygames_acknowledge_countdown, secondsLeft)
+            if (buttonEnabled) stringResource(Res.string.mygames_acknowledge)
+            else stringResource(Res.string.mygames_acknowledge_countdown, secondsLeft)
           )
         }
       }
@@ -214,16 +234,16 @@ fun MyGamesContent(
           state.headerSubTextResId != null -> stringResource(state.headerSubTextResId)
           !state.hasReceivedActiveGames -> null
           state.myTurnGames.isNotEmpty() -> pluralStringResource(
-            R.plurals.mygames_your_turn_count, state.myTurnGames.size, state.myTurnGames.size
+            Res.plurals.mygames_your_turn_count, state.myTurnGames.size, state.myTurnGames.size
           )
 
           state.opponentTurnGames.isNotEmpty() -> pluralStringResource(
-            R.plurals.mygames_active_games_count,
+            Res.plurals.mygames_active_games_count,
             state.opponentTurnGames.size,
             state.opponentTurnGames.size
           )
 
-          else -> stringResource(R.string.mygames_no_active_games)
+          else -> stringResource(Res.string.mygames_no_active_games)
         },
         offline = !state.online,
       )
@@ -242,7 +262,7 @@ fun MyGamesContent(
     if (state.myTurnGames.isNotEmpty()) {
       if (state.myTurnGames.size > 10) {
         item("Your turn") {
-          Header(stringResource(R.string.mygames_header_your_turn))
+          Header(stringResource(Res.string.mygames_header_your_turn))
         }
         items(items = state.myTurnGames, key = { "myturn/${it.id}" }) {
           SmallGameItem(game = it, state.userId, onAction = onAction)
@@ -256,7 +276,7 @@ fun MyGamesContent(
 
     if (state.challenges.isNotEmpty()) {
       item(key = "Challenges") {
-        Header(stringResource(R.string.mygames_header_challenges))
+        Header(stringResource(Res.string.mygames_header_challenges))
       }
     }
 
@@ -286,7 +306,7 @@ fun MyGamesContent(
 
     if (state.opponentTurnGames.isNotEmpty()) {
       item("Opponent's turn") {
-        Header(stringResource(R.string.mygames_header_opponents_turn))
+        Header(stringResource(Res.string.mygames_header_opponents_turn))
       }
     }
     items(items = state.opponentTurnGames, key = { "opponent/${it.id}" }) {
@@ -295,7 +315,7 @@ fun MyGamesContent(
 
     if (state.recentGames.isNotEmpty()) {
       item("Recently finished") {
-        Header(stringResource(R.string.mygames_header_recently_finished))
+        Header(stringResource(Res.string.mygames_header_recently_finished))
       }
     }
     items(items = state.recentGames, key = { "recent/${it.id}" }) {
@@ -304,7 +324,7 @@ fun MyGamesContent(
 
     if (state.historicGames.isNotEmpty()) {
       item("Older games") {
-        Header(stringResource(R.string.mygames_header_older_games))
+        Header(stringResource(Res.string.mygames_header_older_games))
       }
       item("HistoricGameLazyRow") {
         HistoricGameLazyRow(
@@ -358,7 +378,7 @@ fun LoggedOutItem(
           .padding(vertical = 32.dp)
       )
       Text(
-        text = stringResource(R.string.home_welcome_to_sente),
+        text = stringResource(Res.string.home_welcome_to_sente),
         fontSize = 20.sp,
         fontWeight = FontWeight.Bold,
         textAlign = TextAlign.Center,
@@ -367,7 +387,7 @@ fun LoggedOutItem(
           .fillMaxWidth()
       )
       Text(
-        text = stringResource(R.string.home_app_open_source_message),
+        text = stringResource(Res.string.home_app_open_source_message),
         fontSize = 16.sp,
         textAlign = TextAlign.Center,
         modifier = Modifier
@@ -381,7 +401,7 @@ fun LoggedOutItem(
           .fillMaxWidth(),
       ) {
         Text(
-          text = stringResource(R.string.home_button_login_ogs),
+          text = stringResource(Res.string.home_button_login_ogs),
           fontSize = 16.sp
         )
       }
@@ -392,7 +412,7 @@ fun LoggedOutItem(
           .fillMaxWidth(),
       ) {
         Text(
-          text = stringResource(R.string.home_button_signup_ogs),
+          text = stringResource(Res.string.home_button_signup_ogs),
           fontSize = 16.sp
         )
       }
@@ -422,7 +442,7 @@ private fun Preview() {
       MyGamesContent(
         MyGamesState(
           userId = 0L,
-          headerMainTextResId = R.string.mygames_greeting,
+          headerMainTextResId = Res.string.mygames_greeting,
           headerMainTextArg = "MrAlex",
           tutorialVisible = true,
           tutorialPercentage = 23,
@@ -523,7 +543,7 @@ private fun PreviewLoggedOut() {
       MyGamesContent(
         MyGamesState(
           userId = 0L,
-          headerMainTextResId = R.string.mygames_greeting,
+          headerMainTextResId = Res.string.mygames_greeting,
           headerMainTextArg = "MrAlex",
           online = false,
           loginPromptVisible = true,

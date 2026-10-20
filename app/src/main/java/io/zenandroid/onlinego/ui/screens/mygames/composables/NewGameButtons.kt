@@ -21,7 +21,12 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
+import io.zenandroid.onlinego.resources.Res
+import io.zenandroid.onlinego.resources.button_custom_game
+import io.zenandroid.onlinego.resources.button_face_to_face
+import io.zenandroid.onlinego.resources.button_play_against_ai
+import io.zenandroid.onlinego.resources.button_play_online
+import org.jetbrains.compose.resources.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -46,25 +51,25 @@ fun NewGameButtonsRow(
   ) {
     NewGameButton(
       painter = painterResource(R.drawable.ic_person_filled),
-      text = stringResource(R.string.button_play_online),
+      text = stringResource(Res.string.button_play_online),
       onClick = onPlayOnline,
       enabled = playOnlineEnabled
     )
     NewGameButton(
       painter = painterResource(R.drawable.ic_tool),
-      text = stringResource(R.string.button_custom_game),
+      text = stringResource(Res.string.button_custom_game),
       onClick = onCustomGame,
       enabled = customGameEnabled
     )
     NewGameButton(
       painter = painterResource(R.drawable.ic_robot),
-      text = stringResource(R.string.button_play_against_ai),
+      text = stringResource(Res.string.button_play_against_ai),
       onClick = onPlayAgainstAI,
       enabled = true
     )
     NewGameButton(
       painter = rememberVectorPainter(Icons.Rounded.SportsBar),
-      text = stringResource(R.string.button_face_to_face),
+      text = stringResource(Res.string.button_face_to_face),
       onClick = onFaceToFace,
       enabled = true
     )

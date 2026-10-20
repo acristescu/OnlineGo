@@ -21,7 +21,7 @@ class TutorialsJsonParsingTest {
 
   private val declaredStringResourceNames: Set<String> by lazy {
     Regex("""<string\s+name="([^"]+)"""")
-      .findAll(File("src/main/res/values/strings.xml").readText())
+      .findAll(File("../shared/src/commonMain/composeResources/values/strings.xml").readText())
       .map { it.groupValues[1] }
       .toSet()
   }

@@ -37,11 +37,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
-import androidx.compose.ui.res.stringResource
+import io.zenandroid.onlinego.resources.Res
+import io.zenandroid.onlinego.resources.game_chat_move_header
+import io.zenandroid.onlinego.resources.game_chat_send_content_description
+import io.zenandroid.onlinego.resources.game_chat_type_a_message
+import org.jetbrains.compose.resources.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.local.Message
 import io.zenandroid.onlinego.ui.screens.game.ChatMessage
 import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
@@ -95,7 +98,7 @@ fun ChatDialog(
         messages.keys.sortedBy { it }.forEach { moveNo ->
           stickyHeader {
             Text(
-              text = stringResource(R.string.game_chat_move_header, moveNo),
+              text = stringResource(Res.string.game_chat_move_header, moveNo),
               style = MaterialTheme.typography.titleSmall,
               color = MaterialTheme.colorScheme.onBackground,
               modifier = Modifier
@@ -156,7 +159,7 @@ fun ChatDialog(
           value = message,
           onValueChange = { message = it },
           modifier = Modifier.weight(1f),
-          placeholder = { Text(stringResource(R.string.game_chat_type_a_message)) }
+          placeholder = { Text(stringResource(Res.string.game_chat_type_a_message)) }
         )
         IconButton(
           onClick = {
@@ -167,7 +170,7 @@ fun ChatDialog(
         ) {
           Icon(
             painter = rememberVectorPainter(image = Icons.AutoMirrored.Rounded.Send),
-            contentDescription = stringResource(R.string.game_chat_send_content_description),
+            contentDescription = stringResource(Res.string.game_chat_send_content_description),
           )
         }
       }

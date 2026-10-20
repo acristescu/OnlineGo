@@ -1,11 +1,9 @@
 package io.zenandroid.onlinego.ui.screens.mygames
 
-import androidx.annotation.StringRes
 import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import co.touchlab.kermit.Logger
-import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.local.Challenge
 import io.zenandroid.onlinego.data.model.local.Game
 import io.zenandroid.onlinego.data.model.ogs.ChallengeParams
@@ -29,6 +27,30 @@ import io.zenandroid.onlinego.data.repositories.SettingsRepository
 import io.zenandroid.onlinego.data.repositories.TutorialsRepository
 import io.zenandroid.onlinego.data.repositories.UserSessionRepository
 import io.zenandroid.onlinego.gamelogic.RulesManager
+import io.zenandroid.onlinego.resources.Res
+import io.zenandroid.onlinego.resources.auto
+import io.zenandroid.onlinego.resources.disabled
+import io.zenandroid.onlinego.resources.enabled
+import io.zenandroid.onlinego.resources.error
+import io.zenandroid.onlinego.resources.handicap
+import io.zenandroid.onlinego.resources.login_to_play_online
+import io.zenandroid.onlinego.resources.mygames_alert_bot_rejected_text
+import io.zenandroid.onlinego.resources.mygames_alert_bot_rejected_title
+import io.zenandroid.onlinego.resources.mygames_alert_game_unavailable
+import io.zenandroid.onlinego.resources.mygames_alert_ogs_error_text
+import io.zenandroid.onlinego.resources.mygames_alert_ogs_error_title
+import io.zenandroid.onlinego.resources.mygames_alert_one_live_game
+import io.zenandroid.onlinego.resources.mygames_alert_opponent_rejected_text
+import io.zenandroid.onlinego.resources.mygames_alert_opponent_rejected_title
+import io.zenandroid.onlinego.resources.mygames_detail_analysis
+import io.zenandroid.onlinego.resources.mygames_detail_board_size
+import io.zenandroid.onlinego.resources.mygames_detail_ranked
+import io.zenandroid.onlinego.resources.mygames_detail_rules
+import io.zenandroid.onlinego.resources.mygames_detail_speed
+import io.zenandroid.onlinego.resources.mygames_greeting
+import io.zenandroid.onlinego.resources.no
+import io.zenandroid.onlinego.resources.welcome_to_sente_online_go
+import io.zenandroid.onlinego.resources.yes
 import io.zenandroid.onlinego.ui.screens.mygames.Action.AutomatchCancelled
 import io.zenandroid.onlinego.ui.screens.mygames.Action.ChallengeAccepted
 import io.zenandroid.onlinego.ui.screens.mygames.Action.ChallengeCancelled
@@ -67,6 +89,7 @@ import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.jsonPrimitive
 import kotlin.coroutines.cancellation.CancellationException
+import org.jetbrains.compose.resources.StringResource
 
 class MyGamesViewModel(
   private val userSessionRepository: UserSessionRepository,
@@ -112,8 +135,8 @@ class MyGamesViewModel(
                 playOnlineEnabled = false,
                 customGameEnabled = false,
                 loginPromptVisible = true,
-                headerMainTextResId = R.string.welcome_to_sente_online_go,
-                headerSubTextResId = R.string.login_to_play_online,
+                headerMainTextResId = Res.string.welcome_to_sente_online_go,
+                headerSubTextResId = Res.string.login_to_play_online,
               )
             }
           }
@@ -178,7 +201,7 @@ class MyGamesViewModel(
               customGameEnabled = true,
               loginPromptVisible = false,
               userId = userId,
-              headerMainTextResId = R.string.mygames_greeting,
+              headerMainTextResId = Res.string.mygames_greeting,
               headerMainTextArg = userSessionRepository.uiConfig?.user?.username,
               headerSubTextResId = null,
               userImageURL = userSessionRepository.uiConfig?.user?.icon,
@@ -272,13 +295,13 @@ class MyGamesViewModel(
       name = challenge.challenger?.username,
       rank = if (showRanks) "$rank ($rating)" else "",
       details = listOf(
-        R.string.mygames_detail_board_size to DetailValue.Literal("${challenge.width}x${challenge.height}"),
-        R.string.mygames_detail_speed to DetailValue.Literal("${challenge.speed?.replaceFirstChar { it.titlecase() }}"),
-        R.string.mygames_detail_ranked to DetailValue.Resource(if (challenge.ranked == true) R.string.yes else R.string.no),
-        R.string.mygames_detail_analysis to DetailValue.Resource(if (challenge.disabledAnalysis == true) R.string.disabled else R.string.enabled),
-        R.string.handicap to (challenge.handicap?.let { DetailValue.Literal(it.toString()) }
-          ?: DetailValue.Resource(R.string.auto)),
-        R.string.mygames_detail_rules to DetailValue.Literal("${challenge.rules?.replaceFirstChar { it.titlecase() }}"),
+        Res.string.mygames_detail_board_size to DetailValue.Literal("${challenge.width}x${challenge.height}"),
+        Res.string.mygames_detail_speed to DetailValue.Literal("${challenge.speed?.replaceFirstChar { it.titlecase() }}"),
+        Res.string.mygames_detail_ranked to DetailValue.Resource(if (challenge.ranked == true) Res.string.yes else Res.string.no),
+        Res.string.mygames_detail_analysis to DetailValue.Resource(if (challenge.disabledAnalysis == true) Res.string.disabled else Res.string.enabled),
+        Res.string.handicap to (challenge.handicap?.let { DetailValue.Literal(it.toString()) }
+          ?: DetailValue.Resource(Res.string.auto)),
+        Res.string.mygames_detail_rules to DetailValue.Literal("${challenge.rules?.replaceFirstChar { it.titlecase() }}"),
       ),
     )
     _state.update {
@@ -332,8 +355,8 @@ class MyGamesViewModel(
       if (notification["name"]?.jsonPrimitive?.contentOrNull == "Bot Match") {
         _state.update {
           it.copy(
-            alertDialogTitleResId = R.string.mygames_alert_bot_rejected_title,
-            alertDialogTextResId = R.string.mygames_alert_bot_rejected_text,
+            alertDialogTitleResId = Res.string.mygames_alert_bot_rejected_title,
+            alertDialogTextResId = Res.string.mygames_alert_bot_rejected_text,
             alertDialogMessage = message
           )
         }
@@ -342,8 +365,8 @@ class MyGamesViewModel(
       } else {
         _state.update {
           it.copy(
-            alertDialogTitleResId = R.string.mygames_alert_opponent_rejected_title,
-            alertDialogTextResId = R.string.mygames_alert_opponent_rejected_text,
+            alertDialogTitleResId = Res.string.mygames_alert_opponent_rejected_title,
+            alertDialogTextResId = Res.string.mygames_alert_opponent_rejected_text,
             alertDialogMessage = message
           )
         }
@@ -374,8 +397,8 @@ class MyGamesViewModel(
       if (t is kotlinx.serialization.SerializationException) {
         _state.update {
           it.copy(
-            alertDialogTitleResId = R.string.mygames_alert_ogs_error_title,
-            alertDialogTextResId = R.string.mygames_alert_ogs_error_text
+            alertDialogTitleResId = Res.string.mygames_alert_ogs_error_title,
+            alertDialogTextResId = Res.string.mygames_alert_ogs_error_text
           )
         }
       }
@@ -407,8 +430,8 @@ class MyGamesViewModel(
         if (game.id == 0L) {
           _state.update {
             it.copy(
-              alertDialogTitleResId = R.string.error,
-              alertDialogTextResId = R.string.mygames_alert_game_unavailable
+              alertDialogTitleResId = Res.string.error,
+              alertDialogTextResId = Res.string.mygames_alert_game_unavailable
             )
           }
         } else {
@@ -428,8 +451,8 @@ class MyGamesViewModel(
         ) {
           _state.update {
             it.copy(
-              alertDialogTitleResId = R.string.error,
-              alertDialogTextResId = R.string.mygames_alert_one_live_game
+              alertDialogTitleResId = Res.string.error,
+              alertDialogTextResId = Res.string.mygames_alert_one_live_game
             )
           }
         } else {
@@ -561,15 +584,15 @@ data class MyGamesState(
   val loadedAllHistoricGames: Boolean = false,
   val userId: Long?,
   val userIsLoggedOut: Boolean = false,
-  val alertDialogTitleResId: Int? = null,
-  val alertDialogTextResId: Int? = null,
+  val alertDialogTitleResId: StringResource? = null,
+  val alertDialogTextResId: StringResource? = null,
   val alertDialogMessage: String? = null,
   val gameNavigationPending: Game? = null,
   val whatsNewDialogVisible: Boolean = false,
   val userImageURL: String? = null,
-  val headerMainTextResId: Int? = null,
+  val headerMainTextResId: StringResource? = null,
   val headerMainTextArg: String? = null,
-  val headerSubTextResId: Int? = null,
+  val headerSubTextResId: StringResource? = null,
   val tutorialPercentage: Int? = 100,
   val tutorialVisible: Boolean = false,
   val tutorialTitle: String? = null,
@@ -611,7 +634,7 @@ data class ChallengeDialogStatus(
   val imageURL: String?,
   val name: String?,
   val rank: String,
-  val details: List<Pair<Int, DetailValue>>
+  val details: List<Pair<StringResource, DetailValue>>
 )
 
 /**
@@ -621,5 +644,5 @@ data class ChallengeDialogStatus(
 @Immutable
 sealed interface DetailValue {
   data class Literal(val text: String) : DetailValue
-  data class Resource(@StringRes val resId: Int) : DetailValue
+  data class Resource(val resId: StringResource) : DetailValue
 }

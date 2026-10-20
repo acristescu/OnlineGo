@@ -14,12 +14,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.res.stringResource
+import io.zenandroid.onlinego.resources.Res
+import io.zenandroid.onlinego.resources.mygames_paused
+import io.zenandroid.onlinego.resources.unknown
+import org.jetbrains.compose.resources.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.StoneType
 import io.zenandroid.onlinego.data.model.local.Game
 import io.zenandroid.onlinego.data.model.local.isPaused
@@ -68,7 +70,7 @@ fun SmallGameItem(game: Game, userId: Long?, onAction: (Action) -> Unit) {
         Row(modifier = Modifier.padding(top = 8.dp)) {
           Text(
             text = opponent?.username?.substring(0..20.coerceAtMost(opponent.username.length - 1))
-              ?: stringResource(R.string.unknown),
+              ?: stringResource(Res.string.unknown),
             color = MaterialTheme.colorScheme.onSurface,
             style = TextStyle.Default.copy(
               fontSize = 14.sp,
@@ -93,7 +95,7 @@ fun SmallGameItem(game: Game, userId: Long?, onAction: (Action) -> Unit) {
             )
             if (game.pauseControl.isPaused()) {
               Text(
-                text = "  ·  " + stringResource(R.string.mygames_paused),
+                text = "  ·  " + stringResource(Res.string.mygames_paused),
                 color = MaterialTheme.colorScheme.onSurface,
                 style = TextStyle.Default.copy(
                   fontSize = 12.sp,

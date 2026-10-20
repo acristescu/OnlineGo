@@ -1,10 +1,9 @@
 package io.zenandroid.onlinego.ui.composables
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalResources
-import androidx.compose.ui.res.stringResource
+import io.zenandroid.onlinego.resources.Res
+import io.zenandroid.onlinego.resources.allStringResources
+import org.jetbrains.compose.resources.stringResource
 
 /**
  * Resolves a bundled tutorial content string - which is actually a string resource *name* (e.g.
@@ -13,14 +12,8 @@ import androidx.compose.ui.res.stringResource
  * the raw name unchanged if there's no matching resource.
  */
 @Composable
-fun resolveTutorialText(resourceName: String): String {
-  val context = LocalContext.current
-  val resources = LocalResources.current
-  val resId = remember(resourceName) {
-    resources.getIdentifier(resourceName, "string", context.packageName)
-  }
-  return if (resId != 0) stringResource(resId) else resourceName
-}
+fun resolveTutorialText(resourceName: String): String =
+  Res.allStringResources[resourceName]?.let { stringResource(it) } ?: resourceName
 
 @Composable
 fun resolveTutorialTextOrNull(resourceName: String?): String? =

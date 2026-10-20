@@ -25,7 +25,15 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
+import io.zenandroid.onlinego.resources.Res
+import io.zenandroid.onlinego.resources.earn_study_title_puzzles
+import io.zenandroid.onlinego.resources.learn_section_study
+import io.zenandroid.onlinego.resources.learn_section_tutorials
+import io.zenandroid.onlinego.resources.learn_study_title_joseki_explorer
+import io.zenandroid.onlinego.resources.learn_title_learn
+import io.zenandroid.onlinego.resources.learn_tutorial_checkbox_done
+import io.zenandroid.onlinego.resources.learn_tutorial_checkboxoutlineblank_done
+import org.jetbrains.compose.resources.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.font.FontWeight.Companion.Bold
 import androidx.compose.ui.tooling.preview.Preview
@@ -74,7 +82,7 @@ private fun LearnContent(
     TopAppBar(
       title = {
         Text(
-          text = stringResource(R.string.learn_title_learn),
+          text = stringResource(Res.string.learn_title_learn),
           style = MaterialTheme.typography.headlineLarge.copy(fontWeight = Bold),
           color = MaterialTheme.colorScheme.onSurface
         )
@@ -88,7 +96,7 @@ private fun LearnContent(
         .verticalScroll(scrollState)
         .padding(horizontal = 12.dp)
     ) {
-      Section(title = stringResource(R.string.learn_section_tutorials)) {
+      Section(title = stringResource(Res.string.learn_section_tutorials)) {
         state.tutorialGroups?.forEach {
           PrimaryRow(
             title = resolveTutorialText(it.name),
@@ -108,13 +116,13 @@ private fun LearnContent(
           }
         }
       }
-      Section(title = stringResource(R.string.learn_section_study)) {
+      Section(title = stringResource(Res.string.learn_section_study)) {
         PrimaryRow(
-          title = stringResource(R.string.learn_study_title_joseki_explorer),
+          title = stringResource(Res.string.learn_study_title_joseki_explorer),
           R.drawable.ic_branch
         ) { listener(LearnAction.JosekiExplorerClicked) }
         PrimaryRow(
-          title = stringResource(R.string.earn_study_title_puzzles),
+          title = stringResource(Res.string.earn_study_title_puzzles),
           R.drawable.ic_go_board
         ) { listener(LearnAction.PuzzlesClicked) }
       }
@@ -172,9 +180,15 @@ fun SecondaryRow(tutorial: Tutorial, completed: Boolean, onClick: () -> Unit) {
       .padding(start = 72.dp, top = 8.dp, bottom = 8.dp)
   ) {
     if (completed) {
-      Icon(Icons.Rounded.CheckBox, contentDescription = stringResource(R.string.learn_tutorial_checkbox_done))
+      Icon(
+        Icons.Rounded.CheckBox,
+        contentDescription = stringResource(Res.string.learn_tutorial_checkbox_done)
+      )
     } else {
-      Icon(Icons.Rounded.CheckBoxOutlineBlank, contentDescription = stringResource(R.string.learn_tutorial_checkboxoutlineblank_done))
+      Icon(
+        Icons.Rounded.CheckBoxOutlineBlank,
+        contentDescription = stringResource(Res.string.learn_tutorial_checkboxoutlineblank_done)
+      )
     }
     Text(
       resolveTutorialText(tutorial.name),

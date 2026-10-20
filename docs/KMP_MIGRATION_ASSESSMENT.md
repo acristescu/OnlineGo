@@ -9,15 +9,16 @@ is no RxJava, no `Parcelable`, and Koin, Molecule, Room, DataStore, `ViewModel`,
 kotlinx-collections-immutable are already multiplatform. The cost is dominated by resources
 (663 strings x 16 locales) and the local-AI engine, which cannot run on iOS as built today.
 
-**Status.** Phases 0-3 are finished: thirty-five slices are done (section 6). Phases 0-2 have
+**Status.** Phases 0-3 are finished: thirty-six slices are done (section 6). Phases 0-2 have
 shipped in a release; Phase 3 has not, and several slices still need on-device checks (section 1.2).
 Phase 3 moved the Room
 database (6.25), the score estimator (6.26), `CrashReporter` (6.10), the HTTP client (6.27),
 storage (6.28), the session cluster (6.29) and the remaining repositories (6.30) to common code,
 wired by a shared Koin module (6.31) and an iOS platform module (6.32). Only the bindings Swift
 supplies are left, and they come with the iOS app. Phase 4 has started: the toolchain is set for
-Compose Multiplatform (6.33), now on 1.13.0-alpha02 (6.35), and the first composable is common code
-(6.34); phase 5 has not started.
+Compose Multiplatform (6.33), now on 1.13.0-alpha02 (6.35), the first composable is common code
+(6.34), and strings are Compose Multiplatform resources on both platforms (6.36); phase 5 has not
+started.
 
 Earlier, longer versions of this document:
 `git show d529259:docs/KMP_MIGRATION_ASSESSMENT.md` (original assessment) and
@@ -62,6 +63,10 @@ Still owed - unit tests cannot reach these:
   list keeps receiving moves after its screen closes; chat turns on when the screen opens.
 - [ ] **Clock text** (6.16): simple, byo-yomi, Canadian and Fischer clocks and the game-list
   timers, in English and in a locale with a decimal comma (e.g. `de`).
+- [ ] **Strings from CMP resources** (6.36): switching language in Settings (Portuguese included)
+  re-renders every screen; the launcher name; a notification in the chosen language; plurals
+  ("3 games"); a tutorial; Joseki link labels; the stats chart tooltip; the What's new sheet shows
+  the Portuguese item.
 
 ### 1.3 Phases 3-5
 
@@ -121,7 +126,7 @@ DataStore (6.28).
 | Markwon                                         | `multiplatform-markdown-renderer-m3` (`JosekiExplorerUI`, ~90 LOC)                                             | Phase 4             |
 | `material-icons-extended` (109 refs, 21 files)  | vendored `ImageVector`s                                                                                        | Phase 4             |
 | navigation-compose (androidx)                   | `org.jetbrains.androidx.navigation`; routes are already `@Serializable` (6.19)                                 | Phase 4             |
-| Android resources (`R.*`)                       | Compose Multiplatform resources - see 4.2                                                                      | Phase 4             |
+| Android resources (`R.*`)                       | Strings done (6.36); drawables, raw, colors still `R.*`                                                        | Phase 4             |
 | `AppLocaleManager`                              | `expect`/`actual`; iOS writes `AppleLanguages` and needs a restart                                             | Phase 4             |
 | WorkManager                                     | `expect`/`actual` `BackgroundSync`; iOS `BGAppRefreshTask`                                                     | Phase 5 (see risks) |
 | `NotificationUtils` (348 LOC)                   | `expect`/`actual`; re-rasterize the board with Compose, deleting `BoardView` (737 LOC) and the last XML layout | Phase 5             |
@@ -166,15 +171,18 @@ own spike gated on the memory measurement.
 
 ### 4.2 Resources
 
-663 strings (plus 10 `clock_*` entries, English-only until Crowdin catches up), 16 locale folders
-(`ro` 658 translated down to 7 empty stubs), 456 `stringResource` sites in 39 files, 33 vectors,
-3 board JPEGs, 1 `.ogg`. Compose Multiplatform resources read the same `strings.xml`, so Crowdin
-needs only a path change. The seam already exists: `TextResource` and the `labelResId` /
-`DetailValue.Resource` idiom carry ~130 resource ids as `Int` in ViewModel state, which become typed
-`StringResource`s mechanically. The one non-mechanical part is
-`ui/screens/game/TimeControlDescription.kt`, which calls `Resources.getQuantityString` outside
-composition; the clock text (`ui/composables/ClockText.kt`) is already composable. Do it against
-one module so there is one `Res` class.
+**Strings are done (6.36).** They live in
+`shared/src/commonMain/composeResources/values*/strings.xml`
+in CMP format and both platforms read them through the one `Res` class
+(`io.zenandroid.onlinego.resources`). CMP can't read Android escapes (`\'`, `\"`, `%%`), and
+Crowdin's
+Android and "Compose Multiplatform XML" exports both produce them, so a Crowdin **Custom Post-Export
+Processor** (JavaScript in Project Settings -> File Processors) unescapes every exported
+`strings.xml`; the GitHub integration is unchanged. `app_name` stays an Android resource because the
+manifest needs it.
+
+Still Android resources: 33 vectors, 3 board JPEGs, the `.ogg`, colors, dimens, the launcher icons
+and the notification icon.
 
 ---
 
@@ -184,7 +192,7 @@ one module so there is one `Res` class.
 |------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | **Toolchain currency**       | Kotlin 2.4.21 / AGP 9.3.3 / Gradle 9.7.1, inside the supported matrix (6.33). **CMP 1.13.0-alpha02 puts the whole Android app on Jetpack Compose 1.13.0-alpha03** (6.35); move to 1.13 stable when it ships. |
 | **Room on a live schema**    | v20, 4 auto-migrations, 13 converters, and `fallbackToDestructiveMigration` silently wipes caches on a bad migration. `MoveTree` blobs written by Moshi are now read by kotlinx (6.1).                       |
-| **Localization regression**  | 663 strings x 16 locales moved wholesale; needs a mechanical diff, not eyeballing.                                                                                                                           |
+| **Localization regression**  | Strings moved in 6.36 with a mechanical diff: every value in the 9 shipped locales matched Android's rendering. Watch Crowdin exports: the post-export processor must keep running.                          |
 | **iOS background behaviour** | `BGAppRefreshTask` has no interval guarantee, so turn notifications will be worse than Android's 15-minute poll without server push (APNs), which OGS would have to support. No FCM today.                   |
 | **KataGo memory on iOS**     | A new class of risk that does not exist on Android, where the engine has its own process.                                                                                                                    |
 | **Bandwidth**                | A multi-month refactor on a personal project. Phases 0-1 are the hedge: they pay off on their own.                                                                                                           |
@@ -194,8 +202,8 @@ one module so there is one `Res` class.
 ## 6. Done - what is still load-bearing
 
 Only traps, deliberate behaviour changes, and decisions that look wrong but are not. Unit tests
-stand at 161: 99 in `:shared` host tests (84 of them in `commonTest`, which also run on the iOS
-simulator), 15 in `:shared` `iosTest` (simulator only), 47 in `:app`.
+stand at 167: 99 in `:shared` host tests (84 of them in `commonTest`, which also run on the iOS
+simulator), 21 in `:shared` `iosTest` (simulator only), 47 in `:app`.
 
 ### 6.1 Moshi to kotlinx.serialization
 
@@ -707,3 +715,31 @@ test-local class.
 - Checked: compose report rows identical (app and `:shared`, 6 unstable parameters), no new
   deprecation warnings, release build with R8, all tests on Android and the iOS simulator. The
   release APK is 156 KB smaller.
+
+### 6.36 Strings as Compose Multiplatform resources
+
+- **One committed set of CMP-format strings** in `shared/src/commonMain/composeResources/values*/`,
+  read by Android and iOS. `:shared` sets `androidResources.enable = true` (without it the assets
+  are not packaged, CMP-9547), `publicResClass` and `packageOfResClass`. On Android the strings are
+  assets: `assets/composeResources/io.zenandroid.onlinego.resources/`.
+- **The one-off conversion** applied the processor's rules and Android's whitespace collapsing
+  (Crowdin had left raw line breaks in two translations, which Android renders as spaces). Checked
+  against `aapt2 dump`: all 6,228 strings, plural forms and array items in the 9 locales matched.
+- **Crowdin.** The integration and the file stay the same: `crowdin.yml` keeps the Crowdin path
+  with `dest: /app/src/main/res/values/strings.xml`, so translations and approvals survive the
+  move. A Custom Post-Export Processor rewrites `\'`, `\"`, `%%` and a leading `\@`/`\?` in every
+  exported `strings.xml`; tested through the integration before the switch. **If the processor
+  stops running, the next Crowdin PR brings Android escapes that CMP shows literally.**
+  `export_languages` limits exports to the shipped languages, because Android's `localeFilters`
+  does not filter CMP assets and CMP picks the language from the device locale.
+- `app_name` is a separate Android `app_name.xml` and Crowdin file (the manifest launcher label).
+- **Android call sites:** `R.string` -> `Res.string` with one import per accessor (CMP accessors
+  are extension properties). `Int` string ids became `StringResource`; it is stable in the compose
+  report. `TimeControlDescription` and the stats chart tooltip are formatted in composition;
+  notifications, notification channels and What's new use the suspend `getString` /
+  `getPluralString` / `getStringArray`; tutorial names resolve through `Res.allStringResources`.
+- **Portuguese is enabled** (`AppLanguage.PORTUGUESE`, `locales_config.xml`, `localeFilters`,
+  `export_languages`), credited in What's new.
+- CMP resources render in screenshot tests and previews with AGP 9.3; no extra setup was needed.
+- `iosTest/.../StringResourcesTest` reads apostrophes, quotes, `\n`, a single `%`, plurals, the
+  What's new array and a tutorial key by name on the simulator.

@@ -46,7 +46,12 @@ import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalHapticFeedback
-import androidx.compose.ui.res.stringResource
+import io.zenandroid.onlinego.resources.Res
+import io.zenandroid.onlinego.resources.bottomnavigation_botton_learn
+import io.zenandroid.onlinego.resources.bottomnavigation_botton_play
+import io.zenandroid.onlinego.resources.bottomnavigation_botton_settings
+import io.zenandroid.onlinego.resources.bottomnavigation_botton_stats
+import org.jetbrains.compose.resources.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -228,23 +233,23 @@ private fun DSBottomBarPreview() {
           tabs = listOf(
             BottomNavItem(
               Route.MyGames,
-              stringResource(R.string.bottomnavigation_botton_play),
+              stringResource(Res.string.bottomnavigation_botton_play),
               ImageVector.vectorResource(R.drawable.ic_board_filled)
             ),
             BottomNavItem(
               Route.Learn,
-              stringResource(R.string.bottomnavigation_botton_learn),
+              stringResource(Res.string.bottomnavigation_botton_learn),
               ImageVector.vectorResource(R.drawable.ic_learn)
             ),
             BottomNavItem(
               Route.Stats,
-              stringResource(R.string.bottomnavigation_botton_stats),
+              stringResource(Res.string.bottomnavigation_botton_stats),
               ImageVector.vectorResource(R.drawable.ic_diagram),
               enabled = true,
             ),
             BottomNavItem(
               Route.Settings,
-              stringResource(R.string.bottomnavigation_botton_settings),
+              stringResource(Res.string.bottomnavigation_botton_settings),
               ImageVector.vectorResource(R.drawable.ic_settings_filled),
             ),
           ),
@@ -274,23 +279,23 @@ private fun DSBottomBarPreviewCollapsed() {
           tabs = listOf(
             BottomNavItem(
               Route.MyGames,
-              stringResource(R.string.bottomnavigation_botton_play),
+              stringResource(Res.string.bottomnavigation_botton_play),
               ImageVector.vectorResource(R.drawable.ic_board_filled)
             ),
             BottomNavItem(
               Route.Learn,
-              stringResource(R.string.bottomnavigation_botton_learn),
+              stringResource(Res.string.bottomnavigation_botton_learn),
               ImageVector.vectorResource(R.drawable.ic_learn)
             ),
             BottomNavItem(
               Route.Stats,
-              stringResource(R.string.bottomnavigation_botton_stats),
+              stringResource(Res.string.bottomnavigation_botton_stats),
               ImageVector.vectorResource(R.drawable.ic_diagram),
               enabled = true,
             ),
             BottomNavItem(
               Route.Settings,
-              stringResource(R.string.bottomnavigation_botton_settings),
+              stringResource(Res.string.bottomnavigation_botton_settings),
               ImageVector.vectorResource(R.drawable.ic_settings_filled),
             ),
           ),

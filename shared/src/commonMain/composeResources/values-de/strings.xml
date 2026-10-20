@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Sente - Online GO</string>
     <string name="welcome_to_sente_online_go">Willkommen bei Sente Online Go!</string>
     <string name="login_to_play_online">Bitte melde Dich bei OGS an, um online zu spielen.</string>
     <string name="ai_game_chat_ready">Bereit!</string>
-    <string name="ai_game_chat_use_new_game_button">Drücke \'Neues Spiel\' um ein neues Spiel zu starten</string>
-    <string name="ai_game_chat_engine_error">Fehler beim Starten von KataGO: \'%1$s\'</string>
+    <string name="ai_game_chat_use_new_game_button">Drücke 'Neues Spiel' um ein neues Spiel zu starten</string>
+    <string name="ai_game_chat_engine_error">Fehler beim Starten von KataGO: '%1$s'</string>
     <string name="ai_game_chat_invalid_move">Ungültiger Zug, probiere es noch einmal</string>
     <string name="ai_game_chat_lets_try_again">OK, versuchen wir es noch einmal. Du bist an der Reihe!</string>
     <string name="ai_game_chat_hmmm">Hmmm…</string>
@@ -189,7 +188,7 @@
     <string name="game_player_details_rank_rating">%1$s (%2$s)</string>
     <string name="game_player_details_highest_rank">Höchster Rang</string>
     <string name="game_player_details_percentile">Perzentil</string>
-    <string name="game_player_details_percentage">%1$d%%</string>
+    <string name="game_player_details_percentage">%1$d%</string>
     <string name="game_player_details_played_vs_you">Spiele gegen dich</string>
     <string name="game_player_details_you_won">Deine Siege</string>
     <string name="game_player_details_they_won">Deine Niederlagen</string>
@@ -238,8 +237,8 @@
     <string name="settings_delete_account_success">Konto gelöscht. Schade, dass du gehst! Die App schließt sich in 5 Sekunden.</string>
     <string name="settings_delete_account_wrong_password">Falsches Passwort</string>
     <string name="onboarding_login_invalid_credentials">Ungültiger Benutzername oder Passwort</string>
-    <string name="onboarding_login_failed_debug">Login fehlgeschlagen. Debug-Infos: \'%1$s\'</string>
-    <string name="onboarding_create_account_failed_debug">Konto erstellen fehlgeschlagen. Debug-Infos: \'%1$s\'</string>
+    <string name="onboarding_login_failed_debug">Login fehlgeschlagen. Debug-Infos: '%1$s'</string>
+    <string name="onboarding_create_account_failed_debug">Konto erstellen fehlgeschlagen. Debug-Infos: '%1$s'</string>
     <string name="onboarding_server_error_code">Fehler bei der Kommunikation mit dem Server. Server meldete Fehlercode %1$s. Bitte versuchen Sie es später erneut</string>
     <string name="onboarding_google_signin_failed">signInResult:failed code=%1$d</string>
     <string name="tutorial_retry">NEUSTART</string>
@@ -344,7 +343,7 @@
     <string name="supporter_faq_features_question">Gibt es irgendwelche Funktionen nur für Unterstützer?</string>
     <string name="supporter_faq_features_answer">Nein, weil wir glauben, dass jeder Zugang zu einer professionell erstellten Android-App für GO haben sollte. Support ist völlig freiwillig.</string>
     <string name="supporter_faq_cancel_question">Kann ich meine Unterstützung ändern oder kündigen?</string>
-    <string name="supporter_faq_cancel_answer">Ja, zu jeder Zeit, entweder von dieser Seite aus oder von der Seite \"Abonnements\" in Google Play.</string>
+    <string name="supporter_faq_cancel_answer">Ja, zu jeder Zeit, entweder von dieser Seite aus oder von der Seite "Abonnements" in Google Play.</string>
     <string name="supporter_faq_payment_question">Gibt es weitere Zahlungsmethoden?</string>
     <string name="supporter_faq_payment_answer">Über Google Play bereitgestellte Apps sind verpflichtet, Google Pay zu verwenden, da Google 15 % der Umsätze einbehält. Wir dürfen keine alternativen Zahlungsmethoden in der App anbieten.</string>
     <string name="supporter_thank_you_title">Vielen Dank für deine Unterstützung!</string>
@@ -411,9 +410,9 @@
     <string name="puzzle_directory_rank_label">Rang</string>
     <string name="puzzle_directory_rank_range">%1$s bis %2$s</string>
     <string name="puzzle_directory_solved_label">Gelöst</string>
-    <string name="puzzle_directory_solved_value">%1$d (%2$s%%)</string>
+    <string name="puzzle_directory_solved_value">%1$d (%2$s%)</string>
     <string name="puzzle_directory_completed">Abgeschlossen</string>
-    <string name="puzzle_directory_stats">%1$s Aufrufe, gelöst %2$s-mal von %3$s (%4$s %%)</string>
+    <string name="puzzle_directory_stats">%1$s Aufrufe, gelöst %2$s-mal von %3$s (%4$s %)</string>
     <string name="puzzle_directory_sort_name">A -&gt; Z</string>
     <string name="puzzle_directory_sort_rating">Bewertung</string>
     <string name="puzzle_directory_sort_count">Puzzle-Anzahl</string>
@@ -496,7 +495,7 @@
     <string name="mygames_header_opponents_turn">Gegner:in an der Reihe</string>
     <string name="mygames_header_recently_finished">Kürzlich beendet</string>
     <string name="mygames_header_older_games">Ältere Spiele</string>
-    <string name="mygames_tutorial_percentage">%1$d %%</string>
+    <string name="mygames_tutorial_percentage">%1$d %</string>
     <string name="mygames_learn_to_play">Spielen lernen</string>
     <string name="mygames_header_icon_content_description">Symbol</string>
     <string name="mygames_offline_content_description">Offline</string>
@@ -551,14 +550,14 @@
     <string name="joseki_explorer_button_next">Nächster</string>
     <string name="joseki_explorer_link_video">(Video)</string>
     <string name="joseki_explorer_link_external">(externer Link)</string>
-    <string name="joseki_explorer_default_description">## Joseki Explorer\n*Joseki* ist ein Lehnwort aus dem Japanischen, das üblicherweise Zugfolgen in einer Ecke des Brettes bezeichnet, die gleichwertig für beide Seiten enden.\n\n### Wie man den Joseki-Explorer verwendet\nDie unten markierten Züge stellen interessante Fortführungen der aktuellen Stellung dar. Die Farben spiegeln ihre Qualität wieder:\n* Grüne Züge werden als optimal angesehen\n* Gelbe Züge werden als OK angesehen\n* Rote Züge werden als Fehler angesehen\n* Violette Züge werden als Trickzüge angesehen\n\" Blau für offene Fragen\nTippe auf einen der interessanten Züge um zu erkunden, wie sich die Stellung daraus weiterentwickelt.\n###Tenuki\nManchmal ist der beste Zug, an einer anderen Stelle zu spielen. Das wird normalerweise mit *Tenuki* bezeichnet. Wenn Tenuki als eine interessante Option für die aktuelle Stellung angesehen wird, ist der Passen-Knopf unten links aktiv und du kannst ihn drücken, um zu sehen, welche Stellungen sich nach einem Tenuki ergeben können.</string>
+    <string name="joseki_explorer_default_description">## Joseki Explorer\n*Joseki* ist ein Lehnwort aus dem Japanischen, das üblicherweise Zugfolgen in einer Ecke des Brettes bezeichnet, die gleichwertig für beide Seiten enden.\n\n### Wie man den Joseki-Explorer verwendet\nDie unten markierten Züge stellen interessante Fortführungen der aktuellen Stellung dar. Die Farben spiegeln ihre Qualität wieder:\n* Grüne Züge werden als optimal angesehen\n* Gelbe Züge werden als OK angesehen\n* Rote Züge werden als Fehler angesehen\n* Violette Züge werden als Trickzüge angesehen\n" Blau für offene Fragen\nTippe auf einen der interessanten Züge um zu erkunden, wie sich die Stellung daraus weiterentwickelt.\n###Tenuki\nManchmal ist der beste Zug, an einer anderen Stelle zu spielen. Das wird normalerweise mit *Tenuki* bezeichnet. Wenn Tenuki als eine interessante Option für die aktuelle Stellung angesehen wird, ist der Passen-Knopf unten links aktiv und du kannst ihn drücken, um zu sehen, welche Stellungen sich nach einem Tenuki ergeben können.</string>
     <string name="tutorial_basics_title">Grundlagen</string>
     <string name="tutorial_basics_thebasics_title">Die Grundlagen</string>
-    <string name="tutorial_basics_thebasics_basic1_text">Präge dir die 3 folgenden Regeln ein:\n1. Schwarz und Weiß setzen abwechselnd \"Steine\" auf dem Brett.\n2. Steine werden auf die Kreuzungen gesetzt.\n3. Wenn ein Stein gesetzt wurde, kann er nicht mehr versetzt, wohl aber gefangen werden.\n\nSetze einen Stein um fortzufahren!</string>
-    <string name="tutorial_basics_thebasics_capture1_page1_text">Mit einem weiterem Zug, wäre der weiße Stein umzingelt und gefangen. Steine die in einem Zug gefangen werden können, befinden sich in \"Atari\".</string>
+    <string name="tutorial_basics_thebasics_basic1_text">Präge dir die 3 folgenden Regeln ein:\n1. Schwarz und Weiß setzen abwechselnd "Steine" auf dem Brett.\n2. Steine werden auf die Kreuzungen gesetzt.\n3. Wenn ein Stein gesetzt wurde, kann er nicht mehr versetzt, wohl aber gefangen werden.\n\nSetze einen Stein um fortzufahren!</string>
+    <string name="tutorial_basics_thebasics_capture1_page1_text">Mit einem weiterem Zug, wäre der weiße Stein umzingelt und gefangen. Steine die in einem Zug gefangen werden können, befinden sich in "Atari".</string>
     <string name="tutorial_basics_thebasics_capture1_page2_text">Der weiße Stein ist nun eingeschlossen, also…</string>
     <string name="tutorial_basics_thebasics_capture1_page3_text">… wird er vom Brett entfernt</string>
-    <string name="tutorial_basics_thebasics_capture1_page4_text">Wäre Weiß an der Reihe, könnte Weiß durch Anlegen eines weiteren Steins \"fliehen\".</string>
+    <string name="tutorial_basics_thebasics_capture1_page4_text">Wäre Weiß an der Reihe, könnte Weiß durch Anlegen eines weiteren Steins "fliehen".</string>
     <string name="tutorial_basics_thebasics_capture2_text">Du bist an der Reihe! Fang den weißen Stein.</string>
     <string name="tutorial_basics_thebasics_capture3_text">Dieses Mal kannst du zwei Steine mit einem einzigen Zug fangen!</string>
     <string name="tutorial_basics_thebasics_capture4_text">Selbst wenn andere Steine in der Nähe sind, tu einfach dasselbe.</string>
@@ -575,7 +574,7 @@
     <string name="tutorial_basics_doubleatari_doubleAtari2_text">Ein weiteres Beispiel. Wo kannst du ein Doppel-Atari erreichen?</string>
     <string name="tutorial_basics_illegalmoves_title">Unerlaubte Züge (die Selbstmordregel)</string>
     <string name="tutorial_basics_illegalmoves_suicide1_page_1_text">Du kannst mit wenigen Ausnahmen überall auf dem Brett setzen. In diesem Beispiel darf Schwarz nicht auf A spielen, weil der gespielte Stein sofort vollständig umschlossen wäre.</string>
-    <string name="tutorial_basics_illegalmoves_suicide1_page_2_text">Das nennt man \"Selbstmord\" und ist nicht erlaubt.</string>
+    <string name="tutorial_basics_illegalmoves_suicide1_page_2_text">Das nennt man "Selbstmord" und ist nicht erlaubt.</string>
     <string name="tutorial_basics_illegalmoves_suicide1_page_3_text">Es gibt allerdings eine Ausnahme. Wenn ein Zug einen oder mehrere weiße Steine fängt (wie ein Zug auf B in dem Fall), ist das Setzen erlaubt.</string>
     <string name="tutorial_basics_illegalmoves_suicide1_page_4_text">Das ist die sich daraus ergebende Stellung:</string>
     <string name="tutorial_basics_illegalmoves_suicide2_text">Dein Zug um erneut Steine zu schlagen! Hinweis: Auf den ersten Blick mag es wie ein verbotener Zug aussehen…</string>
@@ -590,7 +589,7 @@
     <string name="tutorial_intermediate_ladders_ladder1_branches_branch1_1_1_1_1_1_1_1_1_message">Wenn Weiß versucht Widerstand zu leisten…</string>
     <string name="tutorial_intermediate_ladders_ladder1_branches_branch1_1_1_1_1_1_1_2_1_message">Wenn Weiß versucht Widerstand zu leisten…</string>
     <string name="tutorial_intermediate_ladders_ladder1_branches_branch1_1_1_1_1_1_1_2_2_message">Wenn Weiß versucht Widerstand zu leisten…</string>
-    <string name="tutorial_intermediate_ladders_ladder2_text">Hier ist eine weitere Leiter. Jetzt ist es an dir zu entkommen. Die Situation ist nicht ausweglos. Dein Stein auf F2 ist im Pfad der Leiter. Wenn du ihn erreichst, bist du sicher. Ein solcher Stein heißt \"Treppenbrecher\".</string>
+    <string name="tutorial_intermediate_ladders_ladder2_text">Hier ist eine weitere Leiter. Jetzt ist es an dir zu entkommen. Die Situation ist nicht ausweglos. Dein Stein auf F2 ist im Pfad der Leiter. Wenn du ihn erreichst, bist du sicher. Ein solcher Stein heißt "Treppenbrecher".</string>
     <string name="tutorial_intermediate_ladders_ladder3_page1_text">Leitern sind ein wichtiges Element in GO. Es ist wichtig, ein paar Züge vorauszuschauen und sich nur auf das Ausspielen einer Leiter einzulassen, wenn man das Rennen gewinnt! Das geschieht mit Weiß, wenn die verlierende Leiter aus dem vorherigen Beispiel ausgespielt wird…</string>
     <string name="tutorial_intermediate_twoeyes_title">Zwei Augen</string>
     <string name="tutorial_intermediate_twoeyes_twoeyes1_text">Du bist vollständig umzingelt! Was ist der einzige Zug, der dich retten kann?</string>
@@ -601,10 +600,10 @@
     <string name="tutorial_intermediate_captureraces_capturerace2_text">Hier ist ein weiterer Semeai! Gewinne den Wettlauf und fange Weiß!</string>
     <string name="tutorial_intermediate_captureraces_capturerace3_text">Rette die schwarzen Steine in der Ecke!</string>
     <string name="tutorial_intermediate_snapback_title">Mausefalle</string>
-    <string name="tutorial_intermediate_snapback_snapback1_text">Jetzt lernst du eine Technik kennen, die \"Mausefalle\" genannt wird. Fange die 4 weißen Steine!\n\nHinweis: Du musst zunächst einen Stein Opfern!</string>
+    <string name="tutorial_intermediate_snapback_snapback1_text">Jetzt lernst du eine Technik kennen, die "Mausefalle" genannt wird. Fange die 4 weißen Steine!\n\nHinweis: Du musst zunächst einen Stein Opfern!</string>
     <string name="tutorial_intermediate_snapback_snapback2_text">Wie du gerade festgestellt hast, kann es manchmal dazu führen, dass gegnerische Steine unter Atari stehen, nachdem du das Schlagen eines deiner Steine erzwungen hast. Nutze dieselbe Technik hier!</string>
     <string name="tutorial_intermediate_snapback_snapback3_text">Hier eine weitere Mausefalle am Rand.</string>
-    <string name="tutorial_intermediate_ko_title">Ko - die \"keine Wiederholung\"-Regel</string>
+    <string name="tutorial_intermediate_ko_title">Ko - die "keine Wiederholung"-Regel</string>
     <string name="tutorial_intermediate_ko_ko_page_1_text">Jetzt schauen wir uns die letzte Regel an, die du kennen musst, um GO zu spielen: die Ko-Regel. Sie besagt, dass ein Zug ungültig ist, wenn er zu einer Wiederholung führt (zum Beispiel einer vorangegangener Stellung). Lass uns ein Beispiel anschauen. Der weiße Stein auf E6 steht unter Atari. Schwarz kann ihn also fangen.</string>
     <string name="tutorial_intermediate_ko_ko_page_2_text">Jetzt steht der schwarze Stein auf F6 unter Atari. Ohne die Ko-Regel könnte Weiß ihn fangen. Aber dann würde die neue Stellung …</string>
     <string name="tutorial_intermediate_ko_ko_page_3_text">… der Ausgangssituation entsprechen! In dem Fall würde Schwarz ohne die Ko-Regel erneut fangen …</string>
@@ -623,7 +622,7 @@
     <string name="tutorial_intermediate_ko_ko_page_16_text">Schwarz freut sich, mit G9 ihren Profit am oberen Rand zu beanspruchen.</string>
     <string name="tutorial_intermediate_ko_ko_page_17_text">Mach Dir keine Sorgen, wenn das gerade zu kompliziert klingt. Merke Dir als Anfänger*in, dass Du keinen Stein fangen kannst, wenn sich so die vorherige Stellung wiederholt.</string>
     <string name="tutorial_intermediate_puzzles_title">Tsumego (Go-Probleme)</string>
-    <string name="tutorial_intermediate_puzzles_puzzles1_text">Fang die 3 weißen Steine! Diese Form wird manchmal \"Kranichnest\" genannt</string>
+    <string name="tutorial_intermediate_puzzles_puzzles1_text">Fang die 3 weißen Steine! Diese Form wird manchmal "Kranichnest" genannt</string>
     <string name="tutorial_intermediate_puzzles_puzzles2_text">Ein Wettlauf ums Überleben, kannst Du es gewinnen?</string>
     <string name="tutorial_intermediate_puzzles_corner1_text">Beim Go sind Kämpfe in der Ecke sehr häufig. Hier ist ein Wettlauf ums Überleben in der Ecke. Wer ist schneller?</string>
     <string name="tutorial_intermediate_puzzles_corner2_text">Fang den weißen Schnittstein. Pass auf, von welcher Seite Du Atari gibst!</string>
@@ -633,7 +632,7 @@
     <string name="tutorial_intermediate_puzzles_corner2_branches_branch4_message">Schwarz kann nicht entkommen</string>
     <string name="tutorial_intermediate_puzzles_corner2_branches_branch6_message">Schwarz kann nicht entkommen</string>
     <string name="tutorial_intermediate_falseeyes_title">Falsche Augen</string>
-    <string name="tutorial_intermediate_falseeyes_falseeyes1_page1_text">Erinnere Dich an das vorherige Tutorial: eine Gruppe mit zwei Augen kann niemals gefangen werden. Manchmal sind jedoch nicht alle Steine, die ein Auge umschließen, miteinander verbunden und können separat gefangen werden. So scheint zum Bsp. D5 in der Position unten ein Auge zu sein. Aber der Stein C5 befindet sich in Atari und kann gefangen werden, wodurch die mittlere Gruppe kein einziges Auge hat.\n\nWir nennen D5 ein \"falsches Auge\".</string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes1_page1_text">Erinnere Dich an das vorherige Tutorial: eine Gruppe mit zwei Augen kann niemals gefangen werden. Manchmal sind jedoch nicht alle Steine, die ein Auge umschließen, miteinander verbunden und können separat gefangen werden. So scheint zum Bsp. D5 in der Position unten ein Auge zu sein. Aber der Stein C5 befindet sich in Atari und kann gefangen werden, wodurch die mittlere Gruppe kein einziges Auge hat.\n\nWir nennen D5 ein "falsches Auge".</string>
     <string name="tutorial_intermediate_falseeyes_falseeyes2_text">Durch den Zug auf D5 hat Weiß versucht, den Stein bei C5 zu retten. Mit welchem Zug gewinnst Du?</string>
     <string name="tutorial_intermediate_falseeyes_falseeyes3_text">Es spielt keine Rolle, wie Weiß sich wehrt, Du kannst trotzdem die Gruppe in der Mitte fangen!</string>
     <string name="tutorial_intermediate_falseeyes_falseeyes4_text">Jetzt bist Du in der Defensive. Überlebe, indem Du zwei echte Augen machst!</string>
@@ -680,8 +679,8 @@
     <string name="tutorial_advanced_endgamescoring_endgame1_page2_text">Schwarz hat 5 Punkte auf der linken Seite und Weiß hat 10 Punkte auf der rechten Seite.\n\nDamit gewinnt Weiß um 5 Punkte.</string>
     <string name="tutorial_advanced_endgamescoring_endgame1_page3_text">Aber warum hat Schwarz dann nicht weitergespielt?\n\nNun, es gibt keinen Zug mit dem Schwarz seinen Punktewert erhöhen könnte. Zum Beispiel, wenn schwarz auf der rechten Seite eine Invasion startet, kann weiß diese einfach abwehren und der Stein ist tot.\n\nWeiß reduzierte sein Gebiet um 1 aber erhielt 1 Punkt zurück, da der schwarze Stein tot ist und als Gefangener zählt.\n\nDer Punktestand ist immer noch 10-5</string>
     <string name="tutorial_advanced_endgamescoring_endgame1_page4_text">Was, wenn Schwarz dann auf der linken Seite spielt?\n\nDas einzige, was Schwarz erreichen würde, wäre eine Verkleinerung des eigenen Gebiets und damit der Verlust eines Punktes.\n\nFolglich hat Schwarz keinen guten Zug mehr und sollte passen. Weiß hat mehr Punkte und wird deshalb auch gerne bereit sein zu passen.\n\nDamit ist das Spiel zu Ende und Weiß gewinnt.</string>
-    <string name="tutorial_advanced_endgamescoring_endgame1_page5_text">Hier ist eine weitere Endsituation. Schwarz hat 5 Punkte während Weiß 6 hat.\n\nDie zwei Felder in der Mitte sind neutrales Gebiet (\'Dame\') und zählen für keinen Spieler.\n\nBeide Spieler könnten dort spielen, würden dadurch aber keine Punkte gewinnen oder verlieren.</string>
-    <string name="tutorial_advanced_endgamescoring_endgame1_page6_text">Während Gebiete mit Abstand den größten Teil des Punktestands ausmachen, denke daran, dass es weitere Bonus-Punkte gibt, die zu zählen sind.\n\nJeder gefangene Stein zählt je 1 Punkt, genauso wie \'tote\' Steine auf dem Brett (die keine Chance haben, noch 2 Augen zu bilden)\n\nAußerdem hat Schwarz, weil er den ersten Zug spielt, einen Vorteil und um diesen auszugleichen erhält Weiß einen kleinen Punktebonus (genannt \'Komi\').\n\nDie Höhe des Komi hängt von der Größe des Spielbretts ab, aber sie beträgt normalerweise 5.5 oder 6.5 Punkte. Die 0.5 stellen sicher, dass Spiele nicht unentschieden enden.\n\nZum Glück übernimmt die App all diese Berechnungen für dich :)</string>
+    <string name="tutorial_advanced_endgamescoring_endgame1_page5_text">Hier ist eine weitere Endsituation. Schwarz hat 5 Punkte während Weiß 6 hat.\n\nDie zwei Felder in der Mitte sind neutrales Gebiet ('Dame') und zählen für keinen Spieler.\n\nBeide Spieler könnten dort spielen, würden dadurch aber keine Punkte gewinnen oder verlieren.</string>
+    <string name="tutorial_advanced_endgamescoring_endgame1_page6_text">Während Gebiete mit Abstand den größten Teil des Punktestands ausmachen, denke daran, dass es weitere Bonus-Punkte gibt, die zu zählen sind.\n\nJeder gefangene Stein zählt je 1 Punkt, genauso wie 'tote' Steine auf dem Brett (die keine Chance haben, noch 2 Augen zu bilden)\n\nAußerdem hat Schwarz, weil er den ersten Zug spielt, einen Vorteil und um diesen auszugleichen erhält Weiß einen kleinen Punktebonus (genannt 'Komi').\n\nDie Höhe des Komi hängt von der Größe des Spielbretts ab, aber sie beträgt normalerweise 5.5 oder 6.5 Punkte. Die 0.5 stellen sicher, dass Spiele nicht unentschieden enden.\n\nZum Glück übernimmt die App all diese Berechnungen für dich :)</string>
     <string name="tutorial_advanced_cuttingstones_name">Steine Trennen</string>
     <string name="tutorial_advanced_cuttingstones_cutting1_text">Es sieht aus, als ob Weiß das größere Gebiet hätte. Aber die weiße Mauer hat eine Schwachstelle. Trenne die weiße Mauer.\n\nWenn du Erfolg hast, wird Weiß große Schwierigkeiten haben beide Gruppen am Leben zu halten.</string>
     <string name="tutorial_advanced_cuttingstones_cutting1_branches2_message">Die weißen Steine sind verbunden.</string>

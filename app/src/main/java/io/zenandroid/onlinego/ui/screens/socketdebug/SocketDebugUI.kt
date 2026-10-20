@@ -42,14 +42,22 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.pluralStringResource
-import androidx.compose.ui.res.stringResource
+import io.zenandroid.onlinego.resources.Res
+import io.zenandroid.onlinego.resources.back
+import io.zenandroid.onlinego.resources.socket_debug_clear_content_description
+import io.zenandroid.onlinego.resources.socket_debug_clear_log_content_description
+import io.zenandroid.onlinego.resources.socket_debug_event_count
+import io.zenandroid.onlinego.resources.socket_debug_filter_all
+import io.zenandroid.onlinego.resources.socket_debug_filter_hint
+import io.zenandroid.onlinego.resources.socket_debug_filter_type
+import io.zenandroid.onlinego.resources.socket_debug_title
+import org.jetbrains.compose.resources.pluralStringResource
+import org.jetbrains.compose.resources.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.repositories.SocketEvent
 import io.zenandroid.onlinego.data.repositories.SocketEventType
 import org.koin.androidx.compose.koinViewModel
@@ -89,7 +97,7 @@ fun SocketDebugScreen(
       TopAppBar(
         title = {
           Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(stringResource(R.string.socket_debug_title))
+            Text(stringResource(Res.string.socket_debug_title))
             Spacer(modifier = Modifier.width(12.dp))
             ConnectionBadge(connectionState)
           }
@@ -98,7 +106,7 @@ fun SocketDebugScreen(
           IconButton(onClick = onNavigateBack) {
             Icon(
               Icons.AutoMirrored.Filled.ArrowBack,
-              contentDescription = stringResource(R.string.back)
+              contentDescription = stringResource(Res.string.back)
             )
           }
         },
@@ -106,7 +114,7 @@ fun SocketDebugScreen(
           IconButton(onClick = { viewModel.clear() }) {
             Icon(
               Icons.Default.Delete,
-              contentDescription = stringResource(R.string.socket_debug_clear_log_content_description)
+              contentDescription = stringResource(Res.string.socket_debug_clear_log_content_description)
             )
           }
         }
@@ -122,14 +130,19 @@ fun SocketDebugScreen(
       OutlinedTextField(
         value = searchQuery,
         onValueChange = { viewModel.setSearchQuery(it) },
-        placeholder = { Text(stringResource(R.string.socket_debug_filter_hint), fontSize = 13.sp) },
+        placeholder = {
+          Text(
+            stringResource(Res.string.socket_debug_filter_hint),
+            fontSize = 13.sp
+          )
+        },
         singleLine = true,
         trailingIcon = {
           if (searchQuery.isNotBlank()) {
             IconButton(onClick = { viewModel.setSearchQuery("") }) {
               Icon(
                 Icons.Default.Clear,
-                contentDescription = stringResource(R.string.socket_debug_clear_content_description)
+                contentDescription = stringResource(Res.string.socket_debug_clear_content_description)
               )
             }
           }
@@ -152,7 +165,7 @@ fun SocketDebugScreen(
           onClick = { viewModel.setFilter(null) },
           label = {
             Text(
-              text = stringResource(R.string.socket_debug_filter_all, events.size),
+              text = stringResource(Res.string.socket_debug_filter_all, events.size),
               fontSize = 12.sp
             )
           },
@@ -164,7 +177,7 @@ fun SocketDebugScreen(
             onClick = { viewModel.setFilter(if (filter == type) null else type) },
             label = {
               Text(
-                text = stringResource(R.string.socket_debug_filter_type, type.name, count),
+                text = stringResource(Res.string.socket_debug_filter_type, type.name, count),
                 fontSize = 12.sp
               )
             },
@@ -178,7 +191,7 @@ fun SocketDebugScreen(
       // Event count
       Text(
         text = pluralStringResource(
-          R.plurals.socket_debug_event_count,
+          Res.plurals.socket_debug_event_count,
           filteredEvents.size,
           filteredEvents.size
         ),

@@ -44,7 +44,34 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
+import io.zenandroid.onlinego.resources.Res
+import io.zenandroid.onlinego.resources.back
+import io.zenandroid.onlinego.resources.supporter_cancel_subscription
+import io.zenandroid.onlinego.resources.supporter_current_contribution
+import io.zenandroid.onlinego.resources.supporter_faq_cancel_answer
+import io.zenandroid.onlinego.resources.supporter_faq_cancel_question
+import io.zenandroid.onlinego.resources.supporter_faq_features_answer
+import io.zenandroid.onlinego.resources.supporter_faq_features_question
+import io.zenandroid.onlinego.resources.supporter_faq_money_answer
+import io.zenandroid.onlinego.resources.supporter_faq_money_question
+import io.zenandroid.onlinego.resources.supporter_faq_payment_answer
+import io.zenandroid.onlinego.resources.supporter_faq_payment_question
+import io.zenandroid.onlinego.resources.supporter_faqs
+import io.zenandroid.onlinego.resources.supporter_header
+import io.zenandroid.onlinego.resources.supporter_intro
+import io.zenandroid.onlinego.resources.supporter_reason_develop_description
+import io.zenandroid.onlinego.resources.supporter_reason_develop_title
+import io.zenandroid.onlinego.resources.supporter_reason_free_description
+import io.zenandroid.onlinego.resources.supporter_reason_free_title
+import io.zenandroid.onlinego.resources.supporter_reason_open_source_description
+import io.zenandroid.onlinego.resources.supporter_reason_open_source_title
+import io.zenandroid.onlinego.resources.supporter_reason_promote_description
+import io.zenandroid.onlinego.resources.supporter_reason_promote_title
+import io.zenandroid.onlinego.resources.supporter_select_contribution
+import io.zenandroid.onlinego.resources.supporter_thank_you_title
+import io.zenandroid.onlinego.resources.supporter_title
+import io.zenandroid.onlinego.resources.supporter_update_amount
+import org.jetbrains.compose.resources.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -153,7 +180,7 @@ private fun SupporterContent(
     TopAppBar(
       title = {
         Text(
-          text = stringResource(R.string.supporter_title),
+          text = stringResource(Res.string.supporter_title),
           fontSize = 16.sp,
           fontWeight = FontWeight.Medium,
           color = MaterialTheme.colorScheme.onSurface
@@ -163,7 +190,7 @@ private fun SupporterContent(
         IconButton(onClick = onBackClick) {
           Icon(
             Icons.AutoMirrored.Filled.ArrowBack,
-            contentDescription = stringResource(R.string.back),
+            contentDescription = stringResource(Res.string.back),
             tint = MaterialTheme.colorScheme.onSurface
           )
         }
@@ -181,7 +208,7 @@ private fun SupporterContent(
         .padding(horizontal = 20.dp, vertical = 24.dp),
     ) {
       Text(
-        text = stringResource(R.string.supporter_header),
+        text = stringResource(Res.string.supporter_header),
         fontWeight = FontWeight.Bold,
         color = MaterialTheme.colorScheme.onSurface,
         fontSize = 18.sp,
@@ -191,7 +218,7 @@ private fun SupporterContent(
       Spacer(modifier = Modifier.height(24.dp))
 
       Text(
-        text = stringResource(R.string.supporter_intro),
+        text = stringResource(Res.string.supporter_intro),
         color = MaterialTheme.colorScheme.onSurface,
         fontSize = 16.sp,
       )
@@ -200,32 +227,32 @@ private fun SupporterContent(
 
       SupportReason(
         icon = ImageVector.vectorResource(id = R.drawable.ic_branch),
-        title = stringResource(R.string.supporter_reason_develop_title),
-        description = stringResource(R.string.supporter_reason_develop_description)
+        title = stringResource(Res.string.supporter_reason_develop_title),
+        description = stringResource(Res.string.supporter_reason_develop_description)
       )
 
       SupportReason(
         icon = Icons.Default.Android,
-        title = stringResource(R.string.supporter_reason_free_title),
-        description = stringResource(R.string.supporter_reason_free_description)
+        title = stringResource(Res.string.supporter_reason_free_title),
+        description = stringResource(Res.string.supporter_reason_free_description)
       )
 
       SupportReason(
         icon = ImageVector.vectorResource(id = R.drawable.ic_github),
-        title = stringResource(R.string.supporter_reason_open_source_title),
-        description = stringResource(R.string.supporter_reason_open_source_description)
+        title = stringResource(Res.string.supporter_reason_open_source_title),
+        description = stringResource(Res.string.supporter_reason_open_source_description)
       )
 
       SupportReason(
         icon = ImageVector.vectorResource(id = R.drawable.ic_board_transparent),
-        title = stringResource(R.string.supporter_reason_promote_title),
-        description = stringResource(R.string.supporter_reason_promote_description)
+        title = stringResource(Res.string.supporter_reason_promote_title),
+        description = stringResource(Res.string.supporter_reason_promote_description)
       )
 
       Spacer(modifier = Modifier.height(36.dp))
 
       Text(
-        text = stringResource(R.string.supporter_faqs),
+        text = stringResource(Res.string.supporter_faqs),
         color = Color(0xFF9B9B9B),
         fontWeight = FontWeight.Bold
       )
@@ -233,23 +260,23 @@ private fun SupporterContent(
       Spacer(modifier = Modifier.height(16.dp))
 
       FAQItem(
-        question = stringResource(R.string.supporter_faq_money_question),
-        answer = stringResource(R.string.supporter_faq_money_answer)
+        question = stringResource(Res.string.supporter_faq_money_question),
+        answer = stringResource(Res.string.supporter_faq_money_answer)
       )
 
       FAQItem(
-        question = stringResource(R.string.supporter_faq_features_question),
-        answer = stringResource(R.string.supporter_faq_features_answer)
+        question = stringResource(Res.string.supporter_faq_features_question),
+        answer = stringResource(Res.string.supporter_faq_features_answer)
       )
 
       FAQItem(
-        question = stringResource(R.string.supporter_faq_cancel_question),
-        answer = stringResource(R.string.supporter_faq_cancel_answer)
+        question = stringResource(Res.string.supporter_faq_cancel_question),
+        answer = stringResource(Res.string.supporter_faq_cancel_answer)
       )
 
       FAQItem(
-        question = stringResource(R.string.supporter_faq_payment_question),
-        answer = stringResource(R.string.supporter_faq_payment_answer)
+        question = stringResource(Res.string.supporter_faq_payment_question),
+        answer = stringResource(Res.string.supporter_faq_payment_answer)
       )
 
       Spacer(modifier = Modifier.height(24.dp))
@@ -367,9 +394,9 @@ fun SupporterBottomBar(
           .padding(16.dp)
       ) {
         // Subscribe title
-        val thankYouTitle = stringResource(R.string.supporter_thank_you_title)
-        val currentContribution = stringResource(R.string.supporter_current_contribution)
-        val selectContribution = stringResource(R.string.supporter_select_contribution)
+        val thankYouTitle = stringResource(Res.string.supporter_thank_you_title)
+        val currentContribution = stringResource(Res.string.supporter_current_contribution)
+        val selectContribution = stringResource(Res.string.supporter_select_contribution)
         Text(
           text = buildAnnotatedString {
             when {
@@ -426,12 +453,12 @@ fun SupporterBottomBar(
         ) {
           Icon(
             imageVector = ImageVector.vectorResource(drawable.ic_star),
-            contentDescription = stringResource(R.string.supporter_title),
+            contentDescription = stringResource(Res.string.supporter_title),
             modifier = Modifier.padding(end = 12.dp, start = 8.dp)
           )
           Text(
-            text = if (state.supporter) stringResource(R.string.supporter_update_amount)
-            else stringResource(R.string.supporter_title),
+            text = if (state.supporter) stringResource(Res.string.supporter_update_amount)
+            else stringResource(Res.string.supporter_title),
             modifier = Modifier.padding(end = 8.dp),
             fontWeight = FontWeight.Medium,
           )
@@ -445,7 +472,7 @@ fun SupporterBottomBar(
             modifier = Modifier.align(Alignment.CenterHorizontally)
           ) {
             Text(
-              text = stringResource(R.string.supporter_cancel_subscription),
+              text = stringResource(Res.string.supporter_cancel_subscription),
               color = MaterialTheme.colorScheme.primary
             )
           }

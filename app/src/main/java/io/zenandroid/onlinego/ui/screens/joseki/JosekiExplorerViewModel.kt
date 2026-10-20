@@ -2,12 +2,13 @@ package io.zenandroid.onlinego.ui.screens.joseki
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.Position
 import io.zenandroid.onlinego.data.model.ogs.JosekiPosition
 import io.zenandroid.onlinego.data.repositories.JosekiRepository
 import io.zenandroid.onlinego.gamelogic.RulesManager.coordinateToCell
+import io.zenandroid.onlinego.resources.Res
+import io.zenandroid.onlinego.resources.joseki_explorer_default_description
 import io.zenandroid.onlinego.utils.Analytics
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
@@ -227,7 +228,7 @@ class JosekiExplorerViewModel(
 
     private fun descriptionOfPosition(pos: JosekiPosition?): JosekiDescription? {
         return if (pos == null || pos.placement == "root") {
-            JosekiDescription.FromResource(R.string.joseki_explorer_default_description)
+          JosekiDescription.FromResource(Res.string.joseki_explorer_default_description)
         } else {
             pos.description?.let(JosekiDescription::Markdown)
         }

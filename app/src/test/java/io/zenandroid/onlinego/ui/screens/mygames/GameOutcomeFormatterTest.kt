@@ -1,7 +1,22 @@
 package io.zenandroid.onlinego.ui.screens.mygames
 
-import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.local.Game
+import io.zenandroid.onlinego.resources.Res
+import io.zenandroid.onlinego.resources.mygames_outcome_black_won
+import io.zenandroid.onlinego.resources.mygames_outcome_black_won_with_reason
+import io.zenandroid.onlinego.resources.mygames_outcome_cancelled
+import io.zenandroid.onlinego.resources.mygames_outcome_lost
+import io.zenandroid.onlinego.resources.mygames_outcome_lost_with_reason
+import io.zenandroid.onlinego.resources.mygames_outcome_reason_disconnection
+import io.zenandroid.onlinego.resources.mygames_outcome_reason_other
+import io.zenandroid.onlinego.resources.mygames_outcome_reason_points
+import io.zenandroid.onlinego.resources.mygames_outcome_reason_resignation
+import io.zenandroid.onlinego.resources.mygames_outcome_reason_timeout
+import io.zenandroid.onlinego.resources.mygames_outcome_white_won
+import io.zenandroid.onlinego.resources.mygames_outcome_white_won_with_reason
+import io.zenandroid.onlinego.resources.mygames_outcome_won
+import io.zenandroid.onlinego.resources.mygames_outcome_won_with_reason
+import org.jetbrains.compose.resources.StringResource
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
@@ -13,20 +28,20 @@ class GameOutcomeFormatterTest {
   )
 
   private val stringMap = mapOf(
-    R.string.mygames_outcome_cancelled to "Cancelled",
-    R.string.mygames_outcome_lost to "Lost",
-    R.string.mygames_outcome_won to "Won",
-    R.string.mygames_outcome_black_won to "Black won",
-    R.string.mygames_outcome_white_won to "White won",
-    R.string.mygames_outcome_lost_with_reason to "Lost %1\$s",
-    R.string.mygames_outcome_won_with_reason to "Won %1\$s",
-    R.string.mygames_outcome_black_won_with_reason to "Black won %1\$s",
-    R.string.mygames_outcome_white_won_with_reason to "White won %1\$s",
-    R.string.mygames_outcome_reason_resignation to "by resignation",
-    R.string.mygames_outcome_reason_points to "by %1\$s points",
-    R.string.mygames_outcome_reason_timeout to "by timeout",
-    R.string.mygames_outcome_reason_disconnection to "by disconnection",
-    R.string.mygames_outcome_reason_other to "by %1\$s",
+    Res.string.mygames_outcome_cancelled to "Cancelled",
+    Res.string.mygames_outcome_lost to "Lost",
+    Res.string.mygames_outcome_won to "Won",
+    Res.string.mygames_outcome_black_won to "Black won",
+    Res.string.mygames_outcome_white_won to "White won",
+    Res.string.mygames_outcome_lost_with_reason to "Lost %1\$s",
+    Res.string.mygames_outcome_won_with_reason to "Won %1\$s",
+    Res.string.mygames_outcome_black_won_with_reason to "Black won %1\$s",
+    Res.string.mygames_outcome_white_won_with_reason to "White won %1\$s",
+    Res.string.mygames_outcome_reason_resignation to "by resignation",
+    Res.string.mygames_outcome_reason_points to "by %1\$s points",
+    Res.string.mygames_outcome_reason_timeout to "by timeout",
+    Res.string.mygames_outcome_reason_disconnection to "by disconnection",
+    Res.string.mygames_outcome_reason_other to "by %1\$s",
   )
 
   private fun format(game: Game, userId: Long?): String =
@@ -166,7 +181,7 @@ class GameOutcomeFormatterTest {
 
   @Test
   fun testDirectResIdVerification() {
-    val recordedCalls = mutableListOf<Pair<Int, List<Any>>>()
+    val recordedCalls = mutableListOf<Pair<StringResource, List<Any>>>()
     val game = baseGame.copy(blackLost = true, whiteLost = false, outcome = "8.5 points")
     formatGameOutcome(game, 100L) { resId, args ->
       recordedCalls.add(resId to args.toList())
@@ -174,9 +189,9 @@ class GameOutcomeFormatterTest {
     }
 
     assertEquals(2, recordedCalls.size)
-    assertEquals(R.string.mygames_outcome_reason_points, recordedCalls[0].first)
+    assertEquals(Res.string.mygames_outcome_reason_points, recordedCalls[0].first)
     assertEquals(listOf("8.5"), recordedCalls[0].second)
-    assertEquals(R.string.mygames_outcome_lost_with_reason, recordedCalls[1].first)
+    assertEquals(Res.string.mygames_outcome_lost_with_reason, recordedCalls[1].first)
     assertEquals(listOf("stub"), recordedCalls[1].second)
   }
 }

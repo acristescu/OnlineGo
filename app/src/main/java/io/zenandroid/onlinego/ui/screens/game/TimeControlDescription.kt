@@ -1,65 +1,82 @@
 package io.zenandroid.onlinego.ui.screens.game
 
-import android.content.res.Resources
-import androidx.annotation.PluralsRes
-import io.zenandroid.onlinego.R
+import androidx.compose.runtime.Composable
 import io.zenandroid.onlinego.data.ogs.TimeControl
+import io.zenandroid.onlinego.resources.Res
+import io.zenandroid.onlinego.resources.duration_days
+import io.zenandroid.onlinego.resources.duration_hours
+import io.zenandroid.onlinego.resources.duration_minutes
+import io.zenandroid.onlinego.resources.duration_seconds
+import io.zenandroid.onlinego.resources.duration_two_units
+import io.zenandroid.onlinego.resources.duration_weeks
+import io.zenandroid.onlinego.resources.time_control_absolute
+import io.zenandroid.onlinego.resources.time_control_byoyomi
+import io.zenandroid.onlinego.resources.time_control_canadian
+import io.zenandroid.onlinego.resources.time_control_fischer
+import io.zenandroid.onlinego.resources.time_control_none
+import io.zenandroid.onlinego.resources.time_control_pauses_on_weekends
+import io.zenandroid.onlinego.resources.time_control_simple
+import org.jetbrains.compose.resources.PluralStringResource
+import org.jetbrains.compose.resources.pluralStringResource
+import org.jetbrains.compose.resources.stringResource
 
-fun timeControlDescription(resources: Resources, timeControl: TimeControl): String {
+@Composable
+fun timeControlDescription(timeControl: TimeControl): String {
 
   val system = timeControl.system ?: timeControl.time_control
   var desc = when (system) {
-    "simple" -> resources.getString(
-      R.string.time_control_simple,
-      formatSeconds(resources, timeControl.per_move)
+    "simple" -> stringResource(
+      Res.string.time_control_simple,
+      formatSeconds(timeControl.per_move)
     )
 
-    "fischer" -> resources.getString(
-      R.string.time_control_fischer,
-      formatSeconds(resources, timeControl.initial_time),
-      formatSeconds(resources, timeControl.time_increment),
-      formatSeconds(resources, timeControl.max_time)
+    "fischer" -> stringResource(
+      Res.string.time_control_fischer,
+      formatSeconds(timeControl.initial_time),
+      formatSeconds(timeControl.time_increment),
+      formatSeconds(timeControl.max_time)
     )
 
     "byoyomi" -> {
       val periods = timeControl.periods ?: 0
-      resources.getQuantityString(
-        R.plurals.time_control_byoyomi,
+      pluralStringResource(
+        Res.plurals.time_control_byoyomi,
         periods,
-        formatSeconds(resources, timeControl.main_time),
+        formatSeconds(timeControl.main_time),
         periods,
-        formatSeconds(resources, timeControl.period_time)
+        formatSeconds(timeControl.period_time)
       )
     }
 
     "canadian" -> {
       val stones = timeControl.stones_per_period ?: 0
-      resources.getQuantityString(
-        R.plurals.time_control_canadian,
+      pluralStringResource(
+        Res.plurals.time_control_canadian,
         stones,
-        formatSeconds(resources, timeControl.main_time),
-        formatSeconds(resources, timeControl.period_time),
+        formatSeconds(timeControl.main_time),
+        formatSeconds(timeControl.period_time),
         stones
       )
     }
 
-    "absolute" -> resources.getString(
-      R.string.time_control_absolute,
-      formatSeconds(resources, timeControl.total_time)
+    "absolute" -> stringResource(
+      Res.string.time_control_absolute,
+      formatSeconds(timeControl.total_time)
     )
 
-    "none" -> resources.getString(R.string.time_control_none)
+    "none" -> stringResource(Res.string.time_control_none)
     else -> "?"
   }
 
   if (timeControl.pause_on_weekends == true) {
-    desc += " " + resources.getString(R.string.time_control_pauses_on_weekends)
+    desc += " " + stringResource(Res.string.time_control_pauses_on_weekends)
   }
 
   return desc
 }
 
-private fun formatSeconds(resources: Resources, seconds: Int?): String {
+@Composable
+private fun formatSeconds(seconds: Int?): String {
   seconds?.let {
     var s = it.toDouble()
     val weeks = (s / (86400 * 7)).toLong()
@@ -72,52 +89,54 @@ private fun formatSeconds(resources: Resources, seconds: Int?): String {
     s -= minutes * 60
 
     return when {
-      weeks > 0 -> resources.duration(
-        R.plurals.duration_weeks,
+      weeks > 0 -> duration(
+        Res.plurals.duration_weeks,
         weeks,
-        R.plurals.duration_days,
+        Res.plurals.duration_days,
         days
       )
 
-      days > 0 -> resources.duration(
-        R.plurals.duration_days,
+      days > 0 -> duration(
+        Res.plurals.duration_days,
         days,
-        R.plurals.duration_hours,
+        Res.plurals.duration_hours,
         hours
       )
 
-      hours > 0 -> resources.duration(
-        R.plurals.duration_hours,
+      hours > 0 -> duration(
+        Res.plurals.duration_hours,
         hours,
-        R.plurals.duration_minutes,
+        Res.plurals.duration_minutes,
         minutes
       )
 
-      minutes > 0 -> resources.duration(
-        R.plurals.duration_minutes,
+      minutes > 0 -> duration(
+        Res.plurals.duration_minutes,
         minutes,
-        R.plurals.duration_seconds,
+        Res.plurals.duration_seconds,
         s.toLong()
       )
 
-      else -> resources.durationUnit(R.plurals.duration_seconds, s.toLong())
+      else -> durationUnit(Res.plurals.duration_seconds, s.toLong())
     }
   }
   return "?"
 }
 
-private fun Resources.durationUnit(@PluralsRes unit: Int, value: Long): String =
-  getQuantityString(unit, value.toInt(), value)
+@Composable
+private fun durationUnit(unit: PluralStringResource, value: Long): String =
+  pluralStringResource(unit, value.toInt(), value)
 
 /** Formats [value] of [unit], appending [remainderValue] of [remainderUnit] when it is not zero. */
-private fun Resources.duration(
-  @PluralsRes unit: Int,
+@Composable
+private fun duration(
+  unit: PluralStringResource,
   value: Long,
-  @PluralsRes remainderUnit: Int,
+  remainderUnit: PluralStringResource,
   remainderValue: Long,
 ): String {
   val head = durationUnit(unit, value)
   return if (remainderValue > 0) {
-    getString(R.string.duration_two_units, head, durationUnit(remainderUnit, remainderValue))
+    stringResource(Res.string.duration_two_units, head, durationUnit(remainderUnit, remainderValue))
   } else head
 }

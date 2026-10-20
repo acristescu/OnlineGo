@@ -32,7 +32,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.stringResource
+import io.zenandroid.onlinego.resources.Res
+import io.zenandroid.onlinego.resources.bottomnavigation_botton_learn
+import io.zenandroid.onlinego.resources.bottomnavigation_botton_play
+import io.zenandroid.onlinego.resources.bottomnavigation_botton_settings
+import io.zenandroid.onlinego.resources.bottomnavigation_botton_stats
+import io.zenandroid.onlinego.resources.cancel
+import io.zenandroid.onlinego.resources.home_button_login_ogs
+import io.zenandroid.onlinego.resources.stats_login_required_message
+import io.zenandroid.onlinego.resources.stats_login_required_title
+import org.jetbrains.compose.resources.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavDestination.Companion.hasRoute
@@ -82,23 +91,23 @@ fun OnlineGoApp(
   val bottomNavItems = listOf(
     BottomNavItem(
       Route.MyGames,
-      stringResource(R.string.bottomnavigation_botton_play),
+      stringResource(Res.string.bottomnavigation_botton_play),
       ImageVector.vectorResource(R.drawable.ic_board_filled)
     ),
     BottomNavItem(
       Route.Learn,
-      stringResource(R.string.bottomnavigation_botton_learn),
+      stringResource(Res.string.bottomnavigation_botton_learn),
       ImageVector.vectorResource(R.drawable.ic_learn)
     ),
     BottomNavItem(
       Route.Stats,
-      stringResource(R.string.bottomnavigation_botton_stats),
+      stringResource(Res.string.bottomnavigation_botton_stats),
       ImageVector.vectorResource(R.drawable.ic_diagram),
       enabled = isLoggedIn
     ),
     BottomNavItem(
       Route.Settings,
-      stringResource(R.string.bottomnavigation_botton_settings),
+      stringResource(Res.string.bottomnavigation_botton_settings),
       ImageVector.vectorResource(R.drawable.ic_settings_filled),
     ),
   )
@@ -336,12 +345,12 @@ private fun StatsLoginRequiredBottomSheet(
         .padding(bottom = 16.dp)
     ) {
       Text(
-        text = stringResource(R.string.stats_login_required_title),
+        text = stringResource(Res.string.stats_login_required_title),
         style = MaterialTheme.typography.displayMedium,
         color = MaterialTheme.colorScheme.onSurface,
       )
       Text(
-        text = stringResource(R.string.stats_login_required_message),
+        text = stringResource(Res.string.stats_login_required_message),
         style = MaterialTheme.typography.bodyMedium,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
         modifier = Modifier.padding(top = 12.dp, bottom = 20.dp),
@@ -350,7 +359,7 @@ private fun StatsLoginRequiredBottomSheet(
         onClick = onLogIn,
         modifier = Modifier.fillMaxWidth(),
       ) {
-        Text(stringResource(R.string.home_button_login_ogs))
+        Text(stringResource(Res.string.home_button_login_ogs))
       }
       TextButton(
         onClick = onDismiss,
@@ -358,7 +367,7 @@ private fun StatsLoginRequiredBottomSheet(
           .fillMaxWidth()
           .padding(top = 4.dp),
       ) {
-        Text(stringResource(R.string.cancel))
+        Text(stringResource(Res.string.cancel))
       }
     }
   }

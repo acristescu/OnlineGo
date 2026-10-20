@@ -1,10 +1,10 @@
 package io.zenandroid.onlinego.ui.screens.joseki
 
-import androidx.annotation.StringRes
 import androidx.compose.runtime.Immutable
 import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.Position
 import io.zenandroid.onlinego.data.model.ogs.JosekiPosition
+import org.jetbrains.compose.resources.StringResource
 
 /**
  * The markdown shown above the board. It is either supplied by the server for the current position
@@ -14,7 +14,7 @@ import io.zenandroid.onlinego.data.model.ogs.JosekiPosition
 @Immutable
 sealed interface JosekiDescription {
         data class Markdown(val markdown: String) : JosekiDescription
-        data class FromResource(@StringRes val resId: Int) : JosekiDescription
+  data class FromResource(val resId: StringResource) : JosekiDescription
 }
 
 @Immutable

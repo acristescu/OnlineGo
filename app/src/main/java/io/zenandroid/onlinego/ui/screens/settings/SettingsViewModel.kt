@@ -3,13 +3,15 @@ package io.zenandroid.onlinego.ui.screens.settings
 import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.AppLanguage
 import io.zenandroid.onlinego.data.model.AppTheme
 import io.zenandroid.onlinego.data.model.BoardTheme
 import io.zenandroid.onlinego.data.model.UserSettings
 import io.zenandroid.onlinego.data.repositories.SettingsRepository
 import io.zenandroid.onlinego.data.repositories.UserSessionRepository
+import io.zenandroid.onlinego.resources.Res
+import io.zenandroid.onlinego.resources.settings_delete_account_success
+import io.zenandroid.onlinego.resources.settings_delete_account_wrong_password
 import io.zenandroid.onlinego.ui.composables.UiText
 import io.zenandroid.onlinego.ui.composables.literalText
 import io.zenandroid.onlinego.ui.composables.uiText
@@ -131,7 +133,7 @@ class SettingsViewModel(
               it.copy(
                 modalVisible = false,
                 passwordDialogVisible = false,
-                deleteAccountError = uiText(R.string.settings_delete_account_success)
+                deleteAccountError = uiText(Res.string.settings_delete_account_success)
               )
             }
             delay(5000)
@@ -142,7 +144,7 @@ class SettingsViewModel(
                 it.copy(
                   passwordDialogVisible = false,
                   modalVisible = false,
-                  deleteAccountError = uiText(R.string.settings_delete_account_wrong_password)
+                  deleteAccountError = uiText(Res.string.settings_delete_account_wrong_password)
                 )
               }
             } else {

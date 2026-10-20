@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Sente - Online GO</string>
     <string name="welcome_to_sente_online_go">Bine ai venit în Sente Online Go!</string>
     <string name="login_to_play_online">Conectează-te la OGS pentru a juca online.</string>
     <string name="ai_game_chat_ready">Gata!</string>
@@ -47,7 +46,7 @@
     <string name="komi">Komi</string>
     <string name="ai_game_player_captures_and_komi">Prizonieri: %1$d · Komi: %2$s</string>
     <string name="ai_game_player_captures_only">Prizonieri: %1$d</string>
-    <string name="ai_game_eval_winrate_compact">N %1$s%% · %2$s%% A</string>
+    <string name="ai_game_eval_winrate_compact">N %1$s% · %2$s% A</string>
     <string name="ai_game_eval_score_lead_compact">%1$s +%2$s pct avantaj</string>
     <string name="ai_game_hide_eval">Ascunde Eval</string>
     <string name="ai_game_show_eval">Arată Eval</string>
@@ -204,7 +203,7 @@
     <string name="game_player_details_rank_rating">%1$s (%2$s)</string>
     <string name="game_player_details_highest_rank">Cel mai bun rang</string>
     <string name="game_player_details_percentile">Percentilă</string>
-    <string name="game_player_details_percentage">%1$d%%</string>
+    <string name="game_player_details_percentage">%1$d%</string>
     <string name="game_player_details_played_vs_you">Jucate cu tine</string>
     <string name="game_player_details_you_won">Ai câștigat</string>
     <string name="game_player_details_they_won">A câștigat</string>
@@ -452,9 +451,9 @@
     <string name="puzzle_directory_rank_label">Rang</string>
     <string name="puzzle_directory_rank_range">%1$s până la %2$s</string>
     <string name="puzzle_directory_solved_label">Rezolvate</string>
-    <string name="puzzle_directory_solved_value">%1$d (%2$s%%)</string>
+    <string name="puzzle_directory_solved_value">%1$d (%2$s%)</string>
     <string name="puzzle_directory_completed">Finalizate</string>
-    <string name="puzzle_directory_stats">%1$s vizualizări, rezolvate %2$s ori din %3$s (%4$s %%)</string>
+    <string name="puzzle_directory_stats">%1$s vizualizări, rezolvate %2$s ori din %3$s (%4$s %)</string>
     <string name="puzzle_directory_sort_name">A -&gt; Z</string>
     <string name="puzzle_directory_sort_rating">Rating</string>
     <string name="puzzle_directory_sort_count">Număr de probleme</string>
@@ -538,7 +537,7 @@
     <string name="mygames_header_opponents_turn">Rândul adversarului</string>
     <string name="mygames_header_recently_finished">Încheiate recent</string>
     <string name="mygames_header_older_games">Jocuri mai vechi</string>
-    <string name="mygames_tutorial_percentage">%1$d %%</string>
+    <string name="mygames_tutorial_percentage">%1$d %</string>
     <string name="mygames_learn_to_play">Învață să joci</string>
     <string name="mygames_header_icon_content_description">Pictogramă</string>
     <string name="mygames_offline_content_description">Offline</string>

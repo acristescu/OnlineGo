@@ -2,7 +2,6 @@ package io.zenandroid.onlinego.ui.screens.onboarding
 
 import android.os.Build
 import androidx.annotation.DrawableRes
-import androidx.annotation.StringRes
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -15,6 +14,30 @@ import io.zenandroid.onlinego.data.ogs.httpStatusCode
 import io.zenandroid.onlinego.data.repositories.LoginStatus
 import io.zenandroid.onlinego.data.repositories.SettingsRepository
 import io.zenandroid.onlinego.data.repositories.UserSessionRepository
+import io.zenandroid.onlinego.resources.Res
+import io.zenandroid.onlinego.resources.no
+import io.zenandroid.onlinego.resources.onboarding_answer_google
+import io.zenandroid.onlinego.resources.onboarding_answer_offline
+import io.zenandroid.onlinego.resources.onboarding_answer_password
+import io.zenandroid.onlinego.resources.onboarding_continue
+import io.zenandroid.onlinego.resources.onboarding_create_account_failed_debug
+import io.zenandroid.onlinego.resources.onboarding_link_account
+import io.zenandroid.onlinego.resources.onboarding_login_failed_debug
+import io.zenandroid.onlinego.resources.onboarding_login_invalid_credentials
+import io.zenandroid.onlinego.resources.onboarding_notifications_allow
+import io.zenandroid.onlinego.resources.onboarding_notifications_description
+import io.zenandroid.onlinego.resources.onboarding_notifications_skip
+import io.zenandroid.onlinego.resources.onboarding_notifications_title
+import io.zenandroid.onlinego.resources.onboarding_page_app_description
+import io.zenandroid.onlinego.resources.onboarding_page_app_title
+import io.zenandroid.onlinego.resources.onboarding_page_go_description
+import io.zenandroid.onlinego.resources.onboarding_page_go_title
+import io.zenandroid.onlinego.resources.onboarding_page_ogs_description
+import io.zenandroid.onlinego.resources.onboarding_page_ogs_title
+import io.zenandroid.onlinego.resources.onboarding_question_has_account
+import io.zenandroid.onlinego.resources.onboarding_question_login_method
+import io.zenandroid.onlinego.resources.onboarding_server_error_code
+import io.zenandroid.onlinego.resources.yes
 import io.zenandroid.onlinego.ui.composables.UiText
 import io.zenandroid.onlinego.ui.composables.literalText
 import io.zenandroid.onlinego.ui.composables.uiText
@@ -36,6 +59,7 @@ import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
+import org.jetbrains.compose.resources.StringResource
 
 class OnboardingViewModel(
   val ogsRestService: OGSRestService,
@@ -49,40 +73,40 @@ class OnboardingViewModel(
   private val pages = arrayOf(
     OnboardingPage(
       R.drawable.art_onboarding,
-      R.string.onboarding_page_go_title,
-      R.string.onboarding_page_go_description,
-      R.string.onboarding_continue
+      Res.string.onboarding_page_go_title,
+      Res.string.onboarding_page_go_description,
+      Res.string.onboarding_continue
     ),
     OnboardingPage(
       R.drawable.ic_board_transparent,
-      R.string.onboarding_page_app_title,
-      R.string.onboarding_page_app_description,
-      R.string.onboarding_continue
+      Res.string.onboarding_page_app_title,
+      Res.string.onboarding_page_app_description,
+      Res.string.onboarding_continue
     ),
     OnboardingPage(
       R.drawable.logo_ogs,
-      R.string.onboarding_page_ogs_title,
-      R.string.onboarding_page_ogs_description,
-      R.string.onboarding_link_account
+      Res.string.onboarding_page_ogs_title,
+      Res.string.onboarding_page_ogs_description,
+      Res.string.onboarding_link_account
     ),
     MultipleChoicePage(
-      R.string.onboarding_question_has_account,
-      listOf(R.string.yes, R.string.no)
+      Res.string.onboarding_question_has_account,
+      listOf(Res.string.yes, Res.string.no)
     ),
     MultipleChoicePage(
-      R.string.onboarding_question_login_method,
+      Res.string.onboarding_question_login_method,
       listOf(
-        R.string.onboarding_answer_google,
-        R.string.onboarding_answer_password,
-        R.string.onboarding_answer_offline
+        Res.string.onboarding_answer_google,
+        Res.string.onboarding_answer_password,
+        Res.string.onboarding_answer_offline
       )
     ),
     LoginPage,
     NotificationPermissionPage(
-      R.string.onboarding_notifications_title,
-      R.string.onboarding_notifications_description,
-      R.string.onboarding_notifications_allow,
-      R.string.onboarding_notifications_skip
+      Res.string.onboarding_notifications_title,
+      Res.string.onboarding_notifications_description,
+      Res.string.onboarding_notifications_allow,
+      Res.string.onboarding_notifications_skip
     )
   ).drop(if (savedStateHandle["initialPage"] as String? != null) 4 else 0)
 
@@ -301,7 +325,7 @@ class OnboardingViewModel(
       _state.update {
         it.copy(
           loginProcessing = false,
-          loginErrorDialogText = uiText(R.string.onboarding_login_invalid_credentials)
+          loginErrorDialogText = uiText(Res.string.onboarding_login_invalid_credentials)
         )
       }
     } else {
@@ -309,7 +333,7 @@ class OnboardingViewModel(
       _state.update {
         it.copy(
           loginProcessing = false,
-          loginErrorDialogText = uiText(R.string.onboarding_login_failed_debug, t.message ?: "")
+          loginErrorDialogText = uiText(Res.string.onboarding_login_failed_debug, t.message ?: "")
         )
       }
     }
@@ -334,7 +358,7 @@ class OnboardingViewModel(
           it.copy(
             loginProcessing = false,
             loginErrorDialogText = uiText(
-              R.string.onboarding_server_error_code,
+              Res.string.onboarding_server_error_code,
               t.httpStatusCode.toString()
             )
           )
@@ -345,7 +369,7 @@ class OnboardingViewModel(
         it.copy(
           loginProcessing = false,
           loginErrorDialogText = uiText(
-            R.string.onboarding_create_account_failed_debug,
+            Res.string.onboarding_create_account_failed_debug,
             t.message ?: ""
           )
         )
@@ -374,21 +398,21 @@ sealed class Page {
 
   data class OnboardingPage(
     @DrawableRes val art: Int,
-    @StringRes val title: Int,
-    @StringRes val description: Int,
-    @StringRes val continueButtonText: Int,
+    val title: StringResource,
+    val description: StringResource,
+    val continueButtonText: StringResource,
   ) : Page()
 
   data class MultipleChoicePage(
-    @StringRes val question: Int,
-    val answers: List<Int>
+    val question: StringResource,
+    val answers: List<StringResource>
   ) : Page()
 
   data class NotificationPermissionPage(
-    @StringRes val title: Int,
-    @StringRes val description: Int,
-    @StringRes val allowButtonText: Int,
-    @StringRes val skipButtonText: Int
+    val title: StringResource,
+    val description: StringResource,
+    val allowButtonText: StringResource,
+    val skipButtonText: StringResource
   ) : Page()
 
   object LoginPage : Page()

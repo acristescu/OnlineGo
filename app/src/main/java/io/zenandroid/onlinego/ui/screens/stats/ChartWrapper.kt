@@ -6,7 +6,6 @@ import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.GradientDrawable.Orientation.TOP_BOTTOM
 import android.text.format.DateUtils
 import android.view.MotionEvent
-import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -28,8 +27,24 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
+import io.zenandroid.onlinego.resources.Res
+import io.zenandroid.onlinego.resources.stats_filter_1m
+import io.zenandroid.onlinego.resources.stats_filter_1y
+import io.zenandroid.onlinego.resources.stats_filter_3m
+import io.zenandroid.onlinego.resources.stats_filter_5y
+import io.zenandroid.onlinego.resources.stats_filter_all
+import io.zenandroid.onlinego.resources.stats_filter_last_100
+import io.zenandroid.onlinego.resources.stats_filter_last_20
+import io.zenandroid.onlinego.resources.stats_no_ranked_games
+import io.zenandroid.onlinego.resources.stats_tooltip_at_game
+import io.zenandroid.onlinego.resources.stats_tooltip_delta_elo
+import io.zenandroid.onlinego.resources.stats_tooltip_elo_rank
+import io.zenandroid.onlinego.resources.stats_tooltip_on_date
+import io.zenandroid.onlinego.resources.stats_tooltip_since_date
+import io.zenandroid.onlinego.resources.stats_tooltip_since_game
+import org.jetbrains.compose.resources.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -87,9 +102,10 @@ fun ChartWrapper(
   modifier: Modifier = Modifier
 ) {
   Column(modifier = modifier) {
-    var text by remember { mutableStateOf(AnnotatedString("")) }
+    var tooltip by remember { mutableStateOf<ChartTooltip?>(null) }
+    val noRankedGames = stringResource(Res.string.stats_no_ranked_games)
     Text(
-      text = text,
+      text = tooltip?.text(collapseTimeByGame) ?: AnnotatedString(""),
       fontSize = 12.sp,
       modifier = Modifier.padding(start = 8.dp, top = 4.dp)
     )
@@ -136,8 +152,7 @@ fun ChartWrapper(
             }
 
             ChartValueSelectedListener.chart = this
-            ChartValueSelectedListener.onTextChanged = { text = it }
-            ChartValueSelectedListener.byGame = collapseTimeByGame
+            ChartValueSelectedListener.onTooltipChanged = { tooltip = it }
 
             val onChartValueSelectedListener = ChartValueSelectedListener
             ChartValueSelectedListener.onNothingSelected()
@@ -181,7 +196,7 @@ fun ChartWrapper(
 
             description.isEnabled = false
             setDrawMarkers(false)
-            setNoDataText(context.getString(R.string.stats_no_ranked_games))
+            setNoDataText(noRankedGames)
             setNoDataTextColor(
               ResourcesCompat.getColor(
                 resources,
@@ -228,7 +243,6 @@ fun ChartWrapper(
             it.axisRight.axisMinimum = entries.minOf { it.y } * .85f
           }
           it.data = LineData(rankDataSet)
-          ChartValueSelectedListener.byGame = collapseTimeByGame
           if (!ChartValueSelectedListener.isDragging) {
             ChartValueSelectedListener.onNothingSelected()
           }
@@ -300,89 +314,90 @@ private fun TimeRangeTabs(
   }
 }
 
-@StringRes
 private fun Filter.labelResId() =
   when (this) {
-    ONE_MONTH -> R.string.stats_filter_1m
-    THREE_MONTHS -> R.string.stats_filter_3m
-    ONE_YEAR -> R.string.stats_filter_1y
-    FIVE_YEARS -> R.string.stats_filter_5y
-    ALL -> R.string.stats_filter_all
-    TWENTY_GAMES -> R.string.stats_filter_last_20
-    HUNDRED_GAMES -> R.string.stats_filter_last_100
-    ALL_GAMES -> R.string.stats_filter_all
+    ONE_MONTH -> Res.string.stats_filter_1m
+    THREE_MONTHS -> Res.string.stats_filter_3m
+    ONE_YEAR -> Res.string.stats_filter_1y
+    FIVE_YEARS -> Res.string.stats_filter_5y
+    ALL -> Res.string.stats_filter_all
+    TWENTY_GAMES -> Res.string.stats_filter_last_20
+    HUNDRED_GAMES -> Res.string.stats_filter_last_100
+    ALL_GAMES -> Res.string.stats_filter_all
   }
+
+private sealed interface ChartTooltip {
+  data class Selected(val rating: Int, val rank: String, val x: Float) : ChartTooltip
+  data class Summary(val delta: Int, val sinceX: Float) : ChartTooltip
+}
+
+@Composable
+private fun ChartTooltip.text(byGame: Boolean): AnnotatedString {
+  val context = LocalContext.current
+  return when (this) {
+    is ChartTooltip.Selected -> {
+      val ratingText = stringResource(Res.string.stats_tooltip_elo_rank, rating, rank)
+      val positionText =
+        if (byGame) stringResource(Res.string.stats_tooltip_at_game, x.toInt() + 1)
+        else stringResource(Res.string.stats_tooltip_on_date, formatDate(context, x.toLong()))
+      buildAnnotatedString {
+        withStyle(SpanStyle(fontWeight = FontWeight.Bold)) { append(ratingText) }
+        append(" $positionText")
+      }
+    }
+
+    is ChartTooltip.Summary -> {
+      val color = if (delta < 0) Color(0xFFC63A38) else Color(0xFF90b06e)
+      val arrow = if (delta < 0) "⬇" else "⬆"
+      val deltaText = stringResource(Res.string.stats_tooltip_delta_elo, delta)
+      val sinceText =
+        if (byGame) stringResource(Res.string.stats_tooltip_since_game, sinceX.toInt() + 1)
+        else stringResource(
+          Res.string.stats_tooltip_since_date,
+          formatDate(context, sinceX.toLong())
+        )
+      buildAnnotatedString {
+        withStyle(
+          SpanStyle(
+            color = color,
+            fontWeight = FontWeight.Bold
+          )
+        ) { append("$arrow $deltaText") }
+        append(" $sinceText")
+      }
+    }
+  }
+}
 
 private object ChartValueSelectedListener : OnChartValueSelectedListener {
   var chart: LineChart? = null
-  var onTextChanged: (AnnotatedString) -> Unit = {}
+  var onTooltipChanged: (ChartTooltip) -> Unit = {}
   var isDragging = false
     private set
-  var byGame = false
 
   override fun onValueSelected(e: Entry?, h: Highlight?) {
-    val context = chart?.context
-    if (e == null || context == null) {
+    if (e == null || chart == null) {
       onNothingSelected()
     } else {
       isDragging = true
-      onTextChanged(
-        buildAnnotatedString {
-          withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
-            append(
-              context.getString(
-                R.string.stats_tooltip_elo_rank,
-                e.y.toInt(),
-                formatRank(egfToRank(e.y.toDouble()), longFormat = true)
-              )
-            )
-          }
-          if (byGame) append(
-            " " + context.getString(
-              R.string.stats_tooltip_at_game,
-              e.x.toInt() + 1
-            )
-          )
-          else append(
-            " " + context.getString(
-              R.string.stats_tooltip_on_date,
-              formatDate(context, e.x.toLong())
-            )
-          )
-        }
+      onTooltipChanged(
+        ChartTooltip.Selected(
+          rating = e.y.toInt(),
+          rank = formatRank(egfToRank(e.y.toDouble()), longFormat = true),
+          x = e.x,
+        )
       )
     }
   }
 
   override fun onNothingSelected() {
     isDragging = false
-    val context = chart?.context ?: return
-    if ((chart?.data?.entryCount ?: 0) != 0) {
-      val entries = (chart?.data as LineData).dataSets[0]
+    val chart = chart ?: return
+    if ((chart.data?.entryCount ?: 0) != 0) {
+      val entries = (chart.data as LineData).dataSets[0]
       val last = entries.getEntryForXValue(entries.xMax, 0f)
       val first = entries.getEntryForXValue(entries.xMin, 0f)
-      val delta = (last.y - first.y).toInt()
-      val color = if (delta < 0) Color(0xFFC63A38) else Color(0xFF90b06e)
-      val arrow = if (delta < 0) "⬇" else "⬆"
-      onTextChanged(
-        buildAnnotatedString {
-          withStyle(SpanStyle(color = color, fontWeight = FontWeight.Bold)) {
-            append("$arrow " + context.getString(R.string.stats_tooltip_delta_elo, delta))
-          }
-          if (byGame) append(
-            " " + context.getString(
-              R.string.stats_tooltip_since_game,
-              first.x.toInt() + 1
-            )
-          )
-          else append(
-            " " + context.getString(
-              R.string.stats_tooltip_since_date,
-              formatDate(context, first.x.toLong())
-            )
-          )
-        }
-      )
+      onTooltipChanged(ChartTooltip.Summary(delta = (last.y - first.y).toInt(), sinceX = first.x))
     }
   }
 }

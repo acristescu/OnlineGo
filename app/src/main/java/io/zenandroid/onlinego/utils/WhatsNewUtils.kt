@@ -4,11 +4,13 @@ import android.content.Context
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
-import io.zenandroid.onlinego.R
+import io.zenandroid.onlinego.resources.Res
+import io.zenandroid.onlinego.resources.whats_new_changelog
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
+import org.jetbrains.compose.resources.getStringArray
 import java.security.MessageDigest
 
 private const val WHATS_NEW = "WHATS_NEW"
@@ -39,8 +41,8 @@ class WhatsNewUtils(private val context: Context) {
    * would pop up again after every language switch. The changelog is translatable="false", so this
    * hash is the same in every locale and only changes when the release notes actually change.
    */
-  private fun currentHash() =
-    hashString(whatsNewItems(context).joinToString("\n"))
+  private suspend fun currentHash() =
+    hashString(whatsNewItems().joinToString("\n"))
 
   private fun hashString(text: String): String {
     return MessageDigest.getInstance("MD5").digest(text.toByteArray(Charsets.UTF_8))
@@ -56,5 +58,4 @@ class WhatsNewUtils(private val context: Context) {
  * release notes churn every version and translating them is not sustainable. Write one item per
  * bullet without a bullet glyph — the UI draws those.
  */
-fun whatsNewItems(context: Context): List<String> =
-  context.resources.getStringArray(R.array.whats_new_changelog).toList()
+suspend fun whatsNewItems(): List<String> = getStringArray(Res.array.whats_new_changelog)

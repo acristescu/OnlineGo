@@ -4,7 +4,6 @@ import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import co.touchlab.kermit.Logger
-import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.ai.KataGoAnalysisEngine
 import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.Position
@@ -19,6 +18,24 @@ import io.zenandroid.onlinego.gamelogic.RulesManager
 import io.zenandroid.onlinego.gamelogic.RulesManager.isGameOver
 import io.zenandroid.onlinego.gamelogic.Util
 import io.zenandroid.onlinego.gamelogic.Util.toGTP
+import io.zenandroid.onlinego.resources.Res
+import io.zenandroid.onlinego.resources.ai_game_chat_ai_passed
+import io.zenandroid.onlinego.resources.ai_game_chat_ai_resigned
+import io.zenandroid.onlinego.resources.ai_game_chat_calculating_territory
+import io.zenandroid.onlinego.resources.ai_game_chat_engine_error
+import io.zenandroid.onlinego.resources.ai_game_chat_game_over_ai_won
+import io.zenandroid.onlinego.resources.ai_game_chat_game_over_computing_score
+import io.zenandroid.onlinego.resources.ai_game_chat_game_over_player_won
+import io.zenandroid.onlinego.resources.ai_game_chat_hmmm
+import io.zenandroid.onlinego.resources.ai_game_chat_im_thinking
+import io.zenandroid.onlinego.resources.ai_game_chat_invalid_move
+import io.zenandroid.onlinego.resources.ai_game_chat_lets_try_again
+import io.zenandroid.onlinego.resources.ai_game_chat_moves_to_consider
+import io.zenandroid.onlinego.resources.ai_game_chat_ok_your_turn
+import io.zenandroid.onlinego.resources.ai_game_chat_ready
+import io.zenandroid.onlinego.resources.ai_game_chat_territories
+import io.zenandroid.onlinego.resources.ai_game_chat_use_new_game_button
+import io.zenandroid.onlinego.resources.ai_game_chat_your_turn
 import io.zenandroid.onlinego.ui.composables.TextResource
 import io.zenandroid.onlinego.ui.composables.textResource
 import io.zenandroid.onlinego.utils.CrashReporter
@@ -77,7 +94,7 @@ class AiGameViewModel(
             hintButtonVisible = false,
             ownershipButtonVisible = false,
             engineFailedToStart = true,
-            chatText = textResource(R.string.ai_game_chat_engine_error, e.message ?: "")
+            chatText = textResource(Res.string.ai_game_chat_engine_error, e.message ?: "")
           )
         }
       }
@@ -92,8 +109,8 @@ class AiGameViewModel(
     if (position == null) {
       _state.update {
         it.copy(
-          chatText = if (it.newGameDialogShown) TextResource(R.string.ai_game_chat_ready)
-          else TextResource(R.string.ai_game_chat_use_new_game_button)
+          chatText = if (it.newGameDialogShown) TextResource(Res.string.ai_game_chat_ready)
+          else TextResource(Res.string.ai_game_chat_use_new_game_button)
         )
       }
       return
@@ -117,7 +134,7 @@ class AiGameViewModel(
       generateAiMove()
     } else {
       _state.update {
-        it.copy(chatText = it.chatText ?: TextResource(R.string.ai_game_chat_your_turn))
+        it.copy(chatText = it.chatText ?: TextResource(Res.string.ai_game_chat_your_turn))
       }
     }
   }
@@ -210,7 +227,7 @@ class AiGameViewModel(
     _state.update {
       it.copy(
         newGameDialogShown = false,
-        chatText = if (it.position == null) TextResource(R.string.ai_game_chat_use_new_game_button) else it.chatText
+        chatText = if (it.position == null) TextResource(Res.string.ai_game_chat_use_new_game_button) else it.chatText
       )
     }
   }
@@ -275,7 +292,7 @@ class AiGameViewModel(
             it.copy(
               candidateMove = null,
               koMoveDialogShowing = true,
-              chatText = TextResource(R.string.ai_game_chat_invalid_move)
+              chatText = TextResource(Res.string.ai_game_chat_invalid_move)
             )
           }
         } else {
@@ -296,7 +313,7 @@ class AiGameViewModel(
       it.copy(
         koMoveDialogShowing = false,
         candidateMove = null,
-        chatText = TextResource(R.string.ai_game_chat_invalid_move)
+        chatText = TextResource(Res.string.ai_game_chat_invalid_move)
       )
     }
   }
@@ -315,7 +332,7 @@ class AiGameViewModel(
         showAiEstimatedTerritory = false,
         candidateMove = null,
         aiWon = false,
-        chatText = TextResource(R.string.ai_game_chat_ai_resigned),
+        chatText = TextResource(Res.string.ai_game_chat_ai_resigned),
       )
     }
   }
@@ -367,7 +384,7 @@ class AiGameViewModel(
         nextButtonEnabled = true,
         boardIsInteractive = true,
         passButtonEnabled = true,
-        chatText = TextResource(R.string.ai_game_chat_lets_try_again),
+        chatText = TextResource(Res.string.ai_game_chat_lets_try_again),
         aiWon = null,
         finalBlackScore = null,
         finalWhiteScore = null
@@ -397,7 +414,7 @@ class AiGameViewModel(
       val currentState = state.value
       if (!currentState.isGameReady || currentState.position == null) return@launch
 
-      _state.update { it.copy(chatText = TextResource(R.string.ai_game_chat_hmmm)) }
+      _state.update { it.copy(chatText = TextResource(Res.string.ai_game_chat_hmmm)) }
 
       try {
         val analysis = withContext(Dispatchers.IO) {
@@ -413,7 +430,7 @@ class AiGameViewModel(
           it.copy(
             showHints = true,
             aiAnalysis = analysis,
-            chatText = TextResource(R.string.ai_game_chat_moves_to_consider)
+            chatText = TextResource(Res.string.ai_game_chat_moves_to_consider)
           )
         }
       } catch (e: CancellationException) {
@@ -434,7 +451,7 @@ class AiGameViewModel(
         _state.update {
           it.copy(
             showAiEstimatedTerritory = false,
-            chatText = TextResource(R.string.ai_game_chat_ok_your_turn),
+            chatText = TextResource(Res.string.ai_game_chat_ok_your_turn),
             boardIsInteractive = true
           )
         }
@@ -444,7 +461,7 @@ class AiGameViewModel(
       _state.update {
         it.copy(
           boardIsInteractive = false,
-          chatText = TextResource(R.string.ai_game_chat_calculating_territory)
+          chatText = TextResource(Res.string.ai_game_chat_calculating_territory)
         )
       }
 
@@ -463,7 +480,7 @@ class AiGameViewModel(
             boardIsInteractive = true,
             aiAnalysis = analysis,
             showAiEstimatedTerritory = true,
-            chatText = TextResource(R.string.ai_game_chat_territories)
+            chatText = TextResource(Res.string.ai_game_chat_territories)
           )
         }
       } catch (e: CancellationException) {
@@ -495,7 +512,7 @@ class AiGameViewModel(
             gameOverChatText(it.aiWon, it.finalBlackScore, it.finalWhiteScore)
 
           newVariation.isGameOver() ->
-            TextResource(R.string.ai_game_chat_game_over_computing_score)
+            TextResource(Res.string.ai_game_chat_game_over_computing_score)
 
           else -> it.chatText
         },
@@ -525,7 +542,7 @@ class AiGameViewModel(
             ownershipButtonVisible = true,
             previousButtonEnabled = it.history.size > 2,
             nextButtonEnabled = false,
-            chatText = it.chatText ?: TextResource(R.string.ai_game_chat_your_turn),
+            chatText = it.chatText ?: TextResource(Res.string.ai_game_chat_your_turn),
           )
         }
       }
@@ -544,7 +561,7 @@ class AiGameViewModel(
         nextButtonEnabled = false,
         hintButtonVisible = false,
         ownershipButtonVisible = false,
-        chatText = TextResource(R.string.ai_game_chat_im_thinking)
+        chatText = TextResource(Res.string.ai_game_chat_im_thinking)
       )
     }
 
@@ -662,12 +679,12 @@ class AiGameViewModel(
               gameOverChatText(it.aiWon, it.finalBlackScore, it.finalWhiteScore)
 
             newVariation.isGameOver() ->
-              TextResource(R.string.ai_game_chat_game_over_computing_score)
+              TextResource(Res.string.ai_game_chat_game_over_computing_score)
 
             selectedMove.move.equals("pass", ignoreCase = true) ->
-              TextResource(R.string.ai_game_chat_ai_passed)
+              TextResource(Res.string.ai_game_chat_ai_passed)
 
-            else -> TextResource(R.string.ai_game_chat_your_turn)
+            else -> TextResource(Res.string.ai_game_chat_your_turn)
           }
         )
       }
@@ -787,7 +804,7 @@ private fun gameOverChatText(
   finalBlackScore: Float?,
   finalWhiteScore: Float?,
 ) = textResource(
-  if (aiWon) R.string.ai_game_chat_game_over_ai_won else R.string.ai_game_chat_game_over_player_won,
+  if (aiWon) Res.string.ai_game_chat_game_over_ai_won else Res.string.ai_game_chat_game_over_player_won,
   finalBlackScore?.toInt().toString(),
   finalWhiteScore.toString(),
 )

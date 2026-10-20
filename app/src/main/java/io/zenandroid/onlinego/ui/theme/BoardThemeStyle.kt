@@ -1,14 +1,21 @@
 package io.zenandroid.onlinego.ui.theme
 
-import androidx.annotation.StringRes
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Color
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.BoardTheme
+import io.zenandroid.onlinego.resources.Res
+import io.zenandroid.onlinego.resources.settings_board_style_book
+import io.zenandroid.onlinego.resources.settings_board_style_cyan
+import io.zenandroid.onlinego.resources.settings_board_style_dark_blue
+import io.zenandroid.onlinego.resources.settings_board_style_dark_wood
+import io.zenandroid.onlinego.resources.settings_board_style_light_wood
+import io.zenandroid.onlinego.resources.settings_board_style_nocturne
+import org.jetbrains.compose.resources.StringResource
 
 @Immutable
 data class BoardThemeStyle(
-  @StringRes val displayNameResId: Int,
+  val displayNameResId: StringResource,
   val backgroundImage: Int?,
   val backgroundImageDarkMode: Int?,
   val backgroundColor: Int?,
@@ -21,7 +28,7 @@ data class BoardThemeStyle(
 val BoardTheme.style: BoardThemeStyle
   get() = when (this) {
     BoardTheme.WOOD -> BoardThemeStyle(
-      R.string.settings_board_style_light_wood,
+      Res.string.settings_board_style_light_wood,
       R.drawable.wood,
       R.drawable.wood_medium,
       null,
@@ -32,7 +39,7 @@ val BoardTheme.style: BoardThemeStyle
     )
 
     BoardTheme.WOOD_DARK -> BoardThemeStyle(
-      R.string.settings_board_style_dark_wood,
+      Res.string.settings_board_style_dark_wood,
       R.drawable.wood_dark,
       R.drawable.wood_dark,
       null,
@@ -43,7 +50,7 @@ val BoardTheme.style: BoardThemeStyle
     )
 
     BoardTheme.CYAN -> BoardThemeStyle(
-      R.string.settings_board_style_cyan,
+      Res.string.settings_board_style_cyan,
       null,
       null,
       R.color.bg_cyan,
@@ -54,7 +61,7 @@ val BoardTheme.style: BoardThemeStyle
     )
 
     BoardTheme.DARK_BLUE -> BoardThemeStyle(
-      R.string.settings_board_style_dark_blue,
+      Res.string.settings_board_style_dark_blue,
       null,
       null,
       R.color.bg_dark_blue,
@@ -65,7 +72,7 @@ val BoardTheme.style: BoardThemeStyle
     )
 
     BoardTheme.BOOK -> BoardThemeStyle(
-      R.string.settings_board_style_book,
+      Res.string.settings_board_style_book,
       null,
       null,
       R.color.bg_book,
@@ -76,7 +83,7 @@ val BoardTheme.style: BoardThemeStyle
     )
 
     BoardTheme.NOCTURNE -> BoardThemeStyle(
-      R.string.settings_board_style_nocturne,
+      Res.string.settings_board_style_nocturne,
       null,
       null,
       R.color.bg_nocturne,

@@ -1,8 +1,13 @@
 package io.zenandroid.onlinego.ui.screens.puzzle.directory
 
-import androidx.annotation.StringRes
-import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.local.PuzzleCollection
+import io.zenandroid.onlinego.resources.Res
+import io.zenandroid.onlinego.resources.puzzle_directory_sort_count
+import io.zenandroid.onlinego.resources.puzzle_directory_sort_name
+import io.zenandroid.onlinego.resources.puzzle_directory_sort_rank
+import io.zenandroid.onlinego.resources.puzzle_directory_sort_rating
+import io.zenandroid.onlinego.resources.puzzle_directory_sort_views
+import org.jetbrains.compose.resources.StringResource
 
 sealed class PuzzleDirectorySort(
     val asc: Boolean
@@ -13,8 +18,7 @@ sealed class PuzzleDirectorySort(
   abstract val comparator: Comparator<PuzzleCollection?>
   abstract val reversed: PuzzleDirectorySort
 
-  @get:StringRes
-  abstract val labelResId: Int
+  abstract val labelResId: StringResource
 
   class NameSort(asc: Boolean = true) : PuzzleDirectorySort(asc) {
     override val comparator: Comparator<PuzzleCollection?> = if (asc) compareBy { it?.name }
@@ -23,7 +27,7 @@ sealed class PuzzleDirectorySort(
     override val reversed: PuzzleDirectorySort
       get() = NameSort(!asc)
 
-    override val labelResId = R.string.puzzle_directory_sort_name
+    override val labelResId = Res.string.puzzle_directory_sort_name
   }
 
   class RatingSort(asc: Boolean = true) : PuzzleDirectorySort(asc) {
@@ -35,7 +39,7 @@ sealed class PuzzleDirectorySort(
     override val reversed: PuzzleDirectorySort
       get() = RatingSort(!asc)
 
-    override val labelResId = R.string.puzzle_directory_sort_rating
+    override val labelResId = Res.string.puzzle_directory_sort_rating
   }
 
   class CountSort(asc: Boolean = true) : PuzzleDirectorySort(asc) {
@@ -45,7 +49,7 @@ sealed class PuzzleDirectorySort(
     override val reversed: PuzzleDirectorySort
       get() = CountSort(!asc)
 
-    override val labelResId = R.string.puzzle_directory_sort_count
+    override val labelResId = Res.string.puzzle_directory_sort_count
   }
 
   class ViewsSort(asc: Boolean = true) : PuzzleDirectorySort(asc) {
@@ -55,7 +59,7 @@ sealed class PuzzleDirectorySort(
     override val reversed: PuzzleDirectorySort
       get() = ViewsSort(!asc)
 
-    override val labelResId = R.string.puzzle_directory_sort_views
+    override val labelResId = Res.string.puzzle_directory_sort_views
   }
 
   class RankSort(asc: Boolean = true) : PuzzleDirectorySort(asc) {
@@ -66,6 +70,6 @@ sealed class PuzzleDirectorySort(
     override val reversed: PuzzleDirectorySort
       get() = RankSort(!asc)
 
-    override val labelResId = R.string.puzzle_directory_sort_rank
+    override val labelResId = Res.string.puzzle_directory_sort_rank
   }
 }

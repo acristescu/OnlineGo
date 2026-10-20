@@ -44,14 +44,29 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
+import io.zenandroid.onlinego.resources.Res
+import io.zenandroid.onlinego.resources.face_to_face_avatar_content_description
+import io.zenandroid.onlinego.resources.face_to_face_ko_dialog_message
+import io.zenandroid.onlinego.resources.face_to_face_ko_dialog_title
+import io.zenandroid.onlinego.resources.face_to_face_new_game_size
+import io.zenandroid.onlinego.resources.face_to_face_new_game_title
+import io.zenandroid.onlinego.resources.face_to_face_player_1
+import io.zenandroid.onlinego.resources.face_to_face_player_2
+import io.zenandroid.onlinego.resources.face_to_face_score_captures
+import io.zenandroid.onlinego.resources.face_to_face_score_dead
+import io.zenandroid.onlinego.resources.face_to_face_score_komi
+import io.zenandroid.onlinego.resources.face_to_face_score_territory
+import io.zenandroid.onlinego.resources.face_to_face_score_total
+import io.zenandroid.onlinego.resources.face_to_face_start_new_game
+import io.zenandroid.onlinego.resources.handicap
+import io.zenandroid.onlinego.resources.ok
+import org.jetbrains.compose.resources.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.R.drawable
 import io.zenandroid.onlinego.R.mipmap
 import io.zenandroid.onlinego.data.model.Position
@@ -117,7 +132,7 @@ private fun FaceToFaceContent(
         Column {
           UserImage(BLACK)
           Text(
-            text = stringResource(R.string.face_to_face_player_1),
+            text = stringResource(Res.string.face_to_face_player_1),
             textAlign = TextAlign.Center,
             color = MaterialTheme.colorScheme.onSurface,
             style = MaterialTheme.typography.titleMedium,
@@ -128,7 +143,7 @@ private fun FaceToFaceContent(
         Column {
           UserImage(WHITE, Modifier.padding(start = 4.dp))
           Text(
-            text = stringResource(R.string.face_to_face_player_2),
+            text = stringResource(Res.string.face_to_face_player_2),
             textAlign = TextAlign.Center,
             color = MaterialTheme.colorScheme.onSurface,
             style = MaterialTheme.typography.titleMedium,
@@ -197,7 +212,7 @@ private fun FaceToFaceContent(
           Column {
             UserImage(BLACK)
             Text(
-              text = stringResource(R.string.face_to_face_player_1),
+              text = stringResource(Res.string.face_to_face_player_1),
               textAlign = TextAlign.Center,
               color = MaterialTheme.colorScheme.onSurface,
               style = MaterialTheme.typography.headlineMedium,
@@ -208,7 +223,7 @@ private fun FaceToFaceContent(
           Column {
             UserImage(WHITE, Modifier.padding(start = 4.dp))
             Text(
-              text = stringResource(R.string.face_to_face_player_2),
+              text = stringResource(Res.string.face_to_face_player_2),
               textAlign = TextAlign.Center,
               color = MaterialTheme.colorScheme.onSurface,
               style = MaterialTheme.typography.headlineMedium,
@@ -247,13 +262,13 @@ private fun FaceToFaceContent(
       onDismissRequest = { onUserAction(KOMoveDialogDismiss) },
       confirmButton = {
         TextButton(onClick = { onUserAction(KOMoveDialogDismiss) }) {
-          Text(stringResource(R.string.ok))
+          Text(stringResource(Res.string.ok))
         }
       },
-      text = { Text(stringResource(R.string.face_to_face_ko_dialog_message)) },
+      text = { Text(stringResource(Res.string.face_to_face_ko_dialog_message)) },
       title = {
         Text(
-          text = stringResource(R.string.face_to_face_ko_dialog_title),
+          text = stringResource(Res.string.face_to_face_ko_dialog_title),
           style = MaterialTheme.typography.titleLarge
         )
       },
@@ -304,14 +319,14 @@ private fun ScoreSheet(pos: Position) {
       horizontalAlignment = Alignment.CenterHorizontally,
       modifier = Modifier.padding(horizontal = 8.dp)
     ) {
-      Text(text = stringResource(R.string.face_to_face_score_komi))
-      Text(text = stringResource(R.string.face_to_face_score_captures))
+      Text(text = stringResource(Res.string.face_to_face_score_komi))
+      Text(text = stringResource(Res.string.face_to_face_score_captures))
       if (hasDeadStones) {
-        Text(text = stringResource(R.string.face_to_face_score_dead))
+        Text(text = stringResource(Res.string.face_to_face_score_dead))
       }
       if (hasTerritory) {
-        Text(text = stringResource(R.string.face_to_face_score_territory))
-        Text(text = stringResource(R.string.face_to_face_score_total))
+        Text(text = stringResource(Res.string.face_to_face_score_territory))
+        Text(text = stringResource(Res.string.face_to_face_score_total))
       }
     }
     Column {
@@ -347,7 +362,7 @@ private fun NewGameDialog(onUserAction: (Action) -> Unit, newGameParameters: Gam
         .padding(16.dp)
     ) {
       Text(
-        text = stringResource(R.string.face_to_face_new_game_title),
+        text = stringResource(Res.string.face_to_face_new_game_title),
         modifier = Modifier
           .align(Alignment.CenterHorizontally)
           .padding(bottom = 16.dp),
@@ -355,7 +370,7 @@ private fun NewGameDialog(onUserAction: (Action) -> Unit, newGameParameters: Gam
         style = MaterialTheme.typography.headlineLarge,
       )
       SettingsRow(
-        label = stringResource(R.string.face_to_face_new_game_size),
+        label = stringResource(Res.string.face_to_face_new_game_size),
         options = BoardSize.entries,
         selected = newGameParameters.size,
         onSelectionChanged = {
@@ -363,7 +378,7 @@ private fun NewGameDialog(onUserAction: (Action) -> Unit, newGameParameters: Gam
         }
       )
       SettingsRow(
-        label = stringResource(R.string.handicap),
+        label = stringResource(Res.string.handicap),
         options = (0..9).toList(),
         selected = newGameParameters.handicap,
         onSelectionChanged = {
@@ -376,7 +391,7 @@ private fun NewGameDialog(onUserAction: (Action) -> Unit, newGameParameters: Gam
           .padding(top = 32.dp),
         onClick = { onUserAction(StartNewGame) }
       ) {
-        Text(text = stringResource(R.string.face_to_face_start_new_game))
+        Text(text = stringResource(Res.string.face_to_face_start_new_game))
       }
     }
   }
@@ -448,7 +463,7 @@ private fun UserImage(
     val shape = RoundedCornerShape(14.dp)
     Image(
       painter = painterResource(id = mipmap.placeholder),
-      contentDescription = stringResource(R.string.face_to_face_avatar_content_description),
+      contentDescription = stringResource(Res.string.face_to_face_avatar_content_description),
       modifier = Modifier
         .size(84.dp)
         .fillMaxSize()

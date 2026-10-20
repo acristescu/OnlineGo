@@ -27,6 +27,10 @@ kotlin {
       freeCompilerArgs.add("-Xjvm-default=all")
     }
 
+    androidResources {
+      enable = true
+    }
+
     withHostTest {
       isReturnDefaultValues = true
     }
@@ -47,6 +51,7 @@ kotlin {
       api(libs.cmp.ui)
       api(libs.cmp.foundation)
       api(libs.cmp.material3)
+      api(libs.cmp.resources)
       api(libs.kotlinx.serialization.json)
       api(libs.immutable.collections)
       api(libs.kotlinx.datetime)
@@ -165,6 +170,11 @@ room {
 ksp {
   arg("room.incremental", "true")
   arg("room.expandProjection", "true")
+}
+
+compose.resources {
+  publicResClass = true
+  packageOfResClass = "io.zenandroid.onlinego.resources"
 }
 
 composeCompiler {

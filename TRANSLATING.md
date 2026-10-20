@@ -57,16 +57,16 @@ the app's code automatically.
 
 Some strings contain placeholders — the app fills these in with real values when it runs:
 
-| English                         | What it means                                       |
-|---------------------------------|-----------------------------------------------------|
-| `White's chance to win: %1$s%%` | `%1$s` becomes a number, `%%` is a literal `%` sign |
-| `%1$d week`                     | `%1$d` becomes a number, e.g. "3 weeks"             |
+| English                        | What it means                           |
+|--------------------------------|-----------------------------------------|
+| `White's chance to win: %1$s%` | `%1$s` becomes a number                 |
+| `%1$d week`                    | `%1$d` becomes a number, e.g. "3 weeks" |
 
 **Keep every placeholder exactly as it is** — same spelling, same number. You *can* move it around
 to wherever it belongs in your language's word order. Crowdin will warn you if you accidentally drop
 one.
 
-✅ `Șansa albului de a câștiga: %1$s%%`
+✅ `Șansa albului de a câștiga: %1$s%`
 ❌ `Șansa albului de a câștiga: %1 s%` (placeholder was broken)
 
 ### Apostrophes, quotes and line breaks

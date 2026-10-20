@@ -31,10 +31,17 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import co.touchlab.kermit.Logger
 import io.zenandroid.onlinego.BuildConfig
-import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.AppTheme
 import io.zenandroid.onlinego.data.model.BoardTheme
 import io.zenandroid.onlinego.notifications.SynchronizeGamesWork
+import io.zenandroid.onlinego.resources.Res
+import io.zenandroid.onlinego.resources.notification_channel_blitz_games
+import io.zenandroid.onlinego.resources.notification_channel_challenges
+import io.zenandroid.onlinego.resources.notification_channel_correspondence_games
+import io.zenandroid.onlinego.resources.notification_channel_group_your_turn
+import io.zenandroid.onlinego.resources.notification_channel_live_games
+import io.zenandroid.onlinego.resources.notification_channel_logout
+import io.zenandroid.onlinego.resources.notification_channel_your_turn
 import io.zenandroid.onlinego.ui.theme.LocalPreloadedImages
 import io.zenandroid.onlinego.ui.theme.LocalThemeSettings
 import io.zenandroid.onlinego.ui.theme.style
@@ -49,6 +56,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.jetbrains.compose.resources.getString
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 
@@ -192,7 +200,7 @@ class MainActivity : ComponentActivity() {
     SynchronizeGamesWork.schedule(applicationContext)
   }
 
-  private fun createNotificationChannel() {
+  private suspend fun createNotificationChannel() {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
       val notificationManager =
         getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
@@ -214,7 +222,7 @@ class MainActivity : ComponentActivity() {
       notificationManager.createNotificationChannelGroup(
         NotificationChannelGroup(
           "your_turn",
-          getString(R.string.notification_channel_group_your_turn)
+          getString(Res.string.notification_channel_group_your_turn)
         )
       )
 
@@ -222,7 +230,7 @@ class MainActivity : ComponentActivity() {
         listOf(
           NotificationChannel(
             "active_correspondence_games",
-            getString(R.string.notification_channel_correspondence_games),
+            getString(Res.string.notification_channel_correspondence_games),
             NotificationManager.IMPORTANCE_LOW
           ).apply {
             group = "your_turn"
@@ -234,7 +242,7 @@ class MainActivity : ComponentActivity() {
           },
           NotificationChannel(
             "active_live_games",
-            getString(R.string.notification_channel_live_games),
+            getString(Res.string.notification_channel_live_games),
             NotificationManager.IMPORTANCE_LOW
           ).apply {
             group = "your_turn"
@@ -246,7 +254,7 @@ class MainActivity : ComponentActivity() {
           },
           NotificationChannel(
             "active_blitz_games",
-            getString(R.string.notification_channel_blitz_games),
+            getString(Res.string.notification_channel_blitz_games),
             NotificationManager.IMPORTANCE_LOW
           ).apply {
             group = "your_turn"
@@ -258,7 +266,7 @@ class MainActivity : ComponentActivity() {
           },
           NotificationChannel(
             "active_games",
-            getString(R.string.notification_channel_your_turn),
+            getString(Res.string.notification_channel_your_turn),
             NotificationManager.IMPORTANCE_LOW
           ).apply {
             enableLights(true)
@@ -268,7 +276,7 @@ class MainActivity : ComponentActivity() {
           },
           NotificationChannel(
             "challenges",
-            getString(R.string.notification_channel_challenges),
+            getString(Res.string.notification_channel_challenges),
             NotificationManager.IMPORTANCE_LOW
           ).apply {
             enableLights(true)
@@ -279,7 +287,7 @@ class MainActivity : ComponentActivity() {
           },
           NotificationChannel(
             "logout",
-            getString(R.string.notification_channel_logout),
+            getString(Res.string.notification_channel_logout),
             NotificationManager.IMPORTANCE_LOW
           ).apply {
             enableLights(false)

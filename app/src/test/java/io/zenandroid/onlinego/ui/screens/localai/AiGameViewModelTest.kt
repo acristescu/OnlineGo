@@ -6,6 +6,8 @@ import io.zenandroid.onlinego.data.model.StoneType
 import io.zenandroid.onlinego.data.model.katago.KataGoResponse.Response
 import io.zenandroid.onlinego.data.model.katago.MoveInfo
 import io.zenandroid.onlinego.data.model.katago.RootInfo
+import io.zenandroid.onlinego.resources.Res
+import io.zenandroid.onlinego.resources.ai_game_chat_ai_passed
 import io.zenandroid.onlinego.ui.composables.TextResource
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -251,7 +253,7 @@ class AiGameViewModelTest {
     aiWon = true,
     consecutiveLowWinrateTurns = 3,
     aiResignOfferDeclined = true,
-    chatText = TextResource(1234),
+    chatText = TextResource(Res.string.ai_game_chat_ai_passed),
     aiAnalysis = Response(
       id = "1",
       turnNumber = 1,

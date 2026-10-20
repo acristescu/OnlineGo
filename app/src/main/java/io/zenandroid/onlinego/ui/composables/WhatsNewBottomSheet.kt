@@ -32,12 +32,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.stringArrayResource
-import androidx.compose.ui.res.stringResource
+import io.zenandroid.onlinego.resources.Res
+import io.zenandroid.onlinego.resources.settings_help_translate
+import io.zenandroid.onlinego.resources.whats_new_changelog
+import io.zenandroid.onlinego.resources.whats_new_got_it
+import io.zenandroid.onlinego.resources.whats_new_open_source
+import io.zenandroid.onlinego.resources.whats_new_support_project
+import io.zenandroid.onlinego.resources.whats_new_title
+import org.jetbrains.compose.resources.stringArrayResource
+import org.jetbrains.compose.resources.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
-import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
 import io.zenandroid.onlinego.utils.TRANSLATING_GUIDE_URL
 
@@ -58,7 +64,7 @@ fun WhatsNewBottomSheet(
     containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
   ) {
     WhatsNewContent(
-      items = stringArrayResource(R.array.whats_new_changelog).toList(),
+      items = stringArrayResource(Res.array.whats_new_changelog).toList(),
       onDismiss = onDismiss,
       onSupportClicked = onSupportClicked,
       onHelpTranslateClicked = {
@@ -92,7 +98,7 @@ private fun WhatsNewContent(
       )
       Spacer(modifier = Modifier.width(12.dp))
       Text(
-        text = stringResource(R.string.whats_new_title),
+        text = stringResource(Res.string.whats_new_title),
         style = MaterialTheme.typography.displayMedium,
         color = MaterialTheme.colorScheme.onSurface,
       )
@@ -114,7 +120,7 @@ private fun WhatsNewContent(
 
     // Gives both asks below their reason for existing.
     Text(
-      text = stringResource(R.string.whats_new_open_source),
+      text = stringResource(Res.string.whats_new_open_source),
       style = MaterialTheme.typography.bodyMedium,
       color = MaterialTheme.colorScheme.onSurfaceVariant,
       modifier = Modifier.padding(top = 14.dp, bottom = 2.dp),
@@ -122,12 +128,12 @@ private fun WhatsNewContent(
 
     FooterLink(
       icon = Icons.Rounded.Favorite,
-      text = stringResource(R.string.whats_new_support_project),
+      text = stringResource(Res.string.whats_new_support_project),
       onClick = onSupportClicked,
     )
     FooterLink(
       icon = Icons.Filled.Translate,
-      text = stringResource(R.string.settings_help_translate),
+      text = stringResource(Res.string.settings_help_translate),
       onClick = onHelpTranslateClicked,
     )
 
@@ -137,7 +143,7 @@ private fun WhatsNewContent(
         .fillMaxWidth()
         .padding(top = 12.dp)
     ) {
-      Text(stringResource(R.string.whats_new_got_it))
+      Text(stringResource(Res.string.whats_new_got_it))
     }
   }
 }

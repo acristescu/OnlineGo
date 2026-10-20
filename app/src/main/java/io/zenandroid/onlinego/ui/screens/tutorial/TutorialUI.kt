@@ -46,7 +46,11 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
+import io.zenandroid.onlinego.resources.Res
+import io.zenandroid.onlinego.resources.tutorial_next
+import io.zenandroid.onlinego.resources.tutorial_nice_one
+import io.zenandroid.onlinego.resources.tutorial_retry
+import org.jetbrains.compose.resources.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -191,7 +195,7 @@ private fun ButtonBar(state: TutorialState, listener: (TutorialAction) -> Unit) 
             contentDescription = null
           )
           Text(
-            text = stringResource(R.string.tutorial_retry),
+            text = stringResource(Res.string.tutorial_retry),
             color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.padding(start = 8.dp)
           )
@@ -199,13 +203,13 @@ private fun ButtonBar(state: TutorialState, listener: (TutorialAction) -> Unit) 
       }
       if (state.nextButtonVisible) {
         Button(onClick = { listener.invoke(NextPressed) }, modifier = Modifier.weight(1f)) {
-          Text(text = stringResource(R.string.tutorial_next))
+          Text(text = stringResource(Res.string.tutorial_next))
         }
       }
     }
     Snackbar(
       visible = state.node?.success == true,
-      text = stringResource(R.string.tutorial_nice_one),
+      text = stringResource(Res.string.tutorial_nice_one),
       button = "NEXT",
       icon = R.drawable.ic_check_circle,
       modifier = Modifier.align(Alignment.Center),

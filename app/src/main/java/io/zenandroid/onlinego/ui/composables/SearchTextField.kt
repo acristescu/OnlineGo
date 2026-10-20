@@ -11,8 +11,9 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
-import io.zenandroid.onlinego.R
+import io.zenandroid.onlinego.resources.Res
+import io.zenandroid.onlinego.resources.search_field_clear_content_description
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun SearchTextField(
@@ -39,7 +40,7 @@ fun SearchTextField(
       ) {
         Icon(
           imageVector = Icons.Default.Clear,
-          contentDescription = stringResource(R.string.search_field_clear_content_description)
+          contentDescription = stringResource(Res.string.search_field_clear_content_description)
         )
       }
     },

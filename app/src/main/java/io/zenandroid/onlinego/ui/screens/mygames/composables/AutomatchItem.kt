@@ -9,12 +9,14 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
+import io.zenandroid.onlinego.resources.Res
+import io.zenandroid.onlinego.resources.cancel
+import io.zenandroid.onlinego.resources.mygames_searching_for_game
+import org.jetbrains.compose.resources.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.ogs.OGSAutomatch
 import io.zenandroid.onlinego.data.model.ogs.SizeSpeedOption
 import io.zenandroid.onlinego.ui.screens.mygames.Action
@@ -32,7 +34,7 @@ fun AutomatchItem(automatch: OGSAutomatch, onAction: (Action) -> Unit) {
         .fillMaxWidth()
     ) {
       Text(
-        text = stringResource(R.string.mygames_searching_for_game),
+        text = stringResource(Res.string.mygames_searching_for_game),
         fontSize = 14.sp,
         fontWeight = FontWeight.Bold,
         modifier = Modifier
@@ -46,7 +48,7 @@ fun AutomatchItem(automatch: OGSAutomatch, onAction: (Action) -> Unit) {
           .align(Alignment.CenterHorizontally)
           .padding(vertical = 8.dp)
       ) {
-        Text(stringResource(R.string.cancel))
+        Text(stringResource(Res.string.cancel))
       }
     }
   }

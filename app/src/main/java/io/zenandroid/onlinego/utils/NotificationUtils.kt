@@ -23,9 +23,27 @@ import io.zenandroid.onlinego.data.model.local.Game
 import io.zenandroid.onlinego.data.model.local.GameNotificationWithDetails
 import io.zenandroid.onlinego.data.model.ogs.Phase
 import io.zenandroid.onlinego.gamelogic.RulesManager
+import io.zenandroid.onlinego.resources.Res
+import io.zenandroid.onlinego.resources.notification_challenge_text
+import io.zenandroid.onlinego.resources.notification_challenge_title
+import io.zenandroid.onlinego.resources.notification_game_ended
+import io.zenandroid.onlinego.resources.notification_games_require_attention
+import io.zenandroid.onlinego.resources.notification_inbox_versus
+import io.zenandroid.onlinego.resources.notification_logout_text
+import io.zenandroid.onlinego.resources.notification_logout_title
+import io.zenandroid.onlinego.resources.notification_outcome_black_won_by
+import io.zenandroid.onlinego.resources.notification_outcome_cancelled
+import io.zenandroid.onlinego.resources.notification_outcome_lost_by
+import io.zenandroid.onlinego.resources.notification_outcome_white_won_by
+import io.zenandroid.onlinego.resources.notification_outcome_won_by
+import io.zenandroid.onlinego.resources.notification_requires_attention
+import io.zenandroid.onlinego.resources.notification_stone_removal_phase
+import io.zenandroid.onlinego.resources.notification_your_turn
 import io.zenandroid.onlinego.ui.screens.main.MainActivity
 import io.zenandroid.onlinego.ui.views.BoardView
 import kotlinx.coroutines.runBlocking
+import org.jetbrains.compose.resources.getPluralString
+import org.jetbrains.compose.resources.getString
 
 private const val NOTIFICATION_ID = 0
 
@@ -42,7 +60,7 @@ class NotificationUtils(private val context: Context) {
     private fun supportsNotificationGrouping() =
         Build.VERSION.SDK_INT >= Build.VERSION_CODES.N
 
-    fun notifyGames(
+    suspend fun notifyGames(
         games: List<Game>,
         lastNotifications: List<GameNotificationWithDetails>,
         userId: Long
@@ -111,7 +129,7 @@ class NotificationUtils(private val context: Context) {
         }
     }
 
-    fun notifyChallenges(
+    suspend fun notifyChallenges(
         challenges: List<Challenge>,
         previousNotifications: List<ChallengeNotification>,
         userId: Long
@@ -135,10 +153,10 @@ class NotificationUtils(private val context: Context) {
                 notificationManager.notify(
                     it.id.toInt(),
                     NotificationCompat.Builder(context, "challenges")
-                        .setContentTitle(context.getString(R.string.notification_challenge_title))
+                        .setContentTitle(getString(Res.string.notification_challenge_title))
                         .setContentText(
-                            context.getString(
-                                R.string.notification_challenge_text,
+                            getString(
+                                Res.string.notification_challenge_text,
                                 it.challenger?.username ?: ""
                             )
                         )
@@ -192,7 +210,7 @@ class NotificationUtils(private val context: Context) {
         return r
     }
 
-    private fun notifyIndividual(games: List<Game>, userId: Long?) {
+    private suspend fun notifyIndividual(games: List<Game>, userId: Long?) {
         val board = BoardView(context).apply {
             animationEnabled = false
         }
@@ -217,46 +235,46 @@ class NotificationUtils(private val context: Context) {
                 Phase.FINISHED -> {
                     val gameOutcome = it.outcome ?: ""
                     val outcome = when {
-                        it.outcome == "Cancellation" -> context.getString(R.string.notification_outcome_cancelled)
+                        it.outcome == "Cancellation" -> getString(Res.string.notification_outcome_cancelled)
                         userId == it.blackPlayer.id ->
-                            if (it.blackLost == true) context.getString(
-                                R.string.notification_outcome_lost_by,
+                            if (it.blackLost == true) getString(
+                                Res.string.notification_outcome_lost_by,
                                 gameOutcome
                             )
-                            else context.getString(
-                                R.string.notification_outcome_won_by,
+                            else getString(
+                                Res.string.notification_outcome_won_by,
                                 gameOutcome
                             )
 
                         userId == it.whitePlayer.id ->
-                            if (it.whiteLost == true) context.getString(
-                                R.string.notification_outcome_lost_by,
+                            if (it.whiteLost == true) getString(
+                                Res.string.notification_outcome_lost_by,
                                 gameOutcome
                             )
-                            else context.getString(
-                                R.string.notification_outcome_won_by,
+                            else getString(
+                                Res.string.notification_outcome_won_by,
                                 gameOutcome
                             )
 
                         it.whiteLost == true ->
-                            context.getString(
-                                R.string.notification_outcome_black_won_by,
+                            getString(
+                                Res.string.notification_outcome_black_won_by,
                                 gameOutcome
                             )
 
                         else ->
-                            context.getString(
-                                R.string.notification_outcome_white_won_by,
+                            getString(
+                                Res.string.notification_outcome_white_won_by,
                                 gameOutcome
                             )
                     }
-                    context.getString(R.string.notification_game_ended, outcome)
+                    getString(Res.string.notification_game_ended, outcome)
                 }
 
-                Phase.PLAY -> context.getString(R.string.notification_your_turn)
-                Phase.STONE_REMOVAL -> context.getString(R.string.notification_stone_removal_phase)
-                else -> context.getString(
-                    R.string.notification_requires_attention,
+                Phase.PLAY -> getString(Res.string.notification_your_turn)
+                Phase.STONE_REMOVAL -> getString(Res.string.notification_stone_removal_phase)
+                else -> getString(
+                    Res.string.notification_requires_attention,
                     it.phase.toString()
                 )
             }
@@ -313,7 +331,7 @@ class NotificationUtils(private val context: Context) {
         }
     }
 
-    private fun notifySummary(games: List<Game>, userId: Long?) {
+    private suspend fun notifySummary(games: List<Game>, userId: Long?) {
         val notificationIntent =
             context.packageManager.getLaunchIntentForPackage(context.packageName)!!
         notificationIntent.`package` = null
@@ -326,8 +344,8 @@ class NotificationUtils(private val context: Context) {
             FLAG_UPDATE_CURRENT or FLAG_IMMUTABLE
         )
 
-        val summary = context.resources.getQuantityString(
-            R.plurals.notification_games_require_attention,
+        val summary = getPluralString(
+            Res.plurals.notification_games_require_attention,
             games.size,
             games.size
         )
@@ -355,7 +373,7 @@ class NotificationUtils(private val context: Context) {
         notificationManager.notify(NOTIFICATION_ID, notification)
     }
 
-    private fun NotificationCompat.Builder.setInboxStyle(
+    private suspend fun NotificationCompat.Builder.setInboxStyle(
         games: List<Game>,
         userId: Long?
     ): NotificationCompat.Builder {
@@ -363,13 +381,13 @@ class NotificationUtils(private val context: Context) {
         games.forEach {
             val opponent =
                 if (userId == it.blackPlayer.id) it.whitePlayer.username else it.blackPlayer.username
-            inboxStyle.addLine(context.getString(R.string.notification_inbox_versus, opponent))
+            inboxStyle.addLine(getString(Res.string.notification_inbox_versus, opponent))
         }
         setStyle(inboxStyle)
         return this
     }
 
-    fun notifyLogout() {
+    suspend fun notifyLogout() {
         val notificationIntent =
             context.packageManager.getLaunchIntentForPackage(context.packageName)!!
         notificationIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
@@ -382,8 +400,8 @@ class NotificationUtils(private val context: Context) {
 
         val notification =
             NotificationCompat.Builder(context, "logout")
-                .setContentTitle(context.getString(R.string.notification_logout_title))
-                .setContentText(context.getString(R.string.notification_logout_text))
+                .setContentTitle(getString(Res.string.notification_logout_title))
+                .setContentText(getString(Res.string.notification_logout_text))
                 .setContentIntent(pendingIntent)
                 .setSmallIcon(R.drawable.ic_notification_go_board)
                 .setColor(

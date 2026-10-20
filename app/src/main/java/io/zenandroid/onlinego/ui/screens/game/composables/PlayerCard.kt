@@ -29,7 +29,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
+import io.zenandroid.onlinego.resources.Res
+import io.zenandroid.onlinego.resources.game_avatar_content_description
+import org.jetbrains.compose.resources.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
@@ -76,7 +78,7 @@ fun PlayerCard(
         if (player.iconURL == null && localAvatarRes != null) {
           Image(
             painter = painterResource(localAvatarRes),
-            contentDescription = stringResource(R.string.game_avatar_content_description),
+            contentDescription = stringResource(Res.string.game_avatar_content_description),
             modifier = Modifier
               .sizeIn(maxHeight = maxSize)
               .fillMaxSize()
@@ -95,7 +97,7 @@ fun PlayerCard(
               .placeholder(R.mipmap.placeholder)
               .error(R.mipmap.placeholder)
               .build(),
-            contentDescription = stringResource(R.string.game_avatar_content_description),
+            contentDescription = stringResource(Res.string.game_avatar_content_description),
             modifier = Modifier
               .sizeIn(maxHeight = maxSize)
               .fillMaxSize()

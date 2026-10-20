@@ -30,7 +30,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.res.stringResource
+import io.zenandroid.onlinego.resources.Res
+import io.zenandroid.onlinego.resources.mygames_accept
+import io.zenandroid.onlinego.resources.mygames_avatar_content_description
+import io.zenandroid.onlinego.resources.mygames_challenge_received
+import io.zenandroid.onlinego.resources.mygames_decline
+import io.zenandroid.onlinego.resources.mygames_detail_board_size
+import org.jetbrains.compose.resources.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
@@ -57,30 +63,30 @@ fun ChallengeDetailsDialog(
 
     BackHandler { onDialogDismissed() }
     Box(modifier = Modifier
-        .fillMaxSize()
-        .background(Color(0x88000000))
-        .clickable(
-            interactionSource = remember { MutableInteractionSource() },
-            indication = null
-        ) { onDialogDismissed() }
+      .fillMaxSize()
+      .background(Color(0x88000000))
+      .clickable(
+        interactionSource = remember { MutableInteractionSource() },
+        indication = null
+      ) { onDialogDismissed() }
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
-                .padding(vertical = 80.dp)
-                .clickable(
-                    interactionSource = remember { MutableInteractionSource() },
-                    indication = null
-                ) { }
-                .fillMaxWidth(.9f)
-                .fillMaxHeight()
-                .align(Alignment.Center)
-                .shadow(4.dp)
-                .background(
-                    color = MaterialTheme.colorScheme.surface,
-                    shape = RoundedCornerShape(10.dp)
-                )
-                .padding(16.dp)
+              .padding(vertical = 80.dp)
+              .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null
+              ) { }
+              .fillMaxWidth(.9f)
+              .fillMaxHeight()
+              .align(Alignment.Center)
+              .shadow(4.dp)
+              .background(
+                color = MaterialTheme.colorScheme.surface,
+                shape = RoundedCornerShape(10.dp)
+              )
+              .padding(16.dp)
         ) {
             Spacer(modifier = Modifier.height(100.dp))
             Text(
@@ -98,7 +104,7 @@ fun ChallengeDetailsDialog(
             )
 
             Text(
-                text = stringResource(R.string.mygames_challenge_received),
+              text = stringResource(Res.string.mygames_challenge_received),
                 color = MaterialTheme.colorScheme.onSurface,
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.padding(vertical = 16.dp)
@@ -125,7 +131,7 @@ fun ChallengeDetailsDialog(
                         onChallengeAccepted(status.challenge)
                     }
                 }) {
-                    Text(stringResource(R.string.mygames_accept))
+                  Text(stringResource(Res.string.mygames_accept))
                 }
                 TextButton(onClick = {
                     val currentTime = System.currentTimeMillis()
@@ -134,7 +140,7 @@ fun ChallengeDetailsDialog(
                         onChallengeDeclined(status.challenge)
                     }
                 }) {
-                    Text(stringResource(R.string.mygames_decline))
+                  Text(stringResource(Res.string.mygames_decline))
                 }
             }
         }
@@ -148,19 +154,19 @@ fun ChallengeDetailsDialog(
                 .placeholder(R.drawable.ic_person_filled_with_background)
                 .error(R.mipmap.placeholder)
                 .build(),
-            contentDescription = stringResource(R.string.mygames_avatar_content_description),
+          contentDescription = stringResource(Res.string.mygames_avatar_content_description),
             modifier = Modifier
-                .align(Alignment.TopCenter)
-                .padding(top = 29.dp)
-                .clip(RoundedCornerShape(10.dp))
-                .background(MaterialTheme.colorScheme.surface)
-                .padding(4.dp)
-                .size(124.dp)
-                .clip(RoundedCornerShape(8.dp))
-                .clickable(
-                    interactionSource = remember { MutableInteractionSource() },
-                    indication = null
-                ) { }
+              .align(Alignment.TopCenter)
+              .padding(top = 29.dp)
+              .clip(RoundedCornerShape(10.dp))
+              .background(MaterialTheme.colorScheme.surface)
+              .padding(4.dp)
+              .size(124.dp)
+              .clip(RoundedCornerShape(8.dp))
+              .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null
+              ) { }
         )
     }
 }
@@ -241,7 +247,7 @@ fun PreviewPlayerDetailsDialog() {
                     rank = "9k (1410)",
                     name = "Bula",
                     details = listOf(
-                        R.string.mygames_detail_board_size to DetailValue.Literal("19x19")
+                      Res.string.mygames_detail_board_size to DetailValue.Literal("19x19")
                     )
                 )
             )

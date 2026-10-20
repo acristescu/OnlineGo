@@ -1,6 +1,5 @@
 package io.zenandroid.onlinego.ui.screens.game
 
-import androidx.annotation.StringRes
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.NextPlan
 import androidx.compose.material.icons.automirrored.rounded.Undo
@@ -31,7 +30,6 @@ import app.cash.molecule.AndroidUiDispatcher
 import app.cash.molecule.RecompositionMode.ContextClock
 import app.cash.molecule.launchMolecule
 import co.touchlab.kermit.Logger
-import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.Mark
 import io.zenandroid.onlinego.data.model.Position
@@ -58,6 +56,36 @@ import io.zenandroid.onlinego.data.repositories.UserSessionRepository
 import io.zenandroid.onlinego.gamelogic.RulesManager
 import io.zenandroid.onlinego.gamelogic.RulesManager.isPass
 import io.zenandroid.onlinego.gamelogic.ScoreEstimator
+import io.zenandroid.onlinego.resources.Res
+import io.zenandroid.onlinego.resources.game_button_accept
+import io.zenandroid.onlinego.resources.game_button_analyze
+import io.zenandroid.onlinego.resources.game_button_cancel_game
+import io.zenandroid.onlinego.resources.game_button_chat
+import io.zenandroid.onlinego.resources.game_button_confirm_move
+import io.zenandroid.onlinego.resources.game_button_discard_move
+import io.zenandroid.onlinego.resources.game_button_estimate
+import io.zenandroid.onlinego.resources.game_button_exit_analysis
+import io.zenandroid.onlinego.resources.game_button_next
+import io.zenandroid.onlinego.resources.game_button_next_game
+import io.zenandroid.onlinego.resources.game_button_pass
+import io.zenandroid.onlinego.resources.game_button_previous
+import io.zenandroid.onlinego.resources.game_button_reject
+import io.zenandroid.onlinego.resources.game_button_resign
+import io.zenandroid.onlinego.resources.game_button_return
+import io.zenandroid.onlinego.resources.game_button_undo
+import io.zenandroid.onlinego.resources.game_estimating
+import io.zenandroid.onlinego.resources.game_player_points
+import io.zenandroid.onlinego.resources.game_status_accepted
+import io.zenandroid.onlinego.resources.game_status_cancelled_game
+import io.zenandroid.onlinego.resources.game_status_player_passed
+import io.zenandroid.onlinego.resources.game_status_requested_undo
+import io.zenandroid.onlinego.resources.game_status_resigned
+import io.zenandroid.onlinego.resources.game_status_timed_out
+import io.zenandroid.onlinego.resources.game_submitting_move
+import io.zenandroid.onlinego.resources.game_submitting_move_attempt
+import io.zenandroid.onlinego.resources.game_title_black_to_move
+import io.zenandroid.onlinego.resources.game_title_white_to_move
+import io.zenandroid.onlinego.resources.loading
 import io.zenandroid.onlinego.ui.composables.BottomBarButton
 import io.zenandroid.onlinego.ui.composables.TextResource
 import io.zenandroid.onlinego.ui.composables.textResource
@@ -133,6 +161,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlin.math.roundToInt
+import org.jetbrains.compose.resources.StringResource
 
 private const val MAX_ATTEMPTS = 3
 private const val DELAY_BETWEEN_ATTEMPTS = 5000L
@@ -393,13 +422,13 @@ class GameViewModel(
 
       val whiteToMove = game?.playerToMoveId == game?.whitePlayer?.id
       val bottomText = when {
-        pendingMove != null && pendingMove?.attempt == 1 -> TextResource(R.string.game_submitting_move)
+        pendingMove != null && pendingMove?.attempt == 1 -> TextResource(Res.string.game_submitting_move)
         pendingMove != null -> textResource(
-          R.string.game_submitting_move_attempt,
+          Res.string.game_submitting_move_attempt,
           pendingMove?.attempt ?: 1
         )
 
-        estimateMode && estimatePosition == null -> TextResource(R.string.game_estimating)
+        estimateMode && estimatePosition == null -> TextResource(Res.string.game_estimating)
         else -> null
       }
       val excludeTerritory = shownPosition != currentGamePosition.value && !estimateMode
@@ -444,8 +473,8 @@ class GameViewModel(
         drawTerritory = game?.phase == Phase.STONE_REMOVAL || (gameFinished == true && analysisShownMoveNumber == game?.moves?.size && currentVariation?.moves.isNullOrEmpty()) || (estimateMode && estimatePosition != null),
         fadeOutRemovedStones = game?.phase == Phase.STONE_REMOVAL || (gameFinished == true && analysisShownMoveNumber == game?.moves?.size && currentVariation?.moves.isNullOrEmpty()) || (estimateMode && estimatePosition != null),
         buttons = visibleButtons,
-        title = if (loading) TextResource(R.string.loading) else textResource(
-          if (whiteToMove) R.string.game_title_white_to_move else R.string.game_title_black_to_move,
+        title = if (loading) TextResource(Res.string.loading) else textResource(
+          if (whiteToMove) Res.string.game_title_white_to_move else Res.string.game_title_black_to_move,
           game?.moves?.size ?: 0,
           game?.rules?.replaceFirstChar { it.titlecase() } ?: "",
         ),
@@ -503,24 +532,24 @@ class GameViewModel(
     undoRequestedByPlayer: Boolean,
   ): TextResource? =
     when {
-      game?.phase == Phase.PLAY && undoRequestedByPlayer -> TextResource(R.string.game_status_requested_undo)
+      game?.phase == Phase.PLAY && undoRequestedByPlayer -> TextResource(Res.string.game_status_requested_undo)
       game?.phase == Phase.PLAY && !playerToMove && game.moves?.lastOrNull()
-        ?.isPass() == true -> TextResource(R.string.game_status_player_passed)
+        ?.isPass() == true -> TextResource(Res.string.game_status_player_passed)
 
       game?.phase == Phase.STONE_REMOVAL && game.removedStones != null && game.removedStones == playerAcceptedStones -> TextResource(
-        R.string.game_status_accepted
+        Res.string.game_status_accepted
       )
 
       game?.phase == Phase.FINISHED && playerLost == true && game.outcome == OUTCOME_RESIGNATION -> TextResource(
-        R.string.game_status_resigned
+        Res.string.game_status_resigned
       )
 
       game?.phase == Phase.FINISHED && playerLost == true && game.outcome == OUTCOME_TIMEOUT -> TextResource(
-        R.string.game_status_timed_out
+        Res.string.game_status_timed_out
       )
 
       game?.phase == Phase.FINISHED && playerLost == true && game.outcome == OUTCOME_CANCELLATION -> TextResource(
-        R.string.game_status_cancelled_game
+        Res.string.game_status_cancelled_game
       )
 
       else -> null
@@ -769,7 +798,7 @@ class GameViewModel(
     return PlayerData(
       name = username,
       details = if (score != 0f) textResource(
-        R.string.game_player_points,
+        Res.string.game_player_points,
         if (score > 0) "+ $score" else "$score"
       ) else null,
       rank = if (showRanks) formatRank(egfToRank(rating), deviation) else "",
@@ -1121,7 +1150,7 @@ data class GameState(
       fadeOutRemovedStones = false,
       showLastMove = true,
       buttons = emptyList(),
-      title = TextResource(R.string.loading),
+      title = TextResource(Res.string.loading),
       whitePlayer = null,
       blackPlayer = null,
       whiteScore = Score(komi = 5.5f, prisoners = 0, territory = 13, total = 18.5f),
@@ -1213,7 +1242,7 @@ data class PlayerData(
 
 sealed class Button(
   override val icon: ImageVector,
-  @StringRes override val labelResId: Int,
+  override val labelResId: StringResource,
   override val label: String = "",
   override val repeatable: Boolean = false,
   override val enabled: Boolean = true,
@@ -1221,63 +1250,63 @@ sealed class Button(
   override val highlighted: Boolean = false,
 ) : BottomBarButton {
   object ConfirmMove :
-    Button(Icons.Rounded.ThumbUp, R.string.game_button_confirm_move, highlighted = true)
+    Button(Icons.Rounded.ThumbUp, Res.string.game_button_confirm_move, highlighted = true)
 
-  object DiscardMove : Button(Icons.Rounded.Cancel, R.string.game_button_discard_move)
+  object DiscardMove : Button(Icons.Rounded.Cancel, Res.string.game_button_discard_move)
   object AcceptStoneRemoval :
-    Button(Icons.Rounded.ThumbUp, R.string.game_button_accept, highlighted = true)
+    Button(Icons.Rounded.ThumbUp, Res.string.game_button_accept, highlighted = true)
 
-  object RejectStoneRemoval : Button(Icons.Rounded.ThumbDown, R.string.game_button_reject)
-  object Analyze : Button(Icons.Rounded.Biotech, R.string.game_button_analyze)
-  object Pass : Button(Icons.Rounded.Stop, R.string.game_button_pass)
-  object Resign : Button(Icons.Rounded.OutlinedFlag, R.string.game_button_resign)
-  object CancelGame : Button(Icons.Rounded.Cancel, R.string.game_button_cancel_game)
+  object RejectStoneRemoval : Button(Icons.Rounded.ThumbDown, Res.string.game_button_reject)
+  object Analyze : Button(Icons.Rounded.Biotech, Res.string.game_button_analyze)
+  object Pass : Button(Icons.Rounded.Stop, Res.string.game_button_pass)
+  object Resign : Button(Icons.Rounded.OutlinedFlag, Res.string.game_button_resign)
+  object CancelGame : Button(Icons.Rounded.Cancel, Res.string.game_button_cancel_game)
   class Chat(bubbleText: String? = null) : Button(
     bubbleText = bubbleText,
     icon = Icons.Rounded.Forum,
-    labelResId = R.string.game_button_chat
+    labelResId = Res.string.game_button_chat
   )
 
   class NextGame(enabled: Boolean = true, bubbleText: String? = null) : Button(
     enabled = enabled,
     bubbleText = bubbleText,
     icon = Icons.AutoMirrored.Rounded.NextPlan,
-    labelResId = R.string.game_button_next_game
+    labelResId = Res.string.game_button_next_game
   )
 
-  object Undo : Button(Icons.AutoMirrored.Rounded.Undo, R.string.game_button_undo)
-  object ExitAnalysis : Button(Icons.Rounded.HighlightOff, R.string.game_button_exit_analysis)
+  object Undo : Button(Icons.AutoMirrored.Rounded.Undo, Res.string.game_button_undo)
+  object ExitAnalysis : Button(Icons.Rounded.HighlightOff, Res.string.game_button_exit_analysis)
   object Estimate : Button(
     enabled = true,
     icon = Icons.Rounded.Functions,
-    labelResId = R.string.game_button_estimate
+    labelResId = Res.string.game_button_estimate
   )
 
   object EstimateDisabled : Button(
     enabled = false,
     icon = Icons.Rounded.Functions,
-    labelResId = R.string.game_button_estimate
+    labelResId = Res.string.game_button_estimate
   )
 
-  object ExitEstimate : Button(Icons.Rounded.HighlightOff, R.string.game_button_return)
+  object ExitEstimate : Button(Icons.Rounded.HighlightOff, Res.string.game_button_return)
   object Previous : Button(
     repeatable = true,
     icon = Icons.Rounded.SkipPrevious,
-    labelResId = R.string.game_button_previous
+    labelResId = Res.string.game_button_previous
   )
 
   object Next : Button(
     repeatable = true,
     enabled = true,
     icon = Icons.Rounded.SkipNext,
-    labelResId = R.string.game_button_next
+    labelResId = Res.string.game_button_next
   )
 
   object NextDisabled : Button(
     repeatable = true,
     enabled = false,
     icon = Icons.Rounded.SkipNext,
-    labelResId = R.string.game_button_next
+    labelResId = Res.string.game_button_next
   )
 
 }

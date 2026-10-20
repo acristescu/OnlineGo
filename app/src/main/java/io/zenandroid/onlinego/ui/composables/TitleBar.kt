@@ -26,9 +26,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
-import androidx.compose.ui.res.stringResource
+import io.zenandroid.onlinego.resources.Res
+import io.zenandroid.onlinego.resources.back
+import io.zenandroid.onlinego.resources.title_bar_game_info_content_description
+import io.zenandroid.onlinego.resources.title_bar_more_content_description
+import org.jetbrains.compose.resources.stringResource
 import androidx.compose.ui.unit.dp
-import io.zenandroid.onlinego.R
 
 @Composable
 fun TitleBar(
@@ -44,7 +47,7 @@ fun TitleBar(
       IconButton(onClick = { onBack() }) {
         Icon(
           Icons.AutoMirrored.Rounded.ArrowBack,
-          stringResource(R.string.back),
+          stringResource(Res.string.back),
           tint = MaterialTheme.colorScheme.onSurface
         )
       }
@@ -61,7 +64,7 @@ fun TitleBar(
     titleIcon?.let {
       Icon(
         titleIcon,
-        stringResource(R.string.title_bar_game_info_content_description),
+        stringResource(Res.string.title_bar_game_info_content_description),
         tint = MaterialTheme.colorScheme.onSurface,
         modifier = Modifier
           .size(18.dp)
@@ -77,7 +80,7 @@ fun TitleBar(
         IconButton(onClick = { moreMenuOpen = true }) {
           Icon(
             Rounded.MoreVert,
-            stringResource(R.string.title_bar_more_content_description),
+            stringResource(Res.string.title_bar_more_content_description),
             tint = MaterialTheme.colorScheme.onSurface
           )
         }

@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Sente - Online GO</string>
     <string name="welcome_to_sente_online_go">Welkom bij Sente Online Go!</string>
     <string name="login_to_play_online">Log in op OGS om online te spelen.</string>
     <string name="ai_game_chat_ready">Klaar!</string>
-    <string name="ai_game_chat_use_new_game_button">Gebruik de knop \'Nieuwe Partij\' om een nieuwe partij te starten</string>
-    <string name="ai_game_chat_engine_error">Fout bij het starten van KataGO: \'%1$s\'</string>
+    <string name="ai_game_chat_use_new_game_button">Gebruik de knop 'Nieuwe Partij' om een nieuwe partij te starten</string>
+    <string name="ai_game_chat_engine_error">Fout bij het starten van KataGO: '%1$s'</string>
     <string name="ai_game_chat_engine_starting">De AI-engine wordt opgestart, een moment geduld…</string>
     <string name="ai_game_chat_invalid_move">Ongeldige zet, probeer het opnieuw</string>
     <string name="ai_game_chat_lets_try_again">Oké, nieuwe poging. Jouw beurt!</string>
@@ -47,7 +46,7 @@
     <string name="komi">Komi</string>
     <string name="ai_game_player_captures_and_komi">Geslagen: %1$d · Komi: %2$s</string>
     <string name="ai_game_player_captures_only">Geslagen: %1$d</string>
-    <string name="ai_game_eval_winrate_compact">Z %1$s%% · %2$s%% W</string>
+    <string name="ai_game_eval_winrate_compact">Z %1$s% · %2$s% W</string>
     <string name="ai_game_eval_score_lead_compact">%1$s +%2$s voorsprong</string>
     <string name="ai_game_hide_eval">Verberg Evaluatie</string>
     <string name="ai_game_show_eval">Toon Evaluatie</string>
@@ -204,7 +203,7 @@
     <string name="game_player_details_rank_rating">%1$s (%2$s)</string>
     <string name="game_player_details_highest_rank">Hoogste rating</string>
     <string name="game_player_details_percentile">Percentiel</string>
-    <string name="game_player_details_percentage">%1$d%%</string>
+    <string name="game_player_details_percentage">%1$d%</string>
     <string name="game_player_details_played_vs_you">Gespeeld tegen jou</string>
     <string name="game_player_details_you_won">Jij Won</string>
     <string name="game_player_details_they_won">De Ander Won</string>
@@ -266,8 +265,8 @@
     <string name="settings_delete_account_success">Account opgezegd. Jammer dat je weggaat! De app sluit na 5 seconden.</string>
     <string name="settings_delete_account_wrong_password">Verkeerd wachtwoord</string>
     <string name="onboarding_login_invalid_credentials">Verkeerde gebruikersnaam of wachtwoord</string>
-    <string name="onboarding_login_failed_debug">Inloggen mislukt. Debug info: \'%1$s\'</string>
-    <string name="onboarding_create_account_failed_debug">Account aanmaken mislukt. Debug info: \'%1$s\'</string>
+    <string name="onboarding_login_failed_debug">Inloggen mislukt. Debug info: '%1$s'</string>
+    <string name="onboarding_create_account_failed_debug">Account aanmaken mislukt. Debug info: '%1$s'</string>
     <string name="onboarding_server_error_code">Fout met de servercommunicatie. De server gaf foutcode %1$s. Probeer het later opnieuw</string>
     <string name="onboarding_google_signin_failed">signInResult:failed code=%1$d</string>
     <string name="tutorial_retry">OPNIEUW PROBEREN</string>
@@ -368,11 +367,11 @@
     <string name="supporter_reason_promote_description">Met een professioneel ontwikkelde Android-app wordt het voor meer mensen makkelijker om dit fantastische spel te ontdekken.</string>
     <string name="supporter_faqs">Veelgestelde vragen</string>
     <string name="supporter_faq_money_question">Waar wordt het geld voor gebruikt?</string>
-    <string name="supporter_faq_money_answer">Het geld stelt onze ontwikkelaar, een zzp\'er die Android-apps bouwt, in staat om vrij te nemen tussen opdrachten door om aan dit project te werken. In de toekomst zou hij full-time kunnen werken in een veel hoger tempo.</string>
+    <string name="supporter_faq_money_answer">Het geld stelt onze ontwikkelaar, een zzp'er die Android-apps bouwt, in staat om vrij te nemen tussen opdrachten door om aan dit project te werken. In de toekomst zou hij full-time kunnen werken in een veel hoger tempo.</string>
     <string name="supporter_faq_features_question">Zijn er functionaliteiten speciaal voor Supporters?</string>
     <string name="supporter_faq_features_answer">Nee, want wij geloven dat iedereen toegang moet hebben tot een professionele Android-app voor GO. Bijdragen zijn geheel vrijwillig.</string>
     <string name="supporter_faq_cancel_question">Kan ik mijn abonnement wijzigen of opzeggen?</string>
-    <string name="supporter_faq_cancel_answer">Ja, te allen tijde, zowel via deze pagina als via de pagina \'Abonnementen\' in Google Play.</string>
+    <string name="supporter_faq_cancel_answer">Ja, te allen tijde, zowel via deze pagina als via de pagina 'Abonnementen' in Google Play.</string>
     <string name="supporter_faq_payment_question">Zijn er meer betaalmogelijkheden?</string>
     <string name="supporter_faq_payment_answer">Apps die via Google Play worden verspreid zijn verplicht om Google Pay te gebruiken, zodat Google 15% van de opbrengsten kan innen. Het is ons niet toegestaan om een alternatief betaalmiddel in de app te vermelden.</string>
     <string name="supporter_thank_you_title">Bedankt voor je bijdrage!</string>
@@ -439,9 +438,9 @@
     <string name="puzzle_directory_rank_label">Niveau</string>
     <string name="puzzle_directory_rank_range">%1$s tot %2$s</string>
     <string name="puzzle_directory_solved_label">Opgelost</string>
-    <string name="puzzle_directory_solved_value">%1$d (%2$s%%)</string>
+    <string name="puzzle_directory_solved_value">%1$d (%2$s%)</string>
     <string name="puzzle_directory_completed">Voltooid</string>
-    <string name="puzzle_directory_stats">%1$s weergaven, %2$s keer opgelost van %3$s keer (%4$s %%)</string>
+    <string name="puzzle_directory_stats">%1$s weergaven, %2$s keer opgelost van %3$s keer (%4$s %)</string>
     <string name="puzzle_directory_sort_name">A -&gt; Z</string>
     <string name="puzzle_directory_sort_rating">Beoordeling</string>
     <string name="puzzle_directory_sort_count">Aantal puzzels</string>
@@ -491,7 +490,7 @@
     <string name="select_opponent_tab_bot">Bot</string>
     <string name="select_opponent_tab_recent">Recent</string>
     <string name="select_opponent_bots_title">Online Bots</string>
-    <string name="select_opponent_bots_description">Online Bots zijn AI-programma\'s die worden uitgevoerd en onderhouden door communityleden op hun kosten. Om ertegen te spelen moet je verbonden zijn met het internet.</string>
+    <string name="select_opponent_bots_description">Online Bots zijn AI-programma's die worden uitgevoerd en onderhouden door communityleden op hun kosten. Om ertegen te spelen moet je verbonden zijn met het internet.</string>
     <string name="select_opponent_icon_content_description">Icoon tegenstander</string>
     <string name="select_opponent_recent_title">Recente tegenstanders</string>
     <string name="select_opponent_recent_description">Dit is een greep uit tegenstanders (zowel bots als mensen) waartegen je recentelijk hebt gespeeld.</string>
@@ -524,7 +523,7 @@
     <string name="mygames_header_opponents_turn">Tegenstander aan de beurt</string>
     <string name="mygames_header_recently_finished">Onlangs afgerond</string>
     <string name="mygames_header_older_games">Eerdere partijen</string>
-    <string name="mygames_tutorial_percentage">%1$d %%</string>
+    <string name="mygames_tutorial_percentage">%1$d %</string>
     <string name="mygames_learn_to_play">Leer GO spelen</string>
     <string name="mygames_header_icon_content_description">Icoon</string>
     <string name="mygames_offline_content_description">Offline</string>
@@ -591,11 +590,11 @@
     <string name="joseki_explorer_default_description">## Josekiverkenner\n*Joseki* is een Japans leenwoord, dat normaal gesproken slaat op standaard zettenreeksen in een hoek van het bord die een lokaal gelijkwaardige positie opleveren.\n### Hoe gebruik je de Josekiverkenner\nDe markeringen hieronder tonen interessante vervolgzetten vanuit de huidige positie. De kleuren geven aan hoe goed een zet wordt beschouwd:\n* Groene zetten zijn de beste\n* Gele zetten zijn prima\n* Rode zetten zijn slecht\n* Paarse zetten zijn trucs\n* Blauwe voor open vragen\nJe kan elk van deze interessante zetten aantikken om te ontdekken waar het naartoe gaat.\n### Tenuki\nSoms is de beste reactie om elders op het bord te spelen. Dit noem je *tenuki*. Als voor een positie tenuki een interessante optie is wordt de pasknop linksonderin beschikbaar en kan je die aantikken om te ontdekken wat er kan gebeuren als de huidige speler tenuki speelt.</string>
     <string name="tutorial_basics_title">Basis</string>
     <string name="tutorial_basics_thebasics_title">De Basis</string>
-    <string name="tutorial_basics_thebasics_basic1_text">Onthoud de volgende drie regels:\n1. Zwart en Wit plaatsen om de beurt een \"steen\" op het bord.\n2. Stenen plaats je waar de lijnen elkaar kruisen.\n3. Een geplaatste steen mag niet verplaatst worden, maar kan wel geslagen worden.\n\nPlaats een steen om te beginnen!</string>
-    <string name="tutorial_basics_thebasics_capture1_page1_text">Met nog maar één zet is de witte steen compleet omsingeld en wordt deze geslagen. Stenen die binnen één zet geslagen kunnen worden zijn in \"Atari\".</string>
+    <string name="tutorial_basics_thebasics_basic1_text">Onthoud de volgende drie regels:\n1. Zwart en Wit plaatsen om de beurt een "steen" op het bord.\n2. Stenen plaats je waar de lijnen elkaar kruisen.\n3. Een geplaatste steen mag niet verplaatst worden, maar kan wel geslagen worden.\n\nPlaats een steen om te beginnen!</string>
+    <string name="tutorial_basics_thebasics_capture1_page1_text">Met nog maar één zet is de witte steen compleet omsingeld en wordt deze geslagen. Stenen die binnen één zet geslagen kunnen worden zijn in "Atari".</string>
     <string name="tutorial_basics_thebasics_capture1_page2_text">De witte steen is nu omsingeld, dus…</string>
     <string name="tutorial_basics_thebasics_capture1_page3_text">… hij wordt van het bord genomen</string>
-    <string name="tutorial_basics_thebasics_capture1_page4_text">Als wit aan zet was, zou het kunnen \"vluchten\" door nog een steen aan te sluiten.</string>
+    <string name="tutorial_basics_thebasics_capture1_page4_text">Als wit aan zet was, zou het kunnen "vluchten" door nog een steen aan te sluiten.</string>
     <string name="tutorial_basics_thebasics_capture2_text">Jouw beurt! Sla de witte steen.</string>
     <string name="tutorial_basics_thebasics_capture3_text">Dit keer kan je twee stenen tegelijk slaan!</string>
     <string name="tutorial_basics_thebasics_capture4_text">Ook als er andere stenen in de buurt liggen, doe je gewoon hetzelfde.</string>
@@ -612,7 +611,7 @@
     <string name="tutorial_basics_doubleatari_doubleAtari2_text">Hier is er nog één. Waar kan zwart een dubbele Atari veroorzaken?</string>
     <string name="tutorial_basics_illegalmoves_title">Verboden zetten (het zelfmoordverbod)</string>
     <string name="tutorial_basics_illegalmoves_suicide1_page_1_text">Je mag overal op het bord spelen, met een paar uitzonderingen. In het voorbeeld hieronder mag zwart geen steen op A zetten, want dan zou deze steen direct omsingeld zijn.</string>
-    <string name="tutorial_basics_illegalmoves_suicide1_page_2_text">Dit noem je \"zelfmoord\" en dat is verboden.</string>
+    <string name="tutorial_basics_illegalmoves_suicide1_page_2_text">Dit noem je "zelfmoord" en dat is verboden.</string>
     <string name="tutorial_basics_illegalmoves_suicide1_page_3_text">Er is wel een uitzondering. Als een zet één of meerdere witte stenen zou slaan (zoals op B) dan is die zet wel toegestaan.</string>
     <string name="tutorial_basics_illegalmoves_suicide1_page_4_text">Dit is dan het gevolg:</string>
     <string name="tutorial_basics_illegalmoves_suicide2_text">Jouw beurt om weer wat stenen te slaan! Hint: het lijkt op het eerste gezicht misschien een verboden zet…</string>
@@ -621,13 +620,13 @@
     <string name="tutorial_basics_illegalmoves_suicide5_text">De witte steen op D5 scheidt jouw stenen. Als je de steen slaat dan kan je jouw stenen verbinden om een sterke groep te maken. Dit is een erg belangrijk patroon in GO!</string>
     <string name="tutorial_intermediate_title">Halfgevorderd</string>
     <string name="tutorial_intermediate_ladders_title">Trappen</string>
-    <string name="tutorial_intermediate_ladders_ladder1_text">Sla de witte steen! Als je de juiste zetten doet kan wit niet ontsnappen. Probeer opeenvolgende Atari\'s te maken totdat wit nergens meer heen kan.</string>
+    <string name="tutorial_intermediate_ladders_ladder1_text">Sla de witte steen! Als je de juiste zetten doet kan wit niet ontsnappen. Probeer opeenvolgende Atari's te maken totdat wit nergens meer heen kan.</string>
     <string name="tutorial_intermediate_ladders_ladder1_branches_branch1_message">Wit probeert te vluchten…</string>
     <string name="tutorial_intermediate_ladders_ladder1_branches_branch1_1_1_1_1_message">Zie je al waar dit naartoe gaat?</string>
     <string name="tutorial_intermediate_ladders_ladder1_branches_branch1_1_1_1_1_1_1_1_1_message">Als wit probeert tegen te werken…</string>
     <string name="tutorial_intermediate_ladders_ladder1_branches_branch1_1_1_1_1_1_1_2_1_message">Als wit probeert tegen te werken…</string>
     <string name="tutorial_intermediate_ladders_ladder1_branches_branch1_1_1_1_1_1_1_2_2_message">Als wit probeert tegen te werken…</string>
-    <string name="tutorial_intermediate_ladders_ladder2_text">Hier is nog zo\'n trap. En nu is het jouw beurt om te ontsnappen. De situatie is dit keer niet hopeloos. Jouw steen op F2 ligt in de weg van de trap. Als je daarnaartoe kunt komen ben je veilig. Zo\'n steen noem je een \"trappenbreker\"</string>
+    <string name="tutorial_intermediate_ladders_ladder2_text">Hier is nog zo'n trap. En nu is het jouw beurt om te ontsnappen. De situatie is dit keer niet hopeloos. Jouw steen op F2 ligt in de weg van de trap. Als je daarnaartoe kunt komen ben je veilig. Zo'n steen noem je een "trappenbreker"</string>
     <string name="tutorial_intermediate_ladders_ladder3_page1_text">Trappen zijn erg belangrijk bij GO. Maar je moet meerdere zetten vooruitdenken en geen trappenstrijd beginnen tenzij je zeker weet dat je kan winnen! Dit is wat er gebeurt als Wit de verliezende trap uit het vorige voorbeeld uitspeelt...</string>
     <string name="tutorial_intermediate_twoeyes_title">Twee Ogen</string>
     <string name="tutorial_intermediate_twoeyes_twoeyes1_text">Je bent volledig omsingeld! Welke zet is je enige redding?</string>
@@ -635,13 +634,13 @@
     <string name="tutorial_intermediate_twoeyes_twoeyes3_text">En nu? Hoe kan je er nu voor zorgen dat je stenen niet geslagen worden?</string>
     <string name="tutorial_intermediate_captureraces_title">Vrijhedenstrijd</string>
     <string name="tutorial_intermediate_captureraces_capturerace1_text">In deze puzzel zijn zowel de zwarte als witte groepen in het midden bovenaan omsingeld. Omdat geen van beiden twee ogen heeft kunnen ze elkaars groep proberen te slaan. Dit noem je een vrijhedenstrijd (semeai) want meestal wint degene met meer vrijheden. In dit geval hebben beide groepen drie vrijheden, dus degene die aan de beurt is wint.\n\nSla de witte stenen!</string>
-    <string name="tutorial_intermediate_captureraces_capturerace2_text">Hier heb je nog zo\'n semeai. Win de strijd en sla de witte stenen!</string>
+    <string name="tutorial_intermediate_captureraces_capturerace2_text">Hier heb je nog zo'n semeai. Win de strijd en sla de witte stenen!</string>
     <string name="tutorial_intermediate_captureraces_capturerace3_text">Red de zwarte stenen in de hoek!</string>
     <string name="tutorial_intermediate_snapback_title">Terugslag</string>
-    <string name="tutorial_intermediate_snapback_snapback1_text">Je gaat nu de techniek leren die \"terugslag\" wordt genoemd. Sla de vier witte stenen!\n\nHint: je zal eerst een steen moeten opofferen!</string>
+    <string name="tutorial_intermediate_snapback_snapback1_text">Je gaat nu de techniek leren die "terugslag" wordt genoemd. Sla de vier witte stenen!\n\nHint: je zal eerst een steen moeten opofferen!</string>
     <string name="tutorial_intermediate_snapback_snapback2_text">Zoals je ziet kan je soms door wit te dwingen een steen van jou te slaan atari veroorzaken. Gebruik hier dezelfde techniek!</string>
-    <string name="tutorial_intermediate_snapback_snapback3_text">Hier heb je nog zo\'n terugslag aan de rand van het bord.</string>
-    <string name="tutorial_intermediate_ko_title">KO - de regel van \"geen herhalingen\"</string>
+    <string name="tutorial_intermediate_snapback_snapback3_text">Hier heb je nog zo'n terugslag aan de rand van het bord.</string>
+    <string name="tutorial_intermediate_ko_title">KO - de regel van "geen herhalingen"</string>
     <string name="tutorial_intermediate_ko_ko_page_1_text">Nu gaan we kijken naar de laatste regel die je moet kennen om GO te kunnen spelen: de KO regel. Deze regel verbiedt zetten die een eerdere positie herhalen.\nLaten we een voorbeeld bekijken. De witte steen op E6 ligt in Atari. Dus zwart kan hem slaan.</string>
     <string name="tutorial_intermediate_ko_ko_page_2_text">Nu ligt de zwarte steen op F6 in Atari. Zonder de KO-regel zou wit mogen slaan, maar als wit dat doet…</string>
     <string name="tutorial_intermediate_ko_ko_page_3_text">… bereiken we dezelfde positie als hiervoor! En zonder KO-regel, zal zwart natuurlijk wéér slaan…</string>
@@ -660,7 +659,7 @@
     <string name="tutorial_intermediate_ko_ko_page_16_text">Zwart int nu haar prijs bovenin door G9 te spelen</string>
     <string name="tutorial_intermediate_ko_ko_page_17_text">Maak je geen zorgen als dit er ingewikkeld uitziet. Als beginner is het genoeg om te onthouden dat je niet direct terug mag slaan als je daarmee de vorige positie herhaalt.</string>
     <string name="tutorial_intermediate_puzzles_title">Puzzels</string>
-    <string name="tutorial_intermediate_puzzles_puzzles1_text">Sla de drie witte stenen! Dit noem je ook wel een \"kraanvogelnest\"</string>
+    <string name="tutorial_intermediate_puzzles_puzzles1_text">Sla de drie witte stenen! Dit noem je ook wel een "kraanvogelnest"</string>
     <string name="tutorial_intermediate_puzzles_puzzles2_text">Hier zie je een vrijhedenstrijd, lukt het jou om te winnen?</string>
     <string name="tutorial_intermediate_puzzles_corner1_text">Bij GO komt een strijd in de hoek vaak voor. Hier zie je een vrijhedenstrijd in een hoek. Lukt het jou om er sterker uit te komen?</string>
     <string name="tutorial_intermediate_puzzles_corner2_text">Sla de witte steen die de zwarte stenen scheidt. Maar denk goed na vanaf welke kant je de Atari maakt!</string>
@@ -670,7 +669,7 @@
     <string name="tutorial_intermediate_puzzles_corner2_branches_branch4_message">Zwart kan niet ontsnappen</string>
     <string name="tutorial_intermediate_puzzles_corner2_branches_branch6_message">Zwart kan niet ontsnappen</string>
     <string name="tutorial_intermediate_falseeyes_title">Nepogen</string>
-    <string name="tutorial_intermediate_falseeyes_falseeyes1_page1_text">Zoals je je misschien kan herinneren kan een groep met twee ogen nooit meer geslagen worden. Maar soms is een gedeelte van de stenen om een oog niet verbonden aan de rest van de groep en kunnen deze apart worden geslagen. Een voorbeeld zie je hieronder; D5 lijkt een oog te zijn, maar de steen op C5 ligt in Atari en kan geslagen worden waardoor er nog maar één oog overblijft.\n\nD5 is hier een \"nepoog\".</string>
+    <string name="tutorial_intermediate_falseeyes_falseeyes1_page1_text">Zoals je je misschien kan herinneren kan een groep met twee ogen nooit meer geslagen worden. Maar soms is een gedeelte van de stenen om een oog niet verbonden aan de rest van de groep en kunnen deze apart worden geslagen. Een voorbeeld zie je hieronder; D5 lijkt een oog te zijn, maar de steen op C5 ligt in Atari en kan geslagen worden waardoor er nog maar één oog overblijft.\n\nD5 is hier een "nepoog".</string>
     <string name="tutorial_intermediate_falseeyes_falseeyes2_text">Wit probeert zijn steen op C5 te redden met D5. Met welke zet versla je hem nu?</string>
     <string name="tutorial_intermediate_falseeyes_falseeyes3_text">Als wit op een andere manier probeert aan te vallen maakt dat niet uit. Je kan nog steeds de middelste groep slaan!</string>
     <string name="tutorial_intermediate_falseeyes_falseeyes4_text">Dit keer moet jij verdedigen. Overleef door twee echte ogen te maken!</string>
@@ -717,10 +716,10 @@
     <string name="tutorial_advanced_endgamescoring_endgame1_page2_text">Zwart heeft vijf punten aan de linkerkant en wit heeft er tien rechts.\n\nDus wint wit met vijf punten.</string>
     <string name="tutorial_advanced_endgamescoring_endgame1_page3_text">Maar waarom speelde zwart dan niet gewoon verder?\n\nNou kijk, er is geen enkele zet voor zwart die haar meer punten oplevert. Als zwart bijvoorbeeld de rechterzijde binnenvalt kan wit gemakkelijk verdedigen en is de nieuwe steen dood.\n\nWit heeft dan zijn gebied met één punt verkleind, maar kreeg ook een punt vanwege zwarts dode steen die meegeteld wordt als gevangene.\n\nDe eindstand is hier nog steeds 10-5</string>
     <string name="tutorial_advanced_endgamescoring_endgame1_page4_text">Maar wat als zwart gewoon links speelt?\n\nAlles wat dat oplevert, is dat haar eigen gebied nu kleiner is. Dit kost zwart een punt.\n\nZwart heeft dus geen enkele goede zet en past dus. Wit heeft al meer punten dus vindt het niet erg om ook te passen.\n\nDe partij is dus voorbij en wit wint.</string>
-    <string name="tutorial_advanced_endgamescoring_endgame1_page5_text">Hier zie je nog een partij die voorbij is. Zwart heeft vijf punten, en wit heeft er zes.\n\nDe twee kruispunten in het centrum zijn neutraal gebied (\'Dame\') en tellen niet mee voor de punten.\n\nElk van de spelers kan daar wel een zet doen, maar dit heeft geen effect op de eindstand.</string>
-    <string name="tutorial_advanced_endgamescoring_endgame1_page6_text">Gebied levert verreweg de meeste punten op, onthoud wel dat er ook andere bonuspunten opgeteld dienen te worden.\n\nElke geslagen steen levert ook een punt op, net als \'dode\' stenen die nog op het bord liggen (groepen die geen kans meer maken op twee ogen).\n\nDaarnaast krijgt wit nog een compensatie omdat zwart begint. Deze bonus noem je \'komi\'.\n\nDe hoogte van de komi hangt af van de bordgrootte, maar is meestal 5,5 of 6,5 punten. Die halve punt voorkomt gelijkspel.\n\nGelukkig doet de app al deze berekeningen voor je :)</string>
+    <string name="tutorial_advanced_endgamescoring_endgame1_page5_text">Hier zie je nog een partij die voorbij is. Zwart heeft vijf punten, en wit heeft er zes.\n\nDe twee kruispunten in het centrum zijn neutraal gebied ('Dame') en tellen niet mee voor de punten.\n\nElk van de spelers kan daar wel een zet doen, maar dit heeft geen effect op de eindstand.</string>
+    <string name="tutorial_advanced_endgamescoring_endgame1_page6_text">Gebied levert verreweg de meeste punten op, onthoud wel dat er ook andere bonuspunten opgeteld dienen te worden.\n\nElke geslagen steen levert ook een punt op, net als 'dode' stenen die nog op het bord liggen (groepen die geen kans meer maken op twee ogen).\n\nDaarnaast krijgt wit nog een compensatie omdat zwart begint. Deze bonus noem je 'komi'.\n\nDe hoogte van de komi hangt af van de bordgrootte, maar is meestal 5,5 of 6,5 punten. Die halve punt voorkomt gelijkspel.\n\nGelukkig doet de app al deze berekeningen voor je :)</string>
     <string name="tutorial_advanced_cuttingstones_name">Doorsnijden</string>
-    <string name="tutorial_advanced_cuttingstones_cutting1_text">Het lijkt nu net of wit het grootste gebied heeft.\nZijn muur heeft echter een zwakke plek, waar je gewoon kan \"doorsnijden\".\n\nAls je dat lukt moet wit erg zijn best doen om beide groepen nog te redden.</string>
+    <string name="tutorial_advanced_cuttingstones_cutting1_text">Het lijkt nu net of wit het grootste gebied heeft.\nZijn muur heeft echter een zwakke plek, waar je gewoon kan "doorsnijden".\n\nAls je dat lukt moet wit erg zijn best doen om beide groepen nog te redden.</string>
     <string name="tutorial_advanced_cuttingstones_cutting1_branches2_message">De witte stenen zijn verbonden.</string>
     <string name="tutorial_advanced_cuttingstones_cutting2_text">Zwart heeft 30 punten, en wit heeft er 31. Wit lijkt dus te winnen met één punt.\nHet gebied onderin is echter niet helemaal voor wit.\n\nSnij gewoon de witte muur door.</string>
 </resources>

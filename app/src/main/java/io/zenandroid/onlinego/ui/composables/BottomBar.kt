@@ -1,6 +1,5 @@
 package io.zenandroid.onlinego.ui.composables
 
-import androidx.annotation.StringRes
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.SpringSpec
 import androidx.compose.animation.core.TweenSpec
@@ -33,13 +32,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.zenandroid.onlinego.utils.repeatingClickable
+import org.jetbrains.compose.resources.StringResource
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun BottomBar(
@@ -137,8 +137,7 @@ interface BottomBarButton {
   val label: String
 
   /** Optional string resource for [label]. When set, it is resolved and takes precedence. */
-  @get:StringRes
-  val labelResId: Int? get() = null
+  val labelResId: StringResource? get() = null
   val repeatable: Boolean
   val enabled: Boolean
   val bubbleText: String?

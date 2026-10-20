@@ -7,7 +7,6 @@ import android.provider.Browser
 import android.view.View
 import android.widget.TextView
 import androidx.activity.compose.BackHandler
-import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -37,7 +36,16 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
+import io.zenandroid.onlinego.resources.Res
+import io.zenandroid.onlinego.resources.back
+import io.zenandroid.onlinego.resources.joseki_explorer_button_next
+import io.zenandroid.onlinego.resources.joseki_explorer_button_previous
+import io.zenandroid.onlinego.resources.joseki_explorer_button_tenuki
+import io.zenandroid.onlinego.resources.joseki_explorer_link_external
+import io.zenandroid.onlinego.resources.joseki_explorer_link_video
+import io.zenandroid.onlinego.resources.joseki_explorer_title
+import org.jetbrains.compose.resources.StringResource
+import org.jetbrains.compose.resources.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -204,7 +212,7 @@ private fun AppTopBar(onNavigateBack: () -> Unit) {
   TopAppBar(
     title = {
       Text(
-        text = stringResource(R.string.joseki_explorer_title),
+        text = stringResource(Res.string.joseki_explorer_title),
         fontSize = 16.sp,
         fontWeight = FontWeight.Medium,
         color = MaterialTheme.colorScheme.onSurface
@@ -214,7 +222,7 @@ private fun AppTopBar(onNavigateBack: () -> Unit) {
       IconButton(onClick = onNavigateBack) {
         Icon(
           Icons.AutoMirrored.Filled.ArrowBack,
-          contentDescription = stringResource(R.string.back),
+          contentDescription = stringResource(Res.string.back),
           tint = MaterialTheme.colorScheme.onSurface
         )
       }
@@ -273,7 +281,11 @@ private fun DescriptionView(
   }
 
   val context = LocalContext.current
-  val markwon = remember(context, nodeId) { buildMarkwon(context, nodeId, loadPosition) }
+  val videoLabel = stringResource(Res.string.joseki_explorer_link_video)
+  val externalLabel = stringResource(Res.string.joseki_explorer_link_external)
+  val markwon = remember(context, nodeId, videoLabel, externalLabel) {
+    buildMarkwon(context, nodeId, loadPosition, videoLabel, externalLabel)
+  }
 
   AndroidView(
     factory = { context ->
@@ -307,7 +319,13 @@ private fun DescriptionView(
   )
 }
 
-private fun buildMarkwon(context: Context, nodeId: Long?, loadPosition: (Long?) -> Unit): Markwon {
+private fun buildMarkwon(
+  context: Context,
+  nodeId: Long?,
+  loadPosition: (Long?) -> Unit,
+  videoLabel: String,
+  externalLabel: String,
+): Markwon {
   return Markwon.builder(context)
     .usePlugin(MovementMethodPlugin.create())
     .usePlugin(object : AbstractMarkwonPlugin() {
@@ -334,11 +352,11 @@ private fun buildMarkwon(context: Context, nodeId: Long?, loadPosition: (Long?) 
               }
 
               uri.host == "youtube.com" || uri.host == "youtu.be" || uri.host == "www.youtube.com" -> {
-                link.appendChild(Text(" " + context.getString(R.string.joseki_explorer_link_video)))
+                link.appendChild(Text(" $videoLabel"))
               }
 
               else -> {
-                link.appendChild(Text(" " + context.getString(R.string.joseki_explorer_link_external)))
+                link.appendChild(Text(" $externalLabel"))
               }
             }
           }
@@ -386,7 +404,7 @@ private fun buildMarkwon(context: Context, nodeId: Long?, loadPosition: (Long?) 
 
 sealed class Button(
   override val icon: ImageVector,
-  @StringRes override val labelResId: Int,
+  override val labelResId: StringResource,
   override val label: String = "",
   override val repeatable: Boolean = false,
   override val enabled: Boolean = true,
@@ -395,19 +413,19 @@ sealed class Button(
 ) : BottomBarButton {
   class Tenuki(enabled: Boolean) : Button(
     icon = Icons.Rounded.Pause,
-    labelResId = R.string.joseki_explorer_button_tenuki,
+    labelResId = Res.string.joseki_explorer_button_tenuki,
     enabled = enabled,
   )
 
   class Previous(enabled: Boolean) : Button(
     icon = Icons.Rounded.SkipPrevious,
-    labelResId = R.string.joseki_explorer_button_previous,
+    labelResId = Res.string.joseki_explorer_button_previous,
     enabled = enabled,
   )
 
   class Next(enabled: Boolean) : Button(
     icon = Icons.Rounded.SkipNext,
-    labelResId = R.string.joseki_explorer_button_next,
+    labelResId = Res.string.joseki_explorer_button_next,
     enabled = enabled,
   )
 }

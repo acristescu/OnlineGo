@@ -3,7 +3,6 @@ package io.zenandroid.onlinego.ui.screens.settings
 import android.app.Activity
 import android.content.Intent
 import androidx.activity.compose.LocalActivity
-import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -72,7 +71,61 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
+import io.zenandroid.onlinego.resources.Res
+import io.zenandroid.onlinego.resources.cancel
+import io.zenandroid.onlinego.resources.ok
+import io.zenandroid.onlinego.resources.settings_avatar_content_description
+import io.zenandroid.onlinego.resources.settings_become_a_supporter
+import io.zenandroid.onlinego.resources.settings_become_a_supporter_description
+import io.zenandroid.onlinego.resources.settings_board_style
+import io.zenandroid.onlinego.resources.settings_build_version
+import io.zenandroid.onlinego.resources.settings_delete_account
+import io.zenandroid.onlinego.resources.settings_delete_account_cancel
+import io.zenandroid.onlinego.resources.settings_delete_account_confirm
+import io.zenandroid.onlinego.resources.settings_delete_account_dialog_title
+import io.zenandroid.onlinego.resources.settings_delete_account_message
+import io.zenandroid.onlinego.resources.settings_delete_account_password_hint
+import io.zenandroid.onlinego.resources.settings_error_dialog_title
+import io.zenandroid.onlinego.resources.settings_help_translate
+import io.zenandroid.onlinego.resources.settings_icon_content_description
+import io.zenandroid.onlinego.resources.settings_language
+import io.zenandroid.onlinego.resources.settings_language_catalan
+import io.zenandroid.onlinego.resources.settings_language_dutch
+import io.zenandroid.onlinego.resources.settings_language_english
+import io.zenandroid.onlinego.resources.settings_language_french
+import io.zenandroid.onlinego.resources.settings_language_german
+import io.zenandroid.onlinego.resources.settings_language_portuguese
+import io.zenandroid.onlinego.resources.settings_language_romanian
+import io.zenandroid.onlinego.resources.settings_language_slovak
+import io.zenandroid.onlinego.resources.settings_language_spanish
+import io.zenandroid.onlinego.resources.settings_logout
+import io.zenandroid.onlinego.resources.settings_logout_dialog_confirm
+import io.zenandroid.onlinego.resources.settings_logout_dialog_message
+import io.zenandroid.onlinego.resources.settings_logout_dialog_title
+import io.zenandroid.onlinego.resources.settings_privacy_policy
+import io.zenandroid.onlinego.resources.settings_review_flow_diagnostic_title
+import io.zenandroid.onlinego.resources.settings_review_flow_error_title
+import io.zenandroid.onlinego.resources.settings_review_prompt
+import io.zenandroid.onlinego.resources.settings_section_about
+import io.zenandroid.onlinego.resources.settings_section_account
+import io.zenandroid.onlinego.resources.settings_section_appearance
+import io.zenandroid.onlinego.resources.settings_section_debug
+import io.zenandroid.onlinego.resources.settings_section_game_settings
+import io.zenandroid.onlinego.resources.settings_section_language
+import io.zenandroid.onlinego.resources.settings_section_legal
+import io.zenandroid.onlinego.resources.settings_section_notifications
+import io.zenandroid.onlinego.resources.settings_show_coordinates
+import io.zenandroid.onlinego.resources.settings_show_player_ranks
+import io.zenandroid.onlinego.resources.settings_socket_debug
+import io.zenandroid.onlinego.resources.settings_stone_sounds
+import io.zenandroid.onlinego.resources.settings_system_notifications
+import io.zenandroid.onlinego.resources.settings_theme
+import io.zenandroid.onlinego.resources.settings_theme_dark
+import io.zenandroid.onlinego.resources.settings_theme_light
+import io.zenandroid.onlinego.resources.settings_theme_system_default
+import io.zenandroid.onlinego.resources.settings_whats_new
+import org.jetbrains.compose.resources.StringResource
+import org.jetbrains.compose.resources.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -92,7 +145,6 @@ import coil3.request.ImageRequest
 import coil3.request.error
 import coil3.request.placeholder
 import io.zenandroid.onlinego.BuildConfig
-import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.R.drawable
 import io.zenandroid.onlinego.R.mipmap
 import io.zenandroid.onlinego.data.model.AppLanguage
@@ -153,6 +205,10 @@ fun SettingsScreen(
   val context = LocalContext.current
   val reviewPromptManager: ReviewPromptManager = koinInject()
   val coroutineScope = rememberCoroutineScope()
+  val logoutTitle = stringResource(Res.string.settings_logout_dialog_title)
+  val logoutMessage = stringResource(Res.string.settings_logout_dialog_message)
+  val logoutConfirm = stringResource(Res.string.settings_logout_dialog_confirm)
+  val cancel = stringResource(Res.string.cancel)
 
   SettingsContent(
     state = state,
@@ -182,10 +238,10 @@ fun SettingsScreen(
         )
 
         is LogoutClicked -> dialogData = DialogData(
-          title = context.getString(R.string.settings_logout_dialog_title),
-          message = context.getString(R.string.settings_logout_dialog_message),
-          positiveButton = context.getString(R.string.settings_logout_dialog_confirm),
-          negativeButton = context.getString(R.string.cancel),
+          title = logoutTitle,
+          message = logoutMessage,
+          positiveButton = logoutConfirm,
+          negativeButton = cancel,
           onPositive = { viewModel.onAction(SettingsAction.Logout) },
         )
 
@@ -237,7 +293,7 @@ fun SettingsScreen(
       onDismissRequest = { reviewDiagnosticResult = null },
       confirmButton = {
         TextButton(onClick = { reviewDiagnosticResult = null }) {
-          Text(stringResource(R.string.ok))
+          Text(stringResource(Res.string.ok))
         }
       },
       text = {
@@ -250,8 +306,8 @@ fun SettingsScreen(
       },
       title = {
         Text(
-          text = if (result.success) stringResource(R.string.settings_review_flow_diagnostic_title)
-          else stringResource(R.string.settings_review_flow_error_title),
+          text = if (result.success) stringResource(Res.string.settings_review_flow_diagnostic_title)
+          else stringResource(Res.string.settings_review_flow_error_title),
           style = MaterialTheme.typography.titleLarge
         )
       },
@@ -271,24 +327,24 @@ fun SettingsScreen(
             )
           }
         }) {
-          Text(stringResource(R.string.settings_delete_account_confirm))
+          Text(stringResource(Res.string.settings_delete_account_confirm))
         }
       },
       dismissButton = {
         TextButton(onClick = { viewModel.onAction(DeleteAccountCanceled) }) {
-          Text(stringResource(R.string.settings_delete_account_cancel))
+          Text(stringResource(Res.string.settings_delete_account_cancel))
         }
       },
       text = {
         Column {
-          Text(stringResource(R.string.settings_delete_account_message))
+          Text(stringResource(Res.string.settings_delete_account_message))
           Spacer(modifier = Modifier.height(8.dp))
 
           var passwordVisibility by remember { mutableStateOf(false) }
           OutlinedTextField(
             value = password,
             onValueChange = { password = it },
-            label = { Text(stringResource(R.string.settings_delete_account_password_hint)) },
+            label = { Text(stringResource(Res.string.settings_delete_account_password_hint)) },
             visualTransformation = if (!passwordVisibility) PasswordVisualTransformation() else VisualTransformation.None,
             singleLine = true,
             trailingIcon = {
@@ -303,7 +359,7 @@ fun SettingsScreen(
           )
         }
       },
-      title = { Text(stringResource(R.string.settings_delete_account_dialog_title)) },
+      title = { Text(stringResource(Res.string.settings_delete_account_dialog_title)) },
     )
   }
 
@@ -329,11 +385,11 @@ fun SettingsScreen(
       onDismissRequest = { viewModel.onAction(DeleteAccountCanceled) },
       confirmButton = {
         TextButton(onClick = { viewModel.onAction(DeleteAccountCanceled) }) {
-          Text(stringResource(R.string.ok))
+          Text(stringResource(Res.string.ok))
         }
       },
       text = { Text(it.resolve()) },
-      title = { Text(stringResource(R.string.settings_error_dialog_title)) },
+      title = { Text(stringResource(Res.string.settings_error_dialog_title)) },
     )
   }
 
@@ -369,7 +425,7 @@ private fun SettingsContent(
           processGravatarURL(
             state.avatarURL, LocalDensity.current.run { 84.dp.toPx().toInt() })
         ).placeholder(mipmap.placeholder).error(mipmap.placeholder).build(),
-        contentDescription = stringResource(R.string.settings_avatar_content_description),
+        contentDescription = stringResource(Res.string.settings_avatar_content_description),
         modifier = Modifier
           .size(84.dp)
           .fillMaxSize()
@@ -401,19 +457,19 @@ private fun SettingsContent(
     ) {
       Icon(
         imageVector = ImageVector.vectorResource(drawable.ic_star),
-        contentDescription = stringResource(R.string.settings_become_a_supporter_description),
+        contentDescription = stringResource(Res.string.settings_become_a_supporter_description),
         modifier = Modifier.padding(end = 12.dp, start = 8.dp)
       )
       Text(
-        text = stringResource(R.string.settings_become_a_supporter),
+        text = stringResource(Res.string.settings_become_a_supporter),
         modifier = Modifier.padding(end = 8.dp),
         fontWeight = FontWeight.Medium,
       )
     }
-    Section(title = stringResource(R.string.settings_section_language)) {
+    Section(title = stringResource(Res.string.settings_section_language)) {
       Column(modifier = Modifier) {
         SettingsRow(
-          title = stringResource(R.string.settings_language),
+          title = stringResource(Res.string.settings_language),
           icon = Filled.Language,
           checkbox = false,
           checked = true,
@@ -425,33 +481,33 @@ private fun SettingsContent(
             ) { onAction(LanguageClicked(entry)) }
           })
         SettingsRow(
-          title = stringResource(R.string.settings_help_translate),
+          title = stringResource(Res.string.settings_help_translate),
           icon = Filled.Translate,
           checkbox = false,
           checked = true,
           onClick = { onAction(HelpTranslateClicked) })
       }
     }
-    Section(title = stringResource(R.string.settings_section_notifications)) {
+    Section(title = stringResource(Res.string.settings_section_notifications)) {
       Column(modifier = Modifier) {
         SettingsRow(
-          title = stringResource(R.string.settings_system_notifications),
+          title = stringResource(Res.string.settings_system_notifications),
           icon = Filled.Notifications,
           checkbox = false,
           checked = false,
           onClick = { onAction(NotificationsClicked) })
         SettingsRow(
-          title = stringResource(R.string.settings_stone_sounds),
+          title = stringResource(Res.string.settings_stone_sounds),
           icon = Icons.AutoMirrored.Filled.VolumeUp,
           checkbox = true,
           checked = userSettings.soundEnabled,
           onClick = { onAction(SoundsClicked) })
       }
     }
-    Section(title = stringResource(R.string.settings_section_appearance)) {
+    Section(title = stringResource(Res.string.settings_section_appearance)) {
       Column(modifier = Modifier) {
         SettingsRow(
-          title = stringResource(R.string.settings_theme),
+          title = stringResource(Res.string.settings_theme),
           icon = Rounded.DarkMode,
           checkbox = false,
           checked = true,
@@ -462,7 +518,7 @@ private fun SettingsContent(
             }
           })
         SettingsRow(
-          title = stringResource(R.string.settings_board_style),
+          title = stringResource(Res.string.settings_board_style),
           icon = Rounded.Palette,
           checkbox = false,
           checked = true,
@@ -475,68 +531,68 @@ private fun SettingsContent(
           })
       }
     }
-    Section(title = stringResource(R.string.settings_section_game_settings)) {
+    Section(title = stringResource(Res.string.settings_section_game_settings)) {
       Column(modifier = Modifier) {
         SettingsRow(
-          title = stringResource(R.string.settings_show_coordinates),
+          title = stringResource(Res.string.settings_show_coordinates),
           icon = Rounded._123,
           checkbox = true,
           checked = userSettings.showCoordinates,
           onClick = { onAction(CoordinatesClicked) })
         SettingsRow(
-          title = stringResource(R.string.settings_show_player_ranks),
+          title = stringResource(Res.string.settings_show_player_ranks),
           icon = Rounded.MilitaryTech,
           checkbox = true,
           checked = userSettings.showRanks,
           onClick = { onAction(RanksClicked) })
       }
     }
-    Section(title = stringResource(R.string.settings_section_account)) {
+    Section(title = stringResource(Res.string.settings_section_account)) {
       Column(modifier = Modifier) {
         SettingsRow(
-          title = stringResource(R.string.settings_logout),
+          title = stringResource(Res.string.settings_logout),
           icon = Icons.AutoMirrored.Rounded.Logout,
           checkbox = false,
           checked = true,
           onClick = { onAction(LogoutClicked) })
         SettingsRow(
-          title = stringResource(R.string.settings_delete_account),
+          title = stringResource(Res.string.settings_delete_account),
           icon = Rounded.HeartBroken,
           checkbox = false,
           checked = true,
           onClick = { onAction(DeleteAccountClicked) })
       }
     }
-    Section(title = stringResource(R.string.settings_section_about)) {
+    Section(title = stringResource(Res.string.settings_section_about)) {
       Column(modifier = Modifier) {
         SettingsRow(
-          title = stringResource(R.string.settings_whats_new),
+          title = stringResource(Res.string.settings_whats_new),
           icon = Rounded.AutoAwesome,
           checkbox = false,
           checked = true,
           onClick = { onAction(SettingsAction.WhatsNewClicked) })
       }
     }
-    Section(title = stringResource(R.string.settings_section_legal)) {
+    Section(title = stringResource(Res.string.settings_section_legal)) {
       Column(modifier = Modifier) {
         SettingsRow(
-          title = stringResource(R.string.settings_privacy_policy),
+          title = stringResource(Res.string.settings_privacy_policy),
           icon = Filled.Lock,
           checkbox = false,
           checked = true,
           onClick = { onAction(PrivacyClicked) })
       }
     }
-    Section(title = stringResource(R.string.settings_section_debug)) {
+    Section(title = stringResource(Res.string.settings_section_debug)) {
       Column(modifier = Modifier) {
         SettingsRow(
-          title = stringResource(R.string.settings_socket_debug),
+          title = stringResource(Res.string.settings_socket_debug),
           icon = Icons.Filled.BugReport,
           checkbox = false,
           checked = true,
           onClick = { onAction(SettingsAction.SocketDebugClicked) })
         SettingsRow(
-          title = stringResource(R.string.settings_review_prompt),
+          title = stringResource(Res.string.settings_review_prompt),
           icon = Icons.Filled.RateReview,
           checkbox = false,
           checked = true,
@@ -544,7 +600,7 @@ private fun SettingsContent(
       }
     }
     Text(
-      text = stringResource(R.string.settings_build_version, BuildConfig.VERSION_CODE),
+      text = stringResource(Res.string.settings_build_version, BuildConfig.VERSION_CODE),
       fontSize = 12.sp,
       color = MaterialTheme.colorScheme.onSurface,
       modifier = Modifier
@@ -591,7 +647,7 @@ private fun SettingsRow(
       }) {
     Icon(
       imageVector = icon,
-      contentDescription = stringResource(R.string.settings_icon_content_description),
+      contentDescription = stringResource(Res.string.settings_icon_content_description),
       tint = MaterialTheme.colorScheme.primary,
       modifier = Modifier.padding(horizontal = 24.dp)
     )
@@ -634,19 +690,19 @@ private fun SettingsRow(
                         if (style.backgroundImage != null) {
                           Image(
                             painter = painterResource(id = style.backgroundImage),
-                            contentDescription = stringResource(R.string.settings_icon_content_description),
+                            contentDescription = stringResource(Res.string.settings_icon_content_description),
                             modifier = Modifier.size(24.dp)
                           )
                         } else {
                           Image(
                             painter = ColorPainter(colorResource(style.backgroundColor!!)),
-                            contentDescription = stringResource(R.string.settings_icon_content_description),
+                            contentDescription = stringResource(Res.string.settings_icon_content_description),
                             modifier = Modifier.size(24.dp)
                           )
                         }
                         Image(
                           painter = painterResource(id = style.gridPreview),
-                          contentDescription = stringResource(R.string.settings_icon_content_description),
+                          contentDescription = stringResource(Res.string.settings_icon_content_description),
                           modifier = Modifier.size(24.dp)
                         )
                       }
@@ -725,23 +781,24 @@ private fun SettingsScreenPreview() {
   }
 }
 
-@get:StringRes
-private val AppTheme.displayNameResId: Int
+
+private val AppTheme.displayNameResId: StringResource
   get() = when (this) {
-    AppTheme.SYSTEM_DEFAULT -> R.string.settings_theme_system_default
-    AppTheme.LIGHT -> R.string.settings_theme_light
-    AppTheme.DARK -> R.string.settings_theme_dark
+    AppTheme.SYSTEM_DEFAULT -> Res.string.settings_theme_system_default
+    AppTheme.LIGHT -> Res.string.settings_theme_light
+    AppTheme.DARK -> Res.string.settings_theme_dark
   }
 
-@get:StringRes
-private val AppLanguage.displayNameResId: Int
+
+private val AppLanguage.displayNameResId: StringResource
   get() = when (this) {
-    AppLanguage.ENGLISH -> R.string.settings_language_english
-    AppLanguage.CATALAN -> R.string.settings_language_catalan
-    AppLanguage.GERMAN -> R.string.settings_language_german
-    AppLanguage.SPANISH -> R.string.settings_language_spanish
-    AppLanguage.FRENCH -> R.string.settings_language_french
-    AppLanguage.DUTCH -> R.string.settings_language_dutch
-    AppLanguage.ROMANIAN -> R.string.settings_language_romanian
-    AppLanguage.SLOVAK -> R.string.settings_language_slovak
+    AppLanguage.ENGLISH -> Res.string.settings_language_english
+    AppLanguage.CATALAN -> Res.string.settings_language_catalan
+    AppLanguage.GERMAN -> Res.string.settings_language_german
+    AppLanguage.SPANISH -> Res.string.settings_language_spanish
+    AppLanguage.FRENCH -> Res.string.settings_language_french
+    AppLanguage.DUTCH -> Res.string.settings_language_dutch
+    AppLanguage.ROMANIAN -> Res.string.settings_language_romanian
+    AppLanguage.PORTUGUESE -> Res.string.settings_language_portuguese
+    AppLanguage.SLOVAK -> Res.string.settings_language_slovak
   }

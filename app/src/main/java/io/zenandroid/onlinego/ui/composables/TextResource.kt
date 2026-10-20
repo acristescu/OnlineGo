@@ -1,11 +1,9 @@
 package io.zenandroid.onlinego.ui.composables
 
-import android.content.res.Resources
-import androidx.annotation.StringRes
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
-import androidx.compose.ui.platform.LocalResources
-import io.zenandroid.onlinego.utils.CrashReporter
+import org.jetbrains.compose.resources.StringResource
+import org.jetbrains.compose.resources.stringResource
 
 /**
  * A user facing text that has not been resolved yet. It allows view models to describe what should
@@ -14,28 +12,18 @@ import io.zenandroid.onlinego.utils.CrashReporter
  * Use [textResource] to build one with arguments and [resolve] to turn it into a String from a
  * composable.
  *
- * [resId] is only valid for the build that produced it, so a TextResource must never be persisted
- * or sent off-device.
+ * A TextResource must never be persisted or sent off-device.
  */
 @Immutable
 data class TextResource(
-  @StringRes val resId: Int,
+  val resource: StringResource,
   val args: List<Any> = emptyList(),
 )
 
-fun textResource(@StringRes resId: Int, vararg args: Any) = TextResource(resId, args.toList())
+fun textResource(resource: StringResource, vararg args: Any) = TextResource(resource, args.toList())
 
 @Composable
-fun TextResource.resolve(): String {
-  val resources = LocalResources.current
-  return try {
-    if (args.isEmpty()) resources.getString(resId)
-    else resources.getString(resId, *args.toTypedArray())
-  } catch (e: Resources.NotFoundException) {
-    CrashReporter.recordException(e)
-    ""
-  }
-}
+fun TextResource.resolve(): String = stringResource(resource, *args.toTypedArray())
 
 @Composable
 fun TextResource?.resolveOrNull(): String? = this?.resolve()
@@ -50,8 +38,8 @@ sealed interface UiText {
   data class FromResource(val resource: TextResource) : UiText
 }
 
-fun uiText(@StringRes resId: Int, vararg args: Any): UiText =
-  UiText.FromResource(TextResource(resId, args.toList()))
+fun uiText(resource: StringResource, vararg args: Any): UiText =
+  UiText.FromResource(TextResource(resource, args.toList()))
 
 fun literalText(text: String): UiText = UiText.Literal(text)
 

@@ -19,37 +19,39 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.res.stringResource
+import io.zenandroid.onlinego.resources.Res
+import io.zenandroid.onlinego.resources.mygames_learn_to_play
+import io.zenandroid.onlinego.resources.mygames_tutorial_percentage
+import org.jetbrains.compose.resources.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import io.zenandroid.onlinego.R
 
 @Composable
 fun TutorialItem(percentage: Int, tutorial: String) {
     Row(modifier = Modifier.fillMaxWidth()) {
         Text(
-            text = stringResource(R.string.mygames_tutorial_percentage, percentage),
+          text = stringResource(Res.string.mygames_tutorial_percentage, percentage),
             fontWeight = FontWeight.Black,
             color = MaterialTheme.colorScheme.primary,
             modifier = Modifier
-                .align(Alignment.CenterVertically)
-                .padding(24.dp)
+              .align(Alignment.CenterVertically)
+              .padding(24.dp)
         )
         Surface(
             color = MaterialTheme.colorScheme.primary,
             shape = RoundedCornerShape(topStart = 20.dp, bottomStart = 20.dp),
             modifier = Modifier
-                .fillMaxWidth()
-                .height(90.dp)
-                .padding(start = 12.dp)
+              .fillMaxWidth()
+              .height(90.dp)
+              .padding(start = 12.dp)
         ) {
             Row {
                 Canvas(
                     modifier = Modifier
-                        .size(25.dp, 50.dp)
-                        .align(Alignment.CenterVertically)) {
+                      .size(25.dp, 50.dp)
+                      .align(Alignment.CenterVertically)) {
                     drawArc(
                         color = Color.White,
                         alpha = .25f,
@@ -75,7 +77,7 @@ fun TutorialItem(percentage: Int, tutorial: String) {
                 }
                 Column {
                     Text(
-                        text = stringResource(R.string.mygames_learn_to_play),
+                      text = stringResource(Res.string.mygames_learn_to_play),
                         color = Color.White,
                         fontWeight = FontWeight.Bold,
                         fontSize = 14.sp,

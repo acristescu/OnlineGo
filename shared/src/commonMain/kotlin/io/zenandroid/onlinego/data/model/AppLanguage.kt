@@ -15,9 +15,11 @@ import io.zenandroid.onlinego.data.model.AppLanguage.Companion.DEFAULT
  * shows each language by its own name (its endonym), so "Română" reads the same no matter which
  * language the app is currently displaying.
  *
- * To add a language later: add a `values-xx/strings.xml`, add an entry here and its display name in the
- * settings screen, add the tag to `res/xml/locales_config.xml` so it also shows up in the system per-app language settings,
- * and add it to `localeFilters` in `app/build.gradle.kts`, which keeps not-yet-released Crowdin translations out of the APK.
+ * To add a language later: add it to `export_languages` in `crowdin.yml`, which brings its
+ * translations into `composeResources/values-xx` and keeps not-yet-released ones out of the repo,
+ * add an entry here and its display name in the settings screen, add the tag to
+ * `res/xml/locales_config.xml` so it also shows up in the system per-app language settings, and add
+ * it to `localeFilters` in `app/build.gradle.kts`, which keeps library translations out of the APK.
  */
 @Immutable
 enum class AppLanguage(
@@ -31,6 +33,7 @@ enum class AppLanguage(
   SPANISH("es", "es", "🇪🇸"),
   FRENCH("fr", "fr", "🇫🇷"),
   DUTCH("nl", "nl", "🇳🇱"),
+  PORTUGUESE("pt", "pt", "🇵🇹"),
   ROMANIAN("ro", "ro", "🇷🇴"),
   SLOVAK("sk", "sk", "🇸🇰"),
   ;

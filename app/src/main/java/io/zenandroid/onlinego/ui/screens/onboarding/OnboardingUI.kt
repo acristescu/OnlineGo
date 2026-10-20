@@ -49,6 +49,7 @@ import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -57,7 +58,33 @@ import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
+import io.zenandroid.onlinego.resources.Res
+import io.zenandroid.onlinego.resources.cancel
+import io.zenandroid.onlinego.resources.email
+import io.zenandroid.onlinego.resources.ok
+import io.zenandroid.onlinego.resources.onboarding_answer_google
+import io.zenandroid.onlinego.resources.onboarding_answer_offline
+import io.zenandroid.onlinego.resources.onboarding_answer_password
+import io.zenandroid.onlinego.resources.onboarding_continue
+import io.zenandroid.onlinego.resources.onboarding_create_account
+import io.zenandroid.onlinego.resources.onboarding_google_signin_failed
+import io.zenandroid.onlinego.resources.onboarding_link_account
+import io.zenandroid.onlinego.resources.onboarding_login_failed_title
+import io.zenandroid.onlinego.resources.onboarding_notifications_allow
+import io.zenandroid.onlinego.resources.onboarding_notifications_description
+import io.zenandroid.onlinego.resources.onboarding_notifications_skip
+import io.zenandroid.onlinego.resources.onboarding_notifications_title
+import io.zenandroid.onlinego.resources.onboarding_page_go_description
+import io.zenandroid.onlinego.resources.onboarding_page_go_title
+import io.zenandroid.onlinego.resources.onboarding_question_login_method
+import io.zenandroid.onlinego.resources.onboarding_stay_offline_confirm
+import io.zenandroid.onlinego.resources.onboarding_stay_offline_message
+import io.zenandroid.onlinego.resources.onboarding_stay_offline_title
+import io.zenandroid.onlinego.resources.password
+import io.zenandroid.onlinego.resources.username
+import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.getString
+import org.jetbrains.compose.resources.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -92,6 +119,7 @@ fun OnboardingScreen(
 ) {
   val state by viewModel.state.collectAsStateWithLifecycle()
   val activity = LocalActivity.current
+  val coroutineScope = rememberCoroutineScope()
 
   val notificationPermissionLauncher = rememberLauncherForActivityResult(
     contract = ActivityResultContracts.RequestPermission()
@@ -111,12 +139,13 @@ fun OnboardingScreen(
       } catch (e: ApiException) {
         Logger.w("signInResult:failed code=" + e.statusCode, tag = "OnboardingFragment")
         CrashReporter.recordException(e)
-        Toast.makeText(
-          activity,
-          activity?.getString(R.string.onboarding_google_signin_failed, e.statusCode),
-          Toast.LENGTH_LONG
-        )
-          .show()
+        coroutineScope.launch {
+          Toast.makeText(
+            activity,
+            getString(Res.string.onboarding_google_signin_failed, e.statusCode),
+            Toast.LENGTH_LONG
+          ).show()
+        }
         viewModel.onAction(SocialPlatformLoginFailed)
       }
     } else {
@@ -260,7 +289,7 @@ private fun ColumnScope.LoginPage(
     if (!state.isExistingAccount) {
       OutlinedTextField(
         value = state.email,
-        label = { Text(stringResource(R.string.email)) },
+        label = { Text(stringResource(Res.string.email)) },
         enabled = !state.loginProcessing,
         onValueChange = { listener.invoke(OnboardingAction.EmailChanged(it)) },
         singleLine = true,
@@ -278,7 +307,7 @@ private fun ColumnScope.LoginPage(
     }
     OutlinedTextField(
       value = state.username,
-      label = { Text(stringResource(R.string.username)) },
+      label = { Text(stringResource(Res.string.username)) },
       enabled = !state.loginProcessing,
       onValueChange = { listener.invoke(OnboardingAction.UsernameChanged(it)) },
       singleLine = true,
@@ -298,7 +327,7 @@ private fun ColumnScope.LoginPage(
 
     OutlinedTextField(
       value = state.password,
-      label = { Text(stringResource(R.string.password)) },
+      label = { Text(stringResource(Res.string.password)) },
       enabled = !state.loginProcessing,
       onValueChange = { listener.invoke(OnboardingAction.PasswordChanged(it)) },
       visualTransformation = if (!passwordVisibility) PasswordVisualTransformation() else VisualTransformation.None,
@@ -331,8 +360,8 @@ private fun ColumnScope.LoginPage(
   ) {
     if (!state.loginProcessing) {
       Text(
-        text = if (state.isExistingAccount) stringResource(R.string.onboarding_link_account)
-        else stringResource(R.string.onboarding_create_account),
+        text = if (state.isExistingAccount) stringResource(Res.string.onboarding_link_account)
+        else stringResource(Res.string.onboarding_create_account),
         fontSize = 18.sp,
         fontWeight = FontWeight.Bold
       )
@@ -346,12 +375,12 @@ private fun ColumnScope.LoginPage(
       onDismissRequest = { listener(OnboardingAction.DialogDismissed) },
       confirmButton = {
         Button(onClick = { listener(OnboardingAction.DialogDismissed) }) {
-          Text(text = stringResource(R.string.ok))
+          Text(text = stringResource(Res.string.ok))
         }
       },
       title = {
         Text(
-          text = stringResource(R.string.onboarding_login_failed_title),
+          text = stringResource(Res.string.onboarding_login_failed_title),
           style = MaterialTheme.typography.titleLarge
         )
       },
@@ -369,19 +398,19 @@ fun OfflineConfirmationDialog(
     onDismissRequest = onDismiss,
     title = {
       Text(
-        stringResource(R.string.onboarding_stay_offline_title),
+        stringResource(Res.string.onboarding_stay_offline_title),
         style = MaterialTheme.typography.titleLarge
       )
     },
-    text = { Text(stringResource(R.string.onboarding_stay_offline_message)) },
+    text = { Text(stringResource(Res.string.onboarding_stay_offline_message)) },
     confirmButton = {
       TextButton(onClick = onConfirm) {
-        Text(stringResource(R.string.onboarding_stay_offline_confirm))
+        Text(stringResource(Res.string.onboarding_stay_offline_confirm))
       }
     },
     dismissButton = {
       TextButton(onClick = onDismiss) {
-        Text(stringResource(R.string.cancel))
+        Text(stringResource(Res.string.cancel))
       }
     }
   )
@@ -550,9 +579,9 @@ fun DefaultPreview() {
         totalPages = 6,
         currentPage = OnboardingPage(
           R.drawable.art_onboarding,
-          R.string.onboarding_page_go_title,
-          R.string.onboarding_page_go_description,
-          R.string.onboarding_continue
+          Res.string.onboarding_page_go_title,
+          Res.string.onboarding_page_go_description,
+          Res.string.onboarding_continue
         ),
       ),
       {},
@@ -569,11 +598,11 @@ fun DefaultPreview1() {
     OnboardingContent(
       OnboardingState(
         currentPage = Page.MultipleChoicePage(
-          R.string.onboarding_question_login_method,
+          Res.string.onboarding_question_login_method,
           listOf(
-            R.string.onboarding_answer_google,
-            R.string.onboarding_answer_password,
-            R.string.onboarding_answer_offline
+            Res.string.onboarding_answer_google,
+            Res.string.onboarding_answer_password,
+            Res.string.onboarding_answer_offline
           )
         ),
         totalPages = 6,
@@ -609,10 +638,10 @@ fun DefaultPreview3() {
     OnboardingContent(
       OnboardingState(
         currentPage = Page.NotificationPermissionPage(
-          title = R.string.onboarding_notifications_title,
-          description = R.string.onboarding_notifications_description,
-          allowButtonText = R.string.onboarding_notifications_allow,
-          skipButtonText = R.string.onboarding_notifications_skip
+          title = Res.string.onboarding_notifications_title,
+          description = Res.string.onboarding_notifications_description,
+          allowButtonText = Res.string.onboarding_notifications_allow,
+          skipButtonText = Res.string.onboarding_notifications_skip
         ),
         totalPages = 6,
       ),
@@ -630,11 +659,11 @@ fun DefaultPreview4() {
     OnboardingContent(
       OnboardingState(
         currentPage = Page.MultipleChoicePage(
-          R.string.onboarding_question_login_method,
+          Res.string.onboarding_question_login_method,
           listOf(
-            R.string.onboarding_answer_google,
-            R.string.onboarding_answer_password,
-            R.string.onboarding_answer_offline
+            Res.string.onboarding_answer_google,
+            Res.string.onboarding_answer_password,
+            Res.string.onboarding_answer_offline
           )
         ),
         totalPages = 6,

@@ -64,7 +64,51 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.res.stringResource
+import io.zenandroid.onlinego.resources.Black
+import io.zenandroid.onlinego.resources.Res
+import io.zenandroid.onlinego.resources.White
+import io.zenandroid.onlinego.resources.ai_game_chat_engine_starting
+import io.zenandroid.onlinego.resources.ai_game_chat_game_over_ai_won
+import io.zenandroid.onlinego.resources.ai_game_chat_your_turn
+import io.zenandroid.onlinego.resources.ai_game_difficulty_dan
+import io.zenandroid.onlinego.resources.ai_game_difficulty_kyu
+import io.zenandroid.onlinego.resources.ai_game_difficulty_scale_hint
+import io.zenandroid.onlinego.resources.ai_game_eval_score_lead_compact
+import io.zenandroid.onlinego.resources.ai_game_eval_winrate_compact
+import io.zenandroid.onlinego.resources.ai_game_handicap_no_komi
+import io.zenandroid.onlinego.resources.ai_game_handicap_none
+import io.zenandroid.onlinego.resources.ai_game_hide_eval
+import io.zenandroid.onlinego.resources.ai_game_new
+import io.zenandroid.onlinego.resources.ai_game_next
+import io.zenandroid.onlinego.resources.ai_game_pass
+import io.zenandroid.onlinego.resources.ai_game_player_captures_and_komi
+import io.zenandroid.onlinego.resources.ai_game_player_captures_only
+import io.zenandroid.onlinego.resources.ai_game_previous
+import io.zenandroid.onlinego.resources.ai_game_rules
+import io.zenandroid.onlinego.resources.ai_game_rules_chinese
+import io.zenandroid.onlinego.resources.ai_game_rules_japanese
+import io.zenandroid.onlinego.resources.ai_game_show_eval
+import io.zenandroid.onlinego.resources.ai_resign_offer_accept
+import io.zenandroid.onlinego.resources.ai_resign_offer_decline
+import io.zenandroid.onlinego.resources.ai_resign_offer_message
+import io.zenandroid.onlinego.resources.ai_resign_offer_title
+import io.zenandroid.onlinego.resources.back
+import io.zenandroid.onlinego.resources.board_size
+import io.zenandroid.onlinego.resources.difficulty
+import io.zenandroid.onlinego.resources.handicap
+import io.zenandroid.onlinego.resources.hint
+import io.zenandroid.onlinego.resources.illegal_ko_move
+import io.zenandroid.onlinego.resources.katago
+import io.zenandroid.onlinego.resources.ko_explanation
+import io.zenandroid.onlinego.resources.local_ai_game
+import io.zenandroid.onlinego.resources.new_game
+import io.zenandroid.onlinego.resources.ok
+import io.zenandroid.onlinego.resources.start_game
+import io.zenandroid.onlinego.resources.territory
+import io.zenandroid.onlinego.resources.you
+import io.zenandroid.onlinego.resources.you_play
+import org.jetbrains.compose.resources.StringResource
+import org.jetbrains.compose.resources.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -97,7 +141,7 @@ import kotlin.math.abs
 
 sealed class AiGameBottomBarButton(
   val icon: ImageVector,
-  val labelResId: Int,
+  val labelResId: StringResource,
   val enabled: Boolean = true,
 ) {
 
@@ -105,7 +149,7 @@ sealed class AiGameBottomBarButton(
     val isEnabled: Boolean = true
   ) : AiGameBottomBarButton(
     icon = Icons.Filled.Casino,
-    labelResId = R.string.ai_game_new,
+    labelResId = Res.string.ai_game_new,
     enabled = isEnabled
   )
 
@@ -113,7 +157,7 @@ sealed class AiGameBottomBarButton(
     val isEnabled: Boolean = true
   ) : AiGameBottomBarButton(
     icon = Icons.Rounded.Stop,
-    labelResId = R.string.ai_game_pass,
+    labelResId = Res.string.ai_game_pass,
     enabled = isEnabled
   )
 
@@ -121,7 +165,7 @@ sealed class AiGameBottomBarButton(
     val isEnabled: Boolean = true
   ) : AiGameBottomBarButton(
     icon = Icons.AutoMirrored.Filled.NavigateBefore,
-    labelResId = R.string.ai_game_previous,
+    labelResId = Res.string.ai_game_previous,
     enabled = isEnabled
   )
 
@@ -129,7 +173,7 @@ sealed class AiGameBottomBarButton(
     val isEnabled: Boolean = true
   ) : AiGameBottomBarButton(
     icon = Icons.AutoMirrored.Filled.NavigateNext,
-    labelResId = R.string.ai_game_next,
+    labelResId = Res.string.ai_game_next,
     enabled = isEnabled
   )
 }
@@ -307,13 +351,13 @@ internal fun AiGameUI(
       onDismissRequest = onDismissKoDialog,
       confirmButton = {
         TextButton(onClick = onDismissKoDialog) {
-          Text(stringResource(R.string.ok))
+          Text(stringResource(Res.string.ok))
         }
       },
-      text = { Text(stringResource(R.string.ko_explanation)) },
+      text = { Text(stringResource(Res.string.ko_explanation)) },
       title = {
         Text(
-          stringResource(R.string.illegal_ko_move),
+          stringResource(Res.string.illegal_ko_move),
           style = MaterialTheme.typography.titleLarge
         )
       },
@@ -325,18 +369,18 @@ internal fun AiGameUI(
       onDismissRequest = onDeclineAiResignOffer,
       confirmButton = {
         TextButton(onClick = onAcceptAiResignOffer) {
-          Text(stringResource(R.string.ai_resign_offer_accept))
+          Text(stringResource(Res.string.ai_resign_offer_accept))
         }
       },
       dismissButton = {
         TextButton(onClick = onDeclineAiResignOffer) {
-          Text(stringResource(R.string.ai_resign_offer_decline))
+          Text(stringResource(Res.string.ai_resign_offer_decline))
         }
       },
-      text = { Text(stringResource(R.string.ai_resign_offer_message)) },
+      text = { Text(stringResource(Res.string.ai_resign_offer_message)) },
       title = {
         Text(
-          stringResource(R.string.ai_resign_offer_title),
+          stringResource(Res.string.ai_resign_offer_title),
           style = MaterialTheme.typography.titleLarge
         )
       },
@@ -384,13 +428,13 @@ private fun Header(
     IconButton(onClick = onNavigateBack) {
       Icon(
         Icons.AutoMirrored.Filled.ArrowBack,
-        contentDescription = stringResource(R.string.back),
+        contentDescription = stringResource(Res.string.back),
         tint = MaterialTheme.colorScheme.onSurface
       )
     }
     Column(modifier = Modifier.padding(start = 4.dp)) {
       Text(
-        text = stringResource(R.string.local_ai_game),
+        text = stringResource(Res.string.local_ai_game),
         style = MaterialTheme.typography.titleLarge,
         color = MaterialTheme.colorScheme.onSurface
       )
@@ -438,7 +482,7 @@ private fun AiPlayerRow(
       AiChatBox(
         text = when {
           state.engineFailedToStart -> state.chatText?.resolve()
-          !state.isGameReady -> stringResource(R.string.ai_game_chat_engine_starting)
+          !state.isGameReady -> stringResource(Res.string.ai_game_chat_engine_starting)
           else -> state.chatText?.resolve()
         },
         modifier = Modifier
@@ -495,7 +539,7 @@ private fun AiPlayerRowContent(
             .height(0.dp)
             .weight(1f),
         ) {
-          Text(stringResource(R.string.territory), style = MaterialTheme.typography.labelMedium)
+          Text(stringResource(Res.string.territory), style = MaterialTheme.typography.labelMedium)
         }
       }
       if (state.hintButtonVisible) {
@@ -510,7 +554,7 @@ private fun AiPlayerRowContent(
             .height(0.dp)
             .weight(1f),
         ) {
-          Text(stringResource(R.string.hint), style = MaterialTheme.typography.labelMedium)
+          Text(stringResource(Res.string.hint), style = MaterialTheme.typography.labelMedium)
         }
         Spacer(Modifier.height(4.dp))
       }
@@ -599,7 +643,7 @@ private fun UserPlayerRowContent(
     ) {
       Text(
         text = stringResource(
-          if (evalVisible) R.string.ai_game_hide_eval else R.string.ai_game_show_eval
+          if (evalVisible) Res.string.ai_game_hide_eval else Res.string.ai_game_show_eval
         ),
         style = MaterialTheme.typography.labelMedium,
       )
@@ -636,7 +680,7 @@ private fun AiGameLandscapePanel(
       AiChatBox(
         text = when {
           state.engineFailedToStart -> state.chatText?.resolve()
-          !state.isGameReady -> stringResource(R.string.ai_game_chat_engine_starting)
+          !state.isGameReady -> stringResource(Res.string.ai_game_chat_engine_starting)
           else -> state.chatText?.resolve()
         },
         modifier = Modifier
@@ -668,17 +712,17 @@ private fun AiGameLandscapePanel(
 private fun aiPlayerData(state: AiGameState): PlayerData {
   val aiPaysKomi = !state.enginePlaysBlack
   return PlayerData(
-    name = stringResource(R.string.katago),
+    name = stringResource(Res.string.katago),
     details = state.position?.let { position ->
       val captures =
         if (state.enginePlaysBlack) position.blackCaptureCount else position.whiteCaptureCount
       val komi = position.komi
       if (aiPaysKomi && komi != null) textResource(
-        R.string.ai_game_player_captures_and_komi,
+        Res.string.ai_game_player_captures_and_komi,
         captures,
         komi
       )
-      else textResource(R.string.ai_game_player_captures_only, captures)
+      else textResource(Res.string.ai_game_player_captures_only, captures)
     },
     rank = state.difficulty.rank.shortLabel(),
     flagCode = "",
@@ -691,17 +735,17 @@ private fun aiPlayerData(state: AiGameState): PlayerData {
 private fun userPlayerData(state: AiGameState, userIcon: String?): PlayerData {
   val userPaysKomi = state.enginePlaysBlack
   return PlayerData(
-    name = stringResource(R.string.you),
+    name = stringResource(Res.string.you),
     details = state.position?.let { position ->
       val captures =
         if (state.enginePlaysBlack) position.whiteCaptureCount else position.blackCaptureCount
       val komi = position.komi
       if (userPaysKomi && komi != null) textResource(
-        R.string.ai_game_player_captures_and_komi,
+        Res.string.ai_game_player_captures_and_komi,
         captures,
         komi
       )
-      else textResource(R.string.ai_game_player_captures_only, captures)
+      else textResource(Res.string.ai_game_player_captures_only, captures)
     },
     rank = "",
     flagCode = "",
@@ -737,7 +781,7 @@ private fun AnalysisPanel(
         val blackPercentage = 100f - whitePercentage
         Text(
           text = stringResource(
-            R.string.ai_game_eval_winrate_compact,
+            Res.string.ai_game_eval_winrate_compact,
             formatOneDecimal(blackPercentage.toDouble()),
             formatOneDecimal(whitePercentage.toDouble())
           ),
@@ -760,7 +804,7 @@ private fun AnalysisPanel(
           val magnitude = abs(scoreLead)
           Text(
             text = stringResource(
-              R.string.ai_game_eval_score_lead_compact,
+              Res.string.ai_game_eval_score_lead_compact,
               leaderLetter,
               formatOneDecimal(magnitude.toDouble())
             ),
@@ -844,22 +888,22 @@ private fun AiGameBottomBarButtonView(
 @Composable
 private fun getHandicapDescription(handicap: Int): String {
   return when (handicap) {
-    0 -> stringResource(R.string.ai_game_handicap_none)
-    1 -> stringResource(R.string.ai_game_handicap_no_komi)
+    0 -> stringResource(Res.string.ai_game_handicap_none)
+    1 -> stringResource(Res.string.ai_game_handicap_no_komi)
     else -> handicap.toString()
   }
 }
 
 @Composable
 private fun DifficultyRank.resolve(): String = when (this) {
-  is DifficultyRank.Kyu -> stringResource(R.string.ai_game_difficulty_kyu, n)
-  is DifficultyRank.Dan -> stringResource(R.string.ai_game_difficulty_dan, n)
+  is DifficultyRank.Kyu -> stringResource(Res.string.ai_game_difficulty_kyu, n)
+  is DifficultyRank.Dan -> stringResource(Res.string.ai_game_difficulty_dan, n)
 }
 
 @Composable
 private fun AiRules.resolve(): String = when (this) {
-  AiRules.JAPANESE -> stringResource(R.string.ai_game_rules_japanese)
-  AiRules.CHINESE -> stringResource(R.string.ai_game_rules_chinese)
+  AiRules.JAPANESE -> stringResource(Res.string.ai_game_rules_japanese)
+  AiRules.CHINESE -> stringResource(Res.string.ai_game_rules_chinese)
 }
 
 @Composable
@@ -893,14 +937,14 @@ private fun NewGameBottomSheet(
     ) {
       Column(Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp)) {
         Text(
-          text = stringResource(R.string.new_game),
+          text = stringResource(Res.string.new_game),
           style = MaterialTheme.typography.headlineLarge,
           textAlign = TextAlign.Center,
           modifier = Modifier.fillMaxWidth(),
         )
 
         Text(
-          text = stringResource(R.string.board_size),
+          text = stringResource(Res.string.board_size),
           modifier = Modifier.padding(top = 16.dp)
         )
         Row(
@@ -923,7 +967,7 @@ private fun NewGameBottomSheet(
         }
 
         Text(
-          text = stringResource(R.string.you_play),
+          text = stringResource(Res.string.you_play),
           modifier = Modifier.padding(top = 16.dp)
         )
         Row(
@@ -938,7 +982,7 @@ private fun NewGameBottomSheet(
             ),
             onClick = { youPlayBlack = true },
             label = {
-              Text(stringResource(R.string.Black))
+              Text(stringResource(Res.string.Black))
             }
           )
           FilterChip(
@@ -949,7 +993,7 @@ private fun NewGameBottomSheet(
             ),
             onClick = { youPlayBlack = false },
             label = {
-              Text(stringResource(R.string.White))
+              Text(stringResource(Res.string.White))
             }
           )
         }
@@ -961,7 +1005,7 @@ private fun NewGameBottomSheet(
           horizontalArrangement = Arrangement.SpaceBetween,
           verticalAlignment = Alignment.CenterVertically
         ) {
-          Text(stringResource(R.string.handicap))
+          Text(stringResource(Res.string.handicap))
           Text(
             text = getHandicapDescription(handicap.toInt()),
             fontSize = 12.sp,
@@ -977,7 +1021,7 @@ private fun NewGameBottomSheet(
         )
 
         Text(
-          text = stringResource(R.string.ai_game_rules),
+          text = stringResource(Res.string.ai_game_rules),
           modifier = Modifier.padding(top = 16.dp)
         )
         Row(
@@ -1006,7 +1050,7 @@ private fun NewGameBottomSheet(
           horizontalArrangement = Arrangement.SpaceBetween,
           verticalAlignment = Alignment.CenterVertically
         ) {
-          Text(stringResource(R.string.difficulty))
+          Text(stringResource(Res.string.difficulty))
           Text(
             text = difficulty.rank.resolve(),
             fontSize = 12.sp,
@@ -1014,7 +1058,7 @@ private fun NewGameBottomSheet(
           )
         }
         Text(
-          text = stringResource(R.string.ai_game_difficulty_scale_hint),
+          text = stringResource(Res.string.ai_game_difficulty_scale_hint),
           fontSize = 12.sp,
           color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
         )
@@ -1045,11 +1089,11 @@ private fun NewGameBottomSheet(
           enabled = canStartGame,
           onClick = { onNewGame(selectedSize, youPlayBlack, handicap.toInt(), difficulty, rules) }
         ) {
-          Text(stringResource(R.string.start_game))
+          Text(stringResource(Res.string.start_game))
         }
         if (!canStartGame) {
           Text(
-            text = stringResource(R.string.ai_game_chat_engine_starting),
+            text = stringResource(Res.string.ai_game_chat_engine_starting),
             style = MaterialTheme.typography.labelSmall,
             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
             textAlign = TextAlign.Center,
@@ -1068,7 +1112,7 @@ private val previewState = AiGameState(
   enginePlaysBlack = true,
   engineStarted = true,
   stateRestorePending = false,
-  chatText = textResource(R.string.ai_game_chat_game_over_ai_won, 61.5f, 58f),
+  chatText = textResource(Res.string.ai_game_chat_game_over_ai_won, 61.5f, 58f),
   position = Position(
     boardWidth = 19,
     boardHeight = 19,
@@ -1156,7 +1200,7 @@ private fun AiGameUIPreviewNoEvalYet() {
       state = previewState.copy(
         aiAnalysis = null,
         aiQuickEstimation = null,
-        chatText = textResource(R.string.ai_game_chat_your_turn),
+        chatText = textResource(Res.string.ai_game_chat_your_turn),
       ),
       userIcon = null,
       onUserTappedCoordinate = {},

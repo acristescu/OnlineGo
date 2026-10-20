@@ -15,13 +15,15 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.res.stringResource
+import io.zenandroid.onlinego.resources.Res
+import io.zenandroid.onlinego.resources.mygames_paused
+import io.zenandroid.onlinego.resources.unknown
+import org.jetbrains.compose.resources.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.StoneType
 import io.zenandroid.onlinego.data.model.local.Game
 import io.zenandroid.onlinego.data.model.local.isPaused
@@ -77,7 +79,7 @@ fun LargeGameItem(game: Game, userId: Long?, onAction: (Action) -> Unit, modifie
                 Column {
                     Row {
                         Text(
-                            text = opponent?.username ?: stringResource(R.string.unknown),
+                          text = opponent?.username ?: stringResource(Res.string.unknown),
                             style = TextStyle.Default.copy(
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.Bold
@@ -97,7 +99,7 @@ fun LargeGameItem(game: Game, userId: Long?, onAction: (Action) -> Unit, modifie
                         )
                         if (game.pauseControl.isPaused()) {
                             Text(
-                                text = "  ·  " + stringResource(R.string.mygames_paused),
+                              text = "  ·  " + stringResource(Res.string.mygames_paused),
                                 style = TextStyle.Default.copy(
                                     fontSize = 12.sp,
                                 ),

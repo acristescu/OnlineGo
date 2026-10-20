@@ -34,7 +34,17 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.res.stringResource
+import io.zenandroid.onlinego.resources.Res
+import io.zenandroid.onlinego.resources.search
+import io.zenandroid.onlinego.resources.select_opponent_bots_description
+import io.zenandroid.onlinego.resources.select_opponent_bots_title
+import io.zenandroid.onlinego.resources.select_opponent_icon_content_description
+import io.zenandroid.onlinego.resources.select_opponent_recent_description
+import io.zenandroid.onlinego.resources.select_opponent_recent_title
+import io.zenandroid.onlinego.resources.select_opponent_search_hint
+import io.zenandroid.onlinego.resources.select_opponent_tab_bot
+import io.zenandroid.onlinego.resources.select_opponent_tab_recent
+import org.jetbrains.compose.resources.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -130,21 +140,21 @@ private fun SelectOpponentDialogContent(
           Tab(
             selected = state.selectedTab == Tab.BOT,
             onClick = { onEvent(Event.TabSelected(Tab.BOT)) },
-            text = { Text(text = stringResource(R.string.select_opponent_tab_bot)) },
+            text = { Text(text = stringResource(Res.string.select_opponent_tab_bot)) },
             selectedContentColor = MaterialTheme.colorScheme.primary,
             unselectedContentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
           )
           Tab(
             selected = state.selectedTab == Tab.RECENT,
             onClick = { onEvent(Event.TabSelected(Tab.RECENT)) },
-            text = { Text(text = stringResource(R.string.select_opponent_tab_recent)) },
+            text = { Text(text = stringResource(Res.string.select_opponent_tab_recent)) },
             selectedContentColor = MaterialTheme.colorScheme.primary,
             unselectedContentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
           )
           Tab(
             selected = state.selectedTab == Tab.SEARCH,
             onClick = { onEvent(Event.TabSelected(Tab.SEARCH)) },
-            text = { Text(text = stringResource(R.string.search)) },
+            text = { Text(text = stringResource(Res.string.search)) },
             selectedContentColor = MaterialTheme.colorScheme.primary,
             unselectedContentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
           )
@@ -182,12 +192,12 @@ private fun BotList(state: SelectOpponentState, onOpponentSelected: (Player) -> 
       .padding(16.dp)
   ) {
     Text(
-      text = stringResource(R.string.select_opponent_bots_title),
+      text = stringResource(Res.string.select_opponent_bots_title),
       style = MaterialTheme.typography.headlineMedium,
       modifier = Modifier.padding(bottom = 16.dp),
     )
     Text(
-      text = stringResource(R.string.select_opponent_bots_description),
+      text = stringResource(Res.string.select_opponent_bots_description),
       style = MaterialTheme.typography.bodyMedium,
       modifier = Modifier.padding(bottom = 16.dp),
     )
@@ -213,7 +223,7 @@ private fun OpponentItem(opponent: Player, modifier: Modifier = Modifier) {
         .placeholder(R.drawable.ic_person_filled_with_background)
         .error(R.mipmap.placeholder)
         .build(),
-      contentDescription = stringResource(R.string.select_opponent_icon_content_description),
+      contentDescription = stringResource(Res.string.select_opponent_icon_content_description),
       modifier = Modifier
         .size(48.dp)
         .clip(CircleShape)
@@ -246,12 +256,12 @@ private fun RecentList(state: SelectOpponentState, onOpponentSelected: (Player) 
       .padding(16.dp)
   ) {
     Text(
-      text = stringResource(R.string.select_opponent_recent_title),
+      text = stringResource(Res.string.select_opponent_recent_title),
       style = MaterialTheme.typography.headlineMedium,
       modifier = Modifier.padding(bottom = 16.dp),
     )
     Text(
-      text = stringResource(R.string.select_opponent_recent_description),
+      text = stringResource(Res.string.select_opponent_recent_description),
       style = MaterialTheme.typography.bodyMedium,
       modifier = Modifier.padding(bottom = 16.dp),
     )
@@ -284,7 +294,7 @@ private fun Search(
     SearchTextField(
       value = state.searchTerm,
       onValueChange = onSearchTermChanged,
-      hint = stringResource(R.string.select_opponent_search_hint),
+      hint = stringResource(Res.string.select_opponent_search_hint),
       modifier = Modifier
         .fillMaxWidth()
         .padding(horizontal = 16.dp)

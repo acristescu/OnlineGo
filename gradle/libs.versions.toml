@@ -94,6 +94,7 @@ cmp-ui = { module = "org.jetbrains.compose.ui:ui", version.ref = "composeMultipl
 cmp-foundation = { module = "org.jetbrains.compose.foundation:foundation", version.ref = "composeMultiplatform" }
 cmp-material3 = { module = "org.jetbrains.compose.material3:material3", version.ref = "composeMultiplatformMaterial3" }
 cmp-ui-test = { module = "org.jetbrains.compose.ui:ui-test", version.ref = "composeMultiplatform" }
+cmp-resources = { module = "org.jetbrains.compose.components:components-resources", version.ref = "composeMultiplatform" }
 
 # Molecule
 molecule-runtime = { group = "app.cash.molecule", name = "molecule-runtime", version.ref = "molecule" }

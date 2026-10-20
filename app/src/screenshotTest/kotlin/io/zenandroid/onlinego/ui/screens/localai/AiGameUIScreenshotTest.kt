@@ -3,10 +3,13 @@ package io.zenandroid.onlinego.ui.screens.localai
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import com.android.tools.screenshot.PreviewTest
-import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.Position
 import io.zenandroid.onlinego.data.model.katago.KataGoResponse.Response
 import io.zenandroid.onlinego.data.model.katago.RootInfo
+import io.zenandroid.onlinego.resources.Res
+import io.zenandroid.onlinego.resources.ai_game_chat_game_over_ai_won
+import io.zenandroid.onlinego.resources.ai_game_chat_ready
+import io.zenandroid.onlinego.resources.ai_game_chat_your_turn
 import io.zenandroid.onlinego.ui.composables.textResource
 import io.zenandroid.onlinego.ui.theme.OnlineGoPreviewTheme
 import kotlinx.collections.immutable.persistentListOf
@@ -16,7 +19,7 @@ private val screenshotState = AiGameState(
   enginePlaysBlack = true,
   engineStarted = true,
   stateRestorePending = false,
-  chatText = textResource(R.string.ai_game_chat_game_over_ai_won, 61.5f, 58f),
+  chatText = textResource(Res.string.ai_game_chat_game_over_ai_won, 61.5f, 58f),
   position = Position(
     boardWidth = 19,
     boardHeight = 19,
@@ -164,7 +167,7 @@ fun AiGameUiScreenshotLoading() {
 fun AiGameUiScreenshotShortMessage() {
   OnlineGoPreviewTheme(darkTheme = false) {
     AiGameUI(
-      state = screenshotState.copy(chatText = textResource(R.string.ai_game_chat_ready)),
+      state = screenshotState.copy(chatText = textResource(Res.string.ai_game_chat_ready)),
       userIcon = null,
       onUserTappedCoordinate = {},
       onUserHotTrackedCoordinate = {},
@@ -193,7 +196,7 @@ fun AiGameUiScreenshotNoEvalYet() {
       state = screenshotState.copy(
         aiAnalysis = null,
         aiQuickEstimation = null,
-        chatText = textResource(R.string.ai_game_chat_your_turn),
+        chatText = textResource(Res.string.ai_game_chat_your_turn),
       ),
       userIcon = null,
       onUserTappedCoordinate = {},
@@ -221,7 +224,7 @@ fun AiGameUiScreenshotNoAnalysisButtons() {
   OnlineGoPreviewTheme(darkTheme = false) {
     AiGameUI(
       state = screenshotState.copy(
-        chatText = textResource(R.string.ai_game_chat_ready),
+        chatText = textResource(Res.string.ai_game_chat_ready),
         ownershipButtonVisible = false,
         hintButtonVisible = false,
       ),
