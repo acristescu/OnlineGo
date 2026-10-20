@@ -127,14 +127,12 @@ dependencies {
   // Android Core
   implementation(libs.androidx.core.ktx)
   implementation(libs.androidx.activity.compose)
-  implementation(libs.androidx.lifecycle.extensions)
   implementation(libs.androidx.lifecycle.viewmodel.ktx)
 
   // Firebase
   implementation(platform(libs.firebase.bom))
   implementation(libs.firebase.analytics)
   implementation(libs.firebase.crashlytics)
-  implementation(libs.firebase.messaging)
 
   // Google Play Services
   implementation(libs.play.services.auth)

@@ -2,58 +2,23 @@
 <resources>
     <color name="colorText">#212121</color>
     <color name="colorActionableText">@color/colorAccent</color>
-    <color name="colorTextBackground">#FFFFFF</color>
     <color name="colorTextSecondary">#757575</color>
-
-    <color name="loginBackground">@color/colorPrimary</color>
-    <color name="loginText">@color/colorPrimary</color>
-
-    <color name="playerDetailsText">@color/colorTextSecondary</color>
-    <color name="dialogBackground">#FFFFFF</color>
 
     <color name="buttonEnabled">#000000</color>
     <color name="buttonDisabled">#66000000</color>
-
-    <color name="stoneColorSeparator">#000000</color>
-    <color name="sectionHeader">#9b9b9b</color>
-
-    <color name="statusBarColor">@color/colorOffWhite</color>
-    <color name="headerPrimary">@color/colorPrimary</color>
-    <color name="colorNavigation">@color/colorPrimaryDark</color>
-    <color name="colorNavigationUnselected">@color/colorTextSecondary</color>
-    <color name="cardBorder">#00FFFFFF</color>
-    <color name="roundButtonBorder">#FFFFFF</color>
-    <color name="roundButtonBackground">@color/colorAccent</color>
-    <color name="headerPrimaryText">#FFFFFF</color>
 
     <color name="colorSecondary">#79b3e4</color>
     <color name="colorSecondaryVariant">#e4f0fa</color>
     <color name="colorPrimary">#ed7861</color>
     <color name="colorPrimaryVariant">#fad7d0</color>
-    <color name="colorOnSurface">#e8bd4b</color>
 
-    <color name="colorPrimaryLight">#E5F0FF</color>
     <color name="colorPrimaryDark">#2588c9</color>
     <color name="colorAccent">#ed7861</color>
     <color name="colorOffWhite">#F2F4F7</color>
 
-    <color name="color_type_info">#79b3e4</color>
-    <color name="color_type_help">#e8bd4b</color>
-    <color name="color_type_wrong">#ed7861</color>
-    <color name="color_type_warning">#e8bd4b</color>
-    <color name="color_type_success">#90b06e</color>
-
-
-    <color name="chartWon">#90b06e</color>
-    <color name="chartLost">#ed7861</color>
     <color name="rankGraphLine">#66ed7861</color>
-    <color name="panelBackground">#FFFFFF</color>
-    <color name="accentGradientStart">#ff9a83</color>
-    <color name="accentGradientEnd">#df6a53</color>
-    <color name="colorToolbarBackground">#FFFFFF</color>
 
     <!--Color used for board background-->
-    <color name="bg_yellow">#FFEB3B</color>
     <color name="bg_cyan">#00E7FB</color>
     <color name="bg_dark_blue">#090C1F</color>
     <color name="bg_book">#FFFFFF</color>

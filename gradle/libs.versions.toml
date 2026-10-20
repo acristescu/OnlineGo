@@ -78,7 +78,6 @@ compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = 
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "androidx-core" }
 androidx-collection = { group = "androidx.collection", name = "collection", version.ref = "androidx-collection" }
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "androidx-activity" }
-androidx-lifecycle-extensions = { group = "androidx.lifecycle", name = "lifecycle-extensions", version = "2.2.0" }
 androidx-lifecycle-viewmodel-ktx = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-ktx", version.ref = "androidx-lifecycle" }
 
 # Compose (versions managed by BOM)
@@ -107,7 +106,6 @@ material = { group = "com.google.android.material", name = "material", version.r
 firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebase" }
 firebase-analytics = { group = "com.google.firebase", name = "firebase-analytics" }
 firebase-crashlytics = { group = "com.google.firebase", name = "firebase-crashlytics" }
-firebase-messaging = { group = "com.google.firebase", name = "firebase-messaging" }
 
 # Google Play Services
 navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose" }

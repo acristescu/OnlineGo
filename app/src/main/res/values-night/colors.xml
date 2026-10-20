@@ -2,48 +2,19 @@
 <resources>
     <color name="colorText">#F0F0F0</color>
     <color name="colorActionableText">#389FFF</color>
-    <color name="colorTextBackground">#16151A</color>
     <color name="colorTextSecondary">#F0F0F0</color>
-    <color name="sectionHeader">@color/colorText</color>
 
     <color name="colorSecondary">#79b3e4</color>
     <color name="colorSecondaryVariant">#11304d</color>
 
-    <color name="loginBackground">@color/colorOffWhite</color>
-    <color name="loginText">@color/colorText</color>
-
-    <color name="statusBarColor">@color/colorOffWhite</color>
-    <color name="headerPrimary">#16151A</color>
-    <color name="headerPrimaryText">@color/colorText</color>
-
-    <color name="playerDetailsText">@color/colorText</color>
-    <color name="dialogBackground">@color/colorOffWhite</color>
-
     <color name="buttonEnabled">@color/colorText</color>
     <color name="buttonDisabled">#636363</color>
 
-    <color name="stoneColorSeparator">@color/colorText</color>
-    <color name="colorNavigation">@color/colorPrimary</color>
-    <color name="colorNavigationUnselected">@color/colorText</color>
-    <color name="cardBorder">#333333</color>
-    <color name="roundButtonBorder">#444444</color>
-    <color name="roundButtonBackground">#323038</color>
     <color name="colorPrimary">#389FFF</color>
     <color name="colorPrimaryVariant">#11304d</color>
-    <color name="colorPrimaryLight">#0E71C8</color>
     <color name="colorPrimaryDark">#0E71C8</color>
     <color name="colorAccent">#389FFF</color>
     <color name="colorOffWhite">#000000</color>
 
-    <color name="color_type_info">#79b3e4</color>
-    <color name="color_type_help">#e8bd4b</color>
-    <color name="color_type_wrong">#ed7861</color>
-    <color name="color_type_warning">#e8bd4b</color>
-    <color name="color_type_success">#90b06e</color>
-
     <color name="rankGraphLine">@color/colorActionableText</color>
-    <color name="panelBackground">@color/headerPrimary</color>
-    <color name="accentGradientStart">@color/colorPrimary</color>
-    <color name="accentGradientEnd">@color/colorPrimaryDark</color>
-    <color name="colorToolbarBackground">@color/colorOffWhite</color>
 </resources>
