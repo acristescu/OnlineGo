@@ -5,7 +5,7 @@
     <string name="ai_game_chat_ready">准备！</string>
     <string name="ai_game_chat_use_new_game_button">点击新建按钮开始新对局</string>
     <string name="ai_game_chat_engine_error">启动KataGO时出错：“%1$s”</string>
-    <string name="ai_game_chat_engine_starting">"Chinese"</string>
+    <string name="ai_game_chat_engine_starting">Chinese</string>
     <string name="ai_game_chat_invalid_move">无效落子，请重试</string>
     <string name="ai_game_chat_lets_try_again">好的，我们再试一次。该你了！</string>
     <string name="ai_game_chat_hmmm">嗯……</string>
@@ -20,8 +20,6 @@
     <string name="ai_game_chat_game_over_player_won">由于超时两次，对局结束。最终比分是黑方%1$s比白方%2$s。恭喜你，看来你赢了我。</string>
     <string name="ai_game_chat_game_over_computing_score">对局因两次超时而结束。稍等，我正在计算最终得分。</string>
     <string name="ai_game_chat_ai_resigned">我认输，你赢了！你做得很好。</string>
-    <string name="ai_resign_offer_title"></string>
-    <string name="ai_resign_offer_message"></string>
     <string name="ai_resign_offer_accept">接受认输</string>
     <string name="ai_resign_offer_decline">继续玩</string>
     <string name="ai_game_handicap_none">无</string>
