@@ -52,15 +52,16 @@ class MyGamesLoadingTest {
   private val notifications: ServerNotificationsRepository = mock()
   private val settings: SettingsRepository = mock()
   private val rest: OGSRestService = mock()
+  private val whatsNew: WhatsNewUtils = mock()
   private val activeGames = MutableStateFlow<List<Game>>(emptyList())
+  private val loginStatus = MutableSharedFlow<LoginStatus>(replay = 1)
   private lateinit var viewModel: MyGamesViewModel
 
   @Before
   fun setUp() = runBlocking {
     Dispatchers.setMain(UnconfinedTestDispatcher())
-    whenever(session.loginStatus).thenReturn(MutableSharedFlow<LoginStatus>(replay = 1).apply {
-      tryEmit(LoginStatus.LoggedIn(1L))
-    })
+    loginStatus.tryEmit(LoginStatus.LoggedIn(1L))
+    whenever(session.loginStatus).thenReturn(loginStatus)
     whenever(active.monitorActiveGames()).thenReturn(activeGames)
     whenever(finished.getRecentlyFinishedGames()).thenReturn(emptyFlow())
     whenever(finished.getHistoricGames(null)).thenReturn(emptyFlow())
@@ -71,10 +72,12 @@ class MyGamesLoadingTest {
     whenever(notifications.notificationsFlow()).thenReturn(emptyFlow())
     whenever(settings.showRanksFlow).thenReturn(flowOf(true))
     whenever(rest.checkForWarnings()).thenReturn(Warning())
+    whenever(whatsNew.shouldDisplayDialog()).thenReturn(false)
+    whenever(whatsNew.textShown()).thenReturn(Unit)
     viewModel = MyGamesViewModel(
       session, finished, active, challenges, automatches, mock<ChatRepository>(),
       notifications, mock<TutorialsRepository>(), mock<Analytics>(), rest, socket,
-      settings, mock<WhatsNewUtils>(),
+      settings, whatsNew,
     )
   }
 
@@ -111,4 +114,15 @@ class MyGamesLoadingTest {
     assertEquals(1, state.opponentTurnGames.size)
     assertFalse(state.hasReceivedRecentGames)
   }
+  @Test
+  fun loggingOutClearsCachedGamesAndStopsThePreviousSessionCollectors() = runBlocking {
+    activeGames.value = listOf(Game.sampleData().copy(phase = Phase.PLAY))
+    withTimeout(5_000) { viewModel.state.first { it.myTurnGames.isNotEmpty() } }
+    loginStatus.emit(LoginStatus.LoggedOut)
+    val state = withTimeout(5_000) { viewModel.state.first { it.userIsLoggedOut } }
+    assertEquals(emptyList<Game>(), state.myTurnGames)
+    assertEquals(emptyList<Game>(), state.opponentTurnGames)
+    assertFalse(state.hasReceivedActiveGames)
+  }
+
 }

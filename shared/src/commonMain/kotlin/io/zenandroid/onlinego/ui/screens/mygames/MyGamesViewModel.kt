@@ -126,10 +126,24 @@ class MyGamesViewModel(
         when (loggedInStatus) {
           is LoginStatus.LoggedIn -> onLoggedIn(loggedInStatus.userId)
           LoginStatus.LoggedOut -> {
+            loggedInJobs.forEach { it.cancel() }
+            loggedInJobs.clear()
+            loadOlderGamesJob?.cancel()
             _state.update {
               it.copy(
                 userIsLoggedOut = true,
                 userId = null,
+                myTurnGames = emptyList(),
+                opponentTurnGames = emptyList(),
+                recentGames = emptyList(),
+                historicGames = emptyList(),
+                challenges = emptyList(),
+                automatches = emptyList(),
+                hasReceivedActiveGames = false,
+                hasReceivedRecentGames = false,
+                hasReceivedHistoricGames = false,
+                hasReceivedChallenges = false,
+                hasReceivedAutomatches = false,
                 playOnlineEnabled = false,
                 customGameEnabled = false,
                 loginPromptVisible = true,

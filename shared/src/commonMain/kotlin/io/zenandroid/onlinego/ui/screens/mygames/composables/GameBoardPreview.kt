@@ -14,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import io.zenandroid.onlinego.data.model.Position
 import io.zenandroid.onlinego.data.model.local.Game
+import io.zenandroid.onlinego.ui.composables.Board
 import io.zenandroid.onlinego.gamelogic.RulesManager
 import io.zenandroid.onlinego.utils.CrashReporter
 import kotlinx.coroutines.CancellationException
@@ -26,12 +27,17 @@ internal fun GameBoardPreview(
   modifier: Modifier = Modifier,
   drawShadow: Boolean = false,
 ) {
-  var position by remember(game) { mutableStateOf<Position?>(null) }
-  var loading by remember(game) { mutableStateOf(true) }
-  LaunchedEffect(game) {
+  val boardGame = remember(
+    game.width, game.height, game.initialState, game.moves, game.whiteGoesFirst,
+    game.handicap, game.freeHandicapPlacement, game.removedStones, game.komi,
+    game.scoreStones, game.whiteScore?.scoring_positions, game.blackScore?.scoring_positions,
+  ) { game }
+  var position by remember(boardGame) { mutableStateOf<Position?>(null) }
+  var loading by remember(boardGame) { mutableStateOf(true) }
+  LaunchedEffect(boardGame) {
     try {
       position = withContext(Dispatchers.Default) {
-        RulesManager.replay(game, computeTerritory = false)
+        RulesManager.replay(boardGame, computeTerritory = false)
       }
     } catch (e: CancellationException) {
       throw e
