@@ -26,7 +26,6 @@ import io.zenandroid.onlinego.data.repositories.ServerNotificationsRepository
 import io.zenandroid.onlinego.data.repositories.SettingsRepository
 import io.zenandroid.onlinego.data.repositories.TutorialsRepository
 import io.zenandroid.onlinego.data.repositories.UserSessionRepository
-import io.zenandroid.onlinego.gamelogic.RulesManager
 import io.zenandroid.onlinego.resources.Res
 import io.zenandroid.onlinego.resources.auto
 import io.zenandroid.onlinego.resources.disabled
@@ -74,12 +73,9 @@ import io.zenandroid.onlinego.utils.formatRank
 import io.zenandroid.onlinego.utils.timeLeftForCurrentPlayer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
@@ -186,41 +182,30 @@ class MyGamesViewModel(
       }
     }
 
-    loggedInJobs += viewModelScope.launch(Dispatchers.IO) {
-      try {
-        combine(
-          activeGamesRepository.monitorActiveGames()
-            .map { gamesList -> computePositions(gamesList) },
-          finishedGamesRepository.getRecentlyFinishedGames()
-            .map { gamesList -> computePositions(gamesList) },
-          challengesRepository.monitorChallenges(),
-          automatchRepository.automatchFlow,
-        ) { activeGames, recentlyFinishedGames, challenges, automatches ->
-          _state.update {
-            var newState = it.copy(
-              userIsLoggedOut = false,
-              playOnlineEnabled = true,
-              customGameEnabled = true,
-              loginPromptVisible = false,
-              userId = userId,
-              headerMainTextResId = Res.string.mygames_greeting,
-              headerMainTextArg = userSessionRepository.uiConfig?.user?.username,
-              headerSubTextResId = null,
-              userImageURL = userSessionRepository.uiConfig?.user?.icon,
-              automatches = automatches,
-              hasReceivedAutomatches = true,
-              challenges = challenges,
-              hasReceivedChallenges = true,
-              recentGames = recentlyFinishedGames,
-              hasReceivedRecentGames = true,
-            )
-            newState = setGames(activeGames, newState)
-            newState
-          }
-        }.collect {}
-      } catch (e: Exception) {
-        onError(e)
-      }
+    _state.update {
+      it.copy(
+        userIsLoggedOut = false,
+        playOnlineEnabled = true,
+        customGameEnabled = true,
+        loginPromptVisible = false,
+        userId = userId,
+        headerMainTextResId = Res.string.mygames_greeting,
+        headerMainTextArg = userSessionRepository.uiConfig?.user?.username,
+        headerSubTextResId = null,
+        userImageURL = userSessionRepository.uiConfig?.user?.icon,
+      )
+    }
+    observeWhileLoggedIn(activeGamesRepository.monitorActiveGames()) { games, state ->
+      setGames(games, state)
+    }
+    observeWhileLoggedIn(finishedGamesRepository.getRecentlyFinishedGames()) { games, state ->
+      state.copy(recentGames = games, hasReceivedRecentGames = true)
+    }
+    observeWhileLoggedIn(challengesRepository.monitorChallenges()) { challenges, state ->
+      state.copy(challenges = challenges, hasReceivedChallenges = true)
+    }
+    observeWhileLoggedIn(automatchRepository.automatchFlow) { automatches, state ->
+      state.copy(automatches = automatches, hasReceivedAutomatches = true)
     }
     loggedInJobs += viewModelScope.launch(Dispatchers.IO) {
       try {
@@ -256,6 +241,19 @@ class MyGamesViewModel(
     }
 
     onNeedMoreOlderGames(null)
+  }
+
+  private fun <T> observeWhileLoggedIn(
+    flow: Flow<T>,
+    update: (T, MyGamesState) -> MyGamesState,
+  ) {
+    loggedInJobs += viewModelScope.launch(Dispatchers.IO) {
+      try {
+        flow.collect { value -> _state.update { update(value, it) } }
+      } catch (e: Exception) {
+        onError(e)
+      }
+    }
   }
 
   private fun setGames(games: List<Game>, state: MyGamesState): MyGamesState {
@@ -541,22 +539,12 @@ class MyGamesViewModel(
             }
           }
           .map { it.games }
-          .map { games -> computePositions(games) }
           .collect { games -> withContext(Dispatchers.Main) { onHistoricGames(games) } }
       } catch (e: Exception) {
         onError(e)
       }
     }
   }
-
-  private suspend fun computePositions(games: List<Game>): List<Game> =
-    coroutineScope {
-      games.map { game ->
-        async(Dispatchers.Default) {
-          game.apply { position = RulesManager.replay(this, computeTerritory = false) }
-        }
-      }.awaitAll()
-    }
 
   private fun onHistoricGames(games: List<Game>) {
     _state.update {
