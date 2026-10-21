@@ -57,7 +57,8 @@ tap to select, and closing without reopening. Also: a game notification drawn by
 6.39 in light and dark, and the board from `commonMain` (6.40): every style in light and dark,
 coordinates, drag and lift to play, both fades, the Settings previews, AI hints and ownership,
 Joseki and tutorial marks, label centring, and a notification board (Settings -> Debug -> Test
-Notification).
+Notification). After 6.42: the Learn tab, a live game and face-to-face on `Immediate`, screens
+with route arguments, dynamic colours on Android 12+, and the `LearnUI` preview in Android Studio.
 
 Still owed - unit tests cannot reach these:
 
@@ -74,11 +75,6 @@ Still owed - unit tests cannot reach these:
   re-renders every screen; the launcher name; plurals
   ("3 games"); a tutorial; Joseki link labels; the stats chart tooltip; the What's new sheet shows
   the Portuguese item.
-- [ ] **ViewModels and Learn from `commonMain`** (6.42): the Learn tab (groups expand and collapse,
-  completed ticks, opening a tutorial, Joseki and puzzles, the bottom bar collapsing on scroll); a
-  live game (clock, moves, chat, analysis) and face-to-face, now on `Immediate`; screens with route
-  arguments (a game, a tutorial, onboarding); dynamic colours on Android 12+; the `LearnUI` preview
-  in Android Studio.
 
 ### 1.3 Phases 3-5
 
@@ -223,7 +219,7 @@ twins, and so are the board assets (6.40), apart from the stone vectors' Android
 ## 6. Done - what is still load-bearing
 
 Only traps, deliberate behaviour changes, and decisions that look wrong but are not. Unit tests
-stand at 173: 99 in `:shared` host tests (84 of them in `commonTest`, which also run on the iOS
+stand at 175: 101 in `:shared` host tests (86 of them in `commonTest`, which also run on the iOS
 simulator), 27 in `:shared` `iosTest` (simulator only), 47 in `:app`.
 
 ### 6.1 Moshi to kotlinx.serialization
@@ -373,6 +369,13 @@ platform code by design.
   move" status is built in `GameUI` and still ranks below every other status.
 - **Behaviour changes:** an expired clock shows `0.0s` instead of `0.0`, and decimals follow the
   locale (`1,5s` in German).
+- `formatOneDecimal` (clock tenths, AI percentages, puzzle percentages) is in `commonMain`
+  (`LocalizedNumbers.kt`) since 6.42: rounding and digits are common code, pinned by
+  `FormatOneDecimalTest`, and only the decimal separator is platform code (`decimalSeparator()`:
+  `DecimalFormatSymbols` for the configuration locale on Android, `NSLocale` on iOS). **Digits are
+  always Latin**, like every integer the app prints; a device in a locale with its own digits (
+  Arabic)
+  used to get them in these decimals only.
 
 ### 6.17 `RulesManager` thread checks
 
