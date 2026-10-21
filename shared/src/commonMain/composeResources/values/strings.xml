@@ -549,6 +549,10 @@
     <string name="mygames_learn_to_play">Learn to play</string>
     <string name="mygames_header_icon_content_description">Icon</string>
     <string name="mygames_offline_content_description">Offline</string>
+    <string name="mygames_connecting">Connecting</string>
+    <string name="mygames_reconnecting">Reconnecting</string>
+    <string name="mygames_refreshing_games">Refreshing games</string>
+    <string name="mygames_refresh_failed">Couldn’t refresh games</string>
     <string name="mygames_avatar_content_description">Avatar</string>
     <string name="mygames_searching_for_game">Searching for a game</string>
     <string name="mygames_challenge_you_are_challenging">You are challenging %1$s</string>

@@ -76,6 +76,9 @@ class OGSWebSocketService(
   private val client: HttpClient,
   private val applicationScope: CoroutineScope,
 ) {
+  private val _connectionStatus = MutableStateFlow(ConnectionStatus.Disconnected)
+  val connectionStatus = _connectionStatus.asStateFlow()
+
   private val _connectionState = MutableStateFlow(false)
   val connectionState = _connectionState.asStateFlow()
 
@@ -101,11 +104,13 @@ class OGSWebSocketService(
     }
 
     applicationScope.launch {
+      _connectionStatus.value = ConnectionStatus.Connecting
       try {
         client.wss(host = wsHost, path = "/") {
           Logger.i("WebSocket connected", tag = TAG)
           socketDebugRepository.logState("WS", "Connected")
           socketDebugRepository.updateConnectionState("Connected")
+          _connectionStatus.value = ConnectionStatus.Connected
           connected.store(true)
           reconnectDelay = RECONNECT_DELAY_MIN_MS
           onSockedConnected()
@@ -175,6 +180,7 @@ class OGSWebSocketService(
   }
 
   private fun handleDisconnect() {
+    _connectionStatus.value = ConnectionStatus.Disconnected
     val wasConnected = connected.exchange(false)
     socketDebugRepository.logState(
       "WS",
@@ -189,6 +195,7 @@ class OGSWebSocketService(
   }
 
   private fun scheduleReconnect() {
+    _connectionStatus.value = ConnectionStatus.Reconnecting
     socketDebugRepository.logState("WS", "Scheduling reconnect in ${reconnectDelay}ms")
     socketDebugRepository.updateConnectionState("Reconnecting (${reconnectDelay}ms)")
     applicationScope.launch {
@@ -478,6 +485,7 @@ class OGSWebSocketService(
     socketDebugRepository.logState("WS", "disconnect() called (intentional)")
     cleanup()
     intentionalDisconnect.store(true)
+    _connectionStatus.value = ConnectionStatus.Disconnected
     outgoing.load()?.close()
     socketDebugRepository.updateConnectionState("Disconnected (intentional)")
   }
