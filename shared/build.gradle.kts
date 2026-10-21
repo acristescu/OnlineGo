@@ -51,6 +51,7 @@ kotlin {
       api(libs.cmp.ui)
       api(libs.cmp.foundation)
       api(libs.cmp.material3)
+      api(libs.cmp.material.icons.extended)
       api(libs.cmp.resources)
       api(libs.kotlinx.serialization.json)
       api(libs.immutable.collections)

@@ -14,6 +14,7 @@ ndkVersion = "25.1.8937393"
 composeBom = "2026.09.00"
 composeMultiplatform = "1.13.0-alpha02"
 composeMultiplatformMaterial3 = "1.9.0"
+composeMultiplatformMaterialIcons = "1.7.3"
 
 # Main dependencies
 koin = "4.2.2"
@@ -81,7 +82,6 @@ androidx-activity-compose = { group = "androidx.activity", name = "activity-comp
 androidx-lifecycle-viewmodel-ktx = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-ktx", version.ref = "androidx-lifecycle" }
 
 # Compose (versions managed by BOM)
-compose-material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended" }
 compose-ui = { group = "androidx.compose.ui", name = "ui" }
 compose-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
 compose-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
@@ -92,6 +92,7 @@ cmp-runtime = { module = "org.jetbrains.compose.runtime:runtime", version.ref = 
 cmp-ui = { module = "org.jetbrains.compose.ui:ui", version.ref = "composeMultiplatform" }
 cmp-foundation = { module = "org.jetbrains.compose.foundation:foundation", version.ref = "composeMultiplatform" }
 cmp-material3 = { module = "org.jetbrains.compose.material3:material3", version.ref = "composeMultiplatformMaterial3" }
+cmp-material-icons-extended = { module = "org.jetbrains.compose.material:material-icons-extended", version.ref = "composeMultiplatformMaterialIcons" }
 cmp-ui-test = { module = "org.jetbrains.compose.ui:ui-test", version.ref = "composeMultiplatform" }
 cmp-resources = { module = "org.jetbrains.compose.components:components-resources", version.ref = "composeMultiplatform" }
 
@@ -188,7 +189,6 @@ room = { id = "androidx.room", version.ref = "room" }
 
 [bundles]
 compose = [
-    "compose-material-icons-extended",
     "compose-ui",
     "compose-ui-tooling-preview",
     "compose-ui-util"

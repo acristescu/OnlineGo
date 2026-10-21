@@ -9,7 +9,7 @@ is no RxJava, no `Parcelable`, and Koin, Molecule, Room, DataStore, `ViewModel`,
 kotlinx-collections-immutable are already multiplatform. The cost is dominated by resources
 (663 strings x 16 locales) and the local-AI engine, which cannot run on iOS as built today.
 
-**Status.** Phases 0-3 are finished: forty slices are done (section 6). Phases 0-2 have
+**Status.** Phases 0-3 are finished: forty-one slices are done (section 6). Phases 0-2 have
 shipped in a release; Phase 3 has not, and several slices still need on-device checks (section 1.2).
 Phase 3 moved the Room
 database (6.25), the score estimator (6.26), `CrashReporter` (6.10), the HTTP client (6.27),
@@ -19,7 +19,8 @@ supplies are left, and they come with the iOS app. Phase 4 has started: the tool
 Compose Multiplatform (6.33), now on 1.13.0-alpha02 (6.35), the first composable is common code
 (6.34), strings (6.36) and the UI drawables (6.39) are Compose Multiplatform resources on both
 platforms, `BoardView` is gone (6.37) along with the resources and dependencies nothing used
-(6.38), and the board is common code with its assets (6.40). Phase 5 has not started.
+(6.38), the board is common code with its assets (6.40), and so are the Material icons (6.41).
+Phase 5 has not started.
 
 Earlier, longer versions of this document:
 `git show d529259:docs/KMP_MIGRATION_ASSESSMENT.md` (original assessment) and
@@ -52,8 +53,11 @@ graph after 6.31, logout (6.29), tutorials and Joseki after 6.30, type-safe navi
 release (R8) build (6.19), an idle websocket staying up past a minute after 6.32, and the Tsumego
 puzzle picker from `commonMain` (6.20, 6.34): scrolled to the current puzzle, lazy thumbnails,
 tap to select, and closing without reopening. Also: a game notification drawn by `renderBoard`
-(6.37) arriving in the chosen language (Romanian), the app after 6.38, and every screen touched by
-6.39 in light and dark.
+(6.37) arriving in the chosen language (Romanian), the app after 6.38, every screen touched by
+6.39 in light and dark, and the board from `commonMain` (6.40): every style in light and dark,
+coordinates, drag and lift to play, both fades, the Settings previews, AI hints and ownership,
+Joseki and tutorial marks, label centring, and a notification board (Settings -> Debug -> Test
+Notification).
 
 Still owed - unit tests cannot reach these:
 
@@ -70,18 +74,14 @@ Still owed - unit tests cannot reach these:
   re-renders every screen; the launcher name; plurals
   ("3 games"); a tutorial; Joseki link labels; the stats chart tooltip; the What's new sheet shows
   the Portuguese item.
-- [ ] **The board from `commonMain`** (6.40): every board style in light and dark, with and without
-  coordinates; drag across the board (the hot-tracked lines follow) and lift to play; the last-move
-  fade and the captured-stone fade; Settings board-style previews; AI hints and ownership; Joseki
-  and tutorial marks; a notification board.
 
 ### 1.3 Phases 3-5
 
-| Phase                              | Work                                                                                                                                                                              | Estimate                        |
-|------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------|
-| **3 - data layer to `commonMain`** | Done (6.25, 6.27-6.32). Left for the iOS app: the Swift `Analytics`, `AppDataEraser` and `TutorialsSource` passed to `initKoin()`, and a real iOS `CrashReporter`.                | done                            |
-| **4 - Compose Multiplatform**      | UI into `:shared/commonMain`; Koin and Molecule multiplatform artifacts with it. Resources (4.2), icons, chart, markdown, Material You. The board and its assets are done (6.40). | 6-10 weeks (resources dominate) |
-| **5 - iOS app**                    | SwiftUI shell + `ComposeUIViewController`, notifications, background refresh, billing, Google sign-in, App Store plumbing. Bitrise needs a macOS stack.                           | 4-8 weeks, excluding local AI   |
+| Phase                              | Work                                                                                                                                                                         | Estimate                        |
+|------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------|
+| **3 - data layer to `commonMain`** | Done (6.25, 6.27-6.32). Left for the iOS app: the Swift `Analytics`, `AppDataEraser` and `TutorialsSource` passed to `initKoin()`, and a real iOS `CrashReporter`.           | done                            |
+| **4 - Compose Multiplatform**      | UI into `:shared/commonMain`; Koin and Molecule multiplatform artifacts with it. Resources (4.2), chart, markdown, Material You. The board (6.40) and icons (6.41) are done. | 6-10 weeks (resources dominate) |
+| **5 - iOS app**                    | SwiftUI shell + `ComposeUIViewController`, notifications, background refresh, billing, Google sign-in, App Store plumbing. Bitrise needs a macOS stack.                      | 4-8 weeks, excluding local AI   |
 
 Estimates are order-of-magnitude, single developer. The one data point so far: the serialization
 slice came in on time only because the golden-JSON corpus was dropped, which moved verification
@@ -123,7 +123,8 @@ appears, or local AI needs Play Feature Delivery for its 265 MB of assets. Basel
 `android.util.Log`, `java.time`, direct OkHttp use, Firebase Analytics and Crashlytics call sites,
 `java.util.concurrent` / `UUID` / `Stack`, string navigation routes, `BuildConfig.DEBUG` in
 `HTTPConnectionFactory` (6.23), Firebase Analytics and Crashlytics in common code (6.9, 6.10),
-DataStore (6.28), `BoardView` (6.37), `lifecycle-extensions` and `firebase-messaging` (6.38).
+DataStore (6.28), `BoardView` (6.37), `lifecycle-extensions` and `firebase-messaging` (6.38),
+`material-icons-extended` (6.41).
 
 | Dependency                                      | Replacement                                                                                           | When                |
 |-------------------------------------------------|-------------------------------------------------------------------------------------------------------|---------------------|
@@ -131,7 +132,6 @@ DataStore (6.28), `BoardView` (6.37), `lifecycle-extensions` and `firebase-messa
 | Molecule `AndroidUiDispatcher` / `ContextClock` | multiplatform frame clock; extract the shared `moleculeScope` base from the two ViewModels            | Phase 4             |
 | MPAndroidChart                                  | Vico 2.x / KoalaPlot / Compose `Canvas`; confined to `ChartWrapper.kt` (416 LOC)                      | Phase 4             |
 | Markwon                                         | `multiplatform-markdown-renderer-m3` (`JosekiExplorerUI`, ~90 LOC)                                    | Phase 4             |
-| `material-icons-extended` (109 refs, 21 files)  | vendored `ImageVector`s                                                                               | Phase 4             |
 | navigation-compose (androidx)                   | `org.jetbrains.androidx.navigation`; routes are already `@Serializable` (6.19)                        | Phase 4             |
 | Android resources (`R.*`)                       | Strings (6.36), UI drawables (6.39) and board assets (6.40) done; colors and raw still `R.*`          | Phase 4             |
 | `AppLocaleManager`                              | `expect`/`actual`; iOS writes `AppleLanguages` and needs a restart                                    | Phase 4             |
@@ -218,8 +218,8 @@ twins, and so are the board assets (6.40), apart from the stone vectors' Android
 ## 6. Done - what is still load-bearing
 
 Only traps, deliberate behaviour changes, and decisions that look wrong but are not. Unit tests
-stand at 171: 99 in `:shared` host tests (84 of them in `commonTest`, which also run on the iOS
-simulator), 25 in `:shared` `iosTest` (simulator only), 47 in `:app`.
+stand at 172: 99 in `:shared` host tests (84 of them in `commonTest`, which also run on the iOS
+simulator), 26 in `:shared` `iosTest` (simulator only), 47 in `:app`.
 
 ### 6.1 Moshi to kotlinx.serialization
 
@@ -679,7 +679,7 @@ test-local class.
   (latest stable 2.9.2; the app uses androidx 2.9.7), resources 1.12.2. Koin 4.2.2's
   `koin-compose-viewmodel` needs Lifecycle 2.9.6+.
   `org.jetbrains.compose.material:material-icons-extended`
-  stops at 1.7.3, so vendored `ImageVector`s (section 3) stand.
+  stops at 1.7.3; 6.41 uses it anyway.
 - Libraries that pair with Kotlin 2.4 and CMP 1.12.2: kotlinx.serialization 1.11.0, Ktor 3.5.2,
   Koin 4.2.2, Room 2.8.5, androidx Lifecycle 2.11.0, coroutines-test 1.11.0 (core already resolved
   to 1.11.0). **sqlite-bundled stays 2.6.2**, the version Room 2.8.5 declares. Left for their own
@@ -853,3 +853,20 @@ test-local class.
   a black and a white stone, and drags then lifts to check `onTapUp` gets the cell under the lift. A
   second test finds the ink of seven labels in the captured image and requires each within 1.5 px of
   its point.
+
+### 6.41 Material icons from the multiplatform artifact
+
+- `:shared` `commonMain` takes `org.jetbrains.compose.material:material-icons-extended` 1.7.3 as an
+  `api` dependency (`cmp-material-icons-extended`, its own version in the catalog); `:app` no
+  longer declares the androidx artifact. Call sites and imports are unchanged, and every icon stays
+  available.
+- **Vendoring was rejected** for now: the full set at hand beats 58 copied files. Revisit if a
+  Compose upgrade breaks the artifact or iOS debug link times hurt.
+- **The artifact is frozen**, like its androidx counterpart (1.7.8): no new icons on either
+  platform.
+  On Android it is a wrapper, so the APK resolves the same androidx 1.7.8 classes as before.
+- **It is compiled against Compose 1.7** and works on 1.13 only through binary compatibility.
+  `iosTest/.../MaterialIconsTest` draws a filled, an auto-mirrored and a rounded icon on the
+  simulator; rerun it after every Compose upgrade.
+- Release iOS builds keep only the icons in use (Kotlin/Native dead-code elimination); debug builds
+  link the whole set.
