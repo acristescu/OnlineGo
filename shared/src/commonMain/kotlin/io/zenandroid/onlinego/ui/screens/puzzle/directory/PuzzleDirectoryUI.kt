@@ -68,7 +68,7 @@ import io.zenandroid.onlinego.ui.composables.FilterSortPanel
 import io.zenandroid.onlinego.ui.composables.RatingBar
 import io.zenandroid.onlinego.ui.composables.SearchTextField
 import io.zenandroid.onlinego.ui.composables.SortChip
-import io.zenandroid.onlinego.ui.composables.formatOneDecimal
+import io.zenandroid.onlinego.ui.composables.formatDecimal
 import io.zenandroid.onlinego.ui.screens.mygames.composables.SenteCard
 import io.zenandroid.onlinego.utils.convertCountryCodeToEmojiFlag
 import org.jetbrains.compose.resources.painterResource
@@ -328,7 +328,7 @@ private fun PuzzleDirectoryContent(
                       text = stringResource(
                         Res.string.puzzle_directory_solved_value,
                         solutions,
-                        formatOneDecimal(percentage.toDouble())
+                        formatDecimal(percentage.toDouble())
                       ), maxLines = 1, fontSize = 11.sp, fontWeight = FontWeight.Medium
                     )
                     if (percentage >= 100f) {
@@ -342,7 +342,7 @@ private fun PuzzleDirectoryContent(
               }
               Spacer(modifier = Modifier.weight(1f))
               Row(modifier = Modifier.align(Alignment.End)) {
-                val solveRate = "%.2f".format((it.solved_count * 100f) / it.attempt_count)
+                val solveRate = formatDecimal((it.solved_count * 100.0) / it.attempt_count, 2)
                 val viewCount = when {
                   it.view_count < 1_000 -> it.view_count.toString()
                   it.view_count < 1_000_000 -> (it.view_count / 1000).toString() + "k"

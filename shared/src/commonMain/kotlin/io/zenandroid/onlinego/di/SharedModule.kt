@@ -31,7 +31,11 @@ import io.zenandroid.onlinego.data.repositories.SocketConnectedRepository
 import io.zenandroid.onlinego.data.repositories.SocketDebugRepository
 import io.zenandroid.onlinego.data.repositories.TutorialsRepository
 import io.zenandroid.onlinego.data.repositories.UserSessionRepository
+import io.zenandroid.onlinego.ui.screens.automatch.NewAutomatchChallengeViewModel
 import io.zenandroid.onlinego.ui.screens.learn.LearnViewModel
+import io.zenandroid.onlinego.ui.screens.puzzle.directory.PuzzleDirectoryViewModel
+import io.zenandroid.onlinego.ui.screens.puzzle.tsumego.TsumegoViewModel
+import io.zenandroid.onlinego.ui.screens.socketdebug.SocketDebugViewModel
 import io.zenandroid.onlinego.usecases.GetUserStatsUseCase
 import io.zenandroid.onlinego.utils.PersistenceManager
 import io.zenandroid.onlinego.utils.appJson
@@ -121,4 +125,8 @@ val sharedModule = module {
   singleOf(::GetUserStatsUseCase)
 
   viewModelOf(::LearnViewModel)
+  viewModelOf(::PuzzleDirectoryViewModel)
+  viewModelOf(::TsumegoViewModel)
+  viewModelOf(::NewAutomatchChallengeViewModel)
+  viewModelOf(::SocketDebugViewModel)
 }

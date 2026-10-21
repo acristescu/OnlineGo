@@ -59,7 +59,6 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextLinkStyles
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.fromHtml
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
@@ -93,6 +92,7 @@ import io.zenandroid.onlinego.resources.tsumego_title_with_name
 import io.zenandroid.onlinego.ui.composables.Board
 import io.zenandroid.onlinego.ui.composables.ExposedLazyDropdownMenu
 import io.zenandroid.onlinego.ui.composables.RatingBar
+import io.zenandroid.onlinego.ui.composables.htmlToAnnotatedString
 import io.zenandroid.onlinego.ui.theme.OnlineGoPreviewTheme
 import kotlinx.collections.immutable.toImmutableList
 import org.jetbrains.compose.resources.painterResource
@@ -488,7 +488,7 @@ private fun rememberHtmlText(html: String): AnnotatedString {
     )
   )
   return remember(html, linkStyles) {
-    AnnotatedString.fromHtml(html, linkStyles).trimTrailingWhitespace()
+    htmlToAnnotatedString(html, linkStyles).trimTrailingWhitespace()
   }
 }
 

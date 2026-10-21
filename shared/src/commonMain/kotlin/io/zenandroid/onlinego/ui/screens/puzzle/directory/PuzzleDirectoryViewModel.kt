@@ -13,6 +13,7 @@ import io.zenandroid.onlinego.ui.screens.puzzle.directory.PuzzleDirectorySort.Vi
 import io.zenandroid.onlinego.utils.CrashReporter
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch

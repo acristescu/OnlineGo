@@ -9,7 +9,7 @@ is no RxJava, no `Parcelable`, and Koin, Molecule, Room, DataStore, `ViewModel`,
 kotlinx-collections-immutable are already multiplatform. The cost is dominated by resources
 (663 strings x 16 locales) and the local-AI engine, which cannot run on iOS as built today.
 
-**Status.** Phases 0-3 are finished: forty-two slices are done (section 6). Phases 0-2 have
+**Status.** Phases 0-3 are finished: forty-three slices are done (section 6). Phases 0-2 have
 shipped in a release; Phase 3 has not, and several slices still need on-device checks (section 1.2).
 Phase 3 moved the Room
 database (6.25), the score estimator (6.26), `CrashReporter` (6.10), the HTTP client (6.27),
@@ -20,7 +20,8 @@ Compose Multiplatform (6.33), now on 1.13.0-alpha02 (6.35), the first composable
 (6.34), strings (6.36) and the UI drawables (6.39) are Compose Multiplatform resources on both
 platforms, `BoardView` is gone (6.37) along with the resources and dependencies nothing used
 (6.38), the board is common code with its assets (6.40), and so are the Material icons (6.41),
-the ViewModel plumbing, the theme and the first screen, Learn (6.42). Phase 5 has not started.
+the ViewModel plumbing, the theme and the first screen, Learn (6.42), then the puzzle screens,
+socket debug and the automatch sheet (6.43). Phase 5 has not started.
 
 Earlier, longer versions of this document:
 `git show d529259:docs/KMP_MIGRATION_ASSESSMENT.md` (original assessment) and
@@ -75,14 +76,18 @@ Still owed - unit tests cannot reach these:
   re-renders every screen; the launcher name; plurals
   ("3 games"); a tutorial; Joseki link labels; the stats chart tooltip; the What's new sheet shows
   the Portuguese item.
+- [ ] **Puzzles, socket debug and automatch from `commonMain`** (6.43): the puzzle directory
+  (filter, sort, search, "only opened", solve rates with two decimals in English and German);
+  Tsumego (solve, hint, retry, previous and next, the puzzle picker, rating, a description with a
+  link); the socket debug screen; the automatch sheet and starting a search.
 
 ### 1.3 Phases 3-5
 
-| Phase                              | Work                                                                                                                                                               | Estimate                        |
-|------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------|
-| **3 - data layer to `commonMain`** | Done (6.25, 6.27-6.32). Left for the iOS app: the Swift `Analytics`, `AppDataEraser` and `TutorialsSource` passed to `initKoin()`, and a real iOS `CrashReporter`. | done                            |
-| **4 - Compose Multiplatform**      | UI into `:shared/commonMain`, screen by screen. Resources (4.2), chart, markdown. Done: the board (6.40), icons (6.41), ViewModel plumbing, theme, Learn (6.42).   | 6-10 weeks (resources dominate) |
-| **5 - iOS app**                    | SwiftUI shell + `ComposeUIViewController`, notifications, background refresh, billing, Google sign-in, App Store plumbing. Bitrise needs a macOS stack.            | 4-8 weeks, excluding local AI   |
+| Phase                              | Work                                                                                                                                                                                                      | Estimate                        |
+|------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------|
+| **3 - data layer to `commonMain`** | Done (6.25, 6.27-6.32). Left for the iOS app: the Swift `Analytics`, `AppDataEraser` and `TutorialsSource` passed to `initKoin()`, and a real iOS `CrashReporter`.                                        | done                            |
+| **4 - Compose Multiplatform**      | UI into `:shared/commonMain`, screen by screen. Resources (4.2), chart, markdown. Done: the board (6.40), icons (6.41), ViewModel plumbing, theme, Learn (6.42), puzzles, socket debug, automatch (6.43). | 6-10 weeks (resources dominate) |
+| **5 - iOS app**                    | SwiftUI shell + `ComposeUIViewController`, notifications, background refresh, billing, Google sign-in, App Store plumbing. Bitrise needs a macOS stack.                                                   | 4-8 weeks, excluding local AI   |
 
 Estimates are order-of-magnitude, single developer. The one data point so far: the serialization
 slice came in on time only because the golden-JSON corpus was dropped, which moved verification
@@ -219,8 +224,8 @@ twins, and so are the board assets (6.40), apart from the stone vectors' Android
 ## 6. Done - what is still load-bearing
 
 Only traps, deliberate behaviour changes, and decisions that look wrong but are not. Unit tests
-stand at 175: 101 in `:shared` host tests (86 of them in `commonTest`, which also run on the iOS
-simulator), 27 in `:shared` `iosTest` (simulator only), 47 in `:app`.
+stand at 182: 103 in `:shared` host tests (88 of them in `commonTest`, which also run on the iOS
+simulator), 32 in `:shared` `iosTest` (simulator only), 47 in `:app`.
 
 ### 6.1 Moshi to kotlinx.serialization
 
@@ -238,7 +243,8 @@ simulator), 27 in `:shared` `iosTest` (simulator only), 47 in `:app`.
 ### 6.2 jsoup
 
 `AnnotatedString.fromHtml()` at the render site in `TsumegoUI`; descriptions keep formatting and
-links. It is Android-only, so it needs `expect`/`actual` or the markdown renderer in Phase 4.
+links. It is still Android-only in Compose Multiplatform 1.13, so it is behind
+`htmlToAnnotatedString` since 6.43.
 
 ### 6.3 Coil 2 to Coil 3
 
@@ -369,9 +375,10 @@ platform code by design.
   move" status is built in `GameUI` and still ranks below every other status.
 - **Behaviour changes:** an expired clock shows `0.0s` instead of `0.0`, and decimals follow the
   locale (`1,5s` in German).
-- `formatOneDecimal` (clock tenths, AI percentages, puzzle percentages) is in `commonMain`
+- `formatDecimal` (clock tenths, AI percentages, puzzle percentages and solve rates) is in
+  `commonMain`
   (`LocalizedNumbers.kt`) since 6.42: rounding and digits are common code, pinned by
-  `FormatOneDecimalTest`, and only the decimal separator is platform code (`decimalSeparator()`:
+  `FormatDecimalTest`, and only the decimal separator is platform code (`decimalSeparator()`:
   `DecimalFormatSymbols` for the configuration locale on Android, `NSLocale` on iOS). **Digits are
   always Latin**, like every integer the app prints; a device in a locale with its own digits (
   Arabic)
@@ -912,3 +919,27 @@ test-local class.
 - **Compose report:** 253 rows (19 in `:shared`), 6 unstable parameters, none in `:shared`. **For
   `:shared`, `--rerun` is not enough:** incremental Kotlin still writes a partial report; add
   `-Pkotlin.incremental=false`.
+
+### 6.43 Puzzles, socket debug and automatch in `commonMain`
+
+- The puzzle directory, Tsumego, socket debug and the automatch sheet (UI, ViewModels, state) are in
+  `commonMain`, same packages, with `FilterSortPanel`, `RatingBar`, `SearchTextField` and
+  `SortChip`. Their four ViewModels are registered in `sharedModule`.
+- **`AnnotatedString.fromHtml` is Android-only in Compose Multiplatform** (6.2 was right). Tsumego
+  descriptions go through `internal expect fun htmlToAnnotatedString`: Android calls `fromHtml`,
+  unchanged. **The iOS `actual` is a placeholder**, like the iOS `CrashReporter`: it turns `<br>`
+  and
+  `</p>` into line breaks, drops every other tag and decodes six entities, so text shows but links,
+  bold and italics do not (`HtmlTextTest`). Replace it before iOS ships: a small parser for the
+  tags OGS descriptions use, or the markdown renderer if it handles them.
+- **`formatOneDecimal` became `formatDecimal(value, fractionDigits = 1)`**, so the directory's solve
+  rate (`"%.2f".format`, a JVM call) uses it with two digits. Non-finite values print as before
+  (`NaN` when a puzzle has no attempts). The solve rate is computed in `Double` instead of `Float`;
+  at two decimals the output is the same.
+- JVM leftovers fixed on the way: `Math.PI` in `RatingBar` is `kotlin.math.PI`, and common code
+  that uses `Dispatchers.IO` imports `kotlinx.coroutines.IO`.
+- `iosTest/.../PuzzleScreensTest` renders the four screens through Koin on the simulator (Tsumego
+  with a `SavedStateHandle` carrying its route keys); `SharedModuleTest` resolves the four
+  ViewModels.
+- **Compose report:** 254 rows (43 in `:shared`), 6 unstable parameters. The two
+  `currentSortOption: Any` parameters of the sort chips moved to `:shared` with their files.

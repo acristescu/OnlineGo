@@ -12,11 +12,11 @@ import io.zenandroid.onlinego.resources.clock_hours_minutes
 import io.zenandroid.onlinego.resources.clock_minutes_seconds
 import io.zenandroid.onlinego.resources.clock_seconds
 import io.zenandroid.onlinego.resources.clock_tenths
-import org.jetbrains.compose.resources.pluralStringResource
-import org.jetbrains.compose.resources.stringResource
 import io.zenandroid.onlinego.utils.ClockFace
 import io.zenandroid.onlinego.utils.ClockPeriod
 import io.zenandroid.onlinego.utils.clockFace
+import org.jetbrains.compose.resources.pluralStringResource
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun clockText(millis: Long): String = when (val face = clockFace(millis)) {
@@ -39,7 +39,7 @@ fun clockText(millis: Long): String = when (val face = clockFace(millis)) {
   is ClockFace.Seconds -> stringResource(Res.string.clock_seconds, face.seconds.twoDigits())
   is ClockFace.Tenths -> stringResource(
     Res.string.clock_tenths,
-    formatOneDecimal(face.tenths / 10.0)
+    formatDecimal(face.tenths / 10.0)
   )
 }
 

@@ -1,6 +1,7 @@
 package io.zenandroid.onlinego.di
 
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
+import androidx.lifecycle.SavedStateHandle
 import androidx.room.Room
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import io.ktor.client.engine.HttpClientEngine
@@ -34,7 +35,11 @@ import io.zenandroid.onlinego.data.repositories.SocketDebugRepository
 import io.zenandroid.onlinego.data.repositories.TutorialsRepository
 import io.zenandroid.onlinego.data.repositories.TutorialsSource
 import io.zenandroid.onlinego.data.repositories.UserSessionRepository
+import io.zenandroid.onlinego.ui.screens.automatch.NewAutomatchChallengeViewModel
 import io.zenandroid.onlinego.ui.screens.learn.LearnViewModel
+import io.zenandroid.onlinego.ui.screens.puzzle.directory.PuzzleDirectoryViewModel
+import io.zenandroid.onlinego.ui.screens.puzzle.tsumego.TsumegoViewModel
+import io.zenandroid.onlinego.ui.screens.socketdebug.SocketDebugViewModel
 import io.zenandroid.onlinego.usecases.GetUserStatsUseCase
 import io.zenandroid.onlinego.utils.Analytics
 import io.zenandroid.onlinego.utils.KeyValueStore
@@ -44,6 +49,7 @@ import kotlinx.coroutines.test.runTest
 import okio.FileSystem
 import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
+import org.koin.core.parameter.parametersOf
 import org.koin.dsl.module
 import org.koin.mp.KoinPlatform.getKoin
 import kotlin.random.Random
@@ -87,6 +93,19 @@ class SharedModuleTest {
     koin.get<ReviewPromptRepository>()
     koin.get<GetUserStatsUseCase>()
     koin.get<LearnViewModel>()
+    koin.get<PuzzleDirectoryViewModel>()
+    koin.get<TsumegoViewModel> {
+      parametersOf(
+        SavedStateHandle(
+          mapOf(
+            "collectionId" to 1L,
+            "puzzleId" to 2L
+          )
+        )
+      )
+    }
+    koin.get<NewAutomatchChallengeViewModel>()
+    koin.get<SocketDebugViewModel>()
     assertEquals(9, koin.get<List<SocketConnectedRepository>>().size)
   }
 }

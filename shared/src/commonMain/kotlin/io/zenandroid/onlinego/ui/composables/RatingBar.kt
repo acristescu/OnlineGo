@@ -3,7 +3,15 @@ package io.zenandroid.onlinego.ui.composables
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.GenericShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -15,6 +23,7 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -84,12 +93,12 @@ private val starPath = { size: Float ->
     Path().apply {
         val outerRadius: Float = size / 1.8f
         val innerRadius: Double = outerRadius / 2.5
-        var rot: Double = Math.PI / 2 * 3
+      var rot: Double = PI / 2 * 3
         val cx: Float = size / 2
         val cy: Float = size / 20 * 11
         var x: Float = cx
         var y: Float = cy
-        val step = Math.PI / 5
+      val step = PI / 5
 
         moveTo(cx, cy - outerRadius)
         repeat(5) {

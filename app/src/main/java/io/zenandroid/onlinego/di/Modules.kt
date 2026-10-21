@@ -5,7 +5,6 @@ import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.ai.KataGoAnalysisEngine
 import io.zenandroid.onlinego.data.repositories.TutorialsSource
 import io.zenandroid.onlinego.playstore.PlayStoreService
-import io.zenandroid.onlinego.ui.screens.automatch.NewAutomatchChallengeViewModel
 import io.zenandroid.onlinego.ui.screens.face2face.FaceToFaceViewModel
 import io.zenandroid.onlinego.ui.screens.game.GameViewModel
 import io.zenandroid.onlinego.ui.screens.joseki.JosekiExplorerViewModel
@@ -15,10 +14,7 @@ import io.zenandroid.onlinego.ui.screens.mygames.MyGamesViewModel
 import io.zenandroid.onlinego.ui.screens.newchallenge.NewChallengeViewModel
 import io.zenandroid.onlinego.ui.screens.newchallenge.SelectOpponentViewModel
 import io.zenandroid.onlinego.ui.screens.onboarding.OnboardingViewModel
-import io.zenandroid.onlinego.ui.screens.puzzle.directory.PuzzleDirectoryViewModel
-import io.zenandroid.onlinego.ui.screens.puzzle.tsumego.TsumegoViewModel
 import io.zenandroid.onlinego.ui.screens.settings.SettingsViewModel
-import io.zenandroid.onlinego.ui.screens.socketdebug.SocketDebugViewModel
 import io.zenandroid.onlinego.ui.screens.stats.StatsViewModel
 import io.zenandroid.onlinego.ui.screens.supporter.SupporterViewModel
 import io.zenandroid.onlinego.ui.screens.tutorial.TutorialViewModel
@@ -49,9 +45,6 @@ private val appModule = module {
 }
 
 private val viewModelsModule = module {
-  viewModelOf(::TsumegoViewModel)
-  viewModelOf(::PuzzleDirectoryViewModel)
-  viewModelOf(::NewAutomatchChallengeViewModel)
   viewModelOf(::NewChallengeViewModel)
   viewModelOf(::SelectOpponentViewModel)
   viewModelOf(::JosekiExplorerViewModel)
@@ -65,7 +58,6 @@ private val viewModelsModule = module {
   viewModelOf(::MyGamesViewModel)
   viewModelOf(::FaceToFaceViewModel)
   viewModelOf(::SettingsViewModel)
-  viewModelOf(::SocketDebugViewModel)
 }
 
 private val espressoModule = module {

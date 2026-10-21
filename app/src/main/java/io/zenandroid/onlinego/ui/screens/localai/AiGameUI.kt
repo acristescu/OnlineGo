@@ -125,7 +125,7 @@ import io.zenandroid.onlinego.resources.territory
 import io.zenandroid.onlinego.resources.you
 import io.zenandroid.onlinego.resources.you_play
 import io.zenandroid.onlinego.ui.composables.Board
-import io.zenandroid.onlinego.ui.composables.formatOneDecimal
+import io.zenandroid.onlinego.ui.composables.formatDecimal
 import io.zenandroid.onlinego.ui.composables.resolve
 import io.zenandroid.onlinego.ui.composables.textResource
 import io.zenandroid.onlinego.ui.screens.game.PlayerData
@@ -782,8 +782,8 @@ private fun AnalysisPanel(
         Text(
           text = stringResource(
             Res.string.ai_game_eval_winrate_compact,
-            formatOneDecimal(blackPercentage.toDouble()),
-            formatOneDecimal(whitePercentage.toDouble())
+            formatDecimal(blackPercentage.toDouble()),
+            formatDecimal(whitePercentage.toDouble())
           ),
           style = MaterialTheme.typography.bodyMedium,
           color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -806,7 +806,7 @@ private fun AnalysisPanel(
             text = stringResource(
               Res.string.ai_game_eval_score_lead_compact,
               leaderLetter,
-              formatOneDecimal(magnitude.toDouble())
+              formatDecimal(magnitude.toDouble())
             ),
             style = MaterialTheme.typography.labelMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
