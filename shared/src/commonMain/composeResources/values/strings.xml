@@ -352,6 +352,7 @@
     <string name="settings_section_debug">Debug</string>
     <string name="settings_socket_debug">Socket Debug</string>
     <string name="settings_review_prompt">Review Prompt</string>
+    <string name="settings_test_notification">Test Notification</string>
     <string name="settings_build_version">Build no. %1$d</string>
     <string name="settings_theme_system_default">System Default</string>
     <string name="settings_theme_light">Light</string>

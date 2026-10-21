@@ -161,7 +161,7 @@ class SettingsViewModel(
       // Changing the language needs the Activity (to recreate it), so the UI handles it.
       is SettingsAction.LanguageClicked -> {}
 
-      PrivacyClicked, SupportClicked, LogoutClicked, NotificationsClicked, SettingsAction.SocketDebugClicked, SettingsAction.ReviewPromptClicked, SettingsAction.HelpTranslateClicked,
+      PrivacyClicked, SupportClicked, LogoutClicked, NotificationsClicked, SettingsAction.SocketDebugClicked, SettingsAction.ReviewPromptClicked, SettingsAction.TestNotificationClicked, SettingsAction.HelpTranslateClicked,
       SettingsAction.WhatsNewClicked -> {
       }
     }
@@ -201,6 +201,7 @@ sealed interface SettingsAction {
   data object SupportClicked : SettingsAction
   data object SocketDebugClicked : SettingsAction
   data object ReviewPromptClicked : SettingsAction
+  data object TestNotificationClicked : SettingsAction
   data object Logout : SettingsAction
 }
 

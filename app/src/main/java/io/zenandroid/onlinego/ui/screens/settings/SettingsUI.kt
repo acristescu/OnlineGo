@@ -67,7 +67,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -89,6 +88,7 @@ import io.zenandroid.onlinego.data.model.AppLanguage
 import io.zenandroid.onlinego.data.model.AppTheme
 import io.zenandroid.onlinego.data.model.BoardTheme
 import io.zenandroid.onlinego.data.model.UserSettings
+import io.zenandroid.onlinego.data.repositories.ActiveGamesRepository
 import io.zenandroid.onlinego.resources.Res
 import io.zenandroid.onlinego.resources.cancel
 import io.zenandroid.onlinego.resources.ic_star
@@ -139,6 +139,7 @@ import io.zenandroid.onlinego.resources.settings_show_player_ranks
 import io.zenandroid.onlinego.resources.settings_socket_debug
 import io.zenandroid.onlinego.resources.settings_stone_sounds
 import io.zenandroid.onlinego.resources.settings_system_notifications
+import io.zenandroid.onlinego.resources.settings_test_notification
 import io.zenandroid.onlinego.resources.settings_theme
 import io.zenandroid.onlinego.resources.settings_theme_dark
 import io.zenandroid.onlinego.resources.settings_theme_light
@@ -166,10 +167,12 @@ import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.ThemeClicked
 import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
 import io.zenandroid.onlinego.ui.theme.style
 import io.zenandroid.onlinego.utils.AppLocaleManager
+import io.zenandroid.onlinego.utils.NotificationUtils
 import io.zenandroid.onlinego.utils.ReviewDiagnosticResult
 import io.zenandroid.onlinego.utils.ReviewPromptManager
 import io.zenandroid.onlinego.utils.TRANSLATING_GUIDE_URL
 import io.zenandroid.onlinego.utils.processGravatarURL
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.painterResource
@@ -199,8 +202,9 @@ fun SettingsScreen(
   var whatsNewVisible by remember { mutableStateOf(false) }
 
   val activity = LocalActivity.current
-  val context = LocalContext.current
   val reviewPromptManager: ReviewPromptManager = koinInject()
+  val activeGamesRepository: ActiveGamesRepository = koinInject()
+  val notificationUtils: NotificationUtils = koinInject()
   val coroutineScope = rememberCoroutineScope()
   val logoutTitle = stringResource(Res.string.settings_logout_dialog_title)
   val logoutMessage = stringResource(Res.string.settings_logout_dialog_message)
@@ -251,6 +255,11 @@ fun SettingsScreen(
               reviewDiagnosticResult = result
             }
           }
+        }
+
+        is SettingsAction.TestNotificationClicked -> coroutineScope.launch {
+          activeGamesRepository.monitorActiveGames().first().firstOrNull()
+            ?.let { game -> notificationUtils.notifyGameForDebug(game) }
         }
 
         else -> viewModel.onAction(it)
@@ -596,6 +605,12 @@ private fun SettingsContent(
           checkbox = false,
           checked = true,
           onClick = { onAction(SettingsAction.ReviewPromptClicked) })
+        SettingsRow(
+          title = stringResource(Res.string.settings_test_notification),
+          icon = Filled.Notifications,
+          checkbox = false,
+          checked = true,
+          onClick = { onAction(SettingsAction.TestNotificationClicked) })
       }
     }
     Text(

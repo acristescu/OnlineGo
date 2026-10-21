@@ -179,6 +179,8 @@ class NotificationUtils(
             }
     }
 
+    suspend fun notifyGameForDebug(game: Game) = notifyIndividual(listOf(game), null)
+
     private suspend fun notifyIndividual(games: List<Game>, userId: Long?) {
         val boardTheme = settingsRepository.boardThemeFlow.first()
         val isDarkTheme =
