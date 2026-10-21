@@ -2,7 +2,6 @@
 
 package io.zenandroid.onlinego.ui.screens.face2face
 
-import android.content.res.Configuration
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -42,7 +41,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -75,6 +73,7 @@ import io.zenandroid.onlinego.resources.white_shield
 import io.zenandroid.onlinego.ui.composables.Board
 import io.zenandroid.onlinego.ui.composables.BottomBar
 import io.zenandroid.onlinego.ui.composables.TitleBar
+import io.zenandroid.onlinego.ui.composables.isLandscape
 import io.zenandroid.onlinego.ui.screens.face2face.Action.BoardCellDragged
 import io.zenandroid.onlinego.ui.screens.face2face.Action.BoardCellTapUp
 import io.zenandroid.onlinego.ui.screens.face2face.Action.BottomButtonPressed
@@ -90,7 +89,7 @@ import io.zenandroid.onlinego.ui.theme.OnlineGoPreviewTheme
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
-import java.lang.Float.max
+import kotlin.math.max
 
 @Composable
 fun FaceToFaceScreen(
@@ -108,7 +107,7 @@ private fun FaceToFaceContent(
   onUserAction: (Action) -> Unit,
   onBackPressed: () -> Unit,
 ) {
-  if (LocalConfiguration.current.orientation == Configuration.ORIENTATION_PORTRAIT) {
+  if (!isLandscape()) {
     Column(
       Modifier
         .background(MaterialTheme.colorScheme.surfaceContainerLowest)

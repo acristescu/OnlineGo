@@ -5,7 +5,6 @@ import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.ai.KataGoAnalysisEngine
 import io.zenandroid.onlinego.data.repositories.TutorialsSource
 import io.zenandroid.onlinego.playstore.PlayStoreService
-import io.zenandroid.onlinego.ui.screens.face2face.FaceToFaceViewModel
 import io.zenandroid.onlinego.ui.screens.game.GameViewModel
 import io.zenandroid.onlinego.ui.screens.joseki.JosekiExplorerViewModel
 import io.zenandroid.onlinego.ui.screens.localai.AiGameViewModel
@@ -17,7 +16,6 @@ import io.zenandroid.onlinego.ui.screens.onboarding.OnboardingViewModel
 import io.zenandroid.onlinego.ui.screens.settings.SettingsViewModel
 import io.zenandroid.onlinego.ui.screens.stats.StatsViewModel
 import io.zenandroid.onlinego.ui.screens.supporter.SupporterViewModel
-import io.zenandroid.onlinego.ui.screens.tutorial.TutorialViewModel
 import io.zenandroid.onlinego.utils.AppLocaleManager
 import io.zenandroid.onlinego.utils.CountingIdlingResource
 import io.zenandroid.onlinego.utils.NOOPIdlingResource
@@ -50,13 +48,11 @@ private val viewModelsModule = module {
   viewModelOf(::JosekiExplorerViewModel)
   viewModelOf(::AiGameViewModel)
   viewModelOf(::StatsViewModel)
-  viewModelOf(::TutorialViewModel)
   viewModelOf(::OnboardingViewModel)
   viewModelOf(::SupporterViewModel)
   viewModelOf(::GameViewModel)
   viewModelOf(::MainActivityViewModel)
   viewModelOf(::MyGamesViewModel)
-  viewModelOf(::FaceToFaceViewModel)
   viewModelOf(::SettingsViewModel)
 }
 

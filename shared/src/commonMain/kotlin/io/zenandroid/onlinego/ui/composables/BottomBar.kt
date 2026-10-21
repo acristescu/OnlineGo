@@ -49,7 +49,7 @@ fun BottomBar(
 ) {
   Row(modifier = Modifier.height(56.dp)) {
     buttons.forEach {
-      key(it.javaClass) {
+      key(it::class) {
         Box(
           modifier = Modifier
             .fillMaxHeight()

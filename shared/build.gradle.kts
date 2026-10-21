@@ -44,6 +44,9 @@ kotlin {
   sourceSets {
     all {
       languageSettings.optIn("kotlin.concurrent.atomics.ExperimentalAtomicApi")
+      languageSettings.optIn("androidx.compose.animation.ExperimentalAnimationApi")
+      languageSettings.optIn("androidx.compose.foundation.ExperimentalFoundationApi")
+      languageSettings.optIn("androidx.compose.ui.ExperimentalComposeUiApi")
     }
 
     commonMain.dependencies {

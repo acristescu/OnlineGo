@@ -26,12 +26,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import androidx.compose.ui.unit.dp
 import io.zenandroid.onlinego.resources.Res
 import io.zenandroid.onlinego.resources.back
 import io.zenandroid.onlinego.resources.title_bar_game_info_content_description
 import io.zenandroid.onlinego.resources.title_bar_more_content_description
 import org.jetbrains.compose.resources.stringResource
-import androidx.compose.ui.unit.dp
 
 @Composable
 fun TitleBar(

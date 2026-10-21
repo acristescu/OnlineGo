@@ -34,7 +34,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -63,6 +62,7 @@ import io.zenandroid.onlinego.resources.joseki_explorer_title
 import io.zenandroid.onlinego.ui.composables.Board
 import io.zenandroid.onlinego.ui.composables.BottomBar
 import io.zenandroid.onlinego.ui.composables.BottomBarButton
+import io.zenandroid.onlinego.ui.composables.isLandscape
 import io.zenandroid.onlinego.ui.theme.OnlineGoPreviewTheme
 import io.zenandroid.onlinego.utils.CrashReporter
 import org.commonmark.node.AbstractVisitor
@@ -85,8 +85,7 @@ fun JosekiExplorerScreen(
   BackHandler(enabled = state.previousButtonEnabled) {
     viewModel.onPressedPrevious()
   }
-  val configuration = LocalConfiguration.current
-  if (configuration.orientation == android.content.res.Configuration.ORIENTATION_PORTRAIT) {
+  if (!isLandscape()) {
     PortraitLayout(
       state = state,
       onTappedCoordinate = viewModel::onTappedCoordinate,

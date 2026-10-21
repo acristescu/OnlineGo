@@ -1,6 +1,5 @@
 package io.zenandroid.onlinego.ui.screens.mygames.composables
 
-import android.content.res.Configuration
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -15,10 +14,6 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalConfiguration
-import io.zenandroid.onlinego.resources.Res
-import io.zenandroid.onlinego.resources.mygames_paused
-import io.zenandroid.onlinego.resources.unknown
-import org.jetbrains.compose.resources.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -27,13 +22,18 @@ import androidx.compose.ui.unit.sp
 import io.zenandroid.onlinego.data.model.StoneType
 import io.zenandroid.onlinego.data.model.local.Game
 import io.zenandroid.onlinego.data.model.local.isPaused
+import io.zenandroid.onlinego.resources.Res
+import io.zenandroid.onlinego.resources.mygames_paused
+import io.zenandroid.onlinego.resources.unknown
 import io.zenandroid.onlinego.ui.composables.Board
 import io.zenandroid.onlinego.ui.composables.ChatIndicator
 import io.zenandroid.onlinego.ui.composables.PlayerColorIndicator
 import io.zenandroid.onlinego.ui.composables.clockText
+import io.zenandroid.onlinego.ui.composables.isLandscape
 import io.zenandroid.onlinego.ui.screens.mygames.Action
 import io.zenandroid.onlinego.ui.theme.OnlineGoPreviewTheme
 import io.zenandroid.onlinego.utils.currentClockMillis
+import org.jetbrains.compose.resources.stringResource
 
 @ExperimentalComposeUiApi
 @Composable
@@ -67,7 +67,7 @@ fun LargeGameItem(game: Game, userId: Long?, onAction: (Action) -> Unit, modifie
                 fadeOutRemovedStones = false,
                 modifier = Modifier.clip(MaterialTheme.shapes.large)
                     .run {
-                        if(LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                      if (isLandscape()) {
                             height((LocalConfiguration.current.screenHeightDp * .4f).dp)
                         } else {
                             this

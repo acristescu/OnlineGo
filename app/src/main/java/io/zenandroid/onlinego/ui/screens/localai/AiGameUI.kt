@@ -2,7 +2,6 @@
 
 package io.zenandroid.onlinego.ui.screens.localai
 
-import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -63,7 +62,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -126,6 +124,7 @@ import io.zenandroid.onlinego.resources.you
 import io.zenandroid.onlinego.resources.you_play
 import io.zenandroid.onlinego.ui.composables.Board
 import io.zenandroid.onlinego.ui.composables.formatDecimal
+import io.zenandroid.onlinego.ui.composables.isLandscape
 import io.zenandroid.onlinego.ui.composables.resolve
 import io.zenandroid.onlinego.ui.composables.textResource
 import io.zenandroid.onlinego.ui.screens.game.PlayerData
@@ -241,8 +240,7 @@ internal fun AiGameUI(
   onDeclineAiResignOffer: () -> Unit,
   initialEvalVisible: Boolean = true,
 ) {
-  val configuration = LocalConfiguration.current
-  val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+  val isLandscape = isLandscape()
   var evalVisible by remember { mutableStateOf(initialEvalVisible) }
 
   if (isLandscape) {

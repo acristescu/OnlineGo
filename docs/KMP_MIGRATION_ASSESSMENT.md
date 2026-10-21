@@ -9,7 +9,7 @@ is no RxJava, no `Parcelable`, and Koin, Molecule, Room, DataStore, `ViewModel`,
 kotlinx-collections-immutable are already multiplatform. The cost is dominated by resources
 (663 strings x 16 locales) and the local-AI engine, which cannot run on iOS as built today.
 
-**Status.** Phases 0-3 are finished: forty-three slices are done (section 6). Phases 0-2 have
+**Status.** Phases 0-3 are finished: forty-four slices are done (section 6). Phases 0-2 have
 shipped in a release; Phase 3 has not, and several slices still need on-device checks (section 1.2).
 Phase 3 moved the Room
 database (6.25), the score estimator (6.26), `CrashReporter` (6.10), the HTTP client (6.27),
@@ -21,7 +21,8 @@ Compose Multiplatform (6.33), now on 1.13.0-alpha02 (6.35), the first composable
 platforms, `BoardView` is gone (6.37) along with the resources and dependencies nothing used
 (6.38), the board is common code with its assets (6.40), and so are the Material icons (6.41),
 the ViewModel plumbing, the theme and the first screen, Learn (6.42), then the puzzle screens,
-socket debug and the automatch sheet (6.43). Phase 5 has not started.
+socket debug and the automatch sheet (6.43), and the tutorial and face-to-face screens (6.44). Phase
+5 has not started.
 
 Earlier, longer versions of this document:
 `git show d529259:docs/KMP_MIGRATION_ASSESSMENT.md` (original assessment) and
@@ -60,6 +61,11 @@ coordinates, drag and lift to play, both fades, the Settings previews, AI hints 
 Joseki and tutorial marks, label centring, and a notification board (Settings -> Debug -> Test
 Notification). After 6.42: the Learn tab, a live game and face-to-face on `Immediate`, screens
 with route arguments, dynamic colours on Android 12+, and the `LearnUI` preview in Android Studio.
+After 6.43: the puzzle directory (filter, sort, search, solve rates in German), Tsumego (solving,
+hints, the picker, rating, a description with a link), socket debug and the automatch sheet. After
+6.44: a tutorial in both orientations played to the end, face-to-face in both orientations (moves,
+undo and redo, clocks, the saved game after a restart), and rotating the game, AI game, Joseki and
+My Games screens.
 
 Still owed - unit tests cannot reach these:
 
@@ -76,18 +82,14 @@ Still owed - unit tests cannot reach these:
   re-renders every screen; the launcher name; plurals
   ("3 games"); a tutorial; Joseki link labels; the stats chart tooltip; the What's new sheet shows
   the Portuguese item.
-- [ ] **Puzzles, socket debug and automatch from `commonMain`** (6.43): the puzzle directory
-  (filter, sort, search, "only opened", solve rates with two decimals in English and German);
-  Tsumego (solve, hint, retry, previous and next, the puzzle picker, rating, a description with a
-  link); the socket debug screen; the automatch sheet and starting a search.
 
 ### 1.3 Phases 3-5
 
-| Phase                              | Work                                                                                                                                                                                                      | Estimate                        |
-|------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------|
-| **3 - data layer to `commonMain`** | Done (6.25, 6.27-6.32). Left for the iOS app: the Swift `Analytics`, `AppDataEraser` and `TutorialsSource` passed to `initKoin()`, and a real iOS `CrashReporter`.                                        | done                            |
-| **4 - Compose Multiplatform**      | UI into `:shared/commonMain`, screen by screen. Resources (4.2), chart, markdown. Done: the board (6.40), icons (6.41), ViewModel plumbing, theme, Learn (6.42), puzzles, socket debug, automatch (6.43). | 6-10 weeks (resources dominate) |
-| **5 - iOS app**                    | SwiftUI shell + `ComposeUIViewController`, notifications, background refresh, billing, Google sign-in, App Store plumbing. Bitrise needs a macOS stack.                                                   | 4-8 weeks, excluding local AI   |
+| Phase                              | Work                                                                                                                                                                                                                                     | Estimate                        |
+|------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------|
+| **3 - data layer to `commonMain`** | Done (6.25, 6.27-6.32). Left for the iOS app: the Swift `Analytics`, `AppDataEraser` and `TutorialsSource` passed to `initKoin()`, and a real iOS `CrashReporter`.                                                                       | done                            |
+| **4 - Compose Multiplatform**      | UI into `:shared/commonMain`, screen by screen. Resources (4.2), chart, markdown. Done: the board (6.40), icons (6.41), ViewModel plumbing, theme, Learn (6.42), puzzles, socket debug, automatch (6.43), tutorial, face-to-face (6.44). | 6-10 weeks (resources dominate) |
+| **5 - iOS app**                    | SwiftUI shell + `ComposeUIViewController`, notifications, background refresh, billing, Google sign-in, App Store plumbing. Bitrise needs a macOS stack.                                                                                  | 4-8 weeks, excluding local AI   |
 
 Estimates are order-of-magnitude, single developer. The one data point so far: the serialization
 slice came in on time only because the golden-JSON corpus was dropped, which moved verification
@@ -224,8 +226,8 @@ twins, and so are the board assets (6.40), apart from the stone vectors' Android
 ## 6. Done - what is still load-bearing
 
 Only traps, deliberate behaviour changes, and decisions that look wrong but are not. Unit tests
-stand at 182: 103 in `:shared` host tests (88 of them in `commonTest`, which also run on the iOS
-simulator), 32 in `:shared` `iosTest` (simulator only), 47 in `:app`.
+stand at 185: 103 in `:shared` host tests (88 of them in `commonTest`, which also run on the iOS
+simulator), 35 in `:shared` `iosTest` (simulator only), 47 in `:app`.
 
 ### 6.1 Moshi to kotlinx.serialization
 
@@ -943,3 +945,27 @@ test-local class.
   ViewModels.
 - **Compose report:** 254 rows (43 in `:shared`), 6 unstable parameters. The two
   `currentSortOption: Any` parameters of the sort chips moved to `:shared` with their files.
+
+### 6.44 Tutorial, face-to-face and orientation in `commonMain`
+
+- **`isLandscape()`** (`ui/composables/Orientation.kt`) replaces the six
+  `LocalConfiguration.current.orientation` reads (tutorial, face-to-face, game, AI game, Joseki,
+  `LargeGameItem`). **Android still reads `LocalConfiguration`**, so it is unchanged; only iOS
+  compares the window's `containerSize`. A window-size check on Android was rejected:
+  `containerSize` can be zero on the first frame, which would show a landscape screen's portrait
+  layout for one frame. iOS treats a square window as portrait, as Android does (`OrientationTest`).
+  `screenWidthDp` / `screenHeightDp` in `GameUI` and `LargeGameItem` stay until those screens move.
+- The tutorial and face-to-face screens (UI, ViewModels, state) are in `commonMain`, same packages,
+  registered in `sharedModule`. They brought `TitleBar`, `BottomBar`, `DotsAnimations.kt`,
+  `ComposableUiUtils.kt` (`repeatingClickable`, `shimmer`, `PreviewBackground`) and
+  `ExtraStatusField`, now its own file in the `game` package.
+- **`:shared` has the app's module-wide opt-ins** (`ExperimentalAnimationApi`,
+  `ExperimentalFoundationApi`, `ExperimentalComposeUiApi`), so moved UI compiles under the same
+  rules.
+- JVM leftovers: `BottomBar` keys its buttons by `it::class` instead of `it.javaClass`, face-to-face
+  uses `kotlin.math.max` instead of `java.lang.Float.max`.
+- `FaceToFaceViewModelTest` stays in `:app` and tests the common class.
+- `iosTest/.../TutorialAndFaceToFaceTest` renders both screens through Koin on the simulator (the
+  tutorial with its `tutorialName` route key).
+- **Compose report:** 255 rows (81 in `:shared`), 6 unstable parameters; `FaceToFaceViewModel`'s
+  `<this>` moved to `:shared` with it, so three are there now.

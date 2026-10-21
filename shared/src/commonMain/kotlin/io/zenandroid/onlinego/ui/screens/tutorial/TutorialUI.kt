@@ -2,7 +2,6 @@
 
 package io.zenandroid.onlinego.ui.screens.tutorial
 
-import android.content.res.Configuration
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.fadeIn
@@ -43,7 +42,6 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -59,6 +57,7 @@ import io.zenandroid.onlinego.resources.tutorial_next
 import io.zenandroid.onlinego.resources.tutorial_nice_one
 import io.zenandroid.onlinego.resources.tutorial_retry
 import io.zenandroid.onlinego.ui.composables.Board
+import io.zenandroid.onlinego.ui.composables.isLandscape
 import io.zenandroid.onlinego.ui.composables.resolveTutorialTextOrNull
 import io.zenandroid.onlinego.ui.screens.tutorial.TutorialAction.BoardCellHovered
 import io.zenandroid.onlinego.ui.screens.tutorial.TutorialAction.BoardCellTapped
@@ -107,8 +106,8 @@ fun TutorialContent(
     )
 
     state.step?.let {
-      when (LocalConfiguration.current.orientation) {
-        Configuration.ORIENTATION_LANDSCAPE -> {
+      when {
+        isLandscape() -> {
           Row {
             Column(modifier = Modifier.weight(1f)) {
               Description(

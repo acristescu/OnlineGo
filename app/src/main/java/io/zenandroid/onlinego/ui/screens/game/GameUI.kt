@@ -1,7 +1,6 @@
 package io.zenandroid.onlinego.ui.screens.game
 
 import android.content.Intent
-import android.content.res.Configuration.ORIENTATION_PORTRAIT
 import android.media.MediaPlayer
 import android.os.Bundle
 import android.view.WindowManager
@@ -16,7 +15,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -149,6 +147,7 @@ import io.zenandroid.onlinego.ui.composables.TextResource
 import io.zenandroid.onlinego.ui.composables.TitleBar
 import io.zenandroid.onlinego.ui.composables.clockPeriodText
 import io.zenandroid.onlinego.ui.composables.clockText
+import io.zenandroid.onlinego.ui.composables.isLandscape
 import io.zenandroid.onlinego.ui.composables.resolve
 import io.zenandroid.onlinego.ui.composables.resolveOrNull
 import io.zenandroid.onlinego.ui.composables.textResource
@@ -310,7 +309,7 @@ fun GameContent(
       .background(MaterialTheme.colorScheme.surfaceContainerLowest)
       .systemBarsPadding()
   ) {
-    if (LocalConfiguration.current.orientation == ORIENTATION_PORTRAIT) {
+    if (!isLandscape()) {
       Header(
         title = state.title.resolve(),
         opponentRequestedUndo = state.opponentRequestedUndo,
@@ -643,19 +642,6 @@ private fun Board(
       .shadow(1.dp, MaterialTheme.shapes.medium)
       .clip(MaterialTheme.shapes.medium)
   )
-}
-
-@Composable
-fun ColumnScope.ExtraStatusField(text: String?, modifier: Modifier = Modifier) {
-  AnimatedVisibility(visible = text != null) {
-    Text(
-      text = text ?: "",
-      style = MaterialTheme.typography.titleMedium,
-      color = Color.White,
-      textAlign = TextAlign.Center,
-      modifier = modifier
-    )
-  }
 }
 
 @Composable
