@@ -26,6 +26,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import io.zenandroid.onlinego.data.model.ogs.ChallengeParams
 import io.zenandroid.onlinego.resources.Res
 import io.zenandroid.onlinego.resources.handicap
 import io.zenandroid.onlinego.resources.new_challenge_analysis
@@ -37,14 +42,9 @@ import io.zenandroid.onlinego.resources.new_challenge_select_opponent
 import io.zenandroid.onlinego.resources.new_challenge_send
 import io.zenandroid.onlinego.resources.new_challenge_speed
 import io.zenandroid.onlinego.resources.new_challenge_your_color
-import org.jetbrains.compose.resources.stringResource
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import io.zenandroid.onlinego.data.model.ogs.ChallengeParams
 import io.zenandroid.onlinego.utils.PreviewBackground
-import org.koin.androidx.compose.koinViewModel
+import org.jetbrains.compose.resources.stringResource
+import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun NewChallengeBottomSheet(

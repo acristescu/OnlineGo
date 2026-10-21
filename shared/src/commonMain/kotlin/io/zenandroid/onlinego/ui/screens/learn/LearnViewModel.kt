@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import io.zenandroid.onlinego.data.model.local.TutorialGroup
 import io.zenandroid.onlinego.data.repositories.TutorialsRepository
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update

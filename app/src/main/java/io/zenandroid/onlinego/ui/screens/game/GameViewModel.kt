@@ -26,8 +26,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import app.cash.molecule.AndroidUiDispatcher
-import app.cash.molecule.RecompositionMode.ContextClock
+import app.cash.molecule.RecompositionMode.Immediate
 import app.cash.molecule.launchMolecule
 import co.touchlab.kermit.Logger
 import io.zenandroid.onlinego.data.model.Cell
@@ -160,8 +159,8 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlin.math.roundToInt
 import org.jetbrains.compose.resources.StringResource
+import kotlin.math.roundToInt
 
 private const val MAX_ATTEMPTS = 3
 private const val DELAY_BETWEEN_ATTEMPTS = 5000L
@@ -184,11 +183,6 @@ class GameViewModel(
   private val notificationUtils: NotificationUtils,
   savedStateHandle: SavedStateHandle
 ) : ViewModel() {
-
-  // Need to add a MonotonicFrameClock
-  // See: https://github.com/cashapp/molecule/#frame-clock
-  private val moleculeScope =
-    CoroutineScope(viewModelScope.coroutineContext + AndroidUiDispatcher.Main)
 
   private var loading by mutableStateOf(true)
   private lateinit var currentGamePosition: MutableState<Position>
@@ -267,7 +261,7 @@ class GameViewModel(
         .groupBy { it.message.moveNumber ?: 0 }
     }
 
-    state = moleculeScope.launchMolecule(mode = ContextClock) {
+    state = viewModelScope.launchMolecule(mode = Immediate) {
       val game by gameFlow.collectAsState(initial = null)
       val messages by messagesFlow.collectAsState(emptyMap())
       val soundEnabled by settingsRepository.soundFlow.collectAsState(false)

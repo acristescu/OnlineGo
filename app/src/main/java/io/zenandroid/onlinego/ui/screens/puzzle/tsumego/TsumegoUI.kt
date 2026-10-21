@@ -97,7 +97,7 @@ import io.zenandroid.onlinego.ui.theme.OnlineGoPreviewTheme
 import kotlinx.collections.immutable.toImmutableList
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
-import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun TsumegoScreen(

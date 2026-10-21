@@ -94,8 +94,8 @@ import io.zenandroid.onlinego.utils.Analytics
 import io.zenandroid.onlinego.utils.CrashReporter
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.resources.vectorResource
-import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
+import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun SupporterScreen(

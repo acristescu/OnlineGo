@@ -16,8 +16,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import app.cash.molecule.AndroidUiDispatcher
-import app.cash.molecule.RecompositionMode.ContextClock
+import app.cash.molecule.RecompositionMode.Immediate
 import app.cash.molecule.launchMolecule
 import co.touchlab.kermit.Logger
 import io.zenandroid.onlinego.data.model.Cell
@@ -95,10 +94,9 @@ class FaceToFaceViewModel(
   }
 
   val state: StateFlow<FaceToFaceState> by lazy {
-    CoroutineScope(viewModelScope.coroutineContext + AndroidUiDispatcher.Main)
-      .launchMolecule(mode = ContextClock) {
-        molecule()
-      }
+    viewModelScope.launchMolecule(mode = Immediate) {
+      molecule()
+    }
   }
 
   @VisibleForTesting

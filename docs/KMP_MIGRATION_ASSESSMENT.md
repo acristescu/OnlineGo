@@ -9,7 +9,7 @@ is no RxJava, no `Parcelable`, and Koin, Molecule, Room, DataStore, `ViewModel`,
 kotlinx-collections-immutable are already multiplatform. The cost is dominated by resources
 (663 strings x 16 locales) and the local-AI engine, which cannot run on iOS as built today.
 
-**Status.** Phases 0-3 are finished: forty-one slices are done (section 6). Phases 0-2 have
+**Status.** Phases 0-3 are finished: forty-two slices are done (section 6). Phases 0-2 have
 shipped in a release; Phase 3 has not, and several slices still need on-device checks (section 1.2).
 Phase 3 moved the Room
 database (6.25), the score estimator (6.26), `CrashReporter` (6.10), the HTTP client (6.27),
@@ -19,8 +19,8 @@ supplies are left, and they come with the iOS app. Phase 4 has started: the tool
 Compose Multiplatform (6.33), now on 1.13.0-alpha02 (6.35), the first composable is common code
 (6.34), strings (6.36) and the UI drawables (6.39) are Compose Multiplatform resources on both
 platforms, `BoardView` is gone (6.37) along with the resources and dependencies nothing used
-(6.38), the board is common code with its assets (6.40), and so are the Material icons (6.41).
-Phase 5 has not started.
+(6.38), the board is common code with its assets (6.40), and so are the Material icons (6.41),
+the ViewModel plumbing, the theme and the first screen, Learn (6.42). Phase 5 has not started.
 
 Earlier, longer versions of this document:
 `git show d529259:docs/KMP_MIGRATION_ASSESSMENT.md` (original assessment) and
@@ -74,14 +74,19 @@ Still owed - unit tests cannot reach these:
   re-renders every screen; the launcher name; plurals
   ("3 games"); a tutorial; Joseki link labels; the stats chart tooltip; the What's new sheet shows
   the Portuguese item.
+- [ ] **ViewModels and Learn from `commonMain`** (6.42): the Learn tab (groups expand and collapse,
+  completed ticks, opening a tutorial, Joseki and puzzles, the bottom bar collapsing on scroll); a
+  live game (clock, moves, chat, analysis) and face-to-face, now on `Immediate`; screens with route
+  arguments (a game, a tutorial, onboarding); dynamic colours on Android 12+; the `LearnUI` preview
+  in Android Studio.
 
 ### 1.3 Phases 3-5
 
-| Phase                              | Work                                                                                                                                                                         | Estimate                        |
-|------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------|
-| **3 - data layer to `commonMain`** | Done (6.25, 6.27-6.32). Left for the iOS app: the Swift `Analytics`, `AppDataEraser` and `TutorialsSource` passed to `initKoin()`, and a real iOS `CrashReporter`.           | done                            |
-| **4 - Compose Multiplatform**      | UI into `:shared/commonMain`; Koin and Molecule multiplatform artifacts with it. Resources (4.2), chart, markdown, Material You. The board (6.40) and icons (6.41) are done. | 6-10 weeks (resources dominate) |
-| **5 - iOS app**                    | SwiftUI shell + `ComposeUIViewController`, notifications, background refresh, billing, Google sign-in, App Store plumbing. Bitrise needs a macOS stack.                      | 4-8 weeks, excluding local AI   |
+| Phase                              | Work                                                                                                                                                               | Estimate                        |
+|------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------|
+| **3 - data layer to `commonMain`** | Done (6.25, 6.27-6.32). Left for the iOS app: the Swift `Analytics`, `AppDataEraser` and `TutorialsSource` passed to `initKoin()`, and a real iOS `CrashReporter`. | done                            |
+| **4 - Compose Multiplatform**      | UI into `:shared/commonMain`, screen by screen. Resources (4.2), chart, markdown. Done: the board (6.40), icons (6.41), ViewModel plumbing, theme, Learn (6.42).   | 6-10 weeks (resources dominate) |
+| **5 - iOS app**                    | SwiftUI shell + `ComposeUIViewController`, notifications, background refresh, billing, Google sign-in, App Store plumbing. Bitrise needs a macOS stack.            | 4-8 weeks, excluding local AI   |
 
 Estimates are order-of-magnitude, single developer. The one data point so far: the serialization
 slice came in on time only because the golden-JSON corpus was dropped, which moved verification
@@ -124,12 +129,11 @@ appears, or local AI needs Play Feature Delivery for its 265 MB of assets. Basel
 `java.util.concurrent` / `UUID` / `Stack`, string navigation routes, `BuildConfig.DEBUG` in
 `HTTPConnectionFactory` (6.23), Firebase Analytics and Crashlytics in common code (6.9, 6.10),
 DataStore (6.28), `BoardView` (6.37), `lifecycle-extensions` and `firebase-messaging` (6.38),
-`material-icons-extended` (6.41).
+`material-icons-extended` (6.41), `koin-androidx-compose` and Molecule's `AndroidUiDispatcher` (
+6.42).
 
 | Dependency                                      | Replacement                                                                                           | When                |
 |-------------------------------------------------|-------------------------------------------------------------------------------------------------------|---------------------|
-| Koin Android artifacts                          | `koin-core` + `koin-compose` + `koin-compose-viewmodel`; drop `androidApplication()`                  | Phase 4             |
-| Molecule `AndroidUiDispatcher` / `ContextClock` | multiplatform frame clock; extract the shared `moleculeScope` base from the two ViewModels            | Phase 4             |
 | MPAndroidChart                                  | Vico 2.x / KoalaPlot / Compose `Canvas`; confined to `ChartWrapper.kt` (416 LOC)                      | Phase 4             |
 | Markwon                                         | `multiplatform-markdown-renderer-m3` (`JosekiExplorerUI`, ~90 LOC)                                    | Phase 4             |
 | navigation-compose (androidx)                   | `org.jetbrains.androidx.navigation`; routes are already `@Serializable` (6.19)                        | Phase 4             |
@@ -143,7 +147,8 @@ DataStore (6.28), `BoardView` (6.37), `lifecycle-extensions` and `firebase-messa
 | Mockito, compose screenshot plugin              | stay on the Android target; new `commonTest` uses fakes + Turbine                                     | No change           |
 
 **Stays Android-only by design:** `MainActivity` (edge-to-edge, deep links, `isInForeground`),
-Material You dynamic color (`expect`/`actual`), the window theme in `styles.xml` (the only reason
+Material You dynamic color (`expect`/`actual` since 6.42), the window theme in `styles.xml` (the
+only reason
 the Material Components dependency exists).
 
 ---
@@ -218,8 +223,8 @@ twins, and so are the board assets (6.40), apart from the stone vectors' Android
 ## 6. Done - what is still load-bearing
 
 Only traps, deliberate behaviour changes, and decisions that look wrong but are not. Unit tests
-stand at 172: 99 in `:shared` host tests (84 of them in `commonTest`, which also run on the iOS
-simulator), 26 in `:shared` `iosTest` (simulator only), 47 in `:app`.
+stand at 173: 99 in `:shared` host tests (84 of them in `commonTest`, which also run on the iOS
+simulator), 27 in `:shared` `iosTest` (simulator only), 47 in `:app`.
 
 ### 6.1 Moshi to kotlinx.serialization
 
@@ -870,3 +875,37 @@ test-local class.
   simulator; rerun it after every Compose upgrade.
 - Release iOS builds keep only the icons in use (Kotlin/Native dead-code elimination); debug builds
   link the whole set.
+
+### 6.42 ViewModel plumbing and Learn in `commonMain`
+
+- **Koin:** `koin-compose` and `koin-compose-viewmodel` are `commonMain` `api` dependencies;
+  `koin-androidx-compose` is gone. The 17 `koinViewModel` call sites changed only their import, to
+  `org.koin.compose.viewmodel.koinViewModel`, which reads `SavedStateHandle` from the same
+  `ViewModelStoreOwner` extras. `koin-android` stays in `:app` for `androidContext()`, the logger,
+  `androidApplication()` and `MainActivity`'s `by viewModel()`.
+- **Lifecycle:** JetBrains' `lifecycle-viewmodel` and `lifecycle-runtime-compose` 2.11.0 in
+  `commonMain`; on Android they resolve to androidx 2.11.0, the version the app already had.
+- **Molecule runs `RecompositionMode.Immediate` on `viewModelScope`** in `GameViewModel` and
+  `FaceToFaceViewModel`, following Molecule 1.0's advice for presenters. `AndroidUiDispatcher` and
+  `ContextClock` are gone, and no helper replaced them: with no frame clock there is no scope to
+  build. Neither molecule uses frame APIs (`withFrameNanos`, `animate*`). **Behaviour change:**
+  state
+  is recomputed on every change instead of at most once per frame; the `StateFlow` conflates what
+  the
+  UI has not drawn. The `FaceToFaceViewModelTest`s already used `Immediate`.
+- **Learn** (`LearnUI`, `LearnViewModel`, `LearnState`, `LearnAction`) is in `commonMain`, same
+  package, and `LearnViewModel` is registered in `sharedModule`. It brought `SenteCard`,
+  `ScrollCollapse.kt`, `TutorialText.kt` and `bottomBarContentPadding` (split out of
+  `SenteBottomNavigationBar.kt`).
+- **The theme is in `commonMain`** (`Theme.kt`, `Type.kt`, `Shape.kt`, `Color.kt`, and
+  `OnlineGoPreviewTheme`). Dynamic colour is `expect fun dynamicColorScheme`: Android 12+ returns
+  the
+  wallpaper scheme, everything else falls back to Material's baseline, so iOS gets the baseline.
+- **Previews in `commonMain`** use CMP's `ui-tooling-preview`; `ui-tooling` is added to
+  `androidRuntimeClasspath` only, so it reaches Android Studio's renderer but not the APK.
+- `iosTest/.../LearnScreenTest` starts Koin with `sharedModule` and the stub platform module (now
+  `internal`, with a tutorials JSON parameter), renders `LearnScreen` through `koinViewModel` and
+  waits for a tutorial group. `SharedModuleTest` also resolves `LearnViewModel`.
+- **Compose report:** 253 rows (19 in `:shared`), 6 unstable parameters, none in `:shared`. **For
+  `:shared`, `--rerun` is not enough:** incremental Kotlin still writes a partial report; add
+  `-Pkotlin.incremental=false`.

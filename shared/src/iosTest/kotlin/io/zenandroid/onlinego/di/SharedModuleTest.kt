@@ -34,6 +34,7 @@ import io.zenandroid.onlinego.data.repositories.SocketDebugRepository
 import io.zenandroid.onlinego.data.repositories.TutorialsRepository
 import io.zenandroid.onlinego.data.repositories.TutorialsSource
 import io.zenandroid.onlinego.data.repositories.UserSessionRepository
+import io.zenandroid.onlinego.ui.screens.learn.LearnViewModel
 import io.zenandroid.onlinego.usecases.GetUserStatsUseCase
 import io.zenandroid.onlinego.utils.Analytics
 import io.zenandroid.onlinego.utils.KeyValueStore
@@ -85,11 +86,12 @@ class SharedModuleTest {
     koin.get<SettingsRepository>()
     koin.get<ReviewPromptRepository>()
     koin.get<GetUserStatsUseCase>()
+    koin.get<LearnViewModel>()
     assertEquals(9, koin.get<List<SocketConnectedRepository>>().size)
   }
 }
 
-private fun stubPlatformModule(scope: CoroutineScope) = module {
+internal fun stubPlatformModule(scope: CoroutineScope, tutorialsJson: String = "[]") = module {
   single { scope }
   single<HttpClientEngine> { MockEngine { respondError(HttpStatusCode.ServiceUnavailable) } }
   single<SessionCookiePersistence> {
@@ -116,7 +118,7 @@ private fun stubPlatformModule(scope: CoroutineScope) = module {
     }
   }
   single { AppDataEraser {} }
-  single { TutorialsSource { "[]" } }
+  single { TutorialsSource { tutorialsJson } }
 }
 
 private fun tempDataStore(scope: CoroutineScope) =

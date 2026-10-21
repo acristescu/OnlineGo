@@ -36,16 +36,6 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
-import io.zenandroid.onlinego.resources.Res
-import io.zenandroid.onlinego.resources.back
-import io.zenandroid.onlinego.resources.joseki_explorer_button_next
-import io.zenandroid.onlinego.resources.joseki_explorer_button_previous
-import io.zenandroid.onlinego.resources.joseki_explorer_button_tenuki
-import io.zenandroid.onlinego.resources.joseki_explorer_link_external
-import io.zenandroid.onlinego.resources.joseki_explorer_link_video
-import io.zenandroid.onlinego.resources.joseki_explorer_title
-import org.jetbrains.compose.resources.StringResource
-import org.jetbrains.compose.resources.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -62,6 +52,14 @@ import io.noties.markwon.core.MarkwonTheme
 import io.noties.markwon.movement.MovementMethodPlugin
 import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.Cell
+import io.zenandroid.onlinego.resources.Res
+import io.zenandroid.onlinego.resources.back
+import io.zenandroid.onlinego.resources.joseki_explorer_button_next
+import io.zenandroid.onlinego.resources.joseki_explorer_button_previous
+import io.zenandroid.onlinego.resources.joseki_explorer_button_tenuki
+import io.zenandroid.onlinego.resources.joseki_explorer_link_external
+import io.zenandroid.onlinego.resources.joseki_explorer_link_video
+import io.zenandroid.onlinego.resources.joseki_explorer_title
 import io.zenandroid.onlinego.ui.composables.Board
 import io.zenandroid.onlinego.ui.composables.BottomBar
 import io.zenandroid.onlinego.ui.composables.BottomBarButton
@@ -71,7 +69,9 @@ import org.commonmark.node.AbstractVisitor
 import org.commonmark.node.Link
 import org.commonmark.node.Node
 import org.commonmark.node.Text
-import org.koin.androidx.compose.koinViewModel
+import org.jetbrains.compose.resources.StringResource
+import org.jetbrains.compose.resources.stringResource
+import org.koin.compose.viewmodel.koinViewModel
 
 private const val TAG = "JosekiExplorer"
 

@@ -31,6 +31,15 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import io.zenandroid.onlinego.data.model.local.WinLossStats
 import io.zenandroid.onlinego.resources.Res
 import io.zenandroid.onlinego.resources.stats_all_games
 import io.zenandroid.onlinego.resources.stats_black
@@ -59,17 +68,6 @@ import io.zenandroid.onlinego.resources.stats_win_ratio_by_board_size
 import io.zenandroid.onlinego.resources.stats_win_ratio_by_colour
 import io.zenandroid.onlinego.resources.stats_win_ratio_by_time_controls
 import io.zenandroid.onlinego.resources.stats_won_lost
-import org.jetbrains.compose.resources.pluralStringResource
-import org.jetbrains.compose.resources.stringResource
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import io.zenandroid.onlinego.data.model.local.WinLossStats
 import io.zenandroid.onlinego.ui.composables.bottomBarContentPadding
 import io.zenandroid.onlinego.ui.composables.isCollapseTriggered
 import io.zenandroid.onlinego.ui.screens.game.composables.BoxWithImage
@@ -80,7 +78,9 @@ import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
 import io.zenandroid.onlinego.utils.egfToRank
 import io.zenandroid.onlinego.utils.formatRank
 import io.zenandroid.onlinego.utils.shimmer
-import org.koin.androidx.compose.koinViewModel
+import org.jetbrains.compose.resources.pluralStringResource
+import org.jetbrains.compose.resources.stringResource
+import org.koin.compose.viewmodel.koinViewModel
 import kotlin.math.abs
 
 @Composable

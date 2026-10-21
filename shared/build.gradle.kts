@@ -52,6 +52,10 @@ kotlin {
       api(libs.cmp.foundation)
       api(libs.cmp.material3)
       api(libs.cmp.material.icons.extended)
+      api(libs.cmp.ui.tooling.preview)
+      api(libs.cmp.lifecycle.viewmodel)
+      api(libs.cmp.lifecycle.runtime.compose)
+      api(libs.molecule.runtime)
       api(libs.cmp.resources)
       api(libs.kotlinx.serialization.json)
       api(libs.immutable.collections)
@@ -67,6 +71,8 @@ kotlin {
       api(libs.androidx.datastore.preferences)
 
       api(libs.koin.core)
+      api(libs.koin.compose)
+      api(libs.koin.compose.viewmodel)
     }
 
     androidMain.dependencies {
@@ -159,6 +165,7 @@ fun KotlinNativeTarget.estimatorInterop(estimatorTarget: EstimatorTarget) {
 }
 
 dependencies {
+  add("androidRuntimeClasspath", libs.cmp.ui.tooling)
   add("kspAndroid", libs.room.compiler)
   add("kspIosArm64", libs.room.compiler)
   add("kspIosSimulatorArm64", libs.room.compiler)

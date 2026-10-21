@@ -31,10 +31,12 @@ import io.zenandroid.onlinego.data.repositories.SocketConnectedRepository
 import io.zenandroid.onlinego.data.repositories.SocketDebugRepository
 import io.zenandroid.onlinego.data.repositories.TutorialsRepository
 import io.zenandroid.onlinego.data.repositories.UserSessionRepository
+import io.zenandroid.onlinego.ui.screens.learn.LearnViewModel
 import io.zenandroid.onlinego.usecases.GetUserStatsUseCase
 import io.zenandroid.onlinego.utils.PersistenceManager
 import io.zenandroid.onlinego.utils.appJson
 import org.koin.core.module.dsl.singleOf
+import org.koin.core.module.dsl.viewModelOf
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
@@ -117,4 +119,6 @@ val sharedModule = module {
   single { ReviewPromptRepository(get(REVIEW_PROMPT_DATA_STORE), get(), get()) }
 
   singleOf(::GetUserStatsUseCase)
+
+  viewModelOf(::LearnViewModel)
 }

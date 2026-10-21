@@ -42,6 +42,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import io.zenandroid.onlinego.data.repositories.SocketEvent
+import io.zenandroid.onlinego.data.repositories.SocketEventType
 import io.zenandroid.onlinego.resources.Res
 import io.zenandroid.onlinego.resources.back
 import io.zenandroid.onlinego.resources.socket_debug_clear_content_description
@@ -53,14 +60,7 @@ import io.zenandroid.onlinego.resources.socket_debug_filter_type
 import io.zenandroid.onlinego.resources.socket_debug_title
 import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import io.zenandroid.onlinego.data.repositories.SocketEvent
-import io.zenandroid.onlinego.data.repositories.SocketEventType
-import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

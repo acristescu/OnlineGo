@@ -63,7 +63,7 @@ import io.zenandroid.onlinego.utils.formatRank
 import io.zenandroid.onlinego.utils.processGravatarURL
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
-import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.viewmodel.koinViewModel
 
 @ExperimentalFoundationApi
 @Composable

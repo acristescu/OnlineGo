@@ -9,7 +9,6 @@ import io.zenandroid.onlinego.ui.screens.automatch.NewAutomatchChallengeViewMode
 import io.zenandroid.onlinego.ui.screens.face2face.FaceToFaceViewModel
 import io.zenandroid.onlinego.ui.screens.game.GameViewModel
 import io.zenandroid.onlinego.ui.screens.joseki.JosekiExplorerViewModel
-import io.zenandroid.onlinego.ui.screens.learn.LearnViewModel
 import io.zenandroid.onlinego.ui.screens.localai.AiGameViewModel
 import io.zenandroid.onlinego.ui.screens.main.MainActivityViewModel
 import io.zenandroid.onlinego.ui.screens.mygames.MyGamesViewModel
@@ -58,7 +57,6 @@ private val viewModelsModule = module {
   viewModelOf(::JosekiExplorerViewModel)
   viewModelOf(::AiGameViewModel)
   viewModelOf(::StatsViewModel)
-  viewModelOf(::LearnViewModel)
   viewModelOf(::TutorialViewModel)
   viewModelOf(::OnboardingViewModel)
   viewModelOf(::SupporterViewModel)

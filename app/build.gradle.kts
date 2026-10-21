@@ -118,9 +118,6 @@ dependencies {
   screenshotTestImplementation(libs.screenshot.validation.api)
   screenshotTestImplementation(libs.compose.ui.tooling)
 
-  // Molecule
-  implementation(libs.molecule.runtime)
-
   // Datastore
   implementation(libs.androidx.datastore.preferences)
 

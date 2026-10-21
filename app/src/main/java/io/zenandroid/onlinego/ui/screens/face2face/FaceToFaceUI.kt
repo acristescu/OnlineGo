@@ -89,7 +89,7 @@ import io.zenandroid.onlinego.ui.screens.game.ExtraStatusField
 import io.zenandroid.onlinego.ui.theme.OnlineGoPreviewTheme
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
-import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.viewmodel.koinViewModel
 import java.lang.Float.max
 
 @Composable

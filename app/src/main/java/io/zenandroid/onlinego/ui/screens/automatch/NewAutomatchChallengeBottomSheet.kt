@@ -25,6 +25,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import io.zenandroid.onlinego.data.model.ogs.Size
+import io.zenandroid.onlinego.data.model.ogs.Speed
 import io.zenandroid.onlinego.resources.Res
 import io.zenandroid.onlinego.resources.automatch_description
 import io.zenandroid.onlinego.resources.automatch_duration_minutes
@@ -43,17 +50,10 @@ import io.zenandroid.onlinego.resources.automatch_speed_rapid
 import io.zenandroid.onlinego.resources.automatch_time_controls
 import io.zenandroid.onlinego.resources.automatch_title
 import io.zenandroid.onlinego.resources.search
+import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
 import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
-import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import io.zenandroid.onlinego.data.model.ogs.Size
-import io.zenandroid.onlinego.data.model.ogs.Speed
-import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
-import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

@@ -15,6 +15,7 @@ composeBom = "2026.09.00"
 composeMultiplatform = "1.13.0-alpha02"
 composeMultiplatformMaterial3 = "1.9.0"
 composeMultiplatformMaterialIcons = "1.7.3"
+composeMultiplatformLifecycle = "2.11.0"
 
 # Main dependencies
 koin = "4.2.2"
@@ -93,6 +94,10 @@ cmp-ui = { module = "org.jetbrains.compose.ui:ui", version.ref = "composeMultipl
 cmp-foundation = { module = "org.jetbrains.compose.foundation:foundation", version.ref = "composeMultiplatform" }
 cmp-material3 = { module = "org.jetbrains.compose.material3:material3", version.ref = "composeMultiplatformMaterial3" }
 cmp-material-icons-extended = { module = "org.jetbrains.compose.material:material-icons-extended", version.ref = "composeMultiplatformMaterialIcons" }
+cmp-ui-tooling = { module = "org.jetbrains.compose.ui:ui-tooling", version.ref = "composeMultiplatform" }
+cmp-ui-tooling-preview = { module = "org.jetbrains.compose.ui:ui-tooling-preview", version.ref = "composeMultiplatform" }
+cmp-lifecycle-viewmodel = { module = "org.jetbrains.androidx.lifecycle:lifecycle-viewmodel", version.ref = "composeMultiplatformLifecycle" }
+cmp-lifecycle-runtime-compose = { module = "org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose", version.ref = "composeMultiplatformLifecycle" }
 cmp-ui-test = { module = "org.jetbrains.compose.ui:ui-test", version.ref = "composeMultiplatform" }
 cmp-resources = { module = "org.jetbrains.compose.components:components-resources", version.ref = "composeMultiplatform" }
 
@@ -139,7 +144,8 @@ sqlite-bundled = { group = "androidx.sqlite", name = "sqlite-bundled", version.r
 # Dependency Injection
 koin-core = { group = "io.insert-koin", name = "koin-core", version.ref = "koin" }
 koin-android = { group = "io.insert-koin", name = "koin-android", version.ref = "koin" }
-koin-androidx-compose = { group = "io.insert-koin", name = "koin-androidx-compose", version.ref = "koin" }
+koin-compose = { group = "io.insert-koin", name = "koin-compose", version.ref = "koin" }
+koin-compose-viewmodel = { group = "io.insert-koin", name = "koin-compose-viewmodel", version.ref = "koin" }
 
 # Image Loading
 coil-compose = { group = "io.coil-kt.coil3", name = "coil-compose", version.ref = "coil" }
@@ -199,8 +205,7 @@ work = [
 ]
 
 koin = [
-    "koin-android",
-    "koin-androidx-compose"
+    "koin-android"
 ]
 
 testing = [

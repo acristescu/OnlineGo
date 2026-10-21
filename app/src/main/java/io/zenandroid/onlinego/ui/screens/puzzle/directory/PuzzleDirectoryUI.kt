@@ -74,7 +74,7 @@ import io.zenandroid.onlinego.utils.convertCountryCodeToEmojiFlag
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
-import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun PuzzleDirectoryScreen(
