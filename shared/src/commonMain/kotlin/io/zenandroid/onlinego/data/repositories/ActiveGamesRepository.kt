@@ -19,6 +19,7 @@ import io.zenandroid.onlinego.data.ogs.UndoRequested
 import io.zenandroid.onlinego.data.ogs.httpErrorBody
 import io.zenandroid.onlinego.data.ogs.httpStatusCode
 import io.zenandroid.onlinego.utils.CrashReporter
+import io.zenandroid.onlinego.utils.SingleFlight
 import io.zenandroid.onlinego.utils.timeLeftForCurrentPlayer
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.persistentSetOf
@@ -57,6 +58,8 @@ class ActiveGamesRepository(
   private val userSessionRepository: UserSessionRepository,
   private val gameDao: GameDao
 ) : SocketConnectedRepository {
+
+  private val activeGamesRefresh = SingleFlight<Unit>()
 
   private val gameConnections = AtomicReference(persistentSetOf<Long>())
   private val trackedConnections = AtomicReference(persistentListOf<GameConnection>())
@@ -340,7 +343,11 @@ class ActiveGamesRepository(
     }
   }
 
-  suspend fun refreshActiveGames() {
+  suspend fun refreshActiveGames() = activeGamesRefresh.run {
+    refreshActiveGamesInternal()
+  }
+
+  private suspend fun refreshActiveGamesInternal() {
     val userId = userSessionRepository.userId.filterNotNull().first()
     val games = retryOnIOException { restService.fetchActiveGames() }
     val localGames = games.map(Game.Companion::fromOGSGame)
