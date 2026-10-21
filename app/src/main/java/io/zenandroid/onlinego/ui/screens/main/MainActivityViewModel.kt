@@ -8,10 +8,7 @@ import io.zenandroid.onlinego.data.ogs.OGSWebSocketService
 import io.zenandroid.onlinego.data.repositories.LoginStatus
 import io.zenandroid.onlinego.data.repositories.SettingsRepository
 import io.zenandroid.onlinego.data.repositories.UserSessionRepository
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -26,14 +23,12 @@ class MainActivityViewModel(
   private val socketService: OGSWebSocketService,
   private val userSessionRepository: UserSessionRepository,
   private val settingsRepository: SettingsRepository,
-  private val appCoroutineScope: CoroutineScope,
 ) : ViewModel() {
 
   private val _state = MutableStateFlow(
     MainActivityState()
   )
   val state: StateFlow<MainActivityState> = _state.asStateFlow()
-  private var socketConnectionCheckerJob: Job? = null
 
   init {
     viewModelScope.launch {
@@ -66,16 +61,9 @@ class MainActivityViewModel(
     loginObserverJob = viewModelScope.launch {
       userSessionRepository.loginStatus.collect { loggedIn ->
         if (loggedIn is LoginStatus.LoggedIn) {
-          socketConnectionCheckerJob?.cancel()
-          socketConnectionCheckerJob =
-            viewModelScope.launch(Dispatchers.IO) {
-              socketService.ensureSocketConnected()
-              socketService.resendAuth()
-              while (true) {
-                delay(10000)
-                socketService.ensureSocketConnected()
-              }
-            }
+          socketService.ensureSocketConnected()
+        } else {
+          socketService.disconnect()
         }
 
         _state.update {
@@ -88,14 +76,11 @@ class MainActivityViewModel(
   }
 
   fun onPause() {
-    appCoroutineScope.launch(Dispatchers.IO) {
-      socketConnectionCheckerJob?.cancel()
-      socketConnectionCheckerJob = null
-      loginObserverJob?.cancel()
-      loginObserverJob = null
-      socketService.disconnect()
-    }
+    loginObserverJob?.cancel()
+    loginObserverJob = null
+    socketService.disconnect()
   }
+
 }
 
 data class MainActivityState(
