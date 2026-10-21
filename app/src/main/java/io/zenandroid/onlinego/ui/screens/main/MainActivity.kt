@@ -20,10 +20,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.imageResource
-import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.unit.Density
 import androidx.core.util.Consumer
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -44,7 +41,9 @@ import io.zenandroid.onlinego.resources.notification_channel_logout
 import io.zenandroid.onlinego.resources.notification_channel_your_turn
 import io.zenandroid.onlinego.ui.theme.LocalPreloadedImages
 import io.zenandroid.onlinego.ui.theme.LocalThemeSettings
-import io.zenandroid.onlinego.ui.theme.style
+import io.zenandroid.onlinego.ui.theme.PreloadedImages
+import io.zenandroid.onlinego.ui.theme.ThemeSettings
+import io.zenandroid.onlinego.ui.theme.loadPreloadedImages
 import io.zenandroid.onlinego.utils.AppLocaleManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
@@ -55,7 +54,6 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import org.jetbrains.compose.resources.getString
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -151,7 +149,11 @@ class MainActivity : ComponentActivity() {
     setContent {
       val state by viewModel.state.collectAsStateWithLifecycle()
       LaunchedEffect(themeSettings.isDarkTheme, themeSettings.boardTheme) {
-        preloadedImages = preloadImages(themeSettings)
+        preloadedImages = loadPreloadedImages(
+          boardTheme = themeSettings.boardTheme,
+          isDarkTheme = themeSettings.isDarkTheme,
+          density = Density(this@MainActivity),
+        )
       }
 
       state.hasCompletedOnboarding?.let { hasCompletedOnboarding ->
@@ -171,28 +173,6 @@ class MainActivity : ComponentActivity() {
     lifecycleScope.launch(Dispatchers.IO) {
       createNotificationChannel()
       scheduleNotificationJob()
-    }
-  }
-
-  private suspend fun preloadImages(themeSettings: ThemeSettings): PreloadedImages {
-    return withContext(Dispatchers.IO) {
-      val background =
-        if (themeSettings.isDarkTheme) themeSettings.boardTheme.style.backgroundImageDarkMode else themeSettings.boardTheme.style.backgroundImage
-      return@withContext PreloadedImages(
-        background = background?.let {
-          ImageBitmap.imageResource(resources, id = it)
-        },
-        whiteStone = ImageVector.vectorResource(
-          theme,
-          resources,
-          themeSettings.boardTheme.style.whiteStone
-        ),
-        blackStone = ImageVector.vectorResource(
-          theme,
-          resources,
-          themeSettings.boardTheme.style.blackStone
-        )
-      )
     }
   }
 
@@ -361,19 +341,6 @@ fun ComponentActivity.isSystemInDarkTheme() = callbackFlow {
 }
   .distinctUntilChanged()
   .conflate()
-
-data class ThemeSettings(
-  val isDarkTheme: Boolean,
-  val boardTheme: BoardTheme,
-  val dynamicColors: Boolean,
-  val showCoordinates: Boolean,
-)
-
-data class PreloadedImages(
-  val background: ImageBitmap?,
-  val whiteStone: ImageVector?,
-  val blackStone: ImageVector?,
-)
 
 /**
  * The default light scrim, as defined by androidx and the platform:

@@ -1,12 +1,5 @@
 package io.zenandroid.onlinego.ui.composables
 
-import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.Rect
-import android.os.Build
-import android.view.MotionEvent
-import androidx.annotation.ColorInt
-import androidx.annotation.DrawableRes
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
@@ -19,41 +12,30 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Canvas
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.Paint
-import androidx.compose.ui.graphics.asAndroidBitmap
-import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.graphics.drawscope.CanvasDrawScope
+import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.drawscope.translate
-import androidx.compose.ui.graphics.nativeCanvas
-import androidx.compose.ui.graphics.nativePaint
-import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
-import androidx.compose.ui.input.pointer.pointerInteropFilter
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.res.imageResource
-import androidx.compose.ui.unit.Density
+import androidx.compose.ui.text.TextMeasurer
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.drawText
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.LayoutDirection
-import androidx.compose.ui.unit.dp
-import androidx.core.content.ContextCompat
-import androidx.core.content.res.ResourcesCompat
-import androidx.core.graphics.drawable.toBitmap
 import io.zenandroid.onlinego.data.model.BoardTheme
 import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.Position
@@ -69,10 +51,13 @@ import io.zenandroid.onlinego.utils.CrashReporter
 import kotlinx.collections.immutable.ImmutableList
 import kotlin.math.abs
 import kotlin.math.ceil
+import kotlin.math.exp
 import kotlin.math.roundToInt
 
+private const val TEXT_LAYOUT_CACHE_SIZE = 128
+private const val SHADOW_ALPHA = 0xBB / 255f
+private val textGlow = Shadow(color = Color.White, offset = Offset.Zero, blurRadius = 8f)
 
-@ExperimentalComposeUiApi
 @Composable
 fun Board(
   modifier: Modifier = Modifier,
@@ -101,9 +86,9 @@ fun Board(
     val drawMarks = true
 
     val preloadedImages = LocalPreloadedImages.current
-    val backgroundColor: Color? = boardTheme.style.backgroundColor?.let {
-      colorResource(it)
-    }
+    val textMeasurer = rememberTextMeasurer(cacheSize = TEXT_LAYOUT_CACHE_SIZE)
+    val currentOnTapMove by rememberUpdatedState(onTapMove)
+    val currentOnTapUp by rememberUpdatedState(onTapUp)
 
     // Stones images
     val blackStone = preloadedImages?.blackStone?.let { rememberVectorPainter(it) }
@@ -151,23 +136,35 @@ fun Board(
       modifier = Modifier.fillMaxSize()
         .run {
           if (interactive) {
-            pointerInteropFilter {
-              if (measurements.cellSize == 0) {
-                return@pointerInteropFilter false
-              }
-              val eventCoords =
-                screenToBoardCoordinates(it.x, it.y, measurements, boardWidth, boardHeight)
+            pointerInput(measurements, boardWidth, boardHeight) {
+              awaitPointerEventScope {
+                while (true) {
+                  val event = awaitPointerEvent()
+                  val change =
+                    event.changes.firstOrNull { it.pressed || it.previousPressed } ?: continue
+                  if (measurements.cellSize == 0) {
+                    continue
+                  }
+                  val eventCoords = screenToBoardCoordinates(
+                    change.position.x,
+                    change.position.y,
+                    measurements,
+                    boardWidth,
+                    boardHeight
+                  )
 
-              if (eventCoords != lastHotTrackedPoint) {
-                onTapMove?.invoke(eventCoords)
-                lastHotTrackedPoint = eventCoords
-              }
+                  if (eventCoords != lastHotTrackedPoint) {
+                    currentOnTapMove?.invoke(eventCoords)
+                    lastHotTrackedPoint = eventCoords
+                  }
 
-              if (it.action == MotionEvent.ACTION_UP) {
-                onTapUp?.invoke(eventCoords)
-                lastHotTrackedPoint = null
+                  if (event.changes.none { it.pressed }) {
+                    currentOnTapUp?.invoke(eventCoords)
+                    lastHotTrackedPoint = null
+                  }
+                  event.changes.forEach { it.consume() }
+                }
               }
-              true
             }
           } else {
             this
@@ -179,9 +176,9 @@ fun Board(
         boardHeight = boardHeight,
         position = position,
         measurements = measurements,
+        textMeasurer = textMeasurer,
         boardTheme = boardTheme,
         backgroundImage = preloadedImages?.background,
-        backgroundColor = backgroundColor,
         whiteStone = whiteStone,
         blackStone = blackStone,
         drawCoordinates = drawCoordinates,
@@ -204,68 +201,14 @@ fun Board(
   }
 }
 
-fun renderBoard(
-  context: Context,
-  boardWidth: Int,
-  boardHeight: Int,
-  position: Position?,
-  boardTheme: BoardTheme,
-  isDarkTheme: Boolean,
-  sizePx: Int,
-): Bitmap {
-  val style = boardTheme.style
-  val measurements =
-    doMeasurements(sizePx, sizePx, boardWidth, boardHeight, drawCoordinates = false)
-  val backgroundImageRes = if (isDarkTheme) style.backgroundImageDarkMode else style.backgroundImage
-  val stoneSize = (measurements.stoneRadius * 2).coerceAtLeast(1)
-  fun stonePainter(@DrawableRes id: Int) = BitmapPainter(
-    ResourcesCompat.getDrawable(context.resources, id, context.theme)!!
-      .toBitmap(stoneSize, stoneSize)
-      .asImageBitmap()
-  )
-
-  val bitmap = ImageBitmap(sizePx, sizePx)
-  CanvasDrawScope().draw(
-    density = Density(context),
-    layoutDirection = LayoutDirection.Ltr,
-    canvas = Canvas(bitmap),
-    size = Size(sizePx.toFloat(), sizePx.toFloat()),
-  ) {
-    drawBoard(
-      boardWidth = boardWidth,
-      boardHeight = boardHeight,
-      position = position,
-      measurements = measurements,
-      boardTheme = boardTheme,
-      backgroundImage = backgroundImageRes?.let {
-        ImageBitmap.imageResource(
-          context.resources,
-          it
-        )
-      },
-      backgroundColor = style.backgroundColor?.let { Color(ContextCompat.getColor(context, it)) },
-      whiteStone = stonePainter(style.whiteStone),
-      blackStone = stonePainter(style.blackStone),
-      drawCoordinates = false,
-      drawShadow = true,
-      drawTerritory = false,
-      drawLastMove = true,
-      drawMarks = true,
-      lastMoveMarker = "#",
-      fadeOutRemovedStones = false,
-    )
-  }
-  return bitmap.asAndroidBitmap()
-}
-
-private fun DrawScope.drawBoard(
+internal fun DrawScope.drawBoard(
   boardWidth: Int,
   boardHeight: Int,
   position: Position?,
   measurements: Measurements,
+  textMeasurer: TextMeasurer,
   boardTheme: BoardTheme,
   backgroundImage: ImageBitmap?,
-  backgroundColor: Color?,
   whiteStone: Painter?,
   blackStone: Painter?,
   drawCoordinates: Boolean,
@@ -284,7 +227,7 @@ private fun DrawScope.drawBoard(
   candidateMove: Cell? = null,
   candidateMoveType: StoneType? = null,
 ) {
-  drawBackground(backgroundImage, backgroundColor)
+  drawBackground(backgroundImage, boardTheme.style.backgroundColor)
   translate(
     measurements.border + measurements.xOffsetForNonSquareBoard,
     measurements.border + measurements.yOffsetForNonSquareBoard
@@ -298,7 +241,14 @@ private fun DrawScope.drawBoard(
       measurements
     )
     drawStarPoints(boardWidth, boardHeight, boardTheme.style.textAndGridColor, measurements)
-    drawCoordinates(boardWidth, boardHeight, boardTheme, drawCoordinates, measurements)
+    drawCoordinates(
+      boardWidth,
+      boardHeight,
+      boardTheme,
+      drawCoordinates,
+      measurements,
+      textMeasurer
+    )
 
     for (item in stonesToFadeOut ?: emptyList()) {
       drawStone(
@@ -328,7 +278,7 @@ private fun DrawScope.drawBoard(
         drawStone(p, StoneType.BLACK, blackStone, alpha, drawShadow, measurements)
       }
 
-      drawDecorations(it, drawLastMove, drawMarks, lastMoveMarker, measurements)
+      drawDecorations(it, drawLastMove, drawMarks, lastMoveMarker, measurements, textMeasurer)
 
       if (drawTerritory) {
         drawTerritory(it, measurements)
@@ -339,7 +289,7 @@ private fun DrawScope.drawBoard(
       }
 
       hints?.let { hints ->
-        drawHints(it, hints, measurements)
+        drawHints(it, hints, measurements, textMeasurer)
       }
     }
     candidateMove?.let {
@@ -378,7 +328,7 @@ private val coordinatesX = arrayOf("A", "B", "C", "D", "E", "F", "G", "H", "J", 
 private val coordinatesY = (1..25).map(Int::toString)
 
 @Immutable
-private data class Measurements(
+internal data class Measurements(
   var width: Int,
   val cellSize: Int,
   val border: Float,
@@ -388,9 +338,9 @@ private data class Measurements(
   val stoneSpacing: Float,
   val textSize: Float,
   val coordinatesTextSize: Float,
-  val shadowPaint: Paint,
-  val textPaint: android.graphics.Paint,
-  val textPaintShadow: android.graphics.Paint,
+  val stoneShadow: Brush,
+  val stoneShadowRadius: Float,
+  val stoneShadowOffset: Float,
   val halfCell: Float,
   val stoneRadius: Int,
   val xOffsetForNonSquareBoard: Float,
@@ -412,30 +362,34 @@ private fun DrawScope.drawSingleStarPoint(
 }
 
 private fun DrawScope.drawTextCentred(
+  textMeasurer: TextMeasurer,
   text: String,
   cx: Float,
   cy: Float,
   textSize: Float,
-  @ColorInt color: Int = android.graphics.Color.BLACK,
-  paint: android.graphics.Paint,
-  ignoreAscentDescent: Boolean = false
+  color: Color = Color.Black,
+  shadow: Shadow? = textGlow,
+  ignoreAscentDescent: Boolean = false,
 ) {
-  val textBounds = Rect()
-  paint.apply {
-    setTextSize(textSize)
-    setColor(color)
-    getTextBounds(text, 0, text.length, textBounds)
-  }
-
-  drawIntoCanvas {
-    it.nativeCanvas.drawText(
-      text,
-      cx - textBounds.exactCenterX(),
-      cy - textBounds.exactCenterY() + if (ignoreAscentDescent) (textBounds.bottom.toFloat() / 2) else 0f,
-      paint
-    )
-  }
+  val layout = textMeasurer.measure(
+    text = text,
+    style = TextStyle(fontSize = textSize.toSp()),
+    layoutDirection = layoutDirection,
+    density = this,
+  )
+  val ink = textInkBounds(text, textSize)
+  drawText(
+    textLayoutResult = layout,
+    color = color,
+    topLeft = Offset(
+      cx - ink.center.x,
+      cy - ink.center.y - layout.firstBaseline + if (ignoreAscentDescent) ink.bottom / 2 else 0f,
+    ),
+    shadow = shadow,
+  )
 }
+
+internal expect fun textInkBounds(text: String, textSize: Float): Rect
 
 private fun DrawScope.drawBackground(backgroundImage: ImageBitmap?, backgroundColor: Color?) {
   if (backgroundImage != null) {
@@ -486,6 +440,7 @@ private fun DrawScope.drawHints(
   position: Position,
   hints: List<MoveInfo>,
   measurements: Measurements,
+  textMeasurer: TextMeasurer,
 ) {
   for ((index, hint) in hints.take(5).withIndex()) {
     val coords = Util.getCoordinatesFromGTP(hint.move, position.boardHeight)
@@ -499,10 +454,10 @@ private fun DrawScope.drawHints(
       )
 
       drawTextCentred(
+        textMeasurer,
         (index + 1).toString(),
         center.x,
         center.y,
-        paint = measurements.textPaintShadow,
         textSize = measurements.textSize
       )
     }
@@ -558,6 +513,7 @@ private fun DrawScope.drawDecorations(
   drawMarks: Boolean,
   lastMoveMarker: String,
   measurements: Measurements,
+  textMeasurer: TextMeasurer,
 ) {
   if (drawLastMove) {
     position.lastMove?.let {
@@ -568,12 +524,12 @@ private fun DrawScope.drawDecorations(
         } else {
           val center = getCellCenter(it.x, it.y, measurements)
           drawTextCentred(
+            textMeasurer,
             lastMoveMarker,
             center.x,
             center.y,
             textSize = measurements.textSize,
-            paint = measurements.textPaintShadow,
-            color = color.toArgb()
+            color = color
           )
         }
       }
@@ -583,14 +539,13 @@ private fun DrawScope.drawDecorations(
   position.variation.forEachIndexed { i, p ->
     val center = getCellCenter(p.x, p.y, measurements)
     val stone = position.getStoneAt(p)
-    val color =
-      if (stone == null || stone == StoneType.WHITE) android.graphics.Color.BLACK else android.graphics.Color.WHITE
+    val color = if (stone == null || stone == StoneType.WHITE) Color.Black else Color.White
     drawTextCentred(
+      textMeasurer,
       (i + 1).toString(),
       center.x,
       center.y,
       textSize = measurements.textSize,
-      paint = measurements.textPaintShadow,
       color = color
     )
   }
@@ -626,10 +581,10 @@ private fun DrawScope.drawDecorations(
             )
             it.text?.let {
               drawTextCentred(
+                textMeasurer,
                 it,
                 center.x,
                 center.y,
-                paint = measurements.textPaintShadow,
                 textSize = measurements.textSize
               )
             }
@@ -670,47 +625,34 @@ private fun DrawScope.drawStone(
     return
   }
   val center = getCellCenter(p.x, p.y, measurements)
-  drawIntoCanvas {
-    if (drawShadow && alpha > .75) {
-      if (Build.VERSION.SDK_INT >= 28) {
-        it.drawCircle(
-          Offset(center.x, center.y),
-          measurements.stoneRadius - 2.5f,
-          measurements.shadowPaint
-        ) // we don't care about the circle really, but the paint produces a fast shadow...
-      } else {
-        it.drawCircle(
-          Offset(center.x + 2, center.y + 2),
-          measurements.stoneRadius.toFloat(),
-          measurements.shadowPaint
-        )
+  if (drawShadow && alpha > .75) {
+    translate(center.x, center.y + measurements.stoneShadowOffset) {
+      drawCircle(measurements.stoneShadow, measurements.stoneShadowRadius, Offset.Zero)
+    }
+  }
+
+  if (measurements.cellSize > 40) {
+    translate(center.x - measurements.stoneRadius, center.y - measurements.stoneRadius) {
+      with(stonePainter) {
+        draw(Size(measurements.stoneRadius * 2f, measurements.stoneRadius * 2f), alpha = alpha)
       }
     }
+  } else {
+    val color = if (type == StoneType.BLACK) Color.Black else Color.White
 
-    if (measurements.cellSize > 40) {
-      translate(center.x - measurements.stoneRadius, center.y - measurements.stoneRadius) {
-        with(stonePainter) {
-          draw(Size(measurements.stoneRadius * 2f, measurements.stoneRadius * 2f), alpha = alpha)
-        }
-      }
-    } else {
-      val color = if (type == StoneType.BLACK) Color.Black else Color.White
-
+    drawCircle(
+      color = color,
+      center = Offset(center.x, center.y),
+      radius = measurements.stoneRadius.toFloat(),
+      style = Fill
+    )
+    if (type == StoneType.WHITE) {
       drawCircle(
-        color = color,
+        color = Color(0xCC331810),
         center = Offset(center.x, center.y),
         radius = measurements.stoneRadius.toFloat(),
-        style = Fill
+        style = Stroke(1f)
       )
-      if (type == StoneType.WHITE) {
-        drawCircle(
-          color = Color(0xCC331810),
-          center = Offset(center.x, center.y),
-          radius = measurements.stoneRadius.toFloat(),
-          style = Stroke(1f)
-        )
-      }
-
     }
   }
 }
@@ -796,53 +738,58 @@ private fun DrawScope.drawCoordinates(
   boardHeight: Int,
   boardTheme: BoardTheme,
   drawCoordinates: Boolean,
-  measurements: Measurements
+  measurements: Measurements,
+  textMeasurer: TextMeasurer,
 ) {
   if (drawCoordinates) {
-    val textColor: Int = boardTheme.style.textAndGridColor.toArgb()
+    val textColor = boardTheme.style.textAndGridColor
     for (i in 0 until boardWidth) {
       drawTextCentred(
+        textMeasurer,
         coordinatesX[i],
         getCellCenter(i, 0, measurements).x,
         0f - measurements.border / 2,
         textSize = measurements.coordinatesTextSize,
-        paint = measurements.textPaint,
-        ignoreAscentDescent = true,
-        color = textColor
+        color = textColor,
+        shadow = null,
+        ignoreAscentDescent = true
       )
       drawTextCentred(
+        textMeasurer,
         coordinatesX[i],
         getCellCenter(i, 0, measurements).x,
         measurements.cellSize * boardHeight + measurements.border / 2,
         textSize = measurements.coordinatesTextSize,
-        paint = measurements.textPaint,
-        ignoreAscentDescent = true,
-        color = textColor
+        color = textColor,
+        shadow = null,
+        ignoreAscentDescent = true
       )
     }
     for (i in boardHeight downTo 1) {
       drawTextCentred(
+        textMeasurer,
         coordinatesY[i - 1],
         0f - measurements.border / 2,
         getCellCenter(0, boardHeight - i, measurements).y,
         textSize = measurements.coordinatesTextSize,
-        paint = measurements.textPaint,
-        color = textColor
+        color = textColor,
+        shadow = null
       )
       drawTextCentred(
+        textMeasurer,
         coordinatesY[i - 1],
         measurements.cellSize * boardWidth + measurements.border / 2,
         getCellCenter(0, boardHeight - i, measurements).y,
         textSize = measurements.coordinatesTextSize,
-        paint = measurements.textPaint,
-        color = textColor
+        color = textColor,
+        shadow = null
       )
     }
   }
 
 }
 
-private fun doMeasurements(
+internal fun doMeasurements(
   width: Int,
   height: Int,
   boardWidth: Int,
@@ -868,30 +815,20 @@ private fun doMeasurements(
   val stoneSpacing = (cellSize / 35f).coerceAtLeast(1f)
   val textSize = cellSize.toFloat() * .65f
   val coordinatesTextSize = cellSize.toFloat() * .4f
-  val shadowPaint = Paint().apply {
-    nativePaint.run {
-      color = if (Build.VERSION.SDK_INT >= 28) 0x01000000 else 0x22000000
-      setShadowLayer(
-        cellSize / 11f,
-        0f,
-        stoneSpacing * 2 - 1,
-        0xBB000000.toInt()
-      )
-    }
-  }
   val halfCell = cellSize / 2f
   val stoneRadius = (cellSize / 2f - stoneSpacing).toInt()
-  val textPaint =
-    android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG).apply {
-      textAlign = android.graphics.Paint.Align.LEFT
-      isSubpixelText = true
-    }
-
-  val textPaintShadow = android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG).apply {
-    textAlign = android.graphics.Paint.Align.LEFT
-    isSubpixelText = true
-    setShadowLayer(8.dp.value, 0f, 0f, android.graphics.Color.WHITE)
-  }
+  val shadowSigma = cellSize / 11f * 0.57735f + 0.5f
+  val shadowCoreRadius = stoneRadius - 2.5f
+  val stoneShadowRadius = (shadowCoreRadius + 3 * shadowSigma).coerceAtLeast(1f)
+  val stoneShadow = Brush.radialGradient(
+    *(-4..4).map { step ->
+      val radius = shadowCoreRadius + step * .75f * shadowSigma
+      (radius / stoneShadowRadius).coerceIn(0f, 1f) to
+          Color.Black.copy(alpha = SHADOW_ALPHA / (1 + exp(1.702f * .75f * step)))
+    }.toTypedArray(),
+    center = Offset.Zero,
+    radius = stoneShadowRadius,
+  )
 
   val centers = ArrayList<List<Offset>>(boardWidth)
   for (i in 0 until boardWidth) {
@@ -912,13 +849,13 @@ private fun doMeasurements(
     width = width,
     textSize = textSize,
     coordinatesTextSize = coordinatesTextSize,
-    shadowPaint = shadowPaint,
+    stoneShadow = stoneShadow,
+    stoneShadowRadius = stoneShadowRadius,
+    stoneShadowOffset = stoneSpacing * 2 - 1,
     halfCell = halfCell,
     stoneRadius = stoneRadius,
     xOffsetForNonSquareBoard = xOffsetForNonSquareBoard,
     yOffsetForNonSquareBoard = yOffsetForNonSquareBoard,
-    textPaint = textPaint,
-    textPaintShadow = textPaintShadow,
     centers = centers,
   )
 }

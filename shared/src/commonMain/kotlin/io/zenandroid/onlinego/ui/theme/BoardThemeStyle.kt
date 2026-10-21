@@ -2,26 +2,33 @@ package io.zenandroid.onlinego.ui.theme
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Color
-import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.BoardTheme
 import io.zenandroid.onlinego.resources.Res
+import io.zenandroid.onlinego.resources.bg_preview_book
+import io.zenandroid.onlinego.resources.bg_preview_cyan
+import io.zenandroid.onlinego.resources.bg_preview_dark_blue
+import io.zenandroid.onlinego.resources.bg_preview_dark_wood
+import io.zenandroid.onlinego.resources.bg_preview_nocturne
+import io.zenandroid.onlinego.resources.bg_preview_wood
 import io.zenandroid.onlinego.resources.settings_board_style_book
 import io.zenandroid.onlinego.resources.settings_board_style_cyan
 import io.zenandroid.onlinego.resources.settings_board_style_dark_blue
 import io.zenandroid.onlinego.resources.settings_board_style_dark_wood
 import io.zenandroid.onlinego.resources.settings_board_style_light_wood
 import io.zenandroid.onlinego.resources.settings_board_style_nocturne
+import io.zenandroid.onlinego.resources.wood
+import io.zenandroid.onlinego.resources.wood_dark
+import io.zenandroid.onlinego.resources.wood_medium
+import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.StringResource
 
 @Immutable
 data class BoardThemeStyle(
   val displayNameResId: StringResource,
-  val backgroundImage: Int?,
-  val backgroundImageDarkMode: Int?,
-  val backgroundColor: Int?,
-  val gridPreview: Int,
-  val whiteStone: Int,
-  val blackStone: Int,
+  val backgroundImage: DrawableResource?,
+  val backgroundImageDarkMode: DrawableResource?,
+  val backgroundColor: Color?,
+  val gridPreview: DrawableResource,
   val textAndGridColor: Color,
 )
 
@@ -29,23 +36,19 @@ val BoardTheme.style: BoardThemeStyle
   get() = when (this) {
     BoardTheme.WOOD -> BoardThemeStyle(
       Res.string.settings_board_style_light_wood,
-      R.drawable.wood,
-      R.drawable.wood_medium,
+      Res.drawable.wood,
+      Res.drawable.wood_medium,
       null,
-      R.mipmap.bg_preview_wood,
-      R.drawable.ic_stone_white_svg,
-      R.drawable.ic_stone_black_svg,
+      Res.drawable.bg_preview_wood,
       Color.Black,
     )
 
     BoardTheme.WOOD_DARK -> BoardThemeStyle(
       Res.string.settings_board_style_dark_wood,
-      R.drawable.wood_dark,
-      R.drawable.wood_dark,
+      Res.drawable.wood_dark,
+      Res.drawable.wood_dark,
       null,
-      R.mipmap.bg_preview_dark_wood,
-      R.drawable.ic_stone_white_svg,
-      R.drawable.ic_stone_black_svg,
+      Res.drawable.bg_preview_dark_wood,
       Color.White,
     )
 
@@ -53,10 +56,8 @@ val BoardTheme.style: BoardThemeStyle
       Res.string.settings_board_style_cyan,
       null,
       null,
-      R.color.bg_cyan,
-      R.mipmap.bg_preview_cyan,
-      R.drawable.ic_stone_white_svg,
-      R.drawable.ic_stone_black_svg,
+      Color(0xFF00E7FB),
+      Res.drawable.bg_preview_cyan,
       Color.DarkGray,
     )
 
@@ -64,10 +65,8 @@ val BoardTheme.style: BoardThemeStyle
       Res.string.settings_board_style_dark_blue,
       null,
       null,
-      R.color.bg_dark_blue,
-      R.mipmap.bg_preview_dark_blue,
-      R.drawable.ic_stone_white_svg,
-      R.drawable.ic_stone_black_svg,
+      Color(0xFF090C1F),
+      Res.drawable.bg_preview_dark_blue,
       Color.Cyan,
     )
 
@@ -75,10 +74,8 @@ val BoardTheme.style: BoardThemeStyle
       Res.string.settings_board_style_book,
       null,
       null,
-      R.color.bg_book,
-      R.mipmap.bg_preview_book,
-      R.drawable.ic_stone_white_svg,
-      R.drawable.ic_stone_black_svg,
+      Color(0xFFFFFFFF),
+      Res.drawable.bg_preview_book,
       Color.Gray,
     )
 
@@ -86,10 +83,8 @@ val BoardTheme.style: BoardThemeStyle
       Res.string.settings_board_style_nocturne,
       null,
       null,
-      R.color.bg_nocturne,
-      R.mipmap.bg_preview_nocturne,
-      R.drawable.ic_stone_white_svg,
-      R.drawable.ic_stone_black_svg,
+      Color(0xFF444444),
+      Res.drawable.bg_preview_nocturne,
       Color.Gray,
     )
   }

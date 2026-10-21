@@ -9,14 +9,13 @@ import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.imageResource
-import androidx.compose.ui.res.vectorResource
 import io.zenandroid.onlinego.data.model.BoardTheme
-import io.zenandroid.onlinego.ui.screens.main.PreloadedImages
-import io.zenandroid.onlinego.ui.screens.main.ThemeSettings
+import io.zenandroid.onlinego.resources.Res
+import io.zenandroid.onlinego.resources.ic_stone_black_svg
+import io.zenandroid.onlinego.resources.ic_stone_white_svg
+import org.jetbrains.compose.resources.imageResource
+import org.jetbrains.compose.resources.vectorResource
 
 @Composable
 fun OnlineGoTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable () -> Unit) {
@@ -61,9 +60,9 @@ fun OnlineGoPreviewTheme(
         showCoordinates = true,
       ),
       LocalPreloadedImages provides PreloadedImages(
-        background = backgroundResId?.let { ImageBitmap.imageResource(id = it) },
-        whiteStone = ImageVector.vectorResource(id = boardTheme.style.whiteStone),
-        blackStone = ImageVector.vectorResource(id = boardTheme.style.blackStone),
+        background = backgroundResId?.let { imageResource(it) },
+        whiteStone = vectorResource(Res.drawable.ic_stone_white_svg),
+        blackStone = vectorResource(Res.drawable.ic_stone_black_svg),
       ),
     ) {
       content()

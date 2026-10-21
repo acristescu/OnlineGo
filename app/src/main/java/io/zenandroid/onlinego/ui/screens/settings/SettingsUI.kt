@@ -69,8 +69,6 @@ import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -688,21 +686,22 @@ private fun SettingsRow(
                     }
                     option.boardTheme?.style?.let { style ->
                       Box(modifier = Modifier.size(24.dp)) {
-                        if (style.backgroundImage != null) {
+                        val backgroundImage = style.backgroundImage
+                        if (backgroundImage != null) {
                           Image(
-                            painter = painterResource(id = style.backgroundImage),
+                            painter = painterResource(backgroundImage),
                             contentDescription = stringResource(Res.string.settings_icon_content_description),
                             modifier = Modifier.size(24.dp)
                           )
                         } else {
                           Image(
-                            painter = ColorPainter(colorResource(style.backgroundColor!!)),
+                            painter = ColorPainter(style.backgroundColor!!),
                             contentDescription = stringResource(Res.string.settings_icon_content_description),
                             modifier = Modifier.size(24.dp)
                           )
                         }
                         Image(
-                          painter = painterResource(id = style.gridPreview),
+                          painter = painterResource(style.gridPreview),
                           contentDescription = stringResource(Res.string.settings_icon_content_description),
                           modifier = Modifier.size(24.dp)
                         )

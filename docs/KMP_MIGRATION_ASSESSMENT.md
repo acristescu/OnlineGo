@@ -9,7 +9,7 @@ is no RxJava, no `Parcelable`, and Koin, Molecule, Room, DataStore, `ViewModel`,
 kotlinx-collections-immutable are already multiplatform. The cost is dominated by resources
 (663 strings x 16 locales) and the local-AI engine, which cannot run on iOS as built today.
 
-**Status.** Phases 0-3 are finished: thirty-six slices are done (section 6). Phases 0-2 have
+**Status.** Phases 0-3 are finished: forty slices are done (section 6). Phases 0-2 have
 shipped in a release; Phase 3 has not, and several slices still need on-device checks (section 1.2).
 Phase 3 moved the Room
 database (6.25), the score estimator (6.26), `CrashReporter` (6.10), the HTTP client (6.27),
@@ -17,8 +17,9 @@ storage (6.28), the session cluster (6.29) and the remaining repositories (6.30)
 wired by a shared Koin module (6.31) and an iOS platform module (6.32). Only the bindings Swift
 supplies are left, and they come with the iOS app. Phase 4 has started: the toolchain is set for
 Compose Multiplatform (6.33), now on 1.13.0-alpha02 (6.35), the first composable is common code
-(6.34), and strings are Compose Multiplatform resources on both platforms (6.36); phase 5 has not
-started.
+(6.34), strings (6.36) and the UI drawables (6.39) are Compose Multiplatform resources on both
+platforms, `BoardView` is gone (6.37) along with the resources and dependencies nothing used
+(6.38), and the board is common code with its assets (6.40). Phase 5 has not started.
 
 Earlier, longer versions of this document:
 `git show d529259:docs/KMP_MIGRATION_ASSESSMENT.md` (original assessment) and
@@ -50,7 +51,9 @@ opening with `tutorials.json` still in the app (6.22), storage in `commonMain` (
 graph after 6.31, logout (6.29), tutorials and Joseki after 6.30, type-safe navigation on a
 release (R8) build (6.19), an idle websocket staying up past a minute after 6.32, and the Tsumego
 puzzle picker from `commonMain` (6.20, 6.34): scrolled to the current puzzle, lazy thumbnails,
-tap to select, and closing without reopening.
+tap to select, and closing without reopening. Also: a game notification drawn by `renderBoard`
+(6.37) arriving in the chosen language (Romanian), the app after 6.38, and every screen touched by
+6.39 in light and dark.
 
 Still owed - unit tests cannot reach these:
 
@@ -64,17 +67,21 @@ Still owed - unit tests cannot reach these:
 - [ ] **Clock text** (6.16): simple, byo-yomi, Canadian and Fischer clocks and the game-list
   timers, in English and in a locale with a decimal comma (e.g. `de`).
 - [ ] **Strings from CMP resources** (6.36): switching language in Settings (Portuguese included)
-  re-renders every screen; the launcher name; a notification in the chosen language; plurals
+  re-renders every screen; the launcher name; plurals
   ("3 games"); a tutorial; Joseki link labels; the stats chart tooltip; the What's new sheet shows
   the Portuguese item.
+- [ ] **The board from `commonMain`** (6.40): every board style in light and dark, with and without
+  coordinates; drag across the board (the hot-tracked lines follow) and lift to play; the last-move
+  fade and the captured-stone fade; Settings board-style previews; AI hints and ownership; Joseki
+  and tutorial marks; a notification board.
 
 ### 1.3 Phases 3-5
 
-| Phase                              | Work                                                                                                                                                                                                                                                                                    | Estimate                        |
-|------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------|
-| **3 - data layer to `commonMain`** | Done (6.25, 6.27-6.32). Left for the iOS app: the Swift `Analytics`, `AppDataEraser` and `TutorialsSource` passed to `initKoin()`, and a real iOS `CrashReporter`.                                                                                                                      | done                            |
-| **4 - Compose Multiplatform**      | UI into `:shared/commonMain`; Koin and Molecule multiplatform artifacts with it. Resources (4.2), icons, chart, markdown, Material You. `BoardComposable` has four Android leaks with direct CMP equivalents: `nativeCanvas.drawText`, `pointerInteropFilter`, `Rect`, `colorResource`. | 6-10 weeks (resources dominate) |
-| **5 - iOS app**                    | SwiftUI shell + `ComposeUIViewController`, notifications, background refresh, billing, Google sign-in, App Store plumbing. Bitrise needs a macOS stack.                                                                                                                                 | 4-8 weeks, excluding local AI   |
+| Phase                              | Work                                                                                                                                                                              | Estimate                        |
+|------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------|
+| **3 - data layer to `commonMain`** | Done (6.25, 6.27-6.32). Left for the iOS app: the Swift `Analytics`, `AppDataEraser` and `TutorialsSource` passed to `initKoin()`, and a real iOS `CrashReporter`.                | done                            |
+| **4 - Compose Multiplatform**      | UI into `:shared/commonMain`; Koin and Molecule multiplatform artifacts with it. Resources (4.2), icons, chart, markdown, Material You. The board and its assets are done (6.40). | 6-10 weeks (resources dominate) |
+| **5 - iOS app**                    | SwiftUI shell + `ComposeUIViewController`, notifications, background refresh, billing, Google sign-in, App Store plumbing. Bitrise needs a macOS stack.                           | 4-8 weeks, excluding local AI   |
 
 Estimates are order-of-magnitude, single developer. The one data point so far: the serialization
 slice came in on time only because the golden-JSON corpus was dropped, which moved verification
@@ -116,24 +123,24 @@ appears, or local AI needs Play Feature Delivery for its 265 MB of assets. Basel
 `android.util.Log`, `java.time`, direct OkHttp use, Firebase Analytics and Crashlytics call sites,
 `java.util.concurrent` / `UUID` / `Stack`, string navigation routes, `BuildConfig.DEBUG` in
 `HTTPConnectionFactory` (6.23), Firebase Analytics and Crashlytics in common code (6.9, 6.10),
-DataStore (6.28).
+DataStore (6.28), `BoardView` (6.37), `lifecycle-extensions` and `firebase-messaging` (6.38).
 
-| Dependency                                      | Replacement                                                                                                    | When                |
-|-------------------------------------------------|----------------------------------------------------------------------------------------------------------------|---------------------|
-| Koin Android artifacts                          | `koin-core` + `koin-compose` + `koin-compose-viewmodel`; drop `androidApplication()`                           | Phase 4             |
-| Molecule `AndroidUiDispatcher` / `ContextClock` | multiplatform frame clock; extract the shared `moleculeScope` base from the two ViewModels                     | Phase 4             |
-| MPAndroidChart                                  | Vico 2.x / KoalaPlot / Compose `Canvas`; confined to `ChartWrapper.kt` (416 LOC)                               | Phase 4             |
-| Markwon                                         | `multiplatform-markdown-renderer-m3` (`JosekiExplorerUI`, ~90 LOC)                                             | Phase 4             |
-| `material-icons-extended` (109 refs, 21 files)  | vendored `ImageVector`s                                                                                        | Phase 4             |
-| navigation-compose (androidx)                   | `org.jetbrains.androidx.navigation`; routes are already `@Serializable` (6.19)                                 | Phase 4             |
-| Android resources (`R.*`)                       | Strings done (6.36); drawables, raw, colors still `R.*`                                                        | Phase 4             |
-| `AppLocaleManager`                              | `expect`/`actual`; iOS writes `AppleLanguages` and needs a restart                                             | Phase 4             |
-| WorkManager                                     | `expect`/`actual` `BackgroundSync`; iOS `BGAppRefreshTask`                                                     | Phase 5 (see risks) |
-| `NotificationUtils` (348 LOC)                   | `expect`/`actual`; re-rasterize the board with Compose, deleting `BoardView` (737 LOC) and the last XML layout | Phase 5             |
-| Play Billing                                    | StoreKit, or RevenueCat `purchases-kmp`                                                                        | Phase 5             |
-| Play In-App Review                              | `SKStoreReviewController`                                                                                      | Phase 5             |
-| play-services-auth                              | Credential Manager / iOS Google SDK; the token exchange is already plain REST                                  | Phase 5             |
-| Mockito, compose screenshot plugin              | stay on the Android target; new `commonTest` uses fakes + Turbine                                              | No change           |
+| Dependency                                      | Replacement                                                                                           | When                |
+|-------------------------------------------------|-------------------------------------------------------------------------------------------------------|---------------------|
+| Koin Android artifacts                          | `koin-core` + `koin-compose` + `koin-compose-viewmodel`; drop `androidApplication()`                  | Phase 4             |
+| Molecule `AndroidUiDispatcher` / `ContextClock` | multiplatform frame clock; extract the shared `moleculeScope` base from the two ViewModels            | Phase 4             |
+| MPAndroidChart                                  | Vico 2.x / KoalaPlot / Compose `Canvas`; confined to `ChartWrapper.kt` (416 LOC)                      | Phase 4             |
+| Markwon                                         | `multiplatform-markdown-renderer-m3` (`JosekiExplorerUI`, ~90 LOC)                                    | Phase 4             |
+| `material-icons-extended` (109 refs, 21 files)  | vendored `ImageVector`s                                                                               | Phase 4             |
+| navigation-compose (androidx)                   | `org.jetbrains.androidx.navigation`; routes are already `@Serializable` (6.19)                        | Phase 4             |
+| Android resources (`R.*`)                       | Strings (6.36), UI drawables (6.39) and board assets (6.40) done; colors and raw still `R.*`          | Phase 4             |
+| `AppLocaleManager`                              | `expect`/`actual`; iOS writes `AppleLanguages` and needs a restart                                    | Phase 4             |
+| WorkManager                                     | `expect`/`actual` `BackgroundSync`; iOS `BGAppRefreshTask`                                            | Phase 5 (see risks) |
+| `NotificationUtils` (399 LOC)                   | `expect`/`actual`; the board is already drawn by `renderBoard` (6.37); `notification_board.xml` stays | Phase 5             |
+| Play Billing                                    | StoreKit, or RevenueCat `purchases-kmp`                                                               | Phase 5             |
+| Play In-App Review                              | `SKStoreReviewController`                                                                             | Phase 5             |
+| play-services-auth                              | Credential Manager / iOS Google SDK; the token exchange is already plain REST                         | Phase 5             |
+| Mockito, compose screenshot plugin              | stay on the Android target; new `commonTest` uses fakes + Turbine                                     | No change           |
 
 **Stays Android-only by design:** `MainActivity` (edge-to-edge, deep links, `isInForeground`),
 Material You dynamic color (`expect`/`actual`), the window theme in `styles.xml` (the only reason
@@ -181,8 +188,17 @@ Processor** (JavaScript in Project Settings -> File Processors) unescapes every 
 `strings.xml`; the GitHub integration is unchanged. `app_name` stays an Android resource because the
 manifest needs it.
 
-Still Android resources: 33 vectors, 3 board JPEGs, the `.ogg`, colors, dimens, the launcher icons
-and the notification icon.
+**UI drawables are done (6.39)**, in `composeResources/drawable/` with three `drawable-dark/`
+twins, and so are the board assets (6.40), apart from the stone vectors' Android copy for
+`renderBoard`. Still Android resources:
+
+- **Colors** - CMP has no color resources. Left: the window theme's (`styles.xml`),
+  `colorTextSecondary` (notifications), `colorPrimaryDark` (Markwon) and `rankGraphLine`
+  (MPAndroidChart); the last two go with their libraries.
+- **Platform-bound** - launcher icons, the notification icon, `notification_board.xml`
+  (`RemoteViews`), the two `.pem` files (`network_security_config.xml`), and `stone.ogg`, which
+  waits
+  for sound playback behind `expect`/`actual`.
 
 ---
 
@@ -202,8 +218,8 @@ and the notification icon.
 ## 6. Done - what is still load-bearing
 
 Only traps, deliberate behaviour changes, and decisions that look wrong but are not. Unit tests
-stand at 167: 99 in `:shared` host tests (84 of them in `commonTest`, which also run on the iOS
-simulator), 21 in `:shared` `iosTest` (simulator only), 47 in `:app`.
+stand at 171: 99 in `:shared` host tests (84 of them in `commonTest`, which also run on the iOS
+simulator), 25 in `:shared` `iosTest` (simulator only), 47 in `:app`.
 
 ### 6.1 Moshi to kotlinx.serialization
 
@@ -747,3 +763,93 @@ test-local class.
 - CMP resources render in screenshot tests and previews with AGP 9.3; no extra setup was needed.
 - `iosTest/.../StringResourcesTest` reads apostrophes, quotes, `\n`, a single `%`, plurals, the
   What's new array and a tutorial key by name on the simulator.
+
+### 6.37 `BoardView` removed
+
+- Notification boards come from `renderBoard` (`ui/composables/BoardComposable.kt`): it draws into
+  an
+  `ImageBitmap` through `CanvasDrawScope`, with no composition. `Board` and `renderBoard` share
+  `DrawScope.drawBoard`. **`Board` reads its animation values inside the `Canvas` block** and passes
+  them in; reading them in the composable body would recompose on every animation frame.
+- **Stones are `BitmapPainter`s** rasterised from the vector drawables, because
+  `rememberVectorPainter` needs a composition and `VectorPainter`'s constructor is internal.
+  `renderBoard` is Android-only; it is in `:shared` `androidMain` since 6.40.
+- **Behaviour changes:** notifications use the board style from Settings (it was always light wood)
+  and the system's dark mode; the large icon is the 256dp bitmap scaled down instead of a second
+  drawing. On a 3x screen a 19x19 board has ~40 px cells, `drawStone`'s cutoff, so its stones are
+  flat circles.
+- `BoardView.unloadResources()` did nothing: the instance `texture` shadowed the companion's.
+  `mipmap/stone_*.png` and `gradient_shadow.xml` went with it.
+- **Forcing the sync worker:** `cmd jobscheduler run -f` starts the job, but WorkManager refuses
+  periodic work before its period ("executed before schedule") and re-enqueues it - wait for the due
+  run. On Android 17 the job is in a namespace:
+  `cmd jobscheduler run -f -n androidx.work.systemjobscheduler <package> <id>`. The worker also
+  skips while the app is in the foreground.
+
+### 6.38 Unused resources and dependencies
+
+- Deleted: 29 colors (light and night), 4 drawables, `selectable_primary.xml`, `dimens.xml`,
+  `values-w820dp/`, `integers.xml`. **Trust lint's `UnusedResources`, not grep:** several files
+  import `R.drawable` and write `drawable.ic_star`, and lint found two colors a scan missed.
+- `lifecycle-extensions` 2.2.0 was unused. **`firebase-messaging` was unused and is gone:** the app
+  no
+  longer registers with FCM. The merged manifest lost only the FCM receiver, service, registrars and
+  `c2dm` permission.
+- Lint still fails on two older errors: `FlowOperatorInvokedInComposition` at
+  `GameViewModel.kt:277`, and `MissingTranslation` for `app_name` in ko, it, vi and id since 6.36.
+
+### 6.39 UI drawables as Compose Multiplatform resources
+
+- 29 assets in `shared/src/commonMain/composeResources/drawable/`. A raster without a density
+  qualifier is mdpi in CMP as on Android; `placeholder.png` came from `mipmap-mdpi`.
+- **CMP's vector parser takes only literal `#` colors.** An `@color/` or `?attr/` reference builds
+  fine and throws when the image loads. `DrawableResourcesTest` (`iosTest`) decodes every drawable
+  and each dark twin; it fails on an `@color` reference (checked).
+- Three files have `drawable-dark/` twins with literal colors: `art_login_1` (the old `colorAccent`
+  values), `logo_ogs` and `ic_board_transparent`. The last two used `?attr/colorOnBackground` and
+  are
+  now Material 3's baseline `#1D1B20` / `#E6E0E9`, so they no longer pick up wallpaper colors.
+- **The dark qualifier follows the system, not the app's theme setting**, as Android resources did.
+  When the two differ the wrong twin shows. The Tsumego arrows were `Image`s and showed it, so they
+  are now `Icon`s tinted `colorScheme.secondary`, with no twin. The general fix (the app theme
+  setting
+  the configuration, e.g. `UiModeManager.setApplicationNightMode`) was left out.
+- Coil's `ImageRequest.placeholder(Int)` is Android-only: avatars pass `placeholder` and `error`
+  painters to `AsyncImage`. `fallback` defaults to `error` either way.
+- Drawable parameters are `DrawableResource`.
+
+### 6.40 The board in `commonMain`
+
+- `Board` and the drawing code are in `:shared` `commonMain` (`ui/composables/BoardComposable.kt`),
+  same package, with `BoardThemeStyle`, `ThemeSettings`, `PreloadedImages` and the two locals
+  (`ui/theme`). `ThemeSettings` and `PreloadedImages` moved from `ui.screens.main` to `ui.theme`.
+  `Board` lost `@ExperimentalComposeUiApi`.
+- **`renderBoard` is in `androidMain`** (`RenderBoard.kt`), so `drawBoard`, `doMeasurements` and
+  `Measurements` stay `internal`. It is `suspend` now: it reads the wood from CMP resources. It
+  still rasterises the stones from Android vectors, because a `VectorPainter` needs a composition;
+  **the two `ic_stone_*_svg.xml` exist twice**, in `composeResources/drawable/` and
+  `shared/src/androidMain/res/drawable/`. `BoardThemeStyle` lost its stone fields: every style used
+  the same two.
+- **Text is `TextMeasurer` + `drawText`**, measured with a 128-entry cache, and centred on its ink
+  bounds as before: `textInkBounds` is `Paint.getTextBounds` on Android (the old measurement) and
+  Skia's `Font.measureText` on iOS. Compose exposes no ink bounds; a first version centred on the
+  advance width and Roboto's cap height and was visibly off per glyph on a device. **The iOS
+  typeface must be the one Compose draws with:** `.AppleSystemUIFont`. Helvetica and Helvetica Neue
+  are 2 px off on some digits, and `matchFamilyStyle(null)` matches nothing, leaving empty bounds.
+  The glow is a `Shadow` with the old 8 px blur.
+- **The stone shadow is a radial gradient** in `Measurements` that reproduces Android's shadow layer
+  (sigma from the blur radius, a logistic fit of the Gaussian edge), so there is no `Paint` or
+  `Build` check. Pixel profiles match the old shadow to within 4 levels. **API 24-27 now gets the
+  same shadow** instead of the faint offset circle.
+- **Touch is `pointerInput`.** Only pressed pointers count, so mouse hover no longer hot-tracks;
+  `onTapUp` fires when the last pointer lifts. Every event is consumed, as `pointerInteropFilter`
+  did by returning `true`.
+- Background colours are literal `Color`s in `BoardThemeStyle`; the four `bg_*` colours are gone.
+  The wood JPEGs are in `drawable-xxxhdpi/` and the style previews in `drawable/`.
+- `loadPreloadedImages` decodes the wood with `decodeToImageBitmap`, which does not scale by
+  density as Android's `imageResource` did: the bitmap is the full 1400 px, ~3.4 MB more on an
+  xxhdpi phone. The preview theme uses CMP's `imageResource` / `vectorResource`.
+- `iosTest/.../BoardTest` loads the images from resources, draws a position on the simulator, checks
+  a black and a white stone, and drags then lifts to check `onTapUp` gets the cell under the lift. A
+  second test finds the ink of seven labels in the captured image and requires each within 1.5 px of
+  its point.
