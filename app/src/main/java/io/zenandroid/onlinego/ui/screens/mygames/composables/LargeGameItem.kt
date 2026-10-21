@@ -27,7 +27,6 @@ import androidx.compose.ui.unit.sp
 import io.zenandroid.onlinego.data.model.StoneType
 import io.zenandroid.onlinego.data.model.local.Game
 import io.zenandroid.onlinego.data.model.local.isPaused
-import io.zenandroid.onlinego.ui.composables.Board
 import io.zenandroid.onlinego.ui.composables.ChatIndicator
 import io.zenandroid.onlinego.ui.composables.PlayerColorIndicator
 import io.zenandroid.onlinego.ui.composables.clockText
@@ -57,14 +56,9 @@ fun LargeGameItem(game: Game, userId: Long?, onAction: (Action) -> Unit, modifie
             vertical = 16.dp,
             horizontal = 24.dp
           )) {
-            Board(
-                boardWidth = game.width,
-                boardHeight = game.height,
-                position = game.position,
-                drawCoordinates = false,
-                interactive = false,
-                fadeInLastMove = false,
-                fadeOutRemovedStones = false,
+            GameBoardPreview(
+                game = game,
+                drawShadow = true,
                 modifier = Modifier.clip(MaterialTheme.shapes.large)
                     .run {
                         if(LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE) {

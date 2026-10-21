@@ -31,7 +31,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.zenandroid.onlinego.data.model.local.Game
-import io.zenandroid.onlinego.ui.composables.Board
 import io.zenandroid.onlinego.ui.screens.mygames.Action
 
 
@@ -44,7 +43,7 @@ fun HistoricGameLazyRow(
   onAction: (Action) -> Unit
 ) {
   LazyRow {
-    items(games) { game ->
+    items(games, key = { it.id }) { game ->
       SenteCard(
         modifier = Modifier
           .size(width = 125.dp, height = 140.dp)
@@ -57,15 +56,8 @@ fun HistoricGameLazyRow(
             }
             .size(width = 125.dp, height = 140.dp)
         ) {
-          Board(
-            boardWidth = game.width,
-            boardHeight = game.height,
-            position = game.position,
-            drawCoordinates = false,
-            interactive = false,
-            drawShadow = false,
-            fadeInLastMove = false,
-            fadeOutRemovedStones = false,
+          GameBoardPreview(
+            game = game,
             modifier = Modifier
               .padding(horizontal = 15.dp, vertical = 10.dp)
               .clip(MaterialTheme.shapes.small)
