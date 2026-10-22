@@ -85,7 +85,7 @@ class DatabaseTest {
     assertEquals(moveTree, database.puzzleDao().getPuzzle(7).first()?.puzzle?.move_tree)
   }
 
-  private companion object {
+  internal companion object {
     const val BLACK_ID = 2L
 
     val clock = Clock(

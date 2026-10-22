@@ -8,6 +8,8 @@ import io.ktor.client.engine.darwin.Darwin
 import io.zenandroid.onlinego.data.db.Database
 import io.zenandroid.onlinego.data.ogs.KeyValueCookiePersistence
 import io.zenandroid.onlinego.data.ogs.SessionCookiePersistence
+import io.zenandroid.onlinego.ui.composables.BundleSoundLoader
+import io.zenandroid.onlinego.ui.composables.SoundLoader
 import io.zenandroid.onlinego.utils.KeyValueStore
 import io.zenandroid.onlinego.utils.UserDefaultsKeyValueStore
 import kotlinx.cinterop.ExperimentalForeignApi
@@ -28,6 +30,7 @@ val iosPlatformModule = module {
   single(SETTINGS_DATA_STORE) { preferencesDataStore("settings", get()) }
   single(REVIEW_PROMPT_DATA_STORE) { preferencesDataStore("review_prompt", get()) }
   single(WHATS_NEW_DATA_STORE) { preferencesDataStore("whats_new", get()) }
+  single<SoundLoader> { BundleSoundLoader }
   single {
     Room.databaseBuilder<Database>(name = applicationSupportPath("database.db"))
       .setDriver(BundledSQLiteDriver())

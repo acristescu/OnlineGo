@@ -11,7 +11,9 @@ import io.zenandroid.onlinego.data.repositories.ReviewPromptRepository
 import io.zenandroid.onlinego.data.repositories.SettingsRepository
 import io.zenandroid.onlinego.data.repositories.TutorialsSource
 import io.zenandroid.onlinego.data.repositories.UserSessionRepository
+import io.zenandroid.onlinego.ui.composables.SoundLoader
 import io.zenandroid.onlinego.utils.Analytics
+import io.zenandroid.onlinego.utils.GameNotificationCanceller
 import io.zenandroid.onlinego.utils.PersistenceManager
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
@@ -37,12 +39,14 @@ class IosPlatformModuleTest {
       },
       appDataEraser = AppDataEraser {},
       tutorialsSource = TutorialsSource { "[]" },
+      gameNotificationCanceller = GameNotificationCanceller {},
     )
     val koin = getKoin()
 
     koin.get<OGSRestService>()
     koin.get<OGSWebSocketService>()
     koin.get<UserSessionRepository>()
+    koin.get<SoundLoader>()
     koin.get<PersistenceManager>()
     koin.get<SettingsRepository>()
     koin.get<ReviewPromptRepository>()

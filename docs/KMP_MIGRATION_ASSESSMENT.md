@@ -9,7 +9,7 @@ is no RxJava, no `Parcelable`, and Koin, Molecule, Room, DataStore, `ViewModel`,
 kotlinx-collections-immutable are already multiplatform. The cost is dominated by resources
 (663 strings x 16 locales) and the local-AI engine, which cannot run on iOS as built today.
 
-**Status.** Phases 0-3 are finished: forty-five slices are done (section 6). Phases 0-2 have
+**Status.** Phases 0-3 are finished: forty-six slices are done (section 6). Phases 0-2 have
 shipped in a release; Phase 3 has not, and several slices still need on-device checks (section 1.2).
 Phase 3 moved the Room
 database (6.25), the score estimator (6.26), `CrashReporter` (6.10), the HTTP client (6.27),
@@ -22,7 +22,8 @@ platforms, `BoardView` is gone (6.37) along with the resources and dependencies 
 (6.38), the board is common code with its assets (6.40), and so are the Material icons (6.41),
 the ViewModel plumbing, the theme and the first screen, Learn (6.42), then the puzzle screens,
 socket debug and the automatch sheet (6.43), the tutorial and face-to-face screens (6.44), and the
-My Games tab with new challenges and What's new (6.45). Phase 5 has not started.
+My Games tab with new challenges and What's new (6.45), and the game screen (6.46). Phase 5 has not
+started.
 
 Earlier, longer versions of this document:
 `git show d529259:docs/KMP_MIGRATION_ASSESSMENT.md` (original assessment) and
@@ -68,7 +69,10 @@ undo and redo, clocks, the saved game after a restart), and rotating the game, A
 My Games screens. After 6.45: What's new not reappearing after the update, cold starts drawing the
 boards with their background from the first frame, the Play tab, the large game card in landscape,
 a custom game through the new-challenge sheet and opponent picker, back in every dialog and
-screen that handles it, and the translation-guide link.
+screen that handles it, and the translation-guide link. After 6.46: the stone sound on moves, a
+game opening without a hitch after a cold start, the screen staying on in a game, a game's
+notification disappearing when it opens, a link from a game, chat, player details and the
+game-over dialog with its rating.
 
 Still owed - unit tests cannot reach these:
 
@@ -85,14 +89,16 @@ Still owed - unit tests cannot reach these:
   re-renders every screen; the launcher name; plurals
   ("3 games"); a tutorial; Joseki link labels; the stats chart tooltip; the What's new sheet shows
   the Portuguese item.
+- [ ] **The review prompt after a win** (6.46): now requested through `ReviewRequester`, which
+  `MainActivity` provides. Not reproducible on the developer account, which has hit Play's quota.
 
 ### 1.3 Phases 3-5
 
-| Phase                              | Work                                                                                                                                                                                                                                                      | Estimate                        |
-|------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------|
-| **3 - data layer to `commonMain`** | Done (6.25, 6.27-6.32). Left for the iOS app: the Swift `Analytics`, `AppDataEraser` and `TutorialsSource` passed to `initKoin()`, a real iOS `CrashReporter`, the iOS HTML placeholder (6.43), and Coil's Ktor network fetcher (6.45).                   | done                            |
-| **4 - Compose Multiplatform**      | UI into `:shared/commonMain`, screen by screen. Resources (4.2), chart, markdown. Done: the board (6.40), icons (6.41), ViewModel plumbing, theme, Learn (6.42), puzzles, socket debug, automatch (6.43), tutorial, face-to-face (6.44), My Games (6.45). | 6-10 weeks (resources dominate) |
-| **5 - iOS app**                    | SwiftUI shell + `ComposeUIViewController`, notifications, background refresh, billing, Google sign-in, App Store plumbing. Bitrise needs a macOS stack.                                                                                                   | 4-8 weeks, excluding local AI   |
+| Phase                              | Work                                                                                                                                                                                                                                                                                                     | Estimate                        |
+|------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------|
+| **3 - data layer to `commonMain`** | Done (6.25, 6.27-6.32). Left for the iOS app: the Swift `Analytics`, `AppDataEraser` and `TutorialsSource` and `GameNotificationCanceller` passed to `initKoin()`, a real iOS `CrashReporter`, the iOS HTML placeholder (6.43), Coil's Ktor network fetcher (6.45), and an iOS `ReviewRequester` (6.46). | done                            |
+| **4 - Compose Multiplatform**      | UI into `:shared/commonMain`, screen by screen. Resources (4.2), chart, markdown. Done: the board (6.40), icons (6.41), ViewModel plumbing, theme, Learn (6.42), puzzles, socket debug, automatch (6.43), tutorial, face-to-face (6.44), My Games (6.45), game (6.46).                                   | 6-10 weeks (resources dominate) |
+| **5 - iOS app**                    | SwiftUI shell + `ComposeUIViewController`, notifications, background refresh, billing, Google sign-in, App Store plumbing. Bitrise needs a macOS stack.                                                                                                                                                  | 4-8 weeks, excluding local AI   |
 
 Estimates are order-of-magnitude, single developer. The one data point so far: the serialization
 slice came in on time only because the golden-JSON corpus was dropped, which moved verification
@@ -207,9 +213,8 @@ twins, and so are the board assets (6.40), apart from the stone vectors' Android
   `colorTextSecondary` (notifications), `colorPrimaryDark` (Markwon) and `rankGraphLine`
   (MPAndroidChart); the last two go with their libraries.
 - **Platform-bound** - launcher icons, the notification icon, `notification_board.xml`
-  (`RemoteViews`), the two `.pem` files (`network_security_config.xml`), and `stone.ogg`, which
-  waits
-  for sound playback behind `expect`/`actual`.
+  (`RemoteViews`) and the two `.pem` files (`network_security_config.xml`). The stone sound is
+  `composeResources/files/stone.wav` since 6.46.
 
 ---
 
@@ -229,8 +234,8 @@ twins, and so are the board assets (6.40), apart from the stone vectors' Android
 ## 6. Done - what is still load-bearing
 
 Only traps, deliberate behaviour changes, and decisions that look wrong but are not. Unit tests
-stand at 190: 104 in `:shared` host tests (88 of them in `commonTest`, which also run on the iOS
-simulator), 39 in `:shared` `iosTest` (simulator only), 47 in `:app`.
+stand at 192: 104 in `:shared` host tests (88 of them in `commonTest`, which also run on the iOS
+simulator), 41 in `:shared` `iosTest` (simulator only), 47 in `:app`.
 
 ### 6.1 Moshi to kotlinx.serialization
 
@@ -650,7 +655,8 @@ test-local class.
   Support (`settings.preferences_pb`, `review_prompt.preferences_pb`, `database.db`) on
   `BundledSQLiteDriver`.
 - **`initKoin(analytics, appDataEraser, tutorialsSource)`** (`di/InitKoin.kt`) is the iOS
-  composition root and adds the application scope. Swift implements the three Kotlin interfaces;
+  composition root and adds the application scope; `gameNotificationCanceller` joined in 6.46.
+  Swift implements the Kotlin interfaces;
   until the iOS app exists, only `IosPlatformModuleTest` calls it.
 - `KeyValueStore` is `UserDefaultsKeyValueStore` over the suite `login`, like Android's prefs file.
   **`getLong` reads `objectForKey`**: `integerForKey` returns 0 for a missing key, not the default.
@@ -1013,3 +1019,42 @@ test-local class.
 - **Compose report:** 257 rows (137 in `:shared`), 6 unstable parameters, unchanged; the two new
   rows
   are `BackHandler` and `screenSize`.
+
+### 6.46 The game screen in `commonMain`
+
+- `GameUI`, `GameViewModel`, `TimeControlDescription`, `ChatDialog`, `PlayerCard`,
+  `PlayerDetailsDialog` and `TextResource.kt` are in `commonMain`, same packages; `GameViewModel`
+  is registered in `sharedModule`.
+- **Stone sound:** `res/raw/stone.ogg` became `composeResources/files/stone.wav`, decoded once with
+  `afconvert` (16-bit PCM, 48 kHz stereo, 0.18 s, 38 KB), so it sounds the same and both platforms
+  can play it (iOS has no Vorbis). AAC was rejected: lossy re-encoding and decoder start-up on a
+  click. `rememberStoneSound` (common) loads it from `Res.getUri("files/stone.wav")`, remembers
+  the player and releases it on dispose. Loading is a `SoundLoader` in the platform contract:
+  - **Android** (`AssetSoundLoader`, bound in `androidPlatformModule`) opens the asset in place,
+    `assets.openFd` on the URI minus `file:///android_asset/`, and prepares a `MediaPlayer` on
+    `Dispatchers.IO`. This needs the WAV stored uncompressed in the APK: it is (AGP never
+    compresses `.wav`); a compressed asset would make `openFd` throw. Measured on the emulator, the
+    first load takes ~115 ms while the media service starts, later ones ~9 ms.
+  - **iOS** (`BundleSoundLoader`) builds an `AVAudioPlayer` from the file URL; `SoundPlayerTest`
+    checks its 0.18 s duration on the simulator.
+  - Android playback was checked with a throwaway instrumented test through the app's Koin graph.
+- **Keep screen on** is Compose's common `Modifier.keepScreenOn()`, on a zero-size `Spacer` that
+  lives as long as the screen; the window flag code is gone.
+- **Links** open through `LocalUriHandler`.
+- **Review prompt:** `ReviewRequester` / `LocalReviewRequester` (`utils/ReviewRequester.kt`).
+  `MainActivity` provides one that calls `ReviewPromptManager.requestReview(activity)`; the default
+  does nothing, so previews and tests need no Play services. iOS needs one built on
+  `SKStoreReviewController`.
+- **Notification cancel:** `GameNotificationCanceller` is in the platform contract: `:app` binds it
+  to `NotificationUtils.cancelNotification`, iOS takes it as a fourth `initKoin` parameter.
+- JVM leftovers: the game-over rating is `roundToInt()` instead of `String.format("%.0f")`, and the
+  action log uses `::class.qualifiedName` (6.45).
+- **Tests that create `GameViewModel` must cancel its `viewModelScope`.** Outside a
+  `ViewModelStore` nothing does, and its clock timer then calls `computeTimeLeft` after
+  `stopKoin()`;
+  `Globals1.kt` reads Koin when the file loads, so the file fails to initialize and a later test
+  fails with `FileFailedToInitializeException`. Route arguments in test `SavedStateHandle`s need
+  `mapOf<String, Any>`: an untyped `19` next to `1L` is inferred as `Long`.
+- `iosTest/.../GameScreenTest` renders the game screen on the simulator over a game inserted into
+  the in-memory database (`DatabaseTest`'s fixture, now `internal`).
+- **Compose report:** 258 rows (179 in `:shared`), 6 unstable parameters, unchanged.

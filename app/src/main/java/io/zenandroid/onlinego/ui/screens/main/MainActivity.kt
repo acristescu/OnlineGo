@@ -44,6 +44,9 @@ import io.zenandroid.onlinego.ui.theme.PreloadedImages
 import io.zenandroid.onlinego.ui.theme.ThemeSettings
 import io.zenandroid.onlinego.ui.theme.loadPreloadedImages
 import io.zenandroid.onlinego.utils.AppLocaleManager
+import io.zenandroid.onlinego.utils.LocalReviewRequester
+import io.zenandroid.onlinego.utils.ReviewPromptManager
+import io.zenandroid.onlinego.utils.ReviewRequester
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.callbackFlow
@@ -55,6 +58,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.getString
+import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 
@@ -64,6 +68,8 @@ class MainActivity : ComponentActivity() {
   }
 
   private val viewModel: MainActivityViewModel by viewModel()
+
+  private val reviewPromptManager: ReviewPromptManager by inject()
 
   /** Applies the language the user picked in the settings. See [AppLocaleManager]. */
   override fun attachBaseContext(newBase: Context) {
@@ -157,12 +163,15 @@ class MainActivity : ComponentActivity() {
       }
     }
 
+    val reviewRequester = ReviewRequester { reviewPromptManager.requestReview(this) }
+
     setContent {
       val state by viewModel.state.collectAsStateWithLifecycle()
       state.hasCompletedOnboarding?.let { hasCompletedOnboarding ->
         CompositionLocalProvider(
           LocalThemeSettings provides themeSettings,
           LocalPreloadedImages provides preloadedImages,
+          LocalReviewRequester provides reviewRequester,
         ) {
           OnlineGoApp(
             darkTheme = themeSettings.isDarkTheme,

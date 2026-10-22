@@ -33,6 +33,7 @@ import io.zenandroid.onlinego.data.repositories.TutorialsRepository
 import io.zenandroid.onlinego.data.repositories.UserSessionRepository
 import io.zenandroid.onlinego.ui.screens.automatch.NewAutomatchChallengeViewModel
 import io.zenandroid.onlinego.ui.screens.face2face.FaceToFaceViewModel
+import io.zenandroid.onlinego.ui.screens.game.GameViewModel
 import io.zenandroid.onlinego.ui.screens.learn.LearnViewModel
 import io.zenandroid.onlinego.ui.screens.mygames.MyGamesViewModel
 import io.zenandroid.onlinego.ui.screens.newchallenge.NewChallengeViewModel
@@ -142,4 +143,5 @@ val sharedModule = module {
   viewModelOf(::MyGamesViewModel)
   viewModelOf(::NewChallengeViewModel)
   viewModelOf(::SelectOpponentViewModel)
+  viewModelOf(::GameViewModel)
 }

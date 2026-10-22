@@ -140,7 +140,7 @@ import io.zenandroid.onlinego.ui.screens.game.UserAction.WhitePlayerClicked
 import io.zenandroid.onlinego.usecases.GetUserStatsUseCase
 import io.zenandroid.onlinego.usecases.RepoResult
 import io.zenandroid.onlinego.usecases.RepoResult.Loading
-import io.zenandroid.onlinego.utils.NotificationUtils
+import io.zenandroid.onlinego.utils.GameNotificationCanceller
 import io.zenandroid.onlinego.utils.PlayerClock
 import io.zenandroid.onlinego.utils.computeTimeLeft
 import io.zenandroid.onlinego.utils.convertCountryCodeToEmojiFlag
@@ -148,6 +148,7 @@ import io.zenandroid.onlinego.utils.egfToRank
 import io.zenandroid.onlinego.utils.formatRank
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.delay
@@ -180,7 +181,7 @@ class GameViewModel(
   private val settingsRepository: SettingsRepository,
   private val getUserStatsUseCase: GetUserStatsUseCase,
   private val appCoroutineScope: CoroutineScope,
-  private val notificationUtils: NotificationUtils,
+  private val gameNotificationCanceller: GameNotificationCanceller,
   savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -655,7 +656,7 @@ class GameViewModel(
         val difference = yourRating.toInt() - historicRating.toInt()
         RatingChange.NewRating(
           rank = formatRank(egfToRank(yourRating), you.deviation),
-          rating = String.format("%.0f", yourRating),
+          rating = yourRating.roundToInt().toString(),
           difference = if (yourRating != historicRating) {
             if (yourRating >= historicRating) "+$difference" else "$difference"
           } else null,
@@ -920,7 +921,10 @@ class GameViewModel(
   }
 
   fun onUserAction(action: UserAction) {
-    if (action !is BoardCellDragged) Logger.i(action.javaClass.name, tag = "GameViewModel")
+    if (action !is BoardCellDragged) Logger.i(
+      action::class.qualifiedName.orEmpty(),
+      tag = "GameViewModel"
+    )
     when (action) {
       is BoardCellDragged -> onCellTracked(action.cell)
       is BoardCellTapUp -> onCellTapUp(action.cell)
@@ -1058,7 +1062,7 @@ class GameViewModel(
           submitMove(move, moveNo, attempt + 1)
         }
       } else {
-        notificationUtils.cancelNotification(gameState?.id!!.toInt())
+        gameNotificationCanceller.cancelGameNotification(gameState?.id!!)
       }
     }
   }

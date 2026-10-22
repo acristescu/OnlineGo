@@ -3,6 +3,7 @@ package io.zenandroid.onlinego.di
 import io.zenandroid.onlinego.data.repositories.AppDataEraser
 import io.zenandroid.onlinego.data.repositories.TutorialsSource
 import io.zenandroid.onlinego.utils.Analytics
+import io.zenandroid.onlinego.utils.GameNotificationCanceller
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -13,6 +14,7 @@ fun initKoin(
   analytics: Analytics,
   appDataEraser: AppDataEraser,
   tutorialsSource: TutorialsSource,
+  gameNotificationCanceller: GameNotificationCanceller,
 ) {
   startKoin {
     modules(
@@ -23,6 +25,7 @@ fun initKoin(
         single { analytics }
         single { appDataEraser }
         single { tutorialsSource }
+        single { gameNotificationCanceller }
       },
     )
   }

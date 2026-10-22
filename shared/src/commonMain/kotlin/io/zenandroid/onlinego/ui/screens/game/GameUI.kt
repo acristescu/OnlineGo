@@ -1,10 +1,5 @@
 package io.zenandroid.onlinego.ui.screens.game
 
-import android.content.Intent
-import android.media.MediaPlayer
-import android.os.Bundle
-import android.view.WindowManager
-import androidx.activity.compose.LocalActivity
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -47,9 +42,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Alignment.Companion.CenterVertically
@@ -59,7 +53,8 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.keepScreenOn
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -69,13 +64,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import androidx.core.net.toUri
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import io.zenandroid.onlinego.R
 import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.Position
 import io.zenandroid.onlinego.data.model.StoneType
@@ -200,13 +193,10 @@ import io.zenandroid.onlinego.ui.theme.OnlineGoPreviewTheme
 import io.zenandroid.onlinego.usecases.RepoResult
 import io.zenandroid.onlinego.utils.ClockPeriod
 import io.zenandroid.onlinego.utils.CrashReporter
+import io.zenandroid.onlinego.utils.LocalReviewRequester
 import io.zenandroid.onlinego.utils.PlayerClock
-import io.zenandroid.onlinego.utils.ReviewPromptManager
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
-import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
@@ -215,8 +205,8 @@ fun GameScreen(
   onNavigateBack: () -> Unit,
   onNavigateToGameScreen: (Game) -> Unit,
 ) {
-  var stoneSoundMediaPlayer by remember { mutableStateOf<MediaPlayer?>(null) }
-  val context = LocalContext.current.applicationContext
+  val playStoneSound by rememberUpdatedState(rememberStoneSound())
+  val uriHandler = LocalUriHandler.current
 
   val lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current
   DisposableEffect(lifecycleOwner, viewModel) {
@@ -236,39 +226,14 @@ fun GameScreen(
     }
   }
 
-  LaunchedEffect(Unit) {
-    withContext(Dispatchers.IO) {
-      val player = MediaPlayer.create(context, R.raw.stone)
-      withContext(Dispatchers.Main) {
-        stoneSoundMediaPlayer = player
-      }
-    }
-  }
+  Spacer(Modifier.keepScreenOn())
 
-  val mediaPlayer = stoneSoundMediaPlayer
-  DisposableEffect(mediaPlayer) {
-    onDispose {
-      mediaPlayer?.release()
-    }
-  }
-
-  val activity = LocalActivity.current
-
-  DisposableEffect(activity) {
-    activity?.window?.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-
-    onDispose {
-      activity?.window?.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-    }
-  }
   LaunchedEffect(Unit) {
     viewModel.events.collect { event ->
       when (event) {
-        Event.PlayStoneSound -> stoneSoundMediaPlayer?.start()
+        Event.PlayStoneSound -> playStoneSound()
         is NavigateToGame -> onNavigateToGameScreen(event.game)
-        is OpenURL -> activity?.startActivity(
-          Intent(Intent.ACTION_VIEW, event.url.toUri()), Bundle()
-        )
+        is OpenURL -> uriHandler.openUri(event.url)
 
         null -> {}
       }
@@ -277,11 +242,11 @@ fun GameScreen(
 
   val state by viewModel.state.collectAsStateWithLifecycle()
 
-  val reviewPromptManager: ReviewPromptManager = koinInject()
+  val reviewRequester = LocalReviewRequester.current
   LaunchedEffect(state.shouldShowReviewPrompt) {
-    if (state.shouldShowReviewPrompt && activity != null && viewModel.consumeReviewPrompt()) {
+    if (state.shouldShowReviewPrompt && viewModel.consumeReviewPrompt()) {
       try {
-        reviewPromptManager.requestReview(activity)
+        reviewRequester.requestReview()
       } catch (e: Exception) {
         CrashReporter.recordException(e)
       }

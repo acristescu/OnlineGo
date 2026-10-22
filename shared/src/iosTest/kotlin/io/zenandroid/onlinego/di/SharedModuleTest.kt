@@ -2,6 +2,7 @@ package io.zenandroid.onlinego.di
 
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.viewModelScope
 import androidx.room.Room
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import io.ktor.client.engine.HttpClientEngine
@@ -9,6 +10,7 @@ import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respondError
 import io.ktor.http.HttpStatusCode
 import io.zenandroid.onlinego.data.db.Database
+import io.zenandroid.onlinego.data.db.DatabaseTest
 import io.zenandroid.onlinego.data.db.GameDao
 import io.zenandroid.onlinego.data.db.PuzzleDao
 import io.zenandroid.onlinego.data.ogs.OGSRestAPI
@@ -35,7 +37,10 @@ import io.zenandroid.onlinego.data.repositories.SocketDebugRepository
 import io.zenandroid.onlinego.data.repositories.TutorialsRepository
 import io.zenandroid.onlinego.data.repositories.TutorialsSource
 import io.zenandroid.onlinego.data.repositories.UserSessionRepository
+import io.zenandroid.onlinego.ui.composables.BundleSoundLoader
+import io.zenandroid.onlinego.ui.composables.SoundLoader
 import io.zenandroid.onlinego.ui.screens.automatch.NewAutomatchChallengeViewModel
+import io.zenandroid.onlinego.ui.screens.game.GameViewModel
 import io.zenandroid.onlinego.ui.screens.learn.LearnViewModel
 import io.zenandroid.onlinego.ui.screens.mygames.MyGamesViewModel
 import io.zenandroid.onlinego.ui.screens.newchallenge.NewChallengeViewModel
@@ -45,10 +50,12 @@ import io.zenandroid.onlinego.ui.screens.puzzle.tsumego.TsumegoViewModel
 import io.zenandroid.onlinego.ui.screens.socketdebug.SocketDebugViewModel
 import io.zenandroid.onlinego.usecases.GetUserStatsUseCase
 import io.zenandroid.onlinego.utils.Analytics
+import io.zenandroid.onlinego.utils.GameNotificationCanceller
 import io.zenandroid.onlinego.utils.KeyValueStore
 import io.zenandroid.onlinego.utils.PersistenceManager
 import io.zenandroid.onlinego.utils.WhatsNewUtils
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.test.runTest
 import okio.FileSystem
 import org.koin.core.context.startKoin
@@ -113,6 +120,19 @@ class SharedModuleTest {
     koin.get<MyGamesViewModel>()
     koin.get<NewChallengeViewModel>()
     koin.get<SelectOpponentViewModel>()
+    koin.get<GameDao>().insertAllGames(listOf(DatabaseTest.game))
+    koin.get<GameViewModel> {
+      parametersOf(
+        SavedStateHandle(
+          mapOf<String, Any>(
+            "gameId" to 1L,
+            "gameWidth" to 19,
+            "gameHeight" to 19
+          )
+        )
+      )
+    }
+      .viewModelScope.cancel()
     koin.get<WhatsNewUtils>()
     assertEquals(9, koin.get<List<SocketConnectedRepository>>().size)
   }
@@ -147,6 +167,8 @@ internal fun stubPlatformModule(scope: CoroutineScope, tutorialsJson: String = "
   }
   single { AppDataEraser {} }
   single { TutorialsSource { tutorialsJson } }
+  single { GameNotificationCanceller {} }
+  single<SoundLoader> { BundleSoundLoader }
 }
 
 private fun tempDataStore(scope: CoroutineScope) =
