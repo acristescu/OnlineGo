@@ -17,6 +17,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import io.zenandroid.onlinego.data.model.local.Game
 import io.zenandroid.onlinego.resources.Res
 import io.zenandroid.onlinego.resources.mygames_outcome_black_won
 import io.zenandroid.onlinego.resources.mygames_outcome_cancelled
@@ -24,15 +30,9 @@ import io.zenandroid.onlinego.resources.mygames_outcome_lost
 import io.zenandroid.onlinego.resources.mygames_outcome_white_won
 import io.zenandroid.onlinego.resources.mygames_outcome_won
 import io.zenandroid.onlinego.resources.unknown
-import org.jetbrains.compose.resources.stringResource
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import io.zenandroid.onlinego.data.model.local.Game
 import io.zenandroid.onlinego.ui.composables.Board
 import io.zenandroid.onlinego.ui.screens.mygames.Action
+import org.jetbrains.compose.resources.stringResource
 
 
 @ExperimentalComposeUiApi

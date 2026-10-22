@@ -6,7 +6,6 @@ import android.content.Intent
 import android.provider.Browser
 import android.view.View
 import android.widget.TextView
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -59,6 +58,7 @@ import io.zenandroid.onlinego.resources.joseki_explorer_button_tenuki
 import io.zenandroid.onlinego.resources.joseki_explorer_link_external
 import io.zenandroid.onlinego.resources.joseki_explorer_link_video
 import io.zenandroid.onlinego.resources.joseki_explorer_title
+import io.zenandroid.onlinego.ui.composables.BackHandler
 import io.zenandroid.onlinego.ui.composables.Board
 import io.zenandroid.onlinego.ui.composables.BottomBar
 import io.zenandroid.onlinego.ui.composables.BottomBarButton

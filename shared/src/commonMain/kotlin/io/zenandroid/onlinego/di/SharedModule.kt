@@ -34,12 +34,16 @@ import io.zenandroid.onlinego.data.repositories.UserSessionRepository
 import io.zenandroid.onlinego.ui.screens.automatch.NewAutomatchChallengeViewModel
 import io.zenandroid.onlinego.ui.screens.face2face.FaceToFaceViewModel
 import io.zenandroid.onlinego.ui.screens.learn.LearnViewModel
+import io.zenandroid.onlinego.ui.screens.mygames.MyGamesViewModel
+import io.zenandroid.onlinego.ui.screens.newchallenge.NewChallengeViewModel
+import io.zenandroid.onlinego.ui.screens.newchallenge.SelectOpponentViewModel
 import io.zenandroid.onlinego.ui.screens.puzzle.directory.PuzzleDirectoryViewModel
 import io.zenandroid.onlinego.ui.screens.puzzle.tsumego.TsumegoViewModel
 import io.zenandroid.onlinego.ui.screens.socketdebug.SocketDebugViewModel
 import io.zenandroid.onlinego.ui.screens.tutorial.TutorialViewModel
 import io.zenandroid.onlinego.usecases.GetUserStatsUseCase
 import io.zenandroid.onlinego.utils.PersistenceManager
+import io.zenandroid.onlinego.utils.WhatsNewUtils
 import io.zenandroid.onlinego.utils.appJson
 import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModelOf
@@ -48,6 +52,7 @@ import org.koin.dsl.module
 
 val SETTINGS_DATA_STORE = named("settings")
 val REVIEW_PROMPT_DATA_STORE = named("review_prompt")
+val WHATS_NEW_DATA_STORE = named("whats_new")
 
 val sharedModule = module {
   single { appJson }
@@ -123,6 +128,7 @@ val sharedModule = module {
   singleOf(::PersistenceManager)
   single { SettingsRepository(get(SETTINGS_DATA_STORE), get()) }
   single { ReviewPromptRepository(get(REVIEW_PROMPT_DATA_STORE), get(), get()) }
+  single { WhatsNewUtils(get(WHATS_NEW_DATA_STORE)) }
 
   singleOf(::GetUserStatsUseCase)
 
@@ -133,4 +139,7 @@ val sharedModule = module {
   viewModelOf(::SocketDebugViewModel)
   viewModelOf(::TutorialViewModel)
   viewModelOf(::FaceToFaceViewModel)
+  viewModelOf(::MyGamesViewModel)
+  viewModelOf(::NewChallengeViewModel)
+  viewModelOf(::SelectOpponentViewModel)
 }

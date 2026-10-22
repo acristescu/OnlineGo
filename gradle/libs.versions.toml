@@ -16,6 +16,8 @@ composeMultiplatform = "1.13.0-alpha02"
 composeMultiplatformMaterial3 = "1.9.0"
 composeMultiplatformMaterialIcons = "1.7.3"
 composeMultiplatformLifecycle = "2.11.0"
+navigationEvent = "1.1.0"
+okio = "3.18.1"
 
 # Main dependencies
 koin = "4.2.2"
@@ -98,6 +100,8 @@ cmp-ui-tooling = { module = "org.jetbrains.compose.ui:ui-tooling", version.ref =
 cmp-ui-tooling-preview = { module = "org.jetbrains.compose.ui:ui-tooling-preview", version.ref = "composeMultiplatform" }
 cmp-lifecycle-viewmodel = { module = "org.jetbrains.androidx.lifecycle:lifecycle-viewmodel", version.ref = "composeMultiplatformLifecycle" }
 cmp-lifecycle-runtime-compose = { module = "org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose", version.ref = "composeMultiplatformLifecycle" }
+navigationevent-compose = { module = "androidx.navigationevent:navigationevent-compose", version.ref = "navigationEvent" }
+okio = { module = "com.squareup.okio:okio", version.ref = "okio" }
 cmp-ui-test = { module = "org.jetbrains.compose.ui:ui-test", version.ref = "composeMultiplatform" }
 cmp-resources = { module = "org.jetbrains.compose.components:components-resources", version.ref = "composeMultiplatform" }
 

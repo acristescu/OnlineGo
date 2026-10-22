@@ -3,11 +3,10 @@ package io.zenandroid.onlinego.ui.screens.newchallenge
 import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import io.zenandroid.onlinego.data.model.local.Player
-import io.zenandroid.onlinego.utils.appJson
-import kotlinx.serialization.encodeToString
 import io.zenandroid.onlinego.data.model.ogs.ChallengeParams
 import io.zenandroid.onlinego.data.model.ogs.OGSPlayer
 import io.zenandroid.onlinego.data.repositories.SettingsRepository
+import io.zenandroid.onlinego.utils.appJson
 import io.zenandroid.onlinego.utils.egfToRank
 import io.zenandroid.onlinego.utils.formatRank
 import kotlinx.coroutines.CoroutineScope

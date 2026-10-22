@@ -4,7 +4,6 @@ import android.content.Intent
 import android.media.MediaPlayer
 import android.os.Bundle
 import android.view.WindowManager
-import androidx.activity.compose.BackHandler
 import androidx.activity.compose.LocalActivity
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
@@ -60,7 +59,6 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
@@ -140,6 +138,7 @@ import io.zenandroid.onlinego.resources.illegal_ko_move
 import io.zenandroid.onlinego.resources.ko_explanation
 import io.zenandroid.onlinego.resources.loading
 import io.zenandroid.onlinego.resources.ok
+import io.zenandroid.onlinego.ui.composables.BackHandler
 import io.zenandroid.onlinego.ui.composables.Board
 import io.zenandroid.onlinego.ui.composables.BottomBar
 import io.zenandroid.onlinego.ui.composables.MoreMenuItem
@@ -150,6 +149,7 @@ import io.zenandroid.onlinego.ui.composables.clockText
 import io.zenandroid.onlinego.ui.composables.isLandscape
 import io.zenandroid.onlinego.ui.composables.resolve
 import io.zenandroid.onlinego.ui.composables.resolveOrNull
+import io.zenandroid.onlinego.ui.composables.screenSize
 import io.zenandroid.onlinego.ui.composables.textResource
 import io.zenandroid.onlinego.ui.screens.game.Button.Analyze
 import io.zenandroid.onlinego.ui.screens.game.Button.Chat
@@ -339,7 +339,7 @@ fun GameContent(
         state = state,
         onUserAction = onUserAction,
         modifier = Modifier
-          .heightIn(0.dp, (LocalConfiguration.current.screenHeightDp * .6).dp)
+          .heightIn(0.dp, screenSize().height * .6f)
           .align(CenterHorizontally)
       )
       ExtraStatusField(
@@ -416,7 +416,7 @@ fun GameContent(
           state = state,
           onUserAction = onUserAction,
           modifier = Modifier
-            .widthIn(0.dp, (LocalConfiguration.current.screenWidthDp * .6).dp)
+            .widthIn(0.dp, screenSize().width * .6f)
             .align(CenterVertically)
         )
       }

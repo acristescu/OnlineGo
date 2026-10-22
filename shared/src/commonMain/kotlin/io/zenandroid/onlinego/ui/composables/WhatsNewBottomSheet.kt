@@ -1,7 +1,5 @@
 package io.zenandroid.onlinego.ui.composables
 
-import android.content.Intent
-import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -32,6 +30,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import io.zenandroid.onlinego.resources.Res
 import io.zenandroid.onlinego.resources.settings_help_translate
 import io.zenandroid.onlinego.resources.whats_new_changelog
@@ -39,13 +40,10 @@ import io.zenandroid.onlinego.resources.whats_new_got_it
 import io.zenandroid.onlinego.resources.whats_new_open_source
 import io.zenandroid.onlinego.resources.whats_new_support_project
 import io.zenandroid.onlinego.resources.whats_new_title
-import org.jetbrains.compose.resources.stringArrayResource
-import org.jetbrains.compose.resources.stringResource
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import androidx.core.net.toUri
 import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
 import io.zenandroid.onlinego.utils.TRANSLATING_GUIDE_URL
+import org.jetbrains.compose.resources.stringArrayResource
+import org.jetbrains.compose.resources.stringResource
 
 /**
  * Release notes. Shown automatically once after an update (see
@@ -57,7 +55,7 @@ fun WhatsNewBottomSheet(
   onDismiss: () -> Unit,
   onSupportClicked: () -> Unit,
 ) {
-  val activity = LocalActivity.current
+  val uriHandler = LocalUriHandler.current
   ModalBottomSheet(
     sheetState = rememberModalBottomSheetState(true),
     onDismissRequest = onDismiss,
@@ -68,7 +66,7 @@ fun WhatsNewBottomSheet(
       onDismiss = onDismiss,
       onSupportClicked = onSupportClicked,
       onHelpTranslateClicked = {
-        activity?.startActivity(Intent(Intent.ACTION_VIEW, TRANSLATING_GUIDE_URL.toUri()))
+        uriHandler.openUri(TRANSLATING_GUIDE_URL)
       },
     )
   }

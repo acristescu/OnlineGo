@@ -1,6 +1,5 @@
 package io.zenandroid.onlinego.ui.screens.game.composables
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -56,6 +55,7 @@ import io.zenandroid.onlinego.resources.game_player_details_wins
 import io.zenandroid.onlinego.resources.game_player_details_you_won
 import io.zenandroid.onlinego.resources.ic_person_filled_with_background
 import io.zenandroid.onlinego.resources.placeholder
+import io.zenandroid.onlinego.ui.composables.BackHandler
 import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
 import io.zenandroid.onlinego.usecases.RepoResult
 import io.zenandroid.onlinego.usecases.RepoResult.Success

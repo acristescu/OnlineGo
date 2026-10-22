@@ -27,6 +27,7 @@ val iosPlatformModule = module {
   single<KeyValueStore> { UserDefaultsKeyValueStore("login") }
   single(SETTINGS_DATA_STORE) { preferencesDataStore("settings", get()) }
   single(REVIEW_PROMPT_DATA_STORE) { preferencesDataStore("review_prompt", get()) }
+  single(WHATS_NEW_DATA_STORE) { preferencesDataStore("whats_new", get()) }
   single {
     Room.databaseBuilder<Database>(name = applicationSupportPath("database.db"))
       .setDriver(BundledSQLiteDriver())

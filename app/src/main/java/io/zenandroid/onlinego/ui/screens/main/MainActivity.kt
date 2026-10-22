@@ -16,7 +16,6 @@ import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -48,6 +47,7 @@ import io.zenandroid.onlinego.utils.AppLocaleManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.conflate
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -106,23 +106,34 @@ class MainActivity : ComponentActivity() {
     )
     var preloadedImages by mutableStateOf(PreloadedImages(null, null, null))
 
+    val themeSettingsFlow = combine(
+      isSystemInDarkTheme(),
+      viewModel.state,
+    ) { systemDark, state ->
+      ThemeSettings(
+        isDarkTheme = when (state.appTheme) {
+          AppTheme.LIGHT -> false
+          AppTheme.DARK -> true
+          AppTheme.SYSTEM_DEFAULT, null -> systemDark
+        },
+        boardTheme = state.boardTheme ?: BoardTheme.WOOD,
+        dynamicColors = true,
+        showCoordinates = state.showCoordinates,
+      )
+    }
+
+    lifecycleScope.launch(Dispatchers.Default) {
+      themeSettingsFlow
+        .map { it.boardTheme to it.isDarkTheme }
+        .distinctUntilChanged()
+        .collectLatest { (boardTheme, isDarkTheme) ->
+          preloadedImages = loadPreloadedImages(boardTheme, isDarkTheme, Density(this@MainActivity))
+        }
+    }
+
     lifecycleScope.launch {
       lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-        combine(
-          isSystemInDarkTheme(),
-          viewModel.state,
-        ) { systemDark, state ->
-          ThemeSettings(
-            isDarkTheme = when (state.appTheme) {
-              AppTheme.LIGHT -> false
-              AppTheme.DARK -> true
-              AppTheme.SYSTEM_DEFAULT, null -> systemDark
-            },
-            boardTheme = state.boardTheme ?: BoardTheme.WOOD,
-            dynamicColors = true,
-            showCoordinates = state.showCoordinates,
-          )
-        }
+        themeSettingsFlow
           .onEach { themeSettings = it }
           .map { it.isDarkTheme }
           .distinctUntilChanged()
@@ -148,14 +159,6 @@ class MainActivity : ComponentActivity() {
 
     setContent {
       val state by viewModel.state.collectAsStateWithLifecycle()
-      LaunchedEffect(themeSettings.isDarkTheme, themeSettings.boardTheme) {
-        preloadedImages = loadPreloadedImages(
-          boardTheme = themeSettings.boardTheme,
-          isDarkTheme = themeSettings.isDarkTheme,
-          density = Density(this@MainActivity),
-        )
-      }
-
       state.hasCompletedOnboarding?.let { hasCompletedOnboarding ->
         CompositionLocalProvider(
           LocalThemeSettings provides themeSettings,

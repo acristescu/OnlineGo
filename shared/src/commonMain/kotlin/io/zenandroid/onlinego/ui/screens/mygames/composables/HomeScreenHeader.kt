@@ -42,8 +42,8 @@ import org.jetbrains.compose.resources.stringResource
  * The width the avatar URL is requested at, and the box it is drawn into. They differ; the
  * startup preload in `OnlineGoApplication` mirrors both so its cache entry matches this one.
  */
-internal val HEADER_AVATAR_URL_WIDTH = 56.dp
-internal val HEADER_AVATAR_SIZE = 64.dp
+val HEADER_AVATAR_URL_WIDTH = 56.dp
+val HEADER_AVATAR_SIZE = 64.dp
 
 @Composable
 fun HomeScreenHeader(

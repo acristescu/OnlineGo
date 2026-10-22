@@ -6,13 +6,11 @@ import androidx.lifecycle.viewModelScope
 import io.zenandroid.onlinego.data.model.local.Player
 import io.zenandroid.onlinego.data.repositories.BotsRepository
 import io.zenandroid.onlinego.data.repositories.PlayersRepository
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import kotlin.coroutines.cancellation.CancellationException
 
 class SelectOpponentViewModel(

@@ -73,6 +73,7 @@ import io.zenandroid.onlinego.utils.egfToRank
 import io.zenandroid.onlinego.utils.formatRank
 import io.zenandroid.onlinego.utils.timeLeftForCurrentPlayer
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
@@ -88,8 +89,9 @@ import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.jsonPrimitive
-import kotlin.coroutines.cancellation.CancellationException
 import org.jetbrains.compose.resources.StringResource
+import kotlin.coroutines.cancellation.CancellationException
+import kotlin.time.Clock
 
 class MyGamesViewModel(
   private val userSessionRepository: UserSessionRepository,
@@ -381,7 +383,7 @@ class MyGamesViewModel(
     val statusCode = t.httpStatusCode
     if (statusCode != null) {
       if (statusCode in arrayOf(401, 403)) {
-        CrashReporter.setCustomKey("AUTO_LOGOUT", System.currentTimeMillis())
+        CrashReporter.setCustomKey("AUTO_LOGOUT", Clock.System.now().toEpochMilliseconds())
         CrashReporter.recordException(Exception(t.httpErrorBody, t))
         CrashReporter.sendUnsentReports()
         userSessionRepository.logOut()
@@ -409,7 +411,7 @@ class MyGamesViewModel(
   }
 
   fun onAction(action: Action) {
-    Logger.i(action.javaClass.name, tag = "MyGamesViewModel")
+    Logger.i(action::class.qualifiedName.orEmpty(), tag = "MyGamesViewModel")
     when (action) {
       is ChallengeAccepted -> onChallengeAccepted(action.challenge)
       is ChallengeSeeDetails -> onChallengeSeeDetails(action.challenge)

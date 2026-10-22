@@ -19,14 +19,14 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
-import io.zenandroid.onlinego.resources.Res
-import io.zenandroid.onlinego.resources.mygames_learn_to_play
-import io.zenandroid.onlinego.resources.mygames_tutorial_percentage
-import org.jetbrains.compose.resources.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import io.zenandroid.onlinego.resources.Res
+import io.zenandroid.onlinego.resources.mygames_learn_to_play
+import io.zenandroid.onlinego.resources.mygames_tutorial_percentage
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun TutorialItem(percentage: Int, tutorial: String) {

@@ -14,6 +14,7 @@ import io.zenandroid.onlinego.data.ogs.SharedPrefsCookiePersistence
 import io.zenandroid.onlinego.data.repositories.AppDataEraser
 import io.zenandroid.onlinego.data.repositories.reviewPromptDataStore
 import io.zenandroid.onlinego.data.repositories.settingsDataStore
+import io.zenandroid.onlinego.data.repositories.whatsNewDataStore
 import io.zenandroid.onlinego.utils.Analytics
 import io.zenandroid.onlinego.utils.FirebaseAppAnalytics
 import io.zenandroid.onlinego.utils.KeyValueStore
@@ -30,6 +31,7 @@ fun androidPlatformModule(logHttpBodies: Boolean) = module {
   single<KeyValueStore> { SharedPreferencesKeyValueStore(get(), "login") }
   single(SETTINGS_DATA_STORE) { get<Context>().settingsDataStore }
   single(REVIEW_PROMPT_DATA_STORE) { get<Context>().reviewPromptDataStore }
+  single(WHATS_NEW_DATA_STORE) { get<Context>().whatsNewDataStore }
   single { Room.databaseBuilder(get(), Database::class.java, "database.db") }
 
   single<Analytics> { FirebaseAppAnalytics(FirebaseAnalytics.getInstance(get())) }

@@ -1,6 +1,5 @@
 package io.zenandroid.onlinego.ui.screens.newchallenge
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -56,6 +55,7 @@ import io.zenandroid.onlinego.resources.select_opponent_recent_title
 import io.zenandroid.onlinego.resources.select_opponent_search_hint
 import io.zenandroid.onlinego.resources.select_opponent_tab_bot
 import io.zenandroid.onlinego.resources.select_opponent_tab_recent
+import io.zenandroid.onlinego.ui.composables.BackHandler
 import io.zenandroid.onlinego.ui.composables.SearchTextField
 import io.zenandroid.onlinego.utils.PreviewBackground
 import io.zenandroid.onlinego.utils.egfToRank

@@ -1,27 +1,27 @@
 package io.zenandroid.onlinego.utils
 
-import android.content.Context
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
-import androidx.datastore.preferences.preferencesDataStore
 import io.zenandroid.onlinego.resources.Res
 import io.zenandroid.onlinego.resources.whats_new_changelog
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
+import okio.ByteString.Companion.encodeUtf8
 import org.jetbrains.compose.resources.getStringArray
-import java.security.MessageDigest
 
 private const val WHATS_NEW = "WHATS_NEW"
 private val WHATS_NEW_KEY = stringPreferencesKey(WHATS_NEW)
-val Context.whatsNewDataStore by preferencesDataStore(name = "whats_new")
 
-class WhatsNewUtils(private val context: Context) {
+class WhatsNewUtils(private val dataStore: DataStore<Preferences>) {
   suspend fun shouldDisplayDialog(): Boolean {
     return withContext(Dispatchers.IO) {
       val hash = currentHash()
-      val stored = context.whatsNewDataStore.data.map { it[WHATS_NEW_KEY] }.first()
+      val stored = dataStore.data.map { it[WHATS_NEW_KEY] }.first()
       stored != null && stored != hash
     }
   }
@@ -29,7 +29,7 @@ class WhatsNewUtils(private val context: Context) {
   suspend fun textShown() {
     withContext(Dispatchers.IO) {
       val hash = currentHash()
-      context.whatsNewDataStore.edit { prefs ->
+      dataStore.edit { prefs ->
         prefs[WHATS_NEW_KEY] = hash
       }
     }
@@ -41,14 +41,11 @@ class WhatsNewUtils(private val context: Context) {
    * would pop up again after every language switch. The changelog is translatable="false", so this
    * hash is the same in every locale and only changes when the release notes actually change.
    */
-  private suspend fun currentHash() =
-    hashString(whatsNewItems().joinToString("\n"))
-
-  private fun hashString(text: String): String {
-    return MessageDigest.getInstance("MD5").digest(text.toByteArray(Charsets.UTF_8))
-      .fold("", { str, it -> str + "%02x".format(it) })
-  }
+  private suspend fun currentHash() = changelogHash(whatsNewItems())
 }
+
+internal fun changelogHash(items: List<String>): String =
+  items.joinToString("\n").encodeUtf8().md5().hex()
 
 /**
  * The release notes, one entry per bullet, from the `whats_new_changelog` string-array.

@@ -37,6 +37,9 @@ import io.zenandroid.onlinego.data.repositories.TutorialsSource
 import io.zenandroid.onlinego.data.repositories.UserSessionRepository
 import io.zenandroid.onlinego.ui.screens.automatch.NewAutomatchChallengeViewModel
 import io.zenandroid.onlinego.ui.screens.learn.LearnViewModel
+import io.zenandroid.onlinego.ui.screens.mygames.MyGamesViewModel
+import io.zenandroid.onlinego.ui.screens.newchallenge.NewChallengeViewModel
+import io.zenandroid.onlinego.ui.screens.newchallenge.SelectOpponentViewModel
 import io.zenandroid.onlinego.ui.screens.puzzle.directory.PuzzleDirectoryViewModel
 import io.zenandroid.onlinego.ui.screens.puzzle.tsumego.TsumegoViewModel
 import io.zenandroid.onlinego.ui.screens.socketdebug.SocketDebugViewModel
@@ -44,6 +47,7 @@ import io.zenandroid.onlinego.usecases.GetUserStatsUseCase
 import io.zenandroid.onlinego.utils.Analytics
 import io.zenandroid.onlinego.utils.KeyValueStore
 import io.zenandroid.onlinego.utils.PersistenceManager
+import io.zenandroid.onlinego.utils.WhatsNewUtils
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.test.runTest
 import okio.FileSystem
@@ -106,6 +110,10 @@ class SharedModuleTest {
     }
     koin.get<NewAutomatchChallengeViewModel>()
     koin.get<SocketDebugViewModel>()
+    koin.get<MyGamesViewModel>()
+    koin.get<NewChallengeViewModel>()
+    koin.get<SelectOpponentViewModel>()
+    koin.get<WhatsNewUtils>()
     assertEquals(9, koin.get<List<SocketConnectedRepository>>().size)
   }
 }
@@ -129,6 +137,7 @@ internal fun stubPlatformModule(scope: CoroutineScope, tutorialsJson: String = "
   }
   single(SETTINGS_DATA_STORE) { tempDataStore(scope) }
   single(REVIEW_PROMPT_DATA_STORE) { tempDataStore(scope) }
+  single(WHATS_NEW_DATA_STORE) { tempDataStore(scope) }
   single { Room.inMemoryDatabaseBuilder<Database>().setDriver(BundledSQLiteDriver()) }
   single<Analytics> {
     object : Analytics {

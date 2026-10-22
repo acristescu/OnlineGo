@@ -13,7 +13,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -30,6 +29,7 @@ import io.zenandroid.onlinego.ui.composables.ChatIndicator
 import io.zenandroid.onlinego.ui.composables.PlayerColorIndicator
 import io.zenandroid.onlinego.ui.composables.clockText
 import io.zenandroid.onlinego.ui.composables.isLandscape
+import io.zenandroid.onlinego.ui.composables.screenSize
 import io.zenandroid.onlinego.ui.screens.mygames.Action
 import io.zenandroid.onlinego.ui.theme.OnlineGoPreviewTheme
 import io.zenandroid.onlinego.utils.currentClockMillis
@@ -68,7 +68,7 @@ fun LargeGameItem(game: Game, userId: Long?, onAction: (Action) -> Unit, modifie
                 modifier = Modifier.clip(MaterialTheme.shapes.large)
                     .run {
                       if (isLandscape()) {
-                            height((LocalConfiguration.current.screenHeightDp * .4f).dp)
+                        height(screenSize().height * .4f)
                         } else {
                             this
                         }

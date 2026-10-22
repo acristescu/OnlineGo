@@ -19,3 +19,5 @@ val Context.settingsDataStore by preferencesDataStore(
 val Context.reviewPromptDataStore by preferencesDataStore(
   name = "review_prompt"
 )
+
+val Context.whatsNewDataStore by preferencesDataStore(name = "whats_new")

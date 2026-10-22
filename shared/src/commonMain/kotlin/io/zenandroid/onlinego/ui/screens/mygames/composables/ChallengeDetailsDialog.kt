@@ -1,6 +1,5 @@
 package io.zenandroid.onlinego.ui.screens.mygames.composables
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -45,12 +44,14 @@ import io.zenandroid.onlinego.resources.mygames_challenge_received
 import io.zenandroid.onlinego.resources.mygames_decline
 import io.zenandroid.onlinego.resources.mygames_detail_board_size
 import io.zenandroid.onlinego.resources.placeholder
+import io.zenandroid.onlinego.ui.composables.BackHandler
 import io.zenandroid.onlinego.ui.screens.mygames.ChallengeDialogStatus
 import io.zenandroid.onlinego.ui.screens.mygames.DetailValue
 import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
 import io.zenandroid.onlinego.utils.processGravatarURL
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
+import kotlin.time.Clock
 
 @Composable
 fun ChallengeDetailsDialog(
@@ -125,7 +126,7 @@ fun ChallengeDetailsDialog(
                 modifier = Modifier.fillMaxWidth(),
             ) {
                 TextButton(onClick = {
-                    val currentTime = System.currentTimeMillis()
+                  val currentTime = Clock.System.now().toEpochMilliseconds()
                     if (currentTime - lastActionTime >= 3000) {
                         lastActionTime = currentTime
                         onChallengeAccepted(status.challenge)
@@ -134,7 +135,7 @@ fun ChallengeDetailsDialog(
                   Text(stringResource(Res.string.mygames_accept))
                 }
                 TextButton(onClick = {
-                    val currentTime = System.currentTimeMillis()
+                  val currentTime = Clock.System.now().toEpochMilliseconds()
                     if (currentTime - lastActionTime >= 3000) {
                         lastActionTime = currentTime
                         onChallengeDeclined(status.challenge)

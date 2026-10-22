@@ -16,6 +16,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import io.zenandroid.onlinego.data.model.local.Challenge
+import io.zenandroid.onlinego.data.model.local.Player
 import io.zenandroid.onlinego.resources.Res
 import io.zenandroid.onlinego.resources.cancel
 import io.zenandroid.onlinego.resources.mygames_accept
@@ -23,15 +29,10 @@ import io.zenandroid.onlinego.resources.mygames_challenge_is_challenging_you
 import io.zenandroid.onlinego.resources.mygames_challenge_you_are_challenging
 import io.zenandroid.onlinego.resources.mygames_decline
 import io.zenandroid.onlinego.resources.mygames_see_details
-import org.jetbrains.compose.resources.stringResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import io.zenandroid.onlinego.data.model.local.Challenge
-import io.zenandroid.onlinego.data.model.local.Player
 import io.zenandroid.onlinego.ui.screens.mygames.Action
 import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
+import org.jetbrains.compose.resources.stringResource
+import kotlin.time.Clock
 
 @Composable
 fun ChallengeItem(challenge: Challenge, userId: Long?, onAction: (Action) -> Unit) {
@@ -72,7 +73,7 @@ fun ChallengeItem(challenge: Challenge, userId: Long?, onAction: (Action) -> Uni
                 if(challenge.challenger?.id == userId) {
                     TextButton(
                         onClick = {
-                            val currentTime = System.currentTimeMillis()
+                          val currentTime = Clock.System.now().toEpochMilliseconds()
                             if (currentTime - lastActionTime >= 3000) {
                                 lastActionTime = currentTime
                                 onAction(Action.ChallengeCancelled(challenge))
@@ -84,7 +85,7 @@ fun ChallengeItem(challenge: Challenge, userId: Long?, onAction: (Action) -> Uni
                 } else {
                     TextButton(
                         onClick = {
-                            val currentTime = System.currentTimeMillis()
+                          val currentTime = Clock.System.now().toEpochMilliseconds()
                             if (currentTime - lastActionTime >= 3000) {
                                 lastActionTime = currentTime
                                 onAction(Action.ChallengeAccepted(challenge))
@@ -98,7 +99,7 @@ fun ChallengeItem(challenge: Challenge, userId: Long?, onAction: (Action) -> Uni
                     }
                     TextButton(
                         onClick = {
-                            val currentTime = System.currentTimeMillis()
+                          val currentTime = Clock.System.now().toEpochMilliseconds()
                             if (currentTime - lastActionTime >= 3000) {
                                 lastActionTime = currentTime
                                 onAction(Action.ChallengeDeclined(challenge))

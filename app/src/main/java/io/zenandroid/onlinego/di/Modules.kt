@@ -9,9 +9,6 @@ import io.zenandroid.onlinego.ui.screens.game.GameViewModel
 import io.zenandroid.onlinego.ui.screens.joseki.JosekiExplorerViewModel
 import io.zenandroid.onlinego.ui.screens.localai.AiGameViewModel
 import io.zenandroid.onlinego.ui.screens.main.MainActivityViewModel
-import io.zenandroid.onlinego.ui.screens.mygames.MyGamesViewModel
-import io.zenandroid.onlinego.ui.screens.newchallenge.NewChallengeViewModel
-import io.zenandroid.onlinego.ui.screens.newchallenge.SelectOpponentViewModel
 import io.zenandroid.onlinego.ui.screens.onboarding.OnboardingViewModel
 import io.zenandroid.onlinego.ui.screens.settings.SettingsViewModel
 import io.zenandroid.onlinego.ui.screens.stats.StatsViewModel
@@ -21,7 +18,6 @@ import io.zenandroid.onlinego.utils.CountingIdlingResource
 import io.zenandroid.onlinego.utils.NOOPIdlingResource
 import io.zenandroid.onlinego.utils.NotificationUtils
 import io.zenandroid.onlinego.utils.ReviewPromptManager
-import io.zenandroid.onlinego.utils.WhatsNewUtils
 import org.koin.android.ext.koin.androidApplication
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.singleOf
@@ -38,13 +34,10 @@ private val appModule = module {
   }
   singleOf(::AppLocaleManager)
   singleOf(::NotificationUtils)
-  singleOf(::WhatsNewUtils)
   singleOf(::KataGoAnalysisEngine)
 }
 
 private val viewModelsModule = module {
-  viewModelOf(::NewChallengeViewModel)
-  viewModelOf(::SelectOpponentViewModel)
   viewModelOf(::JosekiExplorerViewModel)
   viewModelOf(::AiGameViewModel)
   viewModelOf(::StatsViewModel)
@@ -52,7 +45,6 @@ private val viewModelsModule = module {
   viewModelOf(::SupporterViewModel)
   viewModelOf(::GameViewModel)
   viewModelOf(::MainActivityViewModel)
-  viewModelOf(::MyGamesViewModel)
   viewModelOf(::SettingsViewModel)
 }
 

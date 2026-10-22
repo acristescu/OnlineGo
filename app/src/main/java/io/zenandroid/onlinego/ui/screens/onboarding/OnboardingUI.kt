@@ -4,7 +4,6 @@ import android.Manifest
 import android.app.Activity
 import android.os.Build
 import android.widget.Toast
-import androidx.activity.compose.BackHandler
 import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -99,6 +98,7 @@ import io.zenandroid.onlinego.resources.onboarding_stay_offline_message
 import io.zenandroid.onlinego.resources.onboarding_stay_offline_title
 import io.zenandroid.onlinego.resources.password
 import io.zenandroid.onlinego.resources.username
+import io.zenandroid.onlinego.ui.composables.BackHandler
 import io.zenandroid.onlinego.ui.composables.HorizontalPagerIndicator
 import io.zenandroid.onlinego.ui.composables.resolve
 import io.zenandroid.onlinego.ui.screens.onboarding.OnboardingAction.BackPressed

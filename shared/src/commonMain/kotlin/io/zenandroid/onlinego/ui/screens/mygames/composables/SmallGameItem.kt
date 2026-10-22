@@ -14,10 +14,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import io.zenandroid.onlinego.resources.Res
-import io.zenandroid.onlinego.resources.mygames_paused
-import io.zenandroid.onlinego.resources.unknown
-import org.jetbrains.compose.resources.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -25,6 +21,9 @@ import androidx.compose.ui.unit.sp
 import io.zenandroid.onlinego.data.model.StoneType
 import io.zenandroid.onlinego.data.model.local.Game
 import io.zenandroid.onlinego.data.model.local.isPaused
+import io.zenandroid.onlinego.resources.Res
+import io.zenandroid.onlinego.resources.mygames_paused
+import io.zenandroid.onlinego.resources.unknown
 import io.zenandroid.onlinego.ui.composables.Board
 import io.zenandroid.onlinego.ui.composables.ChatIndicator
 import io.zenandroid.onlinego.ui.composables.PlayerColorIndicator
@@ -32,6 +31,7 @@ import io.zenandroid.onlinego.ui.composables.clockText
 import io.zenandroid.onlinego.ui.screens.mygames.Action
 import io.zenandroid.onlinego.ui.screens.mygames.formatGameOutcome
 import io.zenandroid.onlinego.utils.currentClockMillis
+import org.jetbrains.compose.resources.stringResource
 
 @ExperimentalComposeUiApi
 @Composable

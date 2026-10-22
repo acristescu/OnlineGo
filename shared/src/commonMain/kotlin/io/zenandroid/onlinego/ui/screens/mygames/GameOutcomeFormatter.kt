@@ -1,6 +1,7 @@
 package io.zenandroid.onlinego.ui.screens.mygames
 
 import androidx.compose.runtime.Composable
+import io.zenandroid.onlinego.data.model.local.Game
 import io.zenandroid.onlinego.resources.Res
 import io.zenandroid.onlinego.resources.mygames_outcome_black_won
 import io.zenandroid.onlinego.resources.mygames_outcome_black_won_with_reason
@@ -18,7 +19,6 @@ import io.zenandroid.onlinego.resources.mygames_outcome_won
 import io.zenandroid.onlinego.resources.mygames_outcome_won_with_reason
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
-import io.zenandroid.onlinego.data.model.local.Game
 
 private enum class OutcomePerspective {
   USER_LOST,

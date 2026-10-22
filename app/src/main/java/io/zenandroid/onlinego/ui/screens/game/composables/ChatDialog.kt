@@ -1,6 +1,5 @@
 package io.zenandroid.onlinego.ui.screens.game.composables
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -37,17 +36,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
-import io.zenandroid.onlinego.resources.Res
-import io.zenandroid.onlinego.resources.game_chat_move_header
-import io.zenandroid.onlinego.resources.game_chat_send_content_description
-import io.zenandroid.onlinego.resources.game_chat_type_a_message
-import org.jetbrains.compose.resources.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import io.zenandroid.onlinego.data.model.local.Message
+import io.zenandroid.onlinego.resources.Res
+import io.zenandroid.onlinego.resources.game_chat_move_header
+import io.zenandroid.onlinego.resources.game_chat_send_content_description
+import io.zenandroid.onlinego.resources.game_chat_type_a_message
+import io.zenandroid.onlinego.ui.composables.BackHandler
 import io.zenandroid.onlinego.ui.screens.game.ChatMessage
 import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun ChatDialog(

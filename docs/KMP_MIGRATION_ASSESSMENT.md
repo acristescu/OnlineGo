@@ -9,7 +9,7 @@ is no RxJava, no `Parcelable`, and Koin, Molecule, Room, DataStore, `ViewModel`,
 kotlinx-collections-immutable are already multiplatform. The cost is dominated by resources
 (663 strings x 16 locales) and the local-AI engine, which cannot run on iOS as built today.
 
-**Status.** Phases 0-3 are finished: forty-four slices are done (section 6). Phases 0-2 have
+**Status.** Phases 0-3 are finished: forty-five slices are done (section 6). Phases 0-2 have
 shipped in a release; Phase 3 has not, and several slices still need on-device checks (section 1.2).
 Phase 3 moved the Room
 database (6.25), the score estimator (6.26), `CrashReporter` (6.10), the HTTP client (6.27),
@@ -21,8 +21,8 @@ Compose Multiplatform (6.33), now on 1.13.0-alpha02 (6.35), the first composable
 platforms, `BoardView` is gone (6.37) along with the resources and dependencies nothing used
 (6.38), the board is common code with its assets (6.40), and so are the Material icons (6.41),
 the ViewModel plumbing, the theme and the first screen, Learn (6.42), then the puzzle screens,
-socket debug and the automatch sheet (6.43), and the tutorial and face-to-face screens (6.44). Phase
-5 has not started.
+socket debug and the automatch sheet (6.43), the tutorial and face-to-face screens (6.44), and the
+My Games tab with new challenges and What's new (6.45). Phase 5 has not started.
 
 Earlier, longer versions of this document:
 `git show d529259:docs/KMP_MIGRATION_ASSESSMENT.md` (original assessment) and
@@ -65,7 +65,10 @@ After 6.43: the puzzle directory (filter, sort, search, solve rates in German), 
 hints, the picker, rating, a description with a link), socket debug and the automatch sheet. After
 6.44: a tutorial in both orientations played to the end, face-to-face in both orientations (moves,
 undo and redo, clocks, the saved game after a restart), and rotating the game, AI game, Joseki and
-My Games screens.
+My Games screens. After 6.45: What's new not reappearing after the update, cold starts drawing the
+boards with their background from the first frame, the Play tab, the large game card in landscape,
+a custom game through the new-challenge sheet and opponent picker, back in every dialog and
+screen that handles it, and the translation-guide link.
 
 Still owed - unit tests cannot reach these:
 
@@ -85,11 +88,11 @@ Still owed - unit tests cannot reach these:
 
 ### 1.3 Phases 3-5
 
-| Phase                              | Work                                                                                                                                                                                                                                     | Estimate                        |
-|------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------|
-| **3 - data layer to `commonMain`** | Done (6.25, 6.27-6.32). Left for the iOS app: the Swift `Analytics`, `AppDataEraser` and `TutorialsSource` passed to `initKoin()`, and a real iOS `CrashReporter`.                                                                       | done                            |
-| **4 - Compose Multiplatform**      | UI into `:shared/commonMain`, screen by screen. Resources (4.2), chart, markdown. Done: the board (6.40), icons (6.41), ViewModel plumbing, theme, Learn (6.42), puzzles, socket debug, automatch (6.43), tutorial, face-to-face (6.44). | 6-10 weeks (resources dominate) |
-| **5 - iOS app**                    | SwiftUI shell + `ComposeUIViewController`, notifications, background refresh, billing, Google sign-in, App Store plumbing. Bitrise needs a macOS stack.                                                                                  | 4-8 weeks, excluding local AI   |
+| Phase                              | Work                                                                                                                                                                                                                                                      | Estimate                        |
+|------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------|
+| **3 - data layer to `commonMain`** | Done (6.25, 6.27-6.32). Left for the iOS app: the Swift `Analytics`, `AppDataEraser` and `TutorialsSource` passed to `initKoin()`, a real iOS `CrashReporter`, the iOS HTML placeholder (6.43), and Coil's Ktor network fetcher (6.45).                   | done                            |
+| **4 - Compose Multiplatform**      | UI into `:shared/commonMain`, screen by screen. Resources (4.2), chart, markdown. Done: the board (6.40), icons (6.41), ViewModel plumbing, theme, Learn (6.42), puzzles, socket debug, automatch (6.43), tutorial, face-to-face (6.44), My Games (6.45). | 6-10 weeks (resources dominate) |
+| **5 - iOS app**                    | SwiftUI shell + `ComposeUIViewController`, notifications, background refresh, billing, Google sign-in, App Store plumbing. Bitrise needs a macOS stack.                                                                                                   | 4-8 weeks, excluding local AI   |
 
 Estimates are order-of-magnitude, single developer. The one data point so far: the serialization
 slice came in on time only because the golden-JSON corpus was dropped, which moved verification
@@ -226,8 +229,8 @@ twins, and so are the board assets (6.40), apart from the stone vectors' Android
 ## 6. Done - what is still load-bearing
 
 Only traps, deliberate behaviour changes, and decisions that look wrong but are not. Unit tests
-stand at 185: 103 in `:shared` host tests (88 of them in `commonTest`, which also run on the iOS
-simulator), 35 in `:shared` `iosTest` (simulator only), 47 in `:app`.
+stand at 190: 104 in `:shared` host tests (88 of them in `commonTest`, which also run on the iOS
+simulator), 39 in `:shared` `iosTest` (simulator only), 47 in `:app`.
 
 ### 6.1 Moshi to kotlinx.serialization
 
@@ -866,6 +869,14 @@ test-local class.
 - `loadPreloadedImages` decodes the wood with `decodeToImageBitmap`, which does not scale by
   density as Android's `imageResource` did: the bitmap is the full 1400 px, ~3.4 MB more on an
   xxhdpi phone. The preview theme uses CMP's `imageResource` / `vectorResource`.
+- **Since 6.45 the preload starts in `MainActivity.onCreate`**, on `Dispatchers.Default`, and writes
+  `preloadedImages` from the worker. It used to be a `LaunchedEffect`: it started during the first
+  composition and its result waited ~200 ms for the main thread, busy with the first frames, so a
+  cold start drew the boards without their background for a few frames. Measured on a Pixel 8
+  emulator: the work takes 20-50 ms; the images are now ready ~700 ms after process start, before
+  the first composition, which no longer draws a board without background (one in five runs still
+  did, on an emulator stall). Cold start to first frame (`am start -W`, median): 941 ms before 6.40,
+  895 ms before 6.45, 856 ms after, so no regression.
 - `iosTest/.../BoardTest` loads the images from resources, draws a position on the simulator, checks
   a black and a white stone, and drags then lifts to check `onTapUp` gets the cell under the lift. A
   second test finds the ink of seven labels in the captured image and requires each within 1.5 px of
@@ -969,3 +980,36 @@ test-local class.
   tutorial with its `tutorialName` route key).
 - **Compose report:** 255 rows (81 in `:shared`), 6 unstable parameters; `FaceToFaceViewModel`'s
   `<this>` moved to `:shared` with it, so three are there now.
+
+### 6.45 My Games, new challenges and What's new in `commonMain`
+
+- My Games (13 files, the Play tab), the new-challenge sheet and opponent picker, What's new
+  (`WhatsNewBottomSheet`, `WhatsNewUtils`), `ChatIndicator`, `HorizontalPagerIndicator`,
+  `PlayerColorIndicator`, `ClockText` and `Urls.kt` are in `commonMain`, same packages. Their three
+  ViewModels and `WhatsNewUtils` are registered in `sharedModule`.
+- **`BackHandler`** (`ui/composables/BackHandler.kt`) wraps `navigationevent-compose`'s
+  `NavigationBackHandler` with `androidx.activity`'s signature; all seven call sites import it. On
+  Android, Activity 1.13 dispatches back through `navigationevent` 1.1.0, the version resolved
+  before. It composes on the iOS simulator (`MyGamesScreensTest` renders the opponent picker).
+- **What's new keeps its stored hash.** The MD5 is okio's `md5().hex()` in `changelogHash`, pinned
+  against the old `MessageDigest` code by `ChangelogHashTest` (host, non-ASCII changelog). A
+  different value would show the sheet to everyone after the update. The `whats_new` DataStore is
+  in the platform contract (`WHATS_NEW_DATA_STORE`): Android keeps the same file through the
+  delegate, now in `PreferenceDataStores.kt`; iOS gets `whats_new.preferences_pb`.
+  `WhatsNewUtilsTest` (iOS) covers fresh install, update and shown.
+- **`screenSize()`** (`ui/composables/ScreenSize.kt`) replaces `screenWidthDp` / `screenHeightDp`
+  in `LargeGameItem` and `GameUI`; like `isLandscape()`, Android keeps `LocalConfiguration` and iOS
+  uses the window size.
+- **Coil:** `coil-compose` is a `commonMain` `api` dependency. Android keeps `coil-network-okhttp`
+  in `:app`; **iOS has no network fetcher yet**, so avatars will not load there until the iOS app
+  adds
+  `coil-network-ktor3`.
+- What's new opens the translation guide through `LocalUriHandler` instead of an `Intent`.
+- JVM leftovers: `System.currentTimeMillis()` (button debouncing, a Crashlytics key) is
+  `Clock.System`; `MyGamesViewModel` logs `action::class.qualifiedName`, so breadcrumbs read
+  `...Action.ChallengeAccepted` instead of `...Action$ChallengeAccepted`. `HEADER_AVATAR_*` are
+  public, because the app's avatar preload reads them.
+- `GameOutcomeFormatterTest` stays in `:app`.
+- **Compose report:** 257 rows (137 in `:shared`), 6 unstable parameters, unchanged; the two new
+  rows
+  are `BackHandler` and `screenSize`.
