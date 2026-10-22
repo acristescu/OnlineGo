@@ -23,7 +23,7 @@ import java.util.zip.ZipFile
 import kotlin.concurrent.atomics.AtomicLong
 import kotlin.concurrent.atomics.incrementAndFetch
 
-class KataGoAnalysisEngine(private val context: Context) {
+class KataGoAnalysisEngine(private val context: Context) : AnalysisEngine {
   var started = false
     private set
   var shouldShutDown = false
@@ -36,14 +36,14 @@ class KataGoAnalysisEngine(private val context: Context) {
 
   // Callers also raise maxVisits to at least this many - KataGo spins up this many search
   // threads per query regardless of budget, wasting the rest otherwise.
-  val searchThreads = Runtime.getRuntime().availableProcessors()
+  override val searchThreads = Runtime.getRuntime().availableProcessors()
   private val netFile by lazy { File(context.filesDir, "katagonet.gz") }
   private val humanNetFile by lazy { File(context.filesDir, "katagohumannet.gz") }
   private val cfgFile by lazy { File(context.filesDir, "katago.cfg") }
 
   @Throws(IOException::class)
   @Synchronized
-  fun start() {
+  override fun start() {
     shouldShutDown = false
     if (started) {
       return
@@ -111,7 +111,7 @@ class KataGoAnalysisEngine(private val context: Context) {
   }
 
   @Synchronized
-  fun stop() {
+  override fun stop() {
     shouldShutDown = true
     if (!started) {
       return
@@ -134,15 +134,15 @@ class KataGoAnalysisEngine(private val context: Context) {
     }.start()
   }
 
-  suspend fun analyzeMoveSequence(
+  override suspend fun analyzeMoveSequence(
     sequence: List<Position>,
-    komi: Float? = null,
-    rules: String = "japanese",
-    maxVisits: Int? = null,
-    includeOwnership: Boolean? = null,
-    includeMovesOwnership: Boolean? = null,
-    includePolicy: Boolean? = null,
-    overrideSettings: OverrideSettings? = null
+    komi: Float?,
+    rules: String,
+    maxVisits: Int?,
+    includeOwnership: Boolean?,
+    includeMovesOwnership: Boolean?,
+    includePolicy: Boolean?,
+    overrideSettings: OverrideSettings?
   ): Response {
     val id = generateId()
 

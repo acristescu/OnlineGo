@@ -9,6 +9,8 @@ import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respondError
 import io.ktor.http.HttpStatusCode
+import io.zenandroid.onlinego.ai.AnalysisEngine
+import io.zenandroid.onlinego.ai.UnavailableAnalysisEngine
 import io.zenandroid.onlinego.data.db.Database
 import io.zenandroid.onlinego.data.db.DatabaseTest
 import io.zenandroid.onlinego.data.db.GameDao
@@ -42,6 +44,7 @@ import io.zenandroid.onlinego.ui.composables.SoundLoader
 import io.zenandroid.onlinego.ui.screens.automatch.NewAutomatchChallengeViewModel
 import io.zenandroid.onlinego.ui.screens.game.GameViewModel
 import io.zenandroid.onlinego.ui.screens.learn.LearnViewModel
+import io.zenandroid.onlinego.ui.screens.localai.AiGameViewModel
 import io.zenandroid.onlinego.ui.screens.mygames.MyGamesViewModel
 import io.zenandroid.onlinego.ui.screens.newchallenge.NewChallengeViewModel
 import io.zenandroid.onlinego.ui.screens.newchallenge.SelectOpponentViewModel
@@ -133,6 +136,7 @@ class SharedModuleTest {
       )
     }
       .viewModelScope.cancel()
+    koin.get<AiGameViewModel>().viewModelScope.cancel()
     koin.get<WhatsNewUtils>()
     assertEquals(9, koin.get<List<SocketConnectedRepository>>().size)
   }
@@ -169,6 +173,7 @@ internal fun stubPlatformModule(scope: CoroutineScope, tutorialsJson: String = "
   single { TutorialsSource { tutorialsJson } }
   single { GameNotificationCanceller {} }
   single<SoundLoader> { BundleSoundLoader }
+  single<AnalysisEngine> { UnavailableAnalysisEngine }
 }
 
 private fun tempDataStore(scope: CoroutineScope) =

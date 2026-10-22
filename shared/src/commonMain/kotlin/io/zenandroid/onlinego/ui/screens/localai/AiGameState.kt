@@ -12,6 +12,7 @@ import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.Position
 import io.zenandroid.onlinego.data.model.katago.KataGoResponse.Response
 import io.zenandroid.onlinego.data.model.katago.MoveInfo
+import io.zenandroid.onlinego.data.ogs.LenientIntSerializer
 import io.zenandroid.onlinego.ui.composables.TextResource
 import io.zenandroid.onlinego.utils.serializers.AiDifficultySerializer
 import io.zenandroid.onlinego.utils.serializers.AiRulesSerializer
@@ -19,7 +20,6 @@ import io.zenandroid.onlinego.utils.serializers.ResponseBriefSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 import kotlinx.serialization.UseSerializers
-import io.zenandroid.onlinego.data.ogs.LenientIntSerializer
 
 sealed interface DifficultyRank {
   data class Kyu(val n: Int) : DifficultyRank

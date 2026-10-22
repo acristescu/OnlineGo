@@ -221,7 +221,7 @@ fun AiGameScreen(
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-internal fun AiGameUI(
+fun AiGameUI(
   state: AiGameState,
   userIcon: String?,
   onUserTappedCoordinate: (Cell) -> Unit,

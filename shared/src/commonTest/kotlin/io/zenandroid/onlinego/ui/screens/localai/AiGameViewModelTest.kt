@@ -9,14 +9,13 @@ import io.zenandroid.onlinego.data.model.katago.RootInfo
 import io.zenandroid.onlinego.resources.Res
 import io.zenandroid.onlinego.resources.ai_game_chat_ai_passed
 import io.zenandroid.onlinego.ui.composables.TextResource
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertThrows
-import org.junit.Assert.assertTrue
 import io.zenandroid.onlinego.utils.appJson
-import kotlinx.serialization.encodeToString
-import org.junit.Test
 import kotlin.random.Random
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 
 class AiGameViewModelTest {
 
@@ -79,8 +78,8 @@ class AiGameViewModelTest {
 
     val dominantCount = counts["C3"] ?: 0
     assertTrue(
+      dominantCount in 1700..1900,
       "Expected the 90% weight move to dominate, but counts were $counts",
-      dominantCount in 1700..1900
     )
   }
 
@@ -94,7 +93,7 @@ class AiGameViewModelTest {
   }
 
   @Test
-  fun `selectHumanMove plays pass outright when the real search ranks it top, regardless of humanPolicy weight`() {
+  fun `selectHumanMove plays pass outright when the real search ranks it top regardless of humanPolicy weight`() {
     // humanPolicy heavily favors "C3" (index 2); pass gets no weight at all here, yet the
     // real search's own top-ranked candidate (moveInfos[0]) already being pass must win.
     val humanPolicy = listOf(-1f, -1f, 1f, -1f, -1f, -1f, -1f, -1f, -1f, -1f)
@@ -157,7 +156,7 @@ class AiGameViewModelTest {
   fun `selectHumanMove throws when every point in humanPolicy is illegal`() {
     val humanPolicy = List(10) { -1f }
 
-    assertThrows(IllegalStateException::class.java) {
+    assertFailsWith<IllegalStateException> {
       select(humanPolicy, random = Random(1))
     }
   }
@@ -174,7 +173,7 @@ class AiGameViewModelTest {
   }
 
   @Test
-  fun `selectBestMove plays pass outright when it is the first candidate, with no special-casing`() {
+  fun `selectBestMove plays pass outright when it is the first candidate with no special-casing`() {
     val moveInfos = listOf(
       moveInfo("pass", visits = 1),
       moveInfo("D4", visits = 1000),
@@ -194,7 +193,7 @@ class AiGameViewModelTest {
   }
 
   @Test
-  fun `hopelessPassMove returns null when winrate is at or above the threshold, even with pass present`() {
+  fun `hopelessPassMove returns null when winrate is at or above the threshold even with pass present`() {
     val moveInfos = listOf(moveInfo("pass", visits = 1), moveInfo("D4", visits = 2))
 
     assertEquals(null, hopelessPassMove(engineWinrate = 0.01f, moveInfos))
@@ -209,7 +208,7 @@ class AiGameViewModelTest {
   }
 
   @Test
-  fun `hopelessPassMove returns the pass candidate when winrate is hopeless, even if pass isn't first`() {
+  fun `hopelessPassMove returns the pass candidate when winrate is hopeless even if pass isn't first`() {
     val moveInfos = listOf(
       moveInfo("D4", visits = 2, winrate = 0.0f),
       moveInfo("Q16", visits = 2, winrate = 0.0f),
@@ -306,7 +305,7 @@ class AiGameViewModelTest {
   }
 
   @Test
-  fun `a save written before the fix still restores, minus its stale chat resource id`() {
+  fun `a save written before the fix still restores minus its stale chat resource id`() {
     val legacyJson = """
       {"boardSize":9,"enginePlaysBlack":true,"handicap":2,
        "chatText":{"resId":2131689517,"args":[]}}

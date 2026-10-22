@@ -9,7 +9,7 @@ is no RxJava, no `Parcelable`, and Koin, Molecule, Room, DataStore, `ViewModel`,
 kotlinx-collections-immutable are already multiplatform. The cost is dominated by resources
 (663 strings x 16 locales) and the local-AI engine, which cannot run on iOS as built today.
 
-**Status.** Phases 0-3 are finished: forty-six slices are done (section 6). Phases 0-2 have
+**Status.** Phases 0-3 are finished: forty-seven slices are done (section 6). Phases 0-2 have
 shipped in a release; Phase 3 has not, and several slices still need on-device checks (section 1.2).
 Phase 3 moved the Room
 database (6.25), the score estimator (6.26), `CrashReporter` (6.10), the HTTP client (6.27),
@@ -22,8 +22,8 @@ platforms, `BoardView` is gone (6.37) along with the resources and dependencies 
 (6.38), the board is common code with its assets (6.40), and so are the Material icons (6.41),
 the ViewModel plumbing, the theme and the first screen, Learn (6.42), then the puzzle screens,
 socket debug and the automatch sheet (6.43), the tutorial and face-to-face screens (6.44), and the
-My Games tab with new challenges and What's new (6.45), and the game screen (6.46). Phase 5 has not
-started.
+My Games tab with new challenges and What's new (6.45), the game screen (6.46) and the AI game
+(6.47). Phase 5 has not started.
 
 Earlier, longer versions of this document:
 `git show d529259:docs/KMP_MIGRATION_ASSESSMENT.md` (original assessment) and
@@ -72,7 +72,10 @@ a custom game through the new-challenge sheet and opponent picker, back in every
 screen that handles it, and the translation-guide link. After 6.46: the stone sound on moves, a
 game opening without a hitch after a cold start, the screen staying on in a game, a game's
 notification disappearing when it opens, a link from a game, chat, player details and the
-game-over dialog with its rating.
+game-over dialog with its rating. After 6.47: KataGo starting and an AI game played. KO, the resign
+offer and
+restore were not checked one by one: the move moved the code unchanged, and their logic is
+covered by `AiGameViewModelTest`, which now runs on both platforms.
 
 Still owed - unit tests cannot reach these:
 
@@ -97,7 +100,7 @@ Still owed - unit tests cannot reach these:
 | Phase                              | Work                                                                                                                                                                                                                                                                                                     | Estimate                        |
 |------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------|
 | **3 - data layer to `commonMain`** | Done (6.25, 6.27-6.32). Left for the iOS app: the Swift `Analytics`, `AppDataEraser` and `TutorialsSource` and `GameNotificationCanceller` passed to `initKoin()`, a real iOS `CrashReporter`, the iOS HTML placeholder (6.43), Coil's Ktor network fetcher (6.45), and an iOS `ReviewRequester` (6.46). | done                            |
-| **4 - Compose Multiplatform**      | UI into `:shared/commonMain`, screen by screen. Resources (4.2), chart, markdown. Done: the board (6.40), icons (6.41), ViewModel plumbing, theme, Learn (6.42), puzzles, socket debug, automatch (6.43), tutorial, face-to-face (6.44), My Games (6.45), game (6.46).                                   | 6-10 weeks (resources dominate) |
+| **4 - Compose Multiplatform**      | UI into `:shared/commonMain`, screen by screen. Resources (4.2), chart, markdown. Done: the board (6.40), icons (6.41), ViewModel plumbing, theme, Learn (6.42), puzzles, socket debug, automatch (6.43), tutorial, face-to-face (6.44), My Games (6.45), game (6.46), AI game (6.47).                   | 6-10 weeks (resources dominate) |
 | **5 - iOS app**                    | SwiftUI shell + `ComposeUIViewController`, notifications, background refresh, billing, Google sign-in, App Store plumbing. Bitrise needs a macOS stack.                                                                                                                                                  | 4-8 weeks, excluding local AI   |
 
 Estimates are order-of-magnitude, single developer. The one data point so far: the serialization
@@ -234,8 +237,8 @@ twins, and so are the board assets (6.40), apart from the stone vectors' Android
 ## 6. Done - what is still load-bearing
 
 Only traps, deliberate behaviour changes, and decisions that look wrong but are not. Unit tests
-stand at 192: 104 in `:shared` host tests (88 of them in `commonTest`, which also run on the iOS
-simulator), 41 in `:shared` `iosTest` (simulator only), 47 in `:app`.
+stand at 193: 136 in `:shared` host tests (120 of them in `commonTest`, which also run on the iOS
+simulator), 42 in `:shared` `iosTest` (simulator only), 15 in `:app`.
 
 ### 6.1 Moshi to kotlinx.serialization
 
@@ -1058,3 +1061,26 @@ test-local class.
 - `iosTest/.../GameScreenTest` renders the game screen on the simulator over a game inserted into
   the in-memory database (`DatabaseTest`'s fixture, now `internal`).
 - **Compose report:** 258 rows (179 in `:shared`), 6 unstable parameters, unchanged.
+
+### 6.47 The AI game in `commonMain`
+
+- `AiGameUI`, `AiGameViewModel`, `AiGameState`, `AiChatBox` and the three serializers
+  (`utils/serializers`) are in `commonMain`, same packages. `AiGameViewModel` is registered in
+  `sharedModule`; `AiGameUI` is public now, because `:app`'s `AiGameUIScreenshotTest` calls it.
+- **The engine is platform code behind `AnalysisEngine`** (`ai/AnalysisEngine.kt`): `start()`,
+  `stop()`, `analyzeMoveSequence(...)`, `searchThreads`, exactly what the ViewModel uses. It is in
+  the platform contract:
+  - **Android:** `KataGoAnalysisEngine` implements it and stays in `:app` with the native binary and
+    the network files it unpacks, bound in `Modules.kt`. Unchanged otherwise.
+  - **iOS:** `UnavailableAnalysisEngine` (`iosMain`), whose `start()` throws "Local AI is not
+    available on iOS". The ViewModel already turns a failed start into its engine-error state, so
+    the screen shows the message instead of crashing (`AiGameScreenTest`). **The decision in 4.1 is
+    still open**; this only records today's answer, and the iOS app must also hide the AI entry
+    point. In-process KataGo would replace this one binding.
+- **`AiGameViewModelTest` moved to `commonTest`** (it tests `internal` functions, now in another
+  module): JUnit asserts became `kotlin.test`, `assertThrows` became `assertFailsWith`, one
+  message-first `assertTrue` was reordered, and five test names lost a comma for Kotlin/Native. Its
+  32 tests now also run on the iOS simulator.
+- JVM leftovers: two debug-only win-rate logs used `"%.3f".format`; they use the internal
+  `formatDecimal(value, 3, '.')`.
+- **Compose report:** 258 rows (206 in `:shared`), 6 unstable parameters, unchanged.

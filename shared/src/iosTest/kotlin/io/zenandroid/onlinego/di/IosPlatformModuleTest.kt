@@ -2,6 +2,7 @@ package io.zenandroid.onlinego.di
 
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
+import io.zenandroid.onlinego.ai.AnalysisEngine
 import io.zenandroid.onlinego.data.db.Database
 import io.zenandroid.onlinego.data.db.PuzzleDao
 import io.zenandroid.onlinego.data.ogs.OGSRestService
@@ -47,6 +48,7 @@ class IosPlatformModuleTest {
     koin.get<OGSWebSocketService>()
     koin.get<UserSessionRepository>()
     koin.get<SoundLoader>()
+    koin.get<AnalysisEngine>()
     koin.get<PersistenceManager>()
     koin.get<SettingsRepository>()
     koin.get<ReviewPromptRepository>()

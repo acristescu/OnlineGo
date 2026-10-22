@@ -4,7 +4,7 @@ import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import co.touchlab.kermit.Logger
-import io.zenandroid.onlinego.ai.KataGoAnalysisEngine
+import io.zenandroid.onlinego.ai.AnalysisEngine
 import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.Position
 import io.zenandroid.onlinego.data.model.StoneType
@@ -37,12 +37,14 @@ import io.zenandroid.onlinego.resources.ai_game_chat_territories
 import io.zenandroid.onlinego.resources.ai_game_chat_use_new_game_button
 import io.zenandroid.onlinego.resources.ai_game_chat_your_turn
 import io.zenandroid.onlinego.ui.composables.TextResource
+import io.zenandroid.onlinego.ui.composables.formatDecimal
 import io.zenandroid.onlinego.ui.composables.textResource
 import io.zenandroid.onlinego.utils.CrashReporter
 import io.zenandroid.onlinego.utils.appJson
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -58,7 +60,7 @@ class AiGameViewModel(
   private val userSessionRepository: UserSessionRepository,
   private val settingsRepository: SettingsRepository,
   private val applicationCoroutineScope: CoroutineScope,
-  private val kataGoAnalysisEngine: KataGoAnalysisEngine,
+  private val analysisEngine: AnalysisEngine,
 ) : ViewModel() {
 
   private val _state = MutableStateFlow(
@@ -82,7 +84,7 @@ class AiGameViewModel(
     viewModelScope.launch {
       try {
         withContext(Dispatchers.IO) {
-          kataGoAnalysisEngine.start()
+          analysisEngine.start()
           _state.update { it.copy(engineStarted = true) }
         }
         onLoadingComplete()
@@ -418,7 +420,7 @@ class AiGameViewModel(
 
       try {
         val analysis = withContext(Dispatchers.IO) {
-          kataGoAnalysisEngine.analyzeMoveSequence(
+          analysisEngine.analyzeMoveSequence(
             sequence = currentState.history,
             maxVisits = 30,
             komi = currentState.position.komi,
@@ -467,7 +469,7 @@ class AiGameViewModel(
 
       try {
         val analysis = withContext(Dispatchers.IO) {
-          kataGoAnalysisEngine.analyzeMoveSequence(
+          analysisEngine.analyzeMoveSequence(
             sequence = currentState.history,
             maxVisits = 30,
             komi = currentState.position.komi,
@@ -571,9 +573,9 @@ class AiGameViewModel(
         val difficulty = currentState.difficulty
         // KataGo spins up this many search threads per query regardless of maxVisits; a
         // lower budget just wastes most of them in a thread-scheduling race for the rest.
-        val effectiveMaxVisits = maxOf(difficulty.maxVisits, kataGoAnalysisEngine.searchThreads)
+        val effectiveMaxVisits = maxOf(difficulty.maxVisits, analysisEngine.searchThreads)
         val analysis = withContext(Dispatchers.IO) {
-          kataGoAnalysisEngine.analyzeMoveSequence(
+          analysisEngine.analyzeMoveSequence(
             sequence = currentState.history,
             maxVisits = effectiveMaxVisits,
             komi = currentState.position.komi,
@@ -590,7 +592,15 @@ class AiGameViewModel(
               "candidates=${analysis.moveInfos.size} " +
               "moves=${
                 analysis.moveInfos.sortedByDescending { it.visits }
-                  .joinToString { "${it.move}(v=${it.visits},wr=%.3f)".format(it.winrate) }
+                  .joinToString {
+                    "${it.move}(v=${it.visits},wr=${
+                      formatDecimal(
+                        it.winrate.toDouble(),
+                        3,
+                        '.'
+                      )
+                    })"
+                  }
               }"
         }
 
@@ -651,7 +661,13 @@ class AiGameViewModel(
     position: Position,
   ) {
     Logger.d(tag = "AiMoveDebug") {
-      "picked=${selectedMove.move}(v=${selectedMove.visits},wr=%.3f)".format(selectedMove.winrate)
+      "picked=${selectedMove.move}(v=${selectedMove.visits},wr=${
+        formatDecimal(
+          selectedMove.winrate.toDouble(),
+          3,
+          '.'
+        )
+      })"
     }
     val move = Util.getCoordinatesFromGTP(selectedMove.move, position.boardHeight)
     val side = if (currentState.enginePlaysBlack) StoneType.BLACK else StoneType.WHITE
@@ -710,7 +726,7 @@ class AiGameViewModel(
 
     try {
       val analysis = withContext(Dispatchers.IO) {
-        kataGoAnalysisEngine.analyzeMoveSequence(
+        analysisEngine.analyzeMoveSequence(
           sequence = currentState.history,
           maxVisits = 10,
           komi = currentState.position.komi,
@@ -775,7 +791,7 @@ class AiGameViewModel(
     ownershipJob?.cancel()
     finalScoreJob?.cancel()
     applicationCoroutineScope.launch(Dispatchers.IO) {
-      kataGoAnalysisEngine.stop()
+      analysisEngine.stop()
     }
   }
 }

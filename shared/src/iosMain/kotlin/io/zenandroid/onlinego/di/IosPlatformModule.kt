@@ -5,6 +5,8 @@ import androidx.room.Room
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.engine.darwin.Darwin
+import io.zenandroid.onlinego.ai.AnalysisEngine
+import io.zenandroid.onlinego.ai.UnavailableAnalysisEngine
 import io.zenandroid.onlinego.data.db.Database
 import io.zenandroid.onlinego.data.ogs.KeyValueCookiePersistence
 import io.zenandroid.onlinego.data.ogs.SessionCookiePersistence
@@ -31,6 +33,7 @@ val iosPlatformModule = module {
   single(REVIEW_PROMPT_DATA_STORE) { preferencesDataStore("review_prompt", get()) }
   single(WHATS_NEW_DATA_STORE) { preferencesDataStore("whats_new", get()) }
   single<SoundLoader> { BundleSoundLoader }
+  single<AnalysisEngine> { UnavailableAnalysisEngine }
   single {
     Room.databaseBuilder<Database>(name = applicationSupportPath("database.db"))
       .setDriver(BundledSQLiteDriver())

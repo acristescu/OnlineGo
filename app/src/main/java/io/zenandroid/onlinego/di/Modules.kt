@@ -2,11 +2,11 @@ package io.zenandroid.onlinego.di
 
 import io.zenandroid.onlinego.BuildConfig
 import io.zenandroid.onlinego.OnlineGoApplication
+import io.zenandroid.onlinego.ai.AnalysisEngine
 import io.zenandroid.onlinego.ai.KataGoAnalysisEngine
 import io.zenandroid.onlinego.data.repositories.TutorialsSource
 import io.zenandroid.onlinego.playstore.PlayStoreService
 import io.zenandroid.onlinego.ui.screens.joseki.JosekiExplorerViewModel
-import io.zenandroid.onlinego.ui.screens.localai.AiGameViewModel
 import io.zenandroid.onlinego.ui.screens.main.MainActivityViewModel
 import io.zenandroid.onlinego.ui.screens.onboarding.OnboardingViewModel
 import io.zenandroid.onlinego.ui.screens.settings.SettingsViewModel
@@ -35,12 +35,11 @@ private val appModule = module {
   singleOf(::AppLocaleManager)
   singleOf(::NotificationUtils)
   single { GameNotificationCanceller { get<NotificationUtils>().cancelNotification(it.toInt()) } }
-  singleOf(::KataGoAnalysisEngine)
+  single<AnalysisEngine> { KataGoAnalysisEngine(get()) }
 }
 
 private val viewModelsModule = module {
   viewModelOf(::JosekiExplorerViewModel)
-  viewModelOf(::AiGameViewModel)
   viewModelOf(::StatsViewModel)
   viewModelOf(::OnboardingViewModel)
   viewModelOf(::SupporterViewModel)
