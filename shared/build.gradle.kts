@@ -69,6 +69,8 @@ kotlin {
       api(libs.kermit)
       api(libs.room.runtime)
       implementation(libs.androidx.collection)
+      implementation(libs.markdown.renderer.m3)
+      implementation(libs.jetbrains.markdown)
 
       api(libs.ktorfit.lib)
       api(libs.ktor.client.content.negotiation)

@@ -9,7 +9,7 @@ is no RxJava, no `Parcelable`, and Koin, Molecule, Room, DataStore, `ViewModel`,
 kotlinx-collections-immutable are already multiplatform. The cost is dominated by resources
 (663 strings x 16 locales) and the local-AI engine, which cannot run on iOS as built today.
 
-**Status.** Phases 0-3 are finished: forty-seven slices are done (section 6). Phases 0-2 have
+**Status.** Phases 0-3 are finished: forty-eight slices are done (section 6). Phases 0-2 have
 shipped in a release; Phase 3 has not, and several slices still need on-device checks (section 1.2).
 Phase 3 moved the Room
 database (6.25), the score estimator (6.26), `CrashReporter` (6.10), the HTTP client (6.27),
@@ -22,8 +22,8 @@ platforms, `BoardView` is gone (6.37) along with the resources and dependencies 
 (6.38), the board is common code with its assets (6.40), and so are the Material icons (6.41),
 the ViewModel plumbing, the theme and the first screen, Learn (6.42), then the puzzle screens,
 socket debug and the automatch sheet (6.43), the tutorial and face-to-face screens (6.44), and the
-My Games tab with new challenges and What's new (6.45), the game screen (6.46) and the AI game
-(6.47). Phase 5 has not started.
+My Games tab with new challenges and What's new (6.45), the game screen (6.46), the AI game
+(6.47), and the Joseki explorer with the bottom bar (6.48). Phase 5 has not started.
 
 Earlier, longer versions of this document:
 `git show d529259:docs/KMP_MIGRATION_ASSESSMENT.md` (original assessment) and
@@ -75,7 +75,9 @@ notification disappearing when it opens, a link from a game, chat, player detail
 game-over dialog with its rating. After 6.47: KataGo starting and an AI game played. KO, the resign
 offer and
 restore were not checked one by one: the move moved the code unchanged, and their logic is
-covered by `AiGameViewModelTest`, which now runs on both platforms.
+covered by `AiGameViewModelTest`, which now runs on both platforms. After 6.48: the Joseki root
+description, a position with YouTube links (the "(video)" label, the link colour in light and
+dark), a link opening YouTube, and the bottom bar.
 
 Still owed - unit tests cannot reach these:
 
@@ -92,6 +94,8 @@ Still owed - unit tests cannot reach these:
   re-renders every screen; the launcher name; plurals
   ("3 games"); a tutorial; Joseki link labels; the stats chart tooltip; the What's new sheet shows
   the Portuguese item.
+- [ ] **Joseki position links** (6.48): a `Position:` / node-id / `online-go.com/joseki/` link
+  in a description loads that position in place. None of the positions sampled had one.
 - [ ] **The review prompt after a win** (6.46): now requested through `ReviewRequester`, which
   `MainActivity` provides. Not reproducible on the developer account, which has hit Play's quota.
 
@@ -100,7 +104,7 @@ Still owed - unit tests cannot reach these:
 | Phase                              | Work                                                                                                                                                                                                                                                                                                     | Estimate                        |
 |------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------|
 | **3 - data layer to `commonMain`** | Done (6.25, 6.27-6.32). Left for the iOS app: the Swift `Analytics`, `AppDataEraser` and `TutorialsSource` and `GameNotificationCanceller` passed to `initKoin()`, a real iOS `CrashReporter`, the iOS HTML placeholder (6.43), Coil's Ktor network fetcher (6.45), and an iOS `ReviewRequester` (6.46). | done                            |
-| **4 - Compose Multiplatform**      | UI into `:shared/commonMain`, screen by screen. Resources (4.2), chart, markdown. Done: the board (6.40), icons (6.41), ViewModel plumbing, theme, Learn (6.42), puzzles, socket debug, automatch (6.43), tutorial, face-to-face (6.44), My Games (6.45), game (6.46), AI game (6.47).                   | 6-10 weeks (resources dominate) |
+| **4 - Compose Multiplatform**      | UI into `:shared/commonMain`, screen by screen. Resources (4.2), chart, markdown. Done: the board (6.40), icons (6.41), ViewModel plumbing, theme, Learn (6.42), puzzles, socket debug, automatch (6.43), tutorial, face-to-face (6.44), My Games (6.45), game (6.46), AI game (6.47), Joseki (6.48).    | 6-10 weeks (resources dominate) |
 | **5 - iOS app**                    | SwiftUI shell + `ComposeUIViewController`, notifications, background refresh, billing, Google sign-in, App Store plumbing. Bitrise needs a macOS stack.                                                                                                                                                  | 4-8 weeks, excluding local AI   |
 
 Estimates are order-of-magnitude, single developer. The one data point so far: the serialization
@@ -145,12 +149,11 @@ appears, or local AI needs Play Feature Delivery for its 265 MB of assets. Basel
 `HTTPConnectionFactory` (6.23), Firebase Analytics and Crashlytics in common code (6.9, 6.10),
 DataStore (6.28), `BoardView` (6.37), `lifecycle-extensions` and `firebase-messaging` (6.38),
 `material-icons-extended` (6.41), `koin-androidx-compose` and Molecule's `AndroidUiDispatcher` (
-6.42).
+6.42), Markwon (6.48).
 
 | Dependency                                      | Replacement                                                                                           | When                |
 |-------------------------------------------------|-------------------------------------------------------------------------------------------------------|---------------------|
 | MPAndroidChart                                  | Vico 2.x / KoalaPlot / Compose `Canvas`; confined to `ChartWrapper.kt` (416 LOC)                      | Phase 4             |
-| Markwon                                         | `multiplatform-markdown-renderer-m3` (`JosekiExplorerUI`, ~90 LOC)                                    | Phase 4             |
 | navigation-compose (androidx)                   | `org.jetbrains.androidx.navigation`; routes are already `@Serializable` (6.19)                        | Phase 4             |
 | Android resources (`R.*`)                       | Strings (6.36), UI drawables (6.39) and board assets (6.40) done; colors and raw still `R.*`          | Phase 4             |
 | `AppLocaleManager`                              | `expect`/`actual`; iOS writes `AppleLanguages` and needs a restart                                    | Phase 4             |
@@ -213,8 +216,8 @@ twins, and so are the board assets (6.40), apart from the stone vectors' Android
 `renderBoard`. Still Android resources:
 
 - **Colors** - CMP has no color resources. Left: the window theme's (`styles.xml`),
-  `colorTextSecondary` (notifications), `colorPrimaryDark` (Markwon) and `rankGraphLine`
-  (MPAndroidChart); the last two go with their libraries.
+  `colorTextSecondary` (notifications) and `rankGraphLine` (MPAndroidChart), which goes with its
+  library.
 - **Platform-bound** - launcher icons, the notification icon, `notification_board.xml`
   (`RemoteViews`) and the two `.pem` files (`network_security_config.xml`). The stone sound is
   `composeResources/files/stone.wav` since 6.46.
@@ -237,8 +240,8 @@ twins, and so are the board assets (6.40), apart from the stone vectors' Android
 ## 6. Done - what is still load-bearing
 
 Only traps, deliberate behaviour changes, and decisions that look wrong but are not. Unit tests
-stand at 193: 136 in `:shared` host tests (120 of them in `commonTest`, which also run on the iOS
-simulator), 42 in `:shared` `iosTest` (simulator only), 15 in `:app`.
+stand at 201: 143 in `:shared` host tests (127 of them in `commonTest`, which also run on the iOS
+simulator), 43 in `:shared` `iosTest` (simulator only), 15 in `:app`.
 
 ### 6.1 Moshi to kotlinx.serialization
 
@@ -1084,3 +1087,36 @@ test-local class.
 - JVM leftovers: two debug-only win-rate logs used `"%.3f".format`; they use the internal
   `formatDecimal(value, 3, '.')`.
 - **Compose report:** 258 rows (206 in `:shared`), 6 unstable parameters, unchanged.
+
+### 6.48 The Joseki explorer and the bottom bar in `commonMain`
+
+- `JosekiExplorerUI`, `JosekiExplorerViewModel`, `JosekiExplorerState`, `SenteBottomNavigationBar`
+  and `Route` are in `commonMain`, same packages. `BottomNavItem` moved from `Navigation.kt` into
+  the bottom bar's file. `JosekiExplorerViewModel` is registered in `sharedModule`.
+- **Markwon became `multiplatform-markdown-renderer-m3`** (0.46.0) with the **CommonMark flavour**,
+  the dialect Markwon's core parsed. GFM would also turn bare URLs into links and parse tables. Kept
+  from Markwon: 14 sp body text, headings at Markwon's scale (2x to 0.67x, bold), and underlined
+  links in `colorPrimaryDark`'s two values. The light value is `darkBlue`, the dark one is the new
+  `nightDarkBlue`, picked by `LocalThemeSettings.isDarkTheme`. `colorPrimaryDark` is gone.
+  `rememberMarkdownState(retainState = true)` keeps the old description on screen while the next
+  one parses, so changing position doesn't flash. The renderer's default `animateContentSize()` on
+  each text block is turned off (`markdownAnimations(animateTextSize = { this })`): with the old
+  description retained, a heading that changes size between positions animated to its new size.
+- **Links** (`JosekiLinks.kt`): `josekiLinkOf` sorts a destination into a position (`Position:N`,
+  a bare node id, an `online-go.com/joseki/N` URL), a YouTube video or an external link. URLs are
+  parsed with Ktor's `parseUrl`. Clicks go through a `UriHandler` provided around the markdown:
+  positions load in place and everything else goes to the platform handler. Behaviour changes: a
+  joseki URL without a numeric last segment is logged instead of crashing on `toLong()`, and
+  external links no longer pass `Browser.EXTRA_APPLICATION_ID`.
+- **Link labels**: Markwon appended "(video)" / "(external link)" to the link node. Now
+  `labelJosekiLinks` parses the markdown with the same parser and inserts the label before each
+  inline link's closing `]`, so the label is part of the link, as before. **Only inline links get
+  a label.** In 40 sampled positions every link was an inline link, so reference links and
+  `<autolinks>` still work but get no label.
+- The load error is logged and sent to `CrashReporter` from the ViewModel, once per error. It used
+  to be logged in the `AndroidView` update block on every recomposition.
+- `JosekiLinksTest` (`commonTest`) covers the link classification and labels; `iosTest/.../
+  JosekiExplorerScreenTest` renders a stored position's markdown with its label on the simulator.
+  R8 passes on the release build with no new rules.
+- **Compose report:** 260 rows (220 in `:shared`), 6 unstable parameters. The two new rows are
+  `DescriptionMarkdown` and `descriptionTextStyle`.

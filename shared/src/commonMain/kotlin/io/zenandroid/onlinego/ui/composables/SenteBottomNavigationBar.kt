@@ -31,6 +31,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
@@ -38,6 +39,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.layout.layout
@@ -56,7 +58,6 @@ import io.zenandroid.onlinego.resources.ic_board_filled
 import io.zenandroid.onlinego.resources.ic_diagram
 import io.zenandroid.onlinego.resources.ic_learn
 import io.zenandroid.onlinego.resources.ic_settings_filled
-import io.zenandroid.onlinego.ui.screens.main.BottomNavItem
 import io.zenandroid.onlinego.ui.screens.main.Route
 import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
 import org.jetbrains.compose.resources.stringResource
@@ -302,3 +303,11 @@ private fun DSBottomBarPreviewCollapsed() {
     }
   }
 }
+
+@Immutable
+data class BottomNavItem(
+  val route: Route,
+  val label: String,
+  val icon: ImageVector,
+  val enabled: Boolean = true
+)

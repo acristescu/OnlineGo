@@ -22,7 +22,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -31,7 +30,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.compose.NavHost
@@ -53,6 +51,7 @@ import io.zenandroid.onlinego.resources.ic_learn
 import io.zenandroid.onlinego.resources.ic_settings_filled
 import io.zenandroid.onlinego.resources.stats_login_required_message
 import io.zenandroid.onlinego.resources.stats_login_required_title
+import io.zenandroid.onlinego.ui.composables.BottomNavItem
 import io.zenandroid.onlinego.ui.composables.SenteBottomBar
 import io.zenandroid.onlinego.ui.screens.face2face.FaceToFaceScreen
 import io.zenandroid.onlinego.ui.screens.game.GameScreen
@@ -375,11 +374,3 @@ private fun StatsLoginRequiredBottomSheet(
     }
   }
 }
-
-@Immutable
-data class BottomNavItem(
-  val route: Route,
-  val label: String,
-  val icon: ImageVector,
-  val enabled: Boolean = true
-)

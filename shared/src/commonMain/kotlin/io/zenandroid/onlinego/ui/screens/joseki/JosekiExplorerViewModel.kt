@@ -2,6 +2,7 @@ package io.zenandroid.onlinego.ui.screens.joseki
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import co.touchlab.kermit.Logger
 import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.data.model.Position
 import io.zenandroid.onlinego.data.model.ogs.JosekiPosition
@@ -10,14 +11,18 @@ import io.zenandroid.onlinego.gamelogic.RulesManager.coordinateToCell
 import io.zenandroid.onlinego.resources.Res
 import io.zenandroid.onlinego.resources.joseki_explorer_default_description
 import io.zenandroid.onlinego.utils.Analytics
+import io.zenandroid.onlinego.utils.CrashReporter
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+
+private const val TAG = "JosekiExplorer"
 
 class JosekiExplorerViewModel(
     private val josekiRepository: JosekiRepository,
@@ -196,6 +201,8 @@ class JosekiExplorerViewModel(
         if (error is CancellationException) {
             throw error
         }
+      Logger.e(error.message ?: "Unknown error", error, TAG)
+      CrashReporter.recordException(error)
         analytics.logEvent(
             "joseki_loading_error",
             mapOf(

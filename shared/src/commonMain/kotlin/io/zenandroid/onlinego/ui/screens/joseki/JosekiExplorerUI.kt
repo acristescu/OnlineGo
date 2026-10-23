@@ -1,11 +1,5 @@
 package io.zenandroid.onlinego.ui.screens.joseki
 
-import android.content.ActivityNotFoundException
-import android.content.Context
-import android.content.Intent
-import android.provider.Browser
-import android.view.View
-import android.widget.TextView
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -14,6 +8,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.rounded.Pause
@@ -27,28 +23,29 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.platform.UriHandler
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextLinkStyles
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.viewinterop.AndroidView
-import androidx.core.content.res.ResourcesCompat
-import androidx.core.net.toUri
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import co.touchlab.kermit.Logger
-import io.noties.markwon.AbstractMarkwonPlugin
-import io.noties.markwon.Markwon
-import io.noties.markwon.MarkwonConfiguration
-import io.noties.markwon.core.MarkwonTheme
-import io.noties.markwon.movement.MovementMethodPlugin
-import io.zenandroid.onlinego.R
+import com.mikepenz.markdown.m3.Markdown
+import com.mikepenz.markdown.m3.markdownColor
+import com.mikepenz.markdown.m3.markdownTypography
+import com.mikepenz.markdown.model.markdownAnimations
+import com.mikepenz.markdown.model.rememberMarkdownState
 import io.zenandroid.onlinego.data.model.Cell
 import io.zenandroid.onlinego.resources.Res
 import io.zenandroid.onlinego.resources.back
@@ -63,12 +60,11 @@ import io.zenandroid.onlinego.ui.composables.Board
 import io.zenandroid.onlinego.ui.composables.BottomBar
 import io.zenandroid.onlinego.ui.composables.BottomBarButton
 import io.zenandroid.onlinego.ui.composables.isLandscape
+import io.zenandroid.onlinego.ui.theme.LocalThemeSettings
 import io.zenandroid.onlinego.ui.theme.OnlineGoPreviewTheme
-import io.zenandroid.onlinego.utils.CrashReporter
-import org.commonmark.node.AbstractVisitor
-import org.commonmark.node.Link
-import org.commonmark.node.Node
-import org.commonmark.node.Text
+import io.zenandroid.onlinego.ui.theme.darkBlue
+import io.zenandroid.onlinego.ui.theme.nightDarkBlue
+import org.intellij.markdown.flavours.commonmark.CommonMarkFlavourDescriptor
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
@@ -270,135 +266,104 @@ private fun DescriptionView(
   loadPosition: (Long?) -> Unit,
   modifier: Modifier = Modifier
 ) {
-  val textColor = MaterialTheme.colorScheme.onSurface.toArgb()
-  val backgroundColor = MaterialTheme.colorScheme.surface.toArgb()
-
   val markdown = when (description) {
     is JosekiDescription.Markdown -> description.markdown
     is JosekiDescription.FromResource -> stringResource(description.resId)
-    null -> null
+    null -> ""
   }
-
-  val context = LocalContext.current
   val videoLabel = stringResource(Res.string.joseki_explorer_link_video)
   val externalLabel = stringResource(Res.string.joseki_explorer_link_external)
-  val markwon = remember(context, nodeId, videoLabel, externalLabel) {
-    buildMarkwon(context, nodeId, loadPosition, videoLabel, externalLabel)
+  val labelledMarkdown = remember(markdown, videoLabel, externalLabel) {
+    labelJosekiLinks(markdown, videoLabel, externalLabel)
   }
 
-  AndroidView(
-    factory = { context ->
-      TextView(context).apply {
-        setPadding(16, 16, 16, 16)
-        setTextColor(textColor)
-        setBackgroundColor(backgroundColor)
-        textSize = 14f
-        isVerticalScrollBarEnabled = true
-        scrollBarStyle = View.SCROLLBARS_INSIDE_INSET
-      }
-    },
-    update = { textView ->
-      when {
-        error != null -> {
-          textView.text = error.message
-          Logger.e(error.message ?: "Unknown error", error, TAG)
-          CrashReporter.recordException(error)
-        }
+  val platformUriHandler = LocalUriHandler.current
+  val uriHandler = remember(platformUriHandler, nodeId, loadPosition) {
+    JosekiUriHandler(platformUriHandler, nodeId, loadPosition)
+  }
 
-        markdown != null -> {
-          markwon.setMarkdown(textView, markdown)
-        }
-
-        else -> {
-          textView.text = ""
-        }
-      }
-    },
+  Column(
     modifier = modifier
+      .verticalScroll(rememberScrollState())
+      .padding(8.dp)
+  ) {
+    if (error != null) {
+      Text(
+        text = error.message.orEmpty(),
+        style = descriptionTextStyle(),
+      )
+    } else {
+      CompositionLocalProvider(LocalUriHandler provides uriHandler) {
+        DescriptionMarkdown(labelledMarkdown)
+      }
+    }
+  }
+}
+
+@Composable
+private fun DescriptionMarkdown(markdown: String) {
+  val flavour = remember { CommonMarkFlavourDescriptor() }
+  val markdownState = rememberMarkdownState(markdown, retainState = true, flavour = flavour)
+  val text = descriptionTextStyle()
+  val linkColor = if (LocalThemeSettings.current.isDarkTheme) nightDarkBlue else darkBlue
+  val heading =
+    { scale: Float -> text.copy(fontSize = text.fontSize * scale, fontWeight = FontWeight.Bold) }
+  Markdown(
+    markdownState = markdownState,
+    colors = markdownColor(text = text.color),
+    typography = markdownTypography(
+      h1 = heading(2f),
+      h2 = heading(1.5f),
+      h3 = heading(1.17f),
+      h4 = heading(1f),
+      h5 = heading(.83f),
+      h6 = heading(.67f),
+      text = text,
+      paragraph = text,
+      ordered = text,
+      bullet = text,
+      list = text,
+      quote = text.copy(fontStyle = FontStyle.Italic),
+      textLink = TextLinkStyles(
+        SpanStyle(
+          color = linkColor,
+          textDecoration = TextDecoration.Underline
+        )
+      ),
+    ),
+    animations = markdownAnimations(animateTextSize = { this }),
+    modifier = Modifier.fillMaxWidth(),
   )
 }
 
-private fun buildMarkwon(
-  context: Context,
-  nodeId: Long?,
-  loadPosition: (Long?) -> Unit,
-  videoLabel: String,
-  externalLabel: String,
-): Markwon {
-  return Markwon.builder(context)
-    .usePlugin(MovementMethodPlugin.create())
-    .usePlugin(object : AbstractMarkwonPlugin() {
-      override fun configureTheme(builder: MarkwonTheme.Builder) {
-        builder
-          .linkColor(
-            ResourcesCompat.getColor(
-              context.resources,
-              R.color.colorPrimaryDark,
-              context.theme
-            )
-          )
-          .headingBreakColor(0x00FF0000)
+@Composable
+private fun descriptionTextStyle() =
+  MaterialTheme.typography.bodyMedium.copy(
+    fontSize = 14.sp,
+    color = MaterialTheme.colorScheme.onSurface
+  )
+
+private class JosekiUriHandler(
+  private val platformUriHandler: UriHandler,
+  private val nodeId: Long?,
+  private val loadPosition: (Long?) -> Unit,
+) : UriHandler {
+  override fun openUri(uri: String) {
+    val link = josekiLinkOf(uri)
+    if (link is JosekiLink.Position) {
+      if (link.nodeId != null) {
+        loadPosition(link.nodeId)
+      } else {
+        Logger.e("Can't resolve link $uri in the description of joseki pos $nodeId", tag = TAG)
       }
-
-      override fun beforeRender(node: Node) {
-        node.accept(object : AbstractVisitor() {
-          override fun visit(link: Link) {
-            val uri = link.destination.toUri()
-            when {
-              link.destination.startsWith("Position:")
-                  || link.destination.matches("\\d+".toRegex())
-                  || (uri.host?.endsWith("online-go.com") == true && uri.path?.startsWith("/joseki/") == true) -> {
-              }
-
-              uri.host == "youtube.com" || uri.host == "youtu.be" || uri.host == "www.youtube.com" -> {
-                link.appendChild(Text(" $videoLabel"))
-              }
-
-              else -> {
-                link.appendChild(Text(" $externalLabel"))
-              }
-            }
-          }
-        })
-        super.beforeRender(node)
+    } else {
+      try {
+        platformUriHandler.openUri(uri)
+      } catch (_: IllegalArgumentException) {
+        Logger.e("Can't open link $uri in the description of joseki pos $nodeId", tag = TAG)
       }
-
-      override fun configureConfiguration(builder: MarkwonConfiguration.Builder) {
-        builder.linkResolver { view, link ->
-          if (link.startsWith("Position:")) {
-            val posId = link.substring(9).toLongOrNull()
-            if (posId == null) {
-              Logger.e(
-                "Can't resolve link $link for in the description of joseki pos $nodeId",
-                tag = TAG
-              )
-            } else {
-              loadPosition(posId)
-            }
-          } else if (link.matches("\\d+".toRegex())) {
-            loadPosition(link.toLong())
-          } else {
-            val uri = link.toUri()
-            if (uri.host?.endsWith("online-go.com") == true && uri.path?.startsWith("/joseki/") == true) {
-              loadPosition(uri.lastPathSegment?.toLong())
-            } else {
-              val context = view.context
-              val intent = Intent(Intent.ACTION_VIEW, uri)
-              intent.putExtra(Browser.EXTRA_APPLICATION_ID, context.packageName)
-              try {
-                context.startActivity(intent)
-              } catch (_: ActivityNotFoundException) {
-                Logger.e(
-                  "Can't resolve link $link for in the description of joseki pos $nodeId",
-                  tag = TAG
-                )
-              }
-            }
-          }
-        }
-      }
-    })
-    .build()
+    }
+  }
 }
 
 sealed class Button(

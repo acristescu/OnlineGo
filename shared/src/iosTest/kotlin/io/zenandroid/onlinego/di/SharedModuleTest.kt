@@ -43,6 +43,7 @@ import io.zenandroid.onlinego.ui.composables.BundleSoundLoader
 import io.zenandroid.onlinego.ui.composables.SoundLoader
 import io.zenandroid.onlinego.ui.screens.automatch.NewAutomatchChallengeViewModel
 import io.zenandroid.onlinego.ui.screens.game.GameViewModel
+import io.zenandroid.onlinego.ui.screens.joseki.JosekiExplorerViewModel
 import io.zenandroid.onlinego.ui.screens.learn.LearnViewModel
 import io.zenandroid.onlinego.ui.screens.localai.AiGameViewModel
 import io.zenandroid.onlinego.ui.screens.mygames.MyGamesViewModel
@@ -137,6 +138,7 @@ class SharedModuleTest {
     }
       .viewModelScope.cancel()
     koin.get<AiGameViewModel>().viewModelScope.cancel()
+    koin.get<JosekiExplorerViewModel>().viewModelScope.cancel()
     koin.get<WhatsNewUtils>()
     assertEquals(9, koin.get<List<SocketConnectedRepository>>().size)
   }

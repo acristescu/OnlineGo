@@ -5,6 +5,7 @@ import androidx.compose.ui.graphics.Color
 val mainBlue = Color(0xFF79B3E4)
 val nightBlue = Color(0xFF389FFF)
 val darkBlue = Color(0xFF2588C9)
+val nightDarkBlue = Color(0xFF0E71C8)
 val salmon = Color(0xFFED7861)
 val background = Color(0xFFF2F4F7)
 val lightOnSurface = Color(0xFF212121)

@@ -43,7 +43,8 @@ ktorfit = "2.7.5"
 ktorVersion = "3.5.2"
 
 # Utility libraries
-markwon = "4.6.2"
+markdownRenderer = "0.46.0"
+jetbrainsMarkdown = "0.7.17"
 kermit = "2.2.0"
 kotlinxDatetime = "0.8.0"
 billing = "9.1.0"
@@ -158,7 +159,8 @@ coil-network-okhttp = { group = "io.coil-kt.coil3", name = "coil-network-okhttp"
 
 # Utility
 immutable-collections = { group = "org.jetbrains.kotlinx", name = "kotlinx-collections-immutable", version.ref = "immutableCollections" }
-markwon = { group = "io.noties.markwon", name = "core", version.ref = "markwon" }
+markdown-renderer-m3 = { group = "com.mikepenz", name = "multiplatform-markdown-renderer-m3", version.ref = "markdownRenderer" }
+jetbrains-markdown = { group = "org.jetbrains", name = "markdown", version.ref = "jetbrainsMarkdown" }
 kermit = { group = "co.touchlab", name = "kermit", version.ref = "kermit" }
 kotlinx-datetime = { group = "org.jetbrains.kotlinx", name = "kotlinx-datetime", version.ref = "kotlinxDatetime" }
 billing-ktx = { group = "com.android.billingclient", name = "billing-ktx", version.ref = "billing" }
