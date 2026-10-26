@@ -51,7 +51,6 @@ billing = "9.1.0"
 desugar = "2.1.5"
 espresso = "3.7.0"
 immutableCollections = "0.4.0"
-mpChart = "v3.1.0"
 playReview = "2.0.2"
 
 # Testing
@@ -165,7 +164,6 @@ kermit = { group = "co.touchlab", name = "kermit", version.ref = "kermit" }
 kotlinx-datetime = { group = "org.jetbrains.kotlinx", name = "kotlinx-datetime", version.ref = "kotlinxDatetime" }
 billing-ktx = { group = "com.android.billingclient", name = "billing-ktx", version.ref = "billing" }
 desugar-jdk-libs = { group = "com.android.tools", name = "desugar_jdk_libs", version.ref = "desugar" }
-mp-android-chart = { group = "com.github.PhilJay", name = "MPAndroidChart", version.ref = "mpChart" }
 espresso-idling-resource = { group = "androidx.test.espresso", name = "espresso-idling-resource", version.ref = "espresso" }
 
 # Testing

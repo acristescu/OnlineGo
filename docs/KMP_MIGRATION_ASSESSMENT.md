@@ -9,7 +9,7 @@ is no RxJava, no `Parcelable`, and Koin, Molecule, Room, DataStore, `ViewModel`,
 kotlinx-collections-immutable are already multiplatform. The cost is dominated by resources
 (663 strings x 16 locales) and the local-AI engine, which cannot run on iOS as built today.
 
-**Status.** Phases 0-3 are finished: forty-eight slices are done (section 6). Phases 0-2 have
+**Status.** Phases 0-3 are finished: forty-nine slices are done (section 6). Phases 0-2 have
 shipped in a release; Phase 3 has not, and several slices still need on-device checks (section 1.2).
 Phase 3 moved the Room
 database (6.25), the score estimator (6.26), `CrashReporter` (6.10), the HTTP client (6.27),
@@ -23,7 +23,8 @@ platforms, `BoardView` is gone (6.37) along with the resources and dependencies 
 the ViewModel plumbing, the theme and the first screen, Learn (6.42), then the puzzle screens,
 socket debug and the automatch sheet (6.43), the tutorial and face-to-face screens (6.44), and the
 My Games tab with new challenges and What's new (6.45), the game screen (6.46), the AI game
-(6.47), and the Joseki explorer with the bottom bar (6.48). Phase 5 has not started.
+(6.47), the Joseki explorer with the bottom bar (6.48), and the rank chart on a Compose `Canvas`
+(6.49). Phase 5 has not started.
 
 Earlier, longer versions of this document:
 `git show d529259:docs/KMP_MIGRATION_ASSESSMENT.md` (original assessment) and
@@ -98,14 +99,18 @@ Still owed - unit tests cannot reach these:
   in a description loads that position in place. None of the positions sampled had one.
 - [ ] **The review prompt after a win** (6.46): now requested through `ReviewRequester`, which
   `MainActivity` provides. Not reproducible on the developer account, which has hit Play's quota.
+- [ ] **The rank chart** (6.49), logged in, light and dark: line and fill colours, the rise on
+  first show, dragging moves the crosshair and the tooltip (date in `de`, game number with "by
+  games" on), release brings back the summary, a drag on the chart doesn't scroll the screen,
+  every range tab, a one-game range, and the empty placeholder.
 
 ### 1.3 Phases 3-5
 
-| Phase                              | Work                                                                                                                                                                                                                                                                                                     | Estimate                        |
-|------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------|
-| **3 - data layer to `commonMain`** | Done (6.25, 6.27-6.32). Left for the iOS app: the Swift `Analytics`, `AppDataEraser` and `TutorialsSource` and `GameNotificationCanceller` passed to `initKoin()`, a real iOS `CrashReporter`, the iOS HTML placeholder (6.43), Coil's Ktor network fetcher (6.45), and an iOS `ReviewRequester` (6.46). | done                            |
-| **4 - Compose Multiplatform**      | UI into `:shared/commonMain`, screen by screen. Resources (4.2), chart, markdown. Done: the board (6.40), icons (6.41), ViewModel plumbing, theme, Learn (6.42), puzzles, socket debug, automatch (6.43), tutorial, face-to-face (6.44), My Games (6.45), game (6.46), AI game (6.47), Joseki (6.48).    | 6-10 weeks (resources dominate) |
-| **5 - iOS app**                    | SwiftUI shell + `ComposeUIViewController`, notifications, background refresh, billing, Google sign-in, App Store plumbing. Bitrise needs a macOS stack.                                                                                                                                                  | 4-8 weeks, excluding local AI   |
+| Phase                              | Work                                                                                                                                                                                                                                                                                                                     | Estimate                        |
+|------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------|
+| **3 - data layer to `commonMain`** | Done (6.25, 6.27-6.32). Left for the iOS app: the Swift `Analytics`, `AppDataEraser` and `TutorialsSource` and `GameNotificationCanceller` passed to `initKoin()`, a real iOS `CrashReporter`, the iOS HTML placeholder (6.43), Coil's Ktor network fetcher (6.45), and an iOS `ReviewRequester` (6.46).                 | done                            |
+| **4 - Compose Multiplatform**      | UI into `:shared/commonMain`, screen by screen. Resources (4.2), chart, markdown. Done: the board (6.40), icons (6.41), ViewModel plumbing, theme, Learn (6.42), puzzles, socket debug, automatch (6.43), tutorial, face-to-face (6.44), My Games (6.45), game (6.46), AI game (6.47), Joseki (6.48), rank chart (6.49). | 6-10 weeks (resources dominate) |
+| **5 - iOS app**                    | SwiftUI shell + `ComposeUIViewController`, notifications, background refresh, billing, Google sign-in, App Store plumbing. Bitrise needs a macOS stack.                                                                                                                                                                  | 4-8 weeks, excluding local AI   |
 
 Estimates are order-of-magnitude, single developer. The one data point so far: the serialization
 slice came in on time only because the golden-JSON corpus was dropped, which moved verification
@@ -149,11 +154,10 @@ appears, or local AI needs Play Feature Delivery for its 265 MB of assets. Basel
 `HTTPConnectionFactory` (6.23), Firebase Analytics and Crashlytics in common code (6.9, 6.10),
 DataStore (6.28), `BoardView` (6.37), `lifecycle-extensions` and `firebase-messaging` (6.38),
 `material-icons-extended` (6.41), `koin-androidx-compose` and Molecule's `AndroidUiDispatcher` (
-6.42), Markwon (6.48).
+6.42), Markwon (6.48), MPAndroidChart and JitPack (6.49).
 
 | Dependency                                      | Replacement                                                                                           | When                |
 |-------------------------------------------------|-------------------------------------------------------------------------------------------------------|---------------------|
-| MPAndroidChart                                  | Vico 2.x / KoalaPlot / Compose `Canvas`; confined to `ChartWrapper.kt` (416 LOC)                      | Phase 4             |
 | navigation-compose (androidx)                   | `org.jetbrains.androidx.navigation`; routes are already `@Serializable` (6.19)                        | Phase 4             |
 | Android resources (`R.*`)                       | Strings (6.36), UI drawables (6.39) and board assets (6.40) done; colors and raw still `R.*`          | Phase 4             |
 | `AppLocaleManager`                              | `expect`/`actual`; iOS writes `AppleLanguages` and needs a restart                                    | Phase 4             |
@@ -216,8 +220,7 @@ twins, and so are the board assets (6.40), apart from the stone vectors' Android
 `renderBoard`. Still Android resources:
 
 - **Colors** - CMP has no color resources. Left: the window theme's (`styles.xml`),
-  `colorTextSecondary` (notifications) and `rankGraphLine` (MPAndroidChart), which goes with its
-  library.
+  and `colorTextSecondary` (notifications).
 - **Platform-bound** - launcher icons, the notification icon, `notification_board.xml`
   (`RemoteViews`) and the two `.pem` files (`network_security_config.xml`). The stone sound is
   `composeResources/files/stone.wav` since 6.46.
@@ -1120,3 +1123,30 @@ test-local class.
   R8 passes on the release build with no new rules.
 - **Compose report:** 260 rows (220 in `:shared`), 6 unstable parameters. The two new rows are
   `DescriptionMarkdown` and `descriptionTextStyle`.
+
+### 6.49 The rank chart on a Compose `Canvas`
+
+- **MPAndroidChart is gone, replaced by `RankChart` in `ChartWrapper.kt`, a `Canvas`; no
+  chart library.** Every axis, label, grid, legend and marker was switched off, so the chart was
+  one line, a gradient fill and a crosshair. Vico or KoalaPlot would have been configured to
+  turn features off, and the tooltip was custom either way. JitPack served only MPAndroidChart and
+  is gone from `settings.gradle.kts`.
+- Kept: the 1.3 dp line in `rankGraphLine`'s two values (`salmon` at 40% in light, `nightBlue` in
+  dark), the vertical gradient to transparent over the full height, the y range from
+  `0.85 * min` with MPAndroidChart's 10% top headroom, the grey 0.7 dp crosshair dashed 7/2 px
+  (MPAndroidChart passed raw pixels, not dp), and a 250 ms linear rise on first show.
+- **Selection** picks the point with the nearest x, on touch-down and on every move, and clears
+  on release. The chart consumes its pointer events, so the parent's `verticalScroll` no longer
+  needs the `disableScroll` callback. The static `ChartValueSelectedListener`, which held the
+  `LineChart`, is gone: the tooltip is derived from the selected index, or else the summary.
+- **Pinch-zoom is dropped.** MPAndroidChart enabled it by default and nothing surfaced it. With
+  no axis labels a zoomed chart had no scale, and the range tabs cover narrowing.
+- Removed as dead: `DayAxisValueFormatter` (x labels were off), the idempotent
+  `onFilterChanged(filter)` in the `update` block, `rankGraphLine`, and `stats_no_ranked_games`
+  (MPAndroidChart's no-data text, never shown because the placeholder image covers the empty
+  case).
+- `formatMediumDate` (`ui/composables/LocalizedDates.kt`) is an `expect`/`actual` like
+  `decimalSeparator()`: `DateUtils` on Android as before, `NSDateFormatter` medium style on iOS.
+  It is public until Stats moves to `commonMain`, then `internal`. `ChartWrapper` has no
+  `android.*` imports left.
+- R8 passes on the release build with no rule changes.

@@ -12,5 +12,4 @@
     <color name="colorAccent">#389FFF</color>
     <color name="colorOffWhite">#000000</color>
 
-    <color name="rankGraphLine">@color/colorActionableText</color>
 </resources>

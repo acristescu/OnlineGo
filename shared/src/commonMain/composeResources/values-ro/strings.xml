@@ -424,7 +424,6 @@
         <item quantity="few">%1$d înfrângeri</item>
         <item quantity="other">%1$d de înfrângeri</item>
     </plurals>
-    <string name="stats_no_ranked_games">Nu există jocuri oficiale înregistrate</string>
     <string name="stats_filter_1m">1L</string>
     <string name="stats_filter_3m">3L</string>
     <string name="stats_filter_1y">1A</string>

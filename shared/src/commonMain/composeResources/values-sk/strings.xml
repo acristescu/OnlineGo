@@ -436,7 +436,6 @@
         <item quantity="many">%1$d prehry</item>
         <item quantity="other">%1$d prehier</item>
     </plurals>
-    <string name="stats_no_ranked_games">Žiadne hodnotené hry v záznamoch</string>
     <string name="stats_filter_1m">1M</string>
     <string name="stats_filter_3m">3M</string>
     <string name="stats_filter_1y">1R</string>

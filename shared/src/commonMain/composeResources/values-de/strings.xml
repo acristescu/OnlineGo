@@ -384,7 +384,6 @@
         <item quantity="one">%1$d Niederlage</item>
         <item quantity="other">%1$d Niederlagen</item>
     </plurals>
-    <string name="stats_no_ranked_games">Keine gewerteten Spiele verzeichnet</string>
     <string name="stats_filter_1m">1M</string>
     <string name="stats_filter_3m">3M</string>
     <string name="stats_filter_1y">1J</string>

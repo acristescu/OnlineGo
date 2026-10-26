@@ -158,7 +158,6 @@ dependencies {
   implementation(libs.kermit)
   implementation(libs.kotlinx.datetime)
   implementation(libs.billing.ktx)
-  implementation(libs.mp.android.chart)
 
   // Core Library Desugaring
   coreLibraryDesugaring(libs.desugar.jdk.libs)

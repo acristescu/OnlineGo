@@ -22,9 +22,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -105,7 +102,6 @@ private fun StatsContent(
   onGraphChanged: () -> Unit,
   onBottomBarCollapseChanged: (Boolean) -> Unit = {},
 ) {
-  var scrollEnabled by remember { mutableStateOf(true) }
   val scrollState = rememberScrollState()
   val bottomBarCollapsed = scrollState.isCollapseTriggered()
   LaunchedEffect(bottomBarCollapsed) { onBottomBarCollapseChanged(bottomBarCollapsed) }
@@ -113,10 +109,7 @@ private fun StatsContent(
     modifier = Modifier
       .fillMaxSize()
       .background(MaterialTheme.colorScheme.background)
-      .verticalScroll(
-        state = scrollState,
-        enabled = scrollEnabled,
-      )
+      .verticalScroll(scrollState)
       .statusBarsPadding()
   ) {
     BoxWithImage(
@@ -203,7 +196,6 @@ private fun StatsContent(
         chartData = state.chartData,
         filter = state.filter,
         collapseTimeByGame = state.collapseTimeByGame == true,
-        disableScroll = { scrollEnabled = !it },
         onFilterChanged = onFilterChanged,
       )
     }
