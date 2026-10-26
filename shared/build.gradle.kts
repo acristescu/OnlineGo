@@ -60,6 +60,7 @@ kotlin {
       api(libs.cmp.lifecycle.runtime.compose)
       api(libs.molecule.runtime)
       api(libs.navigationevent.compose)
+      implementation(libs.navigation.compose)
       api(libs.coil.compose)
       implementation(libs.okio)
       api(libs.cmp.resources)

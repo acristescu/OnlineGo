@@ -6,7 +6,7 @@ androidGradlePlugin = "9.3.3"
 compileSdk = "37"
 compileSdkMinor = "1"
 minSdk = "24"
-navigationCompose = "2.9.7"
+navigationCompose = "2.10.0"
 targetSdk = "36"
 ndkVersion = "25.1.8937393"
 
@@ -118,7 +118,7 @@ firebase-analytics = { group = "com.google.firebase", name = "firebase-analytics
 firebase-crashlytics = { group = "com.google.firebase", name = "firebase-crashlytics" }
 
 # Google Play Services
-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
+navigation-compose = { module = "org.jetbrains.androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
 play-services-auth = { group = "com.google.android.gms", name = "play-services-auth", version.ref = "playServices" }
 play-review = { group = "com.google.android.play", name = "review", version.ref = "playReview" }
 play-review-ktx = { group = "com.google.android.play", name = "review-ktx", version.ref = "playReview" }

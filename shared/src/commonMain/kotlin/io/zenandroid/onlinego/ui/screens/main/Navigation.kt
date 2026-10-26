@@ -1,6 +1,5 @@
 package io.zenandroid.onlinego.ui.screens.main
 
-import androidx.activity.compose.LocalActivity
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -38,8 +37,9 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navDeepLink
 import co.touchlab.kermit.Logger
-import io.zenandroid.onlinego.BuildConfig
-import io.zenandroid.onlinego.playstore.PlayStoreService
+import io.zenandroid.onlinego.data.billing.SupporterProduct
+import io.zenandroid.onlinego.data.billing.SupporterPurchase
+import io.zenandroid.onlinego.data.model.local.Game
 import io.zenandroid.onlinego.resources.Res
 import io.zenandroid.onlinego.resources.bottomnavigation_botton_learn
 import io.zenandroid.onlinego.resources.bottomnavigation_botton_play
@@ -71,8 +71,7 @@ import io.zenandroid.onlinego.ui.screens.supporter.SupporterScreen
 import io.zenandroid.onlinego.ui.screens.tutorial.TutorialScreen
 import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
 import io.zenandroid.onlinego.utils.Analytics
-import io.zenandroid.onlinego.utils.NotificationUtils
-import io.zenandroid.onlinego.utils.ReviewPromptManager
+import io.zenandroid.onlinego.utils.ReviewDiagnosticResult
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.resources.vectorResource
 import org.koin.compose.koinInject
@@ -83,6 +82,11 @@ fun OnlineGoApp(
   isLoggedIn: Boolean,
   darkTheme: Boolean,
   hasCompletedOnboarding: Boolean,
+  versionCode: Int,
+  onForceReviewPrompt: suspend () -> ReviewDiagnosticResult,
+  onTestNotification: suspend (Game) -> Unit,
+  onLaunchBillingFlow: suspend (SupporterProduct, SupporterPurchase?) -> Unit,
+  onFinish: () -> Unit,
 ) {
   val navController = rememberNavController()
 
@@ -91,11 +95,7 @@ fun OnlineGoApp(
   val navBackStackEntry by navController.currentBackStackEntryAsState()
   val destination = navBackStackEntry?.destination
   val currentDestination = destination?.route
-  val activity = LocalActivity.current
   val analytics: Analytics = koinInject()
-  val reviewPromptManager: ReviewPromptManager = koinInject()
-  val notificationUtils: NotificationUtils = koinInject()
-  val playStoreService: PlayStoreService = koinInject()
 
   val bottomNavItems = listOf(
     BottomNavItem(
@@ -130,11 +130,6 @@ fun OnlineGoApp(
     bottomBarCollapsed = false
   }
 
-  LaunchedEffect(activity?.intent?.data) {
-    if (activity?.intent?.data != null) {
-      Logger.i("Deep link: ${activity.intent.data}", tag = "OnlineGoApp")
-    }
-  }
   LaunchedEffect(currentDestination) {
     if (currentDestination != null) {
       Logger.d(tag = "OnlineGoApp") { "Current destination: $currentDestination" }
@@ -154,6 +149,8 @@ fun OnlineGoApp(
           exitTransition = { fadeOut(animationSpec = tween(500)) },
           popEnterTransition = { fadeIn(animationSpec = tween(500)) },
           popExitTransition = { fadeOut(animationSpec = tween(500)) },
+          predictivePopEnterTransition = { fadeIn(animationSpec = tween(500)) },
+          predictivePopExitTransition = { fadeOut(animationSpec = tween(500)) },
         ) {
           composable<Route.MyGames> {
             MyGamesScreen(
@@ -221,11 +218,9 @@ fun OnlineGoApp(
                 navController.navigate(Route.SocketDebug)
               },
               onBottomBarCollapseChanged = { bottomBarCollapsed = it },
-              versionCode = BuildConfig.VERSION_CODE,
-              onForceReviewPrompt = {
-                reviewPromptManager.forceShowReviewPrompt(requireNotNull(activity))
-              },
-              onTestNotification = notificationUtils::notifyGameForDebug,
+              versionCode = versionCode,
+              onForceReviewPrompt = onForceReviewPrompt,
+              onTestNotification = onTestNotification,
             )
           }
 
@@ -263,9 +258,7 @@ fun OnlineGoApp(
           composable<Route.Supporter> {
             SupporterScreen(
               onNavigateBack = navController::popBackStack,
-              onLaunchBillingFlow = { product, oldPurchase ->
-                playStoreService.launchBillingFlow(requireNotNull(activity), product, oldPurchase)
-              },
+              onLaunchBillingFlow = onLaunchBillingFlow,
             )
           }
 
@@ -280,7 +273,7 @@ fun OnlineGoApp(
               onNavigateBack = {
                 val success = navController.popBackStack()
                 if (!success) {
-                  activity?.finish()
+                  onFinish()
                 }
               },
             )

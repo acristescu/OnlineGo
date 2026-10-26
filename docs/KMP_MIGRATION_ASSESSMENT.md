@@ -9,13 +9,15 @@ is no RxJava, no `Parcelable`, and Koin, Molecule, Room, DataStore, `ViewModel`,
 kotlinx-collections-immutable are already multiplatform. The cost is dominated by resources
 (663 strings x 16 locales) and the local-AI engine, which cannot run on iOS as built today.
 
-**Status.** Phases 0-3 are finished: fifty-three slices are done (section 6). Phases 0-2 have
-shipped in a release; Phase 3 has not, and several slices still need on-device checks (section 1.2).
+**Status.** Phases 0-4 are finished: fifty-four slices are done (section 6). Phases 0-2 have
+shipped in a release; Phases 3 and 4 have not, and several slices still need on-device checks (
+section 1.2).
 Phase 3 moved the Room
 database (6.25), the score estimator (6.26), `CrashReporter` (6.10), the HTTP client (6.27),
 storage (6.28), the session cluster (6.29) and the remaining repositories (6.30) to common code,
 wired by a shared Koin module (6.31) and an iOS platform module (6.32). Only the bindings Swift
-supplies are left, and they come with the iOS app. Phase 4 has started: the toolchain is set for
+supplies are left, and they come with the iOS app. Phase 4 put all of the UI in common code: the
+toolchain is set for
 Compose Multiplatform (6.33), now on 1.13.0-alpha02 (6.35), the first composable is common code
 (6.34), strings (6.36) and the UI drawables (6.39) are Compose Multiplatform resources on both
 platforms, `BoardView` is gone (6.37) along with the resources and dependencies nothing used
@@ -25,7 +27,8 @@ socket debug and the automatch sheet (6.43), the tutorial and face-to-face scree
 My Games tab with new challenges and What's new (6.45), the game screen (6.46), the AI game
 (6.47), the Joseki explorer with the bottom bar (6.48), the rank chart on a Compose `Canvas` (6.49),
 the Stats screen (6.50), Settings with the language setting (6.51), Supporter on a billing
-contract (6.52), and Onboarding (6.53). Phase 5 has not started.
+contract (6.52), Onboarding (6.53), and the navigation host (6.54). `:app` is now only the Android
+shell. Phase 5 has not started.
 
 Earlier, longer versions of this document:
 `git show d529259:docs/KMP_MIGRATION_ASSESSMENT.md` (original assessment) and
@@ -115,16 +118,21 @@ Still owed - unit tests cannot reach these:
 - [ ] **Supporter** (6.52), on a production build (billing does not work on debug builds): tiers
   and prices load, the slider and the subscribe button, the billing sheet opens, an upgrade or
   downgrade from an active subscription, and the manage-subscription link.
+- [ ] **Navigation** (6.54): every tab and back from every screen, the bottom bar's saved state
+  when switching tabs, the Stats login sheet when logged out, opening a game from a notification
+  (`sente://game` deep link) with the app closed and in the background, back out of onboarding
+  on a first start closing the app, and the Supporter and Settings debug actions (review prompt,
+  test notification) now supplied by `MainActivity`.
 - [ ] **Google sign-in** (6.53), on a release build (it does not work on debug builds): signing
   in, and a failure showing as a snackbar. Test together with Supporter.
 
 ### 1.3 Phases 3-5
 
-| Phase                              | Work                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                | Estimate                        |
-|------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------|
-| **3 - data layer to `commonMain`** | Done (6.25, 6.27-6.32). Left for the iOS app: the Swift `Analytics`, `AppDataEraser` and `TutorialsSource` and `GameNotificationCanceller` passed to `initKoin()`, a real iOS `CrashReporter`, the iOS HTML placeholder (6.43), Coil's Ktor network fetcher (6.45), an iOS `ReviewRequester` (6.46), a "restart to apply" notice after a language change (6.51), and a `SupporterStore` (StoreKit or RevenueCat) with iOS wording for the supporter copy, which names Android and Google Play (6.52), and Google sign-in, which reports "cancelled" for now (6.53). | done                            |
-| **4 - Compose Multiplatform**      | UI into `:shared/commonMain`, screen by screen. Resources (4.2), chart, markdown. Done: the board (6.40), icons (6.41), ViewModel plumbing, theme, Learn (6.42), puzzles, socket debug, automatch (6.43), tutorial, face-to-face (6.44), My Games (6.45), game (6.46), AI game (6.47), Joseki (6.48), Stats (6.49, 6.50), Settings (6.51), Supporter (6.52), Onboarding (6.53).                                                                                                                                                                                     | 6-10 weeks (resources dominate) |
-| **5 - iOS app**                    | SwiftUI shell + `ComposeUIViewController`, notifications, background refresh, billing, Google sign-in, App Store plumbing. Bitrise needs a macOS stack.                                                                                                                                                                                                                                                                                                                                                                                                             | 4-8 weeks, excluding local AI   |
+| Phase                              | Work                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                | Estimate                      |
+|------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------|
+| **3 - data layer to `commonMain`** | Done (6.25, 6.27-6.32). Left for the iOS app: the Swift `Analytics`, `AppDataEraser` and `TutorialsSource` and `GameNotificationCanceller` passed to `initKoin()`, a real iOS `CrashReporter`, the iOS HTML placeholder (6.43), Coil's Ktor network fetcher (6.45), an iOS `ReviewRequester` (6.46), a "restart to apply" notice after a language change (6.51), and a `SupporterStore` (StoreKit or RevenueCat) with iOS wording for the supporter copy, which names Android and Google Play (6.52), and Google sign-in, which reports "cancelled" for now (6.53). | done                          |
+| **4 - Compose Multiplatform**      | UI into `:shared/commonMain`, screen by screen. Resources (4.2), chart, markdown. Done: the board (6.40), icons (6.41), ViewModel plumbing, theme, Learn (6.42), puzzles, socket debug, automatch (6.43), tutorial, face-to-face (6.44), My Games (6.45), game (6.46), AI game (6.47), Joseki (6.48), Stats (6.49, 6.50), Settings (6.51), Supporter (6.52), Onboarding (6.53), navigation (6.54).                                                                                                                                                                  | done                          |
+| **5 - iOS app**                    | SwiftUI shell + `ComposeUIViewController`, notifications, background refresh, billing, Google sign-in, App Store plumbing. Bitrise needs a macOS stack.                                                                                                                                                                                                                                                                                                                                                                                                             | 4-8 weeks, excluding local AI |
 
 Estimates are order-of-magnitude, single developer. The one data point so far: the serialization
 slice came in on time only because the golden-JSON corpus was dropped, which moved verification
@@ -168,11 +176,11 @@ appears, or local AI needs Play Feature Delivery for its 265 MB of assets. Basel
 `HTTPConnectionFactory` (6.23), Firebase Analytics and Crashlytics in common code (6.9, 6.10),
 DataStore (6.28), `BoardView` (6.37), `lifecycle-extensions` and `firebase-messaging` (6.38),
 `material-icons-extended` (6.41), `koin-androidx-compose` and Molecule's `AndroidUiDispatcher` (
-6.42), Markwon (6.48), MPAndroidChart and JitPack (6.49), `AppLocaleManager` (6.51).
+6.42), Markwon (6.48), MPAndroidChart and JitPack (6.49), `AppLocaleManager` (6.51), androidx
+`navigation-compose` (6.54).
 
 | Dependency                         | Replacement                                                                                             | When                |
 |------------------------------------|---------------------------------------------------------------------------------------------------------|---------------------|
-| navigation-compose (androidx)      | `org.jetbrains.androidx.navigation`; routes are already `@Serializable` (6.19)                          | Phase 4             |
 | Android resources (`R.*`)          | Strings (6.36), UI drawables (6.39) and board assets (6.40) done; colors and raw still `R.*`            | Phase 4             |
 | WorkManager                        | `expect`/`actual` `BackgroundSync`; iOS `BGAppRefreshTask`                                              | Phase 5 (see risks) |
 | `NotificationUtils` (399 LOC)      | `expect`/`actual`; the board is already drawn by `renderBoard` (6.37); `notification_board.xml` stays   | Phase 5             |
@@ -1248,3 +1256,28 @@ test-local class.
 - **The sign-in error is a `Snackbar`** instead of a `Toast`, as in 6.52.
 - `iosTest/.../OnboardingScreenTest` starts at the login methods, picks Google, and lands back on
   the question through the iOS placeholder.
+
+### 6.54 The navigation host in `commonMain`
+
+- `Navigation.kt` (`OnlineGoApp`, the bottom bar wiring, the Stats login sheet) is in `commonMain`,
+  same package. With it, every screen and the nav graph are common code. `:app` keeps
+  `MainActivity`, `Application`, notifications and WorkManager, `PlayStoreService`,
+  `ReviewPromptManager` and KataGo.
+- **androidx `navigation-compose` 2.9.7
+  became `org.jetbrains.androidx.navigation:navigation-compose`
+  2.10.0** in `:shared`. It needs lifecycle 2.11.0 and navigationevent 1.1.0, which the project
+  already has. On Android it delegates to androidx `navigation-compose` 2.10.0, so the Android
+  implementation is the same library, a minor version up. The `sente://game` deep link is still
+  handled by `NavController` from the activity intent.
+- **Predictive back:** 2.10 changed the default `predictivePopEnterTransition` /
+  `predictivePopExitTransition` from the host's pop transitions to the platform's own, which on
+  Android is a scale with no fade. That applies to the back gesture from any screen, and from any
+  tab
+  back to Play. `NavHost` now passes the same 500 ms fades explicitly, as 2.9 did by default.
+- **`OnlineGoApp` takes what only `:app` has as parameters:** `versionCode`, `onForceReviewPrompt`,
+  `onTestNotification`, `onLaunchBillingFlow` and `onFinish`. `MainActivity` supplies them,
+  so nothing in common code needs an `Activity`. The deep-link log moved to `MainActivity.onCreate`.
+- `iosTest/.../OnlineGoAppTest` renders the app on the simulator, switches to Learn through the
+  bottom bar, and gets the Stats login sheet when logged out.
+- Left in `:app` and not needed: `utils/FlowUtils.kt`. Its 6-to-11-flow `combine` overloads have
+  no callers.

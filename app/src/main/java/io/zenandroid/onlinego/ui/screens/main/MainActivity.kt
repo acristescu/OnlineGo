@@ -30,6 +30,7 @@ import io.zenandroid.onlinego.BuildConfig
 import io.zenandroid.onlinego.data.model.AppTheme
 import io.zenandroid.onlinego.data.model.BoardTheme
 import io.zenandroid.onlinego.notifications.SynchronizeGamesWork
+import io.zenandroid.onlinego.playstore.PlayStoreService
 import io.zenandroid.onlinego.resources.Res
 import io.zenandroid.onlinego.resources.notification_channel_blitz_games
 import io.zenandroid.onlinego.resources.notification_channel_challenges
@@ -46,6 +47,7 @@ import io.zenandroid.onlinego.ui.theme.loadPreloadedImages
 import io.zenandroid.onlinego.utils.AppLanguageSetting
 import io.zenandroid.onlinego.utils.AppLocaleManager
 import io.zenandroid.onlinego.utils.LocalReviewRequester
+import io.zenandroid.onlinego.utils.NotificationUtils
 import io.zenandroid.onlinego.utils.ReviewPromptManager
 import io.zenandroid.onlinego.utils.ReviewRequester
 import kotlinx.coroutines.Dispatchers
@@ -75,6 +77,10 @@ class MainActivity : ComponentActivity() {
 
   private val appLanguageSetting: AppLanguageSetting by inject()
 
+  private val notificationUtils: NotificationUtils by inject()
+
+  private val playStoreService: PlayStoreService by inject()
+
   /** Applies the language the user picked in the settings. See [AppLocaleManager]. */
   override fun attachBaseContext(newBase: Context) {
     super.attachBaseContext(AppLocaleManager.wrap(newBase))
@@ -82,6 +88,7 @@ class MainActivity : ComponentActivity() {
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
+    intent?.data?.let { Logger.i("Deep link: $it", tag = "MainActivity") }
     enableEdgeToEdge()
     if (BuildConfig.DEBUG) {
       StrictMode.setThreadPolicy(
@@ -189,6 +196,13 @@ class MainActivity : ComponentActivity() {
             darkTheme = themeSettings.isDarkTheme,
             isLoggedIn = state.isLoggedIn == true,
             hasCompletedOnboarding = hasCompletedOnboarding,
+            versionCode = BuildConfig.VERSION_CODE,
+            onForceReviewPrompt = { reviewPromptManager.forceShowReviewPrompt(this@MainActivity) },
+            onTestNotification = notificationUtils::notifyGameForDebug,
+            onLaunchBillingFlow = { product, oldPurchase ->
+              playStoreService.launchBillingFlow(this@MainActivity, product, oldPurchase)
+            },
+            onFinish = ::finish,
           )
         }
       }

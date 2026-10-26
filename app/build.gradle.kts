@@ -147,7 +147,6 @@ dependencies {
   implementation(libs.coil.compose)
   implementation(libs.coil.network.okhttp)
 
-  implementation(libs.navigation.compose)
 
   // Material (provides Theme.Material3.* XML theme attributes)
   implementation(libs.material)
