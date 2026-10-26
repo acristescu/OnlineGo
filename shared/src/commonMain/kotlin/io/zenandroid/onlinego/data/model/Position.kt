@@ -145,9 +145,6 @@ data class Cell(
         get() = this == PASS
 
     companion object {
-        fun fromSGF(s: String) =
-            Util.getCoordinatesFromSGF(s)
-
         fun fromGTP(s: String, boardSize: Int) =
             Util.getCoordinatesFromGTP(s, boardSize)
 

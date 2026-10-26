@@ -17,8 +17,8 @@ import io.zenandroid.onlinego.resources.mygames_outcome_white_won_with_reason
 import io.zenandroid.onlinego.resources.mygames_outcome_won
 import io.zenandroid.onlinego.resources.mygames_outcome_won_with_reason
 import org.jetbrains.compose.resources.StringResource
-import org.junit.Assert.assertEquals
-import org.junit.Test
+import kotlin.test.Test
+import kotlin.test.assertEquals
 
 class GameOutcomeFormatterTest {
 
@@ -47,7 +47,7 @@ class GameOutcomeFormatterTest {
   private fun format(game: Game, userId: Long?): String =
     formatGameOutcome(game, userId) { resId, args ->
       val template = stringMap[resId] ?: error("Missing resource for $resId")
-      if (args.isEmpty()) template else template.format(*args)
+      args.foldIndexed(template) { i, text, arg -> text.replace("%${i + 1}\$s", arg.toString()) }
     }
 
   @Test

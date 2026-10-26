@@ -100,22 +100,6 @@ class ReviewPromptManager(
   }
 
   /**
-   * Manually mark that the user has rated the app (useful if they rate externally)
-   */
-  suspend fun markAppAsRated() {
-    reviewPromptRepository.recordReviewPromptRated()
-    analytics.logEvent("app_rated_externally")
-  }
-
-  /**
-   * Reset the review prompt state (useful for testing)
-   */
-  suspend fun resetReviewState() {
-    reviewPromptRepository.resetReviewPromptState()
-    analytics.logEvent("review_state_reset")
-  }
-
-  /**
    * Force show review prompt (useful for testing).
    * Returns a diagnostic result that can be displayed in the UI.
    */

@@ -2,9 +2,8 @@ package io.zenandroid.onlinego.utils.serializers
 
 import io.zenandroid.onlinego.ui.screens.localai.AiDifficulty
 import io.zenandroid.onlinego.utils.appJson
-import kotlinx.serialization.encodeToString
-import org.junit.Assert.assertEquals
-import org.junit.Test
+import kotlin.test.Test
+import kotlin.test.assertEquals
 
 class AiDifficultySerializerTest {
 

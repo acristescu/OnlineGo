@@ -10,6 +10,7 @@ import io.zenandroid.onlinego.data.repositories.SettingsRepository
 import io.zenandroid.onlinego.data.repositories.UserSessionRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,10 +20,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-/**
- * Created by alex on 14/03/2018.
- */
-class MainActivityViewModel(
+class AppViewModel(
   private val socketService: OGSWebSocketService,
   private val userSessionRepository: UserSessionRepository,
   private val settingsRepository: SettingsRepository,
@@ -30,9 +28,9 @@ class MainActivityViewModel(
 ) : ViewModel() {
 
   private val _state = MutableStateFlow(
-    MainActivityState()
+    AppState()
   )
-  val state: StateFlow<MainActivityState> = _state.asStateFlow()
+  val state: StateFlow<AppState> = _state.asStateFlow()
   private var socketConnectionCheckerJob: Job? = null
 
   init {
@@ -48,7 +46,6 @@ class MainActivityViewModel(
         .collect { settings ->
           _state.update {
             it.copy(
-              hasLoadedTheme = true,
               appTheme = settings.appTheme,
               boardTheme = settings.boardTheme,
               showCoordinates = settings.showCoordinates,
@@ -98,18 +95,13 @@ class MainActivityViewModel(
   }
 }
 
-data class MainActivityState(
-  val screenDataLoaded: Boolean = false,
-  val hasLoadedTheme: Boolean = true,
+data class AppState(
   val isLoggedIn: Boolean? = null,
   val appTheme: AppTheme? = null,
   val boardTheme: BoardTheme? = null,
   val showCoordinates: Boolean = false,
   val hasCompletedOnboarding: Boolean? = null,
-) {
-  val isLoaded: Boolean
-    get() = hasLoadedTheme && (hasCompletedOnboarding == false || screenDataLoaded)
-}
+)
 
 private data class PersistedSettings(
   val boardTheme: BoardTheme,

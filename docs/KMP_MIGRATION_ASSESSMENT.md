@@ -9,7 +9,7 @@ is no RxJava, no `Parcelable`, and Koin, Molecule, Room, DataStore, `ViewModel`,
 kotlinx-collections-immutable are already multiplatform. The cost is dominated by resources
 (663 strings x 16 locales) and the local-AI engine, which cannot run on iOS as built today.
 
-**Status.** Phases 0-4 are finished: fifty-four slices are done (section 6). Phases 0-2 have
+**Status.** Phases 0-4 are finished: fifty-five slices are done (section 6). Phases 0-2 have
 shipped in a release; Phases 3 and 4 have not, and several slices still need on-device checks (
 section 1.2).
 Phase 3 moved the Room
@@ -27,8 +27,8 @@ socket debug and the automatch sheet (6.43), the tutorial and face-to-face scree
 My Games tab with new challenges and What's new (6.45), the game screen (6.46), the AI game
 (6.47), the Joseki explorer with the bottom bar (6.48), the rank chart on a Compose `Canvas` (6.49),
 the Stats screen (6.50), Settings with the language setting (6.51), Supporter on a billing
-contract (6.52), Onboarding (6.53), and the navigation host (6.54). `:app` is now only the Android
-shell. Phase 5 has not started.
+contract (6.52), Onboarding (6.53), the navigation host (6.54), and the app shell's theme, session
+and start-up logic (6.55). `:app` is now only the Android shell. Phase 5 has not started.
 
 Earlier, longer versions of this document:
 `git show d529259:docs/KMP_MIGRATION_ASSESSMENT.md` (original assessment) and
@@ -95,7 +95,11 @@ background, backing out of onboarding on a first start closing the app, and the 
 test-notification callbacks from `MainActivity`. Also verified: the Ktor websocket connecting,
 authenticating and reconnecting over several days of play on the dev build (6.14); clock text
 (6.16); switching language with strings from Compose Multiplatform resources (6.36); Joseki
-position links (6.48); and Stats logged in, light and dark, in `de` (6.49, 6.50).
+position links (6.48); and Stats logged in, light and dark, in `de` (6.49, 6.50). After 6.55: the
+board background on the first frame of a cold start, switching app theme and system dark mode
+while running with readable system bar icons, a board theme change, the socket connecting on
+resume and disconnecting in the background, the avatar on the first frame, and a language change
+below 13 recreating.
 
 Still owed - unit tests cannot reach these:
 
@@ -112,16 +116,18 @@ Still owed - unit tests cannot reach these:
   and prices load, the slider and the subscribe button, the billing sheet opens, an upgrade or
   downgrade from an active subscription, and the manage-subscription link. The billing flow now
   comes from `MainActivity` (6.54).
+- [ ] **Notifications suppressed in the foreground** (6.55): `isInForeground` is still set by
+  `MainActivity`, but the ViewModel's resume/pause moved to `OnlineGoRoot`.
 - [ ] **Google sign-in** (6.53), on a release build (it does not work on debug builds): signing
   in, and a failure showing as a snackbar. Test together with Supporter.
 
 ### 1.3 Phases 3-5
 
-| Phase                              | Work                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                | Estimate                      |
-|------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------|
-| **3 - data layer to `commonMain`** | Done (6.25, 6.27-6.32). Left for the iOS app: the Swift `Analytics`, `AppDataEraser` and `TutorialsSource` and `GameNotificationCanceller` passed to `initKoin()`, a real iOS `CrashReporter`, the iOS HTML placeholder (6.43), Coil's Ktor network fetcher (6.45), an iOS `ReviewRequester` (6.46), a "restart to apply" notice after a language change (6.51), and a `SupporterStore` (StoreKit or RevenueCat) with iOS wording for the supporter copy, which names Android and Google Play (6.52), and Google sign-in, which reports "cancelled" for now (6.53). | done                          |
-| **4 - Compose Multiplatform**      | UI into `:shared/commonMain`, screen by screen. Resources (4.2), chart, markdown. Done: the board (6.40), icons (6.41), ViewModel plumbing, theme, Learn (6.42), puzzles, socket debug, automatch (6.43), tutorial, face-to-face (6.44), My Games (6.45), game (6.46), AI game (6.47), Joseki (6.48), Stats (6.49, 6.50), Settings (6.51), Supporter (6.52), Onboarding (6.53), navigation (6.54).                                                                                                                                                                  | done                          |
-| **5 - iOS app**                    | SwiftUI shell + `ComposeUIViewController`, notifications, background refresh, billing, Google sign-in, App Store plumbing. Bitrise needs a macOS stack.                                                                                                                                                                                                                                                                                                                                                                                                             | 4-8 weeks, excluding local AI |
+| Phase                              | Work                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          | Estimate                      |
+|------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------|
+| **3 - data layer to `commonMain`** | Done (6.25, 6.27-6.32). Left for the iOS app: the Swift `Analytics`, `AppDataEraser` and `TutorialsSource` and `GameNotificationCanceller` passed to `initKoin()`, a real iOS `CrashReporter`, the iOS HTML placeholder (6.43), Coil's Ktor network fetcher (6.45), an iOS `ReviewRequester` (6.46), a "restart to apply" notice after a language change (6.51), and a `SupporterStore` (StoreKit or RevenueCat) with iOS wording for the supporter copy, which names Android and Google Play (6.52), Google sign-in, which reports "cancelled" for now (6.53), and the shell: host `OnlineGoRoot` in a `ComposeUIViewController`, call `prewarmApp` after `initKoin()`, and set the status-bar style (6.55). | done                          |
+| **4 - Compose Multiplatform**      | UI into `:shared/commonMain`, screen by screen. Resources (4.2), chart, markdown. Done: the board (6.40), icons (6.41), ViewModel plumbing, theme, Learn (6.42), puzzles, socket debug, automatch (6.43), tutorial, face-to-face (6.44), My Games (6.45), game (6.46), AI game (6.47), Joseki (6.48), Stats (6.49, 6.50), Settings (6.51), Supporter (6.52), Onboarding (6.53), navigation (6.54).                                                                                                                                                                                                                                                                                                            | done                          |
+| **5 - iOS app**                    | SwiftUI shell + `ComposeUIViewController`, notifications, background refresh, billing, Google sign-in, App Store plumbing. Bitrise needs a macOS stack.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       | 4-8 weeks, excluding local AI |
 
 Estimates are order-of-magnitude, single developer. The one data point so far: the serialization
 slice came in on time only because the golden-JSON corpus was dropped, which moved verification
@@ -1284,3 +1290,65 @@ test-local class.
     - The estimator's JNI glue and `CMakeLists.txt`: the KMP Android library plugin `:shared`
       uses has no `externalNativeBuild`.
     - The Compose BOM: it versions the debug and screenshot-test `ui-tooling`.
+
+### 6.55 The app shell's logic in `commonMain`
+
+- **`MainActivityViewModel` became `AppViewModel` in `commonMain`,** registered in `sharedModule`.
+  It holds the persisted theme settings, the onboarding flag, the login status, and the socket
+  connect on resume / disconnect on pause. The unused `screenDataLoaded` / `hasLoadedTheme` /
+  `isLoaded` are gone.
+- **`OnlineGoRoot` (`commonMain`) is the app's entry composable.**
+  - It drives `AppViewModel` from `LifecycleResumeEffect`.
+  - It builds `ThemeSettings` from the settings and Compose's `isSystemInDarkTheme()`. That
+    replaces the activity's configuration-change `callbackFlow`.
+  - It loads the preloaded board images with `produceState`, outside the onboarding gate, so
+    loading starts on the first frame.
+  - It provides the theme, image and review locals, then shows `OnlineGoApp` once the
+    onboarding flag is known.
+  - `MainActivity.setContent` is now a single `OnlineGoRoot(...)` call.
+- **System bars:** `SystemBarsAppearance(darkTheme)` is an expect/actual. Android runs the same
+  `enableEdgeToEdge` with the androidx scrims; iOS is a no-op until the iOS shell sets the
+  status-bar style.
+- **Start-up warm-up:** `prewarmApp(context, density)` (`di/Prewarm.kt`) resolves the REST and
+  socket services, preloads the avatar through Coil, and warms `RulesManager`.
+  `OnlineGoApplication` calls it; iOS will call it after `initKoin()`.
+- **What stays Android-only:**
+  - the locale wrapping and the recreate below 13
+  - StrictMode
+  - notification channels and the WorkManager schedule
+  - `isInForeground`, which the notification workers read
+  - Koin start and the Crashlytics breadcrumb log writer
+  - Ktor's SecureRandom workaround below API 26
+
+  `MainActivity` went from 394 to 253 lines, and `OnlineGoApplication` from 108 to 68.
+- `iosTest/.../OnlineGoRootTest` renders the root on the simulator with a fresh settings store,
+  and it lands on the first onboarding page.
+
+### 6.56 Dead code after the moves
+
+- A reference scan over both modules (declarations whose name appears nowhere else, repeated until
+  nothing new turned up) found these, now removed:
+  - **DTOs:** `GameList`, `LoginToken`, `NetPing`, `SeekGraphChallenge`
+  - **Shared code:**
+    - the `SortOption` enum
+    - `COLORS_DARK` in Stats
+    - twelve colours in `ui/theme/Color.kt`
+    - `Cell.fromSGF`
+    - `RulesManager.isIllegalKO` and its helper `isLivingStone`
+  - **Review prompt:**
+    - `ReviewPromptRepository.getReviewPromptState` / `ReviewPromptState`
+    - `recordReviewPromptRated` and `resetReviewPromptState`
+    - `ReviewPromptManager.markAppAsRated` and `resetReviewState`, the only callers of the
+      previous two
+
+  `REVIEW_PROMPT_RATED` stays: `shouldPromptForReview` still reads it from existing installs.
+- **Kept although the scan flags them:** Room `@TypeConverter`s, serialized DTO fields (they
+  mirror the server JSON), `serialVersionUID` for the legacy cookie import, previews, and the
+  screenshot tests.
+- No unused Compose resources: every string, drawable and file is referenced.
+- **Tests moved** from `:app` to `commonTest`, so they also run on iOS:
+  - `AiDifficultySerializerTest`
+  - `GameOutcomeFormatterTest`, whose `String.format` stub became a plain `%N$s` substitution
+- **Tests kept in `:app`:**
+  - `TutorialsJsonParsingTest`: it reads `:app`'s `tutorials.json` asset.
+  - `FaceToFaceViewModelTest`: Mockito, Koin's JUnit rule and `InstantTaskExecutorRule`.

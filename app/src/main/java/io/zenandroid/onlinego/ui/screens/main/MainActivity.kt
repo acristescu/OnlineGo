@@ -5,30 +5,17 @@ import android.app.NotificationChannelGroup
 import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
-import android.content.res.Configuration
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
 import android.os.StrictMode
 import android.view.MotionEvent
 import androidx.activity.ComponentActivity
-import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.unit.Density
-import androidx.core.util.Consumer
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import co.touchlab.kermit.Logger
 import io.zenandroid.onlinego.BuildConfig
-import io.zenandroid.onlinego.data.model.AppTheme
-import io.zenandroid.onlinego.data.model.BoardTheme
 import io.zenandroid.onlinego.notifications.SynchronizeGamesWork
 import io.zenandroid.onlinego.playstore.PlayStoreService
 import io.zenandroid.onlinego.resources.Res
@@ -39,39 +26,22 @@ import io.zenandroid.onlinego.resources.notification_channel_group_your_turn
 import io.zenandroid.onlinego.resources.notification_channel_live_games
 import io.zenandroid.onlinego.resources.notification_channel_logout
 import io.zenandroid.onlinego.resources.notification_channel_your_turn
-import io.zenandroid.onlinego.ui.theme.LocalPreloadedImages
-import io.zenandroid.onlinego.ui.theme.LocalThemeSettings
-import io.zenandroid.onlinego.ui.theme.PreloadedImages
-import io.zenandroid.onlinego.ui.theme.ThemeSettings
-import io.zenandroid.onlinego.ui.theme.loadPreloadedImages
 import io.zenandroid.onlinego.utils.AppLanguageSetting
 import io.zenandroid.onlinego.utils.AppLocaleManager
-import io.zenandroid.onlinego.utils.LocalReviewRequester
 import io.zenandroid.onlinego.utils.NotificationUtils
 import io.zenandroid.onlinego.utils.ReviewPromptManager
 import io.zenandroid.onlinego.utils.ReviewRequester
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.conflate
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.drop
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.getString
 import org.koin.android.ext.android.inject
-import org.koin.androidx.viewmodel.ext.android.viewModel
 
 
 class MainActivity : ComponentActivity() {
   companion object {
     var isInForeground = false
   }
-
-  private val viewModel: MainActivityViewModel by viewModel()
 
   private val reviewPromptManager: ReviewPromptManager by inject()
 
@@ -113,32 +83,6 @@ class MainActivity : ComponentActivity() {
 
     Logger.i("onCreate() intentURL=${intent.data}", tag = "MainActivity")
 
-    var themeSettings by mutableStateOf(
-      ThemeSettings(
-        isDarkTheme = resources.configuration.isSystemInDarkTheme,
-        boardTheme = BoardTheme.WOOD,
-        dynamicColors = true,
-        showCoordinates = true
-      )
-    )
-    var preloadedImages by mutableStateOf(PreloadedImages(null, null, null))
-
-    val themeSettingsFlow = combine(
-      isSystemInDarkTheme(),
-      viewModel.state,
-    ) { systemDark, state ->
-      ThemeSettings(
-        isDarkTheme = when (state.appTheme) {
-          AppTheme.LIGHT -> false
-          AppTheme.DARK -> true
-          AppTheme.SYSTEM_DEFAULT, null -> systemDark
-        },
-        boardTheme = state.boardTheme ?: BoardTheme.WOOD,
-        dynamicColors = true,
-        showCoordinates = state.showCoordinates,
-      )
-    }
-
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
       lifecycleScope.launch {
         appLanguageSetting.language.drop(1).collect {
@@ -147,65 +91,19 @@ class MainActivity : ComponentActivity() {
       }
     }
 
-    lifecycleScope.launch(Dispatchers.Default) {
-      themeSettingsFlow
-        .map { it.boardTheme to it.isDarkTheme }
-        .distinctUntilChanged()
-        .collectLatest { (boardTheme, isDarkTheme) ->
-          preloadedImages = loadPreloadedImages(boardTheme, isDarkTheme, Density(this@MainActivity))
-        }
-    }
-
-    lifecycleScope.launch {
-      lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-        themeSettingsFlow
-          .onEach { themeSettings = it }
-          .map { it.isDarkTheme }
-          .distinctUntilChanged()
-          .collect { darkTheme ->
-            // Turn off the decor fitting system windows, which allows us to handle insets,
-            // including IME animations, and go edge-to-edge.
-            // This is the same parameters as the default enableEdgeToEdge call, but we manually
-            // resolve whether to show dark theme using uiState, since it can be different
-            // from the configuration's dark theme value based on the user preference.
-            enableEdgeToEdge(
-              statusBarStyle = SystemBarStyle.auto(
-                lightScrim = Color.TRANSPARENT,
-                darkScrim = Color.TRANSPARENT,
-              ) { darkTheme },
-              navigationBarStyle = SystemBarStyle.auto(
-                lightScrim = lightScrim,
-                darkScrim = darkScrim,
-              ) { darkTheme },
-            )
-          }
-      }
-    }
-
     val reviewRequester = ReviewRequester { reviewPromptManager.requestReview(this) }
 
     setContent {
-      val state by viewModel.state.collectAsStateWithLifecycle()
-      state.hasCompletedOnboarding?.let { hasCompletedOnboarding ->
-        CompositionLocalProvider(
-          LocalThemeSettings provides themeSettings,
-          LocalPreloadedImages provides preloadedImages,
-          LocalReviewRequester provides reviewRequester,
-        ) {
-          OnlineGoApp(
-            darkTheme = themeSettings.isDarkTheme,
-            isLoggedIn = state.isLoggedIn == true,
-            hasCompletedOnboarding = hasCompletedOnboarding,
-            versionCode = BuildConfig.VERSION_CODE,
-            onForceReviewPrompt = { reviewPromptManager.forceShowReviewPrompt(this@MainActivity) },
-            onTestNotification = notificationUtils::notifyGameForDebug,
-            onLaunchBillingFlow = { product, oldPurchase ->
-              playStoreService.launchBillingFlow(this@MainActivity, product, oldPurchase)
-            },
-            onFinish = ::finish,
-          )
-        }
-      }
+      OnlineGoRoot(
+        versionCode = BuildConfig.VERSION_CODE,
+        reviewRequester = reviewRequester,
+        onForceReviewPrompt = { reviewPromptManager.forceShowReviewPrompt(this@MainActivity) },
+        onTestNotification = notificationUtils::notifyGameForDebug,
+        onLaunchBillingFlow = { product, oldPurchase ->
+          playStoreService.launchBillingFlow(this@MainActivity, product, oldPurchase)
+        },
+        onFinish = ::finish,
+      )
     }
 
     lifecycleScope.launch(Dispatchers.IO) {
@@ -324,7 +222,6 @@ class MainActivity : ComponentActivity() {
 
   override fun onResume() {
     Logger.i("onResume()", tag = "MainActivity")
-    viewModel.onResume()
     isInForeground = true
     super.onResume()
   }
@@ -332,7 +229,6 @@ class MainActivity : ComponentActivity() {
   override fun onPause() {
     Logger.i("onPause()", tag = "MainActivity")
     super.onPause()
-    viewModel.onPause()
     isInForeground = false
     Logger.i("onPause() DONE", tag = "MainActivity")
   }
@@ -355,39 +251,3 @@ class MainActivity : ComponentActivity() {
     return super.dispatchTouchEvent(ev)
   }
 }
-
-/**
- * Convenience wrapper for dark mode checking
- */
-val Configuration.isSystemInDarkTheme
-  get() = (uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
-
-/**
- * Registers listener for configuration changes to retrieve whether system is in dark theme or not.
- * Immediately upon subscribing, it sends the current value and then registers listener for changes.
- */
-fun ComponentActivity.isSystemInDarkTheme() = callbackFlow {
-  channel.trySend(resources.configuration.isSystemInDarkTheme)
-
-  val listener = Consumer<Configuration> {
-    channel.trySend(it.isSystemInDarkTheme)
-  }
-
-  addOnConfigurationChangedListener(listener)
-
-  awaitClose { removeOnConfigurationChangedListener(listener) }
-}
-  .distinctUntilChanged()
-  .conflate()
-
-/**
- * The default light scrim, as defined by androidx and the platform:
- * https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:activity/activity/src/main/java/androidx/activity/EdgeToEdge.kt;l=35-38;drc=27e7d52e8604a080133e8b842db10c89b4482598
- */
-private val lightScrim = Color.argb(0xe6, 0xFF, 0xFF, 0xFF)
-
-/**
- * The default dark scrim, as defined by androidx and the platform:
- * https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:activity/activity/src/main/java/androidx/activity/EdgeToEdge.kt;l=40-44;drc=27e7d52e8604a080133e8b842db10c89b4482598
- */
-private val darkScrim = Color.argb(0x80, 0x1b, 0x1b, 0x1b)

@@ -528,10 +528,6 @@ private fun StatsSurface(
 private val COLORS = listOf(
   Color(0xFFED7861), Color(0xFF85CBD9), Color(0xFFFFCC00)
 )
-private val COLORS_DARK = listOf(
-  Color(0xFFC63A38), Color(0xFF06B9A2), Color(0xFFFFCC00)
-)
-
 @Composable
 private fun StatsChart(
   modifier: Modifier = Modifier,

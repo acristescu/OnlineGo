@@ -134,9 +134,6 @@ object RulesManager {
   private fun isMarkedDame(pos: Position, p: Cell) =
     pos.getStoneAt(p) == null && pos.removedSpots.contains(p)
 
-  private fun isLivingStone(pos: Position, p: Cell) =
-    pos.getStoneAt(p) != null && !pos.removedSpots.contains(p)
-
   fun Cell?.isPass() =
     this?.x == -1
 
@@ -363,9 +360,6 @@ object RulesManager {
       currentMoveIndex = currentMoveIndex + moves.size,
     )
   }
-
-  fun isIllegalKO(history: List<Position>, pos: Position) =
-    history.size > 1 && history[history.lastIndex - 1].hasTheSameStonesAs(pos)
 
   private fun doCapture(
     myStones: Set<Cell>,
