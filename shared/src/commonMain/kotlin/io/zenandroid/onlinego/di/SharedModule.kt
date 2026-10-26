@@ -43,6 +43,7 @@ import io.zenandroid.onlinego.ui.screens.newchallenge.SelectOpponentViewModel
 import io.zenandroid.onlinego.ui.screens.puzzle.directory.PuzzleDirectoryViewModel
 import io.zenandroid.onlinego.ui.screens.puzzle.tsumego.TsumegoViewModel
 import io.zenandroid.onlinego.ui.screens.socketdebug.SocketDebugViewModel
+import io.zenandroid.onlinego.ui.screens.stats.StatsViewModel
 import io.zenandroid.onlinego.ui.screens.tutorial.TutorialViewModel
 import io.zenandroid.onlinego.usecases.GetUserStatsUseCase
 import io.zenandroid.onlinego.utils.PersistenceManager
@@ -148,4 +149,5 @@ val sharedModule = module {
   viewModelOf(::GameViewModel)
   viewModelOf(::AiGameViewModel)
   viewModelOf(::JosekiExplorerViewModel)
+  viewModelOf(::StatsViewModel)
 }

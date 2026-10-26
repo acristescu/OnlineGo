@@ -25,6 +25,7 @@ import io.zenandroid.onlinego.utils.CrashReporter
 import io.zenandroid.onlinego.utils.egfToRank
 import io.zenandroid.onlinego.utils.formatRank
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.filterNotNull
@@ -163,11 +164,6 @@ class StatsViewModel(
     }
     val lostCount = stats.lostCount
     val wonCount = stats.wonCount
-    val gamesWonPercent = (wonCount * 100 / (wonCount + lostCount).toFloat())
-    val gamesLostPercent = 100 - gamesWonPercent
-
-    val gamesWonString = String.format("%.1f", gamesWonPercent)
-    val gamesLostString = String.format("%.1f", gamesLostPercent)
     val last10Games = stats.last10Games
     val longestStreak = stats.bestStreak
     val startDate = formatDate(stats.bestStreakStart)
@@ -186,8 +182,6 @@ class StatsViewModel(
         chartData = chartData,
         lostCount = lostCount,
         wonCount = wonCount,
-        gamesWonString = gamesWonString,
-        gamesLostString = gamesLostString,
         last10Games = last10Games,
         longestStreak = longestStreak,
         currentStreakCount = currentStreakCount,
@@ -270,8 +264,6 @@ class StatsViewModel(
     val highestRankDate: String?,
     val lostCount: Int?,
     val wonCount: Int?,
-    val gamesWonString: String?,
-    val gamesLostString: String?,
     val last10Games: List<HistoryItem>?,
     val longestStreak: Int?,
     val currentStreakCount: Int?,
@@ -305,8 +297,6 @@ class StatsViewModel(
         highestRankDate = null,
         lostCount = null,
         wonCount = null,
-        gamesWonString = null,
-        gamesLostString = null,
         last10Games = null,
         longestStreak = null,
         currentStreakCount = null,

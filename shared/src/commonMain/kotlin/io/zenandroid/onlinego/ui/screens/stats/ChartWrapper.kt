@@ -128,7 +128,7 @@ private fun RankChart(
     if (LocalThemeSettings.current.isDarkTheme) nightBlue else salmon.copy(alpha = 0.4f)
   val rise = remember { Animatable(0f) }
   LaunchedEffect(Unit) { rise.animateTo(1f, tween(durationMillis = 250, easing = LinearEasing)) }
-  val xs = remember(points) { FloatArray(points.size) { points[it].first } }
+  val xs = remember(points) { points.map { it.first } }
   val minX = xs.first()
   val maxX = xs.last()
   val minY = points.minOf { it.second } * .85f
@@ -196,13 +196,13 @@ private fun RankChart(
   }
 }
 
-private fun FloatArray.nearestIndexOf(value: Float): Int {
+internal fun List<Float>.nearestIndexOf(value: Float): Int {
   val found = binarySearch(value)
   if (found >= 0) return found
   val after = -found - 1
   return when {
     after == 0 -> 0
-    after == size -> size - 1
+    after == size -> lastIndex
     value - this[after - 1] <= this[after] - value -> after - 1
     else -> after
   }

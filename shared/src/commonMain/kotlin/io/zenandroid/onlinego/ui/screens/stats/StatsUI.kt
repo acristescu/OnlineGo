@@ -66,6 +66,7 @@ import io.zenandroid.onlinego.resources.stats_win_ratio_by_colour
 import io.zenandroid.onlinego.resources.stats_win_ratio_by_time_controls
 import io.zenandroid.onlinego.resources.stats_won_lost
 import io.zenandroid.onlinego.ui.composables.bottomBarContentPadding
+import io.zenandroid.onlinego.ui.composables.formatDecimal
 import io.zenandroid.onlinego.ui.composables.isCollapseTriggered
 import io.zenandroid.onlinego.ui.screens.game.composables.BoxWithImage
 import io.zenandroid.onlinego.ui.screens.mygames.composables.SenteCard
@@ -79,6 +80,7 @@ import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import kotlin.math.abs
+import kotlin.math.roundToInt
 
 @Composable
 fun StatsScreen(
@@ -134,7 +136,7 @@ private fun StatsContent(
         state.playerDetails?.ratings?.overall?.deviation,
         true
       )
-      val rating = state.playerDetails?.ratings?.overall?.rating?.let { "%.0f".format(it) } ?: ""
+      val rating = state.playerDetails?.ratings?.overall?.rating?.roundToInt()?.toString() ?: ""
 
       Text(
         text = stringResource(Res.string.stats_rank_elo, rank, rating),
@@ -153,7 +155,7 @@ private fun StatsContent(
         )
         StatsGridCell(
           name = stringResource(Res.string.stats_win_rate),
-          value = state.allGames?.winRate?.let { "${"%.1f".format(it * 100f)}%" },
+          value = state.allGames?.winRate?.let { "${formatDecimal(it * 100.0)}%" },
           modifier = Modifier.weight(1f)
         )
       }
@@ -402,7 +404,10 @@ private fun WinLossStatsBar(
       }
       Spacer(modifier = Modifier.weight(1f))
       Text(
-        text = stats?.let { "${"%+.1f".format(value)}%" } ?: " ".repeat(10),
+        text = stats?.let {
+          val percent = formatDecimal(value.toDouble())
+          if (percent.startsWith('-')) "$percent%" else "+$percent%"
+        } ?: " ".repeat(10),
         textAlign = TextAlign.End,
         fontWeight = FontWeight.SemiBold,
         fontSize = 16.sp,

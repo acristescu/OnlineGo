@@ -9,7 +9,7 @@ is no RxJava, no `Parcelable`, and Koin, Molecule, Room, DataStore, `ViewModel`,
 kotlinx-collections-immutable are already multiplatform. The cost is dominated by resources
 (663 strings x 16 locales) and the local-AI engine, which cannot run on iOS as built today.
 
-**Status.** Phases 0-3 are finished: forty-nine slices are done (section 6). Phases 0-2 have
+**Status.** Phases 0-3 are finished: fifty slices are done (section 6). Phases 0-2 have
 shipped in a release; Phase 3 has not, and several slices still need on-device checks (section 1.2).
 Phase 3 moved the Room
 database (6.25), the score estimator (6.26), `CrashReporter` (6.10), the HTTP client (6.27),
@@ -23,8 +23,9 @@ platforms, `BoardView` is gone (6.37) along with the resources and dependencies 
 the ViewModel plumbing, the theme and the first screen, Learn (6.42), then the puzzle screens,
 socket debug and the automatch sheet (6.43), the tutorial and face-to-face screens (6.44), and the
 My Games tab with new challenges and What's new (6.45), the game screen (6.46), the AI game
-(6.47), the Joseki explorer with the bottom bar (6.48), and the rank chart on a Compose `Canvas`
-(6.49). Phase 5 has not started.
+(6.47), the Joseki explorer with the bottom bar (6.48), the rank chart on a Compose `Canvas` (6.49),
+and
+the Stats screen (6.50). Phase 5 has not started.
 
 Earlier, longer versions of this document:
 `git show d529259:docs/KMP_MIGRATION_ASSESSMENT.md` (original assessment) and
@@ -99,18 +100,20 @@ Still owed - unit tests cannot reach these:
   in a description loads that position in place. None of the positions sampled had one.
 - [ ] **The review prompt after a win** (6.46): now requested through `ReviewRequester`, which
   `MainActivity` provides. Not reproducible on the developer account, which has hit Play's quota.
-- [ ] **The rank chart** (6.49), logged in, light and dark: line and fill colours, the rise on
+- [ ] **Stats** (6.49, 6.50), logged in, light and dark: the header's rating, the win-rate cell
+  and the signed win/loss bars in English and `de` (decimal comma), another player's stats from
+  player details, and the rank chart: line and fill colours, the rise on
   first show, dragging moves the crosshair and the tooltip (date in `de`, game number with "by
   games" on), release brings back the summary, a drag on the chart doesn't scroll the screen,
   every range tab, a one-game range, and the empty placeholder.
 
 ### 1.3 Phases 3-5
 
-| Phase                              | Work                                                                                                                                                                                                                                                                                                                     | Estimate                        |
-|------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------|
-| **3 - data layer to `commonMain`** | Done (6.25, 6.27-6.32). Left for the iOS app: the Swift `Analytics`, `AppDataEraser` and `TutorialsSource` and `GameNotificationCanceller` passed to `initKoin()`, a real iOS `CrashReporter`, the iOS HTML placeholder (6.43), Coil's Ktor network fetcher (6.45), and an iOS `ReviewRequester` (6.46).                 | done                            |
-| **4 - Compose Multiplatform**      | UI into `:shared/commonMain`, screen by screen. Resources (4.2), chart, markdown. Done: the board (6.40), icons (6.41), ViewModel plumbing, theme, Learn (6.42), puzzles, socket debug, automatch (6.43), tutorial, face-to-face (6.44), My Games (6.45), game (6.46), AI game (6.47), Joseki (6.48), rank chart (6.49). | 6-10 weeks (resources dominate) |
-| **5 - iOS app**                    | SwiftUI shell + `ComposeUIViewController`, notifications, background refresh, billing, Google sign-in, App Store plumbing. Bitrise needs a macOS stack.                                                                                                                                                                  | 4-8 weeks, excluding local AI   |
+| Phase                              | Work                                                                                                                                                                                                                                                                                                                      | Estimate                        |
+|------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------|
+| **3 - data layer to `commonMain`** | Done (6.25, 6.27-6.32). Left for the iOS app: the Swift `Analytics`, `AppDataEraser` and `TutorialsSource` and `GameNotificationCanceller` passed to `initKoin()`, a real iOS `CrashReporter`, the iOS HTML placeholder (6.43), Coil's Ktor network fetcher (6.45), and an iOS `ReviewRequester` (6.46).                  | done                            |
+| **4 - Compose Multiplatform**      | UI into `:shared/commonMain`, screen by screen. Resources (4.2), chart, markdown. Done: the board (6.40), icons (6.41), ViewModel plumbing, theme, Learn (6.42), puzzles, socket debug, automatch (6.43), tutorial, face-to-face (6.44), My Games (6.45), game (6.46), AI game (6.47), Joseki (6.48), Stats (6.49, 6.50). | 6-10 weeks (resources dominate) |
+| **5 - iOS app**                    | SwiftUI shell + `ComposeUIViewController`, notifications, background refresh, billing, Google sign-in, App Store plumbing. Bitrise needs a macOS stack.                                                                                                                                                                   | 4-8 weeks, excluding local AI   |
 
 Estimates are order-of-magnitude, single developer. The one data point so far: the serialization
 slice came in on time only because the golden-JSON corpus was dropped, which moved verification
@@ -1150,3 +1153,19 @@ test-local class.
   It is public until Stats moves to `commonMain`, then `internal`. `ChartWrapper` has no
   `android.*` imports left.
 - R8 passes on the release build with no rule changes.
+
+### 6.50 Stats in `commonMain`
+
+- `StatsUI`, `StatsViewModel` and `ChartWrapper` are in `commonMain`, same package.
+  `StatsViewModel` is registered in `sharedModule`, and `formatMediumDate` is `internal` now.
+- **`String.format` replaced:** the header rating is `roundToInt()`, and the win-rate cell and
+  the win/loss bars use `formatDecimal`, so they keep the locale's decimal separator. The signed
+  bar prints `+0.0` where Java printed `-0.0` for a value that rounds to zero.
+  `gamesWonString` / `gamesLostString` were written and never read, so they are gone.
+- The chart's nearest-point lookup works on a `List<Float>`, because `FloatArray.binarySearch`
+  is JVM-only. `NearestIndexTest` (`commonTest`) covers it.
+- `iosTest/.../ChartWrapperTest` renders the chart on the simulator. It checks the summary
+  tooltip with a date from `NSDateFormatter` (the simulator's locale gives "15 Mar 2026"), and
+  that touching the chart shows the point and releasing restores the summary.
+- Still English-only, unchanged: the best-streak and highest-rank dates are built in
+  `StatsViewModel` with `MonthNames.ENGLISH_ABBREVIATED`.

@@ -5,7 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 
 @Composable
-actual fun formatMediumDate(epochSeconds: Long): String =
+internal actual fun formatMediumDate(epochSeconds: Long): String =
   DateUtils.formatDateTime(
     LocalContext.current,
     epochSeconds * 1000,

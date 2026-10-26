@@ -8,7 +8,7 @@ import platform.Foundation.NSDateFormatterNoStyle
 import platform.Foundation.dateWithTimeIntervalSince1970
 
 @Composable
-actual fun formatMediumDate(epochSeconds: Long): String =
+internal actual fun formatMediumDate(epochSeconds: Long): String =
   NSDateFormatter().apply {
     dateStyle = NSDateFormatterMediumStyle
     timeStyle = NSDateFormatterNoStyle
