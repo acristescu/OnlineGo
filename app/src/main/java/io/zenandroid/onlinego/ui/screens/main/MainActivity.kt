@@ -43,6 +43,7 @@ import io.zenandroid.onlinego.ui.theme.LocalThemeSettings
 import io.zenandroid.onlinego.ui.theme.PreloadedImages
 import io.zenandroid.onlinego.ui.theme.ThemeSettings
 import io.zenandroid.onlinego.ui.theme.loadPreloadedImages
+import io.zenandroid.onlinego.utils.AppLanguageSetting
 import io.zenandroid.onlinego.utils.AppLocaleManager
 import io.zenandroid.onlinego.utils.LocalReviewRequester
 import io.zenandroid.onlinego.utils.ReviewPromptManager
@@ -54,6 +55,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.conflate
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -70,6 +72,8 @@ class MainActivity : ComponentActivity() {
   private val viewModel: MainActivityViewModel by viewModel()
 
   private val reviewPromptManager: ReviewPromptManager by inject()
+
+  private val appLanguageSetting: AppLanguageSetting by inject()
 
   /** Applies the language the user picked in the settings. See [AppLocaleManager]. */
   override fun attachBaseContext(newBase: Context) {
@@ -126,6 +130,14 @@ class MainActivity : ComponentActivity() {
         dynamicColors = true,
         showCoordinates = state.showCoordinates,
       )
+    }
+
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+      lifecycleScope.launch {
+        appLanguageSetting.language.drop(1).collect {
+          if (resources.configuration.locales[0].language != it.localeTag) recreate()
+        }
+      }
     }
 
     lifecycleScope.launch(Dispatchers.Default) {

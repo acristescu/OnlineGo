@@ -38,6 +38,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navDeepLink
 import co.touchlab.kermit.Logger
+import io.zenandroid.onlinego.BuildConfig
 import io.zenandroid.onlinego.resources.Res
 import io.zenandroid.onlinego.resources.bottomnavigation_botton_learn
 import io.zenandroid.onlinego.resources.bottomnavigation_botton_play
@@ -69,6 +70,8 @@ import io.zenandroid.onlinego.ui.screens.supporter.SupporterScreen
 import io.zenandroid.onlinego.ui.screens.tutorial.TutorialScreen
 import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
 import io.zenandroid.onlinego.utils.Analytics
+import io.zenandroid.onlinego.utils.NotificationUtils
+import io.zenandroid.onlinego.utils.ReviewPromptManager
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.resources.vectorResource
 import org.koin.compose.koinInject
@@ -89,6 +92,8 @@ fun OnlineGoApp(
   val currentDestination = destination?.route
   val activity = LocalActivity.current
   val analytics: Analytics = koinInject()
+  val reviewPromptManager: ReviewPromptManager = koinInject()
+  val notificationUtils: NotificationUtils = koinInject()
 
   val bottomNavItems = listOf(
     BottomNavItem(
@@ -214,6 +219,11 @@ fun OnlineGoApp(
                 navController.navigate(Route.SocketDebug)
               },
               onBottomBarCollapseChanged = { bottomBarCollapsed = it },
+              versionCode = BuildConfig.VERSION_CODE,
+              onForceReviewPrompt = {
+                reviewPromptManager.forceShowReviewPrompt(requireNotNull(activity))
+              },
+              onTestNotification = notificationUtils::notifyGameForDebug,
             )
           }
 

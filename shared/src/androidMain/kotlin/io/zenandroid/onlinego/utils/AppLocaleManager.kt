@@ -30,38 +30,37 @@ import java.util.Locale
  * language) from the system settings - so that is the value read back. Below 13 the choice is
  * applied by wrapping the base context of the application and of every activity.
  */
-class AppLocaleManager(private val context: Context) {
+class AppLocaleManager(private val context: Context) : AppLanguageSetting {
 
   private val _language = MutableStateFlow(currentLanguage(context))
 
   /** The language currently in effect, resolved from the phone when nothing was ever picked. */
-  val language: StateFlow<AppLanguage> = _language.asStateFlow()
+  override val language: StateFlow<AppLanguage> = _language.asStateFlow()
 
   /**
    * Re-reads the language from its source of truth. Worth calling when showing the setting, since
    * on Android 13+ the user can also change it from the system settings, behind our back.
    */
-  fun refresh() {
+  override fun refresh() {
     _language.value = currentLanguage(context)
   }
 
   /**
    * Persists and applies [language].
    *
-   * Returns true if the caller still has to recreate the activity for the change to show up, which
-   * is the case below Android 13. Above it, the platform recreates activities by itself.
+   * Below Android 13 the activity still has to be recreated for the change to show up, which
+   * `MainActivity` does when [language] changes. Above it, the platform recreates activities by
+   * itself.
    */
-  fun setLanguage(language: AppLanguage): Boolean {
+  override fun setLanguage(language: AppLanguage) {
     prefs(context).edit { putString(KEY_LANGUAGE, language.storedValue) }
     _language.value = language
 
-    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
       context.getSystemService(android.app.LocaleManager::class.java)?.applicationLocales =
         LocaleList.forLanguageTags(language.localeTag)
-      false
     } else {
       applyToApplicationResources(language)
-      true
     }
   }
 

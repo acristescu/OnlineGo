@@ -18,6 +18,8 @@ import io.zenandroid.onlinego.data.repositories.whatsNewDataStore
 import io.zenandroid.onlinego.ui.composables.AssetSoundLoader
 import io.zenandroid.onlinego.ui.composables.SoundLoader
 import io.zenandroid.onlinego.utils.Analytics
+import io.zenandroid.onlinego.utils.AppLanguageSetting
+import io.zenandroid.onlinego.utils.AppLocaleManager
 import io.zenandroid.onlinego.utils.FirebaseAppAnalytics
 import io.zenandroid.onlinego.utils.KeyValueStore
 import io.zenandroid.onlinego.utils.SharedPreferencesKeyValueStore
@@ -38,6 +40,7 @@ fun androidPlatformModule(logHttpBodies: Boolean) = module {
   single { Room.databaseBuilder(get(), Database::class.java, "database.db") }
 
   single<Analytics> { FirebaseAppAnalytics(FirebaseAnalytics.getInstance(get())) }
+  single<AppLanguageSetting> { AppLocaleManager(get()) }
   single {
     val context = get<Context>()
     AppDataEraser { context.getSystemService<ActivityManager>()?.clearApplicationUserData() }

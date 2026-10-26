@@ -9,7 +9,7 @@ is no RxJava, no `Parcelable`, and Koin, Molecule, Room, DataStore, `ViewModel`,
 kotlinx-collections-immutable are already multiplatform. The cost is dominated by resources
 (663 strings x 16 locales) and the local-AI engine, which cannot run on iOS as built today.
 
-**Status.** Phases 0-3 are finished: fifty slices are done (section 6). Phases 0-2 have
+**Status.** Phases 0-3 are finished: fifty-one slices are done (section 6). Phases 0-2 have
 shipped in a release; Phase 3 has not, and several slices still need on-device checks (section 1.2).
 Phase 3 moved the Room
 database (6.25), the score estimator (6.26), `CrashReporter` (6.10), the HTTP client (6.27),
@@ -24,8 +24,7 @@ the ViewModel plumbing, the theme and the first screen, Learn (6.42), then the p
 socket debug and the automatch sheet (6.43), the tutorial and face-to-face screens (6.44), and the
 My Games tab with new challenges and What's new (6.45), the game screen (6.46), the AI game
 (6.47), the Joseki explorer with the bottom bar (6.48), the rank chart on a Compose `Canvas` (6.49),
-and
-the Stats screen (6.50). Phase 5 has not started.
+the Stats screen (6.50), and Settings with the language setting (6.51). Phase 5 has not started.
 
 Earlier, longer versions of this document:
 `git show d529259:docs/KMP_MIGRATION_ASSESSMENT.md` (original assessment) and
@@ -79,7 +78,10 @@ offer and
 restore were not checked one by one: the move moved the code unchanged, and their logic is
 covered by `AiGameViewModelTest`, which now runs on both platforms. After 6.48: the Joseki root
 description, a position with YouTube links (the "(video)" label, the link colour in light and
-dark), a link opening YouTube, and the bottom bar.
+dark), a link opening YouTube, and the bottom bar. After 6.51: changing the language on Android
+13+ and below 13 (the recreate from `MainActivity`), the system per-app language on 13+ showing
+in Settings, the notifications row, the translation-guide and privacy links, the build version,
+the review-prompt diagnostic, a test notification, and logout, delete account and the avatar.
 
 Still owed - unit tests cannot reach these:
 
@@ -109,11 +111,11 @@ Still owed - unit tests cannot reach these:
 
 ### 1.3 Phases 3-5
 
-| Phase                              | Work                                                                                                                                                                                                                                                                                                                      | Estimate                        |
-|------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------|
-| **3 - data layer to `commonMain`** | Done (6.25, 6.27-6.32). Left for the iOS app: the Swift `Analytics`, `AppDataEraser` and `TutorialsSource` and `GameNotificationCanceller` passed to `initKoin()`, a real iOS `CrashReporter`, the iOS HTML placeholder (6.43), Coil's Ktor network fetcher (6.45), and an iOS `ReviewRequester` (6.46).                  | done                            |
-| **4 - Compose Multiplatform**      | UI into `:shared/commonMain`, screen by screen. Resources (4.2), chart, markdown. Done: the board (6.40), icons (6.41), ViewModel plumbing, theme, Learn (6.42), puzzles, socket debug, automatch (6.43), tutorial, face-to-face (6.44), My Games (6.45), game (6.46), AI game (6.47), Joseki (6.48), Stats (6.49, 6.50). | 6-10 weeks (resources dominate) |
-| **5 - iOS app**                    | SwiftUI shell + `ComposeUIViewController`, notifications, background refresh, billing, Google sign-in, App Store plumbing. Bitrise needs a macOS stack.                                                                                                                                                                   | 4-8 weeks, excluding local AI   |
+| Phase                              | Work                                                                                                                                                                                                                                                                                                                                                                 | Estimate                        |
+|------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------|
+| **3 - data layer to `commonMain`** | Done (6.25, 6.27-6.32). Left for the iOS app: the Swift `Analytics`, `AppDataEraser` and `TutorialsSource` and `GameNotificationCanceller` passed to `initKoin()`, a real iOS `CrashReporter`, the iOS HTML placeholder (6.43), Coil's Ktor network fetcher (6.45), an iOS `ReviewRequester` (6.46), and a "restart to apply" notice after a language change (6.51). | done                            |
+| **4 - Compose Multiplatform**      | UI into `:shared/commonMain`, screen by screen. Resources (4.2), chart, markdown. Done: the board (6.40), icons (6.41), ViewModel plumbing, theme, Learn (6.42), puzzles, socket debug, automatch (6.43), tutorial, face-to-face (6.44), My Games (6.45), game (6.46), AI game (6.47), Joseki (6.48), Stats (6.49, 6.50), Settings (6.51).                           | 6-10 weeks (resources dominate) |
+| **5 - iOS app**                    | SwiftUI shell + `ComposeUIViewController`, notifications, background refresh, billing, Google sign-in, App Store plumbing. Bitrise needs a macOS stack.                                                                                                                                                                                                              | 4-8 weeks, excluding local AI   |
 
 Estimates are order-of-magnitude, single developer. The one data point so far: the serialization
 slice came in on time only because the golden-JSON corpus was dropped, which moved verification
@@ -157,13 +159,12 @@ appears, or local AI needs Play Feature Delivery for its 265 MB of assets. Basel
 `HTTPConnectionFactory` (6.23), Firebase Analytics and Crashlytics in common code (6.9, 6.10),
 DataStore (6.28), `BoardView` (6.37), `lifecycle-extensions` and `firebase-messaging` (6.38),
 `material-icons-extended` (6.41), `koin-androidx-compose` and Molecule's `AndroidUiDispatcher` (
-6.42), Markwon (6.48), MPAndroidChart and JitPack (6.49).
+6.42), Markwon (6.48), MPAndroidChart and JitPack (6.49), `AppLocaleManager` (6.51).
 
 | Dependency                                      | Replacement                                                                                           | When                |
 |-------------------------------------------------|-------------------------------------------------------------------------------------------------------|---------------------|
 | navigation-compose (androidx)                   | `org.jetbrains.androidx.navigation`; routes are already `@Serializable` (6.19)                        | Phase 4             |
 | Android resources (`R.*`)                       | Strings (6.36), UI drawables (6.39) and board assets (6.40) done; colors and raw still `R.*`          | Phase 4             |
-| `AppLocaleManager`                              | `expect`/`actual`; iOS writes `AppleLanguages` and needs a restart                                    | Phase 4             |
 | WorkManager                                     | `expect`/`actual` `BackgroundSync`; iOS `BGAppRefreshTask`                                            | Phase 5 (see risks) |
 | `NotificationUtils` (399 LOC)                   | `expect`/`actual`; the board is already drawn by `renderBoard` (6.37); `notification_board.xml` stays | Phase 5             |
 | Play Billing                                    | StoreKit, or RevenueCat `purchases-kmp`                                                               | Phase 5             |
@@ -1169,3 +1170,29 @@ test-local class.
   that touching the chart shows the point and releasing restores the summary.
 - Still English-only, unchanged: the best-streak and highest-rank dates are built in
   `StatsViewModel` with `MonthNames.ENGLISH_ABBREVIATED`.
+
+### 6.51 Settings in `commonMain`
+
+- `SettingsUI` and `SettingsViewModel` are in `commonMain`, same package. `SettingsViewModel` is
+  registered in `sharedModule`.
+- **The language is a platform contract**, `AppLanguageSetting` (`language`, `refresh`,
+  `setLanguage`).
+  - Android: `AppLocaleManager` moved to `androidMain` unchanged apart from `setLanguage`
+    returning `Unit`, and is bound in `androidPlatformModule`.
+  - Below Android 13 the activity is now recreated by `MainActivity`, which collects
+    `language.drop(1)`, instead of by Settings through `LocalActivity`. It recreates only when
+    the activity's primary locale differs from the new language. Without that check, `refresh()`
+    caused a second recreate: after a phone-language change the platform has already recreated
+    the activity, and Settings then reads the new language.
+  - iOS: `UserDefaultsAppLanguageSetting` reads and writes `AppleLanguages`, walking the list
+    like Android. Compose Multiplatform resources pick a new language up on the next launch, so
+    the iOS app owes a "restart to apply" notice.
+- **Notification settings:** `rememberOpenNotificationSettings()`, an `expect`/`actual`. Android
+  keeps the old intent and extras, using `LocalContext`. iOS opens the app's page in Settings.
+- **Links** go through `LocalUriHandler`.
+- **From `:app`, through `Navigation`:** `versionCode`, plus the two debug rows' actions
+  (`ReviewPromptManager.forceShowReviewPrompt` and `NotificationUtils.notifyGameForDebug`) as
+  suspend lambdas. `ReviewDiagnosticResult` moved to `commonMain`, with `error::class.qualifiedName`
+  in place of `javaClass.name`.
+- `UserDefaultsAppLanguageSettingTest` (`iosTest`) covers the round trip, the first translated
+  entry winning, and the fallback. `SharedModuleTest` stubs the new binding.

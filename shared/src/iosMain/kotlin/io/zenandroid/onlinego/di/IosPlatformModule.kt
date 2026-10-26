@@ -12,7 +12,9 @@ import io.zenandroid.onlinego.data.ogs.KeyValueCookiePersistence
 import io.zenandroid.onlinego.data.ogs.SessionCookiePersistence
 import io.zenandroid.onlinego.ui.composables.BundleSoundLoader
 import io.zenandroid.onlinego.ui.composables.SoundLoader
+import io.zenandroid.onlinego.utils.AppLanguageSetting
 import io.zenandroid.onlinego.utils.KeyValueStore
+import io.zenandroid.onlinego.utils.UserDefaultsAppLanguageSetting
 import io.zenandroid.onlinego.utils.UserDefaultsKeyValueStore
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.coroutines.CoroutineScope
@@ -34,6 +36,7 @@ val iosPlatformModule = module {
   single(WHATS_NEW_DATA_STORE) { preferencesDataStore("whats_new", get()) }
   single<SoundLoader> { BundleSoundLoader }
   single<AnalysisEngine> { UnavailableAnalysisEngine }
+  single<AppLanguageSetting> { UserDefaultsAppLanguageSetting() }
   single {
     Room.databaseBuilder<Database>(name = applicationSupportPath("database.db"))
       .setDriver(BundledSQLiteDriver())

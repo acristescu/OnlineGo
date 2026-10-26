@@ -15,6 +15,7 @@ import io.zenandroid.onlinego.data.db.Database
 import io.zenandroid.onlinego.data.db.DatabaseTest
 import io.zenandroid.onlinego.data.db.GameDao
 import io.zenandroid.onlinego.data.db.PuzzleDao
+import io.zenandroid.onlinego.data.model.AppLanguage
 import io.zenandroid.onlinego.data.ogs.OGSRestAPI
 import io.zenandroid.onlinego.data.ogs.OGSRestService
 import io.zenandroid.onlinego.data.ogs.OGSWebSocketService
@@ -54,12 +55,14 @@ import io.zenandroid.onlinego.ui.screens.puzzle.tsumego.TsumegoViewModel
 import io.zenandroid.onlinego.ui.screens.socketdebug.SocketDebugViewModel
 import io.zenandroid.onlinego.usecases.GetUserStatsUseCase
 import io.zenandroid.onlinego.utils.Analytics
+import io.zenandroid.onlinego.utils.AppLanguageSetting
 import io.zenandroid.onlinego.utils.GameNotificationCanceller
 import io.zenandroid.onlinego.utils.KeyValueStore
 import io.zenandroid.onlinego.utils.PersistenceManager
 import io.zenandroid.onlinego.utils.WhatsNewUtils
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
 import okio.FileSystem
 import org.koin.core.context.startKoin
@@ -176,6 +179,15 @@ internal fun stubPlatformModule(scope: CoroutineScope, tutorialsJson: String = "
   single { GameNotificationCanceller {} }
   single<SoundLoader> { BundleSoundLoader }
   single<AnalysisEngine> { UnavailableAnalysisEngine }
+  single<AppLanguageSetting> {
+    object : AppLanguageSetting {
+      override val language = MutableStateFlow(AppLanguage.DEFAULT)
+      override fun refresh() {}
+      override fun setLanguage(language: AppLanguage) {
+        this.language.value = language
+      }
+    }
+  }
 }
 
 private fun tempDataStore(scope: CoroutineScope) =

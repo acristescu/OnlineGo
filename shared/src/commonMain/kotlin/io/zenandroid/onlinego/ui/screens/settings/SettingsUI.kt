@@ -1,8 +1,5 @@
 package io.zenandroid.onlinego.ui.screens.settings
 
-import android.app.Activity
-import android.content.Intent
-import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -68,6 +65,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -78,16 +76,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import androidx.core.net.toUri
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import coil3.compose.LocalPlatformContext
 import coil3.request.ImageRequest
-import io.zenandroid.onlinego.BuildConfig
 import io.zenandroid.onlinego.data.model.AppLanguage
 import io.zenandroid.onlinego.data.model.AppTheme
 import io.zenandroid.onlinego.data.model.BoardTheme
 import io.zenandroid.onlinego.data.model.UserSettings
+import io.zenandroid.onlinego.data.model.local.Game
 import io.zenandroid.onlinego.data.repositories.ActiveGamesRepository
 import io.zenandroid.onlinego.resources.Res
 import io.zenandroid.onlinego.resources.cancel
@@ -148,6 +145,7 @@ import io.zenandroid.onlinego.resources.settings_whats_new
 import io.zenandroid.onlinego.ui.composables.WhatsNewBottomSheet
 import io.zenandroid.onlinego.ui.composables.bottomBarContentPadding
 import io.zenandroid.onlinego.ui.composables.isCollapseTriggered
+import io.zenandroid.onlinego.ui.composables.rememberOpenNotificationSettings
 import io.zenandroid.onlinego.ui.composables.resolve
 import io.zenandroid.onlinego.ui.screens.mygames.composables.SenteCard
 import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.BoardThemeClicked
@@ -166,10 +164,8 @@ import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.SupportClicked
 import io.zenandroid.onlinego.ui.screens.settings.SettingsAction.ThemeClicked
 import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
 import io.zenandroid.onlinego.ui.theme.style
-import io.zenandroid.onlinego.utils.AppLocaleManager
-import io.zenandroid.onlinego.utils.NotificationUtils
+import io.zenandroid.onlinego.utils.AppLanguageSetting
 import io.zenandroid.onlinego.utils.ReviewDiagnosticResult
-import io.zenandroid.onlinego.utils.ReviewPromptManager
 import io.zenandroid.onlinego.utils.TRANSLATING_GUIDE_URL
 import io.zenandroid.onlinego.utils.processGravatarURL
 import kotlinx.coroutines.flow.first
@@ -187,24 +183,26 @@ fun SettingsScreen(
   onNavigateToSupport: () -> Unit,
   onNavigateToSocketDebug: () -> Unit = {},
   onBottomBarCollapseChanged: (Boolean) -> Unit = {},
+  versionCode: Int,
+  onForceReviewPrompt: suspend () -> ReviewDiagnosticResult,
+  onTestNotification: suspend (Game) -> Unit,
 ) {
   val state by viewModel.state.collectAsStateWithLifecycle()
   val userSettings by viewModel.userSettings.collectAsStateWithLifecycle()
 
-  val appLocaleManager: AppLocaleManager = koinInject()
-  val language by appLocaleManager.language.collectAsStateWithLifecycle()
+  val appLanguageSetting: AppLanguageSetting = koinInject()
+  val language by appLanguageSetting.language.collectAsStateWithLifecycle()
 
   // On Android 13+ the language can also be changed from the system settings, so re-read it.
-  LaunchedEffect(Unit) { appLocaleManager.refresh() }
+  LaunchedEffect(Unit) { appLanguageSetting.refresh() }
 
   var dialogData by remember { mutableStateOf<DialogData?>(null) }
   var reviewDiagnosticResult by remember { mutableStateOf<ReviewDiagnosticResult?>(null) }
   var whatsNewVisible by remember { mutableStateOf(false) }
 
-  val activity = LocalActivity.current
-  val reviewPromptManager: ReviewPromptManager = koinInject()
+  val uriHandler = LocalUriHandler.current
+  val openNotificationSettings = rememberOpenNotificationSettings()
   val activeGamesRepository: ActiveGamesRepository = koinInject()
-  val notificationUtils: NotificationUtils = koinInject()
   val coroutineScope = rememberCoroutineScope()
   val logoutTitle = stringResource(Res.string.settings_logout_dialog_title)
   val logoutMessage = stringResource(Res.string.settings_logout_dialog_message)
@@ -215,27 +213,18 @@ fun SettingsScreen(
     state = state,
     userSettings = userSettings,
     language = language,
+    versionCode = versionCode,
     onBottomBarCollapseChanged = onBottomBarCollapseChanged,
     onAction = {
       when (it) {
-        is NotificationsClicked -> navigateToNotifications(activity)
-        is LanguageClicked -> {
-          if (appLocaleManager.setLanguage(it.language)) {
-            activity?.recreate()
-          }
-        }
-
-        is HelpTranslateClicked -> activity?.startActivity(
-          Intent(Intent.ACTION_VIEW, TRANSLATING_GUIDE_URL.toUri())
-        )
+        is NotificationsClicked -> openNotificationSettings()
+        is LanguageClicked -> appLanguageSetting.setLanguage(it.language)
+        is HelpTranslateClicked -> uriHandler.openUri(TRANSLATING_GUIDE_URL)
 
         is SettingsAction.WhatsNewClicked -> whatsNewVisible = true
 
-        is PrivacyClicked -> activity?.startActivity(
-          Intent(
-            Intent.ACTION_VIEW,
-            "https://www.freeprivacypolicy.com/privacy/view/40f932df1dfc9af1b04df367aa6f14f0".toUri()
-          )
+        is PrivacyClicked -> uriHandler.openUri(
+          "https://www.freeprivacypolicy.com/privacy/view/40f932df1dfc9af1b04df367aa6f14f0"
         )
 
         is LogoutClicked -> dialogData = DialogData(
@@ -248,18 +237,13 @@ fun SettingsScreen(
 
         is SupportClicked -> onNavigateToSupport()
         is SettingsAction.SocketDebugClicked -> onNavigateToSocketDebug()
-        is SettingsAction.ReviewPromptClicked -> {
-          activity?.let { act ->
-            coroutineScope.launch {
-              val result = reviewPromptManager.forceShowReviewPrompt(act)
-              reviewDiagnosticResult = result
-            }
-          }
+        is SettingsAction.ReviewPromptClicked -> coroutineScope.launch {
+          reviewDiagnosticResult = onForceReviewPrompt()
         }
 
         is SettingsAction.TestNotificationClicked -> coroutineScope.launch {
           activeGamesRepository.monitorActiveGames().first().firstOrNull()
-            ?.let { game -> notificationUtils.notifyGameForDebug(game) }
+            ?.let { game -> onTestNotification(game) }
         }
 
         else -> viewModel.onAction(it)
@@ -406,6 +390,7 @@ private fun SettingsContent(
   state: SettingsState,
   userSettings: UserSettings,
   language: AppLanguage,
+  versionCode: Int,
   onAction: (SettingsAction) -> Unit,
   onBottomBarCollapseChanged: (Boolean) -> Unit = {},
 ) {
@@ -614,7 +599,7 @@ private fun SettingsContent(
       }
     }
     Text(
-      text = stringResource(Res.string.settings_build_version, BuildConfig.VERSION_CODE),
+      text = stringResource(Res.string.settings_build_version, versionCode),
       fontSize = 12.sp,
       color = MaterialTheme.colorScheme.onSurface,
       modifier = Modifier
@@ -760,20 +745,6 @@ private fun Section(title: String, content: @Composable () -> Unit) {
   }
 }
 
-private fun navigateToNotifications(activity: Activity?) {
-  val intent = Intent()
-  intent.action = "android.settings.APP_NOTIFICATION_SETTINGS"
-
-  //for Android 5-7
-  intent.putExtra("app_package", activity?.packageName)
-  intent.putExtra("app_uid", activity?.applicationInfo?.uid)
-
-  // for Android O
-  intent.putExtra("android.provider.extra.APP_PACKAGE", activity?.packageName)
-
-  activity?.startActivity(intent)
-}
-
 @Composable
 @Preview(showBackground = true)
 private fun SettingsScreenPreview() {
@@ -791,7 +762,8 @@ private fun SettingsScreenPreview() {
           showCoordinates = true
         ),
         AppLanguage.ENGLISH,
-        {})
+        versionCode = 1,
+        onAction = {})
     }
   }
 }
