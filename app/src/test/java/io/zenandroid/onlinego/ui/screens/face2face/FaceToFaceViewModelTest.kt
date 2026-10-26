@@ -53,7 +53,7 @@ class FaceToFaceViewModelTest {
   @get:Rule
   val instantExecutorRule = InstantTaskExecutorRule()
 
-  private lateinit var viewModel: FaceToFaceViewModel
+  private val viewModel by lazy { koinTestRule.koin.get<FaceToFaceViewModel>() }
 
   @Before
   fun setUp() {
@@ -64,8 +64,6 @@ class FaceToFaceViewModelTest {
     whenever(settingsRepository.faceToFaceHistoryFlow).thenReturn(flowOf(null))
     whenever(settingsRepository.faceToFaceBoardSizeFlow).thenReturn(flowOf(null))
     whenever(settingsRepository.faceToFaceHandicapFlow).thenReturn(flowOf(null))
-
-    viewModel = koinTestRule.koin.get()
   }
 
   @After
@@ -175,7 +173,6 @@ class FaceToFaceViewModelTest {
     whenever(settingsRepository.faceToFaceHistoryFlow).thenReturn(flowOf("7,10 5,10 10,12"))
     whenever(settingsRepository.faceToFaceBoardSizeFlow).thenReturn(flowOf(BoardSize.SMALL.prettyName))
     whenever(settingsRepository.faceToFaceHandicapFlow).thenReturn(flowOf(0))
-    val viewModel = koinTestRule.koin.get<FaceToFaceViewModel>()
 
     runTest {
       moleculeFlow(RecompositionMode.Immediate) {
