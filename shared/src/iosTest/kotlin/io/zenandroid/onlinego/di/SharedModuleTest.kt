@@ -11,6 +11,9 @@ import io.ktor.client.engine.mock.respondError
 import io.ktor.http.HttpStatusCode
 import io.zenandroid.onlinego.ai.AnalysisEngine
 import io.zenandroid.onlinego.ai.UnavailableAnalysisEngine
+import io.zenandroid.onlinego.data.billing.SupporterProduct
+import io.zenandroid.onlinego.data.billing.SupporterPurchase
+import io.zenandroid.onlinego.data.billing.SupporterStore
 import io.zenandroid.onlinego.data.db.Database
 import io.zenandroid.onlinego.data.db.DatabaseTest
 import io.zenandroid.onlinego.data.db.GameDao
@@ -186,6 +189,12 @@ internal fun stubPlatformModule(scope: CoroutineScope, tutorialsJson: String = "
       override fun setLanguage(language: AppLanguage) {
         this.language.value = language
       }
+    }
+  }
+  single<SupporterStore> {
+    object : SupporterStore {
+      override suspend fun queryPurchases() = emptyList<SupporterPurchase>()
+      override suspend fun queryAvailableSubscriptions() = emptyList<SupporterProduct>()
     }
   }
 }

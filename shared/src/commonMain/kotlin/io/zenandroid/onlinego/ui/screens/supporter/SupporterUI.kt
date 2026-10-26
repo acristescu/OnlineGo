@@ -1,8 +1,5 @@
 package io.zenandroid.onlinego.ui.screens.supporter
 
-import android.content.Intent
-import android.widget.Toast
-import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -30,6 +27,9 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -38,12 +38,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -52,12 +53,12 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.net.toUri
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import io.zenandroid.onlinego.playstore.PlayStoreService
+import io.zenandroid.onlinego.data.billing.SupporterProduct
+import io.zenandroid.onlinego.data.billing.SupporterPurchase
 import io.zenandroid.onlinego.resources.Res
 import io.zenandroid.onlinego.resources.back
 import io.zenandroid.onlinego.resources.ic_board_transparent
@@ -91,7 +92,7 @@ import io.zenandroid.onlinego.resources.supporter_title
 import io.zenandroid.onlinego.resources.supporter_update_amount
 import io.zenandroid.onlinego.ui.theme.OnlineGoTheme
 import io.zenandroid.onlinego.utils.Analytics
-import io.zenandroid.onlinego.utils.CrashReporter
+import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.resources.vectorResource
 import org.koin.compose.koinInject
@@ -101,6 +102,7 @@ import org.koin.compose.viewmodel.koinViewModel
 fun SupporterScreen(
   viewModel: SupporterViewModel = koinViewModel(),
   onNavigateBack: () -> Unit,
+  onLaunchBillingFlow: suspend (SupporterProduct, SupporterPurchase?) -> Unit,
 ) {
   val state by viewModel.state.collectAsStateWithLifecycle()
 
@@ -119,53 +121,51 @@ fun SupporterScreen(
       lifecycleOwner.lifecycle.removeObserver(observer)
     }
   }
-  val context = LocalContext.current
-  val activity = LocalActivity.current
-  val playStore: PlayStoreService = koinInject()
+  val uriHandler = LocalUriHandler.current
   val analytics: Analytics = koinInject()
+  val snackbarHostState = remember { SnackbarHostState() }
   LaunchedEffect(Unit) {
     viewModel.events.collect { event ->
       when (event) {
-        is SupporterEvent.ShowError -> Toast.makeText(
-          context,
-          event.throwable.message,
-          Toast.LENGTH_LONG
-        ).show()
-        is SupporterEvent.LaunchBillingFlow -> activity?.let {
-          try {
-            playStore.launchBillingFlow(it, event.product, event.oldPurchase)
-          } catch (e: Exception) {
-            viewModel.onError(e)
-          }
+        is SupporterEvent.ShowError -> launch {
+          snackbarHostState.showSnackbar(
+            event.throwable.message ?: event.throwable.toString(),
+            duration = SnackbarDuration.Long,
+          )
+        }
+
+        is SupporterEvent.LaunchBillingFlow -> try {
+          onLaunchBillingFlow(event.product, event.oldPurchase)
+        } catch (e: Exception) {
+          viewModel.onError(e)
         }
       }
     }
   }
 
-  SupporterContent(
-    state = state,
-    onBackClick = onNavigateBack,
-    onSubscribeClick = {
-      activity?.let {
+  Box {
+    SupporterContent(
+      state = state,
+      onBackClick = onNavigateBack,
+      onSubscribeClick = {
         viewModel.onSubscribeClick()
         analytics.logEvent("start_subscription_flow")
-      } ?: run {
-        CrashReporter.recordException(Throwable("Activity is null, cannot start subscription flow"))
-      }
-    },
-    onCancelSubscriptionClick = {
-      activity?.let {
-        it.startActivity(Intent(Intent.ACTION_VIEW).apply {
-          data =
-            "https://play.google.com/store/account/subscriptions?package=io.zenandroid.onlinego".toUri()
-        })
+      },
+      onCancelSubscriptionClick = {
+        uriHandler.openUri(
+          "https://play.google.com/store/account/subscriptions?package=io.zenandroid.onlinego"
+        )
         analytics.logEvent("cancel_subscription")
-      } ?: run {
-        CrashReporter.recordException(Throwable("Activity is null, cannot cancel subscription"))
-      }
-    },
-    onSliderChange = viewModel::onUserDragSlider
-  )
+      },
+      onSliderChange = viewModel::onUserDragSlider
+    )
+    SnackbarHost(
+      hostState = snackbarHostState,
+      modifier = Modifier
+        .align(Alignment.BottomCenter)
+        .systemBarsPadding(),
+    )
+  }
 
 }
 

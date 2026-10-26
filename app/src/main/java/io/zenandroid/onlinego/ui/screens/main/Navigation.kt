@@ -39,6 +39,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navDeepLink
 import co.touchlab.kermit.Logger
 import io.zenandroid.onlinego.BuildConfig
+import io.zenandroid.onlinego.playstore.PlayStoreService
 import io.zenandroid.onlinego.resources.Res
 import io.zenandroid.onlinego.resources.bottomnavigation_botton_learn
 import io.zenandroid.onlinego.resources.bottomnavigation_botton_play
@@ -94,6 +95,7 @@ fun OnlineGoApp(
   val analytics: Analytics = koinInject()
   val reviewPromptManager: ReviewPromptManager = koinInject()
   val notificationUtils: NotificationUtils = koinInject()
+  val playStoreService: PlayStoreService = koinInject()
 
   val bottomNavItems = listOf(
     BottomNavItem(
@@ -261,6 +263,9 @@ fun OnlineGoApp(
           composable<Route.Supporter> {
             SupporterScreen(
               onNavigateBack = navController::popBackStack,
+              onLaunchBillingFlow = { product, oldPurchase ->
+                playStoreService.launchBillingFlow(requireNotNull(activity), product, oldPurchase)
+              },
             )
           }
 

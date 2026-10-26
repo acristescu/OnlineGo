@@ -9,7 +9,7 @@ is no RxJava, no `Parcelable`, and Koin, Molecule, Room, DataStore, `ViewModel`,
 kotlinx-collections-immutable are already multiplatform. The cost is dominated by resources
 (663 strings x 16 locales) and the local-AI engine, which cannot run on iOS as built today.
 
-**Status.** Phases 0-3 are finished: fifty-one slices are done (section 6). Phases 0-2 have
+**Status.** Phases 0-3 are finished: fifty-two slices are done (section 6). Phases 0-2 have
 shipped in a release; Phase 3 has not, and several slices still need on-device checks (section 1.2).
 Phase 3 moved the Room
 database (6.25), the score estimator (6.26), `CrashReporter` (6.10), the HTTP client (6.27),
@@ -24,7 +24,8 @@ the ViewModel plumbing, the theme and the first screen, Learn (6.42), then the p
 socket debug and the automatch sheet (6.43), the tutorial and face-to-face screens (6.44), and the
 My Games tab with new challenges and What's new (6.45), the game screen (6.46), the AI game
 (6.47), the Joseki explorer with the bottom bar (6.48), the rank chart on a Compose `Canvas` (6.49),
-the Stats screen (6.50), and Settings with the language setting (6.51). Phase 5 has not started.
+the Stats screen (6.50), Settings with the language setting (6.51), and Supporter on a billing
+contract (6.52). Phase 5 has not started.
 
 Earlier, longer versions of this document:
 `git show d529259:docs/KMP_MIGRATION_ASSESSMENT.md` (original assessment) and
@@ -82,6 +83,7 @@ dark), a link opening YouTube, and the bottom bar. After 6.51: changing the lang
 13+ and below 13 (the recreate from `MainActivity`), the system per-app language on 13+ showing
 in Settings, the notifications row, the translation-guide and privacy links, the build version,
 the review-prompt diagnostic, a test notification, and logout, delete account and the avatar.
+After 6.52: a failed billing query showing as a snackbar on Supporter.
 
 Still owed - unit tests cannot reach these:
 
@@ -108,14 +110,17 @@ Still owed - unit tests cannot reach these:
   first show, dragging moves the crosshair and the tooltip (date in `de`, game number with "by
   games" on), release brings back the summary, a drag on the chart doesn't scroll the screen,
   every range tab, a one-game range, and the empty placeholder.
+- [ ] **Supporter** (6.52), on a production build (billing does not work on debug builds): tiers
+  and prices load, the slider and the subscribe button, the billing sheet opens, an upgrade or
+  downgrade from an active subscription, and the manage-subscription link.
 
 ### 1.3 Phases 3-5
 
-| Phase                              | Work                                                                                                                                                                                                                                                                                                                                                                 | Estimate                        |
-|------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------|
-| **3 - data layer to `commonMain`** | Done (6.25, 6.27-6.32). Left for the iOS app: the Swift `Analytics`, `AppDataEraser` and `TutorialsSource` and `GameNotificationCanceller` passed to `initKoin()`, a real iOS `CrashReporter`, the iOS HTML placeholder (6.43), Coil's Ktor network fetcher (6.45), an iOS `ReviewRequester` (6.46), and a "restart to apply" notice after a language change (6.51). | done                            |
-| **4 - Compose Multiplatform**      | UI into `:shared/commonMain`, screen by screen. Resources (4.2), chart, markdown. Done: the board (6.40), icons (6.41), ViewModel plumbing, theme, Learn (6.42), puzzles, socket debug, automatch (6.43), tutorial, face-to-face (6.44), My Games (6.45), game (6.46), AI game (6.47), Joseki (6.48), Stats (6.49, 6.50), Settings (6.51).                           | 6-10 weeks (resources dominate) |
-| **5 - iOS app**                    | SwiftUI shell + `ComposeUIViewController`, notifications, background refresh, billing, Google sign-in, App Store plumbing. Bitrise needs a macOS stack.                                                                                                                                                                                                              | 4-8 weeks, excluding local AI   |
+| Phase                              | Work                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  | Estimate                        |
+|------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------|
+| **3 - data layer to `commonMain`** | Done (6.25, 6.27-6.32). Left for the iOS app: the Swift `Analytics`, `AppDataEraser` and `TutorialsSource` and `GameNotificationCanceller` passed to `initKoin()`, a real iOS `CrashReporter`, the iOS HTML placeholder (6.43), Coil's Ktor network fetcher (6.45), an iOS `ReviewRequester` (6.46), a "restart to apply" notice after a language change (6.51), and a `SupporterStore` (StoreKit or RevenueCat) with iOS wording for the supporter copy, which names Android and Google Play (6.52). | done                            |
+| **4 - Compose Multiplatform**      | UI into `:shared/commonMain`, screen by screen. Resources (4.2), chart, markdown. Done: the board (6.40), icons (6.41), ViewModel plumbing, theme, Learn (6.42), puzzles, socket debug, automatch (6.43), tutorial, face-to-face (6.44), My Games (6.45), game (6.46), AI game (6.47), Joseki (6.48), Stats (6.49, 6.50), Settings (6.51), Supporter (6.52).                                                                                                                                          | 6-10 weeks (resources dominate) |
+| **5 - iOS app**                    | SwiftUI shell + `ComposeUIViewController`, notifications, background refresh, billing, Google sign-in, App Store plumbing. Bitrise needs a macOS stack.                                                                                                                                                                                                                                                                                                                                               | 4-8 weeks, excluding local AI   |
 
 Estimates are order-of-magnitude, single developer. The one data point so far: the serialization
 slice came in on time only because the golden-JSON corpus was dropped, which moved verification
@@ -161,16 +166,16 @@ DataStore (6.28), `BoardView` (6.37), `lifecycle-extensions` and `firebase-messa
 `material-icons-extended` (6.41), `koin-androidx-compose` and Molecule's `AndroidUiDispatcher` (
 6.42), Markwon (6.48), MPAndroidChart and JitPack (6.49), `AppLocaleManager` (6.51).
 
-| Dependency                                      | Replacement                                                                                           | When                |
-|-------------------------------------------------|-------------------------------------------------------------------------------------------------------|---------------------|
-| navigation-compose (androidx)                   | `org.jetbrains.androidx.navigation`; routes are already `@Serializable` (6.19)                        | Phase 4             |
-| Android resources (`R.*`)                       | Strings (6.36), UI drawables (6.39) and board assets (6.40) done; colors and raw still `R.*`          | Phase 4             |
-| WorkManager                                     | `expect`/`actual` `BackgroundSync`; iOS `BGAppRefreshTask`                                            | Phase 5 (see risks) |
-| `NotificationUtils` (399 LOC)                   | `expect`/`actual`; the board is already drawn by `renderBoard` (6.37); `notification_board.xml` stays | Phase 5             |
-| Play Billing                                    | StoreKit, or RevenueCat `purchases-kmp`                                                               | Phase 5             |
-| Play In-App Review                              | `SKStoreReviewController`                                                                             | Phase 5             |
-| play-services-auth                              | Credential Manager / iOS Google SDK; the token exchange is already plain REST                         | Phase 5             |
-| Mockito, compose screenshot plugin              | stay on the Android target; new `commonTest` uses fakes + Turbine                                     | No change           |
+| Dependency                         | Replacement                                                                                           | When                |
+|------------------------------------|-------------------------------------------------------------------------------------------------------|---------------------|
+| navigation-compose (androidx)      | `org.jetbrains.androidx.navigation`; routes are already `@Serializable` (6.19)                        | Phase 4             |
+| Android resources (`R.*`)          | Strings (6.36), UI drawables (6.39) and board assets (6.40) done; colors and raw still `R.*`          | Phase 4             |
+| WorkManager                        | `expect`/`actual` `BackgroundSync`; iOS `BGAppRefreshTask`                                            | Phase 5 (see risks) |
+| `NotificationUtils` (399 LOC)      | `expect`/`actual`; the board is already drawn by `renderBoard` (6.37); `notification_board.xml` stays | Phase 5             |
+| Play Billing                       | `SupporterStore` contract done (6.52); iOS needs StoreKit, or RevenueCat `purchases-kmp`              | Phase 5             |
+| Play In-App Review                 | `SKStoreReviewController`                                                                             | Phase 5             |
+| play-services-auth                 | Credential Manager / iOS Google SDK; the token exchange is already plain REST                         | Phase 5             |
+| Mockito, compose screenshot plugin | stay on the Android target; new `commonTest` uses fakes + Turbine                                     | No change           |
 
 **Stays Android-only by design:** `MainActivity` (edge-to-edge, deep links, `isInForeground`),
 Material You dynamic color (`expect`/`actual` since 6.42), the window theme in `styles.xml` (the
@@ -1196,3 +1201,25 @@ test-local class.
   in place of `javaClass.name`.
 - `UserDefaultsAppLanguageSettingTest` (`iosTest`) covers the round trip, the first translated
   entry winning, and the fallback. `SharedModuleTest` stubs the new binding.
+
+### 6.52 Supporter in `commonMain`
+
+- `SupporterUI` and `SupporterViewModel` are in `commonMain`, same package. `SupporterViewModel`
+  is registered in `sharedModule`.
+- **Billing is a contract**, `SupporterStore` (`data.billing`), with plain `SupporterProduct` (id,
+  formatted price) and `SupporterPurchase` (product ids, auto-renewing, token). The ViewModel and
+  its state no longer touch Play Billing types.
+  - `PlayStoreService` stays in `:app` with the billing dependency, implements the contract, and
+    is bound as both. It keeps the last queried `ProductDetails` by id, because the billing flow
+    needs them.
+  - The formatted price is the first offer's first pricing phase, as before.
+  - iOS binds `UnavailableSupporterStore`, which throws, so the screen shows the error.
+- **`launchBillingFlow` needs an `Activity`,** so `Navigation` passes it in as a suspend lambda.
+  The manage-subscription link goes through `LocalUriHandler`. The `activity?.let` /
+  `CrashReporter` guards went with the activity.
+- **Errors show as a `Snackbar`** (bottom, above the system bars) instead of a `Toast`. A null
+  message falls back to the exception's `toString()`; the toast showed it empty.
+- `SupporterViewModelTest` (`commonTest`, a fake store) covers filtering and price order, tier
+  selection with and without a subscription, a non-renewing purchase, the subscribe-button rule,
+  the billing-flow event, and a failed query. It sets `Dispatchers.Main` and waits on real time,
+  since the ViewModel queries on `Dispatchers.IO`.

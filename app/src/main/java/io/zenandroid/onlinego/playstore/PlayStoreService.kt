@@ -17,6 +17,9 @@ import com.android.billingclient.api.Purchase
 import com.android.billingclient.api.QueryProductDetailsParams
 import com.android.billingclient.api.QueryPurchasesParams
 import com.android.billingclient.api.queryProductDetails
+import io.zenandroid.onlinego.data.billing.SupporterProduct
+import io.zenandroid.onlinego.data.billing.SupporterPurchase
+import io.zenandroid.onlinego.data.billing.SupporterStore
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -25,8 +28,9 @@ import kotlin.coroutines.resumeWithException
 
 class PlayStoreService(
   private val context: Context
-) {
+) : SupporterStore {
   private val connectionMutex = Mutex()
+  private var productDetails = emptyMap<String, ProductDetails>()
   private val possibleSubscriptions = (1..25).map {
     QueryProductDetailsParams.Product.newBuilder()
       .setProductId("supporter_$it")
@@ -92,20 +96,28 @@ class PlayStoreService(
     }
   }
 
-  suspend fun queryAvailableSubscriptions(): List<ProductDetails> {
+  override suspend fun queryAvailableSubscriptions(): List<SupporterProduct> {
     connect()
     val params = QueryProductDetailsParams.newBuilder()
       .setProductList(possibleSubscriptions)
       .build()
     val result = billingClient.queryProductDetails(params)
     if (result.billingResult.responseCode == BillingResponseCode.OK && !result.productDetailsList.isNullOrEmpty()) {
-      return result.productDetailsList!!
+      val details = result.productDetailsList!!
+      productDetails = details.associateBy { it.productId }
+      return details.map {
+        SupporterProduct(
+          id = it.productId,
+          formattedPrice = it.subscriptionOfferDetails?.firstOrNull()?.pricingPhases
+            ?.pricingPhaseList?.firstOrNull()?.formattedPrice ?: "",
+        )
+      }
     } else {
       throw Exception("${result.billingResult.responseCode}:${result.billingResult.debugMessage}")
     }
   }
 
-  suspend fun queryPurchases(): List<Purchase> {
+  override suspend fun queryPurchases(): List<SupporterPurchase> {
     connect()
     return suspendCancellableCoroutine { continuation ->
       billingClient.queryPurchasesAsync(
@@ -114,7 +126,15 @@ class PlayStoreService(
           .build()
       ) { billingResult, purchaseList ->
         if (billingResult.responseCode == BillingResponseCode.OK) {
-          continuation.resume(purchaseList)
+          continuation.resume(
+            purchaseList.map {
+              SupporterPurchase(
+                productIds = it.products,
+                autoRenewing = it.isAutoRenewing,
+                token = it.purchaseToken,
+              )
+            }
+          )
         } else {
           continuation.resumeWithException(Exception("${billingResult.responseCode}:${billingResult.debugMessage}"))
         }
@@ -124,10 +144,12 @@ class PlayStoreService(
 
   suspend fun launchBillingFlow(
     activity: Activity,
-    productDetails: ProductDetails,
-    oldProductPurchase: Purchase?
+    product: SupporterProduct,
+    oldPurchase: SupporterPurchase?
   ) {
     connect()
+    val productDetails = productDetails[product.id]
+      ?: throw Exception("Cannot get product details")
     val offerToken = productDetails.subscriptionOfferDetails?.get(0)?.offerToken
       ?: throw Exception("Cannot get offerToken")
     val productDetailsParamsList =
@@ -139,10 +161,10 @@ class PlayStoreService(
       )
     val params = BillingFlowParams.newBuilder()
       .setProductDetailsParamsList(productDetailsParamsList).apply {
-        if (oldProductPurchase != null) {
+        if (oldPurchase != null) {
           setSubscriptionUpdateParams(
             SubscriptionUpdateParams.newBuilder()
-              .setOldPurchaseToken(oldProductPurchase.purchaseToken)
+              .setOldPurchaseToken(oldPurchase.token)
               .setSubscriptionReplacementMode(SubscriptionUpdateParams.ReplacementMode.CHARGE_FULL_PRICE)
               .build()
           )

@@ -4,11 +4,11 @@ import io.zenandroid.onlinego.BuildConfig
 import io.zenandroid.onlinego.OnlineGoApplication
 import io.zenandroid.onlinego.ai.AnalysisEngine
 import io.zenandroid.onlinego.ai.KataGoAnalysisEngine
+import io.zenandroid.onlinego.data.billing.SupporterStore
 import io.zenandroid.onlinego.data.repositories.TutorialsSource
 import io.zenandroid.onlinego.playstore.PlayStoreService
 import io.zenandroid.onlinego.ui.screens.main.MainActivityViewModel
 import io.zenandroid.onlinego.ui.screens.onboarding.OnboardingViewModel
-import io.zenandroid.onlinego.ui.screens.supporter.SupporterViewModel
 import io.zenandroid.onlinego.utils.CountingIdlingResource
 import io.zenandroid.onlinego.utils.GameNotificationCanceller
 import io.zenandroid.onlinego.utils.NOOPIdlingResource
@@ -18,6 +18,7 @@ import org.koin.android.ext.koin.androidApplication
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModelOf
+import org.koin.dsl.bind
 import org.koin.dsl.module
 
 private val appModule = module {
@@ -35,7 +36,6 @@ private val appModule = module {
 
 private val viewModelsModule = module {
   viewModelOf(::OnboardingViewModel)
-  viewModelOf(::SupporterViewModel)
   viewModelOf(::MainActivityViewModel)
 }
 
@@ -44,7 +44,7 @@ private val espressoModule = module {
 }
 
 private val playStoreModule = module {
-  singleOf(::PlayStoreService)
+  singleOf(::PlayStoreService) bind SupporterStore::class
 }
 
 private val reviewPromptModule = module {

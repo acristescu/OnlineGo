@@ -2,10 +2,11 @@ package io.zenandroid.onlinego.ui.screens.supporter
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.android.billingclient.api.ProductDetails
-import com.android.billingclient.api.Purchase
-import io.zenandroid.onlinego.playstore.PlayStoreService
+import io.zenandroid.onlinego.data.billing.SupporterProduct
+import io.zenandroid.onlinego.data.billing.SupporterPurchase
+import io.zenandroid.onlinego.data.billing.SupporterStore
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -16,7 +17,7 @@ import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
 class SupporterViewModel(
-  private val playStore: PlayStoreService
+  private val store: SupporterStore
 ) : ViewModel() {
 
   private val _state = MutableStateFlow(
@@ -30,10 +31,10 @@ class SupporterViewModel(
   fun onResume() {
     viewModelScope.launch(Dispatchers.IO) {
       try {
-        val purchases = playStore.queryPurchases()
-        val products = playStore.queryAvailableSubscriptions()
-          .filter { it.productId.startsWith("supporter_") }
-          .sortedBy { getBasePrice(it.productId) }
+        val purchases = store.queryPurchases()
+        val products = store.queryAvailableSubscriptions()
+          .filter { it.id.startsWith("supporter_") }
+          .sortedBy { getBasePrice(it.id) }
         buildItemList(products, purchases)
       } catch (e: Exception) {
         onError(e)
@@ -56,14 +57,14 @@ class SupporterViewModel(
 
 
   private fun buildItemList(
-    products: List<ProductDetails>,
-    purchases: List<Purchase>,
+    products: List<SupporterProduct>,
+    purchases: List<SupporterPurchase>,
   ) {
     val purchase =
-      purchases.firstOrNull { it.products[0].startsWith("supporter_") && it.isAutoRenewing }
+      purchases.firstOrNull { it.productIds[0].startsWith("supporter_") && it.autoRenewing }
     val isSupporter = purchase != null
     val currentPurchaseDetails = purchase?.run {
-      products.firstOrNull { purchase.products.contains(it.productId) }
+      products.firstOrNull { purchase.productIds.contains(it.id) }
     }
     val selectedTier = if (currentPurchaseDetails != null) {
       products.indexOf(currentPurchaseDetails)
@@ -117,20 +118,16 @@ data class SupporterState(
   val numberOfTiers: Int? = null,
   val selectedTier: Int? = null,
   val sliderValue: Float? = null,
-  val products: List<ProductDetails>? = null,
-  val currentPurchaseDetails: ProductDetails? = null,
+  val products: List<SupporterProduct>? = null,
+  val currentPurchaseDetails: SupporterProduct? = null,
   val subscribeButtonEnabled: Boolean = false,
-  val purchase: Purchase? = null
+  val purchase: SupporterPurchase? = null
 ) {
   val currentContributionAmount: String
-    get() = currentPurchaseDetails?.subscriptionOfferDetails?.firstOrNull()?.pricingPhases?.pricingPhaseList?.firstOrNull()?.formattedPrice
-      ?: ""
+    get() = currentPurchaseDetails?.formattedPrice ?: ""
 
   val selectedTierAmount: String
-    get() = products?.getOrNull(
-      selectedTier ?: 0
-    )?.subscriptionOfferDetails?.firstOrNull()?.pricingPhases?.pricingPhaseList?.firstOrNull()?.formattedPrice
-      ?: ""
+    get() = products?.getOrNull(selectedTier ?: 0)?.formattedPrice ?: ""
 
   val displaySliderValue: Float
     get() = sliderValue ?: selectedTier?.toFloat() ?: 0f
@@ -138,6 +135,6 @@ data class SupporterState(
 
 sealed class SupporterEvent {
   data class ShowError(val throwable: Throwable) : SupporterEvent()
-  data class LaunchBillingFlow(val product: ProductDetails, val oldPurchase: Purchase?) :
+  data class LaunchBillingFlow(val product: SupporterProduct, val oldPurchase: SupporterPurchase?) :
     SupporterEvent()
 } 

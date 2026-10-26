@@ -7,6 +7,8 @@ import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.engine.darwin.Darwin
 import io.zenandroid.onlinego.ai.AnalysisEngine
 import io.zenandroid.onlinego.ai.UnavailableAnalysisEngine
+import io.zenandroid.onlinego.data.billing.SupporterStore
+import io.zenandroid.onlinego.data.billing.UnavailableSupporterStore
 import io.zenandroid.onlinego.data.db.Database
 import io.zenandroid.onlinego.data.ogs.KeyValueCookiePersistence
 import io.zenandroid.onlinego.data.ogs.SessionCookiePersistence
@@ -37,6 +39,7 @@ val iosPlatformModule = module {
   single<SoundLoader> { BundleSoundLoader }
   single<AnalysisEngine> { UnavailableAnalysisEngine }
   single<AppLanguageSetting> { UserDefaultsAppLanguageSetting() }
+  single<SupporterStore> { UnavailableSupporterStore }
   single {
     Room.databaseBuilder<Database>(name = applicationSupportPath("database.db"))
       .setDriver(BundledSQLiteDriver())
