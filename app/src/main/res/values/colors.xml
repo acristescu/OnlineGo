@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="colorText">#212121</color>
-    <color name="colorActionableText">@color/colorAccent</color>
     <color name="colorTextSecondary">#757575</color>
 
     <color name="colorSecondary">#79b3e4</color>
@@ -9,7 +8,6 @@
     <color name="colorPrimary">#ed7861</color>
     <color name="colorPrimaryVariant">#fad7d0</color>
 
-    <color name="colorAccent">#ed7861</color>
     <color name="colorOffWhite">#F2F4F7</color>
 
 

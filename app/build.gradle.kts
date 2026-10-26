@@ -26,7 +26,6 @@ android {
     targetSdk = libs.versions.targetSdk.get().toInt()
     versionCode = 42
     versionName = "beta_b${versionCode}"
-    testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
   }
 
   androidResources {
@@ -106,25 +105,16 @@ dependencies {
 
   // Compose BOM - manages all Compose library versions
   implementation(platform(libs.compose.bom))
-  androidTestImplementation(platform(libs.compose.bom))
-
-  // Compose
-  implementation(libs.bundles.compose)
   debugImplementation(libs.compose.ui.tooling)
-  implementation(libs.compose.material3)
 
   // Compose Preview Screenshot Testing
   screenshotTestImplementation(platform(libs.compose.bom))
   screenshotTestImplementation(libs.screenshot.validation.api)
   screenshotTestImplementation(libs.compose.ui.tooling)
 
-  // Datastore
-  implementation(libs.androidx.datastore.preferences)
-
   // Android Core
   implementation(libs.androidx.core.ktx)
   implementation(libs.androidx.activity.compose)
-  implementation(libs.androidx.lifecycle.viewmodel.ktx)
 
   // Firebase
   implementation(platform(libs.firebase.bom))
@@ -134,9 +124,6 @@ dependencies {
   // Google Play Services
   implementation(libs.play.review.ktx)
 
-  // Serialization
-  implementation(libs.kotlinx.serialization.json)
-
   // Work Manager
   implementation(libs.bundles.work)
 
@@ -144,28 +131,17 @@ dependencies {
   implementation(libs.bundles.koin)
 
   // Image Loading
-  implementation(libs.coil.compose)
   implementation(libs.coil.network.okhttp)
-
 
   // Material (provides Theme.Material3.* XML theme attributes)
   implementation(libs.material)
 
   // Utility Libraries
-  implementation(libs.immutable.collections)
-  implementation(libs.kermit)
-  implementation(libs.kotlinx.datetime)
   implementation(libs.billing.ktx)
 
   // Core Library Desugaring
   coreLibraryDesugaring(libs.desugar.jdk.libs)
 
-  // Testing Dependencies
-  implementation(libs.espresso.idling.resource)
-
   // Unit Testing
   testImplementation(libs.bundles.testing)
-
-  // Android Testing
-  androidTestImplementation(libs.bundles.android.testing)
 }

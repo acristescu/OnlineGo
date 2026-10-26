@@ -88,41 +88,30 @@ in Settings, the notifications row, the translation-guide and privacy links, the
 the review-prompt diagnostic, a test notification, and logout, delete account and the avatar.
 After 6.52: a failed billing query showing as a snackbar on Supporter. After 6.53: the normal
 onboarding flow (info pages, back, password login and sign-up, wrong credentials, staying
-offline, the notification permission page, login and sign-up from the Play tab).
+offline, the notification permission page, login and sign-up from the Play tab). After 6.54:
+every tab and back from every screen, the bottom bar keeping each tab's state, the Stats login
+sheet when logged out, opening a game from a notification with the app closed and in the
+background, backing out of onboarding on a first start closing the app, and the review-prompt and
+test-notification callbacks from `MainActivity`. Also verified: the Ktor websocket connecting,
+authenticating and reconnecting over several days of play on the dev build (6.14); clock text
+(6.16); switching language with strings from Compose Multiplatform resources (6.36); Joseki
+position links (6.48); and Stats logged in, light and dark, in `de` (6.49, 6.50).
 
 Still owed - unit tests cannot reach these:
 
 - [ ] **The other seven body-bearing endpoints** (6.4): `createAccount`, `openChallenge`,
   `challengePlayer`, `markPuzzleSolved`, `ratePuzzle`, `acknowledgeWarning`, `deleteAccount`.
 - [ ] **Crashlytics breadcrumbs** arrive as `I/Tag: message`, and release logcat is silent (6.6).
-- [ ] **The Ktor websocket** (6.14): connect and authenticate, reconnect after airplane mode, and
-  logout sending `cleanup()` before the close frame.
+- [ ] **The Ktor websocket on logout** (6.14): `cleanup()` is sent before the close frame. Not
+  visible in normal use, so it needs the socket debug screen or logs.
 - [ ] **Game connection ref-counting** (6.15): open, leave and reopen a game; a game in the active
   list keeps receiving moves after its screen closes; chat turns on when the screen opens.
-- [ ] **Clock text** (6.16): simple, byo-yomi, Canadian and Fischer clocks and the game-list
-  timers, in English and in a locale with a decimal comma (e.g. `de`).
-- [ ] **Strings from CMP resources** (6.36): switching language in Settings (Portuguese included)
-  re-renders every screen; the launcher name; plurals
-  ("3 games"); a tutorial; Joseki link labels; the stats chart tooltip; the What's new sheet shows
-  the Portuguese item.
-- [ ] **Joseki position links** (6.48): a `Position:` / node-id / `online-go.com/joseki/` link
-  in a description loads that position in place. None of the positions sampled had one.
 - [ ] **The review prompt after a win** (6.46): now requested through `ReviewRequester`, which
   `MainActivity` provides. Not reproducible on the developer account, which has hit Play's quota.
-- [ ] **Stats** (6.49, 6.50), logged in, light and dark: the header's rating, the win-rate cell
-  and the signed win/loss bars in English and `de` (decimal comma), another player's stats from
-  player details, and the rank chart: line and fill colours, the rise on
-  first show, dragging moves the crosshair and the tooltip (date in `de`, game number with "by
-  games" on), release brings back the summary, a drag on the chart doesn't scroll the screen,
-  every range tab, a one-game range, and the empty placeholder.
 - [ ] **Supporter** (6.52), on a production build (billing does not work on debug builds): tiers
   and prices load, the slider and the subscribe button, the billing sheet opens, an upgrade or
-  downgrade from an active subscription, and the manage-subscription link.
-- [ ] **Navigation** (6.54): every tab and back from every screen, the bottom bar's saved state
-  when switching tabs, the Stats login sheet when logged out, opening a game from a notification
-  (`sente://game` deep link) with the app closed and in the background, back out of onboarding
-  on a first start closing the app, and the Supporter and Settings debug actions (review prompt,
-  test notification) now supplied by `MainActivity`.
+  downgrade from an active subscription, and the manage-subscription link. The billing flow now
+  comes from `MainActivity` (6.54).
 - [ ] **Google sign-in** (6.53), on a release build (it does not work on debug builds): signing
   in, and a failure showing as a snackbar. Test together with Supporter.
 
@@ -1279,5 +1268,19 @@ test-local class.
   so nothing in common code needs an `Activity`. The deep-link log moved to `MainActivity.onCreate`.
 - `iosTest/.../OnlineGoAppTest` renders the app on the simulator, switches to Learn through the
   bottom bar, and gets the Stats login sheet when logged out.
-- Left in `:app` and not needed: `utils/FlowUtils.kt`. Its 6-to-11-flow `combine` overloads have
-  no callers.
+- **`:app` cleanup after the move:**
+  - Removed as dead:
+    - `FlowUtils.kt` (`combine` overloads with no callers)
+    - the idling-resource pair and its Koin binding, which nothing injected, plus the only
+      androidTest file, `EspressoIdlingResource`
+    - the `colorActionableText` / `colorAccent` colours
+  - Dependencies: `espresso-idling-resource`, which shipped in the release APK, and the
+    androidTest setup are gone. Compose, DataStore, lifecycle-viewmodel-ktx, serialization,
+    immutable collections, Kermit, datetime and coil-compose are no longer declared in `:app`;
+    `:shared` already exposes them with `api`. The resolved release, debug and unit-test classpaths
+    are unchanged apart from `espresso-idling-resource`. Unused catalog entries went with them.
+  - **Kept on purpose:**
+    - `coil-network-okhttp`: no imports, but Coil finds its network fetcher at runtime.
+    - The estimator's JNI glue and `CMakeLists.txt`: the KMP Android library plugin `:shared`
+      uses has no `externalNativeBuild`.
+    - The Compose BOM: it versions the debug and screenshot-test `ui-tooling`.

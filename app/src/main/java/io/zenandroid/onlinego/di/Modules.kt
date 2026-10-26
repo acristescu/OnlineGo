@@ -8,9 +8,7 @@ import io.zenandroid.onlinego.data.billing.SupporterStore
 import io.zenandroid.onlinego.data.repositories.TutorialsSource
 import io.zenandroid.onlinego.playstore.PlayStoreService
 import io.zenandroid.onlinego.ui.screens.main.MainActivityViewModel
-import io.zenandroid.onlinego.utils.CountingIdlingResource
 import io.zenandroid.onlinego.utils.GameNotificationCanceller
-import io.zenandroid.onlinego.utils.NOOPIdlingResource
 import io.zenandroid.onlinego.utils.NotificationUtils
 import io.zenandroid.onlinego.utils.ReviewPromptManager
 import org.koin.android.ext.koin.androidApplication
@@ -37,10 +35,6 @@ private val viewModelsModule = module {
   viewModelOf(::MainActivityViewModel)
 }
 
-private val espressoModule = module {
-  single<CountingIdlingResource> { NOOPIdlingResource() }
-}
-
 private val playStoreModule = module {
   singleOf(::PlayStoreService) bind SupporterStore::class
 }
@@ -61,7 +55,6 @@ val allKoinModules = listOf(
   androidPlatformModule(logHttpBodies = BuildConfig.DEBUG),
   appModule,
   viewModelsModule,
-  espressoModule,
   playStoreModule,
   reviewPromptModule
 )
