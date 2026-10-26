@@ -1,16 +1,10 @@
 package io.zenandroid.onlinego.ui.screens.onboarding
 
-import android.Manifest
-import android.app.Activity
-import android.os.Build
-import android.widget.Toast
-import androidx.activity.compose.LocalActivity
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Spacer
@@ -39,6 +33,9 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -67,11 +64,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import co.touchlab.kermit.Logger
-import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions
-import com.google.android.gms.common.Scopes
-import com.google.android.gms.common.api.ApiException
-import com.google.android.gms.common.api.Scope
 import io.zenandroid.onlinego.resources.Res
 import io.zenandroid.onlinego.resources.art_login_1
 import io.zenandroid.onlinego.resources.art_onboarding
@@ -119,39 +111,37 @@ fun OnboardingScreen(
   onNavigateBack: () -> Unit,
 ) {
   val state by viewModel.state.collectAsStateWithLifecycle()
-  val activity = LocalActivity.current
   val coroutineScope = rememberCoroutineScope()
+  val snackbarHostState = remember { SnackbarHostState() }
 
-  val notificationPermissionLauncher = rememberLauncherForActivityResult(
-    contract = ActivityResultContracts.RequestPermission()
-  ) { isGranted ->
+  val requestNotificationPermission = rememberNotificationPermissionRequest {
     viewModel.onAction(OnboardingAction.PermissionsGranted)
   }
 
-  val googleFlow = rememberLauncherForActivityResult(
-    contract = ActivityResultContracts.StartActivityForResult()
-  ) { result ->
-    if (result.resultCode == Activity.RESULT_OK) {
-      try {
-        GoogleSignIn.getSignedInAccountFromIntent(result.data)
-          .getResult(ApiException::class.java)?.serverAuthCode?.let {
-            viewModel.onGoogleTokenReceived(it)
-          }
-      } catch (e: ApiException) {
-        Logger.w("signInResult:failed code=" + e.statusCode, tag = "OnboardingFragment")
-        CrashReporter.recordException(e)
+  val signInWithGoogle = rememberGoogleSignIn { result ->
+    when (result) {
+      is GoogleSignInResult.Success -> result.serverAuthCode?.let {
+        viewModel.onGoogleTokenReceived(
+          it
+        )
+      }
+
+      is GoogleSignInResult.Failure -> {
+        Logger.w("signInResult:failed code=${result.statusCode}", tag = "OnboardingScreen")
+        CrashReporter.recordException(result.cause)
         coroutineScope.launch {
-          Toast.makeText(
-            activity,
-            getString(Res.string.onboarding_google_signin_failed, e.statusCode),
-            Toast.LENGTH_LONG
-          ).show()
+          snackbarHostState.showSnackbar(
+            getString(Res.string.onboarding_google_signin_failed, result.statusCode),
+            duration = SnackbarDuration.Long,
+          )
         }
         viewModel.onAction(SocialPlatformLoginFailed)
       }
-    } else {
-      viewModel.onAction(SocialPlatformLoginFailed)
-      Logger.e("Google sign-in cancelled", tag = "OnboardingScreen")
+
+      GoogleSignInResult.Cancelled -> {
+        viewModel.onAction(SocialPlatformLoginFailed)
+        Logger.e("Google sign-in cancelled", tag = "OnboardingScreen")
+      }
     }
   }
 
@@ -161,9 +151,7 @@ fun OnboardingScreen(
 
   if (state.requestNotificationPermission) {
     LaunchedEffect(Unit) {
-      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-        notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-      }
+      requestNotificationPermission()
     }
   }
 
@@ -173,18 +161,21 @@ fun OnboardingScreen(
 
     else -> {
       OnlineGoTheme {
-        OnboardingContent(state, viewModel::onAction,
-          onGoogleFlow = {
-            CrashReporter.setCustomKey("LOGIN_METHOD", "GOOGLE")
-            val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-              .requestServerAuthCode("870935345166-6j2s6i9adl64ms3ta4k9n4flkqjhs229.apps.googleusercontent.com")
-              .requestScopes(Scope(Scopes.OPEN_ID), Scope(Scopes.EMAIL), Scope(Scopes.PROFILE))
-              .build()
-            activity?.let {
-              googleFlow.launch(GoogleSignIn.getClient(activity, gso).signInIntent)
+        Box {
+          OnboardingContent(
+            state, viewModel::onAction,
+            onGoogleFlow = {
+              CrashReporter.setCustomKey("LOGIN_METHOD", "GOOGLE")
+              signInWithGoogle()
             }
-          }
-        )
+          )
+          SnackbarHost(
+            hostState = snackbarHostState,
+            modifier = Modifier
+              .align(Alignment.BottomCenter)
+              .systemBarsPadding(),
+          )
+        }
       }
     }
   }

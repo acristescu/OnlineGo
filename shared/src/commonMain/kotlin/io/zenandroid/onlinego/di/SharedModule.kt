@@ -40,6 +40,7 @@ import io.zenandroid.onlinego.ui.screens.localai.AiGameViewModel
 import io.zenandroid.onlinego.ui.screens.mygames.MyGamesViewModel
 import io.zenandroid.onlinego.ui.screens.newchallenge.NewChallengeViewModel
 import io.zenandroid.onlinego.ui.screens.newchallenge.SelectOpponentViewModel
+import io.zenandroid.onlinego.ui.screens.onboarding.OnboardingViewModel
 import io.zenandroid.onlinego.ui.screens.puzzle.directory.PuzzleDirectoryViewModel
 import io.zenandroid.onlinego.ui.screens.puzzle.tsumego.TsumegoViewModel
 import io.zenandroid.onlinego.ui.screens.settings.SettingsViewModel
@@ -154,4 +155,5 @@ val sharedModule = module {
   viewModelOf(::StatsViewModel)
   viewModelOf(::SettingsViewModel)
   viewModelOf(::SupporterViewModel)
+  viewModelOf(::OnboardingViewModel)
 }

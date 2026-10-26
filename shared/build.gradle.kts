@@ -88,6 +88,8 @@ kotlin {
       implementation(libs.ktor.client.okhttp)
 
       implementation(libs.androidx.core.ktx)
+      implementation(libs.androidx.activity.compose)
+      implementation(libs.play.services.auth)
 
       implementation(project.dependencies.platform(libs.firebase.bom))
       implementation(libs.firebase.analytics)

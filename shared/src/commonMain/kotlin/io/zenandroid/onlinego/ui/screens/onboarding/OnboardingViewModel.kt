@@ -1,6 +1,5 @@
 package io.zenandroid.onlinego.ui.screens.onboarding
 
-import android.os.Build
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -50,6 +49,7 @@ import io.zenandroid.onlinego.utils.Analytics
 import io.zenandroid.onlinego.utils.CrashReporter
 import io.zenandroid.onlinego.utils.appJson
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -310,10 +310,9 @@ class OnboardingViewModel(
   }
 
   private fun onLoginSuccess() {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+    if (notificationPermissionRequired) {
       goToPage(state.value.currentPageIndex + 1)
     } else {
-      // For older Android versions, notifications are allowed by default
       viewModelScope.launch {
         settingsRepository.setHasCompletedOnboarding(true)
         _state.update { it.copy(onboardingDone = true) }
@@ -322,7 +321,7 @@ class OnboardingViewModel(
   }
 
   private fun onPasswordLoginFailure(t: Throwable) {
-    Logger.e(t.message.orEmpty(), t, OnboardingViewModel::class.java.simpleName)
+    Logger.e(t.message.orEmpty(), t, "OnboardingViewModel")
     if (t.httpStatusCode in arrayOf(401, 403)) {
       _state.update {
         it.copy(
@@ -342,7 +341,7 @@ class OnboardingViewModel(
   }
 
   private fun onCreateAccountFailure(t: Throwable) {
-    Logger.e(t.message.orEmpty(), t, OnboardingViewModel::class.java.simpleName)
+    Logger.e(t.message.orEmpty(), t, "OnboardingViewModel")
     val errorBody = t.httpErrorBody
     if (errorBody != null) {
       try {
@@ -355,7 +354,7 @@ class OnboardingViewModel(
           )
         }
       } catch (e: Exception) {
-        Logger.e("Can't parse error: $errorBody", tag = OnboardingViewModel::class.java.simpleName)
+        Logger.e("Can't parse error: $errorBody", tag = "OnboardingViewModel")
         _state.update {
           it.copy(
             loginProcessing = false,

@@ -8,7 +8,6 @@ import io.zenandroid.onlinego.data.billing.SupporterStore
 import io.zenandroid.onlinego.data.repositories.TutorialsSource
 import io.zenandroid.onlinego.playstore.PlayStoreService
 import io.zenandroid.onlinego.ui.screens.main.MainActivityViewModel
-import io.zenandroid.onlinego.ui.screens.onboarding.OnboardingViewModel
 import io.zenandroid.onlinego.utils.CountingIdlingResource
 import io.zenandroid.onlinego.utils.GameNotificationCanceller
 import io.zenandroid.onlinego.utils.NOOPIdlingResource
@@ -35,7 +34,6 @@ private val appModule = module {
 }
 
 private val viewModelsModule = module {
-  viewModelOf(::OnboardingViewModel)
   viewModelOf(::MainActivityViewModel)
 }
 
