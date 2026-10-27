@@ -126,11 +126,11 @@ Still owed - unit tests cannot reach these:
 
 ### 1.3 Phases 3-5
 
-| Phase                              | Work                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          | Estimate                      |
-|------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------|
-| **3 - data layer to `commonMain`** | Done (6.25, 6.27-6.32). Left for the iOS app (the shell passes no-op `Analytics`, `AppDataEraser` and `GameNotificationCanceller` to `initKoin()` since 6.57): real versions of those three, a real iOS `CrashReporter`, the iOS HTML placeholder (6.43), Coil's Ktor network fetcher (6.45), an iOS `ReviewRequester` (6.46), a "restart to apply" notice after a language change (6.51), and a `SupporterStore` (StoreKit or RevenueCat) with iOS wording for the supporter copy, which names Android and Google Play (6.52), and Google sign-in, which reports "cancelled" for now (6.53). | done                          |
-| **4 - Compose Multiplatform**      | UI into `:shared/commonMain`, screen by screen. Resources (4.2), chart, markdown. Done: the board (6.40), icons (6.41), ViewModel plumbing, theme, Learn (6.42), puzzles, socket debug, automatch (6.43), tutorial, face-to-face (6.44), My Games (6.45), game (6.46), AI game (6.47), Joseki (6.48), Stats (6.49, 6.50), Settings (6.51), Supporter (6.52), Onboarding (6.53), navigation (6.54).                                                                                                                                                                                            | done                          |
-| **5 - iOS app**                    | Shell done (6.57). Left: notifications, background refresh, billing, Google sign-in, App Store plumbing. Bitrise needs a macOS stack.                                                                                                                                                                                                                                                                                                                                                                                                                                                         | 4-8 weeks, excluding local AI |
+| Phase                              | Work                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       | Estimate                      |
+|------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------|
+| **3 - data layer to `commonMain`** | Done (6.25, 6.27-6.32). Left for the iOS app (the shell passes no-op `Analytics` and `GameNotificationCanceller` to `initKoin()` since 6.57): real versions of those two, a real iOS `CrashReporter`, the iOS HTML placeholder (6.43), Coil's Ktor network fetcher (6.45), an iOS `ReviewRequester` (6.46), a "restart to apply" notice after a language change (6.51), and a `SupporterStore` (StoreKit or RevenueCat) with iOS wording for the supporter copy, which names Android and Google Play (6.52), and Google sign-in, which reports "cancelled" for now (6.53). | done                          |
+| **4 - Compose Multiplatform**      | UI into `:shared/commonMain`, screen by screen. Resources (4.2), chart, markdown. Done: the board (6.40), icons (6.41), ViewModel plumbing, theme, Learn (6.42), puzzles, socket debug, automatch (6.43), tutorial, face-to-face (6.44), My Games (6.45), game (6.46), AI game (6.47), Joseki (6.48), Stats (6.49, 6.50), Settings (6.51), Supporter (6.52), Onboarding (6.53), navigation (6.54).                                                                                                                                                                         | done                          |
+| **5 - iOS app**                    | Shell done (6.57). Left: notifications, background refresh, billing, Google sign-in, App Store plumbing. Bitrise needs a macOS stack.                                                                                                                                                                                                                                                                                                                                                                                                                                      | 4-8 weeks, excluding local AI |
 
 Estimates are order-of-magnitude, single developer. The one data point so far: the serialization
 slice came in on time only because the golden-JSON corpus was dropped, which moved verification
@@ -334,9 +334,9 @@ the iOS simulator), 43 in `:shared` `iosTest` (simulator only), 15 in `:app`.
   stay `androidMain`. `PersistenceManager` stays synchronous SharedPreferences by design (a
   DataStore move would need a migration whose failure drops the session). `UserSessionRepository`
   takes an `AppDataEraser` instead of a `Context` - Android's calls
-  `ActivityManager.clearApplicationUserData()` (wipes everything, kills the process); **an iOS
-  `AppDataEraser` must clear the database, both DataStores and both `NSUserDefaults` suites
-  itself.** **Known bug, unchanged:** the Joseki label regex `<(.):([A-H]|[J-T]\d{1,2})>` excludes
+  `ActivityManager.clearApplicationUserData()` (wipes everything, kills the process); iOS
+  restarts in-process instead (6.58, §6.4). **Known bug, unchanged:** the Joseki label regex
+  `<(.):([A-H]|[J-T]\d{1,2})>` excludes
   columns A-H with two-digit ranges; the intended pattern is `[A-HJ-T]\d{1,2}` - fixing it changes
   what the explorer shows, so it wasn't fixed as part of the move.
 - **Room in `commonMain`** (6.25): schema/version unchanged (byte-identical `20.json`, same
@@ -445,7 +445,8 @@ the iOS simulator), 43 in `:shared` `iosTest` (simulator only), 15 in `:app`.
   The root view controller has to own `preferredStatusBarStyle`, and a SwiftUI host doesn't
   forward it to a hosted `UIViewController`. `MainViewController(versionCode:)` (iosMain) wraps
   `ComposeUIViewController` in a parent `OnlineGoViewController`, which `SystemBarsAppearance`
-  reaches via `LocalUIViewController.current.parentViewController`. The
+  reaches through `LocalOnlineGoViewController`. That local is null under `runComposeUiTest`;
+  `LocalUIViewController` would throw there instead. The
   `ComposeUIViewControllerDelegate` route is deprecated. It uses the UIScene lifecycle because Apple
   makes it mandatory after iOS 26.
   `Shared` is a static framework built by `embedAndSignAppleFrameworkForXcode`. `-lc++` is in
@@ -454,6 +455,24 @@ the iOS simulator), 43 in `:shared` `iosTest` (simulator only), 15 in `:app`.
   folder-synchronised groups (object version 77), so it needs Xcode 16 or later.
   **Known build warning:** Coil 3.6.3 is built against Skiko 0.150.1 and CMP 1.13.0-alpha02 pulls
   0.153.0. It runs, but recheck when either is upgraded.
+- **App data eraser** (6.58): iOS can't wipe-and-kill like Android, and a file wipe alone would
+  leave the in-memory graph logged in: the `OGSCookieStore` cache, repositories and the socket.
+  `IosAppDataEraser` (iosMain, bound in `initKoin()` rather than passed from Swift) restarts
+  in-process instead. It drops the UI through `AppSession` and waits for its disposal, clears
+  the ViewModels, then runs `reset()`. That method cancels and joins `applicationScope`, which
+  releases the DataStores; a new DataStore on a file still held by a live one throws
+  "multiple DataStores active". It then closes the `HttpClient`, so in-flight requests can't
+  write cookies or a `UIConfig` back after the wipe, and closes the `Database`. Then it empties
+  Application Support and removes the `ogs_session` and `login` defaults suites. Last, it calls
+  the restart callback from `initKoin()`, which stops Koin and starts it again, and a fresh UI
+  appears. The eraser gets the scope, client and database as constructor parameters, not the
+  `Koin` instance; all three already exist at startup, so nothing is created early. **`AppSession`
+  exists because Compose on iOS never clears
+  its own `ViewModelStore`**, so the app provides its own `LocalViewModelStoreOwner` and clears
+  it. The language (`AppleLanguages` in the standard defaults) survives logout, as it does on
+  Android 13+. Verified in the Simulator: a seeded fake session got a 403 from OGS, the app
+  logged itself out and came back to onboarding in the same process, and the new graph wrote
+  storage again.
 
 ### 6.5 Toolchain
 

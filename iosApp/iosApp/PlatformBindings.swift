@@ -5,10 +5,6 @@ final class NoOpAnalytics: Analytics {
     func logScreenView(screenName: String) {}
 }
 
-final class NoOpAppDataEraser: AppDataEraser {
-    func clearAppData() {}
-}
-
 final class NoOpGameNotificationCanceller: GameNotificationCanceller {
     func cancelGameNotification(gameId: Int64) {}
 }

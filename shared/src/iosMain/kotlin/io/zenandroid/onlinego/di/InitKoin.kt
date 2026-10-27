@@ -8,11 +8,11 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import org.koin.core.context.startKoin
+import org.koin.core.context.stopKoin
 import org.koin.dsl.module
 
 fun initKoin(
   analytics: Analytics,
-  appDataEraser: AppDataEraser,
   tutorialsSource: TutorialsSource,
   gameNotificationCanceller: GameNotificationCanceller,
 ) {
@@ -23,9 +23,14 @@ fun initKoin(
       module {
         single { CoroutineScope(SupervisorJob() + Dispatchers.Default) }
         single { analytics }
-        single { appDataEraser }
         single { tutorialsSource }
         single { gameNotificationCanceller }
+        single<AppDataEraser> {
+          IosAppDataEraser(get(), get(), get()) {
+            stopKoin()
+            initKoin(analytics, tutorialsSource, gameNotificationCanceller)
+          }
+        }
       },
     )
   }

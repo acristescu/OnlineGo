@@ -9,7 +9,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     ) -> Bool {
         InitKoinKt.doInitKoin(
             analytics: NoOpAnalytics(),
-            appDataEraser: NoOpAppDataEraser(),
             tutorialsSource: BundleTutorialsSource(),
             gameNotificationCanceller: NoOpGameNotificationCanceller()
         )

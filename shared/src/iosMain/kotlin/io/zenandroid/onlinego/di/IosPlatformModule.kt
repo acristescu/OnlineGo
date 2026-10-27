@@ -26,13 +26,16 @@ import platform.Foundation.NSApplicationSupportDirectory
 import platform.Foundation.NSFileManager
 import platform.Foundation.NSUserDomainMask
 
+internal const val SESSION_DEFAULTS_SUITE = "ogs_session"
+internal const val LOGIN_DEFAULTS_SUITE = "login"
+
 val iosPlatformModule = module {
   single<HttpClientEngine> { Darwin.create() }
 
   single<SessionCookiePersistence> {
-    KeyValueCookiePersistence(UserDefaultsKeyValueStore("ogs_session"))
+    KeyValueCookiePersistence(UserDefaultsKeyValueStore(SESSION_DEFAULTS_SUITE))
   }
-  single<KeyValueStore> { UserDefaultsKeyValueStore("login") }
+  single<KeyValueStore> { UserDefaultsKeyValueStore(LOGIN_DEFAULTS_SUITE) }
   single(SETTINGS_DATA_STORE) { preferencesDataStore("settings", get()) }
   single(REVIEW_PROMPT_DATA_STORE) { preferencesDataStore("review_prompt", get()) }
   single(WHATS_NEW_DATA_STORE) { preferencesDataStore("whats_new", get()) }
@@ -51,8 +54,10 @@ private fun preferencesDataStore(name: String, scope: CoroutineScope) =
     applicationSupportPath("$name.preferences_pb").toPath()
   }
 
+private fun applicationSupportPath(fileName: String) = "${applicationSupportDirectory()}/$fileName"
+
 @OptIn(ExperimentalForeignApi::class)
-private fun applicationSupportPath(fileName: String): String {
+internal fun applicationSupportDirectory(): String {
   val directory = NSFileManager.defaultManager.URLForDirectory(
     directory = NSApplicationSupportDirectory,
     inDomain = NSUserDomainMask,
@@ -60,5 +65,5 @@ private fun applicationSupportPath(fileName: String): String {
     create = true,
     error = null,
   )
-  return "${requireNotNull(directory?.path)}/$fileName"
+  return requireNotNull(directory?.path)
 }

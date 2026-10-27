@@ -152,8 +152,6 @@ what Swift sees. The rules you'll hit:
 
 These are still stubs, listed in `docs/KMP_MIGRATION_ASSESSMENT.md`:
 
-- `AppDataEraser` is a no-op, **so logging out doesn't clear the session**. It has to clear the
-  database, the DataStores and both `NSUserDefaults` suites.
 - Analytics, crash reporting, in-app review, notifications and background refresh.
 - Google sign-in reports "cancelled", and the Supporter screen has no store behind it.
 - HTML text shows line breaks only, and avatars don't load (Coil has no network fetcher on iOS
